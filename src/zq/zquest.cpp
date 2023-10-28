@@ -1667,7 +1667,7 @@ int32_t onToggleGrid(bool color)
 }
 int32_t onToggleGrid()
 {
-	return onToggleGrid(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+	return onToggleGrid(CHECK_CTRL_CMD);
 }
 
 int32_t onToggleShowScripts()
@@ -1742,7 +1742,7 @@ int onSecretsPreview()
 
 int onSKey()
 {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if(CHECK_CTRL_CMD)
 	{
 		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 		{
@@ -1811,7 +1811,7 @@ static DIALOG dialogs[] =
 
 int32_t onDecColour()
 {
-	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
+	if ( CHECK_CTRL_CMD )
 	{
 		return onDecScrPal16();
 	}
@@ -1830,7 +1830,7 @@ int32_t onDecColour()
 int32_t onIncColour()
 {
 	
-	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
+	if ( CHECK_CTRL_CMD )
 	{
 		return onIncScrPal16();
 	}
@@ -3120,11 +3120,11 @@ int32_t onPaste()
 {
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
-		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+		if(CHECK_CTRL_CMD)
 			return onPasteAllToAll();
 		else return onPasteAll();
 	}
-	else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	else if(CHECK_CTRL_CMD)
 		return onPasteToAll();
 	else
 	{
@@ -3536,7 +3536,7 @@ void scrollup(int j)
 			auto& sqr = comboaliaslist[j];
 			if(combo_alistpos[j]>0)
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					combo_alistpos[j]=0;
 					clear_tooltip();
@@ -3556,7 +3556,7 @@ void scrollup(int j)
 			auto& sqr = comboaliaslist[j];
 			if(combo_pool_listpos[j]>0)
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					combo_pool_listpos[j]=0;
 					clear_tooltip();
@@ -3576,7 +3576,7 @@ void scrollup(int j)
 			auto& sqr = comboaliaslist[j];
 			if (combo_auto_listpos[j] > 0)
 			{
-				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if (CHECK_CTRL_CMD)
 				{
 					combo_auto_listpos[j] = 0;
 					clear_tooltip();
@@ -3596,7 +3596,7 @@ void scrollup(int j)
 			auto& sqr = combolist[j];
 			if(First[j]>0)
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					First[j]-=zc_min(First[j],256);
 					clear_tooltip();
@@ -3622,7 +3622,7 @@ void scrolldown(int j)
 			auto& sqr = comboaliaslist[j];
 			if(combo_alistpos[j]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					combo_alistpos[j]=MAXCOMBOALIASES-(sqr.w*sqr.h);
 					clear_tooltip();
@@ -3642,7 +3642,7 @@ void scrolldown(int j)
 			auto& sqr = comboaliaslist[j];
 			if(combo_pool_listpos[j]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					combo_pool_listpos[j]=MAXCOMBOALIASES-(sqr.w*sqr.h);
 					clear_tooltip();
@@ -3662,7 +3662,7 @@ void scrolldown(int j)
 			auto& sqr = comboaliaslist[j];
 			if (combo_auto_listpos[j] < (MAXCOMBOALIASES - (sqr.w * sqr.h)))
 			{
-				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if (CHECK_CTRL_CMD)
 				{
 					combo_auto_listpos[j] = MAXCOMBOALIASES - (sqr.w * sqr.h);
 					clear_tooltip();
@@ -3682,7 +3682,7 @@ void scrolldown(int j)
 			auto& sqr = combolist[j];
 			if(First[j]<(MAXCOMBOS-(sqr.w*sqr.h)))
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					First[j]=zc_min((MAXCOMBOS-sqr.w*sqr.h),First[j]+256);
 					clear_tooltip();
@@ -4667,7 +4667,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 			step <<= 2;
 			
-		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+		if(CHECK_CTRL_CMD)
 			step >>= 1;
 			
 		if(key[KEY_UP])
@@ -8778,7 +8778,7 @@ void doflags()
 							+". This combo flag does not function on layers above '2'.").show();
 					}
 				}
-				if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					switch(fill_type)
 					{
@@ -10662,11 +10662,11 @@ void domouse()
 		{
 			if(y>=combolist[test_list].y-mouse_scroll_h && y<=combolist[test_list].y && First[test_list])
 			{
-				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])&&(key[KEY_ALT] || key[KEY_ALTGR]))
+				if((CHECK_CTRL_CMD)&&(key[KEY_ALT] || key[KEY_ALTGR]))
 				{
 					First[test_list]=0;
 				}
-				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				else if(CHECK_CTRL_CMD)
 				{
 					First[test_list]-=zc_min(First[test_list],256);
 				}
@@ -10684,11 +10684,11 @@ void domouse()
 			{
 				int32_t offset = combolist[test_list].w*combolist[test_list].h;
 				
-				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])&&(key[KEY_ALT] || key[KEY_ALTGR]))
+				if((CHECK_CTRL_CMD)&&(key[KEY_ALT] || key[KEY_ALTGR]))
 				{
 					First[test_list]=MAXCOMBOS-offset;
 				}
-				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				else if(CHECK_CTRL_CMD)
 				{
 					First[test_list] = zc_min(MAXCOMBOS-offset, First[test_list]+256);
 				}
@@ -11237,7 +11237,7 @@ void domouse()
 		{
 			if (draw_mode == dm_auto)
 			{
-				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if (CHECK_CTRL_CMD)
 				{
 					if (canfill)
 					{
@@ -11319,10 +11319,10 @@ void domouse()
 						BrushWidth = BrushHeight = 1;
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
 						CSet=draw_mapscr->cset[c];
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 						First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 				}
-				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				else if(CHECK_CTRL_CMD)
 				{
 					if(canfill)
 					{
@@ -11896,7 +11896,7 @@ void domouse()
 				int32_t fp = f + FAVORITECOMBO_PER_PAGE * FavoriteComboPage;
 				
 				bool dmcond = favorite_combos[fp] < 0;
-				if((key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond) && !(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+				if((key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond) && !(CHECK_CTRL_CMD))
 				{
 					int32_t tempcb=ComboBrush;
 					ComboBrush=0;
@@ -11952,7 +11952,7 @@ void domouse()
 					
 					ComboBrush=tempcb;
 				}
-				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				else if(CHECK_CTRL_CMD)
 				{
 					int32_t tempcb=ComboBrush;
 					ComboBrush=0;
@@ -12096,7 +12096,7 @@ void domouse()
 		if(cmd > -1)
 		{
 			bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-			bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+			bool ctrl=(CHECK_CTRL_CMD);
 			bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
 			bool dis = commands[favorite_commands[cmd]].flags==D_DISABLED;
 			auto& btn = commands_list.subsquare(cmd);
@@ -12850,7 +12850,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
         int32_t cs=d->fg;
         int32_t f=d->d2;
         
-        if(d->bg==1 || (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+        if(d->bg==1 || (CHECK_CTRL_CMD))
         {
             while(gui_mouse_b())
             {
@@ -12969,7 +12969,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
   switch(msg)
   {
     case MSG_CLICK:
-    if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+    if (CHECK_CTRL_CMD)
     {
       select_scombo(d->d1);
     }

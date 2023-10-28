@@ -15,9 +15,11 @@
 #if !defined(ALLEGRO_MACOSX)
 #define KEY_ZC_LCONTROL KEY_LCONTROL
 #define KEY_ZC_RCONTROL KEY_RCONTROL
+#define CHECK_CTRL_CMD (key[KEY_LCONTROL] || key[KEY_RCONTROL])
 #else
 #define KEY_ZC_LCONTROL KEY_COMMAND
 #define KEY_ZC_RCONTROL KEY_COMMAND
+#define CHECK_CTRL_CMD key[KEY_COMMAND]
 #endif
 
 // https://www.allegro.cc/forums/thread/613716

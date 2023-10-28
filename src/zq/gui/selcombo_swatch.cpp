@@ -21,7 +21,7 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 		{
 			int32_t cmb = d->d1;
 			int32_t cs = d->d2;
-			bool ctrl = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
+			bool ctrl = CHECK_CTRL_CMD;
 			if(key[KEY_ALT])
 			{
 				if(!(key[KEY_LSHIFT] || key[KEY_RSHIFT]))

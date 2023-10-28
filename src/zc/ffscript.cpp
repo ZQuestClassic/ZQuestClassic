@@ -35347,7 +35347,7 @@ bool zasm_advance()
 	{
 		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 		{
-			if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				FFCore.zasm_break_mode = ZASM_BREAK_SKIP_SCRIPT;
 			}
@@ -35355,13 +35355,13 @@ bool zasm_advance()
 		}
 		else if(key[KEY_ALT] || key[KEY_ALTGR])
 		{
-			if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				FFCore.zasm_break_mode = ZASM_BREAK_SKIP;
 			}
 			else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 		}
-		else if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
+		else if(CHECK_CTRL_CMD)
 		{
 			FFCore.ZASMPrint(false); //Close debugger
 			FFCore.zasm_break_mode = ZASM_BREAK_NONE;

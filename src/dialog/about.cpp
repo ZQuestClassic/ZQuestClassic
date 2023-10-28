@@ -16,7 +16,7 @@ std::shared_ptr<GUI::Widget> AboutDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	bool devmode = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
+	bool devmode = CHECK_CTRL_CMD;
 	
 	std::shared_ptr<GUI::Grid> windowGrid;
 	std::shared_ptr<GUI::Window> window = Window(

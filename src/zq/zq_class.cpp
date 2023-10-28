@@ -6515,7 +6515,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
     
     char hash_string[33];
     
-    if((get_debug() && (!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))) || is_null_pwd_hash(hdr->pwd_hash))
+    if((get_debug() && (!(CHECK_CTRL_CMD))) || is_null_pwd_hash(hdr->pwd_hash))
     {
         return 1;
     }
@@ -6646,7 +6646,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
     
     pwd_dlg[4].dp=hash_string;
     
-    if(get_debug() && (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+    if(get_debug() && (CHECK_CTRL_CMD))
     {
         sprintf(prompt,"%s",response);
     }

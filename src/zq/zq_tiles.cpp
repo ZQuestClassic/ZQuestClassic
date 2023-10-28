@@ -2351,7 +2351,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		
 		if(keypressed())
 		{
-			bool ctrl = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
+			bool ctrl = CHECK_CTRL_CMD;
 			int k = readkey()>>8;
 			switch(k)
 			{
@@ -2376,7 +2376,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				case KEY_DEL:
 				{
 					unpack_tile(newtilebuf, tile, 0, false);
-					bool all = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] || !has_selection();
+					bool all = CHECK_CTRL_CMD || !has_selection();
 					bool canDel = false;
 					if(all)
 					{
@@ -2413,7 +2413,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						undofloatsel[q] = floatsel[q];
 					undo_is_floatsel = floating_sel;
 					
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] || !has_selection())
+					if(CHECK_CTRL_CMD || !has_selection())
 					{
 						//Delete all
 						for(auto q = 0; q < 256; ++q)
@@ -2479,7 +2479,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					
 				case KEY_R:
 				{
-					//if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+					//if(CHECK_CTRL_CMD))
 					// {
 					//do_recolor(tile); redraw=true; saved=false;
 					// }
@@ -2495,7 +2495,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				case KEY_EQUALS:
 				case KEY_PLUS_PAD:
 				{
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+					if(CHECK_CTRL_CMD ||
 							key[KEY_ALT] || key[KEY_ALTGR])
 					{
 						for(int32_t i=0; i<undocount; i++)
@@ -2522,7 +2522,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				case KEY_MINUS:
 				case KEY_MINUS_PAD:
 				{
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+					if(CHECK_CTRL_CMD ||
 							key[KEY_ALT] || key[KEY_ALTGR])
 					{
 						for(int32_t i=0; i<undocount; i++)
@@ -2572,7 +2572,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					break;
 					
 				case KEY_S:
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						for(int32_t i=0; i<undocount; i++)
 						{
@@ -2637,7 +2637,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					break;
 					
 				case KEY_UP:
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						unfloat_selection();
 						tile=zc_max(0,tile-TILES_PER_ROW);
@@ -2675,7 +2675,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					break;
 					
 				case KEY_DOWN:
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						unfloat_selection();
 						tile=zc_min(tile+TILES_PER_ROW,NEWMAXTILES-1);
@@ -2713,7 +2713,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					break;
 					
 				case KEY_LEFT:
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						unfloat_selection();
 						tile=zc_max(0,tile-1);
@@ -2751,7 +2751,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					break;
 					
 				case KEY_RIGHT:
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						unfloat_selection();
 						tile=zc_min(tile+1, NEWMAXTILES-1);
@@ -2880,7 +2880,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		
 		bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
 		bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-		bool ctrl=(key[KEY_LCONTROL] || key[KEY_RCONTROL]);
+		bool ctrl=CHECK_CTRL_CMD;
 		static int32_t last_tool_val = 0;
 		
 		if(tool==t_select||tool==t_wand)
@@ -5127,25 +5127,25 @@ void grab_tile(int32_t tile,int32_t &cs)
 				break;
 				
 			case KEY_DOWN:
-				if(key[KEY_ZC_LCONTROL]||key[KEY_ZC_LCONTROL]) sely=zc_min(sely+1,144);
+				if(CHECK_CTRL_CMD) sely=zc_min(sely+1,144);
 				else ++imagey;
 				
 				break;
 				
 			case KEY_UP:
-				if(key[KEY_ZC_LCONTROL]||key[KEY_ZC_LCONTROL]) sely=zc_max(sely-1,0);
+				if(CHECK_CTRL_CMD) sely=zc_max(sely-1,0);
 				else --imagey;
 				
 				break;
 				
 			case KEY_RIGHT:
-				if(key[KEY_ZC_LCONTROL]||key[KEY_ZC_LCONTROL]) selx=zc_min(selx+1,304);
+				if(CHECK_CTRL_CMD) selx=zc_min(selx+1,304);
 				else ++imagex;
 				
 				break;
 				
 			case KEY_LEFT:
-				if(key[KEY_ZC_LCONTROL]||key[KEY_ZC_LCONTROL]) selx=zc_max(selx-1,0);
+				if(CHECK_CTRL_CMD) selx=zc_max(selx-1,0);
 				else --imagex;
 				
 				break;
@@ -7050,7 +7050,7 @@ void register_used_tiles()
 
 bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards)
 {
-	bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+	bool ctrl=(CHECK_CTRL_CMD);
 	bool copied=false;
 	copied=overlay_tiles_united(tile,tile2,copy,copycnt,rect_sel,move,cs,backwards);
 	
@@ -7064,7 +7064,7 @@ bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, 
 
 bool overlay_tiles_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards)
 {
-	bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+	bool ctrl=(CHECK_CTRL_CMD);
 	bool copied=false;
 	copied=overlay_tile_united_mass(tile,tile2,copy,copycnt,rect_sel,move,cs,backwards);
 	
@@ -13218,7 +13218,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move)
 {
 	al_trace("Floodfill Psste\n");
-	bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+	bool ctrl=(CHECK_CTRL_CMD);
 	bool copied=false;
 	copied=copy_tiles_united_floodfill(tile,tile2,copy,copycnt,rect_sel,move);
 	
@@ -13238,7 +13238,7 @@ bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 
 bool copy_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move)
 {
-	bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+	bool ctrl=(CHECK_CTRL_CMD);
 	bool copied=false;
 	copied=copy_tiles_united(tile,tile2,copy,copycnt,rect_sel,move);
 	
@@ -15321,7 +15321,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				case KEY_EQUALS:
 				case KEY_PLUS_PAD:
 				{
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+					if(CHECK_CTRL_CMD ||
 							key[KEY_ALT] || key[KEY_ALTGR])
 					{
 						FOREACH_START(t)
@@ -15396,7 +15396,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				case KEY_MINUS:
 				case KEY_MINUS_PAD:
 				{
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+					if(CHECK_CTRL_CMD ||
 							key[KEY_ALT] || key[KEY_ALTGR])
 					{
 						FOREACH_START(t)
@@ -15417,7 +15417,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				case KEY_UP:
 				{
-					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
 					{
 						case 3:  //ALT and CTRL
 						case 2:  //ALT
@@ -15468,7 +15468,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 									
 									for(int32_t b=0; b<bitcheck; b++,dest_pixelrow++)
 									{
-										if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+										if((CHECK_CTRL_CMD))
 										{
 											*dest_pixelrow=0;
 										}
@@ -15487,7 +15487,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							
 						case 1:  //CTRL
 						case 0:  //None
-							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
+							sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
 							redraw=true;
 							
 						default: //Others
@@ -15498,7 +15498,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				case KEY_DOWN:
 				{
-					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
 					{
 						case 3:  //ALT and CTRL
 						case 2:  //ALT
@@ -15555,7 +15555,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 									
 									for(int32_t b=0; b<bitcheck; b++)
 									{
-										if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+										if((CHECK_CTRL_CMD))
 										{
 											*dest_pixelrow=0;
 										}
@@ -15576,7 +15576,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							
 						case 1:  //CTRL
 						case 0:  //None
-							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
+							sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
 							redraw=true;
 							
 						default: //Others
@@ -15587,7 +15587,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				case KEY_LEFT:
 				{
-					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
 					{
 						case 3:  //ALT and CTRL
 						case 2:  //ALT
@@ -15663,7 +15663,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 											
 											if(c==columns-1)
 											{
-												if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+												if(!(CHECK_CTRL_CMD))
 												{
 													byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
 		#ifdef ALLEGRO_LITTLE_ENDIAN
@@ -15709,7 +15709,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							
 						case 1:  //CTRL
 						case 0:  //None
-							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile%TILES_PER_ROW):-1);
+							sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-(tile%TILES_PER_ROW):-1);
 							redraw=true;
 							
 						default: //Others
@@ -15720,7 +15720,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 			
 				case KEY_RIGHT:
 				{
-					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
 					{
 						case 3:  //ALT and CTRL
 						case 2:  //ALT
@@ -15795,7 +15795,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 											
 											if(c==0)
 											{
-												if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+												if(!(CHECK_CTRL_CMD))
 												{
 													byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
 		#ifdef ALLEGRO_LITTLE_ENDIAN
@@ -15841,7 +15841,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							
 						case 1:  //CTRL
 						case 0:  //None
-							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
+							sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
 							redraw=true;
 							
 						default: //Others
@@ -15851,22 +15851,22 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				break;
 			
 				case KEY_PGUP:
-					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
+					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
 					redraw=true;
 					break;
 				
 				case KEY_PGDN:
-					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
+					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
 					redraw=true;
 					break;
 				
 				case KEY_HOME:
-					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));
+					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-(tile):-(tile%TILES_PER_PAGE));
 					redraw=true;
 					break;
 				
 				case KEY_END:
-					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
+					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
 					redraw=true;
 					break;
 				
@@ -15887,13 +15887,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						
 						if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
 						{
-							mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
+							mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(CHECK_CTRL_CMD), rect_sel);
 							saved=false;
 						}
 						else
 						{
-							saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
-							//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+							saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(CHECK_CTRL_CMD));
+							//overlay_tile(newtilebuf,tile,copy,cs,(CHECK_CTRL_CMD));
 						}
 						
 						saved=false;
@@ -15949,7 +15949,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						
 					go_tiles();
 					
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						bool go=false;
 						if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -16080,7 +16080,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				case KEY_U:
 				{
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						//Only toggle the first 2 bits!
 						show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
@@ -16265,7 +16265,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				case KEY_B:
 				{
 					bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-					bool control=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+					bool control=(CHECK_CTRL_CMD);
 					bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
 					
 					do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
@@ -17667,7 +17667,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					int32_t amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
 							   ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
@@ -17692,7 +17692,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					int32_t amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
 							   ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
@@ -17842,7 +17842,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				break;
 				
 			case KEY_V:
-				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]) && copy != -1)
+				if((CHECK_CTRL_CMD) && copy != -1)
 				{
 					if(advpaste(tile, tile2, copy)==1)
 					{
@@ -18216,7 +18216,7 @@ REDRAW:
 				break;
 				
 			case 1:
-				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]) && copy != -1)
+				if((CHECK_CTRL_CMD) && copy != -1)
 				{
 					if(advpaste(tile, tile2, copy)==1)
 					{
@@ -20089,7 +20089,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+				if(CHECK_CTRL_CMD ||
 						key[KEY_ALT] || key[KEY_ALTGR])
 				{
 					FOREACH_START_DMAPTILE(t)
@@ -20155,7 +20155,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+				if(CHECK_CTRL_CMD ||
 						key[KEY_ALT] || key[KEY_ALTGR])
 				{
 					FOREACH_START_DMAPTILE(t)
@@ -20176,7 +20176,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			
 			case KEY_UP:
 			{
-				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
 				{
 				case 3:  //ALT and CTRL
 				case 2:  //ALT
@@ -20227,7 +20227,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 							
 							for(int32_t b=0; b<bitcheck; b++,dest_pixelrow++)
 							{
-								if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+								if((CHECK_CTRL_CMD))
 								{
 									*dest_pixelrow=0;
 								}
@@ -20246,7 +20246,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					
 				case 1:  //CTRL
 				case 0:  //None
-					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
+					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
 					redraw=true;
 					
 				default: //Others
@@ -20257,7 +20257,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			
 			case KEY_DOWN:
 			{
-				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
 				{
 				case 3:  //ALT and CTRL
 				case 2:  //ALT
@@ -20314,7 +20314,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 							
 							for(int32_t b=0; b<bitcheck; b++)
 							{
-								if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+								if((CHECK_CTRL_CMD))
 								{
 									*dest_pixelrow=0;
 								}
@@ -20335,7 +20335,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					
 				case 1:  //CTRL
 				case 0:  //None
-					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
+					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
 					redraw=true;
 					
 				default: //Others
@@ -20346,7 +20346,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			
 			case KEY_LEFT:
 			{
-				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
 				{
 				case 3:  //ALT and CTRL
 				case 2:  //ALT
@@ -20422,7 +20422,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 									
 									if(c==columns-1)
 									{
-										if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+										if(!(CHECK_CTRL_CMD))
 										{
 											byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
 #ifdef ALLEGRO_LITTLE_ENDIAN
@@ -20468,7 +20468,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					
 				case 1:  //CTRL
 				case 0:  //None
-					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile%TILES_PER_ROW):-1);
+					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-(tile%TILES_PER_ROW):-1);
 					redraw=true;
 					
 				default: //Others
@@ -20479,7 +20479,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			
 			case KEY_RIGHT:
 			{
-				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
+				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
 				{
 				case 3:  //ALT and CTRL
 				case 2:  //ALT
@@ -20554,7 +20554,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 									
 									if(c==0)
 									{
-										if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+										if(!(CHECK_CTRL_CMD))
 										{
 											byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
 #ifdef ALLEGRO_LITTLE_ENDIAN
@@ -20600,7 +20600,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					
 				case 1:  //CTRL
 				case 0:  //None
-					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
+					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
 					redraw=true;
 					
 				default: //Others
@@ -20610,22 +20610,22 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			break;
 			
 			case KEY_PGUP:
-				sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
+				sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
 				redraw=true;
 				break;
 				
 			case KEY_PGDN:
-				sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
+				sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
 				redraw=true;
 				break;
 				
 			case KEY_HOME:
-				sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));
+				sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-(tile):-(tile%TILES_PER_PAGE));
 				redraw=true;
 				break;
 				
 			case KEY_END:
-				sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
+				sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
 				redraw=true;
 				break;
 				
@@ -20646,13 +20646,13 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					
 					if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
 					{
-						mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
+						mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(CHECK_CTRL_CMD), rect_sel);
 						saved=false;
 					}
 					else
 					{
-						saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
-						//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
+						saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(CHECK_CTRL_CMD));
+						//overlay_tile(newtilebuf,tile,copy,cs,(CHECK_CTRL_CMD));
 					}
 					
 					saved=false;
@@ -20702,7 +20702,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					
 				go_tiles();
 				
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					bool go=false;
 					if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -20800,7 +20800,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				
 			case KEY_U:
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					//Only toggle the first 2 bits!
 					show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
@@ -20920,7 +20920,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			case KEY_B:
 			{
 				bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-				bool control=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+				bool control=(CHECK_CTRL_CMD);
 				bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
 				
 				do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);

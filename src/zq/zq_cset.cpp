@@ -334,7 +334,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_LEFT:
 				case KEY_4:
 				case KEY_4_PAD:
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index-1)&15)]);
 					}
@@ -346,7 +346,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_RIGHT:
 				case KEY_6:
 				case KEY_6_PAD:
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 					{
 						zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index+1)&15)]);
 					}
@@ -443,7 +443,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 					{
 						case '4':
 						{
-							if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+							if(CHECK_CTRL_CMD)
 							{
 								zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index-1)&15)]);
 							}
@@ -454,7 +454,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 						
 						case '6':
 						{
-							if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+							if(CHECK_CTRL_CMD)
 							{
 								zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index+1)&15)]);
 							}
@@ -1047,7 +1047,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 			int32_t y;
 			
 			// Start dragging?
-			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				x=gui_mouse_x();
 				y=gui_mouse_y();

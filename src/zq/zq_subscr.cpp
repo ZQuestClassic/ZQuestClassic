@@ -621,7 +621,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 							SubscrWidget* widg = pg[clicked_obj];
 							int tx = scaled_mouse_x + dragx;
 							int ty = scaled_mouse_y + dragy;
-							if (key[KEY_LCONTROL] || key[KEY_RCONTROL])
+							if (CHECK_CTRL_CMD)
 							{
 								tx = (tx / zinit.ss_grid_x) * zinit.ss_grid_x;
 								ty = (ty / zinit.ss_grid_y) * zinit.ss_grid_y;
@@ -2122,7 +2122,7 @@ int32_t onSendToBack()
 }
 int32_t onSSPgDn()
 {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if(CHECK_CTRL_CMD)
 	{
 		return onSSCtrlPgDn();
 	}
@@ -2144,7 +2144,7 @@ int32_t onSSPgDn()
 
 int32_t onSSPgUp()
 {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if(CHECK_CTRL_CMD)
 	{
 		return onSSCtrlPgUp();
 	}

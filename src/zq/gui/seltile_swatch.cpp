@@ -24,7 +24,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 		}
 		case MSG_CLICK:
 		{
-			bool ctrl = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
+			bool ctrl = CHECK_CTRL_CMD;
 			int mb = gui_mouse_b();
 			if(!mb || (mb&1)) //leftmouse
 			{

@@ -121,7 +121,7 @@ namespace GUI
 							GUI_EVENT(d, geCHANGE_VALUE);
 						}
 
-						if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+						if (CHECK_CTRL_CMD)
 						{
 							widg->setContinueScreen(x + y * 16);
 							GUI_EVENT(d, geCHANGE_VALUE);
@@ -129,7 +129,7 @@ namespace GUI
 
 						if (cols == 8)
 						{
-							if (!(key[KEY_ALT] || key[KEY_ALTGR] || key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+							if (!(key[KEY_ALT] || key[KEY_ALTGR] || CHECK_CTRL_CMD))
 							{
 								if (set == -1)
 									set = !get_bit(mapgrid, 8 * y + (7 - x));

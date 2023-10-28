@@ -3928,7 +3928,7 @@ int32_t onGUISnapshot()
 {
 	char buf[200];
 	int32_t num=0;
-	bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+	bool realpal=(CHECK_CTRL_CMD);
 	do
 	{
 		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);

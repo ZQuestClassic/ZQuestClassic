@@ -873,7 +873,7 @@ int32_t onMapscrSnapshot()
 	PALETTE usepal;
 	get_palette(usepal);
 
-	bool useflags = (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]); //Only use visibility flags (flags, walkability, etc) if CTRL is held
+	bool useflags = (CHECK_CTRL_CMD); //Only use visibility flags (flags, walkability, etc) if CTRL is held
 	int32_t misal = ShowMisalignments; //Store misalignments, so it can be disabled, and restored after.
 	ShowMisalignments = 0;
 
