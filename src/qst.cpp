@@ -11946,7 +11946,6 @@ int32_t setupsubscreens()
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];
 extern script_data *guyscripts[NUMSCRIPTGUYS];
-extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -11957,7 +11956,6 @@ extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
-//script_data *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 
 
@@ -12050,16 +12048,17 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 		}
 		
+		script_data *fake = new script_data(ScriptType::None, 0);
 		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &wpnscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &fake, zmeta_version);
 			
 			if (ret)
 			{
 				return qe_invalid;
 			}
 		}
-		
+		delete fake;
 	
 		for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
 		{
@@ -12098,7 +12097,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
 				
-			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONSAVE);
 		}
 		else if(s_version > 4)
 		{
@@ -12115,22 +12114,22 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
 				
-			globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH);
 			
 			if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
 				
-			globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME);
 			
 			if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_F6];
 				
-			globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_F6] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_F6);
 			
 			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
 				
-			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONSAVE);
 		}
 		else
 		{
@@ -12147,27 +12146,27 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
 				
-			globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 			
 			if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
 				
-			globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH);
 			
 			if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
 				
-			globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME);
 			
 			if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_F6];
 				
-			globalscripts[GLOBAL_SCRIPT_F6] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_F6] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_F6);
 			
 			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
 				delete globalscripts[GLOBAL_SCRIPT_ONSAVE];
 				
-			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
+			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONSAVE);
 		}
 		
 		if(s_version > 10) //expanded the number of Player scripts to 5. 
@@ -12196,12 +12195,12 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			if(playerscripts[3] != NULL)
 				delete playerscripts[3];
 					
-			playerscripts[3] = new script_data();
+			playerscripts[3] = new script_data(ScriptType::Player, 3);
 			
 			if(playerscripts[4] != NULL)
 				delete playerscripts[4];
 					
-			playerscripts[4] = new script_data();
+			playerscripts[4] = new script_data(ScriptType::Player, 4);
 		}
 		if(s_version > 8 && s_version < 10)
 		{
@@ -12648,174 +12647,111 @@ void reset_scripts()
 	jit_shutdown();
 #endif
 
-	next_script_data_debug_id = 0;
-
 	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
 	{
 		if (genericscripts[i]!=NULL) genericscripts[i]->disable();
-		else genericscripts[i] = new script_data();
+		else genericscripts[i] = new script_data({ScriptType::Generic, i});
 	}
 
 	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
 	{
-		if(ffscripts[i]!=NULL)
-		{
+		if (ffscripts[i])
 			ffscripts[i]->disable();
-		}
 		else
-		{
-			ffscripts[i] = new script_data();
-		}
+			ffscripts[i] = new script_data(ScriptType::FFC, i);
 	}
-
+	
 	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
 	{
-		if(itemscripts[i]!=NULL)
-		{
+		if (itemscripts[i])
 			itemscripts[i]->disable();
-		}
 		else
-		{
-			itemscripts[i] = new script_data();
-		}
+			itemscripts[i] = new script_data(ScriptType::Item, i);
 	}
-
+	
 	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
 	{
-		if(guyscripts[i]!=NULL)
-		{
+		if (guyscripts[i])
 			guyscripts[i]->disable();
-		}
 		else
-		{
-			guyscripts[i] = new script_data();
-		}
+			guyscripts[i] = new script_data(ScriptType::NPC, i);
 	}
-
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		if(wpnscripts[i]!=NULL)
-		{
-			wpnscripts[i]->disable();
-		}
-		else
-		{
-			wpnscripts[i] = new script_data();
-		}
-	}
-
+	
 	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
 	{
-		if(screenscripts[i]!=NULL)
-		{
+		if (screenscripts[i])
 			screenscripts[i]->disable();
-		}
 		else
-		{
-			screenscripts[i] = new script_data();
-		}
+			screenscripts[i] = new script_data(ScriptType::Screen, i);
 	}
-
+	
 	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
 	{
-		if(globalscripts[i]!=NULL)
-		{
+		if (globalscripts[i])
 			globalscripts[i]->disable();
-		}
 		else
-		{
-			globalscripts[i] = new script_data();
-		}
+			globalscripts[i] = new script_data(ScriptType::Global, i);
 	}
-
+	
 	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
 	{
-		if(playerscripts[i]!=NULL)
-		{
+		if (playerscripts[i])
 			playerscripts[i]->disable();
-		}
 		else
-		{
-			playerscripts[i] = new script_data();
-		}
+			playerscripts[i] = new script_data(ScriptType::Player, i);
 	}
-
+	
 	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
 	{
-		if(lwpnscripts[i]!=NULL)
-		{
+		if (lwpnscripts[i])
 			lwpnscripts[i]->disable();
-		}
 		else
-		{
-			lwpnscripts[i] = new script_data();
-		}
+			lwpnscripts[i] = new script_data(ScriptType::Lwpn, i);
 	}
-
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
 	{
-		if(ewpnscripts[i]!=NULL)
-		{
+		if (ewpnscripts[i])
 			ewpnscripts[i]->disable();
-		}
 		else
-		{
-			ewpnscripts[i] = new script_data();
-		}
+			ewpnscripts[i] = new script_data(ScriptType::Ewpn, i);
 	}
-
+	
 	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
 	{
-		if(dmapscripts[i]!=NULL)
-		{
+		if (dmapscripts[i])
 			dmapscripts[i]->disable();
-		}
 		else
-		{
-			dmapscripts[i] = new script_data();
-		}
+			dmapscripts[i] = new script_data(ScriptType::DMap, i);
 	}
-
 	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
 	{
-		if(itemspritescripts[i]!=NULL)
-		{
+		if (itemspritescripts[i])
 			itemspritescripts[i]->disable();
-		}
 		else
-		{
-			itemspritescripts[i] = new script_data();
-		}
+			itemspritescripts[i] = new script_data(ScriptType::ItemSprite, i);
 	}
-
 	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
 	{
-		if(comboscripts[i]!=NULL)
-		{
+		if (comboscripts[i])
 			comboscripts[i]->disable();
-		}
 		else
-		{
-			comboscripts[i] = new script_data();
-		}
+			comboscripts[i] = new script_data(ScriptType::Combo, i);
 	}
-
 	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
 	{
-		if(subscreenscripts[i]!=NULL)
-		{
+		if (subscreenscripts[i])
 			subscreenscripts[i]->disable();
-		}
 		else
-		{
-			subscreenscripts[i] = new script_data();
-		}
+			subscreenscripts[i] = new script_data(ScriptType::EngineSubscreen, i);
 	}
 }
 
 extern script_command command_list[];
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, word , script_data **script, word zmeta_version)
 {
+	// TODO: refactor to just take a script_data*
+	ASSERT(*script);
+
 	//Please also update loadquest() when modifying this method -DD
 	char b33[34] = {0};
 	b33[33] = 0;
@@ -12840,9 +12776,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 		return qe_invalid;
 	}
 	
-	if((*script) != NULL)
-		delete (*script);
-	(*script) = new script_data(num_commands);
+	(*script)->null_script(num_commands);
 
 	if(s_version >= 16)
 	{

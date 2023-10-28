@@ -1908,22 +1908,29 @@ struct ffscript
 	}
 };
 
-extern int next_script_data_debug_id;
+struct script_id {
+	auto operator<=>(const script_id&) const = default;
+
+	ScriptType type;
+	int index;
+};
 
 struct script_data
 {
 	ffscript* zasm;
 	zasm_meta meta;
-	int debug_id;
+	script_id id;
 	size_t size;
 	
-	void null_script()
+	void null_script(size_t newSize = 1)
 	{
+		if (newSize < 1)
+			newSize = 1;
 		if(zasm)
 			delete[] zasm;
-		zasm = new ffscript[1];
+		zasm = new ffscript[newSize];
 		zasm[0].clear();
-		size = 1;
+		size = newSize;
 	}
 	
 	bool valid() const
@@ -1977,24 +1984,10 @@ struct script_data
 		}
 		meta = other.meta;
 	}
-	
-	script_data(int32_t cmds) : zasm(NULL)
+
+	script_data(ScriptType type, int index) : zasm(NULL)
 	{
-		debug_id = next_script_data_debug_id++;
-		if(cmds > 0)
-		{
-			zasm = new ffscript[cmds];
-			for(int32_t q = 0; q < cmds; ++q)
-				zasm[q].clear();
-			size = 1;
-		}
-		else
-			null_script();
-	}
-	
-	script_data() : zasm(NULL)
-	{
-		debug_id = next_script_data_debug_id++;
+		id = {type, index};
 		null_script();
 	}
 	

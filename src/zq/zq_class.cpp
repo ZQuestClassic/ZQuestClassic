@@ -12207,8 +12207,6 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];
 extern script_data *guyscripts[NUMSCRIPTGUYS];
-extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
-extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -12297,9 +12295,10 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
+		script_data *fake = new script_data(ScriptType::None, 0);
         for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &fake);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12307,6 +12306,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
                 new_return(ret);
             }
         }
+		delete fake;
         
         for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
         {

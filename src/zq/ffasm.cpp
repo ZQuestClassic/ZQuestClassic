@@ -2950,6 +2950,8 @@ int32_t parse_script_file(script_data **script, const char *path, bool report_su
 #define SUBBUFSZ 0x200
 int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
 {
+	// TODO: refactor to just take a script_data*
+	ASSERT(*script);
 	saved=false;
 	std::string buffer;
 	char combuf[SUBBUFSZ] = {0};
@@ -3117,9 +3119,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 	stop = false;
 	meta_done = false;
 	
-	if((*script)!=NULL)
-		delete (*script);
-	(*script) = new script_data(num_commands);
+	(*script)->null_script(num_commands);
 	
 	for(int32_t i=0; i<num_commands; ++i)
 	{
@@ -3439,6 +3439,8 @@ zasmfile_fail:
 }
 int32_t parse_script_string(script_data **script, std::string const& scriptstr, bool report_success)
 {
+	// TODO: refactor to just take a script_data*
+	ASSERT(*script);
 	saved=false;
 	std::string buffer;
 	char combuf[SUBBUFSZ] = {0};
@@ -3610,9 +3612,7 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 	stop = false;
 	meta_done = false;
 	
-	if((*script)!=NULL)
-		delete (*script);
-	(*script) = new script_data(num_commands);
+	(*script)->null_script(num_commands);
 	
 	for(int32_t i=0; i<num_commands; ++i)
 	{

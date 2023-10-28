@@ -477,7 +477,6 @@ int combo_col_scale = 1;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *guyscripts[NUMSCRIPTGUYS];
-script_data *wpnscripts[NUMSCRIPTWEAPONS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -24188,7 +24187,8 @@ bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
 	else if(scriptdata[indx])
 	{
 		delete scriptdata[indx];
-		scriptdata[indx] = new script_data();
+		// script_data::id is not used in editor, so should be fine for now.
+		scriptdata[indx] = new script_data(ScriptType::None, 0);
 	}
 	return true;
 }
@@ -25306,7 +25306,7 @@ int32_t onImportZASM()
 		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		return D_O_K;
 	}
-	script_data *temp_slot = new script_data();
+	script_data *temp_slot = new script_data(ScriptType::None, 0);
 	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
 	{
 		fclose(zasm_import_file);
@@ -27275,72 +27275,75 @@ static void allocate_crap()
 	
 	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
 	{
-		if(ffscripts[i]!=NULL) delete ffscripts[i];
-		ffscripts[i] = new script_data();
+		delete ffscripts[i];
+		ffscripts[i] = new script_data(ScriptType::FFC, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
 	{
-		if(itemscripts[i]!=NULL) delete itemscripts[i];
-		itemscripts[i] = new script_data();
+		delete itemscripts[i];
+		itemscripts[i] = new script_data(ScriptType::Item, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
 	{
-		if(guyscripts[i]!=NULL) delete guyscripts[i];
-		guyscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
-		lwpnscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
-		ewpnscripts[i] = new script_data();
+		delete guyscripts[i];
+		guyscripts[i] = new script_data(ScriptType::NPC, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
 	{
-		if(screenscripts[i]!=NULL) delete screenscripts[i];
-		screenscripts[i] = new script_data();
+		delete screenscripts[i];
+		screenscripts[i] = new script_data(ScriptType::Screen, i);
 	}
 	
-	for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
+	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
 	{
-		if(globalscripts[i]!=NULL) delete globalscripts[i];
-		globalscripts[i] = new script_data();
+		delete globalscripts[i];
+		globalscripts[i] = new script_data(ScriptType::Global, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
 	{
-		if(playerscripts[i]!=NULL) delete playerscripts[i];
-		playerscripts[i] = new script_data();
+		delete playerscripts[i];
+		playerscripts[i] = new script_data(ScriptType::Player, i);
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		delete lwpnscripts[i];
+		lwpnscripts[i] = new script_data(ScriptType::Lwpn, i);
+	}
+	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		delete ewpnscripts[i];
+		ewpnscripts[i] = new script_data(ScriptType::Ewpn, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
 	{
-		if(dmapscripts[i]!=NULL) delete dmapscripts[i];
-		dmapscripts[i] = new script_data();
+		delete dmapscripts[i];
+		dmapscripts[i] = new script_data(ScriptType::DMap, i);
 	}
-	
 	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
 	{
-		if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
-		itemspritescripts[i] = new script_data();
+		delete itemspritescripts[i];
+		itemspritescripts[i] = new script_data(ScriptType::ItemSprite, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
 	{
-		if(comboscripts[i]!=NULL) delete comboscripts[i];
-		comboscripts[i] = new script_data();
+		delete comboscripts[i];
+		comboscripts[i] = new script_data(ScriptType::Combo, i);
+	}
+	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
+	{
+		delete genericscripts[i];
+		genericscripts[i] = new script_data(ScriptType::Generic, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
 	{
-		if(subscreenscripts[i]!=NULL) delete subscreenscripts[i];
-		subscreenscripts[i] = new script_data();
+		delete subscreenscripts[i];
+		subscreenscripts[i] = new script_data(ScriptType::EngineSubscreen, i);
 	}
 }
 

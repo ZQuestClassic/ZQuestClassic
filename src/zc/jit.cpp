@@ -26,7 +26,7 @@ typedef int32_t (*JittedFunction)(int32_t *registers, int32_t *global_registers,
 
 static bool is_enabled;
 static bool jit_log_enabled;
-static std::map<int, JittedFunction> compiled_functions;
+static std::map<script_id, JittedFunction> compiled_functions;
 
 void jit_printf(const char *format, ...)
 {
@@ -71,8 +71,8 @@ enum class TaskState
 
 static const int MAX_THREADS = 16;
 static std::array<ThreadInfo, MAX_THREADS> thread_infos;
-static std::map<int, TaskState> task_states;
-static std::vector<int> active_tasks;
+static std::map<script_id, TaskState> task_states;
+static std::vector<script_id> active_tasks;
 static std::vector<script_data*> pending_scripts;
 static ALLEGRO_MUTEX* tasks_mutex;
 static ALLEGRO_COND* tasks_cond;
@@ -90,25 +90,25 @@ static JittedFunction compile_if_needed(script_data *script)
 
 	// First check if script is already compiled.
 	al_lock_mutex(tasks_mutex);
-	auto it = compiled_functions.find(script->debug_id);
+	auto it = compiled_functions.find(script->id);
 	if (it != compiled_functions.end())
 	{
-		fn = compiled_functions.at(script->debug_id);
+		fn = compiled_functions.at(script->id);
 		al_unlock_mutex(tasks_mutex);
 		return fn;
 	}
 
 	// Next check if a thread is currently compiling this script.
-	if (task_states[script->debug_id] == TaskState::Active)
+	if (task_states[script->id] == TaskState::Active)
 	{
 		// Wait for task to finish.
-		jit_printf("jit: [*] waiting for thread to compile script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
-		while (compiled_functions.find(script->debug_id) == compiled_functions.end())
+		jit_printf("jit: [*] waiting for thread to compile script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
+		while (compiled_functions.find(script->id) == compiled_functions.end())
 		{
 			al_wait_cond(task_finish_cond, tasks_mutex);
 		}
 
-		fn = compiled_functions[script->debug_id];
+		fn = compiled_functions[script->id];
 		al_unlock_mutex(tasks_mutex);
 		return fn;
 	}
@@ -119,11 +119,11 @@ static JittedFunction compile_if_needed(script_data *script)
 		pending_scripts.erase(pending_it);
 	al_unlock_mutex(tasks_mutex);
 
-	jit_printf("jit: [*] compiling script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
+	jit_printf("jit: [*] compiling script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
 	fn = compile_script(script);
 
 	al_lock_mutex(tasks_mutex);
-	compiled_functions[script->debug_id] = fn;
+	compiled_functions[script->id] = fn;
 	al_unlock_mutex(tasks_mutex);
 
 	return fn;
@@ -154,23 +154,23 @@ static void * compile_script_proc(ALLEGRO_THREAD *thread, void *arg)
 		int generation = thread_pool_generation_count;
 		auto script = pending_scripts.back();
 		pending_scripts.pop_back();
-		task_states[script->debug_id] = TaskState::Active;
-		active_tasks.push_back(script->debug_id);
+		task_states[script->id] = TaskState::Active;
+		active_tasks.push_back(script->id);
 		al_unlock_mutex(tasks_mutex);
 
-		jit_printf("jit: [%d] compiling script type: %s id: %d name: %s\n", id, ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
+		jit_printf("jit: [%d] compiling script type: %s index: %d name: %s\n", id, ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
 		auto fn = compile_script(script);
 
 		al_lock_mutex(tasks_mutex);
-		if (auto it = std::find(active_tasks.begin(), active_tasks.end(), script->debug_id); it != active_tasks.end())
+		if (auto it = std::find(active_tasks.begin(), active_tasks.end(), script->id); it != active_tasks.end())
 			active_tasks.erase(it);
 		if (thread_pool_generation_count != generation)
 		{
 			// This task is now useless, since a new quest was loaded.
 			continue;
 		}
-		task_states[script->debug_id] = TaskState::Done;
-		compiled_functions[script->debug_id] = fn;
+		task_states[script->id] = TaskState::Done;
+		compiled_functions[script->id] = fn;
 		// This is what signals the main thread that this script is ready.
 		al_broadcast_cond(task_finish_cond);
 		// Go back to top of loop, still with the mutex locked.
@@ -189,8 +189,6 @@ static void create_compile_tasks(script_data *scripts[], size_t start, size_t ma
 		auto script = scripts[i];
 		if (script && script->valid())
 		{
-			// Just because qst.cpp does not always set this.
-			script->meta.script_type = type;
 			pending_scripts.push_back(script);
 		}
 	}
@@ -294,7 +292,7 @@ static void create_compile_tasks()
 	{
 		for (auto a : pending_scripts) 
 		{
-			jit_printf("jit: %d: %d\n", a->debug_id, (int)a->size);
+			jit_printf("jit: %d: %d\n", a->id, (int)a->size);
 		}
 	}
 
@@ -713,8 +711,8 @@ static bool command_is_compiled(int command)
 
 static void error(ScriptDebugHandle* debug_handle, script_data *script, std::string str)
 {
-	str = fmt::format("failed to compile id: {} name: {}\nerror: {}\n",
-					  script->debug_id, script->meta.script_name.c_str(), str);
+	str = fmt::format("failed to compile type: {} index: {} name: {}\nerror: {}\n",
+					  ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str(), str);
 
 	al_trace("%s", str.c_str());
 	if (debug_handle)
@@ -734,7 +732,7 @@ static JittedFunction compile_script(script_data *script)
 	state.size = script->size;
 	size_t size = state.size;
 
-	al_trace("[jit] compiling script type: %s id: %d size: %zu name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, size, script->meta.script_name.c_str());
+	al_trace("[jit] compiling script type: %s index: %d size: %zu name: %s\n", ScriptTypeToString(script->id.type), script->id.index, size, script->meta.script_name.c_str());
 
 	if (size <= 1)
 		return nullptr;
@@ -745,7 +743,7 @@ static JittedFunction compile_script(script_data *script)
 	size_t limit = 20000;
 	if (!is_ci() && size >= limit)
 	{
-		al_trace("[jit] script id %d too large to compile quickly, skipping\n", script->debug_id);
+		al_trace("[jit] script type %s index %d too large to compile quickly, skipping\n", ScriptTypeToString(script->id.type), script->id.index);
 		return nullptr;
 	}
 
@@ -1589,7 +1587,7 @@ static JittedFunction compile_script(script_data *script)
 			logger.data());
 	}
 
-	al_trace("[jit] finished script %d. time: %d ms\n", script->debug_id, preprocess_ms + compile_ms);
+	al_trace("[jit] finished script %s %d. time: %d ms\n", ScriptTypeToString(script->id.type), script->id.index, preprocess_ms + compile_ms);
 
 	if (fn)
 	{

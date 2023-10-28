@@ -394,7 +394,6 @@ script_data *itemscripts[NUMSCRIPTITEM];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
 script_data *genericscripts[NUMSCRIPTSGENERIC];
 script_data *guyscripts[NUMSCRIPTGUYS];
-script_data *wpnscripts[NUMSCRIPTWEAPONS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 script_data *playerscripts[NUMSCRIPTPLAYER];
@@ -4227,66 +4226,64 @@ static void allocate_crap()
 		guy_string[i] = new char[64];
 	}
 	
-	next_script_data_debug_id = 0;
 	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
 	{
-		ffscripts[i] = new script_data();
+		ffscripts[i] = new script_data(ScriptType::FFC, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
 	{
-		itemscripts[i] = new script_data();
+		itemscripts[i] = new script_data(ScriptType::Item, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
 	{
-		guyscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		wpnscripts[i] = new script_data();
+		guyscripts[i] = new script_data(ScriptType::NPC, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
 	{
-		screenscripts[i] = new script_data();
+		screenscripts[i] = new script_data(ScriptType::Screen, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
 	{
-		globalscripts[i] = new script_data();
+		globalscripts[i] = new script_data(ScriptType::Global, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
 	{
-		playerscripts[i] = new script_data();
+		playerscripts[i] = new script_data(ScriptType::Player, i);
 	}
 	
-	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
 	{
-		lwpnscripts[i] = new script_data();
+		lwpnscripts[i] = new script_data(ScriptType::Lwpn, i);
 	}
 	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
 	{
-		ewpnscripts[i] = new script_data();
+		ewpnscripts[i] = new script_data(ScriptType::Ewpn, i);
 	}
 	
-	 for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
+	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
 	{
-		dmapscripts[i] = new script_data();
+		dmapscripts[i] = new script_data(ScriptType::DMap, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
 	{
-		itemspritescripts[i] = new script_data();
+		itemspritescripts[i] = new script_data(ScriptType::ItemSprite, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
 	{
-		comboscripts[i] = new script_data();
+		comboscripts[i] = new script_data(ScriptType::Combo, i);
+	}
+	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
+	{
+		genericscripts[i] = new script_data(ScriptType::Generic, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
 	{
-		subscreenscripts[i] = new script_data();
+		subscreenscripts[i] = new script_data(ScriptType::EngineSubscreen, i);
 	}
 }
 

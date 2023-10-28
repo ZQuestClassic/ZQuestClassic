@@ -74,8 +74,8 @@ bool can_neg_array = true;
 
 extern byte monochrome_console;
 
-static std::set<int> seen_scripts;
-static std::map<int, ScriptDebugHandle> script_debug_handles;
+static std::set<script_id> seen_scripts;
+static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
 static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
 int32_t jitted_uncompiled_command_count;
@@ -35577,9 +35577,9 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 
 	script_funcrun = false;
 
-	if (DEBUG_PRINT_ZASM && !seen_scripts.contains(curscript->debug_id))
+	if (DEBUG_PRINT_ZASM && !seen_scripts.contains(curscript->id))
 	{
-		seen_scripts.insert(curscript->debug_id);
+		seen_scripts.insert(curscript->id);
 		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, curscript);
 		h.print_zasm(curScriptNum, curScriptIndex);
 	}
@@ -35601,13 +35601,13 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	runtime_script_debug_handle = nullptr;
 	if (script_debug_is_runtime_debugging())
 	{
-		if (!script_debug_handles.contains(curscript->debug_id))
+		if (!script_debug_handles.contains(curscript->id))
 		{
-			script_debug_handles.emplace(curscript->debug_id, ScriptDebugHandle(ScriptDebugHandle::OutputSplit::ByFrame, curscript));
+			script_debug_handles.emplace(curscript->id, ScriptDebugHandle(ScriptDebugHandle::OutputSplit::ByFrame, curscript));
 		}
-		runtime_script_debug_handle = &script_debug_handles.at(curscript->debug_id);
+		runtime_script_debug_handle = &script_debug_handles.at(curscript->id);
 		runtime_script_debug_handle->update_file();
-		runtime_script_debug_handle->print(fmt::format("\n=== running script id: {} name: {} type: {} i: {} script: {}\n", curscript->debug_id, curscript->meta.script_name, ScriptTypeToString(type), i, script).c_str());
+		runtime_script_debug_handle->print(fmt::format("\n=== running script type: {} index: {} name: {} i: {} script: {}\n", ScriptTypeToString(curscript->id.type), curscript->id.index, curscript->meta.script_name, i, script).c_str());
 	}
 	if (script_debug_is_runtime_debugging() == 1)
 	{
