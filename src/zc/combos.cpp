@@ -3741,7 +3741,7 @@ void handle_ffcpos_type(newcombo const& cmb, cpos_info& timer, ffcdata& f)
 		}
 		case cCRUMBLE:
 		{
-			word cid = f.getData();
+			word cid = f.data;
 			handle_crumble(cmb, timer, cid, f.x+f.hxofs, f.y+f.hyofs, f.hit_width, f.hit_height);
 			zc_ffc_update(f,cid);
 			break;
