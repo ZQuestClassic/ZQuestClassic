@@ -150,3 +150,4 @@ void ffcdata::doContactDamage(int32_t hdir)
 	}
 #endif
 }
+

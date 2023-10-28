@@ -20,9 +20,16 @@ void zc_ffc_set(ffcdata& ffc, word data)
 	}
 }
 
-void zc_ffc_modify(ffcdata& ffc, word amount)
+void zc_ffc_update(ffcdata& ffc, word data)
 {
-	zc_ffc_set(ffc, ffc.data + amount);
+	if(ffc.data != data)
+		zc_ffc_set(ffc,data);
+}
+
+void zc_ffc_modify(ffcdata& ffc, int32_t amount)
+{
+	if(amount)
+		zc_ffc_set(ffc, ffc.data + amount);
 }
 
 void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
@@ -98,3 +105,4 @@ void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 	ffc.updateSolid();
 	ffc.solid_update(false);
 }
+

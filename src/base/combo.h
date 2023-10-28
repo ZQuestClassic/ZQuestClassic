@@ -279,6 +279,13 @@ struct newcombo
 #define ctrigSECRETS                    0x02
 #define ctrigSWITCHSTATE                0x04
 
+enum //cCRUMBLE types
+{
+	CMBTY_CRUMBLE_RESET,
+	CMBTY_CRUMBLE_CUMULATIVE,
+	CMBTY_CRUMBLE_INEVITABLE,
+	CMBTY_CRUMBLE_INEV_CONTINUOUS,
+};
 
 extern std::vector<newcombo> combobuf;
 

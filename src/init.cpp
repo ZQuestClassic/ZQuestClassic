@@ -1186,20 +1186,25 @@ string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 	#undef ZFIXPROP
 	#undef PROP
 	
+    size_t sz = 0;
 	#define ARRAY_PROP(name) \
+        zprint2("ARRAYPROP %s\n",#name); \
 		for (int i = 0; i < countof(base->name); i++) \
 			if (base->name[i] != changed->name[i]) \
 				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)changed->name[i]));
 	#define VEC_PROP(name) \
+        zprint2("VECPROP %s\n",#name); \
 		for (int i = 0; i < base->name.size(); i++) \
 			if (base->name[i] != changed->name[i]) \
 				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)changed->name[i]));
 	#define VEC_PROP_2D(name) \
+        zprint2("VECPROP 2D %s\n",#name); \
 		for (int i = 0; i < base->name.size(); i++) \
 			for (int j = 0; j < base->name[i].size(); j++) \
 				if (base->name[i][j] != changed->name[i][j]) \
 					tokens.push_back(fmt::format("{}[{}][{}]={}", #name, i, j, int(changed->name[i][j])));
 	#define BITSTR_PROP(name) \
+        zprint2("BITSTR PROP %s\n",#name); \
 	{ \
 		auto& bvec = base->name.inner(); \
 		auto& cvec = changed->name.inner(); \

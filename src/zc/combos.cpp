@@ -3501,9 +3501,9 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix 
 		if(!lowrate) return;
 	}
 	
-	if(timer.shootrclk > 1)
+	if(timer.type_clk > 1)
 	{
-		if(--timer.shootrclk == 1)
+		if(--timer.type_clk == 1)
 		{
 			if(!instashot) trigger_shooter(cmb, wx, wy);
 		}
@@ -3511,14 +3511,90 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix 
 	else
 	{
 		auto rate = (splitrate ? zc_rand(highrate,lowrate) : lowrate);
-		timer.shootrclk = zc_max(1,rate);
-		if(instashot || timer.shootrclk == 1) trigger_shooter(cmb, wx, wy);
+		timer.type_clk = zc_max(1,rate);
+		if(instashot || timer.type_clk == 1) trigger_shooter(cmb, wx, wy);
 	}
 }
 
-static void handle_shooter(newcombo const& cmb, cpos_info& timer, int32_t pos)
+static void trigger_crumble(newcombo const& cmb, cpos_info& timer, word& cid)
 {
-	handle_shooter(cmb, timer, COMBOX(pos), COMBOY(pos));
+	++cid;
+	update_trig_group(timer.data,cid);
+	timer.updateData(cid);
+	//Continue crumbling through the change
+	newcombo const& ncmb = combobuf[cid];
+	if(ncmb.type == cCRUMBLE
+		&& cmb.attribytes[0] == CMBTY_CRUMBLE_INEV_CONTINUOUS
+		&& (ncmb.attribytes[0] == CMBTY_CRUMBLE_INEVITABLE
+			|| ncmb.attribytes[0] == CMBTY_CRUMBLE_INEV_CONTINUOUS))
+		timer.flags.set(CPOS_CRUMBLE_BREAKING,true);
+}
+
+static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfix x, zfix y, zfix w, zfix h)
+{
+	bool breaking = false;
+	byte ty = cmb.attribytes[0];
+	if(ty == CMBTY_CRUMBLE_INEVITABLE || ty == CMBTY_CRUMBLE_INEV_CONTINUOUS)
+		if(timer.flags.get(CPOS_CRUMBLE_BREAKING))
+			breaking = true;
+	if(!breaking)
+	{
+		byte sens_offset = cmb.attribytes[1];
+		if(Hero.sideview_mode())
+		{
+			if((Hero.getY()+16-y).getAbs() < 0.5_zf
+				&& (!sens_offset || sens_offset*2 < w))
+			{
+				if(sens_offset)
+				{
+					x += sens_offset;
+					w -= sens_offset*2;
+				}
+				breaking = Hero.collide(x,0,w,255);
+			}
+		}
+		else if(!sens_offset || (sens_offset*2 < w && sens_offset*2 < h))
+		{
+			if(sens_offset)
+			{
+				x += sens_offset;
+				y += sens_offset;
+				w -= sens_offset*2;
+				h -= sens_offset*2;
+			}
+			breaking = Hero.collide(x,y,w,h);
+		}
+	}
+	if(breaking)
+	{
+		// Crumble
+		if(cmb.attrishorts[0] < 1)
+		{
+			trigger_crumble(cmb, timer, cid);
+			return true;
+		}
+		if(timer.type_clk)
+		{
+			if(!--timer.type_clk)
+			{
+				trigger_crumble(cmb, timer, cid);
+				return true;
+			}
+		}
+		else timer.type_clk = cmb.attrishorts[0];
+	}
+	else if(ty == CMBTY_CRUMBLE_RESET && timer.flags.get(CPOS_CRUMBLE_BREAKING))
+	{
+		timer.type_clk = 0;
+		if(int16_t diff = cmb.attrishorts[1])
+		{
+			cid += diff;
+			update_trig_group(timer.data,cid);
+			timer.updateData(cid);
+		}
+	}
+	timer.flags.set(CPOS_CRUMBLE_BREAKING, breaking);
+	return false;
 }
 
 void ffc_clear_cpos_info()
@@ -3636,6 +3712,43 @@ void trig_trigger_groups()
 	}
 }
 
+#define CXY(pos) COMBOX(pos), COMBOY(pos)
+void handle_cpos_type(newcombo const& cmb, cpos_info& timer, int lyr, int pos)
+{
+	switch(cmb.type)
+	{
+		case cSHOOTER:
+			handle_shooter(cmb, timer, CXY(pos));
+			break;
+		case cCRUMBLE:
+		{
+			word& cid = FFCore.tempScreens[lyr]->data[pos];
+			handle_crumble(cmb, timer, cid, CXY(pos), 16, 16);
+			break;
+		}
+	}
+}
+void handle_ffcpos_type(newcombo const& cmb, cpos_info& timer, ffcdata& f)
+{
+	switch(cmb.type)
+	{
+		case cSHOOTER:
+		{
+			zfix wx = f.x + (f.txsz-1)*8;
+			zfix wy = f.y + (f.tysz-1)*8;
+			handle_shooter(cmb, timer, wx, wy);
+			break;
+		}
+		case cCRUMBLE:
+		{
+			word cid = f.getData();
+			handle_crumble(cmb, timer, cid, f.x+f.hxofs, f.y+f.hyofs, f.hit_width, f.hit_height);
+			zc_ffc_update(f,cid);
+			break;
+		}
+	}
+}
+
 void init_combo_timers()
 {
 	clear_combo_posinfo();
@@ -3657,9 +3770,9 @@ void update_combo_timers()
 			timer.updateData(cid);
 			
 			newcombo const& cmb = combobuf[cid];
-			if(!timer.appeared)
+			if(!timer.flags.get(CPOS_FL_APPEARED))
 			{
-				timer.appeared = true;
+				timer.flags.set(CPOS_FL_APPEARED,true);
 				if(cmb.sfx_appear)
 					sfx(cmb.sfx_appear);
 				if(cmb.spr_appear)
@@ -3686,8 +3799,7 @@ void update_combo_timers()
 				}
 			}
 			if(timer.trig_cd) --timer.trig_cd;
-			if(cmb.type == cSHOOTER)
-				handle_shooter(cmb, timer, pos);
+			handle_cpos_type(cmb,timer,lyr,pos);
 		}
 	}
 	for(word ffc = 0; ffc < c; ++ffc)
@@ -3699,15 +3811,13 @@ void update_combo_timers()
 		int cid = f.data;
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);
-		zfix wx = f.x;
-		zfix wy = f.y;
-		wx += (ffscr->ffTileWidth(ffc)-1)*8;
-		wy += (ffscr->ffTileHeight(ffc)-1)*8;
+		zfix wx = f.x + (f.txsz-1)*8;
+		zfix wy = f.y + (f.tysz-1)*8;
 		
 		newcombo const& cmb = combobuf[cid];
-		if(!timer.appeared)
+		if(!timer.flags.get(CPOS_FL_APPEARED))
 		{
-			timer.appeared = true;
+			timer.flags.set(CPOS_FL_APPEARED,true);
 			if(cmb.sfx_appear)
 				sfx(cmb.sfx_appear);
 			if(cmb.spr_appear)

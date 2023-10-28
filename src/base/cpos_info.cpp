@@ -27,7 +27,7 @@ void cpos_info::updateData(int32_t newdata)
 	if(data != newdata)
 	{
 		byte csfx = sfx_onchange, cspr = spr_onchange;
-		if(appeared)
+		if(flags.get(CPOS_FL_APPEARED))
 		{
 			newcombo const& cmb = combobuf[data];
 			csfx = cmb.sfx_disappear;

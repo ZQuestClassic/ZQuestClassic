@@ -63,7 +63,7 @@ bool hasComboWizard(int32_t type)
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cSLOPE: case cSHOOTER: case cWATER: case cSHALLOWWATER:
-		case cSTEPSFX: case cTORCH: case cMIRRORNEW:
+		case cSTEPSFX: case cTORCH: case cMIRRORNEW: case cCRUMBLE:
 			return true;
 	}
 	return false;
@@ -770,6 +770,13 @@ void ComboWizardDialog::endUpdate()
 			}
 			break;
 		}
+		case cCRUMBLE:
+		{
+			if(dest_ref.attribytes[0] == CMBTY_CRUMBLE_RESET
+				&& local_ref.attribytes[0] != CMBTY_CRUMBLE_RESET)
+				local_ref.attrishorts[0] = 0;
+			break;
+		}
 	}
 }
 #define IH_BTN(hei, inf) \
@@ -861,6 +868,9 @@ void combo_default(newcombo& ref, bool typeonly)
 		case cMIRRORNEW:
 			for(byte q = 0; q < 8; ++q)
 				ref.attribytes[q] = q;
+			break;
+		case cCRUMBLE:
+			ref.attrishorts[0] = 45;
 			break;
 		//CHESTS
 		case cLOCKEDCHEST:
@@ -4085,6 +4095,75 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					))
 				)
 			);
+			break;
+		}
+		case cCRUMBLE:
+		{
+			byte& crumble_type = local_ref.attribytes[0];
+			byte& crumble_sens = local_ref.attribytes[1];
+			int16_t& crumble_time = local_ref.attrishorts[0];
+			int16_t& reset_change = local_ref.attrishorts[1];
+			lists[0] = GUI::ListData({
+				{ "Reset", CMBTY_CRUMBLE_RESET, "Timer resets when stepped off of, can also change combo" },
+				{ "Cumulative", CMBTY_CRUMBLE_CUMULATIVE, "Timer does not reset, just pauses when stepped off of" },
+				{ "Inevitable", CMBTY_CRUMBLE_INEVITABLE, "Timer keeps going even if stepped off of" },
+				{ "Inevitable (Continuous)", CMBTY_CRUMBLE_INEV_CONTINUOUS, "Timer keeps going even if stepped off of - AND continues if the next combo is also an inevitable crumble combo" }
+			});
+			windowRow->add(Column(
+				Rows<3>(
+					Label(text = "Crumble Type:", hAlign = 1.0),
+					ddls[0] = DropDownList(data = lists[0],
+						fitParent = true, selectedValue = crumble_type,
+						onSelectFunc = [&](int32_t val)
+						{
+							crumble_type = val;
+							frames[0]->setDisabled(val != CMBTY_CRUMBLE_RESET);
+						}),
+					INFOBTN_REF(lists[0].findInfo(crumble_type))
+				),
+				Frame(
+					Rows<3>(
+						Label(text = "Crumble Sensitivity:"),
+						tfs[0] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							low = 0, high = 255, val = crumble_sens,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								crumble_sens = val;
+							}),
+						INFOBTN("This many pixels of leeway are given. 0 = fully sensitive."
+							"\nIf leeway exceeds combo/ffc size, no crumbling will occur."),
+						//
+						Label(text = "Crumble Time:"),
+						tfs[1] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_SSHORT,
+							low = 0, high = 32767, val = crumble_time,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								crumble_time = val;
+							}),
+						INFOBTN("The time, in frames, before the combo crumbles into the next combo in the combo list.")
+					)
+				),
+				frames[0] = Frame(
+					Rows<3>(
+						Label(text = "Reset Change:"),
+						tfs[2] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_SSHORT,
+							low = -32768, high = 32767, val = reset_change,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								reset_change = val;
+							}),
+						INFOBTN("If non-zero, the combo will change by this amount (ex. 1 = Next, -1 = Prev)"
+							" when the player steps off of the combo before it finishes crumbling. (Might be used to reset a crumble animation)")
+					)
+				)
+			));
+			frames[0]->setDisabled(crumble_type != CMBTY_CRUMBLE_RESET);	
 			break;
 		}
 		default: //Should be unreachable

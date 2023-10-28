@@ -396,6 +396,9 @@ std::string getComboTypeHelpText(int32_t id)
 		case cSHOOTER:
 			typehelp = "Shoots, as a turret. Triggering with 'ComboType Effects' causes it to instantly shoot.";
 			break;
+		case cCRUMBLE:
+			typehelp = "Crumbles when stood on, turning into the next combo. Various crumbling options are available.";
+			break;
 		case cARMOS:
 			typehelp = "When touched, this combo produces an Armos and changes to the screen's Under Combo."
 				" Only functions on layer 0, even with ComboType Effects triggerflag.";
@@ -1986,6 +1989,26 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[r_down] = "Weapons facing down-right (coming from up-left) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			break;
+		}
+		case cCRUMBLE:
+		{
+			l_attribyte[0] = "Crumble Type";
+			h_attribyte[0] = "0 = Reset (Timer resets when stepped off of, can also change combo)"
+				"\n1 = Cumulative (Timer does not reset, just pauses when stepped off of)"
+				"\n2 = Inevitable (Timer keeps going even if stepped off of)"
+				"\n3 = Inevitable, Continuous (Same as inevitable, and continues if the next combo is also an inevitable crumble combo)";
+			l_attribyte[1] = "Crumble Sensitivity";
+			h_attribyte[1] = "This many pixels of leeway are given. 0 = fully sensitive."
+				"\nIf leeway exceeds combo/ffc size, no crumbling will occur.";
+			l_attrishort[0] = "Crumble Time";
+			h_attrishort[0] = "The time, in frames, before the combo crumbles into the next combo in the combo list.";
+			if(local_comboref.attribytes[0] == CMBTY_CRUMBLE_RESET)
+			{
+				l_attrishort[1] = "Reset Change";
+				h_attrishort[1] = "If non-zero, the combo will change by this amount (ex. 1 = Next, -1 = Prev)"
+					" when the player steps off of the combo before it finishes crumbling. (Might be used to reset a crumble animation)";
+			}
 			break;
 		}
 	}
