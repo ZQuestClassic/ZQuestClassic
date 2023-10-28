@@ -143,9 +143,12 @@ bool HeroClass::on_ffc_platform(ffcdata const& ffc, bool old)
 {
 	if(no_plat_action())
 		return false;
-	if(platform_ffc && &ffc != platform_ffc && !get_qr(qr_MULTI_PLATFORM_FFC))
-		return false;
-	platform_ffc = nullptr;
+	if(!get_qr(qr_MULTI_PLATFORM_FFC))
+	{
+		if(platform_ffc && &ffc != platform_ffc)
+			return false;
+		platform_ffc = nullptr;
+	}
 	if(sideview_mode())
 	{
 		if((ffc.flags & (ffSOLID|ffPLATFORM|ffCHANGER)) != (ffSOLID|ffPLATFORM))
@@ -24308,10 +24311,9 @@ void HeroClass::checkspecial2(int32_t *ls)
 	// * Not a dried lake.
 	
 	// This used to check for swimming too, but I moved that into the block so that you can drown in higher-leveled water. -Dimi
-	
 	if(water > 0 && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE
 		&& ((get_qr(qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0) || CanSideSwim())
-		&& (sideview_mode() || platform_ffc))
+		&& (sideview_mode() || !platform_ffc))
 	{
 		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
 		{
