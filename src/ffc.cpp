@@ -188,12 +188,22 @@ void ffcdata::updateSolid()
 void ffcdata::solid_update(bool push)
 {
 #ifdef IS_PLAYER
-	if (hooked && push)
+	zfix dx = (x - old_x);
+	zfix dy = (y - old_y);
+	if((flags&ffPLATFORM) && Hero.on_ffc_platform(*this,true))
+	{
+		if(push)
+			Hero.movexy(dx,dy,false,false,false);
+		else
+		{
+			Hero.setXfix(Hero.getX()+dx);
+			Hero.setYfix(Hero.getY()+dy);
+		}
+	}
+	else if(hooked && push)
 	{
 		if (Lwpns.idFirst(wHookshot) > -1)
 		{
-			zfix dx = (x - old_x);
-			zfix dy = (y - old_y);
 			if (dx) 
 				Hero.setXfix(Hero.getX() + dx);
 			if (dy)

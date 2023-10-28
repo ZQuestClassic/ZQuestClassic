@@ -3217,6 +3217,7 @@ void game_loop()
 		//  walkflagx=0; walkflagy=0;
 		runDrunkRNG();
 		clear_darkroom_bitmaps();
+		Hero.check_platform_ffc();
 		
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff

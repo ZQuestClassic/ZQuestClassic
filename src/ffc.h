@@ -69,8 +69,9 @@ private:
 #define ffETHEREAL           0x00000200 //Does not occlude combo and flags on the screen
 #define ffIGNOREHOLDUP       0x00000400 //Updated even while Hero is holding an item
 #define ffIGNORECHANGER      0x00000800 //Ignore changers
-#define ffIMPRECISIONCHANGER 0x00001000 //Ignore changers
+#define ffIMPRECISIONCHANGER 0x00001000 //Ignore subpixel for changer collision
 #define ffLENSINVIS          0x00002000 //Visible, but not to the Lens of Truth
+#define ffPLATFORM           0x00004000 //Move the player with, if touching
 
 //FF combo changer flags
 #define ffSWAPNEXT           0x80000000 //Swap speed with next FFC

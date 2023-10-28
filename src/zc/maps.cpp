@@ -4993,6 +4993,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		slopes.clear();
 		triggered_screen_secrets = false; //Reset var
 		init_combo_timers();
+		Hero.clear_platform_ffc();
 		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	}
 	clear_darkroom_bitmaps();

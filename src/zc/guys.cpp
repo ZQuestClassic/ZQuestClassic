@@ -1386,7 +1386,7 @@ void enemy::solid_push(solid_object *obj)
 	if(moveflags&FLAG_NOT_PUSHABLE) return; //not pushable
 	zfix dx, dy;
 	int32_t hdir = -1;
-	solid_push_int(obj,dx,dy,hdir);
+	solid_push_int(obj,dx,dy,hdir,true);
 	
 	if(!dx && !dy) return;
 	

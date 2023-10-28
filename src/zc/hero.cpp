@@ -126,6 +126,83 @@ static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, 
 	return false;
 }
 
+static inline bool no_plat_action()
+{
+	if(Hero.fallclk || Hero.drownclk || toogam || Hero.getOnSideviewLadder())
+		return true;
+	switch(Hero.action)
+	{
+		case freeze: case rafting: case inwind: case scrolling: case won: case hopping:
+		case climbcovertop: case climbcoverbottom: case dying: case drowning:
+		case falling: case lavadrowning: case sideswimfreeze: case sidedrowning:
+			return true;
+	}
+	return false;
+}
+bool HeroClass::on_ffc_platform(ffcdata const& ffc, bool old)
+{
+	if(no_plat_action())
+		return false;
+	if(platform_ffc && &ffc != platform_ffc && !get_qr(qr_MULTI_PLATFORM_FFC))
+		return false;
+	platform_ffc = nullptr;
+	if(sideview_mode())
+	{
+		if((ffc.flags & (ffSOLID|ffPLATFORM|ffCHANGER)) != (ffSOLID|ffPLATFORM))
+			return false;
+		zfix fx = old ? ffc.old_x : ffc.x, fy = old ? ffc.old_y : ffc.y;
+		static const zfix tol = 0.5_zf;
+		if((y+16-fy).getAbs() > tol)
+			return false;
+		if(fx > x+12)
+			return false;
+		if(fx+ffc.hit_width <= x+4)
+			return false;
+	}
+	else
+	{
+		if((ffc.flags & (ffPLATFORM|ffCHANGER)) != ffPLATFORM)
+			return false;
+		if(z)
+			return false;
+		static const int tol = 3;
+		if(!(old
+			? ffc.collide_old(x + 8-tol, y + (bigHitbox ? 8 : 12), tol*2, tol*2)
+			: ffc.collide(x + 8-tol, y + (bigHitbox ? 8 : 12)-tol, tol*2, tol*2)))
+			return false;
+	}
+	platform_ffc = &ffc;
+	return true;
+}
+bool HeroClass::on_ffc_platform()
+{
+	if(no_plat_action())
+		return false;
+	if(platform_ffc && on_ffc_platform(*platform_ffc,false))
+		return true;
+	word c = tmpscr->numFFC();
+	for(word i=0; i<c; i++)
+	{
+		ffcdata& ffc = tmpscr->ffcs[i];
+		if(on_ffc_platform(ffc,false))
+			return true;
+	}
+	return false;
+}
+
+void HeroClass::check_platform_ffc()
+{
+	if(platform_ffc && !on_ffc_platform(*platform_ffc,false))
+	{
+		clear_platform_ffc();
+		on_ffc_platform();
+	}
+}
+void HeroClass::clear_platform_ffc()
+{
+	platform_ffc = nullptr;
+}
+
 void HeroClass::snap_platform()
 {
 	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false) < 0)
@@ -433,7 +510,15 @@ void HeroClass::trySideviewLadder()
 
 bool HeroClass::can_pitfall(bool ignore_hover)
 {
-	return (!(isSideViewGravity()||action==rafting||z>0||fakez>0||fall<0||fakefall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_hero||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
+	return !(
+		isSideViewGravity()
+		|| action==rafting
+		|| z>0 || fakez>0 || fall<0 || fakefall<0
+		|| (hoverclk && !ignore_hover)
+		|| inlikelike || inwallm || pull_hero || toogam
+		|| (ladderx||laddery) || getOnSideviewLadder()
+		|| drownclk || !(moveflags & FLAG_CAN_PITFALL)
+		|| platform_ffc);
 }
 
 int32_t HeroClass::DrunkClock()
@@ -1353,8 +1438,7 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 		
 	case drowning:
 	case sidedrowning:
-	//I would add a sanity check to see if Hero is in water, but I *KNOW* that quests have used this 
-	// INTENTIONALLY while Hero is on Land, as a blink-out effect. :( -Z
+		clear_platform_ffc();
 		if(!drownclk)
 			Drown();
 			
@@ -1362,12 +1446,14 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 	
 	case lavadrowning:
 		//Lavadrowning is just drowning but with a different argument. Simplicity! -Dimi
+		clear_platform_ffc();
 		if(!drownclk)
 			Drown(1);
 			
 		break;
 		
 	case falling:
+		clear_platform_ffc();
 		if(!fallclk)
 		{
 			//If there is a pit under Hero, use its combo.
@@ -1470,6 +1556,7 @@ void HeroClass::init()
 		delete lift_wpn;
 		lift_wpn = nullptr;
 	}
+	clear_platform_ffc();
 	liftclk = 0;
 	tliftclk = 0;
 	liftheight = 0;
@@ -10081,7 +10168,6 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	if (justmoved > 0) --justmoved;
-	
 	return false;
 }
 
@@ -10183,7 +10269,7 @@ void HeroClass::solid_push(solid_object* obj)
 	
 	zfix dx, dy;
 	int32_t hdir = -1;
-	solid_push_int(obj,dx,dy,hdir);
+	solid_push_int(obj,dx,dy,hdir,!on_ffc_platform());
 	
 	if(!dx && !dy) return;
 	
@@ -24223,7 +24309,9 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	// This used to check for swimming too, but I moved that into the block so that you can drown in higher-leveled water. -Dimi
 	
-	if(water > 0 && ((get_qr(qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0) || CanSideSwim()) && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE)
+	if(water > 0 && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE
+		&& ((get_qr(qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0) || CanSideSwim())
+		&& (sideview_mode() || platform_ffc))
 	{
 		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
 		{

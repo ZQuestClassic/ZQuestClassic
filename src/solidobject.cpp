@@ -124,6 +124,14 @@ bool solid_object::collide(zfix tx, zfix ty, zfix tw, zfix th) const
 	return tx+tw>rx && ty+th>ry &&
 	       tx<rx+rw && ty<ry+rh;
 }
+bool solid_object::collide_old(zfix tx, zfix ty, zfix tw, zfix th) const
+{
+	if(ignore_solid_temp) return false;
+	zfix rx = old_x+hxofs+sxofs, ry = old_y+hyofs+syofs;
+	zfix rw = hit_width+sxsz_ofs, rh = hit_height+sysz_ofs;
+	return tx+tw>rx && ty+th>ry &&
+	       tx<rx+rw && ty<ry+rh;
+}
 
 void solid_object::draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col)
 {
@@ -164,7 +172,7 @@ void solid_object::solid_push(solid_object* pusher)
 	//Default behavior: Ignore
 }
 
-void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, int32_t& hdir)
+void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, int32_t& hdir, bool can_platform)
 {
 	dx = dy = 0; hdir = -1;
 	if(is_unpushable()) return;
@@ -185,7 +193,7 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 	if(sideview_mode())
 	{
 		bool ride_platform = false;
-		if(ZF_TO_INT(ry+rh) == ZF_TO_INT(obj_oy)) //correct y
+		if(can_platform && ZF_TO_INT(ry+rh) == ZF_TO_INT(obj_oy)) //correct y
 		{
 			int32_t cx1 = ZF_TO_INT(obj_ox), cx2 = ZF_TO_INT(obj_ox + obj_w);
 			if(ZF_TO_INT(rw) > 4) //sanity

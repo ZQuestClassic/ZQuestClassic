@@ -460,7 +460,10 @@ static GUI::ListData comboRulesList
 		" Does nothing if 'No Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
 	{ "Sensitive Solid Damage Combos", qr_SENSITIVE_SOLID_DAMAGE, 
 		"Solid damage combos only check the center of the Player's hitbox. Does not affect sideview damage combos you step on."
-		" Does nothing if 'No Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS,qr_LENIENT_SOLID_DAMAGE}) }
+		" Does nothing if 'No Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS,qr_LENIENT_SOLID_DAMAGE}) },
+	{ "Allow Multiple Platform FFCs", qr_MULTI_PLATFORM_FFC, 
+		"If checked, more than one FFC with the 'Platform' flag can move the player in a single frame."
+		" Otherwise, the first 'Platform' FFC to move the player will prevent other platforms from moving the player that frame." },
 };
 
 static GUI::ListData compatRulesList
