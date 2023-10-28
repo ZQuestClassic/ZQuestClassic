@@ -8578,6 +8578,8 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
     showxypos_icon=!showxypos_dummy;
     bool canedit=false;
     bool done=false;
+	
+	clear_tooltip();
     
     while(!done && (!(gui_mouse_b()&2) || immediately))
     {
