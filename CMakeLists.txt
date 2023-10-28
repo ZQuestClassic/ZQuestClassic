@@ -433,8 +433,8 @@ set(zcbase_sources
 	src/base/colors.cpp
 	src/base/combo.cpp
 	src/base/containers.cpp
-	src/base/cpos_info.cpp
 	src/base/cpool.cpp
+	src/base/cpos_info.cpp
 	src/base/dmap.cpp
 	src/base/fonts.cpp
 	src/base/general.cpp
@@ -488,12 +488,16 @@ add_library(zcgui STATIC
 	src/gui/dialog_ref.cpp
 	src/gui/dialog_runner.cpp
 	src/gui/drop_down_list.cpp
+	src/gui/editbox.cpp
+	src/gui/EditboxModel.cpp
+	src/gui/EditboxView.cpp
 	src/gui/frame.cpp
 	src/gui/grid.cpp
+	src/gui/jwin_a5.cpp
+	src/gui/jwin.cpp
 	src/gui/label.cpp
 	src/gui/list_data.cpp
 	src/gui/list.cpp
-	src/gui/qrpanel.cpp
 	src/gui/radio.cpp
 	src/gui/radioset.cpp
 	src/gui/scrolling_pane.cpp

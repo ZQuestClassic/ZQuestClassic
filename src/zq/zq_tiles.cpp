@@ -17,7 +17,7 @@
 #include "base/zsys.h"
 #include "base/colors.h"
 #include "qst.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/jwinfsel.h"
 #include "zc/zc_custom.h"
 #include "zq/questReport.h"

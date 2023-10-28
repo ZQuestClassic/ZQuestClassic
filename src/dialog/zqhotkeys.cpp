@@ -1,7 +1,7 @@
 #include "zqhotkeys.h"
 #include "info.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zsys.h"
 #include "gui/use_size.h"
 #include <fmt/format.h>

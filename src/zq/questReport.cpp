@@ -6,10 +6,10 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
-#include "editbox.h"
-#include "EditboxNew.h"
+#include "gui/editbox.h"
+#include "gui/EditboxNew.h"
 #include "base/gui.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "tiles.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"

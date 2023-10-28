@@ -14,7 +14,7 @@
 #include "sfx.h"
 #include "zcmusic.h"
 #include "zcmixer.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "gamedata.h"
 #include "base/zsys.h"
 #include "zc/script_drawing.h"

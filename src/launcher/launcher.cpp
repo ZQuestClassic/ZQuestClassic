@@ -655,3 +655,23 @@ void clear_tooltip()
 	
 }
 
+// TODO: I experimented with making zcbase/zcgui shared/object libraries, and the followed was needed to compile zlauncher:
+// The following is needed because of ~mapscr, which is in zcbase.
+// void ffcdata::solid_update(bool push) {}
+// bool ffcdata::setSolid(bool set) {return false;}
+// void ffcdata::updateSolid() {}
+// void ffcdata::doContactDamage(int32_t hdir) {}
+
+// bool solid_object::setSolid(bool set) {return false;}
+// bool solid_object::getSolid() const {return false;}
+// void solid_object::updateSolid() {}
+// bool solid_object::collide(solid_object const* other) const {return false;}
+// bool solid_object::collide(zfix tx, zfix ty, zfix tw, zfix th) const {return false;}
+// void solid_object::solid_update(bool push) {}
+// void solid_object::solid_push(solid_object* pusher) {}
+
+// // Needed for other things in zcbase to resolve.
+// void replay_step_comment(std::string comment) {}
+// bool fake_pack_writing=false;
+// bool replay_is_active() {return false;}
+// bool replay_version_check(int min, int max) {return false;}

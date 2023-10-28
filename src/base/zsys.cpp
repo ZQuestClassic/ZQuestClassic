@@ -14,7 +14,7 @@ using std::getline;
 #include "zsyssimple.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zconsole/ConsoleLogger.h"
 
 #ifdef __EMSCRIPTEN__

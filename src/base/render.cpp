@@ -3,7 +3,7 @@
 #include "base/zdefs.h"
 #include "base/fonts.h"
 #include "fmt/core.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include <atomic>
 
 using namespace std::chrono_literals;

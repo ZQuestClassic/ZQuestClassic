@@ -1,7 +1,7 @@
 #include "gui/dialog_runner.h"
 #include "gui/common.h"
 #include "base/gui.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 
 using std::shared_ptr;
 bool mid_quitting_dlg = false;

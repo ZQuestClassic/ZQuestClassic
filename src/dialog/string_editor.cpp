@@ -1,8 +1,8 @@
 #include "string_editor.h"
 #include "base/zsys.h"
 #include "base/msgstr.h"
-#include "editbox.h"
-#include "EditboxNew.h"
+#include "gui/editbox.h"
+#include "gui/EditboxNew.h"
 #include "info.h"
 #include "subscr.h"
 #include <gui/builder.h>

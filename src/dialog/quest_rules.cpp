@@ -6,7 +6,7 @@
 #include "info.h"
 #include "alert.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "base/zsys.h"
 #include "base/gui.h"

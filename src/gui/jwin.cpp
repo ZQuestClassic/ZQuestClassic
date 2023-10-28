@@ -2,8 +2,8 @@
 #include <cstring>
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
-#include "jwin.h"
-#include "editbox.h"
+#include "gui/jwin.h"
+#include "gui/editbox.h"
 #include <iostream>
 #include <sstream>
 #include "base/zsys.h"

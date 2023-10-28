@@ -1,5 +1,5 @@
 #include "base/zdefs.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include "base/zapp.h"
 #include "dialog/info.h"
 #include <sstream>

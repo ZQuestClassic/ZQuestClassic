@@ -3,7 +3,7 @@
 #include "base/gui.h"
 #include "subscr.h"
 #include "zq/zq_subscr.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "base/zsys.h"
 #include "zq/zq_misc.h"

@@ -4,7 +4,7 @@
 #include "init.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zsys.h"
 #include "gamedata.h"
 #include "dialog/info.h"

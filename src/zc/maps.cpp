@@ -16,7 +16,7 @@ using std::set;
 #include "zc/zelda.h"
 #include "tiles.h"
 #include "sprite.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zsys.h"
 #include "subscr.h"
 #include "zc/zc_subscr.h"

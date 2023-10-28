@@ -9,7 +9,7 @@
 #include "base/colors.h"
 #include "pal.h"
 #include "base/zsys.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
 

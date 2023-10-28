@@ -17,7 +17,7 @@
 #include "pal.h"
 #include "tiles.h"
 #include "items.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include <cstddef>
 #include <cstdio>
 #include <vector>

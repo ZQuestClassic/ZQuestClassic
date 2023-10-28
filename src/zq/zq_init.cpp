@@ -5,7 +5,7 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zq_init.h"
 #include "base/zsys.h"
 #include "zq/zquest.h"

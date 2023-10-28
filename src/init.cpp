@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "base/zc_alleg.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zdefs.h"
 #include "base/dmap.h"
 #include "base/zsys.h"

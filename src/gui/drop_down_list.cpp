@@ -2,7 +2,7 @@
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include <cassert>
 #include <cmath>
 

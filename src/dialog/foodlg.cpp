@@ -1,6 +1,6 @@
 #include "foodlg.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 
 #ifdef __GNUC__

@@ -1,7 +1,7 @@
 #ifndef _JWIN_FSEL_H_
 #define _JWIN_FSEL_H_
 
-#include "jwin.h"
+#include "gui/jwin.h"
 
 
 #define FLIST_SIZE      2048

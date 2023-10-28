@@ -12,7 +12,7 @@
 #include "base/zsys.h"
 #include "qst.h"
 #include "zc/matrix.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/jwinfsel.h"
 #include "zc/weapons.h"
 //#include "save_gif.h"

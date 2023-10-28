@@ -14,7 +14,7 @@
 #include "dialog/about.h"
 #include "dialog/alertfunc.h"
 #include "drawing.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include <cstring>
 #include <stdio.h>
 #include <sstream>

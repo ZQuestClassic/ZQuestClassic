@@ -16,8 +16,6 @@ src/zq/zq_subscr.cpp
 src/zq/zq_strings.cpp
 src/zq/zq_tiles.cpp
 src/play_midi.cpp
-src/jwin.cpp
-src/jwin_a5.cpp
 
 src/zq/gui/seltile_swatch.cpp
 src/zq/gui/selcombo_swatch.cpp
@@ -31,6 +29,7 @@ src/zq/gui/misc_color_row.cpp
 src/zq/gui/dmap_minimap.cpp
 src/zq/gui/dmap_mapgrid.cpp
 src/zq/gui/engraving.cpp
+src/gui/qrpanel.cpp
 
 src/zc_list_data.cpp
 

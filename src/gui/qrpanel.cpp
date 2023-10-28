@@ -5,7 +5,7 @@
 #include "gui/label.h"
 #include "base/zc_alleg.h"
 #include "gui/dialog_runner.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zsys.h"
 #include "dialog/info.h"
 #include <utility>

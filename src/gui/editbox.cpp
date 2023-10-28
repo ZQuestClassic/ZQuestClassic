@@ -1,9 +1,9 @@
 #include <cstring>
 #include "base/zc_alleg.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include <stdio.h>
 
-#include "EditboxNew.h"
+#include "gui/EditboxNew.h"
 
 extern int32_t scheme[];
 /* d_editbox_proc:

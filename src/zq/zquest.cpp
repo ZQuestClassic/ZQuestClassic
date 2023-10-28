@@ -62,9 +62,9 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/compilezscript.h"
 
 #include "base/gui.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include "zc_list_data.h"
-#include "editbox.h"
+#include "gui/editbox.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_tiles.h"                                       // tile and combo code
 
@@ -92,7 +92,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "subscr.h"
 #include "zq/zq_subscr.h"
 #include "zc/ffscript.h"
-#include "EditboxNew.h"
+#include "gui/EditboxNew.h"
 #include "sfx.h"
 #include "zq/zq_custom.h" // custom items and guys
 #include "zq/zq_strings.h"

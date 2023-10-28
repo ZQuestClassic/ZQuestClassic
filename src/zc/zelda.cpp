@@ -35,7 +35,7 @@
 #include "play_midi.h"
 #include "qst.h"
 #include "zc/matrix.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/jwinfsel.h"
 #include "fontsdat.h"
 #include "particles.h"

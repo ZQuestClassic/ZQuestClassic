@@ -2,7 +2,7 @@
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include <gui/builder.h>

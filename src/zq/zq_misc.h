@@ -4,7 +4,7 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/fonts.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "sfx.h"
 #include "zq/render_tooltip.h"
 

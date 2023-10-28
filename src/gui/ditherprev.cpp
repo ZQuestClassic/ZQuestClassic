@@ -1,6 +1,6 @@
 #include "gui/ditherprev.h"
 #include "gui/dialog_runner.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 
 namespace GUI
 {

@@ -1,6 +1,6 @@
 #include "pickruletemplate.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zq/zq_files.h"
 #include "info.h"

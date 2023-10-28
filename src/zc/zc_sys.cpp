@@ -32,7 +32,7 @@
 #include "qst.h"
 #include "zc/zc_sys.h"
 #include "play_midi.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
 #include "midi.h"

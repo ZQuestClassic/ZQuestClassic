@@ -1,6 +1,6 @@
 #include "base/zc_alleg.h"
 #include "tab_ctl.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 
 extern volatile int32_t myvsync;
 void update_hw_screen(bool force);
