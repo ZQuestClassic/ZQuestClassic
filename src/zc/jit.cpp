@@ -11,6 +11,7 @@
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zc/zelda.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 #include <algorithm>
@@ -18,6 +19,7 @@
 #include <chrono>
 #include <optional>
 #include <array>
+#include <filesystem>
 
 typedef int32_t (*JittedFunction)(int32_t *registers, int32_t *global_registers,
 								  int32_t *stack, uint32_t *stack_index, uint32_t *pc,
@@ -187,7 +189,7 @@ static void create_compile_tasks(script_data *scripts[], size_t start, size_t ma
 	for (size_t i = start; i < max; i++)
 	{
 		auto script = scripts[i];
-		if (script && script->valid())
+		if (script && script->valid() && !compiled_functions.contains({type, (int)i}))
 		{
 			pending_scripts.push_back(script);
 		}
@@ -1682,15 +1684,23 @@ void jit_startup()
 	if (!task_finish_cond)
 		task_finish_cond = al_create_cond();
 
-	// TODO: should not clear compiled_functions on init_game if not a new quest.
-	al_lock_mutex(tasks_mutex);
-	thread_pool_generation_count++;
-	for (auto &it : compiled_functions)
+	// Only clear compiled functions if quest has changed since last quest load.
+	// TODO: could get even smarter and hash each ZASM script, only recompiling if something really changed.
+	static std::pair<std::string, std::filesystem::file_time_type> previous_state;
+	static std::pair<std::string, std::filesystem::file_time_type> state = {qstpath, std::filesystem::last_write_time(qstpath)};
+	bool should_clear = state != previous_state;
+	if (should_clear)
 	{
-		rt.release(it.second);
+		previous_state = state;
+		al_lock_mutex(tasks_mutex);
+		thread_pool_generation_count++;
+		for (auto &it : compiled_functions)
+		{
+			rt.release(it.second);
+		}
+		compiled_functions.clear();
+		al_unlock_mutex(tasks_mutex);
 	}
-	compiled_functions.clear();
-	al_unlock_mutex(tasks_mutex);
 
 	create_compile_tasks();
 
