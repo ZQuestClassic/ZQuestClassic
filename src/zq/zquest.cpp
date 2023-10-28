@@ -11613,8 +11613,8 @@ void domouse()
 						case 13:
 						{
 							auto set_ffc_data = Map.getCopyFFCData();
-							set_ffc_data.x = (((x-startxint)&(~0x000F))/mapscreensize);
-							set_ffc_data.y = (((y-startyint)&(~0x000F))/mapscreensize);
+							set_ffc_data.x = (((x-startxint)/mapscreensize)&(~0x0007));
+							set_ffc_data.y = (((y-startyint)/mapscreensize)&(~0x0007));
 							Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), earliestfreeffc, set_ffc_data);
 						}
 						break;
