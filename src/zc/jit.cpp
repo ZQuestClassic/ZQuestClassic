@@ -277,7 +277,7 @@ static void create_compile_tasks()
 	create_compile_tasks(subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
 	// Sort by # of commands, so that biggest scripts get compiled first.
 	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
-		return a->size() < b->size();
+		return a->size < b->size;
 	});
 	// Make sure player and global scripts are compiled first.
 	create_compile_tasks(playerscripts, NUMSCRIPTPLAYER, ScriptType::Player);
@@ -286,7 +286,7 @@ static void create_compile_tasks()
 	{
 		for (auto a : pending_scripts) 
 		{
-			jit_printf("jit: %d: %d\n", a->debug_id, (int)a->size());
+			jit_printf("jit: %d: %d\n", a->debug_id, (int)a->size);
 		}
 	}
 
@@ -726,7 +726,7 @@ static JittedFunction compile_script(script_data *script)
 
 	al_trace("compiling script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
 
-	state.size = script->size();
+	state.size = script->size;
 	size_t size = state.size;
 	if (size <= 1)
 		return nullptr;

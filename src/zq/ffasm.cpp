@@ -3120,10 +3120,6 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 	if((*script)!=NULL)
 		delete (*script);
 	(*script) = new script_data(num_commands);
-	for(int32_t i=0; i<num_commands; i++)
-	{
-		(*script)->zasm[i].clear();
-	}
 	
 	for(int32_t i=0; i<num_commands; ++i)
 	{
@@ -3428,7 +3424,9 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			}
 		}
 	}
-	
+
+	(*script)->recalc_size();
+
 	if(report_success && success) //(!stop) // stop is never true here
 	{
 		char buf[80],name[13];
@@ -3615,10 +3613,6 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 	if((*script)!=NULL)
 		delete (*script);
 	(*script) = new script_data(num_commands);
-	for(int32_t i=0; i<num_commands; i++)
-	{
-		(*script)->zasm[i].clear();
-	}
 	
 	for(int32_t i=0; i<num_commands; ++i)
 	{
@@ -3916,7 +3910,9 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 			}
 		}
 	}
-	
+
+	(*script)->recalc_size();
+
 	if(report_success && success) //(!stop) // stop is never true here
 	{
 		char buf[80],name[13];

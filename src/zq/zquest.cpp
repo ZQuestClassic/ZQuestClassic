@@ -27589,6 +27589,8 @@ int32_t main(int32_t argc,char **argv)
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
 	if (test_zc_arg > 0)
 	{
+		set_headless_mode();
+
 		if (test_zc_arg + 1 > argc)
 		{
 			printf("%d\n", argc);

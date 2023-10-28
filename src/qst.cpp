@@ -13074,7 +13074,9 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 		}
 		temp_script.clear();
 	}
-	
+
+	(*script)->recalc_size();
+
 	return 0;
 }
 

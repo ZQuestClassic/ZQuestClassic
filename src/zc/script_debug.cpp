@@ -185,13 +185,12 @@ void ScriptDebugHandle::print_command(int i)
 
 void ScriptDebugHandle::print_zasm(int script_num, int script_index)
 {
-	size_t size = script->size();
 	print("ZASM:\n\n");
 	printf(
 		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
 		"script id: %d\nname: %s\ntype: %d\nnum: %d\nindex: %d\n\n", script->debug_id, script->meta.script_name.c_str(), script->meta.script_type, script_num, script_index);
-	for (size_t i = 0; i < size; i++)
+	for (size_t i = 0; i < script->size; i++)
 	{
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
 								CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
