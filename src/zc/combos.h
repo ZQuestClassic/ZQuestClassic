@@ -25,10 +25,6 @@ public:
 };
 extern CutsceneState active_cutscene;
 
-void clear_combo_posinfo();
-cpos_info& get_combo_posinfo(int32_t layer, int32_t pos);
-void set_combo_posinfo(int32_t layer, int32_t pos, cpos_info& posinfo);
-
 bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);
 void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft);
@@ -64,13 +60,22 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special = 0, weapon* w = NULL);
 
 bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid);
 
-int get_trig_group(int ind);
-void update_trig_group(int oldc, int newc);
-void calculate_trig_groups();
+void handle_cpos_type(newcombo const& cmb, cpos_info& timer, int lyr, int pos);
+void handle_ffcpos_type(newcombo const& cmb, cpos_info& timer, ffcdata& f);
 void trig_trigger_groups();
-void init_combo_timers();
-void update_combo_timers();
-bool on_cooldown(int32_t lyr, int32_t pos);
+
+
+// CPOS stuff
+cpos_info& get_combo_posinfo(int32_t layer, int32_t pos);
+int get_trig_group(int ind);
+int cpos_exists_spotlight();
+
+void clear_cposes();
+void force_update_cposes();
+void update_cposes();
+
+void force_recalculate_trig_groups();
+
 
 #endif
 
