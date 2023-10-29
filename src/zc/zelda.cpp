@@ -3284,7 +3284,7 @@ void game_loop()
 		if ( !FFCore.system_suspend[susptCOMBOANIM] )
 		{
 			animate_combos();
-			update_combo_timers();
+			update_cposes();
 		}
 		run_gswitch_timers();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_ANIM);

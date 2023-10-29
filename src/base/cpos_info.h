@@ -26,6 +26,8 @@ struct cpos_info
 	word sumpush() const;
 	void clear();
 	void updateData(int32_t newdata);
+	void updateInfo(cpos_info const& other);
+	void clearInfo();
 };
 
 #endif

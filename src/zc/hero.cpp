@@ -20424,7 +20424,7 @@ void HeroClass::checkpushblock()
 					mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
 					mblock2.blockinfo = cpinfo;
 					mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
-					cpinfo.clear();
+					cpinfo.clearInfo();
 					if(cmb.attribytes[1])
 						sfx(cmb.attribytes[1],(int32_t)x);
 				}
@@ -21502,7 +21502,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if(on_cooldown(found_lyr, COMBOPOS(fx,fy))) return;
+	if(get_combo_posinfo(found_lyr, COMBOPOS(fx,fy)).trig_cd) return;
 	switch(dir)
 	{
 		case down:
@@ -22837,116 +22837,130 @@ static int32_t get_beamoffs(spot_t val)
 
 void HeroClass::handleSpotlights()
 {
-	//Store each different tile/color as grids
-	std::map<int32_t, spot_t*> maps;
-	std::map<int32_t, std::map<dword, spot_t>> ffmaps;
-	int32_t shieldid = getCurrentShield(false);
-	bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
-	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
-	heropos = COMBOPOS_B(x.getInt()+8,y.getInt()+8);
-	memset(istrig, 0, sizeof(istrig));
-	clear_bitmap(lightbeam_bmp);
-	
-	for(size_t pos = 0; pos < 176; ++pos)
-	{
-		typeMap[pos] = 0;
-		customTypeMap[pos] = -1;
-		for(int32_t lyr = 6; lyr > -1; --lyr)
-		{
-			auto cid = FFCore.tempScreens[lyr]->data[pos];
-			newcombo const* cmb = &combobuf[cid];
-			switch(cmb->type)
-			{
-				case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
-				case cMAGICPRISM: case cMAGICPRISM4:
-				case cBLOCKALL: case cLIGHTTARGET:
-					typeMap[pos] = cmb->type;
-					break;
-				case cMIRRORNEW:
-					typeMap[pos] = cMIRRORNEW;
-					customTypeMap[pos] = cid;
-					break;
-				case cGLASS:
-					typeMap[pos] = 0;
-					break;
-				default:
-				{
-					if(lyr < 3 && (cmb->walk & 0xF))
-					{
-						typeMap[pos] = SPTYPE_SOLID;
-					}
-					continue; //next layer
-				}
-			}
-			break; //hit a combo type
-		}
-		if(!get_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ) && !typeMap[pos])
-		{
-			if(collide_object(COMBOX(pos),COMBOY(pos),16,16,this))
-				typeMap[pos] = SPTYPE_SOLID;
-		}
-	}
-	if(unsigned(heropos) < 176)
-	{
-		switch(typeMap[heropos])
-		{
-			case SPTYPE_SOLID: case cBLOCKALL:
-				heropos = -1; //Blocked from hitting player
-		}
-	}
-	
-	for(size_t layer = 0; layer < 7; ++layer)
-	{
-		mapscr* curlayer = FFCore.tempScreens[layer];
-		for(size_t pos = 0; pos < 176; ++pos)
-		{
-			newcombo const& cmb = combobuf[curlayer->data[pos]];
-			if(cmb.type == cSPOTLIGHT)
-				launch_lightbeam(cmb,pos,maps,refl,block);
-		}
-	}
+	static bool had_spotlight = true;
 	word c = tmpscr->numFFC();
-	for(word i=0; i<c; i++)
+	if(cpos_exists_spotlight())
 	{
-		ffcdata& ffc = tmpscr->ffcs[i];
-		newcombo const& cmb = combobuf[ffc.data];
-		if(cmb.type == cSPOTLIGHT && (cmb.usrflags&cflag2))
-			launch_fflightbeam(ffc,ffmaps,refl,block);
-	}
-	
-	lightbeam_present = !maps.empty() || !ffmaps.empty();
-	
-	//Draw visuals
-	for(auto it = maps.begin(); it != maps.end();)
-	{
-		int32_t id = it->first;
-		spot_t* grid = it->second;
-		BITMAP* cbmp = generate_beam_bitmap(id);
+		//Store each different tile/color as grids
+		std::map<int32_t, spot_t*> maps;
+		std::map<int32_t, std::map<dword, spot_t>> ffmaps;
+		int32_t shieldid = getCurrentShield(false);
+		bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
+		bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
+		heropos = COMBOPOS_B(x.getInt()+8,y.getInt()+8);
+		memset(istrig, 0, sizeof(istrig));
+		clear_bitmap(lightbeam_bmp);
+		
 		for(size_t pos = 0; pos < 176; ++pos)
 		{
-			int32_t offs = get_beamoffs(grid[pos]);
-			if(offs > -1)
-				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX(pos), COMBOY(pos), 16, 16);
+			typeMap[pos] = 0;
+			customTypeMap[pos] = -1;
+			for(int32_t lyr = 6; lyr > -1; --lyr)
+			{
+				auto cid = FFCore.tempScreens[lyr]->data[pos];
+				newcombo const* cmb = &combobuf[cid];
+				switch(cmb->type)
+				{
+					case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
+					case cMAGICPRISM: case cMAGICPRISM4:
+					case cBLOCKALL: case cLIGHTTARGET:
+						typeMap[pos] = cmb->type;
+						break;
+					case cMIRRORNEW:
+						typeMap[pos] = cMIRRORNEW;
+						customTypeMap[pos] = cid;
+						break;
+					case cGLASS:
+						typeMap[pos] = 0;
+						break;
+					default:
+					{
+						if(lyr < 3 && (cmb->walk & 0xF))
+						{
+							typeMap[pos] = SPTYPE_SOLID;
+						}
+						continue; //next layer
+					}
+				}
+				break; //hit a combo type
+			}
+			if(!get_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ) && !typeMap[pos])
+			{
+				if(collide_object(COMBOX(pos),COMBOY(pos),16,16,this))
+					typeMap[pos] = SPTYPE_SOLID;
+			}
 		}
-		destroy_bitmap(cbmp);
-		delete[] it->second;
-		it = maps.erase(it);
-	}
-	for(auto it = ffmaps.begin(); it != ffmaps.end();)
-	{
-		int32_t id = it->first;
-		std::map<dword,spot_t> const& grid = it->second;
-		BITMAP* cbmp = generate_beam_bitmap(id);
-		for(auto it2 = grid.begin(); it2 != grid.end(); ++it2)
+		if(unsigned(heropos) < 176)
 		{
-			lightbeam_xy ffxy(it2->first);
-			int32_t offs = get_beamoffs(it2->second);
-			if(offs > -1)
-				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, ffxy.x-8, ffxy.y-8, 16, 16);
+			switch(typeMap[heropos])
+			{
+				case SPTYPE_SOLID: case cBLOCKALL:
+					heropos = -1; //Blocked from hitting player
+			}
 		}
-		destroy_bitmap(cbmp);
-		it = ffmaps.erase(it);
+		
+		for(size_t layer = 0; layer < 7; ++layer)
+		{
+			mapscr* curlayer = FFCore.tempScreens[layer];
+			for(size_t pos = 0; pos < 176; ++pos)
+			{
+				newcombo const& cmb = combobuf[curlayer->data[pos]];
+				if(cmb.type == cSPOTLIGHT)
+					launch_lightbeam(cmb,pos,maps,refl,block);
+			}
+		}
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc.data];
+			if(cmb.type == cSPOTLIGHT && (cmb.usrflags&cflag2))
+				launch_fflightbeam(ffc,ffmaps,refl,block);
+		}
+		
+		lightbeam_present = !maps.empty() || !ffmaps.empty();
+		
+		//Draw visuals
+		for(auto it = maps.begin(); it != maps.end();)
+		{
+			int32_t id = it->first;
+			spot_t* grid = it->second;
+			BITMAP* cbmp = generate_beam_bitmap(id);
+			for(size_t pos = 0; pos < 176; ++pos)
+			{
+				int32_t offs = get_beamoffs(grid[pos]);
+				if(offs > -1)
+					masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX(pos), COMBOY(pos), 16, 16);
+			}
+			destroy_bitmap(cbmp);
+			delete[] it->second;
+			it = maps.erase(it);
+		}
+		for(auto it = ffmaps.begin(); it != ffmaps.end();)
+		{
+			int32_t id = it->first;
+			std::map<dword,spot_t> const& grid = it->second;
+			BITMAP* cbmp = generate_beam_bitmap(id);
+			for(auto it2 = grid.begin(); it2 != grid.end(); ++it2)
+			{
+				lightbeam_xy ffxy(it2->first);
+				int32_t offs = get_beamoffs(it2->second);
+				if(offs > -1)
+					masked_blit(cbmp, lightbeam_bmp, offs*16, 0, ffxy.x-8, ffxy.y-8, 16, 16);
+			}
+			destroy_bitmap(cbmp);
+			it = ffmaps.erase(it);
+		}
 	}
+	else
+	{
+		if(had_spotlight)
+		{
+			memset(istrig, 0, sizeof(istrig));
+			clear_bitmap(lightbeam_bmp);
+		}
+		lightbeam_present = false;
+	}
+	had_spotlight = lightbeam_present;
 	//Check triggers
 	bool hastrigs = false, istrigged = true;
 	bool alltrig = getmapflag(mLIGHTBEAM);
@@ -22960,7 +22974,7 @@ void HeroClass::handleSpotlights()
 			{
 				int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
 				hastrigs = true;
-				bool trigged = (istrig[pos]&trigflag);
+				bool trigged = lightbeam_present && (istrig[pos]&trigflag);
 				if(cmb->usrflags&cflag2) //Invert
 					trigged = !trigged;
 				if(cmb->usrflags&cflag1) //Solved Version
@@ -22981,7 +22995,7 @@ void HeroClass::handleSpotlights()
 			else if(cmb->triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
 			{
 				int32_t trigflag = cmb->triglbeam ? (1 << (cmb->triglbeam-1)) : ~0;
-				bool trigged = (istrig[pos]&trigflag);
+				bool trigged = lightbeam_present && (istrig[pos]&trigflag);
 				if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
 					: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
 				{
