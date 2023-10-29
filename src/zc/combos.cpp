@@ -3523,10 +3523,8 @@ static void trigger_crumble(newcombo const& cmb, cpos_info& timer, word& cid)
 	timer.updateData(cid);
 	//Continue crumbling through the change
 	newcombo const& ncmb = combobuf[cid];
-	if(ncmb.type == cCRUMBLE
-		&& cmb.attribytes[0] == CMBTY_CRUMBLE_INEV_CONTINUOUS
-		&& (ncmb.attribytes[0] == CMBTY_CRUMBLE_INEVITABLE
-			|| ncmb.attribytes[0] == CMBTY_CRUMBLE_INEV_CONTINUOUS))
+	if(ncmb.type == cCRUMBLE && (cmb.usrflags&cflag1)
+		&& (ncmb.attribytes[0] == CMBTY_CRUMBLE_INEVITABLE))
 		timer.flags.set(CPOS_CRUMBLE_BREAKING,true);
 }
 
@@ -3534,7 +3532,7 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 {
 	bool breaking = false;
 	byte ty = cmb.attribytes[0];
-	if(ty == CMBTY_CRUMBLE_INEVITABLE || ty == CMBTY_CRUMBLE_INEV_CONTINUOUS)
+	if(ty == CMBTY_CRUMBLE_INEVITABLE)
 		if(timer.flags.get(CPOS_CRUMBLE_BREAKING))
 			breaking = true;
 	if(!breaking)

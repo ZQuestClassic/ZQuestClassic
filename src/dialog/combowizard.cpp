@@ -774,7 +774,7 @@ void ComboWizardDialog::endUpdate()
 		{
 			if(dest_ref.attribytes[0] == CMBTY_CRUMBLE_RESET
 				&& local_ref.attribytes[0] != CMBTY_CRUMBLE_RESET)
-				local_ref.attrishorts[0] = 0;
+				local_ref.attrishorts[1] = 0;
 			break;
 		}
 	}
@@ -4106,8 +4106,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			lists[0] = GUI::ListData({
 				{ "Reset", CMBTY_CRUMBLE_RESET, "Timer resets when stepped off of, can also change combo" },
 				{ "Cumulative", CMBTY_CRUMBLE_CUMULATIVE, "Timer does not reset, just pauses when stepped off of" },
-				{ "Inevitable", CMBTY_CRUMBLE_INEVITABLE, "Timer keeps going even if stepped off of" },
-				{ "Inevitable (Continuous)", CMBTY_CRUMBLE_INEV_CONTINUOUS, "Timer keeps going even if stepped off of - AND continues if the next combo is also an inevitable crumble combo" }
+				{ "Inevitable", CMBTY_CRUMBLE_INEVITABLE, "Timer keeps going even if stepped off of" }
 			});
 			windowRow->add(Column(
 				Rows<3>(
@@ -4119,7 +4118,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							crumble_type = val;
 							frames[0]->setDisabled(val != CMBTY_CRUMBLE_RESET);
 						}),
-					INFOBTN_REF(lists[0].findInfo(crumble_type))
+					INFOBTN_REF(lists[0].findInfo(crumble_type)),
+					DummyWidget(),
+					Checkbox(text = "Continuous", _EX_RBOX,
+						checked = (local_ref.usrflags&cflag1),
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_ref.usrflags,cflag1,state);
+						}),
+					INFOBTN("If the next combo is a Crumbling combo of the 'Inevitable'"
+						" type, it will continue crumbling automatically.")
 				),
 				Frame(
 					Rows<3>(

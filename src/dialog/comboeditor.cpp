@@ -1996,8 +1996,9 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[0] = "Crumble Type";
 			h_attribyte[0] = "0 = Reset (Timer resets when stepped off of, can also change combo)"
 				"\n1 = Cumulative (Timer does not reset, just pauses when stepped off of)"
-				"\n2 = Inevitable (Timer keeps going even if stepped off of)"
-				"\n3 = Inevitable, Continuous (Same as inevitable, and continues if the next combo is also an inevitable crumble combo)";
+				"\n2 = Inevitable (Timer keeps going even if stepped off of)";
+			l_flag[0] = "Continuous";
+			h_flag[0] = "If the next combo is a Crumbling combo of the 'Inevitable' type, it will continue crumbling automatically.";
 			l_attribyte[1] = "Crumble Sensitivity";
 			h_attribyte[1] = "This many pixels of leeway are given. 0 = fully sensitive."
 				"\nIf leeway exceeds combo/ffc size, no crumbling will occur.";
