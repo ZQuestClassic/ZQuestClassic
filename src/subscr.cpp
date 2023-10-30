@@ -2563,7 +2563,7 @@ void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t cs,bool bs_style)
 		overtile8(dest,tile,x,y,cs,0);
 		x+=8;
 		
-		if(((i>>4)&7)==7)
+		if(((i/(game ? game->get_hp_per_heart() : 16))&7)==7)
 		{
 			x-=64;
 			y+=bs_style?8:-8;
