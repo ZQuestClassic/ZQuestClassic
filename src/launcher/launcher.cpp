@@ -192,9 +192,6 @@ int32_t main(int32_t argc, char* argv[])
 	// TODO: remember window size.
 	auto [w, h] = zc_get_default_display_size(zq_screen_w/2, zq_screen_h/2, -1, -1);
 	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,w,h,zq_screen_w, zq_screen_h);
-
-	int xresx = al_get_display_width(all_get_display());
-	int xresy = al_get_display_height(all_get_display());
 	
 	if(videofail)
 	{
@@ -202,6 +199,7 @@ int32_t main(int32_t argc, char* argv[])
 		QUIT_LAUNCHER();
 	}
 
+	set_window_title("ZQuest Classic Launcher");
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_primitives_addon();
@@ -240,7 +238,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	get_root_path(rootpath, 4096);
 	
-	set_window_title("ZQuest Classic Launcher");
 	set_close_button_callback((void (*)()) hit_close_button);
 	//
 	Z_message("Launcher opened successfully.\n");

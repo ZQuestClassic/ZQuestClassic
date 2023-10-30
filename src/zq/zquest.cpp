@@ -28132,6 +28132,9 @@ int32_t main(int32_t argc,char **argv)
 				  tempmode, get_color_depth(), zq_screen_w, zq_screen_h);
 		//Z_message("OK\n");
 	}
+
+	set_window_title("ZC Editor");
+
 	initFonts();
 	load_size_poses();
 

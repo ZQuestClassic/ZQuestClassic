@@ -4947,6 +4947,13 @@ int main(int argc, char **argv)
 	{
 		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
 	}
+
+	const char* window_title = "ZQuest Classic";
+	int window_title_arg = used_switch(argc, argv, "-window-title");
+	if (window_title_arg > 0)
+		window_title = argv[window_title_arg + 1];
+	set_window_title(window_title);
+
 	initFonts();
 
 #ifndef __EMSCRIPTEN__
@@ -5000,12 +5007,6 @@ int main(int argc, char **argv)
 	render_zc();
 	
 	set_close_button_callback((void (*)()) hit_close_button);
-
-	const char* window_title = "ZQuest Classic";
-	int window_title_arg = used_switch(argc, argv, "-window-title");
-	if (window_title_arg > 0)
-		window_title = argv[window_title_arg + 1];
-	set_window_title(window_title);
 
 	fix_dialogs();
 	gui_mouse_focus = FALSE;
