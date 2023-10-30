@@ -2613,6 +2613,7 @@ void GameSymbols::generateCode()
 		ASSERT_NUL();
 		addOpcode2 (code, new OCurrentItemID());
 		LABELBACK(label);
+		POP_ARGS(NUL, 2);
 		RETURN();
 		function->giveCode(code);
 	}
