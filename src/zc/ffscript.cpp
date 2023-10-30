@@ -48270,11 +48270,11 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format, Params&&...
 {
 	//if ( open )
 	{
-		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200, NULL, NULL);
+		zscript_coloured_console.Create("ZQuest Classic Logging Console", 600, 200, NULL, NULL);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Classic Logging Console\n");
 	
 		zscript_coloured_console.cprintf( attributes, format, std::forward<Params>(params)...);
 	}
