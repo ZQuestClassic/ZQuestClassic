@@ -3394,7 +3394,7 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 	
 	int32_t dropitem = -1, dropset = -1;
 	bool hasitem = cmb.liftitm>0;
-	auto pflags = ipBIGRANGE | ((cmb.liftflags&LF_SPECIALITEM) ? ipONETIME : ipTIMER);
+	auto pflags = ipBIGRANGE | ((cmb.liftflags&LF_SPECIALITEM) ? ipONETIME2 : ipTIMER);
 	if(hasitem)
 	{
 		if(cmb.liftflags & LF_DROPSET)
