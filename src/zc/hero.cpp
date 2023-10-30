@@ -22110,34 +22110,34 @@ void HeroClass::checkswordtap()
 	
 	if(!isCuttableType(type))
 	{
-		bool hollow = (MAPFLAG(bx,by) == mfBOMB || MAPCOMBOFLAG(bx,by) == mfBOMB ||
-					   MAPFLAG(bx,by) == mfSBOMB || MAPCOMBOFLAG(bx,by) == mfSBOMB);
-					   
-		// Layers
-		for(int32_t i=0; i < 6; i++)
-			hollow = (hollow || MAPFLAG2(i,bx,by) == mfBOMB || MAPCOMBOFLAG2(i,bx,by) == mfBOMB ||
-					  MAPFLAG2(i,bx,by) == mfSBOMB || MAPCOMBOFLAG2(i,bx,by) == mfSBOMB);
-					  
-		for(int32_t i=0; i<4; i++)
-			if(tmpscr->door[i]==dBOMB && i==dir)
-				switch(i)
-				{
-				case up:
-				case down:
-					if(bx>=112 && bx<144 && (by>=144 || by<=32)) hollow=true;
-					
-					break;
-					
-				case left:
-				case right:
-					if(by>=72 && by<104 && (bx>=224 || bx<=32)) hollow=true;
-					
-					break;
-				}
-				
-		sfx(hollow ? WAV_ZN1TAP2 : WAV_ZN1TAP,pan(x.getInt()));
+		int tap_sfx = -1;
+		auto pos = COMBOPOS(bx,by);
+		bool hollow = false;
+		for(int lyr = 7; lyr >= 0; --lyr)
+		{
+			mapscr* m = FFCore.tempScreens[lyr];
+			newcombo const& cmb = combobuf[m->data[pos]];
+			if(cmb.sfx_tap)
+			{
+				tap_sfx = cmb.sfx_tap;
+				break;
+			}
+			if(m->sflag[pos] == mfBOMB || m->sflag[pos] == mfSBOMB
+				|| cmb.flag == mfBOMB || cmb.flag == mfSBOMB)
+				hollow = true;
+		}
+		if(tap_sfx < 0 && get_qr(qr_SEPARATE_BOMBABLE_TAPPING_SFX))
+		{
+			if(hollow || (tmpscr->door[dir]==dBOMB && ((dir==up||dir==down)
+					? (bx>=112 && bx<144 && (by>=144 || by<=32))
+					: by>=72 && by<104 && (bx>=224 || bx<=32))))
+				tap_sfx = QMisc.miscsfx[sfxTAP_HOLLOW];
+		}
+		if(tap_sfx < 0)
+			tap_sfx = QMisc.miscsfx[sfxTAP];
+		if(tap_sfx)
+			sfx(tap_sfx,pan(x.getInt()));
 	}
-	
 }
 
 void HeroClass::fairycircle(int32_t type)

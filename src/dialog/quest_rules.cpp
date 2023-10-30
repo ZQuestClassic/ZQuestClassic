@@ -464,6 +464,9 @@ static GUI::ListData comboRulesList
 	{ "Allow Multiple Platform FFCs", qr_MULTI_PLATFORM_FFC, 
 		"If checked, more than one FFC with the 'Platform' flag can move the player in a single frame."
 		" Otherwise, the first 'Platform' FFC to move the player will prevent other platforms from moving the player that frame." },
+	{ "Separate Tap SFX for bombable walls", qr_SEPARATE_BOMBABLE_TAPPING_SFX,
+		"If checked, bombable walls will use a separate SFX 'Sword Tap (Hollow)' when tapped against,"
+		" instead of the default 'Sword Tap' sound. (sounds set in the Misc SFX menu)" },
 };
 
 static GUI::ListData compatRulesList

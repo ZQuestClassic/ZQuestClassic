@@ -9684,7 +9684,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		combo_has_flags |= CHAS_LIFT;
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
 		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
-		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing)
+		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing || tmp_cmb.sfx_tap)
 		combo_has_flags |= CHAS_GENERAL;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -10025,6 +10025,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 86;
 		if(!p_putc(tmp_cmb.spr_standing,f))
 			return 87;
+		if(!p_putc(tmp_cmb.sfx_tap,f))
+			return 88;
 	}
 	return 0;
 }

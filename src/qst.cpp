@@ -3672,6 +3672,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_DMAP_INTRO_STRINGS,1);
 	if(compatrule_version < 59)
 		set_qr(qr_SCRIPT_CONTHP_IS_HEARTS,1);
+	if(compatrule_version < 60)
+		set_qr(qr_SEPARATE_BOMBABLE_TAPPING_SFX,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -6322,6 +6324,11 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		temp_misc.miscsfx[sfxSUBSCR_CURSOR_MOVE] = WAV_CHIME;
 		temp_misc.miscsfx[sfxREFILL] = WAV_MSG;
 		temp_misc.miscsfx[sfxDRAIN] = WAV_MSG;
+	}
+	if(s_version < 16)
+	{
+		temp_misc.miscsfx[sfxTAP] = WAV_ZN1TAP;
+		temp_misc.miscsfx[sfxTAP_HOLLOW] = WAV_ZN1TAP2;
 	}
 	
 	if (!should_skip)
@@ -18182,6 +18189,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.spr_walking,f))
 					return qe_invalid;
 				if(!p_getc(&temp_combo.spr_standing,f))
+					return qe_invalid;
+			}
+			if(s_version >= 44)
+			{
+				if(!p_getc(&temp_combo.sfx_tap,f))
 					return qe_invalid;
 			}
 		}

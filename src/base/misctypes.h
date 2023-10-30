@@ -182,6 +182,8 @@ enum miscsfx
 	sfxSUBSCR_CURSOR_MOVE,
 	sfxREFILL,
 	sfxDRAIN,
+	sfxTAP,
+	sfxTAP_HOLLOW,
 	sfxMAX = 256
 };
 

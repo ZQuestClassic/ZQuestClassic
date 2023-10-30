@@ -3592,7 +3592,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.sfx_standing = val;
 									}),
-								INFOBTN("Plays when the player stands (not walking) on the combo. In sideview, this is the combo actually BELOW the player.")
+								INFOBTN("Plays when the player stands (not walking) on the combo. In sideview, this is the combo actually BELOW the player."),
+								//
+								Label(text = "Sword Tap:"),
+								DropDownList(data = list_sfx,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.sfx_tap,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.sfx_tap = val;
+									}),
+								INFOBTN("Plays when the player taps their sword against this combo. Only the highest-layer combo with custom tap SFX will take effect.")
 							)
 						),
 						Frame(title = "Sprites", hAlign = 1.0, fitParent = true,
