@@ -28115,7 +28115,15 @@ int32_t main(int32_t argc,char **argv)
 
 	zq_screen_w = LARGE_W;
 	zq_screen_h = LARGE_H;
-	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,zq_screen_w,zq_screen_h,0,0));
+#ifdef _WIN32
+	window_width = zc_get_config("zquest","large_window_width",zq_screen_w);
+	window_height = zc_get_config("zquest","large_window_height",zq_screen_h);
+#else
+	window_width = zc_get_config("zquest","large_window_width",-1);
+	window_height = zc_get_config("zquest","large_window_height",-1);
+#endif
+	auto [w, h] = zc_get_default_display_size(LARGE_W/2, LARGE_H/2, window_width, window_height);
+	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,w,h,zq_screen_w,zq_screen_h));
 
 	//extra block here is intentional
 	if(videofail!=0)
@@ -28139,10 +28147,7 @@ int32_t main(int32_t argc,char **argv)
 			al_rest(1);
 		}
 
-		window_width = zc_get_config("zquest","large_window_width",zq_screen_w);
-		window_height = zc_get_config("zquest","large_window_height",zq_screen_h);
-		double monitor_scale = zc_get_monitor_scale();
-		al_resize_display(all_get_display(), window_width*monitor_scale, window_height*monitor_scale);
+		al_resize_display(all_get_display(), w, h);
 
 		int window_w = al_get_display_width(all_get_display());
 		int window_h = al_get_display_height(all_get_display());
@@ -28168,7 +28173,12 @@ int32_t main(int32_t argc,char **argv)
 			if(new_y + window_h > mh - 72)
 				new_y = mh-72-window_h;
 		}
+#ifdef ALLEGRO_MACOSX
+		if (zc_get_config("zquest","save_window_position",0))
+			al_set_window_position(all_get_display(), new_x, new_y);
+#else
 		al_set_window_position(all_get_display(), new_x, new_y);
+#endif
 	}
 #endif
 
@@ -30045,9 +30055,14 @@ int32_t save_config_file()
 	
     if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize) 
     {
+#ifdef _WIN32
 		double monitor_scale = zc_get_monitor_scale();
 		window_width = al_get_display_width(all_get_display()) / monitor_scale;
 		window_height = al_get_display_height(all_get_display()) / monitor_scale;
+#else
+		window_width = al_get_display_width(all_get_display());
+		window_height = al_get_display_height(all_get_display());
+#endif
 		zc_set_config("zquest","large_window_width",window_width);
 		zc_set_config("zquest","large_window_height",window_height);
     }

@@ -184,6 +184,45 @@ double zc_get_monitor_scale()
 #endif
 }
 
+// If (saved_width, saved_height) is not -1, ensures that fits in the primary monitor. If neither are true, fall
+// back to default.
+// Default will scale up (base_width, base_height) by an integer amount to fill up the monitor
+// as much as possible.
+// NOTE: On Windows, instead the inputs are expected to be "monitor-scale-independent" (a made up concept), are
+// multiplied by a scaling factor based on the monitor's DPI.
+std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height)
+{
+	ALLEGRO_MONITOR_INFO info;
+	al_get_monitor_info(0, &info);
+	int mw = info.x2 - info.x1;
+	int mh = info.y2 - info.y1;
+
+#ifdef ALLEGRO_MACOSX
+	// https://talk.automators.fm/t/getting-screen-dimensions-while-accounting-the-menu-bar-dock-and-multiple-displays/13639
+	mh -= 38;
+#endif
+
+#ifdef _WIN32
+	double monitor_scale = zc_get_monitor_scale();
+	if (saved_width != -1 && saved_height != -1 && saved_width * monitor_scale <= mw && saved_height * monitor_scale <= mh)
+	{
+		return {saved_width * monitor_scale, saved_height * monitor_scale};
+	}
+	return {base_width * monitor_scale, base_height * monitor_scale};
+#else
+	// I've confirmed this is the desired behavior on my Mac. Still need to test on Windows,
+	// especially w/ its OS-level DPI scaling feature, so for now Windows will use the previous hacky method above.
+	if (saved_width != -1 && saved_height != -1 && saved_width <= mw && saved_height <= mh)
+	{
+		return {saved_width, saved_height};
+	}
+	int s = std::min(mh / base_height, mw / base_width);
+	int w = base_width * s;
+	int h = base_height * s;
+	return {w, h};
+#endif
+}
+
 extern bool DragAspect;
 extern double aspect_ratio;
 static void doAspectResize()

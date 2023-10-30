@@ -539,8 +539,13 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
 						CONFIG_DROPDOWN_I("Screenshot Output:", App::zelda,"zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", App::zelda,"zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
+#ifdef _WIN32
 						CONFIG_TEXTFIELD_I("Window Width:",App::zelda,"zeldadx","window_width", 640, 256, 3000, "The width of the ZC window, for windowed mode"),
 						CONFIG_TEXTFIELD_I("Window Height:",App::zelda,"zeldadx","window_height", 480, 240, 2250, "The height of the ZC window, for windowed mode"),
+#else
+						CONFIG_TEXTFIELD_I("Window Width:",App::zelda,"zeldadx","window_width", -1, -1, 3000, "The width of the ZC window, for windowed mode. If -1 the largest possible window will be made without distorting the pixel content."),
+						CONFIG_TEXTFIELD_I("Window Height:",App::zelda,"zeldadx","window_height", -1, -1, 2250, "The height of the ZC window, for windowed mode. If -1 the largest possible window will be made without distorting the pixel content."),
+#endif
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zelda,"zeldadx","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zelda,"zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zelda, "graphics", "driver", 0, gfxDriverList),
@@ -637,8 +642,15 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Auto-Backup Retention:", App::zquest,"zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
 						CONFIG_DROPDOWN_I("Auto-Save Retention:", App::zquest,"zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
 						CONFIG_TEXTFIELD_I("Auto-Save Interval:", App::zquest, "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
+
+#ifdef _WIN32
 						CONFIG_TEXTFIELD_I("Window Width (Large Mode):",App::zquest,"zquest","large_window_width", def_large_w, 200, 3000, "The width of the ZQuest window in large mode"),
 						CONFIG_TEXTFIELD_I("Window Height (Large Mode):",App::zquest,"zquest","large_window_height", def_large_h, 150, 2250, "The height of the ZQuest window in large mode"),
+#else
+						CONFIG_TEXTFIELD_I("Window Width (Large Mode):",App::zquest,"zquest","large_window_width", -1, -1, 3000, "The width of the ZQuest window in large mode. If -1 the largest possible window will be made without distorting the pixel content."),
+						CONFIG_TEXTFIELD_I("Window Height (Large Mode):",App::zquest,"zquest","large_window_height", -1, -1, 2250, "The height of the ZQuest window in large mode. If -1 the largest possible window will be made without distorting the pixel content."),
+#endif
+
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zquest,"zquest","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zquest,"zquest","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zquest, "graphics", "driver", 0, gfxDriverList),

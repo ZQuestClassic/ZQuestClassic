@@ -4905,7 +4905,7 @@ int main(int argc, char **argv)
 		bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
 	}
-	
+
 	//request_refresh_rate(60);al_trace("Used switch: -fullscreen\n");
 	
 	//is the config file wrong (not zc.cfg!) here? -Z
@@ -4921,16 +4921,22 @@ int main(int argc, char **argv)
 		tempmode=GFX_AUTODETECT_WINDOWED;
 	}
 
-	if(resx < 256) resx = 256;
-	if(resy < 240) resy = 240;
-	
-	double monitor_scale = zc_get_monitor_scale();
-	resx *= monitor_scale;
-	resy *= monitor_scale;
+	if (resx != -1)
+	{
+		if(resx < 256) resx = 256;
+		if(resy < 240) resy = 240;
+	}
+
+	auto [w, h] = zc_get_default_display_size(256, 240, resx, resy);
+	resx = w;
+	resy = h;
 
 	// TODO: consolidate "resx" and "resy" variables with window_width,height.
 	// window_width = resx;
 	// window_height = resy;
+
+	zq_screen_w = 640;
+	zq_screen_h = 480;
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
@@ -4961,6 +4967,10 @@ int main(int argc, char **argv)
 		
 		int new_x = zc_get_config("zeldadx","window_x",0);
 		int new_y = zc_get_config("zeldadx","window_y",0);
+#ifdef ALLEGRO_MACOSX
+		if (new_x && new_y)
+			al_set_window_position(all_get_display(), new_x, new_y);
+#else
 		if (new_x == 0 && new_y == 0)
 		{
 			ALLEGRO_MONITOR_INFO info;
@@ -4970,6 +4980,7 @@ int main(int argc, char **argv)
 			new_y = (info.y2 - info.y1) / 2 - window_h / 2;
 		}
 		al_set_window_position(all_get_display(), new_x, new_y);
+#endif
 	}
 #endif
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
@@ -4981,9 +4992,8 @@ int main(int argc, char **argv)
 	}
 	
 	hw_palette = &RAMpal;
-	zq_screen_w = 640;
-	zq_screen_h = 480;
-	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+	if (is_headless())
+		screen = create_bitmap_ex(8, 256, 240);
 	clear_to_color(screen, BLACK);
 
 	// Initialize render tree.

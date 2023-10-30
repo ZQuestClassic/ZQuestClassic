@@ -408,9 +408,14 @@ void load_game_configs()
 	abc_patternmatch = zc_get_config(cfg_sect, "lister_pattern_matching", 1);
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
 	
+#ifdef _WIN32
 	//default - scale x2, 640 x 480
 	window_width = resx = zc_get_config(cfg_sect,"window_width",640);
 	window_height = resy = zc_get_config(cfg_sect,"window_height",480);
+#else
+	window_width = resx = zc_get_config(cfg_sect,"window_width",-1);
+	window_height = resy = zc_get_config(cfg_sect,"window_height",-1);
+#endif
 	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
 	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
 	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
@@ -553,9 +558,14 @@ void save_game_configs()
 	
 	if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize)
 	{
+#ifdef _WIN32
 		double monitor_scale = zc_get_monitor_scale();
 		window_width = al_get_display_width(all_get_display()) / monitor_scale;
 		window_height = al_get_display_height(all_get_display()) / monitor_scale;
+#else
+		window_width = al_get_display_width(all_get_display());
+		window_height = al_get_display_height(all_get_display());
+#endif
 		zc_set_config(cfg_sect,"window_width",window_width);
 		zc_set_config(cfg_sect,"window_height",window_height);
 	}
@@ -748,7 +758,8 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	if (is_headless())
 		return true;
 
-	if(set_gfx_mode(mode,resx,resy,0,0)!=0)
+	extern int zq_screen_w, zq_screen_h;
+	if(set_gfx_mode(mode,resx,resy,zq_screen_w,zq_screen_h)!=0)
 	{
 		return false;
 	}
