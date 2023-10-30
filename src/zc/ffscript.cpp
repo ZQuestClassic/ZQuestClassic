@@ -2023,14 +2023,19 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset)
 int32_t get_mi(int32_t ref = MAPSCR_TEMP0)
 {
 	if(ref >= 0)
+	{
+		if(ref%MAPSCRS >= MAPSCRSNORMAL) return -1;
 		return ref - (8*(ref / MAPSCRS));
+	}
 	switch(ref)
 	{
 		case MAPSCR_TEMP0: case MAPSCR_TEMP1: case MAPSCR_TEMP2: case MAPSCR_TEMP3: 
 		case MAPSCR_TEMP4: case MAPSCR_TEMP5: case MAPSCR_TEMP6:
+			if(homescr >= MAPSCRSNORMAL) return -1;
 			return (currmap*MAPSCRSNORMAL)+homescr;
 		case MAPSCR_SCROLL0: case MAPSCR_SCROLL1: case MAPSCR_SCROLL2: case MAPSCR_SCROLL3:
 		case MAPSCR_SCROLL4: case MAPSCR_SCROLL5: case MAPSCR_SCROLL6:
+			if(scrolling_scr >= MAPSCRSNORMAL) return -1;
 			return (scrolling_map*MAPSCRSNORMAL)+scrolling_scr;
 	}
 	return -1;
@@ -9617,6 +9622,15 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case SCREENDATAGUYCOUNT:
+		{
+			int mi = get_mi();
+			if(mi < 0)
+				ret = -10000;
+			else ret = game->guys[mi] * 10000;
+			break;
+		}
+		
 		case SHOWNMSG:
 		{
 			ret = ((msg_active || msg_onscreen) ? msgstr : 0) * 10000L;
@@ -11165,6 +11179,21 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","EFlags[]", ri->mapsref);
 				ret = -10000;
 			}
+			break;
+		}
+		case MAPDATAGUYCOUNT:
+		{
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = get_mi(ri->mapsref);
+				if(mi > -1)
+				{
+					ret = game->guys[mi] * 10000;
+					break;
+				}
+			}
+			ret = -10000;
+			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
 
@@ -22293,6 +22322,14 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			//GET_SCREENDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
+		
+		case SCREENDATAGUYCOUNT:
+		{
+			int mi = get_mi();
+			if(mi > -1)
+				game->guys[mi] = vbound(value/10000,10,0);
+			break;
+		}
 
 
 		//These use the same method as SetScreenD
@@ -23846,6 +23883,20 @@ void set_register(int32_t arg, int32_t value)
 				else game->screen_data[mi][indx] = value;
 			}
 			else Z_scripterrlog("mapdata->Data[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+		case MAPDATAGUYCOUNT:
+		{
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = get_mi(ri->mapsref);
+				if(mi > -1)
+				{
+					game->guys[mi] = vbound(value/10000,10,0);
+					break;
+				}
+			}
+			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
 		
@@ -48202,6 +48253,9 @@ script_variable ZASMVars[]=
 	{ "MAPDATASCRDATA", MAPDATASCRDATA, 0, 0 },
 
 	{ "HEROSHOVEOFFSET", HEROSHOVEOFFSET, 0, 0 },
+
+	{ "SCREENDATAGUYCOUNT", SCREENDATAGUYCOUNT, 0, 0 },
+	{ "MAPDATAGUYCOUNT", MAPDATAGUYCOUNT, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

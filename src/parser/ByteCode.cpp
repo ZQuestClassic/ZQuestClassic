@@ -2439,6 +2439,9 @@ string ZScript::VarToString(int32_t ID)
 		
 		case HEROSHOVEOFFSET: return "HEROSHOVEOFFSET";
 		
+		case SCREENDATAGUYCOUNT: return "SCREENDATAGUYCOUNT";
+		case MAPDATAGUYCOUNT: return "MAPDATAGUYCOUNT";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);

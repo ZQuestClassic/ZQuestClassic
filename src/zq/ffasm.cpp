@@ -2852,6 +2852,9 @@ script_variable variable_list[]=
 
 	{ "HEROSHOVEOFFSET", HEROSHOVEOFFSET, 0, 0 },
 
+	{ "SCREENDATAGUYCOUNT", SCREENDATAGUYCOUNT, 0, 0 },
+	{ "MAPDATAGUYCOUNT", MAPDATAGUYCOUNT, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 

@@ -4993,7 +4993,10 @@ enum ASM_DEFINE
 
 #define HEROSHOVEOFFSET         0x1594
 
-#define NUMVARIABLES            0x1595
+#define SCREENDATAGUYCOUNT      0x1595
+#define MAPDATAGUYCOUNT         0x1596
+
+#define NUMVARIABLES            0x1597
 
 //} End variables
 

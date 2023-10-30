@@ -300,6 +300,9 @@ static AccessorTable ScreenTable[] =
 	{ "getData[]",                  0,       ZTID_UNTYPED,   SCREENSCRDATA,                     0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "setData[]",                  0,          ZTID_VOID,   SCREENSCRDATA,                     0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
+	{ "getGuyCount",                0,         ZTID_FLOAT,   SCREENDATAGUYCOUNT,                0,  { ZTID_SCREEN },{} },
+	{ "setGuyCount",                0,         ZTID_FLOAT,   SCREENDATAGUYCOUNT,                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	
 	//Undocumented intentionally
 	//Renamed to AmbientSFX
 	{ "getOceanSFX",                0,         ZTID_FLOAT,   SCREENDATAOCEANSFX,                0,  { ZTID_SCREEN },{} },

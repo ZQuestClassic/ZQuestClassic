@@ -4769,6 +4769,9 @@ bool LensShows[7];
 bool LensHides[7];
  * Arrays of the layers which the lens shows, and hides, respectively.
 
+int GuyCount;
+ * Number of enemies remaining alive on this screen.
+
 int DataSize;
  * Read-write, the size of the `Data[]` array.
  * Changes save to the save file.
@@ -7046,6 +7049,9 @@ int MIDI;
 bool LensShows[7];
 bool LensHides[7];
  * Arrays of the layers which the lens shows, and hides, respectively.
+
+int GuyCount;
+ * Number of enemies remaining alive on this screen.
 
 int DataSize;
  * Read-write, the size of the `Data[]` array.

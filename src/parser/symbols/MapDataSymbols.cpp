@@ -265,6 +265,9 @@ static AccessorTable MapDataTable[] =
 	{ "getData[]",                  0,       ZTID_UNTYPED,   MAPDATASCRDATA,                   0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "setData[]",                  0,          ZTID_VOID,   MAPDATASCRDATA,                   0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
+	{ "getGuyCount",                0,         ZTID_FLOAT,   MAPDATAGUYCOUNT,                  0,  { ZTID_MAPDATA },{} },
+	{ "setGuyCount",                0,         ZTID_FLOAT,   MAPDATAGUYCOUNT,                  0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	
 	//Undocumented intentionally
 	{ "GetFFCInitA",                0,         ZTID_FLOAT,   -1,                          FL_INL,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "SetFFCInitA",                0,         ZTID_FLOAT,   -1,                               0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },

@@ -1729,7 +1729,10 @@
 
 #define HEROSHOVEOFFSET         1630
 
-#define LAST_BYTECODE           1631
+#define SCREENDATAGUYCOUNT      1631
+#define MAPDATAGUYCOUNT         1632
+
+#define LAST_BYTECODE           1633
 
 //} END OF BYTECODE
 
