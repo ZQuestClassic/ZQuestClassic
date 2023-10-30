@@ -18615,7 +18615,11 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].ltm=value/10000;
+			if(itemsbuf[ri->idata].ltm != value/10000)
+			{
+				itemsbuf[ri->idata].ltm = value/10000;
+				flushTilemodCache();
+			}
 			break;
 		//Pickup script
 		case IDATAPSCRIPT:

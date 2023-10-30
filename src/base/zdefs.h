@@ -2486,6 +2486,7 @@ INLINE void SCRFIX()
 }
 
 extern void flushItemCache(bool justcost = false);
+extern void flushTilemodCache();
 extern void removeFromItemCache(int32_t itemclass);
 
 #define GLOBAL_SCRIPT_INIT 			0

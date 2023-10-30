@@ -2222,11 +2222,18 @@ int32_t current_item(int32_t item_type)		   //item currently being used
 
 std::map<int32_t, int32_t> itemcache;
 std::map<int32_t, int32_t> itemcache_cost;
+optional<int32_t> tilemod_cache;
+
+void flushTilemodCache()
+{
+	tilemod_cache.reset();
+}
 
 void removeFromItemCache(int32_t itemclass)
 {
 	itemcache.erase(itemclass);
 	itemcache_cost.erase(itemclass);
+	flushTilemodCache();
 }
 
 void flushItemCache(bool justcost)
@@ -2236,6 +2243,7 @@ void flushItemCache(bool justcost)
 		itemcache.clear();
 	else if(replay_version_check(0,19))
 		return;
+	flushTilemodCache();
 	
 	//also fix the active subscreen if items were deleted -DD
 	if(game != NULL)
@@ -2368,6 +2376,9 @@ int32_t heart_container_id()
 
 int32_t item_tile_mod()
 {
+	if(tilemod_cache)
+		return *tilemod_cache;
+	
 	int32_t tile=0;
 	
 	if(game->get_bombs())
@@ -2509,6 +2520,7 @@ int32_t item_tile_mod()
 		tile+=itm.ltm;
 	}
 	
+	tilemod_cache = tile;
 	return tile;
 }
 
