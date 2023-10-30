@@ -28115,13 +28115,8 @@ int32_t main(int32_t argc,char **argv)
 
 	zq_screen_w = LARGE_W;
 	zq_screen_h = LARGE_H;
-#ifdef _WIN32
-	window_width = zc_get_config("zquest","large_window_width",zq_screen_w);
-	window_height = zc_get_config("zquest","large_window_height",zq_screen_h);
-#else
-	window_width = zc_get_config("zquest","large_window_width",-1);
-	window_height = zc_get_config("zquest","large_window_height",-1);
-#endif
+	window_width = zc_get_config("zquest","window_width",-1);
+	window_height = zc_get_config("zquest","window_height",-1);
 	auto [w, h] = zc_get_default_display_size(LARGE_W/2, LARGE_H/2, window_width, window_height);
 	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,w,h,zq_screen_w,zq_screen_h));
 
@@ -30055,16 +30050,10 @@ int32_t save_config_file()
 	
     if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize) 
     {
-#ifdef _WIN32
-		double monitor_scale = zc_get_monitor_scale();
-		window_width = al_get_display_width(all_get_display()) / monitor_scale;
-		window_height = al_get_display_height(all_get_display()) / monitor_scale;
-#else
 		window_width = al_get_display_width(all_get_display());
 		window_height = al_get_display_height(all_get_display());
-#endif
-		zc_set_config("zquest","large_window_width",window_width);
-		zc_set_config("zquest","large_window_height",window_height);
+		zc_set_config("zquest","window_width",window_width);
+		zc_set_config("zquest","window_height",window_height);
     }
     if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
     {

@@ -5,10 +5,6 @@
 #include <filesystem>
 #include <string>
 
-#ifdef _WIN32
-#include <allegro5/allegro_windows.h>
-#endif
-
 #ifdef __APPLE__
 #include <unistd.h>
 #endif
@@ -142,76 +138,24 @@ bool is_headless()
 	return headless;
 }
 
-// https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
-// https://mariusbancila.ro/blog/2021/05/19/how-to-build-high-dpi-aware-native-desktop-applications/
-// On windows, Allegro sets DPI awareness at runtime:
-//   https://github.com/liballeg/allegro5/blob/0d9271d381c33ab1096b424beadfd82050aaa2d3/src/win/wsystem.c#L142
-// But it's better to do it in the application manifest, hence `set_property(TARGET zelda PROPERTY VS_DPI_AWARE "PerMonitor")`
-double zc_get_monitor_scale()
-{
-#ifdef __EMSCRIPTEN__
-	return 1.0;
-#endif
-	if(zc_get_config("gui","ignore_monitor_scale",1))
-		return 1.0;
-#ifdef _WIN32
-	if (all_get_display())
-	{
-		// GetDpiForWindow only works for Windows 10 and greater.
-		// why not use al_get_monitor_dpi? Because allegro uses GetDpiForMonitor,
-		// which is an older API.
-		HMODULE user32 = LoadLibraryW(L"user32");
-
-		typedef UINT (WINAPI *GetDpiForWindowPROC)(HWND hwnd);
-		GetDpiForWindowPROC imp_GetDpiForWindow =
-			(GetDpiForWindowPROC) GetProcAddress(user32, "GetDpiForWindow");
-		if (user32 && user32 != INVALID_HANDLE_VALUE) {
-			HWND hwnd = al_get_win_window_handle(all_get_display());
-			int dpi = imp_GetDpiForWindow(hwnd);
-			FreeLibrary(user32);
-			return dpi / 96.0;
-		}
-
-		return al_get_monitor_dpi(0) / 96.0;
-	}
-
-	HDC hdc = GetDC(NULL);
-	int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
-	ReleaseDC(NULL, hdc);
-	return dpi / 96.0;
-#else
-	return al_get_monitor_dpi(0) / 96.0;
-#endif
-}
-
 // If (saved_width, saved_height) is not -1, ensures that fits in the primary monitor. If neither are true, fall
 // back to default.
-// Default will scale up (base_width, base_height) by an integer amount to fill up the monitor
+// Default will scale up (base_width, base_height) by an integer amount to fill up the primary monitor
 // as much as possible.
-// NOTE: On Windows, instead the inputs are expected to be "monitor-scale-independent" (a made up concept), are
-// multiplied by a scaling factor based on the monitor's DPI.
 std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height)
 {
 	ALLEGRO_MONITOR_INFO info;
 	al_get_monitor_info(0, &info);
 	int mw = info.x2 - info.x1;
 	int mh = info.y2 - info.y1;
-
 #ifdef ALLEGRO_MACOSX
 	// https://talk.automators.fm/t/getting-screen-dimensions-while-accounting-the-menu-bar-dock-and-multiple-displays/13639
 	mh -= 38;
 #endif
-
 #ifdef _WIN32
-	double monitor_scale = zc_get_monitor_scale();
-	if (saved_width != -1 && saved_height != -1 && saved_width * monitor_scale <= mw && saved_height * monitor_scale <= mh)
-	{
-		return {saved_width * monitor_scale, saved_height * monitor_scale};
-	}
-	return {base_width * monitor_scale, base_height * monitor_scale};
-#else
-	// I've confirmed this is the desired behavior on my Mac. Still need to test on Windows,
-	// especially w/ its OS-level DPI scaling feature, so for now Windows will use the previous hacky method above.
+	// Title bar.
+	mh -= 23;
+#endif
 	if (saved_width != -1 && saved_height != -1 && saved_width <= mw && saved_height <= mh)
 	{
 		return {saved_width, saved_height};
@@ -220,7 +164,6 @@ std::pair<int, int> zc_get_default_display_size(int base_width, int base_height,
 	int w = base_width * s;
 	int h = base_height * s;
 	return {w, h};
-#endif
 }
 
 extern bool DragAspect;
