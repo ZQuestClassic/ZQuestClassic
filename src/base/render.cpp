@@ -15,19 +15,26 @@ void RenderTreeItem::remove()
 }
 void RenderTreeItem::add_child(RenderTreeItem* child)
 {
+	if (child->parent == this)
+		return;
+
 	if (child->parent)
 		child->parent->remove_child(child);
 	children.push_back(child);
 	child->parent = this;
+	child->transform_dirty = true;
 }
 void RenderTreeItem::add_child_before(RenderTreeItem* child, RenderTreeItem* before_child)
 {
+	bool already_child = child->parent == this;
 	if (child->parent)
 		child->parent->remove_child(child);
 	auto it = std::find(children.begin(), children.end(), before_child);
 	ASSERT(it != children.end());
 	children.insert(it, child);
 	child->parent = this;
+	if (!already_child)
+		child->transform_dirty = true;
 }
 void RenderTreeItem::remove_child(RenderTreeItem* child)
 {
@@ -36,6 +43,7 @@ void RenderTreeItem::remove_child(RenderTreeItem* child)
 	{
 		children.erase(it);
 		child->parent = nullptr;
+		child->transform_dirty = true;
 	}
 }
 std::vector<RenderTreeItem*> const& RenderTreeItem::get_children() const
