@@ -548,6 +548,7 @@ def get_replay_data(file):
     return {
         'frames': frames,
         'frames_limited': round(frames_limited),
+        'frame_arg': frame_arg,
         'estimated_fps': estimated_fps,
         'estimated_duration': estimated_duration,
     }
@@ -770,7 +771,7 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
 
     replay_data = get_replay_data(replay_file)
-    frame_arg = replay_data['frames_limited']
+    frame_arg = replay_data['frame_arg']
 
     # Cap the duration in CI, in case it somehow never ends.
     do_timeout = True if args.ci else False
