@@ -23,7 +23,8 @@ LegacyBitmapRTI rti_screen("screen");
 
 bool use_linear_bitmaps()
 {
-	return zc_get_config("zeldadx", "scaling_mode", 0) == 1;
+	static bool value = zc_get_config("zeldadx", "scaling_mode", 0) == 1;
+	return value;
 }
 
 static int zc_gui_mouse_x()

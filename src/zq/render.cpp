@@ -26,7 +26,8 @@ static int zc_gui_mouse_y()
 
 bool use_linear_bitmaps()
 {
-	return zc_get_config("zquest", "scaling_mode", 0) == 1;
+	static bool value = zc_get_config("zquest", "scaling_mode", 0) == 1;
+	return value;
 }
 
 static void init_render_tree()
