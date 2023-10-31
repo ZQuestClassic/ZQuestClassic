@@ -8486,7 +8486,7 @@ int32_t get_register(const int32_t arg)
 			int32_t ind = (ri->d[rINDEX])/10000;
 			if(unsigned(ind)>255)
 				Z_scripterrlog("Invalid index %d supplied to Game->TrigGroups[]\n",ind);
-			ret = get_trig_group(ind)*10000;
+			ret = cpos_trig_group_count(ind)*10000;
 			break;
 		}
 		

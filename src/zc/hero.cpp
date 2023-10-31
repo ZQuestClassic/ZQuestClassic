@@ -20266,7 +20266,7 @@ void HeroClass::checkpushblock()
 		if(get_qr(qr_HESITANTPUSHBLOCKS)&&(pushing<4)) break;
 		if(lyr && !get_qr(qr_PUSHBLOCK_LAYER_1_2))
 			continue;
-		cpos_info& cpinfo = get_combo_posinfo(lyr, combopos);
+		cpos_info& cpinfo = cpos_get(lyr, combopos);
 		mapscr* m = FFCore.tempScreens[lyr];
 		int cid = lyr == 0 ? MAPCOMBO(bx,by) : MAPCOMBOL(lyr,bx,by);
 		newcombo const& cmb = combobuf[cid];
@@ -21502,7 +21502,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if(get_combo_posinfo(found_lyr, COMBOPOS(fx,fy)).trig_cd) return;
+	if(cpos_get(found_lyr, COMBOPOS(fx,fy)).trig_cd) return;
 	switch(dir)
 	{
 		case down:

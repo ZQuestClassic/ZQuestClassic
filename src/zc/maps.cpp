@@ -4993,7 +4993,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	{
 		slopes.clear();
 		triggered_screen_secrets = false; //Reset var
-		clear_cposes();
+		cpos_clear_all();
 		Hero.clear_platform_ffc();
 		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	}
@@ -5149,7 +5149,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	if(!tmp)
 	{
-		force_update_cposes();
+		cpos_force_update();
 		trig_trigger_groups();
 	}
 	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
@@ -5211,7 +5211,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	if(!tmp)
 	{
-		force_update_cposes();
+		cpos_force_update();
 		trig_trigger_groups();
 	}
 	// check doors
