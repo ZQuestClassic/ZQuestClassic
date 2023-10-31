@@ -110,6 +110,7 @@ public:
 	}
 	
 	cont_t const& inner() const {return cont;}
+	cont_t& mut_inner() {return cont;}
 	size_type capacity() const {return cont.size();}
 	virtual void clear() {cont.clear();}
 	
