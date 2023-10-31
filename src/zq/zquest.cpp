@@ -28179,12 +28179,6 @@ int32_t main(int32_t argc,char **argv)
 #endif
 	}
 #endif
-
-	//check and log RTC date and time
-	for (int32_t q = 0; q < curTimeLAST; q++) 
-	{
-		int32_t t_time_v = FFCore.getTime(q);
-	}
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
