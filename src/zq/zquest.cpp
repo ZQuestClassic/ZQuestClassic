@@ -28293,17 +28293,6 @@ int32_t main(int32_t argc,char **argv)
 
 #endif
 	
-	// A bit of festivity
-	{
-		time_t rawtime;
-		time(&rawtime);
-		
-		if(strncmp(ctime(&rawtime)+4,"Jan  1",6)==0)
-		{
-			jwin_alert("Hooray!", "Happy New Year!", NULL, NULL, "OK", NULL, 0, 0, get_zc_font(font_lfont));
-		}
-	}
-	
 	load_icons();
 	
 	bool load_last_timed_save=false;
