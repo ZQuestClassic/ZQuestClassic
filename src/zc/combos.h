@@ -66,15 +66,13 @@ void trig_trigger_groups();
 
 
 // CPOS stuff
-cpos_info& get_combo_posinfo(int32_t layer, int32_t pos);
-int get_trig_group(int ind);
+cpos_info& cpos_get(int32_t layer, int32_t pos);
+int cpos_trig_group_count(int ind);
 int cpos_exists_spotlight();
 
-void clear_cposes();
-void force_update_cposes();
-void update_cposes();
-
-void force_recalculate_trig_groups();
+void cpos_clear_all();
+void cpos_force_update();
+void cpos_update();
 
 
 #endif

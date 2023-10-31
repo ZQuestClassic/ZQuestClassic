@@ -2560,7 +2560,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
-	cpos_info& timer = get_combo_posinfo(lyr, pos);
+	cpos_info& timer = cpos_get(lyr, pos);
 	int32_t cid = tmp->data[pos];
 	int32_t ocs = tmp->cset[pos];
 	int32_t cx = COMBOX(pos);
@@ -3575,15 +3575,15 @@ void trig_trigger_groups()
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cpos_info& timer = get_combo_posinfo(lyr, pos);
+			cpos_info& timer = cpos_get(lyr, pos);
 			int cid = scr->data[pos];
 			newcombo const& cmb = combobuf[cid];
 			
 			if(
 				((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
-					&& get_trig_group(cmb.trig_group) < cmb.trig_group_val)
+					&& cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val)
 				|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
-					&& get_trig_group(cmb.trig_group) > cmb.trig_group_val)
+					&& cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val)
 				)
 			{
 				do_trigger_combo(lyr,pos);
@@ -3610,9 +3610,9 @@ void trig_trigger_groups()
 		
 		if(
 			((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
-				&& get_trig_group(cmb.trig_group) < cmb.trig_group_val)
+				&& cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val)
 			|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
-				&& get_trig_group(cmb.trig_group) > cmb.trig_group_val)
+				&& cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val)
 			)
 		{
 			do_trigger_combo_ffc(ffc);
@@ -3673,11 +3673,11 @@ static int cpos_spotlight_count = 0;
 static int trig_groups[256];
 static cpos_info combo_posinfos[7][176];
 
-cpos_info& get_combo_posinfo(int32_t layer, int32_t pos)
+cpos_info& cpos_get(int32_t layer, int32_t pos)
 {
 	return combo_posinfos[layer][pos];
 }
-int get_trig_group(int ind)
+int cpos_trig_group_count(int ind)
 {
 	return unsigned(ind)<256 ? trig_groups[ind] : 0;
 }
@@ -3686,28 +3686,28 @@ int cpos_exists_spotlight()
 	return cpos_spotlight_count;
 }
 
-static void reset_cpos_cache()
+static void cpos_reset_cache()
 {
 	cpos_spotlight_count = 0;
 	memset(trig_groups, 0, sizeof(trig_groups));
 }
-static void update_cpos_cache(newcombo const& cmb, int add)
+static void cpos_update_cache(newcombo const& cmb, int add)
 {
 	if(cmb.type == cSPOTLIGHT)
 		cpos_spotlight_count += add;
 	if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
 		trig_groups[cmb.trig_group] += add;
 }
-void update_cpos_cache(word oldid, word newid)
+void cpos_update_cache(word oldid, word newid)
 {
 	if(oldid == newid) return;
 	if(oldid)
-		update_cpos_cache(combobuf[oldid],-1);
+		cpos_update_cache(combobuf[oldid],-1);
 	if(newid)
-		update_cpos_cache(combobuf[newid],1);
+		cpos_update_cache(combobuf[newid],1);
 }
 
-void clear_cposes()
+void cpos_clear_all()
 {
 	for(auto lyr = 0; lyr < 7; ++lyr)
 		for(auto pos = 0; pos < 176; ++pos)
@@ -3717,15 +3717,15 @@ void clear_cposes()
 	for (int q = 0; q < c; ++q )
 		tmpscr->ffcs[q].info.clear();
 	
-	reset_cpos_cache();
+	cpos_reset_cache();
 }
-void force_update_cposes() //updates without side-effects
+void cpos_force_update() //updates without side-effects
 {
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
-			get_combo_posinfo(lyr, pos).updateData(scr->data[pos]);
+			cpos_get(lyr, pos).updateData(scr->data[pos]);
 	}
 	dword c = tmpscr->numFFC();
 	for(word ffc = 0; ffc < c; ++ffc)
@@ -3734,7 +3734,7 @@ void force_update_cposes() //updates without side-effects
 		f.info.updateData(f.data);
 	}
 }
-void update_cposes() //updates with side-effects
+void cpos_update() //updates with side-effects
 {
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
@@ -3744,7 +3744,7 @@ void update_cposes() //updates with side-effects
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cpos_info& timer = get_combo_posinfo(lyr, pos);
+			cpos_info& timer = cpos_get(lyr, pos);
 			int cid = scr->data[pos];
 			timer.updateData(cid);
 			
@@ -3826,38 +3826,5 @@ void update_cposes() //updates with side-effects
 	
 	//Handle trigger groups
 	trig_trigger_groups();
-}
-
-void force_recalculate_trig_groups()
-{
-	int tmp_trig_groups[256] = {0};
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* scr = FFCore.tempScreens[lyr];
-		for(auto pos = 0; pos < 176; ++pos)
-		{
-			cpos_info& timer = get_combo_posinfo(lyr, pos);
-			int cid = scr->data[pos];
-			timer.updateData(cid);
-			newcombo const& cmb = combobuf[cid];
-			if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
-				++tmp_trig_groups[cmb.trig_group];
-		}
-	}
-	mapscr* ffscr = FFCore.tempScreens[0];
-	dword c = ffscr->numFFC();
-	for(word ffc = 0; ffc < c; ++ffc)
-	{
-		ffcdata& f = ffscr->ffcs[ffc];
-		if (f.flags & ffCHANGER)
-			continue; //changers don't contribute
-		cpos_info& timer = f.info;
-		int cid = f.data;
-		timer.updateData(cid);
-		newcombo const& cmb = combobuf[cid];
-		if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
-			++tmp_trig_groups[cmb.trig_group];
-	}
-	memcpy(trig_groups, tmp_trig_groups, sizeof(trig_groups));
 }
 

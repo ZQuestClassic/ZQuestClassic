@@ -2,7 +2,7 @@
 #include "base/zdefs.h"
 #include "base/combo.h"
 
-void update_cpos_cache(word oldid, word newid);
+void cpos_update_cache(word oldid, word newid);
 
 void cpos_info::push(int dir, bool cancel)
 {
@@ -28,7 +28,7 @@ void cpos_info::clear()
 //Clear the info, updating the cpos cache to the change
 void cpos_info::clearInfo()
 {
-	update_cpos_cache(data,0);
+	cpos_update_cache(data,0);
 	clear();
 }
 
@@ -45,7 +45,7 @@ void cpos_info::updateData(int32_t newdata)
 			cspr = cmb.spr_disappear;
 		}
 		
-		update_cpos_cache(data,newdata);
+		cpos_update_cache(data,newdata);
 		clear();
 		data = newdata;
 		
@@ -58,7 +58,7 @@ void cpos_info::updateData(int32_t newdata)
 void cpos_info::updateInfo(cpos_info const& other)
 {
 	if(data != other.data)
-		update_cpos_cache(data,other.data);
+		cpos_update_cache(data,other.data);
 	*this = other;
 }
 
