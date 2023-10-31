@@ -16,6 +16,7 @@ namespace ZScript
 	{
 	public:
 		ASTVisitor() : parsing_user_class(puc_none), scope(nullptr) {}
+		virtual ~ASTVisitor() = default;
 		
 		virtual void caseDefault(AST& host, void* param = NULL) {}
 		// AST Subclasses

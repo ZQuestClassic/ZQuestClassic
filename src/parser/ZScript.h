@@ -261,6 +261,8 @@ namespace ZScript
 		
 		virtual bool isBuiltIn() const {return false;}
 		
+		virtual ~Datum() = default;
+
 	protected:
 		Datum(Scope& scope, DataType const& type);
 

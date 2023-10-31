@@ -809,6 +809,7 @@ set(zc_gcc_errors
 )
 set(zc_msvc_errors
 	# /we5038
+	# /we4265
 )
 
 if(WANT_SENTRY)
