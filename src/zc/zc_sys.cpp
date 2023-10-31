@@ -5146,10 +5146,11 @@ int32_t OnSaveZCConfig()
 
 int32_t OnnClearQuestDir()
 {
+	auto current_path = fs::current_path() / "quests";
 	if(jwin_alert3(
 			"Clear Current Directory Cache", 
-			"Are you sure that you wish to clear the current cached directory?", 
-			"This will default the current directory to `<ROOT>/quests` for this instance of ZC Player!",
+			"Are you sure that you wish to reset where ZC Player looks for quests?", 
+			fmt::format("The new directory will be: {}", current_path.string()).c_str(),
 			NULL,
 		 "&Yes", 
 		"&No", 
@@ -5159,9 +5160,9 @@ int32_t OnnClearQuestDir()
 		0, 
 		get_zc_font(font_lfont)) == 1)	
 	{
-		zc_set_config("zeldadx","quest_dir","");
+		zc_set_config("zeldadx","quest_dir","quests");
 		flush_config_file();
-		strcpy(qstdir,"");
+		strcpy(qstdir,"quests");
 #ifdef __EMSCRIPTEN__
 		em_sync_fs();
 #endif
