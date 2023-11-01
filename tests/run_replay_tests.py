@@ -1364,6 +1364,7 @@ def prompt_to_create_compare_report():
             '--replay',
             '--build_folder', str(build_dir),
             '--test_results_folder', str(local_baseline_dir),
+            '--retries=2',
             *get_args_for_collect_baseline_from_test_results([test_results_path]),
         ]
         if not args.jit:
