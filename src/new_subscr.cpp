@@ -2598,7 +2598,7 @@ void SW_MMapTitle::draw_new(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage
 void SW_MMapTitle::draw_old(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	if(!(flags&SUBSCR_MMAPTIT_REQMAP) || has_item(itype_map, get_dlevel()))
+	if(!(flags&SUBSCR_MMAPTIT_REQMAP) || has_item(itype_map, -1))
 	{
 		auto y2 = y+yofs+text_height(tempfont), y1 = y+yofs;
 		if(flags&SUBSCR_MMAPTIT_ONELINE)
@@ -2734,8 +2734,8 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
         case dmOVERW:
         case dmBSOVERW:
 		{
-            int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
-            int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+            int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
+            int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
             //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
             if(maptile)
             {
@@ -2760,8 +2760,8 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
         case dmDNGN:
         case dmCAVE:
 		{
-            int32_t maptile=has_item(itype_map, get_dlevel())?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
-            int32_t mapcset=has_item(itype_map, get_dlevel())?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+            int32_t maptile=has_item(itype_map, -1)?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
+            int32_t mapcset=has_item(itype_map, -1)?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
             //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
             if(maptile)
             {
@@ -2776,7 +2776,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
                 rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
             }
             //Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
-            if(!thedmap.minimap_2_tile && has_item(itype_map, get_dlevel()))
+            if(!thedmap.minimap_2_tile && has_item(itype_map, -1))
             {
                 if((thedmap.flags&dmfMINIMAPCOLORFIX) != 0)
                 {
@@ -2797,11 +2797,11 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
     {
         if(type==dmDNGN || type==dmCAVE)
         {
-            if(show_subscreen_dmap_dots&&has_item(itype_compass, get_dlevel()))
+            if(show_subscreen_dmap_dots&&has_item(itype_compass, -1))
             {
                 int32_t c2 = c_cmp_off.get_color();
                 
-                if(!has_item(itype_triforcepiece, get_dlevel()) && (frame&16))
+                if(!has_item(itype_triforcepiece, -1) && (frame&16))
                     c2 = c_cmp_blink.get_color();
                     
                 int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
@@ -3095,7 +3095,7 @@ int32_t SW_ItemSlot::getItemVal() const
 				select = true;
 				break;
 		}
-		if(select && !item_disabled(iid) && game->get_item(iid))
+		if (select && !item_disabled(iid) && game->get_item(iid))
 		{
 			int32_t ret = iid;
 			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
@@ -3243,11 +3243,28 @@ int32_t SW_ItemSlot::getDisplayItem() const
 					select=true;
 				break;
 			}
+			
+			//Super Special Cases for display
+			case itype_map:
+				if(nosp) break;
+				return has_item(itype_map, -1) ? iid : -1;
+			case itype_compass:
+				if(nosp) break;
+				return has_item(itype_compass, -1) ? iid : -1;
+			case itype_bosskey:
+				if(nosp) break;
+				return has_item(itype_bosskey, -1) ? iid : -1;
+			case itype_heartpiece:
+				if(nosp) break;
+				if(QMisc.colors.HCpieces_tile)
+					return iid;
+				break;
 			default:
 				select = true;
 				break;
 		}
-		if(select && !item_disabled(iid) && game->get_item(iid))
+		
+		if (select && !item_disabled(iid) && game->get_item(iid))
 		{
 			auto ret = iid;
 			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
@@ -3308,13 +3325,13 @@ int32_t SW_ItemSlot::getDisplayItem() const
 		//Super Special Cases for display
 		case itype_map:
 			if(nosp) break;
-			return has_item(itype_map, get_dlevel()) ? iMap : -1;
+			return has_item(itype_map, -1) ? iMap : -1;
 		case itype_compass:
 			if(nosp) break;
-			return has_item(itype_compass, get_dlevel()) ? iCompass : -1;
+			return has_item(itype_compass, -1) ? iCompass : -1;
 		case itype_bosskey:
 			if(nosp) break;
-			return has_item(itype_bosskey, get_dlevel()) ? iBossKey : -1;
+			return has_item(itype_bosskey, -1) ? iBossKey : -1;
 		case itype_heartpiece:
 			if(nosp) break;
 			if(QMisc.colors.HCpieces_tile)
