@@ -1808,6 +1808,76 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
 
 //shnarf
 
+// A (slow) function to handle any tile8 draw.
+static void draw_tile8_unified(BITMAP* dest, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip)
+{
+    for (int32_t dy = 0; dy < 8; ++dy)
+    {
+        for (int32_t dx = 0; dx < 8; ++dx)
+        {
+            int destx = x + (flip&1 ? 7 - dx : dx);
+            int desty = y + (flip&2 ? 7 - dy : dy);
+            if (destx >= 0 && desty >= 0 && destx < dest->w && desty < dest->h)
+            {
+                if (*si) dest->line[desty][destx] = *si + cset;
+            }
+            si++;
+        }
+        si += 8;
+    }
+}
+// TODO: tried to maybe make this faster, but it isn't quite right.
+// static void draw_tile8_unified(BITMAP* dest, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
+// {
+//     bool fh = flip&1;
+//     bool fv = flip&2;
+//     int dx = fh ? -1 : 1;
+//     int dy = fv ? -1 : 1;
+//     int x0 = x + (fh ? 7 : 0);
+//     int y0 = y + (fv ? 7 : 0);
+//     int x1 = x0 + dx * 8;
+//     int y1 = y0 + dy * 8;
+
+//     int x_s = std::clamp(x0, 0, dest->w - 1);
+//     int y_s = std::clamp(y0, 0, dest->h - 1);
+//     int x_e = std::clamp(x1, -1, dest->w);
+//     int y_e = std::clamp(y1, -1, dest->h);
+
+//     int skipx_before = std::abs(std::clamp(x0, 0, dest->w) - x0);
+//     int skipx_after = std::abs(x_e - x1);
+//     int skipy_before = std::abs(std::clamp(y0, 0, dest->h) - y0);
+
+//     si += skipy_before * 16;
+
+//     for (int32_t y2 = y_s; y2 != y_e; y2 += dy)
+//     {
+//         si += skipx_before;
+//         for (int32_t x2 = x_s; x2 != x_e; x2 += dx)
+//         {
+//             if (!transparency || *si) dest->line[y2][x2] = *si + cset;
+//             si++;
+//         }
+//         si += 8 + skipx_after;
+//     }
+// }
+
+static void draw_tile16_unified(BITMAP* dest, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
+{
+    for (int32_t dy = 0; dy < 16; ++dy)
+    {
+        for (int32_t dx = 0; dx < 16; ++dx)
+        {
+            int destx = x + dx;
+            int desty = y + (flip&2 ? 15 - dy : dy);
+            if (destx >= 0 && desty >= 0 && destx < dest->w && desty < dest->h)
+            {
+                if (!transparency || *si) dest->line[desty][destx] = *si + cset;
+            }
+            si++;
+        }
+    }
+}
+
 void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
     if(x<0 || y<0)
@@ -1828,7 +1898,18 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     cset <<= CSET_SHFT;
     dword lcset = (cset<<24)+(cset<<16)+(cset<<8)+cset;
     unpack_tile(newtilebuf, tile>>2, 0, false);
-    
+
+    // TODO: only title.cpp uses this function, so don't bother with this yet. Following code noy verified.
+    // 0: fast, no bounds checking
+    // 1: slow, bounds checking
+    // int draw_mode = x < 0 || y < 0 || x >= dest->w-8 || y >= dest->h-8 || x%8 || y%8 ? 1 : 0;
+    // if (draw_mode == 1)
+    // {
+    //     byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+    //     draw_tile8_unified(dest, si, x, y, cset, flip, false);
+    //     return;
+    // }
+
     //  to go to 24-bit color, do this kind of thing...
     //  ((int32_t *)bmp->line[y])[x] = color;
     
@@ -2016,87 +2097,85 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     cset <<= CSET_SHFT;
     unpack_tile(newtilebuf, tile>>2, 0, false);
     byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+
+    // 0: fast, no bounds checking
+    // 1: slow, bounds checking
+    int draw_mode = x < 0 || y < 0 || x >= dest->w-8 || y >= dest->h-8 ? 1 : 0;
+    if (draw_mode == 1)
+    {
+        draw_tile8_unified(dest, si, x, y, cset, flip);
+        return;
+    }
     
     if(flip&1)
     {
         si+=7;
     }
     
-    if((flip&2)==0)                                           //not flipped vertically
-    {
-        if(y<0)
-        {
-            si+=(0-y)<<4;
-        }
-        
-        for(int32_t dy=(y<0 ? 0-y : 0); (dy<8)&&(dy+y<dest->h); ++dy)
-        {
-            byte* di = &(dest->line[y+dy][x<0 ? 0 : x]);
-            
-            for(int32_t i=0; i<8; ++i)
-            {
-                if(x+i<dest->w)
-                {
-                    if(*si)
-                    {
-                        //            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                        *(di) = (*si) + cset;
-                    }
-                    
-                    ++di;
-                }
-                
-                flip&1 ? --si : ++si;
-            }
-            
-            if(flip&1)
-            {
-                si+=24;
-            }
-            else
-            {
-                si+=8;
-                
-            }
-        }
-    }                                                         //flipped vertically
-    else
-    {
-        if(y+7>=dest->h)
-        {
-            si+=(8+y-dest->h)<<4;
-        }
-        
-        for(int32_t dy=(y+7>=dest->h ? dest->h-y-1 : 7); (dy>=0)&&(dy+y>=0); --dy)
-        {
-            byte* di = &(dest->line[y+dy][x<0 ? 0 : x]);
-            
-            for(int32_t i=0; i<8; ++i)
-            {
-                if(x+i<dest->w)
-                {
-                    if(*si)
-                    {
-                        //            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
-                        *(di) = (*si) + cset;
-                    }
-                    
-                    ++di;
-                }
-                
-                flip&1 ? --si : ++si;
-            }
-            
-            if(flip&1)
-            {
-                si+=24;
-            }
-            else
-            {
-                si+=8;
-            }
-        }
-    }
+	if((flip&2)==0)                                           //not flipped vertically
+	{
+		if(y<0)
+		{
+			si+=(0-y)<<4;
+		}
+		
+		for(int32_t dy=0; dy<8; ++dy)
+		{
+			byte* di = &(dest->line[y+dy][x]);
+			
+			for(int32_t i=0; i<8; ++i)
+			{
+				if(*si)
+				{
+					//            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
+					*(di) = (*si) + cset;
+				}
+				
+				++di;
+				
+				flip&1 ? --si : ++si;
+			}
+			
+			if(flip&1)
+			{
+				si+=24;
+			}
+			else
+			{
+				si+=8;
+				
+			}
+		}
+	}                                                         //flipped vertically
+	else
+	{
+		for(int32_t dy=7; dy>=0; --dy)
+		{
+			byte* di = &(dest->line[y+dy][x]);
+			
+			for(int32_t i=0; i<8; ++i)
+			{
+				if(*si)
+				{
+					//            *(di) = (opacity==255)?((*si) + cset):trans_table.data[(*di)][((*si) + cset)];
+					*(di) = (*si) + cset;
+				}
+				
+				++di;
+				
+				flip&1 ? --si : ++si;
+			}
+			
+			if(flip&1)
+			{
+				si+=24;
+			}
+			else
+			{
+				si+=8;
+			}
+		}
+	}
 }
 
 void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
@@ -2125,6 +2204,16 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     cset <<= CSET_SHFT;
     
     unpack_tile(newtilebuf, tile, flip&5, false);
+
+    // 0: fast, no bounds checking
+    // 1: slow, bounds checking
+    int draw_mode = x < 0 || y < 0 || x >= dest->w-16 || y >= dest->h-16 || x%8 || y%8 ? 1 : 0;
+    if (draw_mode == 1)
+    {
+        byte *si = unpackbuf;
+        draw_tile16_unified(dest, si, x, y, cset, flip, false);
+        return;
+    }
     
     switch(flip&2)
     {
@@ -2385,84 +2474,46 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 	unpack_tile(newtilebuf, tile, flip&5, false);
 	byte *si = unpackbuf;
 	byte *di;
-	
+
+	// 0: fast, no bounds checking
+	// 1: slow, bounds checking
+	int draw_mode = x < 0 || y < 0 || x >= dest->w-16 || y >= dest->h-16 ? 1 : 0;
+	if (draw_mode == 1)
+	{
+		byte *si = unpackbuf;
+		draw_tile16_unified(dest, si, x, y, cset, flip, true);
+		return;
+	}
+
 	if((flip&2)==0)
 	{
-		if(y<0)
-			si+=(0-y)<<4;
-			
-		for(int32_t dy=(y<0 ? 0-y : 0); (dy<16)&&(dy+y<dest->h); ++dy)
+		for(int32_t dy=0; dy<16; ++dy)
 		{
-			di = &(dest->line[y+dy][x<0 ? 0 : x]);
-			
-			if(x+15<dest->w)
+			di = &(dest->line[y+dy][x]);
+
+			for(int32_t dx=0; dx<16; ++dx)
 			{
-				if(x<0)
-					si+=0-x;
+				if(*si)
+					*di=*si+cset;
 					
-				for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
-				{
-					if(*si)
-						*di=*si+cset;
-						
-					++di;
-					++si;
-				}
-			}
-			else
-			{
-				for(int32_t i=0; i<16; ++i)
-				{
-					if(x+i<dest->w)
-					{
-						if(*si)
-							*di=*si+cset;
-							
-						++di;
-					}
-					
-					++si;
-				}
+				++di;
+				++si;
 			}
 		}
 	}
 	else
 	{
-		if(y+15>=dest->h)
-			si+=(16+y-dest->h)<<4;
-			
-		for(int32_t dy=(y+15>=dest->h ? dest->h-y-1 : 15); (dy>=0)&&(dy+y>=0); --dy)
+		for(int32_t dy=15; dy>=0; --dy)
 		{
-			di = &(dest->line[y+dy][x<0 ? 0 : x]);
+			di = &(dest->line[y+dy][x]);
 			
-			if(x+15<dest->w)
+			for(int32_t dx=0; dx<16; ++dx)
 			{
-				if(x<0)
-					si+=0-x;
+				if(*si)
+					*di=*si+cset;
 					
-				for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
-				{
-					if(*si)
-						*di=*si+cset;
-						
-					++di;
-					++si;
-				}
-			}
-			else
-			{
-				for(int32_t i=0; i<16; ++i)
-				{
-					if(x+i<dest->w)
-					{
-						if(*si)
-							*di=*si+cset;
-							
-						++di;
-					}
-					
-					++si;
-				}
+				++di;
+				++si;
 			}
 		}
 	}
