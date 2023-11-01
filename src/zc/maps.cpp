@@ -3873,8 +3873,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//2. Blit scrollbuf onto framebuf
 	//3. Draw some sprites onto framebuf
 	//4. Blit framebuf onto temp_buf
-	//5. Draw some layers onto temp_buf and scrollbuf
-	//6. Blit temp_buf onto framebuf with clipping
+	//5. Draw some layers onto framebuf and scrollbuf
+	//6. -----
 	//6b. Draw the subscreen onto temp_buf, without clipping
 	//7. Draw some flying sprites onto framebuf
 	//8. Blit frame_buf onto temp_buf
@@ -4228,49 +4228,43 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	//4. Blit framebuf onto temp_buf
 	
-	//you have to do this, because do_layer calls overcombo, which doesn't respect the clipping rectangle, which messes up the triforce curtain. -DD
+	// For later.
 	blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
 	
-	//5. Draw some layers onto temp_buf and scrollbuf
+	//5. Draw some layers onto framebuf and scrollbuf
+	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	if(!XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 	{
-		do_layer(temp_buf, 0, 3, this_screen, 0, 0, 2, false, true);
+		do_layer(framebuf, 0, 3, this_screen, 0, 0, 2, false, true);
 		do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2);
 		
-		particles.draw(temp_buf, true, 2);
+		particles.draw(framebuf, true, 2);
 		draw_msgstr(3, true);
 	}
 	
-	do_layer(temp_buf, 0, 4, this_screen, 0, 0, 2, false, true);
+	do_layer(framebuf, 0, 4, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 0, 4, this_screen, 0, 0, 2);
-	//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
 	
-	particles.draw(temp_buf, true, 3);
+	particles.draw(framebuf, true, 3);
 	draw_msgstr(4, true);
 	
-	do_layer(temp_buf, -1, 0, this_screen, 0, 0, 2);
+	do_layer(framebuf, -1, 0, this_screen, 0, 0, 2);
 	do_layer(scrollbuf, -1, 0, this_screen, 0, 0, 2);
 	if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 	{
-		do_layer(temp_buf, -1, 1, this_screen, 0, 0, 2);
+		do_layer(framebuf, -1, 1, this_screen, 0, 0, 2);
 		do_layer(scrollbuf, -1, 1, this_screen, 0, 0, 2);
-		do_layer(temp_buf, -1, 2, this_screen, 0, 0, 2);
+		do_layer(framebuf, -1, 2, this_screen, 0, 0, 2);
 		do_layer(scrollbuf, -1, 2, this_screen, 0, 0, 2);
 	}
-	do_primitives(temp_buf, SPLAYER_OVERHEAD_CMB, this_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB, this_screen, 0, playing_field_offset);
 	
-	particles.draw(temp_buf, true, -1);
-	
-	//6. Blit temp_buf onto framebuf with clipping
-	
-	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	particles.draw(framebuf, true, -1);
 	
 	//6b. Draw the subscreen, without clipping
 	if(!get_qr(qr_SUBSCREENOVERSPRITES))
 	{
-		set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 		bool dotime = false;
 		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
 		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
@@ -4278,7 +4272,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	
 	//7. Draw some flying sprites onto framebuf
-	set_clip_rect(framebuf,0,0,256,224);
+	clear_clip_rect(framebuf);
 	
 	//Jumping Hero and jumping enemies are drawn on this layer.
 	if(Hero.getZ() > (zfix)zinit.jump_hero_layer_threshold)
