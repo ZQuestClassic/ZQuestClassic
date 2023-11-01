@@ -591,6 +591,7 @@ void zmap::setcolor(int32_t c)
 	{
 		Color = c;
 		loadlvlpal(c);
+		rebuild_trans_table();
 	}
 
 	mmap_mark_dirty();
