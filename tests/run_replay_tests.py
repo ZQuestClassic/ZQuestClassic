@@ -241,6 +241,7 @@ int_group.add_argument('--ci', nargs='?',
     help='Special arg meant for CI behaviors')
 int_group.add_argument('--shard')
 int_group.add_argument('--print_shards', action='store_true')
+int_group.add_argument('--prune_test_results', action='store_true')
 
 parser.add_argument('replays', nargs='*',
     help='If provided, will only run these replays rather than those in tests/replays')
@@ -1237,10 +1238,8 @@ for i in range(args.retries + 1):
                 print(result.diff)
 
 
-test_results_path.write_text(test_results.to_json())
-
-if is_ci:
-    # Only keep the images of the last run of each replay.
+if args.prune_test_results:
+    # Only keep the last run of each replay.
     replay_runs: List[RunResult] = []
     for runs in reversed(test_results.runs):
         for run in runs:
@@ -1251,8 +1250,15 @@ if is_ci:
     for runs in test_results.runs:
         for run in runs:
             if run not in replay_runs:
-                for png in (test_results_dir / run.directory).glob('*.png'):
-                    png.unlink()
+                shutil.rmtree(test_results_dir / run.directory)
+
+    test_results.runs = [replay_runs]
+
+    # These are huge and not necessary for the compare report.
+    for file in test_results_dir.rglob('*.zplay.roundtrip'):
+        file.unlink()
+
+test_results_path.write_text(test_results.to_json())
 
 def prompt_for_gh_auth():
     print('Select the GitHub repo:')

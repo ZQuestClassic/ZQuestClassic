@@ -56,7 +56,7 @@ jobs:
       arch: ${{ matrix.arch }}
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
-      extra-args: ${{ matrix.extra-args }}
+      extra-args: ${{ matrix.extra-args }} --prune_test_results
 
   compare:
     needs: ["test"]
