@@ -208,6 +208,8 @@ parser.add_argument('--throttle_fps', action='store_true',
     help='Supply this to cap the replay\'s FPS')
 parser.add_argument('--retries', type=int, default=0,
     help='The number of retries (default 0) to give each replay')
+parser.add_argument('-c', '--concurrency', type=int,
+    help='How many replays to run concurrently. If not value not provided, will be set based on the number of available CPU cores (unless --show or --no-headless is used, in which case the value will be set to 1).')
 parser.add_argument('--jit', action=argparse.BooleanOptionalAction, default=True,
     help='Enables JIT compilation')
 parser.add_argument('--debugger', action=argparse.BooleanOptionalAction, default=is_ci,
@@ -380,18 +382,21 @@ grouped_max_duration_arg = group_arg(args.max_duration)
 grouped_snapshot_arg = group_arg(args.snapshot, allow_concat=True)
 grouped_frame_arg = group_arg(args.frame)
 
-if is_web:
-    concurrency = 1
-elif is_ci:
-    concurrency = os.cpu_count()
-    # In GHA for Windows there are 2 CPUs, but only on Windows does running concurrently result
-    # in random failures related to not being able to read the result.txt file.
-    # For now, disable.
-    if platform.system() == 'Windows':
-        concurrency = 1
+if args.concurrency:
+    concurrency = args.concurrency
 else:
-    concurrency = max(1, os.cpu_count() - 4)
-print(f'found {os.cpu_count()} cpus, setting concurrency to {concurrency}')
+    if is_web or not args.headless:
+        concurrency = 1
+    elif is_ci:
+        concurrency = os.cpu_count()
+        # In GHA for Windows there are 2 CPUs, but only on Windows does running concurrently result
+        # in random failures related to not being able to read the result.txt file.
+        # For now, disable.
+        if platform.system() == 'Windows':
+            concurrency = 1
+    else:
+        concurrency = max(1, os.cpu_count() - 4)
+    print(f'found {os.cpu_count()} cpus, setting concurrency to {concurrency}')
 
 
 def apply_test_filter(filter: str):
