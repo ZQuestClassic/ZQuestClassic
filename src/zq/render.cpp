@@ -9,6 +9,7 @@ extern bool DragAspect;
 
 static auto rti_root = RenderTreeItem("root");
 static auto rti_screen = LegacyBitmapRTI("screen");
+static bool screen_never_freeze;
 
 static int zc_gui_mouse_x()
 {
@@ -86,7 +87,10 @@ static void configure_render_tree()
 	rti_dialogs.visible = rti_dialogs.has_children();
 
 	// Freeze dialogs that won't be changing.
-	rti_screen.freeze = rti_dialogs.has_children();
+	if (screen_never_freeze)
+		rti_screen.freeze = false;
+	else
+		rti_screen.freeze = rti_dialogs.has_children();
 	int i = 0;
 	while (i < rti_dialogs.get_children().size())
 	{
@@ -110,6 +114,11 @@ RenderTreeItem* get_screen_rti()
 void zq_hide_screen(bool hidden)
 {
 	rti_screen.visible = !hidden;
+}
+
+void zq_set_screen_never_freeze(bool value)
+{
+	screen_never_freeze = value;
 }
 
 void render_zq()
