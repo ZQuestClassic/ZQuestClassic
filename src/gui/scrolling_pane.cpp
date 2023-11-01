@@ -6,11 +6,27 @@
 
 extern int32_t jwin_pal[jcMAX];
 
-int32_t screen_w, screen_h;
-#define START_CLIP(d) set_clip_rect( \
-	screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
-#define END_CLIP() set_clip_rect( \
-	screen, 0, 0, LARGE_W, LARGE_H)
+#define START_CLIP(d) \
+	int clip = screen->clip;\
+	int cl = screen->cl;\
+	int cr = screen->cr;\
+	int ct = screen->ct;\
+	int cb = screen->cb;\
+	set_clip_rect(screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
+#define START_CLIP_BYOB(d) \
+	clip = screen->clip;\
+	cl = screen->cl;\
+	cr = screen->cr;\
+	ct = screen->ct;\
+	cb = screen->cb;\
+	set_clip_rect(screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
+
+#define END_CLIP() \
+	screen->clip = clip;\
+	screen->cl = cl;\
+	screen->cr = cr;\
+	screen->ct = ct;\
+	screen->cb = cb;
 
 namespace GUI
 {
@@ -217,7 +233,8 @@ void ScrollingPane::applyVisibility(bool visible)
 	{
 		if (screen)
 		{
-			if(isConstructed()) START_CLIP(alDialog);
+			int clip, cl, cr, ct, cb;
+			if(isConstructed()) START_CLIP_BYOB(alDialog);
 			content->applyVisibility(visible);
 			if(isConstructed()) END_CLIP();
 		}
