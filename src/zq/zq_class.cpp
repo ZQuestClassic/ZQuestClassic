@@ -13431,6 +13431,12 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(67);
 		if(!p_putbmap(zinit.screen_data, f))
 			new_return(68);
+		if (!p_putc(zinit.spriteflickerspeed, f))
+			new_return(69);
+		if (!p_putc(zinit.spriteflickercolor, f))
+			new_return(70);
+		if (!p_putc(zinit.spriteflickertransp, f))
+			new_return(71);
 		
 		if(writecycle==0)
 		{

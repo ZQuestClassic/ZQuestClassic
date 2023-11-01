@@ -61,6 +61,7 @@ struct zinitdata
 	word start_dmap;
 	word subscrSpeed = 1;
 	byte switchhookstyle, magicdrainrate;
+	byte spriteflickerspeed = 1, spriteflickercolor = 0x00, spriteflickertransp = 0;
 	
 	zfix shove_offset = 6.5_zf;
 	

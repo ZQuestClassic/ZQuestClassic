@@ -10,6 +10,7 @@
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include "base/misctypes.h"
+#include "drawing.h"
 
 #ifndef IS_EDITOR
 #include "zc/hero.h"
@@ -29,6 +30,9 @@ extern bool is_editor();
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 #include "zc/ffscript.h"
 extern FFScript FFCore;
+
+byte sprite_flicker_color = 0;
+byte sprite_flicker_transp_passes = 0;
 
 #define degtoFix(d)     ((d)*0.7111111111111)
 #define radtoFix(d)     ((d)*40.743665431525)
@@ -88,6 +92,7 @@ sprite::sprite(): solid_object()
     lasthit=0;
     angle=0;
     misc=0;
+	flickercolor = -1;
     pit_pulldir = -1;
 	pit_pullclk = 0;
 	fallclk = 0;
@@ -332,6 +337,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     angle=0;
     hzsz=1;
     misc=0;
+	flickercolor = -1;
     c_clk=0;
     shadowtile=0;
     screenedge = 0;
@@ -1098,6 +1104,8 @@ void doSpriteDraw(int32_t drawstyle, BITMAP* dest, BITMAP* src, int32_t x, int32
 	else draw_sprite(dest, src, x, y);
 }
 
+#define SPRITE_MONOCOLOR(bmp) monocolor(bmp, sprite_flicker_color, sprite_flicker_transp_passes)
+
 void sprite::draw(BITMAP* dest)
 {
 	//Handle glowing sprites
@@ -1129,13 +1137,7 @@ void sprite::draw(BITMAP* dest)
 		}
 	}
 #endif
-	if (FFCore.getQuestHeaderInfo(0) < 0x255 || ( FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42 ))
-	{
-		drawzcboss(dest);
-		yofs = tyoffs;
-		return; //don't run the rest, use the old code
-	}
-	if ( get_qr(qr_OLDSPRITEDRAWS) || (drawflags&sprdrawflagALWAYSOLDDRAWS) ) 
+	if (FFCore.getQuestHeaderInfo(0) < 0x255 || ( FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42 ) || get_qr(qr_OLDSPRITEDRAWS) || (drawflags & sprdrawflagALWAYSOLDDRAWS))
 	{
 		drawzcboss(dest);
 		yofs = tyoffs;
@@ -1171,6 +1173,10 @@ void sprite::draw(BITMAP* dest)
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
 				
+				//Recolor for flicker animations
+				if (sprite_flicker_color)
+					SPRITE_MONOCOLOR(temp);
+
 				//Blit to the screen...
 				if ( rotation )
 				{	
@@ -1212,6 +1218,10 @@ void sprite::draw(BITMAP* dest)
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,16,cs,((scriptflip > -1) ? scriptflip : flip));
 				
+				//Recolor for flicker animations
+				if (sprite_flicker_color)
+					SPRITE_MONOCOLOR(temp);
+
 				if ( rotation )
 				{
 					if ( scale ) 
@@ -1267,6 +1277,11 @@ void sprite::draw(BITMAP* dest)
 								overtile16(sprBMP,tileToDraw,0+(txsz-j-1)*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
+
+						//Recolor for flicker animations
+						if (sprite_flicker_color)
+							SPRITE_MONOCOLOR(sprBMP);
+
 						if ( rotation )
 						{
 							if ( scale ) 
@@ -1311,6 +1326,11 @@ void sprite::draw(BITMAP* dest)
 								overtile16(sprBMP,tileToDraw,0+j*16,0+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
+
+						//Recolor for flicker animations
+						if (sprite_flicker_color)
+							SPRITE_MONOCOLOR(sprBMP);
+
 						if ( rotation )
 						{
 							if ( scale ) 
@@ -1354,6 +1374,11 @@ void sprite::draw(BITMAP* dest)
 								overtile16(sprBMP,tileToDraw,0+(txsz-j-1)*16,0+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
+
+						//Recolor for flicker animations
+						if (sprite_flicker_color)
+							SPRITE_MONOCOLOR(sprBMP);
+
 						if ( rotation )
 						{
 							if ( scale ) 
@@ -1398,6 +1423,11 @@ void sprite::draw(BITMAP* dest)
 								overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
+
+						//Recolor for flicker animations
+						if (sprite_flicker_color)
+							SPRITE_MONOCOLOR(sprBMP);
+
 						//rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, 0,ftofix(new_scale));
 						if ( rotation )
 						{
@@ -1435,6 +1465,10 @@ void sprite::draw(BITMAP* dest)
 				clear_bitmap(sprBMP2);
 				overtile16(sprBMP,TILEBOUND(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				
+				//Recolor for flicker animations
+				if (sprite_flicker_color)
+					SPRITE_MONOCOLOR(sprBMP);
+
 				if ( rotation )
 				{
 					if ( scale ) 
@@ -1567,6 +1601,9 @@ void sprite::draw(BITMAP* dest)
 	}
 	
 	yofs = tyoffs;
+
+	sprite_flicker_color = 0;
+	sprite_flicker_transp_passes = 0;
 }
 
 void sprite::draw_hitbox()
@@ -1595,6 +1632,18 @@ void sprite::drawzcboss(BITMAP* dest)
 	if(id<0)
 		return;
         
+	if (!(FFCore.getQuestHeaderInfo(0) < 0x255 || (FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42) || get_qr(qr_OLDSPRITEDRAWS) || (drawflags & sprdrawflagALWAYSOLDDRAWS)))
+	{
+		sprite::draw(dest);
+		return; //don't run the rest, use the old code
+	}
+	if (sprite_flicker_color)
+	{
+		sprite_flicker_color = 0;
+		sprite_flicker_transp_passes = 0;
+		return;
+	}
+
 	int32_t e = extend>=3 ? 3 : extend;
     
 	if(clk>=0)

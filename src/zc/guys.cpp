@@ -4183,7 +4183,16 @@ void enemy::draw(BITMAP *dest)
 			cs=(((hclk-1)>>1)&3)+6;
 	}
 	//draw every other frame for flickering enemies
-	if((frame&1)==1 || !(family !=eeGANON && hclk>0 && get_qr(qr_ENEMIESFLICKER) && getCanFlicker()))
+	if (is_hitflickerframe() && family != eeGANON && hclk && get_qr(qr_ENEMIESFLICKER) && getCanFlicker())
+	{
+		if (game->get_spriteflickercolor())
+		{
+			sprite_flicker_transp_passes = game->get_spriteflickertransp();
+			sprite_flicker_color = (hp > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+			sprite::draw(dest);
+		}
+	}
+	else
 	{
 		if (canSee == DRAW_CLOAKED)
 		{
@@ -4279,7 +4288,16 @@ void enemy::drawzcboss(BITMAP *dest)
 	{
 		if(family !=eeGANON && hclk>0 && get_qr(qr_ENEMIESFLICKER))
 		{
-			if((frame&1)==1)
+			if (is_hitflickerframe())
+			{
+				if (game->get_spriteflickercolor())
+				{
+					sprite_flicker_transp_passes = game->get_spriteflickertransp();
+					sprite_flicker_color = (hp > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+					sprite::drawzcboss(dest);
+				}
+			}
+			else
 				sprite::drawzcboss(dest);
 		}
 		else

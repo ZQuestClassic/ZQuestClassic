@@ -2427,10 +2427,17 @@ void HeroClass::draw(BITMAP* dest)
 					//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
 					
 					//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
-					if (!(get_qr(qr_HEROFLICKER) && ((superman || hclk) && (frame & 1))))
+					if (get_qr(qr_HEROFLICKER) && (superman || hclk) && is_hitflickerframe())
 					{
-						masked_draw(dest);
+						if(game->get_spriteflickercolor() && !superman)
+						{
+							sprite_flicker_transp_passes = game->get_spriteflickertransp();
+							sprite_flicker_color = (game->get_life() > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+							masked_draw(dest);
+						}
 					}
+					else
+						masked_draw(dest);
 
 					//Prevent flickering -Z
 					if (!getCanFlicker()) masked_draw(dest);
@@ -3014,10 +3021,17 @@ void HeroClass::draw(BITMAP* dest)
 			yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
 		}
 		
-		if(!(get_qr(qr_HEROFLICKER)&&((superman||hclk)&&(frame&1))))
+		if(get_qr(qr_HEROFLICKER) && (superman || hclk) && is_hitflickerframe())
 		{
-			masked_draw(dest);
+			if(game->get_spriteflickercolor() && !superman)
+			{
+				sprite_flicker_transp_passes = game->get_spriteflickertransp();
+				sprite_flicker_color = (game->get_life() > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+				masked_draw(dest);
+			}
 		}
+		else
+			masked_draw(dest);
 		
 		//draw held items after Hero so they don't go behind his head
 		if(action==landhold1 || action==landhold2)
@@ -3103,6 +3117,8 @@ herodraw_end:
 
 void HeroClass::masked_draw(BITMAP* dest)
 {
+	// The first sprite::draw in this function uses sprite_flicker_color
+	// This is intended to be the player, handle this if this changes. -Moosh
 	zfix lz, lfz;
 	if(lift_wpn)
 	{

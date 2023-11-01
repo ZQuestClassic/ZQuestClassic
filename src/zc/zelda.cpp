@@ -1064,6 +1064,14 @@ void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t pow
 	
 }
 
+bool is_hitflickerframe()
+{
+	int32_t fr = game->get_spriteflickerspeed();
+	if (fr == 0)
+		return true;
+	return frame % (fr * 2) < fr;
+}
+
 void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
 {
     if(messagesToo)

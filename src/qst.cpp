@@ -20924,6 +20924,15 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		if(!p_getbmap(&temp_zinit.screen_data, f))
 			return qe_invalid;
+		if (s_version >= 38)
+		{
+			if (!p_getc(&temp_zinit.spriteflickerspeed, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.spriteflickercolor, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.spriteflickertransp, f))
+				return qe_invalid;
+		}
 	}
 	if (should_skip)
 		return 0;

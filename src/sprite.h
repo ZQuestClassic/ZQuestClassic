@@ -22,6 +22,9 @@ extern bool BSZ;
 extern int32_t conveyclk;
 extern byte newconveyorclk;
 
+extern byte sprite_flicker_color;
+extern byte sprite_flicker_transp_passes;
+
 struct scriptmem
 {
     int32_t stack[MAX_SCRIPT_REGISTERS];
@@ -57,7 +60,8 @@ public:
     
     zfix z,fall,fakefall,fakez;
     int32_t tile,shadowtile,cs,flip,c_clk,clk,misc;
-    zfix xofs,yofs,zofs;
+    int16_t flickercolor;
+	zfix xofs,yofs,zofs;
     zfix shadowxofs,shadowyofs;
     // no hzofs - it's always equal to zofs.
     int32_t hzsz;

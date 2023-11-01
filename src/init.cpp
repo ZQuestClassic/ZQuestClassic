@@ -1035,6 +1035,9 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_sideswim_jump(zinit2->exitWaterJump);
 	game2->set_bunny_ltm(zinit2->bunny_ltm);
 	game2->set_switchhookstyle(zinit2->switchhookstyle);
+	game2->set_spriteflickerspeed(zinit2->spriteflickerspeed);
+	game2->set_spriteflickercolor(zinit2->spriteflickercolor);
+	game2->set_spriteflickertransp(zinit2->spriteflickertransp);
 	
 	for(int32_t i=0; i<MAXLEVELS; i++)
 	{
@@ -1132,6 +1135,9 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(subscrSpeed) \
 	PROP(swimgravity) \
 	PROP(switchhookstyle) \
+	PROP(spriteflickerspeed) \
+	PROP(spriteflickercolor) \
+	PROP(spriteflickertransp) \
 	PROP(terminalv) \
 	PROP(transdark_percent)
 

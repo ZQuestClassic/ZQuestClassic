@@ -23,6 +23,7 @@ while(false)
 DATAFILE *fontsdata;
 size_t fontsdat_cnt = 0;
 PALETTE RAMpal;
+COLOR_MAP trans_table, trans_table2;
 
 ZModule zcm;
 zcmodule moduledata;

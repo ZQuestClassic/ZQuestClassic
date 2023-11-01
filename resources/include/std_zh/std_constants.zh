@@ -523,7 +523,10 @@ DEFINE GEN_SIDESWIM_EXITJUMP  = 21; //Jump value when exiting water from the top
                                        //sideview ladder.
 DEFINE GEN_BUNNY_TILEMOD      = 22; //Tile modifier to apply while player is bunnified
 DEFINE GEN_SWITCHHOOK_STYLE   = 23; //Which 'SW_EFF' style to use for the 'Switch w/ Player' enemy defense
-DEFINE GEN_MAX                = 24;
+DEFINE GEN_FLICKER_FRAMES     = 24; //How many frames Link / enemies flicker for with the flicker damage effect
+DEFINE GEN_FLICKER_COLOR      = 25; //Color used for the flicker effect
+DEFINE GEN_FLICKER_TRANSP     = 26; //Number of transparency passes for the flicker effect
+DEFINE GEN_MAX                = 27;
 
 //Level item flags. Or (|) these together and use with Game->LItems[]
 DEFINE LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
