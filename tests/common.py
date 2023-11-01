@@ -179,18 +179,20 @@ def get_release_package_url(gh: Github, repo_str: str, channel: str, tag: str):
 
 def maybe_get_downloaded_revision(tag: str) -> Optional[Path]:
     if (releases_dir / tag).exists():
-        return releases_dir / tag
-    if (test_builds_dir / tag).exists():
-        return test_builds_dir / tag
+        dir = releases_dir / tag
+    elif (test_builds_dir / tag).exists():
+        dir = test_builds_dir / tag
+    if dir and list(dir.glob('*')):
+        return dir
     return None
 
 
 def download_release(gh: Github, repo_str: str, channel: str, tag: str):
     dest = releases_dir / tag
-    if dest.exists():
+    if dest.exists() and list(dest.glob('*')):
         return dest
 
-    dest.mkdir(parents=True)
+    dest.mkdir(parents=True, exist_ok=True)
     print(f'downloading release {tag}')
 
     url = get_release_package_url(gh, repo_str, channel, tag)
