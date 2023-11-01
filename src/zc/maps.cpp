@@ -5577,53 +5577,53 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt,zfix const& switchblockst
 	//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
 	
 	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[tmpscr->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
+	const newcombo* c = &combobuf[tmpscr->data[bx]];
+	const newcombo* c1 = &combobuf[s1->data[bx]];
+	const newcombo* c2 = &combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				   (iswater_type(c2->type))) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	int32_t cwalkflag = c.walk;
-	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
-	else if ((c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	int32_t cwalkflag = c->walk;
+	if(onSwitch(*c,switchblockstate) && c->type == cCSWITCHBLOCK && c->usrflags&cflag9) cwalkflag &= (c->walk>>4)^0xF;
+	else if ((c->type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c->type) && ((c->walk>>4)&b) && ((c->usrflags&cflag3) || (c->usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != tmpscr)
 	{
-		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
-		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
-		else if (c1.type == cBRIDGE)
+		if(onSwitch(*c1,switchblockstate) && c1->type == cCSWITCHBLOCK && c1->usrflags&cflag9) cwalkflag &= (c1->walk>>4)^0xF;
+		else if ((iswater_type(c1->type) && ((c1->walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_1) && !((c1->usrflags&cflag3) || (c1->usrflags&cflag4)))) cwalkflag &= c1->walk;
+		else if (c1->type == cBRIDGE)
 		{
 			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				int efflag = (c1.walk & 0xF0)>>4;
-				int newsolid = (c1.walk & 0xF);
+				int efflag = (c1->walk & 0xF0)>>4;
+				int newsolid = (c1->walk & 0xF);
 				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 			}
-			else cwalkflag &= c1.walk;
+			else cwalkflag &= c1->walk;
 		}
-		else if ((iswater_type(c1.type) && get_qr(qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
-		else cwalkflag |= c1.walk;
+		else if ((iswater_type(c1->type) && get_qr(qr_WATER_ON_LAYER_1) && ((c1->usrflags&cflag3) || (c1->usrflags&cflag4)) && ((c1->walk>>4)&b))) cwalkflag = 0;
+		else cwalkflag |= c1->walk;
 	}
 	if (s2 != tmpscr)
 	{
-		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
-		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
-		else if (c2.type == cBRIDGE)
+		if(onSwitch(*c2,switchblockstate) && c2->type == cCSWITCHBLOCK && c2->usrflags&cflag9) cwalkflag &= (c2->walk>>4)^0xF;
+		else if ((iswater_type(c2->type) && ((c2->walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_2) && !((c2->usrflags&cflag3) || (c2->usrflags&cflag4)))) cwalkflag &= c2->walk;
+		else if (c2->type == cBRIDGE)
 		{
 			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				int efflag = (c2.walk & 0xF0)>>4;
-				int newsolid = (c2.walk & 0xF);
+				int efflag = (c2->walk & 0xF0)>>4;
+				int newsolid = (c2->walk & 0xF);
 				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 			}
-			else cwalkflag &= c2.walk;
+			else cwalkflag &= c2->walk;
 		}
-		else if ((iswater_type(c2.type) && get_qr(qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
-		else cwalkflag |= c2.walk;
+		else if ((iswater_type(c2->type) && get_qr(qr_WATER_ON_LAYER_2) && ((c2->usrflags&cflag3) || (c2->usrflags&cflag4))) && ((c2->walk>>4)&b)) cwalkflag = 0;
+		else cwalkflag |= c2->walk;
 	}
 	
 	if((cwalkflag&b) && !dried)
@@ -5639,51 +5639,51 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt,zfix const& switchblockst
 		b<<=2;
 	else
 	{
-		c  = combobuf[tmpscr->data[bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				  (iswater_type(c2.type))) && DRIEDLAKE);
+		c  = &combobuf[tmpscr->data[bx]];
+		c1 = &combobuf[s1->data[bx]];
+		c2 = &combobuf[s2->data[bx]];
+		dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				  (iswater_type(c2->type))) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
-	cwalkflag = c.walk;
-	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
-	else if ((c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	cwalkflag = c->walk;
+	if(onSwitch(*c,switchblockstate) && c->type == cCSWITCHBLOCK && c->usrflags&cflag9) cwalkflag &= (c->walk>>4)^0xF;
+	else if ((c->type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c->type) && ((c->walk>>4)&b) && ((c->usrflags&cflag3) || (c->usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != tmpscr)
 	{
-		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
-		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
-		else if (c1.type == cBRIDGE)
+		if(onSwitch(*c1,switchblockstate) && c1->type == cCSWITCHBLOCK && c1->usrflags&cflag9) cwalkflag &= (c1->walk>>4)^0xF;
+		else if ((iswater_type(c1->type) && ((c1->walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_1) && !((c1->usrflags&cflag3) || (c1->usrflags&cflag4)))) cwalkflag &= c1->walk;
+		else if (c1->type == cBRIDGE)
 		{
 			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				int efflag = (c1.walk & 0xF0)>>4;
-				int newsolid = (c1.walk & 0xF);
+				int efflag = (c1->walk & 0xF0)>>4;
+				int newsolid = (c1->walk & 0xF);
 				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 			}
-			else cwalkflag &= c1.walk;
+			else cwalkflag &= c1->walk;
 		}
-		else if ((iswater_type(c1.type) && get_qr(qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4))) && ((c1.walk>>4)&b)) cwalkflag = 0;
-		else cwalkflag |= c1.walk;
+		else if ((iswater_type(c1->type) && get_qr(qr_WATER_ON_LAYER_1) && ((c1->usrflags&cflag3) || (c1->usrflags&cflag4))) && ((c1->walk>>4)&b)) cwalkflag = 0;
+		else cwalkflag |= c1->walk;
 	}
 	if (s2 != tmpscr)
 	{
-		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
-		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
-		else if (c2.type == cBRIDGE)
+		if(onSwitch(*c2,switchblockstate) && c2->type == cCSWITCHBLOCK && c2->usrflags&cflag9) cwalkflag &= (c2->walk>>4)^0xF;
+		else if ((iswater_type(c2->type) && ((c2->walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_2) && !((c2->usrflags&cflag3) || (c2->usrflags&cflag4)))) cwalkflag &= c2->walk;
+		else if (c2->type == cBRIDGE)
 		{
 			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				int efflag = (c2.walk & 0xF0)>>4;
-				int newsolid = (c2.walk & 0xF);
+				int efflag = (c2->walk & 0xF0)>>4;
+				int newsolid = (c2->walk & 0xF);
 				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 			}
-			else cwalkflag &= c2.walk;
+			else cwalkflag &= c2->walk;
 		}
-		else if ((iswater_type(c2.type) && get_qr(qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
-		else cwalkflag |= c2.walk;
+		else if ((iswater_type(c2->type) && get_qr(qr_WATER_ON_LAYER_2) && ((c2->usrflags&cflag3) || (c2->usrflags&cflag4))) && ((c2->walk>>4)&b)) cwalkflag = 0;
+		else cwalkflag |= c2->walk;
 	}
 	return (cwalkflag&b) ? !dried : false;
 }
@@ -5721,28 +5721,28 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 	if (layer == 1 && (s2 == tmpscr)) return false;
 	
 	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[tmpscr->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
+	const newcombo* c = &combobuf[tmpscr->data[bx]];
+	const newcombo* c1 = &combobuf[s1->data[bx]];
+	const newcombo* c2 = &combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				   (iswater_type(c2->type))) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	int32_t cwalkflag = (c.walk>>4);
-	if (layer == 0) cwalkflag = (c1.walk>>4);
-	if (layer == 1) cwalkflag = (c2.walk>>4);
-	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	int32_t cwalkflag = (c->walk>>4);
+	if (layer == 0) cwalkflag = (c1->walk>>4);
+	if (layer == 1) cwalkflag = (c2->walk>>4);
+	//if (c->type == cBRIDGE || (iswater_type(c->type) && ((c->usrflags&cflag3) || (c->usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != tmpscr && layer < 0)
 	{
-		if (c1.type == cBRIDGE) cwalkflag &= (~(c1.walk>>4));
+		if (c1->type == cBRIDGE) cwalkflag &= (~(c1->walk>>4));
 	}
 	if (s2 != tmpscr && layer < 1)
 	{
-		if (c2.type == cBRIDGE) cwalkflag &= (~(c2.walk>>4));
+		if (c2->type == cBRIDGE) cwalkflag &= (~(c2->walk>>4));
 	}
 	
 	if((cwalkflag&b) && !dried)
@@ -5756,31 +5756,31 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 		b<<=2;
 	else
 	{
-		c  = combobuf[tmpscr->data[bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				  (iswater_type(c2.type))) && DRIEDLAKE);
+		c  = &combobuf[tmpscr->data[bx]];
+		c1 = &combobuf[s1->data[bx]];
+		c2 = &combobuf[s2->data[bx]];
+		dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				  (iswater_type(c2->type))) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
-	cwalkflag = (c.walk>>4);
-	if (layer == 0) cwalkflag = (c1.walk>>4);
-	if (layer == 1) cwalkflag = (c2.walk>>4);
-	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	cwalkflag = (c->walk>>4);
+	if (layer == 0) cwalkflag = (c1->walk>>4);
+	if (layer == 1) cwalkflag = (c2->walk>>4);
+	//if (c->type == cBRIDGE || (iswater_type(c->type) && ((c->usrflags&cflag3) || (c->usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != tmpscr && layer < 0)
 	{
-		if (c1.type == cBRIDGE) 
+		if (c1->type == cBRIDGE) 
 		{
-			cwalkflag &= (~(c1.walk>>4));
+			cwalkflag &= (~(c1->walk>>4));
 		}
 	}
 	if (s2 != tmpscr && layer < 1)
 	{
-		if (c2.type == cBRIDGE) 
+		if (c2->type == cBRIDGE) 
 		{
-			cwalkflag &= (~(c2.walk>>4));
+			cwalkflag &= (~(c2->walk>>4));
 		}
 	}
 	return (cwalkflag&b) ? !dried : false;
@@ -5827,40 +5827,40 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 	else s2 = m;
 	
 	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[m->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
+	const newcombo* c = &combobuf[m->data[bx]];
+	const newcombo* c1 = &combobuf[s1->data[bx]];
+	const newcombo* c2 = &combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				   (iswater_type(c2->type))) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	int32_t cwalkflag = c.walk;
-	if (c1.type == cBRIDGE)
+	int32_t cwalkflag = c->walk;
+	if (c1->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c1.walk & 0xF0)>>4;
-			int newsolid = (c1.walk & 0xF);
+			int efflag = (c1->walk & 0xF0)>>4;
+			int newsolid = (c1->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c1.walk;
+		else cwalkflag &= c1->walk;
 	}
-	else if (s1 != m) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE)
+	else if (s1 != m) cwalkflag |= c1->walk;
+	if (c2->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c2.walk & 0xF0)>>4;
-			int newsolid = (c2.walk & 0xF);
+			int efflag = (c2->walk & 0xF0)>>4;
+			int newsolid = (c2->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c2.walk;
+		else cwalkflag &= c2->walk;
 	}
-	else if (s2 != m) cwalkflag |= c2.walk;
+	else if (s2 != m) cwalkflag |= c2->walk;
 	
 	if((cwalkflag&b) && !dried)
 		return true;
@@ -5873,39 +5873,39 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 		b<<=2;
 	else
 	{
-		c  = combobuf[m->data[bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				  (iswater_type(c2.type))) && DRIEDLAKE);
+		c  = &combobuf[m->data[bx]];
+		c1 = &combobuf[s1->data[bx]];
+		c2 = &combobuf[s2->data[bx]];
+		dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				  (iswater_type(c2->type))) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
 	
-	cwalkflag = c.walk;
-	if (c1.type == cBRIDGE)
+	cwalkflag = c->walk;
+	if (c1->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c1.walk & 0xF0)>>4;
-			int newsolid = (c1.walk & 0xF);
+			int efflag = (c1->walk & 0xF0)>>4;
+			int newsolid = (c1->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c1.walk;
+		else cwalkflag &= c1->walk;
 	}
-	else if (s1 != m) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE)
+	else if (s1 != m) cwalkflag |= c1->walk;
+	if (c2->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c2.walk & 0xF0)>>4;
-			int newsolid = (c2.walk & 0xF);
+			int efflag = (c2->walk & 0xF0)>>4;
+			int newsolid = (c2->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c2.walk;
+		else cwalkflag &= c2->walk;
 	}
-	else if (s2 != m) cwalkflag |= c2.walk;
+	else if (s2 != m) cwalkflag |= c2->walk;
 	return (cwalkflag&b) ? !dried : false;
 }
 
@@ -5938,40 +5938,40 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, mapscr* s1, m
 	if(!s2) s2 = m;
 	
 	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[m->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
+	const newcombo* c = &combobuf[m->data[bx]];
+	const newcombo* c1 = &combobuf[s1->data[bx]];
+	const newcombo* c2 = &combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				   (iswater_type(c2->type))) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	int32_t cwalkflag = c.walk;
-	if (c1.type == cBRIDGE)
+	int32_t cwalkflag = c->walk;
+	if (c1->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c1.walk & 0xF0)>>4;
-			int newsolid = (c1.walk & 0xF);
+			int efflag = (c1->walk & 0xF0)>>4;
+			int newsolid = (c1->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c1.walk;
+		else cwalkflag &= c1->walk;
 	}
-	else if (s1 != m) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE)
+	else if (s1 != m) cwalkflag |= c1->walk;
+	if (c2->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c2.walk & 0xF0)>>4;
-			int newsolid = (c2.walk & 0xF);
+			int efflag = (c2->walk & 0xF0)>>4;
+			int newsolid = (c2->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c2.walk;
+		else cwalkflag &= c2->walk;
 	}
-	else if (s2 != m) cwalkflag |= c2.walk;
+	else if (s2 != m) cwalkflag |= c2->walk;
 	
 	if((cwalkflag&b) && !dried)
 		return true;
@@ -5984,39 +5984,39 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, mapscr* s1, m
 		b<<=2;
 	else
 	{
-		c  = combobuf[m->data[bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				  (iswater_type(c2.type))) && DRIEDLAKE);
+		c  = &combobuf[m->data[bx]];
+		c1 = &combobuf[s1->data[bx]];
+		c2 = &combobuf[s2->data[bx]];
+		dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				  (iswater_type(c2->type))) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
 	
-	cwalkflag = c.walk;
-	if (c1.type == cBRIDGE)
+	cwalkflag = c->walk;
+	if (c1->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c1.walk & 0xF0)>>4;
-			int newsolid = (c1.walk & 0xF);
+			int efflag = (c1->walk & 0xF0)>>4;
+			int newsolid = (c1->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c1.walk;
+		else cwalkflag &= c1->walk;
 	}
-	else if (s1 != m) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE) 
+	else if (s1 != m) cwalkflag |= c1->walk;
+	if (c2->type == cBRIDGE) 
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c2.walk & 0xF0)>>4;
-			int newsolid = (c2.walk & 0xF);
+			int efflag = (c2->walk & 0xF0)>>4;
+			int newsolid = (c2->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c2.walk;
+		else cwalkflag &= c2->walk;
 	}
-	else if (s2 != m) cwalkflag |= c2.walk;
+	else if (s2 != m) cwalkflag |= c2->walk;
 	return (cwalkflag&b) ? !dried : false;
 }
 
@@ -6048,15 +6048,15 @@ bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 	if(!m) return true;
 	
 	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[m->data[bx]];
-	bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
+	const newcombo* c = &combobuf[m->data[bx]];
+	bool dried = ((iswater_type(c->type)) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	if((c.walk&b) && !dried)
+	if((c->walk&b) && !dried)
 		return true;
 		
 	if(cnt==1) return false;
@@ -6067,14 +6067,14 @@ bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 		b<<=2;
 	else
 	{
-		c  = combobuf[m->data[bx]];
-		dried = ((iswater_type(c.type)) && DRIEDLAKE);
+		c  = &combobuf[m->data[bx]];
+		dried = ((iswater_type(c->type)) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
 	
-	return (c.walk&b) ? !dried : false;
+	return (c->walk&b) ? !dried : false;
 }
 
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
@@ -6103,15 +6103,15 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 	if(!m) return true;
 	
 	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[m->data[bx]];
-	bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
+	const newcombo* c = &combobuf[m->data[bx]];
+	bool dried = ((iswater_type(c->type)) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	if(((c.walk>>4)&b) && !dried)
+	if(((c->walk>>4)&b) && !dried)
 		return true;
 		
 	if(cnt==1) return false;
@@ -6122,14 +6122,14 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 		b<<=2;
 	else
 	{
-		c  = combobuf[m->data[bx]];
-		dried = ((iswater_type(c.type)) && DRIEDLAKE);
+		c  = &combobuf[m->data[bx]];
+		dried = ((iswater_type(c->type)) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
 	
-	return ((c.walk>>4)&b) ? !dried : false;
+	return ((c->walk>>4)&b) ? !dried : false;
 }
 
 bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
@@ -6160,9 +6160,9 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
     s2=(tmpscr2[1].valid)?tmpscr2+1:tmpscr;
 	
 	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[tmpscr->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
+	const newcombo* c = &combobuf[tmpscr->data[bx]];
+	const newcombo* c1 = &combobuf[s1->data[bx]];
+	const newcombo* c2 = &combobuf[s2->data[bx]];
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
@@ -6171,24 +6171,24 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
 	
 	if(get_qr(qr_NO_SOLID_SWIM))
 	{
-		if(c.walk&b)
+		if(c->walk&b)
 			return true;
 			
-		if(c1.walk&b)
+		if(c1->walk&b)
 			return true;
 			
-		if(c2.walk&b)
+		if(c2->walk&b)
 			return true;
 	}
 	else
 	{
-		if((c.walk&b) && !iswater_type(c.type))
+		if((c->walk&b) && !iswater_type(c->type))
 			return true;
 			
-		if((c1.walk&b) && !iswater_type(c1.type))
+		if((c1->walk&b) && !iswater_type(c1->type))
 			return true;
 			
-		if((c2.walk&b) && !iswater_type(c2.type))
+		if((c2->walk&b) && !iswater_type(c2->type))
 			return true;
 	}
 	if(cnt==1) return false;
@@ -6197,9 +6197,9 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
 		b<<=2;
 	else
 	{
-		c = combobuf[tmpscr->data[++bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
+		c = &combobuf[tmpscr->data[++bx]];
+		c1 = &combobuf[s1->data[bx]];
+		c2 = &combobuf[s2->data[bx]];
 		b=1;
 		
 		if(y&8) b<<=1;
@@ -6207,11 +6207,11 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
 	
 	if(get_qr(qr_NO_SOLID_SWIM))
 	{
-		return (c.walk&b) || (c1.walk&b) || (c2.walk&b);
+		return (c->walk&b) || (c1->walk&b) || (c2->walk&b);
 	}
-	else return (c.walk&b) ? !iswater_type(c.type) :
-		   (c1.walk&b) ? !iswater_type(c1.type) :
-		   (c2.walk&b) ? !iswater_type(c2.type) :false;
+	else return (c->walk&b) ? !iswater_type(c->type) :
+		   (c1->walk&b) ? !iswater_type(c1->type) :
+		   (c2->walk&b) ? !iswater_type(c2->type) :false;
 }
 
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)

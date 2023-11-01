@@ -1747,7 +1747,7 @@ int32_t combo_tile(int32_t cmbdat, int32_t x, int32_t y)
 
 void putcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset,int32_t opacity)
 {
-    newcombo c = combobuf[cmbdat];
+    const newcombo& c = combobuf[cmbdat];
     int32_t drawtile=combo_tile(c, x, y);
     
     if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
@@ -1774,7 +1774,7 @@ void overcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_
 void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
 {
     if ((unsigned)cmbdat >= MAXCOMBOS) return;
-    newcombo c = combobuf[cmbdat];
+    const newcombo& c = combobuf[cmbdat];
     int32_t drawtile=combo_tile(c, x, y);
     
     for(int32_t woff=0; woff<w; woff++)
@@ -2574,7 +2574,7 @@ void overcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
 void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
 {
     if ((unsigned)cmbdat >= MAXCOMBOS) return;
-    newcombo c = combobuf[cmbdat];
+    const newcombo& c = combobuf[cmbdat];
     int32_t drawtile=combo_tile(c, x, y);
     
     for(int32_t woff = 0; woff < w; woff++)
