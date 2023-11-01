@@ -3833,25 +3833,25 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
-void draw_msgstr(byte layer, bool tempb = false)
+void draw_msgstr(byte layer)
 {
 	if(layer != msgstr_layer) return;
-	BITMAP* b1 = tempb ? temp_buf : framebuf;
+
 	if(!(msg_bg_display_buf->clip))
 	{
-		blit_msgstr_bg(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
-		blit_msgstr_prt(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
-		blit_msgstr_fg(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 }
@@ -3868,44 +3868,32 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 	
 	//The Plan:
-	//0: Set sideview gravity from dmaps. -Z
-	//1. Draw some layers onto scrollbuf with clipping
+	//1. Draw some background layers
 	//2. Blit scrollbuf onto framebuf
 	//3. Draw some sprites onto framebuf
-	//4. Blit framebuf onto temp_buf
+	//4. -----
 	//5. Draw some layers onto framebuf and scrollbuf
 	//6. -----
-	//6b. Draw the subscreen onto temp_buf, without clipping
+	//6b. Draw the subscreen onto frame_buf, without clipping
 	//7. Draw some flying sprites onto framebuf
-	//8. Blit frame_buf onto temp_buf
-	//9. Draw some layers onto temp_buf
-	//10. Blit temp_buf onto framebuf with clipping
+	//8. -----
+	//9. Draw some layers onto frame_buf and scrollbuf
+	//10. ----
 	//11. Draw some text on framebuf and scrollbuf
 	//12. Draw the subscreen onto framebuf, without clipping
 	clear_bitmap(framebuf);
-	set_clip_rect(framebuf,0,0,256,224);
-	
-	clear_bitmap(temp_buf);
-	set_clip_state(temp_buf,1);
-	set_clip_rect(temp_buf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	clear_clip_rect(framebuf);
 	
 	int32_t cmby2=0;
 	
-	//0: Sideview Grvity from DMaps.
-	
-	/* DON'T MODIFY THE SCREEN DIRECTLY!
-	if ( DMaps[currdmap].sideview != 0 ) 
-	{
-		this_screen->flags7 |= fSIDEVIEW;
-	}*/
-	//1. Draw some layers onto temp_buf
+	//1. Draw some background layers
 	clear_bitmap(scrollbuf);
 	
 	if(XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 	{
 		do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true);
 		
-		particles.draw(temp_buf, true, 1);
+		particles.draw(framebuf, true, 1);
 		draw_msgstr(2);
 	}
 	
@@ -3913,10 +3901,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	{
 		do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2, false, true);
 		
-		particles.draw(temp_buf, true, 2);
+		particles.draw(framebuf, true, 2);
 		draw_msgstr(3);
 	}
-	
 	
 	if(lenscheck(this_screen,0))
 	{
@@ -3936,8 +3923,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if(show_layer_0 && lenscheck(this_screen,0))
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
-	particles.draw(temp_buf, true, -3);
-	draw_msgstr(0, true);
+	particles.draw(framebuf, true, -3);
+	draw_msgstr(0);
 	
 	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -3974,18 +3961,18 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	do_layer(scrollbuf, 0, 1, this_screen, 0, 0, 2, false, true); // LAYER 1
 	
-	particles.draw(temp_buf, true, 0);
-	draw_msgstr(1, true);
+	particles.draw(framebuf, true, 0);
+	draw_msgstr(1);
 	
 	do_layer(scrollbuf, -3, 0, this_screen, 0, 0, 2); // freeform combos!
-	do_primitives(temp_buf, SPLAYER_FFC_DRAW, this_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_FFC_DRAW, this_screen, 0, playing_field_offset);
 	
 	if(!XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 	{
 		do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true); // LAYER 2
 		
-		particles.draw(temp_buf, true, 1);
-		draw_msgstr(2, true);
+		particles.draw(framebuf, true, 1);
+		draw_msgstr(2);
 	}
 	
 	if(get_qr(qr_LAYER12UNDERCAVE))
@@ -4050,10 +4037,16 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	//2. Blit those layers onto framebuf
 	
-	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
-	
+
+	//6b. Draw the subscreen, without clipping
+	if(!get_qr(qr_SUBSCREENOVERSPRITES))
+	{
+		bool dotime = false;
+		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
+		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
+	}
 	
 	//3. Draw some sprites onto framebuf
 	set_clip_rect(framebuf,0,0,256,224);
@@ -4226,11 +4219,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW, this_screen, 0, playing_field_offset);
 	}
 	
-	//4. Blit framebuf onto temp_buf
-	
-	// For later.
-	blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
-	
 	//5. Draw some layers onto framebuf and scrollbuf
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -4240,14 +4228,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2);
 		
 		particles.draw(framebuf, true, 2);
-		draw_msgstr(3, true);
+		draw_msgstr(3);
 	}
 	
 	do_layer(framebuf, 0, 4, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 0, 4, this_screen, 0, 0, 2);
 	
 	particles.draw(framebuf, true, 3);
-	draw_msgstr(4, true);
+	draw_msgstr(4);
 	
 	do_layer(framebuf, -1, 0, this_screen, 0, 0, 2);
 	do_layer(scrollbuf, -1, 0, this_screen, 0, 0, 2);
@@ -4262,17 +4250,18 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	particles.draw(framebuf, true, -1);
 	
-	//6b. Draw the subscreen, without clipping
-	if(!get_qr(qr_SUBSCREENOVERSPRITES))
-	{
-		bool dotime = false;
-		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
-		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
-	}
+	// //6b. Draw the subscreen, without clipping
+	// if(!get_qr(qr_SUBSCREENOVERSPRITES))
+	// {
+	// 	bool dotime = false;
+	// 	if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
+	// 	put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
+	// }
 	
 	
 	//7. Draw some flying sprites onto framebuf
 	clear_clip_rect(framebuf);
+	// set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	//Jumping Hero and jumping enemies are drawn on this layer.
 	if(Hero.getZ() > (zfix)zinit.jump_hero_layer_threshold)
@@ -4318,45 +4307,36 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
 			items.spr(i)->draw(framebuf);
 	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW, this_screen, 0, playing_field_offset);
-			
-	//8. Blit framebuf onto temp_buf
 	
-	masked_blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
-	
-	//9. Draw some layers onto temp_buf and scrollbuf
-	
+	//9. Draw some layers onto framebuf and scrollbuf
+
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	if (lightbeam_present)
 	{
 		color_map = &trans_table2;
 		if(get_qr(qr_LIGHTBEAM_TRANSPARENT))
-			draw_trans_sprite(temp_buf, lightbeam_bmp, 0, playing_field_offset);
+			draw_trans_sprite(framebuf, lightbeam_bmp, 0, playing_field_offset);
 		else 
-			masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
+			masked_blit(lightbeam_bmp, framebuf, 0, 0, 0, playing_field_offset, 256, 176);
 		color_map = &trans_table;
 	}
 	
-	do_layer(temp_buf, 0, 5, this_screen, 0, 0, 2, false, true);
+	do_layer(framebuf, 0, 5, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 0, 5, this_screen, 0, 0, 2);
 	
-	particles.draw(temp_buf, true, 4);
-	draw_msgstr(5, true);
+	particles.draw(framebuf, true, 4);
+	draw_msgstr(5);
 	
-	do_layer(temp_buf, -4, 0, this_screen, 0, 0, 2); // overhead freeform combos!
+	do_layer(framebuf, -4, 0, this_screen, 0, 0, 2); // overhead freeform combos!
 	do_layer(scrollbuf, -4, 0, this_screen, 0, 0, 2);
-	do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, this_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, this_screen, 0, playing_field_offset);
 	
-	do_layer(temp_buf, 0, 6, this_screen, 0, 0, 2, false, true);
+	do_layer(framebuf, 0, 6, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 0, 6, this_screen, 0, 0, 2);
 	
-	particles.draw(temp_buf, true, 5);
-	
-	//10. Blit temp_buf onto framebuf with clipping
-	
-	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
-	
+	particles.draw(framebuf, true, 5);
+		
 	//11. Handle low drawn darkness
 	if(get_qr(qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
 	{
