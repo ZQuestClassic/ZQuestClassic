@@ -446,6 +446,9 @@ static GUI::ListData comboRulesList
 	{ "Conveyors work on layers 1 and 2", qr_CONVEYORS_L1_L2,
 		"Conveyor combos work on layers 1 and 2. If multiple conveyors overlap, only"
 		" the highest layer conveyor will apply."},
+	{ "Conveyors work on all layers + ffcs", qr_CONVEYORS_ALL_LAYERS,
+		"Conveyor combos work on all layers + ffcs. If multiple conveyors overlap, only"
+		" the highest layer conveyor will apply. (FFCs count as above all layers for this)"},
 	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS, 
 		"Disables solid damage combos. You can only take damage by"
 		" stepping on a walkable damage combo. Note that this does"
