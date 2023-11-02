@@ -3046,6 +3046,41 @@ byte SW_ItemSlot::getType() const
 {
 	return widgITEMSLOT;
 }
+static bool check_bomb(optional<int> iid = nullopt)
+{
+#ifdef IS_PLAYER
+	if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+		return true;
+	if(current_item_power(itype_bombbag))
+		return true;
+	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_bombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_bomb,true) > -1))
+		return true;
+	auto bombid = iid ? *iid : current_item_id(itype_bomb);
+	if(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+		return true; // Remote Bombs - still usable without cost
+	return false;
+#else
+	return true;
+#endif
+}
+static bool check_sbomb(optional<int> iid = nullopt)
+{
+#ifdef IS_PLAYER
+	if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+		return true;
+	auto bombbagid = current_item_id(itype_bombbag);
+	if(bombbagid > -1 && itemsbuf[bombbagid].power && (itemsbuf[bombbagid].flags & ITEM_FLAG1))
+		return true;
+	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_sbombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_sbomb,true) > -1))
+		return true;
+	auto sbombid = iid ? *iid : current_item_id(itype_sbomb, false);
+	if(sbombid >- 1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb) > 0)
+		return true; // Remote Bombs - still usable without cost
+	return false;
+#else
+	return true;
+#endif
+}
 int32_t SW_ItemSlot::getItemVal() const
 {
 #ifdef IS_PLAYER
@@ -3055,42 +3090,24 @@ int32_t SW_ItemSlot::getItemVal() const
 		switch(itemsbuf[iid].family)
 		{
 			case itype_bomb:
-				if((game->get_bombs() ||
-						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-						(itemsbuf[iid].misc1==0 && findWeaponWithParent(iid, wLitBomb))) ||
-						current_item_power(itype_bombbag))
-				{
+				if(check_bomb(iid))
 					select=true;
-				}
 				break;
 			case itype_bowandarrow:
 			case itype_arrow:
-				if(current_item_id(itype_bow)>-1)
-				{
+				if(current_item_id(itype_bow) > -1)
 					select=true;
-				}
 				break;
 			case itype_letterpotion:
 				break;
 			case itype_sbomb:
-			{
-				int32_t bombbagid = current_item_id(itype_bombbag);
-				
-				if((game->get_sbombs() ||
-						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-						(itemsbuf[iid].misc1==0 && findWeaponWithParent(iid, wLitSBomb))) ||
-						(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-				{
-					select=true;
-				}
+				if(check_sbomb(iid))
+					select = true;
 				break;
-			}
 			case itype_sword:
-			{
 				if(get_qr(qr_SELECTAWPN))
 					select=true;
 				break;
-			}
 			default:
 				select = true;
 				break;
@@ -3108,24 +3125,13 @@ int32_t SW_ItemSlot::getItemVal() const
 	switch(iclass)
 	{
 		case itype_bomb:
-		{
-			int32_t bombid = current_item_id(itype_bomb);
-			
-			if((game->get_bombs() ||
-					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-					(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
-					current_item_power(itype_bombbag))
-			{
-				family=itype_bomb;
-			}
+			if(check_bomb())
+				family = itype_bomb;
 			break;
-		}
 		case itype_bowandarrow:
 		case itype_arrow:
 			if(current_item_id(itype_bow)>-1 && current_item_id(itype_arrow)>-1)
-			{
 				family=itype_arrow;
-			}
 			break;
 		case itype_letterpotion:
 			if(current_item_id(itype_potion)>-1)
@@ -3134,25 +3140,13 @@ int32_t SW_ItemSlot::getItemVal() const
 				family=itype_letter;
 			break;
 		case itype_sbomb:
-		{
-			int32_t bombbagid = current_item_id(itype_bombbag);
-			int32_t sbombid = current_item_id(itype_sbomb);
-			
-			if((game->get_sbombs() ||
-					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-					(sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
-					(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-			{
-				family=itype_sbomb;
-			}
+			if(check_sbomb())
+				family = itype_sbomb;
 			break;
-		}
 		case itype_sword:
-		{
 			if(get_qr(qr_SELECTAWPN))
 				family=itype_sword;
 			break;
-		}
 		default:
 			family = iclass;
 			break;
@@ -3206,15 +3200,8 @@ int32_t SW_ItemSlot::getDisplayItem() const
 		switch(itemsbuf[iid].family)
 		{
 			case itype_bomb:
-				if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+				if(check_bomb(iid))
 					select = true;
-				else if((game->get_bombs() ||
-						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-						(itemsbuf[iid].misc1==0 && findWeaponWithParent(iid, wLitBomb))) ||
-						current_item_power(itype_bombbag))
-				{
-					select=true;
-				}
 				break;
 			case itype_bowandarrow:
 			case itype_arrow:
@@ -3223,26 +3210,9 @@ int32_t SW_ItemSlot::getDisplayItem() const
 			case itype_letterpotion:
 				break;
 			case itype_sbomb:
-			{
-				int32_t bombbagid = current_item_id(itype_bombbag);
-				
-				if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
-					select = true;
-				else if((game->get_sbombs() ||
-						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-						(itemsbuf[iid].misc1==0 && findWeaponWithParent(iid, wLitSBomb))) ||
-						(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-				{
-					select=true;
-				}
-				break;
-			}
-			case itype_sword:
-			{
-				if(get_qr(qr_SELECTAWPN))
+				if(check_sbomb(iid))
 					select=true;
 				break;
-			}
 			
 			//Super Special Cases for display
 			case itype_map:
@@ -3277,20 +3247,9 @@ int32_t SW_ItemSlot::getDisplayItem() const
 	switch(iclass)
 	{
 		case itype_bomb:
-		{
-			int32_t bombid = current_item_id(itype_bomb);
-			
-			if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+			if(check_bomb())
 				family=itype_bomb;
-			else if((game->get_bombs() ||
-					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-					(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
-					current_item_power(itype_bombbag))
-			{
-				family=itype_bomb;
-			}
 			break;
-		}
 		case itype_bowandarrow:
 		case itype_arrow:
 			family=itype_arrow;
@@ -3302,26 +3261,9 @@ int32_t SW_ItemSlot::getDisplayItem() const
 				family=itype_letter;
 			break;
 		case itype_sbomb:
-		{
-			int32_t bombbagid = current_item_id(itype_bombbag);
-			int32_t sbombid = current_item_id(itype_sbomb);
-			
-			if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+			if(check_sbomb())
 				family=itype_sbomb;
-			else if((game->get_sbombs() ||
-					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-					(sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
-					(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-			{
-				family=itype_sbomb;
-			}
 			break;
-		}
-		case itype_sword:
-		{
-			family=itype_sword;
-			break;
-		}
 		//Super Special Cases for display
 		case itype_map:
 			if(nosp) break;

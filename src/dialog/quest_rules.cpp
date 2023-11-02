@@ -941,8 +941,11 @@ static GUI::ListData compatRulesList
 		"If enabled, a sword trigger that was hit by slash cannot be re-hit by"
 		" the same sword during the spin attack, making some spin-based puzzles not work." },
 	{ "Old DMap Titles and Intros", qr_OLD_DMAP_INTRO_STRINGS,
-		"If enabled, DMaps will use old title and intro string behavior where the "
+		"If enabled, DMaps will use old title and intro string behavior where the"
 		" intro string did not use the string editor and title was limited to 20 chars." },
+	{ "Broken Subscreen Ammo Costs", qr_BROKEN_BOMB_AMMO_COSTS,
+		"If enabled, bombs/super bombs will check the bomb/sbomb counters to be usable,"
+		" regardless of what their Cost Counters are set to." },
 };
 
 static GUI::ListData enemiesRulesList
