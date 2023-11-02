@@ -221,7 +221,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        37
+#define V_SAVEGAME        38
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11

@@ -707,6 +707,10 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			if(!game.get_cont_percent())
 				game.set_cont_hearts(game.get_cont_hearts()*game.get_hp_per_heart());
 		}
+		if (section_version < 38)
+		{
+			game.set_spriteflickerspeed(1);
+		}
 
 		game.header.life = game.get_life();
 		game.header.maxlife = game.get_maxlife();

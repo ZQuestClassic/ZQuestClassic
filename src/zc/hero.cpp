@@ -2427,7 +2427,7 @@ void HeroClass::draw(BITMAP* dest)
 					//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
 					
 					//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
-					if (get_qr(qr_HEROFLICKER) && (superman || hclk) && is_hitflickerframe())
+					if (get_qr(qr_HEROFLICKER) && (superman || hclk) && is_hitflickerframe_hero())
 					{
 						if(game->get_spriteflickercolor() && !superman)
 						{
@@ -3021,7 +3021,7 @@ void HeroClass::draw(BITMAP* dest)
 			yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
 		}
 		
-		if(get_qr(qr_HEROFLICKER) && (superman || hclk) && is_hitflickerframe())
+		if(get_qr(qr_HEROFLICKER) && (superman || hclk) && is_hitflickerframe_hero())
 		{
 			if(game->get_spriteflickercolor() && !superman)
 			{
