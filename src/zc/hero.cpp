@@ -1551,6 +1551,7 @@ int32_t HeroClass::getSpecialCave()
 
 void HeroClass::init()
 {
+	cache_tile_mod_clear();
 	usecounts.clear();
 	scale = 0;
 	rotation = 0;

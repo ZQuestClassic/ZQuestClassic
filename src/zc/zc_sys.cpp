@@ -2227,6 +2227,7 @@ void removeFromItemCache(int32_t itemclass)
 {
 	itemcache.erase(itemclass);
 	itemcache_cost.erase(itemclass);
+	cache_tile_mod_clear();
 }
 
 void flushItemCache(bool justcost)
@@ -2236,6 +2237,8 @@ void flushItemCache(bool justcost)
 		itemcache.clear();
 	else if(replay_version_check(0,19))
 		return;
+
+	cache_tile_mod_clear();
 	
 	//also fix the active subscreen if items were deleted -DD
 	if(game != NULL)
@@ -2366,8 +2369,34 @@ int32_t heart_container_id()
 	return -1;
 }
 
+struct tilemod_cache_state_t
+{
+	bool operator==(const tilemod_cache_state_t&) const = default;
+
+	bool valid;
+	bool bunny_clock;
+	bool superman;
+	int shield;
+};
+tilemod_cache_state_t tilemod_cache_state;
+int32_t tilemod_cache_value;
+
+void cache_tile_mod_clear()
+{
+	tilemod_cache_state = {false};
+}
+
 int32_t item_tile_mod()
 {
+	tilemod_cache_state_t state = {
+		.valid = true,
+		.bunny_clock = Hero.BunnyClock() != 0,
+		.superman = Hero.superman,
+		.shield = Hero.active_shield_id,
+	};
+	if (tilemod_cache_state == state)
+		return tilemod_cache_value;
+
 	int32_t tile=0;
 	bool check_bombcost = !get_qr(qr_BROKEN_BOMB_AMMO_COSTS);
 	if(check_bombcost || game->get_bombs())
@@ -2509,6 +2538,8 @@ int32_t item_tile_mod()
 		tile+=itm.ltm;
 	}
 	
+	tilemod_cache_value = tile;
+	tilemod_cache_state = state;
 	return tile;
 }
 
