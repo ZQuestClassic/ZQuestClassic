@@ -98,6 +98,14 @@ def download_artifact(gh, repo, artifact, dest):
     zip.extractall(dest)
     zip.close()
 
+def extract_tars(dir: Path):
+    for tar_path in dir.rglob('*.tar'):
+        print(f'extracting from {tar_path}')
+        extract_dir = tar_path.with_suffix('')
+        if not extract_dir.exists():
+            with tarfile.open(tar_path) as tar:
+                tar.extractall(path=extract_dir)
+            tar_path.unlink()
 
 def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
     if not isinstance(run_id, int):
@@ -123,6 +131,7 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
         if not artifact_dir.exists():
             print(f'downloading artifact: {artifact.name}')
             download_artifact(gh, repo_str, artifact, artifact_dir)
+            extract_tars(artifact_dir)
         test_results_path = next(artifact_dir.glob('test_results.json'), None)
         if test_results_path:
             test_results_paths.append(test_results_path)
