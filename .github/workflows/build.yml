@@ -143,10 +143,6 @@ jobs:
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-      # Coverage builds only need zplayer.
-      - name: Set environment variables
-        if: inputs.config == 'Coverage'
-        run: echo "TARGET=zplayer" >> "$GITHUB_ENV"
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }}
       - name: Set release platform

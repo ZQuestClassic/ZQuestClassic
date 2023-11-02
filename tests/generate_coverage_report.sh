@@ -2,7 +2,14 @@
 
 # You should first run something like:
 #   cmake -S . -B build -G 'Ninja Multi-Config'
-#   cmake --build build --config Coverage -t zplayer
+#
+# Then clear results from a previous run:
+#   find build/ -name '*.gcov' -delete
+#   find build/ -name '*.gcda' -delete
+#   find build/ -name '*.gcno' -delete
+#
+# Then run instrumented binaries:
+#   cmake --build build --config Coverage --clean-first
 #   python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci
 
 set -e
@@ -19,18 +26,11 @@ gcovr \
   -v \
   --html-details tests/.coverage/report/index.html \
   --json tests/.coverage/coverage.json \
-  --html-title "Zelda Classic Coverage Report" \
+  --html-title "ZQuest Classic Coverage Report" \
   --html-theme blue \
   --sort-percentage \
   -r . \
   -f src \
-  -e src/dialog \
-  -e src/gui \
-  -e src/editbox \
-  -e src/jwin \
-  -e src/base/jwinfsel \
-  -e src/base/gui \
-  -e src/base/process_management \
   -d \
   "$@"
 
