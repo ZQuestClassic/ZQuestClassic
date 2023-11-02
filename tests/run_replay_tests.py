@@ -53,7 +53,6 @@ import subprocess
 import os
 import sys
 import re
-import difflib
 import heapq
 import pathlib
 import platform
@@ -905,22 +904,6 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
                 player_interface.wait_for_finish()
             clear_progress_str()
 
-    if not args.update and player_interface.get_exit_code() == ASSERT_FAILED_EXIT_CODE:
-        if roundtrip_path.exists():
-            with open(replay_file) as f:
-                fromlines = f.readlines()
-            with open(roundtrip_path) as f:
-                tolines = f.readlines()
-            diff_iter = difflib.context_diff(
-                fromlines, tolines,
-                replay_file.name,
-                roundtrip_path.name,
-                n=3)
-            trimmed_diff_lines = [x for _, x in zip(range(100), diff_iter)]
-            result.diff = ''.join(trimmed_diff_lines)
-        else:
-            result.diff = 'missing roundtrip file, cannnot diff'
-
     yield (key, 'finish', result)
 
 
@@ -1233,9 +1216,6 @@ for i in range(args.retries + 1):
             print_nicely('STDOUT', run_dir / 'stdout.txt')
             print_nicely('STDERR', run_dir / 'stderr.txt')
             print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
-            if result.diff:
-                print('\ndiff:')
-                print(result.diff)
 
 
 if args.prune_test_results:

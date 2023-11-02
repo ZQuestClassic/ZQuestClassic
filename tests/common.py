@@ -35,7 +35,6 @@ class RunResult:
     unexpected_gfx_frames: List[int] = None
     unexpected_gfx_segments: List[Tuple[int, int]] = None
     unexpected_gfx_segments_limited: List[Tuple[int, int]] = None
-    diff: str = None
     exceptions: List[str] = field(default_factory=list) 
     # Only for compare report.
     snapshots: List[Any] = None
@@ -58,6 +57,9 @@ class ReplayTestResults:
         if self.runs and isinstance(self.runs[0][0], dict):
             deserialized = []
             for runs in self.runs:
+                for run in runs:
+                    # Old property, will error when creating dataclass.
+                    run.pop('diff', None)
                 deserialized.append([RunResult(**run) for run in runs])
             self.runs = deserialized
 
