@@ -212,7 +212,7 @@ if __name__ == '__main__':
     parser.add_argument('--token', required=True)
 
     # Specify workflow parameters.
-    parser.add_argument('--commit', default='main')
+    parser.add_argument('--commit')
     parser.add_argument('--runs_on', default='ubuntu-22.04')
     parser.add_argument('--arch', default='x64')
     parser.add_argument('--compiler')
