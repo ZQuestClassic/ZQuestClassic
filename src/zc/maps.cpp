@@ -6527,7 +6527,7 @@ void toggle_gswitches_load(mapscr* m, mapscr* t)
 void run_gswitch_timers()
 {
 	bool states[256] = {false};
-	auto m = game->gswitch_timers.mut_inner();
+	auto& m = game->gswitch_timers.mut_inner();
 	for(auto it = m.begin(); it != m.end();)
 	{
 		if(it->second > 0)
