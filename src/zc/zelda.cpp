@@ -4942,16 +4942,16 @@ int main(int argc, char **argv)
 		if(resy < 240) resy = 240;
 	}
 
-	auto [w, h] = zc_get_default_display_size(256, 240, resx, resy);
+	zq_screen_w = 640;
+	zq_screen_h = 480;
+
+	auto [w, h] = zc_get_default_display_size(zq_screen_w, zq_screen_h, resx, resy);
 	resx = w;
 	resy = h;
 
 	// TODO: consolidate "resx" and "resy" variables with window_width,height.
 	// window_width = resx;
 	// window_height = resy;
-
-	zq_screen_w = 640;
-	zq_screen_h = 480;
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
