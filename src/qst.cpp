@@ -18959,7 +18959,8 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 				continue;
 			}
 			
-            if(!pfread(temp_tile,tilesize(format),f))
+			int size = format == tf4Bit ? 128 : tilesize(format);
+            if(!pfread(temp_tile,size,f))
             {
                 delete[] temp_tile;
                 return qe_invalid;
@@ -18975,9 +18976,27 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 				free(buf[start_tile+i].data);
 				buf[start_tile+i].data=NULL;
 			}
-			
+
 			buf[start_tile+i].data=(byte *)malloc(tilesize(buf[start_tile+i].format));
-			memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
+
+			if (format == tf4Bit)
+			{
+				byte temp[256];
+				byte *si = temp_tile + 128;
+				byte *di = temp + 256;
+				
+				for(int i=127; i>=0; --i)
+				{
+					(*(--di)) = (*(--si)) >> 4;
+					(*(--di)) = (*si) & 15;
+				}
+
+				memcpy(buf[start_tile+i].data,temp,256);
+			}
+			else
+			{
+				memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
+			}
         }
     }
 

@@ -582,16 +582,6 @@ void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force)
             switch(buf[tile].format)
             {
             case tf4Bit:
-                di=unpackbuf + (i<<4) - 1;
-                
-                for(j=7; j>=0; --j)
-                {
-                    (*(++di)) = (*(--si)) >> 4;
-                    (*(++di)) = (*si) & 15;
-                }
-                
-                break;
-                
             case tf8Bit:
                 di=unpackbuf + (i<<4) - 1;
                 
@@ -621,18 +611,6 @@ void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force)
             switch(buf[tile].format)
             {
             case tf4Bit:
-                di=unpackbuf + 271 - i; //256 + 15 - i
-                
-                for(j=7; j>=0; --j)
-                {
-                    di-=16;
-                    *di = (*(--si)) >> 4;
-                    di-=16;
-                    *di = (*si) & 15;
-                }
-                
-                break;
-                
             case tf8Bit:
                 di=unpackbuf + 271 - i; //256 + 15 - i
                 
@@ -670,18 +648,6 @@ void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force)
             switch(buf[tile].format)
             {
             case tf4Bit:
-                di=unpackbuf + 256 + i;
-                
-                for(j=7; j>=0; --j)
-                {
-                    di-=16;
-                    *di = (*(--si)) >> 4;
-                    di-=16;
-                    *di = (*si) & 15;
-                }
-                
-                break;
-                
             case tf8Bit:
                 di=unpackbuf + 256 + i;
                 
@@ -715,17 +681,6 @@ void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force)
         switch(buf[tile].format)
         {
         case tf4Bit:
-            si = buf[tile].data+tilesize(buf[tile].format);
-            di = unpackbuf + 256;
-            
-            for(i=127; i>=0; --i)
-            {
-                (*(--di)) = (*(--si)) >> 4;
-                (*(--di)) = (*si) & 15;
-            }
-            
-            break;
-            
         case tf8Bit:
             si = buf[tile].data+tilesize(buf[tile].format);
             di = unpackbuf + 256;
@@ -2728,9 +2683,11 @@ int32_t tilesize(byte format)
 			return 768;
 			
 		case tf16Bit:
-		case tf8Bit:
+			return 512;
+
+        case tf8Bit:
 		case tf4Bit:
-			return (64<<format);
+            return 256;
 	}
 
 	// BUG: This is triggered by the 'grab' option, and certainly others as well.

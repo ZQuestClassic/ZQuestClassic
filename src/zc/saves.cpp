@@ -1848,6 +1848,19 @@ static void update_icon(int index)
 	int32_t tileind = t ? t : 28;
 	
 	byte *si = newtilebuf[tileind].data;
+
+	byte temp_tile[128];
+	if (newtilebuf[tileind].format==tf4Bit)
+	{
+		byte *di = temp_tile;
+		byte *src = newtilebuf[tileind].data;
+		for (int32_t si=0; si<256; si+=2)
+		{
+			*di = (src[si]&15) + ((src[si+1]&15) << 4);
+			++di;
+		}
+		si = temp_tile;
+	}
 	
 	if(newtilebuf[tileind].format==tf8Bit)
 	{

@@ -10750,12 +10750,28 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
 			}
 			else
 			{
-				if(!p_putc(newtilebuf[start_tile+i].format,f))
+				int format = newtilebuf[start_tile+i].format;
+				if(!p_putc(format,f))
 				{
 					new_return(6);
 				}
 				
-				if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+				if (format == tf4Bit)
+				{
+					byte temp_tile[128];
+					byte *di = temp_tile;
+					byte *src = newtilebuf[start_tile+i].data;
+					for (int32_t si=0; si<256; si+=2)
+					{
+						*di = (src[si]&15) + ((src[si+1]&15) << 4);
+						++di;
+					}
+					if (!pfwrite(temp_tile,128,f))
+					{
+						new_return(7);
+					}
+				}
+				else if (!pfwrite(newtilebuf[start_tile+i].data,tilesize(format),f))
 				{
 					new_return(7);
 				}

@@ -1244,6 +1244,10 @@ enum
 // enemy patters
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
+// We only use t4Bit and tf8Bit.
+// t4Bit takes up 128 bytes in the file format, tf8bit takes up 256 bit.
+// They both take 256 bit in memory. t4Bit used to take 128, but this was changed
+// to greatly speed up the tile drawing code.
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
 struct size_and_pos
