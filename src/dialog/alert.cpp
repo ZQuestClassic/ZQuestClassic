@@ -20,6 +20,18 @@ void info_dsa(std::string const& title, std::string const& text, std::string con
 		).show();
 	}
 }
+bool alert_confirm(std::string const& title, std::string const& text, bool okc)
+{
+	bool ret = false;
+	AlertDialog(title, text,
+		[&](bool val,bool)
+		{
+			ret = val;
+		},
+		okc ? "OK" : "Yes", okc ? "Cancel" : "No",
+		0,false,false).show();
+	return ret;
+}
 
 AlertDialog::AlertDialog(std::string title, std::string text, std::function<void(bool,bool)> onEnd, std::string truebtn, std::string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):
 	InfoDialog(title,text), truebtn(truebtn), falsebtn(falsebtn), timer(0), timeout(timeout), default_ret(default_ret), dontshowagain(dontshow), onEnd(onEnd)

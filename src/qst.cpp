@@ -16707,6 +16707,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	}
 	*/
+	for(int32_t k=0; k<4; k++)
+	{
+		if(temp_mapscr->door[k] == dNONE)
+			temp_mapscr->door[k] = dWALL;
+	}
 	
 	return 0;
 }
@@ -16883,6 +16888,8 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			{
 				if(!p_getc(&(temp_mapscr->door[k]),f))
 					return qe_invalid;
+				if(version < 29 && temp_mapscr->door[k] == dNONE)
+					temp_mapscr->door[k] = dWALL;
 			}
 			
 			if(!p_getc(&(temp_mapscr->stairx),f))
@@ -16894,6 +16901,11 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->undercset),f))
 				return qe_invalid;
+		}
+		else if(version < 29)
+		{
+			for(int k = 0; k < 4; ++k)
+				temp_mapscr->door[k] = dWALL;
 		}
 		if(scr_has_flags & SCRHAS_FLAGS)
 		{

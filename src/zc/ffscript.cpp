@@ -41459,7 +41459,7 @@ void FFScript::set_screenwarpReturnY(mapscr *m, int32_t d, int32_t value)
 void FFScript::set_screendoor(mapscr *m, int32_t d, int32_t value)
 {
 	int32_t dr = vbound(d,0,3);
-	int32_t doortype = vbound(value,0,14);
+	int32_t doortype = vbound(value,0,16);
 	m->door[dr] = doortype;
 }
 

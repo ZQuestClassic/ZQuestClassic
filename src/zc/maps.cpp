@@ -4629,10 +4629,8 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 	  enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
 	  */
 	
-	if(!even_walls&&(door==dWALL||door==dWALK))
-	{
+	if(door == dNONE || (!even_walls&&(door==dWALL||door==dWALK)))
 		return;
-	}
 	
 	int32_t doortype;
 	

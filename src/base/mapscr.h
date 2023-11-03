@@ -5,6 +5,24 @@
 #include "ffc.h"
 #include <vector>
 
+// door codes        meaning: type | shows on subscreen map
+//                       bit: 4321    0
+#define dWALL           0     // 0000    0
+#define dOPEN           1     // 0000    1
+#define dLOCKED         2     // 0001    0
+#define dUNLOCKED       3     // 0001    1
+#define dSHUTTER        4     // 0010    0
+#define dBOMB           6     // 0011    0
+#define dBOMBED         7     // 0011    1
+#define dWALK           8     // 0100    0
+
+#define dBOSS           10    // 0101    0
+#define dOPENBOSS       11    // 0101    1
+
+#define dOPENSHUTTER    12    // 0110    0    // special case (don't show on map)
+#define d1WAYSHUTTER    14    // 0111    0    // never opens
+#define dNONE           16    // 1000    0    // No 'dungeon door' at all
+
 struct mapscr
 {
 	byte valid;
@@ -28,7 +46,7 @@ struct mapscr
 	byte itemy;
 	word color;
 	byte enemyflags;
-	byte door[4]; //need to add a dmapscreendoor command.
+	byte door[4] = {dNONE,dNONE,dNONE,dNONE}; //need to add a dmapscreendoor command.
 	word tilewarpdmap[4];
 	byte tilewarpscr[4];
 	byte exitdir;
@@ -135,23 +153,6 @@ private:
 // mapscr "valid" byte
 #define mVALID          0x01
 #define mVERSION        0x80
-
-// door codes        meaning: type | shows on subscreen map
-//                       bit: 4321    0
-#define dWALL           0     // 0000    0
-#define dOPEN           1     // 0000    1
-#define dLOCKED         2     // 0001    0
-#define dUNLOCKED       3     // 0001    1
-#define dSHUTTER        4     // 0010    0
-#define dBOMB           6     // 0011    0
-#define dBOMBED         7     // 0011    1
-#define dWALK           8     // 0100    0
-
-#define dBOSS           10    // 0101    0
-#define dOPENBOSS       11    // 0101    1
-
-#define dOPENSHUTTER    12    // 0110    0    // special case (don't show on map)
-#define d1WAYSHUTTER    14    // 0111    0    // never opens
 
 // screen flags
 #define fSHUTTERS           0x01

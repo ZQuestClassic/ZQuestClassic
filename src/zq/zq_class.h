@@ -99,6 +99,16 @@ public:
     void undo();
 };
 
+class set_dcs_command : public user_input_command
+{
+public:
+    int dcs;
+    int prev_dcs;
+
+    void execute();
+    void undo();
+};
+
 enum PasteCommandType {
     ScreenAll,
     ScreenAllToEveryScreen,
@@ -197,6 +207,7 @@ public:
     void StartListCommand();
     void FinishListCommand();
     void RevokeListCommand();
+	bool InListCommand() const;
     void ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip_execute = false);
     void UndoCommand();
     void RedoCommand();
@@ -205,7 +216,9 @@ public:
     void DoSetComboCommand(int map, int scr, int pos, int combo, int cset);
     void DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data);
     void DoSetFlagCommand(int map, int scr, int pos, int flag);
-    void DoSetDoorCommand(int side, int door);
+    void DoPutDoorCommand(int side, int door, bool force = false);
+    void DoSetDoorCommand(int scr, int side, int door);
+    void DoSetDCSCommand(int dcs);
     void DoPasteScreenCommand(PasteCommandType type, int data = 0);
     void DoClearScreenCommand();
     void DoTemplateCommand(int floorcombo, int floorcset, int scr);
@@ -291,10 +304,7 @@ public:
     void over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr);
     void TemplateAll();
     void Template(int32_t floorcombo, int32_t floorcset, int32_t scr);
-    void putdoor(int32_t side,int32_t door);
-    void putdoor2(int32_t side,int32_t door);
     void putdoor(int32_t scr,int32_t side,int32_t door);
-    void putdoor2(int32_t scr,int32_t side,int32_t door);
     void dowarp(int32_t type, int32_t index);
     void prv_dowarp(int32_t type, int32_t index);
     void dowarp2(int32_t ring,int32_t index);

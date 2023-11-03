@@ -28732,6 +28732,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		switch(tmpscr->door[scrolldir^1])
 		{
+		case dNONE:
+			dir = scrolldir;
+			break;
 		case dOPEN:
 		case dUNLOCKED:
 		case dOPENBOSS:

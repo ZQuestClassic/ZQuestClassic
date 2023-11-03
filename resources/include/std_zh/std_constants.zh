@@ -2200,6 +2200,7 @@ DEFINE D_BOSSLOCKED          = 10;
 DEFINE D_BOSSUNLOCKED        = 11; // A boss door that has been opened
 DEFINE D_OPENSHUTTER         = 12; // A shutter that has been opened
 DEFINE D_1WAYSHUTTER         = 14; // A shutter that locks behind you and never opens
+DEFINE D_NONE                = 16; // No door at all. Player will not auto-walk.
 
 //Sprite lists. Use with Screen->ClearSprites()
 DEFINE SL_GUYS               = 0; // Enemies

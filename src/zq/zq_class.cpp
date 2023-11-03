@@ -720,22 +720,6 @@ void zmap::Template(int32_t floorcombo, int32_t floorcset, int32_t scr)
         putdoor(scr,i,screens[scr].door[i]);
 }
 
-void zmap::putdoor(int32_t side,int32_t door)
-{
-    putdoor(currscr,side,door);
-}
-
-void zmap::putdoor2(int32_t side,int32_t door)
-{
-    putdoor2(currscr,side,door);
-}
-
-
-
-// void putdoor(int32_t scr,int32_t side,int32_t door);
-// void putdoor2(int32_t scr,int32_t side,int32_t door);
-// void dowarp(int32_t type);
-// void dowarp(int32_t ring,int32_t index);
 
 void zmap::clearscr(int32_t scr)
 {
@@ -3985,158 +3969,184 @@ void zmap::scroll(int32_t dir, bool warp)
     }
 }
 
-void zmap::putdoor2(int32_t scr,int32_t side,int32_t door)
+void fetch_door(int side, int door, int dcs, word data[176], byte cset[176])
 {
-    if(door!=dWALL)
-    {
-        putdoor(scr,side,door);
-    }
+	switch(side)
+	{
+		case up:
+			switch(door)
+			{
+				case dWALL:
+				case dBOMB:
+				case dWALK:
+					data[7]   = DoorComboSets[dcs].doorcombo_u[dt_wall][0];
+					cset[7]  = DoorComboSets[dcs].doorcset_u[dt_wall][0];
+					data[8]   = DoorComboSets[dcs].doorcombo_u[dt_wall][1];
+					cset[8]  = DoorComboSets[dcs].doorcset_u[dt_wall][1];
+					data[23]   = DoorComboSets[dcs].doorcombo_u[dt_wall][2];
+					cset[23]  = DoorComboSets[dcs].doorcset_u[dt_wall][2];
+					data[24]   = DoorComboSets[dcs].doorcombo_u[dt_wall][3];
+					cset[24]  = DoorComboSets[dcs].doorcset_u[dt_wall][3];
+					break;
+					
+				default:
+					data[7]   = DoorComboSets[dcs].doorcombo_u[dt_pass][0];
+					cset[7]  = DoorComboSets[dcs].doorcset_u[dt_pass][0];
+					data[8]   = DoorComboSets[dcs].doorcombo_u[dt_pass][1];
+					cset[8]  = DoorComboSets[dcs].doorcset_u[dt_pass][1];
+					data[23]   = DoorComboSets[dcs].doorcombo_u[dt_pass][2];
+					cset[23]  = DoorComboSets[dcs].doorcset_u[dt_pass][2];
+					data[24]   = DoorComboSets[dcs].doorcombo_u[dt_pass][3];
+					cset[24]  = DoorComboSets[dcs].doorcset_u[dt_pass][3];
+					break;
+			}
+			
+			break;
+			
+		case down:
+			switch(door)
+			{
+				case dWALL:
+				case dBOMB:
+				case dWALK:
+					data[151]   = DoorComboSets[dcs].doorcombo_d[dt_wall][0];
+					cset[151]  = DoorComboSets[dcs].doorcset_d[dt_wall][0];
+					data[152]   = DoorComboSets[dcs].doorcombo_d[dt_wall][1];
+					cset[152]  = DoorComboSets[dcs].doorcset_d[dt_wall][1];
+					data[167]   = DoorComboSets[dcs].doorcombo_d[dt_wall][2];
+					cset[167]  = DoorComboSets[dcs].doorcset_d[dt_wall][2];
+					data[168]   = DoorComboSets[dcs].doorcombo_d[dt_wall][3];
+					cset[168]  = DoorComboSets[dcs].doorcset_d[dt_wall][3];
+					break;
+					
+				default:
+					data[151]   = DoorComboSets[dcs].doorcombo_d[dt_pass][0];
+					cset[151]  = DoorComboSets[dcs].doorcset_d[dt_pass][0];
+					data[152]   = DoorComboSets[dcs].doorcombo_d[dt_pass][1];
+					cset[152]  = DoorComboSets[dcs].doorcset_d[dt_pass][1];
+					data[167]   = DoorComboSets[dcs].doorcombo_d[dt_pass][2];
+					cset[167]  = DoorComboSets[dcs].doorcset_d[dt_pass][2];
+					data[168]   = DoorComboSets[dcs].doorcombo_d[dt_pass][3];
+					cset[168]  = DoorComboSets[dcs].doorcset_d[dt_pass][3];
+					break;
+			}
+			
+			break;
+			
+		case left:
+			switch(door)
+			{
+				case dWALL:
+				case dBOMB:
+				case dWALK:
+					data[64]   = DoorComboSets[dcs].doorcombo_l[dt_wall][0];
+					cset[64]  = DoorComboSets[dcs].doorcset_l[dt_wall][0];
+					data[65]   = DoorComboSets[dcs].doorcombo_l[dt_wall][1];
+					cset[65]  = DoorComboSets[dcs].doorcset_l[dt_wall][1];
+					data[80]   = DoorComboSets[dcs].doorcombo_l[dt_wall][2];
+					cset[80]  = DoorComboSets[dcs].doorcset_l[dt_wall][2];
+					data[81]   = DoorComboSets[dcs].doorcombo_l[dt_wall][3];
+					cset[81]  = DoorComboSets[dcs].doorcset_l[dt_wall][3];
+					data[96]   = DoorComboSets[dcs].doorcombo_l[dt_wall][4];
+					cset[96]  = DoorComboSets[dcs].doorcset_l[dt_wall][4];
+					data[97]   = DoorComboSets[dcs].doorcombo_l[dt_wall][5];
+					cset[97]  = DoorComboSets[dcs].doorcset_l[dt_wall][5];
+					break;
+					
+				default:
+					data[64]   = DoorComboSets[dcs].doorcombo_l[dt_pass][0];
+					cset[64]  = DoorComboSets[dcs].doorcset_l[dt_pass][0];
+					data[65]   = DoorComboSets[dcs].doorcombo_l[dt_pass][1];
+					cset[65]  = DoorComboSets[dcs].doorcset_l[dt_pass][1];
+					data[80]   = DoorComboSets[dcs].doorcombo_l[dt_pass][2];
+					cset[80]  = DoorComboSets[dcs].doorcset_l[dt_pass][2];
+					data[81]   = DoorComboSets[dcs].doorcombo_l[dt_pass][3];
+					cset[81]  = DoorComboSets[dcs].doorcset_l[dt_pass][3];
+					data[96]   = DoorComboSets[dcs].doorcombo_l[dt_pass][4];
+					cset[96]  = DoorComboSets[dcs].doorcset_l[dt_pass][4];
+					data[97]   = DoorComboSets[dcs].doorcombo_l[dt_pass][5];
+					cset[97]  = DoorComboSets[dcs].doorcset_l[dt_pass][5];
+					break;
+			}
+			
+			break;
+			
+		case right:
+			switch(door)
+			{
+				case dWALL:
+				case dBOMB:
+				case dWALK:
+					data[78]   = DoorComboSets[dcs].doorcombo_r[dt_wall][0];
+					cset[78]  = DoorComboSets[dcs].doorcset_r[dt_wall][0];
+					data[79]   = DoorComboSets[dcs].doorcombo_r[dt_wall][1];
+					cset[79]  = DoorComboSets[dcs].doorcset_r[dt_wall][1];
+					data[94]   = DoorComboSets[dcs].doorcombo_r[dt_wall][2];
+					cset[94]  = DoorComboSets[dcs].doorcset_r[dt_wall][2];
+					data[95]   = DoorComboSets[dcs].doorcombo_r[dt_wall][3];
+					cset[95]  = DoorComboSets[dcs].doorcset_r[dt_wall][3];
+					data[110]   = DoorComboSets[dcs].doorcombo_r[dt_wall][4];
+					cset[110]  = DoorComboSets[dcs].doorcset_r[dt_wall][4];
+					data[111]   = DoorComboSets[dcs].doorcombo_r[dt_wall][5];
+					cset[111]  = DoorComboSets[dcs].doorcset_r[dt_wall][5];
+					break;
+					
+				default:
+					data[78]   = DoorComboSets[dcs].doorcombo_r[dt_pass][0];
+					cset[78]  = DoorComboSets[dcs].doorcset_r[dt_pass][0];
+					data[79]   = DoorComboSets[dcs].doorcombo_r[dt_pass][1];
+					cset[79]  = DoorComboSets[dcs].doorcset_r[dt_pass][1];
+					data[94]   = DoorComboSets[dcs].doorcombo_r[dt_pass][2];
+					cset[94]  = DoorComboSets[dcs].doorcset_r[dt_pass][2];
+					data[95]   = DoorComboSets[dcs].doorcombo_r[dt_pass][3];
+					cset[95]  = DoorComboSets[dcs].doorcset_r[dt_pass][3];
+					data[110]   = DoorComboSets[dcs].doorcombo_r[dt_pass][4];
+					cset[110]  = DoorComboSets[dcs].doorcset_r[dt_pass][4];
+					data[111]   = DoorComboSets[dcs].doorcombo_r[dt_pass][5];
+					cset[111]  = DoorComboSets[dcs].doorcset_r[dt_pass][5];
+					break;
+			}
+			
+			break;
+	}
 }
-
+void zmap::DoPutDoorCommand(int side, int door, bool force)
+{
+	if(!force && screens[currscr].door[side] == door)
+		return;
+	bool already_list = InListCommand();
+	if(!already_list)
+		StartListCommand();
+	DoSetDoorCommand(currscr,side,door);
+	if(door != dNONE)
+	{
+		word data[176] = {0};
+		byte cset[176] = {0};
+		fetch_door(side, door, screens[currscr].door_combo_set, data, cset);
+		for(int q = 0; q < 176; ++q)
+			if(data[q])
+				DoSetComboCommand(currmap,currscr,q,data[q],cset[q]);
+	}
+	if(!already_list)
+		FinishListCommand();
+}
 void zmap::putdoor(int32_t scr,int32_t side,int32_t door)
 {
-    screens[scr].door[side]=door;
-    word *di = &screens[scr].data[0];
-    byte *di2 = &screens[scr].cset[0];
-    
-    switch(side)
-    {
-    case up:
-        switch(door)
-        {
-        case dWALL:
-        case dBOMB:
-        case dWALK:
-            di[7]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_wall][0];
-            di2[7]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_wall][0];
-            di[8]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_wall][1];
-            di2[8]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_wall][1];
-            di[23]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_wall][2];
-            di2[23]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_wall][2];
-            di[24]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_wall][3];
-            di2[24]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_wall][3];
-            break;
-            
-        default:
-            di[7]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_pass][0];
-            di2[7]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_pass][0];
-            di[8]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_pass][1];
-            di2[8]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_pass][1];
-            di[23]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_pass][2];
-            di2[23]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_pass][2];
-            di[24]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_u[dt_pass][3];
-            di2[24]  = DoorComboSets[screens[scr].door_combo_set].doorcset_u[dt_pass][3];
-            break;
-        }
-        
-        break;
-        
-    case down:
-        switch(door)
-        {
-        case dWALL:
-        case dBOMB:
-        case dWALK:
-            di[151]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_wall][0];
-            di2[151]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_wall][0];
-            di[152]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_wall][1];
-            di2[152]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_wall][1];
-            di[167]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_wall][2];
-            di2[167]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_wall][2];
-            di[168]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_wall][3];
-            di2[168]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_wall][3];
-            break;
-            
-        default:
-            di[151]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_pass][0];
-            di2[151]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_pass][0];
-            di[152]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_pass][1];
-            di2[152]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_pass][1];
-            di[167]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_pass][2];
-            di2[167]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_pass][2];
-            di[168]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_d[dt_pass][3];
-            di2[168]  = DoorComboSets[screens[scr].door_combo_set].doorcset_d[dt_pass][3];
-            break;
-        }
-        
-        break;
-        
-    case left:
-        switch(door)
-        {
-        case dWALL:
-        case dBOMB:
-        case dWALK:
-            di[64]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_wall][0];
-            di2[64]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_wall][0];
-            di[65]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_wall][1];
-            di2[65]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_wall][1];
-            di[80]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_wall][2];
-            di2[80]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_wall][2];
-            di[81]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_wall][3];
-            di2[81]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_wall][3];
-            di[96]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_wall][4];
-            di2[96]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_wall][4];
-            di[97]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_wall][5];
-            di2[97]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_wall][5];
-            break;
-            
-        default:
-            di[64]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_pass][0];
-            di2[64]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_pass][0];
-            di[65]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_pass][1];
-            di2[65]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_pass][1];
-            di[80]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_pass][2];
-            di2[80]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_pass][2];
-            di[81]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_pass][3];
-            di2[81]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_pass][3];
-            di[96]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_pass][4];
-            di2[96]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_pass][4];
-            di[97]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_l[dt_pass][5];
-            di2[97]  = DoorComboSets[screens[scr].door_combo_set].doorcset_l[dt_pass][5];
-            break;
-        }
-        
-        break;
-        
-    case right:
-        switch(door)
-        {
-        case dWALL:
-        case dBOMB:
-        case dWALK:
-            di[78]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_wall][0];
-            di2[78]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_wall][0];
-            di[79]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_wall][1];
-            di2[79]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_wall][1];
-            di[94]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_wall][2];
-            di2[94]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_wall][2];
-            di[95]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_wall][3];
-            di2[95]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_wall][3];
-            di[110]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_wall][4];
-            di2[110]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_wall][4];
-            di[111]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_wall][5];
-            di2[111]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_wall][5];
-            break;
-            
-        default:
-            di[78]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_pass][0];
-            di2[78]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_pass][0];
-            di[79]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_pass][1];
-            di2[79]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_pass][1];
-            di[94]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_pass][2];
-            di2[94]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_pass][2];
-            di[95]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_pass][3];
-            di2[95]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_pass][3];
-            di[110]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_pass][4];
-            di2[110]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_pass][4];
-            di[111]   = DoorComboSets[screens[scr].door_combo_set].doorcombo_r[dt_pass][5];
-            di2[111]  = DoorComboSets[screens[scr].door_combo_set].doorcset_r[dt_pass][5];
-            break;
-        }
-        
-        break;
-    }
+	if(screens[scr].door[side] == door)
+		return;
+	screens[scr].door[side] = door;
+	if(door != dNONE)
+	{
+		word data[176] = {0};
+		byte cset[176] = {0};
+		fetch_door(side, door, screens[scr].door_combo_set, data, cset);
+		for(int q = 0; q < 176; ++q)
+			if(data[q])
+			{
+				screens[scr].data[q] = data[q];
+				screens[scr].cset[q] = cset[q];
+			}
+	}
 }
 
 void list_command::execute()
@@ -4280,14 +4290,22 @@ void set_flag_command::undo()
 
 void set_door_command::execute()
 {
-    Map.putdoor(view_scr, side, door);
-    refresh(rMAP | rNOCURSOR);
+	Map.AbsoluteScr(view_map, view_scr)->door[side] = door;
 }
 
 void set_door_command::undo()
 {
-    Map.putdoor(view_scr, side, prev_door);
-    refresh(rMAP | rNOCURSOR);
+	Map.AbsoluteScr(view_map, view_scr)->door[side] = prev_door;
+}
+
+void set_dcs_command::execute()
+{
+	Map.AbsoluteScr(view_map, view_scr)->door_combo_set = dcs;
+}
+
+void set_dcs_command::undo()
+{
+	Map.AbsoluteScr(view_map, view_scr)->door_combo_set = prev_dcs;
 }
 
 void paste_screen_command::execute()
@@ -4417,6 +4435,11 @@ void zmap::RevokeListCommand()
 {
     current_list_command->undo();
     current_list_command = nullptr;
+}
+
+bool zmap::InListCommand() const
+{
+	return current_list_command ? true : false;
 }
 
 void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip_execute)
@@ -4579,19 +4602,28 @@ void zmap::DoSetFlagCommand(int map, int scr, int pos, int flag)
     ExecuteCommand(command);
 }
 
-void zmap::DoSetDoorCommand(int side, int door)
+void zmap::DoSetDoorCommand(int scr, int side, int door)
 {
+	if(screens[scr].door[side] == door)
+		return;
     std::shared_ptr<set_door_command> command(new set_door_command);
     command->view_map = currmap;
-    command->view_scr = currscr;
+    command->view_scr = scr;
     command->side = side;
     command->door = door;
-    command->prev_door = Map.CurrScr()->door[side];
-    if (command->door == command->prev_door)
-    {
-        // nothing to do...
-        return;
-    }
+    command->prev_door = screens[scr].door[side];
+
+    ExecuteCommand(command);
+}
+void zmap::DoSetDCSCommand(int dcs)
+{
+	if(screens[currscr].door_combo_set == dcs)
+		return;
+    std::shared_ptr<set_dcs_command> command(new set_dcs_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->dcs = dcs;
+    command->prev_dcs = screens[currscr].door_combo_set;
 
     ExecuteCommand(command);
 }
@@ -4682,11 +4714,6 @@ void zmap::Paste(const mapscr& copymapscr)
             screens[currscr].color = copymapscr.color;
         }
         
-        for(int32_t i=0; i<4; i++)
-        {
-            putdoor(currscr,i,0);
-        }
-        
         screens[currscr].door_combo_set = copymapscr.door_combo_set;
         
         for(int32_t i=0; i<4; i++)
@@ -4699,11 +4726,6 @@ void zmap::Paste(const mapscr& copymapscr)
             screens[currscr].data[i] = copymapscr.data[i];
             screens[currscr].cset[i] = copymapscr.cset[i];
             screens[currscr].sflag[i] = copymapscr.sflag[i];
-        }
-        
-        for(int32_t i=0; i<4; i++)
-        {
-            putdoor2(currscr,i,screens[currscr].door[i]);
         }
         
         int32_t newcolor=getcolor();
@@ -4957,11 +4979,6 @@ void zmap::PasteToAll(const mapscr& copymapscr)
                 screens[x].cset[i] = copymapscr.cset[i];
                 screens[x].sflag[i] = copymapscr.sflag[i];
             }
-            
-            if(isDungeon(x))
-                for(int32_t i=0; i<4; i++)
-                    putdoor(currscr,i,screens[x].door[i]);
-                    
         }
         
         int32_t newcolor=getcolor();
@@ -9085,7 +9102,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		scr_has_flags |= SCRHAS_D_S_U;
 	else for(auto q = 0; q < 4; ++q)
 	{
-		if(screen.door[q])
+		if(screen.door[q] != dNONE)
 		{
 			scr_has_flags |= SCRHAS_D_S_U;
 			break;
