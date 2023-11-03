@@ -189,6 +189,7 @@ def get_release_package_url(gh: Github, repo_str: str, channel: str, tag: str):
 
 
 def maybe_get_downloaded_revision(tag: str) -> Optional[Path]:
+    dir = None
     if (releases_dir / tag).exists():
         dir = releases_dir / tag
     elif (test_builds_dir / tag).exists():
