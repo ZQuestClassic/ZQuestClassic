@@ -138,16 +138,21 @@ bool is_headless()
 	return headless;
 }
 
-// If (saved_width, saved_height) is not -1, ensures that fits in the primary monitor. If neither are true, fall
+// If (saved_width, saved_height) is >0, ensures that fits in the primary monitor. If neither are true, fall
 // back to default.
 // Default will scale up (base_width, base_height) by an integer amount to fill up the primary monitor
-// as much as possible.
+// as much as possible, up to 3x.
 std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height)
 {
 	ALLEGRO_MONITOR_INFO info;
 	al_get_monitor_info(0, &info);
 	int mw = info.x2 - info.x1;
 	int mh = info.y2 - info.y1;
+	if (saved_width > 0 && saved_height > 0 && saved_width <= mw && saved_height <= mh)
+	{
+		return {saved_width, saved_height};
+	}
+
 #ifdef ALLEGRO_MACOSX
 	// https://talk.automators.fm/t/getting-screen-dimensions-while-accounting-the-menu-bar-dock-and-multiple-displays/13639
 	mh -= 38;
@@ -156,11 +161,12 @@ std::pair<int, int> zc_get_default_display_size(int base_width, int base_height,
 	// Title bar.
 	mh -= 23;
 #endif
-	if (saved_width != -1 && saved_height != -1 && saved_width <= mw && saved_height <= mh)
-	{
-		return {saved_width, saved_height};
-	}
+	// Small buffer, so the default window is never as big as the monitor.
+	mw -= 50;
+	mh -= 50;
+
 	int s = std::min(mh / base_height, mw / base_width);
+	s = std::min(3, s);
 	int w = base_width * s;
 	int h = base_height * s;
 	return {w, h};
