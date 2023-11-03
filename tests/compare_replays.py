@@ -285,6 +285,7 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
     print(f'report written to {out_path}')
 
 
+# TODO use webserver.py
 def start_webserver():
     from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
@@ -309,7 +310,6 @@ def start_webserver():
 
             self.end_headers()
             if file_to_open:
-                print(path)
                 self.wfile.write(file_to_open.read())
                 file_to_open.close()
 

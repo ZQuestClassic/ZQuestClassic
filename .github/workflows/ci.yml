@@ -200,4 +200,8 @@ jobs:
           path: |
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeOutput.log
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeError.log
-            ${{ github.workspace }}/.tmp/test_results
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: web test results
+          path: ${{ github.workspace }}/.tmp/test_results

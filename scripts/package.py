@@ -292,6 +292,15 @@ def do_web_packaging():
         f'--js-output={build_dir / "zeditor.data.js"}',
     ])
     if 'ZC_PACKAGE_REPLAYS' in os.environ:
+        # Clear out any temporary files that may exist.
+        for p in (root_dir / 'tests/replays').rglob('*.zplay.result.txt'):
+            p.unlink()
+        for p in (root_dir / 'tests/replays').rglob('*.zplay.roundtrip'):
+            p.unlink()
+        for p in (root_dir / 'tests/replays').rglob('*.png'):
+            p.unlink()
+        for p in (root_dir / 'tests/replays').rglob('test_results.json'):
+            p.unlink()
         subprocess.check_call([
             'python',
             emcc_dir / 'tools/file_packager.py',

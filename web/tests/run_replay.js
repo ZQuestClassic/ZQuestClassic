@@ -3,27 +3,25 @@ import path from 'path';
 import os from 'os';
 import * as url from 'url';
 import puppeteer from 'puppeteer';
-import statikk from 'statikk';
 import { setupConsoleListener } from './utils.js';
 
 const dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
-const buildFolder = process.argv[2];
+const serverUrl = process.argv[2];
 const outputFolder = process.argv[3];
 const urlPath = process.argv[4];
 
-const server = statikk({
-  coi: true,
-  root: `${buildFolder}/packages/web`,
-});
-await new Promise(resolve => server.server.once('listening', resolve));
-
-const replayUrl = new URL(urlPath, server.url);
+const replayUrl = new URL(urlPath, serverUrl);
 replayUrl.searchParams.append('storage', 'idb');
 const zplay = replayUrl.searchParams.get('assert') || replayUrl.searchParams.get('replay');
 const headless = replayUrl.searchParams.has('headless');
 
 async function runReplay(zplay) {
+  const onClose = () => {
+    fs.closeSync(stdoutFd);
+    fs.closeSync(stderrFd);
+    return browser.close();
+  };
   const zplaySplit = zplay.split('/');
   const zplayName = zplaySplit[zplaySplit.length - 1];
 
@@ -34,25 +32,39 @@ async function runReplay(zplay) {
 
   const stdoutFd = fs.openSync(`${outputFolder}/stdout.txt`, 'w');
   const stderrFd = fs.openSync(`${outputFolder}/stderr.txt`, 'w');
+  let hasExited = false;
+  let exitCode = 0;
 
   const consoleListener = setupConsoleListener(page);
   page.on('console', e => {
     const type = e.type();
+    const text = e.text();
     if (type === 'error' || type === 'warning') {
-      fs.writeSync(stderrFd, e.text());
+      fs.writeSync(stderrFd, text);
       fs.writeSync(stderrFd, '\n');
     } else {
-      fs.writeSync(stdoutFd, e.text());
+      fs.writeSync(stdoutFd, text);
       fs.writeSync(stdoutFd, '\n');
+    }
+
+    const bad = [
+      'worker sent an error',
+      'ERR_BLOCKED_BY_RESPONSE',
+      'ERR_CONNECTION_RESET',
+      // shutdown_timers
+      // failed: _al_vector_size(&active_timers) == 0, at: /Users/connorclark/code/ZeldaClassic-secondary/build_emscripten/_deps/allegro5-src/src/timernu.c,146,shutdown_timers
+      'Uncaught RuntimeError',
+    ];
+    if (bad.some(t => text.includes(t))) {
+      onClose();
+      process.exit(1);
     }
   });
 
   await page.goto(replayUrl, {
-    waitUntil: 'networkidle2',
+    waitUntil: 'domcontentloaded',
   });
 
-  let hasExited = false;
-  let exitCode = 0;
   consoleListener.waitFor(/exit with code:/).then(text => {
     hasExited = true;
     exitCode = Number(text.replace('exit with code:', ''));
@@ -70,7 +82,7 @@ async function runReplay(zplay) {
     }, zplay);
     if (!result) return;
 
-    const tmpPath = `${tmpDir}/tmp.result.txt`;
+    const tmpPath = `${tmpDir}/tmp.${zplay.replaceAll('/', '-')}.result.txt`;
     fs.writeFileSync(tmpPath, result);
     fs.renameSync(tmpPath, `${outputFolder}/${zplayName}.result.txt`);
   }
@@ -81,14 +93,15 @@ async function runReplay(zplay) {
   await getResultFile();
 
   await page.addScriptTag({ content: fs.readFileSync(`${dirname}/buffer.js`).toString() });
-  const snapshots = await page.evaluate((zplayName) => {
-    const files = FS.readdir('/test_replays')
+  const zplayDir = path.dirname(`/test_replays/${zplayName}`);
+  const snapshots = await page.evaluate((zplayName, zplayDir) => {
+    const files = FS.readdir(zplayDir)
       .filter(file => file.endsWith('.png') && file.includes(zplayName));
     return files.map(file => ({
       file,
       content: Buffer.from(FS.readFile(`/test_replays/${file}`)).toString('binary'),
     }));
-  }, zplayName);
+  }, zplayName, zplayDir);
 
   for (const { file, content } of snapshots) {
     fs.writeFileSync(`${outputFolder}/${file}`, Buffer.from(content, 'binary'));
@@ -108,11 +121,7 @@ async function runReplay(zplay) {
     fs.writeFileSync(`${outputFolder}/${zplayName}.roundtrip`, roundtrip);
   }
 
-  fs.closeSync(stdoutFd);
-  fs.closeSync(stderrFd);
-
-  await browser.close();
-  await server.server.close();
+  await onClose();
   return exitCode;
 }
 

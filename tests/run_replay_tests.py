@@ -398,6 +398,17 @@ else:
         concurrency = max(1, os.cpu_count() - 4)
     print(f'found {os.cpu_count()} cpus, setting concurrency to {concurrency}')
 
+if is_web:
+    print('starting webserver')
+    webserver_p = subprocess.Popen([
+        'python', root_dir / 'scripts/webserver.py',
+        '--dir', args.build_folder / 'packages/web',
+    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    while webserver_p.poll() == None:
+        if 'Served by' in webserver_p.stdout.readline():
+            break
+    print('webserver started')
+
 
 def apply_test_filter(filter: str):
     filter_as_path = pathlib.Path(filter)
@@ -735,7 +746,7 @@ class WebPlayerInterface:
 
         exe_args = [
             'node', root_dir / 'web/tests/run_replay.js',
-            args.build_folder,
+            'http://localhost:8000',
             output_dir,
             url,
         ]
@@ -789,8 +800,6 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
     timeout = 60
     if replay_file.name == 'yuurand.zplay':
         timeout = 180
-    if is_web:
-        timeout *= 2
 
     if is_web:
         player_interface = WebPlayerInterface()
@@ -1128,7 +1137,7 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
                     if len(lines) > rows - 1:
                         break
                 for test in pending_tests:
-                    lines.append(('…', 3, get_replay_name(test)))
+                    lines.append(('…', 3, replay_log_names[test.name]))
                     if len(lines) > rows - 1:
                         break
 
@@ -1394,6 +1403,8 @@ def should_consider_failure(run: RunResult):
 
     return False
 
+if is_web:
+    webserver_p.kill()
 
 failing_replays = [r.name for r in test_results.runs[-1] if should_consider_failure(r)]
 if mode == 'assert':
