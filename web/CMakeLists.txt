@@ -51,8 +51,6 @@ function (create_web_target target)
     add_custom_command(
         OUTPUT web_${target}.stamp
         COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/package_web.py --build_folder "${BUILD_FOLDER}" --target ${target}
-        DEPENDS
-            ../scripts/package_web.py
         VERBATIM
     )
     add_custom_target(web_${target} DEPENDS web_${target}.stamp)
@@ -67,8 +65,6 @@ create_web_target(zeditor)
 add_custom_command(
     OUTPUT web.stamp
     COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/package_web.py --build_folder "${BUILD_FOLDER}"
-    DEPENDS
-        ../scripts/package_web.py
     VERBATIM
 )
 add_custom_target(web DEPENDS web.stamp)
