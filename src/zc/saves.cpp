@@ -2135,7 +2135,7 @@ int saves_do_first_time_stuff(int index)
 
 	if (!save->game->get_hasplayed())
 	{
-		save->game->set_quest(0xFF);
+		save->game->set_quest(save->game->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF);
 
 		// Try to make relative to qstdir.
 		// TODO: this is a weird place to do this.
