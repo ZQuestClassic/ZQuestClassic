@@ -555,6 +555,13 @@ bool write_tile(tiledata *buf, BITMAP* src, int32_t dest, int32_t x, int32_t y, 
     return true;
 }
 
+static const byte* get_tile_bytes(int32_t tile, int32_t flip)
+{
+    if (flip == 0)
+        return newtilebuf[tile].data;
+    unpack_tile(newtilebuf, tile, flip, false);
+    return unpackbuf;
+}
 
 // unpacks from tilebuf to unpackbuf
 void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force)
@@ -829,8 +836,8 @@ void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t c
     
     cset &= 15;
     cset <<= CSET_SHFT;
-    unpack_tile(newtilebuf, tile>>2, 0, false);
-    byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+    const byte* bytes = get_tile_bytes(tile>>2, 0);
+    const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
     
     if(flip&1)  //horizontal
     {
@@ -931,8 +938,9 @@ void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
     
     cset &= 15;
     cset <<= CSET_SHFT;
-    unpack_tile(newtilebuf, tile>>2, 0, false);
-    byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+
+    const byte* bytes = get_tile_bytes(tile>>2, 0);
+    const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
     
     if(flip&1)
     {
@@ -1042,8 +1050,8 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
     
     cset &= 15;
     cset <<= CSET_SHFT;
-    unpack_tile(newtilebuf, tile, 0, false);
-    byte *si = unpackbuf;
+
+    const byte* si = get_tile_bytes(tile, flip&5);
     byte *di;
     
     if(flip&1)
@@ -1165,8 +1173,8 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
     
     cset &= 15;
     cset <<= CSET_SHFT;
-    unpack_tile(newtilebuf, tile,flip&5, false);
-    byte *si = unpackbuf;
+
+    const byte* si = get_tile_bytes(tile, flip&5);
     byte *di;
     
     if((flip&2)==0)
@@ -1284,8 +1292,7 @@ void overtilecloaked16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t fli
         return;
     }
     
-    unpack_tile(newtilebuf, tile, 0, false);
-    byte *si = unpackbuf;
+    const byte* si = get_tile_bytes(tile, 0);
     byte *di;
     
     if(flip&1)
@@ -1764,7 +1771,7 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
 //shnarf
 
 // A (slow) function to handle any tile8 draw.
-static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip)
+static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip)
 {
     for (int32_t dy = 0; dy < 8; ++dy)
     {
@@ -1816,7 +1823,7 @@ static void draw_tile8_unified(BITMAP* dest, int cl, int ct, int cr, int cb, byt
 //     }
 // }
 
-static void draw_tile16_unified(BITMAP* dest, int cl, int ct, int cr, int cb, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
+static void draw_tile16_unified(BITMAP* dest, int cl, int ct, int cr, int cb, const byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
 {
     for (int32_t dy = 0; dy < 16; ++dy)
     {
@@ -1852,7 +1859,8 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     cset &= 15;
     cset <<= CSET_SHFT;
     dword lcset = (cset<<24)+(cset<<16)+(cset<<8)+cset;
-    unpack_tile(newtilebuf, tile>>2, 0, false);
+
+    const byte* bytes = get_tile_bytes(tile>>2, 0);
 
     // TODO: only title.cpp uses this function, so don't bother with this yet. Following code noy verified.
     // 0: fast, no bounds checking
@@ -1872,7 +1880,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     {
     case 1:                                                 // 1 byte at a time
     {
-        byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+        const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
         
         for(int32_t dy=0; dy<8; ++dy)
         {
@@ -1888,7 +1896,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     
     case 2:                                                 // 4 bytes at a time
     {
-        dword *si = ((dword*)unpackbuf) + ((tile&2)<<4) + ((tile&1)<<1);
+        const dword *si = ((const dword*)bytes) + ((tile&2)<<4) + ((tile&1)<<1);
         
         for(int32_t dy=7; dy>=0; --dy)
         {
@@ -1902,7 +1910,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     
     case 3:                                                 // 1 byte at a time
     {
-        byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+        const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
         
         for(int32_t dy=7; dy>=0; --dy)
         {
@@ -1918,7 +1926,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     
     default:                                                // 4 bytes at a time
     {
-        dword *si = ((dword*)unpackbuf) + ((tile&2)<<4) + ((tile&1)<<1);
+        const dword *si = ((const dword*)bytes) + ((tile&2)<<4) + ((tile&1)<<1);
         
         for(int32_t dy=0; dy<8; ++dy)
         {
@@ -1951,8 +1959,8 @@ void oldputtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int3
     
     cset &= 15;
     cset <<= CSET_SHFT;
-    unpack_tile(newtilebuf, tile>>2, 0, false);
-    byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+    const byte* bytes = get_tile_bytes(tile>>2, 0);
+    const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
     
     if(flip&1)
     {
@@ -2062,8 +2070,8 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     
     cset &= 15;
     cset <<= CSET_SHFT;
-    unpack_tile(newtilebuf, tile>>2, 0, false);
-    byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+    const byte *bytes = get_tile_bytes(tile>>2, 0);
+    const byte *si = bytes + ((tile&2)<<6) + ((tile&1)<<3);
 
     // 0: fast, no bounds checking
     // 1: slow, bounds checking
@@ -2181,16 +2189,14 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     
     cset &= 15;
     cset <<= CSET_SHFT;
-    
-    unpack_tile(newtilebuf, tile, flip&5, false);
+    const byte *bytes = get_tile_bytes(tile, flip&5);
 
     // 0: fast, no bounds checking
     // 1: slow, bounds checking
     int draw_mode = x < cl || y < ct || x >= cr-16 || y >= cb-16 || x%8 || y%8 ? 1 : 0;
     if (draw_mode == 1)
     {
-        byte *si = unpackbuf;
-        draw_tile16_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip, false);
+        draw_tile16_unified(dest, cl, ct, cr, cb, bytes, x, y, cset, flip, false);
         return;
     }
     
@@ -2223,7 +2229,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
           */
         qword llcset = (((qword)cset)<<56)+(((qword)cset)<<48)+(((qword)cset)<<40)+(((qword)cset)<<32)+(((qword)cset)<<24)+(cset<<16)+(cset<<8)+cset;
         //      qword llcset = (((qword)cset)<<56)|(((qword)cset)<<48)|(((qword)cset)<<40)|(((qword)cset)<<32)|(((qword)cset)<<24)|(cset<<16)|(cset<<8)|cset;
-        qword *si = (qword*)unpackbuf;
+        const qword *si = (const qword*)bytes;
         
         for(int32_t dy=15; dy>=0; --dy)
         {
@@ -2264,7 +2270,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
           */
         qword llcset = (((qword)cset)<<56)+(((qword)cset)<<48)+(((qword)cset)<<40)+(((qword)cset)<<32)+(((qword)cset)<<24)+(cset<<16)+(cset<<8)+cset;
         //      qword llcset = (((qword)cset)<<56)|(((qword)cset)<<48)|(((qword)cset)<<40)|(((qword)cset)<<32)|(((qword)cset)<<24)|(cset<<16)|(cset<<8)|cset;
-        qword *si = (qword*)unpackbuf;
+        const qword *si = (const qword*)bytes;
         
         for(int32_t dy=0; dy<16; ++dy)
         {
@@ -2304,8 +2310,8 @@ void oldputtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int
     
     cset &= 15;
     cset <<= CSET_SHFT;
-    unpack_tile(newtilebuf, tile, flip&5, false);
-    byte *si = unpackbuf;
+
+    const byte* si = get_tile_bytes(tile, flip&5);
     byte *di;
     
     if((flip&2)==0)
@@ -2462,8 +2468,7 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 	
 	cset &= 15;
 	cset <<= CSET_SHFT;
-	unpack_tile(newtilebuf, tile, flip&5, false);
-	byte *si = unpackbuf;
+	const byte *si = get_tile_bytes(tile, flip&5);
 	byte *di;
 
 	// 0: fast, no bounds checking
@@ -2471,7 +2476,6 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 	int draw_mode = x < cl || y < ct || x >= cr-16 || y >= cb-16 ? 1 : 0;
 	if (draw_mode == 1)
 	{
-		byte *si = unpackbuf;
 		draw_tile16_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip, true);
 		return;
 	}
@@ -2564,8 +2568,8 @@ void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[]
         cset[0]=cset[1]=cset[2]=cset[3]=0;
 	else for(int q = 0; q < 4; ++q)
 		cset[q] <<= CSET_SHFT;
-	unpack_tile(newtilebuf, tile, flip&5, false);
-	byte *si = unpackbuf;
+
+    const byte* si = get_tile_bytes(tile, flip&5);
 
 	bool vflip = (flip&2);
 	for(int dx = 0; dx < 16; ++dx)
