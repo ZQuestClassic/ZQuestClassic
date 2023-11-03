@@ -1775,6 +1775,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 void QRDialog::reloadQRs()
 {
 	memcpy(local_qrs, realqrs, QR_SZ);
+	unpack_qrs();
 }
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
 	searchmode(false), setQRs(setQRs), realqrs(qrs), qrs_per_tab(qrs_per_tab)

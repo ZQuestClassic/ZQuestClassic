@@ -118,6 +118,7 @@ std::shared_ptr<GUI::Widget> TilesetWizard::view()
 								auto dlg = QRDialog(quest_rules, 21, [&](byte* qrs)
 									{
 										memcpy(quest_rules, qrs, QR_SZ);
+										unpack_qrs();
 									});
 								dlg.searchmode = true;
 								dlg.show();

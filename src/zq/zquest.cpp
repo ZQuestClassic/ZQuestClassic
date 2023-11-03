@@ -1234,6 +1234,7 @@ int32_t onZScriptSettings()
 	{
 		saved = false;
 		memcpy(quest_rules, newrules, QR_SZ);
+		unpack_qrs();
 	}).show();
 	return D_O_K;
 }
@@ -1447,6 +1448,7 @@ void set_rules(byte* newrules)
 	saved = false;
 	if(newrules != quest_rules)
 		memcpy(quest_rules, newrules, QR_SZ);
+	unpack_qrs();
 	if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
 	{
 		combobuf[0].walk = 0xF0;

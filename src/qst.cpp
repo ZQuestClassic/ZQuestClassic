@@ -2360,6 +2360,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 				set_qr(qr_MEANPLACEDTRAPS,0);
 			}
 		}
+		unpack_qrs();
 		
 		if((tempheader.zelda_version < 0x192)||
 				((tempheader.zelda_version == 0x192)&&(tempheader.build<149)))
@@ -2922,7 +2923,9 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	map_count=temp_map_count;
 	memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
-	
+
+	unpack_qrs();
+
 	return 0;
 }
 
@@ -2991,6 +2994,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	//al_trace("Rules version %d\n", s_version);
 	//{ bunch of compat stuff
 	memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
+
+	unpack_qrs();
 	
 	if(s_version<2)
 	{
@@ -3583,7 +3588,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		for(auto q = qr_POLVIRE_NO_SHADOW+1; q < qr_PARSER_250DIVISION; ++q)
 			set_qr(q,0);
-		for(auto q = qr_COMBODATA_INITD_MULT_TENK+1; q < QUESTRULES_NEW_SIZE*8; ++q)
+		for(auto q = qr_COMBODATA_INITD_MULT_TENK+1; q < qr_MAX; ++q)
 			set_qr(q,0);
 		//This should nuke any remaining junk data... not sure if it affected anything previous. -Em
 	}
@@ -21468,6 +21473,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     }
     
     memset(quest_rules, 0, QUESTRULES_NEW_SIZE); //clear here to prevent any kind of carryover -Z
+	unpack_qrs();
    // memset(extra_rules, 0, EXTRARULES_SIZE); //clear here to prevent any kind of carryover -Z
    
     if(get_bit(skip_flags, skip_midis))
@@ -22265,6 +22271,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     {
         memcpy(quest_rules, old_quest_rules, QUESTRULES_NEW_SIZE);
         memcpy(extra_rules, old_extra_rules, EXTRARULES_SIZE);
+		unpack_qrs();
     }
     
     if(get_bit(skip_flags, skip_midis))

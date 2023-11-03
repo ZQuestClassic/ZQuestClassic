@@ -709,6 +709,7 @@ bool load_qr_hexstr(string hexstr)
 		sprintf(hex_buf, "%s", hexstr.substr(i*2,2).c_str());
 		quest_rules[i] = (byte)zc_xtoi(hex_buf);
 	}
+	unpack_qrs();
 	InfoDialog("QRs Loaded", "Quest Rules have been loaded from the clipboard").show();
 	return true;
 }

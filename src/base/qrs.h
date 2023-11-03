@@ -238,8 +238,10 @@ enum //Rule Templates
 	sz_ruletemplate
 };
 
-bool get_qr(int index,byte* qrptr = nullptr);
-void set_qr(int index,bool state,byte* qrptr = nullptr);
+void unpack_qrs();
+extern bool _qrs_unpacked[qr_MAX];
+#define get_qr(index) (_qrs_unpacked[index])
+void set_qr(int index,bool state, byte* qrptr = nullptr);
 bool get_er(int index);
 void set_er(int index,bool state);
 //Want to move these here, but looks complicated...
