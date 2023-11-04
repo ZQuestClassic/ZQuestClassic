@@ -4995,8 +4995,9 @@ enum ASM_DEFINE
 
 #define SCREENDATAGUYCOUNT      0x1595
 #define MAPDATAGUYCOUNT         0x1596
+#define ITEMNOSOUND             0x1597
 
-#define NUMVARIABLES            0x1597
+#define NUMVARIABLES            0x1598
 
 //} End variables
 

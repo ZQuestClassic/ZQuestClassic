@@ -404,6 +404,9 @@ string ZScript::VarToString(int32_t ID)
 		case ITEMPICKUP:
 			return "ITEMPICKUP";
 			
+		case ITEMNOSOUND:
+			return "ITEMNOSOUND";
+			
 		case ITEMMISCD:
 			return "ITEMMISCD";
 			

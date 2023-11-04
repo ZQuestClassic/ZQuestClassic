@@ -3547,7 +3547,7 @@ bool HeroClass::checkstab()
 						{
 							collectitem_script(id2);
 							
-							getitem(id2, false, true);
+							getitem(id2, ptr->noSound, true);
 						}
 						items.del(j);
 						
@@ -30117,7 +30117,7 @@ void HeroClass::checkitems(int32_t index)
 		}
 			
 		collectitem_script(id2);
-		getitem(id2, false, true);
+		getitem(id2, ptr->noSound, true);
 	}
 	
 	if(pickup&ipHOLDUP)

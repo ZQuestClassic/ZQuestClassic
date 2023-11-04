@@ -41,6 +41,7 @@ public:
 	bool is_dragged;
 	int16_t from_dropset;
 	int8_t pickupexstate;
+	bool noSound;
 
 //Linker errors because this is shared with zquest. :( -Z
     #ifndef IS_EDITOR

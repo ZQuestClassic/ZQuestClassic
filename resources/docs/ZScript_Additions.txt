@@ -4945,6 +4945,9 @@ bool ForceGrab;
  *  -immune to being deleted by any means (including scrolling, warps, etc)
  *  -will be picked up by the player as though they stepped on it as soon as possible
  * Some engine effects may set this to true; this value is read/write to scripts.
+ 
+ bool NoSound;			
+ * If true, picking up the item does not play it's usual pickup sound assigned in the item editor. Does not affect holdup sound.
 
 bool Switch(int effect);
  * Switch the player with this object

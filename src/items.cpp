@@ -322,6 +322,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	dummy_int[0]=PriceIndex=-1;
 	is_dragged=false;
 	force_grab=false;
+	noSound=false;
 	itemdata const& itm = itemsbuf[id];
 	from_dropset = -1;
 	pickupexstate = -1;

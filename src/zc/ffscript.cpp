@@ -5159,6 +5159,7 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 			
+			
 		case ITEMMISCD:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
@@ -5277,6 +5278,12 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 			
+		case ITEMNOSOUND:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret=((item*)(s))->noSound ? 10000 : 0;
+			}
+			break;
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
 		
@@ -18014,6 +18021,12 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				((item*)(s))->set_forcegrab(value!=0);
+			}
+			break;
+		case ITEMNOSOUND:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->noSound = (value!=0);
 			}
 			break;
 			
