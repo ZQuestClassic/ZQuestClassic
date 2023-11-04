@@ -7165,7 +7165,10 @@ bool displayOnMap(int32_t x, int32_t y)
 
 void ViewMap()
 {
-	mapscr tmpscr_a[2];
+	// The only reason this is static is that the stack is otherwise too large.
+	// It will still compile, but randomly segfaults in this function...
+	// Ex: python tests/run_replay_tests.py --filter link_to_the_zelda_2_of_3.zplay --frame 3000
+	static mapscr tmpscr_a[2];
 	mapscr tmpscr_b[2];
 	mapscr tmpscr_c[6];
 
