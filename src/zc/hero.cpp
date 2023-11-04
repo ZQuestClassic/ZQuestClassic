@@ -30221,7 +30221,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
 		{
-			sfx(tmpscr[0].holdupsfx);
+			if (!ptr->noHoldSound) sfx(tmpscr[0].holdupsfx);
 		}
 		
 		ptr->set_forcegrab(false);

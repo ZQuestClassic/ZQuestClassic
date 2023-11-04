@@ -1732,9 +1732,10 @@
 #define SCREENDATAGUYCOUNT      1631
 #define MAPDATAGUYCOUNT         1632
 
-#define ITEMNOSOUND         1633
+#define ITEMNOSOUND             1633
+#define ITEMNOHOLDSOUND         1634
 
-#define LAST_BYTECODE           1634
+#define LAST_BYTECODE           1635
 
 //} END OF BYTECODE
 

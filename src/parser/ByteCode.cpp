@@ -407,6 +407,9 @@ string ZScript::VarToString(int32_t ID)
 		case ITEMNOSOUND:
 			return "ITEMNOSOUND";
 			
+		case ITEMNOHOLDSOUND:
+			return "ITEMNOHOLDSOUND";
+			
 		case ITEMMISCD:
 			return "ITEMMISCD";
 			

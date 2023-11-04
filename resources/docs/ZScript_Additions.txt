@@ -4946,8 +4946,11 @@ bool ForceGrab;
  *  -will be picked up by the player as though they stepped on it as soon as possible
  * Some engine effects may set this to true; this value is read/write to scripts.
  
- bool NoSound;			
+bool NoSound;			
  * If true, picking up the item does not play it's usual pickup sound assigned in the item editor. Does not affect holdup sound.
+
+bool NoHoldSound;			
+ * If true, picking up the item does not play the screen's holdup sound. Does not affect the usual pickup sound assigned in the item editor.
 
 bool Switch(int effect);
  * Switch the player with this object

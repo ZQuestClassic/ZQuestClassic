@@ -2855,6 +2855,7 @@ script_variable variable_list[]=
 	{ "SCREENDATAGUYCOUNT", SCREENDATAGUYCOUNT, 0, 0 },
 	{ "MAPDATAGUYCOUNT", MAPDATAGUYCOUNT, 0, 0 },
 	{ "ITEMNOSOUND",         ITEMNOSOUND,          0,             0 },
+	{ "ITEMNOHOLDSOUND",         ITEMNOHOLDSOUND,          0,             0 },
 
 	{ " ", -1, 0, 0 }
 };
