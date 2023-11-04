@@ -6,7 +6,7 @@ import argparse
 from argparse import ArgumentTypeError
 import os
 import json
-import tarfile
+import subprocess
 from time import sleep
 from typing import List
 from pathlib import Path
@@ -51,11 +51,18 @@ def find_baseline_commit(gh: Github, repo_str: str):
 
         return False
 
+    def is_ancestor(sha: str):
+        print(f'checking if {sha} is ancestor...')
+        return subprocess.call([
+            'git', 'merge-base',
+            '--is-ancestor', sha, 'HEAD',
+        ]) == 0
+
     repo = gh.get_repo(repo_str)
     ci_workflow = repo.get_workflow('ci.yml')
-    main_runs = ci_workflow.get_runs(branch='main')
+    main_runs = ci_workflow.get_runs()
     most_recent_ok = next(
-        (r for r in main_runs if is_passing_workflow_run(r)), None)
+        (r for r in main_runs if is_passing_workflow_run(r) and is_ancestor(r.head_sha)), None)
     if not most_recent_ok:
         raise Exception(
             'could not find recent successful workflow run to use as baseline')
