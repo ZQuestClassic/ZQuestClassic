@@ -4644,7 +4644,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
 											{
 												//                        if ((dest[(checktile*128)+(y*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
-												if((dest[checktile].data[(y*8*newformat)+(x/(3-newformat))])!=(newformat==tf4Bit?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x])))
+												if((dest[checktile].data[(y*8*newformat)+(x/(3-newformat))])!=testtile[(y*16)+x])
 												{
 													duplicate=false;
 												}
@@ -4662,7 +4662,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
 											{
 												//                        if ((dest[(checktile*128)+(y*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
-												if((dest[checktile].data[(y*8*newformat)+(14+(newformat-1)-x)/(3-newformat)])!=(newformat==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):(testtile[(y*16)+x])))
+												if((dest[checktile].data[(y*8*newformat)+(14+(newformat-1)-x)/(3-newformat)])!=testtile[(y*16)+x])
 												{
 													duplicate=false;
 												}
@@ -4680,7 +4680,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
 											{
 												//                      if ((dest[(checktile*128)+((15-y)*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
-												if((dest[checktile].data[((15-y)*8*newformat)+(x/(3-newformat))])!=(newformat==tf4Bit?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x])))
+												if((dest[checktile].data[((15-y)*8*newformat)+(x/(3-newformat))])!=testtile[(y*16)+x])
 												{
 													duplicate=false;
 												}
@@ -4698,7 +4698,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
 											{
 												//                      if ((dest[(checktile*128)+((15-y)*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
-												if((dest[checktile].data[((15-y)*8*newformat)+((14+(newformat-1)-x)/(3-newformat))])!=(newformat==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):testtile[(y*16)+x]))
+												if((dest[checktile].data[((15-y)*8*newformat)+((14+(newformat-1)-x)/(3-newformat))])!=testtile[(y*16)+x])
 												{
 													duplicate=false;
 												}
@@ -14404,20 +14404,6 @@ void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bo
 	//byte buf[256];
 	go_tiles();
 	
-	/*unpack_tile(newtilebuf, src, 0, false);
-	
-	for(int32_t i=0; i<256; i++)
-		buf[i] = unpackbuf[i];
-		
-	if(newtilebuf[src].format>tf4Bit)
-	{
-		cs=0;
-	}
-	
-	
-	cs &= 15;
-	cs <<= CSET_SHFT;
-	*/
 	if(!rect_sel)
 	{
 		for(int32_t d=dest1; d <= dest2; ++d)
