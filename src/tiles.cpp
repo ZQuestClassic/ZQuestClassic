@@ -731,6 +731,7 @@ void pack_tile(tiledata *buf, byte *src,int32_t tile)
     pack_tiledata(buf[tile].data, src, buf[tile].format);
 }
 
+// TODO: delete? Don't think this is doing anything anymore? Just copying ...
 void pack_tiledata(byte *dest, byte *src, byte format)
 {
     byte *di = dest;
@@ -738,14 +739,6 @@ void pack_tiledata(byte *dest, byte *src, byte format)
     switch(format)
     {
     case tf4Bit:
-        for(int32_t si=0; si<256; si+=2)
-        {
-            *di = (src[si]&15) + ((src[si+1]&15) << 4);
-            ++di;
-        }
-        
-        break;
-        
     case tf8Bit:
         for(int32_t si=0; si<32; si+=1)
         {
@@ -769,18 +762,6 @@ void pack_tiledata(byte *dest, byte *src, byte format)
         
         break;
     }
-}
-
-// packs a whole set of tiles from old size to new size
-void pack_tiles(byte *buf)
-{
-    int32_t di = 0;
-    
-    for(int32_t si=0; si<TILEBUF_SIZE; si+=2)
-        buf[di++] = (buf[si]&15) + ((buf[si+1]&15) << 4);
-        
-    for(; di<NEWTILE_SIZE2; ++di)
-        buf[di]=0;
 }
 
 void load_tile(byte* buf, int tile)

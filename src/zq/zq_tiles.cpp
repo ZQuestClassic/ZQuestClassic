@@ -4546,9 +4546,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 					switch(imported_format)
 					{
 					case tf4Bit:
-						memcpy(testtile,grabtilebuf[tx].data,tilesize(imported_format));
-						break;
-						
 					case tf8Bit:
 						for(int32_t y=0; y<16; y++)                           //snag a tile
 						{
@@ -4608,19 +4605,8 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 				{
 					for(int32_t x=0; x<16; x+=2)
 					{
-						switch(cdepth)
-						{
-						case tf4Bit:
-							testtile[(y*8)+(x/2)]=
-								(getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y)&15)+
-								((getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y)&15)<<4);
-							break;
-							
-						case tf8Bit:
-							testtile[(y*16)+x]=getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y);
-							testtile[(y*16)+x+1]=getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y);
-							break;
-						}
+						testtile[(y*16)+x]=getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y);
+						testtile[(y*16)+x+1]=getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y);
 					}
 				}
 				
@@ -5466,7 +5452,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 					break;
 				}
 				
-				for(int i=0; i<((format==tf8Bit) ? 256 : 128); i++)
+				for(int i=0; i<256; i++)
 				{
 					newtilebuf[temptile].data[i] = newtile[(TILES_PER_ROW*y)+x][i];
 				}

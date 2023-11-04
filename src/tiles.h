@@ -46,7 +46,6 @@ void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force);
 
 void pack_tile(tiledata *buf, byte *src,int32_t tile);
 void pack_tiledata(byte *dest, byte *src, byte format);
-void pack_tiles(byte *buf);
 void load_tile(byte* buf, int tile);
 void load_minitile(byte* buf, int tile, int mini);
 int32_t rotate_value(int32_t flip);
