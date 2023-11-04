@@ -162,6 +162,7 @@ jobs:
       # https://github.com/actions/upload-artifact/issues/36
       - name: Archive test results
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
+        shell: bash
         run: |
           if [[ -d "${{ github.workspace }}/.tmp/test_results" ]] ; then
             cd ${{ github.workspace }}/.tmp/test_results
