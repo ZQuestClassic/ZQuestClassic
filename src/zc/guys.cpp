@@ -4177,18 +4177,16 @@ void enemy::draw(BITMAP *dest)
 	}
 	else if(hclk>0 && getCanFlicker())
 	{
-		if(family==eeGANON)
-			cs=(((hclk-1)>>1)&3)+6;
-		else if(hclk<33 && !get_qr(qr_ENEMIESFLICKER))
-			cs=(((hclk-1)>>1)&3)+6;
+		cs = getFlashingCSet();
 	}
 	//draw every other frame for flickering enemies
-	if (is_hitflickerframe() && family != eeGANON && hclk && get_qr(qr_ENEMIESFLICKER) && getCanFlicker())
+	if (is_hitflickerframe(false))
 	{
-		if (game->get_spriteflickercolor())
+		int32_t temp_flicker_color = (hp > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+		if (game->get_spriteflickercolor() || temp_flicker_color)
 		{
-			sprite_flicker_transp_passes = game->get_spriteflickertransp();
-			sprite_flicker_color = (hp > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+			sprite_flicker_transp_passes = (flickertransp < 0 ? game->get_spriteflickertransp() : flickertransp);
+			sprite_flicker_color = temp_flicker_color;
 			sprite::draw(dest);
 		}
 	}
@@ -4271,10 +4269,7 @@ void enemy::drawzcboss(BITMAP *dest)
 	}
 	else if(hclk>0)
 	{
-		if(family==eeGANON)
-			cs=(((hclk-1)>>1)&3)+6;
-		else if(hclk<33 && !get_qr(qr_ENEMIESFLICKER))
-			cs=(((hclk-1)>>1)&3)+6;
+		cs = getFlashingCSet();
 	}
 	
 	if((tmpscr->flags3&fINVISROOM) &&
@@ -4286,19 +4281,15 @@ void enemy::drawzcboss(BITMAP *dest)
 	}
 	else
 	{
-		if(family !=eeGANON && hclk>0 && get_qr(qr_ENEMIESFLICKER))
+		if (is_hitflickerframe(true))
 		{
-			if (is_hitflickerframe())
+			int32_t temp_flicker_color = (hp > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+			if (game->get_spriteflickercolor())
 			{
-				if (game->get_spriteflickercolor())
-				{
-					sprite_flicker_transp_passes = game->get_spriteflickertransp();
-					sprite_flicker_color = (hp > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
-					sprite::drawzcboss(dest);
-				}
-			}
-			else
+				sprite_flicker_transp_passes = (flickertransp < 0 ? game->get_spriteflickertransp() : flickertransp);
+				sprite_flicker_color = temp_flicker_color;
 				sprite::drawzcboss(dest);
+			}
 		}
 		else
 			sprite::drawzcboss(dest);
@@ -22012,6 +22003,47 @@ bool enemy::IsBigAnim()
 	return (anim == a2FRMB || anim == a4FRM8EYEB || anim == a4FRM4EYEB
 	|| anim == a4FRM8DIRFB || anim == a4FRM4DIRB || anim == a4FRM4DIRFB
 	|| anim == a4FRM8DIRB);
+}
+int32_t enemy::getFlashingCSet()
+{
+	//Special cset for the dying sprite
+	if(dying)
+	{
+		if (!get_qr(qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading == fade_blue_poof)
+			return wpnsbuf[spr_death].csets & 15;
+		else
+			return (((clk2 + 5) >> 1) & 3) + 6;
+	}
+
+	//Special cset for the flashing animation
+	if (flags2 & guy_flashing)
+		return (frame & 3) + 6;
+
+	//Normal cset
+	if(hclk<=0)
+		return cs;
+
+	//Hurt animations
+	if(family==eeGANON)
+		return (((hclk-1)>>1)&3)+6;
+	else if(hclk<33 && !get_qr(qr_ENEMIESFLICKER))
+		return (((hclk-1)>>1)&3)+6;
+
+	return cs;
+}
+
+bool enemy::is_hitflickerframe(bool olddrawing)
+{
+	if (family == eeGANON || !hclk || !get_qr(qr_ENEMIESFLICKER))
+		return false;
+
+	if (!olddrawing && !getCanFlicker())
+		return false;
+
+	int32_t fr = game->get_spriteflickerspeed();
+	if (fr == 0)
+		return true;
+	return frame % (fr * 2) < fr;
 }
 
 const char *old_guy_string[OLDMAXGUYS] =

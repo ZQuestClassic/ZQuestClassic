@@ -189,7 +189,14 @@ static AccessorTable HeroSTable[] =
 	{ "setLiftFlags[]",             0,          ZTID_VOID,   HEROLIFTFLAGS,             0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getShieldJinx",              0,         ZTID_FLOAT,   HEROSHIELDJINX,            0,  { ZTID_PLAYER },{} },
 	{ "setShieldJinx",              0,          ZTID_VOID,   HEROSHIELDJINX,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
-	
+	{ "getFlickerColor",            0,         ZTID_FLOAT,   HEROFLICKERCOLOR,          0,  { ZTID_PLAYER },{} },
+	{ "setFlickerColor",            0,          ZTID_VOID,   HEROFLICKERCOLOR,          0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getFlickerTransparencyPasses", 0,         ZTID_FLOAT,   HEROFLICKERTRANSP,         0,  { ZTID_PLAYER },{} },
+	{ "setFlickerTransparencyPasses", 0,          ZTID_VOID,   HEROFLICKERTRANSP,         0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getFlashingCSet",            0,         ZTID_FLOAT,   HEROFLASHINGCSET,          0,  { ZTID_PLAYER },{} },
+	{ "setFlashingCSet",            0,          ZTID_VOID,   HEROFLASHINGCSET,  FL_RDONLY,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "isFlickerFrame",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER },{} },
+
 	
 	//Intentionally undocumented
 	{ "Warp",                       1,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
@@ -641,6 +648,17 @@ void HeroSymbols::generateCode()
 		addOpcode2 (code, new OHeroLiftGrab());
 		LABELBACK(label);
 		POP_ARGS(3, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void isFlickerFrame(player)
+	{
+		Function* function = getFunction("isFlickerFrame");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2(code, new OHeroIsFlickerFrame());
+		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}

@@ -270,6 +270,8 @@ public:
 		return false;
 	}
 	bool IsBigAnim();
+	int32_t getFlashingCSet();
+	bool is_hitflickerframe(bool olddrawing);
 	virtual int32_t run_script(int32_t mode);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 protected:

@@ -557,6 +557,8 @@ public:
 	void Catch();
 	bool getClock();
 	void setClock(bool state);
+	int32_t getFlashingCSet();
+	bool is_hitflickerframe();
 	int32_t  getAction();
 	int32_t  getAction2(); //used by the new ffcore.actions
 	void setAction(actiontype new_action);

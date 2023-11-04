@@ -4461,6 +4461,12 @@ int32_t get_register(const int32_t arg)
 			ret = Hero.getHammerState() * 10000;
 			break;
 		}
+		case HEROFLICKERCOLOR:
+			ret = (int32_t)(Hero.flickercolor) * 10000; break;
+		case HEROFLASHINGCSET:
+			ret = (int32_t)(Hero.getFlashingCSet()) * 10000; break;
+		case HEROFLICKERTRANSP:
+			ret = (int32_t)(Hero.flickertransp) * 10000; break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
@@ -6934,6 +6940,18 @@ int32_t get_register(const int32_t arg)
 				ret = GuyH::getNPC()->getCanFlicker() ? 10000 : 0;
 			}
 			break;
+		case NPCFLICKERCOLOR:
+			GET_NPC_VAR_INT(flickercolor, "npc->FlickerColor") break;
+		case NPCFLASHINGCSET:
+		{
+			if (GuyH::loadNPC(ri->guyref, "npc->FlashingCSet") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = GuyH::getNPC()->getFlashingCSet() * 10000;
+			break;
+		}
+		case NPCFLICKERTRANSP:
+			GET_NPC_VAR_INT(flickertransp, "npc->FlickerTransparencyPasses") break;
 		
 		
 		
@@ -17042,6 +17060,16 @@ void set_register(int32_t arg, int32_t value)
 			//readonly
 			break;
 		}
+		case HEROFLICKERCOLOR:
+		{
+			Hero.flickercolor = value/10000;
+			break;
+		}
+		case HEROFLICKERTRANSP:
+		{
+			Hero.flickertransp = value / 10000;
+			break;
+		}
 		
 		
 	///----------------------------------------------------------------------------------------------------//
@@ -20983,6 +21011,18 @@ void set_register(int32_t arg, int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->InvFlicker") == SH::_NoError)
 			{
 				GuyH::getNPC()->setCanFlicker(value != 0);
+			}
+			break;
+		case NPCFLICKERCOLOR:
+			if (GuyH::loadNPC(ri->guyref, "npc->FlickerColor") == SH::_NoError)
+			{
+				GuyH::getNPC()->flickercolor = vbound(value/10000,-1,255);
+			}
+			break;
+		case NPCFLICKERTRANSP:
+			if (GuyH::loadNPC(ri->guyref, "npc->FlickerTransparencyPasses") == SH::_NoError)
+			{
+				GuyH::getNPC()->flickertransp = vbound(value / 10000, -1, 255);
 			}
 			break;
 		
@@ -38770,6 +38810,9 @@ j_command:
 				}
 				break;
 			}
+			case HEROISFLICKERFRAME:
+				ri->d[rEXP1] = Hero.is_hitflickerframe() ? 10000 : 0;
+				break;
 			case LOADPORTAL:
 			{
 				auto val = get_register(sarg1)/10000;
@@ -39609,6 +39652,15 @@ j_command:
 					int nw = SH::read_stack(ri->sp + 1) / 10000;
 					int nh = SH::read_stack(ri->sp + 0) / 10000;
 					ri->d[rEXP1] = GuyH::getNPC()->scr_canplace(nx, ny, special, kb, nw, nh) ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCISFLICKERFRAME:
+			{
+				ri->d[rEXP1] = 0;
+				if (GuyH::loadNPC(ri->guyref, "npc->isFlickerFrame()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->is_hitflickerframe(get_qr(qr_OLDSPRITEDRAWS)) ? 10000 : 0;
 				}
 				break;
 			}
@@ -45603,9 +45655,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FLIPROTTILERV",       2,   0,   1,   0},
 	{ "FLIPROTTILERR",       2,   0,   0,   0},
 	{ "GETTILEPIXEL",       0,   0,   0,   0},
-	{ "RESRVD_OP_MOOSH_EX_01",       1,   0,   0,   0},
+	{ "NPCISFLICKERFRAME",       0,   0,   0,   0},
 	{ "SETTILEPIXEL",       0,   0,   0,   0},
-	{ "RESRVD_OP_MOOSH_EX_02",       1,   0,   0,   0},
+	{ "HEROISFLICKERFRAME",       0,   0,   0,   0},
 	{ "SHIFTTILEVV",         2,   1,   1,   0},
 	{ "SHIFTTILEVR",         2,   1,   0,   0},
 	{ "SHIFTTILERV",         2,   0,   1,   0},
@@ -48042,12 +48094,12 @@ script_variable ZASMVars[]=
 	{ "MUSICUPDATEFLAGS", MUSICUPDATEFLAGS, 0, 0 },
 	{ "DMAPDATAINTROSTRINGID", DMAPDATAINTROSTRINGID, 0, 0 },
 	{ "IS8BITTILE", IS8BITTILE, 0, 0 },
-	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },
-	{ "RESRVD_VAR_MOOSH10", RESRVD_VAR_MOOSH10, 0, 0 },
-	{ "RESRVD_VAR_MOOSH11", RESRVD_VAR_MOOSH11, 0, 0 },
-	{ "RESRVD_VAR_MOOSH12", RESRVD_VAR_MOOSH12, 0, 0 },
-	{ "RESRVD_VAR_MOOSH13", RESRVD_VAR_MOOSH13, 0, 0 },
-	{ "RESRVD_VAR_MOOSH14", RESRVD_VAR_MOOSH14, 0, 0 },
+	{ "NPCFLICKERCOLOR", NPCFLICKERCOLOR, 0, 0 },
+	{ "HEROFLICKERCOLOR", HEROFLICKERCOLOR, 0, 0 },
+	{ "NPCFLASHINGCSET", NPCFLASHINGCSET, 0, 0 },
+	{ "HEROFLASHINGCSET", HEROFLASHINGCSET, 0, 0 },
+	{ "NPCFLICKERTRANSP", NPCFLICKERTRANSP, 0, 0 },
+	{ "HEROFLICKERTRANSP", HEROFLICKERTRANSP, 0, 0 },
 	{ "RESRVD_VAR_MOOSH15", RESRVD_VAR_MOOSH15, 0, 0 },
 	{ "RESRVD_VAR_MOOSH16", RESRVD_VAR_MOOSH16, 0, 0 },
 	{ "RESRVD_VAR_MOOSH17", RESRVD_VAR_MOOSH17, 0, 0 },

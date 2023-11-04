@@ -1298,6 +1298,33 @@ void HeroClass::setClock(bool state)
 {
     superman=state;
 }
+int32_t HeroClass::getFlashingCSet()
+{
+	int32_t temp_cs = 6;
+	if (script_hero_cset > -1) temp_cs = script_hero_cset;
+	if (!get_qr(qr_HEROFLICKER))
+	{
+		if (superman && getCanFlicker())
+		{
+			temp_cs += (((~frame) >> 1) & 3);
+		}
+		else if (hclk && (DivineProtectionShieldClk <= 0) && getCanFlicker())
+		{
+			temp_cs += ((hclk >> 1) & 3);
+		}
+	}
+	return temp_cs;
+}
+bool HeroClass::is_hitflickerframe()
+{
+	if (!(get_qr(qr_HEROFLICKER) && (superman || hclk)))
+		return false;
+
+	int32_t fr = game->get_spriteflickerspeed();
+	if (fr == 0)
+		return true;
+	return frame % (fr * 2) >= fr;
+}
 int32_t  HeroClass::getAction() // Used by ZScript
 {
     if(spins > 0)
@@ -2288,19 +2315,7 @@ void HeroClass::draw(BITMAP* dest)
 				}
 			}
 			
-			cs = 6;
-			if ( script_hero_cset > -1 ) cs = script_hero_cset;
-			if(!get_qr(qr_HEROFLICKER))
-			{
-				if(superman && getCanFlicker())
-				{
-					cs += (((~frame)>>1)&3);
-				}
-				else if(hclk&&(DivineProtectionShieldClk<=0) && getCanFlicker())
-				{
-					cs += ((hclk>>1)&3);
-				}
-			}
+			cs = getFlashingCSet();
 		}
 		
 		if(attackclk || (action==attacking||action==sideswimattacking))
@@ -2428,12 +2443,13 @@ void HeroClass::draw(BITMAP* dest)
 					//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
 					
 					//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
-					if (get_qr(qr_HEROFLICKER) && (superman || hclk) && is_hitflickerframe_hero())
+					if (is_hitflickerframe())
 					{
-						if(game->get_spriteflickercolor() && !superman)
+						int32_t temp_flicker_color = (game->get_life() > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+						if((game->get_spriteflickercolor() || temp_flicker_color) && !superman)
 						{
-							sprite_flicker_transp_passes = game->get_spriteflickertransp();
-							sprite_flicker_color = (game->get_life() > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+							sprite_flicker_transp_passes = (flickertransp < 0 ? game->get_spriteflickertransp() : flickertransp);
+							sprite_flicker_color = temp_flicker_color;
 							masked_draw(dest);
 						}
 					}
@@ -3022,12 +3038,13 @@ void HeroClass::draw(BITMAP* dest)
 			yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
 		}
 		
-		if(get_qr(qr_HEROFLICKER) && (superman || hclk) && is_hitflickerframe_hero())
+		if(is_hitflickerframe())
 		{
-			if(game->get_spriteflickercolor() && !superman)
+			int32_t temp_flicker_color = (game->get_life() > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+			if((game->get_spriteflickercolor() || temp_flicker_color) && !superman)
 			{
-				sprite_flicker_transp_passes = game->get_spriteflickertransp();
-				sprite_flicker_color = (game->get_life() > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+				sprite_flicker_transp_passes = (flickertransp < 0 ? game->get_spriteflickertransp() : flickertransp);
+				sprite_flicker_color = temp_flicker_color;
 				masked_draw(dest);
 			}
 		}

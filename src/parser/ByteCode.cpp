@@ -2271,12 +2271,12 @@ string ZScript::VarToString(int32_t ID)
 		case MUSICUPDATEFLAGS: return "MUSICUPDATEFLAGS";
 		case DMAPDATAINTROSTRINGID: return "DMAPDATAINTROSTRINGID";
 		case IS8BITTILE: return "IS8BITTILE";
-		case RESRVD_VAR_MOOSH09: return "RESRVD_VAR_MOOSH09";
-		case RESRVD_VAR_MOOSH10: return "RESRVD_VAR_MOOSH10";
-		case RESRVD_VAR_MOOSH11: return "RESRVD_VAR_MOOSH11";
-		case RESRVD_VAR_MOOSH12: return "RESRVD_VAR_MOOSH12";
-		case RESRVD_VAR_MOOSH13: return "RESRVD_VAR_MOOSH13";
-		case RESRVD_VAR_MOOSH14: return "RESRVD_VAR_MOOSH14";
+		case NPCFLICKERCOLOR: return "NPCFLICKERCOLOR";
+		case HEROFLICKERCOLOR: return "HEROFLICKERCOLOR";
+		case NPCFLASHINGCSET: return "NPCFLASHINGCSET";
+		case HEROFLASHINGCSET: return "HEROFLASHINGCSET";
+		case NPCFLICKERTRANSP: return "NPCFLICKERTRANSP";
+		case HEROFLICKERTRANSP: return "HEROFLICKERTRANSP";
 		case RESRVD_VAR_MOOSH15: return "RESRVD_VAR_MOOSH15";
 		case RESRVD_VAR_MOOSH16: return "RESRVD_VAR_MOOSH16";
 		case RESRVD_VAR_MOOSH17: return "RESRVD_VAR_MOOSH17";
@@ -2699,6 +2699,10 @@ string OHeroLiftRelease::toString() const
 string OHeroLiftGrab::toString() const
 {
 	return "HEROLIFTGRAB";
+}
+string OHeroIsFlickerFrame::toString() const
+{
+	return "HEROISFLICKERFRAME";
 }
 string OLoadPortalRegister::toString() const
 {
@@ -5981,6 +5985,10 @@ string ONPCCanMoveXY::toString() const
 string ONPCCanPlace::toString() const
 {
 	return "NPCCANPLACE";
+}
+string ONPCIsFlickerFrame::toString() const
+{
+	return "NPCISFLICKERFRAME";
 }
 
 
