@@ -614,7 +614,7 @@ int32_t DuplicateAction[4]={0};
 int32_t OnlyCheckNewTilesForDuplicates = 0;
 int32_t try_recovering_missing_scripts = 0;
 
-uint8_t PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0;
+uint8_t PreFillTileEditorPage = 0, PreFillComboEditorPage = 0;
 int32_t DMapEditorLastMaptileUsed = 0;
 
 /*
@@ -20001,18 +20001,8 @@ int32_t d_maptile_proc(int32_t msg, DIALOG *d, int32_t)
     switch(msg)
     {
     case MSG_CLICK:
-        if ( PreFillMapTilePage )
-	{
-		DMapEditorLastMaptileUsed = ((select_dmap_tile(d->d1,d->d2,1,d->fg,true, 0, true))-1);
+        if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
 		return D_REDRAW;
-	}
-        else
-	{
-		if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
-		return D_REDRAW;
-	}
-            
-        break;
 	
     case MSG_DRAW:
     {
@@ -27928,10 +27918,9 @@ int32_t main(int32_t argc,char **argv)
 	RequestedFPS				  = zc_get_config("zquest","fps",60);
 	ForceExit					 = zc_get_config("zquest","force_exit",0);
 	
-	//Combo Page, Tile Page, an Map Tile Page Autofill
+	// Autofill for Combo Page, Tile Page
 	PreFillTileEditorPage	  = zc_get_config("zquest","PreFillTileEditorPage",0);
 	PreFillComboEditorPage	  = zc_get_config("zquest","PreFillComboEditorPage",0);
-	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
 	
 	pixeldb = zc_get_config("ZQ_GUI","bottom_8_pixels",0);
 	infobg = zc_get_config("ZQ_GUI","info_text_bg",0);

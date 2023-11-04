@@ -49,7 +49,7 @@ extern int32_t RulesetDialog;
 extern bool disable_saving, OverwriteProtection;
 extern int32_t TileProtection;
 
-extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
+extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage;
 extern int32_t DMapEditorLastMaptileUsed;
 
 enum
