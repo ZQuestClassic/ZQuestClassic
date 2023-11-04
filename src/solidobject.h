@@ -30,6 +30,7 @@ public:
 	
 	virtual bool collide(solid_object const* other) const;
 	virtual bool collide(zfix tx, zfix ty, zfix tw, zfix th) const;
+	virtual bool collide_old(zfix tx, zfix ty, zfix tw, zfix th) const;
 	
 	void draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col);
 	void draw_a5(int32_t tx, int32_t ty, ALLEGRO_COLOR col);
@@ -42,7 +43,7 @@ public:
 protected:
 	bool solid;
 	bool ignore_solid_temp;
-	void solid_push_int(solid_object const* obj, zfix& dx, zfix& dy, int32_t& hdir);
+	void solid_push_int(solid_object const* obj, zfix& dx, zfix& dy, int32_t& hdir, bool can_platform);
 	int32_t push_dir() const;
 	
 	virtual bool is_unpushable() const {return false;}

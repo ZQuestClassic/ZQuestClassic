@@ -3,7 +3,7 @@
 #ifndef _JWIN_A5_H_
 #define _JWIN_A5_H_
 
-#include "jwin.h"
+#include "gui/jwin.h"
 
 extern ALLEGRO_COLOR jwin_a5_colors[9];
 ALLEGRO_COLOR jwin_a5_pal(int jc);

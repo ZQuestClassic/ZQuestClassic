@@ -13,6 +13,7 @@
 #include "zc/hero.h"
 #include "zc/guys.h"
 #include "subscr.h"
+#include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
 #include "zc/decorations.h"
 #include "gamedata.h"
@@ -134,6 +135,86 @@ static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, 
 	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
 		return true;
 	return false;
+}
+
+static inline bool no_plat_action()
+{
+	if(Hero.fallclk || Hero.drownclk || toogam || Hero.getOnSideviewLadder())
+		return true;
+	switch(Hero.action)
+	{
+		case freeze: case rafting: case inwind: case scrolling: case won: case hopping:
+		case climbcovertop: case climbcoverbottom: case dying: case drowning:
+		case falling: case lavadrowning: case sideswimfreeze: case sidedrowning:
+			return true;
+	}
+	return false;
+}
+bool HeroClass::on_ffc_platform(ffcdata const& ffc, bool old)
+{
+	if(no_plat_action())
+		return false;
+	if(!get_qr(qr_MULTI_PLATFORM_FFC))
+	{
+		if(platform_ffc && &ffc != platform_ffc)
+			return false;
+		platform_ffc = nullptr;
+	}
+	if(sideview_mode())
+	{
+		if((ffc.flags & (ffSOLID|ffPLATFORM|ffCHANGER)) != (ffSOLID|ffPLATFORM))
+			return false;
+		zfix fx = old ? ffc.old_x : ffc.x, fy = old ? ffc.old_y : ffc.y;
+		static const zfix tol = 0.5_zf;
+		if((y+16-fy).getAbs() > tol)
+			return false;
+		if(fx > x+12)
+			return false;
+		if(fx+ffc.hit_width <= x+4)
+			return false;
+	}
+	else
+	{
+		if((ffc.flags & (ffPLATFORM|ffCHANGER)) != ffPLATFORM)
+			return false;
+		if(z)
+			return false;
+		static const int tol = 3;
+		if(!(old
+			? ffc.collide_old(x + 8-tol, y + (bigHitbox ? 8 : 12), tol*2, tol*2)
+			: ffc.collide(x + 8-tol, y + (bigHitbox ? 8 : 12)-tol, tol*2, tol*2)))
+			return false;
+	}
+	platform_ffc = &ffc;
+	return true;
+}
+bool HeroClass::on_ffc_platform()
+{
+	if(no_plat_action())
+		return false;
+	if(platform_ffc && on_ffc_platform(*platform_ffc,false))
+		return true;
+	word c = tmpscr->numFFC();
+	for(word i=0; i<c; i++)
+	{
+		ffcdata& ffc = tmpscr->ffcs[i];
+		if(on_ffc_platform(ffc,false))
+			return true;
+	}
+	return false;
+}
+
+void HeroClass::check_platform_ffc()
+{
+	if(platform_ffc && !on_ffc_platform(*platform_ffc,false))
+	{
+		clear_platform_ffc();
+		on_ffc_platform();
+	}
+}
+void HeroClass::clear_platform_ffc()
+{
+	platform_ffc = nullptr;
 }
 
 void HeroClass::snap_platform()
@@ -443,7 +524,15 @@ void HeroClass::trySideviewLadder()
 
 bool HeroClass::can_pitfall(bool ignore_hover)
 {
-	return (!(isSideViewGravity()||action==rafting||z>0||fakez>0||fall<0||fakefall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_hero||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
+	return !(
+		isSideViewGravity()
+		|| action==rafting
+		|| z>0 || fakez>0 || fall<0 || fakefall<0
+		|| (hoverclk && !ignore_hover)
+		|| inlikelike || inwallm || pull_hero || toogam
+		|| (ladderx||laddery) || getOnSideviewLadder()
+		|| drownclk || !(moveflags & FLAG_CAN_PITFALL)
+		|| platform_ffc);
 }
 
 int32_t HeroClass::DrunkClock()
@@ -1363,8 +1452,7 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 		
 	case drowning:
 	case sidedrowning:
-	//I would add a sanity check to see if Hero is in water, but I *KNOW* that quests have used this 
-	// INTENTIONALLY while Hero is on Land, as a blink-out effect. :( -Z
+		clear_platform_ffc();
 		if(!drownclk)
 			Drown();
 			
@@ -1372,12 +1460,14 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 	
 	case lavadrowning:
 		//Lavadrowning is just drowning but with a different argument. Simplicity! -Dimi
+		clear_platform_ffc();
 		if(!drownclk)
 			Drown(1);
 			
 		break;
 		
 	case falling:
+		clear_platform_ffc();
 		if(!fallclk)
 		{
 			//If there is a pit under Hero, use its combo.
@@ -1480,6 +1570,7 @@ void HeroClass::init()
 		delete lift_wpn;
 		lift_wpn = nullptr;
 	}
+	clear_platform_ffc();
 	liftclk = 0;
 	tliftclk = 0;
 	liftheight = 0;
@@ -2540,7 +2631,7 @@ void HeroClass::draw(BITMAP* dest)
 			// Keep this consistent with checkspecial2, line 7800-ish...
 			bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
 			
-			int32_t jumping2 = int32_t(jumping*((zinit.gravity2 / 100)/16.0));
+			int32_t jumping2 = int32_t(jumping*((zinit.gravity / 100)/16.0));
 			bool noliftspr = get_qr(qr_NO_LIFT_SPRITE);
 			//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
 			switch(zinit.heroAnimationStyle)
@@ -3992,11 +4083,11 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(isCuttableNextType(type2))
 		{
-			current_ffc_handle->ffc->incData(1);
+			current_ffc_handle->increment_data();
 		}
 		else
 		{
-			current_ffc_handle->ffc->setData(s->undercombo);
+			current_ffc_handle->set_data(s->undercombo);
 			current_ffc_handle->ffc->cset = s->undercset;
 		}
 	}
@@ -4441,7 +4532,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[current_ffc_handle->ffc->getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[current_ffc_handle->data()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4556,11 +4647,11 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            current_ffc_handle->ffc->incData(1);
+            current_ffc_handle->increment_data();
         }
         else
         {
-            current_ffc_handle->ffc->setData(s->undercombo);
+            current_ffc_handle->set_data(s->undercombo);
             current_ffc_handle->ffc->cset = s->undercset;
         }
     }
@@ -4950,11 +5041,11 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            current_ffc_handle->ffc->incData(1);
+            current_ffc_handle->increment_data();
         }
         else
         {
-            current_ffc_handle->ffc->setData(s->undercombo);
+            current_ffc_handle->set_data(s->undercombo);
             current_ffc_handle->ffc->cset = s->undercset;
         }
     }
@@ -5261,7 +5352,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         }
         else
         {
-            current_ffc_handle->ffc->incData(1);
+            current_ffc_handle->increment_data();
         }
     }
     
@@ -7936,7 +8027,7 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	bool platformfell2 = false;
-	int32_t gravity3 = (zinit.gravity2/100);
+	int32_t gravity3 = (zinit.gravity/100);
 	int32_t termv = (zinit.terminalv);
 	int32_t rocs = getRocsPressed();
 	if (rocs != -1)
@@ -8337,7 +8428,7 @@ heroanimate_skip_liftwpn:;
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(((fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0 && !(moveflags & FLAG_NO_REAL_Z) && z > 0) || (fakefall+gravity3 > 0 && fakefall<=0 && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
+			else if(((fall+(int32_t)(zinit.gravity / 100) > 0 && fall<=0 && !(moveflags & FLAG_NO_REAL_Z) && z > 0) || (fakefall+gravity3 > 0 && fakefall<=0 && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
@@ -10076,7 +10167,6 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	if (justmoved > 0) --justmoved;
-	
 	return false;
 }
 
@@ -10178,7 +10268,7 @@ void HeroClass::solid_push(solid_object* obj)
 	
 	zfix dx, dy;
 	int32_t hdir = -1;
-	solid_push_int(obj,dx,dy,hdir);
+	solid_push_int(obj,dx,dy,hdir,!on_ffc_platform());
 	
 	if(!dx && !dy) return;
 	
@@ -17478,7 +17568,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 				if(scr_walkflag(mx, by+ty, left, kb))
 					return false;
 			}
-			if(scr_walkflag(mx.rnd(ROUND_CEIL), ry.rnd(ROUND_CEIL), left, kb))
+			if(scr_walkflag(mx, ry, left, kb))
 				return false;
 			if(nosolid && collide_object(bx+dx,by,-dx,hei,this))
 				return false;
@@ -17492,7 +17582,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 				if(scr_walkflag(mx, by+ty, right, kb))
 					return false;
 			}
-			if(scr_walkflag(mx.rnd(ROUND_CEIL), ry.rnd(ROUND_CEIL), right, kb))
+			if(scr_walkflag(mx, ry, right, kb))
 				return false;
 			if(nosolid && collide_object(bx+wid,by,dx,hei,this))
 				return false;
@@ -17508,7 +17598,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 				if(scr_walkflag(bx+tx, my, up, kb))
 					return false;
 			}
-			if(scr_walkflag(rx.rnd(ROUND_CEIL), my.rnd(ROUND_CEIL), up, kb))
+			if(scr_walkflag(rx, my, up, kb))
 				return false;
 			if(nosolid && collide_object(bx,by+dy,wid,-dy,this))
 				return false;
@@ -17522,7 +17612,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 				if(scr_walkflag(bx+tx, my, down, kb))
 					return false;
 			}
-			if(scr_walkflag(rx.rnd(ROUND_CEIL), my.rnd(ROUND_CEIL), down, kb))
+			if(scr_walkflag(rx, my, down, kb))
 				return false;
 			if(nosolid && collide_object(bx,by+hei,wid,dy,this))
 				return false;
@@ -17733,8 +17823,8 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix ly = y+v;
 				zfix ry = y+15.9999_zf;
 				auto mdir = GET_XDIR(dx);
-				bool hit_top = scr_walkflag(tx.rnd(RoundDir(dx)),ly,mdir,false);
-				bool hit_bottom = scr_walkflag(tx.rnd(RoundDir(dx)),ry.rnd(ROUND_CEIL),mdir,false);
+				bool hit_top = scr_walkflag(tx,ly,mdir,false);
+				bool hit_bottom = scr_walkflag(tx,ry,mdir,false);
 				if(hit_top!=hit_bottom)
 				{
 					bool shoved = false;
@@ -17808,8 +17898,8 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix lx = x;
 				zfix rx = x+15.9999_zf;
 				auto mdir = GET_YDIR(dy);
-				bool hit_left = scr_walkflag(lx,ty.rnd(RoundDir(dy)),mdir,false);
-				bool hit_right = scr_walkflag(rx.rnd(ROUND_CEIL),ty.rnd(RoundDir(dy)),mdir,false);
+				bool hit_left = scr_walkflag(lx,ty,mdir,false);
+				bool hit_right = scr_walkflag(rx,ty,mdir,false);
 				if(hit_left!=hit_right)
 				{
 					bool shoved = false;
@@ -20184,7 +20274,7 @@ void HeroClass::checkpushblock()
 		if(lyr && !get_qr(qr_PUSHBLOCK_LAYER_1_2))
 			continue;
 		auto rpos_handle = get_rpos_handle(rpos, lyr);
-		cpos_info& cpinfo = get_combo_posinfo(rpos_handle);
+		cpos_info& cpinfo = cpos_get(rpos_handle);
 		mapscr* m = rpos_handle.screen;
 		int cid = lyr == 0 ? MAPCOMBO(bx,by) : MAPCOMBOL(lyr,bx,by);
 		newcombo const& cmb = combobuf[cid];
@@ -20342,7 +20432,7 @@ void HeroClass::checkpushblock()
 					mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
 					mblock2.blockinfo = cpinfo;
 					mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
-					cpinfo.clear();
+					cpinfo.clearInfo();
 					if(cmb.attribytes[1])
 						sfx(cmb.attribytes[1],(int32_t)x);
 				}
@@ -21420,8 +21510,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if (!foundffc && on_cooldown(get_rpos_handle_for_world_xy(fx, fy, found_lyr))) return;
-
+	if(cpos_get(get_rpos_handle_for_world_xy(fx, fy, found_lyr)).trig_cd) return;
 	switch(dir)
 	{
 		case down:
@@ -22029,34 +22118,34 @@ void HeroClass::checkswordtap()
 	
 	if(!isCuttableType(type))
 	{
-		bool hollow = (MAPFLAG(bx,by) == mfBOMB || MAPCOMBOFLAG(bx,by) == mfBOMB ||
-					   MAPFLAG(bx,by) == mfSBOMB || MAPCOMBOFLAG(bx,by) == mfSBOMB);
-					   
-		// Layers
-		for(int32_t i=0; i < 6; i++)
-			hollow = (hollow || MAPFLAG2(i,bx,by) == mfBOMB || MAPCOMBOFLAG2(i,bx,by) == mfBOMB ||
-					  MAPFLAG2(i,bx,by) == mfSBOMB || MAPCOMBOFLAG2(i,bx,by) == mfSBOMB);
-					  
-		for(int32_t i=0; i<4; i++)
-			if(tmpscr->door[i]==dBOMB && i==dir)
-				switch(i)
-				{
-				case up:
-				case down:
-					if(bx>=112 && bx<144 && (by>=144 || by<=32)) hollow=true;
-					
-					break;
-					
-				case left:
-				case right:
-					if(by>=72 && by<104 && (bx>=224 || bx<=32)) hollow=true;
-					
-					break;
-				}
-				
-		sfx(hollow ? WAV_ZN1TAP2 : WAV_ZN1TAP,pan(x.getInt()));
+		int tap_sfx = -1;
+		auto pos = COMBOPOS(bx,by);
+		bool hollow = false;
+		for(int lyr = 7; lyr >= 0; --lyr)
+		{
+			mapscr* m = FFCore.tempScreens[lyr];
+			newcombo const& cmb = combobuf[m->data[pos]];
+			if(cmb.sfx_tap)
+			{
+				tap_sfx = cmb.sfx_tap;
+				break;
+			}
+			if(m->sflag[pos] == mfBOMB || m->sflag[pos] == mfSBOMB
+				|| cmb.flag == mfBOMB || cmb.flag == mfSBOMB)
+				hollow = true;
+		}
+		if(tap_sfx < 0 && get_qr(qr_SEPARATE_BOMBABLE_TAPPING_SFX))
+		{
+			if(hollow || (tmpscr->door[dir]==dBOMB && ((dir==up||dir==down)
+					? (bx>=112 && bx<144 && (by>=144 || by<=32))
+					: by>=72 && by<104 && (bx>=224 || bx<=32))))
+				tap_sfx = QMisc.miscsfx[sfxTAP_HOLLOW];
+		}
+		if(tap_sfx < 0)
+			tap_sfx = QMisc.miscsfx[sfxTAP];
+		if(tap_sfx)
+			sfx(tap_sfx,pan(x.getInt()));
 	}
-	
 }
 
 void HeroClass::fairycircle(int32_t type)
@@ -22549,7 +22638,7 @@ static bool launch_lightbeam(newcombo const& cmb, int32_t pos,
 static bool launch_fflightbeam(ffcdata const& ffc,
 	std::map<int32_t, std::map<dword,spot_t>>& ffmaps, bool refl, bool block)
 {
-	newcombo const& cmb = combobuf[ffc.getData()];
+	newcombo const& cmb = combobuf[ffc.data];
 	//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
 	int32_t id = (cmb.usrflags&cflag1)
 		? std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24
@@ -22768,253 +22857,7 @@ static int32_t get_beamoffs(spot_t val)
 
 void HeroClass::handleSpotlights()
 {
-	int map_size = region_scr_width * 16 * region_scr_height * 11;
-	typeMap.resize(map_size);
-	customTypeMap.resize(map_size);
-	istrig.resize(map_size);
-	std::fill(typeMap.begin(), typeMap.end(), 0);
-	std::fill(customTypeMap.begin(), customTypeMap.end(), -1);
-	MAPS_prism_dir_seen_map.clear();
-
-	//Store each different tile/color as grids
-	std::map<int32_t, spot_t*> maps;
-	std::map<int32_t, std::map<dword, spot_t>> ffmaps;
-	int32_t shieldid = getCurrentShield(false);
-	bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
-	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
-	heropos = COMBOPOS_REGION_EXTENDED_B(x.getInt()+8,y.getInt()+8);
-	clear_bitmap(lightbeam_bmp);
-
-	bool foundany = false;
-	
-	// TODO z3 for_every_rpos
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		bool pos_has_seen_cmb[176] = {0};
-		
-		for(int32_t lyr = 6; lyr >= 0; --lyr)
-		{
-			mapscr* layer_scr = get_layer_scr(currmap, screen_index, lyr - 1);
-
-			for(size_t pos = 0; pos < 176; ++pos)
-			{
-				if (pos_has_seen_cmb[pos]) continue;
-				
-				int realpos = COMBOPOS_REGION_EXTENDED(pos, region_scr_x, region_scr_y);
-				newcombo const* cmb = &combobuf[layer_scr->data[pos]];
-				switch(cmb->type)
-				{
-					case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
-					case cMAGICPRISM: case cMAGICPRISM4:
-					case cBLOCKALL: case cLIGHTTARGET:
-						typeMap[realpos] = cmb->type;
-						break;
-					case cMIRRORNEW:
-						typeMap[realpos] = cMIRRORNEW;
-						customTypeMap[realpos] = layer_scr->data[pos];
-						break;
-					case cGLASS:
-						// Even if solid, is always OK to pass through.
-						// Already been initialized to zero.
-						// typeMap[realpos] = 0;
-						break;
-					case cSPOTLIGHT:
-						foundany = true;
-						[[fallthrough]];
-					default:
-					{
-						if(lyr < 3 && (cmb->walk & 0xF))
-						{
-							typeMap[realpos] = SPTYPE_SOLID;
-						}
-						continue; //next layer
-					}
-				}
-
-				pos_has_seen_cmb[pos] = true;
-			}
-		}
-
-		for (int pos = 0; pos < 176; pos++)
-		{
-			int realpos = COMBOPOS_REGION_EXTENDED(pos, region_scr_x, region_scr_y);
-			if (!get_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ) && !typeMap[pos])
-			{
-				if(collide_object(COMBOX(pos),COMBOY(pos),16,16,this))
-					typeMap[pos] = SPTYPE_SOLID;
-			}
-		}
-	});
-
-	// The world is dark and full of terror.
-	if (!foundany) return;
-
-	switch(typeMap[heropos])
-	{
-		case SPTYPE_SOLID: case cBLOCKALL:
-			heropos = -1; //Blocked from hitting player
-	}
-
-	//For each spotlight combo on each layer...
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		for(size_t layer = 0; layer < 7; ++layer)
-		{
-			mapscr* curlayer = get_layer_scr(currmap, screen_index, layer - 1);
-			for(size_t pos = 0; pos < 176; ++pos)
-			{
-				newcombo const& cmb = combobuf[curlayer->data[pos]];
-				if(cmb.type == cSPOTLIGHT)
-				{
-					int realpos = COMBOPOS_REGION_EXTENDED(pos, region_scr_x, region_scr_y);
-					launch_lightbeam(cmb,realpos,maps,refl,block);
-				}
-			}
-		}
-	});
-
-	// TODO z3 !!
-	word c = tmpscr->numFFC();
-	for(word i=0; i<c; i++)
-	{
-		ffcdata& ffc = tmpscr->ffcs[i];
-		newcombo const& cmb = combobuf[ffc.getData()];
-		if(cmb.type == cSPOTLIGHT && (cmb.usrflags&cflag2))
-			launch_fflightbeam(ffc,ffmaps,refl,block);
-	}
-	
-	lightbeam_present = !maps.empty() || !ffmaps.empty();
-	
-	//Draw visuals
-	for(auto it = maps.begin(); it != maps.end();)
-	{
-		int32_t id = it->first;
-		spot_t* grid = it->second;
-		BITMAP* cbmp = generate_beam_bitmap(id);
-		for(size_t pos = 0; pos < map_size; ++pos)
-		{
-			int32_t offs = get_beamoffs(grid[pos]);
-			if(offs > -1)
-				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX_REGION_EXTENDED(pos)-viewport.x, COMBOY_REGION_EXTENDED(pos)-viewport.y, 16, 16);
-		}
-		destroy_bitmap(cbmp);
-		delete[] it->second;
-		it = maps.erase(it);
-	}
-	for(auto it = ffmaps.begin(); it != ffmaps.end();)
-	{
-		int32_t id = it->first;
-		std::map<dword,spot_t> const& grid = it->second;
-		BITMAP* cbmp = generate_beam_bitmap(id);
-		for(auto it2 = grid.begin(); it2 != grid.end(); ++it2)
-		{
-			lightbeam_xy ffxy(it2->first);
-			int32_t offs = get_beamoffs(it2->second);
-			if(offs > -1)
-				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, ffxy.x-8-viewport.x, ffxy.y-8-viewport.y, 16, 16);
-		}
-		destroy_bitmap(cbmp);
-		it = ffmaps.erase(it);
-	}
-	//Check triggers
-	bool hastrigs = false, istrigged = true;
-	bool alltrig = getmapflag(mLIGHTBEAM);
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		for(size_t layer = 0; layer < 7; ++layer)
-		{
-			mapscr* curlayer = get_layer_scr(currmap, screen_index, layer - 1);
-			for(size_t pos = 0; pos < 176; ++pos)
-			{
-				newcombo const* cmb = &combobuf[curlayer->data[pos]];
-				if(cmb->type == cLIGHTTARGET)
-				{
-					int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
-					hastrigs = true;
-					bool trigged = (istrig[COMBOPOS_REGION_EXTENDED(pos, region_scr_x, region_scr_y)]&trigflag);
-					if(cmb->usrflags&cflag2) //Invert
-						trigged = !trigged;
-					if(cmb->usrflags&cflag1) //Solved Version
-					{
-						if(!(alltrig || trigged)) //Revert
-						{
-							curlayer->data[pos] -= 1;
-							istrigged = false;
-						}
-					}
-					else //Unsolved version
-					{
-						if(alltrig || trigged) //Light
-							curlayer->data[pos] += 1;
-						else istrigged = false;
-					}
-				}
-				else if(cmb->triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
-				{
-					int32_t trigflag = cmb->triglbeam ? (1 << (cmb->triglbeam-1)) : ~0;
-					bool trigged = (istrig[pos]&trigflag);
-					if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
-						: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
-					{
-						// TODO z3
-						do_trigger_combo(layer, pos);
-					}
-				}
-			}
-		}
-	});
-
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		newcombo const* cmb = &combobuf[ffc_handle.data()];
-		auto ffc = ffc_handle.ffc;
-		size_t pos = get_qr(qr_BROKEN_LIGHTBEAM_HITBOX)
-			? COMBOPOS(ffc->x+8, ffc->y+8)
-			: COMBOPOS(ffc->x+(ffc->hit_width/2), ffc->y+(ffc->hit_height/2));
-		if(cmb->type == cLIGHTTARGET)
-		{
-			int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
-			hastrigs = true;
-			bool trigged = (istrig[pos]&trigflag);
-			if(cmb->usrflags&cflag2) //Invert
-				trigged = !trigged;
-			if(cmb->usrflags&cflag1) //Solved Version
-			{
-				if(!(alltrig || trigged)) //Revert
-				{
-					ffc_handle.ffc->incData(-1);
-					istrigged = false;
-				}
-			}
-			else //Unsolved version
-			{
-				if(alltrig || trigged) //Light
-					ffc_handle.ffc->incData(1);
-				else istrigged = false;
-			}
-		}
-		else if(cmb->triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
-		{
-			int32_t trigflag = cmb->triglbeam ? (1 << (cmb->triglbeam-1)) : ~0;
-			bool trigged = (istrig[pos]&trigflag);
-			if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
-				: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
-			{
-				do_trigger_combo_ffc(ffc_handle);
-			}
-		}
-	});
-
-	if(hastrigs && istrigged && !alltrig)
-	{
-		// TODO z3 what screen? main screen?
-		trigger_secrets_for_screen(TriggerSource::LightTrigger, false);
-		sfx(tmpscr->secretsfx);
-		if(!(tmpscr->flags5&fTEMPSECRETS))
-		{
-			setmapflag(mSECRET);
-			setmapflag(mLIGHTBEAM);
-		}
-	}
-
-	typeMap.clear();
-	istrig.clear();
+	// TODO z3 !!!!! spotlights
 }
 
 void HeroClass::checktouchblk()
@@ -24289,8 +24132,9 @@ void HeroClass::checkspecial2(int32_t *ls)
 	// * Not a dried lake.
 	
 	// This used to check for swimming too, but I moved that into the block so that you can drown in higher-leveled water. -Dimi
-	
-	if(water > 0 && ((get_qr(qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0) || CanSideSwim()) && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE)
+	if(water > 0 && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE
+		&& ((get_qr(qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0) || CanSideSwim())
+		&& (sideview_mode() || !platform_ffc))
 	{
 		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
 		{

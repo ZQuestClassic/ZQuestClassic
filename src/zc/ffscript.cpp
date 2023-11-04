@@ -22,6 +22,7 @@
 #include "base/packfile.h"
 #include "base/misctypes.h"
 #include "base/initdata.h"
+#include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
@@ -79,8 +80,8 @@ bool can_neg_array = true;
 
 extern byte monochrome_console;
 
-static std::set<int> seen_scripts;
-static std::map<int, ScriptDebugHandle> script_debug_handles;
+static std::set<script_id> seen_scripts;
+static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
 static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
 int32_t jitted_uncompiled_command_count;
@@ -1125,13 +1126,12 @@ void load_genscript(const gamedata& gd)
 		user_genscript& gen = user_scripts[q];
 		gen.clear();
 		gen.indx = q;
-		gen.doscript = gd.gen_doscript[q];
+		gen.doscript = gd.gen_doscript.get(q);
 		gen.exitState = gd.gen_exitState[q];
 		gen.reloadState = gd.gen_reloadState[q];
 		gen.eventstate = gd.gen_eventstate[q];
-		memcpy(gen.initd, gd.gen_initd[q], sizeof(gen.initd));
+		gen.initd = gd.gen_initd[q];
 		gen.data = gd.gen_data[q];
-		gen.dataResize(gd.gen_dataSize[q]);
 	}
 }
 void load_genscript(const zinitdata& zd)
@@ -1141,14 +1141,12 @@ void load_genscript(const zinitdata& zd)
 		user_genscript& gen = user_scripts[q];
 		gen.clear();
 		gen.indx = q;
-		gen.doscript = zd.gen_doscript[q];
+		gen.doscript = zd.gen_doscript.get(q);
 		gen.exitState = zd.gen_exitState[q];
 		gen.reloadState = zd.gen_reloadState[q];
 		gen.eventstate = zd.gen_eventstate[q];
-		memcpy(gen.initd, zd.gen_initd[q], sizeof(gen.initd));
-		gen.dataResize(zd.gen_data[q].size());
-		gen.data = zd.gen_data[q].inner();
-		gen.dataResize(zd.gen_data[q].size());
+		gen.initd = zd.gen_initd[q];
+		gen.data = zd.gen_data[q];
 	}
 }
 
@@ -1157,12 +1155,11 @@ void save_genscript(gamedata& gd)
 	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
 	{
 		user_genscript const& gen = user_scripts[q];
-		gd.gen_doscript[q] = gen.doscript;
+		gd.gen_doscript.set(q, gen.doscript);
 		gd.gen_exitState[q] = gen.exitState;
 		gd.gen_reloadState[q] = gen.reloadState;
 		gd.gen_eventstate[q] = gen.eventstate;
-		memcpy(gd.gen_initd[q], gen.initd, sizeof(gen.initd));
-		gd.gen_dataSize[q] = gen.dataSize();
+		gd.gen_initd[q] = gen.initd;
 		gd.gen_data[q] = gen.data;
 	}
 }
@@ -2042,14 +2039,19 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset)
 int32_t get_mi(int32_t ref = MAPSCR_TEMP0)
 {
 	if(ref >= 0)
+	{
+		if(ref%MAPSCRS >= MAPSCRSNORMAL) return -1;
 		return ref - (8*(ref / MAPSCRS));
+	}
 	switch(ref)
 	{
 		case MAPSCR_TEMP0: case MAPSCR_TEMP1: case MAPSCR_TEMP2: case MAPSCR_TEMP3: 
 		case MAPSCR_TEMP4: case MAPSCR_TEMP5: case MAPSCR_TEMP6:
+			if(homescr >= MAPSCRSNORMAL) return -1;
 			return (currmap*MAPSCRSNORMAL)+homescr;
 		case MAPSCR_SCROLL0: case MAPSCR_SCROLL1: case MAPSCR_SCROLL2: case MAPSCR_SCROLL3:
 		case MAPSCR_SCROLL4: case MAPSCR_SCROLL5: case MAPSCR_SCROLL6:
+			if(scrolling_scr >= MAPSCRSNORMAL) return -1;
 			return (scrolling_map*MAPSCRSNORMAL)+scrolling_scr;
 	}
 	return -1;
@@ -3933,7 +3935,7 @@ int32_t get_register(const int32_t arg)
 		//FFC Variables
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->getData() *10000;
+				ret = get_ffc_raw(ri->ffcref)->data *10000;
 			break;
 			
 		case FFSCRIPT:
@@ -8430,8 +8432,24 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case GAMEGENERICD:
-			ret=game->get_generic((ri->d[rINDEX])/10000)*10000;
+		{
+			auto indx = ri->d[rINDEX] / 10000;
+			switch(indx)
+			{
+				case genCONTHP:
+				{
+					if(!get_qr(qr_SCRIPT_CONTHP_IS_HEARTS) || game->get_cont_percent())
+						ret = game->get_generic(indx)*10000;
+					else
+						ret = (game->get_generic(indx)/game->get_hp_per_heart())*10000;
+					break;
+				}
+				default:
+					ret = game->get_generic(indx)*10000;
+					break;
+			}
 			break;
+		}
 		
 		case GAMEMISC:
 		{
@@ -8596,7 +8614,7 @@ int32_t get_register(const int32_t arg)
 			int32_t ind = (ri->d[rINDEX])/10000;
 			if(unsigned(ind)>255)
 				Z_scripterrlog("Invalid index %d supplied to Game->TrigGroups[]\n",ind);
-			ret = get_trig_group(ind)*10000;
+			ret = cpos_trig_group_count(ind)*10000;
 			break;
 		}
 		
@@ -8614,7 +8632,7 @@ int32_t get_register(const int32_t arg)
 				switch(indx)
 				{
 					case 0: //Gravity Strength
-						ret = zinit.gravity2;
+						ret = zinit.gravity;
 						break;
 					case 1: //Terminal Velocity
 						ret = zinit.terminalv * 100;
@@ -9681,7 +9699,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				--indx;
-				ret = (get_ffc_raw(indx)->getData() != 0) ? 10000 : 0;
+				ret = (get_ffc_raw(indx)->data != 0) ? 10000 : 0;
 			}
 			break;
 		}
@@ -9819,6 +9837,15 @@ int32_t get_register(const int32_t arg)
 		case SCREENSECRETSTRIGGERED:
 		{
 			ret = triggered_screen_secrets ? 10000L : 0L;
+			break;
+		}
+		
+		case SCREENDATAGUYCOUNT:
+		{
+			int mi = get_mi();
+			if(mi < 0)
+				ret = -10000;
+			else ret = game->guys[mi] * 10000;
 			break;
 		}
 		
@@ -10614,7 +10641,7 @@ int32_t get_register(const int32_t arg)
 		case MAPDATASCREENHEIGHT: 	break;//GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-		case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(getData(), "FFCData", MAXFFCS-1); break;  //W, MAXFFCS OF THESE
+		case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(data, "FFCData", MAXFFCS-1); break;  //W, MAXFFCS OF THESE
 		case MAPDATAFFCSET:         GET_MAPDATA_FFC_INDEX32(cset, "FFCCSet", MAXFFCS-1); break;  //B, MAXFFCS
 		case MAPDATAFFDELAY:        GET_MAPDATA_FFC_INDEX32(delay, "FFCDelay", MAXFFCS-1); break;    //W, MAXFFCS
 		case MAPDATAFFX:        GET_MAPDATA_FFCPOS_INDEX32(x, "FFCX", MAXFFCS-1); break; //INT32, MAXFFCS OF THESE
@@ -10653,7 +10680,7 @@ int32_t get_register(const int32_t arg)
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				--indx;
-				ret = (m->ffcs[indx].getData() != 0) ? 10000 : 0;
+				ret = (m->ffcs[indx].data != 0) ? 10000 : 0;
 			}
 			else
 			{
@@ -11264,6 +11291,21 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","EFlags[]", ri->mapsref);
 				ret = -10000;
 			}
+			break;
+		}
+		case MAPDATAGUYCOUNT:
+		{
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = get_mi(ri->mapsref);
+				if(mi > -1)
+				{
+					ret = game->guys[mi] * 10000;
+					break;
+				}
+			}
+			ret = -10000;
+			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
 
@@ -13352,6 +13394,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case ISBLANKTILE: ret = (FFCore.IsBlankTile(ri->d[rINDEX]/10000) * 10000); break;
+		case IS8BITTILE: ret = (FFCore.Is8BitTile(ri->d[rINDEX] / 10000) * 10000); break;
 
 		case BITMAPWIDTH:
 		{
@@ -16020,7 +16063,7 @@ void set_register(int32_t arg, int32_t value)
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
 			{
-				get_ffc_raw(ri->ffcref)->setData(vbound(value/10000,0,MAXCOMBOS-1));
+				zc_ffc_set(*get_ffc_raw(ri->ffcref), vbound(value/10000,0,MAXCOMBOS-1));
 			}
 			break;
 		
@@ -21112,8 +21155,25 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case GAMEGENERICD:
-			game->set_generic(value/10000, (ri->d[rINDEX])/10000);
+		{
+			auto indx = ri->d[rINDEX] / 10000;
+			auto val = value/10000;
+			switch(indx)
+			{
+				case genCONTHP:
+				{
+					if(!get_qr(qr_SCRIPT_CONTHP_IS_HEARTS) || game->get_cont_percent())
+						game->set_generic(val, indx);
+					else
+						game->set_generic(val*game->get_hp_per_heart(), indx);
+					break;
+				}
+				default:
+					game->set_generic(val, indx);
+					break;
+			}
 			break;
+		}
 		case GAMEMISC:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
@@ -21295,7 +21355,7 @@ void set_register(int32_t arg, int32_t value)
 				switch(indx)
 				{
 					case 0: //Gravity Strength
-						zinit.gravity2 = value;
+						zinit.gravity = value;
 						break;
 					case 1: //Terminal Velocity
 						zinit.terminalv = value / 100;
@@ -22428,6 +22488,14 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			//GET_SCREENDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
 		}
+		
+		case SCREENDATAGUYCOUNT:
+		{
+			int mi = get_mi();
+			if(mi > -1)
+				game->guys[mi] = vbound(value/10000,10,0);
+			break;
+		}
 
 
 		//These use the same method as SetScreenD
@@ -23330,7 +23398,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				m->ffcs[indx].setData(value/10000);
+				zc_ffc_set(m->ffcs[indx], value/10000);
 			}
 			else
 			{
@@ -23947,6 +24015,20 @@ void set_register(int32_t arg, int32_t value)
 				else game->screen_data[mi][indx] = value;
 			}
 			else Z_scripterrlog("mapdata->Data[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+		case MAPDATAGUYCOUNT:
+		{
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = get_mi(ri->mapsref);
+				if(mi > -1)
+				{
+					game->guys[mi] = vbound(value/10000,10,0);
+					break;
+				}
+			}
+			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
 		
@@ -35209,6 +35291,17 @@ int32_t FFScript::IsBlankTile(int32_t i)
 	return 1;
 }
 
+int32_t FFScript::Is8BitTile(int32_t i)
+{
+	if (((unsigned)i) > NEWMAXTILES)
+	{
+		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->Is8BitTile[]\n");
+		return -1;
+	}
+
+	return newtilebuf[i].format == tf8Bit ? 1 : 0;
+}
+
 void do_swaptile(const bool v, const bool v2)
 {
 	int32_t tile = SH::get_arg(sarg1, v) / 10000;
@@ -35242,24 +35335,40 @@ void do_fliprotatetile(const bool v, const bool v2)
 	//fliprotatetile
 }
 
-void do_settilepixel(const bool v)
+void do_settilepixel()
 {
-	int32_t tile = SH::get_arg(sarg1, v) / 10000;
+	int32_t tile = SH::read_stack(ri->sp + 3) / 10000;
+	int32_t x = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t y = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t val = SH::read_stack(ri->sp + 0) / 10000;
 	
 	if(BC::checkTile(tile, "SetTilePixel") != SH::_NoError)
 		return;
 		
-	//settilepixel
+	x = vbound(x, 0, 15);
+	y = vbound(y, 0, 15);
+	unpack_tile(newtilebuf, tile, 0, false);
+	if (newtilebuf[tile].format == tf4Bit)
+		val &= 0xF;
+	unpackbuf[y * 16 + x] = val;
+	pack_tile(newtilebuf, unpackbuf, tile);
 }
 
-void do_gettilepixel(const bool v)
+void do_gettilepixel()
 {
-	int32_t tile = SH::get_arg(sarg1, v) / 10000;
-	
+	int32_t tile = SH::read_stack(ri->sp + 3) / 10000;
+	int32_t x = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t y = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t cs = SH::read_stack(ri->sp + 0) / 10000;
+
 	if(BC::checkTile(tile, "GetTilePixel") != SH::_NoError)
 		return;
 		
-	//gettilepixel
+	x = vbound(x, 0, 15);
+	y = vbound(y, 0, 15);
+	unpack_tile(newtilebuf, tile, 0, false);
+	int32_t csoffs = newtilebuf[tile].format == tf8Bit ? 0 : cs * 16;
+	ri->d[rEXP1] = 10000 * (unpackbuf[y * 16 + x] + csoffs);
 }
 
 void do_shifttile(const bool v, const bool v2)
@@ -35436,7 +35545,7 @@ bool zasm_advance()
 	{
 		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 		{
-			if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				FFCore.zasm_break_mode = ZASM_BREAK_SKIP_SCRIPT;
 			}
@@ -35444,13 +35553,13 @@ bool zasm_advance()
 		}
 		else if(key[KEY_ALT] || key[KEY_ALTGR])
 		{
-			if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				FFCore.zasm_break_mode = ZASM_BREAK_SKIP;
 			}
 			else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 		}
-		else if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
+		else if(CHECK_CTRL_CMD)
 		{
 			FFCore.ZASMPrint(false); //Close debugger
 			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
@@ -35625,7 +35734,8 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 			{
 				got_initialized = true;
 				scr.initialized = true;
-				memcpy(ri->d, scr.initd, 8 * sizeof(int32_t));
+				for (int q = 0; q < 8; ++q)
+					ri->d[q] = scr.initd[q];
 			}
 		}
 		break;
@@ -35640,7 +35750,8 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 			{
 				got_initialized = true;
 				gen_active_initialized = true;
-				memcpy(ri->d, user_scripts[script].initd, 8 * sizeof(int32_t));
+				for (int q = 0; q < 8; ++q)
+					ri->d[q] = user_scripts[script].initd[q];
 			}
 		}
 		break;
@@ -35665,9 +35776,9 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 
 	script_funcrun = false;
 
-	if (DEBUG_PRINT_ZASM && !seen_scripts.contains(curscript->debug_id))
+	if (DEBUG_PRINT_ZASM && !seen_scripts.contains(curscript->id))
 	{
-		seen_scripts.insert(curscript->debug_id);
+		seen_scripts.insert(curscript->id);
 		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, curscript);
 		h.print_zasm(curScriptNum, curScriptIndex);
 	}
@@ -35689,13 +35800,13 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	runtime_script_debug_handle = nullptr;
 	if (script_debug_is_runtime_debugging())
 	{
-		if (!script_debug_handles.contains(curscript->debug_id))
+		if (!script_debug_handles.contains(curscript->id))
 		{
-			script_debug_handles.emplace(curscript->debug_id, ScriptDebugHandle(ScriptDebugHandle::OutputSplit::ByFrame, curscript));
+			script_debug_handles.emplace(curscript->id, ScriptDebugHandle(ScriptDebugHandle::OutputSplit::ByFrame, curscript));
 		}
-		runtime_script_debug_handle = &script_debug_handles.at(curscript->debug_id);
+		runtime_script_debug_handle = &script_debug_handles.at(curscript->id);
 		runtime_script_debug_handle->update_file();
-		runtime_script_debug_handle->print(fmt::format("\n=== running script id: {} name: {} type: {} i: {} script: {}\n", curscript->debug_id, curscript->meta.script_name, ScriptTypeToString(type), i, script).c_str());
+		runtime_script_debug_handle->print(fmt::format("\n=== running script type: {} index: {} name: {} i: {} script: {}\n", ScriptTypeToString(curscript->id.type), curscript->id.index, curscript->meta.script_name, i, script).c_str());
 	}
 	if (script_debug_is_runtime_debugging() == 1)
 	{
@@ -38370,20 +38481,12 @@ j_command:
 				do_fliprotatetile(false, false);
 				break;
 				
-			case GETTILEPIXELV:
-				do_gettilepixel(true);
+			case GETTILEPIXEL:
+				do_gettilepixel();
 				break;
 				
-			case GETTILEPIXELR:
-				do_gettilepixel(false);
-				break;
-				
-			case SETTILEPIXELV:
-				do_settilepixel(true);
-				break;
-				
-			case SETTILEPIXELR:
-				do_settilepixel(false);
+			case SETTILEPIXEL:
+				do_settilepixel();
 				break;
 				
 			case SHIFTTILEVV:
@@ -45506,10 +45609,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FLIPROTTILEVR",       2,   1,   0,   0},
 	{ "FLIPROTTILERV",       2,   0,   1,   0},
 	{ "FLIPROTTILERR",       2,   0,   0,   0},
-	{ "GETTILEPIXELV",       1,   1,   0,   0},
-	{ "GETTILEPIXELR",       1,   0,   0,   0},
-	{ "SETTILEPIXELV",       1,   1,   0,   0},
-	{ "SETTILEPIXELR",       1,   0,   0,   0},
+	{ "GETTILEPIXEL",       0,   0,   0,   0},
+	{ "RESRVD_OP_MOOSH_EX_01",       1,   0,   0,   0},
+	{ "SETTILEPIXEL",       0,   0,   0,   0},
+	{ "RESRVD_OP_MOOSH_EX_02",       1,   0,   0,   0},
 	{ "SHIFTTILEVV",         2,   1,   1,   0},
 	{ "SHIFTTILEVR",         2,   1,   0,   0},
 	{ "SHIFTTILERV",         2,   0,   1,   0},
@@ -47949,7 +48052,7 @@ script_variable ZASMVars[]=
 	{ "MUSICUPDATECOND", MUSICUPDATECOND, 0, 0 },
 	{ "MUSICUPDATEFLAGS", MUSICUPDATEFLAGS, 0, 0 },
 	{ "DMAPDATAINTROSTRINGID", DMAPDATAINTROSTRINGID, 0, 0 },
-	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },
+	{ "IS8BITTILE", IS8BITTILE, 0, 0 },
 	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },
 	{ "RESRVD_VAR_MOOSH10", RESRVD_VAR_MOOSH10, 0, 0 },
 	{ "RESRVD_VAR_MOOSH11", RESRVD_VAR_MOOSH11, 0, 0 },
@@ -48183,6 +48286,9 @@ script_variable ZASMVars[]=
 
 	{ "HEROSHOVEOFFSET", HEROSHOVEOFFSET, 0, 0 },
 
+	{ "SCREENDATAGUYCOUNT", SCREENDATAGUYCOUNT, 0, 0 },
+	{ "MAPDATAGUYCOUNT", MAPDATAGUYCOUNT, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 
@@ -48196,11 +48302,11 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format, Params&&...
 {
 	//if ( open )
 	{
-		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200, NULL, NULL);
+		zscript_coloured_console.Create("ZQuest Classic Logging Console", 600, 200, NULL, NULL);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Classic Logging Console\n");
 	
 		zscript_coloured_console.cprintf( attributes, format, std::forward<Params>(params)...);
 	}
@@ -52262,7 +52368,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			for(int32_t k=0; k<32; k++)
 			{
 			
-				if(!p_iputw(m->ffcs[k].getData(),f))
+				if(!p_iputw(m->ffcs[k].data,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -52872,7 +52978,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
-				m->ffcs[k].setData(tempw);
+				zc_ffc_set(m->ffcs[k], tempw);
 				
 				if(!p_getc(&(m->ffcs[k].cset),f))
 				{

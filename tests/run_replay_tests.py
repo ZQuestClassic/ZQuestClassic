@@ -1,5 +1,7 @@
 # TODO: use virtualenv. For now, manually install these packages:
 #   python -m pip install cutie PyGithub==1.58.2 requests watchdog discord.py Pillow intervaltree
+# For Windows, install this:
+#   python -m pip install windows-curses
 
 # For more information, see replay.h
 
@@ -52,6 +54,7 @@ import os
 import sys
 import re
 import difflib
+import heapq
 import pathlib
 import platform
 import functools
@@ -156,7 +159,12 @@ class ReplayResultUpdatedHandler(FileSystemEventHandler):
         if not self.path.exists():
             return
 
-        self.result = parse_result_txt_file(self.path)
+        try:
+            self.result = parse_result_txt_file(self.path)
+        except:
+            logging.warning('could not read result txt file')
+            return
+
         self.is_result_stale = False
         if self.result['stopped']:
             self.observer.stop()
@@ -359,7 +367,7 @@ def clear_progress_str():
 
 is_mac_ci = args.ci and 'mac' in args.ci
 is_linux_ci = args.ci and 'ubuntu' in args.ci
-is_web = bool(list(args.build_folder.glob('*.wasm')))
+is_web = bool(list(args.build_folder.glob('**/play/index.html')))
 is_web_ci = is_web and args.ci
 is_coverage = args.build_folder.name == 'Coverage' or args.build_type == 'Coverage'
 is_asan = args.build_folder.name == 'Asan' or args.build_type == 'Asan'
@@ -371,6 +379,19 @@ test_results_path = test_results_dir / 'test_results.json'
 grouped_max_duration_arg = group_arg(args.max_duration)
 grouped_snapshot_arg = group_arg(args.snapshot, allow_concat=True)
 grouped_frame_arg = group_arg(args.frame)
+
+if is_web:
+    concurrency = 1
+elif is_ci:
+    concurrency = os.cpu_count()
+    # In GHA for Windows there are 2 CPUs, but only on Windows does running concurrently result
+    # in random failures related to not being able to read the result.txt file.
+    # For now, disable.
+    if platform.system() == 'Windows':
+        concurrency = 1
+else:
+    concurrency = max(1, os.cpu_count() - 4)
+print(f'found {os.cpu_count()} cpus, setting concurrency to {concurrency}')
 
 
 def apply_test_filter(filter: str):
@@ -420,7 +441,7 @@ def time_format(ms: int):
     if ms is not None:
         seconds = int(ms / 1000)
         m = seconds // 60
-        s = seconds % 3600 % 60
+        s = seconds % 60
         if m > 0:
             return '{}m {:02d}s'.format(m, s)
         elif s >= 0:
@@ -479,6 +500,7 @@ def get_replay_data(file):
     frames = int(last_step.split(' ')[1])
 
     # Based on speed found on Windows 64-bit in CI. Should be manually updated occasionally.
+    # NOTE: this are w/o any concurrency, so real numbers in CI today are expected to be lower. Maybe just remove this?
     estimated_fps = 1500
     estimated_fps_overrides = {
         'quests/Z1 Recreations/classic_1st.qst': 3000,
@@ -740,7 +762,7 @@ class WebPlayerInterface:
         self.p.wait()
 
 
-def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
+def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
     name = get_replay_name(replay_file)
     result = RunResult(name=name, directory=output_dir.relative_to(test_results_dir).as_posix())
     roundtrip_path = output_dir / f'{name}.roundtrip'
@@ -748,13 +770,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
 
     replay_data = get_replay_data(replay_file)
-    frames = replay_data['frames']
-    frames_limited = replay_data['frames_limited']
-    frame_arg = get_arg_for_replay(replay_file, grouped_frame_arg, is_int=True)
-    if frame_arg is None and frames_limited < frames:
-        frame_arg = frames_limited
-    if frame_arg is not None and frame_arg != frames:
-        print(f"(-frame {frame_arg}, only doing {100 * frame_arg / frames:.2f}%) ", end='', flush=True)
+    frame_arg = replay_data['frames_limited']
 
     # Cap the duration in CI, in case it somehow never ends.
     do_timeout = True if args.ci else False
@@ -787,25 +803,19 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 allegro_log_path.unlink()
 
             def on_result_updated(w: ReplayResultUpdatedHandler):
-                if not sys.stdout.isatty():
-                    return
-
-                w.update_result()
                 if not w:
                     return
 
-                last_frame = w.result['frame']
-                num_frames = w.result['replay_log_frames']
-                duration = w.result['duration']
-                fps = w.result['fps']
-                progress_str = f'{time_format(duration)}, {fps} fps, {last_frame} / {num_frames}'
-                if w.result.get('success') == False:
-                    failing_frame = w.result.get('failing_frame', None)
-                    if failing_frame != None:
-                        progress_str += f', failure on frame {failing_frame}'
-                    else:
-                        progress_str += ', failure'
-                print_progress_str(progress_str)
+                w.update_result()
+                if not w.result:
+                    return
+
+                result.duration = w.result['duration']
+                result.fps = int(w.result['fps'])
+                result.frame = int(w.result['frame'])
+                result.num_frames = int(w.result['replay_log_frames'])
+                result.stopped = w.result['stopped']
+                result.success = w.result['stopped'] and w.result['success']
 
             watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
 
@@ -829,7 +839,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 if retcode != None:
                     raise Exception(f'process finished before replay started, exit code: {retcode}')
 
-                sleep(0.1)
+                yield (key, 'status', result)
 
             test_results.zc_version = watcher.result['zc_version']
 
@@ -843,16 +853,11 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 if player_interface.poll() != None:
                     break
 
-                sleep(0.1)
+                yield (key, 'status', result)
 
             player_interface.wait_for_finish()
-            watcher.update_result()
             on_result_updated(watcher)
-            result.duration = watcher.result['duration']
-            result.fps = int(watcher.result['fps'])
-            result.frame = int(watcher.result['frame'])
 
-            result.success = watcher.result['stopped'] and watcher.result['success']
             if not result.success:
                 result.failing_frame = watcher.result.get('failing_frame', None)
                 result.unexpected_gfx_frames = watcher.result.get('unexpected_gfx_frames', None)
@@ -866,7 +871,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             exit_code = player_interface.get_exit_code()
             result.exit_code = exit_code
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
-                print(f'\nreplay failed with unexpected code {exit_code}')
+                result.exceptions.append(f'replay failed with unexpected code {exit_code}')
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
             if mode == 'update' and watcher.result['changed']:
@@ -875,15 +880,17 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             break
         except ReplayTimeoutException:
             # Will try again.
-            if allegro_log_path.exists():
-                print(allegro_log_path.read_text('utf-8'))
-            logging.exception('replay timed out')
+            result.exceptions.append('replay timed out')
             player_interface.stop()
         except KeyboardInterrupt:
             exit(1)
-        except:
-            logging.exception('replay encountered an error')
-            return result
+        except GeneratorExit:
+            return
+        except BaseException as e:
+            result.exceptions.append(str(e))
+            on_result_updated(watcher)
+            yield (key, 'finish', result)
+            return
         finally:
             if watcher:
                 watcher.observer.stop()
@@ -907,7 +914,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
         else:
             result.diff = 'missing roundtrip file, cannnot diff'
 
-    return result
+    yield (key, 'finish', result)
 
 
 if test_results_dir.exists():
@@ -926,6 +933,255 @@ test_results = ReplayTestResults(
 )
 
 
+def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult]:
+    def get_replay_log_name(path: pathlib.Path):
+        name = get_replay_name(path)
+        replay_data = get_replay_data(path)
+        frames = replay_data['frames']
+        frames_limited = replay_data['frames_limited']
+        if frames_limited is not None and frames_limited != frames:
+            percent = 100 * frames_limited / frames
+            return f'{name} ({percent:4.1f}%)'
+        return name
+
+    global global_i
+    global_i = 0
+
+    results: List[RunResult] = []
+    pending_tests = [*tests]
+    active_tests = []
+    active_results = []
+
+    replay_finished = {get_replay_name(t):False for t in tests}
+    replay_log_names = {get_replay_name(t):get_replay_log_name(t) for t in tests}
+    longest_log_name_len = max(len(get_replay_log_name(test)) for test in tests)
+    estimates = {get_replay_name(t):get_replay_data(t) for t in tests}
+    print_emoji = args.emoji
+
+    use_curses = False
+    if sys.stdout.isatty() and not is_ci:
+        try:
+            import curses
+            import atexit
+            use_curses = True
+            # TODO: I can't figured out how to use emoji w/ curses.
+            print_emoji = False
+        except:
+            if platform.system() == 'Windows':
+                print('for a better experience, install the "windows-curses" package via pip')
+            pass
+
+    def on_exit():
+        curses.endwin()
+
+    if use_curses:
+        scr = curses.initscr()
+        curses.start_color()
+        curses.use_default_colors()
+        curses.init_pair(1, curses.COLOR_RED, -1)
+        curses.init_pair(2, curses.COLOR_GREEN, -1)
+        curses.init_pair(3, curses.COLOR_YELLOW, -1)
+        atexit.register(on_exit)
+
+    def get_eta():
+        if not active_results:
+            return ''
+
+        # https://stackoverflow.com/a/49721962/2788187
+        def compute_time(tasks, X):
+            threads = [0] * X
+            for t in tasks:
+                heapq.heappush(threads, heapq.heappop(threads) + t)
+            return max(threads)
+
+        frames_so_far = sum(r.frame for r in results if r.frame) + sum(r.frame for r in active_results if r.frame)
+        durs_so_far = (sum(r.duration for r in results if r.frame) + sum(r.duration for r in active_results if r.frame)) / 1000
+        avg_fps = frames_so_far / durs_so_far if durs_so_far else 0
+        avg_fps_established = frames_so_far > 5000 and avg_fps
+        if not avg_fps_established:
+            return 'ETA ...'
+
+        durs = []
+
+        # For actives tests, divide the frames remaining by the running average FPS.
+        # If average FPS has not been established yet, use the rough estimate FPS.
+        for result in active_results:
+            estimate = estimates[result.name]
+            if result.frame and result.num_frames and result.fps:
+                if result.frame > 10000 or result.frame/result.num_frames > 0.1:
+                    # Some replays tend to get much slower as they go on (ex: hero_of_dreams),
+                    # which results in the estimate crawling up before it comes back down.
+                    # Maybe a memory leak?
+                    fps = result.fps
+                else:
+                    fps = estimate['estimated_fps']
+                frames_left = result.num_frames - result.frame
+                durs.append(frames_left / fps)
+                continue
+
+            # Test is still starting up.
+            if avg_fps_established:
+                durs.append(estimate['frames_limited'] / avg_fps)
+            else:
+                durs.append(estimate['estimated_duration'])
+
+        # For pending tests, divide the frames to be run by the running average FPS.
+        # If average FPS has not been established yet, use the rough estimate duration.
+        for test in pending_tests:
+            estimate = estimates[get_replay_name(test)]
+            overhead = 10
+            if avg_fps_established:
+                durs.append(overhead + estimate['frames_limited'] / avg_fps)
+            else:
+                durs.append(overhead + estimate['estimated_duration'])
+
+        s = compute_time(durs, concurrency)
+        # pathlib.Path('.tmp/out.txt').write_text(f'{frames_so_far} / {durs_so_far} / {len(active_results)} = {avg_fps}\n' + ', '.join(str(int(d)) for d in durs))
+        if s < 1:
+            eta = 'ETA ~1s'
+        elif s < 5:
+            eta = 'ETA ~5s'
+        elif s < 30:
+            eta = 'ETA ~30s'
+        elif s < 60:
+            eta = 'ETA ~1m'
+        else:
+            eta = f'ETA {int(s / 60)}m'
+
+        if avg_fps_established:
+            return f'{eta} | {int(avg_fps)} fps'
+        else:
+            return eta
+    
+    def get_status_msg(r: RunResult):
+        if replay_finished[r.name]:
+            if print_emoji:
+                symbol = '✅' if result.success else '❌'
+            else:
+                # Can't figure out how to enable UTF-8 for VS output log.
+                if args.emoji:
+                    symbol = '✔' if r.success else '𐳼'
+                else:
+                    # Not even the above check/x work in any Windows terminal, so use plaintext
+                    # if explictly opted out of emoji.
+                    symbol = 'PASS' if r.success else 'FAIL'
+            color = 2 if r.success else 1
+        else:
+            symbol = '◐◓◑◒'[global_i % 4] if args.emoji else 'WAIT'
+            color = 3
+
+        name = replay_log_names[r.name].ljust(longest_log_name_len + 1, ' ')
+        parts = [name]
+
+        if r.frame:
+            parts.append(time_format(r.duration).rjust(7, ' '))
+            if r.fps != None:
+                parts.append(f'{r.fps} fps  '.rjust(10, ' '))
+            if not replay_finished[r.name]:
+                last_frame = r.frame
+                num_frames = r.num_frames
+                parts.append(f'{last_frame} / {num_frames}')
+
+        if r.failing_frame != None:
+            parts.append(f'failure on frame {r.failing_frame}')
+
+        if r.exceptions:
+            parts.append(' | '.join(r.exceptions))
+
+        return (symbol, color, ' '.join(parts))
+
+    def get_summary_msg():
+        num_failing = len([r for r in results if not r.success])
+        return ' | '.join([
+            f'{len(results)}/{len(tests)}',
+            f'{num_failing} failing' if num_failing else 'OK',
+            get_eta(),
+        ])
+
+    while pending_tests or active_tests:
+        while pending_tests and len(active_tests) < concurrency:
+            test = pending_tests.pop(0)
+            test_index = tests.index(test)
+            run_dir = runs_dir / test.with_suffix('').name
+            run_dir.mkdir(parents=True)
+            active_tests.append(run_replay_test(test_index, test, run_dir))
+
+        next_active_tests = []
+        active_results = []
+        for active_test in active_tests:
+            test_index, type, result = next(active_test, None)
+
+            if type == 'status':
+                next_active_tests.append(active_test)
+                active_results.append(result)
+            elif type == 'finish':
+                replay_finished[result.name] = True
+                results.append(result)
+                if not use_curses:
+                    symbol, _, text = get_status_msg(result)
+                    clear_progress_str()
+                    print(f'{symbol} {text}')
+        active_tests = next_active_tests
+
+        if use_curses:
+            rows, cols = curses.LINES, curses.COLS
+            for _ in range(4):
+                lines = []
+                for result in active_results:
+                    lines.append(get_status_msg(result))
+                    if len(lines) > rows - 1:
+                        break
+                for result in results:
+                    if not result.success:
+                        lines.append(get_status_msg(result))
+                    if len(lines) > rows - 1:
+                        break
+                for result in results:
+                    if result.success:
+                        lines.append(get_status_msg(result))
+                    if len(lines) > rows - 1:
+                        break
+                for test in pending_tests:
+                    lines.append(('…', 3, get_replay_name(test)))
+                    if len(lines) > rows - 1:
+                        break
+
+                rows, cols = scr.getmaxyx()
+                lines = lines[:rows-1]
+
+                scr.erase()
+                if rows >= 1 and rows < 3 and cols < 40 and cols >= 15:
+                    scr.addstr(0, 0, 'term too small')
+                elif rows >= 3 and cols >= 40:
+                    for i, msg in enumerate(lines):
+                        symbol, color, text = msg
+                        scr.addstr(i, 0, symbol, curses.color_pair(color))
+                        scr.addstr(i, len(symbol), ' ' + text)
+                    scr.addstr(len(lines), 0, get_summary_msg()[:cols-1])
+                scr.refresh()
+
+                sleep(0.5)
+                global_i += 1
+        else:
+            print_progress_str(get_summary_msg())
+            sleep(1)
+
+    if use_curses:
+        scr.clear()
+        curses.endwin()
+        atexit.unregister(on_exit)
+
+    clear_progress_str()
+    print_emoji = args.emoji
+
+    if use_curses:
+        for result in results:
+            symbol, _, text = get_status_msg(result)
+            print(f'{symbol} {text}')
+
+    return [r for r in results if r]
+
+
 print(f'running {len(tests)} replays\n')
 iteration_count = 0
 for i in range(args.retries + 1):
@@ -939,28 +1195,21 @@ for i in range(args.retries + 1):
         print('\nretrying failures...\n')
 
     runs_dir = test_results_dir / str(i)
-    runs: List[RunResult] = []
-    test_results.runs.append(runs)
-    for test in tests_remaining:
-        print(f'= {test.relative_to(replays_dir).as_posix()} ... ', end='', flush=True)
-        run_dir = runs_dir / test.with_suffix('').name
-        run_dir.mkdir(parents=True)
-        result = run_replay_test(test, run_dir)
-        status_emoji = '✅' if result.success else '❌'
-        # Can't figure out how to enable UTF-8 for VS output log.
-        if not args.emoji:
-            status_emoji = 'PASS' if result.success else 'FAIL'
 
-        message = f'{status_emoji} {time_format(result.duration)}'
-        if result.fps != None:
-            message += f', {result.fps} fps'
-        if not result.success:
-            if result.failing_frame != None:
-                message += f', failure on frame {result.failing_frame}'
-        print(message)
+    results = run_replay_tests(tests_remaining, runs_dir)
+    test_results.runs.append(results)
+
+    for result in results:
+        test = result.name
+        run_dir = runs_dir / result.directory
 
         # Only print on failure and last attempt.
-        if not result.success and i == args.retries:
+        if (not result.success or result.exceptions) and i == args.retries:
+            print(f'failure: {result.name}')
+
+            if result.exceptions:
+                print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
+
             def print_nicely(title: str, path: pathlib.Path):
                 if not path.exists():
                     return
@@ -977,10 +1226,9 @@ for i in range(args.retries + 1):
             print_nicely('STDOUT', run_dir / 'stdout.txt')
             print_nicely('STDERR', run_dir / 'stderr.txt')
             print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
-            print('\ndiff:')
-            print(result.diff)
-
-        runs.append(result)
+            if result.diff:
+                print('\ndiff:')
+                print(result.diff)
 
 
 test_results_path.write_text(test_results.to_json())
@@ -1066,7 +1314,7 @@ def prompt_to_create_compare_report():
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
         # TODO !! upstream get actual releases, not tags
-        most_recent_nightly = 'connorjclark-nightly-2023-08-31'
+        most_recent_nightly = 'connorjclark-nightly-2023-10-15'
         # most_recent_nightly = get_recent_release_tag('nightly-*')
         most_recent_alpha = get_recent_release_tag('2.55-alpha-*')
         print('Select a release build to use: ')

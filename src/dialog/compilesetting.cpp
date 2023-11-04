@@ -1,6 +1,6 @@
 #include "compilesetting.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "info.h"
 #include "zq/zquest.h"
 #include "zc/ffscript.h"

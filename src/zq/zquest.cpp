@@ -62,9 +62,9 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/compilezscript.h"
 
 #include "base/gui.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include "zc_list_data.h"
-#include "editbox.h"
+#include "gui/editbox.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_tiles.h"                                       // tile and combo code
 
@@ -83,7 +83,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "base/zapp.h"
 #include "base/process_management.h"
 #include "play_midi.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 
 #include "midi.h"
 #include "sprite.h"
@@ -93,7 +93,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "subscr.h"
 #include "zq/zq_subscr.h"
 #include "zc/ffscript.h"
-#include "EditboxNew.h"
+#include "gui/EditboxNew.h"
 #include "sfx.h"
 #include "zq/zq_custom.h" // custom items and guys
 #include "zq/zq_strings.h"
@@ -478,7 +478,6 @@ int combo_col_scale = 1;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *guyscripts[NUMSCRIPTGUYS];
-script_data *wpnscripts[NUMSCRIPTWEAPONS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -508,7 +507,7 @@ void clearConsole()
 	zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 	zscript_coloured_console.gotoxy(0,0);
 	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Classic Logging Console\n");
 }
 
 void initConsole()
@@ -516,7 +515,7 @@ void initConsole()
 	if(console_is_open) return;
 	console_is_open = 1;
 	set_console_state();
-	zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
+	zscript_coloured_console.Create("ZQuest Classic Logging Console", 600, 200);
 	clearConsole();
 }
 
@@ -1459,9 +1458,6 @@ void set_rules(byte* newrules)
 	// For 2.50.0 and 2.50.1
 	if(get_qr(qr_VERYFASTSCROLLING))
 		set_qr(qr_FASTDNGN, 1);
-	
-	//this is only here until the subscreen style is selectable by itself
-	zinit.subscreen_style=get_qr(qr_COOLSCROLL)?1:0;
 }
 
 int32_t onSelectFFCombo();
@@ -1672,7 +1668,7 @@ int32_t onToggleGrid(bool color)
 }
 int32_t onToggleGrid()
 {
-	return onToggleGrid(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+	return onToggleGrid(CHECK_CTRL_CMD);
 }
 
 int32_t onToggleShowScripts()
@@ -1747,7 +1743,7 @@ int onSecretsPreview()
 
 int onSKey()
 {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if(CHECK_CTRL_CMD)
 	{
 		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 		{
@@ -1816,7 +1812,7 @@ static DIALOG dialogs[] =
 
 int32_t onDecColour()
 {
-	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
+	if ( CHECK_CTRL_CMD )
 	{
 		return onDecScrPal16();
 	}
@@ -1835,7 +1831,7 @@ int32_t onDecColour()
 int32_t onIncColour()
 {
 	
-	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
+	if ( CHECK_CTRL_CMD )
 	{
 		return onIncScrPal16();
 	}
@@ -3125,11 +3121,11 @@ int32_t onPaste()
 {
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
-		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+		if(CHECK_CTRL_CMD)
 			return onPasteAllToAll();
 		else return onPasteAll();
 	}
-	else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	else if(CHECK_CTRL_CMD)
 		return onPasteToAll();
 	else
 	{
@@ -3541,7 +3537,7 @@ void scrollup(int j)
 			auto& sqr = comboaliaslist[j];
 			if(combo_alistpos[j]>0)
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					combo_alistpos[j]=0;
 					clear_tooltip();
@@ -3561,7 +3557,7 @@ void scrollup(int j)
 			auto& sqr = comboaliaslist[j];
 			if(combo_pool_listpos[j]>0)
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					combo_pool_listpos[j]=0;
 					clear_tooltip();
@@ -3581,7 +3577,7 @@ void scrollup(int j)
 			auto& sqr = comboaliaslist[j];
 			if (combo_auto_listpos[j] > 0)
 			{
-				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if (CHECK_CTRL_CMD)
 				{
 					combo_auto_listpos[j] = 0;
 					clear_tooltip();
@@ -3601,7 +3597,7 @@ void scrollup(int j)
 			auto& sqr = combolist[j];
 			if(First[j]>0)
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					First[j]-=zc_min(First[j],256);
 					clear_tooltip();
@@ -3627,7 +3623,7 @@ void scrolldown(int j)
 			auto& sqr = comboaliaslist[j];
 			if(combo_alistpos[j]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					combo_alistpos[j]=MAXCOMBOALIASES-(sqr.w*sqr.h);
 					clear_tooltip();
@@ -3647,7 +3643,7 @@ void scrolldown(int j)
 			auto& sqr = comboaliaslist[j];
 			if(combo_pool_listpos[j]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					combo_pool_listpos[j]=MAXCOMBOALIASES-(sqr.w*sqr.h);
 					clear_tooltip();
@@ -3667,7 +3663,7 @@ void scrolldown(int j)
 			auto& sqr = comboaliaslist[j];
 			if (combo_auto_listpos[j] < (MAXCOMBOALIASES - (sqr.w * sqr.h)))
 			{
-				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if (CHECK_CTRL_CMD)
 				{
 					combo_auto_listpos[j] = MAXCOMBOALIASES - (sqr.w * sqr.h);
 					clear_tooltip();
@@ -3687,7 +3683,7 @@ void scrolldown(int j)
 			auto& sqr = combolist[j];
 			if(First[j]<(MAXCOMBOS-(sqr.w*sqr.h)))
 			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					First[j]=zc_min((MAXCOMBOS-sqr.w*sqr.h),First[j]+256);
 					clear_tooltip();
@@ -4672,7 +4668,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 			step <<= 2;
 			
-		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+		if(CHECK_CTRL_CMD)
 			step >>= 1;
 			
 		if(key[KEY_UP])
@@ -5564,7 +5560,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
 				{
 					ffcdata& ff = ffscr->ffcs[i];
-					if(ff.getData() !=0 && (CurrentLayer<2 || (ff.flags&ffOVERLAY)))
+					if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffOVERLAY)))
 					{
 						auto x = ff.x+(showedges?16:0);
 						auto y = ff.y+(showedges?16:0);
@@ -6665,7 +6661,7 @@ void refresh(int32_t flags, bool update)
 			{
 				if(ypos+showfont_h-1 > map_page_bar[0].y)
 					break;
-				if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
+				if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].data)
 				{
 					textout_shadowed_ex(menu1, showfont, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),0,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),infobg?vc(0):-1);
 					ypos+=showfont_h+1;
@@ -6935,7 +6931,7 @@ void refresh(int32_t flags, bool update)
 			//Fixme:
 			int32_t ctype =
 				combobuf[vbound(
-					(c>=305 ? Map.CurrScr()->ffcs[c-305].getData() :
+					(c>=305 ? Map.CurrScr()->ffcs[c-305].data :
 					 c>=304 ? Map.CurrScr()->undercombo :
 					 c>=176 ? Map.CurrScr()->secretcombo[c-176] :
 					 !Map.CurrScr()->valid ? 0 : // Sanity check: does room combo data exist?
@@ -8582,6 +8578,8 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
     showxypos_icon=!showxypos_dummy;
     bool canedit=false;
     bool done=false;
+	
+	clear_tooltip();
     
     while(!done && (!(gui_mouse_b()&2) || immediately))
     {
@@ -8781,7 +8779,7 @@ void doflags()
 							+". This combo flag does not function on layers above '2'.").show();
 					}
 				}
-				if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+				if(CHECK_CTRL_CMD)
 				{
 					switch(fill_type)
 					{
@@ -10665,11 +10663,11 @@ void domouse()
 		{
 			if(y>=combolist[test_list].y-mouse_scroll_h && y<=combolist[test_list].y && First[test_list])
 			{
-				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])&&(key[KEY_ALT] || key[KEY_ALTGR]))
+				if((CHECK_CTRL_CMD)&&(key[KEY_ALT] || key[KEY_ALTGR]))
 				{
 					First[test_list]=0;
 				}
-				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				else if(CHECK_CTRL_CMD)
 				{
 					First[test_list]-=zc_min(First[test_list],256);
 				}
@@ -10687,11 +10685,11 @@ void domouse()
 			{
 				int32_t offset = combolist[test_list].w*combolist[test_list].h;
 				
-				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])&&(key[KEY_ALT] || key[KEY_ALTGR]))
+				if((CHECK_CTRL_CMD)&&(key[KEY_ALT] || key[KEY_ALTGR]))
 				{
 					First[test_list]=MAXCOMBOS-offset;
 				}
-				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				else if(CHECK_CTRL_CMD)
 				{
 					First[test_list] = zc_min(MAXCOMBOS-offset, First[test_list]+256);
 				}
@@ -10714,7 +10712,7 @@ void domouse()
 	{
 		bool did_ffttip = false;
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
-			if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 			{
 				int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
 				int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
@@ -10735,8 +10733,8 @@ void domouse()
 					char msg[1024] = {0};
 					auto& ff = Map.CurrScr()->ffcs[i];
 					sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
-							i+1, ff.getData(),ff.getData(),
-							combo_class_buf[combobuf[ff.getData()].type].name,
+							i+1, ff.data,ff.data,
+							combo_class_buf[combobuf[ff.data].type].name,
 							(ff.script<=0 ? "(None)" : ffcmap[ff.script-1].scriptname.substr(0,400).c_str()));
 					update_tooltip(x, y, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, msg);
 					did_ffttip = true;
@@ -11240,7 +11238,7 @@ void domouse()
 		{
 			if (draw_mode == dm_auto)
 			{
-				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				if (CHECK_CTRL_CMD)
 				{
 					if (canfill)
 					{
@@ -11290,7 +11288,7 @@ void domouse()
 				
 				// Move FFCs
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
-					if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+					if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 					{
 						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
 						int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
@@ -11322,10 +11320,10 @@ void domouse()
 						BrushWidth = BrushHeight = 1;
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
 						CSet=draw_mapscr->cset[c];
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+					if(CHECK_CTRL_CMD)
 						First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 				}
-				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				else if(CHECK_CTRL_CMD)
 				{
 					if(canfill)
 					{
@@ -11371,7 +11369,7 @@ void domouse()
 				// This loop also serves to find the free ffc with the smallest slot number.
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
 				{
-					auto data = Map.CurrScr()->ffcs[i].getData();
+					auto data = Map.CurrScr()->ffcs[i].data;
 					if(data==0)
 					{
 						if(i < earliestfreeffc)
@@ -11617,8 +11615,8 @@ void domouse()
 						case 13:
 						{
 							auto set_ffc_data = Map.getCopyFFCData();
-							set_ffc_data.x = (((x-startxint)&(~0x000F))/mapscreensize);
-							set_ffc_data.y = (((y-startyint)&(~0x000F))/mapscreensize);
+							set_ffc_data.x = (((x-startxint)/mapscreensize)&(~0x0007));
+							set_ffc_data.y = (((y-startyint)/mapscreensize)&(~0x0007));
 							Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), earliestfreeffc, set_ffc_data);
 						}
 						break;
@@ -11899,7 +11897,7 @@ void domouse()
 				int32_t fp = f + FAVORITECOMBO_PER_PAGE * FavoriteComboPage;
 				
 				bool dmcond = favorite_combos[fp] < 0;
-				if((key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond) && !(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+				if((key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond) && !(CHECK_CTRL_CMD))
 				{
 					int32_t tempcb=ComboBrush;
 					ComboBrush=0;
@@ -11955,7 +11953,7 @@ void domouse()
 					
 					ComboBrush=tempcb;
 				}
-				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				else if(CHECK_CTRL_CMD)
 				{
 					int32_t tempcb=ComboBrush;
 					ComboBrush=0;
@@ -12099,7 +12097,7 @@ void domouse()
 		if(cmd > -1)
 		{
 			bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-			bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+			bool ctrl=(CHECK_CTRL_CMD);
 			bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
 			bool dis = commands[favorite_commands[cmd]].flags==D_DISABLED;
 			auto& btn = commands_list.subsquare(cmd);
@@ -12853,7 +12851,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
         int32_t cs=d->fg;
         int32_t f=d->d2;
         
-        if(d->bg==1 || (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+        if(d->bg==1 || (CHECK_CTRL_CMD))
         {
             while(gui_mouse_b())
             {
@@ -12972,7 +12970,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
   switch(msg)
   {
     case MSG_CLICK:
-    if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+    if (CHECK_CTRL_CMD)
     {
       select_scombo(d->d1);
     }
@@ -21252,7 +21250,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         if(buf)
         {
             clear_bitmap(buf);
-            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].getData(),Map.CurrScr()->ffcs[d1].cset);
+            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].data,Map.CurrScr()->ffcs[d1].cset);
             stretch_blit(buf, ffcur, 0,0, 16, 16, 0, 0, ffcur->w, ffcur->h);
             destroy_bitmap(buf);
         }
@@ -21266,7 +21264,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         rectfill(screen,xd,y2,xd+x2+100,y2+yd*14,jwin_pal[jcBOX]);
         
         textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].getData());
+        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].data);
         
         textprintf_ex(screen,tempfont,xd,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet #:");
         textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].cset);
@@ -21320,7 +21318,7 @@ int32_t onSelectFFCombo()
     
     if(!ffcur) return D_O_K;
     
-    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].getData(),Map.CurrScr()->ffcs[ff_combo].cset);
+    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].data,Map.CurrScr()->ffcs[ff_combo].cset);
     ffcombo_sel_dlg[5].dp = ffcur;
     
 	bool resize = !(ffcombo_sel_dlg[0].d1);
@@ -24188,7 +24186,8 @@ bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
 	else if(scriptdata[indx])
 	{
 		delete scriptdata[indx];
-		scriptdata[indx] = new script_data();
+		// script_data::id is not used in editor, so should be fine for now.
+		scriptdata[indx] = new script_data(ScriptType::None, 0);
 	}
 	return true;
 }
@@ -25306,7 +25305,7 @@ int32_t onImportZASM()
 		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		return D_O_K;
 	}
-	script_data *temp_slot = new script_data();
+	script_data *temp_slot = new script_data(ScriptType::None, 0);
 	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
 	{
 		fclose(zasm_import_file);
@@ -27275,72 +27274,75 @@ static void allocate_crap()
 	
 	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
 	{
-		if(ffscripts[i]!=NULL) delete ffscripts[i];
-		ffscripts[i] = new script_data();
+		delete ffscripts[i];
+		ffscripts[i] = new script_data(ScriptType::FFC, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
 	{
-		if(itemscripts[i]!=NULL) delete itemscripts[i];
-		itemscripts[i] = new script_data();
+		delete itemscripts[i];
+		itemscripts[i] = new script_data(ScriptType::Item, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
 	{
-		if(guyscripts[i]!=NULL) delete guyscripts[i];
-		guyscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
-		lwpnscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
-		ewpnscripts[i] = new script_data();
+		delete guyscripts[i];
+		guyscripts[i] = new script_data(ScriptType::NPC, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
 	{
-		if(screenscripts[i]!=NULL) delete screenscripts[i];
-		screenscripts[i] = new script_data();
+		delete screenscripts[i];
+		screenscripts[i] = new script_data(ScriptType::Screen, i);
 	}
 	
-	for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
+	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
 	{
-		if(globalscripts[i]!=NULL) delete globalscripts[i];
-		globalscripts[i] = new script_data();
+		delete globalscripts[i];
+		globalscripts[i] = new script_data(ScriptType::Global, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
 	{
-		if(playerscripts[i]!=NULL) delete playerscripts[i];
-		playerscripts[i] = new script_data();
+		delete playerscripts[i];
+		playerscripts[i] = new script_data(ScriptType::Player, i);
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		delete lwpnscripts[i];
+		lwpnscripts[i] = new script_data(ScriptType::Lwpn, i);
+	}
+	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		delete ewpnscripts[i];
+		ewpnscripts[i] = new script_data(ScriptType::Ewpn, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
 	{
-		if(dmapscripts[i]!=NULL) delete dmapscripts[i];
-		dmapscripts[i] = new script_data();
+		delete dmapscripts[i];
+		dmapscripts[i] = new script_data(ScriptType::DMap, i);
 	}
-	
 	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
 	{
-		if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
-		itemspritescripts[i] = new script_data();
+		delete itemspritescripts[i];
+		itemspritescripts[i] = new script_data(ScriptType::ItemSprite, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
 	{
-		if(comboscripts[i]!=NULL) delete comboscripts[i];
-		comboscripts[i] = new script_data();
+		delete comboscripts[i];
+		comboscripts[i] = new script_data(ScriptType::Combo, i);
+	}
+	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
+	{
+		delete genericscripts[i];
+		genericscripts[i] = new script_data(ScriptType::Generic, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
 	{
-		if(subscreenscripts[i]!=NULL) delete subscreenscripts[i];
-		subscreenscripts[i] = new script_data();
+		delete subscreenscripts[i];
+		subscreenscripts[i] = new script_data(ScriptType::EngineSubscreen, i);
 	}
 }
 
@@ -27592,6 +27594,8 @@ int32_t main(int32_t argc,char **argv)
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
 	if (test_zc_arg > 0)
 	{
+		set_headless_mode();
+
 		if (test_zc_arg + 1 > argc)
 		{
 			printf("%d\n", argc);
@@ -27736,7 +27740,7 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("Failed to load fonts datafile '%s'!\n", moduledata.datafiles[fonts_dat]);
 	
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
-		FatalConsole("ZQuest Creator I/O Error:\nIncompatible version of fonts.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+		FatalConsole("ZQuest Classic I/O Error:\nIncompatible version of fonts.dat.\nZQuest Classic cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	
 	if(fontsdat_cnt != FONTSDAT_CNT)
 		FatalConsole("Incompatible fonts.dat: Found size '%d', expecting size '%d'\n", fontsdat_cnt, FONTSDAT_CNT);
@@ -28113,7 +28117,10 @@ int32_t main(int32_t argc,char **argv)
 
 	zq_screen_w = LARGE_W;
 	zq_screen_h = LARGE_H;
-	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,zq_screen_w,zq_screen_h,0,0));
+	window_width = zc_get_config("zquest","window_width",-1);
+	window_height = zc_get_config("zquest","window_height",-1);
+	auto [w, h] = zc_get_default_display_size(LARGE_W/2, LARGE_H/2, window_width, window_height);
+	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,w,h,zq_screen_w,zq_screen_h));
 
 	//extra block here is intentional
 	if(videofail!=0)
@@ -28127,6 +28134,9 @@ int32_t main(int32_t argc,char **argv)
 				  tempmode, get_color_depth(), zq_screen_w, zq_screen_h);
 		//Z_message("OK\n");
 	}
+
+	set_window_title("ZC Editor");
+
 	initFonts();
 	load_size_poses();
 
@@ -28137,10 +28147,7 @@ int32_t main(int32_t argc,char **argv)
 			al_rest(1);
 		}
 
-		window_width = zc_get_config("zquest","large_window_width",zq_screen_w);
-		window_height = zc_get_config("zquest","large_window_height",zq_screen_h);
-		double monitor_scale = zc_get_monitor_scale();
-		al_resize_display(all_get_display(), window_width*monitor_scale, window_height*monitor_scale);
+		al_resize_display(all_get_display(), w, h);
 
 		int window_w = al_get_display_width(all_get_display());
 		int window_h = al_get_display_height(all_get_display());
@@ -28166,7 +28173,12 @@ int32_t main(int32_t argc,char **argv)
 			if(new_y + window_h > mh - 72)
 				new_y = mh-72-window_h;
 		}
+#ifdef ALLEGRO_MACOSX
+		if (zc_get_config("zquest","save_window_position",0))
+			al_set_window_position(all_get_display(), new_x, new_y);
+#else
 		al_set_window_position(all_get_display(), new_x, new_y);
+#endif
 	}
 #endif
 
@@ -30043,11 +30055,10 @@ int32_t save_config_file()
 	
     if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize) 
     {
-		double monitor_scale = zc_get_monitor_scale();
-		window_width = al_get_display_width(all_get_display()) / monitor_scale;
-		window_height = al_get_display_height(all_get_display()) / monitor_scale;
-		zc_set_config("zquest","large_window_width",window_width);
-		zc_set_config("zquest","large_window_height",window_height);
+		window_width = al_get_display_width(all_get_display());
+		window_height = al_get_display_height(all_get_display());
+		zc_set_config("zquest","window_width",window_width);
+		zc_set_config("zquest","window_height",window_height);
     }
     if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
     {
@@ -30754,11 +30765,6 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 		ttip_add_highlight(tx, ty, tw, th, fw, fh);
 }
 
-void clear_tooltip()
-{
-	ttip_remove();
-}
-
 void ZQ_ClearQuestPath()
 {
 	zc_set_config("zquest","win_last_quest",(char const*)nullptr);
@@ -31017,11 +31023,11 @@ void FFScript::ZScriptConsole(bool open)
 	#ifdef _WIN32
 	if ( console_is_open )
 	{
-		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
+		zscript_coloured_console.Create("ZQuest Classic Logging Console", 600, 200);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Classic Logging Console\n");
 	}
 	else
 	{

@@ -136,14 +136,14 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_triforcepiece:
 		{
 			_SET(misc[0], "Cutscene MIDI:", "If non-zero, overrides the cutscene midi");
-			_SET(misc[1], "Cutscene Type (0-1):", "If >0, uses the 'big triforce' cutscene style");
+			_SET(misc[1], "Cutscene Type (0-1):", "If >0, uses the 'big mcguffin' cutscene style");
 			_SET(misc[2], "Second Collect Sound:", "A second sound to play on pickup, played only if flag 'Play Second SFX' is checked.");
 			_SET(misc[3], "Custom Cutscene Duration", "If nonzero, overrides the duration of the cutscene, in frames");
-			_SET(misc[4], "Custom Refill Frame", "If non-zero, changes the timing of the triforce's life refill.");
+			_SET(misc[4], "Custom Refill Frame", "If non-zero, changes the timing of the mcguffin's life refill.");
 			_SET(flag[0], "Side Warp Out", "Warp out using sidewarp A upon completion");
 			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on pickup");
 			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on pickup");
-			_SET(flag[7], "Ownable", "Can be owned; this is normally handled by 'Equipment Item', but not for triforce piece items.");
+			_SET(flag[7], "Ownable", "Can be owned; this is normally handled by 'Equipment Item', but not for mcguffin piece items.");
 			_SET(flag[8], "Don't Dismiss Messages", "If not checked, the cutscene clears screen strings");
 			_SET(flag[9], "Cutscene Interrupts Action Script", "The action script, if running on collection, is paused for the duration of the cutscene.");
 			_SET(flag[10], "Don't Affect Music", "If not checked, music is stopped for the cutscene");
@@ -657,13 +657,15 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_ring:
 		{
 			_SET(misc[0], "Player Sprite Pal:", "The Sprite Palette row to load into CSet 6");
-			inf->flag[0] = "Affects Damage Combos";
-			inf->flag[1] = "Percentage Multiplier";
+			_SET(flag[0], "Affects Damage Combos", "Whether or not the ring reduces damage from damage combos.");
+			_SET(flag[1], "Percentage Multiplier", "Changes the 'Damage Divisor' to a 'Damage % Mult'"
+				", allowing more precise control over the defense granted.");
 			if(FLAG(2))
 				_SET(power, "Damage % Mult:", "The percentage to multiply the damage by. A negative value"
 					" will deal that amount *more* damage; i.e. '-100' is the same as '200'.");
 			else
-				inf->power = "Damage Divisor:";
+				_SET(power, "Damage Divisor:", "The number to divide the damage by. A divisor of 0"
+					" makes the player take no damage at all.");
 			break;
 		}
 		case itype_wand: //!TODO Help Text
@@ -1232,16 +1234,17 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								get_ic_help(local_itemref.family)).show();
 						})
 				),
-				Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
+				Row(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
 					Checkbox(
-						hAlign = 0.0,
 						checked = (local_itemref.flags & ITEM_GAMEDATA),
-						text = "Equipment Item",
+						text = "Equipment Item", _EX_RBOX,
 						onToggleFunc = [&](bool state)
 						{
 							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
 						}
-					)
+					),
+					INFOBTN("Only 'Equipment Item's can be 'owned' by the player,"
+						" and appear in Init Data.")
 				)
 			),
 			TabPanel(
@@ -1314,7 +1317,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
 								}
 							),
-							DINFOBTN(),
+							INFOBTN("If checked, this item can be used even while the player"
+								" has been turned into a 'bunny', and will still apply its"
+								" Player Tile Modifier."),
 							Checkbox(
 								width = FLAGS_WID,
 								checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),

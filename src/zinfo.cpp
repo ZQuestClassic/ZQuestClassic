@@ -3,7 +3,7 @@
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "zinfo.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "qst.h"
 #include "base/fonts.h"
 #include "base/packfile.h"
@@ -184,7 +184,7 @@ const char default_ctype_strings[cMAX][255] =
 	"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
 	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block", "ButtonPrompt",
 	"Block Weapon (Custom)", "Shooter", "Slope", "Cutscene Trigger", "Push (Generic)",
-	"Icy Floor", "Mirror (Custom)"
+	"Icy Floor", "Mirror (Custom)", "Crumbling"
 };
 const char old_mapflag_strings[mfMAX][255] =
 {

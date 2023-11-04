@@ -6,7 +6,7 @@
 #include "info.h"
 #include "alert.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "base/zsys.h"
 #include "base/gui.h"
@@ -460,7 +460,13 @@ static GUI::ListData comboRulesList
 		" Does nothing if 'No Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
 	{ "Sensitive Solid Damage Combos", qr_SENSITIVE_SOLID_DAMAGE, 
 		"Solid damage combos only check the center of the Player's hitbox. Does not affect sideview damage combos you step on."
-		" Does nothing if 'No Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS,qr_LENIENT_SOLID_DAMAGE}) }
+		" Does nothing if 'No Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS,qr_LENIENT_SOLID_DAMAGE}) },
+	{ "Allow Multiple Platform FFCs", qr_MULTI_PLATFORM_FFC, 
+		"If checked, more than one FFC with the 'Platform' flag can move the player in a single frame."
+		" Otherwise, the first 'Platform' FFC to move the player will prevent other platforms from moving the player that frame." },
+	{ "Separate Tap SFX for bombable walls", qr_SEPARATE_BOMBABLE_TAPPING_SFX,
+		"If checked, bombable walls will use a separate SFX 'Sword Tap (Hollow)' when tapped against,"
+		" instead of the default 'Sword Tap' sound. (sounds set in the Misc SFX menu)" },
 };
 
 static GUI::ListData compatRulesList
@@ -1615,7 +1621,10 @@ GUI::ListData instructionRulesList
 	{ "Disable accessing negative array indexes", qr_ZS_NO_NEG_ARRAY, "If enabled,"
 		" the new feature allowing accessing negative indexes of an array to backwards-index them"
 		" (i.e. 'arr[-1]' is the LAST element in the array) will be DISABLED if this is on."
-		"\nUseful for debugging if you're using this feature *by mistake*." }
+		"\nUseful for debugging if you're using this feature *by mistake*." },
+	{ "Game->Generic[GEN_CONTINUEHEARTS] is in 'Hearts'", qr_SCRIPT_CONTHP_IS_HEARTS,
+		"If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise,"
+		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)"}
 };
 
 GUI::ListData objectRulesList
@@ -1723,7 +1732,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_BROKENCHARINTDRAWING, qr_NO_OVERWRITING_HOPPING,
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
-				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY,
+				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);

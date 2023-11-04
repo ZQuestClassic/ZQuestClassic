@@ -1,6 +1,6 @@
 #include "gui/frame.h"
 #include "gui/dialog_runner.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 
 // int32_t d_dummy_proc(int32_t, DIALOG*, int32_t)
 // {

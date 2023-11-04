@@ -97,10 +97,7 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 case ALLEGRO_EVENT_KEY_DOWN:
                 {
                     update_key_shifts(&event);
-                    if(event.keyboard.keycode >= ALLEGRO_KEY_MODIFIERS)
-                    {
-                        _handle_key_press(0, a5_keyboard_keycode_map[event.keyboard.keycode]);
-                    }
+                    _handle_key_press(-1, a5_keyboard_keycode_map[event.keyboard.keycode]);
                     break;
                 }
                 case ALLEGRO_EVENT_KEY_UP:
@@ -114,7 +111,6 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     update_key_shifts(&event);
                     if(event.keyboard.unichar >= 0)
                     {
-                        // local edit
                         if ((ALLEGRO_KEYMOD_ALT & event.keyboard.modifiers) != 0) {
                             _handle_key_press(0, event.keyboard.keycode);
                         } else {

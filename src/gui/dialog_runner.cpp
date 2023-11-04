@@ -1,7 +1,7 @@
 #include "gui/dialog_runner.h"
 #include "gui/common.h"
 #include "base/gui.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 
 using std::shared_ptr;
 bool mid_quitting_dlg = false;
@@ -29,6 +29,8 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 			return D_CLOSE;
 		}
 	}
+	if(dr->done)
+		return D_CLOSE;
 	if(msg == MSG_GUI_EVENT)
 	{
 		MessageDispatcher md(dr->widgets[d->d1], dr->sendMessage);

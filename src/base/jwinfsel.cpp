@@ -8,7 +8,7 @@
 #include "base/zc_alleg.h"
 #include <allegro/alcompat.h>
 
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/jwinfsel.h"
 #include "base/zsys.h"
 #include "base/fonts.h"

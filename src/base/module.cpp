@@ -62,10 +62,10 @@ bool ZModule::init(bool d) //bool default
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
 	strcpy(moduledata.module_name,zc_get_config("ZCMODULE","current_module","modules/classic.zmod"));
-	al_trace("The Current ZQuest Creator Module is: %s\n",moduledata.module_name); 
+	al_trace("The Current ZQuest Classic Module is: %s\n",moduledata.module_name); 
 	if(!fileexists((char*)moduledata.module_name))
 	{
-		Z_error_fatal("ZQuest Creator I/O Error:\nNo module definitions found.\nZQuest Creator cannot run without these definitions,\nand is now exiting.\nPlease check your settings in %s.cfg.\n","zcl");
+		Z_error_fatal("ZQuest Classic I/O Error:\nNo module definitions found.\nZQuest Classic cannot run without these definitions,\nand is now exiting.\nPlease check your settings in %s.cfg.\n","zcl");
 		return false;
 	}
 	if(!d) return true;

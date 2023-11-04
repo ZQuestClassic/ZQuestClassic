@@ -300,7 +300,6 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 		}
 	}
 	
-	//fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 	fclose(tempfile);
 }
 

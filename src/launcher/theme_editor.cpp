@@ -2,7 +2,7 @@
 #include "dialog/common.h"
 #include "dialog/alert.h"
 #include "base/jwinfsel.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include <gui/builder.h>
 #include "launcher/launcher.h"
 

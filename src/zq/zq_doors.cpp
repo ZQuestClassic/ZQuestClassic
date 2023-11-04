@@ -4,7 +4,7 @@
 #include "base/gui.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zsys.h"
 #include "base/misctypes.h"
 #include "zc/zc_sys.h"

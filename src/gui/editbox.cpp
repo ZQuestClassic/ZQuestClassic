@@ -1,9 +1,9 @@
 #include <cstring>
 #include "base/zc_alleg.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include <stdio.h>
 
-#include "EditboxNew.h"
+#include "gui/EditboxNew.h"
 
 extern int32_t scheme[];
 /* d_editbox_proc:
@@ -106,12 +106,12 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 			
 		case KEY_HOME:
-			model->getView()->lineHome(key[KEY_LCONTROL]||key[KEY_RCONTROL]);
+			model->getView()->lineHome(CHECK_CTRL_CMD);
 			ret = D_USED_CHAR;
 			break;
 			
 		case KEY_END:
-			model->getView()->lineEnd(key[KEY_LCONTROL]||key[KEY_RCONTROL]);
+			model->getView()->lineEnd(CHECK_CTRL_CMD);
 			ret = D_USED_CHAR;
 			break;
 			
@@ -168,7 +168,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 			
 		case KEY_A:
-			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				model->getSelection().clearSelection();
 				model->getView()->lineHome(true);
@@ -183,7 +183,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 			
 		case KEY_C:
-			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				model->copy();
 				ret = D_USED_CHAR;
@@ -194,7 +194,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 			
 		case KEY_X:
-			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				model->set_undo();
 				model->cut();
@@ -206,7 +206,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 			
 		case KEY_V:
-			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				model->set_undo();
 				model->clear();
@@ -218,7 +218,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			ret = D_O_K;
 			break;
 		case KEY_Z:
-			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+			if(CHECK_CTRL_CMD)
 			{
 				model->undo();
 				ret = D_USED_CHAR;

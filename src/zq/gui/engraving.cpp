@@ -4,7 +4,7 @@
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
 #include "gui/use_size.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include <cassert>
 #include <utility>
 #include "tiles.h"

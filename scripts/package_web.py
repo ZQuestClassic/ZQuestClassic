@@ -104,6 +104,7 @@ if 'zeditor' in targets:
 copy_from_build_if_exists('zplayer.wasm.debug.wasm', '')
 copy_from_build_if_exists('zeditor.wasm.debug.wasm', '')
 copy_from_build_if_exists('{replays.data,replays.data.js}', '')
+copy_from_build('zscript.{wasm,worker.js,mjs}', '')
 
 copy_recursively(web_dir / 'icons', dist_dir)
 shutil.copy2(web_dir / 'manifest.json', dist_dir)

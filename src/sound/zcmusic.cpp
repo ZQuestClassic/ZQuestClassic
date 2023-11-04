@@ -19,7 +19,7 @@
 
 #include "base/zsys.h"
 #include "base/util.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include <filesystem>
 #include <stdlib.h>
 #include <allegro5/allegro_audio.h>
@@ -58,6 +58,8 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define DUH_CHANNELS  2                                     // stereo
 #define DUH_SAMPLES   44100                                 //Hz
 #define DUH_RESAMPLE  1
+
+char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
 
 int32_t zcmusic_bufsz = 64;
 static int32_t zcmusic_bufsz_private = 64;

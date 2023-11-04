@@ -104,6 +104,7 @@ bool newcombo::is_blank(bool ignoreEff)
 	if(sfx_loop) return false;
 	if(sfx_walking) return false;
 	if(sfx_standing) return false;
+	if(sfx_tap) return false;
 	if(spr_appear) return false;
 	if(spr_disappear) return false;
 	if(spr_walking) return false;
@@ -238,6 +239,7 @@ void newcombo::advpaste(newcombo const& other, byte* pasteflags)
 		sfx_loop = other.sfx_loop;
 		sfx_walking = other.sfx_walking;
 		sfx_standing = other.sfx_standing;
+		sfx_tap = other.sfx_tap;
 	}
 	if(get_bit(pasteflags,ADVP_GEN_SPRITES))
 	{

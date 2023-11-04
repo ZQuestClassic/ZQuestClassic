@@ -84,7 +84,7 @@ void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col)
 slope_info slope_object::get_info() const
 {
 	bool ff = ffc && ffc->getLoaded();
-	word const* id = ff ? &ffc->getData() : cmbid;
+	word const* id = ff ? &ffc->data : cmbid;
 	if(!id) return slope_info();
 	newcombo const& cmb = combobuf[*id];
 	if(cmb.type != cSLOPE)
@@ -109,7 +109,7 @@ slope_object::slope_object(word* cid, ffcdata* ff, rpos_t id, int32_t x, int32_t
 	{
 		xoffs = ffc->x;
 		yoffs = ffc->y;
-		cmbid = &(ffc->getData());
+		cmbid = &(ffc->data);
 	}
 	else
 	{

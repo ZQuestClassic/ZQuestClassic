@@ -158,10 +158,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FLIPROTTILEVR",       2,   1,   0,   0},
 	{ "FLIPROTTILERV",       2,   0,   1,   0},
 	{ "FLIPROTTILERR",       2,   0,   0,   0},
-	{ "GETTILEPIXELV",       1,   1,   0,   0},
-	{ "GETTILEPIXELR",       1,   0,   0,   0},
-	{ "SETTILEPIXELV",       1,   1,   0,   0},
-	{ "SETTILEPIXELR",       1,   0,   0,   0},
+	{ "GETTILEPIXEL",       0,   0,   0,   0},
+	{ "RESRVD_OP_MOOSH_EX_01",       1,   0,   0,   0},
+	{ "SETTILEPIXEL",       0,   0,   0,   0},
+	{ "RESRVD_OP_MOOSH_EX_02",       1,   0,   0,   0},
 	{ "SHIFTTILEVV",         2,   1,   1,   0},
 	{ "SHIFTTILEVR",         2,   1,   0,   0},
 	{ "SHIFTTILERV",         2,   0,   1,   0},
@@ -2608,7 +2608,7 @@ script_variable variable_list[]=
 	{ "MUSICUPDATECOND", MUSICUPDATECOND, 0, 0 },
 	{ "MUSICUPDATEFLAGS", MUSICUPDATEFLAGS, 0, 0 },
 	{ "DMAPDATAINTROSTRINGID", DMAPDATAINTROSTRINGID, 0, 0 },
-	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },
+	{ "IS8BITTILE", IS8BITTILE, 0, 0 },
 	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },
 	{ "RESRVD_VAR_MOOSH10", RESRVD_VAR_MOOSH10, 0, 0 },
 	{ "RESRVD_VAR_MOOSH11", RESRVD_VAR_MOOSH11, 0, 0 },
@@ -2853,6 +2853,9 @@ script_variable variable_list[]=
 
 	{ "HEROSHOVEOFFSET", HEROSHOVEOFFSET, 0, 0 },
 
+	{ "SCREENDATAGUYCOUNT", SCREENDATAGUYCOUNT, 0, 0 },
+	{ "MAPDATAGUYCOUNT", MAPDATAGUYCOUNT, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 
@@ -2951,6 +2954,8 @@ int32_t parse_script_file(script_data **script, const char *path, bool report_su
 #define SUBBUFSZ 0x200
 int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
 {
+	// TODO: refactor to just take a script_data*
+	ASSERT(*script);
 	saved=false;
 	std::string buffer;
 	char combuf[SUBBUFSZ] = {0};
@@ -3118,13 +3123,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 	stop = false;
 	meta_done = false;
 	
-	if((*script)!=NULL)
-		delete (*script);
-	(*script) = new script_data(num_commands);
-	for(int32_t i=0; i<num_commands; i++)
-	{
-		(*script)->zasm[i].clear();
-	}
+	(*script)->null_script(num_commands);
 	
 	for(int32_t i=0; i<num_commands; ++i)
 	{
@@ -3429,7 +3428,9 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			}
 		}
 	}
-	
+
+	(*script)->recalc_size();
+
 	if(report_success && success) //(!stop) // stop is never true here
 	{
 		char buf[80],name[13];
@@ -3442,6 +3443,8 @@ zasmfile_fail:
 }
 int32_t parse_script_string(script_data **script, std::string const& scriptstr, bool report_success)
 {
+	// TODO: refactor to just take a script_data*
+	ASSERT(*script);
 	saved=false;
 	std::string buffer;
 	char combuf[SUBBUFSZ] = {0};
@@ -3613,13 +3616,7 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 	stop = false;
 	meta_done = false;
 	
-	if((*script)!=NULL)
-		delete (*script);
-	(*script) = new script_data(num_commands);
-	for(int32_t i=0; i<num_commands; i++)
-	{
-		(*script)->zasm[i].clear();
-	}
+	(*script)->null_script(num_commands);
 	
 	for(int32_t i=0; i<num_commands; ++i)
 	{
@@ -3917,7 +3914,9 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 			}
 		}
 	}
-	
+
+	(*script)->recalc_size();
+
 	if(report_success && success) //(!stop) // stop is never true here
 	{
 		char buf[80],name[13];

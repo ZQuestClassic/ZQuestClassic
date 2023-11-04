@@ -2,7 +2,7 @@
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include <algorithm>
 #include <cassert>
 #include <utility>

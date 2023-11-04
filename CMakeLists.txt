@@ -120,14 +120,6 @@ endfunction(enable_unity_build)
 #############################################################
 
 if(NOT EMSCRIPTEN)
-	# TODO: can't use prebuilt zlib on Ubuntu, else get linker errors.
-	# Error from building gme:
-	#   /usr/bin/ld: _deps/zlib-build/Release/libz.a(trees.c.o): relocation R_X86_64_PC32 against
-	#   symbol `_length_code' can not be used when making a shared object; recompile with -fPIC
-	if(LINUX)
-		set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE NEVER)
-	endif()
-
 	FetchContent_Declare(
 		zlib
 		GIT_REPOSITORY
@@ -136,10 +128,8 @@ if(NOT EMSCRIPTEN)
 			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
 		FIND_PACKAGE_ARGS NAMES ZLIB
 	)
+	set(BUILD_SHARED_LIBS ON)
 	FetchContent_MakeAvailable(zlib)
-	if(LINUX)
-		set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE OPT_IN)
-	endif()
 
 	if(NOT ZLIB_LIBRARIES)
 		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
@@ -443,8 +433,8 @@ set(zcbase_sources
 	src/base/colors.cpp
 	src/base/combo.cpp
 	src/base/containers.cpp
-	src/base/cpos_info.cpp
 	src/base/cpool.cpp
+	src/base/cpos_info.cpp
 	src/base/dmap.cpp
 	src/base/fonts.cpp
 	src/base/general.cpp
@@ -499,12 +489,16 @@ add_library(zcgui STATIC
 	src/gui/dialog_ref.cpp
 	src/gui/dialog_runner.cpp
 	src/gui/drop_down_list.cpp
+	src/gui/editbox.cpp
+	src/gui/EditboxModel.cpp
+	src/gui/EditboxView.cpp
 	src/gui/frame.cpp
 	src/gui/grid.cpp
+	src/gui/jwin_a5.cpp
+	src/gui/jwin.cpp
 	src/gui/label.cpp
 	src/gui/list_data.cpp
 	src/gui/list.cpp
-	src/gui/qrpanel.cpp
 	src/gui/radio.cpp
 	src/gui/radioset.cpp
 	src/gui/scrolling_pane.cpp
@@ -580,9 +574,8 @@ if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 set(ZCSOUNDSOURCES
-	src/zcmusic.cpp
-	src/zcmusicd.cpp
-	src/zcmixer.cpp
+	src/sound/zcmusic.cpp
+	src/sound/zcmixer.cpp
 )
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA} allegro_audio allegro_acodec)
@@ -634,7 +627,7 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		GIT_REPOSITORY
 			https://github.com/asmjit/asmjit.git
 		GIT_TAG
-			e13642567393a4bfc8c5607b33337b2ed3b0d01e
+			7e64eabca49c1a4d2cbfb06e4b9d3987bce7f7b3
 	)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zplayer PRIVATE asmjit)
@@ -824,7 +817,7 @@ foreach(target IN LISTS zc_targets)
 endforeach()
 
 if(WANT_SENTRY)
-	set(SENTRY_VERSION 0.6.3)
+	set(SENTRY_VERSION 0.6.6)
 	set(SENTRY_BACKEND crashpad)
 	set(SENTRY_BUILD_SHARED_LIBS OFF)
 	FetchContent_Declare(sentry URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip)

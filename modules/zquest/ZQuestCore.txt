@@ -5,9 +5,6 @@ set(ZQUEST_CORE_SOURCES
 # Add or remove files here
 ################################
 src/defdata.cpp
-src/editbox.cpp
-src/EditboxModel.cpp
-src/EditboxView.cpp
 src/gamedata.cpp
 src/midi.cpp
 src/md5.cpp

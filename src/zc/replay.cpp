@@ -26,7 +26,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 23;
+static const int VERSION = 24;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -82,8 +82,9 @@ static int prev_debug_y;
 static bool gfx_got_mismatch;
 static std::array<int, 4> prev_mouse_state;
 static std::array<int, 4> current_mouse_state;
-static std::chrono::time_point<std::chrono::system_clock> time_started;
-static std::chrono::time_point<std::chrono::system_clock> time_result_saved;
+static std::chrono::time_point<std::chrono::steady_clock> time_started;
+static std::chrono::time_point<std::chrono::system_clock> time_started_system;
+static std::chrono::time_point<std::chrono::steady_clock> time_result_saved;
 
 struct FramebufHistoryEntry
 {
@@ -889,9 +890,9 @@ static std::string segments_to_string(const std::vector<std::pair<int, int>>& se
 
 static void save_result(bool stopped = false, bool changed = false)
 {
-	time_result_saved = std::chrono::system_clock::now();
+	time_result_saved = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> elapsed = time_result_saved - time_started;
-	std::time_t time_started_c = std::chrono::system_clock::to_time_t(time_started);
+	std::time_t time_started_c = std::chrono::system_clock::to_time_t(time_started_system);
 	int fps = (double)frame_count / elapsed.count() * 1000;
 
 	// Write to temporary file and then move it, because run_replay_tests.py will constantly
@@ -1158,7 +1159,8 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 {
     ASSERT(mode == ReplayMode::Off);
     ASSERT(mode_ != ReplayMode::Off && mode_ != ReplayMode::ManualTakeover);
-    time_started = std::chrono::system_clock::now();
+    time_started = std::chrono::steady_clock::now();
+    time_started_system = std::chrono::system_clock::now();
     mode = mode_;
     debug = false;
     sync_rng = false;
@@ -1346,7 +1348,7 @@ void replay_poll()
 
     if (frame_count == 0)
         save_result();
-    if (std::chrono::system_clock::now() - time_result_saved > 1s)
+    if (std::chrono::steady_clock::now() - time_result_saved > 1s)
         save_result();
 
     if (mode == ReplayMode::Assert || mode == ReplayMode::Record)

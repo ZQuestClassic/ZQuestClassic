@@ -2,7 +2,7 @@
 #define _ZCMIXER_H_
 
 #include <cstdint>
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 
 #if defined ZCM_DLL
 #define ZCM_EXTERN extern __declspec(dllexport)

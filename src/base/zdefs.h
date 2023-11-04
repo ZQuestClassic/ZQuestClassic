@@ -214,9 +214,9 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           8
 #define V_RULES           17
 #define V_STRINGS         10
-#define V_MISC            15
+#define V_MISC            16
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          43
+#define V_COMBOS          44
 #define V_CSETS            5 //palette data
 #define V_MAPS            28
 #define V_DMAPS           21
@@ -226,11 +226,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        36
+#define V_INITDATA        37
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        36
+#define V_SAVEGAME        37
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
@@ -239,7 +239,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       58
+#define V_COMPATRULE       60
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -559,7 +559,7 @@ enum
 	//175
 	cCUSTOMBLOCK, cSHOOTER, cSLOPE, cCUTSCENETRIG, cPUSHBLOCK,
 	//180
-	cICY, cMIRRORNEW,
+	cICY, cMIRRORNEW, cCRUMBLE,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1914,20 +1914,29 @@ struct ffscript
 	}
 };
 
-extern int next_script_data_debug_id;
+struct script_id {
+	auto operator<=>(const script_id&) const = default;
+
+	ScriptType type;
+	int index;
+};
 
 struct script_data
 {
 	ffscript* zasm;
 	zasm_meta meta;
-	int debug_id;
+	script_id id;
+	size_t size;
 	
-	void null_script()
+	void null_script(size_t newSize = 1)
 	{
+		if (newSize < 1)
+			newSize = 1;
 		if(zasm)
 			delete[] zasm;
-		zasm = new ffscript[1];
+		zasm = new ffscript[newSize];
 		zasm[0].clear();
+		size = newSize;
 	}
 	
 	bool valid() const
@@ -1938,33 +1947,41 @@ struct script_data
 	void disable()
 	{
 		if(zasm)
+		{
 			zasm[0].clear();
+			size = 1;
+		}
 	}
 	
-	uint32_t size() const
+	void recalc_size()
 	{
 		if(zasm)
 		{
 			for(uint32_t q = 0;;++q)
 			{
 				if(zasm[q].command == 0xFFFF)
-					return q+1;
+				{
+					size = q+1;
+					return;
+				}
 			}
 		}
-		return 0;
+
+		size = 0;
 	}
 	
 	void set(script_data const& other)
 	{
 		if(zasm)
 			delete[] zasm;
-		if(other.size())
+		if(other.size)
 		{
-            zasm = new ffscript[other.size()];
-			for(size_t q = 0; q < other.size(); ++q)
+			zasm = new ffscript[other.size];
+			for(size_t q = 0; q < other.size; ++q)
 			{
 				other.zasm[q].copy(zasm[q]);
 			}
+			size = other.size;
 		}
 		else
 		{
@@ -1973,23 +1990,10 @@ struct script_data
 		}
 		meta = other.meta;
 	}
-	
-	script_data(int32_t cmds) : zasm(NULL)
+
+	script_data(ScriptType type, int index) : zasm(NULL)
 	{
-		debug_id = next_script_data_debug_id++;
-		if(cmds > 0)
-		{
-			zasm = new ffscript[cmds];
-			for(int32_t q = 0; q < cmds; ++q)
-				zasm[q].clear();
-		}
-		else
-			null_script();
-	}
-	
-	script_data() : zasm(NULL)
-	{
-		debug_id = next_script_data_debug_id++;
+		id = {type, index};
 		null_script();
 	}
 	
@@ -2010,6 +2014,7 @@ struct script_data
 		if(other.zasm)
 			delete[] other.zasm;
 		other.zasm = zasm;
+		other.size = size;
 		zasm = NULL;
 		null_script();
 	}
@@ -2022,11 +2027,9 @@ struct script_data
 	
 	bool equal_zasm(script_data const& other) const
 	{
+		if(size != other.size) return false;
 		if(valid() != other.valid()) return false;
-		auto sz = size();
-		auto othersz = other.size();
-		if(sz != othersz) return false;
-		for(auto q = 0; q < sz; ++q)
+		for(auto q = 0; q < size; ++q)
 		{
 			if(zasm[q] != other.zasm[q]) return false;
 		}
@@ -2038,12 +2041,6 @@ struct script_data
 		if(meta != other.meta) return false;
 		return equal_zasm(other);
 	}
-	
-	bool operator!=(script_data const& other) const
-	{
-		return !(*this == other);
-	}
-	
 };
 
 struct script_command
@@ -2432,7 +2429,6 @@ enum
     idI_BAIT, idI_HAMMER, idI_CBYRNA, idI_ROCS, idI_MAX
 };
 enum { idI_DFIRE, idI_FWIND, idI_NLOVE, idI_MAX2 };
-enum { idM_CONTPERCENT, idM_DOUBLEMAGIC, idM_CANSLASH, idM_MAX };
 enum
 {
     idBP_WOODENPERCENT, idBP_WHITEPERCENT,

@@ -167,7 +167,7 @@ class zmap
     int32_t copyffc;
     int32_t scrpos[MAXMAPS+1];
 	
-	bounded_vec<uint32_t,int32_t> copyscrdata;
+	bounded_map<dword,int32_t> copyscrdata;
 	
     mapscr copymapscr;
     mapscr prvscr; //NEW

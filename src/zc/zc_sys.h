@@ -3,7 +3,7 @@
 
 #include "base/zdefs.h"
 #include "base/jwinfsel.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 
 extern MENU the_player_menu[];
 extern MENU the_player_menu2[];

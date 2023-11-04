@@ -3,7 +3,7 @@
 #include "base/zdefs.h"
 #include "base/fonts.h"
 #include "fmt/core.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include <atomic>
 
 using namespace std::chrono_literals;
@@ -15,19 +15,26 @@ void RenderTreeItem::remove()
 }
 void RenderTreeItem::add_child(RenderTreeItem* child)
 {
+	if (child->parent == this)
+		return;
+
 	if (child->parent)
 		child->parent->remove_child(child);
 	children.push_back(child);
 	child->parent = this;
+	child->transform_dirty = true;
 }
 void RenderTreeItem::add_child_before(RenderTreeItem* child, RenderTreeItem* before_child)
 {
+	bool already_child = child->parent == this;
 	if (child->parent)
 		child->parent->remove_child(child);
 	auto it = std::find(children.begin(), children.end(), before_child);
 	ASSERT(it != children.end());
 	children.insert(it, child);
 	child->parent = this;
+	if (!already_child)
+		child->transform_dirty = true;
 }
 void RenderTreeItem::remove_child(RenderTreeItem* child)
 {
@@ -36,6 +43,7 @@ void RenderTreeItem::remove_child(RenderTreeItem* child)
 	{
 		children.erase(it);
 		child->parent = nullptr;
+		child->transform_dirty = true;
 	}
 }
 std::vector<RenderTreeItem*> const& RenderTreeItem::get_children() const
@@ -650,7 +658,7 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		
 		LegacyBitmapRTI* rti = new LegacyBitmapRTI("zqdialog");
 		rti->set_size(w, h);
-		set_bitmap_create_flags(false);
+		set_bitmap_create_flags(true);
 		rti->bitmap = create_a5_bitmap(w, h);
 		al_set_new_bitmap_flags(0);
 		rti->a4_bitmap = tmp_bmp;
@@ -660,6 +668,8 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		rti_dialogs.add_child(rti);
 		rti_dialogs.visible = true;
 		active_dlg_rti = rti;
+		
+		clear_tooltip();
 	}
 	else
 	{
@@ -698,6 +708,7 @@ void popup_zqdialog_end()
 		delete to_del;
 	}
 	position_mouse_z(0);
+	clear_tooltip();
 }
 
 static std::vector<ALLEGRO_STATE> old_a5_states;
@@ -715,6 +726,8 @@ void popup_zqdialog_start_a5()
 	rti_dialogs.add_child(rti);
 	rti_dialogs.visible = true;
 	active_dlg_rti = rti;
+	
+	clear_tooltip();
 	
 	old_a5_states.emplace_back();
 	ALLEGRO_STATE& oldstate = old_a5_states.back();
@@ -740,6 +753,7 @@ void popup_zqdialog_end_a5()
 		delete to_del;
 	}
 	position_mouse_z(0);
+	clear_tooltip();
 }
 
 RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
@@ -751,6 +765,7 @@ RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 	
 	LegacyBitmapRTI* rti = new LegacyBitmapRTI("dlg");
 	rti->bitmap = al_create_bitmap(w,h);
+	rti->set_size(w, h);
 	clear_a5_bmp(rti->bitmap);
 	rti->set_transform({.x = x, .y = y});
 	rti->a4_bitmap = nullptr;

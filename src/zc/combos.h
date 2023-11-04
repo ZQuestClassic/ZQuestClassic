@@ -25,10 +25,6 @@ public:
 };
 extern CutsceneState active_cutscene;
 
-void clear_combo_posinfo();
-cpos_info& get_combo_posinfo(const rpos_handle_t& rpos_handle);
-void set_combo_posinfo(const rpos_handle_t& rpos_handle, cpos_info& posinfo);
-
 bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft);
 
@@ -66,13 +62,21 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special = 0, w
 
 bool do_lift_combo(const rpos_handle_t&, int32_t gloveid);
 
-int get_trig_group(int ind);
-void update_trig_group(int oldc, int newc);
-void calculate_trig_groups();
+void handle_cpos_type(newcombo const& cmb, cpos_info& timer, int lyr, int pos);
+void handle_ffcpos_type(newcombo const& cmb, cpos_info& timer, ffcdata& f);
 void trig_trigger_groups();
-void init_combo_timers();
-void update_combo_timers();
-bool on_cooldown(const rpos_handle_t& rpos_handle);
+
+
+// CPOS stuff
+cpos_info& cpos_get(const rpos_handle_t& rpos_handle);
+int cpos_trig_group_count(int ind);
+int cpos_exists_spotlight();
+
+void cpos_clear_combos();
+void cpos_clear_all();
+void cpos_force_update();
+void cpos_update();
+
 
 #endif
 

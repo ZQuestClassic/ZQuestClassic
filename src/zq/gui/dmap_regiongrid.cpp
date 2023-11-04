@@ -3,7 +3,7 @@
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "dialog/info.h"
 #include <cassert>
 #include <utility>

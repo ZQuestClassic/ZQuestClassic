@@ -1,4 +1,5 @@
 #include "zq/render.h"
+#include "zq/render_tooltip.h"
 #include "base/render.h"
 #include "zconfig.h"
 #include "base/gui.h"
@@ -137,3 +138,9 @@ void render_zq()
 	screen = tmp;
 	al_restore_state(&oldstate);
 }
+
+void clear_tooltip()
+{
+	ttip_remove();
+}
+

@@ -2,7 +2,7 @@
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include <gui/builder.h>
@@ -792,6 +792,24 @@ size_t TextField::get_str_pos()
 	if(unsigned(alDialog->d2) > len)
 		return len;
 	return alDialog->d2;
+}
+
+int32_t TextField::get_str_selected_pos()
+{
+	size_t len = strlen((char const*)alDialog->dp);
+	int32_t cursor_start = alDialog->d2 & 0x0000FFFF;
+	if (cursor_start == 0xFFFF)
+		cursor_start = -1;
+	return cursor_start;
+}
+
+int32_t TextField::get_str_selected_endpos()
+{
+	size_t len = strlen((char const*)alDialog->dp);
+	int32_t cursor_end = int32_t((alDialog->d2 & 0xFFFF0000) >> 16);
+	if (cursor_end == 0xFFFF)
+		cursor_end = -1;
+	return cursor_end;
 }
 
 void TextField::refresh_cb_swap()

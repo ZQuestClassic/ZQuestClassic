@@ -71,6 +71,16 @@ jobs:
       package-name: ${{ steps.set-package-name.outputs.package-name }}
     steps:
       # Install dependencies.
+      - if: ${{ contains(inputs.runs-on, 'mac') }}
+        name: Build and install Bison
+        run: |
+          wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
+          tar -zxvf bison-3.6.tar.gz
+          cd bison-3.6
+          ./configure
+          make
+          sudo make install
+
       - name: git clone
         uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
         with:
@@ -91,6 +101,12 @@ jobs:
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install .github/dependencies.config -y
+      - name: Install LLVM and Clang
+        if: inputs.compiler == 'clang'
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: ${{ runner.os == 'Linux' && '17.0.2' || '14.0.6' }}
+          env: true
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         name: Set vcpkg env vars
         shell: python
@@ -116,16 +132,6 @@ jobs:
       - if: ${{ contains(inputs.runs-on, 'mac') }}
         run: brew install ninja dylibbundler create-dmg ccache
 
-      - if: ${{ contains(inputs.runs-on, 'mac') }}
-        name: Build and install Bison
-        run: |
-          wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
-          tar -zxvf bison-3.6.tar.gz
-          cd bison-3.6
-          ./configure
-          make
-          sudo make install
-
       # Setup build cache via ccache.
       - name: ccache cache files
         if: inputs.cache
@@ -144,10 +150,6 @@ jobs:
           python webdocs/docjson_main.py --in webdocs/zsdocs_main.json --out resources/docs/ZScript_Docs.html -c
 
       # Configure build.
-      - if: inputs.compiler == 'clang'
-        run: |
-          echo "CC=clang" >> "$GITHUB_ENV"
-          echo "CXX=clang++" >> "$GITHUB_ENV"
       - if: inputs.compiler == 'gcc'
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"

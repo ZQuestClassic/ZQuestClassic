@@ -83,10 +83,11 @@ void ScriptDebugHandle::update_file()
 	{
 		std::string dir = fmt::format("zscript-debug/zasm/{}", get_filename(qstpath));
 		std::string path;
+		
 		if (script->meta.script_name.empty())
-			path = fmt::format("{}/zasm-{}.txt", dir, script->debug_id);
+			path = fmt::format("{}/zasm-{}-{}.txt", dir, ScriptTypeToString(script->id.type), script->id.index);
 		else
-			path = fmt::format("{}/zasm-{}-{}.txt", dir, script->debug_id, script->meta.script_name);
+			path = fmt::format("{}/zasm-{}-{}-{}.txt", dir, ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name);
 		al_make_directory(dir.c_str());
 		file = al_fopen(path.c_str(), "w");
 	}
@@ -185,13 +186,12 @@ void ScriptDebugHandle::print_command(int i)
 
 void ScriptDebugHandle::print_zasm(int script_num, int script_index)
 {
-	size_t size = script->size();
 	print("ZASM:\n\n");
 	printf(
 		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-		"script id: %d\nname: %s\ntype: %d\nnum: %d\nindex: %d\n\n", script->debug_id, script->meta.script_name.c_str(), script->meta.script_type, script_num, script_index);
-	for (size_t i = 0; i < size; i++)
+		"script type: %s\nindex: %d\nname: %s\nnum: %d\nindex: %d\n\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str(), script_num, script_index);
+	for (size_t i = 0; i < script->size; i++)
 	{
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
 								CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
@@ -205,7 +205,7 @@ void ScriptDebugHandle::print_zasm(int script_num, int script_index)
 void ScriptDebugHandle::pre_command()
 {
 	// if (replay_get_frame() < 4034-100) return;
-	// if (script->debug_id != 5134) return;
+	// if (script->id != {ScriptType::Player, 2}) return;
 
 	// This is only to match the behavior in jitted code, where comparison instructions
 	// must be grouped together.

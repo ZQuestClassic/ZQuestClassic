@@ -128,6 +128,12 @@ static bool _a5_setup_screen(int w, int h)
     al_destroy_display(_a5_display);
     _a5_display = al_create_display(w, h);
     al_convert_memory_bitmaps();
+#ifdef ALLEGRO_MACOSX
+    // The content height is actually slightly less than the height the display was created with (due to menu bar?). We can't
+    // know the actual content height until a resize event.
+    // https://discord.com/channels/993415281244393504/1167992634560745582
+    al_resize_display(_a5_display, al_get_display_width(_a5_display), al_get_display_height(_a5_display));
+#endif
     gfx_driver->w = al_get_display_width(_a5_display);
     gfx_driver->h = al_get_display_height(_a5_display);
     al_register_event_source(_a5_display_thread_event_queue, al_get_display_event_source(_a5_display));
@@ -387,6 +393,8 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
 static BITMAP * a5_display_init(int w, int h, int vw, int vh, int color_depth)
 {
     BITMAP * bp;
+    if (!vw) vw = w;
+    if (!vh) vh = h;
 
     if (!screen_mutex)
       screen_mutex = al_create_mutex_recursive();
@@ -399,9 +407,18 @@ static BITMAP * a5_display_init(int w, int h, int vw, int vh, int color_depth)
       return NULL;
     }
 
-    bp = create_bitmap(_a5_display_width, _a5_display_height);
+    bp = create_bitmap(vw, vh);
     if (!bp)
       return NULL;
+    
+#ifdef ALLEGRO_MACOSX
+    // The content height is actually slightly less than the height the display was created with (due to menu bar?). We can't
+    // know the actual content height until a resize event.
+    // Only seems to be a problem on a M2 Mac that I tried.
+    // https://discord.com/channels/993415281244393504/1167992634560745582
+    // TODO remove and patch allegro instead. Except, mainScreen visibleFrame doesn't ever seem to be correct...
+    al_resize_display(_a5_display, al_get_display_width(_a5_display), al_get_display_height(_a5_display));
+#endif
 
     gfx_driver->w = al_get_display_width(_a5_display);
     gfx_driver->h = al_get_display_height(_a5_display);

@@ -6,7 +6,7 @@
 #define _ZSYS_H_
 
 #include "base/zdefs.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zsyssimple.h"
 
 #include <string>

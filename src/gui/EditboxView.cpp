@@ -1,8 +1,8 @@
 #include <assert.h>
 
-#include "EditboxNew.h"
+#include "gui/EditboxNew.h"
 #include "base/zc_alleg.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/fonts.h"
 #include <map>
 #include <stdio.h>

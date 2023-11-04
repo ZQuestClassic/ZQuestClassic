@@ -190,14 +190,16 @@ int32_t main(int32_t argc, char* argv[])
 	all_disable_threaded_display();
 
 	// TODO: remember window size.
-	double monitor_scale = zc_get_monitor_scale();
-	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w * monitor_scale,zq_screen_h * monitor_scale,0,0);
+	auto [w, h] = zc_get_default_display_size(zq_screen_w/2, zq_screen_h/2, -1, -1);
+	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,w,h,zq_screen_w, zq_screen_h);
 	
 	if(videofail)
 	{
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
 	}
+
+	set_window_title("ZQuest Classic Launcher");
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_primitives_addon();
@@ -206,9 +208,6 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	mouse_bmp = create_bitmap_ex(8,16,16);
-	//{ Screen setup
-	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
-	//}
 	
 	if(!(tmp_scr && mouse_bmp && screen))
 	{
@@ -239,7 +238,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	get_root_path(rootpath, 4096);
 	
-	set_window_title("ZQuest Launcher");
 	set_close_button_callback((void (*)()) hit_close_button);
 	//
 	Z_message("Launcher opened successfully.\n");
@@ -650,7 +648,32 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
     return ret != 0;
 }
 
+void clear_tooltip()
+{
+	
+}
 
 // TODO z3 !!
 viewport_t viewport;
 bool screenscrolling, scrolling_use_new_dark_code;
+
+// TODO: I experimented with making zcbase/zcgui shared/object libraries, and the followed was needed to compile zlauncher:
+// The following is needed because of ~mapscr, which is in zcbase.
+// void ffcdata::solid_update(bool push) {}
+// bool ffcdata::setSolid(bool set) {return false;}
+// void ffcdata::updateSolid() {}
+// void ffcdata::doContactDamage(int32_t hdir) {}
+
+// bool solid_object::setSolid(bool set) {return false;}
+// bool solid_object::getSolid() const {return false;}
+// void solid_object::updateSolid() {}
+// bool solid_object::collide(solid_object const* other) const {return false;}
+// bool solid_object::collide(zfix tx, zfix ty, zfix tw, zfix th) const {return false;}
+// void solid_object::solid_update(bool push) {}
+// void solid_object::solid_push(solid_object* pusher) {}
+
+// // Needed for other things in zcbase to resolve.
+// void replay_step_comment(std::string comment) {}
+// bool fake_pack_writing=false;
+// bool replay_is_active() {return false;}
+// bool replay_version_check(int min, int max) {return false;}

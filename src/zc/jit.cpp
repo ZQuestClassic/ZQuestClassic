@@ -11,6 +11,7 @@
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zc/zelda.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 #include <algorithm>
@@ -18,6 +19,7 @@
 #include <chrono>
 #include <optional>
 #include <array>
+#include <filesystem>
 
 typedef int32_t (*JittedFunction)(int32_t *registers, int32_t *global_registers,
 								  int32_t *stack, uint32_t *stack_index, uint32_t *pc,
@@ -26,17 +28,18 @@ typedef int32_t (*JittedFunction)(int32_t *registers, int32_t *global_registers,
 
 static bool is_enabled;
 static bool jit_log_enabled;
-static std::map<int, JittedFunction> compiled_functions;
+static std::map<script_id, JittedFunction> compiled_functions;
 
 void jit_printf(const char *format, ...)
 {
 	if (!jit_log_enabled)
 		return;
 
-	va_list arglist;
-	va_start(arglist, format);
-	vprintf(format, arglist);
-	va_end(arglist);
+	char buffer[1024];
+	va_list argList;
+	va_start(argList, format);
+	int ret = vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
+	al_trace("%s", buffer);
 }
 
 #ifdef ZC_JIT
@@ -70,8 +73,8 @@ enum class TaskState
 
 static const int MAX_THREADS = 16;
 static std::array<ThreadInfo, MAX_THREADS> thread_infos;
-static std::map<int, TaskState> task_states;
-static std::vector<int> active_tasks;
+static std::map<script_id, TaskState> task_states;
+static std::vector<script_id> active_tasks;
 static std::vector<script_data*> pending_scripts;
 static ALLEGRO_MUTEX* tasks_mutex;
 static ALLEGRO_COND* tasks_cond;
@@ -89,25 +92,25 @@ static JittedFunction compile_if_needed(script_data *script)
 
 	// First check if script is already compiled.
 	al_lock_mutex(tasks_mutex);
-	auto it = compiled_functions.find(script->debug_id);
+	auto it = compiled_functions.find(script->id);
 	if (it != compiled_functions.end())
 	{
-		fn = compiled_functions.at(script->debug_id);
+		fn = it->second;
 		al_unlock_mutex(tasks_mutex);
 		return fn;
 	}
 
 	// Next check if a thread is currently compiling this script.
-	if (task_states[script->debug_id] == TaskState::Active)
+	if (task_states[script->id] == TaskState::Active)
 	{
 		// Wait for task to finish.
-		jit_printf("jit: [*] waiting for thread to compile script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
-		while (compiled_functions.find(script->debug_id) == compiled_functions.end())
+		jit_printf("jit: [*] waiting for thread to compile script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
+		while (!compiled_functions.contains(script->id))
 		{
 			al_wait_cond(task_finish_cond, tasks_mutex);
 		}
 
-		fn = compiled_functions[script->debug_id];
+		fn = compiled_functions[script->id];
 		al_unlock_mutex(tasks_mutex);
 		return fn;
 	}
@@ -118,11 +121,11 @@ static JittedFunction compile_if_needed(script_data *script)
 		pending_scripts.erase(pending_it);
 	al_unlock_mutex(tasks_mutex);
 
-	jit_printf("jit: [*] compiling script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
+	jit_printf("jit: [*] compiling script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
 	fn = compile_script(script);
 
 	al_lock_mutex(tasks_mutex);
-	compiled_functions[script->debug_id] = fn;
+	compiled_functions[script->id] = fn;
 	al_unlock_mutex(tasks_mutex);
 
 	return fn;
@@ -153,23 +156,23 @@ static void * compile_script_proc(ALLEGRO_THREAD *thread, void *arg)
 		int generation = thread_pool_generation_count;
 		auto script = pending_scripts.back();
 		pending_scripts.pop_back();
-		task_states[script->debug_id] = TaskState::Active;
-		active_tasks.push_back(script->debug_id);
+		task_states[script->id] = TaskState::Active;
+		active_tasks.push_back(script->id);
 		al_unlock_mutex(tasks_mutex);
 
-		jit_printf("jit: [%d] compiling script type: %s id: %d name: %s\n", id, ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
+		jit_printf("jit: [%d] compiling script type: %s index: %d name: %s\n", id, ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
 		auto fn = compile_script(script);
 
 		al_lock_mutex(tasks_mutex);
-		if (auto it = std::find(active_tasks.begin(), active_tasks.end(), script->debug_id); it != active_tasks.end())
+		if (auto it = std::find(active_tasks.begin(), active_tasks.end(), script->id); it != active_tasks.end())
 			active_tasks.erase(it);
 		if (thread_pool_generation_count != generation)
 		{
 			// This task is now useless, since a new quest was loaded.
 			continue;
 		}
-		task_states[script->debug_id] = TaskState::Done;
-		compiled_functions[script->debug_id] = fn;
+		task_states[script->id] = TaskState::Done;
+		compiled_functions[script->id] = fn;
 		// This is what signals the main thread that this script is ready.
 		al_broadcast_cond(task_finish_cond);
 		// Go back to top of loop, still with the mutex locked.
@@ -181,18 +184,21 @@ static void * compile_script_proc(ALLEGRO_THREAD *thread, void *arg)
 	return nullptr;
 }
 
-static void create_compile_tasks(script_data *scripts[], size_t len, ScriptType type)
+static void create_compile_tasks(script_data *scripts[], size_t start, size_t max, ScriptType type)
 {
-	for (size_t i = 0; i < len; i++)
+	for (size_t i = start; i < max; i++)
 	{
 		auto script = scripts[i];
-		if (script && script->valid())
+		if (script && script->valid() && !compiled_functions.contains({type, (int)i}))
 		{
-			// Just because qst.cpp does not always set this.
-			script->meta.script_type = type;
 			pending_scripts.push_back(script);
 		}
 	}
+}
+
+static void create_compile_tasks(script_data *scripts[], size_t len, ScriptType type)
+{
+	create_compile_tasks(scripts, 0, len, type);
 }
 
 static bool set_compilation_thread_pool_size(int target_size)
@@ -275,18 +281,20 @@ static void create_compile_tasks()
 	create_compile_tasks(comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
 	create_compile_tasks(genericscripts, NUMSCRIPTSGENERIC, ScriptType::Generic);
 	create_compile_tasks(subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
+	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_GAME+1, NUMSCRIPTGLOBAL, ScriptType::Global);
 	// Sort by # of commands, so that biggest scripts get compiled first.
 	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
-		return a->size() < b->size();
+		return a->size < b->size;
 	});
-	// Make sure player and global scripts are compiled first.
+	// Make sure player and global scripts (just the INIT and GAME ones) are compiled first, as they
+	// are needed on frame 1.
 	create_compile_tasks(playerscripts, NUMSCRIPTPLAYER, ScriptType::Player);
-	create_compile_tasks(globalscripts, NUMSCRIPTGLOBAL, ScriptType::Global);
+	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_GAME, NUMSCRIPTGLOBAL, ScriptType::Global);
 	if (jit_log_enabled)
 	{
 		for (auto a : pending_scripts) 
 		{
-			jit_printf("jit: %d: %d\n", a->debug_id, (int)a->size());
+			jit_printf("jit: %d: %d\n", a->id, (int)a->size);
 		}
 	}
 
@@ -705,8 +713,8 @@ static bool command_is_compiled(int command)
 
 static void error(ScriptDebugHandle* debug_handle, script_data *script, std::string str)
 {
-	str = fmt::format("failed to compile id: {} name: {}\nerror: {}\n",
-					  script->debug_id, script->meta.script_name.c_str(), str);
+	str = fmt::format("failed to compile type: {} index: {} name: {}\nerror: {}\n",
+					  ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str(), str);
 
 	al_trace("%s", str.c_str());
 	if (debug_handle)
@@ -723,13 +731,23 @@ static void error(ScriptDebugHandle* debug_handle, script_data *script, std::str
 static JittedFunction compile_script(script_data *script)
 {
 	CompilationState state;
-
-	al_trace("compiling script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
-
-	state.size = script->size();
+	state.size = script->size;
 	size_t size = state.size;
+
+	al_trace("[jit] compiling script type: %s index: %d size: %zu name: %s\n", ScriptTypeToString(script->id.type), script->id.index, size, script->meta.script_name.c_str());
+
 	if (size <= 1)
 		return nullptr;
+
+	// Check if script is like, really big.
+	// Anything over 20,000 takes ~5s, which is an unacceptable delay. Until scripts can be compiled w/o pausing execution of the engine,
+	// or a way to speed up compilation is found, set a hard limit on script size.
+	size_t limit = 20000;
+	if (!is_ci() && size >= limit)
+	{
+		al_trace("[jit] script type %s index %d too large to compile quickly, skipping\n", ScriptTypeToString(script->id.type), script->id.index);
+		return nullptr;
+	}
 
 	std::optional<ScriptDebugHandle> debug_handle_ = std::nullopt;
 	if (DEBUG_JIT_PRINT_ASM)
@@ -938,12 +956,12 @@ static JittedFunction compile_script(script_data *script)
 		int arg1 = script->zasm[i].arg1;
 		int arg2 = script->zasm[i].arg2;
 
-		if (goto_labels.find(i) != goto_labels.end())
+		if (goto_labels.contains(i))
 		{
 			cc.bind(goto_labels.at(i));
 		}
 
-		if (DEBUG_JIT_PRINT_ASM && start_pc_to_function.find(i) != start_pc_to_function.end())
+		if (DEBUG_JIT_PRINT_ASM && start_pc_to_function.contains(i))
 		{
 			cc.setInlineComment((comment = fmt::format("function {}", start_pc_to_function.at(i))).c_str());
 			cc.nop();
@@ -1010,9 +1028,9 @@ static JittedFunction compile_script(script_data *script)
 			{
 				if (command_is_compiled(script->zasm[j].command))
 					break;
-				if (goto_labels.find(j) != goto_labels.end())
+				if (goto_labels.contains(j))
 					break;
-				if (start_pc_to_function.find(j) != start_pc_to_function.end())
+				if (start_pc_to_function.contains(j))
 					break;
 
 				if (DEBUG_JIT_PRINT_ASM && script->zasm[j].command != 0xFFFF)
@@ -1049,7 +1067,7 @@ static JittedFunction compile_script(script_data *script)
 		break;
 		case GOTO:
 		{
-			if (function_calls.find(i) != function_calls.end())
+			if (function_calls.contains(i))
 			{
 				// https://github.com/asmjit/asmjit/issues/286
 				x86::Gp address = cc.newIntPtr();
@@ -1538,20 +1556,17 @@ static JittedFunction compile_script(script_data *script)
 	start_time = end_time;
 
 	cc.finalize();
+	rt.add(&fn, &code);
 
 	end_time = std::chrono::steady_clock::now();
 	int32_t compile_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
 	if (debug_handle)
 	{
-		debug_handle->print(
-			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\nasmjit log / assembly:\n\n");
-		debug_handle->print(
-			CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			logger.data());
+		debug_handle->printf("time to preprocess: %d ms\n", preprocess_ms);
+		debug_handle->printf("time to compile:    %d ms\n", compile_ms);
+		debug_handle->printf("ZASM instructions:  %zu\n", size);
+		debug_handle->printf("Code size:          %d kb\n", code.codeSize() / 1024);
 		debug_handle->print("\n");
 
 		if (!uncompiled_command_counts.empty())
@@ -1564,11 +1579,17 @@ static JittedFunction compile_script(script_data *script)
 			debug_handle->print("\n");
 		}
 
-		debug_handle->printf("time to preprocess: %d ms\n", preprocess_ms);
-		debug_handle->printf("time to compile:    %d ms\n\n", compile_ms);
+		debug_handle->print(
+			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+			"\nasmjit log / assembly:\n\n");
+		debug_handle->print(
+			CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+			logger.data());
 	}
 
-	rt.add(&fn, &code);
+	al_trace("[jit] finished script %s %d. time: %d ms\n", ScriptTypeToString(script->id.type), script->id.index, preprocess_ms + compile_ms);
 
 	if (fn)
 	{
@@ -1663,15 +1684,23 @@ void jit_startup()
 	if (!task_finish_cond)
 		task_finish_cond = al_create_cond();
 
-	// TODO: should not clear compiled_functions on init_game if not a new quest.
-	al_lock_mutex(tasks_mutex);
-	thread_pool_generation_count++;
-	for (auto &it : compiled_functions)
+	// Only clear compiled functions if quest has changed since last quest load.
+	// TODO: could get even smarter and hash each ZASM script, only recompiling if something really changed.
+	static std::pair<std::string, std::filesystem::file_time_type> previous_state;
+	static std::pair<std::string, std::filesystem::file_time_type> state = {qstpath, std::filesystem::last_write_time(qstpath)};
+	bool should_clear = state != previous_state;
+	if (should_clear)
 	{
-		rt.release(it.second);
+		previous_state = state;
+		al_lock_mutex(tasks_mutex);
+		thread_pool_generation_count++;
+		for (auto &it : compiled_functions)
+		{
+			rt.release(it.second);
+		}
+		compiled_functions.clear();
+		al_unlock_mutex(tasks_mutex);
 	}
-	compiled_functions.clear();
-	al_unlock_mutex(tasks_mutex);
 
 	create_compile_tasks();
 

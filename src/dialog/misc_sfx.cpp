@@ -2,7 +2,7 @@
 #include "info.h"
 #include "alert.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "base/zsys.h"
 #include "gui/use_size.h"
@@ -19,7 +19,9 @@ static const GUI::ListData miscSFXList
 	{ "Subscreen Item Select:", sfxSUBSCR_ITEM_ASSIGN, "Plays when an item is assigned to a button in the subscreen." },
 	{ "Subscreen Cursor Move:", sfxSUBSCR_CURSOR_MOVE, "Plays when the subscreen cursor moves." },
 	{ "Refill:", sfxREFILL, "Plays when a counter is being refilled." },
-	{ "Rupee Drain:", sfxDRAIN, "Plays when rupees are being drained." }
+	{ "Rupee Drain:", sfxDRAIN, "Plays when rupees are being drained." },
+	{ "Sword Tap:", sfxTAP, "Plays when the sword is tapped against a combo." },
+	{ "Sword Tap (Hollow):", sfxTAP_HOLLOW, "Plays when the sword is tapped against a bombable door/flag. Requires QR:"+QRHINT({qr_SEPARATE_BOMBABLE_TAPPING_SFX}) },
 };
 
 MiscSFXDialog::MiscSFXDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):

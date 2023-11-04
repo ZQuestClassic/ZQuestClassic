@@ -1,6 +1,6 @@
 #include "screen_data.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
 #include "alert.h"
@@ -644,7 +644,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							{
 								if(screen_misc_data.size())
 								{
-									call_edit_vector(screen_misc_data, true);
+									call_edit_map(screen_misc_data, true);
 								}
 							})
 					),

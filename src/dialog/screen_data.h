@@ -55,7 +55,7 @@ private:
 	mapscr local_scr;
 	int mapscrnum;
 	
-	bounded_vec<uint32_t,int32_t> screen_misc_data;
+	bounded_map<dword,int32_t> screen_misc_data;
 	
 	GUI::ListData list_screenscript, list_maps, list_screens, list_sfx, list_screenmidi;
 };

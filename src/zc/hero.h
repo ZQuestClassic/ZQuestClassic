@@ -2,7 +2,7 @@
 #define _HERO_H_
 
 #include "base/zc_alleg.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include "base/zdefs.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"
@@ -12,7 +12,7 @@
 #include "base/zsys.h"
 #include "qst.h"
 #include "zc/matrix.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/jwinfsel.h"
 #include "zc/weapons.h"
 //#include "save_gif.h"
@@ -323,6 +323,10 @@ public:
 	byte tliftclk;
 	zfix liftheight;
 	uint32_t liftflags;
+
+private:
+	ffcdata const* platform_ffc;
+public:
 	
 	// Methods below here.
 	bool isLifting();
@@ -614,6 +618,10 @@ public:
 	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
 	virtual bool sideview_mode() const;
 	virtual bool is_unpushable() const;
+	bool on_ffc_platform(ffcdata const& ffc, bool old);
+	bool on_ffc_platform();
+	void check_platform_ffc();
+	void clear_platform_ffc();
 };
 
 bool usingActiveShield(int32_t itmid = -1);

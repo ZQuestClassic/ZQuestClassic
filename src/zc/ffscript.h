@@ -764,14 +764,12 @@ struct user_genscript
 {
 	//Saved vars
 	bool doscript;
-	std::vector<int32_t> data;
+	bounded_map<dword,int32_t> data;
 	word exitState;
 	word reloadState;
 	uint32_t eventstate;
-	int32_t initd[8];
-private:
-	size_t _dataSize;
-public:
+	bounded_vec<byte,int32_t> initd;
+	
 	//Temp Vars
 	bool initialized;
 	bool wait_atleast;
@@ -795,10 +793,8 @@ public:
 		indx = -1;
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
-		memset(initd, 0, sizeof(initd));
-		_dataSize = 0;
+		initd.clear();
 		data.clear();
-		data.shrink_to_fit();
 	}
 	void launch()
 	{
@@ -814,14 +810,11 @@ public:
 	void quit();
 	size_t dataSize() const
 	{
-		return _dataSize;
+		return data.size();
 	}
 	void dataResize(int32_t sz)
 	{
-		sz = vbound(sz, 0, 214748);
-		if(_dataSize == size_t(sz)) return;
-		_dataSize = sz;
-		data.resize(_dataSize, 0);
+		data.resize(vbound(sz, 0, 214748));
 	}
 	void timeExit(byte exState)
 	{
@@ -944,6 +937,7 @@ int32_t getHeroOTile(int32_t index1, int32_t index2);
 int32_t getHeroOFlip(int32_t index1, int32_t index2);
 
 int32_t IsBlankTile(int32_t i);
+int32_t Is8BitTile(int32_t i);
 
 defWpnSprite getDefWeaponSprite(int32_t wpnid);
 //defWpnSprite getDefWeaponSprite(weapon *wp);
@@ -2173,10 +2167,10 @@ enum ASM_DEFINE
 	FLIPROTTILEVR,         //0x0084
 	FLIPROTTILERV,         //0x0085
 	FLIPROTTILERR,         //0x0086
-	GETTILEPIXELV,         //0x0087
-	GETTILEPIXELR,         //0x0088
-	SETTILEPIXELV,         //0x0089
-	SETTILEPIXELR,         //0x008A
+	GETTILEPIXEL,         //0x0087
+	RESRVD_OP_MOOSH_EX_01,         //0x0088
+	SETTILEPIXEL,         //0x0089
+	RESRVD_OP_MOOSH_EX_02,         //0x008A
 	SHIFTTILEVV,           //0x008B
 	SHIFTTILEVR,           //0x008C
 	SHIFTTILERV,           //0x008D
@@ -4763,7 +4757,7 @@ enum ASM_DEFINE
 #define MUSICUPDATECOND         0x14AB
 #define MUSICUPDATEFLAGS        0x14AC
 #define DMAPDATAINTROSTRINGID   0x14AD
-#define RESRVD_VAR_MOOSH08      0x14AE
+#define IS8BITTILE              0x14AE
 #define RESRVD_VAR_MOOSH09      0x14AF
 #define RESRVD_VAR_MOOSH10      0x14B0
 #define RESRVD_VAR_MOOSH11      0x14B1
@@ -5008,7 +5002,10 @@ enum ASM_DEFINE
 
 #define HEROSHOVEOFFSET         0x1594
 
-#define NUMVARIABLES            0x1595
+#define SCREENDATAGUYCOUNT      0x1595
+#define MAPDATAGUYCOUNT         0x1596
+
+#define NUMVARIABLES            0x1597
 
 //} End variables
 

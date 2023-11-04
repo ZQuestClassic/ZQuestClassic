@@ -5,10 +5,10 @@
 #include <vector>
 #include "base/initdata.h"
 #include "midi.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/jwinfsel.h"
-#include "zcmusic.h"
-#include "zcmixer.h"
+#include "sound/zcmusic.h"
+#include "sound/zcmixer.h"
 #include "sprite.h"
 #include "gamedata.h"
 #include "parser/parserDefs.h"
@@ -1174,7 +1174,6 @@ std::pair<int, int> get_box_text_size(char const* tipmsg, double txscale);
 void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1);
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
-void clear_tooltip();
 void ZQ_ClearQuestPath();
 void cflag_help(int32_t id);
 void ctype_help(int32_t id);

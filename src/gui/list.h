@@ -4,7 +4,7 @@
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
 #include "list_data.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include <vector>
 
 namespace GUI

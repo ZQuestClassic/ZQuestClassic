@@ -32,7 +32,7 @@
 #include "qst.h"
 #include "zc/zc_sys.h"
 #include "play_midi.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
 #include "midi.h"
@@ -43,7 +43,7 @@
 #include "zc/hero.h"
 #include "zc/title.h"
 #include "particles.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include "zconsole.h"
 #include "zc/ffscript.h"
 #include "dialog/info.h"
@@ -408,9 +408,8 @@ void load_game_configs()
 	abc_patternmatch = zc_get_config(cfg_sect, "lister_pattern_matching", 1);
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
 	
-	//default - scale x2, 640 x 480
-	window_width = resx = zc_get_config(cfg_sect,"window_width",640);
-	window_height = resy = zc_get_config(cfg_sect,"window_height",480);
+	window_width = resx = zc_get_config(cfg_sect,"window_width",-1);
+	window_height = resy = zc_get_config(cfg_sect,"window_height",-1);
 	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
 	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
 	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
@@ -553,9 +552,8 @@ void save_game_configs()
 	
 	if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize)
 	{
-		double monitor_scale = zc_get_monitor_scale();
-		window_width = al_get_display_width(all_get_display()) / monitor_scale;
-		window_height = al_get_display_height(all_get_display()) / monitor_scale;
+		window_width = al_get_display_width(all_get_display());
+		window_height = al_get_display_height(all_get_display());
 		zc_set_config(cfg_sect,"window_width",window_width);
 		zc_set_config(cfg_sect,"window_height",window_height);
 	}
@@ -748,7 +746,8 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	if (is_headless())
 		return true;
 
-	if(set_gfx_mode(mode,resx,resy,0,0)!=0)
+	extern int zq_screen_w, zq_screen_h;
+	if(set_gfx_mode(mode,resx,resy,zq_screen_w,zq_screen_h)!=0)
 	{
 		return false;
 	}
@@ -3929,7 +3928,7 @@ int32_t onGUISnapshot()
 {
 	char buf[200];
 	int32_t num=0;
-	bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+	bool realpal=(CHECK_CTRL_CMD);
 	do
 	{
 		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);

@@ -12,9 +12,9 @@
 #include "base/zc_array.h"
 #include "zc/zc_sys.h"
 #include "sfx.h"
-#include "zcmusic.h"
-#include "zcmixer.h"
-#include "jwin.h"
+#include "sound/zcmusic.h"
+#include "sound/zcmixer.h"
+#include "gui/jwin.h"
 #include "gamedata.h"
 #include "base/zsys.h"
 #include "zc/script_drawing.h"
@@ -436,7 +436,6 @@ extern script_data *itemscripts[NUMSCRIPTITEM];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern script_data *guyscripts[NUMSCRIPTGUYS];
-extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *playerscripts[NUMSCRIPTPLAYER];

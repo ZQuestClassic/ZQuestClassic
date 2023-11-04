@@ -24,7 +24,7 @@
 #include <loadpng.h>
 
 #include "zscriptversion.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include "base/zdefs.h"
 #include "zc/zelda.h"
 #include "tiles.h"
@@ -35,7 +35,7 @@
 #include "play_midi.h"
 #include "qst.h"
 #include "zc/matrix.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/jwinfsel.h"
 #include "fontsdat.h"
 #include "particles.h"
@@ -407,7 +407,6 @@ script_data *itemscripts[NUMSCRIPTITEM];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
 script_data *genericscripts[NUMSCRIPTSGENERIC];
 script_data *guyscripts[NUMSCRIPTGUYS];
-script_data *wpnscripts[NUMSCRIPTWEAPONS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 script_data *playerscripts[NUMSCRIPTPLAYER];
@@ -2270,7 +2269,7 @@ int32_t init_game()
 	
 	if(firstplay) //Move up here, so that arrays are initialised before we run Hero's Init script.
 	{
-		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
+		game->screen_d.clear();
 		if(!get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
@@ -2302,20 +2301,24 @@ int32_t init_game()
 	
 	if(firstplay)
 	{
-		game->set_life(zinit.start_heart*game->get_hp_per_heart());
+		game->set_life(zinit.counter[crLIFE]);
 	}
 	else
 	{
 		if(game->get_cont_percent())
 		{
 			if(game->get_maxlife()%game->get_hp_per_heart()==0)
-				game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
+			{
+				auto life = (game->get_maxlife()*game->get_cont_hearts()/100);
+				life -= life % game->get_hp_per_heart();
+				game->set_life(life);
+			}
 			else
 				game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
 		}
 		else
 		{
-			game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
+			game->set_life(game->get_cont_hearts());
 		}
 	}
 	
@@ -2514,7 +2517,7 @@ int32_t init_game()
 	{
 		if(firstplay)
 		{
-			memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
+			game->screen_d.clear();
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
 			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
@@ -2639,17 +2642,20 @@ int32_t cont_game()
 	
 	wavy=quakeclk=0;
 	
-	//if(get_bit(zinit.misc,idM_CONTPERCENT))
 	if(game->get_cont_percent())
 	{
 		if(game->get_maxlife()%game->get_hp_per_heart()==0)
-			game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
+		{
+			auto life = (game->get_maxlife()*game->get_cont_hearts()/100);
+			life -= life % game->get_hp_per_heart();
+			game->set_life(life);
+		}
 		else
 			game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
 	}
 	else
 	{
-		game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
+		game->set_life(game->get_cont_hearts());
 	}
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
@@ -3445,6 +3451,7 @@ void game_loop()
 		//  walkflagx=0; walkflagy=0;
 		runDrunkRNG();
 		clear_darkroom_bitmaps();
+		Hero.check_platform_ffc();
 
 		z3_update_viewport();
 		z3_update_heroscr(); // TODO z3 ! move to/near Hero.animate?
@@ -3506,7 +3513,7 @@ void game_loop()
 		if ( !FFCore.system_suspend[susptCOMBOANIM] )
 		{
 			animate_combos();
-			update_combo_timers();
+			cpos_update();
 		}
 		run_gswitch_timers();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_ANIM);
@@ -4452,66 +4459,64 @@ static void allocate_crap()
 		guy_string[i] = new char[64];
 	}
 	
-	next_script_data_debug_id = 0;
 	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
 	{
-		ffscripts[i] = new script_data();
+		ffscripts[i] = new script_data(ScriptType::FFC, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
 	{
-		itemscripts[i] = new script_data();
+		itemscripts[i] = new script_data(ScriptType::Item, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
 	{
-		guyscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		wpnscripts[i] = new script_data();
+		guyscripts[i] = new script_data(ScriptType::NPC, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
 	{
-		screenscripts[i] = new script_data();
+		screenscripts[i] = new script_data(ScriptType::Screen, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
 	{
-		globalscripts[i] = new script_data();
+		globalscripts[i] = new script_data(ScriptType::Global, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
 	{
-		playerscripts[i] = new script_data();
+		playerscripts[i] = new script_data(ScriptType::Player, i);
 	}
 	
-	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
 	{
-		lwpnscripts[i] = new script_data();
+		lwpnscripts[i] = new script_data(ScriptType::Lwpn, i);
 	}
 	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
 	{
-		ewpnscripts[i] = new script_data();
+		ewpnscripts[i] = new script_data(ScriptType::Ewpn, i);
 	}
 	
-	 for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
+	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
 	{
-		dmapscripts[i] = new script_data();
+		dmapscripts[i] = new script_data(ScriptType::DMap, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
 	{
-		itemspritescripts[i] = new script_data();
+		itemspritescripts[i] = new script_data(ScriptType::ItemSprite, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
 	{
-		comboscripts[i] = new script_data();
+		comboscripts[i] = new script_data(ScriptType::Combo, i);
+	}
+	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
+	{
+		genericscripts[i] = new script_data(ScriptType::Generic, i);
 	}
 	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
 	{
-		subscreenscripts[i] = new script_data();
+		subscreenscripts[i] = new script_data(ScriptType::EngineSubscreen, i);
 	}
 }
 
@@ -5137,7 +5142,7 @@ int main(int argc, char **argv)
 		bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
 	}
-	
+
 	//request_refresh_rate(60);al_trace("Used switch: -fullscreen\n");
 	
 	//is the config file wrong (not zc.cfg!) here? -Z
@@ -5153,16 +5158,22 @@ int main(int argc, char **argv)
 		tempmode=GFX_AUTODETECT_WINDOWED;
 	}
 
-	if(resx < 256) resx = 256;
-	if(resy < 240) resy = 240;
-	
-	double monitor_scale = zc_get_monitor_scale();
-	resx *= monitor_scale;
-	resy *= monitor_scale;
+	if (resx != -1)
+	{
+		if(resx < 256) resx = 256;
+		if(resy < 240) resy = 240;
+	}
+
+	auto [w, h] = zc_get_default_display_size(256, 240, resx, resy);
+	resx = w;
+	resy = h;
 
 	// TODO: consolidate "resx" and "resy" variables with window_width,height.
 	// window_width = resx;
 	// window_height = resy;
+
+	zq_screen_w = 640;
+	zq_screen_h = 480;
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
@@ -5173,6 +5184,13 @@ int main(int argc, char **argv)
 	{
 		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
 	}
+
+	const char* window_title = "ZQuest Classic";
+	int window_title_arg = used_switch(argc, argv, "-window-title");
+	if (window_title_arg > 0)
+		window_title = argv[window_title_arg + 1];
+	set_window_title(window_title);
+
 	initFonts();
 
 #ifndef __EMSCRIPTEN__
@@ -5193,6 +5211,10 @@ int main(int argc, char **argv)
 		
 		int new_x = zc_get_config("zeldadx","window_x",0);
 		int new_y = zc_get_config("zeldadx","window_y",0);
+#ifdef ALLEGRO_MACOSX
+		if (new_x && new_y)
+			al_set_window_position(all_get_display(), new_x, new_y);
+#else
 		if (new_x == 0 && new_y == 0)
 		{
 			ALLEGRO_MONITOR_INFO info;
@@ -5202,6 +5224,7 @@ int main(int argc, char **argv)
 			new_y = (info.y2 - info.y1) / 2 - window_h / 2;
 		}
 		al_set_window_position(all_get_display(), new_x, new_y);
+#endif
 	}
 #endif
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
@@ -5213,21 +5236,14 @@ int main(int argc, char **argv)
 	}
 	
 	hw_palette = &RAMpal;
-	zq_screen_w = 640;
-	zq_screen_h = 480;
-	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+	if (is_headless())
+		screen = create_bitmap_ex(8, 256, 240);
 	clear_to_color(screen, BLACK);
 
 	// Initialize render tree.
 	render_zc();
 	
 	set_close_button_callback((void (*)()) hit_close_button);
-
-	const char* window_title = "ZQuest Classic";
-	int window_title_arg = used_switch(argc, argv, "-window-title");
-	if (window_title_arg > 0)
-		window_title = argv[window_title_arg + 1];
-	set_window_title(window_title);
 
 	fix_dialogs();
 	gui_mouse_focus = FALSE;

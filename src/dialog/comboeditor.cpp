@@ -396,6 +396,9 @@ std::string getComboTypeHelpText(int32_t id)
 		case cSHOOTER:
 			typehelp = "Shoots, as a turret. Triggering with 'ComboType Effects' causes it to instantly shoot.";
 			break;
+		case cCRUMBLE:
+			typehelp = "Crumbles when stood on, turning into the next combo. Various crumbling options are available.";
+			break;
 		case cARMOS:
 			typehelp = "When touched, this combo produces an Armos and changes to the screen's Under Combo."
 				" Only functions on layer 0, even with ComboType Effects triggerflag.";
@@ -605,7 +608,8 @@ std::string getMapFlagHelpText(int32_t id)
 		case mfALLFAIRY:
 		{
 			static const char* name[]{"life","magic","life and magic"};
-			flaghelp = fmt::format("Makes a heart circle appear on screen when the Player steps on it, and refills their {}.",name[id-mfFAIRY])
+			int ind = (id == mfFAIRY ? 0 : (id == mfMAGICFAIRY ? 1 : 2));
+			flaghelp = fmt::format("Makes a heart circle appear on screen when the Player steps on it, and refills their {}.",name[ind])
 				+ QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
 			break;
 		}
@@ -1447,9 +1451,9 @@ void ComboEditorDialog::loadComboType()
 			if(FL(cflag2)) //Variable rate
 			{
 				l_attrishort[0] = "Lower Fire Rate:";
-				h_attrishort[0] = "If lower than the 'Upper Fire Rate', the combo will fire between the two rates.";
+				h_attrishort[0] = "If lower than the 'Upper Fire Rate', the combo will fire between the two rates. (in frames)";
 				l_attrishort[1] = "Upper Fire Rate:";
-				h_attrishort[1] = "If higher than the 'Lower Fire Rate', the combo will fire between the two rates.";
+				h_attrishort[1] = "If higher than the 'Lower Fire Rate', the combo will fire between the two rates. (in frames)";
 			}
 			else
 			{
@@ -1985,6 +1989,27 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[r_down] = "Weapons facing down-right (coming from up-left) will move in this direction."
 				"\n0 = up, 1 = down, 2 = left, 3 = right"
 				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			break;
+		}
+		case cCRUMBLE:
+		{
+			l_attribyte[0] = "Crumble Type";
+			h_attribyte[0] = "0 = Reset (Timer resets when stepped off of, can also change combo)"
+				"\n1 = Cumulative (Timer does not reset, just pauses when stepped off of)"
+				"\n2 = Inevitable (Timer keeps going even if stepped off of)";
+			l_flag[0] = "Continuous";
+			h_flag[0] = "If the next combo is a Crumbling combo of the 'Inevitable' type, it will continue crumbling automatically.";
+			l_attribyte[1] = "Crumble Sensitivity";
+			h_attribyte[1] = "This many pixels of leeway are given. 0 = fully sensitive."
+				"\nIf leeway exceeds combo/ffc size, no crumbling will occur.";
+			l_attrishort[0] = "Crumble Time";
+			h_attrishort[0] = "The time, in frames, before the combo crumbles into the next combo in the combo list.";
+			if(local_comboref.attribytes[0] == CMBTY_CRUMBLE_RESET)
+			{
+				l_attrishort[1] = "Reset Change";
+				h_attrishort[1] = "If non-zero, the combo will change by this amount (ex. 1 = Next, -1 = Prev)"
+					" when the player steps off of the combo before it finishes crumbling. (Might be used to reset a crumble animation)";
+			}
 			break;
 		}
 	}
@@ -3567,7 +3592,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.sfx_standing = val;
 									}),
-								INFOBTN("Plays when the player stands (not walking) on the combo. In sideview, this is the combo actually BELOW the player.")
+								INFOBTN("Plays when the player stands (not walking) on the combo. In sideview, this is the combo actually BELOW the player."),
+								//
+								Label(text = "Sword Tap:"),
+								DropDownList(data = list_sfx,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.sfx_tap,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.sfx_tap = val;
+									}),
+								INFOBTN("Plays when the player taps their sword against this combo. Only the highest-layer combo with custom tap SFX will take effect.")
 							)
 						),
 						Frame(title = "Sprites", hAlign = 1.0, fitParent = true,

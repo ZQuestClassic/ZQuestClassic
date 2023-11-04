@@ -17,9 +17,10 @@ using std::set;
 #include "base/initdata.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
+#include "zc/zc_ffc.h"
 #include "tiles.h"
 #include "sprite.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zsys.h"
 #include "subscr.h"
 #include "zc/zc_subscr.h"
@@ -1686,7 +1687,7 @@ void update_combo_cycling()
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = screen->ffcs[i];
-			newcombo const& cmb = combobuf[ffc.getData()];
+			newcombo const& cmb = combobuf[ffc.data];
 			
 			bool fresh = cmb.animflags & AF_FRESH;
 			
@@ -1695,14 +1696,14 @@ void update_combo_cycling()
 					(cmb.tile-cmb.frames>=cmb.o_tile-1) &&
 					(cmb.nextcombo!=0))
 			{
-				ffc.setData(cmb.nextcombo);
+				zc_ffc_set(ffc, cmb.nextcombo);
 				if(!(cmb.animflags & AF_CYCLENOCSET))
 					ffc.cset=cmb.nextcset;
-				
-				if(combobuf[ffc.getData()].animflags & AF_CYCLE)
+
+				if(combobuf[ffc.data].animflags & AF_CYCLE)
 				{
 					auto& animset = fresh ? restartanim2 : restartanim;
-					animset.insert(ffc.getData());
+					animset.insert(ffc.data);
 				}
 			}
 		}
@@ -2290,11 +2291,11 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 		for(word i=0; i<c; i++)
 		{
 			ffcdata* ffc2 = &tmpscr->ffcs[i];
-			newcombo const& cmb = combobuf[ffc2->getData()];
+			newcombo const& cmb = combobuf[ffc2->data];
 			if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
 			if((cmb.type== what1) || (cmb.type== what2))
 			{
-				ffc2->incData(1);
+				zc_ffc_modify(*ffc2, 1);
 				didit=true;
 			}
 		}
@@ -2363,7 +2364,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 		{
 			ffcdata* ffc2 = &s->ffcs[i];
 			uint16_t ffc_id = screen_index_offset * MAXFFCS + i;
-			newcombo const& cmb = combobuf[ffc2->getData()];
+			newcombo const& cmb = combobuf[ffc2->data];
 			if(triggers && force_ex_trigger_ffc({s, (uint8_t)scr, ffc_id, i, ffc2}, xflag))
 				didit = true;
 			else switch(cmb.type)
@@ -2377,7 +2378,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
 					if(cmb.attribytes[5] == xflag)
 					{
-						ffc2->incData(1);
+						zc_ffc_modify(*ffc2, 1);
 						didit=true;
 					}
 					break;
@@ -2740,7 +2741,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 		{
 			//for (int32_t iter=0; iter<1; ++iter) // Only one kind of FFC flag now.
 			{
-				int32_t checkflag=combobuf[s->ffcs[i].getData()].flag; //Inherent
+				int32_t checkflag=combobuf[s->ffcs[i].data].flag; //Inherent
 				//No placed flags yet
 
 				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
@@ -2748,11 +2749,11 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 				{
 					if(ft==sSECNEXT)
 					{
-						s->ffcs[i].incData(1);
+						zc_ffc_modify(s->ffcs[i], 1);
 					}
 					else
 					{
-						s->ffcs[i].setData(s->secretcombo[ft]);
+						zc_ffc_set(s->ffcs[i], s->secretcombo[ft]);
 						s->ffcs[i].cset = s->secretcset[ft];
 					}
 				}
@@ -2837,12 +2838,12 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 	{
 		if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
 		{
-			int32_t checkflag=combobuf[s->ffcs[i].getData()].flag; //Inherent
+			int32_t checkflag=combobuf[s->ffcs[i].data].flag; //Inherent
 			
 			//No placed flags yet
 			if((checkflag > 15)&&(checkflag < 32)) //If we find a flag, change the combo
 			{
-				s->ffcs[i].setData(s->secretcombo[checkflag - 16 + 4]);
+				zc_ffc_set(s->ffcs[i], s->secretcombo[checkflag - 16 + 4]);
 				s->ffcs[i].cset = s->secretcset[checkflag-16+4];
 			}
 		}
@@ -3048,7 +3049,7 @@ void update_freeform_combos()
 			ffcdata& thisffc = *ffc_handle.ffc;
 
 			// Combo 0?
-			if(thisffc.getData()==0)
+			if(thisffc.data==0)
 				return;
 				
 			// Changer?
@@ -3072,7 +3073,7 @@ void update_freeform_combos()
 
 					ffcdata& otherffc = *other_ffc_handle.ffc;
 					// Combo 0?
-					if(otherffc.getData()==0)
+					if(otherffc.data==0)
 						return true;
 						
 					// Not a changer?
@@ -3093,7 +3094,7 @@ void update_freeform_combos()
 					&& //and...
 						(thisffc.prev_changer_x>-10000000 && thisffc.prev_changer_y>-10000000)) // This isn't the first frame on this screen
 					{
-						thisffc.changerCopy(otherffc, ffc_handle.id, other_ffc_handle.id);
+						zc_ffc_changer(thisffc, otherffc, ffc_handle.id, other_ffc_handle.id);
 						return false;
 					}
 
@@ -3155,7 +3156,7 @@ void update_freeform_combos()
 				}
 				else if(thisffc.x<-64)
 				{
-					thisffc.setData(0);
+					zc_ffc_set(thisffc, 0);
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -3172,7 +3173,7 @@ void update_freeform_combos()
 				}
 				else
 				{
-					thisffc.setData(0);
+					zc_ffc_set(thisffc, 0);
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -3190,7 +3191,7 @@ void update_freeform_combos()
 				}
 				else if(thisffc.y<-64)
 				{
-					thisffc.setData(0);
+					zc_ffc_set(thisffc, 0);
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -3207,7 +3208,7 @@ void update_freeform_combos()
 				}
 				else
 				{
-					thisffc.setData(0);
+					zc_ffc_set(thisffc, 0);
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -3474,7 +3475,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 
 		for(int32_t i = (base_screen->numFFC()-1); i >= 0; --i)
 		{
-			if (base_screen->ffcs[i].getData() == 0)
+			if (base_screen->ffcs[i].data == 0)
 				continue;
 
 			if (screenscrolling && (base_screen->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.index != scrolling_scr)
@@ -4104,7 +4105,7 @@ void calc_darkroom_combos_old(int screen, int offx, int offy, bool scrolling)
 	word c = scr->numFFC();
 	for(word q = 0; q < c; ++q)
 	{
-		newcombo const& cmb = combobuf[scr->ffcs[q].getData()];
+		newcombo const& cmb = combobuf[scr->ffcs[q].data];
 		if(cmb.type == cTORCH)
 		{
 			int cx = (scr->ffcs[q].x.getInt())+(scr->ffEffectWidth(q)/2) + offx,
@@ -4142,7 +4143,7 @@ void calc_darkroom_combos_old(int screen, int offx, int offy, bool scrolling)
 	c = special_warp_return_screen.numFFC();
 	for(word q = 0; q < c; ++q)
 	{
-		newcombo const& cmb = combobuf[special_warp_return_screen.ffcs[q].getData()];
+		newcombo const& cmb = combobuf[special_warp_return_screen.ffcs[q].data];
 		if(cmb.type == cTORCH)
 		{
 			int cx = special_warp_return_screen.ffcs[q].x.getInt()+(special_warp_return_screen.ffEffectWidth(q)/2)+offx;
@@ -4179,7 +4180,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
 	word c = scr->numFFC();
 	for(int q = 0; q < c; ++q)
 	{
-		newcombo const& cmb = combobuf[scr->ffcs[q].getData()];
+		newcombo const& cmb = combobuf[scr->ffcs[q].data];
 		if(cmb.type == cTORCH)
 		{
 			int cx = scr->ffcs[q].x.getInt()+(scr->ffEffectWidth(q)/2)+offx;
@@ -5636,6 +5637,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	if (destdmap < 0) destdmap = currdmap;
 
 	triggered_screen_secrets = false;
+	Hero.clear_platform_ffc();
 	slopes.clear();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	clear_darkroom_bitmaps();
@@ -5661,8 +5663,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	homescr = scr >= 0x80 ? heroscr : cur_origin_screen_index;
 	currscr = cur_origin_screen_index;
 
-	// init_combo_timers();
-	clear_combo_posinfo();
+	cpos_clear_combos();
 
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 	FFCore.clear_combo_scripts();
@@ -5710,7 +5711,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	}
 
 	init_ffpos();
-	init_combo_timers();
+	cpos_clear_all();
 
 	heroscr = scr;
 	hero_screen = get_scr_no_load(currmap, scr);
@@ -5725,7 +5726,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
 	});
 
-	calculate_trig_groups();
+	cpos_force_update();
 	trig_trigger_groups();
 
 	update_slope_comboposes();
@@ -6960,7 +6961,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 		for (uint8_t q = 0; q < c; ++q)
 		{
 			uint16_t ffc_id = screen_index_offset * MAXFFCS + q;
-			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
+			newcombo const& cmb = combobuf[m->ffcs[q].data];
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
 					do_trigger_combo_ffc({m, (uint8_t)screen_index, ffc_id, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
@@ -7101,7 +7102,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 		int screen_index_offset = get_region_screen_index_offset(screen_index);
 		for (uint8_t q = 0; q < c; ++q)
 		{
-			newcombo const& cmb = combobuf[base_screen->ffcs[q].getData()];
+			newcombo const& cmb = combobuf[base_screen->ffcs[q].data];
 			uint16_t ffc_id = screen_index_offset * MAXFFCS + q;
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
@@ -7169,8 +7170,8 @@ void ViewMap()
 	// It will still compile, but randomly segfaults in this function...
 	// Ex: python tests/run_replay_tests.py --filter link_to_the_zelda_2_of_3.zplay --frame 3000
 	static mapscr tmpscr_a[2];
-	mapscr tmpscr_b[2];
-	mapscr tmpscr_c[6];
+	static mapscr tmpscr_b[2];
+	static mapscr tmpscr_c[6];
 
 	tmpscr_a[0] = *tmpscr;
 	tmpscr->zero_memory();

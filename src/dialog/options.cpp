@@ -1,6 +1,6 @@
 #include "options.h"
 #include <gui/builder.h>
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "tiles.h"
 #include "zq/zq_misc.h"

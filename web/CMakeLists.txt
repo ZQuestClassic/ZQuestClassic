@@ -31,6 +31,7 @@ add_custom_command(
     VERBATIM
 )
 add_custom_target(main_bundle DEPENDS ${BUILD_FOLDER}/main.js)
+add_dependencies(main_bundle zscript)
 
 function (create_web_target target)
     add_custom_command(

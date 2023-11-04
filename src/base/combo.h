@@ -125,7 +125,7 @@ struct newcombo
 	byte speed_mult = 1;
 	byte speed_div = 1;
 	zfix speed_add;
-	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing;
+	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap;
 	byte spr_appear, spr_disappear, spr_walking, spr_standing;
 	
 	void set_tile(int32_t newtile);
@@ -279,6 +279,12 @@ struct newcombo
 #define ctrigSECRETS                    0x02
 #define ctrigSWITCHSTATE                0x04
 
+enum //cCRUMBLE types
+{
+	CMBTY_CRUMBLE_RESET,
+	CMBTY_CRUMBLE_CUMULATIVE,
+	CMBTY_CRUMBLE_INEVITABLE,
+};
 
 extern std::vector<newcombo> combobuf;
 

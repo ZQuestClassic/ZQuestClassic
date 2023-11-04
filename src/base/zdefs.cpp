@@ -1,9 +1,9 @@
 #include "base/zdefs.h"
-#include "jwin_a5.h"
+#include "gui/jwin_a5.h"
 #include "base/zapp.h"
 #include "dialog/info.h"
 #include <sstream>
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include <fmt/format.h>
 #include "base/qrs.h"
 
@@ -15,8 +15,6 @@ extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
 volatile bool close_button_quit = false, exiting_program = false, dialog_open_quit = false;
-
-int next_script_data_debug_id = 0;
 
 const char months[13][13] =
 { 
@@ -182,7 +180,7 @@ void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 	{
 		al_unmap_rgb(colors[q],&r,&g,&b);
 		hexval = (r<<16)|(g<<8)|(b);
-		zc_set_config_basic("Theme",fmt::format("color_{}",q).c_str(), hexval);
+		zc_set_config_basic_hex("Theme",fmt::format("color_{}",q).c_str(), hexval);
 	}
 	
 	for(int q = 0; q < jcMAX; ++q)

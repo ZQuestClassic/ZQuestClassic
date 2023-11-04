@@ -1,5 +1,5 @@
 #include "gui/common.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 
 namespace GUI
 {

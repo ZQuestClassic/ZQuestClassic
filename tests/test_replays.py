@@ -71,6 +71,7 @@ class TestReplays(unittest.TestCase):
         result = test_results.runs[0][0]
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
+        self.assertEqual(result.stopped, True)
         self.assertEqual(result.failing_frame, 549)
         self.assertEqual(result.unexpected_gfx_frames, [549, 1574])
         self.assertEqual(result.unexpected_gfx_segments, [[549, 549], [1574, 1575]])
@@ -129,6 +130,7 @@ class TestReplays(unittest.TestCase):
         result = test_results.runs[0][0]
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
+        self.assertEqual(result.stopped, True)
         self.assertEqual(result.failing_frame, 549)
         self.assertEqual(result.unexpected_gfx_frames, [549, 1574])
         self.assertEqual(result.unexpected_gfx_segments, [[549, 549], [1574, 1575]])
@@ -168,6 +170,7 @@ class TestReplays(unittest.TestCase):
         result = test_results.runs[0][0]
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
+        self.assertEqual(result.stopped, True)
         self.assertEqual(result.failing_frame, 102)
         self.assertEqual(result.unexpected_gfx_segments, [[102, 1700], [3700, 3900]])
         self.assertEqual(result.unexpected_gfx_segments_limited, [[102, 402], [3700, 3900]])
@@ -232,6 +235,7 @@ class TestReplays(unittest.TestCase):
         result = test_results.runs[0][0]
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
+        self.assertEqual(result.stopped, True)
         # This is the frame it stops at because of the loadscr check failing.
         self.assertEqual(result.frame, 634)
         self.assertEqual(result.failing_frame, 1)

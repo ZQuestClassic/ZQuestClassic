@@ -99,7 +99,7 @@ The above _usually_ works to pinpoint the instruction that first messes up.
 
 Because it takes so long to debug print the state of scripts after each instruction, it isn't feasible to just debug print for every frame, hence the early exit in step 2. But it's possible that even looking back at 100, 1000, 10000+ frames won't show you the first time a register or stack value differs from what is expected. The state of a script's memory can mess up far before it ever causes a visual regression in the replay. To get a better value, you can repeat the above steps but instead  set `runtime_debug` in `script_debug.cpp` to `1`. Use this more exact value to repeat the above process.
 
-It can also be useful to compile only the script you're debugging in `jit_create_script_handle`: `if (script->debug_id != 3598) return nullptr;`
+It can also be useful to compile only the script you're debugging in `jit_create_script_handle`: `if (script->id != {ScriptType::Player, 1}) return nullptr;`
 
 ## Learning materials
 

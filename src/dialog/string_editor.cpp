@@ -1,8 +1,8 @@
 #include "string_editor.h"
 #include "base/zsys.h"
 #include "base/msgstr.h"
-#include "editbox.h"
-#include "EditboxNew.h"
+#include "gui/editbox.h"
+#include "gui/EditboxNew.h"
 #include "info.h"
 #include "subscr.h"
 #include <gui/builder.h>
@@ -171,8 +171,14 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 							return;
 						std::string fullstr;
 						fullstr.assign(str_field->getText());
-						size_t pos = str_field->get_str_pos();
-						std::string outstr = fullstr.substr(0,pos) + scc + fullstr.substr(pos);
+						int32_t pos = str_field->get_str_selected_pos();
+						int32_t endpos = str_field->get_str_selected_endpos();
+						size_t len = str_field->get_str_pos();
+						std::string outstr;
+						if(endpos>-1)
+							outstr = fullstr.substr(0, pos) + scc + fullstr.substr(zc_min(len, endpos+1));
+						else
+							outstr = fullstr.substr(0, pos) + scc + fullstr.substr(pos);
 						str_field->setText(outstr);
 						preview->setText(outstr);
 						tmpMsgStr.s = parse_msg_str(outstr);

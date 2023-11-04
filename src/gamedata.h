@@ -4,48 +4,12 @@
 #include "base/general.h"
 #include "base/ints.h"
 #include "base/zc_array.h"
+#include "base/containers.h"
 #include "user_object.h"
 
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 #define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
-
-enum
-{
-	crNONE = -1,
-	crLIFE, crMONEY, crBOMBS, crARROWS, crMAGIC,
-	crKEYS, crSBOMBS, crCUSTOM1, crCUSTOM2, crCUSTOM3,
-	crCUSTOM4, crCUSTOM5, crCUSTOM6, crCUSTOM7, crCUSTOM8,
-	crCUSTOM9, crCUSTOM10, crCUSTOM11, crCUSTOM12, crCUSTOM13,
-	crCUSTOM14, crCUSTOM15, crCUSTOM16, crCUSTOM17, crCUSTOM18,
-	crCUSTOM19, crCUSTOM20, crCUSTOM21, crCUSTOM22, crCUSTOM23,
-	crCUSTOM24, crCUSTOM25, crCUSTOM26, crCUSTOM27, crCUSTOM28,
-	crCUSTOM29, crCUSTOM30, crCUSTOM31, crCUSTOM32, crCUSTOM33,
-	crCUSTOM34, crCUSTOM35, crCUSTOM36, crCUSTOM37, crCUSTOM38,
-	crCUSTOM39, crCUSTOM40, crCUSTOM41, crCUSTOM42, crCUSTOM43,
-	crCUSTOM44, crCUSTOM45, crCUSTOM46, crCUSTOM47, crCUSTOM48,
-	crCUSTOM49, crCUSTOM50, crCUSTOM51, crCUSTOM52, crCUSTOM53,
-	crCUSTOM54, crCUSTOM55, crCUSTOM56, crCUSTOM57, crCUSTOM58,
-	crCUSTOM59, crCUSTOM60, crCUSTOM61, crCUSTOM62, crCUSTOM63,
-	crCUSTOM64, crCUSTOM65, crCUSTOM66, crCUSTOM67, crCUSTOM68,
-	crCUSTOM69, crCUSTOM70, crCUSTOM71, crCUSTOM72, crCUSTOM73,
-	crCUSTOM74, crCUSTOM75, crCUSTOM76, crCUSTOM77, crCUSTOM78,
-	crCUSTOM79, crCUSTOM80, crCUSTOM81, crCUSTOM82, crCUSTOM83,
-	crCUSTOM84, crCUSTOM85, crCUSTOM86, crCUSTOM87, crCUSTOM88,
-	crCUSTOM89, crCUSTOM90, crCUSTOM91, crCUSTOM92, crCUSTOM93,
-	crCUSTOM94, crCUSTOM95, crCUSTOM96, crCUSTOM97, crCUSTOM98,
-	crCUSTOM99, crCUSTOM100, MAX_COUNTERS
-};
-enum generic_ind
-{
-	genHCP, genMDRAINRATE, genCANSLASH, genWLEVEL,
-	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
-	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
-	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
-	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP,
-	genBUNNY_LTM, genSWITCHSTYLE, genLAST,
-	genMAX = 256
-};
 
 #define MAX_SAVED_PORTALS 10000
 struct savedportal
@@ -104,78 +68,55 @@ struct gamedata
 	bool operator==(const gamedata&) const = default;
 
 	gamedata_header header;
-	byte  /*_wlevel,*/_cheat;
-	bool  item[MAXITEMS];
-	byte  items_off[MAXITEMS];
-	word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
+	byte _cheat;
+	bool item[MAXITEMS];
+	byte items_off[MAXITEMS];
+	word _maxcounter[MAX_COUNTERS];
 	word _counter[MAX_COUNTERS];
 	int16_t _dcounter[MAX_COUNTERS];
 	
-	char  version[17];
-	byte  lvlitems[MAXLEVELS];
-	byte  lvlkeys[MAXLEVELS];
-	dword lvlswitches[MAXLEVELS];
-	byte  _continue_scrn;
-	word  _continue_dmap;
-	int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
-	byte  visited[MAXDMAPS];
-	byte  bmaps[MAXDMAPS*MAPSCRSNORMAL];                      // the dungeon progress maps
-	word  maps[MAXMAPS*MAPSCRSNORMAL];                       // info on map changes, items taken, etc.
-	byte  guys[MAXMAPS*MAPSCRSNORMAL];                       // guy counts (though dungeon guys are reset on entry)
-	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
-	int32_t  screen_d[MAX_MI][8];                // script-controlled screen variables
-	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
-	std::vector< ZCArray <int32_t> > globalRAM;
+	char version[17];
+	bounded_vec<word,byte> lvlitems {MAXLEVELS, 0};
+	bounded_vec<word,byte> lvlkeys {MAXLEVELS, 0};
+	bounded_vec<word,dword> lvlswitches {MAXLEVELS, 0};
+	byte _continue_scrn;
+	word _continue_dmap;
+	bounded_vec<word,int32_t> _generic {genMAX, 0}; // Generic gamedata. See enum above this struct for indexes.
+	byte visited[MAXDMAPS];
+	bounded_vec<dword,byte> bmaps {MAX_MI, 0}; // the dungeon progress maps
+	bounded_vec<dword,word> maps {MAXSCRSNORMAL, 0}; // info on map changes, items taken, etc.
+	bounded_vec<dword,byte> guys {MAXSCRSNORMAL, 0}; // guy counts (enemy kill progress)
+	bool item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
+	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
+	int32_t global_d[MAX_SCRIPT_REGISTERS]; // script-controlled global variables
+	std::vector<ZCArray<int32_t>> globalRAM;
 	
 	word awpn = 255, bwpn = 255, xwpn = 255, ywpn = 255;
 	int16_t abtn_itm = -1, bbtn_itm = -1, xbtn_itm = -1, ybtn_itm = -1;
 	int16_t forced_awpn = -1, forced_bwpn = -1, forced_xwpn = -1, forced_ywpn = -1;
-	bool isclearing; // The gamedata is being cleared
-	//115456 (260)
+	
 	byte bottleSlots[256];
 	
 	savedportal saved_mirror_portal;
 	
 	byte swim_mult = 1, swim_div = 1;
 	
-	bool gen_doscript[NUMSCRIPTSGENERIC];
-	word gen_exitState[NUMSCRIPTSGENERIC];
-	word gen_reloadState[NUMSCRIPTSGENERIC];
-	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
-	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
-	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
-	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
+	bitstring gen_doscript;
+	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC, 0};
+	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC, 0};
+	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8, 0}};
+	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC, 0};
+	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0, 0}};
 	
-	uint32_t xstates[MAXMAPS*MAPSCRSNORMAL];
+	bounded_map<dword,uint32_t> xstates {MAXSCRSNORMAL, 0};
 	
-	int32_t gswitch_timers[NUM_GSWITCHES];
-	int16_t OverrideItems[itype_max] = {-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
-		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2};
+	bounded_map<word,int32_t> gswitch_timers {NUM_GSWITCHES, 0};
+	bounded_map<word,int16_t> OverrideItems {itype_max, -2};
 
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
 	
-	std::vector<int32_t> screen_data[MAXMAPS*MAPSCRS];
+	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0, 0}};
 	
 	size_t scriptDataSize(int32_t indx) const
 	{
@@ -188,9 +129,7 @@ struct gamedata
 		if(unsigned(indx) >= MAXMAPS*MAPSCRS)
 			return;
 		sz = vbound(sz, 0, 214748);
-		if(screen_data[indx].size() == size_t(sz))
-			return;
-		screen_data[indx].resize(sz, 0);
+		screen_data[indx].resize(sz);
 	}
 	
 	void Clear();
@@ -415,6 +354,28 @@ struct gamedata
 	savedportal* getSavedPortal(int32_t uid);
 
 	bool should_show_time();
+	
+	void normalize()
+	{
+		lvlitems.normalize();
+		lvlkeys.normalize();
+		lvlswitches.normalize();
+		_generic.normalize();
+		bmaps.normalize();
+		maps.normalize();
+		guys.normalize();
+		screen_d.normalize();
+		gen_doscript.normalize();
+		gen_exitState.normalize();
+		gen_reloadState.normalize();
+		gen_initd.normalize();
+		gen_eventstate.normalize();
+		gen_data.normalize();
+		xstates.normalize();
+		gswitch_timers.normalize();
+		OverrideItems.normalize();
+		screen_data.normalize();
+	}
 };
 
 extern gamedata *game;

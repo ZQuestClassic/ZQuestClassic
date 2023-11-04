@@ -2,7 +2,7 @@
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include <utility>
 
 extern int32_t zq_screen_w, zq_screen_h;

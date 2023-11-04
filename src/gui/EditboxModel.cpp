@@ -1,11 +1,11 @@
 #include <assert.h>
 
-#include "EditboxNew.h"
+#include "gui/EditboxNew.h"
 #include "base/zc_alleg.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "base/zdefs.h"
 #include "base/fonts.h"
-#include "editbox.h"
+#include "gui/editbox.h"
 #include "base/gui.h"
 #include <stdio.h>
 

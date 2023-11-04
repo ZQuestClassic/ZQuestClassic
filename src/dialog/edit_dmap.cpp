@@ -1,7 +1,7 @@
 #include "edit_dmap.h"
 #include <gui/builder.h>
 #include "base/process_management.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
 #include "zc_list_data.h"

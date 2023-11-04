@@ -222,7 +222,9 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::CREATE_INIT_DATA:
 		{
 			zinitdata zinit_test = zinit;
+			bool old_saved = saved;
 			doInit(&zinit_test, false);
+			saved = old_saved;
 
 			zinitdata zinit_base;
 			zinit_base.clear();
@@ -253,7 +255,9 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				return false;
 			}
 
+			bool old_saved = saved;
 			doInit(zinit_test, false);
+			saved = old_saved;
 
 			std::string delta = serialize_init_data_delta(&zinit_base, zinit_test);
 			test_init_data[test_init_data_val - 1] = delta;

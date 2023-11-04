@@ -2,7 +2,7 @@
 #include "base/zc_alleg.h"
 #include "gui/dialog_runner.h"
 #include "gui/list_data.h"
-#include "jwin.h"
+#include "gui/jwin.h"
 #include <utility>
 #include "subscr.h"
 

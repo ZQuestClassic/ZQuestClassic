@@ -60,6 +60,7 @@ struct ffc_handle_t
 	void set_data(int32_t value) const;
 	void set_cset(int32_t cset) const;
 	void increment_data() const;
+	void decrement_data() const;
 };
 
 // TODO: this may be a tad overengineered for its current usecases. Consider replacing

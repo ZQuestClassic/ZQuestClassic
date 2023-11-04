@@ -43,7 +43,7 @@ private:
 
 		if (!a4_bitmap || a4_bitmap->w != w || a4_bitmap->h != h)
 		{
-			if (a4_bitmap) destroy_bitmap(a4_bitmap);
+			destroy_bitmap(a4_bitmap);
 			a4_bitmap = create_bitmap_ex(8, w, h);
 			set_size(w, h);
 		}
@@ -78,7 +78,7 @@ private:
 		int h = pos.h;
 		if (!a4_bitmap || a4_bitmap->w != w || a4_bitmap->h != h)
 		{
-			if (a4_bitmap) destroy_bitmap(a4_bitmap);
+			destroy_bitmap(a4_bitmap);
 			a4_bitmap = create_bitmap_ex(8, w, h);
 			clear_bitmap(a4_bitmap);
 			set_size(w, h);
@@ -94,11 +94,6 @@ static TextRTI rti_text("text");
 static HighlightRTI rti_highlight("highlight");
 static bool initialized = false;
 extern int TTipHLCol;
-
-ToolTipRTI* tool_tip_get_rti()
-{
-	return &rti_tooltip;
-}
 
 void ttip_add(std::string text, int x, int y, float scale)
 {

@@ -770,8 +770,8 @@ static bool register_name()
 		
 		if(ret==qe_OK)
 		{
-			new_game->set_maxlife(zinit.hc*zinit.hp_per_heart);
-			new_game->set_life(zinit.hc*zinit.hp_per_heart);
+			new_game->set_maxlife(zinit.mcounter[crLIFE]);
+			new_game->set_life(zinit.mcounter[crLIFE]);
 			new_game->set_hp_per_heart(zinit.hp_per_heart);
 			selectscreen();                                       // refresh palette
 			if (!saves_create_slot(new_game))

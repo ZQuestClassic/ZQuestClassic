@@ -4,6 +4,7 @@
 #include "ffc.h"
 #include "zc/weapons.h"
 #include "zc/guys.h"
+#include "zc/zc_ffc.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "zc/maps.h"
@@ -364,7 +365,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
 			screen_ffc_modify_preroutine(ffc_handle);
-			ffc->setData(ffc_handle.screen->secretcombo[ft]);
+			ffc_handle.set_data(ffc_handle.screen->secretcombo[ft]);
 			ffc->cset = ffc_handle.screen->secretcset[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
@@ -381,17 +382,17 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
 				{
-					ffc->setData(ffc_handle.screen->undercombo);
+					ffc_handle.set_data(ffc_handle.screen->undercombo);
 					ffc->cset = ffc_handle.screen->undercset;	
 				}
 				else
-					ffc->setData(vbound(ffc->getData()+1,0,MAXCOMBOS));
+					ffc_handle.set_data(vbound(ffc_handle.data()+1,0,MAXCOMBOS));
 				
 				screen_ffc_modify_postroutine(ffc_handle);
 				
 				if (combobuf[cid].usrflags&cflag8) w->dead = 1;
 				if (combobuf[cid].usrflags&cflag12) break; //No continuous for undercombo
-				if (combobuf[cid].usrflags&cflag5) cid = ffc->getData(); //cid needs to be set to data so continuous combos work
+				if (combobuf[cid].usrflags&cflag5) cid = ffc_handle.data(); //cid needs to be set to data so continuous combos work
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
@@ -3801,7 +3802,7 @@ bool weapon::animate(int32_t index)
 				
 				if(fall <= (int32_t)zinit.terminalv)
 				{
-					fall += (zinit.gravity2/100);
+					fall += (zinit.gravity/100);
 				}
 			}
 			else
@@ -3842,7 +3843,7 @@ bool weapon::animate(int32_t index)
 				}
 				else if(fakefall <= (int32_t)zinit.terminalv)
 				{
-					fakefall += (zinit.gravity2/100);
+					fakefall += (zinit.gravity/100);
 				}
 			}
 			if (!(moveflags & FLAG_NO_REAL_Z))
@@ -3863,7 +3864,7 @@ bool weapon::animate(int32_t index)
 				}
 				else if(fall <= (int32_t)zinit.terminalv)
 				{
-					fall += (zinit.gravity2/100);
+					fall += (zinit.gravity/100);
 				}
 			}
 		}

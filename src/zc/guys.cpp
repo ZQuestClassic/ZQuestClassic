@@ -4,6 +4,7 @@
 #include "base/zc_alleg.h"
 #include "zc/guys.h"
 #include "zc/replay.h"
+#include "zc/zc_ffc.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "base/msgstr.h"
@@ -1262,7 +1263,7 @@ bool enemy::animate(int32_t index)
 					{
 						y+=fall/100;
 						if(fall <= (int32_t)zinit.terminalv)
-							fall += (zinit.gravity2/100);
+							fall += (zinit.gravity/100);
 					}
 				}
 				else
@@ -1306,7 +1307,7 @@ bool enemy::animate(int32_t index)
 					if(hit)
 						fall = 0;
 					else if(fall <= (int32_t)zinit.terminalv)
-							fall += (zinit.gravity2/100);
+							fall += (zinit.gravity/100);
 				}
 			}
 		}
@@ -1320,7 +1321,7 @@ bool enemy::animate(int32_t index)
 				if(fakez<0)
 					fakez = fakefall = 0;
 				else if(fakefall <= (int32_t)zinit.terminalv)
-					fakefall += (zinit.gravity2/100);
+					fakefall += (zinit.gravity/100);
 				
 				if (fakez<=0 && fakefall > 0 && !get_qr(qr_FLUCTUATING_ENEMY_JUMP)) fakefall = 0;
 			}
@@ -1332,7 +1333,7 @@ bool enemy::animate(int32_t index)
 				if(z<0)
 					z = fall = 0;
 				else if(fall <= (int32_t)zinit.terminalv)
-					fall += (zinit.gravity2/100);
+					fall += (zinit.gravity/100);
 				
 				if (z<=0 && fall > 0 && !get_qr(qr_FLUCTUATING_ENEMY_JUMP)) fall = 0;
 			}
@@ -1409,7 +1410,7 @@ void enemy::solid_push(solid_object *obj)
 	if(moveflags&FLAG_NOT_PUSHABLE) return; //not pushable
 	zfix dx, dy;
 	int32_t hdir = -1;
-	solid_push_int(obj,dx,dy,hdir);
+	solid_push_int(obj,dx,dy,hdir,true);
 	
 	if(!dx && !dy) return;
 	
@@ -18987,7 +18988,7 @@ void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 {
 	ffcdata* ff = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ff->getData()];
+	newcombo const& cmb = combobuf[ffc_handle.data()];
 	
 	rpos_t id = SLOPE_ID(ffc_handle.id, 7);
 	auto it = slopes.find(id);

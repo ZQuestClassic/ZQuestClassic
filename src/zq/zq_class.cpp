@@ -2532,7 +2532,7 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 	word maxffc = basescr->numFFC();
 	for(auto q = 0; q < maxffc; ++q)
 	{
-		newcombo const& cmb = combobuf[basescr->ffcs[q].getData()];
+		newcombo const& cmb = combobuf[basescr->ffcs[q].data];
 		if(cmb.type == cTORCH)
 			do_torch_combo(cmb, (basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), dest, transdest);
 	}
@@ -2678,7 +2678,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	for(int32_t i=MAXFFCS-1; i>=0; i--)
 	{
-		if(basescr->ffcs[i].getData())
+		if(basescr->ffcs[i].data)
 		{
 			if(!(basescr->ffcs[i].flags&ffCHANGER))
 			{
@@ -2689,12 +2689,12 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					
 					if(basescr->ffcs[i].flags&ffTRANS)
 					{
-						overcomboblocktranslucent(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset,basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
+						overcomboblocktranslucent(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset,basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
 						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
 					}
 					else
 					{
-						overcomboblock(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
+						overcomboblock(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
 						//overtile16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip);
 					}
 				}
@@ -2877,7 +2877,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	for(int32_t i=MAXFFCS-1; i>=0; i--)
 	{
-		if(basescr->ffcs[i].getData())
+		if(basescr->ffcs[i].data)
 		{
 			if(!(basescr->ffcs[i].flags&ffCHANGER))
 			{
@@ -2889,12 +2889,12 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					if(basescr->ffcs[i].flags&ffTRANS)
 					{
 						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
-						overcomboblocktranslucent(dest,tx,ty,basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
+						overcomboblocktranslucent(dest,tx,ty,basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
 					}
 					else
 					{
 						//overtile16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip);
-						overcomboblock(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
+						overcomboblock(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
 					}
 				}
 			}
@@ -2904,7 +2904,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	_zmap_drawlayer(dest, x, y, layers[6], antiflags, basescr->layeropacity[6-1]!=255, true, HL_LAYER(6));
 	
 	for(int32_t i=MAXFFCS-1; i>=0; i--)
-		if(basescr->ffcs[i].getData())
+		if(basescr->ffcs[i].data)
 			if(basescr->ffcs[i].flags&ffCHANGER)
 				putpixel(dest,(basescr->ffcs[i].x.getInt())+x,(basescr->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
 	
@@ -2936,7 +2936,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 		{
-			if(auto data = basescr->ffcs[i].getData())
+			if(auto data = basescr->ffcs[i].data)
 			{
 				if(!(basescr->ffcs[i].flags&ffCHANGER))
 				{
@@ -4187,7 +4187,7 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.vy = ffc.vy,
 		.ax = ffc.ax,
 		.ay = ffc.ay,
-		.data = ffc.getData(),
+		.data = ffc.data,
 		.cset = ffc.cset,
 		.delay = ffc.delay,
 		.link = ffc.link,
@@ -4213,7 +4213,7 @@ void set_ffc_command::execute()
 	mapscr_ptr->ffcs[i].vy = data.vy;
 	mapscr_ptr->ffcs[i].ax = data.ax;
 	mapscr_ptr->ffcs[i].ay = data.ay;
-	mapscr_ptr->ffcs[i].setData(data.data);
+	mapscr_ptr->ffcs[i].data = data.data;
 	mapscr_ptr->ffcs[i].cset = data.cset;
 	mapscr_ptr->ffcs[i].delay = data.delay;
 	mapscr_ptr->ffcs[i].link = data.link;
@@ -4240,7 +4240,7 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffcs[i].vy = prev_data.vy;
 	mapscr_ptr->ffcs[i].ax = prev_data.ax;
 	mapscr_ptr->ffcs[i].ay = prev_data.ay;
-	mapscr_ptr->ffcs[i].setData(prev_data.data);
+	mapscr_ptr->ffcs[i].data = prev_data.data;
 	mapscr_ptr->ffcs[i].cset = prev_data.cset;
 	mapscr_ptr->ffcs[i].delay = prev_data.delay;
 	mapscr_ptr->ffcs[i].link = prev_data.link;
@@ -5087,22 +5087,22 @@ void zmap::update_combo_cycling()
     for(word i=0; i<maxffc; i++)
     {
 		ffcdata& ffc = prvscr.ffcs[i];
-        newcombo const& cmb = combobuf[ffc.getData()];
+        newcombo const& cmb = combobuf[ffc.data];
         
         //time to restart
         if((cmb.aclk>=cmb.speed) &&
                 (cmb.tile-cmb.frames>=cmb.o_tile-1) &&
                 (cmb.nextcombo!=0))
         {
-            ffc.setData(cmb.nextcombo);
+            ffc.data = cmb.nextcombo;
             if(!(cmb.animflags & AF_CYCLENOCSET))
 				ffc.cset=cmb.nextcset;
             
-            if(combobuf[ffc.getData()].animflags & AF_CYCLE)
+            if(combobuf[ffc.data].animflags & AF_CYCLE)
             {
-                restartanim[ffc.getData()]=true;
+                restartanim[ffc.data]=true;
             }
-			prvscr.ffcs[i].setData(ffc.getData());
+			prvscr.ffcs[i].data = ffc.data;
 			prvscr.ffcs[i].cset=ffc.cset;
         }
     }
@@ -5189,16 +5189,17 @@ void zmap::update_freeform_combos()
         return;
     }
     
+	// TODO: this changer code is a duplicated here and for zplayer. Should fix that.
 	word maxffc = prvscr.numFFC();
     for(int32_t i=0; i<maxffc; i++)
     {
-        if(!(prvscr.ffcs[i].flags&ffCHANGER) && prvscr.ffcs[i].getData()!=0 && !(prvscr.ffcs[i].flags&ffSTATIONARY))
+        if(!(prvscr.ffcs[i].flags&ffCHANGER) && prvscr.ffcs[i].data!=0 && !(prvscr.ffcs[i].flags&ffSTATIONARY))
         {
             for(int32_t j=0; j<maxffc; j++)
             {
                 if(i!=j)
                 {
-                    if(prvscr.ffcs[j].flags&ffCHANGER && prvscr.ffcs[j].getData() != 0)
+                    if(prvscr.ffcs[j].flags&ffCHANGER && prvscr.ffcs[j].data != 0)
                     {
                         if((((prvscr.ffcs[j].x.getInt())!=prvscr.ffcs[i].changer_x)||((prvscr.ffcs[j].y.getInt())!=prvscr.ffcs[i].changer_y))&&(prvscr.ffcs[i].link==0))
                         {
@@ -5209,15 +5210,15 @@ void zmap::update_freeform_combos()
                                 //prvscr.ffcs[i].cset=prvscr.ffcs[j].cset;
                                 if(prvscr.ffcs[j].flags&ffCHANGETHIS)
                                 {
-                                    prvscr.ffcs[i].setData(prvscr.ffcs[j].getData());
+                                    prvscr.ffcs[i].data = prvscr.ffcs[j].data;
                                     prvscr.ffcs[i].cset = prvscr.ffcs[j].cset;
                                 }
                                 
                                 if(prvscr.ffcs[j].flags&ffCHANGENEXT)
-                                    prvscr.ffcs[i].incData(1);
+                                    prvscr.ffcs[i].data += 1;
                                     
                                 if(prvscr.ffcs[j].flags&ffCHANGEPREV)
-                                    prvscr.ffcs[i].incData(-1);
+                                    prvscr.ffcs[i].data -= 1;
                                     
                                 prvscr.ffcs[i].delay=prvscr.ffcs[j].delay;
                                 prvscr.ffcs[i].x=prvscr.ffcs[j].x;
@@ -5242,9 +5243,9 @@ void zmap::update_freeform_combos()
                                 prvscr.ffcs[i].changer_x=(prvscr.ffcs[j].x.getInt());
                                 prvscr.ffcs[i].changer_y=(prvscr.ffcs[j].y.getInt());
                                 
-                                if(combobuf[prvscr.ffcs[j].getData()].flag>15 && combobuf[prvscr.ffcs[j].getData()].flag<32)
+                                if(combobuf[prvscr.ffcs[j].data].flag>15 && combobuf[prvscr.ffcs[j].data].flag<32)
                                 {
-                                    prvscr.ffcs[j].setData(prvscr.secretcombo[combobuf[prvscr.ffcs[j].getData()].flag - 16 + 4]);
+                                    prvscr.ffcs[j].data = prvscr.secretcombo[combobuf[prvscr.ffcs[j].data].flag - 16 + 4];
                                 }
                                 
                                 if((prvscr.ffcs[j].flags&ffSWAPNEXT)||(prvscr.ffcs[j].flags&ffSWAPPREV))
@@ -5319,7 +5320,7 @@ void zmap::update_freeform_combos()
                 }
                 else
                 {
-                    prvscr.ffcs[i].setData(0);
+                    prvscr.ffcs[i].data = 0;
                     prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
@@ -5333,7 +5334,7 @@ void zmap::update_freeform_combos()
                 }
                 else
                 {
-                    prvscr.ffcs[i].setData(0);
+                    prvscr.ffcs[i].data = 0;
                     prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
@@ -5347,7 +5348,7 @@ void zmap::update_freeform_combos()
                 }
                 else
                 {
-                    prvscr.ffcs[i].setData(0);
+                    prvscr.ffcs[i].data = 0;
                     prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
@@ -5361,7 +5362,7 @@ void zmap::update_freeform_combos()
                 }
                 else
                 {
-                    prvscr.ffcs[i].setData(0);
+                    prvscr.ffcs[i].data = 0;
                     prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
@@ -6502,7 +6503,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
     
     char hash_string[33];
     
-    if((get_debug() && (!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))) || is_null_pwd_hash(hdr->pwd_hash))
+    if((get_debug() && (!(CHECK_CTRL_CMD))) || is_null_pwd_hash(hdr->pwd_hash))
     {
         return 1;
     }
@@ -6633,7 +6634,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
     
     pwd_dlg[4].dp=hash_string;
     
-    if(get_debug() && (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
+    if(get_debug() && (CHECK_CTRL_CMD))
     {
         sprintf(prompt,"%s",response);
     }
@@ -9453,10 +9454,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	{
 		ffcdata const& tempffc = screen.ffcs[k];
 		
-		if(!p_iputw(tempffc.getData(),f))
+		if(!p_iputw(tempffc.data,f))
 			return qe_invalid;
 		
-		if(!tempffc.getData()) //don't save the rest of the ffc
+		if(!tempffc.data) //don't save the rest of the ffc
 			continue;
 		
 		if(!p_putc(tempffc.cset,f))
@@ -9670,7 +9671,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		combo_has_flags |= CHAS_LIFT;
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
 		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
-		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing)
+		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing || tmp_cmb.sfx_tap)
 		combo_has_flags |= CHAS_GENERAL;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -10011,6 +10012,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 86;
 		if(!p_putc(tmp_cmb.spr_standing,f))
 			return 87;
+		if(!p_putc(tmp_cmb.sfx_tap,f))
+			return 88;
 	}
 	return 0;
 }
@@ -12193,8 +12196,6 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];
 extern script_data *guyscripts[NUMSCRIPTGUYS];
-extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
-extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -12283,9 +12284,10 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
+		script_data *fake = new script_data(ScriptType::None, 0);
         for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &fake);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12293,6 +12295,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
                 new_return(ret);
             }
         }
+		delete fake;
         
         for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
         {
@@ -12927,7 +12930,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
     Header=Header;
     i=i;
     
-    int32_t num_commands = (*script)->size();
+    size_t num_commands = (*script)->size;
     
     if(!p_iputl(num_commands,f))
     {
@@ -13240,11 +13243,8 @@ int32_t writesfx(PACKFILE *f, zquestheader *Header)
     new_return(0);
 }
 
-int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
+int32_t writeinitdata(PACKFILE *f, zquestheader *)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	Header=Header;
-	
 	dword section_id=ID_INITDATA;
 	dword section_version=V_INITDATA;
 	dword section_cversion=CV_INITDATA;
@@ -13252,7 +13252,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 	
 	zinit.last_map=Map.getCurrMap();
 	zinit.last_screen=Map.getCurrScr();
-	zinit.usecustomsfx=1;
+	zinit.normalize();
 	
 	//section id
 	if(!p_mputl(section_id,f))
@@ -13271,28 +13271,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		new_return(3);
 	}
 	
-	word numgenscript = 0;
-	word ind = 1;
-	bool valid_inds[NUMSCRIPTSGENERIC] = {0};
-	for(auto it = genericmap.begin(); it != genericmap.end(); it++)
-	{
-        bool valid = zinit.gen_doscript[ind] || zinit.gen_exitState[ind]
-            || zinit.gen_reloadState[ind] || zinit.gen_initd[ind][0]
-            || zinit.gen_initd[ind][1] || zinit.gen_initd[ind][2]
-            || zinit.gen_initd[ind][3] || zinit.gen_initd[ind][4]
-            || zinit.gen_initd[ind][5] || zinit.gen_initd[ind][6]
-            || zinit.gen_initd[ind][7] || zinit.gen_data[ind].size()
-            || zinit.gen_data[ind].size() || zinit.gen_eventstate[ind];
-        if (valid)
-        {
-            valid_inds[ind] = true;
-            if (it->second.hasScriptData())
-            {
-                numgenscript = ind + 1;
-            }
-        }
-		++ind;
-	}
+	//TODO
 	
 	for(int32_t writecycle=0; writecycle<2; ++writecycle)
 	{
@@ -13300,422 +13279,144 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		
 		//section size
 		if(!p_iputl(section_size,f))
-		{
 			new_return(4);
-		}
 		
 		writesize=0;
 		
-		//finally...  section data
-		//write the new items
-		for(int32_t i=0; i<MAXITEMS; i++)
-		{
-			if(!p_putc(zinit.items[i] ? 1 : 0, f))
-			{
+		for(int q = 0; q < MAXITEMS/8; ++q)
+			if(!p_putc(zinit.items[q], f))
 				new_return(5);
-			}
-		}
-		
-		if(!p_putc(zinit.hc,f))
+		for(int q = 0; q < MAXLEVELS/8; ++q)
 		{
-			new_return(25);
+			if(!p_putc(zinit.map[q], f))
+				new_return(6);
+			if(!p_putc(zinit.compass[q], f))
+				new_return(7);
+			if(!p_putc(zinit.boss_key[q], f))
+				new_return(8);
+			if(!p_putc(zinit.mcguffin[q], f))
+				new_return(9);
 		}
-		
-		if(!p_iputw(zinit.start_heart,f))
-		{
-			new_return(26);
-		}
-		
-		if(!p_iputw(zinit.cont_heart,f))
-		{
-			new_return(27);
-		}
-		
-		if(!p_putc(zinit.hcp,f))
-		{
-			new_return(28);
-		}
-		
-		if(!p_putc(zinit.hcp_per_hc,f))
-		{
-			new_return(29);
-		}
-		
-		if(!p_putc(zinit.keys,f))
-		{
-			new_return(31);
-		}
-		
-		if(!p_iputw(zinit.rupies,f))
-		{
-			new_return(32);
-		}
-		
-		if(!p_putc(zinit.triforce,f))
-		{
-			new_return(33);
-		}
-		
-		for(int32_t i=0; i<64; i++)
-		{
-			if(!p_putc(zinit.map[i],f))
-			{
-				new_return(34);
-			}
-		}
-		
-		for(int32_t i=0; i<64; i++)
-		{
-			if(!p_putc(zinit.compass[i],f))
-			{
-				new_return(35);
-			}
-		}
-		
-		for(int32_t i=0; i<64; i++)
-		{
-			if(!p_putc(zinit.boss_key[i],f))
-			{
-				new_return(36);
-			}
-		}
-		
-		for(int32_t i=0; i<16; i++)
-		{
-			if(!p_putc(zinit.misc[i],f))
-			{
-				new_return(37);
-			}
-		}
-		
-		if(!p_putc(zinit.last_map,f))
-		{
-			new_return(38);
-		}
-		
-		if(!p_putc(zinit.last_screen,f))
-		{
-			new_return(39);
-		}
-		
-		if(!p_iputw(zinit.max_magic,f))
-		{
-			new_return(40);
-		}
-		
-		if(!p_iputw(zinit.magic,f))
-		{
-			new_return(41);
-		}
-		
+		if(!p_putbvec(zinit.level_keys, f))
+			new_return(10);
+		if(!p_putc(MAX_COUNTERS,f))
+			new_return(11);
+		for(int q = 0; q < MAX_COUNTERS; ++q)
+			if(!p_iputw(zinit.counter[q],f))
+				new_return(12);
+		for(int q = 0; q < MAX_COUNTERS; ++q)
+			if(!p_iputw(zinit.mcounter[q],f))
+				new_return(13);
 		if(!p_putc(zinit.bomb_ratio,f))
-		{
-			new_return(41);
-		}
-		
-		if(!p_putc(zinit.msg_more_x,f))
-		{
-			new_return(42);
-		}
-		
-		if(!p_putc(zinit.msg_more_y,f))
-		{
-			new_return(43);
-		}
-		
-		if(!p_putc(zinit.subscreen,f))
-		{
-			new_return(44);
-		}
-		
-		if(!p_iputw(zinit.start_dmap,f))
-		{
-			new_return(45);
-		}
-		
-		if(!p_putc(zinit.heroAnimationStyle,f))
-		{
-			new_return(46);
-		}
-		
-		for(int32_t i=0; i<MAXLEVELS; i++)
-		{
-			if(!p_putc(zinit.level_keys[i],f))
-			{
-				new_return(49);
-			}
-		}
-		
-		if(!p_iputw(zinit.ss_grid_x,f))
-		{
-			new_return(50);
-		}
-		
-		if(!p_iputw(zinit.ss_grid_y,f))
-		{
-			new_return(51);
-		}
-		
-		if(!p_iputw(zinit.ss_grid_xofs,f))
-		{
-			new_return(52);
-		}
-		
-		if(!p_iputw(zinit.ss_grid_yofs,f))
-		{
-			new_return(53);
-		}
-		
-		if(!p_iputw(zinit.ss_grid_color,f))
-		{
-			new_return(54);
-		}
-		
-		if(!p_iputw(zinit.ss_bbox_1_color,f))
-		{
-			new_return(55);
-		}
-		
-		if(!p_iputw(zinit.ss_bbox_2_color,f))
-		{
-			new_return(56);
-		}
-		
-		if(!p_iputw(zinit.ss_flags,f))
-		{
-			new_return(57);
-		}
-		
-		if(!p_putc(zinit.subscreen_style,f))
-		{
-			new_return(58);
-		}
-		
-		if(!p_putc(zinit.usecustomsfx,f))
-		{
-			new_return(59);
-		}
-		
-		if(!p_iputw(zinit.max_rupees,f))
-		{
-			new_return(60);
-		}
-		
-		if(!p_iputw(zinit.max_keys,f))
-		{
-			new_return(61);
-		}
-		
-		if(!p_putc(zinit.gravity,f))
-		{
-			new_return(62);
-		}
-		
-		if(!p_iputw(zinit.terminalv,f))
-		{
-			new_return(63);
-		}
-		
-		if(!p_putc(zinit.msg_speed,f))
-		{
-			new_return(64);
-		}
-		
-		if(!p_putc(zinit.transition_type,f))
-		{
-			new_return(65);
-		}
-		
-		if(!p_putc(zinit.jump_hero_layer_threshold,f))
-		{
-			new_return(66);
-		}
-		
-		if(!p_putc(zinit.msg_more_is_offset,f))
-		{
-			new_return(67);
-		}
-	
-		if(!p_iputw(zinit.bombs,f))
-		{
-			new_return(68);
-		}
-		if(!p_iputw(zinit.super_bombs,f))
-		{
-			new_return(69);
-		}
-		if(!p_iputw(zinit.max_bombs,f))
-		{
-			new_return(70);
-		}
-		if(!p_iputw(zinit.max_sbombs,f))
-		{
-			new_return(71);
-		}
-		if(!p_iputw(zinit.arrows,f))
-		{
-			new_return(72);
-		}
-		if(!p_iputw(zinit.max_arrows,f))
-		{
-			new_return(73);
-		}
-		if(!p_iputw(zinit.heroStep,f))
-		{
-			new_return(73);
-		}
-		if(!p_iputw(zinit.subscrSpeed,f))
-		{
-			new_return(74);
-		}
-
+			new_return(14);
+		if(!p_putc(zinit.hcp,f))
+			new_return(15);
+		if(!p_putc(zinit.hcp_per_hc,f))
+			new_return(16);
+		if(!p_iputw(zinit.cont_heart,f))
+			new_return(17);
 		if(!p_putc(zinit.hp_per_heart,f))
-		{
-			new_return(75);
-		}
+			new_return(18);
 		if(!p_putc(zinit.magic_per_block,f))
-		{
-			new_return(76);
-		}
+			new_return(19);
 		if(!p_putc(zinit.hero_damage_multiplier,f))
-		{
-			new_return(77);
-		}
+			new_return(20);
 		if(!p_putc(zinit.ene_damage_multiplier,f))
-		{
-			new_return(78);
-		}
-		for(int32_t q = 0; q < 25; ++q)
-		{
-			if(!p_iputw(zinit.scrcnt[q],f))
-			{
-				new_return(79);
-			}
-		}
-		for(int32_t q = 0; q < 25; ++q)
-		{
-			if(!p_iputw(zinit.scrmaxcnt[q],f))
-			{
-				new_return(80);
-			}
-		}
+			new_return(21);
 		if(!p_putc(zinit.dither_type,f))
-		{
-			new_return(81);
-		}
+			new_return(22);
 		if(!p_putc(zinit.dither_arg,f))
-		{
-			new_return(82);
-		}
+			new_return(23);
 		if(!p_putc(zinit.dither_percent,f))
-		{
-			new_return(83);
-		}
+			new_return(24);
 		if(!p_putc(zinit.def_lightrad,f))
-		{
-			new_return(84);
-		}
+			new_return(25);
 		if(!p_putc(zinit.transdark_percent,f))
-		{
-			new_return(85);
-		}
-		
+			new_return(26);
 		if(!p_putc(zinit.darkcol,f))
-		{
-			new_return(86);
-		}
-		
-		if(!p_iputl(zinit.gravity2,f))
-		{
-			new_return(86);
-		}
+			new_return(27);
+		if(!p_iputl(zinit.ss_grid_x,f))
+			new_return(28);
+		if(!p_iputl(zinit.ss_grid_y,f))
+			new_return(29);
+		if(!p_iputl(zinit.ss_grid_xofs,f))
+			new_return(30);
+		if(!p_iputl(zinit.ss_grid_yofs,f))
+			new_return(31);
+		if(!p_iputl(zinit.ss_grid_color,f))
+			new_return(32);
+		if(!p_iputl(zinit.ss_bbox_1_color,f))
+			new_return(33);
+		if(!p_iputl(zinit.ss_bbox_2_color,f))
+			new_return(34);
+		if(!p_iputl(zinit.ss_flags,f))
+			new_return(35);
+		if(!p_putbitstr(zinit.flags,f))
+			new_return(36);
+		if(!p_putc(zinit.last_map,f))
+			new_return(37);
+		if(!p_putc(zinit.last_screen,f))
+			new_return(38);
+		if(!p_putc(zinit.msg_more_x,f))
+			new_return(39);
+		if(!p_putc(zinit.msg_more_y,f))
+			new_return(40);
+		if(!p_putc(zinit.msg_more_is_offset,f))
+			new_return(41);
+		if(!p_putc(zinit.msg_speed,f))
+			new_return(42);
+		if(!p_iputl(zinit.gravity,f))
+			new_return(43);
 		if(!p_iputl(zinit.swimgravity,f))
-		{
-			new_return(87);
-		}
+			new_return(44);
+		if(!p_iputw(zinit.terminalv,f))
+			new_return(45);
+		if(!p_putc(zinit.hero_swim_speed,f))
+			new_return(46);
+		if(!p_putc(zinit.hero_swim_mult,f))
+			new_return(47);
+		if(!p_putc(zinit.hero_swim_div,f))
+			new_return(48);
 		if(!p_iputw(zinit.heroSideswimUpStep,f))
-		{
-			new_return(88);
-		}
+			new_return(49);
 		if(!p_iputw(zinit.heroSideswimSideStep,f))
-		{
-			new_return(88);
-		}
+			new_return(50);
 		if(!p_iputw(zinit.heroSideswimDownStep,f))
-		{
-			new_return(88);
-		}
+			new_return(51);
 		if(!p_iputl(zinit.exitWaterJump,f))
-		{
-			new_return(89);
-		}
+			new_return(52);
+		if(!p_iputw(zinit.heroStep,f))
+			new_return(53);
+		if(!p_putc(zinit.heroAnimationStyle,f))
+			new_return(54);
+		if(!p_putc(zinit.jump_hero_layer_threshold,f))
+			new_return(55);
 		if(!p_iputl(zinit.bunny_ltm,f))
-		{
-			new_return(90);
-		}
+			new_return(56);
+		if(!p_iputw(zinit.start_dmap,f))
+			new_return(57);
+		if(!p_iputw(zinit.subscrSpeed,f))
+			new_return(58);
 		if(!p_putc(zinit.switchhookstyle,f))
-		{
-			new_return(91);
-		}
+			new_return(59);
 		if(!p_putc(zinit.magicdrainrate,f))
-		{
-			new_return(92);
-		}
-		
-		if(!p_iputw(numgenscript,f))
-			new_return(93);
-		for(auto q = 1; q < numgenscript; ++q)
-		{
-			if(!valid_inds[q])
-			{
-				if(!p_putc(0,f))
-					new_return(94);
-                continue;
-			}
-			else if(!p_putc(2|(zinit.gen_doscript[q]?1:0),f))
-				new_return(95);
-			
-			if(!p_iputw(zinit.gen_exitState[q],f))
-				new_return(96);
-			if(!p_iputw(zinit.gen_reloadState[q],f))
-				new_return(97);
-			for(auto p = 0; p < 8; ++p)
-				if(!p_iputl(zinit.gen_initd[q][p],f))
-					new_return(98);
-			if(!p_iputl(zinit.gen_data[q].size(),f))
-				new_return(99);
-			if(!p_putlvec<int32_t>(zinit.gen_data[q].inner(),f))
-				new_return(100);
-			if(!p_iputl(zinit.gen_eventstate[q],f))
-				new_return(101);
-		}
-        if(!p_putc(zinit.hero_swim_mult,f))
-        {
-            new_return(102);
-        }
-        if(!p_putc(zinit.hero_swim_div,f))
-        {
-            new_return(103);
-        }
-		uint32_t num_used_mapscr_data = 0;
-		for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
-			if(zinit.screen_data[q].size())
-			{
-				num_used_mapscr_data = q+1;
-				break;
-			}
-		if(!p_iputl(num_used_mapscr_data,f))
-			new_return(104);
-		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
-		{
-			if(!p_iputl(zinit.screen_data[q].size(),f))
-				new_return(105);
-			if(zinit.screen_data[q].size())
-				if(!p_putlvec(zinit.screen_data[q].inner(),f))
-					new_return(106);
-		}
+			new_return(60);
 		if(!p_iputzf(zinit.shove_offset,f))
-			return qe_invalid;
+			new_return(61);
+		if(!p_putbitstr(zinit.gen_doscript, f))
+			new_return(62);
+		if(!p_putbmap(zinit.gen_exitState, f))
+			new_return(63);
+		if(!p_putbmap(zinit.gen_reloadState, f))
+			new_return(64);
+		if(!p_putbmap(zinit.gen_initd, f))
+			new_return(65);
+		if(!p_putbmap(zinit.gen_eventstate, f))
+			new_return(66);
+		if(!p_putbmap(zinit.gen_data, f))
+			new_return(67);
+		if(!p_putbmap(zinit.screen_data, f))
+			new_return(68);
 		
 		if(writecycle==0)
 		{
@@ -13918,7 +13619,7 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 	new_return(0);
 }
 
-int32_t save_unencoded_quest(const char *filename, bool compressed, const char *afname)
+static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, const char *afname)
 {
 	if(!afname) afname = filename;
 	reset_combo_animations();
@@ -13955,17 +13656,12 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	PACKFILE *f = pack_fopen_password(tmp_filename.c_str(),compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
-	{
-		fake_pack_writing = false;
 		return 1;
-	}
 	
 	box_out("Writing Header...");
 	
 	if(writeheader(f,&header)!=0)
-	{
-		new_return(2);
-	}
+		return 2;
 	
 	box_out("okay.");
 	box_eol();
@@ -13979,9 +13675,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		if(inf)
 		{
 			if(writezinfo(inf,ZI)!=0)
-			{
-				new_return(2);
-			}
+				return 2;
 			
 			pack_fclose(inf);
 			box_out("okay.");
@@ -13993,9 +13687,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	{
 		box_out("Writing ZInfo...");
 		if(writezinfo(f,ZI)!=0)
-		{
-			new_return(2);
-		}
+			return 2;
 		box_out("okay.");
 		box_eol();
 	}
@@ -14004,9 +13696,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Rules...");
 	
 	if(writerules(f,&header)!=0)
-	{
-		new_return(3);
-	}
+		return 3;
 	
 	box_out("okay.");
 	box_eol();
@@ -14014,9 +13704,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Strings...");
 	
 	if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
-	{
-		new_return(4);
-	}
+		return 4;
 	
 	box_out("okay.");
 	box_eol();
@@ -14024,9 +13712,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Doors...");
 	
 	if(writedoorcombosets(f,&header)!=0)
-	{
-		new_return(5);
-	}
+		return 5;
 	
 	box_out("okay.");
 	box_eol();
@@ -14034,9 +13720,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing DMaps...");
 	
 	if(writedmaps(f,header.zelda_version,header.build,0,MAXDMAPS)!=0)
-	{
-		new_return(6);
-	}
+		return 6;
 	
 	box_out("okay.");
 	box_eol();
@@ -14044,9 +13728,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing &QMisc. Data...");
 	
 	if(writemisc(f,&header)!=0)
-	{
-		new_return(7);
-	}
+		return 7;
 	
 	box_out("okay.");
 	box_eol();
@@ -14054,9 +13736,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing &QMisc. Colors...");
 	
 	if(writemisccolors(f,&header)!=0)
-	{
-		new_return(8);
-	}
+		return 8;
 	
 	box_out("okay.");
 	box_eol();
@@ -14064,9 +13744,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Game Icons...");
 	
 	if(writegameicons(f,&header)!=0)
-	{
-		new_return(9);
-	}
+		return 9;
 	
 	box_out("okay.");
 	box_eol();
@@ -14074,9 +13752,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Items...");
 	
 	if(writeitems(f,&header)!=0)
-	{
-		new_return(10);
-	}
+		return 10;
 	
 	box_out("okay.");
 	box_eol();
@@ -14084,9 +13760,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Weapons...");
 	
 	if(writeweapons(f,&header)!=0)
-	{
-		new_return(11);
-	}
+		return 11;
 	
 	box_out("okay.");
 	box_eol();
@@ -14094,9 +13768,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Maps...");
 	
 	if(writemaps(f,&header)!=0)
-	{
-		new_return(12);
-	}
+		return 12;
 	
 	box_out("okay.");
 	box_eol();
@@ -14104,9 +13776,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Combos...");
 	
 	if(writecombos(f,header.zelda_version,header.build,0,MAXCOMBOS)!=0)
-	{
-		new_return(13);
-	}
+		return 13;
 	
 	box_out("okay.");
 	box_eol();
@@ -14114,9 +13784,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Combo Aliases...");
 	
 	if(writecomboaliases(f,header.zelda_version,header.build)!=0)
-	{
-		new_return(14);
-	}
+		return 14;
 	
 	box_out("okay.");
 	box_eol();
@@ -14124,9 +13792,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Color Data...");
 	
 	if(writecolordata(f,header.zelda_version,header.build,0,newerpdTOTAL)!=0)
-	{
-		new_return(15);
-	}
+		return 15;
 	
 	box_out("okay.");
 	box_eol();
@@ -14134,9 +13800,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Tiles...");
 	
 	if(writetiles(f,header.zelda_version,header.build,0,NEWMAXTILES)!=0)
-	{
-		new_return(16);
-	}
+		return 16;
 	
 	box_out("okay.");
 	box_eol();
@@ -14144,9 +13808,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing MIDIs...");
 	
 	if(writemidis(f)!=0)
-	{
-		new_return(17);
-	}
+		return 17;
 	
 	box_out("okay.");
 	box_eol();
@@ -14154,9 +13816,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Cheat Codes...");
 	
 	if(writecheats(f,&header)!=0)
-	{
-		new_return(18);
-	}
+		return 18;
 	
 	box_out("okay.");
 	box_eol();
@@ -14164,9 +13824,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Init. Data...");
 	
 	if(writeinitdata(f,&header)!=0)
-	{
-		new_return(19);
-	}
+		return 19;
 	
 	box_out("okay.");
 	box_eol();
@@ -14174,9 +13832,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Custom Guy Data...");
 	
 	if(writeguys(f,&header)!=0)
-	{
-		new_return(20);
-	}
+		return 20;
 	
 	box_out("okay.");
 	box_eol();
@@ -14184,9 +13840,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Custom Player Sprite Data...");
 	
 	if(writeherosprites(f,&header)!=0)
-	{
-		new_return(21);
-	}
+		return 21;
 	
 	box_out("okay.");
 	box_eol();
@@ -14194,9 +13848,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Custom Subscreen Data...");
 	
 	if(writesubscreens(f,&header)!=0)
-	{
-		new_return(22);
-	}
+		return 22;
 	
 	box_out("okay.");
 	box_eol();
@@ -14204,9 +13856,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing FF Script Data...");
 	
 	if(writeffscript(f,&header)!=0)
-	{
-		new_return(23);
-	}
+		return 23;
 	
 	box_out("okay.");
 	box_eol();
@@ -14214,9 +13864,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing SFX Data...");
 	
 	if(writesfx(f,&header)!=0)
-	{
-		new_return(24);
-	}
+		return 24;
 	
 	box_out("okay.");
 	box_eol();
@@ -14224,9 +13872,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Item Drop Sets...");
 	
 	if(writeitemdropsets(f, &header)!=0)
-	{
-		new_return(25);
-	}
+		return 25;
 	
 	box_out("okay.");
 	box_eol();
@@ -14234,9 +13880,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Favorite Combos...");
 	
 	if(writefavorites(f, &header)!=0)
-	{
-		new_return(26);
-	}
+		return 26;
 	
 	box_out("okay.");
 	box_eol();
@@ -14329,14 +13973,26 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	if (ec)
 	{
 		al_trace("Error saving: %s\n", std::strerror(ec.value()));
-		new_return(ec.value());
+		return ec.value();
 	}
 
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
 #endif
 
-	new_return(0);
+	return 0;
+}
+int32_t save_unencoded_quest(const char *filename, bool compressed, const char *afname)
+{
+	auto ret = _save_unencoded_quest_int(filename,compressed,afname);
+	fake_pack_writing = false;
+	if(ret)
+	{
+		box_out("-- Error saving quest file! --");
+		box_end(true);
+	}
+	else box_end(false);
+	return ret;
 }
 
 int32_t save_quest(const char *filename, bool timed_save)
@@ -14513,7 +14169,7 @@ void zmap::prv_secrets(bool high16only)
         {
             for(int32_t iter=0; iter<1; ++iter)
             {
-                int32_t checkflag=combobuf[s->ffcs[i].getData()].flag;
+                int32_t checkflag=combobuf[s->ffcs[i].data].flag;
                 
                 if(iter==1)
                 {
@@ -14523,7 +14179,7 @@ void zmap::prv_secrets(bool high16only)
 				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
                 if (ft != -1)
                 {
-                    s->ffcs[i].setData(s->secretcombo[ft]);
+                    s->ffcs[i].data = s->secretcombo[ft];
                     s->ffcs[i].cset = s->secretcset[ft];
                 }
             }
@@ -14533,7 +14189,7 @@ void zmap::prv_secrets(bool high16only)
         {
             for(int32_t iter=0; iter<1; ++iter)
             {
-                int32_t checkflag=combobuf[s->ffcs[i].getData()].flag;
+                int32_t checkflag=combobuf[s->ffcs[i].data].flag;
                 
                 if(iter==1)
                 {
@@ -14542,7 +14198,7 @@ void zmap::prv_secrets(bool high16only)
                 
                 if((checkflag > 15)&&(checkflag < 32))
                 {
-                    s->ffcs[i].setData(s->secretcombo[checkflag - 16 + 4]);
+                    s->ffcs[i].data = s->secretcombo[checkflag - 16 + 4];
                     s->ffcs[i].cset = s->secretcset[checkflag-16+4];
                     //        putit = true;
                 }

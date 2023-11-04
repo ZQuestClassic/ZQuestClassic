@@ -1,5 +1,6 @@
 #include "base/handles.h"
 #include "zc/maps.h"
+#include "zc/zc_ffc.h"
 #include "ffc.h"
 #include <variant>
 
@@ -45,12 +46,12 @@ void rpos_handle_t::set_sflag(uint8_t value) const
 
 int32_t ffc_handle_t::data() const
 {
-	return ffc->getData();
+	return ffc->data;
 }
 
 void ffc_handle_t::set_data(int32_t value) const
 {
-	ffc->setData(value);
+	zc_ffc_set(*ffc, value);
 }
 
 void ffc_handle_t::set_cset(int32_t cset) const
@@ -60,7 +61,12 @@ void ffc_handle_t::set_cset(int32_t cset) const
 
 void ffc_handle_t::increment_data() const
 {
-	ffc->setData(ffc->getData());
+	zc_ffc_modify(*ffc, 1);
+}
+
+void ffc_handle_t::decrement_data() const
+{
+	zc_ffc_modify(*ffc, -1);
 }
 
 bool combined_handle_t::is_rpos() const
