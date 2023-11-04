@@ -4781,11 +4781,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 
 void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t oformat, byte *newformat)
 {
-	// Not too sure what's going on with the format stuff here...
-	byte defFormat=(bp==8) ? tf8Bit : tf4Bit;
-	byte format=defFormat;
-	int32_t stile = ((imagey*TILES_PER_ROW)+imagex)+(((sely/16)*TILES_PER_ROW)+(selx/16));
-	
 	switch(imagetype)
 	{
 	case ftZGP:
@@ -4799,179 +4794,21 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 		{
 			for(int32_t tx=0; tx<width; tx++)
 			{
-				format=defFormat;
-				
-				switch(imagetype)
-				{
-				case ftZGP:
-				case ftQST:
-				case ftZQT:
-				case ftQSU:
-				case ftTIL:
-					format=grabtilebuf[stile+((ty*TILES_PER_ROW)+tx)].format;
-					break;
-				}
-				
 				for(int32_t y=0; y<16; y++)
 				{
 					for(int32_t x=0; x<16; x+=2)
 					{
-						if(y<8 && x<8 && grabmask&1)
+						bool masked = (y<8 && x<8 && grabmask&1) || (y<8 && x>7 && grabmask&2) || (y>7 && x<8 && grabmask&4) || (y>7 && x>7 && grabmask&8);
+						if (masked)
 						{
-							switch(oformat)
-							{
-							case tf4Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
-									break;
-								}
-								
-								break;
-								
-							case tf8Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
-									break;
-								}
-								
-								break;
-							}
-						}
-						else if(y<8 && x>7 && grabmask&2)
-						{
-							switch(oformat)
-							{
-							case tf4Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
-									break;
-								}
-								
-								break;
-								
-							case tf8Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
-									break;
-								}
-								
-								break;
-							}
-						}
-						else if(y>7 && x<8 && grabmask&4)
-						{
-							switch(oformat)
-							{
-							case tf4Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
-									break;
-								}
-								
-								break;
-								
-							case tf8Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
-									break;
-								}
-								
-								break;
-							}
-						}
-						else if(y>7 && x>7 && grabmask&8)
-						{
-							switch(oformat)
-							{
-							case tf4Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
-									break;
-								}
-								
-								break;
-								
-							case tf8Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
-									break;
-								}
-								
-								break;
-							}
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
 						}
 						else
 						{
-							switch(format)
-							{
-							case tf8Bit:
-								dest[(ty*TILES_PER_ROW)+tx][(y*16)+x]=getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely);
-								dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1]=getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely);
-								newformat[(ty*TILES_PER_ROW)+tx] = tf8Bit;
-								break;
-								
-							case tf4Bit:
-							default:
-								dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely)&15)+((getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely)&15)<<4);
-								newformat[(ty*TILES_PER_ROW)+tx] = tf4Bit;
-								break;
-							}
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x]=getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely);
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1]=getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely);
+							newformat[(ty*TILES_PER_ROW)+tx] = tf8Bit;
 						}
 					}
 				}
