@@ -134,7 +134,7 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
             print(f'downloading artifact: {artifact.name}')
             download_artifact(gh, repo_str, artifact, artifact_dir)
             extract_tars(artifact_dir)
-        test_results_path = next(artifact_dir.glob('test_results.json'), None)
+        test_results_path = next(artifact_dir.rglob('test_results.json'), None)
         if test_results_path:
             test_results_paths.append(test_results_path)
         else:
