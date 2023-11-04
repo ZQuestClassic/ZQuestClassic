@@ -1,8 +1,16 @@
+= ZC_Icon_Medium_Editor.png
+
+= ZC_Icon_Medium_Launcher.png
+
+= ZC_Icon_Medium_Player.png
+
 = ZC_Logo.png
 
 Created by Eduardc.
 
 https://www.fiverr.com/clownnk
+
+(Icon) Modified by Connor.
 
 = ZC_Forever_HD.mp3
 

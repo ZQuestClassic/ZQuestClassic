@@ -162,8 +162,12 @@ void package_create(std::string quest_path_, std::string package_name)
 	// if (!fs::exists(icon_path))
 	// 	icon_path = extra_dir / "icon.ico";
 	if (!fs::exists(icon_path))
-		icon_path = root_dir / "zc.png";
+		icon_path = root_dir / "assets/zc/ZC_Icon.png";
 	if (fs::exists(icon_path))
+	{
 		set_icon(exe_path.wstring(), icon_path.wstring());
+		if (icon_path == extra_dir / "icon.png")
+			fs::copy(icon_path, data_dir, fs::copy_options::overwrite_existing);
+	}
 #endif
 }

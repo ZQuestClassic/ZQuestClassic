@@ -18,7 +18,7 @@ packages_dir="$build_dir/packages"
 package_dir="$packages_dir/zc"
 mac_package_dir="$build_dir/packages/zc-mac"
 
-set -eu
+set -eux
 cd "$ROOT"
 
 if [ -z $version ]; then
@@ -50,7 +50,7 @@ mv "$package_dir" "$contents/Resources"
 
 # Generate icon.
 ICONDIR="$contents/Resources/icons.iconset"
-ICON=resources/zc.png
+ICON=resources/assets/zc/ZC_Icon_Medium_Launcher.png
 
 mkdir "$ICONDIR"
 

@@ -140,6 +140,34 @@ bool is_headless()
 	return headless;
 }
 
+void zapp_setup_icon()
+{
+	if (is_headless())
+		return;
+
+	// On Windows, the icon is embedded in the executable.
+	// For Mac app bundle, only the entry point app will have the logo. If an executable is opened directly, or launcher via the launcher,
+	// we must add the icon at runtime.
+#ifndef _WIN32
+	std::string icon_path;
+	// Allow for custom icon via `icon.png`.
+	if (exists("icon.png"))
+		icon_path = "icon.png";
+	else if (app_id == App::launcher)
+		icon_path = "assets/zc/ZC_Icon_Medium_Launcher.png";
+	else if (app_id == App::zelda)
+		icon_path = "assets/zc/ZC_Icon_Medium_Player.png";
+	else if (app_id == App::zquest)
+		icon_path = "assets/zc/ZC_Icon_Medium_Editor.png";
+	ALLEGRO_BITMAP* icon_bitmap = al_load_bitmap(icon_path.c_str());
+	if (icon_bitmap)
+	{
+		al_set_display_icon(all_get_display(), icon_bitmap);
+		al_destroy_bitmap(icon_bitmap);
+	}
+#endif
+}
+
 // If (saved_width, saved_height) is >0, ensures that fits in the primary monitor. If neither are true, fall
 // back to default.
 // Default will scale up (base_width, base_height) by an integer amount to fill up the primary monitor

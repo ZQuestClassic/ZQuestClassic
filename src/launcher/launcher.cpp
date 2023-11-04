@@ -206,7 +206,9 @@ int32_t main(int32_t argc, char* argv[])
 	al_init_font_addon();
 	al_init_primitives_addon();
 	initFonts();
-	
+
+	zapp_setup_icon();
+
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	mouse_bmp = create_bitmap_ex(8,16,16);

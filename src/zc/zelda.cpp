@@ -4983,13 +4983,16 @@ int main(int argc, char **argv)
 	}
 #endif
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+
 	if (!is_headless())
 	{
 		set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
 		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
 		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
-	
+
+	zapp_setup_icon();
+
 	hw_palette = &RAMpal;
 	if (is_headless())
 		screen = create_bitmap_ex(8, 256, 240);

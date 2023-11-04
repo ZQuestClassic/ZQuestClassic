@@ -28062,13 +28062,19 @@ int32_t main(int32_t argc,char **argv)
 	initFonts();
 	load_size_poses();
 
-#ifndef __EMSCRIPTEN__
-	if (!all_get_fullscreen_flag() && !is_headless()) {
+	if (!is_headless())
+	{
 		// Just in case.
 		while (!all_get_display()) {
 			al_rest(1);
 		}
 
+		al_resize_display(all_get_display(), w, h);
+	}
+
+
+#ifndef __EMSCRIPTEN__
+	if (!all_get_fullscreen_flag() && !is_headless()) {
 		al_resize_display(all_get_display(), w, h);
 
 		int window_w = al_get_display_width(all_get_display());
@@ -28103,6 +28109,8 @@ int32_t main(int32_t argc,char **argv)
 #endif
 	}
 #endif
+
+	zapp_setup_icon();
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
