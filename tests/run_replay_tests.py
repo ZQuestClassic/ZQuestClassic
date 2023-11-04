@@ -907,10 +907,6 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
     yield (key, 'finish', result)
 
 
-if test_results_dir.exists():
-    shutil.rmtree(test_results_dir)
-test_results_dir.mkdir(parents=True)
-
 test_results = ReplayTestResults(
     runs_on=runs_on,
     arch=arch,
@@ -1172,74 +1168,6 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
     return [r for r in results if r]
 
 
-print(f'running {len(tests)} replays\n')
-iteration_count = 0
-for i in range(args.retries + 1):
-    if i == 0:
-        tests_remaining = tests
-    else:
-        tests_remaining = [replays_dir / r.name for r in test_results.runs[-1] if not r.success]
-    if not tests_remaining:
-        break
-    if i != 0:
-        print('\nretrying failures...\n')
-
-    runs_dir = test_results_dir / str(i)
-
-    results = run_replay_tests(tests_remaining, runs_dir)
-    test_results.runs.append(results)
-
-    for result in results:
-        test = result.name
-        run_dir = runs_dir / result.directory
-
-        # Only print on failure and last attempt.
-        if (not result.success or result.exceptions) and i == args.retries:
-            print(f'failure: {result.name}')
-
-            if result.exceptions:
-                print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
-
-            def print_nicely(title: str, path: pathlib.Path):
-                if not path.exists():
-                    return
-
-                title = f' {title} '
-                length = len(title) * 2
-                print()
-                print('=' * length)
-                print(title.center(length, '='))
-                print('=' * length)
-                print()
-                sys.stdout.buffer.write(path.read_bytes())
-
-            print_nicely('STDOUT', run_dir / 'stdout.txt')
-            print_nicely('STDERR', run_dir / 'stderr.txt')
-            print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
-
-
-if args.prune_test_results:
-    # Only keep the last run of each replay.
-    replay_runs: List[RunResult] = []
-    for runs in reversed(test_results.runs):
-        for run in runs:
-            if any(r for r in replay_runs if r.name == run.name):
-                continue
-            replay_runs.append(run)
-
-    for runs in test_results.runs:
-        for run in runs:
-            if run not in replay_runs:
-                shutil.rmtree(test_results_dir / run.directory)
-
-    test_results.runs = [replay_runs]
-
-    # These are huge and not necessary for the compare report.
-    for file in test_results_dir.rglob('*.zplay.roundtrip'):
-        file.unlink()
-
-test_results_path.write_text(test_results.to_json())
-
 def prompt_for_gh_auth():
     print('Select the GitHub repo:')
     repos = ['ZQuestClassic/ZQuestClassic', 'connorjclark/ZeldaClassic']
@@ -1263,7 +1191,6 @@ def prompt_for_gh_auth():
 def get_recent_release_tag(match: str):
     command = f'git describe --tags --abbrev=0 --match {match} main'
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
-
 
 def prompt_to_create_compare_report():
     if not cutie.prompt_yes_or_no('Would you like to generate a compare report?', default_is_yes=True):
@@ -1338,6 +1265,8 @@ def prompt_to_create_compare_report():
             zc_app_path = next(build_dir.glob('*.app'))
             build_dir = zc_app_path / 'Contents/Resources'
 
+        if local_baseline_dir.exists():
+            shutil.rmtree(local_baseline_dir)
         command_args = [
             sys.executable,
             str(root_dir / 'tests/run_replay_tests.py'),
@@ -1369,6 +1298,88 @@ def prompt_to_create_compare_report():
 
     create_compare_report(test_runs)
     start_webserver()
+
+
+if test_results_dir.exists() and next(test_results_dir.rglob('test_results.json'), None):
+    test_results_path = next(test_results_dir.rglob('test_results.json'))
+    print('found existing test results at provided path')
+    if is_ci:
+        print('this is unexpected')
+        exit(1)
+    prompt_to_create_compare_report()
+    exit(0)
+
+if test_results_dir.exists():
+    shutil.rmtree(test_results_dir)
+test_results_dir.mkdir(parents=True)
+
+print(f'running {len(tests)} replays\n')
+iteration_count = 0
+for i in range(args.retries + 1):
+    if i == 0:
+        tests_remaining = tests
+    else:
+        tests_remaining = [replays_dir / r.name for r in test_results.runs[-1] if not r.success]
+    if not tests_remaining:
+        break
+    if i != 0:
+        print('\nretrying failures...\n')
+
+    runs_dir = test_results_dir / str(i)
+
+    results = run_replay_tests(tests_remaining, runs_dir)
+    test_results.runs.append(results)
+
+    for result in results:
+        test = result.name
+        run_dir = runs_dir / result.directory
+
+        # Only print on failure and last attempt.
+        if (not result.success or result.exceptions) and i == args.retries:
+            print(f'failure: {result.name}')
+
+            if result.exceptions:
+                print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
+
+            def print_nicely(title: str, path: pathlib.Path):
+                if not path.exists():
+                    return
+
+                title = f' {title} '
+                length = len(title) * 2
+                print()
+                print('=' * length)
+                print(title.center(length, '='))
+                print('=' * length)
+                print()
+                sys.stdout.buffer.write(path.read_bytes())
+
+            print_nicely('STDOUT', run_dir / 'stdout.txt')
+            print_nicely('STDERR', run_dir / 'stderr.txt')
+            print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
+
+
+if args.prune_test_results:
+    # Only keep the last run of each replay.
+    replay_runs: List[RunResult] = []
+    for runs in reversed(test_results.runs):
+        for run in runs:
+            if any(r for r in replay_runs if r.name == run.name):
+                continue
+            replay_runs.append(run)
+
+    for runs in test_results.runs:
+        for run in runs:
+            if run not in replay_runs:
+                shutil.rmtree(test_results_dir / run.directory)
+
+    test_results.runs = [replay_runs]
+
+    # These are huge and not necessary for the compare report.
+    for file in test_results_dir.rglob('*.zplay.roundtrip'):
+        file.unlink()
+
+test_results_path.write_text(test_results.to_json())
 
 
 def should_consider_failure(run: RunResult):
