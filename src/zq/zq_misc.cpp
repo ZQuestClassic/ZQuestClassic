@@ -1,6 +1,7 @@
 #include "base/qrs.h"
 #include "base/packfile.h"
 #include "base/zapp.h"
+#include "base/zc_alleg.h"
 #include "zq/zq_misc.h"
 #include "zq/zquestdat.h"
 #include "zq/zquest.h"
@@ -858,18 +859,14 @@ char const* getSnapName()
 
 int32_t onSnapshot()
 {
-    blit(screen,screen2,0,0,0,0,zq_screen_w,zq_screen_h);
-    PALETTE RAMpal2;
-    get_palette(RAMpal2);
-    save_bitmap(getSnapName(),screen2,RAMpal2);
-    return D_O_K;
+	if (!al_save_bitmap(getSnapName(), al_get_backbuffer(all_get_display())))
+		InfoDialog("Error", "Failed to save snapshot").show();
+
+	return D_O_K;
 }
 
 int32_t onMapscrSnapshot()
 {
-	int32_t x = showedges?16:0;
-	int32_t y = showedges?16:0;
-
 	PALETTE usepal;
 	get_palette(usepal);
 
