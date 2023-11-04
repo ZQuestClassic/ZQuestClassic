@@ -435,6 +435,10 @@ void clear_tiles(tiledata *buf)
 
 void overlay_tile(tiledata *buf,int32_t dest,int32_t src,int32_t cs,bool backwards)
 {
+	// TODO: should mark "Overlay" option invalid if no tile is copied.
+	if (dest <= 0 || src <= 0)
+		return;
+
     byte upbuf[256];
     
     unpack_tile(buf, dest, 0, false);
