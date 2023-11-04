@@ -21,6 +21,7 @@ extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of bla
 extern byte unpackbuf[256];
 extern const char *tileformat_string[tfMax];
 extern comboclass   *combo_class_buf;
+extern bool zq_allow_tile_draw_cache;
 
 void register_blank_tiles();
 void register_blank_tiles(int32_t max);

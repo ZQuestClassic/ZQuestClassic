@@ -1804,7 +1804,7 @@ void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 void rotate_tile(int32_t tile, bool backward)
 {
 	unfloat_selection();
-	unpack_tile(newtilebuf, tile, 0, false);
+	unpack_tile(newtilebuf, tile, 0, true);
 	byte tempunpackbuf[256];
 	byte tempx, tempy;
 	
@@ -4821,6 +4821,8 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 //Grabber is not grabbing to tile pages beyond pg. 252 right now. -ZX 18th June, 2019 
 void grab_tile(int32_t tile,int32_t &cs)
 {
+	zq_allow_tile_draw_cache = true;
+
 	int window_w = 640+6+6, window_h = 480+25+6;
 	int window_x=(zq_screen_w-window_w)/2;
 	int window_y=(zq_screen_h-window_h)/2;
@@ -5469,6 +5471,8 @@ void grab_tile(int32_t tile,int32_t &cs)
 	calc_cset_reduce_table(imagepal, cs);
 	register_blank_tiles();
 	popup_zqdialog_end();
+
+	zq_allow_tile_draw_cache = false;
 }
 
 int32_t show_only_unused_tiles=4; //1 bit: hide used, 2 bit: hide unused, 4 bit: hide blank

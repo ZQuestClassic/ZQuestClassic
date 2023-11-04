@@ -448,7 +448,7 @@ void overlay_tile(tiledata *buf,int32_t dest,int32_t src,int32_t cs,bool backwar
         
     unpack_tile(buf, src, 0, false);
     
-    if(buf[src].format>tf4Bit)
+    // if(buf[src].format>tf4Bit)
     {
         cs=0;
     }
@@ -559,14 +559,17 @@ bool write_tile(tiledata *buf, BITMAP* src, int32_t dest, int32_t x, int32_t y, 
     return true;
 }
 
+// For the editor only, grabbing code mades weird assumptions where it deletes the first tile
+// just before drawing it, which relies on it being cached (see top of unpack_tile).
+// See draw_grab_scr. Crash would happen from calling `puttile16` after `newtilebuf[0].data=NULL;`.
+// No time to work this out just yet, so avoid the fast path in this case.
+// This is also need for the bottom two "previous data" tiles to render correctly in grab menu.
+bool zq_allow_tile_draw_cache = false;
+
 static const byte* get_tile_bytes(int32_t tile, int32_t flip)
 {
-	// For the editor only, grabbing code mades weird assumptions where it deletes the first tile
-	// just before drawing it, which relies on it being cached (see top of unpack_tile).
-	// See draw_grab_scr. Crash would happen from calling `puttile16` after `newtilebuf[0].data=NULL;`.
-	// No time to work this out just yet, so avoid the fast path in this case.
 #if IS_EDITOR
-	if (flip == 0 && tile != 0)
+	if (flip == 0 && !zq_allow_tile_draw_cache)
 #else
     if (flip == 0)
 #endif
