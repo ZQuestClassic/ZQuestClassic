@@ -578,10 +578,16 @@ void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force)
     static byte *oldnewtilebuf=buf[tile].data;
     static int32_t i, j, oldtile=-5, oldflip=-5;
     
+    // This is only still here because of a crash during grabbing. See get_tile_bytes.
+    // Disabled for player because it causes a flaky failure for:
+    //  python tests/run_replay_tests.py --filter freedom_in_chains --frame 143580
+    // ...on mac only.
+#if IS_EDITOR
     if(tile==oldtile&&(flip&5)==(oldflip&5)&&oldnewtilebuf==buf[tile].data&&!force)
     {
         return;
     }
+#endif
     
     oldtile=tile;
     oldflip=flip;
