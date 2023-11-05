@@ -104,6 +104,7 @@ void ttip_add(std::string text, int x, int y, float scale)
 		rti_tooltip.add_child(&rti_text);
 	}
 
+	rti_text.dirty |= rti_text.text != text;
 	rti_text.text = text;
 	rti_text.set_transform({x, y, scale, scale});
 	get_root_rti()->add_child(&rti_tooltip);

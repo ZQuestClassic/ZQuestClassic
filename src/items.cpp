@@ -21,6 +21,8 @@ int32_t fairy_cnt=0;
 
 item::~item()
 {
+	if (dummy)
+		return;
 	// TODO: we should have an item manager class in zc and manage lifetime explicitly, not via dtors.
 #ifndef IS_EDITOR
 	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_qr(qr_OLD_FAIRY_LIMIT))
@@ -316,12 +318,15 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	id=i;
 	pickup=p;
 	clk=c;
+	dummy=isDummy;
 	misc=clk2=0;
 	aframe=aclk=0;
 	anim=flash=twohand=subscreenItem=false;
 	dummy_int[0]=PriceIndex=-1;
 	is_dragged=false;
 	force_grab=false;
+	noSound=false;
+	noHoldSound=false;
 	itemdata const& itm = itemsbuf[id];
 	from_dropset = -1;
 	pickupexstate = -1;

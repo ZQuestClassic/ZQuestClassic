@@ -258,10 +258,22 @@ static void list_save(gamedata_header* header, int32_t save_num, int32_t ypos)
 
 	textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+16,1,0,"%s",header->name.c_str());
 
+	byte temp_bytes[256];
+	{
+		byte *si = header->icon + 128;
+		byte *di = temp_bytes + 256;
+		
+		for(int i=127; i>=0; --i)
+		{
+			(*(--di)) = (*(--si)) >> 4;
+			(*(--di)) = (*si) & 15;
+		}
+	}
+
 	byte *hold = newtilebuf[0].data;
 	byte holdformat=newtilebuf[0].format;
 	newtilebuf[0].format=tf4Bit;
-	newtilebuf[0].data = header->icon;
+	newtilebuf[0].data = temp_bytes;
 	overtile16(framebuf,(moduledata.select_screen_tiles[sels_herotile] > 1 && quest > 0 && quest < 255 ) ? moduledata.select_screen_tiles[sels_herotile] : 0,48,ypos+17,
 	((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 && quest > 0 && quest < 255 ) ? (unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 :
 	(save_num%3)+10,0);               //hero

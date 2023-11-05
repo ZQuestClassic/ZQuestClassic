@@ -35,7 +35,6 @@ class RunResult:
     unexpected_gfx_frames: List[int] = None
     unexpected_gfx_segments: List[Tuple[int, int]] = None
     unexpected_gfx_segments_limited: List[Tuple[int, int]] = None
-    diff: str = None
     exceptions: List[str] = field(default_factory=list) 
     # Only for compare report.
     snapshots: List[Any] = None
@@ -58,6 +57,9 @@ class ReplayTestResults:
         if self.runs and isinstance(self.runs[0][0], dict):
             deserialized = []
             for runs in self.runs:
+                for run in runs:
+                    # Old property, will error when creating dataclass.
+                    run.pop('diff', None)
                 deserialized.append([RunResult(**run) for run in runs])
             self.runs = deserialized
 
@@ -98,6 +100,14 @@ def download_artifact(gh, repo, artifact, dest):
     zip.extractall(dest)
     zip.close()
 
+def extract_tars(dir: Path):
+    for tar_path in dir.rglob('*.tar'):
+        print(f'extracting from {tar_path}')
+        extract_dir = tar_path.with_suffix('')
+        if not extract_dir.exists():
+            with tarfile.open(tar_path) as tar:
+                tar.extractall(path=extract_dir)
+            tar_path.unlink()
 
 def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
     if not isinstance(run_id, int):
@@ -123,7 +133,8 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
         if not artifact_dir.exists():
             print(f'downloading artifact: {artifact.name}')
             download_artifact(gh, repo_str, artifact, artifact_dir)
-        test_results_path = next(artifact_dir.glob('test_results.json'), None)
+            extract_tars(artifact_dir)
+        test_results_path = next(artifact_dir.rglob('test_results.json'), None)
         if test_results_path:
             test_results_paths.append(test_results_path)
         else:
@@ -178,18 +189,22 @@ def get_release_package_url(gh: Github, repo_str: str, channel: str, tag: str):
 
 
 def maybe_get_downloaded_revision(tag: str) -> Optional[Path]:
+    dir = None
     if (releases_dir / tag).exists():
-        return releases_dir / tag
-    if (test_builds_dir / tag).exists():
-        return test_builds_dir / tag
+        dir = releases_dir / tag
+    elif (test_builds_dir / tag).exists():
+        dir = test_builds_dir / tag
+    if dir and list(dir.glob('*')):
+        return dir
     return None
 
 
 def download_release(gh: Github, repo_str: str, channel: str, tag: str):
     dest = releases_dir / tag
-    if dest.exists():
+    if dest.exists() and list(dest.glob('*')):
         return dest
 
+    dest.mkdir(parents=True, exist_ok=True)
     print(f'downloading release {tag}')
 
     url = get_release_package_url(gh, repo_str, channel, tag)

@@ -87,6 +87,9 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->exitWaterJump = gdata->get_sideswim_jump();
 	zinit2->bunny_ltm = gdata->get_bunny_ltm();
 	zinit2->switchhookstyle = gdata->get_switchhookstyle();
+	zinit2->spriteflickerspeed = gdata->get_spriteflickerspeed();
+	zinit2->spriteflickercolor = gdata->get_spriteflickercolor();
+	zinit2->spriteflickertransp = gdata->get_spriteflickertransp();
 	
 	for(int32_t q = 0; q < MAX_COUNTERS; ++q)
 	{

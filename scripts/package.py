@@ -265,6 +265,8 @@ def do_web_packaging():
     copy_files_to_package(zplayer_data_files, packages_dir / 'web_zplayer_data')
     copy_files_to_package(zeditor_data_files, packages_dir / 'web_zeditor_data')
     copy_files_to_package(lazy_files, packages_dir / 'web_lazy_files', exclude_files=ignore_files)
+    if 'ZC_PACKAGE_REPLAYS' in os.environ:
+        shutil.copytree(root_dir / 'tests/replays', packages_dir / 'web_lazy_files/test_replays')
 
     emcc_dir = Path(shutil.which('emcc')).parent
     subprocess.check_call([
@@ -291,16 +293,6 @@ def do_web_packaging():
         '--use-preload-cache',
         f'--js-output={build_dir / "zeditor.data.js"}',
     ])
-    if 'ZC_PACKAGE_REPLAYS' in os.environ:
-        subprocess.check_call([
-            'python',
-            emcc_dir / 'tools/file_packager.py',
-            build_dir / 'replays.data',
-            '--no-node',
-            '--preload', f'{root_dir}/tests/replays@/test_replays',
-            '--use-preload-cache',
-            f'--js-output={build_dir / "replays.data.js"}',
-        ])
 
 if 'TEST' in os.environ:
     import unittest

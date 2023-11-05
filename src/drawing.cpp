@@ -32,6 +32,8 @@ extern BITMAP *darkscr_bmp_curscr, *darkscr_bmp_curscr_trans, *darkscr_bmp_scrol
 #define DITH_ARG 0
 #endif
 
+extern COLOR_MAP trans_table2;
+
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP* transdest, int dith_perc, int trans_perc, int dith_type, int dith_arg)
 {
 	if(!glowRad) return;
@@ -826,6 +828,35 @@ void ditherLampCone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t
 	lampcone(tmp, sx, sy, range, dir, 1);
 	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
 	destroy_bitmap(tmp);
+}
+
+void monocolor(BITMAP* dest, byte col, byte transp_passes)
+{
+	int32_t wid = dest->w;
+	int32_t hei = dest->h;
+	for (int ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(dest, ty);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for (int tx = 0; tx < wid; ++tx)
+		{
+			byte c = bmp_read8(read_addr + tx);
+			if (c)
+			{
+				if (transp_passes)
+				{
+					for (int q = 0; q < transp_passes; ++q)
+					{
+						c = trans_table2.data[c][col];
+					}
+				}
+				else
+					c = col;
+				bmp_write8(write_addr + tx, c);
+			}
+		}
+	}
+	bmp_unwrite_line(dest);
 }
 
 void replColor(BITMAP* dest, byte col, byte startCol, byte endCol, bool shift)

@@ -1308,6 +1308,33 @@ void HeroClass::setClock(bool state)
 {
     superman=state;
 }
+int32_t HeroClass::getFlashingCSet()
+{
+	int32_t temp_cs = 6;
+	if (script_hero_cset > -1) temp_cs = script_hero_cset;
+	if (!get_qr(qr_HEROFLICKER))
+	{
+		if (superman && getCanFlicker())
+		{
+			temp_cs += (((~frame) >> 1) & 3);
+		}
+		else if (hclk && (DivineProtectionShieldClk <= 0) && getCanFlicker())
+		{
+			temp_cs += ((hclk >> 1) & 3);
+		}
+	}
+	return temp_cs;
+}
+bool HeroClass::is_hitflickerframe()
+{
+	if (!(get_qr(qr_HEROFLICKER) && (superman || hclk)))
+		return false;
+
+	int32_t fr = game->get_spriteflickerspeed();
+	if (fr == 0)
+		return true;
+	return frame % (fr * 2) >= fr;
+}
 int32_t  HeroClass::getAction() // Used by ZScript
 {
     if(spins > 0)
@@ -1561,6 +1588,7 @@ int32_t HeroClass::getSpecialCave()
 
 void HeroClass::init()
 {
+	cache_tile_mod_clear();
 	usecounts.clear();
 	scale = 0;
 	rotation = 0;
@@ -2297,19 +2325,7 @@ void HeroClass::draw(BITMAP* dest)
 				}
 			}
 			
-			cs = 6;
-			if ( script_hero_cset > -1 ) cs = script_hero_cset;
-			if(!get_qr(qr_HEROFLICKER))
-			{
-				if(superman && getCanFlicker())
-				{
-					cs += (((~frame)>>1)&3);
-				}
-				else if(hclk&&(DivineProtectionShieldClk<=0) && getCanFlicker())
-				{
-					cs += ((hclk>>1)&3);
-				}
-			}
+			cs = getFlashingCSet();
 		}
 		
 		if(attackclk || (action==attacking||action==sideswimattacking))
@@ -2437,10 +2453,18 @@ void HeroClass::draw(BITMAP* dest)
 					//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
 					
 					//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
-					if (!(get_qr(qr_HEROFLICKER) && ((superman || hclk) && (frame & 1))))
+					if (is_hitflickerframe())
 					{
-						masked_draw(dest);
+						int32_t temp_flicker_color = (game->get_life() > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+						if((game->get_spriteflickercolor() || temp_flicker_color) && !superman)
+						{
+							sprite_flicker_transp_passes = (flickertransp < 0 ? game->get_spriteflickertransp() : flickertransp);
+							sprite_flicker_color = temp_flicker_color;
+							masked_draw(dest);
+						}
 					}
+					else
+						masked_draw(dest);
 
 					//Prevent flickering -Z
 					if (!getCanFlicker()) masked_draw(dest);
@@ -3024,10 +3048,18 @@ void HeroClass::draw(BITMAP* dest)
 			yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
 		}
 		
-		if(!(get_qr(qr_HEROFLICKER)&&((superman||hclk)&&(frame&1))))
+		if(is_hitflickerframe())
 		{
-			masked_draw(dest);
+			int32_t temp_flicker_color = (game->get_life() > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+			if((game->get_spriteflickercolor() || temp_flicker_color) && !superman)
+			{
+				sprite_flicker_transp_passes = (flickertransp < 0 ? game->get_spriteflickertransp() : flickertransp);
+				sprite_flicker_color = temp_flicker_color;
+				masked_draw(dest);
+			}
 		}
+		else
+			masked_draw(dest);
 		
 		//draw held items after Hero so they don't go behind his head
 		if(action==landhold1 || action==landhold2)
@@ -3119,6 +3151,8 @@ herodraw_end:
 
 void HeroClass::masked_draw(BITMAP* dest)
 {
+	// The first sprite::draw in this function uses sprite_flicker_color
+	// This is intended to be the player, handle this if this changes. -Moosh
 	zfix lz, lfz;
 	if(lift_wpn)
 	{
@@ -3548,7 +3582,7 @@ bool HeroClass::checkstab()
 						{
 							collectitem_script(id2);
 							
-							getitem(id2, false, true);
+							getitem(id2, ptr->noSound, true);
 						}
 						items.del(j);
 						
@@ -27061,16 +27095,16 @@ bool HeroClass::nextcombo_wf(int32_t d2)
 		return 0;
     
     int32_t cmb = COMBOPOS(cx%256, cy%176);    
-    newcombo c = combobuf[TheMaps[ns].data[cmb]];
-    bool dried = iswater_type(c.type) && DRIEDLAKE;
-    bool swim = iswater_type(c.type) && (current_item(itype_flippers)) && !dried;
+	const newcombo* c = &combobuf[TheMaps[ns].data[cmb]];
+    bool dried = iswater_type(c->type) && DRIEDLAKE;
+    bool swim = iswater_type(c->type) && (current_item(itype_flippers)) && !dried;
     int32_t b=1;
     
     if(cx&8) b<<=2;
     
     if(cy&8) b<<=1;
     
-    if((c.walk&b) && !dried && !swim)
+    if((c->walk&b) && !dried && !swim)
         return true;
         
     // next block (i.e. cnt==2)
@@ -27080,9 +27114,9 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     }
     else
     {
-        c = combobuf[TheMaps[ns].data[++cmb]];
-        dried = iswater_type(c.type) && DRIEDLAKE;
-        swim = iswater_type(c.type) && (current_item(itype_flippers)) && !dried;
+        c = &combobuf[TheMaps[ns].data[++cmb]];
+        dried = iswater_type(c->type) && DRIEDLAKE;
+        swim = iswater_type(c->type) && (current_item(itype_flippers)) && !dried;
         b=1;
         
         if(cy&8)
@@ -27091,7 +27125,7 @@ bool HeroClass::nextcombo_wf(int32_t d2)
         }
     }
     
-    return (c.walk&b) ? !dried && !swim : false;
+    return (c->walk&b) ? !dried && !swim : false;
 }
 
 // TODO z3: need to test this in region
@@ -29505,6 +29539,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		switch(hero_screen->door[scrolldir^1])
 		{
+		case dNONE:
+			dir = scrolldir;
+			break;
 		case dOPEN:
 		case dUNLOCKED:
 		case dOPENBOSS:
@@ -30897,7 +30934,7 @@ void HeroClass::checkitems(int32_t index)
 		}
 
 		collectitem_script(id2);
-		getitem(id2, false, true);
+		getitem(id2, ptr->noSound, true);
 	}
 	
 	if(pickup&ipHOLDUP)
@@ -31001,7 +31038,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
 		{
-			sfx(tmpscr->holdupsfx);
+			if (!ptr->noHoldSound) sfx(tmpscr->holdupsfx);
 		}
 		
 		ptr->set_forcegrab(false);

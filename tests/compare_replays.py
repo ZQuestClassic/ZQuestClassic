@@ -16,7 +16,7 @@ import json
 import hashlib
 from pathlib import Path
 from github import Github
-from common import get_gha_artifacts_with_retry, ReplayTestResults, RunResult
+from common import get_gha_artifacts_with_retry, extract_tars, ReplayTestResults, RunResult
 from typing import List
 from PIL import Image
 import intervaltree
@@ -101,6 +101,7 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
 def collect_many_test_results_from_dir(directory: Path) -> List[ReplayTestResults]:
     test_runs: List[ReplayTestResults] = []
 
+    extract_tars(directory)
     for test_results_path in directory.rglob('test_results.json'):
         test_run_dir = test_results_path.parent
         test_runs.append(collect_test_results_from_dir(test_run_dir))
@@ -284,6 +285,7 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
     print(f'report written to {out_path}')
 
 
+# TODO use webserver.py
 def start_webserver():
     from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
@@ -308,7 +310,6 @@ def start_webserver():
 
             self.end_headers()
             if file_to_open:
-                print(path)
                 self.wfile.write(file_to_open.read())
                 file_to_open.close()
 

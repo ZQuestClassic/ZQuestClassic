@@ -2362,6 +2362,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 				set_qr(qr_MEANPLACEDTRAPS,0);
 			}
 		}
+		unpack_qrs();
 		
 		if((tempheader.zelda_version < 0x192)||
 				((tempheader.zelda_version == 0x192)&&(tempheader.build<149)))
@@ -2924,7 +2925,9 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	map_count=temp_map_count;
 	memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
-	
+
+	unpack_qrs();
+
 	return 0;
 }
 
@@ -2993,6 +2996,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	//al_trace("Rules version %d\n", s_version);
 	//{ bunch of compat stuff
 	memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
+
+	unpack_qrs();
 	
 	if(s_version<2)
 	{
@@ -3585,7 +3590,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		for(auto q = qr_POLVIRE_NO_SHADOW+1; q < qr_PARSER_250DIVISION; ++q)
 			set_qr(q,0);
-		for(auto q = qr_COMBODATA_INITD_MULT_TENK+1; q < QUESTRULES_NEW_SIZE*8; ++q)
+		for(auto q = qr_COMBODATA_INITD_MULT_TENK+1; q < qr_MAX; ++q)
 			set_qr(q,0);
 		//This should nuke any remaining junk data... not sure if it affected anything previous. -Em
 	}
@@ -3676,6 +3681,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_SCRIPT_CONTHP_IS_HEARTS,1);
 	if(compatrule_version < 60)
 		set_qr(qr_SEPARATE_BOMBABLE_TAPPING_SFX,1);
+	if(compatrule_version < 61)
+		set_qr(qr_BROKEN_BOMB_AMMO_COSTS,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -16698,6 +16705,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	}
 	*/
+	for(int32_t k=0; k<4; k++)
+	{
+		if(temp_mapscr->door[k] == dNONE)
+			temp_mapscr->door[k] = dWALL;
+	}
 	
 	return 0;
 }
@@ -16874,6 +16886,8 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			{
 				if(!p_getc(&(temp_mapscr->door[k]),f))
 					return qe_invalid;
+				if(version < 29 && temp_mapscr->door[k] == dNONE)
+					temp_mapscr->door[k] = dWALL;
 			}
 			
 			if(!p_getc(&(temp_mapscr->stairx),f))
@@ -16885,6 +16899,11 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->undercset),f))
 				return qe_invalid;
+		}
+		else if(version < 29)
+		{
+			for(int k = 0; k < 4; ++k)
+				temp_mapscr->door[k] = dWALL;
 		}
 		if(scr_has_flags & SCRHAS_FLAGS)
 		{
@@ -18955,7 +18974,8 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 				continue;
 			}
 			
-            if(!pfread(temp_tile,tilesize(format),f))
+			int size = format == tf4Bit ? 128 : tilesize(format);
+            if(!pfread(temp_tile,size,f))
             {
                 delete[] temp_tile;
                 return qe_invalid;
@@ -18971,9 +18991,27 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 				free(buf[start_tile+i].data);
 				buf[start_tile+i].data=NULL;
 			}
-			
+
 			buf[start_tile+i].data=(byte *)malloc(tilesize(buf[start_tile+i].format));
-			memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
+
+			if (format == tf4Bit)
+			{
+				byte temp[256];
+				byte *si = temp_tile + 128;
+				byte *di = temp + 256;
+				
+				for(int i=127; i>=0; --i)
+				{
+					(*(--di)) = (*(--si)) >> 4;
+					(*(--di)) = (*si) & 15;
+				}
+
+				memcpy(buf[start_tile+i].data,temp,256);
+			}
+			else
+			{
+				memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
+			}
         }
     }
 
@@ -20922,6 +20960,15 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		if(!p_getbmap(&temp_zinit.screen_data, f))
 			return qe_invalid;
+		if (s_version >= 38)
+		{
+			if (!p_getc(&temp_zinit.spriteflickerspeed, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.spriteflickercolor, f))
+				return qe_invalid;
+			if (!p_getc(&temp_zinit.spriteflickertransp, f))
+				return qe_invalid;
+		}
 	}
 	if (should_skip)
 		return 0;
@@ -21436,6 +21483,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     }
     
     memset(quest_rules, 0, QUESTRULES_NEW_SIZE); //clear here to prevent any kind of carryover -Z
+	unpack_qrs();
    // memset(extra_rules, 0, EXTRARULES_SIZE); //clear here to prevent any kind of carryover -Z
    
     if(get_bit(skip_flags, skip_midis))
@@ -22233,6 +22281,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     {
         memcpy(quest_rules, old_quest_rules, QUESTRULES_NEW_SIZE);
         memcpy(extra_rules, old_extra_rules, EXTRARULES_SIZE);
+		unpack_qrs();
     }
     
     if(get_bit(skip_flags, skip_midis))

@@ -218,7 +218,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          44
 #define V_CSETS            5 //palette data
-#define V_MAPS            28
+#define V_MAPS            29
 #define V_DMAPS           21
 #define V_DOORS            1
 #define V_ITEMS           57
@@ -226,11 +226,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        37
+#define V_INITDATA        38
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        37
+#define V_SAVEGAME        38
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
@@ -239,7 +239,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       60
+#define V_COMPATRULE       61
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1250,6 +1250,10 @@ enum
 // enemy patters
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
+// We only use t4Bit and tf8Bit.
+// t4Bit takes up 128 bytes in the file format, tf8bit takes up 256 bit.
+// They both take 256 bit in memory. t4Bit used to take 128, but this was changed
+// to greatly speed up the tile drawing code.
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
 struct size_and_pos

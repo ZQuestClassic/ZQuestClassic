@@ -267,7 +267,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_TILEWARP].setval(KEY_F10,0,0,0);
 	zq_hotkeys[ZQKEY_SIDEWARP].setval(KEY_F11,0,0,0);
 	zq_hotkeys[ZQKEY_LAYERS].setval(KEY_F12,0,0,0);
-	zq_hotkeys[ZQKEY_RESET_TRANSP].setval(KEY_B,0,0,0);
+	zq_hotkeys[ZQKEY_RESET_TRANSP].setval(0,0,0,0);
 	zq_hotkeys[ZQKEY_COPY].setval(KEY_C,0,0,0);
 	zq_hotkeys[ZQKEY_TOGGLE_DARK].setval(KEY_D,0,0,0);
 	zq_hotkeys[ZQKEY_ENEMIES].setval(KEY_E,0,0,0);

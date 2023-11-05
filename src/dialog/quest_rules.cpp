@@ -446,6 +446,9 @@ static GUI::ListData comboRulesList
 	{ "Conveyors work on layers 1 and 2", qr_CONVEYORS_L1_L2,
 		"Conveyor combos work on layers 1 and 2. If multiple conveyors overlap, only"
 		" the highest layer conveyor will apply."},
+	{ "Conveyors work on all layers + ffcs", qr_CONVEYORS_ALL_LAYERS,
+		"Conveyor combos work on all layers + ffcs. If multiple conveyors overlap, only"
+		" the highest layer conveyor will apply. (FFCs count as above all layers for this)"},
 	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS, 
 		"Disables solid damage combos. You can only take damage by"
 		" stepping on a walkable damage combo. Note that this does"
@@ -941,8 +944,11 @@ static GUI::ListData compatRulesList
 		"If enabled, a sword trigger that was hit by slash cannot be re-hit by"
 		" the same sword during the spin attack, making some spin-based puzzles not work." },
 	{ "Old DMap Titles and Intros", qr_OLD_DMAP_INTRO_STRINGS,
-		"If enabled, DMaps will use old title and intro string behavior where the "
+		"If enabled, DMaps will use old title and intro string behavior where the"
 		" intro string did not use the string editor and title was limited to 20 chars." },
+	{ "Broken Subscreen Ammo Costs", qr_BROKEN_BOMB_AMMO_COSTS,
+		"If enabled, bombs/super bombs will check the bomb/sbomb counters to be usable,"
+		" regardless of what their Cost Counters are set to." },
 };
 
 static GUI::ListData enemiesRulesList
@@ -1769,6 +1775,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 void QRDialog::reloadQRs()
 {
 	memcpy(local_qrs, realqrs, QR_SZ);
+	unpack_qrs();
 }
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
 	searchmode(false), setQRs(setQRs), realqrs(qrs), qrs_per_tab(qrs_per_tab)

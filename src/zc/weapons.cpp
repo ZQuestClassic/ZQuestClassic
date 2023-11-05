@@ -7366,7 +7366,7 @@ void weapon::draw(BITMAP *dest)
 	{
 		case wSword:
 		case wHammer:
-			if(get_qr(qr_HEROFLICKER)&&((getClock()||HeroHClk())&&(frame&1)) ||
+			if(Hero.is_hitflickerframe() ||
 					Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
 				return;
 				

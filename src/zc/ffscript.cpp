@@ -4589,6 +4589,12 @@ int32_t get_register(const int32_t arg)
 			ret = Hero.getHammerState() * 10000;
 			break;
 		}
+		case HEROFLICKERCOLOR:
+			ret = (int32_t)(Hero.flickercolor) * 10000; break;
+		case HEROFLASHINGCSET:
+			ret = (int32_t)(Hero.getFlashingCSet()) * 10000; break;
+		case HEROFLICKERTRANSP:
+			ret = (int32_t)(Hero.flickertransp) * 10000; break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
@@ -5287,6 +5293,7 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 			
+			
 		case ITEMMISCD:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
@@ -5405,6 +5412,19 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 			
+		case ITEMNOSOUND:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret=((item*)(s))->noSound ? 10000 : 0;
+			}
+			break;
+			
+		case ITEMNOHOLDSOUND:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret=((item*)(s))->noHoldSound ? 10000 : 0;
+			}
+			break;
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
 		
@@ -7048,6 +7068,18 @@ int32_t get_register(const int32_t arg)
 				ret = GuyH::getNPC()->getCanFlicker() ? 10000 : 0;
 			}
 			break;
+		case NPCFLICKERCOLOR:
+			GET_NPC_VAR_INT(flickercolor, "npc->FlickerColor") break;
+		case NPCFLASHINGCSET:
+		{
+			if (GuyH::loadNPC(ri->guyref, "npc->FlashingCSet") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = GuyH::getNPC()->getFlashingCSet() * 10000;
+			break;
+		}
+		case NPCFLICKERTRANSP:
+			GET_NPC_VAR_INT(flickertransp, "npc->FlickerTransparencyPasses") break;
 		
 		
 		
@@ -17143,6 +17175,16 @@ void set_register(int32_t arg, int32_t value)
 			//readonly
 			break;
 		}
+		case HEROFLICKERCOLOR:
+		{
+			Hero.flickercolor = value/10000;
+			break;
+		}
+		case HEROFLICKERTRANSP:
+		{
+			Hero.flickertransp = value / 10000;
+			break;
+		}
 		
 		
 	///----------------------------------------------------------------------------------------------------//
@@ -18131,6 +18173,18 @@ void set_register(int32_t arg, int32_t value)
 				((item*)(s))->set_forcegrab(value!=0);
 			}
 			break;
+		case ITEMNOSOUND:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->noSound = (value!=0);
+			}
+			break;
+		case ITEMNOHOLDSOUND:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->noHoldSound = (value!=0);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
@@ -18601,6 +18655,7 @@ void set_register(int32_t arg, int32_t value)
 					break;
 				case 8:
 					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG9, value);
+					cache_tile_mod_clear();
 					break;
 				case 9:
 					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG10, value);
@@ -18754,13 +18809,18 @@ void set_register(int32_t arg, int32_t value)
 		}
 		//Hero tile modifier. 
 		case IDATALTM:
+		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].ltm=value/10000;
+			auto new_value = value/10000;
+			if (new_value != itemsbuf[ri->idata].ltm)
+				cache_tile_mod_clear();
+			itemsbuf[ri->idata].ltm = new_value;
 			break;
+		}
 		//Pickup script
 		case IDATAPSCRIPT:
 		{
@@ -21066,6 +21126,18 @@ void set_register(int32_t arg, int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->InvFlicker") == SH::_NoError)
 			{
 				GuyH::getNPC()->setCanFlicker(value != 0);
+			}
+			break;
+		case NPCFLICKERCOLOR:
+			if (GuyH::loadNPC(ri->guyref, "npc->FlickerColor") == SH::_NoError)
+			{
+				GuyH::getNPC()->flickercolor = vbound(value/10000,-1,255);
+			}
+			break;
+		case NPCFLICKERTRANSP:
+			if (GuyH::loadNPC(ri->guyref, "npc->FlickerTransparencyPasses") == SH::_NoError)
+			{
+				GuyH::getNPC()->flickertransp = vbound(value / 10000, -1, 255);
 			}
 			break;
 		
@@ -34039,11 +34111,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	Hero.is_warping = true;
 	switch(warpType)
 	{
-		
-		//wtCAVE, wtPASS, wtEXIT, wtSCROLL, wtIWARP, wtIWARPBLK, wtIWARPOPEN,
-		//wtIWARPZAP, wtIWARPWAVE, wtNOWARP, wtWHISTLE, wtMAX
-			
-		
 		case wtIWARP:
 		case wtIWARPBLK:
 		case wtIWARPOPEN:
@@ -38896,6 +38963,9 @@ j_command:
 				}
 				break;
 			}
+			case HEROISFLICKERFRAME:
+				ri->d[rEXP1] = Hero.is_hitflickerframe() ? 10000 : 0;
+				break;
 			case LOADPORTAL:
 			{
 				auto val = get_register(sarg1)/10000;
@@ -39735,6 +39805,15 @@ j_command:
 					int nw = SH::read_stack(ri->sp + 1) / 10000;
 					int nh = SH::read_stack(ri->sp + 0) / 10000;
 					ri->d[rEXP1] = GuyH::getNPC()->scr_canplace(nx, ny, special, kb, nw, nh) ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCISFLICKERFRAME:
+			{
+				ri->d[rEXP1] = 0;
+				if (GuyH::loadNPC(ri->guyref, "npc->isFlickerFrame()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->is_hitflickerframe(get_qr(qr_OLDSPRITEDRAWS)) ? 10000 : 0;
 				}
 				break;
 			}
@@ -41610,7 +41689,7 @@ void FFScript::set_screenwarpReturnY(mapscr *m, int32_t d, int32_t value)
 void FFScript::set_screendoor(mapscr *m, int32_t d, int32_t value)
 {
 	int32_t dr = vbound(d,0,3);
-	int32_t doortype = vbound(value,0,14);
+	int32_t doortype = vbound(value,0,16);
 	m->door[dr] = doortype;
 }
 
@@ -45610,9 +45689,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FLIPROTTILERV",       2,   0,   1,   0},
 	{ "FLIPROTTILERR",       2,   0,   0,   0},
 	{ "GETTILEPIXEL",       0,   0,   0,   0},
-	{ "RESRVD_OP_MOOSH_EX_01",       1,   0,   0,   0},
+	{ "NPCISFLICKERFRAME",       0,   0,   0,   0},
 	{ "SETTILEPIXEL",       0,   0,   0,   0},
-	{ "RESRVD_OP_MOOSH_EX_02",       1,   0,   0,   0},
+	{ "HEROISFLICKERFRAME",       0,   0,   0,   0},
 	{ "SHIFTTILEVV",         2,   1,   1,   0},
 	{ "SHIFTTILEVR",         2,   1,   0,   0},
 	{ "SHIFTTILERV",         2,   0,   1,   0},
@@ -48053,12 +48132,12 @@ script_variable ZASMVars[]=
 	{ "MUSICUPDATEFLAGS", MUSICUPDATEFLAGS, 0, 0 },
 	{ "DMAPDATAINTROSTRINGID", DMAPDATAINTROSTRINGID, 0, 0 },
 	{ "IS8BITTILE", IS8BITTILE, 0, 0 },
-	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },
-	{ "RESRVD_VAR_MOOSH10", RESRVD_VAR_MOOSH10, 0, 0 },
-	{ "RESRVD_VAR_MOOSH11", RESRVD_VAR_MOOSH11, 0, 0 },
-	{ "RESRVD_VAR_MOOSH12", RESRVD_VAR_MOOSH12, 0, 0 },
-	{ "RESRVD_VAR_MOOSH13", RESRVD_VAR_MOOSH13, 0, 0 },
-	{ "RESRVD_VAR_MOOSH14", RESRVD_VAR_MOOSH14, 0, 0 },
+	{ "NPCFLICKERCOLOR", NPCFLICKERCOLOR, 0, 0 },
+	{ "HEROFLICKERCOLOR", HEROFLICKERCOLOR, 0, 0 },
+	{ "NPCFLASHINGCSET", NPCFLASHINGCSET, 0, 0 },
+	{ "HEROFLASHINGCSET", HEROFLASHINGCSET, 0, 0 },
+	{ "NPCFLICKERTRANSP", NPCFLICKERTRANSP, 0, 0 },
+	{ "HEROFLICKERTRANSP", HEROFLICKERTRANSP, 0, 0 },
 	{ "RESRVD_VAR_MOOSH15", RESRVD_VAR_MOOSH15, 0, 0 },
 	{ "RESRVD_VAR_MOOSH16", RESRVD_VAR_MOOSH16, 0, 0 },
 	{ "RESRVD_VAR_MOOSH17", RESRVD_VAR_MOOSH17, 0, 0 },

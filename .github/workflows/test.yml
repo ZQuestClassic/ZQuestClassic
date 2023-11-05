@@ -160,11 +160,21 @@ jobs:
           name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/tests/.coverage/coverage.json
 
+      # It's much faster to upload a single file than many files.
+      # https://github.com/actions/upload-artifact/issues/36
+      - name: Archive test results
+        if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
+        shell: bash
+        run: |
+          if [[ -d "${{ github.workspace }}/.tmp/test_results" ]] ; then
+            cd ${{ github.workspace }}/.tmp/test_results
+            bash ${{ github.workspace }}/.github/workflows/run_python.sh -m tarfile -c ${{ github.workspace }}/.tmp/test_results.tar .
+          fi
       - uses: actions/upload-artifact@v3
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
-          path: ${{ github.workspace }}/.tmp/test_results
+          path: ${{ github.workspace }}/.tmp/test_results.tar
 
       - uses: actions/upload-artifact@v3
         if: contains(inputs.extra-args, '--update')

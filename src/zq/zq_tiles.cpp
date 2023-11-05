@@ -8,6 +8,7 @@
 #include "base/packfile.h"
 #include "base/gui.h"
 #include "base/combo.h"
+#include "base/zdefs.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
@@ -28,6 +29,7 @@
 #include "colorname.h"
 #include "zq/render.h"
 #include "zinfo.h"
+#include <fmt/format.h>
 
 extern zcmodule moduledata;
 
@@ -1804,7 +1806,7 @@ void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 void rotate_tile(int32_t tile, bool backward)
 {
 	unfloat_selection();
-	unpack_tile(newtilebuf, tile, 0, false);
+	unpack_tile(newtilebuf, tile, 0, true);
 	byte tempunpackbuf[256];
 	byte tempx, tempy;
 	
@@ -3355,7 +3357,10 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 
 enum recolorState { rcNone, rc4Bit, rc8Bit };
 
+BITMAP* original_imagebuf_bitmap=NULL;
 void *imagebuf=NULL;
+int32_t imagebuf_bitmap_scale=0;
+#define IMAGEBUF_SCALE (imagebuf_bitmap_scale > 0 ? imagebuf_bitmap_scale : 1.0 / -imagebuf_bitmap_scale)
 int32_t imagesize=0;
 int32_t tilecount=0;
 int32_t  imagetype=0;
@@ -3877,7 +3882,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	{
 		newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
 		
-		for(int32_t i=0; i<newtilebuf[0].format*128; i++)
+		for(int32_t i=0; i<256; i++)
 		{
 			newtilebuf[0].data[i]=hold.data[i];
 		}
@@ -3947,7 +3952,15 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		
 	case ftBMP:
 	{
-		textprintf_ex(screen,font,txt_x,(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h);
+		std::string text = fmt::format("{}  {}x{}, {:.2g}x   zoom with , and .", imgstr[imagetype], original_imagebuf_bitmap->w, original_imagebuf_bitmap->h, IMAGEBUF_SCALE);
+		int text_x = txt_x;
+		int text_y = (216 + yofs) * mul;
+		// TODO: tooltips need more work before they can be used like this. This text is only draw on input, but update_tooltip expects to be called constantly.
+		// int text_w = text_length(font, text.c_str());
+		// int text_h = text_height(font);
+		// update_tooltip(text_x, text_y, text_x, text_y, text_w, text_h, "Press . or , to change scale");
+		textprintf_ex(screen, font, text_x, text_y, jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "%s", text.c_str());
+
 		draw_text_button(screen,117*mul,(192+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Recolor",vc(1),vc(14),0,true);
 		break;
 	}
@@ -4071,7 +4084,9 @@ void load_imagebuf()
 		switch(imagetype)
 		{
 		case ftBMP:
-			destroy_bitmap((BITMAP*)imagebuf);
+			if (original_imagebuf_bitmap != imagebuf)
+				destroy_bitmap((BITMAP*)imagebuf);
+			destroy_bitmap(original_imagebuf_bitmap);
 			break;
 			
 		case ftZGP:
@@ -4088,6 +4103,7 @@ void load_imagebuf()
 		}
 		
 		imagebuf=NULL;
+		original_imagebuf_bitmap=NULL;
 	}
 	
 	selx=sely=romofs=0;
@@ -4103,16 +4119,21 @@ void load_imagebuf()
 	case ftBMP:
 	packfile_password("");
 		memset(imagepal, 0, sizeof(PALETTE));
-		imagebuf = load_bitmap(imagepath,imagepal);
+		original_imagebuf_bitmap = load_bitmap(imagepath,imagepal);
 		imagesize = file_size_ex_password(imagepath,"");
 		tilecount=0;
 		create_rgb_table(&rgb_table, imagepal, NULL);
 		rgb_map = &rgb_table;
 		create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
 		
-		if(!imagebuf)
+		if(!original_imagebuf_bitmap)
 		{
 			imagetype=0;
+		}
+		else
+		{
+			imagebuf = original_imagebuf_bitmap;
+			imagebuf_bitmap_scale = 1;
 		}
 		
 		break;
@@ -4546,9 +4567,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 					switch(imported_format)
 					{
 					case tf4Bit:
-						memcpy(testtile,grabtilebuf[tx].data,tilesize(imported_format));
-						break;
-						
 					case tf8Bit:
 						for(int32_t y=0; y<16; y++)                           //snag a tile
 						{
@@ -4608,19 +4626,8 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 				{
 					for(int32_t x=0; x<16; x+=2)
 					{
-						switch(cdepth)
-						{
-						case tf4Bit:
-							testtile[(y*8)+(x/2)]=
-								(getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y)&15)+
-								((getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y)&15)<<4);
-							break;
-							
-						case tf8Bit:
-							testtile[(y*16)+x]=getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y);
-							testtile[(y*16)+x+1]=getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y);
-							break;
-						}
+						testtile[(y*16)+x]=getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y);
+						testtile[(y*16)+x+1]=getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y);
 					}
 				}
 				
@@ -4658,7 +4665,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
 											{
 												//                        if ((dest[(checktile*128)+(y*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
-												if((dest[checktile].data[(y*8*newformat)+(x/(3-newformat))])!=(newformat==tf4Bit?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x])))
+												if((dest[checktile].data[(y*8*newformat)+(x/(3-newformat))])!=testtile[(y*16)+x])
 												{
 													duplicate=false;
 												}
@@ -4676,7 +4683,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
 											{
 												//                        if ((dest[(checktile*128)+(y*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
-												if((dest[checktile].data[(y*8*newformat)+(14+(newformat-1)-x)/(3-newformat)])!=(newformat==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):(testtile[(y*16)+x])))
+												if((dest[checktile].data[(y*8*newformat)+(14+(newformat-1)-x)/(3-newformat)])!=testtile[(y*16)+x])
 												{
 													duplicate=false;
 												}
@@ -4694,7 +4701,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
 											{
 												//                      if ((dest[(checktile*128)+((15-y)*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
-												if((dest[checktile].data[((15-y)*8*newformat)+(x/(3-newformat))])!=(newformat==tf4Bit?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x])))
+												if((dest[checktile].data[((15-y)*8*newformat)+(x/(3-newformat))])!=testtile[(y*16)+x])
 												{
 													duplicate=false;
 												}
@@ -4712,7 +4719,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											for(int32_t x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
 											{
 												//                      if ((dest[(checktile*128)+((15-y)*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
-												if((dest[checktile].data[((15-y)*8*newformat)+((14+(newformat-1)-x)/(3-newformat))])!=(newformat==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):testtile[(y*16)+x]))
+												if((dest[checktile].data[((15-y)*8*newformat)+((14+(newformat-1)-x)/(3-newformat))])!=testtile[(y*16)+x])
 												{
 													duplicate=false;
 												}
@@ -4781,11 +4788,10 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 
 void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t oformat, byte *newformat)
 {
-	// Not too sure what's going on with the format stuff here...
 	byte defFormat=(bp==8) ? tf8Bit : tf4Bit;
 	byte format=defFormat;
 	int32_t stile = ((imagey*TILES_PER_ROW)+imagex)+(((sely/16)*TILES_PER_ROW)+(selx/16));
-	
+
 	switch(imagetype)
 	{
 	case ftZGP:
@@ -4800,7 +4806,6 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 			for(int32_t tx=0; tx<width; tx++)
 			{
 				format=defFormat;
-				
 				switch(imagetype)
 				{
 				case ftZGP:
@@ -4811,170 +4816,35 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 					format=grabtilebuf[stile+((ty*TILES_PER_ROW)+tx)].format;
 					break;
 				}
-				
+
+				bool ever_did_unmasked = false;
+
 				for(int32_t y=0; y<16; y++)
 				{
 					for(int32_t x=0; x<16; x+=2)
 					{
-						if(y<8 && x<8 && grabmask&1)
+						bool masked = (y<8 && x<8 && grabmask&1) || (y<8 && x>7 && grabmask&2) || (y>7 && x<8 && grabmask&4) || (y>7 && x>7 && grabmask&8);
+						if (masked)
 						{
-							switch(oformat)
-							{
-							case tf4Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
-									break;
-								}
-								
-								break;
-								
-							case tf8Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
-									break;
-								}
-								
-								break;
-							}
-						}
-						else if(y<8 && x>7 && grabmask&2)
-						{
-							switch(oformat)
-							{
-							case tf4Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
-									break;
-								}
-								
-								break;
-								
-							case tf8Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
-									break;
-								}
-								
-								break;
-							}
-						}
-						else if(y>7 && x<8 && grabmask&4)
-						{
-							switch(oformat)
-							{
-							case tf4Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
-									break;
-								}
-								
-								break;
-								
-							case tf8Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
-									break;
-								}
-								
-								break;
-							}
-						}
-						else if(y>7 && x>7 && grabmask&8)
-						{
-							switch(oformat)
-							{
-							case tf4Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
-									break;
-								}
-								
-								break;
-								
-							case tf8Bit:
-								switch(format)
-								{
-								case tf4Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
-									break;
-									
-								case tf8Bit:
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
-									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
-									break;
-								}
-								
-								break;
-							}
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
 						}
 						else
 						{
-							switch(format)
-							{
-							case tf8Bit:
-								dest[(ty*TILES_PER_ROW)+tx][(y*16)+x]=getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely);
-								dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1]=getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely);
-								newformat[(ty*TILES_PER_ROW)+tx] = tf8Bit;
-								break;
-								
-							case tf4Bit:
-							default:
-								dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely)&15)+((getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely)&15)<<4);
-								newformat[(ty*TILES_PER_ROW)+tx] = tf4Bit;
-								break;
-							}
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x]=getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely);
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1]=getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely);
+							ever_did_unmasked = true;
+						}
+						if (format == tf4Bit)
+						{
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x] &= 15;
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1] &= 15;
 						}
 					}
 				}
+
+				if (ever_did_unmasked)
+					newformat[(ty*TILES_PER_ROW)+tx] = format;
 			}
 		}
 		
@@ -4995,9 +4865,31 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 	}
 }
 
+static void scale_imagebuf_bitmap()
+{
+	imagebuf_bitmap_scale = std::clamp(imagebuf_bitmap_scale, -10, 10);
+
+	float scale = IMAGEBUF_SCALE;
+	int nw = original_imagebuf_bitmap->w * scale;
+	int nh = original_imagebuf_bitmap->h * scale;
+	if (nw <= 0 || nh <= 0)
+		return;
+
+	BITMAP* scaled_bmp = create_bitmap_ex(8, nw, nh);
+	if (!scaled_bmp)
+		return;
+
+	stretch_blit(original_imagebuf_bitmap, scaled_bmp, 0, 0, original_imagebuf_bitmap->w, original_imagebuf_bitmap->h, 0, 0, nw, nh);
+	if (imagebuf != original_imagebuf_bitmap)
+		destroy_bitmap((BITMAP*)imagebuf);
+	imagebuf = scaled_bmp;
+}
+
 //Grabber is not grabbing to tile pages beyond pg. 252 right now. -ZX 18th June, 2019 
 void grab_tile(int32_t tile,int32_t &cs)
 {
+	zq_allow_tile_draw_cache = true;
+
 	int window_w = 640+6+6, window_h = 480+25+6;
 	int window_x=(zq_screen_w-window_w)/2;
 	int window_y=(zq_screen_h-window_h)/2;
@@ -5092,6 +4984,11 @@ void grab_tile(int32_t tile,int32_t &cs)
 		if(exiting_program) break;
 		rest(4);
 		bool redraw=false;
+
+		if (!tooltip_trigger.rect(gui_mouse_x(), gui_mouse_y()))
+		{
+			clear_tooltip();
+		}
 		
 		if(keypressed())
 		{
@@ -5182,6 +5079,25 @@ void grab_tile(int32_t tile,int32_t &cs)
 				else grabmode=1;
 				
 				break;
+			
+			case KEY_COMMA:
+			if (imagetype == ftBMP)
+			{
+				imagebuf_bitmap_scale--;
+				if (imagebuf_bitmap_scale == 0)
+					imagebuf_bitmap_scale = -2;
+				scale_imagebuf_bitmap();
+			}
+			break;
+			case KEY_STOP:
+			if (imagetype == ftBMP)
+			{
+				imagebuf_bitmap_scale++;
+				if (imagebuf_bitmap_scale == -1)
+					imagebuf_bitmap_scale = 1;
+				scale_imagebuf_bitmap();
+			}
+			break;
 				
 			case KEY_1:
 				if(recolor==rc8Bit)
@@ -5620,19 +5536,19 @@ void grab_tile(int32_t tile,int32_t &cs)
 				newtilebuf[temptile].format=format;
 				newtilebuf[temptile].data=(byte *)malloc(tilesize(format));
 				
-				//newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
-				
-				
 				if(newtilebuf[temptile].data==NULL)
 				{
 					Z_error_fatal("Unable to initialize tile #%d.\n", temptile);
 					break;
 				}
 				
-				for(int i=0; i<((format==tf8Bit) ? 256 : 128); i++)
+				for(int i=0; i<256; i++)
 				{
+					// newtilebuf[temptile].data[i] = cset_reduce_table[newtile[(TILES_PER_ROW*y)+x][i]];
 					newtilebuf[temptile].data[i] = newtile[(TILES_PER_ROW*y)+x][i];
 				}
+
+				// unpackbuf[i]=(cset_reduce_table[unpackbuf[i]]);
 			}
 		}
 	}
@@ -5646,6 +5562,8 @@ void grab_tile(int32_t tile,int32_t &cs)
 	calc_cset_reduce_table(imagepal, cs);
 	register_blank_tiles();
 	popup_zqdialog_end();
+
+	zq_allow_tile_draw_cache = false;
 }
 
 int32_t show_only_unused_tiles=4; //1 bit: hide used, 2 bit: hide unused, 4 bit: hide blank
@@ -14581,20 +14499,6 @@ void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bo
 	//byte buf[256];
 	go_tiles();
 	
-	/*unpack_tile(newtilebuf, src, 0, false);
-	
-	for(int32_t i=0; i<256; i++)
-		buf[i] = unpackbuf[i];
-		
-	if(newtilebuf[src].format>tf4Bit)
-	{
-		cs=0;
-	}
-	
-	
-	cs &= 15;
-	cs <<= CSET_SHFT;
-	*/
 	if(!rect_sel)
 	{
 		for(int32_t d=dest1; d <= dest2; ++d)
@@ -15439,6 +15343,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								}
 								
 								if(!same) break;
+
+								// This used to do something. Too lazy to remove.
+								// Can probably remove the above "same" check too.
+								bitcheck = 2;
 								
 								for(int32_t c=0; c<columns; c++)
 								{
@@ -15520,6 +15428,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								}
 								
 								if(!same) break;
+
+								// This used to do something. Too lazy to remove.
+								// Can probably remove the above "same" check too.
+								bitcheck = 2;
 								
 								for(int32_t c=0; c<columns; c++)
 								{
@@ -15609,6 +15521,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								}
 								
 								if(!same) break;
+
+								// This used to do something. Too lazy to remove.
+								// Can probably remove the above "same" check too.
+								bitcheck = 2;
 								
 								for(int32_t r=0; r<rows; r++)
 								{
@@ -15619,81 +15535,25 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 										
 										for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
 										{
-		#ifdef ALLEGRO_LITTLE_ENDIAN
-										
-											//if(bitcheck==tf4Bit)
-											// {
 											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
-												if(bitcheck==tf4Bit)
-												{
-													*dest_pixelrow=*dest_pixelrow>>4;
-													*dest_pixelrow|=(*(dest_pixelrow+1)<<4);
-													
-													if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)>>4;
-												}
-												else
-												{
-													*dest_pixelrow=*(dest_pixelrow+1);
-												}
-												
+												*dest_pixelrow=*(dest_pixelrow+1);
 												dest_pixelrow++;
 											}
-											
-		#else
-											
-											for(int32_t p=0; p<(8*bitcheck)-1; p++)
-											{
-												if(bitcheck==tf4Bit)
-												{
-													*dest_pixelrow=*dest_pixelrow<<4;
-													*dest_pixelrow|=(*(dest_pixelrow+1)>>4);
-											
-													if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)<<4;
-												}
-												else
-												{
-													*dest_pixelrow=*(dest_pixelrow+1);
-												}
-											
-												dest_pixelrow++;
-											}
-											
-		#endif
 											
 											if(c==columns-1)
 											{
 												if(!(CHECK_CTRL_CMD))
 												{
 													byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
-		#ifdef ALLEGRO_LITTLE_ENDIAN
-													
-													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-													else *dest_pixelrow=*tempsrc;
-													
-		#else
-													
-													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-													else *dest_pixelrow=*tempsrc;
-													
-		#endif
+													*dest_pixelrow=*tempsrc;
 												}
 											}
 											else
 											
 											{
 												byte *tempsrc=(newtilebuf[temptile+1].data+(pixelrow*8*bitcheck));
-		#ifdef ALLEGRO_LITTLE_ENDIAN
-												
-												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-												else *dest_pixelrow=*tempsrc;
-												
-		#else
-												
-												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-												else *dest_pixelrow=*tempsrc;
-												
-		#endif
+												*dest_pixelrow=*tempsrc;
 											}
 											
 											dest_pixelrow++;
@@ -15742,6 +15602,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								}
 								
 								if(!same) break;
+
+								// This used to do something. Too lazy to remove.
+								// Can probably remove the above "same" check too.
+								bitcheck = 2;
 								
 								for(int32_t r=0; r<rows; r++)
 								{
@@ -15752,80 +15616,24 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 										
 										for(int32_t pixelrow=15; pixelrow>=0; pixelrow--)
 										{
-		#ifdef ALLEGRO_LITTLE_ENDIAN
-										
-											//*dest_pixelrow=(*dest_pixelrow)<<4;
 											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
-												if(bitcheck==tf4Bit)
-												{
-													*dest_pixelrow=*dest_pixelrow<<4;
-													*dest_pixelrow|=(*(dest_pixelrow-1)>>4);
-													
-													if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)<<4;
-												}
-												else
-												{
-													*dest_pixelrow=*(dest_pixelrow-1);
-												}
-												
+												*dest_pixelrow=*(dest_pixelrow-1);
 												dest_pixelrow--;
 											}
-											
-		#else
-											
-											for(int32_t p=0; p<(8*bitcheck)-1; p++)
-											{
-												if(bitcheck==tf4Bit)
-												{
-													*dest_pixelrow=*dest_pixelrow>>4;
-													*dest_pixelrow|=(*(dest_pixelrow-1)<<4);
-											
-													if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)>>4;
-												}
-												else
-												{
-													*dest_pixelrow=*(dest_pixelrow-1);
-												}
-											
-												dest_pixelrow--;
-											}
-											
-		#endif
 											
 											if(c==0)
 											{
 												if(!(CHECK_CTRL_CMD))
 												{
 													byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
-		#ifdef ALLEGRO_LITTLE_ENDIAN
-													
-													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-													else *dest_pixelrow=*tempsrc;
-													
-		#else
-													
-													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-													else *dest_pixelrow=*tempsrc;
-													
-		#endif
+													*dest_pixelrow=*tempsrc;
 												}
 											}
 											else
 											{
 												byte *tempsrc=(newtilebuf[temptile-1].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
-		#ifdef ALLEGRO_LITTLE_ENDIAN
-												
-												// (*dest_pixelrow)|=((*(dest_pixelrow-16))&0xF000000000000000ULL)>>60;
-												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-												else *dest_pixelrow=*tempsrc;
-												
-		#else
-												
-												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-												else *dest_pixelrow=*tempsrc;
-												
-		#endif
+												*dest_pixelrow=*tempsrc;
 											}
 											
 											dest_pixelrow--;
@@ -19961,1470 +19769,4 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 	
 	return 1;
 	
-}
-
-int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
-{
-	popup_zqdialog_start();
-	reset_combo_animations();
-	reset_combo_animations2();
-	bound(tile,0,NEWMAXTILES-1);
-	ex=exnow;
-	tile = DMapEditorLastMaptileUsed;
-	int32_t done=0;
-	int32_t oflip=flip;
-	int32_t otile=tile;
-	int32_t ocs=cs;
-	int32_t first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
-	int32_t copy=-1;
-	int32_t tile2=tile,copycnt=0;
-	int32_t tile_clicked=-1;
-	bool rect_sel=true;
-	bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
-	position_mouse_z(0);
-	
-	go();
-	
-	register_used_tiles();
-	int32_t w = 640;
-	int32_t h = 480;
-	int32_t window_xofs=(zq_screen_w-w-12)>>1;
-	int32_t window_yofs=(zq_screen_h-h-25-6)>>1;
-	int32_t screen_xofs=window_xofs+6;
-	int32_t screen_yofs=window_yofs+25;
-	int32_t panel_yofs=3;
-	int32_t mul = 2;
-	FONT *tfont = get_zc_font(font_lfont_l);
-	
-	draw_tile_list_window();
-	int32_t f=0;
-	draw_tiles(first,cs,f);
-	
-	if(type==0)
-	{
-		tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
-	}
-	else
-	{
-		tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
-	}
-	
-	go_tiles();
-	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
-	
-	bool bdown=false;
-	
-	#define FOREACH_START_DMAPTILE(_t) \
-	{ \
-		int32_t _first, _last; \
-		if(is_rect) \
-		{ \
-			_first=top*TILES_PER_ROW+left; \
-			_last=_first+rows*TILES_PER_ROW|+columns-1; \
-		} \
-		else \
-		{ \
-			_first=zc_min(tile, tile2); \
-			_last=zc_max(tile, tile2); \
-		} \
-		for(int32_t _t=_first; _t<=_last; _t++) \
-		{ \
-			if(is_rect) \
-			{ \
-				int32_t row=TILEROW(_t); \
-				if(row<top || row>=top+rows) \
-					continue; \
-				int32_t col=TILECOL(_t); \
-				if(col<left || col>=left+columns) \
-					continue; \
-			} \
-		
-	#define FOREACH_DMAPTILE_END\
-		} \
-	}
-	
-	bool did_snap = false;
-	int otl = tile, otl2 = tile2;
-	do
-	{
-		HANDLE_CLOSE_ZQDLG();
-		if(exiting_program) break;
-		rest(4);
-		int32_t top=TILEROW(zc_min(tile, tile2));
-		int32_t left=zc_min(TILECOL(tile), TILECOL(tile2));
-		int32_t rows=TILEROW(zc_max(tile, tile2))-top+1;
-		int32_t columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
-		bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
-		bool redraw=false;
-		
-		if(mouse_z!=0)
-		{
-			sel_tile(tile,tile2,first,type,((mouse_z/abs(mouse_z))*(-1)*TILES_PER_PAGE));
-			position_mouse_z(0);
-			redraw=true;
-		}
-		
-		if(keypressed())
-		{
-			switch(readkey()>>8)
-			{
-			case KEY_ENTER_PAD:
-			case KEY_ENTER:
-				done=2;
-				break;
-				
-			case KEY_ESC:
-				done=1;
-				break;
-				
-			case KEY_F1:
-				onHelp();
-				break;
-				
-			case KEY_EQUALS:
-			case KEY_PLUS_PAD:
-			{
-				if(CHECK_CTRL_CMD ||
-						key[KEY_ALT] || key[KEY_ALTGR])
-				{
-					FOREACH_START_DMAPTILE(t)
-						if(key[KEY_ALT] || key[KEY_ALTGR])
-							shift_tile_colors(t, 16, false);
-						else
-							shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-					FOREACH_DMAPTILE_END
-					
-					register_blank_tiles();
-				}
-				else if(edit_cs)
-					cs = (cs<13) ? cs+1:0;
-					
-				redraw=true;
-				break;
-			}
-			case KEY_Z:
-			case KEY_F12:
-			{
-				if(!did_snap)
-				{
-					onSnapshot();
-					redraw = true;
-					did_snap = true;
-				}
-				break;
-			}
-			case KEY_S:
-			{
-				if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
-					break;   
-				PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-				if(!f) break;
-				al_trace("Saving tile: %d\n", tile);
-				writetilefile(f,tile,1);
-				pack_fclose(f);
-				break;
-			}
-			case KEY_L:
-			{
-				if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
-					break;   
-				PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-				if(!f) break;
-				al_trace("Saving tile: %d\n", tile);
-				if (!readtilefile(f))
-				{
-					al_trace("Could not read from .ztile packfile %s\n", temppath);
-					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				}
-				else
-				{
-					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				}
-			
-				pack_fclose(f);
-				//register_blank_tiles();
-				//register_used_tiles();
-				redraw=true;
-				break;
-			}
-			case KEY_MINUS:
-			case KEY_MINUS_PAD:
-			{
-				if(CHECK_CTRL_CMD ||
-						key[KEY_ALT] || key[KEY_ALTGR])
-				{
-					FOREACH_START_DMAPTILE(t)
-						if(key[KEY_ALT] || key[KEY_ALTGR])
-							shift_tile_colors(t, -16, false);
-						else
-							shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-					FOREACH_DMAPTILE_END
-					
-					register_blank_tiles();
-				}
-				else if(edit_cs)
-					cs = (cs>0)  ? cs-1:13;
-					
-				redraw=true;
-				break;
-			}
-			
-			case KEY_UP:
-			{
-				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
-				{
-				case 3:  //ALT and CTRL
-				case 2:  //ALT
-					if(is_rect)
-					{
-						saved=false;
-						go_slide_tiles(columns, rows, top, left);
-						int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-						bool same = true;
-						
-						for(int32_t d=0; d<columns; d++)
-						{
-							for(int32_t s=0; s<rows; s++)
-							{
-								int32_t t=((top+s)*TILES_PER_ROW)+left+d;
-								
-								if(newtilebuf[t].format!=bitcheck) same = false;
-							}
-						}
-						
-						if(!same) break;
-						
-						for(int32_t c=0; c<columns; c++)
-						{
-							for(int32_t r=0; r<rows; r++)
-							{
-								int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
-								qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
-								qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
-								
-								for(int32_t pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
-								{
-									if(pixelrow==15*bitcheck)
-									{
-										int32_t srctile=temptile+TILES_PER_ROW;
-										if(srctile>=NEWMAXTILES)
-											srctile-=rows*TILES_PER_ROW;
-										src_pixelrow=(qword*)(newtilebuf[srctile].data);
-									}
-									
-									*dest_pixelrow=*src_pixelrow;
-									dest_pixelrow++;
-									src_pixelrow++;
-								}
-							}
-							
-							qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-							
-							for(int32_t b=0; b<bitcheck; b++,dest_pixelrow++)
-							{
-								if((CHECK_CTRL_CMD))
-								{
-									*dest_pixelrow=0;
-								}
-								else
-								{
-									qword *src_pixelrow=(qword*)(newundotilebuf[(top*TILES_PER_ROW)+left+c].data+(8*b));
-									*dest_pixelrow=*src_pixelrow;
-								}
-							}
-						}
-					}
-					
-					register_blank_tiles();
-					redraw=true;
-					break;
-					
-				case 1:  //CTRL
-				case 0:  //None
-					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
-					redraw=true;
-					
-				default: //Others
-					break;
-				}
-			}
-			break;
-			
-			case KEY_DOWN:
-			{
-				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
-				{
-				case 3:  //ALT and CTRL
-				case 2:  //ALT
-					if(is_rect)
-					{
-						saved=false;
-						go_slide_tiles(columns, rows, top, left);
-						int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-						bool same = true;
-						
-						for(int32_t c=0; c<columns; c++)
-						{
-							for(int32_t r=0; r<rows; r++)
-							{
-								int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-								
-								if(newtilebuf[t].format!=bitcheck) same = false;
-							}
-						}
-						
-						if(!same) break;
-						
-						for(int32_t c=0; c<columns; c++)
-						{
-							for(int32_t r=rows-1; r>=0; r--)
-							{
-								int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
-								qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
-								qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
-								
-								for(int32_t pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
-								{
-									if(pixelrow<bitcheck)
-									{
-										int32_t srctile=temptile-TILES_PER_ROW;
-										if(srctile<0)
-											srctile+=rows*TILES_PER_ROW;
-										qword *tempsrc=(qword*)(newtilebuf[srctile].data+(120*bitcheck)+(8*pixelrow));
-										*dest_pixelrow=*tempsrc;
-										//*dest_pixelrow=0;
-									}
-									else
-									{
-										*dest_pixelrow=*src_pixelrow;
-									}
-									
-									dest_pixelrow--;
-									src_pixelrow--;
-								}
-							}
-							
-							qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
-							qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-							
-							for(int32_t b=0; b<bitcheck; b++)
-							{
-								if((CHECK_CTRL_CMD))
-								{
-									*dest_pixelrow=0;
-								}
-								else
-								{
-									*dest_pixelrow=*src_pixelrow;
-								}
-								
-								dest_pixelrow++;
-								src_pixelrow++;
-							}
-						}
-					}
-					
-					register_blank_tiles();
-					redraw=true;
-					break;
-					
-				case 1:  //CTRL
-				case 0:  //None
-					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
-					redraw=true;
-					
-				default: //Others
-					break;
-				}
-			}
-			break;
-			
-			case KEY_LEFT:
-			{
-				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
-				{
-				case 3:  //ALT and CTRL
-				case 2:  //ALT
-					if(is_rect)
-					{
-						saved=false;
-						go_slide_tiles(columns, rows, top, left);
-						int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-						bool same = true;
-						
-						for(int32_t c=0; c<columns; c++)
-						{
-							for(int32_t r=0; r<rows; r++)
-							{
-								int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-								
-								if(newtilebuf[t].format!=bitcheck) same = false;
-							}
-						}
-						
-						if(!same) break;
-						
-						for(int32_t r=0; r<rows; r++)
-						{
-							for(int32_t c=0; c<columns; c++)
-							{
-								int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
-								byte *dest_pixelrow=(newtilebuf[temptile].data);
-								
-								for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
-								{
-#ifdef ALLEGRO_LITTLE_ENDIAN
-								
-									//if(bitcheck==tf4Bit)
-									// {
-									for(int32_t p=0; p<(8*bitcheck)-1; p++)
-									{
-										if(bitcheck==tf4Bit)
-										{
-											*dest_pixelrow=*dest_pixelrow>>4;
-											*dest_pixelrow|=(*(dest_pixelrow+1)<<4);
-											
-											if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)>>4;
-										}
-										else
-										{
-											*dest_pixelrow=*(dest_pixelrow+1);
-										}
-										
-										dest_pixelrow++;
-									}
-									
-#else
-									
-									for(int32_t p=0; p<(8*bitcheck)-1; p++)
-									{
-										if(bitcheck==tf4Bit)
-										{
-											*dest_pixelrow=*dest_pixelrow<<4;
-											*dest_pixelrow|=(*(dest_pixelrow+1)>>4);
-									
-											if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)<<4;
-										}
-										else
-										{
-											*dest_pixelrow=*(dest_pixelrow+1);
-										}
-									
-										dest_pixelrow++;
-									}
-									
-#endif
-									
-									if(c==columns-1)
-									{
-										if(!(CHECK_CTRL_CMD))
-										{
-											byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
-#ifdef ALLEGRO_LITTLE_ENDIAN
-											
-											if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-											else *dest_pixelrow=*tempsrc;
-											
-#else
-											
-											if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-											else *dest_pixelrow=*tempsrc;
-											
-#endif
-										}
-									}
-									else
-									
-									{
-										byte *tempsrc=(newtilebuf[temptile+1].data+(pixelrow*8*bitcheck));
-#ifdef ALLEGRO_LITTLE_ENDIAN
-										
-										if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-										else *dest_pixelrow=*tempsrc;
-										
-#else
-										
-										if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-										else *dest_pixelrow=*tempsrc;
-										
-#endif
-									}
-									
-									dest_pixelrow++;
-								}
-							}
-						}
-						
-						register_blank_tiles();
-						redraw=true;
-					}
-					
-					break;
-					
-				case 1:  //CTRL
-				case 0:  //None
-					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-(tile%TILES_PER_ROW):-1);
-					redraw=true;
-					
-				default: //Others
-					break;
-				}
-			}
-			break;
-			
-			case KEY_RIGHT:
-			{
-				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((CHECK_CTRL_CMD)?1:0))
-				{
-				case 3:  //ALT and CTRL
-				case 2:  //ALT
-					if(is_rect)
-					{
-						saved=false;
-						go_slide_tiles(columns, rows, top, left);
-						int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
-						bool same = true;
-						
-						for(int32_t c=0; c<columns; c++)
-						{
-							for(int32_t r=0; r<rows; r++)
-							{
-								int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-								
-								if(newtilebuf[t].format!=bitcheck) same = false;
-							}
-						}
-						
-						if(!same) break;
-						
-						for(int32_t r=0; r<rows; r++)
-						{
-							for(int32_t c=columns-1; c>=0; c--)
-							{
-								int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
-								byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
-								
-								for(int32_t pixelrow=15; pixelrow>=0; pixelrow--)
-								{
-#ifdef ALLEGRO_LITTLE_ENDIAN
-								
-									//*dest_pixelrow=(*dest_pixelrow)<<4;
-									for(int32_t p=0; p<(8*bitcheck)-1; p++)
-									{
-										if(bitcheck==tf4Bit)
-										{
-											*dest_pixelrow=*dest_pixelrow<<4;
-											*dest_pixelrow|=(*(dest_pixelrow-1)>>4);
-											
-											if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)<<4;
-										}
-										else
-										{
-											*dest_pixelrow=*(dest_pixelrow-1);
-										}
-										
-										dest_pixelrow--;
-									}
-									
-#else
-									
-									for(int32_t p=0; p<(8*bitcheck)-1; p++)
-									{
-										if(bitcheck==tf4Bit)
-										{
-											*dest_pixelrow=*dest_pixelrow>>4;
-											*dest_pixelrow|=(*(dest_pixelrow-1)<<4);
-									
-											if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)>>4;
-										}
-										else
-										{
-											*dest_pixelrow=*(dest_pixelrow-1);
-										}
-									
-										dest_pixelrow--;
-									}
-									
-#endif
-									
-									if(c==0)
-									{
-										if(!(CHECK_CTRL_CMD))
-										{
-											byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
-#ifdef ALLEGRO_LITTLE_ENDIAN
-											
-											if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-											else *dest_pixelrow=*tempsrc;
-											
-#else
-											
-											if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-											else *dest_pixelrow=*tempsrc;
-											
-#endif
-										}
-									}
-									else
-									{
-										byte *tempsrc=(newtilebuf[temptile-1].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
-#ifdef ALLEGRO_LITTLE_ENDIAN
-										
-										// (*dest_pixelrow)|=((*(dest_pixelrow-16))&0xF000000000000000ULL)>>60;
-										if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
-										else *dest_pixelrow=*tempsrc;
-										
-#else
-										
-										if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
-										else *dest_pixelrow=*tempsrc;
-										
-#endif
-									}
-									
-									dest_pixelrow--;
-								}
-							}
-						}
-						
-						register_blank_tiles();
-						redraw=true;
-					}
-					
-					break;
-					
-				case 1:  //CTRL
-				case 0:  //None
-					sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
-					redraw=true;
-					
-				default: //Others
-					break;
-				}
-			}
-			break;
-			
-			case KEY_PGUP:
-				sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
-				redraw=true;
-				break;
-				
-			case KEY_PGDN:
-				sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
-				redraw=true;
-				break;
-				
-			case KEY_HOME:
-				sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?-(tile):-(tile%TILES_PER_PAGE));
-				redraw=true;
-				break;
-				
-			case KEY_END:
-				sel_tile(tile,tile2,first,type,(CHECK_CTRL_CMD)?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
-				redraw=true;
-				break;
-				
-			case KEY_P:
-			{
-				int32_t whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
-				
-				if(whatPage >= 0)
-					sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
-					
-				break;
-			}
-			
-			case KEY_O:
-				if(type==0 && copy>=0)
-				{
-					go_tiles();
-					
-					if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
-					{
-						mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(CHECK_CTRL_CMD), rect_sel);
-						saved=false;
-					}
-					else
-					{
-						saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(CHECK_CTRL_CMD));
-						//overlay_tile(newtilebuf,tile,copy,cs,(CHECK_CTRL_CMD));
-					}
-					
-					saved=false;
-					redraw=true;
-				}
-				
-				break;
-				
-			case KEY_E:
-				if(type==0)
-				{
-					edit_tile(tile,flip,cs);
-					draw_tile_list_window();
-					redraw=true;
-				}
-				
-				break;
-				
-			case KEY_G:
-				if(type==0)
-				{
-					grab_tile(tile,cs);
-					draw_tile_list_window();
-					redraw=true;
-				}
-				
-				break;
-				
-			case KEY_C:
-				copy=zc_min(tile,tile2);
-				copycnt=abs(tile-tile2)+1;
-				redraw=true;
-				break;
-				
-			case KEY_X:
-				if(type==2)
-				{
-					ex=(ex+1)%3;
-				}
-				
-				break;
-				
-				//usetiles=true;
-			case KEY_R:
-				if(type==2)
-					break;
-					
-				go_tiles();
-				
-				if(CHECK_CTRL_CMD)
-				{
-					bool go=false;
-					if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-						go=true;
-					else if(massRecolorSetup(cs))
-						go=true;
-					
-					if(go)
-					{
-						FOREACH_START_DMAPTILE(t)
-							massRecolorApply(t);
-						FOREACH_DMAPTILE_END
-						
-						register_blank_tiles();
-					}
-				}
-				else
-				{
-					FOREACH_START_DMAPTILE(t)
-						rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
-					FOREACH_DMAPTILE_END
-				}
-				
-				redraw=true;
-				saved=false;
-				break;
-				
-			case KEY_SPACE:
-				rect_sel=!rect_sel;
-				copy=-1;
-				redraw=true;
-				break;
-				
-				//     case KEY_N:     go_tiles(); normalize(tile,tile2,flip); flip=0; redraw=true; saved=false; usetiles=true; break;
-			case KEY_H:
-				flip^=1;
-				go_tiles();
-				
-				if(type==0)
-				{
-					normalize(tile,tile2,rect_sel,flip);
-					flip=0;
-				}
-				
-				redraw=true;
-				break;
-				
-			case KEY_V:
-				if(copy==-1)
-				{
-					if(type!=2)
-					{
-						flip^=2;
-						go_tiles();
-						
-						if(type==0)
-						{
-							normalize(tile,tile2,rect_sel,flip);
-							flip=0;
-						}
-					}
-				}
-				else
-				{
-					bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
-			go_tiles();
-					saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
-				}
-				
-				redraw=true;
-				break;
-				
-		
-		
-		case KEY_F:
-				if(copy==-1)
-				{
-					break;
-				}
-				else
-				{
-			go_tiles();
-			{
-				saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
-			}
-				}
-				
-				redraw=true;
-				break;
-		
-			case KEY_DEL:
-				delete_tiles(tile,tile2,rect_sel);
-				redraw=true;
-				break;
-				
-			case KEY_U:
-			{
-				if(CHECK_CTRL_CMD)
-				{
-					//Only toggle the first 2 bits!
-					show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
-				}
-				else
-				{
-					comeback_tiles();
-				}
-				
-				redraw=true;
-			}
-			break;
-			
-			case KEY_8:
-			case KEY_8_PAD:
-				hide_8bit_marker();
-				break;
-			
-			case KEY_M:
-			//al_trace("mass combo key pressed, type == %d\n",type);
-				if(type==0)
-				{
-			 //al_trace("mass combo key pressed, copy == %d\n",copy);
-					if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
-					{
-						go_tiles();
-						saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
-					}
-					else if(copy==-1)
-					{
-						// I don't know what this was supposed to be doing before.
-						// It didn't work in anything like a sensible way.
-						if(rect_sel)
-			{
-							make_combos_rect(top, left, rows, columns, cs);
-			}
-						else
-			{
-							make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
-			}
-					}
-					
-					redraw=true;
-				}
-				
-				break;
-				
-			case KEY_D:
-			{
-				int32_t frames=1;
-				char buf[80];
-				sprintf(buf, "%d", frames);
-				create_relational_tiles_dlg[0].dp2=get_zc_font(font_lfont);
-				create_relational_tiles_dlg[2].dp=buf;
-				
-				large_dialog(create_relational_tiles_dlg);
-					
-				int32_t ret=do_zqdialog(create_relational_tiles_dlg,2);
-				
-				if(ret==5)
-				{
-					frames=zc_max(atoi(buf),1);
-					bool same = true;
-					int32_t bitcheck=newtilebuf[tile].format;
-					
-					for(int32_t t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
-					{
-						if(newtilebuf[tile+t].format!=bitcheck) same = false;
-					}
-					
-					if(!same)
-					{
-						jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,get_zc_font(font_lfont));
-						break;
-					}
-					
-					if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
-					{
-						jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,get_zc_font(font_lfont));
-						break;
-					}
-					
-					for(int32_t i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
-					{
-						reset_tile(newtilebuf, tile+i, bitcheck);
-					}
-					
-					if(create_relational_tiles_dlg[3].flags&D_SELECTED)
-					{
-						for(int32_t i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
-						{
-							for(int32_t j=0; j<frames; ++j)
-							{
-								merge_tiles(tile+(i*frames)+j, (tile+(relational_template[i][0]*frames)+j)<<2, ((tile+(relational_template[i][1]*frames)+j)<<2)+1, ((tile+(relational_template[i][2]*frames)+j)<<2)+2, ((tile+(relational_template[i][3]*frames)+j)<<2)+3);
-							}
-						}
-					}
-					else
-					{
-						for(int32_t i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
-						{
-							for(int32_t j=0; j<frames; ++j)
-							{
-								merge_tiles(tile+(i*frames)+j, (tile+(dungeon_carving_template[i][0]*frames)+j)<<2, ((tile+(dungeon_carving_template[i][1]*frames)+j)<<2)+1, ((tile+(dungeon_carving_template[i][2]*frames)+j)<<2)+2, ((tile+(dungeon_carving_template[i][3]*frames)+j)<<2)+3);
-							}
-						}
-					}
-				}
-			}
-			
-			register_blank_tiles();
-			register_used_tiles();
-			redraw=true;
-			saved=false;
-			break;
-			
-			case KEY_B:
-			{
-				bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-				bool control=(CHECK_CTRL_CMD);
-				bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
-				
-				do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
-				register_blank_tiles();
-			}
-			break;
-			}
-			clear_keybuf();
-		}
-		
-		if(!(key[KEY_Z] || key[KEY_F12]))
-			did_snap = false;
-		
-		if(gui_mouse_b()&1)
-		{
-			if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + w + 12 - 21, window_yofs + 5, window_xofs + w +12 - 21 + 15, window_yofs + 5 + 13))
-			{
-				if(do_x_button(screen, w+12+window_xofs - 21, 5+window_yofs))
-				{
-					done=1;
-				}
-			}
-			
-			int32_t x=gui_mouse_x()-screen_xofs;
-			int32_t y=gui_mouse_y()-screen_yofs;
-			
-			if(y>=0 && y<208*mul)
-			{
-				x=zc_min(zc_max(x,0),(320*mul)-1);
-				int32_t t = (y>>5)*TILES_PER_ROW + (x>>5) + first;
-				
-				if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
-				{
-					tile2=t;
-				}
-				else
-				{
-					tile=tile2=t;
-				}
-				
-				if(tile_clicked!=t)
-				{
-					dclick_status=DCLICK_NOT;
-				}
-				else if(dclick_status == DCLICK_AGAIN)
-				{
-					while(gui_mouse_b())
-					{
-						/* do nothing */
-					}
-					
-					if(((y>>5)*TILES_PER_ROW + (x>>5) + first)!=t)
-					{
-						dclick_status=DCLICK_NOT;
-					}
-					else
-					{
-						if(type==0)
-						{
-							edit_tile(tile,flip,cs);
-							draw_tile_list_window();
-							redraw=true;
-						}
-						else
-						{
-							done=2;
-						}
-					}
-				}
-				
-				tile_clicked=t;
-			}
-			else if(x>300*mul && !bdown)
-			{
-				if(y<224*mul && first>0)
-				{
-					first-=TILES_PER_PAGE;
-					redraw=true;
-				}
-				
-				if(y>=224*mul && first<TILES_PER_PAGE*(TILE_PAGES-1))
-				{
-					first+=TILES_PER_PAGE;
-					redraw=true;
-				}
-				
-				bdown=true;
-			}
-			
-			if(type==1||type==2)
-			{
-				if(!bdown && isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
-					done=1;
-					
-				if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
-					done=2;
-			}
-			else if(!bdown && isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
-			{
-				rect_sel=!rect_sel;
-				copy=-1;
-				redraw=true;
-			}
-			else if(!bdown && isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
-			{
-				FONT *tf = font;
-				font = tfont;
-				
-				if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-				{
-					font = tf;
-					grab_tile(tile,cs);
-					draw_tile_list_window();
-					position_mouse_z(0);
-					redraw=true;
-				}
-				
-				font = tf;
-			}
-			else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
-			{
-				FONT *tf = font;
-				font = tfont;
-				
-				if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-				{
-					font = tf;
-					edit_tile(tile,flip,cs);
-					draw_tile_list_window();
-					redraw=true;
-				}
-				
-				font = tf;
-			}
-			else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
-			{
-				FONT *tf = font;
-				font = tfont;
-				
-				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-				{
-					if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
-					{
-						PALETTE temppal;
-						get_palette(temppal);
-						BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-						draw_tiles(tempbmp,first,cs,f,false,true);
-						save_bitmap(temppath, tempbmp, RAMpal);
-						destroy_bitmap(tempbmp);
-					}
-				}
-				
-				font = tf;
-			}
-			else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
-			{
-				FONT *tf = font;
-				font = tfont;
-				
-				if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-				{
-					if(massRecolorSetup(cs))
-					{
-						go_tiles();
-						
-						FOREACH_START_DMAPTILE(t)
-							massRecolorApply(t);
-						FOREACH_DMAPTILE_END
-						
-						register_blank_tiles();
-					}
-				}
-				
-				font = tf;
-			}
-			else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
-			{
-				FONT *tf = font;
-				font = tfont;
-				
-				if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
-				{
-					done=1;
-				}
-				
-				font = tf;
-			}
-			
-			bdown=true;
-		}
-		
-		bool r_click = false;
-		
-		if(gui_mouse_b()&2 && !bdown && type==0)
-		{
-			int32_t x=(gui_mouse_x()-screen_xofs);//&0xFF0;
-			int32_t y=(gui_mouse_y()-screen_yofs);//&0xF0;
-			
-			if(y>=0 && y<208*mul)
-			{
-				x=zc_min(zc_max(x,0),(320*mul)-1);
-				int32_t t = ((y)>>5)*TILES_PER_ROW + ((x)>>5) + first;
-				
-				if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
-					tile=tile2=t;
-			}
-			
-			bdown = r_click = true;
-			f=8;
-		}
-		
-		if(gui_mouse_b()==0)
-			bdown=false;
-			
-		position_mouse_z(0);
-		
-REDRAW_DMAP_SELTILE:
-
-		if((f%8)==0 || InvalidBG == 1)
-			redraw=true;
-		if(otl != tile || otl2 != tile2)
-		{
-			otl = tile;
-			otl2 = tile2;
-			redraw = true;
-		}
-		
-		if(redraw)
-		{
-			draw_tiles(first,cs,f);
-		}
-		if(f&8)
-		{
-			if(rect_sel)
-			{
-				for(int32_t i=zc_min(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
-						  zc_min(TILECOL(tile),TILECOL(tile2));
-						i<=zc_max(TILEROW(tile),TILEROW(tile2))*TILES_PER_ROW+
-						zc_max(TILECOL(tile),TILECOL(tile2)); i++)
-				{
-					if(i>=first && i<first+TILES_PER_PAGE &&
-							TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
-							TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
-					{
-						int32_t x=(i%TILES_PER_ROW)<<5;
-						int32_t y=((i-first)/TILES_PER_ROW)<<5;
-						safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
-					}
-				}
-			}
-			else
-			{
-				for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
-				{
-					if(i>=first && i<first+TILES_PER_PAGE)
-					{
-						int32_t x=TILECOL(i)<<5;
-						int32_t y=TILEROW(i-first)<<5;
-						safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
-					}
-				}
-			}
-		}
-		
-		if(type==0)
-			tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
-		else
-			tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
-			
-		if(type==2)
-		{
-			char cbuf[16];
-			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-			gui_textout_ln(screen, get_zc_font(font_lfont_l), (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
-		}
-		
-		++f;
-		
-		if(r_click)
-		{
-			select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
-			select_tile_rc_menu[2].flags = (copy==-1) ? D_DISABLED : 0;
-			select_tile_view_menu[0].flags = HIDE_USED ? D_SELECTED : 0;
-			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
-			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
-			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
-			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
-			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
-			redraw=true;
-			
-			switch(m)
-			{
-			case 0:
-				copy=zc_min(tile,tile2);
-				copycnt=abs(tile-tile2)+1;
-				break;
-				
-			case 2:
-			case 1:
-			{
-				bool b = copy_tiles(tile,tile2,copy,copycnt,rect_sel,(m==2));
-				if(saved) saved = !b;
-				break;
-			}
-			case 7:
-			{
-				bool b = scale_tiles(tile, tile2,cs);
-				if(saved) saved = !b;
-				break;
-			}
-				
-			case 3:
-				delete_tiles(tile,tile2,rect_sel);
-				break;
-				
-			case 5:
-				edit_tile(tile,flip,cs);
-				draw_tile_list_window();
-				break;
-				
-			case 8:
-			{
-				do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false);
-				break;
-			}
-			
-			case 6:
-				grab_tile(tile,cs);
-				draw_tile_list_window();
-				position_mouse_z(0);
-				break;
-				
-			case 10:
-				show_blank_tile(tile);
-				break;
-		
-		case 13: //overlay
-			overlay_tile(newtilebuf,tile,copy,cs,0);
-			break;
-		
-		case 14: //h-flip
-		{
-		flip^=1;
-		go_tiles();
-		
-		if(type==0)
-		{
-			normalize(tile,tile2,rect_sel,flip);
-			flip=0;
-		}
-		
-		redraw=true;   
-		break;
-			
-		  }
-		  
-		  case 15: //h-flip
-		  {
-			if(copy==-1)
-			{
-				if(type!=2)
-				{
-				flip^=2;
-				go_tiles();
-				
-				if(type==0)
-				{
-					normalize(tile,tile2,rect_sel,flip);
-					flip=0;
-				}
-				}
-			}
-			else
-			{
-				go_tiles();
-				saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
-			}
-			
-			redraw=true;
-		break;
-			
-		  }
-			
-		
-			case 16: //mass combo
-			{
-				if(type==0)
-				{
-					//al_trace("mass combo key pressed, copy == %d\n",copy);
-					if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
-					{
-						go_tiles();
-						saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
-					}
-					else if(copy==-1)
-					{
-						// I don't know what this was supposed to be doing before.
-						// It didn't work in anything like a sensible way.
-						if(rect_sel)
-						{
-							make_combos_rect(top, left, rows, columns, cs);
-						}
-						else
-						{
-							make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
-						}
-					}
-					redraw=true;
-				}
-			}
-			break;
-				
-			case 17:
-				if(type==0)
-				{
-					bool warn = (rect_sel
-						&& ((tile/20)!=(tile2/20))
-						&& !(tile%20==0&&tile2%20==19));
-					int32_t z=zc_min(tile,tile2);
-					int32_t count = abs(tile-tile2) + 1;
-					tile=z;
-					tile2=NEWMAXTILES;
-					copy = tile + count;
-					copycnt = NEWMAXTILES-copy;
-					
-					if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
-					{
-						char buf[64];
-						
-						if(count>1)
-							sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
-						else
-							sprintf(buf,"Remove tile %d?",tile);
-							
-						AlertDialog("Remove Tiles", std::string(buf)
-							+"\nThis will offset the tiles that follow!"
-							+(warn?"\nRemoving tiles ignores rectangular selections!":""),
-							[&](bool ret,bool)
-							{
-								if(ret)
-								{
-									go_tiles();
-									if(copy_tiles(tile,tile2,copy,copycnt,false,true))
-									{
-										redraw=true;
-										saved=false;
-									}
-								}
-							}).show();
-					}
-					else
-					{
-						char buf[64];
-						
-						if(count>1)
-							sprintf(buf,"Insert %d blank tiles?",count);
-						else
-							sprintf(buf,"Insert a blank tile?");
-							
-						AlertDialog("Insert Tiles", std::string(buf)
-							+"\nThis will offset the tiles that follow!"
-							+(warn?"\nInserting tiles ignores rectangular selections!":""),
-							[&](bool ret,bool)
-							{
-								if(ret)
-								{
-									go_tiles();
-									if(copy_tiles(copy,tile2,tile,copycnt,false,true))
-									{
-										redraw=true;
-										saved=false;
-									}
-								}
-							}).show();
-					}
-					
-					copy=-1;
-					tile2=tile=z;
-				}
-				break;
-				
-			default:
-				redraw=false;
-				break;
-			}
-			
-			r_click = false;
-			goto REDRAW_DMAP_SELTILE;
-		}
-		
-	}
-	while(!done);
-	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
-		rest(1);
-	}
-	
-	comeback();
-	register_blank_tiles();
-	register_used_tiles();
-	setup_combo_animations();
-	setup_combo_animations2();
-	popup_zqdialog_end();
-	return tile+1;
 }

@@ -110,6 +110,7 @@ void InfoDialog::postinit()
 		dest_qrs = next_dest_qr;
 		next_dest_qr = local_qrs;
 		memcpy(local_qrs, dest_qrs, sizeof(local_qrs));
+		unpack_qrs();
 	}
 }
 

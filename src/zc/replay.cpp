@@ -20,6 +20,10 @@
 #define XXH_IMPLEMENTATION
 #include <xxhash.h>
 
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 using namespace std::chrono_literals;
 
 struct ReplayStep;
@@ -613,6 +617,13 @@ static void do_recording_poll()
 
 static void load_replay(std::filesystem::path path)
 {
+#ifdef __EMSCRIPTEN__
+    if (em_is_lazy_file(path))
+    {
+        em_fetch_file(path);
+    }
+#endif
+
     std::ifstream file(path);
 
     if (!file.is_open())

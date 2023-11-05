@@ -289,6 +289,15 @@ struct gamedata
 	byte get_switchhookstyle();
 	void set_switchhookstyle(byte val);
 	
+	byte get_spriteflickerspeed();
+	void set_spriteflickerspeed(byte val);
+
+	byte get_spriteflickercolor();
+	void set_spriteflickercolor(byte val);
+
+	byte get_spriteflickertransp();
+	void set_spriteflickertransp(byte val);
+
 	byte get_continue_scrn() const;
 	void set_continue_scrn(byte s);
 	void change_continue_scrn(int16_t s);

@@ -43,8 +43,6 @@ elif args.target == 'zeditor':
         '<script src="../zplayer.data.js"></script>',
         '<script src="../zeditor.data.js"></script>'
     ])
-if CI:
-    scripts.append('<script src="../replays.data.js"></script>')
 html = replace(html, '__SCRIPTS__', '\n'.join(scripts))
 
 lazy_files_dir = Path(args.build_folder) / 'packages/web_lazy_files'

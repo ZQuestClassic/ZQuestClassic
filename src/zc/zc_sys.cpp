@@ -398,6 +398,7 @@ void load_game_configs()
 	Maxfps = zc_get_config(cfg_sect,"maxfps",0);
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
 	SnapshotFormat = zc_get_config(cfg_sect,"snapshot_format",3);
+	SnapshotScale = zc_get_config(cfg_sect,"snapshot_scale",2);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);
 #ifdef __EMSCRIPTEN__
 	if (em_is_mobile()) NameEntryMode = 2;
@@ -2226,6 +2227,7 @@ void removeFromItemCache(int32_t itemclass)
 {
 	itemcache.erase(itemclass);
 	itemcache_cost.erase(itemclass);
+	cache_tile_mod_clear();
 }
 
 void flushItemCache(bool justcost)
@@ -2235,6 +2237,8 @@ void flushItemCache(bool justcost)
 		itemcache.clear();
 	else if(replay_version_check(0,19))
 		return;
+
+	cache_tile_mod_clear();
 	
 	//also fix the active subscreen if items were deleted -DD
 	if(game != NULL)
@@ -2365,20 +2369,46 @@ int32_t heart_container_id()
 	return -1;
 }
 
+struct tilemod_cache_state_t
+{
+	bool operator==(const tilemod_cache_state_t&) const = default;
+
+	bool valid;
+	bool bunny_clock;
+	bool superman;
+	int shield;
+};
+tilemod_cache_state_t tilemod_cache_state;
+int32_t tilemod_cache_value;
+
+void cache_tile_mod_clear()
+{
+	tilemod_cache_state = {false};
+}
+
 int32_t item_tile_mod()
 {
+	tilemod_cache_state_t state = {
+		.valid = true,
+		.bunny_clock = Hero.BunnyClock() != 0,
+		.superman = Hero.superman,
+		.shield = Hero.active_shield_id,
+	};
+	if (tilemod_cache_state == state)
+		return tilemod_cache_value;
+
 	int32_t tile=0;
-	
-	if(game->get_bombs())
+	bool check_bombcost = !get_qr(qr_BROKEN_BOMB_AMMO_COSTS);
+	if(check_bombcost || game->get_bombs())
 	{
-		int32_t itemid = current_item_id(itype_bomb,false);
+		int32_t itemid = current_item_id(itype_bomb,check_bombcost);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
 	
-	if(game->get_sbombs())
+	if(check_bombcost || game->get_sbombs())
 	{
-		int32_t itemid = current_item_id(itype_sbomb,false);
+		int32_t itemid = current_item_id(itype_sbomb,check_bombcost);
 		if(itemid > -1 && checkbunny(itemid))
 			tile+=itemsbuf[itemid].ltm;
 	}
@@ -2508,6 +2538,8 @@ int32_t item_tile_mod()
 		tile+=itm.ltm;
 	}
 	
+	tilemod_cache_value = tile;
+	tilemod_cache_state = state;
 	return tile;
 }
 
@@ -3928,21 +3960,14 @@ int32_t onGUISnapshot()
 {
 	char buf[200];
 	int32_t num=0;
-	bool realpal=(CHECK_CTRL_CMD);
 	do
 	{
 		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
 	
-	BITMAP *b = create_bitmap_ex(8,resx,resy);
-	
-	if(b)
-	{
-		blit(screen,b,0,0,0,0,resx,resy);
-		save_bitmap(buf,screen,RAMpal);
-		destroy_bitmap(b);
-	}
+	if (!al_save_bitmap(buf, al_get_backbuffer(all_get_display())))
+		InfoDialog("Error", "Failed to save snapshot").show();
 	
 	return D_O_K;
 }
@@ -3967,12 +3992,12 @@ int32_t onNonGUISnapshot()
 		BITMAP *b = create_bitmap_ex(8,256,168);
 		clear_to_color(b,0);
 		blit(framebuf,b,0,passive_subscreen_height/2,0,0,256,168);
-		save_bitmap(buf,b,realpal?temppal:RAMpal);
+		alleg4_save_bitmap(b, SnapshotScale, buf);
 		destroy_bitmap(b);
 	}
 	else
 	{
-		save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
+		alleg4_save_bitmap(framebuf, SnapshotScale, buf, realpal?temppal:RAMpal);
 	}
 	
 	return D_O_K;
@@ -5140,10 +5165,11 @@ int32_t OnSaveZCConfig()
 
 int32_t OnnClearQuestDir()
 {
+	auto current_path = fs::current_path() / "quests";
 	if(jwin_alert3(
 			"Clear Current Directory Cache", 
-			"Are you sure that you wish to clear the current cached directory?", 
-			"This will default the current directory to `<ROOT>/quests` for this instance of ZC Player!",
+			"Are you sure that you wish to reset where ZC Player looks for quests?", 
+			fmt::format("The new directory will be: {}", current_path.string()).c_str(),
 			NULL,
 		 "&Yes", 
 		"&No", 
@@ -5153,9 +5179,9 @@ int32_t OnnClearQuestDir()
 		0, 
 		get_zc_font(font_lfont)) == 1)	
 	{
-		zc_set_config("zeldadx","quest_dir","");
+		zc_set_config("zeldadx","quest_dir","quests");
 		flush_config_file();
-		strcpy(qstdir,"");
+		strcpy(qstdir,"quests");
 #ifdef __EMSCRIPTEN__
 		em_sync_fs();
 #endif

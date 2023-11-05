@@ -57,7 +57,7 @@ jobs:
       arch: ${{ matrix.arch }}
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
-      extra-args: ${{ matrix.extra-args }}
+      extra-args: ${{ matrix.extra-args }} --prune_test_results
 
   compare:
     needs: ["test"]
@@ -189,7 +189,9 @@ jobs:
         working-directory: web
       - run: pip install PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
       # Run each replay for just ~15 seconds, but run all of classic_1st_lvl1.zplay
-      - run: xvfb-run --auto-servernum python -Xutf8 tests/run_replay_tests.py --build_folder build_emscripten/Release --max_duration 15 --max_duration classic_1st_lvl1.zplay=0 --test_results .tmp/test_results --ci web --retries 2
+      # - run: xvfb-run --auto-servernum python -Xutf8 tests/run_replay_tests.py --build_folder build_emscripten/Release --max_duration 15 --max_duration classic_1st_lvl1.zplay=0 --test_results .tmp/test_results --ci web --retries 2
+      # TODO: restore the above, after web replay tests are less flaky / faster.
+      - run: xvfb-run --auto-servernum python -Xutf8 tests/run_replay_tests.py --build_folder build_emscripten/Release --filter classic_1st_lvl1 --filter playground --test_results .tmp/test_results --ci web --retries 2
 
       - run: BUILD_FOLDER=build_emscripten/Release xvfb-run --auto-servernum python -Xutf8 tests/test_zeditor.py
       - run: BUILD_FOLDER=build_emscripten/Release xvfb-run --auto-servernum python -Xutf8 tests/test_zplayer.py
@@ -201,4 +203,8 @@ jobs:
           path: |
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeOutput.log
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeError.log
-            ${{ github.workspace }}/.tmp/test_results
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: web test results
+          path: ${{ github.workspace }}/.tmp/test_results

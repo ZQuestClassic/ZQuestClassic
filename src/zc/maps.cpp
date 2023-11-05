@@ -4276,25 +4276,25 @@ static void for_every_screen_in_region_check_viewport(const std::function <void 
 	});
 }
 
-void draw_msgstr(byte layer, bool tempb = false)
+void draw_msgstr(byte layer)
 {
 	if(layer != msgstr_layer) return;
-	BITMAP* b1 = tempb ? temp_buf : framebuf;
+
 	if(!(msg_bg_display_buf->clip))
 	{
-		blit_msgstr_bg(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
-		blit_msgstr_prt(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
-		blit_msgstr_fg(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
 		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 }
@@ -4312,37 +4312,25 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 	
 	//The Plan:
-	//0: Set sideview gravity from dmaps. -Z
-	//1. Draw some layers onto scrollbuf with clipping
+	//1. Draw some background layers
 	//2. Blit scrollbuf onto framebuf
 	//3. Draw some sprites onto framebuf
-	//4. Blit framebuf onto temp_buf
-	//5. Draw some layers onto temp_buf and scrollbuf
-	//6. Blit temp_buf onto framebuf with clipping
-	//6b. Draw the subscreen onto temp_buf, without clipping
+	//4. -----
+	//5. Draw some layers onto framebuf and scrollbuf
+	//6. -----
+	//6b. Draw the subscreen onto frame_buf, without clipping
 	//7. Draw some flying sprites onto framebuf
-	//8. Blit frame_buf onto temp_buf
-	//9. Draw some layers onto temp_buf
-	//10. Blit temp_buf onto framebuf with clipping
+	//8. -----
+	//9. Draw some layers onto frame_buf and scrollbuf
+	//10. ----
 	//11. Draw some text on framebuf and scrollbuf
 	//12. Draw the subscreen onto framebuf, without clipping
 	clear_bitmap(framebuf);
-	set_clip_rect(framebuf,0,0,256,224);
-	
-	clear_bitmap(temp_buf);
-	set_clip_state(temp_buf,1);
-	set_clip_rect(temp_buf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	clear_clip_rect(framebuf);
 	
 	int32_t cmby2=0;
 	
-	//0: Sideview Grvity from DMaps.
-	
-	/* DON'T MODIFY THE SCREEN DIRECTLY!
-	if ( DMaps[currdmap].sideview != 0 ) 
-	{
-		this_screen->flags7 |= fSIDEVIEW;
-	}*/
-	//1. Draw some layers onto temp_buf
+	//1. Draw some background layers
 	clear_bitmap(scrollbuf);
 
 	// TODO z3 !!! move to game loop?
@@ -4354,14 +4342,14 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true);
-			if (screen_index == currscr) particles.draw(temp_buf, true, 1);
+			if (screen_index == currscr) particles.draw(framebuf, true, 1);
 			if (screen_index == currscr) draw_msgstr(2);
 		}
 		
 		if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[3], offx, offy, true);
-			if (screen_index == currscr) particles.draw(temp_buf, true, 2);
+			if (screen_index == currscr) particles.draw(framebuf, true, 2);
 			if (screen_index == currscr) draw_msgstr(3);
 		}
 	});
@@ -4390,8 +4378,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(show_layer_0 && lenscheck(this_screen,0))
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
-	particles.draw(temp_buf, true, -3);
-	draw_msgstr(0, true);
+	particles.draw(framebuf, true, -3);
+	draw_msgstr(0);
 	
 	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -4432,8 +4420,8 @@ void draw_screen(bool showhero, bool runGeneric)
 		if (in_viewport)
 		{
 			do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
-			if (screen_index == currscr) particles.draw(temp_buf, true, 0);
-			if (screen_index == currscr) draw_msgstr(1, true);
+			if (screen_index == currscr) particles.draw(framebuf, true, 0);
+			if (screen_index == currscr) draw_msgstr(1);
 		}
 		
 		do_layer(scrollbuf, -3, screen_handles[0], 0, 0); // freeform combos!
@@ -4443,14 +4431,14 @@ void draw_screen(bool showhero, bool runGeneric)
 			if(!XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 			{
 				do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
-				if (screen_index == currscr) particles.draw(temp_buf, true, 1);
-				if (screen_index == currscr) draw_msgstr(2, true);
+				if (screen_index == currscr) particles.draw(framebuf, true, 1);
+				if (screen_index == currscr) draw_msgstr(2);
 			}
 		}
 	});
 
 	// TODO z3 !!!!! recent merge
-	do_primitives(temp_buf, SPLAYER_FFC_DRAW, hero_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_FFC_DRAW, hero_screen, 0, playing_field_offset);
 
 	if(get_qr(qr_LAYER12UNDERCAVE))
 	{
@@ -4523,9 +4511,17 @@ void draw_screen(bool showhero, bool runGeneric)
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 
 	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
-	
+
 	// After this point, we no longer draw to the scrollbuf - so things like dosubscr have access to a "partially rendered" frame.
 	// I think only used for COOLSCROLL==0? Seems like a silly feature...
+
+	//6b. Draw the subscreen, without clipping
+	if(!get_qr(qr_SUBSCREENOVERSPRITES))
+	{
+		bool dotime = false;
+		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
+		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
+	}
 	
 	//3. Draw some sprites onto framebuf
 	set_clip_rect(framebuf,0,0,256,224);
@@ -4698,62 +4694,53 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW, this_screen, 0, playing_field_offset);
 	}
 	
-	//4. Blit framebuf onto temp_buf
-	
-	//you have to do this, because do_layer calls overcombo, which doesn't respect the clipping rectangle, which messes up the triforce curtain. -DD
-	blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
-	
-	//5. Draw some layers onto temp_buf
+	//5. Draw some layers onto framebuf and scrollbuf
+	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
 		mapscr* base_screen = screen_handles[0].base_screen;
 
 		if(!XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
-			do_layer(temp_buf, 0, screen_handles[3], offx, offy, true);
-			if (screen_index == currscr) particles.draw(temp_buf, true, 2);
-			if (screen_index == currscr) draw_msgstr(3, true);
+			do_layer(framebuf, 0, screen_handles[3], offx, offy, true);
+			if (screen_index == currscr) particles.draw(framebuf, true, 2);
+			if (screen_index == currscr) draw_msgstr(3);
 		}
 		
-		do_layer(temp_buf, 0, screen_handles[4], offx, offy, true);
-		//do_primitives(temp_buf, 3, base_screen, 0,playing_field_offset);//don't uncomment me
+		do_layer(framebuf, 0, screen_handles[4], offx, offy, true);
+		//do_primitives(framebuf, 3, base_screen, 0,playing_field_offset);//don't uncomment me
 		
-		if (screen_index == currscr) particles.draw(temp_buf, true, 3);
-		if (screen_index == currscr) draw_msgstr(4, true);
+		if (screen_index == currscr) particles.draw(framebuf, true, 3);
+		if (screen_index == currscr) draw_msgstr(4);
 
-		do_layer(temp_buf, -1, screen_handles[0], offx, offy);
+		do_layer(framebuf, -1, screen_handles[0], offx, offy);
 		if (get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 		{
-			do_layer(temp_buf, -1, screen_handles[1], offx, offy);
-			do_layer(temp_buf, -1, screen_handles[2], offx, offy);
+			do_layer(framebuf, -1, screen_handles[1], offx, offy);
+			do_layer(framebuf, -1, screen_handles[2], offx, offy);
 		}
 	});
 
 	if (!is_extended_height_mode() && is_z3_scrolling_mode() && !get_qr(qr_SUBSCREENOVERSPRITES))
 	{
-		rectfill(temp_buf, 0, 0, 256, playing_field_offset - 1, 0);
+		rectfill(framebuf, 0, 0, 256, playing_field_offset - 1, 0);
 	}
-	do_primitives(temp_buf, SPLAYER_OVERHEAD_CMB, this_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB, this_screen, 0, playing_field_offset);
 	
-	particles.draw(temp_buf, true, -1);
+	particles.draw(framebuf, true, -1);
 	
-	//6. Blit temp_buf onto framebuf with clipping
-	
-	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
-	
-	//6b. Draw the subscreen, without clipping
-	if(!get_qr(qr_SUBSCREENOVERSPRITES))
-	{
-		set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-		bool dotime = false;
-		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
-		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
-	}
+	// //6b. Draw the subscreen, without clipping
+	// if(!get_qr(qr_SUBSCREENOVERSPRITES))
+	// {
+	// 	bool dotime = false;
+	// 	if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
+	// 	put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
+	// }
 	
 	
 	//7. Draw some flying sprites onto framebuf
-	set_clip_rect(framebuf,0,0,256,224);
+	clear_clip_rect(framebuf);
+	// set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	//Jumping Hero and jumping enemies are drawn on this layer.
 	if(Hero.getZ() > (zfix)zinit.jump_hero_layer_threshold)
@@ -4799,22 +4786,18 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
 			items.spr(i)->draw(framebuf);
 	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW, this_screen, 0, playing_field_offset);
-			
-	//8. Blit framebuf onto temp_buf
 	
-	masked_blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
-	
-	//9. Draw some layers onto temp_buf
-	
+	//9. Draw some layers onto framebuf and scrollbuf
+
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	if (lightbeam_present)
 	{
 		color_map = &trans_table2;
 		if(get_qr(qr_LIGHTBEAM_TRANSPARENT))
-			draw_trans_sprite(temp_buf, lightbeam_bmp, 0, playing_field_offset);
+			draw_trans_sprite(framebuf, lightbeam_bmp, 0, playing_field_offset);
 		else 
-			masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
+			masked_blit(lightbeam_bmp, framebuf, 0, 0, 0, playing_field_offset, 256, 176);
 		color_map = &trans_table;
 	}
 
@@ -4823,31 +4806,26 @@ void draw_screen(bool showhero, bool runGeneric)
 
 		if (in_viewport)
 		{
-			do_layer(temp_buf, 0, screen_handles[5], offx, offy, true);
-			if (screen_index == currscr) particles.draw(temp_buf, true, 4);
-			if (screen_index == currscr) draw_msgstr(5, true);
+			do_layer(framebuf, 0, screen_handles[5], offx, offy, true);
+			if (screen_index == currscr) particles.draw(framebuf, true, 4);
+			if (screen_index == currscr) draw_msgstr(5);
 		}
 
 		// overhead freeform combos!
-		do_layer(temp_buf, -4, screen_handles[0], 0, 0);
+		do_layer(framebuf, -4, screen_handles[0], 0, 0);
 
 		if (in_viewport)
 		{
 			// TODO z3 !!! overdraw?? other screens?
 			if (screen_index == currscr)
 			{
-				do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
+				do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
 			}
 			// ---
-			do_layer(temp_buf, 0, screen_handles[6], offx, offy, true);
-			if (screen_index == currscr) particles.draw(temp_buf, true, 5);
+			do_layer(framebuf, 0, screen_handles[6], offx, offy, true);
+			if (screen_index == currscr) particles.draw(framebuf, true, 5);
 		}
 	});
-
-	//10. Blit temp_buf onto framebuf with clipping
-	
-	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	
 	//11. Handle low drawn darkness
 	if(get_qr(qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
@@ -5147,10 +5125,8 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 	  enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
 	  */
 	
-	if(!even_walls&&(door==dWALL||door==dWALK))
-	{
+	if(door == dNONE || (!even_walls&&(door==dWALL||door==dWALK)))
 		return;
-	}
 	
 	int32_t doortype;
 	
@@ -6334,9 +6310,9 @@ static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, 
 {
 	int x = zx.getRound(), y = zy.getRound();
 	int32_t bx = COMBOPOS(x % 256, y % 176);
-	newcombo c = combobuf[s0->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
+	const newcombo& c = combobuf[s0->data[bx]];
+	const newcombo& c1 = combobuf[s1->data[bx]];
+	const newcombo& c2 = combobuf[s2->data[bx]];
 	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
 				   (iswater_type(c2.type))) && DRIEDLAKE);
 	int32_t b=1;
@@ -6426,9 +6402,9 @@ static bool effectflag(int32_t x, int32_t y, int32_t layer)
 	if (!s2->valid) s2 = s0;
 
 	int32_t bx = COMBOPOS(x % 256, y % 176);
-	newcombo c = combobuf[s0->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
+	const newcombo& c = combobuf[s0->data[bx]];
+	const newcombo& c1 = combobuf[s1->data[bx]];
+	const newcombo& c2 = combobuf[s2->data[bx]];
 	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
 				   (iswater_type(c2.type))) && DRIEDLAKE);
 	int32_t b=1;
@@ -6530,40 +6506,40 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, mapscr* s1, m
 	if(!s2) s2 = m;
 	
 	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[m->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
+	const newcombo* c = &combobuf[m->data[bx]];
+	const newcombo* c1 = &combobuf[s1->data[bx]];
+	const newcombo* c2 = &combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				   (iswater_type(c2->type))) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	int32_t cwalkflag = c.walk;
-	if (c1.type == cBRIDGE)
+	int32_t cwalkflag = c->walk;
+	if (c1->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c1.walk & 0xF0)>>4;
-			int newsolid = (c1.walk & 0xF);
+			int efflag = (c1->walk & 0xF0)>>4;
+			int newsolid = (c1->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c1.walk;
+		else cwalkflag &= c1->walk;
 	}
-	else if (s1 != m) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE)
+	else if (s1 != m) cwalkflag |= c1->walk;
+	if (c2->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c2.walk & 0xF0)>>4;
-			int newsolid = (c2.walk & 0xF);
+			int efflag = (c2->walk & 0xF0)>>4;
+			int newsolid = (c2->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c2.walk;
+		else cwalkflag &= c2->walk;
 	}
-	else if (s2 != m) cwalkflag |= c2.walk;
+	else if (s2 != m) cwalkflag |= c2->walk;
 	
 	if((cwalkflag&b) && !dried)
 		return true;
@@ -6576,39 +6552,39 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, mapscr* s1, m
 		b<<=2;
 	else
 	{
-		c  = combobuf[m->data[bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				  (iswater_type(c2.type))) && DRIEDLAKE);
+		c  = &combobuf[m->data[bx]];
+		c1 = &combobuf[s1->data[bx]];
+		c2 = &combobuf[s2->data[bx]];
+		dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
+				  (iswater_type(c2->type))) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
 	
-	cwalkflag = c.walk;
-	if (c1.type == cBRIDGE)
+	cwalkflag = c->walk;
+	if (c1->type == cBRIDGE)
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c1.walk & 0xF0)>>4;
-			int newsolid = (c1.walk & 0xF);
+			int efflag = (c1->walk & 0xF0)>>4;
+			int newsolid = (c1->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c1.walk;
+		else cwalkflag &= c1->walk;
 	}
-	else if (s1 != m) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE) 
+	else if (s1 != m) cwalkflag |= c1->walk;
+	if (c2->type == cBRIDGE) 
 	{
 		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			int efflag = (c2.walk & 0xF0)>>4;
-			int newsolid = (c2.walk & 0xF);
+			int efflag = (c2->walk & 0xF0)>>4;
+			int newsolid = (c2->walk & 0xF);
 			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
 		}
-		else cwalkflag &= c2.walk;
+		else cwalkflag &= c2->walk;
 	}
-	else if (s2 != m) cwalkflag |= c2.walk;
+	else if (s2 != m) cwalkflag |= c2->walk;
 	return (cwalkflag&b) ? !dried : false;
 }
 
@@ -6639,15 +6615,15 @@ bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 	if(!m) return true;
 	
 	int32_t bx = COMBOPOS(x%256, y%176);
-	newcombo c = combobuf[m->data[bx]];
-	bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
+	const newcombo* c = &combobuf[m->data[bx]];
+	bool dried = ((iswater_type(c->type)) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	if((c.walk&b) && !dried)
+	if((c->walk&b) && !dried)
 		return true;
 		
 	if(cnt==1) return false;
@@ -6658,14 +6634,14 @@ bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 		b<<=2;
 	else
 	{
-		c  = combobuf[m->data[bx]];
-		dried = ((iswater_type(c.type)) && DRIEDLAKE);
+		c  = &combobuf[m->data[bx]];
+		dried = ((iswater_type(c->type)) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
 	
-	return (c.walk&b) ? !dried : false;
+	return (c->walk&b) ? !dried : false;
 }
 
 bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt, bool notLink)
@@ -6692,15 +6668,15 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 	if (!m) return true;
 	
 	int32_t bx = COMBOPOS(x%256, y%176);
-	newcombo c = combobuf[m->data[bx]];
-	bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
+	const newcombo* c = &combobuf[m->data[bx]];
+	bool dried = ((iswater_type(c->type)) && DRIEDLAKE);
 	int32_t b=1;
 	
 	if(x&8) b<<=2;
 	
 	if(y&8) b<<=1;
 	
-	if(((c.walk>>4)&b) && !dried)
+	if(((c->walk>>4)&b) && !dried)
 		return true;
 		
 	if(cnt==1) return false;
@@ -6711,14 +6687,14 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 		b<<=2;
 	else
 	{
-		c  = combobuf[m->data[bx]];
-		dried = ((iswater_type(c.type)) && DRIEDLAKE);
+		c  = &combobuf[m->data[bx]];
+		dried = ((iswater_type(c->type)) && DRIEDLAKE);
 		b=1;
 		
 		if(y&8) b<<=1;
 	}
 	
-	return ((c.walk>>4)&b) ? !dried : false;
+	return ((c->walk>>4)&b) ? !dried : false;
 }
 
 bool water_walkflag(int32_t x, int32_t y, int32_t cnt)
@@ -6740,9 +6716,9 @@ bool water_walkflag(int32_t x, int32_t y, int32_t cnt)
 
 bool water_walkflag(int32_t x, int32_t y)
 {
-	newcombo c = combobuf[MAPCOMBO2(-1, x, y)];
-	newcombo c1 = combobuf[MAPCOMBO2(0, x, y)];
-	newcombo c2 = combobuf[MAPCOMBO2(1, x, y)];
+	const newcombo& c = combobuf[MAPCOMBO2(-1, x, y)];
+	const newcombo& c1 = combobuf[MAPCOMBO2(0, x, y)];
+	const newcombo& c2 = combobuf[MAPCOMBO2(1, x, y)];
 
 	int32_t b=1;
 	if(x&8) b<<=2;
@@ -7122,11 +7098,17 @@ void toggle_gswitches_load(mapscr* base_screen, int screen_index)
 void run_gswitch_timers()
 {
 	bool states[256] = {false};
-	for(auto q = 0; q < 256; ++q)
+	auto& m = game->gswitch_timers.mut_inner();
+	for(auto it = m.begin(); it != m.end();)
 	{
-		if(game->gswitch_timers[q] > 0)
-			if(!--game->gswitch_timers[q])
-				states[q] = true;
+		if(it->second > 0)
+			if(!--it->second)
+			{
+				states[it->first] = true;
+				it = m.erase(it);
+				continue;
+			}
+		++it;
 	}
 	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		toggle_gswitches(states, false, screen, screen_index);

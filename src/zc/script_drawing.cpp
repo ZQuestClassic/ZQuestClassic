@@ -9590,33 +9590,13 @@ void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transpar
 		const int32_t x2 = ((i&15)<<4) + x;
 		const int32_t y2 = (i&0xF0) + y;
 		
-		//const newcombo & c = combobuf[ m.data[i] ];
-		/*
-		newcombo c = combobuf[m.data[i]];
-		int32_t csets[4];
-		int32_t cofs = c.csets&15;
-		
-		if(cofs&8)
-			cofs |= ~int32_t(0xF);
-			
-		for(int32_t i=0; i<4; ++i)
-			csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
-	
-	
-		const int32_t tile = combo_tile(c, x2, y2);
-		*/
-		
 		if(transparent)
 		{
-			//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
 			overcomboblocktranslucent(b, x2, y2, m.data[i], m.cset[i], 1, 1, 128);
-			//overtiletranslucent16(b, tile, x2, y2, m.cset[i], c.flip, 128);
 		}
 		else
 		{
-			//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
 			overcomboblock(b, x2, y2, m.data[i], m.cset[i], 1, 1);
-			//overtile16(b, tile, x2, y2, m.cset[i], c.flip);
 		}
 	}
 }
@@ -9630,12 +9610,6 @@ void draw_map_solidity(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 		const int32_t x2 = ((i&15)<<4) + x;
 		const int32_t y2 = (i&0xF0) + y;
 		//Blit the palette index of the solidity value.
-		//int32_t col = (combobuf[m.data[i]].walk&15);
-		//if ( col != 0 ) 
-		//{
-		//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
-		//	
-		//}
 		clear_to_color(square,(combobuf[m.data[i]].walk&15));
 		if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
 		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);

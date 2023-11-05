@@ -45,6 +45,7 @@ void ditherrectfill(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2
 void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color);
 void ditherLampCone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs=0, int32_t yoffs=0);
 
+void monocolor(BITMAP* dest, byte col, byte transp_passes = 0);
 void replColor(BITMAP* dest, byte col, byte startCol, byte endCol, bool shift);
 void replColors(BITMAP* dest, std::vector<byte> srcCol, std::vector<byte> dstCol);
 int32_t countColor(BITMAP* src, BITMAP* mask, int32_t x, int32_t y, int32_t checkCol, int32_t maskCol);

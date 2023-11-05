@@ -321,6 +321,11 @@ int32_t main(int32_t argc, char **argv)
 	ConsoleWrite = cph;
 	// We only need to initialize allegro to read config files. We could still trace without this.
 	// TODO: figure out how to drop this.
+	if(!al_init())
+	{
+		zconsole_error("%s", "Failed Init!");
+		abort();
+	}
 	if(allegro_init() != 0)
 	{
 		zconsole_error("%s", "Failed Init!");
@@ -361,6 +366,7 @@ int32_t main(int32_t argc, char **argv)
 			uint8_t nib1 = (ch1 & 0xF) + (ch1 >> 6) | ((ch1 >> 3) & 0x8);
 			quest_rules[i] = (nib0 << 4) | nib1;
 		}
+		unpack_qrs();
 	}
 
 	std::string script_path = argv[script_path_index + 1];

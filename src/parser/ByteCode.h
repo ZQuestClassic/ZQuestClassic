@@ -1484,12 +1484,12 @@
 #define MUSICUPDATEFLAGS        1398
 #define DMAPDATAINTROSTRINGID   1399
 #define IS8BITTILE              1400
-#define RESRVD_VAR_MOOSH09      1401
-#define RESRVD_VAR_MOOSH10      1402
-#define RESRVD_VAR_MOOSH11      1403
-#define RESRVD_VAR_MOOSH12      1404
-#define RESRVD_VAR_MOOSH13      1405
-#define RESRVD_VAR_MOOSH14      1406
+#define NPCFLICKERCOLOR         1401
+#define HEROFLICKERCOLOR        1402
+#define NPCFLASHINGCSET         1403
+#define HEROFLASHINGCSET        1404
+#define NPCFLICKERTRANSP        1405
+#define HEROFLICKERTRANSP       1406
 #define RESRVD_VAR_MOOSH15      1407
 #define RESRVD_VAR_MOOSH16      1408
 #define RESRVD_VAR_MOOSH17      1409
@@ -1731,7 +1731,10 @@
 #define SCREENDATAGUYCOUNT      1631
 #define MAPDATAGUYCOUNT         1632
 
-#define LAST_BYTECODE           1633
+#define ITEMNOSOUND             1633
+#define ITEMNOHOLDSOUND         1634
+
+#define LAST_BYTECODE           1635
 
 //} END OF BYTECODE
 
@@ -2342,6 +2345,15 @@ namespace ZScript
 			return new ONPCCanPlace();
 		}
 	};
+	class ONPCIsFlickerFrame : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ONPCIsFlickerFrame();
+		}
+	};
 	class OItemGetDispName : public UnaryOpcode
 	{
 	public:
@@ -2406,6 +2418,15 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OHeroLiftGrab();
+		}
+	};
+	class OHeroIsFlickerFrame : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OHeroIsFlickerFrame();
 		}
 	};
 	class OLoadPortalRegister : public UnaryOpcode

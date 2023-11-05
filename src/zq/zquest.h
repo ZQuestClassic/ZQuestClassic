@@ -49,7 +49,7 @@ extern int32_t RulesetDialog;
 extern bool disable_saving, OverwriteProtection;
 extern int32_t TileProtection;
 
-extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
+extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage;
 extern int32_t DMapEditorLastMaptileUsed;
 
 enum
@@ -194,6 +194,7 @@ extern word door_combo_set_count;
 extern int32_t LeechUpdate;
 extern int32_t LeechUpdateTiles;
 extern int32_t SnapshotFormat;
+extern byte SnapshotScale;
 extern int32_t memrequested;
 extern byte Color;
 

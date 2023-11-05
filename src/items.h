@@ -30,6 +30,7 @@ public:
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
     int32_t screen_index_spawned;
+    bool dummy;
     int32_t o_tile,o_cset, o_speed, o_delay, frames;
     int32_t fairyUID;
     word pstring; //pickup string
@@ -41,6 +42,8 @@ public:
 	bool is_dragged;
 	int16_t from_dropset;
 	int8_t pickupexstate;
+	bool noSound;
+	bool noHoldSound;
 
 //Linker errors because this is shared with zquest. :( -Z
     #ifndef IS_EDITOR

@@ -90,6 +90,8 @@ void zprint2(const char * const format, ...);
 // zelda.cc
 void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid);
 void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentitem, int32_t parentid, byte script_gen);
+bool is_hitflickerframe_hero();
+bool is_hitflickerframe();
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true, bool force = false);
 void centerHero();
 zfix  HeroX();
@@ -262,7 +264,7 @@ extern COLOR_MAP trans_table, trans_table2;
 extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
                 *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf,
 				*msg_menu_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3],
-				*temp_buf, *temp_buf2, *prim_bmp,
+				*temp_buf2, *prim_bmp,
 				*script_menu_buf, *f6_menu_buf;
 extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr, *darkscr_bmp_z3,
                 *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans, *darkscr_bmp_z3_trans;
@@ -412,6 +414,7 @@ extern solid_object* switching_object;
 extern byte COOLSCROLL;
 
 extern int32_t SnapshotFormat, NameEntryMode;
+extern byte SnapshotScale;
 
 extern int32_t add_asparkle, add_bsparkle;
 

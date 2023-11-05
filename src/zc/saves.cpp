@@ -707,6 +707,10 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			if(!game.get_cont_percent())
 				game.set_cont_hearts(game.get_cont_hearts()*game.get_hp_per_heart());
 		}
+		if (section_version < 38)
+		{
+			game.set_spriteflickerspeed(1);
+		}
 
 		game.header.life = game.get_life();
 		game.header.maxlife = game.get_maxlife();
@@ -1844,6 +1848,19 @@ static void update_icon(int index)
 	int32_t tileind = t ? t : 28;
 	
 	byte *si = newtilebuf[tileind].data;
+
+	byte temp_tile[128];
+	if (newtilebuf[tileind].format==tf4Bit)
+	{
+		byte *di = temp_tile;
+		byte *src = newtilebuf[tileind].data;
+		for (int32_t si=0; si<256; si+=2)
+		{
+			*di = (src[si]&15) + ((src[si+1]&15) << 4);
+			++di;
+		}
+		si = temp_tile;
+	}
 	
 	if(newtilebuf[tileind].format==tf8Bit)
 	{
@@ -2118,7 +2135,7 @@ int saves_do_first_time_stuff(int index)
 
 	if (!save->game->get_hasplayed())
 	{
-		save->game->set_quest(0xFF);
+		save->game->set_quest(save->game->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF);
 
 		// Try to make relative to qstdir.
 		// TODO: this is a weird place to do this.

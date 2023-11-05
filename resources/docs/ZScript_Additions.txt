@@ -4945,6 +4945,12 @@ bool ForceGrab;
  *  -immune to being deleted by any means (including scrolling, warps, etc)
  *  -will be picked up by the player as though they stepped on it as soon as possible
  * Some engine effects may set this to true; this value is read/write to scripts.
+ 
+bool NoSound;			
+ * If true, picking up the item does not play it's usual pickup sound assigned in the item editor. Does not affect holdup sound.
+
+bool NoHoldSound;			
+ * If true, picking up the item does not play the screen's holdup sound. Does not affect the usual pickup sound assigned in the item editor.
 
 bool Switch(int effect);
  * Switch the player with this object
@@ -5568,6 +5574,26 @@ untyped Misc[32];
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
 
+int FlashingCSet;
+ * This returns the enemy's current displayed cset when taking damage or invincible. If not in one of these states, will return its normal cset.
+ * If called before Waitdraw() / enemy update, results may be off by a frame.
+ * If the quest rule 'Enemies Flicker When Hit' is checked, this is unused.
+
+bool isFlickerFrame();
+ * This returns true if the enemy is currently in a flicker frame (either invisible or color masked).
+ * If called before Waitdraw() / enemy update, results may be off by a frame.
+ * If the quest rule 'Enemies Flicker When Hit' is unchecked, this is unused.
+
+int FlickerColor;
+ * This sets what color the enemy is drawn when flickering.
+ * If -1, will use the default from Init Data.
+ * If the quest rule 'Enemies Flicker When Hit' is unchecked, this is unused.
+
+int FlickerTransparencyPasses;
+ * This sets how many times the transparency effect is applied to the enemy's flicker effect.
+ * If -1, will use the default from Init Data. If 0, will use a solid color.
+ * If the quest rule 'Enemies Flicker When Hit' is unchecked, this is unused.
+
 int InvFrames;				
  * Returns the number of remaining invincibility frames if the enemy is invincible, otherwise 0. 
 
@@ -5926,6 +5952,26 @@ int ScriptFlip;
 
 bool DisableItem[256];
  * An array of 256 values that represents whether items are disabled on the current DMap.
+
+int FlashingCSet;
+ * This returns Link's current displayed cset when taking damage or invincible. If not in one of these states, will return his normal cset.
+ * If called before Waitdraw() / player update, results may be off by a frame.
+ * If the quest rule 'Invincible Player Flickers' is checked, this is unused.
+
+bool isFlickerFrame();
+ * This returns true if Link is currently in a flicker frame (either invisible or color masked).
+ * If called before Waitdraw() / player update, results may be off by a frame.
+ * If the quest rule 'Invincible Player Flickers' is unchecked, this is unused.
+
+int FlickerColor;
+ * This sets what color Link is drawn when flickering.
+ * If -1, will use the default from Init Data.
+ * If the quest rule 'Invincible Player Flickers' is unchecked, this is unused.
+
+int FlickerTransparencyPasses;
+ * This sets how many times the transparency effect is applied to Link's flicker effect.
+ * If -1, will use the default from Init Data. If 0, will use a solid color.
+ * If the quest rule 'Invincible Player Flickers' is unchecked, this is unused.
 
 int InvFrames;				 
  * This returns how long Link will remain invincible, 0 if not invincible. Can be set. 

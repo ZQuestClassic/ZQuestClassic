@@ -70,40 +70,37 @@ int32_t get_conveyor(int32_t x, int32_t y)
 {
 	x = vbound(x, 0, world_w - 1);
 	y = vbound(y, 0, world_h - 1);
-	int32_t cmbid = MAPCOMBO(x,y);
-	newcombo const* cmb = &combobuf[cmbid];
-	if (!_effectflag(x,y,1,-1, true))
+	int maxlayer = get_qr(qr_CONVEYORS_ALL_LAYERS) ? 6 : (get_qr(qr_CONVEYORS_L1_L2) ? 2 : 0);
+	int pos = COMBOPOS(x,y);
+	int found_layer = -1;
+	int cmbid = -1;
+	int ffcid = MAPFFCOMBO(x,y);
+	if(maxlayer == 6 && ffcid && is_conveyor(combobuf[ffcid].type))
 	{
-		cmbid = -1;
-		cmb = NULL;
+		cmbid = ffcid;
+		found_layer = 999;
 	}
-	if(get_qr(qr_CONVEYORS_L1_L2))
-		for (int32_t i = 0; i <= 1; ++i)
+	else for(int q = maxlayer; q >= 0; --q)
+	{
+		mapscr* layer_scr = get_layer_scr_for_xy(x, y, q);
+		if (!layer_scr->valid) continue;
+
+		int cid = layer_scr->data[pos];
+		if(is_conveyor(combobuf[cid].type)
+			&& _effectflag_layer(x,y,1,layer_scr,true))
 		{
-			mapscr* layer_scr = get_layer_scr_for_xy(x, y, i);
-			if (!layer_scr->valid) continue;
-			
-			auto tcid = MAPCOMBO2(i,x,y);
-			if(is_conveyor(combobuf[tcid].type))
-			{
-				if (_effectflag_layer(x,y,1,layer_scr,true))
-				{
-					cmbid = tcid;
-					cmb = &combobuf[tcid];
-				}
-				else
-				{
-					cmbid = -1;
-					cmb = NULL;
-				}
-			}
+			found_layer = q;
+			cmbid = cid;
+			break;
 		}
-	if(!cmb) return -1;
-	bool custom_spd = (cmb->usrflags&cflag2);
+	}
+	if(cmbid < 0) return -1;
+
+	newcombo const& cmb = combobuf[cmbid];
+	bool custom_spd = (cmb.usrflags&cflag2);
 	if(custom_spd || conveyclk<=0)
 	{
-		int32_t ctype=cmb->type;
-		for (int32_t i = 0; i <= 1; ++i)
+		for (int i = found_layer; i <= 1; ++i)
 		{
 			auto tcid = MAPCOMBO2(i,x,y);
 			if(combobuf[tcid].type == cBRIDGE)
@@ -118,7 +115,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 				}
 			}
 		}
-		auto rate = custom_spd ? zc_max(cmb->attribytes[0], 1) : 3;
+		auto rate = custom_spd ? zc_max(cmb.attribytes[0], 1) : 3;
 		if(custom_spd && (newconveyorclk % rate)) return -1;
 		return cmbid;
 	}

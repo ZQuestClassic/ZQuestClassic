@@ -228,7 +228,14 @@ static AccessorTable npcTable[] =
 	{ "setShadowXOffset",           0,          ZTID_VOID,   NPCSHADOWXOFS,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getShadowYOffset",           0,         ZTID_FLOAT,   NPCSHADOWYOFS,             0,  { ZTID_NPC },{} },
 	{ "setShadowYOffset",           0,          ZTID_VOID,   NPCSHADOWYOFS,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
-	
+	{ "getFlickerColor",            0,         ZTID_FLOAT,   NPCFLICKERCOLOR,           0,  { ZTID_NPC },{} },
+	{ "setFlickerColor",            0,          ZTID_VOID,   NPCFLICKERCOLOR,           0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFlickerTransparencyPasses",  0,         ZTID_FLOAT,   NPCFLICKERTRANSP,          0,  { ZTID_NPC },{} },
+	{ "setFlickerTransparencyPasses",  0,          ZTID_VOID,   NPCFLICKERTRANSP,          0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFlashingCSet",            0,         ZTID_FLOAT,   NPCFLASHINGCSET,           0,  { ZTID_NPC },{} },
+	{ "setFlashingCSet",            0,          ZTID_VOID,   NPCFLASHINGCSET,   FL_RDONLY,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "isFlickerFrame",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC },{} },
+
 	//Not yet implemented
 	{ "getFrozen",                  0,         ZTID_FLOAT,   NPCFROZEN,                 0,  { ZTID_NPC },{} },
 	{ "setFrozen",                  0,          ZTID_VOID,   NPCFROZEN,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
@@ -761,6 +768,17 @@ void NPCSymbols::generateCode()
 		addOpcode2 (code, new ONPCCanPlace());
 		LABELBACK(label);
 		POP_ARGS(7, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool isFlickerFrame(npc)
+	{
+		Function* function = getFunction("isFlickerFrame");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		POPREF();
+		addOpcode2(code, new ONPCIsFlickerFrame());
+		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}

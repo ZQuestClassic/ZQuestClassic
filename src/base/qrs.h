@@ -181,7 +181,7 @@ enum
 	qr_NO_BUTTON_VERIFY, qr_OLD_GAUGE_TILE_LAYOUT, qr_WALKTHROUGHWALL_NO_DOORSTATE, qr_SPOTLIGHT_IGNR_SOLIDOBJ,
 	qr_BROKEN_LIGHTBEAM_HITBOX, qr_BROKEN_SWORD_SPIN_TRIGGERS, qr_SCRIPT_CONTHP_IS_HEARTS, qr_MULTI_PLATFORM_FFC,
 	//54
-	qr_SEPARATE_BOMBABLE_TAPPING_SFX,
+	qr_SEPARATE_BOMBABLE_TAPPING_SFX, qr_BROKEN_BOMB_AMMO_COSTS, qr_CONVEYORS_ALL_LAYERS,
 	//EMILY SPOT
 	//60
 	//CONNOR SPOT qr_ = 60*8,
@@ -238,8 +238,10 @@ enum //Rule Templates
 	sz_ruletemplate
 };
 
-bool get_qr(int index,byte* qrptr = nullptr);
-void set_qr(int index,bool state,byte* qrptr = nullptr);
+void unpack_qrs();
+extern bool _qrs_unpacked[qr_MAX];
+#define get_qr(index) (_qrs_unpacked[index])
+void set_qr(int index,bool state, byte* qrptr = nullptr);
 bool get_er(int index);
 void set_er(int index,bool state);
 //Want to move these here, but looks complicated...

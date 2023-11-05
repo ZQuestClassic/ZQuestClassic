@@ -615,7 +615,7 @@ int32_t DuplicateAction[4]={0};
 int32_t OnlyCheckNewTilesForDuplicates = 0;
 int32_t try_recovering_missing_scripts = 0;
 
-uint8_t PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0;
+uint8_t PreFillTileEditorPage = 0, PreFillComboEditorPage = 0;
 int32_t DMapEditorLastMaptileUsed = 0;
 
 /*
@@ -626,6 +626,7 @@ word msg_count = 0;
 int32_t LeechUpdate = 0;
 int32_t LeechUpdateTiles = 0;
 int32_t SnapshotFormat = 0;
+byte SnapshotScale = 0;
 
 int32_t memrequested = 0;
 byte Color = 0;
@@ -1235,6 +1236,7 @@ int32_t onZScriptSettings()
 	{
 		saved = false;
 		memcpy(quest_rules, newrules, QR_SZ);
+		unpack_qrs();
 	}).show();
 	return D_O_K;
 }
@@ -1448,6 +1450,7 @@ void set_rules(byte* newrules)
 	saved = false;
 	if(newrules != quest_rules)
 		memcpy(quest_rules, newrules, QR_SZ);
+	unpack_qrs();
 	if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
 	{
 		combobuf[0].walk = 0xF0;
@@ -14646,6 +14649,7 @@ int32_t onScreenPalette()
 	large_dialog(screen_pal_dlg);
 	auto old_valid = Map.CurrScr()->valid;
 	pause_dlg_tint(true);
+	zq_set_screen_never_freeze(true);
 	while(true)
 	{
 		auto ret = do_zqdialog(screen_pal_dlg,2);
@@ -14672,6 +14676,7 @@ int32_t onScreenPalette()
 		}
 	}
 	pause_dlg_tint(false);
+	zq_set_screen_never_freeze(false);
 	
 	rebuild_trans_table();
 	
@@ -19996,18 +20001,8 @@ int32_t d_maptile_proc(int32_t msg, DIALOG *d, int32_t)
     switch(msg)
     {
     case MSG_CLICK:
-        if ( PreFillMapTilePage )
-	{
-		DMapEditorLastMaptileUsed = ((select_dmap_tile(d->d1,d->d2,1,d->fg,true, 0, true))-1);
+        if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
 		return D_REDRAW;
-	}
-        else
-	{
-		if(select_tile(d->d1,d->d2,1,d->fg,true, 0, true))
-		return D_REDRAW;
-	}
-            
-        break;
 	
     case MSG_DRAW:
     {
@@ -27881,6 +27876,7 @@ int32_t main(int32_t argc,char **argv)
 	CmbPgCursorCol					  = zc_get_config("zquest","cpage_cursor_color",15);
 	TTipHLCol					  = zc_get_config("zquest","ttip_hl_color",13);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
+	SnapshotScale				 = zc_get_config("zquest","snapshot_scale",2);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
 	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
@@ -27926,10 +27922,9 @@ int32_t main(int32_t argc,char **argv)
 	RequestedFPS				  = zc_get_config("zquest","fps",60);
 	ForceExit					 = zc_get_config("zquest","force_exit",0);
 	
-	//Combo Page, Tile Page, an Map Tile Page Autofill
+	// Autofill for Combo Page, Tile Page
 	PreFillTileEditorPage	  = zc_get_config("zquest","PreFillTileEditorPage",0);
 	PreFillComboEditorPage	  = zc_get_config("zquest","PreFillComboEditorPage",0);
-	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
 	
 	pixeldb = zc_get_config("ZQ_GUI","bottom_8_pixels",0);
 	infobg = zc_get_config("ZQ_GUI","info_text_bg",0);
@@ -28119,7 +28114,7 @@ int32_t main(int32_t argc,char **argv)
 	zq_screen_h = LARGE_H;
 	window_width = zc_get_config("zquest","window_width",-1);
 	window_height = zc_get_config("zquest","window_height",-1);
-	auto [w, h] = zc_get_default_display_size(LARGE_W/2, LARGE_H/2, window_width, window_height);
+	auto [w, h] = zc_get_default_display_size(LARGE_W, LARGE_H, window_width, window_height);
 	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,w,h,zq_screen_w,zq_screen_h));
 
 	//extra block here is intentional
@@ -28181,12 +28176,6 @@ int32_t main(int32_t argc,char **argv)
 #endif
 	}
 #endif
-
-	//check and log RTC date and time
-	for (int32_t q = 0; q < curTimeLAST; q++) 
-	{
-		int32_t t_time_v = FFCore.getTime(q);
-	}
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
@@ -28294,17 +28283,6 @@ int32_t main(int32_t argc,char **argv)
 #endif
 
 #endif
-	
-	// A bit of festivity
-	{
-		time_t rawtime;
-		time(&rawtime);
-		
-		if(strncmp(ctime(&rawtime)+4,"Jan  1",6)==0)
-		{
-			jwin_alert("Hooray!", "Happy New Year!", NULL, NULL, "OK", NULL, 0, 0, get_zc_font(font_lfont));
-		}
-	}
 	
 	load_icons();
 	

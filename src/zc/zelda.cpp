@@ -246,7 +246,7 @@ COLOR_MAP trans_table, trans_table2;
 
 BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
-		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
+		   *pricesdisplaybuf, *tb_page[3], *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
 DATAFILE   *sfxdata, *fontsdata, *mididata;
@@ -388,6 +388,7 @@ byte COOLSCROLL = 0;
 
 int32_t  add_asparkle=0, add_bsparkle=0;
 int32_t SnapshotFormat, NameEntryMode=0;
+byte SnapshotScale;
 
 char   zeldadat_sig[52]={0};
 char   sfxdat_sig[52]={0};
@@ -4883,7 +4884,6 @@ int main(int argc, char **argv)
 	//set_color_conversion(COLORCONV_24_TO_8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	menu_bmp  = create_bitmap_ex(8,640,480);
-	temp_buf  = create_bitmap_ex(8,256,224);
 	// TODO: old scrolling code is silly and needs a big scrollbuf bitmap.
 	scrollbuf_old = create_bitmap_ex(8,512,406);
 	scrollbuf = create_bitmap_ex(8,256,176+56);
@@ -5164,16 +5164,16 @@ int main(int argc, char **argv)
 		if(resy < 240) resy = 240;
 	}
 
-	auto [w, h] = zc_get_default_display_size(256, 240, resx, resy);
+	zq_screen_w = 640;
+	zq_screen_h = 480;
+
+	auto [w, h] = zc_get_default_display_size(zq_screen_w, zq_screen_h, resx, resy);
 	resx = w;
 	resy = h;
 
 	// TODO: consolidate "resx" and "resy" variables with window_width,height.
 	// window_width = resx;
 	// window_height = resy;
-
-	zq_screen_w = 640;
-	zq_screen_h = 480;
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{

@@ -53,7 +53,6 @@ import subprocess
 import os
 import sys
 import re
-import difflib
 import heapq
 import pathlib
 import platform
@@ -208,6 +207,8 @@ parser.add_argument('--throttle_fps', action='store_true',
     help='Supply this to cap the replay\'s FPS')
 parser.add_argument('--retries', type=int, default=0,
     help='The number of retries (default 0) to give each replay')
+parser.add_argument('-c', '--concurrency', type=int,
+    help='How many replays to run concurrently. If not value not provided, will be set based on the number of available CPU cores (unless --show or --no-headless is used, in which case the value will be set to 1).')
 parser.add_argument('--jit', action=argparse.BooleanOptionalAction, default=True,
     help='Enables JIT compilation')
 parser.add_argument('--debugger', action=argparse.BooleanOptionalAction, default=is_ci,
@@ -239,6 +240,7 @@ int_group.add_argument('--ci', nargs='?',
     help='Special arg meant for CI behaviors')
 int_group.add_argument('--shard')
 int_group.add_argument('--print_shards', action='store_true')
+int_group.add_argument('--prune_test_results', action='store_true')
 
 parser.add_argument('replays', nargs='*',
     help='If provided, will only run these replays rather than those in tests/replays')
@@ -380,18 +382,32 @@ grouped_max_duration_arg = group_arg(args.max_duration)
 grouped_snapshot_arg = group_arg(args.snapshot, allow_concat=True)
 grouped_frame_arg = group_arg(args.frame)
 
-if is_web:
-    concurrency = 1
-elif is_ci:
-    concurrency = os.cpu_count()
-    # In GHA for Windows there are 2 CPUs, but only on Windows does running concurrently result
-    # in random failures related to not being able to read the result.txt file.
-    # For now, disable.
-    if platform.system() == 'Windows':
-        concurrency = 1
+if args.concurrency:
+    concurrency = args.concurrency
 else:
-    concurrency = max(1, os.cpu_count() - 4)
-print(f'found {os.cpu_count()} cpus, setting concurrency to {concurrency}')
+    if is_web or not args.headless:
+        concurrency = 1
+    elif is_ci:
+        concurrency = os.cpu_count()
+        # In GHA for Windows there are 2 CPUs, but only on Windows does running concurrently result
+        # in random failures related to not being able to read the result.txt file.
+        # For now, disable.
+        if platform.system() == 'Windows':
+            concurrency = 1
+    else:
+        concurrency = max(1, os.cpu_count() - 4)
+    print(f'found {os.cpu_count()} cpus, setting concurrency to {concurrency}')
+
+if is_web:
+    print('starting webserver')
+    webserver_p = subprocess.Popen([
+        'python', root_dir / 'scripts/webserver.py',
+        '--dir', args.build_folder / 'packages/web',
+    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    while webserver_p.poll() == None:
+        if 'Served by' in webserver_p.stdout.readline():
+            break
+    print('webserver started')
 
 
 def apply_test_filter(filter: str):
@@ -548,6 +564,7 @@ def get_replay_data(file):
     return {
         'frames': frames,
         'frames_limited': round(frames_limited),
+        'frame_arg': frame_arg,
         'estimated_fps': estimated_fps,
         'estimated_duration': estimated_duration,
     }
@@ -729,7 +746,7 @@ class WebPlayerInterface:
 
         exe_args = [
             'node', root_dir / 'web/tests/run_replay.js',
-            args.build_folder,
+            'http://localhost:8000',
             output_dir,
             url,
         ]
@@ -770,7 +787,7 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
 
     replay_data = get_replay_data(replay_file)
-    frame_arg = replay_data['frames_limited']
+    frame_arg = replay_data['frame_arg']
 
     # Cap the duration in CI, in case it somehow never ends.
     do_timeout = True if args.ci else False
@@ -783,8 +800,6 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
     timeout = 60
     if replay_file.name == 'yuurand.zplay':
         timeout = 180
-    if is_web:
-        timeout *= 2
 
     if is_web:
         player_interface = WebPlayerInterface()
@@ -898,28 +913,8 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
                 player_interface.wait_for_finish()
             clear_progress_str()
 
-    if not args.update and player_interface.get_exit_code() == ASSERT_FAILED_EXIT_CODE:
-        if roundtrip_path.exists():
-            with open(replay_file) as f:
-                fromlines = f.readlines()
-            with open(roundtrip_path) as f:
-                tolines = f.readlines()
-            diff_iter = difflib.context_diff(
-                fromlines, tolines,
-                replay_file.name,
-                roundtrip_path.name,
-                n=3)
-            trimmed_diff_lines = [x for _, x in zip(range(100), diff_iter)]
-            result.diff = ''.join(trimmed_diff_lines)
-        else:
-            result.diff = 'missing roundtrip file, cannnot diff'
-
     yield (key, 'finish', result)
 
-
-if test_results_dir.exists():
-    shutil.rmtree(test_results_dir)
-test_results_dir.mkdir(parents=True)
 
 test_results = ReplayTestResults(
     runs_on=runs_on,
@@ -1142,7 +1137,7 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
                     if len(lines) > rows - 1:
                         break
                 for test in pending_tests:
-                    lines.append(('…', 3, get_replay_name(test)))
+                    lines.append(('…', 3, replay_log_names[test.name]))
                     if len(lines) > rows - 1:
                         break
 
@@ -1182,73 +1177,6 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
     return [r for r in results if r]
 
 
-print(f'running {len(tests)} replays\n')
-iteration_count = 0
-for i in range(args.retries + 1):
-    if i == 0:
-        tests_remaining = tests
-    else:
-        tests_remaining = [replays_dir / r.name for r in test_results.runs[-1] if not r.success]
-    if not tests_remaining:
-        break
-    if i != 0:
-        print('\nretrying failures...\n')
-
-    runs_dir = test_results_dir / str(i)
-
-    results = run_replay_tests(tests_remaining, runs_dir)
-    test_results.runs.append(results)
-
-    for result in results:
-        test = result.name
-        run_dir = runs_dir / result.directory
-
-        # Only print on failure and last attempt.
-        if (not result.success or result.exceptions) and i == args.retries:
-            print(f'failure: {result.name}')
-
-            if result.exceptions:
-                print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
-
-            def print_nicely(title: str, path: pathlib.Path):
-                if not path.exists():
-                    return
-
-                title = f' {title} '
-                length = len(title) * 2
-                print()
-                print('=' * length)
-                print(title.center(length, '='))
-                print('=' * length)
-                print()
-                sys.stdout.buffer.write(path.read_bytes())
-
-            print_nicely('STDOUT', run_dir / 'stdout.txt')
-            print_nicely('STDERR', run_dir / 'stderr.txt')
-            print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
-            if result.diff:
-                print('\ndiff:')
-                print(result.diff)
-
-
-test_results_path.write_text(test_results.to_json())
-
-if is_ci:
-    # Only keep the images of the last run of each replay.
-    replay_runs: List[RunResult] = []
-    for runs in reversed(test_results.runs):
-        for run in runs:
-            if any(r for r in replay_runs if r.name == run.name):
-                continue
-            replay_runs.append(run)
-
-    for runs in test_results.runs:
-        for run in runs:
-            if run not in replay_runs:
-                for png in (test_results_dir / run.directory).glob('*.png'):
-                    png.unlink()
-
-
 def prompt_for_gh_auth():
     print('Select the GitHub repo:')
     repos = ['ZQuestClassic/ZQuestClassic', 'connorjclark/ZeldaClassic']
@@ -1272,7 +1200,6 @@ def prompt_for_gh_auth():
 def get_recent_release_tag(match: str):
     command = f'git describe --tags --abbrev=0 --match {match} main'
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
-
 
 def prompt_to_create_compare_report():
     if not cutie.prompt_yes_or_no('Would you like to generate a compare report?', default_is_yes=True):
@@ -1349,12 +1276,15 @@ def prompt_to_create_compare_report():
             zc_app_path = next(build_dir.glob('*.app'))
             build_dir = zc_app_path / 'Contents/Resources'
 
+        if local_baseline_dir.exists():
+            shutil.rmtree(local_baseline_dir)
         command_args = [
             sys.executable,
             str(root_dir / 'tests/run_replay_tests.py'),
             '--replay',
             '--build_folder', str(build_dir),
             '--test_results_folder', str(local_baseline_dir),
+            '--retries=2',
             *get_args_for_collect_baseline_from_test_results([test_results_path]),
         ]
         if not args.jit:
@@ -1393,6 +1323,88 @@ def is_known_failure_test(run: RunResult):
     return False
 
 
+if test_results_dir.exists() and next(test_results_dir.rglob('test_results.json'), None):
+    test_results_path = next(test_results_dir.rglob('test_results.json'))
+    print('found existing test results at provided path')
+    if is_ci:
+        print('this is unexpected')
+        exit(1)
+    prompt_to_create_compare_report()
+    exit(0)
+
+if test_results_dir.exists():
+    shutil.rmtree(test_results_dir)
+test_results_dir.mkdir(parents=True)
+
+print(f'running {len(tests)} replays\n')
+iteration_count = 0
+for i in range(args.retries + 1):
+    if i == 0:
+        tests_remaining = tests
+    else:
+        tests_remaining = [replays_dir / r.name for r in test_results.runs[-1] if not r.success]
+    if not tests_remaining:
+        break
+    if i != 0:
+        print('\nretrying failures...\n')
+
+    runs_dir = test_results_dir / str(i)
+
+    results = run_replay_tests(tests_remaining, runs_dir)
+    test_results.runs.append(results)
+
+    for result in results:
+        test = result.name
+        run_dir = runs_dir / result.directory
+
+        # Only print on failure and last attempt.
+        if (not result.success or result.exceptions) and i == args.retries:
+            print(f'failure: {result.name}')
+
+            if result.exceptions:
+                print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
+
+            def print_nicely(title: str, path: pathlib.Path):
+                if not path.exists():
+                    return
+
+                title = f' {title} '
+                length = len(title) * 2
+                print()
+                print('=' * length)
+                print(title.center(length, '='))
+                print('=' * length)
+                print()
+                sys.stdout.buffer.write(path.read_bytes())
+
+            print_nicely('STDOUT', run_dir / 'stdout.txt')
+            print_nicely('STDERR', run_dir / 'stderr.txt')
+            print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
+
+
+if args.prune_test_results:
+    # Only keep the last run of each replay.
+    replay_runs: List[RunResult] = []
+    for runs in reversed(test_results.runs):
+        for run in runs:
+            if any(r for r in replay_runs if r.name == run.name):
+                continue
+            replay_runs.append(run)
+
+    for runs in test_results.runs:
+        for run in runs:
+            if run not in replay_runs:
+                shutil.rmtree(test_results_dir / run.directory)
+
+    test_results.runs = [replay_runs]
+
+    # These are huge and not necessary for the compare report.
+    for file in test_results_dir.rglob('*.zplay.roundtrip'):
+        file.unlink()
+
+test_results_path.write_text(test_results.to_json())
+
+
 def should_consider_failure(run: RunResult):
     if is_known_failure_test(run):
         return False
@@ -1408,6 +1420,8 @@ def should_consider_failure(run: RunResult):
 
     return False
 
+if is_web:
+    webserver_p.kill()
 
 failing_replays = [r.name for r in test_results.runs[-1] if should_consider_failure(r)]
 if mode == 'assert':

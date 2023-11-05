@@ -858,6 +858,33 @@ void gamedata::set_switchhookstyle(byte val)
 	set_generic(val, genSWITCHSTYLE);
 }
 
+byte gamedata::get_spriteflickerspeed()
+{
+	return get_generic(genSPRITEFLICKERSPEED);
+}
+void gamedata::set_spriteflickerspeed(byte val)
+{
+	set_generic(val, genSPRITEFLICKERSPEED);
+}
+
+byte gamedata::get_spriteflickercolor()
+{
+	return get_generic(genSPRITEFLICKERCOLOR);
+}
+void gamedata::set_spriteflickercolor(byte val)
+{
+	set_generic(val, genSPRITEFLICKERCOLOR);
+}
+
+byte gamedata::get_spriteflickertransp()
+{
+	return get_generic(genSPRITEFLICKERTRANSP);
+}
+void gamedata::set_spriteflickertransp(byte val)
+{
+	set_generic(val, genSPRITEFLICKERTRANSP);
+}
+
 void gamedata::set_item(int32_t id, bool value)
 {
     set_item_no_flush(id, value);

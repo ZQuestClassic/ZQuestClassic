@@ -75,7 +75,7 @@ static char savpath[4096] = {0};
 //{ Lists
 namespace GUI::Lists
 {
-	static const ListData screenshotOutputList
+	static const ListData snapshotFormatList
 	{
 		{ "BMP", 0 },
 		{ "GIF", 1 },
@@ -148,6 +148,15 @@ namespace GUI::Lists
 		{ "4", 4 },
 		{ "8", 8 },
 		{ "Disabled", 0 }
+	};
+
+	static const GUI::ListData snapshotScaleList
+	{
+		{ "1x", 1 },
+		{ "2x", 2 },
+		{ "3x", 3 },
+		{ "4x", 4 },
+		{ "5x", 5 }
 	};
 }
 //}
@@ -447,9 +456,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 		check_for_updates();
 
 	queue_revert = 0;
-	int32_t scale_large = zc_get_config("zquest","scale_large",1,App::zquest);
-	int32_t def_large_w = LARGE_W*scale_large;
-	int32_t def_large_h = LARGE_H*scale_large;
 	int rightmost;
 	int bottommost;
 	ALLEGRO_MONITOR_INFO info;
@@ -536,7 +542,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
-						CONFIG_DROPDOWN_I("Screenshot Output:", App::zelda,"zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
+						CONFIG_DROPDOWN_I("Snapshot Format:", App::zelda,"zeldadx","snapshot_format",3,snapshotFormatList,"The format of snapshots"),
+						CONFIG_DROPDOWN_I("Snapshot Scale:", App::zelda,"zeldadx","snapshot_scale",2,snapshotScaleList,"The scale of snapshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", App::zelda,"zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
 						CONFIG_TEXTFIELD_I("Window Width:",App::zelda,"zeldadx","window_width", -1, -1, 3000, "The width of the ZC window, for windowed mode. If -1 the largest possible window will be made without distorting the pixel content."),
 						CONFIG_TEXTFIELD_I("Window Height:",App::zelda,"zeldadx","window_height", -1, -1, 2250, "The height of the ZC window, for windowed mode. If -1 the largest possible window will be made without distorting the pixel content."),
@@ -631,12 +638,13 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zquest,"zquest","cursor_scale_large",1.5,1.0,5.0, 4),
 						CONFIG_DROPDOWN_I("Bottom 8 pixels:", App::zquest,"ZQ_GUI","bottom_8_pixels",0,bottom8_list,"How to hide the bottom 8 screen pixels"),
-						CONFIG_DROPDOWN_I("Screenshot Output:", App::zquest,"zquest","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
+						CONFIG_DROPDOWN_I("Snapshot Output:", App::zquest,"zquest","snapshot_format",3,snapshotFormatList,"The format of map screen snapshots / window screenshots"),
+						CONFIG_DROPDOWN_I("Snapshot Scale:", App::zquest,"zquest","snapshot_scale",2,snapshotScaleList,"The scale of snapshots"),
 						CONFIG_DROPDOWN_I("Auto-Backup Retention:", App::zquest,"zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
 						CONFIG_DROPDOWN_I("Auto-Save Retention:", App::zquest,"zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
 						CONFIG_TEXTFIELD_I("Auto-Save Interval:", App::zquest, "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
-						CONFIG_TEXTFIELD_I("Window Width (Large Mode):",App::zquest,"zquest","window_width", -1, -1, 3000, "The width of the ZQuest window in large mode. If -1 the largest possible window will be made without distorting the pixel content."),
-						CONFIG_TEXTFIELD_I("Window Height (Large Mode):",App::zquest,"zquest","window_height", -1, -1, 2250, "The height of the ZQuest window in large mode. If -1 the largest possible window will be made without distorting the pixel content."),
+						CONFIG_TEXTFIELD_I("Window Width:",App::zquest,"zquest","window_width", -1, -1, 3000, "The width of the ZQuest window. If -1 the largest possible window will be made without distorting the pixel content."),
+						CONFIG_TEXTFIELD_I("Window Height:",App::zquest,"zquest","window_height", -1, -1, 2250, "The height of the ZQuest window. If -1 the largest possible window will be made without distorting the pixel content."),
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zquest,"zquest","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zquest,"zquest","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zquest, "graphics", "driver", 0, gfxDriverList),
