@@ -27874,7 +27874,7 @@ int32_t main(int32_t argc,char **argv)
 	CmbPgCursorCol					  = zc_get_config("zquest","cpage_cursor_color",15);
 	TTipHLCol					  = zc_get_config("zquest","ttip_hl_color",13);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
-	SnapshotScale				 = zc_get_config("zquest","snapshot_scale",1);
+	SnapshotScale				 = zc_get_config("zquest","snapshot_scale",2);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
 	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
