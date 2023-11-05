@@ -172,6 +172,9 @@ static AccessorTable ewpnTable[] =
 	{ "getLiftHeight",              0,         ZTID_FLOAT,   EWPNLIFTHEIGHT,            0,  { ZTID_EWPN },{} },
 	{ "setLiftHeight",              0,          ZTID_VOID,   EWPNLIFTHEIGHT,            0,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	
+	{ "getSprites[]",               0,         ZTID_FLOAT,   EWPNSPRITES,               0,  { ZTID_EWPN, ZTID_FLOAT },{} },
+	{ "setSprites[]",               0,          ZTID_VOID,   EWPNSPRITES,               0,  { ZTID_EWPN, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   EWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_EWPN },{} },
 	{ "getParentUID",               0,         ZTID_FLOAT,   EWPNPARENTUID,       FL_DEPR,  { ZTID_EWPN },{} },

@@ -1735,7 +1735,12 @@
 #define ITEMNOSOUND             1633
 #define ITEMNOHOLDSOUND         1634
 
-#define LAST_BYTECODE           1635
+#define IDATAUSEBURNSPR         1635
+#define IDATABURNINGSPR         1636
+#define LWPNSPRITES             1637
+#define EWPNSPRITES             1638
+
+#define LAST_BYTECODE           1639
 
 //} END OF BYTECODE
 

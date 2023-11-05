@@ -188,6 +188,11 @@ static AccessorTable itemclassTable[] =
 	{ "getJinxSwapped",             0,          ZTID_BOOL,   IDATAJINXSWAP,             0,  { ZTID_ITEMCLASS },{} },
 	{ "setJinxSwapped",             0,          ZTID_VOID,   IDATAJINXSWAP,             0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	
+	{ "getUseBurnSprites",          0,          ZTID_BOOL,   IDATAUSEBURNSPR,           0,  { ZTID_ITEMCLASS },{} },
+	{ "setUseBurnSprites",          0,          ZTID_VOID,   IDATAUSEBURNSPR,           0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	{ "getBurnSprites[]",           0,         ZTID_FLOAT,   IDATABURNINGSPR,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "setBurnSprites[]",           0,          ZTID_VOID,   IDATABURNINGSPR,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
 	//Intentionally undocumented
 	{ "getKeep",                    0,          ZTID_BOOL,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS },{} },
 	{ "setKeep",                    0,          ZTID_VOID,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },

@@ -5683,6 +5683,9 @@ int32_t get_register(const int32_t arg)
 		case IDATAJINXSWAP:
 			ret = item_flag(ITEM_FLIP_JINX);
 			break;
+		case IDATAUSEBURNSPR:
+			ret = item_flag(ITEM_BURNING_SPRITES);
+			break;
 			
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -5830,7 +5833,7 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
@@ -5853,10 +5856,29 @@ int32_t get_register(const int32_t arg)
 					ret=(itemsbuf[ri->idata].wpn9)*10000; break;
 				case 9:
 					ret=(itemsbuf[ri->idata].wpn10)*10000; break;
-				default: 
-					ret = -10000; break;
+				default:
+					Z_scripterrlog("Invalid index to itemdata->Sprites[]: %d\n", index);
+					ret = -10000;
+					break;
 			}
-				
+			break;
+		}
+		case IDATABURNINGSPR:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(index < 0 || index >= BURNSPR_MAX)
+			{
+				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
+				ret = -10000;
+				break;
+			}
+			ret = itemsbuf[ri->idata].burnsprs[index]*10000;
 			break;
 		}
 		//Hero TIle modifier
@@ -7495,13 +7517,25 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX, "lweapon->Flags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					ret = (((weapon*)(s))->misc_wflags & (1<<indx)) ? 10000 : 0;
 				}
+			}
+			break;
+		}
+		case LWPNSPRITES:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") != SH::_NoError)
+					ret = -10000;
+				else
+					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
 			}
 			break;
 		}
@@ -8108,13 +8142,25 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX, "eweapon->Flags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					ret = (((weapon*)(s))->misc_wflags & (1<<indx)) ? 10000 : 0;
 				}
+			}
+			break;
+		}
+		case EWPNSPRITES:
+		{
+			if(0!=(s=checkLWpn(ri->ewpn,"Sprites[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") != SH::_NoError)
+					ret = -10000;
+				else
+					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
 			}
 			break;
 		}
@@ -18423,6 +18469,9 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAJINXSWAP:
 			item_flag(ITEM_FLIP_JINX, value);
 			break;
+		case IDATAUSEBURNSPR:
+			item_flag(ITEM_BURNING_SPRITES, value);
+			break;
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -18662,35 +18711,50 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
+			int32_t index = ri->d[rINDEX]/10000;
+			byte val = vbound(value/10000, 0, 255);
 			switch(index)
 			{
 				case 0:
-					itemsbuf[ri->idata].wpn=vbound(value/10000, 0, 255);
-					break;
+					itemsbuf[ri->idata].wpn = val; break;
 				case 1:
-					itemsbuf[ri->idata].wpn2=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn2 = val; break;
 				case 2:
-					itemsbuf[ri->idata].wpn3=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn3 = val; break;
 				case 3:
-					itemsbuf[ri->idata].wpn4=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn4 = val; break;
 				case 4:
-					itemsbuf[ri->idata].wpn5=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn5 = val; break;
 				case 5:
-					itemsbuf[ri->idata].wpn6=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn6 = val; break;
 				case 6:
-					itemsbuf[ri->idata].wpn7=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn7 = val; break;
 				case 7:
-					itemsbuf[ri->idata].wpn8=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn8 = val; break;
 				case 8:
-					itemsbuf[ri->idata].wpn9=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn9 = val; break;
 				case 9:
-					itemsbuf[ri->idata].wpn10=vbound(value/10000, 0, 255); break;
-				
-				default: 
+					itemsbuf[ri->idata].wpn10 = val; break;
+				default:
+					Z_scripterrlog("Invalid index to itemdata->Sprites[]: %d\n", index);
 					break;
 			}
-				
+			break;
+		}
+		case IDATABURNINGSPR:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(index < 0 || index >= BURNSPR_MAX)
+			{
+				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
+				break;
+			}
+			itemsbuf[ri->idata].burnsprs[index] = vbound(value/10000, 0, 255);
 			break;
 		}
 		//Hero tile modifier. 
@@ -19417,7 +19481,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX, "lweapon->Flags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					int32_t bit = 1<<indx;
@@ -19426,6 +19490,16 @@ void set_register(int32_t arg, int32_t value)
 					else
 						((weapon*)(s))->misc_wflags &= ~bit;
 				}
+			}
+			break;
+		}
+		case LWPNSPRITES:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") == SH::_NoError)
+					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
@@ -20045,7 +20119,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX, "eweapon->Flags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					int32_t bit = 1<<indx;
@@ -20054,6 +20128,16 @@ void set_register(int32_t arg, int32_t value)
 					else
 						((weapon*)(s))->misc_wflags &= ~bit;
 				}
+			}
+			break;
+		}
+		case EWPNSPRITES:
+		{
+			if(0!=(s=checkLWpn(ri->ewpn,"Sprites[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") == SH::_NoError)
+					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
@@ -48228,6 +48312,11 @@ script_variable ZASMVars[]=
 
 	{ "SCREENDATAGUYCOUNT", SCREENDATAGUYCOUNT, 0, 0 },
 	{ "MAPDATAGUYCOUNT", MAPDATAGUYCOUNT, 0, 0 },
+
+	{ "IDATAUSEBURNSPR", IDATAUSEBURNSPR, 0, 0 },
+	{ "IDATABURNINGSPR", IDATABURNINGSPR, 0, 0 },
+	{ "LWPNSPRITES", LWPNSPRITES, 0, 0 },
+	{ "EWPNSPRITES", EWPNSPRITES, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

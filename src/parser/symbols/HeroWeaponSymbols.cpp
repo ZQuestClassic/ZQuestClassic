@@ -178,6 +178,8 @@ static AccessorTable lwpnTable[] =
 	{ "getLiftHeight",              0,         ZTID_FLOAT,   LWPNLIFTHEIGHT,            0,  { ZTID_LWPN },{} },
 	{ "setLiftHeight",              0,          ZTID_VOID,   LWPNLIFTHEIGHT,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	
+	{ "getSprites[]",               0,         ZTID_FLOAT,   LWPNSPRITES,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "setSprites[]",               0,          ZTID_VOID,   LWPNSPRITES,               0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   LWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_LWPN },{} },

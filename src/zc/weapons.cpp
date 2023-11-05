@@ -1292,7 +1292,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	//memset(stack,0,sizeof(stack));
 	//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
 	
-	int32_t defaultw = 0, itemid = parentitem;
+	int32_t itemid = parentitem;
 	itemdata const& parent = itemsbuf[unsigned(parentitem) < MAXITEMS ? parentitem : -1];
 	if(id>wEnemyWeapons)
 	{
@@ -2401,15 +2401,42 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			break;
 		}
 	}
-	for(int q = 0; q < WPNSPR_MAX; ++q)
-		misc_wsprites[q] = 0;
-	if(use_sprite > -1)
-		_handle_loadsprite(use_sprite, isDummy, true);
-	else _handle_loadsprite(nullopt, isDummy, true);
 	
 	if(id>wEnemyWeapons && id!=ewBrang && (Type&4)!=0)  // Increase speed of Aquamentus 2 fireballs
 	{
 		step *=2;
+	}
+
+	for(int q = 0; q < WPNSPR_MAX; ++q)
+		misc_wsprites[q] = 0;
+	
+	optional<byte> wpnspr;
+	
+	switch(id) //burn sprites
+	{
+		case wSword:
+		case wWand:
+		case wHSHandle:
+		case wHSChain:
+		case wSSparkle:
+		case wFSparkle:
+			break; //These weapon types don't support burn sprites
+		default:
+			if(parentitem > -1 && (parent.flags & ITEM_BURNING_SPRITES))
+			{
+				misc_wflags |= WFLAG_UPDATE_IGNITE_SPRITE;
+				for(int q = 0; q < BURNSPR_MAX; ++q)
+					misc_wsprites[q] = parent.burnsprs[q];
+				last_burnstate = get_burnstate();
+				wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
+			}
+			break;
+	}
+	if(!wpnspr)
+	{
+		if(use_sprite > -1)
+			wpnspr = _handle_loadsprite(use_sprite, isDummy, true);
+		else wpnspr = _handle_loadsprite(nullopt, isDummy, true);
 	}
 }
 optional<byte> weapon::_ewpn_sprite(int parentid) const

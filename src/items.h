@@ -90,6 +90,15 @@ void dummyitem_animate(item* dummy, int32_t clk);
 
 //Now itemdata lives here too!
 
+enum
+{
+	BURNSPR_NONE,
+	BURNSPR_ANY,
+	BURNSPR_STRONG,
+	BURNSPR_MAGIC,
+	BURNSPR_DIVINE,
+	BURNSPR_MAX
+};
 struct itemdata
 {
     int32_t tile;
@@ -133,6 +142,7 @@ struct itemdata
 #define ITEM_VALIDATEONLY2      0x08000000
 #define ITEM_JINX_IMMUNE        0x10000000
 #define ITEM_FLIP_JINX          0x20000000
+#define ITEM_BURNING_SPRITES    0x40000000
     word script;												// Which script the item is using
     char count;
     word amount;
@@ -166,6 +176,7 @@ struct itemdata
     int32_t misc10;
 	int16_t cost_amount[2]; // Magic usage!
     byte usesound, usesound2;
+	byte burnsprs[BURNSPR_MAX];
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
