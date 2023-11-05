@@ -3,7 +3,7 @@
 
 #include "base/ints.h"
 
-struct ffcdata;
+class ffcdata;
 
 void zc_ffc_set(ffcdata& ffc, word data);
 void zc_ffc_update(ffcdata& ffc, word data);
