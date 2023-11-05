@@ -32,10 +32,21 @@ extern byte bszboomflip[4];
 #define WFLAG_BURN_DIVINEFIRE      0x0040
 #define WFLAG_STOP_WHEN_LANDING    0x0080
 #define WFLAG_STOP_WHEN_HIT_SOLID  0x0100
+#define WFLAG_UPDATE_IGNITE_SPRITE 0x0200
 
-#define WFLAG_MAX 8
+#define WFLAG_MAX 10
 
-#define WLFLAG_BURNFLAGS           0x0078
+#define WFLAG_BURNFLAGS            0x0078
+
+enum
+{
+	WPNSPR_BASE,
+	WPNSPR_IGNITE_ANY,
+	WPNSPR_IGNITE_STRONG,
+	WPNSPR_IGNITE_MAGIC,
+	WPNSPR_IGNITE_DIVINE,
+	WPNSPR_MAX
+};
 
 class weapon : public sprite
 {
@@ -49,6 +60,8 @@ private:
 	int32_t minX, maxX, minY, maxY;
 	friend void setScreenLimits(weapon&);
     
+	optional<byte> _handle_loadsprite(optional<byte> spr, bool isDummy = false, bool force = false);
+	optional<byte> _ewpn_sprite(int parentid) const;
 public:
     void setAngle(double angletoset);
     void doAutoRotate(bool dodir = false, bool doboth = false);
@@ -67,7 +80,12 @@ public:
     bool autorotate;
 	byte linkedItem;
 	byte unblockable;
+	
 	word misc_wflags;
+	byte misc_wsprites[WPNSPR_MAX];
+	byte last_burnstate;
+	byte get_burnstate() const;
+	
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
 	byte wscreengrid_ffc[MAXFFCS/8];
@@ -77,7 +95,9 @@ public:
 	int32_t death_item_pflags;
 	int16_t death_sprite;
 	byte death_sfx;
+	
 	bool has_shadow;
+	
 	byte lift_level;
 	byte lift_time = 16;
 	zfix lift_height = 8;
