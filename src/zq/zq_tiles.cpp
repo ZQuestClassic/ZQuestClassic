@@ -28,6 +28,7 @@
 #include "colorname.h"
 #include "zq/render.h"
 #include "zinfo.h"
+#include <fmt/format.h>
 
 extern zcmodule moduledata;
 
@@ -3355,7 +3356,10 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 
 enum recolorState { rcNone, rc4Bit, rc8Bit };
 
+BITMAP* original_imagebuf_bitmap=NULL;
 void *imagebuf=NULL;
+int32_t imagebuf_bitmap_scale=0;
+#define IMAGEBUF_SCALE (imagebuf_bitmap_scale > 0 ? imagebuf_bitmap_scale : 1.0 / -imagebuf_bitmap_scale)
 int32_t imagesize=0;
 int32_t tilecount=0;
 int32_t  imagetype=0;
@@ -3947,7 +3951,15 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		
 	case ftBMP:
 	{
-		textprintf_ex(screen,font,txt_x,(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h);
+		std::string text = fmt::format("{}  {}x{}, {:.2g}x   zoom with , and .", imgstr[imagetype], original_imagebuf_bitmap->w, original_imagebuf_bitmap->h, IMAGEBUF_SCALE);
+		int text_x = txt_x;
+		int text_y = (216 + yofs) * mul;
+		// TODO: tooltips need more work before they can be used like this. This text is only draw on input, but update_tooltip expects to be called constantly.
+		// int text_w = text_length(font, text.c_str());
+		// int text_h = text_height(font);
+		// update_tooltip(text_x, text_y, text_x, text_y, text_w, text_h, "Press . or , to change scale");
+		textprintf_ex(screen, font, text_x, text_y, jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "%s", text.c_str());
+
 		draw_text_button(screen,117*mul,(192+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Recolor",vc(1),vc(14),0,true);
 		break;
 	}
@@ -4071,7 +4083,9 @@ void load_imagebuf()
 		switch(imagetype)
 		{
 		case ftBMP:
-			destroy_bitmap((BITMAP*)imagebuf);
+			if (original_imagebuf_bitmap != imagebuf)
+				destroy_bitmap((BITMAP*)imagebuf);
+			destroy_bitmap(original_imagebuf_bitmap);
 			break;
 			
 		case ftZGP:
@@ -4088,6 +4102,7 @@ void load_imagebuf()
 		}
 		
 		imagebuf=NULL;
+		original_imagebuf_bitmap=NULL;
 	}
 	
 	selx=sely=romofs=0;
@@ -4103,16 +4118,21 @@ void load_imagebuf()
 	case ftBMP:
 	packfile_password("");
 		memset(imagepal, 0, sizeof(PALETTE));
-		imagebuf = load_bitmap(imagepath,imagepal);
+		original_imagebuf_bitmap = load_bitmap(imagepath,imagepal);
 		imagesize = file_size_ex_password(imagepath,"");
 		tilecount=0;
 		create_rgb_table(&rgb_table, imagepal, NULL);
 		rgb_map = &rgb_table;
 		create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
 		
-		if(!imagebuf)
+		if(!original_imagebuf_bitmap)
 		{
 			imagetype=0;
+		}
+		else
+		{
+			imagebuf = original_imagebuf_bitmap;
+			imagebuf_bitmap_scale = 1;
 		}
 		
 		break;
@@ -4818,6 +4838,26 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 	}
 }
 
+static void scale_imagebuf_bitmap()
+{
+	imagebuf_bitmap_scale = std::clamp(imagebuf_bitmap_scale, -10, 10);
+
+	float scale = IMAGEBUF_SCALE;
+	int nw = original_imagebuf_bitmap->w * scale;
+	int nh = original_imagebuf_bitmap->h * scale;
+	if (nw <= 0 || nh <= 0)
+		return;
+
+	BITMAP* scaled_bmp = create_bitmap_ex(8, nw, nh);
+	if (!scaled_bmp)
+		return;
+
+	stretch_blit(original_imagebuf_bitmap, scaled_bmp, 0, 0, original_imagebuf_bitmap->w, original_imagebuf_bitmap->h, 0, 0, nw, nh);
+	if (imagebuf != original_imagebuf_bitmap)
+		destroy_bitmap((BITMAP*)imagebuf);
+	imagebuf = scaled_bmp;
+}
+
 //Grabber is not grabbing to tile pages beyond pg. 252 right now. -ZX 18th June, 2019 
 void grab_tile(int32_t tile,int32_t &cs)
 {
@@ -4917,6 +4957,11 @@ void grab_tile(int32_t tile,int32_t &cs)
 		if(exiting_program) break;
 		rest(4);
 		bool redraw=false;
+
+		if (!tooltip_trigger.rect(gui_mouse_x(), gui_mouse_y()))
+		{
+			clear_tooltip();
+		}
 		
 		if(keypressed())
 		{
@@ -5007,6 +5052,25 @@ void grab_tile(int32_t tile,int32_t &cs)
 				else grabmode=1;
 				
 				break;
+			
+			case KEY_COMMA:
+			if (imagetype == ftBMP)
+			{
+				imagebuf_bitmap_scale--;
+				if (imagebuf_bitmap_scale == 0)
+					imagebuf_bitmap_scale = -2;
+				scale_imagebuf_bitmap();
+			}
+			break;
+			case KEY_STOP:
+			if (imagetype == ftBMP)
+			{
+				imagebuf_bitmap_scale++;
+				if (imagebuf_bitmap_scale == -1)
+					imagebuf_bitmap_scale = 1;
+				scale_imagebuf_bitmap();
+			}
+			break;
 				
 			case KEY_1:
 				if(recolor==rc8Bit)
