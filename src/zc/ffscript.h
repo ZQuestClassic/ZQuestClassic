@@ -4998,7 +4998,12 @@ enum ASM_DEFINE
 #define ITEMNOSOUND             0x1597
 #define ITEMNOHOLDSOUND         0x1598
 
-#define NUMVARIABLES            0x1599
+#define IDATAUSEBURNSPR         0x1599
+#define IDATABURNINGSPR         0x159A
+#define LWPNSPRITES             0x159B
+#define EWPNSPRITES             0x159C
+
+#define NUMVARIABLES            0x159D
 
 //} End variables
 

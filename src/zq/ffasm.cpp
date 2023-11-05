@@ -2857,6 +2857,11 @@ script_variable variable_list[]=
 	{ "ITEMNOSOUND",         ITEMNOSOUND,          0,             0 },
 	{ "ITEMNOHOLDSOUND",         ITEMNOHOLDSOUND,          0,             0 },
 
+	{ "IDATAUSEBURNSPR", IDATAUSEBURNSPR, 0, 0 },
+	{ "IDATABURNINGSPR", IDATABURNINGSPR, 0, 0 },
+	{ "LWPNSPRITES", LWPNSPRITES, 0, 0 },
+	{ "EWPNSPRITES", EWPNSPRITES, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 

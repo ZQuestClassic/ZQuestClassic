@@ -2448,6 +2448,11 @@ string ZScript::VarToString(int32_t ID)
 		case SCREENDATAGUYCOUNT: return "SCREENDATAGUYCOUNT";
 		case MAPDATAGUYCOUNT: return "MAPDATAGUYCOUNT";
 		
+		case IDATAUSEBURNSPR: return "IDATAUSEBURNSPR";
+		case IDATABURNINGSPR: return "IDATABURNINGSPR";
+		case LWPNSPRITES: return "LWPNSPRITES";
+		case EWPNSPRITES: return "EWPNSPRITES";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);

@@ -5141,6 +5141,9 @@ int FakeJump;
 bool Flags[WFLAG_MAX];
  * A set of flags for all weapons. See 'WFLAG_' constants in 'std_constants.zh'
 
+int Sprites[WPN_SPRITE_MAX];
+ * A set of sprites related to the weapon. See 'WPN_SPRITE_' constants in 'std_constants.zh'
+
 int DeathItem;
  * If > -1, this item ID will be spawned when the weapon dies.
 
@@ -6264,6 +6267,9 @@ untyped Attributes[10]
 int Sprites[10]
  * An array of ten integers that correspond to the ten sprite pulldowns on the item editor Action tab.
 
+int BurnSprites[ITM_BURNSPR_MAX];
+ * The burning sprites from 'Graphics->Sprites->Burning'. Use the 'ITM_BURNSPR_' constants.
+
 bool Flags[16]
  * An array of 16 boolean flags that correspond to the 16 flag tickboxes on the item editor Flags tab.
 
@@ -6277,6 +6283,8 @@ bool JinxImmune;
  * Corresponds to the 'Immune to jinxes' box on the Flags tab of the item editor.
 bool JinxSwapped;
  * Corresponds to the 'Uses Other Jinx' box on the Flags tab of the item editor.
+bool UseBurnSprites;
+ * Corresponds to the 'Use Burning Sprites' box on the Graphics tab of the item editor
 
 bool Combine;	
  * Corresponds to 'Upgrade when collected twice'.
