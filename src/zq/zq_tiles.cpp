@@ -3877,7 +3877,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	{
 		newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
 		
-		for(int32_t i=0; i<newtilebuf[0].format*128; i++)
+		for(int32_t i=0; i<256; i++)
 		{
 			newtilebuf[0].data[i]=hold.data[i];
 		}
