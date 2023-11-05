@@ -63,12 +63,21 @@ char const* getReleaseTag()
 #endif
 }
 
+char const* getReleasePlatform()
+{
+#ifdef RELEASE_PLATFORM
+	return RELEASE_PLATFORM;
+#else
+	return "none";
+#endif
+}
+
 char const* getReleaseChannel()
 {
 #ifdef RELEASE_CHANNEL
 	return RELEASE_CHANNEL;
 #else
-	return "none";
+	return ".*";
 #endif
 }
 

@@ -138,6 +138,13 @@ namespace util
 			}
 		}
 	}
+
+	void replace_first(std::string& s, std::string const& needle, std::string const& with)
+	{
+		std::size_t pos = s.find(needle);
+		if (pos == std::string::npos) return;
+		s.replace(pos, needle.length(), with);
+	}
 	
 	std::string escape_characters(std::string const& str)
 	{

@@ -158,8 +158,8 @@ jobs:
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
         if: ${{ inputs.versiontype }}
-      - name: Set channel
-        id: set-channel
+      - name: Set release platform
+        id: set-platform
         shell: python
         run: |
           import platform
@@ -170,20 +170,21 @@ jobs:
           system = platform.system()
           if system == 'Windows':
             arch_label = 'x86' if arch == 'win32' else 'x64'
-            channel = f'windows-{arch_label}'
+            release_platform = f'windows-{arch_label}'
           elif system == 'Darwin':
-            channel = 'mac'
+            release_platform = 'mac'
           elif system == 'Linux':
-            channel = 'linux'
+            release_platform = 'linux'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-            print('{0}={1}'.format('channel', channel), file=f)
+            print('{0}={1}'.format('platform', release_platform), file=f)
       - name: Configure build
         run: >
           cmake -S . -B build -G 'Ninja Multi-Config'
           -DCOPY_RESOURCES=OFF
           -DRELEASE_TAG="${{ inputs.release-tag }}"
-          -DRELEASE_CHANNEL="${{ steps.set-channel.outputs.channel }}"
+          -DRELEASE_PLATFORM="${{ steps.set-platform.outputs.platform }}"
+          -DRELEASE_CHANNEL="^(2.55|nightly).*$"
           -DREPO="${{ github.repository }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
           -DWANT_MAC_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"
