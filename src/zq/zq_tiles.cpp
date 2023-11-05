@@ -8,6 +8,7 @@
 #include "base/packfile.h"
 #include "base/gui.h"
 #include "base/combo.h"
+#include "base/zdefs.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
@@ -4787,6 +4788,10 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 
 void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t oformat, byte *newformat)
 {
+	byte defFormat=(bp==8) ? tf8Bit : tf4Bit;
+	byte format=defFormat;
+	int32_t stile = ((imagey*TILES_PER_ROW)+imagex)+(((sely/16)*TILES_PER_ROW)+(selx/16));
+
 	switch(imagetype)
 	{
 	case ftZGP:
@@ -4800,6 +4805,20 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 		{
 			for(int32_t tx=0; tx<width; tx++)
 			{
+				format=defFormat;
+				switch(imagetype)
+				{
+				case ftZGP:
+				case ftQST:
+				case ftZQT:
+				case ftQSU:
+				case ftTIL:
+					format=grabtilebuf[stile+((ty*TILES_PER_ROW)+tx)].format;
+					break;
+				}
+
+				bool ever_did_unmasked = false;
+
 				for(int32_t y=0; y<16; y++)
 				{
 					for(int32_t x=0; x<16; x+=2)
@@ -4814,10 +4833,18 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 						{
 							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x]=getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely);
 							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1]=getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely);
-							newformat[(ty*TILES_PER_ROW)+tx] = tf8Bit;
+							ever_did_unmasked = true;
+						}
+						if (format == tf4Bit)
+						{
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x] &= 15;
+							dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1] &= 15;
 						}
 					}
 				}
+
+				if (ever_did_unmasked)
+					newformat[(ty*TILES_PER_ROW)+tx] = format;
 			}
 		}
 		
@@ -5509,9 +5536,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 				newtilebuf[temptile].format=format;
 				newtilebuf[temptile].data=(byte *)malloc(tilesize(format));
 				
-				//newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
-				
-				
 				if(newtilebuf[temptile].data==NULL)
 				{
 					Z_error_fatal("Unable to initialize tile #%d.\n", temptile);
@@ -5520,8 +5544,11 @@ void grab_tile(int32_t tile,int32_t &cs)
 				
 				for(int i=0; i<256; i++)
 				{
+					// newtilebuf[temptile].data[i] = cset_reduce_table[newtile[(TILES_PER_ROW*y)+x][i]];
 					newtilebuf[temptile].data[i] = newtile[(TILES_PER_ROW*y)+x][i];
 				}
+
+				// unpackbuf[i]=(cset_reduce_table[unpackbuf[i]]);
 			}
 		}
 	}
