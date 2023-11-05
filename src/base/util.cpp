@@ -930,38 +930,13 @@ namespace util
 	}
 
 	// Creates a temporary file path that may be moved by the caller.
+	// The purpose is to avoid crashes during overwriting important files, which would corrupt them.
 	std::string create_temp_file_path(std::string final_destination)
 	{
-		// TODO: do this for all platforms?
-#ifdef __EMSCRIPTEN__
+		// This function has a lot of history. We don't use std::tmpnam because there is no guarentee
+		// that can be moved to the final destination (for example, it could be created in a tmpfs on Linux).
+		// Simplest approach, just append ".tmp" to the final location.
 		return final_destination + ".tmp";
-#endif
-
-#ifdef ALLEGRO_LINUX
-		// In flatpak, we cannot use /var or /var/tmp because both are on a different drive than
-		// where this temp file will be moved to. Instead, make a file in our own folder `.tmp`
-		static bool should_fake_tmp = std::getenv("container") && std::string(std::getenv("container")) == "flatpak";
-		if (should_fake_tmp)
-		{
-			fs::create_directories(".tmp");
-			int iterations = 0;
-			while (iterations < 100)
-			{
-				std::string f = fmt::format(".tmp/tmp-file-{}", rand());
-				if (!fs::exists(f)) return f;
-				iterations += 1;
-			}
-		}
-#endif
-
-		std::string result = std::tmpnam(nullptr);
-
-		// On Linux, /tmp can be a tmpfs, which means we cannot move a file from that to a different mount which would be the actual physical drive.
-		// We save to a temp file then move to the real place for .qst and .sav files, so we need the move to be possible.
-		// /var/tmp is meant to persist, so it is never a tmpfs, so use that instead.
-		if (result.starts_with("/tmp/" && exists("/var/tmp")))
-			result = "/var" + result;
-		return result;
 	}
 }
 

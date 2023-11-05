@@ -133,6 +133,10 @@ def parse_result_txt_file(path: pathlib.Path):
 
         result[key] = value
 
+    # Check if file is only partially written.
+    if 'stopped' not in result:
+        return None
+
     return result
 
 
@@ -159,7 +163,10 @@ class ReplayResultUpdatedHandler(FileSystemEventHandler):
             return
 
         try:
-            self.result = parse_result_txt_file(self.path)
+            new_result = parse_result_txt_file(self.path)
+            if not new_result:
+                return
+            self.result = new_result
         except:
             logging.warning('could not read result txt file')
             return
@@ -176,9 +183,6 @@ class ReplayResultUpdatedHandler(FileSystemEventHandler):
                 self.callback(self)
 
     def on_created(self, event):
-        # To avoid reading the file in a bad state, replay.cpp first writes to a temporary file
-        # and then moves it atomically. This can present as a file creation event, although it depends
-        # on the implementation of the std fs library / possibly on the type of filesystem in use.
         if not event.is_directory and event.src_path.endswith(self.path.name):
             self.modified_time = timer()
             self.is_result_stale = True
@@ -852,7 +856,9 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
 
                 retcode = player_interface.poll()
                 if retcode != None:
-                    raise Exception(f'process finished before replay started, exit code: {retcode}')
+                    watcher.update_result()
+                    if not watcher.result:
+                        raise Exception(f'process finished before replay started, exit code: {retcode}')
 
                 yield (key, 'status', result)
 
@@ -1137,7 +1143,7 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
                     if len(lines) > rows - 1:
                         break
                 for test in pending_tests:
-                    lines.append(('…', 3, replay_log_names[test.name]))
+                    lines.append(('…', 3, replay_log_names[get_replay_name(test)]))
                     if len(lines) > rows - 1:
                         break
 

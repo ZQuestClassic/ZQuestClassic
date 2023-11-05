@@ -905,11 +905,7 @@ static void save_result(bool stopped = false, bool changed = false)
 	std::time_t time_started_c = std::chrono::system_clock::to_time_t(time_started_system);
 	int fps = (double)frame_count / elapsed.count() * 1000;
 
-	// Write to temporary file and then move it, because run_replay_tests.py will constantly
-	// be reading the .zplay.result.txt.
-	std::filesystem::path dest = get_file_path(".result.txt");
-	std::string tmp_filename = util::create_temp_file_path(dest.string());
-	std::ofstream out(tmp_filename, std::ios::binary);
+	std::ofstream out(get_file_path(".result.txt"), std::ios::binary);
 
 	out << fmt::format("replay: {}", replay_path.string()) << '\n';
 	out << fmt::format("mode: {}", replay_mode_to_string(mode)) << '\n';
@@ -922,7 +918,6 @@ static void save_result(bool stopped = false, bool changed = false)
 		out << fmt::format("record_log_frames: {}", record_log.back()->frame) << '\n';
 	out << fmt::format("frame: {}", frame_count) << '\n';
 	out << fmt::format("fps: {}", fps) << '\n';
-	out << fmt::format("stopped: {}", stopped) << '\n';
 	if (stopped || has_assert_failed)
 		out << fmt::format("success: {}", stopped && !has_assert_failed && !has_rng_desynced) << '\n';
 	if (has_rng_desynced)
@@ -937,20 +932,9 @@ static void save_result(bool stopped = false, bool changed = false)
 		out << fmt::format("unexpected_gfx_segments: {}", segments_to_string(unexpected_gfx_segments)) << '\n';
 	if (has_assert_failed && !unexpected_gfx_segments_limited.empty())
 		out << fmt::format("unexpected_gfx_segments_limited: {}", segments_to_string(unexpected_gfx_segments_limited)) << '\n';
+    out << fmt::format("stopped: {}", stopped) << '\n';
 
 	out.close();
-
-	// If Windows decides to not fully trust an executable until a user OKs it, the renaming a tmpfile
-	// may throw an error. For some reason, the prompt only showed when directly opening crashpad_handler.exe
-	// https://zeldaclassic.sentry.io/share/issue/2a9dfce2e57c4a23820e73774189cfe0/
-	// https://discord.com/channels/876899628556091432/1120883971950125147/1124921628220981298
-	std::error_code ec;
-	std::filesystem::rename(tmp_filename, dest, ec);
-	// Fail, but only in CI (where this happening would be unexpected and could result in bad things for replay tests).
-	if (is_ci() && ec.value())
-	{
-		throw std::runtime_error(fmt::format("Failed to rename zplay.result.txt tmpfile. err {}", ec.value()));
-	}
 }
 
 static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexpected)
