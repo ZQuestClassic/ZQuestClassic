@@ -22015,13 +22015,14 @@ int32_t enemy::getFlashingCSet()
 			return (((clk2 + 5) >> 1) & 3) + 6;
 	}
 
-	//Special cset for the flashing animation
-	if (flags2 & guy_flashing)
-		return (frame & 3) + 6;
-
 	//Normal cset
-	if(hclk<=0)
+	if (hclk <= 0)
+	{
+		//Special cset for the flashing animation
+		if (flags2 & guy_flashing)
+			return (frame & 3) + 6;
 		return cs;
+	}
 
 	//Hurt animations
 	if(family==eeGANON)
