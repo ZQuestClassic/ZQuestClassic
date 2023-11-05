@@ -24,6 +24,7 @@
 #include "zq/questReport.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
+#include "dialog/rotatetile.h"
 #include "dialog/alert.h"
 #include "drawing.h"
 #include "colorname.h"
@@ -5920,6 +5921,7 @@ static MENU select_tile_rc_menu[] =
 	{ (char *)"Edit",    NULL,  NULL, 0, NULL },
 	{ (char *)"Grab",    NULL,  NULL, 0, NULL },
 	{ (char *)"Scale",  NULL,  NULL, 0, NULL },
+	{ (char *)"Angular Rotation",  NULL,  NULL, 0, NULL },
 	{ (char *)"Color Depth",  NULL,  NULL, 0, NULL },
 	{ (char *)"",        NULL,  NULL, 0, NULL },
 	{ (char *)"Blank?",  NULL,  NULL, 0, NULL },
@@ -13174,7 +13176,7 @@ bool copy_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, boo
 	return copied;
 }
 
-bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
+bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rotate)
 {
 	// if tile>tile2 then swap them
 	if(tile>tile2)
@@ -13191,8 +13193,19 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 	int32_t src_width = src_right-src_left+1,
 		src_height = src_bottom-src_top+1;
 	int32_t dest_width = src_width, dest_height = src_height;
-	ScaleTileDialog(&dest_width, &dest_height).show();
-	if(dest_width == src_width && dest_height == src_height) return false; //no scaling
+	zfix dest_rot = 0_zf;
+	if(rotate)
+		RotateTileDialog(&dest_width, &dest_height, &dest_rot).show();
+	else
+		ScaleTileDialog(&dest_width, &dest_height).show();
+	if (rotate)
+	{
+		if (dest_rot == 0) return false;
+	}
+	else
+	{
+		if (dest_width == src_width && dest_height == src_height) return false; //no scaling
+	}
 	dest_width = vbound(dest_width, 1, 20);
 	dest_height = vbound(dest_height, 1, 20);
 	
@@ -14081,8 +14094,15 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		clear_bitmap(srcbmp); clear_bitmap(destbmp);
 		overtileblock16(srcbmp, src_first, 0, 0, src_width, src_height, cs, 0);
 		bool is8bit = newtilebuf[src_first].format == tf8Bit;
-		stretch_blit(srcbmp, destbmp, 0, 0, srcbmp->w, srcbmp->h,
-			0, 0, destbmp->w, destbmp->h);
+		if (rotate)
+		{
+			rotate_sprite(destbmp, srcbmp, 0, 0, ftofix(dest_rot * 0.7111111111111));
+		}
+		else
+		{
+			stretch_blit(srcbmp, destbmp, 0, 0, srcbmp->w, srcbmp->h,
+				0, 0, destbmp->w, destbmp->h);
+		}
 		int32_t mhei = zc_max(src_height,dest_height),
 			mwid = zc_max(src_width, dest_width);
 		for(int32_t r=0; r<mhei; ++r)
@@ -16383,7 +16403,13 @@ REDRAW:
 				}
 				case 7:
 				{
-					bool b = scale_tiles(tile, tile2,cs);
+					bool b = scale_or_rotate_tiles(tile, tile2,cs,false);
+					if(saved) saved = !b;
+					break;
+				}
+				case 8:
+				{
+					bool b = scale_or_rotate_tiles(tile, tile2, cs,true);
 					if(saved) saved = !b;
 					break;
 				}
@@ -16397,7 +16423,7 @@ REDRAW:
 					draw_tile_list_window();
 					break;
 					
-				case 8:
+				case 9:
 				{
 					do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false);
 					break;
@@ -16409,15 +16435,15 @@ REDRAW:
 					position_mouse_z(0);
 					break;
 					
-				case 10:
+				case 11:
 					show_blank_tile(tile);
 					break;
 				
-				case 13: //overlay
+				case 14: //overlay
 					overlay_tile(newtilebuf,tile,copy,cs,0);
 					break;
 				
-				case 14: //h-flip
+				case 15: //h-flip
 				{
 					flip^=1;
 					go_tiles();
@@ -16432,7 +16458,7 @@ REDRAW:
 					break;
 				}
 				
-				case 15: //h-flip
+				case 16: //h-flip
 				{
 					if(copy==-1)
 					{
@@ -16459,7 +16485,7 @@ REDRAW:
 				}
 				
 				
-				case 16: //mass combo
+				case 17: //mass combo
 				{
 					if(type==0)
 					{
@@ -16488,7 +16514,7 @@ REDRAW:
 				}
 				break;
 				
-				case 17: case 18:
+				case 18: case 19:
 					if(type==0)
 					{
 						bool warn = (rect_sel

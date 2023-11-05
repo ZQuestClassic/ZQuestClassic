@@ -65,6 +65,7 @@ src/dialog/combowizard.cpp
 src/dialog/misc_sfx.cpp
 src/dialog/misc_sprs.cpp
 src/dialog/scaletile.cpp
+src/dialog/rotatetile.cpp
 src/dialog/palconvert.cpp
 src/dialog/zinfodlg.cpp
 src/dialog/ffc_editor.cpp
