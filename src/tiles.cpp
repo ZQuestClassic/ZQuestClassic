@@ -448,7 +448,7 @@ void overlay_tile(tiledata *buf,int32_t dest,int32_t src,int32_t cs,bool backwar
         
     unpack_tile(buf, src, 0, false);
     
-    // if(buf[src].format>tf4Bit)
+    if(buf[src].format>tf4Bit)
     {
         cs=0;
     }
@@ -738,16 +738,23 @@ void pack_tile(tiledata *buf, byte *src,int32_t tile)
     pack_tiledata(buf[tile].data, src, buf[tile].format);
 }
 
-// TODO: delete? Don't think this is doing anything anymore? Just copying ...
 void pack_tiledata(byte *dest, byte *src, byte format)
 {
     byte *di = dest;
     
     switch(format)
     {
-    case tf4Bit:
+	case tf4Bit:
+        for(int32_t si=0; si<256; si++)
+        {
+            *di = src[si]&15;
+            ++di;
+        }
+        break;
+
     case tf8Bit:
-        for(int32_t si=0; si<32; si+=1)
+        // TODO: Could this just be a memcpy ...
+        for(int32_t si=0; si<32; si++)
         {
             *di = src[si*8];
             ++di;
