@@ -398,6 +398,7 @@ void load_game_configs()
 	Maxfps = zc_get_config(cfg_sect,"maxfps",0);
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
 	SnapshotFormat = zc_get_config(cfg_sect,"snapshot_format",3);
+	SnapshotScale = zc_get_config(cfg_sect,"snapshot_scale",1);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);
 #ifdef __EMSCRIPTEN__
 	if (em_is_mobile()) NameEntryMode = 2;
@@ -3958,21 +3959,13 @@ int32_t onGUISnapshot()
 {
 	char buf[200];
 	int32_t num=0;
-	bool realpal=(CHECK_CTRL_CMD);
 	do
 	{
 		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
 	
-	BITMAP *b = create_bitmap_ex(8,resx,resy);
-	
-	if(b)
-	{
-		blit(screen,b,0,0,0,0,resx,resy);
-		save_bitmap(buf,screen,RAMpal);
-		destroy_bitmap(b);
-	}
+	alleg4_save_bitmap(screen, SnapshotScale, buf);
 	
 	return D_O_K;
 }
@@ -3997,12 +3990,12 @@ int32_t onNonGUISnapshot()
 		BITMAP *b = create_bitmap_ex(8,256,168);
 		clear_to_color(b,0);
 		blit(framebuf,b,0,passive_subscreen_height/2,0,0,256,168);
-		save_bitmap(buf,b,realpal?temppal:RAMpal);
+		alleg4_save_bitmap(b, SnapshotScale, buf);
 		destroy_bitmap(b);
 	}
 	else
 	{
-		save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
+		alleg4_save_bitmap(framebuf, SnapshotScale, buf, realpal?temppal:RAMpal);
 	}
 	
 	return D_O_K;

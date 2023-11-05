@@ -60,6 +60,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_CPG_CURS_COL] = CmbPgCursorCol;
 	opts[OPT_TTIP_HL_COL] = TTipHLCol;
 	opts[OPT_SNAPFORMAT] = SnapshotFormat;
+	opts[OPT_SNAPSCALE] = SnapshotScale;
 	opts[OPT_KBREPDEL] = KeyboardRepeatDelay;
 	opts[OPT_KBREPRATE] = KeyboardRepeatRate;
 	opts[OPT_CURS_LARGE] = int32_t(zc_get_config("zquest","cursor_scale_large",1.5)*10000);
@@ -181,6 +182,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_SNAPFORMAT:
 			SnapshotFormat = v;
 			zc_set_config("zquest", "snapshot_format", v);
+			break;
+		case OPT_SNAPSCALE:
+			SnapshotScale = v;
+			zc_set_config("zquest", "snapshot_scale", v);
 			break;
 		case OPT_RELOAD_QUEST:
 			OpenLastQuest = v;
@@ -735,6 +740,14 @@ static const GUI::ListData bottom8_list
 	{ "Pixelated Cover", 1 },
 	{ "Normal Cover", 2 }
 };
+static const GUI::ListData snapshotScaleList
+{
+	{ "1x", 1 },
+	{ "2x", 2 },
+	{ "3x", 3 },
+	{ "4x", 4 },
+	{ "5x", 5 }
+};
 
 //}
 FONT* scale_font(FONT* f, int scale); //fonts.cpp
@@ -961,7 +974,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 						"The size of the dither pattern used for non-highlighted screens."),
 					ROW_DDOWN_I(OPT_INVALID_BG, "Invalid Data BG:", invalidDataBGList,
 						"The background used for invalid data in the tile pages, favorite combos, map, and ajacent screens"),
-					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList)
+					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
+					ROW_DDOWN(OPT_SNAPSCALE, "Snapshot Scale:", snapshotScaleList)
 				),
 				Rows<3>(vAlign = 0.0,
 					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),

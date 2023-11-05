@@ -377,6 +377,7 @@ byte COOLSCROLL = 0;
 
 int32_t  add_asparkle=0, add_bsparkle=0;
 int32_t SnapshotFormat, NameEntryMode=0;
+byte SnapshotScale;
 
 char   zeldadat_sig[52]={0};
 char   sfxdat_sig[52]={0};
