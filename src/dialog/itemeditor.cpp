@@ -784,11 +784,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[0] = "Penetrate Enemies";
 			inf->flag[1] = "Allow Item Pickup";
 			inf->flag[3] = "Pick Up Anything";
-			inf->wpn[0] = "Arrow Sprite:";
+			inf->flag[6] = "Picks Up Keys";
+			inf->actionsnd[0] = "Firing Sound:";
+			_SET(wpn[0], "Arrow Sprite:", "The sprite used for the arrow weapon."
+				" Should contain an up-facing sprite followed by a right-facing sprite.");
 			inf->wpn[1] = "Sparkle Sprite:";
 			inf->wpn[2] = "Damaging Sparkle Sprite:";
-			inf->actionsnd[0] = "Firing Sound:";
-			inf->flag[6] = "Picks Up Keys";
 			break;
 		}
 		case itype_brang: //!TODO Help Text
