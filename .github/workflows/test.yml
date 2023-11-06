@@ -166,9 +166,9 @@ jobs:
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         shell: bash
         run: |
-          if [[ -d "${{ github.workspace }}/.tmp/test_results" ]] ; then
-            cd ${{ github.workspace }}/.tmp/test_results
-            bash ${{ github.workspace }}/.github/workflows/run_python.sh -m tarfile -c ${{ github.workspace }}/.tmp/test_results.tar .
+          if [[ -d ".tmp/test_results" ]] ; then
+            cd .tmp/test_results
+            bash ../../.github/workflows/run_python.sh -m tarfile -c ../test_results.tar .
           fi
       - uses: actions/upload-artifact@v3
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
