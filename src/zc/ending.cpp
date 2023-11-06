@@ -787,7 +787,7 @@ void inc_quest()
 	game->set_maxlife(3*game->get_hp_per_heart());
 	game->set_life(3*game->get_hp_per_heart());
 	game->set_maxbombs(8);
-	game->set_hasplayed(true);
+	game->set_hasplayed(false);
 	//now bound to modules
 	game->set_continue_dmap(moduledata.startingdmap[quest-1]);
 	game->set_continue_scrn(moduledata.startingscreen[quest-1]);
