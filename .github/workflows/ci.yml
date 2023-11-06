@@ -57,6 +57,7 @@ jobs:
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
       extra-args: ${{ matrix.extra-args }} --prune_test_results
+      from-ci-workflow: true
 
   compare:
     needs: ["test"]

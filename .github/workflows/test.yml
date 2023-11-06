@@ -37,6 +37,8 @@ on:
         required: true
       extra-args:
         type: string
+      from-ci-workflow:
+        type: boolean
 
 env:
   PYTHONUNBUFFERED: '1'
@@ -123,7 +125,7 @@ jobs:
 
       # Just run a few replays with JIT disabled.
       # Also, without headless.
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.arch != 'win32' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.arch != 'win32' }}
         name: Test w/o JIT
         run: >
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
@@ -136,14 +138,14 @@ jobs:
           --no-jit
           --no-headless
 
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
         name: Updater cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
         name: Run Python tests
         run: bash .github/workflows/run_python.sh -m unittest discover tests
 
