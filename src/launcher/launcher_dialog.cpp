@@ -926,7 +926,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		break;
 		case message::ZU_RELEASE_NOTES:
 		{
-			std::string url = fmt::format("https://www.github.com/{}/releases/tag/{}", getRepo(), getReleaseTag());
+			std::string url = fmt::format("https://zquestclassic.com/releases/{}/", getReleaseTag());
 #ifdef _WIN32
 			std::string cmd = "start " + url;
 			system(cmd.c_str());
@@ -939,7 +939,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		break;
 		case message::ZU_RELEASE_NOTES_NEXT:
 		{
-			std::string url = fmt::format("https://www.github.com/{}/releases/tag/{}", getRepo(), next_version);
+			std::string url = fmt::format("https://zquestclassic.com/releases/{}/", next_version);
 #ifdef _WIN32
 			std::string cmd = "start " + url;
 			system(cmd.c_str());
