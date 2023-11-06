@@ -827,11 +827,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							CONFIG_CHECKBOX_I("Check for updates on startup",App::launcher,"ZLAUNCH","check_for_updates",0,"Check for updates when starting ZLauncher. When a new version is available, ZLauncher will focus the Update tab on startup.")
 						)
 					),
-					Label(text = fmt::format("Current version: {}", getReleaseTag())),
-					Button(
-						text = "View Release Notes",
-						onClick = message::ZU_RELEASE_NOTES
-					),
 					Row(
 						Rows<2>(fitParent = true,
 							btn_download_update = Button(
@@ -846,10 +841,21 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								onClick = message::ZU_RELEASE_NOTES_NEXT
 							)
 						)
-					)
+					),
 #ifdef UPDATER_USES_PYTHON
-					, Label(text = "Note: the updater requires Python 3 to be installed and configured in PATH")
+					Label(text = "Note: the updater requires Python 3 to be installed and configured in PATH"),
 #endif
+					Row(framed = true, padding = 10_px, topMargin = 40_px,
+						Rows<1>(fitParent = true,
+							Label(text = fmt::format("Current version: {}", getReleaseTag())),
+							Label(text = fmt::format("Channel: {}", getReleaseChannel())),
+							Label(text = fmt::format("Platform: {}", getReleasePlatform())),
+							Button(
+								text = "View Release Notes",
+								onClick = message::ZU_RELEASE_NOTES
+							)
+						)
+					)
 				))
 			),
 			Row(
