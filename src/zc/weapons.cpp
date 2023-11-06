@@ -2317,34 +2317,16 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				case pDIVINEFIREROCKET:
 					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
-						
-					LOADGFX(parent.wpn);
 					step = 4;
 					break;
 					
 				case pDIVINEFIREROCKETRETURN:
 					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
-						
-					LOADGFX(parent.wpn2);
 					step = 4;
 					break;
 					
-				case pDIVINEFIREROCKETTRAIL:
-					LOADGFX(parent.wpn3);
-					break;
-					
-				case pDIVINEFIREROCKETTRAILRETURN:
-					LOADGFX(parent.wpn4);
-					break;
-					
-				case pMESSAGEMORE:
-					LOADGFX(iwMore);
-					break;
-					
 				case pDIVINEPROTECTIONROCKET1:
-					LOADGFX(parent.wpn);
-					
 					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
 						
@@ -2353,8 +2335,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					break;
 					
 				case pDIVINEPROTECTIONROCKETRETURN1:
-					LOADGFX(parent.wpn2);
-					
 					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
 						
@@ -2363,39 +2343,35 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAIL1:
-					LOADGFX(parent.wpn3);
 					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAILRETURN1:
-					LOADGFX(parent.wpn4);
 					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKET2:
-					LOADGFX(parent.wpn6);
 					step = 4;
 					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETRETURN2:
-					LOADGFX(parent.wpn7);
 					step = 4;
 					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAIL2:
-					LOADGFX(parent.wpn8);
 					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAILRETURN2:
-					LOADGFX(parent.wpn9);
 					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
+				case pDIVINEFIREROCKETTRAIL:
+				case pDIVINEFIREROCKETTRAILRETURN:
+				case pMESSAGEMORE:
 				default:
-					tile=0;
 					break;
 			}
 			break;
@@ -3254,6 +3230,64 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 					ret = *val;
 			}
 			LOADGFX(*ret);
+			break;
+		}
+		case wPhantom:
+		{
+			if(spr)
+				ret = *spr;
+			else
+			{
+				switch(type)
+				{
+					case pDIVINEFIREROCKET:
+					case pDIVINEPROTECTIONROCKET1:
+						ret = parent.wpn;
+						break;
+						
+					case pDIVINEFIREROCKETRETURN:
+					case pDIVINEPROTECTIONROCKETRETURN1:
+						ret = parent.wpn2;
+						break;
+						
+					case pDIVINEFIREROCKETTRAIL:
+					case pDIVINEPROTECTIONROCKETTRAIL1:
+						ret = parent.wpn3;
+						break;
+						
+					case pDIVINEFIREROCKETTRAILRETURN:
+					case pDIVINEPROTECTIONROCKETTRAILRETURN1:
+						ret = parent.wpn4;
+						break;
+						
+					case pMESSAGEMORE:
+						ret = iwMore;
+						break;
+						
+					case pDIVINEPROTECTIONROCKET2:
+						ret = parent.wpn6;
+						break;
+						
+					case pDIVINEPROTECTIONROCKETRETURN2:
+						ret = parent.wpn7;
+						break;
+						
+					case pDIVINEPROTECTIONROCKETTRAIL2:
+						ret = parent.wpn8;
+						break;
+						
+					case pDIVINEPROTECTIONROCKETTRAILRETURN2:
+						ret = parent.wpn9;
+						break;
+						
+					default:
+						tile = 0;
+						ret = nullopt;
+						break;
+				}
+			}
+			if(ret)
+				LOADGFX(*ret);
 			break;
 		}
 		default:
