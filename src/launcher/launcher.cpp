@@ -10,6 +10,7 @@
 #include "base/zapp.h"
 #include "fontsdat.h"
 #include "zinfo.h"
+#include "zq/render_tooltip.h"
 
 #define QUICK_EXIT 0
 
@@ -651,6 +652,10 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
 }
 
 void clear_tooltip()
+{
+	
+}
+void ttip_uninstall_all()
 {
 	
 }

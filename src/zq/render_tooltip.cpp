@@ -10,11 +10,24 @@
 //       - highlight
 //       - text
 
+int ttip_global_id = 1;
+
+struct tooltip
+{
+	std::string text;
+	size_and_pos trigger_area;
+	int tip_x, tip_y;
+	int highlight_thickness;
+};
+
+static std::map<int, tooltip> tooltips;
+
 class ToolTipRTI : public LegacyBitmapRTI
 {
 public:
 	ToolTipRTI(std::string name);
 
+	int active_tooltip_id = 0;
 	int timer = 0;
 
 private:
@@ -94,46 +107,77 @@ static TextRTI rti_text("text");
 static HighlightRTI rti_highlight("highlight");
 static bool initialized = false;
 extern int TTipHLCol;
+extern bool TooltipsHighlight;
 
-void ttip_add(std::string text, int x, int y, float scale)
+static int next_tooltip_id = 2;
+int ttip_register_id()
 {
 	if (!initialized)
 	{
 		initialized = true;
 		rti_tooltip.add_child(&rti_highlight);
 		rti_tooltip.add_child(&rti_text);
+		get_root_rti()->add_child(&rti_tooltip);
 	}
 
-	rti_text.dirty |= rti_text.text != text;
-	rti_text.text = text;
-	rti_text.set_transform({x, y, scale, scale});
-	get_root_rti()->add_child(&rti_tooltip);
-	rti_highlight.visible = false;
+	return next_tooltip_id++;
 }
 
-void ttip_add_highlight(int x, int y, int w, int h, int fw, int fh)
+void ttip_install(int id, std::string text, int x, int y, int w, int h, int tip_x, int tip_y, int fw, int fh)
 {
-	rti_highlight.set_transform({x, y});
+	if (tip_x == -1)
+	{
+		tip_x = x;
+		tip_y = y;
+	}
+	size_and_pos trigger_area;
+	trigger_area.x = x;
+	trigger_area.y = y;
+	trigger_area.w = w;
+	trigger_area.h = h;
+	trigger_area.fw = fw;
+	trigger_area.fh = fh;
+	int highlight_thickness = 1;
+	tooltips[id] = {text, trigger_area, tip_x, tip_y, highlight_thickness};
+}
+
+void ttip_uninstall(int id)
+{
+	tooltips.erase(id);
+	if (rti_tooltip.active_tooltip_id == id)
+		rti_tooltip.active_tooltip_id = 0;
+}
+
+void ttip_uninstall_all()
+{
+	tooltips.clear();
+	rti_tooltip.active_tooltip_id = 0;
+	rti_tooltip.visible = false;
+	rti_tooltip.timer = 0;
+}
+
+void ttip_set_highlight_thickness(int id, int thickness)
+{
+	tooltips[id].highlight_thickness = thickness;
+}
+
+static void add_highlight(size_and_pos pos, int thickness)
+{
+	rti_highlight.set_transform({pos.x, pos.y});
 	rti_highlight.visible = true;
 
-	size_and_pos pos = {};
-	pos.set(0, 0, w, h);
-	pos.fw = fw;
-	pos.fh = fh;
-	pos.data[0] = 2;
-	pos.data[1] = vc(TTipHLCol);
+	size_and_pos pos2 = pos;
+	pos2.x = 0;
+	pos2.y = 0;
+	pos2.data[0] = thickness;
+	pos2.data[1] = vc(TTipHLCol);
 
-	if (pos == rti_highlight.pos)
+	if (pos2 == rti_highlight.pos)
 		return;
 
-	rti_highlight.pos = pos;
-	rti_highlight.set_size(w, h);
+	rti_highlight.pos = pos2;
+	rti_highlight.set_size(pos2.w, pos2.h);
 	rti_highlight.dirty = true;
-}
-
-void ttip_set_highlight_thickness(int thickness)
-{
-	rti_highlight.pos.data[0] = zoomed_minimap ? 2 : 1;
 }
 
 void ttip_clear_timer()
@@ -141,24 +185,52 @@ void ttip_clear_timer()
 	rti_tooltip.timer = tooltip_maxtimer + 1;
 }
 
-void ttip_remove()
-{
-	rti_tooltip.remove();
-	rti_tooltip.visible = false;
-	rti_tooltip.timer = 0;
-}
-
 ToolTipRTI::ToolTipRTI(std::string name) : LegacyBitmapRTI(name) {}
 
 void ToolTipRTI::prepare()
 {
+	// Find tooltip mouse is currently over.
+	int mx = gui_mouse_x();
+	int my = gui_mouse_y();
+	int tooltip_id = 0;
+	for (auto& it : tooltips)
+	{
+		if (it.second.trigger_area.rect(mx, my))
+		{
+			tooltip_id = it.first;
+			break;
+		}
+	}
+
+	if (!tooltip_id)
+	{
+		visible = false;
+		return;
+	}
+
+	auto& tooltip = tooltips[tooltip_id];
+	active_tooltip_id = tooltip_id;
+
+	if (rti_text.text != tooltip.text)
+	{
+		rti_text.dirty = true;
+		rti_text.text = tooltip.text;
+	}
+
+	rti_text.set_transform({tooltip.tip_x, tooltip.tip_y, 1, 1});
+
+	rti_highlight.visible = TooltipsHighlight;
+	if (rti_highlight.visible && rti_highlight.pos != tooltip.trigger_area)
+	{
+		add_highlight(tooltip.trigger_area, tooltip.highlight_thickness);
+	}
+
 	if (timer <= tooltip_maxtimer)
 	{
 		++timer;
 		visible = false;
+		return;
 	}
-	else
-	{
-		visible = true;
-	}
+
+	visible = true;
 }

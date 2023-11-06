@@ -2346,12 +2346,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		bool redraw=false;
 		bool did_wand_select=false;
 		
-		if((tooltip_trigger.x>-1&&tooltip_trigger.y>-1)&&(!tooltip_trigger.rect(temp_mouse_x,temp_mouse_y)))
-		{
-			clear_tooltip();
-			redraw=true;
-		}
-		
 		if(keypressed())
 		{
 			bool ctrl = CHECK_CTRL_CMD;
@@ -3956,10 +3950,11 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		std::string text = fmt::format("{}  {}x{}, {:.2g}x   zoom with , and .", imgstr[imagetype], original_imagebuf_bitmap->w, original_imagebuf_bitmap->h, IMAGEBUF_SCALE);
 		int text_x = txt_x;
 		int text_y = (216 + yofs) * mul;
-		// TODO: tooltips need more work before they can be used like this. This text is only draw on input, but update_tooltip expects to be called constantly.
+		// TODO: can almost use this, but drawing is offset. prob cuz drawing to a different bitmap than the normal screen bitmap? idk
 		// int text_w = text_length(font, text.c_str());
 		// int text_h = text_height(font);
-		// update_tooltip(text_x, text_y, text_x, text_y, text_w, text_h, "Press . or , to change scale");
+		// static int grab_scale_tooltip_id = ttip_register_id();
+		// ttip_install(grab_scale_tooltip_id, "zoom with , and .", text_x, text_y, text_w, text_h, text_x, text_y - 40);
 		textprintf_ex(screen, font, text_x, text_y, jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "%s", text.c_str());
 
 		draw_text_button(screen,117*mul,(192+yofs)*mul,int32_t(61*(1.5)),int32_t(20*(1.5)),"Recolor",vc(1),vc(14),0,true);
@@ -4985,11 +4980,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 		if(exiting_program) break;
 		rest(4);
 		bool redraw=false;
-
-		if (!tooltip_trigger.rect(gui_mouse_x(), gui_mouse_y()))
-		{
-			clear_tooltip();
-		}
 		
 		if(keypressed())
 		{

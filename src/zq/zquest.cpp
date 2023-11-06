@@ -312,8 +312,6 @@ size_and_pos commands_infobtn;
 size_and_pos commands_zoombtn;
 size_and_pos commands_txt;
 
-size_and_pos tooltip_trigger;
-
 size_and_pos squarepanel_swap_btn;
 size_and_pos squarepanel_up_btn;
 size_and_pos squarepanel_down_btn;
@@ -5388,6 +5386,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
 				textprintf_disabled(txtbmp,font,0,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				static int map_shortcut_tooltip_id = ttip_register_id();
+				ttip_install(map_shortcut_tooltip_id, "Prev map: ,   Next map: .", txt_x, txt_y, 30, 20, txt_x, txt_y - 40);
+				
 				textprintf_ex(txtbmp,font,spc_m,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
 				
 				textprintf_disabled(txtbmp,font,spc_m+space,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
@@ -7169,7 +7170,7 @@ void select_scr()
 			sprintf(buf,"0x%02X (%d)", ind, ind);
 			clear_tooltip();
 			update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-			ttip_set_highlight_thickness(zoomed_minimap ? 2 : 1);
+			ttip_set_highlight_thickness(ttip_global_id, zoomed_minimap ? 2 : 1);
 		}
 		
 		if(ind>=MAPSCRS)
@@ -10634,11 +10635,6 @@ void domouse()
 	update_combobrush();
 	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
 	
-	if(!tooltip_trigger.rect(x,y))
-	{
-		clear_tooltip();
-	}
-	
 	++scrolldelay;
 	
 	bool x_on_list = false;
@@ -10964,7 +10960,7 @@ void domouse()
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
 		update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-		ttip_set_highlight_thickness(zoomed_minimap ? 2 : 1);
+		ttip_set_highlight_thickness(ttip_global_id, zoomed_minimap ? 2 : 1);
 		ttip_clear_timer();
 	}
 	
@@ -28592,7 +28588,7 @@ void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
 }
 void load_size_poses()
 {
-	ttip_remove();
+	ttip_uninstall_all();
 	
 	FONT* favcmdfont = get_custom_font(CFONT_FAVCMD);
 	FONT* guifont = get_custom_font(CFONT_GUI);
@@ -30724,22 +30720,15 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 		return;
 	}
 	
-	tooltip_trigger.x=tx;
-	tooltip_trigger.y=ty;
-	tooltip_trigger.w=tw;
-	tooltip_trigger.h=th;
-	
 	if(x<0||y<0) //if we want to clear the tooltip
 	{
-		ttip_remove();
+		ttip_uninstall_all();
 		return; //cancel
 	}
 	
 	y+=16;
 
-	ttip_add(tipmsg, x, y, scale);
-	if (TooltipsHighlight && tw > 0 && th > 0)
-		ttip_add_highlight(tx, ty, tw, th, fw, fh);
+	ttip_install(ttip_global_id, tipmsg, tx, ty, tw, th, x, y, fw, fh);
 }
 
 void ZQ_ClearQuestPath()

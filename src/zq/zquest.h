@@ -117,8 +117,6 @@ extern size_and_pos commands_window;
 extern size_and_pos commands_list;
 extern size_and_pos dummy_panel;
 
-extern size_and_pos tooltip_trigger;
-
 extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
 extern int32_t tooltip_timer, tooltip_maxtimer;
