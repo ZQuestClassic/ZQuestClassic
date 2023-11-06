@@ -2943,6 +2943,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				else
 					ret = dir < left ? wHSCHAIN_V : wHSCHAIN_H;
 			}
+			LOADGFX(*ret);
 			switch(dir)
 			{
 				case down:
