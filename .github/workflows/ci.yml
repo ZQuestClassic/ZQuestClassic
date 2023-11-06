@@ -76,6 +76,9 @@ jobs:
           node-version: 18.x
       - name: git clone
         uses: actions/checkout@v3
+        with:
+          # Need history to find baseline commit.
+          fetch-depth: 0
 
       # TODO: there is no simple way to download just the "replay-*" artifacts,
       # so currently this also downloads each large build artifact.
