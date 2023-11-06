@@ -54,6 +54,7 @@
 #include <fmt/format.h>
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include "music_playback.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -8053,67 +8054,14 @@ INLINE int32_t mixvol(int32_t v1,int32_t v2)
 	return (zc_min(v1,255)*zc_min(v2,255)) >> 8;
 }
 
-// Run an NSF, or a MIDI if the NSF is missing somehow.
-bool try_zcmusic(const char *filename, int32_t track, int32_t midi, int32_t fadeoutframes)
+int32_t get_emusic_volume()
 {
-	ZCMUSIC *newzcmusic = zcmusic_load_for_quest(filename, qstpath);
-	
-	// Found it
-	if(newzcmusic!=NULL)
-	{
-		newzcmusic->fadevolume = 10000;
-		newzcmusic->fadeoutframes = fadeoutframes;
-
-		zcmixer->newtrack = newzcmusic;
-
-		zcmusic_stop(zcmusic);
-		zcmusic_unload_file(zcmusic);
-		zc_stop_midi();
-		
-		zcmusic=newzcmusic;
-		int32_t temp_volume = emusic_volume;
-		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
-			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
-		temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
-		zcmusic_play(zcmusic, temp_volume);
-		
-		if(track>0)
-			zcmusic_change_track(zcmusic,track);
-			
-		return true;
-	}
-	
-	// Not found, play MIDI - unless this was called by a script (yay, magic numbers)
-	else if(midi>-1000)
-		jukebox(midi);
-		
-	return false;
-}
-
-bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi)
-{
-	ZCMUSIC *newzcmusic = zcmusic_load_for_quest(filename, qstpath);
-	// Found it
-	if(newzcmusic!=NULL)
-	{
-		zcmusic_stop(zcmusic);
-		zcmusic_unload_file(zcmusic);
-		zc_stop_midi();
-		
-		zcmusic=newzcmusic;
-		zcmusic_play(zcmusic, emusic_volume);
-		
-		if(track>0)
-			zcmusic_change_track(zcmusic,track);
-			
-		return true;
-	}
-	
-	// Not found, play MIDI - unless this was called by a script (yay, magic numbers)
-	else if(midi>-1000)
-		jukebox(midi);
-		
-	return false;
+	int32_t temp_volume = emusic_volume;
+	if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
+		temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
+	if (!zcmusic)
+		return temp_volume;
+	return (temp_volume * zcmusic->fadevolume) / 10000;
 }
 
 int32_t get_zcmusicpos()
@@ -8211,7 +8159,7 @@ void play_DmapMusic()
 		{
 			if (DMaps[currdmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
 			{
-				if (FFCore.play_enh_music_crossfade(DMaps[currdmap].tmusic, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
+				if (play_enh_music_crossfade(DMaps[currdmap].tmusic, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
 				{
 					if (zcmusic != NULL)
 					{
@@ -8257,7 +8205,7 @@ void play_DmapMusic()
 	{
 		if (DMaps[currdmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[currdmap].tmusic) != 0)
 		{
-			FFCore.play_enh_music_crossfade(NULL, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
+			play_enh_music_crossfade(NULL, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
 		}
 		else
 		{

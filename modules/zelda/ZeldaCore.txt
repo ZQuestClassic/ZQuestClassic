@@ -28,6 +28,7 @@ src/slopes.cpp
 src/zc/saves.cpp
 src/zc/db_rng.cpp
 src/zc/zc_ffc.cpp
+src/music_playback.cpp
 
 ## End of Zelda Core module
 )

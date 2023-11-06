@@ -21,6 +21,7 @@
 #include "slopes.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include "music_playback.h"
 extern FFScript FFCore;
 extern HeroClass Hero;
 extern ZModule zcm;
@@ -30580,7 +30581,7 @@ void HeroClass::getTriforce(int32_t id2)
 		if(itemsbuf[id2].misc1)
 			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
 		else
-			try_zcmusic("zelda.nsf",moduledata.tf_track, ZC_MIDI_TRIFORCE);
+			try_zcmusic("zelda.nsf",qstpath,moduledata.tf_track,ZC_MIDI_TRIFORCE,get_emusic_volume());
 	}
 	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 	{

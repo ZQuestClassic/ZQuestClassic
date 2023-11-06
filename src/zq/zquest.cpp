@@ -106,6 +106,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_hotkey.h"
 #include "zq/package.h"
 #include "zq/zq_files.h"
+#include "music_playback.h"
 
 extern CConsoleLoggerEx parser_console;
 

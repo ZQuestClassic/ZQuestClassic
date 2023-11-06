@@ -57,6 +57,7 @@
 #include <fmt/std.h>
 #include "zc/render.h"
 #include "zinfo.h"
+#include "music_playback.h"
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
