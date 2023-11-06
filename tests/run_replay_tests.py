@@ -393,11 +393,6 @@ else:
         concurrency = 1
     elif is_ci:
         concurrency = os.cpu_count()
-        # In GHA for Windows there are 2 CPUs, but only on Windows does running concurrently result
-        # in random failures related to not being able to read the result.txt file.
-        # For now, disable.
-        if platform.system() == 'Windows':
-            concurrency = 1
     else:
         concurrency = max(1, os.cpu_count() - 4)
     print(f'found {os.cpu_count()} cpus, setting concurrency to {concurrency}')
