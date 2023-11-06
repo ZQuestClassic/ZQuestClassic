@@ -594,7 +594,7 @@ int32_t SaveScreenSettings[24] = {
 	QMisc.colors.msgtext, 	QMisc.colors.msgtext,  	QMisc.colors.caption,
 	QMisc.colors.caption,	QMisc.colors.caption,	QMisc.colors.caption,
 	0, 			0, 			0 }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
-char SaveScreenText[7][32]={"CONTINUE", "SAVE", "RETRY", "DON'T SAVE", "SAVE AND QUIT", "SAVE", "QUIT" };
+char SaveScreenText[7][32]={"CONTINUE", "SAVE AND QUIT", "QUIT WITHOUT SAVING", "DON'T SAVE", "SAVE AND QUIT", "SAVE", "QUIT" };
 
 void ResetSaveScreenSettings()
 {
