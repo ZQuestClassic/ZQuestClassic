@@ -89,6 +89,8 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
 	list_weaptype(GUI::ZCListData::weaptypes(true)),
 	list_deftypes(GUI::ZCListData::deftypes()),
+	list_dirs4n(GUI::ZCListData::dirs(4,true)),
+	list_0_7(GUI::ListData::numbers(false,0,8)),
 	list_lift_parent_items(GUI::ZCListData::items(true).filter(
 		[&](GUI::ListItem& itm)
 		{
@@ -760,7 +762,6 @@ void ComboEditorDialog::refreshScript()
 }
 void ComboEditorDialog::loadComboType()
 {
-	static std::string dirstr[] = {"up","down","left","right"};
 	#define FL(fl) (local_comboref.usrflags & (fl))
 	for(size_t q = 0; q < 16; ++q)
 	{
@@ -969,7 +970,7 @@ void ComboEditorDialog::loadComboType()
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
 			l_flag[1] = "Custom Speed";
-			h_flag[1] = "Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the " + dirstr[local_comboref.type-cCVUP] + "ward direction.";
+			h_flag[1] = fmt::format("Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the {}ward direction.", dirstr[local_comboref.type-cCVUP]);
 			l_flag[2] = "Force Dir";
 			h_flag[2] = "Forces the Player to face in the conveyor's direction";
 			l_flag[4] = "Heavy Boots Disable";
@@ -3278,7 +3279,26 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									InfoDialog("Trigger Group Val","The value used by the flags"
 										" 'TrigGroup Less->' and 'TrigGroup Greater->'. 0-65535.").show();
 								}
-							)
+							),
+							Label(text = "ExDoor Dir:", fitParent = true),
+							DropDownList(data = list_dirs4n, fitParent = true,
+								selectedValue = local_comboref.exdoor_dir,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.exdoor_dir = val;
+								}),
+							INFOBTN("If not '(None)', triggering this combo sets the extra doorstate"
+								" in the specified direction (of the index set for 'ExDoor Index')."
+								" Additionally, if that door state is already set, the combo will"
+								" automatically trigger without any effects other than combo/cset change."),
+							Label(text = "ExDoor Index:", fitParent = true),
+							DropDownList(data = list_0_7, fitParent = true,
+								selectedValue = local_comboref.exdoor_ind,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.exdoor_ind = val;
+								}),
+							INFOBTN("Which door index of the specified direction to use. (See ? for 'ExDoor Dir' for more info)")
 						),
 						Rows<4>(framed = true, fitParent = true,
 							INFOBTN("'Req Item:' must NOT be owned to trigger"),

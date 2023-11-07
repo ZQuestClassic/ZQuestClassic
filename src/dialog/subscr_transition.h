@@ -32,7 +32,7 @@ protected:
 	
 	std::shared_ptr<GUI::Button> pastebtn;
 	
-	GUI::ListData list_sfx;
+	GUI::ListData list_sfx, list_dirs4;
 	
 	int32_t* cur_args() {return args[local_trans.type];}
 	void refr_info();

@@ -83,22 +83,11 @@ ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : local_ref(pare
 	list_dropsets(GUI::ZCListData::dropsets(true)),
 	list_items(GUI::ZCListData::items(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
-	list_counters(GUI::ZCListData::counters(true,true))
+	list_counters(GUI::ZCListData::counters(true,true)),
+	list_dirs(GUI::ZCListData::dirs(8,false))
 {
 	memset(rs_sz, 0, sizeof(rs_sz));
 }
-
-static const GUI::ListData list_dirs
-{
-	{ "Up", 0 },
-	{ "Down", 1 },
-	{ "Left", 2 },
-	{ "Right", 3 },
-	{ "Up-Left", 4 },
-	{ "Up-Right", 5 },
-	{ "Down-Left", 6 },
-	{ "Down-Right", 7 }
-};
 
 static const GUI::ListData list_clippings
 {

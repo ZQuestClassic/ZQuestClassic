@@ -109,6 +109,7 @@ struct gamedata
 	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0, 0}};
 	
 	bounded_map<dword,uint32_t> xstates {MAXSCRSNORMAL, 0};
+	bounded_map<dword,std::array<byte,4>> xdoors {MAXSCRSNORMAL, {0}};
 	
 	bounded_map<word,int32_t> gswitch_timers {NUM_GSWITCHES, 0};
 	bounded_map<word,int16_t> OverrideItems {itype_max, -2};
@@ -381,6 +382,7 @@ struct gamedata
 		gen_eventstate.normalize();
 		gen_data.normalize();
 		xstates.normalize();
+		xdoors.normalize();
 		gswitch_timers.normalize();
 		OverrideItems.normalize();
 		screen_data.normalize();

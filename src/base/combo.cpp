@@ -53,6 +53,7 @@ bool newcombo::is_blank(bool ignoreEff)
 	if(spawnitem) return false;
 	if(spawnenemy) return false;
 	if(exstate > -1) return false;
+	if(exdoor_dir > -1) return false;
 	if(spawnip) return false;
 	if(trigcopycat) return false;
 	if(trigcooldown) return false;
@@ -197,6 +198,8 @@ void newcombo::advpaste(newcombo const& other, byte* pasteflags)
 		spawnitem = other.spawnitem;
 		spawnenemy = other.spawnenemy;
 		exstate = other.exstate;
+		exdoor_dir = other.exdoor_dir;
+		exdoor_ind = other.exdoor_ind;
 		spawnip = other.spawnip;
 		trigcopycat = other.trigcopycat;
 		trigcooldown = other.trigcooldown;

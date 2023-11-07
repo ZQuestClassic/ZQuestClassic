@@ -630,6 +630,18 @@ GUI::ListData GUI::ZCListData::disableditems(byte* disabledarray)
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::dirs(int count, bool none)
+{
+	static const string dirstrs[] = {"Up","Down","Left","Right","Up-Left","Up-Right","Down-Left","Down-Right"};
+	GUI::ListData ls;
+	if(none)
+		ls.add("(None)", -1);
+	if(count < 0) count = 4;
+	if(count > 8) count = 8;
+	for(int q = 0; q < count; ++q)
+		ls.add(dirstrs[q],q);
+	return ls;
+}
 //SCRIPTS
 static void load_scriptnames(std::set<std::string> &names, std::map<std::string, int32_t> &vals,
 	std::map<int32_t, script_slot_data> scrmap, int32_t count)

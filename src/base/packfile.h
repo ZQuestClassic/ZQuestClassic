@@ -554,6 +554,14 @@ template<typename Sz,typename T>
 inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f);
 template<typename Sz,typename T>
 inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f);
+template<typename T, size_t Sz>
+inline bool p_getarr(T cont[Sz], PACKFILE *f);
+template<typename T, size_t Sz>
+inline bool p_putarr(T const (&cont)[Sz], PACKFILE *f);
+template<typename T, size_t Sz>
+inline bool p_getarr(std::array<T,Sz>* cont, PACKFILE *f);
+template<typename T, size_t Sz>
+inline bool p_putarr(std::array<T,Sz> const& cont, PACKFILE *f);
 
 bool p_getbitstr(bitstring* ptr, PACKFILE *f);
 bool p_putbitstr(bitstring const& ptr, PACKFILE *f);
@@ -633,6 +641,17 @@ template<typename T>
 inline bool p_putvar(bitstring const& ptr, PACKFILE *f)
 {
 	return p_putbitstr(ptr,f);
+}
+
+template<typename T, size_t Sz>
+inline bool p_getvar(std::array<T,Sz>* ptr, PACKFILE *f)
+{
+	return p_getarr(ptr,f);
+}
+template<typename T, size_t Sz>
+inline bool p_putvar(std::array<T,Sz> const& ptr, PACKFILE *f)
+{
+	return p_putarr(ptr,f);
 }
 
 //
@@ -811,6 +830,27 @@ inline bool p_putbitstr(bitstring const& ptr, PACKFILE *f)
 	return p_putbvec(ptr.inner(),f);
 }
 
+template<typename T, size_t Sz>
+inline bool p_getarr(std::array<T,Sz>* cont, PACKFILE *f)
+{
+	uint16_t sz;
+	if(!p_igetw(&sz,f))
+		return false;
+	for(size_t q = 0; q < sz && q < Sz; ++q)
+		if(!p_getvar(&((*cont)[q]), f))
+			return false;
+	return true;
+}
+template<typename T, size_t Sz>
+inline bool p_putarr(std::array<T,Sz> const& cont, PACKFILE *f)
+{
+	if(!p_iputw(Sz,f))
+		return false;
+	for(size_t q = 0; q < Sz; ++q)
+		if(!p_putvar(cont[q], f))
+			return false;
+	return true;
+}
 //
 
 inline bool p_getcstr(string *str, PACKFILE *f)

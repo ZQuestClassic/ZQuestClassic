@@ -19,7 +19,8 @@ void call_subscrtransition_dlg(SubscrTransition& tr, std::string title)
 
 SubscrTransitionDialog::SubscrTransitionDialog(SubscrTransition& src, std::string const& title) :
 	local_trans(src), src_transition(&src), windowTitle(title),
-	list_sfx(GUI::ZCListData::sfxnames(true))
+	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_dirs4(GUI::ZCListData::dirs(4,false))
 {
 	memset(args,0,sizeof(args));
 	args[sstrSLIDE][1] = 40000;
@@ -36,13 +37,6 @@ static const GUI::ListData list_trtype
 		" in from the opposite side behind it." },
 	{ "Pixellate", sstrPIXEL, "Pixellate out from one page to the other."
 		" Note that this pattern is NOT random." },
-};
-static const GUI::ListData list_4dirs
-{
-	{ "Up", 0 },
-	{ "Down", 1 },
-	{ "Left", 2 },
-	{ "Right", 3 }
 };
 
 std::shared_ptr<GUI::Widget> SubscrTransitionDialog::view()
@@ -145,7 +139,7 @@ std::shared_ptr<GUI::Widget> SubscrTransitionDialog::view()
 		case sstrSLIDE:
 			fr->setContent(Rows<3>(
 				Label(text = "Direction:", hAlign = 1.0),
-				DropDownList(data = list_4dirs,
+				DropDownList(data = list_dirs4,
 					fitParent = true,
 					selectedValue = args[sstrSLIDE][0],
 					onSelectFunc = [&](int32_t val)
