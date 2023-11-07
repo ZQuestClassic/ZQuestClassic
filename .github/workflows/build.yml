@@ -184,7 +184,7 @@ jobs:
           -DCOPY_RESOURCES=OFF
           -DRELEASE_TAG="${{ inputs.release-tag }}"
           -DRELEASE_PLATFORM="${{ steps.set-platform.outputs.platform }}"
-          -DRELEASE_CHANNEL="^(2.55|nightly).*$"
+          -DRELEASE_CHANNEL="2.55"
           -DREPO="${{ github.repository }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
           -DWANT_MAC_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"

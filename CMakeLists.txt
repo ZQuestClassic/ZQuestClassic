@@ -16,7 +16,7 @@ set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
 set(RELEASE_PLATFORM "" CACHE STRING "Release platform. Ex: mac, linux, windows-x86, windows-x64")
-set(RELEASE_CHANNEL "" CACHE STRING "Release channel. The git tag pattern used by updater to find newer releases")
+set(RELEASE_CHANNEL "" CACHE STRING "Release channel. Used by updater to find new releases")
 set(REPO "" CACHE STRING "Repo URL")
 
 set(CMAKE_CXX_STANDARD 20)

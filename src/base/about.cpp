@@ -77,7 +77,7 @@ char const* getReleaseChannel()
 #ifdef RELEASE_CHANNEL
 	return RELEASE_CHANNEL;
 #else
-	return ".*";
+	return "latest";
 #endif
 }
 

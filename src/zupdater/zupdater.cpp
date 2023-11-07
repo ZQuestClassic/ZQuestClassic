@@ -154,109 +154,6 @@ static void require_python()
 	}
 }
 
-#ifndef UPDATER_USES_PYTHON
-
-// Returns a vector of release tag names, where the first is the most recent release, matching the given
-// release channel. Returns many instead of just the latest because must verify that the given release
-// actually has an asset for the current platform (could be that platform failed during build).
-static std::vector<std::string> get_next_release_tag_names(std::regex tag_pattern)
-{
-	std::string json_url = fmt::format("https://api.github.com/repos/{}/git/matching-refs/tags/", repo);
-
-	struct MemoryStruct chunk;
-	chunk.memory = (char*)malloc(1);
-	chunk.size = 0;
-
-	CURL *curl_handle = curl_easy_init();
-	curl_easy_setopt(curl_handle, CURLOPT_URL, json_url.c_str());
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-	CURLcode res = curl_easy_perform(curl_handle);
-
-	if (res != CURLE_OK) {
-		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-		free(chunk.memory);
-		return {};
-	}
-
-	curl_easy_cleanup(curl_handle);
-
-	std::error_code ec;
-	auto json_all = JSON::Load(chunk.memory, ec);
-	if (json_all.hasKey("message"))
-	{
-		fatal("Error from GitHub: " + json_all["message"].ToString());
-	}
-
-	std::vector<std::string> tag_names;
-	if (!ec)
-	{
-		for (auto& json : json_all.ArrayRange())
-		{
-			std::string tag_name = json["ref"].ToString();
-			util::replace_first(tag_name, "refs/tags/", "");
-			if (std::regex_match(tag_name, tag_pattern))
-				tag_names.push_back(tag_name);
-		}
-	}
-
-	free(chunk.memory);
-
-	std::reverse(tag_names.begin(), tag_names.end());
-	return tag_names;
-}
-
-static std::string maybe_get_release_asset_url(std::string tag_name)
-{
-	std::string json_url = fmt::format("https://api.github.com/repos/{}/releases/tags/{}", repo, tag_name);
-
-	struct MemoryStruct chunk;
-	chunk.memory = (char*)malloc(1);
-	chunk.size = 0;
-
-	CURL *curl_handle = curl_easy_init();
-	curl_easy_setopt(curl_handle, CURLOPT_URL, json_url.c_str());
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-	CURLcode res = curl_easy_perform(curl_handle);
-
-	if (res != CURLE_OK) {
-		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-		free(chunk.memory);
-		return "";
-	}
-
-	curl_easy_cleanup(curl_handle);
-
-	std::error_code ec;
-	auto json = JSON::Load(chunk.memory, ec);
-	if (json.hasKey("message"))
-	{
-		fatal("Error from GitHub: " + json["message"].ToString());
-	}
-
-	std::string asset_url;
-	if (!ec)
-	{
-		for (auto& asset_json : json["assets"].ArrayRange())
-		{
-			if (asset_json["name"].ToString().find(platform) != std::string::npos)
-			{
-				asset_url = asset_json["browser_download_url"].ToString();
-				break;
-			}
-		}
-	}
-
-	free(chunk.memory);
-
-	return asset_url;
-}
-
-#endif
-
 // NOTE: for Python, this returns the latest release. Otherwise, it returns the latest release
 // of the configured channel. Could do the same in Python, but Windows is most of our userbase, and
 // the Python implementation should be dropped eventually on non-Windows platforms so opting not to implement it.
@@ -277,26 +174,47 @@ static std::tuple<std::string, std::string> get_next_release()
 	std::string asset_url = next_release_map["asset_url"];
 	return {new_version, asset_url};
 #else
-	std::regex pattern(channel);
-	auto tag_names = get_next_release_tag_names(pattern);
-	if (tag_names.empty())
-	{
-		fprintf(stderr, "could not find next release tag name\n");
+	std::string json_url = fmt::format("https://zquestclassic.com/releases/{}.json", channel);
+
+	struct MemoryStruct chunk;
+	chunk.memory = (char*)malloc(1);
+	chunk.size = 0;
+
+	CURL *curl_handle = curl_easy_init();
+	curl_easy_setopt(curl_handle, CURLOPT_URL, json_url.c_str());
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+	CURLcode res = curl_easy_perform(curl_handle);
+
+	if (res != CURLE_OK) {
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		free(chunk.memory);
 		return {};
 	}
 
-	for (const auto tag_name : tag_names)
+	curl_easy_cleanup(curl_handle);
+
+	std::error_code ec;
+	auto json = JSON::Load(chunk.memory, ec);
+
+	std::string tag_name, asset_url;
+	if (!ec)
 	{
-		std::string asset_url = maybe_get_release_asset_url(tag_name);
-		if (asset_url.size())
+		tag_name = json["tagName"].ToString();
+		for (auto& asset_json : json["assets"].ArrayRange())
 		{
-			return {tag_name, asset_url};
+			if (asset_json["name"].ToString().find(platform) != std::string::npos)
+			{
+				asset_url = asset_json["url"].ToString();
+				break;
+			}
 		}
 	}
 
-	fprintf(stderr, "No release tags with valid assets found\n");
+	free(chunk.memory);
 
-	return {};
+	return {tag_name, asset_url};
 #endif
 }
 
@@ -407,7 +325,7 @@ static bool install_release(std::string asset_url, bool use_cache, std::string& 
 	std::vector<std::string> args = {
 		"tools/updater.py",
 		"--repo", repo,
-		"--channel", channel,
+		"--platform", platform,
 		"--asset-url", asset_url,
 	};
 	if (use_cache) args.push_back("--cache");
