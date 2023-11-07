@@ -1199,7 +1199,7 @@ def prompt_for_gh_auth():
 
 
 def get_recent_release_tag(match: str):
-    command = f'git describe --tags --abbrev=0 --match {match} main'
+    command = f'git describe --tags --abbrev=0 --match {match}'
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 
 def prompt_to_create_compare_report():
@@ -1295,7 +1295,7 @@ def prompt_to_create_compare_report():
         test_runs.extend(collect_many_test_results_from_dir(local_baseline_dir))
     elif selected_index == 2:
         gh, repo = prompt_for_gh_auth()
-        baseline_run_id = collect_baseline_from_test_results(gh, repo, [test_results_path])
+        baseline_run_id = collect_baseline_from_test_results(gh, repo, '', [test_results_path])
         print(f'GitHub Actions job is done, the workflow run id is: {baseline_run_id}')
         test_runs.extend(collect_many_test_results_from_ci(gh, repo, baseline_run_id))
         print('Note: now that you\'ve done this, this will be the first ".gha-cache-dir" option listed in the "Collect from disk" option')
