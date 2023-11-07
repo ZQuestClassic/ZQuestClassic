@@ -1544,7 +1544,7 @@ static MENU etc_menu[] =
 static MENU zscript_menu[] =
 {
 	{ (char *)"Compile &ZScript...",            onCompileScript,           NULL,                     0,            NULL   },
-	{ (char *)"&Assign Slots...",               onSlotAssign,              NULL,            D_DISABLED,            NULL   },
+	{ (char *)"&View Slots...",                 onSlotPreview,              NULL,                     0,            NULL   },
 	//divider	
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Compiler Settings",             onZScriptCompilerSettings, NULL,                     0,            NULL   },
@@ -9986,6 +9986,7 @@ bool has_command_info(int cmd)
 		case cmdDrawingModePool:
 		case cmdQRSearch:
 		case cmdDrawingModeAutocombo:
+		case cmdViewScriptSlots:
 			return true;
 	}
 	return false;
@@ -10465,6 +10466,9 @@ std::string get_command_infostr(int cmd)
 			break;
 		case cmdDrawingModeAutocombo:
 			infostr = "Switches to Autcombo drawing mode";
+			break;
+		case cmdViewScriptSlots:
+			infostr = "Shows a list of all script slots";
 			break;
 	}
 	return infostr;
@@ -23059,6 +23063,7 @@ void clearAssignSlotDlg()
 	assignscript_dlg[13].flags = 0;
 }
 
+//Deprecated for now, we'll be back later I swear!
 int32_t onSlotAssign()
 {
 	clearAssignSlotDlg();
@@ -23096,6 +23101,14 @@ int32_t onSlotAssign()
 	do_script_disassembly(scripts, false);
 	
 	do_slots(scripts, false);
+	return D_O_K;
+}
+
+void call_view_script_slots();
+
+int32_t onSlotPreview()
+{
+	call_view_script_slots();
 	return D_O_K;
 }
 
@@ -30386,6 +30399,7 @@ command_pair commands[cmdMAX]=
     { "Rule Templates",                     0, (intF) PickRuleTemplate },
     { "Smart Compile ZScript",              0, (intF) onSmartCompile },
 	{ "Autocombo Mode",                     0, (intF) onDrawingModeAuto },
+	{ "View Script Slots",                  0, (intF) onSlotPreview },
 };
 
 /********************************/

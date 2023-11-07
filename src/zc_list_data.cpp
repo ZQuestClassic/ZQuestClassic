@@ -646,6 +646,63 @@ static void load_scriptnames(std::set<std::string> &names, std::map<std::string,
 	}
 }
 
+// Global and player slot names only used by the editor
+#ifdef IS_EDITOR
+extern std::string global_slotnames[NUMSCRIPTGLOBAL];
+extern std::string player_slotnames[NUMSCRIPTPLAYER - 1];
+
+static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> scrmap, int32_t count, std::string* slotnames, bool alphabetize, bool skipempty)
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+	vector<std::pair<string, int>> empties;
+
+	GUI::ListData ls;
+	for (int32_t i = 0; i < count; ++i)
+	{
+		std::string sname, slotname;
+		if (scrmap[i].scriptname.empty())
+		{
+			if (skipempty)
+				continue;
+			sname = alphabetize ? "<Empty>" : "";
+		}
+		else
+			sname = scrmap[i].scriptname;
+
+		slotname = slotnames ? slotnames[i] : (alphabetize ? fmt::format("{:03}", i + 1) : fmt::format("Slot {}", i + 1));
+		if(alphabetize)
+			sname = fmt::format("{1} ({0})", slotname, sname);
+		else
+			sname = fmt::format("{}: {}", slotname, sname);
+
+		if (alphabetize)
+		{
+			if(scrmap[i].scriptname.empty())
+				empties.emplace_back( sname,i + 1 );
+			else
+			{
+				vals[sname] = i + 1;
+				names.insert(sname);
+			}
+		}
+		else
+			ls.add(sname, i+1);
+	}
+	if (alphabetize)
+	{
+		ls.add(names, vals);
+		for (auto [name, index] : empties)
+		{
+			ls.add(name, index);
+		}
+	}
+	if (ls.empty())
+		ls.add("[No Scripts Found]", 0);
+	return ls;
+}
+#endif
+
 GUI::ListData GUI::ZCListData::itemdata_script()
 {
 	std::map<std::string, int32_t> vals;
@@ -682,6 +739,19 @@ GUI::ListData GUI::ZCListData::ffc_script()
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::npc_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+
+	load_scriptnames(names, vals, npcmap, NUMSCRIPTGUYS - 1);
+
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names, vals);
 	return ls;
 }
 
@@ -775,6 +845,74 @@ GUI::ListData GUI::ZCListData::subscreen_script()
 	ls.add(names,vals);
 	return ls;
 }
+
+// Script slot lists only used by the editor
+#ifdef IS_EDITOR
+GUI::ListData GUI::ZCListData::slots_ffc_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(ffcmap, NUMSCRIPTFFC - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_global_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(globalmap, NUMSCRIPTGLOBAL, global_slotnames, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_itemdata_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(itemmap, NUMSCRIPTITEM - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_npc_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots( npcmap, NUMSCRIPTGUYS - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_lweapon_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(lwpnmap, NUMSCRIPTWEAPONS - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_eweapon_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(ewpnmap, NUMSCRIPTWEAPONS - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_hero_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(playermap, NUMSCRIPTPLAYER - 1, player_slotnames, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_dmap_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(dmapmap, NUMSCRIPTSDMAP - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_screen_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(screenmap, NUMSCRIPTSCREEN - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_itemsprite_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(itemspritemap, NUMSCRIPTSITEMSPRITE - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_combo_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(comboscriptmap, NUMSCRIPTSCOMBODATA - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_generic_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(genericmap, NUMSCRIPTSGENERIC - 1, nullptr, alphabetize, skipempty);
+}
+
+GUI::ListData GUI::ZCListData::slots_subscreen_script(bool alphabetize, bool skipempty)
+{
+	return load_scriptnames_slots(subscreenmap, NUMSCRIPTSSUBSCREEN - 1, nullptr, alphabetize, skipempty);
+}
+#endif
 
 //CONST& RETURNS
 
@@ -971,4 +1109,26 @@ static const GUI::ListData autocombo_types
 GUI::ListData const& GUI::ZCListData::autocombotypes()
 {
 	return autocombo_types;
+};
+
+static const GUI::ListData script_types
+{
+	{ "FFC", int(ScriptType::FFC) },
+	{ "Global", int(ScriptType::Global) },
+	{ "Item", int(ScriptType::Item) },
+	{ "NPC", int(ScriptType::NPC) },
+	{ "LWeapon", int(ScriptType::Lwpn) },
+	{ "EWeapon", int(ScriptType::Ewpn) },
+	{ "Hero", int(ScriptType::Player) },
+	{ "DMap", int(ScriptType::DMap) },
+	{ "Screen", int(ScriptType::Screen) },
+	{ "Item Sprite", int(ScriptType::ItemSprite) },
+	{ "Combo", int(ScriptType::Combo) },
+	{ "Generic", int(ScriptType::Generic) },
+	{ "Subscreen", int(ScriptType::EngineSubscreen) }
+};
+
+GUI::ListData const& GUI::ZCListData::scripttypes()
+{
+	return script_types;
 };

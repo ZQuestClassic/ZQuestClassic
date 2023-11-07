@@ -30,6 +30,7 @@ namespace GUI::ZCListData
 	GUI::ListData itemdata_script();
 	GUI::ListData itemsprite_script();
 	GUI::ListData ffc_script();
+	GUI::ListData npc_script();
 	GUI::ListData dmap_script();
 	GUI::ListData screen_script();
 	GUI::ListData lweapon_script();
@@ -37,6 +38,19 @@ namespace GUI::ZCListData
 	GUI::ListData combodata_script();
 	GUI::ListData generic_script();
 	GUI::ListData subscreen_script();
+	GUI::ListData slots_ffc_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_global_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_itemdata_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_npc_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_lweapon_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_eweapon_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_hero_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_dmap_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_screen_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_itemsprite_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_combo_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_generic_script(bool alphabetize = false, bool skipempty = false);
+	GUI::ListData slots_subscreen_script(bool alphabetize = false, bool skipempty = false);
 	//const& returns
 	GUI::ListData const& deftypes();
 	GUI::ListData const& warpeffects();
@@ -46,6 +60,7 @@ namespace GUI::ZCListData
 	GUI::ListData const& alignments();
 	GUI::ListData const& buttons();
 	GUI::ListData const& autocombotypes();
+	GUI::ListData const& scripttypes();
 }
 
 #endif

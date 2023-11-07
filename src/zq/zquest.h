@@ -500,6 +500,7 @@ int32_t onImportLWPNScript();
 int32_t onImportEWPNScript();
 int32_t onImportGScript();
 int32_t onCompileScript();
+int32_t onSlotPreview();
 int32_t onSlotAssign();
 int32_t onExportZASM();
 int32_t onImportZASM();
@@ -752,6 +753,7 @@ enum
 	cmdRuleTemplate,
 	cmdSmartCompile,
 	cmdDrawingModeAutocombo,
+	cmdViewScriptSlots,
     cmdMAX
 };
 
