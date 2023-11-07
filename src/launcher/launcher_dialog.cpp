@@ -868,7 +868,11 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				Button(
 					text = "ZC Editor",
 					minwidth = 90_px,
-					onClick = message::ZQ)
+					onClick = message::ZQ),
+				Button(
+					text = "❤️ Support ZC",
+					minwidth = 90_px,
+					onClick = message::SUPPORT)
 			)
 		)
 	);
@@ -902,6 +906,19 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::ZQ:
 			launch_process(ZEDITOR_FILE);
 			break;
+		case message::SUPPORT:
+		{
+			std::string url = "https://zquestclassic.com/support-zc";
+#ifdef _WIN32
+			std::string cmd = "start " + url;
+			system(cmd.c_str());
+#elif defined(__APPLE__)
+			launch_process("open", {url});
+#else
+			launch_process("xdg-open", {url});
+#endif
+			break;
+		}
 		case message::ZU:
 		{
 			std::string output;

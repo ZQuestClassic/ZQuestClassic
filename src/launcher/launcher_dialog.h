@@ -14,7 +14,7 @@ class LauncherDialog: public GUI::Dialog<LauncherDialog>
 public:
 	enum class message
 	{
-		ZC, ZQ, ZU, ZU_RELEASE_NOTES, ZU_RELEASE_NOTES_NEXT, EXIT
+		ZC, ZQ, ZU, ZU_RELEASE_NOTES, ZU_RELEASE_NOTES_NEXT, EXIT, SUPPORT
 	};
 
 	LauncherDialog();
