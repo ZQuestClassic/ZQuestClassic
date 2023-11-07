@@ -69,7 +69,6 @@ int32_t LauncherDialog::launcher_on_tick()
 }
 
 extern char zthemepath[4096];
-static char zmodpath[4096] = {0};
 static char savpath[4096] = {0};
 
 //{ Lists
@@ -482,7 +481,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				minheight = zq_screen_h - 100_px,
 				onSwitch = [&](size_t oldind, size_t newind)
 				{
-					if (newind == 6)
+					if (newind == 5)
 					{
 						check_for_updates();
 						btn_download_update->setText(found_new_update ? "Update to " + next_version : "No update found");
@@ -490,9 +489,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						btn_release_notes->setDisabled(!found_new_update);
 					}
 
-					if(newind < 3 || newind >= 6) //not a theme tab
+					if(newind < 2 || newind >= 5) //not a theme tab
 					{
-						if(oldind < 3) return; //Already not a theme tab
+						if(oldind < 2) return; //Already not a theme tab
 						//Load the ZCL theme
 						char const* themepath = zc_get_config("Theme","theme_filename","themes/mooshmood.ztheme");
 						load_theme(themepath);
@@ -500,15 +499,15 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					else
 					{
 						App a = App::launcher;
-						if(newind == 4) a = App::zquest;
-						else if(newind == 3) a = App::zelda;
+						if(newind == 3) a = App::zquest;
+						else if(newind == 2) a = App::zelda;
 						char const* themepath = zc_get_config("Theme","theme_filename","themes/mooshmood.ztheme", a);
 						load_theme(themepath);
 						strcpy(zthemepath, themepath);
 						char path[4096] = {0};
 						relativize_path(path, zthemepath);
-						tf_theme[newind-3]->setText(path);
-						btn_save[newind-3]->setDisabled(false);
+						tf_theme[newind-2]->setText(path);
+						btn_save[newind-2]->setDisabled(false);
 						for(auto q = strlen(zthemepath)-1; q > 0 && !(zthemepath[q] == '/' || zthemepath[q] == '\\'); --q)
 						{
 							zthemepath[q] = 0;
@@ -551,28 +550,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zelda,"zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zelda, "graphics", "driver", 0, gfxDriverList),
 						CONFIG_DROPDOWN_I("(EXPERIMENTAL) JIT threads:",App::zelda,"ZSCRIPT","jit_threads",-2,jitThreadsList,"Use background threads to speed up JIT compilation"),
-						//
-						Button(hAlign = 1.0, forceFitH = true,
-							text = "Browse Module", onPressFunc = [&]()
-							{
-								if(getname("Load Module [ZC]", "zmod", NULL, zmodpath, false))
-								{
-									char path[4096] = {0};
-									relativize_path(path, temppath);
-									tf_module_zc->setText(path);
-									zc_set_config("ZCMODULE", "current_module", path, App::zelda);
-									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
-									{
-										temppath[q] = 0;
-									}
-									strcpy(zmodpath, temppath);
-								}
-							}),
-						tf_module_zc = TextField(
-							read_only = true, fitParent = true,
-							forceFitW = true
-						),
-						DummyWidget(),
 						//
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Select Save File", onPressFunc = [&]()
@@ -647,59 +624,16 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Window Height:",App::zquest,"zquest","window_height", -1, -1, 2250, "The height of the ZQuest window. If -1 the largest possible window will be made without distorting the pixel content."),
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zquest,"zquest","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zquest,"zquest","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
-						GFXCARD_DROPDOWN("Graphics Driver:", App::zquest, "graphics", "driver", 0, gfxDriverList),
-						Button(hAlign = 1.0, forceFitH = true,
-							text = "Browse Module", onPressFunc = [&]()
-							{
-								if(getname("Load Module [ZQ]", "zmod", NULL, zmodpath, false))
-								{
-									char path[4096] = {0};
-									relativize_path(path, temppath);
-									tf_module_zq->setText(path);
-									zc_set_config("ZCMODULE", "current_module", path, App::zquest);
-									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
-									{
-										temppath[q] = 0;
-									}
-									strcpy(zmodpath, temppath);
-								}
-							}),
-						tf_module_zq = TextField(
-							read_only = true, fitParent = true,
-							forceFitW = true
-						),
-						DummyWidget()
+						GFXCARD_DROPDOWN("Graphics Driver:", App::zquest, "graphics", "driver", 0, gfxDriverList)
 					))
 				),
-				TabRef(name = "ZC Launcher", Column(padding = 0_px,
-					Label(text = "ZCL options may require relaunching ZCL to take effect!"),
-					Row(framed = true,
-						Rows<3>(fitParent = true,
-							Button(hAlign = 1.0, forceFitH = true,
-								text = "Browse Module", onPressFunc = [&]()
-								{
-									if(getname("Load Module [ZCL]", "zmod", NULL, zmodpath, false))
-									{
-										char path[4096] = {0};
-										relativize_path(path, temppath);
-										tf_module_zcl->setText(path);
-										zc_set_config("ZCMODULE", "current_module", path);
-										for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
-										{
-											temppath[q] = 0;
-										}
-										strcpy(zmodpath, temppath);
-									}
-								}),
-							tf_module_zcl = TextField(
-								minwidth = 10_em,
-								read_only = true, fitParent = true,
-								forceFitW = true
-							),
-							DummyWidget()
-						)
-					)
-				)),
+				// WARNING!
+				// If you ever uncomment this you gotta fix the silly hardcoded indices. Search "newind".
+				// TabRef(name = "ZC Launcher", Column(padding = 0_px,
+				// 	Label(text = "ZCL options may require relaunching ZCL to take effect!"),
+				// 	Row(framed = true,
+				// 	)
+				// )),
 				TabRef(name = "Player Theme", Rows<2>(
 					tf_theme[0] = TextField(read_only = true, maxLength = 255),
 					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
@@ -886,13 +820,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 		tabPanel->switchTo(6);
 	}
 	
-	char path[4096] = {0};
-	relativize_path(path, zc_get_config("ZCMODULE", "current_module", "modules/classic.zmod", App::zelda));
-	tf_module_zc->setText(path);
-	relativize_path(path, zc_get_config("ZCMODULE", "current_module", "modules/classic.zmod", App::zquest));
-	tf_module_zq->setText(path);
-	relativize_path(path, zc_get_config("ZCMODULE", "current_module", "modules/classic.zmod"));
-	tf_module_zcl->setText(path);
 	return window;
 }
 

@@ -26,7 +26,7 @@ private:
 	bool load_theme(char const* themefile);
 	int32_t launcher_on_tick();
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::TextField> tf_module_zc, tf_module_zq, tf_module_zcl, tf_savefile;
+	std::shared_ptr<GUI::TextField> tf_savefile;
 	std::shared_ptr<GUI::TextField> tf_theme[3];
 	std::shared_ptr<GUI::Button> btn_save[3];
 	std::shared_ptr<GUI::Button> btn_download_update;
