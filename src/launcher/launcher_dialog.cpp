@@ -804,7 +804,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					minwidth = 90_px,
 					onClick = message::ZQ),
 				Button(
-					text = "❤️ Support ZC",
+					text = "Support ZC <3",
 					minwidth = 90_px,
 					onClick = message::SUPPORT)
 			)
