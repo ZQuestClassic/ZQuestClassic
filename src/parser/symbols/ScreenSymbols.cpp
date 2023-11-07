@@ -303,6 +303,9 @@ static AccessorTable ScreenTable[] =
 	{ "getGuyCount",                0,         ZTID_FLOAT,   SCREENDATAGUYCOUNT,                0,  { ZTID_SCREEN },{} },
 	{ "setGuyCount",                0,         ZTID_FLOAT,   SCREENDATAGUYCOUNT,                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	
+	{ "GetExDoor",                  0,          ZTID_BOOL,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetExDoor",                  0,          ZTID_VOID,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	
 	//Undocumented intentionally
 	//Renamed to AmbientSFX
 	{ "getOceanSFX",                0,         ZTID_FLOAT,   SCREENDATAOCEANSFX,                0,  { ZTID_SCREEN },{} },
@@ -1468,6 +1471,32 @@ void ScreenSymbols::generateCode()
 		addOpcode2(code, new ODrawLightCone());
 		LABELBACK(label);
 		POP_ARGS(8, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//bool GetExDoor(screen, int dir, int ind)
+	{
+		Function* function = getFunction("GetExDoor");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL(); //Ignore pointer
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENDATAEXDOOR)));
+		LABELBACK(label);
+		POP_ARGS(2, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetExDoor(screen, int dir, int ind, bool state)
+	{
+		Function* function = getFunction("SetExDoor");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL(); //Ignore pointer
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1))); //bool state
+		LABELBACK(label);
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENDATAEXDOOR), new VarArgument(EXP1)));
+		POP_ARGS(2, NUL);
 		RETURN();
 		function->giveCode(code);
 	}

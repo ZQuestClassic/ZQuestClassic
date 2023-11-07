@@ -4408,6 +4408,13 @@ bool State[32];
 bool ExState[32];
  * The 'Extra States' used by this screen.
 
+bool GetExDoor(int dir, int index);
+ * Returns a door state for the screen.
+ * Each direction (DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT) has 8 indexes (0-7)
+void SetExDoor(int dir, int index, bool state);
+ * Sets a door state for the screen.
+ * Each direction (DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT) has 8 indexes (0-7)
+
 int MovingBlockLayer;
  * The layer of a currently moving pushblock
  * Returns -1 and ignores writes if there is no pushblock currently moving
@@ -7147,6 +7154,13 @@ bool State[32];
 bool ExState[32];
  * The 'Extra States' used by this screen. Identical to Screen->ExState[], but for mapdata screens.
 
+bool GetExDoor(int dir, int index);
+ * Returns a door state for the screen.
+ * Each direction DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT has 8 indexes (0-7)
+void SetExDoor(int dir, int index, bool state);
+ * Sets a door state for the screen.
+ * Each direction DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT has 8 indexes (0-7)
+
 int EFlags[3];
  * The Screen Data E.Flags flagsets. 
  * Values are:
@@ -7444,15 +7458,19 @@ int TrigCooldown;
  * The combo's cooldown between triggers
 
 int TrigCopycat;
- * If >0, triggering this combo triggers all other combos with matching TrigCopycat.
+ * If > 0, triggering this combo triggers all other combos with matching TrigCopycat.
 
 int TrigExState;
- * If >-1, the ExState that the combo is linked to.
+ * If > -1, the ExState that the combo is linked to.
+int TrigExDoorDir;
+ * If > -1, the direction of ExDoor that the combo is linked to
+int TrigExDoorIndex;
+ * If 'TrigExDoorDir' is > -1, the index of that direction of ExDoor that the combo is linked to.
 
 int TrigSpawnEnemy;
- * If >0, the enemy ID spawned when the combo is triggered.
+ * If > 0, the enemy ID spawned when the combo is triggered.
 int TrigSpawnItem;
- * If >0, the item ID (or dropset ID) spawned when the combo is triggered.
+ * If > 0, the item ID (or dropset ID) spawned when the combo is triggered.
 int TrigSpawnItemPickup;
  * The item pickup flags for the spawned item
  * Only the flags IP_HOLDUP, IP_TIMEOUT, IP_TRIGGERSECRETS, IP_ALWAYSGRAB are used.

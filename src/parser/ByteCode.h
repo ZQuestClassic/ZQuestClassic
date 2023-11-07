@@ -1740,7 +1740,12 @@
 #define LWPNSPRITES             1637
 #define EWPNSPRITES             1638
 
-#define LAST_BYTECODE           1639
+#define SCREENDATAEXDOOR        1639
+#define MAPDATAEXDOOR           1640
+#define COMBODTRIGEXDOORDIR     1641
+#define COMBODTRIGEXDOORIND     1642
+
+#define LAST_BYTECODE           1643
 
 //} END OF BYTECODE
 

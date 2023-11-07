@@ -40,6 +40,14 @@ if(refVar == NUL) \
 else \
 	addOpcode2 (code, new OPopRegister(new VarArgument(refVar)))
 
+#define PEEKREF(offs) \
+if(refVar == NUL) \
+{ \
+	function->internal_flags |= IFUNCFLAG_SKIPPOINTER; \
+} \
+else \
+	addOpcode2 (code, new OPeekAtImmediate(new VarArgument(refVar), new LiteralArgument(offs)));
+
 /*
 	Assert that the refVar IS NUL.
 	Set the IFUNCFLAG_SKIPPOINTER.

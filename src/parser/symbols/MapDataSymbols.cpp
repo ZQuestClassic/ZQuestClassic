@@ -268,6 +268,9 @@ static AccessorTable MapDataTable[] =
 	{ "getGuyCount",                0,         ZTID_FLOAT,   MAPDATAGUYCOUNT,                  0,  { ZTID_MAPDATA },{} },
 	{ "setGuyCount",                0,         ZTID_FLOAT,   MAPDATAGUYCOUNT,                  0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
+	{ "GetExDoor",                  0,          ZTID_BOOL,   -1,                               0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetExDoor",                  0,          ZTID_VOID,   -1,                               0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	
 	//Undocumented intentionally
 	{ "GetFFCInitA",                0,         ZTID_FLOAT,   -1,                          FL_INL,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "SetFFCInitA",                0,         ZTID_FLOAT,   -1,                               0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -433,6 +436,33 @@ void MapDataSymbols::generateCode()
 		//pop pointer
 		POPREF();
 		addOpcode2 (code, new OSetRegister(new VarArgument(MAPDATAINITA), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//bool GetExDoor(mapdata, int dir, int ind)
+	{
+		Function* function = getFunction("GetExDoor");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		PEEKREF(2); // Peek the pointer
+		ASSERT_NON_NUL();
+		LABELBACK(label);
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAEXDOOR)));
+		POP_ARGS(3, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetExDoor(mapdata, int dir, int ind, bool state)
+	{
+		Function* function = getFunction("SetExDoor");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1))); //bool state
+		LABELBACK(label);
+		PEEKREF(2); // Peek the pointer
+		addOpcode2 (code, new OSetRegister(new VarArgument(MAPDATAEXDOOR), new VarArgument(EXP1)));
+		POP_ARGS(3, NUL);
 		RETURN();
 		function->giveCode(code);
 	}
