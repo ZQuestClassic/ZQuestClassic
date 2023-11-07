@@ -1121,6 +1121,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		else if(section_version > 36)
 			if(!p_getbmap(&game.screen_data, f))
 				return 115;
+		if(section_version > 38)
+			if(!p_getbmap(&game.xdoors, f))
+				return 116;
 	}
 	
 	return 0;
@@ -1422,6 +1425,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 109;
 	if(!p_putbmap(game.screen_data,f))
 		return 110;
+	if(!p_putbmap(game.xdoors,f))
+		return 111;
 	return 0;
 }
 
@@ -2401,6 +2406,7 @@ bool saves_test()
 	SAVE_TEST_VECTOR_2D(gen_data);
 	SAVE_TEST_VECTOR_2D(screen_data);
 	SAVE_TEST_VECTOR(xstates);
+	SAVE_TEST_VECTOR_2D(xdoors);
 	SAVE_TEST_VECTOR(gen_eventstate);
 	SAVE_TEST_VECTOR(gswitch_timers);
 	SAVE_TEST_VECTOR_NOFMT(user_objects);

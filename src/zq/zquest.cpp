@@ -4954,13 +4954,13 @@ int32_t onViewMapEx(bool skipmenu)
     return D_O_K;
 }
 
-static const char *dirstr[4] = {"North","South","West","East"};
+static const char *mazedirstr[4] = {"North","South","West","East"};
 char _pathstr[40]="North,North,North,North";
 
 char *pathstr(byte path[])
 {
-    sprintf(_pathstr,"%s,%s,%s,%s",dirstr[path[0]],dirstr[path[1]],
-            dirstr[path[2]],dirstr[path[3]]);
+    sprintf(_pathstr,"%s,%s,%s,%s",mazedirstr[path[0]],mazedirstr[path[1]],
+            mazedirstr[path[2]],mazedirstr[path[3]]);
     return _pathstr;
 }
 
@@ -5226,11 +5226,11 @@ void side_warp_notification(int32_t which, int32_t dir, char *buf)
     char buf3[16];
     
     if(dir==0 && Map.CurrScr()->timedwarptics)
-        sprintf(buf3,"%s, Timed",dirstr[dir]);
+        sprintf(buf3,"%s, Timed",mazedirstr[dir]);
     else if(dir==4)
         sprintf(buf3,"Timed");
     else
-        strcpy(buf3, dirstr[dir]);
+        strcpy(buf3, mazedirstr[dir]);
         
     switch(Map.CurrScr()->sidewarptype[which])
     {
@@ -6725,7 +6725,7 @@ void refresh(int32_t flags, bool update)
 		
 		if(Map.CurrScr()->flags&fMAZE)
 		{
-			sprintf(buf,"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),dirstr[Map.CurrScr()->exitdir]);
+			sprintf(buf,"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),mazedirstr[Map.CurrScr()->exitdir]);
 			show_screen_error(buf,i++,vc(15));
 		}
 		
@@ -18397,7 +18397,7 @@ const char *dirlist(int32_t index, int32_t *list_size)
         if(index>3)
             index=3;
             
-        return dirstr[index];
+        return mazedirstr[index];
     }
     
     *list_size=4;

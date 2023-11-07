@@ -2520,7 +2520,6 @@ bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
 	}
 	return false;
 }
-
 bool force_ex_trigger_ffc(int32_t pos, char xstate)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
@@ -2529,6 +2528,37 @@ bool force_ex_trigger_ffc(int32_t pos, char xstate)
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
 		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
+		{
+			do_ex_trigger_ffc(pos);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool force_ex_door_trigger(uint lyr, uint pos, int dir, uint ind)
+{
+	if(lyr > 6 || pos > 175 || dir > 3 || ind > 7) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[tmp->data[pos]];
+	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
+	{
+		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
+		{
+			do_ex_trigger(lyr,pos);
+			return true;
+		}
+	}
+	return false;
+}
+bool force_ex_door_trigger_ffc(uint pos, int dir, uint ind)
+{
+	if(pos >= MAXFFCS || dir > 3 || ind > 7) return false;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.data];
+	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
+	{
+		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
 		{
 			do_ex_trigger_ffc(pos);
 			return true;
@@ -2589,6 +2619,11 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	{
 		exflag = 1<<cmb.exstate;
 		if(force_ex_trigger(lyr,pos))
+			return true;
+	}
+	if(cmb.exdoor_dir > -1)
+	{
+		if(force_ex_door_trigger(lyr,pos))
 			return true;
 	}
 	if(cmb.triggeritem) //Item requirement
@@ -2905,6 +2940,10 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			{
 				setxmapflag(exflag);
 			}
+			if(cmb.exdoor_dir > -1)
+			{
+				set_xdoorstate(cmb.exdoor_dir, cmb.exdoor_ind);
+			}
 			
 			if(cmb.trigcopycat) //has a copycat set
 			{
@@ -2986,6 +3025,11 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	{
 		exflag = 1<<cmb.exstate;
 		if(force_ex_trigger_ffc(pos))
+			return true;
+	}
+	if(cmb.exdoor_dir > -1)
+	{
+		if(force_ex_door_trigger_ffc(pos))
 			return true;
 	}
 	if(cmb.triggeritem) //Item requirement
@@ -3300,6 +3344,10 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			if(cmb.exstate > -1 && trigexstate)
 			{
 				setxmapflag(exflag);
+			}
+			if(cmb.exdoor_dir > -1)
+			{
+				set_xdoorstate(cmb.exdoor_dir, cmb.exdoor_ind);
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set

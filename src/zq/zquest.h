@@ -399,9 +399,6 @@ int32_t onViewPic();
 int32_t load_the_map(bool skipmenu);
 int32_t onViewMap();
 
-//static char *dirstr[4] = {"up","down","left","right"};
-//char _pathstr[25]="up,up,up,up";
-
 char *pathstr(byte path[]);
 void drawpanel(int32_t panel);
 void refresh(int32_t flags, bool update = false);

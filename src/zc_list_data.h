@@ -26,6 +26,7 @@ namespace GUI::ZCListData
 	GUI::ListData lpals();
 	GUI::ListData subscreens(byte type, bool numbered = false);
 	GUI::ListData disableditems(byte* disabledarray);
+	GUI::ListData dirs(int count, bool none);
 	//Scripts
 	GUI::ListData itemdata_script();
 	GUI::ListData itemsprite_script();

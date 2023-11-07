@@ -2,6 +2,7 @@
 #define _CONTAINERS_H_
 
 #include "base/headers.h"
+#include <array>
 #include <stdexcept>
 
 template<typename Sz,typename T>
