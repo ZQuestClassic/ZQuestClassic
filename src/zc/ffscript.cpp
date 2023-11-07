@@ -37095,7 +37095,7 @@ j_command:
 				FFCore.do_printfarr();
 				break;
 			case SPRINTFA:
-				FFCore.do_printfarr();
+				FFCore.do_sprintfarr();
 				break;
 			case ARRAYPUSH:
 			{
