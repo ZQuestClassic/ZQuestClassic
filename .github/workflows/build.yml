@@ -225,13 +225,13 @@ jobs:
         uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
         with:
           windows: |
-            python scripts/package.py --build_folder build/${{ inputs.config }}
+            python scripts/package.py --build_folder build/${{ inputs.config }} --current_version '{{ inputs.release-tag }}'
             mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           macos: |
-            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }}
+            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }} '{{ inputs.release-tag }}'
             mv build/${{ inputs.config }}/packages/ZQuestClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           linux: |
-            python scripts/package.py --build_folder build/${{ inputs.config }}
+            python scripts/package.py --build_folder build/${{ inputs.config }} --current_version '{{ inputs.release-tag }}'
             mv build/${{ inputs.config }}/packages/zc.tar.gz build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
       # Coverage builds need the entire build folder.
       - name: Package

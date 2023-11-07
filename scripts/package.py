@@ -2,6 +2,7 @@ import argparse
 import os
 import shutil
 import platform
+import time
 import shutil
 import subprocess
 import sys
@@ -26,6 +27,8 @@ parser.add_argument('--keep_existing_files', action='store_true',
                     help='Only copy files that do not yet exist at the destination. For local development')
 parser.add_argument('--skip_archive', action='store_true',
                     help='Skip the compression step')
+parser.add_argument('--current_version',
+                    help='Used to name the changelog generated')
 parser.add_argument('--cfg_os')
 args = parser.parse_args()
 
@@ -311,24 +314,33 @@ elif args.extras:
 elif args.cfg_os == 'web':
     do_web_packaging()
 else:
+    # May already exist from build cache.
+    nightly_changelog_path = root_dir / 'changelogs/nightly.txt'
+    if nightly_changelog_path.exists():
+        nightly_changelog_path.unlink()
+
     # Generate changelog for changes since last stable release.
+    changelog_path = None
     try:
+        current_version = args.current_version if args.current_version else 'nightly'
         last_stable = subprocess.check_output(
-            'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8').strip()
+            f'git describe --tags --abbrev=0 --match "2.55*" --exclude {current_version}', shell=True, encoding='utf-8').strip()
         changelog = subprocess.check_output([
             sys.executable, script_dir / 'generate_changelog.py',
             '--from', last_stable,
             '--to', 'HEAD',
         ], encoding='utf-8').strip()
+        if 'nightly' in current_version:
+            changelog_path = nightly_changelog_path
+            changelog = f'Changes since {last_stable}\n\n{changelog}'
+        else:
+            changelog_path = root_dir / f'changelogs/{time.strftime("%Y_%m_%d")}-{current_version}.txt'
     except Exception as e:
         changelog = None
         print(e)
 
-    nightly_changelog_path = root_dir / 'changelogs/nightly.txt'
-    if changelog:
-        nightly_changelog_path.write_text(f'Changes since {last_stable}\n\n{changelog}')
-    elif nightly_changelog_path.exists():
-        nightly_changelog_path.unlink()
+    if changelog_path:
+        changelog_path.write_text(changelog)
 
     zc_files = [
         *glob(resources_dir, '**/*'),
