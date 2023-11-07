@@ -9709,6 +9709,24 @@ int32_t get_register(const int32_t arg)
 			else ret = game->guys[mi] * 10000;
 			break;
 		}
+		case SCREENDATAEXDOOR:
+		{
+			ret = 0;
+			int mi = get_mi();
+			if(mi < 0) break;
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				Z_scripterrlog("Invalid dir '%d' passed to 'Screen->GetExDoor()'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				Z_scripterrlog("Invalid index '%d' passed to 'Screen->GetExDoor()'; must be 0-7\n", ind);
+			else
+			{
+				int bit = 1<<ind;
+				ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
+			}
+			break;
+		}
 		
 		case SHOWNMSG:
 		{
@@ -11275,6 +11293,28 @@ int32_t get_register(const int32_t arg)
 			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
+		case MAPDATAEXDOOR:
+		{
+			ret = 0;
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = get_mi(ri->mapsref);
+				if(mi < 0) break;
+				int dir = SH::read_stack(ri->sp+1) / 10000;
+				int ind = SH::read_stack(ri->sp+0) / 10000;
+				if(unsigned(dir) > 3)
+					Z_scripterrlog("Invalid dir '%d' passed to 'mapdata->GetExDoor()'; must be 0-3\n", dir);
+				else if(unsigned(ind) > 7)
+					Z_scripterrlog("Invalid index '%d' passed to 'mapdata->GetExDoor()'; must be 0-7\n", ind);
+				else
+				{
+					int bit = 1<<ind;
+					ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
+				}
+			}
+			else Z_scripterrlog("mapdata->GetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
 
 		///----------------------------------------------------------------------------------------------------//
 		//shopdata sd-> variables
@@ -12534,6 +12574,26 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
 			}
 			else ret = (combobuf[ri->combosref].exstate) * 10000;
+			break;
+		}
+		case COMBODTRIGEXDOORDIR:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorDir: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].exdoor_dir) * 10000;
+			break;
+		}
+		case COMBODTRIGEXDOORIND:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorIndex: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].exdoor_ind) * 10000;
 			break;
 		}
 		case COMBODTRIGSPAWNENEMY:
@@ -22487,7 +22547,25 @@ void set_register(int32_t arg, int32_t value)
 				game->guys[mi] = vbound(value/10000,10,0);
 			break;
 		}
-
+		case SCREENDATAEXDOOR:
+		{
+			int mi = get_mi();
+			if(mi < 0) break;
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				Z_scripterrlog("Invalid dir '%d' passed to 'Screen->SetExDoor()'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				Z_scripterrlog("Invalid index '%d' passed to 'Screen->SetExDoor()'; must be 0-7\n", ind);
+			else
+			{
+				int bit = 1<<ind;
+				if(!(game->xdoors[mi][dir]&bit) == !value)
+					break; //no change
+				SETFLAG(game->xdoors[mi][dir], bit, value);
+			}
+			break;
+		}
 
 		//These use the same method as SetScreenD
 		case SCREENWIDTH:
@@ -24053,9 +24131,33 @@ void set_register(int32_t arg, int32_t value)
 					break;
 				}
 			}
-			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
+			else Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
+		case MAPDATAEXDOOR:
+		{
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = get_mi(ri->mapsref);
+				if(mi < 0) break;
+				int dir = SH::read_stack(ri->sp+1) / 10000;
+				int ind = SH::read_stack(ri->sp+0) / 10000;
+				if(unsigned(dir) > 3)
+					Z_scripterrlog("Invalid dir '%d' passed to 'mapdata->SetExDoor()'; must be 0-3\n", dir);
+				else if(unsigned(ind) > 7)
+					Z_scripterrlog("Invalid index '%d' passed to 'mapdata->SetExDoor()'; must be 0-7\n", ind);
+				else
+				{
+					int bit = 1<<ind;
+					if(!(game->xdoors[mi][dir]&bit) == !value)
+						break; //no change
+					SETFLAG(game->xdoors[mi][dir], bit, value);
+				}
+			}
+			else Z_scripterrlog("mapdata->SetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+
 		
 	///----------------------------------------------------------------------------------------------------//
 	//shopdata sd-> Variables
@@ -25290,6 +25392,24 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].exstate = vbound(value/10000, -1, 31);
+			break;
+		}
+		case COMBODTRIGEXDOORDIR:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorDir: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].exdoor_dir = vbound(value/10000, -1, 3);
+			break;
+		}
+		case COMBODTRIGEXDOORIND:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorIndex: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].exdoor_ind = vbound(value/10000, 0, 7);
 			break;
 		}
 		case COMBODTRIGSPAWNENEMY:
@@ -48317,6 +48437,11 @@ script_variable ZASMVars[]=
 	{ "IDATABURNINGSPR", IDATABURNINGSPR, 0, 0 },
 	{ "LWPNSPRITES", LWPNSPRITES, 0, 0 },
 	{ "EWPNSPRITES", EWPNSPRITES, 0, 0 },
+
+	{ "SCREENDATAEXDOOR", SCREENDATAEXDOOR, 0, 0 },
+	{ "MAPDATAEXDOOR", MAPDATAEXDOOR, 0, 0 },
+	{ "COMBODTRIGEXDOORDIR", COMBODTRIGEXDOORDIR, 0, 0 },
+	{ "COMBODTRIGEXDOORIND", COMBODTRIGEXDOORIND, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

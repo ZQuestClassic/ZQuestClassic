@@ -2453,6 +2453,11 @@ string ZScript::VarToString(int32_t ID)
 		case LWPNSPRITES: return "LWPNSPRITES";
 		case EWPNSPRITES: return "EWPNSPRITES";
 		
+		case SCREENDATAEXDOOR: return "SCREENDATAEXDOOR";
+		case MAPDATAEXDOOR: return "MAPDATAEXDOOR";
+		case COMBODTRIGEXDOORDIR: return "COMBODTRIGEXDOORDIR";
+		case COMBODTRIGEXDOORIND: return "COMBODTRIGEXDOORIND";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);

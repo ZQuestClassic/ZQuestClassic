@@ -5002,7 +5002,12 @@ enum ASM_DEFINE
 #define LWPNSPRITES             0x159B
 #define EWPNSPRITES             0x159C
 
-#define NUMVARIABLES            0x159D
+#define SCREENDATAEXDOOR        0x159D
+#define MAPDATAEXDOOR           0x159E
+#define COMBODTRIGEXDOORDIR     0x159F
+#define COMBODTRIGEXDOORIND     0x15A0
+
+#define NUMVARIABLES            0x15A1
 
 //} End variables
 
