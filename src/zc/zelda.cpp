@@ -102,7 +102,6 @@ static zc_randgen drunk_rng;
 #include "zc/rendertarget.h"
 #include "zconsole.h"
 #include "base/win32.h"
-#include "single_instance.h"
 
 #define LOGGAMELOOP 0
 
@@ -4526,15 +4525,6 @@ int main(int argc, char **argv)
 	load_game_configs();
 	if(used_switch(argc, argv, "-no_console"))
 		zscript_debugger = false;
-#ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
-	// if(!is_only_instance("zc.lck"))
-	// {
-	// 	if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
-	// 		onlyInstance=false;
-	// 	else
-	// 		exit(1);
-	// }
-#endif
 	
 	//Set up MODULES: This must occur before trying to load the default quests, as the 
 	//data for quest names and so forth is set by the MODULE file!
