@@ -205,7 +205,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
 
-int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_combo=0, tooltip_current_ffc=0;
+int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_ffc=0;
 int32_t mousecomboposition, combobrushoverride=-1;
 
 int32_t original_playing_field_offset=0;
@@ -5387,7 +5387,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
 				textprintf_disabled(txtbmp,font,0,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
 				static int map_shortcut_tooltip_id = ttip_register_id();
-				ttip_install(map_shortcut_tooltip_id, "Prev map: ,   Next map: .", txt_x, txt_y, 30, 20, txt_x, txt_y - 40);
+				ttip_install(map_shortcut_tooltip_id, "Prev map: ,\nNext map: .", txt_x, txt_y, 30, 20, txt_x, txt_y - 60);
 				
 				textprintf_ex(txtbmp,font,spc_m,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
 				
@@ -7146,6 +7146,8 @@ void refresh(int32_t flags, bool update)
 	refreshing = false;
 }
 
+static int minimap_tooltip_id = ttip_register_id();
+
 void select_scr()
 {
 	if(Map.getCurrMap()>=Map.getMapCount())
@@ -7168,9 +7170,12 @@ void select_scr()
 		{
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
-			clear_tooltip();
-			update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
+			ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
 			ttip_set_highlight_thickness(ttip_global_id, zoomed_minimap ? 2 : 1);
+		}
+		else
+		{
+			ttip_uninstall(minimap_tooltip_id);
 		}
 		
 		if(ind>=MAPSCRS)
@@ -10709,6 +10714,7 @@ void domouse()
 //-------------
 	if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
 	{
+		static int mapscr_tooltip_id = ttip_register_id();
 		bool did_ffttip = false;
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
@@ -10735,7 +10741,7 @@ void domouse()
 							i+1, ff.data,ff.data,
 							combo_class_buf[combobuf[ff.data].type].name,
 							(ff.script<=0 ? "(None)" : ffcmap[ff.script-1].scriptname.substr(0,400).c_str()));
-					update_tooltip(x, y, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, msg);
+					ttip_install(mapscr_tooltip_id, msg, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, x, y);
 					did_ffttip = true;
 					break;
 				}
@@ -10756,15 +10762,9 @@ void domouse()
 				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
 			}
 			
-			if(tooltip_current_combo != c)
-			{
-				clear_tooltip();
-			}
-			
 			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 			if(unsigned(c) < 176 && draw_mapscr && !gui_mouse_b())
 			{
-				tooltip_current_combo = c;
 				int cid = draw_mapscr->data[c];
 				newcombo const& cmb = combobuf[cid];
 				std::ostringstream oss;
@@ -10779,8 +10779,7 @@ void domouse()
 					oss << "\nCombo type: " << combo_class_buf[cmb.type].name;
 				if(cmb.label[0])
 					oss << "\nLabel: " << cmb.label;
-				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, oss.str().c_str());
-				// tool_tip_reset_timer_on_clear();
+				ttip_install(mapscr_tooltip_id, oss.str().c_str(), startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, x, y);
 			}
 		}
 	}
@@ -10959,9 +10958,13 @@ void domouse()
 	{
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
-		update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-		ttip_set_highlight_thickness(ttip_global_id, zoomed_minimap ? 2 : 1);
+		ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
+		ttip_set_highlight_thickness(minimap_tooltip_id, zoomed_minimap ? 2 : 1);
 		ttip_clear_timer();
+	}
+	else
+	{
+		ttip_uninstall(minimap_tooltip_id);
 	}
 	
 	// Mouse clicking stuff
@@ -30719,14 +30722,6 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 	{
 		return;
 	}
-	
-	if(x<0||y<0) //if we want to clear the tooltip
-	{
-		ttip_uninstall_all();
-		return; //cancel
-	}
-	
-	y+=16;
 
 	ttip_install(ttip_global_id, tipmsg, tx, ty, tw, th, x, y, fw, fh);
 }

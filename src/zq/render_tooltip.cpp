@@ -105,13 +105,18 @@ private:
 static ToolTipRTI rti_tooltip("tooltip");
 static TextRTI rti_text("text");
 static HighlightRTI rti_highlight("highlight");
-static bool initialized = false;
 extern int TTipHLCol;
-extern bool TooltipsHighlight;
+extern int32_t TooltipsHighlight;
 
-static int next_tooltip_id = 2;
 int ttip_register_id()
 {
+	static int next_tooltip_id = 2;
+	return next_tooltip_id++;
+}
+
+void ttip_install(int id, std::string text, size_and_pos trigger_area, int tip_x, int tip_y)
+{
+	static bool initialized = false;
 	if (!initialized)
 	{
 		initialized = true;
@@ -120,16 +125,18 @@ int ttip_register_id()
 		get_root_rti()->add_child(&rti_tooltip);
 	}
 
-	return next_tooltip_id++;
+	if (tip_x == -1)
+	{
+		tip_x = trigger_area.x;
+		tip_y = trigger_area.y;
+	}
+	tip_y += 16;
+	int highlight_thickness = 1;
+	tooltips[id] = {text, trigger_area, tip_x, tip_y, highlight_thickness};
 }
 
 void ttip_install(int id, std::string text, int x, int y, int w, int h, int tip_x, int tip_y, int fw, int fh)
 {
-	if (tip_x == -1)
-	{
-		tip_x = x;
-		tip_y = y;
-	}
 	size_and_pos trigger_area;
 	trigger_area.x = x;
 	trigger_area.y = y;
@@ -137,8 +144,7 @@ void ttip_install(int id, std::string text, int x, int y, int w, int h, int tip_
 	trigger_area.h = h;
 	trigger_area.fw = fw;
 	trigger_area.fh = fh;
-	int highlight_thickness = 1;
-	tooltips[id] = {text, trigger_area, tip_x, tip_y, highlight_thickness};
+	ttip_install(id, text, trigger_area, tip_x, tip_y);
 }
 
 void ttip_uninstall(int id)
@@ -208,8 +214,21 @@ void ToolTipRTI::prepare()
 		return;
 	}
 
-	auto& tooltip = tooltips[tooltip_id];
+	if (active_tooltip_id != tooltip_id)
+	{
+		rti_tooltip.timer = 0;
+	}
 	active_tooltip_id = tooltip_id;
+
+	if (timer <= tooltip_maxtimer)
+	{
+		++timer;
+		visible = false;
+		return;
+	}
+
+	auto& tooltip = tooltips[tooltip_id];
+	visible = true;
 
 	if (rti_text.text != tooltip.text)
 	{
@@ -224,13 +243,4 @@ void ToolTipRTI::prepare()
 	{
 		add_highlight(tooltip.trigger_area, tooltip.highlight_thickness);
 	}
-
-	if (timer <= tooltip_maxtimer)
-	{
-		++timer;
-		visible = false;
-		return;
-	}
-
-	visible = true;
 }
