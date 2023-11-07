@@ -13,6 +13,7 @@
 #include "music_playback.h"
 
 static size_t editdmap_tab = 0;
+static size_t editdmap_tab2 = 0;
 static int32_t dmap_use_script_data = 2;
 extern int32_t midi_volume;
 extern script_data* dmapscripts[NUMSCRIPTSDMAP];
@@ -737,7 +738,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 				)),
 				TabRef(name = "Maps", Column(
 					TabPanel(
-						ptr = &editdmap_tab,
+						ptr = &editdmap_tab2,
 						TabRef(name = "Without Map",
 							Columns<3>(
 								Label(text = "Minimap"),
