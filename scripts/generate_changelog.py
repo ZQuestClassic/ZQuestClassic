@@ -391,6 +391,8 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
                     manual_squashes[manual_squash_hash].append(commit.hash)
                 else:
                     manual_squashes[manual_squash_hash] = [commit.hash]
+            else:
+                manual_squash_hash = commit.hash
         else:
             manual_squash_hash = commit.hash
            
