@@ -2190,7 +2190,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         cb = dest->cb;
     }
 
-    if(x<cl || y<ct)
+    if(x<cl-15 || y<ct-15)
         return;
         
     if(y > cb-16)
