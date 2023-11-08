@@ -1442,9 +1442,11 @@ void titlescreen(int32_t lsave)
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
 
-	// TODO: need better interface for "just play enhanced music".
-	try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, get_emusic_volume() * 0.6);
-	
+	if (exists("assets/title_music.mp3"))
+		try_zcmusic("assets/title_music.mp3", "", 0, 0, get_emusic_volume());
+	else
+		try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, get_emusic_volume() * 0.6);
+
 	if(q==qCONT)
 	{
 		cont_game();

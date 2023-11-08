@@ -37,11 +37,19 @@ and place whatever your quest needs (music, images, `zc_args.txt`,
 `zc.cfg`, etc). The export tool will copy this folder into the package
 folder at the end, which allows you to overwrite whatever you want.
 
+# Customizing your package
+
+If certain assets are found in ZC's folder, ZC will use them instead of default assets. To provide your own asset for whatever feature, add it to the `My Game_extra` folder as indicated.
+
 ## Icons
 
-If a PNG is present at `My Game_extra/assets/icon.png`, it will be used as the icon for the exe.
+If a PNG is present at `assets/icon.png`, it will be used as the icon for the exe.
 Only PNG is supported, and it must be 32bpp ARGB.
 
 ## Logo
 
-If a PNG is present at `My Game_extra/assets/logo.png`, it will be used in place of the ZQuest Classic logo on the save select screen.
+If a PNG is present at `assets/logo.png`, it will be used on the save select screen.
+
+## Title Music
+
+If a MP3 is present at `assets/title_music.mp3`, it will be used on the save select screen.
