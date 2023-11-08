@@ -31090,6 +31090,9 @@ void HeroClass::check_conveyor()
 {
 	++newconveyorclk;
 	if (newconveyorclk < 0) newconveyorclk = 0;
+
+	if (is_conveyor_stunned)
+		--is_conveyor_stunned;
 	
 	if(action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)))
 	{
@@ -31103,7 +31106,11 @@ void HeroClass::check_conveyor()
 	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12));
 	if(cmbid < 0) 
 	{
-		if (conveyclk <= 0) is_on_conveyor=false;
+		if (conveyclk <= 0)
+		{
+			is_on_conveyor = false;
+			conv_forcedir = -1;
+		}
 		return;
 	}
 	newcombo const* cmb = &combobuf[cmbid];
