@@ -2058,14 +2058,14 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         cb = dest->cb;
     }
 
-    if(x<cl-7 || y<ct-7)
-        return;
-        
-    if(y > cb)
-        return;
-        
-    if(y == cb && x > cr)
-        return;
+	if (x + 8 < cl)
+		return;
+	if (x > cr)
+		return;
+	if (y + 8 < ct)
+		return;
+	if (y > cb)
+		return;
         
     if(blank_tile_quarters_table[tile])
     {
@@ -2176,14 +2176,14 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         cb = dest->cb;
     }
 
-    if(x<cl || y<ct)
-        return;
-        
-    if(y > cb-16)
-        return;
-        
-    if((y == cb-16) && (x > cr-16))
-        return;
+    if (x + 16 < cl)
+		return;
+	if (x > cr)
+		return;
+	if (y + 16 < ct)
+		return;
+	if (y > cb)
+		return;
         
     if(tile<0 || tile>=NEWMAXTILES)
     {
@@ -2452,13 +2452,13 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 		cb = dest->cb;
 	}
 
-	if(x<cl-15 || y<ct-15)
+	if (x + 16 < cl)
 		return;
-		
-	if(y > cb)
+	if (x > cr)
 		return;
-		
-	if(y == cb && x > cr)
+	if (y + 16 < ct)
+		return;
+	if (y > cb)
 		return;
 		
 	if(tile<0 || tile>=NEWMAXTILES)
