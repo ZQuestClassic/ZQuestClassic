@@ -1,0 +1,11 @@
+All rights reserved.
+
+In general, for any purpose related to usage in [ZQuest Classic](https://zquestclassic.com/), you may use these assets freely. Specifically:
+
+* You may freely use any asset here in a game developed within ZQuest Classic, both as `.qst` files individually distributed or via ZC's "standalone" export feature
+* You may make modifications to any asset here and distribute them for purposes of others making games in ZQuest Classic (ex: as tilesets, loose graphics, etc.), as long as you specify these terms. You may simply link to https://github.com/ZQuestClassic/commons and refer to it as the "ZC Commons License"
+* You may use any asset here for purposes that fall under fair use (ex: discussing or referring to ZQuest Classic in a YouTube video, a blog post, etc.)
+
+______
+
+The intent of these terms is to grow a library of high-quality, copyright-free assets for the ZC community. By restricting usage to ZC, and no other game engine, we hope to see more growth for ZC than if we specified no restrictions. If anything here is too restrictive for your purposes, please reach out.

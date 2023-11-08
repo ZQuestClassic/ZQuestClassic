@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 //
 
+#include "allegro/mouse.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/msgstr.h"

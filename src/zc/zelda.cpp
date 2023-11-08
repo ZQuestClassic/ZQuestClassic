@@ -1676,9 +1676,9 @@ int32_t init_game()
 
 	replay_step_comment("init_game");
 	replay_forget_input();
-	
-	//port250QuestRules();
-	
+
+	rti_game.remove_children();
+
 	int initial_seed = time(0);
 	replay_register_rng(zc_get_default_rand());
 	replay_register_rng(&drunk_rng);

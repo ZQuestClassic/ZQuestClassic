@@ -134,6 +134,7 @@ public:
 	void add_child(RenderTreeItem* child);
 	void add_child_before(RenderTreeItem* child, RenderTreeItem* before_child);
 	void remove_child(RenderTreeItem* child);
+	void remove_children();
 	std::vector<RenderTreeItem*>& get_children();
 	std::vector<RenderTreeItem*> const& get_children() const;
 	bool has_children() const;

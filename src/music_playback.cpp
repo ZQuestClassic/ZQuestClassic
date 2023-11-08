@@ -10,7 +10,7 @@ extern ZCMUSIC* zcmusic;
 extern ZCMIXER* zcmixer;
 
 // Run an NSF, or a MIDI if the NSF is missing somehow.
-bool try_zcmusic(const char* filename, char* path, int32_t track, int32_t midi, int32_t vol, int32_t fadeoutframes)
+bool try_zcmusic(const char* filename, const char* path, int32_t track, int32_t midi, int32_t vol, int32_t fadeoutframes)
 {
 	ZCMUSIC* newzcmusic = zcmusic_load_for_quest(filename, path);
 
@@ -43,7 +43,7 @@ bool try_zcmusic(const char* filename, char* path, int32_t track, int32_t midi, 
 	return false;
 }
 
-bool play_enh_music_crossfade(char* name, char* path, int32_t track, int32_t vol, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos, bool revertonfail)
+bool play_enh_music_crossfade(const char* name, const char* path, int32_t track, int32_t vol, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos, bool revertonfail)
 {
 	double fadeoutpct = 1.0;
 	// If there was an old fade going, use that as a multiplier for the new fade out
