@@ -2190,14 +2190,14 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         cb = dest->cb;
     }
 
-    if(x<cl-15 || y<ct-15)
-        return;
-        
-    if(y > cb-16)
-        return;
-        
-    if((y == cb-16) && (x > cr-16))
-        return;
+	if (x + 16 < cl)
+		return;
+	if (x > cr)
+		return;
+	if (y + 16 < ct)
+		return;
+	if (y > cb)
+		return;
         
     if(tile<0 || tile>=NEWMAXTILES)
     {
@@ -2216,8 +2216,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
     // 0: fast, no bounds checking
     // 1: slow, bounds checking
-	// TODO z3 !!! merge I remove "y%8" here. was that good?
-    int draw_mode = x < cl || y < ct || x >= cr-16 || y >= cb-16 || x%8 ? 1 : 0;
+    int draw_mode = x < cl || y < ct || x >= cr-16 || y >= cb-16 || x%8 || y%8 ? 1 : 0;
     if (draw_mode == 1)
     {
         draw_tile16_unified(dest, cl, ct, cr, cb, bytes, x, y, cset, flip, false);
