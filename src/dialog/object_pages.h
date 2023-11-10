@@ -135,8 +135,8 @@ public:
 	virtual void backup(int index) const override;
 	virtual void restore_backup() const override;
 	
-	virtual string name() const {return "Combo Pool";}
-	virtual string cfgname() const {return "cpool";}
+	virtual string name() const override {return "Combo Pool";}
+	virtual string cfgname() const override {return "cpool";}
 	// virtual string custom_info() const {return "";}
 };
 
@@ -166,8 +166,8 @@ public:
 	virtual void backup(int index) const override;
 	virtual void restore_backup() const override;
 	
-	virtual string name() const {return "Auto Combo";}
-	virtual string cfgname() const {return "autocmb";}
+	virtual string name() const override {return "Auto Combo";}
+	virtual string cfgname() const override {return "autocmb";}
 	// virtual string custom_info() const {return "";}
 };
 
@@ -197,8 +197,8 @@ public:
 	virtual void backup(int index) const override;
 	virtual void restore_backup() const override;
 	
-	virtual string name() const {return "Combo Aliases";}
-	virtual string cfgname() const {return "aliases";}
+	virtual string name() const override {return "Combo Aliases";}
+	virtual string cfgname() const override {return "aliases";}
 	// virtual string custom_info() const {return "";}
 };
 
