@@ -786,15 +786,15 @@ bool grab_dataset(int32_t dataset)
 			}
 			
 			if(isinRect(x,y,buttonx,buttony+(36),buttonx+(90),buttony+(36+31)))
-				if(do_text_button(buttonx,buttony+(36),(90),(31),"File",vc(0),vc(15),true))
+				if(do_text_button(buttonx,buttony+(36),(90),(31),"File"))
 					reload=true;
 			
 			if(isinRect(x,y,buttonx+(114),buttony,buttonx+(114+90),buttony+(31)))
-				if(do_text_button(buttonx+(114),buttony,(90),(31),"OK",vc(0),vc(15),true))
+				if(do_text_button(buttonx+(114),buttony,(90),(31),"OK"))
 					done=2;
 			
 			if(isinRect(x,y,buttonx+(114),buttony+(36),buttonx+(114+90),buttony+(36+31)))
-				if(do_text_button(buttonx+(114),buttony+(36),(90),(31),"Cancel",vc(0),vc(15),true))
+				if(do_text_button(buttonx+(114),buttony+(36),(90),(31),"Cancel"))
 					done=1;
 		}
 		

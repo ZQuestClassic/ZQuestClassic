@@ -357,13 +357,14 @@ bool MapPickDialog<Sz>::handleMessage(const GUI::DialogMessage<message>& msg)
 }
 
 
-NumPickDialog::NumPickDialog(std::string const& lbl,std::optional<int32_t>& retv,
-	int32_t snum, bool zsint, int32_t vmax, int32_t vmin)
+NumPickDialog::NumPickDialog(string const& lbl,optional<string> inf,
+	optional<int32_t>& retv, int32_t snum, bool zsint, int32_t vmax, int32_t vmin)
 	: retv(retv), labeltext(lbl), local_val(snum), zsint(zsint), min(vmin), max(vmax)
 {
 	if(max == min && !max)
 		max = -1;
 	retv = nullopt;
+	infostr = inf;
 }
 
 std::shared_ptr<GUI::Widget> NumPickDialog::view()
@@ -396,18 +397,21 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 				local_val = val/10000;
 			});
 	}
-	std::shared_ptr<GUI::Widget> w;
+	std::shared_ptr<GUI::Widget> w, inflbl;
 	if(max < min)
 		w = DummyWidget(padding = 0_px);
 	else w = Label(text = fmt::format("({} <= x <= {})",min,max));
+	if(infostr)
+		inflbl = Label(text = *infostr);
+	else inflbl = DummyWidget(padding = 0_px);
 	window = Window(
 		title = "Number Picker",
 		minwidth = 30_em,
-		info = "Select a number.",
 		onClose = message::CANCEL,
 		Column(
 			Label(text = labeltext),
 			w, tf,
+			inflbl,
 			Row(
 				vAlign = 1.0,
 				spacing = 2_em,
@@ -448,13 +452,27 @@ bool NumPickDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 optional<int32_t> call_get_num(std::string const& lbl, int32_t dv, int32_t max, int32_t min)
 {
 	optional<int32_t> ret = nullopt;
-	NumPickDialog(lbl,ret,dv,false,max,min).show();
+	NumPickDialog(lbl,nullopt,ret,dv,false,max,min).show();
+	return ret;
+}
+optional<int32_t> call_get_num(std::string const& lbl, string const& inf, int32_t dv, int32_t max, int32_t min)
+{
+	optional<int32_t> ret = nullopt;
+	NumPickDialog(lbl,inf,ret,dv,false,max,min).show();
 	return ret;
 }
 optional<zfix> call_get_zfix(std::string const& lbl, zfix dv, zfix max, zfix min)
 {
 	optional<int32_t> ret = nullopt;
-	NumPickDialog(lbl,ret,dv.getZLong(),true,max.getZLong(),min.getZLong()).show();
+	NumPickDialog(lbl,nullopt,ret,dv.getZLong(),true,max.getZLong(),min.getZLong()).show();
+	if(ret)
+		return zslongToFix(*ret);
+	return ret;
+}
+optional<zfix> call_get_zfix(std::string const& lbl, string const& inf, zfix dv, zfix max, zfix min)
+{
+	optional<int32_t> ret = nullopt;
+	NumPickDialog(lbl,inf,ret,dv.getZLong(),true,max.getZLong(),min.getZLong()).show();
 	if(ret)
 		return zslongToFix(*ret);
 	return ret;

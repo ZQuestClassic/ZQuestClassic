@@ -800,7 +800,7 @@ int32_t onTestOptions();
 
 int32_t onOptions();
 
-void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,bool value);
+void draw_checkbox(BITMAP *dest,int x,int y,bool value);
 void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t value);
 void KeyFileName(char *kfname);
 

@@ -411,13 +411,23 @@ void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t col
 	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
 	destroy_bitmap(tmp);
 }
-void ditherrectfill(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
+void ditherrectfill(BITMAP* dest, int x1, int y1, int x2, int y2, int color,
+	byte dType, byte dArg, int xoffs, int yoffs, optional<int> inv_color)
 {
-	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
-	clear_bitmap(tmp);
-	rectfill(tmp, x1, y1, x2, y2, 1);
-	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
-	destroy_bitmap(tmp);
+	if(x1 > x2) zc_swap(x1,x2);
+	if(y1 > y2) zc_swap(y1,y2);
+	uint wid = zc_min(x2-x1+1, dest->w-x1);
+	uint hei = zc_min(y2-y1+1, dest->h-y1);
+	for(int ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t write_addr = bmp_write_line(dest, ty+y1);
+		for(int tx = 0; tx < wid; ++tx)
+			if(dithercheck(dType,dArg,tx+x1+xoffs,ty+y1+yoffs,wid,hei))
+				bmp_write8(write_addr+tx+x1, color);
+			else if(inv_color)
+				bmp_write8(write_addr+tx+x1, *inv_color);
+	}
+	bmp_unwrite_line(dest);
 }
 
 void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color)
@@ -828,7 +838,7 @@ void replColor(BITMAP* dest, byte col, byte startCol, byte endCol, bool shift)
 	bmp_unwrite_line(dest);
 }
 
-void replColors(BITMAP* dest, std::vector<byte> srcCol, std::vector<byte> dstCol)
+void replColors(BITMAP* dest, vector<byte> srcCol, vector<byte> dstCol)
 {
 	size_t sz = std::min(srcCol.size(), dstCol.size());
 	if(!sz) return;
@@ -886,9 +896,9 @@ int32_t countColor(BITMAP* src, BITMAP* mask, int32_t x, int32_t y, int32_t chec
 	return count;
 }
 
-std::vector<byte> getColors(BITMAP* bmp, int maxCount)
+vector<byte> getColors(BITMAP* bmp, int maxCount)
 {
-	std::vector<byte> ret;
+	vector<byte> ret;
 	
 	int32_t wid = bmp->w;
 	int32_t hei = bmp->h;

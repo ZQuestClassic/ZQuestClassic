@@ -6,7 +6,7 @@
 #include <gui/window.h>
 #include <functional>
 #include "base/containers.h"
-
+#include "dialog/externs.h"
 
 template<typename Sz>
 class VectorPickDialog: public GUI::Dialog<VectorPickDialog<Sz>>
@@ -68,7 +68,7 @@ public:
 		REFR_INFO, OK, CANCEL, RELOAD
 	};
 
-	NumPickDialog(std::string const& lbl,std::optional<int32_t>& retv,
+	NumPickDialog(string const& lbl,optional<string> inf, optional<int32_t>& retv,
 		int32_t snum, bool zsint, int32_t max = 0, int32_t min = 0);
 
 	std::shared_ptr<GUI::Widget> view() override;
@@ -77,6 +77,7 @@ public:
 private:
 	std::string const& labeltext;
 	optional<int32_t>& retv;
+	optional<string> infostr;
 	int32_t local_val;
 	bool zsint;
 	int32_t max,min;
@@ -101,8 +102,5 @@ void call_edit_map(bounded_map<Sz,int32_t>& mp, bool zsint)
 template void call_edit_map(bounded_map<byte,int32_t>& mp, bool zsint);
 template void call_edit_map(bounded_map<word,int32_t>& mp, bool zsint);
 template void call_edit_map(bounded_map<dword,int32_t>& mp, bool zsint);
-
-optional<int32_t> call_get_num(std::string const& lbl, int32_t dv, int32_t max = 0, int32_t min = 0);
-optional<zfix> call_get_zfix(std::string const& lbl, zfix dv, zfix max = 0_zf, zfix min = 0_zf);
 #endif
 

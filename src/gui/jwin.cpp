@@ -13,6 +13,7 @@
 #include "gui/tabpanel.h"
 #include "gui/text_field.h"
 #include "dialog/info.h"
+#include "drawing.h"
 using namespace util;
 using std::string;
 using std::istringstream;
@@ -8704,7 +8705,6 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
     
     while(gui_mouse_b())
     {
-        //vsync();
         if(mouse_in_rect(x,y,w,h))
         {
             if(!over)
@@ -8712,8 +8712,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
                 vsync();
                 jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
                 over=true;
-                
-				update_hw_screen();
+				update_hw_screen(true);
             }
         }
         else
@@ -8723,8 +8722,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
                 vsync();
                 jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
                 over=false;
-                
-				update_hw_screen();
+				update_hw_screen(true);
             }
         }
 		rest(1);
@@ -9885,18 +9883,15 @@ void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
 	line(dest, x1, y2, x2, y1, color);
 }
 
-void draw_checkerboard(BITMAP* dest, int32_t x, int32_t y, int32_t offx, int32_t offy, int32_t sz)
+void draw_checkerboard(BITMAP* dest, int x, int y, int offx, int offy, int sz, optional<int> cb_sz)
 {
-	int32_t midx = offx % sz;
-	int32_t midy = offy % sz;
-	bool inv = XOR(((x + offx) % (sz * 2) >= sz), ((y + offy) % (sz * 2) >= sz));
-	rectfill(dest, x + midx, y + midy, x + sz - 1, y + sz - 1, inv ? vc(7) : vc(8));
-	if (midx > 0 && midy > 0)
-		rectfill(dest, x, y, x + midx - 1, y + midy - 1, inv ? vc(7) : vc(8));
-	if (midx > 0)
-		rectfill(dest, x, y + midy, x + midx - 1, y + sz - 1, inv ? vc(8) : vc(7));
-	if (midy > 0)
-		rectfill(dest, x + midx, y, x + sz - 1, y + midy - 1, inv ? vc(8) : vc(7));
+	if(!cb_sz)
+		cb_sz = sz;
+	bool inv = XOR(((x + offx) % (*cb_sz * 2) >= *cb_sz), ((y + offy) % (*cb_sz * 2) >= *cb_sz));
+	int ox = -x, oy = -y;
+	if(inv)
+		ox += *cb_sz;
+	ditherrectfill(dest, x, y, x+sz-1, y+sz-1, vc(7), dithChecker, *cb_sz, ox, oy, vc(8));
 }
 
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -9949,6 +9944,101 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
     }
     
     return D_O_K;
+}
+
+//
+
+void draw_checkbox(BITMAP *dest,int x,int y,int sz,bool value)
+{
+	draw_checkbox(dest,x,y,sz,sz,value);
+}
+void draw_checkbox(BITMAP *dest,int x,int y,int wid,int hei,bool value)
+{
+	jwin_draw_frame(dest, x, y, wid, hei, FR_DEEP);
+	rectfill(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTBG]);
+	
+	if(value)
+	{
+		line(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTFG]);
+		line(dest, x+2, y+hei-3, x+wid-3, y+2, jwin_pal[jcTEXTFG]);
+	}
+}
+void draw_dis_checkbox(BITMAP *dest,int x,int y,int wid,int hei,bool value)
+{
+	jwin_draw_frame(dest, x, y, wid, hei, FR_DEEP);
+	
+	if(value)
+	{
+		line(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTFG]);
+		line(dest, x+2, y+hei-3, x+wid-3, y+2, jwin_pal[jcTEXTFG]);
+	}
+}
+
+bool do_scheckbox(BITMAP *dest,int x,int y,int sz,int &value, int xoffs, int yoffs)
+{
+	return do_checkbox(dest,x,y,sz,sz,value,xoffs,yoffs);
+}
+bool do_checkbox(BITMAP *dest,int x,int y,int wid,int hei,int &value, int xoffs, int yoffs)
+{
+	bool over=false;
+	
+	while(gui_mouse_b())
+	{
+		if(isinRect(gui_mouse_x()-xoffs,gui_mouse_y()-yoffs,x,y,x+wid-1,y+hei-1))
+		{
+			if(!over)
+			{
+				value=value?0:1;
+				draw_checkbox(dest,x,y,wid,hei,value!=0);
+				over=true;
+				update_hw_screen(true);
+			}
+		}
+		else
+		{
+			if(over)
+			{
+				value=value?0:1;
+				draw_checkbox(dest,x,y,wid,hei,value!=0);
+				over=false;
+				update_hw_screen(true);
+			}
+		}
+		rest(1);
+	}
+	
+	return over;
+}
+bool do_checkbox_tx(BITMAP *dest,int x,int y,int wid,int hei,int &value, int txtoffs, int xoffs, int yoffs)
+{
+	bool over=false;
+	
+	while(gui_mouse_b())
+	{
+		if(isinRect(gui_mouse_x()-xoffs,gui_mouse_y()-yoffs,x,y,x+wid-1+txtoffs,y+hei-1))
+		{
+			if(!over)
+			{
+				value=value?0:1;
+				draw_checkbox(dest,x,y,wid,hei,value!=0);
+				over=true;
+				update_hw_screen(true);
+			}
+		}
+		else
+		{
+			if(over)
+			{
+				value=value?0:1;
+				draw_checkbox(dest,x,y,wid,hei,value!=0);
+				over=false;
+				update_hw_screen(true);
+			}
+		}
+		rest(1);
+	}
+	
+	return over;
 }
 
 //box_out stuff
