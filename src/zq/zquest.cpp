@@ -27895,7 +27895,7 @@ int32_t main(int32_t argc,char **argv)
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);
-	tooltip_maxtimer				 = vbound(zc_get_config("zquest","ttip_timer",30),15,60*60);
+	tooltip_maxtimer				 = vbound(zc_get_config("zquest","ttip_timer",30),0,60*60);
 	ShowFFScripts				  = zc_get_config("zquest","showffscripts",1);
 	ShowSquares					= zc_get_config("zquest","showsquares",1);
 	ShowFFCs					= zc_get_config("zquest","showffcs",0);

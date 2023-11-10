@@ -986,7 +986,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
 					ROW_TF_RANGE(OPT_COMPILE_VOL, "Compile SFX Volume %:", 0, 500),
 					ROW_DDOWN(OPT_BOTTOM8, "Bottom 8 pixels:", bottom8_list),
-					ROW_TF_RANGE(OPT_TOOLTIP_TIMER, "Tooltip Timer:", 15, 60*60)
+					ROW_TF_RANGE(OPT_TOOLTIP_TIMER, "Tooltip Timer:", 0, 60*60)
 				)
 			))
 		)

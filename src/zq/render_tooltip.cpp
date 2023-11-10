@@ -200,7 +200,7 @@ static void add_highlight(size_and_pos pos, int thickness)
 
 void ttip_clear_timer()
 {
-	rti_tooltip.timer = tooltip_maxtimer + 1;
+	rti_tooltip.timer = tooltip_maxtimer;
 }
 
 ToolTipRTI::ToolTipRTI(std::string name) : LegacyBitmapRTI(name) {}
@@ -234,7 +234,7 @@ void ToolTipRTI::prepare()
 	}
 	active_tooltip_id = tooltip->id;
 
-	if (timer <= tooltip_maxtimer)
+	if (timer < tooltip_maxtimer)
 	{
 		++timer;
 		visible = false;
