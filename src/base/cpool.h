@@ -7,15 +7,19 @@
 
 struct combo_alias
 {
-    combo_alias();
-    
-    byte width;      // Max 15
-    byte height;     // Max 10
-    byte layermask;  // Specifies layers to be drawn
-    word combo;      // Optional thumbnail combo for the alias list
-    word cset;
-    word *combos;    // Dynamic array. Will be stored in quest.
-    byte *csets;
+	combo_alias();
+	
+	byte width;      // Max 15
+	byte height;     // Max 10
+	byte layermask;  // Specifies layers to be drawn
+	word combo;      // Optional thumbnail combo for the alias list
+	word cset;
+	word *combos;    // Dynamic array. Will be stored in quest.
+	byte *csets;
+	
+	bool valid() const;
+	void clear();
+	combo_alias& operator=(combo_alias const& other);
 };
 
 struct cpool_entry

@@ -77,10 +77,10 @@ public:
 	void for_area(int s1, optional<int> s2, std::function<void(int)> callback);
 	void for_area(int s1, optional<int> s2, int dest, std::function<void(int,int)> callback);
 	void copy_area(int s1, int s2, int dest);
-	void draw_null(BITMAP* dest, int x, int y, int w, int h, bool alt = false) const;
+	void draw_null(BITMAP* dest, int x, int y, int w, int h) const;
 public:
 	//Abstraction
-	virtual void do_draw(BITMAP* dest, int x, int y, int w, int h, int index, bool alt = false) const = 0;
+	virtual void do_draw(BITMAP* dest, int x, int y, int w, int h, int index) const = 0;
 	virtual void do_copy(int dest, int src) const = 0;
 	virtual void do_edit(int index) = 0;
 	virtual void do_delete(int index) = 0;
@@ -115,7 +115,7 @@ class ComboPoolPageObj : public ObjectTemplate
 public:
 	static ComboPoolPageObj& get() {return inst;}
 	
-	virtual void do_draw(BITMAP* dest, int x, int y, int w, int h, int index, bool alt = false) const override;
+	virtual void do_draw(BITMAP* dest, int x, int y, int w, int h, int index) const override;
 	virtual void do_copy(int dest, int src) const override;
 	virtual void do_edit(int index) override;
 	virtual void do_delete(int index) override;
@@ -146,7 +146,7 @@ class AutoComboPageObj : public ObjectTemplate
 	static AutoComboPageObj inst;
 public:
 	static AutoComboPageObj& get() {return inst;}
-	virtual void do_draw(BITMAP* dest, int x, int y, int w, int h, int index, bool alt = false) const override;
+	virtual void do_draw(BITMAP* dest, int x, int y, int w, int h, int index) const override;
 	virtual void do_copy(int dest, int src) const override;
 	virtual void do_edit(int index) override;
 	virtual void do_delete(int index) override;
@@ -168,6 +168,37 @@ public:
 	
 	virtual string name() const {return "Auto Combo";}
 	virtual string cfgname() const {return "autocmb";}
+	// virtual string custom_info() const {return "";}
+};
+
+class AliasPageObj : public ObjectTemplate
+{
+	AliasPageObj() = default;
+	static AliasPageObj inst;
+public:
+	static AliasPageObj& get() {return inst;}
+	virtual void do_draw(BITMAP* dest, int x, int y, int w, int h, int index) const override;
+	virtual void do_copy(int dest, int src) const override;
+	virtual void do_edit(int index) override;
+	virtual void do_delete(int index) override;
+	virtual size_t size() const override;
+	
+	virtual bool do_rclick(int indx) override;
+	virtual bool do_tick() override;
+	virtual void postinit() override;
+	
+	// virtual bool disabled_cb(uint indx) const override;
+	// virtual optional<string> cb_get_name(uint indx) const override;
+	// virtual optional<string> cb_get_cfg(uint indx) const override;
+	// virtual optional<bool> cb_get_default(uint indx) const override;
+	// virtual void cb_do_rclick(uint indx) override;
+	
+	virtual void clear_backup() const override;
+	virtual void backup(int index) const override;
+	virtual void restore_backup() const override;
+	
+	virtual string name() const {return "Combo Aliases";}
+	virtual string cfgname() const {return "aliases";}
 	// virtual string custom_info() const {return "";}
 };
 

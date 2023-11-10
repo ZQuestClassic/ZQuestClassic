@@ -9734,12 +9734,22 @@ static MENU cautosel_rc_menu[] =
     { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
     { NULL,                         NULL,                     NULL, 0, NULL }
 };
+static MENU caliassel_rc_menu[] =
+{
+    { (char *)"Edit Combo Alias",   NULL,                     NULL, 0, NULL },
+    { (char *)"Open Alias Page",    NULL,                     NULL, 0, NULL },
+    { (char *)"",                   NULL,                     NULL, 0, NULL },
+	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
+    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
+};
 int toggle_linked_scrolling()
 {
 	LinkedScroll = LinkedScroll ? 0 : 1;
 	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
 	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	SETFLAG(cautosel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(caliassel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	zc_set_config("zquest","linked_comboscroll",LinkedScroll);
 	return D_O_K;
 }
@@ -11775,7 +11785,20 @@ void domouse()
 					
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						onEditComboAlias();
+						int32_t m = popup_menu(caliassel_rc_menu,x,y);
+						
+						switch(m)
+						{
+							case 0:
+								onEditComboAlias();
+								break;
+							case 1:
+								call_alias_pages(j);
+								break;
+							case 3:
+								onGotoPage();
+								break;
+						}
 					}
 					goto domouse_doneclick;
 				}
@@ -20251,7 +20274,7 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
     return D_O_K;
 }
 
-void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size)
+void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t x, int32_t y, int32_t size)
 {
     if(!combo->combo)
     {
@@ -21223,6 +21246,11 @@ int32_t onEditComboAlias()
     setup_combo_animations();
     setup_combo_animations2();
     return D_O_K;
+}
+void call_calias_dlg(int index)
+{
+	combo_apos = comboa_cnt = index;
+	onEditComboAlias();
 }
 
 static char ffcombo_str_buf[MAXFFCS];
@@ -28478,6 +28506,7 @@ int32_t main(int32_t argc,char **argv)
 	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
 	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	SETFLAG(cautosel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(caliassel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	
 	init_ffpos();
 	

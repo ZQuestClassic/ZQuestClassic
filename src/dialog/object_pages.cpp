@@ -105,7 +105,7 @@ void ObjectTemplate::draw_info()
 				zc_swap(c1,c2);
 				copyind = {c1,c2};
 			}
-			do_draw(screen,cpyx,cpyy,32,32,c1,true);
+			do_draw(screen,cpyx,cpyy,32,32,c1);
 			
 			txt1 = "Copied:";
 			if(c1 == c2)
@@ -116,14 +116,14 @@ void ObjectTemplate::draw_info()
 		{
 			txt1 = "No Copy";
 			txt2 = "'C' to copy'";
-			draw_null(screen,cpyx,cpyy,32,32,true);
+			draw_null(screen,cpyx,cpyy,32,32);
 		}
 		textprintf_right_ex(screen,tfont,cpytxt_x,panelcy-th,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",txt1.c_str());
 		textprintf_right_ex(screen,tfont,cpytxt_x,panelcy,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",txt2.c_str());
 	}
 	{ //Current selected obj
 		jwin_draw_frame(screen, curx-2, cury-2, 32+4, 32+4, FR_DEEP);
-		do_draw(screen,curx,cury,32,32,sel,true);
+		do_draw(screen,curx,cury,32,32,sel);
 		
 		int s1 = sel, s2 = sel;
 		if(sel2)
@@ -735,7 +735,7 @@ void ObjectTemplate::for_area(int s1, optional<int> opts2, int dest, std::functi
 		}
 	}
 }
-void ObjectTemplate::draw_null(BITMAP* dest, int x, int y, int w, int h, bool alt) const
+void ObjectTemplate::draw_null(BITMAP* dest, int x, int y, int w, int h) const
 {
 	switch(InvalidBG)
 	{
@@ -820,12 +820,12 @@ void ObjectTemplate::cb_do_rclick(uint indx)
 // Combo Pool Pages
 //
 ComboPoolPageObj ComboPoolPageObj::inst;
-void ComboPoolPageObj::do_draw(BITMAP* dest, int x, int y, int w, int h, int index, bool alt) const
+void ComboPoolPageObj::do_draw(BITMAP* dest, int x, int y, int w, int h, int index) const
 {
 	combo_pool const& cpool = combo_pools[index];
 	if(!cpool.valid())
 	{
-		draw_null(dest,x,y,w,h,alt);
+		draw_null(dest,x,y,w,h);
 		return;
 	}
 	int32_t cid; int8_t cs = CSet;
@@ -980,12 +980,12 @@ void ComboPoolPageObj::restore_backup() const
 // Auto ComboPages
 //
 AutoComboPageObj AutoComboPageObj::inst;
-void AutoComboPageObj::do_draw(BITMAP* dest, int x, int y, int w, int h, int index, bool alt) const
+void AutoComboPageObj::do_draw(BITMAP* dest, int x, int y, int w, int h, int index) const
 {
 	combo_auto const& autoc = combo_autos[index];
 	if(!autoc.valid())
 	{
-		draw_null(dest,x,y,w,h,alt);
+		draw_null(dest,x,y,w,h);
 		return;
 	}
 	int32_t cid = autoc.getDisplay();
@@ -1004,10 +1004,10 @@ void AutoComboPageObj::do_copy(int dest, int src) const
 {
 	combo_autos[dest] = combo_autos[src];
 }
-void call_cpool_dlg(int32_t index);
+void call_autocombo_dlg(int32_t index);
 void AutoComboPageObj::do_edit(int index)
 {
-	call_cpool_dlg(index);
+	call_autocombo_dlg(index);
 }
 void AutoComboPageObj::do_delete(int index)
 {
@@ -1077,6 +1077,106 @@ void AutoComboPageObj::restore_backup() const
 	backup_autoc = tmp; //undo again to redo
 }
 
+//
+// Combo Alias Pages
+//
+AliasPageObj AliasPageObj::inst;
+void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t x, int32_t y, int32_t size);
+void AliasPageObj::do_draw(BITMAP* dest, int x, int y, int w, int h, int index) const
+{
+	combo_alias const& alias = combo_aliases[index];
+	if(!alias.valid())
+	{
+		draw_null(dest,x,y,w,h);
+		return;
+	}
+	if(w == h && !(w%16))
+		draw_combo_alias_thumbnail(dest,&alias,x,y,w/16);
+	else
+	{
+		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+		draw_combo_alias_thumbnail(tmpbmp,&alias,0,0,1);
+		stretch_blit(tmpbmp, dest, 0, 0, 16, 16, x, y, w, h);
+		destroy_bitmap(tmpbmp);
+	}
+}
+void AliasPageObj::do_copy(int dest, int src) const
+{
+	combo_aliases[dest] = combo_aliases[src];
+}
+void call_calias_dlg(int index);
+void AliasPageObj::do_edit(int index)
+{
+	call_calias_dlg(index);
+}
+void AliasPageObj::do_delete(int index)
+{
+	combo_aliases[index].clear();
+}
+size_t AliasPageObj::size() const
+{
+	return MAXCOMBOALIASES;
+}
+
+static MENU alias_rclick_menu[] =
+{
+    { (char *)"Copy",               NULL,                     NULL, 0, NULL },
+    { (char *)"Paste",              NULL,                     NULL, 0, NULL },
+    { (char *)"Edit",               NULL,                     NULL, 0, NULL },
+    { (char *)"Delete",             NULL,                     NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
+};
+bool AliasPageObj::do_rclick(int indx)
+{
+	SETFLAG(alias_rclick_menu[1].flags, D_DISABLED, !copyind);
+	switch(popup_menu(alias_rclick_menu,gui_mouse_x(),gui_mouse_y()))
+	{
+		case 0: //Copy
+			try_copy();
+			return false;
+		case 1: //Paste
+			return try_paste();
+		case 2: //Edit
+			try_edit();
+			return true;
+		case 3: //Delete
+			return try_delete();
+	}
+	return false;
+}
+bool AliasPageObj::do_tick()
+{
+	return false;
+}
+void AliasPageObj::postinit()
+{
+	buttons.emplace_back("Done", [&](){return 1;});
+	buttons.emplace_back("&Edit", [&](){try_edit(); return 0;});
+}
+
+static map<int,combo_alias> backup_alias;
+void AliasPageObj::clear_backup() const
+{
+	backup_alias.clear();
+}
+void AliasPageObj::backup(int index) const
+{
+	backup_alias[index] = combo_aliases[index];
+}
+void AliasPageObj::restore_backup() const
+{
+	if(backup_alias.empty())
+		return;
+	saved = false;
+	map<int,combo_alias> tmp;
+	for(auto [ind,alias] : backup_alias)
+	{
+		tmp[ind] = combo_aliases[ind];
+		combo_aliases[ind] = alias;
+	}
+	backup_alias = tmp; //undo again to redo
+}
+
 
 
 //
@@ -1090,5 +1190,10 @@ void call_cpool_pages(optional<int> val)
 void call_autoc_pages(optional<int> val)
 {
 	AutoComboPageObj::get().call_dlg(val);
+}
+
+void call_alias_pages(optional<int> val)
+{
+	AliasPageObj::get().call_dlg(val);
 }
 

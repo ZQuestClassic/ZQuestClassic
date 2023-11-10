@@ -1,10 +1,20 @@
+#include "combo.h"
 #include "cpool.h"
 #include "random.h"
 #include <assert.h>
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
 combo_pool combo_pools[MAXCOMBOPOOLS];
+extern vector<newcombo> combobuf;
 
+int comboa_lmasktotal(byte layermask)
+{
+    int result = 0;
+	for(int q = 0; q < 6; ++q)
+		if(layermask & (1<<q))
+			++result;
+    return result;
+}
 combo_alias::combo_alias()
 {
 	memset(this, 0, sizeof(combo_alias));
@@ -12,6 +22,32 @@ combo_alias::combo_alias()
 	csets = new byte[1];
 	combos[0] = 0;
 	csets[0] = 0;
+}
+bool combo_alias::valid() const
+{
+	if(combo)
+		return combobuf[combo].tile;
+	return width || height || (combos && combos[0]);
+}
+combo_alias& combo_alias::operator=(combo_alias const& other)
+{
+	width = other.width;
+	height = other.height;
+	layermask = other.layermask;
+	combo = other.combo;
+	cset = other.cset;
+	int count = (comboa_lmasktotal(layermask)+1)*(width+1)*(height+1);
+	if(combos) delete[] combos;
+	if(csets) delete[] csets;
+	combos = new word[count];
+	csets = new byte[count];
+	memcpy(combos, other.combos, sizeof(word)*count);
+	memcpy(csets, other.csets, sizeof(byte)*count);
+	return *this;
+}
+void combo_alias::clear()
+{
+	*this = combo_alias();
 }
 
 combo_pool& combo_pool::operator=(combo_pool const& other)
