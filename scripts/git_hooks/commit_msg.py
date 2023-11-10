@@ -9,6 +9,8 @@ is_valid = True
 
 log = ''
 
+if commit_msg.startswith('fixup!'):
+    exit(0)
 
 def add_log(*args):
     global log
