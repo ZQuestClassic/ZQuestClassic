@@ -580,7 +580,7 @@ bool ObjectTemplate::try_paste()
 		auto [c1,c2] = *copyind;
 		if(CHECK_SHIFT)
 		{
-			for_area(sel,sel2,[&,c1](int s){
+			for_area(sel,sel2,[&](int s){
 				backup(s);
 				do_copy(s,copyind->first);
 			});
