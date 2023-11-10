@@ -161,13 +161,13 @@ void ObjectTemplate::draw_info()
 			if(disabled_cb(indx-1))
 			{
 				draw_dis_checkbox(screen, cb_x, cb_y, cbox_h, cbox_h, false);
-				textprintf_ex(screen, tfont, cb_x+cbox_h+2+1, cb_y+1, jwin_pal[jcLIGHT], jwin_pal[jcBOX], name->c_str());
-				textprintf_ex(screen, tfont, cb_x+cbox_h+2, cb_y, jwin_pal[jcDISABLED_FG], -1, name->c_str());
+				textprintf_ex(screen, tfont, cb_x+cbox_h+2+1, cb_y+1, jwin_pal[jcLIGHT], jwin_pal[jcBOX], "%s", name->c_str());
+				textprintf_ex(screen, tfont, cb_x+cbox_h+2, cb_y, jwin_pal[jcDISABLED_FG], -1, "%s", name->c_str());
 			}
 			else
 			{
 				draw_checkbox(screen, cb_x, cb_y, cbox_h, get_cb(indx-1));
-				textprintf_ex(screen, tfont, cb_x+cbox_h+2, cb_y, jwin_pal[jcBOXFG], jwin_pal[jcBOX], name->c_str());
+				textprintf_ex(screen, tfont, cb_x+cbox_h+2, cb_y, jwin_pal[jcBOXFG], jwin_pal[jcBOX], "%s", name->c_str());
 			}
 			cb_y += hei;
 			if(cb_y+hei >= window_h)
