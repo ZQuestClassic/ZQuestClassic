@@ -3801,7 +3801,7 @@ void zmap::drawstaticblock(BITMAP* dest,int32_t x,int32_t y)
 {
 	if (InvalidBG == 2)
 	{
-		draw_checkerboard(dest, x, y, 8, 8, 16);
+		draw_checkerboard(dest, x, y, 16);
 	}
 	else if(InvalidBG == 1)
     {
@@ -3827,7 +3827,7 @@ void zmap::drawstaticcolumn(BITMAP* dest,int32_t x,int32_t y)
 	if (InvalidBG == 2)
 	{
 		for(int32_t q = 0; q < 11; ++q)
-			draw_checkerboard(dest, x, y + q * 16, 8, 8, 16);
+			draw_checkerboard(dest, x, y + q * 16, 16);
 	}
     else if(InvalidBG == 1)
     {
@@ -3853,7 +3853,7 @@ void zmap::drawstaticrow(BITMAP* dest,int32_t x,int32_t y)
 	if (InvalidBG == 2)
 	{
 		for (int32_t q = 0; q < 16; ++q)
-			draw_checkerboard(dest, x + q * 16, y, 8, 8, 16);
+			draw_checkerboard(dest, x + q * 16, y, 16);
 	}
     else if(InvalidBG == 1)
     {

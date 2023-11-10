@@ -742,7 +742,7 @@ void ObjectTemplate::draw_null(BITMAP* dest, int x, int y, int w, int h, bool al
 		case 2:
 		{
 			auto sz = std::max(w,h);
-			draw_checkerboard(dest, x, y, 0, 0, sz, sz/(alt?2:1));
+			draw_checkerboard(dest, x, y, sz);
 			break;
 		}
 		case 1:
