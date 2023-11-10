@@ -334,6 +334,7 @@ if(close_button_quit) \
 #define SIDE_TO_DIAG		1.4142
 #define STEP_DIAGONAL(s)	(s*DIAG_TO_SIDE)
 
+#define WRAP_CS(cs) ((cs+14)%14)
 #define WRAP_CS2(cs,cs2) (get_qr(qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+14)%14))
 
 #define XOR(a,b) (!(a) != !(b))

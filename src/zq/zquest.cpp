@@ -61,6 +61,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/screen_data.h"
 #include "dialog/edit_dmap.h"
 #include "dialog/compilezscript.h"
+#include "dialog/externs.h"
 
 #include "base/gui.h"
 #include "gui/jwin_a5.h"
@@ -3773,34 +3774,26 @@ int32_t onDecreaseCSet()
 
 int32_t onGotoPage()
 {
-    int32_t choosepage=getnumber("Scroll to Combo Page", 0);
-    
-    if(!cancelgetnum)
-    {
-		if (draw_mode==dm_alias) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
-		{
-			int32_t page=(vbound(choosepage,0,((MAXCOMBOALIASES/96))));
-			//First[current_comboalist]=page<<8;
-			combo_alistpos[current_comboalist] = vbound(page*96, 0, MAXCOMBOALIASES-97);
-		}
-		else if (draw_mode==dm_cpool) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
-		{
-			int32_t page=(vbound(choosepage,0,((MAXCOMBOPOOLS/96))));
-			//First[current_comboalist]=page<<8;
-			combo_pool_listpos[current_cpoollist] = vbound(page*96, 0, MAXCOMBOPOOLS-97);
-		}
-		else if (draw_mode == dm_auto) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
-		{
-			int32_t page = (vbound(choosepage, 0, ((MAXAUTOCOMBOS / 96))));
-			//First[current_comboalist]=page<<8;
-			combo_auto_listpos[current_cautolist] = vbound(page * 96, 0, MAXAUTOCOMBOS - 97);
-		}
-		else
-		{
-			int32_t page=(zc_min(choosepage,COMBO_PAGES-1));
-			First[current_combolist]=page<<8;
-		}
-    }
+	if (draw_mode==dm_alias)
+	{
+		if(optional<int> v = call_get_num("Scroll to Alias Page", 0, MAXCOMBOALIASES/96, 0))
+			combo_alistpos[current_comboalist] = *v*96;
+	}
+	else if (draw_mode==dm_cpool)
+	{
+		if(optional<int> v = call_get_num("Scroll to Combo Pool Page", 0, MAXCOMBOPOOLS/96, 0))
+			combo_pool_listpos[current_cpoollist] = *v*96;
+	}
+	else if (draw_mode == dm_auto)
+	{
+		if(optional<int> v = call_get_num("Scroll to Auto Combo Page", 0, MAXAUTOCOMBOS/96, 0))
+			combo_auto_listpos[current_cautolist] = *v*96;
+	}
+	else
+	{
+		if(optional<int> v = call_get_num("Scroll to Combo Page", 0, COMBO_PAGES-1, 0))
+			First[current_combolist] = *v << 8;
+	}
     
     return D_O_K;
 }
@@ -6623,7 +6616,7 @@ void refresh(int32_t flags, bool update)
 		int32_t ry = layer_panel.y;
 		auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
 		draw_layer_button(menu1, rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
-		draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]!=0);
+		draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]!=0);
 	}
 	
 	font=tfont;
@@ -9723,10 +9716,20 @@ static MENU combosel_rc_menu[] =
     { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
     { NULL,                         NULL,                     NULL, 0, NULL }
 };
+static MENU cpoolsel_rc_menu[] =
+{
+    { (char *)"Edit Pool",         NULL,                     NULL, 0, NULL },
+    { (char *)"Open Pool Page",    NULL,                     NULL, 0, NULL },
+    { (char *)"",                   NULL,                     NULL, 0, NULL },
+	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
+    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
+};
 int toggle_linked_scrolling()
 {
 	LinkedScroll = LinkedScroll ? 0 : 1;
 	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	zc_set_config("zquest","linked_comboscroll",LinkedScroll);
 	return D_O_K;
 }
@@ -11026,7 +11029,7 @@ void domouse()
 		
 		if(compactbtn.rect(x,y))
 		{
-			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),true));
+			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact"));
 				toggle_is_compact();
 			goto domouse_doneclick;
 		}
@@ -11035,7 +11038,7 @@ void domouse()
 		if(combo_merge_btn.rect(x,y))
 		{
 			bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
-			if(do_text_button(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<",vc(1),vc(14),true))
+			if(do_text_button(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<"))
 			{
 				toggle_merged_mode();
 			}
@@ -11045,7 +11048,7 @@ void domouse()
 		if(favorites_zoombtn.rect(x,y))
 		{
 			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-			if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+			if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+"))
 			{
 				toggle_favzoom_mode();
 			}
@@ -11053,7 +11056,7 @@ void domouse()
 		}
 		else if(favorites_x.rect(x,y))
 		{
-			if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),true))
+			if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X"))
 			{
 				AlertDialog("Clear Favorite Combos",
 					"Are you sure you want to clear all favorite combos?",
@@ -11075,7 +11078,7 @@ void domouse()
 		}
 		else if(favorites_infobtn.rect(x,y))
 		{
-			if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),true))
+			if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?"))
 			{
 				InfoDialog("Favorite Combos",
 					"On LClick (empty): Sets clicked favorite to the current combo."
@@ -11092,7 +11095,7 @@ void domouse()
 		}
 		else if(favorites_pgleft.rect(x,y))
 		{
-			if (do_text_button(favorites_pgleft.x, favorites_pgleft.y, favorites_pgleft.w, favorites_pgleft.h, is_compact ? "<" : "<-", vc(1), vc(14), true))
+			if (do_text_button(favorites_pgleft.x, favorites_pgleft.y, favorites_pgleft.w, favorites_pgleft.h, is_compact ? "<" : "<-"))
 			{
 				if (rclick)
 				{
@@ -11112,7 +11115,7 @@ void domouse()
 		}
 		else if(favorites_pgright.rect(x,y))
 		{
-			if (do_text_button(favorites_pgright.x, favorites_pgright.y, favorites_pgright.w, favorites_pgright.h, is_compact ? ">" : "->", vc(1), vc(14), true))
+			if (do_text_button(favorites_pgright.x, favorites_pgright.y, favorites_pgright.w, favorites_pgright.h, is_compact ? ">" : "->"))
 			{
 				if (rclick)
 				{
@@ -11134,7 +11137,7 @@ void domouse()
 		if(commands_zoombtn.rect(x,y))
 		{
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
-			if(do_text_button(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+			if(do_text_button(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+"))
 			{
 				toggle_cmdzoom_mode();
 			}
@@ -11142,7 +11145,7 @@ void domouse()
 		}
 		else if(commands_x.rect(x,y))
 		{
-			if(do_text_button(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",vc(1),vc(14),true))
+			if(do_text_button(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X"))
 			{
 				AlertDialog("Clear Favorite Commands",
 					"Are you sure you want to clear all favorite commands?",
@@ -11163,7 +11166,7 @@ void domouse()
 		}
 		else if(commands_infobtn.rect(x,y))
 		{
-			if(do_text_button(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",vc(1),vc(14),true))
+			if(do_text_button(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?"))
 			{
 				InfoDialog("Favorite Commands",
 					"On LClick (empty): Choose a favorite command"
@@ -11211,7 +11214,7 @@ void domouse()
 					sprintf(tbuf, "%d", i);
 				}
 				
-				if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14),true))
+				if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf))
 				{
 					CurrentLayer = i;
 					goto domouse_doneclick;
@@ -11221,7 +11224,7 @@ void domouse()
 			auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
 			if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+cbyofs,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_wid-1,ry+2+layerpanel_checkbox_hei-1))
 			{
-				do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]);
+				do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]);
 				goto domouse_doneclick;
 			}
 		}
@@ -11631,7 +11634,7 @@ void domouse()
 		{
 			if(lclick)
 			{
-				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),true))
+				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode]))
 					onDrawingMode();
 			}
 			else if(rclick)
@@ -11791,7 +11794,20 @@ void domouse()
 					
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						onEditComboPool();
+						int32_t m = popup_menu(cpoolsel_rc_menu,x,y);
+						
+						switch(m)
+						{
+							case 0:
+								onEditComboPool();
+								break;
+							case 1:
+								call_cpool_pages(j);
+								break;
+							case 3:
+								onGotoPage();
+								break;
+						}
 					}
 					goto domouse_doneclick;
 				}
@@ -28447,6 +28463,7 @@ int32_t main(int32_t argc,char **argv)
 	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
 	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
 	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	
 	init_ffpos();
 	

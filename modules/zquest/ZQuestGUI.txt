@@ -85,6 +85,7 @@ src/dialog/zqhotkeys.cpp
 src/dialog/edit_dmap.cpp
 src/dialog/tilesetwizard.cpp
 src/dialog/view_script_slots.cpp
+src/dialog/object_pages.cpp
 
 
 ## End of ZQuest GUI module
