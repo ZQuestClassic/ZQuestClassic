@@ -1,5 +1,6 @@
 #include "object_pages.h"
 #include "base/cpool.h"
+#include "base/autocombo.h"
 #include "base/combo.h"
 #include "tiles.h"
 #include "base/gui.h"
@@ -978,6 +979,104 @@ void ComboPoolPageObj::restore_backup() const
 //
 // Auto ComboPages
 //
+AutoComboPageObj AutoComboPageObj::inst;
+void AutoComboPageObj::do_draw(BITMAP* dest, int x, int y, int w, int h, int index, bool alt) const
+{
+	combo_auto const& autoc = combo_autos[index];
+	if(!autoc.valid())
+	{
+		draw_null(dest,x,y,w,h,alt);
+		return;
+	}
+	int32_t cid = autoc.getDisplay();
+	int8_t cs = CSet;
+	if(w == h && !(w%16))
+		put_combo(dest,x,y,cid,cs,0,0,w/16);
+	else
+	{
+		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+		put_combo(tmpbmp,0,0,cid,cs,0,0,1);
+		stretch_blit(tmpbmp, dest, 0, 0, 16, 16, x, y, w, h);
+		destroy_bitmap(tmpbmp);
+	}
+}
+void AutoComboPageObj::do_copy(int dest, int src) const
+{
+	combo_autos[dest] = combo_autos[src];
+}
+void call_cpool_dlg(int32_t index);
+void AutoComboPageObj::do_edit(int index)
+{
+	call_cpool_dlg(index);
+}
+void AutoComboPageObj::do_delete(int index)
+{
+	combo_autos[index].clear(true);
+}
+size_t AutoComboPageObj::size() const
+{
+	return MAXAUTOCOMBOS;
+}
+
+static MENU auto_rclick_menu[] =
+{
+    { (char *)"Copy",               NULL,                     NULL, 0, NULL },
+    { (char *)"Paste",              NULL,                     NULL, 0, NULL },
+    { (char *)"Edit",               NULL,                     NULL, 0, NULL },
+    { (char *)"Delete",             NULL,                     NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
+};
+bool AutoComboPageObj::do_rclick(int indx)
+{
+	SETFLAG(auto_rclick_menu[1].flags, D_DISABLED, !copyind);
+	switch(popup_menu(auto_rclick_menu,gui_mouse_x(),gui_mouse_y()))
+	{
+		case 0: //Copy
+			try_copy();
+			return false;
+		case 1: //Paste
+			return try_paste();
+		case 2: //Edit
+			try_edit();
+			return true;
+		case 3: //Delete
+			return try_delete();
+	}
+	return false;
+}
+bool AutoComboPageObj::do_tick()
+{
+	return false;
+}
+void AutoComboPageObj::postinit()
+{
+	buttons.emplace_back("Done", [&](){return 1;});
+	buttons.emplace_back("&Edit", [&](){try_edit(); return 0;});
+}
+
+static map<int,combo_auto> backup_autoc;
+void AutoComboPageObj::clear_backup() const
+{
+	backup_autoc.clear();
+}
+void AutoComboPageObj::backup(int index) const
+{
+	backup_autoc[index] = combo_autos[index];
+}
+void AutoComboPageObj::restore_backup() const
+{
+	if(backup_autoc.empty())
+		return;
+	saved = false;
+	map<int,combo_auto> tmp;
+	for(auto [ind,autoc] : backup_autoc)
+	{
+		tmp[ind] = combo_autos[ind];
+		combo_autos[ind] = autoc;
+	}
+	backup_autoc = tmp; //undo again to redo
+}
+
 
 
 //
@@ -986,5 +1085,10 @@ void ComboPoolPageObj::restore_backup() const
 void call_cpool_pages(optional<int> val)
 {
 	ComboPoolPageObj::get().call_dlg(val);
+}
+
+void call_autoc_pages(optional<int> val)
+{
+	AutoComboPageObj::get().call_dlg(val);
 }
 
