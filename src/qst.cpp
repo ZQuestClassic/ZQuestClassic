@@ -143,25 +143,6 @@ enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERP
 static byte deprecated_rules[QUESTRULES_NEW_SIZE];
 
 
-void delete_combo_aliases()
-{
-    for(int32_t j(0); j<256; j++)
-    {
-        if(combo_aliases[j].combos != NULL)
-        {
-            delete[] combo_aliases[j].combos;
-            combo_aliases[j].combos=NULL;
-        }
-        
-        if(combo_aliases[j].csets != NULL)
-        {
-            delete[] combo_aliases[j].csets;
-            combo_aliases[j].csets=NULL;
-        }
-    }
-    
-}
-
 char *byte_conversion(int32_t number, int32_t format)
 {
     static char num_str[40];
@@ -17849,21 +17830,8 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			combo_aliases[j].width = 0;
 			combo_aliases[j].height = 0;
 			combo_aliases[j].layermask = 0;
-			
-			if(combo_aliases[j].combos != NULL)
-			{
-				delete[] combo_aliases[j].combos;
-			}
-			
-			if(combo_aliases[j].csets != NULL)
-			{
-				delete[] combo_aliases[j].csets;
-			}
-			
-			combo_aliases[j].combos = new word[1];
-			combo_aliases[j].csets = new byte[1];
-			combo_aliases[j].combos[0] = 0;
-			combo_aliases[j].csets[0] = 0;
+			combo_aliases[j].combos.clear();
+			combo_aliases[j].csets.clear();
 		}
 	}
 
@@ -18288,21 +18256,11 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
         
         count=(width+1)*(height+1)*(comboa_lmasktotal(mask)+1);
         
-		if(combo_aliases[j].combos != NULL)
-		{
-			delete[] combo_aliases[j].combos;
-		}
-		
-		if(combo_aliases[j].csets != NULL)
-		{
-			delete[] combo_aliases[j].csets;
-		}
-		
 		combo_aliases[j].width = width;
 		combo_aliases[j].height = height;
 		combo_aliases[j].layermask = mask;
-		combo_aliases[j].combos = new word[count];
-		combo_aliases[j].csets = new byte[count];
+		combo_aliases[j].combos.clear();
+		combo_aliases[j].csets.clear();
         
         for(int32_t k=0; k<count; k++)
         {

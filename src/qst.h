@@ -264,7 +264,6 @@ void init_msgstr(MsgStr *str);
 int32_t get_version_and_build(PACKFILE *f, word *version, word *build);
 bool find_section(PACKFILE *f, int32_t section_id_requested);
 
-extern void delete_combo_aliases();
 void reset_subscreen(subscreen_group *tempss);
 void reset_subscreens();
 int32_t setupsubscreens();

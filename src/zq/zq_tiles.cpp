@@ -19404,11 +19404,9 @@ int32_t readcomboaliasfile(PACKFILE *f)
 				return 0;
 			}
 			//These values are flexible, and may differ in size, so we delete them 
-		//and recreate them at the correct size on the pointer. 
-		delete[] temp_alias.combos;
-		temp_alias.combos = new word[count2];
-		delete[] temp_alias.csets;
-		temp_alias.csets = new byte[count2];
+			//and recreate them at the correct size on the pointer.
+			temp_alias.combos.clear();
+			temp_alias.csets.clear();
 			for(int32_t k=0; k<count2; k++)
 			{
 				if(!p_igetw(&tempword,f))
@@ -19486,7 +19484,6 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	
 	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
 	{
 		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
@@ -19527,80 +19524,71 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 	{
 		memset(&temp_alias, 0, sizeof(temp_alias));
 		if(!p_igetw(&temp_alias.combo,f))
-			{
-				return 0;
-			}
+		{
+			return 0;
+		}
 			
-			if(!p_getc(&temp_alias.cset,f))
-			{
-				return 0;
-			}
+		if(!p_getc(&temp_alias.cset,f))
+		{
+			return 0;
+		}
 			
-			int32_t count2 = 0;
+		int32_t count2 = 0;
 		
 		if(!p_igetl(&count2,f))
-			{
-				return 0;
-			}
+		{
+			return 0;
+		}
 		
-			if(!p_getc(&temp_alias.width,f))
-			{
-				return 0;
-			}
+		if(!p_getc(&temp_alias.width,f))
+		{
+			return 0;
+		}
 			
-			if(!p_getc(&temp_alias.height,f))
-			{
-				return 0;
-			}
+		if(!p_getc(&temp_alias.height,f))
+		{
+			return 0;
+		}
 			
-			if(!p_getc(&temp_alias.layermask,f))
-			{
-				return 0;
-			}
+		if(!p_getc(&temp_alias.layermask,f))
+		{
+			return 0;
+		}
 		//These values are flexible, and may differ in size, so we delete them 
-		//and recreate them at the correct size on the pointer. 
-			delete[] temp_alias.combos;
-		temp_alias.combos = new word[count2];
-		delete[] temp_alias.csets;
-		temp_alias.csets = new byte[count2];
+		//and recreate them at the correct size on the pointer.
+		temp_alias.combos.clear();
+		temp_alias.csets.clear();
 		
-			for(int32_t k=0; k<count2; k++)
-			{
-				if(!p_igetw(&tempword,f))
-				{
-					return 0;
-				}
-		else
+		for(int32_t k=0; k<count2; k++)
 		{
-			temp_alias.combos[k] = tempword;
-		}
+			if(!p_igetw(&tempword,f))
+			{
+				return 0;
 			}
+			else
+			{
+				temp_alias.combos[k] = tempword;
+			}
+		}
 			
-			for(int32_t k=0; k<count2; k++)
-			{
-				if(!p_getc(&tempcset,f))
-				{
-					return 0;
-				}
-		else
+		for(int32_t k=0; k<count2; k++)
 		{
-			temp_alias.csets[k] = tempcset;
-		}
+			if(!p_getc(&tempcset,f))
+			{
+				return 0;
 			}
-		
+			else
+			{
+				temp_alias.csets[k] = tempcset;
+			}
+		}
 		
 		if ( start+(tilect) < MAXCOMBOALIASES )
 		{
 			memcpy(&combo_aliases[start+(tilect)],&temp_alias,sizeof(temp_alias));
 		}
 	}
-	
-	
-	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
-	
-			
 	return 1;
-	
 }
 int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 {

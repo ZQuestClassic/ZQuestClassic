@@ -5629,7 +5629,6 @@ void remove_installed_timers()
 
 void delete_everything_else() //blarg.
 {
-    delete_combo_aliases();
     refresh_subscr_buttonitems();
 	kill_subscr_items();
 }
