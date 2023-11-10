@@ -760,7 +760,7 @@ extern command_struct bic[cmdMAX];
 
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
-void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size);
+void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t x, int32_t y, int32_t size);
 
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
