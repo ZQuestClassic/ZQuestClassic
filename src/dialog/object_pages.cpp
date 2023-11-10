@@ -157,7 +157,6 @@ void ObjectTemplate::draw_info()
 		uint indx = 0;
 		while(auto name = cb_get_name(indx++))
 		{
-			int flags = 0, state = cb[indx-1];
 			if(disabled_cb(indx-1))
 			{
 				draw_dis_checkbox(screen, cb_x, cb_y, cbox_h, cbox_h, false);
@@ -288,7 +287,7 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 	while(gui_mouse_b())
 		rest(1);
 	int done = 0;
-	bool bdown = false, rclick = false;
+	bool bdown = false;
 	
 	FONT* tfont = get_zc_font(font_lfont_l);
 	
@@ -581,7 +580,7 @@ bool ObjectTemplate::try_paste()
 		auto [c1,c2] = *copyind;
 		if(CHECK_SHIFT)
 		{
-			for_area(sel,sel2,[&](int s){
+			for_area(sel,sel2,[&,c1](int s){
 				backup(s);
 				do_copy(s,c1);
 			});
