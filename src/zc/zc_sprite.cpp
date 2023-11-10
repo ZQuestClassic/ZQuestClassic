@@ -71,7 +71,8 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	x = vbound(x, 0, world_w - 1);
 	y = vbound(y, 0, world_h - 1);
 	int maxlayer = get_qr(qr_CONVEYORS_ALL_LAYERS) ? 6 : (get_qr(qr_CONVEYORS_L1_L2) ? 2 : 0);
-	int pos = COMBOPOS(x,y);
+	rpos_t rpos = COMBOPOS_REGION(x,y);
+	int pos = RPOS_TO_POS(rpos);
 	int found_layer = -1;
 	int cmbid = -1;
 	int ffcid = MAPFFCOMBO(x,y);
@@ -82,7 +83,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	}
 	else for(int q = maxlayer; q >= 0; --q)
 	{
-		mapscr* layer_scr = get_layer_scr_for_xy(x, y, q);
+		mapscr* layer_scr = get_layer_scr_for_xy(x, y, q - 1);
 		if (!layer_scr->valid) continue;
 
 		int cid = layer_scr->data[pos];
@@ -130,6 +131,7 @@ void sprite::check_conveyor()
 	if(cmbid < 0) return;
 	newcombo const* cmb = &combobuf[cmbid];
 	bool custom_spd = (cmb->usrflags&cflag2);
+	// TODO z3 !
     if(((z==0&&fakez==0) || (tmpscr->flags2&fAIRCOMBOS)))
     {
         int32_t ctype=(combobuf[cmbid].type);
