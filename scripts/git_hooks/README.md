@@ -3,9 +3,9 @@ To speed up creating the release notes in the future, we use a structured format
 Pretty much https://www.conventionalcommits.org/en/v1.0.0/ - except no notion of BREAKING CHANGE (that is for libraries). An example of these commits are:
 
 ```
-fix(zc): fix the thing in the player
-fix: fix the thing across multiple components
-feat(zq): added cool new combo wizard
+fix(zc): the thing in the player now does not crash
+fix: enemies being un-killable
+feat(zq): cool new combo wizard for doors
 ```
 
 The idea is that all commit messages should begin first by specifying a type - `feat:` for new features, `fix:` for bug fixes. We can use anything here, but I've started us with: `feat, fix, docs, build, chore, refactor, test, ci, misc`. When adding a new feature that the end user will care about, the commit type should be `feat`. If it is just a code clean up, it'd be `refactor`.
@@ -26,8 +26,8 @@ i changed the thing
 ============== FAILED TO COMMIT ==================
 commit message must match expected pattern, using an expected type and optional scope.
 examples:
-        fix: fix the thing
-        fix(zc): fix the thing
+        fix: enemies being un-killable
+        fix(zc): the thing in the player now does not crash
 
 valid types (the first word of the commit) are: feat, fix, build, chore, ci, docs, refactor, test, misc
 valid scopes (the optional text in parentheses) are: zc, zq, parser, launcher, zscript, zconsole, web
