@@ -132,6 +132,10 @@ void ttip_install(int id, std::string text, size_and_pos trigger_area, int tip_x
 	}
 	tip_y += 16;
 	int highlight_thickness = 1;
+	// For tooltips that reuse an id, check if it changed and reset the timer if so.
+	if (id == rti_tooltip.active_tooltip_id && tooltips.contains(id))
+		if (tooltips[id].trigger_area != trigger_area || tooltips[id].text != text)
+			rti_tooltip.timer = 0;
 	tooltips[id] = {text, trigger_area, tip_x, tip_y, highlight_thickness};
 }
 
