@@ -1,4 +1,3 @@
-#include "base/render.h"
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
@@ -9725,11 +9724,21 @@ static MENU cpoolsel_rc_menu[] =
     { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
     { NULL,                         NULL,                     NULL, 0, NULL }
 };
+static MENU cautosel_rc_menu[] =
+{
+    { (char *)"Edit Auto Combo",    NULL,                     NULL, 0, NULL },
+    { (char *)"Open Auto Page",     NULL,                     NULL, 0, NULL },
+    { (char *)"",                   NULL,                     NULL, 0, NULL },
+	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
+    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
+};
 int toggle_linked_scrolling()
 {
 	LinkedScroll = LinkedScroll ? 0 : 1;
 	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
 	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(cautosel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	zc_set_config("zquest","linked_comboscroll",LinkedScroll);
 	return D_O_K;
 }
@@ -11831,9 +11840,22 @@ void domouse()
 				{
 					select_autocombo(j);
 
-					if (rclick && comboaliaslist[j].rect(gui_mouse_x(), gui_mouse_y()))
+					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						onEditAutoCombo();
+						int32_t m = popup_menu(cautosel_rc_menu,x,y);
+						
+						switch(m)
+						{
+							case 0:
+								onEditAutoCombo();
+								break;
+							case 1:
+								call_autoc_pages(j);
+								break;
+							case 3:
+								onGotoPage();
+								break;
+						}
 					}
 					goto domouse_doneclick;
 				}
@@ -28464,6 +28486,7 @@ int32_t main(int32_t argc,char **argv)
 	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
 	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
 	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(cautosel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	
 	init_ffpos();
 	

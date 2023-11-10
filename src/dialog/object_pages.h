@@ -140,7 +140,7 @@ public:
 	// virtual string custom_info() const {return "";}
 };
 
-/*class AutoComboPageObj : ObjectTemplate
+class AutoComboPageObj : public ObjectTemplate
 {
 	AutoComboPageObj() = default;
 	static AutoComboPageObj inst;
@@ -169,7 +169,7 @@ public:
 	virtual string name() const {return "Auto Combo";}
 	virtual string cfgname() const {return "autocmb";}
 	// virtual string custom_info() const {return "";}
-};*/
+};
 
 #endif
 
