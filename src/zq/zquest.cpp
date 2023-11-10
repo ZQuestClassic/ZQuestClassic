@@ -1,3 +1,4 @@
+#include "base/render.h"
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
@@ -10622,8 +10623,7 @@ void domouse()
 {
 	static int mouse_down = 0;
 	static int32_t scrolldelay = 0;
-	int32_t x=gui_mouse_x();
-	int32_t y=gui_mouse_y();
+	auto [x, y] = zc_get_mouse();
 	double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
 	double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
 	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);

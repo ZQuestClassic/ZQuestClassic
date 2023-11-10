@@ -196,8 +196,7 @@ ToolTipRTI::ToolTipRTI(std::string name) : LegacyBitmapRTI(name) {}
 void ToolTipRTI::prepare()
 {
 	// Find tooltip mouse is currently over.
-	int mx = gui_mouse_x();
-	int my = gui_mouse_y();
+	auto [mx, my] = zc_get_mouse();
 	int tooltip_id = 0;
 	for (auto& it : tooltips)
 	{
