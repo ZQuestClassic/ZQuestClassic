@@ -582,7 +582,7 @@ bool ObjectTemplate::try_paste()
 		{
 			for_area(sel,sel2,[&,c1](int s){
 				backup(s);
-				do_copy(s,c1);
+				do_copy(s,copyind->first);
 			});
 		}
 		else
