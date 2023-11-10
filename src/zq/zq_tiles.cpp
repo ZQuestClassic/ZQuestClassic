@@ -5513,7 +5513,7 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 			{
 				if (InvalidBG == 2)
 				{
-					draw_checkerboard(dest, x, y, 0, 0, w);
+					draw_checkerboard(dest, x, y, w);
 				}
 				else if(InvalidBG == 1)
 				{
@@ -5589,7 +5589,7 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	{
 		if (InvalidBG == 2)
 		{
-			draw_checkerboard(screen2, 34 * mul, 216 * mul + yofs, 0, 0, 16 * mul, 8 * mul);
+			draw_checkerboard(screen2, 34 * mul, 216 * mul + yofs, 16 * mul);
 		}
 		else if(InvalidBG == 1)
 		{
@@ -5690,7 +5690,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	{
 		if (InvalidBG == 2)
 		{
-			draw_checkerboard(screen2, 124 * mul, 216 * mul + yofs, 0, 0, 16 * mul, 8 * mul);
+			draw_checkerboard(screen2, 124 * mul, 216 * mul + yofs, 16 * mul);
 		}
 		else if(InvalidBG == 1)
 		{
@@ -16661,7 +16661,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	{
 		if (InvalidBG == 2)
 		{
-			draw_checkerboard(screen2, 31 * mul, 216 * mul + yofs, 0, 0, 16 * mul, 8 * mul);
+			draw_checkerboard(screen2, 31 * mul, 216 * mul + yofs, 16 * mul);
 		}
 		else if(InvalidBG == 1)
 		{
@@ -16717,7 +16717,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		{
 			if (InvalidBG == 2)
 			{
-				draw_checkerboard(screen2, 136 * mul, 216 * mul + yofs, 0, 0, 16 * mul, 8 * mul);
+				draw_checkerboard(screen2, 136 * mul, 216 * mul + yofs, 16 * mul);
 			}
 			else if(InvalidBG == 1)
 			{

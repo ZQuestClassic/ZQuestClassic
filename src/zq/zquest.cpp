@@ -562,10 +562,11 @@ static int32_t do_NewQuest()
 	return onNew();
 }
 
+extern int CheckerCol1, CheckerCol2;
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
+int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
 	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
@@ -1545,7 +1546,7 @@ static MENU etc_menu[] =
 static MENU zscript_menu[] =
 {
 	{ (char *)"Compile &ZScript...",            onCompileScript,           NULL,                     0,            NULL   },
-	{ (char *)"&View Slots...",                 onSlotPreview,              NULL,                     0,            NULL   },
+	{ (char *)"&Assign Slots...",               onSlotAssign,              NULL,            D_DISABLED,            NULL   },
 	//divider	
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Compiler Settings",             onZScriptCompilerSettings, NULL,                     0,            NULL   },
@@ -5350,7 +5351,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					{
 						if (InvalidBG == 2)
 						{
-							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
+							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w);
 						}
 						else if (InvalidBG == 1)
 						{
@@ -6353,7 +6354,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				{
 					if (InvalidBG == 2)
 					{
-						draw_checkerboard(menu1, combo_preview2.x, combo_preview2.y, 16, 16, 32);
+						draw_checkerboard(menu1, combo_preview2.x, combo_preview2.y, 32);
 					}
 					else if(InvalidBG == 1)
 					{
@@ -6428,7 +6429,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					{
 						if (InvalidBG == 2)
 						{
-							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
+							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w);
 						}
 						else if(InvalidBG == 1)
 						{
@@ -9987,7 +9988,6 @@ bool has_command_info(int cmd)
 		case cmdDrawingModePool:
 		case cmdQRSearch:
 		case cmdDrawingModeAutocombo:
-		case cmdViewScriptSlots:
 			return true;
 	}
 	return false;
@@ -10468,9 +10468,6 @@ std::string get_command_infostr(int cmd)
 		case cmdDrawingModeAutocombo:
 			infostr = "Switches to Autcombo drawing mode";
 			break;
-		case cmdViewScriptSlots:
-			infostr = "Shows a list of all script slots";
-			break;
 	}
 	return infostr;
 }
@@ -10623,7 +10620,8 @@ void domouse()
 {
 	static int mouse_down = 0;
 	static int32_t scrolldelay = 0;
-	auto [x, y] = zc_get_mouse();
+	int32_t x=gui_mouse_x();
+	int32_t y=gui_mouse_y();
 	double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
 	double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
 	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
@@ -23091,7 +23089,6 @@ void clearAssignSlotDlg()
 	assignscript_dlg[13].flags = 0;
 }
 
-//Deprecated for now, we'll be back later I swear!
 int32_t onSlotAssign()
 {
 	clearAssignSlotDlg();
@@ -23129,14 +23126,6 @@ int32_t onSlotAssign()
 	do_script_disassembly(scripts, false);
 	
 	do_slots(scripts, false);
-	return D_O_K;
-}
-
-void call_view_script_slots();
-
-int32_t onSlotPreview()
-{
-	call_view_script_slots();
 	return D_O_K;
 }
 
@@ -27914,6 +27903,8 @@ int32_t main(int32_t argc,char **argv)
 	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
 	CmbPgCursorCol					  = zc_get_config("zquest","cpage_cursor_color",15);
 	TTipHLCol					  = zc_get_config("zquest","ttip_hl_color",13);
+	CheckerCol1					  = zc_get_config("zquest","checker_color_1",7);
+	CheckerCol2					  = zc_get_config("zquest","checker_color_2",8);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
 	SnapshotScale				 = zc_get_config("zquest","snapshot_scale",2);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
@@ -30429,7 +30420,6 @@ command_pair commands[cmdMAX]=
     { "Rule Templates",                     0, (intF) PickRuleTemplate },
     { "Smart Compile ZScript",              0, (intF) onSmartCompile },
 	{ "Autocombo Mode",                     0, (intF) onDrawingModeAuto },
-	{ "View Script Slots",                  0, (intF) onSlotPreview },
 };
 
 /********************************/
