@@ -30,6 +30,31 @@ def make_version_name(version, date):
         return f'{major}.{minor}'
     return f'{major}.{minor}.{patch} Nightly {date}'
 
+# TODO: remove this first block when ready for 3.0
+if True:
+    if args.version_type == 'stable' or args.version_override:
+        raise Exception('TODO: not yet')
+    
+    date = time.strftime('%Y-%m-%d')
+    n = 1
+    try:
+        previous_release_version = subprocess.check_output(
+            'git describe --tags --abbrev=0 --match "3.0.0-prerelease.*"', shell=True, encoding='utf-8')
+        n, = map(int, re.search(r'prerelease\.(\d+)', previous_release_version).groups())
+        n += 1
+    except:
+        previous_release_version = subprocess.check_output(
+            f'git describe --tags --abbrev=0 --match "*.*.*" --match "2.55-alpha-1??"', shell=True, encoding='utf-8')
+    major, minor, patch = (3, 0, 0)
+    version_meta = [date]
+    release_version = f'{major}.{minor}.{patch}-prerelease.{n}'
+    release_version += '+' + '.'.join(version_meta)
+    release_name = f'3.0 Prerelease {n} {date}'
+
+    set_action_output('release-version', release_version)
+    set_action_output('release-name', release_name)
+    set_action_output('previous-release-version', previous_release_version)
+    exit(0)
 
 if args.version_override:
     release_version = args.version_override
