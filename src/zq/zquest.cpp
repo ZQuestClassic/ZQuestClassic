@@ -20154,8 +20154,6 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
     switch(msg)
     {
     case MSG_CLICK:
-        Z_message("click (%d, %d) (%d, %d)\n", cx1, cy1, cx, cy);
-        
         if((cx>combo->width)||(cx1<0))
             return D_O_K;
             
@@ -20363,7 +20361,8 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t 
     {
         if(combobuf[combo->combo].tile>0)
         {
-            put_combo(dest,x, y, combo->combo, combo->cset,0,0);
+            rectfill(dest,x,y,x+16*size-1,y+16*size-1,0);
+            put_combo(dest, x, y, combo->combo, combo->cset, 0, 0, size);
         }
         else
         {
@@ -20476,76 +20475,18 @@ static DIALOG newcomboa_dlg[] =
 
 bool swapComboAlias(int32_t source, int32_t dest)
 {
-    if(source==dest) return false;
-    
-    combo_alias *combo=&temp_aliases[source], *oldcombo=&temp_aliases[dest];
-    
-    byte w=oldcombo->width;
-    oldcombo->width=combo->width;
-    combo->width=w;
-    
-    byte h=oldcombo->height;
-    oldcombo->height=combo->height;
-    combo->height=h;
-    
-    byte l=oldcombo->layermask;
-    oldcombo->layermask=combo->layermask;
-    combo->layermask=l;
-    
-    word c=oldcombo->combo;
-    oldcombo->combo=combo->combo;
-    combo->combo=c;
-    
-    c=oldcombo->cset;
-    oldcombo->cset=combo->cset;
-    combo->cset=c;
-    
-    word* cp = oldcombo->combos;
-    oldcombo->combos=combo->combos;
-    combo->combos = cp;
-    
-    byte *sp = oldcombo->csets;
-    oldcombo->csets=combo->csets;
-    combo->csets=sp;
-    
+    if(source==dest)
+		return false;
+	zc_swap(temp_aliases[source],temp_aliases[dest]);
     return true;
 }
 
 
 bool copyComboAlias(int32_t source, int32_t dest)
 {
-    if(source==dest) return false;
-    
-    // al_trace("count is %i\n", comboa_cnt);
-    // if (dest > comboa_cnt-1) return false;
-    // al_trace("Copying %i to %i\n",source, dest);
-    
-    combo_alias *combo, *oldcombo;
-    combo = &temp_aliases[source];
-    oldcombo = &temp_aliases[dest];
-    
-    int32_t new_count=(comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
-    
-    if(oldcombo->combos != NULL) delete[] oldcombo->combos;
-    
-    if(oldcombo->csets != NULL) delete[] oldcombo->csets;
-    
-    word *new_combos = new word[new_count];
-    byte *new_csets = new byte[new_count];
-    
-    memcpy(new_combos, combo->combos, sizeof(word)*new_count);
-    memcpy(new_csets, combo->csets, sizeof(byte)*new_count);
-    
-    oldcombo->combos=new_combos;
-    oldcombo->csets=new_csets;
-    
-    oldcombo->width=combo->width;
-    oldcombo->height=combo->height;
-    oldcombo->layermask=combo->layermask;
-    oldcombo->combo=combo->combo;
-    oldcombo->cset=combo->cset;
-    
-    
+    if(source == dest)
+		return false;
+    temp_aliases[dest] = temp_aliases[source];
     return true;
 }
 
@@ -20683,18 +20624,8 @@ int32_t onNewComboAlias()
         
         int32_t new_count = (comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
         
-        if(combo->combos != NULL)
-        {
-            delete[] combo->combos;
-        }
-        
-        if(combo->csets != NULL)
-        {
-            delete[] combo->csets;
-        }
-        
-        combo->combos = new word[new_count];
-        combo->csets = new byte[new_count];
+        combo->combos.clear();
+        combo->csets.clear();
         
         int32_t j=1;
         int32_t old_size=(old_width+1)*(old_height+1);
@@ -20848,12 +20779,6 @@ int32_t onNewComboAlias()
         }
         
         set_comboaradio(combo->layermask);
-        // copy aliases
-        /*if (newcomboa_dlg[16].flags)
-        {
-          copyComboAlias(getcurrentcomboalias(),atoi((char*) newcomboa_dlg[15].dp));
-          al_trace("src: %i, dest: %i\n", getcurrentcomboalias(),atoi((char*) newcomboa_dlg[15].dp));
-        }*/
     }
     
     return ret;
@@ -21044,7 +20969,7 @@ static DIALOG editcomboa_dlg[] =
     { jwin_button_proc,     232,  212,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_frame_proc,      4+121,   28+81,   1,   1,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { d_comboabutton_proc,   25,  212,  81,   21,   vc(14),  vc(1),  'p',     D_EXIT,     0,             0, (void *) "&Properties", NULL, NULL },
-    { d_comboalist_proc,    266,   25,   50,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,     0,             0, (void *) &comboa_list, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
     { d_comboa_radio_proc,  285,   44,  30,   8+1,    vc(14),  vc(1),  0,       D_SELECTED,          0,             0, (void *) "0", NULL, NULL },
     { d_comboa_radio_proc,  285,   54,  30,   8+1,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "1", NULL, NULL },
     { d_comboa_radio_proc,  285,   64,  30,   8+1,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "2", NULL, NULL },
@@ -21145,45 +21070,17 @@ int32_t onEditAutoCombo()
 }
 int32_t onEditComboAlias()
 {
-    comboa_cnt = combo_apos;
-    reset_combo_animations();
-    reset_combo_animations2();
-    
-    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-    {
-        if(temp_aliases[i].combos != NULL)
-        {
-            delete[] temp_aliases[i].combos;
-        }
-        
-        if(temp_aliases[i].csets != NULL)
-        {
-            delete[] temp_aliases[i].csets;
-        }
-        
-        temp_aliases[i].width=combo_aliases[i].width;
-        temp_aliases[i].height=combo_aliases[i].height;
-        temp_aliases[i].layermask=combo_aliases[i].layermask;
-        int32_t tcount = (comboa_lmasktotal(temp_aliases[i].layermask)+1)*(temp_aliases[i].width+1)*(temp_aliases[i].height+1);
-        temp_aliases[i].combos = new word[tcount];
-        temp_aliases[i].csets = new byte[tcount];
-        
-        for(int32_t j=0; j<tcount; j++)
-        {
-            temp_aliases[i].combos[j] = combo_aliases[i].combos[j];
-            temp_aliases[i].csets[j] = combo_aliases[i].csets[j];
-        }
-        
-        temp_aliases[i].combo=combo_aliases[i].combo;
-        temp_aliases[i].cset=combo_aliases[i].cset;
-        //memcpy(temp_aliases[i].combos,combo_aliases[i].combos,sizeof(word)*tcount);
-        //memcpy(temp_aliases[i].csets,combo_aliases[i].csets,sizeof(byte)*tcount);
-    }
-    
-    editcomboa_dlg[0].dp2 = get_zc_font(font_lfont);
-    set_comboaradio(temp_aliases[comboa_cnt].layermask);
-    editcomboa_dlg[5].d1 = comboa_cnt;
-    
+	comboa_cnt = combo_apos;
+	reset_combo_animations();
+	reset_combo_animations2();
+	
+	for(int32_t i=0; i<MAXCOMBOALIASES; i++)
+		temp_aliases[i] = combo_aliases[i];
+	
+	editcomboa_dlg[0].dp2 = get_zc_font(font_lfont);
+	set_comboaradio(temp_aliases[comboa_cnt].layermask);
+	editcomboa_dlg[5].d1 = comboa_cnt;
+	
 	bool small_d1 = editcomboa_dlg[0].d1==0;
 	large_dialog(editcomboa_dlg,2);
 	
@@ -21204,48 +21101,20 @@ int32_t onEditComboAlias()
 		editcomboa_dlg[21].h=21*1.5;
 		editcomboa_dlg[21].dp2=get_zc_font(font_lfont_l);
 	}
-    
-    int32_t ret=do_zqdialog(editcomboa_dlg,-1);
-    
-    if(ret==1)
-    {
-        saved=false;
-        
-        for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-        {
-            if(combo_aliases[i].combos != NULL)
-            {
-                delete[] combo_aliases[i].combos;
-            }
-            
-            if(combo_aliases[i].csets != NULL)
-            {
-                delete[] combo_aliases[i].csets;
-            }
-            
-            combo_aliases[i].width=temp_aliases[i].width;
-            combo_aliases[i].height=temp_aliases[i].height;
-            combo_aliases[i].layermask=temp_aliases[i].layermask;
-            int32_t tcount = (comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
-            combo_aliases[i].combos = new word[tcount];
-            combo_aliases[i].csets = new byte[tcount];
-            
-            for(int32_t j=0; j<tcount; j++)
-            {
-                combo_aliases[i].combos[j] = temp_aliases[i].combos[j];
-                combo_aliases[i].csets[j] = temp_aliases[i].csets[j];
-            }
-            
-            combo_aliases[i].combo=temp_aliases[i].combo;
-            combo_aliases[i].cset=temp_aliases[i].cset;
-            //memcpy(combo_aliases[i].combos,temp_aliases[i].combos,sizeof(word)*tcount);
-            //memcpy(combo_aliases[i].csets,temp_aliases[i].csets,sizeof(byte)*tcount);
-        }
-    }
-    
-    setup_combo_animations();
-    setup_combo_animations2();
-    return D_O_K;
+	
+	int32_t ret=do_zqdialog(editcomboa_dlg,-1);
+	
+	if(ret==1)
+	{
+		saved=false;
+		
+		for(int32_t i=0; i<MAXCOMBOALIASES; i++)
+			combo_aliases[i] = temp_aliases[i];
+	}
+	
+	setup_combo_animations();
+	setup_combo_animations2();
+	return D_O_K;
 }
 void call_calias_dlg(int index)
 {
@@ -29402,31 +29271,6 @@ void quit_game()
     
     remove_locked_params_on_exit();
     
-    al_trace("Cleaning aliases. \n");
-    
-    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-    {
-        if(combo_aliases[i].combos != NULL)
-        {
-            delete[] combo_aliases[i].combos;
-        }
-        
-        if(combo_aliases[i].csets != NULL)
-        {
-            delete[] combo_aliases[i].csets;
-        }
-        
-        if(temp_aliases[i].combos != NULL)
-        {
-            delete[] temp_aliases[i].combos;
-        }
-        
-        if(temp_aliases[i].csets != NULL)
-        {
-            delete[] temp_aliases[i].csets;
-        }
-    }
-    
     al_trace("Cleaning sfx. \n");
     
     for(int32_t i=0; i<WAV_COUNT; i++)
@@ -29566,31 +29410,6 @@ void quit_game2()
     zc_stop_midi();
     
     remove_locked_params_on_exit();
-    
-    al_trace("Cleaning aliases. \n");
-    
-    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-    {
-        if(combo_aliases[i].combos != NULL)
-        {
-            delete[] combo_aliases[i].combos;
-        }
-        
-        if(combo_aliases[i].csets != NULL)
-        {
-            delete[] combo_aliases[i].csets;
-        }
-        
-        if(temp_aliases[i].combos != NULL)
-        {
-            delete[] temp_aliases[i].combos;
-        }
-        
-        if(temp_aliases[i].csets != NULL)
-        {
-            delete[] temp_aliases[i].csets;
-        }
-    }
     
     al_trace("Cleaning sfx. \n");
     

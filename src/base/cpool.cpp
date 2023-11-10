@@ -15,35 +15,11 @@ int comboa_lmasktotal(byte layermask)
 			++result;
     return result;
 }
-combo_alias::combo_alias()
-{
-	memset(this, 0, sizeof(combo_alias));
-	combos = new word[1];
-	csets = new byte[1];
-	combos[0] = 0;
-	csets[0] = 0;
-}
 bool combo_alias::valid() const
 {
 	if(combo)
 		return combobuf[combo].tile;
-	return width || height || (combos && combos[0]);
-}
-combo_alias& combo_alias::operator=(combo_alias const& other)
-{
-	width = other.width;
-	height = other.height;
-	layermask = other.layermask;
-	combo = other.combo;
-	cset = other.cset;
-	int count = (comboa_lmasktotal(layermask)+1)*(width+1)*(height+1);
-	if(combos) delete[] combos;
-	if(csets) delete[] csets;
-	combos = new word[count];
-	csets = new byte[count];
-	memcpy(combos, other.combos, sizeof(word)*count);
-	memcpy(csets, other.csets, sizeof(byte)*count);
-	return *this;
+	return width || height || (combos.size() && combos[0]);
 }
 void combo_alias::clear()
 {
