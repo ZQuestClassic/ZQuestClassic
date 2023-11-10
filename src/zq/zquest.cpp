@@ -7166,19 +7166,7 @@ void select_scr()
 		int32_t y=gui_mouse_y();
 		
 		int32_t ind = real_mini.rectind(x,y);
-		
-		if(ind > -1)
-		{
-			char buf[80];
-			sprintf(buf,"0x%02X (%d)", ind, ind);
-			ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
-			ttip_set_highlight_thickness(ttip_global_id, zoomed_minimap ? 2 : 1);
-		}
-		else
-		{
-			ttip_uninstall(minimap_tooltip_id);
-		}
-		
+
 		if(ind>=MAPSCRS)
 			ind-=16;
 			
@@ -10964,6 +10952,8 @@ void domouse()
 		sprintf(buf,"0x%02X (%d)", ind, ind);
 		ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
 		ttip_set_highlight_thickness(minimap_tooltip_id, zoomed_minimap ? 2 : 1);
+		// Make sure always above the other tooltip items to the right of the map (even in big map mode).
+		ttip_set_z_index(minimap_tooltip_id, 100);
 		ttip_clear_timer();
 	}
 	else

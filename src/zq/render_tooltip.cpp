@@ -14,10 +14,13 @@ int ttip_global_id = 1;
 
 struct tooltip
 {
+	int id;
 	std::string text;
 	size_and_pos trigger_area;
 	int tip_x, tip_y;
 	int highlight_thickness;
+	// Higher = on top.
+	int z_index;
 };
 
 static std::map<int, tooltip> tooltips;
@@ -136,7 +139,7 @@ void ttip_install(int id, std::string text, size_and_pos trigger_area, int tip_x
 	if (id == rti_tooltip.active_tooltip_id && tooltips.contains(id))
 		if (tooltips[id].trigger_area != trigger_area || tooltips[id].text != text)
 			rti_tooltip.timer = 0;
-	tooltips[id] = {text, trigger_area, tip_x, tip_y, highlight_thickness};
+	tooltips[id] = {id, text, trigger_area, tip_x, tip_y, highlight_thickness, 0};
 }
 
 void ttip_install(int id, std::string text, int x, int y, int w, int h, int tip_x, int tip_y, int fw, int fh)
@@ -171,6 +174,11 @@ void ttip_set_highlight_thickness(int id, int thickness)
 	tooltips[id].highlight_thickness = thickness;
 }
 
+void ttip_set_z_index(int id, int z_index)
+{
+	tooltips[id].z_index = z_index;
+}
+
 static void add_highlight(size_and_pos pos, int thickness)
 {
 	rti_highlight.set_transform({pos.x, pos.y});
@@ -201,27 +209,30 @@ void ToolTipRTI::prepare()
 {
 	// Find tooltip mouse is currently over.
 	auto [mx, my] = zc_get_mouse();
-	int tooltip_id = 0;
+
+	tooltip* tooltip = nullptr;
 	for (auto& it : tooltips)
 	{
+		if (tooltip && tooltip->z_index > it.second.z_index)
+			continue;
+
 		if (it.second.trigger_area.rect(mx, my))
 		{
-			tooltip_id = it.first;
-			break;
+			tooltip = &it.second;
 		}
 	}
 
-	if (!tooltip_id)
+	if (!tooltip)
 	{
 		visible = false;
 		return;
 	}
 
-	if (active_tooltip_id != tooltip_id)
+	if (active_tooltip_id != tooltip->id)
 	{
 		rti_tooltip.timer = 0;
 	}
-	active_tooltip_id = tooltip_id;
+	active_tooltip_id = tooltip->id;
 
 	if (timer <= tooltip_maxtimer)
 	{
@@ -230,20 +241,19 @@ void ToolTipRTI::prepare()
 		return;
 	}
 
-	auto& tooltip = tooltips[tooltip_id];
 	visible = true;
 
-	if (rti_text.text != tooltip.text)
+	if (rti_text.text != tooltip->text)
 	{
 		rti_text.dirty = true;
-		rti_text.text = tooltip.text;
+		rti_text.text = tooltip->text;
 	}
 
-	rti_text.set_transform({tooltip.tip_x, tooltip.tip_y, 1, 1});
+	rti_text.set_transform({tooltip->tip_x, tooltip->tip_y, 1, 1});
 
 	rti_highlight.visible = TooltipsHighlight;
-	if (rti_highlight.visible && rti_highlight.pos != tooltip.trigger_area)
+	if (rti_highlight.visible && rti_highlight.pos != tooltip->trigger_area)
 	{
-		add_highlight(tooltip.trigger_area, tooltip.highlight_thickness);
+		add_highlight(tooltip->trigger_area, tooltip->highlight_thickness);
 	}
 }
