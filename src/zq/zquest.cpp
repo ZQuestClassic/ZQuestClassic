@@ -665,8 +665,6 @@ int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
 int32_t zqColorDepth = 8;
 int32_t joystick_index=0;
 
-char *getBetaControlString();
-
 void set_last_timed_save(char const* buf)
 {
 	if(buf && buf[0])
@@ -28172,43 +28170,9 @@ int32_t main(int32_t argc,char **argv)
 	al_init_font_addon();
 	al_init_primitives_addon();
 	render_zq(); // Ensure the rendering bitmaps are setup.
-	//Display annoying beta warning message
 
 #ifdef __EMSCRIPTEN__
 	em_mark_ready_status();
-#endif
-
-#ifndef __EMSCRIPTEN__
-#ifdef _DEBUG
-	zc_set_config("zquest","beta_warning",(char*)nullptr);
-#endif
-#if V_ZC_ALPHA
-	char *curcontrol = getBetaControlString();
-	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
-	
-	if (zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
-	{
-		InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
-			" There may be major bugs, which could cause quests"
-			"\nto crash or become corrupted. Keep backups of your quest file!!"
-			"\nAdditionally, new features may change over time.").show();
-	}
-	
-	delete[] curcontrol;
-#elif V_ZC_BETA
-	char *curcontrol = getBetaControlString();
-	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
-	
-	if(zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
-	{
-		InfoDialog("Beta Warning", "WARNING:\nThis is an BETA version of ZQuest."
-			" There may be bugs, which could cause quests"
-			"\nto crash or become corrupted. Keep backups of your quest file!!").show();
-	}
-	
-	delete[] curcontrol;
-#endif
-
 #endif
 	
 	load_icons();
@@ -29934,11 +29898,6 @@ int32_t save_config_file()
     
     zc_set_config("zquest","layer_mask",b);
     
-    //save the beta warning confirmation info
-	char *uniquestr = getBetaControlString();
-	zc_set_config("zquest", "beta_warning", uniquestr);
-	delete[] uniquestr;
-    
     flush_config_file();
 #ifdef __EMSCRIPTEN__
     em_sync_fs();
@@ -30017,31 +29976,6 @@ void flushItemCache(bool) {}
 void ringcolor(bool forceDefault)
 {
     forceDefault=forceDefault;
-}
-
-//annoying beta message :)
-char *getBetaControlString()
-{
-    char *result = new char[11];
-    const char *compiledate = __DATE__;
-    const char *compiletime = __TIME__;
-    int32_t i=0;
-    byte tempbyte;
-    
-    for(i=0; i<zc_min(10, zc_min((int32_t)strlen(compiledate),(int32_t)strlen(compiletime))); i++)
-    {
-        tempbyte = (compiledate[i]*compiletime[i])^i;
-        tempbyte = zc_max(tempbyte, 33);
-        tempbyte = zc_min(126, tempbyte);
-        result[i] = tempbyte;
-    }
-    
-    for(int32_t j=i; j<11; ++j)
-    {
-        result[j] = '\0';
-    }
-    
-    return result;
 }
 
 bool item_disabled(int32_t)
