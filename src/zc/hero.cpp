@@ -13942,8 +13942,8 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 void HeroClass::moveheroOld()
 {
 	if(lstunclock || is_conveyor_stunned) return;
-	int32_t xoff=TRUNCATE_HALF_TILE(x.getInt());
-	int32_t yoff=TRUNCATE_HALF_TILE(y.getInt());
+	int32_t xoff=x.getInt()&7;
+	int32_t yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
 	{
 		xoff = 0;
@@ -18080,8 +18080,8 @@ bool HeroClass::premove()
 {
 	if(lstunclock) return false;
 	if(is_conveyor_stunned) return (convey_forcex || convey_forcey);
-	int32_t xoff=TRUNCATE_HALF_TILE(x.getInt());
-	int32_t yoff=TRUNCATE_HALF_TILE(y.getInt());
+	int32_t xoff=x.getInt()&7;
+	int32_t yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
 	{
 		xoff = 0;
