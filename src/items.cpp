@@ -440,7 +440,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 
 void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id)
 {
-	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0);
+	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
 	temp.yofs=0;
 	temp.hide_hitbox = true;
 	
