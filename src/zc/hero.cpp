@@ -23678,14 +23678,31 @@ void HeroClass::checkspecial2(int32_t *ls)
 	{
 		for(int32_t j=0; j<16; j+=15) for(int32_t k=0; k<2; k++)
 		{
-			newcombo const& cmb = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)];
+			int comboid = 0;
+			mapscr* screen;
+			if (k > 0)
+			{
+				auto ffc_handle = getFFCAt(x+j, y+i);
+				if (ffc_handle)
+				{
+					comboid = ffc_handle->data();
+					screen = ffc_handle->screen;
+				}
+			}
+			else
+			{
+				auto rpos_handle = get_rpos_handle_for_world_xy(x+j, y+i, 0);
+				comboid = rpos_handle.data();
+				screen = rpos_handle.screen;
+			}
+			newcombo const& cmb = combobuf[comboid];
 			int32_t stype = cmb.type;
 			int32_t warpsound = cmb.attribytes[0];
 			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
 				stype = cNONE;
 			if(stype==cSWARPA)
 			{
-				if(tmpscr->flags5&fDIRECTSWARP)
+				if(screen->flags5&fDIRECTSWARP)
 				{
 					didpit=true;
 					pitx=x;
@@ -23699,7 +23716,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(stype==cSWARPB)
 			{
-				if(tmpscr->flags5&fDIRECTSWARP)
+				if(screen->flags5&fDIRECTSWARP)
 				{
 					didpit=true;
 					pitx=x;
@@ -23713,7 +23730,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(stype==cSWARPC)
 			{
-				if(tmpscr->flags5&fDIRECTSWARP)
+				if(screen->flags5&fDIRECTSWARP)
 				{
 					didpit=true;
 					pitx=x;
@@ -23727,7 +23744,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(stype==cSWARPD)
 			{
-				if(tmpscr->flags5&fDIRECTSWARP)
+				if(screen->flags5&fDIRECTSWARP)
 				{
 					didpit=true;
 					pitx=x;
@@ -23741,7 +23758,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(stype==cSWARPR)
 			{
-				if(tmpscr->flags5&fDIRECTSWARP)
+				if(screen->flags5&fDIRECTSWARP)
 				{
 					didpit=true;
 					pitx=x;

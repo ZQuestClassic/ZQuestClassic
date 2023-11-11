@@ -103,6 +103,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	{
 		for (int i = found_layer; i <= 1; ++i)
 		{
+			// TODO z3 !!!
 			auto tcid = MAPCOMBO2(i,x,y);
 			if(combobuf[tcid].type == cBRIDGE)
 			{
