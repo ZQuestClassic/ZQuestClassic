@@ -241,6 +241,16 @@ void all_process_display_events()
     al_get_next_event(_a5_display_thread_event_queue, &event);
     switch(event.type)
     {
+      case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+      {
+        al_acknowledge_drawing_halt(_a5_display);
+        break;
+      }
+      case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+      {
+        al_acknowledge_drawing_resume(_a5_display);
+        break;
+      }
       case ALLEGRO_EVENT_DISPLAY_CLOSE:
       {
         if(_a5_close_button_proc)
