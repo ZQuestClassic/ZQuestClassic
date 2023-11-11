@@ -384,7 +384,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         if commit.hash in overrides_squashes:
             manual_squash_hash = None
         elif manual_squash_hash:
-            match = re.match(r'(\w+(\(\w+\))?)<(: .+)', commit.subject)
+            match = re.match(r'(\w+(?:\(\w+\))?)<(: .+)', commit.subject)
             if match:
                 commit.subject = ''.join(filter(None,match.groups()))
                 if manual_squash_hash in manual_squashes:
