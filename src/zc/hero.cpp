@@ -13942,8 +13942,8 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 void HeroClass::moveheroOld()
 {
 	if(lstunclock || is_conveyor_stunned) return;
-	int32_t xoff=x.getInt()&7;
-	int32_t yoff=y.getInt()&7;
+	int32_t xoff=TRUNCATE_HALF_TILE(x.getInt());
+	int32_t yoff=TRUNCATE_HALF_TILE(y.getInt());
 	if(NO_GRIDLOCK)
 	{
 		xoff = 0;
@@ -17513,15 +17513,16 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
 			
 			for (int32_t i = 0; i <= 1; ++i)
 			{
+				// TODO z3 !!
 				if(tmpscr2[i].valid!=0)
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[MAPCOMBO2(i,dx,dy)].type == cBRIDGE && !_walkflag_layer(dx,dy,1, &(tmpscr2[i]))) wtrx = false;
+						if (combobuf[MAPCOMBO2(i,dx,dy)].type == cBRIDGE && !_walkflag_layer(dx,dy)) wtrx = false;
 					}
 					else
 					{
-						if (combobuf[MAPCOMBO2(i,dx,dy)].type == cBRIDGE && _effectflag_layer(dx,dy,1, &(tmpscr2[i]))) wtrx = false;
+						if (combobuf[MAPCOMBO2(i,dx,dy)].type == cBRIDGE && _effectflag_layer(dx,dy)) wtrx = false;
 					}
 				}
 			}
@@ -17842,7 +17843,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		}
 	}
 	
-	bool skipdmg = earlyret || get_qr(qr_LENIENT_SOLID_DAMAGE) || get_qr(qr_NOSOLIDDAMAGECOMBOS) || hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS));
+	bool skipdmg = earlyret || get_qr(qr_LENIENT_SOLID_DAMAGE) || get_qr(qr_NOSOLIDDAMAGECOMBOS) || hclk || ((z>0||fakez>0) && !(hero_screen->flags2&fAIRCOMBOS));
 	if(dx)
 	{
 		if(scr_canmove(dx, 0, kb, ign_sv))
@@ -18079,8 +18080,8 @@ bool HeroClass::premove()
 {
 	if(lstunclock) return false;
 	if(is_conveyor_stunned) return (convey_forcex || convey_forcey);
-	int32_t xoff=x.getInt()&7;
-	int32_t yoff=y.getInt()&7;
+	int32_t xoff=TRUNCATE_HALF_TILE(x.getInt());
+	int32_t yoff=TRUNCATE_HALF_TILE(y.getInt());
 	if(NO_GRIDLOCK)
 	{
 		xoff = 0;
@@ -19233,11 +19234,12 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 		     //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
+		// TODO z3 !!
 		if(tmpscr2[i].valid!=0)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8))
 				{
 					slowcombo = false;
 					break;
@@ -19245,7 +19247,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8))
 				{
 					slowcombo = false;
 					break;
@@ -20819,17 +20821,18 @@ void HeroClass::oldcheckbosslockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
+				// TODO z3 !!
 				if (tmpscr2[1].valid != 0)
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx, by, 1, &(tmpscr2[1]))) continue;
-						if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2, by, 1, &(tmpscr2[1]))) continue;
+						if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx, by)) continue;
+						if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2, by)) continue;
 					}
 					else
 					{
-						if (combobuf[cid1].type == cBRIDGE && _effectflag_layer(bx, by, 1, &(tmpscr2[1]))) continue;
-						if (combobuf[cid2].type == cBRIDGE && _effectflag_layer(bx2, by, 1, &(tmpscr2[1]))) continue;
+						if (combobuf[cid1].type == cBRIDGE && _effectflag_layer(bx, by)) continue;
+						if (combobuf[cid2].type == cBRIDGE && _effectflag_layer(bx2, by)) continue;
 					}
 				}
 			}

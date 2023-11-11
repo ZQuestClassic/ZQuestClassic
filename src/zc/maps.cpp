@@ -6306,9 +6306,8 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 	return _walkflag(zx,zy,cnt,0_zf);
 }
 
-static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens)
+static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int x, int y, zfix const& switchblockstate, bool is_temp_screens)
 {
-	int x = zx.getRound(), y = zy.getRound();
 	int32_t bx = COMBOPOS(x % 256, y % 176);
 	const newcombo& c = combobuf[s0->data[bx]];
 	const newcombo& c1 = combobuf[s1->data[bx]];
@@ -6366,8 +6365,9 @@ static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, 
 }
 
 // Returns true if the combo at viewport position x,y is solid. Looks at a combo's quadrant walkablity flags.
-static bool _walkflag_new(zfix_round x, zfix_round y, zfix const& switchblockstate)
+static bool _walkflag_new(zfix_round zx, zfix_round zy, zfix const& switchblockstate)
 {
+	int x = zx.getRound(), y = zy.getRound();
 	mapscr* s0 = get_screen_layer_for_xy_offset(x, y, 0);
 	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
 	mapscr* s2 = get_screen_layer_for_xy_offset(x, y, 2);
