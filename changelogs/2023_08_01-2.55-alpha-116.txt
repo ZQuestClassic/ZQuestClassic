@@ -1,6 +1,9 @@
-https://github.com/ZQuestClassic/ZQuestClassic/releases/tag/2.55-alpha-116
+The one with custom Guys, quest package exports, and a ZScript VS Code extension.
+
+https://zquestclassic.com/releases/2.55-alpha-116
 
 # Features
+
 
 Torch combos support shapes, dirs, new Square shape.
   Also refactor how shape drawing works to remove the need for duplicate ZQ versions.
@@ -292,4 +295,3 @@ show deprecation warning in 32bit windows build
 add -crash switch for crash reporting test
 zscript: add missing asm debug for first uncompiled command
 vscode: publish 1.0.5
-

@@ -1,4 +1,6 @@
-https://github.com/ZQuestClassic/ZQuestClassic/releases/tag/2.55-alpha-117
+The one with the subscreen rewrite, software updater, music mixing, and individual save files.
+
+https://zquestclassic.com/releases/2.55-alpha-117
 
 # Features
 

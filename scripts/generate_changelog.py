@@ -27,6 +27,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -35,6 +36,7 @@ parser.add_argument('--from')
 parser.add_argument('--to', default='HEAD')
 parser.add_argument('--for-nightly', type=str2bool, default=False)
 parser.add_argument('--version')
+parser.add_argument('--generate-all', action='store_true')
 
 args = parser.parse_args()
 
@@ -450,6 +452,25 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
 for path in (script_dir / 'changelog_overrides').rglob('*.md'):
     if path.name != 'README.md':
         parse_override_file(path)
+
+if args.generate_all:
+    tags = subprocess.check_output(
+        'git tag --list "2.55-alpha-11?" "2.55-alpha-12?" "3*"', shell=True, encoding='utf-8').strip().splitlines()
+    for i, tag in enumerate(tags):
+        if tag in ['2.55-alpha-113', '2.55-alpha-112', '2.55-alpha-111', '2.55-alpha-110']:
+            continue
+        # This one was manually created.
+        if tag == '2.55-alpha-114':
+            continue
+
+        changelog = generate_changelog(tags[i - 1], tag)
+        date = subprocess.check_output(
+            f'git show --no-patch --format=%ci {tag}', shell=True, encoding='utf-8').split(' ')[0]
+        date = date.replace('-', '_')
+
+        (root_dir / 'changelogs' / f'{date}-{tag}.txt').write_text(changelog)
+
+    exit(0)
 
 from_sha = getattr(args, 'from', None)
 if from_sha:

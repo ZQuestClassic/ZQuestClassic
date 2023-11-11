@@ -1,4 +1,4 @@
-https://github.com/ZQuestClassic/ZQuestClassic/releases/tag/2.55-alpha-115
+https://zquestclassic.com/releases/2.55-alpha-115
 
 # Features
 
@@ -250,4 +250,3 @@ update used QRs in quest database
 include deprecated_rules in qr analysis
 zq: Change "Place + Edit FFC #" text to "Edit New FFC #" for clarity
 zq: do less setup for -copy-qst command
-
