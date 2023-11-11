@@ -27,7 +27,7 @@ from github import Github, WorkflowRun
 # from ..tests.common import download_artifact
 
 parser = argparse.ArgumentParser(
-    description='Runs a bisect using prebuild releases.')
+    description='Runs a bisect using prebuilt releases.')
 parser.add_argument('--good')
 parser.add_argument('--bad')
 parser.add_argument('--token', required=True)

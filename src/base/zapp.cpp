@@ -1,9 +1,11 @@
 #include "base/zapp.h"
+#include "base/version.h"
 #include "base/zc_alleg.h"
 #include "zconfig.h"
 #include "base/zsys.h"
 #include <filesystem>
 #include <string>
+#include <fmt/format.h>
 
 #ifdef __APPLE__
 #include <unistd.h>
@@ -51,7 +53,7 @@ void common_main_setup(App id, int argc, char **argv)
 #ifdef HAS_SENTRY
     sentry_options_t *options = sentry_options_new();
     sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
-    sentry_options_set_release(options, "zelda-classic@" RELEASE_TAG);
+    sentry_options_set_release(options, fmt::format("zelda-classic@{}", getVersionString()).c_str());
 	// Only track sessions for the main apps.
 	if (id != App::zelda && id != App::zquest)
 		sentry_options_set_auto_session_tracking(options, 0);

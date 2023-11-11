@@ -12,7 +12,7 @@ void call_header_dlg()
 	char zver_str[256];
 	sprintf(zver_str,"%d.%02X (Build %d)%s",header.zelda_version>>8,header.zelda_version&0xFF,header.build,alphastr);
 	std::string startvals[5] = { std::string(header.version), std::string(header.minver), std::string(header.title), std::string(header.author), std::to_string(header.quest_number) };
-	HeaderDialog(std::string(zver_str), startvals,
+	HeaderDialog(header.getVerStr(), startvals,
 		[](std::string_view vals[5])
 		{
 			saved = false;

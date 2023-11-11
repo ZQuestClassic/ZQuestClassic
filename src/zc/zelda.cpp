@@ -15,6 +15,7 @@
 #include "base/packfile.h"
 #include "base/msgstr.h"
 #include "base/render.h"
+#include "base/version.h"
 #include "base/zc_alleg.h"
 #include "base/misctypes.h"
 
@@ -4339,7 +4340,7 @@ int main(int argc, char **argv)
 
 	if (used_switch(argc, argv, "-version"))
 	{
-		printf("version %s\n", getReleaseTag());
+		printf("version %s\n", getVersionString());
 		return 0;
 	}
 
@@ -4430,10 +4431,10 @@ int main(int argc, char **argv)
 	memset(zc_aboutstr,0,80);
 
 	sprintf(zc_builddate,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	sprintf(zc_aboutstr,"%s, Version %s", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	sprintf(zc_aboutstr,"%s, Version %s", ZC_PLAYER_NAME, getVersionString());
 	
 
-	Z_title("ZC Launched: %s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
+	Z_title("ZC Launched: %s, v.%s",ZC_PLAYER_NAME, getVersionString());
 	
 	int standalone_arg = used_switch(argc, argv, "-standalone");
 	if (standalone_arg)
@@ -4745,9 +4746,9 @@ int main(int argc, char **argv)
 	Z_message("Loading data files:\n");
 	set_color_conversion(COLORCONV_NONE);
 	
-	sprintf(zeldadat_sig,"Zelda.Dat %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
-	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+	sprintf(zeldadat_sig,"Zelda.Dat %s Build %d",VerStrFromHex(ZELDADAT_VERSION), ZELDADAT_BUILD);
+	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
+	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	
 	packfile_password(datapwd); // Temporary measure. -L
 	
@@ -4764,7 +4765,7 @@ int main(int argc, char **argv)
 	
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
 	{
-		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	}
 	
 	Z_message("OK\n");
@@ -4781,7 +4782,7 @@ int main(int argc, char **argv)
 	
 	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
 	{
-		Z_error_fatal("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
+		Z_error_fatal("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
 	}
 	
 	Z_message("OK\n");

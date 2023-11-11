@@ -25,6 +25,8 @@
 #include "base/packfile.h"
 #include "base/cpool.h"
 #include "base/autocombo.h"
+#include "base/render.h"
+#include "base/version.h"
 #include "zq/autocombo/autopattern_base.h"
 #include "zq/autocombo/pattern_basic.h"
 #include "zq/autocombo/pattern_flatmtn.h"
@@ -27407,7 +27409,8 @@ int32_t main(int32_t argc,char **argv)
 
 	if (used_switch(argc, argv, "-version"))
 	{
-		printf("version %s\n", getReleaseTag());
+		printf("version %s\n", getVersionString());
+		printf("version %d %d %d\n", getVersion().major, getVersion().minor, getVersion().patch);
 		return 0;
 	}
 
@@ -27459,7 +27462,7 @@ int32_t main(int32_t argc,char **argv)
 		do_copy_qst_command(input_filename, output_filename);
 	}
 
-	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
+	Z_title("%s, v.%s",ZQ_EDITOR_NAME, getVersionString());
 	
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
@@ -27650,7 +27653,7 @@ int32_t main(int32_t argc,char **argv)
 	packfile_password(datapwd);
 	
 	
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	
 	Z_message("Fonts.Dat...");
 	
@@ -27658,7 +27661,7 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("Failed to load fonts datafile '%s'!\n", moduledata.datafiles[fonts_dat]);
 	
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
-		FatalConsole("ZQuest Classic I/O Error:\nIncompatible version of fonts.dat.\nZQuest Classic cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+		FatalConsole("ZQuest Classic I/O Error:\nIncompatible version of fonts.dat.\nZQuest Classic cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	
 	if(fontsdat_cnt != FONTSDAT_CNT)
 		FatalConsole("Incompatible fonts.dat: Found size '%d', expecting size '%d'\n", fontsdat_cnt, FONTSDAT_CNT);
@@ -27677,7 +27680,7 @@ int32_t main(int32_t argc,char **argv)
 	//setPackfilePassword(NULL);
 	packfile_password("");
 	
-	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
+	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("SFX.Dat...");
 	
@@ -27685,7 +27688,7 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("Failed to load sfx.dat!\n");
 	
 	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
-		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
+		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("OK\n");
 	

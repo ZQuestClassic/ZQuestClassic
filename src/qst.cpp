@@ -1,5 +1,6 @@
 #include "allegro/file.h"
 #include "base/util.h"
+#include "base/version.h"
 #include "base/zapp.h"
 #include "base/qrs.h"
 #include "base/cpool.h"
@@ -2005,15 +2006,15 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 	if(qst_num < moduledata.max_quest_files)
 		zprint2("Loading module quest %d\n", qst_num+1);
 	if(path) zprint2("Loading '%s'\n", path);
-	if ( tempheader.new_version_id_main > 0 )
+	if ( tempheader.version_major > 0 )
 	{
 		if(tempheader.new_version_id_fourth > 0)
 			zprint2("Last saved in version %d.%d.%d.%d ",
-				tempheader.new_version_id_main,tempheader.new_version_id_second,
-				tempheader.new_version_id_third,tempheader.new_version_id_fourth);
+				tempheader.version_major,tempheader.version_minor,
+				tempheader.version_patch,tempheader.new_version_id_fourth);
 		else zprint2("Last saved in version: %d.%d.%d ",
-				tempheader.new_version_id_main,tempheader.new_version_id_second,
-				tempheader.new_version_id_third);
+				tempheader.version_major,tempheader.version_minor,
+				tempheader.version_patch);
 	}
 	else
 	{
@@ -2561,15 +2562,15 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	
 		if(version>=4)
 		{
-			if(!p_igetl(&tempheader.new_version_id_main,f))
+			if(!p_igetl(&tempheader.version_major,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_second,f))
+			if(!p_igetl(&tempheader.version_minor,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_third,f))
+			if(!p_igetl(&tempheader.version_patch,f))
 			{
 				return qe_invalid;
 			}
@@ -2672,9 +2673,9 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 		}
 		else // <4
 		{
-			tempheader.new_version_id_main = 0;
-			tempheader.new_version_id_second = 0;
-			tempheader.new_version_id_third = 0;
+			tempheader.version_major = 0;
+			tempheader.version_minor = 0;
+			tempheader.version_patch = 0;
 			tempheader.new_version_id_fourth = 0;
 			tempheader.new_version_id_alpha = 0;
 			tempheader.new_version_id_beta = 0;
@@ -2703,7 +2704,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			memset(tempheader.build_datestamp, 0, 256);
 			memset(tempheader.build_timestamp, 0, 256);
 		}
-		
+
 		if ( version >= 5 )
 		{
 			if(!pfread(tempheader.build_timezone,6,f))
@@ -2741,109 +2742,126 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 				switch(tempheader.zelda_version)
 				{
 					case 0x254:
-						tempheader.new_version_id_main = 2;
-						tempheader.new_version_id_second = 54;
+						tempheader.version_major = 2;
+						tempheader.version_minor = 54;
 						break;
 					case 0x250:
 						switch(tempheader.build)
 						{
 							case 19:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
 								tempheader.new_version_id_gamma = 1;
 								break;
 							case 20:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
 								tempheader.new_version_id_gamma = 2;
 								break;
 							case 21:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
 								tempheader.new_version_id_gamma = 3;
 								break;
 							case 22:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
 								tempheader.new_version_id_gamma = 4;
 								break;
 							case 23:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
 								tempheader.new_version_id_gamma = 5;
 								break;
 							case 24:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
 								tempheader.new_version_id_release = -1;
 								break;
 							case 25:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
-								tempheader.new_version_id_third = 1;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
+								tempheader.version_patch = 1;
 								tempheader.new_version_id_gamma = 1;
 								break;
 							case 26:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
-								tempheader.new_version_id_third = 1;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
+								tempheader.version_patch = 1;
 								tempheader.new_version_id_gamma = 2;
 								break;
 							case 27: 
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
-								tempheader.new_version_id_third = 1;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
+								tempheader.version_patch = 1;
 								tempheader.new_version_id_gamma = 3;
 								break;
 							case 28:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
-								tempheader.new_version_id_third = 1;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
+								tempheader.version_patch = 1;
 								tempheader.new_version_id_release = -1;
 								break;
 							case 29:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
-								tempheader.new_version_id_third = 2;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
+								tempheader.version_patch = 2;
 								tempheader.new_version_id_release = -1;
 								break;
 							case 30:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 50;
-								tempheader.new_version_id_third = 3;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 50;
+								tempheader.version_patch = 3;
 								tempheader.new_version_id_gamma = 1;
 								break;
 							case 31:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 53;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 53;
 								tempheader.new_version_id_gamma = -1;
 								break;
 							case 32:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 53;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 53;
 								tempheader.new_version_id_release = -1;
 								break;
 							case 33:
-								tempheader.new_version_id_main = 2;
-								tempheader.new_version_id_second = 53;
-								tempheader.new_version_id_third = 1;
+								tempheader.version_major = 2;
+								tempheader.version_minor = 53;
+								tempheader.version_patch = 1;
 								break;
 						}
 						break;
 					
 					case 0x211:
-						tempheader.new_version_id_main = 2;
-						tempheader.new_version_id_second = 11;
+						tempheader.version_major = 2;
+						tempheader.version_minor = 11;
 						tempheader.new_version_id_beta = tempheader.build;
 						break;
 					case 0x210:
-						tempheader.new_version_id_main = 2;
-						tempheader.new_version_id_second = 10;
+						tempheader.version_major = 2;
+						tempheader.version_minor = 10;
 						tempheader.new_version_id_beta = tempheader.build;
 						break;
 				}
 			}
 		}
+
+		if (version>=9)
+		{
+			std::string version_string;
+			if(!p_getcstr(&version_string, f))
+			{
+				return qe_invalid;
+			}
+
+			strncpy(tempheader.zelda_version_string, version_string.c_str(), sizeof(tempheader.zelda_version_string));
+			snprintf(tempheader.zelda_version_string, sizeof(tempheader.zelda_version_string), "%s", version_string.c_str());
+		}
+		else
+		{
+			snprintf(tempheader.zelda_version_string, sizeof(tempheader.zelda_version_string), "%d.%d.%d", tempheader.version_major, tempheader.version_minor, tempheader.version_patch);
+		}
+
 		if(printmetadata || __isZQuest)
 		{
 			print_quest_metadata(tempheader, loading_qst_name, loading_qst_num);
@@ -2852,8 +2870,8 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	
 	//{ Version Warning
 	int32_t vercmp = tempheader.compareVer();
-	int32_t astatecmp = compare(int32_t(tempheader.getAlphaState()), ALPHA_STATE);
-	int32_t avercmp = compare(tempheader.getAlphaVer(), ALPHA_VER);
+	int32_t astatecmp = compare(int32_t(tempheader.getAlphaState()), getAlphaState());
+	int32_t avercmp = compare(tempheader.getAlphaVer(), 0);
 	if(vercmp > 0 || (!vercmp &&
 		(astatecmp > 0 || (!astatecmp &&
 			avercmp > 0))))

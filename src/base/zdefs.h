@@ -119,10 +119,11 @@ class ffcdata;
 struct cpos_info;
 
 
-
+// These version fields are deprecated, and no longer update. Replaced by base/version.h
 #define ZELDA_VERSION       0x0255                         //version of the program
-#define ZC_VERSION 25500 //Version ID for ZScript Game->Version
+#define ZC_VERSION_ID 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       61                             //V_BUILD build number of this version. Deprecated.
+
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -202,7 +203,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_ZINFO          ZC_ID('Z','I','N','F')              //ZInfo data
 
 //Version number of the different section types
-#define V_HEADER           8
+#define V_HEADER           9
 #define V_RULES           17
 #define V_STRINGS         10
 #define V_MISC            16
@@ -2166,7 +2167,8 @@ struct ZCHEATS
 struct zquestheader
 {
     char  id_str[31];
-    int16_t zelda_version;
+    int16_t zelda_version; // Deprecated
+    char zelda_version_string[40];
     word  internal;
     byte  quest_number;
     byte  old_rules[2];
@@ -2200,14 +2202,17 @@ struct zquestheader
     byte  old_foo2[18];
     // No one used custom quest templates, so we stopped supporting it.
     char  templatepath[2048];
-    int32_t new_version_id_main;
-    int32_t new_version_id_second;
-    int32_t new_version_id_third;
+    int32_t version_major;
+    int32_t version_minor;
+    int32_t version_patch;
+
+	// Deprecated.
     int32_t new_version_id_fourth;
     int32_t new_version_id_alpha;
     int32_t new_version_id_beta;
     int32_t new_version_id_gamma;
     int32_t new_version_id_release;
+
 	bool new_version_is_nightly;
     word new_version_id_date_year;
     byte new_version_id_date_month;
@@ -2243,8 +2248,6 @@ struct zquestheader
 	int32_t compareDate() const;
 	int32_t compareVer() const;
 };
-
-int8_t getProgramAlphaState();
 
 #define MFORMAT_MIDI 0
 #define MFORMAT_NSF  1
@@ -2576,7 +2579,7 @@ enum //Special hardcoded draw layers
 //
 
 extern const char months[13][13];
-char *VerStr(int32_t version);
+char *VerStrFromHex(int32_t version);
 
 RGB _RGB(byte *si);
 RGB _RGB(int32_t r,int32_t g,int32_t b);

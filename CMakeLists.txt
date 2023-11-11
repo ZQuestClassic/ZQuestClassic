@@ -14,14 +14,29 @@ set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
-set(RELEASE_TAG "" CACHE STRING "Release tag")
+set(ZC_VERSION "" CACHE STRING "Version string")
+set(ZC_OFFICIAL "" CACHE BOOL "Official build")
 set(RELEASE_PLATFORM "" CACHE STRING "Release platform. Ex: mac, linux, windows-x86, windows-x64")
 set(RELEASE_CHANNEL "" CACHE STRING "Release channel. Used by updater to find new releases")
-set(REPO "" CACHE STRING "Repo URL")
+set(REPO "" CACHE STRING "GitHub org/repo")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(ZC_OFFICIAL)
+	if(NOT ZC_VERSION)
+		message(FATAL_ERROR "Missing expected ZC_VERSION")
+	endif()
+	if(NOT RELEASE_CHANNEL)
+		message(FATAL_ERROR "Missing expected RELEASE_CHANNEL")
+	endif()
+	if(NOT REPO)
+		message(FATAL_ERROR "Missing expected REPO")
+	endif()
+endif()
+
+find_program(PYTHON python3 python REQUIRED)
 
 if(MSVC)
 	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} /fsanitize=address" CACHE STRING "" FORCE)
@@ -454,6 +469,7 @@ set(zcbase_sources
 	src/base/render.cpp
 	src/base/sin1.cpp
 	src/base/util.cpp
+	src/base/version.cpp
 	src/base/win32.cpp
 	src/base/zapp.cpp
 	src/base/zc_alleg.cpp
@@ -826,11 +842,14 @@ if(WANT_SENTRY)
 	endforeach()
 endif()
 
-if(RELEASE_TAG)
-	foreach(target IN LISTS zc_targets)
-		target_compile_definitions(${target} PRIVATE RELEASE_TAG="${RELEASE_TAG}")
-	endforeach()
-endif()
+# See docs/versioning.md
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_version_header.py --version "${ZC_VERSION}"
+	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/base/version_header.h
+	DEPENDS .git/refs/tags scripts/generate_version_header.py
+)
+add_custom_target(generate_version_header DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/base/version_header.h)
+add_dependencies(zcbase generate_version_header)
 
 if(RELEASE_PLATFORM)
 	foreach(target IN LISTS zc_targets)
@@ -913,8 +932,6 @@ if(WIN32)
 else()
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS -Wno-everything)
 endif()
-
-find_program(PYTHON python3 python REQUIRED)
 
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(is_multi_config)

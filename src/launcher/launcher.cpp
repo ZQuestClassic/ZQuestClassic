@@ -169,7 +169,7 @@ int32_t main(int32_t argc, char* argv[])
 		QUIT_LAUNCHER();
 	}
 	char fontsdat_sig[52]={0};
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
 	{
 		Z_error_fatal("failed: version error\n");

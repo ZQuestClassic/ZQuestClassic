@@ -1,5 +1,6 @@
 #include "base/qrs.h"
 #include "base/packfile.h"
+#include "base/version.h"
 #include "base/zapp.h"
 #include "base/zc_alleg.h"
 #include "zq/zq_misc.h"
@@ -998,24 +999,7 @@ int32_t onAbout()
     {
 		char buf2[80]={0};
 		char buf3[80]={0};
-#if V_ZC_ALPHA
-        {
-            sprintf(buf1,"ZQuest %s Alpha - DEBUG",ZQ_EDITOR_V);
-        }
-#elif V_ZC_BETA
-        {
-            sprintf(buf1,"ZQuest %s Beta - DEBUG",ZQ_EDITOR_V);
-        }
-#elif V_ZC_GAMMA
-        {
-            sprintf(buf1,"ZQuest %s Gamma - DEBUG",ZQ_EDITOR_V);
-        }
-#else
-        {
-            sprintf(buf1,"ZQuest %s - DEBUG",ZQ_EDITOR_V);
-        }
-#endif
-        sprintf(buf2,"Tag: %s", getReleaseTag());
+		sprintf(buf1,"ZQuest %s - DEBUG", getVersionString());
         sprintf(buf3,"This qst file: %04X",header.internal&0xFFFF);
         InfoDialog("About ZQuest", { buf1, buf2, buf3 }).show();
     }

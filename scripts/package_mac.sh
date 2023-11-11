@@ -13,7 +13,7 @@ DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT=$( dirname "$DIR" )
 
 build_dir="${1:-${ROOT}/build/Release}"
-current_version="${2:-nightly}"
+version="${2:-}"
 packages_dir="$build_dir/packages"
 package_dir="$packages_dir/zc"
 mac_package_dir="$build_dir/packages/zc-mac"
@@ -21,7 +21,11 @@ mac_package_dir="$build_dir/packages/zc-mac"
 set -eu
 cd "$ROOT"
 
-python scripts/package.py --build_folder "$build_dir" --skip_archive --current_version "$current_version"
+if [ -z $version ]; then
+  python scripts/package.py --build_folder "$build_dir" --skip_archive
+else
+  python scripts/package.py --version $version --build_folder "$build_dir" --skip_archive
+fi
 
 # Set SKIP_APP_BUNDLE=1 to skip building an osx application bundle.
 # This won't be able to distribute easily, because OSX will prevent users from running

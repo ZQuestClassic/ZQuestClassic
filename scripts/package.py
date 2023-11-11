@@ -1,5 +1,7 @@
 import argparse
 import os
+import re
+import time
 import shutil
 import platform
 import time
@@ -27,7 +29,7 @@ parser.add_argument('--keep_existing_files', action='store_true',
                     help='Only copy files that do not yet exist at the destination. For local development')
 parser.add_argument('--skip_archive', action='store_true',
                     help='Skip the compression step')
-parser.add_argument('--current_version',
+parser.add_argument('--version',
                     help='Used to name the changelog generated')
 parser.add_argument('--cfg_os')
 args = parser.parse_args()
@@ -320,27 +322,45 @@ else:
         nightly_changelog_path.unlink()
 
     # Generate changelog for changes since last stable release.
-    changelog_path = None
-    try:
-        current_version = args.current_version if args.current_version else 'nightly'
-        last_stable = subprocess.check_output(
-            f'git describe --tags --abbrev=0 --match "2.55*" --exclude {current_version}', shell=True, encoding='utf-8').strip()
-        changelog = subprocess.check_output([
-            sys.executable, script_dir / 'generate_changelog.py',
-            '--from', last_stable,
-            '--to', 'HEAD',
-        ], encoding='utf-8').strip()
-        if 'nightly' in current_version:
-            changelog_path = nightly_changelog_path
-            changelog = f'Changes since {last_stable}\n\n{changelog}'
-        else:
-            changelog_path = root_dir / f'changelogs/{time.strftime("%Y_%m_%d")}-{current_version}.txt'
-    except Exception as e:
-        changelog = None
-        print(e)
+    # For nightly releases, this changelog is saved as `changelogs/nightly.txt` and includes all changes since the last stable release.
+    # For stable releases, this changelog is the same as we would save to `resources/changelogs/DATE-TAG.txt` in source control, except
+    # that hasn't happened yet so it's done here for the release job.
+    changelog = None
+    if args.version:
+        major, minor, patch = map(int, re.search(r'^(\d+)\.(\d+)\.(\d+)', args.version).groups())
+        is_stable_release = patch == '0'
+        # Tag either already exists (we are re-publishing for some reason), or doesn't yet.
+        try:
+            date = subprocess.check_output(
+                f'git log -1 --format=%cs {args.version}', shell=True, encoding='utf-8').strip()
+            date = date.replace('-', '_')
+        except:
+            date = time.strftime("%Y_%m_%d")
 
-    if changelog_path:
-        changelog_path.write_text(changelog)
+        try:
+            last_stable = subprocess.check_output(
+                f'git describe --tags --abbrev=0 --match "*.*.0" --match "2.55-alpha-1??" --exclude {args.version}', shell=True, encoding='utf-8').strip()
+            changelog = subprocess.check_output([
+                sys.executable, script_dir / 'generate_changelog.py',
+                '--from', last_stable,
+                '--to', 'HEAD',
+            ], encoding='utf-8').strip()
+        except Exception as e:
+            changelog = None
+            print(e)
+
+        if is_stable_release:
+            new_changelog_path = root_dir / f'changelogs/${date}-{args.version}.txt'
+        else:
+            new_changelog_path = root_dir / 'changelogs/nightly.txt'
+
+        if changelog:
+            if is_stable_release:
+                new_changelog_path.write_text(changelog)
+            else:
+                new_changelog_path.write_text(f'Changes since {last_stable}\n\n{changelog}')
+        elif new_changelog_path.exists():
+            new_changelog_path.unlink()
 
     zc_files = [
         *glob(resources_dir, '**/*'),

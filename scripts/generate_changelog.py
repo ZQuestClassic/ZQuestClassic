@@ -461,13 +461,13 @@ if args.for_nightly:
     print(f'The following are the changes since {branch}:\n\n')
     print(generate_changelog(branch, args.to))
 
-    previous_full_release_tag = subprocess.check_output(
-        'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8').strip()
-    if previous_full_release_tag != branch:
+    previous_stable_release_tag = subprocess.check_output(
+        'git describe --tags --abbrev=0 --match "*.*.*" --match "2.55-alpha-1??" --exclude "*-nightly"', shell=True, encoding='utf-8').strip()
+    if previous_stable_release_tag != branch:
         print('-------')
-        print(f'The following are the changes since {previous_full_release_tag}:\n\n')
+        print(f'The following are the changes since {previous_stable_release_tag}:\n\n')
         print('<details>\n<summary>Expand changelog</summary>\n')
-        print(generate_changelog(previous_full_release_tag, args.to))
+        print(generate_changelog(previous_stable_release_tag, args.to))
         print('\n</details>')
 else:
     print(generate_changelog(branch, args.to))

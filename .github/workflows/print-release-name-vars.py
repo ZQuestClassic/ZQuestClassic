@@ -2,74 +2,44 @@ import argparse
 import subprocess
 import time
 import os
-
-
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0', ''):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+import re
 
 
 def set_action_output(output_name, value):
+    print(f'{output_name}={value}')
     if 'GITHUB_OUTPUT' in os.environ:
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             print('{0}={1}'.format(output_name, value), file=f)
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--github_org', required=True)
-parser.add_argument('--full_release', required=True, type=str2bool)
-parser.add_argument('--version_type', required=True)
-parser.add_argument('--number')
+parser.add_argument('--github-org', required=True)
+parser.add_argument('--version-type', required=True, choices=['stable', 'nightly'])
 args = parser.parse_args()
 
-if args.number:
-    args.number = int(args.number)
+previous_release_version = subprocess.check_output(
+    'git describe --tags --abbrev=0 --match "*.*.*"', shell=True, encoding='utf-8')
+major, minor, patch = map(int, re.search(r'^(\d+)\.(\d+)\.(\d+)', previous_release_version).groups())
 
-release_tag = ''
-release_name = ''
+version_meta = []
 
-
-def maybe_add_org_prefix(tag_name):
-    if args.github_org != 'ZQuestClassic':
-        return f'{args.github_org}-{tag_name}'
-    else:
-        return tag_name
-
-
-if args.full_release:
-    release_tag = maybe_add_org_prefix(
-        f'2.55-{args.version_type}-{args.number}')
-    release_name = f'2.55 {args.version_type.capitalize()} {args.number}'
-else:
+if args.version_type == 'stable':
+    minor += 1
+    patch = 0
+    release_version = f'{major}.{minor}.{patch}'
+    release_name = f'{major}.{minor}'
+if args.version_type == 'nightly':
+    patch += 1
     today = time.strftime("%Y-%m-%d")
+    release_version = f'{major}.{minor}.{patch}-nightly'
+    version_meta.append(today)
+    release_name = f'{major}.{minor}.{patch} Nightly {today}'
 
-    i = 1
-    while True:
-        release_tag = maybe_add_org_prefix(
-            f'nightly-{today}')
-        release_name = f'Nightly {today}'
-        if i != 1:
-            release_tag += f'-{i}'
-            release_name += f' ({i})'
-        proc = subprocess.run(['git', 'rev-parse', release_tag])
-        if proc.returncode == 0:
-            i += 1
-        else:
-            break
+if args.github_org != 'ZQuestClassic':
+    version_meta.append(args.github_org)
+if version_meta:
+    release_version += '+' + '.'.join(version_meta)
 
-if args.full_release:
-    previous_release_tag = subprocess.check_output(
-        'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8')
-else:
-    previous_release_tag = subprocess.check_output(
-        'git describe --tags --abbrev=0', shell=True, encoding='utf-8')
-
-set_action_output('release-tag', release_tag)
+set_action_output('release-version', release_version)
 set_action_output('release-name', release_name)
-set_action_output('previous-release-tag', previous_release_tag)
+set_action_output('previous-release-version', previous_release_version)

@@ -1,22 +1,19 @@
 #include "base/about.h"
+#include "base/version.h"
 #include "metadata/versionsig.h"
 #include <cstdio>
 #include <cstring>
 
 int getProgramAlphaVer()
 {
-	if(V_ZC_RELEASE) return V_ZC_RELEASE;
-	else if(V_ZC_GAMMA) return V_ZC_GAMMA;
-	else if(V_ZC_BETA) return V_ZC_BETA;
-	else if(V_ZC_ALPHA) return V_ZC_ALPHA;
-	return 0;
+	return getVersion().minor;
 }
 
 char const* getProgramAlphaStr(bool ignoreNightly = false)
 {
 	static char buf[60] = "";
 	char format[20] = "%s";
-	if(!ignoreNightly && ZC_IS_NIGHTLY) strcpy(format, "Nightly (%s)");
+	if(!ignoreNightly && !isStableRelease()) strcpy(format, "Nightly (%s)");
 	if(V_ZC_RELEASE) sprintf(buf, format, "Release");
 	else if(V_ZC_GAMMA) sprintf(buf, format, "Gamma");
 	else if(V_ZC_BETA) sprintf(buf, format, "Beta");
@@ -28,7 +25,7 @@ char const* getProgramAlphaStr(bool ignoreNightly = false)
 char const* getProgramAlphaVerStr()
 {
 	static char buf[100] = "";
-	if(ZC_IS_NIGHTLY)
+	if(!isStableRelease())
 	{
 		if(getProgramAlphaVer() < 0)
 			sprintf(buf, "Nightly (%s ?\?)", getProgramAlphaStr(true));
@@ -41,26 +38,6 @@ char const* getProgramAlphaVerStr()
 		else sprintf(buf, "%s %d", getProgramAlphaStr(true), getProgramAlphaVer());
 	}
 	return buf;
-}
-
-char const* getProgramVerStr()
-{
-	static char buf[120] = "";
-	if(V_ZC_FOURTH > 0)
-		sprintf(buf, "%d.%d.%d.%d %s", V_ZC_FIRST, V_ZC_SECOND,
-			V_ZC_THIRD, V_ZC_FOURTH, getProgramAlphaVerStr());
-	else sprintf(buf, "%d.%d.%d %s", V_ZC_FIRST, V_ZC_SECOND,
-			V_ZC_THIRD, getProgramAlphaVerStr());
-	return buf;
-}
-
-char const* getReleaseTag()
-{
-#ifdef RELEASE_TAG
-	return RELEASE_TAG;
-#else
-	return getProgramVerStr();
-#endif
 }
 
 char const* getReleasePlatform()

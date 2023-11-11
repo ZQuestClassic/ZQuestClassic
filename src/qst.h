@@ -172,7 +172,7 @@ extern word door_combo_set_count;
 extern int32_t favorite_combos[MAXFAVORITECOMBOS];
 extern byte favorite_combo_modes[MAXFAVORITECOMBOS];
 
-char *VerStr(int32_t version);
+char *VerStrFromHex(int32_t version);
 char *ordinal(int32_t num);
 
 void clear_quest_tmpfile();

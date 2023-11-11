@@ -1,4 +1,4 @@
-run-name: ${{ inputs.release-tag || 'Build' }}, ${{ inputs.runs-on }} ${{ inputs.arch }} ${{ inputs.config }} w/ ${{ inputs.compiler }}
+run-name: ${{ inputs.release-name || 'Build' }}, ${{ inputs.runs-on }} ${{ inputs.arch }} ${{ inputs.config }} w/ ${{ inputs.compiler }}
 
 on:
   workflow_call:
@@ -22,11 +22,15 @@ on:
         default: false
         description: "Whether to include debug info in the packaged artifact"
       # The following is for releases only.
+      official:
+        type: boolean
+        default: false
+        description: "Do not set this directly! Use release workflow."
       sentry:
         type: boolean
         default: false
         description: "Do not set this directly! Use release workflow."
-      release-tag:
+      release-version:
         type: string
         required: false
         description: "Do not set this directly! Use release workflow."
@@ -34,18 +38,6 @@ on:
         type: string
         required: false
         description: "Do not set this directly! Use release workflow."
-      number:
-        description: Version number (Alpha/Beta/Gamma/Release).
-        type: string
-        required: false
-      versiontype:
-        type: string
-        description: Whether the build specified is an Alpha/Beta/Gamma/Release
-        required: false
-      full_release:
-        type: boolean
-        description: Full Version (i.e. NOT a nightly)
-        required: false
     outputs:
       artifact-name:
         description: "The name of the artifact that should be downloaded by the caller workflow"
@@ -65,7 +57,7 @@ jobs:
   build:
     runs-on: ${{ inputs.runs-on }}
     outputs:
-      package-name: ${{ steps.set-package-name.outputs.package-name }}
+      package-name: ${{ steps.set-package-vars.outputs.package-name }}
     steps:
       # Install dependencies.
       - if: ${{ contains(inputs.runs-on, 'mac') }}
@@ -156,8 +148,7 @@ jobs:
         if: inputs.config == 'Coverage'
         run: echo "TARGET=zplayer" >> "$GITHUB_ENV"
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
-      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
-        if: ${{ inputs.versiontype }}
+      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }}
       - name: Set release platform
         id: set-platform
         shell: python
@@ -182,9 +173,10 @@ jobs:
         run: >
           cmake -S . -B build -G 'Ninja Multi-Config'
           -DCOPY_RESOURCES=OFF
-          -DRELEASE_TAG="${{ inputs.release-tag }}"
+          -DZC_OFFICIAL="${{ inputs.official }}"
+          -DZC_VERSION="${{ inputs.release-version }}"
           -DRELEASE_PLATFORM="${{ steps.set-platform.outputs.platform }}"
-          -DRELEASE_CHANNEL="2.55"
+          -DRELEASE_CHANNEL="3"
           -DREPO="${{ github.repository }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
           -DWANT_MAC_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"
@@ -199,40 +191,48 @@ jobs:
       # Package.
       - if: inputs.debug-info
         run: echo "PACKAGE_DEBUG_INFO=1" >> "$GITHUB_ENV"
-      - name: Set package name
-        id: set-package-name
+      - name: Set package vars
+        id: set-package-vars
         shell: python
         run: |
           import platform
           import os
 
-          release_tag = '${{ inputs.release-tag }}' or 'zc'
+          release_version = '${{ inputs.release-version }}' or 'zc'
           arch = '${{ inputs.arch }}'
 
           system = platform.system()
           if system == 'Windows':
             arch_label = 'x86' if arch == 'win32' else 'x64'
-            package_name = f'{release_tag}-windows-{arch_label}.zip'
+            package_name = f'{release_version}-windows-{arch_label}.zip'
           elif system == 'Darwin':
-            package_name = f'{release_tag}-mac.dmg'
+            package_name = f'{release_version}-mac.dmg'
           elif system == 'Linux':
-            package_name = f'{release_tag}-linux.tar.gz'
+            package_name = f'{release_version}-linux.tar.gz'
+
+          package_script_args = ''
+          package_script_args_mac = ''
+          if release_version != 'zc':
+            package_script_args = f'--version {release_version}'
+            package_script_args_mac = release_version
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             print('{0}={1}'.format('package-name', package_name), file=f)
+            print('{0}={1}'.format('package-script-args', package_script_args), file=f)
+            print('{0}={1}'.format('package-script-args-mac', package_script_args_mac), file=f)
       - name: Package
         if: inputs.config != 'Coverage'
         uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
         with:
           windows: |
-            python scripts/package.py --build_folder build/${{ inputs.config }} --current_version '${{ inputs.release-tag || 'nightly' }}'
-            mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+            python scripts/package.py ${{ steps.set-package-vars.outputs.package-script-args }} --build_folder build/${{ inputs.config }}
+            mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
           macos: |
-            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }} '${{ inputs.release-tag || 'nightly' }}'
-            mv build/${{ inputs.config }}/packages/ZQuestClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }} ${{ steps.set-package-vars.outputs.package-script-args-mac }}
+            mv build/${{ inputs.config }}/packages/ZQuestClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
           linux: |
-            python scripts/package.py --build_folder build/${{ inputs.config }} --current_version '${{ inputs.release-tag || 'nightly' }}'
-            mv build/${{ inputs.config }}/packages/zc.tar.gz build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+            python scripts/package.py ${{ steps.set-package-vars.outputs.package-script-args }} --build_folder build/${{ inputs.config }}
+            mv build/${{ inputs.config }}/packages/zc.tar.gz build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
       # Coverage builds need the entire build folder.
       - name: Package
         if: inputs.config == 'Coverage'
@@ -241,13 +241,13 @@ jobs:
           cd build
           tar czpvf build.tar.gz * --preserve-permissions
           mkdir ${{ inputs.config }}/packages
-          mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+          mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
 
       # Make build result available to other workflows.
       - uses: actions/upload-artifact@v3
         with:
           name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
-          path: build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+          path: build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
 
       # Upload debug symbols to Sentry.
       - name: Setup Sentry CLI
@@ -262,4 +262,4 @@ jobs:
         if: inputs.sentry
       - name: Upload debugging symbols
         if: inputs.sentry
-        run: sentry-cli --log-level=DEBUG upload-dif 'zelda-classic@${{ inputs.release-tag }}' --include-sources --wait build
+        run: sentry-cli --log-level=DEBUG upload-dif 'zelda-classic@${{ inputs.release-version }}' --include-sources --wait build
