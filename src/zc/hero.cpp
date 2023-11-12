@@ -27,7 +27,9 @@
 #include "slopes.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include "music_playback.h"
 #include "iter.h"
+
 extern FFScript FFCore;
 extern HeroClass Hero;
 extern ZModule zcm;
@@ -10071,13 +10073,7 @@ heroanimate_skip_liftwpn:;
 			{
 				sfx(tmpscr->secretsfx);
 				if(!get_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE))
-				{
-					auto si = (currmap<<7) + currscr;
-					auto di = nextscr(dir);
-					setmapflag(si, mDOOR_UP<<dir);
-					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_UP<<oppositeDir[dir]);
-				}
+					set_doorstate(dir);
 			}
 			
 			action=none; FFCore.setHeroAction(none);
@@ -21595,515 +21591,72 @@ endsigns:
 void HeroClass::checklocked()
 {
 	if(toogam) return; //Walk through walls. 
-	
 	if(!isdungeon()) return;
-	
 	if( !diagonalMovement && pushing!=8) return;
-	/*This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
-	*/
+	//This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
 	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
 	
-	
-	bool found = false;
-	for ( int32_t q = 0; q < 4; q++ ) {
-		if ( tmpscr->door[q] == dLOCKED || tmpscr->door[q] == dBOSS ) { found = true; }
-	}
-	
-	if ( !found ) return;
-	
-	int32_t si = (currmap<<7) + currscr;
-	int32_t di = 0;
-	
-	
-	
+	optional<int> openDir;
 	if ( diagonalMovement || get_qr(qr_DISABLE_4WAY_GRIDLOCK)) 
 	{
-		//Up door
-		if ( y <= 32 && x >= 112 && x <= 128 )
-		{
-			if (
-				dir == up || dir == l_up || dir == r_up //|| Up() || ( Up()&&Left()) || ( Up()&&Right()) 
-				
-			)
-			{
-				di = nextscr(up);
-				if(tmpscr->door[0]==dLOCKED)
-				{
-					if(usekey())
-					{
-					putdoor(scrollbuf,0,up,dUNLOCKED);
-					tmpscr->door[0]=dUNLOCKED;
-					setmapflag_mi(si, mDOOR_UP);
-					
-					if(di != 0xFFFF)
-						setmapflag_mi(di, mDOOR_DOWN);
-					sfx(WAV_DOOR);
-					markBmap(-1);
-					}
-					else return;
-				}
-				else if(tmpscr->door[0]==dBOSS)
-				{
-					if(game->lvlitems[dlevel]&liBOSSKEY)
-					{
-					putdoor(scrollbuf,0,up,dOPENBOSS);
-					tmpscr->door[0]=dOPENBOSS;
-					setmapflag_mi(si, mDOOR_UP);
-					
-					if(di != 0xFFFF)
-						setmapflag_mi(di, mDOOR_DOWN);
-					sfx(WAV_DOOR);
-					markBmap(-1);
-					// Run Boss Key Script
-					int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-					for ( int32_t q = 0; q < MAXITEMS; ++q )
-					{
-						if ( itemsbuf[q].family == itype_bosskey )
-						{
-							key_item = q; break;
-						}
-					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-					{
-						int i = key_item;
-						FFCore.reset_script_engine_data(ScriptType::Item, i);
-						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-						FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
-					}
-					}
-					else return;
-
-				}
-					
-			}
-		}
-		//Down
-		if ( y >= 128 && x >= 112 && x <= 128 ) 
-		{
-			if ( dir == down || dir == l_down || dir == r_down ) //|| Down() || ( Down()&&Left()) || ( Down()&&Right()))
-			{
-				di = nextscr(down);
-				if(tmpscr->door[1]==dLOCKED)
-				{
-					if(usekey())
-					{
-					putdoor(scrollbuf,0,down,dUNLOCKED);
-					tmpscr->door[1]=dUNLOCKED;
-					setmapflag_mi(si, mDOOR_DOWN);
-					
-					if(di != 0xFFFF)
-						setmapflag_mi(di, mDOOR_UP);
-					sfx(WAV_DOOR);
-					markBmap(-1);
-					}
-					else return;
-				}
-				else if(tmpscr->door[1]==dBOSS)
-				{
-					if(game->lvlitems[dlevel]&liBOSSKEY)
-					{
-					putdoor(scrollbuf,0,down,dOPENBOSS);
-					tmpscr->door[1]=dOPENBOSS;
-					setmapflag_mi(si, mDOOR_DOWN);
-					
-					if(di != 0xFFFF)
-						setmapflag_mi(di, mDOOR_UP);
-					sfx(WAV_DOOR);
-					markBmap(-1);
-					// Run Boss Key Script
-					int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-					for ( int32_t q = 0; q < MAXITEMS; ++q )
-					{
-						if ( itemsbuf[q].family == itype_bosskey )
-						{
-							key_item = q; break;
-						}
-					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-					{
-						int i = key_item;
-						FFCore.reset_script_engine_data(ScriptType::Item, i);
-						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-						FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
-					}
-					}
-					else return;
-				}
-			}
-		}
-		//left
-		if ( y > 72 && y < 88 && x <= 32 )
-		{
-			if ( dir == left || dir == l_up || dir == l_down )//|| Left()  || ( Up()&&Left()) || ( Down()&&Left() ) )
-			{
-				di = nextscr(left);
-				if(tmpscr->door[2]==dLOCKED)
-				{
-					if(usekey())
-					{
-					putdoor(scrollbuf,0,left,dUNLOCKED);
-					tmpscr->door[2]=dUNLOCKED;
-					setmapflag_mi(si, mDOOR_LEFT);
-					
-					if(di != 0xFFFF)
-						setmapflag_mi(di, mDOOR_RIGHT);
-					sfx(WAV_DOOR);
-					markBmap(-1);
-					}
-					else return;
-				}
-				else if(tmpscr->door[2]==dBOSS)
-				{
-					if(game->lvlitems[dlevel]&liBOSSKEY)
-					{
-					putdoor(scrollbuf,0,left,dOPENBOSS);
-					tmpscr->door[2]=dOPENBOSS;
-					setmapflag_mi(si, mDOOR_LEFT);
-					
-					if(di != 0xFFFF)
-						setmapflag_mi(di, mDOOR_RIGHT);
-					sfx(WAV_DOOR);
-					markBmap(-1);
-					// Run Boss Key Script
-					int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-					for ( int32_t q = 0; q < MAXITEMS; ++q )
-					{
-						if ( itemsbuf[q].family == itype_bosskey )
-						{
-							key_item = q; break;
-						}
-					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-					{
-						int i = key_item;
-						FFCore.reset_script_engine_data(ScriptType::Item, i);
-						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-						FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
-					}
-					}
-					else return;
-				}
-			}
-		}
-		
-		
-		//right
-		if ( ( y > 72 && y < 88 ) && x >= 208 )
-			//!( (y<=72||y>=88) && x<206 ) )
-			//y<=72||y>=88):y!=80) || x<208)
-		{
-			if ( dir == right || dir == r_up || dir == r_down ) //|| Right()  || ( Down()&&Right() ) || ( Up()&&Right()))
-			{
-				di  = nextscr(right);
-				if(tmpscr->door[right]==dLOCKED)
-				{
-					if(usekey())
-					{
-					putdoor(scrollbuf,0,right,dUNLOCKED);
-					tmpscr->door[3]=dUNLOCKED;
-					setmapflag_mi(si, mDOOR_RIGHT);
-					
-					if(di != 0xFFFF)
-						setmapflag_mi(di, mDOOR_LEFT);
-					sfx(WAV_DOOR);
-					markBmap(-1);
-					}
-					else return;
-				}
-				else if(tmpscr->door[right]==dBOSS)
-				{
-					if(game->lvlitems[dlevel]&liBOSSKEY)
-					{
-					putdoor(scrollbuf,0,right,dOPENBOSS);
-					tmpscr->door[3]=dOPENBOSS;
-					setmapflag_mi(si, mDOOR_RIGHT);
-					
-					if(di != 0xFFFF)
-						setmapflag_mi(di, mDOOR_LEFT);
-					sfx(WAV_DOOR);
-					markBmap(-1);
-					// Run Boss Key Script
-					int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-					for ( int32_t q = 0; q < MAXITEMS; ++q )
-					{
-						if ( itemsbuf[q].family == itype_bosskey )
-						{
-							key_item = q; break;
-						}
-					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-					{
-						int i = key_item;
-						FFCore.reset_script_engine_data(ScriptType::Item, i);
-						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-						FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
-					}
-					}
-					else return;
-				}
-			
-			}
-		}
+		if(y <= 32 && x >= 112 && x <= 128 && Y_DIR(dir) == up)
+			openDir = up;
+		else if(y >= 128 && x >= 112 && x <= 128 && Y_DIR(dir) == down)
+			openDir = down;
+		else if(y > 72 && y < 88 && x <= 32 && X_DIR(dir) == left)
+			openDir = left;
+		else if(y > 72 && y < 88 && x >= 208 && X_DIR(dir) == right)
+			openDir = right;
 	}
 	else
 	{
-		//orthogonal movement
-		//Up door
-		if ( y<=32 && x == 120 )
-			//!( y>32 && (x!=120) ))
+		if(y <= 32 && x == 120 && Y_DIR(dir) == up)
+			openDir = up;
+		else if(y >= 128 && x == 120 && Y_DIR(dir) == down)
+			openDir = down;
+		else if(y == 80 && x <= 32 && X_DIR(dir) == left)
+			openDir = left;
+		else if(y == 80 && x >= 208 && X_DIR(dir) == right)
+			openDir = right;
+	}
+	if(openDir)
+	{
+		int d = *openDir;
+		if(tmpscr->door[d]==dLOCKED)
 		{
-			switch ( dir ) 
+			if(usekey())
 			{
-				case up:
-				case r_up:
-				case l_up:
-				{
-					di  = nextscr(up);
-					if(tmpscr->door[0]==dLOCKED)
-					{
-						if(usekey())
-						{
-						putdoor(scrollbuf,0,up,dUNLOCKED);
-						tmpscr->door[0]=dUNLOCKED;
-						setmapflag_mi(si, mDOOR_UP);
-						
-						if(di != 0xFFFF)
-							setmapflag_mi(di, mDOOR_DOWN);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-						}
-						else return;
-					}
-					else if(tmpscr->door[0]==dBOSS)
-					{
-						if(game->lvlitems[dlevel]&liBOSSKEY)
-						{
-						putdoor(scrollbuf,0,up,dOPENBOSS);
-						tmpscr->door[0]=dOPENBOSS;
-						setmapflag_mi(si, mDOOR_UP);
-						
-						if(di != 0xFFFF)
-							setmapflag_mi(di, mDOOR_DOWN);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-						// Run Boss Key Script
-						int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-						for ( int32_t q = 0; q < MAXITEMS; ++q )
-						{
-							if ( itemsbuf[q].family == itype_bosskey )
-							{
-								key_item = q; break;
-							}
-						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-						{
-							int i = key_item;
-							FFCore.reset_script_engine_data(ScriptType::Item, i);
-							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-							FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
-						}
-						}
-						else return;
-					}
-					break;
-				}
-				default: break;
-					
+				putdoor(scrollbuf,0,d,dUNLOCKED);
+				tmpscr->door[d]=dUNLOCKED;
+				set_doorstate(d);
+				sfx(WAV_DOOR);
+				markBmap(-1);
 			}
+			else return;
 		}
-		//Down
-		if ( y >= 128 && x == 120 )
-			//!(y<128 && (x!=120) ) )
+		else if(tmpscr->door[d]==dBOSS)
 		{
-			switch(dir)
+			if(game->lvlitems[dlevel]&liBOSSKEY)
 			{
-				case down:
-				case l_down:
-				case r_down:
-				{
-					di  = nextscr(down);
-					
-					if(tmpscr->door[1]==dLOCKED)
+				putdoor(scrollbuf,0,d,dOPENBOSS);
+				tmpscr->door[d]=dOPENBOSS;
+				set_doorstate(d);
+				sfx(WAV_DOOR);
+				markBmap(-1);
+				// Run Boss Key Script
+				for ( int32_t q = 0; q < MAXITEMS; ++q )
+					if ( itemsbuf[q].family == itype_bosskey )
 					{
-						if(usekey())
+						if (itemsbuf[q].script && !(FFCore.doscript(ScriptType::Item, q) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 						{
-						putdoor(scrollbuf,0,down,dUNLOCKED);
-						tmpscr->door[1]=dUNLOCKED;
-						setmapflag_mi(si, mDOOR_DOWN);
-						
-						if(di != 0xFFFF)
-							setmapflag_mi(di, mDOOR_UP);
-						sfx(WAV_DOOR);
-						markBmap(-1);
+							FFCore.reset_script_engine_data(ScriptType::Item, q);
+							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q);
+							FFCore.deallocateAllScriptOwned(ScriptType::Item, q);
 						}
-						else return;
+						break;
 					}
-					else if(tmpscr->door[1]==dBOSS)
-					{
-						if(game->lvlitems[dlevel]&liBOSSKEY)
-						{
-						putdoor(scrollbuf,0,down,dOPENBOSS);
-						tmpscr->door[1]=dOPENBOSS;
-						setmapflag_mi(si, mDOOR_DOWN);
-						
-						if(di != 0xFFFF)
-							setmapflag_mi(di, mDOOR_UP);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-						// Run Boss Key Script
-						int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-						for ( int32_t q = 0; q < MAXITEMS; ++q )
-						{
-							if ( itemsbuf[q].family == itype_bosskey )
-							{
-								key_item = q; break;
-							}
-						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-						{
-							int i = key_item;
-							FFCore.reset_script_engine_data(ScriptType::Item, i);
-							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-							FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
-						}
-						}
-						else return;
-					}
-					break;
-				}
-				default: break;
 			}
-		}
-		//left
-		if ( y == 80 && x <= 32 )
-			//!( (y!=80) && x>32 ) )
-		{
-			switch(dir)
-			{
-				case left:
-				case l_up:
-				case l_down:
-				{
-					di  = nextscr(left);
-					if(tmpscr->door[2]==dLOCKED)
-					{
-						if(usekey())
-						{
-						putdoor(scrollbuf,0,left,dUNLOCKED);
-						tmpscr->door[2]=dUNLOCKED;
-						setmapflag_mi(si, mDOOR_LEFT);
-						
-						if(di != 0xFFFF)
-							setmapflag_mi(di, mDOOR_RIGHT);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-						}
-						else return;
-					}
-					else if(tmpscr->door[2]==dBOSS)
-					{
-						if(game->lvlitems[dlevel]&liBOSSKEY)
-						{
-						putdoor(scrollbuf,0,left,dOPENBOSS);
-						tmpscr->door[2]=dOPENBOSS;
-						setmapflag_mi(si, mDOOR_LEFT);
-						
-						if(di != 0xFFFF)
-							setmapflag_mi(di, mDOOR_RIGHT);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-						// Run Boss Key Script
-						int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-						for ( int32_t q = 0; q < MAXITEMS; ++q )
-						{
-							if ( itemsbuf[q].family == itype_bosskey )
-							{
-								key_item = q; break;
-							}
-						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-						{
-							int i = key_item;
-							FFCore.reset_script_engine_data(ScriptType::Item, i);
-							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-							FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
-						}
-						}
-						else return;
-					}
-					
-					break;	
-					
-				}
-				default: break;
-			}
-		}
-		//right
-		if ( y == 80 && x >= 208 )
-			//!((y!=80) && x<208 ) )
-		{
-			switch(dir)
-			{
-				case right:
-				case r_down:
-				case r_up:
-				{
-					di  = nextscr(right);
-					if(tmpscr->door[3]==dLOCKED)
-					{
-						if(usekey())
-						{
-						putdoor(scrollbuf,0,right,dUNLOCKED);
-						tmpscr->door[3]=dUNLOCKED;
-						setmapflag_mi(si, mDOOR_RIGHT);
-						
-						if(di != 0xFFFF)
-							setmapflag_mi(di, mDOOR_LEFT);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-						}
-						else return;
-					}
-					else if(tmpscr->door[3]==dBOSS)
-					{
-						if(game->lvlitems[dlevel]&liBOSSKEY)
-						{
-						putdoor(scrollbuf,0,right,dOPENBOSS);
-						tmpscr->door[3]=dOPENBOSS;
-						setmapflag_mi(si, mDOOR_RIGHT);
-						
-						
-						if(di != 0xFFFF)
-							setmapflag_mi(di, mDOOR_LEFT);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-						// Run Boss Key Script
-						int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-						for ( int32_t q = 0; q < MAXITEMS; ++q )
-						{
-							if ( itemsbuf[q].family == itype_bosskey )
-							{
-								key_item = q; break;
-							}
-						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) //
-						{
-							int i = key_item;
-							FFCore.reset_script_engine_data(ScriptType::Item, i);
-							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-							FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
-						}
-
-						}
-						else return;
-					}
-					
-					
-					break;
-				}
-				default: break;
-				
-			}
+			else return;
 		}
 	}
 }
@@ -23370,12 +22923,10 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
     // off the screen
     if(cx<0 || cy<0 || cx>=world_w || cy>=world_h)
     {
-        int32_t ns = nextscr(cdir);
-        
-        if(ns==0xFFFF) return 0;
-        
-        // want actual screen index, not game->maps[] index
-        ns = (ns&127) + (ns>>7)*MAPSCRS;
+		int ns;
+		if(auto scr = nextscr(cdir,false))
+			ns = *scr;
+		else return 0;
         
         switch(cdir)
         {
@@ -23431,12 +22982,10 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
 	// TODO z3
     if(cx<0 || cy<0 || cx>=world_w || cy>=world_h)
     {
-        int32_t ns = nextscr(cdir);
-        
-        if(ns==0xFFFF) return 0;
-        
-        // want actual screen index, not game->maps[] index
-        ns = (ns&127) + (ns>>7)*MAPSCRS;
+		int ns;
+		if(auto scr = nextscr(cdir,false))
+			ns = *scr;
+		else return 0;
         
         switch(cdir)
         {
@@ -23609,6 +23158,8 @@ void HeroClass::checkspecial()
 			remove_bosschests(screen, screen_index);
 		}
 
+		// TODO z3 !!! merge
+		// clear_xdoors(screen, screen_index, true);
 		clear_xstatecombos(screen, screen_index, true);
 
 		// TODO z3 ! secrets
@@ -27077,14 +26628,10 @@ bool HeroClass::nextcombo_wf(int32_t d2)
         return false;
         
     // assumes Hero is about to scroll screens
-    
-    int32_t ns = nextscr(d2);
-    
-    if(ns==0xFFFF)
-        return false;
-        
-    // want actual screen index, not game->maps[] index
-    ns = (ns&127) + (ns>>7)*MAPSCRS;
+	int ns;
+	if(auto scr = nextscr(d2,false))
+		ns = *scr;
+	else return false;
     
     int32_t cx = x;
     int32_t cy = y;
@@ -27155,6 +26702,10 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 		return false;
 		
 	// assumes Hero is about to scroll screens
+	int ns;
+	if(auto scr = nextscr(d2,false))
+		ns = *scr;
+	else return false;
 	
 	auto [map, screen] = nextscr2(d2);
 	if (map == -1)
@@ -31400,7 +30951,7 @@ void HeroClass::getTriforce(int32_t id2)
 		if(itemsbuf[id2].misc1)
 			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
 		else
-			try_zcmusic("zelda.nsf",moduledata.tf_track, ZC_MIDI_TRIFORCE);
+			try_zcmusic("zelda.nsf",qstpath,moduledata.tf_track,ZC_MIDI_TRIFORCE,get_emusic_volume());
 	}
 	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 	{
@@ -32223,6 +31774,9 @@ void HeroClass::check_conveyor()
 {
 	++newconveyorclk;
 	if (newconveyorclk < 0) newconveyorclk = 0;
+
+	if (is_conveyor_stunned)
+		--is_conveyor_stunned;
 	
 	if(action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)))
 	{
@@ -32236,7 +31790,11 @@ void HeroClass::check_conveyor()
 	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12));
 	if(cmbid < 0) 
 	{
-		if (conveyclk <= 0) is_on_conveyor=false;
+		if (conveyclk <= 0)
+		{
+			is_on_conveyor = false;
+			conv_forcedir = -1;
+		}
 		return;
 	}
 	newcombo const* cmb = &combobuf[cmbid];

@@ -1125,7 +1125,6 @@ int32_t do_create_bitmap();
 
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
-bool play_enh_music_crossfade(char* name, int32_t track, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes = 0, int32_t startpos = 0, bool revertonfail = false);
 void do_warp_ex(const bool v);
 //FFScript();
 //static void init();
@@ -5007,7 +5006,17 @@ enum ASM_DEFINE
 #define ITEMNOSOUND             0x1597
 #define ITEMNOHOLDSOUND         0x1598
 
-#define NUMVARIABLES            0x1599
+#define IDATAUSEBURNSPR         0x1599
+#define IDATABURNINGSPR         0x159A
+#define LWPNSPRITES             0x159B
+#define EWPNSPRITES             0x159C
+
+#define SCREENDATAEXDOOR        0x159D
+#define MAPDATAEXDOOR           0x159E
+#define COMBODTRIGEXDOORDIR     0x159F
+#define COMBODTRIGEXDOORIND     0x15A0
+
+#define NUMVARIABLES            0x15A1
 
 //} End variables
 

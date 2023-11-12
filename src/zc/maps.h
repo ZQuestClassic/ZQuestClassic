@@ -210,6 +210,16 @@ void unsetxmapflag_mi(int32_t mi2, uint32_t flag);
 bool getxmapflag(int32_t screen_index, uint32_t flag);
 bool getxmapflag_mi(int32_t mi2, uint32_t flag);
 
+void setxdoor(uint mi2, uint dir, uint ind, bool state = true);
+void setxdoor(uint dir, uint ind, bool state = true);
+bool getxdoor(uint mi2, uint dir, uint ind);
+bool getxdoor(uint dir, uint ind);
+
+void set_doorstate(uint mi,uint dir);
+void set_doorstate(uint dir);
+void set_xdoorstate(uint mi,uint dir, uint ind);
+void set_xdoorstate(uint dir, uint ind);
+
 int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw);
 void update_combo_cycling();
 bool isSVLadder(int32_t x, int32_t y);
@@ -255,6 +265,15 @@ bool remove_chests(mapscr* s, int32_t screen_index);
 bool remove_lockedchests(mapscr* s, int32_t screen_index);
 bool remove_bosschests(mapscr* s, int32_t screen_index);
 
+bool remove_xdoors(int32_t tmp, uint dir, uint ind);
+bool remove_xdoors(int32_t tmp, int32_t mi, uint dir, uint ind);
+bool remove_xdoors2(mapscr *s, mapscr *t, uint dir, uint ind, bool triggers = false);
+bool remove_xdoors2(mapscr *s, mapscr *t, int32_t mi, uint dir, uint ind, bool triggers = false);
+void clear_xdoors(int32_t tmp);
+void clear_xdoors(int32_t tmp, int32_t mi);
+void clear_xdoors2(mapscr *s, mapscr *t);
+void clear_xdoors2(mapscr *s, mapscr *t, int32_t mi, bool triggers = false);
+
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle);
 
@@ -281,7 +300,9 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
 int gethitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);
-int32_t nextscr(int32_t dir);
+optional<int> nextscr(int map, int screen, int dir, bool normal);
+optional<int> nextscr(int mi, int dir, bool normal);
+optional<int> nextscr(int dir, bool normal);
 std::pair<int32_t, int32_t> nextscr2(int32_t dir);
 void bombdoor(int32_t x,int32_t y);
 bool lenscheck(mapscr* basescr, int layer);

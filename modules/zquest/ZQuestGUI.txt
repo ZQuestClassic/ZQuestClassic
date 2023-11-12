@@ -66,6 +66,7 @@ src/dialog/combowizard.cpp
 src/dialog/misc_sfx.cpp
 src/dialog/misc_sprs.cpp
 src/dialog/scaletile.cpp
+src/dialog/rotatetile.cpp
 src/dialog/palconvert.cpp
 src/dialog/zinfodlg.cpp
 src/dialog/ffc_editor.cpp
@@ -84,6 +85,7 @@ src/dialog/ditherpick.cpp
 src/dialog/zqhotkeys.cpp
 src/dialog/edit_dmap.cpp
 src/dialog/tilesetwizard.cpp
+src/dialog/view_script_slots.cpp
 
 
 ## End of ZQuest GUI module

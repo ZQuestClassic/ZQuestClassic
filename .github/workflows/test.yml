@@ -37,6 +37,8 @@ on:
         required: true
       extra-args:
         type: string
+      from-ci-workflow:
+        type: boolean
 
 env:
   PYTHONUNBUFFERED: '1'
@@ -123,7 +125,7 @@ jobs:
 
       # Just run a few replays with JIT disabled.
       # Also, without headless.
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.arch != 'win32' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.arch != 'win32' }}
         name: Test w/o JIT
         run: >
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
@@ -136,16 +138,17 @@ jobs:
           --no-jit
           --no-headless
 
-      - run: sudo mkdir -p .tmp/test_updater/cache
-        if: ${{ runner.os != 'Windows' }}
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+      # TODO z3 ! just rm?
+      # - run: sudo mkdir -p .tmp/test_updater/cache
+      #   if: ${{ runner.os != 'Windows' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
         name: Updater cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
         name: Run Python tests
         run: bash .github/workflows/run_python.sh -m unittest discover tests
 
@@ -166,9 +169,9 @@ jobs:
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         shell: bash
         run: |
-          if [[ -d "${{ github.workspace }}/.tmp/test_results" ]] ; then
-            cd ${{ github.workspace }}/.tmp/test_results
-            bash ${{ github.workspace }}/.github/workflows/run_python.sh -m tarfile -c ${{ github.workspace }}/.tmp/test_results.tar .
+          if [[ -d ".tmp/test_results" ]] ; then
+            cd .tmp/test_results
+            bash ../../.github/workflows/run_python.sh -m tarfile -c ../test_results.tar .
           fi
       - uses: actions/upload-artifact@v3
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()

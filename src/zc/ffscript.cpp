@@ -44,6 +44,7 @@
 #include "zinfo.h"
 #include "subscr.h"
 #include "zc_list_data.h"
+#include "music_playback.h"
 #include "iter.h"
 #include <sstream>
 
@@ -5810,6 +5811,9 @@ int32_t get_register(const int32_t arg)
 		case IDATAJINXSWAP:
 			ret = item_flag(ITEM_FLIP_JINX);
 			break;
+		case IDATAUSEBURNSPR:
+			ret = item_flag(ITEM_BURNING_SPRITES);
+			break;
 			
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -5957,7 +5961,7 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
@@ -5980,10 +5984,29 @@ int32_t get_register(const int32_t arg)
 					ret=(itemsbuf[ri->idata].wpn9)*10000; break;
 				case 9:
 					ret=(itemsbuf[ri->idata].wpn10)*10000; break;
-				default: 
-					ret = -10000; break;
+				default:
+					Z_scripterrlog("Invalid index to itemdata->Sprites[]: %d\n", index);
+					ret = -10000;
+					break;
 			}
-				
+			break;
+		}
+		case IDATABURNINGSPR:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(index < 0 || index >= BURNSPR_MAX)
+			{
+				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
+				ret = -10000;
+				break;
+			}
+			ret = itemsbuf[ri->idata].burnsprs[index]*10000;
 			break;
 		}
 		//Hero TIle modifier
@@ -7622,13 +7645,25 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX, "lweapon->Flags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					ret = (((weapon*)(s))->misc_wflags & (1<<indx)) ? 10000 : 0;
 				}
+			}
+			break;
+		}
+		case LWPNSPRITES:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") != SH::_NoError)
+					ret = -10000;
+				else
+					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
 			}
 			break;
 		}
@@ -8235,13 +8270,25 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX, "eweapon->Flags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					ret = (((weapon*)(s))->misc_wflags & (1<<indx)) ? 10000 : 0;
 				}
+			}
+			break;
+		}
+		case EWPNSPRITES:
+		{
+			if(0!=(s=checkLWpn(ri->ewpn,"Sprites[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") != SH::_NoError)
+					ret = -10000;
+				else
+					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
 			}
 			break;
 		}
@@ -9880,6 +9927,24 @@ int32_t get_register(const int32_t arg)
 			else ret = game->guys[mi] * 10000;
 			break;
 		}
+		case SCREENDATAEXDOOR:
+		{
+			ret = 0;
+			int mi = get_mi();
+			if(mi < 0) break;
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				Z_scripterrlog("Invalid dir '%d' passed to 'Screen->GetExDoor()'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				Z_scripterrlog("Invalid index '%d' passed to 'Screen->GetExDoor()'; must be 0-7\n", ind);
+			else
+			{
+				int bit = 1<<ind;
+				ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
+			}
+			break;
+		}
 		
 		case SHOWNMSG:
 		{
@@ -11340,6 +11405,28 @@ int32_t get_register(const int32_t arg)
 			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
+		case MAPDATAEXDOOR:
+		{
+			ret = 0;
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = get_mi(ri->mapsref);
+				if(mi < 0) break;
+				int dir = SH::read_stack(ri->sp+1) / 10000;
+				int ind = SH::read_stack(ri->sp+0) / 10000;
+				if(unsigned(dir) > 3)
+					Z_scripterrlog("Invalid dir '%d' passed to 'mapdata->GetExDoor()'; must be 0-3\n", dir);
+				else if(unsigned(ind) > 7)
+					Z_scripterrlog("Invalid index '%d' passed to 'mapdata->GetExDoor()'; must be 0-7\n", ind);
+				else
+				{
+					int bit = 1<<ind;
+					ret = (game->xdoors[mi][dir]&bit) ? 10000 : 0;
+				}
+			}
+			else Z_scripterrlog("mapdata->GetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
 
 		///----------------------------------------------------------------------------------------------------//
 		//shopdata sd-> variables
@@ -12600,6 +12687,26 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
 			}
 			else ret = (combobuf[ri->combosref].exstate) * 10000;
+			break;
+		}
+		case COMBODTRIGEXDOORDIR:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorDir: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].exdoor_dir) * 10000;
+			break;
+		}
+		case COMBODTRIGEXDOORIND:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorIndex: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].exdoor_ind) * 10000;
 			break;
 		}
 		case COMBODTRIGSPAWNENEMY:
@@ -18537,6 +18644,9 @@ void set_register(int32_t arg, int32_t value)
 		case IDATAJINXSWAP:
 			item_flag(ITEM_FLIP_JINX, value);
 			break;
+		case IDATAUSEBURNSPR:
+			item_flag(ITEM_BURNING_SPRITES, value);
+			break;
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -18776,35 +18886,50 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
+			int32_t index = ri->d[rINDEX]/10000;
+			byte val = vbound(value/10000, 0, 255);
 			switch(index)
 			{
 				case 0:
-					itemsbuf[ri->idata].wpn=vbound(value/10000, 0, 255);
-					break;
+					itemsbuf[ri->idata].wpn = val; break;
 				case 1:
-					itemsbuf[ri->idata].wpn2=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn2 = val; break;
 				case 2:
-					itemsbuf[ri->idata].wpn3=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn3 = val; break;
 				case 3:
-					itemsbuf[ri->idata].wpn4=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn4 = val; break;
 				case 4:
-					itemsbuf[ri->idata].wpn5=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn5 = val; break;
 				case 5:
-					itemsbuf[ri->idata].wpn6=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn6 = val; break;
 				case 6:
-					itemsbuf[ri->idata].wpn7=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn7 = val; break;
 				case 7:
-					itemsbuf[ri->idata].wpn8=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn8 = val; break;
 				case 8:
-					itemsbuf[ri->idata].wpn9=vbound(value/10000, 0, 255); break;
+					itemsbuf[ri->idata].wpn9 = val; break;
 				case 9:
-					itemsbuf[ri->idata].wpn10=vbound(value/10000, 0, 255); break;
-				
-				default: 
+					itemsbuf[ri->idata].wpn10 = val; break;
+				default:
+					Z_scripterrlog("Invalid index to itemdata->Sprites[]: %d\n", index);
 					break;
 			}
-				
+			break;
+		}
+		case IDATABURNINGSPR:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(index < 0 || index >= BURNSPR_MAX)
+			{
+				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
+				break;
+			}
+			itemsbuf[ri->idata].burnsprs[index] = vbound(value/10000, 0, 255);
 			break;
 		}
 		//Hero tile modifier. 
@@ -19531,7 +19656,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX, "lweapon->Flags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					int32_t bit = 1<<indx;
@@ -19540,6 +19665,16 @@ void set_register(int32_t arg, int32_t value)
 					else
 						((weapon*)(s))->misc_wflags &= ~bit;
 				}
+			}
+			break;
+		}
+		case LWPNSPRITES:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") == SH::_NoError)
+					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
@@ -20159,7 +20294,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WFLAG_MAX, "eweapon->Flags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					int32_t bit = 1<<indx;
@@ -20168,6 +20303,16 @@ void set_register(int32_t arg, int32_t value)
 					else
 						((weapon*)(s))->misc_wflags &= ~bit;
 				}
+			}
+			break;
+		}
+		case EWPNSPRITES:
+		{
+			if(0!=(s=checkLWpn(ri->ewpn,"Sprites[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") == SH::_NoError)
+					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
@@ -22568,7 +22713,25 @@ void set_register(int32_t arg, int32_t value)
 				game->guys[mi] = vbound(value/10000,10,0);
 			break;
 		}
-
+		case SCREENDATAEXDOOR:
+		{
+			int mi = get_mi();
+			if(mi < 0) break;
+			int dir = SH::read_stack(ri->sp+1) / 10000;
+			int ind = SH::read_stack(ri->sp+0) / 10000;
+			if(unsigned(dir) > 3)
+				Z_scripterrlog("Invalid dir '%d' passed to 'Screen->SetExDoor()'; must be 0-3\n", dir);
+			else if(unsigned(ind) > 7)
+				Z_scripterrlog("Invalid index '%d' passed to 'Screen->SetExDoor()'; must be 0-7\n", ind);
+			else
+			{
+				int bit = 1<<ind;
+				if(!(game->xdoors[mi][dir]&bit) == !value)
+					break; //no change
+				SETFLAG(game->xdoors[mi][dir], bit, value);
+			}
+			break;
+		}
 
 		//These use the same method as SetScreenD
 		case SCREENWIDTH:
@@ -24100,9 +24263,33 @@ void set_register(int32_t arg, int32_t value)
 					break;
 				}
 			}
-			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
+			else Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
+		case MAPDATAEXDOOR:
+		{
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int mi = get_mi(ri->mapsref);
+				if(mi < 0) break;
+				int dir = SH::read_stack(ri->sp+1) / 10000;
+				int ind = SH::read_stack(ri->sp+0) / 10000;
+				if(unsigned(dir) > 3)
+					Z_scripterrlog("Invalid dir '%d' passed to 'mapdata->SetExDoor()'; must be 0-3\n", dir);
+				else if(unsigned(ind) > 7)
+					Z_scripterrlog("Invalid index '%d' passed to 'mapdata->SetExDoor()'; must be 0-7\n", ind);
+				else
+				{
+					int bit = 1<<ind;
+					if(!(game->xdoors[mi][dir]&bit) == !value)
+						break; //no change
+					SETFLAG(game->xdoors[mi][dir], bit, value);
+				}
+			}
+			else Z_scripterrlog("mapdata->SetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+
 		
 	///----------------------------------------------------------------------------------------------------//
 	//shopdata sd-> Variables
@@ -25337,6 +25524,24 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].exstate = vbound(value/10000, -1, 31);
+			break;
+		}
+		case COMBODTRIGEXDOORDIR:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorDir: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].exdoor_dir = vbound(value/10000, -1, 3);
+			break;
+		}
+		case COMBODTRIGEXDOORIND:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExDoorIndex: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].exdoor_ind = vbound(value/10000, 0, 7);
 			break;
 		}
 		case COMBODTRIGSPAWNENEMY:
@@ -34763,7 +34968,7 @@ void do_enh_music(bool v)
 		ArrayH::getString(arrayptr, filename_str, 256);
 		strncpy(filename_char, filename_str.c_str(), 255);
 		filename_char[255]='\0';
-		ret=try_zcmusic(filename_char, track, -1000);
+		ret=try_zcmusic(filename_char, qstpath, track, -1000, get_emusic_volume());
 		set_register(sarg2, ret ? 10000 : 0);
 	}
 }
@@ -34779,7 +34984,7 @@ void do_enh_music_crossfade()
 
 	if (arrayptr == 0)
 	{
-		bool ret = FFCore.play_enh_music_crossfade(NULL, track, fadeoutframes, fadeinframes, fademiddleframes, startpos);
+		bool ret = play_enh_music_crossfade(NULL, qstpath, track, get_emusic_volume(), fadeoutframes, fadeinframes, fademiddleframes, startpos);
 		ri->d[rEXP1] = ret ? 10000 : 0;
 	}
 	else
@@ -34789,122 +34994,9 @@ void do_enh_music_crossfade()
 		ArrayH::getString(arrayptr, filename_str, 256);
 		strncpy(filename_char, filename_str.c_str(), 255);
 		filename_char[255] = '\0';
-		bool ret = FFCore.play_enh_music_crossfade(filename_char, track, fadeoutframes, fadeinframes, fademiddleframes, startpos, true);
+		bool ret = play_enh_music_crossfade(filename_char, qstpath, track, get_emusic_volume(), fadeoutframes, fadeinframes, fademiddleframes, startpos, true);
 		ri->d[rEXP1] = ret ? 10000 : 0;
 	}
-}
-
-bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos, bool revertonfail)
-{
-	double fadeoutpct = 1.0;
-	// If there was an old fade going, use that as a multiplier for the new fade out
-	if (zcmixer->newtrack != NULL)
-	{
-		fadeoutpct = double(zcmixer->newtrack->fadevolume) / 10000.0;
-	}
-
-	ZCMUSIC* oldold = zcmixer->oldtrack;
-	bool ret = false;
-
-	if (name == NULL)
-	{
-		// Pass currently playing music off to the mixer
-		zcmixer->oldtrack = zcmusic;
-		// Do not play new music
-		zcmusic = NULL;
-		zcmixer->newtrack = NULL;
-
-		zcmixer->fadeinframes = fadeinframes;
-		zcmixer->fadeinmaxframes = fadeinframes;
-		zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
-		zcmixer->fadeoutmaxframes = fadeoutframes;
-		if (fademiddleframes < 0)
-		{
-			zcmixer->fadeindelay = 0;
-			zcmixer->fadeoutdelay = -fademiddleframes;
-		}
-		else
-		{
-			zcmixer->fadeindelay = fademiddleframes;
-			zcmixer->fadeoutdelay = 0;
-		}
-		if (zcmixer->oldtrack != NULL)
-			zcmixer->oldtrack->fadevolume = 10000;
-		if (zcmixer->newtrack != NULL)
-			zcmixer->newtrack->fadevolume = 0;
-	}
-	else // Pointer to a string..
-	{
-		// Pass currently playing music to the mixer
-		zcmixer->oldtrack = zcmusic;
-		zcmusic = NULL;
-		zcmixer->newtrack = NULL;
-
-		ret = try_zcmusic(name, track, -1000, fadeoutframes);
-		// If new music was found
-		if (ret)
-		{
-			// New music fades in
-			if (zcmusic != NULL)
-				zcmusic->fadevolume = 0;
-
-			zcmixer->newtrack = zcmusic;
-			zcmixer->fadeinframes = fadeinframes;
-			zcmixer->fadeinmaxframes = fadeinframes;
-			zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
-			zcmixer->fadeoutmaxframes = fadeoutframes;
-			if (fademiddleframes < 0)
-			{
-				zcmixer->fadeindelay = 0;
-				zcmixer->fadeoutdelay = -fademiddleframes;
-			}
-			else
-			{
-				zcmixer->fadeindelay = fademiddleframes;
-				zcmixer->fadeoutdelay = 0;
-			}
-			if (startpos > 0)
-				zcmusic_set_curpos(zcmixer->newtrack, startpos);
-			if (zcmixer->oldtrack != NULL)
-				zcmixer->oldtrack->fadevolume = 10000;
-			if (zcmixer->newtrack != NULL)
-				zcmixer->newtrack->fadevolume = 0;
-		}
-		else if(revertonfail)
-		{
-			// Switch back to the old music
-			zcmusic = zcmixer->oldtrack;
-			zcmixer->newtrack = NULL;
-			zcmixer->oldtrack = NULL;
-		}
-	}
-	
-	// If there was already an old track playing, stop it
-	if (oldold != NULL)
-	{
-		// Don't allow it to null both tracks if running twice in a row
-		if (zcmixer->newtrack == NULL && zcmixer->oldtrack == NULL)
-		{
-			zcmixer->oldtrack = oldold;
-
-			if (oldold->fadeoutframes > 0)
-			{
-				zcmixer->fadeoutframes = zc_max(oldold->fadeoutframes * fadeoutpct, 1);
-				zcmixer->fadeoutmaxframes = oldold->fadeoutframes;
-				if (zcmixer->oldtrack != NULL)
-					zcmixer->oldtrack->fadevolume = 10000;
-				oldold->fadeoutframes = 0;
-			}
-		}
-		else
-		{
-			zcmusic_stop(oldold);
-			zcmusic_unload_file(oldold);
-			oldold = NULL;
-		}
-	}
-
-	return ret;
 }
 
 bool FFScript::doing_dmap_enh_music(int32_t dm)
@@ -37266,7 +37358,7 @@ j_command:
 				FFCore.do_printfarr();
 				break;
 			case SPRINTFA:
-				FFCore.do_printfarr();
+				FFCore.do_sprintfarr();
 				break;
 			case ARRAYPUSH:
 			{
@@ -48367,6 +48459,16 @@ script_variable ZASMVars[]=
 
 	{ "SCREENDATAGUYCOUNT", SCREENDATAGUYCOUNT, 0, 0 },
 	{ "MAPDATAGUYCOUNT", MAPDATAGUYCOUNT, 0, 0 },
+
+	{ "IDATAUSEBURNSPR", IDATAUSEBURNSPR, 0, 0 },
+	{ "IDATABURNINGSPR", IDATABURNINGSPR, 0, 0 },
+	{ "LWPNSPRITES", LWPNSPRITES, 0, 0 },
+	{ "EWPNSPRITES", EWPNSPRITES, 0, 0 },
+
+	{ "SCREENDATAEXDOOR", SCREENDATAEXDOOR, 0, 0 },
+	{ "MAPDATAEXDOOR", MAPDATAEXDOOR, 0, 0 },
+	{ "COMBODTRIGEXDOORDIR", COMBODTRIGEXDOORDIR, 0, 0 },
+	{ "COMBODTRIGEXDOORIND", COMBODTRIGEXDOORIND, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

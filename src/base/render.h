@@ -260,4 +260,6 @@ void throttleFPS(int32_t cap);
 
 void clear_tooltip();
 
+std::pair<int, int> zc_get_mouse();
+
 #endif

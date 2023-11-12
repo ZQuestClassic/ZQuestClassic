@@ -8,6 +8,8 @@
 
 using namespace std::chrono_literals;
 
+static int zc_mouse_x, zc_mouse_y;
+
 void RenderTreeItem::remove()
 {
 	if (parent)
@@ -482,6 +484,12 @@ void render_tree_draw(RenderTreeItem* rti)
 	// This might help a little in reducing GL context switches.
 	render_tree_draw_item(rti, true);
 	render_tree_draw_item(rti, false);
+
+	// Ensure the mouse coordinates used to setup the frame are the same that rti prepare/render functions will utilize
+	// by storing the mouse coordinates, and fetching them _after_ the above rti drawing.
+	// ex: tooltips
+	zc_mouse_x = gui_mouse_x();
+	zc_mouse_y = gui_mouse_y();
 }
 
 void render_tree_draw_debug(RenderTreeItem* rti)
@@ -931,4 +939,9 @@ void throttleFPS(int32_t cap)
 	}
 
 	throttle_counter.store(false, std::memory_order_relaxed);
+}
+
+std::pair<int, int> zc_get_mouse()
+{
+	return {zc_mouse_x, zc_mouse_y};
 }

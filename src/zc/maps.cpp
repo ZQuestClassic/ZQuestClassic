@@ -1165,6 +1165,8 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	}
 
 	int32_t mi = (map*MAPSCRSNORMAL)+screen;
+	// TODO  z3 !!! merge
+	// clear_xdoors2_mi(&scr, screen, mi);
 	clear_xstatecombos_mi(&scr, screen, mi);
 }
 
@@ -1322,52 +1324,73 @@ const char *screenstate_string[16] =
     "Boss Locked Chests", "Secrets", "Visited", "Light Beams"
 };
 
-void eventlog_mapflag_line(word* g, word flag, int32_t ss_s_index)
-{
-    if((*g)&flag)
-    {
-        (*g)&=~flag;
-        Z_eventlog("%s%s", screenstate_string[ss_s_index], (*g)!=0 ? ", " : "");
-    }
-}
-
 void eventlog_mapflags()
 {
+	std::ostringstream oss;
+	
 	int32_t mi = (currmap*MAPSCRSNORMAL)+homescr;
     word g = game->maps[mi] &0x3FFF;
-    word g2 = g;
-    Z_eventlog("Screen (%d, %02x) %s", currmap+1, homescr, (g2) != 0 ? "[":"");
-    // Print them in order of importance.
-    eventlog_mapflag_line(&g, mSECRET,13);
-    eventlog_mapflag_line(&g, mITEM,4);
-    eventlog_mapflag_line(&g, mSPECIALITEM,5);
-    eventlog_mapflag_line(&g, mLOCKBLOCK,8);
-    eventlog_mapflag_line(&g, mBOSSLOCKBLOCK,9);
-    eventlog_mapflag_line(&g, mCHEST,10);
-    eventlog_mapflag_line(&g, mLOCKEDCHEST,11);
-    eventlog_mapflag_line(&g, mBOSSCHEST,12);
-    eventlog_mapflag_line(&g, mDOOR_UP,0);
-    eventlog_mapflag_line(&g, mDOOR_DOWN,1);
-    eventlog_mapflag_line(&g, mDOOR_LEFT,2);
-    eventlog_mapflag_line(&g, mDOOR_RIGHT,3);
-    eventlog_mapflag_line(&g, mNEVERRET,6);
-    eventlog_mapflag_line(&g, mTMPNORET,7);
-    if(g2) Z_eventlog("%s","]");
-	if(game->xstates[mi])
+    
+	oss << fmt::format("Screen ({}, {:02X})", currmap+1, homescr);
+	if(g) // Main States
 	{
-		Z_eventlog(" Ex[");
+		static const int order[] =
+		{
+			mSECRET, mITEM, mSPECIALITEM, mLOCKBLOCK, mBOSSLOCKBLOCK,
+			mCHEST, mLOCKEDCHEST, mBOSSCHEST,
+			mDOOR_UP, mDOOR_DOWN, mDOOR_LEFT, mDOOR_RIGHT,
+			mNEVERRET, mTMPNORET
+		};
+		
+		oss << " [";
+		bool comma = false;
+		for(int fl : order)
+		{
+			if(!(g&fl))
+				continue;
+			byte ind = byte(log2(double(fl)));
+			if(comma)
+				oss << ", ";
+			oss << screenstate_string[ind];
+			comma = true;
+		}
+		oss << "]";
+	}
+	if(game->xstates[mi]) // ExStates
+	{
+		oss << " Ex[";
 		bool comma = false;
 		for(byte fl = 0; fl < 32; ++fl)
 		{
 			if(game->xstates[mi] & (1<<fl))
 			{
-				Z_eventlog("%s%d", comma ? ", " : "", fl);
+				if(comma)
+					oss << ", ";
+				oss << fl;
 				comma = true;
 			}
 		}
-		Z_eventlog("]");
+		oss << "]";
 	}
-	Z_eventlog("\n");
+	{ // ExDoors
+		for(int q = 0; q < 4; ++q)
+		{
+			bool comma = false;
+			if(auto v = game->xdoors[mi][q])
+			{
+				if(comma)
+					oss << ",";
+				else oss << " ExDoor";
+				oss << "[" << dirstr[q];
+				for(int fl = 0; fl < 8; ++fl)
+					if(v & (1<<fl))
+						oss << " " << fl;
+				oss << "]";
+				comma = true;
+			}
+		}
+	}
+	Z_eventlog("%s\n", oss.str().c_str());
 }
 
 // set specific flag
@@ -1561,6 +1584,61 @@ bool getxmapflag(int32_t screen_index, uint32_t flag)
 bool getxmapflag_mi(int32_t mi2, uint32_t flag)
 {
 	return (game->xstates[mi2] & flag) != 0;
+}
+
+void setxdoor(uint mi, uint dir, uint ind, bool state)
+{
+	if(mi > game->xdoors.size() || dir > 3 || ind > 8)
+		return;
+	if(!(game->xdoors[mi][dir] & (1<<ind)) == !state)
+		return;
+	SETFLAG(game->xdoors[mi][dir], 1<<ind, state);
+    int cscr = mi % MAPSCRSNORMAL;
+    int cmap = mi / MAPSCRSNORMAL;
+	bool iscurrscr = mi == ((currmap*MAPSCRSNORMAL)+homescr);
+	Z_eventlog("%s's ExDoor[%s][%d] was %sset\n",
+		iscurrscr ? "Current screen" : fmt::format("Screen ({}, {:02X})",cmap+1,cscr).c_str(),
+		dirstr[dir], ind, state ? "" : "un");
+}
+void setxdoor(uint dir, uint ind, bool state)
+{
+	setxdoor((currmap*MAPSCRSNORMAL)+homescr,dir,ind,state);
+}
+bool getxdoor(uint mi, uint dir, uint ind)
+{
+	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
+		return false;
+	return (game->xdoors[mi][dir] & (1<<ind));
+}
+bool getxdoor(uint dir, uint ind)
+{
+	return getxdoor((currmap*MAPSCRSNORMAL)+homescr,dir,ind);
+}
+
+void set_doorstate(uint mi, uint dir)
+{
+	if(dir >= 4)
+		return;
+	setmapflag_mi(mi, mDOOR_UP << dir);
+	if(auto di = nextscr(mi, dir, true))
+		setmapflag_mi(*di, mDOOR_UP << oppositeDir[dir]);
+}
+void set_doorstate(uint dir)
+{
+	set_doorstate((currmap*MAPSCRSNORMAL) + currscr, dir);
+}
+
+void set_xdoorstate(uint mi, uint dir, uint ind)
+{
+	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
+		return;
+	setxdoor(mi, dir, ind, true);
+	if(auto di = nextscr(mi, dir, true))
+		setxdoor(*di, oppositeDir[dir], ind);
+}
+void set_xdoorstate(uint dir, uint ind)
+{
+	set_xdoorstate((currmap*MAPSCRSNORMAL) + currscr, dir, ind);
 }
 
 int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
@@ -2402,6 +2480,83 @@ void clear_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers)
 	{
 		remove_xstatecombos_mi(s,scr,mi,q,triggers);
 	}
+}
+
+// TODO z3 !!! merge
+bool remove_xdoors(int32_t tmp, uint dir, uint ind)
+{
+	return remove_xdoors(tmp, (currmap*MAPSCRSNORMAL)+homescr, dir, ind);
+}
+bool remove_xdoors(int32_t tmp, int32_t mi, uint dir, uint ind)
+{
+	mapscr *s = tmpscr + tmp;
+	mapscr *t = tmpscr2;
+	return remove_xdoors2(s, t, mi, dir, ind, false);
+}
+bool remove_xdoors2(mapscr *s, mapscr *t, uint dir, uint ind, bool triggers)
+{
+	return remove_xdoors2(s, t, (currmap*MAPSCRSNORMAL)+homescr, dir, ind, triggers);
+}
+bool remove_xdoors2(mapscr *s, mapscr *t, int32_t mi, uint dir, uint ind, bool triggers)
+{
+	bool didit=false;
+	if(!getxdoor(mi, dir, ind)) return false;
+	mapscr *scrs[7] = {s};
+	if(t)
+	{
+		scrs[1] = &t[0];
+		scrs[2] = &t[1];
+		scrs[3] = &t[2];
+		scrs[4] = &t[3];
+		scrs[5] = &t[4];
+		scrs[6] = &t[5];
+	}
+	for(uint lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = scrs[lyr];
+		if(!scr) continue;
+		for(uint pos = 0; pos < 176; ++pos)
+		{
+			newcombo const& cmb = combobuf[scr->data[pos]];
+			if(triggers && force_ex_door_trigger(lyr,pos,dir,ind))
+				didit = true;
+			else; //future door combo types?
+		}
+	}
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
+	{
+		word c = s->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc2 = s->ffcs[i];
+			newcombo const& cmb = combobuf[ffc2.data];
+			if(triggers && force_ex_door_trigger_ffc(i,dir,ind))
+				didit = true;
+			else; //future door combo types?
+		}
+	}
+	
+	return didit;
+}
+void clear_xdoors(int32_t tmp)
+{
+	clear_xdoors(tmp, (currmap*MAPSCRSNORMAL)+homescr);
+}
+void clear_xdoors(int32_t tmp, int32_t mi)
+{
+	mapscr *s = tmpscr + tmp;
+	mapscr *t = tmpscr2;
+	clear_xdoors2(s, t, mi, tmp==0);
+}
+void clear_xdoors2(mapscr *s, mapscr *t)
+{
+	clear_xdoors2(s, t, (currmap*MAPSCRSNORMAL)+homescr);
+}
+void clear_xdoors2(mapscr *s, mapscr *t, int32_t mi, bool triggers)
+{
+	for(uint dir = 0; dir < 4; ++dir)
+		for(uint ind = 0; ind < 8; ++ind)
+			remove_xdoors2(s, t, mi, dir, ind, triggers);
 }
 
 bool remove_lockblocks(mapscr* s, int32_t screen_index)
@@ -3250,10 +3405,10 @@ bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers)
 	return false;
 }
 
-int32_t nextscr(int32_t dir)
+optional<int> nextscr(int map, int screen, int dir, bool normal)
 {
 	auto [m, s] = nextscr2(dir);
-	if (m == -1) return 0xFFFF;
+	if (m == -1) return nullopt;
     return (m<<7) + s;
 }
 
@@ -3322,8 +3477,19 @@ nowarp:
 	return {m, s};
 }
 
+optional<int> nextscr(int mi, int dir, bool normal)
+{
+	return nextscr(mi/(normal?MAPSCRSNORMAL:MAPSCRS),
+		mi%(normal?MAPSCRSNORMAL:MAPSCRS), dir, normal);
+}
+optional<int> nextscr(int dir, bool normal)
+{
+	return nextscr(currmap, currscr, dir, normal);
+}
+
 void bombdoor(int32_t x,int32_t y)
 {
+	// TODO z3 !!
     if(tmpscr->door[0]==dBOMB && isinRect(x,y,100,0,139,48))
     {
         tmpscr->door[0]=dBOMBED;
@@ -3331,10 +3497,10 @@ void bombdoor(int32_t x,int32_t y)
         setmapflag(mDOOR_UP);
         markBmap(-1);
         
-        if(nextscr(up)!=0xFFFF)
+        if(auto v = nextscr(up, true))
         {
-            setmapflag_mi(nextscr(up), mDOOR_DOWN);
-            markBmap(-1,nextscr(up)-(get_currdmap()<<7));
+            setmapflag_mi(*v, mDOOR_DOWN);
+            markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
@@ -3345,10 +3511,10 @@ void bombdoor(int32_t x,int32_t y)
         setmapflag(mDOOR_DOWN);
         markBmap(-1);
         
-        if(nextscr(down)!=0xFFFF)
+        if(auto v = nextscr(down, true))
         {
-            setmapflag_mi(nextscr(down), mDOOR_UP);
-            markBmap(-1,nextscr(down)-(get_currdmap()<<7));
+            setmapflag_mi(*v, mDOOR_UP);
+            markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
@@ -3359,10 +3525,10 @@ void bombdoor(int32_t x,int32_t y)
         setmapflag(mDOOR_LEFT);
         markBmap(-1);
         
-        if(nextscr(left)!=0xFFFF)
+        if(auto v = nextscr(left, true))
         {
-            setmapflag_mi(nextscr(left), mDOOR_RIGHT);
-            markBmap(-1,nextscr(left)-(get_currdmap()<<7));
+            setmapflag_mi(*v, mDOOR_RIGHT);
+            markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
@@ -3373,10 +3539,10 @@ void bombdoor(int32_t x,int32_t y)
         setmapflag(mDOOR_RIGHT);
         markBmap(-1);
         
-        if(nextscr(right)!=0xFFFF)
+        if(auto v = nextscr(right, true))
         {
-            setmapflag_mi(nextscr(right), mDOOR_LEFT);
-            markBmap(-1,nextscr(right)-(get_currdmap()<<7));
+            setmapflag_mi(*v, mDOOR_LEFT);
+            markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
 }
@@ -5956,6 +6122,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		remove_bosschests(screen, scr);
 	}
 	
+	// TODO z3 !! merge
+	// clear_xdoors(screen, scr);
 	clear_xstatecombos(screen, scr);
 	
 	// if(!tmp)
@@ -6139,6 +6307,8 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		remove_bosschests(&screen, scr);
 	}
 	
+	// TODO z3 !!! merge
+	// clear_xdoors(&screen, scr);
 	clear_xstatecombos(&screen, scr);
 	
 	// check doors

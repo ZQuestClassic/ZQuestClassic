@@ -11,6 +11,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <regex>
 #include <fmt/format.h>
 
 #ifndef UPDATER_USES_PYTHON
@@ -52,6 +53,7 @@ namespace fs = std::filesystem;
 
 static bool headless;
 static std::string repo = getRepo();
+static std::string platform = getReleasePlatform();
 static std::string channel = getReleaseChannel();
 static std::string current_version = getReleaseTag();
 
@@ -152,13 +154,16 @@ static void require_python()
 	}
 }
 
+// NOTE: for Python, this returns the latest release. Otherwise, it returns the latest release
+// of the configured channel. Could do the same in Python, but Windows is most of our userbase, and
+// the Python implementation should be dropped eventually on non-Windows platforms so opting not to implement it.
 static std::tuple<std::string, std::string> get_next_release()
 {
 #ifdef UPDATER_USES_PYTHON
 	auto [next_release_output, next_release_map] = get_output_map(PYTHON, {
 		"tools/updater.py",
 		"--repo", repo,
-		"--channel", channel,
+		"--platform", platform,
 		"--print-next-release",
 	});
 	if (!next_release_map.contains("tag_name") || !next_release_map.contains("asset_url"))
@@ -169,7 +174,7 @@ static std::tuple<std::string, std::string> get_next_release()
 	std::string asset_url = next_release_map["asset_url"];
 	return {new_version, asset_url};
 #else
-	std::string json_url = fmt::format("https://api.github.com/repos/{}/releases", repo);
+	std::string json_url = fmt::format("https://zquestclassic.com/releases/{}.json", channel);
 
 	struct MemoryStruct chunk;
 	chunk.memory = (char*)malloc(1);
@@ -191,20 +196,17 @@ static std::tuple<std::string, std::string> get_next_release()
 	curl_easy_cleanup(curl_handle);
 
 	std::error_code ec;
-	auto json_all = JSON::Load(chunk.memory, ec);
+	auto json = JSON::Load(chunk.memory, ec);
 
-	// There is no "get latest prerelease" API, so must get all the recent releases.
-	auto& json = json_all[0];
-
-	std::string new_version, asset_url;
+	std::string tag_name, asset_url;
 	if (!ec)
 	{
-		new_version = json["tag_name"].ToString();
+		tag_name = json["tagName"].ToString();
 		for (auto& asset_json : json["assets"].ArrayRange())
 		{
-			if (asset_json["name"].ToString().find(channel) != std::string::npos)
+			if (asset_json["name"].ToString().find(platform) != std::string::npos)
 			{
-				asset_url = asset_json["browser_download_url"].ToString();
+				asset_url = asset_json["url"].ToString();
 				break;
 			}
 		}
@@ -212,7 +214,7 @@ static std::tuple<std::string, std::string> get_next_release()
 
 	free(chunk.memory);
 
-	return {new_version, asset_url};
+	return {tag_name, asset_url};
 #endif
 }
 
@@ -323,7 +325,7 @@ static bool install_release(std::string asset_url, bool use_cache, std::string& 
 	std::vector<std::string> args = {
 		"tools/updater.py",
 		"--repo", repo,
-		"--channel", channel,
+		"--platform", platform,
 		"--asset-url", asset_url,
 	};
 	if (use_cache) args.push_back("--cache");

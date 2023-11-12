@@ -20,6 +20,7 @@
 #include "zc/saves.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include "music_playback.h"
 
 extern FFScript FFCore;
 extern ZModule zcm; //modules
@@ -352,7 +353,7 @@ void ending()
 		if(f==861)
 		{
 			blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?168:0,256,passive_subscreen_height);
-			try_zcmusic("zelda.nsf", moduledata.ending_track, ZC_MIDI_ENDING);
+			try_zcmusic("zelda.nsf", qstpath, moduledata.ending_track, ZC_MIDI_ENDING, get_emusic_volume());
 			
 			for(int32_t y=0; y<224; y++)
 			{
@@ -786,7 +787,7 @@ void inc_quest()
 	game->set_maxlife(3*game->get_hp_per_heart());
 	game->set_life(3*game->get_hp_per_heart());
 	game->set_maxbombs(8);
-	game->set_hasplayed(true);
+	game->set_hasplayed(false);
 	//now bound to modules
 	game->set_continue_dmap(moduledata.startingdmap[quest-1]);
 	game->set_continue_scrn(moduledata.startingscreen[quest-1]);

@@ -11,6 +11,7 @@
 #include "info.h"
 #include <fmt/format.h>
 #include "base/misctypes.h"
+#include "dialog/view_script_slots.h"
 #include <chrono>
 using std::string;
 
@@ -473,7 +474,7 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	const GUI::Size panel_width = 150_px;
+	const GUI::Size panel_width = 200_px;
 	const GUI::Size col_spacing = 4_px;
 	const GUI::Size row_spacing = 4_px;
 	
@@ -488,22 +489,23 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 				//
 				Row(padding = 0_px,
 					columnSpacing = col_spacing,
-					BTN("&Load",LOAD,panel_width/3),
-					BTN("E&xport",EXPORT,panel_width/3),
-					BTN("&Edit",EDIT,panel_width/3)
+					BTN("&Load",LOAD,panel_width/3+col_spacing/2),
+					BTN("E&xport",EXPORT,panel_width/3+col_spacing/2),
+					BTN("&Edit",EDIT,panel_width/3+col_spacing/2)
 				),
 				//
 				Row(padding = 0_px,
 					columnSpacing = col_spacing,
-					BTN("&Docs",DOCS,panel_width/3),
-					BTN("&std_zh",STD_ZH,panel_width/3),
-					BTN("Settings",SETTINGS,panel_width/3)
+					BTN("&Docs",DOCS,panel_width/3+col_spacing/2),
+					BTN("&std_zh",STD_ZH,panel_width/3+col_spacing/2),
+					BTN("Settings",SETTINGS,panel_width/3+col_spacing/2)
 				),
 				//
 				Row(padding = 0_px,
 					columnSpacing = col_spacing,
-					BTNF("&Compile",COMPILE,panel_width/2+col_spacing/2),
-					BTN("Cancel",CANCEL,panel_width/2+col_spacing/2)
+					BTNF("&Compile",COMPILE,panel_width/3+col_spacing/2),
+					BTNF("Slots",SLOTS,panel_width/3+col_spacing/2),
+					BTN("Cancel",CANCEL,panel_width/3+col_spacing/2)
 				)
 			)
 		)
@@ -600,6 +602,10 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		
 		case message::SETTINGS:
 			onZScriptCompilerSettings();
+			return false;
+
+		case message::SLOTS:
+			ViewScriptSlotsDialog().show();
 			return false;
 		
 		case message::COMPILE:

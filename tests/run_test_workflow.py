@@ -198,6 +198,8 @@ def get_args_for_collect_baseline_from_test_results(test_results_paths: List[Pat
 # Returns the workflow run id, after job finishes.
 def collect_baseline_from_test_results(gh: Github, repo: str, baseline_commit: str, test_results_paths: List[Path]) -> int:
     extra_args = get_args_for_collect_baseline_from_test_results(test_results_paths)
+    if not baseline_commit:
+        baseline_commit = find_baseline_commit(gh, repo)
 
     # For baseline purposes, only need to run on a single platform.
     run_id = start_test_workflow_run(gh, repo,

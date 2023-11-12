@@ -32,8 +32,10 @@ public:
 
 	EditDMapDialog(int32_t slot);
 
-	bool disableEnhancedMusic();
+	bool disableEnhancedMusic(bool disableontracker = false);
 	bool disableMusicTracks();
+	void silenceMusicPreview();
+	void musicPreview(bool previewloop = false);
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
@@ -55,6 +57,10 @@ private:
 	std::shared_ptr<GUI::TextField> tmusic_end_field;
 	std::shared_ptr<GUI::TextField> tmusic_xfadein_field;
 	std::shared_ptr<GUI::TextField> tmusic_xfadeout_field;
+	std::shared_ptr<GUI::Label> tmusic_progress_lbl;
+	std::shared_ptr<GUI::Button> tmusic_preview_btn;
+	std::shared_ptr<GUI::Button> tmusic_previewloop_btn;
+	std::shared_ptr<GUI::Button> tmusic_previewstop_btn;
 	std::shared_ptr<GUI::List> disabled_list;
 	std::shared_ptr<GUI::List> item_list;
 	std::shared_ptr<GUI::Widget> DMAP_AC_INITD(int index);
@@ -79,6 +85,8 @@ private:
 
 	std::shared_ptr<GUI::Switcher> string_switch;
 	
+	int32_t musicpreview_saved = 0;
+
 	int32_t dmapslot;
 	dmap* thedmap;
 	dmap local_dmap;

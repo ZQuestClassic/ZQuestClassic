@@ -4408,6 +4408,13 @@ bool State[32];
 bool ExState[32];
  * The 'Extra States' used by this screen.
 
+bool GetExDoor(int dir, int index);
+ * Returns a door state for the screen.
+ * Each direction (DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT) has 8 indexes (0-7)
+void SetExDoor(int dir, int index, bool state);
+ * Sets a door state for the screen.
+ * Each direction (DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT) has 8 indexes (0-7)
+
 int MovingBlockLayer;
  * The layer of a currently moving pushblock
  * Returns -1 and ignores writes if there is no pushblock currently moving
@@ -5140,6 +5147,9 @@ int FakeJump;
 
 bool Flags[WFLAG_MAX];
  * A set of flags for all weapons. See 'WFLAG_' constants in 'std_constants.zh'
+
+int Sprites[WPN_SPRITE_MAX];
+ * A set of sprites related to the weapon. See 'WPN_SPRITE_' constants in 'std_constants.zh'
 
 int DeathItem;
  * If > -1, this item ID will be spawned when the weapon dies.
@@ -6264,6 +6274,9 @@ untyped Attributes[10]
 int Sprites[10]
  * An array of ten integers that correspond to the ten sprite pulldowns on the item editor Action tab.
 
+int BurnSprites[ITM_BURNSPR_MAX];
+ * The burning sprites from 'Graphics->Sprites->Burning'. Use the 'ITM_BURNSPR_' constants.
+
 bool Flags[16]
  * An array of 16 boolean flags that correspond to the 16 flag tickboxes on the item editor Flags tab.
 
@@ -6277,6 +6290,8 @@ bool JinxImmune;
  * Corresponds to the 'Immune to jinxes' box on the Flags tab of the item editor.
 bool JinxSwapped;
  * Corresponds to the 'Uses Other Jinx' box on the Flags tab of the item editor.
+bool UseBurnSprites;
+ * Corresponds to the 'Use Burning Sprites' box on the Graphics tab of the item editor
 
 bool Combine;	
  * Corresponds to 'Upgrade when collected twice'.
@@ -7139,6 +7154,13 @@ bool State[32];
 bool ExState[32];
  * The 'Extra States' used by this screen. Identical to Screen->ExState[], but for mapdata screens.
 
+bool GetExDoor(int dir, int index);
+ * Returns a door state for the screen.
+ * Each direction DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT has 8 indexes (0-7)
+void SetExDoor(int dir, int index, bool state);
+ * Sets a door state for the screen.
+ * Each direction DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT has 8 indexes (0-7)
+
 int EFlags[3];
  * The Screen Data E.Flags flagsets. 
  * Values are:
@@ -7436,15 +7458,19 @@ int TrigCooldown;
  * The combo's cooldown between triggers
 
 int TrigCopycat;
- * If >0, triggering this combo triggers all other combos with matching TrigCopycat.
+ * If > 0, triggering this combo triggers all other combos with matching TrigCopycat.
 
 int TrigExState;
- * If >-1, the ExState that the combo is linked to.
+ * If > -1, the ExState that the combo is linked to.
+int TrigExDoorDir;
+ * If > -1, the direction of ExDoor that the combo is linked to
+int TrigExDoorIndex;
+ * If 'TrigExDoorDir' is > -1, the index of that direction of ExDoor that the combo is linked to.
 
 int TrigSpawnEnemy;
- * If >0, the enemy ID spawned when the combo is triggered.
+ * If > 0, the enemy ID spawned when the combo is triggered.
 int TrigSpawnItem;
- * If >0, the item ID (or dropset ID) spawned when the combo is triggered.
+ * If > 0, the item ID (or dropset ID) spawned when the combo is triggered.
 int TrigSpawnItemPickup;
  * The item pickup flags for the spawned item
  * Only the flags IP_HOLDUP, IP_TIMEOUT, IP_TRIGGERSECRETS, IP_ALWAYSGRAB are used.

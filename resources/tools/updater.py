@@ -17,7 +17,7 @@ resources_dir = script_dir.parent
 
 parser = argparse.ArgumentParser(
 	description='Download and unzip latest release from GitHub')
-parser.add_argument('--channel', default='none', choices=['mac', 'linux', 'windows-x86', 'windows-x64', 'none'])
+parser.add_argument('--platform', default='none', choices=['mac', 'linux', 'windows-x86', 'windows-x64', 'none'])
 parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
 parser.add_argument('--print-next-release', action='store_true')
 parser.add_argument('--asset-url')
@@ -29,14 +29,14 @@ args = parser.parse_args()
 if 'ZC_UPDATER_CACHE_FOLDER' in os.environ:
 	args.cache_folder = Path(os.environ['ZC_UPDATER_CACHE_FOLDER'])
 
-if args.channel == 'none':
+if args.platform == 'none':
 	system = platform.system()
 	if system == 'Darwin':
-		args.channel = 'mac'
+		args.platform = 'mac'
 	elif system == 'Windows':
-		args.channel = 'windows-x64'
+		args.platform = 'windows-x64'
 	elif system == 'Linux':
-		args.channel = 'linux'
+		args.platform = 'linux'
 
 if args.repo == 'none':
 	args.repo = 'ZQuestClassic/ZQuestClassic'
@@ -95,7 +95,7 @@ def download_release(url: str, dest: Path):
 			print('saved to cache')
 			cache_path.write_bytes(content.getvalue())
 
-	if args.channel == 'mac':
+	if args.platform == 'mac':
 		# In case it already exists somehow.
 		shutil.rmtree(dest / 'ZQuest Classic.app', ignore_errors=True)
 
@@ -155,7 +155,7 @@ def get_next_release():
 	data = get_release_json(f'https://api.github.com/repos/{args.repo}/releases')
 	rls = data[0]
 	tag_name = rls['tag_name']
-	asset = next((a for a in rls['assets'] if args.channel in a['name']), None)
+	asset = next((a for a in rls['assets'] if args.platform in a['name']), None)
 	asset_url = asset['browser_download_url']
 	if not asset:
 		print('no asset found matching this platform')
@@ -171,7 +171,7 @@ if args.print_next_release:
 	exit(0)
 
 
-if args.channel == 'mac':
+if args.platform == 'mac':
 	print('updater current does not support mac')
 	exit(1)
 

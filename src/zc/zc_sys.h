@@ -219,9 +219,7 @@ void cache_tile_mod_clear();
 int32_t item_tile_mod();
 int32_t bunny_tile_mod();
 
-bool try_zcmusic(const char *filename, int32_t track, int32_t midi, int32_t fadeoutframes = 0);
-bool try_zcmusic_mix(ZCMUSIC* &zcm, char* filename, int32_t track, int32_t midi, int32_t fadevol, int32_t fadeoutframes = 0);
-bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi);
+int32_t get_emusic_volume();
 int32_t get_zcmusicpos();
 void set_zcmusicpos(int32_t position);
 void set_zcmusicspeed(int32_t speed);

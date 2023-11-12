@@ -50,6 +50,7 @@ class TestZEditor(unittest.TestCase):
             '--test_results', output_dir,
             *args,
         ]
+        shutil.rmtree(output_dir, ignore_errors=True)
         output = subprocess.run(args, stdout=subprocess.PIPE, encoding='utf-8')
         test_results_path = output_dir / 'test_results.json'
         if not test_results_path.exists():

@@ -11,6 +11,7 @@
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "base/mapscr.h"
+#include "dialog/info.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
@@ -1120,6 +1121,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		else if(section_version > 36)
 			if(!p_getbmap(&game.screen_data, f))
 				return 115;
+		if(section_version > 38)
+			if(!p_getbmap(&game.xdoors, f))
+				return 116;
 	}
 	
 	return 0;
@@ -1421,6 +1425,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 109;
 	if(!p_putbmap(game.screen_data,f))
 		return 110;
+	if(!p_putbmap(game.xdoors,f))
+		return 111;
 	return 0;
 }
 
@@ -1652,14 +1658,19 @@ static int maybe_split_save_file(fs::path filename)
 	if (ret)
 		return ret;
 
+	bool errored = false;
 	for (auto& save : saves)
 	{
 		if (save.header->quest == 0)
 			continue;
 
 		save.path = create_path_for_new_save(save.header);
-		write_save(&save);
+		ret = write_save(&save);
+		if (ret) errored = true;
 	}
+
+	if (errored)
+		return ret;
 
 	ret = move_to_folder(filename, get_backup_folder_path());
 	if (ret)
@@ -1933,7 +1944,9 @@ static int32_t do_save_games()
 		auto dir = get_save_folder_path() / "current_replay";
 		fs::create_directories(dir);
 		saves[currgame].path = create_new_file_path(dir, "zc", ".sav", true);
-		write_save(&saves[currgame]);
+		int ret = write_save(&saves[currgame]);
+		if (ret)
+			return ret;
 	}
 
 	if (disable_save_to_disk)
@@ -1962,9 +1975,12 @@ int32_t saves_write()
 	Saving = true;
 	if (!is_headless())
 		render_zc();
-	int32_t result = do_save_games();
+	int32_t ret = do_save_games();
 	Saving = false;
-	return result;
+	// TODO: we should return error messages, not codes.
+	if (ret)
+		InfoDialog("Error writing saves", fmt::format("Error code: {}. Check allegro.log for more", ret)).show();
+	return ret;
 }
 
 bool saves_select(int32_t index)
@@ -2390,6 +2406,7 @@ bool saves_test()
 	SAVE_TEST_VECTOR_2D(gen_data);
 	SAVE_TEST_VECTOR_2D(screen_data);
 	SAVE_TEST_VECTOR(xstates);
+	SAVE_TEST_VECTOR_2D(xdoors);
 	SAVE_TEST_VECTOR(gen_eventstate);
 	SAVE_TEST_VECTOR(gswitch_timers);
 	SAVE_TEST_VECTOR_NOFMT(user_objects);

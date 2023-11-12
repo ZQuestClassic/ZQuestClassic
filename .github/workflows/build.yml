@@ -161,8 +161,8 @@ jobs:
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
         if: ${{ inputs.versiontype }}
-      - name: Set channel
-        id: set-channel
+      - name: Set release platform
+        id: set-platform
         shell: python
         run: |
           import platform
@@ -173,20 +173,21 @@ jobs:
           system = platform.system()
           if system == 'Windows':
             arch_label = 'x86' if arch == 'win32' else 'x64'
-            channel = f'windows-{arch_label}'
+            release_platform = f'windows-{arch_label}'
           elif system == 'Darwin':
-            channel = 'mac'
+            release_platform = 'mac'
           elif system == 'Linux':
-            channel = 'linux'
+            release_platform = 'linux'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-            print('{0}={1}'.format('channel', channel), file=f)
+            print('{0}={1}'.format('platform', release_platform), file=f)
       - name: Configure build
         run: >
           cmake -S . -B build -G 'Ninja Multi-Config'
           -DCOPY_RESOURCES=OFF
           -DRELEASE_TAG="${{ inputs.release-tag }}"
-          -DRELEASE_CHANNEL="${{ steps.set-channel.outputs.channel }}"
+          -DRELEASE_PLATFORM="${{ steps.set-platform.outputs.platform }}"
+          -DRELEASE_CHANNEL="z3"
           -DREPO="${{ github.repository }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
           -DWANT_MAC_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"
@@ -227,13 +228,13 @@ jobs:
         uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
         with:
           windows: |
-            python scripts/package.py --build_folder build/${{ inputs.config }}
+            python scripts/package.py --build_folder build/${{ inputs.config }} --current_version '${{ inputs.release-tag || 'nightly' }}'
             mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           macos: |
-            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }}
+            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }} '${{ inputs.release-tag || 'nightly' }}'
             mv build/${{ inputs.config }}/packages/ZQuestClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           linux: |
-            python scripts/package.py --build_folder build/${{ inputs.config }}
+            python scripts/package.py --build_folder build/${{ inputs.config }} --current_version '${{ inputs.release-tag || 'nightly' }}'
             mv build/${{ inputs.config }}/packages/zc.tar.gz build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
       # Coverage builds need the entire build folder.
       - name: Package

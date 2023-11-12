@@ -47,14 +47,14 @@ static bool chosecustomquest = false;
 
 static void select_mode()
 {
-	textout_ex(scrollbuf,get_zc_font(font_zfont),"REGISTER YOUR NAME",48,152,1,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"NEW FILE",48,152,1,0);
 	textout_ex(scrollbuf,get_zc_font(font_zfont),"COPY FILE",48,168,1,0);
 	textout_ex(scrollbuf,get_zc_font(font_zfont),"DELETE FILE",48,184,1,0);
 }
 
 static void register_mode()
 {
-	textout_ex(scrollbuf,get_zc_font(font_zfont),"REGISTER YOUR NAME",48,152,CSET(2)+3,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"NEW FILE",48,152,CSET(2)+3,0);
 }
 
 static void copy_mode()

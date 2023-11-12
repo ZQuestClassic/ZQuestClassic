@@ -111,12 +111,12 @@ def parse_scope_and_type(subject: str):
         type, oneline = match.groups()
         return type, None, oneline, True
     
-    match = re.match(r'(\w+)\((\w+)\): (.+)', subject)
+    match = re.match(r'(\w+)\((\w+)\)<?: (.+)', subject)
     if match:
         type, scope, oneline = match.groups()
         return type, scope, oneline, False
 
-    match = re.match(r'(\w+): (.+)', subject)
+    match = re.match(r'(\w+)<?: (.+)', subject)
     if match:
         type, oneline = match.groups()
         return type, None, oneline, False
@@ -349,7 +349,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         short_hash, hash, subject = commit_text.split(' ', 2)
         if hash in overrides and overrides[hash][0] == 'drop':
             continue
-
+        
         body = subprocess.check_output(
             f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
         m = re.search(r'end changelog', body, re.IGNORECASE)
@@ -361,8 +361,11 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
 
     # Replace commit messages with overrides.
+    manual_squashes = dict()
+    manual_squash_hash = None
     for commit in commits:
         hash = commit.hash
+        reparse = True
         if hash in overrides and overrides[hash][0] in ['subject', 'squash']:
             commit.subject = overrides[hash][1]
         elif hash in overrides and overrides[hash][0] == 'reword':
@@ -377,23 +380,45 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
                 commit.body = f'# {commit.body}'
             continue
         else:
-            continue
-
-        type, scope, oneline, drop = parse_scope_and_type(commit.subject)
-        commit.type = type
-        commit.scope = scope
-        commit.oneline = oneline
+            reparse = False
+        if commit.hash in overrides_squashes:
+            manual_squash_hash = None
+        elif manual_squash_hash:
+            match = re.match(r'(\w+(\(\w+\))?)<(: .+)', commit.subject)
+            if match:
+                commit.subject = ''.join(filter(None,match.groups()))
+                if manual_squash_hash in manual_squashes:
+                    manual_squashes[manual_squash_hash].append(commit.hash)
+                else:
+                    manual_squashes[manual_squash_hash] = [commit.hash]
+            else:
+                manual_squash_hash = commit.hash
+        else:
+            manual_squash_hash = commit.hash
+           
+        if reparse:
+            type, scope, oneline, drop = parse_scope_and_type(commit.subject)
+            commit.type = type
+            commit.scope = scope
+            commit.oneline = oneline
 
     # Squash commits.
     squashed_hashes = []
     for commit in commits:
-        if commit.hash not in overrides_squashes:
+        squash_list = None
+        add_self = False
+        if commit.hash in overrides_squashes:
+            squash_list = overrides_squashes[commit.hash]
+            add_self = True
+        elif commit.hash in manual_squashes:
+            squash_list = manual_squashes[commit.hash]
+        else:
             continue
-
-        squash_list = overrides_squashes[commit.hash]
+        
         squashed_hashes.extend(squash_list)
         commit.squashed_commits = [c for c in commits if c.hash in squash_list]
-        commit.squashed_commits.insert(0, Commit(**commit.__dict__))
+        if add_self:
+            commit.squashed_commits.insert(0, Commit(**commit.__dict__))
         commit.squashed_commits.sort(key=lambda c: (get_type_index(c.type), get_scope_index(c.scope)))
     commits = [c for c in commits if c.hash not in squashed_hashes]
 

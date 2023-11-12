@@ -87,7 +87,7 @@ struct newcombo
 	int8_t trigcschange;
 	int16_t spawnitem;
 	int16_t spawnenemy;
-	int8_t exstate = -1;
+	int8_t exstate = -1, exdoor_dir = -1, exdoor_ind;
 	int32_t spawnip;
 	byte trigcopycat;
 	byte trigcooldown;

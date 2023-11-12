@@ -20,6 +20,7 @@ src/zinfo.cpp
 src/zconfig.cpp
 src/ffc.cpp
 src/slopes.cpp
+src/music_playback.cpp
 
 ## End of ZQuest Core module
 )

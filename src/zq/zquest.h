@@ -117,8 +117,6 @@ extern size_and_pos commands_window;
 extern size_and_pos commands_list;
 extern size_and_pos dummy_panel;
 
-extern size_and_pos tooltip_trigger;
-
 extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
 extern int32_t tooltip_timer, tooltip_maxtimer;
@@ -402,9 +400,6 @@ int32_t onViewPic();
 int32_t load_the_map(bool skipmenu);
 int32_t onViewMap();
 
-//static char *dirstr[4] = {"up","down","left","right"};
-//char _pathstr[25]="up,up,up,up";
-
 char *pathstr(byte path[]);
 void drawpanel(int32_t panel);
 void refresh(int32_t flags, bool update = false);
@@ -503,6 +498,7 @@ int32_t onImportLWPNScript();
 int32_t onImportEWPNScript();
 int32_t onImportGScript();
 int32_t onCompileScript();
+int32_t onSlotPreview();
 int32_t onSlotAssign();
 int32_t onExportZASM();
 int32_t onImportZASM();
@@ -755,6 +751,7 @@ enum
 	cmdRuleTemplate,
 	cmdSmartCompile,
 	cmdDrawingModeAutocombo,
+	cmdViewScriptSlots,
     cmdMAX
 };
 

@@ -42,7 +42,7 @@
 
 INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
 {
-    ttip_remove();
+    ttip_uninstall_all();
     while(gui_mouse_b())
     {
         rest(1);

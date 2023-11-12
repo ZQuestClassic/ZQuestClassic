@@ -341,4 +341,8 @@ void clear_tooltip()
 {
 	
 }
+void ttip_uninstall_all()
+{
+	
+}
 

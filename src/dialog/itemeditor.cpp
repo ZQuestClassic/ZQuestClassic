@@ -784,11 +784,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[0] = "Penetrate Enemies";
 			inf->flag[1] = "Allow Item Pickup";
 			inf->flag[3] = "Pick Up Anything";
-			inf->wpn[0] = "Arrow Sprite:";
+			inf->flag[6] = "Picks Up Keys";
+			inf->actionsnd[0] = "Firing Sound:";
+			_SET(wpn[0], "Arrow Sprite:", "The sprite used for the arrow weapon."
+				" Should contain an up-facing sprite followed by a right-facing sprite.");
 			inf->wpn[1] = "Sparkle Sprite:";
 			inf->wpn[2] = "Damaging Sparkle Sprite:";
-			inf->actionsnd[0] = "Firing Sound:";
-			inf->flag[6] = "Picks Up Keys";
 			break;
 		}
 		case itype_brang: //!TODO Help Text
@@ -1086,12 +1087,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int inde
 	
 	return Row(vPadding = 0_px,
 		l_spr[index] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px),
-		ib_spr[index] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, index]()
-			{
-				InfoDialog("Sprite Info",h_spr[index]).show();
-			}),
 		DropDownList(
 			maxwidth = 14_em,
 			data = list_sprites,
@@ -1099,8 +1094,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int inde
 			onSelectFunc = [mem](int32_t val)
 			{
 				*mem = val;
-			}
-		)
+			}),
+		ib_spr[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Sprite Info",h_spr[index]).show();
+			})
 	);
 }
 
@@ -1174,7 +1174,7 @@ int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 
 //}
 
-static size_t itmtabs[4] = {0};
+static size_t itmtabs[5] = {0};
 static byte bottleType = 0;
 std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
@@ -2065,17 +2065,82 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							Button(text = "Refresh Preview", onClick = message::RELOAD)
 						)
 					)),
-					TabRef(name = "Sprites", Columns<5>(
-						SPRITE_DROP(0,wpn),
-						SPRITE_DROP(1,wpn2),
-						SPRITE_DROP(2,wpn3),
-						SPRITE_DROP(3,wpn4),
-						SPRITE_DROP(4,wpn5),
-						SPRITE_DROP(5,wpn6),
-						SPRITE_DROP(6,wpn7),
-						SPRITE_DROP(7,wpn8),
-						SPRITE_DROP(8,wpn9),
-						SPRITE_DROP(9,wpn10)
+					TabRef(name = "Sprites", TabPanel(
+						ptr = &itmtabs[4],
+						TabRef(name = "Basic", Columns<5>(
+							SPRITE_DROP(0,wpn),
+							SPRITE_DROP(1,wpn2),
+							SPRITE_DROP(2,wpn3),
+							SPRITE_DROP(3,wpn4),
+							SPRITE_DROP(4,wpn5),
+							SPRITE_DROP(5,wpn6),
+							SPRITE_DROP(6,wpn7),
+							SPRITE_DROP(7,wpn8),
+							SPRITE_DROP(8,wpn9),
+							SPRITE_DROP(9,wpn10)
+						)),
+						TabRef(name = "Burning", Column(
+							Row(
+								INFOBTN("With this checked, the created weapon will use the appropriate"
+									" burning sprite INSTEAD of its' normal sprite."),
+								Checkbox(
+									width = FLAGS_WID,
+									checked = (local_itemref.flags & ITEM_BURNING_SPRITES),
+									text = "Use Burning Sprites",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_BURNING_SPRITES,state);
+									}
+								)
+							),
+							Rows<3>(
+								Label(text = "No Fire:", hAlign = 1.0),
+								DropDownList(
+									data = list_sprites,
+									selectedValue = local_itemref.burnsprs[BURNSPR_NONE],
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.burnsprs[BURNSPR_NONE] = val;
+									}),
+								INFOBTN("Sprite used for the weapon when not on fire"),
+								Label(text = "Any Fire:", hAlign = 1.0),
+								DropDownList(
+									data = list_sprites,
+									selectedValue = local_itemref.burnsprs[BURNSPR_ANY],
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.burnsprs[BURNSPR_ANY] = val;
+									}),
+								INFOBTN("Sprite used for the weapon when on 'Any' fire"),
+								Label(text = "Strong Fire:", hAlign = 1.0),
+								DropDownList(
+									data = list_sprites,
+									selectedValue = local_itemref.burnsprs[BURNSPR_STRONG],
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.burnsprs[BURNSPR_STRONG] = val;
+									}),
+								INFOBTN("Sprite used for the weapon when on 'Strong' fire"),
+								Label(text = "Magic Fire:", hAlign = 1.0),
+								DropDownList(
+									data = list_sprites,
+									selectedValue = local_itemref.burnsprs[BURNSPR_MAGIC],
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.burnsprs[BURNSPR_MAGIC] = val;
+									}),
+								INFOBTN("Sprite used for the weapon when on 'Magic' fire"),
+								Label(text = "Divine Fire:", hAlign = 1.0),
+								DropDownList(
+									data = list_sprites,
+									selectedValue = local_itemref.burnsprs[BURNSPR_DIVINE],
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.burnsprs[BURNSPR_DIVINE] = val;
+									}),
+								INFOBTN("Sprite used for the weapon when on 'Divine' fire")
+							)
+						))
 					)),
 					TabRef(name = "Size", Row(
 						Columns<5>(

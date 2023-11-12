@@ -48,6 +48,7 @@ class TestReplays(unittest.TestCase):
             '--test_results', output_dir,
         ]
         args.append(failing_replay)
+        shutil.rmtree(output_dir, ignore_errors=True)
         output = subprocess.run(args, stdout=subprocess.PIPE, encoding='utf-8')
         test_results_path = tmp_dir / 'output/test_results.json'
         if not test_results_path.exists():

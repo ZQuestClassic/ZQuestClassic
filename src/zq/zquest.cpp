@@ -1,3 +1,4 @@
+#include "base/render.h"
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
@@ -107,6 +108,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_hotkey.h"
 #include "zq/package.h"
 #include "zq/zq_files.h"
+#include "music_playback.h"
 
 extern CConsoleLoggerEx parser_console;
 
@@ -205,7 +207,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
 
-int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_combo=0, tooltip_current_ffc=0;
+int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_ffc=0;
 int32_t mousecomboposition, combobrushoverride=-1;
 
 int32_t original_playing_field_offset=0;
@@ -311,8 +313,6 @@ size_and_pos commands_x;
 size_and_pos commands_infobtn;
 size_and_pos commands_zoombtn;
 size_and_pos commands_txt;
-
-size_and_pos tooltip_trigger;
 
 size_and_pos squarepanel_swap_btn;
 size_and_pos squarepanel_up_btn;
@@ -1546,7 +1546,7 @@ static MENU etc_menu[] =
 static MENU zscript_menu[] =
 {
 	{ (char *)"Compile &ZScript...",            onCompileScript,           NULL,                     0,            NULL   },
-	{ (char *)"&Assign Slots...",               onSlotAssign,              NULL,            D_DISABLED,            NULL   },
+	{ (char *)"&View Slots...",                 onSlotPreview,              NULL,                     0,            NULL   },
 	//divider	
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Compiler Settings",             onZScriptCompilerSettings, NULL,                     0,            NULL   },
@@ -4956,13 +4956,13 @@ int32_t onViewMapEx(bool skipmenu)
     return D_O_K;
 }
 
-static const char *dirstr[4] = {"North","South","West","East"};
+static const char *mazedirstr[4] = {"North","South","West","East"};
 char _pathstr[40]="North,North,North,North";
 
 char *pathstr(byte path[])
 {
-    sprintf(_pathstr,"%s,%s,%s,%s",dirstr[path[0]],dirstr[path[1]],
-            dirstr[path[2]],dirstr[path[3]]);
+    sprintf(_pathstr,"%s,%s,%s,%s",mazedirstr[path[0]],mazedirstr[path[1]],
+            mazedirstr[path[2]],mazedirstr[path[3]]);
     return _pathstr;
 }
 
@@ -5228,11 +5228,11 @@ void side_warp_notification(int32_t which, int32_t dir, char *buf)
     char buf3[16];
     
     if(dir==0 && Map.CurrScr()->timedwarptics)
-        sprintf(buf3,"%s, Timed",dirstr[dir]);
+        sprintf(buf3,"%s, Timed",mazedirstr[dir]);
     else if(dir==4)
         sprintf(buf3,"Timed");
     else
-        strcpy(buf3, dirstr[dir]);
+        strcpy(buf3, mazedirstr[dir]);
         
     switch(Map.CurrScr()->sidewarptype[which])
     {
@@ -5388,6 +5388,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
 				textprintf_disabled(txtbmp,font,0,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				static int map_shortcut_tooltip_id = ttip_register_id();
+				ttip_install(map_shortcut_tooltip_id, "Prev map: ,\nNext map: .", txt_x, txt_y, 30, 20, txt_x, txt_y - 60);
+				
 				textprintf_ex(txtbmp,font,spc_m,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
 				
 				textprintf_disabled(txtbmp,font,spc_m+space,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
@@ -6724,7 +6727,7 @@ void refresh(int32_t flags, bool update)
 		
 		if(Map.CurrScr()->flags&fMAZE)
 		{
-			sprintf(buf,"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),dirstr[Map.CurrScr()->exitdir]);
+			sprintf(buf,"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),mazedirstr[Map.CurrScr()->exitdir]);
 			show_screen_error(buf,i++,vc(15));
 		}
 		
@@ -7145,6 +7148,8 @@ void refresh(int32_t flags, bool update)
 	refreshing = false;
 }
 
+static int minimap_tooltip_id = ttip_register_id();
+
 void select_scr()
 {
 	if(Map.getCurrMap()>=Map.getMapCount())
@@ -7167,9 +7172,12 @@ void select_scr()
 		{
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
-			clear_tooltip();
-			update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-			ttip_set_highlight_thickness(zoomed_minimap ? 2 : 1);
+			ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
+			ttip_set_highlight_thickness(ttip_global_id, zoomed_minimap ? 2 : 1);
+		}
+		else
+		{
+			ttip_uninstall(minimap_tooltip_id);
 		}
 		
 		if(ind>=MAPSCRS)
@@ -9980,6 +9988,7 @@ bool has_command_info(int cmd)
 		case cmdDrawingModePool:
 		case cmdQRSearch:
 		case cmdDrawingModeAutocombo:
+		case cmdViewScriptSlots:
 			return true;
 	}
 	return false;
@@ -10460,6 +10469,9 @@ std::string get_command_infostr(int cmd)
 		case cmdDrawingModeAutocombo:
 			infostr = "Switches to Autcombo drawing mode";
 			break;
+		case cmdViewScriptSlots:
+			infostr = "Shows a list of all script slots";
+			break;
 	}
 	return infostr;
 }
@@ -10612,8 +10624,7 @@ void domouse()
 {
 	static int mouse_down = 0;
 	static int32_t scrolldelay = 0;
-	int32_t x=gui_mouse_x();
-	int32_t y=gui_mouse_y();
+	auto [x, y] = zc_get_mouse();
 	double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
 	double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
 	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
@@ -10633,11 +10644,6 @@ void domouse()
 	mousecomboposition=c;
 	update_combobrush();
 	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
-	
-	if(!tooltip_trigger.rect(x,y))
-	{
-		clear_tooltip();
-	}
 	
 	++scrolldelay;
 	
@@ -10713,6 +10719,7 @@ void domouse()
 //-------------
 	if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
 	{
+		static int mapscr_tooltip_id = ttip_register_id();
 		bool did_ffttip = false;
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
@@ -10739,7 +10746,7 @@ void domouse()
 							i+1, ff.data,ff.data,
 							combo_class_buf[combobuf[ff.data].type].name,
 							(ff.script<=0 ? "(None)" : ffcmap[ff.script-1].scriptname.substr(0,400).c_str()));
-					update_tooltip(x, y, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, msg);
+					ttip_install(mapscr_tooltip_id, msg, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, x, y);
 					did_ffttip = true;
 					break;
 				}
@@ -10760,15 +10767,9 @@ void domouse()
 				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
 			}
 			
-			if(tooltip_current_combo != c)
-			{
-				clear_tooltip();
-			}
-			
 			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 			if(unsigned(c) < 176 && draw_mapscr && !gui_mouse_b())
 			{
-				tooltip_current_combo = c;
 				int cid = draw_mapscr->data[c];
 				newcombo const& cmb = combobuf[cid];
 				std::ostringstream oss;
@@ -10783,8 +10784,7 @@ void domouse()
 					oss << "\nCombo type: " << combo_class_buf[cmb.type].name;
 				if(cmb.label[0])
 					oss << "\nLabel: " << cmb.label;
-				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, oss.str().c_str());
-				// tool_tip_reset_timer_on_clear();
+				ttip_install(mapscr_tooltip_id, oss.str().c_str(), startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, x, y);
 			}
 		}
 	}
@@ -10963,9 +10963,13 @@ void domouse()
 	{
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
-		update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-		ttip_set_highlight_thickness(zoomed_minimap ? 2 : 1);
+		ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
+		ttip_set_highlight_thickness(minimap_tooltip_id, zoomed_minimap ? 2 : 1);
 		ttip_clear_timer();
+	}
+	else
+	{
+		ttip_uninstall(minimap_tooltip_id);
 	}
 	
 	// Mouse clicking stuff
@@ -18392,7 +18396,7 @@ const char *dirlist(int32_t index, int32_t *list_size)
         if(index>3)
             index=3;
             
-        return dirstr[index];
+        return mazedirstr[index];
     }
     
     *list_size=4;
@@ -23058,6 +23062,7 @@ void clearAssignSlotDlg()
 	assignscript_dlg[13].flags = 0;
 }
 
+//Deprecated for now, we'll be back later I swear!
 int32_t onSlotAssign()
 {
 	clearAssignSlotDlg();
@@ -23095,6 +23100,14 @@ int32_t onSlotAssign()
 	do_script_disassembly(scripts, false);
 	
 	do_slots(scripts, false);
+	return D_O_K;
+}
+
+void call_view_script_slots();
+
+int32_t onSlotPreview()
+{
+	call_view_script_slots();
 	return D_O_K;
 }
 
@@ -28593,7 +28606,7 @@ void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
 }
 void load_size_poses()
 {
-	ttip_remove();
+	ttip_uninstall_all();
 	
 	FONT* favcmdfont = get_custom_font(CFONT_FAVCMD);
 	FONT* guifont = get_custom_font(CFONT_GUI);
@@ -30388,6 +30401,7 @@ command_pair commands[cmdMAX]=
     { "Rule Templates",                     0, (intF) PickRuleTemplate },
     { "Smart Compile ZScript",              0, (intF) onSmartCompile },
 	{ "Autocombo Mode",                     0, (intF) onDrawingModeAuto },
+	{ "View Script Slots",                  0, (intF) onSlotPreview },
 };
 
 /********************************/
@@ -30724,23 +30738,8 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 	{
 		return;
 	}
-	
-	tooltip_trigger.x=tx;
-	tooltip_trigger.y=ty;
-	tooltip_trigger.w=tw;
-	tooltip_trigger.h=th;
-	
-	if(x<0||y<0) //if we want to clear the tooltip
-	{
-		ttip_remove();
-		return; //cancel
-	}
-	
-	y+=16;
 
-	ttip_add(tipmsg, x, y, scale);
-	if (TooltipsHighlight && tw > 0 && th > 0)
-		ttip_add_highlight(tx, ty, tw, th, fw, fh);
+	ttip_install(ttip_global_id, tipmsg, tx, ty, tw, th, x, y, fw, fh);
 }
 
 void ZQ_ClearQuestPath()

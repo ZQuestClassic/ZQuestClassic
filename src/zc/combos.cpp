@@ -2517,6 +2517,40 @@ bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, char xstate)
 	return false;
 }
 
+// TODO z3 !!! merge
+bool force_ex_door_trigger(uint lyr, uint pos, int dir, uint ind)
+{
+	if(lyr > 6 || pos > 175 || dir > 3 || ind > 7) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[tmp->data[pos]];
+	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
+	{
+		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
+		{
+			// TODO z3 !!! merge
+			// do_ex_trigger(lyr,pos);
+			return true;
+		}
+	}
+	return false;
+}
+bool force_ex_door_trigger_ffc(uint pos, int dir, uint ind)
+{
+	if(pos >= MAXFFCS || dir > 3 || ind > 7) return false;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.data];
+	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
+	{
+		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
+		{
+			// TODO z3 !!! merge
+			// do_ex_trigger_ffc(pos);
+			return true;
+		}
+	}
+	return false;
+}
+
 static bool triggering_generic_secrets = false;
 static bool triggering_generic_switchstate = false;
 
@@ -2577,6 +2611,13 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	{
 		exflag = 1<<cmb.exstate;
 		if (force_ex_trigger(rpos_handle))
+			return true;
+	}
+	if(cmb.exdoor_dir > -1)
+	{
+		// TODO z3 !! merge
+		int lyr = rpos_handle.layer;
+		if(force_ex_door_trigger(lyr,pos))
 			return true;
 	}
 	if(cmb.triggeritem) //Item requirement
@@ -2894,6 +2935,10 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 			{
 				setxmapflag(rpos_handle.screen_index, exflag);
 			}
+			if(cmb.exdoor_dir > -1)
+			{
+				set_xdoorstate(cmb.exdoor_dir, cmb.exdoor_ind);
+			}
 			
 			if(cmb.trigcopycat) //has a copycat set
 			{
@@ -2965,6 +3010,13 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 	{
 		exflag = 1<<cmb.exstate;
 		if(force_ex_trigger_ffc(ffc_handle))
+			return true;
+	}
+	if(cmb.exdoor_dir > -1)
+	{
+		// TODO z3 !! merge
+		int pos = ffc_handle.i;
+		if(force_ex_door_trigger_ffc(pos))
 			return true;
 	}
 	if(cmb.triggeritem) //Item requirement
@@ -3278,6 +3330,10 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 			if(cmb.exstate > -1 && trigexstate)
 			{
 				setxmapflag(ffc_handle.screen_index, exflag);
+			}
+			if(cmb.exdoor_dir > -1)
+			{
+				set_xdoorstate(cmb.exdoor_dir, cmb.exdoor_ind);
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set

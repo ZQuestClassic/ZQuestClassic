@@ -151,6 +151,6 @@ void render_zq()
 
 void clear_tooltip()
 {
-	ttip_remove();
+	ttip_uninstall_all();
 }
 
