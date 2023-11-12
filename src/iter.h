@@ -80,9 +80,12 @@ void for_every_ffc_in_region(T fn)
 			int c = screen->numFFC();
 			for (uint8_t i = 0; i < c; i++)
 			{
-				uint16_t id = screen_index_offset * MAXFFCS + i;
-				ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
-				fn(ffc_handle);
+				if (screen->ffcs[i].data)
+				{
+					uint16_t id = screen_index_offset * MAXFFCS + i;
+					ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
+					fn(ffc_handle);
+				}
 			}
 		}
 	}
@@ -106,9 +109,12 @@ void for_some_ffcs_in_region(T fn)
 			int c = screen->numFFC();
 			for (uint8_t i = 0; i < c; i++)
 			{
-				uint16_t id = screen_index_offset * MAXFFCS + i;
-				ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
-				if (!fn(ffc_handle)) return;
+				if (screen->ffcs[i].data)
+				{
+					uint16_t id = screen_index_offset * MAXFFCS + i;
+					ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
+					if (!fn(ffc_handle)) return;
+				}
 			}
 		}
 	}
@@ -132,9 +138,12 @@ std::optional<ffc_handle_t> find_ffc_in_region(T fn)
 			int c = screen->numFFC();
 			for (uint8_t i = 0; i < c; i++)
 			{
-				uint16_t id = screen_index_offset * MAXFFCS + i;
-				ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
-				if (fn(ffc_handle)) return ffc_handle;
+				if (screen->ffcs[i].data)
+				{
+					uint16_t id = screen_index_offset * MAXFFCS + i;
+					ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
+					if (fn(ffc_handle)) return ffc_handle;
+				}
 			}
 		}
 	}
