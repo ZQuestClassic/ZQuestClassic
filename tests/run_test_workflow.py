@@ -10,8 +10,9 @@ import subprocess
 from time import sleep
 from typing import List
 from pathlib import Path
+import itertools as it
 import intervaltree
-from github import Github, GithubException, WorkflowRun, PaginatedList
+from github import Github, GithubException, WorkflowRun, PaginatedList, Workflow
 from common import get_gha_artifacts, extract_tars, ReplayTestResults
 from workflow_job import WorkflowJob
 
@@ -58,16 +59,30 @@ def find_baseline_commit(gh: Github, repo_str: str):
             '--is-ancestor', sha, 'HEAD',
         ]) == 0
 
+    # TODO z3 !!! upstream
+    def look_for_workflow(workflow: Workflow.Workflow , branch: str):
+        # Only consider 10 most recent runs.
+        main_runs = it.islice(workflow.get_runs(branch=branch), 10)
+        most_recent_ok = next(
+            (r for r in main_runs if is_passing_workflow_run(r) and is_ancestor(r.head_sha)), None)
+        return most_recent_ok.head_sha
+
     repo = gh.get_repo(repo_str)
     ci_workflow = repo.get_workflow('ci.yml')
-    main_runs = ci_workflow.get_runs()
-    most_recent_ok = next(
-        (r for r in main_runs if is_passing_workflow_run(r) and is_ancestor(r.head_sha)), None)
-    if not most_recent_ok:
+
+    # First check workflows for current branch, if any. Then consider main branch.
+    current_branch = subprocess.check_output('git branch --show-current', shell=True, encoding='utf-8').strip()
+    sha = None
+    if current_branch != 'main':
+        sha = look_for_workflow(ci_workflow, current_branch)
+    if not sha:
+        sha = look_for_workflow(ci_workflow, 'main')
+
+    if not sha:
         raise Exception(
             'could not find recent successful workflow run to use as baseline')
 
-    return create_compare_git_ref(gh, repo_str, most_recent_ok.head_sha)
+    return create_compare_git_ref(gh, repo_str, sha)
 
 
 def create_compare_git_ref(gh: Github, repo_str: str, sha: str):
