@@ -2317,7 +2317,7 @@ rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 	{
 		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
 		{
-			return {nullptr, 0, 0, rpos_t::None};
+			return {nullptr, 0, 0, rpos_t::None, 0};
 		}
 
 		int layer = -ri->mapsref - 1;
@@ -2328,15 +2328,15 @@ rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 	if (!mapRefIsScrolling(mapref) && mapref < 0)
 	{
 		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
-		return {nullptr, 0, 0, rpos_t::None};
+		return {nullptr, 0, 0, rpos_t::None, 0};
 	}
 
 	if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
 	{
-		return {nullptr, 0, 0, rpos_t::None};
+		return {nullptr, 0, 0, rpos_t::None, 0};
 	}
 
-	return {GetMapscr(mapref), getScreen(mapref), 0, rpos};
+	return {GetMapscr(mapref), getScreen(mapref), 0, rpos, RPOS_TO_POS(rpos)};
 }
 
 ///------------------------------------------------//

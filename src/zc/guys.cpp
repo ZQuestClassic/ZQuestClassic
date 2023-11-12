@@ -18908,7 +18908,8 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			if(ctype==cSPINTILE1)
 			{
 				// Awaken spinning tile
-				rpos_handle_t rpos_handle = {screen, screen_index, 0, COMBOPOS_REGION(x, y)};
+				rpos_t rpos = COMBOPOS_REGION(x, y);
+				rpos_handle_t rpos_handle = {screen, screen_index, 0, rpos, RPOS_TO_POS(rpos)};
 				awaken_spinning_tile(rpos_handle);
 			}
 		}
@@ -18940,7 +18941,7 @@ void load_default_enemies(mapscr* screen, int screen_index)
 void update_slope_combopos(const rpos_handle_t& rpos_handle)
 {
 	mapscr* s = rpos_handle.screen;
-	int pos = rpos_handle.pos();
+	int pos = rpos_handle.pos;
 	newcombo const& cmb = combobuf[s->data[pos]];
 	
 	rpos_t id = SLOPE_ID((int)rpos_handle.rpos, rpos_handle.layer);

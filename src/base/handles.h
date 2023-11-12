@@ -30,8 +30,8 @@ struct rpos_handle_t
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;
 	rpos_t rpos = rpos_t::None;
-
-	int32_t pos() const;
+	// rpos % 176
+	int32_t pos;
 
 	int32_t data() const;
 	void set_data(int32_t value) const;

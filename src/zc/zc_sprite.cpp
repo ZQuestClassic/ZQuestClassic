@@ -303,7 +303,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 bool movingblock::check_hole() const
 {
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
-	size_t combopos = rpos_handle.pos();
+	size_t combopos = rpos_handle.pos;
 	if ((rpos_handle.sflag()==mfBLOCKHOLE)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKHOLE)
 		return true;
 
@@ -602,7 +602,7 @@ bool movingblock::animate(int32_t)
 			trigger = false; bhole = false;
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
-			int combopos = rpos_handle.pos();
+			int combopos = rpos_handle.pos;
 			int f1 = rpos_handle.sflag();
 			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
@@ -697,7 +697,7 @@ bool movingblock::animate(int32_t)
 				// 	if ((!trig_hole_same_only || rpos_handle.layer == blockLayer) && rpos_handle.rpos == comborpos)
 				// 		return;
 
-				// 	int pos = rpos_handle.pos();
+				// 	int pos = rpos_handle.pos;
 				// 	if (rpos_handle.screen->sflag[pos]==mfBLOCKTRIGGER
 				// 		|| combobuf[rpos_handle.data()].flag==mfBLOCKTRIGGER)
 				// 	{
@@ -836,7 +836,7 @@ bool movingblock::animate(int32_t)
 			trigger = false; bhole = false;
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
-			int combopos = rpos_handle.pos();
+			int combopos = rpos_handle.pos;
 			int32_t f1 = rpos_handle.sflag();
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;

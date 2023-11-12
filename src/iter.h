@@ -57,6 +57,7 @@ void for_every_rpos_in_region(T fn)
 			for (int pos = 0; pos < 176; ++pos)
 			{
 				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+				rpos_handle.pos = pos;
 				fn(rpos_handle);
 			}
 		}
@@ -168,6 +169,7 @@ void for_every_rpos_in_screen(mapscr* screen, int screen_index, T fn)
 		for (int pos = 0; pos < 176; ++pos)
 		{
 			rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+			rpos_handle.pos = pos;
 			fn(rpos_handle);
 		}
 	}

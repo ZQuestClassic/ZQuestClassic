@@ -419,17 +419,20 @@ rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_z3_scrolling_mode())
-		return {get_layer_scr(currmap, currscr, layer - 1), currscr, layer, rpos};
+		return {get_layer_scr(currmap, currscr, layer - 1), currscr, layer, rpos, RPOS_TO_POS(rpos)};
 	int screen_index = get_screen_index_for_rpos(rpos);
 	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
-	return {screen, screen_index, layer, rpos};
+	return {screen, screen_index, layer, rpos, RPOS_TO_POS(rpos)};
 }
 
 rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_z3_scrolling_mode())
-		return {get_layer_scr(currmap, currscr, layer - 1), currscr, layer, (rpos_t)COMBOPOS(x, y)};
+	{
+		int pos = COMBOPOS(x, y);
+		return {get_layer_scr(currmap, currscr, layer - 1), currscr, layer, (rpos_t)pos, pos};
+	}
 	return get_rpos_handle(COMBOPOS_REGION(x, y), layer);
 }
 
@@ -437,7 +440,7 @@ rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 rpos_handle_t get_rpos_handle_for_screen(int screen_index, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	return {get_layer_scr(currmap, screen_index, layer - 1), screen_index, layer, POS_TO_RPOS(pos, screen_index)};
+	return {get_layer_scr(currmap, screen_index, layer - 1), screen_index, layer, POS_TO_RPOS(pos, screen_index), pos};
 }
 
 // Return a pos_handle_t for a screen-specific `pos` (0-175).
@@ -445,7 +448,7 @@ rpos_handle_t get_rpos_handle_for_screen(int screen_index, int layer, int pos)
 rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	return {screen, screen_index, layer, POS_TO_RPOS(pos, screen_index)};
+	return {screen, screen_index, layer, POS_TO_RPOS(pos, screen_index), pos};
 }
 
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
@@ -1750,7 +1753,7 @@ void update_combo_cycling()
 				continue;
 
 			rpos_t rpos = (rpos_t)(rpos_base + i);
-			rpos_handle_t rpos_handle = {screen, screen_index, 0, rpos};
+			rpos_handle_t rpos_handle = {screen, screen_index, 0, rpos, i};
 			screen_combo_modify_preroutine(rpos_handle);
 			screen->data[i]=newdata[i];
 			if(newcset[i]>-1)
@@ -1852,7 +1855,7 @@ void update_combo_cycling()
 					if(newdata[i]!=-1)
 					{
 						rpos_t rpos = (rpos_t)(rpos_base + i);
-						rpos_handle_t rpos_handle = {layer_scr, screen_index, j, rpos};
+						rpos_handle_t rpos_handle = {layer_scr, screen_index, j, rpos, i};
 						screen_combo_modify_preroutine(rpos_handle);
 						layer_scr->data[i]=newdata[i];
 						if(newcset[i]>-1)
@@ -2410,6 +2413,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 		for (int32_t i=0; i<176; i++)
 		{
 			rpos_handle.rpos = POS_TO_RPOS(i, scr);
+			rpos_handle.pos = i;
 			// TODO z3 very slow! prob best to figure out how to not call this function so much.
 			newcombo const& cmb = combobuf[s->data[i]];
 			if(triggers && force_ex_trigger(rpos_handle, xflag))
@@ -6996,7 +7000,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 		byte togglegrid[176] = {0};
 		mapscr* scr = rpos_handle.screen;
 		int lyr = rpos_handle.layer;
-		int pos = rpos_handle.pos();
+		int pos = rpos_handle.pos;
 		newcombo const& cmb = combobuf[scr->data[pos]];
 		if(iscurscr)
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)

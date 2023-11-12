@@ -172,7 +172,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 		return;
 	}
 
-	int32_t pos = rpos_handle.pos();
+	int32_t pos = rpos_handle.pos;
 	int32_t layer = rpos_handle.layer;
 	mapscr* screen = rpos_handle.screen;
 	int32_t x, y;

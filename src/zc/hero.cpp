@@ -3874,7 +3874,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
 	mapscr* s = rpos_handle.screen;
-	int i = rpos_handle.pos();
+	int i = rpos_handle.pos;
         
     bool ignorescreen=false;
     
@@ -3984,7 +3984,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	int flag3 = cmb_ff.flag;
 	
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
-	int32_t i = rpos_handle.pos();
+	int32_t i = rpos_handle.pos;
 
 	bool ignorescreen=false;
 	bool ignoreffc=false;
@@ -4397,7 +4397,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
      //zprint("type is: %d\n", type);
 	
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
-    int32_t i = rpos_handle.pos();
+    int32_t i = rpos_handle.pos;
     
 	// bool checked = w->rposes_checked.contains({rpos_handle.layer, rpos_handle.rpos});
     if((get_bit(w->wscreengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
@@ -4550,7 +4550,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 	if(w->useweapon != wSword && !dontignore) return;
 
     auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
-    int32_t i = rpos_handle.pos();
+    int32_t i = rpos_handle.pos;
 
 	if (get_bit(w->wscreengrid,i)) return;
         
@@ -4965,7 +4965,7 @@ void HeroClass::check_slash_block(weapon *w)
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
     int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
-    int32_t i = rpos_handle.pos();
+    int32_t i = rpos_handle.pos;
         
 	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
 		type = cNONE;
@@ -5445,7 +5445,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	int32_t flag = MAPFLAGL(lyr,bx,by);
 	int32_t flag2 = scr_cmb.flag;
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, lyr - 1);
-	int32_t i = rpos_handle.pos();
+	int32_t i = rpos_handle.pos;
 	
 	bool pound=false;
 	
@@ -19694,6 +19694,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         }
         else
         {
+			// TODO z3 !! general question: will both checks always run, even if first is true? when optimzied.
             int32_t wtrx  = iswaterex_z3(MAPCOMBO(wx,wy), -1, wx,wy);
             int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+8,wy), -1, x+8,wy); //!DIMI: Is x + 8 intentional???
             

@@ -62,7 +62,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 	}
 
 	mapscr* screen = rpos_handle.screen;
-	int pos = rpos_handle.pos();
+	int pos = rpos_handle.pos;
 	int x, y;
 	COMBOXY_REGION(rpos_handle.rpos, x, y);
 
@@ -344,7 +344,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 {
 	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return;
 
-	int pos = rpos_handle.pos();
+	int pos = rpos_handle.pos;
 	int cid = rpos_handle.data();
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.type != cCSWITCHBLOCK) return;
@@ -492,7 +492,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 {
 	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return;
 
-	int pos = rpos_handle.pos();
+	int pos = rpos_handle.pos;
 	mapscr* tmp = rpos_handle.screen;
 	newcombo const& cmb = combobuf[rpos_handle.data()];
 	auto type = cmb.type;
@@ -722,7 +722,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 	// TODO z3 this is repeated lots of places.
 	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 
-	int32_t pos = rpos_handle.pos();
+	int32_t pos = rpos_handle.pos;
 	newcombo const& cmb = combobuf[rpos_handle.data()];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
@@ -1085,11 +1085,11 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 	for(int32_t i=0; i<3; i++)
 	{
 		mapscr* layer_scr = get_layer_scr(currmap, rpos_handle.screen_index, i - 1);
-		if(layer_scr->sflag[rpos_handle.pos()]==mfARMOS_ITEM)
+		if(layer_scr->sflag[rpos_handle.pos]==mfARMOS_ITEM)
 		{
 			itemflag = true; break;
 		}
-		if(combobuf[layer_scr->data[rpos_handle.pos()]].flag==mfARMOS_ITEM)
+		if(combobuf[layer_scr->data[rpos_handle.pos]].flag==mfARMOS_ITEM)
 		{
 			itemflag = true; break;
 		}
@@ -1361,7 +1361,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 	if (rpos_handle.layer != 0) return false; // Currently cannot activate on layers >0!
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 	
-	int pos = rpos_handle.pos();
+	int pos = rpos_handle.pos;
 	//!TODO Expand 'activation_counters' stuff to account for layers, so that layers >0 can be used
 	if (activation_counters[pos]) return false;
 	int32_t gc = 0;
@@ -1786,7 +1786,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 	tx += 8;
 	ty += 8;
 
-	int pos = rpos_handle.pos();
+	int pos = rpos_handle.pos;
 	newcombo const& cmb = combobuf[rpos_handle.data()];
 
 	int32_t thesfx = cmb.attribytes[0];
@@ -2375,7 +2375,7 @@ static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
 {
 	if(!copycat_id) return false;
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
-	int pos = rpos_handle.pos();
+	int pos = rpos_handle.pos;
 	
 	if (unsigned(pos) > 175) return false;
 	int32_t cid = rpos_handle.data();
@@ -2581,7 +2581,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 {
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 
-	int32_t pos = rpos_handle.pos();
+	int32_t pos = rpos_handle.pos;
 	cpos_info& timer = cpos_get(rpos_handle);
 	int32_t cid = rpos_handle.data();
 	int32_t cx, cy;
@@ -3678,7 +3678,7 @@ void handle_cpos_type(newcombo const& cmb, cpos_info& timer, const rpos_handle_t
 		{
 			// TODO z3 !!!
 			word cid = rpos_handle.data();
-			int pos = rpos_handle.pos();
+			int pos = rpos_handle.pos;
 			handle_crumble(cmb, timer, cid, CXY(pos), 16, 16);
 			rpos_handle.set_data(cid);
 			break;
@@ -3870,7 +3870,7 @@ void cpos_update() //updates with side-effects
 // TODO z3 merge ! del?
 // bool on_cooldown(const rpos_handle_t& rpos_handle)
 // {
-// 	int pos = rpos_handle.pos();
+// 	int pos = rpos_handle.pos;
 // 	if(unsigned(rpos_handle.layer) > 7 || unsigned(pos) > 176)
 // 		return false;
 // 	return get_combo_posinfo(rpos_handle).trig_cd != 0;

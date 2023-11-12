@@ -4,44 +4,39 @@
 #include "ffc.h"
 #include <variant>
 
-int32_t rpos_handle_t::pos() const
-{
-	return (int32_t)rpos % 176;
-}
-
 int32_t rpos_handle_t::data() const
 {
-	return screen->data[pos()];
+	return screen->data[pos];
 }
 
 void rpos_handle_t::set_data(int32_t value) const
 {
-	screen->data[pos()] = value;
+	screen->data[pos] = value;
 }
 
 void rpos_handle_t::increment_data() const
 {
-	screen->data[pos()] += 1;
+	screen->data[pos] += 1;
 }
 
 int32_t rpos_handle_t::cset() const
 {
-	return screen->cset[pos()];
+	return screen->cset[pos];
 }
 
 void rpos_handle_t::set_cset(int32_t value) const
 {
-	screen->cset[pos()] = value;
+	screen->cset[pos] = value;
 }
 
 uint8_t rpos_handle_t::sflag() const
 {
-	return screen->sflag[pos()];
+	return screen->sflag[pos];
 }
 
 void rpos_handle_t::set_sflag(uint8_t value) const
 {
-	screen->sflag[pos()] = value;
+	screen->sflag[pos] = value;
 }
 
 int32_t ffc_handle_t::data() const
