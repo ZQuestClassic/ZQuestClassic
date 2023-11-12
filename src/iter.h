@@ -64,6 +64,41 @@ void for_every_rpos_in_region(T fn)
 	}
 }
 
+// TODO z3 !! can for_every_rpos_in_region just be like this?
+// Iterates over every rpos in the current region, but only for screens that are valid.
+// Callback function: void fn(const pos_handle_t& rpos_handle)
+template<typename T, typename = std::enable_if_t<
+    std::is_invocable_v<T, const rpos_handle_t&>
+>>
+void for_every_valid_rpos_in_region(T fn)
+{
+	rpos_handle_t rpos_handle;
+	for (int screen_index = 0; screen_index < 128; screen_index++)
+	{
+		// TODO z3 should cache this
+		if (!is_in_current_region(screen_index)) continue;
+
+		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
+		rpos_handle.screen_index = screen_index;
+		for (int lyr = 0; lyr <= 6; ++lyr)
+		{
+			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
+			if (!scr->valid)
+				continue;
+
+			rpos_handle.screen = scr;
+			rpos_handle.layer = lyr;
+
+			for (int pos = 0; pos < 176; ++pos)
+			{
+				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+				rpos_handle.pos = pos;
+				fn(rpos_handle);
+			}
+		}
+	}
+}
+
 // Iterates over every ffc in the current region.
 // Callback function: void fn(const ffc_handle_t& ffc_handle)
 template<typename T, typename = std::enable_if_t<

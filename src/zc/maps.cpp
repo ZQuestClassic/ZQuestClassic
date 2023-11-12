@@ -5560,7 +5560,7 @@ void openshutters()
 			opened_door = true;
 		}
 	
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_valid_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
 		newcombo const& cmb = combobuf[rpos_handle.data()];
 		if (cmb.triggerflags[0] & combotriggerSHUTTER)
 		{
