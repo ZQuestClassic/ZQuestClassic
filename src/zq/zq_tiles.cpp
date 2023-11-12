@@ -1011,35 +1011,6 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 	return over;
 }
 
-bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin)
-{
-	bool over=false;
-	
-	while(gui_mouse_b())
-	{
-		custom_vsync();
-		
-		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
-		{
-			if(!over)
-			{
-				draw_text_button(screen,x,y,w,h,text,fg,bg,D_SELECTED,jwin);
-				over=true;
-			}
-		}
-		else
-		{
-			if(over)
-			{
-				draw_text_button(screen,x,y,w,h,text,fg,bg,0,jwin);
-				over=false;
-			}
-		}
-	}
-	
-	return over;
-}
-
 bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin, bool sel)
 {
 	bool over=false;
@@ -1226,67 +1197,6 @@ void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_
 			}
 		}
 	}
-}
-
-void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg, bool value)
-{
-	draw_checkbox(dest,x,y,sz,sz,bg,fg,value);
-}
-void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg, bool value)
-{
-	//these are here to bypass compiler warnings about unused arguments
-	bg=bg;
-	fg=fg;
-	
-	//  rect(dest,x, y, x+8, y+8, fg);
-	//  line(dest,x+1,y+1,x+7,y+7,value?fg:bg);
-	//  line(dest,x+1,y+7,x+7,y+1,value?fg:bg);
-	
-	jwin_draw_frame(dest, x, y, wid, hei, FR_DEEP);
-	rectfill(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTBG]);
-	
-	if(value)
-	{
-		line(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTFG]);
-		line(dest, x+2, y+hei-3, x+wid-3, y+2, jwin_pal[jcTEXTFG]);
-	}
-}
-
-
-
-bool do_scheckbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value, int xoffs, int yoffs)
-{
-	return do_checkbox(dest,x,y,sz,sz,bg,fg,value,xoffs,yoffs);
-}
-bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg,int32_t &value, int xoffs, int yoffs)
-{
-	bool over=false;
-	
-	while(gui_mouse_b())
-	{
-		custom_vsync();
-		
-		if(isinRect(gui_mouse_x()-xoffs,gui_mouse_y()-yoffs,x,y,x+wid-1,y+hei-1))               //if on checkbox
-		{
-			if(!over)                                             //if wasn't here before
-			{
-				value=value?0:1;
-				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
-				over=true;
-			}
-		}
-		else                                                    //if not on checkbox
-		{
-			if(over)                                              //if was here before
-			{
-				value=value?0:1;
-				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
-				over=false;
-			}
-		}
-	}
-	
-	return over;
 }
 
 //*************** tile flood fill stuff **************
@@ -1630,13 +1540,13 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	draw_text_button(screen2,ok_button.x,ok_button.y,ok_button.w,ok_button.h,"OK",vc(1),vc(14),0,true);
 	draw_text_button(screen2,cancel_button.x,cancel_button.y,cancel_button.w,cancel_button.h,"Cancel",vc(1),vc(14),0,true);
 	draw_text_button(screen2,edit_button.x,edit_button.y,edit_button.w,edit_button.h,"Edit Pal",vc(1),vc(14),0,true);
-	draw_checkbox(screen2,hlcbox.x, hlcbox.y, hlcbox.w, hlcbox.h, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], tthighlight);
+	draw_checkbox(screen2,hlcbox.x, hlcbox.y, hlcbox.w, hlcbox.h, tthighlight);
 	gui_textout_ln(screen2,font,(unsigned char*)"Highlight Hover",hlcbox.x+hlcbox.w+2,hlcbox.y+hlcbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	
-	draw_checkbox(screen2,quartgrid_cbox.x, quartgrid_cbox.y, quartgrid_cbox.w, quartgrid_cbox.h, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], show_quartgrid);
+	draw_checkbox(screen2,quartgrid_cbox.x, quartgrid_cbox.y, quartgrid_cbox.w, quartgrid_cbox.h, show_quartgrid);
 	gui_textout_ln(screen2,font,(unsigned char*)"Quarter Grid",quartgrid_cbox.x+quartgrid_cbox.w+2,quartgrid_cbox.y+quartgrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	
-	draw_checkbox(screen2,hidegrid_cbox.x, hidegrid_cbox.y, hidegrid_cbox.w, hidegrid_cbox.h, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], hide_grid);
+	draw_checkbox(screen2,hidegrid_cbox.x, hidegrid_cbox.y, hidegrid_cbox.w, hidegrid_cbox.h, hide_grid);
 	gui_textout_ln(screen2,font,(unsigned char*)"Hide Grid",hidegrid_cbox.x+hidegrid_cbox.w+2,hidegrid_cbox.y+hidegrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	
 	bool qgrd = show_quartgrid && qgrid_tool(tool);
@@ -2970,7 +2880,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			
 			if(ok_button.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_text_button(ok_button.x,ok_button.y,ok_button.w,ok_button.h,"OK",vc(1),vc(14),true))
+				if(do_text_button(ok_button.x,ok_button.y,ok_button.w,ok_button.h,"OK"))
 				{
 					done=2;
 				}
@@ -2978,7 +2888,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			
 			if(cancel_button.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_text_button(cancel_button.x,cancel_button.y,cancel_button.w,cancel_button.h,"Cancel",vc(1),vc(14),true))
+				if(do_text_button(cancel_button.x,cancel_button.y,cancel_button.w,cancel_button.h,"Cancel"))
 				{
 					done=1;
 				}
@@ -2986,7 +2896,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			
 			if(edit_button.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_text_button(edit_button.x,edit_button.y,edit_button.w,edit_button.h,"Edit Pal",vc(1),vc(14),true))
+				if(do_text_button(edit_button.x,edit_button.y,edit_button.w,edit_button.h,"Edit Pal"))
 				{
 					popup_menu(colors_menu,edit_button.x+2,edit_button.y-40);
 					get_palette(tpal);
@@ -3004,25 +2914,29 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				}
 			}
 			
-			int sqr_clicked = reflbtn_grid.rectind(temp_mouse_x,temp_mouse_y);
-			if(sqr_clicked > -1)
+			int sqr_clicked;
+			if(show_quartgrid && qgrid_tool(tool))
 			{
-				auto& sqr = reflbtn_grid.subsquare(sqr_clicked);
-				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[sqr_clicked],vc(1),vc(14),true))
-					refl_flags ^= (1<<sqr_clicked);
+				sqr_clicked = reflbtn_grid.rectind(temp_mouse_x,temp_mouse_y);
+				if(sqr_clicked > -1)
+				{
+					auto& sqr = reflbtn_grid.subsquare(sqr_clicked);
+					if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[sqr_clicked]))
+						refl_flags ^= (1<<sqr_clicked);
+				}
 			}
 			sqr_clicked = xmodebtn_grid.rectind(temp_mouse_x,temp_mouse_y);
 			if(sqr_clicked > -1)
 			{
 				auto& sqr = xmodebtn_grid.subsquare(sqr_clicked);
-				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,xmodebtn_names[sqr_clicked],vc(1),vc(14),true))
+				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,xmodebtn_names[sqr_clicked]))
 					xmode = sqr_clicked;
 			}
 			sqr_clicked = bgmodebtn_grid.rectind(temp_mouse_x,temp_mouse_y);
 			if(sqr_clicked > -1)
 			{
 				auto& sqr = bgmodebtn_grid.subsquare(sqr_clicked);
-				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,bgmodebtn_names[sqr_clicked],vc(1),vc(14),true))
+				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,bgmodebtn_names[sqr_clicked]))
 					bgmode = sqr_clicked;
 			}
 			
@@ -3038,7 +2952,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 				if(color_info_btn.rect(temp_mouse_x,temp_mouse_y))
 				{
-					if(do_text_button(color_info_btn.x,color_info_btn.y,color_info_btn.w,color_info_btn.h,"Show Colors",vc(1),vc(14),true))
+					if(do_text_button(color_info_btn.x,color_info_btn.y,color_info_btn.w,color_info_btn.h,"Show Colors"))
 					{
 						showcolortip = 1;
 						zc_set_config("ZQ_GUI","tile_edit_colornames",1);
@@ -3049,7 +2963,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			
 			if(hlcbox.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_checkbox(screen2,hlcbox.x,hlcbox.y,hlcbox.w,hlcbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],tthighlight))
+				if(do_checkbox(screen2,hlcbox.x,hlcbox.y,hlcbox.w,hlcbox.h,tthighlight))
 				{
 					zc_set_config("ZQ_GUI","tile_edit_fancyhighlight",tthighlight);
 					redraw=true;
@@ -3057,12 +2971,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			}
 			if(quartgrid_cbox.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_checkbox(screen2,quartgrid_cbox.x,quartgrid_cbox.y,quartgrid_cbox.w,quartgrid_cbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],show_quartgrid))
+				if(do_checkbox(screen2,quartgrid_cbox.x,quartgrid_cbox.y,quartgrid_cbox.w,quartgrid_cbox.h,show_quartgrid))
 					redraw=true;
 			}
 			if(hidegrid_cbox.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_checkbox(screen2,hidegrid_cbox.x,hidegrid_cbox.y,hidegrid_cbox.w,hidegrid_cbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],hide_grid))
+				if(do_checkbox(screen2,hidegrid_cbox.x,hidegrid_cbox.y,hidegrid_cbox.w,hidegrid_cbox.h,hide_grid))
 					redraw=true;
 			}
 			
@@ -5296,31 +5210,31 @@ void grab_tile(int32_t tile,int32_t &cs)
 				}
 				else if(isinRect(x,y,button_x,grab_ok_button_y,button_x+bwidth,grab_ok_button_y+bheight))
 				{
-					if(do_text_button(button_x,grab_ok_button_y,bwidth,bheight,"OK",vc(1),vc(14),true))
+					if(do_text_button(button_x,grab_ok_button_y,bwidth,bheight,"OK"))
 						done=2;
 				}
 				else if(isinRect(x,y,leech_button_x,leech_button_y,leech_button_x+bwidth,leech_button_y+bheight))
 				{
-					if(do_text_button(leech_button_x,leech_button_y,bwidth,bheight,"Leech",vc(1),vc(14),true))
+					if(do_text_button(leech_button_x,leech_button_y,bwidth,bheight,"Leech"))
 					{
 						doleech=true;
 					}
 				}
 				else if(isinRect(x,y,button_x,grab_cancel_button_y,button_x+bwidth,grab_cancel_button_y+bheight))
 				{
-					if(do_text_button(button_x,grab_cancel_button_y,bwidth,bheight,"Cancel",vc(1),vc(14),true))
+					if(do_text_button(button_x,grab_cancel_button_y,bwidth,bheight,"Cancel"))
 						done=1;
 				}
 				else if(isinRect(x,y,button_x,file_button_y,button_x+bwidth,file_button_y+bheight))
 				{
-					if(do_text_button(button_x,file_button_y,bwidth,bheight,"File",vc(1),vc(14),true))
+					if(do_text_button(button_x,file_button_y,bwidth,bheight,"File"))
 					{
 						dofile=true;
 					}
 				}
 				else if(imagetype == ftBMP && isinRect(x,y,rec_button_x, rec_button_y, rec_button_x+bwidth, rec_button_y+bheight))
 				{
-					if(do_text_button(rec_button_x,rec_button_y,bwidth,bheight,"Recolor",vc(1),vc(14),true))
+					if(do_text_button(rec_button_x,rec_button_y,bwidth,bheight,"Recolor"))
 					{
 						if(pal)
 						{
@@ -5603,7 +5517,7 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 			{
 				if (InvalidBG == 2)
 				{
-					draw_checkerboard(dest, x, y, 0, 0, l + 2);
+					draw_checkerboard(dest, x, y, w);
 				}
 				else if(InvalidBG == 1)
 				{
@@ -5679,7 +5593,7 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	{
 		if (InvalidBG == 2)
 		{
-			draw_checkerboard(screen2, 34 * mul, 216 * mul + yofs, 8 * mul, 8 * mul, 16 * mul);
+			draw_checkerboard(screen2, 34 * mul, 216 * mul + yofs, 16 * mul);
 		}
 		else if(InvalidBG == 1)
 		{
@@ -5780,7 +5694,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	{
 		if (InvalidBG == 2)
 		{
-			draw_checkerboard(screen2, 124 * mul, 216 * mul + yofs, 8 * mul, 8 * mul, 16 * mul);
+			draw_checkerboard(screen2, 124 * mul, 216 * mul + yofs, 16 * mul);
 		}
 		else if(InvalidBG == 1)
 		{
@@ -16194,7 +16108,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				FONT *tf = font;
 				font = tfont;
 				
-				if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab"))
 				{
 					font = tf;
 					grab_tile(tile,cs);
@@ -16210,7 +16124,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				FONT *tf = font;
 				font = tfont;
 				
-				if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit"))
 				{
 					font = tf;
 					edit_tile(tile,flip,cs);
@@ -16225,7 +16139,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				FONT *tf = font;
 				font = tfont;
 				
-				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export"))
 				{
 					strcpy(datapath, "tileset.png");
 					if(getname("Export Tile Page (.png)","png",NULL,datapath,true))
@@ -16246,7 +16160,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				FONT *tf = font;
 				font = tfont;
 				
-				if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor"))
 				{
 					if(massRecolorSetup(cs))
 					{
@@ -16267,7 +16181,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				FONT *tf = font;
 				font = tfont;
 				
-				if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done"))
 				{
 					done=1;
 				}
@@ -16751,7 +16665,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	{
 		if (InvalidBG == 2)
 		{
-			draw_checkerboard(screen2, 31 * mul, 216 * mul + yofs, 8 * mul, 8 * mul, 16 * mul);
+			draw_checkerboard(screen2, 31 * mul, 216 * mul + yofs, 16 * mul);
 		}
 		else if(InvalidBG == 1)
 		{
@@ -16807,7 +16721,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		{
 			if (InvalidBG == 2)
 			{
-				draw_checkerboard(screen2, 136 * mul, 216 * mul + yofs, 8 * mul, 8 * mul, 16 * mul);
+				draw_checkerboard(screen2, 136 * mul, 216 * mul + yofs, 16 * mul);
 			}
 			else if(InvalidBG == 1)
 			{
@@ -16836,7 +16750,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	FONT *tf = font;
 	font = tfont;
 	
-	draw_checkbox(screen2,320,440+yofs,16,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],combopage_animate);
+	draw_checkbox(screen2,320,440+yofs,16,combopage_animate);
 	textprintf_ex(screen2,tfont,320+18,440+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Animate");
 	
 	if(buttons&2)
@@ -17187,7 +17101,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				FONT *tf = font;
 				font = tfont;
 				
-				if(do_text_button((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done"))
 				{
 					done=2;
 				}
@@ -17905,7 +17819,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				FONT *tf = font;
 				font = tfont;
 				
-				if(do_text_button((202*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button((202*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Edit"))
 				{
 					font = tf;
 					edit_combo(tile,false,cs);
@@ -17919,7 +17833,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				FONT *tf = font;
 				font = tfont;
 				
-				if(do_text_button((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done"))
 				{
 					done=1;
 				}
@@ -19494,11 +19408,9 @@ int32_t readcomboaliasfile(PACKFILE *f)
 				return 0;
 			}
 			//These values are flexible, and may differ in size, so we delete them 
-		//and recreate them at the correct size on the pointer. 
-		delete[] temp_alias.combos;
-		temp_alias.combos = new word[count2];
-		delete[] temp_alias.csets;
-		temp_alias.csets = new byte[count2];
+			//and recreate them at the correct size on the pointer.
+			temp_alias.combos.clear();
+			temp_alias.csets.clear();
 			for(int32_t k=0; k<count2; k++)
 			{
 				if(!p_igetw(&tempword,f))
@@ -19576,7 +19488,6 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	
 	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
 	{
 		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
@@ -19617,80 +19528,71 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 	{
 		memset(&temp_alias, 0, sizeof(temp_alias));
 		if(!p_igetw(&temp_alias.combo,f))
-			{
-				return 0;
-			}
+		{
+			return 0;
+		}
 			
-			if(!p_getc(&temp_alias.cset,f))
-			{
-				return 0;
-			}
+		if(!p_getc(&temp_alias.cset,f))
+		{
+			return 0;
+		}
 			
-			int32_t count2 = 0;
+		int32_t count2 = 0;
 		
 		if(!p_igetl(&count2,f))
-			{
-				return 0;
-			}
+		{
+			return 0;
+		}
 		
-			if(!p_getc(&temp_alias.width,f))
-			{
-				return 0;
-			}
+		if(!p_getc(&temp_alias.width,f))
+		{
+			return 0;
+		}
 			
-			if(!p_getc(&temp_alias.height,f))
-			{
-				return 0;
-			}
+		if(!p_getc(&temp_alias.height,f))
+		{
+			return 0;
+		}
 			
-			if(!p_getc(&temp_alias.layermask,f))
-			{
-				return 0;
-			}
+		if(!p_getc(&temp_alias.layermask,f))
+		{
+			return 0;
+		}
 		//These values are flexible, and may differ in size, so we delete them 
-		//and recreate them at the correct size on the pointer. 
-			delete[] temp_alias.combos;
-		temp_alias.combos = new word[count2];
-		delete[] temp_alias.csets;
-		temp_alias.csets = new byte[count2];
+		//and recreate them at the correct size on the pointer.
+		temp_alias.combos.clear();
+		temp_alias.csets.clear();
 		
-			for(int32_t k=0; k<count2; k++)
-			{
-				if(!p_igetw(&tempword,f))
-				{
-					return 0;
-				}
-		else
+		for(int32_t k=0; k<count2; k++)
 		{
-			temp_alias.combos[k] = tempword;
-		}
+			if(!p_igetw(&tempword,f))
+			{
+				return 0;
 			}
+			else
+			{
+				temp_alias.combos[k] = tempword;
+			}
+		}
 			
-			for(int32_t k=0; k<count2; k++)
-			{
-				if(!p_getc(&tempcset,f))
-				{
-					return 0;
-				}
-		else
+		for(int32_t k=0; k<count2; k++)
 		{
-			temp_alias.csets[k] = tempcset;
-		}
+			if(!p_getc(&tempcset,f))
+			{
+				return 0;
 			}
-		
+			else
+			{
+				temp_alias.csets[k] = tempcset;
+			}
+		}
 		
 		if ( start+(tilect) < MAXCOMBOALIASES )
 		{
 			memcpy(&combo_aliases[start+(tilect)],&temp_alias,sizeof(temp_alias));
 		}
 	}
-	
-	
-	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
-	
-			
 	return 1;
-	
 }
 int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 {

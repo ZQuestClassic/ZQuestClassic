@@ -15,13 +15,13 @@
 //
 
 #include "base/handles.h"
-// #include "zc/maps.h" TODO rm !
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/msgstr.h"
 #include "base/packfile.h"
 #include "base/misctypes.h"
 #include "base/initdata.h"
+#include "base/version.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
@@ -8408,8 +8408,11 @@ int32_t get_register(const int32_t arg)
 
 		
 		case ZELDAVERSION:
-			ret = ZC_VERSION; //Do *not* multiply by 10,000!
+		{
+			auto version = getVersion();
+			ret = version.major * 10000 + version.minor * 100 + version.patch; //Do *not* multiply by 10,000!
 			break;
+		}
 		case ZELDABUILD:
 			ret = (int32_t)VERSION_BUILD*10000;
 			break;
@@ -8422,13 +8425,13 @@ int32_t get_register(const int32_t arg)
 		
 		case ZELDABETATYPE:
 		{
-			ret = int32_t(ALPHA_STATE*10000);
+			ret = int32_t(getAlphaState()*10000);
 			break;
 		}
 		case ZELDABETA:
 		{
-			ret = int32_t(ALPHA_VER*10000);
-			if(ZC_IS_NIGHTLY) //Nightly 111/112 should return '111.5' not '112'
+			ret = int32_t(1*10000);
+			if(!isStableRelease()) //Nightly 111/112 should return '111.5' not '112'
 				ret -= 5000;
 			break;
 		}
@@ -48518,15 +48521,15 @@ void clearConsole()
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
 	
 	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Running: %s\n", getProgramVerStr());
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Running: %s\n", getVersionString());
 	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
 	{
 		char const* verstr = QHeader.getVerStr();
 		if(verstr[0])
 		{
 			auto vercmp = QHeader.compareVer();
-			auto astatecmp = compare(int32_t(QHeader.getAlphaState()), ALPHA_STATE);
-			auto avercmp = compare(QHeader.getAlphaVer(), ALPHA_VER);
+			auto astatecmp = compare(int32_t(QHeader.getAlphaState()), getAlphaState());
+			auto avercmp = compare(QHeader.getAlphaVer(), 0);
 			auto timecmp = QHeader.compareDate();
 			if(!(vercmp || astatecmp || avercmp))
 			{

@@ -28,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-ALLEGRO_ICON            ICON                    "./zq_icon.ico"
+ALLEGRO_ICON            ICON                    "./zc_editor_icon.ico"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,8 @@ END
 //
 
 #include "src/metadata/metadata.h"
+#include "src/base/version_header.h"
+
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION V_ZC_FIRST,V_ZC_SECOND,V_ZC_THIRD,V_ZC_FOURTH
  PRODUCTVERSION V_ZC_FIRST,V_ZC_SECOND,V_ZC_THIRD,V_ZC_FOURTH
@@ -79,12 +81,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", COMPANY_NAME
             VALUE "FileDescription", ZQ_EDITOR_NAME
-            VALUE "FileVersion", ZQ_EDITOR_V
+            VALUE "FileVersion", ZC_VERSION
             VALUE "InternalName", "zq_icon"
             VALUE "LegalCopyright", ZQ_EDITOR_COPYRIGHT
             VALUE "OriginalFilename", ZQ_EDITOR_NAME
             VALUE "ProductName", ZQ_EDITOR_NAME
-            VALUE "ProductVersion", ZQ_EDITOR_V
+            VALUE "ProductVersion", ZC_VERSION
         END
     END
     BLOCK "VarFileInfo"
@@ -103,7 +105,8 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.h
 //
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

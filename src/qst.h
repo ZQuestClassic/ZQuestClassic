@@ -174,7 +174,7 @@ extern word door_combo_set_count;
 extern int32_t favorite_combos[MAXFAVORITECOMBOS];
 extern byte favorite_combo_modes[MAXFAVORITECOMBOS];
 
-char *VerStr(int32_t version);
+char *VerStrFromHex(int32_t version);
 char *ordinal(int32_t num);
 
 void clear_quest_tmpfile();
@@ -266,7 +266,6 @@ void init_msgstr(MsgStr *str);
 int32_t get_version_and_build(PACKFILE *f, word *version, word *build);
 bool find_section(PACKFILE *f, int32_t section_id_requested);
 
-extern void delete_combo_aliases();
 void reset_subscreen(subscreen_group *tempss);
 void reset_subscreens();
 int32_t setupsubscreens();

@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <ctype.h>
 #include <sstream>
+#include "base/version.h"
 #include "base/zc_alleg.h"
 #include "gamedata.h"
 #include "zc/zc_init.h"
@@ -5984,7 +5985,7 @@ static DIALOG quest_dlg[] =
 	{ jwin_text_proc,		 89,   94,   141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Version:", NULL,  NULL },
 	{ jwin_text_proc,		 160,  94,   64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   header_version_nul_term, NULL,  NULL },
 	{ jwin_text_proc,		 89,   104,  141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "ZQ Version:", NULL,  NULL },
-	{ jwin_text_proc,		 184,  104,  64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_s, NULL,  NULL },
+	{ jwin_text_proc,		 130,  104,  64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_s, NULL,  NULL },
 	{ jwin_text_proc,		 84,   126,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Title:", NULL,  NULL },
 	{ jwin_textbox_proc,   84,   136,  152,  24,   0,	   0,	   0,	   0,		 0,		0,	   QHeader.title, NULL,  NULL },
 	{ jwin_text_proc,		 84,   168,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Author:", NULL,  NULL },
@@ -6539,15 +6540,13 @@ int32_t onAbout()
 {
 	char buf1[80]={0};
 	std::ostringstream oss;
-	sprintf(buf1,"%s, Version: %s", ZC_PLAYER_NAME,ZC_PLAYER_V);
+	sprintf(buf1,ZC_PLAYER_NAME);
 	oss << buf1 << '\n';
-	sprintf(buf1, "%s", ALPHA_VER_STR);
+	sprintf(buf1,"Version: %s", getVersionString());
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';
 	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
-	oss << buf1 << '\n';
-	sprintf(buf1, "Tag: %s", getReleaseTag());
 	oss << buf1 << '\n';
 	
 	InfoDialog("About ZC", oss.str()).show();
@@ -6566,7 +6565,7 @@ int32_t onQuest()
 	else
 		sprintf(str_a,"%d",QHeader.quest_number);
 		
-	sprintf(str_s,"%s",VerStr(QHeader.zelda_version));
+	sprintf(str_s,"%s",QHeader.getVerStr());
 	
 	quest_dlg[11].d1 = quest_dlg[9].d1 = 0;
 	quest_dlg[11].d2 = quest_dlg[9].d2 = 0;

@@ -10,6 +10,7 @@
 #include "base/misctypes.h"
 
 #include "base/zdefs.h"
+#include "music_playback.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "qst.h"
@@ -120,9 +121,39 @@ static void selectscreen()
 	
 	framerect(scrollbuf, 27, 51, 26*8-6, 20*8-6,0x03);
 	
-	textout_ex(scrollbuf,get_zc_font(font_zfont),"- S E L E C T -",64,24,1,0); //could be in module at some point
 	textout_ex(scrollbuf,get_zc_font(font_zfont)," NAME ",80,48,1,0);
 	textout_ex(scrollbuf,get_zc_font(font_zfont)," LIFE ",152,48,1,0);
+
+	static std::string logo_path;
+	if (logo_path.empty())
+	{
+		if (exists("assets/logo.png"))
+			logo_path = "assets/logo.png";
+		else
+			logo_path = "assets/zc/ZC_Logo.png";
+	}
+
+	static RenderTreeItem rti_logo("logo");
+	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap(logo_path.c_str());
+
+	if (logo_bitmap)
+	{
+		static float aspect_ratio = (float)al_get_bitmap_width(logo_bitmap) / al_get_bitmap_height(logo_bitmap);
+		rti_logo.bitmap = logo_bitmap;
+		rti_logo.freeze = true;
+		rti_game.add_child(&rti_logo);
+
+		int target_height = 46;
+		int target_width = target_height * aspect_ratio;
+		float scale = (float)target_height / al_get_bitmap_height(rti_logo.bitmap);
+		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
+		rti_logo.set_transform({.x = x, .y = -5, .xscale = scale, .yscale = scale});
+	}
+	else
+	{
+		textout_ex(scrollbuf,get_zc_font(font_zfont),"- S E L E C T -",64,24,1,0);
+	}
+
 	select_mode();
 	RAMpal[CSET(9)+1]=NESpal(0x15);
 	RAMpal[CSET(9)+2]=NESpal(0x27);
@@ -1410,7 +1441,12 @@ void titlescreen(int32_t lsave)
 	Playing=Paused=GameLoaded=false;
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
-	
+
+	if (exists("assets/title_music.mp3"))
+		try_zcmusic("assets/title_music.mp3", "", 0, 0, get_emusic_volume());
+	else
+		try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, get_emusic_volume() * 0.6);
+
 	if(q==qCONT)
 	{
 		cont_game();
@@ -1453,9 +1489,10 @@ void titlescreen(int32_t lsave)
 			}
 		}
 	}
-	
+
 	if(!Quit)
 	{
+		zcmusic_stop(zcmusic);
 		init_game();
 	}
 }

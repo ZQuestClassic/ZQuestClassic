@@ -50,7 +50,7 @@ typedef struct
 #endif
 } ZCMUSIC;
 
-ZCM_EXTERN ZCMUSIC* zcmusic_load_for_quest(const char* filename, char* quest_path);
+ZCM_EXTERN ZCMUSIC* zcmusic_load_for_quest(const char* filename, const char* quest_path);
 
 ZCM_EXTERN bool zcmusic_init(int32_t flags = -1);
 ZCM_EXTERN bool zcmusic_poll(int32_t flags = -1);

@@ -8,6 +8,7 @@ from typing import Dict, List
 from git_hooks.common import valid_types, valid_scopes
 
 release_oneliners = {
+    '2.55-alpha-120': 'The one with crumbling floors, moving platforms, and ExDoors.',
     '2.55-alpha-119': 'The one with subscreen scripts and an autocombo drawing mode.',
     '2.55-alpha-118': 'The one with the bug fixes.',
     '2.55-alpha-117': 'The one with the subscreen rewrite, software updater, music mixing, and individual save files.',
@@ -26,6 +27,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -33,6 +35,8 @@ parser.add_argument(
 parser.add_argument('--from')
 parser.add_argument('--to', default='HEAD')
 parser.add_argument('--for-nightly', type=str2bool, default=False)
+parser.add_argument('--version')
+parser.add_argument('--generate-all', action='store_true')
 
 args = parser.parse_args()
 
@@ -384,7 +388,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         if commit.hash in overrides_squashes:
             manual_squash_hash = None
         elif manual_squash_hash:
-            match = re.match(r'(\w+(\(\w+\))?)<(: .+)', commit.subject)
+            match = re.match(r'(\w+(?:\(\w+\))?)<(: .+)', commit.subject)
             if match:
                 commit.subject = ''.join(filter(None,match.groups()))
                 if manual_squash_hash in manual_squashes:
@@ -449,6 +453,25 @@ for path in (script_dir / 'changelog_overrides').rglob('*.md'):
     if path.name != 'README.md':
         parse_override_file(path)
 
+if args.generate_all:
+    tags = subprocess.check_output(
+        'git tag --list "2.55-alpha-11?" "2.55-alpha-12?" "3*"', shell=True, encoding='utf-8').strip().splitlines()
+    for i, tag in enumerate(tags):
+        if tag in ['2.55-alpha-113', '2.55-alpha-112', '2.55-alpha-111', '2.55-alpha-110']:
+            continue
+        # This one was manually created.
+        if tag == '2.55-alpha-114':
+            continue
+
+        changelog = generate_changelog(tags[i - 1], tag)
+        date = subprocess.check_output(
+            f'git show --no-patch --format=%ci {tag}', shell=True, encoding='utf-8').split(' ')[0]
+        date = date.replace('-', '_')
+
+        (root_dir / 'changelogs' / f'{date}-{tag}.txt').write_text(changelog)
+
+    exit(0)
+
 from_sha = getattr(args, 'from', None)
 if from_sha:
     branch = from_sha
@@ -456,17 +479,23 @@ else:
     branch = subprocess.check_output(
         'git describe --tags --abbrev=0', shell=True, encoding='utf-8').strip()
 
+if args.version:
+    if args.format == 'markdown':
+        print(f'To download this release, [visit the ZQuest Classic website](https://zquestclassic.com/releases/{args.version}/) or see the bottom of this page.\n')
+    else:
+        print(f'https://zquestclassic.com/releases/{args.version}/\n')
+
 if args.for_nightly:
     print(f'The following are the changes since {branch}:\n\n')
     print(generate_changelog(branch, args.to))
 
-    previous_full_release_tag = subprocess.check_output(
-        'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8').strip()
-    if previous_full_release_tag != branch:
+    previous_stable_release_tag = subprocess.check_output(
+        'git describe --tags --abbrev=0 --match "*.*.*" --match "2.55-alpha-1??" --exclude "*-nightly"', shell=True, encoding='utf-8').strip()
+    if previous_stable_release_tag != branch:
         print('-------')
-        print(f'The following are the changes since {previous_full_release_tag}:\n\n')
+        print(f'The following are the changes since {previous_stable_release_tag}:\n\n')
         print('<details>\n<summary>Expand changelog</summary>\n')
-        print(generate_changelog(previous_full_release_tag, args.to))
+        print(generate_changelog(previous_stable_release_tag, args.to))
         print('\n</details>')
 else:
     print(generate_changelog(branch, args.to))

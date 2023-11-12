@@ -15,7 +15,8 @@ void call_options_dlg()
 	OptionsDialog().show();
 }
 
-extern int32_t EnableTooltips, GridColor, CmbCursorCol, TilePgCursorCol, TTipHLCol,
+extern int EnableTooltips, GridColor, CmbCursorCol, TilePgCursorCol, TTipHLCol,
+	CheckerCol1, CheckerCol2,
 	CmbPgCursorCol, KeyboardRepeatDelay, TooltipsHighlight, KeyboardRepeatRate,
 	pixeldb, infobg, MMapCursorStyle, LayerDitherBG, LayerDitherSz;
 extern bool allowHideMouse;
@@ -59,6 +60,8 @@ void OptionsDialog::loadOptions()
 	opts[OPT_TPG_CURS_COL] = TilePgCursorCol;
 	opts[OPT_CPG_CURS_COL] = CmbPgCursorCol;
 	opts[OPT_TTIP_HL_COL] = TTipHLCol;
+	opts[OPT_TTIP_CHECKER1_COL] = CheckerCol1;
+	opts[OPT_TTIP_CHECKER2_COL] = CheckerCol2;
 	opts[OPT_SNAPFORMAT] = SnapshotFormat;
 	opts[OPT_SNAPSCALE] = SnapshotScale;
 	opts[OPT_KBREPDEL] = KeyboardRepeatDelay;
@@ -178,6 +181,14 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_TTIP_HL_COL:
 			TTipHLCol = v;
 			zc_set_config("zquest", "ttip_hl_color", v);
+			break;
+		case OPT_TTIP_CHECKER1_COL:
+			CheckerCol1 = v;
+			zc_set_config("zquest", "checker_color_1", v);
+			break;
+		case OPT_TTIP_CHECKER2_COL:
+			CheckerCol2 = v;
+			zc_set_config("zquest", "checker_color_2", v);
 			break;
 		case OPT_SNAPFORMAT:
 			SnapshotFormat = v;
@@ -960,22 +971,22 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
 					ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
 					ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
+					ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
+						"The color of the current screen outline on the minimap."
+						" Either solid or blinking between two colors."),
 					ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
 					ROW_DDOWN(OPT_CMB_CURS_COL, "Combo Column SelColor:", colorList),
 					ROW_DDOWN(OPT_TPG_CURS_COL, "Tile Page SelColor:", colorList),
 					ROW_DDOWN(OPT_CPG_CURS_COL, "Combo Page SelColor:", colorList),
 					ROW_DDOWN(OPT_TTIP_HL_COL, "Tooltip Highlight SelColor:", colorList),
-					ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
-						"The color of the current screen outline on the minimap."
-						" Either solid or blinking between two colors."),
+					ROW_DDOWN(OPT_TTIP_CHECKER1_COL, "Checker Color 1:", colorList),
+					ROW_DDOWN(OPT_TTIP_CHECKER2_COL, "Checker Color 2:", colorList),
+					ROW_DDOWN_I(OPT_INVALID_BG, "Invalid Data BG:", invalidDataBGList,
+						"The background used for invalid data in the tile pages, favorite combos, map, and ajacent screens"),
 					ROW_DDOWN_I(OPT_LYR_DITH_BG, "Layer Dither BG:", bgColorList,
 						"The color used for the background when dithering the bottom layer."),
 					ROW_DDOWN_I(OPT_LYR_DITH_SZ, "Layer Dither Size:", ditherSzList,
-						"The size of the dither pattern used for non-highlighted screens."),
-					ROW_DDOWN_I(OPT_INVALID_BG, "Invalid Data BG:", invalidDataBGList,
-						"The background used for invalid data in the tile pages, favorite combos, map, and ajacent screens"),
-					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
-					ROW_DDOWN(OPT_SNAPSCALE, "Snapshot Scale:", snapshotScaleList)
+						"The size of the dither pattern used for non-highlighted screens.")
 				),
 				Rows<3>(vAlign = 0.0,
 					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
@@ -986,7 +997,9 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
 					ROW_TF_RANGE(OPT_COMPILE_VOL, "Compile SFX Volume %:", 0, 500),
 					ROW_DDOWN(OPT_BOTTOM8, "Bottom 8 pixels:", bottom8_list),
-					ROW_TF_RANGE(OPT_TOOLTIP_TIMER, "Tooltip Timer:", 15, 60*60)
+					ROW_TF_RANGE(OPT_TOOLTIP_TIMER, "Tooltip Timer:", 0, 60*60),
+					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
+					ROW_DDOWN(OPT_SNAPSCALE, "Snapshot Scale:", snapshotScaleList)
 				)
 			))
 		)

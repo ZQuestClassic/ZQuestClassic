@@ -1,4 +1,6 @@
-https://github.com/ZQuestClassic/ZQuestClassic/releases/tag/2.55-alpha-114
+The one with trigger groups, newer player movement, and bomb flowers.
+
+https://zquestclassic.com/releases/2.55-alpha-114
 
 # Changes to packaged files
 

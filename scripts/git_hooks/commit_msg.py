@@ -9,6 +9,8 @@ is_valid = True
 
 log = ''
 
+if commit_msg.startswith('fixup!'):
+    exit(0)
 
 def add_log(*args):
     global log
@@ -23,7 +25,7 @@ match = re.match(r'(\w+)\((\w+)\)[!<]?: (.+)',
                  first_line) or re.match(r'(\w+)[!<]?:( )(.+)', first_line)
 if not match:
     add_log('commit message must match expected pattern, using an expected type and optional scope.')
-    add_log('examples:\n\tfix: fix the thing\n\tfix(zc): fix the thing\n')
+    add_log('examples:\n\tfix: enemies being un-killable\n\tfix(zc): the thing in the player now does not crash\n')
     add_log(f'valid types (the first word of the commit) are:',
             ', '.join(valid_types))
     add_log(f'valid scopes (the optional text in parentheses) are:',

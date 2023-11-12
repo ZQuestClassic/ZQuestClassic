@@ -28,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-ALLEGRO_ICON            ICON                    "./zc_icon.ico"
+ALLEGRO_ICON            ICON                    "./zc_player_icon.ico"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,7 @@ END
 //
 
 #include "src/metadata/metadata.h"
+#include "src/base/version_header.h"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION V_ZC_FIRST,V_ZC_SECOND,V_ZC_THIRD,V_ZC_FOURTH
@@ -80,12 +81,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", COMPANY_NAME
             VALUE "FileDescription", ZC_PLAYER_NAME
-            VALUE "FileVersion", ZC_PLAYER_V
+            VALUE "FileVersion", ZC_VERSION
             VALUE "InternalName", "zc_icon"
             VALUE "LegalCopyright", ZC_PLAYER_COPYRIGHT
             VALUE "OriginalFilename", ZC_PLAYER_NAME
             VALUE "ProductName", ZC_PLAYER_NAME
-            VALUE "ProductVersion", ZC_PLAYER_V
+            VALUE "ProductVersion", ZC_VERSION
         END
     END
     BLOCK "VarFileInfo"

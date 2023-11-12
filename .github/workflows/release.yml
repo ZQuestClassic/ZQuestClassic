@@ -5,40 +5,33 @@ concurrency: release
 on:
   workflow_dispatch:
     inputs:
-      number:
-        description: Version number (Alpha/Beta/Gamma/Release).
-        type: string
-        required: false
-      versiontype:
+      version-type:
         type: choice
-        description: Whether the build specified is an Alpha/Beta/Gamma/Release
+        description: New stable release or nightly?
         options:
-          - alpha
-          - beta
-          - gamma
-          - release
+          - nightly
+          - stable
         required: true
-        default: alpha
-      full_release:
-        type: boolean
-        description: Full Version (i.e. NOT a nightly)
-        default: false
-      build_web_even_for_nightly:
-        type: boolean
-        description: Build web even for nightly. If false, web only builds w/ full release
-        default: false
+        default: nightly
       sentry:
         type: boolean
         description: Perform a sentry release
         default: true
+      build_web_even_for_nightly:
+        type: boolean
+        description: Build web even for nightly. If false, web only builds w/ full release
+        default: false
+      version-override:
+        type: string
+        description: "Version Override: (! USE VERSION TYPE INSTEAD !) Only use this to publish a specific version, or republish an existing one. For emergency use only."
 
 jobs:
   create-tag:
     runs-on: ubuntu-latest
     outputs:
-      release-tag: ${{ steps.make-vars.outputs.release-tag }}
+      release-version: ${{ steps.make-vars.outputs.release-version }}
       release-name: ${{ steps.make-vars.outputs.release-name }}
-      previous-release-tag: ${{ steps.make-vars.outputs.previous-release-tag }}
+      previous-release-version: ${{ steps.make-vars.outputs.previous-release-version }}
     steps:
       - name: git clone
         uses: actions/checkout@v3
@@ -46,10 +39,9 @@ jobs:
       - id: make-vars
         run: |
           python3 .github/workflows/print-release-name-vars.py \
-            --github_org=${{ github.repository_owner }} \
-            --full_release=${{ github.event.inputs.full_release }} \
-            --version_type=${{ github.event.inputs.versiontype }} \
-            --number=${{ inputs.number }}
+            --github-org=${{ github.repository_owner }} \
+            --version-type=${{ github.event.inputs.version-type }} \
+            --version-override=${{ github.event.inputs.version-override }}
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
@@ -61,7 +53,7 @@ jobs:
           project: zelda-classic
       - run: sentry-cli --version
         if: inputs.sentry
-      - run: sentry-cli --log-level=DEBUG releases new 'zelda-classic@${{ steps.make-vars.outputs.release-tag }}'
+      - run: sentry-cli --log-level=DEBUG releases new 'zelda-classic@${{ steps.make-vars.outputs.release-version }}'
         if: inputs.sentry
 
   build-release:
@@ -99,18 +91,16 @@ jobs:
       arch: ${{ matrix.arch }}
       compiler: ${{ matrix.compiler }}
       config: ${{ matrix.config }}
+      official: true
       sentry: ${{ matrix.sentry }}
-      release-tag: ${{ needs.create-tag.outputs.release-tag }}
+      release-version: ${{ needs.create-tag.outputs.release-version }}
       release-name: ${{ needs.create-tag.outputs.release-name }}
       cache: false
-      number: ${{ inputs.number }}
-      versiontype: ${{ inputs.versiontype }}
-      full_release: ${{ inputs.full_release }}
     secrets: inherit
 
   build-web:
     runs-on: ubuntu-22.04
-    if: inputs.full_release || inputs.build_web_even_for_nightly
+    if: inputs.version-type == 'stable' || inputs.build_web_even_for_nightly
     needs: create-tag
 
     steps:
@@ -134,8 +124,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .ccache
-          key: web-ccache-${{ github.run_id }}
-          restore-keys: web-ccache-
+          key: web-ccache-release-${{ github.run_id }}
+          restore-keys: web-ccache-release-
       - run: ccache -z
 
       - run: |
@@ -151,20 +141,20 @@ jobs:
           git config --global user.name "Your Name"
       - run: bash scripts/configure_emscripten.sh
         env:
-          ZC_EMCC_CMAKE_EXTRA_FLAGS: -DRELEASE_TAG=${{ needs.create-tag.outputs.release-tag }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          ZC_EMCC_CMAKE_EXTRA_FLAGS: -DZC_OFFICIAL=ON -DZC_VERSION=${{ needs.create-tag.outputs.release-version }} -DRELEASE_CHANNEL=web -DREPO=ZQuestClassic/ZQuestClassic -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
       - run: cmake --build build_emscripten --config Release -t web
       - run: ccache -s
 
       - run: npm install
         working-directory: web
-      - run: zip -r ${{ needs.create-tag.outputs.release-tag }}-web.zip .
+      - run: zip -r ${{ github.workspace }}/${{ needs.create-tag.outputs.release-version }}-web.zip .
         working-directory: build_emscripten/Release/packages/web
 
       - uses: actions/upload-artifact@v3
         with:
           name: build-web
           path: |
-            ${{ github.workspace }}/${{ needs.create-tag.outputs.release-tag }}-web.zip
+            ${{ github.workspace }}/${{ needs.create-tag.outputs.release-version }}-web.zip
 
   publish:
     needs:
@@ -185,17 +175,17 @@ jobs:
 
       - name: Generate changelog
         # TODO z3 ~ revert before merging
-        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} > new_changelog.md
-        # run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} --for-nightly=${{ github.event.inputs.full_release != 'true' }} > new_changelog.md
+        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-version }} --version ${{ needs.create-tag.outputs.release-version }} > new_changelog.md
+        # run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-version }} --for-nightly=${{ github.event.inputs.version-type == 'nightly' }} --version ${{ needs.create-tag.outputs.release-version }} > new_changelog.md
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           name: ${{ needs.create-tag.outputs.release-name }}
-          tag_name: ${{ needs.create-tag.outputs.release-tag }}
+          tag_name: ${{ needs.create-tag.outputs.release-version }}
           target_commitish: ${{ github.sha }}
           files: release-packages/**/*
-          prerelease: ${{ !inputs.full_release }}
+          prerelease: ${{ github.event.inputs.version-type == 'nightly' }}
           fail_on_unmatched_files: true
           generate_release_notes: false
           body_path: new_changelog.md
@@ -211,8 +201,8 @@ jobs:
       - name: Finalize sentry
         if: inputs.sentry
         run: |
-          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto --ignore-missing
-          sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
+          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-version }}' --auto --ignore-missing
+          sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-version }}'
 
       - uses: actions/github-script@v6
         with:

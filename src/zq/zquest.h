@@ -347,6 +347,7 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
 
+int32_t playZCForever();
 int32_t playTune1();
 int32_t playTune2();
 int32_t playTune3();
@@ -761,7 +762,7 @@ extern command_struct bic[cmdMAX];
 
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
-void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size);
+void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t x, int32_t y, int32_t size);
 
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);

@@ -1,9 +1,11 @@
 #include "base/zapp.h"
+#include "base/version.h"
 #include "base/zc_alleg.h"
 #include "zconfig.h"
 #include "base/zsys.h"
 #include <filesystem>
 #include <string>
+#include <fmt/format.h>
 
 #ifdef __APPLE__
 #include <unistd.h>
@@ -51,7 +53,7 @@ void common_main_setup(App id, int argc, char **argv)
 #ifdef HAS_SENTRY
     sentry_options_t *options = sentry_options_new();
     sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
-    sentry_options_set_release(options, "zelda-classic@" RELEASE_TAG);
+    sentry_options_set_release(options, fmt::format("zelda-classic@{}", getVersionString()).c_str());
 	// Only track sessions for the main apps.
 	if (id != App::zelda && id != App::zquest)
 		sentry_options_set_auto_session_tracking(options, 0);
@@ -136,6 +138,34 @@ void set_headless_mode()
 bool is_headless()
 {
 	return headless;
+}
+
+void zapp_setup_icon()
+{
+	if (is_headless())
+		return;
+
+	// On Windows, the icon is embedded in the executable.
+	// For Mac app bundle, only the entry point app will have the logo. If an executable is opened directly, or launcher via the launcher,
+	// we must add the icon at runtime.
+#ifndef _WIN32
+	std::string icon_path;
+	// Allow for custom icon via `icon.png`.
+	if (exists("icon.png"))
+		icon_path = "icon.png";
+	else if (app_id == App::launcher)
+		icon_path = "assets/zc/ZC_Icon_Medium_Launcher.png";
+	else if (app_id == App::zelda)
+		icon_path = "assets/zc/ZC_Icon_Medium_Player.png";
+	else if (app_id == App::zquest)
+		icon_path = "assets/zc/ZC_Icon_Medium_Editor.png";
+	ALLEGRO_BITMAP* icon_bitmap = al_load_bitmap(icon_path.c_str());
+	if (icon_bitmap)
+	{
+		al_set_display_icon(all_get_display(), icon_bitmap);
+		al_destroy_bitmap(icon_bitmap);
+	}
+#endif
 }
 
 // If (saved_width, saved_height) is >0, ensures that fits in the primary monitor. If neither are true, fall

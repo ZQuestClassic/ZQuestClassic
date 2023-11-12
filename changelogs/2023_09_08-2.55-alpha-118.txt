@@ -1,4 +1,6 @@
-https://github.com/ZQuestClassic/ZQuestClassic/releases/tag/2.55-alpha-118
+The one with the bug fixes.
+
+https://zquestclassic.com/releases/2.55-alpha-118
 
 # Bug Fixes
 
@@ -57,4 +59,3 @@ add test_zplayer.py
 # Misc.
 
 support sentry unique user counting
-

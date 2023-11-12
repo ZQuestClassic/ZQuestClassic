@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <map>
 
+#include "base/version.h"
 #include "metadata/metadata.h"
 
 #include "base/qrs.h"
@@ -3794,7 +3795,7 @@ void zmap::drawstaticblock(BITMAP* dest,int32_t x,int32_t y)
 {
 	if (InvalidBG == 2)
 	{
-		draw_checkerboard(dest, x, y, 8, 8, 16);
+		draw_checkerboard(dest, x, y, 16);
 	}
 	else if(InvalidBG == 1)
     {
@@ -3820,7 +3821,7 @@ void zmap::drawstaticcolumn(BITMAP* dest,int32_t x,int32_t y)
 	if (InvalidBG == 2)
 	{
 		for(int32_t q = 0; q < 11; ++q)
-			draw_checkerboard(dest, x, y + q * 16, 8, 8, 16);
+			draw_checkerboard(dest, x, y + q * 16, 16);
 	}
     else if(InvalidBG == 1)
     {
@@ -3846,7 +3847,7 @@ void zmap::drawstaticrow(BITMAP* dest,int32_t x,int32_t y)
 	if (InvalidBG == 2)
 	{
 		for (int32_t q = 0; q < 16; ++q)
-			draw_checkerboard(dest, x + q * 16, y, 8, 8, 16);
+			draw_checkerboard(dest, x + q * 16, y, 16);
 	}
     else if(InvalidBG == 1)
     {
@@ -6996,40 +6997,44 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
             new_return(20);
         }
 		
-		//v4
+		auto version = getVersion();
 		
-		if(!p_iputl(V_ZC_FIRST,f))
+		if(!p_iputl(version.major,f))
 		{
 			new_return(21);
 		}
-		if(!p_iputl(V_ZC_SECOND,f))
+		if(!p_iputl(version.minor,f))
 		{
 			new_return(22);
 		}
-		if(!p_iputl(V_ZC_THIRD,f))
+		if(!p_iputl(version.patch,f))
 		{
 			new_return(23);
 		}
-		if(!p_iputl(V_ZC_FOURTH,f))
+		// Fourth component is deprecated.
+		if(!p_iputl(0,f))
 		{
 			new_return(24);
 		}
-		if(!p_iputl(V_ZC_ALPHA,f))
+
+		// Numerous prerelease stages is deprecated.
+		if(!p_iputl(0,f))
 		{
 			new_return(25);
 		}
-		if(!p_iputl(V_ZC_BETA,f))
+		if(!p_iputl(0,f))
 		{
 			new_return(26);
 		}
-		if(!p_iputl(V_ZC_GAMMA,f))
+		if(!p_iputl(0,f))
 		{
 			new_return(27);
 		}
-		if(!p_iputl(V_ZC_RELEASE,f))
+		if(!p_iputl(0,f))
 		{
 			new_return(28);
 		}
+
 		if(!p_iputw(BUILDTM_YEAR,f))
 		{
 			new_return(29);
@@ -7195,11 +7200,16 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
 			new_return(48);
 		}
 		
-		if(!p_putc(ZC_IS_NIGHTLY ? 1 : 0, f))
+		if(!p_putc(isStableRelease() ? 0 : 1, f))
 		{
 			new_return(49);
 		}
-	
+
+		if(!p_putcstr(version.version_string, f))
+		{
+			new_return(50);
+		}
+
         if(writecycle==0)
         {
             section_size=writesize;

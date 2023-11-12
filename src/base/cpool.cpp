@@ -1,17 +1,29 @@
+#include "combo.h"
 #include "cpool.h"
 #include "random.h"
 #include <assert.h>
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
 combo_pool combo_pools[MAXCOMBOPOOLS];
+extern vector<newcombo> combobuf;
 
-combo_alias::combo_alias()
+int comboa_lmasktotal(byte layermask)
 {
-	memset(this, 0, sizeof(combo_alias));
-	combos = new word[1];
-	csets = new byte[1];
-	combos[0] = 0;
-	csets[0] = 0;
+    int result = 0;
+	for(int q = 0; q < 6; ++q)
+		if(layermask & (1<<q))
+			++result;
+    return result;
+}
+bool combo_alias::valid() const
+{
+	if(combo)
+		return combobuf[combo].tile;
+	return width || height || (combos.size() && combos[0]);
+}
+void combo_alias::clear()
+{
+	*this = combo_alias();
 }
 
 combo_pool& combo_pool::operator=(combo_pool const& other)

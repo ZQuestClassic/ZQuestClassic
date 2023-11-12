@@ -21,6 +21,7 @@
 #define KEY_ZC_RCONTROL KEY_COMMAND
 #define CHECK_CTRL_CMD key[KEY_COMMAND]
 #endif
+#define CHECK_SHIFT (key[KEY_LSHIFT] || key[KEY_RSHIFT])
 
 // https://www.allegro.cc/forums/thread/613716
 #ifdef ALLEGRO_LEGACY_MSVC

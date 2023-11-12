@@ -1,21 +1,26 @@
 #ifndef _CPOOL_H_
 #define _CPOOL_H_
 
-#include <vector>
+#include "base/headers.h"
+#include "base/containers.h"
 #include "base/ints.h"
 #include "base/general.h"
 
 struct combo_alias
 {
-    combo_alias();
-    
-    byte width;      // Max 15
-    byte height;     // Max 10
-    byte layermask;  // Specifies layers to be drawn
-    word combo;      // Optional thumbnail combo for the alias list
-    word cset;
-    word *combos;    // Dynamic array. Will be stored in quest.
-    byte *csets;
+	combo_alias() = default;
+	
+	byte width;      // Max 15
+	byte height;     // Max 10
+	byte layermask;  // Specifies layers to be drawn
+	word combo;      // Optional thumbnail combo for the alias list
+	word cset;
+	bounded_vec<word,word> combos = {16*11*7, 0};
+	bounded_vec<word,byte> csets = {16*11*7, 0};
+	
+	bool valid() const;
+	void clear();
+	combo_alias& operator=(combo_alias const& other) = default;
 };
 
 struct cpool_entry

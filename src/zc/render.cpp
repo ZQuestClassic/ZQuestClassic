@@ -254,11 +254,20 @@ static void configure_render_tree()
 		static ALLEGRO_COLOR tint = al_premul_rgba_f(0.4, 0.4, 0.8, 0.8);
 		rti_game.tint = &tint;
 		rti_infolayer.tint = &tint;
+		// TODO: renderer should tint children somehow.
+		for (auto it : rti_game.get_children())
+			it->tint = &tint;
+		for (auto it : rti_infolayer.get_children())
+			it->tint = &tint;
 	}
 	else
 	{
 		rti_game.tint = nullptr;
 		rti_infolayer.tint = nullptr;
+		for (auto it : rti_game.get_children())
+			it->tint = nullptr;
+		for (auto it : rti_infolayer.get_children())
+			it->tint = nullptr;
 	}
 	reload_dialog_tint();
 }

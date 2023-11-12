@@ -1,4 +1,3 @@
-#include "base/render.h"
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
@@ -26,6 +25,8 @@
 #include "base/packfile.h"
 #include "base/cpool.h"
 #include "base/autocombo.h"
+#include "base/render.h"
+#include "base/version.h"
 #include "zq/autocombo/autopattern_base.h"
 #include "zq/autocombo/pattern_basic.h"
 #include "zq/autocombo/pattern_flatmtn.h"
@@ -61,6 +62,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/screen_data.h"
 #include "dialog/edit_dmap.h"
 #include "dialog/compilezscript.h"
+#include "dialog/externs.h"
 
 #include "base/gui.h"
 #include "gui/jwin_a5.h"
@@ -563,10 +565,11 @@ static int32_t do_NewQuest()
 	return onNew();
 }
 
+extern int CheckerCol1, CheckerCol2;
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
+int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
 	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
@@ -664,8 +667,6 @@ int32_t ff_combo = 0;
 int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
 int32_t zqColorDepth = 8;
 int32_t joystick_index=0;
-
-char *getBetaControlString();
 
 void set_last_timed_save(char const* buf)
 {
@@ -1489,6 +1490,7 @@ static MENU data_menu[] =
 
 static MENU tunes_menu[] =
 {
+    { (char *)"ZC Forever",				  playZCForever,             NULL,                     0,            NULL   },
     { (char *)"Wind Fish",				  playTune1,                 NULL,                     0,            NULL   },
     { (char *)"Overworld",				  playTune2,                 NULL,                     0,            NULL   },
     { (char *)"Hyrule Castle",			  playTune3,                 NULL,                     0,            NULL   },
@@ -1546,7 +1548,7 @@ static MENU etc_menu[] =
 static MENU zscript_menu[] =
 {
 	{ (char *)"Compile &ZScript...",            onCompileScript,           NULL,                     0,            NULL   },
-	{ (char *)"&View Slots...",                 onSlotPreview,              NULL,                     0,            NULL   },
+	{ (char *)"&Assign Slots...",               onSlotAssign,              NULL,            D_DISABLED,            NULL   },
 	//divider	
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Compiler Settings",             onZScriptCompilerSettings, NULL,                     0,            NULL   },
@@ -3774,34 +3776,26 @@ int32_t onDecreaseCSet()
 
 int32_t onGotoPage()
 {
-    int32_t choosepage=getnumber("Scroll to Combo Page", 0);
-    
-    if(!cancelgetnum)
-    {
-		if (draw_mode==dm_alias) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
-		{
-			int32_t page=(vbound(choosepage,0,((MAXCOMBOALIASES/96))));
-			//First[current_comboalist]=page<<8;
-			combo_alistpos[current_comboalist] = vbound(page*96, 0, MAXCOMBOALIASES-97);
-		}
-		else if (draw_mode==dm_cpool) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
-		{
-			int32_t page=(vbound(choosepage,0,((MAXCOMBOPOOLS/96))));
-			//First[current_comboalist]=page<<8;
-			combo_pool_listpos[current_cpoollist] = vbound(page*96, 0, MAXCOMBOPOOLS-97);
-		}
-		else if (draw_mode == dm_auto) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
-		{
-			int32_t page = (vbound(choosepage, 0, ((MAXAUTOCOMBOS / 96))));
-			//First[current_comboalist]=page<<8;
-			combo_auto_listpos[current_cautolist] = vbound(page * 96, 0, MAXAUTOCOMBOS - 97);
-		}
-		else
-		{
-			int32_t page=(zc_min(choosepage,COMBO_PAGES-1));
-			First[current_combolist]=page<<8;
-		}
-    }
+	if (draw_mode==dm_alias)
+	{
+		if(optional<int> v = call_get_num("Scroll to Alias Page", 0, MAXCOMBOALIASES/96, 0))
+			combo_alistpos[current_comboalist] = *v*96;
+	}
+	else if (draw_mode==dm_cpool)
+	{
+		if(optional<int> v = call_get_num("Scroll to Combo Pool Page", 0, MAXCOMBOPOOLS/96, 0))
+			combo_pool_listpos[current_cpoollist] = *v*96;
+	}
+	else if (draw_mode == dm_auto)
+	{
+		if(optional<int> v = call_get_num("Scroll to Auto Combo Page", 0, MAXAUTOCOMBOS/96, 0))
+			combo_auto_listpos[current_cautolist] = *v*96;
+	}
+	else
+	{
+		if(optional<int> v = call_get_num("Scroll to Combo Page", 0, COMBO_PAGES-1, 0))
+			First[current_combolist] = *v << 8;
+	}
     
     return D_O_K;
 }
@@ -3981,6 +3975,16 @@ int32_t playMusic()
 		}
 	}
 	
+	return D_O_K;
+}
+
+int32_t playZCForever()
+{
+	stopMusic();
+
+	zcmusic = zcmusic_load_file("assets/zc/ZC_Forever_HD.mp3");
+	if (zcmusic)
+		zcmusic_play(zcmusic, midi_volume);
 	return D_O_K;
 }
 
@@ -5359,7 +5363,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					{
 						if (InvalidBG == 2)
 						{
-							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
+							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w);
 						}
 						else if (InvalidBG == 1)
 						{
@@ -6362,7 +6366,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				{
 					if (InvalidBG == 2)
 					{
-						draw_checkerboard(menu1, combo_preview2.x, combo_preview2.y, 16, 16, 32);
+						draw_checkerboard(menu1, combo_preview2.x, combo_preview2.y, 32);
 					}
 					else if(InvalidBG == 1)
 					{
@@ -6437,7 +6441,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					{
 						if (InvalidBG == 2)
 						{
-							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
+							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w);
 						}
 						else if(InvalidBG == 1)
 						{
@@ -6624,7 +6628,7 @@ void refresh(int32_t flags, bool update)
 		int32_t ry = layer_panel.y;
 		auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
 		draw_layer_button(menu1, rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
-		draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]!=0);
+		draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]!=0);
 	}
 	
 	font=tfont;
@@ -7167,19 +7171,7 @@ void select_scr()
 		int32_t y=gui_mouse_y();
 		
 		int32_t ind = real_mini.rectind(x,y);
-		
-		if(ind > -1)
-		{
-			char buf[80];
-			sprintf(buf,"0x%02X (%d)", ind, ind);
-			ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
-			ttip_set_highlight_thickness(ttip_global_id, zoomed_minimap ? 2 : 1);
-		}
-		else
-		{
-			ttip_uninstall(minimap_tooltip_id);
-		}
-		
+
 		if(ind>=MAPSCRS)
 			ind-=16;
 			
@@ -9736,10 +9728,40 @@ static MENU combosel_rc_menu[] =
     { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
     { NULL,                         NULL,                     NULL, 0, NULL }
 };
+static MENU cpoolsel_rc_menu[] =
+{
+    { (char *)"Edit Pool",         NULL,                     NULL, 0, NULL },
+    { (char *)"Open Pool Page",    NULL,                     NULL, 0, NULL },
+    { (char *)"",                   NULL,                     NULL, 0, NULL },
+	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
+    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
+};
+static MENU cautosel_rc_menu[] =
+{
+    { (char *)"Edit Auto Combo",    NULL,                     NULL, 0, NULL },
+    { (char *)"Open Auto Page",     NULL,                     NULL, 0, NULL },
+    { (char *)"",                   NULL,                     NULL, 0, NULL },
+	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
+    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
+};
+static MENU caliassel_rc_menu[] =
+{
+    { (char *)"Edit Combo Alias",   NULL,                     NULL, 0, NULL },
+    { (char *)"Open Alias Page",    NULL,                     NULL, 0, NULL },
+    { (char *)"",                   NULL,                     NULL, 0, NULL },
+	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
+    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
+};
 int toggle_linked_scrolling()
 {
 	LinkedScroll = LinkedScroll ? 0 : 1;
 	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(cautosel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(caliassel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	zc_set_config("zquest","linked_comboscroll",LinkedScroll);
 	return D_O_K;
 }
@@ -9988,7 +10010,6 @@ bool has_command_info(int cmd)
 		case cmdDrawingModePool:
 		case cmdQRSearch:
 		case cmdDrawingModeAutocombo:
-		case cmdViewScriptSlots:
 			return true;
 	}
 	return false;
@@ -10468,9 +10489,6 @@ std::string get_command_infostr(int cmd)
 			break;
 		case cmdDrawingModeAutocombo:
 			infostr = "Switches to Autcombo drawing mode";
-			break;
-		case cmdViewScriptSlots:
-			infostr = "Shows a list of all script slots";
 			break;
 	}
 	return infostr;
@@ -10965,6 +10983,8 @@ void domouse()
 		sprintf(buf,"0x%02X (%d)", ind, ind);
 		ttip_install(minimap_tooltip_id, buf, real_mini.subsquare(ind), real_mini.x+real_mini.tw(), real_mini.y-16);
 		ttip_set_highlight_thickness(minimap_tooltip_id, zoomed_minimap ? 2 : 1);
+		// Make sure always above the other tooltip items to the right of the map (even in big map mode).
+		ttip_set_z_index(minimap_tooltip_id, 100);
 		ttip_clear_timer();
 	}
 	else
@@ -11037,7 +11057,7 @@ void domouse()
 		
 		if(compactbtn.rect(x,y))
 		{
-			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),true));
+			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact"));
 				toggle_is_compact();
 			goto domouse_doneclick;
 		}
@@ -11046,7 +11066,7 @@ void domouse()
 		if(combo_merge_btn.rect(x,y))
 		{
 			bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
-			if(do_text_button(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<",vc(1),vc(14),true))
+			if(do_text_button(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<"))
 			{
 				toggle_merged_mode();
 			}
@@ -11056,7 +11076,7 @@ void domouse()
 		if(favorites_zoombtn.rect(x,y))
 		{
 			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-			if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+			if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+"))
 			{
 				toggle_favzoom_mode();
 			}
@@ -11064,7 +11084,7 @@ void domouse()
 		}
 		else if(favorites_x.rect(x,y))
 		{
-			if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),true))
+			if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X"))
 			{
 				AlertDialog("Clear Favorite Combos",
 					"Are you sure you want to clear all favorite combos?",
@@ -11086,7 +11106,7 @@ void domouse()
 		}
 		else if(favorites_infobtn.rect(x,y))
 		{
-			if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),true))
+			if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?"))
 			{
 				InfoDialog("Favorite Combos",
 					"On LClick (empty): Sets clicked favorite to the current combo."
@@ -11103,7 +11123,7 @@ void domouse()
 		}
 		else if(favorites_pgleft.rect(x,y))
 		{
-			if (do_text_button(favorites_pgleft.x, favorites_pgleft.y, favorites_pgleft.w, favorites_pgleft.h, is_compact ? "<" : "<-", vc(1), vc(14), true))
+			if (do_text_button(favorites_pgleft.x, favorites_pgleft.y, favorites_pgleft.w, favorites_pgleft.h, is_compact ? "<" : "<-"))
 			{
 				if (rclick)
 				{
@@ -11123,7 +11143,7 @@ void domouse()
 		}
 		else if(favorites_pgright.rect(x,y))
 		{
-			if (do_text_button(favorites_pgright.x, favorites_pgright.y, favorites_pgright.w, favorites_pgright.h, is_compact ? ">" : "->", vc(1), vc(14), true))
+			if (do_text_button(favorites_pgright.x, favorites_pgright.y, favorites_pgright.w, favorites_pgright.h, is_compact ? ">" : "->"))
 			{
 				if (rclick)
 				{
@@ -11145,7 +11165,7 @@ void domouse()
 		if(commands_zoombtn.rect(x,y))
 		{
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
-			if(do_text_button(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+			if(do_text_button(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+"))
 			{
 				toggle_cmdzoom_mode();
 			}
@@ -11153,7 +11173,7 @@ void domouse()
 		}
 		else if(commands_x.rect(x,y))
 		{
-			if(do_text_button(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",vc(1),vc(14),true))
+			if(do_text_button(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X"))
 			{
 				AlertDialog("Clear Favorite Commands",
 					"Are you sure you want to clear all favorite commands?",
@@ -11174,7 +11194,7 @@ void domouse()
 		}
 		else if(commands_infobtn.rect(x,y))
 		{
-			if(do_text_button(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",vc(1),vc(14),true))
+			if(do_text_button(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?"))
 			{
 				InfoDialog("Favorite Commands",
 					"On LClick (empty): Choose a favorite command"
@@ -11222,7 +11242,7 @@ void domouse()
 					sprintf(tbuf, "%d", i);
 				}
 				
-				if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14),true))
+				if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf))
 				{
 					CurrentLayer = i;
 					goto domouse_doneclick;
@@ -11232,7 +11252,7 @@ void domouse()
 			auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
 			if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+cbyofs,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_wid-1,ry+2+layerpanel_checkbox_hei-1))
 			{
-				do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]);
+				do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]);
 				goto domouse_doneclick;
 			}
 		}
@@ -11642,7 +11662,7 @@ void domouse()
 		{
 			if(lclick)
 			{
-				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),true))
+				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode]))
 					onDrawingMode();
 			}
 			else if(rclick)
@@ -11776,7 +11796,20 @@ void domouse()
 					
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						onEditComboAlias();
+						int32_t m = popup_menu(caliassel_rc_menu,x,y);
+						
+						switch(m)
+						{
+							case 0:
+								onEditComboAlias();
+								break;
+							case 1:
+								call_alias_pages(j);
+								break;
+							case 3:
+								onGotoPage();
+								break;
+						}
 					}
 					goto domouse_doneclick;
 				}
@@ -11802,7 +11835,20 @@ void domouse()
 					
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						onEditComboPool();
+						int32_t m = popup_menu(cpoolsel_rc_menu,x,y);
+						
+						switch(m)
+						{
+							case 0:
+								onEditComboPool();
+								break;
+							case 1:
+								call_cpool_pages(j);
+								break;
+							case 3:
+								onGotoPage();
+								break;
+						}
 					}
 					goto domouse_doneclick;
 				}
@@ -11826,9 +11872,22 @@ void domouse()
 				{
 					select_autocombo(j);
 
-					if (rclick && comboaliaslist[j].rect(gui_mouse_x(), gui_mouse_y()))
+					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						onEditAutoCombo();
+						int32_t m = popup_menu(cautosel_rc_menu,x,y);
+						
+						switch(m)
+						{
+							case 0:
+								onEditAutoCombo();
+								break;
+							case 1:
+								call_autoc_pages(j);
+								break;
+							case 3:
+								onGotoPage();
+								break;
+						}
 					}
 					goto domouse_doneclick;
 				}
@@ -20104,8 +20163,6 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
     switch(msg)
     {
     case MSG_CLICK:
-        Z_message("click (%d, %d) (%d, %d)\n", cx1, cy1, cx, cy);
-        
         if((cx>combo->width)||(cx1<0))
             return D_O_K;
             
@@ -20224,7 +20281,7 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
     return D_O_K;
 }
 
-void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size)
+void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias const* combo, int32_t x, int32_t y, int32_t size)
 {
     if(!combo->combo)
     {
@@ -20313,7 +20370,8 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int
     {
         if(combobuf[combo->combo].tile>0)
         {
-            put_combo(dest,x, y, combo->combo, combo->cset,0,0);
+            rectfill(dest,x,y,x+16*size-1,y+16*size-1,0);
+            put_combo(dest, x, y, combo->combo, combo->cset, 0, 0, size);
         }
         else
         {
@@ -20426,76 +20484,18 @@ static DIALOG newcomboa_dlg[] =
 
 bool swapComboAlias(int32_t source, int32_t dest)
 {
-    if(source==dest) return false;
-    
-    combo_alias *combo=&temp_aliases[source], *oldcombo=&temp_aliases[dest];
-    
-    byte w=oldcombo->width;
-    oldcombo->width=combo->width;
-    combo->width=w;
-    
-    byte h=oldcombo->height;
-    oldcombo->height=combo->height;
-    combo->height=h;
-    
-    byte l=oldcombo->layermask;
-    oldcombo->layermask=combo->layermask;
-    combo->layermask=l;
-    
-    word c=oldcombo->combo;
-    oldcombo->combo=combo->combo;
-    combo->combo=c;
-    
-    c=oldcombo->cset;
-    oldcombo->cset=combo->cset;
-    combo->cset=c;
-    
-    word* cp = oldcombo->combos;
-    oldcombo->combos=combo->combos;
-    combo->combos = cp;
-    
-    byte *sp = oldcombo->csets;
-    oldcombo->csets=combo->csets;
-    combo->csets=sp;
-    
+    if(source==dest)
+		return false;
+	zc_swap(temp_aliases[source],temp_aliases[dest]);
     return true;
 }
 
 
 bool copyComboAlias(int32_t source, int32_t dest)
 {
-    if(source==dest) return false;
-    
-    // al_trace("count is %i\n", comboa_cnt);
-    // if (dest > comboa_cnt-1) return false;
-    // al_trace("Copying %i to %i\n",source, dest);
-    
-    combo_alias *combo, *oldcombo;
-    combo = &temp_aliases[source];
-    oldcombo = &temp_aliases[dest];
-    
-    int32_t new_count=(comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
-    
-    if(oldcombo->combos != NULL) delete[] oldcombo->combos;
-    
-    if(oldcombo->csets != NULL) delete[] oldcombo->csets;
-    
-    word *new_combos = new word[new_count];
-    byte *new_csets = new byte[new_count];
-    
-    memcpy(new_combos, combo->combos, sizeof(word)*new_count);
-    memcpy(new_csets, combo->csets, sizeof(byte)*new_count);
-    
-    oldcombo->combos=new_combos;
-    oldcombo->csets=new_csets;
-    
-    oldcombo->width=combo->width;
-    oldcombo->height=combo->height;
-    oldcombo->layermask=combo->layermask;
-    oldcombo->combo=combo->combo;
-    oldcombo->cset=combo->cset;
-    
-    
+    if(source == dest)
+		return false;
+    temp_aliases[dest] = temp_aliases[source];
     return true;
 }
 
@@ -20633,18 +20633,8 @@ int32_t onNewComboAlias()
         
         int32_t new_count = (comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
         
-        if(combo->combos != NULL)
-        {
-            delete[] combo->combos;
-        }
-        
-        if(combo->csets != NULL)
-        {
-            delete[] combo->csets;
-        }
-        
-        combo->combos = new word[new_count];
-        combo->csets = new byte[new_count];
+        combo->combos.clear();
+        combo->csets.clear();
         
         int32_t j=1;
         int32_t old_size=(old_width+1)*(old_height+1);
@@ -20798,12 +20788,6 @@ int32_t onNewComboAlias()
         }
         
         set_comboaradio(combo->layermask);
-        // copy aliases
-        /*if (newcomboa_dlg[16].flags)
-        {
-          copyComboAlias(getcurrentcomboalias(),atoi((char*) newcomboa_dlg[15].dp));
-          al_trace("src: %i, dest: %i\n", getcurrentcomboalias(),atoi((char*) newcomboa_dlg[15].dp));
-        }*/
     }
     
     return ret;
@@ -20994,7 +20978,7 @@ static DIALOG editcomboa_dlg[] =
     { jwin_button_proc,     232,  212,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_frame_proc,      4+121,   28+81,   1,   1,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { d_comboabutton_proc,   25,  212,  81,   21,   vc(14),  vc(1),  'p',     D_EXIT,     0,             0, (void *) "&Properties", NULL, NULL },
-    { d_comboalist_proc,    266,   25,   50,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,     0,             0, (void *) &comboa_list, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
     { d_comboa_radio_proc,  285,   44,  30,   8+1,    vc(14),  vc(1),  0,       D_SELECTED,          0,             0, (void *) "0", NULL, NULL },
     { d_comboa_radio_proc,  285,   54,  30,   8+1,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "1", NULL, NULL },
     { d_comboa_radio_proc,  285,   64,  30,   8+1,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "2", NULL, NULL },
@@ -21095,45 +21079,17 @@ int32_t onEditAutoCombo()
 }
 int32_t onEditComboAlias()
 {
-    comboa_cnt = combo_apos;
-    reset_combo_animations();
-    reset_combo_animations2();
-    
-    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-    {
-        if(temp_aliases[i].combos != NULL)
-        {
-            delete[] temp_aliases[i].combos;
-        }
-        
-        if(temp_aliases[i].csets != NULL)
-        {
-            delete[] temp_aliases[i].csets;
-        }
-        
-        temp_aliases[i].width=combo_aliases[i].width;
-        temp_aliases[i].height=combo_aliases[i].height;
-        temp_aliases[i].layermask=combo_aliases[i].layermask;
-        int32_t tcount = (comboa_lmasktotal(temp_aliases[i].layermask)+1)*(temp_aliases[i].width+1)*(temp_aliases[i].height+1);
-        temp_aliases[i].combos = new word[tcount];
-        temp_aliases[i].csets = new byte[tcount];
-        
-        for(int32_t j=0; j<tcount; j++)
-        {
-            temp_aliases[i].combos[j] = combo_aliases[i].combos[j];
-            temp_aliases[i].csets[j] = combo_aliases[i].csets[j];
-        }
-        
-        temp_aliases[i].combo=combo_aliases[i].combo;
-        temp_aliases[i].cset=combo_aliases[i].cset;
-        //memcpy(temp_aliases[i].combos,combo_aliases[i].combos,sizeof(word)*tcount);
-        //memcpy(temp_aliases[i].csets,combo_aliases[i].csets,sizeof(byte)*tcount);
-    }
-    
-    editcomboa_dlg[0].dp2 = get_zc_font(font_lfont);
-    set_comboaradio(temp_aliases[comboa_cnt].layermask);
-    editcomboa_dlg[5].d1 = comboa_cnt;
-    
+	comboa_cnt = combo_apos;
+	reset_combo_animations();
+	reset_combo_animations2();
+	
+	for(int32_t i=0; i<MAXCOMBOALIASES; i++)
+		temp_aliases[i] = combo_aliases[i];
+	
+	editcomboa_dlg[0].dp2 = get_zc_font(font_lfont);
+	set_comboaradio(temp_aliases[comboa_cnt].layermask);
+	editcomboa_dlg[5].d1 = comboa_cnt;
+	
 	bool small_d1 = editcomboa_dlg[0].d1==0;
 	large_dialog(editcomboa_dlg,2);
 	
@@ -21154,48 +21110,25 @@ int32_t onEditComboAlias()
 		editcomboa_dlg[21].h=21*1.5;
 		editcomboa_dlg[21].dp2=get_zc_font(font_lfont_l);
 	}
-    
-    int32_t ret=do_zqdialog(editcomboa_dlg,-1);
-    
-    if(ret==1)
-    {
-        saved=false;
-        
-        for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-        {
-            if(combo_aliases[i].combos != NULL)
-            {
-                delete[] combo_aliases[i].combos;
-            }
-            
-            if(combo_aliases[i].csets != NULL)
-            {
-                delete[] combo_aliases[i].csets;
-            }
-            
-            combo_aliases[i].width=temp_aliases[i].width;
-            combo_aliases[i].height=temp_aliases[i].height;
-            combo_aliases[i].layermask=temp_aliases[i].layermask;
-            int32_t tcount = (comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
-            combo_aliases[i].combos = new word[tcount];
-            combo_aliases[i].csets = new byte[tcount];
-            
-            for(int32_t j=0; j<tcount; j++)
-            {
-                combo_aliases[i].combos[j] = temp_aliases[i].combos[j];
-                combo_aliases[i].csets[j] = temp_aliases[i].csets[j];
-            }
-            
-            combo_aliases[i].combo=temp_aliases[i].combo;
-            combo_aliases[i].cset=temp_aliases[i].cset;
-            //memcpy(combo_aliases[i].combos,temp_aliases[i].combos,sizeof(word)*tcount);
-            //memcpy(combo_aliases[i].csets,temp_aliases[i].csets,sizeof(byte)*tcount);
-        }
-    }
-    
-    setup_combo_animations();
-    setup_combo_animations2();
-    return D_O_K;
+	
+	int32_t ret=do_zqdialog(editcomboa_dlg,-1);
+	
+	if(ret==1)
+	{
+		saved=false;
+		
+		for(int32_t i=0; i<MAXCOMBOALIASES; i++)
+			combo_aliases[i] = temp_aliases[i];
+	}
+	
+	setup_combo_animations();
+	setup_combo_animations2();
+	return D_O_K;
+}
+void call_calias_dlg(int index)
+{
+	combo_apos = comboa_cnt = index;
+	onEditComboAlias();
 }
 
 static char ffcombo_str_buf[MAXFFCS];
@@ -23062,7 +22995,6 @@ void clearAssignSlotDlg()
 	assignscript_dlg[13].flags = 0;
 }
 
-//Deprecated for now, we'll be back later I swear!
 int32_t onSlotAssign()
 {
 	clearAssignSlotDlg();
@@ -23100,14 +23032,6 @@ int32_t onSlotAssign()
 	do_script_disassembly(scripts, false);
 	
 	do_slots(scripts, false);
-	return D_O_K;
-}
-
-void call_view_script_slots();
-
-int32_t onSlotPreview()
-{
-	call_view_script_slots();
 	return D_O_K;
 }
 
@@ -27497,7 +27421,8 @@ int32_t main(int32_t argc,char **argv)
 
 	if (used_switch(argc, argv, "-version"))
 	{
-		printf("version %s\n", getReleaseTag());
+		printf("version %s\n", getVersionString());
+		printf("version %d %d %d\n", getVersion().major, getVersion().minor, getVersion().patch);
 		return 0;
 	}
 
@@ -27549,7 +27474,7 @@ int32_t main(int32_t argc,char **argv)
 		do_copy_qst_command(input_filename, output_filename);
 	}
 
-	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
+	Z_title("%s, v.%s",ZQ_EDITOR_NAME, getVersionString());
 	
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
@@ -27740,7 +27665,7 @@ int32_t main(int32_t argc,char **argv)
 	packfile_password(datapwd);
 	
 	
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	
 	Z_message("Fonts.Dat...");
 	
@@ -27748,7 +27673,7 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("Failed to load fonts datafile '%s'!\n", moduledata.datafiles[fonts_dat]);
 	
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
-		FatalConsole("ZQuest Classic I/O Error:\nIncompatible version of fonts.dat.\nZQuest Classic cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+		FatalConsole("ZQuest Classic I/O Error:\nIncompatible version of fonts.dat.\nZQuest Classic cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	
 	if(fontsdat_cnt != FONTSDAT_CNT)
 		FatalConsole("Incompatible fonts.dat: Found size '%d', expecting size '%d'\n", fontsdat_cnt, FONTSDAT_CNT);
@@ -27767,7 +27692,7 @@ int32_t main(int32_t argc,char **argv)
 	//setPackfilePassword(NULL);
 	packfile_password("");
 	
-	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
+	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("SFX.Dat...");
 	
@@ -27775,7 +27700,7 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("Failed to load sfx.dat!\n");
 	
 	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
-		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
+		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("OK\n");
 	
@@ -27888,6 +27813,8 @@ int32_t main(int32_t argc,char **argv)
 	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
 	CmbPgCursorCol					  = zc_get_config("zquest","cpage_cursor_color",15);
 	TTipHLCol					  = zc_get_config("zquest","ttip_hl_color",13);
+	CheckerCol1					  = zc_get_config("zquest","checker_color_1",7);
+	CheckerCol2					  = zc_get_config("zquest","checker_color_2",8);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
 	SnapshotScale				 = zc_get_config("zquest","snapshot_scale",2);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
@@ -27907,7 +27834,7 @@ int32_t main(int32_t argc,char **argv)
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);
-	tooltip_maxtimer				 = vbound(zc_get_config("zquest","ttip_timer",30),15,60*60);
+	tooltip_maxtimer				 = vbound(zc_get_config("zquest","ttip_timer",30),0,60*60);
 	ShowFFScripts				  = zc_get_config("zquest","showffscripts",1);
 	ShowSquares					= zc_get_config("zquest","showsquares",1);
 	ShowFFCs					= zc_get_config("zquest","showffcs",0);
@@ -28148,13 +28075,19 @@ int32_t main(int32_t argc,char **argv)
 	initFonts();
 	load_size_poses();
 
-#ifndef __EMSCRIPTEN__
-	if (!all_get_fullscreen_flag() && !is_headless()) {
+	if (!is_headless())
+	{
 		// Just in case.
 		while (!all_get_display()) {
 			al_rest(1);
 		}
 
+		al_resize_display(all_get_display(), w, h);
+	}
+
+
+#ifndef __EMSCRIPTEN__
+	if (!all_get_fullscreen_flag() && !is_headless()) {
 		al_resize_display(all_get_display(), w, h);
 
 		int window_w = al_get_display_width(all_get_display());
@@ -28189,6 +28122,8 @@ int32_t main(int32_t argc,char **argv)
 #endif
 	}
 #endif
+
+	zapp_setup_icon();
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
@@ -28258,43 +28193,9 @@ int32_t main(int32_t argc,char **argv)
 	al_init_font_addon();
 	al_init_primitives_addon();
 	render_zq(); // Ensure the rendering bitmaps are setup.
-	//Display annoying beta warning message
 
 #ifdef __EMSCRIPTEN__
 	em_mark_ready_status();
-#endif
-
-#ifndef __EMSCRIPTEN__
-#ifdef _DEBUG
-	zc_set_config("zquest","beta_warning",(char*)nullptr);
-#endif
-#if V_ZC_ALPHA
-	char *curcontrol = getBetaControlString();
-	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
-	
-	if (zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
-	{
-		InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
-			" There may be major bugs, which could cause quests"
-			"\nto crash or become corrupted. Keep backups of your quest file!!"
-			"\nAdditionally, new features may change over time.").show();
-	}
-	
-	delete[] curcontrol;
-#elif V_ZC_BETA
-	char *curcontrol = getBetaControlString();
-	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
-	
-	if(zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
-	{
-		InfoDialog("Beta Warning", "WARNING:\nThis is an BETA version of ZQuest."
-			" There may be bugs, which could cause quests"
-			"\nto crash or become corrupted. Keep backups of your quest file!!").show();
-	}
-	
-	delete[] curcontrol;
-#endif
-
 #endif
 	
 	load_icons();
@@ -28459,6 +28360,9 @@ int32_t main(int32_t argc,char **argv)
 	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
 	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
 	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(cautosel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	SETFLAG(caliassel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	
 	init_ffpos();
 	
@@ -29354,31 +29258,6 @@ void quit_game()
     
     remove_locked_params_on_exit();
     
-    al_trace("Cleaning aliases. \n");
-    
-    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-    {
-        if(combo_aliases[i].combos != NULL)
-        {
-            delete[] combo_aliases[i].combos;
-        }
-        
-        if(combo_aliases[i].csets != NULL)
-        {
-            delete[] combo_aliases[i].csets;
-        }
-        
-        if(temp_aliases[i].combos != NULL)
-        {
-            delete[] temp_aliases[i].combos;
-        }
-        
-        if(temp_aliases[i].csets != NULL)
-        {
-            delete[] temp_aliases[i].csets;
-        }
-    }
-    
     al_trace("Cleaning sfx. \n");
     
     for(int32_t i=0; i<WAV_COUNT; i++)
@@ -29518,31 +29397,6 @@ void quit_game2()
     zc_stop_midi();
     
     remove_locked_params_on_exit();
-    
-    al_trace("Cleaning aliases. \n");
-    
-    for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-    {
-        if(combo_aliases[i].combos != NULL)
-        {
-            delete[] combo_aliases[i].combos;
-        }
-        
-        if(combo_aliases[i].csets != NULL)
-        {
-            delete[] combo_aliases[i].csets;
-        }
-        
-        if(temp_aliases[i].combos != NULL)
-        {
-            delete[] temp_aliases[i].combos;
-        }
-        
-        if(temp_aliases[i].csets != NULL)
-        {
-            delete[] temp_aliases[i].csets;
-        }
-    }
     
     al_trace("Cleaning sfx. \n");
     
@@ -30067,11 +29921,6 @@ int32_t save_config_file()
     
     zc_set_config("zquest","layer_mask",b);
     
-    //save the beta warning confirmation info
-	char *uniquestr = getBetaControlString();
-	zc_set_config("zquest", "beta_warning", uniquestr);
-	delete[] uniquestr;
-    
     flush_config_file();
 #ifdef __EMSCRIPTEN__
     em_sync_fs();
@@ -30150,31 +29999,6 @@ void flushItemCache(bool) {}
 void ringcolor(bool forceDefault)
 {
     forceDefault=forceDefault;
-}
-
-//annoying beta message :)
-char *getBetaControlString()
-{
-    char *result = new char[11];
-    const char *compiledate = __DATE__;
-    const char *compiletime = __TIME__;
-    int32_t i=0;
-    byte tempbyte;
-    
-    for(i=0; i<zc_min(10, zc_min((int32_t)strlen(compiledate),(int32_t)strlen(compiletime))); i++)
-    {
-        tempbyte = (compiledate[i]*compiletime[i])^i;
-        tempbyte = zc_max(tempbyte, 33);
-        tempbyte = zc_min(126, tempbyte);
-        result[i] = tempbyte;
-    }
-    
-    for(int32_t j=i; j<11; ++j)
-    {
-        result[j] = '\0';
-    }
-    
-    return result;
 }
 
 bool item_disabled(int32_t)
@@ -30336,7 +30160,7 @@ command_pair commands[cmdMAX]=
     { "Strings",                            0, (intF) onStrings },
     { "Subscreens",                         0, (intF) onEditSubscreens },
     { "Take ZQ Snapshot",                   0, (intF) onSnapshot },
-    { "Ambient Music",                      0, (intF) playTune1 },
+    { "Ambient Music",                      0, (intF) playZCForever },
     { "NES Dungeon Template",               0, (intF) onTemplate },
     { "<UNUSED>",                           0, (intF) NULL },
     { "Tile Warp",                          0, (intF) onTileWarp },
@@ -30401,7 +30225,6 @@ command_pair commands[cmdMAX]=
     { "Rule Templates",                     0, (intF) PickRuleTemplate },
     { "Smart Compile ZScript",              0, (intF) onSmartCompile },
 	{ "Autocombo Mode",                     0, (intF) onDrawingModeAuto },
-	{ "View Script Slots",                  0, (intF) onSlotPreview },
 };
 
 /********************************/

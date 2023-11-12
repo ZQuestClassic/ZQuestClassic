@@ -48,6 +48,14 @@ void RenderTreeItem::remove_child(RenderTreeItem* child)
 		child->transform_dirty = true;
 	}
 }
+void RenderTreeItem::remove_children()
+{
+	for (auto it = children.begin(); it != children.end(); it++)
+	{
+		(*it)->parent = nullptr;
+	}
+	children.clear();
+}
 std::vector<RenderTreeItem*> const& RenderTreeItem::get_children() const
 {
 	return children;

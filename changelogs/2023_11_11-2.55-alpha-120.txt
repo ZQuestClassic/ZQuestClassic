@@ -1,0 +1,407 @@
+The one with crumbling floors, moving platforms, and ExDoors.
+
+https://zquestclassic.com/releases/2.55-alpha-120
+
+# Features
+
+
+Add 'Screen->Data[]', 'Screen->DataSize' script data array for every screen.
+  This data array can be edited in the 'Screen Data' dialog, and all changes made by scripts are saved to the save file.
+
+`Init Data` dither pattern picker/previewer
+fade out the background behind dialog windows
+3 new dithering styles
+customizable 'ShoveOffset', add zfix round-direction handling
+FFC 'Platform' flag for moving platforms (to pull the player along with)
+Crumbling Combos (crumbling floors)
+Customizable sword tapping sounds (in Misc SFX and combo editor)
+customizable flicker speed and color for enemies and player in init data
+allow conveyors on all layers + ffcs (QR)
+Add itemsprite->NoSound
+  Disables the pickup sound for an item if true.
+
+add itemsprite->NoHoldSound
+add configuration for snapshot image scale
+set default snapshot scale to 2x
+Allow weapons to change sprite when lit on fire
+Add 'ExDoors', similar to 'ExStates', but directional. Carries over to adjacent screen.
+
+  Relevant changes:
+    feat(zscript): ZScript access for ExDoor related features
+    fix: typo in previous commit
+zc: added a setting to put a limit on 'uncapped' FPS so the game still runs at playable speeds
+zq: Pressing 'esc' while zoomed in on the minimap now unzooms (instead of trying to quit zq)
+zq: 'Insert SCC' button in the string editor now respects the caret position
+zq: made enemy editor InitD compatible with script metadata
+zq: add zooming when grabbing from image
+zq: added angular tile block rotation option to the tile editor
+zq: added buttons to the dmap editor to preview enhanced music looping
+zq: view script slots dialog
+zq: Combo Pool Pages dialog
+  Dialog is modular, should make adding future pages dialogs much easier
+
+zq: Auto Combo Pages dialog
+zq: allow customizing invalid checkerboard color
+zq: Combo Alias Pages dialog
+std_zh: `memcpy` version that only takes 2 args (auto-determines size)
+zscript: script access for extended dmap titles and new dmap intro string IDs
+zscript: GetTilePixel(), SetTilePixel(), and Is8BitTile[]
+zscript: 'Screen->GuyCount'/'mapdata->GuyCount' for read/write enemy respawns
+zscript: script access for player and enemy flicker and flash effects
+zupdater: add release channel to builds to specify where zupdater looks for updates
+  This adds a "channel" configuration to releases that limits what
+  releases the updater will consider when looking for new versions. This
+  allows us to configure a "2.55" release channel, and prevents the
+  from updating into 3.0 releases while still allowing it to grab new
+  releases from 2.55.
+  
+  This is necessary long term as it allows 2.55 users getting easy bug fix
+  updates without moving them to 3.0, which should only be done
+  explicitly.
+
+web: include cambria tileset
+
+# Bug Fixes
+
+wavy/cancel compat not being set
+a couple small things related to script access of subscreens
+'Newer Player Movement' corner-shove works better with off-grid solids
+Init Data dialog sometimes being too tall
+use cross platform clock for text edit proc
+issue more vsync in old gui proc as needed to catch up
+[mac] only check for `.app` to allow for app bundle to be renamed
+set size when making dlg layer to avoid crash
+minor dialog hiccups in some circumstances
+crash on viewing 'Fairy' flag help texts
+dialog windows in background popping out on tab-out
+tooltips staying open over dialog windows
+use steady_clock instead of system_lock to measure replay duration
+[mac] handle CMD key press and allow CMD for all places CTRL is
+a couple crashes/dialog oddities
+add proper versioning for init data deltas
+Crumble type now uses 'Continuous' as a checkbox, fix wizard for Crumbling type
+
+various issues with the default display size for windowed mode
+  Instead of using the monitor scale / DPI to multiply the size we set the
+  window to, it now looks at the monitor resolution and uses the largest
+  integer multiple of the base resolution (256x240 for zplayer, 456x342
+  for zeditor and zlauncher). This always takes into account the scaling
+  of the OS (the monitor width/height changes when you modify that). If a
+  window size is saved from a previous run, it will use that instead --
+  unless it won't fit, then it goes back to getting the largest resolution
+  for the given monitor. More details:
+  
+  - Completely change how the initial display is sized for windowed mode.
+    Instead of using the monitor DPI to scale up a base resolution,
+    default to as large a resolution as possible while maintaining an
+    integer scale. This particular commit retains the previous behavior
+    for Windows, but the next one will move Windows to the new behavior
+    (separate commits just in case a revert is necessary)
+  - Set the desired window size for zeditor before creating the display,
+    not after.
+  - Use the base resolution in zplayer for the allegro 5 screen bitmap,
+    instead of 2x the base resolution. Should improve rendering time a bit
+  - More reliable behavior on mac. Previously would possibly cut off top
+    part of screen and mess up mouse events if the initial display height
+    was bigger than the available height
+  - Set default for fullscreen option on Mac back to off. On newer M2
+    Macs fullscreen display creation is bugged. Fine for Windowed -> then
+    Maximize, and fine for older Macs, but for now just set the default
+    to windowed mode to be safe
+
+simplify display size for windows too
+set window title as early as possible to reduce flash of text
+mark render item transform dirty when changing parent
+  This bug resulted in the tooltip / highlighter being offset when the
+  window size changes.
+
+bomb equippability not respecting cost counter customization
+many issues with the 'Doors' dialog
+  Also adds new '(None)' door type. The player will not 'auto-walk' when entering from a '(None)' door, and no combos are placed when setting one in zq.
+
+use simpler temp file creation for all platforms
+  This should resolve problems with making save files observed on
+  some Linux setups.
+
+ack halt/resume draw events from allegro
+  Without this, the `[osx] allow_live_resize = false` configuration
+  option results in the window freezing on resize.
+
+zc: fixed passageway and item cellar fade-in when "New Dark Rooms" rule is on
+zc: playtime not drawing unless scrolling
+  I'm so mad at how dumb this was. Specifically, it doesn't draw if you have "subscreen over sprites" disabled unless you're scrolling.
+
+zc: 1-pixel gap in 'show walkability' cheat draw
+zc: 'Newer Player Movement' corner-shove being far too lenient
+zc: fix manhandla step speed calculations
+zc: show previous changes in player data menu when used multiple times without unpausing
+zc: restore quest progression and skip names
+zc: fix corner shove solidity
+zc: set size when making info layer to avoid crash
+zc: titlescreen hp offset when hp_per_heart != 16
+zc: Lift 'Special Item' setting wrong state
+zc: properly reset directory cache
+zc: subscreens with item-overridden level items not properly displaying
+zc: snapshot entire player screen for gui snapshot, which was missing a5 layers
+zc: set game played to false to fix quest progression sword/health bug
+zc: fix conveyor stun and forced direction persisting past stepping off the conveyor
+zc: set dummy flag when drawing temporary item
+  This fixes a known bug in older quests that plays sfx repeatedly when
+  picking up a fairy.
+
+zq: fixed crash when opening preview mode
+zq: made autocombos respect moving, adding, and removing combos
+zq: prevent crash when changing font
+zq: prevent data loss when grabbing tile from old quests
+zq: qrs having wrong category name in search menu
+zq: import maps was unhelpfully clearing everything
+  The map import tool was checking if the first screen's `valid` field
+  was a special value denoting it was "cleared" by the user. It's unclear
+  why `valid` holds this information, but presently it's not useful and
+  breaks map imports randomly.
+
+zq: use cross platform clock for timing to fix combo editor animation
+zq: use cross platform clock for zscript compile timing
+zq: format zc_args.txt correctly
+zq: preserve screen bitmap
+zq: prevent crash when rendering minimap during loading
+zq: fix crash with passive and overlay subscreen settings
+zq: 'Paste FFC' being slightly misaligned from the grid
+zq: clear tooltip before entering square-placement mode
+zq: test mode init data marking quest as "needs saving" extraneously
+zq: mark tooltip dirty if text changes
+zq: Fix palette desyncs (permanently?)
+  Should no longer need to ever manually 'rebuild transparency table'.
+  As such, the default keybind for 'Reset Transparency' is now '(None)' instead of 'B'
+
+zq: do not freeze screen bitmap while in pal dialog
+zq: Tall Grass combo wizard dropset not setting flags properly
+zq: prevent bad overlay when no tile is copied
+zq: more tile page problems from 4-bit: scaling, overlay
+zq: snapshot entire editor screen to include a5 layers
+zq: dmap editor remembering wrong tab
+zq: use consistent values for mouse coords when making tooltips
+std_zh: update ffrules.zh to include all new quest rules
+zscript: 'subdata->TransClock' was not returning -1 properly when not transitioning
+zscript: fix slowdown caused by draw commands during frozen message strings
+zscript: persist compiled jit functions when reloading the same quest
+zscript: `Game->CurrentItemID()` being completely broken
+zscript: mark destructors of base classes as virtual
+zscript: do allegro 5 init before a4 init in parser
+zscript: fix SPRINTFA calling the wrong function
+web: remove unnecessary bitmap backup
+  This pretty much doubles FPS across the board. huzzah
+
+web: support both landscape orientations
+
+# Documentation
+
+specify what OS versions we support
+
+# Build
+
+simplify packaging script
+use zlib as a shared library
+upgrade sentry to 0.6.6
+move some src/*.cpp files to appropriate static lib
+remove unused font.cpp
+upgrade to latest asmjit
+
+upgrade allegro
+  https://github.com/liballeg/allegro5/compare/652684327236dfd23dcf6bf433fa9975212106b5...11a6425cae646c592f3086cda5f8c339296135fb
+
+auto generate changelog for alpha release
+web: fix renamed script
+web: remove post-processing by python script
+web: include function names in release build, separate dwarf for debug build
+web: integrate web build into cmake
+web: fix missing zscript compiler caused by 7dbb75d
+
+# Chores
+
+fix many many typos of `it's` -> `its`
+remove outdated or unnecessary docs and ZScript headers
+
+# Refactors
+
+
+memcpy the buffer in PACKFILE fread
+  This saves ~500ms on my Mac when loading Yuurand.qst
+
+speed up copy_tile / tilesize
+use safe cstr reading functions
+add `bounded_vec` container type
+render a4->a5 bitmaps in first pass
+reorder field initializer list to fix compiler warnings
+simplify render tree drawing
+  This adds `prepare` and `render` functions to the RenderTreeItem
+  class. Also makes them virtual so that new classes can be made to
+  represent a render item. The minimap drawing code was moved to this.
+  
+  Consolidates the logic for when a render item is dirty, and moves
+  allegro 4 bitmap handling into a new derived class.
+
+use a single bitmap for dialog tint
+add bitmap_flags to rti
+Init Data / Gamedata
+  Change how Init Data is stored and saved to the quest file (and rearrange the dialog slightly)
+      - Allow setting mcguffin level state for all levels in init data/cheats instead of just levels 1-8
+      - Init data health can be in HP instead of just in Hearts
+      - Can set init values for script counters 26-100 (was missing before) 
+  - Change how data is stored and saved to the save file
+
+cache zasm script size
+move zcsound source files to src/sound
+remove zcmusicd.cpp
+move ffc set data / changer out of ffc.cpp and to src/zc
+  This is the first step to moving `ffc.cpp` to zcbase.
+
+cleanup combo position handling, optimize spotlight code
+cache config read for use_linear_bitmaps
+remember previous screen clip for scrolling pane
+avoid copying combo everywhere
+limit default window size to 3x the base resolution, and add a buffer so to always be less than the monitor size
+unpack 4-bit tiles when quest is loaded
+  This reduces CPU usage by ~3%.
+  
+  Previously, 4-bit tiles were only unpacked just before being drawn.
+  Unpacking means converting into a format ready for drawing, which is
+  somewhat slow to do in functions as hot as tile drawing. Now, when a qst
+  is loaded all 4-bit tiles are unpacked in memory. When saving a qst the
+  reverse happens. This change has no impact on the qst file format.
+
+avoid copy when drawing tile without any transformation
+  This reduces CPU usage by ~7%.
+
+make get_qr faster by unpacking the bits ahead of time
+  This reduces CPU usage by ~5.5%.
+
+Split graphical weapon init code, in prep for ignite sprites
+make tooltips simpler to install, and map prev/next tooltip
+remove unused single_instance
+minor combo alias optimizations/cleanup
+zc: do far less work in platform_fallthrough
+zc: do less work in run_gswitch_timers
+zc: avoid costly script object dealloc when destroying dummy item
+zc: use more accurate but slower tile drawing when drawing on edge of bitmap
+zc: respect bitmap clip in tile drawing functions, remove usage of temp_buf in screen draw
+zc: totally remove temp_buf in screen draw, and masked_blit
+  This refactor reduces CPU usage by roughly 6%.
+  
+  This results in some unavoidable minor graphical changes for quests with
+  the QR "Subscreen Appears Above Sprites" disabled. Specifically, sprites
+  (such as jumping enemies, weapons, etc) continue to draw over the
+  subscreen background as before, but now also draw over the individual
+  subscreen UI elements. In most cases this looks better, and better
+  follows what the QR text says will happen.
+  
+  https://hoten.cc/tmp/compare-report-screen-draw-refactor/
+
+zc: cache result of item_tile_mod, which saves 17% of CPU time
+zc: remove accidental copy in run_gswitch_timers
+zc: show dialog when saving fails
+zq: only draw tooltip bitmap when in use
+zq: remove rests and use smarter fps throttle
+  Use the same smart FPS throttle that the player uses in the editor too.
+  
+  This doubled the FPS in the Web version.
+
+zq: draw minimap to smaller bitmap
+  Also add a callback to RenderTreeItem, which allows the main drawing
+  code to directly render the minimap as needed.
+
+zq: only rerender minimap when dirty
+zq: draw tooltips to smaller bitmap
+zq: move minimap drawing to render_minimap.cpp
+zq: remove dialogs for deprecated modules and quest templates
+zq: move tooltip rendering to render_tooltip.cpp
+zq: bah humbug!
+zq: remove pointless time code
+zq: simplify tile copy during grabbing
+zscript: replace script debug_id with composite id (type, index)
+  The previous hack of using a global variable incremented in the
+  constructor had strange behavior, and would result in different ids
+  given when reloading a quest.
+
+zscript: use .contains instead of .find in jit.cpp
+launcher: group current version info in updater tab
+launcher: open new website for release note buttons
+launcher: remove changing zmod in launcher
+zupdater: just query website for release channel info
+web: prevent script trace unless debugger is enabled
+web: stop excluding some slow-to-build dialogs in debug builds
+
+# Tests
+
+re-enable classic_1st.qst resave test
+expand resave test to include ss_jenny.qst
+run replay tests concurrently
+add playground_ffc_changers.zplay
+pass correct value for frame arg, which was breaking --update
+recover from failure when downloading a release
+add --concurrency flag to run_replay_tests.py, and set to 1 in headful mode
+set retries flag when getting baseline replays locally
+remove diff from replay test run result
+support baseline prompt when providing existing test results on disk
+keep webserver alive for web replay tests. check for fatal errors
+make test replays lazy files instead of a single giant download
+clear test result folders in python tests
+for replay tests baseline prompt, only consider releases predating current commit
+zq: add test_package_export
+
+# CI
+
+trigger web.zquestclassic.com deploy on release
+use clang 17.0.2 for linux
+add failing test results to tar for faster upload
+reduce amount of data uploaded when replays fail
+fix archive step when there is nothing to archive
+run fewer replay tests for web, for now
+specify bash shell to fix windows failing test results upload
+
+only consider ancestors when searching for baseline commit
+  Previously it would only look at the main branch, but that does not
+  support long-living branches nor multiple release branches.
+
+fetch all git history for compare job
+explictly ask for python tests in ci.yml, which stopped running b/c of f589ada
+use all cores for replay tests on windows
+fix archive test results on windows
+
+# Misc.
+
+include oneliners in changelog script
+reserve dmap data in qst format for z3 regions
+add README.txt to release package
+log time it took to load qst
+collect quest ratings
+change log of website to new domain
+remove ag.cfg
+add/clarify some info text
+clean up box_out popup
+update 'default.qst'
+update references to old program names
+allow '<:' in commit (similar to '!:'), to squash with prior commit in changelog
+zc: set cont. heart beep default to off
+zc: change ending credits from Zelda Classic to ZQuest Classic
+zc: use more user friendly strings for creating save file / continue screen
+zq: add `-uncompress-qst` CLI command
+zq: make checkerboard bg in the tile editor align with the tile grid
+zq: remove minimum for tooltip timer
+zq: remove annoying beta warning
+zscript: Add compile error when trying to store temporary literals
+zscript: never compile scripts larger than 20,000 ZASM instructions
+zscript: print jit_log stuff to allegro log instead of stdout
+zscript: highly priortize only frame-1 global scripts for JIT compiler
+launcher: add support zc button
+web: make quest url a bit friendlier
+
+web: use gzip instead of allegro PACKFILE compression
+  gzip compresses better than allegro PACKFILEs:
+  
+  And it's a bit faster to load a qst in the Web version when it doesn't
+  have to decompress it. For Yuurand.qst, loading time (including
+  downloading) from 17.4s to 14.5s
+
+web: better indicate download progress for compressed assets
+web: support default open URL for tilesets

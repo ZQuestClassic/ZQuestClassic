@@ -188,6 +188,7 @@ void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h
 void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect);
 void jwin_draw_icon_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int icon, int32_t flags, bool show_dotted_rect);
 void jwin_draw_graphics_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, BITMAP *bmp, BITMAP *bmp2, int32_t flags, bool show_dotted_rect, bool overlay);
+bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 
 /* Allegro DIALOG procedures */
 int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c);
@@ -287,7 +288,7 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);
 
 //Misc bitmap drawing
 void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
-void draw_checkerboard(BITMAP* dest, int32_t basex, int32_t basey, int32_t x, int32_t y, int32_t sz);
+void draw_checkerboard(BITMAP* dest, int basex, int basey, int sz, optional<int> cb_sz = nullopt, int x = 0, int y = 0);
 
 int32_t d_vsync_proc(int32_t msg,DIALOG *,int32_t c);
 
@@ -305,5 +306,12 @@ void box_eol();
 void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int asz, bool center);
 void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int ah, bool center);
 int icon_proportion(int icon,int s1,int s2);
+
+void draw_dis_checkbox(BITMAP *dest,int x,int y,int wid,int hei,bool value);
+void draw_checkbox(BITMAP *dest,int x,int y,int wid,int hei,bool value);
+void draw_checkbox(BITMAP *dest,int x,int y,int sz,bool value);
+bool do_checkbox(BITMAP *dest,int x,int y,int wid,int hei,int &value, int xoffs = 0, int yoffs = 0);
+bool do_checkbox_tx(BITMAP *dest,int x,int y,int wid,int hei,int &value, int txtoffs, int xoffs = 0, int yoffs = 0);
+bool do_scheckbox(BITMAP *dest,int x,int y,int sz,int &value, int xoffs = 0, int yoffs = 0);
 
 #endif                                                      // _JWIN_H_

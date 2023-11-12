@@ -307,4 +307,3 @@ The favorite combos list has also been greatly expanded. It now allows for 9 pag
 It can also now hold entries from any of the four drawing modes. When selecting an entry from a different drawing mode, the current mode will automatically update to match. This should make switching from relationally drawing a screen's layout to placing down large objects as aliases to adding finer details a breeze. Each of the three special drawing modes will have icons drawn over their favorite combo entries, which can be disabled with the "Show Favorite Combo Modes" option in `Ect->Options...`.
 
 Lastly, adding favorite combos now respects the AutoBrush setting, making adding large blocks of single combos to the page far quicker.
-

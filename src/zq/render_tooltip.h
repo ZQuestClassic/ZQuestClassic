@@ -12,6 +12,7 @@ void ttip_install(int id, std::string text, int x, int y, int w, int h, int tip_
 void ttip_uninstall(int id);
 void ttip_uninstall_all();
 void ttip_set_highlight_thickness(int id, int thickness);
+void ttip_set_z_index(int id, int z_index);
 void ttip_clear_timer();
 
 #endif

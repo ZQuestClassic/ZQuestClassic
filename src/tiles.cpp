@@ -2731,14 +2731,3 @@ int32_t tilesize(byte format)
 	return 256;
 }
 
-int32_t comboa_lmasktotal(byte layermask)
-{
-    int32_t result=0;
-    result+=layermask&1;
-    result+=(layermask&2) >> 1;
-    result+=(layermask&4) >> 2;
-    result+=(layermask&8) >> 3;
-    result+=(layermask&16) >> 4;
-    result+=(layermask&32) >> 5;
-    return result;
-}

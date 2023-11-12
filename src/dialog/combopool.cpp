@@ -6,6 +6,7 @@
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "zq/zq_tiles.h"
+#include <fmt/format.h>
 
 extern bool saved;
 combo_pool temp_cpool;
@@ -14,6 +15,7 @@ static bool copied_cpool = false;
 static combo_pool* retptr;
 static int32_t cursor_cset;
 static bool new_usecs = false;
+static int cpool_indx;
 
 extern int32_t CSet;
 extern combo_pool combo_pools[];
@@ -21,6 +23,7 @@ extern combo_pool combo_pools[];
 void call_cpool_dlg(int32_t index)
 {
 	cursor_cset = CSet;
+	cpool_indx = index;
 	retptr = &combo_pools[index];
 	temp_cpool = *retptr;
 	ComboPoolDialog().show();
@@ -39,7 +42,7 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 	size_t vis_rows = 3;
 	sgrid = Rows<4>();
 	window = Window(
-		title = "Combo Pool Editor",
+		title = fmt::format("Combo Pool Editor ({})", cpool_indx),
 		use_vsync = true,
 		onTick = [&](){animate_combos(); return ONTICK_REDRAW;},
 		minwidth = 30_em,

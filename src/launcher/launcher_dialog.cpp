@@ -1,4 +1,5 @@
 #include "allegro5/allegro_native_dialog.h"
+#include "base/version.h"
 #include "base/zc_alleg.h"
 #include "launcher/launcher_dialog.h"
 #include "base/zdefs.h"
@@ -441,7 +442,7 @@ static bool check_for_updates()
 
 	next_version = output_map["tag_name"];
 	next_asset_url = output_map["asset_url"];
-	return found_new_update = next_version != getReleaseTag();
+	return found_new_update = next_version != getVersionString();
 }
 
 std::shared_ptr<GUI::Widget> LauncherDialog::view()
@@ -781,7 +782,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 #endif
 					Row(framed = true, padding = 10_px, topMargin = 40_px,
 						Rows<1>(fitParent = true,
-							Label(text = fmt::format("Current version: {}", getReleaseTag())),
+							Label(text = fmt::format("Current version: {}", getVersionString())),
 							Label(text = fmt::format("Channel: {}", getReleaseChannel())),
 							Label(text = fmt::format("Platform: {}", getReleasePlatform())),
 							Button(
@@ -870,7 +871,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		break;
 		case message::ZU_RELEASE_NOTES:
 		{
-			std::string url = fmt::format("https://zquestclassic.com/releases/{}/", getReleaseTag());
+			std::string url = fmt::format("https://zquestclassic.com/releases/{}/", getVersionString());
 #ifdef _WIN32
 			std::string cmd = "start " + url;
 			system(cmd.c_str());

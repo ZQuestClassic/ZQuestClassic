@@ -169,7 +169,7 @@ int32_t main(int32_t argc, char* argv[])
 		QUIT_LAUNCHER();
 	}
 	char fontsdat_sig[52]={0};
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
 	{
 		Z_error_fatal("failed: version error\n");
@@ -206,7 +206,9 @@ int32_t main(int32_t argc, char* argv[])
 	al_init_font_addon();
 	al_init_primitives_addon();
 	initFonts();
-	
+
+	zapp_setup_icon();
+
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	mouse_bmp = create_bitmap_ex(8,16,16);
