@@ -2914,12 +2914,16 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				}
 			}
 			
-			int sqr_clicked = reflbtn_grid.rectind(temp_mouse_x,temp_mouse_y);
-			if(sqr_clicked > -1)
+			int sqr_clicked;
+			if(show_quartgrid && qgrid_tool(tool))
 			{
-				auto& sqr = reflbtn_grid.subsquare(sqr_clicked);
-				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[sqr_clicked]))
-					refl_flags ^= (1<<sqr_clicked);
+				sqr_clicked = reflbtn_grid.rectind(temp_mouse_x,temp_mouse_y);
+				if(sqr_clicked > -1)
+				{
+					auto& sqr = reflbtn_grid.subsquare(sqr_clicked);
+					if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[sqr_clicked]))
+						refl_flags ^= (1<<sqr_clicked);
+				}
 			}
 			sqr_clicked = xmodebtn_grid.rectind(temp_mouse_x,temp_mouse_y);
 			if(sqr_clicked > -1)
@@ -2959,7 +2963,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			
 			if(hlcbox.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_checkbox(screen2,hlcbox.x,hlcbox.y,hlcbox.w,hlcbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],tthighlight))
+				if(do_checkbox(screen2,hlcbox.x,hlcbox.y,hlcbox.w,hlcbox.h,tthighlight))
 				{
 					zc_set_config("ZQ_GUI","tile_edit_fancyhighlight",tthighlight);
 					redraw=true;
@@ -2967,12 +2971,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			}
 			if(quartgrid_cbox.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_checkbox(screen2,quartgrid_cbox.x,quartgrid_cbox.y,quartgrid_cbox.w,quartgrid_cbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],show_quartgrid))
+				if(do_checkbox(screen2,quartgrid_cbox.x,quartgrid_cbox.y,quartgrid_cbox.w,quartgrid_cbox.h,show_quartgrid))
 					redraw=true;
 			}
 			if(hidegrid_cbox.rect(temp_mouse_x,temp_mouse_y))
 			{
-				if(do_checkbox(screen2,hidegrid_cbox.x,hidegrid_cbox.y,hidegrid_cbox.w,hidegrid_cbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],hide_grid))
+				if(do_checkbox(screen2,hidegrid_cbox.x,hidegrid_cbox.y,hidegrid_cbox.w,hidegrid_cbox.h,hide_grid))
 					redraw=true;
 			}
 			
