@@ -97,7 +97,7 @@ void for_every_valid_rpos_in_region(T fn)
 			{
 				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
 				rpos_handle.pos = pos;
-				fn(rpos_handle, scr->data[pos]);
+				fn(rpos_handle);
 			}
 		}
 	}
