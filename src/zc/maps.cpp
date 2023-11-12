@@ -133,10 +133,13 @@ static bool is_in_region(int region_origin_scr, int dmap, int scr)
 	return true;
 }
 
+// Set by z3_load_region.
+static bool screen_in_current_region[176];
 bool is_in_current_region(int scr)
 {
-	// TODO z3 ! cache
-	return is_in_region(cur_origin_screen_index, currdmap, scr);
+	return screen_in_current_region[scr];
+	// TODO z3 ! is the above helping at all?
+	// return is_in_region(cur_origin_screen_index, currdmap, scr);
 }
 
 bool is_valid_rpos(rpos_t rpos)
@@ -275,6 +278,15 @@ void z3_load_region(int screen_index, int dmap)
 
 	// TODO z3 !!!
 	// z3_update_currscr();
+
+	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
+	for (int x = 0; x < region_scr_width; x++)
+	{
+		for (int y = 0; y < region_scr_height; y++)
+		{
+			screen_in_current_region[cur_origin_screen_index + x + y*16] = true;
+		}
+	}
 }
 
 void z3_clear_temporary_screens()

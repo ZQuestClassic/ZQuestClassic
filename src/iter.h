@@ -1,5 +1,6 @@
 #include "base/zdefs.h"
 #include "zc/maps.h"
+#include "zc/zelda.h"
 #include <functional>
 #include <optional>
 #include <type_traits>
