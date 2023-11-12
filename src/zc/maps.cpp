@@ -5561,18 +5561,18 @@ void showbombeddoor(BITMAP *dest, int32_t side)
     }
 }
 
-void openshutters()
+void openshutters(mapscr* screen, int screen_index)
 {
 	bool opened_door = false;
 	for(int32_t i=0; i<4; i++)
-		if(tmpscr->door[i]==dSHUTTER)
+		if(screen->door[i]==dSHUTTER)
 		{
 			putdoor(scrollbuf,0,i,dOPENSHUTTER);
-			tmpscr->door[i]=dOPENSHUTTER;
+			screen->door[i]=dOPENSHUTTER;
 			opened_door = true;
 		}
-	
-	for_every_valid_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+
+	for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
 		newcombo const& cmb = combobuf[rpos_handle.data()];
 		if (cmb.triggerflags[0] & combotriggerSHUTTER)
 		{
@@ -5581,13 +5581,13 @@ void openshutters()
 	});
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_screen(screen, screen_index, [&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if(cmb.triggerflags[0] & combotriggerSHUTTER)
 				do_trigger_combo_ffc(ffc_handle);
 		});
 	}
-	
+
 	if(opened_door)
 		sfx(WAV_DOOR,128);
 }

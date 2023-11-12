@@ -85,7 +85,10 @@ void for_every_valid_rpos_in_region(T fn)
 		{
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
 			if (!scr->valid)
+			{
+				if (lyr == 0) break;
 				continue;
+			}
 
 			rpos_handle.screen = scr;
 			rpos_handle.layer = lyr;
@@ -94,7 +97,7 @@ void for_every_valid_rpos_in_region(T fn)
 			{
 				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
 				rpos_handle.pos = pos;
-				fn(rpos_handle);
+				fn(rpos_handle, scr->data[pos]);
 			}
 		}
 	}
@@ -208,5 +211,20 @@ void for_every_rpos_in_screen(mapscr* screen, int screen_index, T fn)
 			rpos_handle.pos = pos;
 			fn(rpos_handle);
 		}
+	}
+}
+
+template<typename T, typename = std::enable_if_t<
+    std::is_invocable_v<T, const ffc_handle_t&>
+>>
+void for_every_ffc_in_screen(mapscr* screen, int screen_index, T fn)
+{
+	int screen_index_offset = get_region_screen_index_offset(screen_index);
+	int c = screen->numFFC();
+	for (uint8_t i = 0; i < c; i++)
+	{
+		uint16_t id = screen_index_offset * MAXFFCS + i;
+		ffc_handle_t ffc_handle = {screen, (uint8_t)screen_index, id, i, &screen->ffcs[i]};
+		fn(ffc_handle);
 	}
 }
