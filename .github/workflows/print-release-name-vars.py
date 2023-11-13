@@ -49,7 +49,7 @@ if True:
     version_meta = [date, 'z3']
     release_version = f'{major}.{minor}.{patch}-prerelease.{n}'
     release_version += '+' + '.'.join(version_meta)
-    release_name = f'3.0 Prerelease {n} {date}'
+    release_name = f'3.0 Prerelease {n} {date} (z3)'
 
     set_action_output('release-version', release_version)
     set_action_output('release-name', release_name)
