@@ -34152,14 +34152,11 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		}
 		
 	} 
-	//zprint("FFCore.warp_player reached line: %d \n", 15918);
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
 	//we also need to check if dmaps are sideview here! -Z
 	//Likewise, we need to add that check to the normal Hero:;dowarp(0
 	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
-	//zprint("FFCore.warp_player reached line: %d \n", 15925);
-	//zprint("FFCore.warp_player war type is: %d \n", warpType);
 	
 	//int32_t last_entr_scr = -1;
 	//int32_t last_entr_dmap = -1;
@@ -34179,7 +34176,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		case wtIWARPZAP:
 		case wtIWARPWAVE: 
 		{
-			//zprint("FFCore.warp_player reached line: %d \n", 15936);
 			bool wasswimming = (Hero.getAction()==swimming);
 			bool wassideswim = (Hero.getAction()==sideswimming);
 			int32_t olddiveclk = Hero.diveclk;
@@ -34188,7 +34184,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				ALLOFF();
 			}
 			else FFCore.AlloffLimited(warpFlags);
-			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
+			if (warpFlags&warpFlagFORCERESETMUSIC) music_stop();
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			if(wasswimming)
@@ -34201,9 +34197,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);
 				Hero.diveclk = 0;
 			}
-			//zprint("FFCore.warp_player reached line: %d \n", 15948);
 			doWarpEffect(warpEffect, true);
-			//zprint("FFCore.warp_player reached line: %d \n", 15973);
 			int32_t c = DMaps[currdmap].color;
 			bool changedlevel = false;
 			bool changeddmap = false;
@@ -34297,7 +34291,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			doWarpEffect(warpEffect, false);
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
-			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) Play_Level_Music();
+			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) Play_Level_Music();
 			currcset=DMaps[currdmap].color;
 			dointro();
 			Hero.set_respawn_point();
@@ -34312,7 +34306,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			//zprint("%s was called with a warp type of Entrance/Exit\n", "Player->WarpEx()");
 			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
 			ALLOFF();
-			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
+			if (warpFlags&warpFlagFORCERESETMUSIC) music_stop();
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
@@ -34432,7 +34426,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
-			Play_Level_Music();
+			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC))Play_Level_Music();
 			currcset=DMaps[currdmap].color;
 			dointro();
 			Hero.set_respawn_point();
@@ -34524,7 +34518,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				lighting(false, true);
 			}
 			
-			Play_Level_Music();
+			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) Play_Level_Music();
 			currcset=DMaps[currdmap].color;
 			dointro();
 			break;
@@ -43168,16 +43162,15 @@ void FFScript::do_warp_ex(bool v)
 	int32_t zscript_array_size = am.size();
 	switch(zscript_array_size)
 	{
-		case 8:
-			// {int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags}
+		case 8: // {int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags}
+		case 9: // {int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir}
 		{
-			if(DEVLOGGING) zprint("FFscript.cpp running do_warp_ex with %d args\n", 8);
-			int32_t tmpwarp[8]={0};
-			for ( int32_t q = 0; q < wexDir; q++ )
+			int32_t tmpwarp[9]={0};
+			for ( int32_t q = 0; q < 8; q++ )
 			{
 				tmpwarp[q] = (am.get(q)/10000);
 			}
-			
+			tmpwarp[wexDir] = zscript_array_size < 9 ? -1 : (am.get(8)/10000);\
 			if ( ((unsigned)tmpwarp[1]) >= MAXDMAPS ) 
 			{
 				Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[1]);
@@ -43188,68 +43181,24 @@ void FFScript::do_warp_ex(bool v)
 				Z_scripterrlog("Invalid Screen ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[2]);
 				return;
 			}
-			//Extra sanity guard. 
+			//Extra sanity guard.
 			if ( DMaps[tmpwarp[1]].map*MAPSCRS+DMaps[tmpwarp[1]].xoff+tmpwarp[2] >= (int32_t)TheMaps.size() )
 			{
 				Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
 				return;
 			}
+			if(get_qr(qr_OLD_BROKEN_WARPEX_MUSIC))
+			{
+				SETFLAG(tmpwarp[wexFlags],warpFlagFORCECONTINUEMUSIC,tmpwarp[wexFlags]&warpFlagFORCERESETMUSIC);
+				TOGGLEFLAG(tmpwarp[wexFlags],warpFlagFORCERESETMUSIC);
+			}
 			//If we passed the sanity checks, populate the FFCore array and begin the action!
-			for ( int32_t q = 0; q < wexDir; q++ )
+			for ( int32_t q = 0; q < wexActive; q++ )
 			{
 				FFCore.warpex[q] = tmpwarp[q];
 			}
 			FFCore.warpex[wexActive] = 1;
-			FFCore.warpex[wexDir] = -1;
-			
 			break;
-		}
-		case 9:
-			// {int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir}
-		{
-			if(DEVLOGGING) zprint("FFscript.cpp running do_warp_ex with %d args\n", 9);
-			int32_t tmpwarp[9]={0};
-			
-			for ( int32_t q = 0; q < wexActive; q++ )
-			{
-				tmpwarp[q] = (am.get(q)/10000);
-			}
-			
-			if ( ((unsigned)tmpwarp[1]) >= MAXDMAPS ) 
-			{
-				Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[1]);
-				return;
-			}
-			if ( ((unsigned)tmpwarp[2]) >= MAPSCRS ) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[2]);
-				return;
-			}
-			//Extra sanity guard. 
-			if ( DMaps[tmpwarp[1]].map*MAPSCRS+DMaps[tmpwarp[1]].xoff+tmpwarp[2] >= (int32_t)TheMaps.size() )
-			{
-				Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
-				return;
-			}
-			//If we passed the sanity checks, populate the FFCore array and begin the action!
-			for ( int32_t q = 0; q < wexActive; q++ )
-			{
-				FFCore.warpex[q] = tmpwarp[q];
-			}
-			FFCore.warpex[wexActive] = 1; 
-			
-			for ( int32_t q = 0; q < wexActive; q++ )
-			{
-				FFCore.warpex[q] = tmpwarp[q];
-			}
-			
-			//for ( int32_t q = 0; q < wexLast; q++ ) 
-			//{
-			//	zprint("FFCore.warpex[%d] is: %d\n", q, FFCore.warpex[q]);
-			//}
-			
-			break;
-			
 		}
 	
 		default: 
@@ -43257,9 +43206,6 @@ void FFScript::do_warp_ex(bool v)
 			Z_scripterrlog("Array supplied to Player->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
 			break;
 		}
-		
-		
-		
 	}
 }
 

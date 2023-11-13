@@ -40,15 +40,16 @@
 #define FFRULES_SIZE 1024
 
 //Hero->WarpEx Flags
-#define warpFlagDONTKILLSCRIPTDRAWS 0x01
-#define warpFlagDONTKILLSOUNDS 0x02
-#define warpFlagDONTKILLMUSIC 0x04
-#define warpFlagSETENTRANCESCREEN 0x08
-#define warpFlagSETENTRANCEDMAP 0x10
-#define warpFlagSETCONTINUESCREEN 0x20
-#define warpFlagSETCONTINUEDMAP 0x040
+#define warpFlagDONTKILLSCRIPTDRAWS   0x001
+#define warpFlagDONTKILLSOUNDS        0x002
+#define warpFlagFORCERESETMUSIC       0x004
+#define warpFlagSETENTRANCESCREEN     0x008
+#define warpFlagSETENTRANCEDMAP       0x010
+#define warpFlagSETCONTINUESCREEN     0x020
+#define warpFlagSETCONTINUEDMAP       0x040
 #define warpFlagDONTRESTARTDMAPSCRIPT 0x080
-#define warpFlagDONTCLEARSPRITES 0x100
+#define warpFlagDONTCLEARSPRITES      0x100
+#define warpFlagFORCECONTINUEMUSIC    0x200
 
 #define warpFlagCLEARITEMS 0x200
 #define warpFlagCLEARGUYS 0x400
