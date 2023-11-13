@@ -156,7 +156,7 @@ extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern uint8_t InvalidBG;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
-extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
+extern bool ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
 extern double aspect_ratio;
 extern int window_min_width, window_min_height;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse

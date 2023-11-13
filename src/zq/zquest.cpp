@@ -579,7 +579,7 @@ bool NoHighlightLayer0 = false;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
 int32_t window_width, window_height;
-bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
+bool ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
 bool allowHideMouse = false;
 double aspect_ratio = LARGE_H / double(LARGE_W);
 int window_min_width = 0, window_min_height = 0;
@@ -27803,7 +27803,6 @@ int32_t main(int32_t argc,char **argv)
 	SnapshotScale				 = zc_get_config("zquest","snapshot_scale",2);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
-	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
 	ShowFPS						= zc_get_config("zquest","showfps",0)!=0;
 	SaveDragResize						= zc_get_config("zquest","save_drag_resize",0)!=0;
 	DragAspect						= zc_get_config("zquest","drag_aspect",0)!=0;
