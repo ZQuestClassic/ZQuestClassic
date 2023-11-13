@@ -4410,12 +4410,6 @@ void syskeys()
 		}
 	}
 	
-	//  if(zc_readkey(KEY_F1))	Vsync=!Vsync;
-	/*
-	  if(zc_readkey(KEY_F1))	set_bit(QHeader.rules4,qr4_NEWENEMYTILES,
-	  1-((get_bit(QHeader.rules4,qr4_NEWENEMYTILES))));
-	  */
-	
 	if(zc_read_system_key(KEY_F2))
 	{
 		ShowFPS=!ShowFPS;
@@ -5117,7 +5111,7 @@ int32_t onEsc() // Unused?? -L
 	return zc_getrawkey(KEY_ESC, true)?D_CLOSE:D_O_K;
 }
 
-int32_t onVsync()
+int32_t onThrottleFPS()
 {
 	Throttlefps = !Throttlefps;
 	zc_set_config(cfg_sect,"throttlefps", (int32_t)Throttlefps);
@@ -7434,7 +7428,7 @@ static MENU settings_menu[] =
 	{ "Options",                      NULL,                    options_menu,              0, NULL },
 	{ "",                             NULL,                    NULL,                      0, NULL },
 	//
-	{ "&Cap FPS\tF1",                 onVsync,                 NULL,                      0, NULL },
+	{ "&Cap FPS\tF1",                 onThrottleFPS,                 NULL,                      0, NULL },
 	{ "Show &FPS\tF2",                onShowFPS,               NULL,                      0, NULL },
 	{ "Click to Freeze",              onClickToFreeze,         NULL,                      0, NULL },
 	{ "Cont. &Heart Beep",            onHeartBeep,             NULL,                      0, NULL },
@@ -7672,7 +7666,7 @@ static DIALOG system_dlg[] =
 {
 	/* (dialog proc)	 (x)   (y)   (w)   (h)   (fg)  (bg)  (key)	(flags)  (d1)	  (d2)	 (dp) */
 	{ jwin_menu_proc,	0,	0,	0,	0,	0,	0,	0,	   D_USER,  0,		0, (void *) the_player_menu, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F1,   0, (void *) onVsync, NULL,  NULL },
+	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F1,   0, (void *) onThrottleFPS, NULL,  NULL },
 	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
 	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
 #ifndef ALLEGRO_MACOSX

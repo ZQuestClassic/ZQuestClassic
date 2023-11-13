@@ -582,7 +582,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				TabRef(name = "ZC Editor", Row(framed = true,
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX_I("Fullscreen",App::zquest,"zquest","fullscreen",0,"Exactly stable."),
-						CONFIG_CHECKBOX("VSync",App::zquest,"zquest","vsync",1),
 						CONFIG_CHECKBOX("Show FPS",App::zquest,"zquest","showfps",0),
 						CONFIG_CHECKBOX("Disable Sound",App::zquest,"zquest","nosound",0),
 						CONFIG_CHECKBOX("Animate Combos",App::zquest,"zquest","animation_on",1),
