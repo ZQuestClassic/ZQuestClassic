@@ -27876,6 +27876,9 @@ int32_t main(int32_t argc,char **argv)
 	large_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_large",1);
 	compact_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_compact",1);
 	
+	if(zc_get_config("gui","disable_window_resizing",0))
+		all_set_resize_flag(false);
+	
 	load_hotkeys();
 	
 #ifdef _WIN32
