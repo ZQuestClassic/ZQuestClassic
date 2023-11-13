@@ -90,9 +90,7 @@ jobs:
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
       fail-fast: false
-    # See https://github.com/community/community/discussions/40777
-    # uses: ./.github/workflows/build.yml
-    uses: ZQuestClassic/ZQuestClassic/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
     with:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
