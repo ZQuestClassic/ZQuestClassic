@@ -1790,7 +1790,7 @@ QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*
 	reloadQRs();
 }
 
-static std::string searchstring;
+static string searchstring;
 static size_t scroll_pos1;
 static bool info_search = false, zs_search = true;
 std::shared_ptr<GUI::Widget> QRDialog::view()
@@ -1800,7 +1800,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 	
 	if(searchmode)
 	{
-		std::string lower_search = searchstring;
+		string lower_search = searchstring;
 		lowerstr(lower_search);
 		
 		GUI::ListData tosearch = combinedQRList();
