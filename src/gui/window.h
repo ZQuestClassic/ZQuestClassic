@@ -37,7 +37,9 @@ public:
 	}
 	
 	void setOnTick(std::function<int32_t()> newOnTick);
-
+	void setOnLoad(std::function<void()> newOnLoad);
+	
+	void load();
 private:
 	std::shared_ptr<Widget> content;
 	std::string title;
@@ -45,6 +47,7 @@ private:
 	int32_t closeMessage;
 	bool use_vsync;
 	std::function<int32_t()> onTick;
+	std::function<void()> onLoad;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
