@@ -152,5 +152,14 @@ void Window::setOnTick(std::function<int32_t()> newOnTick)
 {
 	onTick = std::move(newOnTick);
 }
+void Window::setOnLoad(std::function<void()> newOnLoad)
+{
+	onLoad = std::move(newOnLoad);
+}
+void Window::load()
+{
+	if(onLoad)
+		onLoad();
+}
 
 }

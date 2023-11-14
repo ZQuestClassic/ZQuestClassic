@@ -2,6 +2,7 @@
 #include "gui/common.h"
 #include "base/gui.h"
 #include "gui/jwin.h"
+#include "gui/window.h"
 
 using std::shared_ptr;
 bool mid_quitting_dlg = false;
@@ -109,6 +110,9 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 		0, 0, // d1, d2
 		nullptr, nullptr, nullptr // dp1, dp2, dp3
 	});
+	
+	if(auto window = std::dynamic_pointer_cast<Window>(root))
+		window->load();
 }
 
 void DialogRunner::runInner(std::shared_ptr<Widget> root)
