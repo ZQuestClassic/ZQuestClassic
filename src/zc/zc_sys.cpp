@@ -5405,9 +5405,6 @@ int32_t j_getbtn(DIALOG *d)
 		
 	d->flags&=~D_SELECTED;
 	
-	if (player)
-		player->joy_on = TRUE;
-	
 	return D_O_K;
 }
 
@@ -5430,9 +5427,6 @@ void j_getstick(DIALOG *d)
 		*((int32_t*)d->dp3) = b;
 		
 	d->flags&=~D_SELECTED;
-	
-	if (player)
-		player->joy_on = TRUE;
 }
 
 int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)

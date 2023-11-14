@@ -126,6 +126,7 @@ public:
 	// `bitmap` will still be rendered.
 	bool freeze = false;
 	bool dirty = true;
+	bool skip_tint = false;
 
 	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
 	virtual ~RenderTreeItem();
@@ -242,6 +243,7 @@ void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskin
 
 extern BITMAP* zqdialog_bg_bmp;
 extern ALLEGRO_COLOR* override_dlg_tint;
+void zqdialog_set_skiptint(bool skipTint);
 void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();
