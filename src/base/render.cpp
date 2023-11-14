@@ -657,6 +657,24 @@ namespace MouseSprite
 
 BITMAP* zqdialog_bg_bmp = nullptr;
 static RenderTreeItem* active_dlg_rti = nullptr;
+void zqdialog_set_skiptint(bool skipTint)
+{
+	if(active_dlg_rti)
+		active_dlg_rti->skip_tint = skipTint;
+}
+static RenderTreeItem* get_active_dialog(bool forTint = false)
+{
+	auto& children = rti_dialogs.get_children();
+	for (auto it = children.rbegin(); it != children.rend(); it++)
+	{
+		auto child = *it;
+		if(forTint && child->skip_tint)
+			continue;
+		if(child->name != "tint")
+			return child;
+	}
+	return nullptr;
+}
 void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 {
 	if(w < 0) w = zq_screen_w;
@@ -692,18 +710,6 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		*allegro_errno = ENOMEM;
 	}
 }
-
-static RenderTreeItem* get_active_dialog()
-{
-	auto& children = rti_dialogs.get_children();
-	for (auto it = children.rbegin(); it != children.rend(); it++)
-	{
-		auto child = *it;
-		if (child->name != "tint") return child;
-	}
-	return nullptr;
-}
-
 void popup_zqdialog_end()
 {
 	if (active_dlg_rti)
@@ -836,7 +842,7 @@ void reload_dialog_tint()
 		rti_tint.dirty = false;
 	}
 
-	auto next_dialog_rti = get_active_dialog();
+	auto next_dialog_rti = get_active_dialog(true);
 	if (next_dialog_rti)
 		rti_dialogs.add_child_before(&rti_tint, next_dialog_rti);
 	else

@@ -6765,23 +6765,15 @@ int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y)
 	if(!dlg_lyr)
 	{
 		popup_zqdialog_start();
-		pause_dlg_tint(true);
+		zqdialog_set_skiptint(true);
 	}
-    int32_t ret = _jwin_do_menu(menu, NULL, FALSE, x, y, TRUE, NULL, 0, 0);
+	int32_t ret = _jwin_do_menu(menu, NULL, FALSE, x, y, TRUE, NULL, 0, 0);
 	if(dlg_lyr) remove_dlg_layer(dlg_lyr);
-	else
-	{
-		pause_dlg_tint(false);
-		popup_zqdialog_end();
-	}
-    
-    do
-    {
-        rest(1);
-    }
-    while(gui_mouse_b());
-    
-    return ret;
+	else popup_zqdialog_end();
+	
+	do rest(1); while(gui_mouse_b());
+	
+	return ret;
 }
 
 /* jwin_menu_proc:
@@ -7556,57 +7548,57 @@ static DIALOG droplist_dlg[] =
 
 static int32_t droplist(DIALOG *d)
 {
-    ListData *data = (ListData *)d->dp;
-    int32_t d1 = d->d1;
-    int32_t listsize, x, y, w, h, max_w;
+	ListData *data = (ListData *)d->dp;
+	int32_t d1 = d->d1;
+	int32_t listsize, x, y, w, h, max_w;
 	auto oz = gui_mouse_z();
 
-    data->listFunc(-1, &listsize);
-    y = d->y + d->h;
-    h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
-    
-    if(y+h >= zq_screen_h)
-    {
-        y = d->y - h;
-    }
-    
-    x = d->x;
-    w = d->w;
-    max_w = zc_max(d->x+d->w, zq_screen_w-d->x);
-    
-    for(int32_t i=0; i<listsize; ++i)
-    {
-        w=zc_min(max_w,zc_max(w,text_length(*data->font,data->listFunc(i, NULL))+39));
-    }
-    
-    if(x+w >= zq_screen_w)
-    {
+	data->listFunc(-1, &listsize);
+	y = d->y + d->h;
+	h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
+	
+	if(y+h >= zq_screen_h)
+	{
+		y = d->y - h;
+	}
+	
+	x = d->x;
+	w = d->w;
+	max_w = zc_max(d->x+d->w, zq_screen_w-d->x);
+	
+	for(int32_t i=0; i<listsize; ++i)
+	{
+		w=zc_min(max_w,zc_max(w,text_length(*data->font,data->listFunc(i, NULL))+39));
+	}
+	
+	if(x+w >= zq_screen_w)
+	{
 		x=zq_screen_w-w;
-    }
-    
-    droplist_dlg[1] = *d;
-    droplist_dlg[1].proc  = &jwin_abclist_proc;
-    droplist_dlg[1].flags = D_EXIT + D_USER;
-    droplist_dlg[1].x  = x;
-    droplist_dlg[1].y  = y;
-    droplist_dlg[1].w  = w;
-    droplist_dlg[1].h  = h;
-    droplist_dlg[1].d2 = listsize<=8 ? 0 : zc_max(d1-3,0);
-    
-    // cancel
-    droplist_dlg[0].x = 0;
-    droplist_dlg[0].y = 0;
-    droplist_dlg[0].w = zq_screen_w;
-    droplist_dlg[0].h = zq_screen_h;
-    
-    if(do_zqdialog(droplist_dlg,1)==1)
-    {
+	}
+	
+	droplist_dlg[1] = *d;
+	droplist_dlg[1].proc  = &jwin_abclist_proc;
+	droplist_dlg[1].flags = D_EXIT + D_USER;
+	droplist_dlg[1].x  = x;
+	droplist_dlg[1].y  = y;
+	droplist_dlg[1].w  = w;
+	droplist_dlg[1].h  = h;
+	droplist_dlg[1].d2 = listsize<=8 ? 0 : zc_max(d1-3,0);
+	
+	// cancel
+	droplist_dlg[0].x = 0;
+	droplist_dlg[0].y = 0;
+	droplist_dlg[0].w = zq_screen_w;
+	droplist_dlg[0].h = zq_screen_h;
+	
+	if(do_zq_subdialog(droplist_dlg,1)==1)
+	{
 		position_mouse_z(oz);
-        return droplist_dlg[1].d1;
-    }
-    
+		return droplist_dlg[1].d1;
+	}
+	
 	position_mouse_z(oz);
-    return d1;
+	return d1;
 }
 
 /* jwin_droplist_proc:
@@ -7614,85 +7606,87 @@ static int32_t droplist(DIALOG *d)
   */
 int32_t jwin_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int32_t ret;
-    int32_t down=0, last_draw=0;
-    int32_t d1;
-    
-    switch(msg)
-    {
-    case MSG_CLICK:
-        if(mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h))
-            goto dropit;
-            
-        break;
-        
-    case MSG_KEY:
-        goto dropit;
-        break;
-    }
-    
-    d1 = d->d1;
-    ret = jwin_list_proc(msg,d,c);
-    
-    if(d->d1!=d->d2)
-    {
-        d->d1=d->d2;
-        jwin_droplist_proc(MSG_DRAW, d, 0);
-    }
+	int32_t ret;
+	int32_t down=0, last_draw=0;
+	int32_t d1;
+	
+	switch(msg)
+	{
+		case MSG_CLICK:
+			if(mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h))
+				goto dropit;
+				
+			break;
+			
+		case MSG_KEY:
+			goto dropit;
+			break;
+	}
+	
+	d1 = d->d1;
+	ret = jwin_list_proc(msg,d,c);
+	
+	if(d->d1!=d->d2)
+	{
+		d->d1=d->d2;
+		jwin_droplist_proc(MSG_DRAW, d, 0);
+	}
 
-    if(d1 != d->d1)
-    {
-        GUI_EVENT(d, geCHANGE_SELECTION);
-        if(d->flags&D_EXIT)
-            ret |= D_CLOSE;
-    }
+	if(d1 != d->d1)
+	{
+		GUI_EVENT(d, geCHANGE_SELECTION);
+		if(d->flags&D_EXIT)
+			ret |= D_CLOSE;
+	}
 
-    if(msg == MSG_DRAW)
-    {
-        draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
-    }
-    
-    return ret;
-    
+	if(msg == MSG_DRAW)
+	{
+		draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
+	}
+	
+	return ret;
+	
 dropit:
-    last_draw = 0;
-    
-    while(gui_mouse_b())
-    {
-        down = mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h);
-        
-        if(down!=last_draw)
-        {
-            draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, down*3);
-            last_draw = down;
-            update_hw_screen();
-        }
-        
-        clear_keybuf();
+	last_draw = 0;
+	
+	while(gui_mouse_b())
+	{
+		down = mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h);
+		
+		if(down!=last_draw)
+		{
+			draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, down*3);
+			last_draw = down;
+			update_hw_screen();
+		}
+		
+		clear_keybuf();
 		rest(1);
-    }
-    
-    if(!down)
-    {
-        return D_O_K;
-    }
-    
-    draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
-    
-    d1 = d->d1;
-    d->d2 = d->d1 = droplist(d);
-    
-    object_message(d, MSG_DRAW, 0);
-    
-    while(gui_mouse_b()) {
-        clear_keybuf();
-        rest(1);
-    }
+	}
+	
+	if(!down)
+	{
+		return D_O_K;
+	}
+	
+	draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
+	
+	d1 = d->d1;
+	d->d2 = d->d1 = droplist(d);
+	
+	object_message(d, MSG_DRAW, 0);
+	
+	while(gui_mouse_b())
+	{
+		clear_keybuf();
+		rest(1);
+		update_hw_screen();
+	}
 
-    if(d1!=d->d1)
-        GUI_EVENT(d, geCHANGE_SELECTION);
+	if(d1!=d->d1)
+		GUI_EVENT(d, geCHANGE_SELECTION);
 
-    return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
+	return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
 
 /*****************************************/
