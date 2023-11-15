@@ -9288,6 +9288,16 @@ int TabSize;
  * VALID WIDGETS:
  *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX
 
+int ShowDrain;
+ * The magic drain rate this widget will be visible at (-1 for any)
+ * VALID WIDGETS:
+ *  SUBWIDG_MGAUGE
+
+int PerContainer;
+ * The counter amount per "container" for the widget
+ * VALID WIDGETS:
+ *  SUBWIDG_MISCGAUGE
+
 ////////////////////////////////////
 ////////////////////////////////////
 ________        ___.                       .__                
