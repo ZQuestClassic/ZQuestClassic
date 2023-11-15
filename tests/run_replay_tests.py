@@ -894,9 +894,9 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
                 (test_results_dir / 'updated').mkdir(exist_ok=True)
                 shutil.copy2(replay_file, test_results_dir / 'updated' / replay_file.name)
             break
-        except ReplayTimeoutException:
+        except ReplayTimeoutException as e:
             # Will try again.
-            result.exceptions.append('replay timed out')
+            result.exceptions.append(str(e))
             player_interface.stop()
         except KeyboardInterrupt:
             exit(1)
