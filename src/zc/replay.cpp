@@ -903,19 +903,20 @@ static void save_result(bool stopped = false, bool changed = false)
 {
 	time_result_saved = std::chrono::steady_clock::now();
 	std::chrono::duration<double, std::milli> elapsed = time_result_saved - time_started;
+	int elapsed_ms = elapsed.count();
 	std::time_t time_started_c = std::chrono::system_clock::to_time_t(time_started_system);
-	int fps = (double)frame_count / elapsed.count() * 1000;
+	int fps = elapsed_ms ? (double)frame_count / elapsed_ms * 1000 : 0;
 
 	std::ofstream out(get_file_path(".result.txt"), std::ios::binary);
 
 	out << fmt::format("replay: {}", replay_path.string()) << '\n';
 	out << fmt::format("mode: {}", replay_mode_to_string(mode)) << '\n';
 	out << fmt::format("time: {}", strtok(ctime(&time_started_c), "\n")) << '\n';
-	out << fmt::format("duration: {}", elapsed.count()) << '\n';
+	out << fmt::format("duration: {}", elapsed_ms) << '\n';
 	out << fmt::format("zc_version: {}", getVersionString()) << '\n';
-	if (replay_is_replaying())
+	if (replay_is_replaying() && !replay_log.empty())
 		out << fmt::format("replay_log_frames: {}", replay_log.back()->frame) << '\n';
-	if (replay_is_recording())
+	if (replay_is_recording() && !record_log.empty())
 		out << fmt::format("record_log_frames: {}", record_log.back()->frame) << '\n';
 	out << fmt::format("frame: {}", frame_count) << '\n';
 	out << fmt::format("fps: {}", fps) << '\n';
@@ -1227,6 +1228,8 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     {
         record_log.push_back(std::make_shared<KeyMapReplayStep>(0, KeyMapReplayStep::current.button_keys));
     }
+
+    save_result();
 }
 
 void replay_continue(std::filesystem::path path)
