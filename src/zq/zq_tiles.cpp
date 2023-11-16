@@ -16431,7 +16431,7 @@ REDRAW:
 						copy = tile + count;
 						copycnt = NEWMAXTILES-copy;
 						
-						if(m==18||key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
+						if(m==19||key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
 						{
 							char buf[64];
 							
