@@ -1657,7 +1657,13 @@ GUI::ListData bugfixRulesList
 	{ "Game->Misc[] is / 10000", qr_OLDQUESTMISC },
 	{ "GetPixel returns color / 10000", qr_BROKEN_GETPIXEL_VALUE },
 	{ "Always Deallocate Arrays", qr_ALWAYS_DEALLOCATE_ARRAYS },
-	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS }
+	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS },
+	{ "Broken WarpEx Music", qr_OLD_BROKEN_WARPEX_MUSIC,
+		"If enabled, script WarpEx music will use the old behavior for the 'WARP_FLAG_PLAYMUSIC'."
+		" This means the features of 'WARP_FLAG_FORCE_RESET_MUSIC' and 'WARP_FLAG_FORCE_CONTINUE_MUSIC'"
+		" will not work properly, and instead a mixture of the two settings will occur (Always resetting if it's off,"
+		" and always continuing if it's on)."
+		"\nIf disabled, the reset and continue flags will work separately, not using the old behavior." },
 };
 
 extern GUI::ListData compileSettingList;
@@ -1739,6 +1745,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
+				qr_OLD_BROKEN_WARPEX_MUSIC,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);
@@ -1783,7 +1790,7 @@ QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*
 	reloadQRs();
 }
 
-static std::string searchstring;
+static string searchstring;
 static size_t scroll_pos1;
 static bool info_search = false, zs_search = true;
 std::shared_ptr<GUI::Widget> QRDialog::view()
@@ -1793,7 +1800,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 	
 	if(searchmode)
 	{
-		std::string lower_search = searchstring;
+		string lower_search = searchstring;
 		lowerstr(lower_search);
 		
 		GUI::ListData tosearch = combinedQRList();

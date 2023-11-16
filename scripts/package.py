@@ -240,6 +240,9 @@ def do_web_packaging():
         'assets/overworld.mid',
         'assets/title.mid',
         'assets/triforce.mid',
+        'assets/zc/ZC_Forever_HD.mp3',
+        'assets/zc/ZC_Icon_Medium_Player.png',
+        'assets/zc/ZC_Logo.png',
         'base_config/zc.cfg',
         'base_config/zcl.cfg',
         'base_config/zquest.cfg',
@@ -256,6 +259,7 @@ def do_web_packaging():
         'zquest_web.cfg',
     ])
     zeditor_data_files = files(resources_dir, [
+        'assets/zc/ZC_Icon_Medium_Editor.png',
         'docs/zquest.txt',
         'docs/zstrings.txt',
         'modules/classic/classic_zquest.dat',

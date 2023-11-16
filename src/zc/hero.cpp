@@ -514,7 +514,7 @@ void HeroClass::go_respawn_point()
 	if(currdmap != respawn_dmap || currscr != respawn_scr)
 	{
 		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr,
-			-1, -1, 0, 0, warpFlagNOSTEPFORWARD|warpFlagDONTKILLMUSIC, -1);
+			-1, -1, 0, 0, warpFlagNOSTEPFORWARD, -1);
 	}
 }
 

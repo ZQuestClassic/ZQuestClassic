@@ -157,7 +157,7 @@ extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern uint8_t InvalidBG;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
-extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
+extern bool ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
 extern double aspect_ratio;
 extern int window_min_width, window_min_height;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
@@ -283,6 +283,8 @@ int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
+
+enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_cpool, dm_auto, dm_max, dm_menumax = 4};
 
 bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int32_t onSelectSFX();
@@ -562,203 +564,6 @@ extern int32_t bidmaps_cnt;
 void build_biitemsprites_list();
 extern script_struct biditemsprites[NUMSCRIPTSDMAP]; //item script
 extern int32_t biitemsprites_cnt;
-
-//extern script_struct biffs[NUMSCRIPTFFC];
-
-typedef struct command_struct
-{
-    char *s;
-    int32_t i;
-} command_struct;
-
-enum
-{
-    cmdNULL,
-    cmdAbout,
-    cmdCatchall,
-    cmdChangeTrack,
-    cmdCheats,
-    cmdCSetFix,
-    cmdDrawingModeAlias,
-    cmdEditComboAlias,
-    cmdCombos,
-    cmdCompileScript,
-    cmdCopy,
-    cmdDefault_Combos,
-    cmdDeleteMap,
-    cmdDelete,
-    cmdDmaps,
-    cmdDoorCombos,
-    cmdDoors,
-    cmdPasteDoors,
-    cmdDrawingModeDungeon,
-    cmdEndString,
-    cmdCustomEnemies,
-    cmdDefault_Guys,
-    cmdEnemies,
-    cmdPasteEnemies,
-    cmdEnhancedMusic,
-    cmdCmdExit,
-    cmdExport_Combos,
-    cmdExport_DMaps,
-    cmdExport_Map,
-    cmdExport_Pals,
-    cmdExport_ZQT,
-    cmdExport_Msgs,
-    cmdExport_Subscreen,
-    cmdExport_Tiles,
-    cmdExport_UnencodedQuest,
-    cmdExport_ZGP,
-    cmdFlags,
-    cmdPasteFFCombos,
-    cmdSelectFFCombo,
-    cmdFullScreen,
-    cmdIcons,
-    cmdGotoMap,
-    cmdGuy,
-    cmdPasteGuy,
-    cmdHeader,
-    cmdHelp,
-    cmdImportZASM,
-	cmdImportGScript, //Deprecated
-	cmdImportItemScript, //Deprecated
-    cmdImport_Combos,
-    cmdImport_DMaps,
-    cmdImport_ZGP,
-    cmdImport_Map,
-    cmdImport_Pals,
-    cmdImport_ZQT,
-    cmdImport_Msgs,
-    cmdImport_Subscreen,
-    cmdImport_Tiles,
-    cmdImport_UnencodedQuest,
-    cmdInfoTypes,
-    cmdInit,
-    cmdIntegrityCheckAll,
-    cmdIntegrityCheckRooms,
-    cmdIntegrityCheckWarps,
-    cmdItem,
-    cmdCustomItems,
-    cmdLayers,
-    cmdPasteLayers,
-    cmdColors_Levels,
-    cmdCustomHero,
-    cmdUsedCombos,
-    cmdColors_Main,
-    cmdMapCount,
-    cmdDefault_MapStyles,
-    cmdMapStyles,
-    cmdSubscreen,
-    cmdString,
-    cmdMidis,
-    cmdMiscColors,
-    cmdNew,
-    cmdDrawingModeNormal,
-    cmdOpen,
-    cmdOptions,
-    cmdScreenPalette,
-    cmdDefault_Pals,
-    cmdPaste,
-    cmdPasteAll,
-    cmdPasteAllToAll,
-    cmdPasteToAll,
-    cmdPath,
-    cmdPlayMusic,
-    cmdX,
-    cmdQuestTemplates, // UNUSED
-    cmdReTemplate,
-    cmdDrawingModeRelational,
-    cmdRevert,
-    cmdRType,
-    cmdPasteRoom,
-    cmdAnimationRules,
-    cmdSave,
-    cmdSaveAs,
-    cmdPasteScreenData,
-    cmdScrData,
-    cmdPasteSecretCombos,
-    cmdSecretCombo,
-    cmdEditSFX,
-    cmdShopTypes,
-    cmdSideWarp,
-    cmdColors_Sprites,
-    cmdDefault_Weapons,
-    cmdStopMusic,
-    cmdStrings,
-    cmdEditSubscreens,
-    cmdSnapshot,
-    cmdPlayTune,
-    cmdTemplate,
-    cmdTemplates,
-    cmdTileWarp,
-    cmdDefault_Tiles,
-    cmdTiles,
-    cmdToggleGrid,
-    cmdTriPieces,
-    cmdUnderCombo,
-    cmdPasteUnderCombo,
-    cmdUndo,
-    cmdZQVidMode,
-    cmdViewMap,
-    cmdShowPal,
-    cmdViewPic,
-    cmdPasteWarpLocations,
-    cmdWarpRings,
-    cmdPasteWarps,
-    cmdCustomWpns,
-    cmdShowDark,
-    cmdShowWalkable,
-    cmdShowFlags,
-    cmdShowCSet,
-    cmdShowType,
-    cmdComboRules,
-    cmdItemRules,
-    cmdEnemyRules,
-    cmdFixesRules,
-    cmdMiscRules,
-    cmdDefault_Items,
-    cmdItemDropSets,
-    cmdPastePalette,
-    cmdQuestRules,
-    cmdComboLocations,
-    cmdComboTypeLocations,
-    cmdEnemyLocations,
-    cmdItemLocations,
-    cmdScriptLocations,
-    cmdWhatLinksHere,
-    cmdIntegrityCheck,
-    cmdSaveZQuestSettings,
-    cmdOnClearQuestFilepath,
-    cmdFindBuggyNext,
-    cmdZScriptRules,
-    cmdExportZASM,
-    cmdHeroRules,
-    cmdZScriptCompilerRules,
-    cmdWeaponRules,
-    cmdScreenScript,
-    cmdScreenSnapshot,
-	cmdViewL2BG,
-	cmdViewL3BG,
-	cmdBottleTypes,
-	cmdBottleShopTypes,
-	cmdWaterSolidFix,
-	cmdEffectSquareFix,
-	cmdTestQuest,
-    cmdRedo,
-	cmdDrawingModePool,
-	cmdQRSearch,
-	cmdQuickCompile,
-	cmdRuleset,
-	cmdRuleTemplate,
-	cmdSmartCompile,
-	cmdDrawingModeAutocombo,
-	cmdViewScriptSlots,
-    cmdMAX
-};
-
-extern command_struct bic[cmdMAX];
-//int32_t combo_apos;
-//int32_t combo_alistpos;
 
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;

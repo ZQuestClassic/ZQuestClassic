@@ -497,6 +497,7 @@ ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(shortcuts, addShortcuts,
 		std::initializer_list<KeyboardShortcut>)
 	ZCGUI_ACCEPT_PROP(onTick, setOnTick, std::function<int32_t()>)
+	ZCGUI_ACCEPT_PROP(onLoad, setOnLoad, std::function<void()>)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
 
 	ZCGUI_SUGGEST_PROP(text, title)

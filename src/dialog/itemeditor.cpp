@@ -879,6 +879,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			_SET(misc[0], "Step Speed:", "The speed, in 100ths of pixel/frame");
 			_SET(flag[0], "No GFX Flip", "If checked, the sprite is not flipped based on direction.");
+			_SET(wpn[0], "Weapon Sprite", "The sprite the weapon uses. Will be flipped/rotated based on direction, unless 'No GFX Flip' is checked");
 			break;
 		}
 		case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4:

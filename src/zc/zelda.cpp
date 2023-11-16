@@ -5167,6 +5167,9 @@ int main(int argc, char **argv)
 	// window_width = resx;
 	// window_height = resy;
 	
+	if(zc_get_config("gui","disable_window_resizing",0))
+		all_set_resize_flag(false);
+	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
 		al_trace("Fatal Error: could not create a window for ZQuest Classic.\n");

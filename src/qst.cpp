@@ -3682,6 +3682,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_SEPARATE_BOMBABLE_TAPPING_SFX,1);
 	if(compatrule_version < 61)
 		set_qr(qr_BROKEN_BOMB_AMMO_COSTS,1);
+	if(compatrule_version < 62)
+		set_qr(qr_OLD_BROKEN_WARPEX_MUSIC,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

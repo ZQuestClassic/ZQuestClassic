@@ -28,7 +28,6 @@ void OptionsDialog::loadOptions()
 	opts[OPT_MOUSESCROLL] = MouseScroll ? 1 : 0;
 	opts[OPT_SAVEPATHS] = SavePaths ? 1 : 0;
 	opts[OPT_PALCYCLE] = CycleOn ? 1 : 0;
-	opts[OPT_VSYNC] = Vsync ? 1 : 0;
 	opts[OPT_FPS] = ShowFPS ? 1 : 0;
 	opts[OPT_SAVEDRAGRESIZE] = SaveDragResize ? 1 : 0;
 	opts[OPT_SAVEWINPOS] = SaveWinPos ? 1 : 0;
@@ -301,10 +300,6 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_PALCYCLE:
 			CycleOn = v;
 			zc_set_config("zquest","cycle_on",v);
-			break;
-		case OPT_VSYNC:
-			Vsync = v;
-			zc_set_config("zquest","vsync",v);
 			break;
 		case OPT_FPS:
 			ShowFPS = v;
@@ -927,7 +922,6 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 				Rows<3>(vAlign = 0.0,
 					ROW_CHECK(OPT_SAVEPATHS, "Save Paths"),
 					ROW_CHECK(OPT_PALCYCLE, "Palette Cycle"),
-					ROW_CHECK(OPT_VSYNC, "VSync"),
 					ROW_CHECK(OPT_FPS, "Show FPS"),
 					ROW_CHECK(OPT_RELOAD_QUEST, "Reload Last Quest"),
 					ROW_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),

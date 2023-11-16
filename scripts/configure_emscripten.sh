@@ -130,6 +130,8 @@ CMAKE_EXE_LINKER_FLAGS_DEBUG+=(
 # https://github.com/emscripten-core/emscripten/issues/18090
 embuilder build sdl2
 
+embuilder build libpng libpng-mt
+
 emcmake cmake \
   -G "Ninja Multi-Config" \
   -D ALLEGRO_SDL=ON \
@@ -166,7 +168,6 @@ rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_mid.a
 bash ../web/patches/apply.sh
 
 # TODO: why doesn't emscripten build this for us?
-embuilder build libpng-mt
 embuilder build sdl2-mt
 embuilder build sdl2_mixer_mid
 

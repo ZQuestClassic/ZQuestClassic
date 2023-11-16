@@ -49,6 +49,7 @@ static int _a5_display_height = 0;
 static int _a5_display_scale = 1;
 static bool _a5_display_force_integer_scale = true;
 static bool _a5_display_fullscreen = false;
+static bool _a5_display_resize = true;
 static int _a5_display_flags = 0;
 static int _a5_bitmap_flags = ALLEGRO_NO_PRESERVE_TEXTURE;
 static volatile int _a5_display_creation_done = 0;
@@ -90,7 +91,8 @@ static bool _a5_setup_screen(int w, int h)
   if (_a5_display_fullscreen) flags |= ALLEGRO_FULLSCREEN;
 #endif
 #ifndef __EMSCRIPTEN__
-  else flags |= ALLEGRO_RESIZABLE;
+  else if(_a5_display_resize) flags |= ALLEGRO_RESIZABLE;
+  else flags &= ~ALLEGRO_RESIZABLE;
 #endif
 
   al_set_new_display_flags(flags);
@@ -874,6 +876,22 @@ bool all_get_fullscreen_flag()
     return (al_get_display_flags(_a5_display) & (ALLEGRO_FULLSCREEN | ALLEGRO_FULLSCREEN_WINDOW)) != 0;
   }
   return _a5_display_fullscreen;
+}
+
+// local edit
+void all_set_resize_flag(bool resize)
+{
+  _a5_display_resize = resize;
+}
+
+// local edit
+bool all_get_resize_flag()
+{
+  if (_a5_display)
+  {
+    return (al_get_display_flags(_a5_display) & ALLEGRO_RESIZABLE) != 0;
+  }
+  return _a5_display_resize;
 }
 
 // local edit

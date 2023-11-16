@@ -44,7 +44,8 @@ zfix vbound(zfix val, int low, int high);
 
 #define zc_max(a,b) (((a) < (b)) ? (b) : (a))
 #define zc_min(a,b) (((a) < (b)) ? (a) : (b))
-#define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl)
+#define SETFLAG(v, fl, b) if(b) v |= (fl); else v &= ~(fl)
+#define TOGGLEFLAG(v, fl) v ^= (fl)
 
 int wrap(int x,int low,int high);
 
