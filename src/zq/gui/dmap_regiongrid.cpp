@@ -199,27 +199,6 @@ static void draw_region_square(BITMAP* bmp, int region_index, int x, int y, FONT
 	textprintf_centre_ex(bmp, f, x0 + rg_col_width / 2 - rg_button_thickness, y0 + rg_l / 2 - text_height / 2, text_color, -1, "%d", region_index);
 }
 
-
-// TODO z3 !!!!!! migrate to new ui
-// //223
-//     {  d_region_grid_proc,           12,     65,     310,     145,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
-// 	{  jwin_button_proc,             12,    210,     61,     12,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        0,    D_EXIT,      0,             0, (void *) "Z3 User Guide",                                       NULL,                 NULL                  },
-
-// 	//225
-// 	{  jwin_check_proc,              200,    125,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Extended Viewport Height",      NULL,                 NULL                  },
-
-// 	{  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
-// };
-
-// saving back to dmap code ...
-// for(int32_t i=0; i<8; i++)
-// 		{
-// 			for(int32_t j=0; j<8; j++)
-// 			{
-// 				DMaps[index].region_indices[i][j] = region_indices[i][j];
-// 			}
-// 		}
-
 int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 {
 	if (msg == MSG_DRAW && !should_allow_regions())

@@ -27103,7 +27103,7 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
         break;
     }
 
-	// TODO z3 !!!!! rm if yuurand / ss_jenny.zplay works
+	// TODO z3 !!!!! rm if yuurand / ss_jenny.zplay (failure on frame 88356) works
 	if (!is_z3_scrolling_mode())
 	{
 		int32_t combo = (cy&0xF0)+(cx>>4);
