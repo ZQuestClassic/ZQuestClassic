@@ -109,37 +109,11 @@ static bool is_same_region_id(int region_origin_scr, int dmap, int scr)
 	return region_id && region_id == get_region_id(dmap, scr);
 }
 
-static bool is_in_region(int region_origin_scr, int dmap, int scr)
-{
-	if (region_origin_scr == scr) return true;
-	if (!is_same_region_id(region_origin_scr, dmap, scr)) return false;
-
-	if (region_origin_scr != cur_origin_screen_index)
-	{
-		return true;
-	}
-	
-	// TODO z3 !!: the above is wrong when region ids are reused. We don't have the width/height
-	// of non-current regions onhand so we'd have to calculate that.
-	int z3_scr_x = cur_origin_screen_index % 16;
-	int z3_scr_y = cur_origin_screen_index / 16;
-	int scr_x = scr % 16;
-	int scr_y = scr / 16;
-	
-	if (scr_x > z3_scr_x + region_scr_width) return false;
-	if (scr_x < z3_scr_x) return false;
-	if (scr_y > z3_scr_y + region_scr_height) return false;
-	if (scr_y < z3_scr_y) return false;
-	return true;
-}
-
 // Set by z3_load_region.
 static bool screen_in_current_region[176];
 bool is_in_current_region(int scr)
 {
 	return screen_in_current_region[scr];
-	// TODO z3 ! is the above helping at all?
-	// return is_in_region(cur_origin_screen_index, currdmap, scr);
 }
 
 bool is_valid_rpos(rpos_t rpos)
@@ -5861,7 +5835,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	{
 		for (int screen_index = 0; screen_index < 128; screen_index++)
 		{
-			if (screen_index != cur_origin_screen_index && is_in_region(cur_origin_screen_index, destdmap, screen_index))
+			if (screen_index != cur_origin_screen_index && is_in_current_region(screen_index))
 			{
 				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
 			}
