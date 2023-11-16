@@ -706,9 +706,8 @@ int32_t RPOS_TO_POS(rpos_t rpos)
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
-	// TODO z3 !!
-	// DCHECK(scr_dx >= 0 && scr_dy >= 0);
-	// DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
+	DCHECK(scr_dx >= 0 && scr_dy >= 0);
+	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)

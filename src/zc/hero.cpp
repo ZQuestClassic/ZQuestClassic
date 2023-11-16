@@ -466,13 +466,16 @@ void HeroClass::set_respawn_point(bool setwarp)
 			} //End check water
 			
 			rpos_t rposes[] = {
-				COMBOPOS_REGION(x,y+(bigHitbox?0:8)),
-				COMBOPOS_REGION(x,y+15),
-				COMBOPOS_REGION(x+15,y+(bigHitbox?0:8)),
-				COMBOPOS_REGION(x+15,y+15)
+				COMBOPOS_REGION_CHECK_BOUNDS(x,y+(bigHitbox?0:8)),
+				COMBOPOS_REGION_CHECK_BOUNDS(x,y+15),
+				COMBOPOS_REGION_CHECK_BOUNDS(x+15,y+(bigHitbox?0:8)),
+				COMBOPOS_REGION_CHECK_BOUNDS(x+15,y+15)
 				};
 			for(auto rpos : rposes)
 			{
+				if (rpos == rpos_t::None)
+					continue;
+
 				if(HASFLAG_ANY(mfUNSAFEGROUND, rpos)) //"Unsafe Ground" flag touching the player
 				{
 					is_safe = false;
