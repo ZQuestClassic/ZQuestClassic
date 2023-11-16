@@ -77,9 +77,6 @@ extern ViewportMode viewport_mode;
 // The screen offset from the region origin that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 0.
 extern int region_scr_dx, region_scr_dy;
-// The screens size of the region that the hero is currently standing in. If not currently
-// in z3 scrolling mode, this is just 1.
-extern int region_scr_width, region_scr_height;
 // Number of screens in the current region.
 extern int region_scr_count;
 // Maximum value for 'rpos' in the current region. This is the number of possible combo positions, minus 1.
@@ -100,11 +97,12 @@ struct region
 	int region_id;
 	int dmap;
 	int origin_screen_index;
-	int screen_width;
-	int screen_height;
+	// The screens size of the region that the hero is currently standing in. If not currently
+	// in z3 scrolling mode, this is just 1.
+	int screen_width, screen_height;
 	int screen_count;
-	int width;
-	int height;
+	// World coordinates.
+	int width, height;
 };
 extern region current_region;
 

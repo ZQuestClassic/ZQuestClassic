@@ -27864,8 +27864,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_WIDTH] = new_region.screen_width;
 	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_HEIGHT] = new_region.screen_height;
 
-	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_WIDTH] = region_scr_width;
-	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_HEIGHT] = region_scr_height;
+	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_WIDTH] = current_region.screen_width;
+	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_HEIGHT] = current_region.screen_height;
 
 	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_WIDTH] = new_viewport.w;
 	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_HEIGHT] = new_viewport.h;
@@ -28069,10 +28069,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
-	int old_origin_scr = cur_origin_screen_index;
-	int old_region_scr_width = region_scr_width;
-	int old_region_scr_height = region_scr_height;
-	int old_region_scr_dx = region_scr_dx;
 	int old_region_scr_dy = region_scr_dy;
 	int old_world_w = world_w;
 	int old_world_h = world_h;

@@ -56,7 +56,6 @@ viewport_t viewport;
 ViewportMode viewport_mode;
 int world_w, world_h;
 int region_scr_dx, region_scr_dy;
-int region_scr_width, region_scr_height;
 int region_scr_count;
 rpos_t region_max_rpos;
 int region_num_rpos;
@@ -129,7 +128,7 @@ bool is_z3_scrolling_mode()
 
 bool is_extended_height_mode()
 {
-	return (DMaps[currdmap].flags & dmfEXTENDEDVIEWPORT) && region_scr_height > 1;
+	return (DMaps[currdmap].flags & dmfEXTENDEDVIEWPORT) && current_region.screen_height > 1;
 }
 
 // Returns 0 if this is not a region.
@@ -240,9 +239,6 @@ void z3_load_region(int screen_index, int dmap)
 	cur_origin_screen_index = current_region.origin_screen_index;
 	world_w = current_region.width;
 	world_h = current_region.height;
-	// TODO z3 !!
-	region_scr_width = current_region.screen_width;
-	region_scr_height = current_region.screen_height;
 	region_scr_count = current_region.screen_count;
 	region_max_rpos = (rpos_t)(current_region.screen_width*current_region.screen_height*176 - 1);
 	region_num_rpos = current_region.screen_width*current_region.screen_height*176;
@@ -254,9 +250,9 @@ void z3_load_region(int screen_index, int dmap)
 	// z3_update_currscr();
 
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
-	for (int x = 0; x < region_scr_width; x++)
+	for (int x = 0; x < current_region.screen_width; x++)
 	{
-		for (int y = 0; y < region_scr_height; y++)
+		for (int y = 0; y < current_region.screen_height; y++)
 		{
 			screen_in_current_region[cur_origin_screen_index + x + y*16] = true;
 		}
@@ -396,8 +392,8 @@ int get_screen_index_for_rpos(rpos_t rpos)
 	int origin_scr_x = cur_origin_screen_index % 16;
 	int origin_scr_y = cur_origin_screen_index / 16;
 	int scr_index = static_cast<int32_t>(rpos) / 176;
-	int scr_x = origin_scr_x + scr_index%region_scr_width;
-	int scr_y = origin_scr_y + scr_index/region_scr_width;
+	int scr_x = origin_scr_x + scr_index%current_region.screen_width;
+	int scr_y = origin_scr_y + scr_index/current_region.screen_width;
 	return scr_xy_to_index(scr_x, scr_y);
 }
 
@@ -504,13 +500,13 @@ int z3_get_region_relative_dy(int screen_index, int origin_screen_index)
 
 int get_region_screen_index_offset(int screen_index)
 {
-	return z3_get_region_relative_dx(screen_index) + z3_get_region_relative_dy(screen_index) * region_scr_width;
+	return z3_get_region_relative_dx(screen_index) + z3_get_region_relative_dy(screen_index) * current_region.screen_width;
 }
 
 int get_screen_index_for_region_index_offset(int offset)
 {
-	int scr_dx = offset % region_scr_width;
-	int scr_dy = offset / region_scr_width;
+	int scr_dx = offset % current_region.screen_width;
+	int scr_dy = offset / current_region.screen_width;
 	int screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
 	return screen_index;
 }
@@ -633,29 +629,29 @@ int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
 	int x = (pos%16) + scr_dx*16;
 	int y = (pos/16) + scr_dy*11;
-	int combos_wide = region_scr_width * 16;
+	int combos_wide = current_region.screen_width * 16;
 	return x + y * combos_wide;
 }
 int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y)
 {
-	int combos_wide = region_scr_width * 16;
+	int combos_wide = current_region.screen_width * 16;
 	return x / 16 + y / 16 * combos_wide;
 }
 int32_t COMBOPOS_REGION_EXTENDED_B(int32_t x, int32_t y)
 {
 	if(unsigned(x) >= world_w || unsigned(y) >= world_h)
 		return -1;
-	int combos_wide = region_scr_width * 16;
+	int combos_wide = current_region.screen_width * 16;
 	return x / 16 + y / 16 * combos_wide;
 }
 int32_t COMBOX_REGION_EXTENDED(int32_t pos)
 {
-	int combos_wide = region_scr_width * 16;
+	int combos_wide = current_region.screen_width * 16;
 	return pos % combos_wide * 16;
 }
 int32_t COMBOY_REGION_EXTENDED(int32_t pos)
 {
-	int combos_wide = region_scr_width * 16;
+	int combos_wide = current_region.screen_width * 16;
 	return pos / combos_wide * 16;
 }
 
@@ -691,7 +687,7 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
 	int pos = COMBOPOS(x%256, y%176);
-	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
+	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
 }
 rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 {
@@ -701,7 +697,7 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
 	int pos = COMBOPOS(x, y);
-	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
+	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
 }
 int32_t RPOS_TO_POS(rpos_t rpos)
 {
@@ -713,7 +709,7 @@ rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 	// TODO z3 !!
 	// DCHECK(scr_dx >= 0 && scr_dy >= 0);
 	// DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
-	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
+	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)
 {
@@ -724,8 +720,8 @@ rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)
 void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y)
 {
 	int scr_index = static_cast<int32_t>(rpos) / 176;
-	int scr_dx = scr_index % region_scr_width;
-	int scr_dy = scr_index / region_scr_width;
+	int scr_dx = scr_index % current_region.screen_width;
+	int scr_dy = scr_index / current_region.screen_width;
     int pos = RPOS_TO_POS(rpos);
 	out_x = scr_dx*16*16 + COMBOX(pos);
 	out_y = scr_dy*11*16 + COMBOY(pos);

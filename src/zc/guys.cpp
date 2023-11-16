@@ -8359,8 +8359,8 @@ void enemy::removearmosffc(uint16_t ffc_id)
 	// TODO z3 !! ugly
 	uint8_t i = ffc_id % MAXFFCS;
 	uint8_t screen_index_offset = ffc_id / MAXFFCS;
-	uint8_t scr_dx = screen_index_offset % region_scr_width;
-	uint8_t scr_dy = screen_index_offset / region_scr_width;
+	uint8_t scr_dx = screen_index_offset % current_region.screen_width;
+	uint8_t scr_dy = screen_index_offset / current_region.screen_width;
 	uint8_t screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
 	mapscr* screen = get_scr(currmap, screen_index);
 	removearmosffc({screen, screen_index, ffc_id, i, &screen->ffcs[i]});

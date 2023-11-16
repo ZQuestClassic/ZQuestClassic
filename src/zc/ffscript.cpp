@@ -9262,13 +9262,13 @@ int32_t get_register(const int32_t arg)
 
 		case REGIONSCREENWIDTH:
 		{
-			ret = region_scr_width * 10000;
+			ret = current_region.screen_width * 10000;
 		}
 		break;
 
 		case REGIONSCREENHEIGHT:
 		{
-			ret = region_scr_height * 10000;
+			ret = current_region.screen_height * 10000;
 		}
 		break;
 
