@@ -1685,7 +1685,7 @@ void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 	{
 		if(!rect_sel || ((TILECOL(temptile)>=left) && (TILECOL(temptile)<=left+columns-1)))
 		{
-			unpack_tile(newtilebuf, temptile, 0, false);
+			unpack_tile(newtilebuf, temptile, 0, true);
 			
 			if(flip&1)
 			{
