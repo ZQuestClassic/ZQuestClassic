@@ -141,14 +141,14 @@ jobs:
       # TODO z3 ! just rm?
       # - run: sudo mkdir -p .tmp/test_updater/cache
       #   if: ${{ runner.os != 'Windows' }}
-      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Updater cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
-      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Run Python tests
         run: bash .github/workflows/run_python.sh -m unittest discover tests
 

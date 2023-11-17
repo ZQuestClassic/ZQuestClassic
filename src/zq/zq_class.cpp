@@ -1,9 +1,11 @@
+#include <chrono>
 #include <cstring>
 #include <string>
 #include <stdexcept>
 #include <map>
 
 #include "base/version.h"
+#include "dialog/info.h"
 #include "metadata/metadata.h"
 
 #include "base/qrs.h"
@@ -13,6 +15,7 @@
 #include "base/autocombo.h"
 #include "base/gui.h"
 #include "base/msgstr.h"
+#include "zc/zelda.h"
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
@@ -13895,14 +13898,76 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 		return ec.value();
 	}
 
+	strncpy(header.zelda_version_string, getVersionString(), sizeof(header.zelda_version_string));
+
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
 #endif
 
 	return 0;
 }
+
+// #ifdef _WIN32
+// static std::time_t to_time_t(FILETIME const& ft) {
+//     uint64_t t = (static_cast<uint64_t>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+//     t -= 116444736000000000ull;
+//     t /= 10000000u;
+//     return static_cast<std::time_t>(t);
+// }
+// #else
+// #endif
+template<typename TP>
+static std::time_t to_time_t(TP tp) {
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
+
+std::string get_time_last_modified_string(std::string path)
+{
+	auto write_time = fs::last_write_time(path);
+	// TODO: C++20 but not supported yet.
+	// auto tt = std::chrono::clock_cast<std::chrono::system_clock>(write_time);
+    std::time_t tt = to_time_t(write_time);
+	std::tm *gmt = std::gmtime(&tt);
+	std::stringstream buffer;
+	buffer << std::put_time(gmt, "%Y-%m-%d");
+	std::string formattedFileTime = buffer.str();
+	return formattedFileTime;
+}
+
 int32_t save_unencoded_quest(const char *filename, bool compressed, const char *afname)
 {
+	// Always backup quest if it was last saved in a different version of the editor,
+	// or if this a new file and is overwritting another qst file.
+	if (exists(filename) && std::string(getVersionString()) != header.zelda_version_string)
+	{
+		std::string backup_name;
+		std::string last_mod = get_time_last_modified_string(filename);
+		if (strlen(header.zelda_version_string) > 0)
+		{
+			backup_name = fmt::format("{}-v{}", last_mod, header.zelda_version_string);
+		}
+		else
+		{
+			backup_name = fmt::format("{}", last_mod);
+		}
+		std::string backup_fname = fmt::format("{}-{}{}", fs::path(filename).stem().string(), backup_name, fs::path(filename).extension().string());
+		fs::path backup_path = fs::path("backups") / backup_fname;
+		if (!fs::exists(backup_path))
+		{
+			fs::create_directories(fs::path("backups"));
+			if (fs::copy_file(filename, backup_path))
+			{
+				InfoDialog("Quest Backup", fmt::format("A backup has been saved to {}", backup_path.string())).show();
+			}
+			else
+			{
+				InfoDialog("Quest Backup", fmt::format("Failed to save backup at {}", backup_path.string())).show();
+			}
+		}
+	}
+
 	auto ret = _save_unencoded_quest_int(filename,compressed,afname);
 	fake_pack_writing = false;
 	if(ret)

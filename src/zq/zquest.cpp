@@ -26668,7 +26668,7 @@ int32_t main(int32_t argc,char **argv)
 		do_copy_qst_command(input_filename, output_filename);
 	}
 
-	Z_title("%s, v.%s",ZQ_EDITOR_NAME, getVersionString());
+	Z_title("%s, %s",ZQ_EDITOR_NAME, getVersionString());
 	
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);

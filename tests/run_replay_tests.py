@@ -861,8 +861,13 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
 
             # .zplay.result.txt should be updated every second.
             while watcher.observer.is_alive():
+                watcher.update_result()
+
+                # Don't apply timeout until beyond the first frame, since JIT may take a moment for big scripts.
+                if watcher.result['frame'] == 0:
+                    continue
+
                 if do_timeout and timer() - watcher.modified_time > timeout:
-                    watcher.update_result()
                     last_frame = watcher.result['frame']
                     raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')
 

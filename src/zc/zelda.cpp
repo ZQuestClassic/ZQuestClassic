@@ -4667,7 +4667,7 @@ int main(int argc, char **argv)
 	sprintf(zc_aboutstr,"%s, Version %s", ZC_PLAYER_NAME, getVersionString());
 	
 
-	Z_title("ZC Launched: %s, v.%s",ZC_PLAYER_NAME, getVersionString());
+	Z_title("ZC Launched: %s, %s",ZC_PLAYER_NAME, getVersionString());
 	
 	int standalone_arg = used_switch(argc, argv, "-standalone");
 	if (standalone_arg)
