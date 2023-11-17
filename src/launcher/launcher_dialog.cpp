@@ -13,6 +13,7 @@
 #include "base/process_management.h"
 #include "launcher/launcher_dialog.h"
 #include "gui/builder.h"
+#include <cstring>
 #include <fmt/format.h>
 
 LauncherDialog::LauncherDialog(){}
@@ -69,7 +70,6 @@ int32_t LauncherDialog::launcher_on_tick()
 }
 
 extern char zthemepath[4096];
-static char savpath[4096] = {0};
 
 //{ Lists
 namespace GUI::Lists
@@ -553,25 +553,25 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("(EXPERIMENTAL) JIT threads:",App::zelda,"ZSCRIPT","jit_threads",-2,jitThreadsList,"Use background threads to speed up JIT compilation"),
 						//
 						Button(hAlign = 1.0, forceFitH = true,
-							text = "Select Save File", onPressFunc = [&]()
+							text = "Select Save Folder", onPressFunc = [&]()
 							{
-								if(getname("Load Save File (.sav)", "sav", NULL, savpath, false))
+								char save_folder[4096] = {0};
+								strncpy(save_folder, zc_get_config("zeldadx", "save_folder", "saves", App::zelda), 4096);
+								if(jwin_dfile_select_ex("Save Folder", save_folder, "", 2048, -1, -1, get_zc_font(font_lfont)))
 								{
+									const char* ext = get_extension(save_folder);
+									if (strlen(ext))
+										return;
 									char path[4096] = {0};
-									relativize_path(path, temppath);
+									relativize_path(path, save_folder);
 									tf_savefile->setText(path);
-									zc_set_config("SAVEFILE", "save_filename", path, App::zelda);
-									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
-									{
-										temppath[q] = 0;
-									}
-									strcpy(savpath, temppath);
+									zc_set_config("zeldadx", "save_folder", path, App::zelda);
 								}
 							}),
 						tf_savefile = TextField(
 							read_only = true, fitParent = true,
 							forceFitW = true,
-							text = zc_get_config("SAVEFILE", "save_filename", "zc.sav", App::zelda)
+							text = zc_get_config("zeldadx", "save_folder", "saves", App::zelda)
 						),
 						DummyWidget(),
 						//
