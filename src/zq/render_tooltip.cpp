@@ -110,6 +110,7 @@ static TextRTI rti_text("text");
 static HighlightRTI rti_highlight("highlight");
 extern int TTipHLCol;
 extern int32_t TooltipsHighlight;
+extern int EnableTooltips;
 
 int ttip_register_id()
 {
@@ -207,6 +208,12 @@ ToolTipRTI::ToolTipRTI(std::string name) : LegacyBitmapRTI(name) {}
 
 void ToolTipRTI::prepare()
 {
+	if (!EnableTooltips)
+	{
+		visible = false;
+		return;
+	}
+
 	// Find tooltip mouse is currently over.
 	auto [mx, my] = zc_get_mouse();
 
