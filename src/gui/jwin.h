@@ -287,7 +287,8 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);
 
 //Misc bitmap drawing
-void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
+void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color);
+void draw_check(BITMAP* dest, int x1, int y1, int x2, int y2, int c);
 void draw_checkerboard(BITMAP* dest, int basex, int basey, int sz, optional<int> cb_sz = nullopt, int x = 0, int y = 0);
 
 int32_t d_vsync_proc(int32_t msg,DIALOG *,int32_t c);

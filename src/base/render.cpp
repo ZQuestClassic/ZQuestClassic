@@ -662,6 +662,16 @@ void zqdialog_set_skiptint(bool skipTint)
 	if(active_dlg_rti)
 		active_dlg_rti->skip_tint = skipTint;
 }
+void get_zqdialog_xy(int& x, int& y)
+{
+	if(active_dlg_rti)
+	{
+		x = active_dlg_rti->get_transform().x;
+		y = active_dlg_rti->get_transform().y;
+	}
+	else x = y = 0;
+}
+
 static RenderTreeItem* get_active_dialog(bool forTint = false)
 {
 	auto& children = rti_dialogs.get_children();

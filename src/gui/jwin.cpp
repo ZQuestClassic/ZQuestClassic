@@ -9872,10 +9872,22 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
 }
 
 //Misc bitmap drawing
-void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color)
+void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color)
 {
 	line(dest, x1, y1, x2, y2, color);
 	line(dest, x1, y2, x2, y1, color);
+}
+
+void draw_check(BITMAP* dest, int x1, int y1, int x2, int y2, int c)
+{
+	if(x2 < x1)
+		zc_swap(x2,x1);
+	if(y2 < y1)
+		zc_swap(y2,y1);
+	int cx = ((x2-x1)/2)+x1;
+	int cy = ((y2-y1)/2)+y1+1;
+	line(dest, x1, cy, cx, y2, c);
+	line(dest, cx, y2, x2, y1, c);
 }
 
 void draw_checkerboard(BITMAP* dest, int x, int y, int sz, optional<int> cb_sz, int offx, int offy)
