@@ -425,6 +425,7 @@ public:
 	void handle_portal_prox(portal* p);
 private:
 	void handleSpotlights();
+	void setpit();
 	void walkdown(bool opening);
 	void walkup(bool opening);
 	void walkdown2(bool opening);

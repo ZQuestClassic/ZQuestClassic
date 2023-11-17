@@ -7781,9 +7781,7 @@ heroanimate_skip_liftwpn:;
 	
 	if(cheats_execute_goto)
 	{
-		didpit=true;
-		pitx=x;
-		pity=y;
+		setpit();
 		dowarp(3,0);
 		cheats_execute_goto=false;
 		solid_update(false);
@@ -9806,9 +9804,7 @@ heroanimate_skip_liftwpn:;
 			
 			if(tmpscr->flags4 & fTIMEDDIRECT)
 			{
-				didpit=true;
-				pitx=x;
-				pity=y;
+				setpit();
 			}
 			
 			int32_t index2 = 0;
@@ -9883,9 +9879,7 @@ heroanimate_skip_liftwpn:;
 				// TODO z3
 				if(tmpscr->flags5&fDIRECTAWARP)
 				{
-					didpit=true;
-					pitx=x;
-					pity=y;
+					setpit();
 				}
 				
 				sdir = dir;
@@ -9941,9 +9935,7 @@ heroanimate_skip_liftwpn:;
 		{
 			if(ffc_handle.screen->flags5&fDIRECTAWARP)
 			{
-				didpit=true;
-				pitx=x;
-				pity=y;
+				setpit();
 			}
 			
 			sdir = dir;
@@ -10008,9 +10000,7 @@ heroanimate_skip_liftwpn:;
 		if(ffpit)
 		{
 			ffpit=false;
-			didpit=true;
-			pitx=x;
-			pity=y;
+			setpit();
 		}
 		
 		ffwarp=false;
@@ -13797,9 +13787,7 @@ void HeroClass::pitfall()
 				sdir = dir;
 				if(cmb->usrflags&cflag2) //Direct Warp
 				{
-					didpit=true;
-					pitx=x;
-					pity=y;
+					setpit();
 				}
 				dowarp(0,vbound(cmb->attribytes[1],0,3),0);
 			}
@@ -23262,9 +23250,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(screen->flags5&fDIRECTSWARP)
 				{
-					didpit=true;
-					pitx=x;
-					pity=y;
+					setpit();
 				}
 				
 				sdir=dir;
@@ -23276,9 +23262,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(screen->flags5&fDIRECTSWARP)
 				{
-					didpit=true;
-					pitx=x;
-					pity=y;
+					setpit();
 				}
 				
 				sdir=dir;
@@ -23290,9 +23274,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(screen->flags5&fDIRECTSWARP)
 				{
-					didpit=true;
-					pitx=x;
-					pity=y;
+					setpit();
 				}
 				
 				sdir=dir;
@@ -23304,9 +23286,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(screen->flags5&fDIRECTSWARP)
 				{
-					didpit=true;
-					pitx=x;
-					pity=y;
+					setpit();
 				}
 				
 				sdir=dir;
@@ -23318,9 +23298,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if(screen->flags5&fDIRECTSWARP)
 				{
-					didpit=true;
-					pitx=x;
-					pity=y;
+					setpit();
 				}
 				
 				sdir=dir;
@@ -24529,9 +24507,7 @@ RaftingStuff:
 	
 	if(type==cPIT)
 	{
-		didpit=true;
-		pitx=x;
-		pity=y;
+		setpit();
 		warp_sound = warpsfx2;
 	}
 	
@@ -24628,9 +24604,7 @@ RaftingStuff:
 			if(!(cur_scr->noreset&mDOOR_UP)) unsetmapflag(mDOOR_UP);
 		}
 		
-		didpit=true;
-		pitx=x;
-		pity=y;
+		setpit();
 		sdir=dir;
 		dowarp(4,0, warpsfx2);
 	}
@@ -26289,6 +26263,13 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
     shiftdir=sh;
 }
 
+void HeroClass::setpit()
+{
+	didpit = true;
+	pitx = x.getInt() % 256;
+	pity = y.getInt() % 176;
+}
+
 void HeroClass::walkdown(bool opening) //entering cave
 {
     if(opening)
@@ -26572,18 +26553,20 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 		}
     }
     
-    x = hero_screen->warpreturnx[stepoutwr];
-    y = hero_screen->warpreturny[stepoutwr];
+	if(didpit)
+	{
+		didpit=false;
+		x=pitx;
+		y=pity;
+	}
+	else
+	{
+		x = hero_screen->warpreturnx[stepoutwr];
+		y = hero_screen->warpreturny[stepoutwr];
+	}
 
-    x += region_scr_dx * 256;
-    y += region_scr_dy * 176;
-
-    if(didpit)
-    {
-        didpit=false;
-        x=pitx;
-        y=pity;
-    }
+	x += region_scr_dx * 256;
+	y += region_scr_dy * 176;
     
     if(x+y == 0)
         x = y = 80;
