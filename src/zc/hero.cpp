@@ -7987,11 +7987,11 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		
-		auto cpos = COMBOPOS(x+8,y+(sideview_mode()?16:12));
+		auto rpos = COMBOPOS_REGION(x+8,y+(sideview_mode()?16:12));
 		for(int q = 0; q < 7; ++q)
 		{
-			mapscr* lyr = FFCore.tempScreens[q];
-			auto cid = lyr->data[cpos];
+			auto rpos_handle = get_rpos_handle(rpos, q);
+			auto cid = rpos_handle.data();
 			newcombo const& cmb = combobuf[cid];
 			byte csfx = action == walking ? cmb.sfx_walking : cmb.sfx_standing;
 			byte cspr = action == walking ? cmb.spr_walking : cmb.spr_standing;
