@@ -10734,7 +10734,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 // the top-left pixel of the screen).
 // Users are expected to translate to screen space manually, by using `Viewport->X,Y` and `Game->Scrolling[]`.
 // TODO z3 ! remove "theScreen" param
-void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_t xoff, int32_t yoff)
+void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yoff)
 {
 	color_map = &trans_table2;
 	
@@ -11086,14 +11086,14 @@ void CScriptDrawingCommands::push_commands(CScriptDrawingCommands* other, bool d
 
 void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int32_t xoff, int32_t yoff, bool hideLayer7)
 {
-	if(XOR(theScreen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
-	if(XOR(theScreen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 0, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 1, theScreen, xoff, yoff);
-	if(!XOR(theScreen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
-	if(!XOR(theScreen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 4, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 5, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 6, theScreen, xoff, yoff);
-	if(!hideLayer7) do_primitives(targetBitmap, 7, theScreen, xoff, yoff);
+	if(XOR(theScreen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, xoff, yoff);
+	if(XOR(theScreen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, xoff, yoff);
+	do_primitives(targetBitmap, 0, xoff, yoff);
+	do_primitives(targetBitmap, 1, xoff, yoff);
+	if(!XOR(theScreen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, xoff, yoff);
+	if(!XOR(theScreen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, xoff, yoff);
+	do_primitives(targetBitmap, 4, xoff, yoff);
+	do_primitives(targetBitmap, 5, xoff, yoff);
+	do_primitives(targetBitmap, 6, xoff, yoff);
+	if(!hideLayer7) do_primitives(targetBitmap, 7, xoff, yoff);
 }

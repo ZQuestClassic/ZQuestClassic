@@ -85,9 +85,5 @@ private:
 extern ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
 
 
-
-//void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr *, int32_t xoffset, int32_t yoffset);
-
-
 #endif
 

@@ -3858,12 +3858,12 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
 			do_scrolling_layer(bmp, type, screen_handle, x, y);
 			if(!type && !get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 				if(mblock2.draw(bmp,layer))
-					do_primitives(bmp, SPLAYER_MOVINGBLOCK, base_screen, 0, playing_field_offset);
+					do_primitives(bmp, SPLAYER_MOVINGBLOCK, 0, playing_field_offset);
 		}
         
         if(!type && drawprimitives && layer > 0 && layer <= 6)
         {
-            do_primitives(bmp, layer, base_screen, 0, playing_field_offset);
+            do_primitives(bmp, layer, 0, playing_field_offset);
         }
     }
 }
@@ -4511,7 +4511,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		putscr(scrollbuf,0,playing_field_offset,hero_screen);
 		if(!get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			if(mblock2.draw(scrollbuf,0))
-				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK, this_screen, 0, playing_field_offset);
+				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK, 0, playing_field_offset);
 	}
 
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
@@ -4523,11 +4523,11 @@ void draw_screen(bool showhero, bool runGeneric)
 	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_qr(qr_OLDLENSORDER))
 	{
 		draw_lens_under(scrollbuf, false);
-		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, this_screen, 0, playing_field_offset);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, 0, playing_field_offset);
 	}
 	
 	if(show_layer_0 && lenscheck(this_screen,0))
-		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
+		do_primitives(scrollbuf, 0, 0, playing_field_offset);
 		
 	particles.draw(framebuf, true, -3);
 	draw_msgstr(0);
@@ -4589,7 +4589,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	});
 
 	// TODO z3 !!!!! recent merge
-	do_primitives(framebuf, SPLAYER_FFC_DRAW, hero_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_FFC_DRAW, 0, playing_field_offset);
 
 	if(get_qr(qr_LAYER12UNDERCAVE))
 	{
@@ -4634,7 +4634,7 @@ void draw_screen(bool showhero, bool runGeneric)
 				do_layer(scrollbuf, -2, screen_handles[2], offx, offy); // push blocks!
 			}
 			// TODO z3 ?
-			do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, base_screen, offx, offy + playing_field_offset);
+			do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, offx, offy + playing_field_offset);
 		}
 
 		// Show walkflags cheat
@@ -4650,11 +4650,11 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(get_qr(qr_OLDLENSORDER))
 		{
 			draw_lens_under(scrollbuf, false);
-			do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, this_screen, 0, playing_field_offset);
+			do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, 0, playing_field_offset);
 		}
 		
 		draw_lens_under(scrollbuf, true);
-		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2, this_screen, 0, playing_field_offset);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2, 0, playing_field_offset);
 	}
 	
 	//2. Blit those layers onto framebuf
@@ -4703,14 +4703,14 @@ void draw_screen(bool showhero, bool runGeneric)
 				if(((weapon *)Ewpns.spr(i))->behind)
 					Ewpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW, 0, playing_field_offset);
 			
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, 0, playing_field_offset);
 			
 			if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
@@ -4718,9 +4718,9 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 			
 			guys.draw(framebuf,true);
-			do_primitives(framebuf, SPLAYER_NPC_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_NPC_DRAW, 0, playing_field_offset);
 			chainlinks.draw(framebuf,true);
-			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, 0, playing_field_offset);
 			//Lwpns.draw(framebuf,true);
 			
 			for(int32_t i=0; i<Ewpns.Count(); i++)
@@ -4728,18 +4728,18 @@ void draw_screen(bool showhero, bool runGeneric)
 				if(!((weapon *)Ewpns.spr(i))->behind)
 					Ewpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW, 0, playing_field_offset);
 			
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(!((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW, 0, playing_field_offset);
 			
 			
 			items.draw(framebuf,true);
-			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW, 0, playing_field_offset);
 		}
 		else
 		{
@@ -4748,14 +4748,14 @@ void draw_screen(bool showhero, bool runGeneric)
 				if(((weapon *)Ewpns.spr(i))->behind)
 					Ewpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_EWEAP_BEHIND_DRAW, 0, playing_field_offset);
 		
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, 0, playing_field_offset);
 			
 			if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
@@ -4763,12 +4763,12 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 			
 			items.draw(framebuf,false);
-			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW, 0, playing_field_offset);
 			chainlinks.draw(framebuf,false);
-			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, 0, playing_field_offset);
 			//Lwpns.draw(framebuf,false);
 			guys.draw(framebuf,false);
-			do_primitives(framebuf, SPLAYER_NPC_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_NPC_DRAW, 0, playing_field_offset);
 			
 			for(int32_t i=0; i<Ewpns.Count(); i++)
 			{
@@ -4777,7 +4777,7 @@ void draw_screen(bool showhero, bool runGeneric)
 					Ewpns.spr(i)->draw(framebuf);
 				}
 			}
-			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW, 0, playing_field_offset);
 		
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
@@ -4786,7 +4786,7 @@ void draw_screen(bool showhero, bool runGeneric)
 					Lwpns.spr(i)->draw(framebuf);
 				}
 			}
-			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW, 0, playing_field_offset);
 		}
 		
 		guys.draw2(framebuf,true);
@@ -4801,7 +4801,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
 			mblock2.draw(framebuf,-1);
-			do_primitives(framebuf, SPLAYER_MOVINGBLOCK, this_screen, 0, playing_field_offset);
+			do_primitives(framebuf, SPLAYER_MOVINGBLOCK, 0, playing_field_offset);
 		}
 		if(!Hero.isSwimming())
 		{
@@ -4842,7 +4842,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			//Jumping enemies in front of Hero.
 			guys.spr(i)->draw(framebuf);
 		}
-		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW, this_screen, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW, 0, playing_field_offset);
 	}
 	
 	//5. Draw some layers onto framebuf and scrollbuf
@@ -4859,7 +4859,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 		
 		do_layer(framebuf, 0, screen_handles[4], offx, offy, true);
-		//do_primitives(framebuf, 3, base_screen, 0,playing_field_offset);//don't uncomment me
+		//do_primitives(framebuf, 3, 0,playing_field_offset);//don't uncomment me
 		
 		if (screen_index == currscr) particles.draw(framebuf, true, 3);
 		if (screen_index == currscr) draw_msgstr(4);
@@ -4876,7 +4876,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		rectfill(framebuf, 0, 0, 256, playing_field_offset - 1, 0);
 	}
-	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB, this_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB, 0, playing_field_offset);
 	
 	particles.draw(framebuf, true, -1);
 	
@@ -4899,7 +4899,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		decorations.draw2(framebuf,false);
 		Hero.draw(framebuf);
 		chainlinks.draw(framebuf,true);
-		do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, this_screen, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, 0, playing_field_offset);
 		
 		for(int32_t i=0; i<Lwpns.Count(); i++)
 		{
@@ -4908,7 +4908,7 @@ void draw_screen(bool showhero, bool runGeneric)
 				Lwpns.spr(i)->draw(framebuf);
 			}
 		}
-		do_primitives(framebuf, SPLAYER_LWEAP_ABOVE_DRAW, this_screen, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_LWEAP_ABOVE_DRAW, 0, playing_field_offset);
 		
 		decorations.draw(framebuf,false);
 	}
@@ -4930,13 +4930,13 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 		}
 	}
-	do_primitives(framebuf, SPLAYER_NPC_AIRBORNE_DRAW, this_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_NPC_AIRBORNE_DRAW, 0, playing_field_offset);
 	
 	// Draw the Moving Fairy above layer 3
 	for(int32_t i=0; i<items.Count(); i++)
 		if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
 			items.spr(i)->draw(framebuf);
-	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW, this_screen, 0, playing_field_offset);
+	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW, 0, playing_field_offset);
 	
 	//9. Draw some layers onto framebuf and scrollbuf
 
@@ -4969,7 +4969,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		{
 			if (screen_index == currscr)
 			{
-				do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
+				do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, offx, offy + playing_field_offset);
 			}
 			// ---
 			do_layer(framebuf, 0, screen_handles[6], offx, offy, true);
@@ -4990,7 +4990,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	//Darkroom if under the subscreen
 	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
-		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
@@ -5007,7 +5007,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-		do_primitives(framebuf, SPLAYER_DARKROOM_OVER, this_screen, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_DARKROOM_OVER, 0, playing_field_offset);
 	}	
 	
 	
@@ -5022,7 +5022,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		put_passive_subscr(framebuf, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 		
 		// Draw primitives over subscren
-		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
+		do_primitives(framebuf, 7, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
 	}
 
 	draw_msgstr(6);
@@ -5030,7 +5030,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	//14. Handle high-drawn darkness
 	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
-		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
@@ -5047,7 +5047,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-		do_primitives(framebuf, SPLAYER_DARKROOM_OVER, this_screen, 0, playing_field_offset);
+		do_primitives(framebuf, SPLAYER_DARKROOM_OVER, 0, playing_field_offset);
 	}
 	
 	draw_msgstr(7);

@@ -3151,7 +3151,7 @@ void HeroClass::draw(BITMAP* dest)
 herodraw_end:
 	xofs=oxofs;
 	yofs=oyofs;
-	do_primitives(dest, SPLAYER_PLAYER_DRAW, tmpscr, 0, playing_field_offset);
+	do_primitives(dest, SPLAYER_PLAYER_DRAW, 0, playing_field_offset);
 }
 
 void HeroClass::masked_draw(BITMAP* dest)
@@ -28751,8 +28751,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		// Not ideal, but probably good enough for all realistic purposes.
 		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
 		// TODO z3
-		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
-		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
+		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, 0, 0);
+		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, 0, 0);
 
 		combotile_add_x = 0;
 		combotile_add_y = playing_field_offset;
@@ -28772,7 +28772,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		int mapscr_view_height = viewport.h - 8;
 		blit(scrollbuf, framebuf, 0, 0, 0, mapscr_view_y, viewport.w, mapscr_view_height);
 		if (lenscheck(newscr, 0))
-			do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
+			do_primitives(framebuf, 0, 0, playing_field_offset);
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
@@ -28811,8 +28811,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 					do_layer(framebuf, -2, screen_handles[1], offx, offy);
 					do_layer(framebuf, -2, screen_handles[2], offx, offy);
 				}
-				// TODO z3 ?
-				do_primitives(framebuf, SPLAYER_PUSHBLOCK, screen_handles[0].screen, 0, playing_field_offset);
+				// TODO z3 !
+				do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
 			}
 
 			int tempscreen = is_new_scr ? 2 : 3;
@@ -28937,7 +28937,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		// }
 
 		if(get_qr(qr_SUBSCREENOVERSPRITES))
-			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
+			do_primitives(framebuf, 7, 0, playing_field_offset);
 		
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6))
 		{
