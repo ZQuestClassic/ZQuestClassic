@@ -26544,7 +26544,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     loadscr(currdmap, homescr, 255, false);                                   // bogus direction
     draw_screen(false);
     
-    if(get_qr(qr_NEW_DARKROOM) || !(tmpscr->flags&fDARK))
+    if(get_qr(qr_NEW_DARKROOM) || !(hero_screen->flags&fDARK))
     {
         darkroom = naturaldark = false;
         fade(DMaps[currdmap].color,true,true);
@@ -26572,9 +26572,12 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 		}
     }
     
-    x = tmpscr->warpreturnx[stepoutwr];
-    y = tmpscr->warpreturny[stepoutwr];
-    
+    x = hero_screen->warpreturnx[stepoutwr];
+    y = hero_screen->warpreturny[stepoutwr];
+
+    x += region_scr_dx * 256;
+    y += region_scr_dy * 176;
+
     if(didpit)
     {
         didpit=false;
@@ -26590,7 +26593,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     set_respawn_point();
     
     // Let's use the 'exit cave' animation if we entered this cellar via a cave combo.
-    int32_t type = combobuf[MAPCOMBO(tmpscr->warpreturnx[stepoutwr],tmpscr->warpreturny[stepoutwr])].type;
+    int32_t type = combobuf[MAPCOMBO(x,y)].type;
     
     if((type==cCAVE)||(type>=cCAVEB && type<=cCAVED))
     {
