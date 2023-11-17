@@ -3685,8 +3685,9 @@ SubscrWidget *checkSubWidg(int32_t ref, const char *what, int req_widg_ty = -1, 
 
 void bad_subwidg_type(string const& name, bool func, byte type)
 {
+	auto tyname = type < widgMAX ? subwidg_internal_names[type].c_str() : "";
 	Z_scripterrlog("Widget type %d '%s' does not have a '%s' %s!\n",
-		type, subwidg_internal_names[type].c_str(), name.c_str(),
+		type, tyname, name.c_str(),
 		func ? "function" : "value");
 }
 
@@ -15999,7 +16000,7 @@ int32_t get_register(const int32_t arg)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgMGAUGE:
+					case widgMISCGAUGE:
 						ret = 10000*((SW_MiscGaugePiece*)widg)->per_container;
 						break;
 					default:
@@ -28647,7 +28648,7 @@ void set_register(int32_t arg, int32_t value)
 				auto ty = widg->getType();
 				switch(ty)
 				{
-					case widgMGAUGE:
+					case widgMISCGAUGE:
 						((SW_MiscGaugePiece*)widg)->per_container = val;
 						break;
 					default:
