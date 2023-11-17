@@ -979,7 +979,7 @@ int32_t MAPFLAG(int32_t x, int32_t y)
 
 int32_t COMBOTYPE(int32_t x,int32_t y)
 {
-	// TODO z3 this just break replays, delete ?
+	// TODO z3 ! this just break replays, delete ?
 	// if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
 
 	int32_t b=1;
@@ -4511,7 +4511,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		putscr(scrollbuf,0,playing_field_offset,hero_screen);
 		if(!get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			if(mblock2.draw(scrollbuf,0))
-				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK, hero_screen, 0, playing_field_offset);
+				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK, this_screen, 0, playing_field_offset);
 	}
 
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
@@ -4967,7 +4967,6 @@ void draw_screen(bool showhero, bool runGeneric)
 
 		if (in_viewport)
 		{
-			// TODO z3 !!! overdraw?? other screens?
 			if (screen_index == currscr)
 			{
 				do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
