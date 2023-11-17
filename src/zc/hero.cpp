@@ -28811,8 +28811,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 					do_layer(framebuf, -2, screen_handles[1], offx, offy);
 					do_layer(framebuf, -2, screen_handles[2], offx, offy);
 				}
-				// TODO z3 !
-				do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
+				if (is_new_scr)
+					do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
 			}
 
 			int tempscreen = is_new_scr ? 2 : 3;
