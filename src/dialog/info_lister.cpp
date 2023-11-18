@@ -1,6 +1,6 @@
 #include "info_lister.h"
 #include <gui/builder.h>
-#include "gui/new_menu.h"
+#include <gui/new_menu.h>
 #include "itemeditor.h"
 #include "info.h"
 #include "zc_list_data.h"
@@ -249,9 +249,6 @@ void ItemListerDialog::edit()
 }
 void ItemListerDialog::rclick(int x, int y)
 {
-	NewMenu foo {
-		{ "Foo", [](){zprint2("FOO\n");} },
-	};
 	NewMenu rcmenu {
 		{ "&Copy", [&](){copy(); update();} },
 		{ "Paste", "&v", [&](){paste(); update();}, 0, copied_item_id < 0 },

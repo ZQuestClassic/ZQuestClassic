@@ -74,7 +74,7 @@ int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c)
     if(msg==MSG_DRAW)
     {
         int32_t fg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : d->fg;
-        line(screen, d->x, d->y, d->x+d->w, d->y+d->h, palette_color[fg]);
+        line(screen, d->x, d->y, d->x+d->w, d->y+d->h, fg);
     }
     
     return D_O_K;

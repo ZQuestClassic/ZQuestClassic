@@ -136,93 +136,114 @@ void jwin_set_dialog_color(DIALOG *dialog)
   */
 void jwin_draw_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
 {
-    int32_t c1,c2,c3,c4;
-    
-    switch(style)
-    {
-	case FR_INVIS:
-		return;
-    case FR_BOX:
-        c1 = jcLIGHT;
-        c2 = jcMEDLT;
-        c3 = jcMEDDARK;
-        c4 = jcDARK;
-        break;
-        
-    case FR_INV:
-        c1 = jcDARK;
-        c2 = jcMEDDARK;
-        c3 = jcMEDLT;
-        c4 = jcLIGHT;
-        break;
-        
-    case FR_DEEP:
-        c1 = jcMEDDARK;
-        c2 = jcDARK;
-        c3 = jcMEDLT;
-        c4 = jcLIGHT;
-        break;
-        
-    case FR_DARK:
-        c1 = jcDARK;
-        c2 = jcMEDDARK;
-        c3 = jcMEDDARK;
-        c4 = jcDARK;
-        break;
-        
-    case FR_ETCHED:
-        c1 = jcMEDDARK;
-        c2 = jcLIGHT;
-        c3 = jcMEDDARK;
-        c4 = jcLIGHT;
-        break;
-        
-    case FR_MEDDARK:
-        c1 = jcMEDDARK;
-        c2 = jcBOX;
-        c3 = jcBOX;
-        c4 = jcMEDDARK;
-        break;
-        
-    case FR_WIN:
-    default:
-        c1 = jcMEDLT;
-        c2 = jcLIGHT;
-        c3 = jcMEDDARK;
-        c4 = jcDARK;
-        break;
-    }
-    
-	c1 = palette_color[scheme[c1]];
-	c2 = palette_color[scheme[c2]];
-	c3 = palette_color[scheme[c3]];
-	c4 = palette_color[scheme[c4]];
+	optional<int> c1,c2,c3,c4;
+	
+	switch(style)
+	{
+		case FR_INVIS:
+			return;
+		case FR_BOX:
+			c1 = jcLIGHT;
+			c2 = jcMEDLT;
+			c3 = jcMEDDARK;
+			c4 = jcDARK;
+			break;
+			
+		case FR_INV:
+			c1 = jcDARK;
+			c2 = jcMEDDARK;
+			c3 = jcMEDLT;
+			c4 = jcLIGHT;
+			break;
+			
+		case FR_DEEP:
+			c1 = jcMEDDARK;
+			c2 = jcDARK;
+			c3 = jcMEDLT;
+			c4 = jcLIGHT;
+			break;
+			
+		case FR_DARK:
+			c1 = jcDARK;
+			c2 = jcMEDDARK;
+			c3 = jcMEDDARK;
+			c4 = jcDARK;
+			break;
+			
+		case FR_ETCHED:
+			c1 = jcMEDDARK;
+			c2 = jcLIGHT;
+			c3 = jcMEDDARK;
+			c4 = jcLIGHT;
+			break;
+			
+		case FR_MEDDARK:
+			c1 = jcMEDDARK;
+			c2 = jcBOX;
+			c3 = jcBOX;
+			c4 = jcMEDDARK;
+			break;
+		
+		case FR_MENU:
+			c1 = jcLIGHT;
+			c4 = jcMEDDARK;
+			break;
+		case FR_MENU_INV:
+			c1 = jcMEDDARK;
+			c2 = jcMEDDARK;
+			c3 = jcLIGHT;
+			c4 = jcLIGHT;
+			break;
+			
+		case FR_WIN:
+		default:
+			c1 = jcMEDLT;
+			c2 = jcLIGHT;
+			c3 = jcMEDDARK;
+			c4 = jcDARK;
+			break;
+	}
+	
+	if(c1) c1 = scheme[*c1];
+	if(c2) c2 = scheme[*c2];
+	if(c3) c3 = scheme[*c3];
+	if(c4) c4 = scheme[*c4];
 	switch (style)
 	{
-	case FR_RED:
-		c1 = 0xE4;
-		c2 = 0xEC;
-		c3 = 0xE4;
-		c4 = 0xEC;
-		break;
-	case FR_GREEN:
-		c1 = 0xE2;
-		c2 = 0xEA;
-		c3 = 0xE2;
-		c4 = 0xEA;
-		break;
+		case FR_RED:
+			c1 = 0xE4;
+			c2 = 0xEC;
+			c3 = 0xE4;
+			c4 = 0xEC;
+			break;
+		case FR_GREEN:
+			c1 = 0xE2;
+			c2 = 0xEA;
+			c3 = 0xE2;
+			c4 = 0xEA;
+			break;
 	}
-    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), c1);
-    _allegro_vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), c1);
-    
-    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), c2);
-    _allegro_vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), c2);
-    
-    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+w-2,0,dest->w-1), c3);
-    _allegro_vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-3,0,dest->h-1), c3);
-    
-    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), c4);
-    _allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), c4);
+	if(c1)
+	{
+		_allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), *c1);
+		_allegro_vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), *c1);
+	}
+	if(c2)
+	{
+		_allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), *c2);
+		_allegro_vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), *c2);
+	}
+	if(c3)
+	{
+		_allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+w-2,0,dest->w-1), *c3);
+		_allegro_vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-3,0,dest->h-1), *c3);
+	}
+	if(c4)
+	{
+	
+		_allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), *c4);
+		_allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), *c4);
+	}
 }
 void jwin_draw_frag_frame(BITMAP* dest, int x1, int y1, int w, int h, int fw, int fh, int style)
 {
@@ -289,23 +310,23 @@ void jwin_draw_frag_frame(BITMAP* dest, int x1, int y1, int w, int h, int fw, in
 	rectfill(dest, x1, y1, x2, yc, vc(0));
 	rectfill(dest, x1, yc, xc, y2, vc(0));
 	
-    _allegro_hline(dest, x1-2, y1-2, x2+2, palette_color[scheme[c1]]);
-    _allegro_hline(dest, x1-1, y1-1, x2+1, palette_color[scheme[c2]]);
+    _allegro_hline(dest, x1-2, y1-2, x2+2, scheme[c1]);
+    _allegro_hline(dest, x1-1, y1-1, x2+1, scheme[c2]);
     
-    _allegro_vline(dest, x1-2, y1-2, y2+2, palette_color[scheme[c1]]);
-    _allegro_vline(dest, x1-1, y1-1, y2+1, palette_color[scheme[c2]]);
+    _allegro_vline(dest, x1-2, y1-2, y2+2, scheme[c1]);
+    _allegro_vline(dest, x1-1, y1-1, y2+1, scheme[c2]);
     
-    _allegro_hline(dest, x1-2, y2+2, xc+2, palette_color[scheme[c3]]);
-    _allegro_hline(dest, x1-1, y2+1, xc+1, palette_color[scheme[c4]]);
+    _allegro_hline(dest, x1-2, y2+2, xc+2, scheme[c3]);
+    _allegro_hline(dest, x1-1, y2+1, xc+1, scheme[c4]);
 	
-    _allegro_vline(dest, x2+2, y1-2, yc+2, palette_color[scheme[c3]]);
-    _allegro_vline(dest, x2+1, y1-1, yc+1, palette_color[scheme[c4]]);
+    _allegro_vline(dest, x2+2, y1-2, yc+2, scheme[c3]);
+    _allegro_vline(dest, x2+1, y1-1, yc+1, scheme[c4]);
 	
-    _allegro_hline(dest, xc+2, yc+2, x2+2, palette_color[scheme[c3]]);
-    _allegro_hline(dest, xc+1, yc+1, x2+1, palette_color[scheme[c4]]);
+    _allegro_hline(dest, xc+2, yc+2, x2+2, scheme[c3]);
+    _allegro_hline(dest, xc+1, yc+1, x2+1, scheme[c4]);
 	
-    _allegro_vline(dest, xc+2, yc+2, y2+2, palette_color[scheme[c3]]);
-    _allegro_vline(dest, xc+1, yc+1, y2+1, palette_color[scheme[c4]]);
+    _allegro_vline(dest, xc+2, yc+2, y2+2, scheme[c3]);
+    _allegro_vline(dest, xc+1, yc+1, y2+1, scheme[c4]);
 }
 void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int style)
 {
@@ -317,7 +338,7 @@ void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int 
   */
 void jwin_draw_win(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame)
 {
-    rectfill(dest,zc_max(x+2,0),zc_max(y+2,0),zc_min(x+w-3, dest->w-1),zc_min(y+h-3, dest->h-1),palette_color[scheme[jcBOX]]);
+    rectfill(dest,zc_max(x+2,0),zc_max(y+2,0),zc_min(x+w-3, dest->w-1),zc_min(y+h-3, dest->h-1),scheme[jcBOX]);
     jwin_draw_frame(dest, x, y, w, h, frame);
 }
 
@@ -453,7 +474,7 @@ void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h
         }
     }
     
-    textout_ex(dest,font,buf,tx,ty,palette_color[scheme[jcTITLEFG]],-1);
+    textout_ex(dest,font,buf,tx,ty,scheme[jcTITLEFG],-1);
     
     if(draw_button)
     {
@@ -475,14 +496,14 @@ void draw_question_button(BITMAP* dest, int32_t x, int32_t y, int32_t state)
     x += 4 + (state?1:0);
     y += 3 + (state?1:0);
     
-    line(dest, x+2, y+0, x+5, y+0, palette_color[c]);
-    line(dest, x+1, y+1, x+2, y+1, palette_color[c]);
-    line(dest, x+5, y+1, x+6, y+1, palette_color[c]);
-    line(dest, x+4, y+2, x+5, y+2, palette_color[c]);
-    line(dest, x+3, y+3, x+4, y+3, palette_color[c]);
-    line(dest, x+3, y+4, x+4, y+4, palette_color[c]);
-    line(dest, x+3, y+6, x+4, y+6, palette_color[c]);
-    line(dest, x+3, y+7, x+4, y+7, palette_color[c]);
+    line(dest, x+2, y+0, x+5, y+0, c);
+    line(dest, x+1, y+1, x+2, y+1, c);
+    line(dest, x+5, y+1, x+6, y+1, c);
+    line(dest, x+4, y+2, x+5, y+2, c);
+    line(dest, x+3, y+3, x+4, y+3, c);
+    line(dest, x+3, y+4, x+4, y+4, c);
+    line(dest, x+3, y+6, x+4, y+6, c);
+    line(dest, x+3, y+7, x+4, y+7, c);
 }
 
 void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state)
@@ -493,10 +514,10 @@ void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state)
     x += 4 + (state?1:0);
     y += 3 + (state?1:0);
     
-    line(dest,x,  y,  x+6,y+6,palette_color[c]);
-    line(dest,x+1,y,  x+7,y+6,palette_color[c]);
-    line(dest,x,  y+6,x+6,y,  palette_color[c]);
-    line(dest,x+1,y+6,x+7,y,  palette_color[c]);
+    line(dest,x,  y,  x+6,y+6,c);
+    line(dest,x+1,y,  x+7,y+6,c);
+    line(dest,x,  y+6,x+6,y,  c);
+    line(dest,x+1,y+6,x+7,y,  c);
 }
 
 void draw_arrow(BITMAP *dest, int c, int x, int y, int h, bool up, bool center)
@@ -607,7 +628,7 @@ void dotted_rect(BITMAP *dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, i
 
 static void _dotted_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t fg, int32_t bg)
 {
-    dotted_rect(screen, x1, y1, x2, y2, palette_color[fg], palette_color[bg]);
+    dotted_rect(screen, x1, y1, x2, y2, fg, bg);
 }
 
 static bool no_hline = false;
@@ -872,12 +893,12 @@ int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t)
 			
 			if(d->flags & D_DISABLED)
 			{
-				gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
-				d->w=gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 0);
+				gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+				d->w=gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, scheme[jcDISABLED_FG], -1, 0);
 			}
 			else
 			{
-				d->w=gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
+				d->w=gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, scheme[jcBOXFG], scheme[jcBOX], 0);
 			}
 			
 			font = oldfont;
@@ -909,12 +930,12 @@ int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 1);
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 1);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, scheme[jcLIGHT], scheme[jcBOX], 1);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, scheme[jcDISABLED_FG], -1, 1);
         }
         else
         {
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 1);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, scheme[jcBOXFG], scheme[jcBOX], 1);
         }
         
         font = oldfont;
@@ -945,12 +966,12 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 2);
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 2);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, scheme[jcLIGHT], scheme[jcBOX], 2);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, scheme[jcDISABLED_FG], -1, 2);
         }
         else
         {
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 2);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, scheme[jcBOXFG], scheme[jcBOX], 2);
         }
         
         font = oldfont;
@@ -1022,7 +1043,7 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
         jwin_draw_button(dest, x, y, w, h, 0, 0);
     else
     {
-        rect(dest, x, y, x+w-1, y+h-1, palette_color[scheme[jcDARK]]);
+        rect(dest, x, y, x+w-1, y+h-1, scheme[jcDARK]);
         jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
     }
     
@@ -1071,16 +1092,16 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
 	if(drawstring)
 	{
 		if(!(flags & D_DISABLED))
-			gui_textout_ex(dest, str, x+w/2+g, y+(h-text_height(font))/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
+			gui_textout_ex(dest, str, x+w/2+g, y+(h-text_height(font))/2+g, scheme[jcBOXFG], -1, TRUE);
 		else
 		{
-			gui_textout_ex(dest, str, x+w/2+1,y+(h-text_height(font))/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
-			gui_textout_ex(dest, str, x+w/2,  y+(h-text_height(font))/2, palette_color[scheme[jcDISABLED_FG]], -1, TRUE);
+			gui_textout_ex(dest, str, x+w/2+1,y+(h-text_height(font))/2+1, scheme[jcLIGHT], -1, TRUE);
+			gui_textout_ex(dest, str, x+w/2,  y+(h-text_height(font))/2, scheme[jcDISABLED_FG], -1, TRUE);
 		}
 	}
     
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
-        dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
+        dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, scheme[jcDARK], scheme[jcBOX]);
 }
 
 int icon_proportion(int icon,int s1,int s2)
@@ -1108,7 +1129,7 @@ void jwin_draw_icon_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
         jwin_draw_button(dest, x, y, w, h, 0, 0);
     else
     {
-        rect(dest, x, y, x+w-1, y+h-1, palette_color[scheme[jcDARK]]);
+        rect(dest, x, y, x+w-1, y+h-1, scheme[jcDARK]);
         jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
     }
     
@@ -1116,7 +1137,7 @@ void jwin_draw_icon_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
 	jwin_draw_icon(dest,x+w/2,y+h/2,col,icon,icon_proportion(icon,w,h),true);
 	
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
-        dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
+        dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, scheme[jcDARK], scheme[jcBOX]);
 }
 void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int asz, bool center)
 {
@@ -6930,12 +6951,12 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 			for(int32_t col = 0; col < 16; ++col)
 			{
 				sprintf(buf, "%X", col);
-				gui_textout_ln(screen, (uint8_t*)buf, d->x + (csz*col) + (csz/2), d->y-3-text_height(font), palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 1);
+				gui_textout_ln(screen, (uint8_t*)buf, d->x + (csz*col) + (csz/2), d->y-3-text_height(font), scheme[jcBOXFG], scheme[jcBOX], 1);
 			}
 			for(int32_t row = 0; row < numcsets; ++row)
 			{
 				sprintf(buf, "%s 0x%02X", rowpref(row), row*16);
-				gui_textout_ln(screen, (uint8_t*)buf, d->x-3, d->y + (csz*row) + (csz-text_height(font))/2, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 2);
+				gui_textout_ln(screen, (uint8_t*)buf, d->x-3, d->y + (csz*row) + (csz-text_height(font))/2, scheme[jcBOXFG], scheme[jcBOX], 2);
 			}
 			
             font = oldfont;

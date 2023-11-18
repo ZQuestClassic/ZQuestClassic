@@ -86,7 +86,11 @@ extern "C"
 
 /* frame styles */
 enum {
-    FR_INVIS = -1, FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK, FR_RED, FR_GREEN
+    FR_INVIS = -1,
+	FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK,
+	FR_ETCHED, FR_MEDDARK,
+	FR_RED, FR_GREEN,
+	FR_MENU, FR_MENU_INV,
 };
 
 /* todo: (maybe) put the colors into a struct */

@@ -10,6 +10,7 @@
 #include <time.h>
 #include <vector>
 #include <filesystem>
+#include <gui/new_menu.h>
 
 #include "dialog/info_lister.h"
 #ifdef __APPLE__
@@ -764,66 +765,49 @@ zfix HeroModifiedY()
     }
 }
 
-static MENU import_250_menu[] =
+static NewMenu import_250_menu
 {
-    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    
-    
-    
-    { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
-    { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
-    // { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&DMaps", onImport_DMaps },
+	{ "&Combo Table", onImport_Combos },
+	{ "&Combo Alias", onImport_ComboAlias },
 };
 
-static MENU import_graphics[]=
+static NewMenu import_graphics
 {
-	{ (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Tileset (&Full)",                     onImport_Tiles,            NULL,                     0,            NULL   },
-	{ (char *)"&Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
-	{ (char *)"T&ile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
-    
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"&Combo Set (Range)",               onImport_Combos,           NULL,                     0,            NULL   },
-    { (char *)"Combo Pack (Full, 1:1)",           	    onImport_Combopack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Pack to... (Dest)",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"Combo &Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
-    { (char *)"Combo A&lias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"&Doorsets",           	    onImport_Doorset,   NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Palettes", onImport_Pals },
+	{},
+	{ "Tileset (&Full)", onImport_Tiles },
+	{ "&Tile Pack", onImport_Tilepack },
+	{ "T&ile Pack to...", onImport_Tilepack_To },
+	{},
+	{ "&Combo Set (Range)", onImport_Combos },
+	{ "Combo Pack (Full, 1:1)", onImport_Combopack },
+	{ "Combo Pack to... (Dest)", onImport_Combopack_To },
+	{},
+	{ "Combo &Alias Pack", onImport_Comboaliaspack },
+	{ "Combo A&lias Pack to...", onImport_Comboaliaspack_To },
+	{},
+	{ "&Doorsets", onImport_Doorset },
 };
 
-static MENU import_menu[] =
+static NewMenu import_menu
 {
-    
-    { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
-    { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
-    // { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    // { (char *)"ZASM Script",           onExport_ZASM,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Graphics",                  NULL,                      import_graphics,               0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"2.50 (Broken)",                  NULL,                      import_250_menu,               0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Enemies", onImport_Guys },
+	{ "&Map", onImport_Map },
+	{ "&DMaps", onImport_DMaps },
+	{ "&String Table", onImport_Msgs },
+	{},
+	{ "&Graphics", &import_graphics },
+	{},
+	{ "2.50 (Broken)", &import_250_menu },
 };
 
-static MENU export_250_menu[] =
+static NewMenu export_250_menu
 {
-    
-    { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
-   
-    { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
-    { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&DMaps", onExport_DMaps },
+	{ "&Combo Table", onExport_Combos },
+	{ "&Combo Alias", onExport_ComboAlias },
+	{ "&Graphics Pack", onExport_ZGP },
 };
 
 static MENU zq_help_menu[] =
@@ -834,49 +818,52 @@ static MENU zq_help_menu[] =
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU export_graphics[]=
+static NewMenu export_graphics
 {
-	{ (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Tileset (&Full)",                     onExport_Tiles,            NULL,                     0,            NULL   },
-	{ (char *)"&Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Combo Set",               onExport_Combos,           NULL,                     0,            NULL   },
-    
-    { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Doorsets",           	    onExport_Doorset,   NULL,                     0,            NULL   },
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Palettes", onExport_Pals },
+	{},
+	{ "Tileset (&Full)", onExport_Tiles },
+	{ "&Tile Pack", onExport_Tilepack },
+	{},
+	{ "&Combo Set", onExport_Combos },
+	{ "Combo Pack", onExport_Combopack },
+	{},
+	{ "Combo &Alias Pack", onExport_Comboaliaspack },
+	{},
+	{ "&Doorsets", onExport_Doorset },
 };
 
-static MENU export_menu[] =
+static NewMenu export_menu
 {
 #ifdef _WIN32
-	{ (char *)"&Package",                   onExport_Package,             NULL,                     0,            NULL   },
+	{ "&Package", onExport_Package },
 #endif
-
-    { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
-    { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                       onExport_DMaps,              NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-       
-    { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
-    { (char *)"Text &Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
-    
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Graphics",                  NULL,                      export_graphics,               0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"2.50 (Broken)",                  NULL,                      export_250_menu,               0,            NULL   },
-    
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Enemies", onExport_Guys },
+	{ "&Map", onExport_Map },
+	{ "&DMaps", onExport_DMaps },
+	{},
+	{ "&String Table", onExport_Msgs },
+	{ "Text &Dump", onExport_MsgsText },
+	{},
+	{ "&Graphics", &export_graphics },
+	{},
+	{ "2.50 (Broken)", &export_250_menu },
 };
 
 
-static MENU recent_menu[11];
+static NewMenu recent_menu
+{
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+};
 static char rec_menu_fullpaths[10][512];
 static char rec_menu_strs[10][64];
 
@@ -905,20 +892,15 @@ void refresh_recent_menu()
 		do_RecentQuest_4, do_RecentQuest_5, do_RecentQuest_6,
 		do_RecentQuest_7, do_RecentQuest_8, do_RecentQuest_9
 	};
+	static MenuItem nilitem("---",nullptr,nullopt,true);
 	for(auto q = 0; q < 10; ++q)
 	{
+		MenuItem& mit = *recent_menu.at(q);
         bool valid = rec_menu_fullpaths[q][0] != '-';
-		recent_menu[q].text = rec_menu_strs[q];
-		recent_menu[q].proc = valid ? procs[q] : nullptr;
-		recent_menu[q].child = nullptr;
-		recent_menu[q].flags = valid ? 0 : D_DISABLED;
-		recent_menu[q].dp = rec_menu_fullpaths[q];
+		if(valid)
+			mit = MenuItem(rec_menu_strs[q],procs[q]);
+		else mit = nilitem;
 	}
-	recent_menu[10].text = nullptr;
-	recent_menu[10].proc = nullptr;
-	recent_menu[10].child = nullptr;
-	recent_menu[10].flags = 0;
-	recent_menu[10].dp = nullptr;
 }
 
 void load_recent_quests()
@@ -1087,29 +1069,28 @@ void toggle_cmdzoom_mode()
 
 enum
 {
-	fileSave = 5,
-	fileSaveAs,
-	fileRevert
+	MENUID_FILE_SAVE,
+	MENUID_FILE_SAVEAS,
+	MENUID_FILE_REVERT,
 };
 
-static MENU file_menu[] =
+static NewMenu file_menu
 {
-	{ (char *)"&New",                       do_NewQuest,               NULL,                     0,            NULL   },
-	{ (char *)"&Open",                      do_OpenQuest,              NULL,                     0,            NULL   },
-	{ (char *)"&Load Tileset",              onTileset,                 NULL,                     0,            NULL   },
-	{ (char *)"Recent\t ",                  NULL,                      recent_menu,              0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Save",                      onSave,                    NULL,                     0,            NULL   },
-	{ (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
-	{ (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
-	{ (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
+	{ "&New", do_NewQuest },
+	{ "&Open", do_OpenQuest },
+	{ "&Load Tileset", onTileset },
+	{ "Recent", &recent_menu },
+	{},
+	{ "&Save", onSave, MENUID_FILE_SAVE },
+	{ "Save &as...", onSaveAs, MENUID_FILE_SAVEAS },
+	{ "&Revert", onRevert, MENUID_FILE_REVERT },
+	{},
+	{ "&Import", &import_menu },
+	{ "&Export", &export_menu },
 #ifndef __EMSCRIPTEN__
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+	{},
+	{ "E&xit", onExit },
 #endif
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU maps_menu[] =
@@ -1556,17 +1537,25 @@ void set_console_state()
 	SETFLAG(etc_menu[10].flags, D_SELECTED, console_is_open);
 }
 
-MENU the_menu[] =
+NewMenu foo_menu{{"FOO",[](){InfoDialog("PLACEHOLDER","THIS IS A PLACEHOLDER").show();}}};
+
+TopMenu the_menu
 {
-    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
-    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
-    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
-    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
-    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
-    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
-    { (char *)"&ZScript",                   NULL, (MENU *) zscript_menu,    0,            NULL   },
-    { (char *)"Et&C",                       NULL, (MENU *) etc_menu,        0,            NULL   },
-    {  NULL,                                NULL, NULL,                     0,            NULL   }
+    { "&File", &file_menu },
+    { "&Quest", &foo_menu },
+    { "&Edit", &foo_menu },
+    { "&View", &foo_menu },
+    { "&Tools", &foo_menu },
+    { "&Screen", &foo_menu },
+    { "&ZScript", &foo_menu },
+    { "Et&C", &foo_menu },
+    // { "&Quest", &quest_menu },
+    // { "&Edit", &edit_menu },
+    // { "&View", &view_menu },
+    // { "&Tools", &tool_menu },
+    // { "&Screen", &data_menu },
+    // { "&ZScript", &zscript_menu },
+    // { "Et&C", &etc_menu },
 };
 
 void rebuild_trans_table();
@@ -1794,12 +1783,13 @@ int32_t onPressEsc()
 static DIALOG dialogs[] =
 {
 	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
-	{ d_nbmenu_proc,     3,    3,    0,    13,    0,    0,    0,       D_USER,  0,            0, (void *) the_menu, NULL, NULL },
+	{ d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,            0, (void *) &the_menu, NULL, NULL },
 	{ d_zq_hotkey_proc,  0,    0,    0,    0,     0,    0,    0,       0,       0,            0, NULL, NULL, NULL },
 	
 	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_F1,       0, (void *) onHelp, NULL, NULL },
 	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_ESC,      0, (void *) onPressEsc, NULL, NULL },
 	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    39,      0,       0,            0, (void *) onUsedCombos, NULL, NULL },
+	{ d_vsync_proc,      0,    0,    0,    0,     0,    0,    0,       0,       0,            0,       NULL, NULL, NULL },
 	{ NULL,              0,    0,    0,    0,     0,    0,    0,       0,       0,            0,       NULL, NULL, NULL }
 };
 
@@ -6521,13 +6511,14 @@ void draw_screenunit(int32_t unit, int32_t flags)
 }
 
 bool pause_refresh = true;
+bool is_refreshing = false;
 void refresh(int32_t flags, bool update)
 {
 	if(pause_refresh) return;
 	static bool refreshing = false;
 	
 	bool earlyret = refreshing;
-	refreshing = true;
+	is_refreshing = refreshing = true;
 	//^ These prevent recursive calls from updating the screen early
 	
 	bool zoom_delay = (zoomed_minimap && flags != rSCRMAP);
@@ -7081,17 +7072,13 @@ void refresh(int32_t flags, bool update)
 		blit(menu1,screen,combolist_window.x-64,0,combolist_window.x-64,0,combolist_window.w+64,16);
 		
 		if(flags&rCOMBO)
-		{
 			blit(menu1,screen,combo_preview.x,combo_preview.y,combo_preview.x,combo_preview.y,combo_preview.w,combo_preview.h);
-		}
 	}
 		
 	if(earlyret)
 		return;
 	
 	//Draw the Main Menu
-	jwin_menu_proc(MSG_START, &dialogs[0], 0);
-	
 	rectfill(screen,mainbar.x,mainbar.y,mainbar.x+mainbar.w-1,mainbar.y+mainbar.h-1,jwin_pal[jcBOX]);
 	jwin_draw_frame(screen,mainbar.x,mainbar.y,mainbar.w,mainbar.h,FR_WIN);
 	
@@ -7105,14 +7092,14 @@ void refresh(int32_t flags, bool update)
 	
 	font = oldfont;
 	
-	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+	d_nbmenu_proc(MSG_DRAW, &dialogs[0], 0);
 	
 	ComboBrushPause=0;
 	
 	SCRFIX();
 	if(update)
 		custom_vsync();
-	refreshing = false;
+	is_refreshing = refreshing = false;
 }
 
 static int minimap_tooltip_id = ttip_register_id();
@@ -21708,12 +21695,12 @@ int32_t txtout(BITMAP* dest, const char* txt, int32_t x, int32_t y, bool disable
 {
 	if(disabled)
 	{
-		gui_textout_ln(dest, font, (uint8_t*)txt, x+1, y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
-		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, palette_color[scheme[jcMEDDARK]], -1, 0);
+		gui_textout_ln(dest, font, (uint8_t*)txt, x+1, y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, scheme[jcMEDDARK], -1, 0);
 	}
 	else
 	{
-		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
+		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, scheme[jcBOXFG], scheme[jcBOX], 0);
 	}
 }
 
@@ -27566,17 +27553,15 @@ int32_t main(int32_t argc,char **argv)
 		/* Notice: Adjust and Update these values if you hae modified any of the following, where
 			your modifications hae inserted or removed ANY entries.
 			paste_item_menu[]
-			file_menu[]
 			tool_menu[]
 			defs_menu[]
 			view_menu[]
 			maps_menu[]
 		*/
 		
-		file_menu[fileSave].flags =
-			file_menu[fileRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
-						
-		file_menu[fileSaveAs].flags = disable_saving ? D_DISABLED : 0;
+		file_menu.disable_uid(MENUID_FILE_SAVE, saved||disable_saving||OverwriteProtection);
+		file_menu.disable_uid(MENUID_FILE_REVERT, saved||disable_saving||OverwriteProtection);
+		file_menu.disable_uid(MENUID_FILE_SAVEAS, disable_saving);
 		
 		fixtools_menu[ftOSFix].flags = (get_qr(qr_OLD_STRING_EDITOR_MARGINS)
 			|| get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
@@ -27658,8 +27643,7 @@ void load_size_poses()
 	FONT* favcmdfont = get_custom_font(CFONT_FAVCMD);
 	FONT* guifont = get_custom_font(CFONT_GUI);
 	
-	dialogs[0].dp2 = guifont;
-	jwin_menu_proc(MSG_START, &dialogs[0], 0);
+	d_nbmenu_proc(MSG_START, &dialogs[0], 0);
 	
 	commands_list.xscale = command_buttonwidth;
 	commands_list.yscale = 10+text_height(favcmdfont);
@@ -27684,7 +27668,7 @@ void load_size_poses()
 		}
 		
 		mapscreen_x=0;
-		mapscreen_y=text_height(guifont)+11;
+		mapscreen_y=dialogs[0].h;
 		mapscreensize=3;
 		showedges=0;
 		showallpanels=0;
@@ -27983,7 +27967,7 @@ void load_size_poses()
 		}
 		
 		mapscreen_x=0;
-		mapscreen_y=text_height(guifont)+11;
+		mapscreen_y=dialogs[0].h;
 		mapscreensize=2;
 		showedges=1;
 		showallpanels=0;
@@ -28269,7 +28253,7 @@ void load_size_poses()
 		favorites_pgleft.x = favorites_pgright.x - favorites_pgleft.w;
 		favorites_pgleft.y = favorites_pgright.y;
 		
-		mainbar.x = dialogs[0].x+dialogs[0].w+2;
+		mainbar.x = dialogs[0].x+dialogs[0].w;
 		mainbar.y = 0;
 		mainbar.w = compactbtn.x-mainbar.x;
 		mainbar.h = drawmode_btn.h;
@@ -28794,23 +28778,50 @@ void run_zq_frame()
 }
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-	static int32_t ret=D_O_K;
-	
-	if(msg != MSG_START)
-		run_zq_frame();
-	
-	if(msg==MSG_GOTMOUSE||msg==MSG_XCHAR)
+	GuiMenu* ptr = (GuiMenu*)d->dp;
+	bool runmenu = false;
+	switch(msg)
 	{
-		ComboBrushPause=1;
-		refresh(rMAP);
-		ComboBrushPause=0;
-		// restore_mouse();
-		clear_tooltip();
+		case MSG_START:
+			if(ptr)
+			{
+				GuiMenu::set_font(nullptr);
+				ptr->reset_state();
+				d->w = ptr->width();
+				d->h = ptr->height();
+			}
+			break;
+		case MSG_VSYNC:
+			run_zq_frame();
+			runmenu = true;
+			break;
+		case MSG_DRAW:
+			if(ptr)
+			{
+				GuiMenu::set_font(nullptr);
+				ptr->draw(screen,d->x,d->y,ptr->hovered_ind());
+			}
+			break;
+		case MSG_CLICK:
+			runmenu = true;
+			break;
+		case MSG_GOTMOUSE:
+		case MSG_XCHAR:
+			ComboBrushPause=1;
+			refresh(rMAP);
+			ComboBrushPause=0;
+			clear_tooltip();
+			runmenu = true;
+			break;
+	}
+	if(runmenu && ptr)
+	{
+		GuiMenu::set_font(nullptr);
+		if(ptr->run(d->x,d->y))
+			ptr->reset_state();
 	}
 	
-	ret = jwin_menu_proc(msg,d,c);
-	
-	return ret;
+	return D_O_K;
 }
 
 bool prv_press=false;
