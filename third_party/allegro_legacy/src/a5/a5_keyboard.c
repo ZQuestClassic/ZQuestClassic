@@ -97,7 +97,11 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 case ALLEGRO_EVENT_KEY_DOWN:
                 {
                     update_key_shifts(&event);
-                    _handle_key_press(-1, a5_keyboard_keycode_map[event.keyboard.keycode]);
+                    if (event.keyboard.keycode >= ALLEGRO_KEY_MODIFIERS || event.keyboard.keycode == ALLEGRO_KEY_COMMAND)
+                    {
+                        if (event.keyboard.keycode != ALLEGRO_KEY_CAPSLOCK)
+                            _handle_key_press(0, a5_keyboard_keycode_map[event.keyboard.keycode]);
+                    }
                     break;
                 }
                 case ALLEGRO_EVENT_KEY_UP:
