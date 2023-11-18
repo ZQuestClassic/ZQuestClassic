@@ -182,7 +182,10 @@ endif()
 #    cmake .. -DALLEGRO_SDL=on -DWANT_NATIVE_DIALOG=off
 # https://github.com/liballeg/allegro5/issues/1335
 
-if(NOT APPLE)
+if(APPLE)
+	# OSX 12
+	add_definitions(-DMAC_OS_X_VERSION_MIN_REQUIRED=120000)
+else()
 	add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
 endif()
 add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
@@ -196,7 +199,7 @@ set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        d854dad445c9da45c1f1b6036c790052d9b1a26d
+  GIT_TAG        be8afe0e5225b54e64d0df708744c8384645a490
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
