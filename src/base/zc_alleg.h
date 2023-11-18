@@ -1,8 +1,6 @@
 #ifndef _ZC_ALLEG_H_
 #define _ZC_ALLEG_H_
 
-#define DEBUGMODE
-
 #include <allegro.h>
 #include <allegro/internal/aintern.h>
 #include <a5alleg.h>
