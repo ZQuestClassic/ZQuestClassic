@@ -257,20 +257,16 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 void clear_xstatecombos(mapscr *s, int32_t scr, bool triggers = false);
 void clear_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
 
+bool remove_xdoors(mapscr *s, int32_t scr, uint dir, uint ind, bool triggers = false);
+bool remove_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, uint dir, uint ind, bool triggers);
+void clear_xdoors(mapscr *s, int32_t scr, bool triggers = false);
+void clear_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
+
 bool remove_lockblocks(mapscr* s, int32_t screen_index);
 bool remove_bosslockblocks(mapscr* s, int32_t screen_index);
 bool remove_chests(mapscr* s, int32_t screen_index);
 bool remove_lockedchests(mapscr* s, int32_t screen_index);
 bool remove_bosschests(mapscr* s, int32_t screen_index);
-
-bool remove_xdoors(int32_t tmp, uint dir, uint ind);
-bool remove_xdoors(int32_t tmp, int32_t mi, uint dir, uint ind);
-bool remove_xdoors2(mapscr *s, mapscr *t, uint dir, uint ind, bool triggers = false);
-bool remove_xdoors2(mapscr *s, mapscr *t, int32_t mi, uint dir, uint ind, bool triggers = false);
-void clear_xdoors(int32_t tmp);
-void clear_xdoors(int32_t tmp, int32_t mi);
-void clear_xdoors2(mapscr *s, mapscr *t);
-void clear_xdoors2(mapscr *s, mapscr *t, int32_t mi, bool triggers = false);
 
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle);

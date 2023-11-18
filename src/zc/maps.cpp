@@ -2467,55 +2467,50 @@ void clear_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers)
 	}
 }
 
-// TODO z3 !!! merge
-bool remove_xdoors(int32_t tmp, uint dir, uint ind)
+bool remove_xdoors(mapscr *s, int32_t scr, uint dir, uint ind, bool triggers)
 {
-	return remove_xdoors(tmp, (currmap*MAPSCRSNORMAL)+homescr, dir, ind);
+	int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
+	return remove_xdoors_mi(s, scr, mi, dir, ind, triggers);
 }
-bool remove_xdoors(int32_t tmp, int32_t mi, uint dir, uint ind)
-{
-	mapscr *s = tmpscr + tmp;
-	mapscr *t = tmpscr2;
-	return remove_xdoors2(s, t, mi, dir, ind, false);
-}
-bool remove_xdoors2(mapscr *s, mapscr *t, uint dir, uint ind, bool triggers)
-{
-	return remove_xdoors2(s, t, (currmap*MAPSCRSNORMAL)+homescr, dir, ind, triggers);
-}
-bool remove_xdoors2(mapscr *s, mapscr *t, int32_t mi, uint dir, uint ind, bool triggers)
+bool remove_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, uint dir, uint ind, bool triggers)
 {
 	bool didit=false;
 	if(!getxdoor(mi, dir, ind)) return false;
-	mapscr *scrs[7] = {s};
-	if(t)
+
+	if (scr >= 0x80) s = &special_warp_return_screen;
+	scr = scr >= 0x80 ? homescr : scr;
+
+	rpos_handle_t rpos_handle;
+	rpos_handle.screen_index = scr;
+	rpos_handle.layer = 0;
+	for (int j = -1; j < 6; j++)
 	{
-		scrs[1] = &t[0];
-		scrs[2] = &t[1];
-		scrs[3] = &t[2];
-		scrs[4] = &t[3];
-		scrs[5] = &t[4];
-		scrs[6] = &t[5];
-	}
-	for(uint lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* scr = scrs[lyr];
-		if(!scr) continue;
-		for(uint pos = 0; pos < 176; ++pos)
+		if (j != -1) s = get_layer_scr(currmap, scr, j);
+		if (!s->valid) continue;
+
+		rpos_handle.screen = s;
+		rpos_handle.screen_index = scr;
+		rpos_handle.layer = j + 1;
+		
+		for (int32_t i=0; i<176; i++)
 		{
-			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(triggers && force_ex_door_trigger(lyr,pos,dir,ind))
+			rpos_handle.rpos = POS_TO_RPOS(i, scr);
+			rpos_handle.pos = i;
+			if(triggers && force_ex_door_trigger(rpos_handle, dir, ind))
 				didit = true;
 			else; //future door combo types?
 		}
 	}
+
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = s->numFFC();
-		for(word i=0; i<c; i++)
+		int screen_index_offset = get_region_screen_index_offset(scr);
+		for (uint8_t i = 0; i < c; i++)
 		{
-			ffcdata& ffc2 = s->ffcs[i];
-			newcombo const& cmb = combobuf[ffc2.data];
-			if(triggers && force_ex_door_trigger_ffc(i,dir,ind))
+			ffcdata* ffc2 = &s->ffcs[i];
+			uint16_t ffc_id = screen_index_offset * MAXFFCS + i;
+			if(triggers && force_ex_door_trigger_ffc({s, (uint8_t)scr, ffc_id, i, ffc2}, dir, ind))
 				didit = true;
 			else; //future door combo types?
 		}
@@ -2523,25 +2518,19 @@ bool remove_xdoors2(mapscr *s, mapscr *t, int32_t mi, uint dir, uint ind, bool t
 	
 	return didit;
 }
-void clear_xdoors(int32_t tmp)
+
+void clear_xdoors(mapscr *s, int32_t scr, bool triggers)
 {
-	clear_xdoors(tmp, (currmap*MAPSCRSNORMAL)+homescr);
+	int mi = (currmap*MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
+	clear_xdoors_mi(s, scr, mi, triggers);
 }
-void clear_xdoors(int32_t tmp, int32_t mi)
+
+void clear_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers)
 {
-	mapscr *s = tmpscr + tmp;
-	mapscr *t = tmpscr2;
-	clear_xdoors2(s, t, mi, tmp==0);
-}
-void clear_xdoors2(mapscr *s, mapscr *t)
-{
-	clear_xdoors2(s, t, (currmap*MAPSCRSNORMAL)+homescr);
-}
-void clear_xdoors2(mapscr *s, mapscr *t, int32_t mi, bool triggers)
-{
-	for(uint dir = 0; dir < 4; ++dir)
-		for(uint ind = 0; ind < 8; ++ind)
-			remove_xdoors2(s, t, mi, dir, ind, triggers);
+	for (int q = 0; q < 32; ++q)
+	{
+		remove_xdoors(s,scr,mi,q,triggers);
+	}
 }
 
 bool remove_lockblocks(mapscr* s, int32_t screen_index)

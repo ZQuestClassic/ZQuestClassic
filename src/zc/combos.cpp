@@ -2518,33 +2518,31 @@ bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, char xstate)
 }
 
 // TODO z3 !!! merge
-bool force_ex_door_trigger(uint lyr, uint pos, int dir, uint ind)
+bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, int dir, uint ind)
 {
-	if(lyr > 6 || pos > 175 || dir > 3 || ind > 7) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	newcombo const& cmb = combobuf[tmp->data[pos]];
+	if (dir > 3 || ind > 7) return false;
+
+	newcombo const& cmb = combobuf[rpos_handle.data()];
 	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
 	{
 		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
 		{
-			// TODO z3 !!! merge
-			// do_ex_trigger(lyr,pos);
+			do_ex_trigger(rpos_handle);
 			return true;
 		}
 	}
 	return false;
 }
-bool force_ex_door_trigger_ffc(uint pos, int dir, uint ind)
+bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, int dir, uint ind)
 {
-	if(pos >= MAXFFCS || dir > 3 || ind > 7) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.data];
+	if (dir > 3 || ind > 7) return false;
+
+	newcombo const& cmb = combobuf[ffc_handle.data()];
 	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
 	{
 		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
 		{
-			// TODO z3 !!! merge
-			// do_ex_trigger_ffc(pos);
+			do_ex_trigger_ffc(ffc_handle);
 			return true;
 		}
 	}
@@ -2615,9 +2613,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	}
 	if(cmb.exdoor_dir > -1)
 	{
-		// TODO z3 !! merge
-		int lyr = rpos_handle.layer;
-		if(force_ex_door_trigger(lyr,pos))
+		if(force_ex_door_trigger(rpos_handle))
 			return true;
 	}
 	if(cmb.triggeritem) //Item requirement
@@ -3014,9 +3010,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 	}
 	if(cmb.exdoor_dir > -1)
 	{
-		// TODO z3 !! merge
-		int pos = ffc_handle.i;
-		if(force_ex_door_trigger_ffc(pos))
+		if(force_ex_door_trigger_ffc(ffc_handle))
 			return true;
 	}
 	if(cmb.triggeritem) //Item requirement
