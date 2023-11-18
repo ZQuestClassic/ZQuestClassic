@@ -5614,8 +5614,6 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 		{
 			for(size_t layer = 0; layer < 7; ++layer)
 			{
-				// TODO z3 !?
-				// mapscr* layer_scr = (tmp==0) ? FFCore.tempScreens[layer] : FFCore.ScrollingScreens[layer];
 				mapscr* layer_scr = screens[layer + 1];
 				for(size_t pos = 0; pos < 176; ++pos)
 				{
@@ -6599,7 +6597,6 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 	return effectflag(x, y, layer) || (cnt == 2 && effectflag(x + 8, y, layer));
 }
 
-// TODO z3 !!! rm m ?
 // TODO z3 !!! bound to single screen. re-use main walkflag code?
 //used by mapdata->isSolid(x,y) in ZScript:
 // Note: secrets are not applied, unlike MAPCOMBO3.

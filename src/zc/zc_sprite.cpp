@@ -132,8 +132,7 @@ void sprite::check_conveyor()
 	if(cmbid < 0) return;
 	newcombo const* cmb = &combobuf[cmbid];
 	bool custom_spd = (cmb->usrflags&cflag2);
-	// TODO z3 !
-    if(((z==0&&fakez==0) || (tmpscr->flags2&fAIRCOMBOS)))
+    if(((z==0&&fakez==0) || (hero_screen->flags2&fAIRCOMBOS)))
     {
         int32_t ctype=(combobuf[cmbid].type);
         deltax=combo_class_buf[ctype].conveyor_x_speed;
@@ -303,7 +302,6 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 bool movingblock::check_hole() const
 {
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
-	size_t combopos = rpos_handle.pos;
 	if ((rpos_handle.sflag()==mfBLOCKHOLE)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKHOLE)
 		return true;
 
@@ -314,8 +312,8 @@ bool movingblock::check_hole() const
 		{
 			if(lyr==blockLayer) continue;
 
-			mapscr* m2 = get_layer_scr(currmap, rpos_handle.screen_index, lyr - 1);
-			if ((m2->sflag[combopos]==mfBLOCKHOLE)
+			auto rpos_handle_2 = get_rpos_handle_for_screen(rpos_handle.screen_index, lyr, rpos_handle.pos);
+			if ((rpos_handle_2.sflag()==mfBLOCKHOLE)
 				|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 				return true;
 		}
@@ -323,14 +321,13 @@ bool movingblock::check_hole() const
 	return false;
 }
 
-// TODO z3 !! blocks
 bool movingblock::check_trig() const
 {
-	mapscr* m = FFCore.tempScreens[blockLayer];
-	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
+
 	if(fallclk || drownclk)
 		return false;
-	if((m->sflag[combopos]==mfBLOCKTRIGGER)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKTRIGGER)
+	if((rpos_handle.sflag()==mfBLOCKTRIGGER)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKTRIGGER)
 		return true;
 	else if(!get_qr(qr_BLOCKHOLE_SAME_ONLY))
 	{
@@ -338,7 +335,9 @@ bool movingblock::check_trig() const
 		for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 		{
 			if(lyr==blockLayer) continue;
-			if(FFCore.tempScreens[lyr]->sflag[combopos] == mfBLOCKTRIGGER
+
+			auto rpos_handle_2 = get_rpos_handle_for_screen(rpos_handle.screen_index, lyr, rpos_handle.pos);
+			if(rpos_handle_2.sflag() == mfBLOCKTRIGGER
 				|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 				return true;
 		}
@@ -358,7 +357,7 @@ bool movingblock::animate(int32_t)
 		return false;
 	}
 
-	// TODO z3 ?
+	// TODO z3 !!?
 	auto base_pos_handle = get_rpos_handle_for_world_xy(x, y, 0);
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);

@@ -29943,7 +29943,7 @@ bool replay_is_replaying() {return false;}
 bool replay_version_check(int min, int max) {return false;}
 bool replay_is_debug() {return false;}
 // TODO z3 !
-int32_t homescr, currscr, currscr_for_passive_subscr;
+int32_t currscr;
 
 #ifdef __EMSCRIPTEN__
 extern "C" void open_test_mode()

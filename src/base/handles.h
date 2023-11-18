@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <variant>
 
-// TODO z3 !!!!! stop using *_t !!
-
 enum class rpos_t : int32_t {
 	None = -1,
 };

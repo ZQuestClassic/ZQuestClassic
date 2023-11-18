@@ -662,7 +662,7 @@ void ttip_uninstall_all()
 	
 }
 
-// TODO z3 !!
+// TODO `doDarkroomCircle` requires these, and launcher includes drawing.cpp b/c it needs to pull in `replColors` for some reason.
 viewport_t viewport;
 bool screenscrolling, scrolling_use_new_dark_code;
 
