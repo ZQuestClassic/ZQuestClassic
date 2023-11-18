@@ -82,7 +82,7 @@ jobs:
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
       fail-fast: false
-    # TODO z3 !!!!!!!!!
+    # TODO z3 final
     # See https://github.com/community/community/discussions/40777
     uses: ./.github/workflows/build.yml
     # uses: ZQuestClassic/ZQuestClassic/.github/workflows/build.yml@main

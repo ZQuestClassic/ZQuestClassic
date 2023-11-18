@@ -4634,7 +4634,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			return qe_invalid;
 		}
 
-		// TODO z3 !!! rm
+		// TODO z3 final rm
 		if (global_z3_hacky_load)
 			s_version = global_z3_hacky_load;
 		

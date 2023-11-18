@@ -2517,7 +2517,6 @@ bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, char xstate)
 	return false;
 }
 
-// TODO z3 !!! merge
 bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, int dir, uint ind)
 {
 	if (dir > 3 || ind > 7) return false;
@@ -3660,7 +3659,7 @@ void trig_trigger_groups()
 
 //COMBOTYPE POS STUFF
 
-#define CXY(pos) COMBOX(pos), COMBOY(pos)
+#define CXY(pos) COMBOX_REGION(pos), COMBOX_REGION(pos)
 void handle_cpos_type(newcombo const& cmb, cpos_info& timer, const rpos_handle_t& rpos_handle)
 {
 	switch(cmb.type)
@@ -3670,10 +3669,8 @@ void handle_cpos_type(newcombo const& cmb, cpos_info& timer, const rpos_handle_t
 			break;
 		case cCRUMBLE:
 		{
-			// TODO z3 !!!
 			word cid = rpos_handle.data();
-			int pos = rpos_handle.pos;
-			handle_crumble(cmb, timer, cid, CXY(pos), 16, 16);
+			handle_crumble(cmb, timer, cid, CXY(rpos_handle.rpos), 16, 16);
 			rpos_handle.set_data(cid);
 			break;
 		}
