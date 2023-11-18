@@ -317,8 +317,7 @@ async function uncompressQstAndGzip(qstPath: string) {
     return;
   }
 
-  // First release with -uncompress-qst
-  const releasePath = `${TMP}/releases/nightly-2023-10-11-2`;
+  const releasePath = `${TMP}/releases/2.55-alpha-120`;
   if (!fs.existsSync(releasePath)) {
     console.error(`not found: ${releasePath}`);
     process.exit(1);
