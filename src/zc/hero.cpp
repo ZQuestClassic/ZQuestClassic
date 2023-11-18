@@ -19685,11 +19685,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         }
         else
         {
-			// TODO z3 !! general question: will both checks always run, even if first is true? when optimzied.
-            int32_t wtrx  = iswaterex_z3(MAPCOMBO(wx,wy), -1, wx,wy);
-            int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+8,wy), -1, x+8,wy); //!DIMI: Is x + 8 intentional???
-            
-            if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
+            if ((d2 >= left && iswaterex_z3(MAPCOMBO(wx,wy), -1, wx,wy)) || (d2 <= down && iswaterex_z3(MAPCOMBO(x+8,wy), -1, x+8,wy)))
             {
                 ret.setUnwalkable(false);
                 return ret;

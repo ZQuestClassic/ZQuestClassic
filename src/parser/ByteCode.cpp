@@ -6828,19 +6828,6 @@ string ORunGenericFrozenScript::toString() const
 	return "RUNGENFRZSCR " + getArgument()->toString();
 };
 
-// TODO z3 ! just delete
-// string OReservedZ3_01::toString() const
-// {
-// 	return "RESRVD_OP_Z3_01 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-// }
-// string OReservedZ3_02::toString() const
-// {
-// 	return "RESRVD_OP_Z3_02 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-// }
-// string OReservedZ3_03::toString() const
-// {
-// 	return "RESRVD_OP_Z3_03 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-// }
 string OReservedZ3_04::toString() const
 {
 	return "RESRVD_OP_Z3_04 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();

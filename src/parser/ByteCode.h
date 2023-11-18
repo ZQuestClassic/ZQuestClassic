@@ -11787,40 +11787,6 @@ namespace ZScript
 		}
 	};
 
-	// TODO z3 ! just delete
-	// class OReservedZ3_01 : public BinaryOpcode
-	// {
-	// public:
-	// 	OReservedZ3_01(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-	// 	std::string toString() const;
-	// 	Opcode* clone() const
-	// 	{
-	// 		return new OReservedZ3_01(a->clone(),b->clone());
-	// 	}
-	// };
-
-	// class OReservedZ3_02 : public BinaryOpcode
-	// {
-	// public:
-	// 	OReservedZ3_02(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-	// 	std::string toString() const;
-	// 	Opcode* clone() const
-	// 	{
-	// 		return new OReservedZ3_02(a->clone(),b->clone());
-	// 	}
-	// };
-
-	// class OReservedZ3_03 : public BinaryOpcode
-	// {
-	// public:
-	// 	OReservedZ3_03(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-	// 	std::string toString() const;
-	// 	Opcode* clone() const
-	// 	{
-	// 		return new OReservedZ3_03(a->clone(),b->clone());
-	// 	}
-	// };
-
 	class OReservedZ3_04 : public BinaryOpcode
 	{
 	public:
