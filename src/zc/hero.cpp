@@ -20173,11 +20173,10 @@ bool HeroClass::checksoliddamage()
 				//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
 				if ( get_qr(qr_OLDSIDEVIEWSPIKES ) )
 				{
-					// TODO z3 !!!
-					if (checkdamagecombos(x+8-(zfix)(tmpscr->csensitive),
-						x+8+(zc_max(tmpscr->csensitive-1,0)),
-						y+17-(get_qr(qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
-						y+17+zc_max((get_qr(qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true))
+					if (checkdamagecombos(x+8-(zfix)(hero_screen->csensitive),
+						x+8+(zc_max(hero_screen->csensitive-1,0)),
+						y+17-(get_qr(qr_LTTPCOLLISION)?hero_screen->csensitive:(hero_screen->csensitive+1)/2),
+						y+17+zc_max((get_qr(qr_LTTPCOLLISION)?hero_screen->csensitive:(hero_screen->csensitive+1)/2)-1,0), i-1, true))
 							return true;
 				}
 				else //2.50.1 and later
@@ -23146,8 +23145,7 @@ void HeroClass::checkspecial()
 			remove_bosschests(screen, screen_index);
 		}
 
-		// TODO z3 !!! merge
-		// clear_xdoors(screen, screen_index, true);
+		clear_xdoors(screen, screen_index, true);
 		clear_xstatecombos(screen, screen_index, true);
 
 		// TODO z3 ! secrets

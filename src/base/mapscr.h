@@ -78,6 +78,7 @@ struct mapscr
 	byte flags8;
 	byte flags9;
 	byte flags10;
+	// The value of Damage Combo Sensitivity for the screen
 	byte csensitive = 1;
 	word noreset;
 	word nocarry;
