@@ -38236,26 +38236,7 @@ j_command:
 				if(dith_type >= 0) dith_type /= 10000;
 				if(dith_arg >= 0) dith_arg /= 10000;
 				
-				int32_t scrolldir = FFCore.ScrollingData[SCROLLDATA_DIR];
-				int32_t scrollxoffs = 0, scrollyoffs = 0;
-				switch(scrolldir)
-				{
-					case up:
-						scrollyoffs = -176;
-						break;
-					case down:
-						scrollyoffs = 176;
-						break;
-					case left:
-						scrollxoffs = -256;
-						break;
-					case right:
-						scrollxoffs = 256;
-						break;
-				}
-				
 				doDarkroomCircle(cx,cy,radius,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
-				doDarkroomCircle(cx+scrollxoffs,cy+scrollyoffs,radius,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
 			case DRAWLIGHT_SQUARE:
@@ -38276,26 +38257,7 @@ j_command:
 				if(dith_type >= 0) dith_type /= 10000;
 				if(dith_arg >= 0) dith_arg /= 10000;
 				
-				int32_t scrolldir = FFCore.ScrollingData[SCROLLDATA_DIR];
-				int32_t scrollxoffs = 0, scrollyoffs = 0;
-				switch(scrolldir)
-				{
-					case up:
-						scrollyoffs = -176;
-						break;
-					case down:
-						scrollyoffs = 176;
-						break;
-					case left:
-						scrollxoffs = -256;
-						break;
-					case right:
-						scrollxoffs = 256;
-						break;
-				}
-				
 				doDarkroomSquare(cx,cy,radius,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
-				doDarkroomSquare(cx+scrollxoffs,cy+scrollyoffs,radius,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
 			case DRAWLIGHT_CONE:
@@ -38318,27 +38280,8 @@ j_command:
 				if(dith_rad >= 0) dith_rad /= 10000;
 				if(dith_type >= 0) dith_type /= 10000;
 				if(dith_arg >= 0) dith_arg /= 10000;
-				
-				int32_t scrolldir = FFCore.ScrollingData[SCROLLDATA_DIR];
-				int32_t scrollxoffs = 0, scrollyoffs = 0;
-				switch(scrolldir)
-				{
-					case up:
-						scrollyoffs = -176;
-						break;
-					case down:
-						scrollyoffs = 176;
-						break;
-					case left:
-						scrollxoffs = -256;
-						break;
-					case right:
-						scrollxoffs = 256;
-						break;
-				}
-				
+
 				doDarkroomCone(cx,cy,radius,dir,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
-				doDarkroomCone(cx+scrollxoffs,cy+scrollyoffs,radius,dir,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
 			
