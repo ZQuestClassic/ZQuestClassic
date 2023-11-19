@@ -4203,11 +4203,8 @@ void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 	}
 }
 
-// Only used for z3 scrolling mode, during screen scrolling.
-void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
+void calc_darkroom_combos(int screen, int offx, int offy)
 {
-	if (!bmp) bmp = darkscr_bmp_curscr;
-
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = get_layer_scr(currmap, screen, lyr-1);
@@ -4218,7 +4215,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
 			newcombo const& cmb = combobuf[scr->data[q]];
 			if(cmb.type == cTORCH)
 			{
-				do_torch_combo(cmb, COMBOX(q)+8+offx, COMBOY(q)+8+offy, bmp);
+				do_torch_combo(cmb, COMBOX(q)+8+offx, COMBOY(q)+8+offy, darkscr_bmp_z3);
 			}
 		}
 	}
@@ -4232,7 +4229,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
 		{
 			int cx = scr->ffcs[q].x.getInt()+(scr->ffEffectWidth(q)/2)+offx;
 			int cy = (scr->ffcs[q].y.getInt())+(scr->ffEffectHeight(q)/2)+offy;
-			do_torch_combo(cmb, cx, cy, bmp);
+			do_torch_combo(cmb, cx, cy, darkscr_bmp_z3);
 		}
 	}
 }
@@ -4877,10 +4874,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(get_qr(qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
 	{
 		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-			calc_darkroom_combos(screen_index, offx, offy + playing_field_offset, darkscr_bmp_z3);
+			calc_darkroom_combos(screen_index, offx, offy + playing_field_offset);
 		});
 		if(showhero)
-			Hero.calc_darkroom_hero(0, -playing_field_offset, darkscr_bmp_z3);
+			Hero.calc_darkroom_hero(0, -playing_field_offset);
 	}
 	
 	//Darkroom if under the subscreen
@@ -5458,10 +5455,6 @@ void openshutters(mapscr* screen, int screen_index)
 
 void clear_darkroom_bitmaps()
 {
-	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 	clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
 	clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
 }

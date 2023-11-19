@@ -11,7 +11,7 @@
 using namespace util;
 
 #ifdef IS_PLAYER
-extern BITMAP *darkscr_bmp_curscr, *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr, *darkscr_bmp_scrollscr_trans, *darkscr_bmp_z3, *darkscr_bmp_z3_trans;
+extern BITMAP *darkscr_bmp_z3, *darkscr_bmp_z3_trans;
 
 #include "base/initdata.h"
 #include "gamedata.h"
@@ -45,10 +45,8 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 	cx -= viewport.x;
 	cy -= viewport.y;
 	//Default bitmap handling
-	if(!dest) dest = darkscr_bmp_curscr;
-	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
-	else if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
-	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
+	if(!dest) dest = darkscr_bmp_z3;
+	if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
 #endif
 
 	if(dith_perc < 0) dith_perc = DITH_PERC;
@@ -87,10 +85,8 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	sx -= viewport.x;
 	sy -= viewport.y;
 	//Default bitmap handling
-	if(!dest) dest = darkscr_bmp_curscr;
-	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
-	else if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
-	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
+	if(!dest) dest = darkscr_bmp_z3;
+	if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
 	#endif
 	if(dith_perc < 0) dith_perc = DITH_PERC;
 	if(trans_perc < 0) trans_perc = TRANS_PERC;
@@ -148,10 +144,8 @@ void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP
 	cx -= viewport.x;
 	cy -= viewport.y;
 	//Default bitmap handling
-	if(!dest) dest = darkscr_bmp_curscr;
-	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
-	else if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
-	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
+	if(!dest) dest = darkscr_bmp_z3;
+	if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
 	#endif
 
 	if(dith_perc < 0) dith_perc = DITH_PERC;

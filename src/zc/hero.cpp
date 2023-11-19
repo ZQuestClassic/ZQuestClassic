@@ -27427,7 +27427,7 @@ int32_t HeroClass::get_scroll_delay(int32_t scrolldir)
 	}
 }
 
-void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, BITMAP* bmp)
+void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1)
 {
 	if(!get_qr(qr_NEW_DARKROOM)) return;
 	int32_t lampid = current_item_id(itype_lantern);
@@ -27445,7 +27445,7 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, BITMAP* bmp)
 	int32_t hy = y.getInt() - y1 + 8;
 	
 	itemdata& lamp = itemsbuf[lampid];
-	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, bmp);
+	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, darkscr_bmp_z3);
 }
 
 static void for_every_nearby_screen_during_scroll(
@@ -27587,10 +27587,10 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 		{
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176 + playing_field_offset;
-			calc_darkroom_combos(scr, offx, offy, darkscr_bmp_z3);
+			calc_darkroom_combos(scr, offx, offy);
 		}
 	});
-	Hero.calc_darkroom_hero(0, -playing_field_offset, darkscr_bmp_z3);
+	Hero.calc_darkroom_hero(0, -playing_field_offset);
 
 	color_map = &trans_table2;
 	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
@@ -28908,7 +28908,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}//end main scrolling loop (2 spaces tab width makes me sad =( )
 	currdmap = old_dmap;
 
-	// TODO z3 old scrolling code doesn't clear darkscr_bmp_curscr at end of scroll, so first frame will have some lighting from
+	// TODO z3 old scrolling code didn't clear the darkroom bitmaps at end of scroll, so first frame will have some lighting from
 	// previous screen... game_loop clears these bitmaps but that should be moved to draw_screen.
 	// TODO update replays.
 	if (draw_dark && !replay_is_active())

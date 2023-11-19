@@ -287,8 +287,8 @@ int32_t prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
 BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL, *msg_menu_bmp_buf = NULL;
-BITMAP   *darkscr_bmp_curscr = NULL, *darkscr_bmp_scrollscr = NULL, *darkscr_bmp_z3 = NULL,
-         *darkscr_bmp_curscr_trans = NULL, *darkscr_bmp_scrollscr_trans = NULL, *darkscr_bmp_z3_trans = NULL;
+BITMAP   *darkscr_bmp_z3 = NULL,
+         *darkscr_bmp_z3_trans = NULL;
 BITMAP *lightbeam_bmp = NULL;
 bool lightbeam_present;
 FONT	 *msgfont;
@@ -4892,12 +4892,8 @@ int main(int argc, char **argv)
 	pricesdisplaybuf = create_bitmap_ex(8,256, 176);
 	script_menu_buf = create_bitmap_ex(8,256,224);
 	f6_menu_buf = create_bitmap_ex(8,256,224);
-	darkscr_bmp_curscr = create_bitmap_ex(8, 256, 176);
-	darkscr_bmp_curscr_trans = create_bitmap_ex(8, 256, 176);
 	darkscr_bmp_z3 = create_bitmap_ex(8, 256, 224);
 	darkscr_bmp_z3_trans = create_bitmap_ex(8, 256, 224);
-	darkscr_bmp_scrollscr = create_bitmap_ex(8, 256, 176);
-	darkscr_bmp_scrollscr_trans = create_bitmap_ex(8, 256, 176);
 	lightbeam_bmp = create_bitmap_ex(8, 256, 176);
 	
 	if(!framebuf || !scrollbuf || !tmp_bmp || !tmp_scr
@@ -5921,10 +5917,6 @@ void quit_game()
 	destroy_bitmap(zcmouse[0]);
 	destroy_bitmap(script_menu_buf);
 	destroy_bitmap(f6_menu_buf);
-	destroy_bitmap(darkscr_bmp_curscr);
-	destroy_bitmap(darkscr_bmp_curscr_trans);
-	destroy_bitmap(darkscr_bmp_scrollscr);
-	destroy_bitmap(darkscr_bmp_scrollscr_trans);
 	destroy_bitmap(darkscr_bmp_z3);
 	destroy_bitmap(darkscr_bmp_z3_trans);
 	destroy_bitmap(lightbeam_bmp);
