@@ -20316,7 +20316,7 @@ void HeroClass::checkpushblock()
 		if(waitblock && (pushing<16 || hasMainGuy())) continue;
 		
 		if(heavy && (itemid<0 || glove->power < heavy ||
-			(limitedpush && usecounts[itemid] > zc_max(1, glove->misc3)))) continue;
+			(limitedpush && usecounts[itemid] >= zc_max(1, glove->misc3)))) continue;
 		
 		bool doit=false;
 		bool changecombo=false;
