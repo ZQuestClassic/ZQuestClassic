@@ -5994,7 +5994,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	}
 	
 	// TODO z3 !! merge
-	// clear_xdoors(screen, scr);
+	clear_xdoors(screen, scr);
 	clear_xstatecombos(screen, scr);
 	
 	// if(!tmp)
