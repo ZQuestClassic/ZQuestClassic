@@ -138,9 +138,6 @@ jobs:
           --no-jit
           --no-headless
 
-      # TODO z3 ! just rm?
-      # - run: sudo mkdir -p .tmp/test_updater/cache
-      #   if: ${{ runner.os != 'Windows' }}
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Updater cache
         uses: actions/cache@v3

@@ -25,9 +25,8 @@ class TestUpdater(unittest.TestCase):
 		if is_mac:
 			return
 		# TODO: works, but in CI there is a problem caching the downloaded release
-		# TODO z3 ! upstream
-		# if is_linux:
-		# 	return
+		if is_linux:
+			return
 
 		build_folder = run_target.get_build_folder()
 		if 'CI' in os.environ:
