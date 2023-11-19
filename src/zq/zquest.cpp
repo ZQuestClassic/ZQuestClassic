@@ -29979,4 +29979,3 @@ extern "C" void get_shareable_url()
 // TODO z3 !!
 int32_t scrolling_destdmap = -1, currdmap = 0;
 viewport_t viewport;
-bool screenscrolling, scrolling_use_new_dark_code;

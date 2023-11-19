@@ -662,10 +662,6 @@ void ttip_uninstall_all()
 	
 }
 
-// TODO `doDarkroomCircle` requires these, and launcher includes drawing.cpp b/c it needs to pull in `replColors` for some reason.
-viewport_t viewport;
-bool screenscrolling, scrolling_use_new_dark_code;
-
 // TODO: I experimented with making zcbase/zcgui shared/object libraries, and the followed was needed to compile zlauncher:
 // The following is needed because of ~mapscr, which is in zcbase.
 // void ffcdata::solid_update(bool push) {}

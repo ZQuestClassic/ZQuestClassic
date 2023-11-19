@@ -41,16 +41,16 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 {
 	if(!glowRad) return;
 
+#ifdef IS_PLAYER
 	cx -= viewport.x;
 	cy -= viewport.y;
-
-	#ifdef IS_PLAYER
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
 	else if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
 	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
-	#endif
+#endif
+
 	if(dith_perc < 0) dith_perc = DITH_PERC;
 	if(trans_perc < 0) trans_perc = TRANS_PERC;
 	if(dith_type < 0) dith_type = DITH_TYPE;
@@ -59,10 +59,16 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
 	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
 	auto maxRad = zc_max(glowRad,transRad);
+
+	int offx = 0;
+	int offy = 0;
+#ifdef IS_PLAYER
 	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
 	extern bool screenscrolling, scrolling_use_new_dark_code;
-	int offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
-	int offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+	offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
+	offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+#endif
+
 	if(dest)
 	{
 		dithercircfill(dest, cx, cy, ditherRad, 0, dith_type, dith_arg, offx, offy);
@@ -79,10 +85,9 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 {
 	if(!glowRad) return;
 
+	#ifdef IS_PLAYER
 	sx -= viewport.x;
 	sy -= viewport.y;
-
-	#ifdef IS_PLAYER
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
@@ -116,10 +121,16 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	}
 	if(d&4) {xs*=0.75; ys*=0.75;}
 	if(glowRad>transRad) transDiff = 0;
+
+	int offx = 0;
+	int offy = 0;
+#ifdef IS_PLAYER
 	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
 	extern bool screenscrolling, scrolling_use_new_dark_code;
-	int offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
-	int offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+	offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
+	offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+#endif
+
 	if(dest)
 	{
 		ditherLampCone(dest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, dith_type, dith_arg, offx, offy);
@@ -136,10 +147,10 @@ void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP
 {
 	if(!glowRad) return;
 
-	cx -= viewport.x;
-	cy -= viewport.y;
 
 	#ifdef IS_PLAYER
+	cx -= viewport.x;
+	cy -= viewport.y;
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
@@ -155,10 +166,16 @@ void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP
 	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
 	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
 	auto mrad = zc_max(glowRad,transRad);
+
+	int offx = 0;
+	int offy = 0;
+#ifdef IS_PLAYER
 	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
 	extern bool screenscrolling, scrolling_use_new_dark_code;
-	int offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
-	int offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+	offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
+	offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+#endif
+
 	if(dest)
 	{
 		ditherrectfill(dest, cx-ditherRad, cy-ditherRad, cx+ditherRad, cy+ditherRad, 0, dith_type, dith_arg, offx, offy);
@@ -220,8 +237,10 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 			break;
 	}
 
+#ifdef IS_PLAYER
 	// This can be negative because of the workaround in `ditherblit` for replay compat.
 	if (replay_is_active()) y = std::abs(y);
+#endif
 	
 	switch(type) //calculate
 	{
@@ -384,6 +403,7 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 	int32_t wid = src ? zc_min(dest->w, src->w) : dest->w;
 	int32_t hei = src ? zc_min(dest->h, src->h) : dest->h;
 
+#ifdef IS_PLAYER
 	if (replay_is_active())
 	{
 		// z3 changed how dark bitmap drawing works, so to get the same results as before we must remove the delta
@@ -413,6 +433,7 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 			}
 		}
 	}
+#endif
 
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
