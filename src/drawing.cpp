@@ -3,7 +3,9 @@
 #include "base/util.h"
 #include "base/zc_math.h"
 #include "base/combo.h"
+#include "zc/replay.h"
 #include <allegro/internal/aintern.h>
+#include <cstdlib>
 
 using namespace util;
 
@@ -216,6 +218,9 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 			arg = zc_max(1,arg); //don't div by 0!
 			break;
 	}
+
+	// This can be negative because of the workaround in `ditherblit` for replay compat.
+	if (replay_is_active()) y = std::abs(y);
 	
 	switch(type) //calculate
 	{
@@ -377,6 +382,16 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 {
 	int32_t wid = src ? zc_min(dest->w, src->w) : dest->w;
 	int32_t hei = src ? zc_min(dest->h, src->h) : dest->h;
+
+	if (replay_is_active())
+	{
+		// z3 changed how dark bitmap drawing works, so to get the same results as before we must remove the delta
+		// of the old/new dark bitmaps...
+		yoffs -= 48;
+		// ...and the playing field offset.
+		yoffs -= playing_field_offset;
+	}
+
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
 		uintptr_t read_addr = src ? bmp_read_line(src, ty) : 0;
