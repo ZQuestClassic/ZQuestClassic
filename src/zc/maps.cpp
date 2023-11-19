@@ -7170,7 +7170,7 @@ bool displayOnMap(int32_t x, int32_t y)
 void ViewMap()
 {
 	// The only reason this is static is that the stack is otherwise too large.
-	// It will still compile, but randomly segfaults in this function...
+	// It will still compile, but segfaults in this function.
 	// Ex: python tests/run_replay_tests.py --filter link_to_the_zelda_2_of_3.zplay --frame 3000
 	static mapscr tmpscr_a[2];
 	static mapscr tmpscr_b[2];
@@ -7211,18 +7211,16 @@ void ViewMap()
 		exit_sys_pal();
 		return;
 	}
-	
-	// draw the map
-	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
 
+	// draw the map
+	BITMAP* screen_bmp = create_bitmap_ex(8, 256, 176);
 	viewport.x = 0;
 	viewport.y = 0;
-	
 	for(int32_t y=0; y<8; y++)
 	{
 		for(int32_t x=0; x<16; x++)
 		{
-			rectfill(scrollbuf_old, 256, 0, 511, 223, WHITE);
+			clear_to_color(screen_bmp, WHITE);
 			if(displayOnMap(x, y))
 			{
 				int32_t s = (y<<4) + x;
@@ -7240,45 +7238,46 @@ void ViewMap()
 						
 						tmpscr2[i]=TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS+tmpscr->layerscreen[i]];
 					}
+
+					int xx = 0;
+					int yy = -playing_field_offset;
 					
-					if(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, tmpscr, 256, -playing_field_offset, 2);
+					if(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(screen_bmp, 0, 2, tmpscr, xx, yy, 2);
 					
-					if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, tmpscr, 256, -playing_field_offset, 2);
+					if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(screen_bmp, 0, 3, tmpscr, xx, yy, 2);
 					
-					if(lenscheck(tmpscr,0)) putscr(scrollbuf_old,256,0,tmpscr);
-					// TODO z3 !!!!! python3 tests/run_replay_tests.py --filter tests/replays/first_quest_layered.zplay --frame 300
-					do_layer_old(scrollbuf_old, 0, 1, tmpscr, 256, -playing_field_offset, 2);
+					if(lenscheck(tmpscr,0)) putscr(screen_bmp,0,0,tmpscr);
+					do_layer_old(screen_bmp, 0, 1, tmpscr, xx, yy, 2);
 					
-					if(!XOR((tmpscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, tmpscr, 256, -playing_field_offset, 2);
+					if(!XOR((tmpscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(screen_bmp, 0, 2, tmpscr, xx, yy, 2);
 					
-					putscrdoors(scrollbuf_old,256,0,tmpscr);
+					putscrdoors(screen_bmp,0,0,tmpscr);
 					if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 					{
-						do_layer_old(scrollbuf_old,-2, 0, tmpscr, 256, -playing_field_offset, 2);
+						do_layer_old(screen_bmp,-2, 0, tmpscr, xx, yy, 2);
 						if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 						{
-							do_layer_old(scrollbuf_old,-2, 1, tmpscr, 256, -playing_field_offset, 2);
-							do_layer_old(scrollbuf_old,-2, 2, tmpscr, 256, -playing_field_offset, 2);
+							do_layer_old(screen_bmp,-2, 1, tmpscr, xx, yy, 2);
+							do_layer_old(screen_bmp,-2, 2, tmpscr, xx, yy, 2);
 						}
 					}
-					// TODO z3 !! offx,y 0,0?
-					do_layer_old(scrollbuf_old,-3, 0, tmpscr, 256, -playing_field_offset, 2); // Freeform combos!
+					do_layer_old(screen_bmp,-3, 0, tmpscr, xx, yy, 2); // Freeform combos!
 					
-					if(!XOR((tmpscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, tmpscr, 256, -playing_field_offset, 2);
+					if(!XOR((tmpscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(screen_bmp, 0, 3, tmpscr, xx, yy, 2);
 					
-					do_layer_old(scrollbuf_old, 0, 4, tmpscr, 256, -playing_field_offset, 2);
-					do_layer_old(scrollbuf_old,-1, 0, tmpscr, 256, -playing_field_offset, 2);
+					do_layer_old(screen_bmp, 0, 4, tmpscr, xx, yy, 2);
+					do_layer_old(screen_bmp,-1, 0, tmpscr, xx, yy, 2);
 					if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 					{
-						do_layer_old(scrollbuf_old,-1, 1, tmpscr, 256, -playing_field_offset, 2);
-						do_layer_old(scrollbuf_old,-1, 2, tmpscr, 256, -playing_field_offset, 2);
+						do_layer_old(screen_bmp,-1, 1, tmpscr, xx, yy, 2);
+						do_layer_old(screen_bmp,-1, 2, tmpscr, xx, yy, 2);
 					}
-					do_layer_old(scrollbuf_old, 0, 5, tmpscr, 256, -playing_field_offset, 2);
-					do_layer_old(scrollbuf_old, 0, 6, tmpscr, 256, -playing_field_offset, 2);
+					do_layer_old(screen_bmp, 0, 5, tmpscr, xx, yy, 2);
+					do_layer_old(screen_bmp, 0, 6, tmpscr, xx, yy, 2);
 				}
 			}
 			
-			stretch_blit(scrollbuf_old, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+			stretch_blit(screen_bmp, mappic, 0, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
 		}
 	}
 	
@@ -7289,7 +7288,7 @@ void ViewMap()
 		tmpscr2[i]=tmpscr_c[i];
 	}
 	
-	
+	destroy_bitmap(screen_bmp);
 	clear_keybuf();
 	pause_all_sfx();
 	
