@@ -4,6 +4,7 @@
 #include "base/zc_math.h"
 #include "base/combo.h"
 #include "zc/replay.h"
+#include "zc/zelda.h"
 #include <allegro/internal/aintern.h>
 #include <cstdlib>
 
@@ -390,6 +391,27 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 		yoffs -= 48;
 		// ...and the playing field offset.
 		yoffs -= playing_field_offset;
+
+		extern bool screenscrolling;
+		extern direction scrolling_dir;
+		if (screenscrolling)
+		{
+			switch(scrolling_dir)
+			{
+				case up:
+					yoffs += 176;
+					break;
+				case down:
+					yoffs -= 176;
+					break;
+				case left:
+					xoffs += 256;
+					break;
+				case right:
+					xoffs -= 256;
+					break;
+			}
+		}
 	}
 
 	for(int32_t ty = 0; ty < hei; ++ty)
