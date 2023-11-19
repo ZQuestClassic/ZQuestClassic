@@ -192,6 +192,8 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 # Needed to build on Mac, otherwise get this error:
 #    aintern_bitmap.h:154:33: error: unknown type name 'ALLEGRO_BITMAP_WRAP'
 add_definitions(-DALLEGRO_UNSTABLE)
+add_compile_definitions("$<$<CONFIG:DEBUG>:DEBUGMODE>")
+add_compile_definitions("$<$<CONFIG:ASAN>:DEBUGMODE>")
 option(SHARED "" ON)
 
 set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
