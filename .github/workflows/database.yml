@@ -38,7 +38,7 @@ jobs:
         with:
           python-version: '3.11.4'
       - run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie joblib
-      - run: python scripts/bisect_builds.py --download_release nightly-2023-10-11 --token ${{ secrets.GITHUB_TOKEN }}
+      - run: python scripts/bisect_builds.py --download_release 2.55-alpha-120 --token ${{ secrets.GITHUB_TOKEN }}
 
       - run: npm install
         working-directory: scripts/database
