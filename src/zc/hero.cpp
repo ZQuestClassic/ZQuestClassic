@@ -27564,111 +27564,64 @@ static int dir_to_scr_offset(direction dir)
 static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<mapscr*>& old_temporary_screens)
 {
 	clear_darkroom_bitmaps();
+	set_clip_rect(framebuf, 0, playing_field_offset, 256, framebuf->h);
 
-	if (scrolling_use_new_dark_code)
-	{
-		set_clip_rect(framebuf, 0, playing_field_offset, 256, framebuf->h);
-
-		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-			mapscr* base_screen = screen_handles[0].base_screen;
-			bool should_be_dark = (base_screen->flags & fDARK) && (scr == currscr || get_qr(qr_NEWDARK_SCROLLEDGE));
-			if (!should_be_dark)
-			{
-				int offx = draw_dx * 256;
-				int offy = draw_dy * 176 + playing_field_offset;
-				rectfill(darkscr_bmp_z3, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-				rectfill(darkscr_bmp_z3_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-			}
-		});
-
-		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-			if (scr != currscr && !get_qr(qr_NEWDARK_SCROLLEDGE))
-				return;
-
-			mapscr* base_screen = screen_handles[0].base_screen;
-			if (base_screen->flags & fDARK)
-			{
-				int offx = draw_dx * 256;
-				int offy = draw_dy * 176 + playing_field_offset;
-				calc_darkroom_combos(scr, offx, offy, darkscr_bmp_z3);
-			}
-		});
-		Hero.calc_darkroom_hero(0, -playing_field_offset, darkscr_bmp_z3);
-
-		color_map = &trans_table2;
-		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-			mapscr* base_screen = screen_handles[0].base_screen;
-
+	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+		bool should_be_dark = (base_screen->flags & fDARK) && (scr == currscr || get_qr(qr_NEWDARK_SCROLLEDGE));
+		if (!should_be_dark)
+		{
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176 + playing_field_offset;
-			int left = offx - viewport.x;
-			int top = offy - viewport.y;
-			set_clip_rect(framebuf, left, top, left + 256, top + 176);
-			add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
-
-			if (base_screen->flags9 & fDARK_DITHER)
-			{
-				set_clip_rect(darkscr_bmp_z3, left, top, left + 256, top + 176);
-				set_clip_rect(darkscr_bmp_z3_trans, left, top, left + 256, top + 176);
-				ditherblit_clipped(darkscr_bmp_z3,darkscr_bmp_z3,0,game->get_dither_type(),game->get_dither_arg());
-				ditherblit_clipped(darkscr_bmp_z3_trans,darkscr_bmp_z3_trans,0,game->get_dither_type(),game->get_dither_arg());
-				set_clip_rect(darkscr_bmp_z3, 0, 0, darkscr_bmp_z3->w, darkscr_bmp_z3->h);
-				set_clip_rect(darkscr_bmp_z3_trans, 0, 0, darkscr_bmp_z3_trans->w, darkscr_bmp_z3_trans->h);
-			}
-
-			if (base_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
-				draw_trans_sprite(framebuf, darkscr_bmp_z3, 0, 0);
-			else
-				masked_blit(darkscr_bmp_z3, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
-		});
-		draw_trans_sprite(framebuf, darkscr_bmp_z3_trans, 0, 0);
-		color_map = &trans_table;
-
-		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-	}
-	else
-	{
-		calc_darkroom_combos_old(currscr, viewport.x, viewport.y, true);
-		Hero.calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY], darkscr_bmp_curscr);
-		Hero.calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY], darkscr_bmp_scrollscr);
-
-		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-		int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
-		int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
-		if(newscr->flags & fDARK)
-		{
-			if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
-			{
-				ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
-				ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
-			}
-			
-			color_map = &trans_table2;
-			if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
-				draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
-			else 
-				masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
-			draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
-			color_map = &trans_table;
+			rectfill(darkscr_bmp_z3, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+			rectfill(darkscr_bmp_z3_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
 		}
-		if(oldscr->flags & fDARK)
+	});
+
+	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
+		if (scr != currscr && !get_qr(qr_NEWDARK_SCROLLEDGE))
+			return;
+
+		mapscr* base_screen = screen_handles[0].base_screen;
+		if (base_screen->flags & fDARK)
 		{
-			if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
-			{
-				ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
-				ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
-			}
-			
-			color_map = &trans_table2;
-			if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
-				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
-			else 
-				masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
-			draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
-			color_map = &trans_table;
+			int offx = draw_dx * 256;
+			int offy = draw_dy * 176 + playing_field_offset;
+			calc_darkroom_combos(scr, offx, offy, darkscr_bmp_z3);
 		}
-		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-	}
+	});
+	Hero.calc_darkroom_hero(0, -playing_field_offset, darkscr_bmp_z3);
+
+	color_map = &trans_table2;
+	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+
+		int offx = draw_dx * 256;
+		int offy = draw_dy * 176 + playing_field_offset;
+		int left = offx - viewport.x;
+		int top = offy - viewport.y;
+		set_clip_rect(framebuf, left, top, left + 256, top + 176);
+		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+
+		if (base_screen->flags9 & fDARK_DITHER)
+		{
+			set_clip_rect(darkscr_bmp_z3, left, top, left + 256, top + 176);
+			set_clip_rect(darkscr_bmp_z3_trans, left, top, left + 256, top + 176);
+			ditherblit_clipped(darkscr_bmp_z3,darkscr_bmp_z3,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit_clipped(darkscr_bmp_z3_trans,darkscr_bmp_z3_trans,0,game->get_dither_type(),game->get_dither_arg());
+			set_clip_rect(darkscr_bmp_z3, 0, 0, darkscr_bmp_z3->w, darkscr_bmp_z3->h);
+			set_clip_rect(darkscr_bmp_z3_trans, 0, 0, darkscr_bmp_z3_trans->w, darkscr_bmp_z3_trans->h);
+		}
+
+		if (base_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+			draw_trans_sprite(framebuf, darkscr_bmp_z3, 0, 0);
+		else
+			masked_blit(darkscr_bmp_z3, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+	});
+	draw_trans_sprite(framebuf, darkscr_bmp_z3_trans, 0, 0);
+	color_map = &trans_table;
+
+	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 }
 
 // TODO z3 ! cleanup dead code
@@ -28270,10 +28223,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		mapscr* base_screen = screen_handles[0].base_screen;
 		draw_dark = draw_dark || (base_screen->flags&fDARK);
 	});
-	// TODO z3 !! remove old dark code
-	// scrolling_use_new_dark_code = region_scrolling;
-	scrolling_use_new_dark_code = true;
-	// scrolling_use_new_dark_code = false;
 
 	int no_move = 0;
 	int move_counter = 0;
@@ -28965,8 +28914,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (draw_dark && !replay_is_active())
 	{
 		clear_darkroom_bitmaps();
-		// blit(darkscr_bmp_z3, darkscr_bmp_curscr, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr->w, darkscr_bmp_curscr->h);
-		// blit(darkscr_bmp_z3_trans, darkscr_bmp_curscr_trans, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr_trans->w, darkscr_bmp_curscr_trans->h);
 	}
 
 	clear_bitmap(msg_txt_display_buf);

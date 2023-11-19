@@ -321,7 +321,6 @@ byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build 
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 int32_t heroscr=0;
 int32_t cur_origin_screen_index=0;
-bool scrolling_use_new_dark_code=false;
 int32_t scrolling_origin_scr=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;

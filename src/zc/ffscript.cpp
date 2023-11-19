@@ -38254,7 +38254,7 @@ j_command:
 						break;
 				}
 				
-				doDarkroomCircle(cx,cy,radius,darkscr_bmp_curscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomCircle(cx,cy,radius,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				doDarkroomCircle(cx+scrollxoffs,cy+scrollyoffs,radius,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
@@ -38294,7 +38294,7 @@ j_command:
 						break;
 				}
 				
-				doDarkroomSquare(cx,cy,radius,darkscr_bmp_curscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomSquare(cx,cy,radius,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				doDarkroomSquare(cx+scrollxoffs,cy+scrollyoffs,radius,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
@@ -38337,7 +38337,7 @@ j_command:
 						break;
 				}
 				
-				doDarkroomCone(cx,cy,radius,dir,darkscr_bmp_curscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomCone(cx,cy,radius,dir,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				doDarkroomCone(cx+scrollxoffs,cy+scrollyoffs,radius,dir,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}

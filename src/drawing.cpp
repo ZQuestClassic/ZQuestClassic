@@ -63,10 +63,8 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 	int offx = 0;
 	int offy = 0;
 #ifdef IS_PLAYER
-	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
-	extern bool screenscrolling, scrolling_use_new_dark_code;
-	offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
-	offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+	offx = viewport.x;
+	offy = viewport.y;
 #endif
 
 	if(dest)
@@ -125,10 +123,8 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	int offx = 0;
 	int offy = 0;
 #ifdef IS_PLAYER
-	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
-	extern bool screenscrolling, scrolling_use_new_dark_code;
-	offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
-	offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+	offx = viewport.x;
+	offy = viewport.y;
 #endif
 
 	if(dest)
@@ -170,10 +166,8 @@ void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP
 	int offx = 0;
 	int offy = 0;
 #ifdef IS_PLAYER
-	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
-	extern bool screenscrolling, scrolling_use_new_dark_code;
-	offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
-	offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+	offx = viewport.x;
+	offy = viewport.y;
 #endif
 
 	if(dest)
