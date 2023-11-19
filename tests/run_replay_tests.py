@@ -1252,7 +1252,8 @@ def prompt_to_create_compare_report():
         # TODO !! upstream get actual releases, not tags
         most_recent_nightly = 'connorjclark-nightly-2023-10-15'
         # most_recent_nightly = get_recent_release_tag('*.*.*-nightly*')
-        most_recent_stable = get_recent_release_tag('*.*.*', exclude='*-nightly')
+        # most_recent_stable = get_recent_release_tag('*.*.*', exclude='*-nightly')
+        most_recent_stable = '3.0.0-prerelease.5+2023-11-18'
         print('Select a release build to use: ')
         selected_index = cutie.select([
             # TODO
@@ -1324,10 +1325,11 @@ def is_known_failure_test(run: RunResult):
     if run.success:
         return False
 
-    if run.name == 'triggers.zplay' and run.unexpected_gfx_segments == [[10817, 11217]]:
-        print('!!! filtering out known replay test failure !!!')
-        print('dithered lighting is off-by-some only during scrolling, and doubled-up for a single frame')
-        return True
+    # Example:
+    # if run.name == 'triggers.zplay' and run.unexpected_gfx_segments == [[10817, 11217]]:
+    #     print('!!! filtering out known replay test failure !!!')
+    #     print('dithered lighting is off-by-some only during scrolling, and doubled-up for a single frame')
+    #     return True
 
     return False
 

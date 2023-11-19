@@ -188,7 +188,7 @@ void handle_lighting(int cx, int cy, byte shape, byte rad, byte dir, BITMAP* des
 
 void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest, BITMAP* transdest)
 {
-	if(cmb.type != cTORCH) return; //not a torch
+	ASSERT(cmb.type == cTORCH);
 	handle_lighting(cx, cy, cmb.attribytes[1], cmb.attribytes[0], cmb.attribytes[2], dest, transdest);
 }
 

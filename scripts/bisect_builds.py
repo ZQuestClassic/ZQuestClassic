@@ -184,10 +184,10 @@ def get_release_package_url(tag):
 def download_release(tag: str):
     url = get_release_package_url(tag)
     dest = releases_dir / tag
-    if dest.exists():
+    if dest.exists() and list(dest.glob('*')):
         return dest
 
-    dest.mkdir(parents=True)
+    dest.mkdir(parents=True, exist_ok=True)
     print(f'downloading release {tag}')
 
     r = requests.get(url)

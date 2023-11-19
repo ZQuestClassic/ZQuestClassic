@@ -27566,11 +27566,11 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			mapscr* base_screen = screen_handles[0].base_screen;
-			int offx = draw_dx * 256;
-			int offy = draw_dy * 176 + playing_field_offset;
 			bool should_be_dark = (base_screen->flags & fDARK) && (scr == currscr || get_qr(qr_NEWDARK_SCROLLEDGE));
 			if (!should_be_dark)
 			{
+				int offx = draw_dx * 256;
+				int offy = draw_dy * 176 + playing_field_offset;
 				rectfill(darkscr_bmp_z3, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
 				rectfill(darkscr_bmp_z3_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
 			}
@@ -27581,10 +27581,10 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 				return;
 
 			mapscr* base_screen = screen_handles[0].base_screen;
-			int offx = draw_dx * 256;
-			int offy = draw_dy * 176 + playing_field_offset;
 			if (base_screen->flags & fDARK)
 			{
+				int offx = draw_dx * 256;
+				int offy = draw_dy * 176 + playing_field_offset;
 				calc_darkroom_combos(scr, offx, offy, darkscr_bmp_z3);
 			}
 		});
@@ -28268,6 +28268,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// TODO z3 !! remove old dark code
 	// scrolling_use_new_dark_code = region_scrolling;
 	scrolling_use_new_dark_code = true;
+	// scrolling_use_new_dark_code = false;
 
 	int no_move = 0;
 	int move_counter = 0;
