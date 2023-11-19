@@ -6503,7 +6503,7 @@ int32_t reverse_string(char* str)
 
 int32_t quest_access(const char *filename, zquestheader *hdr)
 {
-	return 1; // TODO z3 ! remove
+	return 1; // TODO z3 final remove
 #ifdef __EMSCRIPTEN__
     return 1;
 #endif

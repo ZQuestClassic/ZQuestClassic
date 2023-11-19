@@ -1149,8 +1149,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	}
 
 	int32_t mi = (map*MAPSCRSNORMAL)+screen;
-	// TODO  z3 !!! merge
-	// clear_xdoors2_mi(&scr, screen, mi);
+	clear_xdoors_mi(&scr, screen, mi);
 	clear_xstatecombos_mi(&scr, screen, mi);
 }
 
@@ -5639,9 +5638,6 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 // the new screen has a 0 combo).
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
-	// auto oscr = homescr;
-	// homescr = scr;
-
 	zapp_reporting_set_tag("screen", scr);
 	if (destdmap != -1)
 		zapp_reporting_set_tag("dmap", destdmap);
@@ -5782,8 +5778,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		delete Hero.lift_wpn;
 		Hero.lift_wpn = nullptr;
 	}
-
-	// homescr = oscr;
 }
 
 // Don't use this directly!
@@ -5930,12 +5924,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 
-	// if (!tmp)
-	// {
-	// 	calculate_trig_groups();
-	// 	trig_trigger_groups();
-	// }
-
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
 	{
@@ -5993,15 +5981,9 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		remove_bosschests(screen, scr);
 	}
 	
-	// TODO z3 !! merge
 	clear_xdoors(screen, scr);
 	clear_xstatecombos(screen, scr);
-	
-	// if(!tmp)
-	// {
-	// 	calculate_trig_groups();
-	// 	trig_trigger_groups();
-	// }
+
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{
@@ -6178,8 +6160,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		remove_bosschests(&screen, scr);
 	}
 	
-	// TODO z3 !!! merge
-	// clear_xdoors(&screen, scr);
+	clear_xdoors(&screen, scr);
 	clear_xstatecombos(&screen, scr);
 	
 	// check doors

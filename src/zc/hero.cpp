@@ -20870,7 +20870,7 @@ void HeroClass::oldcheckbosslockblock()
 	}
 	else
 	{
-		// TODO z3
+		// TODO z3 !
 		setmapflag(mBOSSLOCKBLOCK);
 		remove_bosslockblocks(tmpscr, currscr);
 	}
