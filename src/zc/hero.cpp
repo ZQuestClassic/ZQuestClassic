@@ -19685,11 +19685,16 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         }
         else
         {
-            if ((d2 >= left && iswaterex_z3(MAPCOMBO(wx,wy), -1, wx,wy)) || (d2 <= down && iswaterex_z3(MAPCOMBO(x+8,wy), -1, x+8,wy)))
-            {
-                ret.setUnwalkable(false);
+			if (d2>=left && iswaterex_z3(MAPCOMBO(wx,wy), -1, wx,wy))
+			{
+				ret.setUnwalkable(false);
                 return ret;
-            }
+			}
+			else if (d2<=down && iswaterex_z3(MAPCOMBO(wx,wy), -1, wx,wy) && iswaterex_z3(MAPCOMBO(x+8,wy), -1, x+8,wy))
+			{
+				ret.setUnwalkable(false);
+                return ret;
+			}
         }
     }
     else if(ladderx+laddery)                                  // ladder is being used
