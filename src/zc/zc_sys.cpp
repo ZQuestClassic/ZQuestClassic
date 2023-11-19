@@ -56,6 +56,7 @@
 #include "zinfo.h"
 #include "base/misctypes.h"
 #include "music_playback.h"
+#include <base/new_menu.h>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -4364,6 +4365,21 @@ int32_t onLightSwitch()
 	cheats_enqueue(Cheat::Light);
 	return D_O_K;
 }
+enum
+{
+	MENUID_PLAYER_CHEAT,
+};
+TopMenu the_player_menu
+{
+	{ "&Game", &game_menu },
+	{ "&Settings", &settings_menu },
+	{ "&Cheat", &cheat_menu, MENUID_PLAYER_CHEAT, true },
+	{ "Replay", &replay_menu },
+	{ "&ZC", &misc_menu },
+	#if DEVLEVEL > 0
+	{ "&Dev", &dev_menu },
+	#endif
+};
 
 int32_t onGoTo();
 int32_t onGoToComplete();
@@ -4391,7 +4407,8 @@ void syskeys()
 	
 	if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
 	{
-		System();
+		if(!the_player_menu.hovered(gui_mouse_x(),gui_mouse_y()))
+			System();
 	}
 	
 	mouse_down=gui_mouse_b();
@@ -6195,17 +6212,22 @@ int32_t onSaveReplay()
 	return D_O_K;
 }
 
-static MENU replay_menu[] =
+enum
 {
-	{ (char *)"Record new saves",		   onToggleRecordingNewSaves, NULL,					 0,			NULL   },
-	{ (char *)"Stop replay",				onStopReplayOrRecord,	  NULL,					 0,			NULL   },
-	{ (char *)"Load replay",				onLoadReplay,			  NULL,					 0,			NULL   },
-	{ (char *)"Load replay (assert)",		onLoadReplayAssert,		  NULL,					 0,			NULL   },
-	{ (char *)"Load replay (update)",		onLoadReplayUpdate,		  NULL,					 0,			NULL   },
-	{ (char *)"Save replay",				onSaveReplay,			  NULL,					 0,			NULL   },
-	{ (char *)"Enable snapshot all frames", onToggleSnapshotAllFrames,NULL,					 0,			NULL   },
-	
-	{  NULL,								NULL,					  NULL,					 0,			NULL   }
+	MENUID_REPLAY_RECORDNEW,
+	MENUID_REPLAY_STOP,
+	MENUID_REPLAY_SAVE,
+	MENUID_REPLAY_SNAP_ALL,
+};
+static NewMenu replay_menu
+{
+	{ "Record new saves", onToggleRecordingNewSaves, MENUID_REPLAY_RECORDNEW },
+	{ "Stop replay", onStopReplayOrRecord, MENUID_REPLAY_STOP },
+	{ "Load replay", onLoadReplay },
+	{ "Load replay (assert)", onLoadReplayAssert },
+	{ "Load replay (update)", onLoadReplayUpdate },
+	{ "Save replay", onSaveReplay, MENUID_REPLAY_SAVE },
+	{ "Snapshot all frames", onToggleSnapshotAllFrames, MENUID_REPLAY_SNAP_ALL },
 };
 
 static DIALOG credits_dlg[] =
@@ -7345,50 +7367,51 @@ int32_t onScreenSaver()
 
 /*****  Menus  *****/
 
-static MENU game_menu[] =
+enum
 {
-	{ (char *)"&Continue\tESC",			onContinue,			   NULL,					  0, NULL },
-	{ (char *)"",						  NULL,					 NULL,					  0, NULL },
-	{ (char *)"L&oad Quest...",			onCustomGame,			 NULL,					  0, NULL },
-	{ (char *)"&End Game\tF6",			 onTryQuitMenu,				NULL,					  0, NULL },
-	{ (char *)"",						  NULL,					 NULL,					  0, NULL },
+	MENUID_GAME_LOADQUEST,
+	MENUID_GAME_ENDGAME,
+};
+static NewMenu game_menu
+{
+	{ "&Continue","ESC", onContinue },
+	{},
+	{ "L&oad Quest...", onCustomGame, MENUID_GAME_LOADQUEST },
+	{ "&End Game","F6", onTryQuitMenu, MENUID_GAME_ENDGAME },
+	{},
 #ifdef __EMSCRIPTEN__
-	{ (char *)"&Reset\tF7",             onReset,                  NULL,                      0, NULL },
+	{ "&Reset","F7", onReset },
 #elif defined(ALLEGRO_MACOSX)
-	{ (char *)"&Reset\tF7",				onReset,				  NULL,					  0, NULL },
-	{ (char *)"&Quit\tF8",				onExit,				   NULL,					  0, NULL },
+	{ "&Reset","F7", onReset },
+	{ "&Quit","F8", onExit },
 #else
-	{ (char *)"&Reset\tF9",				onReset,				  NULL,					  0, NULL },
-	{ (char *)"&Quit\tF10",				onExit,				   NULL,					  0, NULL },
+	{ "&Reset","F9", onReset },
+	{ "&Quit","F10", onExit },
 #endif
-	{ NULL,								NULL,					 NULL,					  0, NULL }
 };
 
-static MENU snapshot_format_menu[] =
+static NewMenu snapshot_format_menu
 {
-	{ (char *)"&BMP",					  onSetSnapshotFormat,	  NULL,					  0, NULL },
-	{ (char *)"&GIF",					  onSetSnapshotFormat,	  NULL,					  0, NULL },
-	{ (char *)"&JPG",					  onSetSnapshotFormat,	  NULL,					  0, NULL },
-	{ (char *)"&PNG",					  onSetSnapshotFormat,	  NULL,					  0, NULL },
-	{ (char *)"PC&X",					  onSetSnapshotFormat,	  NULL,					  0, NULL },
-	{ (char *)"&TGA",					  onSetSnapshotFormat,	  NULL,					  0, NULL },
-	{ NULL,								NULL,					 NULL,					  0, NULL }
+	{ "&BMP", onSetSnapshotFormat },
+	{ "&GIF", onSetSnapshotFormat },
+	{ "&JPG", onSetSnapshotFormat },
+	{ "&PNG", onSetSnapshotFormat },
+	{ "PC&X", onSetSnapshotFormat },
+	{ "&TGA", onSetSnapshotFormat },
 };
 
-static MENU controls_menu[] =
+static NewMenu controls_menu
 {
-	{ (char *)"Key&board...",      onKeyboard, NULL, 0, NULL },
-	{ (char *)"&Gamepad...",        onGamepad, NULL, 0, NULL },
-	{ (char *)"&Cheat Keys...",   onCheatKeys, NULL, 0, NULL },
-	{ NULL,                              NULL, NULL, 0, NULL }
+	{ "Key&board...", onKeyboard },
+	{ "&Gamepad...", onGamepad },
+	{ "&Cheat Keys...", onCheatKeys },
 };
 
-static MENU name_entry_mode_menu[] =
+static NewMenu name_entry_mode_menu
 {
-	{ (char *)"&Keyboard",				  onKeyboardEntry,		 NULL,					  0, NULL },
-	{ (char *)"&Letter Grid",			   onLetterGridEntry,	   NULL,					  0, NULL },
-	{ (char *)"&Extended Letter Grid",	  onExtLetterGridEntry,	NULL,					  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ "&Keyboard", onKeyboardEntry },
+	{ "&Letter Grid", onLetterGridEntry },
+	{ "&Extended Letter Grid", onExtLetterGridEntry },
 };
 
 static void set_controls_menu_active()
@@ -7396,129 +7419,184 @@ static void set_controls_menu_active()
 	
 }
 
-static MENU window_menu[] =
+enum
 {
-	{ "Lock Aspect Ratio",            onDragAspect,            NULL,                      0, NULL },
-	{ "Lock Integer Scale",           onIntegerScaling,        NULL,                      0, NULL },
-	{ "Save Size Changes",            onSaveDragResize,        NULL,                      0, NULL },
-	{ "Save Position Changes",        onWinPosSave,            NULL,                      0, NULL },
-	{ "Stretch Game Area",            onStretchGame,           NULL,                      0, NULL },
-	{ NULL,                           NULL,                    NULL,                      0, NULL }
+	MENUID_WINDOW_LOCK_ASPECT,
+	MENUID_WINDOW_LOCK_INTSCALE,
+	MENUID_WINDOW_SAVE_SIZE,
+	MENUID_WINDOW_SAVE_POS,
+	MENUID_WINDOW_STRETCH,
 };
-static MENU options_menu[] =
+static NewMenu window_menu
 {
-	{ "Name &Entry Mode",             NULL,                    name_entry_mode_menu,      0, NULL },
-	{ "S&napshot Format",             NULL,                    snapshot_format_menu,      0, NULL },
-	{ "&Window Settings",             NULL,                    window_menu,               0, NULL },
-	{ "Epilepsy Flash Reduction",     onEpilepsy,              NULL,                      0, NULL },
-	{ "Pause In Background",          onPauseInBackground,     NULL,                      0, NULL },
-	{ NULL,                           NULL,                    NULL,                      0, NULL }
+	{ "Lock Aspect Ratio", onDragAspect, MENUID_WINDOW_LOCK_ASPECT },
+	{ "Lock Integer Scale", onIntegerScaling, MENUID_WINDOW_LOCK_INTSCALE },
+	{ "Save Size Changes", onSaveDragResize, MENUID_WINDOW_SAVE_SIZE },
+	{ "Save Position Changes", onWinPosSave, MENUID_WINDOW_SAVE_POS },
+	{ "Stretch Game Area", onStretchGame, MENUID_WINDOW_STRETCH },
 };
-static MENU settings_menu[] =
+enum
 {
-	{ "&Sound...",                    onSound,                 NULL,                      0, NULL },
-	{ "C&ontrols",                    NULL,                    controls_menu,             0, NULL },
-	{ "",                             NULL,                    NULL,                      0, NULL },
-	{ "Options",                      NULL,                    options_menu,              0, NULL },
-	{ "",                             NULL,                    NULL,                      0, NULL },
-	//
-	{ "&Cap FPS\tF1",                 onThrottleFPS,                 NULL,                      0, NULL },
-	{ "Show &FPS\tF2",                onShowFPS,               NULL,                      0, NULL },
-	{ "Click to Freeze",              onClickToFreeze,         NULL,                      0, NULL },
-	{ "Cont. &Heart Beep",            onHeartBeep,             NULL,                      0, NULL },
-	{ "Show Trans. &Layers",          onTransLayers,           NULL,                      0, NULL },
-	//
-	{ "Up+A+B To &Quit",              onNESquit,               NULL,                      0, NULL },
-	{ "Volume &Keys",                 onVolKeys,               NULL,                      0, NULL },
-	{ "Sa&ve Indicator",              onSaveIndicator,         NULL,                      0, NULL },
-	{ "",                             NULL,                    NULL,                      0, NULL },
-	{ "Debu&g",                       onDebug,                 NULL,                      0, NULL },
-	//
-	{ NULL,                           NULL,                    NULL,                      0, NULL }
+	MENUID_OPTIONS_PAUSE_BG,
+	MENUID_OPTIONS_EPILEPSYPROT,
+};
+static NewMenu options_menu
+{
+	{ "Name &Entry Mode", &name_entry_mode_menu },
+	{ "S&napshot Format", &snapshot_format_menu },
+	{ "&Window Settings", &window_menu },
+	{ "Epilepsy Flash Reduction", onEpilepsy },
+	{ "Pause In Background", onPauseInBackground },
+};
+enum
+{
+	MENUID_SETTINGS_CONTROLS,
+	MENUID_SETTINGS_CAPFPS,
+	MENUID_SETTINGS_SHOWFPS,
+	MENUID_SETTINGS_CLICK_FREEZE,
+	MENUID_SETTINGS_TRANSLAYERS,
+	MENUID_SETTINGS_NESQUIT,
+	MENUID_SETTINGS_VOLKEYS,
+	MENUID_SETTINGS_HEARTBEEP,
+	MENUID_SETTINGS_SAVEINDICATOR,
+	MENUID_SETTINGS_DEBUG,
+};
+static NewMenu settings_menu
+{
+	{ "&Sound...", onSound },
+	{ "C&ontrols", &controls_menu, MENUID_SETTINGS_CONTROLS },
+	{},
+	{ "Options", &options_menu },
+	{},
+	{ "&Cap FPS F1", onThrottleFPS, MENUID_SETTINGS_CAPFPS },
+	{ "Show &FPS F2", onShowFPS, MENUID_SETTINGS_SHOWFPS },
+	{ "Click to Freeze", onClickToFreeze, MENUID_SETTINGS_CLICK_FREEZE },
+	{ "Cont. &Heart Beep", onHeartBeep, MENUID_SETTINGS_HEARTBEEP },
+	{ "Show Trans. &Layers", onTransLayers, MENUID_SETTINGS_TRANSLAYERS },
+	{ "Up+A+B To &Quit", onNESquit, MENUID_SETTINGS_NESQUIT },
+	{ "Volume &Keys", onVolKeys, MENUID_SETTINGS_VOLKEYS },
+	{ "Sa&ve Indicator", onSaveIndicator, MENUID_SETTINGS_SAVEINDICATOR },
+	{},
+	{ "Debu&g", onDebug, MENUID_SETTINGS_DEBUG },
 };
 
-
-static MENU misc_menu[] =
+enum
 {
-	{ (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
+	MENUID_MISC_FULLSCREEN,
+	MENUID_MISC_VIDMODE,
+	MENUID_MISC_QUEST_INFO,
+	MENUID_MISC_QUEST_DIR,
+	MENUID_MISC_ZASM_DEBUGGER,
+	MENUID_MISC_ZSCRIPT_DEBUGGER,
+	MENUID_MISC_CLEAR_CONSOLE_ON_LOAD,
+};
+static NewMenu misc_menu
+{
+	{ "&About...", onAbout },
 	// TODO: re-enable, but: 1) do not use a bitmap thing that is hard to update 2) update names and 3) don't use the Z-word.
-	{ (char *)"&Credits...",                onCredits,               NULL,             D_DISABLED, NULL },
-	{ (char *)"&Fullscreen",                onFullscreenMenu,        NULL,                      0, NULL },
-	{ (char *)"&Video Mode...",             onVidMode,               NULL,                      0, NULL },
-	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
-	//5
-	{ (char *)"&Quest Info...",             onQuest,                 NULL,                      0, NULL },
-	{ (char *)"Quest &MIDI Info...",        onMIDICredits,           NULL,                      0, NULL },
-	{ (char *)"Quest &Directory...",        onQstPath,               NULL,                      0, NULL },
-	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
-	{ (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
-	//10
-	{ (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
-	{ (char *)"Save ZC Configuration",      OnSaveZCConfig,          NULL,                      0, NULL },
-	{ (char *)"Show ZASM Debugger",         onConsoleZASM,           NULL,                      0, NULL },
-	{ (char *)"Show ZScript Debugger",      onConsoleZScript,        NULL,                      0, NULL },
-	{ (char *)"Clear Console on Qst Load",  onClrConsoleOnLoad,      NULL,                      0, NULL },
-	//15
-	{ (char *)"Clear Directory Cache",      OnnClearQuestDir,        NULL,                      0, NULL },
-	{ NULL,                                 NULL,                    NULL,                      0, NULL }
+	{ "&Credits...", onCredits, nullopt, true },
+	{ "&Fullscreen", onFullscreenMenu, MENUID_MISC_FULLSCREEN },
+	{ "&Video Mode...", onVidMode, MENUID_MISC_VIDMODE },
+	{},
+	{ "&Quest Info...", onQuest, MENUID_MISC_QUEST_INFO },
+	{ "Quest &MIDI Info...", onMIDICredits },
+	{ "Quest &Directory...", onQstPath, MENUID_MISC_QUEST_DIR },
+	{},
+	{ "Take &Snapshot F12", onSnapshot },
+	{ "Sc&reen Saver...", onScreenSaver },
+	{ "Save ZC Configuration", OnSaveZCConfig },
+	{ "Show ZASM Debugger", onConsoleZASM, MENUID_MISC_ZASM_DEBUGGER },
+	{ "Show ZScript Debugger", onConsoleZScript, MENUID_MISC_ZSCRIPT_DEBUGGER },
+	{ "Clear Console on Qst Load", onClrConsoleOnLoad, MENUID_MISC_CLEAR_CONSOLE_ON_LOAD },
+	{ "Clear Directory Cache", OnnClearQuestDir },
 };
 
-static MENU refill_menu[] =
+enum
 {
-	{ (char *)"&Life",      onRefillLife, NULL, 0, NULL },
-	{ (char *)"&Magic",    onRefillMagic, NULL, 0, NULL },
-	{ (char *)"&Bombs",     onCheatBombs, NULL, 0, NULL },
-	{ (char *)"&Rupees",   onCheatRupies, NULL, 0, NULL },
-	{ (char *)"&Arrows",   onCheatArrows, NULL, 0, NULL },
-	{ NULL,                         NULL, NULL, 0, NULL }
+	MENUID_REFILL_ARROWS,
+};
+static NewMenu refill_menu
+{
+	{ "&Life", onRefillLife },
+	{ "&Magic", onRefillMagic },
+	{ "&Bombs", onCheatBombs },
+	{ "&Rupees", onCheatRupies },
+	{ "&Arrows", onCheatArrows, MENUID_REFILL_ARROWS },
 };
 
-static MENU show_menu[] =
+enum
 {
-	{ (char *)"Combos",                 onShowLayer0, NULL, 0, NULL },
-	{ (char *)"Layer 1",                onShowLayer1, NULL, 0, NULL },
-	{ (char *)"Layer 2",                onShowLayer2, NULL, 0, NULL },
-	{ (char *)"Layer 3",                onShowLayer3, NULL, 0, NULL },
-	{ (char *)"Layer 4",                onShowLayer4, NULL, 0, NULL },
-	{ (char *)"Layer 5",                onShowLayer5, NULL, 0, NULL },
-	{ (char *)"Layer 6",                onShowLayer6, NULL, 0, NULL },
-	{ (char *)"Overhead Combos",        onShowLayerO, NULL, 0, NULL },
-	{ (char *)"Push Blocks",            onShowLayerP, NULL, 0, NULL },
-	{ (char *)"Freeform Combos",        onShowLayerF, NULL, 0, NULL },
-	{ (char *)"Sprites",                onShowLayerS, NULL, 0, NULL },
-	{ (char *)"",                               NULL, NULL, 0, NULL },
-	{ (char *)"Current FFC Scripts", onShowFFScripts, NULL, 0, NULL },
-	{ (char *)"",                               NULL, NULL, 0, NULL },
-	{ (char *)"Walkability",            onShowLayerW, NULL, 0, NULL },
-	{ (char *)"Hitboxes",             onShowHitboxes, NULL, 0, NULL },
-	{ (char *)"Effects",                onShowLayerE, NULL, 0, NULL },
-	{ (char *)"Info Opacity",      onShowInfoOpacity, NULL, 0, NULL },
-	{ NULL,                                     NULL, NULL, 0, NULL }
+	MENUID_SHOW_L0,
+	MENUID_SHOW_L1,
+	MENUID_SHOW_L2,
+	MENUID_SHOW_L3,
+	MENUID_SHOW_L4,
+	MENUID_SHOW_L5,
+	MENUID_SHOW_L6,
+	MENUID_SHOW_OVER,
+	MENUID_SHOW_PUSH,
+	MENUID_SHOW_FFC,
+	MENUID_SHOW_SPR,
+	MENUID_SHOW_SCRIPTNAME,
+	MENUID_SHOW_SOLIDITY,
+	MENUID_SHOW_HITBOX,
+	MENUID_SHOW_EFFECT,
+};
+static NewMenu show_menu
+{
+	{ "Combos", onShowLayer0, MENUID_SHOW_L0 },
+	{ "Layer 1", onShowLayer1, MENUID_SHOW_L1 },
+	{ "Layer 2", onShowLayer2, MENUID_SHOW_L2 },
+	{ "Layer 3", onShowLayer3, MENUID_SHOW_L3 },
+	{ "Layer 4", onShowLayer4, MENUID_SHOW_L4 },
+	{ "Layer 5", onShowLayer5, MENUID_SHOW_L5 },
+	{ "Layer 6", onShowLayer6, MENUID_SHOW_L6 },
+	{ "Overhead Combos", onShowLayerO, MENUID_SHOW_OVER },
+	{ "Push Blocks", onShowLayerP, MENUID_SHOW_PUSH },
+	{ "Freeform Combos", onShowLayerF, MENUID_SHOW_FFC },
+	{ "Sprites", onShowLayerS, MENUID_SHOW_SPR },
+	{},
+	{ "Current FFC Scripts", onShowFFScripts, MENUID_SHOW_SCRIPTNAME },
+	{},
+	{ "Walkability", onShowLayerW, MENUID_SHOW_SOLIDITY },
+	{ "Hitboxes", onShowHitboxes, MENUID_SHOW_HITBOX },
+	{ "Effects", onShowLayerE, MENUID_SHOW_EFFECT },
+	{ "Info Opacity", onShowInfoOpacity },
 };
 
-static MENU cheat_menu[] =
+enum
 {
-	{ (char *)"Set &Cheat",                        onCheat, NULL,        0, NULL },
-	{ (char *)"",                                     NULL, NULL,        0, NULL },
-	{ (char *)"Re&fill",                              NULL, refill_menu, 0, NULL },
-	{ (char *)"",                                     NULL, NULL,        0, NULL },
-	{ (char *)"&Invincible",                       onClock, NULL,        0, NULL },
-	{ (char *)"Ma&x Bombs...",                  onMaxBombs, NULL,        0, NULL },
-	{ (char *)"&Heart Containers...",             onHeartC, NULL,        0, NULL },
-	{ (char *)"&Magic Containers...",             onMagicC, NULL,        0, NULL },
-	{ (char *)"",                                     NULL, NULL,        0, NULL },
-	{ (char *)"&Player Data...",            onCheatConsole, NULL,        0, NULL },
-	{ (char *)"",                                     NULL, NULL,        0, NULL },
-	{ (char *)"Walk Through &Walls",             onNoWalls, NULL,        0, NULL },
-	{ (char *)"Player Ignores Side&view", onIgnoreSideview, NULL,        0, NULL },
-	{ (char *)"&Quick Movement",                  onGoFast, NULL,        0, NULL },
-	{ (char *)"&Kill All Enemies",             onKillCheat, NULL,        0, NULL },
-	{ (char *)"Trigger &Secrets",           onSecretsCheat, NULL,        0, NULL },
-	{ (char *)"Trigger Secrets Perm",   onSecretsCheatPerm, NULL,        0, NULL },
-	{ (char *)"Show/Hide Layer",                      NULL, show_menu,   0, NULL },
-	{ (char *)"Toggle &Light",               onLightSwitch, NULL,        0, NULL },
-	{ (char *)"&Goto Location...",                  onGoTo, NULL,        0, NULL },
-	{ NULL,                                           NULL, NULL,        0, NULL }
+	MENUID_CHEAT_CHOP_L1,
+	MENUID_CHEAT_CHOP_L2,
+	MENUID_CHEAT_CHOP_L3,
+	MENUID_CHEAT_CHOP_L4,
+	MENUID_CHEAT_INVULN,
+	MENUID_CHEAT_NOCLIP,
+	MENUID_CHEAT_IGNORESV,
+	MENUID_CHEAT_GOFAST,
+};
+static NewMenu cheat_menu
+{
+	{ "Set &Cheat", onCheat },
+	{ MENUID_CHEAT_CHOP_L1 },
+	{ "Re&fill", &refill_menu },
+	{ MENUID_CHEAT_CHOP_L2 },
+	{ "&Invincible", onClock, MENUID_CHEAT_INVULN },
+	{ "Ma&x Bombs...", onMaxBombs },
+	{ "&Heart Containers...", onHeartC },
+	{ "&Magic Containers...", onMagicC },
+	{ MENUID_CHEAT_CHOP_L3 },
+	{ "&Player Data...", onCheatConsole },
+	{ MENUID_CHEAT_CHOP_L4 },
+	{ "Walk Through &Walls", onNoWalls, MENUID_CHEAT_NOCLIP },
+	{ "Player Ignores Side&view", onIgnoreSideview, MENUID_CHEAT_IGNORESV },
+	{ "&Quick Movement", onGoFast, MENUID_CHEAT_GOFAST },
+	{ "&Kill All Enemies", onKillCheat },
+	{ "Trigger &Secrets", onSecretsCheat },
+	{ "Trigger Secrets Perm", onSecretsCheatPerm },
+	{ "Show/Hide Layer", &show_menu },
+	{ "Toggle &Light", onLightSwitch },
+	{ "&Goto Location...", onGoTo },
 };
 
 #if DEVLEVEL > 0
@@ -7530,42 +7608,38 @@ int32_t setCheat();
 #endif //DEVLEVEL > 1
 enum
 {
-	dv_log,
-	// dv_dbg,
-	dv_tmpstmp,
-	#if DEVLEVEL > 1
-	dv_nil,
-	dv_setcheat,
-	#endif //DEVLEVEL > 1
-	dv_max
+	MENUID_DEV_LOGGING,
+	MENUID_DEV_DEBUG,
+	MENUID_DEV_TIMESTAMP,
+	MENUID_DEV_SETCHEAT,
 };
-static MENU dev_menu[] =
+static NewMenu dev_menu
 {
-	{ (char *)"&Force Error Log",		   devLogging,			  NULL,			 0, NULL },
-	// { (char *)"&Extra Debug Log",		   devDebug,				NULL,			 0, NULL },
-	{ (char *)"&Timestamp Log",			 devTimestmp,			 NULL,			 0, NULL },
+	{ "&Force Error Log", devLogging, MENUID_DEV_LOGGING },
+	// { "&Extra Debug Log", devDebug, MENUID_DEV_DEBUG },
+	{ "&Timestamp Log", devTimestmp, MENUID_DEV_TIMESTAMP },
 	#if DEVLEVEL > 1
-	{ (char *)"",						   NULL,					NULL,			 0,		  NULL },
-	{ (char *)"Set &Cheat",				 setCheat,				NULL,			 0,		  NULL },
+	{},
+	{ "Set &Cheat", setCheat, MENUID_DEV_SETCHEAT },
 	#endif //DEVLEVEL > 1
-	{ NULL,								 NULL,					NULL,			 0,		  NULL }
 };
 int32_t devLogging()
 {
 	dev_logging = !dev_logging;
-	dev_menu[dv_log].flags = dev_logging ? D_SELECTED : 0;
+	dev_menu.select_uid(MENUID_DEV_LOGGING, dev_logging);
 	return D_O_K;
 }
 // int32_t devDebug()
 // {
 	// dev_debug = !dev_debug;
+	// dev_menu.select_uid(MENUID_DEV_DEBUG, dev_debug);
 	// dev_menu[dv_dbg].flags = dev_debug ? D_SELECTED : 0;
 	// return D_O_K;
 // }
 int32_t devTimestmp()
 {
 	dev_timestmp = !dev_timestmp;
-	dev_menu[dv_tmpstmp].flags = dev_timestmp ? D_SELECTED : 0;
+	dev_menu.select_uid(MENUID_DEV_TIMESTAMP, dev_timestmp);
 	return D_O_K;
 }
 #if DEVLEVEL > 1
@@ -7577,18 +7651,6 @@ int32_t setCheat()
 #endif //DEVLEVEL > 1
 #endif //DEVLEVEL > 0
 
-MENU the_player_menu[] =
-{
-	{ (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
-	{ (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-	{ (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
-	{ (char *)"Replay",                     NULL,                    replay_menu,               0, NULL },
-	{ (char *)"&ZC",                        NULL,                    misc_menu,                 0, NULL },
-	#if DEVLEVEL > 0
-	{ (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
-	#endif
-	{ NULL,                                 NULL,                    NULL,                      0, NULL }
-};
 int32_t onPauseInBackground()
 {
 	if(jwin_alert3(
@@ -7611,7 +7673,7 @@ int32_t onPauseInBackground()
 		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
 		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
-	options_menu[4].flags =(pause_in_background)?D_SELECTED:0;
+	options_menu.select_uid(MENUID_OPTIONS_PAUSE_BG, pause_in_background);
 	return D_O_K;
 }
 
@@ -7646,43 +7708,37 @@ int32_t onFullscreenMenu()
 		oldscreen = screen;
 	}
 	screen = menu_bmp;
-	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
+	misc_menu.select_uid(MENUID_MISC_FULLSCREEN, isFullScreen());
+	misc_menu.select_uid(MENUID_MISC_VIDMODE, isFullScreen());
 	return D_O_K;
 }
 
 void fix_menu()
 {
 	if(!debug_enabled)
-		settings_menu[13].text = NULL;
+		settings_menu.chop_index = 13;
 }
 
 static DIALOG system_dlg[] =
 {
-	/* (dialog proc)	 (x)   (y)   (w)   (h)   (fg)  (bg)  (key)	(flags)  (d1)	  (d2)	 (dp) */
-	{ jwin_menu_proc,	0,	0,	0,	0,	0,	0,	0,	   D_USER,  0,		0, (void *) the_player_menu, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F1,   0, (void *) onThrottleFPS, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
+	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)      (d2)     (dp) */
+	{ GuiMenu::proc,     0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) &the_player_menu, NULL,  NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onThrottleFPS, NULL,  NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
 #ifndef ALLEGRO_MACOSX
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F9,   0, (void *) onReset, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F10,  0, (void *) onExit, NULL,  NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },
 #else
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F7,   0, (void *) onReset, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F8,   0, (void *) onExit, NULL,  NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F7,   0, (void *) onReset, NULL,  NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F8,   0, (void *) onExit, NULL,  NULL },
 #endif
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F12,  0, (void *) onSnapshot, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
-	{ d_timer_proc,	  0,	0,	0,	0,	0,	0,	0,	   0,	   0,		0,	   NULL,			 NULL, NULL },
-	{ NULL,			  0,	0,	0,	0,	0,	0,	0,	   0,	   0,		0,	   NULL,						   NULL,  NULL }
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,  0, (void *) onSnapshot, NULL,  NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
+	{ d_timer_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,             NULL, NULL },
+	{ d_vsync_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,             NULL, NULL },
+	{ NULL,              0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,                           NULL,  NULL }
 };
-
-void reset_snapshot_format_menu()
-{
-	for(int32_t i=0; i<ssfmtMAX; ++i)
-	{
-		snapshot_format_menu[i].flags=0;
-	}
-}
 
 int32_t onSetSnapshotFormat()
 {
@@ -7718,7 +7774,7 @@ int32_t onSetSnapshotFormat()
 	}
 	zc_set_config("zeldadx", "snapshot_format", SnapshotFormat);
 	
-	snapshot_format_menu[SnapshotFormat].flags=D_SELECTED;
+	snapshot_format_menu.select_only_index(SnapshotFormat);
 	return D_O_K;
 }
 
@@ -7839,16 +7895,16 @@ void System()
 	//  FONT *oldfont=font;
 	//  font=tfont;
 	
-	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
-	misc_menu[3].flags =(isFullScreen()==1)?D_DISABLED:0;
+	misc_menu.select_uid(MENUID_MISC_FULLSCREEN, isFullScreen());
+	misc_menu.select_uid(MENUID_MISC_VIDMODE, isFullScreen());
 	
-	game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	#if DEVLEVEL > 1
-	dev_menu[dv_setcheat].flags = Playing ? 0 : D_DISABLED;
+	dev_menu.disable_uid(MENUID_DEV_SETCHEAT, !Playing);
 	#endif
-	game_menu[3].flags =
-		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
-	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
+	game_menu.disable_uid(MENUID_GAME_LOADQUEST, getsaveslot() < 0);
+	game_menu.disable_uid(MENUID_GAME_ENDGAME, !Playing);
+	misc_menu.select_uid(MENUID_MISC_QUEST_INFO, !Playing);
+	misc_menu.select_uid(MENUID_MISC_QUEST_DIR, Playing);
 	clear_keybuf();
 	
 	DIALOG_PLAYER *p;
@@ -7872,83 +7928,75 @@ void System()
 		
 		if(mouse_down && !gui_mouse_b())
 			mouse_down=0;
-			
-		settings_menu[1].flags = replay_is_replaying() ? D_DISABLED : 0;
-		settings_menu[5].flags = Throttlefps?D_SELECTED:0;
-		settings_menu[6].flags = ShowFPS?D_SELECTED:0;
-		settings_menu[7].flags = ClickToFreeze?D_SELECTED:0;
-		settings_menu[9].flags = TransLayers?D_SELECTED:0;
-		settings_menu[10].flags = NESquit?D_SELECTED:0;
-		settings_menu[11].flags = volkeys?D_SELECTED:0;
-
-		window_menu[0].flags = DragAspect?D_SELECTED:0;
-		window_menu[1].flags = scaleForceInteger?D_SELECTED:0;
-		window_menu[2].flags = SaveDragResize?D_SELECTED:0;
-		window_menu[3].flags = SaveWinPos?D_SELECTED:0;
-		window_menu[4].flags = stretchGame?D_SELECTED:0;
-
-		options_menu[3].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
-		options_menu[4].flags = (pause_in_background)?D_SELECTED:0;
 		
-		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
-		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
-		name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
-	
-		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
-		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
-		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
+		settings_menu.disable_uid(MENUID_SETTINGS_CONTROLS, replay_is_replaying());
+		settings_menu.select_uid(MENUID_SETTINGS_CAPFPS, Throttlefps);
+		settings_menu.select_uid(MENUID_SETTINGS_SHOWFPS, ShowFPS);
+		settings_menu.select_uid(MENUID_SETTINGS_CLICK_FREEZE, ClickToFreeze);
+		settings_menu.select_uid(MENUID_SETTINGS_TRANSLAYERS, TransLayers);
+		settings_menu.select_uid(MENUID_SETTINGS_NESQUIT, NESquit);
+		settings_menu.select_uid(MENUID_SETTINGS_VOLKEYS, volkeys);
+
+		window_menu.select_uid(MENUID_WINDOW_LOCK_ASPECT, DragAspect);
+		window_menu.select_uid(MENUID_WINDOW_LOCK_INTSCALE, scaleForceInteger);
+		window_menu.select_uid(MENUID_WINDOW_SAVE_SIZE, SaveDragResize);
+		window_menu.select_uid(MENUID_WINDOW_SAVE_POS, SaveWinPos);
+		window_menu.select_uid(MENUID_WINDOW_STRETCH, stretchGame);
+		
+		options_menu.select_uid(MENUID_OPTIONS_EPILEPSYPROT, epilepsyFlashReduction);
+		options_menu.select_uid(MENUID_OPTIONS_PAUSE_BG, pause_in_background);
+		
+		name_entry_mode_menu.select_only_index(NameEntryMode);
+		
+		misc_menu.select_uid(MENUID_MISC_ZASM_DEBUGGER, zasm_debugger);
+		misc_menu.select_uid(MENUID_MISC_ZSCRIPT_DEBUGGER, zscript_debugger);
+		misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
 		
 		bool nocheat = (replay_is_replaying() || !Playing
 			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
-		the_player_menu[2].flags = nocheat ? D_DISABLED : 0;
-		cheat_menu[0].flags = 0;
-		refill_menu[4].flags = get_qr(qr_TRUEARROWS) ? 0 : D_DISABLED;
-		cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
-		cheat_menu[3].text  = (cheat >= 2) || get_debug() ? bar_str : NULL;
-		cheat_menu[8].text  = (cheat >= 3) || get_debug() ? bar_str : NULL;
-		cheat_menu[10].text = (cheat >= 4) || get_debug() ? bar_str : NULL;
-		cheat_menu[4].flags = getClock() ? D_SELECTED : 0;
-		cheat_menu[11].flags = toogam ? D_SELECTED : 0;
-		cheat_menu[12].flags = ignoreSideview ? D_SELECTED : 0;
-		cheat_menu[13].flags = gofast ? D_SELECTED : 0;
+		the_player_menu.disable_uid(MENUID_PLAYER_CHEAT, nocheat);
+		refill_menu.disable_uid(MENUID_REFILL_ARROWS, !get_qr(qr_TRUEARROWS));
+		optional<uint> chop;
+		if(cheat < 4)
+			chop = cheat_menu.ind_at(MENUID_CHEAT_CHOP_L1+cheat);
+		cheat_menu.chop_index = chop;
+		cheat_menu.select_uid(MENUID_CHEAT_INVULN, getClock());
+		cheat_menu.select_uid(MENUID_CHEAT_NOCLIP, toogam);
+		cheat_menu.select_uid(MENUID_CHEAT_IGNORESV, ignoreSideview);
+		cheat_menu.select_uid(MENUID_CHEAT_GOFAST, gofast);
 		
-		show_menu[0].flags = show_layer_0 ? D_SELECTED : 0;
-		show_menu[1].flags = show_layer_1 ? D_SELECTED : 0;
-		show_menu[2].flags = show_layer_2 ? D_SELECTED : 0;
-		show_menu[3].flags = show_layer_3 ? D_SELECTED : 0;
-		show_menu[4].flags = show_layer_4 ? D_SELECTED : 0;
-		show_menu[5].flags = show_layer_5 ? D_SELECTED : 0;
-		show_menu[6].flags = show_layer_6 ? D_SELECTED : 0;
-		show_menu[7].flags = show_layer_over ? D_SELECTED : 0;
-		show_menu[8].flags = show_layer_push ? D_SELECTED : 0;
-		show_menu[9].flags = show_sprites ? D_SELECTED : 0;
-		show_menu[10].flags = show_ffcs ? D_SELECTED : 0;
-		show_menu[12].flags = show_walkflags ? D_SELECTED : 0;
-		show_menu[13].flags = show_ff_scripts ? D_SELECTED : 0;
-		show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
-		show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
+		show_menu.select_uid(MENUID_SHOW_L0, show_layer_0);
+		show_menu.select_uid(MENUID_SHOW_L1, show_layer_1);
+		show_menu.select_uid(MENUID_SHOW_L2, show_layer_2);
+		show_menu.select_uid(MENUID_SHOW_L3, show_layer_3);
+		show_menu.select_uid(MENUID_SHOW_L4, show_layer_4);
+		show_menu.select_uid(MENUID_SHOW_L5, show_layer_5);
+		show_menu.select_uid(MENUID_SHOW_L6, show_layer_6);
+		show_menu.select_uid(MENUID_SHOW_OVER, show_layer_over);
+		show_menu.select_uid(MENUID_SHOW_PUSH, show_layer_push);
+		show_menu.select_uid(MENUID_SHOW_SPR, show_sprites);
+		show_menu.select_uid(MENUID_SHOW_FFC, show_ffcs);
+		show_menu.select_uid(MENUID_SHOW_SOLIDITY, show_walkflags);
+		show_menu.select_uid(MENUID_SHOW_SCRIPTNAME, show_ff_scripts);
+		show_menu.select_uid(MENUID_SHOW_HITBOX, show_hitboxes);
+		show_menu.select_uid(MENUID_SHOW_EFFECT, show_effectflags);
 		
-		settings_menu[8].flags = heart_beep ? D_SELECTED : 0;
-		settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
-
-		replay_menu[0].text = zc_get_config("zeldadx", "replay_new_saves", false) ?
-			(char *)"Disable recording new saves" :
-			(char *)"Enable recording new saves";
-		replay_menu[1].flags = replay_is_active() ? 0 : D_DISABLED;
-		replay_menu[1].text = replay_get_mode() == ReplayMode::Record ?
-			(char *)"Stop recording" :
-			(char *)"Stop replaying";
-		replay_menu[5].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
-		replay_menu[6].text = replay_is_snapshot_all_frames() ?
-			(char *)"Disable snapshot all frames" :
-			(char *)"Enable snapshot all frames";
-	
-		reset_snapshot_format_menu();
-		snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
+		settings_menu.select_uid(MENUID_SETTINGS_HEARTBEEP, heart_beep);
+		settings_menu.select_uid(MENUID_SETTINGS_SAVEINDICATOR, use_save_indicator);
+		
+		replay_menu.by_uid(MENUID_REPLAY_STOP)->text = fmt::format("Stop {}",
+			replay_get_mode() == ReplayMode::Record ? "recording" : "replaying");
+		
+		replay_menu.select_uid(MENUID_REPLAY_RECORDNEW, zc_get_config("zeldadx", "replay_new_saves", false));
+		replay_menu.disable_uid(MENUID_REPLAY_STOP, !replay_is_active());
+		replay_menu.disable_uid(MENUID_REPLAY_SAVE, replay_get_mode() != ReplayMode::Record);
+		replay_menu.select_uid(MENUID_REPLAY_SNAP_ALL, replay_is_snapshot_all_frames());
+		
+		snapshot_format_menu.select_only_index(SnapshotFormat);
 		
 		if(debug_enabled)
 		{
-			settings_menu[14].flags = get_debug() ? D_SELECTED : 0;
+			settings_menu.select_uid(MENUID_SETTINGS_DEBUG, get_debug());
 		}
 		
 		if(gui_mouse_b() && !mouse_down)

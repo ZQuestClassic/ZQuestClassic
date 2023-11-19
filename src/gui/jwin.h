@@ -227,7 +227,6 @@ int32_t jwin_numedit_noswap_zsint_proc(int32_t msg,DIALOG *d,int32_t c); //Same 
 int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_droplist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_abclist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c);
@@ -248,8 +247,6 @@ void jwin_set_dialog_color(DIALOG *dialog);
 
 int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, int32_t y, int32_t color, int32_t bg, int32_t pos);
 int32_t gui_text_width(FONT *f, const char *s);
-
-int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y);
 
 int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c);
 

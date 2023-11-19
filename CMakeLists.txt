@@ -462,6 +462,7 @@ set(zcbase_sources
 	src/base/misctypes.cpp
 	src/base/module.cpp
 	src/base/msgstr.cpp
+	src/base/new_menu.cpp
 	src/base/packfile.cpp
 	src/base/process_management.cpp
 	src/base/qrs.cpp
@@ -528,7 +529,6 @@ add_library(zcgui STATIC
 	src/gui/window.cpp
 	src/gui/slider.cpp
 	src/gui/ditherprev.cpp
-	src/gui/new_menu.cpp
 )
 target_link_libraries(zcgui PUBLIC allegro_with_legacy)
 target_include_directories(zcgui PRIVATE src)

@@ -5,8 +5,6 @@
 #include "base/jwinfsel.h"
 #include "sound/zcmusic.h"
 
-extern MENU the_player_menu[];
-extern MENU the_player_menu2[];
 extern bool is_sys_pal;
 
 void render_zc();

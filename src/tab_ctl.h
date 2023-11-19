@@ -14,7 +14,6 @@ typedef struct TABPANEL
 {
     char *text;                   /* menu item text */
     // AL_METHOD(int32_t, proc, (void)); /* callback function */
-    // struct MENU *child;           /* to allow nested menus */
     int32_t flags;                    /* flags about the menu state */
     int32_t *dialog;                  /* pointer to group of dialog objects that this tab contains */
     int32_t objects;                  /* count of number of objects this tab handles; auto-calculated */

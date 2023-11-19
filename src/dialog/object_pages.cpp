@@ -858,31 +858,18 @@ size_t ComboPoolPageObj::size() const
 	return MAXCOMBOPOOLS;
 }
 
-static MENU cpool_rclick_menu[] =
-{
-    { (char *)"Copy",               NULL,                     NULL, 0, NULL },
-    { (char *)"Paste",              NULL,                     NULL, 0, NULL },
-    { (char *)"Edit",               NULL,                     NULL, 0, NULL },
-    { (char *)"Delete",             NULL,                     NULL, 0, NULL },
-    { NULL,                         NULL,                     NULL, 0, NULL }
-};
 bool ComboPoolPageObj::do_rclick(int indx)
 {
-	SETFLAG(cpool_rclick_menu[1].flags, D_DISABLED, !copyind);
-	switch(popup_menu(cpool_rclick_menu,gui_mouse_x(),gui_mouse_y()))
+	bool ret = false;
+	NewMenu rcmenu
 	{
-		case 0: //Copy
-			try_copy();
-			return false;
-		case 1: //Paste
-			return try_paste();
-		case 2: //Edit
-			try_edit();
-			return true;
-		case 3: //Delete
-			return try_delete();
-	}
-	return false;
+		{ "&Copy", [&](){try_copy();} },
+		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind },
+		{ "&Edit", [&](){try_edit(); ret = true;} },
+		{ "&Delete", [&](){ret = try_delete();} },
+	};
+	rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+	return ret;
 }
 bool ComboPoolPageObj::do_tick()
 {
@@ -1017,31 +1004,18 @@ size_t AutoComboPageObj::size() const
 	return MAXAUTOCOMBOS;
 }
 
-static MENU auto_rclick_menu[] =
-{
-    { (char *)"Copy",               NULL,                     NULL, 0, NULL },
-    { (char *)"Paste",              NULL,                     NULL, 0, NULL },
-    { (char *)"Edit",               NULL,                     NULL, 0, NULL },
-    { (char *)"Delete",             NULL,                     NULL, 0, NULL },
-    { NULL,                         NULL,                     NULL, 0, NULL }
-};
 bool AutoComboPageObj::do_rclick(int indx)
 {
-	SETFLAG(auto_rclick_menu[1].flags, D_DISABLED, !copyind);
-	switch(popup_menu(auto_rclick_menu,gui_mouse_x(),gui_mouse_y()))
+	bool ret = false;
+	NewMenu rcmenu
 	{
-		case 0: //Copy
-			try_copy();
-			return false;
-		case 1: //Paste
-			return try_paste();
-		case 2: //Edit
-			try_edit();
-			return true;
-		case 3: //Delete
-			return try_delete();
-	}
-	return false;
+		{ "&Copy", [&](){try_copy();} },
+		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind },
+		{ "&Edit", [&](){try_edit(); ret = true;} },
+		{ "&Delete", [&](){ret = try_delete();} },
+	};
+	rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+	return ret;
 }
 bool AutoComboPageObj::do_tick()
 {
@@ -1117,31 +1091,18 @@ size_t AliasPageObj::size() const
 	return MAXCOMBOALIASES;
 }
 
-static MENU alias_rclick_menu[] =
-{
-    { (char *)"Copy",               NULL,                     NULL, 0, NULL },
-    { (char *)"Paste",              NULL,                     NULL, 0, NULL },
-    { (char *)"Edit",               NULL,                     NULL, 0, NULL },
-    { (char *)"Delete",             NULL,                     NULL, 0, NULL },
-    { NULL,                         NULL,                     NULL, 0, NULL }
-};
 bool AliasPageObj::do_rclick(int indx)
 {
-	SETFLAG(alias_rclick_menu[1].flags, D_DISABLED, !copyind);
-	switch(popup_menu(alias_rclick_menu,gui_mouse_x(),gui_mouse_y()))
+	bool ret = false;
+	NewMenu rcmenu
 	{
-		case 0: //Copy
-			try_copy();
-			return false;
-		case 1: //Paste
-			return try_paste();
-		case 2: //Edit
-			try_edit();
-			return true;
-		case 3: //Delete
-			return try_delete();
-	}
-	return false;
+		{ "&Copy", [&](){try_copy();} },
+		{ "Paste", "&v", [&](){ret = try_paste();}, nullopt, !copyind },
+		{ "&Edit", [&](){try_edit(); ret = true;} },
+		{ "&Delete", [&](){ret = try_delete();} },
+	};
+	rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+	return ret;
 }
 bool AliasPageObj::do_tick()
 {

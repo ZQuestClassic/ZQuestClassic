@@ -1,6 +1,6 @@
 #include "info_lister.h"
 #include <gui/builder.h>
-#include <gui/new_menu.h>
+#include <base/new_menu.h>
 #include "itemeditor.h"
 #include "info.h"
 #include "zc_list_data.h"

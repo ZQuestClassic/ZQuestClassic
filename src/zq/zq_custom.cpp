@@ -187,13 +187,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 				d[i].w-=4;
 				d[i].h-=4;
 			}
-			
-			// Fix menus
-			if(d[i].proc == jwin_menu_proc)
-			{
-				d[i].y=d[0].y+23;
-				d[i].h=13;
-			}
 		}
 	}
 	
@@ -5439,14 +5432,6 @@ void edit_enemydata(int32_t index)
 
 extern DIALOG elist_dlg[];
 static int32_t copiedGuy;
-static MENU elist_rclick_menu[] =
-{
-	{ "&Copy",    NULL, NULL, 0, NULL },
-	{ "Paste &v", NULL, NULL, 0, NULL },
-	{ "&Save",    NULL, NULL, 0, NULL },
-	{ "&Load",    NULL, NULL, 0, NULL },
-	{ NULL,       NULL, NULL, 0, NULL }
-};
 
 int32_t readonenpc(PACKFILE *f, int32_t index)
 {
@@ -6543,24 +6528,16 @@ void load_enemy(int32_t index)
 
 void elist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
-	if(index==0)
+	if(index == 0)
 		return;
 	
-	if(copiedGuy<=0)
-		elist_rclick_menu[1].flags|=D_DISABLED;
-	else
-		elist_rclick_menu[1].flags&=~D_DISABLED;
-	
-	int32_t ret=popup_menu(elist_rclick_menu, x, y);
-	
-	if(ret==0) // copy
-		copy_enemy(index);
-	else if(ret==1) // paste
-		paste_enemy(index);
-	else if(ret==2) // save
-		save_enemy(index);
-	else if(ret==3) // load
-		load_enemy(index);
+	NewMenu rcmenu {
+		{ "&Copy", [&](){copy_enemy(index);} },
+		{ "Paste", "&v", [&](){paste_enemy(index);}, 0, copiedGuy <= 0 },
+		{ "&Save", [&](){save_enemy(index);} },
+		{ "&Load", [&](){load_enemy(index);} },
+	};
+	rcmenu.pop(x, y);
 }
 
 int32_t onCustomEnemies()
