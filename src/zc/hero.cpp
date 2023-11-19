@@ -28956,8 +28956,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// TODO z3 old scrolling code doesn't clear darkscr_bmp_curscr at end of scroll, so first frame will have some lighting from
 	// previous screen... game_loop clears these bitmaps but that should be moved to draw_screen.
-	if (draw_dark && scrolling_use_new_dark_code)
+	// TODO update replays.
+	if (draw_dark && !replay_is_active())
 	{
+		clear_darkroom_bitmaps();
 		// blit(darkscr_bmp_z3, darkscr_bmp_curscr, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr->w, darkscr_bmp_curscr->h);
 		// blit(darkscr_bmp_z3_trans, darkscr_bmp_curscr_trans, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr_trans->w, darkscr_bmp_curscr_trans->h);
 	}
