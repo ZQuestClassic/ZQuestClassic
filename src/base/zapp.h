@@ -18,7 +18,7 @@ bool is_web();
 bool is_ci();
 void set_headless_mode();
 bool is_headless();
-std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height);
+std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height, int max_scale = 3);
 void zc_process_display_events();
 void zapp_reporting_add_breadcrumb(const char* category, const char* message);
 void zapp_reporting_set_tag(const char* key, const char* value);
