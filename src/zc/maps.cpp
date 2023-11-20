@@ -7216,6 +7216,8 @@ void ViewMap()
 	BITMAP* screen_bmp = create_bitmap_ex(8, 256, 176);
 	viewport.x = 0;
 	viewport.y = 0;
+	combotile_add_x = 256;
+	combotile_add_y = 0;
 	for(int32_t y=0; y<8; y++)
 	{
 		for(int32_t x=0; x<16; x++)
@@ -7439,6 +7441,8 @@ void ViewMap()
 	while(!done && !Quit);
 	
 	destroy_bitmap(mappic);
+	combotile_add_x = 0;
+	combotile_add_y = 0;
 	
 	resume_all_sfx();
 }
