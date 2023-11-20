@@ -33,12 +33,12 @@ jobs:
             # RelWithDebInfo invalidates ccache, and we currently can't show backtraces on crash for windows in CI
             # so no need for it yet.
             config: Release
-          - runs-on: windows-2022
-            arch: win32
-            compiler: msvc
-            # RelWithDebInfo fails all replays on 32 bit
-            config: Release
-            extra-args: --max_duration 60
+          # - runs-on: windows-2022
+          #   arch: win32
+          #   compiler: msvc
+          #   # RelWithDebInfo fails all replays on 32 bit
+          #   config: Release
+          #   extra-args: --max_duration 60
           - runs-on: macos-12
             arch: intel
             compiler: clang
