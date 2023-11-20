@@ -79,17 +79,19 @@ public:
 	static int proc(int msg, DIALOG* d, int c);
 	
 	virtual void reset_state();
-	virtual optional<uint> hovered_ind(uint x, uint y) const = 0;
-	virtual bool has_mouse(uint x, uint y) const = 0;
+	virtual optional<uint> hovered_ind() const = 0;
+	virtual bool has_mouse() const = 0;
 	virtual optional<uint> get_x(uint indx) const = 0;
 	virtual optional<uint> get_y(uint indx) const = 0;
 	virtual uint width() const = 0;
 	virtual uint height() const = 0;
 	
 	virtual void pop(uint x, uint y, GuiMenu* parent = nullptr) = 0;
-	virtual void draw(BITMAP* dest, uint x, uint y, optional<uint> hl = nullopt) = 0;
-	virtual void run_loop(uint x, uint y, GuiMenu* parent = nullptr) = 0;
-	virtual bool run(uint x, uint y, GuiMenu* parent = nullptr) = 0;
+	virtual void draw(BITMAP* dest, optional<uint> hl = nullopt) = 0;
+	virtual void run_loop(GuiMenu* parent = nullptr) = 0;
+	virtual bool run(GuiMenu* parent = nullptr) = 0;
+	
+	virtual void trigger(uint indx) = 0;
 	
 	void add(MenuItem const& entry);
 	void add(MenuItem&& entry);
@@ -98,7 +100,7 @@ public:
 	optional<uint> ind_at(uint uid);
 	MenuItem* by_uid(uint uid);
 	MenuItem* at(uint indx);
-	MenuItem* hovered(uint x, uint y);
+	MenuItem* hovered();
 	uint chop_sz() const;
 	size_t size() const {return entries.size();}
 	vector<MenuItem>& inner() {return entries;}
@@ -116,14 +118,16 @@ public:
 	void for_each(std::function<void(MenuItem&,uint)> proc);
 	void disable_uid(uint uid, bool dis);
 	void select_uid(uint uid, bool sel);
+	void position(uint x, uint y);
 	
 	optional<uint> chop_index;
-	bool borderless = false;
+	bool borderless;
 protected:
 	vector<MenuItem> entries;
 	optional<uint> sel_ind;
 	optional<int> old_mb;
 	optional<FONT*> menu_font;
+	uint xpos, ypos;
 };
 
 class NewMenu : public GuiMenu
@@ -132,18 +136,20 @@ public:
 	NewMenu() = default;
 	NewMenu(std::initializer_list<MenuItem>&& entries);
 	
-	optional<uint> hovered_ind(uint x, uint y) const override;
-	bool has_mouse(uint x, uint y) const override;
+	optional<uint> hovered_ind() const override;
+	bool has_mouse() const override;
 	
 	optional<uint> get_x(uint indx) const override;
 	optional<uint> get_y(uint indx) const override;
 	uint width() const override;
 	uint height() const override;
 	
+	void trigger(uint indx) override;
+	
 	void pop(uint x, uint y, GuiMenu* parent = nullptr) override;
-	void draw(BITMAP* dest, uint x, uint y, optional<uint> hl = nullopt) override;
-	void run_loop(uint x, uint y, GuiMenu* parent = nullptr) override;
-	bool run(uint x, uint y, GuiMenu* parent = nullptr) override;
+	void draw(BITMAP* dest, optional<uint> hl = nullopt) override;
+	void run_loop(GuiMenu* parent = nullptr) override;
+	bool run(GuiMenu* parent = nullptr) override;
 private:
 	static constexpr uint border = 2;
 };
@@ -153,18 +159,20 @@ public:
 	TopMenu() = default;
 	TopMenu(std::initializer_list<MenuItem>&& entries);
 	
-	optional<uint> hovered_ind(uint x, uint y) const override;
-	bool has_mouse(uint x, uint y) const override;
+	optional<uint> hovered_ind() const override;
+	bool has_mouse() const override;
 	
 	optional<uint> get_x(uint indx) const override;
 	optional<uint> get_y(uint indx) const override;
 	uint width() const override;
 	uint height() const override;
 	
+	void trigger(uint indx) override;
+	
 	void pop(uint x, uint y, GuiMenu* parent = nullptr) override;
-	void draw(BITMAP* dest, uint x, uint y, optional<uint> hl = nullopt) override;
-	void run_loop(uint x, uint y, GuiMenu* parent = nullptr) override;
-	bool run(uint x, uint y, GuiMenu* parent = nullptr) override;
+	void draw(BITMAP* dest, optional<uint> hl = nullopt) override;
+	void run_loop(GuiMenu* parent = nullptr) override;
+	bool run(GuiMenu* parent = nullptr) override;
 private:
 	static constexpr uint hborder = 0, vborder = 2;
 };

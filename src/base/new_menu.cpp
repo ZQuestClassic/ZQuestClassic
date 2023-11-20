@@ -290,14 +290,15 @@ int GuiMenu::proc(int msg, DIALOG* d, int c)
 		case MSG_START:
 			ptr->setFont(f);
 			ptr->reset_state();
+			ptr->position(d->x, d->y);
 			d->w = ptr->width();
 			d->h = ptr->height();
 			break;
 		case MSG_DRAW:
 		{
 			ptr->setFont(f);
-			auto hovered = ptr->hovered_ind(d->x, d->y);
-			ptr->draw(screen, d->x, d->y, hovered);
+			ptr->position(d->x, d->y);
+			ptr->draw(screen, ptr->hovered_ind());
 			break;
 		}
 		case MSG_VSYNC:
@@ -305,10 +306,9 @@ int GuiMenu::proc(int msg, DIALOG* d, int c)
 		case MSG_CLICK:
 		case MSG_XCHAR:
 			ptr->setFont(f);
-			if(ptr->run(d->x, d->y))
-			{
+			ptr->position(d->x, d->y);
+			if(ptr->run())
 				ptr->reset_state();
-			}
 			ret |= D_REDRAW;
 			break;
 	}
@@ -354,9 +354,9 @@ MenuItem* GuiMenu::at(uint indx)
         return nullptr;
     return &entries[indx];
 }
-MenuItem* GuiMenu::hovered(uint x, uint y)
+MenuItem* GuiMenu::hovered()
 {
-	if(auto ind = hovered_ind(x,y))
+	if(auto ind = hovered_ind())
 		return &entries[*ind];
 	return nullptr;
 }
@@ -429,6 +429,11 @@ void GuiMenu::select_uid(uint uid, bool sel)
 	if(auto ptr = by_uid(uid))
 		ptr->select(sel);
 }
+void GuiMenu::position(uint x, uint y)
+{
+	xpos = x;
+	ypos = y;
+}
 optional<uint> GuiMenu::press_shortcut(char c)
 {
 	if(!(c&0xFF))
@@ -468,9 +473,9 @@ optional<uint> GuiMenu::press_shortcut_key(char c)
 NewMenu::NewMenu(std::initializer_list<MenuItem>&& entries)
     : GuiMenu(std::move(entries))
 {}
-optional<uint> NewMenu::hovered_ind(uint x, uint y) const
+optional<uint> NewMenu::hovered_ind() const
 {
-	int mx = gui_mouse_x()-x, my = gui_mouse_y()-y;
+	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 	if(mx < border || mx >= width()-border)
 		return nullopt;
 	int ty = border;
@@ -494,9 +499,9 @@ optional<uint> NewMenu::hovered_ind(uint x, uint y) const
 	}
 	return nullopt;
 }
-bool NewMenu::has_mouse(uint x, uint y) const
+bool NewMenu::has_mouse() const
 {
-	int mx = gui_mouse_x()-x, my = gui_mouse_y()-y;
+	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 	if(mx < border || mx >= width()-border
 		|| my < border || my >= height()-border)
 		return false;
@@ -538,6 +543,31 @@ uint NewMenu::height() const
 	}
 	return hei + border*2;
 }
+void NewMenu::trigger(uint indx)
+{
+	MenuItem& mit = entries[indx];
+	mit.exec();
+	if(mit.isParent())
+	{
+		clear_keybuf();
+		int ox,oy;
+		get_zqdialog_xy(ox,oy);
+		byte drawflags = 0;
+		if(!has_selected())
+			drawflags |= MENU_DRAWFLAG_NOSEL;
+		if(has_doublewide())
+			drawflags |= MENU_DRAWFLAG_SHIFTSUBTX;
+		mit.draw(screen,xpos+*get_x(indx),ypos+*get_y(indx),MISTYLE_POPUP,
+			MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font,
+			width()-border*2);
+		mit.pop(xpos+ox+*get_x(indx)+width()-border*2,ypos+oy+*get_y(indx),this);
+		draw(screen,hovered_ind());
+		old_mb = 0;
+	}
+	else quit_all_menu = true;
+	while(gui_mouse_b())
+		rest(1);
+}
 optional<uint> NewMenu::get_x(uint indx) const
 {
 	if(indx >= chop_sz())
@@ -569,12 +599,13 @@ void NewMenu::pop(uint x, uint y, GuiMenu* parent)
 	
 	ttip_uninstall_all();
 	
-	popup_zqdialog_start(x, y, width(), height());
+	popup_zqdialog_start("popup_menu", RTI_TY_POPUP_MENU, x, y, width(), height());
 	zqdialog_set_skiptint(true);
 	
 	while(gui_mouse_b())
 		rest(1);
-	run_loop(0,0,parent);
+	position(0, 0);
+	run_loop(parent);
 	clear_keybuf();
 	
 	popup_zqdialog_end();
@@ -582,8 +613,9 @@ void NewMenu::pop(uint x, uint y, GuiMenu* parent)
 	while(gui_mouse_b())
 		rest(1);
 }
-void NewMenu::draw(BITMAP* dest, uint x, uint y, optional<uint> hl)
+void NewMenu::draw(BITMAP* dest, optional<uint> hl)
 {
+	uint x = xpos, y = ypos;
 	uint wid = width();
 	jwin_draw_win(dest, x, y, wid, height(), borderless ? FR_INVIS : FR_WIN);
 	x += *get_x(0);
@@ -605,16 +637,16 @@ void NewMenu::draw(BITMAP* dest, uint x, uint y, optional<uint> hl)
 		y += mit.calc_height(MISTYLE_POPUP, drawflags, menu_font);
 	}
 }
-void NewMenu::run_loop(uint x, uint y, GuiMenu* parent)
+void NewMenu::run_loop(GuiMenu* parent)
 {
-	optional<uint> msel = hovered_ind(x,y);
+	optional<uint> msel = hovered_ind();
 	if(msel)
 		sel_ind = msel;
 	else
 		sel_ind = 0;
 	auto mb = gui_mouse_b();
 	bool redraw = true;
-	old_mb = mb;
+	old_mb.reset();
 	do
 	{
 		if(close_button_quit)
@@ -622,9 +654,9 @@ void NewMenu::run_loop(uint x, uint y, GuiMenu* parent)
 		bool earlyret = false;
 		rest(1);
 		mb = gui_mouse_b();
-		auto mx = gui_mouse_x()-x, my = gui_mouse_y()-y;
+		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 		optional<uint> osel = sel_ind;
-		optional<uint> msel2 = hovered_ind(x,y);
+		optional<uint> msel2 = hovered_ind();
 		if(mb || msel != msel2)
 			sel_ind = msel = msel2;
 		bool doclick = false;
@@ -638,7 +670,8 @@ void NewMenu::run_loop(uint x, uint y, GuiMenu* parent)
 					doclick = true;
 			}
 		}
-		old_mb = mb;
+		if(old_mb || !mb)
+			old_mb = mb;
 		if(keypressed())
 		{
 			auto c = readkey();
@@ -713,7 +746,7 @@ void NewMenu::run_loop(uint x, uint y, GuiMenu* parent)
 			redraw = true;
 		
 		if(redraw)
-			draw(screen,x,y,sel_ind);
+			draw(screen,sel_ind);
 		
 		if(sel_ind && *sel_ind >= chop_sz())
 			sel_ind.reset();
@@ -742,12 +775,12 @@ void NewMenu::run_loop(uint x, uint y, GuiMenu* parent)
 					drawflags |= MENU_DRAWFLAG_NOSEL;
 				if(has_doublewide())
 					drawflags |= MENU_DRAWFLAG_SHIFTSUBTX;
-				mit.draw(screen,x+*get_x(*sel_ind),y+*get_y(*sel_ind),MISTYLE_POPUP,
+				mit.draw(screen,xpos+*get_x(*sel_ind),ypos+*get_y(*sel_ind),MISTYLE_POPUP,
 					MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font,
 					width()-border*2);
 				update_hw_screen(true);
-				mit.pop(x+ox+*get_x(*sel_ind)+width()-border*2,y+oy+*get_y(*sel_ind),this);
-				draw(screen,x,y,nullopt);
+				mit.pop(xpos+ox+*get_x(*sel_ind)+width()-border*2,ypos+oy+*get_y(*sel_ind),this);
+				draw(screen,nullopt);
 				old_mb = 0;
 				if(quit_all_menu)
 					return;
@@ -765,16 +798,16 @@ void NewMenu::run_loop(uint x, uint y, GuiMenu* parent)
 	}
 	while(true);
 }
-bool NewMenu::run(uint x, uint y, GuiMenu* parent)
+bool NewMenu::run(GuiMenu* parent)
 {
-	optional<uint> msel = hovered_ind(x,y);
+	optional<uint> msel = hovered_ind();
 	auto mb = gui_mouse_b();
 	bool redraw = true;
 	if(close_button_quit)
 		return true;
 	bool earlyret = false;
 	mb = gui_mouse_b();
-	auto mx = gui_mouse_x()-x, my = gui_mouse_y()-y;
+	auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 	optional<uint> osel = sel_ind;
 	if(mb || sel_ind != msel)
 		sel_ind = msel;
@@ -789,7 +822,8 @@ bool NewMenu::run(uint x, uint y, GuiMenu* parent)
 				doclick = true;
 		}
 	}
-	old_mb = mb;
+	if(old_mb || !mb)
+		old_mb = mb;
 	if(keypressed() && CHECK_ALT)
 	{
 		auto c = readkey();
@@ -803,7 +837,7 @@ bool NewMenu::run(uint x, uint y, GuiMenu* parent)
 		redraw = true;
 	
 	if(redraw)
-		draw(screen,x,y,sel_ind);
+		draw(screen,sel_ind);
 	
 	if(sel_ind && *sel_ind >= chop_sz())
 		sel_ind.reset();
@@ -820,35 +854,6 @@ bool NewMenu::run(uint x, uint y, GuiMenu* parent)
 	}
 	if(doclick)
 	{
-		MenuItem& mit = entries[*sel_ind];
-		mit.exec();
-		if(mit.isParent())
-		{
-			clear_keybuf();
-			int ox,oy;
-			get_zqdialog_xy(ox,oy);
-			byte drawflags = 0;
-			if(!has_selected())
-				drawflags |= MENU_DRAWFLAG_NOSEL;
-			if(has_doublewide())
-				drawflags |= MENU_DRAWFLAG_SHIFTSUBTX;
-			mit.draw(screen,x+*get_x(*sel_ind),y+*get_y(*sel_ind),MISTYLE_POPUP,
-				MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font,
-				width()-border*2);
-			update_hw_screen(true);
-			mit.pop(x+ox+*get_x(*sel_ind)+width()-border*2,y+oy+*get_y(*sel_ind),this);
-			draw(screen,x,y,hovered_ind(x,y));
-			old_mb = 0;
-			if(quit_all_menu)
-				return true;
-		}
-		else
-		{
-			quit_all_menu = true;
-			return true;
-		}
-		while(gui_mouse_b())
-			rest(1);
 		mb = gui_mouse_b();
 	}
 	update_hw_screen();
@@ -860,9 +865,9 @@ bool NewMenu::run(uint x, uint y, GuiMenu* parent)
 TopMenu::TopMenu(std::initializer_list<MenuItem>&& entries)
     : GuiMenu(std::move(entries))
 {}
-optional<uint> TopMenu::hovered_ind(uint x, uint y) const
+optional<uint> TopMenu::hovered_ind() const
 {
-	int mx = gui_mouse_x()-x, my = gui_mouse_y()-y;
+	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 	if(my < vborder || my >= height()-vborder)
 		return nullopt;
 	int tx = hborder;
@@ -883,9 +888,9 @@ optional<uint> TopMenu::hovered_ind(uint x, uint y) const
 	}
 	return nullopt;
 }
-bool TopMenu::has_mouse(uint x, uint y) const
+bool TopMenu::has_mouse() const
 {
-	int mx = gui_mouse_x()-x, my = gui_mouse_y()-y;
+	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 	if(mx < hborder || mx >= width()-hborder
 		|| my < vborder || my >= height()-vborder)
 		return false;
@@ -919,6 +924,28 @@ uint TopMenu::height() const
 	}
 	return max_hei + vborder*2;
 }
+void TopMenu::trigger(uint indx)
+{
+	MenuItem& mit = entries[indx];
+	mit.exec();
+	if(mit.isParent())
+	{
+		clear_keybuf();
+		int ox,oy;
+		get_zqdialog_xy(ox,oy);
+		byte drawflags = 0;
+		if(!has_selected())
+			drawflags |= MENU_DRAWFLAG_NOSEL;
+		mit.draw(screen,xpos+*get_x(indx),ypos+*get_y(indx),MISTYLE_TOP,
+			MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font);
+		mit.pop(xpos+ox+*get_x(indx),ypos+oy+*get_y(indx)+height()-vborder*2,this);
+		draw(screen,hovered_ind());
+		old_mb = 0;
+	}
+	else quit_all_menu = true;
+	while(gui_mouse_b())
+		rest(1);
+}
 optional<uint> TopMenu::get_x(uint indx) const
 {
 	if(indx >= chop_sz())
@@ -945,12 +972,13 @@ void TopMenu::pop(uint x, uint y, GuiMenu* parent)
 	
 	ttip_uninstall_all();
 	
-	popup_zqdialog_start(x, y, width(), height());
+	popup_zqdialog_start("popup_menu", RTI_TY_POPUP_MENU, x, y, width(), height());
 	zqdialog_set_skiptint(true);
 	
 	while(gui_mouse_b())
 		rest(1);
-	run_loop(0,0,parent);
+	position(0, 0);
+	run_loop(parent);
 	clear_keybuf();
 	
 	popup_zqdialog_end();
@@ -958,8 +986,9 @@ void TopMenu::pop(uint x, uint y, GuiMenu* parent)
 	while(gui_mouse_b())
 		rest(1);
 }
-void TopMenu::draw(BITMAP* dest, uint x, uint y, optional<uint> hl)
+void TopMenu::draw(BITMAP* dest, optional<uint> hl)
 {
+	uint x = xpos, y = ypos;
 	jwin_draw_win(dest, x, y, width(), height(), borderless ? FR_INVIS : FR_WIN);
 	x += *get_x(0);
 	y += *get_y(0);
@@ -974,16 +1003,16 @@ void TopMenu::draw(BITMAP* dest, uint x, uint y, optional<uint> hl)
 		x += mit.calc_width(MISTYLE_TOP, drawflags, menu_font);
 	}
 }
-void TopMenu::run_loop(uint x, uint y, GuiMenu* parent)
+void TopMenu::run_loop(GuiMenu* parent)
 {
-	optional<uint> msel = hovered_ind(x,y);
+	optional<uint> msel = hovered_ind();
 	if(msel)
 		sel_ind = msel;
 	else
 		sel_ind = 0;
 	auto mb = gui_mouse_b();
 	bool redraw = true;
-	old_mb = mb;
+	old_mb.reset();
 	do
 	{
 		if(close_button_quit)
@@ -991,9 +1020,9 @@ void TopMenu::run_loop(uint x, uint y, GuiMenu* parent)
 		bool earlyret = false;
 		rest(1);
 		mb = gui_mouse_b();
-		auto mx = gui_mouse_x()-x, my = gui_mouse_y()-y;
+		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 		optional<uint> osel = sel_ind;
-		optional<uint> msel2 = hovered_ind(x,y);
+		optional<uint> msel2 = hovered_ind();
 		if(mb || msel != msel2)
 			sel_ind = msel = msel2;
 		bool doclick = false;
@@ -1007,7 +1036,8 @@ void TopMenu::run_loop(uint x, uint y, GuiMenu* parent)
 					doclick = true;
 			}
 		}
-		old_mb = mb;
+		if(old_mb || !mb)
+			old_mb = mb;
 		if(keypressed())
 		{
 			auto c = readkey();
@@ -1082,7 +1112,7 @@ void TopMenu::run_loop(uint x, uint y, GuiMenu* parent)
 			redraw = true;
 		
 		if(redraw)
-			draw(screen,x,y,sel_ind);
+			draw(screen,sel_ind);
 		
 		if(sel_ind && *sel_ind >= chop_sz())
 			sel_ind.reset();
@@ -1099,32 +1129,9 @@ void TopMenu::run_loop(uint x, uint y, GuiMenu* parent)
 		}
 		if(doclick)
 		{
-			MenuItem& mit = entries[*sel_ind];
-			mit.exec();
-			if(mit.isParent())
-			{
-				clear_keybuf();
-				int ox,oy;
-				get_zqdialog_xy(ox,oy);
-				byte drawflags = 0;
-				if(!has_selected())
-					drawflags |= MENU_DRAWFLAG_NOSEL;
-				mit.draw(screen,x+*get_x(*sel_ind),y+*get_y(*sel_ind),MISTYLE_TOP,
-					MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font);
-				update_hw_screen(true);
-				mit.pop(x+ox+*get_x(*sel_ind),y+oy+*get_y(*sel_ind)+height()-vborder*2,this);
-				draw(screen,x,y,nullopt);
-				old_mb = 0;
-				if(quit_all_menu)
-					return;
-			}
-			else
-			{
-				quit_all_menu = true;
+			trigger(*sel_ind);
+			if(quit_all_menu)
 				return;
-			}
-			while(gui_mouse_b())
-				rest(1);
 			mb = gui_mouse_b();
 		}
 		update_hw_screen();
@@ -1132,16 +1139,16 @@ void TopMenu::run_loop(uint x, uint y, GuiMenu* parent)
 	while(true);
 }
 
-bool TopMenu::run(uint x, uint y, GuiMenu* parent)
+bool TopMenu::run(GuiMenu* parent)
 {
-	optional<uint> msel = hovered_ind(x,y);
+	optional<uint> msel = hovered_ind();
 	auto mb = gui_mouse_b();
 	bool redraw = false;
 	if(close_button_quit)
 		return true;
 	bool earlyret = false;
 	mb = gui_mouse_b();
-	auto mx = gui_mouse_x()-x, my = gui_mouse_y()-y;
+	auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 	optional<uint> osel = sel_ind;
 	if(mb || sel_ind != msel)
 	{
@@ -1159,7 +1166,8 @@ bool TopMenu::run(uint x, uint y, GuiMenu* parent)
 				doclick = true;
 		}
 	}
-	old_mb = mb;
+	if(old_mb || !mb)
+		old_mb = mb;
 	if(keypressed() && CHECK_ALT)
 	{
 		auto c = readkey();
@@ -1173,7 +1181,7 @@ bool TopMenu::run(uint x, uint y, GuiMenu* parent)
 		redraw = true;
 	
 	if(redraw)
-		draw(screen,x,y,sel_ind);
+		draw(screen,sel_ind);
 	
 	if(sel_ind && *sel_ind >= chop_sz())
 		sel_ind.reset();
@@ -1188,32 +1196,9 @@ bool TopMenu::run(uint x, uint y, GuiMenu* parent)
 	}
 	if(doclick)
 	{
-		MenuItem& mit = entries[*sel_ind];
-		mit.exec();
-		if(mit.isParent())
-		{
-			clear_keybuf();
-			int ox,oy;
-			get_zqdialog_xy(ox,oy);
-			byte drawflags = 0;
-			if(!has_selected())
-				drawflags |= MENU_DRAWFLAG_NOSEL;
-			mit.draw(screen,x+*get_x(*sel_ind),y+*get_y(*sel_ind),MISTYLE_TOP,
-				MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font);
-			update_hw_screen(true);
-			mit.pop(x+ox+*get_x(*sel_ind),y+oy+*get_y(*sel_ind)+height()-vborder*2,this);
-			draw(screen,x,y,hovered_ind(x,y));
-			old_mb = 0;
-			if(quit_all_menu)
-				return true;
-		}
-		else
-		{
-			quit_all_menu = true;
+		trigger(*sel_ind);
+		if(quit_all_menu)
 			return true;
-		}
-		while(gui_mouse_b())
-			rest(1);
 		mb = gui_mouse_b();
 	}
 	update_hw_screen();

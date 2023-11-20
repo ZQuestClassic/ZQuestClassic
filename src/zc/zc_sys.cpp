@@ -4393,8 +4393,7 @@ void syskeys()
 	
 	if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
 	{
-		if(!the_player_menu.hovered(gui_mouse_x(),gui_mouse_y()))
-			System();
+		System();
 	}
 	
 	mouse_down=gui_mouse_b();
@@ -7421,6 +7420,7 @@ static NewMenu window_menu
 	{ "Save Position Changes", onWinPosSave, MENUID_WINDOW_SAVE_POS },
 	{ "Stretch Game Area", onStretchGame, MENUID_WINDOW_STRETCH },
 };
+void call_zc_options_dlg();
 enum
 {
 	MENUID_OPTIONS_PAUSE_BG,
@@ -7431,8 +7431,9 @@ static NewMenu options_menu
 	{ "Name &Entry Mode", &name_entry_mode_menu },
 	{ "S&napshot Format", &snapshot_format_menu },
 	{ "&Window Settings", &window_menu },
-	{ "Epilepsy Flash Reduction", onEpilepsy },
-	{ "Pause In Background", onPauseInBackground },
+	{ "Epilepsy Flash Reduction", onEpilepsy, MENUID_OPTIONS_EPILEPSYPROT },
+	{ "Pause In Background", onPauseInBackground, MENUID_OPTIONS_PAUSE_BG },
+	{ "More Options", call_zc_options_dlg },
 };
 enum
 {
@@ -7887,6 +7888,7 @@ void music_stop()
 	currmidi=-1;
 }
 
+bool reload_fonts = false;
 void System()
 {
 	mouse_down=gui_mouse_b();
@@ -7918,11 +7920,18 @@ void System()
 	p = init_dialog(system_dlg,-1);
 	
 	// drop the menu on startup if menu button pressed
-	if(joybtn(Mbtn)||zc_getrawkey(KEY_ESC))
+	bool can_mbutton = false;
+	if(joybtn(Mbtn) || zc_getrawkey(KEY_ESC))
 		simulate_keypress(KEY_G << 8);
-		
 	do
 	{
+		if(reload_fonts)
+		{
+			init_custom_fonts();
+			clear_bitmap(menu_bmp);
+			broadcast_dialog_message(MSG_DRAW, 0);
+			reload_fonts = false;
+		}
 		if(handle_close_btn_quit())
 			break;
 		
@@ -7958,10 +7967,9 @@ void System()
 			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
 		the_player_menu.disable_uid(MENUID_PLAYER_CHEAT, nocheat);
 		refill_menu.disable_uid(MENUID_REFILL_ARROWS, !get_qr(qr_TRUEARROWS));
-		optional<uint> chop;
+		cheat_menu.chop_index.reset();
 		if(cheat < 4)
-			chop = cheat_menu.ind_at(MENUID_CHEAT_CHOP_L1+cheat);
-		cheat_menu.chop_index = chop;
+			cheat_menu.chop_index = cheat_menu.ind_at(MENUID_CHEAT_CHOP_L1+cheat);
 		cheat_menu.select_uid(MENUID_CHEAT_INVULN, getClock());
 		cheat_menu.select_uid(MENUID_CHEAT_NOCLIP, toogam);
 		cheat_menu.select_uid(MENUID_CHEAT_IGNORESV, ignoreSideview);
@@ -8001,12 +8009,16 @@ void System()
 			settings_menu.select_uid(MENUID_SETTINGS_DEBUG, get_debug());
 		}
 		
-		if(gui_mouse_b() && !mouse_down)
+		if(gui_mouse_b() && !mouse_down && !the_player_menu.has_mouse())
 			break;
 			
 		// press menu to drop the menu
-		if(rMbtn())
-			simulate_keypress(KEY_G << 8);
+		if(joybtn(Mbtn) || zc_getrawkey(KEY_ESC))
+		{
+			if(can_mbutton)
+				simulate_keypress(KEY_G << 8);
+		}
+		else can_mbutton = true;
 		
 		if(input_idle(true) > after_time())
 			// run Screeen Saver

@@ -30,6 +30,8 @@ ALLEGRO_FONT* customfonts_a5[CFONT_MAX] = {nullptr};
 ALLEGRO_FONT* deffonts_a5[CFONT_MAX] = {nullptr};
 ALLEGRO_FONT* a5font = nullptr;
 
+static string _font_titles[CFONT_MAX] = {"dialog", "gui", "title", "favcmd", "textbox", "ttip", "info"};
+
 FONT *get_zc_font(int index)
 {
 	if(unsigned(index) >= font_max)
@@ -375,51 +377,35 @@ void initFonts()
 	init_custom_fonts();
 }
 
-FONT* load_cfont(char const* name)
+FONT* load_cfont(uint q)
 {
-	char path[512];
-	char pref[16];
+	string path = fmt::format("customfonts/{}_{}.bmp", get_font_prefix(), _font_titles[q]);
 	
-	if(is_compact)
-		strcpy(pref, "compact");
-	else
-		strcpy(pref, "large");
-	
-	sprintf(path, "customfonts/%s_%s.bmp", pref, name);
-	
-	if(!exists(path))
+	if(!exists(path.c_str()))
 		return nullptr;
 	FONT* f = nullptr;
 	try
 	{
-		f = __load_a4_font(path);
+		f = __load_a4_font(path.c_str());
 	} catch(std::exception){}
 	if(!f)
-		zprint2("Error loading font: '%s'\n", path);
+		zprint2("Error loading font: '%s'\n", path.c_str());
 	return f;
 }
 
-ALLEGRO_FONT* load_cfont_a5(char const* name)
+ALLEGRO_FONT* load_cfont_a5(uint q)
 {
-	char path[512];
-	char pref[16];
+	string path = fmt::format("customfonts/{}_{}.bmp", get_font_prefix(), _font_titles[q]);
 	
-	if(is_compact)
-		strcpy(pref, "compact");
-	else
-		strcpy(pref, "large");
-	
-	sprintf(path, "customfonts/%s_%s.bmp", pref, name);
-	
-	if(!exists(path))
+	if(!exists(path.c_str()))
 		return nullptr;
 	ALLEGRO_FONT* f = nullptr;
 	try
 	{
-		f = __load_a5_font(path);
+		f = __load_a5_font(path.c_str());
 	} catch(std::exception){}
 	if(!f)
-		zprint2("Error loading a5 font: '%s'\n", path);
+		zprint2("Error loading a5 font: '%s'\n", path.c_str());
 	return f;
 }
 
@@ -445,31 +431,53 @@ ALLEGRO_FONT* scale_font_a5(FONT* f, int scale)
 	return newfont;
 }
 
+uint get_font_prefid()
+{
+	if(get_app_id() == App::zelda)
+		return FONTPREF_PLAYER;
+	else if(is_compact)
+		return FONTPREF_COMPACT;
+	else
+		return FONTPREF_LARGE;
+}
+string const& get_font_prefix(optional<uint> prefid)
+{
+	static string prefs[] = {"player","compact","large"};
+	if(prefid && *prefid < NUM_FONTPREFS)
+		return prefs[*prefid];
+	return prefs[get_font_prefid()];
+}
+
+string get_font_cfgname(bool scale, uint indx, optional<uint> prefid)
+{
+	if(indx >= CFONT_MAX)
+		return "";
+	return fmt::format("font{}_{}_{}", scale ? "scale" : "",
+		get_font_prefix(prefid), _font_titles[indx]);
+}
+
+int get_def_fontid(uint indx)
+{
+	static int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_lfont_l,font_nfont,font_sfont3,font_lfont,font_lfont_l};
+	return indx < CFONT_MAX ? deffont_ids[indx] : deffont_ids[0];
+}
+
 int dlgfontheight;
 void init_custom_fonts()
 {
 	font = a4fonts[font_nfont];
 	
-	char pref[16];
-	if(is_compact)
-		strcpy(pref, "compact");
-	else
-		strcpy(pref, "large");
-	
-	char buf[512];
-	int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_pfont,font_nfont,font_sfont3,font_lfont,font_lfont_l};
-	char const* _font_titles[CFONT_MAX] = {"dialog", "gui", "title", "favcmd", "textbox", "ttip", "info"};
-	bool use_custom_fonts = zc_get_config("gui","custom_fonts",1, App::zquest);
+	string pref = get_font_prefix();
+	int fontids[CFONT_MAX];
+	bool use_custom_fonts = zc_get_config("ZQ_GUI","custom_fonts",1);
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
-		sprintf(buf, "font_%s_%s", pref, _font_titles[q]);
-		deffont_ids[q] = zc_get_config("ZQ_GUI", buf, deffont_ids[q], App::zquest);
-		sprintf(buf, "fontscale_%s_%s", pref, _font_titles[q]);
-		fontscales[q] = zc_get_config("ZQ_GUI", buf, 1, App::zquest);
-		if(unsigned(deffont_ids[q]) >= font_max)
-			deffont_ids[q] = font_lfont_l;
-		deffonts[q] = get_zc_font(deffont_ids[q]);
-		deffonts_a5[q] = a5fonts[deffont_ids[q]];
+		fontids[q] = zc_get_config("ZQ_GUI", get_font_cfgname(false, q).c_str(), get_def_fontid(q));
+		fontscales[q] = zc_get_config("ZQ_GUI", get_font_cfgname(true, q).c_str(), 1);
+		if(unsigned(fontids[q]) >= font_max)
+			fontids[q] = font_lfont_l;
+		deffonts[q] = get_zc_font(fontids[q]);
+		deffonts_a5[q] = a5fonts[fontids[q]];
 		if(customfonts[q])
 		{
 			destroy_font(customfonts[q]);
@@ -482,8 +490,8 @@ void init_custom_fonts()
 		}
 		if(use_custom_fonts)
 		{
-			customfonts[q] = load_cfont(_font_titles[q]);
-			customfonts_a5[q] = load_cfont_a5(_font_titles[q]);
+			customfonts[q] = load_cfont(q);
+			customfonts_a5[q] = load_cfont_a5(q);
 		}
 		
 		//If a customfonts slot is empty, use it to scale a normal font, if needed.
@@ -507,7 +515,7 @@ ALLEGRO_FONT* get_custom_font_a5(int cfont)
 {
 	if(unsigned(cfont) >= CFONT_MAX)
 		return a5fonts[font_lfont_l];
-	if(zc_get_config("gui","custom_fonts",1,App::zquest) && customfonts_a5[cfont])
+	if(zc_get_config("ZQ_GUI","custom_fonts",1) && customfonts_a5[cfont])
 		return customfonts_a5[cfont];
 	return deffonts_a5[cfont];
 }

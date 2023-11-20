@@ -112,6 +112,7 @@ void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 		{ "&Copy", [&](){ci = si;}, nullopt, newslot },
 		{ "Paste", "&v", [&]()
 			{
+				if(ci==si) return;
 				bool run = true;
 				if(!newslot)
 					AlertDialog(fmt::format("Overwrite {} Subscreen?",subscr_names[cur_type]),
@@ -129,7 +130,7 @@ void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 					else vec[si] = vec[ci];
 					saved=false;
 				}
-			}, nullopt, ci<0 || ci==si },
+			}, nullopt, ci<0 },
 		{ "&Save", [&]()
 			{
 				if(!getname("Export Subscreen (.sub)","sub",NULL,datapath,false))
