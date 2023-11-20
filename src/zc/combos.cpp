@@ -2363,13 +2363,12 @@ static byte copycat_id = 0;
 static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
 {
 	if(!copycat_id) return false;
-	int pos = rpos_handle.pos;
 	
 	int32_t cid = rpos_handle.data();
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.trigcopycat == copycat_id)
 	{
-		do_trigger_combo(rpos_handle.layer, pos);
+		do_trigger_combo(rpos_handle);
 		return true;
 	}
 	return false;
