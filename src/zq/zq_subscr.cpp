@@ -436,12 +436,12 @@ enum
 };
 static NewMenu ss_copypaste_menu
 {
-	{ "&Copy Widget ", onSubscrCopy },
-	{ "&Duplicate Widget ", onDuplicateWidget },
-	{ "Paste Properties &V", onSubscrPasteProps, MENUID_SS_COPYPASTE_PASTE },
-	{ "Paste All ", onSubscrPasteAll, MENUID_SS_COPYPASTE_PASTEALL },
+	{ "&Copy Widget", onSubscrCopy },
+	{ "&Duplicate Widget", onDuplicateWidget },
+	{ "Paste Properties","&v", onSubscrPasteProps, MENUID_SS_COPYPASTE_PASTE },
+	{ "Paste All", onSubscrPasteAll, MENUID_SS_COPYPASTE_PASTEALL },
 	{},
-	{ "Paste New ", onDuplCopiedWidget, MENUID_SS_COPYPASTE_PASTENEW },
+	{ "Paste New", onDuplCopiedWidget, MENUID_SS_COPYPASTE_PASTENEW },
 };
 static NewMenu subscreen_rc_menu
 {
@@ -2299,6 +2299,8 @@ void update_subscr_dlg(bool start)
 			subscreen_dlg[4].y-=31;
 			subscreen_dlg[4].x+=1;
 		}
+		subscreen_dlg[26].dp2 = nullptr;
+		object_message(&subscreen_dlg[26],MSG_START,0); //GuiMenu::proc
 		
 		//Some fancier stuff for the subscreen update
 		{
@@ -2312,7 +2314,7 @@ void update_subscr_dlg(bool start)
 					subscreen_dlg[q].dp2 = (void*)get_custom_font(CFONT_GUI);
 				}
 			}
-			int hei, winhei = 476 + dlg_fh(subscreen_dlg[7]) + dlg_fh(subscreen_dlg[56]);
+			int hei, winhei = 465 + subscreen_dlg[26].h + dlg_fh(subscreen_dlg[7]) + dlg_fh(subscreen_dlg[56]);
 			switch(subty)
 			{
 				default:
@@ -2333,6 +2335,9 @@ void update_subscr_dlg(bool start)
 			}
 			subscreen_dlg[0].h = winhei;
 			jwin_center_dialog(subscreen_dlg);
+			subscreen_dlg[26].y = subscreen_dlg[0].y+21;
+			subscreen_dlg[4].y = subscreen_dlg[26].y+subscreen_dlg[26].h;
+			subscreen_dlg[5].y = subscreen_dlg[4].y+2;
 			subscreen_dlg[5].h=hei*2;
 			subscreen_dlg[4].h=subscreen_dlg[5].h+4;
 			subscreen_dlg[9].y = subscreen_dlg[0].y + subscreen_dlg[0].h - 6 - subscreen_dlg[9].h;
@@ -2374,7 +2379,7 @@ void update_subscr_dlg(bool start)
 			}
 			subscreen_dlg[50].y = subscreen_dlg[49].y = subscreen_dlg[48].y =
 				subscreen_dlg[47].y = subscreen_dlg[46].y = subscreen_dlg[57].y =
-				subscreen_dlg[58].y = subscreen_dlg[4].y+168*2+2;
+				subscreen_dlg[58].y = subscreen_dlg[4].y+168*2+4;
 			subscreen_dlg[46].y += (subscreen_dlg[47].h-dlg_fh(subscreen_dlg[46]))/2;
 			
 			subscreen_dlg[51].y = subscreen_dlg[52].y = subscreen_dlg[53].y =
@@ -2457,6 +2462,7 @@ bool edit_subscreen()
 	ss_view_menu.select_uid(MENUID_SS_VIEW_ALL_INFINITE, zq_view_allinf);
 	ss_settings_menu.select_uid(MENUID_SS_SETTINGS_DELETE, subscr_confirm_delete);
 	subscreen_menu.borderless = true;
+	ss_mouseset_menu.select_only_uid(ssmouse_type);
 	
 	update_subscr_dlg(true);
 	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,true,[&](int ret)

@@ -520,7 +520,7 @@ void killConsole()
 	zscript_coloured_console.kill();
 }
 
-int32_t toggleConsole()
+int toggleConsole()
 {
 	console_is_open ? killConsole() : initConsole();
 	zc_set_config("zquest","open_debug_console",console_is_open?1:0);

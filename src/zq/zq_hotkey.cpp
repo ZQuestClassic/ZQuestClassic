@@ -42,6 +42,7 @@ int32_t onLayer3BG();
 int32_t onRulesSearch();
 int32_t onQuickCompile();
 int32_t onSmartCompile();
+int toggleConsole();
 void cycle_compact_sqr(bool down);
 void call_testqst_dialog();
 extern uint8_t ViewLayer2BG, ViewLayer3BG;
@@ -261,6 +262,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_RULESETS: return "Rulesets";
 		case ZQKEY_RULETMPLS: return "Rule Templates";
 		case ZQKEY_COMPILE_SMART: return "Smart Compile ZScript";
+		case ZQKEY_DEBUG_CONSOLE: return "ZQ Debug Console";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -479,6 +481,7 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_RULESETS: return "ZQKEY_RULESETS";
 		case ZQKEY_RULETMPLS: return "ZQKEY_RULETMPLS";
 		case ZQKEY_COMPILE_SMART: return "ZQKEY_COMPILE_SMART";
+		case ZQKEY_DEBUG_CONSOLE: return "ZQKEY_DEBUG_CONSOLE";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -895,6 +898,8 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Apply Rule Templates (setting SOME quest rules)";
 		case ZQKEY_COMPILE_SMART:
 			return "Compile the ZScript buffer and smartly auto-assign slots";
+		case ZQKEY_DEBUG_CONSOLE:
+			return "Toggle the ZQuest Debug Console";
 	}
 	return "";
 }
@@ -1126,6 +1131,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_RULESETS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_RULETMPLS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_COMPILE_SMART].setval(0, 0, 0, 0);
+	zq_hotkeys[ZQKEY_DEBUG_CONSOLE].setval(0, 0, 0, 0);
 }
 
 void load_hotkeys()
@@ -1724,6 +1730,9 @@ int run_hotkey(uint hkey)
 			break;
 		case ZQKEY_COMPILE_SMART:
 			onSmartCompile();
+			break;
+		case ZQKEY_DEBUG_CONSOLE:
+			toggleConsole();
 			break;
 	}
 	return D_O_K;

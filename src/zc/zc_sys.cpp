@@ -106,6 +106,7 @@ static  const char *samplepath = "samplesoundset/patches.dat";
 #endif
 char qst_files_path[2048];
 
+extern TopMenu the_player_menu;
 #ifdef _MSC_VER
 #define getcwd _getcwd
 #endif
@@ -4365,21 +4366,6 @@ int32_t onLightSwitch()
 	cheats_enqueue(Cheat::Light);
 	return D_O_K;
 }
-enum
-{
-	MENUID_PLAYER_CHEAT,
-};
-TopMenu the_player_menu
-{
-	{ "&Game", &game_menu },
-	{ "&Settings", &settings_menu },
-	{ "&Cheat", &cheat_menu, MENUID_PLAYER_CHEAT, true },
-	{ "Replay", &replay_menu },
-	{ "&ZC", &misc_menu },
-	#if DEVLEVEL > 0
-	{ "&Dev", &dev_menu },
-	#endif
-};
 
 int32_t onGoTo();
 int32_t onGoToComplete();
@@ -7650,6 +7636,22 @@ int32_t setCheat()
 }
 #endif //DEVLEVEL > 1
 #endif //DEVLEVEL > 0
+
+enum
+{
+	MENUID_PLAYER_CHEAT,
+};
+TopMenu the_player_menu
+{
+	{ "&Game", &game_menu },
+	{ "&Settings", &settings_menu },
+	{ "&Cheat", &cheat_menu, MENUID_PLAYER_CHEAT, true },
+	{ "Replay", &replay_menu },
+	{ "&ZC", &misc_menu },
+	#if DEVLEVEL > 0
+	{ "&Dev", &dev_menu },
+	#endif
+};
 
 int32_t onPauseInBackground()
 {

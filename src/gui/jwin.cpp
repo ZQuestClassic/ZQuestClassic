@@ -338,13 +338,8 @@ void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int 
   */
 void jwin_draw_win(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame)
 {
-	if(frame == FR_INVIS)
-		rectfill(dest,zc_max(x,0),zc_max(y,0),zc_min(x+w-1, dest->w-1),zc_min(y+h-1, dest->h-1),scheme[jcBOX]);
-    else
-	{
-		rectfill(dest,zc_max(x+2,0),zc_max(y+2,0),zc_min(x+w-3, dest->w-1),zc_min(y+h-3, dest->h-1),scheme[jcBOX]);
-		jwin_draw_frame(dest, x, y, w, h, frame);
-	}
+	rectfill(dest,zc_max(x,0),zc_max(y,0),zc_min(x+w-1, dest->w-1),zc_min(y+h-1, dest->h-1),scheme[jcBOX]);
+	jwin_draw_frame(dest, x, y, w, h, frame);
 }
 
 /*  jwin_draw_button:

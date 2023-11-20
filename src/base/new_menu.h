@@ -80,6 +80,7 @@ public:
 	
 	virtual void reset_state();
 	virtual optional<uint> hovered_ind(uint x, uint y) const = 0;
+	virtual bool has_mouse(uint x, uint y) const = 0;
 	virtual optional<uint> get_x(uint indx) const = 0;
 	virtual optional<uint> get_y(uint indx) const = 0;
 	virtual uint width() const = 0;
@@ -117,7 +118,7 @@ public:
 	void select_uid(uint uid, bool sel);
 	
 	optional<uint> chop_index;
-	bool borderless;
+	bool borderless = false;
 protected:
 	vector<MenuItem> entries;
 	optional<uint> sel_ind;
@@ -132,6 +133,7 @@ public:
 	NewMenu(std::initializer_list<MenuItem>&& entries);
 	
 	optional<uint> hovered_ind(uint x, uint y) const override;
+	bool has_mouse(uint x, uint y) const override;
 	
 	optional<uint> get_x(uint indx) const override;
 	optional<uint> get_y(uint indx) const override;
@@ -152,6 +154,7 @@ public:
 	TopMenu(std::initializer_list<MenuItem>&& entries);
 	
 	optional<uint> hovered_ind(uint x, uint y) const override;
+	bool has_mouse(uint x, uint y) const override;
 	
 	optional<uint> get_x(uint indx) const override;
 	optional<uint> get_y(uint indx) const override;
