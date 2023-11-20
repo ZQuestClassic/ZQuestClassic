@@ -34,7 +34,7 @@ void for_every_screen_in_region(T fn)
 	}
 }
 
-// Iterates over every rpos in the current region.
+// Iterates over every rpos in the current region, but only for screens that are valid.
 // Callback function: void fn(const pos_handle_t& rpos_handle)
 template<typename T, typename = std::enable_if_t<
     std::is_invocable_v<T, const rpos_handle_t&>
@@ -44,7 +44,6 @@ void for_every_rpos_in_region(T fn)
 	rpos_handle_t rpos_handle;
 	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{
-		// TODO z3 should cache this
 		if (!is_in_current_region(screen_index)) continue;
 
 		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
@@ -52,6 +51,12 @@ void for_every_rpos_in_region(T fn)
 		for (int lyr = 0; lyr <= 6; ++lyr)
 		{
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
+			if (!scr->valid)
+			{
+				if (lyr == 0) break;
+				continue;
+			}
+
 			rpos_handle.screen = scr;
 			rpos_handle.layer = lyr;
 
@@ -76,7 +81,6 @@ void for_every_valid_rpos_in_region(T fn)
 	rpos_handle_t rpos_handle;
 	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{
-		// TODO z3 should cache this
 		if (!is_in_current_region(screen_index)) continue;
 
 		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
