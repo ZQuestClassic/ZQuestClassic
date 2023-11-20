@@ -360,18 +360,20 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 		combobuf[newcid].cur_frame=0;
 		combobuf[newcid].aclk = 0;
 	}
-	// TODO z3 !
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		if(lyr == rpos_handle.layer) continue;
 		if(!(cmb.usrflags&(1<<lyr))) continue;
-		mapscr* scr_2 = FFCore.tempScreens[lyr];
-		if(!scr_2->data[pos]) //Don't increment empty space
+
+		auto rpos_handle_2 = get_rpos_handle(rpos_handle.rpos, lyr);
+		int cid = rpos_handle_2.data();
+		mapscr* scr_2 = rpos_handle_2.screen;
+		if (!cid) //Don't increment empty space
 			continue;
-		newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
-		scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
+		
+		int32_t newcid2 = BOUND_COMBO(rpos_handle_2.data() + cmbofs);
+		rpos_handle_2.set_data(newcid2);
 		scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
-		int32_t newcid2 = scr_2->data[pos];
 		if(combobuf[newcid2].animflags & AF_CYCLE)
 		{
 			combobuf[newcid2].tile = combobuf[newcid2].o_tile;
