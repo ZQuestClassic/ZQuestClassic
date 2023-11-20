@@ -70,13 +70,25 @@ private:
 	friend class NewMenu;
 	friend class TopMenu;
 };
+
+struct MenuState
+{
+	optional<uint> sel_ind;
+	optional<int> old_mb;
+	bool dirty = true;
+	void clear();
+};
+
 class GuiMenu
 {
 public:
 	GuiMenu() = default;
 	GuiMenu(std::initializer_list<MenuItem>&& entries);
+	GuiMenu(optional<uint> chop, bool borderless);
+	GuiMenu(optional<uint> chop, bool borderless,std::initializer_list<MenuItem>&& entries);
 	
 	static int proc(int msg, DIALOG* d, int c);
+	void do_draw();
 	
 	virtual void reset_state();
 	virtual optional<uint> hovered_ind() const = 0;
@@ -123,18 +135,18 @@ public:
 	optional<uint> chop_index;
 	bool borderless;
 protected:
+	MenuState state;
 	vector<MenuItem> entries;
-	optional<uint> sel_ind;
-	optional<int> old_mb;
 	optional<FONT*> menu_font;
 	uint xpos, ypos;
 };
-
 class NewMenu : public GuiMenu
 {
 public:
 	NewMenu() = default;
 	NewMenu(std::initializer_list<MenuItem>&& entries);
+	NewMenu(optional<uint> chop, bool borderless);
+	NewMenu(optional<uint> chop, bool borderless,std::initializer_list<MenuItem>&& entries);
 	
 	optional<uint> hovered_ind() const override;
 	bool has_mouse() const override;
@@ -158,6 +170,8 @@ class TopMenu : public GuiMenu
 public:
 	TopMenu() = default;
 	TopMenu(std::initializer_list<MenuItem>&& entries);
+	TopMenu(optional<uint> chop, bool borderless);
+	TopMenu(optional<uint> chop, bool borderless,std::initializer_list<MenuItem>&& entries);
 	
 	optional<uint> hovered_ind() const override;
 	bool has_mouse() const override;

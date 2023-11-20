@@ -171,6 +171,11 @@ inline std::shared_ptr<Switcher> makeSwitcher()
 	return std::make_shared<Switcher>();
 }
 
+inline std::shared_ptr<Menu> makeMenu()
+{
+	return std::make_shared<Menu>();
+}
+
 inline std::shared_ptr<TabPanel> makeTabPanel()
 {
 	return std::make_shared<TabPanel>();
@@ -406,6 +411,11 @@ ZCGUI_BUILDER_START(Switcher)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, makeSwitcher)
 
+ZCGUI_BUILDER_START(Menu)
+	ZCGUI_ACCEPT_PROP(menu, setMenu, GuiMenu*)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Menu, Menu, makeMenu)
+
 ZCGUI_BUILDER_START(TabPanel)
 	ZCGUI_ACCEPT_PROP(indx, switchTo, size_t)
 	ZCGUI_ACCEPT_PROP(ptr, setPtr, size_t*)
@@ -485,6 +495,7 @@ ZCGUI_BUILDER_FUNCTION(DitherPreview, DitherPreview, makeDitherPreview)
 ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
 	ZCGUI_ACCEPT_PROP(info, setHelp, std::string)
+	ZCGUI_ACCEPT_PROP(menu, setMenu, std::shared_ptr<Menu>)
 	ZCGUI_ACCEPT_PROP(onClose, onClose, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onEnter, onEnter, Dialog::message)
 	ZCGUI_ACCEPT_PROP(use_vsync, setVSync, bool)

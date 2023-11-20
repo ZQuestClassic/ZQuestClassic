@@ -3,6 +3,7 @@
 
 #include "gui/dialog_ref.h"
 #include "gui/top_level.h"
+#include "gui/menu.h"
 #include <memory>
 #include <string>
 
@@ -19,9 +20,12 @@ public:
 
 	/* Sets the window's title. */
 	void setHelp(std::string newHelp);
-
+	
 	/* Sets the widget that will appear in the window. */
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
+	
+	void setMenu(std::shared_ptr<Menu> menu) noexcept;
+	void setMenu(TopMenu* menu) noexcept;
 	
 	/* Sets if the dialog needs a d_vsync_proc or not */
 	void setVSync(bool useVSync)
@@ -42,6 +46,7 @@ public:
 	void load();
 private:
 	std::shared_ptr<Widget> content;
+	std::shared_ptr<Menu> inner_menu;
 	std::string title;
 	DialogRef alDialog;
 	int32_t closeMessage;

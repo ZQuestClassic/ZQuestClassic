@@ -269,10 +269,27 @@ void MenuItem::draw(BITMAP* dest, uint x, uint y, uint style, byte drawflags, op
 	font = of;
 }
 
+// Helper struct
+
+void MenuState::clear()
+{
+	*this = MenuState();
+}
+
 // Abstract; template menu
 
 GuiMenu::GuiMenu(std::initializer_list<MenuItem>&& entries)
     : GuiMenu()
+{
+	add(entries);
+}
+GuiMenu::GuiMenu(optional<uint> chop, bool borderless)
+	: chop_index(chop), borderless(borderless),
+	entries(), state(), menu_font(),
+	xpos(0), ypos(0)
+{}
+GuiMenu::GuiMenu(optional<uint> chop, bool borderless,std::initializer_list<MenuItem>&& entries)
+	: GuiMenu(chop,borderless)
 {
 	add(entries);
 }
@@ -309,11 +326,18 @@ int GuiMenu::proc(int msg, DIALOG* d, int c)
 			ptr->position(d->x, d->y);
 			if(ptr->run())
 				ptr->reset_state();
-			ret |= D_REDRAW;
+			ret |= D_REDRAWME;
 			break;
 	}
 	return ret;
 }
+
+void GuiMenu::do_draw()
+{
+	draw(screen,state.sel_ind);
+	state.dirty = false;
+}
+
 void GuiMenu::add(MenuItem const& entry)
 {
 	entries.emplace_back(entry);
@@ -368,8 +392,7 @@ uint GuiMenu::chop_sz() const
 }
 void GuiMenu::reset_state()
 {
-	sel_ind.reset();
-	old_mb.reset();
+	state.clear();
 }
 
 bool GuiMenu::has_selected() const
@@ -473,6 +496,13 @@ optional<uint> GuiMenu::press_shortcut_key(char c)
 NewMenu::NewMenu(std::initializer_list<MenuItem>&& entries)
     : GuiMenu(std::move(entries))
 {}
+NewMenu::NewMenu(optional<uint> chop, bool borderless)
+    : GuiMenu(chop, borderless)
+{}
+NewMenu::NewMenu(optional<uint> chop, bool borderless,
+	std::initializer_list<MenuItem>&& entries)
+    : GuiMenu(chop, borderless, std::move(entries))
+{}
 optional<uint> NewMenu::hovered_ind() const
 {
 	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
@@ -562,7 +592,7 @@ void NewMenu::trigger(uint indx)
 			width()-border*2);
 		mit.pop(xpos+ox+*get_x(indx)+width()-border*2,ypos+oy+*get_y(indx),this);
 		draw(screen,hovered_ind());
-		old_mb = 0;
+		state.old_mb = 0;
 	}
 	else quit_all_menu = true;
 	while(gui_mouse_b())
@@ -640,13 +670,12 @@ void NewMenu::draw(BITMAP* dest, optional<uint> hl)
 void NewMenu::run_loop(GuiMenu* parent)
 {
 	optional<uint> msel = hovered_ind();
+	reset_state();
 	if(msel)
-		sel_ind = msel;
+		state.sel_ind = msel;
 	else
-		sel_ind = 0;
+		state.sel_ind = 0;
 	auto mb = gui_mouse_b();
-	bool redraw = true;
-	old_mb.reset();
 	do
 	{
 		if(close_button_quit)
@@ -655,14 +684,14 @@ void NewMenu::run_loop(GuiMenu* parent)
 		rest(1);
 		mb = gui_mouse_b();
 		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
-		optional<uint> osel = sel_ind;
+		optional<uint> osel = state.sel_ind;
 		optional<uint> msel2 = hovered_ind();
 		if(mb || msel != msel2)
-			sel_ind = msel = msel2;
+			state.sel_ind = msel = msel2;
 		bool doclick = false;
-		if(old_mb)
+		if(state.old_mb)
 		{
-			if(XOR(mb, *old_mb))
+			if(XOR(mb, *state.old_mb))
 			{
 				if(!msel)
 					earlyret = true;
@@ -670,8 +699,8 @@ void NewMenu::run_loop(GuiMenu* parent)
 					doclick = true;
 			}
 		}
-		if(old_mb || !mb)
-			old_mb = mb;
+		if(state.old_mb || !mb)
+			state.old_mb = mb;
 		if(keypressed())
 		{
 			auto c = readkey();
@@ -682,30 +711,30 @@ void NewMenu::run_loop(GuiMenu* parent)
 					earlyret = true;
 					break;
 				case KEY_UP:
-					if(sel_ind)
+					if(state.sel_ind)
 					{
-						if(*sel_ind)
+						if(*state.sel_ind)
 						{
-							for(int n = int(*sel_ind)-1; n >= 0; --n)
+							for(int n = int(*state.sel_ind)-1; n >= 0; --n)
 							{
 								if(entries[n].isDisabled())
 									continue;
-								*sel_ind = uint(n);
+								*state.sel_ind = uint(n);
 								break;
 							}
 						}
 					}
 					break;
 				case KEY_DOWN:
-					if(sel_ind)
+					if(state.sel_ind)
 					{
-						if(*sel_ind < entries.size()-1)
+						if(*state.sel_ind < entries.size()-1)
 						{
-							for(uint n = *sel_ind+1; n < entries.size(); ++n)
+							for(uint n = *state.sel_ind+1; n < entries.size(); ++n)
 							{
 								if(entries[n].isDisabled())
 									continue;
-								*sel_ind = n;
+								*state.sel_ind = n;
 								break;
 							}
 						}
@@ -715,9 +744,9 @@ void NewMenu::run_loop(GuiMenu* parent)
 					earlyret = true;
 					break;
 				case KEY_RIGHT:
-					if(sel_ind)
+					if(state.sel_ind)
 					{
-						if(entries[*sel_ind].isParent())
+						if(entries[*state.sel_ind].isParent())
 							doclick = true;
 						else
 						{							
@@ -728,70 +757,44 @@ void NewMenu::run_loop(GuiMenu* parent)
 					break;
 				case KEY_SPACE:
 				case KEY_ENTER:
-					if(sel_ind)
+					if(state.sel_ind)
 						doclick = true;
 					break;
 				default:
 				{
 					if(auto val = press_shortcut(c))
 					{
-						sel_ind = *val;
+						state.sel_ind = *val;
 						doclick = true;
 					}
 					break;
 				}
 			}
 		}
-		if(sel_ind != osel)
-			redraw = true;
+		if(state.sel_ind != osel)
+			state.dirty = true;
 		
-		if(redraw)
-			draw(screen,sel_ind);
+		if(state.dirty)
+			do_draw();
 		
-		if(sel_ind && *sel_ind >= chop_sz())
-			sel_ind.reset();
-		if(!sel_ind)
+		if(state.sel_ind && *state.sel_ind >= chop_sz())
+			state.sel_ind.reset();
+		if(!state.sel_ind)
 			doclick = false;
 		
 		if(earlyret)
 			return;
 		
-		if(doclick && entries[*sel_ind].isDisabled())
+		if(doclick && entries[*state.sel_ind].isDisabled())
 		{
 			doclick = false;
-			sel_ind.reset();
+			state.sel_ind.reset();
 		}
 		if(doclick)
 		{
-			MenuItem& mit = entries[*sel_ind];
-			mit.exec();
-			if(mit.isParent())
-			{
-				clear_keybuf();
-				int ox,oy;
-				get_zqdialog_xy(ox,oy);
-				byte drawflags = 0;
-				if(!has_selected())
-					drawflags |= MENU_DRAWFLAG_NOSEL;
-				if(has_doublewide())
-					drawflags |= MENU_DRAWFLAG_SHIFTSUBTX;
-				mit.draw(screen,xpos+*get_x(*sel_ind),ypos+*get_y(*sel_ind),MISTYLE_POPUP,
-					MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font,
-					width()-border*2);
-				update_hw_screen(true);
-				mit.pop(xpos+ox+*get_x(*sel_ind)+width()-border*2,ypos+oy+*get_y(*sel_ind),this);
-				draw(screen,nullopt);
-				old_mb = 0;
-				if(quit_all_menu)
-					return;
-			}
-			else
-			{
-				quit_all_menu = true;
+			trigger(*state.sel_ind);
+			if(quit_all_menu)
 				return;
-			}
-			while(gui_mouse_b())
-				rest(1);
 			mb = gui_mouse_b();
 		}
 		update_hw_screen();
@@ -802,19 +805,21 @@ bool NewMenu::run(GuiMenu* parent)
 {
 	optional<uint> msel = hovered_ind();
 	auto mb = gui_mouse_b();
-	bool redraw = true;
 	if(close_button_quit)
 		return true;
 	bool earlyret = false;
 	mb = gui_mouse_b();
 	auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
-	optional<uint> osel = sel_ind;
-	if(mb || sel_ind != msel)
-		sel_ind = msel;
-	bool doclick = false;
-	if(old_mb)
+	optional<uint> osel = state.sel_ind;
+	if(mb || state.sel_ind != msel)
 	{
-		if(XOR(mb, *old_mb))
+		state.sel_ind = msel;
+		state.dirty = true;
+	}
+	bool doclick = false;
+	if(state.old_mb)
+	{
+		if(XOR(mb, *state.old_mb))
 		{
 			if(!msel)
 				earlyret = true;
@@ -822,38 +827,41 @@ bool NewMenu::run(GuiMenu* parent)
 				doclick = true;
 		}
 	}
-	if(old_mb || !mb)
-		old_mb = mb;
+	if(state.old_mb || !mb)
+		state.old_mb = mb;
 	if(keypressed() && CHECK_ALT)
 	{
 		auto c = readkey();
 		if(auto val = press_shortcut_key(c>>8))
 		{
-			sel_ind = *val;
+			state.sel_ind = *val;
 			doclick = true;
 		}
 	}
-	if(sel_ind != osel)
-		redraw = true;
+	if(state.sel_ind != osel)
+		state.dirty = true;
 	
-	if(redraw)
-		draw(screen,sel_ind);
+	if(state.dirty)
+		do_draw();
 	
-	if(sel_ind && *sel_ind >= chop_sz())
-		sel_ind.reset();
-	if(!sel_ind)
+	if(state.sel_ind && *state.sel_ind >= chop_sz())
+		state.sel_ind.reset();
+	if(!state.sel_ind)
 		doclick = false;
 	
 	if(earlyret)
 		return true;
 	
-	if(doclick && entries[*sel_ind].isDisabled())
+	if(doclick && entries[*state.sel_ind].isDisabled())
 	{
 		doclick = false;
-		sel_ind.reset();
+		state.sel_ind.reset();
 	}
 	if(doclick)
 	{
+		trigger(*state.sel_ind);
+		if(quit_all_menu)
+			return true;
 		mb = gui_mouse_b();
 	}
 	update_hw_screen();
@@ -864,6 +872,13 @@ bool NewMenu::run(GuiMenu* parent)
 
 TopMenu::TopMenu(std::initializer_list<MenuItem>&& entries)
     : GuiMenu(std::move(entries))
+{}
+TopMenu::TopMenu(optional<uint> chop, bool borderless)
+    : GuiMenu(chop, borderless)
+{}
+TopMenu::TopMenu(optional<uint> chop, bool borderless,
+	std::initializer_list<MenuItem>&& entries)
+    : GuiMenu(chop, borderless, std::move(entries))
 {}
 optional<uint> TopMenu::hovered_ind() const
 {
@@ -940,7 +955,7 @@ void TopMenu::trigger(uint indx)
 			MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font);
 		mit.pop(xpos+ox+*get_x(indx),ypos+oy+*get_y(indx)+height()-vborder*2,this);
 		draw(screen,hovered_ind());
-		old_mb = 0;
+		state.old_mb = 0;
 	}
 	else quit_all_menu = true;
 	while(gui_mouse_b())
@@ -1005,14 +1020,13 @@ void TopMenu::draw(BITMAP* dest, optional<uint> hl)
 }
 void TopMenu::run_loop(GuiMenu* parent)
 {
+	reset_state();
 	optional<uint> msel = hovered_ind();
 	if(msel)
-		sel_ind = msel;
+		state.sel_ind = msel;
 	else
-		sel_ind = 0;
+		state.sel_ind = 0;
 	auto mb = gui_mouse_b();
-	bool redraw = true;
-	old_mb.reset();
 	do
 	{
 		if(close_button_quit)
@@ -1021,14 +1035,14 @@ void TopMenu::run_loop(GuiMenu* parent)
 		rest(1);
 		mb = gui_mouse_b();
 		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
-		optional<uint> osel = sel_ind;
+		optional<uint> osel = state.sel_ind;
 		optional<uint> msel2 = hovered_ind();
 		if(mb || msel != msel2)
-			sel_ind = msel = msel2;
+			state.sel_ind = msel = msel2;
 		bool doclick = false;
-		if(old_mb)
+		if(state.old_mb)
 		{
-			if(XOR(mb, *old_mb))
+			if(XOR(mb, *state.old_mb))
 			{
 				if(!msel)
 					earlyret = true;
@@ -1036,8 +1050,8 @@ void TopMenu::run_loop(GuiMenu* parent)
 					doclick = true;
 			}
 		}
-		if(old_mb || !mb)
-			old_mb = mb;
+		if(state.old_mb || !mb)
+			state.old_mb = mb;
 		if(keypressed())
 		{
 			auto c = readkey();
@@ -1048,30 +1062,30 @@ void TopMenu::run_loop(GuiMenu* parent)
 					earlyret = true;
 					break;
 				case KEY_LEFT:
-					if(sel_ind)
+					if(state.sel_ind)
 					{
-						if(*sel_ind)
+						if(*state.sel_ind)
 						{
-							for(int n = int(*sel_ind)-1; n >= 0; --n)
+							for(int n = int(*state.sel_ind)-1; n >= 0; --n)
 							{
 								if(entries[n].isDisabled())
 									continue;
-								*sel_ind = uint(n);
+								*state.sel_ind = uint(n);
 								break;
 							}
 						}
 					}
 					break;
 				case KEY_RIGHT:
-					if(sel_ind)
+					if(state.sel_ind)
 					{
-						if(*sel_ind < entries.size()-1)
+						if(*state.sel_ind < entries.size()-1)
 						{
-							for(uint n = *sel_ind+1; n < entries.size(); ++n)
+							for(uint n = *state.sel_ind+1; n < entries.size(); ++n)
 							{
 								if(entries[n].isDisabled())
 									continue;
-								*sel_ind = n;
+								*state.sel_ind = n;
 								break;
 							}
 						}
@@ -1081,9 +1095,9 @@ void TopMenu::run_loop(GuiMenu* parent)
 					earlyret = true;
 					break;
 				case KEY_DOWN:
-					if(sel_ind)
+					if(state.sel_ind)
 					{
-						if(entries[*sel_ind].isParent())
+						if(entries[*state.sel_ind].isParent())
 							doclick = true;
 						else
 						{
@@ -1094,42 +1108,42 @@ void TopMenu::run_loop(GuiMenu* parent)
 					break;
 				case KEY_SPACE:
 				case KEY_ENTER:
-					if(sel_ind)
+					if(state.sel_ind)
 						doclick = true;
 					break;
 				default:
 				{
 					if(auto val = press_shortcut(c))
 					{
-						sel_ind = *val;
+						state.sel_ind = *val;
 						doclick = true;
 					}
 					break;
 				}
 			}
 		}
-		if(sel_ind != osel)
-			redraw = true;
+		if(state.sel_ind != osel)
+			state.dirty = true;
 		
-		if(redraw)
-			draw(screen,sel_ind);
+		if(state.dirty)
+			do_draw();
 		
-		if(sel_ind && *sel_ind >= chop_sz())
-			sel_ind.reset();
-		if(!sel_ind)
+		if(state.sel_ind && *state.sel_ind >= chop_sz())
+			state.sel_ind.reset();
+		if(!state.sel_ind)
 			doclick = false;
 		
 		if(earlyret)
 			return;
 		
-		if(doclick && entries[*sel_ind].isDisabled())
+		if(doclick && entries[*state.sel_ind].isDisabled())
 		{
 			doclick = false;
-			sel_ind.reset();
+			state.sel_ind.reset();
 		}
 		if(doclick)
 		{
-			trigger(*sel_ind);
+			trigger(*state.sel_ind);
 			if(quit_all_menu)
 				return;
 			mb = gui_mouse_b();
@@ -1143,22 +1157,21 @@ bool TopMenu::run(GuiMenu* parent)
 {
 	optional<uint> msel = hovered_ind();
 	auto mb = gui_mouse_b();
-	bool redraw = false;
 	if(close_button_quit)
 		return true;
 	bool earlyret = false;
 	mb = gui_mouse_b();
 	auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
-	optional<uint> osel = sel_ind;
-	if(mb || sel_ind != msel)
+	optional<uint> osel = state.sel_ind;
+	if(mb || state.sel_ind != msel)
 	{
-		sel_ind = msel;
-		redraw = true;
+		state.sel_ind = msel;
+		state.dirty = true;
 	}
 	bool doclick = false;
-	if(old_mb)
+	if(state.old_mb)
 	{
-		if(XOR(mb, *old_mb))
+		if(XOR(mb, *state.old_mb))
 		{
 			if(!msel)
 				earlyret = true;
@@ -1166,37 +1179,37 @@ bool TopMenu::run(GuiMenu* parent)
 				doclick = true;
 		}
 	}
-	if(old_mb || !mb)
-		old_mb = mb;
+	if(state.old_mb || !mb)
+		state.old_mb = mb;
 	if(keypressed() && CHECK_ALT)
 	{
 		auto c = readkey();
 		if(auto val = press_shortcut_key(c>>8))
 		{
-			sel_ind = *val;
+			state.sel_ind = *val;
 			doclick = true;
 		}
 	}
-	if(sel_ind != osel)
-		redraw = true;
+	if(state.sel_ind != osel)
+		state.dirty = true;
 	
-	if(redraw)
-		draw(screen,sel_ind);
+	if(state.dirty)
+		do_draw();
 	
-	if(sel_ind && *sel_ind >= chop_sz())
-		sel_ind.reset();
-	if(!sel_ind)
+	if(state.sel_ind && *state.sel_ind >= chop_sz())
+		state.sel_ind.reset();
+	if(!state.sel_ind)
 		doclick = false;
 	if(earlyret)
 		return true;
-	if(doclick && entries[*sel_ind].isDisabled())
+	if(doclick && entries[*state.sel_ind].isDisabled())
 	{
 		doclick = false;
-		sel_ind.reset();
+		state.sel_ind.reset();
 	}
 	if(doclick)
 	{
-		trigger(*sel_ind);
+		trigger(*state.sel_ind);
 		if(quit_all_menu)
 			return true;
 		mb = gui_mouse_b();

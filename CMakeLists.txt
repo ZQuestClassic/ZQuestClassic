@@ -516,6 +516,7 @@ add_library(zcgui STATIC
 	src/gui/label.cpp
 	src/gui/list_data.cpp
 	src/gui/list.cpp
+	src/gui/menu.cpp
 	src/gui/radio.cpp
 	src/gui/radioset.cpp
 	src/gui/scrolling_pane.cpp

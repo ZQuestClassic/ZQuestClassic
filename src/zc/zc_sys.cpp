@@ -7722,27 +7722,6 @@ void fix_menu()
 		settings_menu.chop_index = 13;
 }
 
-static DIALOG system_dlg[] =
-{
-	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)      (d2)     (dp) */
-	{ GuiMenu::proc,     0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) &the_player_menu, NULL,  NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onThrottleFPS, NULL,  NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
-#ifndef ALLEGRO_MACOSX
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },
-#else
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F7,   0, (void *) onReset, NULL,  NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F8,   0, (void *) onExit, NULL,  NULL },
-#endif
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,  0, (void *) onSnapshot, NULL,  NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
-	{ d_timer_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,             NULL, NULL },
-	{ d_vsync_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,             NULL, NULL },
-	{ NULL,              0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,                           NULL,  NULL }
-};
-
 int32_t onSetSnapshotFormat()
 {
 	switch(active_menu->text[1])
@@ -7891,7 +7870,7 @@ void music_stop()
 bool reload_fonts = false;
 void System()
 {
-	mouse_down=gui_mouse_b();
+	mouse_down = gui_mouse_b();
 	music_pause();
 	pause_all_sfx();
 	MenuOpen = true;
@@ -7910,19 +7889,15 @@ void System()
 	misc_menu.select_uid(MENUID_MISC_QUEST_INFO, !Playing);
 	misc_menu.select_uid(MENUID_MISC_QUEST_DIR, Playing);
 	clear_keybuf();
-	
-	DIALOG_PLAYER *p;
 
 	clear_bitmap(menu_bmp);
 	oldscreen = screen;
 	screen = menu_bmp;
-
-	p = init_dialog(system_dlg,-1);
 	
-	// drop the menu on startup if menu button pressed
-	bool can_mbutton = false;
-	if(joybtn(Mbtn) || zc_getrawkey(KEY_ESC))
-		simulate_keypress(KEY_G << 8);
+	the_player_menu.reset_state();
+	the_player_menu.position(0, 0);
+	
+	bool running = true;
 	do
 	{
 		if(reload_fonts)
@@ -7937,88 +7912,84 @@ void System()
 		
 		rest(17);
 		
-		if(mouse_down && !gui_mouse_b())
-			mouse_down=0;
-		
-		settings_menu.disable_uid(MENUID_SETTINGS_CONTROLS, replay_is_replaying());
-		settings_menu.select_uid(MENUID_SETTINGS_CAPFPS, Throttlefps);
-		settings_menu.select_uid(MENUID_SETTINGS_SHOWFPS, ShowFPS);
-		settings_menu.select_uid(MENUID_SETTINGS_CLICK_FREEZE, ClickToFreeze);
-		settings_menu.select_uid(MENUID_SETTINGS_TRANSLAYERS, TransLayers);
-		settings_menu.select_uid(MENUID_SETTINGS_NESQUIT, NESquit);
-		settings_menu.select_uid(MENUID_SETTINGS_VOLKEYS, volkeys);
+		//update submenus
+		{
+			settings_menu.disable_uid(MENUID_SETTINGS_CONTROLS, replay_is_replaying());
+			settings_menu.select_uid(MENUID_SETTINGS_CAPFPS, Throttlefps);
+			settings_menu.select_uid(MENUID_SETTINGS_SHOWFPS, ShowFPS);
+			settings_menu.select_uid(MENUID_SETTINGS_CLICK_FREEZE, ClickToFreeze);
+			settings_menu.select_uid(MENUID_SETTINGS_TRANSLAYERS, TransLayers);
+			settings_menu.select_uid(MENUID_SETTINGS_NESQUIT, NESquit);
+			settings_menu.select_uid(MENUID_SETTINGS_VOLKEYS, volkeys);
 
-		window_menu.select_uid(MENUID_WINDOW_LOCK_ASPECT, DragAspect);
-		window_menu.select_uid(MENUID_WINDOW_LOCK_INTSCALE, scaleForceInteger);
-		window_menu.select_uid(MENUID_WINDOW_SAVE_SIZE, SaveDragResize);
-		window_menu.select_uid(MENUID_WINDOW_SAVE_POS, SaveWinPos);
-		window_menu.select_uid(MENUID_WINDOW_STRETCH, stretchGame);
-		
-		options_menu.select_uid(MENUID_OPTIONS_EPILEPSYPROT, epilepsyFlashReduction);
-		options_menu.select_uid(MENUID_OPTIONS_PAUSE_BG, pause_in_background);
-		
-		name_entry_mode_menu.select_only_index(NameEntryMode);
-		
-		misc_menu.select_uid(MENUID_MISC_ZASM_DEBUGGER, zasm_debugger);
-		misc_menu.select_uid(MENUID_MISC_ZSCRIPT_DEBUGGER, zscript_debugger);
-		misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
-		
-		bool nocheat = (replay_is_replaying() || !Playing
-			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
-		the_player_menu.disable_uid(MENUID_PLAYER_CHEAT, nocheat);
-		refill_menu.disable_uid(MENUID_REFILL_ARROWS, !get_qr(qr_TRUEARROWS));
-		cheat_menu.chop_index.reset();
-		if(cheat < 4)
-			cheat_menu.chop_index = cheat_menu.ind_at(MENUID_CHEAT_CHOP_L1+cheat);
-		cheat_menu.select_uid(MENUID_CHEAT_INVULN, getClock());
-		cheat_menu.select_uid(MENUID_CHEAT_NOCLIP, toogam);
-		cheat_menu.select_uid(MENUID_CHEAT_IGNORESV, ignoreSideview);
-		cheat_menu.select_uid(MENUID_CHEAT_GOFAST, gofast);
-		
-		show_menu.select_uid(MENUID_SHOW_L0, show_layer_0);
-		show_menu.select_uid(MENUID_SHOW_L1, show_layer_1);
-		show_menu.select_uid(MENUID_SHOW_L2, show_layer_2);
-		show_menu.select_uid(MENUID_SHOW_L3, show_layer_3);
-		show_menu.select_uid(MENUID_SHOW_L4, show_layer_4);
-		show_menu.select_uid(MENUID_SHOW_L5, show_layer_5);
-		show_menu.select_uid(MENUID_SHOW_L6, show_layer_6);
-		show_menu.select_uid(MENUID_SHOW_OVER, show_layer_over);
-		show_menu.select_uid(MENUID_SHOW_PUSH, show_layer_push);
-		show_menu.select_uid(MENUID_SHOW_SPR, show_sprites);
-		show_menu.select_uid(MENUID_SHOW_FFC, show_ffcs);
-		show_menu.select_uid(MENUID_SHOW_SOLIDITY, show_walkflags);
-		show_menu.select_uid(MENUID_SHOW_SCRIPTNAME, show_ff_scripts);
-		show_menu.select_uid(MENUID_SHOW_HITBOX, show_hitboxes);
-		show_menu.select_uid(MENUID_SHOW_EFFECT, show_effectflags);
-		
-		settings_menu.select_uid(MENUID_SETTINGS_HEARTBEEP, heart_beep);
-		settings_menu.select_uid(MENUID_SETTINGS_SAVEINDICATOR, use_save_indicator);
-		
-		replay_menu.by_uid(MENUID_REPLAY_STOP)->text = fmt::format("Stop {}",
-			replay_get_mode() == ReplayMode::Record ? "recording" : "replaying");
-		
-		replay_menu.select_uid(MENUID_REPLAY_RECORDNEW, zc_get_config("zeldadx", "replay_new_saves", false));
-		replay_menu.disable_uid(MENUID_REPLAY_STOP, !replay_is_active());
-		replay_menu.disable_uid(MENUID_REPLAY_SAVE, replay_get_mode() != ReplayMode::Record);
-		replay_menu.select_uid(MENUID_REPLAY_SNAP_ALL, replay_is_snapshot_all_frames());
-		
-		snapshot_format_menu.select_only_index(SnapshotFormat);
+			window_menu.select_uid(MENUID_WINDOW_LOCK_ASPECT, DragAspect);
+			window_menu.select_uid(MENUID_WINDOW_LOCK_INTSCALE, scaleForceInteger);
+			window_menu.select_uid(MENUID_WINDOW_SAVE_SIZE, SaveDragResize);
+			window_menu.select_uid(MENUID_WINDOW_SAVE_POS, SaveWinPos);
+			window_menu.select_uid(MENUID_WINDOW_STRETCH, stretchGame);
+			
+			options_menu.select_uid(MENUID_OPTIONS_EPILEPSYPROT, epilepsyFlashReduction);
+			options_menu.select_uid(MENUID_OPTIONS_PAUSE_BG, pause_in_background);
+			
+			name_entry_mode_menu.select_only_index(NameEntryMode);
+			
+			misc_menu.select_uid(MENUID_MISC_ZASM_DEBUGGER, zasm_debugger);
+			misc_menu.select_uid(MENUID_MISC_ZSCRIPT_DEBUGGER, zscript_debugger);
+			misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
+			
+			bool nocheat = (replay_is_replaying() || !Playing
+				|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
+			the_player_menu.disable_uid(MENUID_PLAYER_CHEAT, nocheat);
+			refill_menu.disable_uid(MENUID_REFILL_ARROWS, !get_qr(qr_TRUEARROWS));
+			cheat_menu.chop_index.reset();
+			if(cheat < 4)
+				cheat_menu.chop_index = cheat_menu.ind_at(MENUID_CHEAT_CHOP_L1+cheat);
+			cheat_menu.select_uid(MENUID_CHEAT_INVULN, getClock());
+			cheat_menu.select_uid(MENUID_CHEAT_NOCLIP, toogam);
+			cheat_menu.select_uid(MENUID_CHEAT_IGNORESV, ignoreSideview);
+			cheat_menu.select_uid(MENUID_CHEAT_GOFAST, gofast);
+			
+			show_menu.select_uid(MENUID_SHOW_L0, show_layer_0);
+			show_menu.select_uid(MENUID_SHOW_L1, show_layer_1);
+			show_menu.select_uid(MENUID_SHOW_L2, show_layer_2);
+			show_menu.select_uid(MENUID_SHOW_L3, show_layer_3);
+			show_menu.select_uid(MENUID_SHOW_L4, show_layer_4);
+			show_menu.select_uid(MENUID_SHOW_L5, show_layer_5);
+			show_menu.select_uid(MENUID_SHOW_L6, show_layer_6);
+			show_menu.select_uid(MENUID_SHOW_OVER, show_layer_over);
+			show_menu.select_uid(MENUID_SHOW_PUSH, show_layer_push);
+			show_menu.select_uid(MENUID_SHOW_SPR, show_sprites);
+			show_menu.select_uid(MENUID_SHOW_FFC, show_ffcs);
+			show_menu.select_uid(MENUID_SHOW_SOLIDITY, show_walkflags);
+			show_menu.select_uid(MENUID_SHOW_SCRIPTNAME, show_ff_scripts);
+			show_menu.select_uid(MENUID_SHOW_HITBOX, show_hitboxes);
+			show_menu.select_uid(MENUID_SHOW_EFFECT, show_effectflags);
+			
+			settings_menu.select_uid(MENUID_SETTINGS_HEARTBEEP, heart_beep);
+			settings_menu.select_uid(MENUID_SETTINGS_SAVEINDICATOR, use_save_indicator);
+			
+			replay_menu.by_uid(MENUID_REPLAY_STOP)->text = fmt::format("Stop {}",
+				replay_get_mode() == ReplayMode::Record ? "recording" : "replaying");
+			
+			replay_menu.select_uid(MENUID_REPLAY_RECORDNEW, zc_get_config("zeldadx", "replay_new_saves", false));
+			replay_menu.disable_uid(MENUID_REPLAY_STOP, !replay_is_active());
+			replay_menu.disable_uid(MENUID_REPLAY_SAVE, replay_get_mode() != ReplayMode::Record);
+			replay_menu.select_uid(MENUID_REPLAY_SNAP_ALL, replay_is_snapshot_all_frames());
+			
+			snapshot_format_menu.select_only_index(SnapshotFormat);
+		}
 		
 		if(debug_enabled)
-		{
 			settings_menu.select_uid(MENUID_SETTINGS_DEBUG, get_debug());
-		}
 		
-		if(gui_mouse_b() && !mouse_down && !the_player_menu.has_mouse())
-			break;
-			
-		// press menu to drop the menu
-		if(joybtn(Mbtn) || zc_getrawkey(KEY_ESC))
+		auto mb = gui_mouse_b();
+		if(XOR(mb, mouse_down))
 		{
-			if(can_mbutton)
-				simulate_keypress(KEY_G << 8);
+			if(!the_player_menu.has_mouse())
+				if(mb)
+					break;
+			mouse_down = mb;
 		}
-		else can_mbutton = true;
 		
 		if(input_idle(true) > after_time())
 			// run Screeen Saver
@@ -8028,18 +7999,55 @@ void System()
 			Matrix(ss_speed, ss_density, 0);
 			system_pal(true);
 			sys_mouse();
-			broadcast_dialog_message(MSG_DRAW, 0);
+		}
+		
+		if(the_player_menu.run())
+			the_player_menu.reset_state();
+		if(keypressed()) //System hotkeys
+		{
+			auto c = readkey();
+			switch(c>>8)
+			{
+				case KEY_F1:
+					onThrottleFPS();
+					break;
+				case KEY_F2:
+					onShowFPS();
+					break;
+				case KEY_F6:
+					onTryQuitMenu();
+					break;
+				#ifndef ALLEGRO_MACOSX
+				case KEY_F9:
+					onReset();
+					break;
+				case KEY_F10:
+					onExit();
+					break;
+				#else
+				case KEY_F7:
+					onReset();
+					break;
+				case KEY_F8:
+					onExit();
+					break;
+				#endif
+				case KEY_F12:
+					onSnapshot();
+					break;
+				case KEY_TAB:
+					onDebug();
+					break;
+			}
 		}
 		
 		update_hw_screen();
 	}
-	while(update_dialog(p));
+	while(running);
 
 	screen = oldscreen;
 	
-	//  font=oldfont;
 	mouse_down=gui_mouse_b();
-	shutdown_dialog(p);
 	MenuOpen = false;
 	if(Quit)
 	{
