@@ -272,9 +272,6 @@ bool dlg_tint_paused();
 void update_throttle_counter();
 void throttleFPS(int32_t cap);
 
-int zc_gui_mouse_x();
-int zc_gui_mouse_y();
-
 //
 
 void clear_tooltip();
