@@ -342,8 +342,6 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 
 static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 {
-	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return;
-
 	int pos = rpos_handle.pos;
 	int cid = rpos_handle.data();
 	newcombo const& cmb = combobuf[cid];
@@ -483,8 +481,6 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 
 void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle)
 {
-	if (!is_valid_rpos(rpos_handle.rpos)) return;
-
 	int x, y;
 	COMBOXY_REGION(rpos_handle.rpos, x, y);
 	spawn_decoration_xy(cmb, x, y);
@@ -492,8 +488,6 @@ void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle)
 
 void trigger_cuttable(const rpos_handle_t& rpos_handle)
 {
-	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return;
-
 	int pos = rpos_handle.pos;
 	mapscr* tmp = rpos_handle.screen;
 	newcombo const& cmb = combobuf[rpos_handle.data()];
@@ -721,9 +715,6 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 
 bool trigger_step(const rpos_handle_t& rpos_handle)
 {
-	// TODO z3 this is repeated lots of places.
-	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
-
 	int32_t pos = rpos_handle.pos;
 	newcombo const& cmb = combobuf[rpos_handle.data()];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
@@ -1361,7 +1352,6 @@ bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 {
 	if (rpos_handle.layer != 0) return false; // Currently cannot activate on layers >0!
-	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 	
 	int pos = rpos_handle.pos;
 	//!TODO Expand 'activation_counters' stuff to account for layers, so that layers >0 can be used
@@ -1781,8 +1771,6 @@ bool trigger_damage_combo(mapscr* screen, int32_t cid, int type, int ptrval, int
 
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 {
-	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
-
 	int32_t tx, ty;
 	COMBOXY_REGION(rpos_handle.rpos, tx, ty);
 	tx += 8;
@@ -2163,7 +2151,6 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 
 bool trigger_switchhookblock(const rpos_handle_t& rpos_handle)
 {
-	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 	if(Hero.switchhookclk) return false;
 
 	switching_object = NULL;
@@ -2376,10 +2363,8 @@ static byte copycat_id = 0;
 static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
 {
 	if(!copycat_id) return false;
-	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 	int pos = rpos_handle.pos;
 	
-	if (unsigned(pos) > 175) return false;
 	int32_t cid = rpos_handle.data();
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.trigcopycat == copycat_id)
@@ -2406,8 +2391,6 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 
 void do_ex_trigger(const rpos_handle_t& rpos_handle)
 {
-	if (!is_valid_rpos(rpos_handle.rpos)) return;
-
 	int32_t cid = rpos_handle.data();
 	int32_t ocs = rpos_handle.cset();
 	newcombo const& cmb = combobuf[cid];	
@@ -2492,7 +2475,6 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 
 bool force_ex_trigger(const rpos_handle_t& rpos_handle, char xstate)
 {
-	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 	newcombo const& cmb = combobuf[rpos_handle.data()];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
@@ -2578,8 +2560,6 @@ bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 // Triggers a combo at a given position.
 bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon* w)
 {
-	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
-
 	int32_t pos = rpos_handle.pos;
 	cpos_info& timer = cpos_get(rpos_handle);
 	int32_t cid = rpos_handle.data();
