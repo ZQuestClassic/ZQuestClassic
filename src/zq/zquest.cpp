@@ -9845,7 +9845,9 @@ void domouse()
 {
 	static int mouse_down = 0;
 	static int32_t scrolldelay = 0;
-	auto [x, y] = zc_get_mouse();
+	auto mousexy = zc_get_mouse();
+	auto x = mousexy.first;
+	auto y = mousexy.second;
 	double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
 	double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
 	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
