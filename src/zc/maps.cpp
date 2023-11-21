@@ -1603,7 +1603,7 @@ void set_doorstate(uint mi, uint dir)
 	if(dir >= 4)
 		return;
 	setmapflag_mi(mi, mDOOR_UP << dir);
-	if(auto di = nextscr(mi, dir, true))
+	if(auto di = nextscr_mi(mi, dir, true))
 		setmapflag_mi(*di, mDOOR_UP << oppositeDir[dir]);
 }
 void set_doorstate(uint dir)
@@ -1616,7 +1616,7 @@ void set_xdoorstate(uint mi, uint dir, uint ind)
 	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
 		return;
 	setxdoor(mi, dir, ind, true);
-	if(auto di = nextscr(mi, dir, true))
+	if(auto di = nextscr_mi(mi, dir, true))
 		setxdoor(*di, oppositeDir[dir], ind);
 }
 void set_xdoorstate(uint dir, uint ind)
@@ -3450,7 +3450,7 @@ nowarp:
 	return {m, s};
 }
 
-optional<int> nextscr(int mi, int dir, bool normal)
+optional<int> nextscr_mi(int mi, int dir, bool normal)
 {
 	return nextscr(mi/(normal?MAPSCRSNORMAL:MAPSCRS),
 		mi%(normal?MAPSCRSNORMAL:MAPSCRS), dir, normal);
@@ -3462,57 +3462,61 @@ optional<int> nextscr(int dir, bool normal)
 
 void bombdoor(int32_t x,int32_t y)
 {
-	// TODO z3 !!
-    if(tmpscr->door[0]==dBOMB && isinRect(x,y,100,0,139,48))
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
+	mapscr* screen = rpos_handle.screen;
+	auto [x0, y0] = translate_screen_coordinates_to_world(rpos_handle.screen_index);
+	#define CHECK_RECT(x,y,rx1,ry1,rx2,ry2) (isinRect(x,y,x0+rx1,y0+ry1,x0+rx2,y0+ry2))
+
+    if(screen->door[0]==dBOMB && CHECK_RECT(x,y,100,0,139,48))
     {
-        tmpscr->door[0]=dBOMBED;
+        screen->door[0]=dBOMBED;
         putdoor(scrollbuf,0,0,dBOMBED);
-        setmapflag(mDOOR_UP);
+        setmapflag(rpos_handle.screen_index, mDOOR_UP);
         markBmap(-1);
         
-        if(auto v = nextscr(up, true))
+        if(auto v = nextscr(currmap, rpos_handle.screen_index, up, true))
         {
             setmapflag_mi(*v, mDOOR_DOWN);
             markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
-    if(tmpscr->door[1]==dBOMB && isinRect(x,y,100,112,139,176))
+    if(screen->door[1]==dBOMB && CHECK_RECT(x,y,100,112,139,176))
     {
-        tmpscr->door[1]=dBOMBED;
+        screen->door[1]=dBOMBED;
         putdoor(scrollbuf,0,1,dBOMBED);
-        setmapflag(mDOOR_DOWN);
+        setmapflag(rpos_handle.screen_index, mDOOR_DOWN);
         markBmap(-1);
         
-        if(auto v = nextscr(down, true))
+        if(auto v = nextscr(currmap, rpos_handle.screen_index, down, true))
         {
             setmapflag_mi(*v, mDOOR_UP);
             markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
-    if(tmpscr->door[2]==dBOMB && isinRect(x,y,0,60,48,98))
+    if(screen->door[2]==dBOMB && CHECK_RECT(x,y,0,60,48,98))
     {
-        tmpscr->door[2]=dBOMBED;
+        screen->door[2]=dBOMBED;
         putdoor(scrollbuf,0,2,dBOMBED);
-        setmapflag(mDOOR_LEFT);
+        setmapflag(rpos_handle.screen_index, mDOOR_LEFT);
         markBmap(-1);
         
-        if(auto v = nextscr(left, true))
+        if(auto v = nextscr(currmap, rpos_handle.screen_index, left, true))
         {
             setmapflag_mi(*v, mDOOR_RIGHT);
             markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
-    if(tmpscr->door[3]==dBOMB && isinRect(x,y,192,60,240,98))
+    if(screen->door[3]==dBOMB && CHECK_RECT(x,y,192,60,240,98))
     {
-        tmpscr->door[3]=dBOMBED;
+        screen->door[3]=dBOMBED;
         putdoor(scrollbuf,0,3,dBOMBED);
-        setmapflag(mDOOR_RIGHT);
+        setmapflag(rpos_handle.screen_index, mDOOR_RIGHT);
         markBmap(-1);
         
-        if(auto v = nextscr(right, true))
+        if(auto v = nextscr(currmap, rpos_handle.screen_index, right, true))
         {
             setmapflag_mi(*v, mDOOR_LEFT);
             markBmap(-1,*v-(get_currdmap()<<7));
