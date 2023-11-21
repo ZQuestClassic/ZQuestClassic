@@ -10030,25 +10030,28 @@ heroanimate_skip_liftwpn:;
 		
 		if(isdungeon() && action!=freeze && action != sideswimfreeze && loaded_guys && !inlikelike && !diveclk && action!=rafting && !lstunclock && !is_conveyor_stunned)
 		{
-			if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x.getInt()>112&&x.getInt()<128:x.getInt()==120) && y<=32 && tmpscr->door[0]==dtype)
+			int x0 = x.getInt() % 256;
+			int y0 = y.getInt() % 176;
+
+			if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x0>112&&x0<128:x0==120) && y0<=32 && hero_screen->door[0]==dtype)
 			{
 				walk=true;
 				dir=up;
 			}
 			
-			if(((dtype==dBOMBED)?DrunkDown():dir==down) && ((diagonalMovement||NO_GRIDLOCK)?x.getInt()>112&&x.getInt()<128:x.getInt()==120) && y>=128 && tmpscr->door[1]==dtype)
+			if(((dtype==dBOMBED)?DrunkDown():dir==down) && ((diagonalMovement||NO_GRIDLOCK)?x0>112&&x0<128:x0==120) && y0>=128 && hero_screen->door[1]==dtype)
 			{
 				walk=true;
 				dir=down;
 			}
 			
-			if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && ((diagonalMovement||NO_GRIDLOCK)?y.getInt()>72&&y.getInt()<88:y.getInt()==80) && tmpscr->door[2]==dtype)
+			if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x0<=32 && ((diagonalMovement||NO_GRIDLOCK)?y0>72&&y0<88:y0==80) && hero_screen->door[2]==dtype)
 			{
 				walk=true;
 				dir=left;
 			}
 			
-			if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && ((diagonalMovement||NO_GRIDLOCK)?y.getInt()>72&&y.getInt()<88:y.getInt()==80) && tmpscr->door[3]==dtype)
+			if(((dtype==dBOMBED)?DrunkRight():dir==right) && x0>=208 && ((diagonalMovement||NO_GRIDLOCK)?y0>72&&y0<88:y0==80) && hero_screen->door[3]==dtype)
 			{
 				walk=true;
 				dir=right;
@@ -10062,9 +10065,9 @@ heroanimate_skip_liftwpn:;
 			
 			if(dtype==dWALK)
 			{
-				sfx(tmpscr->secretsfx);
+				sfx(hero_screen->secretsfx);
 				if(!get_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE))
-					set_doorstate(dir);
+					set_doorstate(heroscr, dir);
 			}
 			
 			action=none; FFCore.setHeroAction(none);

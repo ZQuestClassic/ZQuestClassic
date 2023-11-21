@@ -1598,7 +1598,7 @@ bool getxdoor(uint dir, uint ind)
 	return getxdoor((currmap*MAPSCRSNORMAL)+homescr,dir,ind);
 }
 
-void set_doorstate(uint mi, uint dir)
+void set_doorstate_mi(uint mi, uint dir)
 {
 	if(dir >= 4)
 		return;
@@ -1606,9 +1606,14 @@ void set_doorstate(uint mi, uint dir)
 	if(auto di = nextscr_mi(mi, dir, true))
 		setmapflag_mi(*di, mDOOR_UP << oppositeDir[dir]);
 }
+void set_doorstate(uint screen, uint dir)
+{
+	int mi = (currmap*MAPSCRSNORMAL) + screen;
+	set_doorstate_mi(mi, dir);
+}
 void set_doorstate(uint dir)
 {
-	set_doorstate((currmap*MAPSCRSNORMAL) + currscr, dir);
+	set_doorstate_mi((currmap*MAPSCRSNORMAL) + currscr, dir);
 }
 
 void set_xdoorstate(uint mi, uint dir, uint ind)
@@ -3472,7 +3477,7 @@ void bombdoor(int32_t x,int32_t y)
         screen->door[0]=dBOMBED;
         putdoor(scrollbuf,0,0,dBOMBED);
         setmapflag(rpos_handle.screen_index, mDOOR_UP);
-        markBmap(-1);
+        markBmap(-1, rpos_handle.screen_index);
         
         if(auto v = nextscr(currmap, rpos_handle.screen_index, up, true))
         {
@@ -3486,7 +3491,7 @@ void bombdoor(int32_t x,int32_t y)
         screen->door[1]=dBOMBED;
         putdoor(scrollbuf,0,1,dBOMBED);
         setmapflag(rpos_handle.screen_index, mDOOR_DOWN);
-        markBmap(-1);
+        markBmap(-1, rpos_handle.screen_index);
         
         if(auto v = nextscr(currmap, rpos_handle.screen_index, down, true))
         {
@@ -3500,7 +3505,7 @@ void bombdoor(int32_t x,int32_t y)
         screen->door[2]=dBOMBED;
         putdoor(scrollbuf,0,2,dBOMBED);
         setmapflag(rpos_handle.screen_index, mDOOR_LEFT);
-        markBmap(-1);
+        markBmap(-1, rpos_handle.screen_index);
         
         if(auto v = nextscr(currmap, rpos_handle.screen_index, left, true))
         {
@@ -3514,7 +3519,7 @@ void bombdoor(int32_t x,int32_t y)
         screen->door[3]=dBOMBED;
         putdoor(scrollbuf,0,3,dBOMBED);
         setmapflag(rpos_handle.screen_index, mDOOR_RIGHT);
-        markBmap(-1);
+        markBmap(-1, rpos_handle.screen_index);
         
         if(auto v = nextscr(currmap, rpos_handle.screen_index, right, true))
         {
@@ -4538,7 +4543,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_effectflags(base_screen, offx, offy, 2);
 	});
 	
-	putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
+	putscrdoors(scrollbuf,0,playing_field_offset);
 	
 	// Lens hints, doors etc.
 	if(lensclk || (get_debug() && zc_getkey(KEY_L)))
@@ -5109,57 +5114,64 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 	}
 }
 
-void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side, int32_t xoff, int32_t yoff)
+void over_door_new(BITMAP *dest, int32_t pos, int32_t side, int32_t door_combo_set, int32_t offx, int32_t offy)
 {
-	mapscr& screen = t == 0 ? *tmpscr : special_warp_return_screen;
-	int32_t d=screen.door_combo_set;
-	int32_t x=(pos&15)<<4;
-	int32_t y=(pos&0xF0);
+	int32_t x = (pos&15)<<4;
+	int32_t y = (pos&0xF0);
+	int32_t d = door_combo_set;
+	x += offx;
+	y += offy;
 	
 	switch(side)
 	{
 	case up:
-		overcombo2(dest,x+xoff,y+yoff,
+		overcombo2(dest,x,y,
 				   DoorComboSets[d].bombdoorcombo_u[0],
 				   DoorComboSets[d].bombdoorcset_u[0]);
-		overcombo2(dest,x+16+xoff,y+yoff,
+		overcombo2(dest,x+16,y,
 				   DoorComboSets[d].bombdoorcombo_u[1],
 				   DoorComboSets[d].bombdoorcset_u[1]);
 		break;
 		
 	case down:
-		overcombo2(dest,x+xoff,y+yoff,
+		overcombo2(dest,x,y,
 				   DoorComboSets[d].bombdoorcombo_d[0],
 				   DoorComboSets[d].bombdoorcset_d[0]);
-		overcombo2(dest,x+16+xoff,y+yoff,
+		overcombo2(dest,x+16,y,
 				   DoorComboSets[d].bombdoorcombo_d[1],
 				   DoorComboSets[d].bombdoorcset_d[1]);
 		break;
 		
 	case left:
-		overcombo2(dest,x+xoff,y+yoff,
+		overcombo2(dest,x,y,
 				   DoorComboSets[d].bombdoorcombo_l[0],
 				   DoorComboSets[d].bombdoorcset_l[0]);
-		overcombo2(dest,x+xoff,y+yoff+16,
+		overcombo2(dest,x,y+16,
 				   DoorComboSets[d].bombdoorcombo_l[1],
 				   DoorComboSets[d].bombdoorcset_l[1]);
-		overcombo2(dest,x+xoff,y+yoff+16,
+		overcombo2(dest,x,y+16,
 				   DoorComboSets[d].bombdoorcombo_l[2],
 				   DoorComboSets[d].bombdoorcset_l[2]);
 		break;
 		
 	case right:
-		overcombo2(dest,x+xoff,y+yoff,
+		overcombo2(dest,x,y,
 				   DoorComboSets[d].bombdoorcombo_r[0],
 				   DoorComboSets[d].bombdoorcset_r[0]);
-		overcombo2(dest,x+xoff,y+yoff+16,
+		overcombo2(dest,x,y+16,
 				   DoorComboSets[d].bombdoorcombo_r[1],
 				   DoorComboSets[d].bombdoorcset_r[1]);
-		overcombo2(dest,x+xoff,y+yoff+16,
+		overcombo2(dest,x,y+16,
 				   DoorComboSets[d].bombdoorcombo_r[2],
 				   DoorComboSets[d].bombdoorcset_r[2]);
 		break;
 	}
+}
+
+void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side, int32_t xoff, int32_t yoff)
+{
+	mapscr& screen = t == 0 ? *tmpscr : special_warp_return_screen;
+	over_door_new(dest, pos, side, screen.door_combo_set, xoff, yoff);
 }
 
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool even_walls)
@@ -6291,6 +6303,43 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 			draw_cmb_pos(dest, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], 0, over, false);
 		}
 	}
+}
+
+void putscrdoors(BITMAP *dest,int32_t x,int32_t y)
+{
+	if (!show_layer_0)
+	{
+		return;
+	}
+	
+	x -= viewport.x;
+	y -= viewport.y;
+
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+		mapscr* screen = screen_handles[0].base_screen;
+		if (screen->valid==0)
+			return;
+
+		if(screen->door[0]==dBOMBED)
+		{
+			over_door_new(dest, 39, up, screen->door_combo_set, offx+x, offy+y);
+		}
+		
+		if(screen->door[1]==dBOMBED)
+		{
+			over_door_new(dest, 135, down, screen->door_combo_set, offx+x, offy+y);
+		}
+		
+		if(screen->door[2]==dBOMBED)
+		{
+			over_door_new(dest, 66, left, screen->door_combo_set, offx+x, offy+y);
+		}
+		
+		if(screen->door[3]==dBOMBED)
+		{
+			over_door_new(dest, 77, right, screen->door_combo_set, offx+x, offy+y);
+		}
+	});
 }
 
 void putscrdoors(BITMAP *dest,int32_t x,int32_t y, mapscr* scrn)
