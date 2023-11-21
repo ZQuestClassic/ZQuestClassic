@@ -10073,6 +10073,7 @@ heroanimate_skip_liftwpn:;
 			action=none; FFCore.setHeroAction(none);
 			attackclk = 0;
 			stepforward(29, true);
+			action=scrolling; FFCore.setHeroAction(scrolling);
 			pushing=false;
 		}
 	}
