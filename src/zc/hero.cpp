@@ -13824,7 +13824,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			 //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_layer_scr(currmap, heroscr, i)->valid != 0)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -17498,8 +17498,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
 			
 			for (int32_t i = 0; i <= 1; ++i)
 			{
-				// TODO z3 !!
-				if(tmpscr2[i].valid!=0)
+				if (get_layer_scr(currmap, heroscr, i)->valid != 0)
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
