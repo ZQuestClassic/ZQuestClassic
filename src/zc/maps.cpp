@@ -4406,19 +4406,20 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	// TODO z3 !!!!! recent merge
-	if (lenscheck(hero_screen,0))
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+		if (lenscheck(base_screen, 0))
+		{
+			putscr(scrollbuf, offx, offy + playing_field_offset, base_screen);
+		}
+	});
+
+	if (lenscheck(hero_screen, 0))
 	{
-		putscr(scrollbuf,0,playing_field_offset,hero_screen);
 		if(!get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			if(mblock2.draw(scrollbuf,0))
 				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK, 0, playing_field_offset);
 	}
-
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-		mapscr* base_screen = screen_handles[0].base_screen;
-		putscr(scrollbuf, offx, offy + playing_field_offset, base_screen);
-	});
 
 	// Lens hints, then primitives, then particles.
 	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_qr(qr_OLDLENSORDER))
@@ -4489,7 +4490,6 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	// TODO z3 !!!!! recent merge
 	do_primitives(framebuf, SPLAYER_FFC_DRAW, 0, playing_field_offset);
 
 	if(get_qr(qr_LAYER12UNDERCAVE))
