@@ -1,4 +1,4 @@
-#include "options.h"
+#include "zq_options.h"
 #include <gui/builder.h>
 #include "gui/jwin.h"
 #include "zq/zquest.h"
@@ -74,7 +74,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_DISABLE_COMPILE_CONSOLE] = DisableCompileConsole;
 	opts[OPT_SKIP_LAYER_WARNING] = skipLayerWarning;
 	opts[OPT_NUMERICAL_FLAG_LIST] = numericalFlags;
-	opts[OPT_CUSTOMFONT] = zc_get_config("gui","custom_fonts",1);
+	opts[OPT_CUSTOMFONT] = zc_get_config("ZQ_GUI","custom_fonts",1);
 	opts[OPT_BOTTOM8] = pixeldb;
 	opts[OPT_INFO_BG] = infobg;
 	opts[OPT_HIDEMOUSE] = allowHideMouse?1:0;
@@ -131,7 +131,13 @@ void OptionsDialog::saveOptions()
 void OptionsDialog::saveOption(int ind)
 {
 	auto v = opts[ind];
-	switch(ind)
+	if(ind >= OPT_FIRSTFONT && ind <= OPT_LASTFONT)
+		zc_set_config("ZQ_GUI", get_font_cfgname(false, ind-OPT_FIRSTFONT,
+			ind < OPT_FIRST_COMPACTFONT ? FONTPREF_LARGE : FONTPREF_COMPACT).c_str(), v);
+	else if(ind >= OPT_FIRST_FONTSCALE && ind <= OPT_LAST_FONTSCALE)
+		zc_set_config("ZQ_GUI", get_font_cfgname(true, ind-OPT_FIRST_FONTSCALE,
+			ind < OPT_FIRST_COMPACTFONT_SCALE ? FONTPREF_LARGE : FONTPREF_COMPACT).c_str(), v);
+	else switch(ind)
 	{
 		case OPT_SKIP_LAYER_WARNING:
 			skipLayerWarning = v;
@@ -326,7 +332,7 @@ void OptionsDialog::saveOption(int ind)
 			zc_set_config("zquest","float_brush",v);
 			break;
 		case OPT_CUSTOMFONT:
-			zc_set_config("gui","custom_fonts",v);
+			zc_set_config("ZQ_GUI","custom_fonts",v);
 			break;
 		case OPT_BOTTOM8:
 			pixeldb = v;
@@ -350,94 +356,6 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_NO_HIGHLIGHT_LAYER0:
 			NoHighlightLayer0 = v!=0;
 			zc_set_config("zquest","no_highlight_layer0",v);
-			break;
-		
-		case OPT_LARGEFONT_DIALOG:
-			zc_set_config("ZQ_GUI", "font_large_dialog", v);
-			break;
-		case OPT_LARGEFONT_GUI:
-			zc_set_config("ZQ_GUI", "font_large_gui", v);
-			break;
-		case OPT_LARGEFONT_TITLE:
-			zc_set_config("ZQ_GUI", "font_large_title", v);
-			break;
-		case OPT_LARGEFONT_FAVCMD:
-			zc_set_config("ZQ_GUI", "font_large_favcmd", v);
-			break;
-		case OPT_LARGEFONT_TEXTBOX:
-			zc_set_config("ZQ_GUI", "font_large_textbox", v);
-			break;
-		case OPT_LARGEFONT_TTIP:
-			zc_set_config("ZQ_GUI", "font_large_ttip", v);
-			break;
-		case OPT_LARGEFONT_INFO:
-			zc_set_config("ZQ_GUI", "font_large_info", v);
-			break;
-		
-		case OPT_COMPACTFONT_DIALOG:
-			zc_set_config("ZQ_GUI", "font_compact_dialog", v);
-			break;
-		case OPT_COMPACTFONT_GUI:
-			zc_set_config("ZQ_GUI", "font_compact_gui", v);
-			break;
-		case OPT_COMPACTFONT_TITLE:
-			zc_set_config("ZQ_GUI", "font_compact_title", v);
-			break;
-		case OPT_COMPACTFONT_FAVCMD:
-			zc_set_config("ZQ_GUI", "font_compact_favcmd", v);
-			break;
-		case OPT_COMPACTFONT_TEXTBOX:
-			zc_set_config("ZQ_GUI", "font_compact_textbox", v);
-			break;
-		case OPT_COMPACTFONT_TTIP:
-			zc_set_config("ZQ_GUI", "font_compact_ttip", v);
-			break;
-		case OPT_COMPACTFONT_INFO:
-			zc_set_config("ZQ_GUI", "font_compact_info", v);
-			break;
-		
-		case OPT_LARGEFONT_SCALE_DIALOG:
-			zc_set_config("ZQ_GUI", "fontscale_large_dialog", v);
-			break;
-		case OPT_LARGEFONT_SCALE_GUI:
-			zc_set_config("ZQ_GUI", "fontscale_large_gui", v);
-			break;
-		case OPT_LARGEFONT_SCALE_TITLE:
-			zc_set_config("ZQ_GUI", "fontscale_large_title", v);
-			break;
-		case OPT_LARGEFONT_SCALE_FAVCMD:
-			zc_set_config("ZQ_GUI", "fontscale_large_favcmd", v);
-			break;
-		case OPT_LARGEFONT_SCALE_TEXTBOX:
-			zc_set_config("ZQ_GUI", "fontscale_large_textbox", v);
-			break;
-		case OPT_LARGEFONT_SCALE_TTIP:
-			zc_set_config("ZQ_GUI", "fontscale_large_ttip", v);
-			break;
-		case OPT_LARGEFONT_SCALE_INFO:
-			zc_set_config("ZQ_GUI", "fontscale_large_info", v);
-			break;
-		
-		case OPT_COMPACTFONT_SCALE_DIALOG:
-			zc_set_config("ZQ_GUI", "fontscale_compact_dialog", v);
-			break;
-		case OPT_COMPACTFONT_SCALE_GUI:
-			zc_set_config("ZQ_GUI", "fontscale_compact_gui", v);
-			break;
-		case OPT_COMPACTFONT_SCALE_TITLE:
-			zc_set_config("ZQ_GUI", "fontscale_compact_title", v);
-			break;
-		case OPT_COMPACTFONT_SCALE_FAVCMD:
-			zc_set_config("ZQ_GUI", "fontscale_compact_favcmd", v);
-			break;
-		case OPT_COMPACTFONT_SCALE_TEXTBOX:
-			zc_set_config("ZQ_GUI", "fontscale_compact_textbox", v);
-			break;
-		case OPT_COMPACTFONT_SCALE_TTIP:
-			zc_set_config("ZQ_GUI", "fontscale_compact_ttip", v);
-			break;
-		case OPT_COMPACTFONT_SCALE_INFO:
-			zc_set_config("ZQ_GUI", "fontscale_compact_info", v);
 			break;
 	}
 }
@@ -850,26 +768,16 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 								}).show();
 							if(!doclear) return;
 							
-							opts[OPT_LARGEFONT_DIALOG] = font_lfont_l;
-							opts[OPT_LARGEFONT_TITLE] = font_lfont;
-							opts[OPT_LARGEFONT_FAVCMD] = font_pfont;
-							opts[OPT_LARGEFONT_GUI] = font_nfont;
-							opts[OPT_LARGEFONT_TEXTBOX] = font_sfont3;
-							opts[OPT_LARGEFONT_TTIP] = font_lfont;
-							opts[OPT_LARGEFONT_INFO] = font_lfont_l;
-							
-							opts[OPT_COMPACTFONT_DIALOG] = font_lfont_l;
-							opts[OPT_COMPACTFONT_TITLE] = font_lfont;
-							opts[OPT_COMPACTFONT_FAVCMD] = font_pfont;
-							opts[OPT_COMPACTFONT_GUI] = font_nfont;
-							opts[OPT_COMPACTFONT_TEXTBOX] = font_sfont3;
-							opts[OPT_COMPACTFONT_TTIP] = font_lfont;
-							opts[OPT_COMPACTFONT_INFO] = font_lfont_l;
-							
-							for(int q = OPT_FIRSTFONT; q <= OPT_LAST_FONTSCALE; ++q)
+							for(int q = OPT_FIRSTFONT; q <= OPT_LASTFONT; ++q)
 							{
-								if(q >= OPT_FIRST_FONTSCALE)
-									opts[q] = 1;
+								int realq = (q < OPT_FIRST_COMPACTFONT ? q-OPT_FIRSTFONT : q-OPT_FIRST_COMPACTFONT);
+								opts[q] = get_def_fontid(realq);
+								opt_changed[q] = true;
+							}
+							
+							for(int q = OPT_FIRST_FONTSCALE; q <= OPT_LAST_FONTSCALE; ++q)
+							{
+								opts[q] = 1;
 								opt_changed[q] = true;
 							}
 							

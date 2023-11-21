@@ -3,6 +3,7 @@
 #include "gui/EditboxNew.h"
 #include "base/gui.h"
 #include "gui/jwin.h"
+#include "dialog/alert.h"
 #include "qst.h"
 #include "tiles.h"
 #include "base/zc_alleg.h"
@@ -111,19 +112,6 @@ DIALOG editmsg_help_dlg[] =
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static MENU strlist_rclick_menu[] =
-{
-	{ (char *)"Copy",  NULL,  NULL, 0, NULL },
-	{ (char *)"",  NULL,  NULL, 0, NULL },
-	{ (char *)"Paste Style", NULL,  NULL, 0, NULL },
-	{ (char *)"Paste Text", NULL,  NULL, 0, NULL },
-	{ (char *)"Paste Both", NULL,  NULL, 0, NULL },
-	{ (char *)"Paste Style to All", NULL,  NULL, 0, NULL },
-	{ (char *)"",  NULL,  NULL, 0, NULL },
-	{ (char *)"Set As Template",  NULL,  NULL, 0, NULL },
-	{ NULL,                       NULL,  NULL, 0, NULL }
-};
-
 static int32_t zqstr_copysrc=-1;
 void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
@@ -132,61 +120,57 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 		return;
 	
 	// Disable paste options if the copy source is invalid
-	if(zqstr_copysrc<=0 || zqstr_copysrc>=msg_count)
+	bool no_pasting = (zqstr_copysrc<=0 || zqstr_copysrc>=msg_count);
+	static NewMenu rcmenu
 	{
-		strlist_rclick_menu[2].flags|=D_DISABLED;
-		strlist_rclick_menu[3].flags|=D_DISABLED;
-		strlist_rclick_menu[4].flags|=D_DISABLED;
-		strlist_rclick_menu[5].flags|=D_DISABLED;
-	}
-	else
-	{
-		strlist_rclick_menu[2].flags&=~D_DISABLED;
-		strlist_rclick_menu[3].flags&=~D_DISABLED;
-		strlist_rclick_menu[4].flags&=~D_DISABLED;
-		strlist_rclick_menu[5].flags&=~D_DISABLED;
-	}
-	int32_t ret=popup_menu(strlist_rclick_menu, x, y);
-
-	switch(ret)
-	{
-	case 0: // Copy
-		zqstr_copysrc=msg_at_pos(index);
-		break;
-	
-	case 2: // Paste Style
-		MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_copysrc]);
-		saved = false;
-		break;
-	
-	case 3: //Paste Text
-		MsgStrings[msg_at_pos(index)].copyText(MsgStrings[zqstr_copysrc]);
-		strlist_dlg[2].flags|=D_DIRTY;
-		saved = false;
-		break;
-	
-	case 4: //Paste Both
-		MsgStrings[msg_at_pos(index)] = MsgStrings[zqstr_copysrc]; //Overloaded assignment copies both
-		strlist_dlg[2].flags|=D_DIRTY;
-		saved = false;
-		break;
-	
-	case 5: //Paste Style to All
-		if(jwin_alert("Paste Style to All", "Overwrite style of all strings?", NULL, NULL, "&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
-		{
-			for(int32_t q = 0; q < msg_count-1; ++q)
+		{ "Copy", [&]()
 			{
-				MsgStrings[q].copyStyle(MsgStrings[zqstr_copysrc]);
-			}
-			saved = false;
-		}
-		break;
-	
-	case 7: // Set as template
-		sprintf(static_cast<char*>(strlist_dlg[22].dp), "%d", msg_at_pos(index));
-		strlist_dlg[22].flags|=D_DIRTY;
-		break;
-	}
+				zqstr_copysrc = msg_at_pos(index);
+			} },
+		{},
+		{ "Paste Style", [&]()
+			{
+				MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_copysrc]);
+				saved = false;
+			}, nullopt, no_pasting },
+		{ "Paste Text", [&]()
+			{
+				MsgStrings[msg_at_pos(index)].copyText(MsgStrings[zqstr_copysrc]);
+				strlist_dlg[2].flags |= D_DIRTY;
+				saved = false;
+			}, nullopt, no_pasting },
+		{ "Paste Both", [&]()
+			{
+				//Overloaded assignment copies both
+				MsgStrings[msg_at_pos(index)] = MsgStrings[zqstr_copysrc];
+				strlist_dlg[2].flags|=D_DIRTY;
+				saved = false;
+			}, nullopt, no_pasting },
+		{ "Paste Style to All", [&]()
+			{
+				bool didconfirm = false;
+				AlertDialog("Paste Style to All",
+					"Overwrite style of all strings?",
+					[&](bool ret,bool)
+					{
+						if(ret)
+							didconfirm = true;
+					}).show();
+				if(didconfirm)
+				{
+					for(int q = 0; q < msg_count-1; ++q)
+						MsgStrings[q].copyStyle(MsgStrings[zqstr_copysrc]);
+					saved = false;
+				}
+			}, nullopt, no_pasting },
+		{},
+		{ "Set As Template", [&]()
+			{
+				sprintf(static_cast<char*>(strlist_dlg[22].dp), "%d", msg_at_pos(index));
+				strlist_dlg[22].flags |= D_DIRTY;
+			} },
+	};
+	rcmenu.pop(x, y);
 }
 
 // Don't actually use this to strip spaces.

@@ -508,11 +508,15 @@ static LegacyBitmapRTI rti_screen("screen");
 
 static int zc_gui_mouse_x()
 {
+	if (rti_dialogs.has_children())
+		return rti_dialogs.get_children().back()->rel_mouse().first;
 	return rti_screen.world_to_local(mouse_x, mouse_y).first;
 }
 
 static int zc_gui_mouse_y()
 {
+	if (rti_dialogs.has_children())
+		return rti_dialogs.get_children().back()->rel_mouse().second;
 	return rti_screen.world_to_local(mouse_x, mouse_y).second;
 }
 

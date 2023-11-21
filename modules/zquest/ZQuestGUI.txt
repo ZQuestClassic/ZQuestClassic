@@ -56,7 +56,7 @@ src/dialog/alert.cpp
 src/dialog/init_data.cpp
 src/dialog/itemeditor.cpp
 src/dialog/alertfunc.cpp
-src/dialog/options.cpp
+src/dialog/zq_options.cpp
 src/dialog/bottletype.cpp
 src/dialog/bottleshop.cpp
 src/dialog/spritedata.cpp

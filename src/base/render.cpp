@@ -662,6 +662,26 @@ void zqdialog_set_skiptint(bool skipTint)
 	if(active_dlg_rti)
 		active_dlg_rti->skip_tint = skipTint;
 }
+void zqdialog_name(string const& name)
+{
+	if(active_dlg_rti)
+		active_dlg_rti->name = name;
+}
+void zqdialog_tag(uint tagid)
+{
+	if(active_dlg_rti)
+		active_dlg_rti->type = tagid;
+}
+void get_zqdialog_xy(int& x, int& y)
+{
+	if(active_dlg_rti)
+	{
+		x = active_dlg_rti->get_transform().x;
+		y = active_dlg_rti->get_transform().y;
+	}
+	else x = y = 0;
+}
+
 static RenderTreeItem* get_active_dialog(bool forTint = false)
 {
 	auto& children = rti_dialogs.get_children();
@@ -675,7 +695,7 @@ static RenderTreeItem* get_active_dialog(bool forTint = false)
 	}
 	return nullptr;
 }
-void popup_zqdialog_start(int x, int y, int w, int h, int transp)
+void popup_zqdialog_start(string name, uint tagid, int x, int y, int w, int h, int transp)
 {
 	if(w < 0) w = zq_screen_w;
 	if(h < 0) h = zq_screen_h;
@@ -690,7 +710,8 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		else clear_bitmap(tmp_bmp);
 		screen = tmp_bmp;
 		
-		LegacyBitmapRTI* rti = new LegacyBitmapRTI("zqdialog");
+		LegacyBitmapRTI* rti = new LegacyBitmapRTI(name);
+		rti->type = tagid;
 		rti->set_size(w, h);
 		set_bitmap_create_flags(true);
 		rti->bitmap = create_a5_bitmap(w, h);
@@ -709,6 +730,10 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 	{
 		*allegro_errno = ENOMEM;
 	}
+}
+void popup_zqdialog_start(int x, int y, int w, int h, int transp)
+{
+	popup_zqdialog_start("zqdialog", RTI_TY_DIALOG_A4, x, y, w, h, transp);
 }
 void popup_zqdialog_end()
 {
@@ -740,6 +765,7 @@ void popup_zqdialog_start_a5()
 		zqdialog_bg_bmp = screen;
 	
 	auto rti = new RenderTreeItem("zqdialog_a5");
+	rti->type = RTI_TY_DIALOG_A5;
 	rti->set_size(zq_screen_w, zq_screen_h);
 	set_bitmap_create_flags(true);
 	rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
