@@ -20764,18 +20764,19 @@ void HeroClass::oldcheckbosslockblock()
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
-	int cmb_screen_index = get_screen_index_for_world_xy(bx, by);
-	int cmb2_screen_index = get_screen_index_for_world_xy(bx2, by);
+	int cmb_screen_index = 0;
 	// Layer 0 is overridden by Locked Doors
 	if ((cmb.type == cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx, by, 1, -1) && !islockeddoor(bx, by, dLOCKED)))
 	{
 		found1 = true;
 		foundlayer = 0;
+		cmb_screen_index = get_screen_index_for_world_xy(bx, by);
 	}
 	else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2, by, 1, -1) && !islockeddoor(bx2, by, dLOCKED))
 	{
 		found2 = true;
 		foundlayer = 0;
+		cmb_screen_index = get_screen_index_for_world_xy(bx2, by);
 	}
 
 	for (int32_t i = 0; i <= 1; ++i)
@@ -20864,13 +20865,12 @@ void HeroClass::oldcheckbosslockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(cmb_screen_index, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(get_layer_scr(currmap, cmb_screen_index, 0), cmb_screen_index, 1<<cmb.attribytes[5]);
+		remove_xstatecombos(get_scr(currmap, cmb_screen_index), cmb_screen_index, 1<<cmb.attribytes[5]);
 	}
 	else
 	{
-		// TODO z3 !
-		setmapflag(mBOSSLOCKBLOCK);
-		remove_bosslockblocks(tmpscr, currscr);
+		setmapflag(cmb_screen_index, mBOSSLOCKBLOCK);
+		remove_bosslockblocks(get_scr(currmap, cmb_screen_index), cmb_screen_index);
 	}
 	if ( (combobuf[cid].attribytes[3]) )
 		sfx(combobuf[cid].attribytes[3]);

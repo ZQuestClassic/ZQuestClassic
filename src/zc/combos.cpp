@@ -2775,7 +2775,6 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
 				{
 					triggering_generic_switchstate = true;
-					// TODO z3 !
 					game->lvlswitches[dlevel] ^= 1<<cmb.trig_lstate;
 					toggle_switches(1<<cmb.trig_lstate, false);
 					triggering_generic_switchstate = false;
@@ -2801,7 +2800,6 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 					if(oldstate != (game->gswitch_timers[pair] != 0))
 					{
 						triggering_generic_switchstate = true;
-						// TODO z3 !
 						toggle_gswitches(pair, false);
 						triggering_generic_switchstate = false;
 					}
