@@ -1,5 +1,6 @@
 #include "info_lister.h"
 #include <gui/builder.h>
+#include <base/new_menu.h>
 #include "itemeditor.h"
 #include "info.h"
 #include "zc_list_data.h"
@@ -156,15 +157,6 @@ bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	return false;
 }
 
-static MENU cpsl_rclick_menu[] =
-{
-	{ "&Copy",    NULL, NULL, 0, NULL },
-	{ "Paste &v", NULL, NULL, 0, NULL },
-	{ "&Save",    NULL, NULL, 0, NULL },
-	{ "&Load",    NULL, NULL, 0, NULL },
-	{ NULL,       NULL, NULL, 0, NULL }
-};
-
 ItemListerDialog::ItemListerDialog(int itemid, bool selecting):
 	BasicListerDialog("Select Item",itemid,selecting)
 {
@@ -257,20 +249,13 @@ void ItemListerDialog::edit()
 }
 void ItemListerDialog::rclick(int x, int y)
 {
-	SETFLAG(cpsl_rclick_menu[1].flags,D_DISABLED,copied_item_id<0);
-	
-	int ret=popup_menu(cpsl_rclick_menu, x, y);
-	
-	if(ret==0)
-		copy();
-	else if(ret==1)
-		paste();
-	else if(ret==2)
-		save();
-	else if(ret==3)
-		load();
-	if(ret > -1)
-		update();
+	NewMenu rcmenu {
+		{ "&Copy", [&](){copy(); update();} },
+		{ "Paste", "&v", [&](){paste(); update();}, 0, copied_item_id < 0 },
+		{ "&Save", [&](){save(); update();} },
+		{ "&Load", [&](){load(); update();} },
+	};
+	rcmenu.pop(x, y);
 }
 void ItemListerDialog::copy()
 {

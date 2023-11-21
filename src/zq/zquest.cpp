@@ -10,6 +10,7 @@
 #include <time.h>
 #include <vector>
 #include <filesystem>
+#include <base/new_menu.h>
 
 #include "dialog/info_lister.h"
 #ifdef __APPLE__
@@ -520,7 +521,7 @@ void killConsole()
 	zscript_coloured_console.kill();
 }
 
-int32_t toggleConsole()
+int toggleConsole()
 {
 	console_is_open ? killConsole() : initConsole();
 	zc_set_config("zquest","open_debug_console",console_is_open?1:0);
@@ -765,119 +766,103 @@ zfix HeroModifiedY()
     }
 }
 
-static MENU import_250_menu[] =
+static NewMenu import_250_menu
 {
-    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    
-    
-    
-    { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
-    { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
-    // { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&DMaps", onImport_DMaps },
+	{ "&Combo Table", onImport_Combos },
+	{ "&Combo Alias", onImport_ComboAlias },
 };
 
-static MENU import_graphics[]=
+static NewMenu import_graphics
 {
-	{ (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Tileset (&Full)",                     onImport_Tiles,            NULL,                     0,            NULL   },
-	{ (char *)"&Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
-	{ (char *)"T&ile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
-    
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"&Combo Set (Range)",               onImport_Combos,           NULL,                     0,            NULL   },
-    { (char *)"Combo Pack (Full, 1:1)",           	    onImport_Combopack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Pack to... (Dest)",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"Combo &Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
-    { (char *)"Combo A&lias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"&Doorsets",           	    onImport_Doorset,   NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Palettes", onImport_Pals },
+	{},
+	{ "Tileset (&Full)", onImport_Tiles },
+	{ "&Tile Pack", onImport_Tilepack },
+	{ "T&ile Pack to...", onImport_Tilepack_To },
+	{},
+	{ "&Combo Set (Range)", onImport_Combos },
+	{ "Combo Pack (Full, 1:1)", onImport_Combopack },
+	{ "Combo Pack to... (Dest)", onImport_Combopack_To },
+	{},
+	{ "Combo &Alias Pack", onImport_Comboaliaspack },
+	{ "Combo A&lias Pack to...", onImport_Comboaliaspack_To },
+	{},
+	{ "&Doorsets", onImport_Doorset },
 };
 
-static MENU import_menu[] =
+static NewMenu import_menu
 {
-    
-    { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
-    { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
-    // { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    // { (char *)"ZASM Script",           onExport_ZASM,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Graphics",                  NULL,                      import_graphics,               0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"2.50 (Broken)",                  NULL,                      import_250_menu,               0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Enemies", onImport_Guys },
+	{ "&Map", onImport_Map },
+	{ "&DMaps", onImport_DMaps },
+	{ "&String Table", onImport_Msgs },
+	{},
+	{ "&Graphics", &import_graphics },
+	{},
+	{ "2.50 (Broken)", &import_250_menu },
 };
 
-static MENU export_250_menu[] =
+static NewMenu export_250_menu
 {
-    
-    { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
-   
-    { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
-    { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&DMaps", onExport_DMaps },
+	{ "&Combo Table", onExport_Combos },
+	{ "&Combo Alias", onExport_ComboAlias },
+	{ "&Graphics Pack", onExport_ZGP },
 };
 
-static MENU zq_help_menu[] =
+static NewMenu zq_help_menu
 {
-	{ (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
-	{ (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
-	
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Editor Help", onHelp },
+	{ "&Strings Help", onZstringshelp },
 };
 
-static MENU export_graphics[]=
+static NewMenu export_graphics
 {
-	{ (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Tileset (&Full)",                     onExport_Tiles,            NULL,                     0,            NULL   },
-	{ (char *)"&Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Combo Set",               onExport_Combos,           NULL,                     0,            NULL   },
-    
-    { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Doorsets",           	    onExport_Doorset,   NULL,                     0,            NULL   },
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Palettes", onExport_Pals },
+	{},
+	{ "Tileset (&Full)", onExport_Tiles },
+	{ "&Tile Pack", onExport_Tilepack },
+	{},
+	{ "&Combo Set", onExport_Combos },
+	{ "Combo Pack", onExport_Combopack },
+	{},
+	{ "Combo &Alias Pack", onExport_Comboaliaspack },
+	{},
+	{ "&Doorsets", onExport_Doorset },
 };
 
-static MENU export_menu[] =
+static NewMenu export_menu
 {
 #ifdef _WIN32
-	{ (char *)"&Package",                   onExport_Package,             NULL,                     0,            NULL   },
+	{ "&Package", onExport_Package },
 #endif
-
-    { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
-    { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                       onExport_DMaps,              NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-       
-    { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
-    { (char *)"Text &Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
-    
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Graphics",                  NULL,                      export_graphics,               0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    
-    { (char *)"2.50 (Broken)",                  NULL,                      export_250_menu,               0,            NULL   },
-    
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Enemies", onExport_Guys },
+	{ "&Map", onExport_Map },
+	{ "&DMaps", onExport_DMaps },
+	{},
+	{ "&String Table", onExport_Msgs },
+	{ "Text &Dump", onExport_MsgsText },
+	{},
+	{ "&Graphics", &export_graphics },
+	{},
+	{ "2.50 (Broken)", &export_250_menu },
 };
 
 
-static MENU recent_menu[11];
+static NewMenu recent_menu
+{
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+	{},
+};
 static char rec_menu_fullpaths[10][512];
 static char rec_menu_strs[10][64];
 
@@ -906,20 +891,15 @@ void refresh_recent_menu()
 		do_RecentQuest_4, do_RecentQuest_5, do_RecentQuest_6,
 		do_RecentQuest_7, do_RecentQuest_8, do_RecentQuest_9
 	};
+	static MenuItem nilitem("---",nullptr,nullopt,true);
 	for(auto q = 0; q < 10; ++q)
 	{
+		MenuItem& mit = *recent_menu.at(q);
         bool valid = rec_menu_fullpaths[q][0] != '-';
-		recent_menu[q].text = rec_menu_strs[q];
-		recent_menu[q].proc = valid ? procs[q] : nullptr;
-		recent_menu[q].child = nullptr;
-		recent_menu[q].flags = valid ? 0 : D_DISABLED;
-		recent_menu[q].dp = rec_menu_fullpaths[q];
+		if(valid)
+			mit = MenuItem(rec_menu_strs[q],procs[q]);
+		else mit = nilitem;
 	}
-	recent_menu[10].text = nullptr;
-	recent_menu[10].proc = nullptr;
-	recent_menu[10].child = nullptr;
-	recent_menu[10].flags = 0;
-	recent_menu[10].dp = nullptr;
 }
 
 void load_recent_quests()
@@ -1088,116 +1068,105 @@ void toggle_cmdzoom_mode()
 
 enum
 {
-	fileSave = 5,
-	fileSaveAs,
-	fileRevert
+	MENUID_FILE_SAVE,
+	MENUID_FILE_SAVEAS,
+	MENUID_FILE_REVERT,
 };
 
-static MENU file_menu[] =
+static NewMenu file_menu
 {
-	{ (char *)"&New",                       do_NewQuest,               NULL,                     0,            NULL   },
-	{ (char *)"&Open",                      do_OpenQuest,              NULL,                     0,            NULL   },
-	{ (char *)"&Load Tileset",              onTileset,                 NULL,                     0,            NULL   },
-	{ (char *)"Recent\t ",                  NULL,                      recent_menu,              0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Save",                      onSave,                    NULL,                     0,            NULL   },
-	{ (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
-	{ (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
-	{ (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
+	{ "&New", do_NewQuest },
+	{ "&Open", do_OpenQuest },
+	{ "&Load Tileset", onTileset },
+	{ "Recent", &recent_menu },
+	{},
+	{ "&Save", onSave, MENUID_FILE_SAVE },
+	{ "Save &as...", onSaveAs, MENUID_FILE_SAVEAS },
+	{ "&Revert", onRevert, MENUID_FILE_REVERT },
+	{},
+	{ "&Import", &import_menu },
+	{ "&Export", &export_menu },
 #ifndef __EMSCRIPTEN__
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+	{},
+	{ "E&xit", onExit },
 #endif
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU maps_menu[] =
+enum
 {
-    { (char *)"&Goto Map...",               onGotoMap,                 NULL,                     0,            NULL   },
-    { (char *)"Next Map",                   onIncMap,                  NULL,                     0,            NULL   },
-    { (char *)"Previous Map",               onDecMap,                  NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"D&elete Map",                onDeleteMap,               NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	MENUID_MAPS_NEXT,
+	MENUID_MAPS_PREV,
+};
+static NewMenu maps_menu
+{
+	{ "&Goto Map...", onGotoMap },
+	{ "Next Map", onIncMap, MENUID_MAPS_NEXT },
+	{ "Previous Map", onDecMap, MENUID_MAPS_PREV },
+	{},
+	{ "D&elete Map", onDeleteMap },
 };
 
-static MENU misc_menu[] =
+static NewMenu misc_menu
 {
-    { (char *)"S&ubscreens",                onEditSubscreens,          NULL,                     0,            NULL   },
-    { (char *)"&Shop Types",                onShopTypes,               NULL,                     0,            NULL   },
-    { (char *)"&Bottle Types",              onBottleTypes,             NULL,                     0,            NULL   },
-    { (char *)"Bottle S&hop Types",         onBottleShopTypes,         NULL,                     0,            NULL   },
-    { (char *)"&Info Types",                onInfoTypes,               NULL,                     0,            NULL   },
-    { (char *)"&Warp Rings",                onWarpRings,               NULL,                     0,            NULL   },
-    { (char *)"&Triforce Pieces",           onTriPieces,               NULL,                     0,            NULL   },
-    { (char *)"&End String",                onEndString,               NULL,                     0,            NULL   },
-    { (char *)"Item &Drop Sets",            onItemDropSets,            NULL,                     0,            NULL   },
-// { (char *)"Screen &Opening/Closing",    onScreenOpeningClosing,    NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "S&ubscreens", onEditSubscreens },
+	{ "&Shop Types", onShopTypes },
+	{ "&Bottle Types", onBottleTypes },
+	{ "Bottle S&hop Types", onBottleShopTypes },
+	{ "&Info Types", onInfoTypes },
+	{ "&Warp Rings", onWarpRings },
+	{ "&Triforce Pieces", onTriPieces },
+	{ "&End String", onEndString },
+	{ "Item &Drop Sets", onItemDropSets },
 };
 
-static MENU spr_menu[] =
+static NewMenu spr_menu
 {
-    { (char *)"&Sprite Data",               onCustomWpns,              NULL,                     0,            NULL   },
-    { (char *)"&Player",                      onCustomHero,              NULL,                     0,            NULL   },
-    { (char *)"&Misc Sprites",              onMiscSprites,             NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Sprite Data", onCustomWpns },
+	{ "&Player", onCustomHero },
+	{ "&Misc Sprites", onMiscSprites },
 };
 
-MENU colors_menu[] =
+NewMenu colors_menu
 {
-    { (char *)"&Main   ",                   onColors_Main,             NULL,                     0,            NULL   },
-    { (char *)"&Levels   ",                 onColors_Levels,           NULL,                     0,            NULL   },
-    { (char *)"&Sprites   ",                onColors_Sprites,          NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Main ", onColors_Main },
+	{ "&Levels ", onColors_Levels },
+	{ "&Sprites ", onColors_Sprites },
 };
 
-static MENU defs_menu[] =
+static NewMenu defs_menu
 {
-    { (char *)"&Palettes",                  onDefault_Pals,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onDefault_Tiles,           NULL,                     0,            NULL   },
-    { (char *)"&Combos",                    onDefault_Combos,          NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onDefault_Items,           NULL,                     0,            NULL   },
-    { (char *)"&Enemies",                   onDefault_Guys,            NULL,                     0,            NULL   },
-    { (char *)"&Sprite Data",               onDefault_Weapons,         NULL,                     0,            NULL   },
-    { (char *)"&Map Styles",                onDefault_MapStyles,       NULL,                     0,            NULL   },
-    { (char *)"SF&X Data",                  onDefault_SFX,             NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Palettes", onDefault_Pals },
+	{ "&Tiles", onDefault_Tiles },
+	{ "&Combos", onDefault_Combos },
+	{ "&Items", onDefault_Items },
+	{ "&Enemies", onDefault_Guys },
+	{ "&Sprite Data", onDefault_Weapons },
+	{ "&Map Styles", onDefault_MapStyles },
+	{ "SF&X Data", onDefault_SFX },
 };
 
 int32_t onEditComboAlias();
 int32_t onEditComboPool();
 int32_t onEditAutoCombo();
 
-static MENU graphics_menu[] =
+static NewMenu graphics_menu
 {
-    { (char *)"&Palettes\t ",               NULL,                      colors_menu,              0,            NULL   },
-    { (char *)"&Sprites\t ",                NULL,                      spr_menu,                 0,            NULL   },
-    { (char *)"&Combos",                    onCombos,                  NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onTiles,                   NULL,                     0,            NULL   },
-    { (char *)"&Game icons",                onIcons,                   NULL,                     0,            NULL   },
-    { (char *)"Misc co&lors",               onMiscColors,              NULL,                     0,            NULL   },
-    { (char *)"&Map styles",                onMapStyles,               NULL,                     0,            NULL   },
-    { (char *)"&Door Combo Sets",           onDoorCombos,              NULL,                     0,            NULL   },
-    { (char *)"Combo &Aliases",             onEditComboAlias,          NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Palettes ", &colors_menu },
+	{ "&Sprites ", &spr_menu },
+	{ "&Combos", onCombos },
+	{ "&Tiles", onTiles },
+	{ "&Game icons", onIcons },
+	{ "Misc co&lors", onMiscColors },
+	{ "&Map styles", onMapStyles },
+	{ "&Door Combo Sets", onDoorCombos },
+	{ "Combo &Aliases", onEditComboAlias },
 };
 
-static MENU audio_menu[] =
+static NewMenu audio_menu
 {
-    { (char *)"SF&X Data",                  onSelectSFX,               NULL,                     0,            NULL   },
-    { (char *)"&MIDIs",                     onMidis,                   NULL,                     0,            NULL   },
-    { (char *)"Mis&c SFX",                  onMiscSFX,                 NULL,                     0,            NULL   },
-// { (char *)"&Enhanced Music",            onEnhancedMusic,           NULL,                     D_DISABLED,   NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
-static MENU script_menu[] =
-{
-    { (char *)"Compile &ZScript...",        onCompileScript,           NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "SF&X Data", onSelectSFX },
+	{ "&MIDIs", onMidis },
+	{ "Mis&c SFX", onMiscSFX },
 };
 
 void set_rules(byte* newrules);
@@ -1239,95 +1208,99 @@ int32_t onZInfo()
 	return D_O_K;
 }
 
-static MENU quest_menu[] = 
+static NewMenu quest_menu
 {
-    { (char *)"&Options\t ",          onRulesDlg,                      NULL,                     0,            NULL   },
-    { (char *)"&Test",                 onTestQst,                      NULL,                     0,            NULL   },
-    { (char *)"&Items",            onCustomItems,                      NULL,                     0,            NULL   },
-    { (char *)"Ene&mies",        onCustomEnemies,                      NULL,                     0,            NULL   },
-    { (char *)"&Player",            onCustomHero,                      NULL,                     0,            NULL   },
-    { (char *)"&Strings",              onStrings,                      NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                  onDmaps,                      NULL,                     0,            NULL   },
-    { (char *)"I&nit Data",               onInit,                      NULL,                     0,            NULL   },
-    { (char *)"Misc D&ata\t ",              NULL,                 misc_menu,                     0,            NULL   },
-    { (char *)"&ZInfo",                  onZInfo,                      NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Graphics\t ",               NULL,             graphics_menu,                     0,            NULL   },
-    { (char *)"A&udio\t ",                  NULL,                audio_menu,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"De&faults\t ",               NULL,                 defs_menu,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Misc[]",            onQMiscValues,                      NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Options ", onRulesDlg },
+	{ "&Test", onTestQst },
+	{ "&Items", onCustomItems },
+	{ "Ene&mies", onCustomEnemies },
+	{ "&Player", onCustomHero },
+	{ "&Strings", onStrings },
+	{ "&DMaps", onDmaps },
+	{ "I&nit Data", onInit },
+	{ "Misc D&ata ", &misc_menu },
+	{ "&ZInfo", onZInfo },
+	{},
+	{ "&Graphics ", &graphics_menu },
+	{ "A&udio ", &audio_menu },
+	{},
+	{ "De&faults ", &defs_menu },
+	{},
+	{ "Misc[]", onQMiscValues },
 };
 
-static MENU paste_menu[] =
+static NewMenu paste_menu
 {
-    { (char *)"Paste &To All",              onPasteToAll,              NULL,                     0,            NULL   },
-    { (char *)"Paste &All To All",          onPasteAllToAll,           NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "Paste &To All", onPasteToAll },
+	{ "Paste &All To All", onPasteAllToAll },
 };
 
-static MENU paste_item_menu[] =
+static NewMenu paste_item_menu
 {
-    { (char *)"&Undercombo",                onPasteUnderCombo,         NULL,                     0,            NULL   },
-    { (char *)"&Secret Combos",             onPasteSecretCombos,       NULL,                     0,            NULL   },
-    { (char *)"&Freeform Combos",           onPasteFFCombos,           NULL,                     0,            NULL   },
-    { (char *)"Screen &Data",               onPasteScreenData,         NULL,                     0,            NULL   },
-    { (char *)"&Warps",                     onPasteWarps,              NULL,                     0,            NULL   },
-    { (char *)"Warp &Return",               onPasteWarpLocations,      NULL,                     0,            NULL   },
-    { (char *)"&Enemies",                   onPasteEnemies,            NULL,                     0,            NULL   },
-    { (char *)"Room &Type Data",            onPasteRoom,               NULL,                     0,            NULL   },
-    { (char *)"&Guy/String",                onPasteGuy,                NULL,                     0,            NULL   },
-    { (char *)"Doo&rs",                     onPasteDoors,              NULL,                     0,            NULL   },
-    { (char *)"&Layers",                    onPasteLayers,             NULL,                     0,            NULL   },
-    { (char *)"&Palette",                   onPastePalette,            NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Undercombo", onPasteUnderCombo },
+	{ "&Secret Combos", onPasteSecretCombos },
+	{ "&Freeform Combos", onPasteFFCombos },
+	{ "Screen &Data", onPasteScreenData },
+	{ "&Warps", onPasteWarps },
+	{ "Warp &Return", onPasteWarpLocations },
+	{ "&Enemies", onPasteEnemies },
+	{ "Room &Type Data", onPasteRoom },
+	{ "&Guy/String", onPasteGuy },
+	{ "Doo&rs", onPasteDoors },
+	{ "&Layers", onPasteLayers },
+	{ "&Palette", onPastePalette },
 };
 
-static MENU edit_menu[] =
+enum
 {
-    { (char *)"&Undo",                      onUndo,                    NULL,                     0,            NULL   },
-    { (char *)"&Redo",                      onRedo,                    NULL,                     0,            NULL   },
-    { (char *)"&Copy",                      onCopy,                    NULL,                     0,            NULL   },
-    { (char *)"&Paste",                     onPaste,                   NULL,                     0,            NULL   },
-    { (char *)"Paste A&ll",                 onPasteAll,                NULL,                     0,            NULL   },
-    { (char *)"&Adv. Paste\t ",             NULL,                      paste_menu,               0,            NULL   },
-    { (char *)"Paste &Spec.\t ",            NULL,                      paste_item_menu,          0,            NULL   },
-    { (char *)"&Delete",                    onDelete,                  NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Maps\t ",                   NULL,                      maps_menu,                0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	MENUID_EDIT_UNDO,
+	MENUID_EDIT_REDO,
+	MENUID_EDIT_COPY,
+	MENUID_EDIT_PASTE,
+	MENUID_EDIT_PASTEALL,
+	MENUID_EDIT_ADVPASTE,
+	MENUID_EDIT_SPECPASTE,
+	MENUID_EDIT_DELETE,
+};
+static NewMenu edit_menu
+{
+	{ "&Undo", onUndo, MENUID_EDIT_UNDO },
+	{ "&Redo", onRedo, MENUID_EDIT_REDO },
+	{ "&Copy", onCopy, MENUID_EDIT_COPY },
+	{ "&Paste", onPaste, MENUID_EDIT_PASTE },
+	{ "Paste A&ll", onPasteAll, MENUID_EDIT_PASTEALL },
+	{ "&Adv. Paste ", &paste_menu, MENUID_EDIT_ADVPASTE },
+	{ "Paste &Spec. ", &paste_item_menu, MENUID_EDIT_SPECPASTE },
+	{ "&Delete", onDelete, MENUID_EDIT_DELETE },
+	{},
+	{ "&Maps ", &maps_menu },
 };
 
-static MENU drawing_mode_menu[] =
+static NewMenu drawing_mode_menu
 {
-    { (char *)"&Normal",                    onDrawingModeNormal,       NULL,                     0,            NULL   },
-    { (char *)"&Combo Alias",               onDrawingModeAlias,        NULL,                     0,            NULL   },
-    { (char *)"&Pool",                      onDrawingModePool,         NULL,                     0,            NULL   },
-	{ (char *)"&Auto Combo",                onDrawingModeAuto,         NULL,                     0,            NULL   },
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Normal", onDrawingModeNormal, dm_normal },
+	{ "&Combo Alias", onDrawingModeAlias, dm_alias },
+	{ "&Pool", onDrawingModePool, dm_cpool },
+	{ "&Auto Combo", onDrawingModeAuto, dm_auto },
 };
 
-static MENU integrity_check_menu[] =
+static NewMenu integrity_check_menu
 {
-    { (char *)"&All ",                      onIntegrityCheckAll,       NULL,                     0,            NULL   },
-    { (char *)"&Screens ",                  onIntegrityCheckRooms,     NULL,                     0,            NULL   },
-    { (char *)"&Warps ",                    onIntegrityCheckWarps,     NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&All ", onIntegrityCheckAll },
+	{ "&Screens ", onIntegrityCheckRooms },
+	{ "&Warps ", onIntegrityCheckWarps },
 };
 
-static MENU quest_reports_menu[] =
+static NewMenu quest_reports_menu
 {
-    { (char *)"&Bugged Next-> Combo Locations",           onBuggedNextComboLocationReport,         NULL,                     0,            NULL   },
-    { (char *)"&Combo Locations",           onComboLocationReport,     NULL,                     0,            NULL   },
-    { (char *)"&Combo Type Locations",      onComboTypeLocationReport, NULL,                     0,            NULL   },
-    { (char *)"&Enemy Locations",           onEnemyLocationReport,     NULL,                     0,            NULL   },
-    { (char *)"&Item Locations",            onItemLocationReport,      NULL,                     0,            NULL   },
-    { (char *)"&Script Locations",          onScriptLocationReport,    NULL,                     0,            NULL   },
-    { (char *)"&What Links Here",           onWhatWarpsReport,         NULL,                     0,            NULL   },
-    { (char *)"In&tegrity Check\t ",        NULL,                      integrity_check_menu,     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Bugged Next-> Combo Locations", onBuggedNextComboLocationReport },
+	{ "&Combo Locations", onComboLocationReport },
+	{ "&Combo Type Locations", onComboTypeLocationReport },
+	{ "&Enemy Locations", onEnemyLocationReport },
+	{ "&Item Locations", onItemLocationReport },
+	{ "&Script Locations", onScriptLocationReport },
+	{ "&What Links Here", onWhatWarpsReport },
+	{ "In&tegrity Check ", &integrity_check_menu },
 };
 
 int32_t onPalFix();
@@ -1372,34 +1345,30 @@ int32_t onStrFix()
 
 enum
 {
-	ftCSFix, ftLSFix, ftESFix,
-	ftLPFix, ftPLDFix, ftOSFix,
-	ft_size
+	MENUID_FIXTOOL_OLDSTRING,
 };
-static MENU fixtools_menu[] =
+static NewMenu fixtools_menu
 {
-    { (char*)"&Color Set Fix",             onCSetFix,                 NULL,                     0,            NULL   },
-    { (char*)"&Liquid Solidity Fix",       onWaterSolidity,           NULL,                     0,            NULL   },
-    { (char*)"&Effect Square Fix",         onEffectFix,               NULL,                     0,            NULL   },
-    { (char*)"&Level Palette Fix",         onPalFix,                  NULL,                     0,            NULL   },
-    { (char*)"&Pit and Liquid Damage Fix", onPitFix,                  NULL,                     0,            NULL   },
-    { (char*)"&Old Strings Fix",           onStrFix,                  NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                     NULL,                     0,            NULL   }
+	{ "&Color Set Fix", onCSetFix },
+	{ "&Liquid Solidity Fix", onWaterSolidity },
+	{ "&Effect Square Fix", onEffectFix },
+	{ "&Level Palette Fix", onPalFix },
+	{ "&Pit and Liquid Damage Fix", onPitFix },
+	{ "&Old Strings Fix", onStrFix, MENUID_FIXTOOL_OLDSTRING },
 };
 
-static MENU tool_menu[] =
+static NewMenu tool_menu
 {
-	{ (char *)"Combo &Flags",               onFlags,                   NULL,                     0,            NULL   },
-	{ (char *)"Fix &Tools\t ",              NULL,                      fixtools_menu,            0,            NULL   },
-	{ (char *)"&NES Dungeon Template",      onTemplate,                NULL,                     0,            NULL   },
-	{ (char *)"&Apply Template to All",     onReTemplate,              NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Preview Mode",              onPreviewMode,             NULL,                     0,            NULL   },
-	{ (char *)"Drawing &Mode\t ",           NULL,                      drawing_mode_menu,        0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&List Combos Used",          onUsedCombos,              NULL,                     0,            NULL   },
-	{ (char *)"&Quest Reports\t ",          NULL,                      quest_reports_menu,       0,            NULL   },
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "Combo &Flags", onFlags },
+	{ "Fix &Tools ", &fixtools_menu },
+	{ "&NES Dungeon Template", onTemplate },
+	{ "&Apply Template to All", onReTemplate },
+	{},
+	{ "&Preview Mode", onPreviewMode },
+	{ "Drawing &Mode ", &drawing_mode_menu },
+	{},
+	{ "&List Combos Used", onUsedCombos },
+	{ "&Quest Reports ", &quest_reports_menu },
 };
 
 int32_t onLayer3BG()
@@ -1414,26 +1383,42 @@ int32_t onLayer2BG()
 	zc_set_config("zquest","layer2_bg",ViewLayer2BG);
 	return D_O_K;
 }
-MENU view_menu[] =
+int onGridToggle();
+enum
 {
-    { (char *)"View &Map...",               onViewMap,                 NULL,                     0,            NULL   },
-    { (char *)"View &Palette",              onShowPal,                 NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Show &Walkability",          onShowWalkability,         NULL,                     0,            NULL   },
-    { (char *)"Show &Flags",                onShowFlags,               NULL,                     0,            NULL   },
-    { (char *)"Show &CSets",                onShowCSet,                NULL,                     0,            NULL   },
-    { (char *)"Show &Types",                onShowCType,               NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Show Screen &Info",          onToggleShowInfo,          NULL,                     0,            NULL   },
-    { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
-    { (char *)"Show FFCs",                  onToggleShowFFCs,          NULL,                     0,            NULL   },
-    { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
-    { (char *)"Show &Grid",                 onToggleGrid,              NULL,                     0,            NULL   },
-    { (char *)"Show &Darkness",             onShowDarkness,            NULL,                     0,            NULL   },
-    { (char *)"Layer 2 is Background",      onLayer2BG,                NULL,                     0,            NULL   },
-    { (char *)"Layer 3 is Background",      onLayer3BG,                NULL,                     0,            NULL   },
-    { (char *)"Highlight Current Layer",    onToggleHighlightLayer,          NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	MENUID_VIEW_WALKABILITY,
+	MENUID_VIEW_FLAGS,
+	MENUID_VIEW_CSET,
+	MENUID_VIEW_TYPES,
+	MENUID_VIEW_INFO,
+	MENUID_VIEW_SQUARES,
+	MENUID_VIEW_FFCS,
+	MENUID_VIEW_SCRIPTNAMES,
+	MENUID_VIEW_GRID,
+	MENUID_VIEW_DARKNESS,
+	MENUID_VIEW_L2BG,
+	MENUID_VIEW_L3BG,
+	MENUID_VIEW_LAYERHIGHLIGHT,
+};
+NewMenu view_menu
+{
+	{ "View &Map...", onViewMap },
+	{ "View &Palette", onShowPal },
+	{},
+	{ "Show &Walkability", onShowWalkability, MENUID_VIEW_WALKABILITY },
+	{ "Show &Flags", onShowFlags, MENUID_VIEW_FLAGS },
+	{ "Show &CSets", onShowCSet, MENUID_VIEW_CSET },
+	{ "Show &Types", onShowCType, MENUID_VIEW_TYPES },
+	{},
+	{ "Show Screen &Info", onToggleShowInfo, MENUID_VIEW_INFO },
+	{ "Show &Squares", onToggleShowSquares, MENUID_VIEW_SQUARES },
+	{ "Show FFCs", onToggleShowFFCs, MENUID_VIEW_FFCS },
+	{ "Show Script &Names", onToggleShowScripts, MENUID_VIEW_SCRIPTNAMES },
+	{ "Show &Grid", onGridToggle, MENUID_VIEW_GRID },
+	{ "Show &Darkness", onShowDarkness, MENUID_VIEW_DARKNESS },
+	{ "Layer 2 is Background", onLayer2BG, MENUID_VIEW_L2BG },
+	{ "Layer 3 is Background", onLayer3BG, MENUID_VIEW_L3BG },
+	{ "Highlight Current Layer", onToggleHighlightLayer, MENUID_VIEW_LAYERHIGHLIGHT },
 };
 
 void set_rules(byte* newrules)
@@ -1456,118 +1441,114 @@ void set_rules(byte* newrules)
 
 int32_t onSelectFFCombo();
 
-static MENU data_menu[] =
+static NewMenu data_menu
 {
-	{ (char *)"&Screen Data",               onScrData,                 NULL,                     0,            NULL   },
-	{ (char *)"&Freeform Combos",           onSelectFFCombo,           NULL,                     0,            NULL   },
-	{ (char *)"La&yers",                    onLayers,                  NULL,                     0,            NULL   },
-	{ (char *)"&Tile Warp",                 onTileWarp,                NULL,                     0,            NULL   },
-	{ (char *)"Side &Warp",                 onSideWarp,                NULL,                     0,            NULL   },
-	{ (char *)"Secret &Combos",             onSecretCombo,             NULL,                     0,            NULL   },
-	{ (char *)"&Under Combo",               onUnderCombo,              NULL,                     0,            NULL   },
-	{ (char *)"&Doors",                     onDoors,                   NULL,                     0,            NULL   },
-	{ (char *)"&Maze Path",                 onPath,                    NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Room Data",                 onRoom,                    NULL,                     0,            NULL   },
-
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Item",                      onItem,                    NULL,                     0,            NULL   },
-	{ (char *)"&Enemies",                   onEnemies,                 NULL,                     0,            NULL   },
-	{ (char *)"&Palette",                   onScreenPalette,           NULL,                     0,            NULL   },
-	
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "&Screen Data", onScrData },
+	{ "&Freeform Combos", onSelectFFCombo },
+	{ "La&yers", onLayers },
+	{ "&Tile Warp", onTileWarp },
+	{ "Side &Warp", onSideWarp },
+	{ "Secret &Combos", onSecretCombo },
+	{ "&Under Combo", onUnderCombo },
+	{ "&Doors", onDoors },
+	{ "&Maze Path", onPath },
+	{},
+	{ "&Room Data", onRoom },
+	{},
+	{ "&Item", onItem },
+	{ "&Enemies", onEnemies },
+	{ "&Palette", onScreenPalette },
 };
 
-static MENU tunes_menu[] =
+static NewMenu tunes_menu
 {
-    { (char *)"ZC Forever",				  playZCForever,             NULL,                     0,            NULL   },
-    { (char *)"Wind Fish",				  playTune1,                 NULL,                     0,            NULL   },
-    { (char *)"Overworld",				  playTune2,                 NULL,                     0,            NULL   },
-    { (char *)"Hyrule Castle",			  playTune3,                 NULL,                     0,            NULL   },
-    { (char *)"Lost Woods",			      playTune4,                 NULL,                     0,            NULL   },
-    { (char *)"Great Sea",				  playTune5,                 NULL,                     0,            NULL   },
-    { (char *)"East Hyrule",				  playTune6,                 NULL,                     0,            NULL   },
-    { (char *)"Dancing Dragon",			  playTune7,                 NULL,                     0,            NULL   },
-    { (char *)"Stone Tower",				  playTune8,                 NULL,                     0,            NULL   },
-    { (char *)"Villages",				      playTune9,                 NULL,                     0,            NULL   },
-    { (char *)"Swamp + Desert",		      playTune10,                NULL,                     0,            NULL   },
-    { (char *)"Outset Island",			  playTune11,                NULL,                     0,            NULL   },
-    { (char *)"Kakariko Village",			  playTune12,                NULL,                     0,            NULL   },
-    { (char *)"Clock Town",				  playTune13,                NULL,                     0,            NULL   },
-    { (char *)"Temple",				      playTune14,                NULL,                     0,            NULL   },
-    { (char *)"Dark World",				  playTune15,                NULL,                     0,            NULL   },
-    { (char *)"Dragon Roost",				  playTune16,                NULL,                     0,            NULL   },
-    { (char *)"Horse Race",				  playTune17,                NULL,                     0,            NULL   },
-    { (char *)"Credits",				      playTune18,                NULL,                     0,            NULL   },
-    { (char *)"Zelda's Lullaby",			  playTune19,                NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ "ZC Forever", playZCForever },
+	{ "Wind Fish", playTune1 },
+	{ "Overworld", playTune2 },
+	{ "Hyrule Castle", playTune3 },
+	{ "Lost Woods", playTune4 },
+	{ "Great Sea", playTune5 },
+	{ "East Hyrule", playTune6 },
+	{ "Dancing Dragon", playTune7 },
+	{ "Stone Tower", playTune8 },
+	{ "Villages", playTune9 },
+	{ "Swamp + Desert", playTune10 },
+	{ "Outset Island", playTune11 },
+	{ "Kakariko Village", playTune12 },
+	{ "Clock Town", playTune13 },
+	{ "Temple", playTune14 },
+	{ "Dark World", playTune15 },
+	{ "Dragon Roost", playTune16 },
+	{ "Horse Race", playTune17 },
+	{ "Credits", playTune18 },
+	{ "Zelda's Lullaby", playTune19 },
 };
 
-static MENU media_menu[] =
+enum
 {
-	{ (char *)"Ambient Music  ",            NULL,                      tunes_menu,               0,            NULL   },
-	{ (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
-	{ (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
-	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	MENUID_MEDIA_TUNES,
+	MENUID_MEDIA_PLAYMUSIC,
+	MENUID_MEDIA_CHANGETRACK,
+};
+static NewMenu media_menu
+{
+	{ "Ambient Music ", &tunes_menu, MENUID_MEDIA_TUNES },
+	{ "&Play music", playMusic, MENUID_MEDIA_PLAYMUSIC },
+	{ "&Change track", changeTrack, MENUID_MEDIA_CHANGETRACK },
+	{ "&Stop tunes", stopMusic },
 };
 
-static MENU etc_menu[] =
+enum
 {
-	{ (char *)"&Help",                      NULL /*onHelp*/,           zq_help_menu,             0,            NULL   },
-	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
-	{ (char *)"&Video Mode",                onZQVidMode,               NULL,                     0,            NULL   },
-	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
-	{ (char *)"&Hotkeys...",                do_zq_hotkey_dialog,       NULL,                     0,            NULL   },
-	// 5
-	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
-	{ (char *)"Media",                      NULL,                      media_menu,               0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	// 10
-	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
-	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
-	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
-	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	MENUID_ETC_VIDMODE,
+	MENUID_ETC_FULLSCREEN,
+	MENUID_ETC_DEBUG_CONSOLE,
+};
+static NewMenu etc_menu
+{
+	{ "Help", &zq_help_menu },
+	{ "&About", onAbout },
+	{ "&Video Mode", onZQVidMode, MENUID_ETC_VIDMODE },
+	{ "&Options...", onOptions },
+	{ "&Hotkeys...", do_zq_hotkey_dialog },
+	{ "&Fullscreen", onFullScreen, MENUID_ETC_FULLSCREEN },
+	{},
+	{ "&View Pic...", onViewPic },
+	{ "Media", &media_menu },
+	{},
+	{ "&Debug Console", toggleConsole, MENUID_ETC_DEBUG_CONSOLE },
+	{ "Clear Quest Filepath", onClearQuestFilepath },
+	{ "&Take ZQ Snapshot", onSnapshot },
+	{ "Take &Screen Snapshot", onMapscrSnapshot },
 };
 
-
-//New ZScript Menu for 2.55 Alpha 16
-static MENU zscript_menu[] =
+static NewMenu zscript_menu
 {
-	{ (char *)"Compile &ZScript...",            onCompileScript,           NULL,                     0,            NULL   },
-	{ (char *)"&Assign Slots...",               onSlotAssign,              NULL,            D_DISABLED,            NULL   },
-	//divider	
-	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Compiler Settings",             onZScriptCompilerSettings, NULL,                     0,            NULL   },
-	{ (char *)"&Quest Script Settings",         onZScriptSettings,         NULL,                     0,            NULL   },
-	//divider
-	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Export ZASM Script",            onExportZASM,              NULL,                     0,            NULL   },
-	{ (char *)"&Import ZASM Script",            onImportZASM,              NULL,                     0,            NULL   },
-//	{ (char *)"Set Include Path",               onZScriptSetIncludePath,   NULL,                     0,            NULL   },
-
-	{  NULL,                                    NULL,                      NULL,                     0,            NULL   }
+	{ "Compile &ZScript...", onCompileScript },
+	{},
+	{ "&Compiler Settings", onZScriptCompilerSettings },
+	{ "&Quest Script Settings", onZScriptSettings },
+	{},
+	{ "&Import ZASM Script", onImportZASM },
 };
 
 void set_console_state()
 {
-	SETFLAG(etc_menu[10].flags, D_SELECTED, console_is_open);
+	etc_menu.select_uid(MENUID_ETC_DEBUG_CONSOLE, console_is_open);
 }
 
-MENU the_menu[] =
+NewMenu foo_menu{{"FOO",[](){InfoDialog("PLACEHOLDER","THIS IS A PLACEHOLDER").show();}}};
+
+TopMenu the_menu
 {
-    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
-    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
-    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
-    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
-    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
-    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
-    { (char *)"&ZScript",                   NULL, (MENU *) zscript_menu,    0,            NULL   },
-    { (char *)"Et&C",                       NULL, (MENU *) etc_menu,        0,            NULL   },
-    {  NULL,                                NULL, NULL,                     0,            NULL   }
+    { "&File", &file_menu },
+    { "&Quest", &quest_menu },
+    { "&Edit", &edit_menu },
+    { "&View", &view_menu },
+    { "&Tools", &tool_menu },
+    { "&Screen", &data_menu },
+    { "&ZScript", &zscript_menu },
+    { "Et&C", &etc_menu },
 };
 
 void rebuild_trans_table();
@@ -1661,7 +1642,7 @@ int32_t onToggleGrid(bool color)
     
     return D_O_K;
 }
-int32_t onToggleGrid()
+int onGridToggle()
 {
 	return onToggleGrid(CHECK_CTRL_CMD);
 }
@@ -1795,12 +1776,13 @@ int32_t onPressEsc()
 static DIALOG dialogs[] =
 {
 	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
-	{ d_nbmenu_proc,     3,    3,    0,    13,    0,    0,    0,       D_USER,  0,            0, (void *) the_menu, NULL, NULL },
+	{ d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,            0, (void *) &the_menu, NULL, NULL },
 	{ d_zq_hotkey_proc,  0,    0,    0,    0,     0,    0,    0,       0,       0,            0, NULL, NULL, NULL },
 	
 	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_F1,       0, (void *) onHelp, NULL, NULL },
 	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_ESC,      0, (void *) onPressEsc, NULL, NULL },
 	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    39,      0,       0,            0, (void *) onUsedCombos, NULL, NULL },
+	{ d_vsync_proc,      0,    0,    0,    0,     0,    0,    0,       0,       0,            0,       NULL, NULL, NULL },
 	{ NULL,              0,    0,    0,    0,     0,    0,    0,       0,       0,            0,       NULL, NULL, NULL }
 };
 
@@ -2952,27 +2934,7 @@ byte relational_tile_grid[11+(rtgyo*2)][16+(rtgxo*2)];
 
 void fix_drawing_mode_menu()
 {
-    for(int32_t i=0; i<dm_menumax; ++i)
-    {
-        drawing_mode_menu[i].flags=0;
-    }
-    
-	int32_t ind;
-	switch (draw_mode)
-	{
-		case dm_alias:
-			ind = 1;
-			break;
-		case dm_cpool:
-			ind = 2;
-			break;
-		case dm_auto:
-			ind = 3;
-			break;
-		default:
-			ind = 0;
-	}
-    drawing_mode_menu[ind].flags=D_SELECTED;
+	drawing_mode_menu.select_only_uid(draw_mode);
 }
 
 void reset_relational_tile_grid()
@@ -3876,6 +3838,16 @@ int32_t changeTrack()
     return D_O_K;
 }
 
+void set_media_tunes()
+{
+	media_menu.select_uid(MENUID_MEDIA_TUNES, true);
+	media_menu.select_uid(MENUID_MEDIA_PLAYMUSIC, false);
+	disable_hotkey(ZQKEY_AMBIENT_MUSIC, false);
+	disable_hotkey(ZQKEY_PLAY_MUSIC, false);
+		
+	media_menu.disable_uid(MENUID_MEDIA_CHANGETRACK, true);
+	disable_hotkey(ZQKEY_CHANGE_TRACK, true);
+}
 
 int32_t playMusic()
 {
@@ -3932,13 +3904,12 @@ int32_t playMusic()
 			{
 				if(zc_play_midi(song,true)==0)
 				{
-					media_menu[0].flags = 0;
-						
-					media_menu[1].flags = D_SELECTED;
+					media_menu.select_uid(MENUID_MEDIA_TUNES, false);
+					media_menu.select_uid(MENUID_MEDIA_PLAYMUSIC, true);
 					disable_hotkey(ZQKEY_AMBIENT_MUSIC, false);
 					disable_hotkey(ZQKEY_PLAY_MUSIC, false);
 					
-					media_menu[2].flags = D_DISABLED;
+					media_menu.disable_uid(MENUID_MEDIA_CHANGETRACK, true);
 					disable_hotkey(ZQKEY_CHANGE_TRACK, true);
 				}
 			}
@@ -3950,14 +3921,14 @@ int32_t playMusic()
 			
 			if(zcmusic!=NULL)
 			{
-				media_menu[0].flags = 0;
-					
-				media_menu[1].flags=D_SELECTED;
+				media_menu.select_uid(MENUID_MEDIA_TUNES, false);
+				media_menu.select_uid(MENUID_MEDIA_PLAYMUSIC, true);
 				disable_hotkey(ZQKEY_AMBIENT_MUSIC, false);
 				disable_hotkey(ZQKEY_PLAY_MUSIC, false);
 				
-				media_menu[2].flags = (zcmusic_get_tracks(zcmusic)<2)?D_DISABLED:0;
-				disable_hotkey(ZQKEY_CHANGE_TRACK, media_menu[2].flags&D_DISABLED);
+				bool distrack = zcmusic_get_tracks(zcmusic)<2;
+				media_menu.disable_uid(MENUID_MEDIA_CHANGETRACK, distrack);
+				disable_hotkey(ZQKEY_CHANGE_TRACK, distrack);
 					
 				zcmusic_play(zcmusic, midi_volume);
 			}
@@ -3973,7 +3944,10 @@ int32_t playZCForever()
 
 	zcmusic = zcmusic_load_file("assets/zc/ZC_Forever_HD.mp3");
 	if (zcmusic)
+	{
 		zcmusic_play(zcmusic, midi_volume);
+		set_media_tunes();
+	}
 	return D_O_K;
 }
 
@@ -4070,15 +4044,7 @@ int32_t playTune(int32_t pos)
     if(zc_play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
     {
         zc_midi_seek(pos);
-        
-        media_menu[0].flags = D_SELECTED;
-		
-        media_menu[1].flags = 0;
-		disable_hotkey(ZQKEY_AMBIENT_MUSIC, false);
-		disable_hotkey(ZQKEY_PLAY_MUSIC, false);
-            
-        media_menu[2].flags = D_DISABLED;
-		disable_hotkey(ZQKEY_CHANGE_TRACK, true);
+        set_media_tunes();
     }
     
     return D_O_K;
@@ -4096,12 +4062,12 @@ int32_t stopMusic()
 		zcmixer->newtrack = NULL;
     }
     
-    media_menu[0].flags =
-        media_menu[1].flags =  0;
+	media_menu.select_uid(MENUID_MEDIA_TUNES, false);
+	media_menu.select_uid(MENUID_MEDIA_PLAYMUSIC, false);
 	disable_hotkey(ZQKEY_AMBIENT_MUSIC, false);
 	disable_hotkey(ZQKEY_PLAY_MUSIC, false);
-                
-    media_menu[2].flags = D_DISABLED;
+	
+    media_menu.disable_uid(MENUID_MEDIA_CHANGETRACK, true);
 	disable_hotkey(ZQKEY_CHANGE_TRACK, true);
     return D_O_K;
 }
@@ -6522,13 +6488,14 @@ void draw_screenunit(int32_t unit, int32_t flags)
 }
 
 bool pause_refresh = true;
+bool is_refreshing = false;
 void refresh(int32_t flags, bool update)
 {
 	if(pause_refresh) return;
 	static bool refreshing = false;
 	
 	bool earlyret = refreshing;
-	refreshing = true;
+	is_refreshing = refreshing = true;
 	//^ These prevent recursive calls from updating the screen early
 	
 	bool zoom_delay = (zoomed_minimap && flags != rSCRMAP);
@@ -7082,17 +7049,13 @@ void refresh(int32_t flags, bool update)
 		blit(menu1,screen,combolist_window.x-64,0,combolist_window.x-64,0,combolist_window.w+64,16);
 		
 		if(flags&rCOMBO)
-		{
 			blit(menu1,screen,combo_preview.x,combo_preview.y,combo_preview.x,combo_preview.y,combo_preview.w,combo_preview.h);
-		}
 	}
 		
 	if(earlyret)
 		return;
 	
 	//Draw the Main Menu
-	jwin_menu_proc(MSG_START, &dialogs[0], 0);
-	
 	rectfill(screen,mainbar.x,mainbar.y,mainbar.x+mainbar.w-1,mainbar.y+mainbar.h-1,jwin_pal[jcBOX]);
 	jwin_draw_frame(screen,mainbar.x,mainbar.y,mainbar.w,mainbar.h,FR_WIN);
 	
@@ -7106,14 +7069,14 @@ void refresh(int32_t flags, bool update)
 	
 	font = oldfont;
 	
-	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+	d_nbmenu_proc(MSG_DRAW, &dialogs[0], 0);
 	
 	ComboBrushPause=0;
 	
 	SCRFIX();
 	if(update)
 		custom_vsync();
-	refreshing = false;
+	is_refreshing = refreshing = false;
 }
 
 static int minimap_tooltip_id = ttip_register_id();
@@ -8980,77 +8943,80 @@ int32_t set_brush_height_11()
     return D_O_K;
 }
 
-static MENU brush_width_menu[] =
+static NewMenu brush_width_menu
 {
-    { (char *)"1",          set_brush_width_1,    NULL, 0, NULL },
-    { (char *)"2",          set_brush_width_2,    NULL, 0, NULL },
-    { (char *)"3",          set_brush_width_3,    NULL, 0, NULL },
-    { (char *)"4",          set_brush_width_4,    NULL, 0, NULL },
-    { (char *)"5",          set_brush_width_5,    NULL, 0, NULL },
-    { (char *)"6",          set_brush_width_6,    NULL, 0, NULL },
-    { (char *)"7",          set_brush_width_7,    NULL, 0, NULL },
-    { (char *)"8",          set_brush_width_8,    NULL, 0, NULL },
-    { (char *)"9",          set_brush_width_9,    NULL, 0, NULL },
-    { (char *)"10",         set_brush_width_10,   NULL, 0, NULL },
-    { (char *)"11",         set_brush_width_11,   NULL, 0, NULL },
-    { (char *)"12",         set_brush_width_12,   NULL, 0, NULL },
-    { (char *)"13",         set_brush_width_13,   NULL, 0, NULL },
-    { (char *)"14",         set_brush_width_14,   NULL, 0, NULL },
-    { (char *)"15",         set_brush_width_15,   NULL, 0, NULL },
-    { (char *)"16",         set_brush_width_16,   NULL, 0, NULL },
-    { NULL,                 NULL,                 NULL, 0, NULL }
+	{ "1", set_brush_width_1 },
+	{ "2", set_brush_width_2 },
+	{ "3", set_brush_width_3 },
+	{ "4", set_brush_width_4 },
+	{ "5", set_brush_width_5 },
+	{ "6", set_brush_width_6 },
+	{ "7", set_brush_width_7 },
+	{ "8", set_brush_width_8 },
+	{ "9", set_brush_width_9 },
+	{ "10", set_brush_width_10 },
+	{ "11", set_brush_width_11 },
+	{ "12", set_brush_width_12 },
+	{ "13", set_brush_width_13 },
+	{ "14", set_brush_width_14 },
+	{ "15", set_brush_width_15 },
+	{ "16", set_brush_width_16 },
 };
-
-static MENU brush_height_menu[] =
+static NewMenu brush_height_menu
 {
-
-    { (char *)"1",          set_brush_height_1,   NULL, 0, NULL },
-    { (char *)"2",          set_brush_height_2,   NULL, 0, NULL },
-    { (char *)"3",          set_brush_height_3,   NULL, 0, NULL },
-    { (char *)"4",          set_brush_height_4,   NULL, 0, NULL },
-    { (char *)"5",          set_brush_height_5,   NULL, 0, NULL },
-    { (char *)"6",          set_brush_height_6,   NULL, 0, NULL },
-    { (char *)"7",          set_brush_height_7,   NULL, 0, NULL },
-    { (char *)"8",          set_brush_height_8,   NULL, 0, NULL },
-    { (char *)"9",          set_brush_height_9,   NULL, 0, NULL },
-    { (char *)"10",         set_brush_height_10,  NULL, 0, NULL },
-    { (char *)"11",         set_brush_height_11,  NULL, 0, NULL },
-    { NULL,                 NULL,                 NULL, 0, NULL }
+	{ "1", set_brush_height_1 },
+	{ "2", set_brush_height_2 },
+	{ "3", set_brush_height_3 },
+	{ "4", set_brush_height_4 },
+	{ "5", set_brush_height_5 },
+	{ "6", set_brush_height_6 },
+	{ "7", set_brush_height_7 },
+	{ "8", set_brush_height_8 },
+	{ "9", set_brush_height_9 },
+	{ "10", set_brush_height_10 },
+	{ "11", set_brush_height_11 },
 };
 
 int toggle_autobrush();
 int toggle_combobrush();
 int toggle_floatbrush();
-static MENU brush_menu[] =
+enum
 {
-    { (char *)"AutoBrush",           toggle_autobrush,  NULL,              0, NULL },
-    { (char *)"Brush Width\t ",      NULL,              brush_width_menu,  0, NULL },
-    { (char *)"Brush Height\t ",     NULL,              brush_height_menu, 0, NULL },
-    { (char *)"ComboBrush",          toggle_combobrush, NULL,              0, NULL },
-    { (char *)"FloatBrush",          toggle_floatbrush, NULL,              0, NULL },
-	{ NULL,                          NULL,              NULL,              0, NULL }
+	MENUID_BRUSH_AUTOBRUSH,
+	MENUID_BRUSH_WIDTH,
+	MENUID_BRUSH_HEIGHT,
+	MENUID_BRUSH_COMBOBRUSH,
+	MENUID_BRUSH_FLOATBRUSH,
+};
+static NewMenu brush_menu
+{
+	{ "AutoBrush", toggle_autobrush, MENUID_BRUSH_AUTOBRUSH },
+	{ "Brush Width ", &brush_width_menu, MENUID_BRUSH_WIDTH },
+	{ "Brush Height ", &brush_height_menu, MENUID_BRUSH_HEIGHT },
+	{ "ComboBrush", toggle_combobrush, MENUID_BRUSH_COMBOBRUSH },
+	{ "FloatBrush", toggle_floatbrush, MENUID_BRUSH_FLOATBRUSH },
 };
 int toggle_autobrush()
 {
 	AutoBrush = AutoBrush ? 0 : 1;
 	BrushWidth = BrushHeight = 1;
-	SETFLAG(brush_menu[0].flags, D_SELECTED, AutoBrush);
-	SETFLAG(brush_menu[1].flags, D_DISABLED, AutoBrush);
-	SETFLAG(brush_menu[2].flags, D_DISABLED, AutoBrush);
+	brush_menu.select_uid(MENUID_BRUSH_AUTOBRUSH, AutoBrush);
+	brush_menu.disable_uid(MENUID_BRUSH_WIDTH, AutoBrush);
+	brush_menu.disable_uid(MENUID_BRUSH_HEIGHT, AutoBrush);
 	zc_set_config("zquest","autobrush",AutoBrush);
 	return D_O_K;
 }
 int toggle_combobrush()
 {
 	ComboBrush = ComboBrush ? 0 : 1;
-	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
+	brush_menu.select_uid(MENUID_BRUSH_COMBOBRUSH, ComboBrush);
 	zc_set_config("zquest","combo_brush",ComboBrush);
 	return D_O_K;
 }
 int toggle_floatbrush()
 {
 	FloatBrush = FloatBrush ? 0 : 1;
-	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
+	brush_menu.select_uid(MENUID_BRUSH_FLOATBRUSH, FloatBrush);
 	zc_set_config("zquest","float_brush",FloatBrush);
 	return D_O_K;
 }
@@ -9392,73 +9358,51 @@ void fill2_8()
     refresh(rMAP+rSCRMAP);
 }
 
-static MENU fill_menu[] =
+enum
 {
-    { (char *)"Flood",                   set_flood,   NULL, 0, NULL },
-    { (char *)"Fill (4-way)",            set_fill_4,  NULL, 0, NULL },
-    { (char *)"Fill (8-way)",            set_fill_8,  NULL, 0, NULL },
-    { (char *)"Fill2 (4-way)",           set_fill2_4, NULL, 0, NULL },
-    { (char *)"Fill2 (8-way)",           set_fill2_8, NULL, 0, NULL },
-    { NULL,                              NULL,        NULL, 0, NULL }
+	
 };
+static NewMenu fill_menu
+{
+	{ "Flood", set_flood, 0 },
+	{ "Fill (4-way)", set_fill_4, 1 },
+	{ "Fill (8-way)", set_fill_8, 2 },
+	{ "Fill2 (4-way)", set_fill2_4, 3 },
+	{ "Fill2 (8-way)", set_fill2_8, 4 },
+};
+void set_filltype(int ty)
+{
+	fill_type = ty;
+	fill_menu.select_only_uid(ty);
+}
 
 int32_t set_flood()
 {
-    for(int32_t x=0; x<5; x++)
-    {
-        fill_menu[x].flags=0;
-    }
-    
-    fill_menu[0].flags=D_SELECTED;
-    fill_type=0;
+	set_filltype(0);
     return D_O_K;
 }
 
 int32_t set_fill_4()
 {
-    for(int32_t x=0; x<5; x++)
-    {
-        fill_menu[x].flags=0;
-    }
-    
-    fill_menu[1].flags=D_SELECTED;
-    fill_type=1;
+    set_filltype(1);
     return D_O_K;
 }
 
 int32_t set_fill_8()
 {
-    for(int32_t x=0; x<5; x++)
-    {
-        fill_menu[x].flags=0;
-    }
-    
-    fill_menu[2].flags=D_SELECTED;
-    fill_type=2;
+    set_filltype(2);
     return D_O_K;
 }
 
 int32_t set_fill2_4()
 {
-    for(int32_t x=0; x<5; x++)
-    {
-        fill_menu[x].flags=0;
-    }
-    
-    fill_menu[3].flags=D_SELECTED;
-    fill_type=3;
+    set_filltype(3);
     return D_O_K;
 }
 
 int32_t set_fill2_8()
 {
-    for(int32_t x=0; x<5; x++)
-    {
-        fill_menu[x].flags=0;
-    }
-    
-    fill_menu[4].flags=D_SELECTED;
-    fill_type=4;
+    set_filltype(4);
     return D_O_K;
 }
 
@@ -9510,25 +9454,24 @@ int32_t draw_block_4_4()
     return D_O_K;
 }
 
-static MENU draw_block_menu[] =
+static NewMenu draw_block_menu
 {
-    { (char *)"1x2",                     draw_block_1_2,  NULL,    0, NULL },
-    { (char *)"2x1",                     draw_block_2_1,  NULL,    0, NULL },
-    { (char *)"2x2",                     draw_block_2_2,  NULL,    0, NULL },
-    { (char *)"2x3",                     draw_block_2_3,  NULL,    0, NULL },
-    { (char *)"3x2",                     draw_block_3_2,  NULL,    0, NULL },
-    { (char *)"3x3",                     draw_block_3_3,  NULL,    0, NULL },
-    { (char *)"4x2",                     draw_block_4_2,  NULL,    0, NULL },
-    { (char *)"4x4",                     draw_block_4_4,  NULL,    0, NULL },
-    { NULL,                              NULL,            NULL,    0, NULL }
+	{ "1x2", draw_block_1_2 },
+	{ "2x1", draw_block_2_1 },
+	{ "2x2", draw_block_2_2 },
+	{ "2x3", draw_block_2_3 },
+	{ "3x2", draw_block_3_2 },
+	{ "3x3", draw_block_3_3 },
+	{ "4x2", draw_block_4_2 },
+	{ "4x4", draw_block_4_4 },
 };
 
-static MENU paste_screen_menu[] =
+static NewMenu paste_screen_menu
 {
-    { (char *)"Paste All",                     onPasteAll,  NULL,    0, NULL },
-    { (char *)"Paste to All",                     onPasteToAll,  NULL,    0, NULL },
-    { (char *)"Paste All to All",                     onPasteAllToAll,  NULL,    0, NULL },
-    { NULL,                              NULL,            NULL,    0, NULL }
+	{ "Paste", onPaste },
+	{ "Paste All", onPasteAll },
+	{ "Paste to All", onPasteToAll },
+	{ "Paste All to All", onPasteAllToAll },
 };
 
 int32_t scrollto_cmb(int32_t cid)
@@ -9632,174 +9575,237 @@ void onRCScrollToombo(int32_t c)
 	First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 }
 
-static MENU rc_menu_screen[] =
+enum
 {
-{ (char *)"Copy Screen",                        onCopy,  NULL,              0, NULL },
-    { (char *)"Paste Screen",                        onPaste,  NULL,              0, NULL },
-    { (char *)"Paste...",                        NULL,  paste_screen_menu,              0, NULL },
-    { (char *)"Adv. Paste",                        NULL,  paste_menu,              0, NULL },
-    { (char *)"Paste Special",                        NULL,  paste_item_menu,              0, NULL },
-    { NULL,                              NULL,            NULL,    0, NULL }
+	MENUID_RCSCREEN_PASTE,
+	MENUID_RCSCREEN_ADVPASTE,
+	MENUID_RCSCREEN_SPECPASTE,
+};
+static NewMenu rc_menu_screen
+{
+	{ "Copy Screen", onCopy },
+	{ "Paste Screen", &paste_screen_menu, MENUID_RCSCREEN_PASTE },
+	{ "...Advanced Paste", &paste_menu, MENUID_RCSCREEN_ADVPASTE },
+	{ "...Special Paste", &paste_item_menu, MENUID_RCSCREEN_SPECPASTE },
 };
 
-
-static MENU draw_rc_menu[] =
+void follow_twarp(int warpindex)
 {
-	//0
-	{ (char *)"Select Combo",            NULL,  NULL,              0, NULL },
-	{ (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
-	{ (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
-	{ (char *)"",                        NULL,  NULL,              0, NULL },
-	{ (char *)"Replace All",             NULL,  NULL,              0, NULL },
-	//5
-	{ (char *)"Draw Block",              NULL,  draw_block_menu,   0, NULL },
-	{ (char *)"Brush Settings\t ",       NULL,  brush_menu,        0, NULL },
-	{ (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
-	{ (char *)"",                        NULL,  NULL,              0, NULL },
-	{ (char *)"Follow Tile Warp",        NULL,  NULL,              0, NULL },
-	//10
-	{ (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
-	{ (char *)"",                        NULL,  NULL,              0, NULL },
-	{ (char *)"Edit New FFC 1",          NULL,  NULL,              0, NULL },
-	{ (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
-	{ (char *)"",                        NULL,  NULL,              0, NULL },
-	//15
-	{ (char *)"Screen",                  NULL,  rc_menu_screen,    0, NULL },
+	if(warpindex >= 4)
+	{
+		InfoDialog("Random Tile Warp",
+			"This is a random tile warp combo, so it chooses"
+			" randomly between the screen's four Tile Warps.").show();
+		warpindex=zc_oldrand()&3;
+	}
 	
-	{ NULL,                              NULL,  NULL,              0, NULL }
-};
+	int32_t tm = Map.getCurrMap();
+	int32_t ts = Map.getCurrScr();
+	int32_t wt = Map.CurrScr()->tilewarptype[warpindex];
+	
+	if(wt==wtCAVE || wt==wtNOWARP)
+	{
+		char buf[56];
+		InfoDialog(warptype_string[wt],fmt::format("This screen's Tile Warp {} is set to {}, so it doesn't lead to another screen.",'A'+warpindex,warptype_string[wt]));
+		return;
+	}
+	
+	Map.dowarp(0,warpindex);
+	
+	if(ts!=Map.getCurrScr() || tm!=Map.getCurrMap())
+	{
+		FlashWarpSquare = (TheMaps[tm*MAPSCRS+ts].warpreturnc>>(warpindex*2))&3;
+		FlashWarpClk = 32;
+	}
+}
+void edit_twarp(int warpindex)
+{
+	if(warpindex>=4)
+	{
+		InfoDialog("Random Tile Warp",
+			"This is a random tile warp combo, so it chooses"
+			" randomly between the screen's four Tile Warps.").show();
+		warpindex=zc_oldrand()&3;
+	}
+	
+	if(warpindex > -1 && warpindex < 4)
+		onTileWarpIndex(warpindex);
+}
 
-static MENU draw_ffc_rc_menu[] =
-{
-    { (char *)"Copy FFC",            NULL,  NULL,              0, NULL },
-    { (char *)"Paste FFC data",           NULL,  NULL,              0, NULL },
-    { (char *)"Edit FFC",            NULL,  NULL,              0, NULL },
-    { (char *)"Clear FFC",           NULL,  NULL,              0, NULL },
-    { (char *)"Snap to Grid",           NULL,  NULL,              0, NULL },
-    { NULL,                          NULL,  NULL,              0, NULL }
-};
-
-int toggle_linked_scrolling();
-static MENU combosel_rc_menu[] =
-{
-    { (char *)"Edit Combo",         NULL,                     NULL, 0, NULL },
-    { (char *)"Open Combo Page",    NULL,                     NULL, 0, NULL },
-    { (char *)"Open Tile Page",     NULL,                     NULL, 0, NULL },
-    { (char *)"Combo Locations",    NULL,                     NULL, 0, NULL },
-    { (char *)"",                   NULL,                     NULL, 0, NULL },
-    //5
-	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
-    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
-    { NULL,                         NULL,                     NULL, 0, NULL }
-};
-static MENU cpoolsel_rc_menu[] =
-{
-    { (char *)"Edit Pool",         NULL,                     NULL, 0, NULL },
-    { (char *)"Open Pool Page",    NULL,                     NULL, 0, NULL },
-    { (char *)"",                   NULL,                     NULL, 0, NULL },
-	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
-    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
-    { NULL,                         NULL,                     NULL, 0, NULL }
-};
-static MENU cautosel_rc_menu[] =
-{
-    { (char *)"Edit Auto Combo",    NULL,                     NULL, 0, NULL },
-    { (char *)"Open Auto Page",     NULL,                     NULL, 0, NULL },
-    { (char *)"",                   NULL,                     NULL, 0, NULL },
-	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
-    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
-    { NULL,                         NULL,                     NULL, 0, NULL }
-};
-static MENU caliassel_rc_menu[] =
-{
-    { (char *)"Edit Combo Alias",   NULL,                     NULL, 0, NULL },
-    { (char *)"Open Alias Page",    NULL,                     NULL, 0, NULL },
-    { (char *)"",                   NULL,                     NULL, 0, NULL },
-	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
-    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
-    { NULL,                         NULL,                     NULL, 0, NULL }
-};
 int toggle_linked_scrolling()
 {
 	LinkedScroll = LinkedScroll ? 0 : 1;
-	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
-	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
-	SETFLAG(cautosel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
-	SETFLAG(caliassel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
 	zc_set_config("zquest","linked_comboscroll",LinkedScroll);
 	return D_O_K;
 }
-
-static MENU favorite_combo_page_menu[] =
+void on_scroll_cpane()
 {
-
-	{ (char*)"Page 1",          NULL,   NULL, 0, NULL },
-	{ (char*)"Page 2",          NULL,   NULL, 0, NULL },
-	{ (char*)"Page 3",          NULL,   NULL, 0, NULL },
-	{ (char*)"Page 4",          NULL,   NULL, 0, NULL },
-	{ (char*)"Page 5",          NULL,   NULL, 0, NULL },
-	{ (char*)"Page 6",          NULL,   NULL, 0, NULL },
-	{ (char*)"Page 7",          NULL,   NULL, 0, NULL },
-	{ (char*)"Page 8",          NULL,   NULL, 0, NULL },
-	{ (char*)"Page 9",          NULL,   NULL, 0, NULL }
-};
-
-static MENU fav_cmb_rc_menu[] =
+	switch (draw_mode)
+	{
+		case dm_alias:
+			combo_alistpos[current_comboalist] = scrollto_alias(combo_apos);
+			break;
+		case dm_cpool:
+			combo_pool_listpos[current_cpoollist] = scrollto_cpool(combo_pool_pos);
+			break;
+		case dm_auto:
+			combo_auto_listpos[current_cautolist] = scrollto_cauto(combo_auto_pos);
+			break;
+		default:
+			First[current_combolist] = scrollto_cmb(Combo);
+			break;
+	}
+}
+void on_edit_cpane()
 {
-    { (char *)"Scroll to Combo  ",       NULL,  NULL, 0, NULL },
-    { (char *)"Edit Combo  ",            NULL,  NULL, 0, NULL },
-    { (char *)"Remove Fav Combo  ",          NULL,  NULL, 0, NULL },
-    { (char *)"",                        NULL,  NULL, 0, NULL },
-    { (char *)"Open Combo Page  ",       NULL,  NULL, 0, NULL },
-    { (char *)"Open Tile Page  ",        NULL,  NULL, 0, NULL },
-    { NULL,                              NULL,  NULL, 0, NULL }
-};
-
-static MENU fav_alias_rc_menu[] =
+	switch (draw_mode)
+	{
+		case dm_alias:
+			onEditComboAlias();
+			break;
+		case dm_cpool:
+			onEditComboPool();
+			break;
+		case dm_auto:
+			onEditAutoCombo();
+			break;
+		default:
+			reset_combo_animations();
+			reset_combo_animations2();
+			edit_combo(Combo, true, CSet);
+			setup_combo_animations();
+			setup_combo_animations2();
+			break;
+	}
+}
+void on_cpane_page()
 {
-    { (char *)"Scroll to Alias  ",       NULL,  NULL, 0, NULL },
-    { (char *)"Edit Alias  ",            NULL,  NULL, 0, NULL },
-    { (char *)"Remove Fav Alias  ",          NULL,  NULL, 0, NULL },
-    { NULL,                              NULL,  NULL, 0, NULL }
-};
-
-static MENU fav_cpool_rc_menu[] =
+	switch(draw_mode)
+	{
+		case dm_normal:
+			combo_screen(Combo>>8,Combo);
+			break;
+		case dm_alias:
+			call_alias_pages(combo_apos);
+			break;
+		case dm_auto:
+			call_autoc_pages(combo_auto_pos);
+			break;
+		case dm_cpool:
+			call_cpool_pages(combo_pool_pos);
+			break;
+	}
+}
+void open_cpane_tilepage()
 {
-	{ (char*)"Scroll to Pool  ",       NULL,  NULL, 0, NULL },
-	{ (char*)"Edit Pool  ",            NULL,  NULL, 0, NULL },
-	{ (char*)"Remove Fav Pool  ",          NULL,  NULL, 0, NULL },
-	{ NULL,                              NULL,  NULL, 0, NULL }
-};
-
-static MENU fav_autocombo_rc_menu[] =
+	onGotoTiles(combobuf[Combo].tile);
+}
+static int _clicked_fav = 0;
+void fav_rc_remove()
 {
-	{ (char*)"Scroll to Autocombo  ",       NULL,  NULL, 0, NULL },
-	{ (char*)"Edit Autocombo  ",            NULL,  NULL, 0, NULL },
-	{ (char*)"Remove Fav Autocombo  ",          NULL,  NULL, 0, NULL },
-	{ NULL,                              NULL,  NULL, 0, NULL }
-};
+	favorite_combo_modes[_clicked_fav] = dm_normal;
+	favorite_combos[_clicked_fav] = -1;
+	saved = false;
+}
+void popup_favorites_rc(int f, int x, int y)
+{
+	_clicked_fav = f;
+	string type;
+	switch (draw_mode)
+	{
+		case dm_alias:
+			type = "Alias";
+			break;
+		case dm_cpool:
+			type = "Pool";
+			break;
+		case dm_auto:
+			type = "Autocombo";
+			break;
+		case dm_normal:
+			type = "Combo";
+			break;
+		default: return;
+	}
+	NewMenu rcmenu
+	{
+		{ fmt::format("Scroll to {}", type), on_scroll_cpane },
+		{ fmt::format("Edit {}", type), on_edit_cpane },
+		{ fmt::format("Open {} Page", type), on_cpane_page },
+		{ fmt::format("Remove Fav {}", type), fav_rc_remove },
+	};
+	switch (draw_mode)
+	{
+		case dm_normal:
+			rcmenu.add({
+				{},
+				{ "Open Tile Page", open_cpane_tilepage },
+				});
+			break;
+	}
+	rcmenu.pop(x, y);
+}
+void popup_cpane_rc(int x, int y)
+{
+	string type;
+	switch (draw_mode)
+	{
+		case dm_alias:
+			type = "Alias";
+			break;
+		case dm_cpool:
+			type = "Pool";
+			break;
+		case dm_auto:
+			type = "Autocombo";
+			break;
+		case dm_normal:
+			type = "Combo";
+			break;
+		default: return;
+	}
+	NewMenu rcmenu;
+	switch(draw_mode)
+	{
+		case dm_normal:
+			rcmenu.add({
+					{ fmt::format("Edit {}", type), on_edit_cpane },
+					{ fmt::format("Open {} Page", type), on_cpane_page },
+					{ "Open Tile Page", open_cpane_tilepage },
+					{ "Combo Locations", onComboLocationReport },
+					{},
+					{ "Scroll to Page...", onGotoPage },
+					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, false, LinkedScroll!=0 },
+				});
+			break;
+		case dm_alias:
+		case dm_cpool:
+		case dm_auto:
+			rcmenu.add({
+					{ fmt::format("Edit {}", type), on_edit_cpane },
+					{ fmt::format("Open {} Page", type), on_cpane_page },
+					{},
+					{ "Scroll to Page...", onGotoPage },
+					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, false, LinkedScroll!=0 },
+				});
+			break;
+	}
+	rcmenu.pop(x, y);
+}
 
 void set_brush_width(int32_t width)
 {
-    for(int32_t x=0; x<16; x++)
-    {
-        brush_width_menu[x].flags=0;
-    }
-    
-    BrushWidth=width;
-    brush_width_menu[width-1].flags=D_SELECTED;
+    BrushWidth = width;
+    for(int q = 0; q < brush_width_menu.size(); ++q)
+		brush_width_menu.at(q)->select(q==BrushWidth-1);
     refresh(rALL);
 }
 
 void set_brush_height(int32_t height)
 {
-    for(int32_t x=0; x<11; x++)
-    {
-        brush_height_menu[x].flags=0;
-    }
-    
-    BrushHeight=height;
-    brush_height_menu[height-1].flags=D_SELECTED;
+    BrushHeight = height;
+    for(int q = 0; q < brush_height_menu.size(); ++q)
+		brush_height_menu.at(q)->select(q==BrushHeight-1);
     refresh(rALL);
 }
 
@@ -9840,7 +9846,9 @@ void domouse()
 {
 	static int mouse_down = 0;
 	static int32_t scrolldelay = 0;
-	auto [x, y] = zc_get_mouse();
+	auto mousexy = zc_get_mouse();
+	auto x = mousexy.first;
+	auto y = mousexy.second;
 	double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
 	double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
 	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
@@ -10325,13 +10333,8 @@ void domouse()
 			{
 				if (rclick)
 				{
-					for (int32_t q = 0; q < 9; ++q)
-						favorite_combo_page_menu[q].flags = 0;
-					favorite_combo_page_menu[FavoriteComboPage].flags = D_SELECTED;
-
-					int32_t m = popup_menu(favorite_combo_page_menu, x, y);
-					if (m > -1)
-						FavoriteComboPage = vbound(m, 0, 8);
+					if(auto val = popup_num_menu(x, y, 1, 9, FavoriteComboPage, [](int p){return fmt::format("Page {}",p);}))
+						FavoriteComboPage = vbound(*val-1, 0, 8);
 				}
 				else
 					FavoriteComboPage = FavoriteComboPage == 0 ? 8 : --FavoriteComboPage;
@@ -10345,13 +10348,8 @@ void domouse()
 			{
 				if (rclick)
 				{
-					for (int32_t q = 0; q < 9; ++q)
-						favorite_combo_page_menu[q].flags = 0;
-					favorite_combo_page_menu[FavoriteComboPage].flags = D_SELECTED;
-
-					int32_t m = popup_menu(favorite_combo_page_menu, x, y);
-					if (m > -1)
-						FavoriteComboPage = vbound(m, 0, 8);
+					if(auto val = popup_num_menu(x, y, 1, 9, FavoriteComboPage, [](int p){return fmt::format("Page {}",p);}))
+						FavoriteComboPage = vbound(*val-1, 0, 8);
 				}
 				else
 					FavoriteComboPage = FavoriteComboPage == 8 ? 0 : ++FavoriteComboPage;
@@ -10614,78 +10612,80 @@ void domouse()
 						
 						if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 						{
-							draw_ffc_rc_menu[1].flags = (Map.getCopyFFC()>-1) ? 0 : D_DISABLED;
-							
-							int32_t m = popup_menu(draw_ffc_rc_menu,x,y);
-							
-							switch(m)
+							NewMenu rcmenu
 							{
-								case 0:
-									Map.CopyFFC(i);
-									break;
-								
-								case 1: // Paste Copied FFC
-								{
-									if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+								{ "Copy FFC", [&](){Map.CopyFFC(i);} },
+								{ "Paste FFC data", [&]()
 									{
-										auto set_ffc_data = Map.getCopyFFCData();
-										set_ffc_data.x = Map.CurrScr()->ffcs[i].x;
-										set_ffc_data.y = Map.CurrScr()->ffcs[i].y;
+										bool didconfirm = false;
+										AlertDialog("Confirm Paste",
+											"Really replace the FFC with the data of the copied FFC?",
+											[&](bool ret,bool)
+											{
+												if(ret)
+													didconfirm = true;
+											}).show();
+										if(didconfirm)
+										{
+											auto set_ffc_data = Map.getCopyFFCData();
+											set_ffc_data.x = Map.CurrScr()->ffcs[i].x;
+											set_ffc_data.y = Map.CurrScr()->ffcs[i].y;
+											Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
+										}
+									}, nullopt, Map.getCopyFFC() < 0 },
+								{ "Edit FFC", [&](){call_ffc_dialog(i);} },
+								{ "Clear FFC", [&]()
+									{
+										bool didconfirm = false;
+										AlertDialog("Confirm Clear",
+											"Really clear this Freeform Combo?",
+											[&](bool ret,bool)
+											{
+												if(ret)
+													didconfirm = true;
+											}).show();
+										if(didconfirm)
+										{
+											Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, {
+												.x = 0,
+												.y = 0,
+												.vx = 0,
+												.vy = 0,
+												.ax = 0,
+												.ay = 0,
+												.data = 0,
+												.cset = 0,
+												.delay = 0,
+												.link = 0,
+												.script = 0,
+												.tw = 1,
+												.th = 1,
+												.ew = 16,
+												.eh = 16,
+												.flags = 0,
+												.inita = 10000,
+												.initd = 0,
+											});
+											saved = false;
+										}
+									} },
+								{ "Snap to Grid", [&]()
+									{
+										int oldffx = Map.CurrScr()->ffcs[i].x.getInt();
+										int oldffy = Map.CurrScr()->ffcs[i].y.getInt();
+										int pos = COMBOPOS(oldffx,oldffy);
+										int newffy = COMBOY(pos);
+										int newffx = COMBOX(pos);
+
+										auto set_ffc_data = set_ffc_command::create_data(Map.CurrScr()->ffcs[i]);
+										set_ffc_data.x = newffx;
+										set_ffc_data.y = newffy;
 										Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
-									}
-								}
-								break;
-								
-								case 2:
-									call_ffc_dialog(i);
-									break;
-								
-								case 3:
-									if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
-									{
-										Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, {
-											.x = 0,
-											.y = 0,
-											.vx = 0,
-											.vy = 0,
-											.ax = 0,
-											.ay = 0,
-											.data = 0,
-											.cset = 0,
-											.delay = 0,
-											.link = 0,
-											.script = 0,
-											.tw = 1,
-											.th = 1,
-											.ew = 16,
-											.eh = 16,
-											.flags = 0,
-											.inita = 10000,
-											.initd = 0,
-										});
 
 										saved = false;
-									}
-									break;
-								
-								case 4: //snap to grid
-								{
-									int32_t oldffx = Map.CurrScr()->ffcs[i].x.getInt();
-									int32_t oldffy = Map.CurrScr()->ffcs[i].y.getInt();
-									int32_t pos = COMBOPOS(oldffx,oldffy);
-									int32_t newffy = COMBOY(pos);
-									int32_t newffx = COMBOX(pos);
-
-									auto set_ffc_data = set_ffc_command::create_data(Map.CurrScr()->ffcs[i]);
-									set_ffc_data.x = newffx;
-									set_ffc_data.y = newffy;
-									Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
-
-									saved = false;
-									break;
-								}
-							}
-							
+									} },
+							};
+							rcmenu.pop(x, y);
 							clickedffc = true;
 							break;
 						}
@@ -10696,46 +10696,27 @@ void domouse()
 				// Combo right-click menu
 				if(!clickedffc)
 				{
+					int warpindex = Map.warpindex(Map.CurrScr()->data[c]);
+					string txt_twarp_follow, txt_twarp_edit, txt_ffc_edit, txt_ffc_paste;
+					bool show_ffcs = earliestfreeffc < MAXFFCS;
+					bool dis_paste_ffc = Map.getCopyFFC() < 0;
+					bool show_warps = warpindex > -1;
 					// FFC-specific options
 					if(earliestfreeffc < MAXFFCS)
 					{
-						sprintf(paste_ffc_menu_text, "Edit New FFC %d",earliestfreeffc+1);
-						sprintf(paste_ffc_menu_text2,"Paste FFC as FFC %d",earliestfreeffc+1);
-						draw_rc_menu[12].text = paste_ffc_menu_text;
-						draw_rc_menu[12].flags = 0;
-						
+						txt_ffc_edit = fmt::format("Edit New FFC {}",earliestfreeffc+1);
 						if(Map.getCopyFFC()>-1)
-						{
-							draw_rc_menu[13].text = paste_ffc_menu_text2;
-							draw_rc_menu[13].flags = 0;
-						}
-						else draw_rc_menu[13].flags = D_DISABLED;
+							txt_ffc_paste = fmt::format("Paste FFC as FFC {}",earliestfreeffc+1);
+						else
+							txt_ffc_paste = "Paste FFC";
 					}
-					else
-					{
-						draw_rc_menu[12].text = (char*)"Edit New FFC";
-						draw_rc_menu[13].text = (char*)"Paste FFC";
-						draw_rc_menu[13].flags = draw_rc_menu[12].flags = D_DISABLED;
-					}
-					
-					int32_t warpindex = Map.warpindex(Map.CurrScr()->data[c]);
 					
 					if(warpindex > -1)
 					{
-						sprintf(follow_warp_menu_text, "Follow Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
-						sprintf(follow_warp_menu_text2,"Edit Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
-						draw_rc_menu[9].text = follow_warp_menu_text;
-						draw_rc_menu[10].text = follow_warp_menu_text2;
-						draw_rc_menu[9].flags = draw_rc_menu[10].flags = 0;
+						char letter = warpindex==4 ? 'R' : 'A'+warpindex;
+						txt_twarp_follow = fmt::format("Follow Tile Warp {}",letter);
+						txt_twarp_edit = fmt::format("Edit Tile Warp {}",letter);
 					}
-					else
-					{
-						draw_rc_menu[9].text = (char*)"Follow Tile Warp";
-						draw_rc_menu[10].text = (char*)"Edit Tile Warp";
-						draw_rc_menu[10].flags = draw_rc_menu[9].flags = D_DISABLED;
-					}
-					
-					int32_t m = popup_menu(draw_rc_menu,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
 					
 					int32_t drawmap, drawscr;
 					if(CurrentLayer==0)
@@ -10749,106 +10730,57 @@ void domouse()
 						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
 					}
 					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-					switch(m)
+					NewMenu draw_rc_menu
 					{
-						case 0:
-						case 1:
-						{
-							if(!draw_mapscr) return;
-							if(m==0)
+						{ "Select Combo", [&]()
 							{
-								Combo=draw_mapscr->data[c];
+								Combo = draw_mapscr->data[c];
 								if(AutoBrush)
 									BrushWidth = BrushHeight = 1;
-							}
-							
-							if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
+							}, nullopt, !draw_mapscr },
+						{ "Scroll to Combo", [&]()
 							{
-								First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
-							}
-						}
-						break;
-						
-						case 2:
-						{
-							if(!draw_mapscr) return;
-							edit_combo(draw_mapscr->data[c],true,draw_mapscr->cset[c]);
-						}
-						break;
-						
-						case 4:
-							replace(c);
-							break;
-							
-						case 9: // Follow Tile Warp
-						{
-							if(warpindex>=4)
+								First[current_combolist] = draw_mapscr->data[c];
+							}, nullopt, !draw_mapscr },
+						{ "Edit Combo", [&]()
 							{
-								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-								warpindex=zc_oldrand()&3;
-							}
-							
-							int32_t tm = Map.getCurrMap();
-							int32_t ts = Map.getCurrScr();
-							int32_t wt = Map.CurrScr()->tilewarptype[warpindex];
-							
-							if(wt==wtCAVE || wt==wtNOWARP)
-							{
-								char buf[56];
-								sprintf(buf,"This screen's Tile Warp %c is set to %s,",'A'+warpindex,warptype_string[wt]);
-								jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-								break;
-								break;
-							}
-							
-							Map.dowarp(0,warpindex);
-							
-							if(ts!=Map.getCurrScr() || tm!=Map.getCurrMap())
-							{
-								FlashWarpSquare = (TheMaps[tm*MAPSCRS+ts].warpreturnc>>(warpindex*2))&3;
-								FlashWarpClk = 32;
-							}
-							
-							break;
-						}
-						
-						case 10: // Edit Tile Warp
-						{
-							if(warpindex>=4)
-							{
-								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-								warpindex=0;
-							}
-							
-							if(warpindex > -1 && warpindex < 4)
-								onTileWarpIndex(warpindex);
-								
-							break;
-						}
-						
-						case 12:
-						{
-							ffdata tempdat;
-							tempdat.x = (((x-startxint)/mapscreensize)&(~0x0007))*10000;
-							tempdat.y = (((y-startyint)/mapscreensize)&(~0x0007))*10000;
-							tempdat.data = Combo;
-							tempdat.cset = CSet;
-							call_ffc_dialog(earliestfreeffc, tempdat);
-						}
-						break;
-						
-						case 13:
-						{
-							auto set_ffc_data = Map.getCopyFFCData();
-							set_ffc_data.x = (((x-startxint)/mapscreensize)&(~0x0007));
-							set_ffc_data.y = (((y-startyint)/mapscreensize)&(~0x0007));
-							Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), earliestfreeffc, set_ffc_data);
-						}
-						break;
-						
-						default:
-							break;
+								edit_combo(draw_mapscr->data[c],true,draw_mapscr->cset[c]);
+							}, nullopt, !draw_mapscr },
+						{},
+						{ "Replace All", [&](){replace(c);} },
+						{ "Draw Block", &draw_block_menu },
+						{ "Brush Settings ", &brush_menu },
+						{ "Set Fill Type ", &fill_menu },
+					};
+					if(show_warps)
+					{
+						draw_rc_menu.add({});
+						draw_rc_menu.add({ txt_twarp_follow, [&](){follow_twarp(warpindex);} });
+						draw_rc_menu.add({ txt_twarp_edit, [&](){edit_twarp(warpindex);} });
 					}
+					if(show_ffcs)
+					{
+						draw_rc_menu.add({});
+						draw_rc_menu.add({ txt_ffc_edit, [&]()
+							{
+								ffdata tempdat;
+								tempdat.x = (((x-startxint)/mapscreensize)&(~0x0007))*10000;
+								tempdat.y = (((y-startyint)/mapscreensize)&(~0x0007))*10000;
+								tempdat.data = Combo;
+								tempdat.cset = CSet;
+								call_ffc_dialog(earliestfreeffc, tempdat);
+							} });
+						draw_rc_menu.add({ txt_ffc_paste, [&]()
+							{
+								auto set_ffc_data = Map.getCopyFFCData();
+								set_ffc_data.x = (((x-startxint)/mapscreensize)&(~0x0007));
+								set_ffc_data.y = (((y-startyint)/mapscreensize)&(~0x0007));
+								Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), earliestfreeffc, set_ffc_data);
+							}, nullopt, dis_paste_ffc });
+					}
+					draw_rc_menu.add({});
+					draw_rc_menu.add({ "Screen", &rc_menu_screen });
+					draw_rc_menu.pop(x,y);
 				}
 			}
 			goto domouse_doneclick;
@@ -10864,7 +10796,7 @@ void domouse()
 					onDrawingMode();
 			}
 			else if(rclick)
-				popup_menu(drawing_mode_menu,x,y);
+				drawing_mode_menu.pop(x,y);
 			goto domouse_doneclick;
 		}
 		font=tfont;
@@ -10993,22 +10925,7 @@ void domouse()
 					select_comboa(j);
 					
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
-					{
-						int32_t m = popup_menu(caliassel_rc_menu,x,y);
-						
-						switch(m)
-						{
-							case 0:
-								onEditComboAlias();
-								break;
-							case 1:
-								call_alias_pages(j);
-								break;
-							case 3:
-								onGotoPage();
-								break;
-						}
-					}
+						popup_cpane_rc(x, y);
 					goto domouse_doneclick;
 				}
 			}
@@ -11032,22 +10949,7 @@ void domouse()
 					select_combop(j);
 					
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
-					{
-						int32_t m = popup_menu(cpoolsel_rc_menu,x,y);
-						
-						switch(m)
-						{
-							case 0:
-								onEditComboPool();
-								break;
-							case 1:
-								call_cpool_pages(j);
-								break;
-							case 3:
-								onGotoPage();
-								break;
-						}
-					}
+						popup_cpane_rc(x, y);
 					goto domouse_doneclick;
 				}
 			}
@@ -11071,22 +10973,7 @@ void domouse()
 					select_autocombo(j);
 
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
-					{
-						int32_t m = popup_menu(cautosel_rc_menu,x,y);
-						
-						switch(m)
-						{
-							case 0:
-								onEditAutoCombo();
-								break;
-							case 1:
-								call_autoc_pages(j);
-								break;
-							case 3:
-								onGotoPage();
-								break;
-						}
-					}
+						popup_cpane_rc(x, y);
 					goto domouse_doneclick;
 				}
 			}
@@ -11110,40 +10997,7 @@ void domouse()
 					select_combo(j);
 					
 					if(rclick && combolist[j].rect(gui_mouse_x(),gui_mouse_y()))
-					{
-						int32_t m = popup_menu(combosel_rc_menu,x,y);
-						
-						switch(m)
-						{
-							case 0:
-								reset_combo_animations();
-								reset_combo_animations2();
-								edit_combo(Combo,true,CSet);
-								setup_combo_animations();
-								setup_combo_animations2();
-								break;
-								
-							case 1:
-								combo_screen(Combo>>8,Combo);
-								break;
-								
-							case 2:
-							{
-								onGotoTiles(combobuf[Combo].tile);
-								break;
-							}
-							
-							case 3:
-								onComboLocationReport();
-								break;
-								
-							case 5:
-							{
-								onGotoPage();
-								break;
-							}
-						}
-					}
+						popup_cpane_rc(x, y);
 					goto domouse_doneclick;
 				}
 			}
@@ -11271,86 +11125,11 @@ void domouse()
 				
 				if(valid)
 				{
-					MENU* rc_menu;
-					switch (draw_mode)
-					{
-						case dm_alias:
-							rc_menu = fav_alias_rc_menu;
-							break;
-						case dm_cpool:
-							rc_menu = fav_cpool_rc_menu;
-							break;
-						case dm_auto:
-							rc_menu = fav_autocombo_rc_menu;
-							break;
-						default:
-							rc_menu = fav_cmb_rc_menu;
-					}
-					int32_t m = popup_menu(rc_menu,x,y);
-					int32_t f=favorites_list.rectind(x,y);
-					int32_t row=f/favorites_list.w;
-					int32_t col=f%favorites_list.w;
-					f = (row*FAVORITECOMBO_PER_ROW)+col;
-					int32_t fp = f + FAVORITECOMBO_PER_PAGE * FavoriteComboPage;
-					
-					size_and_pos const& list = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-					switch(m)
-					{
-						case 0: //Scroll to Combo/Alias
-							switch (draw_mode)
-							{
-								case dm_alias:
-									combo_alistpos[current_comboalist] = scrollto_alias(combo_apos);
-									break;
-								case dm_cpool:
-									combo_pool_listpos[current_cpoollist] = scrollto_cpool(combo_pool_pos);
-									break;
-								case dm_auto:
-									combo_auto_listpos[current_cautolist] = scrollto_cauto(combo_auto_pos);
-									break;
-								default:
-									First[current_combolist] = scrollto_cmb(Combo);
-							}
-							break;
-							
-						case 1: //Edit Combo/Alias
-							switch (draw_mode)
-							{
-								case dm_alias:
-									onEditComboAlias();
-									break;
-								case dm_cpool:
-									onEditComboPool();
-									break;
-								case dm_auto:
-									onEditAutoCombo();
-									break;
-								default:
-									reset_combo_animations();
-									reset_combo_animations2();
-									edit_combo(Combo, true, CSet);
-									setup_combo_animations();
-									setup_combo_animations2();
-							}
-							break;
-							
-						case 2: //Remove Combo/Alias
-							favorite_combo_modes[fp] = dm_normal;
-							favorite_combos[fp]=-1;
-							saved = false;
-							break;
-							
-						case 4: //Open Combo Page
-						{
-							combo_screen(Combo>>8,Combo);
-							break;
-						}
-						case 5: //Open Tile Page
-						{
-							onGotoTiles(combobuf[Combo].tile);
-							break;
-						}
-					}
+					int f = favorites_list.rectind(x,y);
+					int row = f/favorites_list.w;
+					int col = f%favorites_list.w;
+					f = (row*FAVORITECOMBO_PER_ROW) + col + (FAVORITECOMBO_PER_PAGE * FavoriteComboPage);
+					popup_favorites_rc(f, x, y);
 				}
 			}
 			goto domouse_doneclick;
@@ -13150,14 +12929,6 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 static wpndata copiedSprite;
 static byte spritecopied = 0;
 char temp_weapon_string[64] = {0};
-static MENU wpnsprite_rclick_menu[] =
-{
-    { "&Copy",    NULL, NULL, 0, NULL },
-    { "Paste &v", NULL, NULL, 0, NULL },
-    { "&Save",    NULL, NULL, 0, NULL },
-    { "&Load",    NULL, NULL, 0, NULL },
-    { NULL,       NULL, NULL, 0, NULL }
-};
 
 void paste_wsprite(int32_t index = -1)
 {
@@ -13222,15 +12993,13 @@ void wpnsprite_rclick_func(int32_t index, int32_t x, int32_t y)
 {
 	if(((unsigned)index)>255)
 		return;
-	int32_t ret=popup_menu(wpnsprite_rclick_menu, x, y);
-	if(ret==0) // copy
-		copy_wsprite(index);
-	else if(ret==1) // paste
-		paste_wsprite(index);
-	else if(ret==2) // save
-		save_wsprite(index);
-	else if(ret==3) // load
-		load_wsprite(index);
+	NewMenu rcmenu {
+		{ "&Copy", [&](){copy_wsprite(index);} },
+		{ "Paste", "&v", [&](){paste_wsprite(index);}, 0, !spritecopied },
+		{ "&Save", [&](){save_wsprite(index);} },
+		{ "&Load", [&](){load_wsprite(index);} },
+	};
+	rcmenu.pop(x, y);
 }
 
 
@@ -13272,34 +13041,20 @@ int32_t select_weapon(const char *prompt,int32_t weapon)
     return biw[index].i;
 }
 
-
-
-static MENU seldata_rclick_menu[] =
-{
-    { (char *)"Copy",  NULL, NULL, 0, NULL },
-    { (char *)"Paste", NULL, NULL, 0, NULL },
-    { NULL,            NULL, NULL, 0, NULL }
-};
-
 static int32_t seldata_copy;
 static void (*seldata_paste_func)(int32_t, int32_t);
 
 void seldata_rclick_func(int32_t index, int32_t x, int32_t y)
 {
-    if(seldata_copy<0)
-        seldata_rclick_menu[1].flags|=D_DISABLED;
-    else
-        seldata_rclick_menu[1].flags&=~D_DISABLED;
-    
-    int32_t ret=popup_menu(seldata_rclick_menu, x, y);
-    
-    if(ret==0) // copy
-        seldata_copy=index;
-    else if(ret==1) // paste
-    {
-        seldata_paste_func(seldata_copy, index);
-        saved=false;
-    }
+	NewMenu rcmenu {
+		{ "&Copy", [&](){seldata_copy = index;} },
+		{ "Paste", "&v", [&]()
+			{
+				seldata_paste_func(seldata_copy, index);
+				saved = false;
+			}, 0, seldata_copy < 0 },
+	};
+	rcmenu.pop(x, y);
 }
 
 int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,int32_t*), FONT *title_font, void (*copyFunc)(int32_t, int32_t))
@@ -15868,71 +15623,51 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 	return 1;
 }
 
-static MENU dmap_rclick_menu[] =
-{
-    { (char *)"Copy",  NULL, NULL, 0, NULL },
-    { (char *)"Paste", NULL, NULL, 0, NULL },
-    { (char *)"Save", NULL, NULL, 0, NULL },
-    { (char *)"Load", NULL, NULL, 0, NULL },
-    { NULL,            NULL, NULL, 0, NULL }
-};
-
 void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
 {
     if(((unsigned)index)>MAXDMAPS)
         return;
     
-    if(!dmapcopied)
-        dmap_rclick_menu[1].flags|=D_DISABLED;
-    else
-        dmap_rclick_menu[1].flags&=~D_DISABLED;
-    
-    int32_t ret=popup_menu(dmap_rclick_menu, x, y);
-    
-    if(ret==0) // copy
-    {
-		copiedDMap = DMaps[index];
-		dmapcopied = 1;
-    }
-    else if(ret==1) // paste
-    {
-		DMaps[index] = copiedDMap;
-        selectdmap_dlg[2].flags|=D_DIRTY;
-        saved=false;
-    }
-    else if(ret==2) // save
-    {
-		if(!getname("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
-			return;
-	
-		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-		if(!f) return;
-		/*if (!writeoneitem(f,iid))
-		{
-			al_trace("Could not write to .znpc packfile %s\n", temppath);
-		}
-		*/
-		writesomedmaps(f,index, index, MAXDMAPS);
-		pack_fclose(f);
-    }
-	else if(ret==3) // load
-	{
-		if(!getname("Load DMAP(.zdmap)", "zdmap", NULL,datapath,false))
-			return;
-		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-		if(!f) return;
-		
-		if (!readonedmap(f,index))
-		{
-			al_trace("Could not read from .zdmap packfile %s\n", temppath);
-			jwin_alert("ZDMAP File: Error","Could not load the specified DMap.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-		}
-		
-		pack_fclose(f);
-		//itemsbuf[bie[index].i]=itemsbuf[copiedItem];
-		selectdmap_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
-		saved=false;
-	}
+	NewMenu rcmenu {
+		{ "&Copy", [&]()
+			{
+				copiedDMap = DMaps[index];
+				dmapcopied = 1;
+			} },
+		{ "Paste", "&v", [&]()
+			{
+				DMaps[index] = copiedDMap;
+				selectdmap_dlg[2].flags |= D_DIRTY;
+				saved = false;
+			}, 0, !dmapcopied },
+		{ "&Save", [&]()
+			{
+				if(!getname("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
+					return;
+				PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+				if(!f) return;
+				writesomedmaps(f,index, index, MAXDMAPS);
+				pack_fclose(f);
+			} },
+		{ "&Load", [&]()
+			{
+				if(!getname("Load DMAP(.zdmap)", "zdmap", NULL,datapath,false))
+					return;
+				PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+				if(!f) return;
+				
+				if (!readonedmap(f,index))
+				{
+					al_trace("Could not read from .zdmap packfile %s\n", temppath);
+					jwin_alert("ZDMAP File: Error","Could not load the specified DMap.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				}
+				
+				pack_fclose(f);
+				selectdmap_dlg[2].flags |= D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
+				saved = false;
+			} },
+	};
+	rcmenu.pop(x, y);
 }
 
 
@@ -21707,12 +21442,12 @@ int32_t txtout(BITMAP* dest, const char* txt, int32_t x, int32_t y, bool disable
 {
 	if(disabled)
 	{
-		gui_textout_ln(dest, font, (uint8_t*)txt, x+1, y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
-		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, palette_color[scheme[jcMEDDARK]], -1, 0);
+		gui_textout_ln(dest, font, (uint8_t*)txt, x+1, y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, scheme[jcMEDDARK], -1, 0);
 	}
 	else
 	{
-		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
+		return gui_textout_ln(dest, font, (uint8_t*)txt, x, y, scheme[jcBOXFG], scheme[jcBOX], 0);
 	}
 }
 
@@ -27495,9 +27230,11 @@ int32_t main(int32_t argc,char **argv)
 	pause_refresh = false;
 	refresh_pal();
 	refresh(rALL);
-	brush_width_menu[0].flags=D_SELECTED;
-	brush_height_menu[0].flags=D_SELECTED;
-	fill_menu[1].flags=D_SELECTED;
+    for(int q = 0; q < brush_width_menu.size(); ++q)
+		brush_width_menu.at(q)->select(q==0);
+    for(int q = 0; q < brush_height_menu.size(); ++q)
+		brush_height_menu.at(q)->select(q==0);
+	set_filltype(1);
 	
 	rebuild_trans_table();
 
@@ -27511,7 +27248,7 @@ int32_t main(int32_t argc,char **argv)
 	if(!update_dialog(player2))
 		exiting_program = true;
 	//clear_keybuf();
-	media_menu[2].flags=D_DISABLED;
+	media_menu.disable_uid(MENUID_MEDIA_CHANGETRACK, true);
 	disable_hotkey(ZQKEY_CHANGE_TRACK, true);
 	
 	fix_drawing_mode_menu();
@@ -27534,15 +27271,11 @@ int32_t main(int32_t argc,char **argv)
 	ZQincludePaths = FFCore.includePaths;
 	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
-	SETFLAG(brush_menu[0].flags, D_SELECTED, AutoBrush);
-	SETFLAG(brush_menu[1].flags, D_DISABLED, AutoBrush);
-	SETFLAG(brush_menu[2].flags, D_DISABLED, AutoBrush);
-	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
-	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
-	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
-	SETFLAG(cpoolsel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
-	SETFLAG(cautosel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
-	SETFLAG(caliassel_rc_menu[4].flags, D_SELECTED, LinkedScroll);
+	brush_menu.select_uid(MENUID_BRUSH_AUTOBRUSH, AutoBrush);
+	brush_menu.disable_uid(MENUID_BRUSH_WIDTH, AutoBrush);
+	brush_menu.disable_uid(MENUID_BRUSH_HEIGHT, AutoBrush);
+	brush_menu.select_uid(MENUID_BRUSH_COMBOBRUSH, ComboBrush);
+	brush_menu.select_uid(MENUID_BRUSH_FLOATBRUSH, FloatBrush);
 	
 	init_ffpos();
 	
@@ -27550,12 +27283,9 @@ int32_t main(int32_t argc,char **argv)
 
 	while(!exiting_program)
 	{
-	
 #ifdef _WIN32
-	
-			if(zqUseWin32Proc != FALSE)
-				win32data.Update(Frameskip); //experimental win32 fixes
-		
+		if(zqUseWin32Proc != FALSE)
+			win32data.Update(Frameskip); //experimental win32 fixes
 #endif
 		check_autosave();
 		++alignment_arrow_timer;
@@ -27565,67 +27295,53 @@ int32_t main(int32_t argc,char **argv)
 			alignment_arrow_timer=0;
 		}
 		
-		/* Notice: Adjust and Update these values if you hae modified any of the following, where
-			your modifications hae inserted or removed ANY entries.
-			paste_item_menu[]
-			file_menu[]
-			tool_menu[]
-			defs_menu[]
-			view_menu[]
-			maps_menu[]
-		*/
+		file_menu.disable_uid(MENUID_FILE_SAVE, saved||disable_saving||OverwriteProtection);
+		file_menu.disable_uid(MENUID_FILE_REVERT, saved||disable_saving||OverwriteProtection);
+		file_menu.disable_uid(MENUID_FILE_SAVEAS, disable_saving);
 		
-		file_menu[fileSave].flags =
-			file_menu[fileRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
-						
-		file_menu[fileSaveAs].flags = disable_saving ? D_DISABLED : 0;
+		fixtools_menu.disable_uid(MENUID_FIXTOOL_OLDSTRING,
+			!(get_qr(qr_OLD_STRING_EDITOR_MARGINS)
+				||get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)));
 		
-		fixtools_menu[ftOSFix].flags = (get_qr(qr_OLD_STRING_EDITOR_MARGINS)
-			|| get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
-				? 0 : D_DISABLED;
+		edit_menu.disable_uid(MENUID_EDIT_UNDO, !Map.CanUndo());
+		edit_menu.disable_uid(MENUID_EDIT_REDO, !Map.CanRedo());
 		
-		edit_menu[0].flags = Map.CanUndo() ? 0 : D_DISABLED;
-        edit_menu[1].flags = Map.CanRedo() ? 0 : D_DISABLED;
-			
-		edit_menu[3].flags = edit_menu[4].flags =
-			edit_menu[5].flags = edit_menu[6].flags =
-			paste_menu[0].flags = paste_menu[1].flags =
-			paste_item_menu[0].flags = paste_item_menu[1].flags =
-			paste_item_menu[2].flags = paste_item_menu[3].flags =
-			paste_item_menu[4].flags = paste_item_menu[5].flags =
-			paste_item_menu[6].flags = paste_item_menu[7].flags =
-			paste_item_menu[8].flags = paste_item_menu[9].flags =
-			paste_item_menu[10].flags =
-				Map.CanPaste() ? 0 : D_DISABLED;
-                                                                                																																		
-		edit_menu[2].flags = edit_menu[7].flags = (Map.CurrScr()->valid&mVALID) ? 0 : D_DISABLED;
-					
-		tool_menu[0].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
-					
-		data_menu[7].flags = (Map.getCurrScr()<MAPSCRS) ? 0 : D_DISABLED;
+		bool canpaste = Map.CanPaste();
+		edit_menu.disable_uid(MENUID_EDIT_PASTE, !canpaste);
+		edit_menu.disable_uid(MENUID_EDIT_PASTEALL, !canpaste);
+		edit_menu.disable_uid(MENUID_EDIT_ADVPASTE, !canpaste);
+		edit_menu.disable_uid(MENUID_EDIT_SPECPASTE, !canpaste);
+		rc_menu_screen.disable_uid(MENUID_RCSCREEN_PASTE, !canpaste);
+		rc_menu_screen.disable_uid(MENUID_RCSCREEN_ADVPASTE, !canpaste);
+		rc_menu_screen.disable_uid(MENUID_RCSCREEN_SPECPASTE, !canpaste);
+		for(MenuItem& mit : paste_menu.inner())
+			mit.disable(!canpaste);
+		for(MenuItem& mit : paste_item_menu.inner())
+			mit.disable(!canpaste);
 		
-		defs_menu[1].flags = 0;
-			
+		edit_menu.disable_uid(MENUID_EDIT_COPY, !(Map.CurrScr()->valid&mVALID));
+		edit_menu.disable_uid(MENUID_EDIT_DELETE, !(Map.CurrScr()->valid&mVALID));
+		
 		// Are some things selected?
-		view_menu[3].flags=(Flags&cWALK)?D_SELECTED:0; // Show Walkability
-		view_menu[4].flags=(Flags&cFLAGS)?D_SELECTED:0; // Show Flags
-		view_menu[5].flags=(Flags&cCSET)?D_SELECTED:0; // Show CSet
-		view_menu[6].flags=(Flags&cCTYPE)?D_SELECTED:0; // Show Type
-		view_menu[8].flags=(ShowInfo)?D_SELECTED:0; // Show Info
-		view_menu[9].flags=(ShowSquares)?D_SELECTED:0; // Show Squares
-		view_menu[10].flags=(ShowFFCs)?D_SELECTED:0; // Show Squares
-		view_menu[11].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
-		view_menu[12].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
-		view_menu[13].flags=(get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
-		view_menu[14].flags=(ViewLayer2BG)?D_SELECTED:0;
-		view_menu[15].flags=(ViewLayer3BG)?D_SELECTED:0;
-		view_menu[16].flags=(ActiveLayerHighlight)?D_SELECTED:0;
+		view_menu.select_uid(MENUID_VIEW_WALKABILITY, Flags&cWALK);
+		view_menu.select_uid(MENUID_VIEW_FLAGS, Flags&cFLAGS);
+		view_menu.select_uid(MENUID_VIEW_CSET, Flags&cCSET);
+		view_menu.select_uid(MENUID_VIEW_TYPES, Flags&cCTYPE);
+		view_menu.select_uid(MENUID_VIEW_INFO, ShowInfo);
+		view_menu.select_uid(MENUID_VIEW_SQUARES, ShowSquares);
+		view_menu.select_uid(MENUID_VIEW_FFCS, ShowFFCs);
+		view_menu.select_uid(MENUID_VIEW_SCRIPTNAMES, ShowFFScripts);
+		view_menu.select_uid(MENUID_VIEW_GRID, ShowGrid);
+		view_menu.select_uid(MENUID_VIEW_DARKNESS, get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK));
+		view_menu.select_uid(MENUID_VIEW_L2BG, ViewLayer2BG);
+		view_menu.select_uid(MENUID_VIEW_L3BG, ViewLayer3BG);
+		view_menu.select_uid(MENUID_VIEW_LAYERHIGHLIGHT, ActiveLayerHighlight);
 		
-		maps_menu[1].flags=(Map.getCurrMap()<map_count && map_count>0) ? 0 : D_DISABLED;
-		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
+		maps_menu.disable_uid(MENUID_MAPS_NEXT, !map_count || Map.getCurrMap() >= map_count);
+		maps_menu.disable_uid(MENUID_MAPS_PREV, Map.getCurrMap()<=0);
 		
-		etc_menu[2].flags=(isFullScreen()==1)?D_DISABLED:0;
-		etc_menu[5].flags=(isFullScreen()==1)?D_SELECTED:0;
+		etc_menu.disable_uid(MENUID_ETC_VIDMODE, isFullScreen()==1);
+		etc_menu.select_uid(MENUID_ETC_FULLSCREEN, isFullScreen()==1);
 		
 		if(!update_dialog(player2))
 			exiting_program = true;
@@ -27660,8 +27376,7 @@ void load_size_poses()
 	FONT* favcmdfont = get_custom_font(CFONT_FAVCMD);
 	FONT* guifont = get_custom_font(CFONT_GUI);
 	
-	dialogs[0].dp2 = guifont;
-	jwin_menu_proc(MSG_START, &dialogs[0], 0);
+	d_nbmenu_proc(MSG_START, &dialogs[0], 0);
 	
 	commands_list.xscale = command_buttonwidth;
 	commands_list.yscale = 10+text_height(favcmdfont);
@@ -27686,7 +27401,7 @@ void load_size_poses()
 		}
 		
 		mapscreen_x=0;
-		mapscreen_y=text_height(guifont)+11;
+		mapscreen_y=dialogs[0].h;
 		mapscreensize=3;
 		showedges=0;
 		showallpanels=0;
@@ -27985,7 +27700,7 @@ void load_size_poses()
 		}
 		
 		mapscreen_x=0;
-		mapscreen_y=text_height(guifont)+11;
+		mapscreen_y=dialogs[0].h;
 		mapscreensize=2;
 		showedges=1;
 		showallpanels=0;
@@ -28271,7 +27986,7 @@ void load_size_poses()
 		favorites_pgleft.x = favorites_pgright.x - favorites_pgleft.w;
 		favorites_pgleft.y = favorites_pgright.y;
 		
-		mainbar.x = dialogs[0].x+dialogs[0].w+2;
+		mainbar.x = dialogs[0].x+dialogs[0].w;
 		mainbar.y = 0;
 		mainbar.w = compactbtn.x-mainbar.x;
 		mainbar.h = drawmode_btn.h;
@@ -28796,23 +28511,21 @@ void run_zq_frame()
 }
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-	static int32_t ret=D_O_K;
-	
-	if(msg != MSG_START)
-		run_zq_frame();
-	
-	if(msg==MSG_GOTMOUSE||msg==MSG_XCHAR)
+	switch(msg)
 	{
-		ComboBrushPause=1;
-		refresh(rMAP);
-		ComboBrushPause=0;
-		// restore_mouse();
-		clear_tooltip();
+		case MSG_VSYNC:
+			run_zq_frame();
+			break;
+		case MSG_GOTMOUSE:
+		case MSG_XCHAR:
+			ComboBrushPause=1;
+			refresh(rMAP);
+			ComboBrushPause=0;
+			clear_tooltip();
+			break;
 	}
 	
-	ret = jwin_menu_proc(msg,d,c);
-	
-	return ret;
+	return GuiMenu::proc(msg,d,c);
 }
 
 bool prv_press=false;
@@ -28823,7 +28536,6 @@ void dopreview()
 	
 	while(!(gui_mouse_b()))
 	{
-		//ret = jwin_menu_proc(msg,d,c);
 		if(keypressed())
 		{
 			if(!prv_press)

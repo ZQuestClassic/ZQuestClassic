@@ -86,7 +86,11 @@ extern "C"
 
 /* frame styles */
 enum {
-    FR_INVIS = -1, FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK, FR_RED, FR_GREEN
+    FR_INVIS = -1,
+	FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK,
+	FR_ETCHED, FR_MEDDARK,
+	FR_RED, FR_GREEN,
+	FR_MENU, FR_MENU_INV,
 };
 
 /* todo: (maybe) put the colors into a struct */
@@ -223,7 +227,6 @@ int32_t jwin_numedit_noswap_zsint_proc(int32_t msg,DIALOG *d,int32_t c); //Same 
 int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_droplist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_abclist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c);
@@ -244,8 +247,6 @@ void jwin_set_dialog_color(DIALOG *dialog);
 
 int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, int32_t y, int32_t color, int32_t bg, int32_t pos);
 int32_t gui_text_width(FONT *f, const char *s);
-
-int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y);
 
 int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c);
 
@@ -287,7 +288,8 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);
 
 //Misc bitmap drawing
-void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
+void draw_x(BITMAP* dest, int x1, int y1, int x2, int y2, int color);
+void draw_check(BITMAP* dest, int x1, int y1, int x2, int y2, int c);
 void draw_checkerboard(BITMAP* dest, int basex, int basey, int sz, optional<int> cb_sz = nullopt, int x = 0, int y = 0);
 
 int32_t d_vsync_proc(int32_t msg,DIALOG *,int32_t c);

@@ -99,14 +99,6 @@ std::shared_ptr<GUI::Widget> SubscrListEditDialog::view()
 	
 	return window;
 }
-static MENU subscr_rclick_menu[] =
-{
-	{ "&Copy",    NULL, NULL, 0, NULL },
-	{ "Paste &v", NULL, NULL, 0, NULL },
-	{ "&Save",    NULL, NULL, 0, NULL },
-	{ "&Load",    NULL, NULL, 0, NULL },
-	{ NULL,       NULL, NULL, 0, NULL }
-};
 void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 {
 	auto& ci = copy_inds[cur_type];
@@ -115,54 +107,52 @@ void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 	if(ci >= vec.size()) //bad copy index
 		ci = -1;
 	bool newslot = si>=vec.size();
-	SETFLAG(subscr_rclick_menu[0].flags,D_DISABLED,newslot);
-	SETFLAG(subscr_rclick_menu[1].flags,D_DISABLED,ci<0 || ci==si);
-	SETFLAG(subscr_rclick_menu[2].flags,D_DISABLED,newslot);
-	
-	int ret = popup_menu(subscr_rclick_menu, mx, my);
-	
-	if(ret==0) //copy
-		ci = si;
-	else if(ret==1 && ci > -1 && ci != si) //paste
+	NewMenu rcmenu
 	{
-		bool run = true;
-		if(!newslot)
-			AlertDialog(fmt::format("Overwrite {} Subscreen?",subscr_names[cur_type]),
-				fmt::format("Are you sure you want to overwrite {0} Subscreen {1} '{2}'"
-					" with {0} Subscreen {3} '{4}'? This cannot be undone!", subscr_names[cur_type], si,
-					vec[si].name, ci, vec[ci].name),
-				[&](bool ret,bool)
+		{ "&Copy", [&](){ci = si;}, nullopt, newslot },
+		{ "Paste", "&v", [&]()
+			{
+				if(ci==si) return;
+				bool run = true;
+				if(!newslot)
+					AlertDialog(fmt::format("Overwrite {} Subscreen?",subscr_names[cur_type]),
+						fmt::format("Are you sure you want to overwrite {0} Subscreen {1} '{2}'"
+							" with {0} Subscreen {3} '{4}'? This cannot be undone!", subscr_names[cur_type], si,
+							vec[si].name, ci, vec[ci].name),
+						[&](bool ret,bool)
+						{
+							run = ret;
+						}).show();
+				if(run)
 				{
-					run = ret;
-				}).show();
-		if(run)
-		{
-			if(newslot)
-				vec.emplace_back(vec[ci]); //copy constructor
-			else vec[si] = vec[ci];
-			saved=false;
-		}
-	}
-	else if(ret==2) //Save
-	{
-		if(!getname("Export Subscreen (.sub)","sub",NULL,datapath,false))
-			return;
-		save_subscreen(temppath, vec[si]);
-	}
-	else if(ret==3) //Load
-	{
-		if(!getname("Import Subscreen (.sub)","sub",NULL,datapath,false))
-			return;
-		ZCSubscreen tmp = ZCSubscreen();
-		tmp.sub_type = cur_type;
-		if(load_subscreen(temppath, tmp))
-		{
-			if(newslot)
-				vec.emplace_back(tmp); //copy constructor
-			else vec[si] = tmp;
-			saved=false;
-		}
-	}
+					if(newslot)
+						vec.emplace_back(vec[ci]); //copy constructor
+					else vec[si] = vec[ci];
+					saved=false;
+				}
+			}, nullopt, ci<0 },
+		{ "&Save", [&]()
+			{
+				if(!getname("Export Subscreen (.sub)","sub",NULL,datapath,false))
+					return;
+				save_subscreen(temppath, vec[si]);
+			}, nullopt, newslot },
+		{ "&Load", [&]()
+			{
+				if(!getname("Import Subscreen (.sub)","sub",NULL,datapath,false))
+					return;
+				ZCSubscreen tmp = ZCSubscreen();
+				tmp.sub_type = cur_type;
+				if(load_subscreen(temppath, tmp))
+				{
+					if(newslot)
+						vec.emplace_back(tmp); //copy constructor
+					else vec[si] = tmp;
+					saved=false;
+				}
+			} },
+	};
+	rcmenu.pop(mx, my);
 }
 bool SubscrListEditDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {

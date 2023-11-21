@@ -191,8 +191,9 @@ int32_t main(int32_t argc, char* argv[])
 
 	all_disable_threaded_display();
 
-	// TODO: remember window size.
-	auto [w, h] = zc_get_default_display_size(zq_screen_w, zq_screen_h, -1, -1);
+	int window_width = zc_get_config("ZLAUNCH", "window_width", -1);
+	int window_height = zc_get_config("ZLAUNCH", "window_height", -1);
+	auto [w, h] = zc_get_default_display_size(zq_screen_w, zq_screen_h, window_width, window_height, 2);
 	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,w,h,zq_screen_w, zq_screen_h);
 	
 	if(videofail)
@@ -507,11 +508,15 @@ static LegacyBitmapRTI rti_screen("screen");
 
 static int zc_gui_mouse_x()
 {
+	if (rti_dialogs.has_children())
+		return rti_dialogs.get_children().back()->rel_mouse().first;
 	return rti_screen.world_to_local(mouse_x, mouse_y).first;
 }
 
 static int zc_gui_mouse_y()
 {
+	if (rti_dialogs.has_children())
+		return rti_dialogs.get_children().back()->rel_mouse().second;
 	return rti_screen.world_to_local(mouse_x, mouse_y).second;
 }
 

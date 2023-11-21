@@ -6,6 +6,7 @@
 #include "base/initdata.h"
 #include "midi.h"
 #include "gui/jwin.h"
+#include <base/new_menu.h>
 #include "base/jwinfsel.h"
 #include "sound/zcmusic.h"
 #include "sound/zcmixer.h"
@@ -247,7 +248,7 @@ bool bad_version(int32_t ver);
 zfix HeroModifiedX();
 zfix HeroModifiedY();
 
-extern MENU colors_menu[];
+extern NewMenu colors_menu;
 
 void rebuild_trans_table();
 void rebuild_string_list();

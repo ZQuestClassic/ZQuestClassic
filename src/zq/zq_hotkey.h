@@ -177,6 +177,8 @@ enum
 	ZQKEY_RULETMPLS,
 	ZQKEY_COMPILE_SMART,
 	
+	ZQKEY_DEBUG_CONSOLE,
+	
 	ZQKEY_MAX
 };
 extern Hotkey zq_hotkeys[ZQKEY_MAX];

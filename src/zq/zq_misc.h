@@ -40,20 +40,6 @@
 
 #define C(x)   ((x)-'a'+1)
 
-INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
-{
-    ttip_uninstall_all();
-    while(gui_mouse_b())
-    {
-        rest(1);
-    }
-    FONT* oldfont = font;
-	font = get_custom_font(CFONT_GUI);
-    auto ret = jwin_do_menu(menu,x,y);
-	font = oldfont;
-	return ret;
-}
-
 INLINE int32_t bit(int32_t val,int32_t b)
 {
     return (val>>b)&1;

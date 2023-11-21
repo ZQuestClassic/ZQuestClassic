@@ -172,7 +172,7 @@ void zapp_setup_icon()
 // back to default.
 // Default will scale up (base_width, base_height) by an integer amount to fill up the primary monitor
 // as much as possible, up to 3x.
-std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height)
+std::pair<int, int> zc_get_default_display_size(int base_width, int base_height, int saved_width, int saved_height, int max_scale)
 {
 	ALLEGRO_MONITOR_INFO info;
 	al_get_monitor_info(0, &info);
@@ -196,7 +196,7 @@ std::pair<int, int> zc_get_default_display_size(int base_width, int base_height,
 	mh -= 50;
 
 	int s = std::min(mh / base_height, mw / base_width);
-	s = std::min(3, s);
+	s = std::min(max_scale, s);
 	int w = base_width * s;
 	int h = base_height * s;
 	return {w, h};

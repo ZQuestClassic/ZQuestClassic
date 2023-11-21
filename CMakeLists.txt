@@ -468,6 +468,7 @@ set(zcbase_sources
 	src/base/misctypes.cpp
 	src/base/module.cpp
 	src/base/msgstr.cpp
+	src/base/new_menu.cpp
 	src/base/packfile.cpp
 	src/base/process_management.cpp
 	src/base/qrs.cpp
@@ -521,6 +522,7 @@ add_library(zcgui STATIC
 	src/gui/label.cpp
 	src/gui/list_data.cpp
 	src/gui/list.cpp
+	src/gui/menu.cpp
 	src/gui/radio.cpp
 	src/gui/radioset.cpp
 	src/gui/scrolling_pane.cpp
