@@ -433,6 +433,13 @@ rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int l
 	return {screen, screen_index, layer, POS_TO_RPOS(pos, screen_index), pos};
 }
 
+void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer)
+{
+	DCHECK_LAYER_ZERO_INDEX(layer);
+	rpos_handle.layer = layer;
+	rpos_handle.screen = get_layer_scr(currmap, rpos_handle.screen_index, layer - 1);
+}
+
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
@@ -2165,20 +2172,19 @@ static bool checkSV(int32_t x, int32_t y, int32_t flag)
 	if(x<0 || x>=world_w || y<0 || y>=world_h)
         return false;
 	
-	// TODO z3 ! refactor
-	int32_t pos = COMBOPOS(x%256, y%176);
-	mapscr* base_scr = get_layer_scr_for_xy(x, y, -1);
-	if (base_scr->sflag[pos] == flag || combobuf[base_scr->data[pos]].flag == flag)
+	auto rpos = COMBOPOS_REGION(x, y);
+	auto rpos_handle = get_rpos_handle(rpos, 0);
+	if (rpos_handle.sflag() == flag || combobuf[rpos_handle.data()].flag == flag)
 		return true;
 	
-	mapscr* lyr1_scr = get_layer_scr_for_xy(x, y, 0);
-	if (lyr1_scr->valid)
-		if (lyr1_scr->sflag[pos] == flag || combobuf[lyr1_scr->data[pos]].flag == flag)
+	change_rpos_handle_layer(rpos_handle, 1);
+	if (rpos_handle.screen->valid)
+		if (rpos_handle.sflag() == flag || combobuf[rpos_handle.data()].flag == flag)
 			return true;
 	
-	mapscr* lyr2_scr = get_layer_scr_for_xy(x, y, 1);
-	if (lyr2_scr->valid)
-		if (lyr2_scr->sflag[pos] == flag || combobuf[lyr2_scr->data[pos]].flag == flag)
+	change_rpos_handle_layer(rpos_handle, 2);
+	if (rpos_handle.screen->valid)
+		if (rpos_handle.sflag() == flag || combobuf[rpos_handle.data()].flag == flag)
 			return true;
 	
 	return false;
@@ -2392,7 +2398,6 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 		if (!s->valid) continue;
 
 		rpos_handle.screen = s;
-		rpos_handle.screen_index = scr;
 		rpos_handle.layer = j + 1;
 		
 		for (int32_t i=0; i<176; i++)
