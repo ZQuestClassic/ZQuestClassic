@@ -3747,7 +3747,7 @@ void cpos_force_update() //updates without side-effects
 }
 void cpos_update() //updates with side-effects
 {
-	for_every_valid_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
 		cpos_info& timer = cpos_get(rpos_handle);
 		int cid = rpos_handle.data();
 		timer.updateData(cid);

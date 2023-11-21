@@ -70,43 +70,6 @@ void for_every_rpos_in_region(T fn)
 	}
 }
 
-// TODO z3 !! can for_every_rpos_in_region just be like this?
-// Iterates over every rpos in the current region, but only for screens that are valid.
-// Callback function: void fn(const pos_handle_t& rpos_handle)
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, const rpos_handle_t&>
->>
-void for_every_valid_rpos_in_region(T fn)
-{
-	rpos_handle_t rpos_handle;
-	for (int screen_index = 0; screen_index < 128; screen_index++)
-	{
-		if (!is_in_current_region(screen_index)) continue;
-
-		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
-		rpos_handle.screen_index = screen_index;
-		for (int lyr = 0; lyr <= 6; ++lyr)
-		{
-			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
-			if (!scr->valid)
-			{
-				if (lyr == 0) break;
-				continue;
-			}
-
-			rpos_handle.screen = scr;
-			rpos_handle.layer = lyr;
-
-			for (int pos = 0; pos < 176; ++pos)
-			{
-				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
-				rpos_handle.pos = pos;
-				fn(rpos_handle);
-			}
-		}
-	}
-}
-
 // Iterates over every ffc in the current region.
 // Callback function: void fn(const ffc_handle_t& ffc_handle)
 template<typename T, typename = std::enable_if_t<
@@ -116,18 +79,17 @@ void for_every_ffc_in_region(T fn)
 {
 	for (uint8_t screen_index = 0; screen_index < 128; screen_index++)
 	{
-		if (is_in_current_region(screen_index))
-		{
-			mapscr* screen = get_scr(currmap, screen_index);
-			int screen_index_offset = get_region_screen_index_offset(screen_index);
+		if (!is_in_current_region(screen_index)) continue;
 
-			int c = screen->numFFC();
-			for (uint8_t i = 0; i < c; i++)
-			{
-				uint16_t id = screen_index_offset * MAXFFCS + i;
-				ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
-				fn(ffc_handle);
-			}
+		mapscr* screen = get_scr(currmap, screen_index);
+		int screen_index_offset = get_region_screen_index_offset(screen_index);
+
+		int c = screen->numFFC();
+		for (uint8_t i = 0; i < c; i++)
+		{
+			uint16_t id = screen_index_offset * MAXFFCS + i;
+			ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
+			fn(ffc_handle);
 		}
 	}
 }
@@ -142,18 +104,17 @@ void for_some_ffcs_in_region(T fn)
 {
 	for (uint8_t screen_index = 0; screen_index < 128; screen_index++)
 	{
-		if (is_in_current_region(screen_index))
-		{
-			mapscr* screen = get_scr(currmap, screen_index);
-			int screen_index_offset = get_region_screen_index_offset(screen_index);
+		if (!is_in_current_region(screen_index)) continue;
 
-			int c = screen->numFFC();
-			for (uint8_t i = 0; i < c; i++)
-			{
-				uint16_t id = screen_index_offset * MAXFFCS + i;
-				ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
-				if (!fn(ffc_handle)) return;
-			}
+		mapscr* screen = get_scr(currmap, screen_index);
+		int screen_index_offset = get_region_screen_index_offset(screen_index);
+
+		int c = screen->numFFC();
+		for (uint8_t i = 0; i < c; i++)
+		{
+			uint16_t id = screen_index_offset * MAXFFCS + i;
+			ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
+			if (!fn(ffc_handle)) return;
 		}
 	}
 }
@@ -168,20 +129,19 @@ std::optional<ffc_handle_t> find_ffc_in_region(T fn)
 {
 	for (uint8_t screen_index = 0; screen_index < 128; screen_index++)
 	{
-		if (is_in_current_region(screen_index))
-		{
-			mapscr* screen = get_scr(currmap, screen_index);
-			int screen_index_offset = get_region_screen_index_offset(screen_index);
+		if (!is_in_current_region(screen_index)) continue;
 
-			int c = screen->numFFC();
-			for (uint8_t i = 0; i < c; i++)
+		mapscr* screen = get_scr(currmap, screen_index);
+		int screen_index_offset = get_region_screen_index_offset(screen_index);
+
+		int c = screen->numFFC();
+		for (uint8_t i = 0; i < c; i++)
+		{
+			if (screen->ffcs[i].data)
 			{
-				if (screen->ffcs[i].data)
-				{
-					uint16_t id = screen_index_offset * MAXFFCS + i;
-					ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
-					if (fn(ffc_handle)) return ffc_handle;
-				}
+				uint16_t id = screen_index_offset * MAXFFCS + i;
+				ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
+				if (fn(ffc_handle)) return ffc_handle;
 			}
 		}
 	}
