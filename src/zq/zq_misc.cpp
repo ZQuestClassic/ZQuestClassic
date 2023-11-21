@@ -1107,7 +1107,6 @@ int32_t onShowCType()
     return D_O_K;
 }
 
-extern MENU view_menu[];
 int32_t onShowDarkness()
 {
 	if(get_qr(qr_NEW_DARKROOM))

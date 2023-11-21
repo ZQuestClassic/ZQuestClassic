@@ -19,6 +19,7 @@
 #include "base/colors.h"
 #include "qst.h"
 #include "gui/jwin.h"
+#include <base/new_menu.h>
 #include "base/jwinfsel.h"
 #include "zc/zc_custom.h"
 #include "zq/questReport.h"
@@ -2898,7 +2899,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 				if(do_text_button(edit_button.x,edit_button.y,edit_button.w,edit_button.h,"Edit Pal"))
 				{
-					popup_menu(colors_menu,edit_button.x+2,edit_button.y-40);
+					colors_menu.pop(edit_button.x+2,edit_button.y-40);
 					get_palette(tpal);
 					
 					if(newtilebuf[tile].format==tf4Bit)
@@ -5806,53 +5807,19 @@ int32_t hide_8bit_marker()
 	return D_O_K;
 }
 
-static MENU select_tile_view_menu[] =
+enum
 {
-	{ (char *)"Hide Used",   hide_used,   NULL, 0, NULL },
-	{ (char *)"Hide Unused", hide_unused,   NULL, 0, NULL },
-	{ (char *)"Hide Blank",  hide_blank,   NULL, 0, NULL },
-	{ (char *)"Hide 8-bit marker",  hide_8bit_marker,   NULL, 0, NULL },
-	{ NULL,                  NULL,  NULL, 0, NULL }
+	MENUID_SELTILE_VIEW_HIDE_USED,
+	MENUID_SELTILE_VIEW_HIDE_UNUSED,
+	MENUID_SELTILE_VIEW_HIDE_BLANK,
+	MENUID_SELTILE_VIEW_HIDE_8BIT,
 };
-
-static MENU select_tile_rc_menu[] =
+static NewMenu select_tile_view_menu
 {
-	{ (char *)"Copy",    NULL,  NULL, 0, NULL },
-	{ (char *)"Paste",   NULL,  NULL, 0, NULL },
-	{ (char *)"Move",    NULL,  NULL, 0, NULL },
-	{ (char *)"Clear",  NULL,  NULL, 0, NULL },
-	{ (char *)"",        NULL,  NULL, 0, NULL },
-	{ (char *)"Edit",    NULL,  NULL, 0, NULL },
-	{ (char *)"Grab",    NULL,  NULL, 0, NULL },
-	{ (char *)"Scale",  NULL,  NULL, 0, NULL },
-	{ (char *)"Angular Rotation",  NULL,  NULL, 0, NULL },
-	{ (char *)"Color Depth",  NULL,  NULL, 0, NULL },
-	{ (char *)"",        NULL,  NULL, 0, NULL },
-	{ (char *)"Blank?",  NULL,  NULL, 0, NULL },
-	{ (char *)"",        NULL,  NULL, 0, NULL },
-	{ (char *)"View\t ", NULL,  select_tile_view_menu, 0, NULL },
-	{ (char *)"Overlay",  NULL,  NULL, 0, NULL },
-	{ (char *)"H-Flip",  NULL,  NULL, 0, NULL },
-	{ (char *)"V-Flip",  NULL,  NULL, 0, NULL },
-	{ (char *)"Create Combos",  NULL,  NULL, 0, NULL },
-	{ (char *)"Insert",  NULL,  NULL, 0, NULL },
-	{ (char *)"Remove",  NULL,  NULL, 0, NULL },
-	{ NULL,              NULL,  NULL, 0, NULL }
-};
-
-static MENU select_combo_rc_menu[] =
-{
-	{ (char *)"Copy",    NULL,  NULL, 0, NULL },
-	{ (char *)"Paste",   NULL,  NULL, 0, NULL },
-	{ (char *)"Swap",    NULL,  NULL, 0, NULL },
-	{ (char *)"Delete",  NULL,  NULL, 0, NULL },
-	{ (char *)"",        NULL,  NULL, 0, NULL },
-	{ (char *)"Edit",    NULL,  NULL, 0, NULL },
-	{ (char *)"Insert",  NULL,  NULL, 0, NULL },
-	{ (char *)"Remove",  NULL,  NULL, 0, NULL },
-	{ (char *)"",        NULL,  NULL, 0, NULL },
-	{ (char *)"Locations",  NULL,  NULL, 0, NULL },
-	{ NULL,              NULL,  NULL, 0, NULL }
+	{ "Hide Used", hide_used, MENUID_SELTILE_VIEW_HIDE_USED },
+	{ "Hide Unused", hide_unused, MENUID_SELTILE_VIEW_HIDE_UNUSED },
+	{ "Hide Blank", hide_blank, MENUID_SELTILE_VIEW_HIDE_BLANK },
+	{ "Hide 8-bit marker", hide_8bit_marker, MENUID_SELTILE_VIEW_HIDE_8BIT },
 };
 
 //returns the row the tile is in on its page
@@ -16281,217 +16248,171 @@ REDRAW:
 		
 		if(r_click)
 		{
-			select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
-			select_tile_rc_menu[2].flags = (copy==-1) ? D_DISABLED : 0;
-			select_tile_view_menu[0].flags = HIDE_USED ? D_SELECTED : 0;
-			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
-			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
-			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
-			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
-			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
-			redraw=true;
-			
-			switch(m)
+			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_USED, HIDE_USED);
+			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_UNUSED, HIDE_UNUSED);
+			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_BLANK, HIDE_BLANK);
+			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_8BIT, HIDE_8BIT_MARKER);
+			NewMenu rcmenu
 			{
-				case 0:
-					copy=zc_min(tile,tile2);
-					copycnt=abs(tile-tile2)+1;
-					break;
-					
-				case 2:
-				case 1:
-				{
-					bool b = copy_tiles(tile,tile2,copy,copycnt,rect_sel,(m==2));
-					if(saved) saved = !b;
-					break;
-				}
-				case 7:
-				{
-					bool b = scale_or_rotate_tiles(tile, tile2,cs,false);
-					if(saved) saved = !b;
-					break;
-				}
-				case 8:
-				{
-					bool b = scale_or_rotate_tiles(tile, tile2, cs,true);
-					if(saved) saved = !b;
-					break;
-				}
-					
-				case 3:
-					delete_tiles(tile,tile2,rect_sel);
-					break;
-					
-				case 5:
-					edit_tile(tile,flip,cs);
-					draw_tile_list_window();
-					break;
-					
-				case 9:
-				{
-					do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false);
-					break;
-				}
-				
-				case 6:
-					grab_tile(tile,cs);
-					draw_tile_list_window();
-					position_mouse_z(0);
-					break;
-					
-				case 11:
-					show_blank_tile(tile);
-					break;
-				
-				case 14: //overlay
-					overlay_tile(newtilebuf,tile,copy,cs,0);
-					break;
-				
-				case 15: //h-flip
-				{
-					flip^=1;
-					go_tiles();
-					
-					if(type==0)
+				{ "Copy", [&]()
 					{
-						normalize(tile,tile2,rect_sel,flip);
-						flip=0;
-					}
-					
-					redraw=true;   
-					break;
-				}
-				
-				case 16: //h-flip
-				{
-					if(copy==-1)
+						copy = zc_min(tile,tile2);
+						copycnt = abs(tile-tile2)+1;
+					} },
+				{ "Paste", [&]()
 					{
-						if(type!=2)
-						{
-							flip^=2;
-							go_tiles();
-							
-							if(type==0)
-							{
-								normalize(tile,tile2,rect_sel,flip);
-								flip=0;
-							}
-						}
-					}
-					else
+						bool b = copy_tiles(tile, tile2, copy, copycnt, rect_sel, false);
+						if(saved) saved = !b;
+					}, nullopt, copy < 0 },
+				{ "Move", [&]()
 					{
+						bool b = copy_tiles(tile, tile2, copy, copycnt, rect_sel, true);
+						if(saved) saved = !b;
+					}, nullopt, copy < 0 },
+				{ "Clear", [&]()
+					{
+						delete_tiles(tile, tile2, rect_sel);
+					} },
+				{},
+				{ "Edit", [&]()
+					{
+						edit_tile(tile, flip, cs);
+						draw_tile_list_window();
+					} },
+				{ "Grab", [&]()
+					{
+						grab_tile(tile, cs);
+						draw_tile_list_window();
+						position_mouse_z(0);
+					} },
+				{ "Scale", [&]()
+					{
+						bool b = scale_or_rotate_tiles(tile, tile2, cs, false);
+						if(saved) saved = !b;
+					}, nullopt, type != 0 },
+				{ "Angular Rotation", [&]()
+					{
+						bool b = scale_or_rotate_tiles(tile, tile2, cs, true);
+						if(saved) saved = !b;
+					}, nullopt, type != 0 },
+				{ "Color Depth", [&]()
+					{
+						do_convert_tile(tile, tile2, cs, rect_sel,
+							(newtilebuf[tile].format!=tf4Bit), false, false);
+					} },
+				{},
+				{ "Blank?", [&]()
+					{
+						show_blank_tile(tile);
+					} },
+				{},
+				{ "View ", &select_tile_view_menu },
+				{ "Overlay", [&]()
+					{
+						overlay_tile(newtilebuf, tile, copy, cs, 0);
+					} },
+				{ "H-Flip", [&]()
+					{
+						flip ^= 1;
 						go_tiles();
-						saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
-					}
-					
-					redraw=true;
-					break;
-				}
-				
-				
-				case 17: //mass combo
-				{
-					if(type==0)
-					{
-						//al_trace("mass combo key pressed, copy == %d\n",copy);
-						if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
-						{
-							go_tiles();
-							saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
-						}
-						else if(copy==-1)
-						{
-							// I don't know what this was supposed to be doing before.
-							// It didn't work in anything like a sensible way.
-							if(rect_sel)
-							{
-								make_combos_rect(top, left, rows, columns, cs);
-							}
-							else
-							{
-								make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
-							}
-						}
 						
-						redraw=true;
-					}
-				}
-				break;
-				
-				case 18: case 19:
-					if(type==0)
+						if(type == 0)
+						{
+							normalize(tile, tile2, rect_sel, flip);
+							flip = 0;
+						}
+					} },
+				{ "V-Flip", [&]()
+					{
+						flip ^= 2;
+						go_tiles();
+						
+						if(type == 0)
+						{
+							normalize(tile, tile2, rect_sel, flip);
+							flip = 0;
+						}
+					} },
+				{ "Create Combos", [&]()
+					{
+						if(rect_sel)
+							make_combos_rect(top, left, rows, columns, cs);
+						else
+							make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+					}, nullopt, type != 0 },
+				{ "Insert", [&]()
 					{
 						bool warn = (rect_sel
 							&& ((tile/20)!=(tile2/20))
 							&& !(tile%20==0&&tile2%20==19));
-						int32_t z=zc_min(tile,tile2);
+						int32_t z = zc_min(tile, tile2);
 						int32_t count = abs(tile-tile2) + 1;
-						tile=z;
-						tile2=NEWMAXTILES;
+						tile = z;
+						tile2 = NEWMAXTILES;
 						copy = tile + count;
 						copycnt = NEWMAXTILES-copy;
 						
-						if(m==19||key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
-						{
-							char buf[64];
-							
-							if(count>1)
-								sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
-							else
-								sprintf(buf,"Remove tile %d?",tile);
-								
-							AlertDialog("Remove Tiles", std::string(buf)
-								+"\nThis will offset the tiles that follow!"
-								+(warn?"\nRemoving tiles ignores rectangular selections!":""),
-								[&](bool ret,bool)
-								{
-									if(ret)
-									{
-										go_tiles();
-										if(copy_tiles(tile,tile2,copy,copycnt,false,true))
-										{
-											redraw=true;
-											saved=false;
-										}
-									}
-								}).show();
-						}
+						string msg;
+						
+						if(count>1)
+							msg = fmt::format("Insert {} blank tiles?",count);
 						else
-						{
-							char buf[64];
+							msg = "Insert a blank tile?";
 							
-							if(count>1)
-								sprintf(buf,"Insert %d blank tiles?",count);
-							else
-								sprintf(buf,"Insert a blank tile?");
-								
-							AlertDialog("Insert Tiles", std::string(buf)
-								+"\nThis will offset the tiles that follow!"
-								+(warn?"\nInserting tiles ignores rectangular selections!":""),
-								[&](bool ret,bool)
+						AlertDialog("Insert Tiles", msg
+							+"\nThis will offset the tiles that follow!"
+							+(warn?"\nInserting tiles ignores rectangular selections!":""),
+							[&](bool ret,bool)
+							{
+								if(ret)
 								{
-									if(ret)
-									{
-										go_tiles();
-										if(copy_tiles(copy,tile2,tile,copycnt,false,true))
-										{
-											redraw=true;
-											saved=false;
-										}
-									}
-								}).show();
-						}
+									go_tiles();
+									if(copy_tiles(copy, tile2, tile, copycnt, false, true))
+										saved = false;
+								}
+							}).show();
 						
 						copy=-1;
 						tile2=tile=z;
-					}
-					break;
-					
-				default:
-					redraw=false;
-					break;
-			}
-			
+					}, nullopt, type != 0 },
+				{ "Remove", [&]()
+					{
+						bool warn = (rect_sel
+							&& ((tile/20)!=(tile2/20))
+							&& !(tile%20==0&&tile2%20==19));
+						int32_t z = zc_min(tile, tile2);
+						int32_t count = abs(tile-tile2) + 1;
+						tile = z;
+						tile2 = NEWMAXTILES;
+						copy = tile + count;
+						copycnt = NEWMAXTILES-copy;
+						
+						string msg;
+						
+						if(count>1)
+							msg = fmt::format("Remove tiles {} - {}?", tile, copy-1);
+						else
+							msg = fmt::format("Remove tile {}?", tile);
+						
+						AlertDialog("Remove Tiles", msg
+							+"\nThis will offset the tiles that follow!"
+							+(warn?"\nRemoving tiles ignores rectangular selections!":""),
+							[&](bool ret,bool)
+							{
+								if(ret)
+								{
+									go_tiles();
+									if(copy_tiles(tile, tile2, copy, copycnt, false, true))
+										saved = false;
+								}
+							}).show();
+						
+						copy=-1;
+						tile2=tile=z;
+					}, nullopt, type != 0 },
+			};
+			rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+			redraw = true;
 			r_click = false;
 			goto REDRAW;
 		}
@@ -17942,176 +17863,187 @@ REDRAW:
 		//Seriously? There is duplicate code for the r-click menu? -Gleeok
 		if(r_click)
 		{
-			int32_t m = popup_menu(select_combo_rc_menu,gui_mouse_x(),gui_mouse_y());
-			redraw=true;
-			
-			switch(m)
+			NewMenu rcmenu
 			{
-			case 0:
-				go_combos();
-				copy=zc_min(tile,tile2);
-				copycnt=abs(tile-tile2)+1;
-				break;
-				
-			case 1:
-				if((CHECK_CTRL_CMD) && copy != -1)
-				{
-					if(advpaste(tile, tile2, copy)==1)
+				{ "Copy", [&]()
 					{
-						saved=false;
-						redraw=true;
-						copy=-1;
-					}
-					
-					break;
-				}
-				
-				masscopy=(key[KEY_LSHIFT] || key[KEY_RSHIFT])?1:0;
-				
-				if(copy==-1)
-				{
-					go_combos();
-					
-					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+						go_combos();
+						copy=zc_min(tile,tile2);
+						copycnt=abs(tile-tile2)+1;
+					} },
+				{ "Paste", [&]()
 					{
-						combobuf[i].flip^=2;
-						byte w2=combobuf[i].walk;
-						combobuf[i].walk=(w2&5)<<1 | (w2& ~5)>>1;
-						w2=combobuf[i].csets;
-						combobuf[i].csets=(w2&0x30)<<2 | (w2& ~0x30)>>2;
-					}
-					
-					saved=false;
-				}
-				else
-				{
-					go_combos();
-					copy_combos(tile,tile2,copy,copycnt,masscopy);
-					setup_combo_animations();
-					setup_combo_animations2();
-					saved=false;
-				}
-				
-				redraw=true;
-				break;
-				
-			case 2:
-			{
-				tile=tile2=zc_min(tile,tile2);
-				
-				if(copy>=0 && tile!=copy)
-				{
-					go_combos();
-					
-					for(int32_t i=0; i<copycnt; i++)
-					{
-						zc_swap(combobuf[copy+i],combobuf[tile+i]);
-					}
-					
-					saved=false;
-					setup_combo_animations();
-					setup_combo_animations2();
-				}
-				
-				redraw=true;
-				copy=-1;
-			}
-			break;
-			
-			case 3:
-			{
-				char buf[40];
-				
-				if(tile==tile2)
-					sprintf(buf,"Delete combo %d?",tile);
-				else
-					sprintf(buf,"Delete combos %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
-					
-				if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
-				{
-					go_combos();
-					
-					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
-						clear_combo(i);
+						if((CHECK_CTRL_CMD) && copy != -1)
+						{
+							if(advpaste(tile, tile2, copy)==1)
+							{
+								saved=false;
+								redraw=true;
+								copy=-1;
+							}
+							return;
+						}
 						
-					tile=tile2=zc_min(tile,tile2);
-					redraw=true;
-					saved=false;
-				}
-			}
-			break;
-			
-			case 5:
-				go_combos();
-				edit_combo(tile,false,cs);
-				break;
-				
-			case 6:
-			case 7:
-			{
-				int32_t z=tile;
-				int count = abs(tile-tile2)+1;
-				tile=zc_min(tile,tile2);
-				tile2=MAXCOMBOS;
-				copy=tile+count;
-				copycnt=MAXCOMBOS-tile-count;
-				
-				if(m==7)
-				{
-					char buf[64];
-					
-					if(count>1)
-						sprintf(buf,"Remove combos %d - %d?",tile, copy-1);
-					else
-						sprintf(buf,"Remove combo %d?",tile);
-					
-					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+						masscopy=(key[KEY_LSHIFT] || key[KEY_RSHIFT])?1:0;
+						
+						if(copy==-1)
+						{
+							go_combos();
+							
+							for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+							{
+								combobuf[i].flip^=2;
+								byte w2=combobuf[i].walk;
+								combobuf[i].walk=(w2&5)<<1 | (w2& ~5)>>1;
+								w2=combobuf[i].csets;
+								combobuf[i].csets=(w2&0x30)<<2 | (w2& ~0x30)>>2;
+							}
+							
+							saved=false;
+						}
+						else
+						{
+							go_combos();
+							copy_combos(tile,tile2,copy,copycnt,masscopy);
+							setup_combo_animations();
+							setup_combo_animations2();
+							saved=false;
+						}
+					} },
+				{ "Swap", [&]()
 					{
-						move_combos(tile,tile2,copy, copycnt);
-					}
-					else break;
-				}
-				else
-				{
-					char buf[64];
-					
-					if(count>1)
-						sprintf(buf,"Insert combos %d - %d?",tile, copy-1);
-					else
-						sprintf(buf,"Insert combo %d?",tile);
-					
-					if(jwin_alert("Confirm Insert",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+						tile=tile2=zc_min(tile,tile2);
+						
+						if(copy>=0 && tile!=copy)
+						{
+							go_combos();
+							
+							for(int32_t i=0; i<copycnt; i++)
+							{
+								zc_swap(combobuf[copy+i],combobuf[tile+i]);
+							}
+							
+							saved=false;
+							setup_combo_animations();
+							setup_combo_animations2();
+						}
+						copy=-1;
+					} },
+				{ "Delete", [&]()
 					{
-						move_combos(copy,tile2,tile, copycnt);
-					}
-					else break;
-				}
-				
-				copy=-1;
-				tile2=tile=z;
-				
-				//don't allow the user to undo; quest combo references are incorrect -DD
-				go_combos();
-				
-				redraw=true;
-				saved=false;
-			}
-			break;
-			
-			case 9:
-			{
-				int32_t z = Combo;
-				Combo = tile;
-				onComboLocationReport();
-				Combo = z;
-			}
-			break;
-			
-			default:
-				redraw=false;
-				break;
-			}
-			
+						string msg;
+						
+						if(tile==tile2)
+							msg = fmt::format("Delete combo {}?",tile);
+						else
+							msg = fmt::format("Delete combos {}-{}?",zc_min(tile,tile2),zc_max(tile,tile2));
+						bool didconfirm = false;
+						AlertDialog("Confirm Delete",msg,
+							[&](bool ret,bool)
+							{
+								if(ret)
+									didconfirm = true;
+							}).show();
+						if(didconfirm)
+						{
+							go_combos();
+							
+							for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+								clear_combo(i);
+								
+							tile=tile2=zc_min(tile,tile2);
+							saved=false;
+						}
+					} },
+				{},
+				{ "Edit", [&]()
+					{
+						go_combos();
+						edit_combo(tile,false,cs);
+					} },
+				{ "Insert", [&]()
+					{
+						int z = tile;
+						int count = abs(tile-tile2)+1;
+						tile = zc_min(tile,tile2);
+						tile2 = MAXCOMBOS;
+						copy = tile+count;
+						copycnt = MAXCOMBOS-tile-count;
+						
+						string msg;
+						
+						if(count>1)
+							msg = fmt::format("Insert combos {} - {}?"
+								" This will offset all of the combos that follow!",tile, copy-1);
+						else
+							msg = fmt::format("Insert combo {}?"
+								" This will offset all of the combos that follow!",tile);
+						
+						bool didconfirm = false;
+						AlertDialog("Confirm Insert",msg,
+							[&](bool ret,bool)
+							{
+								if(ret)
+									didconfirm = true;
+							}).show();
+						if(didconfirm)
+							move_combos(copy, tile2, tile, copycnt);
+						else return;
+						
+						copy = -1;
+						tile2 = tile = z;
+						
+						//don't allow the user to undo; quest combo references are incorrect -DD
+						go_combos();
+						saved = false;
+					} },
+				{ "Remove", [&]()
+					{
+						int z = tile;
+						int count = abs(tile-tile2)+1;
+						tile = zc_min(tile,tile2);
+						tile2 = MAXCOMBOS;
+						copy = tile+count;
+						copycnt = MAXCOMBOS-tile-count;
+						
+						string msg;
+						
+						if(count>1)
+							msg = fmt::format("Remove combos {} - {}?"
+								" This will offset all of the combos that follow!",tile, copy-1);
+						else
+							msg = fmt::format("Remove combo {}?"
+								" This will offset all of the combos that follow!",tile);
+						
+						bool didconfirm = false;
+						AlertDialog("Confirm Remove",msg,
+							[&](bool ret,bool)
+							{
+								if(ret)
+									didconfirm = true;
+							}).show();
+						if(didconfirm)
+							move_combos(tile, tile2, copy, copycnt);
+						else return;
+						
+						copy = -1;
+						tile2 = tile = z;
+						
+						//don't allow the user to undo; quest combo references are incorrect -DD
+						go_combos();
+						saved = false;
+					} },
+				{},
+				{ "Locations", [&]()
+					{
+						int32_t z = Combo;
+						Combo = tile;
+						onComboLocationReport();
+						Combo = z;
+					} },
+			};
+			rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+			redraw = true;
 			r_click = false;
 			goto REDRAW;
 		}
@@ -18120,10 +18052,7 @@ REDRAW:
 	while(!done);
 	
 	while(gui_mouse_b())
-	{
-		/* do nothing */
 		rest(1);
-	}
 	comeback();
 	setup_combo_animations();
 	setup_combo_animations2();

@@ -372,100 +372,97 @@ static int32_t onEditGrid();
 static int32_t onSelectionOptions();
 static int32_t onShowHideGrid();
 
-static MENU ss_arrange_menu[] =
+static NewMenu ss_arrange_menu
 {
-    { (char *)"Bring to Front",       onBringToFront,          NULL, 0, NULL },
-    { (char *)"Bring Forward",        onBringForward,          NULL, 0, NULL },
-    { (char *)"Send Backward",        onSendBackward,          NULL, 0, NULL },
-    { (char *)"Send to Back",         onSendToBack,            NULL, 0, NULL },
-    { (char *)"Reverse",              onReverseArrangement,    NULL, 0, NULL },
-    { NULL,                           NULL,                    NULL, 0, NULL }
+	{ "Bring to Front", onBringToFront },
+	{ "Bring Forward", onBringForward },
+	{ "Send Backward", onSendBackward },
+	{ "Send to Back", onSendToBack },
+	{ "Reverse", onReverseArrangement },
 };
 
-static MENU ss_grid_snap_menu[] =
+static NewMenu ss_grid_snap_menu
 {
-    { (char *)"Left Edges",           onGridSnapLeft,          NULL, 0, NULL },
-    { (char *)"Horizontal Centers",   onGridSnapCenter,        NULL, 0, NULL },
-    { (char *)"Right Edges",          onGridSnapRight,         NULL, 0, NULL },
-    { (char *)"",                     NULL,                    NULL, 0, NULL },
-    { (char *)"Top Edges",            onGridSnapTop,           NULL, 0, NULL },
-    { (char *)"Vertical Centers",     onGridSnapMiddle,        NULL, 0, NULL },
-    { (char *)"Bottom Edges",         onGridSnapBottom,        NULL, 0, NULL },
-    { NULL,                           NULL,                    NULL, 0, NULL }
+	{ "Left Edges", onGridSnapLeft },
+	{ "Horizontal Centers", onGridSnapCenter },
+	{ "Right Edges", onGridSnapRight },
+	{},
+	{ "Top Edges", onGridSnapTop },
+	{ "Vertical Centers", onGridSnapMiddle },
+	{ "Bottom Edges", onGridSnapBottom },
 };
 
-static MENU ss_align_menu[] =
+static NewMenu ss_align_menu
 {
-    { (char *)"Left Edges",           onAlignLeft,             NULL, 0, NULL },
-    { (char *)"Horizontal Centers",   onAlignCenter,           NULL, 0, NULL },
-    { (char *)"Right Edges",          onAlignRight,            NULL, 0, NULL },
-    { (char *)"",                     NULL,                    NULL, 0, NULL },
-    { (char *)"Top Edges",            onAlignTop,              NULL, 0, NULL },
-    { (char *)"Vertical Centers",     onAlignMiddle,           NULL, 0, NULL },
-    { (char *)"Bottom Edges",         onAlignBottom,           NULL, 0, NULL },
-    { (char *)"",                     NULL,                    NULL, 0, NULL },
-    { (char *)"To Grid",              NULL,                    ss_grid_snap_menu, 0, NULL },
-    { NULL,                           NULL,                    NULL, 0, NULL }
+	{ "Left Edges", onAlignLeft },
+	{ "Horizontal Centers", onAlignCenter },
+	{ "Right Edges", onAlignRight },
+	{},
+	{ "Top Edges", onAlignTop },
+	{ "Vertical Centers", onAlignMiddle },
+	{ "Bottom Edges", onAlignBottom },
+	{},
+	{ "To Grid", &ss_grid_snap_menu },
 };
 
-static MENU ss_distribute_menu[] =
+static NewMenu ss_distribute_menu
 {
-    { (char *)"Left Edges",           onDistributeLeft,             NULL, 0, NULL },
-    { (char *)"Horizontal Centers",   onDistributeCenter,           NULL, 0, NULL },
-    { (char *)"Right Edges",          onDistributeRight,            NULL, 0, NULL },
-    { (char *)"",                     NULL,                         NULL, 0, NULL },
-    { (char *)"Top Edges",            onDistributeTop,              NULL, 0, NULL },
-    { (char *)"Vertical Centers",     onDistributeMiddle,           NULL, 0, NULL },
-    { (char *)"Bottom Edges",         onDistributeBottom,           NULL, 0, NULL },
-    { NULL,                           NULL,                         NULL, 0, NULL }
+	{ "Left Edges", onDistributeLeft },
+	{ "Horizontal Centers", onDistributeCenter },
+	{ "Right Edges", onDistributeRight },
+	{},
+	{ "Top Edges", onDistributeTop },
+	{ "Vertical Centers", onDistributeMiddle },
+	{ "Bottom Edges", onDistributeBottom },
 };
 
-static MENU ss_wizard_menu[] =
+static NewMenu ss_wizard_menu
 {
-	{ (char*)"Item Grid",           onItemGrid,             NULL, 0, NULL },
-	{ (char*)"Counter Block",       onCounterBlock,             NULL, 0, NULL},
-	{ NULL,                           NULL,                         NULL, 0, NULL }
+	{ "Item Grid", onItemGrid },
+	{ "Counter Block", onCounterBlock},
 };
 
-static MENU ss_wizard_menu_rc[] =
+static NewMenu ss_wizard_menu_rc
 {
-	{ (char*)"Item Grid",           onItemGrid,             NULL, 0, NULL },
-	{ (char*)"Counter Block",       onCounterBlock,             NULL, 0, NULL},
-	{ NULL,                           NULL,                         NULL, 0, NULL }
+	{ "Item Grid", onItemGrid },
+	{ "Counter Block", onCounterBlock},
 };
 
-static MENU ss_copypaste_menu[] =
+enum
 {
-	{ (char *)"&Copy Widget ",          onSubscrCopy,          NULL, 0, NULL },
-    { (char *)"&Duplicate Widget ",     onDuplicateWidget,     NULL, 0, NULL },
-    { (char *)"Paste Properties\t&V",   onSubscrPasteProps,    NULL, 0, NULL },
-    { (char *)"Paste All ",             onSubscrPasteAll,      NULL, 0, NULL },
-    { (char *)"",                       NULL,                  NULL, 0, NULL },
-    { (char *)"Paste New ",             onDuplCopiedWidget,    NULL, 0, NULL },
-    { NULL,                             NULL,                  NULL, 0, NULL }
+	MENUID_SS_COPYPASTE_PASTE,
+	MENUID_SS_COPYPASTE_PASTEALL,
+	MENUID_SS_COPYPASTE_PASTENEW,
 };
-static MENU subscreen_rc_menu[] =
+static NewMenu ss_copypaste_menu
 {
-    { (char *)"Properties ",            onWidgetProperties,    NULL, 0, NULL },
-    { (char *)"New ",                   onNewWidget,           NULL, 0, NULL },
-    { (char *)"Delete ",                onDeleteWidgetC,       NULL, 0, NULL },
-    { (char *)"",                       NULL,                  NULL, 0, NULL },
-    { (char *)"&Copy/Paste   ",         NULL,     ss_copypaste_menu, 0, NULL },
-    { (char *)"",                       NULL,                  NULL, 0, NULL },
-    { (char *)"A&rrange ",              NULL,       ss_arrange_menu, 0, NULL },
-	{ (char *)"&Align ",                NULL,         ss_align_menu, 0, NULL },
-	{ (char *)"&Distribute ",           NULL,    ss_distribute_menu, 0, NULL },
-	{ (char *)"",                       NULL,                  NULL, 0, NULL },
-	{ (char *)"&Wizards",               NULL,     ss_wizard_menu_rc, 0, NULL },
-    { NULL,                             NULL,                  NULL, 0, NULL }
+	{ "&Copy Widget", onSubscrCopy },
+	{ "&Duplicate Widget", onDuplicateWidget },
+	{ "Paste Properties","&v", onSubscrPasteProps, MENUID_SS_COPYPASTE_PASTE },
+	{ "Paste All", onSubscrPasteAll, MENUID_SS_COPYPASTE_PASTEALL },
+	{},
+	{ "Paste New", onDuplCopiedWidget, MENUID_SS_COPYPASTE_PASTENEW },
 };
-static MENU subscreen_rc_menu_nowidg[] =
+static NewMenu subscreen_rc_menu
 {
-    { (char *)"New ",                   onNewWidget,           NULL, 0, NULL },
-    { (char *)"Paste New ",             onDuplCopiedWidget,    NULL, 0, NULL },
-	{ (char *)"",                       NULL,                  NULL, 0, NULL },
-	{ (char *)"&Wizards",               NULL,     ss_wizard_menu_rc, 0, NULL },
-    { NULL,                             NULL,                  NULL, 0, NULL }
+	{ "Properties ", onWidgetProperties },
+	{ "New ", onNewWidget },
+	{ "Delete ", onDeleteWidgetC },
+	{},
+	{ "&Copy/Paste ", &ss_copypaste_menu },
+	{},
+	{ "A&rrange ", &ss_arrange_menu },
+	{ "&Align ", &ss_align_menu },
+	{ "&Distribute ", &ss_distribute_menu },
+	{},
+	{ "&Wizards", &ss_wizard_menu_rc },
+};
+static NewMenu subscreen_rc_menu_nowidg
+{
+	{ "New ", onNewWidget },
+	{ "Paste New ", onDuplCopiedWidget, MENUID_SS_COPYPASTE_PASTENEW },
+	{},
+	{ "&Wizards", &ss_wizard_menu_rc },
 };
 void update_subscr_dlg(bool start);
 int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
@@ -740,7 +737,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			object_message(d,MSG_DRAW,0);
 			
 			update_subscr_dlg(false);
-			popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
+			subscreen_rc_menu.pop(gui_mouse_x(),gui_mouse_y());
 			
 			clicked_obj = -1;
 			ssmouse_flags = 0;
@@ -751,7 +748,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			object_message(d,MSG_DRAW,0);
 			
 			update_subscr_dlg(false);
-			popup_menu(subscreen_rc_menu_nowidg,gui_mouse_x(),gui_mouse_y());
+			subscreen_rc_menu_nowidg.pop(gui_mouse_x(),gui_mouse_y());
 			
 			clicked_obj = -1;
 			ssmouse_flags = 0;
@@ -1110,25 +1107,22 @@ const char *sso_alignment[3]=
     "sstaLEFT", "sstaCENTER", "sstaRIGHT"
 };
 
-static MENU ss_edit_menu[] =
+static NewMenu ss_edit_menu
 {
-	{ (char *)"&New\tIns",                       onNewSubscreenObject,                 NULL, 0, NULL },
-	{ (char *)"&Delete\tDel",                    onDeleteWidgetC,                      NULL, 0, NULL },
-	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	{ (char *)"&Copy/Paste",                     NULL,                    ss_copypaste_menu, 0, NULL },
-	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	//5
-	{ (char *)"&Properties\tE",                  onWidgetProperties,                   NULL, 0, NULL },
-	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	{ (char *)"&Arrange",                        NULL,                      ss_arrange_menu, 0, NULL },
-	{ (char *)"Al&ign",                          NULL,                        ss_align_menu, 0, NULL },
-	{ (char *)"Dis&tribute",                     NULL,                   ss_distribute_menu, 0, NULL },
-	//10
-	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	{ (char *)"&Wizards",                        NULL,                       ss_wizard_menu, 0, NULL },
-	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	{ (char *)"&Take Snapshot\tZ",               onSnapshot,                           NULL, 0, NULL },
-	{ NULL,                                      NULL,                                 NULL, 0, NULL }
+	{ "&New Ins", onNewSubscreenObject },
+	{ "&Delete Del", onDeleteWidgetC },
+	{},
+	{ "&Copy/Paste", &ss_copypaste_menu },
+	{},
+	{ "&Properties", "&E", onWidgetProperties },
+	{},
+	{ "&Arrange", &ss_arrange_menu },
+	{ "Al&ign", &ss_align_menu },
+	{ "Dis&tribute", &ss_distribute_menu },
+	{},
+	{ "&Wizards", &ss_wizard_menu },
+	{},
+	{ "&Take Snapshot", "&Z", onSnapshot },
 };
 
 int32_t onSubscrViewInfo()
@@ -1144,31 +1138,39 @@ int32_t onSubscrViewInfo()
 		"\n\"Show Everything 'Infinite'\" makes all counter-related 'Infinite' checks show true.").show();
 	return D_O_K;
 }
-static MENU ss_view_menu[] =
+enum
 {
-	{ (char *)"&Edit Grid",                      onEditGrid,                    NULL, 0, NULL },
-	{ (char *)"&Show Grid",                      onShowHideGrid,                NULL, 0, NULL },
-	{ (char *)"",                                NULL,                          NULL, 0, NULL },
-	{ (char *)"Show In&visible Items",           onToggleInvis,                 NULL, 0, NULL },
-	{ (char *)"Show Unowned Items",              onToggleShowUnowned,           NULL, 0, NULL },
-	{ (char *)"Max Out Counters",                onToggleMaxCtr,                NULL, 0, NULL },
-	{ (char *)"Max Out Max Counters",            onToggleMaxMaxCtr,             NULL, 0, NULL },
-	{ (char *)"Don't Show 'Infinite's",          onToggleNoInf,                 NULL, 0, NULL },
-	{ (char *)"Show Everything 'Infinite'",      onToggleAllInf,                NULL, 0, NULL },
-	{ (char *)"",                                NULL,                          NULL, 0, NULL },
-	{ (char *)"Set Preview &DMap",               onSetSubscrDmap,               NULL, 0, NULL },
-	{ (char *)"",                                NULL,                          NULL, 0, NULL },
-	{ (char *)"&Help",                           onSubscrViewInfo,              NULL, 0, NULL },
-	{ NULL,                                      NULL,                          NULL, 0, NULL }
+	MENUID_SS_VIEW_SHOW_INVIS,
+	MENUID_SS_VIEW_SHOW_UNOWNED,
+	MENUID_SS_VIEW_MAX_COUNTERS,
+	MENUID_SS_VIEW_MAX_MAX_COUNTERS,
+	MENUID_SS_VIEW_NO_INFINITE,
+	MENUID_SS_VIEW_ALL_INFINITE,
+	MENUID_SS_VIEW_SHOW_GRID,
+};
+static NewMenu ss_view_menu
+{
+	{ "&Edit Grid", onEditGrid },
+	{ "&Show Grid", onShowHideGrid, MENUID_SS_VIEW_SHOW_GRID },
+	{},
+	{ "Show In&visible Items", onToggleInvis, MENUID_SS_VIEW_SHOW_INVIS },
+	{ "Show Unowned Items", onToggleShowUnowned, MENUID_SS_VIEW_SHOW_UNOWNED },
+	{ "Max Out Counters", onToggleMaxCtr, MENUID_SS_VIEW_MAX_COUNTERS },
+	{ "Max Out Max Counters", onToggleMaxMaxCtr, MENUID_SS_VIEW_MAX_MAX_COUNTERS },
+	{ "Don't Show 'Infinite's", onToggleNoInf, MENUID_SS_VIEW_NO_INFINITE },
+	{ "Show Everything 'Infinite'", onToggleAllInf, MENUID_SS_VIEW_ALL_INFINITE },
+	{},
+	{ "Set Preview &DMap", onSetSubscrDmap },
+	{},
+	{ "&Help", onSubscrViewInfo },
 };
 
-static MENU ss_selection_menu[] =
+static NewMenu ss_selection_menu
 {
-    { (char *)"&Add to Selection\tA",       onAddToSelection,                 NULL, 0, NULL },
-    { (char *)"&Remove from Selection\tR",  onRemoveFromSelection,            NULL, 0, NULL },
-    { (char *)"&Invert Selection\tI",       onInvertSelection,                NULL, 0, NULL },
-    { (char *)"&Clear Selection\tC",        onClearSelection,                 NULL, 0, NULL },
-    { NULL,                                 NULL,                             NULL, 0, NULL }
+	{ "&Add to Selection", onAddToSelection },
+	{ "&Remove from Selection", onRemoveFromSelection },
+	{ "&Invert Selection", onInvertSelection },
+	{ "&Clear Selection", onClearSelection },
 };
 
 int32_t set_ssmouse(int ty);
@@ -1189,22 +1191,18 @@ int32_t onSSMouseInfo()
 		"\nCtrl+Alt will snap them to the nearest grid position.").show();
 	return D_O_K;
 }
-static MENU ss_mouseset_menu[] =
+static NewMenu ss_mouseset_menu
 {
-    { (char *)"&Classic",             onSSMouseClassic,        NULL, 0,          NULL },
-    { (char *)"&Modern",              onSSMouseModern,         NULL, D_SELECTED, NULL },
-    { (char *)"",                     NULL,                    NULL, 0,          NULL },
-    { (char *)"&Help",                onSSMouseInfo,           NULL, 0,          NULL },
-    { NULL,                           NULL,                    NULL, 0,          NULL }
+	{ "&Classic", onSSMouseClassic, ssmouCLASSIC },
+	{ "&Modern", onSSMouseModern, ssmouMODERN },
+	{},
+	{ "&Help", onSSMouseInfo },
 };
 int32_t set_ssmouse(int ty)
 {
 	ty = vbound(ty, 0, ssmouMAX-1);
 	ssmouse_type = ty;
-	for(int q = 0; q<ssmouMAX; ++q)
-	{
-		SETFLAG(ss_mouseset_menu[q].flags,D_SELECTED,q==ty);
-	}
+	ss_mouseset_menu.select_only_uid(ssmouse_type);
 	return D_O_K;
 }
 
@@ -1214,22 +1212,24 @@ static int32_t onSubscreenSettings()
 	call_subscrsettings_dialog();
 	return D_O_K;
 }
-static MENU ss_settings_menu[] =
+enum
 {
-    { (char *)"&Subscreen Settings",        onSubscreenSettings,              NULL, 0, NULL },
-    { (char *)"Se&lection Settings",        onSelectionOptions,               NULL, 0, NULL },
-    { (char *)"&Mouse Settings",            NULL,                 ss_mouseset_menu, 0, NULL },
-    { (char *)"Confirm Delete",             onToggleConfDelete,               NULL, 0, NULL },
-    { NULL,                                 NULL,                             NULL, 0, NULL }
+	MENUID_SS_SETTINGS_DELETE,
+};
+static NewMenu ss_settings_menu
+{
+	{ "&Subscreen Settings", onSubscreenSettings },
+	{ "Se&lection Settings", onSelectionOptions },
+	{ "&Mouse Settings", &ss_mouseset_menu },
+	{ "Confirm Delete", onToggleConfDelete, MENUID_SS_SETTINGS_DELETE },
 };
 
-static MENU subscreen_menu[] =
+static TopMenu subscreen_menu
 {
-    { (char *)"&Edit",               NULL,                                 ss_edit_menu, 0, NULL },
-    { (char *)"&View",               NULL,                                 ss_view_menu, 0, NULL },
-    { (char *)"&Selection",          NULL,                                 ss_selection_menu, 0, NULL },
-    { (char *)"&Options",            NULL,                                 ss_settings_menu, 0, NULL },
-    { NULL,                          NULL,                                 NULL, 0, NULL }
+	{ "&Edit", &ss_edit_menu },
+	{ "&View", &ss_view_menu },
+	{ "&Selection", &ss_selection_menu },
+	{ "&Options", &ss_settings_menu },
 };
 
 static std::string arrow_infos[5] =
@@ -1283,7 +1283,7 @@ DIALOG subscreen_dlg[] =
 	{ d_sslt_btn4_proc,     269,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_LEFT,     0, NULL, NULL, NULL },
 	{ d_ssrt_btn4_proc,     299,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_RIGHT,    0, NULL, NULL, NULL },
 	// 26
-	{ jwin_menu_proc,       4,    23,     0,      13,    0,                 0,                0,       0,          0,                      0, (void *) subscreen_menu, NULL, NULL },
+	{ GuiMenu::proc,        6,    10,     0,      13,    0,                 0,                0,       0,          0,                      0, (void *) &subscreen_menu, NULL, NULL },
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_UP,                 0, (void *) onSSUp, NULL, NULL },
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DOWN,               0, (void *) onSSDown, NULL, NULL },
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_LEFT,               0, (void *) onSSLeft, NULL, NULL },
@@ -1907,27 +1907,27 @@ static int32_t onToggleInvis()
 {
 	bool show=!(zinit.ss_flags&ssflagSHOWINVIS);
 	SETFLAG(zinit.ss_flags,ssflagSHOWINVIS,show);
-	SETFLAG(ss_view_menu[3].flags,D_SELECTED,show);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_SHOW_INVIS, show);
 	return D_O_K;
 }
 static int32_t onToggleShowUnowned()
 {
 	zq_ignore_item_ownership = !zq_ignore_item_ownership;
-	SETFLAG(ss_view_menu[4].flags, D_SELECTED, zq_ignore_item_ownership);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_SHOW_UNOWNED, zq_ignore_item_ownership);
 	zc_set_config("editsubscr","show_all_items",zq_ignore_item_ownership?1:0);
 	return D_O_K;
 }
 static int32_t onToggleMaxCtr()
 {
 	zq_view_fullctr = !zq_view_fullctr;
-	SETFLAG(ss_view_menu[5].flags, D_SELECTED, zq_view_fullctr);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_MAX_COUNTERS, zq_view_fullctr);
 	zc_set_config("editsubscr","show_full_counters",zq_view_fullctr?1:0);
 	return D_O_K;
 }
 static int32_t onToggleMaxMaxCtr()
 {
 	zq_view_maxctr = !zq_view_maxctr;
-	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_maxctr);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_MAX_MAX_COUNTERS, zq_view_maxctr);
 	zc_set_config("editsubscr","show_maxed_maxcounters",zq_view_maxctr?1:0);
 	return D_O_K;
 }
@@ -1936,7 +1936,7 @@ static int32_t onToggleNoInf()
 	if(zq_view_allinf)
 		onToggleAllInf();
 	zq_view_noinf = !zq_view_noinf;
-	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_noinf);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_NO_INFINITE, zq_view_noinf);
 	zc_set_config("editsubscr","show_no_infinites",zq_view_noinf?1:0);
 	return D_O_K;
 }
@@ -1945,14 +1945,14 @@ static int32_t onToggleAllInf()
 	if(zq_view_noinf)
 		onToggleNoInf();
 	zq_view_allinf = !zq_view_allinf;
-	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_allinf);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_ALL_INFINITE, zq_view_allinf);
 	zc_set_config("editsubscr","show_all_infinites",zq_view_allinf?1:0);
 	return D_O_K;
 }
 static int32_t onToggleConfDelete()
 {
 	subscr_confirm_delete = !subscr_confirm_delete;
-	SETFLAG(ss_settings_menu[3].flags, D_SELECTED, subscr_confirm_delete);
+	ss_settings_menu.select_uid(MENUID_SS_SETTINGS_DELETE, subscr_confirm_delete);
 	zc_set_config("editsubscr","confirm_delete",subscr_confirm_delete?1:0);
 	return D_O_K;
 }
@@ -2000,7 +2000,7 @@ static int32_t onShowHideGrid()
 	bool show=!(zinit.ss_flags&ssflagSHOWGRID);
 	zinit.ss_flags&=~ssflagSHOWGRID;
 	zinit.ss_flags|=(show?ssflagSHOWGRID:0);
-	ss_view_menu[1].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
+	ss_view_menu.select_uid(MENUID_SS_VIEW_SHOW_GRID, zinit.ss_flags&ssflagSHOWGRID);
 	return D_O_K;
 }
 
@@ -2261,8 +2261,8 @@ void update_subscr_dlg(bool start)
 		}
 		
 		onClearSelection();
-		ss_view_menu[3].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
-		ss_view_menu[1].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
+		ss_view_menu.select_uid(MENUID_SS_VIEW_SHOW_INVIS, zinit.ss_flags&ssflagSHOWINVIS);
+		ss_view_menu.select_uid(MENUID_SS_VIEW_SHOW_GRID, zinit.ss_flags&ssflagSHOWGRID);
 			
 		subscreen_dlg[5].dp=(void *)&subscr_edit;
 		subscreen_dlg[6].fg=jwin_pal[jcBOX];
@@ -2299,6 +2299,8 @@ void update_subscr_dlg(bool start)
 			subscreen_dlg[4].y-=31;
 			subscreen_dlg[4].x+=1;
 		}
+		subscreen_dlg[26].dp2 = nullptr;
+		object_message(&subscreen_dlg[26],MSG_START,0); //GuiMenu::proc
 		
 		//Some fancier stuff for the subscreen update
 		{
@@ -2312,7 +2314,7 @@ void update_subscr_dlg(bool start)
 					subscreen_dlg[q].dp2 = (void*)get_custom_font(CFONT_GUI);
 				}
 			}
-			int hei, winhei = 476 + dlg_fh(subscreen_dlg[7]) + dlg_fh(subscreen_dlg[56]);
+			int hei, winhei = 465 + subscreen_dlg[26].h + dlg_fh(subscreen_dlg[7]) + dlg_fh(subscreen_dlg[56]);
 			switch(subty)
 			{
 				default:
@@ -2333,6 +2335,9 @@ void update_subscr_dlg(bool start)
 			}
 			subscreen_dlg[0].h = winhei;
 			jwin_center_dialog(subscreen_dlg);
+			subscreen_dlg[26].y = subscreen_dlg[0].y+21;
+			subscreen_dlg[4].y = subscreen_dlg[26].y+subscreen_dlg[26].h;
+			subscreen_dlg[5].y = subscreen_dlg[4].y+2;
 			subscreen_dlg[5].h=hei*2;
 			subscreen_dlg[4].h=subscreen_dlg[5].h+4;
 			subscreen_dlg[9].y = subscreen_dlg[0].y + subscreen_dlg[0].h - 6 - subscreen_dlg[9].h;
@@ -2374,7 +2379,7 @@ void update_subscr_dlg(bool start)
 			}
 			subscreen_dlg[50].y = subscreen_dlg[49].y = subscreen_dlg[48].y =
 				subscreen_dlg[47].y = subscreen_dlg[46].y = subscreen_dlg[57].y =
-				subscreen_dlg[58].y = subscreen_dlg[4].y+168*2+2;
+				subscreen_dlg[58].y = subscreen_dlg[4].y+168*2+4;
 			subscreen_dlg[46].y += (subscreen_dlg[47].h-dlg_fh(subscreen_dlg[46]))/2;
 			
 			subscreen_dlg[51].y = subscreen_dlg[52].y = subscreen_dlg[53].y =
@@ -2431,10 +2436,10 @@ void update_subscr_dlg(bool start)
 	}
 	// Disable pastes if no copies
 	bool nocopies = (!subscr_copied_widget || subscr_copied_widget->getType()==widgNULL);
-	SETFLAG(ss_copypaste_menu[2].flags,D_DISABLED,nocopies);
-	SETFLAG(ss_copypaste_menu[3].flags,D_DISABLED,nocopies);
-	SETFLAG(ss_copypaste_menu[5].flags,D_DISABLED,nocopies);
-	SETFLAG(subscreen_rc_menu_nowidg[1].flags,D_DISABLED,nocopies);
+	ss_copypaste_menu.disable_uid(MENUID_SS_COPYPASTE_PASTE, nocopies);
+	ss_copypaste_menu.disable_uid(MENUID_SS_COPYPASTE_PASTEALL, nocopies);
+	ss_copypaste_menu.disable_uid(MENUID_SS_COPYPASTE_PASTENEW, nocopies);
+	subscreen_rc_menu_nowidg.disable_uid(MENUID_SS_COPYPASTE_PASTENEW, nocopies);
 }
 void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c);
 bool edit_subscreen()
@@ -2450,12 +2455,14 @@ bool edit_subscreen()
 	game->set_time(0);
 	resetItems(game,&zinit,true);
 	
-	SETFLAG(ss_view_menu[4].flags, D_SELECTED, zq_ignore_item_ownership);
-	SETFLAG(ss_view_menu[5].flags, D_SELECTED, zq_view_fullctr);
-	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_maxctr);
-	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_noinf);
-	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_allinf);
-	SETFLAG(ss_settings_menu[3].flags, D_SELECTED, subscr_confirm_delete);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_SHOW_UNOWNED, zq_ignore_item_ownership);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_MAX_COUNTERS, zq_view_fullctr);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_MAX_MAX_COUNTERS, zq_view_maxctr);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_NO_INFINITE, zq_view_noinf);
+	ss_view_menu.select_uid(MENUID_SS_VIEW_ALL_INFINITE, zq_view_allinf);
+	ss_settings_menu.select_uid(MENUID_SS_SETTINGS_DELETE, subscr_confirm_delete);
+	subscreen_menu.borderless = true;
+	ss_mouseset_menu.select_only_uid(ssmouse_type);
 	
 	update_subscr_dlg(true);
 	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,true,[&](int ret)

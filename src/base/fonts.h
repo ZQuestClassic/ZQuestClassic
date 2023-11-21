@@ -3,6 +3,7 @@
 
 #include "base/zc_alleg.h"
 #include "base/ints.h"
+#include "base/headers.h"
 
 enum
 {
@@ -121,6 +122,18 @@ ALLEGRO_FONT* get_zc_font_a5(int32_t index);
 char const* get_zc_fontname(int32_t index);
 bool isBrokenFont(int32_t index);
 void init_custom_fonts();
+
+enum
+{
+	FONTPREF_PLAYER,
+	FONTPREF_COMPACT,
+	FONTPREF_LARGE,
+	NUM_FONTPREFS
+};
+uint get_font_prefid();
+string const& get_font_prefix(optional<uint> prefid = nullopt);
+string get_font_cfgname(bool scale, uint indx, optional<uint> prefid = nullopt);
+int get_def_fontid(uint indx);
 
 enum
 {

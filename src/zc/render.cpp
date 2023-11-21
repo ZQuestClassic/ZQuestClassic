@@ -29,34 +29,24 @@ bool use_linear_bitmaps()
 
 static int zc_gui_mouse_x()
 {
+	if (rti_dialogs.has_children())
+		return rti_dialogs.get_children().back()->rel_mouse().first;
 	if (rti_dialogs.visible || rti_gui.visible)
-	{
 		return rti_gui.rel_mouse().first;
-	}
-	else if (rti_menu.visible)
-	{
+	if (rti_menu.visible)
 		return rti_menu.rel_mouse().first;
-	}
-	else
-	{
-		return rti_game.rel_mouse().first;
-	}
+	return rti_game.rel_mouse().first;
 }
 
 static int zc_gui_mouse_y()
 {
+	if (rti_dialogs.has_children())
+		return rti_dialogs.get_children().back()->rel_mouse().second;
 	if (rti_dialogs.visible || rti_gui.visible)
-	{
 		return rti_gui.rel_mouse().second;
-	}
-	else if (rti_menu.visible)
-	{
+	if (rti_menu.visible)
 		return rti_menu.rel_mouse().second;
-	}
-	else
-	{
-		return rti_game.rel_mouse().second;
-	}
+	return rti_game.rel_mouse().second;
 }
 
 static void init_render_tree()
@@ -181,22 +171,7 @@ static void configure_render_tree()
 		});
 		rti_infolayer.visible = true;
 	}
-
-	rti_menu.visible = MenuOpen;
-	if (rti_menu.visible)
-	{
-		int w = rti_menu.width;
-		int h = rti_menu.height;
-		float xscale = (float)resx/w;
-		float yscale = (float)resy/h;
-		rti_menu.set_transform({
-			.x = 0,
-			.y = 0,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-	}
-
+	
 	rti_dialogs.visible = rti_dialogs.has_children();
 	rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp;
 	
@@ -212,7 +187,7 @@ static void configure_render_tree()
 			.xscale = xscale,
 			.yscale = yscale,
 		});
-		rti_menu.visible = false;
+		
 		rti_dialogs.set_transform({
 			.x = (int)(resx - w*xscale) / 2,
 			.y = (int)(resy - h*yscale) / 2,
@@ -220,7 +195,35 @@ static void configure_render_tree()
 			.yscale = yscale,
 		});
 	}
-
+	
+	bool has_zqdialog = false;
+	auto& dlgs = rti_dialogs.get_children();
+	for(auto it = dlgs.rbegin(); it != dlgs.rend(); ++it)
+	{
+		auto rti = *it;
+		if(rti->type == RTI_TY_DIALOG_A4 || rti->type == RTI_TY_DIALOG_A5)
+			has_zqdialog = true;
+		else if(rti->type == RTI_TY_POPUP_MENU)
+			rti->visible = !has_zqdialog;
+	}
+	rti_menu.visible = MenuOpen && !has_zqdialog;
+	
+	if (rti_menu.visible)
+	{
+		int w = rti_menu.width;
+		int h = rti_menu.height;
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
+		xscale = intscale(xscale);
+		yscale = intscale(yscale);
+		rti_menu.set_transform({
+			.x = 0,
+			.y = 0,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
+	}
+	
 	rti_screen.visible = false;
 
 	if (rti_screen.visible)

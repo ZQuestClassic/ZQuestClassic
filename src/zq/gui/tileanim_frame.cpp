@@ -116,7 +116,7 @@ TileFrame::TileFrame(): alDialog()
 	Size s = 32_px+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
-	bgColor = palette_color[scheme[jcBOX]];
+	bgColor = scheme[jcBOX];
 	for(int32_t q = 0; q < tfr_MAX; ++q)
 	{
 		data[q] = (q == tfr_frames || q == tfr_speed) ? 1 : 0;

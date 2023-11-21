@@ -18,8 +18,8 @@ PaletteFrame::PaletteFrame(): bmp(NULL), ColorData(NULL), plt(NULL), count(14), 
 {
 	setPreferredWidth(192_px);
 	setPreferredHeight(12_px*count);
-	bgColor = palette_color[scheme[jcLIGHT]];
-	fgColor = palette_color[scheme[jcBOXFG]];
+	bgColor = scheme[jcLIGHT];
+	fgColor = scheme[jcBOXFG];
 }
 
 void PaletteFrame::setBitmap(BITMAP* value)

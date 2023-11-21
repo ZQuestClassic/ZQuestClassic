@@ -2,6 +2,7 @@
 #define _BASE_RENDER_TREE_H_
 
 #include "base/zc_alleg.h"
+#include "base/headers.h"
 #include <vector>
 #include <string>
 #include <functional>
@@ -111,10 +112,18 @@ struct Matrix
 	}
 };
 
+enum
+{
+	RTI_TY_NONE,
+	RTI_TY_DIALOG_A4,
+	RTI_TY_DIALOG_A5,
+	RTI_TY_POPUP_MENU,
+};
 class RenderTreeItem
 {
 public:
-	std::string name;
+	string name;
+	uint type = RTI_TY_NONE;
 	bool visible = true;
 	// -1 for no transparency.
 	int transparency_index = -1;
@@ -244,6 +253,10 @@ void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskin
 extern BITMAP* zqdialog_bg_bmp;
 extern ALLEGRO_COLOR* override_dlg_tint;
 void zqdialog_set_skiptint(bool skipTint);
+void zqdialog_name(string const& name);
+void zqdialog_tag(uint tagid);
+void get_zqdialog_xy(int& x, int& y);
+void popup_zqdialog_start(string name, uint tagid, int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
 void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();

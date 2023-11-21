@@ -23,6 +23,7 @@ src/dialog/alert.cpp
 src/dialog/vidmode.cpp
 src/dialog/numpick.cpp
 src/dialog/ditherpick.cpp
+src/dialog/zc_options.cpp
 
 ## End of Zelda GUI module
 )
