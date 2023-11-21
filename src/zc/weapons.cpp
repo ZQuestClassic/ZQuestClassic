@@ -758,7 +758,6 @@ weapon::weapon(weapon const & other):
 	//}
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
-	// memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
 	for( int32_t q = 0; q < WPNSPR_MAX; q++ )
 	{
 		misc_wsprites[q] = other.misc_wsprites[q];
@@ -952,8 +951,6 @@ void weapon::reset_wgrids()
 {
 	memset(wscreengrid,0,sizeof(wscreengrid));
 	memset(wscreengrid_layer,0,sizeof(wscreengrid_layer));
-	// TODO z3 !!! merged
-	// memset(wscreengrid_ffc,0,sizeof(wscreengrid_ffc));
 }
 weapon::~weapon()
 {
@@ -1086,7 +1083,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	linkedItem = 0;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 		memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
-		// memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 		
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other HeroCLass items. 

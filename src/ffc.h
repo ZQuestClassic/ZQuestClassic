@@ -38,7 +38,6 @@ public:
 	int32_t changer_x = -1000, changer_y = -1000;
 	int32_t prev_changer_x = -10000000, prev_changer_y = -10000000;
 	cpos_info info;
-	// TODO z3 !! upstream
 	int32_t script_misc[16];
 	bool script_wait_draw;
 	word data;

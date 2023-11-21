@@ -20806,8 +20806,7 @@ void HeroClass::oldcheckbosslockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
-				// TODO z3 !!
-				if (tmpscr2[1].valid != 0)
+				if (get_layer_scr(currmap, heroscr, 1)->valid != 0)
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
