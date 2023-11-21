@@ -10073,7 +10073,6 @@ heroanimate_skip_liftwpn:;
 			action=none; FFCore.setHeroAction(none);
 			attackclk = 0;
 			stepforward(29, true);
-			action=scrolling; FFCore.setHeroAction(scrolling);
 			pushing=false;
 		}
 	}
@@ -14662,7 +14661,7 @@ void HeroClass::moveheroOld()
 			walkable = false;
 			if(DrunkUp()&&(holddir==-1||holddir==up))
 			{
-				if(isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
 				{
 				}
 				else
@@ -14735,7 +14734,7 @@ void HeroClass::moveheroOld()
 					
 					int32_t s=shiftdir;
 					
-					if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM))
+					if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM))
 					{
 						shiftdir=-1;
 					}
@@ -14892,7 +14891,7 @@ void HeroClass::moveheroOld()
 			
 			if(DrunkDown()&&(holddir==-1||holddir==down))
 			{
-				if(isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
 				{
 				}
 				else
@@ -14961,7 +14960,7 @@ void HeroClass::moveheroOld()
 					
 					int32_t s=shiftdir;
 					
-					if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM))
+					if(isdungeon() && (y<=26 || y>=world_h - 42) && !get_qr(qr_FREEFORM))
 					{
 						shiftdir=-1;
 					}
@@ -15115,7 +15114,7 @@ void HeroClass::moveheroOld()
 			
 			if(DrunkLeft()&&(holddir==-1||holddir==left))
 			{
-				if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (y<=26 || y>=world_h - 42) && !get_qr(qr_FREEFORM) && !toogam)
 				{
 				}
 				else
@@ -15170,7 +15169,7 @@ void HeroClass::moveheroOld()
 					
 					int32_t s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+					if((isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -15349,7 +15348,7 @@ void HeroClass::moveheroOld()
 			
 			if(DrunkRight()&&(holddir==-1||holddir==right))
 			{
-				if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (y<=26 || y>=world_h - 42) && !get_qr(qr_FREEFORM) && !toogam)
 				{
 				}
 				else
@@ -15404,7 +15403,7 @@ void HeroClass::moveheroOld()
 					
 					int32_t s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+					if((isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -15585,7 +15584,7 @@ void HeroClass::moveheroOld()
 		{
 			if(DrunkUp()&&(holddir==-1||holddir==up))
 			{
-				if(isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
 				{
 				}
 				else
@@ -15662,7 +15661,7 @@ void HeroClass::moveheroOld()
 					
 					int32_t s=shiftdir;
 					
-					if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM))
+					if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM))
 					{
 						shiftdir=-1;
 					}
@@ -15753,7 +15752,7 @@ void HeroClass::moveheroOld()
 			
 			if(DrunkDown()&&(holddir==-1||holddir==down))
 			{
-				if(isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
 				{
 				}
 				else
@@ -15830,7 +15829,7 @@ void HeroClass::moveheroOld()
 					
 					int32_t s=shiftdir;
 					
-					if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM))
+					if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM))
 					{
 						shiftdir=-1;
 					}
@@ -15928,7 +15927,7 @@ void HeroClass::moveheroOld()
 			
 			if(DrunkLeft()&&(holddir==-1||holddir==left))
 			{
-				if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam)
 				{
 				}
 				else
@@ -15994,7 +15993,7 @@ void HeroClass::moveheroOld()
 					
 					int32_t s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+					if((isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -16095,7 +16094,7 @@ void HeroClass::moveheroOld()
 			
 			if(DrunkRight()&&(holddir==-1||holddir==right))
 			{
-				if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM) && !toogam)
+				if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam)
 				{
 				}
 				else
@@ -16161,7 +16160,7 @@ void HeroClass::moveheroOld()
 					
 					int32_t s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+					if((isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -16295,7 +16294,7 @@ void HeroClass::moveheroOld()
 	temp_x = x;
 	temp_y = y;
 	
-	if(isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM) && !toogam)
+	if(isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam)
 	{
 		if(get_qr(qr_NEW_HERO_MOVEMENT) || IsSideSwim())
 			goto LEFTRIGHT_NEWMOVE;
@@ -17126,7 +17125,7 @@ LEFTRIGHT_NEWMOVE:
 		
 LEFTRIGHT_OLDMOVE:
 
-		if(isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM) && !toogam)
+		if(isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam)
 		{
 			return;
 		}
@@ -18533,8 +18532,8 @@ void HeroClass::movehero()
 		}
 	}
 	
-	bool nohorz = (isdungeon() && (y<=26 || y>=134) && !get_qr(qr_FREEFORM) && !toogam);
-	bool novert = (isdungeon() && (x<=26 || x>=214) && !get_qr(qr_FREEFORM) && !toogam);
+	bool nohorz = (isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam);
+	bool novert = (isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam);
 	
 	zfix dx, dy;
 	if(is_conveyor_stunned)
