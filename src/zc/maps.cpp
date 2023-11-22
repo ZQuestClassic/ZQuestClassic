@@ -225,6 +225,8 @@ void z3_calculate_region(int dmap, int screen_index, region& region, int& region
 
 void z3_load_region(int screen_index, int dmap)
 {
+	z3_clear_temporary_screens();
+
 	if (dmap == -1) dmap = currdmap;
 
 #ifndef hardcode_regions_mode
@@ -247,12 +249,10 @@ void z3_load_region(int screen_index, int dmap)
 	region_num_rpos = current_region.screen_width*current_region.screen_height*176;
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
-	z3_clear_temporary_screens();
 
 	// TODO z3 !!!
 	// z3_update_currscr();
 
-	current_region_screen_count = 0;
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
 	for (int x = 0; x < current_region.screen_width; x++)
 	{
@@ -260,20 +260,6 @@ void z3_load_region(int screen_index, int dmap)
 		{
 			int scr = cur_origin_screen_index + x + y*16;
 			screen_in_current_region[scr] = true;
-
-			// for (int layer = 0; layer <= 6; layer++)
-			// {
-			// 	mapscr* screen = get_layer_scr(currmap, scr, layer - 1);
-			// 	if (!screen->valid)
-			// 	{
-			// 		if (layer == 0) break;
-			// 		continue;
-			// 	}
-
-			// 	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
-			// 	current_region_rpos_handles[current_region_screen_count] = {screen, scr, layer, base_rpos, 0};
-			// 	current_region_screen_count += 1;
-			// }
 		}
 	}
 }
@@ -5759,6 +5745,27 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 			if (screen_index != cur_origin_screen_index && is_in_current_region(screen_index))
 			{
 				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
+			}
+		}
+	}
+
+	current_region_screen_count = 0;
+	for (int x = 0; x < current_region.screen_width; x++)
+	{
+		for (int y = 0; y < current_region.screen_height; y++)
+		{
+			for (int layer = 0; layer <= 6; layer++)
+			{
+				mapscr* screen = get_layer_scr(currmap, scr, layer - 1);
+				if (!screen->valid)
+				{
+					if (layer == 0) break;
+					continue;
+				}
+
+				rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+				current_region_rpos_handles[current_region_screen_count] = {screen, scr, layer, base_rpos, 0};
+				current_region_screen_count += 1;
 			}
 		}
 	}

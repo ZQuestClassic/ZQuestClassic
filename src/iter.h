@@ -36,57 +36,57 @@ void for_every_screen_in_region(T fn)
 
 // Iterates over every rpos in the current region, but only for screens that are valid.
 // Callback function: void fn(const pos_handle_t& rpos_handle)
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, const rpos_handle_t&>
->>
-void for_every_rpos_in_region(T fn)
-{
-	rpos_handle_t rpos_handle;
-	for (int screen_index = 0; screen_index < 128; screen_index++)
-	{
-		if (!is_in_current_region(screen_index)) continue;
-
-		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
-		rpos_handle.screen_index = screen_index;
-		for (int lyr = 0; lyr <= 6; ++lyr)
-		{
-			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
-			if (!scr->valid)
-			{
-				if (lyr == 0) break;
-				continue;
-			}
-
-			rpos_handle.screen = scr;
-			rpos_handle.layer = lyr;
-
-			for (int pos = 0; pos < 176; ++pos)
-			{
-				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
-				rpos_handle.pos = pos;
-				fn(rpos_handle);
-			}
-		}
-	}
-}
 // template<typename T, typename = std::enable_if_t<
 //     std::is_invocable_v<T, const rpos_handle_t&>
 // >>
 // void for_every_rpos_in_region(T fn)
 // {
-// 	auto [handles, count] = z3_get_current_region_handles();
-
-// 	for (int i = 0; i < count; i++)
+// 	rpos_handle_t rpos_handle;
+// 	for (int screen_index = 0; screen_index < 128; screen_index++)
 // 	{
-// 		rpos_handle_t rpos_handle = handles[i];
-// 		for (int j = 0; j < 176; j++)
+// 		if (!is_in_current_region(screen_index)) continue;
+
+// 		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
+// 		rpos_handle.screen_index = screen_index;
+// 		for (int lyr = 0; lyr <= 6; ++lyr)
 // 		{
-// 			fn(rpos_handle);
-// 			rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
-// 			rpos_handle.pos += 1;
+// 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
+// 			if (!scr->valid)
+// 			{
+// 				if (lyr == 0) break;
+// 				continue;
+// 			}
+
+// 			rpos_handle.screen = scr;
+// 			rpos_handle.layer = lyr;
+
+// 			for (int pos = 0; pos < 176; ++pos)
+// 			{
+// 				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+// 				rpos_handle.pos = pos;
+// 				fn(rpos_handle);
+// 			}
 // 		}
 // 	}
 // }
+template<typename T, typename = std::enable_if_t<
+    std::is_invocable_v<T, const rpos_handle_t&>
+>>
+void for_every_rpos_in_region(T fn)
+{
+	auto [handles, count] = z3_get_current_region_handles();
+
+	for (int i = 0; i < count; i++)
+	{
+		rpos_handle_t rpos_handle = handles[i];
+		for (int j = 0; j < 176; j++)
+		{
+			fn(rpos_handle);
+			rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
+			rpos_handle.pos += 1;
+		}
+	}
+}
 
 // Iterates over every ffc in the current region.
 // Callback function: void fn(const ffc_handle_t& ffc_handle)
