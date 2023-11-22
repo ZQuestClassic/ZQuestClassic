@@ -22,11 +22,14 @@ void for_every_screen_in_region(T fn)
 		return;
 	}
 
-	for (int screen_index = 0; screen_index < 128; screen_index++)
+	auto [handles, count] = z3_get_current_region_handles();
+
+	for (int i = 0; i < count; i++)
 	{
-		if (is_in_current_region(screen_index))
+		if (handles[i].layer == 0)
 		{
-			mapscr* screen = get_scr(currmap, screen_index);
+			mapscr* screen = handles[i].screen;
+			unsigned int screen_index = handles[i].screen_index;
 			unsigned int region_scr_x = z3_get_region_relative_dx(screen_index);
 			unsigned int region_scr_y = z3_get_region_relative_dy(screen_index);
 			fn(screen, screen_index, region_scr_x, region_scr_y);
@@ -36,39 +39,6 @@ void for_every_screen_in_region(T fn)
 
 // Iterates over every rpos in the current region, but only for screens that are valid.
 // Callback function: void fn(const pos_handle_t& rpos_handle)
-// template<typename T, typename = std::enable_if_t<
-//     std::is_invocable_v<T, const rpos_handle_t&>
-// >>
-// void for_every_rpos_in_region(T fn)
-// {
-// 	rpos_handle_t rpos_handle;
-// 	for (int screen_index = 0; screen_index < 128; screen_index++)
-// 	{
-// 		if (!is_in_current_region(screen_index)) continue;
-
-// 		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
-// 		rpos_handle.screen_index = screen_index;
-// 		for (int lyr = 0; lyr <= 6; ++lyr)
-// 		{
-// 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
-// 			if (!scr->valid)
-// 			{
-// 				if (lyr == 0) break;
-// 				continue;
-// 			}
-
-// 			rpos_handle.screen = scr;
-// 			rpos_handle.layer = lyr;
-
-// 			for (int pos = 0; pos < 176; ++pos)
-// 			{
-// 				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
-// 				rpos_handle.pos = pos;
-// 				fn(rpos_handle);
-// 			}
-// 		}
-// 	}
-// }
 template<typename T, typename = std::enable_if_t<
     std::is_invocable_v<T, const rpos_handle_t&>
 >>
@@ -123,18 +93,21 @@ template<typename T, typename = std::enable_if_t<
 >>
 void for_some_ffcs_in_region(T fn)
 {
-	for (uint8_t screen_index = 0; screen_index < 128; screen_index++)
+	auto [handles, count] = z3_get_current_region_handles();
+	
+	for (int i = 0; i < count; i++)
 	{
-		if (!is_in_current_region(screen_index)) continue;
+		if (handles[i].layer != 0)
+			continue;
 
-		mapscr* screen = get_scr(currmap, screen_index);
+		mapscr* screen = handles[i].screen;
+		uint8_t screen_index = handles[i].screen_index;
 		int screen_index_offset = get_region_screen_index_offset(screen_index);
-
 		int c = screen->numFFC();
-		for (uint8_t i = 0; i < c; i++)
+		for (uint8_t j = 0; j < c; j++)
 		{
-			uint16_t id = screen_index_offset * MAXFFCS + i;
-			ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
+			uint16_t id = screen_index_offset * MAXFFCS + j;
+			ffc_handle_t ffc_handle = {screen, screen_index, id, j, &screen->ffcs[j]};
 			if (!fn(ffc_handle)) return;
 		}
 	}
@@ -148,20 +121,23 @@ template<typename T, typename = std::enable_if_t<
 >>
 std::optional<ffc_handle_t> find_ffc_in_region(T fn)
 {
-	for (uint8_t screen_index = 0; screen_index < 128; screen_index++)
+	auto [handles, count] = z3_get_current_region_handles();
+	
+	for (int i = 0; i < count; i++)
 	{
-		if (!is_in_current_region(screen_index)) continue;
+		if (handles[i].layer != 0)
+			continue;
 
-		mapscr* screen = get_scr(currmap, screen_index);
+		mapscr* screen = handles[i].screen;
+		uint8_t screen_index = handles[i].screen_index;
 		int screen_index_offset = get_region_screen_index_offset(screen_index);
-
 		int c = screen->numFFC();
-		for (uint8_t i = 0; i < c; i++)
+		for (uint8_t j = 0; j < c; j++)
 		{
-			if (screen->ffcs[i].data)
+			if (screen->ffcs[j].data)
 			{
-				uint16_t id = screen_index_offset * MAXFFCS + i;
-				ffc_handle_t ffc_handle = {screen, screen_index, id, i, &screen->ffcs[i]};
+				uint16_t id = screen_index_offset * MAXFFCS + j;
+				ffc_handle_t ffc_handle = {screen, screen_index, id, j, &screen->ffcs[j]};
 				if (fn(ffc_handle)) return ffc_handle;
 			}
 		}
