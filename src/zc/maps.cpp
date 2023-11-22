@@ -5750,9 +5750,9 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	}
 
 	current_region_screen_count = 0;
-	for (int x = 0; x < current_region.screen_width; x++)
+	for (int y = 0; y < current_region.screen_height; y++)
 	{
-		for (int y = 0; y < current_region.screen_height; y++)
+		for (int x = 0; x < current_region.screen_width; x++)
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
