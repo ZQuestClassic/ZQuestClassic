@@ -5756,15 +5756,16 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
-				mapscr* screen = get_layer_scr(currmap, scr, layer - 1);
+				int screen_index = cur_origin_screen_index + x + y*16;
+				mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
 				if (!screen->valid)
 				{
 					if (layer == 0) break;
 					continue;
 				}
 
-				rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
-				current_region_rpos_handles[current_region_screen_count] = {screen, scr, layer, base_rpos, 0};
+				rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
+				current_region_rpos_handles[current_region_screen_count] = {screen, screen_index, layer, base_rpos, 0};
 				current_region_screen_count += 1;
 			}
 		}

@@ -95,6 +95,25 @@ template<typename T, typename = std::enable_if_t<
 >>
 void for_every_ffc_in_region(T fn)
 {
+	// auto [handles, count] = z3_get_current_region_handles();
+	
+	// for (int i = 0; i < count; i++)
+	// {
+	// 	if (handles[i].layer != 0)
+	// 		continue;
+
+	// 	mapscr* screen = handles[i].screen;
+	// 	uint8_t screen_index = handles[i].screen_index;
+	// 	int screen_index_offset = get_region_screen_index_offset(screen_index);
+	// 	int c = screen->numFFC();
+	// 	for (uint8_t j = 0; j < c; j++)
+	// 	{
+	// 		uint16_t id = screen_index_offset * MAXFFCS + j;
+	// 		ffc_handle_t ffc_handle = {screen, screen_index, id, j, &screen->ffcs[j]};
+	// 		fn(ffc_handle);
+	// 	}
+	// }
+
 	for (uint8_t screen_index = 0; screen_index < 128; screen_index++)
 	{
 		if (!is_in_current_region(screen_index)) continue;
