@@ -52,6 +52,10 @@ extern HeroClass Hero;
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7] = {nullptr};
+static bool screen_in_current_region[176];
+static rpos_handle_t current_region_rpos_handles[136*7];
+static int current_region_screen_count;
+
 viewport_t viewport;
 ViewportMode viewport_mode;
 int world_w, world_h;
@@ -108,10 +112,9 @@ static bool is_same_region_id(int region_origin_scr, int dmap, int scr)
 	return region_id && region_id == get_region_id(dmap, scr);
 }
 
-// Set by z3_load_region.
-static bool screen_in_current_region[176];
 bool is_in_current_region(int scr)
 {
+	// Set by z3_load_region.
 	return screen_in_current_region[scr];
 }
 
@@ -236,7 +239,7 @@ void z3_load_region(int screen_index, int dmap)
 
 	currscr = screen_index;
 	z3_calculate_region(dmap, screen_index, current_region, region_scr_dx, region_scr_dy);
-	cur_origin_screen_index = current_region.origin_screen_index;
+	currscr = cur_origin_screen_index = current_region.origin_screen_index;
 	world_w = current_region.width;
 	world_h = current_region.height;
 	region_scr_count = current_region.screen_count;
@@ -249,14 +252,35 @@ void z3_load_region(int screen_index, int dmap)
 	// TODO z3 !!!
 	// z3_update_currscr();
 
+	current_region_screen_count = 0;
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
 	for (int x = 0; x < current_region.screen_width; x++)
 	{
 		for (int y = 0; y < current_region.screen_height; y++)
 		{
-			screen_in_current_region[cur_origin_screen_index + x + y*16] = true;
+			int scr = cur_origin_screen_index + x + y*16;
+			screen_in_current_region[scr] = true;
+
+			// for (int layer = 0; layer <= 6; layer++)
+			// {
+			// 	mapscr* screen = get_layer_scr(currmap, scr, layer - 1);
+			// 	if (!screen->valid)
+			// 	{
+			// 		if (layer == 0) break;
+			// 		continue;
+			// 	}
+
+			// 	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+			// 	current_region_rpos_handles[current_region_screen_count] = {screen, scr, layer, base_rpos, 0};
+			// 	current_region_screen_count += 1;
+			// }
 		}
 	}
+}
+
+std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles()
+{
+	return {current_region_rpos_handles, current_region_screen_count};
 }
 
 void z3_clear_temporary_screens()
@@ -5691,7 +5715,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	currscr_for_passive_subscr = -1;
 	z3_load_region(scr, destdmap);
 	homescr = scr >= 0x80 ? heroscr : cur_origin_screen_index;
-	currscr = cur_origin_screen_index;
 
 	cpos_clear_combos();
 

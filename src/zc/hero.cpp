@@ -28001,10 +28001,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		fixed_door = false;
 	}
 
-	currmap = destmap;
-
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
+	currmap = destmap;
 	int old_region_scr_dy = region_scr_dy;
 	int old_world_w = world_w;
 	int old_world_h = world_h;

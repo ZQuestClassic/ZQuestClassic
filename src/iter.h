@@ -69,6 +69,24 @@ void for_every_rpos_in_region(T fn)
 		}
 	}
 }
+// template<typename T, typename = std::enable_if_t<
+//     std::is_invocable_v<T, const rpos_handle_t&>
+// >>
+// void for_every_rpos_in_region(T fn)
+// {
+// 	auto [handles, count] = z3_get_current_region_handles();
+
+// 	for (int i = 0; i < count; i++)
+// 	{
+// 		rpos_handle_t rpos_handle = handles[i];
+// 		for (int j = 0; j < 176; j++)
+// 		{
+// 			fn(rpos_handle);
+// 			rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
+// 			rpos_handle.pos += 1;
+// 		}
+// 	}
+// }
 
 // Iterates over every ffc in the current region.
 // Callback function: void fn(const ffc_handle_t& ffc_handle)
