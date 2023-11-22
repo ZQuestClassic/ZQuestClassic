@@ -250,9 +250,6 @@ void z3_load_region(int screen_index, int dmap)
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
 
-	// TODO z3 !!!
-	// z3_update_currscr();
-
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
 	for (int x = 0; x < current_region.screen_width; x++)
 	{
@@ -1099,6 +1096,17 @@ std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 		return ffcIsAt(ffc_handle, x, y);
 	});
 }
+
+// ffc_handle_t get_ffc_handle(uint16_t ffc_id)
+// {
+// 	uint8_t i = ffc_id % MAXFFCS;
+// 	uint8_t screen_index_offset = ffc_id / MAXFFCS;
+// 	uint8_t scr_dx = screen_index_offset % current_region.screen_width;
+// 	uint8_t scr_dy = screen_index_offset / current_region.screen_width;
+// 	uint8_t screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
+// 	mapscr* screen = get_scr(currmap, screen_index);
+// 	return {screen, screen_index, ffc_id, i, &screen->ffcs[i]};
+// }
 
 int32_t MAPCOMBO(const rpos_handle_t& rpos_handle)
 {

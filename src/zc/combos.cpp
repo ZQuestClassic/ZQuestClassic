@@ -1682,7 +1682,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 	if(addenemy(ffc_handle.screen_index,tx,ty+3,id2,eclk))
 	{
 		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
-		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=ffc_handle.id+1;
+		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=ffc_handle;
 	}
 	else return false;
 	return true;

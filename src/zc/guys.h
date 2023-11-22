@@ -2,6 +2,7 @@
 #define _GUYS_H_
 
 #include <list>
+#include <optional>
 #include "sprite.h"
 #include "zc/weapons.h"
 #include "base/zfix.h"
@@ -74,7 +75,7 @@ public:
 	byte hitsfx,deadsfx;
 	bool submerged;
 	
-	word ffcactivated;
+	std::optional<ffc_handle_t> ffcactivated;
 
 	int32_t  clk2,sclk;
 	int32_t  starting_hp;
@@ -279,9 +280,8 @@ protected:
 	// to allow for different sfx on defeating enemy
 	virtual void death_sfx();
 	virtual void move(zfix dx,zfix dy);
-	virtual void removearmos(int32_t ax,int32_t ay, word ffcactive = 0);
+	virtual void removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcactive = std::nullopt);
 	virtual void removearmosffc(const ffc_handle_t& ffc_handle);
-	virtual void removearmosffc(uint16_t ffc_id);
 	virtual void move(zfix s);
 	void leave_item();
 	

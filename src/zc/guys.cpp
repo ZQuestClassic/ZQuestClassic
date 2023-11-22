@@ -1,5 +1,7 @@
+#include "base/handles.h"
 #include "base/zdefs.h" // TODO @!
 #include <cstring>
+#include <optional>
 #include <stdio.h>
 #include "base/zc_alleg.h"
 #include "zc/guys.h"
@@ -471,7 +473,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	stickclk = 0;
 	submerged = false;
 	didScriptThisFrame = false;
-	ffcactivated = 0;
+	ffcactivated = std::nullopt;
 	hitdir = -1;
 	dialogue_str = 0; //set by spawn flags. 
 	editorflags = d->editorflags; //set by Enemy Editor 
@@ -8297,11 +8299,11 @@ void eFriendly::break_shield()
 }
 
 
-void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
+void enemy::removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcactive)
 {
 	if (ffcactive) 
 	{
-		removearmosffc(ffcactive-1);
+		removearmosffc(*ffcactive);
 		return;
 	}
 	if(did_armos)
@@ -8309,7 +8311,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 		return;
 	}
 
-	// TODO z3 ?
+	// TODO z3 !?
 	mapscr* scr = tmpscr;
 	if (is_z3_scrolling_mode())
 	{
@@ -8352,18 +8354,6 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 	}
 	
 	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
-}
-
-void enemy::removearmosffc(uint16_t ffc_id)
-{
-	// TODO z3 !! ugly
-	uint8_t i = ffc_id % MAXFFCS;
-	uint8_t screen_index_offset = ffc_id / MAXFFCS;
-	uint8_t scr_dx = screen_index_offset % current_region.screen_width;
-	uint8_t scr_dy = screen_index_offset / current_region.screen_width;
-	uint8_t screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
-	mapscr* screen = get_scr(currmap, screen_index);
-	removearmosffc({screen, screen_index, ffc_id, i, &screen->ffcs[i]});
 }
 
 void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
@@ -8459,10 +8449,10 @@ bool eGhini::animate(int32_t index)
 			misc=1;
 			clk3=32;
 			fading=0;
-			if (ffcactivated > 0) 
+			if (ffcactivated) 
 			{
-				activation_counters_ffc[ffcactivated-1] = 0;
-				removearmosffc(ffcactivated-1);
+				activation_counters_ffc[ffcactivated->id] = 0;
+				removearmosffc(*ffcactivated);
 			}
 			else 
 			{
@@ -11015,7 +11005,7 @@ bool eStalfos::animate(int32_t index)
 			
 		//if a custom size (not 16px by 16px)
 		if (ffcactivated)
-			removearmosffc(ffcactivated-1); 
+			removearmosffc(*ffcactivated); 
 		else
 		{
 			if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
@@ -13181,7 +13171,7 @@ bool eGohma::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		if (ffcactivated) removearmosffc(ffcactivated-1);
+		if (ffcactivated) removearmosffc(*ffcactivated);
 		else
 		{
 			removearmos(zc_max(x-16, 0_zf),y);
