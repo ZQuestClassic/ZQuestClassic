@@ -208,11 +208,10 @@ int32_t  TriforceCount();
 bool item_disabled(int32_t item);
 bool can_use_item(int32_t item_type, int32_t item);
 bool has_item(int32_t item_type, int32_t item);
-//int32_t high_item(int32_t jmax, int32_t item_type, bool consecutive, int32_t itemcluster, bool usecluster);
-int32_t current_item(int32_t item_type);
-int32_t current_item(int32_t item_type, bool checkenabled);
-int32_t current_item_power(int32_t item_type);
-int32_t current_item_id(int32_t item_type, bool checkmagic = true, bool jinx_check = false, bool check_bunny = false);
+
+int current_item(int itemtype, bool checkmagic = true, bool jinx_check = false, bool check_bunny = true);
+int current_item_power(int itemtype, bool checkmagic = true, bool jinx_check = false, bool check_bunny = true);
+int current_item_id(int item_type, bool checkmagic = true, bool jinx_check = false, bool check_bunny = true);
 int32_t heart_container_id();
 int32_t high_flag(int32_t i, int32_t item_type, bool consecutive);
 void cache_tile_mod_clear();

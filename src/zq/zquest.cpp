@@ -27033,7 +27033,7 @@ int32_t get_homescr()
     return DMaps[zinit.start_dmap].cont;
 }
 
-int32_t current_item(int32_t item_type)
+int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bunny)
 {
     //TODO remove as special case?? -DD
     if(item_type==itype_shield)
@@ -27041,28 +27041,16 @@ int32_t current_item(int32_t item_type)
         return 2;
     }
     
-    //find lowest item of that class
-    int32_t lowestid = -1;
-    int32_t ret = 0;
-    
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        if(itemsbuf[i].family == item_type && (lowestid==-1 || itemsbuf[i].fam_type < ret))
-        {
-            lowestid = i;
-            ret = itemsbuf[i].fam_type;
-        }
-    }
-    
-    return ret;
+	int id = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
+	return id > -1 ? itemsbuf[id].fam_type : 0;
 }
 
-int32_t current_item_power(int32_t itemtype)
+int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	if (game)
 	{
-		int32_t result = current_item_id(itemtype, true);
-		return (result < 0) ? 0 : itemsbuf[result].power;
+		int result = current_item_id(itemtype, checkmagic, jinx_check, check_bunny);
+		return (result<0) ? 0 : itemsbuf[result].power;
 	}
     return 1;
 }

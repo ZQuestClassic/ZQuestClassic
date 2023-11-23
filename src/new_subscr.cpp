@@ -104,6 +104,13 @@ void animate_subscr_buttonitems()
 	}
 }
 
+static int get_subscr_item_id(int family, bool compat)
+{
+	if(compat && replay_version_check(0,24))
+		return current_item_id(family,true,false,false);
+	return current_item_id(family,false,false,false);
+}
+
 void refresh_subscr_items()
 {
 	subscr_itemless = false;
@@ -120,7 +127,7 @@ void refresh_subscr_items()
 				case itype_bosskey:
 					continue;
 			}
-			current_item_id(i,false);
+			get_subscr_item_id(i, false);
 		}
 	}
 }
@@ -233,7 +240,7 @@ word get_ssc_ctr(int ctr, bool* infptr = nullptr)
 			break;
 		case crSBOMBS:
 		{
-			int32_t itemid = current_item_id(itype_bombbag);
+			int32_t itemid = get_subscr_item_id(itype_bombbag, true);
 			if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
 				inf = true;
 			break;
@@ -263,7 +270,7 @@ word get_ssc_ctr(int ctr, bool* infptr = nullptr)
 		case sscLEVKEYMAGIC:
 		case sscANYKEYMAGIC:
 		{
-			int32_t itemid = current_item_id(itype_magickey);
+			int32_t itemid = get_subscr_item_id(itype_magickey, true);
 			if(itemid>-1)
 			{
 				if(itemsbuf[itemid].flags&ITEM_FLAG1)
@@ -1892,7 +1899,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 			case itype_arrow:
 				if(btnitem_ids[btn]&0xF000)
 				{
-					int bow = current_item_id(itype_bow);
+					int bow = get_subscr_item_id(itype_bow, true);
 					if(bow>-1)
 					{
 						if(replay_version_check(0,19))
@@ -3055,7 +3062,7 @@ static bool check_bomb(optional<int> iid = nullopt)
 		return true;
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_bombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_bomb,true) > -1))
 		return true;
-	auto bombid = iid ? *iid : current_item_id(itype_bomb);
+	auto bombid = iid ? *iid : get_subscr_item_id(itype_bomb, true);
 	if(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)
 		return true; // Remote Bombs - still usable without cost
 	return false;
@@ -3068,12 +3075,12 @@ static bool check_sbomb(optional<int> iid = nullopt)
 #ifdef IS_PLAYER
 	if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 		return true;
-	auto bombbagid = current_item_id(itype_bombbag);
+	auto bombbagid = get_subscr_item_id(itype_bombbag, true);
 	if(bombbagid > -1 && itemsbuf[bombbagid].power && (itemsbuf[bombbagid].flags & ITEM_FLAG1))
 		return true;
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_sbombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_sbomb,true) > -1))
 		return true;
-	auto sbombid = iid ? *iid : current_item_id(itype_sbomb, false);
+	auto sbombid = iid ? *iid : get_subscr_item_id(itype_sbomb, false);
 	if(sbombid >- 1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb) > 0)
 		return true; // Remote Bombs - still usable without cost
 	return false;
@@ -3095,7 +3102,7 @@ int32_t SW_ItemSlot::getItemVal() const
 				break;
 			case itype_bowandarrow:
 			case itype_arrow:
-				if(current_item_id(itype_bow) > -1)
+				if(get_subscr_item_id(itype_bow, true) > -1)
 					select=true;
 				break;
 			case itype_letterpotion:
@@ -3130,13 +3137,14 @@ int32_t SW_ItemSlot::getItemVal() const
 			break;
 		case itype_bowandarrow:
 		case itype_arrow:
-			if(current_item_id(itype_bow)>-1 && current_item_id(itype_arrow)>-1)
+			if(get_subscr_item_id(itype_bow, true)>-1
+				&& get_subscr_item_id(itype_arrow, true)>-1)
 				family=itype_arrow;
 			break;
 		case itype_letterpotion:
-			if(current_item_id(itype_potion)>-1)
+			if(get_subscr_item_id(itype_potion, true)>-1)
 				family=itype_potion;
-			else if(current_item_id(itype_letter)>-1)
+			else if(get_subscr_item_id(itype_letter, true)>-1)
 				family=itype_letter;
 			break;
 		case itype_sbomb:
@@ -3153,7 +3161,7 @@ int32_t SW_ItemSlot::getItemVal() const
 	}
 	if(family < 0)
 		return -1;
-	int32_t itemid = current_item_id(family, false);
+	int32_t itemid = get_subscr_item_id(family, false);
 	if(item_disabled(itemid))
 		return -1;
 	if(wrap_iid(itemid) < 0)
@@ -3167,7 +3175,7 @@ int32_t SW_ItemSlot::getItemVal() const
 	switch(fam)
 	{
 		case itype_letterpotion:
-			if(current_item_id(itype_potion)==-1)
+			if(get_subscr_item_id(itype_potion, true)==-1)
 				fam = itype_letter;
 			else fam = itype_potion;
 			break;
@@ -3183,7 +3191,7 @@ int32_t SW_ItemSlot::getItemVal() const
 		case itype_heartpiece:
 			return iHCPiece;
 	}
-	int itemid = current_item_id(fam,false);
+	int itemid = get_subscr_item_id(fam, false);
 	if(itemid == -1) return -1;
 	if(fam == itype_bowandarrow)
 		itemid |= 0xF000;
@@ -3255,9 +3263,9 @@ int32_t SW_ItemSlot::getDisplayItem() const
 			family=itype_arrow;
 			break;
 		case itype_letterpotion:
-			if(current_item_id(itype_potion)>-1)
+			if(get_subscr_item_id(itype_potion, true)>-1)
 				family=itype_potion;
-			else if(current_item_id(itype_letter)>-1)
+			else if(get_subscr_item_id(itype_letter, true)>-1)
 				family=itype_letter;
 			break;
 		case itype_sbomb:
@@ -3286,7 +3294,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 	}
 	if(family < 0)
 		return -1;
-	int32_t itemid = current_item_id(family, false);
+	int32_t itemid = get_subscr_item_id(family, false);
 	if(item_disabled(itemid))
 		return -1;
 	if(wrap_iid(itemid) < 0)
@@ -3300,7 +3308,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 	switch(fam)
 	{
 		case itype_letterpotion:
-			if(current_item_id(itype_potion)==-1)
+			if(get_subscr_item_id(itype_potion, true)==-1)
 				fam = itype_letter;
 			else fam = itype_potion;
 			break;
@@ -3320,7 +3328,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 			if(nosp) break;
 			return iHCPiece;
 	}
-	int itemid = current_item_id(fam,false);
+	int itemid = get_subscr_item_id(fam, false);
 	if(itemid == -1) return -1;
 	if(fam == itype_bowandarrow)
 		itemid |= 0xF000;
@@ -3361,7 +3369,7 @@ void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			putitem3(dest,x+xofs,y+yofs,itemid,clk);
 			if(!nosp && (id&0xF000))
 			{
-				int id2 = current_item_id(itype_bow,false);
+				int id2 = get_subscr_item_id(itype_bow, false);
 				if(id2 > -1)
 					putitem3(dest,x+xofs,y+yofs,id2,clk);
 			}
