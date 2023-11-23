@@ -770,7 +770,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			{
 				_SET(flag[4], "Temporary Light", "In Old-style Dark Rooms, only keeps the room lit while it exists.");
 			}
-			if(FLAG(3))
+			if(!FLAG(3))
 			{
 				_SET(misc[0], "Damage to Player:", "Damage value to be used for self-damage");
 			}
