@@ -1203,11 +1203,8 @@ def prompt_for_gh_auth():
     return Github(token), repo
 
 
-def get_recent_release_tag(match: str, exclude=None):
-    args = ''
-    if exclude:
-        args = f'--exclude {exclude}'
-    command = f'git describe --tags --abbrev=0 --match {match} {args}'
+def get_recent_release_tag(args: List[str]):
+    command = f'git describe --tags --abbrev=0 ' + ' '.join(args)
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 
 def prompt_to_create_compare_report():
@@ -1249,8 +1246,8 @@ def prompt_to_create_compare_report():
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
-        most_recent_nightly = get_recent_release_tag('*.*.*-nightly*')
-        most_recent_stable = get_recent_release_tag('*.*.*', exclude='*-nightly')
+        most_recent_nightly = get_recent_release_tag(['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*'])
+        most_recent_stable = get_recent_release_tag(['--match', '*.*.*', '--match', '2.55-alpha-*', '--exclude', '*.*.*-nightly*', '--exclude', '*.*.*-prerelease*'])
         print('Select a release build to use: ')
         selected_index = cutie.select([
             # TODO
