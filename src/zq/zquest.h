@@ -944,8 +944,6 @@ void Z_scripterrlog(const char * const format,...);
 void zprint(const char * const format,...);
 void zprint2(const char * const format,...);
 int32_t get_currdmap();
-int32_t current_item(int32_t item_type);
-int32_t current_item_power(int32_t item_type);
 
 bool can_use_item(int32_t item_type, int32_t item);
 bool has_item(int32_t item_type, int32_t it);
