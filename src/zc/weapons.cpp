@@ -7278,9 +7278,9 @@ offscreenCheck:
 				
 				misc=1;
 				/*
-				  if (current_item(itype_brang,true)>1) {
+				  if (current_item(itype_brang)>1) {
 				  if (dummy_bool[0]) {
-				  add_grenade(x,y,z,current_item(itype_brang,true)>2);
+				  add_grenade(x,y,z,current_item(itype_brang)>2);
 				  dummy_bool[0]=false;
 				  }
 				  }
