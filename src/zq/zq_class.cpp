@@ -503,16 +503,22 @@ void zmap::setCurrentView(int32_t map, int32_t scr)
 
 void zmap::setCurrMap(int32_t index)
 {
-    int32_t oldmap=currmap;
-    scrpos[currmap]=currscr;
-    currmap=bound(index,0,map_count);
-    screens=&TheMaps[currmap*MAPSCRS];
-    
-    currscr=scrpos[currmap];
-    loadlvlpal(getcolor());
-    
-    reset_combo_animations2();
-    mmap_mark_dirty();
+	int32_t oldmap=currmap;
+	optional<int> oldcolor;
+	if(screens)
+		oldcolor = getcolor();
+	scrpos[currmap]=currscr;
+	currmap=bound(index,0,map_count);
+	screens=&TheMaps[currmap*MAPSCRS];
+	
+	currscr=scrpos[currmap];
+	int newcolor = getcolor();
+	loadlvlpal(newcolor);
+	if(!oldcolor || *oldcolor != newcolor)
+		rebuild_trans_table();
+	
+	reset_combo_animations2();
+	mmap_mark_dirty();
 }
 
 int32_t  zmap::getCurrScr()
