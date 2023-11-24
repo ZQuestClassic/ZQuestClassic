@@ -683,14 +683,18 @@ void set_debug(bool d)
     return;
 }
 
+bool handle_quit()
+{
+	if(onExit()==D_CLOSE)
+		return (exiting_program = true);
+	return false;
+}
 bool handle_close_btn_quit()
 {
 	if(close_button_quit)
 	{
 		close_button_quit=false;
-		
-		if(onExit()==D_CLOSE)
-			return (exiting_program = true);
+		return handle_quit();
 	}
 	return false;
 }
@@ -1084,7 +1088,7 @@ static NewMenu file_menu
 	{ "&Export", &export_menu },
 #ifndef __EMSCRIPTEN__
 	{},
-	{ "E&xit", onExit },
+	{ "E&xit", handle_quit },
 #endif
 };
 
