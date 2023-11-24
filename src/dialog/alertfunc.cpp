@@ -5,18 +5,18 @@
 #include <gui/size.h>
 extern int32_t zq_screen_w;
 
-AlertFuncDialog::AlertFuncDialog(std::string title, std::string text,
-	std::string info, uint32_t numButtons, uint32_t focused_button,
-	std::initializer_list<std::string> buttonNames,
+AlertFuncDialog::AlertFuncDialog(string const& title, string const& text,
+	string info, uint32_t numButtons, uint32_t focused_button,
+	std::initializer_list<string> buttonNames,
 	std::initializer_list<std::function<bool()>> buttonProcs
 	) : InfoDialog(title,text), didend(false), helptxt(info)
 {
 	initButtons(buttonNames, buttonProcs, numButtons, focused_button);
 }
 
-AlertFuncDialog::AlertFuncDialog(std::string title, std::vector<std::string_view> lines,
-	std::string info, uint32_t numButtons, uint32_t focused_button,
-	std::initializer_list<std::string> buttonNames,
+AlertFuncDialog::AlertFuncDialog(string const& title, vector<string> const& lines,
+	string info, uint32_t numButtons, uint32_t focused_button,
+	std::initializer_list<string> buttonNames,
 	std::initializer_list<std::function<bool()>> buttonProcs
 	) : InfoDialog(title,lines), didend(false), helptxt(info)
 {
@@ -51,7 +51,7 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 	}
 	
 	std::shared_ptr<GUI::Window> window = Window(
-		title = std::move(dlgTitle),
+		title = std::move(d_title),
 		info = helptxt,
 		onClose = message::OK,
 		Column(
@@ -60,14 +60,14 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 				hPadding = 1_em,
 				maxLines = 30,
 				textAlign = 1,
-				text = std::move(dlgText)),
+				text = std::move(d_text)),
 			buttonRow
 		)
 	);
 	return window;
 }
 
-void AlertFuncDialog::initButtons(std::initializer_list<std::string> buttonNames,
+void AlertFuncDialog::initButtons(std::initializer_list<string> buttonNames,
 	std::initializer_list<std::function<bool()>> buttonProcs,
 	uint32_t numButtons, uint32_t focused_button)
 {
@@ -81,7 +81,7 @@ void AlertFuncDialog::initButtons(std::initializer_list<std::string> buttonNames
 		auto procIter = buttonProcs.begin();
 		for(uint32_t q = 0; q < numButtons; ++q)
 		{
-			std::string const& btntext = *(nameIter++);
+			string const& btntext = *(nameIter++);
 			std::function<bool()> const& func = *(procIter++);
 			if(func)
 			{

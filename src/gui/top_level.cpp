@@ -4,8 +4,7 @@
 #include "gui/jwin.h"
 #include "base/zc_alleg.h"
 #include <utility>
-
-void displayinfo(std::string, std::string);
+#include "dialog/externs.h"
 
 namespace GUI
 {

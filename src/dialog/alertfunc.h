@@ -9,13 +9,13 @@
 class AlertFuncDialog: public InfoDialog
 {
 public:
-	AlertFuncDialog(std::string title, std::string text, std::string info = "",
+	AlertFuncDialog(string const& title, string const& text, string info = "",
 		uint32_t numButtons = 0, uint32_t focused_button = 0,
-		std::initializer_list<std::string> buttonNames = {},
+		std::initializer_list<string> buttonNames = {},
 		std::initializer_list<std::function<bool()>> buttonProcs = {});
-	AlertFuncDialog(std::string title, std::vector<std::string_view> lines,
-		std::string info = "", uint32_t numButtons = 0, uint32_t focused_button = 0,
-		std::initializer_list<std::string> buttonNames = {},
+	AlertFuncDialog(string const& title, vector<string> const& lines,
+		string info = "", uint32_t numButtons = 0, uint32_t focused_button = 0,
+		std::initializer_list<string> buttonNames = {},
 		std::initializer_list<std::function<bool()>> buttonProcs = {});
 	
 	std::shared_ptr<GUI::Widget> view() override;
@@ -23,11 +23,11 @@ public:
 
 private:
 	bool didend;
-	std::string helptxt;
+	string helptxt;
 	std::shared_ptr<GUI::Grid> buttonRow;
-	std::vector<std::shared_ptr<GUI::Button>> buttons;
+	vector<std::shared_ptr<GUI::Button>> buttons;
 	
-	void initButtons(std::initializer_list<std::string> buttonNames,
+	void initButtons(std::initializer_list<string> buttonNames,
 		std::initializer_list<std::function<bool()>> buttonProcs,
 		uint32_t numButtons, uint32_t focused_button);
 };

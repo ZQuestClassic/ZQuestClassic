@@ -12,5 +12,8 @@ optional<int32_t> call_get_num(string const& lbl, string const& inf, int32_t dv,
 optional<zfix> call_get_zfix(string const& lbl, zfix dv, zfix max = 0_zf, zfix min = 0_zf);
 optional<zfix> call_get_zfix(string const& lbl, string const& inf, zfix dv, zfix max = 0_zf, zfix min = 0_zf);
 
+void displayinfo(string const& title, string const& text, optional<string> subtext = nullopt);
+void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext = nullopt);
+
 #endif
 
