@@ -3177,19 +3177,8 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 						char temp;
 						while ((temp = getc(fscript)) != '\n')
 						{
-							if (temp == '\r')
-							{
-								do
-								{
-									if (feof(fscript))
-									{
-										stop = true;
-										break;
-									}
-								} while (getc(fscript) != '\n');
-								break;
-							}
-							else buffer += temp;
+							if (temp != '\r')
+								buffer += temp;
 							if (feof(fscript))
 							{
 								stop = true;
