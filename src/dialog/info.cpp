@@ -10,22 +10,26 @@
 extern const GUI::ListData ruletemplatesList;
 #endif
 
-void displayinfo(std::string title, std::string text)
+void displayinfo(string const& title, string const& text, optional<string> subtext)
 {
-	InfoDialog(title,text).show();
+	InfoDialog(title,text,subtext).show();
+}
+void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext)
+{
+	InfoDialog(title,lines,subtext).show();
 }
 
-InfoDialog::InfoDialog(std::string title, std::string text):
-	dlgTitle(title),
-	dlgText(text),
+InfoDialog::InfoDialog(string const& title, string const& text, optional<string> subtext):
+	d_title(title),
+	d_text(text), d_subtext(subtext),
 	dest_qrs(nullptr)
 {
 	postinit();
 }
 
-InfoDialog::InfoDialog(std::string title, std::vector<std::string_view> lines):
-	dlgTitle(title),
-	dlgText(),
+InfoDialog::InfoDialog(string const& title, vector<string> const& lines, optional<string> subtext):
+	d_title(title),
+	d_text(), d_subtext(subtext),
 	dest_qrs(nullptr)
 {
 	size_t size = 0;
@@ -33,15 +37,15 @@ InfoDialog::InfoDialog(std::string title, std::vector<std::string_view> lines):
 	for(auto& line: lines)
 		size += line.size();
 	size += lines.size()-1;
-	dlgText.reserve(size);
+	d_text.reserve(size);
 
 	auto remaining = lines.size();
 	for(auto& line: lines)
 	{
-		dlgText += line;
+		d_text += line;
 		--remaining;
 		if(remaining > 0)
-			dlgText += '\n';
+			d_text += '\n';
 	}
 	postinit();
 }
@@ -53,20 +57,20 @@ void InfoDialog::postinit()
 		next_dest_qr = quest_rules;
 	while(true)
 	{
-		size_t pos = dlgText.find_first_of("$");
-		if(pos == std::string::npos)
+		size_t pos = d_text.find_first_of("$");
+		if(pos == string::npos)
 			break;
-		size_t nextpos = dlgText.find_first_of("$",pos+1);
-		if(nextpos == std::string::npos)
+		size_t nextpos = d_text.find_first_of("$",pos+1);
+		if(nextpos == string::npos)
 			break;
-		std::string sub = dlgText.substr(pos+1,nextpos-pos-1);
-		dlgText.erase(pos,nextpos-pos+1);
+		string sub = d_text.substr(pos+1,nextpos-pos-1);
+		d_text.erase(pos,nextpos-pos+1);
 		#ifdef IS_EDITOR
 		dword special_type = 0; //qr by default
 		if(sub[0] == '#') //Special type id given
 		{
 			auto nexthash = sub.find_first_of("#",1);
-			if(nexthash == std::string::npos || nexthash == 1)
+			if(nexthash == string::npos || nexthash == 1)
 				continue; //invalid
 			if(sub.find_first_not_of("0123456789",1) != nexthash)
 				continue; //invalid
@@ -77,8 +81,8 @@ void InfoDialog::postinit()
 		while(running)
 		{
 			size_t commapos = sub.find_first_of(",");
-			std::string sub2;
-			if(commapos == std::string::npos)
+			string sub2;
+			if(commapos == string::npos)
 			{
 				running = false;
 				sub2 = sub;
@@ -88,7 +92,7 @@ void InfoDialog::postinit()
 				sub2 = sub.substr(0,commapos);
 				sub.erase(0,commapos+1);
 			}
-			if(sub2.size() < 1 || sub2.find_first_not_of("0123456789") != std::string::npos)
+			if(sub2.size() < 1 || sub2.find_first_not_of("0123456789") != string::npos)
 				continue; //invalid
 			int val = atoi(sub2.c_str());
 			
@@ -158,7 +162,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		{
 			if(!ruleTemplates.contains(q))
 				continue;
-			std::string infostr = ruletemplatesList.getInfo(q);
+			string infostr = ruletemplatesList.getInfo(q);
 			cboxes->add(infostr.size() ? INFOBTN(infostr) : DINFOBTN());
 			cboxes->add(Checkbox(
 					hAlign = 0.0, checked = false,
@@ -201,19 +205,32 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 	
 	std::shared_ptr<GUI::Grid> main_col;
 	window = Window(
-		title = dlgTitle,
+		title = d_title,
 		onClose = message::CANCEL,
 		hPadding = 0_px, 
 		main_col = Column(
-			hPadding = 0_px, 
-			Label(noHLine = true,
-				hPadding = 2_em,
-				maxLines = 20,
-				maxwidth = Size::pixels(zq_screen_w)-12_px-5_em,
-				textAlign = 1,
-				text = dlgText)
+			hPadding = 0_px
 		)
 	);
+	Size maxw = Size::pixels(zq_screen_w)-12_px-5_em;
+	Size maxh = (DEFAULT_PADDING*20)+20_em;
+	if(d_subtext)
+		main_col->add(Label(noHLine = true, hPadding = 2_em,
+			maxwidth = maxw, textAlign = 1, text = *d_subtext));
+	std::shared_ptr<GUI::Label> main_label =
+		Label(noHLine = true, hPadding = 2_em,
+			maxwidth = maxw, textAlign = 1, text = d_text);
+	main_label->calculateSize();
+	if(main_label->getHeight() > maxh)
+	{
+		main_col->add(ScrollingPane(
+			targHeight = maxh,
+			main_label));
+	}
+	else
+	{
+		main_col->add(main_label);
+	}
 	if(add_grid)
 		main_col->add(gr);
 	main_col->add(closeRow);
@@ -255,3 +272,4 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	}
 	return false;
 }
+
