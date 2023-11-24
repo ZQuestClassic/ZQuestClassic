@@ -5,6 +5,7 @@
 #include "base/headers.h"
 #include <gui/dialog.h>
 #include <gui/window.h>
+#include <gui/grid.h>
 #include <gui/checkbox.h>
 #include <gui/text_field.h>
 #include <initializer_list>
@@ -23,11 +24,13 @@ public:
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
-
+	
+	void setSubtext(optional<string> subtext) {d_subtext = subtext;}
 protected:
 	std::shared_ptr<GUI::Window> window;
 	string d_title, d_text;
 	optional<string> d_subtext;
+	
 	
 	std::set<int> qrs; //related qrs
 	std::set<int> ruleTemplates; //related rule templates
@@ -38,6 +41,8 @@ protected:
 	bool on_templates[sz_ruletemplate] = {false};
 	
 	void postinit();
+	
+	std::shared_ptr<GUI::Grid> build_text();
 };
 
 #endif

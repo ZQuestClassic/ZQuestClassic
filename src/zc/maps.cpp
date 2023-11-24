@@ -7166,46 +7166,6 @@ bool isCuttableItemType(int32_t type)
     return false;
 }
 
-
-
-bool is_push_flag(int32_t flag)
-{
-	switch(flag)
-	{
-		case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
-		case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
-		case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
-		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
-		case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
-		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
-		case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
-			return true;
-	}
-	return false;
-}
-
-bool is_push_flag_dir(int flag, int dir)
-{
-	switch(flag)
-	{
-		case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
-			return dir <= down;
-		case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
-			return dir >= left;
-		case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
-			return dir==up;
-		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
-			return dir==down;
-		case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
-			return dir==left;
-		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
-			return dir==right;
-		case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
-			return true;
-	}
-	return false;
-}
-
 bool is_push(mapscr* m, int32_t pos)
 {
 	if(is_push_flag(m->sflag[pos]))

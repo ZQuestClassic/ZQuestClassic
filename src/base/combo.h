@@ -3,8 +3,7 @@
 
 #include "base/ints.h"
 #include "base/zfix.h"
-#include <string>
-#include <vector>
+#include "base/headers.h"
 #include <functional>
 
 #define NUM_COMBO_ATTRIBUTES            4
@@ -287,6 +286,8 @@ enum //cCRUMBLE types
 };
 
 extern std::vector<newcombo> combobuf;
+
+bool is_push_flag(int flag, optional<int> dir = nullopt);
 
 #endif
 
