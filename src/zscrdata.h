@@ -505,8 +505,7 @@ bool zasm_meta::parse_meta(const char *buffer)
 	string cmd = line.substr(0, space_pos); //The command portion
 	size_t end_space_pos = line.find_first_not_of(" \t=", space_pos);
 	if(end_space_pos == string::npos) return false;
-	size_t semi = line.find_first_of(";",end_space_pos);
-	string val = line.substr(end_space_pos, (semi == string::npos ? semi : semi-end_space_pos-1)); //The value portion
+	string val = line.substr(end_space_pos); //The value portion
 	size_t endpos = val.find_last_not_of(" \t\r\n\0");
 	if(endpos != string::npos) ++endpos;
 	val = val.substr(0, endpos); //trim trailing whitespace
