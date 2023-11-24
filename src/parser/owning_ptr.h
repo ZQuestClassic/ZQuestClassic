@@ -12,7 +12,7 @@ class owning_ptr
 	void safe_bool_func() const {}
 	
 public:
-	explicit owning_ptr(Type* p = NULL) : data_(p) {}
+	explicit owning_ptr(Type* p = nullptr) : data_(p) {}
 	owning_ptr(owning_ptr const& other) : data_(other.clone()) {}
 	template <class OtherType>
 	owning_ptr(owning_ptr<OtherType> const& other)
@@ -20,27 +20,29 @@ public:
 	~owning_ptr() {delete data_;}
 	owning_ptr& operator=(owning_ptr const& rhs)
 	{
-		delete data_;
+		if(data_)
+			delete data_;
 		data_ = rhs.clone();
 		return *this;
 	}
 	owning_ptr& operator=(Type* pointer)
 	{
-		delete data_;
+		if(data_)
+			delete data_;
 		data_ = pointer;
 		return *this;
 	}
 
-	// Return a clone of the contents, or NULL if none.
+	// Return a clone of the contents, or nullptr if none.
 	Type* clone() const
 	{
 		if (data_) return data_->clone();
-		return NULL;
+		return nullptr;
 	}
 
 	operator safe_bool_type() const
 	{
-		return data_ ? &owning_ptr::safe_bool_func : NULL;
+		return data_ ? &owning_ptr::safe_bool_func : nullptr;
 	}
 
 	Type* get() {return data_;}
@@ -52,12 +54,13 @@ public:
 	Type* release()
 	{
 		Type* temp = data_;
-		data_ = NULL;
+		data_ = nullptr;
 		return temp;
 	}
-	void reset(Type* p = NULL)
+	void reset(Type* p = nullptr)
 	{
-		delete data_;
+		if(data_)
+			delete data_;
 		data_ = p;
 	}
 	

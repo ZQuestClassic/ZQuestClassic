@@ -1922,13 +1922,24 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 		return;
 	}
-
 	visit(host.operand.get(), param);
-	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
-		addOpcode(new OSetTrue(new VarArgument(EXP1)));
+	
+	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL);
+	if(host.isInverted())
+	{
+		if(decret)
+			addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+		else
+			addOpcode(new OCastBoolI(new VarArgument(EXP1)));
+	}
 	else
-		addOpcode(new OSetTrueI(new VarArgument(EXP1)));
+	{
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		if(decret)
+			addOpcode(new OSetTrue(new VarArgument(EXP1)));
+		else
+			addOpcode(new OSetTrueI(new VarArgument(EXP1)));
+	}
 }
 
 void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
