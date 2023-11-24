@@ -27,8 +27,9 @@ int32_t solidity_to_flag(int32_t val);
 class ComboEditorDialog: public GUI::Dialog<ComboEditorDialog>
 {
 public:
-	enum class message { REFR_INFO, OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP,
-		ROTATE, PLUSCS, MINUSCS, MINUSCOMBO, PLUSCOMBO, CLEAR, DEFAULT, TILESEL, WIZARD };
+	enum class message { REFR_INFO, OK, CANCEL, COMBOTYPE, COMBOFLAG,
+		HFLIP, VFLIP, ROTATE, PLUSCS, MINUSCS, MINUSCOMBO, PLUSCOMBO,
+		CLEAR, DEFAULT, TILESEL, WIZARD, WARNINGS };
 	
 
 	std::shared_ptr<GUI::Widget> view() override;
@@ -37,14 +38,17 @@ public:
 private:
 	ComboEditorDialog(newcombo const& ref, int32_t index);
 	ComboEditorDialog(int32_t index);
+	
 	void refreshScript();
 	void loadComboType();
 	void loadComboFlag();
 	void updateCSet();
 	void updateAnimation();
+	void updateWarnings();
 	void flipSwatches(int rot, int hflip, int vflip);
 	void updateFlip(int nflip);
 	void apply_combo();
+	
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> tf_initd[8];
 	std::shared_ptr<GUI::Label> l_initds[8];
@@ -58,7 +62,7 @@ private:
 	std::shared_ptr<GUI::Button> ib_attribytes[8];
 	std::shared_ptr<GUI::Button> ib_attrishorts[8];
 	std::shared_ptr<GUI::Button> ib_flags[16];
-	std::shared_ptr<GUI::Button> wizardButton;
+	std::shared_ptr<GUI::Button> wizardButton, warnbtn;
 	std::shared_ptr<GUI::Label> l_flip;
 	std::shared_ptr<GUI::Label> l_cset;
 	std::shared_ptr<GUI::Label> l_minmax_trig;
@@ -66,15 +70,22 @@ private:
 	std::shared_ptr<GUI::SelTileSwatch> tswatch;
 	std::shared_ptr<GUI::SelComboSwatch> cycleswatch;
 	std::shared_ptr<GUI::TileFrame> animFrame;
-	std::string h_initd[8], h_attribute[4], h_attribyte[8],
+	
+	string h_initd[8], h_attribute[4], h_attribyte[8],
 		h_attrishort[8], h_flag[16];
-	std::string l_initd[8], l_attribute[4], l_attribyte[8],
+	string l_initd[8], l_attribute[4], l_attribyte[8],
 		l_attrishort[8], l_flag[16];
+	
+	vector<string> warnings;
+	
 	int32_t index;
 	newcombo local_comboref;
+	
 	GUI::ListData list_ctype, list_flag, list_combscript, list_sfx, list_genscr,
 		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes,
 		list_lift_parent_items, list_sprites_0none, list_dirs4n, list_0_7;
+	
+	
 	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);
 	std::shared_ptr<GUI::Widget> CMB_INITD(int index);
 	std::shared_ptr<GUI::Widget> CMB_FLAG(int index);

@@ -1,5 +1,6 @@
 #include "combo.h"
 #include "general.h"
+#include "mapscr.h"
 
 std::vector<newcombo> combobuf;
 
@@ -253,3 +254,24 @@ void newcombo::advpaste(newcombo const& other, byte* pasteflags)
 	}
 }
 
+bool is_push_flag(int flag, optional<int> dir)
+{
+	switch(flag)
+	{
+		case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+			return !dir || *dir <= down;
+		case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+			return !dir || *dir >= left;
+		case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+			return !dir || *dir==up;
+		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+			return !dir || *dir==down;
+		case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+			return !dir || *dir==left;
+		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+			return !dir || *dir==right;
+		case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+			return true;
+	}
+	return false;
+}

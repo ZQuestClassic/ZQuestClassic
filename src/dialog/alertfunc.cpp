@@ -55,12 +55,7 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 		info = helptxt,
 		onClose = message::OK,
 		Column(
-			Label(noHLine = true,
-				maxwidth = 30_em,
-				hPadding = 1_em,
-				maxLines = 30,
-				textAlign = 1,
-				text = std::move(d_text)),
+			build_text(),
 			buttonRow
 		)
 	);

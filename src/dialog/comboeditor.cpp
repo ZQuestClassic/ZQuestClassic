@@ -2054,7 +2054,12 @@ void ComboEditorDialog::loadComboType()
 	}
 	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
 	wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
+	updateWarnings();
 	pendDraw();
+}
+void ComboEditorDialog::loadComboFlag()
+{
+	updateWarnings();
 }
 void ComboEditorDialog::updateCSet()
 {
@@ -2076,6 +2081,20 @@ void ComboEditorDialog::updateAnimation()
 	animFrame->setTile(local_comboref.tile);
 	animFrame->setFlip(local_comboref.flip);
 	tswatch->setFlip(local_comboref.flip);
+}
+void ComboEditorDialog::updateWarnings()
+{
+	warnings.clear();
+	auto ty = local_comboref.type;
+	auto flag = local_comboref.flag;
+	switch(ty)
+	{
+		case cPUSHBLOCK:
+			if(is_push_flag(flag))
+				warnings.emplace_back(fmt::format("Push flags do not function on the '{}' type",ZI.getComboTypeName(ty)));
+			break;
+	}
+	warnbtn->setDisabled(warnings.empty());
 }
 
 static const GUI::ListData listdata_lift_gfx
@@ -3739,6 +3758,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					text = "OK",
 					minwidth = 90_px,
 					onClick = message::OK),
+				warnbtn = Button(
+					text = "Warnings",
+					minwidth = 90_px,
+					onClick = message::WARNINGS),
 				Button(
 					text = "Clear",
 					minwidth = 90_px,
@@ -3758,6 +3781,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
 	refreshScript();
+	updateWarnings();
 #if DEVLEVEL > 0
 	if(force_wizard)
 	{
@@ -3907,6 +3931,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::COMBOFLAG:
 		{
 			local_comboref.flag = int32_t(msg.argument);
+			loadComboFlag();
 			return false;
 		}
 		case message::HFLIP:
@@ -4015,10 +4040,29 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			break;
 		
+		case message::WARNINGS:
+			if(warnings.size())
+				displayinfo("Warnings",warnings,
+					"The following issues were found with this combo:");
+			return false;
 		case message::OK:
+		{
+			if(warnings.size())
+			{
+				bool cancel = false;
+				AlertDialog alert("Warnings",warnings,[&](bool ret,bool)
+					{
+						if(!ret) cancel = true;
+					});
+				alert.setSubtext("The following issues were found with this combo:");
+				alert.show();
+				if(cancel)
+					return false;
+			}
 			apply_combo();
 			return true;
-
+		}
+		
 		case message::CANCEL:
 			return true;
 	}

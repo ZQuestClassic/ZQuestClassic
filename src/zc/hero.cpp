@@ -20363,7 +20363,7 @@ void HeroClass::checkpushblock()
 		}
 		else
 		{
-			if(is_push_flag_dir(f,dir))
+			if(is_push_flag(f,dir))
 			{
 				doit=true;
 			}
@@ -20438,7 +20438,7 @@ void HeroClass::checkpushblock()
 			//   for(int32_t i=0; i<1; i++)
 			if(!mblock2.active())
 			{
-				if(is_push_flag_dir(f,dir))
+				if(is_push_flag(f,dir))
 				{
 					m->sflag[combopos]=0;
 				}

@@ -209,13 +209,25 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		onClose = message::CANCEL,
 		hPadding = 0_px, 
 		main_col = Column(
-			hPadding = 0_px
+			hPadding = 0_px,
+			build_text()
 		)
 	);
+	if(add_grid)
+		main_col->add(gr);
+	main_col->add(closeRow);
+	return window;
+}
+
+std::shared_ptr<GUI::Grid> InfoDialog::build_text()
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	std::shared_ptr<GUI::Grid> col = Column(padding = 0_px);
 	Size maxw = Size::pixels(zq_screen_w)-12_px-5_em;
 	Size maxh = (DEFAULT_PADDING*20)+20_em;
 	if(d_subtext)
-		main_col->add(Label(noHLine = true, hPadding = 2_em,
+		col->add(Label(noHLine = true, hPadding = 2_em,
 			maxwidth = maxw, textAlign = 1, text = *d_subtext));
 	std::shared_ptr<GUI::Label> main_label =
 		Label(noHLine = true, hPadding = 2_em,
@@ -223,18 +235,15 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 	main_label->calculateSize();
 	if(main_label->getHeight() > maxh)
 	{
-		main_col->add(ScrollingPane(
+		col->add(ScrollingPane(
 			targHeight = maxh,
 			main_label));
 	}
 	else
 	{
-		main_col->add(main_label);
+		col->add(main_label);
 	}
-	if(add_grid)
-		main_col->add(gr);
-	main_col->add(closeRow);
-	return window;
+	return col;
 }
 
 bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
