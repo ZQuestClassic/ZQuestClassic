@@ -10097,8 +10097,8 @@ void set_default_box_size()
 /* resizes the box */
 void set_box_size(int32_t w, int32_t h)
 {
-	int32_t screen_w = screen->w;
-	int32_t screen_h = screen->h;
+	int32_t screen_w = zq_screen_w;
+	int32_t screen_h = zq_screen_h;
 	
 	if(w <= 0) w = 512;
 	if(h <= 0) h = 256;
