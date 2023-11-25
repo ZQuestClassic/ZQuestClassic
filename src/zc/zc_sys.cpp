@@ -7932,7 +7932,7 @@ void System()
 			misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
 			
 			bool nocheat = (replay_is_replaying() || !Playing
-				|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
+				|| (!maxcheat && !zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
 			the_player_menu.disable_uid(MENUID_PLAYER_CHEAT, nocheat);
 			refill_menu.disable_uid(MENUID_REFILL_ARROWS, !get_qr(qr_TRUEARROWS));
 			cheat_menu.chop_index.reset();
