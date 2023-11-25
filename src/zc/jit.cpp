@@ -673,6 +673,8 @@ static bool command_is_compiled(int command)
 	case POPARGS:
 	case PUSHR:
 	case PUSHV:
+	case PUSHARGSR:
+	case PUSHARGSV:
 
 	// These can be commented out to instead run interpreted. Useful for
 	// singling out problematic instructions.
@@ -1133,6 +1135,29 @@ static JittedFunction compile_script(script_data *script)
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			modify_sp(cc, vStackIndex, -1);
 			cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), val);
+		}
+		break;
+		case PUSHARGSR:
+		{
+			if(arg2 < 1) break; //do nothing
+			// Grab value from register and push onto stack, repeatedly
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			for(int q = 0; q < arg2; ++q)
+			{
+				modify_sp(cc, vStackIndex, -1);
+				cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), val);
+			}
+		}
+		break;
+		case PUSHARGSV:
+		{
+			if(arg2 < 1) break; //do nothing
+			// Push value onto stack, repeatedly
+			for(int q = 0; q < arg2; ++q)
+			{
+				modify_sp(cc, vStackIndex, -1);
+				cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), arg1);
+			}
 		}
 		break;
 		case SETV:

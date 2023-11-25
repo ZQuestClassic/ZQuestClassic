@@ -3041,6 +3041,28 @@ namespace ZScript
 			return new OPopArgsRegister(a->clone(),b->clone());
 		}
 	};
+
+	class OPushArgsRegister : public BinaryOpcode
+	{
+	public:
+		OPushArgsRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPushArgsRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OPushArgsImmediate : public BinaryOpcode
+	{
+	public:
+		OPushArgsImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPushArgsImmediate(a->clone(),b->clone());
+		}
+	};
 	
 	class OPushVargV : public UnaryOpcode
 	{
@@ -3061,6 +3083,28 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OPushVargR(a->clone());
+		}
+	};
+	
+	class OPushVargsV : public BinaryOpcode
+	{
+	public:
+		OPushVargsV(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPushVargsV(a->clone(),b->clone());
+		}
+	};
+	
+	class OPushVargsR : public BinaryOpcode
+	{
+	public:
+		OPushVargsR(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPushVargsR(a->clone(),b->clone());
 		}
 	};
 
