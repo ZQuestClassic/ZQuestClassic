@@ -1,5 +1,5 @@
 Compiling 'errors_2.zs'
 Pass 1: Parsing
-syntax error, unexpected RBRACE, expecting end of file [ZQ_BUFFER Line 3 Column 25 '}']
+syntax error, unexpected RBRACE, expecting $end [ZQ_BUFFER Line 3 Column 25 '}']
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)

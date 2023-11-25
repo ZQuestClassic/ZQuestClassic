@@ -25,7 +25,7 @@ root_dir = script_dir.parent
 test_scripts_dir = root_dir / 'tests/scripts'
 expected_dir = test_scripts_dir
 if args.output or args.update: #Clear old output
-    for path in expected_dir.glob('*_unexpected.txt'):
+    for path in expected_dir.rglob('*_unexpected.txt'):
         os.remove(path)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
@@ -65,7 +65,7 @@ class TestZScript(unittest.TestCase):
         return '\n'.join([stdout, zasm])
 
     def test_zscript_compiler_expected_zasm(self):
-        for script_path in test_scripts_dir.glob('*.zs'):
+        for script_path in test_scripts_dir.rglob('*.zs'):
             with self.subTest(msg=f'compile {script_path.name}'):
                 zasm = self.compile_script(script_path)
                 
