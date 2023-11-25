@@ -863,140 +863,185 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	// Run automatic optimizations
 	// functionsByLabel and function labels are rendered invalid here
 	// ...but they've already been handled, so that's fine.
-	for(auto it = rval.begin(); it != rval.end();)
 	{
-		Opcode* ocode = it->get();
-		
-		auto lbl = ocode->getLabel();
-		//Merge multiple consecutive pops to the same register
-		OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
-		OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
-		if(popreg || popargs)
-		{
-			auto it2 = it;
-			++it2;
-			Argument const* regarg = popreg
-				? (popreg->getArgument())
-				: (popargs->getFirstArgument());
-			std::string targreg = regarg->toString();
-			size_t addcount = 0;
-			while(it2 != rval.end())
+		{ //macros
+		#define START_OPT_PASS() \
+		zconsole_idle(); \
+		for(auto it = rval.begin(); it != rval.end();) \
+		{ \
+			Opcode* ocode = it->get(); \
+			auto lbl = ocode->getLabel();
+		#define END_OPT_PASS() \
+			++it; \
+		}
+		#define MERGE_CONSEC_1(ty) \
+		if(ty* op = dynamic_cast<ty*>(ocode)) \
+		{ \
+			auto it2 = it; \
+			++it2; \
+			if(ty* op2 = dynamic_cast<ty*>(it2->get())) \
+			{ \
+				if(!op->getArgument()->toString().compare( \
+					op2->getArgument()->toString())) \
+				{ \
+					auto lbl2 = op2->getLabel(); \
+					if(lbl2 == -1 && lbl > -1) \
+					{ \
+						op2->setLabel(lbl); \
+						it = rval.erase(it); \
+						continue; \
+					} \
+					it = rval.erase(it); \
+					if(lbl > -1) \
+					{ \
+						MergeLabels temp; \
+						int lbls[2] = { lbl2, lbl }; \
+						temp.execute(rval, lbls); \
+					} \
+					continue; \
+				} \
+			} \
+			++it; \
+			continue; \
+		}
+		} //macros
+		START_OPT_PASS() //Trim NoOps
+			if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
 			{
-				Opcode* nextcode = it2->get();
-				if(nextcode->getLabel() != -1)
-					break; //can't combine
-				OPopRegister* nextreg = dynamic_cast<OPopRegister*>(nextcode);
-				OPopArgsRegister* nextargs = dynamic_cast<OPopArgsRegister*>(nextcode);
-				if(!(nextreg || nextargs))
-					break; //can't combine
-				if(targreg.compare(nextreg
-					? (nextreg->getArgument()->toString())
-					: (nextargs->getFirstArgument()->toString())))
-					break; //Different registers, can't combine
-				if(nextargs)
+				if(lbl == -1) //no label, just trash it
 				{
-					LiteralArgument const* larg =
-						dynamic_cast<LiteralArgument*>(nextargs->getSecondArgument());
-					addcount += larg->value;
+					it = rval.erase(it);
+					continue;
 				}
-				else //if nextreg
-					++addcount;
-				it2 = rval.erase(it2);
-			}
-			size_t startcount = 1;
-			if(popargs)
-			{
-				LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
-				startcount = litarg->value;
-			}
-			if(addcount+startcount == 1)
-			{
+				auto it2 = it;
+				++it2;
 				Opcode* nextcode = it2->get();
-				if(nextcode->getLabel() == -1)
+				auto lbl2 = nextcode->getLabel();
+				if(lbl2 == -1) //next code has no label, pass the label
 				{
-					if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
+					nextcode->setLabel(lbl);
+					it = rval.erase(it);
+					continue;
+				}
+				//Else merge the two labels!
+				it = rval.erase(it);
+				MergeLabels temp;
+				int32_t lbls[2] = { lbl2, lbl };
+				temp.execute(rval, lbls);
+				continue;
+			}
+		END_OPT_PASS()
+		START_OPT_PASS() //Merge multiple consecutive pops to the same register
+			OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
+			OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
+			if(popreg || popargs)
+			{
+				auto it2 = it;
+				++it2;
+				Argument const* regarg = popreg
+					? (popreg->getArgument())
+					: (popargs->getFirstArgument());
+				std::string targreg = regarg->toString();
+				size_t addcount = 0;
+				while(it2 != rval.end())
+				{
+					Opcode* nextcode = it2->get();
+					if(nextcode->getLabel() != -1)
+						break; //can't combine
+					OPopRegister* nextreg = dynamic_cast<OPopRegister*>(nextcode);
+					OPopArgsRegister* nextargs = dynamic_cast<OPopArgsRegister*>(nextcode);
+					if(!(nextreg || nextargs))
+						break; //can't combine
+					if(targreg.compare(nextreg
+						? (nextreg->getArgument()->toString())
+						: (nextargs->getFirstArgument()->toString())))
+						break; //Different registers, can't combine
+					if(nextargs)
 					{
-						if(!targreg.compare(pusharg->getArgument()->toString()))
+						LiteralArgument const* larg =
+							dynamic_cast<LiteralArgument*>(nextargs->getSecondArgument());
+						addcount += larg->value;
+					}
+					else //if nextreg
+						++addcount;
+					it2 = rval.erase(it2);
+				}
+				size_t startcount = 1;
+				if(popargs)
+				{
+					LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
+					startcount = litarg->value;
+				}
+				if(addcount+startcount == 1)
+				{
+					Opcode* nextcode = it2->get();
+					if(nextcode->getLabel() == -1)
+					{
+						if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
 						{
-							Argument* reg = regarg->clone();
-							it2 = rval.erase(it2);
-							it = rval.erase(it);
-							it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(reg)));
-							(*it)->setLabel(lbl);
-							++it;
-							continue;
+							if(!targreg.compare(pusharg->getArgument()->toString()))
+							{
+								Argument* reg = regarg->clone();
+								it2 = rval.erase(it2);
+								it = rval.erase(it);
+								it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(reg)));
+								(*it)->setLabel(lbl);
+								++it;
+								continue;
+							}
 						}
 					}
 				}
-			}
-			if(addcount)
-			{
-				if(popreg)
+				if(addcount)
 				{
-					Argument* reg = regarg->clone();
-					it = rval.erase(it);
-					it = rval.insert(it,std::shared_ptr<Opcode>(new OPopArgsRegister(reg,new LiteralArgument(addcount+1))));
-					(*it)->setLabel(lbl);
+					if(popreg)
+					{
+						Argument* reg = regarg->clone();
+						it = rval.erase(it);
+						it = rval.insert(it,std::shared_ptr<Opcode>(new OPopArgsRegister(reg,new LiteralArgument(addcount+1))));
+						(*it)->setLabel(lbl);
+					}
+					else //if popargs
+					{
+						LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
+						litarg->value += addcount;
+					}
 				}
-				else //if popargs
-				{
-					LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
-					litarg->value += addcount;
-				}
-			}
-			++it;
-			continue;
-		}
-		
-		//Remove No Ops, handling their labels
-		if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
-		{
-			if(lbl == -1) //no label, just trash it
-			{
-				it = rval.erase(it);
+				++it;
 				continue;
 			}
-			auto it2 = it;
-			++it2;
-			Opcode* nextcode = it2->get();
-			auto lbl2 = nextcode->getLabel();
-			if(lbl2 == -1) //next code has no label, pass the label
+		END_OPT_PASS()
+		START_OPT_PASS() //Consecutive opcode merging
+			MERGE_CONSEC_1(OGotoImmediate)
+			MERGE_CONSEC_1(OGotoTrueImmediate)
+			MERGE_CONSEC_1(OGotoFalseImmediate)
+			MERGE_CONSEC_1(OGotoMoreImmediate)
+			MERGE_CONSEC_1(OGotoLessImmediate)
+			MERGE_CONSEC_1(OGotoRegister)
+		END_OPT_PASS()
+		START_OPT_PASS() //OSetImmediate -> OTraceRegister ('Trace()' optimization)
+			if(OSetImmediate* setop = dynamic_cast<OSetImmediate*>(ocode))
 			{
-				nextcode->setLabel(lbl);
-				it = rval.erase(it);
-				continue;
-			}
-			//Else merge the two labels!
-			it = rval.erase(it);
-			MergeLabels temp;
-			int32_t lbls[2] = { lbl2, lbl };
-			temp.execute(rval, lbls);
-			continue;
-		}
-		
-		if(OSetImmediate* setop = dynamic_cast<OSetImmediate*>(ocode))
-		{
-			Argument const* regarg = setop->getFirstArgument();
-			auto it2 = it;
-			++it2;
-			Opcode* nextcode = it2->get();
-			if(OTraceRegister* traceop = dynamic_cast<OTraceRegister*>(nextcode))
-			{
-				if(traceop->getLabel() == -1 && !regarg->toString().compare(
-					traceop->getArgument()->toString()))
+				Argument const* regarg = setop->getFirstArgument();
+				auto it2 = it;
+				++it2;
+				Opcode* nextcode = it2->get();
+				if(OTraceRegister* traceop = dynamic_cast<OTraceRegister*>(nextcode))
 				{
-					Argument* arg = setop->getSecondArgument()->clone();
-					it2 = rval.erase(it2);
-					it = rval.erase(it);
-					it = rval.insert(it, std::shared_ptr<Opcode>(new OTraceImmediate(arg)));
-					(*it)->setLabel(lbl);
-					++it;
-					continue;
+					if(traceop->getLabel() == -1 && !regarg->toString().compare(
+						traceop->getArgument()->toString()))
+					{
+						Argument* arg = setop->getSecondArgument()->clone();
+						it2 = rval.erase(it2);
+						it = rval.erase(it);
+						it = rval.insert(it, std::shared_ptr<Opcode>(new OTraceImmediate(arg)));
+						(*it)->setLabel(lbl);
+						++it;
+						continue;
+					}
 				}
 			}
-		}
-		//Not an opcode that has any special optimizations
-		++it;
+		END_OPT_PASS()
 	}
 	
 	// Set the label line numbers.
