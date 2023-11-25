@@ -313,6 +313,7 @@ int32_t main(int32_t argc, char **argv)
 	
 	int32_t zasm_out_index = used_switch(argc, argv, "-zasm");
 	bool zasm_out_append = used_switch(argc, argv, "-append");
+	bool zasm_commented = used_switch(argc, argv, "-commented");
 	string zasm_out = "";
 	if(zasm_out_index)
 		zasm_out = argv[zasm_out_index + 1];
@@ -444,7 +445,7 @@ int32_t main(int32_t argc, char **argv)
 		for(auto& p : result->theScripts)
 		{
 			disassembled_script_data const& data = p.second;
-			data.write(outfile,false,true);
+			data.write(outfile,false,true,zasm_commented);
 		}
 		fclose(outfile);
 	}

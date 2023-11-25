@@ -101,6 +101,11 @@ namespace ZScript
 	private:
 		void addOpcode(Opcode* code);
 		void addOpcode(std::shared_ptr<Opcode> &code);
+		Opcode* backOpcode();
+		std::vector<std::shared_ptr<Opcode>>& backTarget();
+		
+		void commentAt(size_t indx, std::string const& comment);
+		void commentBack(std::string const& comment);
 
 		template <class Container>
 		void addOpcodes(Container const& container);
@@ -200,12 +205,19 @@ namespace ZScript
 	};
 	class MergeLabels : public ArgumentVisitor
 	{
+		vector<int> labels;
+		int targ_label;
 	public:
+		MergeLabels(int targ_label, vector<int> labels)
+			: labels(labels),targ_label(targ_label) {}
 		void caseLabel(LabelArgument &host, void *param)
 		{
-			int32_t* lbls = (int32_t*)param;
-			if(host.getID() == lbls[1])
-				host.setID(lbls[0]);
+			for(int lbl : labels)
+				if(lbl == host.getID())
+				{
+					host.setID(targ_label);
+					return;
+				}
 		}
 	};
 }

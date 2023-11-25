@@ -8,6 +8,7 @@ Pass 6: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-ALLOCATEGMEMV d2,4096
+ALLOCATEGMEMV d2,4096; void run() Body Start
 SETR gd1,d2
-QUIT
+QUIT; void run() Body End
+

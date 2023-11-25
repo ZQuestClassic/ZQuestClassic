@@ -767,7 +767,7 @@ void ScriptParser::assemble(IntermediateData *id)
 	addOpcode2(ginit, new OQuit());
 	ginit.insert(ginit.end(), ginit_mergefuncs.begin(), ginit_mergefuncs.end());
 	Script* init = program.getScript("~Init");
-	init->code = assembleOne(program, ginit, 0);
+	init->code = assembleOne(program, ginit, 0, FunctionSignature("run",{},&DataType::ZVOID));
 
 	for (vector<Script*>::const_iterator it = program.scripts.begin();
 	     it != program.scripts.end(); ++it)
@@ -788,13 +788,14 @@ void ScriptParser::assemble(IntermediateData *id)
 		else
 		{
 			int32_t numparams = script.getRun()->paramTypes.size();
-			script.code = assembleOne(program, run.getCode(), numparams);
+			script.code = assembleOne(program, run.getCode(), numparams, run.getSignature(true));
 		}
 	}
 }
 
-vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
-		Program& program, vector<shared_ptr<Opcode>> runCode, int32_t numparams)
+vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
+	vector<shared_ptr<Opcode>> runCode, int32_t numparams,
+	FunctionSignature const& runsig)
 {
 	std::vector<std::shared_ptr<Opcode>> rval;
 
@@ -804,7 +805,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 		addOpcode2(rval, new OPushRegister(new VarArgument(i)));
 	for (; i < numparams; ++i)
 		addOpcode2(rval, new OPushRegister(new VarArgument(EXP1)));
-
+	if(rval.size())
+		rval.front()->setComment(fmt::format("{} Params",runsig.asString()));
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);
 	appendElements(allFunctions, program.getUserClassConstructors());
@@ -842,9 +844,17 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	}
 
 	// Make the rval
+	auto rv_sz = rval.size();
 	for (vector<shared_ptr<Opcode>>::iterator it = runCode.begin();
 	     it != runCode.end(); ++it)
 		addOpcode2(rval, (*it)->makeClone());
+	if(rval.size() == rv_sz+1)
+		rval.back()->mergeComment(fmt::format("{} Body",runsig.asString()));
+	else if(rval.size() > rv_sz)
+	{
+		rval[rv_sz]->mergeComment(fmt::format("{} Body Start",runsig.asString()));
+		rval.back()->mergeComment(fmt::format("{} Body End",runsig.asString()));
+	}
 
 	for (std::set<int32_t>::iterator it = usedLabels.begin();
 	     it != usedLabels.end(); ++it)
@@ -855,9 +865,17 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 		if (!function) continue;
 
 		vector<shared_ptr<Opcode>> functionCode = function->getCode();
+		rv_sz = rval.size();
 		for (vector<shared_ptr<Opcode>>::iterator it = functionCode.begin();
 		     it != functionCode.end(); ++it)
 			addOpcode2(rval, (*it)->makeClone());
+		if(rval.size() == rv_sz+1)
+			rval.back()->mergeComment(fmt::format("Func[{}] Body",function->getSignature(true).asString()));
+		else if(rval.size() > rv_sz)
+		{
+			rval[rv_sz]->mergeComment(fmt::format("Func[{}] Body Start",function->getSignature(true).asString()));
+			rval.back()->mergeComment(fmt::format("Func[{}] Body End",function->getSignature(true).asString()));
+		}
 	}
 	
 	// Run automatic optimizations
@@ -870,7 +888,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 			for(auto it = rval.begin(); it != rval.end();) \
 			{ \
 				Opcode* ocode = it->get(); \
-				auto lbl = ocode->getLabel();
+				auto lbl = ocode->getLabel(); \
+				string comment = ocode->getComment();
 			#define END_OPT_PASS() \
 				++it; \
 			}
@@ -885,6 +904,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 						op2->getArgument()->toString())) \
 					{ \
 						auto lbl2 = op2->getLabel(); \
+						op2->mergeComment(comment, true); \
 						if(lbl2 == -1 && lbl > -1) \
 						{ \
 							op2->setLabel(lbl); \
@@ -894,9 +914,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 						it = rval.erase(it); \
 						if(lbl > -1) \
 						{ \
-							MergeLabels temp; \
-							int lbls[2] = { lbl2, lbl }; \
-							temp.execute(rval, lbls); \
+							MergeLabels temp(lbl2, {lbl}); \
+							temp.execute(rval, nullptr); \
 						} \
 						continue; \
 					} \
@@ -938,6 +957,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 						} \
 						else /*if single_next*/ \
 							++addcount; \
+						Opcode::mergeComment(comment, nextcode->getComment()); \
 						it2 = rval.erase(it2); \
 					}
 			#define MERGE_CONSEC_REPCOUNT_END(ty1,ty2) \
@@ -949,11 +969,13 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 							it = rval.erase(it); \
 							it = rval.insert(it,std::shared_ptr<Opcode>(new ty2(reg,new LiteralArgument(addcount+1)))); \
 							(*it)->setLabel(lbl); \
+							(*it)->setComment(comment); \
 						} \
 						else /*if multi_op*/ \
 						{ \
 							LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
 							litarg->value += addcount; \
+							multi_op->setComment(comment); \
 						} \
 					} \
 					++it; \
@@ -976,6 +998,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 				auto it2 = it;
 				++it2;
 				Opcode* nextcode = it2->get();
+				nextcode->mergeComment(comment, true);
 				auto lbl2 = nextcode->getLabel();
 				if(lbl2 == -1) //next code has no label, pass the label
 				{
@@ -985,9 +1008,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 				}
 				//Else merge the two labels!
 				it = rval.erase(it);
-				MergeLabels temp;
-				int32_t lbls[2] = { lbl2, lbl };
-				temp.execute(rval, lbls);
+				MergeLabels temp(lbl2, {lbl});
+				temp.execute(rval, nullptr);
 				continue;
 			}
 		END_OPT_PASS()
@@ -1015,6 +1037,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 								it = rval.erase(it);
 								it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(reg)));
 								(*it)->setLabel(lbl);
+								(*it)->setComment(comment);
 								++it;
 								continue;
 							}
@@ -1048,10 +1071,12 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 						traceop->getArgument()->toString()))
 					{
 						Argument* arg = setop->getSecondArgument()->clone();
+						Opcode::mergeComment(comment, traceop->getComment());
 						it2 = rval.erase(it2);
 						it = rval.erase(it);
 						it = rval.insert(it, std::shared_ptr<Opcode>(new OTraceImmediate(arg)));
 						(*it)->setLabel(lbl);
+						(*it)->setComment(comment);
 						++it;
 						continue;
 					}

@@ -333,6 +333,7 @@ void GlobalSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OQuit());
 		LABELBACK(label);
+		INLINE_CHECK();
 		function->giveCode(code);
 	}
 	//void QuitNoKill()
@@ -342,6 +343,7 @@ void GlobalSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OQuitNoDealloc());
 		LABELBACK(label);
+		INLINE_CHECK();
 		function->giveCode(code);
 	}
 	//void Waitframe()

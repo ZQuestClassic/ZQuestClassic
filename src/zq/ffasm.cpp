@@ -8,6 +8,7 @@
 #include "zq/ffasm.h"
 
 #include "zq/zquest.h"
+#include "base/headers.h"
 #include "base/zsys.h"
 #include "base/util.h"
 #include "dialog/info.h"
@@ -3445,26 +3446,26 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 zasmfile_fail:
 	return success?D_O_K:D_CLOSE;
 }
-int32_t parse_script_string(script_data **script, std::string const& scriptstr, bool report_success)
+int32_t parse_script_string(script_data **script, string const& scriptstr, bool report_success)
 {
 	// TODO: refactor to just take a script_data*
 	ASSERT(*script);
 	saved=false;
-	std::string buffer;
+	string buffer;
 	char combuf[SUBBUFSZ] = {0};
 	char arg1buf[SUBBUFSZ] = {0};
 	char arg2buf[SUBBUFSZ] = {0};
-	std::vector<int32_t> arr_vec;
-	std::string arr_str;
+	vector<int> arr_vec;
+	string arr_str;
 	bool has_vec = false;
 	bool has_str = false;
 	bool stop=false;
 	bool success=true;
 	bool meta_done=false;
-	int32_t num_commands;
+	int num_commands;
 	char const* scrptr = scriptstr.c_str();
 	
-	for(int32_t i=0;; i++)
+	for(int i=0;; i++)
 	{
 		buffer.clear();
 		
