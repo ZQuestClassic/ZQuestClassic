@@ -15,12 +15,18 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument('--update', action='store_true', default=False,
                     help='Update ZASM snapshots')
+parser.add_argument('--output', action='store_true', default=False,
+                    help='Output diff logs to a subfolder')
 parser.add_argument('unittest_args', nargs='*')
 args = parser.parse_args()
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 test_scripts_dir = root_dir / 'tests/scripts'
+expected_dir = test_scripts_dir
+if args.output or args.update: #Clear old output
+    for path in expected_dir.glob('*_unexpected.txt'):
+        os.remove(path)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
@@ -62,8 +68,10 @@ class TestZScript(unittest.TestCase):
         for script_path in test_scripts_dir.glob('*.zs'):
             with self.subTest(msg=f'compile {script_path.name}'):
                 zasm = self.compile_script(script_path)
-                expected_path = script_path.with_name(
-                    f'{script_path.stem}_expected.txt')
+                
+                script_subpath = script_path.relative_to(test_scripts_dir)
+                expected_path = expected_dir / script_subpath.with_name(f'{script_subpath.stem}_expected.txt')
+                unexpected_path = expected_dir / script_subpath.with_name(f'{script_subpath.stem}_unexpected.txt')
 
                 expected_zasm = None
                 if expected_path.exists():
@@ -72,11 +80,16 @@ class TestZScript(unittest.TestCase):
                 if args.update:
                     if expected_zasm != zasm:
                         print(f'updating zasm snapshot {expected_path.name}')
+                        expected_path.parent.mkdir(parents=True, exist_ok=True)
                         expected_path.write_text(zasm)
                 else:
                     if expected_zasm == None:
+                        expected_path.parent.mkdir(parents=True, exist_ok=True)
                         expected_path.write_text(zasm)
                     else:
+                        if expected_zasm != zasm and args.output:
+                            unexpected_path.parent.mkdir(parents=True, exist_ok=True)
+                            unexpected_path.write_text(zasm)
                         self.assertEqual(expected_zasm, zasm)
 
 
