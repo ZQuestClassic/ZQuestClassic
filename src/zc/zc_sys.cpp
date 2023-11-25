@@ -7900,7 +7900,7 @@ void System()
 		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
 		
 		bool nocheat = (replay_is_replaying() || !Playing
-			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
+			|| (!maxcheat && !zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
 		the_player_menu[2].flags = nocheat ? D_DISABLED : 0;
 		cheat_menu[0].flags = 0;
 		refill_menu[4].flags = get_qr(qr_TRUEARROWS) ? 0 : D_DISABLED;
