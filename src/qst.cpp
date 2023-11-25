@@ -1978,16 +1978,17 @@ bool devpwd()
 	#ifdef _DEBUG
 	return true;
 	#endif
+	#if DEVLEVEL > 3
+	return true;
+	#endif
 	return !strcmp(zc_get_config("dev","pwd","",App::zquest), (char*)clavio) || is_ci();
 }
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
-	#if DEVLEVEL > 3 
-	return true;
-	#endif
-	
-	if (devpwd()) return true;
-	if ( (!strcmp(pwd, (char*)clavio)) ) return true;
+	if(devpwd())
+		return true;
+	if((!strcmp(pwd, (char*)clavio)))
+		return true;
 	cvs_MD5Context ctx;
 	uint8_t md5sum[16];
 	
@@ -1996,6 +1997,74 @@ bool check_questpwd(zquestheader *Header, char *pwd)
 	cvs_MD5Final(md5sum, &ctx);
 	
 	return (memcmp(Header->pwd_hash,md5sum,16)==0);
+}
+
+static char const* key_exts[KEYFILE_NUMTY] = {"key", "zcheat", "zpwd"};
+static bool key_hashed[KEYFILE_NUMTY] = {false, true, false};
+static char const* key_namestr[KEYFILE_NUMTY] = {"Master","Cheat","ZPwd"};
+
+static bool check_keyfile(char const* path, char const* ext, bool hashed, char const* typestr, zquestheader* Header)
+{
+	char keyfilename[2048];
+	replace_extension(keyfilename, path, ext, 2047);
+	if(!exists(keyfilename))
+		return false;
+	bool ret = false;
+	
+	char password[QSTPWD_LEN] = {0}, pwd[32] = {0};
+	PACKFILE *fp = pack_fopen_password(keyfilename, F_READ,"");
+	char msg[80] = {0};
+	pfread(msg, 80, fp);
+	if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!"))
+	{
+		zprint2("Found %s Key File '%s' (invalid header)\n", typestr, keyfilename);
+		pack_fclose(fp);
+		return false;
+	}
+	int16_t ver;
+	byte bld;
+	p_igetw(&ver, fp);
+	p_getc(&bld, fp);
+	pfread(password, QSTPWD_LEN, fp, true);
+	if(hashed)
+	{
+		char unhashed_pw[QSTPWD_LEN] = {0};
+		
+		char hashmap = 'Z';
+		hashmap += 'Q';
+		hashmap += 'U';
+		hashmap += 'E';
+		hashmap += 'S';
+		hashmap += 'T';
+		
+		for ( int32_t q = 0; q < QSTPWD_LEN; ++q )
+			unhashed_pw[q] = password[q] - hashmap;
+		
+		ret = check_questpwd(Header, unhashed_pw);
+	}
+	else ret = check_questpwd(Header, password);
+	pack_fclose(fp);
+	zprint2("Found %s Key File '%s' (%s access)\n",
+		typestr, keyfilename, ret ? "valid" : "invalid");
+	return ret;
+}
+
+bool check_keyfiles(char const* path, vector<uint> types, zquestheader* Header)
+{
+	char exedir[PATH_MAX] = {0};
+	extract_name(path, exedir, FILENAMEALL);
+	char const* paths[] = {path, exedir};
+	for(uint keyty : types)
+	{
+		if(keyty >= KEYFILE_NUMTY)
+			continue;
+		for(char const* p : paths)
+		{
+			if(check_keyfile(p, key_exts[keyty], key_hashed[keyty], key_namestr[keyty], Header))
+				return true;
+		}
+	}
+	return false;
 }
 
 void print_quest_metadata(zquestheader const& tempheader, char const* path, byte qst_num)

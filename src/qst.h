@@ -223,6 +223,15 @@ void get_questpwd(char *encrypted_pwd, int16_t pwdkey, char *pwd);
 bool devpwd();
 bool check_questpwd(zquestheader *Header, char *pwd);
 
+enum
+{
+	KEYFILE_MASTER,
+	KEYFILE_CHEAT,
+	KEYFILE_ZPWD,
+	KEYFILE_NUMTY
+};
+bool check_keyfiles(char const* path, vector<uint> types, zquestheader* Header);
+
 void update_guy_1(guydata *tempguy);
 void initMsgStr(MsgStr *str);
 void init_msgstrings(int32_t start, int32_t end);
