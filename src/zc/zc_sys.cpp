@@ -7892,6 +7892,7 @@ void System()
 	the_player_menu.position(0, 0);
 	
 	bool running = true;
+	bool esc = key[KEY_ESC] || cMbtn();
 	do
 	{
 		if(reload_fonts)
@@ -7903,8 +7904,6 @@ void System()
 		}
 		if(handle_close_btn_quit())
 			break;
-		
-		rest(17);
 		
 		//update submenus
 		{
@@ -7976,6 +7975,13 @@ void System()
 		if(debug_enabled)
 			settings_menu.select_uid(MENUID_SETTINGS_DEBUG, get_debug());
 		
+		if(the_player_menu.run())
+			the_player_menu.reset_state();
+		
+		update_hw_screen();
+		
+		rest(1);
+		
 		auto mb = gui_mouse_b();
 		if(XOR(mb, mouse_down))
 		{
@@ -7995,8 +8001,6 @@ void System()
 			sys_mouse();
 		}
 		
-		if(the_player_menu.run())
-			the_player_menu.reset_state();
 		if(keypressed()) //System hotkeys
 		{
 			auto c = readkey();
@@ -8032,10 +8036,20 @@ void System()
 				case KEY_TAB:
 					onDebug();
 					break;
+				case KEY_ESC:
+					running = false;
+					break;
 			}
 		}
-		
-		update_hw_screen();
+		if(esc)
+		{
+			if(running)
+			{
+				if(!key[KEY_ESC])
+					esc = false;
+			}
+			else running = true;
+		}
 	}
 	while(running);
 
