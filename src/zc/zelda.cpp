@@ -1784,86 +1784,19 @@ int32_t init_game()
 	
 	//setPackfilePassword(NULL);
 	
-	char keyfilename[2048]; //master key .key
-	char keyfilename3[2048]; //zc cheats only key, .zcheat
-	replace_extension(keyfilename, qstpath, "key", 2047);
-	replace_extension(keyfilename3, qstpath, "zcheat", 2047);
 	bool setcheat=false;
 	if(use_testingst_start)
 	{
 		setcheat=true;
 		zprint2("Cheats enabled: Test Mode active\n");
 	}
-	if(!setcheat && devpwd())
+	else if(devpwd())
 	{
 		setcheat=true;
 		zprint2("Cheats enabled: Dev Override active\n");
 	}
-	if(!setcheat && exists(keyfilename))
-	{
-		char password[32], pwd[32];
-		PACKFILE *fp = pack_fopen_password(keyfilename, F_READ,"");
-		char msg[80];
-		memset(msg,0,80);
-		pfread(msg, 80, fp);
-		
-		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
-		{
-			int16_t ver;
-			byte  bld;
-			p_igetw(&ver,fp);
-			p_getc(&bld,fp);
-			memset(password,0,32);
-			pfread(password, 30, fp);
-			setcheat=check_questpwd(&QHeader, password);
-			memset(password,0,32);
-			memset(pwd,0,32);
-		}
-		
-		pack_fclose(fp);
-		zprint2("Found a Quest Master Key: %s\n", setcheat?"Valid":"Invalid");
-	}
-	if(!setcheat && exists(keyfilename3)) //zc cheat key
-	{
-		char password[32], pwd[32];
-		PACKFILE *fp = pack_fopen_password(keyfilename3, F_READ,"");
-		char msg[80];
-		memset(msg,0,80);
-		pfread(msg, 80, fp);
-		
-		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
-		{
-			int16_t ver;
-			byte  bld;
-			p_igetw(&ver,fp);
-			p_getc(&bld,fp);
-			memset(password,0,32);
-			pfread(password, 30, fp);
-			
-			char unhashed_pw[32];
-			memset(unhashed_pw,0,32);
-			
-			char hashmap = 'Z';
-			hashmap += 'Q';
-			hashmap += 'U';
-			hashmap += 'E';
-			hashmap += 'S';
-			hashmap += 'T';
-			
-			for ( int32_t q = 0; q < 32; q++ ) 
-			{
-				unhashed_pw[q] = password[q] - hashmap;
-			}
-			
-			setcheat=check_questpwd(&QHeader, unhashed_pw);
-			memset(password,0,32);
-			memset(unhashed_pw,0,32);
-			memset(pwd,0,32);
-		}
-		
-		pack_fclose(fp);
-		zprint2("Found a ZC Cheat Key: %s\n", setcheat?"Valid":"Invalid");
-	}
+	else if(check_keyfiles(qstpath, {KEYFILE_MASTER,KEYFILE_CHEAT}, &QHeader))
+		setcheat = true;
 	
 	if(setcheat)
 	{

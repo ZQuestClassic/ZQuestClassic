@@ -165,6 +165,8 @@ int wrap(int x,int low,int high);
 #define NUM_PAL_CYCLES             256
 #define NUM_WARP_RINGS             9
 
+#define QSTPWD_LEN                 256
+
 enum controls //Args for 'getInput()'
 {
 	//control_state indeces
