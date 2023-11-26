@@ -12061,6 +12061,30 @@ namespace ZScript
 			return new OSetSubWidgLabel(a->clone());
 		}
 	};
+
+
+
+	class OWrapRadians : public UnaryOpcode
+	{
+	public:
+		OWrapRadians(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWrapRadians(a->clone());
+		}
+	};
+
+	class OWrapDegrees : public UnaryOpcode
+	{
+	public:
+		OWrapDegrees(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWrapDegrees(a->clone());
+		}
+	};
 }
 
 #endif

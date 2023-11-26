@@ -3008,17 +3008,28 @@ long LongDistance(long x1, long y1, long x1, long y2, long scale)
  * Takes args only as long (e.g. 100L).
  * Retrns a vale as a long.
  
-float DegtoRad(float deg)
+constexpr float DegtoRad(float degrees);
+constexpr float DegToRad(float degrees);
  * Converts Degrees to Radians. More accurate than the old std_functions DegtoRad.
  * Because radians are mostly decimal and zscript can only have 4 decimals, there is very minor inaccuracies
  * with this conversion that are not feasibly fixable; however, it is still more accurate than the old std.zh conversion function,
  * where the old conversion could potentially be 2 entire degrees off at certain angles, while this version only loses about 0.0004 degrees of accuracy.
- * In addition, casting between EngineDegtoRad and EngineRadtoDeg repeatedly will *not* lose additional precision with each call; only the first call will lose precision.
+ * In addition, casting between DegtoRad and RadtoDeg repeatedly will *not* lose additional precision with each call; only the first call will lose precision.
  
-float RadtoDeg(float deg)
+constexpr float RadtoDeg(float radians);
+constexpr float RadToDeg(float radians);
  * Converts Radians to Degrees. More accurate than the old std_functions RadtoDeg.
- * See above (EngineDegtoRad) for more details on how this is more accurate.
- 
+ * See above (DegtoRad) for more details on how this is more accurate.
+
+constexpr float WrapDegrees(float degrees);
+constexpr float WrapDeg(float degrees);
+ * Wraps a degree value between [-180,180)
+
+constexpr float WrapRadians(float radians);
+constexpr float WrapRad(float radians);
+constexpr float WrapAngle(float radians);
+ * Wraps a radian value between [-PI,PI)
+
 void ArrayCopy(untyped *dest, untyped *src);
  * Copies the data from array src to array dest. 
  * If the arrays are the same size, then the data of 'dest' will be
@@ -3213,9 +3224,9 @@ void sprintfa(char32[] buf, char32 format[], untyped[] args);
  * Same as 'sprintf', but takes an array of args instead of multiple args.
 
 
-untyped Min(untyped, untyped, ...untyped);
+constexpr untyped Min(untyped, untyped, ...untyped);
  * Takes 2 or more untyped arguments, and returns the lowest value between them.
-untyped Max(untyped, untyped, ...untyped);
+constexpr untyped Max(untyped, untyped, ...untyped);
  * Takes 2 or more untyped arguments, and returns the highest value between them.
 untyped Choose(untyped, ...untyped);
  * Takes 1 or more untyped arguments, and returns a random argument.

@@ -5,9 +5,7 @@
 #include "Scope.h"
 #include "Types.h"
 #include "CompileError.h"
-
-using std::string;
-using std::vector;
+#include "base/headers.h"
 using std::ostringstream;
 using std::unique_ptr;
 using namespace ZScript;
@@ -69,8 +67,8 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 		     it != functions.end(); ++it)
 		{
 			Function* func = *it;
-			BuiltinVariable::create(*func->internalScope, *constType, "this", this);
-			func->internalScope->stackDepth_--;
+			BuiltinVariable::create(*func->getInternalScope(), *constType, "this", this);
+			func->getInternalScope()->stackDepth_--;
 			analyzeFunctionInternals(*func);
 		}
 		
@@ -84,8 +82,8 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 			else
 			{
 				parsing_user_class = puc_funcs;
-				BuiltinVariable::create(*func->internalScope, *constType, "this", this);
-				func->internalScope->stackDepth_--;
+				BuiltinVariable::create(*func->getInternalScope(), *constType, "this", this);
+				func->getInternalScope()->stackDepth_--;
 			}
 			analyzeFunctionInternals(*func);
 		}
@@ -96,8 +94,8 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 		     it != functions.end(); ++it)
 		{
 			Function* func = *it;
-			BuiltinVariable::create(*func->internalScope, *constType, "this", this);
-			func->internalScope->stackDepth_--;
+			BuiltinVariable::create(*func->getInternalScope(), *constType, "this", this);
+			func->getInternalScope()->stackDepth_--;
 			analyzeFunctionInternals(*func);
 		}
 		parsing_user_class = puc_none;
@@ -111,7 +109,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
-	Scope& functionScope = *function.internalScope;
+	Scope& functionScope = *function.getInternalScope();
 
 	// Grab the script.
 	Script* script = NULL;
@@ -1431,6 +1429,9 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 
 	visit(host, host.parameters);
 	if (breakRecursion(host)) return;
+	
+	if(host.binding)
+		return; //already resolved
 
 	UserClass* user_class = nullptr;
 	// Gather parameter types.
@@ -1542,7 +1543,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		{
 			Scope* ns = NULL;
 			Scope* scr = NULL;
-			for(Scope* current = (*it)->internalScope; current; current = current->getParent())
+			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
 			{
 				if(!scr && current->isScript())
 				{
@@ -1678,7 +1679,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			{
 				oss << "        ";
 				string namespacenames = "";
-				for(Scope* current = (*it)->internalScope; current; current = current->getParent())
+				for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
 				{
 					if(!current->isNamespace()) continue;
 					NamespaceScope* ns = static_cast<NamespaceScope*>(current);

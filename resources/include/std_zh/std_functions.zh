@@ -3681,24 +3681,6 @@ int WeaponTypeToID(int wpnt)
 	}
 }
 
-// Wraps radian value towards the range of -PI,PI.
-float WrapAngle( float radians )
-{
-	if(radians < 0) radians = PI2 - ((-radians)%PI2);
-	else radians %= PI2;
-	if(radians > PI) return radians - PI2;
-	return radians;
-}
-
-// Wraps degree value towards the range of -180,180.
-float WrapDegrees( float degrees )
-{
-	if(degrees < 0) degrees = 360 - ((-degrees)%360);
-	else degrees %= 360;
-	if(degrees > 180) return degrees - 360;
-	return degrees;
-}
-
 namespace std
 {
 	//Returns the distance between two sets of coordinates using Pythagoras' Theorem

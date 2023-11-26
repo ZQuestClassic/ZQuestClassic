@@ -8,6 +8,8 @@
 #include "Types.h"
 #include "base/general.h"
 
+struct AccessorTable;
+
 namespace ZScript
 {
 	class CompileErrorHandler;
@@ -433,10 +435,11 @@ namespace ZScript
 		Function(DataType const* returnType, std::string const& name,
 		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames,
 		         int32_t id, int32_t flags = 0, int32_t internal_flags = 0, bool prototype = false, ASTExprConst* defaultReturn = NULL);
+		Function() = default;
 		~Function();
 		
 		DataType const* returnType;
-		std::string name, info;
+		string name;
 		bool hasPrefixType;
 		byte extra_vargs;
 		std::vector<DataType const*> paramTypes;
@@ -445,25 +448,36 @@ namespace ZScript
 		int32_t id;
 
 		ASTFuncDecl* node;
-		FunctionScope* internalScope;
 		Datum* thisVar;
 
 		// Get the opcodes.
-		std::vector<std::shared_ptr<Opcode>> const& getCode() const {return ownedCode;}
+		std::vector<std::shared_ptr<Opcode>> const& getCode() const
+		{
+			if(aliased_func)
+				return aliased_func->getCode();
+			return ownedCode;
+		}
 		// Get and remove the code for this function.
 		std::vector<std::shared_ptr<Opcode>> takeCode();
 		// Add code for this function, transferring ownership.
 		// Clears the input vector.
 		void giveCode(std::vector<std::shared_ptr<Opcode>>& code);
 		
-		FunctionSignature getSignature(bool useret = false) const {
-			return FunctionSignature(*this, useret);}
+		FunctionSignature getSignature(bool useret = false) const
+		{
+			if(aliased_func)
+				return aliased_func->getSignature(useret);
+			return FunctionSignature(*this, useret);
+		}
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
 		UserClass* getClass() const;
 
-		int32_t numParams() const {return paramTypes.size();}
+		int32_t numParams() const
+		{
+			return paramTypes.size();
+		}
 		int32_t getLabel() const;
 		int32_t getAltLabel() const;
 		void setFlag(int32_t flag, bool state = true)
@@ -471,24 +485,95 @@ namespace ZScript
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
 			state ? flags |= flag : flags &= ~flag;
 		}
-		bool getFlag(int32_t flag) const {return (flags & flag) != 0;}
+		bool getFlag(int32_t flag) const
+		{
+			if(aliased_func)
+			{
+				if(aliased_func->getFlag(flag))
+					return true;
+				flag &= FUNCFLAG_DEPRECATED;
+			}
+			
+			return (flags & flag) != 0;
+		}
+		void setIntFlag(int32_t flag, bool state = true)
+		{
+			state ? internal_flags |= flag : internal_flags &= ~flag;
+		}
+		bool getIntFlag(int32_t flag) const
+		{
+			if(aliased_func)
+				return aliased_func->getIntFlag(flag);
+			
+			return (internal_flags & flag) != 0;
+		}
+		void setInfo(string newinfo) {info = newinfo;}
+		string const& getInfo() const
+		{
+			if(info.size())
+				return info;
+			if(aliased_func)
+				return aliased_func->getInfo();
+			return info;
+		}
 		
 		bool isInternal() const {return !node;};
 		
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
-		int32_t internal_flags;
 		bool prototype;
 		ASTExprConst* defaultReturn;
 		
 		bool shouldShowDepr(bool err) const;
 		void ShownDepr(bool err);
 		
+		void alias(Function* func, bool force = false);
+		bool is_aliased() const {return bool(aliased_func);}
+		
+		void setEntry(AccessorTable* entry) {table_entry=entry;}
+		AccessorTable const* getEntry() const {return table_entry;}
+		
+		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&)>
+		#define CONSTEXPR_CBACK_HEADER(...) [__VA_ARGS__](vector<optional<int32_t>> const& args) -> optional<int32_t>
+		void set_constexpr(CONSTEXPR_CBACK_TY callback) {constexpr_callback = callback;}
+		CONSTEXPR_CBACK_TY const& get_constexpr() const
+		{
+			if(aliased_func)
+				return aliased_func->get_constexpr();
+			return constexpr_callback;
+		}
+		
+		FunctionScope* getInternalScope()
+		{
+			if(aliased_func)
+				return aliased_func->getInternalScope();
+			return internalScope;
+		}
+		FunctionScope const* getInternalScope() const
+		{
+			if(aliased_func)
+				return aliased_func->getInternalScope();
+			return internalScope;
+		}
+		void setInternalScope(FunctionScope* scope)
+		{
+			if(aliased_func)
+				return aliased_func->setInternalScope(scope);
+			internalScope = scope;
+		}
+		
 	private:
+		CONSTEXPR_CBACK_TY constexpr_callback;
+		
+		Function* aliased_func; //the function this is an alias for, if any
+		AccessorTable* table_entry; //parent entry
+		
 		mutable std::optional<int32_t> label;
 		mutable std::optional<int32_t> altlabel;
-		int32_t flags;
+		int32_t flags, internal_flags;
+		FunctionScope* internalScope;
 		byte shown_depr;
+		string info;
 
 		// Code implementing this function.
 		std::vector<std::shared_ptr<Opcode>> ownedCode;
