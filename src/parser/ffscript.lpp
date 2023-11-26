@@ -110,6 +110,7 @@ unless			TOKEN( UNLESS );
 repeat			TOKEN( REPEAT );
 inline			TOKEN( INLINE );
 static			TOKEN( STATIC );
+constexpr			TOKEN( CONSTEXPR );
 new			TOKEN( NEW );
 delete			TOKEN( DELETE );
 CONST_ASSERT	TOKEN( CASSERT );
