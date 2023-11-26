@@ -13738,6 +13738,7 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 		zprint2("Writing key files for '%s'\n", kfname, ".zpwd", ".zcheat");
 		
 		char temp_pw[QSTPWD_LEN] = {0};
+		uint ind = 0;
 		for(char const* ext : {"key","zpwd","zcheat"})
 		{
 			replace_extension(keyfilename, kfname, ext, 2047);
@@ -13750,7 +13751,7 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 			p_iputw(header.zelda_version,fp);
 			p_putc(header.build,fp);
 			char const* pwd = header.password;
-			if(kfname == keyfilename3) //.zcheat, hashed pwd
+			if(ind == 2) //.zcheat, hashed pwd
 			{
 				char hashmap = 'Z';
 				hashmap += 'Q';
@@ -13767,6 +13768,7 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 			}
 			pfwrite(pwd, strlen(pwd), fp);
 			pack_fclose(fp);
+			++ind;
 		}
 	}
 
