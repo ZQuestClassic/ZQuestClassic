@@ -445,6 +445,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	     it != funs.end(); ++it)
 	{
 		Function& function = **it;
+		if(function.is_aliased()) continue;
 		bool classfunc = function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC);
 		int puc = 0;
 		if(classfunc)
@@ -466,7 +467,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		{
 			scriptname = functionScript->getName();
 		}
-		scope = function.internalScope;
+		scope = function.getInternalScope();
 		
 		if(classfunc)
 		{
@@ -816,6 +817,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 	     it != allFunctions.end(); ++it)
 	{
 		Function& function = **it;
+		if(function.is_aliased())
+			continue;
 		functionsByLabel[function.getLabel()] = &function;
 		if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
 			functionsByLabel[function.getAltLabel()] = &function;

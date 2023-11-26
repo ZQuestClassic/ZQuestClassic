@@ -6927,3 +6927,13 @@ string OSetSubWidgLabel::toString() const
 	return "SUBWIDG_SET_LABEL " + getArgument()->toString();
 }
 
+
+string OWrapRadians::toString() const
+{
+	return "WRAPRADIANS " + getArgument()->toString();
+}
+string OWrapDegrees::toString() const
+{
+	return "WRAPDEGREES " + getArgument()->toString();
+}
+

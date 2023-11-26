@@ -1560,6 +1560,18 @@ void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprCall(*this, param);
 }
 
+optional<int32_t> ASTExprCall::getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope)
+{
+	if(!binding)
+		return nullopt;
+	auto constfunc = binding->get_constexpr();
+	if(!constfunc)
+		return nullopt;
+	vector<optional<int32_t>> param_vals;
+	for(auto expr : parameters)
+		param_vals.push_back(expr->getCompileTimeValue(errorHandler, scope));
+	return constfunc(param_vals);
+}
 DataType const* ASTExprCall::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return binding ? binding->returnType : NULL;

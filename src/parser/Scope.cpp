@@ -524,7 +524,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		 it != functions.end();)
 	{
 		Function& function = **it;
-		if(trimClasses && function.internalScope->getClass() && !function.getFlag(FUNCFLAG_STATIC))
+		if(trimClasses && function.getInternalScope()->getClass() && !function.getFlag(FUNCFLAG_STATIC))
 		{
 			it = functions.erase(it);
 			continue;
@@ -546,7 +546,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		bool parametersMatch = true;
 		if(function.getFlag(FUNCFLAG_NOCAST)) //no casting params
 		{
-			Scope* scope = function.internalScope;
+			Scope* scope = function.getInternalScope();
 			for (size_t i = 0; i < lowsize; ++i)
 			{
 				if (getNaiveType(*parameterTypes[i],scope)
@@ -1132,7 +1132,7 @@ Function* BasicScope::addFunction(
 
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
-	fun->internalScope = makeFunctionChild(*fun);
+	fun->setInternalScope(makeFunctionChild(*fun));
 	if(node)
 	{
 		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
@@ -1144,6 +1144,16 @@ Function* BasicScope::addFunction(
 	functionsByName_[name].push_back(fun);
 	functionsBySignature_[signature] = fun;
 	return fun;
+}
+bool BasicScope::addAlias(Function* funcptr, CompileErrorHandler* handler)
+{
+	if(funcptr->is_aliased())
+	{
+		functionsByName_[funcptr->name].push_back(funcptr);
+		functionsBySignature_[funcptr->getSignature()] = funcptr;
+		return true;
+	}
+	return false;
 }
 
 void BasicScope::removeFunction(Function* function)
@@ -1346,6 +1356,14 @@ Function* FileScope::addFunction(
 	if (!getRoot(*this)->registerFunction(result))
 		result = NULL;
 	return result;
+}
+bool FileScope::addAlias(Function* funcptr, CompileErrorHandler* handler)
+{
+	if(!BasicScope::addAlias(funcptr, handler))
+		return false;
+	if(!getRoot(*this)->registerFunction(funcptr))
+		return false;
+	return true;
 }
 void FileScope::removeFunction(Function* function)
 {
@@ -1658,7 +1676,7 @@ void RootScope::removeFunction(Function* function)
 	if(!function) return;
 	BasicScope::removeFunction(function); //Remove from basic scope maps
 	//Make sure it is removed from its parent file!
-	function->internalScope->getFile()->removeLocalFunction(function);
+	function->getInternalScope()->getFile()->removeLocalFunction(function);
 
 	FunctionSignature signature(function->name, function->paramTypes);
 	descFunctionsBySignature_.erase(signature); //Erase from signature map
@@ -1893,7 +1911,7 @@ Function* ClassScope::addFunction(
 
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
-	fun->internalScope = makeFunctionChild(*fun);
+	fun->setInternalScope(makeFunctionChild(*fun));
 	if(node)
 	{
 		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)

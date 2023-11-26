@@ -8,7 +8,16 @@ AccessorTable::AccessorTable(std::string const& name, byte tag, int32_t rettype,
 	byte extra_vargs, string const& info)
 	: name(name), tag(tag), rettype(rettype), var(var),
 	funcFlags(flags), params(params),
-	optparams(optparams), extra_vargs(extra_vargs), info(info)
+	optparams(optparams), extra_vargs(extra_vargs), info(info),
+	alias_name(), alias_tag(0)
+{}
+AccessorTable::AccessorTable(std::string const& name, byte tag,
+	string const& alias, byte alias_tag,
+	int32_t flags, string const& info)
+	: name(name), tag(tag),alias_name(alias), alias_tag(alias_tag),
+	rettype(0), var(0),
+	funcFlags(flags), info(info),
+	params(),optparams(), extra_vargs()
 {}
 
 LibrarySymbols LibrarySymbols::nilsymbols = LibrarySymbols();
@@ -65,12 +74,16 @@ void getConstant(int32_t refVar, Function* function, int32_t val)
 		throw compile_exception(fmt::format("Internal Constant {} has non-NUL refVar!", function->name));
 	}
 	function->setFlag(FUNCFLAG_INLINE);
-	function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
+	function->setIntFlag(IFUNCFLAG_SKIPPOINTER);
 	int32_t label = function->getLabel();
 	vector<shared_ptr<Opcode>> code;
 	addOpcode2(code, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
 	LABELBACK(label);
 	function->giveCode(code);
+	function->set_constexpr(CONSTEXPR_CBACK_HEADER(val)
+		{
+			return val;
+		});
 }
 
 void getVariable(int32_t refVar, Function* function, int32_t var)
@@ -81,7 +94,7 @@ void getVariable(int32_t refVar, Function* function, int32_t var)
 	//pop object pointer
 	if(refVar == NUL)
 	{
-		function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
+		function->setIntFlag(IFUNCFLAG_SKIPPOINTER);
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(var)));
 		LABELBACK(label);
 	}
@@ -185,6 +198,18 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		try
 		{
 			AccessorTable& entry = table[i];
+			if(entry.alias_name)
+			{
+				Function* func = new Function();
+				func->name = entry.name;
+				func->setInfo(entry.info);
+				func->setFlag(entry.funcFlags);
+				func->setEntry(&entry);
+				if(hasPrefixType)
+					func->hasPrefixType = true;
+				alias_functions[make_pair(entry.name,entry.tag)] = func;
+				continue;
+			}
 			
 			DataType const* returnType = typeStore.getType(entry.rettype);
 			vector<DataType const*> paramTypes;
@@ -238,12 +263,13 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			if(!function)
 				throw compile_exception(fmt::format("Failed to create internal function '{}', {}\n",name,entry.tag));
 			
+			function->setEntry(&entry);
 			functions[make_pair(name,entry.tag)] = function;
 			if(hasPrefixType)
 				function->hasPrefixType = true; //Print the first type differently in error messages!
 			
 			function->opt_vals = entry.optparams;
-			function->info = entry.info;
+			function->setInfo(entry.info);
 			if(function->getFlag(FUNCFLAG_VARARGS))
 			{
 				function->extra_vargs = entry.extra_vargs;
@@ -284,6 +310,14 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 	
 	try
 	{
+		for(auto& p : alias_functions)
+		{
+			Function* func = p.second;
+			auto entry = func->getEntry();
+			Function* alias_func = getAlias(*entry->alias_name, entry->alias_tag);
+			func->alias(alias_func);
+			scope.addAlias(func);
+		}
 		generateCode();
 	}
 	catch (std::exception& e)
@@ -306,6 +340,17 @@ Function* LibrarySymbols::getFunction(std::string const& name, byte tag) const
 		throw compile_exception(fmt::format("Unique internal function {} not found with tag {}!", name, tag));
 	
 	return ret;
+}
+Function* LibrarySymbols::getAlias(std::string const& name, byte tag) const
+{
+	std::pair<std::string, int32_t> p = make_pair(name, tag);
+	Function* ret = find<Function*>(functions, p).value_or(nullptr);
+	Function* ret2 = find<Function*>(alias_functions, p).value_or(nullptr);
+	
+	if(!XOR(ret, ret2))
+		throw compile_exception(fmt::format("Unique internal function {} not found with tag {}!", name, tag));
+	
+	return ret ? ret : ret2;
 }
 
 LibrarySymbols::~LibrarySymbols(){}
