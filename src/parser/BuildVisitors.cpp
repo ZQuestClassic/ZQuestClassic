@@ -1331,7 +1331,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	
 	auto* optarg = opcodeTargets.back();
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
-	const string func_comment = fmt::format("Func[{}]",func.getSignature(true).asString());
+	const string func_comment = fmt::format("Func[{}]",func.getUnaliasedSignature(true).asString());
 	auto targ_sz = backTarget().size();
 	if(func.getFlag(FUNCFLAG_NIL) || func.prototype) //Prototype/Nil function
 	{
@@ -1561,7 +1561,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			else if(func.getIntFlag(IFUNCFLAG_REASSIGNPTR)) //This is likely a mistake in the script... give the user a warning.
 			{
-				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
+				handleError(CompileError::BadReassignCall(&host, func.getUnaliasedSignature().asString()));
 			}
 		}
 	}
@@ -1947,7 +1947,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			else if(func.getIntFlag(IFUNCFLAG_REASSIGNPTR)) //This is likely a mistake in the script... give the user a warning.
 			{
-				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
+				handleError(CompileError::BadReassignCall(&host, func.getUnaliasedSignature().asString()));
 			}
 		}
 	}

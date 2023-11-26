@@ -1706,7 +1706,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	
 	host.binding = bestFunctions.front();
-	deprecWarn(host.binding, &host, "Function", host.binding->getSignature().asString());
+	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
