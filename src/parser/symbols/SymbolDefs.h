@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include "zsyssimple.h"
+#include "base/headers.h"
 #include "parser/ByteCode.h"
 #include "parser/parserDefs.h"
 #include "parser/Scope.h"
@@ -35,7 +36,7 @@ void addOpcode2(std::vector<std::shared_ptr<Opcode>>& v, Opcode* code);
 #define POPREF() \
 if(refVar == NUL) \
 { \
-	function->internal_flags |= IFUNCFLAG_SKIPPOINTER; \
+	function->setIntFlag(IFUNCFLAG_SKIPPOINTER); \
 } \
 else \
 	addOpcode2 (code, new OPopRegister(new VarArgument(refVar)))
@@ -43,7 +44,7 @@ else \
 #define PEEKREF(offs) \
 if(refVar == NUL) \
 { \
-	function->internal_flags |= IFUNCFLAG_SKIPPOINTER; \
+	function->setIntFlag(IFUNCFLAG_SKIPPOINTER); \
 } \
 else \
 	addOpcode2 (code, new OPeekAtImmediate(new VarArgument(refVar), new LiteralArgument(offs)));
@@ -54,7 +55,7 @@ else \
 */
 #define ASSERT_NUL() \
 assert(refVar == NUL); \
-function->internal_flags |= IFUNCFLAG_SKIPPOINTER
+function->setIntFlag(IFUNCFLAG_SKIPPOINTER)
 
 /*
 	Assert that the refVar is NON-NUL.
@@ -89,7 +90,7 @@ code.back()->setLabel(LBL)
 #define REASSIGN_PTR(reg) \
 ASSERT_NON_NUL(); \
 if(reg!=EXP2) addOpcode2 (code, new OSetRegister(new VarArgument(EXP2), new VarArgument(reg))); \
-function->internal_flags |= IFUNCFLAG_REASSIGNPTR
+function->setIntFlag(IFUNCFLAG_REASSIGNPTR)
 
 /*
 	Pop multiple args to 1 register; mostly used to clear the stack after drawing commands.

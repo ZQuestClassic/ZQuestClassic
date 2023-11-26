@@ -29472,6 +29472,14 @@ void do_max(const bool v)
 	
 	set_register(sarg1, zc_max(temp2, temp));
 }
+void do_wrap_rad(const bool v)
+{
+	ri->d[rEXP1] = wrap_zslong_rad(SH::get_arg(sarg1, v));
+}
+void do_wrap_deg(const bool v)
+{
+	ri->d[rEXP1] = wrap_zslong_deg(SH::get_arg(sarg1, v));
+}
 
 
 void do_rnd(const bool v)
@@ -36987,6 +36995,12 @@ j_command:
 				break;
 			case MAXV:
 				do_max(true);
+				break;
+			case WRAPRADIANS:
+				do_wrap_rad(false);
+				break;
+			case WRAPDEGREES:
+				do_wrap_deg(false);
 				break;
 			
 			case MAXVARG:
@@ -46638,6 +46652,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PUSHARGSV", 2, 1, 1, 0},
 	{ "PUSHVARGSR", 2, 0, 1, 0},
 	{ "PUSHVARGSV", 2, 1, 1, 0},
+
+	{ "WRAPRADIANS", 1, 0, 0, 0 },
+	{ "WRAPDEGREES", 1, 0, 0, 0 },
 
 	{ "", 0, 0, 0, 0 }
 };

@@ -35,9 +35,17 @@ struct AccessorTable
 	byte extra_vargs; //how many listd params should be treatd as vargs
 	string info;
 	
+	//
+	
+	optional<string> alias_name;
+	byte alias_tag;
+	
 	AccessorTable(string const& name, byte tag, int32_t rettype, int32_t var, int32_t flags,
 		vector<int32_t>const& params, vector<int32_t> const& opts, byte exvargs = 0,
 		string const& info = "");
+	AccessorTable(string const& name, byte tag,
+		string const& alias, byte alias_tag,
+		int32_t flags = 0, string const& info = "");
 };
 
 class LibrarySymbols
@@ -57,10 +65,12 @@ protected:
 	bool hasPrefixType;
 
 	ZScript::Function* getFunction(string const& name, byte tag = 0) const;
+	ZScript::Function* getAlias(string const& name, byte tag = 0) const;
 
 private:
 	static LibrarySymbols nilsymbols;
 	map<std::pair<string, byte>, ZScript::Function*> functions;
+	map<std::pair<string, byte>, ZScript::Function*> alias_functions;
 	
 	// Generates the code for functions which can't be auto generated.
 	virtual void generateCode(){};

@@ -86,6 +86,14 @@ static AccessorTable GlobalTable[] =
 
 	{ "DegtoRad",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
 	{ "RadtoDeg",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
+	{ "DegToRad",                0, "DegtoRad",            0 },
+	{ "RadToDeg",                0, "RadtoDeg",            0 },
+	
+	{ "WrapRadians",             0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
+	{ "WrapDegrees",             0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
+	{ "WrapAngle",               0, "WrapRadians",         0 },
+	{ "WrapRad",                 0, "WrapRadians",         0 },
+	{ "WrapDeg",                 0, "WrapDegrees",         0 },
 
 	{ "printf",                  0,          ZTID_VOID,   -1,    FL_VARG,  { ZTID_CHAR },{} },
 	{ "sprintf",                 0,         ZTID_FLOAT,   -1,    FL_VARG,  { ZTID_CHAR, ZTID_CHAR },{} },
@@ -123,21 +131,21 @@ static AccessorTable GlobalTable[] =
 	{ "SetDepthBuffer",          0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetColorBuffer",          0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetDepthBuffer",          0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "EngineDegtoRad",          0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_FLOAT },{},0,"Use 'DegtoRad()' instead!" },
-	{ "EngineRadtoDeg",          0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_FLOAT },{},0,"Use 'RadtoDeg()' instead!" },
-	{ "TraceLWeapon",            0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_LWPN },{},0,"Use 'Trace()' instead!" },
-	{ "TraceEWeapon",            0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_EWPN },{},0,"Use 'Trace()' instead!" },
-	{ "TraceNPC",                0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_NPC },{},0,"Use 'Trace()' instead!" },
-	{ "TraceFFC",                0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_FFC },{},0,"Use 'Trace()' instead!" },
-	{ "TraceItem",               0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_ITEM },{},0,"Use 'Trace()' instead!" },
-	{ "TraceItemData",           0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_ITEMCLASS },{},0,"Use 'Trace()' instead!" },
-	{ "SizeOfArrayBool",         0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_BOOL },{},0,"Use 'SizeOfArray()' instead!" },
-	{ "SizeOfArrayFFC",          0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_FFC },{},0,"Use 'SizeOfArray()' instead!" },
-	{ "SizeOfArrayItem",         0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_ITEM },{},0,"Use 'SizeOfArray()' instead!" },
-	{ "SizeOfArrayLWeapon",      0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_LWPN },{},0,"Use 'SizeOfArray()' instead!" },
-	{ "SizeOfArrayEWeapon",      0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_EWPN },{},0,"Use 'SizeOfArray()' instead!" },
-	{ "SizeOfArrayNPC",          0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_NPC },{},0,"Use 'SizeOfArray()' instead!" },
-	{ "SizeOfArrayItemdata",     0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_ITEMCLASS },{},0,"Use 'SizeOfArray()' instead!" },
+	{ "EngineDegtoRad",          0, "DegtoRad",            0,    FL_DEPR, "Use 'DegtoRad()' instead!" },
+	{ "EngineRadtoDeg",          0, "RadtoDeg",            0,    FL_DEPR, "Use 'RadtoDeg()' instead!" },
+	{ "TraceLWeapon",            0, "Trace",               0,    FL_DEPR, "Use 'Trace()' instead!" },
+	{ "TraceEWeapon",            0, "Trace",               0,    FL_DEPR, "Use 'Trace()' instead!" },
+	{ "TraceNPC",                0, "Trace",               0,    FL_DEPR, "Use 'Trace()' instead!" },
+	{ "TraceFFC",                0, "Trace",               0,    FL_DEPR, "Use 'Trace()' instead!" },
+	{ "TraceItem",               0, "Trace",               0,    FL_DEPR, "Use 'Trace()' instead!" },
+	{ "TraceItemData",           0, "Trace",               0,    FL_DEPR, "Use 'Trace()' instead!" },
+	{ "SizeOfArrayBool",         0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
+	{ "SizeOfArrayFFC",          0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
+	{ "SizeOfArrayItem",         0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
+	{ "SizeOfArrayLWeapon",      0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
+	{ "SizeOfArrayEWeapon",      0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
+	{ "SizeOfArrayNPC",          0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
+	{ "SizeOfArrayItemdata",     0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
 	
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 	//Unused old junk
@@ -198,6 +206,10 @@ void GlobalSymbols::generateCode()
 		//addOpcode2 (code, new OSetImmediate(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN(); //Just return it?
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				return args[0];
+			});
 	}
 	//float Distance(game, int32_t, int32_t, int32_t, int32_t)
 	{
@@ -418,66 +430,6 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		LABELBACK(label);
 		addOpcode2 (code, new OTraceLRegister(new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("TraceLWeapon");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("TraceEWeapon");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("TraceNPC");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("TraceFFC");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("TraceItem");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	{
-		Function* function = getFunction("TraceItemData");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1048,71 +1000,6 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//int32_t SizeOfArrayFFC(ffc *ptr)
-	{
-		Function* function = getFunction("SizeOfArrayFFC");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OArraySizeF(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-
-	 //int32_t SizeOfArrayNPC(npc *ptr)
-	{
-		Function* function = getFunction("SizeOfArrayNPC");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OArraySizeN(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
-
-	//int32_t SizeOfArrayBool(bool *ptr)
-	{
-		Function* function = getFunction("SizeOfArrayBool");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OArraySizeB(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	} //int32_t SizeOfArrayItem(item *ptr)
-	{
-		Function* function = getFunction("SizeOfArrayItem");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OArraySizeI(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	} //int32_t SizeOfArrayItemdata(itemdata *ptr)
-	{
-		Function* function = getFunction("SizeOfArrayItemdata");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OArraySizeID(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	} //int32_t SizeOfArrayLWeapon(lweapon *ptr)
-	{
-		Function* function = getFunction("SizeOfArrayLWeapon");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OArraySizeL(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
 	//int32_t SaveSRAM(eweapon *ptr)
 	{
 		Function* function = getFunction("SaveSRAM");
@@ -1134,17 +1021,6 @@ void GlobalSymbols::generateCode()
 		LABELBACK(label);
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		addOpcode2 (code, new OReadGameStructs(new VarArgument(EXP1), new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//int32_t SizeOfArrayEWeapon(eweapon *ptr)
-	{
-		Function* function = getFunction("SizeOfArrayEWeapon");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OArraySizeE(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1555,29 +1431,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//int32_t EngineDegtoRad(int32_t val)
-	{
-		Function* function = getFunction("EngineDegtoRad");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OEngineDegtoRad(new VarArgument(EXP1), new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//int32_t EngineRadtoDeg(int32_t val)
-	{
-		Function* function = getFunction("EngineRadtoDeg");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OEngineRadtoDeg(new VarArgument(EXP1), new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//int32_t DegtoRad(int32_t val)
+	//constexpr float DegtoRad(float val)
 	{
 		Function* function = getFunction("DegtoRad");
 		int32_t label = function->getLabel();
@@ -1587,8 +1441,19 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OEngineDegtoRad(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					double rangle = (*args[0] / 10000.0) * (PI / 180.0);
+					rangle += rangle < 0?-0.00005:0.00005;
+					val = int32_t(rangle * 10000.0);
+				}
+				return val;
+			});
 	}
-	//int32_t RadtoDeg(int32_t val)
+	//constexpr float RadtoDeg(float val)
 	{
 		Function* function = getFunction("RadtoDeg");
 		int32_t label = function->getLabel();
@@ -1598,9 +1463,59 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OEngineRadtoDeg(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					double rangle = (*args[0] / 10000.0) * (180.0 / PI);
+					val = int32_t(rangle * 10000.0);
+				}
+				return val;
+			});
 	}
-
-	//untyped Max(untyped first, untyped second, untyped ..args)
+	//constexpr float WrapRadians(float val)
+	{
+		Function* function = getFunction("WrapRadians");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OWrapRadians(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					val = wrap_zslong_rad(*args[0]);
+				}
+				return val;
+			});
+	}
+	//constexpr float WrapDegrees(float val)
+	{
+		Function* function = getFunction("WrapDegrees");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OWrapDegrees(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					val = wrap_zslong_deg(*args[0]);
+				}
+				return val;
+			});
+	}
+	
+	//constexpr untyped Max(untyped first, untyped second, untyped ..args)
 	{
 		Function* function = getFunction("Max");
 		int32_t label = function->getLabel();
@@ -1609,8 +1524,20 @@ void GlobalSymbols::generateCode()
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				for(auto arg : args)
+				{
+					if(!arg) //all args must be constant
+						return nullopt;
+					if(!val || *arg > *val)
+						val = arg;
+				}
+				return val;
+			});
 	}
-	//untyped Min(untyped first, untyped second, untyped ..args)
+	//constexpr untyped Min(untyped first, untyped second, untyped ..args)
 	{
 		Function* function = getFunction("Min");
 		int32_t label = function->getLabel();
@@ -1619,6 +1546,18 @@ void GlobalSymbols::generateCode()
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				for(auto arg : args)
+				{
+					if(!arg) //all args must be constant
+						return nullopt;
+					if(!val || *arg < *val)
+						val = arg;
+				}
+				return val;
+			});
 	}
 	//untyped Choose(untyped first, untyped ..args)
 	{

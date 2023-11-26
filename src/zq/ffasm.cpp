@@ -1194,6 +1194,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "PUSHVARGSR", 2, 0, 1, 0},
 	{ "PUSHVARGSV", 2, 1, 1, 0},
 
+	{ "WRAPRADIANS", 0, 0, 0, 0 },
+	{ "WRAPDEGREES", 0, 0, 0, 0 },
+
 	{ "", 0, 0, 0, 0 }
 };
 
