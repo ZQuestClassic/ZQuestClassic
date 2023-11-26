@@ -624,7 +624,7 @@ void TextField::realize(DialogRunner& runner)
 				getFlags(), // flags
 				swap_type_start, 0, // d1, d2
 				nullptr, GUI_DEF_FONT, nullptr // dp, dp2, dp3
-			});
+			}, true);
 		if(hascb)
 		{
 			swap_cb = std::make_shared<GUI::Checkbox>();

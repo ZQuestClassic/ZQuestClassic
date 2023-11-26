@@ -375,7 +375,7 @@ protected:
 	/* Returns true if the entire dialog has been realized */
 	bool isConstructed();
 	
-private:
+protected:
 	enum
 	{
 		f_WIDTH_OVERRIDDEN =  0b00000000001,
