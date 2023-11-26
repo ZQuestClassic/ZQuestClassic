@@ -789,7 +789,7 @@ void ScriptParser::assemble(IntermediateData *id)
 		else
 		{
 			int32_t numparams = script.getRun()->paramTypes.size();
-			script.code = assembleOne(program, run.getCode(), numparams, run.getSignature(true));
+			script.code = assembleOne(program, run.getCode(), numparams, run.getUnaliasedSignature(true));
 		}
 	}
 }
@@ -873,11 +873,11 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 		     it != functionCode.end(); ++it)
 			addOpcode2(rval, (*it)->makeClone());
 		if(rval.size() == rv_sz+1)
-			rval.back()->mergeComment(fmt::format("Func[{}] Body",function->getSignature(true).asString()));
+			rval.back()->mergeComment(fmt::format("Func[{}] Body",function->getUnaliasedSignature(true).asString()));
 		else if(rval.size() > rv_sz)
 		{
-			rval[rv_sz]->mergeComment(fmt::format("Func[{}] Body Start",function->getSignature(true).asString()));
-			rval.back()->mergeComment(fmt::format("Func[{}] Body End",function->getSignature(true).asString()));
+			rval[rv_sz]->mergeComment(fmt::format("Func[{}] Body Start",function->getUnaliasedSignature(true).asString()));
+			rval.back()->mergeComment(fmt::format("Func[{}] Body End",function->getUnaliasedSignature(true).asString()));
 		}
 	}
 	

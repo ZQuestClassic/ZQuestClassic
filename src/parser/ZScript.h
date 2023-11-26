@@ -469,6 +469,10 @@ namespace ZScript
 				return aliased_func->getSignature(useret);
 			return FunctionSignature(*this, useret);
 		}
+		FunctionSignature getUnaliasedSignature(bool useret = false) const
+		{
+			return FunctionSignature(*this, useret);
+		}
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
