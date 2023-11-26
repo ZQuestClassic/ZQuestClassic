@@ -38,7 +38,7 @@ public:
 	 * Returns a DialogRef that can be used as a reference to the
 	 * newly added DIALOG.
 	 */
-	DialogRef push(std::shared_ptr<Widget> owner, DIALOG dlg);
+	DialogRef push(std::shared_ptr<Widget> owner, DIALOG dlg, bool nofocus = false);
 
 	/* Returns the current size of the DIALOG array. */
 	inline size_t size() const

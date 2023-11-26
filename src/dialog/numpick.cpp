@@ -378,6 +378,7 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 	if(zsint)
 	{
 		tf = TextField(
+			focused = true,
 			width = 8_em, hPadding = 0_px,
 			type = GUI::TextField::type::SWAP_ZSINT2,
 			val = local_val, low = min, high = max,
@@ -389,6 +390,7 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 	else
 	{
 		tf = TextField(
+			focused = true,
 			width = 8_em, hPadding = 0_px,
 			type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 			val = local_val*10000, low = min*10000, high = max*10000,
@@ -408,6 +410,7 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 		title = "Number Picker",
 		minwidth = 30_em,
 		onClose = message::CANCEL,
+		onEnter = message::OK,
 		Column(
 			Label(text = labeltext),
 			w, tf,
@@ -416,7 +419,6 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 				vAlign = 1.0,
 				spacing = 2_em,
 				Button(
-					focused = true,
 					text = "OK",
 					minwidth = 90_px,
 					onClick = message::OK),
