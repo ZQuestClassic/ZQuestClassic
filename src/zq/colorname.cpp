@@ -623,7 +623,7 @@ std::string const& get_color_name(int c)
 void get_tile_colornames(int tile, int cs, map<string,int>& res)
 {
 	bool is8b = newtilebuf[tile].format>tf4Bit;
-	unpack_tile(newtilebuf, tile, 0, false);
+	unpack_tile(newtilebuf, tile, 0, true);
 	byte *si = unpackbuf;
 	
 	int offs = is8b ? 0 : CSET(cs);

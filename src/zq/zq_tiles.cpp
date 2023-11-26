@@ -1388,7 +1388,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	masked_stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, prev_til_2.x, prev_til_2.y, prev_til_2.w, prev_til_2.h);
 	zc_swap(oldtile,newtilebuf[tile].data); //Swap the real tile back to the buffer
 	
-	unpack_tile(newtilebuf, tile, 0, false);
+	unpack_tile(newtilebuf, tile, 0, true);
 	if(floating_sel)
 		for(auto q = 0; q < 256; ++q)
 			if(floatsel[q])
