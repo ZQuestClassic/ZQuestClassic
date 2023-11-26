@@ -362,6 +362,10 @@
                             "val": "$-1$1"
                         },
                         {
+                            "name": "Keywords",
+                            "val": "$-1$2"
+                        },
+                        {
                             "name": "&lt;-- Top ;; top",
                             "val": "$0$0"
                         }
@@ -375,8 +379,29 @@
                             "val": "<h2>Operators</h2>\nThis section contains information on the various operators that can be used in expressions in ZScript."
                         },
                         {
-                            "name": "Arithmetic",
+                            "name": "Arithmetic ;; Operators:Arithmetic",
                             "val": "<h3>Addition `+`</h3>\nex. `2 + 2` gives `4`\n\n<h3>Subtraction `-`</h3>\nex. `10 - 5` gives `5`\n\n<h3>Multiplication `*`</h3>\nex. `5 * 7` gives `35`\n\n<h3>Division `/`</h3>\nex. `7 / 2` gives `3.5`\nDivision truncates everything beyond 4 decimal places.\n\n<h3>Modulo `%`</h3>\nModular division, gives the remainder of a division\nex. `10 % 3` gives 1, `5 % 3` gives 2, `16 % 2` gives 0, `5.5 % 3` gives `2.5`\n\n<h3>Power/Exponentiation `^^^`</h3>\nBehaves differently if the `long` type is involved.\nex. `5 ^^^ 2` gives `25`, `5L ^^^ 2L` gives `25L`\n\n<h3>Assignment Operators</h3>\nWith a variable (`x` in this example), you can use some assignment operators.\n<ul><li>`x = 5;`, sets the value of variable `x` to `5`</li>\n<li>`x += 5;` same as `x = x + 5;`</li>\n<li>`x -= 5;` same as `x = x - 5;`</li>\n<li>`x *= 5;` same as `x = x * 5;`</li>\n<li>`x /= 5;` same as `x = x / 5;`</li>\n<li>`x %= 5;` same as `x = x % 5;`</li></ul>\n\n<h3>Increment Operators</h3>\n`++x`, `x++` are the same as `x = x + 1`, and `--x`, `x--` are the same as `x = x - 1`. With one small exception, which rarely matters.\nIf you use these in an expression, the expression value is different. Example:\n```\nx = 5;\ny = ++x; //y is 6, x is 6\nx = 5;\ny = x++; //y is 5, x is 6```\nIf you are NOT using it in an expression, it is best to use the pre- version (`++x` or `--x`), such as in for loops `for(int q = 0; q < 10; ++q)`."
+                        },
+                        {
+                            "name": "Under Construction...",
+                            "val": ""
+                        },
+                        {
+                            "name": "&lt;-- Back ;; zsmechanics",
+                            "val": "$-1"
+                        }
+                    ]
+                },
+                {
+                    "name": "Keywords",
+                    "lines": [
+                        {
+                            "name": "Keywords ;; Keywords / zskeywords",
+                            "val": "<h2>Keywords</h2>\nThis section contains information on the various keywords that can be used in ZScript, and that may appear in this documentation."
+                        },
+                        {
+                            "name": "Function Keywords ;; Keywords:Functions / static / constexpr",
+                            "val": "<h3>`constexpr`</h3>\nCurrently, only internal functions can be `constexpr`.\nWhen a `constexpr` function is called and all of the parameters of the call are constant at compile-time, the compiler will run the `constexpr` function at compile-time. Such function calls can be used in places that require compile-time constant values.\n\n<h3>`static`</h3>\nFunctions in a class may be declared as `static`. This effectively removes them from objects,\tmaking them a 'global function' in the class's name.\n#{Example|$[FuncKWStaticExample]}\nSo, static functions can only be called either from within the class directly, or by using 'classname.funcname()', but <em><strong>not</strong></em> from an arrow. Also noteworthy is that static functions do <em><strong>not</strong></em> have access to the class's 'this' pointer."
                         },
                         {
                             "name": "Under Construction...",
@@ -1270,7 +1295,7 @@
                         },
                         {
                             "name": "Min / Max / Choose",
-                            "val": "<h3>untyped Min([[...untyped args|Takes 2+ untyped args]]);</h3>\nReturns the <em>lowest</em> parameter.\n\n<h3>untyped Max([[...untyped args|Takes 2+ untyped args]]);</h3>\nReturns the <em>highest</em> parameter.\n\n<h3>untyped Choose([[...untyped args|Takes 1+ untyped args]]);</h3>\nReturns a random parameter, using the global RandGen."
+                            "val": "<h3>${constexpr} untyped Min([[...untyped args|Takes 2+ untyped args]]);</h3>\nReturns the <em>lowest</em> parameter.\n\n<h3>${constexpr} untyped Max([[...untyped args|Takes 2+ untyped args]]);</h3>\nReturns the <em>highest</em> parameter.\n\n<h3>untyped Choose([[...untyped args|Takes 1+ untyped args]]);</h3>\nReturns a random parameter, using the global RandGen."
                         },
                         {
                             "name": "Pow / InvPow",
@@ -1285,8 +1310,8 @@
                             "val": "<h3>float Sin(float deg);\nfloat Cos(float deg);\nfloat Tan(float deg);</h3>\nReturns the trig Sin/Cos/Tan of the degree value given.\n\n<h3>float RadianSin(float rad);\nfloat RadianCos(float rad);\nfloat RadianTan(float rad);</h3>\nReturns the trig Sin/Cos/Tan of the radian value given.\n\n<h3>float ArcSin(float x);\nfloat ArcCos(float x);\nfloat ArcTan(float x, float y);</h3>\nReturns the trig ArcSin/ArcCos/ArcTan of the value(s) given."
                         },
                         {
-                            "name": "Angle Conversion ;; RadtoDeg / DegtoRad",
-                            "val": "<h3>float DegtoRad(float deg);\nfloat RadtoDeg(float rad);</h3>\nConverts between degrees and radians."
+                            "name": "Angle Conversion ;; DegToRad / RadToDeg / DegtoRad / RadtoDeg / WrapRadians / WrapRad / WrapAngle / WrapDegrees / WrapDeg",
+                            "val": "<h3>${constexpr} float DegToRad(float deg);\n${constexpr} float RadToDeg(float rad);</h3>\nConverts between degrees and radians.\n\n<h3>${constexpr} float WrapRadians(float radians);\n${constexpr} float WrapRad(float radians);\n${constexpr} float WrapAngle(float radians);</h3>\nReturns the 'radians' value, wrapped between [-PI,PI)\n\n<h3>${constexpr} float WrapDegrees(float degrees);\n${constexpr} float WrapDeg(float degrees);</h3>\nReturns the 'degrees' value, wrapped between [-180,180)"
                         }
                     ]
                 },
@@ -2850,6 +2875,10 @@
                     {
                         "name": "SHLD_",
                         "val": "Indexes for `npc-&gt;Shield[]`\n<ol start=\"0\"><li>[[SHLD_FRONT|If true, the enemy's front is shielded.]]</li>\n<li>[[SHLD_BACK|If true, the enemy's back is shielded.]]</li>\n<li>[[SHLD_LEFT|If true, the enemy's left is shielded.]]</li>\n<li>[[SHLD_RIGHT|If true, the enemy's right is shielded.]]</li>\n<li>[[SHLD_CAN_BREAK|If true, the enemy's shield is breakable.]]</li></ol>"
+                    },
+                    {
+                        "name": "FuncKWStaticExample",
+                        "val": "```class foo\n{\n\tstatic void print(){}\n\tfoo()\n\t{\n\t\tprint(); //valid, as the function is still in the class scope\n\t\tthis-&gt;print(); //ERROR: function 'print' has not been declared\n\t\tfoo.print(); //valid\n\t}\n}\nvoid testfunc()\n{\n\tfoo.print(); //Valid, even with no object to call the function from.\n\tfoo f = new foo();\n\tf-&gt;print(); //ERROR: function 'print' has not been declared\n}\n```"
                     }
                 ]
             }
