@@ -1038,7 +1038,10 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
     int32_t g = (flags & D_SELECTED) ? 1 : 0;
     
     if(flags & D_SELECTED)
+	{
         jwin_draw_button(dest, x, y, w, h, 2, 0);
+		flags &= ~D_DISABLED;
+	}
     else if(!(flags & D_GOTFOCUS))
         jwin_draw_button(dest, x, y, w, h, 0, 0);
     else
@@ -1315,6 +1318,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t)
 {
     int32_t down=0;
     int32_t selected=(d->flags&D_SELECTED)?1:0;
+    int32_t disabled=(d->flags&D_DISABLED)?1:0;
     int32_t last_draw;
     
     switch(msg)
@@ -1337,6 +1341,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t)
 			return D_WANTFOCUS;
 			
 		case MSG_KEY:
+			if(disabled) break;
 			/* close dialog? */
 			if(d->flags & D_EXIT)
 			{
@@ -1355,6 +1360,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t)
 			
 		case MSG_CLICK:
 		{
+			if(disabled) break;
 			if(d->d2 == 1) //Insta-button
 			{
 				if(mouse_in_rect(d->x, d->y, d->w, d->h))
