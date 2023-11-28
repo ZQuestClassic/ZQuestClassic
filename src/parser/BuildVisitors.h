@@ -103,6 +103,7 @@ namespace ZScript
 		void addOpcode(std::shared_ptr<Opcode> &code);
 		Opcode* backOpcode();
 		std::vector<std::shared_ptr<Opcode>>& backTarget();
+		size_t commentTarget() const;
 		
 		void commentAt(size_t indx, std::string const& comment);
 		void commentBack(std::string const& comment);

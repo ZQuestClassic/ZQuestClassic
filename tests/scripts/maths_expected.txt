@@ -16,14 +16,14 @@ PUSHARGSR d2,0.0002
 SETR d4,SP
 SETV d2,1
 STORED d2,1
-SETV d2,-10
+SETV d2,-10; for() #3463 setup AND while(true) #3461 Body [Opt:AlwaysOn]
 STORED d2,0
-LOADD d2,0
+LOADD d2,0; for() #3463 LoopTest
 COMPAREV d2,10
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 43
-PUSHR d4
+GOTOTRUE 43; for() #3463 TestFail?
+PUSHR d4; for() #3463 Body
 PUSHV 0.0020; UsrFunc[void doMaths(bool, int)] Return Addr
 LOADD d2,1; UsrFunc[void doMaths(bool, int)] Params
 PUSHR d2
@@ -47,16 +47,16 @@ MULTV d2,100000
 PUSHR d2
 GOTO 49; UsrFunc[void doMaths(bool, int)] Call
 POP d4
-LOADD d2,0
+LOADD d2,0; for() #3463 LoopIncrement
 PUSHR d2
 ADDV d2,1
 STORED d2,0
 POP d2
-GOTO 8
+GOTO 8; for() #3463 End
 WAITFRAME; InlineFunc[void Waitframe()] Body
 SETV d2,0
 STORED d2,1
-GOTO 6
+GOTO 6; while() #3461 End
 POPARGS d5,0.0003
 QUIT; void run() Body End
 PUSHARGSR d2,0.0020; Func[void doMaths(bool, int)] Body Start
@@ -417,10 +417,10 @@ DEALLOCATEMEMR d3
 POPARGS d5,0.0022
 RETURN; Func[void doMaths(bool, int)] Body End
 SETR d4,SP; Func[void maybePrint(bool, int, int)] Body Start
-LOADD d2,2
+LOADD d2,2; if() #3458 Test
 COMPAREV d2,0
-GOTOTRUE 416
-LOADD d2,1; InlineFunc[void printf(char32)] Params
+GOTOTRUE 416; Test 'if'
+LOADD d2,1; InlineFunc[void printf(char32)] Params AND if() #3458 Body
 PUSHR d2
 LOADD d2,0
 PUSHVARGR d2
