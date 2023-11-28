@@ -539,6 +539,15 @@ namespace ZScript
 		
 		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&)>
 		#define CONSTEXPR_CBACK_HEADER(...) [__VA_ARGS__](vector<optional<int32_t>> const& args) -> optional<int32_t>
+		/** constexpr system:
+		 * This callback lambda uses the header macro 'CONSTEXPR_CBACK_HEADER()' above.
+		 * The 'vector<optional<int>> const& args' parameter contains the compile-time value of each function
+		 *     parameter, or 'nullopt' if the value is not compile-time constant.
+		 * The lambda returns an 'optional<int>', which should be 'nullopt' if not enough of the function
+		 *     parameters were constant to determine the return value, and otherwise should be the
+		 *     return value of this Function for those constant parameters.
+		 * -Em
+		 */
 		void set_constexpr(CONSTEXPR_CBACK_TY callback) {constexpr_callback = callback;}
 		CONSTEXPR_CBACK_TY const& get_constexpr() const
 		{
