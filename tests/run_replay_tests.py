@@ -863,6 +863,9 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
             while watcher.observer.is_alive():
                 watcher.update_result()
 
+                if player_interface.poll() != None:
+                    break
+
                 # Don't apply timeout until beyond the first frame, since JIT may take a moment for big scripts.
                 if watcher.result['frame'] == 0:
                     continue
@@ -870,9 +873,6 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
                 if do_timeout and timer() - watcher.modified_time > timeout:
                     last_frame = watcher.result['frame']
                     raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')
-
-                if player_interface.poll() != None:
-                    break
 
                 yield (key, 'status', result)
 
