@@ -993,15 +993,15 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 		START_OPT_PASS() //Trim NoOps
 			if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
 			{
+				auto it2 = it;
+				++it2;
+				Opcode* nextcode = it2->get();
+				nextcode->mergeComment(comment, true);
 				if(lbl == -1) //no label, just trash it
 				{
 					it = rval.erase(it);
 					continue;
 				}
-				auto it2 = it;
-				++it2;
-				Opcode* nextcode = it2->get();
-				nextcode->mergeComment(comment, true);
 				auto lbl2 = nextcode->getLabel();
 				if(lbl2 == -1) //next code has no label, pass the label
 				{
