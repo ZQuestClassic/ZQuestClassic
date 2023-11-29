@@ -350,6 +350,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		p->type = ZCMF_OGG;
 		p->playing = ZCM_STOPPED;
 		p->fadeoutframes = 0;
+		p->fadevolume = 10000;
 		ZCMUSIC *music=(ZCMUSIC*)p;
 		zcm_extract_name(filename, music->filename, FILENAMEALL);
 		music->filename[255]='\0';
@@ -379,6 +380,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		p->type = ZCMF_MP3;
 		p->playing = ZCM_STOPPED;
 		p->fadeoutframes = 0;
+		p->fadevolume = 10000;
 		ZCMUSIC *music=(ZCMUSIC*)p;
 		zcm_extract_name(filename, music->filename, FILENAMEALL);
 		music->filename[255]='\0';
@@ -435,6 +437,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 			p->s = d;
 			p->p = NULL;
 			p->fadeoutframes = 0;
+			p->fadevolume = 10000;
 			ZCMUSIC *music=(ZCMUSIC*)p;
 			zcm_extract_name(filename, music->filename, FILENAMEALL);
 			music->filename[255]='\0';
@@ -462,6 +465,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 				p->playing = ZCM_STOPPED;
 				p->emu = emu;
 				p->fadeoutframes = 0;
+				p->fadevolume = 10000;
 				ZCMUSIC *music=(ZCMUSIC*)p;
 				zcm_extract_name(filename, music->filename, FILENAMEALL);
 				music->filename[255]='\0';
@@ -499,6 +503,9 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 	}
 	else
 	{
+		if (vol > 255) vol = 255;
+		if (vol < 0) vol = 0;
+
 		switch(zcm->type & libflags)
 		{
 		case ZCMF_DUH:
@@ -672,6 +679,9 @@ bool zcmusic_stop(ZCMUSIC* zcm)
 bool zcmusic_set_volume(ZCMUSIC* zcm, int32_t vol)
 {
 	if(zcm == NULL) return FALSE;
+
+	if (vol > 255) vol = 255;
+	if (vol < 0) vol = 0;
 	
 	if(zcm->playing != ZCM_STOPPED)                         // adjust volume
 	{
