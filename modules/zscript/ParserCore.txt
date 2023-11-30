@@ -5,6 +5,7 @@ set(ZSCRIPT_CORE_SOURCES
 # Add or remove files here
 ################################
 src/parser/parser.cpp
+src/parser/config.cpp
 src/zconfig.cpp
 
 ## End of ZScript Core module
