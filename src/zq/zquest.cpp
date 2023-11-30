@@ -650,7 +650,6 @@ int32_t fill_type=1;
 
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-char *helpbuf, *zstringshelpbuf;
 string helpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
@@ -27476,84 +27475,8 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("OK\n");
 	
-	int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
-	
-	if(!helpsize)
-	{
-		helpsize = file_size_ex_password("zquest.txt","");
-		if(!helpsize)
-			FatalConsole("Error: zquest.txt not found.");
-	}
-	
-	helpbuf = (char*)malloc(helpsize<65536?65536:helpsize*2+1);
-	
-	if(!helpbuf)
-		FatalConsole("Error allocating help buffer.");
-	
-	//if(!readfile("zquest.txt",helpbuf,helpsize))
-	FILE *hb = fopen("docs/zquest.txt", "r");
-	
-	if(!hb)
-	{
-		hb = fopen("zquest.txt", "r");
-		if(!hb)
-			FatalConsole("Error loading zquest.txt.");
-	}
-	
-	char c = fgetc(hb);
-	int32_t index=0;
-	
-	while(!feof(hb))
-	{
-		helpbuf[index] = c;
-		index++;
-		c = fgetc(hb);
-	}
-	
-	fclose(hb);
-	
-	helpbuf[helpsize]=0;
-	helpstr = helpbuf;
-	Z_message("Found zquest.txt\n");									  // loading data files...
-	
-	int32_t zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
-	
-	if(!zstringshelpsz)
-	{
-		zstringshelpsz = file_size_ex_password("zstrings.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
-		if(!zstringshelpsz)
-			FatalConsole("Error: zstrings.txt not found.");
-	}
-	
-	zstringshelpbuf = (char*)malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
-	
-	if(!zstringshelpbuf)
-		FatalConsole("Error allocating zstrings Help buffer.");
-	
-	FILE *zstringshelphb = fopen("docs/zstrings.txt", "r");
-	
-	if(!zstringshelphb)
-	{
-		zstringshelphb = fopen("zstrings.txt", "r");
-		if(!zstringshelphb)
-			FatalConsole("Failed loading zstrings.txt!");
-	}
-	
-	char zstringshelpc = fgetc(zstringshelphb);
-	int32_t zstringshelpindex=0;
-	
-	while(!feof(zstringshelphb))
-	{
-		zstringshelpbuf[zstringshelpindex] = zstringshelpc;
-		zstringshelpindex++;
-		zstringshelpc = fgetc(zstringshelphb);
-	}
-	
-	fclose(zstringshelphb);
-	
-	zstringshelpbuf[zstringshelpsz]=0;
-	zstringshelpstr = zstringshelpbuf;
-	Z_message("Found zstrings.txt\n");							   
+	helpstr = util::read_text_file("docs/zquest.txt");
+	zstringshelpstr = util::read_text_file("docs/zstrings.txt");						   
 	
 	// loading data files...
 	

@@ -82,6 +82,14 @@ namespace util
 		return result;
 	}
 
+	std::string read_text_file(fs::path path)
+	{
+		auto ss = std::ostringstream{};
+		std::ifstream file(path);
+		ss << file.rdbuf();
+		return ss.str();
+	}
+
 	// https://stackoverflow.com/a/6089413/2788187
 	std::istream &portable_get_line(std::istream &is, std::string &t)
 	{

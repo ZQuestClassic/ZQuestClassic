@@ -19,6 +19,8 @@
 typedef int32_t mode_t;
 #endif
 
+namespace fs = std::filesystem;
+
 namespace util
 {
 	void upperstr(std::string& str);
@@ -28,6 +30,7 @@ namespace util
 	void sanitize_spaces_ok(std::string& str);
 	size_t split(const std::string &txt, std::vector<std::string> &strs, char ch);
 	std::vector<std::string> split_args(const std::string &str);
+	std::string read_text_file(fs::path path);
 	std::istream &portable_get_line(std::istream &is, std::string &t);
 	std::string cropPath(std::string filepath);
 	void replstr(std::string& str, std::string const& from, std::string const& to);
