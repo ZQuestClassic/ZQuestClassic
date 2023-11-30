@@ -204,7 +204,6 @@ extern int32_t fill_type;
 
 extern bool first_save;
 extern char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-extern char *helpbuf;
 extern std::string helpstr;
 
 extern int32_t rules_page, rules_pages;

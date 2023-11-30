@@ -4251,11 +4251,7 @@ int main(int argc, char **argv)
 			Z_error_fatal("zc_args.txt does not exist");
 		}
 
-		auto ss = std::ostringstream{};
-		std::ifstream file("zc_args.txt");
-		ss << file.rdbuf();
-		std::vector<std::string> args;
-		args = util::split_args(ss.str());
+		std::vector<std::string> args = util::split_args(read_text_file("zc_args.txt"));
 		args.insert(args.begin(), argv[0]);
 
 		argv = new char*[args.size()];
