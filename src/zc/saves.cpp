@@ -128,32 +128,6 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		assert(out_count);
 
 	FFCore.kb_typing_mode = false;
-	if (get_qr(qr_OLD_SCRIPT_VOLUME))
-	{
-		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
-		{
-			Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-			midi_volume = FFCore.usr_midi_volume;
-			//	master_volume(-1,FFCore.usr_midi_volume);
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
-		{
-			digi_volume = FFCore.usr_digi_volume;
-			//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
-		{
-			emusic_volume = (int32_t)FFCore.usr_music_volume;
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
-		{
-			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-		}
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-		pan_style = (int32_t)FFCore.usr_panstyle;
-	}
 	FFCore.skip_ending_credits = 0;
 	word count=0;
 	char name[10];
@@ -162,8 +136,6 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 	word tempword = 0;
 	word tempword2 = 0;
 	word tempword3 = 0;
-	word tempword4 = 0;
-	word tempword5 = 0;
 	dword tempdword = 0;
 	int32_t templong = 0;
 	int32_t section_id=0;
