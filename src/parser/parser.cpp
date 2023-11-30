@@ -1,6 +1,9 @@
+// TODO: do not link allegro w/ zscript compiler.
+
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "parser/ZScript.h"
+#include "parser/config.h"
 #include "parser/parser.h"
 #include <string>
 #include "zconfig.h"
@@ -319,19 +322,15 @@ int32_t main(int32_t argc, char **argv)
 	
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
 	ConsoleWrite = cph;
-	// We only need to initialize allegro to read config files. We could still trace without this.
-	// TODO: figure out how to drop this.
-	if(!al_init())
+
+	if (!zscript_load_base_config("base_config/zscript.cfg"))
 	{
-		zconsole_error("%s", "Failed Init!");
-		abort();
+		zconsole_error("%s", "Error: failed to load base config");
+		return 1;
 	}
-	if(allegro_init() != 0)
-	{
-		zconsole_error("%s", "Failed Init!");
-		abort();
-	}
-	
+
+	zscript_load_user_config("zscript.cfg");
+
 	int32_t script_path_index = used_switch(argc, argv, "-input");
 	if (!script_path_index)
 	{
@@ -377,9 +376,8 @@ int32_t main(int32_t argc, char **argv)
 		cph->write(&syncthing, sizeof(int32_t));
 	}
 	
-	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	char const* runstr = zc_get_config("Compiler","run_string","run");
-	strcpy(FFCore.scriptRunString, runstr);
+	std::string runstr = zscript_get_config_string("run_string", "run");
+	strncpy(FFCore.scriptRunString, runstr.c_str(), sizeof(FFCore.scriptRunString));
 
 	int32_t include_paths_index = used_switch(argc, argv, "-include");
 	if (include_paths_index)

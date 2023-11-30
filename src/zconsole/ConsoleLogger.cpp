@@ -1,8 +1,7 @@
 #include "zconsole/ConsoleLogger.h"
 #include "zconfig.h"
-#include "base/zc_alleg.h"
+#include <allegro.h>
 
-// int32_t vbound(int32_t val, int32_t low, int32_t high);
 byte monochrome_console;
 
 #ifdef _WIN32

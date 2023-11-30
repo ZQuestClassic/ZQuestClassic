@@ -550,6 +550,7 @@ endif()
 
 add_library(zconsolelogger STATIC src/zconsole/ConsoleLogger.cpp)
 target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
+target_include_directories(zconsolelogger PUBLIC src)
 
 #############################################################
 # Sound Library
@@ -714,7 +715,7 @@ endif()
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src)
-	target_link_libraries(zscript PRIVATE allegro_with_legacy zcbase zconsolelogger ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript PRIVATE fmt zcbase zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
