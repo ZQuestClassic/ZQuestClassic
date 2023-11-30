@@ -122,8 +122,7 @@ bool is_valid_rpos(rpos_t rpos)
 
 bool is_z3_scrolling_mode()
 {
-	// Note: `screenscrolling` bit is only needed for some funky logic in do_scrolling_layer().
-	return is_a_region(currdmap, currscr) || (screenscrolling && is_a_region(scrolling_dmap, scrolling_scr));
+	return is_a_region(currdmap, currscr);
 }
 
 bool is_extended_height_mode()
