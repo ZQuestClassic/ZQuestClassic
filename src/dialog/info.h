@@ -2,34 +2,35 @@
 #define ZC_DIALOG_INFO_H
 
 #include "base/qrs.h"
+#include "base/headers.h"
 #include <gui/dialog.h>
 #include <gui/window.h>
+#include <gui/grid.h>
 #include <gui/checkbox.h>
 #include <gui/text_field.h>
 #include <initializer_list>
 #include <string>
 #include <set>
 #include <string_view>
+#include "dialog/externs.h"
 
-//A basic handler function
-void displayinfo(std::string title, std::string text);
-
-// A basic dialog that just shows some lines of text and a close button.
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
 public:
 	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, BTN };
 
-	InfoDialog(std::string title, std::string text);
-	InfoDialog(std::string title, std::vector<std::string_view> lines);
+	InfoDialog(string const& title, string const& text, optional<string> subtext = nullopt);
+	InfoDialog(string const& title, vector<string> const& lines, optional<string> subtext = nullopt);
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
-
+	
+	void setSubtext(optional<string> subtext) {d_subtext = subtext;}
 protected:
 	std::shared_ptr<GUI::Window> window;
-	std::string dlgTitle;
-	std::string dlgText;
+	string d_title, d_text;
+	optional<string> d_subtext;
+	
 	
 	std::set<int> qrs; //related qrs
 	std::set<int> ruleTemplates; //related rule templates
@@ -40,6 +41,8 @@ protected:
 	bool on_templates[sz_ruletemplate] = {false};
 	
 	void postinit();
+	
+	std::shared_ptr<GUI::Grid> build_text();
 };
 
 #endif

@@ -434,7 +434,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		void invert() {inverted = true;}
+		void invert() {inverted = !inverted;}
 		bool isInverted() const {return inverted;}
 		bool isDecl() const {return _isDecl;}
 		
@@ -575,7 +575,7 @@ namespace ZScript
 		ASTStmtWhile* clone() const {return new ASTStmtWhile(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
-		void invert() {inverted = true;}
+		void invert() {inverted = !inverted;}
 		bool isInverted() const {return inverted;}
 
 		owning_ptr<ASTExpr> test;
@@ -1371,6 +1371,11 @@ namespace ZScript
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		void invert() {inverted = !inverted;}
+		bool isInverted() const {return inverted;}
+	private:
+		bool inverted;
 	};
 
 	class ASTExprBitNot : public ASTUnaryExpr

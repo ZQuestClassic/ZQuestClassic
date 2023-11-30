@@ -516,7 +516,7 @@ void HeroClass::go_respawn_point()
 	
 	if(currdmap != respawn_dmap || currscr != respawn_scr)
 	{
-		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr,
+		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr-DMaps[currdmap].xoff,
 			-1, -1, 0, 0, warpFlagNOSTEPFORWARD, -1);
 	}
 }
@@ -20365,7 +20365,7 @@ void HeroClass::checkpushblock()
 		}
 		else
 		{
-			if(is_push_flag_dir(f,dir))
+			if(is_push_flag(f,dir))
 			{
 				doit=true;
 			}
@@ -20440,7 +20440,7 @@ void HeroClass::checkpushblock()
 			//   for(int32_t i=0; i<1; i++)
 			if(!mblock2.active())
 			{
-				if(is_push_flag_dir(f,dir))
+				if(is_push_flag(f,dir))
 				{
 					m->sflag[combopos]=0;
 				}

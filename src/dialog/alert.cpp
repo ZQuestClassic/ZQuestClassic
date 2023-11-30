@@ -2,7 +2,7 @@
 #include <gui/builder.h>
 #include <utility>
 
-void info_dsa(std::string const& title, std::string const& text, std::string const& dsastr)
+void info_dsa(string const& title, string const& text, string const& dsastr)
 {
 	if(!zc_get_config("dsa",dsastr.c_str(),0))
 	{
@@ -20,7 +20,7 @@ void info_dsa(std::string const& title, std::string const& text, std::string con
 		).show();
 	}
 }
-bool alert_confirm(std::string const& title, std::string const& text, bool okc)
+bool alert_confirm(string const& title, string const& text, bool okc)
 {
 	bool ret = false;
 	AlertDialog(title, text,
@@ -33,11 +33,11 @@ bool alert_confirm(std::string const& title, std::string const& text, bool okc)
 	return ret;
 }
 
-AlertDialog::AlertDialog(std::string title, std::string text, std::function<void(bool,bool)> onEnd, std::string truebtn, std::string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):
+AlertDialog::AlertDialog(string const& title, string const& text, std::function<void(bool,bool)> onEnd, string truebtn, string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):
 	InfoDialog(title,text), truebtn(truebtn), falsebtn(falsebtn), timer(0), timeout(timeout), default_ret(default_ret), dontshowagain(dontshow), onEnd(onEnd)
 {}
 
-AlertDialog::AlertDialog(std::string title, std::vector<std::string_view> lines, std::function<void(bool,bool)> onEnd, std::string truebtn, std::string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):
+AlertDialog::AlertDialog(string const& title, vector<string> const& lines, std::function<void(bool,bool)> onEnd, string truebtn, string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):
 	InfoDialog(title,lines), truebtn(truebtn), falsebtn(falsebtn), timer(0), timeout(timeout), default_ret(default_ret), dontshowagain(dontshow), onEnd(onEnd)
 {}
 
@@ -79,19 +79,14 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		);
 	
 	return Window(
-		title = std::move(dlgTitle),
+		title = std::move(d_title),
 		onClose = message::CANCEL,
 		use_vsync = true,
 		onTick = [&](){return alert_on_tick();},
 		hPadding = 0_px,
 		Column(
-			hPadding = 0_px, 
-			Label(noHLine = true,
-				hPadding = 2_em,
-				maxLines = 20,
-				maxwidth = Size::pixels(zq_screen_w)-12_px-5_em,
-				textAlign = 1,
-				text = std::move(dlgText)),
+			hPadding = 0_px,
+			build_text(),
 			Checkbox(visible = dsa,
 				text = "Don't show this message again",
 				checked = false,

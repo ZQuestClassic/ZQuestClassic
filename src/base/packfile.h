@@ -35,16 +35,13 @@ inline bool pfwrite(const void *p,int32_t n,PACKFILE *f)
 	return success;
 }
 
-inline bool pfread(void *p,int32_t n,PACKFILE *f)
+inline bool pfread(void *p,int n,PACKFILE *f,bool allow_less = false)
 {
-	bool success;
-	
-	success=(pack_fread(p,n,f)==n);
+	auto count = pack_fread(p,n,f);
+	bool success = allow_less || count==n;
 	
 	if(success)
-	{
-		readsize+=n;
-	}
+		readsize += count;
 	
 	return success;
 }

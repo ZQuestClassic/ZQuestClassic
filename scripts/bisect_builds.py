@@ -136,7 +136,7 @@ def get_test_builds(releases: List[Revision]):
             continue
 
         artifacts = get_workflow_run_artifact_names(run.id)
-        if not artifacts:
+        if not artifacts or any(a for a in artifacts if a.expired):
             continue
 
         revisions.append(
@@ -233,10 +233,10 @@ def download_artifact(gh, repo, artifact, dest):
 
 def download_test_build(workflow_run: WorkflowRun):
     dest: Path = test_builds_dir / workflow_run.head_sha
-    if dest.exists():
+    if dest.exists() and list(dest.glob('*')):
         return dest
 
-    dest.mkdir(parents=True)
+    dest.mkdir(parents=True, exist_ok=True)
     print(f'downloading test build {workflow_run.head_sha}')
 
     found_artifact = None
@@ -257,7 +257,7 @@ def download_test_build(workflow_run: WorkflowRun):
 
     download_dir = tempfile.TemporaryDirectory()
     download_artifact(gh, 'ZQuestClassic/ZQuestClassic',
-                      artifact, download_dir.name)
+                      found_artifact, download_dir.name)
     # Build artifacts have a single file, which is an archive.
     archive_path = next(Path(download_dir.name).glob('*'))
 

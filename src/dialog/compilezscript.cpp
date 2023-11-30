@@ -504,7 +504,7 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 				Row(padding = 0_px,
 					columnSpacing = col_spacing,
 					BTNF("&Compile",COMPILE,panel_width/3+col_spacing/2),
-					BTNF("Slots",SLOTS,panel_width/3+col_spacing/2),
+					BTN("Slots",SLOTS,panel_width/3+col_spacing/2),
 					BTN("Cancel",CANCEL,panel_width/3+col_spacing/2)
 				)
 			)

@@ -702,6 +702,8 @@ if(WIN32)
 		src/dialog/init_data.cpp
 		src/dialog/comboeditor.cpp
 		src/dialog/combowizard.cpp
+		src/dialog/subscr_props.cpp
+		src/parser/GlobalSymbols.cpp
 		PROPERTIES COMPILE_FLAGS "/bigobj"
 	)
 endif()

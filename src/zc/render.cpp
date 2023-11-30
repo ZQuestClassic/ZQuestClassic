@@ -316,6 +316,8 @@ void render_zc()
 		lines_left.push_back(fmt::format("FPS: {}", (int)lastfps));
 	if (replay_is_replaying())
 		lines_left.push_back(replay_get_buttons_string().c_str());
+	else if (replay_is_recording() && MenuOpen)
+		lines_left.push_back(fmt::format("Recording, frame {}", replay_get_frame()));
 	if (Paused)
 		lines_right.push_back("PAUSED");
 	if (Saving && use_save_indicator)

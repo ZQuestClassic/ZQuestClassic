@@ -1610,7 +1610,7 @@ std::optional<int32_t> ASTExprNegate::getCompileTimeValue(
 // ASTExprNot
 
 ASTExprNot::ASTExprNot(LocationData const& location)
-	: ASTUnaryExpr(location)
+	: ASTUnaryExpr(location), inverted(false)
 {}
 
 void ASTExprNot::execute(ASTVisitor& visitor, void* param)

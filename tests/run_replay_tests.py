@@ -863,6 +863,9 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
             while watcher.observer.is_alive():
                 watcher.update_result()
 
+                if player_interface.poll() != None:
+                    break
+
                 # Don't apply timeout until beyond the first frame, since JIT may take a moment for big scripts.
                 if watcher.result['frame'] == 0:
                     continue
@@ -870,9 +873,6 @@ def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Pat
                 if do_timeout and timer() - watcher.modified_time > timeout:
                     last_frame = watcher.result['frame']
                     raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')
-
-                if player_interface.poll() != None:
-                    break
 
                 yield (key, 'status', result)
 
@@ -1203,11 +1203,8 @@ def prompt_for_gh_auth():
     return Github(token), repo
 
 
-def get_recent_release_tag(match: str, exclude=None):
-    args = ''
-    if exclude:
-        args = f'--exclude {exclude}'
-    command = f'git describe --tags --abbrev=0 --match {match} {args}'
+def get_recent_release_tag(args: List[str]):
+    command = f'git describe --tags --abbrev=0 ' + ' '.join(args)
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 
 def prompt_to_create_compare_report():
@@ -1249,11 +1246,8 @@ def prompt_to_create_compare_report():
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
-        # TODO !! upstream get actual releases, not tags
-        most_recent_nightly = 'connorjclark-nightly-2023-10-15'
-        # most_recent_nightly = get_recent_release_tag('*.*.*-nightly*')
-        # most_recent_stable = get_recent_release_tag('*.*.*', exclude='*-nightly')
-        most_recent_stable = '3.0.0-prerelease.5+2023-11-18'
+        most_recent_nightly = get_recent_release_tag(['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*'])
+        most_recent_stable = get_recent_release_tag(['--match', '*.*.*', '--match', '2.55-alpha-*', '--exclude', '*.*.*-nightly*', '--exclude', '*.*.*-prerelease*'])
         print('Select a release build to use: ')
         selected_index = cutie.select([
             # TODO

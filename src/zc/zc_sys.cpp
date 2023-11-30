@@ -2137,14 +2137,13 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 	}
 }
 
-
-int32_t current_item(int32_t item_type, bool checkenabled)		   //item currently being used
+int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	switch(item_type)
 	{
 		case itype_clock:
 		{
-			int32_t maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
+			int maxid = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
 			
 			if(maxid != -1 && (itemsbuf[maxid].flags & ITEM_FLAG1)) //Active clock
 				return itemsbuf[maxid].fam_type;
@@ -2163,9 +2162,9 @@ int32_t current_item(int32_t item_type, bool checkenabled)		   //item currently 
 			
 		case itype_triforcepiece:
 		{
-			int32_t count=0;
+			int count=0;
 			
-			for(int32_t i=0; i<MAXLEVELS; i++)
+			for(int i=0; i<MAXLEVELS; i++)
 			{
 				count+=(game->lvlitems[i]&liTRIFORCE)?1:0;
 			}
@@ -2175,9 +2174,9 @@ int32_t current_item(int32_t item_type, bool checkenabled)		   //item currently 
 		
 		case itype_map:
 		{
-			int32_t count=0;
+			int count=0;
 			
-			for(int32_t i=0; i<MAXLEVELS; i++)
+			for(int i=0; i<MAXLEVELS; i++)
 			{
 				count+=(game->lvlitems[i]&liMAP)?1:0;
 			}
@@ -2187,9 +2186,9 @@ int32_t current_item(int32_t item_type, bool checkenabled)		   //item currently 
 		
 		case itype_compass:
 		{
-			int32_t count=0;
+			int count=0;
 			
-			for(int32_t i=0; i<MAXLEVELS; i++)
+			for(int i=0; i<MAXLEVELS; i++)
 			{
 				count+=(game->lvlitems[i]&liCOMPASS)?1:0;
 			}
@@ -2199,9 +2198,9 @@ int32_t current_item(int32_t item_type, bool checkenabled)		   //item currently 
 		
 		case itype_bosskey:
 		{
-			int32_t count=0;
+			int count=0;
 			
-			for(int32_t i=0; i<MAXLEVELS; i++)
+			for(int i=0; i<MAXLEVELS; i++)
 			{
 				count+=(game->lvlitems[i]&liBOSSKEY)?1:0;
 			}
@@ -2210,18 +2209,13 @@ int32_t current_item(int32_t item_type, bool checkenabled)		   //item currently 
 		}
 		
 		default:
-			int32_t maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
+			int maxid = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
 			
 			if(maxid == -1)
 				return 0;
 				
 			return itemsbuf[maxid].fam_type;
 	}
-}
-
-int32_t current_item(int32_t item_type)		   //item currently being used
-{
-	return current_item(item_type, true);
 }
 
 std::map<int32_t, int32_t> itemcache;
@@ -2253,7 +2247,7 @@ void flushItemCache(bool justcost)
 }
 
 // This is used often, so it should be as direct as possible.
-int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
+int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
@@ -2261,8 +2255,8 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check, 
 		if(!(HeroSwordClk() || HeroItemClk()))
 			jinx_check = false; //not jinxed
 	}
-	if(!Hero.BunnyClock())
-		check_bunny = false; //not bunnied
+	if(!Hero.BunnyClock() || itemtype == itype_pearl) // bunny_check does not apply
+		check_bunny = false;
 	if(itemtype == itype_ring) checkmagic = true;
 	if (!jinx_check && !check_bunny
 		&& (use_cost_cache || itemtype != itype_ring))
@@ -2274,10 +2268,10 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check, 
 			return res->second;
 	}
 	
-	int32_t result = -1;
-	int32_t highestlevel = -1;
+	int result = -1;
+	int highestlevel = -1;
 	
-	for(int32_t i=0; i<MAXITEMS; i++)
+	for(int i=0; i<MAXITEMS; i++)
 	{
 		if(game->get_item(i) && itemsbuf[i].family==itemtype && !item_disabled(i))
 		{
@@ -2316,7 +2310,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check, 
 }
 
 // 'jinx_check' indicates that the highest level item *immune to jinxes* should be returned.
-int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check, bool check_bunny)
+int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	if(itype < 0 || itype >= itype_max) return -1;
 	if(game->OverrideItems[itype] > -2)
@@ -2355,9 +2349,9 @@ int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check, bool ch
 	return ret;
 }
 
-int32_t current_item_power(int32_t itemtype)
+int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
-	int32_t result = current_item_id(itemtype,true);
+	int result = current_item_id(itemtype, checkmagic, jinx_check, check_bunny);
 	return (result<0) ? 0 : itemsbuf[result].power;
 }
 
@@ -7892,6 +7886,7 @@ void System()
 	the_player_menu.position(0, 0);
 	
 	bool running = true;
+	bool esc = key[KEY_ESC] || cMbtn();
 	do
 	{
 		if(reload_fonts)
@@ -7903,8 +7898,6 @@ void System()
 		}
 		if(handle_close_btn_quit())
 			break;
-		
-		rest(17);
 		
 		//update submenus
 		{
@@ -7932,7 +7925,7 @@ void System()
 			misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
 			
 			bool nocheat = (replay_is_replaying() || !Playing
-				|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
+				|| (!maxcheat && !zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
 			the_player_menu.disable_uid(MENUID_PLAYER_CHEAT, nocheat);
 			refill_menu.disable_uid(MENUID_REFILL_ARROWS, !get_qr(qr_TRUEARROWS));
 			cheat_menu.chop_index.reset();
@@ -7976,6 +7969,13 @@ void System()
 		if(debug_enabled)
 			settings_menu.select_uid(MENUID_SETTINGS_DEBUG, get_debug());
 		
+		if(the_player_menu.run())
+			the_player_menu.reset_state();
+		
+		update_hw_screen();
+		
+		rest(1);
+		
 		auto mb = gui_mouse_b();
 		if(XOR(mb, mouse_down))
 		{
@@ -7995,8 +7995,6 @@ void System()
 			sys_mouse();
 		}
 		
-		if(the_player_menu.run())
-			the_player_menu.reset_state();
 		if(keypressed()) //System hotkeys
 		{
 			auto c = readkey();
@@ -8032,10 +8030,20 @@ void System()
 				case KEY_TAB:
 					onDebug();
 					break;
+				case KEY_ESC:
+					running = false;
+					break;
 			}
 		}
-		
-		update_hw_screen();
+		if(esc)
+		{
+			if(running)
+			{
+				if(!key[KEY_ESC])
+					esc = false;
+			}
+			else running = true;
+		}
 	}
 	while(running);
 

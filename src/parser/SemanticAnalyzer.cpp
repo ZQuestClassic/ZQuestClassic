@@ -241,15 +241,20 @@ void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
 {
 	// Switch to block scope.
 	if(!host.getScope())
-	{
 		host.setScope(scope->makeChild());
-	}
+	
 	Scope* oldscope = scope;
 	scope = host.getScope();
 
 	if(host.isDecl() && !host.condition.get())
 		host.condition = new ASTExprIdentifier(host.declaration->name, host.location);
-		
+	
+	while(ASTExprNot* ptr = dynamic_cast<ASTExprNot*>(host.condition.get()))
+	{
+		host.invert();
+		host.condition.reset(ptr->operand.release());
+	}
+	
 	// Recurse.
     RecursiveVisitor::caseStmtIf(host);
 	
@@ -382,6 +387,11 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
 {
+	while(ASTExprNot* ptr = dynamic_cast<ASTExprNot*>(host.test.get()))
+	{
+		host.invert();
+		host.test.reset(ptr->operand.release());
+	}
 	RecursiveVisitor::caseStmtWhile(host);
 	if (breakRecursion(host)) return;
 
@@ -1724,6 +1734,11 @@ void SemanticAnalyzer::caseExprDelete(ASTExprDelete& host, void*)
 
 void SemanticAnalyzer::caseExprNot(ASTExprNot& host, void*)
 {
+	while(ASTExprNot* ptr = dynamic_cast<ASTExprNot*>(host.operand.get()))
+	{
+		host.invert();
+		host.operand.reset(ptr->operand.release());
+	}
 	analyzeUnaryExpr(host, DataType::UNTYPED);
 }
 

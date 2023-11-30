@@ -75,10 +75,10 @@ void DialogRunner::clear()
 	alDialog.clear();
 }
 
-DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)
+DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg, bool nofocus)
 {
 	auto pos = alDialog.size();
-	if(owner->getFocused())
+	if(owner->getFocused() && !nofocus)
 		focused = pos;
 	widgets.emplace_back(std::move(owner));
 	alDialog.push_back(dlg);

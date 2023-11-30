@@ -687,14 +687,18 @@ void set_debug(bool d)
     return;
 }
 
+bool handle_quit()
+{
+	if(onExit()==D_CLOSE)
+		return (exiting_program = true);
+	return false;
+}
 bool handle_close_btn_quit()
 {
 	if(close_button_quit)
 	{
 		close_button_quit=false;
-		
-		if(onExit()==D_CLOSE)
-			return (exiting_program = true);
+		return handle_quit();
 	}
 	return false;
 }
@@ -1088,7 +1092,7 @@ static NewMenu file_menu
 	{ "&Export", &export_menu },
 #ifndef __EMSCRIPTEN__
 	{},
-	{ "E&xit", onExit },
+	{ "E&xit", handle_quit },
 #endif
 };
 
@@ -16249,11 +16253,6 @@ const char *warpeffectlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-//int32_t warpdmapxy[6] = {188,131,188,111,188,120};
-//int32_t warpdmapxy[6] = {188-68,131-93,188-68,111-93,188-68,120-93};
-int32_t warpdmapxy[6] = {150,38,150,18,150,27};
-//int32_t warpdmapxy[6] = {2,25,0,17,36,17};
-
 static int32_t warp1_list[] =
 {
     2,3,4,5,6,7,8,9,10,11,12,13,53,54,63,67,-1
@@ -16281,36 +16280,6 @@ static TABPANEL warp_tabs[] =
     { (char *)"B",     0,          warp2_list, 0, NULL },
     { (char *)"C",     0,          warp3_list, 0, NULL },
     { (char *)"D",     0,          warp4_list, 0, NULL },
-    { NULL,            0,          NULL,       0, NULL }
-};
-
-
-static int32_t warpring_warp1_list[] =
-{
-    2,3,4,5,6,7,8,9,10,11,12,13,53,54,63,67,-1
-};
-
-static int32_t warpring_warp2_list[] =
-{
-    17,18,19,20,21,22,23,24,25,26,27,28,55,56,64,68,-1
-};
-
-static int32_t warpring_warp3_list[] =
-{
-    29,30,31,32,33,34,35,36,37,38,39,40,57,58,65,69,-1
-};
-
-static int32_t warpring_warp4_list[] =
-{
-    41,42,43,44,45,46,47,48,49,50,51,52,59,60,66,70,-1
-};
-static TABPANEL warpring_warp_tabs[] =
-{
-    // (text)
-    { (char *)"A",     D_SELECTED, warpring_warp1_list, 0, NULL },
-    { (char *)"B",     0,          warpring_warp2_list, 0, NULL },
-    { (char *)"C",     0,          warpring_warp3_list, 0, NULL },
-    { (char *)"D",     0,          warpring_warp4_list, 0, NULL },
     { NULL,            0,          NULL,       0, NULL }
 };
 
@@ -16344,272 +16313,224 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 static ListData warp_dlg_list(warptypelist, &font);
 static ListData warp_ret_list(warprlist, &font);
 
-int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t)
+int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    DIALOG *td=(DIALOG *)d->dp3;
-    
-    if(msg==MSG_CLICK)
-    {
-        bool is_overworld=((DMaps[td[d->d1].d1].type&dmfTYPE)==dmOVERW);
-        int32_t x_clip  = is_overworld?0x0F:0x07;
-        int32_t x_scale = is_overworld?2:3;
-        
-        while(gui_mouse_b())
-        {
-            int32_t x = zc_min(zc_max(gui_mouse_x() - d->x,0)>>x_scale, x_clip);
-            int32_t y = zc_min((zc_max(gui_mouse_y() - d->y,0)<<2)&0xF0, 0x70);
-//      if(x+y != d->d1)
-            {
-                custom_vsync();
-                sprintf((char *)td[d->d1+1].dp, "%02X", y+x);
-                object_message(&td[d->d1+1], MSG_DRAW, 0);
-            }
-        }
-    }
-    
-    return D_O_K;
+	char* buf = (char*)d->dp;
+	vector<DIALOG*>* dlgs = (vector<DIALOG*>*)d->dp2;
+	int* dmap_ptr = (int*) d->dp3;
+	if(!(buf && dmap_ptr))
+		return D_O_K;
+	bool is_overworld = ((DMaps[*dmap_ptr].type&dmfTYPE)==dmOVERW);
+	int scrw = is_overworld ? 16 : 8, scrh = 9;
+	const int max = 0x87;
+	int xscl = d->w/scrw;
+	int yscl = d->h/scrh;
+	int val = vbound(zc_xtoi(buf),0,max);
+	if(!is_overworld && (val&0xF) > 0x7)
+		val = (val&0xF0)|vbound(val&0xF,0x0,0x7);
+	
+	int ret = D_O_K;
+	bool redraw = false;
+	if(msg != MSG_START)
+	{
+		if(d->d1 != val)
+		{
+			redraw = true;
+			sprintf(buf, "%02X", val);
+			d->d1 = val;
+		}
+		if(d->d2 != *dmap_ptr)
+		{
+			redraw = true;
+			d->d2 = *dmap_ptr;
+		}
+	}
+	switch(msg)
+	{
+		case MSG_START:
+			d->d1 = d->d2 = -1;
+			break;
+		case MSG_WANTFOCUS:
+			ret = D_WANTFOCUS;
+			break;
+		case MSG_CLICK:
+		{
+			while(gui_mouse_b())
+			{
+				custom_vsync();
+				if(!mouse_in_rect(d->x,d->y,d->w,d->h))
+					continue;
+				int mx = gui_mouse_x()-d->x, my = gui_mouse_y()-d->y;
+				int x = vbound(mx/xscl,0,scrw-1);
+				int y = vbound(my/yscl,0,scrh-1);
+				val = (y*16)+x;
+				if(val > max)
+					continue;
+				if(d->d1 != val)
+				{
+					d->d1 = val;
+					sprintf(buf, "%02X", val);
+					broadcast_dialog_message(MSG_DRAW, 0);
+				}
+			}
+			break;
+		}
+		case MSG_DRAW:
+		{
+			rectfill(screen,d->x,d->y,d->x+d->w-1,d->y+d->h-1,jwin_pal[jcBOX]);
+			for(int yind = 0; yind < scrh; ++yind)
+			{
+				auto gr = yind < 8 ? DMaps[*dmap_ptr].grid[yind] : 0;
+				for(int xind = 0; xind < scrw; ++xind)
+				{
+					int scr = xind+(yind*16);
+					if(scr > max)
+						continue;
+					int fr = FR_MENU;
+					if(scr == d->d1)
+						fr = FR_GREEN;
+					else if(!is_overworld && (gr&(1<<(scrw-xind-1))))
+						fr = FR_MENU_INV;
+					jwin_draw_frame(screen, d->x+(xind*xscl), d->y+(yind*yscl), xscl, yscl, fr);
+				}
+			}
+			break;
+		}
+		case MSG_XCHAR:
+		{
+			switch(c>>8)
+			{
+				case KEY_UP:
+					if(val&0xF0)
+					{
+						val -= 0x10;
+						redraw = true;
+					}
+					ret |= D_USED_CHAR;
+					break;
+				case KEY_DOWN:
+					if((val&0xF0) < ((val&0xF) < 0x8 ? 0x80 : 0x70))
+					{
+						val += 0x10;
+						redraw = true;
+					}
+					ret |= D_USED_CHAR;
+					break;
+				case KEY_LEFT:
+					if(val&0xF)
+					{
+						--val;
+						redraw = true;
+					}
+					ret |= D_USED_CHAR;
+					break;
+				case KEY_RIGHT:
+					if((val&0xF) < 0xF && val < 0x87)
+					{
+						++val;
+						redraw = true;
+					}
+					ret |= D_USED_CHAR;
+					break;
+			}
+			if(redraw)
+				sprintf(buf, "%02X", val);
+			break;
+		}
+	}
+	if(redraw)
+	{
+		if(msg == MSG_IDLE)
+			broadcast_dialog_message(MSG_DRAW,0);
+		else
+		{
+			d->d1 = d->d2 = -1;
+			object_message(d,MSG_IDLE,0);
+		}
+	}
+	
+	return ret;
 }
 
-static DIALOG warp_dlg[] =
+int32_t tilewarpdmapxy[6] = {170,38,170,18,170,27};
+static DIALOG tilewarp_dlg[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,             0,      0,    302,    188,    vc(14),                 vc(1),                   0,       D_EXIT,     0,             0,  NULL,                          NULL,   NULL              },
-    { jwin_tab_proc,             6,     24,    290,    135,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) warp_tabs,            NULL, (void *)warp_dlg  },
-    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
-    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
-    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
-    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
-    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
-    // 7
-    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
-    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
-    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
-    // 10
-    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    // 14
-    { jwin_button_proc,         61,    163,     41,     21,    vc(14),                 vc(1),                   'k',     D_EXIT,     0,             0, (void *) "O&K",                NULL,   NULL              },
-    { jwin_button_proc,        121,    163,     41,     21,    vc(14),                 vc(1),                   'g',     D_EXIT,     0,             0, (void *) "&Go",                NULL,   NULL              },
-    { jwin_button_proc,        181,    163,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,             0, (void *) "Cancel",             NULL,   NULL              },
-    // 17
-    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
-    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
-    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
-    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
-    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
-    // 22
-    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
-    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
-    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
-    // 25
-    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    // 29
-    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
-    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
-    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
-    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
-    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
-    // 34
-    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
-    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
-    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
-    // 37
-    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    //41
-    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
-    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
-    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
-    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
-    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
-    // 46
-    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
-    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
-    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
-    // 49
-    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
-    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
-    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
-    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
-    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
-    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
-    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
-    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
-    { d_keyboard_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_F1,        0, (void *) onHelp,               NULL,   NULL              },
-    { d_timer_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    // 63
-    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
-    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
-    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
-    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
-    // 67
-    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,          8,             0,  NULL,                          NULL, (void *)warp_dlg  },
-    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         23,             0,  NULL,                          NULL, (void *)warp_dlg  },
-    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         35,             0,  NULL,                          NULL, (void *)warp_dlg  },
-    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         47,             0,  NULL,                          NULL, (void *)warp_dlg  },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { NULL,                      0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              }
+	/* (dialog proc)           (x)     (y)     (w)     (h)     (fg)                    (bg)                  (key) (flags)     (d1) (d2)  (dp) */
+	{ jwin_win_proc,             0,      0,    302,    178,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0,  NULL, NULL, NULL },
+	{ jwin_rtext_proc,          89,     43,     40,      8,    vc(14),                 vc(1),                   0, 0,          0,     0, (void *) "Type:", NULL, NULL },
+	{ jwin_rtext_proc,          57,     62,     40,      8,    vc(14),                 vc(1),                   0, 0,          0,     0, (void *) "DMap:", NULL, NULL },
+	{ jwin_rtext_proc,          57,     80,     64,      8,    vc(14),                 vc(1),                   0, 0,          0,     0, (void *) "Screen: 0x", NULL, NULL },
+	{ jwin_droplist_proc,       91,     38,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0, 0,          0,     0, (void *) &warp_dlg_list, NULL, NULL },
+	//5
+	{ d_dropdmaplist_proc,      59,     57,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0, 0,          0,     0, (void *) &dmap_list, NULL, tilewarpdmapxy },
+	{ jwin_hexedit_proc,        59,     76,     24,     16,    vc(12),                 vc(1),                   0, 0,          2,     0,  NULL, NULL, NULL },
+	{ jwin_button_proc,         61,    152,     41,     21,    vc(14),                 vc(1),                 'k', D_EXIT,     0,     0, (void *) "O&K", NULL, NULL },
+	{ jwin_button_proc,        121,    152,     41,     21,    vc(14),                 vc(1),                 'g', D_EXIT,     0,     0, (void *) "&Go", NULL, NULL },
+	{ jwin_button_proc,        181,    152,     61,     21,    vc(14),                 vc(1),                  27, D_EXIT,     0,     0, (void *) "Cancel", NULL, NULL },
+	//10
+	{ jwin_rtext_proc,          82,     95,    100,      8,    vc(14),                 vc(1),                   0, 0,          0,     0, (void *) "Use Warp Return:", NULL, NULL },
+	{ jwin_droplist_proc,       10,    105,     72,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0, 0,          0,     0, (void *) &warp_ret_list, NULL, NULL },
+	{ jwin_check_proc,          10,    125,    129,      9,    vc(14),                 vc(1),                   0, 0,          1,     0, (void *) "Combos Carry Over", NULL, NULL },
+	{ d_warpdestscrsel_proc,    90,     76,   8*16,    8*9,    0,                      0,                       0, 0,          0,     0,  NULL, NULL, NULL },
+	{ jwin_button_proc,         59,     21,     50,     14,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0, (void *) "A", NULL, NULL },
+	//15
+	{ jwin_button_proc,        109,     21,     50,     14,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0, (void *) "B", NULL, NULL },
+	{ jwin_button_proc,        159,     21,     50,     14,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0, (void *) "C", NULL, NULL },
+	{ jwin_button_proc,        209,     21,     50,     14,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0, (void *) "D", NULL, NULL },
+	{ NULL,                      0,      0,      0,      0,    0,                      0,                       0, 0,          0,     0,  NULL, NULL, NULL }
 };
 
+int32_t sidewarpdmapxy[6] = {170,38,170,18,170,27};
+static DIALOG sidewarp_dlg[] =
+{
+	/* (dialog proc)           (x)     (y)     (w)     (h)     (fg)                    (bg)                  (key) (flags)     (d1) (d2)  (dp) */
+	{ jwin_win_proc,             0,      0,    302,    178,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0,  NULL, NULL, NULL },
+	{ jwin_rtext_proc,          89,     43,     40,      8,    vc(14),                 vc(1),                   0, 0,          0,     0, (void *) "Type:", NULL, NULL },
+	{ jwin_rtext_proc,          57,     62,     40,      8,    vc(14),                 vc(1),                   0, 0,          0,     0, (void *) "DMap:", NULL, NULL },
+	{ jwin_rtext_proc,          57,     80,     64,      8,    vc(14),                 vc(1),                   0, 0,          0,     0, (void *) "Screen: 0x", NULL, NULL },
+	{ jwin_droplist_proc,       91,     38,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0, 0,          0,     0, (void *) &warp_dlg_list, NULL, NULL },
+	//5
+	{ d_dropdmaplist_proc,      59,     57,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0, 0,          0,     0, (void *) &dmap_list, NULL, tilewarpdmapxy },
+	{ jwin_hexedit_proc,        59,     76,     24,     16,    vc(12),                 vc(1),                   0, 0,          2,     0,  NULL, NULL, NULL },
+	{ jwin_button_proc,         61,    152,     41,     21,    vc(14),                 vc(1),                 'k', D_EXIT,     0,     0, (void *) "O&K", NULL, NULL },
+	{ jwin_button_proc,        121,    152,     41,     21,    vc(14),                 vc(1),                 'g', D_EXIT,     0,     0, (void *) "&Go", NULL, NULL },
+	{ jwin_button_proc,        181,    152,     61,     21,    vc(14),                 vc(1),                  27, D_EXIT,     0,     0, (void *) "Cancel", NULL, NULL },
+	//10
+	{ jwin_rtext_proc,          82,     95,    100,      8,    vc(14),                 vc(1),                   0, 0,          0,     0, (void *) "Use Warp Return:", NULL, NULL },
+	{ jwin_droplist_proc,       10,    105,     72,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0, 0,          0,     0, (void *) &warp_ret_list, NULL, NULL },
+	{ jwin_check_proc,          10,    125,    129,      9,    vc(14),                 vc(1),                   0, 0,          1,     0, (void *) "Combos Carry Over", NULL, NULL },
+	{ d_warpdestscrsel_proc,    90,     76,   8*16,    8*9,    0,                      0,                       0, 0,          0,     0,  NULL, NULL, NULL },
+	{ jwin_button_proc,         59,     21,     50,     14,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0, (void *) "A", NULL, NULL },
+	//15
+	{ jwin_button_proc,        109,     21,     50,     14,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0, (void *) "B", NULL, NULL },
+	{ jwin_button_proc,        159,     21,     50,     14,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0, (void *) "C", NULL, NULL },
+	{ jwin_button_proc,        209,     21,     50,     14,    vc(14),                 vc(1),                   0, D_EXIT,     0,     0, (void *) "D", NULL, NULL },
+	// 18
+	{ d_wflag_proc,             18,     17,     15,      8,    vc(4),                  vc(0),                   0, 0,          1,             0,  NULL, NULL, NULL },
+	{ d_wflag_proc,             18,     47,     15,      8,    vc(4),                  vc(0),                   0, 0,          1,             0,  NULL, NULL, NULL },
+	// 20
+	{ d_wflag_proc,              8,     27,      8,     15,    vc(4),                  vc(0),                   0, 0,          1,             0,  NULL, NULL, NULL },
+	{ d_wflag_proc,            	37,     27,      8,     15,    vc(4),                  vc(0),                   0, 0,          1,             0,  NULL, NULL, NULL },
+	
+	{ NULL,                      0,      0,      0,      0,    0,                      0,                       0, 0,          0,             0,  NULL, NULL, NULL }
+};
 
-
-
-
+int32_t warpringxy[6] = {170,38,170,18,170,27};
 static DIALOG warpring_warp_dlg[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,             0,      0,    302,    188,    vc(14),                 vc(1),                   0,       D_EXIT,     0,             0,  NULL,                          NULL,   NULL              },
-    { jwin_tab_proc,             6,     24,    290,    135,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) warpring_warp_tabs,            NULL, (void *)warpring_warp_dlg  },
-    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
-    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
-    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
-    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
-    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
-    // 7
-    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
-    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
-    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
-    // 10
-    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    // 14
-    { jwin_button_proc,         61,    163,     41,     21,    vc(14),                 vc(1),                   'k',     D_EXIT,     0,             0, (void *) "O&K",                NULL,   NULL              },
-    { jwin_button_proc,        121,    163,     41,     21,    vc(14),                 vc(1),                   'g',     D_EXIT,     0,             0, (void *) "&Go",                NULL,   NULL              },
-    { jwin_button_proc,        181,    163,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,             0, (void *) "Cancel",             NULL,   NULL              },
-    // 17
-    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
-    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
-    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
-    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
-    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
-    // 22
-    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
-    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
-    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
-    // 25
-    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    // 29
-    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
-    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
-    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
-    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
-    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
-    // 34
-    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
-    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
-    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
-    // 37
-    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    //41
-    { jwin_text_proc,           61,     55,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",              NULL,   NULL              },
-    { jwin_text_proc,           29,     73,     40,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",              NULL,   NULL              },
-    { jwin_text_proc,           28,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",         NULL,   NULL              },
-    { jwin_text_proc,          146,     91,     64,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Triggers:",          NULL,   NULL              },
-    { jwin_frame_proc,         164,    109,     30,     30,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,       0,          FR_ETCHED,     0,  NULL,                          NULL,   NULL              },
-    // 46
-    { jwin_droplist_proc,       91,     51,    193,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,       NULL,   NULL              },
-    { d_dropdmaplist_proc,      59,     69,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,           NULL,   warpdmapxy        },
-    { jwin_hexedit_proc,        77,     87,     24,     16,    vc(12),                 vc(1),                   0,       0,          2,             0,  NULL,                          NULL,   NULL              },
-    // 49
-    { d_wflag_proc,            170,    106,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            170,    134,     18,      8,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            161,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { d_wflag_proc,            189,    115,      8,     18,    vc(4),                  vc(0),                   0,       0,          1,             0,  NULL,                          NULL,   NULL              },
-    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
-    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
-    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
-    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
-    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
-    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
-    { jwin_text_proc,           29,    123,    100,      8,    vc(14),                 vc(1),                   0,       0,          0,             0, (void *) "Use Warp Return:",   NULL,   NULL              },
-    { jwin_droplist_proc,       74,    133,     50,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_ret_list,       NULL,   NULL              },
-    { d_keyboard_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_F1,        0, (void *) onHelp,               NULL,   NULL              },
-    { d_timer_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    // 63
-    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
-    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
-    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
-    { jwin_check_proc,        29,   107,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Combos Carry Over",            NULL,   NULL              },
-    // 67
-    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,          8,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
-    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         23,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
-    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         35,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
-    { d_warpdestscrsel_proc,   217,    114,     64,     32,    0,                      0,                       0,       0,         47,             0,  NULL,                          NULL, (void *)warpring_warp_dlg  },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { d_dummy_proc,              0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              },
-    { NULL,                      0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                          NULL,   NULL              }
+	/* (dialog proc)           (x)     (y)      (w)     (h)      (fg)                  (bg)                 (key)  (flags)     (d1) (d2)   (dp) */
+	{ jwin_win_proc,             0,      0,    302,    145,    vc(14),                 vc(1),                   0, D_EXIT,     0,      0,  NULL, NULL, NULL },
+	{ jwin_rtext_proc,          57,     25,     40,      8,    vc(14),                 vc(1),                   0, 0,          0,      0, (void *) "DMap:", NULL, NULL },
+	{ jwin_rtext_proc,          57,     46,     64,      8,    vc(14),                 vc(1),                   0, 0,          0,      0, (void *) "Screen: 0x", NULL, NULL },
+	{ d_dropdmaplist_proc,      59,     19,    225,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0, 0,          0,      0, (void *) &dmap_list, NULL, warpringxy },
+	{ jwin_hexedit_proc,        59,     39,     24,     16,    vc(12),                 vc(1),                   0, 0,          2,      0,  NULL, NULL, NULL },
+	// 5
+	{ jwin_button_proc,         61,    115,     41,     21,    vc(14),                 vc(1),                 'k', D_EXIT,     0,      0, (void *) "O&K", NULL, NULL },
+	{ jwin_button_proc,        121,    115,     41,     21,    vc(14),                 vc(1),                 'g', D_EXIT,     0,      0, (void *) "&Go", NULL, NULL },
+	{ jwin_button_proc,        181,    115,     61,     21,    vc(14),                 vc(1),                  27, D_EXIT,     0,      0, (void *) "Cancel", NULL, NULL },
+	{ d_warpdestscrsel_proc,    90,     39,   8*16,    8*9,    0,                      0,                       0, 0,          0,      0,  NULL, NULL, NULL },
+	
+	{ NULL,                      0,      0,      0,      0,    0,                      0,                       0, 0,          0,      0,  NULL, NULL, NULL }
 };
 
 // Side warp flag procedure
@@ -16618,148 +16539,99 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t)
 	int32_t ret = D_O_K;
     switch(msg)
     {
-    case MSG_DRAW:
-    {
-        int32_t c2=(d->flags&D_SELECTED)?d->fg:d->bg;
-        
-        /*if(!(d->d2&0x80))
-          {
-          c=d->bg;
-          }*/
-        if(d->d1==1)
-        {
-            jwin_draw_frame(screen,d->x,d->y,d->w,d->h, FR_DEEP);
-            rectfill(screen,d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3,c2);
-            
-            if(d->flags&D_SELECTED)
-            {
-                int32_t e=d->d2&3;
-                
-                if(d->w>d->h)
-                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l), d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
-                else
-                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l), d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
-            }
-            
-        }
-        else
-        {
-            rectfill(screen,d->x, d->y, d->x+d->w-1, d->y+d->h-1,c2);
-        }
-    }
-    break;
-    
-    case MSG_CLICK:
-    {
-		if(d->flags & D_DISABLED)
-			return D_O_K;
-		bool rclick = gui_mouse_b() & 2;
-        if(d->d1==1)
-        {
-            if(!(d->flags&D_SELECTED))
-            {
-                d->flags|=D_SELECTED;
-                d->d2&=0x80;
-				if (rclick)
-					d->d2 |= 3;
-                int32_t g;
-                
-                if(d==&warp_dlg[10]||d==&warp_dlg[25]||d==&warp_dlg[37]||d==&warp_dlg[49]) g=0;
-                else if(d==&warp_dlg[11]||d==&warp_dlg[26]||d==&warp_dlg[38]||d==&warp_dlg[50]) g=1;
-                else if(d==&warp_dlg[12]||d==&warp_dlg[27]||d==&warp_dlg[39]||d==&warp_dlg[51]) g=2;
-                else g=3;
-                
-                warp_dlg[10+g].flags = d->flags;
-                warp_dlg[10+g].d2 = d->d2;
-                warp_dlg[25+g].flags = d->flags;
-                warp_dlg[25+g].d2 = d->d2;
-                warp_dlg[37+g].flags = d->flags;
-                warp_dlg[37+g].d2 = d->d2;
-                warp_dlg[49+g].flags = d->flags;
-                warp_dlg[49+g].d2 = d->d2;
-            }
-            else
-            {
-                if((d->d2&3)==(rclick?0:3))
-                {
-                    d->flags^=D_SELECTED;
-                    d->d2&=0x80;
-                    int32_t g;
-                    
-                    if(d==&warp_dlg[10]||d==&warp_dlg[25]||d==&warp_dlg[37]||d==&warp_dlg[49]) g=0;
-                    else if(d==&warp_dlg[11]||d==&warp_dlg[26]||d==&warp_dlg[38]||d==&warp_dlg[50]) g=1;
-                    else if(d==&warp_dlg[12]||d==&warp_dlg[27]||d==&warp_dlg[39]||d==&warp_dlg[51]) g=2;
-                    else g=3;
-                    
-                    warp_dlg[10+g].flags = d->flags;
-                    warp_dlg[10+g].d2 = d->d2;
-                    warp_dlg[25+g].flags = d->flags;
-                    warp_dlg[25+g].d2 = d->d2;
-                    warp_dlg[37+g].flags = d->flags;
-                    warp_dlg[37+g].d2 = d->d2;
-                    warp_dlg[49+g].flags = d->flags;
-                    warp_dlg[49+g].d2 = d->d2;
-                }
-                else
-                {
-                    int32_t f=d->d2&3;
-                    d->d2&=0x80;
-                    f+=rclick?-1:1;
-                    d->d2|=f;
-                    int32_t g;
-                    
-                    if(d==&warp_dlg[10]||d==&warp_dlg[25]||d==&warp_dlg[37]||d==&warp_dlg[49]) g=0;
-                    else if(d==&warp_dlg[11]||d==&warp_dlg[26]||d==&warp_dlg[38]||d==&warp_dlg[50]) g=1;
-                    else if(d==&warp_dlg[12]||d==&warp_dlg[27]||d==&warp_dlg[39]||d==&warp_dlg[51]) g=2;
-                    else g=3;
-                    
-                    warp_dlg[10+g].flags = d->flags;
-                    warp_dlg[10+g].d2 = d->d2;
-                    warp_dlg[25+g].flags = d->flags;
-                    warp_dlg[25+g].d2 = d->d2;
-                    warp_dlg[37+g].flags = d->flags;
-                    warp_dlg[37+g].d2 = d->d2;
-                    warp_dlg[49+g].flags = d->flags;
-                    warp_dlg[49+g].d2 = d->d2;
-                }
-            }
+		case MSG_DRAW:
+		{
+			int32_t c2=(d->flags&D_SELECTED)?d->fg:d->bg;
+			
+			if(d->d1==1)
+			{
+				jwin_draw_frame(screen,d->x,d->y,d->w,d->h, FR_DEEP);
+				rectfill(screen,d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3,c2);
+				
+				if(d->flags&D_SELECTED)
+				{
+					int32_t e=d->d2&3;
+					
+					if(d->w>d->h)
+						textprintf_centre_ex(screen,get_zc_font(font_lfont_l), d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+					else
+						textprintf_centre_ex(screen,get_zc_font(font_lfont_l), d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+				}
+				
+			}
+			else
+			{
+				rectfill(screen,d->x, d->y, d->x+d->w-1, d->y+d->h-1,c2);
+			}
 		}
-        else
-        {
-            d->flags^=D_SELECTED;
-        }
-        
-        int32_t c2=(d->flags&D_SELECTED)?d->fg:d->bg;
-        
-        if(d->d1==1)
-        {
-            jwin_draw_frame(screen,d->x,d->y,d->w,d->h, FR_DEEP);
-            rectfill(screen,d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3,c2);
-            
-            if(d->flags&D_SELECTED)
-            {
-                int32_t e=d->d2&3;
-                
-                if(d->w>d->h)
-                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l),d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
-                else
-                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l),d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
-            }
-        }
-        else
-        {
-            rectfill(screen,d->x, d->y, d->x+d->w-1, d->y+d->h-1,c2);
-        }
-        
-        
-        while(gui_mouse_b())
-        {
-            /* do nothing */
-            rest(1);
-        }
-		ret = D_REDRAWME;
-    }
-    break;
+		break;
+		
+		case MSG_CLICK:
+		{
+			if(d->flags & D_DISABLED)
+				return D_O_K;
+			bool rclick = gui_mouse_b() & 2;
+			if(d->d1==1)
+			{
+				if(!(d->flags&D_SELECTED))
+				{
+					d->flags |= D_SELECTED;
+					d->d2 &= 0x80;
+					if (rclick)
+						d->d2 |= 3;
+				}
+				else
+				{
+					if((d->d2&3) == (rclick?0:3))
+					{
+						d->flags ^= D_SELECTED;
+						d->d2 &= 0x80;
+					}
+					else
+					{
+						int32_t f = d->d2&3;
+						d->d2 &= 0x80;
+						f += rclick ? -1 : 1;
+						d->d2 |= f;
+					}
+				}
+			}
+			else
+			{
+				d->flags^=D_SELECTED;
+			}
+			
+			int32_t c2=(d->flags&D_SELECTED)?d->fg:d->bg;
+			
+			if(d->d1==1)
+			{
+				jwin_draw_frame(screen,d->x,d->y,d->w,d->h, FR_DEEP);
+				rectfill(screen,d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3,c2);
+				
+				if(d->flags&D_SELECTED)
+				{
+					int32_t e=d->d2&3;
+					
+					if(d->w>d->h)
+						textprintf_centre_ex(screen,get_zc_font(font_lfont_l),d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+					else
+						textprintf_centre_ex(screen,get_zc_font(font_lfont_l),d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+				}
+			}
+			else
+			{
+				rectfill(screen,d->x, d->y, d->x+d->w-1, d->y+d->h-1,c2);
+			}
+			
+			
+			while(gui_mouse_b())
+			{
+				/* do nothing */
+				rest(1);
+			}
+			ret = D_REDRAWME;
+		}
+		break;
     }
     
     return ret;
@@ -16866,232 +16738,138 @@ int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c)
 
 static ListData warp_effect_list(warpeffectlist,&font);
 
+struct tw_data
+{
+	int twscr[4], twtype[4], twdmap[4], wret[4];
+	byte oflags;
+	optional<uint> loaded;
+	
+	tw_data(mapscr* scr) {load_scr(scr);}
+	void load_scr(mapscr* scr)
+	{
+		oflags = scr->tilewarpoverlayflags;
+		for(int q = 0; q < 4; ++q)
+		{
+			twscr[q] = scr->tilewarpscr[q];
+			twtype[q] = scr->tilewarptype[q];
+			twdmap[q] = scr->tilewarpdmap[q];
+			wret[q] = (scr->warpreturnc >> (2*q))&3;
+		}
+		loaded.reset();
+	}
+	void save_scr(mapscr* scr)
+	{
+		saved=false;
+		scr->tilewarpoverlayflags = oflags;
+		scr->warpreturnc = scr->warpreturnc & 0xFF00;
+		for(int q = 0; q < 4; ++q)
+		{
+			scr->tilewarpscr[q] = twscr[q];
+			scr->tilewarptype[q] = twtype[q];
+			scr->tilewarpdmap[q] = twdmap[q];
+			scr->warpreturnc |= wret[q] << (2*q);
+		}
+	}
+	
+	void load(uint ind)
+	{
+		if(ind >= 4) return;
+		loaded = ind;
+		tilewarp_dlg[4].d1 = twtype[ind];
+		tilewarp_dlg[5].d1 = twdmap[ind];
+		char* buf = (char*)tilewarp_dlg[6].dp;
+		sprintf(buf,"%02X",twscr[ind]);
+		tilewarp_dlg[11].d1 = wret[ind];
+		SETFLAG(tilewarp_dlg[12].flags, D_SELECTED, get_bit(&oflags,ind));
+		for(int q = 0; q < 4; ++q)
+			SETFLAG(tilewarp_dlg[14+q].flags,(D_SELECTED|D_DISABLED),q==ind);
+	}
+	void save(uint ind)
+	{
+		if(ind >= 4) return;
+		twtype[ind] = tilewarp_dlg[4].d1;
+		twdmap[ind] = tilewarp_dlg[5].d1;
+		char* buf = (char*)tilewarp_dlg[6].dp;
+		twscr[ind] = vbound(zc_xtoi(buf),0x00,0x7F);
+		wret[ind] = tilewarp_dlg[11].d1;
+		set_bit(&oflags, ind, tilewarp_dlg[12].flags & D_SELECTED);
+	}
+	void save()
+	{
+		if(loaded)
+			save(*loaded);
+	}
+	void swap(uint ind)
+	{
+		if(ind >= 4) return;
+		if(loaded)
+		{
+			save(*loaded);
+			if(*loaded == ind)
+				return;
+		}
+		load(ind);
+	}
+};
 int32_t onTileWarp()
 {
-    int32_t tempx5=warp_dlg[5].x;
-    int32_t tempx6=warp_dlg[6].x;
-    int32_t tempx10=warp_dlg[10].x;
-    int32_t tempx11=warp_dlg[11].x;
-    int32_t tempx12=warp_dlg[12].x;
-    int32_t tempx13=warp_dlg[13].x;
-    
-    int32_t tempx20=warp_dlg[20].x;
-    int32_t tempx21=warp_dlg[21].x;
-    int32_t tempx25=warp_dlg[25].x;
-    int32_t tempx26=warp_dlg[26].x;
-    int32_t tempx27=warp_dlg[27].x;
-    int32_t tempx28=warp_dlg[28].x;
-    
-    int32_t tempx32=warp_dlg[32].x;
-    int32_t tempx33=warp_dlg[33].x;
-    int32_t tempx37=warp_dlg[37].x;
-    int32_t tempx38=warp_dlg[38].x;
-    int32_t tempx39=warp_dlg[39].x;
-    int32_t tempx40=warp_dlg[40].x;
-    
-    int32_t tempx44=warp_dlg[44].x;
-    int32_t tempx45=warp_dlg[45].x;
-    int32_t tempx49=warp_dlg[49].x;
-    int32_t tempx50=warp_dlg[50].x;
-    int32_t tempx51=warp_dlg[51].x;
-    int32_t tempx52=warp_dlg[52].x;
     restore_mouse();
-    warp_dlg[0].dp=(void *) "Tile Warp";
-    warp_dlg[0].dp2=get_zc_font(font_lfont);
-    warp_dlg[5].x = screen->w + 10;
-    warp_dlg[6].x = screen->w + 10;
-    warp_dlg[10].x = screen->w + 10;
-    warp_dlg[11].x = screen->w + 10;
-    warp_dlg[12].x = screen->w + 10;
-    warp_dlg[13].x = screen->w + 10;
-    warp_dlg[20].x = screen->w + 10;
-    warp_dlg[21].x = screen->w + 10;
-    warp_dlg[25].x = screen->w + 10;
-    warp_dlg[26].x = screen->w + 10;
-    warp_dlg[27].x = screen->w + 10;
-    warp_dlg[28].x = screen->w + 10;
-    warp_dlg[32].x = screen->w + 10;
-    warp_dlg[33].x = screen->w + 10;
-    warp_dlg[37].x = screen->w + 10;
-    warp_dlg[38].x = screen->w + 10;
-    warp_dlg[39].x = screen->w + 10;
-    warp_dlg[40].x = screen->w + 10;
-    warp_dlg[44].x = screen->w + 10;
-    warp_dlg[45].x = screen->w + 10;
-    warp_dlg[49].x = screen->w + 10;
-    warp_dlg[50].x = screen->w + 10;
-    warp_dlg[51].x = screen->w + 10;
-    warp_dlg[52].x = screen->w + 10;
+    tilewarp_dlg[0].dp=(void *) "Tile Warp";
+    tilewarp_dlg[0].dp2=get_zc_font(font_lfont);
     
-    for(int32_t i=0; i<4; i++)
-    {
-        warp_dlg[10+i].d2 = 0;
-        warp_dlg[25+i].d2 = 0;
-        warp_dlg[37+i].d2 = 0;
-        warp_dlg[49+i].d2 = 0;
-    }
-    
+	mapscr* mptr = Map.CurrScr();
     char buf[10];
-    char buf2[10];
-    char buf3[10];
-    char buf4[10];
-    sprintf(buf,"%02X",Map.CurrScr()->tilewarpscr[0]);
-    warp_dlg[7].d1=Map.CurrScr()->tilewarptype[0];
-    warp_dlg[8].d1=Map.CurrScr()->tilewarpdmap[0];
-    warp_dlg[9].dp=buf;
+    tilewarp_dlg[6].dp=buf;
+	tilewarp_dlg[13].dp = buf;
+	tilewarp_dlg[13].dp3 = &tilewarp_dlg[5].d1;
+	
+	vector<DIALOG*> dlgs;
+	dlgs.push_back(&tilewarp_dlg[5]);
+	dlgs.push_back(&tilewarp_dlg[6]);
+	tilewarp_dlg[13].dp2 = &dlgs;
+	
+	tw_data data(mptr);
+	data.load(0);
     
-    sprintf(buf2,"%02X",Map.CurrScr()->tilewarpscr[1]);
-    warp_dlg[22].d1=Map.CurrScr()->tilewarptype[1];
-    warp_dlg[23].d1=Map.CurrScr()->tilewarpdmap[1];
-    warp_dlg[24].dp=buf2;
-    
-    sprintf(buf3,"%02X",Map.CurrScr()->tilewarpscr[2]);
-    warp_dlg[34].d1=Map.CurrScr()->tilewarptype[2];
-    warp_dlg[35].d1=Map.CurrScr()->tilewarpdmap[2];
-    warp_dlg[36].dp=buf3;
-    
-    sprintf(buf4,"%02X",Map.CurrScr()->tilewarpscr[3]);
-    warp_dlg[46].d1=Map.CurrScr()->tilewarptype[3];
-    warp_dlg[47].d1=Map.CurrScr()->tilewarpdmap[3];
-    warp_dlg[48].dp=buf4;
-    
-    warp_dlg[63].flags = get_bit(&Map.CurrScr()->tilewarpoverlayflags,0)?D_SELECTED:0;
-    warp_dlg[64].flags = get_bit(&Map.CurrScr()->tilewarpoverlayflags,1)?D_SELECTED:0;
-    warp_dlg[65].flags = get_bit(&Map.CurrScr()->tilewarpoverlayflags,2)?D_SELECTED:0;
-    warp_dlg[66].flags = get_bit(&Map.CurrScr()->tilewarpoverlayflags,3)?D_SELECTED:0;
-    
-    word j=Map.CurrScr()->warpreturnc;
-    warp_dlg[54].d1=(j&3);
-    warp_dlg[56].d1=((j>>2)&3);
-    warp_dlg[58].d1=((j>>4)&3);
-    warp_dlg[60].d1=((j>>6)&3);
-    warp_dlg[2].fg=vc(14);
-    warp_dlg[17].fg=vc(14);
-    warp_dlg[29].fg=vc(14);
-    warp_dlg[41].fg=vc(14);
-    //warp_dlg[5].fg=vc(7);
-    //for(int32_t i=0; i<4; i++)
-    //warp_dlg[10+i].d2 = 0;
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
     
-	large_dialog(warp_dlg);
-	
-	if(warp_dlg[0].d1<2)
-	{
-		warp_dlg[0].d1=2;
-		warp_dlg[6].x += 2;
-		warp_dlg[10].w -= 8;
-		warp_dlg[10].y -= 4;
-		warp_dlg[11].w -= 8;
-		warp_dlg[11].y -= 2;
-		warp_dlg[12].h -= 8;
-		warp_dlg[12].x -= 2;
-		warp_dlg[12].y -= 2;
-		warp_dlg[13].h -= 8;
-		warp_dlg[13].x += 1;
-		warp_dlg[13].y -= 2;
-		
-		warp_dlg[21].x += 2;
-		warp_dlg[25].w -= 8;
-		warp_dlg[25].y -= 4;
-		warp_dlg[26].w -= 8;
-		warp_dlg[26].y -= 2;
-		warp_dlg[27].h -= 8;
-		warp_dlg[27].x -= 2;
-		warp_dlg[27].y -= 2;
-		warp_dlg[28].h -= 8;
-		warp_dlg[28].x += 1;
-		warp_dlg[28].y -= 2;
-		
-		warp_dlg[33].x += 2;
-		warp_dlg[37].w -= 8;
-		warp_dlg[37].y -= 4;
-		warp_dlg[38].w -= 8;
-		warp_dlg[38].y -= 2;
-		warp_dlg[39].h -= 8;
-		warp_dlg[39].x -= 2;
-		warp_dlg[39].y -= 2;
-		warp_dlg[40].h -= 8;
-		warp_dlg[40].x += 1;
-		warp_dlg[40].y -= 2;
-		
-		warp_dlg[45].x += 2;
-		warp_dlg[49].w -= 8;
-		warp_dlg[49].y -= 4;
-		warp_dlg[50].w -= 8;
-		warp_dlg[50].y -= 2;
-		warp_dlg[51].h -= 8;
-		warp_dlg[51].x -= 2;
-		warp_dlg[51].y -= 2;
-		warp_dlg[52].h -= 8;
-		warp_dlg[52].x += 1;
-		warp_dlg[52].y -= 2;
-	}
-	
-	for(int32_t i=0; i<4; i++)
-	{
-		warp_dlg[i+67].x=493;
-		warp_dlg[i+67].y=329;
-		warp_dlg[i+67].w=64;
-		warp_dlg[i+67].h=32;
-	}
+	large_dialog(tilewarp_dlg);
     
-    int32_t ret=do_zqdialog(warp_dlg,-1);
-    
-    if(ret==14 || ret==15)
+	bool running = true;
+	int ret;
+	do
     {
-        saved=false;
-        Map.CurrScr()->tilewarpscr[0] = zc_xtoi(buf);
-        Map.CurrScr()->tilewarptype[0] = warp_dlg[7].d1;
-        Map.CurrScr()->tilewarpdmap[0] = warp_dlg[8].d1;
-        Map.CurrScr()->tilewarpscr[1] = zc_xtoi(buf2);
-        Map.CurrScr()->tilewarptype[1] = warp_dlg[22].d1;
-        Map.CurrScr()->tilewarpdmap[1] = warp_dlg[23].d1;
-        Map.CurrScr()->tilewarpscr[2] = zc_xtoi(buf3);
-        Map.CurrScr()->tilewarptype[2] = warp_dlg[34].d1;
-        Map.CurrScr()->tilewarpdmap[2] = warp_dlg[35].d1;
-        Map.CurrScr()->tilewarpscr[3] = zc_xtoi(buf4);
-        Map.CurrScr()->tilewarptype[3] = warp_dlg[46].d1;
-        Map.CurrScr()->tilewarpdmap[3] = warp_dlg[47].d1;
-        
-        Map.CurrScr()->tilewarpoverlayflags=0;
-        set_bit(&Map.CurrScr()->tilewarpoverlayflags,0,(warp_dlg[63].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->tilewarpoverlayflags,1,(warp_dlg[64].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->tilewarpoverlayflags,2,(warp_dlg[65].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->tilewarpoverlayflags,3,(warp_dlg[66].flags & D_SELECTED)?1:0);
-        
-        j=Map.CurrScr()->warpreturnc&0xFF00;
-        word newWarpReturns=0;
-        newWarpReturns|=warp_dlg[60].d1;
-        newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[58].d1;
-        newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[56].d1;
-        newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[54].d1;
-        j|=newWarpReturns;
-        Map.CurrScr()->warpreturnc = j;
-        refresh(rMENU);
-        
-    }
+		ret = do_zqdialog(tilewarp_dlg,-1);
+		switch(ret)
+		{
+			// OK, GO
+			case 7: case 8:
+				running = false;
+				data.save();
+				data.save_scr(mptr);
+				refresh(rMENU);
+				break;
+			//Cancel
+			case 9:
+				running = false;
+				break;
+			//A,B,C,D
+			case 14: case 15: case 16: case 17:
+				data.swap(ret-14);
+				break;
+		}
+	}
+	while(running);
     
-    if(ret==15)
+    if(ret==8) //GO
     {
-        int32_t index=0;
-        
-        if(warp_tabs[0].flags & D_SELECTED) index = 0;
-        
-        if(warp_tabs[1].flags & D_SELECTED) index = 1;
-        
-        if(warp_tabs[2].flags & D_SELECTED) index = 2;
-        
-        if(warp_tabs[3].flags & D_SELECTED) index = 3;
+        int32_t index = *data.loaded;
         
         FlashWarpSquare = -1;
         int32_t tm = Map.getCurrMap();
         int32_t ts = Map.getCurrScr();
-        int32_t thistype = Map.CurrScr()->tilewarptype[index];
+        int32_t thistype = mptr->tilewarptype[index];
         Map.dowarp(0,index);
         
         if((ts!=Map.getCurrScr() || tm!=Map.getCurrMap()) && thistype != wtCAVE && thistype != wtSCROLL)
@@ -17103,264 +16881,165 @@ int32_t onTileWarp()
         refresh(rALL);
     }
     
-    warp_dlg[5].x = tempx5;
-    warp_dlg[6].x = tempx6;
-    warp_dlg[10].x = tempx10;
-    warp_dlg[11].x = tempx11;
-    warp_dlg[12].x = tempx12;
-    warp_dlg[13].x = tempx13;
-    
-    warp_dlg[20].x = tempx20;
-    warp_dlg[21].x = tempx21;
-    warp_dlg[25].x = tempx25;
-    warp_dlg[26].x = tempx26;
-    warp_dlg[27].x = tempx27;
-    warp_dlg[28].x = tempx28;
-    
-    warp_dlg[32].x = tempx32;
-    warp_dlg[33].x = tempx33;
-    warp_dlg[37].x = tempx37;
-    warp_dlg[38].x = tempx38;
-    warp_dlg[39].x = tempx39;
-    warp_dlg[40].x = tempx40;
-    
-    warp_dlg[44].x = tempx44;
-    warp_dlg[45].x = tempx45;
-    warp_dlg[49].x = tempx49;
-    warp_dlg[50].x = tempx50;
-    warp_dlg[51].x = tempx51;
-    warp_dlg[52].x = tempx52;
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        warp_dlg[10+i].d2 = 0x80;
-        warp_dlg[25+i].d2 = 0x80;
-        warp_dlg[37+i].d2 = 0x80;
-        warp_dlg[49+i].d2 = 0x80;
-    }
-    
     return D_O_K;
 }
 
+struct sw_data
+{
+	int swscr[4], swtype[4], swdmap[4], wret[4];
+	byte oflags;
+	optional<uint> loaded;
+	
+	sw_data(mapscr* scr) {load_scr(scr);}
+	void load_scr(mapscr* scr)
+	{
+		oflags = scr->sidewarpoverlayflags;
+		for(int q = 0; q < 4; ++q)
+		{
+			swscr[q] = scr->sidewarpscr[q];
+			swtype[q] = scr->sidewarptype[q];
+			swdmap[q] = scr->sidewarpdmap[q];
+			wret[q] = (scr->warpreturnc >> (2*(q+4)))&3;
+		}
+		loaded.reset();
+		
+		for(int32_t i=0; i<4; i++)
+		{
+			sidewarp_dlg[18+i].d2 = 0x80;
+			if(scr->flags2&(1<<i))
+			{
+				sidewarp_dlg[18+i].flags = D_SELECTED ;
+				sidewarp_dlg[18+i].d2 |= (scr->sidewarpindex>>(2*i))&3;
+			}
+			else
+			{
+				sidewarp_dlg[18+i].flags = 0;
+			}
+		}
+	}
+	void save_scr(mapscr* scr)
+	{
+		saved=false;
+		scr->sidewarpoverlayflags = oflags;
+		scr->warpreturnc = scr->warpreturnc & 0x00FF;
+		for(int q = 0; q < 4; ++q)
+		{
+			scr->sidewarpscr[q] = swscr[q];
+			scr->sidewarptype[q] = swtype[q];
+			scr->sidewarpdmap[q] = swdmap[q];
+			scr->warpreturnc |= wret[q] << (2*(q+4));
+		}
+		
+		scr->flags2 &= ~0xF;
+		scr->sidewarpindex = 0;
+		for(int32_t i=0; i<4; i++)
+		{
+			if(sidewarp_dlg[18+i].flags & D_SELECTED)
+				scr->flags2 |= 1<<i;
+			scr->sidewarpindex |= (sidewarp_dlg[18+i].d2&3) << (i*2);
+		}
+	}
+	
+	void load(uint ind)
+	{
+		if(ind >= 4) return;
+		loaded = ind;
+		sidewarp_dlg[4].d1 = swtype[ind];
+		sidewarp_dlg[5].d1 = swdmap[ind];
+		char* buf = (char*)sidewarp_dlg[6].dp;
+		sprintf(buf,"%02X",swscr[ind]);
+		sidewarp_dlg[11].d1 = wret[ind];
+		SETFLAG(sidewarp_dlg[12].flags, D_SELECTED, get_bit(&oflags,ind));
+		for(int q = 0; q < 4; ++q)
+			SETFLAG(sidewarp_dlg[14+q].flags,(D_SELECTED|D_DISABLED),q==ind);
+	}
+	void save(uint ind)
+	{
+		if(ind >= 4) return;
+		swtype[ind] = sidewarp_dlg[4].d1;
+		swdmap[ind] = sidewarp_dlg[5].d1;
+		char* buf = (char*)sidewarp_dlg[6].dp;
+		swscr[ind] = vbound(zc_xtoi(buf),0x00,0x7F);
+		wret[ind] = sidewarp_dlg[11].d1;
+		set_bit(&oflags, ind, sidewarp_dlg[12].flags & D_SELECTED);
+	}
+	void save()
+	{
+		if(loaded)
+			save(*loaded);
+	}
+	void swap(uint ind)
+	{
+		if(ind >= 4) return;
+		if(loaded)
+		{
+			save(*loaded);
+			if(*loaded == ind)
+				return;
+		}
+		load(ind);
+	}
+};
 int32_t onSideWarp()
 {
     restore_mouse();
-    warp_dlg[0].dp=(void *) "Side Warp";
-    warp_dlg[0].dp2=get_zc_font(font_lfont);
-    warp_dlg[7].flags = 0;
-    warp_dlg[22].flags = 0;
-    warp_dlg[34].flags = 0;
-    warp_dlg[46].flags = 0;
+    sidewarp_dlg[0].dp=(void *) "Side Warp";
+    sidewarp_dlg[0].dp2=get_zc_font(font_lfont);
     
+	mapscr* mptr = Map.CurrScr();
     char buf[10];
-    char buf2[10];
-    char buf3[10];
-    char buf4[10];
-    sprintf(buf,"%02X",Map.CurrScr()->sidewarpscr[0]);
-    warp_dlg[7].d1=Map.CurrScr()->sidewarptype[0];
-    warp_dlg[8].d1=Map.CurrScr()->sidewarpdmap[0];
-    warp_dlg[9].dp=buf;
-    
-    sprintf(buf2,"%02X",Map.CurrScr()->sidewarpscr[1]);
-    warp_dlg[22].d1=Map.CurrScr()->sidewarptype[1];
-    warp_dlg[23].d1=Map.CurrScr()->sidewarpdmap[1];
-    warp_dlg[24].dp=buf2;
-    
-    sprintf(buf3,"%02X",Map.CurrScr()->sidewarpscr[2]);
-    warp_dlg[34].d1=Map.CurrScr()->sidewarptype[2];
-    warp_dlg[35].d1=Map.CurrScr()->sidewarpdmap[2];
-    warp_dlg[36].dp=buf3;
-    
-    sprintf(buf4,"%02X",Map.CurrScr()->sidewarpscr[3]);
-    warp_dlg[46].d1=Map.CurrScr()->sidewarptype[3];
-    warp_dlg[47].d1=Map.CurrScr()->sidewarpdmap[3];
-    warp_dlg[48].dp=buf4;
-    
-    warp_dlg[63].flags = get_bit(&Map.CurrScr()->sidewarpoverlayflags,0)?D_SELECTED:0;
-    warp_dlg[64].flags = get_bit(&Map.CurrScr()->sidewarpoverlayflags,1)?D_SELECTED:0;
-    warp_dlg[65].flags = get_bit(&Map.CurrScr()->sidewarpoverlayflags,2)?D_SELECTED:0;
-    warp_dlg[66].flags = get_bit(&Map.CurrScr()->sidewarpoverlayflags,3)?D_SELECTED:0;
-    
-    word j=Map.CurrScr()->warpreturnc>>8;
-    warp_dlg[54].d1=(j&3);
-    warp_dlg[56].d1=((j>>2)&3);
-    warp_dlg[58].d1=((j>>4)&3);
-    warp_dlg[60].d1=((j>>6)&3);
-    
-    warp_dlg[2].fg=warp_dlg[5].fg=vc(14);
-    warp_dlg[17].fg=warp_dlg[20].fg=vc(14);
-    warp_dlg[29].fg=warp_dlg[32].fg=vc(14);
-    warp_dlg[41].fg=warp_dlg[44].fg=vc(14);
-    byte f=Map.CurrScr()->flags2;
-    byte h=Map.CurrScr()->sidewarpindex;
-    byte g=f&240;
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        warp_dlg[10+i].d2 = 0x80;
-        warp_dlg[25+i].d2 = 0x80;
-        warp_dlg[37+i].d2 = 0x80;
-        warp_dlg[49+i].d2 = 0x80;
-        
-        if(f&1)
-        {
-            warp_dlg[10+i].flags = D_SELECTED ;
-            warp_dlg[10+i].d2 |= h&3;
-            warp_dlg[25+i].flags = D_SELECTED ;
-            warp_dlg[25+i].d2 |= h&3;
-            warp_dlg[37+i].flags = D_SELECTED ;
-            warp_dlg[37+i].d2 |= h&3;
-            warp_dlg[49+i].flags = D_SELECTED ;
-            warp_dlg[49+i].d2 |= h&3;
-        }
-        else
-        {
-            warp_dlg[10+i].flags = 0;
-            warp_dlg[25+i].flags = 0;
-            warp_dlg[37+i].flags = 0;
-            warp_dlg[49+i].flags = 0;
-        }
-        
-        f>>=1;
-        h>>=2;
-    }
+    sidewarp_dlg[6].dp=buf;
+	sidewarp_dlg[13].dp = buf;
+	sidewarp_dlg[13].dp3 = &sidewarp_dlg[5].d1;
+	
+	vector<DIALOG*> dlgs;
+	dlgs.push_back(&sidewarp_dlg[5]);
+	dlgs.push_back(&sidewarp_dlg[6]);
+	sidewarp_dlg[13].dp2 = &dlgs;
+	
+	sw_data data(mptr);
+	data.load(0);
     
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
     
-	large_dialog(warp_dlg);
-	
-	if(warp_dlg[0].d1<2)
-	{
-		warp_dlg[0].d1=2;
-		warp_dlg[6].x += 2;
-		warp_dlg[10].w -= 8;
-		warp_dlg[10].y -= 4;
-		warp_dlg[11].w -= 8;
-		warp_dlg[11].y -= 2;
-		warp_dlg[12].h -= 8;
-		warp_dlg[12].x -= 2;
-		warp_dlg[12].y -= 2;
-		warp_dlg[13].h -= 8;
-		warp_dlg[13].x += 1;
-		warp_dlg[13].y -= 2;
-		
-		warp_dlg[21].x += 2;
-		warp_dlg[25].w -= 8;
-		warp_dlg[25].y -= 4;
-		warp_dlg[26].w -= 8;
-		warp_dlg[26].y -= 2;
-		warp_dlg[27].h -= 8;
-		warp_dlg[27].x -= 2;
-		warp_dlg[27].y -= 2;
-		warp_dlg[28].h -= 8;
-		warp_dlg[28].x += 1;
-		warp_dlg[28].y -= 2;
-		
-		warp_dlg[33].x += 2;
-		warp_dlg[37].w -= 8;
-		warp_dlg[37].y -= 4;
-		warp_dlg[38].w -= 8;
-		warp_dlg[38].y -= 2;
-		warp_dlg[39].h -= 8;
-		warp_dlg[39].x -= 2;
-		warp_dlg[39].y -= 2;
-		warp_dlg[40].h -= 8;
-		warp_dlg[40].x += 1;
-		warp_dlg[40].y -= 2;
-		
-		warp_dlg[45].x += 2;
-		warp_dlg[49].w -= 8;
-		warp_dlg[49].y -= 4;
-		warp_dlg[50].w -= 8;
-		warp_dlg[50].y -= 2;
-		warp_dlg[51].h -= 8;
-		warp_dlg[51].x -= 2;
-		warp_dlg[51].y -= 2;
-		warp_dlg[52].h -= 8;
-		warp_dlg[52].x += 1;
-		warp_dlg[52].y -= 2;
+	large_dialog(sidewarp_dlg);
+    
+	bool running = true;
+	int ret;
+	do
+    {
+		ret = do_zqdialog(sidewarp_dlg,-1);
+		switch(ret)
+		{
+			// OK, GO
+			case 7: case 8:
+				running = false;
+				data.save();
+				data.save_scr(mptr);
+				refresh(rMENU);
+				break;
+			//Cancel
+			case 9:
+				running = false;
+				break;
+			//A,B,C,D
+			case 14: case 15: case 16: case 17:
+				data.swap(ret-14);
+				break;
+		}
 	}
+	while(running);
     
-    int32_t ret=do_zqdialog(warp_dlg,-1);
-    
-    if(ret==14 || ret==15)
+    if(ret==8) //GO
     {
-        saved=false;
-        Map.CurrScr()->sidewarpscr[0] = zc_xtoi(buf);
-        Map.CurrScr()->sidewarptype[0] = warp_dlg[7].d1;
-        Map.CurrScr()->sidewarpdmap[0] = warp_dlg[8].d1;
-        Map.CurrScr()->sidewarpscr[1] = zc_xtoi(buf2);
-        Map.CurrScr()->sidewarptype[1] = warp_dlg[22].d1;
-        Map.CurrScr()->sidewarpdmap[1] = warp_dlg[23].d1;
-        Map.CurrScr()->sidewarpscr[2] = zc_xtoi(buf3);
-        Map.CurrScr()->sidewarptype[2] = warp_dlg[34].d1;
-        Map.CurrScr()->sidewarpdmap[2] = warp_dlg[35].d1;
-        Map.CurrScr()->sidewarpscr[3] = zc_xtoi(buf4);
-        Map.CurrScr()->sidewarptype[3] = warp_dlg[46].d1;
-        Map.CurrScr()->sidewarpdmap[3] = warp_dlg[47].d1;
-        
-        Map.CurrScr()->sidewarpoverlayflags=0;
-        set_bit(&Map.CurrScr()->sidewarpoverlayflags,0,(warp_dlg[63].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->sidewarpoverlayflags,1,(warp_dlg[64].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->sidewarpoverlayflags,2,(warp_dlg[65].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->sidewarpoverlayflags,3,(warp_dlg[66].flags & D_SELECTED)?1:0);
-        
-        f=0;
-        h=0;
-        
-        for(int32_t i=3; i>=0; i--)
-        {
-            f<<=1;
-            h<<=2;
-            //f |= warp_dlg[49+i].flags&D_SELECTED ? 1 : 0;
-            //f |= warp_dlg[37+i].flags&D_SELECTED ? 1 : 0;
-            //f |= warp_dlg[25+i].flags&D_SELECTED ? 1 : 0;
-            f |= warp_dlg[10+i].flags&D_SELECTED ? 1 : 0;
-            int32_t t=0;
-            /*if(warp_dlg[10+i].flags&D_SELECTED) t=0;
-              else if(warp_dlg[25+i].flags&D_SELECTED) t=1;
-              else if(warp_dlg[37+i].flags&D_SELECTED) t=2;
-              else if(warp_dlg[49+i].flags&D_SELECTED) t=3;*/
-            t=warp_dlg[10+i].d2&3;
-            h|=t;
-        }
-        
-        f+=g;
-        Map.CurrScr()->flags2 = f;
-        Map.CurrScr()->sidewarpindex = h;
-        
-        j=Map.CurrScr()->warpreturnc&0x00FF;
-        word newWarpReturns=0;
-        newWarpReturns|=warp_dlg[60].d1;
-        newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[58].d1;
-        newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[56].d1;
-        newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[54].d1;
-        newWarpReturns<<=8;
-        j|=newWarpReturns;
-        Map.CurrScr()->warpreturnc = j;
-        refresh(rMENU);
-    }
-    
-    if(ret==15)
-    {
-        int32_t index=0;
-        
-        if(warp_tabs[0].flags & D_SELECTED) index = 0;
-        
-        if(warp_tabs[1].flags & D_SELECTED) index = 1;
-        
-        if(warp_tabs[2].flags & D_SELECTED) index = 2;
-        
-        if(warp_tabs[3].flags & D_SELECTED) index = 3;
-        
+        int32_t index = *data.loaded;
+		
         FlashWarpSquare = -1;
         int32_t tm = Map.getCurrMap();
         int32_t ts = Map.getCurrScr();
-        int32_t thistype = Map.CurrScr()->sidewarptype[index];
+		
+        int32_t thistype = mptr->sidewarptype[index];
         Map.dowarp(1,index);
         
         if((ts!=Map.getCurrScr() || tm!=Map.getCurrMap()) && thistype != wtSCROLL)
@@ -18054,103 +17733,43 @@ int32_t curr_ring = 0;
 
 void EditWarpRingScr(int32_t ring,int32_t index)
 {
-    char caption[40],buf[10];
-    restore_mouse();
-    int32_t tempx5=warpring_warp_dlg[5].x;
-    int32_t tempx6=warpring_warp_dlg[6].x;
-    int32_t tempx10=warpring_warp_dlg[10].x;
-    int32_t tempx11=warpring_warp_dlg[11].x;
-    int32_t tempx12=warpring_warp_dlg[12].x;
-    int32_t tempx13=warpring_warp_dlg[13].x;
-    
-    int32_t tempx[100];
-    
-    for(int32_t m=17; m<100; m++)
-    {
-        tempx[m-17]=warpring_warp_dlg[m].x;
-        
-        if(m!=67)
-        {
-            warpring_warp_dlg[m].x = screen->w + 10;
-        }
-    }
-    
-    warpring_warp_dlg[5].x = screen->w + 10;
-    warpring_warp_dlg[6].x = screen->w + 10;
-    warpring_warp_dlg[10].x = screen->w + 10;
-    warpring_warp_dlg[11].x = screen->w + 10;
-    warpring_warp_dlg[12].x = screen->w + 10;
-    warpring_warp_dlg[13].x = screen->w + 10;
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        warpring_warp_dlg[10+i].d2 = 0;
-        warpring_warp_dlg[25+i].d2 = 0;
-        warpring_warp_dlg[37+i].d2 = 0;
-        warpring_warp_dlg[49+i].d2 = 0;
-    }
-    
-    sprintf(caption,"Ring %d  Warp %d",ring,index+1);
-    warpring_warp_dlg[0].dp = (void *)caption;
-    warpring_warp_dlg[0].dp2=get_zc_font(font_lfont);
-    
-    warpring_warp_dlg[1].dp = NULL;
-    warpring_warp_dlg[1].dp3 = NULL;
-    
-    sprintf(buf,"%02X",QMisc.warp[ring].scr[index]);
-    warpring_warp_dlg[8].d1=QMisc.warp[ring].dmap[index];
-    warpring_warp_dlg[9].dp=buf;
-    warpring_warp_dlg[24].dp=buf;
-    warpring_warp_dlg[36].dp=buf;
-    warpring_warp_dlg[48].dp=buf;
-    warpring_warp_dlg[2].fg=warpring_warp_dlg[5].fg=vc(7);
-    
-    for(int32_t i=0; i<4; i++)
-        warpring_warp_dlg[10+i].d2 = 0;
-        
-    dmap_list_size=MAXDMAPS;
-    dmap_list_zero=true;
-    
-    large_dialog(warpring_warp_dlg);
-        
-    int32_t ret=do_zqdialog(warpring_warp_dlg,-1);
-    
-    if(ret==14 || ret==15)
-    {
-        saved=false;
-        QMisc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
-        QMisc.warp[ring].scr[index] = zc_xtoi(buf);
-    }
-    
-    if(ret==15)
-    {
-        Map.dowarp2(ring,index);
-        refresh(rALL);
-    }
-    
-    warpring_warp_dlg[5].x = tempx5;
-    warpring_warp_dlg[6].x = tempx6;
-    warpring_warp_dlg[10].x = tempx10;
-    warpring_warp_dlg[11].x = tempx11;
-    warpring_warp_dlg[12].x = tempx12;
-    warpring_warp_dlg[13].x = tempx13;
-    
-    for(int32_t m=17; m<100; m++)
-    {
-        warpring_warp_dlg[m].x=tempx[m-17];
-    }
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        warpring_warp_dlg[10+i].d2 = 0x80;
-        warpring_warp_dlg[25+i].d2 = 0x80;
-        warpring_warp_dlg[37+i].d2 = 0x80;
-        warpring_warp_dlg[49+i].d2 = 0x80;
-    }
-    
-    warpring_warp_dlg[1].dp = (void *) warpring_warp_tabs;
-    warpring_warp_dlg[1].dp3 = (void *)warpring_warp_dlg;
-    
+	char caption[40],buf[10];
+	restore_mouse();
+	
+	sprintf(caption,"Ring %d  Warp %d",ring,index+1);
+	warpring_warp_dlg[0].dp = (void *)caption;
+	warpring_warp_dlg[0].dp2=get_zc_font(font_lfont);
+	
+	sprintf(buf,"%02X",QMisc.warp[ring].scr[index]);
+	warpring_warp_dlg[3].d1 = QMisc.warp[ring].dmap[index];
+	warpring_warp_dlg[4].dp = buf;
+	warpring_warp_dlg[8].dp = buf;
+	warpring_warp_dlg[8].dp3 = &warpring_warp_dlg[3].d1;
+	
+	vector<DIALOG*> dlgs;
+	dlgs.push_back(&warpring_warp_dlg[3]);
+	dlgs.push_back(&warpring_warp_dlg[4]);
+	warpring_warp_dlg[8].dp2 = &dlgs;
+	
+	dmap_list_size=MAXDMAPS;
+	dmap_list_zero=true;
+	
+	large_dialog(warpring_warp_dlg);
+	
+	int32_t ret=do_zqdialog(warpring_warp_dlg,-1);
+	
+	if(ret==7 || ret==8)
+	{
+		saved=false;
+		QMisc.warp[ring].dmap[index] = warpring_warp_dlg[5].d1;
+		QMisc.warp[ring].scr[index] = zc_xtoi(buf);
+	}
+	
+	if(ret==8)
+	{
+		Map.dowarp2(ring,index);
+		refresh(rALL);
+	}
 }
 
 int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -25974,7 +25593,7 @@ int32_t get_homescr()
     return DMaps[zinit.start_dmap].cont;
 }
 
-int32_t current_item(int32_t item_type)
+int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bunny)
 {
     //TODO remove as special case?? -DD
     if(item_type==itype_shield)
@@ -25982,28 +25601,16 @@ int32_t current_item(int32_t item_type)
         return 2;
     }
     
-    //find lowest item of that class
-    int32_t lowestid = -1;
-    int32_t ret = 0;
-    
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        if(itemsbuf[i].family == item_type && (lowestid==-1 || itemsbuf[i].fam_type < ret))
-        {
-            lowestid = i;
-            ret = itemsbuf[i].fam_type;
-        }
-    }
-    
-    return ret;
+	int id = current_item_id(item_type, checkmagic, jinx_check, check_bunny);
+	return id > -1 ? itemsbuf[id].fam_type : 0;
 }
 
-int32_t current_item_power(int32_t itemtype)
+int current_item_power(int itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	if (game)
 	{
-		int32_t result = current_item_id(itemtype, true);
-		return (result < 0) ? 0 : itemsbuf[result].power;
+		int result = current_item_id(itemtype, checkmagic, jinx_check, check_bunny);
+		return (result<0) ? 0 : itemsbuf[result].power;
 	}
     return 1;
 }
@@ -28432,7 +28039,8 @@ void center_zquest_dialogs()
     center_zq_tiles_dialog();
     jwin_center_dialog(tp_dlg);
     jwin_center_dialog(under_dlg);
-    jwin_center_dialog(warp_dlg);
+    jwin_center_dialog(tilewarp_dlg);
+    jwin_center_dialog(sidewarp_dlg);
     jwin_center_dialog(warpring_dlg);
     jwin_center_dialog(wlist_dlg);
     center_zscript_dialogs();
