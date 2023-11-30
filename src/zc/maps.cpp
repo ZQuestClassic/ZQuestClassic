@@ -67,8 +67,6 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 region current_region;
 
-static bool global_z3_scrolling = true;
-
 // entire map is region
 // #define hardcode_regions_mode 1
 
@@ -101,7 +99,6 @@ static byte getNibble(byte byte, bool high)
 
 static bool is_a_region(int dmap, int scr)
 {
-	if (!global_z3_scrolling) return false;
 	return get_region_id(dmap, scr) != 0;
 }
 
@@ -137,10 +134,9 @@ bool is_extended_height_mode()
 // Returns 0 if this is not a region.
 int get_region_id(int dmap, int scr)
 {
-	if (!global_z3_scrolling) return 0;
 	if (scr >= 128) return 0;
 #ifndef hardcode_regions_mode
-	if (dmap == currdmap) return current_region_indices[scr];
+	if (dmap == current_region.dmap) return current_region_indices[scr];
 #endif
 
 #ifndef hardcode_regions_mode
@@ -161,8 +157,7 @@ void z3_calculate_region(int dmap, int screen_index, region& region, int& region
 {
 	region.dmap = dmap;
 
-	if (!is_z3_scrolling_mode() || screen_index >= 0x80)
-	// if (!(is_a_region(dmap, screen_index)) || screen_index >= 0x80)
+	if (!(is_a_region(dmap, screen_index)) || screen_index >= 0x80)
 	{
 		region.region_id = 0;
 		region.origin_screen_index = screen_index;

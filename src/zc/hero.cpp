@@ -25235,8 +25235,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
-		//dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
-	
+
 		reset_hookshot();
 		if(reposition_sword_postwarp)
 		{
