@@ -426,8 +426,6 @@ void load_game_configs()
 	
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	
-	zc_color_depth = (byte) zc_get_config(cfg_sect,"color_depth",8);
-	
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
 	info_opacity = zc_get_config("zc","debug_info_opacity",255);
 #ifdef _WIN32

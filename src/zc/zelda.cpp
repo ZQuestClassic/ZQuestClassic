@@ -310,7 +310,6 @@ extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte forceExit=0,zc_vsync=0;
-byte zc_color_depth=8;
 byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;
@@ -4409,58 +4408,7 @@ int main(int argc, char **argv)
 	
 	// allocate bitmap buffers
 	Z_message("Allocating bitmap buffers... ");
-	
-	//Turns out color depth can be critical. -Gleeok
-	if(used_switch(argc,argv,"-0bit")) set_color_depth(desktop_color_depth());
-	else if(used_switch(argc,argv,"-15bit")) set_color_depth(15);
-	else if(used_switch(argc,argv,"-16bit")) set_color_depth(16);
-	else if(used_switch(argc,argv,"-24bit")) set_color_depth(24);
-	else if(used_switch(argc,argv,"-32bit")) set_color_depth(32);
-	else
-	{
-		//command-line switches takes priority
-		switch(zc_color_depth)
-		{
-			case 0:
-				set_color_depth(desktop_color_depth());
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 8:
-				set_color_depth(8);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 15:
-				set_color_depth(15);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 16:
-				set_color_depth(16);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 24:
-				set_color_depth(24);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 32:
-				set_color_depth(32);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			default:
-				zc_color_depth = 8; //invalid configuration, set to default in config file.
-				zc_set_config("zeldadx","color_depth",zc_color_depth);
-				set_color_depth(8);
-				break;
-		}
-	}
-	
-	//set_color_depth(32);
-	//set_color_conversion(COLORCONV_24_TO_8);
+	set_color_depth(8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	menu_bmp  = create_bitmap_ex(8,640,480);
 	scrollbuf = create_bitmap_ex(8,512,406);
