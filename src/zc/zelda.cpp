@@ -1750,6 +1750,8 @@ int32_t init_game()
 		return 1;
 	}
 
+	script_init_name_to_slot_index_maps();
+
 	if (testingqst_init_data.size())
 	{
 		zinit.clear();

@@ -44,6 +44,26 @@
 #include "music_playback.h"
 #include <sstream>
 
+#include "zc/zelda.h"
+#include "particles.h"
+#include "zc/hero.h"
+#include "zc/guys.h"
+#include "gamedata.h"
+#include "zc/zc_init.h"
+#include "base/zsys.h"
+#include "base/misctypes.h"
+#include "zc/title.h"
+#include "zscriptversion.h"
+
+#include "pal.h"
+#include "base/zdefs.h"
+#include "zc/rendertarget.h"
+
+#include "zc/zc_custom.h"
+#include "qst.h"
+
+using namespace util;
+
 #ifdef _WIN32
 #define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
 #else
@@ -528,28 +548,11 @@ char runningItemScripts[256] = {0};
 //weapon *FFCore.temp_ff_lweapon = NULL;
 //weapon *FFCore.temp_ff_eweapon = NULL;
 
-#include "zc/zelda.h"
-#include "particles.h"
-#include "zc/hero.h"
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemX;
 extern int32_t directItemY;
 
-#include "zc/guys.h"
-#include "gamedata.h"
-#include "zc/zc_init.h"
-#include "base/zsys.h"
-#include "base/misctypes.h"
-#include "zc/title.h"
-#include "zscriptversion.h"
-
-#include "pal.h"
-#include "base/zdefs.h"
-#include "zc/rendertarget.h"
-
-#include "zc/zc_custom.h"
-#include "qst.h"
 
 #ifdef _MSC_VER
 #pragma warning ( disable : 4800 ) //int32_t to bool town. population: lots.
@@ -28687,6 +28690,64 @@ void set_register(int32_t arg, int32_t value)
 	}
 } //end set_register
 
+static std::map<std::string, int> name_to_slot_index_ffcmap;
+static std::map<std::string, int> name_to_slot_index_globalmap;
+static std::map<std::string, int> name_to_slot_index_genericmap;
+static std::map<std::string, int> name_to_slot_index_itemmap;
+static std::map<std::string, int> name_to_slot_index_npcmap;
+static std::map<std::string, int> name_to_slot_index_ewpnmap;
+static std::map<std::string, int> name_to_slot_index_lwpnmap;
+static std::map<std::string, int> name_to_slot_index_playermap;
+static std::map<std::string, int> name_to_slot_index_dmapmap;
+static std::map<std::string, int> name_to_slot_index_screenmap;
+static std::map<std::string, int> name_to_slot_index_itemspritemap;
+static std::map<std::string, int> name_to_slot_index_comboscriptmap;
+static std::map<std::string, int> name_to_slot_index_subscreenmap;
+
+void script_init_name_to_slot_index_maps()
+{
+	int i;
+	#define DECL_INIT_MAP(name) \
+	{\
+		name_to_slot_index_##name.clear();\
+		i = 0;\
+		for (auto& it : name)\
+		{\
+			if (!name_to_slot_index_##name.contains(it.second.scriptname))\
+				name_to_slot_index_##name[it.second.scriptname] = i;\
+			i++;\
+		}\
+	}
+
+	DECL_INIT_MAP(ffcmap);
+	DECL_INIT_MAP(globalmap);
+	DECL_INIT_MAP(genericmap);
+	DECL_INIT_MAP(itemmap);
+	DECL_INIT_MAP(npcmap);
+	DECL_INIT_MAP(ewpnmap);
+	DECL_INIT_MAP(lwpnmap);
+	DECL_INIT_MAP(playermap);
+	DECL_INIT_MAP(dmapmap);
+	DECL_INIT_MAP(screenmap);
+	DECL_INIT_MAP(itemspritemap);
+	DECL_INIT_MAP(comboscriptmap);
+	DECL_INIT_MAP(subscreenmap);
+}
+
+static void do_get_script_index_by_name(const std::map<std::string, int>& name_to_slot_index)
+{
+	int32_t arrayptr = get_register(sarg1) / 10000;
+	string name;
+	int32_t num=-1;
+	ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
+	
+	auto it = name_to_slot_index.find(name);
+	if (it != name_to_slot_index.end())
+		num = it->second + 1;
+	
+	set_register(sarg1, num * 10000);
+}
+
 int32_t get_int_arr(const int32_t ptr, int32_t indx)
 {
 	switch(ptr)
@@ -35222,21 +35283,7 @@ void FFScript::do_getnpcdata_getname()
 
 void do_getffcscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string name;
-	int32_t num=-1;
-	ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
-	
-	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
-	{
-		if(strcmp(name.c_str(), ffcmap[i].scriptname.c_str())==0)
-		{
-			num=i+1;
-			break;
-		}
-	}
-	
-	set_register(sarg1, num * 10000);
+	do_get_script_index_by_name(name_to_slot_index_ffcmap);
 }
 
 void do_npc_hero_in_range()
@@ -35252,21 +35299,7 @@ void do_npc_hero_in_range()
 
 void do_getitemscript()
 {
-	 int32_t arrayptr = get_register(sarg1) / 10000;
-	string name;
-	int32_t num=-1;
-	ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
-	
-	for(int32_t i=0; i<512; i++)
-	{
-		if(strcmp(name.c_str(), itemmap[i].scriptname.c_str())==0)
-		{
-			num=i+1;
-			break;
-		}
-	}
-	
-	set_register(sarg1, num * 10000);
+	do_get_script_index_by_name(name_to_slot_index_itemmap);
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -44737,216 +44770,55 @@ void FFScript::do_UpperToLower(const bool v)
 
 void FFScript::do_getnpcscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTGUYS; q++)
-	{
-		if(!(strcmp(the_string.c_str(), npcmap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_npcmap);
 }
 
 void FFScript::do_getcomboscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTSCOMBODATA; q++)
-	{
-		if(!(strcmp(the_string.c_str(), comboscriptmap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_comboscriptmap);
 }
 
 void FFScript::do_getgenericscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	// zprint2("Searching for generic script named '%s'\n", the_string.c_str());
-	for(int32_t q = 0; q < NUMSCRIPTSGENERIC; q++)
-	{
-		// if(genericmap[q].scriptname.size()>2)
-			// zprint2("Checking against '%s'...\n", genericmap[q].scriptname.c_str());
-		if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_genericmap);
 }
 
 void FFScript::do_getlweaponscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTWEAPONS; q++)
-	{
-		if(!(strcmp(the_string.c_str(), lwpnmap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_lwpnmap);
 }
 void FFScript::do_geteweaponscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTWEAPONS; q++)
-	{
-		if(!(strcmp(the_string.c_str(), ewpnmap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_ewpnmap);
 }
 void FFScript::do_getheroscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTPLAYER; q++)
-	{
-		if(!(strcmp(the_string.c_str(), playermap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_playermap);
 }
 void FFScript::do_getglobalscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTGLOBAL; q++)
-	{
-		if(!(strcmp(the_string.c_str(), globalmap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_globalmap);
 }
 void FFScript::do_getdmapscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTSDMAP; q++)
-	{
-		if(!(strcmp(the_string.c_str(), dmapmap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_dmapmap);
 }
 void FFScript::do_getscreenscript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTSCREEN; q++)
-	{
-		if(!(strcmp(the_string.c_str(), screenmap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_screenmap);
 }
 void FFScript::do_getitemspritescript()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string the_string;
-	int32_t script_num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	for(int32_t q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
-	{
-		if(!(strcmp(the_string.c_str(), itemspritemap[q].scriptname.c_str())))
-		{
-			script_num = q+1;
-			break;
-		}
-	}
-	set_register(sarg1, (script_num * 10000));
+	do_get_script_index_by_name(name_to_slot_index_itemspritemap);
 }
 //Not assigned to slots at present. If they ever are, then this would get the id of any script (any type) by name. -Z
 void FFScript::do_getuntypedscript()
 {
 	set_register(sarg1, 0);
-	//int32_t arrayptr = ri->d[rINDEX]/10000;
-	//string the_string;
-	//int32_t script_num = -1;
-	//ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	//for(int32_t q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
-	//{
-	//	if(!(strcmp(the_string.c_str(), itemspritemap[q].scriptname.c_str())))
-	//	{
-	//		script_num = q+1;
-	//		break;
-	//	}
-	//}
-	//set_register(sarg1, (script_num * 10000));
 }
 void FFScript::do_getsubscreenscript()
 {
-	//int32_t arrayptr = ri->d[rINDEX]/10000;
-	//string the_string;
-	//int32_t script_num = -1;
-	//ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
-	
-	//for(int32_t q = 0; q < NUMSCRIPTSUBSCREEN; q++)
-	//{
-	//	if(!(strcmp(the_string.c_str(), subscreenmap[q].scriptname.c_str())))
-	//	{
-	//		script_num = q+1;
-	//		break;
-	//	}
-	//}
-	//set_register(sarg1, (script_num * 10000));
-	set_register(sarg1, 0); //Remove this line, when we add this script type, then un-comment the rest. -Z
+	do_get_script_index_by_name(name_to_slot_index_subscreenmap);
 }
 void FFScript::do_getnpcbyname()
 {
