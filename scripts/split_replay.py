@@ -7,8 +7,6 @@
 #
 # If splitting a replay test, be sure to delete the original and the qst file (which was copied into the output folder).
 
-# TODO: figure out why there are issues with replaying hero_of_dreams.zplay when split up.
-
 import argparse
 from dataclasses import dataclass, field
 import os
@@ -32,14 +30,17 @@ class ReplayStep:
 @dataclass
 class ReplayPart:
     steps: List[ReplayStep] = field(default_factory=list) 
+    save_index: int = 0
     last_key_step: Optional[ReplayStep] = None
 
 
-def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generation: bool):
+def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generation: bool, split_threshold: int):
 	meta = []
 	replay_parts = [ReplayPart()]
 	current_part = replay_parts[0]
+	previous_part = None
 	qst_path = Path()
+	save_index = 0
 	with replay_path.open('r', encoding='utf-8') as f:
 		for line in f:
 			line = line.strip()
@@ -55,41 +56,58 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 
 			if type == 'K':
 				current_part.last_key_step = step
+				if previous_part and previous_part.last_key_step.data == step.data:
+					continue
 
 			# We can only split at points where the game engine writes everything to disk via a save file,
 			# in the game_over function.
 			if type == 'C' and data == 'init_game' and step.frame != 0 and current_part.steps[-1].data == 'save game':
-				current_part = ReplayPart()
-				replay_parts.append(current_part)
+				# Don't make sub-replays with too little frames. Too many small replays might make more overhead than it saves.
+				if len(current_part.steps) > split_threshold:
+					previous_part = current_part
+					current_part = ReplayPart()
+					current_part.save_index = save_index
+					replay_parts.append(current_part)
+				save_index += 1
 
 			current_part.steps.append(step)
 
 	total = len(replay_parts)
 	if total == 1:
 		raise Exception('Nothing to split. Either the replay file has no saves, or it is missing "save game" comments (in which case you must update it)')
+	print(f'will split into {total} replays')
+	maxcol1 = len(str(total))
+	maxcol2 = len(str(save_index))
+	for i, part in enumerate(replay_parts):
+		col1 = str(i + 1).rjust(maxcol1, ' ')
+		col2 = str(part.save_index).rjust(maxcol2, ' ')
+		print(f'[{col1}] save {col2} {len(part.steps)}')
 
 	build_folder = run_target.get_build_folder()
 	saves_folder = build_folder / 'saves/current_replay'
 	if not skip_save_file_generation:
 		if saves_folder.exists():
 			shutil.rmtree(saves_folder)
+		print('running replay w/ -replay-save-games, this may take a few minutes ...')
 		run_target.run('zplayer', [
+			'-headless',
 			'-v0',
 			'-replay-exit-when-done',
 			'-replay-save-games',
 			'-replay', replay_path.absolute(),
-		])
-		save_files = list(saves_folder.rglob('*.sav'))
-		if total - 1 != len(save_files):
-			raise Exception(f'expected {total - 1} save files, but got {len(save_files)}')
+		], build_folder)
+	save_files = list(saves_folder.rglob('*.sav'))
+	if save_index + 1 != len(save_files):
+		raise Exception(f'expected {save_index} save files, but got {len(save_files)}')
 
 	output_folder.mkdir(exist_ok=True)
 	# qst file may not be relative to the replay file (ex: quests/Z1 Recreations/classic_1st.qst)
 	if qst_path.exists():
 		shutil.copy(qst_path, output_folder)
 	most_recent_key_step = None
-	print(f'split into {total} replays:')
 	for i, part in enumerate(replay_parts):
+		is_first = i == 0
+		is_last = i == len(replay_parts) - 1
 		digits_len = len(str(total))
 		number_part = f'{(i + 1):0{digits_len}}_of_{total}'
 		output_replay = output_folder / f'{replay_path.stem}_{number_part}.zplay'
@@ -101,7 +119,7 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 		# The hero position is only emitted if the previous frame had a different value.
 		# When splitting a replay, the previous part's last hero position should be added
 		# on the first frame.
-		if i > 0:
+		if not is_first:
 			# If the first frame does have a hero position comment, then we are expecting this
 			# new value. Do nothing.
 			has_frame_zero_position = False
@@ -142,17 +160,17 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 				f.write(line)
 				f.write('\n')
 				if line.startswith('M qst '):
-					if i != 0:
+					if not is_first:
 						save_file_name = f'{output_replay.stem}.sav'
 						f.write('M sav ')
 						f.write(save_file_name)
 						f.write('\n')
-						if not skip_save_file_generation:
-							shutil.copy(save_files[i - 1], output_folder / save_file_name)
+						if save_files:
+							shutil.copy(save_files[part.save_index], output_folder / save_file_name)
 
 					# Not used yet, but perhaps would be useful to have a feature to continue playing the next replay
 					# in a series.
-					if i != total - 1:
+					if not is_last:
 						f.write('M next ')
 						number_part = f'{(i + 2):0{digits_len}}_of_{total}'
 						f.write(f'{replay_path.stem}_{number_part}.zplay')
@@ -168,6 +186,8 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 				f.write('\n')
 
 			for step in part.steps:
+				if step.frame == 0 and step.type == 'K' and most_recent_key_step and step.data == most_recent_key_step.data:
+					continue
 				f.write(' '.join([step.type, str(step.frame), step.data]))
 				f.write('\n')
 		
@@ -182,6 +202,7 @@ if __name__ == '__main__':
 	parser.add_argument('--replay', required=True)
 	parser.add_argument('--output-folder', required=True)
 	parser.add_argument('--skip-save-file-generation', action='store_true', help='Only use this skip if already generated in output folder!')
+	parser.add_argument('--split-threshold', default=100_000, help='If current replay part length at a save point is less than this threshold, the replay will not be cut. It may be long enough on the next save.')
 
 	args = parser.parse_args()
-	split_replay(Path(args.replay), Path(args.output_folder), skip_save_file_generation=args.skip_save_file_generation)
+	split_replay(Path(args.replay), Path(args.output_folder), skip_save_file_generation=args.skip_save_file_generation, split_threshold=args.split_threshold)
