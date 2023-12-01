@@ -5595,7 +5595,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	}
 
 	// check doors
-	// TODO z3
+	// TODO z3 !!
 	if (isdungeon(dmap, screen_index) && !is_z3_scrolling_mode())
 	{
 		for(int32_t i=0; i<4; i++)
@@ -5649,15 +5649,12 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 		}
 	}
 
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen_index);
 	for (word i = 0; i < MAXFFCS; i++)
 	{
 		base_screen->ffcs[i].screen_index = screen_index;
-		if (is_z3_scrolling_mode())
-		{
-			auto [offx, offy] = translate_screen_coordinates_to_world(screen_index);
-			base_screen->ffcs[i].x += offx;
-			base_screen->ffcs[i].y += offy;
-		}
+		base_screen->ffcs[i].x += offx;
+		base_screen->ffcs[i].y += offy;
 	}
 }
 
