@@ -5973,7 +5973,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 
-	auto [offx, offy] = is_a_region(destdmap, scr) ?
+	auto [offx, offy] = is_a_region(destdmap < 0 ? currdmap : destdmap, scr) ?
 		translate_screen_coordinates_to_world(scr) :
 		std::make_pair(0, 0);
 	for (word i = 0; i < MAXFFCS; i++)
