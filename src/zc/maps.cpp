@@ -5649,7 +5649,9 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 		}
 	}
 
-	auto [offx, offy] = translate_screen_coordinates_to_world(screen_index);
+	auto [offx, offy] = is_a_region(dmap, screen_index) ?
+		translate_screen_coordinates_to_world(screen_index) :
+		std::make_pair(0, 0);
 	for (word i = 0; i < MAXFFCS; i++)
 	{
 		base_screen->ffcs[i].screen_index = screen_index;
@@ -5666,6 +5668,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 // If scr >= 0x80, `heroscr` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
 // If overlay is true, the old tmpscr combos will be copied to the new tmpscr combos on all layers (but only where
 // the new screen has a 0 combo).
+// TODO: loadscr should set curdmap, but currently callers do that.
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
 	zapp_reporting_set_tag("screen", scr);
@@ -5748,6 +5751,10 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		}
 	}
 
+	// Temp set currdmap so that get_layer_scr -> load_a_screen_and_layers will know if this is a region.
+	int o_currdmap = currdmap;
+	currdmap = destdmap;
+
 	current_region_screen_count = 0;
 	for (int y = 0; y < current_region.screen_height; y++)
 	{
@@ -5769,6 +5776,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 			}
 		}
 	}
+
+	currdmap = o_currdmap;
 
 	init_ffpos();
 	cpos_clear_all();
@@ -5964,15 +5973,14 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 
-	auto [offx, offy] = translate_screen_coordinates_to_world(scr);
+	auto [offx, offy] = is_a_region(destdmap, scr) ?
+		translate_screen_coordinates_to_world(scr) :
+		std::make_pair(0, 0);
 	for (word i = 0; i < MAXFFCS; i++)
 	{
 		screen->ffcs[i].screen_index = scr;
-		if (is_z3_scrolling_mode())
-		{
-			screen->ffcs[i].x += offx;
-			screen->ffcs[i].y += offy;
-		}
+		screen->ffcs[i].x += offx;
+		screen->ffcs[i].y += offy;
 	}
 
 	// Apply perm secrets, if applicable.
