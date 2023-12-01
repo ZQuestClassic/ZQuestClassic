@@ -93,10 +93,6 @@ bool play_enh_music_crossfade(char* name, char* path, int32_t track, int32_t vol
 		// If new music was found
 		if (ret)
 		{
-			// New music fades in
-			if (zcmusic != NULL)
-				zcmusic->fadevolume = 0;
-
 			zcmixer->newtrack = zcmusic;
 			zcmixer->fadeinframes = fadeinframes;
 			zcmixer->fadeinmaxframes = fadeinframes;
@@ -115,9 +111,9 @@ bool play_enh_music_crossfade(char* name, char* path, int32_t track, int32_t vol
 			if (startpos > 0)
 				zcmusic_set_curpos(zcmixer->newtrack, startpos);
 			if (zcmixer->oldtrack != NULL)
-				zcmixer->oldtrack->fadevolume = 10000;
+				zcmixer->oldtrack->fadevolume = fadeoutframes > 0 ? 10000 : 0;
 			if (zcmixer->newtrack != NULL)
-				zcmixer->newtrack->fadevolume = 0;
+				zcmixer->newtrack->fadevolume = fadeinframes > 0 ? 0 : 10000;
 		}
 		else if (revertonfail)
 		{
