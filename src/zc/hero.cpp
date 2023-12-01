@@ -24510,10 +24510,9 @@ RaftingStuff:
 	
 	
 	if (DMaps[currdmap].flags&dmf3STAIR && (currscr==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
-			&& (specialcave > 0 && DMaps[currdmap].flags & dmfGUYCAVES ? special_warp_return_screen : *tmpscr).room==rWARP && type==cSTAIR)
+			&& (specialcave > 0 && DMaps[currdmap].flags & dmfGUYCAVES ? special_warp_return_screen : *tmpscr).room==rWARP && type==cSTAIR
+		    && !is_z3_scrolling_mode())
 	{
-		CHECK(!is_z3_scrolling_mode()); // TODO z3
-
 		if(!skippedaframe)
 		{
 			FFCore.warpScriptCheck();
