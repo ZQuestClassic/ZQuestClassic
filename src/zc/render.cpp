@@ -214,8 +214,6 @@ static void configure_render_tree()
 		int h = rti_menu.height;
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
-		xscale = intscale(xscale);
-		yscale = intscale(yscale);
 		rti_menu.set_transform({
 			.x = 0,
 			.y = 0,
