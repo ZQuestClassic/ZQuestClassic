@@ -8623,24 +8623,31 @@ void kill_sfx()
 		}
 }
 
+// TODO: when far out of bounds, sounds should dampen. currently we only pan.
 int32_t pan(int32_t x)
 {
 	switch(pan_style)
 	{
+	// MONO
 	case 0:
 		return 128;
-		
-	case 1:
-		x = Hero.getX().getInt() - x + 128;
-		return vbound((x>>1)+68,0,255);
-		
-	case 2:
-		x = Hero.getX().getInt() - x + 128;
-		return vbound(((x*3)>>2)+36,0,255);
-	}
 
-	x = Hero.getX().getInt() - x + 128;
-	return vbound(x,0,255);
+	// 1/2
+	case 1:
+		x -= viewport.x;
+		return vbound((x>>1)+68,0,255);
+
+	// 3/4
+	case 2:
+		x -= viewport.x;
+		return vbound(((x*3)>>2)+36,0,255);
+
+	// FULL
+	case 3:
+	default:
+		x -= viewport.x;
+		return vbound(x,0,255);
+	}
 }
 
 /*******************************/
