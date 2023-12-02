@@ -8,7 +8,9 @@
 #include <limits>
 #include <assert.h>
 #include <cstring>
+#include <string>
 #include <cstdlib>
+#include "fmt/format.h"
 
 #define FIX_NAN 0
 //std::numeric_limits<t>::quiet_NaN()
@@ -209,6 +211,11 @@ public:
 		return copy().do_round(rt).getInt();
 	}
 	zfix_round rnd(roundType rt) const;
+	
+	std::string str() const
+	{
+		return fmt::format("{}.{:04}",val/10000,abs(val%10000));
+	}
 public:
 	
 	zfix() : val(0)											{}
@@ -391,6 +398,20 @@ public:
 	zfix_round(zfix v, roundType rt = ROUND_TRUNC) : zfix(v), rt(rt) {}
 	virtual int32_t getRound() const;
 	virtual zfix& doRound();
+};
+
+//Implement fmt::format parsing for zfix type
+template <> struct fmt::formatter<zfix>
+{
+	constexpr auto parse(fmt::format_parse_context& ctx) -> fmt::format_parse_context::iterator
+	{
+		return ctx.begin();
+	}
+	auto format(const zfix& number, fmt::format_context& ctx) const -> fmt::format_context::iterator
+	{
+		auto val = number.getZLong();
+		return fmt::format_to(ctx.out(), "{0}.{1:04}", val/10000, abs(val%10000));
+	}
 };
 
 inline zfix atozfix(char const* val)
