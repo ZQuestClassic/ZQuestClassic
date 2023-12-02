@@ -154,7 +154,12 @@ void zmap::clear()
 {
 	*this = zmap();
 }
-
+void zmap::force_refr_pointer()
+{
+	if(unsigned(currmap) > map_count || (currmap*MAPSCRS > TheMaps.size()))
+		screens = &TheMaps[currmap*MAPSCRS];
+	else screens = nullptr;
+}
 bool zmap::CanUndo()
 {
     return undo_stack.size() > 0;
@@ -6359,6 +6364,7 @@ bool setMapCount2(int32_t c)
     try
     {
         TheMaps.resize(c*MAPSCRS);
+		Map.force_refr_pointer();
 		map_autolayers.resize(c*6);
     }
     catch(...)

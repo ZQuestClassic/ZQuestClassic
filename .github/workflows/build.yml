@@ -130,8 +130,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .ccache
-          key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-ccache-${{ github.run_id }}
-          restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-
+          key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-v3-ccache-${{ github.run_id }}
+          restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-v3-
       - if: ${{ !inputs.cache }}
         run: echo "CCACHE_DISABLE=1" >> "$GITHUB_ENV"
 

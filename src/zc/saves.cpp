@@ -1096,6 +1096,13 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		if(section_version > 38)
 			if(!p_getbmap(&game.xdoors, f))
 				return 116;
+		if(section_version > 39)
+		{
+			if(!p_getc(&game.swim_mult,f))
+				return 117;
+			if(!p_getc(&game.swim_div,f))
+				return 118;
+		}
 	}
 	
 	return 0;
@@ -1399,6 +1406,10 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 110;
 	if(!p_putbmap(game.xdoors,f))
 		return 111;
+	if(!p_putc(game.swim_mult,f))
+		return 112;
+	if(!p_putc(game.swim_div,f))
+		return 113;
 	return 0;
 }
 
@@ -1702,6 +1713,10 @@ static void do_save_order()
 		out << fs::proximate(save.path, get_save_folder_path()).string() << "\n";
 	}
     out.close();
+
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
 }
 
 // Creates an empty save_t (no header or gamedata, just path) for every file in the
@@ -1895,7 +1910,7 @@ static void update_icon(int index)
 static int32_t do_save_games()
 {
 	// Not sure why this happens, but apparently it does...
-	for (auto& save : saves)
+	for (const auto& save : saves)
 	{
 		if (!save.header) continue;
 
@@ -2139,7 +2154,9 @@ int saves_do_first_time_stuff(int index)
 			save->game->header.qstpath = temppath;
 		}
 
-		load_quest(save->game);
+		ret = load_quest(save->game);
+		if (ret)
+			return ret;
 		
 		save->game->set_maxlife(zinit.mcounter[crLIFE]);
 		save->game->set_life(zinit.mcounter[crLIFE]);

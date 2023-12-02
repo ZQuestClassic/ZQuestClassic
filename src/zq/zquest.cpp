@@ -10744,7 +10744,7 @@ void domouse()
 							}, nullopt, !draw_mapscr },
 						{ "Scroll to Combo", [&]()
 							{
-								First[current_combolist] = draw_mapscr->data[c];
+								First[current_combolist] = scrollto_cmb(draw_mapscr->data[c]);
 							}, nullopt, !draw_mapscr },
 						{ "Edit Combo", [&]()
 							{
