@@ -22169,14 +22169,24 @@ static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir,
 	}
 }
 
+#define BEAMID_COLOR0 (1<<24) //must have rightmost 24 bits empty
+static int get_beamid(newcombo const& cmb)
+{
+	//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
+	if(cmb.usrflags&cflag1) //use tile/cset style
+		return std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24;
+	else //use 3-color style
+	{
+		auto id = -((cmb.attribytes[3]<<16)|(cmb.attribytes[2]<<8)|(cmb.attribytes[1]));
+		if(!id) //0 would clash with the tile/cset style
+			id = BEAMID_COLOR0;
+		return id;
+	}
+}
 static bool launch_lightbeam(newcombo const& cmb, int32_t pos,
 	std::map<int32_t, spot_t*>& maps, bool refl, bool block)
 {
-	//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
-	int32_t id = (cmb.usrflags&cflag1)
-		? std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24
-		: -((cmb.attribytes[3]<<16)|(cmb.attribytes[2]<<8)|(cmb.attribytes[1]));
-	if(!id) return false;
+	int32_t id = get_beamid(cmb);
 	//Get the grid array for this tile/color
 	spot_t* grid;
 	if(maps[id])
@@ -22205,11 +22215,7 @@ static bool launch_fflightbeam(ffcdata const& ffc,
 	std::map<int32_t, std::map<dword,spot_t>>& ffmaps, bool refl, bool block)
 {
 	newcombo const& cmb = combobuf[ffc.data];
-	//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
-	int32_t id = (cmb.usrflags&cflag1)
-		? std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24
-		: -((cmb.attribytes[3]<<16)|(cmb.attribytes[2]<<8)|(cmb.attribytes[1]));
-	if(!id) return false;
+	int32_t id = get_beamid(cmb);
 	//Get the grid array for this tile/color
 	std::map<dword,spot_t>& grid = ffmaps[id]; // grid of (x<<16)|(y&0xFFFF)
 	byte spotdir = cmb.attribytes[0];
@@ -22248,11 +22254,12 @@ static BITMAP* generate_beam_bitmap(int32_t id)
 {
 	BITMAP* cbmp = create_bitmap_ex(8, 16*beamoffs_max, 16);
 	clear_bitmap(cbmp);
-	if(id < 0)
+	if(id < 0 || id == BEAMID_COLOR0)
 	{
-		byte c_inner = ((-id)&0x0000FF);
-		byte c_middle = ((-id)&0x00FF00)>>8;
-		byte c_outter = ((-id)&0xFF0000)>>16;
+		int cid = (id == BEAMID_COLOR0) ? 0 : abs(id);
+		byte c_inner = (cid & 0x0000FF);
+		byte c_middle = (cid & 0x00FF00)>>8;
+		byte c_outter = (cid & 0xFF0000)>>16;
 		for(size_t q = 1; q < beamoffs_max; ++q)
 		{
 			circlefill(cbmp, 16*q+8, 8, 3, c_outter);
