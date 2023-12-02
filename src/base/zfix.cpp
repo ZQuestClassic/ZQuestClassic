@@ -1,4 +1,5 @@
 #include "base/zfix.h"
+#include <fmt/format.h>
 #include "zc/replay.h"
 
 zfix_round zfix::rnd(roundType rt) const
