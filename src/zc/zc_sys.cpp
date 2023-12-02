@@ -2,6 +2,7 @@
 
 #include "allegro/gfx.h"
 #include "allegro5/joystick.h"
+#include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include <stdio.h>

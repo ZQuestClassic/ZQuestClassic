@@ -1,7 +1,5 @@
 #include "base/zapp.h"
 #include "base/version.h"
-#include "base/zc_alleg.h"
-#include "zconfig.h"
 #include "base/zsys.h"
 #include <filesystem>
 #include <string>
@@ -45,9 +43,22 @@ void common_main_setup(App id, int argc, char **argv)
 {
     app_id = id;
 
-	if (std::getenv("ZC_HEADLESS") != nullptr)
+	if (used_switch(argc, argv, "-version"))
 	{
-		set_headless_mode();
+		printf("version %s\n", getVersionString());
+		exit(0);
+	}
+
+	if (used_switch(argc, argv, "-channel"))
+	{
+		printf("channel %s\n", getReleaseChannel());
+		exit(0);
+	}
+
+	if (used_switch(argc, argv, "-repo"))
+	{
+		printf("repo %s\n", getRepo());
+		exit(0);
 	}
 
 #ifdef HAS_SENTRY
@@ -92,6 +103,12 @@ void common_main_setup(App id, int argc, char **argv)
         chdir(std::filesystem::path(argv[0]).parent_path().c_str());
     }
 #endif
+
+	// Helps to test crash reporting.
+	if (used_switch(argc, argv, "-crash"))
+	{
+		abort();
+	}
 
 #ifdef ALLEGRO_SDL
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);

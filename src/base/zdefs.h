@@ -112,6 +112,7 @@
 #include "base/random.h"
 #include "base/util.h"
 #include "base/render.h"
+#include "fontsdat.h"
 #include "zconfig.h"
 struct mapscr;
 class solid_object;
