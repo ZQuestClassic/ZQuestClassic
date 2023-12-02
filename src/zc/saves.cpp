@@ -1702,6 +1702,10 @@ static void do_save_order()
 		out << fs::proximate(save.path, get_save_folder_path()).string() << "\n";
 	}
     out.close();
+
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
 }
 
 // Creates an empty save_t (no header or gamedata, just path) for every file in the
