@@ -3,7 +3,8 @@ import { createElement, createUrlString, fetchWithProgress, formatBytes } from "
 import { handleFileLaunch } from "./file_launch.js";
 
 window.ZC = {
-  dataOrigin: 'https://data.zquestclassic.com',
+  // TODO: this should be https://data.zquestclassic.com , but having issues with SSL/X-Amz-Meta-Inflated-Content-Size
+  dataOrigin: 'https://zc-data.nyc3.digitaloceanspaces.com',
   pathToUrl: {},
   setStatus: function (text, percentProgress = null) {
     // `.data.js` emscripten generated script passes progress like this:

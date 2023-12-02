@@ -19,8 +19,6 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
   }
 
   for (const [id, quest] of Object.entries(manifest)) {
-    if (!['auto', true, 'slow'].includes(quest.approval)) continue;
-
     const questPrefix = '/' + id;
 
     for (const music of quest.music) {
