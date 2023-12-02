@@ -1899,7 +1899,7 @@ static void update_icon(int index)
 static int32_t do_save_games()
 {
 	// Not sure why this happens, but apparently it does...
-	for (auto& save : saves)
+	for (const auto& save : saves)
 	{
 		if (!save.header) continue;
 
@@ -2143,7 +2143,9 @@ int saves_do_first_time_stuff(int index)
 			save->game->header.qstpath = temppath;
 		}
 
-		load_quest(save->game);
+		ret = load_quest(save->game);
+		if (ret)
+			return ret;
 		
 		save->game->set_maxlife(zinit.mcounter[crLIFE]);
 		save->game->set_life(zinit.mcounter[crLIFE]);

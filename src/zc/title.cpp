@@ -1229,10 +1229,16 @@ static void select_game(bool skip = false)
 		{
 			if (register_name())
 			{
-				saves_select(saves_count() - 1);
-				loadlast = saves_current_selection() + 1;
 				strcpy(qstpath, load_qstpath.c_str());
-				saves_do_first_time_stuff(saves_current_selection());
+				if (saves_do_first_time_stuff(saves_count() - 1))
+				{
+					InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
+				}
+				else
+				{
+					saves_select(saves_count() - 1);
+					loadlast = saves_current_selection() + 1;
+				}
 				break;
 			}
 			else
@@ -1249,7 +1255,10 @@ static void select_game(bool skip = false)
 			if (!save->header->has_played)
 			{
 				save->header->qstpath = qstpath;
-				saves_do_first_time_stuff(saveslot);
+				if (saves_do_first_time_stuff(saveslot))
+				{
+					InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
+				}
 				if (is_custom)
 					init_NES_mode();
 			}
