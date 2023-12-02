@@ -1096,6 +1096,13 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		if(section_version > 38)
 			if(!p_getbmap(&game.xdoors, f))
 				return 116;
+		if(section_version > 39)
+		{
+			if(!p_getc(&game.swim_mult,f))
+				return 117;
+			if(!p_getc(&game.swim_div,f))
+				return 118;
+		}
 	}
 	
 	return 0;
@@ -1399,6 +1406,10 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 110;
 	if(!p_putbmap(game.xdoors,f))
 		return 111;
+	if(!p_putc(game.swim_mult,f))
+		return 112;
+	if(!p_putc(game.swim_div,f))
+		return 113;
 	return 0;
 }
 
