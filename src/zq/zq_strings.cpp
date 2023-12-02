@@ -121,7 +121,7 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 	
 	// Disable paste options if the copy source is invalid
 	bool no_pasting = (zqstr_copysrc<=0 || zqstr_copysrc>=msg_count);
-	static NewMenu rcmenu
+	NewMenu rcmenu
 	{
 		{ "Copy", [&]()
 			{
