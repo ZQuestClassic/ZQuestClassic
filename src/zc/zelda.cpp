@@ -5753,7 +5753,7 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 extern "C" void get_shareable_url()
 {
 	EM_ASM({
-		ZC.setShareableUrl({quest: UTF8ToString($0), dmap: $1, screen: $2});
+		ZC.setShareableUrl({test: UTF8ToString($0), dmap: $1, screen: $2});
 	}, qstpath, currdmap, currscr);
 }
 #endif
