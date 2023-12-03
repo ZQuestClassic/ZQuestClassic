@@ -38,6 +38,7 @@
 #include "zq/autocombo/pattern_dormtn.h"
 #include "zq/autocombo/pattern_tiling.h"
 #include "zq/autocombo/pattern_replace.h"
+#include "zq/render_hotkeys.h"
 #include "zq/render_minimap.h"
 #include "zq/render_tooltip.h"
 #include "base/misctypes.h"
@@ -524,6 +525,12 @@ int toggleConsole()
 {
 	console_is_open ? killConsole() : initConsole();
 	zc_set_config("zquest","open_debug_console",console_is_open?1:0);
+	return D_O_K;
+}
+
+int showHotkeys()
+{
+	hotkeys_toggle_display(!hotkeys_is_active());
 	return D_O_K;
 }
 
@@ -1514,6 +1521,7 @@ static NewMenu etc_menu
 	{ "&Video Mode", onZQVidMode, MENUID_ETC_VIDMODE },
 	{ "&Options...", onOptions },
 	{ "&Hotkeys...", do_zq_hotkey_dialog },
+	{ "&List Hotkeys...", do_zq_list_hotkeys_dialog },
 	{ "&Fullscreen", onFullScreen, MENUID_ETC_FULLSCREEN },
 	{},
 	{ "&View Pic...", onViewPic },
@@ -10207,6 +10215,16 @@ void domouse()
 	auto mz = mouse_z;
 	bool lclick = mb&1;
 	bool rclick = mb&2;
+
+	if (mb && hotkeys_is_active())
+	{
+		hotkeys_toggle_display(false);
+		while (gui_mouse_b())
+		{
+			custom_vsync();
+		}
+		return;
+	}
 	
 	FONT* tfont = font;
 	if(zoomed_minimap)
