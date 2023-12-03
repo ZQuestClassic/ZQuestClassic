@@ -1,4 +1,7 @@
 #include "render.h"
+#include "a5alleg.h"
+#include "allegro5/bitmap.h"
+#include "allegro5/display.h"
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "base/fonts.h"
@@ -59,6 +62,10 @@ std::vector<RenderTreeItem*>& RenderTreeItem::get_children()
 bool RenderTreeItem::has_children() const
 {
 	return !children.empty();
+}
+bool RenderTreeItem::has_parent() const
+{
+	return !!parent;
 }
 void RenderTreeItem::set_size(int width, int height)
 {
@@ -306,17 +313,17 @@ void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskin
 	al_draw_bitmap(buf, dx, dy, 0);
 }
 
-static void render_text(ALLEGRO_FONT* font, std::string text, int x, int y, int scale)
+void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::string text, int x, int y, int scale, ALLEGRO_COLOR color, ALLEGRO_COLOR bgcolor)
 {
 	ALLEGRO_STATE oldstate;
 	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 
-	int resx = al_get_display_width(all_get_display());
+	int resx = al_get_bitmap_width(bitmap);
 	int w = al_get_text_width(font, text.c_str());
 	int h = al_get_font_line_height(font);
 
 	static ALLEGRO_BITMAP* text_bitmap;
-	if (text_bitmap == nullptr || resx != al_get_bitmap_width(text_bitmap))
+	if (text_bitmap == nullptr || resx != al_get_bitmap_width(text_bitmap) || h != al_get_bitmap_height(text_bitmap))
 	{
 		if (text_bitmap)
 			al_destroy_bitmap(text_bitmap);
@@ -326,10 +333,10 @@ static void render_text(ALLEGRO_FONT* font, std::string text, int x, int y, int 
 
 	al_set_target_bitmap(text_bitmap);
 	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-	al_draw_filled_rectangle(0, 0, w, h, al_map_rgba_f(0, 0, 0, 0.6));
-	al_draw_text(font, al_map_rgb_f(1,1,1), 0, 0, 0, text.c_str());
+	al_draw_filled_rectangle(0, 0, w, h, bgcolor);
+	al_draw_text(font, color, 0, 0, 0, text.c_str());
 
-	al_set_target_backbuffer(all_get_display());
+	al_set_target_bitmap(bitmap);
 	al_draw_scaled_bitmap(text_bitmap,
 		0, 0,
 		al_get_bitmap_width(text_bitmap), al_get_bitmap_height(text_bitmap),
@@ -340,10 +347,10 @@ static void render_text(ALLEGRO_FONT* font, std::string text, int x, int y, int 
 	al_restore_state(&oldstate);
 }
 
-void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlign align, int scale)
+void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlign align, int scale)
 {
-	int resx = al_get_display_width(all_get_display());
-	int resy = al_get_display_height(all_get_display());
+	int resx = al_get_bitmap_width(bitmap);
+	int resy = al_get_bitmap_height(bitmap);
 	int font_height = al_get_font_line_height(font);
 	int text_y = align == TextAlign::bottom ?
 		resy - scale*font_height - 5 :
@@ -354,7 +361,7 @@ void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJ
 		int x = justify == TextJustify::left ?
 			5 :
 			resx - al_get_text_width(font, line.c_str())*scale - 5;
-		render_text(font, line.c_str(), x, text_y, scale);
+		render_text(bitmap, font, line.c_str(), x, text_y, scale, al_map_rgb_f(1, 1, 1), al_map_rgba_f(0, 0, 0, 0.6));
 		text_y += (scale*font_height + 3) * (align == TextAlign::bottom ? -1 : 1);
 	}
 }
@@ -498,7 +505,8 @@ void render_tree_draw_debug(RenderTreeItem* rti)
 	ALLEGRO_FONT* a5font = get_zc_font_a5(font_lfont_l);
 	render_tree_draw_item_debug(rti, 0, lines);
 	int font_scale = 4;
-	render_text_lines(a5font, lines, TextJustify::left, TextAlign::top, font_scale);
+	ALLEGRO_BITMAP* bitmap = al_get_backbuffer(all_get_display());
+	render_text_lines(bitmap, a5font, lines, TextJustify::left, TextAlign::top, font_scale);
 }
 
 static bool render_debug;

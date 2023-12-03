@@ -3,6 +3,7 @@
 #include "base/zapp.h"
 #include "base/zc_alleg.h"
 #include "zq/zq_misc.h"
+#include "zq/render_hotkeys.h"
 #include "zq/zquestdat.h"
 #include "zq/zquest.h"
 #include "base/colors.h"
@@ -956,6 +957,12 @@ int32_t checksave()
 extern bool mid_quitting_dlg;
 int32_t onExit()
 {
+	if (hotkeys_is_active())
+	{
+		hotkeys_toggle_display(false);
+		return D_O_K;
+	}
+
 #ifdef __EMSCRIPTEN__
 	return D_O_K;
 #endif

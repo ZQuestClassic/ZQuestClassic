@@ -1,6 +1,7 @@
 #ifndef _BASE_RENDER_TREE_H_
 #define _BASE_RENDER_TREE_H_
 
+#include "allegro5/color.h"
 #include "base/zc_alleg.h"
 #include "base/headers.h"
 #include <vector>
@@ -147,6 +148,7 @@ public:
 	std::vector<RenderTreeItem*>& get_children();
 	std::vector<RenderTreeItem*> const& get_children() const;
 	bool has_children() const;
+	bool has_parent() const;
 	void set_size(int width, int height);
 	void set_transform(Transform new_transform);
 	const Transform& get_transform() const;
@@ -218,7 +220,8 @@ enum class TextAlign {
 	top,
 	bottom,
 };
-void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlign align, int scale);
+void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::string text, int x, int y, int scale, ALLEGRO_COLOR color = al_map_rgb_f(1,1,1), ALLEGRO_COLOR bgcolor = al_map_rgba_f(0, 0, 0, 0));
+void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlign align, int scale);
 
 namespace MouseSprite
 {

@@ -1,5 +1,6 @@
 #include "base/zdefs.h"
 #include "base/hotkey.h"
+#include "zq/render_hotkeys.h"
 #include "zq/zquest.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_hotkey.h"
@@ -43,6 +44,7 @@ int32_t onRulesSearch();
 int32_t onQuickCompile();
 int32_t onSmartCompile();
 int toggleConsole();
+int showHotkeys();
 void cycle_compact_sqr(bool down);
 void call_testqst_dialog();
 extern uint8_t ViewLayer2BG, ViewLayer3BG;
@@ -55,8 +57,8 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_NULL_KEY: return "(None)";
 		case ZQKEY_UNDO: return "Undo";
 		case ZQKEY_REDO: return "Redo";
-		case ZQKEY_PLUS_FLAG: return "Increment Flag";
-		case ZQKEY_MINUS_FLAG: return "Decrement Flag";
+		case ZQKEY_MINUS_FLAG: return "Flag -";
+		case ZQKEY_PLUS_FLAG: return "Flag +";
 		case ZQKEY_SAVE: return "Save";
 		case ZQKEY_SAVEAS: return "Save As";
 		case ZQKEY_OPEN: return "Open Quest";
@@ -93,14 +95,14 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_COMPILE_ZSCRIPT: return "Compile ZScript";
 		case ZQKEY_SCREENSHOT: return "Snapshot";
 		case ZQKEY_ABOUT: return "About ZQ";
-		case ZQKEY_MINUS_MAP: return "Decrement Map";
-		case ZQKEY_PLUS_MAP: return "Increment Map";
-		case ZQKEY_MINUS_COLOR: return "Decrement CSet";
-		case ZQKEY_PLUS_COLOR: return "Increment CSet";
-		case ZQKEY_MINUS_SCR_PAL: return "Decrement Screen Palette";
-		case ZQKEY_PLUS_SCR_PAL: return "Increment Screen Palette";
-		case ZQKEY_MINUS_16_SCR_PAL: return "Decrement Screen Palette x16";
-		case ZQKEY_PLUS_16_SCR_PAL: return "Increment Screen Palette x16";
+		case ZQKEY_MINUS_MAP: return "Map -1";
+		case ZQKEY_PLUS_MAP: return "Map +1";
+		case ZQKEY_MINUS_COLOR: return "CSet -1";
+		case ZQKEY_PLUS_COLOR: return "CSet +1";
+		case ZQKEY_MINUS_SCR_PAL: return "Screen Palette -1 (Preview)";
+		case ZQKEY_PLUS_SCR_PAL: return "Screen Palette +1 (Preview)";
+		case ZQKEY_MINUS_16_SCR_PAL: return "Screen Palette -16 (Preview)";
+		case ZQKEY_PLUS_16_SCR_PAL: return "Screen Palette +16 (Preview)";
 		case ZQKEY_GRID: return "Show Grid";
 		case ZQKEY_GRID_COLOR: return "Cycle Grid Color";
 		case ZQKEY_COMBO_COL_MODE: return "Toggle Combo Column Mode";
@@ -146,8 +148,8 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_SQUAREPANEL_UP: return "Compact Squarepanel Up";
 		case ZQKEY_SQUAREPANEL_DOWN: return "Compact Squarepanel Down";
 		case ZQKEY_TESTMODE: return "Test Quest";
-		case ZQKEY_CAUTO_HEIGHTMINUS: return "Decrease Autocombo Height";
-		case ZQKEY_CAUTO_HEIGHTPLUS: return "Increase Autocombo Height";
+		case ZQKEY_CAUTO_HEIGHTMINUS: return "Autocombo Height -";
+		case ZQKEY_CAUTO_HEIGHTPLUS: return "Autocombo Height +";
 		case ZQKEY_CURR_LAYER_HL: return "Highlight Current Layer";
 		case ZQKEY_VIEW_MAP: return "Quick View Map";
 		case ZQKEY_DRAWMODE_NORMAL: return "Drawing Mode (Normal)";
@@ -263,6 +265,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_RULETMPLS: return "Rule Templates";
 		case ZQKEY_COMPILE_SMART: return "Smart Compile ZScript";
 		case ZQKEY_DEBUG_CONSOLE: return "ZQ Debug Console";
+		case ZQKEY_SHOW_HOTKEYS: return "Show Hotkeys";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -274,8 +277,8 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_NULL_KEY: return "None";
 		case ZQKEY_UNDO: return "ZQKEY_UNDO";
 		case ZQKEY_REDO: return "ZQKEY_REDO";
-		case ZQKEY_PLUS_FLAG: return "ZQKEY_PLUS_FLAG";
 		case ZQKEY_MINUS_FLAG: return "ZQKEY_MINUS_FLAG";
+		case ZQKEY_PLUS_FLAG: return "ZQKEY_PLUS_FLAG";
 		case ZQKEY_SAVE: return "ZQKEY_SAVE";
 		case ZQKEY_SAVEAS: return "ZQKEY_SAVEAS";
 		case ZQKEY_OPEN: return "ZQKEY_OPEN";
@@ -482,6 +485,7 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_RULETMPLS: return "ZQKEY_RULETMPLS";
 		case ZQKEY_COMPILE_SMART: return "ZQKEY_COMPILE_SMART";
 		case ZQKEY_DEBUG_CONSOLE: return "ZQKEY_DEBUG_CONSOLE";
+		case ZQKEY_SHOW_HOTKEYS: return "ZQKEY_SHOW_HOTKEYS";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -496,9 +500,9 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Undo the last edit";
 		case ZQKEY_REDO:
 			return "Redo the last undone change";
-		case ZQKEY_PLUS_FLAG:
-			break;
 		case ZQKEY_MINUS_FLAG:
+			break;
+		case ZQKEY_PLUS_FLAG:
 			break;
 		case ZQKEY_SAVE:
 			return "Save the quest";
@@ -900,6 +904,8 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Compile the ZScript buffer and smartly auto-assign slots";
 		case ZQKEY_DEBUG_CONSOLE:
 			return "Toggle the ZQuest Debug Console";
+		case ZQKEY_SHOW_HOTKEYS:
+			return "Show Hotkeys";
 	}
 	return "";
 }
@@ -935,8 +941,8 @@ void default_hotkeys()
 {
 	zq_hotkeys[ZQKEY_UNDO].setval(KEY_Z,KB_CTRL_FLAG, KEY_U,0);
 	zq_hotkeys[ZQKEY_REDO].setval(KEY_Z,KB_CTRL_FLAG|KB_SHIFT_FLAG, KEY_Y,KB_CTRL_FLAG);
-	zq_hotkeys[ZQKEY_PLUS_FLAG].setval(KEY_SLASH_PAD,0,KEY_CLOSEBRACE,0);
 	zq_hotkeys[ZQKEY_MINUS_FLAG].setval(KEY_ASTERISK,0,KEY_OPENBRACE,0);
+	zq_hotkeys[ZQKEY_PLUS_FLAG].setval(KEY_SLASH_PAD,0,KEY_CLOSEBRACE,0);
 	zq_hotkeys[ZQKEY_SAVE].setval(KEY_F2,0,KEY_S,KB_CTRL_FLAG);
 	zq_hotkeys[ZQKEY_SAVEAS].setval(0,0,0,0);
 	zq_hotkeys[ZQKEY_OPEN].setval(KEY_F3,0,KEY_O,KB_CTRL_FLAG);
@@ -972,7 +978,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_PREV_MODE].setval(KEY_X,0,0,0);
 	zq_hotkeys[ZQKEY_COMPILE_ZSCRIPT].setval(KEY_Y,0,0,0);
 	zq_hotkeys[ZQKEY_SCREENSHOT].setval(KEY_Z,0,0,0);
-	zq_hotkeys[ZQKEY_ABOUT].setval(KEY_SLASH,KB_SHIFT_FLAG,0,0);
+	zq_hotkeys[ZQKEY_ABOUT].setval(KEY_SLASH,0,0,0);
 	zq_hotkeys[ZQKEY_MINUS_MAP].setval(KEY_COMMA,0,0,0);
 	zq_hotkeys[ZQKEY_PLUS_MAP].setval(KEY_STOP,0,0,0);
 	zq_hotkeys[ZQKEY_MINUS_COLOR].setval(KEY_MINUS,0,KEY_MINUS_PAD,0);
@@ -1132,6 +1138,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_RULETMPLS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_COMPILE_SMART].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_DEBUG_CONSOLE].setval(0, 0, 0, 0);
+	zq_hotkeys[ZQKEY_SHOW_HOTKEYS].setval(KEY_SLASH, KB_SHIFT_FLAG, 0, 0);
 }
 
 void load_hotkeys()
@@ -1237,6 +1244,10 @@ int run_hotkey(uint hkey)
 {
 	if(disabled_hotkey(hkey))
 		return D_O_K;
+
+	if (hotkeys_is_active() && hkey != ZQKEY_SHOW_HOTKEYS)
+		hotkeys_toggle_display(false);
+
 	switch(hkey)
 	{
 		case ZQKEY_NULL_KEY: break;
@@ -1244,10 +1255,10 @@ int run_hotkey(uint hkey)
 			return onUndo();
 		case ZQKEY_REDO:
 			return onRedo();
-		case ZQKEY_PLUS_FLAG:
-			return onIncreaseFlag();
 		case ZQKEY_MINUS_FLAG:
 			return onDecreaseFlag();
+		case ZQKEY_PLUS_FLAG:
+			return onIncreaseFlag();
 		case ZQKEY_SAVE:
 			return onSave();
 		case ZQKEY_SAVEAS:
@@ -1734,6 +1745,9 @@ int run_hotkey(uint hkey)
 		case ZQKEY_DEBUG_CONSOLE:
 			toggleConsole();
 			break;
+		case ZQKEY_SHOW_HOTKEYS:
+			showHotkeys();
+			break;
 	}
 	return D_O_K;
 }
@@ -1788,9 +1802,16 @@ int do_zq_hotkey_dialog()
 			if(tmp_hotkeys[q] != zq_hotkeys[q])
 				zc_set_config("ZQ_HOTKEY",get_hotkey_cfg_name(q),zq_hotkeys[q].getval());
 		}
+		hotkeys_invalidate();
 	}
 	else
 		memcpy(zq_hotkeys, tmp_hotkeys, sizeof(tmp_hotkeys));
+	return D_O_K;
+}
+
+int do_zq_list_hotkeys_dialog()
+{
+	hotkeys_toggle_display(true);
 	return D_O_K;
 }
 

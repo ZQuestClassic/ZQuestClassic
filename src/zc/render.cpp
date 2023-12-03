@@ -327,9 +327,10 @@ void render_zc()
 				lines_right.push_back(ffcmap[tmpscr->ffcs[i].script-1].scriptname);
 		}
 	}
-	
-	render_text_lines(a5font, lines_left, TextJustify::left, TextAlign::bottom, font_scale);
-	render_text_lines(a5font, lines_right, TextJustify::right, TextAlign::bottom, font_scale);
+
+	ALLEGRO_BITMAP* bitmap = al_get_backbuffer(all_get_display());
+	render_text_lines(bitmap, a5font, lines_left, TextJustify::left, TextAlign::bottom, font_scale);
+	render_text_lines(bitmap, a5font, lines_right, TextJustify::right, TextAlign::bottom, font_scale);
 
 	if (render_get_debug())
 		render_tree_draw_debug(&rti_root);
