@@ -642,6 +642,8 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	get_target_property(asm_compile_options asmjit COMPILE_OPTIONS)
 	string(REPLACE "$<NOT:$<CONFIG:Debug>>" "$<NOT:$<CONFIG:Debug,Asan>>" asm_compile_options "${asm_compile_options}")
 	set_target_properties(asmjit PROPERTIES COMPILE_OPTIONS "${asm_compile_options}")
+
+	target_sources(zplayer PUBLIC src/zc/jit_x64.cpp)
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND WIN32)
