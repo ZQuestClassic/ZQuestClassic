@@ -327,7 +327,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 							" Changers are both invisible (not drawn) and ethereal (have no effect)."
 							" When a moving FFC collides with a changer, the changer will change some properties of"
 							" the colliding FFC. This can be used to make FFCs that move in patterns and such."),
-						CHECKB("Solid (Experimental)", ffSOLID, "If enabled, SHOULD make the FFC behave as solid."
+						CHECKB("Solid", ffSOLID, "If enabled, SHOULD make the FFC behave as solid."
 							"\nNOTE: This is not fully implemented, and may not work at all."),
 						CHECKB("Run Script at Screen Init", ffPRELOAD, "The script attached to this FFC runs during the"
 							" screen's initialization, before scrolling to the screen begins. This is useful for scripts"
