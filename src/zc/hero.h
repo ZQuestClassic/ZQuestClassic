@@ -345,9 +345,9 @@ public:
 	void moveheroOld();
 	void mod_steps(std::vector<zfix*>& v);
 	void get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir);
-	bool scr_walkflag(zfix_round dx,zfix_round dy,int dir,bool kb);
-	optional<zfix> get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm);
-	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv);
+	bool scr_walkflag(zfix_round dx,zfix_round dy,int dir,bool kb,int* canladder = nullptr);
+	optional<zfix> get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm, bool doladder);
+	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv,int* canladder = nullptr);
 	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
 	bool can_movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false);
 	bool moveAtAngle(zfix degrees, zfix px, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
