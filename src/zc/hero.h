@@ -323,6 +323,7 @@ public:
 	byte tliftclk;
 	zfix liftheight;
 	uint32_t liftflags;
+	optional<byte> last_lift_id;
 
 private:
 	ffcdata const* platform_ffc;

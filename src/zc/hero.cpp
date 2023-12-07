@@ -1687,6 +1687,7 @@ void HeroClass::init()
     magiccastclk=0;
     magicitem = div_prot_item = -1;
 	last_lens_id = 0; //Should be -1 (-Z)
+	last_lift_id.reset();
 	last_savepoint_id = 0;
 	misc_internal_hero_flags = 0;
 	last_cane_of_byrna_item_id = -1;
@@ -10665,8 +10666,14 @@ void HeroClass::drop_liftwpn()
 }
 void HeroClass::do_liftglove(int32_t liftid, bool passive)
 {
+	if(!lift_wpn)
+		last_lift_id.reset();
 	if(liftid < 0)
-		liftid = current_item_id(itype_liftglove,true,true);
+	{
+		if(last_lift_id && can_lift(*last_lift_id))
+			liftid = *last_lift_id;
+		else liftid = current_item_id(itype_liftglove,true,true);
+	}
 	if(!can_lift(liftid)) return;
 	itemdata const& glove = itemsbuf[liftid];
 	byte intbtn = byte(glove.misc1&0xFF);
@@ -10767,9 +10774,11 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			}
 			Lwpns.add(lift_wpn);
 			lift_wpn = nullptr;
+			last_lift_id.reset();
 			if(glove.usesound2)
 				sfx(glove.usesound2,pan(int32_t(x)));
 		}
+		else last_lift_id = liftid;
 		
 		if(passive)
 		{
@@ -10888,7 +10897,14 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			}
 		}
 	}
-	if(!lifted) return;
+	
+	if(!lifted)
+	{
+		last_lift_id.reset();
+		return;
+	}
+	last_lift_id = liftid;
+	
 	if(!paidmagic)
 	{
 		paidmagic = true;
