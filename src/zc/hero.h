@@ -369,10 +369,16 @@ public:
 	int32_t  lookahead(int32_t d);
 	int32_t  lookaheadflag(int32_t d);
 	bool  lookaheadraftflag(int32_t d);
+	
+	bool check_ewpn_collide(weapon* w);
+	bool try_lwpn_hit(weapon* w);
+	bool try_ewpn_hit(weapon* w, bool force = false);
 	void checkhit();
+	
 	void doHit(int32_t hitdir);
 	bool checkdamagecombos(int32_t dx, int32_t dy);
 	bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
+	
 	void checkscroll();
 	void checkspecial();
 	void checkspecial2(int32_t *ls);

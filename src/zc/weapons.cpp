@@ -7066,9 +7066,11 @@ void weapon::collision_check()
 	if(isLWeapon)
 	{
 		check_enemy_lweapon_collision(this);
+		(void)Hero.try_lwpn_hit(this);
 	}
 	else
 	{
+		(void)Hero.try_ewpn_hit(this);
 	}
 }
 
