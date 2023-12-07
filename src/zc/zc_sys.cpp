@@ -8040,6 +8040,8 @@ void System()
 					break;
 			}
 		}
+		if(Quit || (GameFlags & GAMEFLAG_TRYQUIT))
+			break;
 		if(esc)
 		{
 			if(running)
