@@ -21643,205 +21643,202 @@ void clear_script_one_frame_conditions()
 		for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) e->hitby[q] = 0;
 	}
 }
-		
-void check_collisions()
+
+void check_enemy_lweapon_collision(weapon *w)
 {
-	for(int32_t i=0; i<Lwpns.Count(); i++)
+	if(!(w->Dead()) && w->id!=wSword && w->id!=wHammer && w->id!=wWand)
 	{
-		weapon *w = (weapon*)Lwpns.spr(i);
-		
-		if(!(w->Dead()) && w->id!=wSword && w->id!=wHammer && w->id!=wWand)
+		for(int32_t j=0; j<guys.Count(); j++)
 		{
-			for(int32_t j=0; j<guys.Count(); j++)
+			enemy *e = (enemy*)guys.spr(j);
+			
+			bool didhit = e->hit(w);
+			if(didhit) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
+			//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
 			{
-				enemy *e = (enemy*)guys.spr(j);
-				
-				bool didhit = e->hit(w);
-				if(didhit) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
-				//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
+				// !(e->stunclk)
+				int32_t h = e->takehit(w);
+				if (h == -1) 
 				{
-					// !(e->stunclk)
-					int32_t h = e->takehit(w);
-					if (h == -1) 
-					{ 
-						e->hitby[HIT_BY_LWEAPON] = i+1;
-						e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
-						e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
-						if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].family; 
-						else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
-						e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
-						e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
-						
-					}
-					//we may need to handle this in special cases. -Z
-				   
-					//if h == stun or ignore
+					int indx = Lwpns.find(w);
+					if(indx > -1)
+						e->hitby[HIT_BY_LWEAPON] = indx+1;
+					e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
+					e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
+					if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].family; 
+					else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
+					e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
+					e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
 					
-					//if e->stun > DEFAULT_STUN -1 || !e->stun 
-					//if the enemy wasn't stunned this round -- what a bitch, as the stun value is set before we check this
-					///! how about: if w->dead != bounce !
-					
-					// NOT FOR PUBLIC RELEASE
-					/*if(h==3) //Mirror shield
-					{
-					if (w->id==ewFireball || w->id==wRefFireball)
-					{
-					  w->id=wRefFireball;
-					  switch(e->dir)
-					  {
-						case up:    e->angle += (PI - e->angle) * 2.0;      break;
-						case down:  e->angle = -e->angle;                   break;
-						case left:  e->angle += ((-PI/2) - e->angle) * 2.0; break;
-						case right: e->angle += (( PI/2) - e->angle) * 2.0; break;
-						// TODO: the following. -L.
-						case l_up:  break;
-						case r_up:  break;
-						case l_down: break;
-						case r_down: break;
-					  }
-					}
-					else
-					{
-					  w->id = ((w->id==ewMagic || w->id==wRefMagic || w->id==wMagic) ? wRefMagic : wRefBeam);
-					  w->dir ^= 1;
-					  if(w->dir&2)
-						w->flip ^= 1;
-					  else
-						w->flip ^= 2;
-					}
-					w->ignoreHero=false;
-					}
-					else*/
-					if(h)
-					{
-						if(e->switch_hooked && w->family_class == itype_switchhook)
-							w->onhit(false, e, -1);
-						else w->onhit(false, e, h);
-					}
-					
-					if(h==2)
-					{
-						break;
-					}
+				}
+				//we may need to handle this in special cases. -Z
+			   
+				//if h == stun or ignore
+				
+				//if e->stun > DEFAULT_STUN -1 || !e->stun 
+				//if the enemy wasn't stunned this round -- what a bitch, as the stun value is set before we check this
+				///! how about: if w->dead != bounce !
+				
+				// NOT FOR PUBLIC RELEASE
+				/*if(h==3) //Mirror shield
+				{
+				if (w->id==ewFireball || w->id==wRefFireball)
+				{
+				  w->id=wRefFireball;
+				  switch(e->dir)
+				  {
+					case up:    e->angle += (PI - e->angle) * 2.0;      break;
+					case down:  e->angle = -e->angle;                   break;
+					case left:  e->angle += ((-PI/2) - e->angle) * 2.0; break;
+					case right: e->angle += (( PI/2) - e->angle) * 2.0; break;
+					// TODO: the following. -L.
+					case l_up:  break;
+					case r_up:  break;
+					case l_down: break;
+					case r_down: break;
+				  }
+				}
+				else
+				{
+				  w->id = ((w->id==ewMagic || w->id==wRefMagic || w->id==wMagic) ? wRefMagic : wRefBeam);
+				  w->dir ^= 1;
+				  if(w->dir&2)
+					w->flip ^= 1;
+				  else
+					w->flip ^= 2;
+				}
+				w->ignoreHero=false;
+				}
+				else*/
+				if(h)
+				{
+					if(e->switch_hooked && w->family_class == itype_switchhook)
+						w->onhit(false, e, -1);
+					else w->onhit(false, e, h);
 				}
 				
-				if(w->Dead())
+				if(h==2)
 				{
 					break;
 				}
 			}
-	
-			// Item flags added in 2.55:
-			// BRang/HShot/Arrows ITEM_FLAG4 is "Pick up anything" (port of qr_BRANGPICKUP)
-			// BRang/HShot ITEM_FLAG5 is "Drags Items" (port of qr_Z3BRANG_HSHOT)
-			// Arrows ITEM_FLAG2 is "Picks up items" (inverse port of qr_Z3BRANG_HSHOT)
-			// -V
-			if(w->id == wBrang || w->id == wHookshot || w->id == wArrow)
+			
+			if(w->Dead())
 			{
-				int32_t itype, pitem = w->parentitem;
-				switch(w->id)
-				{
-					case wBrang: itype = itype_brang; break;
-					case wArrow: itype = itype_arrow; break;
-					case wHookshot:
-						itype = (w->family_class == itype_switchhook ? itype_switchhook :itype_hookshot);
-						break;
-				}
-				if(pitem < 0) pitem = current_item_id(itype);
-				if(w->id == wHookshot && w->family_class == itype_switchhook && (itemsbuf[pitem].flags & ITEM_FLAG9))
-				{ //Swap with item
-					for(int32_t j=0; j<items.Count(); j++)
-					{
-						if(items.spr(j)->hit(w))
-						{
-							item *theItem = ((item*)items.spr(j));
-							bool priced = theItem->PriceIndex >-1;
-							bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-							if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-								|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
-							{
-								if(!Hero.switchhookclk)
-								{
-									hooked_combopos = -1;
-									hooked_layerbits = 0;
-									switching_object = theItem;
-									theItem->switch_hooked = true;
-									w->misc = 2;
-									w->step = 0;
-									theItem->clk2=256;
-									Hero.doSwitchHook(game->get_switchhookstyle());
-									if(QMisc.miscsfx[sfxSWITCHED])
-										sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(w->x));
-								}
-							}
-						}
-					}
-				}
-				else if((w->id==wArrow&&itemsbuf[pitem].flags & ITEM_FLAG2)||(w->id!=wArrow&&!(itemsbuf[pitem].flags & ITEM_FLAG5)))//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
-				{
-					for(int32_t j=0; j<items.Count(); j++)
-					{
-						if(items.spr(j)->hit(w))
-						{
-							item *theItem = ((item*)items.spr(j));
-							bool priced = theItem->PriceIndex >-1;
-							bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-							if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-								|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
-							{
-								if(itemsbuf[theItem->id].collect_script)
-								{
-									ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
-								}
-								
-								Hero.checkitems(j);
-							}
-						}
-					}
-				}
-				else if(w->id!=wArrow) //A BRang/HShot with "Drags Items"
-				{
-					for(int32_t j=0; j<items.Count(); j++)
-					{
-						if(items.spr(j)->hit(w))
-						{
-							item *theItem = ((item*)items.spr(j));
-							bool priced = theItem->PriceIndex >-1;
-							bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-							if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-								|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
-							{
-								int32_t pickup = theItem->pickup;
-								int32_t id2 = theItem->id;
-								int32_t pstr = theItem->pstring;
-								int32_t pstr_flags = theItem->pickup_string_flags;
-								
-								std::vector<int32_t> &ev = FFCore.eventData;
-								ev.clear();
-								ev.push_back(id2*10000);
-								ev.push_back(pickup*10000);
-								ev.push_back(pstr*10000);
-								ev.push_back(pstr_flags*10000);
-								ev.push_back(0);
-								ev.push_back(theItem->getUID());
-								ev.push_back(GENEVT_ICTYPE_RANGED_DRAG*10000);
-								ev.push_back(w->getUID());
-								
-								throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
-								bool nullify = ev[4] != 0;
-								if(nullify) continue;
-								if(w->id == wBrang)
-								{
-									w->onhit(false);
-								}
+				break;
+			}
+		}
 
-								if(w->dragging==-1)
-								{
-									w->dead=1;
-									theItem->clk2=256;
-									w->dragging=j;
-									theItem->is_dragged = true;
-								}
+		// Item flags added in 2.55:
+		// BRang/HShot/Arrows ITEM_FLAG4 is "Pick up anything" (port of qr_BRANGPICKUP)
+		// BRang/HShot ITEM_FLAG5 is "Drags Items" (port of qr_Z3BRANG_HSHOT)
+		// Arrows ITEM_FLAG2 is "Picks up items" (inverse port of qr_Z3BRANG_HSHOT)
+		// -Em
+		if(w->id == wBrang || w->id == wHookshot || w->id == wArrow)
+		{
+			int32_t itype, pitem = w->parentitem;
+			switch(w->id)
+			{
+				case wBrang: itype = itype_brang; break;
+				case wArrow: itype = itype_arrow; break;
+				case wHookshot:
+					itype = (w->family_class == itype_switchhook ? itype_switchhook :itype_hookshot);
+					break;
+			}
+			if(pitem < 0) pitem = current_item_id(itype);
+			if(w->id == wHookshot && w->family_class == itype_switchhook && (itemsbuf[pitem].flags & ITEM_FLAG9))
+			{ //Swap with item
+				for(int32_t j=0; j<items.Count(); j++)
+				{
+					if(items.spr(j)->hit(w))
+					{
+						item *theItem = ((item*)items.spr(j));
+						bool priced = theItem->PriceIndex >-1;
+						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+						{
+							if(!Hero.switchhookclk)
+							{
+								hooked_combopos = -1;
+								hooked_layerbits = 0;
+								switching_object = theItem;
+								theItem->switch_hooked = true;
+								w->misc = 2;
+								w->step = 0;
+								theItem->clk2=256;
+								Hero.doSwitchHook(game->get_switchhookstyle());
+								if(QMisc.miscsfx[sfxSWITCHED])
+									sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(w->x));
+							}
+						}
+					}
+				}
+			}
+			else if((w->id==wArrow&&itemsbuf[pitem].flags & ITEM_FLAG2)||(w->id!=wArrow&&!(itemsbuf[pitem].flags & ITEM_FLAG5)))//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
+			{
+				for(int32_t j=0; j<items.Count(); j++)
+				{
+					if(items.spr(j)->hit(w))
+					{
+						item *theItem = ((item*)items.spr(j));
+						bool priced = theItem->PriceIndex >-1;
+						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+							|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
+						{
+							if(itemsbuf[theItem->id].collect_script)
+							{
+								ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
+							}
+							
+							Hero.checkitems(j);
+						}
+					}
+				}
+			}
+			else if(w->id!=wArrow) //A BRang/HShot with "Drags Items"
+			{
+				for(int32_t j=0; j<items.Count(); j++)
+				{
+					if(items.spr(j)->hit(w))
+					{
+						item *theItem = ((item*)items.spr(j));
+						bool priced = theItem->PriceIndex >-1;
+						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+							|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+						{
+							int32_t pickup = theItem->pickup;
+							int32_t id2 = theItem->id;
+							int32_t pstr = theItem->pstring;
+							int32_t pstr_flags = theItem->pickup_string_flags;
+							
+							std::vector<int32_t> &ev = FFCore.eventData;
+							ev.clear();
+							ev.push_back(id2*10000);
+							ev.push_back(pickup*10000);
+							ev.push_back(pstr*10000);
+							ev.push_back(pstr_flags*10000);
+							ev.push_back(0);
+							ev.push_back(theItem->getUID());
+							ev.push_back(GENEVT_ICTYPE_RANGED_DRAG*10000);
+							ev.push_back(w->getUID());
+							
+							throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+							bool nullify = ev[4] != 0;
+							if(nullify) continue;
+							if(w->id == wBrang)
+							{
+								w->onhit(false);
+							}
+
+							if(w->dragging==-1)
+							{
+								w->dead=1;
+								theItem->clk2=256;
+								w->dragging=j;
+								theItem->is_dragged = true;
 							}
 						}
 					}
@@ -21849,6 +21846,11 @@ void check_collisions()
 			}
 		}
 	}
+}
+void check_collisions()
+{
+	for(uint q = 0; q < Lwpns.Count(); ++q)
+		check_enemy_lweapon_collision((weapon*)Lwpns.spr(q));
 }
 
 void dragging_item()
