@@ -9702,7 +9702,7 @@ heroanimate_skip_liftwpn:;
 	{
 		if(ladderx+laddery)
 		{
-			if(ladderdir==up)
+			if(ladderdir<=down)
 			{
 				if((laddery-y.getInt()>=(16+(ladderstart==dir?ladderstart==down?1:0:0))) || (laddery-y.getInt()<=(-16-(ladderstart==dir?ladderstart==up?1:0:0))) || (abs(ladderx-x.getInt())>8))
 				{
@@ -17309,7 +17309,7 @@ LEFTRIGHT_OLDMOVE:
 	}
 }
 
-bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
+bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* canladder)
 {
 	if(toogam) return false;
 	int dx = zdx.getRound(), dy = zdy.getRound();
@@ -17341,14 +17341,6 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
 	{
 		if(!solid)
 		{
-			bool isthissolid = false;
-			if (_walkflag(x+7,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
-				|| _walkflag(x+7,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)
-				|| _walkflag(x+8,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
-				|| _walkflag(x+8,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE))
-				isthissolid = true;
-			//This checks if Hero is currently swimming in solid water (cause even if the QR "No Hopping" is enabled, he should still hop out of solid water) - Dimi
-			
 			int ls = 22;
 			if((get_qr(qr_DROWN) && isSwimming()) || (!diagonalMovement) || get_qr(qr_NO_HOPPING))
 				ls = 1;
@@ -17374,6 +17366,10 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
 	}
 	else if(ladderx+laddery)                                  // ladder is being used
 	{
+		if (canladder)
+		{
+			*canladder = 0;
+		}
 		int32_t lx = zfix(dx);
 		int32_t ly = zfix(dy);
 		
@@ -17474,7 +17470,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
 				// * otherwise, walk on ladder(+hookshot) combos.
 				else if((isstepable(MAPCOMBO(dx, dy)) || wtrx==true))
 				{
-					if(!get_qr(qr_OLD_210_WATER))
+					if(!get_qr(qr_OLD_210_WATER) && current_item(itype_flippers))
 					{
 						//if Hero could swim on a tile instead of using the ladder,
 						//refuse to use the ladder to step over that tile. -DD
@@ -17515,6 +17511,14 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
 			}
 			bool walkwater = (get_qr(qr_DROWN) && !iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy));
 			
+			if (!wtrx && solid)
+			{
+				if (canladder)
+				{
+					*canladder = 0;
+				}
+			}
+			
 			if(d2==dir)
 			{
 				int32_t c = walkwater ? 0:8;
@@ -17522,53 +17526,86 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
 				
 				if(d2>=left)
 				{
-					// If the difference between dy and y is small enough
-					if(abs((dy)-(int32_t(y+c)))<=(b) && wtrx)
+					if (wtrx)
 					{
-						// Don't activate the ladder if it would be entirely
-						// over water and Hero has the flippers. This isn't
-						// a good way to do this, but it's too risky
-						// to make big changes to this stuff.
-						bool deployLadder=true;
-						int32_t lx=dx&0xF0;
-						if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
+						//If the difference between dy and y is small enough
+						//this is apparently a really crappy corner shove check?
+						if((replay_version_check(26)) || (abs((dy)-(int32_t(y+c)))<=(b)))
 						{
-							if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
-								iswaterex(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
-								iswaterex(MAPCOMBO(lx, y+15), currmap, currscr, -1, lx, y+15) && 
-								iswaterex(MAPCOMBO(lx+15, y+15), currmap, currscr, -1, lx+15, y+15))
-								deployLadder=false;
-						}
-						if(deployLadder)
-						{
-							ladderx = dx&0xF0;
-							laddery = y;
-							ladderdir = left;
-							ladderstart = d2;
-							solid = laddery!=y.getInt();
+							// Don't activate the ladder if it would be entirely
+							// over water and Hero has the flippers. This isn't
+							// a good way to do this, but it's too risky
+							// to make big changes to this stuff.
+							bool deployLadder=true;
+							int32_t lx=dx&0xF0;
+							if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
+							{
+								if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
+									iswaterex(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
+									iswaterex(MAPCOMBO(lx, y+15), currmap, currscr, -1, lx, y+15) && 
+									iswaterex(MAPCOMBO(lx+15, y+15), currmap, currscr, -1, lx+15, y+15))
+									deployLadder=false;
+							}
+							if(deployLadder)
+							{
+								if (replay_version_check(26))
+								{
+									if (canladder)
+									{
+										if (*canladder == -1) *canladder = 1;
+									}
+								}
+								else
+								{
+									ladderx = dx&0xF0;
+									laddery = y;
+									ladderdir = left;
+									ladderstart = d2;
+									solid = laddery!=y.getInt();
+								}
+							}
 						}
 					}
 				}
 				else if(d2<=down)
 				{
-					// If the difference between dx and x is small enough
-					if(abs((dx)-(int32_t(x+c)))<=(b) && wtrx)
+					if (wtrx)
 					{
-						ladderx = x;
-						laddery = dy&0xF0;
-						ladderdir = up;
-						ladderstart = d2;
-						solid = ladderx!=x.getInt();
+						//Unsure if this actually needs a replay check but better safe than sorry?
+						if (replay_version_check(26))
+						{
+							if (canladder)
+							{
+								if (*canladder == -1) *canladder = 1;
+							}
+						}
+						// If the difference between dx and x is small enough
+						if(!replay_version_check(26) && (abs((dx)-(int32_t(x+c)))<=(b)))
+						{
+							ladderx = x;
+							laddery = dy&0xF0;
+							ladderdir = up;
+							ladderstart = d2;
+							solid = ladderx!=x.getInt();
+						}
 					}
 				}
 			}
 		}
 	}
 	
+	if (replay_version_check(26))
+	{
+		if (canladder)
+		{
+			if (solid && *canladder == 1) *canladder = 2;
+		}
+	}
+	
 	return solid;
 }
 
-bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
+bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv, int* canladder)
 {
 	if(toogam) return true;
 	if(!(dx || dy)) return true;
@@ -17579,6 +17616,8 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 		return false;
 	
 	bool nosolid = true;
+
+	bool ret = true;
 	
 	if(dx && !dy)
 	{
@@ -17587,11 +17626,18 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 			zfix mx = bx+dx;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, left, kb))
-					return false;
+				if(scr_walkflag(mx, by+ty, left, kb, canladder))
+				{
+					if (canladder) ret = false;
+					else
+					{
+						return false;
+					}
+				}
 			}
-			if(scr_walkflag(mx, ry, left, kb))
+			if(scr_walkflag(mx, ry, left, kb, canladder))
 				return false;
+			if (!ret) return false;
 			if(nosolid && collide_object(bx+dx,by,-dx,hei,this))
 				return false;
 		}
@@ -17601,11 +17647,18 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 			int lx = mx-hit_width+1;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, right, kb))
-					return false;
+				if(scr_walkflag(mx, by+ty, right, kb, canladder))
+				{
+					if (canladder) ret = false;
+					else
+					{
+						return false;
+					}
+				}
 			}
-			if(scr_walkflag(mx, ry, right, kb))
+			if(scr_walkflag(mx, ry, right, kb, canladder))
 				return false;
+			if (!ret) return false;
 			if(nosolid && collide_object(bx+wid,by,dx,hei,this))
 				return false;
 		}
@@ -17617,11 +17670,18 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 			zfix my = by+dy;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, up, kb))
-					return false;
+				if(scr_walkflag(bx+tx, my, up, kb, canladder))
+				{
+					if (canladder) ret = false;
+					else
+					{
+						return false;
+					}
+				}
 			}
-			if(scr_walkflag(rx, my, up, kb))
+			if(scr_walkflag(rx, my, up, kb, canladder))
 				return false;
+			if (!ret) return false;
 			if(nosolid && collide_object(bx,by+dy,wid,-dy,this))
 				return false;
 		}
@@ -17631,11 +17691,18 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 			int ly = my-hit_height+1;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, down, kb))
-					return false;
+				if(scr_walkflag(bx+tx, my, down, kb, canladder))
+				{
+					if (canladder) ret = false;
+					else
+					{
+						return false;
+					}
+				}
 			}
-			if(scr_walkflag(rx, my, down, kb))
+			if(scr_walkflag(rx, my, down, kb, canladder))
 				return false;
+			if (!ret) return false;
 			if(nosolid && collide_object(bx,by+hei,wid,dy,this))
 				return false;
 		}
@@ -17644,7 +17711,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 	{
 		return scr_canmove(dx, 0, kb, ign_sv) && scr_canmove(dy, 0, kb, ign_sv);
 	}
-	return true;
+	return ret;
 }
 bool handle_movestate(std::function<bool()> proc)
 {
@@ -17686,7 +17753,7 @@ zfix handle_movestate_zfix(std::function<zfix()> proc)
 	return ret;
 }
 
-optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm)
+optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm, bool doladder)
 {
 	zfix tmp;
 	switch(dir)
@@ -17695,7 +17762,13 @@ optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir,
 		case up:
 			tmp = binary_search_zfix(ty, earlyterm, [&](zfix ty, zfix& retval)
 				{
-					if(!scr_walkflag(tx,ty,mdir,kb))
+					int laddercheck = -1;
+					if(!scr_walkflag(tx,ty,mdir,kb, &laddercheck))
+					{
+						retval = ty;
+						return BSEARCH_CONTINUE_UP;
+					}
+					else if(doladder && laddercheck > 0)
 					{
 						retval = ty;
 						return BSEARCH_CONTINUE_UP;
@@ -17708,7 +17781,13 @@ optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir,
 		case down:
 			tmp = binary_search_zfix(ty, earlyterm, [&](zfix ty, zfix& retval)
 				{
-					if(!scr_walkflag(tx,ty,mdir,kb))
+					int laddercheck = -1;
+					if(!scr_walkflag(tx,ty,mdir,kb, &laddercheck))
+					{
+						retval = ty;
+						return BSEARCH_CONTINUE_DOWN;
+					}
+					else if(doladder && laddercheck > 0)
 					{
 						retval = ty;
 						return BSEARCH_CONTINUE_DOWN;
@@ -17721,7 +17800,13 @@ optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir,
 		case left:
 			tmp = binary_search_zfix(tx, earlyterm, [&](zfix tx, zfix& retval)
 				{
-					if(!scr_walkflag(tx,ty,mdir,kb))
+					int laddercheck = -1;
+					if(!scr_walkflag(tx,ty,mdir,kb, &laddercheck))
+					{
+						retval = tx;
+						return BSEARCH_CONTINUE_UP;
+					}
+					else if(doladder && laddercheck > 0)
 					{
 						retval = tx;
 						return BSEARCH_CONTINUE_UP;
@@ -17734,7 +17819,13 @@ optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir,
 		case right:
 			tmp = binary_search_zfix(tx, earlyterm, [&](zfix tx, zfix& retval)
 				{
-					if(!scr_walkflag(tx,ty,mdir,kb))
+					int laddercheck = -1;
+					if(!scr_walkflag(tx,ty,mdir,kb, &laddercheck))
+					{
+						retval = tx;
+						return BSEARCH_CONTINUE_DOWN;
+					}
+					else if(doladder && laddercheck > 0)
 					{
 						retval = tx;
 						return BSEARCH_CONTINUE_DOWN;
@@ -17782,7 +17873,9 @@ optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir,
 		zfix oldx(x), oldy(y);
 		x = tx2;
 		y = ty2;
-		bool valid = scr_canmove(dx, dy, kb, true);
+		int laddercheck = -1;
+		bool valid = scr_canmove(dx, dy, kb, true, &laddercheck);
+		if (laddercheck > 0) valid = true;
 		x = oldx;
 		y = oldy;
 		if(valid)
@@ -17794,6 +17887,7 @@ optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir,
 bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool earlyret)
 {
 	bool ret = true;
+	int ladderstuff = -1;
 	bool sv = !ign_sv && sideview_mode() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking;
 	if(sv)
 		dy = 0;
@@ -17833,28 +17927,89 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 	bool skipdmg = earlyret || get_qr(qr_LENIENT_SOLID_DAMAGE) || get_qr(qr_NOSOLIDDAMAGECOMBOS) || hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS));
 	if(dx)
 	{
-		if(scr_canmove(dx, 0, kb, ign_sv))
+		if(scr_canmove(dx, 0, kb, ign_sv, &ladderstuff))
+		{
+			if (ladderstuff == 1)
+			{
+				zfix tx = (dx < 0 ? (x+dx) : (x+8+dx));
+				zfix tx2 = (dx < 0 ? 15 : 0);
+				zfix tx3 = (dx < 0 ? -8 : 8);
+				ladderx = tx.getInt()&0xF8;
+				laddery = y.getTrunc();
+				if (((iswaterex(MAPCOMBO(ladderx+tx2,y+9), currmap, currscr, -1, ladderx+tx2,y+9) != 0) || getpitfall(ladderx+tx2,y+9))
+				&& ((iswaterex(MAPCOMBO(ladderx+tx2,y+15), currmap, currscr, -1, ladderx+tx2,y+15) != 0) || getpitfall(ladderx+tx2,y+15)))
+				{
+					ladderdir = left;
+					ladderstart = dir;
+				}
+				else if (((iswaterex(MAPCOMBO(ladderx+tx2+tx3,y+9), currmap, currscr, -1, ladderx+tx2+tx3,y+9) != 0) || getpitfall(ladderx+tx2+tx3,y+9))
+				&& ((iswaterex(MAPCOMBO(ladderx+tx2+tx3,y+15), currmap, currscr, -1, ladderx+tx2+tx3,y+15) != 0) || getpitfall(ladderx+tx2+tx3,y+15)))
+				{
+					ladderx = (tx.getInt()+tx3.getInt())&0xF8;
+					ladderdir = left;
+					ladderstart = dir;
+				}
+				else
+				{
+					ladderx = 0;
+					laddery = 0;
+				}
+			}
+			if (ladderstuff > 0) ladderstuff = 0;
 			x += dx;
+		}
 		else
 		{
 			bool stopped = true;
+			bool shoved = false;
 			if(shove)
 			{
-				zfix tx = (dx < 0 ? (x-1) : (x+16));
+				zfix tx = (dx < 0 ? (x-4) : (x+20));
 				int v=bigHitbox?0:8;
 				zfix ly = y+v;
 				zfix ry = y+15.9999_zf;
+				zfix ly2 = y+v+6;
+				zfix ry2 = y+9.9999_zf;
 				auto mdir = GET_XDIR(dx);
-				bool hit_top = scr_walkflag(tx,ly,mdir,false);
-				bool hit_bottom = scr_walkflag(tx,ry,mdir,false);
+				int laddershove = -1;
+				int ladderhit = 0;
+				bool onladder = (ladderx + laddery);
+				bool hit_top = scr_walkflag(tx,ly,mdir,false, &laddershove);
+				if (laddershove > 0)
+				{
+					hit_top = false;
+					ladderhit += 1;
+				}
+				laddershove = -1;
+				bool hit_bottom = scr_walkflag(tx,ry,mdir,false, &laddershove);
+				if (laddershove > 0)
+				{
+					hit_bottom = false;
+					ladderhit += 2;
+				}
+				laddershove = -1;
+				bool hit_top2 = scr_walkflag(tx,ly2,mdir,false);
+				bool hit_bottom2 = scr_walkflag(tx,ry2,mdir,false);
+				if (!hit_top && ladderhit == 2)
+				{
+					hit_bottom = true;
+				}
+				if (!hit_bottom && ladderhit == 1)
+				{
+					hit_top = true;
+				}
 				if(hit_top!=hit_bottom)
 				{
-					bool shoved = false;
 					if(hit_bottom) //shove up
 					{
-						if(skipdmg || !checkdamagecombos(tx,get_qr(qr_SENSITIVE_SOLID_DAMAGE)?int32_t(y+15):(v+bigHitbox?11:4)))
+						if (onladder && (ladderdir == left || ladderdir == right) && !hit_bottom2)
 						{
-							if(optional<zfix> ty = get_solid_coord(tx,ry,up,mdir,false,ry-shove_offset))
+							y -= 1_zf;
+							shoved = true;
+						}
+						else if(skipdmg || !checkdamagecombos(tx,get_qr(qr_SENSITIVE_SOLID_DAMAGE)?int32_t(y+15):(v+bigHitbox?11:4)))
+						{
+							if(optional<zfix> ty = get_solid_coord(tx,ry,up,mdir,false,ry-shove_offset, (ladderhit != 2)))
 							{
 								zfix dy = zc_max(-1_zf,*ty-y);
 								if((shoved = dy))
@@ -17864,9 +18019,14 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					}
 					else //shove down
 					{
-						if(skipdmg || !checkdamagecombos(tx,v+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
+						if (onladder && (ladderdir == left || ladderdir == right) && !hit_top2)
 						{
-							if(optional<zfix> ty = get_solid_coord(tx,ly,down,mdir,false,ly+shove_offset))
+							y += 1_zf;
+							shoved = true;
+						}
+						else if(skipdmg || !checkdamagecombos(tx,v+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
+						{
+							if(optional<zfix> ty = get_solid_coord(tx,ly,down,mdir,false,ly+shove_offset, (ladderhit != 1)))
 							{
 								zfix dy = zc_min(1_zf,*ty-y);
 								if((shoved = dy))
@@ -17884,52 +18044,132 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			}
 			if(stopped)
 			{
-				ret = false;
-				int xsign = dx.sign();
-				while(scr_canmove(xsign, 0, kb, ign_sv))
+				if (ladderstuff > 0 && !shoved)
 				{
-					x += xsign;
-					dx -= xsign;
-				}
-				if(dx)
-				{
-					dx.doDecBound(0,-9999, 0,9999);
-					dx = binary_search_zfix(dx.decsign(), dx, [&](zfix val, zfix& retval){
-						if(scr_canmove(val, 0, kb, ign_sv))
-						{
-							retval = val;
-							return BSEARCH_CONTINUE_AWAY0;
-						}
-						else return BSEARCH_CONTINUE_TOWARD0;
-					});
+					zfix tx = (dx < 0 ? (x-12) : (x+20));
+					ladderx = tx.getInt()&0xF8;
+					laddery = y.getTrunc();
+					ladderdir = left;
+					ladderstart = dir;
 					x += dx;
+					ladderstuff = 0;
+				}
+				else if(earlyret)
+				{
+					ret = false;
+				}
+				else
+				{
+					ret = false;
+					int xsign = dx.sign();
+					while(scr_canmove(xsign, 0, kb, ign_sv))
+					{
+						x += xsign;
+						dx -= xsign;
+					}
+					if(dx)
+					{
+						dx.doDecBound(0,-9999, 0,9999);
+						dx = binary_search_zfix(dx.decsign(), dx, [&](zfix val, zfix& retval){
+							if(scr_canmove(val, 0, kb, ign_sv))
+							{
+								retval = val;
+								return BSEARCH_CONTINUE_AWAY0;
+							}
+							else return BSEARCH_CONTINUE_TOWARD0;
+						});
+						x += dx;
+					}
 				}
 			}
 		}
 	}
+	ladderstuff = -1;
 	if(dy)
 	{
-		if(scr_canmove(0, dy, kb, ign_sv))
+		if(scr_canmove(0, dy, kb, ign_sv, &ladderstuff))
+		{
+			if (ladderstuff == 1)
+			{
+				zfix ty = (dy < 0 ? (y+(bigHitbox?0:8)+dy) : (y+8+dy));
+				zfix ty2 = (dy < 0 ? 15 : 0);
+				zfix ty3 = (dy < 0 ? -8 : 8);
+				
+				ladderx = x.getTrunc();
+				laddery = ty.getInt()&0xF8;
+				if (((iswaterex(MAPCOMBO(x+4,laddery+ty2), currmap, currscr, -1, x+4,laddery+ty2) != 0) || getpitfall(x+4,laddery+ty2))
+				&& ((iswaterex(MAPCOMBO(x+11,laddery+ty2), currmap, currscr, -1, x+11,laddery+ty2) != 0) || getpitfall(x+11,laddery+ty2)))
+				{
+					ladderdir = up;
+					ladderstart = dir;
+				}
+				else if (((iswaterex(MAPCOMBO(x+4,laddery+ty2+ty3), currmap, currscr, -1, x+4,laddery+ty2+ty3) != 0) || getpitfall(x+4,laddery+ty2+ty3))
+				&& ((iswaterex(MAPCOMBO(x+11,laddery+ty2+ty3), currmap, currscr, -1, x+11,laddery+ty2+ty3) != 0) || getpitfall(x+11,laddery+ty2+ty3)))
+				{
+					laddery = (ty.getInt() + ty3.getInt())&0xF8;
+					ladderdir = up;
+					ladderstart = dir;
+				}
+				else
+				{
+					ladderx = 0;
+					laddery = 0;
+				}
+			}
+			if (ladderstuff > 0) ladderstuff = 0;
 			y += dy;
+		}
 		else
 		{
 			bool stopped = true;
+			bool shoved = false;
 			if(shove)
 			{
-				zfix ty = (dy < 0 ? (y+(bigHitbox?0:8)-1) : (y+16));
+				zfix ty = (dy < 0 ? (y+(bigHitbox?0:8)-4) : (y+20));
 				zfix lx = x;
 				zfix rx = x+15.9999_zf;
+				zfix lx2 = x+6;
+				zfix rx2 = x+9.9999_zf;
 				auto mdir = GET_YDIR(dy);
-				bool hit_left = scr_walkflag(lx,ty,mdir,false);
-				bool hit_right = scr_walkflag(rx,ty,mdir,false);
+				int laddershove = -1;
+				int ladderhit = 0;
+				bool onladder = (ladderx + laddery);
+				bool hit_left = scr_walkflag(lx,ty,mdir,false, &laddershove);
+				if (laddershove > 0)
+				{
+					hit_left = false;
+					ladderhit += 1;
+				}
+				laddershove = -1;
+				bool hit_right = scr_walkflag(rx,ty,mdir,false, &laddershove);
+				if (laddershove > 0)
+				{
+					hit_right = false;
+					ladderhit += 2;
+				}
+				bool hit_left2 = scr_walkflag(lx2,ty,mdir,false);
+				bool hit_right2 = scr_walkflag(rx2,ty,mdir,false);
+				laddershove = -1;
+				if (!hit_left && ladderhit == 2)
+				{
+					hit_right = true;
+				}
+				if (!hit_right && ladderhit == 1)
+				{
+					hit_left = true;
+				}
 				if(hit_left!=hit_right)
 				{
-					bool shoved = false;
 					if(hit_right) //shove left
 					{
-						if(skipdmg || !checkdamagecombos(x+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?15:11),ty))
+						if (onladder && ladderdir <= down && !hit_right2)
 						{
-							if(optional<zfix> tx = get_solid_coord(rx,ty,left,mdir,false,rx-shove_offset))
+							x -= 1_zf;
+							shoved = true;
+						}
+						else if(skipdmg || !checkdamagecombos(x+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?15:11),ty))
+						{
+							if(optional<zfix> tx = get_solid_coord(rx,ty,left,mdir,false,rx-shove_offset, (ladderhit != 2)))
 							{
 								zfix dx = zc_max(-1_zf,*tx-x);
 								if((shoved = dx))
@@ -17939,9 +18179,14 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					}
 					else //shove right
 					{
-						if(skipdmg || !checkdamagecombos(x+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4),ty))
+						if (onladder && ladderdir <= down && !hit_left2)
 						{
-							if(optional<zfix> tx = get_solid_coord(lx,ty,right,mdir,false,lx+shove_offset))
+							x += 1_zf;
+							shoved = true;
+						}
+						else if(skipdmg || !checkdamagecombos(x+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4),ty))
+						{
+							if(optional<zfix> tx = get_solid_coord(lx,ty,right,mdir,false,lx+shove_offset, (ladderhit != 1)))
 							{
 								zfix dx = zc_min(1_zf,*tx-x);
 								if((shoved = dx))
@@ -17959,26 +18204,39 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			}
 			if(stopped)
 			{
-				if(earlyret) return false;
-				ret = false;
-				int ysign = dy.sign();
-				while(scr_canmove(0, ysign, kb, ign_sv))
+				if (ladderstuff > 0 && !shoved)
 				{
-					y += ysign;
-					dy -= ysign;
-				}
-				if(dy)
-				{
-					dy.doDecBound(0,-9999, 0,9999);
-					dy = binary_search_zfix(dy.decsign(), dy, [&](zfix val, zfix& retval){
-						if(scr_canmove(0, val, kb, ign_sv))
-						{
-							retval = val;
-							return BSEARCH_CONTINUE_AWAY0;
-						}
-						else return BSEARCH_CONTINUE_TOWARD0;
-					});
+					zfix ty = (dy < 0 ? (y-(bigHitbox?12:4)) : (y+20));
+					ladderx = x.getTrunc();
+					laddery = ty.getInt()&0xF8;
+					ladderdir = up;
+					ladderstart = dir;
 					y += dy;
+					ladderstuff = 0;
+				}
+				else
+				{
+					if(earlyret) return false;
+					ret = false;
+					int ysign = dy.sign();
+					while(scr_canmove(0, ysign, kb, ign_sv))
+					{
+						y += ysign;
+						dy -= ysign;
+					}
+					if(dy)
+					{
+						dy.doDecBound(0,-9999, 0,9999);
+						dy = binary_search_zfix(dy.decsign(), dy, [&](zfix val, zfix& retval){
+							if(scr_canmove(0, val, kb, ign_sv))
+							{
+								retval = val;
+								return BSEARCH_CONTINUE_AWAY0;
+							}
+							else return BSEARCH_CONTINUE_TOWARD0;
+						});
+						y += dy;
+					}
 				}
 			}
 		}
@@ -17986,13 +18244,10 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 	
 	if(earlyret)
 		return ret;
-	WalkflagInfo info;
-	info = walkflag(x,y+8-(bigHitbox*8)-4,2,up);
-	execute(info);
-	if(!ign_sv && sideview_mode() && IsSideSwim() && checkladder)
+	if(dy < 0 && !ign_sv && sideview_mode() && IsSideSwim() && checkladder)
 	{
-		if(!iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)), currmap, currscr, -1, x, y+(bigHitbox?0:8) - 2, true, false)
-			&& !canSideviewLadderRemote(x, y-4) && !info.isUnwalkable() && (y+(bigHitbox?0:8) - 4) > 0)
+		if(!iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)-2), currmap, currscr, -1, x, y+(bigHitbox?0:8) - 2, true, false)
+			&& !canSideviewLadderRemote(x, y-4) && scr_canmove(0, -2, kb, true) && (y+(bigHitbox?0:8) - 4) > 0)
 		{
 			if (game->get_sideswim_jump() != 0)
 			{
