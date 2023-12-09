@@ -14,6 +14,7 @@ set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
+set(JIT_BACKEND "default" CACHE STRING "One of: default, x64, none")
 set(ZC_VERSION "" CACHE STRING "Version string")
 set(ZC_OFFICIAL "" CACHE BOOL "Official build")
 set(RELEASE_PLATFORM "" CACHE STRING "Release platform. Ex: mac, linux, windows-x86, windows-x64")
@@ -650,7 +651,19 @@ elseif(APPLE)
 	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+if(JIT_BACKEND STREQUAL "default")
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(JIT_BACKEND "x64")
+	else()
+		set(JIT_BACKEND "none")
+	endif()
+endif()
+
+if(JIT_BACKEND STREQUAL "none")
+	target_sources(zplayer PUBLIC src/zc/jit_none.cpp)
+elseif(JIT_BACKEND STREQUAL "x64")
+	target_sources(zplayer PUBLIC src/zc/jit_x64.cpp)
+
 	FetchContent_Declare(
 		asmjit
 		GIT_REPOSITORY
@@ -660,13 +673,12 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zplayer PRIVATE asmjit)
-	target_compile_definitions(zplayer PRIVATE ZC_JIT)
 
 	get_target_property(asm_compile_options asmjit COMPILE_OPTIONS)
 	string(REPLACE "$<NOT:$<CONFIG:Debug>>" "$<NOT:$<CONFIG:Debug,Asan>>" asm_compile_options "${asm_compile_options}")
 	set_target_properties(asmjit PROPERTIES COMPILE_OPTIONS "${asm_compile_options}")
-
-	target_sources(zplayer PUBLIC src/zc/jit_x64.cpp)
+else()
+	message(FATAL_ERROR "Invalid value for JIT_BACKEND")
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND WIN32)

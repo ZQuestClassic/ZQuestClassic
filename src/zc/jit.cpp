@@ -295,7 +295,11 @@ struct JittedScriptHandle
 
 bool jit_is_enabled()
 {
+#ifdef __EMSCRIPTEN__
+	return false;
+#else
 	return is_enabled;
+#endif
 }
 
 void jit_set_enabled(bool enabled)
@@ -305,9 +309,6 @@ void jit_set_enabled(bool enabled)
 
 JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
 {
-#ifndef ZC_JIT
-	return nullptr;
-#else
 	JittedScriptHandle *jitted_script = new JittedScriptHandle;
 	jit_reinit(jitted_script);
 	jitted_script->script = script;
@@ -320,7 +321,6 @@ JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
 	}
 
 	return jitted_script;
-#endif
 }
 
 void jit_delete_script_handle(JittedScriptHandle *jitted_script)
@@ -350,7 +350,6 @@ void jit_startup()
 	if (!is_enabled)
 		return;
 
-#ifdef ZC_JIT
 	jit_log_enabled = zc_get_config("ZSCRIPT", "jit_log", false) || is_ci();
 	bool precompile = zc_get_config("ZSCRIPT", "jit_precompile", false);
 	int num_threads = zc_get_config("ZSCRIPT", "jit_threads", -2);
@@ -409,7 +408,6 @@ void jit_startup()
 		}
 		al_unlock_mutex(tasks_mutex);
 	}
-#endif
 }
 
 void jit_poll()
@@ -417,7 +415,6 @@ void jit_poll()
 	if (!is_enabled)
 		return;
 
-#ifdef ZC_JIT
 	if (tasks_mutex == nullptr)
 		return;
 
@@ -445,7 +442,6 @@ void jit_poll()
 
 	if (active_threads > tasks_left)
 		set_compilation_thread_pool_size(tasks_left);
-#endif
 }
 
 void jit_shutdown()
@@ -453,7 +449,6 @@ void jit_shutdown()
 	if (!is_enabled)
 		return;
 
-#ifdef ZC_JIT
 	if (tasks_mutex == nullptr)
 		return;
 
@@ -480,5 +475,4 @@ void jit_shutdown()
 		al_destroy_cond(task_finish_cond);
 		task_finish_cond = nullptr;
 	}
-#endif
 }
