@@ -1,3 +1,4 @@
+import difflib
 import platform
 import os
 import io
@@ -247,4 +248,6 @@ class ZCTestCase(unittest.TestCase):
                 expected_path.parent.mkdir(parents=True, exist_ok=True)
                 expected_path.write_text(actual)
             else:
-                self.assertEqual(expected, actual)
+                if expected != actual:
+                    diff = difflib.context_diff(expected.splitlines(keepends=True), actual.splitlines(keepends=True))
+                    self.fail(''.join(diff))

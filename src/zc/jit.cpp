@@ -350,13 +350,15 @@ void jit_startup()
 	if (!is_enabled)
 		return;
 
-	jit_log_enabled = zc_get_config("ZSCRIPT", "jit_log", false) || is_ci();
-	bool precompile = zc_get_config("ZSCRIPT", "jit_precompile", false);
-	int num_threads = zc_get_config("ZSCRIPT", "jit_threads", -2);
+	jit_log_enabled = get_flag_bool("-jit-log").value_or(zc_get_config("ZSCRIPT", "jit_log", false) || is_ci());
+	bool precompile = get_flag_bool("-jit-precompile").value_or(zc_get_config("ZSCRIPT", "jit_precompile", false));
+	int num_threads = get_flag_int("-jit-threads").value_or(zc_get_config("ZSCRIPT", "jit_threads", -2));
 
 	auto processor_count = std::thread::hardware_concurrency();
 	if (num_threads < 0)
 		num_threads = std::max(1, (int)processor_count / -num_threads);
+	if (precompile && num_threads == 0)
+		num_threads = 1;
 
 	for (int i = 0; i < thread_infos.size(); i++)
 	{
