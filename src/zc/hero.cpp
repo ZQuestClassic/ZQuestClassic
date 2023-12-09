@@ -3221,7 +3221,7 @@ void HeroClass::prompt_draw(BITMAP* dest)
 	int32_t sx = real_x(x+xofs+prompt_x);
 	int32_t sy = real_y(y + yofs + prompt_y) - real_z(z + zofs);
 	sy -= fake_z(fakez);
-	overcombo(dest, sx, sy, prompt_combo, prompt_cset);
+	overcombo(dest, sx - viewport.x, sy - viewport.y, prompt_combo, prompt_cset);
 	return;
 }
 
@@ -22439,10 +22439,6 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	if(found<0&&!foundffc) return;
 
 	newcombo const& cmb = combobuf[foundffc ? foundffc->data() : found];
-	int offx = 0;
-	int offy = 0;
-	if (!foundffc)
-		std::tie(offx, offy) = translate_screen_coordinates_to_world(scr);
 	
 	byte signInput = 0;
 	bool didsign = false, didprompt = false;
@@ -22478,8 +22474,8 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				{
 					prompt_combo = cmb.attributes[1]/10000;
 					prompt_cset = cmb.attribytes[4];
-					prompt_x = cmb.attrishorts[0] + offx;
-					prompt_y = cmb.attrishorts[1] + offy;
+					prompt_x = cmb.attrishorts[0];
+					prompt_y = cmb.attrishorts[1];
 					didprompt = true;
 				}
 				goto endsigns; //Button not pressed
@@ -22524,15 +22520,15 @@ endsigns:
 	{
 		prompt_combo = cmb.attributes[0]/10000;
 		prompt_cset = cmb.attribytes[0];
-		prompt_x = cmb.attrishorts[0] + offx;
-		prompt_y = cmb.attrishorts[1] + offy;
+		prompt_x = cmb.attrishorts[0];
+		prompt_y = cmb.attrishorts[1];
 	}
 	else if(cmb.prompt_cid)
 	{
 		prompt_combo = cmb.prompt_cid;
 		prompt_cset = cmb.prompt_cs;
-		prompt_x = cmb.prompt_x + offx;
-		prompt_y = cmb.prompt_y + offy;
+		prompt_x = cmb.prompt_x;
+		prompt_y = cmb.prompt_y;
 	}
 }
 
