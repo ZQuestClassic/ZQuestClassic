@@ -187,7 +187,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 			dword idle_seconds = def_idle;
 			while(running)
 			{
-				pm->timeout_seconds = compile_timeout+idle_seconds;
+				pm->timeout_seconds = compile_timeout ? compile_timeout+idle_seconds : 0;
 				idle_seconds = def_idle;
 				pm->read(&code, sizeof(int32_t));
 				switch(code)
