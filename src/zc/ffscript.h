@@ -760,12 +760,10 @@ struct user_genscript
 	bounded_vec<byte,int32_t> initd;
 	
 	//Temp Vars
-	bool wait_atleast;
+	bool wait_atleast = true;
 	bool waitevent;
-	scr_timing waituntil;
-	int32_t indx;
+	scr_timing waituntil = SCR_TIMING_START_FRAME;
 	
-	user_genscript(){indx = -1; clear();}
 	void clear();
 	void launch();
 	void quit();
@@ -787,8 +785,13 @@ struct user_genscript
 	}
 	byte& doscript();
 	byte const& doscript() const;
+	static user_genscript& get(int indx);
+private:
+	static user_genscript user_scripts[NUMSCRIPTSGENERIC];
+	
+	int32_t indx;
+	user_genscript() = default;
 };
-extern user_genscript user_scripts[NUMSCRIPTSGENERIC];
 extern int32_t genscript_timing;
 void countGenScripts();
 void timeExitAllGenscript(byte exState);
