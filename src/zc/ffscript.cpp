@@ -1603,7 +1603,7 @@ refInfo& FFScript::ref(ScriptType type, int index)
 byte& FFScript::doscript(ScriptType type, int index)
 {
 	if (type == ScriptType::Generic && unsigned(index) < NUMSCRIPTSGENERIC)
-		return user_scripts[index].doscript();
+		return user_genscript::get(index).doscript();
 	return get_script_engine_data(type, index).doscript;
 }
 
@@ -1735,7 +1735,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		
 		case ScriptType::Generic:
 		{
-			user_genscript& scr = user_scripts[script];
+			user_genscript& scr = user_genscript::get(script);
 			curscript = genericscripts[script];
 			scr.waitevent = false;
 			if(!data.initialized)
@@ -1750,7 +1750,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		
 		case ScriptType::GenericFrozen:
 		{
-			user_genscript& scr = user_scripts[script];
+			user_genscript& scr = user_genscript::get(script);
 			curscript = genericscripts[script];
 			if(!data.initialized)
 			{
@@ -1893,7 +1893,6 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 
 int32_t ffmisc[MAXFFCS][16];
 
-user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;
 static dword max_valid_object;
@@ -1936,6 +1935,16 @@ byte const& user_genscript::doscript() const
 	return _doscript;
 }
 
+
+user_genscript& user_genscript::get(int ind)
+{
+	if(ind < 1 || ind >= NUMSCRIPTSGENERIC)
+		ind = 0;
+	user_scripts[ind].indx = ind;
+	return user_scripts[ind];
+}
+user_genscript user_genscript::user_scripts[NUMSCRIPTSGENERIC];
+
 void countGenScripts()
 {
 	max_valid_genscript = 0;
@@ -1956,14 +1965,14 @@ void countObjects()
 }
 void timeExitAllGenscript(byte exState)
 {
-	for(user_genscript& g : user_scripts)
-		g.timeExit(exState);
+	for(auto q = 1; q <= max_valid_genscript; ++q)
+		user_genscript::get(q).timeExit(exState);
 }
 void throwGenScriptEvent(int32_t event)
 {
 	for(auto q = 1; q <= max_valid_genscript; ++q)
 	{
-		user_genscript& scr = user_scripts[q];
+		user_genscript& scr = user_genscript::get(q);
 		if(!scr.doscript()) continue;
 		if(!genericscripts[q]->valid()) continue;
 		if(!scr.waitevent) continue;
@@ -1983,9 +1992,8 @@ void load_genscript(const gamedata& gd)
 {
 	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
 	{
-		user_genscript& gen = user_scripts[q];
+		user_genscript& gen = user_genscript::get(q);
 		gen.clear();
-		gen.indx = q;
 		gen.doscript() = gd.gen_doscript.get(q);
 		gen.exitState = gd.gen_exitState[q];
 		gen.reloadState = gd.gen_reloadState[q];
@@ -1998,9 +2006,8 @@ void load_genscript(const zinitdata& zd)
 {
 	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
 	{
-		user_genscript& gen = user_scripts[q];
+		user_genscript& gen = user_genscript::get(q);
 		gen.clear();
-		gen.indx = q;
 		gen.doscript() = zd.gen_doscript.get(q);
 		gen.exitState = zd.gen_exitState[q];
 		gen.reloadState = zd.gen_reloadState[q];
@@ -2014,7 +2021,7 @@ void save_genscript(gamedata& gd)
 {
 	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
 	{
-		user_genscript const& gen = user_scripts[q];
+		user_genscript const& gen = user_genscript::get(q);
 		gd.gen_doscript.set(q, gen.doscript());
 		gd.gen_exitState[q] = gen.exitState;
 		gd.gen_reloadState[q] = gen.reloadState;
@@ -2040,7 +2047,7 @@ void FFScript::runGenericPassiveEngine(int32_t scrtm)
 	}
 	for(auto q = 1; q <= max_valid_genscript; ++q)
 	{
-		user_genscript& scr = user_scripts[q];
+		user_genscript& scr = user_genscript::get(q);
 		if(!scr.doscript()) continue;
 		if(!genericscripts[q]->valid()) continue;
 		if(scr.waitevent) continue;
@@ -2857,7 +2864,7 @@ user_genscript *checkGenericScr(int32_t ref, const char *what)
 		Z_scripterrlog("Invalid gendata pointer access (%ld) for '->%s'\n", ref, what);
 		return NULL;
 	}
-	return &user_scripts[ref];
+	return &user_genscript::get(ref);
 }
 extern portal mirror_portal;
 portal *checkPortal(int32_t ref, const char *what, bool skiperr = false)
@@ -35435,7 +35442,7 @@ j_command:
 						break;
 					case ScriptType::Generic:
 					{
-						user_genscript& scr = user_scripts[script];
+						user_genscript& scr = user_genscript::get(script);
 						int32_t target = get_register(sarg1)/10000L;
 						bool atleast = get_register(sarg2)!=0;
 						if(unsigned(target) > SCR_TIMING_END_FRAME)
@@ -35474,7 +35481,7 @@ j_command:
 						break;
 					case ScriptType::Generic:
 					{
-						user_genscript& scr = user_scripts[script];
+						user_genscript& scr = user_genscript::get(script);
 						scr.waitevent = true;
 						break;
 					}
@@ -35492,9 +35499,12 @@ j_command:
 				else switch(type)
 				{
 					case ScriptType::Generic:
-						user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
-						user_scripts[script].wait_atleast = false;
+					{
+						user_genscript& scr = user_genscript::get(script);
+						scr.waituntil = SCR_TIMING_START_FRAME;
+						scr.wait_atleast = false;
 						break;
+					}
 				}
 				break;
 			}
@@ -35512,9 +35522,12 @@ j_command:
 				switch(type)
 				{
 					case ScriptType::Generic:
-						user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
-						user_scripts[script].wait_atleast = false;
+					{
+						user_genscript& scr = user_genscript::get(script);
+						scr.waituntil = SCR_TIMING_START_FRAME;
+						scr.wait_atleast = false;
 						break;
+					}
 				}
 				break;
 			}
@@ -39862,7 +39875,7 @@ j_command:
 			break;
 			
 			case ScriptType::Generic:
-				user_scripts[script].quit();
+				user_genscript::get(script).quit();
 				break;
 			
 			case ScriptType::GenericFrozen:
@@ -42686,13 +42699,12 @@ void FFScript::runOnLaunchEngine()
 }
 bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_data)
 {
+	user_genscript& scr = user_genscript::get(script);
 	if(script < 1 || script >= NUMSCRIPTSGENERIC) return false;
 	if(init_data)
 	{
 		for(int q = 0; q < 8; ++q)
-		{
-			user_scripts[script].initd[q] = init_data[q];
-		}
+			scr.initd[q] = init_data[q];
 	}
 	if(!genericscripts[script]->valid()) return false; //No script to run
 	//Store script refinfo

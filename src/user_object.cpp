@@ -52,7 +52,7 @@ bool user_abstract_obj::own_clear_cont()
 		else if(owned_i > 0 && owned_i < NUMSCRIPTSGENERIC)
 		{
 			static const word mask = (1<<GENSCR_ST_RELOAD)|(1<<GENSCR_ST_CONTINUE);
-			auto& genscr = user_scripts[owned_i];
+			auto& genscr = user_genscript::get(owned_i);
 			if((genscr.exitState|genscr.reloadState) & mask)
 			{
 				free_obj();
