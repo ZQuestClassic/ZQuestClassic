@@ -1080,7 +1080,19 @@ int32_t custom_game(int32_t file)
 	}
 	if(!customized) strcpy(qstpath, relpath);
 	else
-		saves_get_slot(file, true)->game->set_qstpath(relativize_path(qstpath));
+	{
+		// Try to make relative to qstdir.
+		// TODO: this is copied from saves_do_first_time_stuff
+		char temppath[2048];
+		memset(temppath, 0, 2048);
+		std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
+		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
+		if (!rel_dir.ends_with(("/")))
+			rel_dir += "/";
+		zc_make_relative_filename(temppath, rel_dir.c_str(), qstpath, 2047);
+
+		saves_get_slot(file, true)->game->set_qstpath(temppath);
+	}
 
 	exit_sys_pal();
 	key[KEY_ESC]=0;
@@ -1171,7 +1183,8 @@ static int32_t game_details(int32_t file)
 			blit(framebuf,scrollbuf,0,0,0,0,256,224);
 			return 1;
 		}
-		
+
+		// TODO: consider allowing qst file to be reconfigured, in case it is moved.
 		if(rAbtn() && !header->has_played)
 		{
 			(void)custom_game(file);
