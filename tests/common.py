@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 import dataclasses
 from typing import List, Literal, Tuple, Optional, Any
 import requests
+import unittest
 import zipfile
 from pathlib import Path
 from github import Github
@@ -229,3 +230,21 @@ def download_release(gh: Github, repo_str: str, channel: str, tag: str):
 
     print(f'finished downloading {tag}')
     return dest
+
+class ZCTestCase(unittest.TestCase):
+    def expect_snapshot(self, expected_path: Path, actual: str, update: bool):
+        expected = None
+        if expected_path.exists():
+            expected = expected_path.read_text()
+
+        if update:
+            if expected != actual:
+                print(f'updating snapshot {expected_path.name}')
+                expected_path.parent.mkdir(parents=True, exist_ok=True)
+                expected_path.write_text(actual)
+        else:
+            if expected == None:
+                expected_path.parent.mkdir(parents=True, exist_ok=True)
+                expected_path.write_text(actual)
+            else:
+                self.assertEqual(expected, actual)
