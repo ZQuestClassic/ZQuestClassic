@@ -1,4 +1,4 @@
-// Launcher executable main file
+#include "zalleg/zalleg.h"
 #include "base/zdefs.h"
 #include "launcher/launcher.h"
 #include "base/module.h"
@@ -21,13 +21,8 @@ do{ \
 } \
 while(false)
 
-DATAFILE *fontsdata;
-size_t fontsdat_cnt = 0;
 PALETTE RAMpal;
 COLOR_MAP trans_table, trans_table2;
-
-ZModule zcm;
-zcmodule moduledata;
 
 volatile int32_t lastfps = 0;
 volatile int32_t framecnt = 0;
@@ -85,7 +80,7 @@ void hit_close_button()
 
 int32_t main(int32_t argc, char* argv[])
 {
-	common_main_setup(App::launcher, argc, argv);
+	zalleg_setup_allegro(App::launcher, argc, argv);
 
 	if (used_switch(argc, argv, "-update"))
 	{
@@ -97,26 +92,6 @@ int32_t main(int32_t argc, char* argv[])
 	}
 
 	zc_srand(time(0));
-	
-	
-	Z_message("Initializing Allegro... "); //{
-	if(!al_init())
-	{
-		Z_error_fatal("Failed Init!");
-		QUIT_LAUNCHER();
-	}
-	if(allegro_init() != 0)
-	{
-		Z_error_fatal("Failed Init!");
-		QUIT_LAUNCHER();
-	}
-
-	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
-	if (tempcfg) {
-		al_merge_config_into(al_get_system_config(), tempcfg);
-		al_destroy_config(tempcfg);
-	}
 
 	if(install_timer() < 0
 		|| install_keyboard() < 0
@@ -149,47 +124,9 @@ int32_t main(int32_t argc, char* argv[])
 	lock_dclick_function();
 	install_int(dclick_check, 20);
 	
-	
 	set_gfx_mode(GFX_TEXT,80,50,0,0);
-	Z_message("OK\n");
-	//} end Initializing Allegro...OK
-	
-	Z_message("Initializing module...");
-	zcm.init(true);
-	Z_message("OK\n");
-	
-	Z_message("Loading data files:\n"); //{
-	
-	packfile_password(datapwd);
-	
-	Z_message("....Fonts.Dat..."); //{
-	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
-	{
-		Z_error_fatal("failed: load error\n");
-		QUIT_LAUNCHER();
-	}
-	char fontsdat_sig[52]={0};
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
-	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
-	{
-		Z_error_fatal("failed: version error\n");
-		QUIT_LAUNCHER();
-	}
-	if(fontsdat_cnt != FONTSDAT_CNT)
-	{
-		Z_error_fatal("failed: count error (found %d != exp %d)\n", fontsdat_cnt, FONTSDAT_CNT);
-		QUIT_LAUNCHER();
-	}
-	Z_message("OK\n");
-	//} end Fonts.Dat...OK
-	packfile_password("");
-	
-	Z_message("....OK\n");
-	//} end Loading data files:
 	
 	set_color_depth(8);
-
-	all_disable_threaded_display();
 
 	int window_width = zc_get_config("ZLAUNCH", "window_width", -1);
 	int window_height = zc_get_config("ZLAUNCH", "window_height", -1);
@@ -203,12 +140,7 @@ int32_t main(int32_t argc, char* argv[])
 	}
 
 	set_window_title("ZQuest Classic Launcher");
-	al_init_image_addon();
-	al_init_font_addon();
-	al_init_primitives_addon();
-	initFonts();
-
-	zapp_setup_icon();
+	zalleg_create_window();
 
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
@@ -227,8 +159,6 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("Loading configs...");
 	gui_colorset = zc_get_config("ZLAUNCH","gui_colorset",99);
 	Z_message("OK\n");
-
-	render_set_debug(zc_get_config("graphics","render_debug",0));
 	
 	Z_message("Initializing palette...");
 	init_launcher_palette();

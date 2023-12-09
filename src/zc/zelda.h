@@ -271,8 +271,6 @@ extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;
 #define NUM_ZCMOUSE 1
 extern BITMAP *zcmouse[NUM_ZCMOUSE];
-extern DATAFILE *sfxdata, *fontsdata, *mididata;
-extern size_t fontsdat_cnt;
 extern SAMPLE   wav_refill;
 extern PALETTE  RAMpal;
 extern PALETTE  pal_gui;
@@ -337,7 +335,6 @@ extern int32_t jwin_pal[jcMAX];
 extern int32_t gui_colorset;
 extern int32_t fullscreen;
 extern byte forceExit, zc_vsync;
-extern byte zc_color_depth;
 extern byte use_win32_proc, zasm_debugger, zscript_debugger; //windows only
 
 extern PALETTE tempbombpal;

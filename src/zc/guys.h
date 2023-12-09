@@ -906,6 +906,7 @@ int32_t wpnsfx(int32_t wpn);
 
 /***  Collision detection & handling  ***/
 
+void check_enemy_lweapon_collision(weapon *w);
 void check_collisions();
 void clear_script_one_frame_conditions();
 void dragging_item();

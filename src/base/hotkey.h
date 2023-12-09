@@ -15,7 +15,7 @@ struct Hotkey
 	void setval(int val);
 	void setval(int ind,int k,int shifts);
 	void setval(int k,int shifts,int k2,int shifts2);
-	std::string get_name(int ind);
+	std::string get_name(int ind) const;
 	bool operator==(Hotkey const& other);
 	bool operator!=(Hotkey const& other);
 };

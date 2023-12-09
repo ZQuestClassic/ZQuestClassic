@@ -1,6 +1,9 @@
+// TODO: do not link allegro w/ zscript compiler.
+
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "parser/ZScript.h"
+#include "parser/config.h"
 #include "parser/parser.h"
 #include <string>
 #include "zconfig.h"
@@ -197,38 +200,28 @@ static bool linked = true;
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 {
 	if(linked)
-		zconsole_info("Compiling the ZQuest buffer...");
+		zconsole_info("Compiling the editor script buffer...");
 	else zconsole_info("Compiling '%s'", script_path.c_str());
 
-	// copy to tmp file
-	std::string zScript;
-	FILE *zscript = fopen(script_path.c_str(),"r");
-	if(zscript == NULL)
+	if (!std::filesystem::exists(script_path))
 	{
 		zconsole_error("%s", "Cannot open specified file!");
 		zscript_failcode = -404;
 		return NULL;
 	}
 
-	char c = fgetc(zscript);
-	while(!feof(zscript))
-	{
-		zScript += c;
-		c = fgetc(zscript);
-	}
-	fclose(zscript);
-
+	// copy to tmp file
 	char tmpfilename[L_tmpnam];
 	std::tmpnam(tmpfilename);
-	FILE *tempfile = fopen(tmpfilename, "w");
-	if(!tempfile)
+
+	std::error_code ec;
+	std::filesystem::copy_file(script_path, tmpfilename, ec);
+	if (ec)
 	{
-		zconsole_error("%s", "Unable to create a temporary file in current directory!");
+		zconsole_error("%s", "Unable to create a temporary file!");
 		zscript_failcode = -404;
 		return NULL;
 	}
-	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-	fclose(tempfile);
 	
 	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(tmpfilename));
 	unlink(tmpfilename);
@@ -319,19 +312,15 @@ int32_t main(int32_t argc, char **argv)
 	
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
 	ConsoleWrite = cph;
-	// We only need to initialize allegro to read config files. We could still trace without this.
-	// TODO: figure out how to drop this.
-	if(!al_init())
+
+	if (!zscript_load_base_config("base_config/zscript.cfg"))
 	{
-		zconsole_error("%s", "Failed Init!");
-		abort();
+		zconsole_error("%s", "Error: failed to load base config");
+		return 1;
 	}
-	if(allegro_init() != 0)
-	{
-		zconsole_error("%s", "Failed Init!");
-		abort();
-	}
-	
+
+	zscript_load_user_config("zscript.cfg");
+
 	int32_t script_path_index = used_switch(argc, argv, "-input");
 	if (!script_path_index)
 	{
@@ -351,7 +340,6 @@ int32_t main(int32_t argc, char **argv)
 			argv[qr_hex_index + 1] :
 			// TODO: set to defaults in a better way.
 			"B343AFAF01C281A00DA58A4211A608DFDF080001162A0410FC5306FE2A274100381B02044031300000065824000000000000D0030000000000000000000000000000000000000000000000000000000034866C3140320000000000000000000000000000";
-		//printf("%s\n", qr_hex.c_str());
 		if (qr_hex.size() != QUESTRULES_NEW_SIZE * 2)
 		{
 			zconsole_error("Error: -qr hex string must be of length %d", QUESTRULES_NEW_SIZE * 2);
@@ -377,9 +365,8 @@ int32_t main(int32_t argc, char **argv)
 		cph->write(&syncthing, sizeof(int32_t));
 	}
 	
-	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	char const* runstr = zc_get_config("Compiler","run_string","run");
-	strcpy(FFCore.scriptRunString, runstr);
+	std::string runstr = zscript_get_config_string("run_string", "run");
+	strncpy(FFCore.scriptRunString, runstr.c_str(), sizeof(FFCore.scriptRunString));
 
 	int32_t include_paths_index = used_switch(argc, argv, "-include");
 	if (include_paths_index)

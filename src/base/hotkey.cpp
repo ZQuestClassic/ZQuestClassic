@@ -59,7 +59,7 @@ void Hotkey::setval(int k,int shifts,int k2,int shifts2)
 	hotkey[1] = k2&0xFF;
 	modflag[1] = shifts2&HOTKEY_FLAG_FILTER;
 }
-std::string Hotkey::get_name(int ind)
+std::string Hotkey::get_name(int ind) const
 {
 	if(unsigned(ind) > 1)
 		return "";

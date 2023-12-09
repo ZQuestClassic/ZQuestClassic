@@ -60,18 +60,6 @@ static std::string current_version = getVersionString();
 
 std::ofstream out("updater.log", std::ios::binary);
 
-void zprint2(const char * const format, ...)
-{
-	char buf[8192];
-
-	va_list ap;
-	va_start(ap, format);
-	vsprintf(buf, format, ap);
-	va_end(ap);
-
-	al_trace("%s", buf);
-}
-
 static int32_t used_switch(int32_t argc,char *argv[],const char *s)
 {
     // assumes a switch won't be in argv[0]

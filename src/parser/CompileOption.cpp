@@ -1,4 +1,5 @@
 #include "CompileOption.h"
+#include "parser/config.h"
 #include <map>
 #include <vector>
 
@@ -138,7 +139,7 @@ void CompileOption::updateDefaults()
 			
 			case OPTTYPE_CONFIG:
 			{
-				int32_t val = zc_get_config("Compiler", entries[i].name.c_str(), int32_t(entries[i].defaultValue/10000L));
+				int32_t val = zscript_get_config_int(entries[i].name, int32_t(entries[i].defaultValue/10000L));
 				if(!zc_cfg_defaulted)
 					entries[i].defaultValue = val * 10000L;
 				break;
@@ -146,7 +147,7 @@ void CompileOption::updateDefaults()
 			
 			case OPTTYPE_CONFIG_FLOAT:
 			{
-				double val = zc_get_config("Compiler", entries[i].name.c_str(), entries[i].defaultValue/10000.0);
+				double val = zscript_get_config_double(entries[i].name, entries[i].defaultValue/10000.0);
 				if(!zc_cfg_defaulted)
 					entries[i].defaultValue = val * 10000L;
 				break;

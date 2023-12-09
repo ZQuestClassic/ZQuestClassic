@@ -3253,9 +3253,9 @@ bool ArrayPushAt(untyped[] arr, untyped val, int indx);
  * An invalid index pushes to the end.
  * Returns false if it fails for any reason (ex: array is at max size already)
 
-untyped ArrayPushBack(untyped[] arr);
-untyped ArrayPushFront(untyped[] arr);
-untyped ArrayPushAt(untyped[] arr, int indx);
+untyped ArrayPopBack(untyped[] arr);
+untyped ArrayPopFront(untyped[] arr);
+untyped ArrayPopAt(untyped[] arr, int indx);
  * Decreases the size of the array by 1, removing and returning a value.
  * The new value can either be pulled from the end, start, or an arbitrary index.
  * An invalid index pops from the end.

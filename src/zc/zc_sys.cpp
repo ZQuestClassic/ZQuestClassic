@@ -2,6 +2,7 @@
 
 #include "allegro/gfx.h"
 #include "allegro5/joystick.h"
+#include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include <stdio.h>
@@ -424,8 +425,6 @@ void load_game_configs()
 	loadlast = zc_get_config(cfg_sect,"load_last",0);
 	
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
-	
-	zc_color_depth = (byte) zc_get_config(cfg_sect,"color_depth",8);
 	
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
 	info_opacity = zc_get_config("zc","debug_info_opacity",255);
@@ -8035,6 +8034,8 @@ void System()
 					break;
 			}
 		}
+		if(Quit || (GameFlags & GAMEFLAG_TRYQUIT))
+			break;
 		if(esc)
 		{
 			if(running)

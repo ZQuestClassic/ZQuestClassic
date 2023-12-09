@@ -9,6 +9,7 @@
 #include <vector>
 #include <sstream>
 
+#include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/cpool.h"
@@ -20,9 +21,6 @@
 #include "base/misctypes.h"
 
 #include <stdlib.h>
-
-#include <al5_img.h>
-#include <loadpng.h>
 
 #include "zscriptversion.h"
 #include "sound/zcmusic.h"
@@ -250,8 +248,6 @@ BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp,
 		   *pricesdisplaybuf, *tb_page[3], *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
-DATAFILE   *sfxdata, *fontsdata, *mididata;
-size_t fontsdat_cnt = 0;
 PALETTE    RAMpal;
 PALETTE    pal_gui;
 byte       *colordata, *trashbuf;
@@ -316,7 +312,6 @@ extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte forceExit=0,zc_vsync=0;
-byte zc_color_depth=8;
 byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 int32_t heroscr=0;
@@ -391,7 +386,6 @@ int32_t SnapshotFormat, NameEntryMode=0;
 byte SnapshotScale;
 
 char   zeldadat_sig[52]={0};
-char   sfxdat_sig[52]={0};
 char   fontsdat_sig[52]={0};
 char   cheat_goto_dmap_str[4]={0};
 char   cheat_goto_screen_str[3]={0};
@@ -4463,10 +4457,6 @@ void do_load_and_quit_command(const char* quest_path)
 	allegro_errno = &fake_errno;
 	get_qst_buffers();
 	allocate_crap();
-	if ((sfxdata=load_datafile("sfx.dat"))==NULL)
-	{
-		Z_error_fatal("failed to load sfx_dat");
-	}
 
 	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
@@ -4475,6 +4465,10 @@ void do_load_and_quit_command(const char* quest_path)
 
 int main(int argc, char **argv)
 {
+	int test_zc_arg = used_switch(argc, argv, "-test-zc");
+	if (test_zc_arg > 0)
+		set_headless_mode();
+
 	qstdir = (char*)malloc(2048);
 	qstpath = (char*)malloc(2048);
 	qstdir[0] = 0;
@@ -4489,11 +4483,7 @@ int main(int argc, char **argv)
 			Z_error_fatal("zc_args.txt does not exist");
 		}
 
-		auto ss = std::ostringstream{};
-		std::ifstream file("zc_args.txt");
-		ss << file.rdbuf();
-		std::vector<std::string> args;
-		args = util::split_args(ss.str());
+		std::vector<std::string> args = util::split_args(read_text_file("zc_args.txt"));
 		args.insert(args.begin(), argv[0]);
 
 		argv = new char*[args.size()];
@@ -4505,23 +4495,11 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	if (used_switch(argc, argv, "-version"))
-	{
-		printf("version %s\n", getVersionString());
-		return 0;
-	}
-
-	if (used_switch(argc, argv, "-channel"))
-	{
-		printf("channel %s\n", getReleaseChannel());
-		return 0;
-	}
-
-	if (used_switch(argc, argv, "-repo"))
-	{
-		printf("repo %s\n", getRepo());
-		return 0;
-	}
+	zalleg_setup_allegro(App::zelda, argc, argv);
+	allocate_crap();
+	set_should_zprint_cb([]() {
+		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
+	});
 
 	int only_arg = used_switch(argc, argv, "-only");
 	if (only_arg)
@@ -4529,12 +4507,7 @@ int main(int argc, char **argv)
 		only_qstpath = argv[only_arg+1];
 	}
 
-	common_main_setup(App::zelda, argc, argv);
-	set_should_zprint_cb([]() {
-		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
-	});
-
-	if (used_switch(argc,argv,"-test-zc"))
+	if (test_zc_arg)
 	{
 		bool success = true;
 		if (!saves_test())
@@ -4545,17 +4518,6 @@ int main(int argc, char **argv)
 		if (success)
 			printf("all tests passed\n");
 		exit(success ? 0 : 1);
-	}
-
-	// Helps to test crash reporting.
-	if (used_switch(argc, argv, "-crash") > 0)
-	{
-		abort();
-	}
-
-	if (used_switch(argc, argv, "-headless") > 0)
-	{
-		set_headless_mode();
 	}
 
 	int load_and_quit_arg = used_switch(argc, argv, "-load-and-quit");
@@ -4573,11 +4535,6 @@ int main(int argc, char **argv)
 		int fake_errno = 0;
 		allegro_errno = &fake_errno;
 		get_qst_buffers();
-		allocate_crap();
-		if ((sfxdata=load_datafile("sfx.dat"))==NULL)
-		{
-			Z_error_fatal("failed to load sfx_dat");
-		}
 
 		gamedata* new_game = new gamedata();
 		new_game->header.name = "newsave";
@@ -4637,56 +4594,11 @@ int main(int argc, char **argv)
 			standalone_save_path = "standalone-" + std::filesystem::path(standalone_quest).stem().string() + ".sav";
 		}
 	}
-
-	// Before anything else, let's register our custom trace handler:
-	register_trace_handler(zc_trace_handler);
 	
 	if(!get_qst_buffers())
 	{
 		Z_error_fatal("Error");
 	}
-
-	all_disable_threaded_display();
-	
-	Z_message("Initializing Allegro... ");
-	if(!al_init())
-	{
-		Z_error_fatal("Failed Init!");
-	}
-	if(allegro_init() != 0)
-	{
-		Z_error_fatal("Failed Init!");
-	}
-
-	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
-	if (tempcfg) {
-		al_merge_config_into(al_get_system_config(), tempcfg);
-		al_destroy_config(tempcfg);
-	}
-
-#ifdef __EMSCRIPTEN__
-	em_mark_initializing_status();
-	em_init_fs();
-#endif
-	
-	if(!al_init_image_addon())
-	{
-		Z_error_fatal("Failed al_init_image_addon");
-	}
-
-	if(!al_init_font_addon())
-	{
-		Z_error_fatal("Failed al_init_font_addon");
-	}
-
-	if(!al_init_primitives_addon())
-	{
-		Z_error_fatal("Failed al_init_primitives_addon");
-	}
-
-	al5img_init();
-	register_png_file_type();
 
 	three_finger_flag=false;
 	
@@ -4694,42 +4606,10 @@ int main(int argc, char **argv)
 	if(used_switch(argc, argv, "-no_console"))
 		zscript_debugger = false;
 	
-	//Set up MODULES: This must occur before trying to load the default quests, as the 
-	//data for quest names and so forth is set by the MODULE file!
-	//strcpy(moduledata.module_name,zc_get_config("ZCMODULE","current_module", moduledata.module_name));
-	//al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name)
-	if ( !(zcm.init(true)) ) 
-	{
-		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
-	}
-	
 	if ( zscript_debugger )
 	{
 		FFCore.ZScriptConsole(true);
 	}
-	
-	if(install_timer() < 0)
-	{
-		Z_error_fatal(allegro_error);
-	}
-	
-	if(install_keyboard() < 0)
-	{
-		Z_error_fatal(allegro_error);
-	}
-	poll_keyboard();
-	
-	if(install_mouse() < 0)
-	{
-		Z_error_fatal(allegro_error);
-	}
-	
-	if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
-	{
-		Z_error_fatal(allegro_error);
-	}
-	
-	//set_keyboard_rate(1000,160);
 
 	LOCK_FUNCTION(update_throttle_counter);
 	if (install_int_ex(update_throttle_counter, BPS_TO_TIMER(60)) < 0)
@@ -4756,58 +4636,7 @@ int main(int argc, char **argv)
 	
 	// allocate bitmap buffers
 	Z_message("Allocating bitmap buffers... ");
-	
-	//Turns out color depth can be critical. -Gleeok
-	if(used_switch(argc,argv,"-0bit")) set_color_depth(desktop_color_depth());
-	else if(used_switch(argc,argv,"-15bit")) set_color_depth(15);
-	else if(used_switch(argc,argv,"-16bit")) set_color_depth(16);
-	else if(used_switch(argc,argv,"-24bit")) set_color_depth(24);
-	else if(used_switch(argc,argv,"-32bit")) set_color_depth(32);
-	else
-	{
-		//command-line switches takes priority
-		switch(zc_color_depth)
-		{
-			case 0:
-				set_color_depth(desktop_color_depth());
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 8:
-				set_color_depth(8);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 15:
-				set_color_depth(15);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 16:
-				set_color_depth(16);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 24:
-				set_color_depth(24);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			case 32:
-				set_color_depth(32);
-				//setGraphicsMode(fullscreen);
-				break;
-				
-			default:
-				zc_color_depth = 8; //invalid configuration, set to default in config file.
-				zc_set_config("zeldadx","color_depth",zc_color_depth);
-				set_color_depth(8);
-				break;
-		}
-	}
-	
-	//set_color_depth(32);
-	//set_color_conversion(COLORCONV_24_TO_8);
+	set_color_depth(8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	menu_bmp  = create_bitmap_ex(8,640,480);
 	// TODO: old scrolling code is silly and needs a big scrollbuf bitmap.
@@ -4868,8 +4697,6 @@ int main(int argc, char **argv)
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
 
-	render_set_debug(zc_get_config("graphics","render_debug",0));
-
 	int32_t load_save=0;
 	
 	load_save = used_switch(argc,argv,"-load");
@@ -4906,105 +4733,12 @@ int main(int argc, char **argv)
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
 	
-	// load the data files
-	//setPackfilePassword(datapwd);
-	packfile_password(datapwd);
-	
-	Z_message("Loading data files:\n");
 	set_color_conversion(COLORCONV_NONE);
-	
-	sprintf(zeldadat_sig,"Zelda.Dat %s Build %d",VerStrFromHex(ZELDADAT_VERSION), ZELDADAT_BUILD);
-	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
-	
-	packfile_password(datapwd); // Temporary measure. -L
-	
-	Z_message("Fonts.Dat...");
-	
-	if((fontsdata=load_datafile_count("modules/classic/classic_fonts.dat", fontsdat_cnt))==NULL)
-	{
-		Z_error_fatal("failed to load fonts");
-	}
-	if(fontsdat_cnt != FONTSDAT_CNT)
-	{
-		Z_error_fatal("failed: count error (found %d != exp %d)\n", fontsdat_cnt, FONTSDAT_CNT);
-	}
-	
-	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
-	{
-		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
-	}
-	
-	Z_message("OK\n");
-	
-	//setPackfilePassword(NULL);
-	packfile_password(NULL);
-	
-	Z_message("SFX.Dat...");
-	
-	if((sfxdata=load_datafile("sfx.dat"))==NULL)
-	{
-		Z_error_fatal("failed to load sfx_dat");
-	}
-	
-	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
-	{
-		Z_error_fatal("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
-	}
-	
-	Z_message("OK\n");
-		
-	allocate_crap();
 	
 	//script drawing bitmap allocation
 	zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
 	
-	// initialize sound driver
-	Z_message("Initializing sound driver... ");
-	
-	if(used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound") || zc_get_config("zeldadx","nosound",0) || is_headless())
-	{
-		Z_message("skipped\n");
-	}
-	else
-	{
-		if(!al_install_audio())
-		{
-			// We can continue even with no audio.
-			Z_error("Failed al_install_audio");
-		}
-
-		if(!al_init_acodec_addon())
-		{
-			Z_error("Failed al_init_acodec_addon");
-		}
-
-		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
-		{
-			//      Z_error_fatal(allegro_error);
-			Z_message("Sound driver not available.  Sound disabled.\n");
-		}
-		else
-		{
-			Z_message("OK\n");
-		}
-	}
-	
 	Z_init_sound();
-	
-	
-	// CD player
-	
-	/*
-	  if(used_switch(argc,argv,"-cd"))
-	  {
-	  printf("Initializing CD player... ");
-	  if(cd_init())
-	  Z_error_fatal("Error");
-	  printf("OK\n");
-	  useCD = true;
-	  }
-	  */
 	
 	const int32_t wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
 
@@ -5115,8 +4849,7 @@ int main(int argc, char **argv)
 	if (window_title_arg > 0)
 		window_title = argv[window_title_arg + 1];
 	set_window_title(window_title);
-
-	initFonts();
+	zalleg_create_window();
 
 #ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag() && !is_headless()) {
@@ -5160,8 +4893,6 @@ int main(int argc, char **argv)
 		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
 		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
-
-	zapp_setup_icon();
 
 	hw_palette = &RAMpal;
 	if (is_headless())
@@ -5821,14 +5552,6 @@ void quit_game()
 	
 	free(game);
 	game = NULL;
-		
-	if(fontsdata) unload_datafile(fontsdata);
-	
-	if(sfxdata) unload_datafile(sfxdata);
-	
-	//if(mididata) unload_datafile(mididata);
-	//  if(mappic)
-	//    destroy_bitmap(mappic);
 	
 	al_trace("Bitmaps... \n");
 	destroy_bitmap(framebuf);

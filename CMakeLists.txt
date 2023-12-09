@@ -201,7 +201,7 @@ set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        be8afe0e5225b54e64d0df708744c8384645a490
+  GIT_TAG        fe5332357416aa0b5d9ed69b0206a58ceea7cded
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
@@ -263,7 +263,7 @@ add_subdirectory(third_party/allegro_legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/allegro_legacy/include ${CMAKE_CURRENT_BINARY_DIR}/third_party/allegro_legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_audio allegro_acodec allegro_main)
 
 if (NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
@@ -501,6 +501,9 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	target_link_options(zcbase PRIVATE "-force_load")
 endif()
 
+add_library(zalleg STATIC src/zalleg/zalleg.cpp)
+target_link_libraries(zalleg PUBLIC allegro_with_legacy zcbase ${IMAGELIBS})
+
 add_library(zcgui STATIC
 	src/gui/buildutil.cpp
 	src/gui/button.cpp
@@ -551,6 +554,9 @@ endif()
 
 add_library(zconsolelogger STATIC src/zconsole/ConsoleLogger.cpp)
 target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
+target_include_directories(zconsolelogger PUBLIC src)
+
+target_link_libraries(zcbase PUBLIC zconsolelogger)
 
 #############################################################
 # Sound Library
@@ -602,7 +608,7 @@ set(ZCSOUNDSOURCES
 	src/sound/zcmixer.cpp
 )
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
-target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA} allegro_audio allegro_acodec)
+target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
@@ -638,11 +644,11 @@ target_include_directories(zplayer PRIVATE include/xxhash)
 target_link_libraries(zplayer PRIVATE allegro_with_legacy)
 
 if(WIN32)
-	target_link_libraries(zplayer PRIVATE zconsolelogger zcbase zcgui zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
-	target_link_libraries(zplayer PRIVATE zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(APPLE)
-	target_link_libraries(zplayer PRIVATE zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -686,7 +692,7 @@ endif()
 add_executable(zeditor ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 set_property(TARGET zeditor PROPERTY VS_DPI_AWARE "PerMonitor")
 
-target_link_libraries(zeditor PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+target_link_libraries(zeditor PUBLIC zalleg zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 target_include_directories(zeditor PRIVATE src)
 
 if(MSVC)
@@ -715,7 +721,7 @@ endif()
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src)
-	target_link_libraries(zscript PRIVATE allegro_with_legacy zcbase zconsolelogger ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript PRIVATE fmt zcbase zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
@@ -732,7 +738,7 @@ endif()
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "PerMonitor")
-target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
+target_link_libraries(zlauncher PRIVATE zalleg zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
 #############################################################
 # Standalone
@@ -757,7 +763,7 @@ endif()
 
 add_executable(zupdater src/zupdater/zupdater.cpp src/zconfig.cpp ${UPDATEREXTRASOURCES})
 target_compile_definitions(zupdater PRIVATE ZUPDATER)
-target_link_libraries(zupdater PRIVATE allegro_with_legacy fmt zcbase)
+target_link_libraries(zupdater PRIVATE allegro_dialog fmt zcbase)
 target_include_directories(zupdater PRIVATE src)
 if(WIN32)
 	target_link_options(zupdater PRIVATE "/SUBSYSTEM:WINDOWS")
@@ -807,7 +813,7 @@ endif()
 # Misc.
 #############################################################
 
-set(zc_targets zeditor zplayer zlauncher zcbase zcgui zcsound zscript zconsolelogger zupdater)
+set(zc_targets zeditor zplayer zlauncher zalleg zcbase zcgui zcsound zscript zconsolelogger zupdater)
 set(zc_clang_errors
 	-Werror=array-bounds
 	-Werror=format
@@ -1035,7 +1041,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zplayer zeditor zscript zlauncher zupdater package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
-	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
+	set_target_properties(zcbase zalleg zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme dumb aldmb PROPERTIES FOLDER Sound)
 	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)

@@ -8,8 +8,8 @@ enum
 	ZQKEY_NULL_KEY,
 	ZQKEY_UNDO,
 	ZQKEY_REDO,
-	ZQKEY_PLUS_FLAG,
 	ZQKEY_MINUS_FLAG,
+	ZQKEY_PLUS_FLAG,
 	ZQKEY_SAVE,
 	ZQKEY_SAVEAS,
 	ZQKEY_OPEN,
@@ -71,7 +71,7 @@ enum
 	ZQKEY_COMBO_PAGEUP,ZQKEY_COMBO_PAGEDN,
 	ZQKEY_SQUAREPANEL_UP,ZQKEY_SQUAREPANEL_DOWN,
 	ZQKEY_TESTMODE,
-	ZQKEY_CAUTO_HEIGHTPLUS, ZQKEY_CAUTO_HEIGHTMINUS,
+	ZQKEY_CAUTO_HEIGHTMINUS, ZQKEY_CAUTO_HEIGHTPLUS,
 	ZQKEY_CURR_LAYER_HL, ZQKEY_VIEW_MAP,
 	ZQKEY_DRAWMODE_NORMAL, ZQKEY_DRAWMODE_ALIAS, ZQKEY_DRAWMODE_POOL, ZQKEY_DRAWMODE_AUTO,
 	ZQKEY_IMPORT_COMBOS, ZQKEY_EXPORT_COMBOS,
@@ -178,7 +178,9 @@ enum
 	ZQKEY_COMPILE_SMART,
 	
 	ZQKEY_DEBUG_CONSOLE,
-	
+	ZQKEY_SHOW_HOTKEYS,
+
+	// Note: when adding a new hotkey, categorize in proper group in `render_hotkeys.cpp`.
 	ZQKEY_MAX
 };
 extern Hotkey zq_hotkeys[ZQKEY_MAX];
@@ -197,6 +199,7 @@ void default_hotkeys();
 void load_hotkeys();
 int d_zq_hotkey_proc(int msg, DIALOG* d, int c);
 int do_zq_hotkey_dialog();
+int do_zq_list_hotkeys_dialog();
 optional<uint> select_fav_command();
 void write_fav_command(uint ind, uint hkey);
 

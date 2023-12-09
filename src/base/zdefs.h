@@ -114,6 +114,7 @@
 #include "base/random.h"
 #include "base/util.h"
 #include "base/render.h"
+#include "fontsdat.h"
 #include "zconfig.h"
 #include "base/mapscr.h"
 #include "base/handles.h"

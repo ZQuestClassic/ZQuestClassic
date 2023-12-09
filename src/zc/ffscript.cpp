@@ -107,8 +107,8 @@ int32_t jitted_uncompiled_command_count;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
-ZModule zcm;
-zcmodule moduledata;
+extern ZModule zcm;
+extern zcmodule moduledata;
 script_bitmaps scb;
 user_file script_files[MAX_USER_FILES];
 user_dir script_dirs[MAX_USER_DIRS];

@@ -20,6 +20,7 @@
 #include <malloc.h>
 #endif
 
+#include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/msgstr.h"
@@ -38,6 +39,7 @@
 #include "zq/autocombo/pattern_dormtn.h"
 #include "zq/autocombo/pattern_tiling.h"
 #include "zq/autocombo/pattern_replace.h"
+#include "zq/render_hotkeys.h"
 #include "zq/render_minimap.h"
 #include "zq/render_tooltip.h"
 #include "base/misctypes.h"
@@ -199,8 +201,6 @@ using std::map;
 using std::stringstream;
 
 FFScript FFCore;
-ZModule zcm;
-zcmodule moduledata;
 
 void load_size_poses();
 void do_previewtext();
@@ -436,9 +436,7 @@ int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, 
 int32_t tempmode=GFX_AUTODETECT;
 RGB_MAP zq_rgb_table;
 COLOR_MAP trans_table, trans_table2;
-char *datafile_str;
-DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
-size_t fontsdat_cnt = 0;
+DATAFILE *zcdata=NULL;
 MIDI *song=NULL;
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //*brushshadowbmp;
@@ -525,6 +523,12 @@ int toggleConsole()
 {
 	console_is_open ? killConsole() : initConsole();
 	zc_set_config("zquest","open_debug_console",console_is_open?1:0);
+	return D_O_K;
+}
+
+int showHotkeys()
+{
+	hotkeys_toggle_display(!hotkeys_is_active());
 	return D_O_K;
 }
 
@@ -644,7 +648,6 @@ int32_t fill_type=1;
 
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-char *helpbuf, *zstringshelpbuf;
 string helpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
@@ -729,9 +732,7 @@ byte                use_cheats;
 byte                use_tiles;
 // Note: may not be null-terminated (must refactor writecolordata to fix).
 char                palnames[MAXLEVELS][17];
-char                fontsdat_sig[52];
 char                zquestdat_sig[52];
-char                sfxdat_sig[52];
 char		    qstdat_str[2048];
 
 int32_t gme_track=0;
@@ -1515,6 +1516,7 @@ static NewMenu etc_menu
 	{ "&Video Mode", onZQVidMode, MENUID_ETC_VIDMODE },
 	{ "&Options...", onOptions },
 	{ "&Hotkeys...", do_zq_hotkey_dialog },
+	{ "&List Hotkeys...", do_zq_list_hotkeys_dialog },
 	{ "&Fullscreen", onFullScreen, MENUID_ETC_FULLSCREEN },
 	{},
 	{ "&View Pic...", onViewPic },
@@ -10208,6 +10210,16 @@ void domouse()
 	auto mz = mouse_z;
 	bool lclick = mb&1;
 	bool rclick = mb&2;
+
+	if (mb && hotkeys_is_active())
+	{
+		hotkeys_toggle_display(false);
+		while (gui_mouse_b())
+		{
+			custom_vsync();
+		}
+		return;
+	}
 	
 	FONT* tfont = font;
 	if(zoomed_minimap)
@@ -25879,11 +25891,6 @@ static void do_copy_qst_command(const char* input_filename, const char* output_f
 	int fake_errno = 0;
 	allegro_errno = &fake_errno;
 	get_qst_buffers();
-	allocate_crap();
-	if ((sfxdata=load_datafile("sfx.dat"))==NULL)
-	{
-		Z_error_fatal("failed to load sfx_dat");
-	}
 
 	int ret = load_quest(input_filename, false);
 	if (ret)
@@ -25950,34 +25957,16 @@ int32_t main(int32_t argc,char **argv)
 	int hacky_arg = used_switch(argc, argv, "-z3");
 	if (hacky_arg > 0)
 		global_z3_hacky_load = atoi(argv[hacky_arg + 1]);
-	common_main_setup(App::zquest, argc, argv);
+
+	int test_zc_arg = used_switch(argc, argv, "-test-zc");
+	if (test_zc_arg > 0)
+		set_headless_mode();
+
+	zalleg_setup_allegro(App::zquest, argc, argv);
+	allocate_crap();
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
-
-	if (used_switch(argc, argv, "-version"))
-	{
-		printf("version %s\n", getVersionString());
-		printf("version %d %d %d\n", getVersion().major, getVersion().minor, getVersion().patch);
-		return 0;
-	}
-
-	if (used_switch(argc, argv, "-channel"))
-	{
-		printf("channel %s\n", getReleaseChannel());
-		return 0;
-	}
-
-	if (used_switch(argc, argv, "-repo"))
-	{
-		printf("repo %s\n", getRepo());
-		return 0;
-	}
-
-	if (used_switch(argc, argv, "-headless") > 0)
-	{
-		set_headless_mode();
-	}
 
 	int package_arg = used_switch(argc, argv, "-package");
 	if (package_arg > 0)
@@ -26011,11 +26000,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	Z_title("%s, %s",ZQ_EDITOR_NAME, getVersionString());
-	
-	// Before anything else, let's register our custom trace handler:
-	register_trace_handler(zc_trace_handler);
 
-	allocate_crap();
 	if(!get_qst_buffers())
 	{
 		Z_error_fatal("Error");
@@ -26050,17 +26035,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	zc_srand(time(0));
 
-	Z_message("Initializing Allegro... ");
-	if(!al_init())
-	{
-		Z_error_fatal("Failed Init!");
-	}
-	if(allegro_init() != 0)
-	{
-		Z_error_fatal("Failed Init!");
-	}
-
-	int test_zc_arg = used_switch(argc, argv, "-test-zc");
 	if (test_zc_arg > 0)
 	{
 		set_headless_mode();
@@ -26078,11 +26052,6 @@ int32_t main(int32_t argc,char **argv)
 		int fake_errno = 0;
 		allegro_errno = &fake_errno;
 		get_qst_buffers();
-		allocate_crap();
-		if ((sfxdata=load_datafile("sfx.dat"))==NULL)
-		{
-			Z_error_fatal("failed to load sfx_dat");
-		}
 
 		bool success = true;
 		if (!partial_load_test(test_dir))
@@ -26127,50 +26096,12 @@ int32_t main(int32_t argc,char **argv)
 		exit(0);
 	}
 
-	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
-	if (tempcfg) {
-		al_merge_config_into(al_get_system_config(), tempcfg);
-		al_destroy_config(tempcfg);
-	}
-
 	three_finger_flag=false;
-	if(!al_init_image_addon())
-	{
-		Z_error_fatal("Failed al_init_image_addon");
-	}
-
-	al5img_init();
-	register_png_file_type();
-
-	all_disable_threaded_display();
-
-#ifdef __EMSCRIPTEN__
-	em_mark_initializing_status();
-	em_init_fs();
-#endif
 
 #ifndef __EMSCRIPTEN__
 	if(zc_get_config("zquest","open_debug_console",0))
 		initConsole();
 #endif
-
-	render_set_debug(zc_get_config("graphics","render_debug",0));
-
-	if(install_timer() < 0)
-	{
-		Z_error_fatal(allegro_error);
-	}
-	
-	if(install_keyboard() < 0)
-	{
-		Z_error_fatal(allegro_error);
-	}
-	
-	if(install_mouse() < 0)
-	{
-		Z_error_fatal(allegro_error);
-	}
 	
 	LOCK_VARIABLE(lastfps);
 	
@@ -26190,134 +26121,21 @@ int32_t main(int32_t argc,char **argv)
 	
 	set_gfx_mode(GFX_TEXT,80,50,0,0);
 	
-	Z_message("OK\n");									  // Initializing Allegro...
-	
-	//Initialise MODULES
-	//We'll read the data files from them, in the future, so this MUST occur here!
-	zcm.init(true);
-	
 	Z_message("Loading data files:\n");
 	
 	packfile_password(datapwd);
-	
-	
-	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
-	
-	Z_message("Fonts.Dat...");
-	
-	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
-		FatalConsole("Failed to load fonts datafile '%s'!\n", moduledata.datafiles[fonts_dat]);
-	
-	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
-		FatalConsole("ZQuest Classic I/O Error:\nIncompatible version of fonts.dat.\nZQuest Classic cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStrFromHex(FONTSDAT_VERSION), FONTSDAT_BUILD);
-	
-	if(fontsdat_cnt != FONTSDAT_CNT)
-		FatalConsole("Incompatible fonts.dat: Found size '%d', expecting size '%d'\n", fontsdat_cnt, FONTSDAT_CNT);
-	
-	Z_message("OK\n");
 	
 	Z_message("ZQuest.Dat...");
 	
 	if((zcdata=load_datafile(moduledata.datafiles[zquest_dat]))==NULL)
 		FatalConsole("failed to load zquest.dat");
-	
-	datafile_str=moduledata.datafiles[zquest_dat];
+
 	Z_message("OK\n");
 	
-	
-	//setPackfilePassword(NULL);
 	packfile_password("");
-	
-	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
-	
-	Z_message("SFX.Dat...");
-	
-	if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
-		FatalConsole("Failed to load sfx.dat!\n");
-	
-	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
-		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStrFromHex(SFXDAT_VERSION), SFXDAT_BUILD);
-	
-	Z_message("OK\n");
-	
-	int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
-	
-	if(!helpsize)
-	{
-		helpsize = file_size_ex_password("zquest.txt","");
-		if(!helpsize)
-			FatalConsole("Error: zquest.txt not found.");
-	}
-	
-	helpbuf = (char*)malloc(helpsize<65536?65536:helpsize*2+1);
-	
-	if(!helpbuf)
-		FatalConsole("Error allocating help buffer.");
-	
-	//if(!readfile("zquest.txt",helpbuf,helpsize))
-	FILE *hb = fopen("docs/zquest.txt", "r");
-	
-	if(!hb)
-	{
-		hb = fopen("zquest.txt", "r");
-		if(!hb)
-			FatalConsole("Error loading zquest.txt.");
-	}
-	
-	char c = fgetc(hb);
-	int32_t index=0;
-	
-	while(!feof(hb))
-	{
-		helpbuf[index] = c;
-		index++;
-		c = fgetc(hb);
-	}
-	
-	fclose(hb);
-	
-	helpbuf[helpsize]=0;
-	helpstr = helpbuf;
-	Z_message("Found zquest.txt\n");									  // loading data files...
-	
-	int32_t zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
-	
-	if(!zstringshelpsz)
-	{
-		zstringshelpsz = file_size_ex_password("zstrings.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
-		if(!zstringshelpsz)
-			FatalConsole("Error: zstrings.txt not found.");
-	}
-	
-	zstringshelpbuf = (char*)malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
-	
-	if(!zstringshelpbuf)
-		FatalConsole("Error allocating zstrings Help buffer.");
-	
-	FILE *zstringshelphb = fopen("docs/zstrings.txt", "r");
-	
-	if(!zstringshelphb)
-	{
-		zstringshelphb = fopen("zstrings.txt", "r");
-		if(!zstringshelphb)
-			FatalConsole("Failed loading zstrings.txt!");
-	}
-	
-	char zstringshelpc = fgetc(zstringshelphb);
-	int32_t zstringshelpindex=0;
-	
-	while(!feof(zstringshelphb))
-	{
-		zstringshelpbuf[zstringshelpindex] = zstringshelpc;
-		zstringshelpindex++;
-		zstringshelpc = fgetc(zstringshelphb);
-	}
-	
-	fclose(zstringshelphb);
-	
-	zstringshelpbuf[zstringshelpsz]=0;
-	zstringshelpstr = zstringshelpbuf;
-	Z_message("Found zstrings.txt\n");							   
+
+	helpstr = util::read_text_file("docs/zquest.txt");
+	zstringshelpstr = util::read_text_file("docs/zstrings.txt");
 	
 	// loading data files...
 	
@@ -26500,65 +26318,11 @@ int32_t main(int32_t argc,char **argv)
 		set_debug(!strcmp(zquestpwd,zc_get_config("zquest","debug_this","")));
 	}
 	
-	Z_message("Initializing sound driver... ");
-	
-	if(used_switch(argc,argv,"-s") || zc_get_config("zquest","nosound",0) || is_headless())
-	{
-		Z_message("skipped\n");
-	}
-	else
-	{
-		if(!al_install_audio())
-		{
-			// We can continue even with no audio.
-			Z_error("Failed al_install_audio");
-		}
-
-		if(!al_init_acodec_addon())
-		{
-			Z_error("Failed al_init_acodec_addon");
-		}
-
-		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
-			Z_message("Sound driver not available.  Sound disabled.\n");
-		else Z_message("OK\n");
-	}
-	
 	zcmusic_init();
 	zcmixer = zcmixer_create();
 	install_int_ex([](){ zcmusic_poll(); }, MSEC_TO_TIMER(25));
 
-	switch(zqColorDepth) //defaults to 8bit
-	{
-	case 0:
-		set_color_depth(desktop_color_depth());
-		break;
-		
-	case 8:
-		set_color_depth(8);
-		break;
-		
-	case 15:
-		set_color_depth(15);
-		break;
-		
-	case 16:
-		set_color_depth(16);
-		break;
-		
-	case 24:
-		set_color_depth(24);
-		break;
-		
-	case 32:
-		set_color_depth(32);
-		break;
-		
-	default:
-		zqColorDepth = 8;
-		set_color_depth(8);
-		break;
-	}
+	set_color_depth(8);
 	
 	set_close_button_callback((void (*)()) hit_close_button);
 	
@@ -26584,16 +26348,13 @@ int32_t main(int32_t argc,char **argv)
 		quit_game();
 		allegro_exit();
 	}
-	else
-	{
-		Z_message("gfx mode set at -%d %dbpp %d x %d \n",
-				  tempmode, get_color_depth(), zq_screen_w, zq_screen_h);
-		//Z_message("OK\n");
-	}
+
+	zalleg_create_window();
+	Z_message("gfx mode set at -%d %dbpp %d x %d \n",
+				tempmode, get_color_depth(), zq_screen_w, zq_screen_h);
 
 	set_window_title("ZC Editor");
 
-	initFonts();
 	load_size_poses();
 
 	if (!is_headless())
@@ -26643,8 +26404,6 @@ int32_t main(int32_t argc,char **argv)
 #endif
 	}
 #endif
-
-	zapp_setup_icon();
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
@@ -26710,9 +26469,6 @@ int32_t main(int32_t argc,char **argv)
 	load_mice();
 	gui_mouse_focus=0;
 	MouseSprite::set(ZQM_NORMAL);
-	al_init_image_addon();
-	al_init_font_addon();
-	al_init_primitives_addon();
 	render_zq(); // Ensure the rendering bitmaps are setup.
 
 #ifdef __EMSCRIPTEN__
@@ -27668,19 +27424,6 @@ void remove_locked_params_on_exit()
     remove_int(dclick_check);
 }
 
-
-void cleanup_datafiles_on_exit()
-{
-    al_trace("Cleaning datafiles. \n");
-    
-    if(zcdata) unload_datafile(zcdata);
-    
-    if(fontsdata) unload_datafile(fontsdata);
-    
-    if(sfxdata) unload_datafile(sfxdata);
-}
-
-
 void destroy_bitmaps_on_exit()
 {
     al_trace("Cleaning bitmaps...");
@@ -27852,7 +27595,6 @@ void quit_game()
     
     if(last_timed_save) free(last_timed_save);
     
-    cleanup_datafiles_on_exit();
     destroy_bitmaps_on_exit();
 }
 
@@ -27991,9 +27733,6 @@ void quit_game2()
     if(tmusicpath) free(tmusicpath);
     
     if(last_timed_save) free(last_timed_save);
-    
-    cleanup_datafiles_on_exit();
-    //destroy_bitmaps_on_exit();
 }
 
 void center_zquest_dialogs()

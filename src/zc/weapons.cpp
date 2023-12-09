@@ -3896,7 +3896,10 @@ bool weapon::animate(int32_t index)
 				fall = 0;
 				
 				if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+				{
+					collision_check();
 					dead = 0;
+				}
 				if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
 					step = 0;
 			}
@@ -3916,7 +3919,10 @@ bool weapon::animate(int32_t index)
 					if(didfall)
 					{
 						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+						{
+							collision_check();
 							dead = 0;
+						}
 						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
 							step = 0;
 					}
@@ -3937,7 +3943,10 @@ bool weapon::animate(int32_t index)
 					if(didfall)
 					{
 						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+						{
+							collision_check();
 							dead = 0;
+						}
 						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
 							step = 0;
 					}
@@ -6870,6 +6879,19 @@ void weapon::do_death_fx()
 	death_sprite = -1;
 	death_sfx = 0;
 	rundeath = false;
+}
+
+void weapon::collision_check()
+{
+	if(isLWeapon)
+	{
+		check_enemy_lweapon_collision(this);
+		(void)Hero.try_lwpn_hit(this);
+	}
+	else
+	{
+		(void)Hero.try_ewpn_hit(this);
+	}
 }
 
 void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)

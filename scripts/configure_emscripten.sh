@@ -132,6 +132,8 @@ embuilder build sdl2
 
 embuilder build libpng libpng-mt
 
+embuilder build ogg vorbis
+
 emcmake cmake \
   -G "Ninja Multi-Config" \
   -D ALLEGRO_SDL=ON \

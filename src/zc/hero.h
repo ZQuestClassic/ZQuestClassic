@@ -323,6 +323,7 @@ public:
 	byte tliftclk;
 	zfix liftheight;
 	uint32_t liftflags;
+	optional<byte> last_lift_id;
 
 private:
 	ffcdata const* platform_ffc;
@@ -345,9 +346,9 @@ public:
 	void moveheroOld();
 	void mod_steps(std::vector<zfix*>& v);
 	void get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir);
-	bool scr_walkflag(zfix_round dx,zfix_round dy,int dir,bool kb);
-	optional<zfix> get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm);
-	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv);
+	bool scr_walkflag(zfix_round dx,zfix_round dy,int dir,bool kb,int* canladder = nullptr);
+	optional<zfix> get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm, bool doladder);
+	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv,int* canladder = nullptr);
 	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
 	bool can_movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false);
 	bool moveAtAngle(zfix degrees, zfix px, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
@@ -368,7 +369,12 @@ public:
 	int32_t  lookahead(int32_t d);
 	int32_t  lookaheadflag(int32_t d);
 	bool  lookaheadraftflag(int32_t d);
+	
+	bool check_ewpn_collide(weapon* w);
+	bool try_lwpn_hit(weapon* w);
+	bool try_ewpn_hit(weapon* w, bool force = false);
 	void checkhit();
+	
 	void doHit(int32_t hitdir);
 	bool checkdamagecombos(int32_t dx, int32_t dy);
 	bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
