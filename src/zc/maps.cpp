@@ -2765,8 +2765,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		// TODO z3 ! ffc this should just for this screen ...
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_screen(s, screen_index, [&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if (cmb.triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo_ffc(ffc_handle);
