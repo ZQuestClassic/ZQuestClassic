@@ -22487,7 +22487,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 		else if(pushing < 8 || pushing%8) goto endsigns; //Not pushing against sign enough
 		
-		trigger_sign(cmb, found_scr);
+		trigger_sign(cmb, foundffc ? foundffc->screen_index : found_scr);
 		didsign = true;
 	}
 endsigns:
