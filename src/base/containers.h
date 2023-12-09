@@ -29,6 +29,16 @@ public:
 	void resize(size_type sz) {true_sz = sz;}
 	
 	obj_type const& defval() const {return default_val;}
+	
+	void copy_to(obj_type* arr, size_type sz)
+	{
+		for(size_type q = 0; q < sz; ++q)
+		{
+			if(sz >= size())
+				arr[q] = default_val;
+			else arr[q] = at(q);
+		}
+	}
 protected:
 	size_type true_sz;
 	obj_type default_val;

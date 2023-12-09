@@ -12,7 +12,7 @@
 #include "base/misctypes.h"
 #include "drawing.h"
 
-#ifndef IS_EDITOR
+#ifdef IS_PLAYER
 #include "zc/hero.h"
 #include "zc/decorations.h"
 #include "items.h"
@@ -52,16 +52,6 @@ fixed rad_to_fixed(T d)
 /******* Sprite Base Class ********/
 /**********************************/
 
-void sprite::alloc_scriptmem()
-{
-	if(!scrmem)
-	{
-		scrmem = new scriptmem();
-		memset(scrmem->stack, 0xFFFF, MAX_SCRIPT_REGISTERS);
-		scrmem->scriptData.Clear();
-	}
-}
-
 sprite::sprite(): solid_object()
 {
     uid = getNextUID();
@@ -79,7 +69,6 @@ sprite::sprite(): solid_object()
     drawstyle=0;
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
-    scrmem = NULL;
     
     /*ewpnclass=0;
     lwpnclass=0;
@@ -119,12 +108,9 @@ sprite::sprite(): solid_object()
     //sp=0;
     //itemclass=0;
     //ffcref=0;
-    doscript=1;
-    waitdraw = 0;
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
-    initialised = 0;
     
     //itemref = 0;
     //guyref = 0;
@@ -175,70 +161,33 @@ sprite::sprite(): solid_object()
 
 sprite::sprite(sprite const & other):
 	solid_object(other),
-    z(other.z),
-    fall(other.fall),
-    fakez(other.fakez),
-    tile(other.tile),
-    shadowtile(other.shadowtile),
-    cs(other.cs),
-    flip(other.flip),
-    c_clk(other.c_clk),
-    clk(other.clk),
-    misc(other.misc),
-    xofs(other.xofs),
-    yofs(other.yofs),
-    zofs(other.zofs),
-    hzsz(other.hzsz),
-    txsz(other.txsz),
-    tysz(other.tysz),
-    id(other.id),
-    slopeid(other.slopeid),
-    onplatid(other.onplatid),
-    angular(other.angular),
-    canfreeze(other.canfreeze),
-    angle(other.angle),
-    lasthit(other.lasthit),
-    lasthitclk(other.lasthitclk),
-    drawstyle(other.drawstyle),
-    extend(other.extend),
-    wpnsprite(other.wpnsprite),
-scriptflag(other.scriptflag),
-doscript(other.doscript),
-waitdraw(other.waitdraw),
-script(other.script),
-weaponscript(other.weaponscript),
-scripttile(other.scripttile),
-scriptflip(other.scriptflip),
-do_animation(other.do_animation),
-rotation(other.rotation),
-scale(other.scale),
-moveflags(other.moveflags),
-drawflags(other.drawflags),
-knockbackflags(other.knockbackflags),
-screenedge(other.screenedge),
-scriptshadowtile(other.scriptshadowtile),
-knockbackSpeed(other.knockbackSpeed),
-script_knockback_clk(other.script_knockback_clk),
-script_knockback_speed(other.script_knockback_speed),
-pit_pulldir(other.pit_pulldir),
-pit_pullclk(other.pit_pullclk),
-fallclk(other.fallclk),
-fallCombo(other.fallCombo),
-old_cset(other.old_cset),
-drownclk(other.drownclk),
-drownCombo(other.drownCombo),
-can_flicker(other.can_flicker),
-spr_shadow(other.spr_shadow),
-spr_death(other.spr_death),
-spr_spawn(other.spr_spawn),
-spr_death_anim_clk(other.spr_death_anim_clk),
-spr_spawn_anim_clk(other.spr_spawn_anim_clk),
-spr_death_anim_frm(other.spr_death_anim_frm),
-spr_spawn_anim_frm(other.spr_spawn_anim_frm),
-glowRad(other.glowRad),
-glowShape(other.glowShape),
-ignore_delete(other.ignore_delete)
-
+    z(other.z), fall(other.fall), fakez(other.fakez), tile(other.tile),
+    shadowtile(other.shadowtile), cs(other.cs), flip(other.flip),
+    c_clk(other.c_clk), clk(other.clk), misc(other.misc), xofs(other.xofs),
+    yofs(other.yofs), zofs(other.zofs), hzsz(other.hzsz), txsz(other.txsz),
+    tysz(other.tysz), id(other.id), slopeid(other.slopeid),
+    onplatid(other.onplatid), angular(other.angular), canfreeze(other.canfreeze),
+    angle(other.angle), lasthit(other.lasthit), lasthitclk(other.lasthitclk),
+    drawstyle(other.drawstyle), extend(other.extend), wpnsprite(other.wpnsprite),
+	scriptflag(other.scriptflag), script(other.script), weaponscript(other.weaponscript),
+	scripttile(other.scripttile), scriptflip(other.scriptflip),
+	do_animation(other.do_animation), rotation(other.rotation),
+	scale(other.scale), moveflags(other.moveflags), drawflags(other.drawflags),
+	knockbackflags(other.knockbackflags), screenedge(other.screenedge),
+	scriptshadowtile(other.scriptshadowtile), knockbackSpeed(other.knockbackSpeed),
+	script_knockback_clk(other.script_knockback_clk),
+	script_knockback_speed(other.script_knockback_speed),
+	pit_pulldir(other.pit_pulldir), pit_pullclk(other.pit_pullclk),
+	fallclk(other.fallclk), fallCombo(other.fallCombo),
+	old_cset(other.old_cset), drownclk(other.drownclk),
+	drownCombo(other.drownCombo), can_flicker(other.can_flicker),
+	spr_shadow(other.spr_shadow), spr_death(other.spr_death),
+	spr_spawn(other.spr_spawn), spr_death_anim_clk(other.spr_death_anim_clk),
+	spr_spawn_anim_clk(other.spr_spawn_anim_clk),
+	spr_death_anim_frm(other.spr_death_anim_frm),
+	spr_spawn_anim_frm(other.spr_spawn_anim_frm),
+	glowRad(other.glowRad), glowShape(other.glowShape),
+	ignore_delete(other.ignore_delete)
 {
     uid = getNextUID();
 	isspawning = other.isspawning;
@@ -262,10 +211,8 @@ ignore_delete(other.ignore_delete)
     for(int32_t i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
-    initialised = other.initialised;
     
     
-    scrmem = NULL;
 	for (int32_t i=0; i<8; ++i)
 	{
 		initD[i]=other.initD[i];
@@ -305,13 +252,10 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     //pc=0;
     //sp=0;
     //ffcref=0;
-    doscript=1;
-    waitdraw = 0;
     //itemclass=0;
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
-    initialised = 0;
     //ewpnclass=0;
     //lwpnclass=0;
     //guyclass=0;
@@ -360,7 +304,6 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
         initA[q] = 0;
         weap_inita[q] = 0;
     }
-    scrmem = NULL;
 	glowRad = 0;
 	glowShape = 0;
 	switch_hooked = false;
@@ -379,11 +322,12 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 
 sprite::~sprite()
 {
-	if(scrmem)
+	#ifdef IS_PLAYER
+	if(auto scrty = get_scrtype())
 	{
-		delete scrmem;
-		scrmem = NULL;
+		FFCore.clear_script_engine_data(*scrty, getUID());
 	}
+	#endif
 }
 
 static int32_t nextid = 0;
@@ -1115,7 +1059,7 @@ void sprite::draw(BITMAP* dest)
 		return;
 	}
 	zfix tyoffs = yofs;
-#ifndef IS_EDITOR
+#ifdef IS_PLAYER
 	if(switch_hooked)
 	{
 		switch(Hero.switchhookstyle)
@@ -1609,7 +1553,7 @@ void sprite::draw(BITMAP* dest)
 void sprite::draw_hitbox()
 {
 	if(hide_hitbox) return;
-#ifndef IS_EDITOR
+#ifdef IS_PLAYER
 	start_info_bmp();
 	al_draw_rectangle(x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hit_width,(y+playing_field_offset+hyofs+hit_height-(z+zofs)-fakez),hitboxColor(info_opacity),1);
 	end_info_bmp();
@@ -2364,7 +2308,7 @@ void sprite_list::animate()
 			auto tmp_iter = active_iterator;
 			if(sprites[active_iterator]->animate(active_iterator))
 			{
-#ifndef IS_EDITOR
+#ifdef IS_PLAYER
 				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
 				{
 					enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
@@ -2859,7 +2803,7 @@ breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, 
 
 bool breakable::animate(int32_t)
 {
-#ifndef IS_EDITOR
+#ifdef IS_PLAYER
 	if(++aclk >= aspd)
 	{
 		aclk = 0;
