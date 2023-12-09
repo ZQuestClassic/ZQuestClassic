@@ -432,7 +432,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	for ( int32_t q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
 	
 	script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
-	waitdraw = 0;
 	weaponscript = (d->weaponscript >= 0) ? d->weaponscript : 0; //Dont assign invalid data. 
 	
 	for ( int32_t q = 0; q < 8; q++ ) 
@@ -7773,19 +7772,23 @@ int32_t wpnsfx(int32_t wpn)
 int32_t enemy::run_script(int32_t mode)
 {
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
+	if (script <= 0 || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
+		return RUNSCRIPT_OK;
+	auto scrty = *get_scrtype();
+	auto uid = getUID();
+	if(!FFCore.doscript(scrty,uid))
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;
-	alloc_scriptmem();
+	bool& waitdraw = FFCore.waitdraw(scrty, uid);
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(ScriptType::NPC, script, getUID());
+			return ZScriptVersion::RunScript(ScriptType::NPC, script, uid);
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(ScriptType::NPC, script, getUID());
-				waitdraw = 0;
+				ret = ZScriptVersion::RunScript(ScriptType::NPC, script, uid);
+				waitdraw = false;
 			}
 			break;
 	}

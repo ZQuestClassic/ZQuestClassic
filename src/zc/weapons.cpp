@@ -818,8 +818,6 @@ void weapon::convertType(bool toLW)
 	if((isLWeapon && toLW) || (!isLWeapon && !toLW)) return; //Already the right type
 	//== here is unsafe!
 	weaponscript = 0;
-	doscript = 0;
-	initialised = 0;
 	for(int32_t q = 0; q < 8; ++q)
 	{
 		weap_initd[q] = 0;
@@ -921,7 +919,6 @@ weapon::weapon(weapon const & other):
 
 {
 	weaponscript = other.weaponscript;
-	doscript = other.doscript;
 	//script_wrote_otile = 0;
 	//if ( isLWeapon ) goto skip_eweapon_script_init;
 	//eweapons
@@ -4284,7 +4281,7 @@ bool weapon::animate(int32_t index)
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		case wSword:
-			if ( doscript && itemsbuf[parentitem].misc10 == 50 )
+			if ( itemsbuf[parentitem].misc10 == 50 )
 			{
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
@@ -4340,10 +4337,7 @@ bool weapon::animate(int32_t index)
 			{
 				sfx(itemsbuf[parentitem].usesound,pan(int32_t(x)),true,false);
 			}
-			if ( doscript )
-			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 		}
 		
 		break;
@@ -4648,10 +4642,7 @@ bool weapon::animate(int32_t index)
 			
 			if ( ( id == wRefBeam && ScriptGenerated )  || id == wBeam )
 			{
-				if ( doscript )
-				{
-					if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-				}
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			if ( id == ewSword )
 			{
@@ -4668,10 +4659,7 @@ bool weapon::animate(int32_t index)
 				dead=1;
 			}
 			
-			if ( doscript )
-			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		}
 			
@@ -4710,10 +4698,7 @@ bool weapon::animate(int32_t index)
 			if((parentitem==-1 && get_qr(qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
 				goto mirrors;
 				
-			if ( doscript )
-			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		}
 		
@@ -4835,10 +4820,7 @@ bool weapon::animate(int32_t index)
 				isLit=false;
 				checkLightSources();
 			}
-			if ( doscript )
-			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		}
 		
@@ -4847,10 +4829,7 @@ bool weapon::animate(int32_t index)
 		case wLitSBomb:
 		case wSBomb:
 		{
-			if ( doscript )
-			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			limited_animate();
 			break;
 		}
@@ -4914,10 +4893,7 @@ bool weapon::animate(int32_t index)
 		case wRefArrow:
 		{
 			//Z_scripterrlog("Arrow weaponscript is: %d\n", weaponscript);
-			if ( doscript )
-			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			if(weapon_dying_frame)
 			{
 				if(dead != 0)
@@ -4983,7 +4959,7 @@ bool weapon::animate(int32_t index)
 				dead=1;
 			}
 		
-			if ( doscript && isLWeapon )
+			if ( isLWeapon )
 			{
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
@@ -5003,7 +4979,7 @@ bool weapon::animate(int32_t index)
 				dead=1;
 			}
 		
-			if ( doscript && isLWeapon )
+			if ( isLWeapon )
 			{
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
@@ -5014,10 +4990,7 @@ bool weapon::animate(int32_t index)
 		{
 			if(blocked())  //no bait area?
 			{
-				if ( doscript )
-				{
-				   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-				}
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				dead=23;
 				goto skip_second_bait_script;
 			}
@@ -5026,10 +4999,7 @@ bool weapon::animate(int32_t index)
 			{
 				dead=1;
 			}
-			if ( doscript )
-			{
-			   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			skip_second_bait_script:
 			break;
 		}
@@ -5040,27 +5010,18 @@ bool weapon::animate(int32_t index)
 			if(dead==0)  // Set by ZScript
 			{
 				stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
-				if ( doscript )
-				{
-				   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-				}
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				break;
 			}
 			
 			else if(dead==1) // Set by ZScript
 			{
-				if ( doscript )
-				{
-				   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-				}
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				onhit(false);
 			}
 			else
 			{
-				if ( doscript )
-				{
-				   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-				}
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			
 			
@@ -5479,10 +5440,7 @@ bool weapon::animate(int32_t index)
 				++clk;
 				
 				if(misc < 2) sfx(hshot.usesound,pan(int32_t(x)),true);
-				if ( doscript )
-				{
-					if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-				}
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				return false;
 			}
 			
@@ -5519,10 +5477,6 @@ bool weapon::animate(int32_t index)
 					{
 						getdraggeditem(dragging);
 					}
-					// if ( doscript )
-					// {
-						// if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-					// }
 					return true;
 				}
 			}
@@ -5535,10 +5489,7 @@ bool weapon::animate(int32_t index)
 				if(dead != -1)
 					dead=1;
 			}
-			if ( doscript )
-			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 		}
 		break;
 		
@@ -6310,11 +6261,7 @@ bool weapon::animate(int32_t index)
 					dead=0;
 				}
 			}
-			//:Weapon Only
-			if ( doscript )
-			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
-			}
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 		}
 		break;
 		case ewMagic:
@@ -6787,7 +6734,7 @@ bool weapon::animate(int32_t index)
 				
 				return dead==0;
 			}
-			if ( id == wRefFireball && ScriptGenerated && doscript )
+			if ( id == wRefFireball && ScriptGenerated )
 			{
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
@@ -8128,7 +8075,6 @@ void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type,
     temp.yofs=0;
     temp.clk2=aclk;
     temp.aframe=aframe;
-    temp.doscript = 0; //Running q script would cause a crash, as this weapon has no parent data to use to determine if it should run an lweapon, or eweapon script.
     temp.script = 0; //Can not have script data.
     temp.animate(0); //Scripts run in this function. Call after forcing script data to 0.
     temp.draw(dest);
@@ -8189,19 +8135,23 @@ void weapon::findcombotriggers()
 int32_t weapon::run_script(int32_t mode)
 {
 	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (weaponscript <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
+	if (weaponscript <= 0 || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
+		return RUNSCRIPT_OK;
+	auto scrty = *get_scrtype();
+	auto uid = getUID();
+	if(!FFCore.doscript(scrty,uid))
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;
-	alloc_scriptmem();
+	bool& waitdraw = FFCore.waitdraw(scrty, uid);
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, weaponscript, getUID());
+			return ZScriptVersion::RunScript(scrty, weaponscript, uid);
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, weaponscript, getUID());
-				waitdraw = 0;
+				ret = ZScriptVersion::RunScript(scrty, weaponscript, uid);
+				waitdraw = false;
 			}
 			break;
 	}
@@ -8285,7 +8235,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     LOADGFX(usesprite);
     //Z_scripterrlog("After calling LOADGFX(), the dummy weapon o_tile is: %d\n", o_tile);
     step=0;
-    doscript = 0;
     weaponscript = 0;
 	weapon_dying_frame = false;
 	rundeath = false;

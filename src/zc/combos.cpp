@@ -2237,7 +2237,6 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	if(valid_script)
 	{
 		wpn->weaponscript = scrid;
-		wpn->doscript = 1;
 	}
 	return wpn;
 }
