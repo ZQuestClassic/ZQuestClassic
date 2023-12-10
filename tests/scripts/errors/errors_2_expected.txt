@@ -3,5 +3,3 @@ Pass 1: Parsing
 syntax error, unexpected RBRACE, expecting end of file [ZQ_BUFFER Line 3 Column 25 '}']
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
-
-
