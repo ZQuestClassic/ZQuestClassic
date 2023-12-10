@@ -1436,7 +1436,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		int32_t returnlabel = ScriptParser::getUniqueLabelID();
 		//push the return address
-		addOpcode(new OPushImmediate(new LabelArgument(returnlabel)));
+		addOpcode(new OPushImmediate(new LabelArgument(returnlabel, true)));
 		if (!(readfunc->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
 			//push the lhs of the arrow
@@ -1533,7 +1533,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			{
 				Function* destructor = destr[0];
 				addOpcode(new OSetImmediate(new VarArgument(EXP1),
-					new LabelArgument(destructor->getLabel())));
+					new LabelArgument(destructor->getLabel(), true)));
 			}
 			else addOpcode(new OSetImmediate(new VarArgument(EXP1),
 				new LiteralArgument(0)));
@@ -1797,7 +1797,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
-		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+		addOpcode(new OPushImmediate(new LabelArgument(returnaddr, true)));
 		commentBack(fmt::format("Class{} Return Addr",func_comment));
 		pushcount += 3;
 		
@@ -1966,7 +1966,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
-		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+		addOpcode(new OPushImmediate(new LabelArgument(returnaddr, true)));
 		commentBack(fmt::format("{}{} Return Addr",comment_pref,func_comment));
 		pushcount += 2;
 		targ_sz = commentTarget();
@@ -3695,7 +3695,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 
 		int32_t returnlabel = ScriptParser::getUniqueLabelID();
 		//push the return address
-		addOpcode(new OPushImmediate(new LabelArgument(returnlabel)));
+		addOpcode(new OPushImmediate(new LabelArgument(returnlabel, true)));
 		
 		if (!(host.writeFunction->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
