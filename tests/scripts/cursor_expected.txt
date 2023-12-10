@@ -12,7 +12,7 @@ PUSHR d0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSR d2,0.0002
 SETR d4,SP
-SETV d2,0; while(true) #10020 Body [Opt:AlwaysOn]
+SETV d2,0; while(true) #10020 Body [Opt:AlwaysOn] Start
 PUSHR d2
 POP d0
 SETR d2,MOUSEARR
@@ -22,7 +22,7 @@ PUSHR d2
 POP d0
 SETR d2,MOUSEARR
 STORED d2,0
-PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params
+PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOADD d2,1
 PUSHR d2
 LOADD d2,0
@@ -34,10 +34,10 @@ PUSHV 3
 PUSHARGSV -1,0.0002
 PUSHARGSV 0,0.0005
 PUSHV 1
-PUSHV 128
+PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #10020 Body [Opt:AlwaysOn] End
 GOTO 5; while() #10020 End
 POPARGS d5,0.0004
 QUIT; void run(int) Body End

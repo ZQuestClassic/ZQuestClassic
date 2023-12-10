@@ -107,6 +107,7 @@ namespace ZScript
 		
 		void commentAt(size_t indx, std::string const& comment);
 		void commentBack(std::string const& comment);
+		void commentStartEnd(size_t indx, string const& comment);
 
 		template <class Container>
 		void addOpcodes(Container const& container);
