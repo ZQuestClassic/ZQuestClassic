@@ -161,7 +161,7 @@ extern bool kb_typing_mode;
 bool is_compact = false;
 
 bool standalone_mode=false;
-char *standalone_quest=NULL;
+fs::path standalone_quest;
 std::string standalone_save_path;
 bool disable_save_to_disk=false;
 
@@ -4328,6 +4328,15 @@ int main(int argc, char **argv)
 
 	Z_title("ZC Launched: %s, %s",ZC_PLAYER_NAME, getVersionString());
 	
+	if(!get_qst_buffers())
+	{
+		Z_error_fatal("Error");
+	}
+
+	three_finger_flag=false;
+	
+	load_game_configs();
+
 	int standalone_arg = used_switch(argc, argv, "-standalone");
 	if (standalone_arg)
 	{
@@ -4337,40 +4346,23 @@ int main(int argc, char **argv)
 		{
 			Z_error_fatal("-standalone requires a quest file, e.g.\n" \
 					"  -standalone MyQuest.qst\n" \
-					"  -standalone \"Name with spaces.qst\"");
+					"  -standalone \"Name with spaces.qst\"\n" \
+					"Paths may be absolute, or relative to the quest directory.\n" \
+					"An optional second argument can be used to specify a sav file");
 		}
-		
-		standalone_quest = argv[standalone_arg + 1];
-		
-		if(stricmp(standalone_quest, "1st.qst")==0 ||
-		  stricmp(standalone_quest, "2nd.qst")==0 ||
-		  stricmp(standalone_quest, "3rd.qst")==0 ||
-		  stricmp(standalone_quest, "4th.qst")==0 ||
-		  stricmp(standalone_quest, "5th.qst")==0)
-		{
-			Z_error_fatal("Standalone mode can only be used with custom quests.");
-		}
-		
-		regulate_path(standalone_quest);
 
+		// TODO make qstdir a fs::path and absoulute
+		standalone_quest = (fs::current_path() / fs::path(qstdir) / argv[standalone_arg + 1]).lexically_normal();
 		if (standalone_arg + 2 < argc && argv[standalone_arg + 2][0] != '-')
 		{
 			standalone_save_path = argv[standalone_arg + 2];
 		}
 		else
 		{
-			standalone_save_path = "standalone-" + std::filesystem::path(standalone_quest).stem().string() + ".sav";
+			standalone_save_path = "standalone-" + standalone_quest.stem().string() + ".sav";
 		}
 	}
-	
-	if(!get_qst_buffers())
-	{
-		Z_error_fatal("Error");
-	}
 
-	three_finger_flag=false;
-	
-	load_game_configs();
 	if(used_switch(argc, argv, "-no_console"))
 		zscript_debugger = false;
 	
