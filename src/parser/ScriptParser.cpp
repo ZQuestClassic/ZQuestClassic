@@ -486,7 +486,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				{
 					Function* destructor = destr[0];
 					first.reset(new OSetImmediate(new VarArgument(EXP1),
-						new LabelArgument(destructor->getLabel())));
+						new LabelArgument(destructor->getLabel(), true)));
 				}
 				else first.reset(new OSetImmediate(new VarArgument(EXP1),
 					new LiteralArgument(0)));
@@ -730,7 +730,7 @@ void ScriptParser::assemble(IntermediateData *id)
 			addOpcode2(ginit, new OPushRegister(new VarArgument(SFRAME)));
 			//push the return address
 			int32_t returnaddr = ScriptParser::getUniqueLabelID();
-			addOpcode2(ginit, new OPushImmediate(new LabelArgument(returnaddr)));
+			addOpcode2(ginit, new OPushImmediate(new LabelArgument(returnaddr, true)));
 			
 			int32_t funcaddr = ScriptParser::getUniqueLabelID();
 			addOpcode2(ginit, new OGotoImmediate(new LabelArgument(funcaddr)));

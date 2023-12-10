@@ -1894,16 +1894,15 @@ namespace ZScript
 	class LabelArgument : public Argument
 	{
 	public:
-		LabelArgument(int32_t id) : ID(id), haslineno(false) {}
+		LabelArgument(int32_t id, bool altstr = false) : ID(id), altstr(altstr), haslineno(false) {}
 		std::string toString() const;
-		std::string toStringSetV() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{
 			host.caseLabel(*this,param);
 		}
 		Argument* clone() const
 		{
-			return new LabelArgument(ID);
+			return new LabelArgument(ID, altstr);
 		}
 		void setID(int32_t newid)
 		{
@@ -1922,6 +1921,7 @@ namespace ZScript
 		int32_t ID;
 		int32_t lineno;
 		bool haslineno;
+		bool altstr;
 	};
 
 	class UnaryOpcode : public Opcode
