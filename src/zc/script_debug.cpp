@@ -11,10 +11,11 @@ bool DEBUG_PRINT_ZASM;
 bool DEBUG_JIT_PRINT_ASM;
 bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
 
+bool DEBUG_PRINT_TO_FILE;
+bool DEBUG_PRINT_TO_CONSOLE;
+
 // 0 for off, 1 for per-script execution, 2 for per-instruction.
 static int runtime_debug = 0;
-static bool debug_to_file = true;
-static bool debug_to_console = false;
 
 ScriptDebugHandle::ScriptDebugHandle(OutputSplit output_split, script_data* script)
 {
@@ -57,7 +58,7 @@ ScriptDebugHandle::~ScriptDebugHandle()
 
 void ScriptDebugHandle::update_file()
 {
-	if (!debug_to_file)
+	if (!DEBUG_PRINT_TO_FILE)
 		return;
 
 	if (file)
@@ -102,7 +103,7 @@ void ScriptDebugHandle::_print(int32_t attributes, const char *str)
 		al_fputs(file, str);
 	}
 
-	if (debug_to_console && zscript_debugger)
+	if (DEBUG_PRINT_TO_CONSOLE && zscript_debugger)
 	{
 		zscript_coloured_console.safeprint(attributes, str);
 	}
@@ -240,7 +241,7 @@ void ScriptDebugHandle::pre_command()
 
 int script_debug_is_runtime_debugging()
 {
-	if (!debug_to_file && !debug_to_console)
+	if (!DEBUG_PRINT_TO_FILE && !DEBUG_PRINT_TO_CONSOLE)
 	{
 		return 0;
 	}

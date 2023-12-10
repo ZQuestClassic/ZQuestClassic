@@ -4901,6 +4901,8 @@ int main(int argc, char **argv)
 	rgb_map = &rgb_table;
 	
 	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
+	DEBUG_PRINT_TO_FILE = zc_get_config("ZSCRIPT", "print_zasm_to_file", true);
+	DEBUG_PRINT_TO_CONSOLE = zc_get_config("ZSCRIPT", "print_zasm_to_console", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false) || used_switch(argc, argv, "-jit-print-asm");
 	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_exit_on_failure", false);
 	hangcount = zc_get_config("ZSCRIPT","ZASM_Hangcount",1000);
