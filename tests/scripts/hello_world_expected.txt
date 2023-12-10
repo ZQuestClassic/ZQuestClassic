@@ -8,7 +8,7 @@ Pass 6: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-PUSHV 0
+PUSHV 0; void run() Body Start
 PUSHARGSR d2,0.0002
 SETR d4,SP
 SETV d2,123
@@ -16,16 +16,17 @@ STORED d2,1
 ALLOCATEMEMV d2,17
 STORED d2,0
 WRITEPODSTRING d2,"hello world: %d\n"
-LOADD d2,0
+LOADD d2,0; InlineFunc[void printf(char32)] Params
 PUSHR d2
 LOADD d2,1
 PUSHVARGR d2
-PRINTFVARG
-POP d5
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
 LOADD d3,0
 DEALLOCATEMEMR d3
 POPARGS d5,0.0003
-QUIT
+QUIT; void run() Body End
 
 
-QUIT
+QUIT; void run() Body
+

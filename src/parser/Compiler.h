@@ -4,6 +4,8 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "parserDefs.h"
+#include "base/headers.h"
+#include <fmt/format.h>
 #include "zq/ffasmexport.h"
 #include "zq/ffasm.h"
 
@@ -30,6 +32,7 @@ namespace ZScript
 
 	// ZScript.h
 	class Program;
+	class FunctionSignature;
 
 	// DataStructs.h
 	struct FunctionData;
@@ -43,36 +46,64 @@ namespace ZScript
 		Opcode() : label(-1) {}
 		virtual ~Opcode() {}
 		virtual std::string toString() const = 0;
-		int32_t getLabel() const
+		int getLabel() const
 		{
 			return label;
 		}
-		void setLabel(int32_t l)
+		void setLabel(int l)
 		{
-			label=l;
+			label = l;
 		}
-		std::string printLine(bool showlabel = false)
+		string const& getComment() const
 		{
-			char buf[100];
-        
-			if(!showlabel || label == -1)
-				return " " + toString() + "\n";
-            
-			sprintf(buf, "l%d:", label);
-			return std::string(buf)+toString()+"\n";
+			return comment;
 		}
-		Opcode * makeClone(bool copylabel = true)
+		void setComment(string const& str)
+		{
+			comment = str;
+		}
+		static void mergeComment(string& basestr, string const& str, bool before = false)
+		{
+			if(str.empty())
+				return;
+			if(basestr.empty())
+			{
+				basestr = str;
+				return;
+			}
+			if(before)
+				basestr = fmt::format("{} AND {}",str,basestr);
+			else basestr = fmt::format("{} AND {}",basestr,str);
+		}
+		void mergeComment(string const& str, bool before = false)
+		{
+			Opcode::mergeComment(comment, str, before);
+		}
+		string printLine(bool showlabel = false, bool showcomment = true)
+		{
+			string labelstr = " ";
+			if(showlabel && label > -1)
+				labelstr = fmt::format("l{}:",label);
+            string commentstr;
+			if(showcomment && comment.size())
+				commentstr = fmt::format("; {}",comment);
+			return fmt::format("{}{}{}\n",labelstr,toString(),commentstr);
+		}
+		Opcode * makeClone(bool copylabel = true, bool copycomment = true)
 		{
 			Opcode *dup = clone();
 			if(copylabel)
 				dup->setLabel(label);
+			if(copycomment)
+				dup->setComment(comment);
 			return dup;
 		}
 		virtual void execute(ArgumentVisitor&, void*) {}
 	protected:
 		virtual Opcode *clone() const = 0;
 	private:
-		int32_t label;
+		int label;
+		string comment;
 	};
 
 	class ArbitraryOpcode : public Opcode
@@ -114,9 +145,9 @@ namespace ZScript
 		}
 		disassembled_script_data() : format(SCRIPT_FORMAT_DEFAULT)
 		{}
-		void write(FILE* dest, bool al = false, bool spaced = false) const
+		void write(FILE* dest, bool al = false, bool spaced = false, bool commented = false) const
 		{
-			std::string str = first.get_meta();
+			string str = first.get_meta();
 			if(spaced) fwrite("\n\n", sizeof(char), 2, dest);
 			fwrite(str.c_str(), sizeof(char), str.size(), dest);
 			if(al)
@@ -127,16 +158,16 @@ namespace ZScript
 			}
 			for(auto& line : second)
 			{
-				str = line->printLine();
+				str = line->printLine(false, commented);
 				if(al)
 					safe_al_trace(str);
 				fwrite(str.c_str(), sizeof(char), str.size(), dest);
 			}
 		}
-		void write(std::string& dest, bool al = false, bool spaced = false) const
+		void write(string& dest, bool al = false, bool spaced = false, bool commented = false) const
 		{
 			std::ostringstream output;
-			std::string str = first.get_meta();
+			string str = first.get_meta();
 			if(spaced) output << "\n\n";
 			output << str;
 			if(al)
@@ -147,7 +178,7 @@ namespace ZScript
 			}
 			for(auto& line : second)
 			{
-				str = line->printLine();
+				str = line->printLine(false, commented);
 				if(al)
 					safe_al_trace(str);
 				output << str;
@@ -200,7 +231,7 @@ namespace ZScript
 		static std::string* checkIncludes(std::string& includePath, std::string const& importname, std::vector<std::string> includes);
 		static std::vector<std::shared_ptr<Opcode>> assembleOne(
 				Program& program, std::vector<std::shared_ptr<Opcode>> script,
-				int32_t numparams);
+				int32_t numparams, FunctionSignature const& runsig);
 		static int32_t vid;
 		static int32_t fid;
 		static int32_t gid;

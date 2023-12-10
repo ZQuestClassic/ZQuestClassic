@@ -8,8 +8,8 @@ Pass 6: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-PUSHR d0
-PUSHR REFFFC
+PUSHR d0; void run(int) Params
+PUSHR REFFFC; void run(int) Body Start
 PUSHARGSR d2,0.0002
 SETR d4,SP
 SETV d2,0
@@ -22,7 +22,7 @@ PUSHR d2
 POP d0
 SETR d2,MOUSEARR
 STORED d2,0
-PUSHV 3
+PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params
 LOADD d2,1
 PUSHR d2
 LOADD d2,0
@@ -35,14 +35,15 @@ PUSHARGSV -1,0.0002
 PUSHARGSV 0,0.0005
 PUSHV 1
 PUSHV 128
-DRAWCOMBO
-POPARGS d5,0.0016
-WAITFRAME
+DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body
 GOTO 5
 POPARGS d5,0.0004
-QUIT
+QUIT; void run(int) Body End
 
 
-ALLOCATEGMEMV d2,4096
+ALLOCATEGMEMV d2,4096; void run() Body Start
 SETR gd1,d2
-QUIT
+QUIT; void run() Body End
+

@@ -98,6 +98,25 @@ void BuildOpcodes::addOpcode(std::shared_ptr<Opcode> &code)
 {
 	opcodeTargets.back()->push_back(code);
 }
+Opcode* BuildOpcodes::backOpcode()
+{
+	return opcodeTargets.back()->back().get();
+}
+vector<std::shared_ptr<Opcode>>& BuildOpcodes::backTarget()
+{
+	return *opcodeTargets.back();
+}
+void BuildOpcodes::commentAt(size_t indx, string const& comment)
+{
+	auto targ = backTarget();
+	if(indx >= targ.size())
+		return;
+	targ[indx]->mergeComment(comment);
+}
+void BuildOpcodes::commentBack(string const& comment)
+{
+	backOpcode()->mergeComment(comment);
+}
 
 template <class Container>
 void BuildOpcodes::addOpcodes(Container const& container)
@@ -1307,6 +1326,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	
 	auto* optarg = opcodeTargets.back();
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
+	const string func_comment = fmt::format("Func[{}]",func.getSignature(true).asString());
+	auto targ_sz = backTarget().size();
 	if(func.getFlag(FUNCFLAG_NIL) || func.prototype) //Prototype/Nil function
 	{
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
@@ -1315,6 +1336,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			INITC_VISIT(*it);
 		}
+		commentAt(targ_sz, fmt::format("Proto{} Visit Params",func_comment));
 		
 		//Set the return to the default value
 		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR) && parsing_user_class <= puc_vars)
@@ -1331,8 +1353,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			else addOpcode(new OSetImmediate(new VarArgument(EXP1),
 				new LiteralArgument(0)));
+			commentBack(fmt::format("Proto{} Set Destructor",func_comment));
 			addOpcode(new OConstructClass(new VarArgument(EXP1),
 				new VectorArgument(user_class.members)));
+			commentBack(fmt::format("Proto{} Default Construct",func_comment));
 		}
 		else
 		{
@@ -1343,6 +1367,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				if (std::optional<int32_t> val = func.defaultReturn->getCompileTimeValue(NULL, scope))
 					retval = *val;
 				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(retval)));
+				commentBack(fmt::format("Proto{} Default RetVal",func_comment));
 			}
 		}
 	}
@@ -1459,7 +1484,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 			}
 		}
-		
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
 		auto it = funcCode.begin();
 		while(OPopRegister* ocode = dynamic_cast<OPopRegister*>(it->get()))
@@ -1495,9 +1519,22 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			else break;
 		}
+		commentAt(targ_sz, fmt::format("Inline{} Params",func_comment));
+		targ_sz = backTarget().size();
 		for(;it != funcCode.end(); ++it)
 		{
 			addOpcode((*it)->makeClone(false));
+		}
+		auto back_sz = backTarget().size();
+		if(back_sz > targ_sz)
+		{
+			if(back_sz == targ_sz+1)
+				commentBack(fmt::format("Inline{} Body",func_comment));
+			else
+			{
+				commentAt(targ_sz, fmt::format("Inline{} Body Start",func_comment));
+				commentBack(fmt::format("Inline{} Body End",func_comment));
+			}
 		}
 	
 		if(host.left->isTypeArrow())
@@ -1535,7 +1572,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		int v = num_used_params-num_actual_params;
 		(v>0 ? vargcount : used_opt_params) = abs(v);
 		size_t pushcount = 0;
-		
 		if(vargs)
 		{
 			//push the vargs, in forward order
@@ -1576,18 +1612,22 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				}
 			}
 			addOpcode(new OMakeVargArray());
+			commentBack("Allocate Vargs array");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			commentBack("Push the Vargs array pointer");
 			++pushcount;
 		}
-		
+		commentAt(targ_sz, fmt::format("Class{} Vargs",func_comment));
 		//push the this key/stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+		commentBack(fmt::format("Class{} Return Addr",func_comment));
 		pushcount += 3;
-
+		
+		targ_sz = backTarget().size();
 		//push the parameters, in forward order
 		size_t param_indx = 0;
 		for (; param_indx < num_used_params-vargcount; ++param_indx)
@@ -1626,12 +1666,14 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
+		commentAt(targ_sz, fmt::format("Class{} Params",func_comment));
 		pushcount += (num_used_params-vargcount);
 		if(vargs)
 		{
 			if(auto offs = pushcount-1)
 				addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(offs)));
 			else addOpcode(new OPeek(new VarArgument(EXP1)));
+			commentBack("Peek the Vargs array pointer");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		else if(used_opt_params)
@@ -1653,6 +1695,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
 		}
 		//goto
+		string func_call_comment;
 		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)
 			&& !host.isConstructor())
 		{
@@ -1660,8 +1703,16 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//Use the alt label of the constructor, which is after the constructy bits
 			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
 			addOpcode(new OGotoImmediate(new LabelArgument(func.getAltLabel())));
+			func_call_comment = fmt::format("Class{} Constructor Inheritance Call",func_comment);
 		}
-		else addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+		else
+		{
+			addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+			if(host.isConstructor())
+				func_call_comment = fmt::format("Class{} Constructor Call",func_comment);
+			else func_call_comment = fmt::format("Class{} Call",func_comment);
+		}
+		commentBack(func_call_comment);
 		//pop the stack frame pointer
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
 		next->setLabel(returnaddr);
@@ -1671,10 +1722,12 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			addOpcode(new OPopRegister(new VarArgument(EXP2)));
 			addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
+			commentBack("Deallocate Vargs array");
 		}
 	}
 	else
 	{
+		const string comment_pref = func.isInternal() ? "Int." : "Usr";
 		int32_t funclabel = func.getLabel();
 		
 		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
@@ -1729,17 +1782,20 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				}
 			}
 			addOpcode(new OMakeVargArray());
+			commentBack("Allocate Vargs array");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			commentBack("Push the Vargs array pointer");
 			++pushcount;
 		}
-		
+		commentAt(targ_sz, fmt::format("{}{} Vargs",comment_pref,func_comment));
 		//push the stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+		commentBack(fmt::format("{}{} Return Addr",comment_pref,func_comment));
 		pushcount += 2;
-		
+		targ_sz = backTarget().size();
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.
 		if (host.left->isTypeArrow() && !(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
@@ -1791,6 +1847,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 		}
 		pushcount += (num_used_params-vargcount);
+		commentAt(targ_sz, fmt::format("{}{} Params",comment_pref,func_comment));
 		if(vargs && (vargcount || user_vargs))
 		{
 			if(user_vargs)
@@ -1798,6 +1855,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				if(auto offs = pushcount-1)
 					addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(offs)));
 				else addOpcode(new OPeek(new VarArgument(EXP1)));
+				commentBack("Peek the Vargs array pointer");
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 			else
@@ -1853,6 +1911,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		//goto
 		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+		commentBack(fmt::format("{}{} Call",comment_pref,func_comment));
 		//pop the stack frame pointer
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
 		next->setLabel(returnaddr);
@@ -1861,6 +1920,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			addOpcode(new OPopRegister(new VarArgument(EXP2)));
 			addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
+			commentBack("Deallocate Vargs array");
 		}
 		
 		if(host.left->isTypeArrow())

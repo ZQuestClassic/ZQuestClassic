@@ -21065,6 +21065,7 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignsubscreenscript_list, NULL, NULL },
     //50
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_check_proc,      22,  221,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "...And output ZASM comments", NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
@@ -22310,6 +22311,7 @@ void clearAllSlots(int32_t type, byte flags = 0)
 	}
 }
 
+static bool doslots_log_output = false, doslots_comment_output = true;
 void setup_scriptslot_dlg(char* buf, byte flags)
 {
 	//{ Set up the textbox at the bottom, and auto-resize height based on it
@@ -22326,6 +22328,8 @@ void setup_scriptslot_dlg(char* buf, byte flags)
 		strcat(buf,"Scripts prefixed with '==' are imported ZASM scripts.\n");
 	strcat(buf,"Global scripts named 'Init' will be appended to '~Init'");
 	//
+	SETFLAG(assignscript_dlg[13].flags, D_SELECTED, doslots_log_output);
+	SETFLAG(assignscript_dlg[51].flags, D_SELECTED, doslots_comment_output);
 	assignscript_dlg[14].dp = buf;
 	object_message(&assignscript_dlg[14], MSG_START, 0); //Set the width/height
 	if(int32_t diff = assignscript_dlg[14].h - prev_height) //resize dlg
@@ -22663,14 +22667,13 @@ void doClearSlots(byte* flags);
 
 extern byte compile_success_sample, compile_error_sample,
 	compile_finish_sample, compile_audio_volume;
-static bool doslots_log_output = false;
 static map<string, disassembled_script_data> *doslot_scripts = nullptr;
 bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
 {
 	if(slotdata.hasScriptData())
 	{
-		std::string scriptstr;
-		(*doslot_scripts)[slotdata.scriptname].write(scriptstr, doslots_log_output);
+		string scriptstr;
+		(*doslot_scripts)[slotdata.scriptname].write(scriptstr, doslots_log_output, false, doslots_comment_output);
 		parse_script_string(&scriptdata[indx],scriptstr,false);
 		
 		if(slotdata.isDisassembled()) scriptdata[indx]->meta.setFlag(ZMETA_DISASSEMBLED);
@@ -23347,6 +23350,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 	}
 auto_do_slots:
 	doslots_log_output = (assignscript_dlg[13].flags == D_SELECTED);
+	doslots_comment_output = (assignscript_dlg[51].flags == D_SELECTED);
 	doslot_scripts = &scripts;
 	//OK
 	{
@@ -23413,7 +23417,6 @@ auto_do_slots:
 		goto exit_do_slots;
 	}
 exit_do_slots:
-	doslots_log_output = false;
 	doslot_scripts = nullptr;
     popup_zqdialog_end();
 	return retval;

@@ -42,10 +42,10 @@ class TestZScript(ZCTestCase):
         zasm_path.unlink(missing_ok=True)
         args = [
             '-input', script_path,
-            '-zasm', 'out.zasm',
+            '-zasm', 'out.zasm', '-commented',
             '-include', ';'.join(include_paths),
             '-unlinked',
-            '-delay_cassert',
+            '-delay_cassert'
         ]
         p = run_target.run('zscript', args)
         stdout = p.stdout.replace(str(script_path), script_path.name)
