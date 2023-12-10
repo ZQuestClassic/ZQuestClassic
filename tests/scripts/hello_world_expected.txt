@@ -8,8 +8,7 @@ Pass 6: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-PUSHV 0; void run() Body Start
-PUSHARGSR d2,0.0002
+PUSHARGSV 0,0.0003; void run() Body Start
 SETR d4,SP
 SETV d2,123
 STORED d2,1

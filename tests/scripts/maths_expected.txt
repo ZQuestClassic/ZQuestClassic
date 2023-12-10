@@ -12,67 +12,63 @@ Success!
 Compile finished with exit code '0' (success)
 
 PUSHR REFFFC; void run() Body Start
-PUSHARGSR d2,0.0002
+PUSHARGSV 0,0.0002
 SETR d4,SP
 SETV d2,1
 STORED d2,1
-SETV d2,-10; for() #3463 setup AND while(true) #3461 Body [Opt:AlwaysOn] Start
+SETV d2,-10; for() #3443 setup AND while(true) #3441 Body [Opt:AlwaysOn] Start
 STORED d2,0
-LOADD d2,0; for() #3463 LoopTest
+LOADD d2,0; for() #3443 LoopTest
 COMPAREV d2,10
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 43; for() #3463 TestFail?
-PUSHR d4; for() #3463 Body Start
-PUSHV 0.0020; UsrFunc[void doMaths(bool, int)] Return Addr
+GOTOTRUE 40; for() #3443 TestFail?
+PUSHR d4; for() #3443 Body Start
 LOADD d2,1; UsrFunc[void doMaths(bool, int)] Params Start
 PUSHR d2
 LOADD d2,0
 PUSHR d2; UsrFunc[void doMaths(bool, int)] Params End
-GOTO 49; UsrFunc[void doMaths(bool, int)] Call
+CALLFUNC 0.0046; UsrFunc[void doMaths(bool, int)] Call
 PEEK d4
-PUSHV 0.0028; UsrFunc[void doMaths(bool, int)] Return Addr
 LOADD d2,1; UsrFunc[void doMaths(bool, int)] Params Start
 PUSHR d2
 LOADD d2,0
 MULTV d2,10000
 PUSHR d2; UsrFunc[void doMaths(bool, int)] Params End
-GOTO 49; UsrFunc[void doMaths(bool, int)] Call
+CALLFUNC 0.0046; UsrFunc[void doMaths(bool, int)] Call
 PEEK d4
-PUSHV 0.0036; UsrFunc[void doMaths(bool, int)] Return Addr
 LOADD d2,1; UsrFunc[void doMaths(bool, int)] Params Start
 PUSHR d2
 LOADD d2,0
 MULTV d2,100000
 PUSHR d2; UsrFunc[void doMaths(bool, int)] Params End
-GOTO 49; UsrFunc[void doMaths(bool, int)] Call
-POP d4; for() #3463 Body End
-LOADD d2,0; for() #3463 LoopIncrement
+CALLFUNC 0.0046; UsrFunc[void doMaths(bool, int)] Call
+POP d4; for() #3443 Body End
+LOADD d2,0; for() #3443 LoopIncrement
 PUSHR d2
 ADDV d2,1
 STORED d2,0
 POP d2
-GOTO 8; for() #3463 End
+GOTO 8; for() #3443 End
 WAITFRAME; InlineFunc[void Waitframe()] Body
 SETV d2,0
-STORED d2,1; while(true) #3461 Body [Opt:AlwaysOn] End
-GOTO 6; while() #3461 End
+STORED d2,1; while(true) #3441 Body [Opt:AlwaysOn] End
+GOTO 6; while() #3441 End
 POPARGS d5,0.0003
 QUIT; void run() Body End
-PUSHARGSR d2,0.0020; Func[void doMaths(bool, int)] Body Start
+PUSHARGSV 0,0.0020; Func[void doMaths(bool, int)] Body Start
 SETR d4,SP
 ALLOCATEMEMV d2,15
 STORED d2,19
 WRITEPODSTRING d2,"maths for: %d\n"
 PUSHR d4
-PUSHV 0.0063; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,19
 PUSHR d2
 LOADD d2,20
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,19
 DEALLOCATEMEMR d3
@@ -80,7 +76,6 @@ ALLOCATEMEMV d2,12
 STORED d2,18
 WRITEPODSTRING d2,"10 / i = %d"
 PUSHR d4
-PUSHV 0.0084; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,18
@@ -93,7 +88,7 @@ LOADD d2,20
 POP d3
 DIVR d3,d2
 PUSHR d3; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,18
 DEALLOCATEMEMR d3
@@ -101,7 +96,6 @@ ALLOCATEMEMV d2,13
 STORED d2,17
 WRITEPODSTRING d2,"10 %% i = %d"
 PUSHR d4
-PUSHV 0.0105; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,17
@@ -114,7 +108,7 @@ LOADD d2,20
 POP d3
 MODR d3,d2
 PUSHR d3; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,17
 DEALLOCATEMEMR d3
@@ -122,7 +116,6 @@ ALLOCATEMEMV d2,12
 STORED d2,16
 WRITEPODSTRING d2,"i / 10 = %d"
 PUSHR d4
-PUSHV 0.0121; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,16
@@ -130,7 +123,7 @@ PUSHR d2
 LOADD d2,20
 DIVV d2,10
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,16
 DEALLOCATEMEMR d3
@@ -138,7 +131,6 @@ ALLOCATEMEMV d2,13
 STORED d2,15
 WRITEPODSTRING d2,"i %% 10 = %d"
 PUSHR d4
-PUSHV 0.0137; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,15
@@ -146,7 +138,7 @@ PUSHR d2
 LOADD d2,20
 MODV d2,10
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,15
 DEALLOCATEMEMR d3
@@ -154,7 +146,6 @@ ALLOCATEMEMV d2,12
 STORED d2,14
 WRITEPODSTRING d2,"i + i = %d\n"
 PUSHR d4
-PUSHV 0.0156; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,14
@@ -165,7 +156,7 @@ LOADD d2,20
 POP d3
 ADDR d2,d3
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,14
 DEALLOCATEMEMR d3
@@ -173,7 +164,6 @@ ALLOCATEMEMV d2,12
 STORED d2,13
 WRITEPODSTRING d2,"i - i = %d\n"
 PUSHR d4
-PUSHV 0.0175; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,13
@@ -184,7 +174,7 @@ LOADD d2,20
 POP d3
 SUBR d3,d2
 PUSHR d3; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,13
 DEALLOCATEMEMR d3
@@ -192,7 +182,6 @@ ALLOCATEMEMV d2,12
 STORED d2,12
 WRITEPODSTRING d2,"i * i = %d\n"
 PUSHR d4
-PUSHV 0.0194; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,12
@@ -203,7 +192,7 @@ LOADD d2,20
 POP d3
 MULTR d2,d3
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,12
 DEALLOCATEMEMR d3
@@ -211,7 +200,6 @@ ALLOCATEMEMV d2,13
 STORED d2,11
 WRITEPODSTRING d2,"i * -i = %d\n"
 PUSHR d4
-PUSHV 0.0214; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,11
@@ -223,7 +211,7 @@ SUBV2 0,d2
 POP d3
 MULTR d2,d3
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,11
 DEALLOCATEMEMR d3
@@ -231,7 +219,6 @@ ALLOCATEMEMV d2,12
 STORED d2,10
 WRITEPODSTRING d2,"i / i = %d\n"
 PUSHR d4
-PUSHV 0.0233; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,10
@@ -242,7 +229,7 @@ LOADD d2,20
 POP d3
 DIVR d3,d2
 PUSHR d3; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,10
 DEALLOCATEMEMR d3
@@ -250,7 +237,6 @@ ALLOCATEMEMV d2,13
 STORED d2,9
 WRITEPODSTRING d2,"i / -i = %d\n"
 PUSHR d4
-PUSHV 0.0253; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,9
@@ -262,7 +248,7 @@ SUBV2 0,d2
 POP d3
 DIVR d3,d2
 PUSHR d3; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,9
 DEALLOCATEMEMR d3
@@ -270,7 +256,6 @@ ALLOCATEMEMV d2,20
 STORED d2,8
 WRITEPODSTRING d2,"i %% (i - 50) = %d\n"
 PUSHR d4
-PUSHV 0.0273; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,8
@@ -282,7 +267,7 @@ SUBV d2,50
 POP d3
 MODR d3,d2
 PUSHR d3; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,8
 DEALLOCATEMEMR d3
@@ -290,7 +275,6 @@ ALLOCATEMEMV d2,17
 STORED d2,7
 WRITEPODSTRING d2,"i + 100000 = %d\n"
 PUSHR d4
-PUSHV 0.0289; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,7
@@ -298,7 +282,7 @@ PUSHR d2
 LOADD d2,20
 ADDV d2,100000
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,7
 DEALLOCATEMEMR d3
@@ -306,7 +290,6 @@ ALLOCATEMEMV d2,17
 STORED d2,6
 WRITEPODSTRING d2,"i - 100000 = %d\n"
 PUSHR d4
-PUSHV 0.0305; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,6
@@ -314,7 +297,7 @@ PUSHR d2
 LOADD d2,20
 SUBV d2,100000
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,6
 DEALLOCATEMEMR d3
@@ -322,7 +305,6 @@ ALLOCATEMEMV d2,17
 STORED d2,5
 WRITEPODSTRING d2,"i * 100000 = %d\n"
 PUSHR d4
-PUSHV 0.0321; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,5
@@ -330,7 +312,7 @@ PUSHR d2
 LOADD d2,20
 MULTV d2,100000
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,5
 DEALLOCATEMEMR d3
@@ -338,7 +320,6 @@ ALLOCATEMEMV d2,18
 STORED d2,4
 WRITEPODSTRING d2,"i * -100000 = %d\n"
 PUSHR d4
-PUSHV 0.0337; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,4
@@ -346,7 +327,7 @@ PUSHR d2
 LOADD d2,20
 MULTV d2,-100000
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,4
 DEALLOCATEMEMR d3
@@ -354,7 +335,6 @@ ALLOCATEMEMV d2,17
 STORED d2,3
 WRITEPODSTRING d2,"i / 100000 = %d\n"
 PUSHR d4
-PUSHV 0.0353; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,3
@@ -362,7 +342,7 @@ PUSHR d2
 LOADD d2,20
 DIVV d2,100000
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,3
 DEALLOCATEMEMR d3
@@ -370,7 +350,6 @@ ALLOCATEMEMV d2,18
 STORED d2,2
 WRITEPODSTRING d2,"i / -100000 = %d\n"
 PUSHR d4
-PUSHV 0.0369; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,2
@@ -378,7 +357,7 @@ PUSHR d2
 LOADD d2,20
 DIVV d2,-100000
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,2
 DEALLOCATEMEMR d3
@@ -386,7 +365,6 @@ ALLOCATEMEMV d2,14
 STORED d2,1
 WRITEPODSTRING d2,"i %% 50 = %d\n"
 PUSHR d4
-PUSHV 0.0385; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,1
@@ -394,7 +372,7 @@ PUSHR d2
 LOADD d2,20
 MODV d2,50
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,1
 DEALLOCATEMEMR d3
@@ -402,7 +380,6 @@ ALLOCATEMEMV d2,15
 STORED d2,0
 WRITEPODSTRING d2,"i %% -50 = %d\n"
 PUSHR d4
-PUSHV 0.0401; UsrFunc[void maybePrint(bool, int, int)] Return Addr
 LOADD d2,21; UsrFunc[void maybePrint(bool, int, int)] Params Start
 PUSHR d2
 LOADD d2,0
@@ -410,24 +387,24 @@ PUSHR d2
 LOADD d2,20
 MODV d2,-50
 PUSHR d2; UsrFunc[void maybePrint(bool, int, int)] Params End
-GOTO 406; UsrFunc[void maybePrint(bool, int, int)] Call
+CALLFUNC 0.0383; UsrFunc[void maybePrint(bool, int, int)] Call
 POP d4
 LOADD d3,0
 DEALLOCATEMEMR d3
 POPARGS d5,0.0022
-RETURN; Func[void doMaths(bool, int)] Body End
+RETURNFUNC; Func[void doMaths(bool, int)] Body End
 SETR d4,SP; Func[void maybePrint(bool, int, int)] Body Start
-LOADD d2,2; if() #3458 Test
+LOADD d2,2; if() #3438 Test
 COMPAREV d2,0
-GOTOTRUE 416; Test 'if'
-LOADD d2,1; InlineFunc[void printf(char32)] Params Start AND if() #3458 Body Start
+GOTOTRUE 393; Test 'if'
+LOADD d2,1; InlineFunc[void printf(char32)] Params Start AND if() #3438 Body Start
 PUSHR d2
 LOADD d2,0
 PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End AND if() #3458 Body End
+POP d5; InlineFunc[void printf(char32)] Body End AND if() #3438 Body End
 POPARGS d5,0.0003
-RETURN; Func[void maybePrint(bool, int, int)] Body End
+RETURNFUNC; Func[void maybePrint(bool, int, int)] Body End
 
 
 QUIT; void run() Body

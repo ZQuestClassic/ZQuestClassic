@@ -6902,3 +6902,15 @@ string OWrapDegrees::toString() const
 	return "WRAPDEGREES " + getArgument()->toString();
 }
 
+
+string OCallFunc::toString() const
+{
+	return "CALLFUNC " + getArgument()->toString();
+}
+
+
+string OReturnFunc::toString() const
+{
+	return "RETURNFUNC";
+}
+

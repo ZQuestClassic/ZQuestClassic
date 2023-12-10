@@ -1434,9 +1434,6 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		//so, set that up:
 		//push the stack frame
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-		int32_t returnlabel = ScriptParser::getUniqueLabelID();
-		//push the return address
-		addOpcode(new OPushImmediate(new LabelArgument(returnlabel, true)));
 		if (!(readfunc->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
 			//push the lhs of the arrow
@@ -1453,11 +1450,9 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 
 		//call the function
 		int32_t label = readfunc->getLabel();
-		addOpcode(new OGotoImmediate(new LabelArgument(label)));
+		addOpcode(new OCallFunc(new LabelArgument(label, true)));
 		//pop the stack frame
-		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
-		next->setLabel(returnlabel);
-		addOpcode(next);
+		addOpcode(new OPopRegister(new VarArgument(SFRAME)));
 	}
 }
 
@@ -1795,11 +1790,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		//push the this key/stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-		//push the return address
-		int32_t returnaddr = ScriptParser::getUniqueLabelID();
-		addOpcode(new OPushImmediate(new LabelArgument(returnaddr, true)));
-		commentBack(fmt::format("Class{} Return Addr",func_comment));
-		pushcount += 3;
+		pushcount += 2;
 		
 		targ_sz = commentTarget();
 		//push the parameters, in forward order
@@ -1876,21 +1867,19 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//A constructor calling another constructor to inherit its code
 			//Use the alt label of the constructor, which is after the constructy bits
 			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
-			addOpcode(new OGotoImmediate(new LabelArgument(func.getAltLabel())));
+			addOpcode(new OCallFunc(new LabelArgument(func.getAltLabel(), true)));
 			func_call_comment = fmt::format("Class{} Constructor Inheritance Call",func_comment);
 		}
 		else
 		{
-			addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+			addOpcode(new OCallFunc(new LabelArgument(funclabel, true)));
 			if(host.isConstructor())
 				func_call_comment = fmt::format("Class{} Constructor Call",func_comment);
 			else func_call_comment = fmt::format("Class{} Call",func_comment);
 		}
 		commentBack(func_call_comment);
 		//pop the stack frame pointer
-		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
-		next->setLabel(returnaddr);
-		addOpcode(next);
+		addOpcode(new OPopRegister(new VarArgument(SFRAME)));
 		addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
 		if(vargs)
 		{
@@ -1964,11 +1953,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		commentStartEnd(targ_sz, fmt::format("{}{} Vargs",comment_pref,func_comment));
 		//push the stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-		//push the return address
-		int32_t returnaddr = ScriptParser::getUniqueLabelID();
-		addOpcode(new OPushImmediate(new LabelArgument(returnaddr, true)));
-		commentBack(fmt::format("{}{} Return Addr",comment_pref,func_comment));
-		pushcount += 2;
+		++pushcount;
 		targ_sz = commentTarget();
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.
@@ -2084,12 +2069,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		commentStartEnd(targ_sz, fmt::format("{}{} Params",comment_pref,func_comment));
 		//goto
-		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+		addOpcode(new OCallFunc(new LabelArgument(funclabel, true)));
 		commentBack(fmt::format("{}{} Call",comment_pref,func_comment));
 		//pop the stack frame pointer
-		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
-		next->setLabel(returnaddr);
-		addOpcode(next);
+		addOpcode(new OPopRegister(new VarArgument(SFRAME)));
 		if(user_vargs)
 		{
 			addOpcode(new OPopRegister(new VarArgument(EXP2)));
@@ -3692,10 +3675,6 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 
 		// Push the stack frame.
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-
-		int32_t returnlabel = ScriptParser::getUniqueLabelID();
-		//push the return address
-		addOpcode(new OPushImmediate(new LabelArgument(returnlabel, true)));
 		
 		if (!(host.writeFunction->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
@@ -3731,12 +3710,10 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		
 		//finally, goto!
 		int32_t label = host.writeFunction->getLabel();
-		addOpcode(new OGotoImmediate(new LabelArgument(label)));
+		addOpcode(new OCallFunc(new LabelArgument(label, true)));
 
 		// Pop the stack frame
-		Opcode* next = new OPopRegister(new VarArgument(SFRAME));
-		next->setLabel(returnlabel);
-		addOpcode(next);
+		addOpcode(new OPopRegister(new VarArgument(SFRAME)));
 	}
 }
 
