@@ -229,7 +229,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         22
+#define V_FFSCRIPT         23
 #define V_SFX              8
 #define V_FAVORITES        4
 
@@ -1545,6 +1545,7 @@ public:
 	int32_t d[8]; //d registers
 	int32_t a[2]; //a regsisters (reference to another ffc on screen)
 	uint32_t sp; //stack pointer for current script
+	uint32_t retsp; //stack pointer for the return stack
 	dword scriptflag; //stores whether various operations were true/false etc.
 	
 	byte ffcref;

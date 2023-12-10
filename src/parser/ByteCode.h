@@ -12085,6 +12085,29 @@ namespace ZScript
 			return new OWrapDegrees(a->clone());
 		}
 	};
+
+
+
+	class OCallFunc : public UnaryOpcode
+	{
+	public:
+		OCallFunc(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OCallFunc(a->clone());
+		}
+	};
+
+	class OReturnFunc : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReturnFunc();
+		}
+	};
 }
 
 #endif

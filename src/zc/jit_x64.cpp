@@ -367,6 +367,8 @@ static bool command_is_compiled(int command)
 	case GOTOR:
 	case QUIT:
 	case RETURN:
+	case CALLFUNC:
+	case RETURNFUNC:
 
 	// These commands modify the stack pointer, which is just a local copy. If these commands
 	// were not compiled, then vStackIndex would have to be restored in compile_command.
@@ -587,7 +589,8 @@ JittedFunction jit_compile_script(script_data *script)
 	for (size_t i = 0; i < size; i++)
 	{
 		int command = script->zasm[i].command;
-		if (command != GOTO && command != GOTOTRUE && command != GOTOFALSE && command != GOTOMORE && command != GOTOLESS)
+		if (command != CALLFUNC && command != GOTO && command != GOTOTRUE
+			&& command != GOTOFALSE && command != GOTOMORE && command != GOTOLESS)
 			continue;
 
 		goto_labels[script->zasm[i].arg1] = cc.newLabel();
@@ -601,13 +604,22 @@ JittedFunction jit_compile_script(script_data *script)
 	{
 		int command = script->zasm[i].command;
 		int prev_command = script->zasm[i - 1].command;
-		if (command != GOTO) continue;
-
-		bool is_function_call_like =
-			// Typical function calls push the return address to the stack just before the GOTO.
-			prev_command == PUSHR || prev_command == PUSHV ||
-			// Class construction function calls do `SETR CLASS_THISKEY, D2` just before its GOTO.
-			(prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
+		
+		bool is_function_call_like = false;
+		if(command == GOTO)
+		{
+			is_function_call_like =
+				// Typical function calls used to push parameters just before the GOTO
+				prev_command == PUSHR || prev_command == PUSHV || prev_command == PUSHARGSR || prev_command == PUSHARGSV ||
+				// Class construction function calls used to do `SETR CLASS_THISKEY, D2` just before its GOTO.
+				(prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
+		}
+		else if(command == CALLFUNC)
+		{
+			is_function_call_like = true;
+		}
+		else continue;
+		
 		if (is_function_call_like)
 		{
 			call_pc_to_return_label[i] = cc.newLabel();
@@ -639,7 +651,8 @@ JittedFunction jit_compile_script(script_data *script)
 				cur_function_id += 1;
 
 			int command = script->zasm[i].command;
-			if (command == RETURN || (command == GOTOR && script->zasm[i - 1].command == POP))
+			if (command == RETURNFUNC || command == RETURN
+				|| (command == GOTOR && script->zasm[i - 1].command == POP))
 			{
 				return_to_function_id[i] = cur_function_id;
 			}
@@ -782,6 +795,10 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.jmp(state.L_End);
 		}
 		break;
+		case CALLFUNC:
+			//Normally pushes a return address to the 'ret_stack'
+			//...but we can ignore that when jitted
+		[[fallthrough]];
 		case GOTO:
 		{
 			if (function_calls.contains(i))
@@ -805,6 +822,24 @@ JittedFunction jit_compile_script(script_data *script)
 			// Note: the return pc is on the stack, but we just ignore it and instead use
 			// the function call return label.
 			modify_sp(cc, vStackIndex, 1);
+
+			cc.sub(vCallStackRetIndex, 1);
+			x86::Gp address = cc.newIntPtr();
+			cc.mov(address, x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3));
+
+			int function_index = return_to_function_id.at(i);
+			if (function_jump_annotations.size() <= function_index)
+			{
+				error(debug_handle, script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
+				return nullptr;
+			}
+			cc.jmp(address, function_jump_annotations[function_index]);
+		}
+		break;
+		case RETURNFUNC:
+		{
+			//Normally the return address is on the 'ret_stack'
+			//...but we can ignore that when jitted
 
 			cc.sub(vCallStackRetIndex, 1);
 			x86::Gp address = cc.newIntPtr();

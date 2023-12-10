@@ -9,9 +9,9 @@ Success!
 Compile finished with exit code '0' (success)
 
 PUSHR REFDMAPDATA; void run() Body Start
-PUSHARGSR d2,0.0006
+PUSHARGSV 0,0.0006
 SETR d4,SP
-ALLOCATEMEMV d2,13; while(true) #10020 Body [Opt:AlwaysOn] Start
+ALLOCATEMEMV d2,13; while(true) #9272 Body [Opt:AlwaysOn] Start
 STORED d2,5
 WRITEPODSTRING d2,"OX/OY %d %d\n"
 LOADD d2,5; InlineFunc[void printf(char32)] Params Start
@@ -138,7 +138,7 @@ PUSHV 0
 PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params End
 DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
 POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
-SETV d2,0; if() #10022 Test
+SETV d2,0; if() #9274 Test
 PUSHR d2
 POP d0
 SETR d2,GAMESCROLLING
@@ -146,7 +146,7 @@ COMPAREV d2,-1
 SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 223; Test 'if'
-SETR d2,LINKX; if() #10022 Body Start
+SETR d2,LINKX; if() #9274 Body Start
 PUSHR d2
 SETV d2,1
 PUSHR d2
@@ -229,9 +229,9 @@ PUSHARGSV 0,0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #10022 Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #10020 Body [Opt:AlwaysOn] End
-GOTO 4; while() #10020 End
+POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #9274 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #9272 Body [Opt:AlwaysOn] End
+GOTO 4; while() #9272 End
 POPARGS d5,0.0007
 QUIT; void run() Body End
 

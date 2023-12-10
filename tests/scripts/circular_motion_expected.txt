@@ -14,7 +14,7 @@ PUSHR d2
 PUSHR d3
 PUSHR d4
 PUSHR REFFFC; void run(int, int, int, int, int) Body Start
-PUSHARGSR d2,0.0002
+PUSHARGSV 0,0.0002
 SETR d4,SP
 LOADD d2,4; if() #3436 Test
 COMPAREV d2,0

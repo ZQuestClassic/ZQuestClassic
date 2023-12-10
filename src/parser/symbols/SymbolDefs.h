@@ -71,12 +71,12 @@ assert(refVar != NUL)
 if(code.size() < 5 || function->getFlag(FUNCFLAG_VARARGS)) function->setFlag(FUNCFLAG_INLINE)
 
 /*
-	Return from the function. Automatically skips OReturn() on inline functions.
+	Return from the function. Automatically skips OReturnFunc() on inline functions.
 */
 #define RETURN() \
 INLINE_CHECK(); \
 if(!(function->getFlag(FUNCFLAG_INLINE))) \
-	addOpcode2 (code, new OReturn())
+	addOpcode2 (code, new OReturnFunc())
 
 /*
 	Adds the label passed to the back of the 'code' vector<shared_ptr<Opcode>>

@@ -47,7 +47,7 @@ class TestZEditor(unittest.TestCase):
             sys.executable,
             root_dir / 'tests/run_replay_tests.py',
             '--build_folder', run_target.get_build_folder(),
-            '--test_results', output_dir,
+            '--test_results', output_dir, '--no_console',
             *args,
         ]
         shutil.rmtree(output_dir, ignore_errors=True)
@@ -67,6 +67,8 @@ class TestZEditor(unittest.TestCase):
                 segments_str = [
                     f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments]
                 failing_str += ': ' + ', '.join(segments_str)
+            if run.exceptions:
+                failing_str += '\nExceptions:\n\t' + '\n\t'.join(run.exceptions)
             self.fail(failing_str)
         self.assertEqual(output.returncode, 0)
 
