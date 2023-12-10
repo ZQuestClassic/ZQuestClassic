@@ -1188,6 +1188,10 @@ script_command command_list[NUMCOMMANDS+1]=
 
 	{ "SUBWIDG_GET_LABEL", 1, 0, 0, 0 },
 	{ "SUBWIDG_SET_LABEL", 1, 0, 0, 0 },
+	{ "PUSHARGSR", 2, 0, 1, 0},
+	{ "PUSHARGSV", 2, 1, 1, 0},
+	{ "PUSHVARGSR", 2, 0, 1, 0},
+	{ "PUSHVARGSV", 2, 1, 1, 0},
 
 	{ "", 0, 0, 0, 0 }
 };

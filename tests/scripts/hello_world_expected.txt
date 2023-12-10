@@ -9,8 +9,7 @@ Success!
 Compile finished with exit code '0' (success)
 
 PUSHV 0
-PUSHR d2
-PUSHR d2
+PUSHARGSR d2,0.0002
 SETR d4,SP
 SETV d2,123
 STORED d2,1
