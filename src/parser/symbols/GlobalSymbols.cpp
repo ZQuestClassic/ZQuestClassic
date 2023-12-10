@@ -416,9 +416,9 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("Trace");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		LABELBACK(label);
-		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -427,9 +427,9 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("Trace",1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		LABELBACK(label);
-		addOpcode2 (code, new OTraceLRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OTraceLRegister(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -438,9 +438,9 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("TraceB");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		LABELBACK(label);
-		addOpcode2 (code, new OTrace2Register(new VarArgument(EXP2)));
+		addOpcode2 (code, new OTrace2Register(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}

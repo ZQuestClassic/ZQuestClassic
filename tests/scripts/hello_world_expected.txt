@@ -16,10 +16,10 @@ STORED d2,1
 ALLOCATEMEMV d2,17
 STORED d2,0
 WRITEPODSTRING d2,"hello world: %d\n"
-LOADD d2,0; InlineFunc[void printf(char32)] Params
+LOADD d2,0; InlineFunc[void printf(char32)] Params Start
 PUSHR d2
 LOADD d2,1
-PUSHVARGR d2
+PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
 LOADD d3,0

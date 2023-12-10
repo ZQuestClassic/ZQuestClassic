@@ -121,6 +121,20 @@ void BuildOpcodes::commentBack(string const& comment)
 {
 	backOpcode()->mergeComment(comment);
 }
+void BuildOpcodes::commentStartEnd(size_t indx, string const& comment)
+{
+	auto sz = commentTarget();
+	if(sz > indx)
+	{
+		if(sz == indx+1)
+			commentBack(comment);
+		else
+		{
+			commentAt(indx, fmt::format("{} Start",comment));
+			commentBack(fmt::format("{} End",comment));
+		}
+	}
+}
 
 template <class Container>
 void BuildOpcodes::addOpcodes(Container const& container)
@@ -252,7 +266,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		}
 		targ_sz = commentTarget();
 		visit(host.thenStatement.get(), param);
-		commentAt(targ_sz, fmt::format("{}({}) #{} Body",ifstr,declname,ifid));
+		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Body",ifstr,declname,ifid));
 		//nop
 		Opcode *next = new ONoOp();
 		next->setLabel(endif);
@@ -302,7 +316,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		//run the block
 		targ_sz = commentTarget();
 		visit(host.thenStatement.get(), param);
-		commentAt(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
+		commentStartEnd(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
 		//nop
 		Opcode *next = new ONoOp();
 		next->setLabel(endif);
@@ -355,7 +369,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				//
 				auto targ_sz = commentTarget();
 				visit(host.elseStatement.get(), param);
-				commentAt(targ_sz, fmt::format("{}({}={}) #{} Else [Opt:AlwaysOff]",ifstr,declname,falsestr,ifid));
+				commentStartEnd(targ_sz, fmt::format("{}({}={}) #{} Else [Opt:AlwaysOff]",ifstr,declname,falsestr,ifid));
 			}
 			//Either way, ignore the rest and return.
 			return;
@@ -387,7 +401,6 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		
 		targ_sz = commentTarget();
 		visit(host.thenStatement.get(), param);
-		commentAt(targ_sz, fmt::format("{}({}) #{} Body",ifstr,declname,ifid));
 		//nop
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		Opcode *next = new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0));
@@ -402,10 +415,10 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		scope = scope->getParent();
 		
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
-		commentBack(fmt::format("{}({}) #{} Body End",ifstr,declname,ifid));
+		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Body",ifstr,declname,ifid));
 		targ_sz = commentTarget();
 		visit(host.elseStatement.get(), param);
-		commentAt(targ_sz, fmt::format("{}({}) #{} Else",ifstr,declname,ifid));
+		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Else",ifstr,declname,ifid));
 		
 		next = new ONoOp();
 		next->setLabel(endif);
@@ -455,15 +468,14 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		//run if block
 		targ_sz = commentTarget();
 		visit(host.thenStatement.get(), param);
-		commentAt(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
 		addOpcode(new OGotoImmediate(new LabelArgument(endif)));
-		commentBack(fmt::format("{}() #{} Body End",ifstr,ifid));
+		commentStartEnd(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
 		Opcode *next = new ONoOp();
 		next->setLabel(elseif);
 		addOpcode(next);
 		targ_sz = commentTarget();
 		visit(host.elseStatement.get(), param);
-		commentAt(targ_sz, fmt::format("{}() #{} Else",ifstr,ifid));
+		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",ifstr,ifid));
 		next = new ONoOp();
 		next->setLabel(endif);
 		addOpcode(next);
@@ -801,7 +813,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 			{
 				targ_sz = commentTarget();
 				visit(host.elseBlock.get(), param);
-				commentAt(targ_sz, fmt::format("for() #{} else [Opt:AlwaysFalse]",forid));
+				commentStartEnd(targ_sz, fmt::format("for() #{} Else [Opt:AlwaysFalse]",forid));
 			}
 			return;
 		}
@@ -837,7 +849,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	
 	targ_sz = commentTarget();
 	visit(host.body.get(), param);
-	commentAt(targ_sz, fmt::format("for() #{} Body",forid));
+	commentStartEnd(targ_sz, fmt::format("for() #{} Body",forid));
 
 	breaklabelids.pop_back();
 	continuelabelids.pop_back();
@@ -866,8 +878,9 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 		next = new ONoOp();
 		next->setLabel(elselabel);
 		addOpcode(next);
-		commentBack(fmt::format("for() #{} Else",forid));
+		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
+		commentStartEnd(targ_sz, fmt::format("for() #{} Else",forid));
 	}
 	
 	//nop
@@ -941,7 +954,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	
 	targ_sz = commentTarget();
 	visit(host.body.get(), param);
-	commentAt(targ_sz, fmt::format("for(each) #{} Body",forid));
+	commentStartEnd(targ_sz, fmt::format("for(each) #{} Body",forid));
 	
 	breaklabelids.pop_back();
 	continuelabelids.pop_back();
@@ -959,8 +972,9 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 		next = new ONoOp();
 		next->setLabel(elselabel);
 		addOpcode(next);
-		commentBack(fmt::format("for(each) #{} Else",forid));
+		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
+		commentStartEnd(targ_sz, fmt::format("for(each) #{} Else",forid));
 	}
 	
 	next = new ONoOp();
@@ -982,7 +996,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		{
 			auto targ_sz = commentTarget();
 			visit(host.elseBlock.get(), param);
-			commentAt(targ_sz, fmt::format("{}({}) #{} Else [Opt:AlwaysOff]",whilestr,falsestr,whileid));
+			commentStartEnd(targ_sz, fmt::format("{}({}) #{} Else [Opt:AlwaysOff]",whilestr,falsestr,whileid));
 		}
 		return;
 	}
@@ -1024,10 +1038,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	
 	auto targ_sz = commentTarget();
 	visit(host.body.get(), param);
-	if(val)
-		commentAt(targ_sz, fmt::format("{}({}) #{} Body [Opt:AlwaysOn]",whilestr,truestr,whileid));
-	else
-		commentAt(targ_sz, fmt::format("{}() #{} Body",whilestr,whileid));
+	commentStartEnd(targ_sz, fmt::format("{}({}) #{} Body{}",whilestr,val?truestr:"",whileid,val?" [Opt:AlwaysOn]":""));
 
 	breaklabelids.pop_back();
 	continuelabelids.pop_back();
@@ -1042,8 +1053,9 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		next = new ONoOp();
 		next->setLabel(elselabel);
 		addOpcode(next);
-		commentBack(fmt::format("{}() #{} Else",whilestr,whileid));
+		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
+		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",whilestr,whileid));
 	}
 	next = new ONoOp();
 	next->setLabel(endlabel);
@@ -1080,7 +1092,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	
 	auto targ_sz = commentTarget();
 	visit(host.body.get(), param);
-	commentAt(targ_sz, fmt::format("{}() #{} Body",whilestr,whileid));
+	commentStartEnd(targ_sz, fmt::format("{}() #{} Body",whilestr,whileid));
 
 	breaklabelids.pop_back();
 	continuelabelids.pop_back();
@@ -1130,8 +1142,9 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 		next = new ONoOp();
 		next->setLabel(elselabel);
 		addOpcode(next);
-		commentBack(fmt::format("{}() #{} Else",whilestr,whileid));
+		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
+		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",whilestr,whileid));
 	}
 	
 	next = new ONoOp();
@@ -1143,18 +1156,19 @@ void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 {
 	deallocateRefsUntilCount(0);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
-	commentBack(fmt::format("return #{}",returnlabelid));
+	commentBack("return (Void)");
 }
 
 void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 {
+	auto targ_sz = commentTarget();
 	INITC_STORE();
 	INITC_VISIT(host.value.get());
 	INITC_INIT();
 	INITC_DEALLOC();
 	deallocateRefsUntilCount(0);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
-	commentBack(fmt::format("return #{}",returnlabelid));
+	commentStartEnd(targ_sz,"return");
 }
 
 void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
@@ -1199,8 +1213,6 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
 	if(host.getFlag(FUNCFLAG_INLINE)) return; //Skip inline func decls, they are handled at call location -V
 	if(host.prototype) return; //Same for prototypes
-	int32_t oldreturnlabelid = returnlabelid;
-	int32_t oldReturnRefCount = returnRefCount;
 	returnlabelid = ScriptParser::getUniqueLabelID();
 	returnRefCount = arrayRefs.size();
 
@@ -1508,7 +1520,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			INITC_VISIT(*it);
 		}
-		commentAt(targ_sz, fmt::format("Proto{} Visit Params",func_comment));
+		commentStartEnd(targ_sz, fmt::format("Proto{} Visit Params",func_comment));
 		
 		//Set the return to the default value
 		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR) && parsing_user_class <= puc_vars)
@@ -1691,23 +1703,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			else break;
 		}
-		commentAt(targ_sz, fmt::format("Inline{} Params",func_comment));
+		commentStartEnd(targ_sz, fmt::format("Inline{} Params",func_comment));
 		targ_sz = commentTarget();
 		for(;it != funcCode.end(); ++it)
 		{
 			addOpcode((*it)->makeClone(false));
 		}
-		auto back_sz = commentTarget();
-		if(back_sz > targ_sz)
-		{
-			if(back_sz == targ_sz+1)
-				commentBack(fmt::format("Inline{} Body",func_comment));
-			else
-			{
-				commentAt(targ_sz, fmt::format("Inline{} Body Start",func_comment));
-				commentBack(fmt::format("Inline{} Body End",func_comment));
-			}
-		}
+		commentStartEnd(targ_sz, fmt::format("Inline{} Body",func_comment));
 	
 		if(host.left->isTypeArrow())
 		{
@@ -1789,7 +1791,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack("Push the Vargs array pointer");
 			++pushcount;
 		}
-		commentAt(targ_sz, fmt::format("Class{} Vargs",func_comment));
+		commentStartEnd(targ_sz, fmt::format("Class{} Vargs",func_comment));
 		//push the this key/stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
@@ -1838,7 +1840,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		commentAt(targ_sz, fmt::format("Class{} Params",func_comment));
 		pushcount += (num_used_params-vargcount);
 		if(vargs)
 		{
@@ -1866,6 +1867,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			INITC_VISIT(static_cast<ASTExprArrow&>(*host.left).left.get());
 			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
 		}
+		commentStartEnd(targ_sz, fmt::format("Class{} Params",func_comment));
 		//goto
 		string func_call_comment;
 		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)
@@ -1959,7 +1961,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack("Push the Vargs array pointer");
 			++pushcount;
 		}
-		commentAt(targ_sz, fmt::format("{}{} Vargs",comment_pref,func_comment));
+		commentStartEnd(targ_sz, fmt::format("{}{} Vargs",comment_pref,func_comment));
 		//push the stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
@@ -2019,7 +2021,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 		}
 		pushcount += (num_used_params-vargcount);
-		commentAt(targ_sz, fmt::format("{}{} Params",comment_pref,func_comment));
 		if(vargs && (vargcount || user_vargs))
 		{
 			if(user_vargs)
@@ -2081,6 +2082,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 			}
 		}
+		commentStartEnd(targ_sz, fmt::format("{}{} Params",comment_pref,func_comment));
 		//goto
 		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
 		commentBack(fmt::format("{}{} Call",comment_pref,func_comment));
