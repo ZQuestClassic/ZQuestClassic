@@ -12187,7 +12187,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				--blowcnt;
 			
 			int sfx_count = 0;
-			while ((!replay_is_active() && sfx_allocated(itm.usesound)) || (replay_is_active() && sfx_count < 180))
+			while ((!replay_is_active() && sfx_allocated(itm.usesound)) || (replay_version_check(0, 26) && sfx_count < 180))
 			{
 				sfx_count += 1;
 				advanceframe(true);
