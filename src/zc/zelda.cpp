@@ -3727,7 +3727,7 @@ void game_loop()
 		#endif
 			if(wpnsbuf[iwMore].tile!=0)
 			{
-				putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+				putweapon(framebuf,zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
 			}
 		}
 		
