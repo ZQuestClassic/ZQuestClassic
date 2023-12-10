@@ -6094,6 +6094,7 @@ int32_t onStopReplayOrRecord()
 
 static int32_t handle_on_load_replay(ReplayMode mode)
 {
+	bool ctrl = CHECK_CTRL_CMD;
 	if (Playing)
 	{
 		if (jwin_alert("Replay - Warning!",
@@ -6125,6 +6126,8 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 	{
 		char replay_path[2048];
 		strcpy(replay_path, "replays/");
+		if(ctrl && devpwd())
+			strcpy(replay_path, "../../tests/replays");
 		if (jwin_file_select_ex(
 				fmt::format("Load Replay ({})", REPLAY_EXTENSION).c_str(),
 				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
