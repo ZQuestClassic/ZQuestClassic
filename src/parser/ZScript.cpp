@@ -486,13 +486,14 @@ BuiltinConstant::BuiltinConstant(
 
 // ZScript::FunctionSignature
 
-FunctionSignature::FunctionSignature(
-		string const& name, vector<DataType const*> const& parameterTypes)
-	: name(name), prefix(false), parameterTypes(parameterTypes)
+FunctionSignature::FunctionSignature(string const& name,
+	vector<DataType const*> const& parameterTypes, DataType const* returnType )
+	: name(name), prefix(false), parameterTypes(parameterTypes), returnType(returnType)
 {}
 
-FunctionSignature::FunctionSignature(Function const& function)
-	: name(function.name), prefix(function.hasPrefixType), parameterTypes(function.paramTypes)
+FunctionSignature::FunctionSignature(Function const& function, bool useret)
+	: name(function.name), prefix(function.hasPrefixType),
+	parameterTypes(function.paramTypes), returnType(useret ? function.returnType : nullptr)
 {}
 		
 int32_t FunctionSignature::compare(FunctionSignature const& other) const
@@ -504,6 +505,11 @@ int32_t FunctionSignature::compare(FunctionSignature const& other) const
 	for (int32_t i = 0; i < (int32_t)parameterTypes.size(); ++i)
 	{
 		c = parameterTypes[i]->compare(*other.parameterTypes[i]);
+		if (c) return c;
+	}
+	if(returnType && other.returnType)
+	{
+		c = returnType->compare(*other.returnType);
 		if (c) return c;
 	}
 	return 0;
@@ -522,6 +528,8 @@ bool FunctionSignature::operator<(FunctionSignature const& other) const
 string FunctionSignature::asString() const
 {
 	ostringstream oss;
+	if(returnType)
+		oss << returnType->getName() << " ";
 	vector<DataType const*>::const_iterator it = parameterTypes.begin();
 	if(prefix)
 	{

@@ -8,8 +8,8 @@ Pass 6: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-PUSHR d0
-PUSHR REFFFC
+PUSHR d0; void run(int) Params
+PUSHR REFFFC; void run(int) Body Start
 PUSHARGSR d2,0.0003
 SETR d4,SP
 SETV d2,0
@@ -19,42 +19,42 @@ STORED d2,1
 SETV d2,0
 STORED d2,0
 PUSHR d4
-PUSHV 0.0018
-LOADD d2,3
+PUSHV 0.0018; UsrFunc[NPC Ghost_InitAutoGhost(FFC, int)] Return Addr
+LOADD d2,3; UsrFunc[NPC Ghost_InitAutoGhost(FFC, int)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 4502
+GOTO 4501; UsrFunc[NPC Ghost_InitAutoGhost(FFC, int)] Call
 POP d4
 STORED d2,2
 PUSHR d4
-PUSHV 0.0024
-PUSHV 89
-GOTO 3370
+PUSHV 0.0024; UsrFunc[void Ghost_SetFlag(int)] Return Addr
+PUSHV 89; UsrFunc[void Ghost_SetFlag(int)] Params
+GOTO 3369; UsrFunc[void Ghost_SetFlag(int)] Call
 PEEK d4
-PUSHV 0.0028
-PUSHV 3
-GOTO 3370
+PUSHV 0.0028; UsrFunc[void Ghost_SetFlag(int)] Return Addr
+PUSHV 3; UsrFunc[void Ghost_SetFlag(int)] Params
+GOTO 3369; UsrFunc[void Ghost_SetFlag(int)] Call
 PEEK d4
-PUSHV 0.0032
-PUSHV 16384
-GOTO 3370
+PUSHV 0.0032; UsrFunc[void Ghost_SetFlag(int)] Return Addr
+PUSHV 16384; UsrFunc[void Ghost_SetFlag(int)] Params
+GOTO 3369; UsrFunc[void Ghost_SetFlag(int)] Call
 POP d4
-LOADD d2,2
+LOADD d2,2; InlineFunc[void Game->PlaySound(int)] Params
 PUSHR d2
 SETV d2,0
 PUSHR d2
 POP d0
 POP REFNPC
 SETR d2,NPCDD
-PLAYSOUNDR d2
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 PUSHR d4
-PUSHV 0.0048
-LOADD d2,3
+PUSHV 0.0048; UsrFunc[void SpawnAnimation(FFC, NPC)] Return Addr
+LOADD d2,3; UsrFunc[void SpawnAnimation(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
-GOTO 6136
+GOTO 6126; UsrFunc[void SpawnAnimation(FFC, NPC)] Call
 POP d4
 LOADD d2,2
 PUSHR d2
@@ -85,29 +85,28 @@ COMPAREV d2,0
 GOTOTRUE 80
 SETV d2,1.5000
 SETR gd6,d2
-LOADD d2,0
-PLAYSOUNDR d2
+LOADD d2,0; InlineFunc[void Game->PlaySound(int)] Params
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 PUSHR d4
-PUSHV 0.0086
-LOADD d2,1
+PUSHV 0.0086; UsrFunc[void Ghost_MoveTowardLink(int, int)] Return Addr
+LOADD d2,1; UsrFunc[void Ghost_MoveTowardLink(int, int)] Params
 PUSHR d2
 PUSHV 3
-GOTO 4679
+GOTO 4675; UsrFunc[void Ghost_MoveTowardLink(int, int)] Call
 PEEK d4
-PUSHV 0.0094
-LOADD d2,3
+PUSHV 0.0094; UsrFunc[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Return Addr
+LOADD d2,3; UsrFunc[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
 PUSHARGSV 1,0.0002
-GOTO 4783
+GOTO 4779; UsrFunc[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Call
 POP d4
 GOTO 63
 POPARGS d5,0.0005
-QUIT
-QUIT
-SETR d4,SP
-LOADD d2,1
+QUIT; void run(int) Body End
+SETR d4,SP; Func[int Angle(int, int, int, int)] Body Start
+LOADD d2,1; InlineFunc[int ArcTan(int, int)] Params AND InlineFunc[int RadtoDeg(int)] Params
 PUSHR d2
 LOADD d2,3
 POP d3
@@ -119,19 +118,19 @@ LOADD d2,2
 POP d3
 SUBR d3,d2
 SETR d1,d3
-POP d0
-ARCTANR d2
+POP d0; InlineFunc[int ArcTan(int, int)] Body Start
+ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 SETR d3,d2
-RADTODEG d2,d3
-GOTO 117
+RADTODEG d2,d3; InlineFunc[int RadtoDeg(int)] Body
+GOTO 116
 POPARGS d5,0.0004
-RETURN
-SETR d4,SP
+RETURN; Func[int Angle(int, int, int, int)] Body End
+SETR d4,SP; Func[int AngleDir8(int)] Body Start
 LOADD d2,0
 COMPAREV d2,157.5000
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 131
+GOTOTRUE 130
 LOADD d2,0
 COMPAREV d2,112.5000
 SETLESS d2
@@ -141,14 +140,14 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 137
+GOTOTRUE 136
 SETV d2,6
-GOTO 241
+GOTO 240
 LOADD d2,0
 COMPAREV d2,112.5000
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 148
+GOTOTRUE 147
 LOADD d2,0
 COMPAREV d2,67.5000
 SETLESS d2
@@ -158,14 +157,14 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 154
+GOTOTRUE 153
 SETV d2,1
-GOTO 241
+GOTO 240
 LOADD d2,0
 COMPAREV d2,67.5000
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 165
+GOTOTRUE 164
 LOADD d2,0
 COMPAREV d2,22.5000
 SETLESS d2
@@ -175,14 +174,14 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 171
+GOTOTRUE 170
 SETV d2,7
-GOTO 241
+GOTO 240
 LOADD d2,0
 COMPAREV d2,22.5000
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 182
+GOTOTRUE 181
 LOADD d2,0
 COMPAREV d2,-22.5000
 SETLESS d2
@@ -192,14 +191,14 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 188
+GOTOTRUE 187
 SETV d2,3
-GOTO 241
+GOTO 240
 LOADD d2,0
 COMPAREV d2,-22.5000
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 199
+GOTOTRUE 198
 LOADD d2,0
 COMPAREV d2,-67.5000
 SETLESS d2
@@ -209,14 +208,14 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 205
+GOTOTRUE 204
 SETV d2,5
-GOTO 241
+GOTO 240
 LOADD d2,0
 COMPAREV d2,-67.5000
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 216
+GOTOTRUE 215
 LOADD d2,0
 COMPAREV d2,-112.5000
 SETLESS d2
@@ -226,14 +225,14 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 222
+GOTOTRUE 221
 SETV d2,0
-GOTO 241
+GOTO 240
 LOADD d2,0
 COMPAREV d2,-112.5000
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 233
+GOTOTRUE 232
 LOADD d2,0
 COMPAREV d2,-157.5000
 SETLESS d2
@@ -243,14 +242,14 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 239
+GOTOTRUE 238
 SETV d2,4
-GOTO 241
+GOTO 240
 SETV d2,2
-GOTO 241
+GOTO 240
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[int AngleDir8(int)] Body End
+SETR d4,SP; Func[int Clamp(int, int, int)] Body Start
 LOADD d2,2
 PUSHR d2
 LOADD d2,1
@@ -260,10 +259,10 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 257
+GOTOTRUE 256
 LOADD d2,1
 STORED d2,2
-GOTO 269
+GOTO 268
 LOADD d2,2
 PUSHR d2
 LOADD d2,0
@@ -273,38 +272,38 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 269
+GOTOTRUE 268
 LOADD d2,0
 STORED d2,2
 LOADD d2,2
-GOTO 271
+GOTO 270
 POPARGS d5,0.0003
-RETURN
-SETR d4,SP
+RETURN; Func[int Clamp(int, int, int)] Body End
+SETR d4,SP; Func[bool ClockIsActive()] Body Start
 SETR d2,gd27
 PUSHR d2
 POP d0
 READPODARRAYV d2,6
 COMPAREV d2,0
 SETFALSEI d2
-RETURN
-SETR d4,SP
+RETURN; Func[bool ClockIsActive()] Body End
+SETR d4,SP; Func[int ComboAt(int, int)] Body Start
 PUSHR d4
-PUSHV 0.0289
-LOADD d2,1
+PUSHV 0.0288; UsrFunc[int VBound(int, int, int)] Return Addr
+LOADD d2,1; UsrFunc[int VBound(int, int, int)] Params
 PUSHR d2
 PUSHV 255
 PUSHV 0
-GOTO 310
+GOTO 309; UsrFunc[int VBound(int, int, int)] Call
 POP d4
 STORED d2,1
 PUSHR d4
-PUSHV 0.0298
-LOADD d2,0
+PUSHV 0.0297; UsrFunc[int VBound(int, int, int)] Return Addr
+LOADD d2,0; UsrFunc[int VBound(int, int, int)] Params
 PUSHR d2
 PUSHV 175
 PUSHV 0
-GOTO 310
+GOTO 309; UsrFunc[int VBound(int, int, int)] Call
 POP d4
 STORED d2,0
 LOADD d2,0
@@ -314,10 +313,10 @@ LOADD d2,1
 RSHIFTV d2,4
 POP d3
 ADDR d2,d3
-GOTO 308
+GOTO 307
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[int ComboAt(int, int)] Body End
+SETR d4,SP; Func[int VBound(int, int, int)] Body Start
 LOADD d2,2
 PUSHR d2
 LOADD d2,0
@@ -327,10 +326,10 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 324
+GOTOTRUE 323
 LOADD d2,0
 STORED d2,2
-GOTO 336
+GOTO 335
 LOADD d2,2
 PUSHR d2
 LOADD d2,1
@@ -340,14 +339,14 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 336
+GOTOTRUE 335
 LOADD d2,1
 STORED d2,2
 LOADD d2,2
-GOTO 338
+GOTO 337
 POPARGS d5,0.0003
-RETURN
-PUSHR d2
+RETURN; Func[int VBound(int, int, int)] Body End
+PUSHR d2; Func[bool IsWater(int)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -358,28 +357,28 @@ LOADD d2,0
 COMPAREV d2,3
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 354
+GOTOTRUE 353
 SETV d2,1
-GOTO 385
+GOTO 384
 LOADD d2,0
 COMPAREV d2,18
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 361
+GOTOTRUE 360
 SETV d2,1
-GOTO 385
+GOTO 384
 LOADD d2,0
 COMPAREV d2,19
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 368
+GOTOTRUE 367
 SETV d2,1
-GOTO 385
+GOTO 384
 LOADD d2,0
 COMPAREV d2,86
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 377
+GOTOTRUE 376
 LOADD d2,0
 COMPAREV d2,91
 SETLESSI d2
@@ -387,27 +386,27 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 383
+GOTOTRUE 382
 SETV d2,1
-GOTO 385
+GOTO 384
 SETV d2,0
-GOTO 385
+GOTO 384
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[bool IsWater(int)] Body End
+SETR d4,SP; Func[bool __IsPit(int)] Body Start
 PUSHR d4
-PUSHV 0.0393
-LOADD d2,0
+PUSHV 0.0392; UsrFunc[bool IsPit(int)] Return Addr
+LOADD d2,0; UsrFunc[bool IsPit(int)] Params
 PUSHR d2
-GOTO 6080
+GOTO 6070; UsrFunc[bool IsPit(int)] Call
 POP d4
-GOTO 395
+GOTO 394
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[bool __IsPit(int)] Body End
+SETR d4,SP; Func[bool Ghost_CanMove(int, int, int)] Body Start
 PUSHR d4
-PUSHV 0.0413
-LOADD d2,2
+PUSHV 0.0412; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+LOADD d2,2; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 PUSHR d2
 LOADD d2,1
 PUSHR d2
@@ -419,32 +418,32 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
-GOTO 415
+GOTO 414
 POPARGS d5,0.0003
-RETURN
-SETR d4,SP
+RETURN; Func[bool Ghost_CanMove(int, int, int)] Body End
+SETR d4,SP; Func[bool Ghost_CanMove(int, int, int, bool)] Body Start
 LOADD d2,2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 425
+GOTOTRUE 424
 SETV d2,1
-GOTO 481
+GOTO 480
 LOADD d2,3
 COMPAREV d2,4
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 433
+GOTOTRUE 432
 LOADD d2,2
 MULTV d2,0.7071
 STORED d2,2
 PUSHR d4
-PUSHV 0.0438
-LOADD d2,3
+PUSHV 0.0437; UsrFunc[int __NormalizeDir(int)] Return Addr
+LOADD d2,3; UsrFunc[int __NormalizeDir(int)] Params
 PUSHR d2
-GOTO 483
+GOTO 482; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 STORED d2,3
 LOADD d2,2
@@ -453,10 +452,10 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 468
+GOTOTRUE 467
 PUSHR d4
-PUSHV 0.0459
-LOADD d2,3
+PUSHV 0.0458; UsrFunc[bool __Ghost_CanMoveSingle(int, int, int, bool)] Return Addr
+LOADD d2,3; UsrFunc[bool __Ghost_CanMoveSingle(int, int, int, bool)] Params
 PUSHR d2
 LOADD d2,2
 SUBV d2,8
@@ -465,19 +464,19 @@ LOADD d2,1
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-GOTO 559
+GOTO 558; UsrFunc[bool __Ghost_CanMoveSingle(int, int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 464
+GOTOFALSE 463
 SETV d2,0
-GOTO 481
+GOTO 480
 LOADD d2,2
 SUBV d2,8
 STORED d2,2
-GOTO 440
+GOTO 439
 PUSHR d4
-PUSHV 0.0479
-LOADD d2,3
+PUSHV 0.0478; UsrFunc[bool __Ghost_CanMoveSingle(int, int, int, bool)] Return Addr
+LOADD d2,3; UsrFunc[bool __Ghost_CanMoveSingle(int, int, int, bool)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
@@ -485,17 +484,17 @@ LOADD d2,1
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-GOTO 559
+GOTO 558; UsrFunc[bool __Ghost_CanMoveSingle(int, int, int, bool)] Call
 POP d4
-GOTO 481
+GOTO 480
 POPARGS d5,0.0004
-RETURN
-SETR d4,SP
+RETURN; Func[bool Ghost_CanMove(int, int, int, bool)] Body End
+SETR d4,SP; Func[int __NormalizeDir(int)] Body Start
 LOADD d2,0
 COMPAREV d2,0
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 493
+GOTOTRUE 492
 LOADD d2,0
 COMPAREV d2,7
 SETLESSI d2
@@ -503,70 +502,70 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 499
+GOTOTRUE 498
 LOADD d2,0
-GOTO 557
+GOTO 556
 LOADD d2,0
 COMPAREV d2,8
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 506
+GOTOTRUE 505
 SETV d2,0
-GOTO 557
+GOTO 556
 LOADD d2,0
 COMPAREV d2,9
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 513
+GOTOTRUE 512
 SETV d2,5
-GOTO 557
+GOTO 556
 LOADD d2,0
 COMPAREV d2,10
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 520
+GOTOTRUE 519
 SETV d2,3
-GOTO 557
+GOTO 556
 LOADD d2,0
 COMPAREV d2,11
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 527
+GOTOTRUE 526
 SETV d2,7
-GOTO 557
+GOTO 556
 LOADD d2,0
 COMPAREV d2,12
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 534
+GOTOTRUE 533
 SETV d2,1
-GOTO 557
+GOTO 556
 LOADD d2,0
 COMPAREV d2,13
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 541
+GOTOTRUE 540
 SETV d2,6
-GOTO 557
+GOTO 556
 LOADD d2,0
 COMPAREV d2,14
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 548
+GOTOTRUE 547
 SETV d2,2
-GOTO 557
+GOTO 556
 LOADD d2,0
 COMPAREV d2,15
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 555
+GOTOTRUE 554
 SETV d2,4
-GOTO 557
+GOTO 556
 SETV d2,0
-GOTO 557
+GOTO 556
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0006
+RETURN; Func[int __NormalizeDir(int)] Body End
+PUSHARGSR d2,0.0006; Func[bool __Ghost_CanMoveSingle(int, int, int, bool)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,5
@@ -582,7 +581,7 @@ LOADD d2,9
 COMPAREV d2,2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 698
+GOTOTRUE 697
 SETR d2,gd14
 MULTV d2,16
 SETV d2,16
@@ -635,10 +634,10 @@ POP d3
 COMPARER d3,d2
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 654
+GOTOTRUE 653
 PUSHR d4
-PUSHV 0.0643
-LOADD d2,4
+PUSHV 0.0642; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,4; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
@@ -649,21 +648,21 @@ ADDR d2,d3
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 648
+GOTOFALSE 647
 SETV d2,0
-GOTO 1379
+GOTO 1378
 LOADD d2,5
 PUSHR d2
 ADDV d2,1
 STORED d2,5
 POP d2
-GOTO 621
+GOTO 620
 PUSHR d4
-PUSHV 0.0667
-LOADD d2,4
+PUSHV 0.0666; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,4; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
@@ -673,15 +672,15 @@ ADDR d2,d3
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 672
+GOTOFALSE 671
 SETV d2,0
-GOTO 1379
+GOTO 1378
 PUSHR d4
-PUSHV 0.0691
-LOADD d2,4
+PUSHV 0.0690; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,4; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
@@ -697,19 +696,19 @@ SUBV d2,1
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 696
+GOTOFALSE 695
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETV d2,1
-GOTO 1379
+GOTO 1378
 LOADD d2,9
 COMPAREV d2,3
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 836
+GOTOTRUE 835
 SETR d2,gd14
 MULTV d2,16
 SETV d2,16
@@ -773,10 +772,10 @@ POP d3
 COMPARER d3,d2
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 792
+GOTOTRUE 791
 PUSHR d4
-PUSHV 0.0781
-LOADD d2,4
+PUSHV 0.0780; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,4; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
@@ -787,21 +786,21 @@ ADDR d2,d3
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 786
+GOTOFALSE 785
 SETV d2,0
-GOTO 1379
+GOTO 1378
 LOADD d2,5
 PUSHR d2
 ADDV d2,1
 STORED d2,5
 POP d2
-GOTO 759
+GOTO 758
 PUSHR d4
-PUSHV 0.0805
-LOADD d2,4
+PUSHV 0.0804; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,4; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
@@ -811,15 +810,15 @@ ADDR d2,d3
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 810
+GOTOFALSE 809
 SETV d2,0
-GOTO 1379
+GOTO 1378
 PUSHR d4
-PUSHV 0.0829
-LOADD d2,4
+PUSHV 0.0828; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,4; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
@@ -835,29 +834,29 @@ SUBV d2,1
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 834
+GOTOFALSE 833
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETV d2,1
-GOTO 1379
+GOTO 1378
 LOADD d2,9
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 983
+GOTOTRUE 982
 PUSHR d4
-PUSHV 0.0844
-GOTO 4732
+PUSHV 0.0843; UsrFunc[bool IsSideview()] Return Addr
+GOTO 4728; UsrFunc[bool IsSideview()] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 855
+GOTOTRUE 854
 PUSHR d4
-PUSHV 0.0851
-PUSHV 32
-GOTO 1637
+PUSHV 0.0850; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 32; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
 SETTRUEI d2
@@ -865,9 +864,9 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 861
+GOTOTRUE 860
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETR d2,gd13
 MULTV d2,16
 SETV d2,16
@@ -920,10 +919,10 @@ POP d3
 COMPARER d3,d2
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 939
+GOTOTRUE 938
 PUSHR d4
-PUSHV 0.0928
-LOADD d2,2
+PUSHV 0.0927; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,2; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,5
 MULTV d2,8
@@ -934,21 +933,21 @@ LOADD d2,4
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 933
+GOTOFALSE 932
 SETV d2,0
-GOTO 1379
+GOTO 1378
 LOADD d2,5
 PUSHR d2
 ADDV d2,1
 STORED d2,5
 POP d2
-GOTO 906
+GOTO 905
 PUSHR d4
-PUSHV 0.0952
-LOADD d2,2
+PUSHV 0.0951; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,2; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,7
 POP d3
@@ -958,15 +957,15 @@ LOADD d2,4
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 957
+GOTOFALSE 956
 SETV d2,0
-GOTO 1379
+GOTO 1378
 PUSHR d4
-PUSHV 0.0976
-LOADD d2,2
+PUSHV 0.0975; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,2; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,3
 POP d3
@@ -982,19 +981,19 @@ LOADD d2,4
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 981
+GOTOFALSE 980
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETV d2,1
-GOTO 1379
+GOTO 1378
 LOADD d2,9
 COMPAREV d2,1
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1121
+GOTOTRUE 1120
 SETR d2,gd13
 MULTV d2,16
 SETV d2,16
@@ -1058,10 +1057,10 @@ POP d3
 COMPARER d3,d2
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 1077
+GOTOTRUE 1076
 PUSHR d4
-PUSHV 0.1066
-LOADD d2,2
+PUSHV 0.1065; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,2; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,5
 MULTV d2,8
@@ -1072,21 +1071,21 @@ LOADD d2,4
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 1071
+GOTOFALSE 1070
 SETV d2,0
-GOTO 1379
+GOTO 1378
 LOADD d2,5
 PUSHR d2
 ADDV d2,1
 STORED d2,5
 POP d2
-GOTO 1044
+GOTO 1043
 PUSHR d4
-PUSHV 0.1090
-LOADD d2,2
+PUSHV 0.1089; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,2; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,7
 POP d3
@@ -1096,15 +1095,15 @@ LOADD d2,4
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 1095
+GOTOFALSE 1094
 SETV d2,0
-GOTO 1379
+GOTO 1378
 PUSHR d4
-PUSHV 0.1114
-LOADD d2,2
+PUSHV 0.1113; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Return Addr
+LOADD d2,2; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Params
 PUSHR d2
 LOADD d2,3
 POP d3
@@ -1120,19 +1119,19 @@ LOADD d2,4
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 1381
+GOTO 1380; UsrFunc[bool Ghost_CanMovePixel(int, int, bool)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 1119
+GOTOFALSE 1118
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETV d2,1
-GOTO 1379
+GOTO 1378
 LOADD d2,9
 COMPAREV d2,4
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1185
+GOTOTRUE 1184
 SETV d2,0
 STORED d2,0
 SETR d2,gd2
@@ -1143,15 +1142,15 @@ SUBR d3,d2
 SETR d2,d3
 SETR gd2,d2
 PUSHR d4
-PUSHV 0.1145
-PUSHV 0
+PUSHV 0.1144; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+PUSHV 0; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 LOADD d2,8
 PUSHR d2
 LOADD d2,7
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
 STORED d2,0
 SETR d2,gd2
@@ -1162,9 +1161,9 @@ ADDR d2,d3
 SETR gd2,d2
 LOADD d2,0
 COMPAREV d2,0
-GOTOFALSE 1158
+GOTOFALSE 1157
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETR d2,gd3
 PUSHR d2
 LOADD d2,8
@@ -1173,15 +1172,15 @@ SUBR d3,d2
 SETR d2,d3
 SETR gd3,d2
 PUSHR d4
-PUSHV 0.1175
-PUSHV 2
+PUSHV 0.1174; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+PUSHV 2; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 LOADD d2,8
 PUSHR d2
 LOADD d2,7
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
 STORED d2,0
 SETR d2,gd3
@@ -1191,12 +1190,12 @@ POP d3
 ADDR d2,d3
 SETR gd3,d2
 LOADD d2,0
-GOTO 1379
+GOTO 1378
 LOADD d2,9
 COMPAREV d2,5
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1249
+GOTOTRUE 1248
 SETV d2,0
 STORED d2,0
 SETR d2,gd2
@@ -1206,15 +1205,15 @@ POP d3
 ADDR d2,d3
 SETR gd2,d2
 PUSHR d4
-PUSHV 0.1208
-PUSHV 0
+PUSHV 0.1207; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+PUSHV 0; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 LOADD d2,8
 PUSHR d2
 LOADD d2,7
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
 STORED d2,0
 SETR d2,gd2
@@ -1226,9 +1225,9 @@ SETR d2,d3
 SETR gd2,d2
 LOADD d2,0
 COMPAREV d2,0
-GOTOFALSE 1222
+GOTOFALSE 1221
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETR d2,gd3
 PUSHR d2
 LOADD d2,8
@@ -1237,15 +1236,15 @@ SUBR d3,d2
 SETR d2,d3
 SETR gd3,d2
 PUSHR d4
-PUSHV 0.1239
-PUSHV 3
+PUSHV 0.1238; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+PUSHV 3; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 LOADD d2,8
 PUSHR d2
 LOADD d2,7
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
 STORED d2,0
 SETR d2,gd3
@@ -1255,12 +1254,12 @@ POP d3
 ADDR d2,d3
 SETR gd3,d2
 LOADD d2,0
-GOTO 1379
+GOTO 1378
 LOADD d2,9
 COMPAREV d2,6
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1313
+GOTOTRUE 1312
 SETV d2,0
 STORED d2,0
 SETR d2,gd2
@@ -1271,15 +1270,15 @@ SUBR d3,d2
 SETR d2,d3
 SETR gd2,d2
 PUSHR d4
-PUSHV 0.1273
-PUSHV 1
+PUSHV 0.1272; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+PUSHV 1; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 LOADD d2,8
 PUSHR d2
 LOADD d2,7
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
 STORED d2,0
 SETR d2,gd2
@@ -1290,9 +1289,9 @@ ADDR d2,d3
 SETR gd2,d2
 LOADD d2,0
 COMPAREV d2,0
-GOTOFALSE 1286
+GOTOFALSE 1285
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETR d2,gd3
 PUSHR d2
 LOADD d2,8
@@ -1300,15 +1299,15 @@ POP d3
 ADDR d2,d3
 SETR gd3,d2
 PUSHR d4
-PUSHV 0.1302
-PUSHV 2
+PUSHV 0.1301; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+PUSHV 2; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 LOADD d2,8
 PUSHR d2
 LOADD d2,7
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
 STORED d2,0
 SETR d2,gd3
@@ -1319,12 +1318,12 @@ SUBR d3,d2
 SETR d2,d3
 SETR gd3,d2
 LOADD d2,0
-GOTO 1379
+GOTO 1378
 LOADD d2,9
 COMPAREV d2,7
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1377
+GOTOTRUE 1376
 SETV d2,0
 STORED d2,0
 SETR d2,gd2
@@ -1334,15 +1333,15 @@ POP d3
 ADDR d2,d3
 SETR gd2,d2
 PUSHR d4
-PUSHV 0.1336
-PUSHV 1
+PUSHV 0.1335; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+PUSHV 1; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 LOADD d2,8
 PUSHR d2
 LOADD d2,7
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
 STORED d2,0
 SETR d2,gd2
@@ -1354,9 +1353,9 @@ SETR d2,d3
 SETR gd2,d2
 LOADD d2,0
 COMPAREV d2,0
-GOTOFALSE 1350
+GOTOFALSE 1349
 SETV d2,0
-GOTO 1379
+GOTO 1378
 SETR d2,gd3
 PUSHR d2
 LOADD d2,8
@@ -1364,15 +1363,15 @@ POP d3
 ADDR d2,d3
 SETR gd3,d2
 PUSHR d4
-PUSHV 0.1366
-PUSHV 3
+PUSHV 0.1365; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Return Addr
+PUSHV 3; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Params
 LOADD d2,8
 PUSHR d2
 LOADD d2,7
 PUSHR d2
 LOADD d2,6
 PUSHR d2
-GOTO 417
+GOTO 416; UsrFunc[bool Ghost_CanMove(int, int, int, bool)] Call
 POP d4
 STORED d2,0
 SETR d2,gd3
@@ -1383,12 +1382,12 @@ SUBR d3,d2
 SETR d2,d3
 SETR gd3,d2
 LOADD d2,0
-GOTO 1379
+GOTO 1378
 SETV d2,0
-GOTO 1379
+GOTO 1378
 POPARGS d5,0.0010
-RETURN
-PUSHR d2
+RETURN; Func[bool __Ghost_CanMoveSingle(int, int, int, bool)] Body End
+PUSHR d2; Func[bool Ghost_CanMovePixel(int, int, bool)] Body Start
 SETR d4,SP
 LOADD d2,3
 COMPAREV d2,0
@@ -1396,7 +1395,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 1397
+GOTOMORE 1396
 LOADD d2,3
 COMPAREV d2,255
 SETLESS d2
@@ -1406,7 +1405,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 1407
+GOTOMORE 1406
 LOADD d2,2
 COMPAREV d2,0
 SETMORE d2
@@ -1416,7 +1415,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 1417
+GOTOMORE 1416
 LOADD d2,2
 COMPAREV d2,175
 SETLESS d2
@@ -1426,29 +1425,29 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 1426
+GOTOTRUE 1425
 PUSHR d4
-PUSHV 0.1424
-PUSHV 8192
-GOTO 1637
+PUSHV 0.1423; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 8192; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
-GOTO 1635
+GOTO 1634
 PUSHR d4
-PUSHV 0.1433
-LOADD d2,3
+PUSHV 0.1432; UsrFunc[int ComboAt(int, int)] Return Addr
+LOADD d2,3; UsrFunc[int ComboAt(int, int)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
-GOTO 281
+GOTO 280; UsrFunc[int ComboAt(int, int)] Call
 POP d4
 STORED d2,0
 PUSHR d4
-PUSHV 0.1439
-PUSHV 65537
-GOTO 1637
+PUSHV 0.1438; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 65537; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 1534
+GOTOFALSE 1533
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1456,9 +1455,9 @@ SETR d2,COMBOTD
 COMPAREV d2,110
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1452
+GOTOTRUE 1451
 SETV d2,0
-GOTO 1635
+GOTO 1634
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1466,9 +1465,9 @@ SETR d2,COMBOFD
 COMPAREV d2,96
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1462
+GOTOTRUE 1461
 SETV d2,0
-GOTO 1635
+GOTO 1634
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1476,16 +1475,16 @@ SETR d2,COMBOID
 COMPAREV d2,96
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1472
+GOTOTRUE 1471
 SETV d2,0
-GOTO 1635
+GOTO 1634
 PUSHR d4
-PUSHV 0.1476
-PUSHV 65536
-GOTO 1637
+PUSHV 0.1475; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 65536; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1490
+GOTOTRUE 1489
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1493,13 +1492,13 @@ SETR d2,COMBOTD
 COMPAREV d2,44
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1489
+GOTOTRUE 1488
 SETV d2,0
-GOTO 1635
-GOTO 1534
+GOTO 1634
+GOTO 1533
 LOADD d2,1
 COMPAREV d2,0
-GOTOTRUE 1504
+GOTOTRUE 1503
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1507,10 +1506,10 @@ SETR d2,COMBOTD
 COMPAREV d2,54
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1503
+GOTOTRUE 1502
 SETV d2,0
-GOTO 1635
-GOTO 1534
+GOTO 1634
+GOTO 1533
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1518,9 +1517,9 @@ SETR d2,COMBOTD
 COMPAREV d2,128
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1514
+GOTOTRUE 1513
 SETV d2,0
-GOTO 1635
+GOTO 1634
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1528,9 +1527,9 @@ SETR d2,COMBOFD
 COMPAREV d2,97
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1524
+GOTOTRUE 1523
 SETV d2,0
-GOTO 1635
+GOTO 1634
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1538,38 +1537,38 @@ SETR d2,COMBOID
 COMPAREV d2,97
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1534
+GOTOTRUE 1533
 SETV d2,0
-GOTO 1635
+GOTO 1634
 PUSHR d4
-PUSHV 0.1538
-PUSHV 65539
-GOTO 1637
+PUSHV 0.1537; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 65539; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1548
+GOTOTRUE 1547
 PUSHR d4
-PUSHV 0.1546
-LOADD d2,0
+PUSHV 0.1545; UsrFunc[bool IsWater(int)] Return Addr
+LOADD d2,0; UsrFunc[bool IsWater(int)] Params
 PUSHR d2
-GOTO 340
+GOTO 339; UsrFunc[bool IsWater(int)] Call
 POP d4
-GOTO 1635
+GOTO 1634
 PUSHR d4
-PUSHV 0.1552
-PUSHV 65538
-GOTO 1637
+PUSHV 0.1551; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 65538; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1573
+GOTOTRUE 1572
 PUSHR d4
-PUSHV 0.1560
-LOADD d2,0
+PUSHV 0.1559; UsrFunc[bool IsWater(int)] Return Addr
+LOADD d2,0; UsrFunc[bool IsWater(int)] Params
 PUSHR d2
-GOTO 340
+GOTO 339; UsrFunc[bool IsWater(int)] Call
 POP d4
 COMPAREV d2,0.0001
-GOTOMORE 1571
+GOTOMORE 1570
 LOADD d2,0
 PUSHR d2
 POP d0
@@ -1579,78 +1578,78 @@ SETTRUEI d2
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
-GOTO 1635
+GOTO 1634
 PUSHR d4
-PUSHV 0.1578
-LOADD d2,0
+PUSHV 0.1577; UsrFunc[bool IsWater(int)] Return Addr
+LOADD d2,0; UsrFunc[bool IsWater(int)] Params
 PUSHR d2
-GOTO 340
+GOTO 339; UsrFunc[bool IsWater(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1587
+GOTOTRUE 1586
 PUSHR d4
-PUSHV 0.1585
-PUSHV 2048
-GOTO 1637
+PUSHV 0.1584; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 2048; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
-GOTO 1635
+GOTO 1634
 PUSHR d4
-PUSHV 0.1592
-LOADD d2,0
+PUSHV 0.1591; UsrFunc[bool __IsPit(int)] Return Addr
+LOADD d2,0; UsrFunc[bool __IsPit(int)] Params
 PUSHR d2
-GOTO 387
+GOTO 386; UsrFunc[bool __IsPit(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1601
+GOTOTRUE 1600
 PUSHR d4
-PUSHV 0.1599
-PUSHV 4096
-GOTO 1637
+PUSHV 0.1598; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 4096; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
-GOTO 1635
+GOTO 1634
 PUSHR d4
-PUSHV 0.1605
-PUSHV 1024
-GOTO 1637
+PUSHV 0.1604; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 1024; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1610
+GOTOTRUE 1609
 SETV d2,1
-GOTO 1635
+GOTO 1634
 PUSHR d4
-PUSHV 0.1614
-PUSHV 32768
-GOTO 1637
+PUSHV 0.1613; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 32768; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1626
+GOTOTRUE 1625
 PUSHR d4
-PUSHV 0.1624
-LOADD d2,3
+PUSHV 0.1623; UsrFunc[bool __FullTileWalkable(int, int)] Return Addr
+LOADD d2,3; UsrFunc[bool __FullTileWalkable(int, int)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
-GOTO 1669
+GOTO 1668; UsrFunc[bool __FullTileWalkable(int, int)] Call
 POP d4
-GOTO 1635
-LOADD d2,3
+GOTO 1634
+LOADD d2,3; InlineFunc[bool Screen->isSolid(int, int)] Params
 PUSHR d2
 LOADD d2,2
 SETR d1,d2
-POP d0
-ISSOLID d2
+POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
 COMPAREV d2,0
 SETTRUEI d2
-GOTO 1635
+GOTO 1634
 POPARGS d5,0.0004
-RETURN
-SETR d4,SP
+RETURN; Func[bool Ghost_CanMovePixel(int, int, bool)] Body End
+SETR d4,SP; Func[bool Ghost_FlagIsSet(int)] Body Start
 LOADD d2,0
 ANDV d2,65536
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 1656
+GOTOTRUE 1655
 SETR d2,gd17
 PUSHR d2
 LOADD d2,0
@@ -1662,7 +1661,7 @@ POP d3
 ANDR d2,d3
 COMPAREV d2,0
 SETFALSEI d2
-GOTO 1667
+GOTO 1666
 SETR d2,gd16
 PUSHR d2
 LOADD d2,0
@@ -1673,17 +1672,17 @@ LOADD d2,0
 POP d3
 COMPARER d3,d2
 SETTRUEI d2
-GOTO 1667
+GOTO 1666
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[bool Ghost_FlagIsSet(int)] Body End
+SETR d4,SP; Func[bool __FullTileWalkable(int, int)] Body Start
 LOADD d2,1
 COMPAREV d2,0
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 1684
+GOTOMORE 1683
 LOADD d2,0
 COMPAREV d2,0
 SETMORE d2
@@ -1693,7 +1692,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 1692
+GOTOMORE 1691
 LOADD d2,1
 COMPAREV d2,256
 SETMOREI d2
@@ -1701,7 +1700,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 1700
+GOTOMORE 1699
 LOADD d2,0
 COMPAREV d2,176
 SETMOREI d2
@@ -1709,13 +1708,13 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 1709
+GOTOTRUE 1708
 PUSHR d4
-PUSHV 0.1707
-PUSHV 8192
-GOTO 1637
+PUSHV 0.1706; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 8192; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
-GOTO 1774
+GOTO 1773
 LOADD d2,1
 PUSHR d2
 LOADD d2,1
@@ -1732,82 +1731,82 @@ POP d3
 SUBR d3,d2
 SETR d2,d3
 STORED d2,0
-LOADD d2,1
+LOADD d2,1; InlineFunc[bool Screen->isSolid(int, int)] Params
 PUSHR d2
 LOADD d2,0
 SETR d1,d2
-POP d0
-ISSOLID d2
+POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
 COMPAREV d2,0.0001
-GOTOMORE 1742
-LOADD d2,1
+GOTOMORE 1741
+LOADD d2,1; InlineFunc[bool Screen->isSolid(int, int)] Params
 ADDV d2,8
 PUSHR d2
 LOADD d2,0
 SETR d1,d2
-POP d0
-ISSOLID d2
+POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 1754
-LOADD d2,1
+GOTOMORE 1753
+LOADD d2,1; InlineFunc[bool Screen->isSolid(int, int)] Params
 PUSHR d2
 LOADD d2,0
 ADDV d2,8
 SETR d1,d2
-POP d0
-ISSOLID d2
+POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 1767
-LOADD d2,1
+GOTOMORE 1766
+LOADD d2,1; InlineFunc[bool Screen->isSolid(int, int)] Params
 ADDV d2,8
 PUSHR d2
 LOADD d2,0
 ADDV d2,8
 SETR d1,d2
-POP d0
-ISSOLID d2
+POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 1772
+GOTOTRUE 1771
 SETV d2,0
-GOTO 1774
+GOTO 1773
 SETV d2,1
-GOTO 1774
+GOTO 1773
 POPARGS d5,0.0002
-RETURN
-PUSHARGSR d2,0.0004
+RETURN; Func[bool __FullTileWalkable(int, int)] Body End
+PUSHARGSR d2,0.0004; Func[bool Ghost_CheckFreeze(FFC, NPC)] Body Start
 SETR d4,SP
 PUSHR d4
-PUSHV 0.1782
-PUSHV 16
-GOTO 1637
+PUSHV 0.1781; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 16; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1790
+GOTOTRUE 1789
 PUSHR d4
-PUSHV 0.1788
-GOTO 273
+PUSHV 0.1787; UsrFunc[bool ClockIsActive()] Return Addr
+GOTO 272; UsrFunc[bool ClockIsActive()] Call
 POP d4
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 1814
+GOTOMORE 1813
 PUSHR d4
-PUSHV 0.1798
-PUSHV 8
-GOTO 1637
+PUSHV 0.1797; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 8; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1810
+GOTOTRUE 1809
 LOADD d2,4
 PUSHR d2
 POP REFNPC
@@ -1823,7 +1822,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 2063
+GOTOTRUE 2062
 LOADD d2,5
 PUSHR d2
 POP REFFFC
@@ -1884,28 +1883,28 @@ SETR d2,gd18
 ORV d2,2
 SETR gd18,d2
 PUSHR d4
-PUSHV 0.1880
-PUSHV 16
-GOTO 1637
+PUSHV 0.1879; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 16; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1888
+GOTOTRUE 1887
 PUSHR d4
-PUSHV 0.1886
-GOTO 273
+PUSHV 0.1885; UsrFunc[bool ClockIsActive()] Return Addr
+GOTO 272; UsrFunc[bool ClockIsActive()] Call
 POP d4
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 1912
+GOTOMORE 1911
 PUSHR d4
-PUSHV 0.1896
-PUSHV 8
-GOTO 1637
+PUSHV 0.1895; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 8; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1908
+GOTOTRUE 1907
 LOADD d2,4
 PUSHR d2
 POP REFNPC
@@ -1921,34 +1920,34 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 2027
+GOTOTRUE 2026
 PUSHR d4
-PUSHV 0.1922
-LOADD d2,5
+PUSHV 0.1921; UsrFunc[void __Ghost_UpdateFlashing(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void __Ghost_UpdateFlashing(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2067
+GOTO 2066; UsrFunc[void __Ghost_UpdateFlashing(FFC, NPC)] Call
 PEEK d4
-PUSHV 0.1927
-LOADD d2,4
+PUSHV 0.1926; UsrFunc[void __Ghost_DrawShadow(NPC)] Return Addr
+LOADD d2,4; UsrFunc[void __Ghost_DrawShadow(NPC)] Params
 PUSHR d2
-GOTO 2155
+GOTO 2154; UsrFunc[void __Ghost_DrawShadow(NPC)] Call
 PEEK d4
-PUSHV 0.1934
-LOADD d2,5
+PUSHV 0.1933; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2342
+GOTO 2341; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Call
 POP d4
-LOADD d2,4
-ISVALIDNPC d2
+LOADD d2,4; InlineFunc[bool NPC->isValid()] Params
+ISVALIDNPC d2; InlineFunc[bool NPC->isValid()] Body
 COMPAREV d2,0
-GOTOFALSE 1942
+GOTOFALSE 1941
 SETV d2,0
-GOTO 2065
-GOTO 1952
+GOTO 2064
+GOTO 1951
 LOADD d2,4
 PUSHR d2
 POP REFNPC
@@ -1956,29 +1955,29 @@ SETR d2,NPCHP
 COMPAREV d2,0
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 1952
+GOTOTRUE 1951
 SETV d2,0
-GOTO 2065
+GOTO 2064
 PUSHR d4
-PUSHV 0.1959
-LOADD d2,5
+PUSHV 0.1958; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 PEEK d4
-PUSHV 0.1963
-PUSHV 512
-GOTO 1637
+PUSHV 0.1962; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 1984
+GOTOTRUE 1983
 SETR d2,gd11
 PUSHR d2
 PUSHR d4
-PUSHV 0.1972
-PUSHR gd5
-GOTO 483
+PUSHV 0.1971; UsrFunc[int __NormalizeDir(int)] Return Addr
+PUSHR gd5; UsrFunc[int __NormalizeDir(int)] Params
+GOTO 482; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 POP d3
 ADDR d2,d3
@@ -1990,20 +1989,20 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR DATA,d2
-GOTO 2018
+GOTO 2017
 PUSHR d4
-PUSHV 0.1988
-PUSHV 256
-GOTO 1637
+PUSHV 0.1987; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 256; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 2009
+GOTOTRUE 2008
 SETR d2,gd11
 PUSHR d2
 PUSHR d4
-PUSHV 0.1997
-PUSHR gd5
-GOTO 483
+PUSHV 0.1996; UsrFunc[int __NormalizeDir(int)] Return Addr
+PUSHR gd5; UsrFunc[int __NormalizeDir(int)] Params
+GOTO 482; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 POP d3
 ADDR d2,d3
@@ -2015,7 +2014,7 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR DATA,d2
-GOTO 2018
+GOTO 2017
 SETR d2,gd11
 PUSHR d2
 LOADD d2,5
@@ -2026,14 +2025,14 @@ POP d2
 POP REFFFC
 SETR DATA,d2
 PUSHR d4
-PUSHV 0.2025
-LOADD d2,5
+PUSHV 0.2024; UsrFunc[void Ghost_CheckHit(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void Ghost_CheckHit(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2898
+GOTO 2897; UsrFunc[void Ghost_CheckHit(FFC, NPC)] Call
 POP d4
-GOTO 1876
+GOTO 1875
 LOADD d2,3
 PUSHR d2
 LOADD d2,5
@@ -2071,10 +2070,10 @@ POP d2
 POP REFFFC
 SETR YD2,d2
 SETV d2,1
-GOTO 2065
+GOTO 2064
 POPARGS d5,0.0006
-RETURN
-PUSHR d2
+RETURN; Func[bool Ghost_CheckFreeze(FFC, NPC)] Body End
+PUSHR d2; Func[void __Ghost_UpdateFlashing(FFC, NPC)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,0
@@ -2082,7 +2081,7 @@ SETR d2,gd21
 COMPAREV d2,1
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 2088
+GOTOTRUE 2087
 SETR d2,gd21
 PUSHR d2
 SUBV d2,1
@@ -2092,7 +2091,7 @@ SETR d2,gd21
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2088
+GOTOTRUE 2087
 SETV d2,1
 STORED d2,0
 SETR d2,gd18
@@ -2100,7 +2099,7 @@ ANDV d2,8
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2153
+GOTOTRUE 2152
 SETR d2,gd21
 COMPAREV d2,0
 SETLESS d2
@@ -2108,7 +2107,7 @@ COMPAREV d2,0
 SETTRUEI d2
 CASTBOOLI d2
 COMPAREV d2,0
-GOTOTRUE 2117
+GOTOTRUE 2116
 SETR d2,gd27
 PUSHR d2
 POP d0
@@ -2123,7 +2122,7 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR CSET,d2
-GOTO 2153
+GOTO 2152
 LOADD d2,1
 PUSHR d2
 POP REFNPC
@@ -2132,7 +2131,7 @@ ANDV d2,64
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 2141
+GOTOTRUE 2140
 SETR d2,gd27
 PUSHR d2
 POP d0
@@ -2147,10 +2146,10 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR CSET,d2
-GOTO 2153
+GOTO 2152
 LOADD d2,0
 COMPAREV d2,0
-GOTOTRUE 2153
+GOTOTRUE 2152
 SETR d2,gd12
 PUSHR d2
 LOADD d2,2
@@ -2161,23 +2160,23 @@ POP d2
 POP REFFFC
 SETR CSET,d2
 POPARGS d5,0.0003
-RETURN
-PUSHARGSR d2,0.0004
+RETURN; Func[void __Ghost_UpdateFlashing(FFC, NPC)] Body End
+PUSHARGSR d2,0.0004; Func[void __Ghost_DrawShadow(NPC)] Body Start
 SETR d4,SP
 SETR d2,gd4
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2163
-GOTO 2340
+GOTOTRUE 2162
+GOTO 2339
 PUSHR d4
-PUSHV 0.2167
-PUSHV 16384
-GOTO 1637
+PUSHV 0.2166; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 16384; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 CASTBOOLI d2
 COMPAREV d2,0.0001
-GOTOMORE 2179
+GOTOMORE 2178
 LOADD d2,4
 PUSHR d2
 POP REFNPC
@@ -2188,7 +2187,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 2190
+GOTOMORE 2189
 LOADD d2,4
 PUSHR d2
 POP REFNPC
@@ -2199,8 +2198,8 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOFALSE 2194
-GOTO 2340
+GOTOFALSE 2193
+GOTO 2339
 SETV d2,0
 STORED d2,3
 SETV d2,0
@@ -2215,7 +2214,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 2216
+GOTOMORE 2215
 SETR d2,gd14
 COMPAREV d2,3
 SETMORE d2
@@ -2226,7 +2225,7 @@ COMPAREV d2,0.0001
 SETMOREI d2
 CASTBOOLI d2
 COMPAREV d2,0
-GOTOTRUE 2267
+GOTOTRUE 2266
 SETR d2,gd2
 PUSHR d2
 SETR d2,gd13
@@ -2258,22 +2257,22 @@ STORED d2,2
 SETV d2,1
 STORED d2,0
 PUSHR d4
-PUSHV 0.2254
-PUSHV 65540
-GOTO 1637
+PUSHV 0.2253; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 65540; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 2260
+GOTOTRUE 2259
 SETV d2,27400
 STORED d2,1
-GOTO 2266
+GOTO 2265
 SETR d2,gd27
 PUSHR d2
 POP d0
 READPODARRAYV d2,2
 ADDV d2,27400
 STORED d2,1
-GOTO 2322
+GOTO 2321
 SETR d2,gd2
 PUSHR d2
 SETR d2,gd13
@@ -2305,15 +2304,15 @@ STORED d2,2
 SETV d2,2
 STORED d2,0
 PUSHR d4
-PUSHV 0.2301
-PUSHV 65540
-GOTO 1637
+PUSHV 0.2300; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 65540; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 2307
+GOTOTRUE 2306
 SETV d2,27392
 STORED d2,1
-GOTO 2322
+GOTO 2321
 SETR d2,gd27
 PUSHR d2
 POP d0
@@ -2329,7 +2328,7 @@ POP d3
 MULTR d2,d3
 ADDV d2,27392
 STORED d2,1
-PUSHV 1
+PUSHV 1; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params
 LOADD d2,3
 PUSHR d2
 LOADD d2,2
@@ -2345,11 +2344,11 @@ PUSHARGSV -1,0.0002
 PUSHARGSV 0,0.0004
 PUSHV 1
 PUSHV 64
-DRAWTILE
-POPARGS d5,0.0015
+DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS d5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS d5,0.0005
-RETURN
-PUSHARGSR d2,0.0004
+RETURN; Func[void __Ghost_DrawShadow(NPC)] Body End
+PUSHARGSR d2,0.0004; Func[void Ghost_WaitframeLight(FFC, NPC)] Body Start
 SETR d4,SP
 ALLOCATEMEMV d2,24
 STORED d2,2
@@ -2457,7 +2456,7 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2479
+GOTOTRUE 2478
 SETV d2,0
 STORED d2,0
 LOADD d2,0
@@ -2466,7 +2465,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2479
+GOTOTRUE 2478
 SETR d2,gd26
 PUSHR d2
 LOADD d2,0
@@ -2485,11 +2484,11 @@ PUSHR d2
 ADDV d2,1
 STORED d2,0
 POP d2
-GOTO 2453
-LOADD d2,4
-ISVALIDNPC d2
+GOTO 2452
+LOADD d2,4; InlineFunc[bool NPC->isValid()] Params
+ISVALIDNPC d2; InlineFunc[bool NPC->isValid()] Body
 COMPAREV d2,0
-GOTOTRUE 2496
+GOTOTRUE 2495
 LOADD d2,2
 ORV d2,65536
 PUSHR d2
@@ -2503,10 +2502,10 @@ POP d0
 POP d2
 POP REFNPC
 SETR NPCMISCD,d2
-LOADD d2,4
-ISVALIDNPC d2
+LOADD d2,4; InlineFunc[bool NPC->isValid()] Params
+ISVALIDNPC d2; InlineFunc[bool NPC->isValid()] Body
 COMPAREV d2,0
-GOTOTRUE 2564
+GOTOTRUE 2563
 SETR d2,gd26
 PUSHR d2
 POP d0
@@ -2516,18 +2515,18 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2537
+GOTOTRUE 2536
 ALLOCATEMEMV d2,34
 STORED d2,0
 PUSHR d4
-PUSHV 0.2521
-LOADD d2,5
+PUSHV 0.2520; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Return Addr
+LOADD d2,5; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-GOTO 5762
+GOTO 5752; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -2536,25 +2535,25 @@ SETR d0,d2
 POP d2
 WRITEPODARRAYVR 23,d2
 PUSHR d4
-PUSHV 0.2533
-LOADD d2,5
+PUSHV 0.2532; UsrFunc[void __HideFFCAndWait(FFC)] Return Addr
+LOADD d2,5; UsrFunc[void __HideFFCAndWait(FFC)] Params
 PUSHR d2
-GOTO 6052
+GOTO 6042; UsrFunc[void __HideFFCAndWait(FFC)] Call
 POP d4
 LOADD d3,0
 DEALLOCATEMEMR d3
-GOTO 2563
+GOTO 2562
 ALLOCATEMEMV d2,10
 STORED d2,0
 PUSHR d4
-PUSHV 0.2548
-LOADD d2,5
+PUSHV 0.2547; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Return Addr
+LOADD d2,5; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-GOTO 5762
+GOTO 5752; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -2563,19 +2562,19 @@ SETR d0,d2
 POP d2
 WRITEPODARRAYVR 23,d2
 PUSHR d4
-PUSHV 0.2560
-LOADD d2,5
+PUSHV 0.2559; UsrFunc[void __HideFFCAndWait(FFC)] Return Addr
+LOADD d2,5; UsrFunc[void __HideFFCAndWait(FFC)] Params
 PUSHR d2
-GOTO 6052
+GOTO 6042; UsrFunc[void __HideFFCAndWait(FFC)] Call
 POP d4
 LOADD d3,0
 DEALLOCATEMEMR d3
-GOTO 2570
+GOTO 2569
 PUSHR d4
-PUSHV 0.2569
-LOADD d2,5
+PUSHV 0.2568; UsrFunc[void __HideFFCAndWait(FFC)] Return Addr
+LOADD d2,5; UsrFunc[void __HideFFCAndWait(FFC)] Params
 PUSHR d2
-GOTO 6052
+GOTO 6042; UsrFunc[void __HideFFCAndWait(FFC)] Call
 POP d4
 LOADD d2,2
 PUSHR d2
@@ -2701,7 +2700,7 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2724
+GOTOTRUE 2723
 SETV d2,0
 STORED d2,0
 LOADD d2,0
@@ -2710,7 +2709,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2723
+GOTOTRUE 2722
 LOADD d2,1
 PUSHR d2
 LOADD d2,0
@@ -2729,8 +2728,8 @@ PUSHR d2
 ADDV d2,1
 STORED d2,0
 POP d2
-GOTO 2697
-GOTO 2730
+GOTO 2696
+GOTO 2729
 SETV d2,0
 PUSHR d2
 SETR d2,gd26
@@ -2745,12 +2744,12 @@ ANDV d2,2
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 2740
-GOTO 2496
-LOADD d2,4
-ISVALIDNPC d2
+GOTOTRUE 2739
+GOTO 2495
+LOADD d2,4; InlineFunc[bool NPC->isValid()] Params
+ISVALIDNPC d2; InlineFunc[bool NPC->isValid()] Body
 COMPAREV d2,0
-GOTOTRUE 2756
+GOTOTRUE 2755
 SETV d2,65536
 PUSHR d2
 LOADD d2,4
@@ -2768,23 +2767,23 @@ DEALLOCATEMEMR d3
 LOADD d3,2
 DEALLOCATEMEMR d3
 POPARGS d5,0.0006
-RETURN
-SETR d4,SP
-LOADD d2,0
-ISVALIDNPC d2
+RETURN; Func[void Ghost_WaitframeLight(FFC, NPC)] Body End
+SETR d4,SP; Func[void Ghost_SetPosition(FFC, NPC)] Body Start
+LOADD d2,0; InlineFunc[bool NPC->isValid()] Params
+ISVALIDNPC d2; InlineFunc[bool NPC->isValid()] Body
 COMPAREV d2,0
-GOTOFALSE 2768
-GOTO 2896
+GOTOFALSE 2767
+GOTO 2895
 PUSHR d4
-PUSHV 0.2772
-PUSHV 16384
-GOTO 1637
+PUSHV 0.2771; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 16384; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
 SETTRUEI d2
 CASTBOOLI d2
 COMPAREV d2,0
-GOTOTRUE 2806
+GOTOTRUE 2805
 SETR d2,gd2
 PUSHR d2
 LOADD d2,0
@@ -2812,7 +2811,7 @@ PUSHR d3
 POP d2
 POP REFNPC
 SETR NPCZ,d2
-GOTO 2838
+GOTO 2837
 SETR d2,gd2
 PUSHR d2
 LOADD d2,0
@@ -2846,8 +2845,8 @@ POP d2
 POP REFNPC
 SETR NPCZ,d2
 PUSHR d4
-PUSHV 0.2852
-SETR d2,gd2
+PUSHV 0.2851; UsrFunc[int Clamp(int, int, int)] Return Addr
+SETR d2,gd2; UsrFunc[int Clamp(int, int, int)] Params
 PUSHR d2
 LOADD d2,0
 PUSHR d2
@@ -2858,7 +2857,7 @@ ADDR d2,d3
 PUSHR d2
 PUSHV -64
 PUSHV 256
-GOTO 243
+GOTO 242; UsrFunc[int Clamp(int, int, int)] Call
 POP d4
 PUSHR d2
 LOADD d2,1
@@ -2869,8 +2868,8 @@ POP d2
 POP REFFFC
 SETR X,d2
 PUSHR d4
-PUSHV 0.2887
-SETR d2,gd3
+PUSHV 0.2886; UsrFunc[int Clamp(int, int, int)] Return Addr
+SETR d2,gd3; UsrFunc[int Clamp(int, int, int)] Params
 PUSHR d2
 SETR d2,gd4
 POP d3
@@ -2893,7 +2892,7 @@ SUBR d3,d2
 PUSHR d3
 PUSHV -64
 PUSHV 176
-GOTO 243
+GOTO 242; UsrFunc[int Clamp(int, int, int)] Call
 POP d4
 PUSHR d2
 LOADD d2,1
@@ -2904,8 +2903,8 @@ POP d2
 POP REFFFC
 SETR Y,d2
 POPARGS d5,0.0002
-RETURN
-PUSHARGSR d2,0.0005
+RETURN; Func[void Ghost_SetPosition(FFC, NPC)] Body End
+PUSHARGSR d2,0.0005; Func[void Ghost_CheckHit(FFC, NPC)] Body Start
 SETR d4,SP
 LOADD d2,5
 PUSHR d2
@@ -2919,7 +2918,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3118
+GOTOTRUE 3117
 SETR d2,gd18
 ORV d2,1
 SETR gd18,d2
@@ -2934,16 +2933,16 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2930
+GOTOTRUE 2929
 SETV d2,32
 SETR gd21,d2
 PUSHR d4
-PUSHV 0.2934
-PUSHV 1
-GOTO 1637
+PUSHV 0.2933; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 1; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3118
+GOTOTRUE 3117
 SETR d2,LINKX
 PUSHR d2
 SETR d2,gd2
@@ -2958,8 +2957,8 @@ POP d3
 SUBR d3,d2
 SETR d2,d3
 STORED d2,3
-LOADD d2,4
-ABS d2
+LOADD d2,4; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 PUSHR d2
 SETR d2,gd13
 ADDV d2,1
@@ -2970,9 +2969,9 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 2976
-LOADD d2,3
-ABS d2
+GOTOTRUE 2975
+LOADD d2,3; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 PUSHR d2
 SETR d2,gd14
 ADDV d2,1
@@ -2986,7 +2985,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3015
+GOTOTRUE 3014
 SETR d2,LINKDIR
 ANDV d2,2
 PUSHR d2
@@ -2996,7 +2995,7 @@ POP d3
 COMPARER d3,d2
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 2997
+GOTOMORE 2996
 SETR d2,gd5
 COMPAREV d2,3
 SETLESS d2
@@ -3006,39 +3005,39 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 3007
+GOTOMORE 3006
 PUSHR d4
-PUSHV 0.3004
-PUSHV 3
-GOTO 1637
+PUSHV 0.3003; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 3; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3014
+GOTOTRUE 3013
 SETR d2,LINKDIR
 LSHIFTV d2,12
 ORV d2,16
 SETR gd22,d2
-GOTO 3118
-LOADD d2,4
-ABS d2
+GOTO 3117
+LOADD d2,4; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 PUSHR d2
-LOADD d2,3
-ABS d2
+LOADD d2,3; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 POP d3
 COMPARER d3,d2
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3073
+GOTOTRUE 3072
 SETR d2,gd5
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 3037
+GOTOMORE 3036
 SETR d2,gd5
 COMPAREV d2,1
 SETTRUEI d2
@@ -3046,7 +3045,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 3047
+GOTOMORE 3046
 SETR d2,gd5
 COMPAREV d2,3
 SETLESS d2
@@ -3056,35 +3055,35 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 3057
+GOTOMORE 3056
 PUSHR d4
-PUSHV 0.3054
-PUSHV 3
-GOTO 1637
+PUSHV 0.3053; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 3; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3072
+GOTOTRUE 3071
 LOADD d2,3
 COMPAREV d2,0
 SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3070
+GOTOTRUE 3069
 SETV d2,16
 SETR gd22,d2
-GOTO 3072
+GOTO 3071
 SETV d2,4112
 SETR gd22,d2
-GOTO 3118
+GOTO 3117
 SETR d2,gd5
 COMPAREV d2,2
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 3083
+GOTOMORE 3082
 SETR d2,gd5
 COMPAREV d2,3
 SETTRUEI d2
@@ -3092,7 +3091,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 3093
+GOTOMORE 3092
 SETR d2,gd5
 COMPAREV d2,3
 SETLESS d2
@@ -3102,34 +3101,34 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 3103
+GOTOMORE 3102
 PUSHR d4
-PUSHV 0.3100
-PUSHV 3
-GOTO 1637
+PUSHV 0.3099; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 3; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3118
+GOTOTRUE 3117
 LOADD d2,4
 COMPAREV d2,0
 SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3116
+GOTOTRUE 3115
 SETV d2,8208
 SETR gd22,d2
-GOTO 3118
+GOTO 3117
 SETV d2,12304
 SETR gd22,d2
 SETR d2,gd22
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 3360
+GOTOTRUE 3359
 SETR d2,gd22
 RSHIFTV d2,12
 STORED d2,4
@@ -3139,26 +3138,26 @@ STORED d2,3
 SETV d2,4
 STORED d2,2
 PUSHR d4
-PUSHV 0.3135
-PUSHV 5
-GOTO 1637
+PUSHV 0.3134; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 5; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3141
+GOTOTRUE 3140
 LOADD d2,2
 DIVV d2,2
 STORED d2,2
 PUSHR d4
-PUSHV 0.3149
-LOADD d2,4
+PUSHV 0.3148; UsrFunc[bool Ghost_CanMove(int, int, int)] Return Addr
+LOADD d2,4; UsrFunc[bool Ghost_CanMove(int, int, int)] Params
 PUSHR d2
 LOADD d2,2
 PUSHR d2
 PUSHV 2
-GOTO 397
+GOTO 396; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3258
+GOTOTRUE 3257
 SETV d2,0
 STORED d2,1
 SETV d2,0
@@ -3174,7 +3173,7 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3176
+GOTOTRUE 3175
 LOADD d2,4
 LSHIFTV d2,12
 PUSHR d2
@@ -3182,42 +3181,42 @@ LOADD d2,3
 POP d3
 ORR d2,d3
 SETR gd22,d2
-GOTO 3178
+GOTO 3177
 SETV d2,0
 SETR gd22,d2
 LOADD d2,4
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3187
+GOTOTRUE 3186
 LOADD d2,2
 SUBV2 0,d2
 STORED d2,0
-GOTO 3206
+GOTO 3205
 LOADD d2,4
 COMPAREV d2,1
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3195
+GOTOTRUE 3194
 LOADD d2,2
 STORED d2,0
-GOTO 3206
+GOTO 3205
 LOADD d2,4
 COMPAREV d2,2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3204
+GOTOTRUE 3203
 LOADD d2,2
 SUBV2 0,d2
 STORED d2,1
-GOTO 3206
+GOTO 3205
 LOADD d2,2
 STORED d2,1
 LOADD d2,1
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 3232
+GOTOTRUE 3231
 SETR d2,gd2
 PUSHR d2
 LOADD d2,1
@@ -3231,19 +3230,19 @@ POP d3
 ADDR d2,d3
 SETR gd19,d2
 PUSHR d4
-PUSHV 0.3230
-LOADD d2,6
+PUSHV 0.3229; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,6; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,5
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 POP d4
-GOTO 3257
+GOTO 3256
 LOADD d2,0
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 3257
+GOTOTRUE 3256
 SETR d2,gd3
 PUSHR d2
 LOADD d2,0
@@ -3257,14 +3256,14 @@ POP d3
 ADDR d2,d3
 SETR gd20,d2
 PUSHR d4
-PUSHV 0.3256
-LOADD d2,6
+PUSHV 0.3255; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,6; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,5
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 POP d4
-GOTO 3360
+GOTO 3359
 SETV d2,-1
 STORED d2,1
 SETV d2,-1
@@ -3278,47 +3277,47 @@ LOADD d2,4
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3278
-SETR d2,gd3
+GOTOTRUE 3277
+SETR d2,gd3; InlineFunc[untyped Floor(untyped)] Params
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 MULTV d2,8
 STORED d2,0
-GOTO 3307
+GOTO 3306
 LOADD d2,4
 COMPAREV d2,1
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3290
-SETR d2,gd3
+GOTOTRUE 3289
+SETR d2,gd3; InlineFunc[untyped Ceiling(untyped)] Params
 LSHIFTV d2,0
 DIVV d2,8
-CEILING d2
+CEILING d2; InlineFunc[untyped Ceiling(untyped)] Body
 MULTV d2,8
 STORED d2,0
-GOTO 3307
+GOTO 3306
 LOADD d2,4
 COMPAREV d2,2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3301
-SETR d2,gd2
+GOTOTRUE 3300
+SETR d2,gd2; InlineFunc[untyped Floor(untyped)] Params
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 MULTV d2,8
 STORED d2,1
-GOTO 3307
-SETR d2,gd2
+GOTO 3306
+SETR d2,gd2; InlineFunc[untyped Ceiling(untyped)] Params
 LSHIFTV d2,0
 DIVV d2,8
-CEILING d2
+CEILING d2; InlineFunc[untyped Ceiling(untyped)] Body
 MULTV d2,8
 STORED d2,1
 LOADD d2,1
 COMPAREV d2,-1
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 3334
+GOTOTRUE 3333
 SETR d2,gd19
 PUSHR d2
 LOADD d2,1
@@ -3333,19 +3332,19 @@ SETR gd19,d2
 LOADD d2,1
 SETR gd2,d2
 PUSHR d4
-PUSHV 0.3332
-LOADD d2,6
+PUSHV 0.3331; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,6; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,5
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 POP d4
-GOTO 3360
+GOTO 3359
 LOADD d2,0
 COMPAREV d2,-1
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 3360
+GOTOTRUE 3359
 SETR d2,gd20
 PUSHR d2
 LOADD d2,0
@@ -3360,30 +3359,30 @@ SETR gd20,d2
 LOADD d2,0
 SETR gd3,d2
 PUSHR d4
-PUSHV 0.3359
-LOADD d2,6
+PUSHV 0.3358; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,6; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,5
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 POP d4
 POPARGS d5,0.0007
-RETURN
-SETR d4,SP
+RETURN; Func[void Ghost_CheckHit(FFC, NPC)] Body End
+SETR d4,SP; Func[void Ghost_ClearCombos()] Body Start
 SETV d2,0
 PUSHR d2
 SETR d2,gd26
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 0,d2
-RETURN
-SETR d4,SP
+RETURN; Func[void Ghost_ClearCombos()] Body End
+SETR d4,SP; Func[void Ghost_SetFlag(int)] Body Start
 LOADD d2,0
 ANDV d2,65536
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 3388
+GOTOTRUE 3387
 SETR d2,gd17
 PUSHR d2
 LOADD d2,0
@@ -3394,7 +3393,7 @@ SETR d2,d3
 POP d3
 ORR d2,d3
 SETR gd17,d2
-GOTO 3394
+GOTO 3393
 SETR d2,gd16
 PUSHR d2
 LOADD d2,0
@@ -3402,14 +3401,14 @@ POP d3
 ORR d2,d3
 SETR gd16,d2
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[void Ghost_SetFlag(int)] Body End
+SETR d4,SP; Func[void Ghost_UnsetFlag(int)] Body Start
 LOADD d2,0
 ANDV d2,65536
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 3414
+GOTOTRUE 3413
 SETR d2,gd17
 PUSHR d2
 LOADD d2,0
@@ -3420,7 +3419,7 @@ SETR d2,d3
 POP d3
 ANDR d2,d3
 SETR gd17,d2
-GOTO 3421
+GOTO 3420
 SETR d2,gd16
 PUSHR d2
 LOADD d2,0
@@ -3429,8 +3428,8 @@ POP d3
 ANDR d2,d3
 SETR gd16,d2
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0004
+RETURN; Func[void Ghost_UnsetFlag(int)] Body End
+PUSHARGSR d2,0.0004; Func[void Ghost_MoveXY(int, int, int)] Body Start
 SETR d4,SP
 LOADD d2,5
 COMPAREV d2,0
@@ -3438,20 +3437,20 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3437
+GOTOTRUE 3436
 PUSHR d4
-PUSHV 0.3435
-GOTO 4732
+PUSHV 0.3434; UsrFunc[bool IsSideview()] Return Addr
+GOTO 4728; UsrFunc[bool IsSideview()] Call
 POP d4
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3449
+GOTOTRUE 3448
 PUSHR d4
-PUSHV 0.3445
-PUSHV 32
-GOTO 1637
+PUSHV 0.3444; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 32; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
 SETTRUEI d2
@@ -3459,19 +3458,19 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3455
+GOTOTRUE 3454
 SETV d2,0
 STORED d2,5
-LOADD d2,6
-ABS d2
+LOADD d2,6; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 COMPAREV d2,8
 SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 3471
-LOADD d2,5
-ABS d2
+GOTOMORE 3470
+LOADD d2,5; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 COMPAREV d2,8
 SETLESS d2
 COMPAREV d2,0
@@ -3480,79 +3479,79 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3546
-LOADD d2,6
-ABS d2
+GOTOTRUE 3545
+LOADD d2,6; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 PUSHR d2
-LOADD d2,5
-ABS d2
+LOADD d2,5; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 POP d3
 COMPARER d3,d2
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3515
+GOTOTRUE 3514
 LOADD d2,6
 COMPAREV d2,0
 SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3503
+GOTOTRUE 3502
 PUSHR d4
-PUSHV 0.3498
-PUSHV 8
+PUSHV 0.3497; UsrFunc[void Ghost_MoveXY(int, int, int)] Return Addr
+PUSHV 8; UsrFunc[void Ghost_MoveXY(int, int, int)] Params
 PUSHV 0
 LOADD d2,4
 PUSHR d2
-GOTO 3423
+GOTO 3422; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP d4
 LOADD d2,6
 SUBV d2,8
 STORED d2,6
-GOTO 3514
+GOTO 3513
 PUSHR d4
-PUSHV 0.3510
-PUSHV -8
+PUSHV 0.3509; UsrFunc[void Ghost_MoveXY(int, int, int)] Return Addr
+PUSHV -8; UsrFunc[void Ghost_MoveXY(int, int, int)] Params
 PUSHV 0
 LOADD d2,4
 PUSHR d2
-GOTO 3423
+GOTO 3422; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP d4
 LOADD d2,6
 ADDV d2,8
 STORED d2,6
-GOTO 3545
+GOTO 3544
 LOADD d2,5
 COMPAREV d2,0
 SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3534
+GOTOTRUE 3533
 PUSHR d4
-PUSHV 0.3529
-PUSHV 0
+PUSHV 0.3528; UsrFunc[void Ghost_MoveXY(int, int, int)] Return Addr
+PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params
 PUSHV 8
 LOADD d2,4
 PUSHR d2
-GOTO 3423
+GOTO 3422; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP d4
 LOADD d2,5
 SUBV d2,8
 STORED d2,5
-GOTO 3545
+GOTO 3544
 PUSHR d4
-PUSHV 0.3541
-PUSHV 0
+PUSHV 0.3540; UsrFunc[void Ghost_MoveXY(int, int, int)] Return Addr
+PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params
 PUSHV -8
 LOADD d2,4
 PUSHR d2
-GOTO 3423
+GOTO 3422; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP d4
 LOADD d2,5
 ADDV d2,8
 STORED d2,5
-GOTO 3455
+GOTO 3454
 SETV d2,0
 STORED d2,3
 SETV d2,0
@@ -3567,7 +3566,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3628
+GOTOTRUE 3627
 SETR d2,gd23
 RSHIFTV d2,8
 STORED d2,2
@@ -3577,17 +3576,17 @@ LOADD d2,2
 POP d3
 ADDR d2,d3
 STORED d2,3
-LOADD d2,3
+LOADD d2,3; InlineFunc[untyped Floor(untyped)] Params
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,1
-LOADD d2,3
+LOADD d2,3; InlineFunc[untyped Floor(untyped)] Params
 PUSHR d2
 LOADD d2,6
 POP d3
 ADDR d2,d3
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,0
 LOADD d2,1
 PUSHR d2
@@ -3596,33 +3595,33 @@ POP d3
 COMPARER d3,d2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3597
+GOTOTRUE 3596
 LOADD d2,3
 PUSHR d2
 LOADD d2,6
 POP d3
 ADDR d2,d3
 STORED d2,3
-GOTO 3620
+GOTO 3619
 PUSHR d4
-PUSHV 0.3606
-PUSHV 2
+PUSHV 0.3605; UsrFunc[bool Ghost_CanMove(int, int, int)] Return Addr
+PUSHV 2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params
 LOADD d2,6
 SUBV2 0,d2
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 397
+GOTO 396; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3616
+GOTOTRUE 3615
 LOADD d2,3
 PUSHR d2
 LOADD d2,6
 POP d3
 ADDR d2,d3
 STORED d2,3
-GOTO 3620
+GOTO 3619
 LOADD d2,3
 RSHIFTV d2,3
 LSHIFTV d2,3
@@ -3634,14 +3633,14 @@ POP d3
 SUBR d3,d2
 SETR d2,d3
 SETR gd2,d2
-GOTO 3714
+GOTO 3713
 LOADD d2,6
 COMPAREV d2,0
 SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3714
+GOTOTRUE 3713
 SETR d2,gd13
 MULTV d2,16
 SETV d2,16
@@ -3663,17 +3662,17 @@ LOADD d2,2
 POP d3
 ADDR d2,d3
 STORED d2,3
-LOADD d2,3
+LOADD d2,3; InlineFunc[untyped Floor(untyped)] Params
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,1
-LOADD d2,3
+LOADD d2,3; InlineFunc[untyped Floor(untyped)] Params
 PUSHR d2
 LOADD d2,6
 POP d3
 ADDR d2,d3
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,0
 LOADD d2,1
 PUSHR d2
@@ -3682,32 +3681,32 @@ POP d3
 COMPARER d3,d2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3683
+GOTOTRUE 3682
 LOADD d2,3
 PUSHR d2
 LOADD d2,6
 POP d3
 ADDR d2,d3
 STORED d2,3
-GOTO 3707
+GOTO 3706
 PUSHR d4
-PUSHV 0.3691
-PUSHV 3
+PUSHV 0.3690; UsrFunc[bool Ghost_CanMove(int, int, int)] Return Addr
+PUSHV 3; UsrFunc[bool Ghost_CanMove(int, int, int)] Params
 LOADD d2,6
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 397
+GOTO 396; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3701
+GOTOTRUE 3700
 LOADD d2,3
 PUSHR d2
 LOADD d2,6
 POP d3
 ADDR d2,d3
 STORED d2,3
-GOTO 3707
+GOTO 3706
 LOADD d2,3
 ADDV d2,7
 RSHIFTV d2,3
@@ -3727,7 +3726,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3788
+GOTOTRUE 3787
 SETR d2,gd24
 RSHIFTV d2,8
 STORED d2,2
@@ -3737,17 +3736,17 @@ LOADD d2,2
 POP d3
 ADDR d2,d3
 STORED d2,3
-LOADD d2,3
+LOADD d2,3; InlineFunc[untyped Floor(untyped)] Params
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,1
-LOADD d2,3
+LOADD d2,3; InlineFunc[untyped Floor(untyped)] Params
 PUSHR d2
 LOADD d2,5
 POP d3
 ADDR d2,d3
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,0
 LOADD d2,1
 PUSHR d2
@@ -3756,33 +3755,33 @@ POP d3
 COMPARER d3,d2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3757
+GOTOTRUE 3756
 LOADD d2,3
 PUSHR d2
 LOADD d2,5
 POP d3
 ADDR d2,d3
 STORED d2,3
-GOTO 3780
+GOTO 3779
 PUSHR d4
-PUSHV 0.3766
-PUSHV 0
+PUSHV 0.3765; UsrFunc[bool Ghost_CanMove(int, int, int)] Return Addr
+PUSHV 0; UsrFunc[bool Ghost_CanMove(int, int, int)] Params
 LOADD d2,5
 SUBV2 0,d2
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 397
+GOTO 396; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3776
+GOTOTRUE 3775
 LOADD d2,3
 PUSHR d2
 LOADD d2,5
 POP d3
 ADDR d2,d3
 STORED d2,3
-GOTO 3780
+GOTO 3779
 LOADD d2,3
 RSHIFTV d2,3
 LSHIFTV d2,3
@@ -3794,14 +3793,14 @@ POP d3
 SUBR d3,d2
 SETR d2,d3
 SETR gd3,d2
-GOTO 3874
+GOTO 3873
 LOADD d2,5
 COMPAREV d2,0
 SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3874
+GOTOTRUE 3873
 SETR d2,gd14
 MULTV d2,16
 SETV d2,16
@@ -3823,17 +3822,17 @@ LOADD d2,2
 POP d3
 ADDR d2,d3
 STORED d2,3
-LOADD d2,3
+LOADD d2,3; InlineFunc[untyped Floor(untyped)] Params
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,1
-LOADD d2,3
+LOADD d2,3; InlineFunc[untyped Floor(untyped)] Params
 PUSHR d2
 LOADD d2,5
 POP d3
 ADDR d2,d3
 DIVV d2,8
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,0
 LOADD d2,1
 PUSHR d2
@@ -3842,32 +3841,32 @@ POP d3
 COMPARER d3,d2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3843
+GOTOTRUE 3842
 LOADD d2,3
 PUSHR d2
 LOADD d2,5
 POP d3
 ADDR d2,d3
 STORED d2,3
-GOTO 3867
+GOTO 3866
 PUSHR d4
-PUSHV 0.3851
-PUSHV 1
+PUSHV 0.3850; UsrFunc[bool Ghost_CanMove(int, int, int)] Return Addr
+PUSHV 1; UsrFunc[bool Ghost_CanMove(int, int, int)] Params
 LOADD d2,5
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 397
+GOTO 396; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3861
+GOTOTRUE 3860
 LOADD d2,3
 PUSHR d2
 LOADD d2,5
 POP d3
 ADDR d2,d3
 STORED d2,3
-GOTO 3867
+GOTO 3866
 LOADD d2,3
 ADDV d2,7
 RSHIFTV d2,3
@@ -3882,12 +3881,12 @@ SUBR d3,d2
 SETR d2,d3
 SETR gd3,d2
 PUSHR d4
-PUSHV 0.3878
-PUSHV 64
-GOTO 1637
+PUSHV 0.3877; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 64; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3886
+GOTOTRUE 3885
 SETR d2,gd18
 ANDV d2,4
 COMPAREV d2,0
@@ -3896,68 +3895,68 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 3957
+GOTOTRUE 3956
 PUSHR d4
-PUSHV 0.3894
-PUSHV 512
-GOTO 1637
+PUSHV 0.3893; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 3916
+GOTOTRUE 3915
 PUSHR d4
-PUSHV 0.3913
-PUSHR d4
-PUSHV 0.3909
-LOADD d2,6
+PUSHV 0.3912; UsrFunc[int AngleDir8(int)] Return Addr
+PUSHR d4; UsrFunc[int AngleDir8(int)] Params
+PUSHV 0.3908; UsrFunc[int WrapAngle(int)] Return Addr
+LOADD d2,6; InlineFunc[int ArcTan(int, int)] Params AND UsrFunc[int WrapAngle(int)] Params
 PUSHR d2
 LOADD d2,5
 SETR d1,d2
-POP d0
-ARCTANR d2
+POP d0; InlineFunc[int ArcTan(int, int)] Body Start
+ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 PUSHR d2
-GOTO 4752
+GOTO 4748; UsrFunc[int WrapAngle(int)] Call
 POP d4
 MULTV d2,57.2958
 PUSHR d2
-GOTO 119
+GOTO 118; UsrFunc[int AngleDir8(int)] Call
 POP d4
 SETR gd5,d2
-GOTO 3953
-LOADD d2,6
-ABS d2
+GOTO 3952
+LOADD d2,6; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 PUSHR d2
-LOADD d2,5
-ABS d2
+LOADD d2,5; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 POP d3
 COMPARER d3,d2
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3941
+GOTOTRUE 3940
 LOADD d2,5
 COMPAREV d2,0
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3938
+GOTOTRUE 3937
 SETV d2,0
 SETR gd5,d2
-GOTO 3940
+GOTO 3939
 SETV d2,1
 SETR gd5,d2
-GOTO 3953
+GOTO 3952
 LOADD d2,6
 COMPAREV d2,0
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 3951
+GOTOTRUE 3950
 SETV d2,2
 SETR gd5,d2
-GOTO 3953
+GOTO 3952
 SETV d2,3
 SETR gd5,d2
 SETR d2,gd2
@@ -3965,8 +3964,8 @@ SETR gd19,d2
 SETR d2,gd3
 SETR gd20,d2
 POPARGS d5,0.0007
-RETURN
-PUSHR d2
+RETURN; Func[void Ghost_MoveXY(int, int, int)] Body End
+PUSHR d2; Func[void __GhCleanUp(FFC)] Body Start
 SETR d4,SP
 SETV d2,0
 PUSHR d2
@@ -4084,7 +4083,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4096
+GOTOTRUE 4095
 SETV d2,0
 PUSHR d2
 LOADD d2,1
@@ -4102,18 +4101,18 @@ PUSHR d2
 ADDV d2,1
 STORED d2,0
 POP d2
-GOTO 4071
+GOTO 4070
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[void __GhCleanUp(FFC)] Body End
+SETR d4,SP; Func[void Ghost_ForceDir(int)] Body Start
 LOADD d2,0
 SETR gd5,d2
 SETR d2,gd18
 ORV d2,4
 SETR gd18,d2
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[void Ghost_ForceDir(int)] Body End
+PUSHARGSR d2,0.0002; Func[void Ghost_Move(int, int, int)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,1
@@ -4123,41 +4122,41 @@ LOADD d2,4
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4121
+GOTOTRUE 4120
 LOADD d2,3
 SUBV2 0,d2
 STORED d2,0
-GOTO 4199
+GOTO 4198
 LOADD d2,4
 COMPAREV d2,1
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4129
+GOTOTRUE 4128
 LOADD d2,3
 STORED d2,0
-GOTO 4199
+GOTO 4198
 LOADD d2,4
 COMPAREV d2,2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4138
+GOTOTRUE 4137
 LOADD d2,3
 SUBV2 0,d2
 STORED d2,1
-GOTO 4199
+GOTO 4198
 LOADD d2,4
 COMPAREV d2,3
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4146
+GOTOTRUE 4145
 LOADD d2,3
 STORED d2,1
-GOTO 4199
+GOTO 4198
 LOADD d2,4
 COMPAREV d2,4
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4160
+GOTOTRUE 4159
 LOADD d2,3
 SUBV2 0,d2
 MULTV d2,0.7071
@@ -4166,12 +4165,12 @@ LOADD d2,3
 SUBV2 0,d2
 MULTV d2,0.7071
 STORED d2,0
-GOTO 4199
+GOTO 4198
 LOADD d2,4
 COMPAREV d2,5
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4173
+GOTOTRUE 4172
 LOADD d2,3
 MULTV d2,0.7071
 STORED d2,1
@@ -4179,12 +4178,12 @@ LOADD d2,3
 SUBV2 0,d2
 MULTV d2,0.7071
 STORED d2,0
-GOTO 4199
+GOTO 4198
 LOADD d2,4
 COMPAREV d2,6
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4186
+GOTOTRUE 4185
 LOADD d2,3
 SUBV2 0,d2
 MULTV d2,0.7071
@@ -4192,38 +4191,38 @@ STORED d2,1
 LOADD d2,3
 MULTV d2,0.7071
 STORED d2,0
-GOTO 4199
+GOTO 4198
 LOADD d2,4
 COMPAREV d2,7
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4198
+GOTOTRUE 4197
 LOADD d2,3
 MULTV d2,0.7071
 STORED d2,1
 LOADD d2,3
 MULTV d2,0.7071
 STORED d2,0
-GOTO 4199
-GOTO 4209
+GOTO 4198
+GOTO 4208
 PUSHR d4
-PUSHV 0.4208
-LOADD d2,1
+PUSHV 0.4207; UsrFunc[void Ghost_MoveXY(int, int, int)] Return Addr
+LOADD d2,1; UsrFunc[void Ghost_MoveXY(int, int, int)] Params
 PUSHR d2
 LOADD d2,0
 PUSHR d2
 LOADD d2,2
 PUSHR d2
-GOTO 3423
+GOTO 3422; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP d4
 POPARGS d5,0.0005
-RETURN
-SETR d4,SP
+RETURN; Func[void Ghost_Move(int, int, int)] Body End
+SETR d4,SP; Func[void __Ghost_InitInternal(FFC, NPC, bool, int, int)] Body Start
 LOADD d2,1
 COMPAREV d2,-1
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 4222
+GOTOMORE 4221
 LOADD d2,1
 COMPAREV d2,-2
 SETTRUEI d2
@@ -4231,7 +4230,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 4227
+GOTOTRUE 4226
 SETV d2,1
 STORED d2,1
 LOADD d2,1
@@ -4258,7 +4257,7 @@ LOADD d2,0
 SETR gd12,d2
 LOADD d2,2
 COMPAREV d2,0
-GOTOTRUE 4273
+GOTOTRUE 4272
 LOADD d2,3
 PUSHR d2
 POP REFNPC
@@ -4279,7 +4278,7 @@ PUSHR d2
 POP REFNPC
 SETR d2,NPCJUMP
 SETR gd6,d2
-GOTO 4305
+GOTO 4304
 LOADD d2,4
 PUSHR d2
 POP REFFFC
@@ -4313,12 +4312,12 @@ POP d2
 POP REFNPC
 SETR NPCJUMP,d2
 PUSHR d4
-PUSHV 0.4312
-LOADD d2,4
+PUSHV 0.4311; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,4; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,3
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 POP d4
 LOADD d2,3
 PUSHR d2
@@ -4355,7 +4354,7 @@ LOADD d2,1
 COMPAREV d2,1
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 4424
+GOTOTRUE 4423
 SETV d2,3
 PUSHR d2
 LOADD d2,3
@@ -4448,7 +4447,7 @@ ANDV d2,32
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 4455
+GOTOTRUE 4454
 SETV d2,1
 PUSHR d2
 LOADD d2,4
@@ -4461,7 +4460,7 @@ POP d0
 POP d2
 POP REFFFC
 SETR FFFLAGSD,d2
-GOTO 4467
+GOTO 4466
 SETV d2,0
 PUSHR d2
 LOADD d2,4
@@ -4508,14 +4507,14 @@ POP d2
 POP REFNPC
 SETR NPCMISCD,d2
 POPARGS d5,0.0005
-RETURN
-PUSHARGSR d2,0.0009
+RETURN; Func[void __Ghost_InitInternal(FFC, NPC, bool, int, int)] Body End
+PUSHARGSR d2,0.0009; Func[NPC Ghost_InitAutoGhost(FFC, int)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,8
 SETV d2,0
 STORED d2,7
-SETR d2,NPCCOUNT
+SETR d2,NPCCOUNT; InlineFunc[int Screen->NumNPCs()] Body
 STORED d2,6
 LOADD d2,6
 COMPAREV d2,0
@@ -4523,11 +4522,11 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4655
-LOADD d2,6
-SUBV d2,1
+GOTOTRUE 4651
+LOADD d2,6; InlineFunc[NPC Screen->LoadNPC(int)] Params
+SUBV d2,1; InlineFunc[NPC Screen->LoadNPC(int)] Body Start
 LOADNPCR d2
-SETR d2,REFNPC
+SETR d2,REFNPC; InlineFunc[NPC Screen->LoadNPC(int)] Body End
 STORED d2,8
 LOADD d2,8
 PUSHR d2
@@ -4539,11 +4538,11 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 4537
+GOTOTRUE 4536
 SETV d2,0
 STORED d2,7
-GOTO 4651
-GOTO 4539
+GOTO 4647
+GOTO 4538
 SETV d2,1
 STORED d2,7
 LOADD d2,8
@@ -4557,16 +4556,16 @@ ANDV d2,65536
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 4554
+GOTOTRUE 4553
 SETV d2,0
 STORED d2,7
-GOTO 4651
+GOTO 4647
 LOADD d2,7
 COMPAREV d2,0
-GOTOTRUE 4603
+GOTOTRUE 4602
 PUSHR d4
-PUSHV 0.4578
-LOADD d2,10
+PUSHV 0.4577; UsrFunc[void __Ghost_InitInternal(FFC, NPC, bool, int, int)] Return Addr
+LOADD d2,10; UsrFunc[void __Ghost_InitInternal(FFC, NPC, bool, int, int)] Params
 PUSHR d2
 LOADD d2,8
 PUSHR d2
@@ -4584,7 +4583,7 @@ LOADD d2,8
 PUSHR d2
 POP REFNPC
 PUSHR NPCCSET
-GOTO 4211
+GOTO 4210; UsrFunc[void __Ghost_InitInternal(FFC, NPC, bool, int, int)] Call
 POP d4
 LOADD d2,8
 PUSHR d2
@@ -4594,7 +4593,7 @@ ANDV d2,256
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 4600
+GOTOTRUE 4599
 SETV d2,1
 PUSHR d2
 LOADD d2,10
@@ -4608,8 +4607,8 @@ POP d2
 POP REFFFC
 SETR FFFLAGSD,d2
 LOADD d2,8
-GOTO 4655
 GOTO 4651
+GOTO 4647
 ALLOCATEMEMV d2,60
 STORED d2,4
 WRITEPODSTRING d2,"ghost.zh: AutoGhost initialization failed - enemy missing.\n"
@@ -4619,17 +4618,17 @@ WRITEPODSTRING d2,"  DMap %d, screen %X\n"
 ALLOCATEMEMV d2,30
 STORED d2,0
 WRITEPODSTRING d2,"  Script %d, enemy ID %d\n"
-LOADD d2,4
+LOADD d2,4; InlineFunc[void printf(char32)] Params
 PUSHR d2
-PRINTFVARG
-POP d5
-LOADD d2,2
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOADD d2,2; InlineFunc[void printf(char32)] Params
 PUSHR d2
 PUSHVARGR CURDMAP
 PUSHVARGR CURDSCR
-PRINTFVARG
-POP d5
-LOADD d2,0
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOADD d2,0; InlineFunc[void printf(char32)] Params
 PUSHR d2
 LOADD d2,10
 PUSHR d2
@@ -4637,8 +4636,8 @@ POP REFFFC
 PUSHVARGR FFSCRIPT
 LOADD d2,9
 PUSHVARGR d2
-PRINTFVARG
-POP d5
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
 SETV d2,0
 PUSHR d2
 LOADD d2,10
@@ -4648,10 +4647,7 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR DATA,d2
-PUSHR d4
-PUSHV 0.4644
-GOTO 98
-POP d4
+QUIT; InlineFunc[void Quit()] Body
 LOADD d3,0
 DEALLOCATEMEMR d3
 LOADD d3,2
@@ -4661,36 +4657,36 @@ DEALLOCATEMEMR d3
 LOADD d2,6
 SUBV d2,1
 STORED d2,6
-GOTO 4510
+GOTO 4509
 POPARGS d5,0.0011
-RETURN
-SETR d4,SP
-LOADD d2,0
+RETURN; Func[NPC Ghost_InitAutoGhost(FFC, int)] Body End
+SETR d4,SP; Func[int VectorX(int, int)] Body Start
+LOADD d2,0; InlineFunc[int Cos(int)] Params
 SETR d3,d2
-COSR d2,d3
+COSR d2,d3; InlineFunc[int Cos(int)] Body
 PUSHR d2
 LOADD d2,1
 POP d3
 MULTR d2,d3
-GOTO 4666
+GOTO 4662
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
-LOADD d2,0
+RETURN; Func[int VectorX(int, int)] Body End
+SETR d4,SP; Func[int VectorY(int, int)] Body Start
+LOADD d2,0; InlineFunc[int Sin(int)] Params
 SETR d3,d2
-SINR d2,d3
+SINR d2,d3; InlineFunc[int Sin(int)] Body
 PUSHR d2
 LOADD d2,1
 POP d3
 MULTR d2,d3
-GOTO 4677
+GOTO 4673
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[int VectorY(int, int)] Body End
+PUSHR d2; Func[void Ghost_MoveTowardLink(int, int)] Body Start
 SETR d4,SP
 PUSHR d4
-PUSHV 0.4704
-SETR d2,gd2
+PUSHV 0.4700; UsrFunc[int Angle(int, int, int, int)] Return Addr
+SETR d2,gd2; UsrFunc[int Angle(int, int, int, int)] Params
 PUSHR d2
 SETR d2,gd13
 MULTV d2,8
@@ -4710,45 +4706,45 @@ PUSHR d2
 SETR d2,LINKY
 ADDV d2,8
 PUSHR d2
-GOTO 99
+GOTO 98; UsrFunc[int Angle(int, int, int, int)] Call
 POP d4
 STORED d2,0
 PUSHR d4
-PUSHV 0.4729
-PUSHR d4
-PUSHV 0.4715
-LOADD d2,2
+PUSHV 0.4725; UsrFunc[void Ghost_MoveXY(int, int, int)] Return Addr
+PUSHR d4; UsrFunc[void Ghost_MoveXY(int, int, int)] Params
+PUSHV 0.4711; UsrFunc[int VectorX(int, int)] Return Addr
+LOADD d2,2; UsrFunc[int VectorX(int, int)] Params
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-GOTO 4657
+GOTO 4653; UsrFunc[int VectorX(int, int)] Call
 POP d4
 PUSHR d2
 PUSHR d4
-PUSHV 0.4724
-LOADD d2,2
+PUSHV 0.4720; UsrFunc[int VectorY(int, int)] Return Addr
+LOADD d2,2; UsrFunc[int VectorY(int, int)] Params
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-GOTO 4668
+GOTO 4664; UsrFunc[int VectorY(int, int)] Call
 POP d4
 PUSHR d2
 LOADD d2,1
 PUSHR d2
-GOTO 3423
+GOTO 3422; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP d4
 POPARGS d5,0.0003
-RETURN
-SETR d4,SP
+RETURN; Func[void Ghost_MoveTowardLink(int, int)] Body End
+SETR d4,SP; Func[bool IsSideview()] Body Start
 SETV d2,0
 PUSHR d2
 POP d0
 SETR d2,SCREENFLAGSD
 ANDV d2,4
 PUSHR d2
-SETR d2,CURDMAP
-LOADDMAPDATAR d2
-SETR d2,REFDMAPDATA
+SETR d2,CURDMAP; InlineFunc[DMapData Game->LoadDMapData(int)] Params
+LOADDMAPDATAR d2; InlineFunc[DMapData Game->LoadDMapData(int)] Body Start
+SETR d2,REFDMAPDATA; InlineFunc[DMapData Game->LoadDMapData(int)] Body End
 PUSHR d2
 POP REFDMAPDATA
 SETR d2,DMAPDATASIDEVIEW
@@ -4757,22 +4753,22 @@ CASTBOOLF d2
 CASTBOOLF d3
 COMPARER d3,d2
 SETFALSEI d2
-GOTO 4751
-RETURN
-SETR d4,SP
+GOTO 4747
+RETURN; Func[bool IsSideview()] Body End
+SETR d4,SP; Func[int WrapAngle(int)] Body Start
 LOADD d2,0
 COMPAREV d2,0
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4766
+GOTOTRUE 4762
 LOADD d2,0
 SUBV2 0,d2
 MODV d2,6.2832
 SUBV2 6.2832,d2
 STORED d2,0
-GOTO 4769
+GOTO 4765
 LOADD d2,0
 MODV d2,6.2832
 STORED d2,0
@@ -4782,15 +4778,15 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4779
+GOTOTRUE 4775
 LOADD d2,0
 SUBV d2,6.2832
-GOTO 4781
+GOTO 4777
 LOADD d2,0
-GOTO 4781
+GOTO 4777
 POPARGS d5,0.0001
-RETURN
-PUSHR d2
+RETURN; Func[int WrapAngle(int)] Body End
+PUSHR d2; Func[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Body Start
 SETR d4,SP
 SETV d2,0
 PUSHR d2
@@ -4802,44 +4798,44 @@ POP d2
 POP REFNPC
 SETR NPCJUMP,d2
 PUSHR d4
-PUSHV 0.4798
-PUSHV 32
-GOTO 1637
+PUSHV 0.4794; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 32; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOFALSE 4962
+GOTOFALSE 4958
 PUSHR d4
-PUSHV 0.4804
-GOTO 4732
+PUSHV 0.4800; UsrFunc[bool IsSideview()] Return Addr
+GOTO 4728; UsrFunc[bool IsSideview()] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 4921
+GOTOTRUE 4917
 SETR d2,gd6
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0.0001
-GOTOMORE 4820
+GOTOMORE 4816
 PUSHR d4
-PUSHV 0.4817
-PUSHARGSV 1,0.0002
+PUSHV 0.4813; UsrFunc[bool Ghost_CanMove(int, int, int)] Return Addr
+PUSHARGSV 1,0.0002; UsrFunc[bool Ghost_CanMove(int, int, int)] Params
 PUSHV 2
-GOTO 397
+GOTO 396; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 4920
+GOTOTRUE 4916
 PUSHR d4
-PUSHV 0.4827
-PUSHV 64
-GOTO 1637
+PUSHV 0.4823; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 64; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 STORED d2,0
 PUSHR d4
-PUSHV 0.4833
-PUSHV 64
-GOTO 3396
+PUSHV 0.4829; UsrFunc[void Ghost_UnsetFlag(int)] Return Addr
+PUSHV 64; UsrFunc[void Ghost_UnsetFlag(int)] Params
+GOTO 3395; UsrFunc[void Ghost_UnsetFlag(int)] Call
 POP d4
 SETR d2,gd6
 COMPAREV d2,0
@@ -4847,23 +4843,23 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4887
+GOTOTRUE 4883
 PUSHR d4
-PUSHV 0.4845
-PUSHV 32
-GOTO 3370
+PUSHV 0.4841; UsrFunc[void Ghost_SetFlag(int)] Return Addr
+PUSHV 32; UsrFunc[void Ghost_SetFlag(int)] Params
+GOTO 3369; UsrFunc[void Ghost_SetFlag(int)] Call
 PEEK d4
-PUSHV 0.4851
-PUSHV 0
+PUSHV 0.4847; UsrFunc[void Ghost_Move(int, int, int)] Return Addr
+PUSHV 0; UsrFunc[void Ghost_Move(int, int, int)] Params
 PUSHR gd6
 PUSHV 2
-GOTO 4106
+GOTO 4105; UsrFunc[void Ghost_Move(int, int, int)] Call
 POP d4
-SETR d2,gd6
+SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params
 SUBV d2,0.1600
 PUSHVARGR d2
 PUSHVARGV -3.2000
-MAXVARG
+MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
 SETR gd6,d2
 SETR d2,gd6
 COMPAREV d2,0
@@ -4871,13 +4867,13 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 4875
+GOTOTRUE 4871
 PUSHR d4
-PUSHV 0.4871
-PUSHV 0
+PUSHV 0.4867; UsrFunc[bool Ghost_CanMove(int, int, int)] Return Addr
+PUSHV 0; UsrFunc[bool Ghost_CanMove(int, int, int)] Params
 PUSHV 1
 PUSHV 2
-GOTO 397
+GOTO 396; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
 SETTRUEI d2
@@ -4885,54 +4881,54 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 4881
+GOTOTRUE 4877
 SETV d2,0
 SETR gd6,d2
 PUSHR d4
-PUSHV 0.4885
-PUSHV 32
-GOTO 3396
+PUSHV 0.4881; UsrFunc[void Ghost_UnsetFlag(int)] Return Addr
+PUSHV 32; UsrFunc[void Ghost_UnsetFlag(int)] Params
+GOTO 3395; UsrFunc[void Ghost_UnsetFlag(int)] Call
 POP d4
-GOTO 4912
+GOTO 4908
 PUSHR d4
-PUSHV 0.4895
-PUSHV 1
+PUSHV 0.4891; UsrFunc[void Ghost_Move(int, int, int)] Return Addr
+PUSHV 1; UsrFunc[void Ghost_Move(int, int, int)] Params
 SETR d2,gd6
 SUBV2 0,d2
 PUSHR d2
 PUSHV 2
-GOTO 4106
+GOTO 4105; UsrFunc[void Ghost_Move(int, int, int)] Call
 PEEK d4
-PUSHV 0.4900
-PUSHARGSV 1,0.0002
+PUSHV 0.4896; UsrFunc[bool Ghost_CanMove(int, int, int)] Return Addr
+PUSHARGSV 1,0.0002; UsrFunc[bool Ghost_CanMove(int, int, int)] Params
 PUSHV 2
-GOTO 397
+GOTO 396; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 4910
-SETR d2,gd6
+GOTOTRUE 4906
+SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params
 SUBV d2,0.1600
 PUSHVARGR d2
 PUSHVARGV -3.2000
-MAXVARG
+MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
 SETR gd6,d2
-GOTO 4912
+GOTO 4908
 SETV d2,0
 SETR gd6,d2
 LOADD d2,0
 COMPAREV d2,0
-GOTOTRUE 4920
+GOTOTRUE 4916
 PUSHR d4
-PUSHV 0.4919
-PUSHV 64
-GOTO 3370
+PUSHV 0.4915; UsrFunc[void Ghost_SetFlag(int)] Return Addr
+PUSHV 64; UsrFunc[void Ghost_SetFlag(int)] Params
+GOTO 3369; UsrFunc[void Ghost_SetFlag(int)] Call
 POP d4
-GOTO 4962
+GOTO 4958
 SETR d2,gd6
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0.0001
-GOTOMORE 4933
+GOTOMORE 4929
 SETR d2,gd4
 COMPAREV d2,0
 SETLESS d2
@@ -4942,7 +4938,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 4962
+GOTOTRUE 4958
 SETR d2,gd4
 PUSHR d2
 SETR d2,gd6
@@ -4951,29 +4947,29 @@ ADDR d2,d3
 COMPAREV d2,0
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 4950
+GOTOTRUE 4946
 SETV d2,0
 SETR gd4,d2
 SETV d2,0
 SETR gd6,d2
-GOTO 4962
+GOTO 4958
 SETR d2,gd4
 PUSHR d2
 SETR d2,gd6
 POP d3
 ADDR d2,d3
 SETR gd4,d2
-SETR d2,gd6
+SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params
 SUBV d2,0.1600
 PUSHVARGR d2
 PUSHVARGV -3.2000
-MAXVARG
+MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
 SETR gd6,d2
 SETR d2,gd7
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0.0001
-GOTOMORE 4972
+GOTOMORE 4968
 SETR d2,gd8
 COMPAREV d2,0
 SETFALSEI d2
@@ -4981,7 +4977,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 4980
+GOTOMORE 4976
 SETR d2,gd9
 COMPAREV d2,0
 SETFALSEI d2
@@ -4989,7 +4985,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 4988
+GOTOMORE 4984
 SETR d2,gd10
 COMPAREV d2,0
 SETFALSEI d2
@@ -4997,7 +4993,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 5014
+GOTOTRUE 5010
 SETR d2,gd7
 PUSHR d2
 SETR d2,gd9
@@ -5011,52 +5007,52 @@ POP d3
 ADDR d2,d3
 SETR gd8,d2
 PUSHR d4
-PUSHV 0.5009
-PUSHR gd7
+PUSHV 0.5005; UsrFunc[void Ghost_MoveXY(int, int, int)] Return Addr
+PUSHR gd7; UsrFunc[void Ghost_MoveXY(int, int, int)] Params
 PUSHR gd8
 PUSHV 2
-GOTO 3423
+GOTO 3422; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 PEEK d4
-PUSHV 0.5013
-PUSHR gd5
-GOTO 4098
+PUSHV 0.5009; UsrFunc[void Ghost_ForceDir(int)] Return Addr
+PUSHR gd5; UsrFunc[void Ghost_ForceDir(int)] Params
+GOTO 4097; UsrFunc[void Ghost_ForceDir(int)] Call
 POP d4
 PUSHR d4
-PUSHV 0.5021
-LOADD d2,4
+PUSHV 0.5017; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,4; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,3
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 PEEK d4
-PUSHV 0.5029
-LOADD d2,4
+PUSHV 0.5025; UsrFunc[void __Ghost_WaitframePart1(FFC, NPC, bool)] Return Addr
+LOADD d2,4; UsrFunc[void __Ghost_WaitframePart1(FFC, NPC, bool)] Params
 PUSHR d2
 LOADD d2,3
 PUSHR d2
 PUSHV 0
-GOTO 5062
+GOTO 5058; UsrFunc[void __Ghost_WaitframePart1(FFC, NPC, bool)] Call
 PEEK d4
-PUSHV 0.5036
-LOADD d2,4
+PUSHV 0.5032; UsrFunc[void __Ghost_UpdateFlashing(FFC, NPC)] Return Addr
+LOADD d2,4; UsrFunc[void __Ghost_UpdateFlashing(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,3
 PUSHR d2
-GOTO 2067
+GOTO 2066; UsrFunc[void __Ghost_UpdateFlashing(FFC, NPC)] Call
 PEEK d4
-PUSHV 0.5043
-LOADD d2,4
+PUSHV 0.5039; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Return Addr
+LOADD d2,4; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,3
 PUSHR d2
-GOTO 2342
+GOTO 2341; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Call
 POP d4
 SETR d2,gd18
 ANDV d2,32
 SETR gd18,d2
 PUSHR d4
-PUSHV 0.5058
-LOADD d2,4
+PUSHV 0.5054; UsrFunc[bool __Ghost_WaitframePart2(FFC, NPC, bool, bool)] Return Addr
+LOADD d2,4; UsrFunc[bool __Ghost_WaitframePart2(FFC, NPC, bool, bool)] Params
 PUSHR d2
 LOADD d2,3
 PUSHR d2
@@ -5064,19 +5060,19 @@ LOADD d2,2
 PUSHR d2
 LOADD d2,1
 PUSHR d2
-GOTO 5596
+GOTO 5592; UsrFunc[bool __Ghost_WaitframePart2(FFC, NPC, bool, bool)] Call
 POP d4
-GOTO 5060
+GOTO 5056
 POPARGS d5,0.0005
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Body End
+PUSHARGSR d2,0.0002; Func[void __Ghost_WaitframePart1(FFC, NPC, bool)] Body Start
 SETR d4,SP
 SETR d2,gd18
 ANDV d2,4
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5080
+GOTOTRUE 5076
 SETR d2,gd5
 PUSHR d2
 LOADD d2,3
@@ -5086,23 +5082,23 @@ PUSHR d3
 POP d2
 POP REFNPC
 SETR NPCDIR,d2
-GOTO 5195
+GOTO 5191
 LOADD d2,2
 COMPAREV d2,0
-GOTOTRUE 5089
+GOTOTRUE 5085
 LOADD d2,3
 PUSHR d2
 POP REFNPC
 SETR d2,NPCDIR
 SETR gd5,d2
-GOTO 5195
+GOTO 5191
 PUSHR d4
-PUSHV 0.5093
-PUSHV 64
-GOTO 1637
+PUSHV 0.5089; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 64; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 5114
+GOTOTRUE 5110
 SETR d2,gd19
 PUSHR d2
 SETR d2,gd2
@@ -5110,7 +5106,7 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0.0001
-GOTOMORE 5112
+GOTOMORE 5108
 SETR d2,gd20
 PUSHR d2
 SETR d2,gd3
@@ -5124,7 +5120,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 5195
+GOTOTRUE 5191
 SETR d2,gd2
 PUSHR d2
 SETR d2,gd19
@@ -5140,66 +5136,66 @@ SUBR d3,d2
 SETR d2,d3
 STORED d2,0
 PUSHR d4
-PUSHV 0.5136
-PUSHV 512
-GOTO 1637
+PUSHV 0.5132; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 5158
+GOTOTRUE 5154
 PUSHR d4
-PUSHV 0.5155
-PUSHR d4
-PUSHV 0.5151
-LOADD d2,1
+PUSHV 0.5151; UsrFunc[int AngleDir8(int)] Return Addr
+PUSHR d4; UsrFunc[int AngleDir8(int)] Params
+PUSHV 0.5147; UsrFunc[int WrapAngle(int)] Return Addr
+LOADD d2,1; InlineFunc[int ArcTan(int, int)] Params AND UsrFunc[int WrapAngle(int)] Params
 PUSHR d2
 LOADD d2,0
 SETR d1,d2
-POP d0
-ARCTANR d2
+POP d0; InlineFunc[int ArcTan(int, int)] Body Start
+ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 PUSHR d2
-GOTO 4752
+GOTO 4748; UsrFunc[int WrapAngle(int)] Call
 POP d4
 MULTV d2,57.2958
 PUSHR d2
-GOTO 119
+GOTO 118; UsrFunc[int AngleDir8(int)] Call
 POP d4
 SETR gd5,d2
-GOTO 5195
-LOADD d2,1
-ABS d2
+GOTO 5191
+LOADD d2,1; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 PUSHR d2
-LOADD d2,0
-ABS d2
+LOADD d2,0; InlineFunc[int Abs(int)] Params
+ABS d2; InlineFunc[int Abs(int)] Body
 POP d3
 COMPARER d3,d2
 SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 5183
+GOTOTRUE 5179
 LOADD d2,1
 COMPAREV d2,0
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 5180
+GOTOTRUE 5176
 SETV d2,2
 SETR gd5,d2
-GOTO 5182
+GOTO 5178
 SETV d2,3
 SETR gd5,d2
-GOTO 5195
+GOTO 5191
 LOADD d2,0
 COMPAREV d2,0
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 5193
+GOTOTRUE 5189
 SETV d2,0
 SETR gd5,d2
-GOTO 5195
+GOTO 5191
 SETV d2,1
 SETR gd5,d2
 SETR d2,gd5
@@ -5219,7 +5215,7 @@ SETR d2,gd11
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 5218
+GOTOMORE 5214
 SETR d2,gd11
 COMPAREV d2,1
 SETTRUEI d2
@@ -5227,7 +5223,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 5242
+GOTOTRUE 5238
 LOADD d2,4
 PUSHR d2
 POP REFFFC
@@ -5238,7 +5234,7 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5241
+GOTOTRUE 5237
 SETR d2,gd11
 PUSHR d2
 LOADD d2,4
@@ -5248,14 +5244,14 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR DATA,d2
-GOTO 5342
+GOTO 5338
 PUSHR d4
-PUSHV 0.5246
-PUSHV 512
-GOTO 1637
+PUSHV 0.5242; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 5282
+GOTOTRUE 5278
 LOADD d2,4
 PUSHR d2
 POP REFFFC
@@ -5270,13 +5266,13 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5281
+GOTOTRUE 5277
 SETR d2,gd11
 PUSHR d2
 PUSHR d4
-PUSHV 0.5270
-PUSHR gd5
-GOTO 483
+PUSHV 0.5266; UsrFunc[int __NormalizeDir(int)] Return Addr
+PUSHR gd5; UsrFunc[int __NormalizeDir(int)] Params
+GOTO 482; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 POP d3
 ADDR d2,d3
@@ -5288,14 +5284,14 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR DATA,d2
-GOTO 5342
+GOTO 5338
 PUSHR d4
-PUSHV 0.5286
-PUSHV 256
-GOTO 1637
+PUSHV 0.5282; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 256; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 5322
+GOTOTRUE 5318
 LOADD d2,4
 PUSHR d2
 POP REFFFC
@@ -5310,13 +5306,13 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5321
+GOTOTRUE 5317
 SETR d2,gd11
 PUSHR d2
 PUSHR d4
-PUSHV 0.5310
-PUSHR gd5
-GOTO 483
+PUSHV 0.5306; UsrFunc[int __NormalizeDir(int)] Return Addr
+PUSHR gd5; UsrFunc[int __NormalizeDir(int)] Params
+GOTO 482; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 POP d3
 ADDR d2,d3
@@ -5328,7 +5324,7 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR DATA,d2
-GOTO 5342
+GOTO 5338
 LOADD d2,4
 PUSHR d2
 POP REFFFC
@@ -5339,7 +5335,7 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5342
+GOTOTRUE 5338
 SETR d2,gd11
 PUSHR d2
 LOADD d2,4
@@ -5359,7 +5355,7 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5362
+GOTOTRUE 5358
 SETR d2,gd13
 PUSHR d2
 LOADD d2,4
@@ -5379,7 +5375,7 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5406
+GOTOTRUE 5402
 SETR d2,gd13
 PUSHR d2
 LOADD d2,3
@@ -5423,7 +5419,7 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5426
+GOTOTRUE 5422
 SETR d2,gd14
 PUSHR d2
 LOADD d2,4
@@ -5443,7 +5439,7 @@ POP d3
 COMPARER d3,d2
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5470
+GOTOTRUE 5466
 SETR d2,gd14
 PUSHR d2
 LOADD d2,3
@@ -5478,17 +5474,17 @@ POP d2
 POP REFNPC
 SETR NPCHYOFS,d2
 PUSHR d4
-PUSHV 0.5474
-PUSHV 128
-GOTO 1637
+PUSHV 0.5470; UsrFunc[bool Ghost_FlagIsSet(int)] Return Addr
+PUSHV 128; UsrFunc[bool Ghost_FlagIsSet(int)] Params
+GOTO 1636; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 5540
+GOTOTRUE 5536
 SETR d2,gd4
 COMPAREV d2,32
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 5492
+GOTOTRUE 5488
 LOADD d2,4
 PUSHR d2
 SETV d2,0
@@ -5502,7 +5498,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 5509
+GOTOTRUE 5505
 SETV d2,1
 PUSHR d2
 LOADD d2,4
@@ -5515,14 +5511,14 @@ POP d0
 POP d2
 POP REFFFC
 SETR FFFLAGSD,d2
-GOTO 5540
+GOTO 5536
 SETR d2,gd4
 COMPAREV d2,32
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 5524
+GOTOTRUE 5520
 LOADD d2,4
 PUSHR d2
 SETV d2,0
@@ -5534,7 +5530,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 5540
+GOTOTRUE 5536
 SETV d2,0
 PUSHR d2
 LOADD d2,4
@@ -5570,7 +5566,7 @@ ANDV d2,8
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 5574
+GOTOTRUE 5570
 SETR d2,gd12
 PUSHR d2
 LOADD d2,4
@@ -5580,12 +5576,12 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR CSET,d2
-GOTO 5588
+GOTO 5584
 SETR d2,gd21
 COMPAREV d2,0
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 5588
+GOTOTRUE 5584
 SETR d2,gd12
 PUSHR d2
 LOADD d2,4
@@ -5596,45 +5592,42 @@ POP d2
 POP REFFFC
 SETR CSET,d2
 PUSHR d4
-PUSHV 0.5593
-LOADD d2,3
+PUSHV 0.5589; UsrFunc[void __Ghost_DrawShadow(NPC)] Return Addr
+LOADD d2,3; UsrFunc[void __Ghost_DrawShadow(NPC)] Params
 PUSHR d2
-GOTO 2155
+GOTO 2154; UsrFunc[void __Ghost_DrawShadow(NPC)] Call
 POP d4
 POPARGS d5,0.0005
-RETURN
-PUSHR d2
+RETURN; Func[void __Ghost_WaitframePart1(FFC, NPC, bool)] Body End
+PUSHR d2; Func[bool __Ghost_WaitframePart2(FFC, NPC, bool, bool)] Body Start
 SETR d4,SP
-LOADD d2,3
-ISVALIDNPC d2
+LOADD d2,3; InlineFunc[bool NPC->isValid()] Params
+ISVALIDNPC d2; InlineFunc[bool NPC->isValid()] Body
 COMPAREV d2,0
-GOTOFALSE 5628
+GOTOFALSE 5621
 LOADD d2,2
 COMPAREV d2,0
-GOTOTRUE 5617
+GOTOTRUE 5613
 PUSHR d4
-PUSHV 0.5610
-LOADD d2,4
+PUSHV 0.5606; UsrFunc[void __GhCleanUp(FFC)] Return Addr
+LOADD d2,4; UsrFunc[void __GhCleanUp(FFC)] Params
 PUSHR d2
-GOTO 3959
+GOTO 3958; UsrFunc[void __GhCleanUp(FFC)] Call
 POP d4
 SETV d2,0
 SETR gd11,d2
 PUSHR d4
-PUSHV 0.5616
-GOTO 3362
+PUSHV 0.5612; UsrFunc[void Ghost_ClearCombos()] Return Addr
+GOTO 3361; UsrFunc[void Ghost_ClearCombos()] Call
 POP d4
 LOADD d2,1
 COMPAREV d2,0
-GOTOTRUE 5624
-PUSHR d4
-PUSHV 0.5623
-GOTO 98
-POP d4
+GOTOTRUE 5617
+QUIT; InlineFunc[void Quit()] Body
 SETV d2,0
 SETR gd15,d2
 SETV d2,0
-GOTO 5760
+GOTO 5750
 SETV d2,0
 STORED d2,0
 LOADD d2,3
@@ -5644,26 +5637,26 @@ SETR d2,NPCHP
 COMPAREV d2,0
 SETLESSI d2
 COMPAREV d2,0
-GOTOTRUE 5640
+GOTOTRUE 5633
 SETV d2,1
 STORED d2,0
 LOADD d2,0
 COMPAREV d2,0
-GOTOFALSE 5661
+GOTOFALSE 5654
 PUSHR d4
-PUSHV 0.5650
-LOADD d2,4
+PUSHV 0.5643; UsrFunc[void Ghost_CheckHit(FFC, NPC)] Return Addr
+LOADD d2,4; UsrFunc[void Ghost_CheckHit(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,3
 PUSHR d2
-GOTO 2898
+GOTO 2897; UsrFunc[void Ghost_CheckHit(FFC, NPC)] Call
 PEEK d4
-PUSHV 0.5657
-LOADD d2,4
+PUSHV 0.5650; UsrFunc[bool Ghost_CheckFreeze(FFC, NPC)] Return Addr
+LOADD d2,4; UsrFunc[bool Ghost_CheckFreeze(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,3
 PUSHR d2
-GOTO 1776
+GOTO 1775; UsrFunc[bool Ghost_CheckFreeze(FFC, NPC)] Call
 POP d4
 COMPAREV d2,0
 SETTRUEI d2
@@ -5675,10 +5668,10 @@ SETR d2,NPCHP
 SETR gd15,d2
 LOADD d2,0
 COMPAREV d2,0
-GOTOTRUE 5758
+GOTOTRUE 5748
 LOADD d2,2
 COMPAREV d2,0
-GOTOTRUE 5749
+GOTOTRUE 5742
 SETV d2,1
 PUSHR d2
 LOADD d2,3
@@ -5749,27 +5742,24 @@ POP d2
 POP REFNPC
 SETR NPCZ,d2
 PUSHR d4
-PUSHV 0.5746
-LOADD d2,4
+PUSHV 0.5739; UsrFunc[void __GhCleanUp(FFC)] Return Addr
+LOADD d2,4; UsrFunc[void __GhCleanUp(FFC)] Params
 PUSHR d2
-GOTO 3959
+GOTO 3958; UsrFunc[void __GhCleanUp(FFC)] Call
 POP d4
 SETV d2,0
 SETR gd11,d2
 LOADD d2,1
 COMPAREV d2,0
-GOTOTRUE 5756
-PUSHR d4
-PUSHV 0.5755
-GOTO 98
-POP d4
+GOTOTRUE 5746
+QUIT; InlineFunc[void Quit()] Body
 SETV d2,0
-GOTO 5760
+GOTO 5750
 SETV d2,1
-GOTO 5760
+GOTO 5750
 POPARGS d5,0.0005
-RETURN
-PUSHARGSR d2,0.0006
+RETURN; Func[bool __Ghost_WaitframePart2(FFC, NPC, bool, bool)] Body End
+PUSHARGSR d2,0.0006; Func[void __SetUpDrawingArray(FFC, NPC, int)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,5
@@ -5781,7 +5771,7 @@ POP d0
 POP REFFFC
 SETR d2,FFFLAGSD
 COMPAREV d2,0
-GOTOTRUE 5778
+GOTOTRUE 5768
 LOADD d2,5
 ORV d2,4
 STORED d2,5
@@ -5793,18 +5783,18 @@ POP d0
 POP REFFFC
 SETR d2,FFFLAGSD
 COMPAREV d2,0
-GOTOTRUE 5790
+GOTOTRUE 5780
 LOADD d2,5
 ORV d2,1
 STORED d2,5
 PUSHR d4
-PUSHV 0.5795
-LOADD d2,7
+PUSHV 0.5785; UsrFunc[bool __Ghost_IsFlickering(NPC)] Return Addr
+LOADD d2,7; UsrFunc[bool __Ghost_IsFlickering(NPC)] Params
 PUSHR d2
-GOTO 6120
+GOTO 6110; UsrFunc[bool __Ghost_IsFlickering(NPC)] Call
 POP d4
 COMPAREV d2,0
-GOTOTRUE 5801
+GOTOTRUE 5791
 LOADD d2,5
 ORV d2,2
 STORED d2,5
@@ -5864,7 +5854,7 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 5980
+GOTOTRUE 5970
 SETV d2,1
 STORED d2,1
 SETV d2,0
@@ -5881,7 +5871,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 5980
+GOTOTRUE 5970
 SETR d2,gd26
 PUSHR d2
 LOADD d2,1
@@ -5986,7 +5976,7 @@ PUSHR d2
 ADDV d2,1
 STORED d2,0
 POP d2
-GOTO 5862
+GOTO 5852
 LOADD d2,8
 PUSHR d2
 POP REFFFC
@@ -6058,8 +6048,8 @@ POP d2
 WRITEPODARRAYVR 0,d2
 POP d2
 POPARGS d5,0.0009
-RETURN
-PUSHR d2
+RETURN; Func[void __SetUpDrawingArray(FFC, NPC, int)] Body End
+PUSHR d2; Func[void __HideFFCAndWait(FFC)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -6075,7 +6065,7 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR DATA,d2
-WAITFRAME
+WAITFRAME; InlineFunc[void Waitframe()] Body
 LOADD d2,0
 PUSHR d2
 LOADD d2,1
@@ -6086,8 +6076,8 @@ POP d2
 POP REFFFC
 SETR DATA,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __HideFFCAndWait(FFC)] Body End
+PUSHR d2; Func[bool IsPit(int)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -6098,21 +6088,21 @@ LOADD d2,0
 COMPAREV d2,41
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 6094
+GOTOTRUE 6084
 SETV d2,1
-GOTO 6118
+GOTO 6108
 LOADD d2,0
 COMPAREV d2,93
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 6101
+GOTOTRUE 6091
 SETV d2,1
-GOTO 6118
+GOTO 6108
 LOADD d2,0
 COMPAREV d2,80
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 6110
+GOTOTRUE 6100
 LOADD d2,0
 COMPAREV d2,82
 SETLESSI d2
@@ -6120,14 +6110,14 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
-GOTOTRUE 6116
+GOTOTRUE 6106
 SETV d2,1
-GOTO 6118
+GOTO 6108
 SETV d2,0
-GOTO 6118
+GOTO 6108
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[bool IsPit(int)] Body End
+SETR d4,SP; Func[bool __Ghost_IsFlickering(NPC)] Body Start
 LOADD d2,0
 PUSHR d2
 POP REFNPC
@@ -6136,14 +6126,14 @@ ANDV d2,128
 COMPAREV d2,0
 SETFALSEI d2
 COMPAREV d2,0
-GOTOTRUE 6132
+GOTOTRUE 6122
 SETV d2,1
-GOTO 6134
+GOTO 6124
 SETV d2,0
-GOTO 6134
+GOTO 6124
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0004
+RETURN; Func[bool __Ghost_IsFlickering(NPC)] Body End
+PUSHARGSR d2,0.0004; Func[void SpawnAnimation(FFC, NPC)] Body Start
 SETR d4,SP
 LOADD d2,5
 PUSHR d2
@@ -6161,12 +6151,12 @@ POP REFNPC
 SETR d2,NPCXOFS
 STORED d2,1
 PUSHR d4
-PUSHV 0.6160
-LOADD d2,5
+PUSHV 0.6150; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 POP d4
 SETV d2,0
 PUSHR d2
@@ -6186,7 +6176,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 6293
+GOTOTRUE 6283
 SETV d2,0
 PUSHR d2
 LOADD d2,5
@@ -6206,19 +6196,19 @@ POP d2
 POP REFNPC
 SETR NPCXOFS,d2
 PUSHR d4
-PUSHV 0.6205
-LOADD d2,5
+PUSHV 0.6195; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 PEEK d4
-PUSHV 0.6212
-LOADD d2,5
+PUSHV 0.6202; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2342
+GOTO 2341; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Call
 POP d4
 LOADD d2,3
 PUSHR d2
@@ -6239,30 +6229,30 @@ POP d2
 POP REFNPC
 SETR NPCXOFS,d2
 PUSHR d4
-PUSHV 0.6238
-LOADD d2,5
+PUSHV 0.6228; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2762
+GOTO 2761; UsrFunc[void Ghost_SetPosition(FFC, NPC)] Call
 PEEK d4
-PUSHV 0.6245
-LOADD d2,5
+PUSHV 0.6235; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Return Addr
+LOADD d2,5; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-GOTO 2342
+GOTO 2341; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Call
 POP d4
 LOADD d2,0
 COMPAREV d2,29
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 6287
+GOTOTRUE 6277
 SETR d2,UNDERCOMBO
 PUSHR d2
 PUSHR d4
-PUSHV 0.6264
-LOADD d2,5
+PUSHV 0.6254; UsrFunc[int ComboAt(int, int)] Return Addr
+LOADD d2,5; UsrFunc[int ComboAt(int, int)] Params
 PUSHR d2
 POP REFFFC
 PUSHR X
@@ -6270,7 +6260,7 @@ LOADD d2,5
 PUSHR d2
 POP REFFFC
 PUSHR Y
-GOTO 281
+GOTO 280; UsrFunc[int ComboAt(int, int)] Call
 POP d4
 PUSHR d2
 POP d0
@@ -6279,8 +6269,8 @@ SETR COMBODD,d2
 SETR d2,UNDERCSET
 PUSHR d2
 PUSHR d4
-PUSHV 0.6282
-LOADD d2,5
+PUSHV 0.6272; UsrFunc[int ComboAt(int, int)] Return Addr
+LOADD d2,5; UsrFunc[int ComboAt(int, int)] Params
 PUSHR d2
 POP REFFFC
 PUSHR X
@@ -6288,7 +6278,7 @@ LOADD d2,5
 PUSHR d2
 POP REFFFC
 PUSHR Y
-GOTO 281
+GOTO 280; UsrFunc[int ComboAt(int, int)] Call
 POP d4
 PUSHR d2
 POP d0
@@ -6299,7 +6289,7 @@ PUSHR d2
 ADDV d2,1
 STORED d2,0
 POP d2
-GOTO 6173
+GOTO 6163
 LOADD d2,3
 PUSHR d2
 LOADD d2,5
@@ -6329,36 +6319,36 @@ POP d2
 POP REFNPC
 SETR NPCXOFS,d2
 POPARGS d5,0.0006
-RETURN
+RETURN; Func[void SpawnAnimation(FFC, NPC)] Body End
 
 
-PUSHV 0
+PUSHV 0; void run() Body Start
 SETR d4,SP
 PUSHR d4
-PUSHV 0.0006
-GOTO 2601
+PUSHV 0.0006; UsrFunc[void StartGhostZH()] Return Addr
+GOTO 2601; UsrFunc[void StartGhostZH()] Call
 POP d4
 PUSHR d4
-PUSHV 0.0010
-GOTO 9306
+PUSHV 0.0010; UsrFunc[void UpdateGhostZH1()] Return Addr
+GOTO 9306; UsrFunc[void UpdateGhostZH1()] Call
 POP d4
-WAITDRAW
+WAITDRAW; InlineFunc[void Waitdraw()] Body
 PUSHR d4
-PUSHV 0.0015
-GOTO 9375
+PUSHV 0.0015; UsrFunc[void UpdateGhostZH2()] Return Addr
+GOTO 9375; UsrFunc[void UpdateGhostZH2()] Call
 POP d4
-WAITFRAME
+WAITFRAME; InlineFunc[void Waitframe()] Body
 GOTO 7
 POPARGS d5,0.0001
-QUIT
-POP d2
+QUIT; void run() Body End
+POP d2; Func[int Distance(int, int, int, int)] Body Start
 POP d1
 POP d0
 POP d6
 SETR d2,DISTANCE
-RETURN
-SETR d4,SP
-LOADD d2,1
+RETURN; Func[int Distance(int, int, int, int)] Body End
+SETR d4,SP; Func[int RadianAngle(int, int, int, int)] Body Start
+LOADD d2,1; InlineFunc[int ArcTan(int, int)] Params
 PUSHR d2
 LOADD d2,3
 POP d3
@@ -6370,22 +6360,22 @@ LOADD d2,2
 POP d3
 SUBR d3,d2
 SETR d1,d3
-POP d0
-ARCTANR d2
+POP d0; InlineFunc[int ArcTan(int, int)] Body Start
+ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 GOTO 42
 POPARGS d5,0.0004
-RETURN
-SETR d4,SP
-SETV d2,0
+RETURN; Func[int RadianAngle(int, int, int, int)] Body End
+SETR d4,SP; Func[int Randf(int)] Body Start
+SETV d2,0; InlineFunc[long RNG->LRand(long)] Params
 PUSHR d2
 LOADD d2,0
-POP REFRNG
-RNGLRAND2 d2
+POP REFRNG; InlineFunc[long RNG->LRand(long)] Body Start
+RNGLRAND2 d2; InlineFunc[long RNG->LRand(long)] Body End
 GOTO 51
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
-LOADD d2,1
+RETURN; Func[int Randf(int)] Body End
+SETR d4,SP; Func[int Angle(int, int, int, int)] Body Start
+LOADD d2,1; InlineFunc[int ArcTan(int, int)] Params AND InlineFunc[int RadtoDeg(int)] Params
 PUSHR d2
 LOADD d2,3
 POP d3
@@ -6397,14 +6387,14 @@ LOADD d2,2
 POP d3
 SUBR d3,d2
 SETR d1,d3
-POP d0
-ARCTANR d2
+POP d0; InlineFunc[int ArcTan(int, int)] Body Start
+ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 SETR d3,d2
-RADTODEG d2,d3
+RADTODEG d2,d3; InlineFunc[int RadtoDeg(int)] Body
 GOTO 71
 POPARGS d5,0.0004
-RETURN
-PUSHARGSR d2,0.0007
+RETURN; Func[int Angle(int, int, int, int)] Body End
+PUSHARGSR d2,0.0007; Func[void AutoGhost()] Body Start
 SETR d4,SP
 SETR d2,gd27
 PUSHR d2
@@ -6420,7 +6410,7 @@ SETV d2,0
 STORED d2,5
 SETV d2,0
 STORED d2,4
-SETR d2,NPCCOUNT
+SETR d2,NPCCOUNT; InlineFunc[int Screen->NumNPCs()] Body
 STORED d2,3
 LOADD d2,3
 COMPAREV d2,0
@@ -6429,10 +6419,10 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 449
-LOADD d2,3
-SUBV d2,1
+LOADD d2,3; InlineFunc[NPC Screen->LoadNPC(int)] Params
+SUBV d2,1; InlineFunc[NPC Screen->LoadNPC(int)] Body Start
 LOADNPCR d2
-SETR d2,REFNPC
+SETR d2,REFNPC; InlineFunc[NPC Screen->LoadNPC(int)] Body End
 STORED d2,6
 LOADD d2,6
 PUSHR d2
@@ -6515,12 +6505,12 @@ GOTOTRUE 198
 ALLOCATEMEMV d2,2
 STORED d2,0
 PUSHR d4
-PUSHV 0.0190
-LOADD d2,6
+PUSHV 0.0190; UsrFunc[int __AutoGhostParseName(NPC, int)] Return Addr
+LOADD d2,6; UsrFunc[int __AutoGhostParseName(NPC, int)] Params
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-GOTO 451
+GOTO 451; UsrFunc[int __AutoGhostParseName(NPC, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -6535,10 +6525,10 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 210
 PUSHR d4
-PUSHV 0.0208
-LOADD d2,6
+PUSHV 0.0208; UsrFunc[void __AutoGhostKill(NPC)] Return Addr
+LOADD d2,6; UsrFunc[void __AutoGhostKill(NPC)] Params
 PUSHR d2
-GOTO 767
+GOTO 767; UsrFunc[void __AutoGhostKill(NPC)] Call
 POP d4
 GOTO 445
 LOADD d2,2
@@ -6549,31 +6539,31 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 224
 PUSHR d4
-PUSHV 0.0222
-LOADD d2,6
+PUSHV 0.0222; UsrFunc[void __AutoGhostKill(NPC)] Return Addr
+LOADD d2,6; UsrFunc[void __AutoGhostKill(NPC)] Params
 PUSHR d2
-GOTO 767
+GOTO 767; UsrFunc[void __AutoGhostKill(NPC)] Call
 POP d4
 GOTO 445
 PUSHR d4
-PUSHV 0.0229
-LOADD d2,5
+PUSHV 0.0229; UsrFunc[int FindUnusedFFC(int)] Return Addr
+LOADD d2,5; UsrFunc[int FindUnusedFFC(int)] Params
 PUSHR d2
-GOTO 818
+GOTO 818; UsrFunc[int FindUnusedFFC(int)] Call
 POP d4
 STORED d2,5
 LOADD d2,5
 COMPAREV d2,0
 GOTOFALSE 241
 PUSHR d4
-PUSHV 0.0239
-LOADD d2,6
+PUSHV 0.0239; UsrFunc[void __AutoGhostKill(NPC)] Return Addr
+LOADD d2,6; UsrFunc[void __AutoGhostKill(NPC)] Params
 PUSHR d2
-GOTO 767
+GOTO 767; UsrFunc[void __AutoGhostKill(NPC)] Call
 POP d4
 GOTO 445
-LOADD d2,5
-SUBV d2,1
+LOADD d2,5; InlineFunc[FFC Screen->LoadFFC(int)] Params
+SUBV d2,1; InlineFunc[FFC Screen->LoadFFC(int)] Body
 STORED d2,4
 SETV d2,1
 PUSHR d2
@@ -6781,8 +6771,8 @@ SUBV d2,1
 STORED d2,3
 GOTO 91
 POPARGS d5,0.0007
-RETURN
-PUSHARGSR d2,0.0009
+RETURN; Func[void AutoGhost()] Body End
+PUSHARGSR d2,0.0009; Func[int __AutoGhostParseName(NPC, int)] Body Start
 SETR d4,SP
 ALLOCATEMEMV d2,64
 STORED d2,8
@@ -6794,11 +6784,11 @@ LOADD d2,9
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 1,d2
-LOADD d2,10
+LOADD d2,10; InlineFunc[void NPC->GetName(int)] Params
 PUSHR d2
 LOADD d2,8
-POP REFNPC
-NPCNAME d2
+POP REFNPC; InlineFunc[void NPC->GetName(int)] Body Start
+NPCNAME d2; InlineFunc[void NPC->GetName(int)] Body End
 SETV d2,0
 STORED d2,6
 LOADD d2,6
@@ -6825,11 +6815,11 @@ POP d0
 READPODARRAYR d2,d2
 STORED d2,5
 PUSHR d4
-PUSHV 0.0499
-LOADD d2,5
+PUSHV 0.0499; UsrFunc[bool __IsScriptNameChar(int, bool)] Return Addr
+LOADD d2,5; UsrFunc[bool __IsScriptNameChar(int, bool)] Params
 PUSHR d2
 PUSHV 1
-GOTO 9504
+GOTO 9504; UsrFunc[bool __IsScriptNameChar(int, bool)] Call
 POP d4
 COMPAREV d2,0
 GOTOTRUE 598
@@ -6839,15 +6829,15 @@ LOADD d2,6
 ADDV d2,1
 STORED d2,6
 PUSHR d4
-PUSHV 0.0517
-LOADD d2,8
+PUSHV 0.0517; UsrFunc[bool __IsScriptNameChar(int, bool)] Return Addr
+LOADD d2,8; UsrFunc[bool __IsScriptNameChar(int, bool)] Params
 PUSHR d2
 LOADD d2,6
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 PUSHV 0
-GOTO 9504
+GOTO 9504; UsrFunc[bool __IsScriptNameChar(int, bool)] Call
 POP d4
 COMPAREV d2,0
 GOTOTRUE 540
@@ -6880,8 +6870,8 @@ SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2
-LOADD d2,7
-GETFFCSCRIPT d2
+LOADD d2,7; InlineFunc[int Game->GetFFCScript(int)] Params
+GETFFCSCRIPT d2; InlineFunc[int Game->GetFFCScript(int)] Body
 PUSHR d2
 LOADD d2,9
 SETR d0,d2
@@ -6904,16 +6894,16 @@ WRITEPODSTRING d2,"ghost.zh: AutoGhost setup failed - script does not exist.\n"
 ALLOCATEMEMV d2,80
 STORED d2,0
 WRITEPODSTRING d2,"  Script name: %s\n"
-LOADD d2,2
+LOADD d2,2; InlineFunc[void printf(char32)] Params
 PUSHR d2
-PRINTFVARG
-POP d5
-LOADD d2,0
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOADD d2,0; InlineFunc[void printf(char32)] Params
 PUSHR d2
 LOADD d2,7
 PUSHVARGR d2
-PRINTFVARG
-POP d5
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
 SETV d2,0
 LOADD d3,0
 DEALLOCATEMEMR d3
@@ -7021,9 +7011,9 @@ SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2
-LOADD d2,7
+LOADD d2,7; InlineFunc[int atoi(int)] Params
 SETR d3,d2
-ATOI d2,d3
+ATOI d2,d3; InlineFunc[int atoi(int)] Body
 PUSHR d2
 LOADD d2,9
 SETR d0,d2
@@ -7053,21 +7043,21 @@ WRITEPODSTRING d2,"  Enemy name: %s\n"
 ALLOCATEMEMV d2,55
 STORED d2,1
 WRITEPODSTRING d2,"  Script name should start after this character: %c\n"
-LOADD d2,5
+LOADD d2,5; InlineFunc[void printf(char32)] Params
 PUSHR d2
-PRINTFVARG
-POP d5
-LOADD d2,3
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOADD d2,3; InlineFunc[void printf(char32)] Params
 PUSHR d2
 LOADD d2,8
 PUSHVARGR d2
-PRINTFVARG
-POP d5
-LOADD d2,1
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOADD d2,1; InlineFunc[void printf(char32)] Params
 PUSHR d2
 PUSHVARGV 64
-PRINTFVARG
-POP d5
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
 SETV d2,0
 LOADD d3,1
 DEALLOCATEMEMR d3
@@ -7097,8 +7087,8 @@ DEALLOCATEMEMR d3
 LOADD d3,8
 DEALLOCATEMEMR d3
 POPARGS d5,0.0011
-RETURN
-SETR d4,SP
+RETURN; Func[int __AutoGhostParseName(NPC, int)] Body End
+SETR d4,SP; Func[void __AutoGhostKill(NPC)] Body Start
 SETV d2,65536
 PUSHR d2
 LOADD d2,0
@@ -7148,28 +7138,28 @@ POP d2
 POP REFNPC
 SETR NPCITEMSET,d2
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[void __AutoGhostKill(NPC)] Body End
+PUSHARGSR d2,0.0002; Func[int FindUnusedFFC(int)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,1
-LOADD d2,2
+LOADD d2,2; InlineFunc[untyped Max(untyped, untyped)] Params
 ADDV d2,1
 PUSHVARGR d2
 PUSHVARGV 1
-MAXVARG
+MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
 STORED d2,0
 LOADD d2,0
 PUSHR d2
-PUSHVARGSV 32,0.0002
-MINVARG
+PUSHVARGSV 32,0.0002; InlineFunc[untyped Min(untyped, untyped)] Params
+MINVARG; InlineFunc[untyped Min(untyped, untyped)] Body
 POP d3
 COMPARER d3,d2
 SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 880
-LOADD d2,0
-SUBV d2,1
+LOADD d2,0; InlineFunc[FFC Screen->LoadFFC(int)] Params
+SUBV d2,1; InlineFunc[FFC Screen->LoadFFC(int)] Body
 STORED d2,1
 LOADD d2,1
 PUSHR d2
@@ -7214,8 +7204,8 @@ GOTO 828
 SETV d2,0
 GOTO 882
 POPARGS d5,0.0003
-RETURN
-SETR d4,SP
+RETURN; Func[int FindUnusedFFC(int)] Body End
+SETR d4,SP; Func[int CenterX(EWeapon)] Body Start
 LOADD d2,0
 PUSHR d2
 POP REFEWPN
@@ -7238,8 +7228,8 @@ POP d3
 ADDR d2,d3
 GOTO 906
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[int CenterX(EWeapon)] Body End
+SETR d4,SP; Func[int CenterY(EWeapon)] Body Start
 LOADD d2,0
 PUSHR d2
 POP REFEWPN
@@ -7262,8 +7252,8 @@ POP d3
 ADDR d2,d3
 GOTO 930
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[int CenterY(EWeapon)] Body End
+PUSHARGSR d2,0.0002; Func[void CleanUpGhostFFCs()] Body Start
 SETR d4,SP
 SETR d2,LINKHP
 COMPAREV d2,0
@@ -7280,8 +7270,8 @@ COMPAREV d2,32
 SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 991
-LOADD d2,0
-SUBV d2,1
+LOADD d2,0; InlineFunc[FFC Screen->LoadFFC(int)] Params
+SUBV d2,1; InlineFunc[FFC Screen->LoadFFC(int)] Body
 STORED d2,1
 SETR d2,gd25
 PUSHR d2
@@ -7323,14 +7313,14 @@ STORED d2,0
 POP d2
 GOTO 944
 POPARGS d5,0.0002
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[void CleanUpGhostFFCs()] Body End
+PUSHARGSR d2,0.0002; Func[void DrawEWeaponShadow(EWeapon)] Body Start
 SETR d4,SP
 PUSHR d4
-PUSHV 0.1000
-LOADD d2,2
+PUSHV 0.1000; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,2; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -7370,7 +7360,7 @@ POP d3
 SUBR d3,d2
 SETR d2,d3
 STORED d2,0
-PUSHV 1
+PUSHV 1; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params
 LOADD d2,1
 PUSHR d2
 LOADD d2,0
@@ -7387,11 +7377,11 @@ PUSHARGSV -1,0.0002
 PUSHARGSV 0,0.0004
 PUSHV 1
 PUSHV 64
-DRAWTILE
-POPARGS d5,0.0015
+DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS d5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS d5,0.0003
-RETURN
-PUSHARGSR d2,0.0009
+RETURN; Func[void DrawEWeaponShadow(EWeapon)] Body End
+PUSHARGSR d2,0.0009; Func[void DrawGhostFFCs()] Body Start
 SETR d4,SP
 SETV d2,1
 PUSHR d2
@@ -7403,8 +7393,8 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 1078
 PUSHR d4
-PUSHV 0.1074
-GOTO 1286
+PUSHV 0.1074; UsrFunc[bool __HaveAmulet()] Return Addr
+GOTO 1286; UsrFunc[bool __HaveAmulet()] Call
 POP d4
 COMPAREV d2,0
 GOTOFALSE 1078
@@ -7443,22 +7433,22 @@ SETV d2,1
 STORED d2,1
 LOADD d2,1
 PUSHR d2
-SETR d2,NPCCOUNT
+SETR d2,NPCCOUNT; InlineFunc[int Screen->NumNPCs()] Body
 POP d3
 COMPARER d3,d2
 SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 1284
-LOADD d2,1
-SUBV d2,1
+LOADD d2,1; InlineFunc[NPC Screen->LoadNPC(int)] Params
+SUBV d2,1; InlineFunc[NPC Screen->LoadNPC(int)] Body Start
 LOADNPCR d2
-SETR d2,REFNPC
+SETR d2,REFNPC; InlineFunc[NPC Screen->LoadNPC(int)] Body End
 STORED d2,6
 PUSHR d4
-PUSHV 0.1128
-LOADD d2,6
+PUSHV 0.1128; UsrFunc[int __GetDrawingArray(NPC)] Return Addr
+LOADD d2,6; UsrFunc[int __GetDrawingArray(NPC)] Params
 PUSHR d2
-GOTO 1306
+GOTO 1306; UsrFunc[int __GetDrawingArray(NPC)] Call
 POP d4
 STORED d2,8
 LOADD d2,8
@@ -7552,7 +7542,7 @@ COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
 GOTOTRUE 1269
-LOADD d2,4
+LOADD d2,4; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params
 PUSHR d2
 LOADD d2,8
 PUSHR d2
@@ -7598,8 +7588,8 @@ PUSHARGSV 0,0.0005
 PUSHV 1
 LOADD d2,5
 PUSHR d2
-DRAWCOMBO
-POPARGS d5,0.0016
+DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 LOADD d2,7
 ADDV d2,6
 STORED d2,7
@@ -7616,8 +7606,8 @@ STORED d2,1
 POP d2
 GOTO 1110
 POPARGS d5,0.0009
-RETURN
-SETR d4,SP
+RETURN; Func[void DrawGhostFFCs()] Body End
+SETR d4,SP; Func[bool __HaveAmulet()] Body Start
 SETV d2,50
 PUSHR d2
 POP d0
@@ -7636,8 +7626,8 @@ SETV d2,1
 GOTO 1305
 SETV d2,0
 GOTO 1305
-RETURN
-PUSHR d2
+RETURN; Func[bool __HaveAmulet()] Body End
+PUSHR d2; Func[int __GetDrawingArray(NPC)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -7677,8 +7667,8 @@ STORED d2,0
 LOADD d2,0
 GOTO 1345
 POPARGS d5,0.0002
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[int __GetDrawingArray(NPC)] Body End
+PUSHARGSR d2,0.0002; Func[int FindUnusedFFC()] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,1
@@ -7691,8 +7681,8 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 1403
-LOADD d2,0
-SUBV d2,1
+LOADD d2,0; InlineFunc[FFC Screen->LoadFFC(int)] Params
+SUBV d2,1; InlineFunc[FFC Screen->LoadFFC(int)] Body
 STORED d2,1
 LOADD d2,1
 PUSHR d2
@@ -7737,8 +7727,8 @@ GOTO 1353
 SETV d2,0
 GOTO 1405
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[int FindUnusedFFC()] Body End
+PUSHR d2; Func[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Body Start
 SETR d4,SP
 LOADD d2,3
 COMPAREV d2,0
@@ -7748,10 +7738,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 1423
 PUSHR d4
-PUSHV 0.1421
-LOADD d2,9
+PUSHV 0.1421; UsrFunc[int GetDefaultEWeaponSprite(int)] Return Addr
+LOADD d2,9; UsrFunc[int GetDefaultEWeaponSprite(int)] Params
 PUSHR d2
-GOTO 1575
+GOTO 1575; UsrFunc[int GetDefaultEWeaponSprite(int)] Call
 POP d4
 STORED d2,3
 LOADD d2,2
@@ -7762,15 +7752,15 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 1437
 PUSHR d4
-PUSHV 0.1435
-LOADD d2,9
+PUSHV 0.1435; UsrFunc[int GetDefaultEWeaponSound(int)] Return Addr
+LOADD d2,9; UsrFunc[int GetDefaultEWeaponSound(int)] Params
 PUSHR d2
-GOTO 1752
+GOTO 1752; UsrFunc[int GetDefaultEWeaponSound(int)] Call
 POP d4
 STORED d2,2
-LOADD d2,9
-CREATEEWEAPONR d2
-SETR d2,REFEWPN
+LOADD d2,9; InlineFunc[EWeapon Screen->CreateEWeapon(int)] Params
+CREATEEWEAPONR d2; InlineFunc[EWeapon Screen->CreateEWeapon(int)] Body Start
+SETR d2,REFEWPN; InlineFunc[EWeapon Screen->CreateEWeapon(int)] Body End
 STORED d2,0
 LOADD d2,8
 PUSHR d2
@@ -7825,10 +7815,10 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 1508
 PUSHR d4
-PUSHV 0.1498
-LOADD d2,6
+PUSHV 0.1498; UsrFunc[int __UnblockableDir(int)] Return Addr
+LOADD d2,6; UsrFunc[int __UnblockableDir(int)] Params
 PUSHR d2
-GOTO 2139
+GOTO 2139; UsrFunc[int __UnblockableDir(int)] Call
 POP d4
 PUSHR d2
 LOADD d2,0
@@ -7853,12 +7843,12 @@ COMPAREV d2,0
 SETMOREI d2
 COMPAREV d2,0
 GOTOTRUE 1528
-LOADD d2,0
+LOADD d2,0; InlineFunc[void EWeapon->UseSprite(int)] Params
 PUSHR d2
 LOADD d2,3
-POP d3
+POP d3; InlineFunc[void EWeapon->UseSprite(int)] Body Start
 SETR REFEWPN,d3
-EWPNUSESPRITER d2
+EWPNUSESPRITER d2; InlineFunc[void EWeapon->UseSprite(int)] Body End
 LOADD d2,1
 ANDV d2,32
 COMPAREV d2,0
@@ -7882,10 +7872,10 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 1556
 PUSHR d4
-PUSHV 0.1555
-LOADD d2,0
+PUSHV 0.1555; UsrFunc[void SetEWeaponRotation(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[void SetEWeaponRotation(EWeapon)] Params
 PUSHR d2
-GOTO 1949
+GOTO 1949; UsrFunc[void SetEWeaponRotation(EWeapon)] Call
 POP d4
 LOADD d2,1
 ORV d2,512
@@ -7900,13 +7890,13 @@ POP d0
 POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2
-LOADD d2,2
-PLAYSOUNDR d2
+LOADD d2,2; InlineFunc[void Game->PlaySound(int)] Params
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 LOADD d2,0
 GOTO 1573
 POPARGS d5,0.0010
-RETURN
-PUSHARGSR d2,0.0003
+RETURN; Func[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Body End
+PUSHARGSR d2,0.0003; Func[int GetDefaultEWeaponSprite(int)] Body Start
 SETR d4,SP
 LOADD d2,3
 COMPAREV d2,129
@@ -8018,9 +8008,9 @@ SETR d2,LINKITEMD
 COMPAREV d2,0
 GOTOFALSE 1687
 GOTO 1724
-LOADD d2,0
-LOADITEMDATAR d2
-SETR d2,REFITEMCLASS
+LOADD d2,0; InlineFunc[ItemData Game->LoadItemData(int)] Params
+LOADITEMDATAR d2; InlineFunc[ItemData Game->LoadItemData(int)] Body Start
+SETR d2,REFITEMCLASS; InlineFunc[ItemData Game->LoadItemData(int)] Body End
 STORED d2,1
 LOADD d2,1
 PUSHR d2
@@ -8082,8 +8072,8 @@ GOTO 1750
 SETV d2,0
 GOTO 1750
 POPARGS d5,0.0004
-RETURN
-SETR d4,SP
+RETURN; Func[int GetDefaultEWeaponSprite(int)] Body End
+SETR d4,SP; Func[int GetDefaultEWeaponSound(int)] Body Start
 LOADD d2,0
 COMPAREV d2,129
 SETTRUEI d2
@@ -8147,8 +8137,8 @@ GOTO 1815
 SETV d2,0
 GOTO 1815
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[int GetDefaultEWeaponSound(int)] Body End
+PUSHARGSR d2,0.0002; Func[void SetEWeaponDir(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,2
 PUSHR d2
@@ -8263,10 +8253,10 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 1938
 PUSHR d4
-PUSHV 0.1936
-LOADD d2,0
+PUSHV 0.1936; UsrFunc[int __UnblockableDir(int)] Return Addr
+LOADD d2,0; UsrFunc[int __UnblockableDir(int)] Params
 PUSHR d2
-GOTO 2139
+GOTO 2139; UsrFunc[int __UnblockableDir(int)] Call
 POP d4
 STORED d2,0
 LOADD d2,0
@@ -8279,8 +8269,8 @@ POP d2
 POP REFEWPN
 SETR EWPNDIR,d2
 POPARGS d5,0.0003
-RETURN
-PUSHR d2
+RETURN; Func[void SetEWeaponDir(EWeapon)] Body End
+PUSHR d2; Func[void SetEWeaponRotation(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -8374,12 +8364,12 @@ POP REFEWPN
 SETR EWPNFLIP,d2
 GOTO 2137
 PUSHR d4
-PUSHV 0.2049
-LOADD d2,1
+PUSHV 0.2049; UsrFunc[int __NormalizeDir(int)] Return Addr
+LOADD d2,1; UsrFunc[int __NormalizeDir(int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNDIR
-GOTO 2200
+GOTO 2200; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 STORED d2,0
 LOADD d2,0
@@ -8469,8 +8459,8 @@ POP d2
 POP REFEWPN
 SETR EWPNFLIP,d2
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[void SetEWeaponRotation(EWeapon)] Body End
+SETR d4,SP; Func[int __UnblockableDir(int)] Body Start
 LOADD d2,0
 COMPAREV d2,0
 SETTRUEI d2
@@ -8530,8 +8520,8 @@ GOTO 2198
 LOADD d2,0
 GOTO 2198
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[int __UnblockableDir(int)] Body End
+SETR d4,SP; Func[int __NormalizeDir(int)] Body Start
 LOADD d2,0
 COMPAREV d2,0
 SETMOREI d2
@@ -8606,17 +8596,17 @@ GOTO 2274
 SETV d2,0
 GOTO 2274
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[int __NormalizeDir(int)] Body End
+SETR d4,SP; Func[bool IsSideview()] Body Start
 SETV d2,0
 PUSHR d2
 POP d0
 SETR d2,SCREENFLAGSD
 ANDV d2,4
 PUSHR d2
-SETR d2,CURDMAP
-LOADDMAPDATAR d2
-SETR d2,REFDMAPDATA
+SETR d2,CURDMAP; InlineFunc[DMapData Game->LoadDMapData(int)] Params
+LOADDMAPDATAR d2; InlineFunc[DMapData Game->LoadDMapData(int)] Body Start
+SETR d2,REFDMAPDATA; InlineFunc[DMapData Game->LoadDMapData(int)] Body End
 PUSHR d2
 POP REFDMAPDATA
 SETR d2,DMAPDATASIDEVIEW
@@ -8626,8 +8616,8 @@ CASTBOOLF d3
 COMPARER d3,d2
 SETFALSEI d2
 GOTO 2295
-RETURN
-SETR d4,SP
+RETURN; Func[bool IsSideview()] Body End
+SETR d4,SP; Func[void InitializeGhostZHData()] Body Start
 SETV d2,0
 PUSHR d2
 SETR d2,gd27
@@ -8670,8 +8660,8 @@ SETR d2,gd27
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 6,d2
-RETURN
-SETR d4,SP
+RETURN; Func[void InitializeGhostZHData()] Body End
+SETR d4,SP; Func[void KillEWeapon(EWeapon)] Body Start
 LOADD d2,0
 PUSHR d2
 SETV d2,15
@@ -8692,8 +8682,8 @@ POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0005
+RETURN; Func[void KillEWeapon(EWeapon)] Body End
+PUSHARGSR d2,0.0005; Func[int __GetEWeaponThrowHeight(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,5
 PUSHR d2
@@ -8709,8 +8699,8 @@ GOTOTRUE 2377
 SETV d2,1
 GOTO 2480
 PUSHR d4
-PUSHV 0.2412
-LOADD d2,5
+PUSHV 0.2412; Int.Func[int Distance(int, int, int, int)] Return Addr
+LOADD d2,5; Int.Func[int Distance(int, int, int, int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d2,EWPNX
@@ -8742,7 +8732,7 @@ PUSHR d2
 SETR d2,LINKY
 ADDV d2,8
 PUSHR d2
-GOTO 20
+GOTO 20; Int.Func[int Distance(int, int, int, int)] Call
 POP d4
 STORED d2,3
 LOADD d2,3
@@ -8812,13 +8802,13 @@ GOTO 2453
 LOADD d2,1
 GOTO 2480
 POPARGS d5,0.0006
-RETURN
-SETR d4,SP
+RETURN; Func[int __GetEWeaponThrowHeight(EWeapon)] Body End
+SETR d4,SP; Func[void SetEWeaponRotation(EWeapon, int)] Body Start
 PUSHR d4
-PUSHV 0.2488
-LOADD d2,0
+PUSHV 0.2488; UsrFunc[int __NormalizeDir(int)] Return Addr
+LOADD d2,0; UsrFunc[int __NormalizeDir(int)] Params
 PUSHR d2
-GOTO 2200
+GOTO 2200; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 STORED d2,0
 LOADD d2,0
@@ -8908,8 +8898,8 @@ POP d2
 POP REFEWPN
 SETR EWPNFLIP,d2
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[void SetEWeaponRotation(EWeapon, int)] Body End
+SETR d4,SP; Func[int Sign(int)] Body Start
 LOADD d2,0
 COMPAREV d2,0
 SETLESS d2
@@ -8931,14 +8921,14 @@ GOTO 2599
 SETV d2,0
 GOTO 2599
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[int Sign(int)] Body End
+SETR d4,SP; Func[void StartGhostZH()] Body Start
 PUSHR d4
-PUSHV 0.2605
-GOTO 2296
+PUSHV 0.2605; UsrFunc[void InitializeGhostZHData()] Return Addr
+GOTO 2296; UsrFunc[void InitializeGhostZHData()] Call
 POP d4
-RETURN
-PUSHARGSR d2,0.0007
+RETURN; Func[void StartGhostZH()] Body End
+PUSHARGSR d2,0.0007; Func[void UpdateEWeapon(EWeapon)] Body Start
 SETR d4,SP
 SETR d2,gd27
 PUSHR d2
@@ -9008,10 +8998,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 2683
 PUSHR d4
-PUSHV 0.2681
-LOADD d2,7
+PUSHV 0.2681; UsrFunc[void __UpdateEWMSineWave(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMSineWave(EWeapon)] Params
 PUSHR d2
-GOTO 3803
+GOTO 3803; UsrFunc[void __UpdateEWMSineWave(EWeapon)] Call
 POP d4
 GOTO 2743
 LOADD d2,7
@@ -9026,10 +9016,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 2701
 PUSHR d4
-PUSHV 0.2699
-LOADD d2,7
+PUSHV 0.2699; UsrFunc[void __UpdateEWMHoming(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMHoming(EWeapon)] Params
 PUSHR d2
-GOTO 3986
+GOTO 3986; UsrFunc[void __UpdateEWMHoming(EWeapon)] Call
 POP d4
 GOTO 2743
 LOADD d2,7
@@ -9044,10 +9034,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 2719
 PUSHR d4
-PUSHV 0.2717
-LOADD d2,7
+PUSHV 0.2717; UsrFunc[void __UpdateEWMHomingReaim(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMHomingReaim(EWeapon)] Params
 PUSHR d2
-GOTO 4211
+GOTO 4211; UsrFunc[void __UpdateEWMHomingReaim(EWeapon)] Call
 POP d4
 GOTO 2743
 LOADD d2,7
@@ -9062,17 +9052,17 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 2737
 PUSHR d4
-PUSHV 0.2735
-LOADD d2,7
+PUSHV 0.2735; UsrFunc[void __UpdateEWMRandom(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMRandom(EWeapon)] Params
 PUSHR d2
-GOTO 4562
+GOTO 4562; UsrFunc[void __UpdateEWMRandom(EWeapon)] Call
 POP d4
 GOTO 2743
 PUSHR d4
-PUSHV 0.2742
-LOADD d2,7
+PUSHV 0.2742; UsrFunc[void __UpdateEWMRandomReaim(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMRandomReaim(EWeapon)] Params
 PUSHR d2
-GOTO 4690
+GOTO 4690; UsrFunc[void __UpdateEWMRandomReaim(EWeapon)] Call
 POP d4
 GOTO 2876
 LOADD d2,7
@@ -9103,10 +9093,10 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 STORED d2,5
 PUSHR d4
-PUSHV 0.2776
-LOADD d2,7
+PUSHV 0.2776; UsrFunc[void __UpdateEWMVeer(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMVeer(EWeapon)] Params
 PUSHR d2
-GOTO 5017
+GOTO 5017; UsrFunc[void __UpdateEWMVeer(EWeapon)] Call
 POP d4
 SETV d2,0
 STORED d2,4
@@ -9123,10 +9113,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 2798
 PUSHR d4
-PUSHV 0.2796
-LOADD d2,7
+PUSHV 0.2796; UsrFunc[void __UpdateEWMThrow(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMThrow(EWeapon)] Params
 PUSHR d2
-GOTO 5549
+GOTO 5549; UsrFunc[void __UpdateEWMThrow(EWeapon)] Call
 POP d4
 GOTO 2876
 LOADD d2,7
@@ -9141,10 +9131,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 2816
 PUSHR d4
-PUSHV 0.2814
-LOADD d2,7
+PUSHV 0.2814; UsrFunc[void __UpdateEWMFall(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMFall(EWeapon)] Params
 PUSHR d2
-GOTO 5865
+GOTO 5865; UsrFunc[void __UpdateEWMFall(EWeapon)] Call
 POP d4
 GOTO 2876
 LOADD d2,7
@@ -9175,10 +9165,10 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 STORED d2,5
 PUSHR d4
-PUSHV 0.2848
-LOADD d2,7
+PUSHV 0.2848; UsrFunc[void __UpdateEWMDrift(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMDrift(EWeapon)] Params
 PUSHR d2
-GOTO 6137
+GOTO 6137; UsrFunc[void __UpdateEWMDrift(EWeapon)] Call
 POP d4
 SETV d2,0
 STORED d2,4
@@ -9200,10 +9190,10 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 STORED d2,5
 PUSHR d4
-PUSHV 0.2873
-LOADD d2,7
+PUSHV 0.2873; UsrFunc[void __UpdateEWMDriftWait(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __UpdateEWMDriftWait(EWeapon)] Params
 PUSHR d2
-GOTO 6641
+GOTO 6641; UsrFunc[void __UpdateEWMDriftWait(EWeapon)] Call
 POP d4
 SETV d2,0
 STORED d2,4
@@ -9260,10 +9250,10 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 2934
 PUSHR d4
-PUSHV 0.2933
-LOADD d2,7
+PUSHV 0.2933; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 GOTO 3032
 LOADD d2,7
@@ -9278,8 +9268,8 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 2982
 PUSHR d4
-PUSHV 0.2959
-LOADD d2,7
+PUSHV 0.2959; Int.Func[int Distance(int, int, int, int)] Return Addr
+LOADD d2,7; Int.Func[int Distance(int, int, int, int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNX
@@ -9289,7 +9279,7 @@ POP REFEWPN
 PUSHR EWPNY
 PUSHR LINKX
 PUSHR LINKY
-GOTO 20
+GOTO 20; Int.Func[int Distance(int, int, int, int)] Call
 POP d4
 PUSHR d2
 LOADD d2,7
@@ -9307,10 +9297,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 2981
 PUSHR d4
-PUSHV 0.2980
-LOADD d2,7
+PUSHV 0.2980; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 GOTO 3032
 LOADD d2,7
@@ -9324,7 +9314,7 @@ COMPAREV d2,3
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3032
-PUSHVARGV 0
+PUSHVARGV 0; InlineFunc[untyped Max(untyped, untyped)] Params
 LOADD d2,7
 PUSHR d2
 POP REFEWPN
@@ -9340,7 +9330,7 @@ SETR d2,EWPNMISCD
 POP d3
 SUBR d3,d2
 PUSHVARGR d3
-MAXVARG
+MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
 PUSHR d2
 LOADD d2,7
 POP d3
@@ -9358,10 +9348,10 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 3032
 PUSHR d4
-PUSHV 0.3031
-LOADD d2,7
+PUSHV 0.3031; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9404,10 +9394,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3079
 PUSHR d4
-PUSHV 0.3077
-LOADD d2,7
+PUSHV 0.3077; UsrFunc[void __DoEWeaponDeathPrototype(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeathPrototype(EWeapon)] Params
 PUSHR d2
-GOTO 7178
+GOTO 7178; UsrFunc[void __DoEWeaponDeathPrototype(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9456,10 +9446,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3131
 PUSHR d4
-PUSHV 0.3129
-LOADD d2,7
+PUSHV 0.3129; UsrFunc[void __DoEWeaponDeathAimAtLink(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeathAimAtLink(EWeapon)] Params
 PUSHR d2
-GOTO 7614
+GOTO 7614; UsrFunc[void __DoEWeaponDeathAimAtLink(EWeapon)] Call
 POP d4
 GOTO 3220
 LOADD d2,7
@@ -9474,10 +9464,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3149
 PUSHR d4
-PUSHV 0.3147
-LOADD d2,7
+PUSHV 0.3147; UsrFunc[void __DoEWeaponDeathExplode(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeathExplode(EWeapon)] Params
 PUSHR d2
-GOTO 7788
+GOTO 7788; UsrFunc[void __DoEWeaponDeathExplode(EWeapon)] Call
 POP d4
 GOTO 3220
 LOADD d2,7
@@ -9492,10 +9482,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3167
 PUSHR d4
-PUSHV 0.3165
-LOADD d2,7
+PUSHV 0.3165; UsrFunc[void __DoEWeaponDeathSBombExplode(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeathSBombExplode(EWeapon)] Params
 PUSHR d2
-GOTO 7835
+GOTO 7835; UsrFunc[void __DoEWeaponDeathSBombExplode(EWeapon)] Call
 POP d4
 GOTO 3220
 LOADD d2,7
@@ -9510,10 +9500,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3185
 PUSHR d4
-PUSHV 0.3183
-LOADD d2,7
+PUSHV 0.3183; UsrFunc[void __DoEWeaponDeath4FireballsHV(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeath4FireballsHV(EWeapon)] Params
 PUSHR d2
-GOTO 7882
+GOTO 7882; UsrFunc[void __DoEWeaponDeath4FireballsHV(EWeapon)] Call
 POP d4
 GOTO 3220
 LOADD d2,7
@@ -9528,10 +9518,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3203
 PUSHR d4
-PUSHV 0.3201
-LOADD d2,7
+PUSHV 0.3201; UsrFunc[void __DoEWeaponDeath4FireballsDiag(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeath4FireballsDiag(EWeapon)] Params
 PUSHR d2
-GOTO 7948
+GOTO 7948; UsrFunc[void __DoEWeaponDeath4FireballsDiag(EWeapon)] Call
 POP d4
 GOTO 3220
 LOADD d2,7
@@ -9546,10 +9536,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3220
 PUSHR d4
-PUSHV 0.3219
-LOADD d2,7
+PUSHV 0.3219; UsrFunc[void __DoEWeaponDeath4FireballsRand(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeath4FireballsRand(EWeapon)] Params
 PUSHR d2
-GOTO 8014
+GOTO 8014; UsrFunc[void __DoEWeaponDeath4FireballsRand(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9564,10 +9554,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3239
 PUSHR d4
-PUSHV 0.3237
-LOADD d2,7
+PUSHV 0.3237; UsrFunc[void __DoEWeaponDeath8Fireballs(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeath8Fireballs(EWeapon)] Params
 PUSHR d2
-GOTO 8140
+GOTO 8140; UsrFunc[void __DoEWeaponDeath8Fireballs(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9582,10 +9572,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3257
 PUSHR d4
-PUSHV 0.3255
-LOADD d2,7
+PUSHV 0.3255; UsrFunc[void __DoEWeaponDeath4FiresHV(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeath4FiresHV(EWeapon)] Params
 PUSHR d2
-GOTO 8206
+GOTO 8206; UsrFunc[void __DoEWeaponDeath4FiresHV(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9600,10 +9590,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3275
 PUSHR d4
-PUSHV 0.3273
-LOADD d2,7
+PUSHV 0.3273; UsrFunc[void __DoEWeaponDeath4FiresDiag(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeath4FiresDiag(EWeapon)] Params
 PUSHR d2
-GOTO 8274
+GOTO 8274; UsrFunc[void __DoEWeaponDeath4FiresDiag(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9618,10 +9608,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3293
 PUSHR d4
-PUSHV 0.3291
-LOADD d2,7
+PUSHV 0.3291; UsrFunc[void __DoEWeaponDeath4FiresRand(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeath4FiresRand(EWeapon)] Params
 PUSHR d2
-GOTO 8342
+GOTO 8342; UsrFunc[void __DoEWeaponDeath4FiresRand(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9636,10 +9626,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3311
 PUSHR d4
-PUSHV 0.3309
-LOADD d2,7
+PUSHV 0.3309; UsrFunc[void __DoEWeaponDeath8Fires(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeath8Fires(EWeapon)] Params
 PUSHR d2
-GOTO 8470
+GOTO 8470; UsrFunc[void __DoEWeaponDeath8Fires(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9654,10 +9644,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3329
 PUSHR d4
-PUSHV 0.3327
-LOADD d2,7
+PUSHV 0.3327; UsrFunc[void __DoEWeaponDeathSpawnNPC(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeathSpawnNPC(EWeapon)] Params
 PUSHR d2
-GOTO 8591
+GOTO 8591; UsrFunc[void __DoEWeaponDeathSpawnNPC(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9672,10 +9662,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3347
 PUSHR d4
-PUSHV 0.3345
-LOADD d2,7
+PUSHV 0.3345; UsrFunc[void __DoEWeaponDeathSingleFire(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeathSingleFire(EWeapon)] Params
 PUSHR d2
-GOTO 8638
+GOTO 8638; UsrFunc[void __DoEWeaponDeathSingleFire(EWeapon)] Call
 POP d4
 GOTO 3364
 LOADD d2,7
@@ -9690,10 +9680,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3364
 PUSHR d4
-PUSHV 0.3363
-LOADD d2,7
+PUSHV 0.3363; UsrFunc[void __DoEWeaponDeathRunScript(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void __DoEWeaponDeathRunScript(EWeapon)] Params
 PUSHR d2
-GOTO 8692
+GOTO 8692; UsrFunc[void __DoEWeaponDeathRunScript(EWeapon)] Call
 POP d4
 LOADD d2,7
 PUSHR d2
@@ -9718,10 +9708,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 3392
 PUSHR d4
-PUSHV 0.3391
-LOADD d2,7
+PUSHV 0.3391; UsrFunc[void DrawEWeaponShadow(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void DrawEWeaponShadow(EWeapon)] Params
 PUSHR d2
-GOTO 993
+GOTO 993; UsrFunc[void DrawEWeaponShadow(EWeapon)] Call
 POP d4
 LOADD d2,7
 PUSHR d2
@@ -9787,20 +9777,20 @@ POP REFEWPN
 SETR d2,EWPNANGULAR
 COMPAREV d2,0
 GOTOTRUE 3463
-LOADD d2,7
+LOADD d2,7; InlineFunc[int RadtoDeg(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-RADTODEG d2,d3
+RADTODEG d2,d3; InlineFunc[int RadtoDeg(int)] Body
 STORED d2,1
 GOTO 3530
 PUSHR d4
-PUSHV 0.3470
-LOADD d2,7
+PUSHV 0.3470; UsrFunc[int __NormalizeDir(int)] Return Addr
+LOADD d2,7; UsrFunc[int __NormalizeDir(int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNDIR
-GOTO 2200
+GOTO 2200; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 STORED d2,0
 LOADD d2,0
@@ -9875,9 +9865,9 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int Cos(int)] Params
 SETR d3,d2
-COSR d2,d3
+COSR d2,d3; InlineFunc[int Cos(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
@@ -9894,9 +9884,9 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int Sin(int)] Params
 SETR d3,d2
-SINR d2,d3
+SINR d2,d3; InlineFunc[int Sin(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
@@ -9939,8 +9929,8 @@ SETMOREI d2
 COMPAREV d2,0
 GOTOFALSE 3620
 PUSHR d4
-PUSHV 0.3618
-LOADD d2,6
+PUSHV 0.3618; UsrFunc[int Angle(int, int, int, int)] Return Addr
+LOADD d2,6; UsrFunc[int Angle(int, int, int, int)] Params
 PUSHR d2
 LOADD d2,5
 PUSHR d2
@@ -9948,7 +9938,7 @@ LOADD d2,3
 PUSHR d2
 LOADD d2,2
 PUSHR d2
-GOTO 53
+GOTO 53; UsrFunc[int Angle(int, int, int, int)] Call
 POP d4
 STORED d2,1
 SETV d2,0
@@ -9973,7 +9963,7 @@ STORED d2,0
 GOTO 3642
 SETV d2,2
 STORED d2,0
-PUSHV 4
+PUSHV 4; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params
 LOADD d2,3
 PUSHR d2
 LOADD d2,2
@@ -10019,8 +10009,8 @@ LOADD d2,0
 PUSHR d2
 PUSHV 1
 PUSHV 128
-DRAWTILE
-POPARGS d5,0.0015
+DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS d5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 GOTO 3749
 LOADD d2,7
 PUSHR d2
@@ -10075,10 +10065,10 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 3749
 PUSHR d4
-PUSHV 0.3748
-LOADD d2,7
+PUSHV 0.3748; UsrFunc[void SetEWeaponRotation(EWeapon)] Return Addr
+LOADD d2,7; UsrFunc[void SetEWeaponRotation(EWeapon)] Params
 PUSHR d2
-GOTO 1949
+GOTO 1949; UsrFunc[void SetEWeaponRotation(EWeapon)] Call
 POP d4
 LOADD d2,7
 PUSHR d2
@@ -10133,8 +10123,8 @@ POP d2
 POP REFEWPN
 SETR EWPNYOFS,d2
 POPARGS d5,0.0008
-RETURN
-PUSHR d2
+RETURN; Func[void UpdateEWeapon(EWeapon)] Body End
+PUSHR d2; Func[void __UpdateEWMSineWave(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,0
@@ -10174,14 +10164,14 @@ POP d0
 POP REFEWPN
 SETR d2,EWPNMISCD
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int Sin(int)] Params
 PUSHR d2
 SETV d2,6
 PUSHR d2
 POP d0
 POP REFEWPN
 SETR d3,EWPNMISCD
-SINR d2,d3
+SINR d2,d3; InlineFunc[int Sin(int)] Body
 POP d3
 MULTR d2,d3
 STORED d2,0
@@ -10199,12 +10189,12 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianCos(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-MULTV d3,57.2958
-COSR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianCos(int)] Body Start
+COSR d2,d3; InlineFunc[int RadianCos(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -10234,12 +10224,12 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianSin(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-MULTV d3,57.2958
-SINR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianSin(int)] Body Start
+SINR d2,d3; InlineFunc[int RadianSin(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -10265,14 +10255,14 @@ SETR d2,EWPNMISCD
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianCos(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d2,EWPNANGLE
 ADDV d2,1.5708
 SETR d3,d2
-MULTV d3,57.2958
-COSR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianCos(int)] Body Start
+COSR d2,d3; InlineFunc[int RadianCos(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -10295,14 +10285,14 @@ SETR d2,EWPNMISCD
 PUSHR d2
 LOADD d2,0
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianSin(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d2,EWPNANGLE
 ADDV d2,1.5708
 SETR d3,d2
-MULTV d3,57.2958
-SINR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianSin(int)] Body Start
+SINR d2,d3; InlineFunc[int RadianSin(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -10316,8 +10306,8 @@ POP d2
 POP REFEWPN
 SETR EWPNY,d2
 POPARGS d5,0.0002
-RETURN
-PUSHARGSR d2,0.0003
+RETURN; Func[void __UpdateEWMSineWave(EWeapon)] Body End
+PUSHARGSR d2,0.0003; Func[void __UpdateEWMHoming(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,3
 PUSHR d2
@@ -10336,8 +10326,8 @@ LOADD d2,2
 ADDV d2,6.2832
 STORED d2,2
 PUSHR d4
-PUSHV 0.4017
-LOADD d2,3
+PUSHV 0.4017; UsrFunc[int RadianAngle(int, int, int, int)] Return Addr
+LOADD d2,3; UsrFunc[int RadianAngle(int, int, int, int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNX
@@ -10347,7 +10337,7 @@ POP REFEWPN
 PUSHR EWPNY
 PUSHR LINKX
 PUSHR LINKY
-GOTO 26
+GOTO 26; UsrFunc[int RadianAngle(int, int, int, int)] Call
 POP d4
 STORED d2,1
 LOADD d2,1
@@ -10360,13 +10350,13 @@ GOTOTRUE 4029
 LOADD d2,1
 ADDV d2,6.2832
 STORED d2,1
-LOADD d2,2
+LOADD d2,2; InlineFunc[int Abs(int)] Params
 PUSHR d2
 LOADD d2,1
 POP d3
 SUBR d3,d2
 SETR d2,d3
-ABS d2
+ABS d2; InlineFunc[int Abs(int)] Body
 STORED d2,0
 LOADD d2,0
 PUSHR d2
@@ -10415,22 +10405,22 @@ POP REFEWPN
 SETR EWPNANGLE,d2
 GOTO 4152
 PUSHR d4
-PUSHV 0.4092
-LOADD d2,2
+PUSHV 0.4092; UsrFunc[int Sign(int)] Return Addr
+LOADD d2,2; UsrFunc[int Sign(int)] Params
 PUSHR d2
 LOADD d2,1
 POP d3
 SUBR d3,d2
 PUSHR d3
-GOTO 2578
+GOTO 2578; UsrFunc[int Sign(int)] Call
 POP d4
 PUSHR d2
 PUSHR d4
-PUSHV 0.4100
-LOADD d2,0
+PUSHV 0.4100; UsrFunc[int Sign(int)] Return Addr
+LOADD d2,0; UsrFunc[int Sign(int)] Params
 SUBV d2,3.1416
 PUSHR d2
-GOTO 2578
+GOTO 2578; UsrFunc[int Sign(int)] Call
 POP d4
 POP d3
 COMPARER d3,d2
@@ -10484,10 +10474,10 @@ POP d2
 POP REFEWPN
 SETR EWPNANGLE,d2
 PUSHR d4
-PUSHV 0.4157
-LOADD d2,3
+PUSHV 0.4157; UsrFunc[void SetEWeaponDir(EWeapon)] Return Addr
+LOADD d2,3; UsrFunc[void SetEWeaponDir(EWeapon)] Params
 PUSHR d2
-GOTO 1817
+GOTO 1817; UsrFunc[void SetEWeaponDir(EWeapon)] Call
 POP d4
 LOADD d2,3
 PUSHR d2
@@ -10535,14 +10525,14 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 4209
 PUSHR d4
-PUSHV 0.4208
-LOADD d2,3
+PUSHV 0.4208; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,3; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 POPARGS d5,0.0004
-RETURN
-PUSHR d2
+RETURN; Func[void __UpdateEWMHoming(EWeapon)] Body End
+PUSHR d2; Func[void __UpdateEWMHomingReaim(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -10630,10 +10620,10 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 4305
 PUSHR d4
-PUSHV 0.4303
-LOADD d2,1
+PUSHV 0.4303; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 GOTO 4347
 LOADD d2,1
@@ -10724,8 +10714,8 @@ POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2
 PUSHR d4
-PUSHV 0.4405
-LOADD d2,1
+PUSHV 0.4405; UsrFunc[int RadianAngle(int, int, int, int)] Return Addr
+LOADD d2,1; UsrFunc[int RadianAngle(int, int, int, int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNX
@@ -10735,7 +10725,7 @@ POP REFEWPN
 PUSHR EWPNY
 PUSHR LINKX
 PUSHR LINKY
-GOTO 26
+GOTO 26; UsrFunc[int RadianAngle(int, int, int, int)] Call
 POP d4
 PUSHR d2
 LOADD d2,1
@@ -10761,10 +10751,10 @@ POP d2
 POP REFEWPN
 SETR EWPNSTEP,d2
 PUSHR d4
-PUSHV 0.4434
-LOADD d2,1
+PUSHV 0.4434; UsrFunc[void SetEWeaponDir(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponDir(EWeapon)] Params
 PUSHR d2
-GOTO 1817
+GOTO 1817; UsrFunc[void SetEWeaponDir(EWeapon)] Call
 POP d4
 LOADD d2,1
 PUSHR d2
@@ -10779,10 +10769,10 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 4453
 PUSHR d4
-PUSHV 0.4452
-LOADD d2,1
+PUSHV 0.4452; UsrFunc[void SetEWeaponRotation(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon)] Params
 PUSHR d2
-GOTO 1949
+GOTO 1949; UsrFunc[void SetEWeaponRotation(EWeapon)] Call
 POP d4
 LOADD d2,1
 PUSHR d2
@@ -10851,11 +10841,11 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 4527
 PUSHR d4
-PUSHV 0.4525
-LOADD d2,1
+PUSHV 0.4525; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 0
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 4560
 LOADD d2,0
@@ -10864,11 +10854,11 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 4540
 PUSHR d4
-PUSHV 0.4538
-LOADD d2,1
+PUSHV 0.4538; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 3
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 4560
 LOADD d2,0
@@ -10877,31 +10867,31 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 4553
 PUSHR d4
-PUSHV 0.4551
-LOADD d2,1
+PUSHV 0.4551; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 1
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 4560
 PUSHR d4
-PUSHV 0.4559
-LOADD d2,1
+PUSHV 0.4559; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 2
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[void __UpdateEWMHomingReaim(EWeapon)] Body End
+SETR d4,SP; Func[void __UpdateEWMRandom(EWeapon)] Body Start
 LOADD d2,0
 PUSHR d2
 POP REFEWPN
 SETR d2,EWPNANGLE
 PUSHR d2
 PUSHR d4
-PUSHV 0.4591
-LOADD d2,0
+PUSHV 0.4591; UsrFunc[int Randf(int)] Return Addr
+LOADD d2,0; UsrFunc[int Randf(int)] Params
 PUSHR d2
 SETV d2,9
 PUSHR d2
@@ -10921,7 +10911,7 @@ SETR d2,EWPNMISCD
 POP d3
 MULTR d2,d3
 PUSHR d2
-GOTO 44
+GOTO 44; UsrFunc[int Randf(int)] Call
 POP d4
 PUSHR d2
 LOADD d2,0
@@ -10945,10 +10935,10 @@ POP d2
 POP REFEWPN
 SETR EWPNANGLE,d2
 PUSHR d4
-PUSHV 0.4618
-LOADD d2,0
+PUSHV 0.4618; UsrFunc[void SetEWeaponDir(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[void SetEWeaponDir(EWeapon)] Params
 PUSHR d2
-GOTO 1817
+GOTO 1817; UsrFunc[void SetEWeaponDir(EWeapon)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -10963,10 +10953,10 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 4637
 PUSHR d4
-PUSHV 0.4636
-LOADD d2,0
+PUSHV 0.4636; UsrFunc[void SetEWeaponRotation(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[void SetEWeaponRotation(EWeapon)] Params
 PUSHR d2
-GOTO 1949
+GOTO 1949; UsrFunc[void SetEWeaponRotation(EWeapon)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -11014,14 +11004,14 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 4688
 PUSHR d4
-PUSHV 0.4687
-LOADD d2,0
+PUSHV 0.4687; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 POPARGS d5,0.0001
-RETURN
-PUSHR d2
+RETURN; Func[void __UpdateEWMRandom(EWeapon)] Body End
+PUSHR d2; Func[void __UpdateEWMRandomReaim(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -11109,10 +11099,10 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 4784
 PUSHR d4
-PUSHV 0.4782
-LOADD d2,1
+PUSHV 0.4782; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 GOTO 4826
 LOADD d2,1
@@ -11202,8 +11192,8 @@ POP d0
 POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2
-SETV d3,62832
-RNDR d2,d3
+SETV d3,62832; InlineFunc[int Rand(int)] Params
+RNDR d2,d3; InlineFunc[int Rand(int)] Body
 MULTV d2,0.0001
 PUSHR d2
 LOADD d2,1
@@ -11229,10 +11219,10 @@ POP d2
 POP REFEWPN
 SETR EWPNSTEP,d2
 PUSHR d4
-PUSHV 0.4902
-LOADD d2,1
+PUSHV 0.4902; UsrFunc[void SetEWeaponDir(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponDir(EWeapon)] Params
 PUSHR d2
-GOTO 1817
+GOTO 1817; UsrFunc[void SetEWeaponDir(EWeapon)] Call
 POP d4
 LOADD d2,1
 PUSHR d2
@@ -11247,10 +11237,10 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 4921
 PUSHR d4
-PUSHV 0.4920
-LOADD d2,1
+PUSHV 0.4920; UsrFunc[void SetEWeaponRotation(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon)] Params
 PUSHR d2
-GOTO 1949
+GOTO 1949; UsrFunc[void SetEWeaponRotation(EWeapon)] Call
 POP d4
 LOADD d2,1
 PUSHR d2
@@ -11306,11 +11296,11 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 4982
 PUSHR d4
-PUSHV 0.4980
-LOADD d2,1
+PUSHV 0.4980; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 0
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 5015
 LOADD d2,0
@@ -11319,11 +11309,11 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 4995
 PUSHR d4
-PUSHV 0.4993
-LOADD d2,1
+PUSHV 0.4993; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 3
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 5015
 LOADD d2,0
@@ -11332,23 +11322,23 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 5008
 PUSHR d4
-PUSHV 0.5006
-LOADD d2,1
+PUSHV 0.5006; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 1
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 5015
 PUSHR d4
-PUSHV 0.5014
-LOADD d2,1
+PUSHV 0.5014; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 2
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __UpdateEWMRandomReaim(EWeapon)] Body End
+PUSHR d2; Func[void __UpdateEWMVeer(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -11372,12 +11362,12 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianCos(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-MULTV d3,57.2958
-COSR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianCos(int)] Body Start
+COSR d2,d3; InlineFunc[int RadianCos(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -11407,12 +11397,12 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianSin(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-MULTV d3,57.2958
-SINR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianSin(int)] Body Start
+SINR d2,d3; InlineFunc[int RadianSin(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -11879,8 +11869,8 @@ POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __UpdateEWMVeer(EWeapon)] Body End
+PUSHR d2; Func[void __UpdateEWMThrow(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 PUSHR d2
@@ -11946,7 +11936,7 @@ POP d0
 POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[untyped Max(untyped, untyped)] Params
 PUSHR d2
 SETV d2,7
 PUSHR d2
@@ -11965,7 +11955,7 @@ POP d3
 ADDR d2,d3
 PUSHVARGR d2
 PUSHVARGV 0
-MAXVARG
+MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
 PUSHR d2
 LOADD d2,1
 POP d3
@@ -11978,8 +11968,8 @@ POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2
 PUSHR d4
-PUSHV 0.5649
-GOTO 2276
+PUSHV 0.5649; UsrFunc[bool IsSideview()] Return Addr
+GOTO 2276; UsrFunc[bool IsSideview()] Call
 POP d4
 COMPAREV d2,0
 GOTOFALSE 5668
@@ -12029,8 +12019,8 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 5750
 PUSHR d4
-PUSHV 0.5724
-LOADD d2,1
+PUSHV 0.5724; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Return Addr
+LOADD d2,1; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNX
@@ -12054,11 +12044,11 @@ LOADD d2,1
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNHXSZ
-GOTO 10057
+GOTO 10057; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Call
 POP d4
 COMPAREV d2,0
 GOTOFALSE 5749
-LOADD d2,1
+LOADD d2,1; InlineFunc[untyped Max(untyped, untyped)] Params
 PUSHR d2
 SETV d2,6
 PUSHR d2
@@ -12068,7 +12058,7 @@ SETR d2,EWPNMISCD
 SUBV d2,0.1600
 PUSHVARGR d2
 PUSHVARGV -3.2000
-MAXVARG
+MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
 PUSHR d2
 LOADD d2,1
 POP d3
@@ -12167,10 +12157,10 @@ POP d2
 POP REFEWPN
 SETR EWPNZ,d2
 PUSHR d4
-PUSHV 0.5840
-LOADD d2,1
+PUSHV 0.5840; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 GOTO 5863
 SETV d2,0
@@ -12195,8 +12185,8 @@ POP d2
 POP REFEWPN
 SETR EWPNSTEP,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __UpdateEWMThrow(EWeapon)] Body End
+PUSHR d2; Func[void __UpdateEWMFall(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 PUSHR d2
@@ -12237,8 +12227,8 @@ POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2
 PUSHR d4
-PUSHV 0.5908
-GOTO 2276
+PUSHV 0.5908; UsrFunc[bool IsSideview()] Return Addr
+GOTO 2276; UsrFunc[bool IsSideview()] Call
 POP d4
 COMPAREV d2,0
 GOTOFALSE 5927
@@ -12288,7 +12278,7 @@ PUSHR d3
 POP d2
 POP REFEWPN
 SETR EWPNYOFS,d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[untyped Min(untyped, untyped)] Params
 PUSHR d2
 SETV d2,6
 PUSHR d2
@@ -12298,7 +12288,7 @@ SETR d2,EWPNMISCD
 ADDV d2,0.1600
 PUSHVARGR d2
 PUSHVARGV 3.2000
-MINVARG
+MINVARG; InlineFunc[untyped Min(untyped, untyped)] Body
 PUSHR d2
 LOADD d2,1
 POP d3
@@ -12322,8 +12312,8 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 6135
 PUSHR d4
-PUSHV 0.6017
-LOADD d2,1
+PUSHV 0.6017; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Return Addr
+LOADD d2,1; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNX
@@ -12347,7 +12337,7 @@ LOADD d2,1
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNHXSZ
-GOTO 10057
+GOTO 10057; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Call
 POP d4
 COMPAREV d2,0
 GOTOFALSE 6135
@@ -12439,10 +12429,10 @@ POP d2
 POP REFEWPN
 SETR EWPNZ,d2
 PUSHR d4
-PUSHV 0.6112
-LOADD d2,1
+PUSHV 0.6112; UsrFunc[void KillEWeapon(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void KillEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2340
+GOTO 2340; UsrFunc[void KillEWeapon(EWeapon)] Call
 POP d4
 GOTO 6135
 SETV d2,0
@@ -12467,8 +12457,8 @@ POP d2
 POP REFEWPN
 SETR EWPNSTEP,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __UpdateEWMFall(EWeapon)] Body End
+PUSHR d2; Func[void __UpdateEWMDrift(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -12492,12 +12482,12 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianCos(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-MULTV d3,57.2958
-COSR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianCos(int)] Body Start
+COSR d2,d3; InlineFunc[int RadianCos(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -12527,12 +12517,12 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianSin(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-MULTV d3,57.2958
-SINR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianSin(int)] Body Start
+SINR d2,d3; InlineFunc[int RadianSin(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -12971,8 +12961,8 @@ POP d2
 POP REFEWPN
 SETR EWPNY,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __UpdateEWMDrift(EWeapon)] Body End
+PUSHR d2; Func[void __UpdateEWMDriftWait(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,1
 PUSHR d2
@@ -13007,12 +12997,12 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianCos(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-MULTV d3,57.2958
-COSR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianCos(int)] Body Start
+COSR d2,d3; InlineFunc[int RadianCos(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -13042,12 +13032,12 @@ POP REFEWPN
 SETR d2,EWPNSTEP
 DIVV d2,100
 PUSHR d2
-LOADD d2,1
+LOADD d2,1; InlineFunc[int RadianSin(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-MULTV d3,57.2958
-SINR d2,d3
+MULTV d3,57.2958; InlineFunc[int RadianSin(int)] Body Start
+SINR d2,d3; InlineFunc[int RadianSin(int)] Body End
 POP d3
 MULTR d2,d3
 POP d3
@@ -13508,8 +13498,8 @@ POP d2
 POP REFEWPN
 SETR EWPNY,d2
 POPARGS d5,0.0002
-RETURN
-PUSHARGSR d2,0.0011
+RETURN; Func[void __UpdateEWMDriftWait(EWeapon)] Body End
+PUSHARGSR d2,0.0011; Func[void __DoEWeaponDeathPrototype(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,10
@@ -13529,16 +13519,16 @@ SETV d2,0
 STORED d2,3
 SETV d2,0
 STORED d2,2
-LOADD d2,11
+LOADD d2,11; InlineFunc[untyped Floor(untyped)] Params
 PUSHR d2
 SETV d2,13
 PUSHR d2
 POP d0
 POP REFEWPN
 SETR d2,EWPNMISCD
-FLOOR d2
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,10
-SETR d2,EWPNCOUNT
+SETR d2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body
 STORED d2,2
 LOADD d2,2
 COMPAREV d2,0
@@ -13547,10 +13537,10 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7255
-LOADD d2,2
-SUBV d2,1
+LOADD d2,2; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Params
+SUBV d2,1; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body Start
 LOADEWEAPONR d2
-SETR d2,REFEWPN
+SETR d2,REFEWPN; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body End
 STORED d2,9
 LOADD d2,9
 PUSHR d2
@@ -13594,10 +13584,10 @@ GOTOTRUE 7281
 ALLOCATEMEMV d2,43
 STORED d2,0
 WRITEPODSTRING d2,"ghost.zh: Failed to find prototype eweapon"
-LOADD d2,0
+LOADD d2,0; InlineFunc[void TraceS(int)] Params
 SETR d0,d2
-TRACE6 d3
-TRACE3
+TRACE6 d3; InlineFunc[void TraceS(int)] Body
+TRACE3; InlineFunc[void TraceNL()] Body
 SETV d2,0
 PUSHR d2
 LOADD d2,11
@@ -13732,8 +13722,8 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7433
 PUSHR d4
-PUSHV 0.7426
-LOADD d2,9
+PUSHV 0.7426; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Return Addr
+LOADD d2,9; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params
 PUSHR d2
 LOADD d2,6
 PUSHR d2
@@ -13756,7 +13746,7 @@ SETR d2,d3
 POP d3
 ADDR d2,d3
 PUSHR d2
-GOTO 9555
+GOTO 9555; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Call
 POP d4
 LOADD d2,1
 PUSHR d2
@@ -13764,14 +13754,14 @@ ADDV d2,1
 STORED d2,1
 POP d2
 GOTO 7390
-LOADD d2,9
+LOADD d2,9; InlineFunc[void Game->PlaySound(int)] Params
 PUSHR d2
 SETV d2,2
 PUSHR d2
 POP d0
 POP REFEWPN
 SETR d2,EWPNMISCD
-PLAYSOUNDR d2
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 GOTO 7603
 LOADD d2,7
 COMPAREV d2,2
@@ -13791,18 +13781,18 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7479
 PUSHR d4
-PUSHV 0.7472
-LOADD d2,9
+PUSHV 0.7472; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Return Addr
+LOADD d2,9; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params
 PUSHR d2
 LOADD d2,6
 PUSHR d2
 LOADD d2,5
 PUSHR d2
-SETV d3,31416
-RNDR d2,d3
+SETV d3,31416; InlineFunc[int Rand(int)] Params
+RNDR d2,d3; InlineFunc[int Rand(int)] Body
 DIVV d2,5000
 PUSHR d2
-GOTO 9555
+GOTO 9555; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Call
 POP d4
 LOADD d2,1
 PUSHR d2
@@ -13810,14 +13800,14 @@ ADDV d2,1
 STORED d2,1
 POP d2
 GOTO 7449
-LOADD d2,9
+LOADD d2,9; InlineFunc[void Game->PlaySound(int)] Params
 PUSHR d2
 SETV d2,2
 PUSHR d2
 POP d0
 POP REFEWPN
 SETR d2,EWPNMISCD
-PLAYSOUNDR d2
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 GOTO 7603
 LOADD d2,3
 COMPAREV d2,1
@@ -13826,7 +13816,7 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7563
-SETR d2,LINKX
+SETR d2,LINKX; InlineFunc[int ArcTan(int, int)] Params
 ADDV d2,8
 PUSHR d2
 LOADD d2,6
@@ -13840,8 +13830,8 @@ LOADD d2,5
 POP d3
 SUBR d3,d2
 SETR d1,d3
-POP d0
-ARCTANR d2
+POP d0; InlineFunc[int ArcTan(int, int)] Body Start
+ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 PUSHR d2
 LOADD d2,4
 DIVV d2,2
@@ -13862,8 +13852,8 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7562
 PUSHR d4
-PUSHV 0.7555
-LOADD d2,9
+PUSHV 0.7555; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Return Addr
+LOADD d2,9; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params
 PUSHR d2
 LOADD d2,6
 PUSHR d2
@@ -13885,7 +13875,7 @@ SETR d2,d3
 POP d3
 ADDR d2,d3
 PUSHR d2
-GOTO 9555
+GOTO 9555; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -13900,14 +13890,14 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7595
 PUSHR d4
-PUSHV 0.7594
-LOADD d2,9
+PUSHV 0.7594; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Return Addr
+LOADD d2,9; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params
 PUSHR d2
 LOADD d2,6
 PUSHR d2
 LOADD d2,5
 PUSHR d2
-SETR d2,LINKX
+SETR d2,LINKX; InlineFunc[int ArcTan(int, int)] Params
 ADDV d2,8
 PUSHR d2
 LOADD d2,6
@@ -13921,19 +13911,19 @@ LOADD d2,5
 POP d3
 SUBR d3,d2
 SETR d1,d3
-POP d0
-ARCTANR d2
+POP d0; InlineFunc[int ArcTan(int, int)] Body Start
+ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 PUSHR d2
-GOTO 9555
+GOTO 9555; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Call
 POP d4
-LOADD d2,9
+LOADD d2,9; InlineFunc[void Game->PlaySound(int)] Params
 PUSHR d2
 SETV d2,2
 PUSHR d2
 POP d0
 POP REFEWPN
 SETR d2,EWPNMISCD
-PLAYSOUNDR d2
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 SETV d2,0
 PUSHR d2
 LOADD d2,11
@@ -13944,8 +13934,8 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0012
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeathPrototype(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeathAimAtLink(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 PUSHR d2
@@ -13987,8 +13977,8 @@ SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 7705
 PUSHR d4
-PUSHV 0.7668
-LOADD d2,1
+PUSHV 0.7668; UsrFunc[int RadianAngle(int, int, int, int)] Return Addr
+LOADD d2,1; UsrFunc[int RadianAngle(int, int, int, int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNX
@@ -13998,7 +13988,7 @@ POP REFEWPN
 PUSHR EWPNY
 PUSHR LINKX
 PUSHR LINKY
-GOTO 26
+GOTO 26; UsrFunc[int RadianAngle(int, int, int, int)] Call
 POP d4
 PUSHR d2
 LOADD d2,1
@@ -14009,10 +13999,10 @@ POP d2
 POP REFEWPN
 SETR EWPNANGLE,d2
 PUSHR d4
-PUSHV 0.7682
-LOADD d2,1
+PUSHV 0.7682; UsrFunc[void SetEWeaponDir(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponDir(EWeapon)] Params
 PUSHR d2
-GOTO 1817
+GOTO 1817; UsrFunc[void SetEWeaponDir(EWeapon)] Call
 POP d4
 SETV d2,300
 PUSHR d2
@@ -14056,10 +14046,10 @@ POP d2
 POP REFEWPN
 SETR EWPNANGLE,d2
 PUSHR d4
-PUSHV 0.7729
-LOADD d2,1
+PUSHV 0.7729; UsrFunc[void SetEWeaponDir(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponDir(EWeapon)] Params
 PUSHR d2
-GOTO 1817
+GOTO 1817; UsrFunc[void SetEWeaponDir(EWeapon)] Call
 POP d4
 GOTO 7786
 LOADD d2,1
@@ -14077,11 +14067,11 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7753
 PUSHR d4
-PUSHV 0.7751
-LOADD d2,1
+PUSHV 0.7751; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 0
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 7786
 LOADD d2,0
@@ -14090,11 +14080,11 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7766
 PUSHR d4
-PUSHV 0.7764
-LOADD d2,1
+PUSHV 0.7764; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 3
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 7786
 LOADD d2,0
@@ -14103,86 +14093,39 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7779
 PUSHR d4
-PUSHV 0.7777
-LOADD d2,1
+PUSHV 0.7777; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 1
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 GOTO 7786
 PUSHR d4
-PUSHV 0.7785
-LOADD d2,1
+PUSHV 0.7785; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Return Addr
+LOADD d2,1; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Params
 PUSHR d2
 PUSHV 2
-GOTO 2482
+GOTO 2482; UsrFunc[void SetEWeaponRotation(EWeapon, int)] Call
 POP d4
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[void __DoEWeaponDeathAimAtLink(EWeapon)] Body End
+SETR d4,SP; Func[void __DoEWeaponDeathExplode(EWeapon)] Body Start
 PUSHR d4
-PUSHV 0.7823
-PUSHV 135
+PUSHV 0.7823; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 135; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.7797
-LOADD d2,0
+PUSHV 0.7797; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.7805
-LOADD d2,0
+PUSHV 0.7805; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
-POP d4
-SUBV d2,8
-PUSHR d2
-LOADD d2,0
-PUSHR d2
-POP REFEWPN
-PUSHR EWPNDIR
-PUSHV 0
-LOADD d2,0
-PUSHR d2
-SETV d2,14
-PUSHR d2
-POP d0
-POP REFEWPN
-PUSHR EWPNMISCD
-PUSHV -1
-PUSHARGSV 0,0.0002
-GOTO 1407
-POP d4
-SETV d2,0
-PUSHR d2
-LOADD d2,0
-POP d3
-PUSHR d2
-PUSHR d3
-POP d2
-POP REFEWPN
-SETR EWPNDEAD,d2
-POPARGS d5,0.0001
-RETURN
-SETR d4,SP
-PUSHR d4
-PUSHV 0.7870
-PUSHV 136
-PUSHR d4
-PUSHV 0.7844
-LOADD d2,0
-PUSHR d2
-GOTO 884
-POP d4
-SUBV d2,8
-PUSHR d2
-PUSHR d4
-PUSHV 0.7852
-LOADD d2,0
-PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14200,7 +14143,7 @@ POP REFEWPN
 PUSHR EWPNMISCD
 PUSHV -1
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 SETV d2,0
 PUSHR d2
@@ -14212,8 +14155,55 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0001
-RETURN
+RETURN; Func[void __DoEWeaponDeathExplode(EWeapon)] Body End
+SETR d4,SP; Func[void __DoEWeaponDeathSBombExplode(EWeapon)] Body Start
+PUSHR d4
+PUSHV 0.7870; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 136; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
+PUSHR d4
+PUSHV 0.7844; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
+POP d4
+SUBV d2,8
+PUSHR d2
+PUSHR d4
+PUSHV 0.7852; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[int CenterY(EWeapon)] Params
+PUSHR d2
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
+POP d4
+SUBV d2,8
+PUSHR d2
+LOADD d2,0
+PUSHR d2
+POP REFEWPN
+PUSHR EWPNDIR
+PUSHV 0
+LOADD d2,0
+PUSHR d2
+SETV d2,14
+PUSHR d2
+POP d0
+POP REFEWPN
+PUSHR EWPNMISCD
+PUSHV -1
+PUSHARGSV 0,0.0002
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
+POP d4
+SETV d2,0
+PUSHR d2
+LOADD d2,0
+POP d3
+PUSHR d2
+PUSHR d3
+POP d2
+POP REFEWPN
+SETR EWPNDEAD,d2
+POPARGS d5,0.0001
+RETURN; Func[void __DoEWeaponDeathSBombExplode(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeath4FireballsHV(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,0
@@ -14225,21 +14215,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 7937
 PUSHR d4
-PUSHV 0.7930
-PUSHV 129
+PUSHV 0.7930; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 129; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.7901
-LOADD d2,1
+PUSHV 0.7901; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.7909
-LOADD d2,1
+PUSHV 0.7909; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14260,7 +14250,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14278,8 +14268,8 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeath4FireballsHV(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeath4FireballsDiag(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,4
 STORED d2,0
@@ -14291,21 +14281,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8003
 PUSHR d4
-PUSHV 0.7996
-PUSHV 129
+PUSHV 0.7996; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 129; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.7967
-LOADD d2,1
+PUSHV 0.7967; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.7975
-LOADD d2,1
+PUSHV 0.7975; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14326,7 +14316,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14344,11 +14334,11 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeath4FireballsDiag(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeath4FireballsRand(EWeapon)] Body Start
 SETR d4,SP
-SETV d3,2
-RNDR d2,d3
+SETV d3,2; InlineFunc[int Rand(int)] Params
+RNDR d2,d3; InlineFunc[int Rand(int)] Body
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
@@ -14363,21 +14353,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8075
 PUSHR d4
-PUSHV 0.8068
-PUSHV 129
+PUSHV 0.8068; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 129; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8039
-LOADD d2,1
+PUSHV 0.8039; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8047
-LOADD d2,1
+PUSHV 0.8047; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14398,7 +14388,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14417,21 +14407,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8129
 PUSHR d4
-PUSHV 0.8122
-PUSHV 129
+PUSHV 0.8122; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 129; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8093
-LOADD d2,1
+PUSHV 0.8093; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8101
-LOADD d2,1
+PUSHV 0.8101; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14452,7 +14442,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14470,8 +14460,8 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeath4FireballsRand(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeath8Fireballs(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,0
@@ -14483,21 +14473,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8195
 PUSHR d4
-PUSHV 0.8188
-PUSHV 129
+PUSHV 0.8188; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 129; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8159
-LOADD d2,1
+PUSHV 0.8159; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8167
-LOADD d2,1
+PUSHV 0.8167; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14518,7 +14508,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14536,8 +14526,8 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeath8Fireballs(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeath4FiresHV(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,0
@@ -14549,21 +14539,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8261
 PUSHR d4
-PUSHV 0.8254
-PUSHV 140
+PUSHV 0.8254; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 140; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8225
-LOADD d2,1
+PUSHV 0.8225; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8233
-LOADD d2,1
+PUSHV 0.8233; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14584,7 +14574,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14592,8 +14582,8 @@ ADDV d2,1
 STORED d2,0
 POP d2
 GOTO 8210
-SETV d2,13
-PLAYSOUNDR d2
+SETV d2,13; InlineFunc[void Game->PlaySound(int)] Params
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 SETV d2,0
 PUSHR d2
 LOADD d2,1
@@ -14604,8 +14594,8 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeath4FiresHV(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeath4FiresDiag(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,4
 STORED d2,0
@@ -14617,21 +14607,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8329
 PUSHR d4
-PUSHV 0.8322
-PUSHV 140
+PUSHV 0.8322; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 140; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8293
-LOADD d2,1
+PUSHV 0.8293; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8301
-LOADD d2,1
+PUSHV 0.8301; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14652,7 +14642,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14660,8 +14650,8 @@ ADDV d2,1
 STORED d2,0
 POP d2
 GOTO 8278
-SETV d2,13
-PLAYSOUNDR d2
+SETV d2,13; InlineFunc[void Game->PlaySound(int)] Params
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 SETV d2,0
 PUSHR d2
 LOADD d2,1
@@ -14672,11 +14662,11 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeath4FiresDiag(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeath4FiresRand(EWeapon)] Body Start
 SETR d4,SP
-SETV d3,2
-RNDR d2,d3
+SETV d3,2; InlineFunc[int Rand(int)] Params
+RNDR d2,d3; InlineFunc[int Rand(int)] Body
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
@@ -14691,21 +14681,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8403
 PUSHR d4
-PUSHV 0.8396
-PUSHV 140
+PUSHV 0.8396; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 140; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8367
-LOADD d2,1
+PUSHV 0.8367; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8375
-LOADD d2,1
+PUSHV 0.8375; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14726,7 +14716,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14745,21 +14735,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8457
 PUSHR d4
-PUSHV 0.8450
-PUSHV 140
+PUSHV 0.8450; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 140; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8421
-LOADD d2,1
+PUSHV 0.8421; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8429
-LOADD d2,1
+PUSHV 0.8429; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14780,7 +14770,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14788,8 +14778,8 @@ ADDV d2,1
 STORED d2,0
 POP d2
 GOTO 8406
-SETV d2,13
-PLAYSOUNDR d2
+SETV d2,13; InlineFunc[void Game->PlaySound(int)] Params
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 SETV d2,0
 PUSHR d2
 LOADD d2,1
@@ -14800,8 +14790,8 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeath4FiresRand(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeath8Fires(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,0
@@ -14813,21 +14803,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8525
 PUSHR d4
-PUSHV 0.8518
-PUSHV 140
+PUSHV 0.8518; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 140; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8489
-LOADD d2,1
+PUSHV 0.8489; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8497
-LOADD d2,1
+PUSHV 0.8497; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14848,7 +14838,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14866,21 +14856,21 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8578
 PUSHR d4
-PUSHV 0.8571
-PUSHV 140
+PUSHV 0.8571; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 140; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8542
-LOADD d2,1
+PUSHV 0.8542; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8550
-LOADD d2,1
+PUSHV 0.8550; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -14901,7 +14891,7 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -14909,8 +14899,8 @@ ADDV d2,1
 STORED d2,0
 POP d2
 GOTO 8527
-SETV d2,13
-PLAYSOUNDR d2
+SETV d2,13; InlineFunc[void Game->PlaySound(int)] Params
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 SETV d2,0
 PUSHR d2
 LOADD d2,1
@@ -14921,18 +14911,18 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[void __DoEWeaponDeath8Fires(EWeapon)] Body End
+PUSHR d2; Func[void __DoEWeaponDeathSpawnNPC(EWeapon)] Body Start
 SETR d4,SP
-LOADD d2,1
+LOADD d2,1; InlineFunc[NPC Screen->CreateNPC(int)] Params
 PUSHR d2
 SETV d2,14
 PUSHR d2
 POP d0
 POP REFEWPN
 SETR d2,EWPNMISCD
-CREATENPCR d2
-SETR d2,REFNPC
+CREATENPCR d2; InlineFunc[NPC Screen->CreateNPC(int)] Body Start
+SETR d2,REFNPC; InlineFunc[NPC Screen->CreateNPC(int)] Body End
 STORED d2,0
 LOADD d2,1
 PUSHR d2
@@ -14968,24 +14958,24 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0002
-RETURN
-SETR d4,SP
+RETURN; Func[void __DoEWeaponDeathSpawnNPC(EWeapon)] Body End
+SETR d4,SP; Func[void __DoEWeaponDeathSingleFire(EWeapon)] Body Start
 PUSHR d4
-PUSHV 0.8678
-PUSHV 140
+PUSHV 0.8678; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Return Addr
+PUSHV 140; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params
 PUSHR d4
-PUSHV 0.8647
-LOADD d2,0
+PUSHV 0.8647; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
 PUSHR d4
-PUSHV 0.8655
-LOADD d2,0
+PUSHV 0.8655; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -15008,10 +14998,10 @@ POP d0
 POP REFEWPN
 PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002
-GOTO 1407
+GOTO 1407; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP d4
-SETV d2,13
-PLAYSOUNDR d2
+SETV d2,13; InlineFunc[void Game->PlaySound(int)] Params
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 SETV d2,0
 PUSHR d2
 LOADD d2,0
@@ -15022,8 +15012,8 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 POPARGS d5,0.0001
-RETURN
-PUSHARGSR d2,0.0005
+RETURN; Func[void __DoEWeaponDeathSingleFire(EWeapon)] Body End
+PUSHARGSR d2,0.0005; Func[void __DoEWeaponDeathRunScript(EWeapon)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,4
@@ -15034,8 +15024,8 @@ STORED d2,2
 SETV d2,0
 STORED d2,1
 PUSHR d4
-PUSHV 0.8705
-GOTO 1347
+PUSHV 0.8705; UsrFunc[int FindUnusedFFC()] Return Addr
+GOTO 1347; UsrFunc[int FindUnusedFFC()] Call
 POP d4
 STORED d2,4
 LOADD d2,4
@@ -15053,10 +15043,10 @@ POP d2
 POP REFEWPN
 SETR EWPNDEAD,d2
 GOTO 8868
-LOADD d2,4
-SUBV d2,1
+LOADD d2,4; InlineFunc[FFC Screen->LoadFFC(int)] Params
+SUBV d2,1; InlineFunc[FFC Screen->LoadFFC(int)] Body
 STORED d2,3
-SETR d2,EWPNCOUNT
+SETR d2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body
 STORED d2,0
 LOADD d2,0
 COMPAREV d2,0
@@ -15065,10 +15055,10 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8769
-LOADD d2,0
-SUBV d2,1
+LOADD d2,0; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Params
+SUBV d2,1; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body Start
 LOADEWEAPONR d2
-SETR d2,REFEWPN
+SETR d2,REFEWPN; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body End
 STORED d2,2
 LOADD d2,2
 PUSHR d2
@@ -15083,7 +15073,7 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 8752
 GOTO 8763
-LOADD d2,1
+LOADD d2,1; InlineFunc[untyped Min(untyped, untyped)] Params
 PUSHVARGR d2
 LOADD d2,2
 PUSHR d2
@@ -15092,7 +15082,7 @@ PUSHR d2
 POP d0
 POP REFEWPN
 PUSHVARGR EWPNMISCD
-MINVARG
+MINVARG; InlineFunc[untyped Min(untyped, untyped)] Body
 STORED d2,1
 LOADD d2,0
 PUSHR d2
@@ -15142,10 +15132,10 @@ POP d2
 POP REFFFC
 SETR DATA,d2
 PUSHR d4
-PUSHV 0.8815
-LOADD d2,5
+PUSHV 0.8815; UsrFunc[int CenterX(EWeapon)] Return Addr
+LOADD d2,5; UsrFunc[int CenterX(EWeapon)] Params
 PUSHR d2
-GOTO 884
+GOTO 884; UsrFunc[int CenterX(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -15157,10 +15147,10 @@ POP d2
 POP REFFFC
 SETR X,d2
 PUSHR d4
-PUSHV 0.8830
-LOADD d2,5
+PUSHV 0.8830; UsrFunc[int CenterY(EWeapon)] Return Addr
+LOADD d2,5; UsrFunc[int CenterY(EWeapon)] Params
 PUSHR d2
-GOTO 908
+GOTO 908; UsrFunc[int CenterY(EWeapon)] Call
 POP d4
 SUBV d2,8
 PUSHR d2
@@ -15200,8 +15190,8 @@ POP d2
 POP REFFFC
 SETR FFINITDD,d2
 POPARGS d5,0.0006
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[void __DoEWeaponDeathRunScript(EWeapon)] Body End
+PUSHARGSR d2,0.0002; Func[void UpdateEWeapons()] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,1
@@ -15234,7 +15224,7 @@ COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
 GOTOFALSE 8958
-SETR d2,EWPNCOUNT
+SETR d2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body
 STORED d2,0
 LOADD d2,0
 COMPAREV d2,0
@@ -15243,10 +15233,10 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 8957
-LOADD d2,0
-SUBV d2,1
+LOADD d2,0; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Params
+SUBV d2,1; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body Start
 LOADEWEAPONR d2
-SETR d2,REFEWPN
+SETR d2,REFEWPN; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body End
 STORED d2,1
 LOADD d2,1
 PUSHR d2
@@ -15277,10 +15267,10 @@ COMPAREV d2,0
 GOTOTRUE 8945
 GOTO 8951
 PUSHR d4
-PUSHV 0.8950
-LOADD d2,1
+PUSHV 0.8950; UsrFunc[void UpdateEWeapon(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void UpdateEWeapon(EWeapon)] Params
 PUSHR d2
-GOTO 2607
+GOTO 2607; UsrFunc[void UpdateEWeapon(EWeapon)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -15289,7 +15279,7 @@ STORED d2,0
 POP d2
 GOTO 8905
 GOTO 9012
-SETR d2,EWPNCOUNT
+SETR d2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body
 STORED d2,0
 LOADD d2,0
 COMPAREV d2,0
@@ -15298,10 +15288,10 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 9012
-LOADD d2,0
-SUBV d2,1
+LOADD d2,0; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Params
+SUBV d2,1; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body Start
 LOADEWEAPONR d2
-SETR d2,REFEWPN
+SETR d2,REFEWPN; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body End
 STORED d2,1
 LOADD d2,1
 PUSHR d2
@@ -15332,10 +15322,10 @@ COMPAREV d2,0
 GOTOTRUE 9000
 GOTO 9006
 PUSHR d4
-PUSHV 0.9005
-LOADD d2,1
+PUSHV 0.9005; UsrFunc[void __UpdateEWeaponVisualFlags(EWeapon)] Return Addr
+LOADD d2,1; UsrFunc[void __UpdateEWeaponVisualFlags(EWeapon)] Params
 PUSHR d2
-GOTO 9014
+GOTO 9014; UsrFunc[void __UpdateEWeaponVisualFlags(EWeapon)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -15344,8 +15334,8 @@ STORED d2,0
 POP d2
 GOTO 8960
 POPARGS d5,0.0002
-RETURN
-PUSHARGSR d2,0.0002
+RETURN; Func[void UpdateEWeapons()] Body End
+PUSHARGSR d2,0.0002; Func[void __UpdateEWeaponVisualFlags(EWeapon)] Body Start
 SETR d4,SP
 LOADD d2,2
 PUSHR d2
@@ -15370,10 +15360,10 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 9044
 PUSHR d4
-PUSHV 0.9043
-LOADD d2,2
+PUSHV 0.9043; UsrFunc[void DrawEWeaponShadow(EWeapon)] Return Addr
+LOADD d2,2; UsrFunc[void DrawEWeaponShadow(EWeapon)] Params
 PUSHR d2
-GOTO 993
+GOTO 993; UsrFunc[void DrawEWeaponShadow(EWeapon)] Call
 POP d4
 LOADD d2,2
 PUSHR d2
@@ -15429,20 +15419,20 @@ POP REFEWPN
 SETR d2,EWPNANGULAR
 COMPAREV d2,0
 GOTOTRUE 9105
-LOADD d2,2
+LOADD d2,2; InlineFunc[int RadtoDeg(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d3,EWPNANGLE
-RADTODEG d2,d3
+RADTODEG d2,d3; InlineFunc[int RadtoDeg(int)] Body
 STORED d2,1
 GOTO 9172
 PUSHR d4
-PUSHV 0.9112
-LOADD d2,2
+PUSHV 0.9112; UsrFunc[int __NormalizeDir(int)] Return Addr
+LOADD d2,2; UsrFunc[int __NormalizeDir(int)] Params
 PUSHR d2
 POP REFEWPN
 PUSHR EWPNDIR
-GOTO 2200
+GOTO 2200; UsrFunc[int __NormalizeDir(int)] Call
 POP d4
 STORED d2,0
 LOADD d2,0
@@ -15525,7 +15515,7 @@ STORED d2,0
 GOTO 9194
 SETV d2,2
 STORED d2,0
-PUSHV 4
+PUSHV 4; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params
 LOADD d2,2
 PUSHR d2
 POP REFEWPN
@@ -15574,8 +15564,8 @@ LOADD d2,0
 PUSHR d2
 PUSHV 1
 PUSHV 128
-DRAWTILE
-POPARGS d5,0.0015
+DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS d5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 GOTO 9304
 LOADD d2,2
 PUSHR d2
@@ -15630,31 +15620,31 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 9304
 PUSHR d4
-PUSHV 0.9303
-LOADD d2,2
+PUSHV 0.9303; UsrFunc[void SetEWeaponRotation(EWeapon)] Return Addr
+LOADD d2,2; UsrFunc[void SetEWeaponRotation(EWeapon)] Params
 PUSHR d2
-GOTO 1949
+GOTO 1949; UsrFunc[void SetEWeaponRotation(EWeapon)] Call
 POP d4
 POPARGS d5,0.0003
-RETURN
-SETR d4,SP
+RETURN; Func[void __UpdateEWeaponVisualFlags(EWeapon)] Body End
+SETR d4,SP; Func[void UpdateGhostZH1()] Body Start
 PUSHR d4
-PUSHV 0.9310
-GOTO 8870
+PUSHV 0.9310; UsrFunc[void UpdateEWeapons()] Return Addr
+GOTO 8870; UsrFunc[void UpdateEWeapons()] Call
 PEEK d4
-PUSHV 0.9313
-GOTO 932
+PUSHV 0.9313; UsrFunc[void CleanUpGhostFFCs()] Return Addr
+GOTO 932; UsrFunc[void CleanUpGhostFFCs()] Call
 PEEK d4
-PUSHV 0.9316
-GOTO 9318
+PUSHV 0.9316; UsrFunc[void UpdateGhostZHData1()] Return Addr
+GOTO 9318; UsrFunc[void UpdateGhostZHData1()] Call
 POP d4
-RETURN
-PUSHR d2
+RETURN; Func[void UpdateGhostZH1()] Body End
+PUSHR d2; Func[void UpdateGhostZHData1()] Body Start
 SETR d4,SP
-SETR d2,CURDMAP
+SETR d2,CURDMAP; InlineFunc[int Game->GetCurDMap()] Body
 LSHIFTV d2,8
 PUSHR d2
-SETR d2,CURDSCR
+SETR d2,CURDSCR; InlineFunc[int Game->GetCurDMapScreen()] Body
 POP d3
 ADDR d2,d3
 STORED d2,0
@@ -15705,20 +15695,20 @@ POP d2
 WRITEPODARRAYVR 6,d2
 POP d2
 POPARGS d5,0.0001
-RETURN
-SETR d4,SP
+RETURN; Func[void UpdateGhostZHData1()] Body End
+SETR d4,SP; Func[void UpdateGhostZH2()] Body Start
 PUSHR d4
-PUSHV 0.9379
-GOTO 1060
+PUSHV 0.9379; UsrFunc[void DrawGhostFFCs()] Return Addr
+GOTO 1060; UsrFunc[void DrawGhostFFCs()] Call
 PEEK d4
-PUSHV 0.9382
-GOTO 73
+PUSHV 0.9382; UsrFunc[void AutoGhost()] Return Addr
+GOTO 73; UsrFunc[void AutoGhost()] Call
 PEEK d4
-PUSHV 0.9385
-GOTO 9387
+PUSHV 0.9385; UsrFunc[void UpdateGhostZHData2()] Return Addr
+GOTO 9387; UsrFunc[void UpdateGhostZHData2()] Call
 POP d4
-RETURN
-SETR d4,SP
+RETURN; Func[void UpdateGhostZH2()] Body End
+SETR d4,SP; Func[void UpdateGhostZHData2()] Body Start
 SETR d2,gd27
 PUSHR d2
 POP d0
@@ -15834,8 +15824,8 @@ SETR d2,gd27
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 4,d2
-RETURN
-SETR d4,SP
+RETURN; Func[void UpdateGhostZHData2()] Body End
+SETR d4,SP; Func[bool __IsScriptNameChar(int, bool)] Body Start
 LOADD d2,1
 COMPAREV d2,97
 SETMOREI d2
@@ -15885,15 +15875,15 @@ GOTO 9553
 SETV d2,0
 GOTO 9553
 POPARGS d5,0.0002
-RETURN
-PUSHR d2
+RETURN; Func[bool __IsScriptNameChar(int, bool)] Body End
+PUSHR d2; Func[void __CopyEWeapon(EWeapon, int, int, int)] Body Start
 SETR d4,SP
-LOADD d2,4
+LOADD d2,4; InlineFunc[EWeapon Screen->CreateEWeapon(int)] Params
 PUSHR d2
 POP REFEWPN
 SETR d2,EWPNID
-CREATEEWEAPONR d2
-SETR d2,REFEWPN
+CREATEEWEAPONR d2; InlineFunc[EWeapon Screen->CreateEWeapon(int)] Body Start
+SETR d2,REFEWPN; InlineFunc[EWeapon Screen->CreateEWeapon(int)] Body End
 STORED d2,0
 LOADD d2,4
 PUSHR d2
@@ -15908,7 +15898,7 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 9589
-LOADD d2,0
+LOADD d2,0; InlineFunc[void EWeapon->UseSprite(int)] Params
 PUSHR d2
 LOADD d2,4
 PUSHR d2
@@ -15917,9 +15907,9 @@ PUSHR d2
 POP d0
 POP REFEWPN
 SETR d2,EWPNMISCD
-POP d3
+POP d3; InlineFunc[void EWeapon->UseSprite(int)] Body Start
 SETR REFEWPN,d3
-EWPNUSESPRITER d2
+EWPNUSESPRITER d2; InlineFunc[void EWeapon->UseSprite(int)] Body End
 LOADD d2,4
 PUSHR d2
 POP REFEWPN
@@ -16123,10 +16113,10 @@ POP d2
 POP REFEWPN
 SETR EWPNANGLE,d2
 PUSHR d4
-PUSHV 0.9796
-LOADD d2,0
+PUSHV 0.9796; UsrFunc[void SetEWeaponDir(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[void SetEWeaponDir(EWeapon)] Params
 PUSHR d2
-GOTO 1817
+GOTO 1817; UsrFunc[void SetEWeaponDir(EWeapon)] Call
 POP d4
 LOADD d2,0
 PUSHR d2
@@ -16220,10 +16210,10 @@ SETMOREI d2
 COMPAREV d2,0
 GOTOTRUE 9906
 PUSHR d4
-PUSHV 0.9893
-LOADD d2,0
+PUSHV 0.9893; UsrFunc[int __GetEWeaponThrowHeight(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[int __GetEWeaponThrowHeight(EWeapon)] Params
 PUSHR d2
-GOTO 2362
+GOTO 2362; UsrFunc[int __GetEWeaponThrowHeight(EWeapon)] Call
 POP d4
 PUSHR d2
 LOADD d2,0
@@ -16381,14 +16371,14 @@ SETFALSEI d2
 COMPAREV d2,0
 GOTOTRUE 10055
 PUSHR d4
-PUSHV 1.0054
-LOADD d2,0
+PUSHV 1.0054; UsrFunc[void SetEWeaponRotation(EWeapon)] Return Addr
+LOADD d2,0; UsrFunc[void SetEWeaponRotation(EWeapon)] Params
 PUSHR d2
-GOTO 1949
+GOTO 1949; UsrFunc[void SetEWeaponRotation(EWeapon)] Call
 POP d4
 POPARGS d5,0.0005
-RETURN
-PUSHR d2
+RETURN; Func[void __CopyEWeapon(EWeapon, int, int, int)] Body End
+PUSHR d2; Func[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Body Start
 SETR d4,SP
 SETV d2,0
 STORED d2,0
@@ -16401,7 +16391,7 @@ COMPARER d3,d2
 SETLESSI d2
 COMPAREV d2,0
 GOTOTRUE 10107
-LOADD d2,6
+LOADD d2,6; InlineFunc[bool Screen->isSolid(int, int)] Params
 PUSHR d2
 LOADD d2,4
 POP d3
@@ -16421,8 +16411,8 @@ LOADD d2,2
 POP d3
 ADDR d2,d3
 SETR d1,d2
-POP d0
-ISSOLID d2
+POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
 COMPAREV d2,0
 GOTOTRUE 10103
 SETV d2,0
@@ -16441,11 +16431,11 @@ GOTO 10061
 SETV d2,0
 GOTO 10109
 POPARGS d5,0.0007
-RETURN
+RETURN; Func[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Body End
 
 
-PUSHR d0
-PUSHR REFITEMCLASS
+PUSHR d0; void run(int) Params
+PUSHR REFITEMCLASS; void run(int) Body Start
 SETR d4,SP
 LOADD d2,1
 COMPAREV d2,0
@@ -16466,10 +16456,10 @@ SETR d0,d2
 POP d2
 WRITEPODARRAYVR 6,d2
 POPARGS d5,0.0002
-QUIT
+QUIT; void run(int) Body End
 
 
-SETV gd9,0
+SETV gd9,0; void run() Body Start
 SETV gd10,0
 SETV gd12,0
 SETV gd11,0
@@ -16502,4 +16492,5 @@ ALLOCATEGMEMV d2,1000
 SETR gd28,d2
 ALLOCATEGMEMV d2,4096
 SETR gd1,d2
-QUIT
+QUIT; void run() Body End
+

@@ -8,7 +8,7 @@ Pass 6: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-PUSHR REFFFC
+PUSHR REFFFC; void run() Body Start
 SETR d4,SP
 SETR d2,INPUTPRESSA
 COMPAREV d2,0
@@ -18,10 +18,11 @@ PUSHR d2
 POP d2
 CASTBOOLI d2
 SETR INPUTA,d2
-WAITFRAME
+WAITFRAME; InlineFunc[void Waitframe()] Body
 GOTO 3
 POPARGS d5,0.0001
-QUIT
+QUIT; void run() Body End
 
 
-QUIT
+QUIT; void run() Body
+

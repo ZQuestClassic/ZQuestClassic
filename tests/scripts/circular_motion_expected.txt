@@ -8,12 +8,12 @@ Pass 6: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-PUSHR d0
+PUSHR d0; void run(int, int, int, int, int) Params
 PUSHR d1
 PUSHR d2
 PUSHR d3
 PUSHR d4
-PUSHR REFFFC
+PUSHR REFFFC; void run(int, int, int, int, int) Body Start
 PUSHARGSR d2,0.0002
 SETR d4,SP
 LOADD d2,4
@@ -30,8 +30,8 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 26
-SETV d3,360
-RNDR d2,d3
+SETV d3,360; InlineFunc[int Rand(int)] Params
+RNDR d2,d3; InlineFunc[int Rand(int)] Body
 STORED d2,5
 LOADD d2,2
 PUSHR d2
@@ -79,9 +79,9 @@ LOADD d2,1
 PUSHR d2
 LOADD d2,7
 PUSHR d2
-LOADD d2,5
+LOADD d2,5; InlineFunc[int Cos(int)] Params
 SETR d3,d2
-COSR d2,d3
+COSR d2,d3; InlineFunc[int Cos(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
@@ -98,9 +98,9 @@ LOADD d2,0
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-LOADD d2,5
+LOADD d2,5; InlineFunc[int Sin(int)] Params
 SETR d3,d2
-SINR d2,d3
+SINR d2,d3; InlineFunc[int Sin(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
@@ -118,15 +118,15 @@ LOADD d2,1
 PUSHR d2
 LOADD d2,7
 PUSHR d2
-LOADD d2,5
+LOADD d2,5; InlineFunc[int Cos(int)] Params
 SETR d3,d2
-COSR d2,d3
+COSR d2,d3; InlineFunc[int Cos(int)] Body
 POP d3
 MULTR d2,d3
 PUSHR d2
-LOADD d2,3
+LOADD d2,3; InlineFunc[int Cos(int)] Params
 SETR d3,d2
-COSR d2,d3
+COSR d2,d3; InlineFunc[int Cos(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
@@ -134,15 +134,15 @@ ADDR d2,d3
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-LOADD d2,5
+LOADD d2,5; InlineFunc[int Sin(int)] Params
 SETR d3,d2
-SINR d2,d3
+SINR d2,d3; InlineFunc[int Sin(int)] Body
 POP d3
 MULTR d2,d3
 PUSHR d2
-LOADD d2,3
+LOADD d2,3; InlineFunc[int Sin(int)] Params
 SETR d3,d2
-SINR d2,d3
+SINR d2,d3; InlineFunc[int Sin(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
@@ -160,15 +160,15 @@ LOADD d2,0
 PUSHR d2
 LOADD d2,4
 PUSHR d2
-LOADD d2,5
+LOADD d2,5; InlineFunc[int Sin(int)] Params
 SETR d3,d2
-SINR d2,d3
+SINR d2,d3; InlineFunc[int Sin(int)] Body
 POP d3
 MULTR d2,d3
 PUSHR d2
-LOADD d2,3
+LOADD d2,3; InlineFunc[int Cos(int)] Params
 SETR d3,d2
-COSR d2,d3
+COSR d2,d3; InlineFunc[int Cos(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
@@ -176,15 +176,15 @@ ADDR d2,d3
 PUSHR d2
 LOADD d2,7
 PUSHR d2
-LOADD d2,5
+LOADD d2,5; InlineFunc[int Cos(int)] Params
 SETR d3,d2
-COSR d2,d3
+COSR d2,d3; InlineFunc[int Cos(int)] Body
 POP d3
 MULTR d2,d3
 PUSHR d2
-LOADD d2,3
+LOADD d2,3; InlineFunc[int Sin(int)] Params
 SETR d3,d2
-SINR d2,d3
+SINR d2,d3; InlineFunc[int Sin(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
@@ -197,10 +197,11 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR Y,d2
-WAITFRAME
+WAITFRAME; InlineFunc[void Waitframe()] Body
 GOTO 36
 POPARGS d5,0.0008
-QUIT
+QUIT; void run(int, int, int, int, int) Body End
 
 
-QUIT
+QUIT; void run() Body
+

@@ -407,8 +407,9 @@ namespace ZScript
 	public:
 		FunctionSignature(
 				std::string const& name,
-				std::vector<DataType const*> const& parameterTypes);
-		FunctionSignature(Function const& function);
+				std::vector<DataType const*> const& parameterTypes,
+				DataType const* returnType = nullptr);
+		FunctionSignature(Function const& function, bool useret = false);
 
 		int32_t compare(FunctionSignature const& other) const;
 		bool operator==(FunctionSignature const& other) const;
@@ -418,6 +419,7 @@ namespace ZScript
 
 		std::string name;
 		bool prefix;
+		DataType const* returnType;
 		std::vector<DataType const*> parameterTypes;
 	};
 	
@@ -454,8 +456,8 @@ namespace ZScript
 		// Clears the input vector.
 		void giveCode(std::vector<std::shared_ptr<Opcode>>& code);
 		
-		FunctionSignature getSignature() const {
-			return FunctionSignature(*this);}
+		FunctionSignature getSignature(bool useret = false) const {
+			return FunctionSignature(*this, useret);}
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
