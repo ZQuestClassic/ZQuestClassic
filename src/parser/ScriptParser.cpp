@@ -865,45 +865,105 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	// ...but they've already been handled, so that's fine.
 	{
 		{ //macros
-		#define START_OPT_PASS() \
-		zconsole_idle(); \
-		for(auto it = rval.begin(); it != rval.end();) \
-		{ \
-			Opcode* ocode = it->get(); \
-			auto lbl = ocode->getLabel();
-		#define END_OPT_PASS() \
-			++it; \
-		}
-		#define MERGE_CONSEC_1(ty) \
-		if(ty* op = dynamic_cast<ty*>(ocode)) \
-		{ \
-			auto it2 = it; \
-			++it2; \
-			if(ty* op2 = dynamic_cast<ty*>(it2->get())) \
+			#define START_OPT_PASS() \
+			zconsole_idle(); \
+			for(auto it = rval.begin(); it != rval.end();) \
 			{ \
-				if(!op->getArgument()->toString().compare( \
-					op2->getArgument()->toString())) \
+				Opcode* ocode = it->get(); \
+				auto lbl = ocode->getLabel();
+			#define END_OPT_PASS() \
+				++it; \
+			}
+			#define MERGE_CONSEC_1(ty) \
+			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			{ \
+				auto it2 = it; \
+				++it2; \
+				if(ty* op2 = dynamic_cast<ty*>(it2->get())) \
 				{ \
-					auto lbl2 = op2->getLabel(); \
-					if(lbl2 == -1 && lbl > -1) \
+					if(!op->getArgument()->toString().compare( \
+						op2->getArgument()->toString())) \
 					{ \
-						op2->setLabel(lbl); \
+						auto lbl2 = op2->getLabel(); \
+						if(lbl2 == -1 && lbl > -1) \
+						{ \
+							op2->setLabel(lbl); \
+							it = rval.erase(it); \
+							continue; \
+						} \
 						it = rval.erase(it); \
+						if(lbl > -1) \
+						{ \
+							MergeLabels temp; \
+							int lbls[2] = { lbl2, lbl }; \
+							temp.execute(rval, lbls); \
+						} \
 						continue; \
 					} \
-					it = rval.erase(it); \
-					if(lbl > -1) \
+				} \
+				++it; \
+				continue; \
+			}
+			#define MERGE_CONSEC_REPCOUNT_START(ty1,ty2) \
+			{ \
+				ty1* single_op = dynamic_cast<ty1*>(ocode); \
+				ty2* multi_op = dynamic_cast<ty2*>(ocode); \
+				if(single_op || multi_op) \
+				{ \
+					auto it2 = it; \
+					++it2; \
+					Argument const* target_arg = single_op \
+						? (single_op->getArgument()) \
+						: (multi_op->getFirstArgument()); \
+					string target_str = target_arg->toString(); \
+					size_t addcount = 0; \
+					while(it2 != rval.end()) \
 					{ \
-						MergeLabels temp; \
-						int lbls[2] = { lbl2, lbl }; \
-						temp.execute(rval, lbls); \
+						Opcode* nextcode = it2->get(); \
+						if(nextcode->getLabel() != -1) \
+							break; /*can't combine*/ \
+						ty1* single_next = dynamic_cast<ty1*>(nextcode); \
+						ty2* multi_next = dynamic_cast<ty2*>(nextcode); \
+						if(!(single_next || multi_next)) \
+							break; /*can't combine*/ \
+						if(target_str.compare(single_next \
+							? (single_next->getArgument()->toString()) \
+							: (multi_next->getFirstArgument()->toString()))) \
+							break; /*Different registers, can't combine*/ \
+						if(multi_next) \
+						{ \
+							LiteralArgument const* larg = \
+								dynamic_cast<LiteralArgument*>(multi_next->getSecondArgument()); \
+							addcount += larg->value; \
+						} \
+						else /*if single_next*/ \
+							++addcount; \
+						it2 = rval.erase(it2); \
+					}
+			#define MERGE_CONSEC_REPCOUNT_END(ty1,ty2) \
+					if(addcount) \
+					{ \
+						if(single_op) \
+						{ \
+							Argument* reg = target_arg->clone(); \
+							it = rval.erase(it); \
+							it = rval.insert(it,std::shared_ptr<Opcode>(new ty2(reg,new LiteralArgument(addcount+1)))); \
+							(*it)->setLabel(lbl); \
+						} \
+						else /*if multi_op*/ \
+						{ \
+							LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
+							litarg->value += addcount; \
+						} \
 					} \
+					++it; \
 					continue; \
 				} \
-			} \
-			++it; \
-			continue; \
-		}
+			}
+			#define MERGE_CONSEC_REPCOUNT(ty1,ty2) \
+			MERGE_CONSEC_REPCOUNT_START(ty1,ty2) \
+			MERGE_CONSEC_REPCOUNT_END(ty1,ty2)
+			
 		} //macros
 		START_OPT_PASS() //Trim NoOps
 			if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
@@ -931,45 +991,14 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 				continue;
 			}
 		END_OPT_PASS()
-		START_OPT_PASS() //Merge multiple consecutive pops to the same register
-			OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
-			OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
-			if(popreg || popargs)
-			{
-				auto it2 = it;
-				++it2;
-				Argument const* regarg = popreg
-					? (popreg->getArgument())
-					: (popargs->getFirstArgument());
-				std::string targreg = regarg->toString();
-				size_t addcount = 0;
-				while(it2 != rval.end())
-				{
-					Opcode* nextcode = it2->get();
-					if(nextcode->getLabel() != -1)
-						break; //can't combine
-					OPopRegister* nextreg = dynamic_cast<OPopRegister*>(nextcode);
-					OPopArgsRegister* nextargs = dynamic_cast<OPopArgsRegister*>(nextcode);
-					if(!(nextreg || nextargs))
-						break; //can't combine
-					if(targreg.compare(nextreg
-						? (nextreg->getArgument()->toString())
-						: (nextargs->getFirstArgument()->toString())))
-						break; //Different registers, can't combine
-					if(nextargs)
-					{
-						LiteralArgument const* larg =
-							dynamic_cast<LiteralArgument*>(nextargs->getSecondArgument());
-						addcount += larg->value;
-					}
-					else //if nextreg
-						++addcount;
-					it2 = rval.erase(it2);
-				}
+		START_OPT_PASS()
+			//Merge multiple consecutive identical pops/pushes
+			MERGE_CONSEC_REPCOUNT_START(OPopRegister,OPopArgsRegister)
+			{ // turn single-pop followed by single-push into peek
 				size_t startcount = 1;
-				if(popargs)
+				if(multi_op)
 				{
-					LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
+					LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument());
 					startcount = litarg->value;
 				}
 				if(addcount+startcount == 1)
@@ -979,9 +1008,9 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 					{
 						if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
 						{
-							if(!targreg.compare(pusharg->getArgument()->toString()))
+							if(!target_str.compare(pusharg->getArgument()->toString()))
 							{
-								Argument* reg = regarg->clone();
+								Argument* reg = target_arg->clone();
 								it2 = rval.erase(it2);
 								it = rval.erase(it);
 								it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(reg)));
@@ -992,26 +1021,13 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 						}
 					}
 				}
-				if(addcount)
-				{
-					if(popreg)
-					{
-						Argument* reg = regarg->clone();
-						it = rval.erase(it);
-						it = rval.insert(it,std::shared_ptr<Opcode>(new OPopArgsRegister(reg,new LiteralArgument(addcount+1))));
-						(*it)->setLabel(lbl);
-					}
-					else //if popargs
-					{
-						LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
-						litarg->value += addcount;
-					}
-				}
-				++it;
-				continue;
 			}
-		END_OPT_PASS()
-		START_OPT_PASS() //Consecutive opcode merging
+			MERGE_CONSEC_REPCOUNT_END(OPopRegister,OPopArgsRegister)
+			MERGE_CONSEC_REPCOUNT(OPushRegister,OPushArgsRegister)
+			MERGE_CONSEC_REPCOUNT(OPushImmediate,OPushArgsImmediate)
+			MERGE_CONSEC_REPCOUNT(OPushVargR,OPushVargsR)
+			MERGE_CONSEC_REPCOUNT(OPushVargV,OPushVargsV)
+			//Merge consecutive identical GOTOs
 			MERGE_CONSEC_1(OGotoImmediate)
 			MERGE_CONSEC_1(OGotoTrueImmediate)
 			MERGE_CONSEC_1(OGotoFalseImmediate)

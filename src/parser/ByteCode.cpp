@@ -2994,6 +2994,16 @@ string OPopArgsRegister::toString() const
     return "POPARGS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OPushArgsRegister::toString() const
+{
+    return "PUSHARGSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPushArgsImmediate::toString() const
+{
+    return "PUSHARGSV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OPushVargV::toString() const
 {
     return "PUSHVARGV " + getArgument()->toString();
@@ -3002,6 +3012,16 @@ string OPushVargV::toString() const
 string OPushVargR::toString() const
 {
     return "PUSHVARGR " + getArgument()->toString();
+}
+
+string OPushVargsV::toString() const
+{
+    return "PUSHVARGSV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPushVargsR::toString() const
+{
+    return "PUSHVARGSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OLoadIndirect::toString() const

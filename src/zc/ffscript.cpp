@@ -28968,6 +28968,14 @@ void do_push_varg(const bool v)
 	zs_vargs.push_back(value);
 }
 
+void do_push_vargs(const bool v)
+{
+	if(sarg2 < 1) return;
+	const int value = SH::get_arg(sarg1, v);
+	zs_vargs.insert(zs_vargs.end(), sarg2, value);
+	zs_vargs.push_back(value);
+}
+
 void do_pop()
 {
 	const int32_t value = SH::read_stack(ri->sp);
@@ -28995,6 +29003,18 @@ void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the sta
 	word read = (ri->sp-1) & MASK_SP;
 	int32_t value = SH::read_stack(read);
 	set_register(sarg1, value);
+}
+
+void do_pushs(const bool v) // Push a bunch of the same thing. Useful for filling the stack.
+{
+	const int value = SH::get_arg(sarg1, v);
+	int num = sarg2;
+	for(int q = 0; q < num; ++q)
+	{
+		--ri->sp;
+		ri->sp &= MASK_SP;
+		SH::write_stack(ri->sp, value);
+	}
 }
 
 void do_loadi()
@@ -36664,6 +36684,14 @@ j_command:
 			case POPARGS:
 				do_pops();
 				break;
+			
+			case PUSHARGSR:
+				do_pushs(false);
+				break;
+			
+			case PUSHARGSV:
+				do_pushs(true);
+				break;
 				
 			case LOADI:
 				do_loadi();
@@ -36979,6 +37007,12 @@ j_command:
 				break;
 			case PUSHVARGR:
 				do_push_varg(false);
+				break;
+			case PUSHVARGSV:
+				do_push_vargs(true);
+				break;
+			case PUSHVARGSR:
+				do_push_vargs(false);
 				break;
 				
 			case RNDR:
@@ -46600,6 +46634,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 
 	{ "SUBWIDG_GET_LABEL", 1, 0, 0, 0 },
 	{ "SUBWIDG_SET_LABEL", 1, 0, 0, 0 },
+	{ "PUSHARGSR", 2, 0, 1, 0},
+	{ "PUSHARGSV", 2, 1, 1, 0},
+	{ "PUSHVARGSR", 2, 0, 1, 0},
+	{ "PUSHVARGSV", 2, 1, 1, 0},
 
 	{ "", 0, 0, 0, 0 }
 };
