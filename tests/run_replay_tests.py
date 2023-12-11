@@ -760,7 +760,9 @@ class WebPlayerInterface:
             url,
         ]
 
-        self.p = subprocess.Popen(exe_args)
+        self.p = subprocess.Popen(exe_args,
+                                  stdout=open(output_dir / 'stdout.txt', 'w'),
+                                  stderr=open(output_dir / 'stderr.txt', 'w'))
 
     def wait_for_finish(self):
         if not self.p:
