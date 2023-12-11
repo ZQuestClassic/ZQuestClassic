@@ -18,8 +18,6 @@ const headless = replayUrl.searchParams.has('headless');
 
 async function runReplay(zplay) {
   const onClose = () => {
-    fs.closeSync(stdoutFd);
-    fs.closeSync(stderrFd);
     return browser.close();
   };
   const zplaySplit = zplay.split('/');
@@ -30,8 +28,6 @@ async function runReplay(zplay) {
   });
   const page = await browser.newPage();
 
-  const stdoutFd = fs.openSync(`${outputFolder}/stdout.txt`, 'w');
-  const stderrFd = fs.openSync(`${outputFolder}/stderr.txt`, 'w');
   let hasExited = false;
   let exitCode = 0;
 
@@ -40,11 +36,11 @@ async function runReplay(zplay) {
     const type = e.type();
     const text = e.text();
     if (type === 'error' || type === 'warning') {
-      fs.writeSync(stderrFd, text);
-      fs.writeSync(stderrFd, '\n');
+      process.stderr.write(text);
+      process.stderr.write('\n');
     } else {
-      fs.writeSync(stdoutFd, text);
-      fs.writeSync(stdoutFd, '\n');
+      process.stdout.write(text);
+      process.stdout.write('\n');
     }
 
     const bad = [
