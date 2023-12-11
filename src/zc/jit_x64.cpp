@@ -912,7 +912,7 @@ JittedFunction jit_compile_script(script_data *script)
 			// int32_t value = SH::read_stack(read);
 			// set_register(sarg1, value);
 			x86::Gp val = cc.newInt32();
-			cc.mov(val, x86::ptr_32(state.ptrStack, read));
+			cc.mov(val, x86::ptr_32(state.ptrStack, read, 2));
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
