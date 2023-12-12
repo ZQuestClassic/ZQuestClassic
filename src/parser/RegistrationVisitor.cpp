@@ -35,16 +35,6 @@ void RegistrationVisitor::visit(AST& node, void* param)
 }
 
 template <class Container>
-void RegistrationVisitor::regvisit(AST& host, Container const& nodes, void* param)
-{
-	for (auto it = nodes.cbegin();
-		 it != nodes.cend(); ++it)
-	{
-		if (breakRecursion(host, param)) return;
-		visit(**it, param);
-	}
-}
-template <class Container>
 void RegistrationVisitor::block_regvisit(AST& host, Container const& nodes, void* param)
 {
 	for (auto it = nodes.cbegin();

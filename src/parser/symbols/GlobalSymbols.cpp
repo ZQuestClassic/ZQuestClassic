@@ -6,8 +6,8 @@ GlobalSymbols GlobalSymbols::singleton;
 static AccessorTable GlobalTable[] =
 {
 //	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
-	{ "Quit",                    0,          ZTID_VOID,   -1,          0,  {},{} },
-	{ "QuitNoKill",              0,          ZTID_VOID,   -1,          0,  {},{} },
+	{ "Quit",                    0,          ZTID_VOID,   -1,    FL_EXIT,  {},{} },
+	{ "QuitNoKill",              0,          ZTID_VOID,   -1,    FL_EXIT,  {},{} },
 	{ "Waitframe",               0,          ZTID_VOID,   -1,          0,  {},{} },
 	{ "Waitframes",              0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT },{} },
 	{ "Waitdraw",                0,          ZTID_VOID,   -1,          0,  {},{} },

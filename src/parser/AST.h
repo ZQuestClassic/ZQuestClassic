@@ -247,7 +247,9 @@ namespace ZScript
 		bool isDisabled() const {return disabled_;}
 		void disable() {disabled_ = true;}
 		bool registered() const {return isRegistered;}
-		void Register() {isRegistered = true;}
+		void mark_registered() {isRegistered = true;}
+		bool reachable() const {return isReachable;}
+		void mark_reachable() {isReachable = true;}
 	
 	
 		// Subclass Predicates (replacing typeof and such).
@@ -265,6 +267,8 @@ namespace ZScript
 		bool disabled_;
 		//If this node has been registered by RegistrationVisitor
 		bool isRegistered;
+		//If this node has been reached by ReturnVisitor
+		bool isReachable;
 	};
 
 
