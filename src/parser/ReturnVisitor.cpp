@@ -16,14 +16,34 @@ extern FFScript FFCore;
 using std::ostringstream;
 using namespace ZScript;
 using std::unique_ptr;
+
+class ResetVisitor : public RecursiveVisitor
+{
+public:
+	using RecursiveVisitor::visit;
+	void visit(AST& node, void* param = NULL)
+	{
+		node.mark_reachable(false);
+		RecursiveVisitor::visit(node, param);
+	}
+};
+
 ////////////////////////////////////////////////////////////////
 // ReturnVisitor
 
 ReturnVisitor::ReturnVisitor(Program& program)
-	: program(program)
+	: program(program), extra_pass(false),
+	marked_never_ret(false), missing_ret(false)
 {
-	// Analyze function internals.
 	visitFunctionInternals(program);
+	extra_pass = true;
+	while(marked_never_ret)
+	{
+		if(missing_ret)
+			break;
+		marked_never_ret = false;
+		visitFunctionInternals(program);
+	}
 }
 
 void ReturnVisitor::visit(AST& node, void* param)
@@ -31,6 +51,58 @@ void ReturnVisitor::visit(AST& node, void* param)
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
 	if(reachable(node)) return; //Don't double-pass
 	RecursiveVisitor::visit(node, param);
+	markReachable(node);
+}
+
+template <class Container>
+bool ReturnVisitor::block_retvisit(AST& host, Container const& nodes, void* param)
+{
+	VisitNode* paramNode = (VisitNode*)param;
+	bool check_early_ret = !paramNode->get_flag(VNODE_FLAG_BRANCH);
+	size_t indx = paramNode->child_index();
+	for (typename Container::const_iterator it = nodes.cbegin();
+		 it != nodes.cend(); ++it)
+	{
+		failure_temp = false;
+		visit(**it, param);
+		if(check_early_ret)
+		{
+			paramNode->check_terminate(indx);
+			indx = paramNode->child_index();
+			if(paramNode->terminates())
+				return false;
+		}
+		if(failure_halt) return false;
+	}
+	return true;
+}
+bool ReturnVisitor::block_retvisit(AST& host, void* param)
+{
+	bool ret = true;
+	if(ASTBlock* block = dynamic_cast<ASTBlock*>(&host))
+	{
+		VisitNode* paramNode = (VisitNode*)param;
+		paramNode = paramNode->create(&host);
+		
+		ret = block_retvisit(host, block->statements, paramNode);
+		markReachable(host);
+	}
+	else
+	{
+		VisitNode* paramNode = (VisitNode*)param;
+		bool check_early_ret = !paramNode->get_flag(VNODE_FLAG_BRANCH);
+		size_t indx = paramNode->child_index();
+		failure_temp = false;
+		visit(host, param);
+		if(check_early_ret)
+		{
+			paramNode->check_terminate(indx);
+			if(paramNode->terminates())
+				return false;
+		}
+		if(failure_halt) return false;
+	}
+	return ret;
 }
 
 void ReturnVisitor::caseDefault(AST& host, void* param)
@@ -40,31 +112,59 @@ void ReturnVisitor::caseDefault(AST& host, void* param)
 
 void ReturnVisitor::analyzeFunctionInternals(Function& function)
 {
-	Scope* oldscope = scope;
-	scope = function.getInternalScope();
 	ASTFuncDecl* node = function.node;
 	ASTBlock* block = node->block.get();
 	if(!node) return;
 	if(!block) return;
+	auto& stmts = block->statements;
+	if(extra_pass) //already parsed through at least once
+	{
+		if(function.getFlag(FUNCFLAG_NEVER_RETURN))
+			return; //nothing more to possibly do here
+		ResetVisitor resetter;
+		resetter.visit(*block); //reset the 'reachable' state
+	}
+	Scope* oldscope = scope;
+	scope = function.getInternalScope();
+	markReachable(*node);
+	markReachable(*block);
 	failure_temp = failure_halt = false;
 	//
-	auto& stmts = block->statements;
 	size_t indx = 0;
 	bool earlyterm = false;
 	VisitNode rootnode(node);
+	in_func_body = true;
 	for(auto it = stmts.begin(); it != stmts.end(); ++it)
 	{
 		ASTStmt& stmt = **it;
 		visit(stmt, (void*)&rootnode);
-		markReachable(stmt);
 		earlyterm = rootnode.check_terminate(indx);
 		indx = rootnode.child_index();
 		if(earlyterm)
 			break;
 	}
+	in_func_body = false;
 	
-	if(!earlyterm && !function.returnType->isVoid())
+	bool no_ret = false;
+	
+	if(earlyterm)
+	{
+		if(!rootnode.get_flag(VNODE_FLAG_HASRETURN))
+		{
+			no_ret = true;
+			//Terminates without return; infinite loop, or script quit?
+			function.setFlag(FUNCFLAG_NEVER_RETURN);
+			marked_never_ret = true;
+		}
+	}
+	else no_ret = true;
+	
+	//Void functions can miss out on returns
+	if(!function.returnType->isVoid() && no_ret)
+	{
 		handleError(CompileError::MissingReturn(node, node->name));
+		missing_ret = true;
+	}
 	//
 	scope = oldscope;
 }
@@ -89,13 +189,14 @@ void do_return(AST& host, void* param)
 
 void ReturnVisitor::caseStmtReturn(ASTStmtReturn& host, void* param)
 {
+	RecursiveVisitor::caseStmtReturn(host, param);
 	do_return(host, param);
 	markReachable(host);
 }
 
 void ReturnVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 {
-    RecursiveVisitor::caseStmtReturnVal(host);
+    RecursiveVisitor::caseStmtReturnVal(host, param);
 	
 	do_return(host, param);
 	markReachable(host);
@@ -103,6 +204,7 @@ void ReturnVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 
 void ReturnVisitor::caseStmtBreak(ASTStmtBreak& host, void* param)
 {
+	RecursiveVisitor::caseStmtBreak(host, param);
 	if(host.count.get())
 	{
 		if(std::optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
@@ -125,6 +227,7 @@ void ReturnVisitor::caseStmtBreak(ASTStmtBreak& host, void* param)
 
 void ReturnVisitor::caseStmtContinue(ASTStmtContinue &host, void* param)
 {
+	RecursiveVisitor::caseStmtContinue(host, param);
 	if(host.count.get())
 	{
 		if(std::optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
@@ -148,29 +251,51 @@ void ReturnVisitor::caseStmtContinue(ASTStmtContinue &host, void* param)
 void ReturnVisitor::caseStmtIf(ASTStmtIf& host, void* param)
 {
 	VisitNode* paramNode = (VisitNode*)param;
-	paramNode = paramNode->create(&host);
-	paramNode->force_term(false); //'if' without 'else' never terminates
+	
+	optional<int32_t> val;
+	if(host.isDecl())
+		val = host.declaration->getInitializer()->getCompileTimeValue(this, scope);
+	else val = host.condition->getCompileTimeValue(this, scope);
+	if(val && host.isInverted())
+		val = *val ? 0 : 1;
+	if(val && *val) //always true can terminate
+		;
+	else //'if' without 'else' never terminates
+	{
+		paramNode = paramNode->create(&host);
+		paramNode->force_term(false);
+	}
 	
 	if(host.isDecl())
 		visit(host.declaration.get(), paramNode);
 	visit(host.condition.get(), paramNode);
-	visit(host.thenStatement.get(), paramNode);
+	if(!val || *val) //variable or constant true
+		visit(host.thenStatement.get(), paramNode);
 	markReachable(host);
 }
 
 void ReturnVisitor::caseStmtIfElse(ASTStmtIfElse& host, void* param)
 {
 	VisitNode* paramNode = (VisitNode*)param;
+	
+	optional<int32_t> val;
+	if(host.isDecl())
+		val = host.declaration->getInitializer()->getCompileTimeValue(this, scope);
+	else val = host.condition->getCompileTimeValue(this, scope);
+	if(val && host.isInverted())
+		val = *val ? 0 : 1;
+	
 	paramNode = paramNode->create(&host);
 	paramNode->mark_branch(); // is a branch of its' 2 child nodes
-	VisitNode* thenNode = paramNode->create(host.thenStatement.get());
-	VisitNode* elseNode = paramNode->create(host.elseStatement.get());
 	
 	if(host.isDecl())
-		visit(host.declaration.get(), thenNode);
-	visit(host.condition.get(), thenNode);
-	visit(host.thenStatement.get(), thenNode);
-	visit(host.elseStatement.get(), elseNode);
+		visit(host.declaration.get(), paramNode);
+	visit(host.condition.get(), paramNode);
+	
+	if(!val || *val) //variable or constant true
+		visit(host.thenStatement.get(), paramNode->create(host.thenStatement.get()));
+	if(!val || !*val) //variable or constant false
+		visit(host.elseStatement.get(), paramNode->create(host.elseStatement.get()));
 	markReachable(host);
 }
 
@@ -181,24 +306,27 @@ void ReturnVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	paramNode->mark_branch(); // is a branch of its' 2 child nodes
 	VisitNode* thenNode = paramNode->create(host.body.get());
 	
-	visit(host.setup.get(), thenNode);
-	visit(host.test.get(), thenNode);
-	visit(host.increment.get(), thenNode);
-	visit(host.body.get(), thenNode);
-	
 	auto val = host.test->getCompileTimeValue(this, scope);
 	bool infloop = (val && *val);
+	
+	visit(host.setup.get(), paramNode);
+	visit(host.test.get(), paramNode);
+	visit(host.increment.get(), paramNode);
+	
+	if(!val || *val)
+		host.ends_loop = block_retvisit(host.body.get(), thenNode);
+	
 	//if a break/continue moved out of it, don't count it as a terminator
 	if(thenNode->get_flag(VNODE_FLAG_EXITED))
 		paramNode->force_term(false);
 	//an infinite loop that can return can count as a terminator
-	else if(infloop && thenNode->get_flag(VNODE_FLAG_HASRETURN))
+	else if(infloop) // && thenNode->get_flag(VNODE_FLAG_HASRETURN)
 		paramNode->force_term(true);
-	else if(!infloop)
+	else
 	{
 		VisitNode* elseNode = paramNode->create(host.elseBlock.get());
 		if(host.hasElse())
-			visit(host.elseBlock.get(), elseNode);
+			host.ends_else = block_retvisit(host.elseBlock.get(), elseNode);
 	}
 	markReachable(host);
 }
@@ -212,7 +340,7 @@ void ReturnVisitor::caseStmtForEach(ASTStmtForEach& host, void* param)
 	VisitNode* elseNode = paramNode->create(host.elseBlock.get());
 	
 	visit(host.arrExpr.get(), thenNode);
-	visit(host.body.get(), thenNode);
+	host.ends_loop = block_retvisit(host.body.get(), thenNode);
 	if(host.indxdecl)
 		visit(host.indxdecl.get(), thenNode);
 	if(host.arrdecl)
@@ -220,7 +348,7 @@ void ReturnVisitor::caseStmtForEach(ASTStmtForEach& host, void* param)
 	if(host.decl)
 		visit(host.decl.get(), thenNode);
 	if(host.hasElse())
-		visit(host.elseBlock.get(), elseNode);
+		host.ends_else = block_retvisit(host.elseBlock.get(), elseNode);
 	markReachable(host);
 }
 
@@ -231,23 +359,25 @@ void ReturnVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 	paramNode->mark_branch(); // is a branch of its' 2 child nodes
 	VisitNode* thenNode = paramNode->create(host.body.get());
 	
-	visit(host.test.get(), thenNode);
-	visit(host.body.get(), thenNode);
-	
 	auto val = host.test->getCompileTimeValue(this, scope);
 	bool inv = host.isInverted();
 	bool infloop = (val && (inv == !*val));
+	
+	visit(host.test.get(), thenNode);
+	if(!val || *val)
+		host.ends_loop = block_retvisit(host.body.get(), thenNode);
+	
 	//if a break/continue moved out of it, don't count it as a terminator
 	if(thenNode->get_flag(VNODE_FLAG_EXITED))
 		paramNode->force_term(false);
-	//an infinite loop that can return can count as a terminator
-	else if(infloop && thenNode->get_flag(VNODE_FLAG_HASRETURN))
+	//an infinite loop can count as a terminator
+	else if(infloop) // && thenNode->get_flag(VNODE_FLAG_HASRETURN)
 		paramNode->force_term(true);
-	else if(!infloop)
+	else
 	{
 		VisitNode* elseNode = paramNode->create(host.elseBlock.get());
 		if(host.hasElse())
-			visit(host.elseBlock.get(), elseNode);
+			host.ends_else = block_retvisit(host.elseBlock.get(), elseNode);
 	}
 	markReachable(host);
 }
@@ -259,23 +389,24 @@ void ReturnVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 	paramNode->mark_branch(); // is a branch of its' 2 child nodes
 	VisitNode* thenNode = paramNode->create(host.body.get());
 	
-	visit(host.body.get(), thenNode);
-	visit(host.test.get(), thenNode);
-	
 	auto val = host.test->getCompileTimeValue(this, scope);
 	bool inv = host.isInverted();
 	bool infloop = (val && (inv == !*val));
+	
+	host.ends_loop = block_retvisit(host.body.get(), thenNode);
+	if(!val || *val)
+		visit(host.test.get(), thenNode);
 	//if a break/continue moved out of it, don't count it as a terminator
 	if(thenNode->get_flag(VNODE_FLAG_EXITED))
 		paramNode->force_term(false);
 	//an infinite loop that can return can count as a terminator
-	else if(infloop && thenNode->get_flag(VNODE_FLAG_HASRETURN))
+	else if(infloop) // && thenNode->get_flag(VNODE_FLAG_HASRETURN)
 		paramNode->force_term(true);
-	else if(!infloop)
+	else
 	{
 		VisitNode* elseNode = paramNode->create(host.elseBlock.get());
 		if(host.hasElse())
-			visit(host.elseBlock.get(), elseNode);
+			host.ends_else = block_retvisit(host.elseBlock.get(), elseNode);
 	}
 	markReachable(host);
 }
@@ -287,7 +418,15 @@ void ReturnVisitor::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 	//is NOT a branch of its' child nodes, due to fallthrough
 	
 	visit(host.key.get(), paramNode);
-	block_visit(host, host.cases, paramNode);
+	
+	auto opt_vec = host.getCompileTimeCases(this, scope);
+	if(opt_vec) //compile-time constant optimizations
+	{
+		auto vec = *opt_vec;
+		//continue from the start to first terminator, respecting fallthrough
+		block_retvisit(host, vec, paramNode);
+	}
+	else block_visit(host, host.cases, paramNode);
 	
 	//if a break/continue moved out of it, don't count it as a terminator
 	if(paramNode->get_flag(VNODE_FLAG_EXITED))
@@ -323,10 +462,20 @@ void ReturnVisitor::caseSwitchCases(ASTSwitchCases& host, void* param)
 
 void ReturnVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
+	if(host.left->isTypeArrow())
+		visit(host.left.get(), param);
 	visit(host, host.parameters, param);
 	auto& func = *host.binding;
-	if(func.getFlag(FUNCFLAG_EXITS))
-		do_return(host, param);
+	bool exiting_call = func.getFlag(FUNCFLAG_EXITS)
+	//This should work, but, FUNCFLAG_NEVER_RETURN won't be set for all
+	// functions yet as it gets set DURING this pass... -Em
+		|| func.getFlag(FUNCFLAG_NEVER_RETURN);
+	if(exiting_call)
+	{
+		VisitNode* paramNode = (VisitNode*)param;
+		paramNode = paramNode->create(&host);
+		paramNode->force_term(true);
+	}
 	markReachable(host);
 }
 
@@ -335,21 +484,4 @@ bool ReturnVisitor::reachable(AST& node) const
 {
 	return node.reachable();
 }
-
-bool ReturnVisitor::reachable(AST* node) const
-{
-	if(node) return reachable(*node);
-	return true;
-}
-
-template <class Container>
-bool ReturnVisitor::reachable(AST& host, Container const& nodes) const
-{
-	for(auto it = nodes.cbegin(); it != nodes.cend(); ++it)
-	{
-		if(!reachable(*it)) return false;
-	}
-	return true;
-}
-
 

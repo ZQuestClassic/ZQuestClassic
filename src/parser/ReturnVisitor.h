@@ -205,41 +205,22 @@ namespace ZScript
 		virtual void analyzeFunctionInternals(ZScript::Function& function);
 		
 		template <class Container>
-		void block_retvisit(AST& host, Container const& nodes, void* param = NULL)
+		bool block_retvisit(AST& host, Container const& nodes, void* param = NULL);
+		bool block_retvisit(AST& host, void* param = NULL);
+		bool block_retvisit(AST* host, void* param = NULL)
 		{
-			VisitNode* paramNode = (VisitNode*)param;
-			bool check_early_ret = !paramNode->get_flag(VNODE_FLAG_BRANCH);
-			size_t indx = paramNode->child_index();
-			for (typename Container::const_iterator it = nodes.cbegin();
-			     it != nodes.cend(); ++it)
-			{
-				failure_temp = false;
-				visit(**it, param);
-				if(check_early_ret)
-				{
-					paramNode->check_terminate(indx);
-					indx = paramNode->child_index();
-					if(paramNode->terminates())
-						return;
-				}
-				if(failure_halt) return;
-			}
+			if(!host) return false;
+			return block_retvisit(*host, param);
 		}
 	protected:
 		void markReachable(AST& host)
 		{
 			host.mark_reachable();
 		}
-		////////////////////////////////////////////////////////////////
-		// Convenience Functions
-		// Quickly checks if a node, or container of nodes, is all reachable
 		bool reachable(AST& node) const;
-		//Shortcut for pointer
-		bool reachable(AST* node) const;
-		template <class Container>
-		bool reachable(AST& host, Container const& nodes) const;
 	private:
 		ZScript::Program& program;
+		bool extra_pass, marked_never_ret, missing_ret;
 		
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);

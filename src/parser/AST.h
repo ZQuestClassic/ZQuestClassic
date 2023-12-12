@@ -249,7 +249,7 @@ namespace ZScript
 		bool registered() const {return isRegistered;}
 		void mark_registered() {isRegistered = true;}
 		bool reachable() const {return isReachable;}
-		void mark_reachable() {isReachable = true;}
+		void mark_reachable(bool b = true) {isReachable = b;}
 	
 	
 		// Subclass Predicates (replacing typeof and such).
@@ -486,6 +486,9 @@ namespace ZScript
 		owning_vector<ASTSwitchCases> cases;
 		
 		bool isString;
+		
+		optional<vector<ASTSwitchCases*>> getCompileTimeCases(
+			CompileErrorHandler* errorHandler, Scope* scope);
 	private:
 	};
 
@@ -540,6 +543,8 @@ namespace ZScript
 		owning_ptr<ASTStmt> body;
 		owning_ptr<ASTStmt> elseBlock;
 		
+		bool ends_loop, ends_else;
+		
 		bool hasElse() const {return elseBlock;}
 		Scope* getScope() {return scope;}
 		void setScope(Scope* scp) {scope = scp;}
@@ -564,6 +569,8 @@ namespace ZScript
 		owning_ptr<ASTStmt> body;
 		owning_ptr<ASTStmt> elseBlock;
 		
+		bool ends_loop, ends_else;
+		
 		bool hasElse() const {return elseBlock;}
 		Scope* getScope() {return scope;}
 		void setScope(Scope* scp) {scope = scp;}
@@ -586,6 +593,8 @@ namespace ZScript
 		owning_ptr<ASTStmt> body;
 		owning_ptr<ASTStmt> elseBlock;
 		
+		bool ends_loop, ends_else;
+		
 		bool hasElse() const {return elseBlock;}
 	private:
 		bool inverted;
@@ -605,6 +614,8 @@ namespace ZScript
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> body;
 		owning_ptr<ASTStmt> elseBlock;
+		
+		bool ends_loop, ends_else;
 		
 		bool hasElse() const {return elseBlock;}
 	private:

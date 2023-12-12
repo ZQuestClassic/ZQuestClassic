@@ -13,10 +13,12 @@ void addOpcode2(std::vector<std::shared_ptr<ZScript::Opcode>>& v, ZScript::Opcod
 
 namespace ZScript
 {
+	class LValBOHelper;
 	class BuildOpcodes : public RecursiveVisitor
 	{
 	public:
 		BuildOpcodes(Scope* curScope);
+		BuildOpcodes(LValBOHelper* helper);
 
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
@@ -154,6 +156,7 @@ namespace ZScript
 	{
 	public:
 		LValBOHelper(Scope* scope);
+		LValBOHelper(BuildOpcodes* bo);
 		virtual void caseDefault(void *param);
 		//virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);

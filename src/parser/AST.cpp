@@ -762,6 +762,77 @@ void ASTStmtSwitch::execute(ASTVisitor& visitor, void* param)
 	visitor.caseStmtSwitch(*this, param);
 }
 
+optional<vector<ASTSwitchCases*>> ASTStmtSwitch::getCompileTimeCases(
+	CompileErrorHandler* errorHandler, Scope* scope)
+{
+	if(isString) return nullopt;
+	if(!key) return nullopt;
+	auto keyval = key->getCompileTimeValue(errorHandler, scope);
+	if(!keyval) return nullopt;
+	vector<ASTSwitchCases*> ret;
+	if(cases.size() == 1 && cases.back()->isDefault)
+	{
+		ret.push_back(cases.back());
+		return ret;
+	}
+	ASTSwitchCases* defcase = nullptr;
+	ASTSwitchCases* foundcase = nullptr;
+	for (auto it = cases.begin(); it != cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+		bool found = false;
+		// Run the tests for these cases.
+		for (auto it = cases->cases.begin(); !found && it != cases->cases.end(); ++it)
+		{
+			// Test this individual case.
+			if(auto val = (*it)->getCompileTimeValue(errorHandler, scope))
+			{
+				if(*val == *keyval)
+					found = true;
+			}
+		}
+		for (auto it = cases->ranges.begin(); !found && it != cases->ranges.end(); ++it)
+		{
+			ASTRange& range = **it;
+			//Test each full range
+			auto low_val = (*range.start).getCompileTimeValue(errorHandler, scope);
+			auto high_val = (*range.end).getCompileTimeValue(errorHandler, scope);
+			
+			if(low_val && high_val && (*low_val <= *keyval && *high_val >= *keyval))
+			{
+				found = true;
+			}
+		}
+
+		// If this set includes the default case, mark it.
+		if (cases->isDefault)
+			defcase = cases;
+		if(found)
+		{
+			foundcase = cases;
+			break;
+		}
+	}
+	if(!foundcase) foundcase = defcase;
+	if(!foundcase)
+		return ret; //empty vector
+	
+	//Grab the foundcase, and every case after it (that it might fallthrough into)
+	bool hit_found = false;
+	for (auto it = cases.begin(); it != cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+		if(!hit_found)
+		{
+			if(foundcase == cases)
+				hit_found = true;
+			else continue;
+		}
+		ret.push_back(cases);
+	}
+	return ret;
+}
+
 // ASTSwitchCases
 
 ASTSwitchCases::ASTSwitchCases(LocationData const& location)
@@ -790,7 +861,8 @@ ASTStmtFor::ASTStmtFor(
 		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
 		ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), setup(setup), test(test), increment(increment),
-	  body(body), elseBlock(elseBlock), scope(nullptr)
+	  body(body), elseBlock(elseBlock), scope(nullptr),
+	  ends_loop(false), ends_else(false)
 {}
 
 void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
@@ -805,7 +877,8 @@ ASTStmtForEach::ASTStmtForEach(
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), iden(identifier), indxdecl(nullptr), arrdecl(nullptr),
 		decl(nullptr), arrExpr(expr), body(body),
-		elseBlock(elseBlock), scope(nullptr)
+		elseBlock(elseBlock), scope(nullptr),
+	  ends_loop(false), ends_else(false)
 {}
 
 void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
@@ -818,7 +891,8 @@ void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
 ASTStmtWhile::ASTStmtWhile(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), test(test), body(body),
-		elseBlock(elseBlock), inverted(false)
+		elseBlock(elseBlock), inverted(false),
+	  ends_loop(false), ends_else(false)
 {}
 
 void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
@@ -831,7 +905,8 @@ void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
 ASTStmtDo::ASTStmtDo(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), test(test), body(body),
-		elseBlock(elseBlock), inverted(false)
+		elseBlock(elseBlock), inverted(false),
+	  ends_loop(false), ends_else(false)
 {}
 
 void ASTStmtDo::execute(ASTVisitor& visitor, void* param)
