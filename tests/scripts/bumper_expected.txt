@@ -43,24 +43,24 @@ STORED d2,1
 PUSHARGSR d4,0.0002; if() #9270 Test AND while(true) #9268 Body [Opt:AlwaysOn] Start AND Int.Func[int Distance(int, int, int, int)] Params Start
 LOADD d2,7; UsrFunc[int CenterX(FFC)] Params Start
 PUSHR d2; UsrFunc[int CenterX(FFC)] Params End
-CALLFUNC 0.0866; UsrFunc[int CenterX(FFC)] Call
+CALLFUNC 0.0864; UsrFunc[int CenterX(FFC)] Call
 POP d4
 PUSHR d2
 PUSHR d4
 LOADD d2,7; UsrFunc[int CenterY(FFC)] Params Start
 PUSHR d2; UsrFunc[int CenterY(FFC)] Params End
-CALLFUNC 0.0890; UsrFunc[int CenterY(FFC)] Call
+CALLFUNC 0.0888; UsrFunc[int CenterY(FFC)] Call
 POP d4
 PUSHR d2
 PUSHR d4
-CALLFUNC 0.0856; UsrFunc[int CenterLinkX()] Call
+CALLFUNC 0.0854; UsrFunc[int CenterLinkX()] Call
 POP d4
 PUSHR d2
 PUSHR d4
-CALLFUNC 0.0861; UsrFunc[int CenterLinkY()] Call
+CALLFUNC 0.0859; UsrFunc[int CenterLinkY()] Call
 POP d4
 PUSHR d2; Int.Func[int Distance(int, int, int, int)] Params End
-CALLFUNC 0.0487; Int.Func[int Distance(int, int, int, int)] Call
+CALLFUNC 0.0485; Int.Func[int Distance(int, int, int, int)] Call
 POP d4
 PUSHR d2
 LOADD d2,7
@@ -100,24 +100,24 @@ PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 PUSHARGSR d4,0.0002; UsrFunc[int Angle(int, int, int, int)] Params Start
 LOADD d2,7; UsrFunc[int CenterX(FFC)] Params Start
 PUSHR d2; UsrFunc[int CenterX(FFC)] Params End
-CALLFUNC 0.0866; UsrFunc[int CenterX(FFC)] Call
+CALLFUNC 0.0864; UsrFunc[int CenterX(FFC)] Call
 POP d4
 PUSHR d2
 PUSHR d4
 LOADD d2,7; UsrFunc[int CenterY(FFC)] Params Start
 PUSHR d2; UsrFunc[int CenterY(FFC)] Params End
-CALLFUNC 0.0890; UsrFunc[int CenterY(FFC)] Call
+CALLFUNC 0.0888; UsrFunc[int CenterY(FFC)] Call
 POP d4
 PUSHR d2
 PUSHR d4
-CALLFUNC 0.0856; UsrFunc[int CenterLinkX()] Call
+CALLFUNC 0.0854; UsrFunc[int CenterLinkX()] Call
 POP d4
 PUSHR d2
 PUSHR d4
-CALLFUNC 0.0861; UsrFunc[int CenterLinkY()] Call
+CALLFUNC 0.0859; UsrFunc[int CenterLinkY()] Call
 POP d4
 PUSHR d2; UsrFunc[int Angle(int, int, int, int)] Params End
-CALLFUNC 0.0533; UsrFunc[int Angle(int, int, int, int)] Call
+CALLFUNC 0.0531; UsrFunc[int Angle(int, int, int, int)] Call
 POP d4
 STORED d2,5
 LOADD d2,8
@@ -125,7 +125,7 @@ STORED d2,4
 SETV d2,16
 STORED d2,3; if() #9272 Body End
 PUSHR d4
-CALLFUNC 0.0914; UsrFunc[void NoAction()] Call
+CALLFUNC 0.0912; UsrFunc[void NoAction()] Call
 POP d4; if() #9270 Body End
 LOADD d2,4; if() #9273 Test
 COMPAREV d2,0
@@ -140,7 +140,7 @@ PUSHR d4
 PUSHV 3; UsrFunc[int VectorX(int, int)] Params Start
 LOADD d2,5
 PUSHR d2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.0959; UsrFunc[int VectorX(int, int)] Call
+CALLFUNC 0.0957; UsrFunc[int VectorX(int, int)] Call
 POP d4
 POP d3
 ADDR d2,d3
@@ -151,7 +151,7 @@ PUSHR d4
 PUSHV 3; UsrFunc[int VectorY(int, int)] Params Start
 LOADD d2,5
 PUSHR d2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.0970; UsrFunc[int VectorY(int, int)] Call
+CALLFUNC 0.0968; UsrFunc[int VectorY(int, int)] Call
 POP d4
 POP d3
 ADDR d2,d3
@@ -192,7 +192,7 @@ PUSHR LINKY
 PUSHV 2
 PUSHV 1
 PUSHV 0; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params End
-CALLFUNC 0.0553; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
+CALLFUNC 0.0551; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
 POP d4
 COMPAREV d2,0
 GOTOTRUE 201; Test 'if'
@@ -222,7 +222,7 @@ PUSHR d2
 PUSHR d4
 LOADD d2,1; UsrFunc[int Sign(int)] Params Start
 PUSHR d2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.0981; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.0979; UsrFunc[int Sign(int)] Call
 POP d4
 PUSHR d2
 LOADD d2,2; InlineFunc[int Abs(int)] Params Start
@@ -264,7 +264,7 @@ PUSHR LINKY
 PUSHV 3
 PUSHV 1
 PUSHV 0; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params End
-CALLFUNC 0.0553; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
+CALLFUNC 0.0551; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
 POP d4
 COMPAREV d2,0
 GOTOTRUE 273; Test 'if'
@@ -294,7 +294,7 @@ PUSHR d2
 PUSHR d4
 LOADD d2,1; UsrFunc[int Sign(int)] Params Start
 PUSHR d2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.0981; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.0979; UsrFunc[int Sign(int)] Call
 POP d4
 PUSHR d2
 LOADD d2,2; InlineFunc[int Abs(int)] Params Start
@@ -344,7 +344,7 @@ PUSHR LINKY
 PUSHV 0
 PUSHV 1
 PUSHV 0; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params End
-CALLFUNC 0.0553; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
+CALLFUNC 0.0551; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
 POP d4
 COMPAREV d2,0
 GOTOTRUE 353; Test 'if'
@@ -374,7 +374,7 @@ PUSHR d2
 PUSHR d4
 LOADD d2,2; UsrFunc[int Sign(int)] Params Start
 PUSHR d2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.0981; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.0979; UsrFunc[int Sign(int)] Call
 POP d4
 PUSHR d2
 LOADD d2,1; InlineFunc[int Abs(int)] Params Start
@@ -415,7 +415,7 @@ PUSHR LINKX; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR LINKY
 PUSHARGSV 1,0.0002
 PUSHV 0; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params End
-CALLFUNC 0.0553; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
+CALLFUNC 0.0551; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
 POP d4
 COMPAREV d2,0
 GOTOTRUE 424; Test 'if'
@@ -445,7 +445,7 @@ PUSHR d2
 PUSHR d4
 LOADD d2,2; UsrFunc[int Sign(int)] Params Start
 PUSHR d2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.0981; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.0979; UsrFunc[int Sign(int)] Call
 POP d4
 PUSHR d2
 LOADD d2,1; InlineFunc[int Abs(int)] Params Start
@@ -492,9 +492,7 @@ POP d2
 POP REFFFC
 SETR DATA,d2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #9268 Body [Opt:AlwaysOn] End
-GOTO 32; while() #9268 End
-POPARGS d5,0.0009
-QUIT; void run(int) Body End
+GOTO 32; while() #9268 End AND [Opt:NeverRet] AND void run(int) Body End
 POP d2; Func[int Distance(int, int, int, int)] Body Start
 POP d1
 POP d0
@@ -505,40 +503,40 @@ SETR d4,SP; Func[int DirNormal(int)] Body Start
 LOADD d2,0; switch() #4297 Key
 SETR SWITCHKEY,d2; Store key
 COMPAREV SWITCHKEY,8
-GOTOTRUE 513; case '80000'
+GOTOTRUE 511; case '80000'
 COMPAREV SWITCHKEY,9
-GOTOTRUE 515; case '90000'
+GOTOTRUE 513; case '90000'
 COMPAREV SWITCHKEY,10
-GOTOTRUE 517; case '100000'
+GOTOTRUE 515; case '100000'
 COMPAREV SWITCHKEY,11
-GOTOTRUE 519; case '110000'
+GOTOTRUE 517; case '110000'
 COMPAREV SWITCHKEY,12
-GOTOTRUE 521; case '120000'
+GOTOTRUE 519; case '120000'
 COMPAREV SWITCHKEY,13
-GOTOTRUE 523; case '130000'
+GOTOTRUE 521; case '130000'
 COMPAREV SWITCHKEY,14
-GOTOTRUE 525; case '140000'
+GOTOTRUE 523; case '140000'
 COMPAREV SWITCHKEY,15
-GOTOTRUE 527; case '150000'
-GOTO 529; switch() #4297 NoMatch
+GOTOTRUE 525; case '150000'
+GOTO 527; switch() #4297 NoMatch
 SETV d2,0; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 SETV d2,5; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 SETV d2,3; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 SETV d2,7; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 SETV d2,1; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 SETV d2,6; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 SETV d2,2; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 SETV d2,4; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 LOADD d2,0; Case block AND return Start
-GOTO 531; return End
+GOTO 529; return End
 POPARGS d5,0.0001
 RETURNFUNC; Func[int DirNormal(int)] Body End
 SETR d4,SP; Func[int Angle(int, int, int, int)] Body Start
@@ -558,7 +556,7 @@ POP d0; InlineFunc[int ArcTan(int, int)] Body Start
 ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 SETR d3,d2; InlineFunc[int RadtoDeg(int)] Params End
 RADTODEG d2,d3; InlineFunc[int RadtoDeg(int)] Body
-GOTO 551; return End
+GOTO 549; return End
 POPARGS d5,0.0004
 RETURNFUNC; Func[int Angle(int, int, int, int)] Body End
 PUSHARGSV 0,0.0004; Func[bool CanWalk(int, int, int, int, bool)] Body Start
@@ -573,24 +571,24 @@ ADDV d2,15
 STORED d2,1
 LOADD d2,4; if() #3622 Test
 COMPAREV d2,0
-GOTOTRUE 568; Test 'if'
+GOTOTRUE 566; Test 'if'
 SETV d2,0; if() #3622 Body Start
 STORED d2,3; if() #3622 Body End
 PUSHR d4; switch() #3623 Key
 LOADD d2,6; UsrFunc[int DirNormal(int)] Params Start
 PUSHR d2; UsrFunc[int DirNormal(int)] Params End
-CALLFUNC 0.0493; UsrFunc[int DirNormal(int)] Call
+CALLFUNC 0.0491; UsrFunc[int DirNormal(int)] Call
 POP d4
 SETR SWITCHKEY,d2; Store key
 COMPAREV SWITCHKEY,0
-GOTOTRUE 583; case '0'
+GOTOTRUE 581; case '0'
 COMPAREV SWITCHKEY,1
-GOTOTRUE 654; case '10000'
+GOTOTRUE 652; case '10000'
 COMPAREV SWITCHKEY,2
-GOTOTRUE 710; case '20000'
+GOTOTRUE 708; case '20000'
 COMPAREV SWITCHKEY,3
-GOTOTRUE 777; case '30000'
-GOTO 841; switch() #3623 NoMatch
+GOTOTRUE 775; case '30000'
+GOTO 839; switch() #3623 NoMatch
 LOADD d2,7; Case block AND return Start
 PUSHR d2
 LOADD d2,5
@@ -602,7 +600,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 611
+GOTOMORE 609
 LOADD d2,8; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,7
@@ -621,7 +619,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 631
+GOTOMORE 629
 LOADD d2,8; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 ADDV d2,8
 PUSHR d2
@@ -641,7 +639,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 650
+GOTOMORE 648
 LOADD d2,2; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,7
@@ -661,7 +659,7 @@ COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
 SETTRUEI d2
-GOTO 854; return End
+GOTO 852; return End
 LOADD d2,1; Case block AND return Start
 PUSHR d2
 LOADD d2,5
@@ -670,7 +668,7 @@ ADDR d2,d3
 COMPAREV d2,176
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 675
+GOTOMORE 673
 LOADD d2,8; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,1
@@ -685,7 +683,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 691
+GOTOMORE 689
 LOADD d2,8; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 ADDV d2,8
 PUSHR d2
@@ -701,7 +699,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 706
+GOTOMORE 704
 LOADD d2,2; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,1
@@ -717,7 +715,7 @@ COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
 SETTRUEI d2
-GOTO 854; return End
+GOTO 852; return End
 LOADD d2,8; Case block AND return Start
 PUSHR d2
 LOADD d2,5
@@ -729,7 +727,7 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0.0001
-GOTOMORE 738
+GOTOMORE 736
 LOADD d2,8; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,5
@@ -748,7 +746,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 758
+GOTOMORE 756
 LOADD d2,8; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,5
@@ -768,7 +766,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 773
+GOTOMORE 771
 LOADD d2,8; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,5
@@ -784,7 +782,7 @@ COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
 SETTRUEI d2
-GOTO 854; return End
+GOTO 852; return End
 LOADD d2,2; Case block AND return Start
 PUSHR d2
 LOADD d2,5
@@ -793,7 +791,7 @@ ADDR d2,d3
 COMPAREV d2,256
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 802
+GOTOMORE 800
 LOADD d2,2; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,5
@@ -812,7 +810,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 822
+GOTOMORE 820
 LOADD d2,2; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,5
@@ -832,7 +830,7 @@ CASTBOOLF d2
 COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0.0001
-GOTOMORE 837
+GOTOMORE 835
 LOADD d2,2; InlineFunc[bool Screen->isSolid(int, int)] Params Start
 PUSHR d2
 LOADD d2,5
@@ -848,7 +846,7 @@ COMPAREV d2,0.0001
 SETMOREI d2
 COMPAREV d2,0
 SETTRUEI d2
-GOTO 854; return End
+GOTO 852; return End
 ALLOCATEMEMV d2,60; Case block
 STORED d2,0
 WRITEPODSTRING d2,"Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n"
@@ -861,18 +859,18 @@ POP d5; InlineFunc[void printf(char32)] Body End
 LOADD d3,0
 DEALLOCATEMEMR d3
 SETV d2,0; return Start
-GOTO 854; return End
+GOTO 852; return End
 POPARGS d5,0.0009
 RETURNFUNC; Func[bool CanWalk(int, int, int, int, bool)] Body End
 SETR d4,SP; Func[int CenterLinkX()] Body Start
 SETR d2,LINKX; return Start
 ADDV d2,8
-GOTO 860; return End
+GOTO 858; return End
 RETURNFUNC; Func[int CenterLinkX()] Body End
 SETR d4,SP; Func[int CenterLinkY()] Body Start
 SETR d2,LINKY; return Start
 ADDV d2,8
-GOTO 865; return End
+GOTO 863; return End
 RETURNFUNC; Func[int CenterLinkY()] Body End
 SETR d4,SP; Func[int CenterX(FFC)] Body Start
 LOADD d2,0; return Start
@@ -895,7 +893,7 @@ POP d3
 MULTR d2,d3
 POP d3
 ADDR d2,d3
-GOTO 888; return End
+GOTO 886; return End
 POPARGS d5,0.0001
 RETURNFUNC; Func[int CenterX(FFC)] Body End
 SETR d4,SP; Func[int CenterY(FFC)] Body Start
@@ -919,7 +917,7 @@ POP d3
 MULTR d2,d3
 POP d3
 ADDR d2,d3
-GOTO 912; return End
+GOTO 910; return End
 POPARGS d5,0.0001
 RETURNFUNC; Func[int CenterY(FFC)] Body End
 PUSHV 0; Func[void NoAction()] Body Start
@@ -932,21 +930,21 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 957; for() #6184 TestFail?
+GOTOTRUE 955; for() #6184 TestFail?
 LOADD d2,0; if() #6187 Test AND for() #6184 Body Start
 COMPAREV d2,9
 SETTRUEI d2
 SETV d2,0
 COMPAREV d2,0
-GOTOTRUE 932; Test 'if'
-GOTO 953; continue #6186 AND if() #6187 Body
+GOTOTRUE 930; Test 'if'
+GOTO 951; continue #6186 AND if() #6187 Body
 LOADD d2,0; if() #6188 Test
 COMPAREV d2,6
 SETTRUEI d2
 SETV d2,0
 COMPAREV d2,0
-GOTOTRUE 939; Test 'if'
-GOTO 953; continue #6186 AND if() #6188 Body
+GOTOTRUE 937; Test 'if'
+GOTO 951; continue #6186 AND if() #6188 Body
 SETV d2,0
 PUSHR d2
 LOADD d2,0
@@ -964,7 +962,7 @@ SETR BUTTONPRESS,d2; for() #6184 Body End
 LOADD d2,0; for() #6184 LoopIncrement
 ADDV d2,1
 STORED d2,0
-GOTO 918; for() #6184 End
+GOTO 916; for() #6184 End
 POPARGS d5,0.0001
 RETURNFUNC; Func[void NoAction()] Body End
 SETR d4,SP; Func[int VectorX(int, int)] Body Start
@@ -975,7 +973,7 @@ PUSHR d2
 LOADD d2,1
 POP d3
 MULTR d2,d3
-GOTO 968; return End
+GOTO 966; return End
 POPARGS d5,0.0002
 RETURNFUNC; Func[int VectorX(int, int)] Body End
 SETR d4,SP; Func[int VectorY(int, int)] Body Start
@@ -986,7 +984,7 @@ PUSHR d2
 LOADD d2,1
 POP d3
 MULTR d2,d3
-GOTO 979; return End
+GOTO 977; return End
 POPARGS d5,0.0002
 RETURNFUNC; Func[int VectorY(int, int)] Body End
 SETR d4,SP; Func[int Sign(int)] Body Start
@@ -996,20 +994,20 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 991; Test 'if'
+GOTOTRUE 989; Test 'if'
 SETV d2,1; return Start AND if() #7485 Body Start
-GOTO 1002; return End AND if() #7485 Body End
+GOTO 1000; return End AND if() #7485 Body End
 LOADD d2,0; if() #7487 Test AND if() #7485 Else Start
 COMPAREV d2,0
 SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 1000; Test 'if'
+GOTOTRUE 998; Test 'if'
 SETV d2,-1; return Start AND if() #7487 Body Start
-GOTO 1002; return End AND if() #7487 Body End
+GOTO 1000; return End AND if() #7487 Body End
 SETV d2,0; return Start AND if() #7487 Else Start
-GOTO 1002; return End AND if() #7487 Else End
+GOTO 1000; return End AND if() #7487 Else End
 POPARGS d5,0.0001; if() #7485 Else End
 RETURNFUNC; Func[int Sign(int)] Body End
 

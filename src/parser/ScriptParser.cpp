@@ -538,21 +538,29 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			appendElements(funccode, bo.getResult());
 			
-			// Pop off everything
-			Opcode* next;
-			if(stackSize)
-				next = new OPopArgsRegister(new VarArgument(NUL),
-					new LiteralArgument(stackSize));
-			else next = new ONoOp();
-			next->setLabel(bo.getReturnLabelID());
-			addOpcode2(funccode, next);
-			
-			if (puc == puc_construct) //return val
+			if(function.getFlag(FUNCFLAG_NEVER_RETURN))
 			{
-				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
-				addOpcode2(funccode, new OPopRegister(new VarArgument(CLASS_THISKEY)));
+				if(funccode.size())
+					funccode.back()->mergeComment("[Opt:NeverRet]");
 			}
-			addOpcode2(funccode, new OReturnFunc());
+			else
+			{
+				// Pop off everything
+				Opcode* next;
+				if(stackSize)
+					next = new OPopArgsRegister(new VarArgument(NUL),
+						new LiteralArgument(stackSize));
+				else next = new ONoOp();
+				next->setLabel(bo.getReturnLabelID());
+				addOpcode2(funccode, next);
+				
+				if (puc == puc_construct) //return val
+				{
+					addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
+					addOpcode2(funccode, new OPopRegister(new VarArgument(CLASS_THISKEY)));
+				}
+				addOpcode2(funccode, new OReturnFunc());
+			}
 			function.giveCode(funccode);
 		}
 		else
@@ -639,21 +647,29 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			appendElements(funccode, bo.getResult());
 			
-			// Add appendix code.
-			std::shared_ptr<Opcode> next(new ONoOp());
-			next->setLabel(bo.getReturnLabelID());
-			funccode.push_back(std::move(next));
-			
-			// Pop off everything.
-			if(stackSize)
-				addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL),
-					new LiteralArgument(stackSize)));
-			else addOpcode2(funccode, new ONoOp());
-			
-			//if it's a main script, quit.
-			if (isRun)
-				addOpcode2(funccode, new OQuit()); //exit the script
-			else addOpcode2(funccode, new OReturnFunc());
+			if(function.getFlag(FUNCFLAG_NEVER_RETURN))
+			{
+				if(funccode.size())
+					funccode.back()->mergeComment("[Opt:NeverRet]");
+			}
+			else
+			{
+				// Add appendix code.
+				std::shared_ptr<Opcode> next(new ONoOp());
+				next->setLabel(bo.getReturnLabelID());
+				funccode.push_back(std::move(next));
+				
+				// Pop off everything.
+				if(stackSize)
+					addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL),
+						new LiteralArgument(stackSize)));
+				else addOpcode2(funccode, new ONoOp());
+				
+				//if it's a main script, quit.
+				if (isRun)
+					addOpcode2(funccode, new OQuit()); //exit the script
+				else addOpcode2(funccode, new OReturnFunc());
+			}
 			
 			function.giveCode(funccode);
 		}
@@ -891,6 +907,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			{ \
 				auto it2 = it; \
 				++it2; \
+				if(it2 == rval.end()) \
+					break; \
 				if(ty* op2 = dynamic_cast<ty*>(it2->get())) \
 				{ \
 					if(!op->getArgument()->toString().compare( \
@@ -924,6 +942,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				{ \
 					auto it2 = it; \
 					++it2; \
+					if(it2 == rval.end()) \
+						break; \
 					Argument const* target_arg = single_op \
 						? (single_op->getArgument()) \
 						: (multi_op->getFirstArgument()); \
@@ -985,13 +1005,16 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			{
 				auto it2 = it;
 				++it2;
-				Opcode* nextcode = it2->get();
-				nextcode->mergeComment(comment, true);
+				Opcode* nextcode = it2 == rval.end() ? nullptr : it2->get();
+				if(nextcode)
+					nextcode->mergeComment(comment, true);
 				if(lbl == -1) //no label, just trash it
 				{
 					it = rval.erase(it);
 					continue;
 				}
+				if(!nextcode)
+					break; //can't merge with something that doesn't exist
 				auto lbl2 = nextcode->getLabel();
 				if(lbl2 == -1) //next code has no label, pass the label
 				{
