@@ -934,6 +934,30 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				++it; \
 				continue; \
 			}
+			#define MERGE_GOTO_NEXT(ty) \
+			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			{ \
+				auto it2 = it; \
+				++it2; \
+				if(it2 == rval.end()) \
+					break; \
+				LabelArgument* label_arg = (LabelArgument*)op->getArgument(); \
+				Opcode* nextcode = it2->get(); \
+				auto lbl2 = nextcode->getLabel(); \
+				if(lbl2 > -1 && label_arg->getID() == lbl2) \
+				{ \
+					nextcode->mergeComment(comment, true); \
+					it = rval.erase(it); \
+					if(lbl > -1) \
+					{ \
+						MergeLabels temp(lbl2, {lbl}); \
+						temp.execute(rval, nullptr); \
+					} \
+					continue; \
+				} \
+				++it; \
+				continue; \
+			}
 			#define MERGE_CONSEC_REPCOUNT_START(ty1,ty2) \
 			{ \
 				ty1* single_op = dynamic_cast<ty1*>(ocode); \
@@ -989,6 +1013,18 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 							LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
 							litarg->value += addcount; \
 							multi_op->setComment(comment); \
+						} \
+					} \
+					else if(multi_op) \
+					{ \
+						LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
+						if(litarg->value == 1) \
+						{ \
+							Argument* reg = target_arg->clone(); \
+							it = rval.erase(it); \
+							it = rval.insert(it,std::shared_ptr<Opcode>(new ty1(reg))); \
+							(*it)->setLabel(lbl); \
+							(*it)->setComment(comment); \
 						} \
 					} \
 					++it; \
@@ -1073,6 +1109,15 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			MERGE_CONSEC_1(OGotoMoreImmediate)
 			MERGE_CONSEC_1(OGotoLessImmediate)
 			MERGE_CONSEC_1(OGotoRegister)
+		END_OPT_PASS()
+		START_OPT_PASS()
+			//Trim GOTOs that go to the line directly after them
+			MERGE_GOTO_NEXT(OGotoImmediate)
+			MERGE_GOTO_NEXT(OGotoTrueImmediate)
+			MERGE_GOTO_NEXT(OGotoFalseImmediate)
+			MERGE_GOTO_NEXT(OGotoMoreImmediate)
+			MERGE_GOTO_NEXT(OGotoLessImmediate)
+			MERGE_GOTO_NEXT(OCallFunc)
 		END_OPT_PASS()
 		START_OPT_PASS() //OSetImmediate -> OTraceRegister ('Trace()' optimization)
 			if(OSetImmediate* setop = dynamic_cast<OSetImmediate*>(ocode))

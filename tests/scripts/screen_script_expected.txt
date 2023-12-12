@@ -90,7 +90,7 @@ LOADD d2,1; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 PUSHV 255
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0103; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.0102; UsrFunc[int VBound(int, int, int)] Call
 POP d4
 STORED d2,1
 PUSHR d4
@@ -98,7 +98,7 @@ LOADD d2,0; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 PUSHV 175
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0103; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.0102; UsrFunc[int VBound(int, int, int)] Call
 POP d4
 STORED d2,0
 LOADD d2,0; return Start
@@ -108,8 +108,7 @@ LOADD d2,1
 RSHIFTV d2,4
 POP d3
 ADDR d2,d3
-GOTO 101; return End
-POPARGS d5,0.0002
+POPARGS d5,0.0002; return End
 RETURNFUNC; Func[int ComboAt(int, int)] Body End
 SETR d4,SP; Func[int VBound(int, int, int)] Body Start
 LOADD d2,2; if() #7613 Test
@@ -121,10 +120,10 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 117; Test 'if'
+GOTOTRUE 116; Test 'if'
 LOADD d2,0; if() #7613 Body Start
 STORED d2,2
-GOTO 129; if() #7613 Body End
+GOTO 128; if() #7613 Body End
 LOADD d2,2; if() #7615 Test AND if() #7613 Else Start
 PUSHR d2
 LOADD d2,1
@@ -134,12 +133,11 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 129; Test 'if'
+GOTOTRUE 128; Test 'if'
 LOADD d2,1; if() #7615 Body Start
 STORED d2,2; if() #7615 Body End
 LOADD d2,2; if() #7613 Else End AND return Start
-GOTO 131; return End
-POPARGS d5,0.0003
+POPARGS d5,0.0003; return End
 RETURNFUNC; Func[int VBound(int, int, int)] Body End
 
 

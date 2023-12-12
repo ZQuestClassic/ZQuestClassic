@@ -1415,7 +1415,9 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		//to the appropriate gettor method
 		//so, set that up:
 		//push the stack frame
-		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+		bool never_ret = readfunc->getFlag(FUNCFLAG_NEVER_RETURN);
+		if(!never_ret)
+			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		if (!(readfunc->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
 			//push the lhs of the arrow
@@ -1434,7 +1436,8 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		int32_t label = readfunc->getLabel();
 		addOpcode(new OCallFunc(new LabelArgument(label, true)));
 		//pop the stack frame
-		addOpcode(new OPopRegister(new VarArgument(SFRAME)));
+		if(!never_ret)
+			addOpcode(new OPopRegister(new VarArgument(SFRAME)));
 	}
 }
 
@@ -1489,6 +1492,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	const string func_comment = fmt::format("Func[{}]",func.getUnaliasedSignature(true).asString());
 	auto targ_sz = commentTarget();
+	bool never_ret = func.getFlag(FUNCFLAG_NEVER_RETURN);
 	if(func.getFlag(FUNCFLAG_NIL) || func.prototype) //Prototype/Nil function
 	{
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
@@ -1770,9 +1774,12 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		commentStartEnd(targ_sz, fmt::format("Class{} Vargs",func_comment));
 		//push the this key/stack frame pointer
-		addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
-		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-		pushcount += 2;
+		if(!never_ret)
+		{
+			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
+			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+			pushcount += 2;
+		}
 		
 		targ_sz = commentTarget();
 		//push the parameters, in forward order
@@ -1939,8 +1946,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		commentStartEnd(targ_sz, fmt::format("{}{} Vargs",comment_pref,func_comment));
 		//push the stack frame pointer
-		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-		++pushcount;
+		if(!never_ret)
+		{
+			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+			++pushcount;
+		}
 		targ_sz = commentTarget();
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.
@@ -2058,7 +2068,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		//goto
 		addOpcode(new OCallFunc(new LabelArgument(funclabel, true)));
 		commentBack(fmt::format("{}{} Call",comment_pref,func_comment));
-		if(func.getFlag(FUNCFLAG_NEVER_RETURN))
+		if(never_ret)
 			commentBack("[Opt:NeverRet]");
 		else
 		{
@@ -3670,9 +3680,10 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 	else
 	{
 		// This is actually implemented as a settor function call.
-
+		bool never_ret = host.writeFunction->getFlag(FUNCFLAG_NEVER_RETURN);
 		// Push the stack frame.
-		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+		if(!never_ret)
+			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		
 		if (!(host.writeFunction->getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 		{
@@ -3711,7 +3722,8 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		addOpcode(new OCallFunc(new LabelArgument(label, true)));
 
 		// Pop the stack frame
-		addOpcode(new OPopRegister(new VarArgument(SFRAME)));
+		if(!never_ret)
+			addOpcode(new OPopRegister(new VarArgument(SFRAME)));
 	}
 }
 

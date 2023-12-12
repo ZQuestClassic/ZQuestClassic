@@ -75,7 +75,7 @@ SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 68; Test 'if'
 SETV d2,0; return Start AND if() #3439 Body Start
-GOTO 76; return End AND if() #3439 Body End
+GOTO 75; return End AND if() #3439 Body End
 LOADD d2,0; for() #3436 Body End AND for() #3436 LoopIncrement
 PUSHR d2
 ADDV d2,1
@@ -83,8 +83,7 @@ STORED d2,0
 POP d2
 GOTO 47; for() #3436 End
 SETV d2,1; return Start
-GOTO 76; return End
-POPARGS d5,0.0002
+POPARGS d5,0.0002; return End
 RETURNFUNC; Func[bool is_prime(int)] Body End
 
 
