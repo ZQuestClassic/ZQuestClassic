@@ -3,8 +3,9 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-Pass 5: Generating object code
-Pass 6: Assembling
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
 

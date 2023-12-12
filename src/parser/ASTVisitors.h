@@ -207,7 +207,7 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataType(ASTDataType& host, void* param = NULL) {
 			caseDefault(host, param);}
-
+		
 		int parsing_user_class;
 	protected:
 		//Current scope
@@ -244,6 +244,10 @@ namespace ZScript
 		// Visits a single node. The only virtual visit function as all others
 		// defer to this one.
 		virtual void visit(AST& node, void* param = NULL);
+		
+		//internals
+		void visitFunctionInternals(ZScript::Program& program);
+		virtual void analyzeFunctionInternals(ZScript::Function& function) {}
 
 		////////////////////////////////////////////////////////////////
 		// Convenience Functions

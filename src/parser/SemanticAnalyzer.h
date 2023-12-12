@@ -91,7 +91,9 @@ namespace ZScript
 		void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);
 		void caseOptionValue(ASTOptionValue& host, void* = NULL);
 		void caseIsIncluded(ASTIsIncluded& host, void* = NULL);
-
+		
+		//internals
+		virtual void analyzeFunctionInternals(ZScript::Function& function);
 	private:
 		ZScript::Program& program;
 		// Current function return type.
@@ -100,8 +102,6 @@ namespace ZScript
 		std::vector<Function*> inlineStack;
 		
 		bool deprecateGlobals;
-
-		void analyzeFunctionInternals(ZScript::Function& function);
 
 		////////////////////////////////////////////////////////////////
 		// Helper Functions.

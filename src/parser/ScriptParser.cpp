@@ -17,6 +17,7 @@
 #include "SemanticAnalyzer.h"
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
+#include "ReturnVisitor.h"
 #include "ZScript.h"
 #include <fmt/format.h>
 
@@ -148,7 +149,14 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 			return nullptr;
 		}
 
-		zconsole_info("%s", "Pass 5: Generating object code");
+		zconsole_info("%s", "Pass 5: Checking code paths");
+		zconsole_idle();
+		
+		ReturnVisitor rv(program);
+		if(zscript_error_out) return nullptr;
+		if(rv.hasFailed()) return nullptr;
+		
+		zconsole_info("%s", "Pass 6: Generating object code");
 		zconsole_idle();
 
 		unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
@@ -156,7 +164,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 			return nullptr;
 		if(zscript_error_out) return nullptr;
 		
-		zconsole_info("%s", "Pass 6: Assembling");
+		zconsole_info("%s", "Pass 7: Assembling");
 		zconsole_idle();
 
 		ScriptParser::assemble(id.get());

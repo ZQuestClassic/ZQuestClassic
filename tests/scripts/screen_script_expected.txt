@@ -3,8 +3,9 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-Pass 5: Generating object code
-Pass 6: Assembling
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
@@ -17,7 +18,7 @@ DIVV d2,2
 PUSHR d2
 POP d2
 SETR LINKHP,d2
-PUSHR d4; while(true) #9272 Body [Opt:AlwaysOn] Start
+PUSHR d4; while(true) #9268 Body [Opt:AlwaysOn] Start
 SETR d2,LINKX; UsrFunc[int ComboAt(int, int)] Params Start
 ADDV d2,8
 PUSHR d2
@@ -27,7 +28,7 @@ PUSHR d2; UsrFunc[int ComboAt(int, int)] Params End
 CALLFUNC 0.0078; UsrFunc[int ComboAt(int, int)] Call
 POP d4
 STORED d2,0
-LOADD d2,0; if() #9274 Test
+LOADD d2,0; if() #9270 Test
 PUSHR d2
 POP d0
 SETR d2,COMBODD
@@ -38,7 +39,7 @@ COMPARER d3,d2
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 44; Test 'if'
-LOADD d2,0; if() #9274 Body Start
+LOADD d2,0; if() #9270 Body Start
 PUSHR d2
 POP d0
 SETR d2,COMBODD
@@ -50,7 +51,7 @@ POP d0
 POP d2
 SETR COMBODD,d2
 LOADD d2,2; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body AND if() #9274 Body End
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body AND if() #9270 Body End
 PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
 SETR d2,LINKY
@@ -81,8 +82,8 @@ PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS d5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #9272 Body [Opt:AlwaysOn] End
-GOTO 10; while() #9272 End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #9268 Body [Opt:AlwaysOn] End
+GOTO 10; while() #9268 End
 POPARGS d5,0.0004
 QUIT; void run(int, int) Body End
 SETR d4,SP; Func[int ComboAt(int, int)] Body Start
@@ -113,7 +114,7 @@ GOTO 103; return End
 POPARGS d5,0.0002
 RETURNFUNC; Func[int ComboAt(int, int)] Body End
 SETR d4,SP; Func[int VBound(int, int, int)] Body Start
-LOADD d2,2; if() #7615 Test
+LOADD d2,2; if() #7613 Test
 PUSHR d2
 LOADD d2,0
 POP d3
@@ -123,10 +124,10 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 119; Test 'if'
-LOADD d2,0; if() #7615 Body Start
+LOADD d2,0; if() #7613 Body Start
 STORED d2,2
-GOTO 131; if() #7615 Body End
-LOADD d2,2; if() #7617 Test AND if() #7615 Else Start
+GOTO 131; if() #7613 Body End
+LOADD d2,2; if() #7615 Test AND if() #7613 Else Start
 PUSHR d2
 LOADD d2,1
 POP d3
@@ -136,9 +137,9 @@ COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
 GOTOTRUE 131; Test 'if'
-LOADD d2,1; if() #7617 Body Start
-STORED d2,2; if() #7617 Body End
-LOADD d2,2; if() #7615 Else End AND return Start
+LOADD d2,1; if() #7615 Body Start
+STORED d2,2; if() #7615 Body End
+LOADD d2,2; if() #7613 Else End AND return Start
 GOTO 133; return End
 POPARGS d5,0.0003
 RETURNFUNC; Func[int VBound(int, int, int)] Body End
