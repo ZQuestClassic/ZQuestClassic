@@ -1,11 +1,13 @@
 // TODO: do not link allegro w/ zscript compiler.
 
+#include <string>
+#include <thread>
+#include <chrono>
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "parser/ZScript.h"
 #include "parser/config.h"
 #include "parser/parser.h"
-#include <string>
 #include "zconfig.h"
 #include "zconsole/ConsoleLogger.h"
 #include "zscrdata.h"
@@ -13,6 +15,7 @@
 #include "base/qrs.h"
 #include "base/zsys.h"
 
+using namespace std::chrono_literals;
 FFScript FFCore;
 
 std::vector<std::string> ZQincludePaths;
@@ -386,7 +389,7 @@ int32_t main(int32_t argc, char **argv)
 		while(true)
 		{
 			zconsole_idle();
-			al_rest(1); //seconds
+			std::this_thread::sleep_for(1s);
 		}
 	}
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
