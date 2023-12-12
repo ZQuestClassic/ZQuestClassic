@@ -116,8 +116,9 @@ npc Ghost_InitWait2(ffc this, int enemyID, bool useEnemyPos)
 
 npc Ghost_InitSpawn(ffc this, int enemyID)
 {
-    npc ghost=SpawnNPC(enemyID);
-    __Ghost_InitInternal(this, ghost, false, this->Data, this->CSet);
+	npc ghost=SpawnNPC(enemyID);
+	__Ghost_InitInternal(this, ghost, false, this->Data, this->CSet);
+	return ghost;
 }
 
 /*
@@ -184,52 +185,46 @@ npc Ghost_InitAutoGhost(ffc this, int enemyID)
 
 npc Ghost_InitAutoGhost(ffc this, int enemyID)
 {
-    npc ghost; bool found;
-    
-    // Find the right enemy
-    for(int i=Screen->NumNPCs(); i>0; --i)
-    {
-        ghost=Screen->LoadNPC(i);
-        
-        // Wrong ID or already in use
-        if(ghost->ID!=enemyID)
+	npc ghost; bool found;
+	
+	// Find the right enemy
+	for(int i=Screen->NumNPCs(); i>0; --i)
 	{
-		found = false; 
-		continue;
-	}
-	else found = true;
-        if((ghost->Misc[__GHI_NPC_DATA]&0x10000)!=0)
-	{
-		found = false; 
-		continue;
-        }
-	if(found)
-	{
-		__Ghost_InitInternal(this, ghost, true,
-		  ghost->Misc[__GHI_NPC_DATA]&0xFFFF, ghost->CSet);
+		ghost=Screen->LoadNPC(i);
 		
-		if((ghost->MiscFlags&100000000b)!=0) // That's "Is Transparent"
-		    this->Flags[FFCF_TRANS]=true;
-		return ghost;
+		// Wrong ID or already in use
+		if(ghost->ID!=enemyID)
+		{
+			found = false; 
+			continue;
+		}
+		else found = true;
+		if((ghost->Misc[__GHI_NPC_DATA]&0x10000)!=0)
+		{
+			found = false; 
+			continue;
+		}
+		if(found)
+		{
+			__Ghost_InitInternal(this, ghost, true,
+			  ghost->Misc[__GHI_NPC_DATA]&0xFFFF, ghost->CSet);
+			
+			if((ghost->MiscFlags&100000000b)!=0) // That's "Is Transparent"
+				this->Flags[FFCF_TRANS]=true;
+			return ghost;
+		}
+		else break;
 	}
-	else
-	{
-	    // No enemy found, so quit. This shouldn't ever happen, so log it.
-	    int error1[]="ghost.zh: AutoGhost initialization failed - enemy missing.\n";
-	    int error2[30]="  DMap %d, screen %X\n";
-	    int error3[30]="  Script %d, enemy ID %d\n";
-	    printf(error1);
-	    printf(error2, Game->GetCurDMap(), Game->GetCurDMapScreen());
-	    printf(error3, this->Script, enemyID);
-	    
-	    this->Data=0;
-	    Quit();
-	}
-        
-    }
-    
-    
-    
+	// No enemy found, so quit. This shouldn't ever happen, so log it.
+	int error1[]="ghost.zh: AutoGhost initialization failed - enemy missing.\n";
+	int error2[30]="  DMap %d, screen %X\n";
+	int error3[30]="  Script %d, enemy ID %d\n";
+	printf(error1);
+	printf(error2, Game->GetCurDMap(), Game->GetCurDMapScreen());
+	printf(error3, this->Script, enemyID);
+	
+	this->Data=0;
+	Quit();
 }
 
 

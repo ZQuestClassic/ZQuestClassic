@@ -485,7 +485,7 @@ void Ghost_ClearCombos()
 
 bool ClockIsActive()
 {
-    __ghzhData[__GHI_CLOCK_TIMER]!=0;
+	return __ghzhData[__GHI_CLOCK_TIMER]!=0;
 }
 
 void SuspendGhostZHScripts()
