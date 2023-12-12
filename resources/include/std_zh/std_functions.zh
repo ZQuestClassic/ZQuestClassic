@@ -696,6 +696,7 @@ item CreateTimeoutItem(int id, int x, int y)
 	SetItemPickup(Spawn, IP_TIMEOUT, true);
 	Spawn->HitWidth = 16; Spawn->HitHeight = 16;
 	Spawn->X = x; Spawn->Y = y;
+	return Spawn;
 }
 
 // Returns the cross product of two vectors.
@@ -729,7 +730,6 @@ int DefeatedLevelBoss(int level)
 //Normalizes a dir between 8 and 15
 int DirNormal(int dir)
 {
-	if(dir < 8 || dir > 15) return dir;
 	switch(dir)
 	{
 		case DIR2_UP: return DIR_UP;
@@ -740,12 +740,12 @@ int DirNormal(int dir)
 		case DIR2_LEFTDOWN: return DIR_LEFTDOWN;
 		case DIR2_LEFT: return DIR_LEFT;
 		case DIR2_LEFTUP: return DIR_LEFTUP;
+		default: return dir;
 	}
 }
 //The reverse
 int DirAbnormal(int dir)
 {
-	if(dir < 0 || dir > 7) return dir;
 	switch(dir)
 	{
 		case DIR_UP: return DIR2_UP;
@@ -756,6 +756,7 @@ int DirAbnormal(int dir)
 		case DIR_LEFTDOWN: return DIR2_LEFTDOWN;
 		case DIR_LEFT: return DIR2_LEFT;
 		case DIR_LEFTUP: return DIR2_LEFTUP;
+		default: return dir;
 	}
 }
 

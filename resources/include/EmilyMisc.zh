@@ -614,6 +614,7 @@ namespace Emily
 			case DIR_RIGHT:
 				return 15+dist;
 		}
+		return 0;
 	} //end
 	
 	/**
@@ -631,6 +632,7 @@ namespace Emily
 			case DIR_RIGHT:
 				return 8;
 		}
+		return 0;
 	} //end
 	
 	/**
