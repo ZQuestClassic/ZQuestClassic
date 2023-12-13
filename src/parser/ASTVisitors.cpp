@@ -177,8 +177,6 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		     it != functions.end(); ++it)
 		{
 			Function* func = *it;
-			BuiltinVariable::create(*func->getInternalScope(), *constType, "this", this);
-			func->getInternalScope()->stackDepth_--;
 			analyzeFunctionInternals(*func);
 		}
 		
@@ -190,11 +188,7 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 			if(func->getFlag(FUNCFLAG_STATIC))
 				parsing_user_class = puc_none;
 			else
-			{
 				parsing_user_class = puc_funcs;
-				BuiltinVariable::create(*func->getInternalScope(), *constType, "this", this);
-				func->getInternalScope()->stackDepth_--;
-			}
 			analyzeFunctionInternals(*func);
 		}
 		
@@ -204,8 +198,6 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		     it != functions.end(); ++it)
 		{
 			Function* func = *it;
-			BuiltinVariable::create(*func->getInternalScope(), *constType, "this", this);
-			func->getInternalScope()->stackDepth_--;
 			analyzeFunctionInternals(*func);
 		}
 		parsing_user_class = puc_none;
