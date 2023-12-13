@@ -488,11 +488,12 @@ BuiltinConstant::BuiltinConstant(
 
 FunctionSignature::FunctionSignature(string const& name,
 	vector<DataType const*> const& parameterTypes, DataType const* returnType )
-	: name(name), prefix(false), parameterTypes(parameterTypes), returnType(returnType)
+	: name(name), prefix(false), destructor(false),
+	parameterTypes(parameterTypes), returnType(returnType)
 {}
 
 FunctionSignature::FunctionSignature(Function const& function, bool useret)
-	: name(function.name), prefix(function.hasPrefixType),
+	: name(function.name), prefix(function.hasPrefixType), destructor(function.getFlag(FUNCFLAG_DESTRUCTOR)),
 	parameterTypes(function.paramTypes), returnType(useret ? function.returnType : nullptr)
 {}
 		
@@ -536,6 +537,8 @@ string FunctionSignature::asString() const
 		oss << (*it)->getName() << "->";
 		++it;
 	}
+	if(destructor)
+		oss << "~";
 	oss << name << "(";
 	if(it != parameterTypes.end())
 	{

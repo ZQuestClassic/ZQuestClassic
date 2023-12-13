@@ -420,7 +420,7 @@ namespace ZScript
 		operator std::string() const {return asString();}
 
 		std::string name;
-		bool prefix;
+		bool prefix, destructor;
 		DataType const* returnType;
 		std::vector<DataType const*> parameterTypes;
 	};
