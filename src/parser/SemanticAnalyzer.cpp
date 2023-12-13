@@ -26,6 +26,16 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
+	if(parsing_user_class == puc_construct
+		|| parsing_user_class == puc_destruct
+		|| (parsing_user_class == puc_funcs && !function.getFlag(FUNCFLAG_STATIC)))
+	{
+		UserClass* _class = function.getClass();
+		DataType const* thisType = &_class->getNode()->type->resolve(*scope,this);
+		DataType const* constType = thisType->getConstType();
+		BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
+		function.getInternalScope()->stackDepth_--;
+	}
 	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;

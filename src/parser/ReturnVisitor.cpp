@@ -160,7 +160,7 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 	else no_ret = true;
 	
 	//Void functions can miss out on returns
-	if(!function.returnType->isVoid() && no_ret)
+	if(!(function.returnType->isVoid() || function.getFlag(FUNCFLAG_CONSTRUCTOR)) && no_ret)
 	{
 		switch(*ZScript::lookupOption(*scope, CompileOption::OPT_ON_MISSING_RETURN)/10000)
 		{
