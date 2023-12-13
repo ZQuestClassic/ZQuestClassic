@@ -126,7 +126,8 @@ X(	BadAutoType,			S,	A,	E,	VOID,	VOID,	"'auto' must have an initializer with val
 X(	GroupAuto,			S,	A,	E,	VOID,	VOID,	"'auto' cannot apply to a group declaration."							)
 X(	BadReturnType,			S,	A,	E,	STR,	VOID,	"Cannot return type '%s'."							)
 X(	BadTempVal,			T,	A,	E,	VOID,	VOID,	"Temporary literals cannot be stored!"								)
-X(	MissingReturn,			S,	A,	E,	STR,	VOID,	"Function '%s' is not void, and must return a value!"								)
+X(	MissingReturnWarn,			S,	A,	W,	STR,	VOID,	"Function '%s' is not void, and should return a value!"								)
+X(	MissingReturnError,			S,	A,	E,	STR,	VOID,	"Function '%s' is not void, and must return a value!"								)
 
 
 #undef STR
