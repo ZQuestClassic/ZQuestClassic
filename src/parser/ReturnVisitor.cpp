@@ -162,8 +162,18 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 	//Void functions can miss out on returns
 	if(!function.returnType->isVoid() && no_ret)
 	{
-		handleError(CompileError::MissingReturn(node, node->name));
-		missing_ret = true;
+		switch(*ZScript::lookupOption(*scope, CompileOption::OPT_ON_MISSING_RETURN)/10000)
+		{
+			case 0: //No warn
+				break;
+			case 3: //Warn
+				handleError(CompileError::MissingReturnWarn(node, node->name));
+				break;
+			default: //Error
+				handleError(CompileError::MissingReturnError(node, node->name));
+				missing_ret = true;
+				break;
+		}
 	}
 	//
 	scope = oldscope;

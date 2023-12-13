@@ -25,8 +25,8 @@ private:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Label> include_label;
 	
-	int dd_cfg[3];
-	int old_dd_cfg[3];
+	int dd_cfg[4];
+	int old_dd_cfg[4];
 	char run_str[21];
 	char include_str[MAX_INCLUDE_PATH_CHARS];
 	byte qst_cfg[4];
