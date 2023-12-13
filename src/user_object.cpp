@@ -103,7 +103,7 @@ void scr_func_exec::execute()
 		// Either it did, or it was auto-correctable
 		push_ri(); //Store the prior script state
 		// Setup the refInfo/stack/global vars for the destructor script state
-		refInfo newRI;
+		refInfo newRI = refInfo();
 		ri = &newRI;
 		ri->pc = pc;
 		ri->thiskey = thiskey;
