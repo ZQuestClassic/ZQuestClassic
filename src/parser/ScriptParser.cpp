@@ -490,7 +490,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				vector<Function*> destr = user_class.getScope().getDestructor();
 				std::shared_ptr<Opcode> first;
 				Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
-				if(destructor && !destructor->prototype)
+				if(destructor && !destructor->isNil())
 				{
 					Function* destructor = destr[0];
 					first.reset(new OSetImmediate(new VarArgument(EXP1),

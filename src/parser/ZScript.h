@@ -521,7 +521,8 @@ namespace ZScript
 			return info;
 		}
 		
-		bool isInternal() const {return !node;};
+		bool isInternal() const {return !node;}
+		bool isNil() const {return prototype || getFlag(FUNCFLAG_NIL);}
 		
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;

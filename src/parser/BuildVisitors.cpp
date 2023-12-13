@@ -1493,7 +1493,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	const string func_comment = fmt::format("Func[{}]",func.getUnaliasedSignature(true).asString());
 	auto targ_sz = commentTarget();
 	bool never_ret = func.getFlag(FUNCFLAG_NEVER_RETURN);
-	if(func.getFlag(FUNCFLAG_NIL) || func.prototype) //Prototype/Nil function
+	if(func.isNil()) //Prototype/Nil function
 	{
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
 		for (auto it = host.parameters.begin();
@@ -1510,7 +1510,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			UserClass& user_class = cscope->user_class;
 			vector<Function*> destr = cscope->getDestructor();
 			Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
-			if(destructor && !destructor->prototype)
+			if(destructor && !destructor->isNil())
 			{
 				Function* destructor = destr[0];
 				addOpcode(new OSetImmediate(new VarArgument(EXP1),

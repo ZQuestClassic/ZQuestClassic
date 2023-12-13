@@ -114,12 +114,12 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 {
 	ASTFuncDecl* node = function.node;
 	ASTBlock* block = node->block.get();
-	if(!node) return;
+	if(!node || node->isDisabled()) return;
 	if(!block) return;
 	auto& stmts = block->statements;
 	if(extra_pass) //already parsed through at least once
 	{
-		if(function.getFlag(FUNCFLAG_NEVER_RETURN))
+		if(function.getFlag(FUNCFLAG_NEVER_RETURN|FUNCFLAG_NIL))
 			return; //nothing more to possibly do here
 		ResetVisitor resetter;
 		resetter.visit(*block); //reset the 'reachable' state
@@ -129,37 +129,43 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 	markReachable(*node);
 	markReachable(*block);
 	failure_temp = failure_halt = false;
-	//
-	size_t indx = 0;
-	bool earlyterm = false;
-	VisitNode rootnode(node);
-	in_func_body = true;
-	for(auto it = stmts.begin(); it != stmts.end(); ++it)
-	{
-		ASTStmt& stmt = **it;
-		visit(stmt, (void*)&rootnode);
-		earlyterm = rootnode.check_terminate(indx);
-		indx = rootnode.child_index();
-		if(earlyterm)
-			break;
-	}
-	in_func_body = false;
-	
 	bool no_ret = false;
-	
-	if(earlyterm)
+	if(stmts.empty()) //Function is completely empty; optimize
 	{
-		if(!rootnode.get_flag(VNODE_FLAG_HASRETURN))
-		{
-			no_ret = true;
-			//Terminates without return; infinite loop, or script quit?
-			function.setFlag(FUNCFLAG_NEVER_RETURN);
-			marked_never_ret = true;
-		}
+		function.setFlag(FUNCFLAG_NIL);
+		no_ret = true; //still a missing return error if not void/constructor
 	}
-	else no_ret = true;
+	else //Visit the function's statements
+	{
+		size_t indx = 0;
+		bool earlyterm = false;
+		VisitNode rootnode(node);
+		in_func_body = true;
+		for(auto it = stmts.begin(); it != stmts.end(); ++it)
+		{
+			ASTStmt& stmt = **it;
+			visit(stmt, (void*)&rootnode);
+			earlyterm = rootnode.check_terminate(indx);
+			indx = rootnode.child_index();
+			if(earlyterm)
+				break;
+		}
+		in_func_body = false;
+		
+		if(earlyterm)
+		{
+			if(!rootnode.get_flag(VNODE_FLAG_HASRETURN))
+			{
+				no_ret = true;
+				//Terminates without return; infinite loop, or script quit?
+				function.setFlag(FUNCFLAG_NEVER_RETURN);
+				marked_never_ret = true;
+			}
+		}
+		else no_ret = true;
+	}
 	
-	//Void functions can miss out on returns
+	//Void functions && constructors can miss out on returns
 	if(!(function.returnType->isVoid() || function.getFlag(FUNCFLAG_CONSTRUCTOR)) && no_ret)
 	{
 		switch(*ZScript::lookupOption(*scope, CompileOption::OPT_ON_MISSING_RETURN)/10000)
@@ -171,11 +177,12 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 				break;
 			default: //Error
 				handleError(CompileError::MissingReturnError(node, node->name));
+				node->disable();
 				missing_ret = true;
 				break;
 		}
 	}
-	//
+	
 	scope = oldscope;
 }
 
