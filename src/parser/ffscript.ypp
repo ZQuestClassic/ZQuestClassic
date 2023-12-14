@@ -2111,25 +2111,50 @@ Expression_Constant :
 	;
 
 Expression_Range :
+	//Classic A...B -> A <= x <= B
 	Expression_Constant RANGE Expression_Constant {
 		ASTExprConst* start = (ASTExprConst*)$1;
 		ASTExprConst* end = (ASTExprConst*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
+	//New A=..=B -> A <= x <= B
 	| Expression_Constant RANGE_LR Expression_Constant {
 		ASTExprConst* start = (ASTExprConst*)$1;
 		ASTExprConst* end = (ASTExprConst*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
+	//New A=..B -> A <= x < B
 	| Expression_Constant RANGE_L Expression_Constant {
 		ASTExprConst* start = (ASTExprConst*)$1;
 		ASTExprConst* end = (ASTExprConst*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_L, @$);}
+	//New A..=B -> A < x <= B
 	| Expression_Constant RANGE_R Expression_Constant {
 		ASTExprConst* start = (ASTExprConst*)$1;
 		ASTExprConst* end = (ASTExprConst*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_R, @$);}
+	//New A..B -> A < x < B
 	| Expression_Constant RANGE_N Expression_Constant {
 		ASTExprConst* start = (ASTExprConst*)$1;
 		ASTExprConst* end = (ASTExprConst*)$3;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_N, @$);}
+	//Mathematical [A, B] -> A <= x <= B
+	| LBRACKET Expression_Constant COMMA Expression_Constant RBRACKET {
+		ASTExprConst* start = (ASTExprConst*)$2;
+		ASTExprConst* end = (ASTExprConst*)$4;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
+	//Mathematical [A, B) -> A <= x < B
+	| LBRACKET Expression_Constant COMMA Expression_Constant RPAREN {
+		ASTExprConst* start = (ASTExprConst*)$2;
+		ASTExprConst* end = (ASTExprConst*)$4;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_L, @$);}
+	//Mathematical (A, B] -> A < x <= B
+	| LPAREN Expression_Constant COMMA Expression_Constant RBRACKET {
+		ASTExprConst* start = (ASTExprConst*)$2;
+		ASTExprConst* end = (ASTExprConst*)$4;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_R, @$);}
+	//Mathematical (A, B) -> A < x < B
+	| LPAREN Expression_Constant COMMA Expression_Constant RPAREN {
+		ASTExprConst* start = (ASTExprConst*)$2;
+		ASTExprConst* end = (ASTExprConst*)$4;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_N, @$);}
 	;
 
