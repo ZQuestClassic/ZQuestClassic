@@ -952,6 +952,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Lifting/Swimming", qr_BROKEN_LIFTSWIM,
 		"If enabled, lifted objects won't be dropped when swimming, even when lift gloves are set"
 		" to not allow lifting while swimming." },
+	{ "Broken Push (Generic) locking", qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,
+		"If enabled, Push (Generic) combos won't lock into place via the 'Pushed' flag"
+		" (ex. 'clicking into place' for a block trigger)" },
 };
 
 static GUI::ListData enemiesRulesList
