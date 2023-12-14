@@ -235,7 +235,8 @@ void SemanticAnalyzer::caseRange(ASTRange& host, void*)
 	if(breakRecursion(host)) return;
 	std::optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
 	std::optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
-	//`start` and `end` must exist, as they are ASTConstExpr. -V
+	//`start` and `end` must exist, as they are ASTConstExpr. -Em
+	assert(start && end);
 	if(*start > *end)
 	{
 		handleError(CompileError::RangeInverted(&host, *start, *end));

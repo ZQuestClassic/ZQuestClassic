@@ -798,9 +798,14 @@ optional<vector<ASTSwitchCases*>> ASTStmtSwitch::getCompileTimeCases(
 			auto low_val = (*range.start).getCompileTimeValue(errorHandler, scope);
 			auto high_val = (*range.end).getCompileTimeValue(errorHandler, scope);
 			
-			if(low_val && high_val && (*low_val <= *keyval && *high_val >= *keyval))
+			if(low_val && high_val)
 			{
-				found = true;
+				if(*low_val < *keyval && *high_val > *keyval)
+					found = true;
+				else if((range.type & ASTRange::RANGE_L) && *low_val == *keyval)
+					found = true;
+				else if((range.type & ASTRange::RANGE_R) && *high_val == *keyval)
+					found = true;
 			}
 		}
 
@@ -846,8 +851,8 @@ void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
 
 // ASTRange
 
-ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, LocationData const& location)
-	: AST(location), start(start), end(end)
+ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, uint type, LocationData const& location)
+	: AST(location), start(start), end(end), type(type)
 {}
 
 void ASTRange::execute(ASTVisitor& visitor, void* param)

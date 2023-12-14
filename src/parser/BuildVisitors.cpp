@@ -593,29 +593,22 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 				//Test each full range
 				auto startval = (*range.start).getCompileTimeValue(this, scope);
 				auto endval = (*range.end).getCompileTimeValue(this, scope);
-				if(startval)  //Compare key to lower bound
-				{
-					addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*startval)));
-				}
-				else //Shouldn't ever happen?
-				{
-					visit(*range.start, param);
-					addOpcode(new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
-				}
+				assert(startval && endval);
+				//The logic below entirely assumes the RANGE_LR (equality allowed on both sides) type
+				//Convert the values if it isn't of that type...
+				if(!(range.type & ASTRange::RANGE_L))
+					startval = *startval+1;
+				if(!(range.type & ASTRange::RANGE_R))
+					endval = *endval-1;
+				//Compare key to lower bound
+				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*startval)));
 				addOpcode(new OSetMore(new VarArgument(EXP1))); //Set if key is IN the bound
 				addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
 				addOpcode(new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
 				commentBack(fmt::format("case '{0}...{1}', key<{0}", OPT_STR(startval), OPT_STR(endval)));
 				
-				if(endval)  //Compare key to upper bound
-				{
-					addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*endval)));
-				}
-				else //Shouldn't ever happen?
-				{
-					visit(*range.end, param);
-					addOpcode(new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
-				}
+				//Compare key to upper bound
+				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*endval)));
 				addOpcode(new OSetLess(new VarArgument(EXP1)	)); //Set if key is IN the bound
 				addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
 				addOpcode(new OGotoFalseImmediate(new LabelArgument(label))); //If key is in bounds, jump to its label
@@ -1023,7 +1016,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		visit(host.elseBlock.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",whilestr,whileid));
 	}
-	if(!val || num_breaks) //no else / end label needed for inf loops unless they break
+	//if(!val || num_breaks) //no else / end label needed for inf loops unless they break
 	{
 		next = new ONoOp();
 		next->setLabel(endlabel);

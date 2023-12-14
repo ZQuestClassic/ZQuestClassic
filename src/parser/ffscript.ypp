@@ -232,6 +232,10 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token ORASSIGN
 %token CAST
 %token RANGE
+%token RANGE_L
+%token RANGE_R
+%token RANGE_LR
+%token RANGE_N
 %token APPXEQUAL
 %token DOUBLEBANG
 %token PERCENT
@@ -2110,7 +2114,23 @@ Expression_Range :
 	Expression_Constant RANGE Expression_Constant {
 		ASTExprConst* start = (ASTExprConst*)$1;
 		ASTExprConst* end = (ASTExprConst*)$3;
-		$$ = new ASTRange(start, end, @$);}
+		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
+	| Expression_Constant RANGE_LR Expression_Constant {
+		ASTExprConst* start = (ASTExprConst*)$1;
+		ASTExprConst* end = (ASTExprConst*)$3;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
+	| Expression_Constant RANGE_L Expression_Constant {
+		ASTExprConst* start = (ASTExprConst*)$1;
+		ASTExprConst* end = (ASTExprConst*)$3;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_L, @$);}
+	| Expression_Constant RANGE_R Expression_Constant {
+		ASTExprConst* start = (ASTExprConst*)$1;
+		ASTExprConst* end = (ASTExprConst*)$3;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_R, @$);}
+	| Expression_Constant RANGE_N Expression_Constant {
+		ASTExprConst* start = (ASTExprConst*)$1;
+		ASTExprConst* end = (ASTExprConst*)$3;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_N, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////

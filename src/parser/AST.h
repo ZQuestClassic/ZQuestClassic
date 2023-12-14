@@ -516,13 +516,18 @@ namespace ZScript
 	class ASTRange : public AST
 	{
 	public:
-		ASTRange(ASTExprConst* start, ASTExprConst* end, LocationData const& location = LOC_NONE);
+		ASTRange(ASTExprConst* start, ASTExprConst* end, uint type = RANGE_LR, LocationData const& location = LOC_NONE);
 		ASTRange* clone() const {return new ASTRange(*this);}
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
 		owning_ptr<ASTExprConst> start;
 		owning_ptr<ASTExprConst> end;
+		uint type;
+		static const uint RANGE_N = 0x0;
+		static const uint RANGE_L = 0x1;
+		static const uint RANGE_R  = 0x2;
+		static const uint RANGE_LR = 0x3;
 	};
 
 
