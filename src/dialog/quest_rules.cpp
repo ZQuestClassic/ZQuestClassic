@@ -949,6 +949,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Subscreen Ammo Costs", qr_BROKEN_BOMB_AMMO_COSTS,
 		"If enabled, bombs/super bombs will check the bomb/sbomb counters to be usable,"
 		" regardless of what their Cost Counters are set to." },
+	{ "Broken Lifting/Swimming", qr_BROKEN_LIFTSWIM,
+		"If enabled, lifted objects won't be dropped when swimming, even when lift gloves are set"
+		" to not allow lifting while swimming." },
 };
 
 static GUI::ListData enemiesRulesList
@@ -1775,7 +1778,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 		}
 		default: return;
 	}
-	if(qrptr == quest_rules)
+	if(qrptr == quest_rules || !qrptr)
 		saved = false;
 }
 
