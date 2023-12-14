@@ -37,7 +37,7 @@ parser.add_argument('--list_releases', action='store_true')
 parser.add_argument('--download_release')
 parser.add_argument('--channel')
 parser.add_argument('-c', '--command',
-                    help='command to run on each step. \'%zc\' is replaced with the path to the player, \'%zq\' is the editor, and \'%zl\' is the launcher')
+                    help='command to run on each step. \'%%zc\' is replaced with the path to the player, \'%%zq\' is the editor, and \'%%zl\' is the launcher')
 parser.add_argument('--check_return_code',
                     action=argparse.BooleanOptionalAction, default=False)
 
