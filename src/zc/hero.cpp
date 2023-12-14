@@ -21284,7 +21284,7 @@ void HeroClass::checkpushblock()
 		
 		int blockdir = dir;
 		if(blockdir > 3) blockdir = Y_DIR(dir);
-		if(t == cPUSHBLOCK)
+		if(t == cPUSHBLOCK && (get_qr(qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING) || (f!=mfPUSHED)))
 		{
 			switch(blockdir)
 			{

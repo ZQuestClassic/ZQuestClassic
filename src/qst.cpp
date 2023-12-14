@@ -3734,7 +3734,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if(compatrule_version < 62)
 		set_qr(qr_OLD_BROKEN_WARPEX_MUSIC,1);
 	if(compatrule_version < 63)
+	{
 		set_qr(qr_BROKEN_LIFTSWIM,1);
+		set_qr(qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,1);
+	}
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
