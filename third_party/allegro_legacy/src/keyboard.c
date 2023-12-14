@@ -308,6 +308,42 @@ int ureadkey(int *scancode)
    return c;
 }
 
+//LOCAL EDIT -Em
+int peekkey(void)
+{
+	int key, scancode;
+	key = upeekkey(&scancode);
+	
+	return ((key <= 0xFF) ? key : '^') | (scancode << 8);
+}
+int upeekkey(int *scancode)
+{
+	int c;
+
+	if ((!keyboard_driver) /*&& (!readkey_hook)*/) {
+		if (scancode)
+			*scancode = 0;
+		return 0;
+	}
+
+	// if ((readkey_hook) && (key_buffer.start == key_buffer.end)) {
+		// c = readkey_hook();
+		// if (scancode)
+			// *scancode = (c >> 8);
+		// return (c & 0xFF);
+	// }
+
+	if(key_buffer.start == key_buffer.end)
+		return 0;
+
+	c = key_buffer.key[key_buffer.start];
+
+	if (scancode)
+		*scancode = key_buffer.scancode[key_buffer.start];
+	
+	return c;
+}
+
 
 
 /* simulate_keypress:

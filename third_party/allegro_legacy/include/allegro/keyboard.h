@@ -68,6 +68,8 @@ AL_LEGACY_VAR(int, key_led_flag);
 AL_LEGACY_FUNC(int, keypressed, (void));
 AL_LEGACY_FUNC(int, readkey, (void));
 AL_LEGACY_FUNC(int, ureadkey, (int *scancode));
+AL_LEGACY_FUNC(int, peekkey, (void));
+AL_LEGACY_FUNC(int, upeekkey, (int *scancode));
 AL_LEGACY_FUNC(void, simulate_keypress, (int keycode));
 AL_LEGACY_FUNC(void, simulate_ukeypress, (int keycode, int scancode));
 AL_LEGACY_FUNC(void, clear_keybuf, (void));
