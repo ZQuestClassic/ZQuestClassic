@@ -20758,6 +20758,7 @@ bool parsemsgcode()
 			if(dx >= MAX_SCC_ARG) dx = -1;
 			if(dy >= MAX_SCC_ARG) dy = -1;
 			FFCore.warp_player(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
+			do_end_str = true;
 			return true;
 		}
 		
