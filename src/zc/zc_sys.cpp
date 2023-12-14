@@ -7640,7 +7640,7 @@ TopMenu the_player_menu
 	{ "&Game", &game_menu },
 	{ "&Settings", &settings_menu },
 	{ "&Cheat", &cheat_menu, MENUID_PLAYER_CHEAT, true },
-	{ "Replay", &replay_menu },
+	{ "&Replay", &replay_menu },
 	{ "&ZC", &misc_menu },
 	#if DEVLEVEL > 0
 	{ "&Dev", &dev_menu },
@@ -7892,6 +7892,7 @@ void System()
 	
 	bool running = true;
 	bool esc = key[KEY_ESC] || cMbtn();
+	bool autopop = esc;
 	do
 	{
 		if(reload_fonts)
@@ -7974,11 +7975,18 @@ void System()
 		if(debug_enabled)
 			settings_menu.select_uid(MENUID_SETTINGS_DEBUG, get_debug());
 		
-		if(the_player_menu.run())
-			the_player_menu.reset_state();
+		if(autopop)
+			clear_keybuf();
+		the_player_menu.run(true);
+		if(autopop)
+		{
+			the_player_menu.pop_sub(0, &the_player_menu);
+			the_player_menu.draw(screen, the_player_menu.hovered_ind());
+			autopop = false;
+			update_hw_screen(true);
+		}
 		
 		update_hw_screen();
-		
 		rest(1);
 		
 		auto mb = gui_mouse_b();
@@ -8000,11 +8008,26 @@ void System()
 			sys_mouse();
 		}
 		
-		if(keypressed()) //System hotkeys
+		poll_keyboard();
+		if(esc)
 		{
-			auto c = readkey();
+			if(!key[KEY_ESC])
+				esc = false;
+		}
+		
+		if(keypressed() && !CHECK_ALT) //System hotkeys
+		{
+			auto c = peekkey();
+			bool eatkey = true;
 			switch(c>>8)
 			{
+				//Spare keys used by the menu
+				case KEY_UP:
+				case KEY_DOWN:
+				case KEY_LEFT:
+				case KEY_RIGHT:
+					eatkey = false;
+					break;
 				case KEY_F1:
 					onThrottleFPS();
 					break;
@@ -8036,21 +8059,15 @@ void System()
 					onDebug();
 					break;
 				case KEY_ESC:
-					running = false;
+					if(!esc)
+						running = false;
 					break;
 			}
+			if(eatkey)
+				readkey();
 		}
 		if(Quit || (GameFlags & GAMEFLAG_TRYQUIT))
 			break;
-		if(esc)
-		{
-			if(running)
-			{
-				if(!key[KEY_ESC])
-					esc = false;
-			}
-			else running = true;
-		}
 	}
 	while(running);
 
