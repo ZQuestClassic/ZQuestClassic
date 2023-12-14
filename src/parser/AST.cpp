@@ -776,8 +776,8 @@ void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
 
 // ASTRange
 
-ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, LocationData const& location)
-	: AST(location), start(start), end(end)
+ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, uint type, LocationData const& location)
+	: AST(location), start(start), end(end), type(type)
 {}
 
 void ASTRange::execute(ASTVisitor& visitor, void* param)

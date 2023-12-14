@@ -375,6 +375,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 	}
 }
 
+#define OPT_STR(v) (v?to_string(*v):"nullopt")
 void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 {
 	if(host.isString)
@@ -494,31 +495,28 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 				ASTRange& range = **it;
 				int32_t skipLabel = ScriptParser::getUniqueLabelID();
 				//Test each full range
-				if(std::optional<int32_t> val = (*range.start).getCompileTimeValue(this, scope))  //Compare key to lower bound
-				{
-					addOpcode2(result, new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
-				}
-				else //Shouldn't ever happen?
-				{
-					visit(*range.start, param);
-					addOpcode2(result, new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
-				}
-				addOpcode2(result, new OSetMore(new VarArgument(EXP1))); //Set if key is IN the bound
-				addOpcode2(result, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
-				addOpcode2(result, new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
+				auto startval = (*range.start).getCompileTimeValue(this, scope);
+				auto endval = (*range.end).getCompileTimeValue(this, scope);
+				assert(startval && endval);
+				//The logic below entirely assumes the RANGE_LR (equality allowed on both sides) type
+				//Convert the values if it isn't of that type...
+				if(!(range.type & ASTRange::RANGE_L))
+					startval = *startval+1;
+				if(!(range.type & ASTRange::RANGE_R))
+					endval = *endval-1;
+				//Compare key to lower bound
+				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*startval)));
+				addOpcode(new OSetMore(new VarArgument(EXP1))); //Set if key is IN the bound
+				addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
+				addOpcode(new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
+				// commentBack(fmt::format("case '{0}...{1}', key<{0}", OPT_STR(startval), OPT_STR(endval)));
 				
-				if(std::optional<int32_t> val = (*range.end).getCompileTimeValue(this, scope))  //Compare key to upper bound
-				{
-					addOpcode2(result, new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
-				}
-				else //Shouldn't ever happen?
-				{
-					visit(*range.end, param);
-					addOpcode2(result, new OCompareRegister(new VarArgument(SWITCHKEY), new VarArgument(EXP1)));
-				}
-				addOpcode2(result, new OSetLess(new VarArgument(EXP1)	)); //Set if key is IN the bound
-				addOpcode2(result, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
-				addOpcode2(result, new OGotoFalseImmediate(new LabelArgument(label))); //If key is in bounds, jump to its label
+				//Compare key to upper bound
+				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*endval)));
+				addOpcode(new OSetLess(new VarArgument(EXP1)	)); //Set if key is IN the bound
+				addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
+				addOpcode(new OGotoFalseImmediate(new LabelArgument(label))); //If key is in bounds, jump to its label
+				// commentBack(fmt::format("case '{0}...{1}', {0}<key<{1}", OPT_STR(startval), OPT_STR(endval)));
 				Opcode *end = new ONoOp(); //Just here so the skip label can be placed
 				end->setLabel(skipLabel);
 				addOpcode2(result, end); //add the skip label
@@ -878,6 +876,13 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		next->setLabel(elselabel);
 		addOpcode(next);
 		visit(host.elseBlock.get(), param);
+		// commentStartEnd(targ_sz, fmt::format("{}() #{} Else",whilestr,whileid));
+	}
+	//if(!val || num_breaks) //no else / end label needed for inf loops unless they break
+	{
+		next = new ONoOp();
+		next->setLabel(endlabel);
+		addOpcode(next);
 	}
 	next = new ONoOp();
 	next->setLabel(endlabel);
