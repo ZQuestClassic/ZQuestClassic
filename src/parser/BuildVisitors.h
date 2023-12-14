@@ -101,6 +101,7 @@ namespace ZScript
 		std::list<int32_t> const *getArrayRefs() const {return &arrayRefs;}
 
 	private:
+		BuildOpcodes();
 		void addOpcode(Opcode* code);
 		void addOpcode(std::shared_ptr<Opcode> &code);
 		Opcode* backOpcode();
@@ -126,10 +127,70 @@ namespace ZScript
 		std::vector<int32_t> continueRefCounts;
 		std::vector<int32_t> breaklabelids;
 		std::vector<int32_t> breakRefCounts;
+		std::vector<uint> break_past_counts;
+		std::vector<uint> break_to_counts;
+		std::vector<uint> continue_past_counts;
+		std::vector<uint> continue_to_counts;
 		std::list<int32_t> arrayRefs;
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;
-
+		
+		uint break_depth, continue_depth;
+		void inc_break(uint count = 1)
+		{
+			if(!break_depth || !count)
+				return;
+			for(int q = break_depth-1; count && q > 0; --q, --count)
+			{
+				++break_past_counts[q];
+				if(count == 1)
+					++break_to_counts[q];
+			}
+		}
+		void inc_cont(uint count = 1)
+		{
+			if(!continue_depth || !count)
+				return;
+			for(int q = continue_depth-1; count && q > 0; --q, --count)
+			{
+				++continue_past_counts[q];
+				if(count == 1)
+					++continue_to_counts[q];
+			}
+		}
+		void push_break(int32_t id, int32_t count)
+		{
+			++break_depth;
+			breaklabelids.push_back(id);
+			breakRefCounts.push_back(count);
+			break_past_counts.push_back(0);
+			break_to_counts.push_back(0);
+		}
+		void push_cont(int32_t id, int32_t count)
+		{
+			++continue_depth;
+			continuelabelids.push_back(id);
+			continueRefCounts.push_back(count);
+			continue_past_counts.push_back(0);
+			continue_to_counts.push_back(0);
+		}
+		void pop_break()
+		{
+			--break_depth;
+			breaklabelids.pop_back();
+			breakRefCounts.pop_back();
+			break_past_counts.pop_back();
+			break_to_counts.pop_back();
+		}
+		void pop_cont()
+		{
+			--continue_depth;
+			continuelabelids.pop_back();
+			continueRefCounts.pop_back();
+			continue_past_counts.pop_back();
+			continue_to_counts.pop_back();
+		}
+		
 		// Helper Functions.
 
 		// For when ASTDataDecl is for a single variable.

@@ -862,7 +862,7 @@ ASTStmtFor::ASTStmtFor(
 		ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), setup(setup), test(test), increment(increment),
 	  body(body), elseBlock(elseBlock), scope(nullptr),
-	  ends_loop(false), ends_else(false)
+	  ends_loop(true), ends_else(true)
 {}
 
 void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
@@ -878,7 +878,7 @@ ASTStmtForEach::ASTStmtForEach(
 	: ASTStmt(location), iden(identifier), indxdecl(nullptr), arrdecl(nullptr),
 		decl(nullptr), arrExpr(expr), body(body),
 		elseBlock(elseBlock), scope(nullptr),
-	  ends_loop(false), ends_else(false)
+	  ends_loop(true), ends_else(true)
 {}
 
 void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
@@ -892,7 +892,7 @@ ASTStmtWhile::ASTStmtWhile(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), test(test), body(body),
 		elseBlock(elseBlock), inverted(false),
-	  ends_loop(false), ends_else(false)
+	  ends_loop(true), ends_else(true)
 {}
 
 void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
@@ -906,7 +906,7 @@ ASTStmtDo::ASTStmtDo(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), test(test), body(body),
 		elseBlock(elseBlock), inverted(false),
-	  ends_loop(false), ends_else(false)
+	  ends_loop(true), ends_else(true)
 {}
 
 void ASTStmtDo::execute(ASTVisitor& visitor, void* param)

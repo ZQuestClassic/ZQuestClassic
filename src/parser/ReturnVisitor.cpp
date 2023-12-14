@@ -334,12 +334,12 @@ void ReturnVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 		host.ends_loop = block_retvisit(host.body.get(), thenNode);
 	
 	//if a break/continue moved out of it, don't count it as a terminator
-	if(thenNode->get_flag(VNODE_FLAG_EXITED))
+	if(paramNode->get_flag(VNODE_FLAG_EXITED))
 		paramNode->force_term(false);
 	//an infinite loop that can return can count as a terminator
 	else if(infloop) // && thenNode->get_flag(VNODE_FLAG_HASRETURN)
 		paramNode->force_term(true);
-	else
+	if(!infloop)
 	{
 		VisitNode* elseNode = paramNode->create(host.elseBlock.get());
 		if(host.hasElse())
@@ -385,12 +385,12 @@ void ReturnVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 		host.ends_loop = block_retvisit(host.body.get(), thenNode);
 	
 	//if a break/continue moved out of it, don't count it as a terminator
-	if(thenNode->get_flag(VNODE_FLAG_EXITED))
+	if(paramNode->get_flag(VNODE_FLAG_EXITED))
 		paramNode->force_term(false);
 	//an infinite loop can count as a terminator
 	else if(infloop) // && thenNode->get_flag(VNODE_FLAG_HASRETURN)
 		paramNode->force_term(true);
-	else
+	if(!infloop)
 	{
 		VisitNode* elseNode = paramNode->create(host.elseBlock.get());
 		if(host.hasElse())
@@ -414,12 +414,12 @@ void ReturnVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 	if(!val || *val)
 		visit(host.test.get(), thenNode);
 	//if a break/continue moved out of it, don't count it as a terminator
-	if(thenNode->get_flag(VNODE_FLAG_EXITED))
+	if(paramNode->get_flag(VNODE_FLAG_EXITED))
 		paramNode->force_term(false);
 	//an infinite loop that can return can count as a terminator
 	else if(infloop) // && thenNode->get_flag(VNODE_FLAG_HASRETURN)
 		paramNode->force_term(true);
-	else
+	if(!infloop)
 	{
 		VisitNode* elseNode = paramNode->create(host.elseBlock.get());
 		if(host.hasElse())
