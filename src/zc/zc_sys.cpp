@@ -2,6 +2,7 @@
 
 #include "allegro/gfx.h"
 #include "allegro5/joystick.h"
+#include "base/render.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -7990,7 +7991,7 @@ void System()
 		}
 		
 		update_hw_screen();
-		rest(1);
+		throttleFPS(60);
 		
 		auto mb = gui_mouse_b();
 		if(XOR(mb, mouse_down))

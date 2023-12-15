@@ -729,7 +729,7 @@ MenuRet NewMenu::run_loop(GuiMenu* parent)
 		if(close_button_quit)
 			return ret;
 		bool earlyret = false;
-		rest(1);
+		throttleFPS(60);
 		mb = gui_mouse_b();
 		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 		optional<uint> osel = state.sel_ind;
