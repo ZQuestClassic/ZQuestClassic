@@ -538,8 +538,10 @@ namespace ZScript
 		void setEntry(AccessorTable* entry) {table_entry=entry;}
 		AccessorTable const* getEntry() const {return table_entry;}
 		
-		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&)>
-		#define CONSTEXPR_CBACK_HEADER(...) [__VA_ARGS__](vector<optional<int32_t>> const& args) -> optional<int32_t>
+		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&, \
+			AST&, CompileErrorHandler*, Scope*)>
+		#define CONSTEXPR_CBACK_HEADER(...) [__VA_ARGS__](vector<optional<int32_t>> const& args, \
+			AST& node, CompileErrorHandler* handler, Scope* scope) -> optional<int32_t>
 		/** constexpr system:
 		 * This callback lambda uses the header macro 'CONSTEXPR_CBACK_HEADER()' above.
 		 * The 'vector<optional<int>> const& args' parameter contains the compile-time value of each function
