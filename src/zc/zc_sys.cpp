@@ -312,7 +312,7 @@ void load_default_cheatkeys()
 }
 void load_game_configs()
 {
-	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"classic.zmod"));
+	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"modules/classic.zmod"));
 	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
 	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
 	js_stick_1_x_axis = zc_get_config(ctrl_sect,"js_stick_1_x_axis",0);
