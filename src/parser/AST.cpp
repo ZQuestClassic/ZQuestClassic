@@ -626,10 +626,13 @@ void ASTString::execute(ASTVisitor& visitor, void* param)
 // ASTAnnotation
 
 ASTAnnotation::ASTAnnotation(ASTString* key, ASTString* strval, LocationData const& location)
-	: AST(location), key(key), strval(strval)
+	: AST(location), key(key), strval(strval), intval()
 {}
 ASTAnnotation::ASTAnnotation(ASTString* key, ASTFloat* intval, LocationData const& location)
-	: AST(location), key(key), intval(intval)
+	: AST(location), key(key), strval(), intval(intval)
+{}
+ASTAnnotation::ASTAnnotation(ASTString* key, LocationData const& location)
+	: AST(location), key(key), strval(), intval()
 {}
 
 void ASTAnnotation::execute(ASTVisitor& visitor, void* param)
@@ -909,7 +912,7 @@ ASTStmtRangeLoop::ASTStmtRangeLoop(ASTDataType* type, string const& iden,
 	ASTRange* range, ASTExpr* increment, ASTStmt* body, LocationData const& location)
 	: ASTStmt(location), iden(iden), decl(nullptr), type(type),
 		increment(increment), body(body), range(range),
-		elseBlock(nullptr), scope(nullptr),
+		elseBlock(nullptr), scope(nullptr), overflow(OVERFLOW_ALLOW),
 	  ends_loop(true), ends_else(true)
 {}
 
@@ -1276,7 +1279,7 @@ void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
 	: ASTDecl(location), list(NULL), manager(NULL),
-	  baseType(NULL), initializer_(NULL)
+	  baseType(NULL), initializer_(NULL), force_variable(false)
 {}
 
 ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
@@ -1677,7 +1680,7 @@ optional<int32_t> ASTExprCall::getCompileTimeValue(CompileErrorHandler* errorHan
 	vector<optional<int32_t>> param_vals;
 	for(auto expr : parameters)
 		param_vals.push_back(expr->getCompileTimeValue(errorHandler, scope));
-	return constfunc(param_vals);
+	return constfunc(param_vals, *this, errorHandler, scope);
 }
 DataType const* ASTExprCall::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {

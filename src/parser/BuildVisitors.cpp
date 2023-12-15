@@ -60,11 +60,11 @@ public:
 	}
 };
 #define VISIT_PUSH(node, ind) \
-{ \
+do { \
 	visit(node, param); \
 	addOpcode(new OPushRegister(new VarArgument(EXP1))); \
-	ind = mgr.push() \
-}
+	ind = mgr.push(); \
+} while(false)
 
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
@@ -1004,9 +1004,16 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	auto endval = host.range->getEndVal(false, this, scope);
 	auto incrval = host.increment->getCompileTimeValue(this, scope);
 	MiniStackMgr mgr;
-	optional<uint> start_peekind, end_peekind, incr_peekind, indx_peekind;
+	optional<uint> start_peekind, end_peekind, incr_peekind, indx_peekind, overflow_peekind;
 	bool need_startval = !incrval || *incrval < 0;
 	bool need_endval = !incrval || *incrval > 0;
+	bool infloop = incrval && !*incrval;
+	if(infloop) host.overflow = ASTStmtRangeLoop::OVERFLOW_ALLOW;
+	if(host.overflow != ASTStmtRangeLoop::OVERFLOW_ALLOW)
+	{
+		addOpcode(new OPushImmediate(new LiteralArgument(0)));
+		overflow_peekind = mgr.push();
+	}
 	if(!startval && need_startval)
 		VISIT_PUSH(host.range->start.get(), start_peekind);
 	if(!endval && need_endval)
@@ -1020,7 +1027,9 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		if(startval) //If the startval is constant, it will already be initialized.
 		{
 			addOpcode(new OGotoCompare(new LabelArgument(lbl), new LiteralArgument(CMP_MORE|CMP_EQ)));
-			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
+			if(endval)
+				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*endval)));
+			else addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
 			addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			addOpcode(new ONoOp(lbl));
 		}
@@ -1028,15 +1037,42 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		{
 			auto lbl2 = ScriptParser::getUniqueLabelID();
 			addOpcode(new OGotoCompare(new LabelArgument(lbl), new LiteralArgument(CMP_LESS)));
-			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
-			if(!(host.range->type & ASTRange::RANGE_L))
-				addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+			if(host.range->type & ASTRange::RANGE_L)
+			{
+				if(startval)
+					addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*startval)));
+				else addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
+			}
+			else
+			{
+				if(startval)
+					addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*startval+1)));
+				else
+				{
+					addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
+					addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+				}
+			}
 			addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			addOpcode(new OGotoImmediate(new LabelArgument(lbl2)));
 			addOpcode(new ONoOp(lbl));
-			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
-			if(!(host.range->type & ASTRange::RANGE_R))
-				addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(-1)));
+			
+			if(host.range->type & ASTRange::RANGE_R)
+			{
+				if(endval)
+					addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*endval)));
+				else addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
+			}
+			else
+			{
+				if(endval)
+					addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*endval-1)));
+				else
+				{
+					addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
+					addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(-1)));
+				}
+			}
 			addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			addOpcode(new ONoOp(lbl2));
 		}
@@ -1072,7 +1108,12 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	else addOpcode(new OPeekAtImmediate(new VarArgument(EXP2), new LiteralArgument(mgr.at(*indx_peekind))));
 	backOpcode()->setLabel(loopcont);
 	commentBack(fmt::format("loop() #{} Incr",loopid));
-	if(!incrval || *incrval) //not 0-increment
+	if(host.overflow != ASTStmtRangeLoop::OVERFLOW_ALLOW)
+	{
+		//Cache the value we just ran the loop for...
+		addOpcode(new OStackWriteAtRV(new VarArgument(EXP2), new LiteralArgument(mgr.at(*overflow_peekind))));
+	}
+	if(!infloop)
 	{
 		if(incrval)
 			addOpcode(new OAddImmediate(new VarArgument(EXP2), new LiteralArgument(*incrval)));
@@ -1089,6 +1130,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	targ_sz = commentTarget();
 	if(!incrval)
 	{
+		auto endtestlabel = ScriptParser::getUniqueLabelID();
 		if(startval)
 		{
 			addOpcode(new OCompareImmediate(new VarArgument(EXP2), new LiteralArgument(*startval)));
@@ -1101,7 +1143,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		auto cmp = CMP_LESS;
 		if(!(host.range->type & ASTRange::RANGE_L))
 			cmp |= CMP_EQ;
-		addOpcode(new OGotoCompare(new LabelArgument(elselabel), new LiteralArgument(cmp)));
+		addOpcode(new OGotoCompare(new LabelArgument(endtestlabel), new LiteralArgument(cmp)));
 		commentBack(fmt::format("{} start, skip to else/end",CMP_STR(cmp)));
 		if(endval)
 		{
@@ -1117,6 +1159,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			cmp |= CMP_EQ;
 		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(cmp)));
 		commentBack(fmt::format("{} end, keep looping",CMP_STR(cmp)));
+		addOpcode(new ONoOp(endtestlabel));
 	}
 	else if(need_startval)
 	{
@@ -1158,13 +1201,110 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	}
 	commentAt(targ_sz, fmt::format("loop() #{} Test",loopid));
 	
+	if(host.overflow != ASTStmtRangeLoop::OVERFLOW_ALLOW)
+	{
+		vector<shared_ptr<Opcode>> op_endval, op_startval;
+		auto& targ = backTarget();
+		//calculate and store the code to grab target value
+		if(host.overflow == ASTStmtRangeLoop::OVERFLOW_LONG)
+		{
+			if(startval)
+			{
+				auto val = *startval;
+				if(!(host.range->type & ASTRange::RANGE_L))
+					++val;
+				addOpcode2(op_startval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
+			}
+			else
+			{
+				addOpcode2(op_startval, new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
+				if(!(host.range->type & ASTRange::RANGE_L))
+					addOpcode2(op_startval, new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+			}
+			if(endval)
+			{
+				auto val = *endval;
+				if(!(host.range->type & ASTRange::RANGE_R))
+					--val;
+				addOpcode2(op_endval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
+			}
+			else
+			{
+				addOpcode2(op_endval, new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
+				if(!(host.range->type & ASTRange::RANGE_R))
+					addOpcode2(op_endval, new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(-1)));
+			}
+		}
+		else if(host.overflow == ASTStmtRangeLoop::OVERFLOW_INT)
+		{
+			if(startval)
+			{
+				auto val = *startval;
+				if(!(host.range->type & ASTRange::RANGE_L))
+					++val;
+				val = zslongToFix(val).getTrunc()*10000;
+				addOpcode2(op_startval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
+			}
+			else
+			{
+				addOpcode2(op_startval, new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
+				if(!(host.range->type & ASTRange::RANGE_L))
+					addOpcode2(op_startval, new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+				addOpcode2(op_startval, new OTruncate(new VarArgument(EXP1)));
+			}
+			if(endval)
+			{
+				auto val = *endval;
+				if(!(host.range->type & ASTRange::RANGE_R))
+					--val;
+				val = zslongToFix(val).getTrunc()*10000;
+				addOpcode2(op_endval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
+			}
+			else
+			{
+				addOpcode2(op_endval, new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
+				if(!(host.range->type & ASTRange::RANGE_R))
+					addOpcode2(op_endval, new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(-1)));
+				addOpcode2(op_endval, new OTruncate(new VarArgument(EXP1)));
+			}
+		}
+		if(incrval) //we know which target to use
+		{
+			if(*incrval > 0) //targ is endval
+				targ.insert(targ.end(), op_endval.begin(), op_endval.end());
+			else if(*incrval < 0)
+				targ.insert(targ.end(), op_startval.begin(), op_startval.end());
+			else assert(false); //unreachable
+		}
+		else //We need to calculate which target to use
+		{
+			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*incr_peekind))));
+			addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+			auto skiplabel = ScriptParser::getUniqueLabelID();
+			auto skiplabel2 = ScriptParser::getUniqueLabelID();
+			addOpcode(new OGotoCompare(new LabelArgument(skiplabel), new LiteralArgument(CMP_LESS)));
+			targ.insert(targ.end(), op_endval.begin(), op_endval.end());
+			addOpcode(new OGotoImmediate(new LabelArgument(skiplabel2)));
+			addOpcode(new ONoOp(skiplabel));
+			targ.insert(targ.end(), op_startval.begin(), op_startval.end());
+			addOpcode(new ONoOp(skiplabel2));
+		}
+		//...now, we need to check that we didn't ALREADY just run that value exactly
+		addOpcode(new OPeekAtImmediate(new VarArgument(EXP2), new LiteralArgument(mgr.at(*overflow_peekind))));
+		addOpcode(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		addOpcode(new OGotoCompare(new LabelArgument(elselabel), new LiteralArgument(CMP_EQ)));
+		//If we haven't run the value yet, set it and run the loop one last time
+		if(!const_indx)
+			addOpcode(new OStackWriteAtRV(new VarArgument(EXP2), new LiteralArgument(mgr.at(*indx_peekind))));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+		addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
+	}
+	
 	scope = scope->getParent();
 	
 	if(host.hasElse())
 	{
-		next = new ONoOp();
-		next->setLabel(elselabel);
-		addOpcode(next);
+		addOpcode(new ONoOp(elselabel));
 		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
 		commentStartEnd(targ_sz, fmt::format("loop() #{} Else",loopid));

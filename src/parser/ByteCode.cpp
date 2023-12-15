@@ -6556,6 +6556,21 @@ string OFloor::toString() const
     return "FLOOR " + getArgument()->toString();
 }
 
+string OTruncate::toString() const
+{
+    return "TRUNCATE " + getArgument()->toString();
+}
+
+string ORound::toString() const
+{
+    return "ROUND " + getArgument()->toString();
+}
+
+string ORoundAway::toString() const
+{
+    return "ROUNDAWAY " + getArgument()->toString();
+}
+
 string OCeiling::toString() const
 {
     return "CEILING " + getArgument()->toString();
