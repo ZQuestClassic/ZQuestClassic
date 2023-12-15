@@ -66,7 +66,7 @@ The ZScript parser supports the following standard and alternative tokens:
 -		: 	Subtraction
 *		:	Multiplication
 /		:	Division
-^^^     :   Exponentiation
+^^^		:	Power (ex. 3 ^^^ 3 == 27)
 ++		: 	Increment (Pre, or Post)
 --		: 	Decrement (Pre, or Post)
 
@@ -113,7 +113,13 @@ appx_equal 	:	Equivalent to 	~~
 //Resolution
 .		:	Script Name Scope Resolution
 ::		:	Namespace Scope Resolution
-..		:	Namespace Scope Resolution (alt)
+
+//Range
+..		:	neither-sided range
+=..		:	left-sided range
+..=		:	right-sided range
+=..=		:	two-sided range
+...		:	two-sided range (alt)
 
 //Bitwise
 &		: 	Bitwise AND
@@ -138,7 +144,7 @@ and_equal 	: 	Equivalent to 	&=
 bitnot_eq	:	Equivalent to &= ~
 bitnot_equal	:	Equivalent to &= ~
 
-^^^			:	Power (ex. 3 ^^^ 3 == 27)
+//class
 new			:	Used for function constructors
 delete		:	Used for function destructors
 
@@ -1498,28 +1504,31 @@ of iterations is known at compile-time.
 	|___/\__,_/_/\__,_/\___/  /_/ |_|\__,_/_/ /_/\__, /\___/ 
 	                                            /____/       
 						    
-	You may use a VALUE RANGE in a case statement. 
+	A Value Range represents a constant range of numbers.
 	
-	Value ranges take the form of one number, three dots and another number.
+	Several value range symbols can be used, with slightly different functions:
+		A..B	- represents the numbers between A and B, NOT including A or B.
+		A..=B	- represents the numbers between A and B, including B but not A.
+		A=..B	- represents the numbers between A and B, including A but not B.
+		A=..=B	- represents the numbers between A and B, including both A and B.
+		A...B	- same as A=..=B
 	
 	The numbers in this range may have decimal places, and you may use constants
 		as the upper and lower bounds of a range.
 		
-	If the switch value is >= [left range value] and is <= [right range value]
-		then that case will execute.
-		
 	The left value of a range must be smaller than the right:
-		1...3
+		1=..=3
 		This is a range of values >= 1.0000 and <= 3.0000
 		
-		3...1
+		3=..=1
 		This is invalid and will generate an error. 
-		
-	If these values are identical, it will generate a warning; a normal
-		case should be used instead of a value range in such a case.
+		The values being the same as each other will also generate an error.
+	
+	Uses:
+		Value Ranges can be used in cases of switch statements. If the switch key is
+			within the range, that case will execute.
 	
 	[example-- 
-	
 		float a = 1.5;
 		const float B = 1.0;
 		const float C = 2.5;
@@ -1532,6 +1541,24 @@ of iterations is known at compile-time.
 
 	As the value of 'a' at this time is 1.5000, it fallswithin the range of the
 	first case (B...2.4) and DoFirst() will execute.
+	
+	Alternatively, to set up a simple percentage roll of randomness:
+	[example--
+		switch(RandGen->Rand(99)) //0-99 inclusive
+		{
+			case 0=..10: //10% chance
+				break;
+			case 10=..30: //20% chance
+				break;
+			case 30=..60: //30% chance
+				break;
+			case 60=..100: //40% chance
+				break;
+		}
+	--end example]
+	One of the four outcomes will occur, with their respective chances.
+	By using the left-sided range '=..', the range includes the left number,
+		but not the right number.
 	
 	  _________ __         .__                      
 	 /   _____//  |________|__| ____    ____  ______
@@ -3008,17 +3035,28 @@ long LongDistance(long x1, long y1, long x1, long y2, long scale)
  * Takes args only as long (e.g. 100L).
  * Retrns a vale as a long.
  
-float DegtoRad(float deg)
+constexpr float DegtoRad(float degrees);
+constexpr float DegToRad(float degrees);
  * Converts Degrees to Radians. More accurate than the old std_functions DegtoRad.
  * Because radians are mostly decimal and zscript can only have 4 decimals, there is very minor inaccuracies
  * with this conversion that are not feasibly fixable; however, it is still more accurate than the old std.zh conversion function,
  * where the old conversion could potentially be 2 entire degrees off at certain angles, while this version only loses about 0.0004 degrees of accuracy.
- * In addition, casting between EngineDegtoRad and EngineRadtoDeg repeatedly will *not* lose additional precision with each call; only the first call will lose precision.
+ * In addition, casting between DegtoRad and RadtoDeg repeatedly will *not* lose additional precision with each call; only the first call will lose precision.
  
-float RadtoDeg(float deg)
+constexpr float RadtoDeg(float radians);
+constexpr float RadToDeg(float radians);
  * Converts Radians to Degrees. More accurate than the old std_functions RadtoDeg.
- * See above (EngineDegtoRad) for more details on how this is more accurate.
- 
+ * See above (DegtoRad) for more details on how this is more accurate.
+
+constexpr float WrapDegrees(float degrees);
+constexpr float WrapDeg(float degrees);
+ * Wraps a degree value between [-180,180)
+
+constexpr float WrapRadians(float radians);
+constexpr float WrapRad(float radians);
+constexpr float WrapAngle(float radians);
+ * Wraps a radian value between [-PI,PI)
+
 void ArrayCopy(untyped *dest, untyped *src);
  * Copies the data from array src to array dest. 
  * If the arrays are the same size, then the data of 'dest' will be
@@ -3213,9 +3251,9 @@ void sprintfa(char32[] buf, char32 format[], untyped[] args);
  * Same as 'sprintf', but takes an array of args instead of multiple args.
 
 
-untyped Min(untyped, untyped, ...untyped);
+constexpr untyped Min(untyped, untyped, ...untyped);
  * Takes 2 or more untyped arguments, and returns the lowest value between them.
-untyped Max(untyped, untyped, ...untyped);
+constexpr untyped Max(untyped, untyped, ...untyped);
  * Takes 2 or more untyped arguments, and returns the highest value between them.
 untyped Choose(untyped, ...untyped);
  * Takes 1 or more untyped arguments, and returns a random argument.

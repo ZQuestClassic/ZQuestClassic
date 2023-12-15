@@ -25,6 +25,8 @@ void sentry_atexit()
 
 namespace fs = std::filesystem;
 
+static int argc;
+static char** argv;
 static App app_id = App::undefined;
 
 bool is_in_osx_application_bundle()
@@ -39,8 +41,10 @@ bool is_in_osx_application_bundle()
 // TODO: move qst.cpp to base/
 int32_t get_qst_buffers();
 
-void common_main_setup(App id, int argc, char **argv)
+void common_main_setup(App id, int argc_, char **argv_)
 {
+	argc = argc_;
+	argv = argv_;
     app_id = id;
 
 	if (used_switch(argc, argv, "-version"))
@@ -120,6 +124,20 @@ void common_main_setup(App id, int argc, char **argv)
 	fs::remove_all(update_active_files, ec);
 	if (fs::exists("zquest.exe"))
 		fs::remove("zquest.exe", ec);
+}
+
+std::optional<bool> get_flag_bool(const char* name)
+{
+	int arg = used_switch(argc, argv, name);
+	if (arg == 0) return std::nullopt;
+	return true;
+}
+
+std::optional<int> get_flag_int(const char* name)
+{
+	int arg = used_switch(argc, argv, name);
+	if (arg == 0) return std::nullopt;
+	return std::stoi(argv[arg + 1]);
 }
 
 App get_app_id()

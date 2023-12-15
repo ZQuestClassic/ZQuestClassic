@@ -177,6 +177,8 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	char buf[512] = {0};
 	char* buf2 = nullptr;
 	size_t buf2sz = 0;
+	char* buf3 = nullptr;
+	size_t buf3sz = 0;
 	
 	FILE *tempfile = fopen("tmp2","rb");
 			
@@ -214,6 +216,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 		fread(&tmp, sizeof(size_t), 1, tempfile);
 		for(size_t ind2 = 0; ind2 < tmp; ++ind2)
 		{
+			//read opcode into buf2
 			fread(&dummy, sizeof(size_t), 1, tempfile);
 			if (buf2sz < dummy + 1)
 			{
@@ -228,14 +231,32 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 			}
 			dummy = fread(buf2, sizeof(char), dummy, tempfile);
 			if (dummy >= buf2sz)
-			{
 				dummy = buf2sz - 1; //This indicates an error, and shouldn't be reached...
-			}
 			buf2[dummy] = 0;
+			
+			//read comment into buf3
+			fread(&dummy, sizeof(size_t), 1, tempfile);
+			if (buf3sz < dummy + 1)
+			{
+				if (buf3) free(buf3);
+				buf3sz = zc_max(dummy + 1, 1024);
+				buf3 = (char*)malloc(buf3sz);
+				if (!buf3)
+				{
+					buf3sz = 0;
+					goto read_compile_error;
+				}
+			}
+			dummy = fread(buf3, sizeof(char), dummy, tempfile);
+			if (dummy >= buf3sz)
+				dummy = buf3sz - 1; //This indicates an error, and shouldn't be reached...
+			buf3[dummy] = 0;
+			
 			int32_t lbl;
 			fread(&lbl, sizeof(int32_t), 1, tempfile);
 			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(buf2);
 			oc->setLabel(lbl);
+			oc->setComment(buf3);
 			dsd.second.push_back(oc);
 		}
 		
@@ -290,11 +311,16 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 		for(auto it = v.second.begin(); it != v.second.end(); ++it)
 		{
 			string opstr = (*it)->toString();
+			string const& commentstr = (*it)->getComment();
 			int32_t lbl = (*it)->getLabel();
 			
 			dummy = opstr.size();
 			fwrite(&dummy, sizeof(size_t), 1, tempfile);
 			fwrite((void*)opstr.c_str(), sizeof(char), dummy, tempfile);
+			
+			dummy = commentstr.size();
+			fwrite(&dummy, sizeof(size_t), 1, tempfile);
+			fwrite((void*)commentstr.c_str(), sizeof(char), dummy, tempfile);
 			
 			fwrite(&lbl, sizeof(int32_t), 1, tempfile);
 		}

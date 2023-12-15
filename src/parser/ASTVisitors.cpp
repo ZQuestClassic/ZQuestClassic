@@ -100,7 +100,7 @@ void RecursiveVisitor::deprecWarn(Function* func, AST* host, std::string const& 
 			//Only show once, if func is deprecated. Show error even if warn shown before.
 			if(func->shouldShowDepr(true))
 			{
-				handleError(CompileError::DeprecatedError(host, s1, s2), &func->info);
+				handleError(CompileError::DeprecatedError(host, s1, s2), &func->getInfo());
 				func->ShownDepr(true);
 			}
 			break;
@@ -108,7 +108,7 @@ void RecursiveVisitor::deprecWarn(Function* func, AST* host, std::string const& 
 			//Only show once, if func is deprecated
 			if(func->shouldShowDepr(false))
 			{
-				handleError(CompileError::DeprecatedWarn(host, s1, s2), &func->info);
+				handleError(CompileError::DeprecatedWarn(host, s1, s2), &func->getInfo());
 				func->ShownDepr(false);
 			}
 			break;
@@ -127,6 +127,83 @@ void RecursiveVisitor::visit(AST& node, void* param)
 void RecursiveVisitor::visit(AST* node, void* param)
 {
 	if (node) visit(*node, param);
+}
+
+void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
+{
+	vector<Function*> functions = program.getUserGlobalFunctions();
+
+	for (vector<Function*>::iterator it = functions.begin();
+	     it != functions.end(); ++it)
+		analyzeFunctionInternals(**it);
+	
+	for (vector<Script*>::iterator it = program.scripts.begin();
+		 it != program.scripts.end(); ++it)
+	{
+		Script& script = **it;
+		scope = &script.getScope();
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		scope = scope->getParent();
+	}
+	
+	for (vector<Namespace*>::iterator it = program.namespaces.begin();
+		 it != program.namespaces.end(); ++it)
+	{
+		Namespace& namesp = **it;
+		scope = &namesp.getScope();
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		scope = scope->getParent();
+	}
+	
+	for (vector<UserClass*>::iterator it = program.classes.begin();
+		 it != program.classes.end(); ++it)
+	{
+		UserClass& user_class = **it;
+		ClassScope* cscope = &user_class.getScope();
+		scope = cscope;
+		
+		DataType const* thisType = &cscope->user_class.getNode()->type->resolve(*cscope,this);
+		DataType const* constType = thisType->getConstType();
+
+		functions = cscope->getConstructors();
+		parsing_user_class = puc_construct;
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+		{
+			Function* func = *it;
+			analyzeFunctionInternals(*func);
+		}
+		
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+		{
+			Function* func = *it;
+			if(func->getFlag(FUNCFLAG_STATIC))
+				parsing_user_class = puc_none;
+			else
+				parsing_user_class = puc_funcs;
+			analyzeFunctionInternals(*func);
+		}
+		
+		functions = cscope->getDestructor();
+		parsing_user_class = puc_destruct;
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+		{
+			Function* func = *it;
+			analyzeFunctionInternals(*func);
+		}
+		parsing_user_class = puc_none;
+		
+		scope = scope->getParent();
+	}
 }
 
 void RecursiveVisitor::checkCast(

@@ -93,7 +93,7 @@ namespace ZScript
 		
 		void doRegister(AST& host)
 		{
-			host.Register();
+			host.mark_registered();
 			hasChanged = true;
 		}
 		////////////////////////////////////////////////////////////////
@@ -105,10 +105,6 @@ namespace ZScript
 		template <class Container>
 		bool registered(AST& host, Container const& nodes) const;
 		//Visiting
-		// Visit a group of nodes. Handle moving the nodes as needed, to accomodate order.
-		template <class Container>
-		void regvisit(AST& host, Container const& nodes, void* param = NULL);
-		
 		template <class Container>
 		void block_regvisit(AST& host, Container const& nodes, void* param = NULL);
 	private:

@@ -764,7 +764,7 @@ enum
 struct user_genscript
 {
 	//Saved vars
-	bool doscript;
+	byte _doscript;
 	bounded_map<dword,int32_t> data;
 	word exitState;
 	word reloadState;
@@ -772,42 +772,12 @@ struct user_genscript
 	bounded_vec<byte,int32_t> initd;
 	
 	//Temp Vars
-	bool initialized;
-	bool wait_atleast;
+	bool wait_atleast = true;
 	bool waitevent;
-	scr_timing waituntil;
-	int32_t indx;
-	refInfo ri;
-	int32_t stack[MAX_SCRIPT_REGISTERS];
+	scr_timing waituntil = SCR_TIMING_START_FRAME;
 	
-	user_genscript(){clear();}
-	void clear()
-	{
-		doscript = false;
-		initialized = false;
-		wait_atleast = true;
-		waituntil = SCR_TIMING_START_FRAME;
-		waitevent = false;
-		exitState = 0;
-		reloadState = 0;
-		eventstate = 0;
-		indx = -1;
-		ri.Clear();
-		memset(stack, 0, sizeof(stack));
-		initd.clear();
-		data.clear();
-	}
-	void launch()
-	{
-		quit();
-		doscript = true;
-		initialized = false;
-		wait_atleast = true;
-		waituntil = SCR_TIMING_START_FRAME;
-		waitevent = false;
-		ri.Clear();
-		memset(stack, 0, sizeof(stack));
-	}
+	void clear();
+	void launch();
 	void quit();
 	size_t dataSize() const
 	{
@@ -819,14 +789,21 @@ struct user_genscript
 	}
 	void timeExit(byte exState)
 	{
-		if(!doscript) return;
+		if(!doscript()) return;
 		if(exitState & (1<<exState))
 			quit();
 		else if(reloadState & (1<<exState))
 			launch();
 	}
+	byte& doscript();
+	byte const& doscript() const;
+	static user_genscript& get(int indx);
+private:
+	static user_genscript user_scripts[NUMSCRIPTSGENERIC];
+	
+	int32_t indx;
+	user_genscript() = default;
 };
-extern user_genscript user_scripts[NUMSCRIPTSGENERIC];
 extern int32_t genscript_timing;
 void countGenScripts();
 void timeExitAllGenscript(byte exState);
@@ -3190,8 +3167,20 @@ enum ASM_DEFINE
 	
 	SUBWIDG_GET_LABEL,
 	SUBWIDG_SET_LABEL,
+	PUSHARGSR,
+	PUSHARGSV,
+	PUSHVARGSR,
+	PUSHVARGSV,
 
-	NUMCOMMANDS  //0x044B
+	
+	WRAPRADIANS,
+	WRAPDEGREES,
+
+	
+	CALLFUNC,
+	RETURNFUNC,
+
+	NUMCOMMANDS  //0x0453
 };
 
 

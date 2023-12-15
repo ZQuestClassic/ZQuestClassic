@@ -3,33 +3,32 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-Pass 5: Generating object code
-Pass 6: Assembling
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-PUSHR d0
+PUSHR d0; void run(int, int) Params
 PUSHR d1
-PUSHV 0
-PUSHR d2
+PUSHARGSV 0,0.0002; void run(int, int) Body Start
 SETR d4,SP
 SETR d2,LINKHP
 DIVV d2,2
 PUSHR d2
 POP d2
 SETR LINKHP,d2
-PUSHR d4
-PUSHV 0.0020
-SETR d2,LINKX
+PUSHR d4; while(true) #9320 Body [Opt:AlwaysOn] Start
+SETR d2,LINKX; UsrFunc[int ComboAt(int, int)] Params Start
 ADDV d2,8
 PUSHR d2
 SETR d2,LINKY
 ADDV d2,8
-PUSHR d2
-GOTO 89
+PUSHR d2; UsrFunc[int ComboAt(int, int)] Params End
+CALLFUNC 0.0076; UsrFunc[int ComboAt(int, int)] Call
 POP d4
 STORED d2,0
-LOADD d2,0
+LOADD d2,0; if() #9322 Test
 PUSHR d2
 POP d0
 SETR d2,COMBODD
@@ -39,8 +38,8 @@ POP d3
 COMPARER d3,d2
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 46
-LOADD d2,0
+GOTOTRUE 44; Test 'if'
+LOADD d2,0; if() #9322 Body Start
 PUSHR d2
 POP d0
 SETR d2,COMBODD
@@ -51,88 +50,72 @@ PUSHR d2
 POP d0
 POP d2
 SETR COMBODD,d2
-LOADD d2,2
-PLAYSOUNDR d2
-PUSHV 6
+LOADD d2,2; InlineFunc[void Game->PlaySound(int)] Params
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body AND if() #9322 Body End
+PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
 SETR d2,LINKY
 SUBV d2,16
 PUSHR d2
 PUSHR LINKTILE
-PUSHV 1
-PUSHV 1
+PUSHARGSV 1,0.0002
 PUSHR LINKCSET
-PUSHV -1
-PUSHV -1
-PUSHV 0
-PUSHV 0
-PUSHV 0
-PUSHV 0
+PUSHARGSV -1,0.0002
+PUSHARGSV 0,0.0004
 PUSHV 1
-PUSHV 128
-DRAWTILE
-POPARGS d5,0.0015
-WAITDRAW
-PUSHV 6
+PUSHV 128; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
+DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS d5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+WAITDRAW; InlineFunc[void Waitdraw()] Body
+PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
 SETR d2,LINKY
 ADDV d2,16
 PUSHR d2
 PUSHR LINKTILE
-PUSHV 1
-PUSHV 1
+PUSHARGSV 1,0.0002
 PUSHR LINKCSET
-PUSHV -1
-PUSHV -1
-PUSHV 0
-PUSHV 0
-PUSHV 0
+PUSHARGSV -1,0.0002
+PUSHARGSV 0,0.0003
 PUSHV 2
 PUSHV 1
-PUSHV 128
-DRAWTILE
-POPARGS d5,0.0015
-WAITFRAME
-GOTO 11
-POPARGS d5,0.0004
-QUIT
-PUSHR d2
-PUSHR d2
-PUSHR d2
-PUSHR d2
+PUSHV 128; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
+DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS d5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #9320 Body [Opt:AlwaysOn] End
+GOTO 10; while() #9320 End
+PUSHARGSV 0,0.0004; [Opt:NeverRet] AND void run(int, int) Body End AND Func[int ComboAt(int, int)] Body Start
 SETR d4,SP
-SETR d2,REGION_ID
+SETR d2,REGION_ID; if() #4100 Test
 COMPAREV d2,0
-GOTOTRUE 154
-PUSHR d4
-PUSHV 0.0106
-LOADD d2,5
+GOTOTRUE 136; Test 'if'
+PUSHR d4; if() #4100 Body Start
+LOADD d2,5; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 SETR d2,REGION_WIDTH
 SUBV d2,1
 PUSHR d2
-PUSHV 0
-GOTO 182
+PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
+CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP d4
 STORED d2,5
 PUSHR d4
-PUSHV 0.0117
-LOADD d2,4
+LOADD d2,4; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 SETR d2,REGION_HEIGHT
 SUBV d2,1
 PUSHR d2
-PUSHV 0
-GOTO 182
+PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
+CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP d4
 STORED d2,4
-LOADD d2,5
-DIVV d2,256
-FLOOR d2
+LOADD d2,5; InlineFunc[untyped Floor(untyped)] Params Start
+DIVV d2,256; InlineFunc[untyped Floor(untyped)] Params End
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,3
-LOADD d2,4
-DIVV d2,176
-FLOOR d2
+LOADD d2,4; InlineFunc[untyped Floor(untyped)] Params Start
+DIVV d2,176; InlineFunc[untyped Floor(untyped)] Params End
+FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,2
 LOADD d2,3
 PUSHR d2
@@ -155,42 +138,39 @@ RSHIFTV d2,4
 POP d3
 ADDR d2,d3
 STORED d2,0
-LOADD d2,1
+LOADD d2,1; return Start
 PUSHR d2
 LOADD d2,0
 POP d3
 ADDR d2,d3
-GOTO 180
-PUSHR d4
-PUSHV 0.0161
-LOADD d2,5
+GOTO 159; return End AND if() #4100 Body End
+PUSHR d4; if() #4100 Else Start
+LOADD d2,5; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 PUSHV 255
-PUSHV 0
-GOTO 182
+PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
+CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP d4
 STORED d2,5
 PUSHR d4
-PUSHV 0.0170
-LOADD d2,4
+LOADD d2,4; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 PUSHV 175
-PUSHV 0
-GOTO 182
+PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
+CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP d4
 STORED d2,4
-LOADD d2,4
+LOADD d2,4; return Start
 ANDV d2,240
 PUSHR d2
 LOADD d2,5
 RSHIFTV d2,4
 POP d3
 ADDR d2,d3
-GOTO 180
-POPARGS d5,0.0006
-RETURN
-SETR d4,SP
-LOADD d2,2
+POPARGS d5,0.0006; return End AND if() #4100 Else End
+RETURNFUNC; Func[int ComboAt(int, int)] Body End
+SETR d4,SP; Func[int VBound(int, int, int)] Body Start
+LOADD d2,2; if() #7665 Test
 PUSHR d2
 LOADD d2,0
 POP d3
@@ -199,11 +179,11 @@ SETMORE d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 196
-LOADD d2,0
+GOTOTRUE 175; Test 'if'
+LOADD d2,0; if() #7665 Body Start
 STORED d2,2
-GOTO 208
-LOADD d2,2
+GOTO 187; if() #7665 Body End
+LOADD d2,2; if() #7667 Test AND if() #7665 Else Start
 PUSHR d2
 LOADD d2,1
 POP d3
@@ -212,15 +192,14 @@ SETLESS d2
 COMPAREV d2,0
 SETTRUEI d2
 COMPAREV d2,0
-GOTOTRUE 208
-LOADD d2,1
-STORED d2,2
-LOADD d2,2
-GOTO 210
-POPARGS d5,0.0003
-RETURN
+GOTOTRUE 187; Test 'if'
+LOADD d2,1; if() #7667 Body Start
+STORED d2,2; if() #7667 Body End
+LOADD d2,2; if() #7665 Else End AND return Start
+POPARGS d5,0.0003; return End
+RETURNFUNC; Func[int VBound(int, int, int)] Body End
 
 
-ALLOCATEGMEMV d2,4096
+ALLOCATEGMEMV d2,4096; void run() Body Start
 SETR gd1,d2
-QUIT
+QUIT; void run() Body End

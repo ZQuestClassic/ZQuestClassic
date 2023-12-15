@@ -527,20 +527,21 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		if (!p_getwstr(&game.header.qstpath, f))
 			return 38;
 
-		// TODO: this breaks even if the file is the same but absolute/relative path fails a
-		// strict string compare. should resolve both of these to be absolute ... or match
-		// how load_quest works ...
-		if(standalone_mode && game.header.qstpath != standalone_quest)
+		if (standalone_mode)
 		{
-			enter_sys_pal();
-			jwin_alert("Invalid save file",
-					   "This save file is for",
-					   "a different quest.",
-					   "",
-					   "OK",NULL,'o',0,get_zc_font(font_lfont));
-			exit(0);
+			auto normalized_qstpath = (fs::current_path() / fs::path(qstdir) / fs::path(game.header.qstpath)).lexically_normal();
+			if (standalone_quest != normalized_qstpath)
+			{
+				enter_sys_pal();
+				jwin_alert("Invalid save file",
+						"This save file is for",
+						"a different quest.",
+						"",
+						"OK",NULL,'o',0,get_zc_font(font_lfont));
+				exit(0);
+			}
 		}
-		
+
 		// Convert path separators so save files work across platforms (hopefully)
 		regulate_path(game.header.qstpath);
 		
@@ -1796,8 +1797,8 @@ int32_t saves_load()
 		save.path = path;
 		save.game = new gamedata();
 		save.header = &save.game->header;
-		save.header->qstpath = standalone_quest;
-		save.header->name = get_filename(standalone_quest);
+		save.header->qstpath = standalone_quest.string();
+		save.header->name = get_filename(standalone_quest.string().c_str());
 		saves_do_first_time_stuff(0);
 		return 0;
 	}
@@ -2175,7 +2176,8 @@ int saves_do_first_time_stuff(int index)
 		}
 
 		update_icon(index);
-		save->path = create_path_for_new_save(save->header);
+		if (save->path.empty())
+			save->path = create_path_for_new_save(save->header);
 		return saves_write();
 	}
 

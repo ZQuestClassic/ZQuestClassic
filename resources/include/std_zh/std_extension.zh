@@ -721,8 +721,8 @@ float Distance2(int x1, int y1, int x2, int y2)
 {
 	int x = (x1-x2);
 	int y = (y1-y2);
-	if ( STD_FORCE_OLD_DISTANCE ) return Sqrt(x*x+y*y);
-	else {
+	unless ( STD_FORCE_OLD_DISTANCE )
+	{
 		if ( ( x * y ) < 0 ) 
 		{ 
 			
@@ -742,6 +742,7 @@ float Distance2(int x1, int y1, int x2, int y2)
 			}
 		}
 	}
+	return Sqrt(x*x+y*y);
 }
 
 
@@ -1277,7 +1278,7 @@ int EWeaponToLWeaponID(int type)
 		case EW_SCRIPT8: return LW_SCRIPT8;
 		case EW_SCRIPT9: return LW_SCRIPT9;
 		case EW_SCRIPT10: return LW_SCRIPT10;
-		default: { printf("Invalid weapon type %d passed to EWeaponToLWeaponID(int) \n", type); }
+		default: { printf("Invalid weapon type %d passed to EWeaponToLWeaponID(int) \n", type); return -1; }
 	}
 }
 

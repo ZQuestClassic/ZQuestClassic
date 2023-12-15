@@ -13,10 +13,12 @@ void addOpcode2(std::vector<std::shared_ptr<ZScript::Opcode>>& v, ZScript::Opcod
 
 namespace ZScript
 {
+	class LValBOHelper;
 	class BuildOpcodes : public RecursiveVisitor
 	{
 	public:
 		BuildOpcodes(Scope* curScope);
+		BuildOpcodes(LValBOHelper* helper);
 
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
@@ -99,8 +101,16 @@ namespace ZScript
 		std::list<int32_t> const *getArrayRefs() const {return &arrayRefs;}
 
 	private:
+		BuildOpcodes();
 		void addOpcode(Opcode* code);
 		void addOpcode(std::shared_ptr<Opcode> &code);
+		Opcode* backOpcode();
+		std::vector<std::shared_ptr<Opcode>>& backTarget();
+		size_t commentTarget() const;
+		
+		void commentAt(size_t indx, std::string const& comment);
+		void commentBack(std::string const& comment);
+		void commentStartEnd(size_t indx, string const& comment);
 
 		template <class Container>
 		void addOpcodes(Container const& container);
@@ -117,10 +127,70 @@ namespace ZScript
 		std::vector<int32_t> continueRefCounts;
 		std::vector<int32_t> breaklabelids;
 		std::vector<int32_t> breakRefCounts;
+		std::vector<uint> break_past_counts;
+		std::vector<uint> break_to_counts;
+		std::vector<uint> continue_past_counts;
+		std::vector<uint> continue_to_counts;
 		std::list<int32_t> arrayRefs;
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;
-
+		
+		uint break_depth, continue_depth;
+		void inc_break(uint count = 1)
+		{
+			if(!break_depth || !count)
+				return;
+			for(int q = break_depth-1; count && q > 0; --q, --count)
+			{
+				++break_past_counts[q];
+				if(count == 1)
+					++break_to_counts[q];
+			}
+		}
+		void inc_cont(uint count = 1)
+		{
+			if(!continue_depth || !count)
+				return;
+			for(int q = continue_depth-1; count && q > 0; --q, --count)
+			{
+				++continue_past_counts[q];
+				if(count == 1)
+					++continue_to_counts[q];
+			}
+		}
+		void push_break(int32_t id, int32_t count)
+		{
+			++break_depth;
+			breaklabelids.push_back(id);
+			breakRefCounts.push_back(count);
+			break_past_counts.push_back(0);
+			break_to_counts.push_back(0);
+		}
+		void push_cont(int32_t id, int32_t count)
+		{
+			++continue_depth;
+			continuelabelids.push_back(id);
+			continueRefCounts.push_back(count);
+			continue_past_counts.push_back(0);
+			continue_to_counts.push_back(0);
+		}
+		void pop_break()
+		{
+			--break_depth;
+			breaklabelids.pop_back();
+			breakRefCounts.pop_back();
+			break_past_counts.pop_back();
+			break_to_counts.pop_back();
+		}
+		void pop_cont()
+		{
+			--continue_depth;
+			continuelabelids.pop_back();
+			continueRefCounts.pop_back();
+			continue_past_counts.pop_back();
+			continue_to_counts.pop_back();
+		}
+		
 		// Helper Functions.
 
 		// For when ASTDataDecl is for a single variable.
@@ -147,6 +217,7 @@ namespace ZScript
 	{
 	public:
 		LValBOHelper(Scope* scope);
+		LValBOHelper(BuildOpcodes* bo);
 		virtual void caseDefault(void *param);
 		//virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
@@ -200,12 +271,19 @@ namespace ZScript
 	};
 	class MergeLabels : public ArgumentVisitor
 	{
+		vector<int> labels;
+		int targ_label;
 	public:
+		MergeLabels(int targ_label, vector<int> labels)
+			: labels(labels),targ_label(targ_label) {}
 		void caseLabel(LabelArgument &host, void *param)
 		{
-			int32_t* lbls = (int32_t*)param;
-			if(host.getID() == lbls[1])
-				host.setID(lbls[0]);
+			for(int lbl : labels)
+				if(lbl == host.getID())
+				{
+					host.setID(targ_label);
+					return;
+				}
 		}
 	};
 }

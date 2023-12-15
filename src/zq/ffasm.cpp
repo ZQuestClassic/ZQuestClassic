@@ -8,6 +8,7 @@
 #include "zq/ffasm.h"
 
 #include "zq/zquest.h"
+#include "base/headers.h"
 #include "base/zsys.h"
 #include "base/util.h"
 #include "dialog/info.h"
@@ -1188,6 +1189,16 @@ script_command command_list[NUMCOMMANDS+1]=
 
 	{ "SUBWIDG_GET_LABEL", 1, 0, 0, 0 },
 	{ "SUBWIDG_SET_LABEL", 1, 0, 0, 0 },
+	{ "PUSHARGSR", 2, 0, 1, 0},
+	{ "PUSHARGSV", 2, 1, 1, 0},
+	{ "PUSHVARGSR", 2, 0, 1, 0},
+	{ "PUSHVARGSV", 2, 1, 1, 0},
+
+	{ "WRAPRADIANS", 0, 0, 0, 0 },
+	{ "WRAPDEGREES", 0, 0, 0, 0 },
+
+	{ "CALLFUNC", 1, 1, 0, 0 },
+	{ "RETURNFUNC", 0, 0, 0, 0 },
 
 	{ "", 0, 0, 0, 0 }
 };
@@ -3442,26 +3453,26 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 zasmfile_fail:
 	return success?D_O_K:D_CLOSE;
 }
-int32_t parse_script_string(script_data **script, std::string const& scriptstr, bool report_success)
+int32_t parse_script_string(script_data **script, string const& scriptstr, bool report_success)
 {
 	// TODO: refactor to just take a script_data*
 	ASSERT(*script);
 	saved=false;
-	std::string buffer;
+	string buffer;
 	char combuf[SUBBUFSZ] = {0};
 	char arg1buf[SUBBUFSZ] = {0};
 	char arg2buf[SUBBUFSZ] = {0};
-	std::vector<int32_t> arr_vec;
-	std::string arr_str;
+	vector<int> arr_vec;
+	string arr_str;
 	bool has_vec = false;
 	bool has_str = false;
 	bool stop=false;
 	bool success=true;
 	bool meta_done=false;
-	int32_t num_commands;
+	int num_commands;
 	char const* scrptr = scriptstr.c_str();
 	
-	for(int32_t i=0;; i++)
+	for(int i=0;; i++)
 	{
 		buffer.clear();
 		
@@ -4013,68 +4024,21 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 			found_command=true;
 			zas.command = i;
 			
-			if(((ustrnicmp(combuf,"GOTO",4)==0)||(ustrnicmp(combuf,"LOOP",4)==0)) && ustricmp(combuf, "GOTOR"))
+			switch(i)
 			{
-				string lbl(arg1buf);
-				map<string,int32_t>::iterator it = labels.find(lbl);
-				if(it != labels.end())
+				case GOTO: case LOOP: //Hardcodes for some control flow opcodes
+				case GOTOTRUE: case GOTOFALSE: case GOTOLESS: case GOTOMORE:
 				{
-					(*script)->zasm[com].arg1 = (*it).second;
-				}
-				else
-				{
-					(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
-				}
-				
-				
-				if(ustrnicmp(combuf,"LOOP",4)==0)
-				{
-					if(command_list[i].arg2_type==1)  //this should NEVER happen with a loop, as arg2 needs to be a variable
-					{
-						if(!ffcheck(arg2buf))
-						{
-							retcode=ERR_PARAM2;
-							return 0;
-						}
-						
-						(*script)->zasm[com].arg2 = ffparse(arg2buf);
-					}
+					string lbl(arg1buf);
+					auto it = labels.find(lbl);
+					if(it != labels.end())
+						(*script)->zasm[com].arg1 = (*it).second;
 					else
-					{
-						if(!set_argument(arg2buf, script, com, 1))
-						{
-							retcode=ERR_PARAM2;
-							return 0;
-						}
-					}
-				}
-			}
-			else
-			{
-				if(command_list[i].args>0)
-				{
-					if(command_list[i].arg1_type==1)
-					{
-						if(!ffcheck(arg1buf))
-						{
-							retcode=ERR_PARAM1;
-							return 0;
-						}
-						
-						(*script)->zasm[com].arg1 = ffparse(arg1buf);
-					}
-					else
-					{
-						if(!set_argument(arg1buf, script, com, 0))
-						{
-							retcode=ERR_PARAM1;
-							return 0;
-						}
-					}
+						(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
 					
-					if(command_list[i].args>1)
+					if(i == LOOP)
 					{
-						if(command_list[i].arg2_type==1)
+						if(command_list[i].arg2_type==1)  //this should NEVER happen with a loop, as arg2 needs to be a variable
 						{
 							if(!ffcheck(arg2buf))
 							{
@@ -4093,18 +4057,72 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 							}
 						}
 					}
+					break;
 				}
-				byte b = command_list[i].arr_type;
-				if(!(b&0x1) != !sptr) //string
+				default:
 				{
-					retcode = ERR_STR;
-					return 0;
+					if(command_list[i].args>0)
+					{
+						if(command_list[i].arg1_type==1)
+						{
+							if(!ffcheck(arg1buf))
+							{
+								retcode=ERR_PARAM1;
+								return 0;
+							}
+							
+							(*script)->zasm[com].arg1 = ffparse(arg1buf);
+						}
+						else
+						{
+							if(!set_argument(arg1buf, script, com, 0))
+							{
+								retcode=ERR_PARAM1;
+								return 0;
+							}
+						}
+						
+						if(command_list[i].args>1)
+						{
+							if(command_list[i].arg2_type==1)
+							{
+								if(!ffcheck(arg2buf))
+								{
+									retcode=ERR_PARAM2;
+									return 0;
+								}
+								
+								(*script)->zasm[com].arg2 = ffparse(arg2buf);
+							}
+							else
+							{
+								if(!set_argument(arg2buf, script, com, 1))
+								{
+									retcode=ERR_PARAM2;
+									return 0;
+								}
+							}
+						}
+					}
+					byte b = command_list[i].arr_type;
+					if(!(b&0x1) != !sptr) //string
+					{
+						retcode = ERR_STR;
+						return 0;
+					}
+					if(!(b&0x2) != !vptr) //vector
+					{
+						retcode = ERR_VEC;
+						return 0;
+					}
+					break;
 				}
-				if(!(b&0x2) != !vptr) //vector
-				{
-					retcode = ERR_VEC;
-					return 0;
-				}
+			}
+			switch(i)
+			{
+				case CALLFUNC: //Hardcoded, based on GOTO above
+					(*script)->zasm[com].arg1 -= 1;
+					break;
 			}
 		}
 	}

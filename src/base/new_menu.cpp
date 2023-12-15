@@ -83,11 +83,11 @@ void MenuItem::exec() const
 	if(onCall)
 		onCall();
 }
-void MenuItem::pop(uint x, uint y, GuiMenu* parent)
+MenuRet MenuItem::pop(uint x, uint y, GuiMenu* parent)
 {
 	if(!submenu)
-		return;
-	submenu->pop(x, y, parent);
+		return MRET_NIL;
+	return submenu->pop(x, y, parent);
 }
 
 uint MenuItem::calc_width(uint style, uint drawflags, optional<FONT*> usefont) const
@@ -324,8 +324,7 @@ int GuiMenu::proc(int msg, DIALOG* d, int c)
 		case MSG_XCHAR:
 			ptr->setFont(f);
 			ptr->position(d->x, d->y);
-			if(ptr->run())
-				ptr->reset_state();
+			ptr->run();
 			ret |= D_REDRAWME;
 			break;
 	}
@@ -580,17 +579,7 @@ void NewMenu::trigger(uint indx)
 	if(mit.isParent())
 	{
 		clear_keybuf();
-		int ox,oy;
-		get_zqdialog_xy(ox,oy);
-		byte drawflags = 0;
-		if(!has_selected())
-			drawflags |= MENU_DRAWFLAG_NOSEL;
-		if(has_doublewide())
-			drawflags |= MENU_DRAWFLAG_SHIFTSUBTX;
-		mit.draw(screen,xpos+*get_x(indx),ypos+*get_y(indx),MISTYLE_POPUP,
-			MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font,
-			width()-border*2);
-		mit.pop(xpos+ox+*get_x(indx)+width()-border*2,ypos+oy+*get_y(indx),this);
+		pop_sub(indx,this);
 		draw(screen,hovered_ind());
 		state.old_mb = 0;
 	}
@@ -617,10 +606,11 @@ optional<uint> NewMenu::get_y(uint indx) const
 		y += entries[q].calc_height(MISTYLE_POPUP, drawflags, menu_font);
 	return y;
 }
-void NewMenu::pop(uint x, uint y, GuiMenu* parent)
+MenuRet NewMenu::pop(uint x, uint y, GuiMenu* parent)
 {
 	if(close_button_quit)
-		return;
+		return MRET_NIL;
+	MenuRet ret = MRET_NIL;
 	update_hw_screen(true);
 	x = MID(0, x, zq_screen_w-width()-1);
 	y = MID(0, y, zq_screen_h-height()-1);
@@ -635,13 +625,68 @@ void NewMenu::pop(uint x, uint y, GuiMenu* parent)
 	while(gui_mouse_b())
 		rest(1);
 	position(0, 0);
-	run_loop(parent);
+	ret = run_loop(parent);
 	clear_keybuf();
 	
 	popup_zqdialog_end();
 	
 	while(gui_mouse_b())
 		rest(1);
+	return ret;
+}
+void NewMenu::pop_sub(uint indx, GuiMenu* parent)
+{
+	if(indx >= entries.size())
+		return;
+	int ox,oy;
+	get_zqdialog_xy(ox,oy);
+	
+	while(true)
+	{
+		auto& entry = entries[indx];
+		if(!entry.submenu)
+			return;
+		byte drawflags = 0;
+		if(!has_selected())
+			drawflags |= MENU_DRAWFLAG_NOSEL;
+		if(has_doublewide())
+			drawflags |= MENU_DRAWFLAG_SHIFTSUBTX;
+		auto ex = xpos+*get_x(indx), ey = ypos+*get_y(indx);
+		entry.draw(screen,ex,ey,MISTYLE_POPUP,
+			MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font,
+			width()-border*2);
+		auto x = ex+ox+width()-border*2;
+		auto y = ey+oy;
+		auto ret = entry.submenu->pop(x, y, parent);
+		auto start_ind = indx;
+		switch(ret)
+		{
+			case MRET_LEFT:
+				do
+				{
+					if(indx)
+						--indx;
+					else
+						indx = entries.size()-1;
+					if(!entries[indx].disabled)
+						break;
+				}
+				while(indx != start_ind);
+				break;
+			case MRET_RIGHT:
+				do
+				{
+					indx = (indx+1) % entries.size();
+					if(!entries[indx].disabled)
+						break;
+				}
+				while(indx != start_ind);
+				break;
+			default:
+				return;
+		}
+		draw(screen, nullopt);
+	}
 }
 void NewMenu::draw(BITMAP* dest, optional<uint> hl)
 {
@@ -667,7 +712,7 @@ void NewMenu::draw(BITMAP* dest, optional<uint> hl)
 		y += mit.calc_height(MISTYLE_POPUP, drawflags, menu_font);
 	}
 }
-void NewMenu::run_loop(GuiMenu* parent)
+MenuRet NewMenu::run_loop(GuiMenu* parent)
 {
 	optional<uint> msel = hovered_ind();
 	reset_state();
@@ -676,12 +721,15 @@ void NewMenu::run_loop(GuiMenu* parent)
 	else
 		state.sel_ind = 0;
 	auto mb = gui_mouse_b();
+	
+	MenuRet ret = MRET_NIL;
+	bool esc = key[KEY_ESC];
 	do
 	{
 		if(close_button_quit)
-			return;
+			return ret;
 		bool earlyret = false;
-		rest(1);
+		throttleFPS(60);
 		mb = gui_mouse_b();
 		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 		optional<uint> osel = state.sel_ind;
@@ -701,47 +749,58 @@ void NewMenu::run_loop(GuiMenu* parent)
 		}
 		if(state.old_mb || !mb)
 			state.old_mb = mb;
+		poll_keyboard();
+		if(esc)
+		{
+			if(!key[KEY_ESC])
+				esc = false;
+		}
 		if(keypressed())
 		{
 			auto c = readkey();
 			switch(c>>8)
 			{
 				case KEY_ESC:
+					if(esc)
+						break;
 					quit_all_menu = true;
 					earlyret = true;
 					break;
 				case KEY_UP:
 					if(state.sel_ind)
 					{
-						if(*state.sel_ind)
+						int old_ind = int(*state.sel_ind);
+						for(int n = old_ind-1; n != old_ind; --n)
 						{
-							for(int n = int(*state.sel_ind)-1; n >= 0; --n)
-							{
-								if(entries[n].isDisabled())
-									continue;
-								*state.sel_ind = uint(n);
-								break;
-							}
+							if(n < 0)
+								n = entries.size()-1;
+							if(entries[n].isDisabled())
+								continue;
+							*state.sel_ind = uint(n);
+							break;
 						}
 					}
+					else state.sel_ind = 0;
 					break;
 				case KEY_DOWN:
 					if(state.sel_ind)
 					{
-						if(*state.sel_ind < entries.size()-1)
+						int old_ind = int(*state.sel_ind);
+						for(int n = old_ind+1; n != old_ind; ++n)
 						{
-							for(uint n = *state.sel_ind+1; n < entries.size(); ++n)
-							{
-								if(entries[n].isDisabled())
-									continue;
-								*state.sel_ind = n;
-								break;
-							}
+							if(n >= entries.size())
+								n = 0;
+							if(entries[n].isDisabled())
+								continue;
+							*state.sel_ind = uint(n);
+							break;
 						}
 					}
+					else state.sel_ind = 0;
 					break;
 				case KEY_LEFT:
 					earlyret = true;
+					ret = MRET_LEFT;
 					break;
 				case KEY_RIGHT:
 					if(state.sel_ind)
@@ -749,8 +808,9 @@ void NewMenu::run_loop(GuiMenu* parent)
 						if(entries[*state.sel_ind].isParent())
 							doclick = true;
 						else
-						{							
+						{
 							earlyret = true;
+							ret = MRET_RIGHT;
 							break;
 						}
 					}
@@ -783,7 +843,7 @@ void NewMenu::run_loop(GuiMenu* parent)
 			doclick = false;
 		
 		if(earlyret)
-			return;
+			return ret;
 		
 		if(doclick && entries[*state.sel_ind].isDisabled())
 		{
@@ -794,24 +854,28 @@ void NewMenu::run_loop(GuiMenu* parent)
 		{
 			trigger(*state.sel_ind);
 			if(quit_all_menu)
-				return;
+				return ret;
 			mb = gui_mouse_b();
 		}
 		update_hw_screen();
 	}
 	while(true);
+	return ret;
 }
-bool NewMenu::run(GuiMenu* parent)
+void NewMenu::run(bool allow_focus, GuiMenu* parent)
 {
 	optional<uint> msel = hovered_ind();
 	auto mb = gui_mouse_b();
 	if(close_button_quit)
-		return true;
+	{
+		reset_state();
+		return;
+	}
 	bool earlyret = false;
 	mb = gui_mouse_b();
 	auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 	optional<uint> osel = state.sel_ind;
-	if(mb || state.sel_ind != msel)
+	if(mb || (msel && state.sel_ind != msel))
 	{
 		state.sel_ind = msel;
 		state.dirty = true;
@@ -829,13 +893,74 @@ bool NewMenu::run(GuiMenu* parent)
 	}
 	if(state.old_mb || !mb)
 		state.old_mb = mb;
-	if(keypressed() && CHECK_ALT)
+	if(keypressed() && (CHECK_ALT||allow_focus))
 	{
-		auto c = readkey();
-		if(auto val = press_shortcut_key(c>>8))
+		if(CHECK_ALT)
 		{
-			state.sel_ind = *val;
-			doclick = true;
+			auto c = readkey();
+			if(auto val = press_shortcut_key(c>>8))
+			{
+				state.sel_ind = *val;
+				doclick = true;
+			}
+		}
+		else
+		{
+			auto c = peekkey();
+			switch(c>>8)
+			{
+				case KEY_UP:
+					readkey();
+					if(state.sel_ind)
+					{
+						int old_ind = int(*state.sel_ind);
+						for(int n = old_ind-1; n != old_ind; --n)
+						{
+							if(n < 0)
+								n = entries.size()-1;
+							if(entries[n].isDisabled())
+								continue;
+							*state.sel_ind = uint(n);
+							break;
+						}
+					}
+					else state.sel_ind = 0;
+					break;
+				case KEY_DOWN:
+					readkey();
+					if(state.sel_ind)
+					{
+						int old_ind = int(*state.sel_ind);
+						for(int n = old_ind+1; n != old_ind; ++n)
+						{
+							if(n >= entries.size())
+								n = 0;
+							if(entries[n].isDisabled())
+								continue;
+							*state.sel_ind = uint(n);
+							break;
+						}
+					}
+					else state.sel_ind = 0;
+					break;
+				case KEY_LEFT:
+					readkey();
+					reset_state();
+					return;
+				case KEY_RIGHT:
+					readkey();
+					if(state.sel_ind)
+					{
+						if(entries[*state.sel_ind].isParent())
+							doclick = true;
+						else
+						{
+							reset_state();
+							return;
+						}
+					}
+					break;
+			}
 		}
 	}
 	if(state.sel_ind != osel)
@@ -850,7 +975,10 @@ bool NewMenu::run(GuiMenu* parent)
 		doclick = false;
 	
 	if(earlyret)
-		return true;
+	{
+		reset_state();
+		return;
+	}
 	
 	if(doclick && entries[*state.sel_ind].isDisabled())
 	{
@@ -861,11 +989,14 @@ bool NewMenu::run(GuiMenu* parent)
 	{
 		trigger(*state.sel_ind);
 		if(quit_all_menu)
-			return true;
+		{
+			reset_state();
+			return;
+		}
 		mb = gui_mouse_b();
 	}
 	update_hw_screen();
-	return false;
+	return;
 }
 
 //Concrete; horizontal menu
@@ -946,14 +1077,7 @@ void TopMenu::trigger(uint indx)
 	if(mit.isParent())
 	{
 		clear_keybuf();
-		int ox,oy;
-		get_zqdialog_xy(ox,oy);
-		byte drawflags = 0;
-		if(!has_selected())
-			drawflags |= MENU_DRAWFLAG_NOSEL;
-		mit.draw(screen,xpos+*get_x(indx),ypos+*get_y(indx),MISTYLE_TOP,
-			MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font);
-		mit.pop(xpos+ox+*get_x(indx),ypos+oy+*get_y(indx)+height()-vborder*2,this);
+		pop_sub(indx,this);
 		draw(screen,hovered_ind());
 		state.old_mb = 0;
 	}
@@ -977,10 +1101,11 @@ optional<uint> TopMenu::get_y(uint indx) const
 		return nullopt;
 	return vborder;
 }
-void TopMenu::pop(uint x, uint y, GuiMenu* parent)
+MenuRet TopMenu::pop(uint x, uint y, GuiMenu* parent)
 {
 	if(close_button_quit)
-		return;
+		return MRET_NIL;
+	MenuRet ret = MRET_NIL;
 	update_hw_screen(true);
 	
 	quit_all_menu = false;
@@ -993,13 +1118,65 @@ void TopMenu::pop(uint x, uint y, GuiMenu* parent)
 	while(gui_mouse_b())
 		rest(1);
 	position(0, 0);
-	run_loop(parent);
+	ret = run_loop(parent);
 	clear_keybuf();
 	
 	popup_zqdialog_end();
 	
 	while(gui_mouse_b())
 		rest(1);
+	return ret;
+}
+void TopMenu::pop_sub(uint indx, GuiMenu* parent)
+{
+	if(indx >= entries.size())
+		return;
+	int ox,oy;
+	get_zqdialog_xy(ox,oy);
+	
+	while(true)
+	{
+		auto& entry = entries[indx];
+		if(!entry.submenu)
+			return;
+		byte drawflags = 0;
+		if(!has_selected())
+			drawflags |= MENU_DRAWFLAG_NOSEL;
+		auto ex = xpos+*get_x(indx), ey = ypos+*get_y(indx);
+		entry.draw(screen,ex,ey,MISTYLE_TOP,
+			MENU_DRAWFLAG_HIGHLIGHT|MENU_DRAWFLAG_INVFRAME|drawflags, menu_font);
+		auto x = ex+ox;
+		auto y = ey+oy+height()-vborder*2;
+		auto ret = entry.submenu->pop(x, y, parent);
+		auto start_ind = indx;
+		switch(ret)
+		{
+			case MRET_LEFT:
+				do
+				{
+					if(indx)
+						--indx;
+					else
+						indx = entries.size()-1;
+					if(!entries[indx].disabled)
+						break;
+				}
+				while(indx != start_ind);
+				break;
+			case MRET_RIGHT:
+				do
+				{
+					indx = (indx+1) % entries.size();
+					if(!entries[indx].disabled)
+						break;
+				}
+				while(indx != start_ind);
+				break;
+			default:
+				return;
+		}
+		draw(screen, nullopt);
+	}
 }
 void TopMenu::draw(BITMAP* dest, optional<uint> hl)
 {
@@ -1018,7 +1195,7 @@ void TopMenu::draw(BITMAP* dest, optional<uint> hl)
 		x += mit.calc_width(MISTYLE_TOP, drawflags, menu_font);
 	}
 }
-void TopMenu::run_loop(GuiMenu* parent)
+MenuRet TopMenu::run_loop(GuiMenu* parent)
 {
 	reset_state();
 	optional<uint> msel = hovered_ind();
@@ -1027,10 +1204,12 @@ void TopMenu::run_loop(GuiMenu* parent)
 	else
 		state.sel_ind = 0;
 	auto mb = gui_mouse_b();
+	MenuRet ret = MRET_NIL;
+	bool esc = key[KEY_ESC];
 	do
 	{
 		if(close_button_quit)
-			return;
+			return ret;
 		bool earlyret = false;
 		rest(1);
 		mb = gui_mouse_b();
@@ -1052,47 +1231,58 @@ void TopMenu::run_loop(GuiMenu* parent)
 		}
 		if(state.old_mb || !mb)
 			state.old_mb = mb;
+		poll_keyboard();
+		if(esc)
+		{
+			if(!key[KEY_ESC])
+				esc = false;
+		}
 		if(keypressed())
 		{
 			auto c = readkey();
 			switch(c>>8)
 			{
 				case KEY_ESC:
+					if(esc)
+						break;
 					quit_all_menu = true;
 					earlyret = true;
 					break;
 				case KEY_LEFT:
 					if(state.sel_ind)
 					{
-						if(*state.sel_ind)
+						int old_ind = int(*state.sel_ind);
+						for(int n = old_ind-1; n != old_ind; --n)
 						{
-							for(int n = int(*state.sel_ind)-1; n >= 0; --n)
-							{
-								if(entries[n].isDisabled())
-									continue;
-								*state.sel_ind = uint(n);
-								break;
-							}
+							if(n < 0)
+								n = entries.size()-1;
+							if(entries[n].isDisabled())
+								continue;
+							*state.sel_ind = uint(n);
+							break;
 						}
 					}
+					else state.sel_ind = 0;
 					break;
 				case KEY_RIGHT:
 					if(state.sel_ind)
 					{
-						if(*state.sel_ind < entries.size()-1)
+						int old_ind = int(*state.sel_ind);
+						for(int n = old_ind+1; n != old_ind; ++n)
 						{
-							for(uint n = *state.sel_ind+1; n < entries.size(); ++n)
-							{
-								if(entries[n].isDisabled())
-									continue;
-								*state.sel_ind = n;
-								break;
-							}
+							if(n >= entries.size())
+								n = 0;
+							if(entries[n].isDisabled())
+								continue;
+							*state.sel_ind = uint(n);
+							break;
 						}
 					}
+					else state.sel_ind = 0;
 					break;
 				case KEY_UP:
 					earlyret = true;
+					ret = MRET_LEFT;
 					break;
 				case KEY_DOWN:
 					if(state.sel_ind)
@@ -1102,6 +1292,7 @@ void TopMenu::run_loop(GuiMenu* parent)
 						else
 						{
 							earlyret = true;
+							ret = MRET_RIGHT;
 							break;
 						}
 					}
@@ -1134,7 +1325,7 @@ void TopMenu::run_loop(GuiMenu* parent)
 			doclick = false;
 		
 		if(earlyret)
-			return;
+			return ret;
 		
 		if(doclick && entries[*state.sel_ind].isDisabled())
 		{
@@ -1145,25 +1336,29 @@ void TopMenu::run_loop(GuiMenu* parent)
 		{
 			trigger(*state.sel_ind);
 			if(quit_all_menu)
-				return;
+				return ret;
 			mb = gui_mouse_b();
 		}
 		update_hw_screen();
 	}
 	while(true);
+	return ret;
 }
 
-bool TopMenu::run(GuiMenu* parent)
+void TopMenu::run(bool allow_focus, GuiMenu* parent)
 {
 	optional<uint> msel = hovered_ind();
 	auto mb = gui_mouse_b();
 	if(close_button_quit)
-		return true;
+	{
+		reset_state();
+		return;
+	}
 	bool earlyret = false;
 	mb = gui_mouse_b();
 	auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 	optional<uint> osel = state.sel_ind;
-	if(mb || state.sel_ind != msel)
+	if(mb || (msel && state.sel_ind != msel))
 	{
 		state.sel_ind = msel;
 		state.dirty = true;
@@ -1181,13 +1376,69 @@ bool TopMenu::run(GuiMenu* parent)
 	}
 	if(state.old_mb || !mb)
 		state.old_mb = mb;
-	if(keypressed() && CHECK_ALT)
+	if(keypressed() && (CHECK_ALT||allow_focus))
 	{
 		auto c = readkey();
-		if(auto val = press_shortcut_key(c>>8))
+		if(CHECK_ALT)
 		{
-			state.sel_ind = *val;
-			doclick = true;
+			if(auto val = press_shortcut_key(c>>8))
+			{
+				state.sel_ind = *val;
+				doclick = true;
+			}
+		}
+		else
+		{
+			switch(c>>8)
+			{
+				case KEY_LEFT:
+					if(state.sel_ind)
+					{
+						int old_ind = int(*state.sel_ind);
+						for(int n = old_ind-1; n != old_ind; --n)
+						{
+							if(n < 0)
+								n = entries.size()-1;
+							if(entries[n].isDisabled())
+								continue;
+							*state.sel_ind = uint(n);
+							break;
+						}
+					}
+					else state.sel_ind = 0;
+					break;
+				case KEY_RIGHT:
+					if(state.sel_ind)
+					{
+						int old_ind = int(*state.sel_ind);
+						for(int n = old_ind+1; n != old_ind; ++n)
+						{
+							if(n >= entries.size())
+								n = 0;
+							if(entries[n].isDisabled())
+								continue;
+							*state.sel_ind = uint(n);
+							break;
+						}
+					}
+					else state.sel_ind = 0;
+					break;
+				case KEY_UP:
+					reset_state();
+					return;
+				case KEY_DOWN:
+					if(state.sel_ind)
+					{
+						if(entries[*state.sel_ind].isParent())
+							doclick = true;
+						else
+						{
+							reset_state();
+							return;
+						}
+					}
+					break;
+			}
 		}
 	}
 	if(state.sel_ind != osel)
@@ -1201,7 +1452,10 @@ bool TopMenu::run(GuiMenu* parent)
 	if(!state.sel_ind)
 		doclick = false;
 	if(earlyret)
-		return true;
+	{
+		reset_state();
+		return;
+	}
 	if(doclick && entries[*state.sel_ind].isDisabled())
 	{
 		doclick = false;
@@ -1211,11 +1465,14 @@ bool TopMenu::run(GuiMenu* parent)
 	{
 		trigger(*state.sel_ind);
 		if(quit_all_menu)
-			return true;
+		{
+			reset_state();
+			return;
+		}
 		mb = gui_mouse_b();
 	}
 	update_hw_screen();
-	return false;
+	return;
 }
 
 optional<int> popup_num_menu(uint x, uint y, int min, int max, optional<int> hl, std::function<string(int)> formatter)

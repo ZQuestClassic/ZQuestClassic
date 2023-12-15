@@ -181,6 +181,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #endif
 
 #define PI 3.14159265358979323846
+#define PI2 (2*PI)
 
 #define ZC_ID(a,b,c,d)  (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
@@ -239,11 +240,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         22
+#define V_FFSCRIPT         23
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       62
+#define V_COMPATRULE       63
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1540,7 +1541,8 @@ struct guydata
 
 #define LIFTFL_DIS_SHIELD             0x00000001
 #define LIFTFL_DIS_ITEMS              0x00000002
-#define NUM_LIFTFL 2
+#define LIFTFL_DIS_SWIMMING           0x00000004
+#define NUM_LIFTFL 3
 
 class refInfo
 {
@@ -1551,6 +1553,7 @@ public:
 	int32_t d[8]; //d registers
 	int32_t a[2]; //a regsisters (reference to another ffc on screen)
 	uint32_t sp; //stack pointer for current script
+	uint32_t retsp; //stack pointer for the return stack
 	dword scriptflag; //stores whether various operations were true/false etc.
 	
 	uint16_t ffcref;

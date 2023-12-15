@@ -2491,34 +2491,14 @@ string GlobalArgument::toString() const
 
 string LabelArgument::toString() const
 {
-    if(!haslineno)
-    {
-        char temp[40];
-        sprintf(temp, "l%d", ID);
-        return string(temp);
-    }
-    else
-    {
-        char temp[40];
-        sprintf(temp, "%d", lineno);
-        return string(temp);
-    }
-}
-
-string LabelArgument::toStringSetV() const
-{
-    if(!haslineno)
-    {
-        char temp[40];
-        sprintf(temp, "l%d", ID);
-        return string(temp);
-    }
-    else
-    {
-        char temp[40];
-        sprintf(temp, "%.4f", lineno * 0.0001f);
-        return string(temp);
-    }
+	char buf[40];
+	if(!haslineno)
+		sprintf(buf, "l%d", ID);
+	else if(altstr)
+		sprintf(buf, "%d.%04d", lineno / 10000, abs(lineno % 10000));
+	else
+		sprintf(buf, "%d", lineno);
+	return string(buf);
 }
 
 string StringArgument::toString() const
@@ -2573,14 +2553,7 @@ string OSetLessI::toString() const
 
 string OSetImmediate::toString() const
 {
-	ostringstream oss;
-	oss << "SETV " << getFirstArgument()->toString() << ",";
-	Argument const* second = getSecondArgument();
-	if (LabelArgument const* label = dynamic_cast<LabelArgument const*>(second))
-		oss << label->toStringSetV();
-	else
-		oss << second->toString();
-	return oss.str();
+	return "SETV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OSetRegister::toString() const
@@ -2984,15 +2957,7 @@ string OPushRegister::toString() const
 
 string OPushImmediate::toString() const
 {
-	ostringstream oss;
-	oss << "PUSHV ";
-	Argument const* arg = getArgument();
-	if (LabelArgument const* label = dynamic_cast<LabelArgument const*>(arg))
-		oss << label->toStringSetV();
-	else
-		oss << arg->toString();
-	return oss.str();
-    return "PUSHV " + getArgument()->toString();
+	return "PUSHV " + getArgument()->toString();
 }
 
 string OPopRegister::toString() const
@@ -3005,6 +2970,16 @@ string OPopArgsRegister::toString() const
     return "POPARGS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OPushArgsRegister::toString() const
+{
+    return "PUSHARGSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPushArgsImmediate::toString() const
+{
+    return "PUSHARGSV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OPushVargV::toString() const
 {
     return "PUSHVARGV " + getArgument()->toString();
@@ -3013,6 +2988,16 @@ string OPushVargV::toString() const
 string OPushVargR::toString() const
 {
     return "PUSHVARGR " + getArgument()->toString();
+}
+
+string OPushVargsV::toString() const
+{
+    return "PUSHVARGSV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPushVargsR::toString() const
+{
+    return "PUSHVARGSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OLoadIndirect::toString() const
@@ -6913,5 +6898,27 @@ string OGetSubWidgLabel::toString() const
 string OSetSubWidgLabel::toString() const
 {
 	return "SUBWIDG_SET_LABEL " + getArgument()->toString();
+}
+
+
+string OWrapRadians::toString() const
+{
+	return "WRAPRADIANS " + getArgument()->toString();
+}
+string OWrapDegrees::toString() const
+{
+	return "WRAPDEGREES " + getArgument()->toString();
+}
+
+
+string OCallFunc::toString() const
+{
+	return "CALLFUNC " + getArgument()->toString();
+}
+
+
+string OReturnFunc::toString() const
+{
+	return "RETURNFUNC";
 }
 

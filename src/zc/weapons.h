@@ -195,6 +195,7 @@ public:
 	virtual int32_t run_script(int32_t mode);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	virtual void draw_hitbox();
+	virtual optional<ScriptType> get_scrtype() const {return isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn;}
 };
 
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);

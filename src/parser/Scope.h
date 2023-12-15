@@ -141,6 +141,7 @@ namespace ZScript
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
 				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL)
 		= 0;
+		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL) = 0;
 		virtual void removeFunction(Function* func) = 0;
 		virtual void setDefaultOption(CompileOptionSetting value) = 0;
 		virtual void setOption(
@@ -369,6 +370,7 @@ namespace ZScript
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
 				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL);
 		virtual void removeFunction(Function* func);
 		virtual void setDefaultOption(CompileOptionSetting value);
 		virtual void setOption(
@@ -446,6 +448,7 @@ namespace ZScript
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
 				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL);
 		virtual void removeFunction(Function* func);
 		void removeLocalFunction(Function* function);
 		

@@ -3,25 +3,25 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-Pass 5: Generating object code
-Pass 6: Assembling
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
-PUSHR REFFFC
+PUSHR REFFFC; void run() Body Start
 SETR d4,SP
-SETR d2,INPUTPRESSA
+SETR d2,INPUTPRESSA; if() #3459 Test AND while(true) #3457 Body [Opt:AlwaysOn] Start
 COMPAREV d2,0
-GOTOTRUE 11
-SETV d2,0
+GOTOTRUE 11; Test 'if'
+SETV d2,0; if() #3459 Body Start
 PUSHR d2
 POP d2
 CASTBOOLI d2
-SETR INPUTA,d2
-WAITFRAME
-GOTO 3
-POPARGS d5,0.0001
-QUIT
+SETR INPUTA,d2; if() #3459 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3457 Body [Opt:AlwaysOn] End
+GOTO 3; while() #3457 End
+NOP; [Opt:NeverRet] AND void run() Body End
 
 
-QUIT
+QUIT; void run() Body

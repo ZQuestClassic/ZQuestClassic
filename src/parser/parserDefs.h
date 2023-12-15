@@ -9,17 +9,19 @@
 using namespace util;
 
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.
-#define FUNCFLAG_INLINE             0x00000001
-#define FUNCFLAG_INVALID            0x00000002
-#define FUNCFLAG_STATIC             0x00000004
-#define FUNCFLAG_CONSTRUCTOR        0x00000008
-#define FUNCFLAG_DESTRUCTOR         0x00000010
-#define FUNCFLAG_CLASSFUNC          0x00000020
-#define FUNCFLAG_VARARGS            0x00000040
-#define FUNCFLAG_DEPRECATED         0x00000080
-#define FUNCFLAG_NOCAST             0x00000100
-#define FUNCFLAG_INTARRAY           0x00000200
-#define FUNCFLAG_NIL                0x00000400
+#define FUNCFLAG_INLINE             0x00000001 //Can be heavily optimized
+#define FUNCFLAG_INVALID            0x00000002 //Needs to throw an error, later in compile
+#define FUNCFLAG_STATIC             0x00000004 //Is static (not per-object in classes)
+#define FUNCFLAG_CONSTRUCTOR        0x00000008 //Is a user class constructor
+#define FUNCFLAG_DESTRUCTOR         0x00000010 //Is a user class destructor
+#define FUNCFLAG_CLASSFUNC          0x00000020 //Belongs to a user class
+#define FUNCFLAG_VARARGS            0x00000040 //Uses variadic arguments
+#define FUNCFLAG_DEPRECATED         0x00000080 //Gives a deprecated warning/error on use
+#define FUNCFLAG_NOCAST             0x00000100 //Affects function's overloading
+#define FUNCFLAG_INTARRAY           0x00000200 //Function represents a special internal array
+#define FUNCFLAG_NIL                0x00000400 //Function does 'nothing' (optimizable)
+#define FUNCFLAG_EXITS              0x00000800 //Function exits the current script (or game)
+#define FUNCFLAG_NEVER_RETURN       0x00001000 //Function never returns
 
 #define IFUNCFLAG_SKIPPOINTER	      0x01
 #define IFUNCFLAG_REASSIGNPTR	      0x02

@@ -17,6 +17,7 @@
 #include "SemanticAnalyzer.h"
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
+#include "ReturnVisitor.h"
 #include "ZScript.h"
 #include <fmt/format.h>
 
@@ -148,7 +149,14 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 			return nullptr;
 		}
 
-		zconsole_info("%s", "Pass 5: Generating object code");
+		zconsole_info("%s", "Pass 5: Checking code paths");
+		zconsole_idle();
+		
+		ReturnVisitor rv(program);
+		if(zscript_error_out) return nullptr;
+		if(rv.hasFailed()) return nullptr;
+		
+		zconsole_info("%s", "Pass 6: Generating object code");
 		zconsole_idle();
 
 		unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
@@ -156,7 +164,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 			return nullptr;
 		if(zscript_error_out) return nullptr;
 		
-		zconsole_info("%s", "Pass 6: Assembling");
+		zconsole_info("%s", "Pass 7: Assembling");
 		zconsole_idle();
 
 		ScriptParser::assemble(id.get());
@@ -445,6 +453,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	     it != funs.end(); ++it)
 	{
 		Function& function = **it;
+		if(function.is_aliased()) continue;
 		bool classfunc = function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC);
 		int puc = 0;
 		if(classfunc)
@@ -466,7 +475,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		{
 			scriptname = functionScript->getName();
 		}
-		scope = function.internalScope;
+		scope = function.getInternalScope();
 		
 		if(classfunc)
 		{
@@ -481,11 +490,11 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				vector<Function*> destr = user_class.getScope().getDestructor();
 				std::shared_ptr<Opcode> first;
 				Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
-				if(destructor && !destructor->prototype)
+				if(destructor && !destructor->isNil())
 				{
 					Function* destructor = destr[0];
 					first.reset(new OSetImmediate(new VarArgument(EXP1),
-						new LabelArgument(destructor->getLabel())));
+						new LabelArgument(destructor->getLabel(), true)));
 				}
 				else first.reset(new OSetImmediate(new VarArgument(EXP1),
 					new LiteralArgument(0)));
@@ -529,21 +538,29 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			appendElements(funccode, bo.getResult());
 			
-			// Pop off everything
-			Opcode* next;
-			if(stackSize)
-				next = new OPopArgsRegister(new VarArgument(NUL),
-					new LiteralArgument(stackSize));
-			else next = new ONoOp();
-			next->setLabel(bo.getReturnLabelID());
-			addOpcode2(funccode, next);
-			
-			if (puc == puc_construct) //return val
+			if(function.getFlag(FUNCFLAG_NEVER_RETURN))
 			{
-				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
-				addOpcode2(funccode, new OPopRegister(new VarArgument(CLASS_THISKEY)));
+				if(funccode.size())
+					funccode.back()->mergeComment("[Opt:NeverRet]");
 			}
-			addOpcode2(funccode, new OReturn());
+			else
+			{
+				// Pop off everything
+				Opcode* next;
+				if(stackSize)
+					next = new OPopArgsRegister(new VarArgument(NUL),
+						new LiteralArgument(stackSize));
+				else next = new ONoOp();
+				next->setLabel(bo.getReturnLabelID());
+				addOpcode2(funccode, next);
+				
+				if (puc == puc_construct) //return val
+				{
+					addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
+					addOpcode2(funccode, new OPopRegister(new VarArgument(CLASS_THISKEY)));
+				}
+				addOpcode2(funccode, new OReturnFunc());
+			}
 			function.giveCode(funccode);
 		}
 		else
@@ -617,7 +634,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			// Push 0s for the local variables.
 			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
-				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
+				addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
 			
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
@@ -630,33 +647,28 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			appendElements(funccode, bo.getResult());
 			
-			// Add appendix code.
-			std::shared_ptr<Opcode> next(new ONoOp());
-			next->setLabel(bo.getReturnLabelID());
-			funccode.push_back(std::move(next));
-			
-			// Pop off everything.
-			if(stackSize)
-				addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL),
-					new LiteralArgument(stackSize)));
-			else addOpcode2(funccode, new ONoOp());
-			
-			//if it's a main script, quit.
-			if (isRun)
+			if(function.getFlag(FUNCFLAG_NEVER_RETURN))
 			{
-				// Note: the stack still contains the "this" pointer
-				// But since the script is about to terminate, we don't
-				// care about popping it off.
-				addOpcode2(funccode, new OQuit());
+				if(funccode.size())
+					funccode.back()->mergeComment("[Opt:NeverRet]");
 			}
 			else
 			{
-				// Not a script's run method, so no "this" pointer to
-				// pop off. The top of the stack is now the function
-				// return address (pushed on by the caller).
-				//pop off the return address
-				//and return
-				addOpcode2(funccode, new OReturn());
+				// Add appendix code.
+				std::shared_ptr<Opcode> next(new ONoOp());
+				next->setLabel(bo.getReturnLabelID());
+				funccode.push_back(std::move(next));
+				
+				// Pop off everything.
+				if(stackSize)
+					addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL),
+						new LiteralArgument(stackSize)));
+				else addOpcode2(funccode, new ONoOp());
+				
+				//if it's a main script, quit.
+				if (isRun)
+					addOpcode2(funccode, new OQuit()); //exit the script
+				else addOpcode2(funccode, new OReturnFunc());
 			}
 			
 			function.giveCode(funccode);
@@ -727,16 +739,11 @@ void ScriptParser::assemble(IntermediateData *id)
 			//Function call the run function
 			//push the stack frame pointer
 			addOpcode2(ginit, new OPushRegister(new VarArgument(SFRAME)));
-			//push the return address
-			int32_t returnaddr = ScriptParser::getUniqueLabelID();
-			addOpcode2(ginit, new OPushImmediate(new LabelArgument(returnaddr)));
 			
 			int32_t funcaddr = ScriptParser::getUniqueLabelID();
-			addOpcode2(ginit, new OGotoImmediate(new LabelArgument(funcaddr)));
+			addOpcode2(ginit, new OCallFunc(new LabelArgument(funcaddr, true)));
 			
-			Opcode *next = new OPopRegister(new VarArgument(SFRAME));
-			next->setLabel(returnaddr);
-			addOpcode2(ginit,next);
+			addOpcode2(ginit,new OPopRegister(new VarArgument(SFRAME)));
 			
 			//Add the function to the end of the script, as a special copy
 			bool didlabel = false;
@@ -746,7 +753,7 @@ void ScriptParser::assemble(IntermediateData *id)
 				Opcode* op = it->get();
 				if(dynamic_cast<OQuit*>(op))
 				{
-					op = new OReturn(); //Replace 'Quit();' with 'return;'
+					op = new OReturnFunc(); //Replace 'Quit();' with 'return;'
 				}
 				else
 					op = op->makeClone(true);
@@ -758,16 +765,16 @@ void ScriptParser::assemble(IntermediateData *id)
 				addOpcode2(ginit_mergefuncs, op);
 			}
 			Opcode* last = ginit_mergefuncs.back().get();
-			if(OReturn* opcode = dynamic_cast<OReturn*>(last))
+			if(OReturnFunc* opcode = dynamic_cast<OReturnFunc*>(last))
 				; //function ends in a return already
 			else
-				addOpcode2(ginit_mergefuncs, new OReturn());
+				addOpcode2(ginit_mergefuncs, new OReturnFunc());
 		}
 	}
 	addOpcode2(ginit, new OQuit());
 	ginit.insert(ginit.end(), ginit_mergefuncs.begin(), ginit_mergefuncs.end());
 	Script* init = program.getScript("~Init");
-	init->code = assembleOne(program, ginit, 0);
+	init->code = assembleOne(program, ginit, 0, FunctionSignature("run",{},&DataType::ZVOID));
 
 	for (vector<Script*>::const_iterator it = program.scripts.begin();
 	     it != program.scripts.end(); ++it)
@@ -788,13 +795,14 @@ void ScriptParser::assemble(IntermediateData *id)
 		else
 		{
 			int32_t numparams = script.getRun()->paramTypes.size();
-			script.code = assembleOne(program, run.getCode(), numparams);
+			script.code = assembleOne(program, run.getCode(), numparams, run.getUnaliasedSignature(true));
 		}
 	}
 }
 
-vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
-		Program& program, vector<shared_ptr<Opcode>> runCode, int32_t numparams)
+vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
+	vector<shared_ptr<Opcode>> runCode, int32_t numparams,
+	FunctionSignature const& runsig)
 {
 	std::vector<std::shared_ptr<Opcode>> rval;
 
@@ -804,7 +812,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 		addOpcode2(rval, new OPushRegister(new VarArgument(i)));
 	for (; i < numparams; ++i)
 		addOpcode2(rval, new OPushRegister(new VarArgument(EXP1)));
-
+	if(rval.size())
+		rval.front()->setComment(fmt::format("{} Params",runsig.asString()));
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);
 	appendElements(allFunctions, program.getUserClassConstructors());
@@ -814,6 +823,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	     it != allFunctions.end(); ++it)
 	{
 		Function& function = **it;
+		if(function.is_aliased())
+			continue;
 		functionsByLabel[function.getLabel()] = &function;
 		if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
 			functionsByLabel[function.getAltLabel()] = &function;
@@ -842,9 +853,17 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	}
 
 	// Make the rval
+	auto rv_sz = rval.size();
 	for (vector<shared_ptr<Opcode>>::iterator it = runCode.begin();
 	     it != runCode.end(); ++it)
 		addOpcode2(rval, (*it)->makeClone());
+	if(rval.size() == rv_sz+1)
+		rval.back()->mergeComment(fmt::format("{} Body",runsig.asString()));
+	else if(rval.size() > rv_sz)
+	{
+		rval[rv_sz]->mergeComment(fmt::format("{} Body Start",runsig.asString()));
+		rval.back()->mergeComment(fmt::format("{} Body End",runsig.asString()));
+	}
 
 	for (std::set<int32_t>::iterator it = usedLabels.begin();
 	     it != usedLabels.end(); ++it)
@@ -855,9 +874,17 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 		if (!function) continue;
 
 		vector<shared_ptr<Opcode>> functionCode = function->getCode();
+		rv_sz = rval.size();
 		for (vector<shared_ptr<Opcode>>::iterator it = functionCode.begin();
 		     it != functionCode.end(); ++it)
 			addOpcode2(rval, (*it)->makeClone());
+		if(rval.size() == rv_sz+1)
+			rval.back()->mergeComment(fmt::format("Func[{}] Body",function->getUnaliasedSignature(true).asString()));
+		else if(rval.size() > rv_sz)
+		{
+			rval[rv_sz]->mergeComment(fmt::format("Func[{}] Body Start",function->getUnaliasedSignature(true).asString()));
+			rval.back()->mergeComment(fmt::format("Func[{}] Body End",function->getUnaliasedSignature(true).asString()));
+		}
 	}
 	
 	// Run automatic optimizations
@@ -865,57 +892,165 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	// ...but they've already been handled, so that's fine.
 	{
 		{ //macros
-		#define START_OPT_PASS() \
-		zconsole_idle(); \
-		for(auto it = rval.begin(); it != rval.end();) \
-		{ \
-			Opcode* ocode = it->get(); \
-			auto lbl = ocode->getLabel();
-		#define END_OPT_PASS() \
-			++it; \
-		}
-		#define MERGE_CONSEC_1(ty) \
-		if(ty* op = dynamic_cast<ty*>(ocode)) \
-		{ \
-			auto it2 = it; \
-			++it2; \
-			if(ty* op2 = dynamic_cast<ty*>(it2->get())) \
+			#define START_OPT_PASS() \
+			zconsole_idle(); \
+			for(auto it = rval.begin(); it != rval.end();) \
 			{ \
-				if(!op->getArgument()->toString().compare( \
-					op2->getArgument()->toString())) \
+				Opcode* ocode = it->get(); \
+				auto lbl = ocode->getLabel(); \
+				string comment = ocode->getComment();
+			#define END_OPT_PASS() \
+				++it; \
+			}
+			#define MERGE_CONSEC_1(ty) \
+			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			{ \
+				auto it2 = it; \
+				++it2; \
+				if(it2 == rval.end()) \
+					break; \
+				if(ty* op2 = dynamic_cast<ty*>(it2->get())) \
 				{ \
-					auto lbl2 = op2->getLabel(); \
-					if(lbl2 == -1 && lbl > -1) \
+					if(!op->getArgument()->toString().compare( \
+						op2->getArgument()->toString())) \
 					{ \
-						op2->setLabel(lbl); \
+						auto lbl2 = op2->getLabel(); \
+						op2->mergeComment(comment, true); \
+						if(lbl2 == -1 && lbl > -1) \
+						{ \
+							op2->setLabel(lbl); \
+							it = rval.erase(it); \
+							continue; \
+						} \
 						it = rval.erase(it); \
+						if(lbl > -1) \
+						{ \
+							MergeLabels temp(lbl2, {lbl}); \
+							temp.execute(rval, nullptr); \
+						} \
 						continue; \
 					} \
+				} \
+				++it; \
+				continue; \
+			}
+			#define MERGE_GOTO_NEXT(ty) \
+			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			{ \
+				auto it2 = it; \
+				++it2; \
+				if(it2 == rval.end()) \
+					break; \
+				LabelArgument* label_arg = (LabelArgument*)op->getArgument(); \
+				Opcode* nextcode = it2->get(); \
+				auto lbl2 = nextcode->getLabel(); \
+				if(lbl2 > -1 && label_arg->getID() == lbl2) \
+				{ \
+					nextcode->mergeComment(comment, true); \
 					it = rval.erase(it); \
 					if(lbl > -1) \
 					{ \
-						MergeLabels temp; \
-						int lbls[2] = { lbl2, lbl }; \
-						temp.execute(rval, lbls); \
+						MergeLabels temp(lbl2, {lbl}); \
+						temp.execute(rval, nullptr); \
 					} \
 					continue; \
 				} \
-			} \
-			++it; \
-			continue; \
-		}
+				++it; \
+				continue; \
+			}
+			#define MERGE_CONSEC_REPCOUNT_START(ty1,ty2) \
+			{ \
+				ty1* single_op = dynamic_cast<ty1*>(ocode); \
+				ty2* multi_op = dynamic_cast<ty2*>(ocode); \
+				if(single_op || multi_op) \
+				{ \
+					auto it2 = it; \
+					++it2; \
+					if(it2 == rval.end()) \
+						break; \
+					Argument const* target_arg = single_op \
+						? (single_op->getArgument()) \
+						: (multi_op->getFirstArgument()); \
+					string target_str = target_arg->toString(); \
+					size_t addcount = 0; \
+					while(it2 != rval.end()) \
+					{ \
+						Opcode* nextcode = it2->get(); \
+						if(nextcode->getLabel() != -1) \
+							break; /*can't combine*/ \
+						ty1* single_next = dynamic_cast<ty1*>(nextcode); \
+						ty2* multi_next = dynamic_cast<ty2*>(nextcode); \
+						if(!(single_next || multi_next)) \
+							break; /*can't combine*/ \
+						if(target_str.compare(single_next \
+							? (single_next->getArgument()->toString()) \
+							: (multi_next->getFirstArgument()->toString()))) \
+							break; /*Different registers, can't combine*/ \
+						if(multi_next) \
+						{ \
+							LiteralArgument const* larg = \
+								dynamic_cast<LiteralArgument*>(multi_next->getSecondArgument()); \
+							addcount += larg->value; \
+						} \
+						else /*if single_next*/ \
+							++addcount; \
+						Opcode::mergeComment(comment, nextcode->getComment()); \
+						it2 = rval.erase(it2); \
+					}
+			#define MERGE_CONSEC_REPCOUNT_END(ty1,ty2) \
+					if(addcount) \
+					{ \
+						if(single_op) \
+						{ \
+							Argument* reg = target_arg->clone(); \
+							it = rval.erase(it); \
+							it = rval.insert(it,std::shared_ptr<Opcode>(new ty2(reg,new LiteralArgument(addcount+1)))); \
+							(*it)->setLabel(lbl); \
+							(*it)->setComment(comment); \
+						} \
+						else /*if multi_op*/ \
+						{ \
+							LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
+							litarg->value += addcount; \
+							multi_op->setComment(comment); \
+						} \
+					} \
+					else if(multi_op) \
+					{ \
+						LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
+						if(litarg->value == 1) \
+						{ \
+							Argument* reg = target_arg->clone(); \
+							it = rval.erase(it); \
+							it = rval.insert(it,std::shared_ptr<Opcode>(new ty1(reg))); \
+							(*it)->setLabel(lbl); \
+							(*it)->setComment(comment); \
+						} \
+					} \
+					++it; \
+					continue; \
+				} \
+			}
+			#define MERGE_CONSEC_REPCOUNT(ty1,ty2) \
+			MERGE_CONSEC_REPCOUNT_START(ty1,ty2) \
+			MERGE_CONSEC_REPCOUNT_END(ty1,ty2)
+			
 		} //macros
 		START_OPT_PASS() //Trim NoOps
 			if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
 			{
+				auto it2 = it;
+				++it2;
+				Opcode* nextcode = it2 == rval.end() ? nullptr : it2->get();
+				if(nextcode)
+					nextcode->mergeComment(comment, true);
 				if(lbl == -1) //no label, just trash it
 				{
 					it = rval.erase(it);
 					continue;
 				}
-				auto it2 = it;
-				++it2;
-				Opcode* nextcode = it2->get();
+				if(!nextcode)
+					break; //can't merge with something that doesn't exist
 				auto lbl2 = nextcode->getLabel();
 				if(lbl2 == -1) //next code has no label, pass the label
 				{
@@ -925,51 +1060,19 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 				}
 				//Else merge the two labels!
 				it = rval.erase(it);
-				MergeLabels temp;
-				int32_t lbls[2] = { lbl2, lbl };
-				temp.execute(rval, lbls);
+				MergeLabels temp(lbl2, {lbl});
+				temp.execute(rval, nullptr);
 				continue;
 			}
 		END_OPT_PASS()
-		START_OPT_PASS() //Merge multiple consecutive pops to the same register
-			OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
-			OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
-			if(popreg || popargs)
-			{
-				auto it2 = it;
-				++it2;
-				Argument const* regarg = popreg
-					? (popreg->getArgument())
-					: (popargs->getFirstArgument());
-				std::string targreg = regarg->toString();
-				size_t addcount = 0;
-				while(it2 != rval.end())
-				{
-					Opcode* nextcode = it2->get();
-					if(nextcode->getLabel() != -1)
-						break; //can't combine
-					OPopRegister* nextreg = dynamic_cast<OPopRegister*>(nextcode);
-					OPopArgsRegister* nextargs = dynamic_cast<OPopArgsRegister*>(nextcode);
-					if(!(nextreg || nextargs))
-						break; //can't combine
-					if(targreg.compare(nextreg
-						? (nextreg->getArgument()->toString())
-						: (nextargs->getFirstArgument()->toString())))
-						break; //Different registers, can't combine
-					if(nextargs)
-					{
-						LiteralArgument const* larg =
-							dynamic_cast<LiteralArgument*>(nextargs->getSecondArgument());
-						addcount += larg->value;
-					}
-					else //if nextreg
-						++addcount;
-					it2 = rval.erase(it2);
-				}
+		START_OPT_PASS()
+			//Merge multiple consecutive identical pops/pushes
+			MERGE_CONSEC_REPCOUNT_START(OPopRegister,OPopArgsRegister)
+			{ // turn single-pop followed by single-push into peek
 				size_t startcount = 1;
-				if(popargs)
+				if(multi_op)
 				{
-					LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
+					LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument());
 					startcount = litarg->value;
 				}
 				if(addcount+startcount == 1)
@@ -979,45 +1082,42 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 					{
 						if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
 						{
-							if(!targreg.compare(pusharg->getArgument()->toString()))
+							if(!target_str.compare(pusharg->getArgument()->toString()))
 							{
-								Argument* reg = regarg->clone();
+								Argument* reg = target_arg->clone();
 								it2 = rval.erase(it2);
 								it = rval.erase(it);
 								it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(reg)));
 								(*it)->setLabel(lbl);
+								(*it)->setComment(comment);
 								++it;
 								continue;
 							}
 						}
 					}
 				}
-				if(addcount)
-				{
-					if(popreg)
-					{
-						Argument* reg = regarg->clone();
-						it = rval.erase(it);
-						it = rval.insert(it,std::shared_ptr<Opcode>(new OPopArgsRegister(reg,new LiteralArgument(addcount+1))));
-						(*it)->setLabel(lbl);
-					}
-					else //if popargs
-					{
-						LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
-						litarg->value += addcount;
-					}
-				}
-				++it;
-				continue;
 			}
-		END_OPT_PASS()
-		START_OPT_PASS() //Consecutive opcode merging
+			MERGE_CONSEC_REPCOUNT_END(OPopRegister,OPopArgsRegister)
+			MERGE_CONSEC_REPCOUNT(OPushRegister,OPushArgsRegister)
+			MERGE_CONSEC_REPCOUNT(OPushImmediate,OPushArgsImmediate)
+			MERGE_CONSEC_REPCOUNT(OPushVargR,OPushVargsR)
+			MERGE_CONSEC_REPCOUNT(OPushVargV,OPushVargsV)
+			//Merge consecutive identical GOTOs
 			MERGE_CONSEC_1(OGotoImmediate)
 			MERGE_CONSEC_1(OGotoTrueImmediate)
 			MERGE_CONSEC_1(OGotoFalseImmediate)
 			MERGE_CONSEC_1(OGotoMoreImmediate)
 			MERGE_CONSEC_1(OGotoLessImmediate)
 			MERGE_CONSEC_1(OGotoRegister)
+		END_OPT_PASS()
+		START_OPT_PASS()
+			//Trim GOTOs that go to the line directly after them
+			MERGE_GOTO_NEXT(OGotoImmediate)
+			MERGE_GOTO_NEXT(OGotoTrueImmediate)
+			MERGE_GOTO_NEXT(OGotoFalseImmediate)
+			MERGE_GOTO_NEXT(OGotoMoreImmediate)
+			MERGE_GOTO_NEXT(OGotoLessImmediate)
+			MERGE_GOTO_NEXT(OCallFunc)
 		END_OPT_PASS()
 		START_OPT_PASS() //OSetImmediate -> OTraceRegister ('Trace()' optimization)
 			if(OSetImmediate* setop = dynamic_cast<OSetImmediate*>(ocode))
@@ -1032,10 +1132,12 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 						traceop->getArgument()->toString()))
 					{
 						Argument* arg = setop->getSecondArgument()->clone();
+						Opcode::mergeComment(comment, traceop->getComment());
 						it2 = rval.erase(it2);
 						it = rval.erase(it);
 						it = rval.insert(it, std::shared_ptr<Opcode>(new OTraceImmediate(arg)));
 						(*it)->setLabel(lbl);
+						(*it)->setComment(comment);
 						++it;
 						continue;
 					}

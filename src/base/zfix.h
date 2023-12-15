@@ -267,6 +267,9 @@ public:
 	zfix& operator *=  (const double v)	{ val = longMul(val, toZLong(v)); return *this; }
 	
 	static int32_t longDiv(int32_t a, int32_t b)	{ zint64 c = int64_t(a)*10000L; return (int32_t)(c/b); }
+	zfix& operator %=  (const zfix fx)	{
+		if(fx.val == 0) val = toZLong(FIX_NAN);
+		else val = val - (longMul(fx.val,longDiv(val, fx.val))); return *this; }
 	zfix& operator /=  (const zfix fx)	{
 		if(fx.val == 0) val = toZLong(FIX_NAN);
 		else val = longDiv(val, fx.val); return *this; }
@@ -322,6 +325,7 @@ public:
 	inline friend zfix operator *  (const zfix fx, const double v);
 	inline friend zfix operator *  (const double v, const zfix fx);
 	
+	inline friend zfix operator %  (const zfix fx, const zfix fx2);
 	inline friend zfix operator /  (const zfix fx, const zfix fx2);
 	inline friend zfix operator /  (const zfix fx, const int32_t v);
 	inline friend zfix operator /  (const int32_t v, const zfix fx);
@@ -394,6 +398,9 @@ public:
 	inline friend int32_t operator >= (const float v, const zfix fx);
 	inline friend int32_t operator >= (const zfix fx, const double v);
 	inline friend int32_t operator >= (const double v, const zfix fx);
+	
+	inline friend zfix wrap_rad(zfix v);
+	inline friend zfix wrap_deg(zfix v);
 };
 
 class zfix_round : public zfix
@@ -456,6 +463,8 @@ inline zfix operator ""_zf(const char* val)
 	return atozfix(val);
 }
 
+static const zfix PI_ZF(3.1416_zf);
+static const zfix PI2_ZF(2*PI_ZF);
 
 inline ZLong toZLong(float val)
 {
@@ -641,6 +650,13 @@ inline zfix operator *  (const double v, const zfix fx)
 {
 	zfix t = fx.copy();
 	t *= v;
+	return t;
+}
+
+inline zfix operator %  (const zfix fx, const zfix fx2)
+{
+	zfix t = fx.copy();
+	t %= fx2;
 	return t;
 }
 
@@ -879,6 +895,48 @@ inline int32_t operator >=  (const zfix fx, const double v)
 inline int32_t operator >=  (const double v, const zfix fx)
 {
 	return toZLong(v) >= fx.val;
+}
+
+
+inline zfix wrap_rad(zfix v)
+{
+	int half = PI_ZF.getZLong(), whole = half*2;
+	if(v.val < 0)
+		v.val = whole - ((-v.val)%whole);
+	else v.val %= whole;
+	if(v.val > half)
+		v.val -= whole;
+	return v;
+}
+inline zfix wrap_deg(zfix v)
+{
+	int half = 180*10000, whole = half*2;
+	if(v.val < 0)
+		v.val = whole - ((-v.val)%whole);
+	else v.val %= whole;
+	if(v.val > half)
+		v.val -= whole;
+	return v;
+}
+inline int wrap_zslong_rad(int v)
+{
+	int half = PI_ZF.getZLong(), whole = half*2;
+	if(v < 0)
+		v = whole - ((-v)%whole);
+	else v %= whole;
+	if(v > half)
+		v -= whole;
+	return v;
+}
+inline int wrap_zslong_deg(int v)
+{
+	int half = 180*10000, whole = half*2;
+	if(v < 0)
+		v = whole - ((-v)%whole);
+	else v %= whole;
+	if(v > half)
+		v -= whole;
+	return v;
 }
 
 #endif		  /* ifndef ZFIX_H */

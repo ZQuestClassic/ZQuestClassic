@@ -2,6 +2,7 @@
 #define _SPRITE_H_
 
 #include "base/zc_alleg.h"
+#include "base/headers.h"
 #include "base/zdefs.h"
 #include <set>
 #include <map>
@@ -24,12 +25,6 @@ extern byte newconveyorclk;
 
 extern byte sprite_flicker_color;
 extern byte sprite_flicker_transp_passes;
-
-struct scriptmem
-{
-    int32_t stack[MAX_SCRIPT_REGISTERS];
-    refInfo scriptData;
-};
 
 /**********************************/
 /******* Sprite Base Class ********/
@@ -89,11 +84,7 @@ public:
     int32_t miscellaneous[32];
     byte scriptcoldet;
     int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
-	scriptmem* scrmem;
-    byte initialised;
     dword scriptflag;
-    word doscript;
-    byte waitdraw;
     word script;
     word weaponscript;
     int32_t initD[8];
@@ -174,12 +165,14 @@ public:
 	bool getCanFlicker();
 	void setCanFlicker(bool v);
 	
-	void alloc_scriptmem();
-	
 	virtual int32_t run_script(int32_t mode);
 	
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	virtual void draw_hitbox();
+	
+	//Script helper funcs
+	virtual optional<ScriptType> get_scrtype() const {return nullopt;}
+	
 };
 
 enum //run_script modes

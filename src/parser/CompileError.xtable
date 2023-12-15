@@ -100,11 +100,11 @@ X(	BadFuncModifiers,				T,	A,	E,	STR,	VOID,	"Invalid function modifiers.%s"				)
 X(	ScriptRunInline,		S,	A,	E,	STR,	VOID,	"void %s() functions cannot be inline."						)
 X(	NoUsingMatch,				P,	A,	E,	STR,	VOID,	"'using' found no matches for the namespace %s."				)
 X(	RegistrationRecursion,				R,	A,	W,	INT,	VOID,	"Registration passed recursion limit %d. May cause other errors."				)
-X(	GlobalVarFuncCall,				R,	A,	E,	VOID,	VOID,	"Global variable initializers cannot contain function calls"				)
+X(	GlobalVarFuncCall,				R,	A,	E,	VOID,	VOID,	"Global variable initializers can only contain calls to 'constexpr' functions"				)
 X(	NoArrayGlobalVar,				R,	A,	E,	VOID,	VOID,	"Arrays cannot be used in global variable initializers!"				)
 X(	TooManyType,				P,	A,	E,	STR,	VOID,	"There are too many types named %s. Check your 'using' statements."				)
 X(	RangeInverted,				CX,	A,	E,	INT,	INT,	"Value range must have smallest...largest; %d...%d is inverted."				)
-X(	RangeEqual,				CX,	A,	W,	INT,	INT,	"Range is of equal value (%d...%d) on both ends"				)
+X(	RangeEqual,				CX,	A,	E,	INT,	INT,	"Range is of equal value (%d...%d) on both ends"				)
 X(	BadReassignCall,				C,	A,	W,	STR,	VOID,	"Reassigning function '%s' was called on a constant value! Reassign failed."				)
 X(	MixedSwitch,				CX,	A,	E,	VOID,	VOID,	"Switch contains both strings and numbers"				)
 X(	AssertFail,				C,	A,	E,	STR,	VOID,	"Assert Failed! %s"				)
@@ -126,6 +126,8 @@ X(	BadAutoType,			S,	A,	E,	VOID,	VOID,	"'auto' must have an initializer with val
 X(	GroupAuto,			S,	A,	E,	VOID,	VOID,	"'auto' cannot apply to a group declaration."							)
 X(	BadReturnType,			S,	A,	E,	STR,	VOID,	"Cannot return type '%s'."							)
 X(	BadTempVal,			T,	A,	E,	VOID,	VOID,	"Temporary literals cannot be stored!"								)
+X(	MissingReturnWarn,			S,	A,	W,	STR,	VOID,	"Function '%s' is not void, and should return a value!"								)
+X(	MissingReturnError,			S,	A,	E,	STR,	VOID,	"Function '%s' is not void, and must return a value!"								)
 
 
 #undef STR

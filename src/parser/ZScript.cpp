@@ -486,13 +486,15 @@ BuiltinConstant::BuiltinConstant(
 
 // ZScript::FunctionSignature
 
-FunctionSignature::FunctionSignature(
-		string const& name, vector<DataType const*> const& parameterTypes)
-	: name(name), prefix(false), parameterTypes(parameterTypes)
+FunctionSignature::FunctionSignature(string const& name,
+	vector<DataType const*> const& parameterTypes, DataType const* returnType )
+	: name(name), prefix(false), destructor(false),
+	parameterTypes(parameterTypes), returnType(returnType)
 {}
 
-FunctionSignature::FunctionSignature(Function const& function)
-	: name(function.name), prefix(function.hasPrefixType), parameterTypes(function.paramTypes)
+FunctionSignature::FunctionSignature(Function const& function, bool useret)
+	: name(function.name), prefix(function.hasPrefixType), destructor(function.getFlag(FUNCFLAG_DESTRUCTOR)),
+	parameterTypes(function.paramTypes), returnType(useret ? function.returnType : nullptr)
 {}
 		
 int32_t FunctionSignature::compare(FunctionSignature const& other) const
@@ -504,6 +506,11 @@ int32_t FunctionSignature::compare(FunctionSignature const& other) const
 	for (int32_t i = 0; i < (int32_t)parameterTypes.size(); ++i)
 	{
 		c = parameterTypes[i]->compare(*other.parameterTypes[i]);
+		if (c) return c;
+	}
+	if(returnType && other.returnType)
+	{
+		c = returnType->compare(*other.returnType);
 		if (c) return c;
 	}
 	return 0;
@@ -522,12 +529,16 @@ bool FunctionSignature::operator<(FunctionSignature const& other) const
 string FunctionSignature::asString() const
 {
 	ostringstream oss;
+	if(returnType)
+		oss << returnType->getName() << " ";
 	vector<DataType const*>::const_iterator it = parameterTypes.begin();
 	if(prefix)
 	{
 		oss << (*it)->getName() << "->";
 		++it;
 	}
+	if(destructor)
+		oss << "~";
 	oss << name << "(";
 	if(it != parameterTypes.end())
 	{
@@ -552,8 +563,12 @@ Function::Function(DataType const* returnType, string const& name,
 	: returnType(returnType), name(name), hasPrefixType(false),
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
 	  node(NULL), internalScope(NULL), thisVar(NULL), internal_flags(internal_flags), prototype(prototype),
-	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags), shown_depr(false)
-{}
+	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags), shown_depr(false),
+	  aliased_func(nullptr)
+{
+	assert(returnType);
+}
+
 
 Function::~Function()
 {
@@ -563,6 +578,8 @@ Function::~Function()
 
 std::vector<std::shared_ptr<Opcode>> Function::takeCode()
 {
+	if(aliased_func)
+		return aliased_func->takeCode();
 	std::vector<std::shared_ptr<Opcode>> code = ownedCode;
 	ownedCode.clear();
 	return code;
@@ -570,14 +587,16 @@ std::vector<std::shared_ptr<Opcode>> Function::takeCode()
 
 void Function::giveCode(vector<shared_ptr<Opcode>>& code)
 {
+	if(aliased_func)
+		return aliased_func->giveCode(code);
 	appendElements(ownedCode, code);
 	code.clear();
 }
 
 Script* Function::getScript() const
 {
-	if (!internalScope) return NULL;
-	Scope* parentScope = internalScope->getParent();
+	if (!getInternalScope()) return NULL;
+	Scope* parentScope = getInternalScope()->getParent();
 	if (!parentScope) return NULL;
 	if (!parentScope->isScript()) return NULL;
 	ScriptScope* scriptScope =
@@ -586,8 +605,8 @@ Script* Function::getScript() const
 }
 UserClass* Function::getClass() const
 {
-	if (!internalScope) return NULL;
-	Scope* parentScope = internalScope->getParent();
+	if (!getInternalScope()) return NULL;
+	Scope* parentScope = getInternalScope()->getParent();
 	if (!parentScope) return NULL;
 	if (!parentScope->isClass()) return NULL;
 	ClassScope* classScope =
@@ -597,11 +616,15 @@ UserClass* Function::getClass() const
 
 int32_t Function::getLabel() const
 {
+	if(aliased_func)
+		return aliased_func->getLabel();
 	if (!label) label = ScriptParser::getUniqueLabelID();
 	return *label;
 }
 int32_t Function::getAltLabel() const
 {
+	if(aliased_func)
+		return aliased_func->getAltLabel();
 	if (!altlabel) altlabel = ScriptParser::getUniqueLabelID();
 	return *altlabel;
 }
@@ -628,10 +651,47 @@ void Function::ShownDepr(bool err)
 		shown_depr = 1;
 }
 
+void Function::alias(Function* func, bool force)
+{
+	assert(!aliased_func); //Should never change once set
+	aliased_func = func;
+	
+	if(!returnType)
+		force = true;
+	if(force)
+	{
+		for(auto type_ptr : paramTypes)
+			delete type_ptr;
+		paramTypes.clear();
+		for(auto type_ptr : func->paramTypes)
+			paramTypes.push_back(type_ptr->clone());
+		hasPrefixType = func->hasPrefixType;
+		delete returnType;
+		returnType = func->returnType;
+		ownedCode.clear();
+		label.reset();
+		altlabel.reset();
+	}
+	else
+	{
+		//Ensure the function is a valid match
+		assert(paramTypes.size() == func->paramTypes.size());
+		for(size_t q = 0; q < paramTypes.size(); ++q)
+		{
+			assert(paramTypes[q]->canCastTo(*func->paramTypes[q]));
+		}
+		assert(hasPrefixType == func->hasPrefixType);
+		assert(returnType->canCastTo(*func->returnType));
+		//Ensure the function had no owned info of its' own
+		assert(ownedCode.empty());
+		assert(!(label || altlabel));
+	}
+}
+
 bool ZScript::isRun(Function const& function)
 {
 	//al_trace("Parser sees run string as: %s\n", FFCore.scriptRunString);
-	return function.internalScope->getParent()->isScript()
+	return function.getInternalScope()->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
 		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )))
 		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;
@@ -639,7 +699,7 @@ bool ZScript::isRun(Function const& function)
 
 int32_t ZScript::getStackSize(Function const& function)
 {
-	return *lookupStackSize(*function.internalScope);
+	return *lookupStackSize(*function.getInternalScope());
 }
 
 int32_t ZScript::getParameterCount(Function const& function)

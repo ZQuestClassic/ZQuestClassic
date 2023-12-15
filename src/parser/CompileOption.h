@@ -8,6 +8,10 @@
 namespace ZScript
 {
 	typedef int32_t CompileOptionValue;
+	static const CompileOptionValue OPTION_OFF = 0;
+	static const CompileOptionValue OPTION_ON = 10000;
+	static const CompileOptionValue OPTION_ERROR = 20000;
+	static const CompileOptionValue OPTION_WARN = 30000;
 	
 	class CompileOptionSetting : public SafeBool<CompileOptionSetting>
 	{

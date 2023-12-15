@@ -74,11 +74,11 @@ static AccessorTable gameTable[] =
 	{ "LoadItemData",               0,     ZTID_ITEMCLASS,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "_getGetMIDI",                0,         ZTID_FLOAT,   GETMIDI,                   0,  { ZTID_GAME },{} },
 	{ "Save",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
-	{ "End",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
-	{ "Reload",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
-	{ "Continue",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
-	{ "SaveAndQuit",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
-	{ "SaveAndContinue",            0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "End",                        0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
+	{ "Reload",                     0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
+	{ "Continue",                   0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
+	{ "SaveAndQuit",                0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
+	{ "SaveAndContinue",            0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
 	{ "ShowContinueScreen",         0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "GetSaveName",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "SetSaveName",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
@@ -733,7 +733,7 @@ void GameSymbols::generateCode()
 		addOpcode2 (code, new OGotoTrueImmediate(new LabelArgument(done)));
 		addOpcode2 (code, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
 		addOpcode2 (code, new OGotoImmediate(new LabelArgument(done)));
-		addOpcode2 (code, new OReturn());
+		RETURN();
 		LABELBACK(done);
 		function->giveCode(code);
 	}

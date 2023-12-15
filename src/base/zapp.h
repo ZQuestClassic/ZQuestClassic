@@ -1,6 +1,7 @@
 #ifndef _ZAPP_H_
 #define _ZAPP_H_
 
+#include <optional>
 #include <utility>
 
 enum App {
@@ -13,6 +14,8 @@ enum App {
 };
 
 void common_main_setup(App id, int argc, char **argv);
+std::optional<bool> get_flag_bool(const char* name);
+std::optional<int> get_flag_int(const char* name);
 App get_app_id();
 bool is_web();
 bool is_ci();

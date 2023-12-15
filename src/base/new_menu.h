@@ -21,6 +21,12 @@ enum
 	MISTYLE_MAX
 };
 
+enum MenuRet
+{
+	MRET_NIL,
+	MRET_LEFT,
+	MRET_RIGHT,
+};
 class MenuItem
 {
 public:
@@ -38,7 +44,7 @@ public:
 	MenuItem& operator=(MenuItem&& other) = default;
 	
 	void exec() const;
-	void pop(uint x, uint y, GuiMenu* parent = nullptr);
+	MenuRet pop(uint x, uint y, GuiMenu* parent = nullptr);
 	void draw(BITMAP* dest, uint x, uint y, uint style, byte drawflags, optional<FONT*> usefont, optional<uint> usew = nullopt);
 	
 	uint calc_width(uint style, uint drawflags, optional<FONT*> usefont) const;
@@ -98,10 +104,11 @@ public:
 	virtual uint width() const = 0;
 	virtual uint height() const = 0;
 	
-	virtual void pop(uint x, uint y, GuiMenu* parent = nullptr) = 0;
+	virtual MenuRet pop(uint x, uint y, GuiMenu* parent = nullptr) = 0;
+	virtual void pop_sub(uint indx, GuiMenu* parent = nullptr) = 0;
 	virtual void draw(BITMAP* dest, optional<uint> hl = nullopt) = 0;
-	virtual void run_loop(GuiMenu* parent = nullptr) = 0;
-	virtual bool run(GuiMenu* parent = nullptr) = 0;
+	virtual MenuRet run_loop(GuiMenu* parent = nullptr) = 0;
+	virtual void run(bool allow_focus = false, GuiMenu* parent = nullptr) = 0;
 	
 	virtual void trigger(uint indx) = 0;
 	
@@ -158,10 +165,11 @@ public:
 	
 	void trigger(uint indx) override;
 	
-	void pop(uint x, uint y, GuiMenu* parent = nullptr) override;
+	MenuRet pop(uint x, uint y, GuiMenu* parent = nullptr) override;
+	void pop_sub(uint indx, GuiMenu* parent = nullptr) override;
 	void draw(BITMAP* dest, optional<uint> hl = nullopt) override;
-	void run_loop(GuiMenu* parent = nullptr) override;
-	bool run(GuiMenu* parent = nullptr) override;
+	MenuRet run_loop(GuiMenu* parent = nullptr) override;
+	void run(bool allow_focus = false, GuiMenu* parent = nullptr) override;
 private:
 	static constexpr uint border = 2;
 };
@@ -183,10 +191,11 @@ public:
 	
 	void trigger(uint indx) override;
 	
-	void pop(uint x, uint y, GuiMenu* parent = nullptr) override;
+	MenuRet pop(uint x, uint y, GuiMenu* parent = nullptr) override;
+	void pop_sub(uint indx, GuiMenu* parent = nullptr) override;
 	void draw(BITMAP* dest, optional<uint> hl = nullopt) override;
-	void run_loop(GuiMenu* parent = nullptr) override;
-	bool run(GuiMenu* parent = nullptr) override;
+	MenuRet run_loop(GuiMenu* parent = nullptr) override;
+	void run(bool allow_focus = false, GuiMenu* parent = nullptr) override;
 private:
 	static constexpr uint hborder = 0, vborder = 2;
 };

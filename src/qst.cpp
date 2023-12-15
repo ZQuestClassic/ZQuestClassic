@@ -131,7 +131,7 @@ const char *qst_error[] =
     "Version not supported","Obsolete version",
     "Missing new data"  ,                                     /* but let it pass in ZQuest */
     "Internal error occurred", "Invalid password",
-    "Doesn't match saved game", "Save file is for older version of quest; please start new save",
+    "Quest title doesn't match saved game", "Save file is for older version of quest; please start new save",
     "Out of memory", "File Debug Mode", "Canceled", "", "No quest assigned"
 };
 
@@ -3753,6 +3753,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_BOMB_AMMO_COSTS,1);
 	if(compatrule_version < 62)
 		set_qr(qr_OLD_BROKEN_WARPEX_MUSIC,1);
+	if(compatrule_version < 63)
+	{
+		set_qr(qr_BROKEN_LIFTSWIM,1);
+		set_qr(qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,1);
+	}
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

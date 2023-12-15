@@ -5,9 +5,7 @@
 #include "Scope.h"
 #include "Types.h"
 #include "CompileError.h"
-
-using std::string;
-using std::vector;
+#include "base/headers.h"
 using std::ostringstream;
 using std::unique_ptr;
 using namespace ZScript;
@@ -23,95 +21,25 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 	assert(dynamic_cast<RootScope*>(scope));
 
 	// Analyze function internals.
-	vector<Function*> functions = program.getUserGlobalFunctions();
-
-	for (vector<Function*>::iterator it = functions.begin();
-	     it != functions.end(); ++it)
-		analyzeFunctionInternals(**it);
-	
-	for (vector<Script*>::iterator it = program.scripts.begin();
-		 it != program.scripts.end(); ++it)
-	{
-		Script& script = **it;
-		scope = &script.getScope();
-		functions = scope->getLocalFunctions();
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-			analyzeFunctionInternals(**it);
-		scope = scope->getParent();
-	}
-	
-	for (vector<Namespace*>::iterator it = program.namespaces.begin();
-		 it != program.namespaces.end(); ++it)
-	{
-		Namespace& namesp = **it;
-		scope = &namesp.getScope();
-		functions = scope->getLocalFunctions();
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-			analyzeFunctionInternals(**it);
-		scope = scope->getParent();
-	}
-	
-	for (vector<UserClass*>::iterator it = program.classes.begin();
-		 it != program.classes.end(); ++it)
-	{
-		UserClass& user_class = **it;
-		ClassScope* cscope = &user_class.getScope();
-		scope = cscope;
-		
-		DataType const* thisType = &cscope->user_class.getNode()->type->resolve(*cscope,this);
-		DataType const* constType = thisType->getConstType();
-
-		functions = cscope->getConstructors();
-		parsing_user_class = puc_construct;
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-		{
-			Function* func = *it;
-			BuiltinVariable::create(*func->internalScope, *constType, "this", this);
-			func->internalScope->stackDepth_--;
-			analyzeFunctionInternals(*func);
-		}
-		
-		functions = scope->getLocalFunctions();
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-		{
-			Function* func = *it;
-			if(func->getFlag(FUNCFLAG_STATIC))
-				parsing_user_class = puc_none;
-			else
-			{
-				parsing_user_class = puc_funcs;
-				BuiltinVariable::create(*func->internalScope, *constType, "this", this);
-				func->internalScope->stackDepth_--;
-			}
-			analyzeFunctionInternals(*func);
-		}
-		
-		functions = cscope->getDestructor();
-		parsing_user_class = puc_destruct;
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-		{
-			Function* func = *it;
-			BuiltinVariable::create(*func->internalScope, *constType, "this", this);
-			func->internalScope->stackDepth_--;
-			analyzeFunctionInternals(*func);
-		}
-		parsing_user_class = puc_none;
-		
-		scope = scope->getParent();
-	}
+	visitFunctionInternals(program);
 }
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
+	if(parsing_user_class == puc_construct
+		|| parsing_user_class == puc_destruct
+		|| (parsing_user_class == puc_funcs && !function.getFlag(FUNCFLAG_STATIC)))
+	{
+		UserClass* _class = function.getClass();
+		DataType const* thisType = &_class->getNode()->type->resolve(*scope,this);
+		DataType const* constType = thisType->getConstType();
+		BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
+		function.getInternalScope()->stackDepth_--;
+	}
 	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
-	Scope& functionScope = *function.internalScope;
+	Scope& functionScope = *function.getInternalScope();
 
 	// Grab the script.
 	Script* script = NULL;
@@ -307,7 +235,8 @@ void SemanticAnalyzer::caseRange(ASTRange& host, void*)
 	if(breakRecursion(host)) return;
 	std::optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
 	std::optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
-	//`start` and `end` must exist, as they are ASTConstExpr. -V
+	//`start` and `end` must exist, as they are ASTConstExpr. -Em
+	assert(start && end);
 	if(*start > *end)
 	{
 		handleError(CompileError::RangeInverted(&host, *start, *end));
@@ -1431,6 +1360,9 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 
 	visit(host, host.parameters);
 	if (breakRecursion(host)) return;
+	
+	if(host.binding)
+		return; //already resolved
 
 	UserClass* user_class = nullptr;
 	// Gather parameter types.
@@ -1542,7 +1474,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		{
 			Scope* ns = NULL;
 			Scope* scr = NULL;
-			for(Scope* current = (*it)->internalScope; current; current = current->getParent())
+			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
 			{
 				if(!scr && current->isScript())
 				{
@@ -1678,7 +1610,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			{
 				oss << "        ";
 				string namespacenames = "";
-				for(Scope* current = (*it)->internalScope; current; current = current->getParent())
+				for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
 				{
 					if(!current->isNamespace()) continue;
 					NamespaceScope* ns = static_cast<NamespaceScope*>(current);
@@ -1705,7 +1637,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	
 	host.binding = bestFunctions.front();
-	deprecWarn(host.binding, &host, "Function", host.binding->getSignature().asString());
+	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

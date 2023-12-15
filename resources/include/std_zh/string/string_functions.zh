@@ -65,15 +65,13 @@ bool isNumber(char32 chr)
 //Returns true if 'chr' is an alphabetic character
 bool isAlphabetic(char32 chr)
 {
-	if ( chr >= 'a' )
+	switch(chr)
 	{
-		if ( chr <= 'z' ) return true;
+		case 'a'...'z':
+		case 'A'...'Z':
+			return true;
 	}
-	else if ( chr >= 'A' )
-	{
-		if ( chr <= 'Z' ) return true;
-	}
-	else return false;
+	return false;
 }
 
 //Returns true if 'chr' is an alphanumeric character

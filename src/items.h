@@ -61,6 +61,7 @@ public:
 #ifndef IS_EDITOR
 	virtual int32_t run_script(int32_t mode);
 #endif
+	virtual optional<ScriptType> get_scrtype() const {return ScriptType::ItemSprite;}
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	virtual void draw_hitbox();
 	void set_forcegrab(bool val)

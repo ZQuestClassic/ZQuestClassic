@@ -4,6 +4,8 @@
 extern bool DEBUG_PRINT_ZASM;
 extern bool DEBUG_JIT_PRINT_ASM;
 extern bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
+extern bool DEBUG_PRINT_TO_FILE;
+extern bool DEBUG_PRINT_TO_CONSOLE;
 
 class ScriptDebugHandle
 {

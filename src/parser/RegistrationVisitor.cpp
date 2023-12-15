@@ -7,13 +7,13 @@
 #include "parserDefs.h"
 #include "RegistrationVisitor.h"
 #include <cassert>
+#include <sstream>
 #include "Scope.h"
 #include "CompileError.h"
 
 #include "zc/ffscript.h"
 extern FFScript FFCore;
-using std::string;
-using std::vector;
+using std::ostringstream;
 using namespace ZScript;
 using std::unique_ptr;
 ////////////////////////////////////////////////////////////////
@@ -34,16 +34,6 @@ void RegistrationVisitor::visit(AST& node, void* param)
 	RecursiveVisitor::visit(node, param);
 }
 
-template <class Container>
-void RegistrationVisitor::regvisit(AST& host, Container const& nodes, void* param)
-{
-	for (auto it = nodes.cbegin();
-		 it != nodes.cend(); ++it)
-	{
-		if (breakRecursion(host, param)) return;
-		visit(**it, param);
-	}
-}
 template <class Container>
 void RegistrationVisitor::block_regvisit(AST& host, Container const& nodes, void* param)
 {
@@ -897,7 +887,310 @@ void RegistrationVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 
 void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
-	handleError(CompileError::GlobalVarFuncCall(&host));
+	// Cast left.
+	ASTExprArrow* arrow = NULL;
+	if (host.left->isTypeArrow())
+	{
+		arrow = static_cast<ASTExprArrow*>(host.left.get());
+		arrow->iscall = true;
+	}
+	ASTExprIdentifier* identifier = NULL;
+	if (host.left->isTypeIdentifier())
+		identifier = static_cast<ASTExprIdentifier*>(host.left.get());
+	
+	bool r = true;
+	// Don't visit left for identifier, since we don't want to bind to a
+	// variable.
+	if (!identifier)
+	{
+		visit(host.left.get(), paramNone);
+		if (breakRecursion(host)) return;
+		r = registered(host.left.get());
+	}
+
+	visit(host, host.parameters);
+	if (breakRecursion(host)) return;
+	if(!(r && registered(host, host.parameters)))
+		return; //can't resolve yet
+
+	UserClass* user_class = nullptr;
+	// Gather parameter types.
+	vector<DataType const*> parameterTypes;
+	if (arrow)
+	{
+		DataType const* arrtype = arrow->left->getReadType(scope, this);
+		if((user_class = arrtype->getUsrClass()))
+			;
+		else parameterTypes.push_back(arrtype);
+	}
+	for (vector<ASTExpr*>::const_iterator it = host.parameters.begin();
+		 it != host.parameters.end(); ++it)
+		parameterTypes.push_back((*it)->getReadType(scope, this));
+
+	// Grab functions with the proper name, and matching parameter types
+	vector<Function*> functions;
+	if(identifier)
+	{
+		if(host.isConstructor())
+		{
+			user_class = lookupClass(*scope, identifier->components, identifier->delimiters, identifier->noUsing);
+			if(!user_class)
+			{
+				handleError(CompileError::NoClass(&host, identifier->asString()));
+				return;
+			}
+			functions = lookupConstructors(*user_class, parameterTypes);
+		}
+		else
+		{
+			if(identifier->components.size() == 1 && parsing_user_class > puc_vars)
+			{
+				user_class = &scope->getClass()->user_class;
+				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
+					functions = lookupConstructors(*user_class, parameterTypes);
+				if(!functions.size())
+					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
+			}
+			if(!functions.size())
+				functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing);
+		}
+	}
+	else if(user_class)
+	{
+		functions = lookupClassFuncs(*user_class, arrow->right, parameterTypes);
+	}
+	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
+
+	// Find function with least number of casts.
+	vector<Function*> bestFunctions;
+	int32_t bestCastCount = parameterTypes.size() + 1;
+	for (vector<Function*>::iterator it = functions.begin();
+		 it != functions.end(); ++it)
+	{
+		// Count number of casts.
+		Function& function = **it;
+		int32_t castCount = 0;
+		size_t lowsize = zc_min(parameterTypes.size(), function.paramTypes.size());
+		for(size_t i = 0; i < lowsize; ++i)
+		{
+			DataType const& from = getNaiveType(*parameterTypes[i], scope);
+			DataType const& to = getNaiveType(*function.paramTypes[i], scope);
+			if (from == to) continue;
+			++castCount;
+		}
+
+		// If this beats the record, clear results and keep it.
+		if (castCount < bestCastCount)
+		{
+			bestFunctions.clear();
+			bestFunctions.push_back(&function);
+			bestCastCount = castCount;
+		}
+
+		// If this just matches the record, append it.
+		else if (castCount == bestCastCount)
+			bestFunctions.push_back(&function);
+	}
+	// We may have failed, but let's check optional parameters first...
+	if(bestFunctions.size() > 1)
+	{
+		auto targSize = parameterTypes.size();
+		int32_t bestDiff = -1;
+		//Find the best (minimum) difference between the passed param count and function max param count
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end(); ++it)
+		{
+			int32_t maxSize = (*it)->paramTypes.size();
+			int32_t diff = maxSize - targSize;
+			if(bestDiff < 0 || diff < bestDiff) bestDiff = diff;
+		}
+		//Remove any functions that don't share the minimum difference.
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end();)
+		{
+			int32_t maxSize = (*it)->paramTypes.size();
+			int32_t diff = maxSize - targSize;
+			if(diff > bestDiff)
+				it = bestFunctions.erase(it);
+			else ++it;
+		}
+	}
+	// We may have failed, though namespaces may resolve the issue. Check for namespace closeness.
+	if(bestFunctions.size() > 1)
+	{
+		std::map<Function*, Scope*> bestNSs;
+		std::map<Function*, Scope*> bestScripts;
+		for (vector<Function*>::const_iterator it = bestFunctions.begin();
+		     it != bestFunctions.end(); ++it)
+		{
+			Scope* ns = NULL;
+			Scope* scr = NULL;
+			for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
+			{
+				if(!scr && current->isScript())
+				{
+					scr = current;
+				}
+				if(current->isNamespace())
+				{
+					ns = current;
+					break;
+				}
+			}
+			bestNSs[*it] = ns;
+			bestScripts[*it] = scr;
+		}
+		Function* bestFound = NULL;
+		for(Scope* current = scope; current; current = current->getParent())
+		{
+			if(current->isScript())
+			{
+				for (vector<Function*>::const_iterator it = bestFunctions.begin();
+				     it != bestFunctions.end(); ++it)
+				{
+					if(current == bestScripts[*it])
+					{
+						if(bestFound)
+						{
+							bestFound = NULL;
+							current = NULL;
+							break;
+						}
+						else bestFound = *it;
+					}
+				}
+			}
+			else if(current->isNamespace())
+			{
+				for (vector<Function*>::const_iterator it = bestFunctions.begin();
+				     it != bestFunctions.end(); ++it)
+				{
+					if(current == bestNSs[*it])
+					{
+						if(bestFound)
+						{
+							bestFound = NULL;
+							current = NULL;
+							break;
+						}
+						else bestFound = *it;
+					}
+				}
+			}
+			if(!current) break;
+		}
+		if(bestFound) //Found a singular best; override the prior calculations, and salvage the call! -V
+		{
+			bestFunctions.clear();
+			bestFunctions.push_back(bestFound);
+		}
+	}
+	// We may have failed, but give higher priority to 'untyped' first...
+	if(bestFunctions.size() > 1)
+	{
+		vector<Function*> newBestFunctions = bestFunctions;
+		size_t maxsize = 0;
+		for(auto it = newBestFunctions.begin(); it != newBestFunctions.end(); ++it)
+		{
+			if(maxsize < (*it)->paramTypes.size())
+				maxsize = (*it)->paramTypes.size();
+		}
+		//Remove any strictly-less-specific functions
+		for(size_t p = 0; p < maxsize; ++p)
+		{
+			int flag = 0;
+			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() <= p)
+					continue;
+				bool ut = pty.at(p)->isUntyped();
+				if(ut) flag |= 1;
+				else flag |= 2;
+			}
+			if(flag != 3) continue;
+			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() <= p)
+				{
+					++it;
+					continue;
+				}
+				bool ut = pty.at(p)->isUntyped();
+				if (ut) //untyped, keep
+				{
+					++it;
+					continue;
+				}
+				else if(parameterTypes.size() > p)
+				{
+					DataType const& from = getNaiveType(*parameterTypes[p], scope);
+					DataType const& to = getNaiveType(*pty[p], scope);
+					if(from == to) //Exact match, keep
+					{
+						++it;
+						continue;
+					}
+				}
+				//Not exact match, not untyped; junk it.
+				it = newBestFunctions.erase(it);
+				continue;
+			}
+			if(newBestFunctions.size() == 0)
+				break; //Nothing left to loop on
+		}
+		if(newBestFunctions.size() > 0) //Don't overwrite if eliminated all
+			bestFunctions = newBestFunctions;
+	}
+	// We failed.
+	if (bestFunctions.size() != 1)
+	{
+		FunctionSignature signature(host.left->asString(), parameterTypes);
+		if (bestFunctions.size() == 0)
+		{
+			handleError(
+					CompileError::NoFuncMatch(&host, signature.asString()));
+		}
+		else
+		{
+			// Build list of function signatures.
+			ostringstream oss;
+			for (vector<Function*>::const_iterator it = bestFunctions.begin();
+			     it != bestFunctions.end(); ++it)
+			{
+				oss << "        ";
+				string namespacenames = "";
+				for(Scope* current = (*it)->getInternalScope(); current; current = current->getParent())
+				{
+					if(!current->isNamespace()) continue;
+					NamespaceScope* ns = static_cast<NamespaceScope*>(current);
+					namespacenames = ns->namesp->getName() + "::" + namespacenames;
+				}
+				oss << namespacenames << (*it)->getSignature().asString() << "\n";
+			}
+			
+			handleError(
+					CompileError::TooFuncMatch(
+							&host,
+							signature.asString(),
+							oss.str()));
+		}
+		return;
+	}
+	
+	// Is this a call to a disabled tracing function?
+	if (*lookupOption(*scope, CompileOption::OPT_NO_LOGGING)
+	    && bestFunctions.front()->isTracing())
+	{
+		host.disable();
+		return;
+	}
+	
+	host.binding = bestFunctions.front();
+	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
+	
+	if(!host.binding->get_constexpr())
+		handleError(CompileError::GlobalVarFuncCall(&host));
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseExprNegate(ASTExprNegate& host, void* param)

@@ -2,6 +2,7 @@
 
 #include "allegro/gfx.h"
 #include "allegro5/joystick.h"
+#include "base/render.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -316,7 +317,7 @@ void load_default_cheatkeys()
 }
 void load_game_configs()
 {
-	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"classic.zmod"));
+	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"modules/classic.zmod"));
 	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
 	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
 	js_stick_1_x_axis = zc_get_config(ctrl_sect,"js_stick_1_x_axis",0);
@@ -6088,6 +6089,7 @@ int32_t onStopReplayOrRecord()
 
 static int32_t handle_on_load_replay(ReplayMode mode)
 {
+	bool ctrl = CHECK_CTRL_CMD;
 	if (Playing)
 	{
 		if (jwin_alert("Replay - Warning!",
@@ -6119,6 +6121,8 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 	{
 		char replay_path[2048];
 		strcpy(replay_path, "replays/");
+		if(ctrl && devpwd())
+			strcpy(replay_path, "../../tests/replays");
 		if (jwin_file_select_ex(
 				fmt::format("Load Replay ({})", REPLAY_EXTENSION).c_str(),
 				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
@@ -7634,7 +7638,7 @@ TopMenu the_player_menu
 	{ "&Game", &game_menu },
 	{ "&Settings", &settings_menu },
 	{ "&Cheat", &cheat_menu, MENUID_PLAYER_CHEAT, true },
-	{ "Replay", &replay_menu },
+	{ "&Replay", &replay_menu },
 	{ "&ZC", &misc_menu },
 	#if DEVLEVEL > 0
 	{ "&Dev", &dev_menu },
@@ -7886,6 +7890,7 @@ void System()
 	
 	bool running = true;
 	bool esc = key[KEY_ESC] || cMbtn();
+	bool autopop = esc;
 	do
 	{
 		if(reload_fonts)
@@ -7968,12 +7973,19 @@ void System()
 		if(debug_enabled)
 			settings_menu.select_uid(MENUID_SETTINGS_DEBUG, get_debug());
 		
-		if(the_player_menu.run())
-			the_player_menu.reset_state();
+		if(autopop)
+			clear_keybuf();
+		the_player_menu.run(true);
+		if(autopop)
+		{
+			the_player_menu.pop_sub(0, &the_player_menu);
+			the_player_menu.draw(screen, the_player_menu.hovered_ind());
+			autopop = false;
+			update_hw_screen(true);
+		}
 		
 		update_hw_screen();
-		
-		rest(1);
+		throttleFPS(60);
 		
 		auto mb = gui_mouse_b();
 		if(XOR(mb, mouse_down))
@@ -7994,11 +8006,26 @@ void System()
 			sys_mouse();
 		}
 		
-		if(keypressed()) //System hotkeys
+		poll_keyboard();
+		if(esc)
 		{
-			auto c = readkey();
+			if(!key[KEY_ESC])
+				esc = false;
+		}
+		
+		if(keypressed() && !CHECK_ALT) //System hotkeys
+		{
+			auto c = peekkey();
+			bool eatkey = true;
 			switch(c>>8)
 			{
+				//Spare keys used by the menu
+				case KEY_UP:
+				case KEY_DOWN:
+				case KEY_LEFT:
+				case KEY_RIGHT:
+					eatkey = false;
+					break;
 				case KEY_F1:
 					onThrottleFPS();
 					break;
@@ -8030,21 +8057,15 @@ void System()
 					onDebug();
 					break;
 				case KEY_ESC:
-					running = false;
+					if(!esc)
+						running = false;
 					break;
 			}
+			if(eatkey)
+				readkey();
 		}
 		if(Quit || (GameFlags & GAMEFLAG_TRYQUIT))
 			break;
-		if(esc)
-		{
-			if(running)
-			{
-				if(!key[KEY_ESC])
-					esc = false;
-			}
-			else running = true;
-		}
 	}
 	while(running);
 

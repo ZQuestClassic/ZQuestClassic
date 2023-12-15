@@ -380,6 +380,7 @@ void HeroClass::set_liftflags(int liftid)
 	if(unsigned(liftid) >= MAXITEMS)
 		return;
 	itemdata const& itm = itemsbuf[liftid];
+	SETFLAG(liftflags, LIFTFL_DIS_SWIMMING, !(itm.flags & ITEM_FLAG2));
 	SETFLAG(liftflags, LIFTFL_DIS_SHIELD, itm.flags & ITEM_FLAG3);
 	SETFLAG(liftflags, LIFTFL_DIS_ITEMS, itm.flags & ITEM_FLAG4);
 }
@@ -10085,6 +10086,8 @@ heroanimate_skip_liftwpn:;
 		action=falling; FFCore.setHeroAction(falling);
 	}
 	
+	if(isSwimming() && (liftflags&LIFTFL_DIS_SWIMMING) && !get_qr(qr_BROKEN_LIFTSWIM))
+		drop_liftwpn();
 	handle_passive_buttons();
 	if(liftclk)
 	{
@@ -12190,7 +12193,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				--blowcnt;
 			
 			int sfx_count = 0;
-			while ((!replay_is_active() && sfx_allocated(itm.usesound)) || (replay_is_active() && sfx_count < 180))
+			while ((!replay_is_active() && sfx_allocated(itm.usesound)) || (replay_version_check(0, 26) && sfx_count < 180))
 			{
 				sfx_count += 1;
 				advanceframe(true);
@@ -21283,7 +21286,7 @@ void HeroClass::checkpushblock()
 		
 		int blockdir = dir;
 		if(blockdir > 3) blockdir = Y_DIR(dir);
-		if(t == cPUSHBLOCK)
+		if(t == cPUSHBLOCK && (get_qr(qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING) || (f!=mfPUSHED)))
 		{
 			switch(blockdir)
 			{

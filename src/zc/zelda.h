@@ -287,7 +287,7 @@ extern byte     use_tiles;
 extern char     palnames[MAXLEVELS][17];
 
 extern bool standalone_mode;
-extern char *standalone_quest;
+extern fs::path standalone_quest;
 extern std::string standalone_save_path;
 extern bool disable_save_to_disk;
 
