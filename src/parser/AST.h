@@ -358,6 +358,7 @@ namespace ZScript
 		          LocationData const& location = LOC_NONE);
 		ASTAnnotation(ASTString* key, ASTFloat* intval,
 		          LocationData const& location = LOC_NONE);
+		ASTAnnotation(ASTString* key, LocationData const& location = LOC_NONE);
 		ASTAnnotation* clone() const {return new ASTAnnotation(*this);}
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -595,6 +596,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
 		string iden;
+		uint overflow;
 		owning_ptr<ASTDataType> type;
 		owning_ptr<ASTDataDecl> decl;
 		owning_ptr<ASTRange> range;
@@ -607,6 +609,10 @@ namespace ZScript
 		bool hasElse() const {return elseBlock;}
 		Scope* getScope() {return scope;}
 		void setScope(Scope* scp) {scope = scp;}
+		
+		static const uint OVERFLOW_ALLOW = 0;
+		static const uint OVERFLOW_INT = 1;
+		static const uint OVERFLOW_LONG = 2;
 	private:
 		Scope* scope;
 	};
@@ -1022,6 +1028,8 @@ namespace ZScript
 		// Extra array type for this specific declaration. The final type is the
 		// list's base type combined with these.
 		owning_vector<ASTDataDeclExtraArray> extraArrays;
+		
+		bool force_variable;
 
 	private:
 		// The initialization expression. Optional.

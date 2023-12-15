@@ -364,13 +364,16 @@ void SemanticAnalyzer::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
 			else
 				decl->setInitializer(new ASTExprPlus(host.range->start->clone(), new ASTNumberLiteral(new ASTFloat(0, -1, host.location), host.location), host.location));
 		}
+		else decl->setInitializer(new ASTNumberLiteral(new ASTFloat(0, host.location), host.location));
 	}
 	//Otherwise, use a constant startval if it exists
 	else if(auto startval = host.range->getStartVal(true, this, scope))
 	{
 		decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*startval), host.location), host.location));
 	}
-	
+	//...or just 0
+	else decl->setInitializer(new ASTNumberLiteral(new ASTFloat(0, host.location), host.location));
+	decl->force_variable = true;
 	host.decl = decl;
 	
 	visit(host.decl.get(), param);
@@ -711,7 +714,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 
 		// Is it a constant?
 		bool isConstant = false;
-		if (type->isConstant())
+		if (type->isConstant() && !host.force_variable)
 		{
 			// A constant without an initializer doesn't make sense.
 			if (!host.getInitializer())

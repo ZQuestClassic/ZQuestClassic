@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <cassert>
 #include <string>
+#include <set>
 #include <sstream>
 #include "ASTVisitors.h"
 #include "CompileOption.h"
@@ -75,6 +76,92 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 	ASTExpr* right = (ASTExpr*)d3; \
 	klass* rval = new klass(left->clone(), right, a3);	\
 	dd = new ASTExprAssign(left, rval, ad);
+
+enum
+{
+	ANNTY_NONE,
+	ANNTY_STR,
+	ANNTY_INT,
+	ANNTY_MAX
+};
+static string annot_tys[ANNTY_MAX] = {"Empty", "String", "Number"};
+
+int annot_row, annot_col;
+string annot_err_txt;
+static const string annot_err_header = "ERROR: Bad Annotation Value";
+struct AnnotData
+{
+	string key, strval;
+	string val, unescaped_val;
+	int intval;
+	uint type;
+};
+void annot_errstr(string const& str)
+{
+	yyerrmsg(str, annot_row, annot_col, annot_err_txt.c_str());
+}
+void annot_trunc_str(string& str, size_t size)
+{
+	trunc_str(str, size, annot_err_header, annot_row, annot_col, annot_err_txt.c_str());
+}
+bool annot_type_check(uint expected, AnnotData const& data)
+{
+	if(expected == data.type)
+		return true;
+	annot_errstr("ERROR: Bad Annotation Value: @"+data.key
+		+" expects a "+annot_tys[expected]+", not a "+annot_tys[data.type]);
+	return false;
+}
+void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&)> fn)
+{
+	owning_vector<ASTAnnotation>& set = list->set;
+	annot_row = list->location.first_line;
+	annot_col = list->location.first_column;
+	std::set<std::string> used_keys;
+	for(size_t q = 0; q < set.size(); ++q)
+	{
+		ASTAnnotation* a = set[q];
+		AnnotData data = AnnotData();
+		data.key = a->key->getValue();
+		data.type = ANNTY_NONE;
+		data.strval = "";
+		data.intval = 0;
+		if(a->strval)
+		{
+			data.type = ANNTY_STR;
+			data.strval = a->strval->getValue();
+		}
+		else if(a->intval)
+		{
+			data.type = ANNTY_INT;
+			data.intval = a->intval->getValue(nullptr);
+		}
+		
+		data.val = "";
+		data.unescaped_val = "";
+		switch(data.type)
+		{
+			case ANNTY_STR:
+				data.val = data.strval;
+				data.unescaped_val = util::disallow_escapes(util::escape_characters(data.strval));
+				break;
+			case ANNTY_INT:
+				data.val = data.unescaped_val = to_string(data.intval);
+				break;
+		}
+		annot_err_txt = "@" + data.key + "(" + data.val + ")";
+		
+		if(used_keys.contains(data.key))
+		{
+			annot_errstr("ERROR: Duplicate Annotation Key: @"+data.key+" was already set.");
+			continue;
+		}
+		if(!fn(data))
+			annot_errstr("ERROR: Bad Annotation Key: '"+data.val+"'");
+	}
+	delete list;
+}
+
 
 #pragma warning( disable : 4065 )
 %}
@@ -971,68 +1058,24 @@ Class_Block_Element :
 Annotated_Script :
 	Annotation_List Script {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
-		owning_vector<ASTAnnotation>& set = list->set;
 		ASTScript* script = (ASTScript*)$2;
-		std::string errheader = "ERROR: Bad Annotation Value";
-		int32_t err_row, err_col;
-		err_row = list->location.first_line;
-		err_col = list->location.first_column;
-		std::set<std::string> used_keys;
-		#define ANNOT_ERRSTR(errstr) yyerrmsg(errstr, err_row, err_col, err_txt)
-		for(size_t q = 0; q < set.size(); ++q)
+		handle_annotations(list, [&](AnnotData& data)
 		{
-			ASTAnnotation* a = set[q];
-			std::string key = a->key->getValue();
-			bool is_string = false;
-			
-			std::string strval;
-			int32_t intval = 0;
-			if(a->strval)
-			{
-				is_string = true;
-				strval = a->strval->getValue();
-			}
-			else if(a->intval)
-			{
-				intval = a->intval->getValue(nullptr);
-			}
-			
-			std::string oldstrval = strval;
-			std::string annot_str = "@" + key + "(" + (is_string ? strval : std::to_string(intval)) + ")";
-			std::string val, unescaped_val;
-			if(is_string)
-			{
-				val = strval;
-				unescaped_val = util::disallow_escapes(util::escape_characters(strval));
-			}
-			else
-			{
-				val = unescaped_val = std::to_string(intval);
-			}
-			char const* err_txt = annot_str.c_str();
-			
-			if(used_keys.contains(key))
-			{
-				ANNOT_ERRSTR("ERROR: Duplicate Annotation Key: @"+key+" was already set.");
-				continue;
-			}
-			
+			auto& key = data.key;
 			if(key == "Author")
 			{
-				if(is_string)
+				if(annot_type_check(ANNTY_STR, data))
 				{
-					trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-					script->metadata.author = unescaped_val;
+					annot_trunc_str(data.unescaped_val, 255);
+					script->metadata.author = data.unescaped_val;
 				}
-				else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-				continue;
+				return true;
 			}
 			else if(key == "InitScript")
 			{
-				if(is_string)
-					ANNOT_ERRSTR(errheader+": @"+key+" expects a number, not a string");
-				else script->init_weight = intval;
-				continue;
+				if(annot_type_check(ANNTY_INT, data))
+					script->init_weight = data.intval;
+				return true;
 			}
 			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
 			{
@@ -1041,13 +1084,12 @@ Annotated_Script :
 					c = (c*10)+key[5]-'0';
 				if(c < 16)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-						script->metadata.usrflags[c] = unescaped_val;
+						annot_trunc_str(data.unescaped_val, 255);
+						script->metadata.usrflags[c] = data.unescaped_val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
 			else if((key.size() == 9 || key.size() == 10) && !key.compare(0,8,"FlagHelp"))
@@ -1057,13 +1099,12 @@ Annotated_Script :
 					c = (c*10)+key[9]-'0';
 				if(c < 16)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-						script->metadata.usrflags_help[c] = val;
+						annot_trunc_str(data.val, 65535);
+						script->metadata.usrflags_help[c] = data.val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
 			else if(key.size() == 6 && !key.compare(0,5,"InitD"))
@@ -1071,13 +1112,12 @@ Annotated_Script :
 				byte c = key[5]-'0';
 				if(c < 8)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-						script->metadata.initd[c] = unescaped_val;
+						annot_trunc_str(data.unescaped_val, 255);
+						script->metadata.initd[c] = data.unescaped_val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
 			else if(key.size() == 10)
@@ -1087,21 +1127,21 @@ Annotated_Script :
 				{
 					if(c < 8)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
 							int8_t v = -1;
-							upperstr(val);
-							if(val.size() == 2 && val[0] == 'L')
+							upperstr(data.val);
+							if(data.val.size() == 2 && data.val[0] == 'L')
 							{
-								switch(val[1])
+								switch(data.val[1])
 								{
 									case 'D': v = nswapLDEC; break;
 									case 'H': v = nswapLHEX; break;
 								}
 							}
-							else if(val.size() == 1)
+							else if(data.val.size() == 1)
 							{
-								switch(val[0])
+								switch(data.val[0])
 								{
 									case 'D': v = nswapDEC; break;
 									case 'H': v = nswapHEX; break;
@@ -1110,53 +1150,48 @@ Annotated_Script :
 							}
 							if(unsigned(v) < nswapMAX)
 								script->metadata.initd_type[c] = v;
-							else if(val == "-1")
+							else if(data.val == "-1")
 								script->metadata.initd_type[c] = -1;
-							else yyerrmsg("ERROR: Bad Annotation Value: '@" + key + "' must be"
-									" exactly 'D','H','LD','LH','B', or '-1' NOT '" + oldstrval + "'.",
-									err_row, err_col, err_txt);
+							else annot_errstr("ERROR: Bad Annotation Value: '@" + key + "' must be"
+									" exactly 'D','H','LD','LH','B', or '-1' NOT '" + data.strval + "'.");
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 				else if(!key.compare(0,9,"InitDHelp"))
 				{
 					if(c < 8)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-							script->metadata.initd_help[c] = val;
+							annot_trunc_str(data.val, 65535);
+							script->metadata.initd_help[c] = data.val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 				else if(!key.compare(0,9,"Attribute"))
 				{
 					if(c < 10)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-							script->metadata.attributes[c] = unescaped_val;
+							annot_trunc_str(data.unescaped_val, 255);
+							script->metadata.attributes[c] = data.unescaped_val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 				else if(!key.compare(0,9,"Attribyte"))
 				{
 					if(c < 8)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-							script->metadata.attribytes[c] = unescaped_val;
+							annot_trunc_str(data.unescaped_val, 255);
+							script->metadata.attribytes[c] = data.unescaped_val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 			}
@@ -1165,13 +1200,12 @@ Annotated_Script :
 				byte c = key[10]-'0';
 				if(c < 8)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-						script->metadata.attrishorts[c] = unescaped_val;
+						annot_trunc_str(data.unescaped_val, 255);
+						script->metadata.attrishorts[c] = data.unescaped_val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
 			else if(key.size() == 14)
@@ -1181,13 +1215,12 @@ Annotated_Script :
 					byte c = key[13]-'0';
 					if(c < 10)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-							script->metadata.attributes_help[c] = val;
+							annot_trunc_str(data.val, 65535);
+							script->metadata.attributes_help[c] = data.val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 				else if(!key.compare(0,13,"AttribyteHelp"))
@@ -1195,13 +1228,12 @@ Annotated_Script :
 					byte c = key[13]-'0';
 					if(c < 8)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-							script->metadata.attribytes_help[c] = val;
+							annot_trunc_str(data.val, 65535);
+							script->metadata.attribytes_help[c] = data.val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 			}
@@ -1210,20 +1242,16 @@ Annotated_Script :
 				byte c = key[14]-'0';
 				if(c < 8)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-						script->metadata.attrishorts_help[c] = val;
+						annot_trunc_str(data.val, 65535);
+						script->metadata.attrishorts_help[c] = data.val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
-			
-			//continue before here for valid annotation
-			ANNOT_ERRSTR("ERROR: Bad Annotation Key: '"+annot_str+"'");
-		}
-		delete list;
+			return false;
+		});
 		$$ = script;}
 	;
 
@@ -1358,6 +1386,10 @@ Annotation :
 		val->negative = !val->negative;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
 		$$ = a;}
+	| HANDLE IDENTIFIER LPAREN RPAREN {
+		ASTString* key = (ASTString*)$2;
+		ASTAnnotation* a = new ASTAnnotation(key, @$);
+		$$ = a;}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -1391,7 +1423,7 @@ Statement :
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
 	| Statement_For {$$ = $1;}
-	| Statement_Loop {$$ = $1;}
+	| Annotated_Loop {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
 	| Statement_Repeat {$$ = $1;}
@@ -1424,7 +1456,7 @@ Statement_NoSemicolon:
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
 	| Statement_For {$$ = $1;}
-	| Statement_Loop {$$ = $1;}
+	| Annotated_Loop {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
 	| Statement_Return {$$ = $1;}
@@ -1627,6 +1659,34 @@ Statement_For_Each :
 		$$ = new ASTStmtForEach(iden->getValue(), expr, body, elseblock, @$);
 		delete iden;
 	}
+	;
+
+Annotated_Loop :
+	Annotation_List Statement_Loop {
+		ASTAnnotationList* list = (ASTAnnotationList*)$1;
+		ASTStmtRangeLoop* loop = (ASTStmtRangeLoop*)$2;
+		handle_annotations(list, [&](AnnotData& data)
+		{
+			auto& key = data.key;
+			if(key == "AlwaysRunEndpoint")
+			{
+				if(annot_type_check(ANNTY_STR, data))
+				{
+					if(data.strval == "off")
+						loop->overflow = ASTStmtRangeLoop::OVERFLOW_ALLOW;
+					if(data.strval == "int")
+						loop->overflow = ASTStmtRangeLoop::OVERFLOW_INT;
+					else if(data.strval == "long" || data.strval == "float")
+						loop->overflow = ASTStmtRangeLoop::OVERFLOW_LONG;
+					else annot_errstr(annot_err_header+": '@"+key+"' must be"
+							" exactly 'off','int','float', or 'long', NOT '" + data.strval + "'.");
+				}
+				return true;
+			}
+			return false;
+		});
+		$$ = loop;}
+	| Statement_Loop {$$ = $1;}
 	;
 
 Statement_Loop :

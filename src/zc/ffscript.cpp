@@ -29075,7 +29075,6 @@ void do_ipower(const bool v)
 	
 	if(temp == 0 && temp2 == 0)
 	{
-		Z_scripterrlog("Script attempted to calculate 0 to the power 0!\n");
 		set_register(sarg1, 1);
 		return;
 	}
@@ -34575,16 +34574,27 @@ void do_tointeger()
 
 void do_floor()
 {
-	double b1 = get_register(sarg1) / 10000.0;
-	int32_t b2 = floor(b1);
-	set_register(sarg1, b2 * 10000);
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doFloor().getZLong());
+}
+
+void do_trunc()
+{
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doTrunc().getZLong());
 }
 
 void do_ceiling()
 {
-	double b1 = get_register(sarg1) / 10000.0;
-	int32_t b2 = ceil(b1);
-	set_register(sarg1, b2 * 10000);
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doCeil().getZLong());
+}
+
+void do_round()
+{
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doRound().getZLong());
+}
+
+void do_roundaway()
+{
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doRoundAway().getZLong());
 }
 
 void do_toword()
@@ -39183,6 +39193,9 @@ int32_t run_script_int(bool is_jitted)
 			case TOINTEGER: do_tointeger(); break;
 			case CEILING: do_ceiling(); break;
 			case FLOOR: do_floor(); break;
+			case TRUNCATE: do_trunc(); break;
+			case ROUND: do_round(); break;
+			case ROUNDAWAY: do_roundaway(); break;
 			
 			case FILECLOSE:
 			{
@@ -45927,6 +45940,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "GOTOCMP", 2, 1, 1, 0 },
 	{ "STACKWRITEATRV", 2, 0, 1, 0 },
 	{ "STACKWRITEATVV", 2, 1, 1, 0 },
+
+	{ "TRUNCATE", 1, 0, 0, 0},
+	{ "ROUND", 1, 0, 0, 0},
+	{ "ROUNDAWAY", 1, 0, 0, 0},
 
 	{ "", 0, 0, 0, 0 }
 };

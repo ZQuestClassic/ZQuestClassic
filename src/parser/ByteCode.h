@@ -11261,6 +11261,39 @@ namespace ZScript
 		}
 	};
 	
+	class OTruncate : public UnaryOpcode
+	{
+	public:
+		OTruncate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OTruncate(a->clone());
+		}
+	};
+	
+	class ORound : public UnaryOpcode
+	{
+	public:
+		ORound(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORound(a->clone());
+		}
+	};
+	
+	class ORoundAway : public UnaryOpcode
+	{
+	public:
+		ORoundAway(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORoundAway(a->clone());
+		}
+	};
+	
 	class OToInteger : public UnaryOpcode
 	{
 	public:

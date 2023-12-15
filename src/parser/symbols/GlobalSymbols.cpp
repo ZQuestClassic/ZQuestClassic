@@ -50,6 +50,9 @@ static AccessorTable GlobalTable[] =
 	{ "OverlayTile",             0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "Floor",                   0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
 	{ "Ceiling",                 0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "Truncate",                0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "Round",                   0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "RoundAway",               0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
 	{ "GetSystemTime",           0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
 
 	{ "Distance",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -989,6 +992,64 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OFloor(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doFloor().getZLong();
+				return val;
+			});
+	}
+	{
+		Function* function = getFunction("Truncate");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTruncate(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doTrunc().getZLong();
+				return val;
+			});
+	}
+	{
+		Function* function = getFunction("Round");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new ORound(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doRound().getZLong();
+				return val;
+			});
+	}
+	{
+		Function* function = getFunction("RoundAway");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new ORoundAway(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doRoundAway().getZLong();
+				return val;
+			});
 	}
 	{
 		Function* function = getFunction("Ceiling");
@@ -999,6 +1060,13 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OCeiling(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doCeil().getZLong();
+				return val;
+			});
 	}
 	//int32_t SaveSRAM(eweapon *ptr)
 	{
