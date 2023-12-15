@@ -319,8 +319,7 @@ namespace ZScript
 		         LocationData const& location = LOC_NONE);
 		ASTFloat(std::string const& value, Type type,
 		         LocationData const& location = LOC_NONE);
-		ASTFloat(int32_t value, Type type,
-		         LocationData const& location = LOC_NONE);
+		ASTFloat(zfix value, LocationData const& location = LOC_NONE);
 		ASTFloat(int32_t ipart, int32_t dpart,
 		         LocationData const& location = LOC_NONE);
 		ASTFloat* clone() const {return new ASTFloat(*this);}
@@ -523,6 +522,9 @@ namespace ZScript
 		
 		owning_ptr<ASTExprConst> start;
 		owning_ptr<ASTExprConst> end;
+		
+		optional<int32_t> getStartVal(bool inclusive, CompileErrorHandler* errorHandler, Scope* scope);
+		optional<int32_t> getEndVal(bool inclusive, CompileErrorHandler* errorHandler, Scope* scope);
 		uint type;
 		static const uint RANGE_N = 0x0;
 		static const uint RANGE_L = 0x1;
@@ -571,6 +573,32 @@ namespace ZScript
 		owning_ptr<ASTDataDecl> arrdecl;
 		owning_ptr<ASTDataDecl> decl;
 		owning_ptr<ASTExpr> arrExpr;
+		owning_ptr<ASTStmt> body;
+		owning_ptr<ASTStmt> elseBlock;
+		
+		bool ends_loop, ends_else;
+		
+		bool hasElse() const {return elseBlock;}
+		Scope* getScope() {return scope;}
+		void setScope(Scope* scp) {scope = scp;}
+	private:
+		Scope* scope;
+	};
+
+	class ASTStmtRangeLoop : public ASTStmt
+	{
+	public:
+		ASTStmtRangeLoop(ASTDataType* type, string const& iden, ASTRange* range,
+			ASTExpr* increment, ASTStmt* body, LocationData const& location = LOC_NONE);
+		ASTStmtRangeLoop* clone() const {return new ASTStmtRangeLoop(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		string iden;
+		owning_ptr<ASTDataType> type;
+		owning_ptr<ASTDataDecl> decl;
+		owning_ptr<ASTRange> range;
+		owning_ptr<ASTExpr> increment;
 		owning_ptr<ASTStmt> body;
 		owning_ptr<ASTStmt> elseBlock;
 		

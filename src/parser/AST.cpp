@@ -144,12 +144,10 @@ ASTFloat::ASTFloat(
 	initNeg();
 }
 
-ASTFloat::ASTFloat(int32_t val, Type type, LocationData const& location)
-	: AST(location), type(type), negative(false)
+ASTFloat::ASTFloat(zfix val, LocationData const& location)
+	: AST(location), type(TYPE_DECIMAL), negative(false)
 {
-	char tmp[15];
-	sprintf(tmp, "%d", val);
-	value = string(tmp);
+	value = val.str();
 	initNeg();
 }
 
@@ -859,6 +857,20 @@ void ASTRange::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseRange(*this, param);
 }
+optional<int32_t> ASTRange::getStartVal(bool inclusive, CompileErrorHandler* errorHandler, Scope* scope)
+{
+	auto ret = start->getCompileTimeValue(errorHandler, scope);
+	if(inclusive && ret && !(type&RANGE_L))
+		ret = *ret+1;
+	return ret;
+}
+optional<int32_t> ASTRange::getEndVal(bool inclusive, CompileErrorHandler* errorHandler, Scope* scope)
+{
+	auto ret = end->getCompileTimeValue(errorHandler, scope);
+	if(inclusive && ret && !(type&RANGE_R))
+		ret = *ret-1;
+	return ret;
+}
 
 // ASTStmtFor
 
@@ -889,6 +901,21 @@ ASTStmtForEach::ASTStmtForEach(
 void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
 {
 	return visitor.caseStmtForEach(*this, param);
+}
+
+// ASTStmtRangeLoop
+
+ASTStmtRangeLoop::ASTStmtRangeLoop(ASTDataType* type, string const& iden,
+	ASTRange* range, ASTExpr* increment, ASTStmt* body, LocationData const& location)
+	: ASTStmt(location), iden(iden), decl(nullptr), type(type),
+		increment(increment), body(body), range(range),
+		elseBlock(nullptr), scope(nullptr),
+	  ends_loop(true), ends_else(true)
+{}
+
+void ASTStmtRangeLoop::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseStmtRangeLoop(*this, param);
 }
 
 // ASTStmtWhile

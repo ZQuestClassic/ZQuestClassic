@@ -943,6 +943,145 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	addOpcode(next);
 }
 
+class MiniStackMgr
+{
+public:
+	vector<uint> peekinds;
+	uint push()
+	{
+		for(uint& q : peekinds)
+			++q;
+		peekinds.push_back(0);
+		return peekinds.size()-1;
+	}
+	uint at(uint ind)
+	{
+		return peekinds.at(ind);
+	}
+	bool pop()
+	{
+		if(peekinds.empty())
+			return false;
+		peekinds.pop_back();
+		for(uint& q : peekinds)
+			--q;
+		return true;
+	}
+};
+void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
+{
+	//Force to sub-scope
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
+	
+	int32_t loopid = ScriptParser::getUniqueLabelID();
+	//Declare the local variable that will hold the current loop value
+	auto targ_sz = commentTarget();
+	literalVisit(host.decl.get(), param);
+	commentAt(targ_sz, fmt::format("loop() #{} ValDecl",loopid));
+	
+	int32_t decloffset = 10000L * *getStackOffset(*host.decl.get()->manager);
+	
+	int32_t loopstart = loopid;
+	int32_t loopcont = ScriptParser::getUniqueLabelID();
+	int32_t loopend = ScriptParser::getUniqueLabelID();
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
+	
+	auto endval = host.range->getEndVal(false, this, scope);
+	auto incrval = host.increment->getCompileTimeValue(this, scope);
+	MiniStackMgr mgr;
+	uint end_peekind = 0, incr_peekind = 0, indx_peekind = 0;
+	addOpcode(new OPushRegister(new VarArgument(EXP1))); //the var initializer
+	indx_peekind = mgr.push();
+	if(!endval)
+	{
+		visit(host.range->end.get(), param);
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		end_peekind = mgr.push();
+	}
+	if(!incrval)
+	{
+		visit(host.increment.get(), param);
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		//!TODO allow negative increments to go from end to start (for now just no loop)
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OGotoCompare(new LabelArgument(loopend), new LiteralArgument(CMP_LESS)));
+		incr_peekind = mgr.push();
+	}
+	
+	Opcode* next = new ONoOp();
+	next->setLabel(loopstart);
+	addOpcode(next);
+	
+	//run the inside of the loop.
+	push_break(loopend, arrayRefs.size());
+	push_cont(loopcont, arrayRefs.size());
+	
+	targ_sz = commentTarget();
+	visit(host.body.get(), param);
+	commentStartEnd(targ_sz, fmt::format("loop() #{} Body",loopid));
+	
+	pop_break();
+	pop_cont();
+	
+	//Load 
+	//addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(decloffset)));
+	addOpcode(new OPeekAtImmediate(new VarArgument(EXP2), new LiteralArgument(mgr.at(indx_peekind))));
+	backOpcode()->setLabel(loopcont);
+	commentBack(fmt::format("loop() #{} Incr",loopid));
+	if(!incrval || *incrval) //not 0-increment
+	{
+		if(incrval)
+			addOpcode(new OAddImmediate(new VarArgument(EXP2), new LiteralArgument(*incrval)));
+		else
+		{
+			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(incr_peekind))));
+			addOpcode(new OAddRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+		}
+		addOpcode(new OStackWriteAtRV(new VarArgument(EXP2), new LiteralArgument(mgr.at(indx_peekind))));
+	}
+	addOpcode(new OStoreDirect(new VarArgument(EXP2), new LiteralArgument(decloffset)));
+	
+	targ_sz = commentTarget();
+	if(endval)
+	{
+		addOpcode(new OCompareImmediate(new VarArgument(EXP2), new LiteralArgument(*endval)));
+	}
+	else
+	{
+		addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(end_peekind))));
+		addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+	}
+	commentAt(targ_sz, fmt::format("loop() #{} Test",loopid));
+	//If the iterator is < or <= the endval, keep looping
+	auto cmp = CMP_LESS;
+	if(host.range->type & ASTRange::RANGE_R)
+		cmp |= CMP_EQ;
+	addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(cmp)));
+	commentBack(fmt::format("loop() #{} to start if {}",loopid, CMP_STR(cmp)));
+	
+	scope = scope->getParent();
+	
+	if(host.hasElse())
+	{
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		targ_sz = commentTarget();
+		visit(host.elseBlock.get(), param);
+		commentStartEnd(targ_sz, fmt::format("loop() #{} Else",loopid));
+	}
+	
+	next = new ONoOp();
+	next->setLabel(loopend);
+	addOpcode(next);
+	while(mgr.pop())
+		addOpcode(new OPopRegister(new VarArgument(NUL)));
+}
+
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
 	auto val = host.test->getCompileTimeValue(this, scope);

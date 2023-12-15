@@ -88,8 +88,8 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 }
 
 %glr-parser
-%expect 4
-%error-verbose
+%expect 5
+%define parse.error verbose
 %start Init
 %parse-param {std::unique_ptr<ZScript::ASTFile>& root}
 
@@ -99,6 +99,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token SCRIPT
 %token ZCLASS
 %token FOR
+%token LOOP
 %token IF
 %token ELSE
 %token SWITCH
@@ -1390,6 +1391,7 @@ Statement :
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
 	| Statement_For {$$ = $1;}
+	| Statement_Loop {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
 	| Statement_Repeat {$$ = $1;}
@@ -1422,6 +1424,7 @@ Statement_NoSemicolon:
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
 	| Statement_For {$$ = $1;}
+	| Statement_Loop {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
 	| Statement_Return {$$ = $1;}
@@ -1626,6 +1629,89 @@ Statement_For_Each :
 	}
 	;
 
+Statement_Loop :
+	Statement_Loop_Inf {$$ = $1;}
+	| Statement_Loop_Range {$$ = $1;}
+	;
+
+Statement_Loop_Inf :
+	LOOP LPAREN RPAREN Block_Statement
+	{
+		ASTExpr* test = new ASTBoolLiteral(true, @$);
+		ASTStmt* body = (ASTStmt*)$4;
+		$$ = new ASTStmtWhile(test,body,nullptr,@$);
+	};
+
+Statement_Loop_Range :
+	Statement_Loop_Range_Base ELSE Block_Statement
+	{
+		ASTStmtRangeLoop* loop = (ASTStmtRangeLoop*)$1;
+		ASTStmt* elseblock = (ASTExpr*)$3;
+		loop->elseBlock = elseblock;
+		$$ = loop;
+	}
+	| Statement_Loop_Range_Base {$$ = $1;}
+	;
+	
+Statement_Loop_Range_Base :
+	LOOP LPAREN DataType IDENTIFIER Token_In Expression_Range COMMA Expression_Constant RPAREN Block_Statement
+	{
+		ASTDataType* type = (ASTDataType*)$3;
+		ASTString* iden = (ASTString*)$4;
+		ASTRange* range = (ASTRange*)$6;
+		ASTExprConst* incr = (ASTExprConst*)$8;
+		ASTStmt* body = (ASTStmt*)$10;
+		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
+		delete iden;
+	}
+	| LOOP LPAREN IDENTIFIER Token_In Expression_Range COMMA Expression_Constant RPAREN Block_Statement
+	{
+		ASTDataType* type = new ASTDataType(DataType::FLOAT, @$);
+		ASTString* iden = (ASTString*)$3;
+		ASTRange* range = (ASTRange*)$5;
+		ASTExprConst* incr = (ASTExprConst*)$7;
+		ASTStmt* body = (ASTStmt*)$9;
+		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
+		delete iden;
+	}
+	| LOOP LPAREN Expression_Range COMMA Expression_Constant RPAREN Block_Statement
+	{
+		ASTDataType* type = new ASTDataType(DataType::FLOAT, @$);
+		ASTRange* range = (ASTRange*)$3;
+		ASTExprConst* incr = (ASTExprConst*)$5;
+		ASTStmt* body = (ASTStmt*)$7;
+		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
+	}
+	| LOOP LPAREN DataType IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
+	{
+		ASTDataType* type = (ASTDataType*)$3;
+		ASTString* iden = (ASTString*)$4;
+		ASTRange* range = (ASTRange*)$6;
+		ASTExprConst* incr = new ASTExprConst(new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$), @$);
+		ASTStmt* body = (ASTStmt*)$8;
+		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
+		delete iden;
+	}
+	| LOOP LPAREN IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
+	{
+		ASTDataType* type = new ASTDataType(DataType::FLOAT, @$);
+		ASTString* iden = (ASTString*)$3;
+		ASTRange* range = (ASTRange*)$5;
+		ASTExprConst* incr = new ASTExprConst(new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$), @$);
+		ASTStmt* body = (ASTStmt*)$7;
+		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
+		delete iden;
+	}
+	| LOOP LPAREN Expression_Range RPAREN Block_Statement
+	{
+		ASTDataType* type = new ASTDataType(DataType::FLOAT, @$);
+		ASTRange* range = (ASTRange*)$3;
+		ASTExprConst* incr = new ASTExprConst(new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$), @$);
+		ASTStmt* body = (ASTStmt*)$5;
+		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
+	}
+	;
+
 Token_In :
 	COLON {$$ = $1;}
 	| IN {$$ = $1;}
@@ -1756,6 +1842,11 @@ Enum_Block:
 ////////////////////////////////////////////////////////////////
 // Expression Helpers
 
+ScopeRes :
+	SCOPERES {$$ = $1;}
+	//| RANGE_N {$$ = $1;}
+	;
+
 Identifier_List :
 	Mixed_Identifier_List {$$ = $1;}
 	| idlist_scopres {$$ = $1;}
@@ -1790,7 +1881,7 @@ Mixed_Identifier_List:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| Mixed_Identifier_List SCOPERES Identifier {
+	| Mixed_Identifier_List ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
@@ -1798,7 +1889,7 @@ Mixed_Identifier_List:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| idlist_dot SCOPERES Identifier {
+	| idlist_dot ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
@@ -1809,7 +1900,7 @@ Mixed_Identifier_List:
 	;
 
 idlist_scopres:
-	idlist_scopres SCOPERES Identifier {
+	idlist_scopres ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
@@ -1817,7 +1908,7 @@ idlist_scopres:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| Ambigious_Iden_List SCOPERES Identifier {
+	| Ambigious_Iden_List ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
@@ -1825,7 +1916,7 @@ idlist_scopres:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| SCOPERES Ambigious_Iden_List {
+	| ScopeRes Ambigious_Iden_List {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$2;
 		identifier->noUsing = true;
 		$$ = identifier;}
@@ -2170,9 +2261,7 @@ Literal :
 		$$ = new ASTLongNumberLiteral(val, @$);}
 	| SINGLECHAR {
 		ASTString* as = (ASTString*)$1;
-		char val[15];
-		sprintf(val, "%d", as->getValue().at(1));
-		ASTFloat* number = new ASTFloat(val, (ASTFloat::Type)0, @$);
+		ASTFloat* number = new ASTFloat(int(as->getValue().at(1)), 0, @$);
 		$$ = new ASTCharLiteral(number, @$);}
 	| Literal_String {$$ = $1;}
 	| Literal_Bool {$$ = $1;}

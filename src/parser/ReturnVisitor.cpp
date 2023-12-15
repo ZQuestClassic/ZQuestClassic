@@ -369,6 +369,25 @@ void ReturnVisitor::caseStmtForEach(ASTStmtForEach& host, void* param)
 	markReachable(host);
 }
 
+void ReturnVisitor::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
+{
+	VisitNode* paramNode = (VisitNode*)param;
+	paramNode = paramNode->create(&host);
+	paramNode->mark_branch(); // is a branch of its' 2 child nodes
+	VisitNode* thenNode = paramNode->create(host.body.get());
+	VisitNode* elseNode = paramNode->create(host.elseBlock.get());
+	
+	visit(host.type.get(), thenNode);
+	visit(host.range.get(), thenNode);
+	visit(host.increment.get(), thenNode);
+	host.ends_loop = block_retvisit(host.body.get(), thenNode);
+	if(host.decl)
+		visit(host.decl.get(), thenNode);
+	if(host.hasElse())
+		host.ends_else = block_retvisit(host.elseBlock.get(), elseNode);
+	markReachable(host);
+}
+
 void ReturnVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 {
 	VisitNode* paramNode = (VisitNode*)param;

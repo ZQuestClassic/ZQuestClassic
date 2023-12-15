@@ -1065,6 +1065,22 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				continue;
 			}
 		END_OPT_PASS()
+		START_OPT_PASS() //Fix PeekAtImmediate(,0)
+			if(OPeekAtImmediate* peekop = dynamic_cast<OPeekAtImmediate*>(ocode))
+			{
+				LiteralArgument* litarg = static_cast<LiteralArgument*>(peekop->getSecondArgument());
+				if(!litarg->value)
+				{
+					Argument* arg = peekop->getFirstArgument()->clone();
+					it = rval.erase(it);
+					it = rval.insert(it, std::shared_ptr<Opcode>(new OPeek(arg)));
+					(*it)->setLabel(lbl);
+					(*it)->setComment(comment);
+				}
+				++it;
+				continue;
+			}
+		END_OPT_PASS()
 		START_OPT_PASS()
 			//Merge multiple consecutive identical pops/pushes
 			MERGE_CONSEC_REPCOUNT_START(OPopRegister,OPopArgsRegister)
