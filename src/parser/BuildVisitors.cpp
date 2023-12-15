@@ -3134,7 +3134,7 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 			return;
 		if((*rval)==0) //Div by 0! Warn
 		{
-			handleError(CompileError::DivByZero(&host,"divide"));
+			handleError(CompileError::DivByZero(&host,"divide",""));
 		}
 		addOpcode(new ODivImmediate(new VarArgument(EXP1), new LiteralArgument(*rval)));
 	}
@@ -3170,7 +3170,7 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 		visit(host.left.get(), param);
 		if((*rval)==0) //Mod by 0! Warn
 		{
-			handleError(CompileError::DivByZero(&host,"modulo"));
+			handleError(CompileError::DivByZero(&host,"modulo",""));
 		}
 		addOpcode(new OModuloImmediate(new VarArgument(EXP1), new LiteralArgument(*rval)));
 	}

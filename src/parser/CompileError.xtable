@@ -43,7 +43,7 @@ X(	ScriptNumRedef,			T,	D															)
 X(	ImplicitCast,			T,	D															)
 X(	IllegalCast,			T,	A,	E,	STR,	STR,	"Cannot cast from %s to %s."								)
 X(	VoidExpr,			T,	D															)
-X(	DivByZero,			T,	A,	E,	STR,	VOID,	"Attempting to %s by 0."								)
+X(	DivByZero,			T,	A,	E,	STR,	STR,	"%sAttempting to %s by 0."								)
 X(	ConstTrunc,			C,	A,	W,	STR,	VOID,	"Constant %s is too long and has been truncated."					)
 X(	NoFuncMatch,			T,	A,	E,	STR,	VOID,	"Function %s has not been declared."							)
 X(	TooFuncMatch,			T,	A,	E,	STR,	STR,	"There are too many choices for function %s.\n        The possible choices are:\n%s"	)
@@ -128,6 +128,7 @@ X(	BadReturnType,			S,	A,	E,	STR,	VOID,	"Cannot return type '%s'."							)
 X(	BadTempVal,			T,	A,	E,	VOID,	VOID,	"Temporary literals cannot be stored!"								)
 X(	MissingReturnWarn,			S,	A,	W,	STR,	VOID,	"Function '%s' is not void, and should return a value!"								)
 X(	MissingReturnError,			S,	A,	E,	STR,	VOID,	"Function '%s' is not void, and must return a value!"								)
+X(	NegSqrt,			T,	A,	E,	VOID,	VOID,	"Attempting to take the square root of a negative number!"								)
 
 
 #undef STR

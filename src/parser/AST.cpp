@@ -2258,7 +2258,7 @@ std::optional<int32_t> ASTExprDivide::getCompileTimeValue(
 	if (*rightValue == 0)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::DivByZero(this, "divide"));
+			errorHandler->handleError(CompileError::DivByZero(this,"divide",""));
 		return (*leftValue >= 0) ? 2147483647 : -2147483647; //error value
 	}
 	
@@ -2295,7 +2295,7 @@ std::optional<int32_t> ASTExprModulo::getCompileTimeValue(
 	if (*rightValue == 0)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::DivByZero(this,"modulo"));
+			errorHandler->handleError(CompileError::DivByZero(this,"modulo",""));
 		return std::nullopt;
 	}
 	return *leftValue % *rightValue;

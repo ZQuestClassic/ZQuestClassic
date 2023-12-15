@@ -605,6 +605,17 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0] && args[1])
+				{
+					if(!*args[0] && !*args[1])
+						val = 1; //0^0
+					else val = int(pow(*args[0]/10000.0,*args[1]/10000.0)*10000);
+				}
+				return val;
+			});
 	}
 	//int32_t LPow(int32_t first, int32_t second)
 	{
@@ -617,6 +628,17 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OLPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0] && args[1])
+				{
+					if(!*args[0] && !*args[1])
+						val = 1; //0^0
+					else val = int(pow(*args[0],*args[1]));
+				}
+				return val;
+			});
 	}
 	//int32_t InvPow(int32_t first, int32_t second)
 	{
@@ -629,6 +651,27 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OInvPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0] && args[1])
+				{
+					double v1 = *args[0]/10000.0;
+					if(!*args[1])
+					{
+						handler->handleError(CompileError::DivByZero(&node,"divide","InvPow(): "));
+						val = 10000;
+					}
+					else
+					{
+						double v2 = 10000.0 / *args[1];
+						if(!v1 && !v2)
+							val = 1; //0^0
+						else val = int(pow(v1,v2));
+					}
+				}
+				return val;
+			});
 	}
 	//int32_t Factorial(int32_t val)
 	{
@@ -640,6 +683,24 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OFactorial(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					auto v = *args[0] / 10000;
+					if(v < 2)
+						val = (v >= 0) ? 10000 : 0;
+					else
+					{
+						int prod = 1;
+						for(int q = v; v > 1; --v)
+							prod *= q;
+						val = prod*10000;
+					}
+				}
+				return val;
+			});
 	}
 	//int32_t Abs(int32_t val)
 	{
@@ -651,6 +712,17 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OAbsRegister(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					val = *args[0];
+					if(*val < 0)
+						val = -*val;
+				}
+				return val;
+			});
 	}
 	//int32_t Log10(int32_t val)
 	{
@@ -684,6 +756,24 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OSqrtRegister(new VarArgument(EXP1), new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					double v = *args[0]/10000.0;
+					if(v < 0)
+					{
+						handler->handleError(CompileError::NegSqrt(&node));
+						val = -10000;
+					}
+					else
+					{
+						val = int(sqrt(v)*10000);
+					}
+				}
+				return val;
+			});
 	}
 
 

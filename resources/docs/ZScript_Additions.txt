@@ -3412,14 +3412,28 @@ untyped Untype(any)
 bool IsValidArray(untyped[]);
  * Returns true if the passed array pointer is valid (usable), false if it is invalid (should not be used).
 
-int Pow(int a, int b);
+constexpr int Pow(int a, int b);
  * Returns 'a^^^b' (a raised to the power of b)
  * Ex: Pow(2,2) == 4
 
-long LPow(long a, long b);
+constexpr long LPow(long a, long b);
  * Returns 'a^^^b', using 'long', where 0.0001 is 1L.
  * Ex: LPow(2L,2L) == 4L
 
+constexpr int InvPow(int a, int b);
+ * Returns 'a^^^(1/b)' (a raised to the inverse power of b)
+
+constexpr int Factorial(int val);
+ * Returns the factorial of 'val'
+ * If val < 0, this is 0. If val < 2, this is 1.
+ * Otherwise, this is the product of every number between 'val' and '1'.
+
+constexpr float Abs(float val);
+ * Returns the absolute value of 'val'
+
+constexpr float Sqrt(float val);
+ * Returns the square root of 'val'
+ * Errors if 'val' is negative
 
 /************************************************************************************************************/
 
