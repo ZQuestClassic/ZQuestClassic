@@ -154,12 +154,12 @@ ASTFloat::ASTFloat(zfix val, LocationData const& location)
 ASTFloat::ASTFloat(int32_t ipart, int32_t dpart, LocationData const& location)
 	: AST(location), type(TYPE_DECIMAL), negative(false)
 {
-	char tmp[13];
 	if(dpart)
-		sprintf(tmp,"%d.%04d",ipart,dpart);
-	else
-		sprintf(tmp,"%d",ipart);
-	value = string(tmp);
+	{
+		zfix val(ipart,dpart);
+		value = val.str();
+	}
+	else value = to_string(ipart);
 	initNeg();
 }
 
@@ -849,7 +849,7 @@ void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
 
 // ASTRange
 
-ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, uint type, LocationData const& location)
+ASTRange::ASTRange(ASTExpr* start, ASTExpr* end, uint type, LocationData const& location)
 	: AST(location), start(start), end(end), type(type)
 {}
 

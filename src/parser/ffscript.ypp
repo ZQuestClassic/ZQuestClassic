@@ -1538,7 +1538,7 @@ Statement_Switch_Cases :
 		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
 		cases->isDefault = true;
 		$$ = cases;}
-	| Statement_Switch_Cases CASE Expression_Range COLON {
+	| Statement_Switch_Cases CASE Expression_Const_Range COLON {
 		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
 		ASTRange* range = (ASTRange*)$3;
 		cases->ranges.push_back(range);
@@ -1555,7 +1555,7 @@ Statement_Switch_Cases :
 		ASTExprConst* key = (ASTExprConst*)$2;
 		cases->cases.push_back(key);
 		$$ = cases;}
-	| CASE Expression_Range COLON {
+	| CASE Expression_Const_Range COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		ASTRange* range = (ASTRange*)$2;
 		cases->ranges.push_back(range);
@@ -1654,31 +1654,31 @@ Statement_Loop_Range :
 	;
 	
 Statement_Loop_Range_Base :
-	LOOP LPAREN DataType IDENTIFIER Token_In Expression_Range COMMA Expression_Constant RPAREN Block_Statement
+	LOOP LPAREN DataType IDENTIFIER Token_In Expression_Range COMMA Expression RPAREN Block_Statement
 	{
 		ASTDataType* type = (ASTDataType*)$3;
 		ASTString* iden = (ASTString*)$4;
 		ASTRange* range = (ASTRange*)$6;
-		ASTExprConst* incr = (ASTExprConst*)$8;
+		ASTExpr* incr = (ASTExpr*)$8;
 		ASTStmt* body = (ASTStmt*)$10;
 		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
 		delete iden;
 	}
-	| LOOP LPAREN IDENTIFIER Token_In Expression_Range COMMA Expression_Constant RPAREN Block_Statement
+	| LOOP LPAREN IDENTIFIER Token_In Expression_Range COMMA Expression RPAREN Block_Statement
 	{
-		ASTDataType* type = new ASTDataType(DataType::FLOAT, @$);
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
 		ASTString* iden = (ASTString*)$3;
 		ASTRange* range = (ASTRange*)$5;
-		ASTExprConst* incr = (ASTExprConst*)$7;
+		ASTExpr* incr = (ASTExpr*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
 		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
 		delete iden;
 	}
-	| LOOP LPAREN Expression_Range COMMA Expression_Constant RPAREN Block_Statement
+	| LOOP LPAREN Expression_Range COMMA Expression RPAREN Block_Statement
 	{
-		ASTDataType* type = new ASTDataType(DataType::FLOAT, @$);
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
 		ASTRange* range = (ASTRange*)$3;
-		ASTExprConst* incr = (ASTExprConst*)$5;
+		ASTExpr* incr = (ASTExpr*)$5;
 		ASTStmt* body = (ASTStmt*)$7;
 		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
 	}
@@ -1687,26 +1687,26 @@ Statement_Loop_Range_Base :
 		ASTDataType* type = (ASTDataType*)$3;
 		ASTString* iden = (ASTString*)$4;
 		ASTRange* range = (ASTRange*)$6;
-		ASTExprConst* incr = new ASTExprConst(new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$), @$);
+		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$8;
 		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
 		delete iden;
 	}
 	| LOOP LPAREN IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
 	{
-		ASTDataType* type = new ASTDataType(DataType::FLOAT, @$);
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
 		ASTString* iden = (ASTString*)$3;
 		ASTRange* range = (ASTRange*)$5;
-		ASTExprConst* incr = new ASTExprConst(new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$), @$);
+		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$7;
 		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
 		delete iden;
 	}
 	| LOOP LPAREN Expression_Range RPAREN Block_Statement
 	{
-		ASTDataType* type = new ASTDataType(DataType::FLOAT, @$);
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
 		ASTRange* range = (ASTRange*)$3;
-		ASTExprConst* incr = new ASTExprConst(new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$), @$);
+		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$5;
 		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
 	}
@@ -2201,51 +2201,61 @@ Expression_Constant :
 		$$ = new ASTExprConst(content, @$);}
 	;
 
+Expression_Const_Range :
+	Expression_Range {
+		ASTRange* range = (ASTRange*)$1;
+		ASTExpr* start = range->start.release();
+		range->start = new ASTExprConst(start, start->location);
+		ASTExpr* end = range->end.release();
+		range->end = new ASTExprConst(end, end->location);
+		$$ = range;
+	};
+	
 Expression_Range :
 	//Classic A...B -> A <= x <= B
-	Expression_Constant RANGE Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	Expression RANGE Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
 	//New A=..=B -> A <= x <= B
-	| Expression_Constant RANGE_LR Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	| Expression RANGE_LR Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
 	//New A=..B -> A <= x < B
-	| Expression_Constant RANGE_L Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	| Expression RANGE_L Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_L, @$);}
 	//New A..=B -> A < x <= B
-	| Expression_Constant RANGE_R Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	| Expression RANGE_R Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_R, @$);}
 	//New A..B -> A < x < B
-	| Expression_Constant RANGE_N Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	| Expression RANGE_N Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_N, @$);}
 	//Mathematical [A, B] -> A <= x <= B
-	| LBRACKET Expression_Constant COMMA Expression_Constant RBRACKET {
-		ASTExprConst* start = (ASTExprConst*)$2;
-		ASTExprConst* end = (ASTExprConst*)$4;
+	| LBRACKET Expression COMMA Expression RBRACKET {
+		ASTExpr* start = (ASTExpr*)$2;
+		ASTExpr* end = (ASTExpr*)$4;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
 	//Mathematical [A, B) -> A <= x < B
-	| LBRACKET Expression_Constant COMMA Expression_Constant RPAREN {
-		ASTExprConst* start = (ASTExprConst*)$2;
-		ASTExprConst* end = (ASTExprConst*)$4;
+	| LBRACKET Expression COMMA Expression RPAREN {
+		ASTExpr* start = (ASTExpr*)$2;
+		ASTExpr* end = (ASTExpr*)$4;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_L, @$);}
 	//Mathematical (A, B] -> A < x <= B
-	| LPAREN Expression_Constant COMMA Expression_Constant RBRACKET {
-		ASTExprConst* start = (ASTExprConst*)$2;
-		ASTExprConst* end = (ASTExprConst*)$4;
+	| LPAREN Expression COMMA Expression RBRACKET {
+		ASTExpr* start = (ASTExpr*)$2;
+		ASTExpr* end = (ASTExpr*)$4;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_R, @$);}
 	//Mathematical (A, B) -> A < x < B
-	| LPAREN Expression_Constant COMMA Expression_Constant RPAREN {
-		ASTExprConst* start = (ASTExprConst*)$2;
-		ASTExprConst* end = (ASTExprConst*)$4;
+	| LPAREN Expression COMMA Expression RPAREN {
+		ASTExpr* start = (ASTExpr*)$2;
+		ASTExpr* end = (ASTExpr*)$4;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_N, @$);}
 	;
 
