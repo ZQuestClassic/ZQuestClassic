@@ -96,8 +96,8 @@ PUSHR d2
 PUSHARGSV 1,0.0002; UsrFunc[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Params End
 CALLFUNC 0.4616; UsrFunc[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Call
 POP d4; while(true) #11068 Body [Opt:AlwaysOn] End
-GOTO 58; while() #11068 End AND [Opt:NeverRet] AND void run(int) Body End
-SETR d4,SP; Func[int Angle(int, int, int, int)] Body Start
+GOTO 58; while() #11068 End
+SETR d4,SP; [Opt:NeverRet] AND void run(int) Body End AND Func[int Angle(int, int, int, int)] Body Start
 LOADD d2,1; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int RadtoDeg(int)] Params Start AND return Start
 PUSHR d2
 LOADD d2,3
@@ -6124,8 +6124,8 @@ PUSHR d4
 CALLFUNC 0.9203; UsrFunc[void UpdateGhostZH2()] Call
 POP d4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #11054 Body [Opt:AlwaysOn] End
-GOTO 6; while() #11054 End AND [Opt:NeverRet] AND void run() Body End
-POP d2; Func[int Distance(int, int, int, int)] Body Start
+GOTO 6; while() #11054 End
+POP d2; [Opt:NeverRet] AND void run() Body End AND Func[int Distance(int, int, int, int)] Body Start
 POP d1
 POP d0
 POP d6

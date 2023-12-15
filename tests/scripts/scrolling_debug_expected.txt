@@ -232,7 +232,8 @@ PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, 
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #9270 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #9268 Body [Opt:AlwaysOn] End
-GOTO 4; while() #9268 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 4; while() #9268 End
+NOP; [Opt:NeverRet] AND void run() Body End
 
 
 ALLOCATEGMEMV d2,4096; void run() Body Start

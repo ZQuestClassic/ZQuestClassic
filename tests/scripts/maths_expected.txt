@@ -54,8 +54,8 @@ GOTO 8; for() #3443 End
 WAITFRAME; InlineFunc[void Waitframe()] Body
 SETV d2,0
 STORED d2,1; while(true) #3441 Body [Opt:AlwaysOn] End
-GOTO 6; while() #3441 End AND [Opt:NeverRet] AND void run() Body End
-PUSHARGSV 0,0.0020; Func[void doMaths(bool, int)] Body Start
+GOTO 6; while() #3441 End
+PUSHARGSV 0,0.0020; [Opt:NeverRet] AND void run() Body End AND Func[void doMaths(bool, int)] Body Start
 SETR d4,SP
 ALLOCATEMEMV d2,15
 STORED d2,19

@@ -199,7 +199,8 @@ POP d2
 POP REFFFC
 SETR Y,d2; if() #3443 Else End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3438 Body [Opt:AlwaysOn] End
-GOTO 36; while() #3438 End AND [Opt:NeverRet] AND void run(int, int, int, int, int) Body End
+GOTO 36; while() #3438 End
+NOP; [Opt:NeverRet] AND void run(int, int, int, int, int) Body End
 
 
 QUIT; void run() Body

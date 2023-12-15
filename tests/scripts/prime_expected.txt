@@ -50,8 +50,8 @@ STORED d2,0
 POP d2
 GOTO 7; for() #3444 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3442 Body [Opt:AlwaysOn] End
-GOTO 5; while() #3442 End AND [Opt:NeverRet] AND void run(int) Body End
-PUSHV 0; Func[bool is_prime(int)] Body Start
+GOTO 5; while() #3442 End
+PUSHV 0; [Opt:NeverRet] AND void run(int) Body End AND Func[bool is_prime(int)] Body Start
 SETR d4,SP
 SETV d2,2; for() #3436 setup
 STORED d2,0

@@ -492,8 +492,8 @@ POP d2
 POP REFFFC
 SETR DATA,d2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #9268 Body [Opt:AlwaysOn] End
-GOTO 32; while() #9268 End AND [Opt:NeverRet] AND void run(int) Body End
-POP d2; Func[int Distance(int, int, int, int)] Body Start
+GOTO 32; while() #9268 End
+POP d2; [Opt:NeverRet] AND void run(int) Body End AND Func[int Distance(int, int, int, int)] Body Start
 POP d1
 POP d0
 POP d6

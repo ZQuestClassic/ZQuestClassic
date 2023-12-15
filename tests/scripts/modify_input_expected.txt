@@ -20,7 +20,8 @@ POP d2
 CASTBOOLI d2
 SETR INPUTA,d2; if() #3438 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3436 Body [Opt:AlwaysOn] End
-GOTO 3; while() #3436 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 3; while() #3436 End
+NOP; [Opt:NeverRet] AND void run() Body End
 
 
 QUIT; void run() Body
