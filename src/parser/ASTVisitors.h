@@ -48,6 +48,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseStmtForEach(ASTStmtForEach& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL) {
@@ -294,6 +296,7 @@ namespace ZScript
 		virtual void caseRange(ASTRange & host, void* param = NULL);
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL);
 		virtual void caseStmtForEach(ASTStmtForEach& host, void* param = NULL);
+		virtual void caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param = NULL);
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL);
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL);
 		virtual void caseStmtRepeat(ASTStmtRepeat& host, void* param = NULL);

@@ -26,6 +26,7 @@ namespace ZScript
 		void caseRange(ASTRange& host, void* = NULL);
 		void caseStmtFor(ASTStmtFor& host, void* = NULL);
 		void caseStmtForEach(ASTStmtForEach& host, void* = NULL);
+		void caseStmtRangeLoop(ASTStmtRangeLoop& host, void* = NULL);
 		void caseStmtWhile(ASTStmtWhile& host, void* = NULL);
 		void caseStmtReturn(ASTStmtReturn& host, void* = NULL);
 		void caseStmtReturnVal(ASTStmtReturnVal& host, void* = NULL);

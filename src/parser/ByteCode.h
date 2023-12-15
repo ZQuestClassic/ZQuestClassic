@@ -12108,6 +12108,54 @@ namespace ZScript
 			return new OReturnFunc();
 		}
 	};
+
+
+
+	class OSetCompare : public BinaryOpcode
+	{
+	public:
+		OSetCompare(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetCompare(a->clone(),b->clone());
+		}
+	};
+
+	class OGotoCompare : public BinaryOpcode
+	{
+	public:
+		OGotoCompare(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGotoCompare(a->clone(),b->clone());
+		}
+	};
+
+
+
+	class OStackWriteAtRV : public BinaryOpcode
+	{
+	public:
+		OStackWriteAtRV(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStackWriteAtRV(a->clone(),b->clone());
+		}
+	};
+
+	class OStackWriteAtVV : public BinaryOpcode
+	{
+	public:
+		OStackWriteAtVV(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStackWriteAtVV(a->clone(),b->clone());
+		}
+	};
 }
 
 #endif

@@ -47,6 +47,8 @@ namespace ZScript
 				return true;
 			if(dynamic_cast<ASTStmtForEach*>(node))
 				return true;
+			if(dynamic_cast<ASTStmtRangeLoop*>(node))
+				return true;
 			if(dynamic_cast<ASTStmtWhile*>(node))
 				return true;
 			if(dynamic_cast<ASTStmtDo*>(node))
@@ -195,6 +197,7 @@ namespace ZScript
 		void caseStmtIfElse(ASTStmtIfElse& host, void* param = NULL);
 		void caseStmtFor(ASTStmtFor& host, void* param = NULL);
 		void caseStmtForEach(ASTStmtForEach& host, void* param = NULL);
+		void caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param = NULL);
 		void caseStmtWhile(ASTStmtWhile& host, void* param = NULL);
 		void caseStmtDo(ASTStmtDo& host, void* param = NULL);
 		void caseStmtSwitch(ASTStmtSwitch& host, void* param = NULL);

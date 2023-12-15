@@ -314,6 +314,61 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 		visit(host.elseBlock.get(), param);
 }
 
+void SemanticAnalyzer::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
+{
+	//Use sub-scope
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
+	
+	visit(host.type.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	visit(host.range.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	visit(host.increment.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	//Check for negative increments- not allowed
+	auto incrval = host.increment->getCompileTimeValue(this, scope);
+	if(incrval && *incrval < 0)
+	{
+		handleError(CompileError::NegRangeLoopIncrement(&host));
+		if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	}
+	
+	//Get the type of the decl
+	DataType const& dataty = host.type->resolve(*scope, this);
+	checkCast(DataType::FLOAT, dataty, &host);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	//The data declaration
+	ASTDataDecl* decl = new ASTDataDecl(host.location);
+	decl->name = host.iden;
+	decl->baseType = new ASTDataType(dataty, host.location);
+	auto startval = host.range->getStartVal(true, this, scope);
+	if(startval)
+		decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*startval), host.location), host.location));
+	else if(host.range->type & ASTRange::RANGE_L)
+		decl->setInitializer(host.range->start->clone());
+	else
+		decl->setInitializer(new ASTExprPlus(host.range->start->clone(), new ASTNumberLiteral(new ASTFloat(0, 1, host.location), host.location), host.location));
+	host.decl = decl;
+	
+	visit(host.decl.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	visit(host.body.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	scope = scope->getParent();
+	if (breakRecursion(host)) return;
+	
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
+}
+
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
 {
 	while(ASTExprNot* ptr = dynamic_cast<ASTExprNot*>(host.test.get()))

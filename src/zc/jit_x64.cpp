@@ -226,11 +226,93 @@ static void zero(x86::Compiler &cc, x86::Gp reg)
 	cc.xor_(reg, reg);
 }
 
-static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map<int, Label> &goto_labels, x86::Gp vStackIndex, int command, int arg)
+static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map<int, Label> &goto_labels, x86::Gp vStackIndex, int command, int arg, int arg2)
 {
 	x86::Gp val = cc.newInt32();
-
-	if (command == GOTOTRUE)
+	
+	if(command == GOTOCMP)
+	{
+		auto lbl = goto_labels.at(arg);
+		switch(arg2 & CMP_FLAGS)
+		{
+			default:
+				break;
+			case CMP_MORE:
+				cc.jg(lbl);
+				break;
+			case CMP_MORE|CMP_EQ:
+				cc.jge(lbl);
+				break;
+			case CMP_LESS:
+				cc.jl(lbl);
+				break;
+			case CMP_LESS|CMP_EQ:
+				cc.jle(lbl);
+				break;
+			case CMP_EQ:
+				cc.je(lbl);
+				break;
+			case CMP_MORE|CMP_LESS:
+				cc.jne(lbl);
+				break;
+			case CMP_MORE|CMP_LESS|CMP_EQ:
+				cc.jmp(lbl);
+				break;
+		}
+	}
+	else if (command == SETCMP)
+	{
+		cc.mov(val, 0);
+		bool i10k = (arg2 & CMP_SETI);
+		x86::Gp val2;
+		if(i10k)
+		{
+			val2 = cc.newInt32();
+			cc.mov(val2, 10000);
+		}
+		switch(arg2 & CMP_FLAGS)
+		{
+			default:
+				break;
+			case CMP_MORE:
+				if(i10k)
+					cc.cmovg(val, val2);
+				else cc.setg(val);
+				break;
+			case CMP_MORE|CMP_EQ:
+				if(i10k)
+					cc.cmovge(val, val2);
+				else cc.setge(val);
+				break;
+			case CMP_LESS:
+				if(i10k)
+					cc.cmovl(val, val2);
+				else cc.setl(val);
+				break;
+			case CMP_LESS|CMP_EQ:
+				if(i10k)
+					cc.cmovle(val, val2);
+				else cc.setle(val);
+				break;
+			case CMP_EQ:
+				if(i10k)
+					cc.cmove(val, val2);
+				else cc.sete(val);
+				break;
+			case CMP_MORE|CMP_LESS:
+				if(i10k)
+					cc.cmovne(val, val2);
+				else cc.setne(val);
+				break;
+			case CMP_MORE|CMP_LESS|CMP_EQ:
+				if(i10k)
+					cc.mov(val, 10000);
+				else cc.mov(val, 1);
+				break;
+		}
+		set_z_register(state, cc, vStackIndex, arg, val);
+	}
+	else if (command == GOTOTRUE)
 	{
 		cc.je(goto_labels.at(arg));
 	}
@@ -591,7 +673,8 @@ JittedFunction jit_compile_script(script_data *script)
 	{
 		int command = script->zasm[i].command;
 		if (command != CALLFUNC && command != GOTO && command != GOTOTRUE
-			&& command != GOTOFALSE && command != GOTOMORE && command != GOTOLESS)
+			&& command != GOTOFALSE && command != GOTOMORE && command != GOTOLESS
+			&& command != GOTOCMP)
 			continue;
 
 		goto_labels[script->zasm[i].arg1] = cc.newLabel();
@@ -725,7 +808,7 @@ JittedFunction jit_compile_script(script_data *script)
 
 		if (command_uses_comparison_result(command))
 		{
-			compile_compare(state, cc, goto_labels, vStackIndex, command, arg1);
+			compile_compare(state, cc, goto_labels, vStackIndex, command, arg1, arg2);
 			continue;
 		}
 

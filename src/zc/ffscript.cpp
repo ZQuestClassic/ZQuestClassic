@@ -28479,6 +28479,13 @@ void do_peekat(const bool v)
 	set_register(sarg1, SH::read_stack(ri->sp+offs));
 }
 
+void do_writeat(const bool v1, const bool v2)
+{
+	auto val = SH::get_arg(sarg1,v1);
+	auto offs = SH::get_arg(sarg2,v2);
+	SH::write_stack(ri->sp+offs, val);
+}
+
 void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the stack.
 {
 	set_register(sarg1, stack_pop(sarg2));
@@ -35708,6 +35715,42 @@ int32_t run_script_int(bool is_jitted)
 				}
 				break;
 			
+			case GOTOCMP:
+			{
+				bool run = false;
+				if(sarg2 & CMP_MORE)
+					run = run || ((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG));
+				if(sarg2 & CMP_LESS)
+					run = run || !(ri->scriptflag & MOREFLAG);
+				if(sarg2 & CMP_EQ)
+					run = run || (ri->scriptflag & TRUEFLAG);
+				if(run)
+				{
+					if(sarg1 < 0 )
+					{
+						goto_err("GOTOCMP");
+						scommand = 0xFFFF;
+						break;
+					}
+					ri->pc = sarg1;
+					increment = false;
+				}
+				break;
+			}
+			
+			case SETCMP:
+			{
+				bool run = false;
+				if(sarg2 & CMP_MORE)
+					run = run || ((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG));
+				if(sarg2 & CMP_LESS)
+					run = run || !(ri->scriptflag & MOREFLAG);
+				if(sarg2 & CMP_EQ)
+					run = run || (ri->scriptflag & TRUEFLAG);
+				set_register(sarg1, run ? ((sarg2 & CMP_SETI) ? 10000 : 1) : 0);
+				break;
+			}
+			
 			case CALLFUNC:
 			{
 				retstack_push(ri->pc+1);
@@ -35928,6 +35971,12 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			case PEEKATV:
 				do_peekat(true);
+				break;
+			case STACKWRITEATRV:
+				do_writeat(false, true);
+				break;
+			case STACKWRITEATVV:
+				do_writeat(true, true);
 				break;
 			case POP:
 				do_pop();
@@ -45874,6 +45923,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "CALLFUNC", 1, 1, 0, 0 },
 	{ "RETURNFUNC", 0, 0, 0, 0 },
 
+	{ "SETCMP", 2, 0, 1, 0 },
+	{ "GOTOCMP", 2, 1, 1, 0 },
+	{ "STACKWRITEATRV", 2, 0, 1, 0 },
+	{ "STACKWRITEATVV", 2, 1, 1, 0 },
+
 	{ "", 0, 0, 0, 0 }
 };
 
@@ -54474,6 +54528,8 @@ bool command_uses_comparison_result(int command)
 	case GOTOFALSE:
 	case GOTOMORE:
 	case GOTOLESS:
+	case GOTOCMP:
+	case SETCMP:
 	case SETTRUE:
 	case SETTRUEI:
 	case SETFALSE:

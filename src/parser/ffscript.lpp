@@ -73,6 +73,7 @@ return 0
 script		TOKEN( SCRIPT );
 class		TOKEN( ZCLASS );
 for		TOKEN( FOR );
+loop		TOKEN( LOOP );
 if		TOKEN( IF );
 else		TOKEN( ELSE );
 switch		TOKEN( SWITCH );

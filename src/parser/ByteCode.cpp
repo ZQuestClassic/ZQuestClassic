@@ -6914,3 +6914,24 @@ string OReturnFunc::toString() const
 	return "RETURNFUNC";
 }
 
+
+string OSetCompare::toString() const
+{
+	return "SETCMP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OGotoCompare::toString() const
+{
+	return "GOTOCMP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+
+string OStackWriteAtRV::toString() const
+{
+	return "STACKWRITEATRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OStackWriteAtVV::toString() const
+{
+	return "STACKWRITEATVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
