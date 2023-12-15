@@ -2914,6 +2914,11 @@ namespace ZScript
 	class ONoOp : public Opcode
 	{
 	public:
+		ONoOp() = default;
+		ONoOp(int lbl) : ONoOp()
+		{
+			setLabel(lbl);
+		}
 		std::string toString() const;
 		Opcode* clone() const
 		{
