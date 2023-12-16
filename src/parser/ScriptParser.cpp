@@ -971,7 +971,6 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 					Argument const* target_arg = single_op \
 						? (single_op->getArgument()) \
 						: (multi_op->getFirstArgument()); \
-					string target_str = target_arg->toString(); \
 					size_t addcount = 0; \
 					while(it2 != rval.end()) \
 					{ \
@@ -982,9 +981,9 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 						ty2* multi_next = dynamic_cast<ty2*>(nextcode); \
 						if(!(single_next || multi_next)) \
 							break; /*can't combine*/ \
-						if(target_str.compare(single_next \
-							? (single_next->getArgument()->toString()) \
-							: (multi_next->getFirstArgument()->toString()))) \
+						if(*target_arg != *(single_next \
+							? (single_next->getArgument()) \
+							: (multi_next->getFirstArgument()))) \
 							break; /*Different registers, can't combine*/ \
 						if(multi_next) \
 						{ \
@@ -1002,7 +1001,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 					{ \
 						if(single_op) \
 						{ \
-							Argument* reg = target_arg->clone(); \
+							Argument* reg = single_op->takeArgument(); \
 							it = rval.erase(it); \
 							it = rval.insert(it,std::shared_ptr<Opcode>(new ty2(reg,new LiteralArgument(addcount+1)))); \
 							(*it)->setLabel(lbl); \
@@ -1018,9 +1017,9 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 					else if(multi_op) \
 					{ \
 						LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
-						if(litarg->value == 1) \
+						if(*litarg == 1) \
 						{ \
-							Argument* reg = target_arg->clone(); \
+							Argument* reg = multi_op->takeFirstArgument(); \
 							it = rval.erase(it); \
 							it = rval.insert(it,std::shared_ptr<Opcode>(new ty1(reg))); \
 							(*it)->setLabel(lbl); \
@@ -1065,17 +1064,40 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				continue;
 			}
 		END_OPT_PASS()
-		START_OPT_PASS() //Fix PeekAtImmediate(,0)
+		START_OPT_PASS()
+			// Change [PEEKAT reg,0] to [PEEK reg]
 			if(OPeekAtImmediate* peekop = dynamic_cast<OPeekAtImmediate*>(ocode))
 			{
 				LiteralArgument* litarg = static_cast<LiteralArgument*>(peekop->getSecondArgument());
 				if(!litarg->value)
 				{
-					Argument* arg = peekop->getFirstArgument()->clone();
+					Argument* arg = peekop->takeFirstArgument();
 					it = rval.erase(it);
 					it = rval.insert(it, std::shared_ptr<Opcode>(new OPeek(arg)));
 					(*it)->setLabel(lbl);
 					(*it)->setComment(comment);
+				}
+				++it;
+				continue;
+			}
+			// If [STORED reg,lit] is followed by [LOADD reg,lit], the LOADD
+			// can be deleted, as 'reg' already will contain the value to be loaded.
+			if(OStoreDirect* stored = dynamic_cast<OStoreDirect*>(ocode))
+			{
+				Argument const* regarg = stored->getFirstArgument();
+				Argument const* litarg = stored->getSecondArgument();
+				auto it2 = it;
+				++it2;
+				if(OLoadDirect* loadd = dynamic_cast<OLoadDirect*>(it2->get()))
+				{
+					if(*regarg == *loadd->getFirstArgument()
+						&& *litarg == *loadd->getSecondArgument()
+						&& loadd->getLabel() < 0)
+					{
+						stored->mergeComment(loadd->getComment());
+						rval.erase(it2);
+						continue;
+					}
 				}
 				++it;
 				continue;
@@ -1098,9 +1120,9 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 					{
 						if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
 						{
-							if(!target_str.compare(pusharg->getArgument()->toString()))
+							if(*target_arg == *pusharg->getArgument())
 							{
-								Argument* reg = target_arg->clone();
+								Argument* reg = pusharg->takeArgument();
 								it2 = rval.erase(it2);
 								it = rval.erase(it);
 								it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(reg)));
@@ -1144,10 +1166,9 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				Opcode* nextcode = it2->get();
 				if(OTraceRegister* traceop = dynamic_cast<OTraceRegister*>(nextcode))
 				{
-					if(traceop->getLabel() == -1 && !regarg->toString().compare(
-						traceop->getArgument()->toString()))
+					if(traceop->getLabel() == -1 && *regarg == *traceop->getArgument())
 					{
-						Argument* arg = setop->getSecondArgument()->clone();
+						Argument* arg = setop->takeSecondArgument();
 						Opcode::mergeComment(comment, traceop->getComment());
 						it2 = rval.erase(it2);
 						it = rval.erase(it);

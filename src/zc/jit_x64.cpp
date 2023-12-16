@@ -489,6 +489,7 @@ static bool command_is_compiled(int command)
 	case SETR:
 	case SETV:
 	case STORED:
+	case STOREDV:
 	case STOREI:
 	case SUBR:
 	case SUBV:
@@ -1034,9 +1035,20 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.mov(offset, arg2);
 			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
 			div_10000(cc, offset);
-
+			
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
+		}
+		break;
+		case STOREDV:
+		{
+			// Write directly value on the stack (offset is arg2 + rSFRAME register).
+			x86::Gp offset = cc.newInt32();
+			cc.mov(offset, arg2);
+			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			div_10000(cc, offset);
+			
+			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);
 		}
 		break;
 		case STOREI:

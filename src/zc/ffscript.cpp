@@ -28518,10 +28518,10 @@ void do_loadd()
 	set_register(sarg1, value);
 }
 
-void do_stored()
+void do_stored(const bool v)
 {
 	const int32_t stackoffset = (sarg2+ri->d[rSFRAME]) / 10000;
-	const int32_t value = get_register(sarg1);
+	const int32_t value = SH::get_arg(sarg1, v);
 	SH::write_stack(stackoffset, value);
 }
 
@@ -36017,7 +36017,10 @@ int32_t run_script_int(bool is_jitted)
 				break;
 				
 			case STORED:
-				do_stored();
+				do_stored(false);
+				break;
+			case STOREDV:
+				do_stored(true);
 				break;
 				
 			case LOAD1:
@@ -45944,6 +45947,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "TRUNCATE", 1, 0, 0, 0},
 	{ "ROUND", 1, 0, 0, 0},
 	{ "ROUNDAWAY", 1, 0, 0, 0},
+	{ "STOREDV", 2, 1, 1, 0},
 
 	{ "", 0, 0, 0, 0 }
 };
