@@ -503,9 +503,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY2),new VarArgument(CLASS_THISKEY)));
 				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
 					new VectorArgument(user_class.members)));
-				std::shared_ptr<Opcode> alt(new ONoOp());
-				alt->setLabel(function.getAltLabel());
-				funccode.push_back(std::move(alt));
+				funccode.push_back(std::shared_ptr<Opcode>(new ONoOp(function.getAltLabel())));
 			}
 			else if(puc == puc_destruct)
 			{
@@ -570,9 +568,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			int32_t stackSize = getStackSize(function);
 			
 			// Start of the function.
-			std::shared_ptr<Opcode> first(new ONoOp());
-			first->setLabel(function.getLabel());
-			funccode.push_back(std::move(first));
+			funccode.push_back(std::shared_ptr<Opcode>(new ONoOp(function.getLabel())));
 			
 			// Push on the this, if a script
 			if (isRun)
@@ -655,15 +651,12 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			else
 			{
 				// Add appendix code.
-				std::shared_ptr<Opcode> next(new ONoOp());
-				next->setLabel(bo.getReturnLabelID());
-				funccode.push_back(std::move(next));
+				funccode.push_back(std::shared_ptr<Opcode>(new ONoOp(bo.getReturnLabelID())));
 				
 				// Pop off everything.
 				if(stackSize)
 					addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL),
 						new LiteralArgument(stackSize)));
-				else addOpcode2(funccode, new ONoOp());
 				
 				//if it's a main script, quit.
 				if (isRun)

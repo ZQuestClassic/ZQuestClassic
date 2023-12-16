@@ -327,9 +327,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		visit(host.thenStatement.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Body",ifstr,declname,ifid));
 		//nop
-		Opcode *next = new ONoOp();
-		next->setLabel(endif);
-		addOpcode(next);
+		addOpcode(new ONoOp(endif));
 		
 		deallocateRefsUntilCount(startRefCount);
 		
@@ -377,9 +375,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		visit(host.thenStatement.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
 		//nop
-		Opcode *next = new ONoOp();
-		next->setLabel(endif);
-		addOpcode(next);
+		addOpcode(new ONoOp(endif));
 	}
 }
 
@@ -446,7 +442,6 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		commentAt(targ_sz, fmt::format("{}({}) #{} Test",ifstr,declname,ifid));
 		//
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		if(inv)
 		{
 			addOpcode(new OGotoFalseImmediate(new LabelArgument(elseif)));
@@ -460,11 +455,9 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		
 		targ_sz = commentTarget();
 		visit(host.thenStatement.get(), param);
+		addOpcode(new OGotoImmediate(new LabelArgument(endif)));
 		//nop
-		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		Opcode *next = new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-		next->setLabel(elseif);
-		addOpcode(next);
+		addOpcode(new ONoOp(elseif));
 		
 		deallocateRefsUntilCount(startRefCount);
 		
@@ -473,15 +466,12 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		
 		scope = scope->getParent();
 		
-		addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
 		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Body",ifstr,declname,ifid));
 		targ_sz = commentTarget();
 		visit(host.elseStatement.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}({}) #{} Else",ifstr,declname,ifid));
 		
-		next = new ONoOp();
-		next->setLabel(endif);
-		addOpcode(next);
+		addOpcode(new ONoOp(endif));
 	}
 	else
 	{
@@ -529,15 +519,11 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		visit(host.thenStatement.get(), param);
 		addOpcode(new OGotoImmediate(new LabelArgument(endif)));
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
-		Opcode *next = new ONoOp();
-		next->setLabel(elseif);
-		addOpcode(next);
+		addOpcode(new ONoOp(elseif));
 		targ_sz = commentTarget();
 		visit(host.elseStatement.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",ifstr,ifid));
-		next = new ONoOp();
-		next->setLabel(endif);
-		addOpcode(next);
+		addOpcode(new ONoOp(endif));
 	}
 }
 
@@ -580,9 +566,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		visit(cases.back()->block.get(), param);
 		commentAt(targ_sz, fmt::format("switch() #{} Default [Opt:DefaultOnly]", switchid));
 		// Add ending label, for 'break;'
-		Opcode* next = new ONoOp();
-		next->setLabel(end_label);
-		addOpcode(next);
+		addOpcode(new ONoOp(end_label));
 		return;
 	}
 	
@@ -623,9 +607,9 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			for (auto it = cases->cases.begin(); it != cases->cases.end(); ++it)
 			{
 				auto val = (*it)->getCompileTimeValue(this, scope);
+				assert(val); //ASTExprConst
 				// Test this individual case.
-				if(val)
-					addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
+				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 				// If the test succeeds, jump to its label.
 				addOpcode(new OGotoTrueImmediate(new LabelArgument(label)));
 				commentBack(fmt::format("case '{}'", OPT_STR(val)));
@@ -646,20 +630,14 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 					endval = *endval-1;
 				//Compare key to lower bound
 				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*startval)));
-				addOpcode(new OSetMore(new VarArgument(EXP1))); //Set if key is IN the bound
-				addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
-				addOpcode(new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
+				addOpcode(new OGotoCompare(new LabelArgument(skipLabel), new LiteralArgument(CMP_GE))); //Skip if key is OUT of the bound
 				commentBack(fmt::format("case '{0}...{1}', key<{0}", OPT_STR(startval), OPT_STR(endval)));
 				
 				//Compare key to upper bound
 				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*endval)));
-				addOpcode(new OSetLess(new VarArgument(EXP1)	)); //Set if key is IN the bound
-				addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
-				addOpcode(new OGotoFalseImmediate(new LabelArgument(label))); //If key is in bounds, jump to its label
+				addOpcode(new OGotoCompare(new LabelArgument(label), new LiteralArgument(CMP_LE))); //If key is in bounds, jump to its label
 				commentBack(fmt::format("case '{0}...{1}', {0}<key<{1}", OPT_STR(startval), OPT_STR(endval)));
-				Opcode *end = new ONoOp(); //Just here so the skip label can be placed
-				end->setLabel(skipLabel);
-				addOpcode(end); //add the skip label
+				addOpcode(new ONoOp(skipLabel)); //add the skip label
 			}
 
 			// If this set includes the default case, mark it.
@@ -677,9 +655,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			ASTSwitchCases* cases = *it;
 			
 			// Make a nop for starting the block.
-			Opcode* next = new ONoOp();
-			next->setLabel(labels[cases]);
-			addOpcode(next);
+			addOpcode(new ONoOp(labels[cases]));
 			commentBack("Case block");
 			// Add block.
 			visit(cases->block.get(), param);
@@ -687,12 +663,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	}
 	
 	if(needsEndLabel)
-	{
-		// Add ending label.
-		Opcode *next = new ONoOp();
-		next->setLabel(end_label);
-		addOpcode(next);
-	}
+		addOpcode(new ONoOp(end_label));
 	// Restore break label.
 	pop_break();
 }
@@ -725,9 +696,7 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 		visit(cases.back()->block.get(), param);
 		commentAt(targ_sz, fmt::format("switch(\"\") #{} Default [Opt:DefaultOnly]", switchid));
 		// Add ending label, for 'break;'
-		Opcode *next = new ONoOp();
-		next->setLabel(end_label);
-		addOpcode(next);
+		addOpcode(new ONoOp(end_label));
 		return;
 	}
 	
@@ -781,18 +750,14 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 		ASTSwitchCases* cases = *it;
 
 		// Make a nop for starting the block.
-		Opcode* next = new ONoOp();
-		next->setLabel(labels[cases]);
-		addOpcode(next);
+		addOpcode(new ONoOp(labels[cases]));
 		commentBack("Case block");
 		// Add block.
 		visit(cases->block.get(), param);
 	}
 	
 	// Add ending label.
-	Opcode *next = new ONoOp();
-	next->setLabel(end_label);
-	addOpcode(next);
+	addOpcode(new ONoOp(end_label));
 	
 	// Restore break label.
 	pop_break();
@@ -836,9 +801,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	int32_t loopincr = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
 	
-	Opcode *next = new ONoOp();
-	next->setLabel(loopstart);
-	addOpcode(next);
+	addOpcode(new ONoOp(loopstart));
 	commentBack(fmt::format("for() #{} LoopTest",forid));
 	//test the termination condition
 	int32_t testRefCount = arrayRefs.size(); //Store ref count
@@ -865,9 +828,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	pop_cont();
 
 	//run the increment
-	next = new ONoOp();
-	next->setLabel(loopincr);
-	addOpcode(next);
+	addOpcode(new ONoOp(loopincr));
 	commentBack(fmt::format("for() #{} LoopIncrement",forid));
 	int32_t incRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host, host.increments, param);
@@ -883,18 +844,14 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	
 	if(host.hasElse())
 	{
-		next = new ONoOp();
-		next->setLabel(elselabel);
-		addOpcode(next);
+		addOpcode(new ONoOp(elselabel));
 		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
 		commentStartEnd(targ_sz, fmt::format("for() #{} Else",forid));
 	}
 	
 	//nop
-	next = new ONoOp();
-	next->setLabel(loopend);
-	addOpcode(next);
+	addOpcode(new ONoOp(loopend));
 }
 
 void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
@@ -928,21 +885,16 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	int32_t loopend = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
 	
-	Opcode* next = new ONoOp();
-	next->setLabel(loopstart);
-	addOpcode(next);
+	addOpcode(new ONoOp(loopstart));
 	commentBack(fmt::format("for(each) #{} EndArrayCheck",forid));
 	//Check if we've reached the end of the array
 	addOpcode(new OLoadDirect(new VarArgument(INDEX), new LiteralArgument(arrdecloffset)));
 	addOpcode(new OArraySize(new VarArgument(INDEX))); //get sizeofarray
 	//Load the iterator
 	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
-	//If the iterator is >= the length
+	//If the iterator is >= the length, goto the 'else' (end without break)
 	addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
-	addOpcode(new OSetMore(new VarArgument(EXP1)));
-	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	//Goto the 'else' (end without break)
-	addOpcode(new OGotoFalseImmediate(new LabelArgument(elselabel)));
+	addOpcode(new OGotoCompare(new LabelArgument(elselabel), new LiteralArgument(CMP_GE)));
 	commentBack(fmt::format("for(each) #{} to Else",forid));
 	
 	//Reaching here, we have a valid index! Load it.
@@ -974,17 +926,13 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	
 	if(host.hasElse())
 	{
-		next = new ONoOp();
-		next->setLabel(elselabel);
-		addOpcode(next);
+		addOpcode(new ONoOp(elselabel));
 		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
 		commentStartEnd(targ_sz, fmt::format("for(each) #{} Else",forid));
 	}
 	
-	next = new ONoOp();
-	next->setLabel(loopend);
-	addOpcode(next);
+	addOpcode(new ONoOp(loopend));
 }
 
 void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
@@ -1038,7 +986,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		// Depending on the increment, the starting value changes
 		if(startval) //If the startval is constant, it will already be initialized.
 		{
-			addOpcode(new OGotoCompare(new LabelArgument(lbl), new LiteralArgument(CMP_MORE|CMP_EQ)));
+			addOpcode(new OGotoCompare(new LabelArgument(lbl), new LiteralArgument(CMP_GE)));
 			if(endval)
 				addOpcode(new OStoreDirectV(new LiteralArgument(*endval), new LiteralArgument(decloffset)));
 			else
@@ -1108,9 +1056,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		indx_peekind = mgr.push();
 	}
 	
-	Opcode* next = new ONoOp();
-	next->setLabel(loopstart);
-	addOpcode(next);
+	addOpcode(new ONoOp(loopstart));
 	
 	//run the inside of the loop.
 	push_break(loopend, arrayRefs.size());
@@ -1348,9 +1294,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		commentStartEnd(targ_sz, fmt::format("loop() #{} Else",loopid));
 	}
 	
-	next = new ONoOp();
-	next->setLabel(loopend);
-	addOpcode(next);
+	addOpcode(new ONoOp(loopend));
 	while(mgr.pop())
 		addOpcode(new OPopRegister(new VarArgument(NUL)));
 }
@@ -1378,9 +1322,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : endlabel;
 	//run the test
-	Opcode *next = new ONoOp();
-	next->setLabel(startlabel);
-	addOpcode(next);
+	addOpcode(new ONoOp(startlabel));
 	if(!val)
 	{
 		commentBack(fmt::format("{}() #{} Test",whilestr,whileid));
@@ -1421,19 +1363,13 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	
 	if(host.hasElse() && !val)
 	{
-		next = new ONoOp();
-		next->setLabel(elselabel);
-		addOpcode(next);
+		addOpcode(new ONoOp(elselabel));
 		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",whilestr,whileid));
 	}
 	if(!val || num_breaks) //no else / end label needed for inf loops unless they break
-	{
-		next = new ONoOp();
-		next->setLabel(endlabel);
-		addOpcode(next);
-	}
+		addOpcode(new ONoOp(endlabel));
 }
 
 void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
@@ -1450,14 +1386,8 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	string whilestr = inv ? "do-until" : "do-while",
 		truestr = inv ? "false" : "true",
 		falsestr = inv ? "true" : "false";
-	Opcode* next;
 	if(!deadloop)
-	{
-		//nop to label start
-		next = new ONoOp();
-		next->setLabel(startlabel);
-		addOpcode(next);
-	}
+		addOpcode(new ONoOp(startlabel));
 	
 	push_break(endlabel, arrayRefs.size());
 	push_cont(continuelabel, arrayRefs.size());
@@ -1469,9 +1399,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	pop_break();
 	pop_cont();
 	
-	next = new ONoOp();
-	next->setLabel(continuelabel);
-	addOpcode(next);
+	addOpcode(new ONoOp(continuelabel));
 	
 	if(val)
 	{
@@ -1509,17 +1437,13 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 		}
 		addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
 		
-		next = new ONoOp();
-		next->setLabel(elselabel);
-		addOpcode(next);
+		addOpcode(new ONoOp(elselabel));
 		targ_sz = commentTarget();
 		visit(host.elseBlock.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",whilestr,whileid));
 	}
 	
-	next = new ONoOp();
-	next->setLabel(endlabel);
-	addOpcode(next);
+	addOpcode(new ONoOp(endlabel));
 }
 
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
@@ -3463,18 +3387,13 @@ void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*mval)));
 		else visit(host.middle.get(), param); //Use middle section
 		addOpcode(new OGotoImmediate(new LabelArgument(endif))); //Skip right
-		Opcode *next;
+		//Add label for between middle and right
 		if(rval)
-		{
-			next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*rval));
-		}
-		else next = new ONoOp();
-		next->setLabel(elseif);
-		addOpcode(next); //Add label for between middle and right
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*rval)));
+		else addOpcode(new ONoOp());
+		backOpcode()->setLabel(elseif);
 		if(!rval) visit(host.right.get(), param); //Use right section
-		next = new ONoOp();
-		next->setLabel(endif);
-		addOpcode(next); //Add label for after right
+		addOpcode(new ONoOp(endif)); //Add label for after right
 	}
 }
 
