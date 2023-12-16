@@ -33,17 +33,16 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		UserClass* _class = function.getClass();
 		DataType const* thisType = &_class->getNode()->type->resolve(*scope,this);
 		DataType const* constType = thisType->getConstType();
-		BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
+		function.thisVar = BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
 		function.getInternalScope()->stackDepth_--;
 	}
 	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
-	Scope& functionScope = *function.getInternalScope();
 
 	// Grab the script.
 	Script* script = NULL;
-	if (ScriptScope* ss = dynamic_cast<ScriptScope*>(scope))
+	if (ScriptScope* ss = dynamic_cast<ScriptScope*>(scope->getParent()))
 		script = &ss->script;
 
 	// Add the parameters to the scope.
@@ -53,9 +52,9 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	{
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
-		DataType const& type = parameter.resolveType(&functionScope, this);
+		DataType const& type = parameter.resolveType(scope, this);
 		if (breakRecursion(parameter)) continue;
-		Variable::create(functionScope, parameter, type, this);
+		function.paramDatum.push_back(Variable::create(*scope, parameter, type, this));
 	}
 	if(breakRecursion()) return;
 	
@@ -68,30 +67,28 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		{
 			case ZTID_PLAYER:
 				function.thisVar =
-					BuiltinConstant::create(functionScope, DataType::PLAYER, "this", 0);
+					BuiltinConstant::create(*scope, DataType::PLAYER, "this", 0);
 				break;
 			case ZTID_SCREEN:
 				function.thisVar =
-					BuiltinConstant::create(functionScope, DataType::SCREEN, "this", 0);
+					BuiltinConstant::create(*scope, DataType::SCREEN, "this", 0);
 				break;
 			case ZTID_VOID:
 				function.thisVar =
-					BuiltinVariable::create(functionScope, DataType::ZVOID, "", 0);
+					BuiltinVariable::create(*scope, DataType::ZVOID, "", 0);
 				break;
 			default:
 				DataType const* thisType = scope->getTypeStore().getType(thisTypeId);
 				DataType const* constType = thisType->getConstType();
 				function.thisVar =
-					BuiltinVariable::create(functionScope, constType != NULL ? *constType : *thisType, "this", this);
+					BuiltinVariable::create(*scope, constType != NULL ? *constType : *thisType, "this", this);
 		}
 	}
 
 	// Evaluate the function block under its scope and return type.
 	DataType const* oldReturnType = returnType;
 	returnType = function.returnType;
-	scope = &functionScope;
 	visit(functionDecl->block.get());
-	scope = scope->getParent();
 	returnType = oldReturnType;
 }
 
@@ -219,7 +216,7 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 		host.isString = true;
 		for (vector<ASTSwitchCases*>::iterator it = host.cases.begin(); it != host.cases.end(); ++it)
 		{
-			visit(host, (*it)->str_cases, param);
+			visit_vec((*it)->str_cases, param);
 		}
 	}
 	
@@ -584,14 +581,14 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 		}
 	}
 	// Recurse on list contents.
-	visit(host, host.getDeclarations());
+	visit_vec(host.getDeclarations());
 }
 
 void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 {
 	if(host.registered())
 	{
-		visit(host, host.getDeclarations());
+		visit_vec(host.getDeclarations());
 		return;
 	}
 	// Resolve the base type.
@@ -944,7 +941,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	}
 	
 	if(breakRecursion(host)) {scope = oldScope; return;}
-	visit(host, host.optparams, param);
+	visit_vec(host.optparams, param);
 	if(breakRecursion(host)) {scope = oldScope; return;}
 	
 	auto parcnt = paramTypes.size() - host.optparams.size();
@@ -1092,7 +1089,7 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 		//Re-visit the constructors now
 		parsing_user_class = puc_construct;
 		scope = &user_class.getScope();
-		block_visit(host, host.constructors, param);
+		block_visit_vec(host.constructors, param);
 		scope = scope->getParent();
 		parsing_user_class = puc_none;
 	}
@@ -1433,7 +1430,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		if (breakRecursion(host)) return;
 	}
 
-	visit(host, host.parameters);
+	visit_vec(host.parameters);
 	if (breakRecursion(host)) return;
 	
 	if(host.binding)

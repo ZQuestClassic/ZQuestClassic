@@ -559,12 +559,12 @@ string FunctionSignature::asString() const
 
 Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int32_t id,
-				   int32_t flags, int32_t internal_flags, bool prototype, ASTExprConst* defaultReturn)
+				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
 	: returnType(returnType), name(name), hasPrefixType(false),
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
 	  node(NULL), internalScope(NULL), thisVar(NULL), internal_flags(internal_flags), prototype(prototype),
 	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags), shown_depr(false),
-	  aliased_func(nullptr)
+	  aliased_func(nullptr), paramDatum(), params_used()
 {
 	assert(returnType);
 }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "AST.h"
+#include "base/containers.h"
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "base/general.h"
@@ -434,7 +435,7 @@ namespace ZScript
 	public:
 		Function(DataType const* returnType, std::string const& name,
 		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames,
-		         int32_t id, int32_t flags = 0, int32_t internal_flags = 0, bool prototype = false, ASTExprConst* defaultReturn = NULL);
+		         int32_t id, int32_t flags = 0, int32_t internal_flags = 0, bool prototype = false, optional<int32_t> defaultReturn = nullopt);
 		Function() = default;
 		~Function();
 		
@@ -444,6 +445,8 @@ namespace ZScript
 		byte extra_vargs;
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
+		std::vector<Datum*> paramDatum;
+		bitstring params_used;
 		std::vector<int32_t> opt_vals;
 		int32_t id;
 
@@ -527,7 +530,7 @@ namespace ZScript
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		bool prototype;
-		ASTExprConst* defaultReturn;
+		optional<int32_t> defaultReturn;
 		
 		bool shouldShowDepr(bool err) const;
 		void ShownDepr(bool err);
