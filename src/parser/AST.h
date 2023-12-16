@@ -13,6 +13,8 @@ namespace ZScript
 #include <map>
 #include <memory>
 #include <string>
+#include "base/ints.h"
+#include "base/headers.h"
 #include "y.tab.hpp"
 #include "Compiler.h"
 #include "CompileOption.h"
@@ -139,6 +141,19 @@ namespace ZScript
 	// Types
 	class ASTScriptType;
 	class ASTDataType;
+	
+	//This macro defines a "comment UID" for to be separate per-class.
+	#define DEF_COMMENT_UID() \
+	public: \
+		uint get_comment_id() \
+		{ \
+			if(!comment_id) \
+				comment_id = ++next_comment_id; \
+			return *comment_id; \
+		} \
+	private: \
+		static uint next_comment_id; \
+		optional<uint> comment_id
 
 	//////////////////////////////////////////////////////////////////////////////
 	class LocationData
@@ -429,6 +444,7 @@ namespace ZScript
     
 	class ASTStmtIf : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtIf(ASTExpr* condition, ASTBlock* thenStatement,
 		          LocationData const& location = LOC_NONE);
@@ -457,6 +473,7 @@ namespace ZScript
 
 	class ASTStmtIfElse : public ASTStmtIf
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtIfElse(
 				ASTExpr* condition, ASTBlock* thenStatement, ASTBlock* elseStatement,
@@ -474,6 +491,7 @@ namespace ZScript
 	// A switch statement.
 	class ASTStmtSwitch : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtSwitch(LocationData const& location = LOC_NONE);
 		ASTStmtSwitch* clone() const {return new ASTStmtSwitch(*this);}
@@ -536,6 +554,7 @@ namespace ZScript
 
 	class ASTStmtFor : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtFor(ASTStmt* setup, ASTExpr* test,
 		           ASTStmt* increment, ASTStmt* body,
@@ -561,6 +580,7 @@ namespace ZScript
 	};
 	class ASTStmtForEach : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtForEach(std::string const& identifier, ASTExpr* expr,
 		           ASTStmt* body, ASTStmt* elseBlock,
@@ -588,6 +608,7 @@ namespace ZScript
 
 	class ASTStmtRangeLoop : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtRangeLoop(ASTDataType* type, string const& iden, ASTRange* range,
 			ASTExpr* increment, ASTStmt* body, LocationData const& location = LOC_NONE);
@@ -619,6 +640,7 @@ namespace ZScript
 
 	class ASTStmtWhile : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtWhile(ASTExpr* test, ASTStmt* body, ASTStmt* elseBlock,
 		             LocationData const& location = LOC_NONE);
@@ -641,6 +663,7 @@ namespace ZScript
 
 	class ASTStmtDo : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtDo(ASTExpr* test,ASTStmt* body, ASTStmt* elseBlock,
 		          LocationData const& location = LOC_NONE);
