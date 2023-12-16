@@ -19,18 +19,16 @@ PUSHARGSV 0,0.0002
 SETR d4,SP
 LOADD d2,4; if() #1 Test
 COMPAREV d2,0
-SETTRUEI d2
+SETCMP d2,0.0012
 COMPAREV d2,0
 GOTOTRUE 16; Test 'if'
 LOADD d2,7; if() #1 Body Start
 STORED d2,4; if() #1 Body End
 LOADD d2,5; if() #2 Test
 COMPAREV d2,0
-SETMORE d2
+SETCMP d2,0.0010
 COMPAREV d2,0
-SETTRUEI d2
-COMPAREV d2,0
-GOTOTRUE 26; Test 'if'
+GOTOTRUE 24; Test 'if'
 SETV d3,360; InlineFunc[int Rand(int)] Params AND if() #2 Body Start
 RNDR d2,d3; InlineFunc[int Rand(int)] Body
 STORED d2,5; if() #2 Body End
@@ -51,30 +49,26 @@ POP d3
 ADDR d2,d3
 STORED d2,5; if() #1 Test
 COMPAREV d2,-360
-SETMORE d2
+SETCMP d2,0.0010
 COMPAREV d2,0
-SETTRUEI d2
-COMPAREV d2,0
-GOTOTRUE 52; Test 'if'
+GOTOTRUE 48; Test 'if'
 LOADD d2,5; if() #1 Body Start
 ADDV d2,360
 STORED d2,5
-GOTO 62; if() #1 Body End
+GOTO 56; if() #1 Body End
 LOADD d2,5; if() #3 Test AND if() #1 Else Start
 COMPAREV d2,360
-SETLESS d2
+SETCMP d2,0.0009
 COMPAREV d2,0
-SETTRUEI d2
-COMPAREV d2,0
-GOTOTRUE 62; Test 'if'
+GOTOTRUE 56; Test 'if'
 LOADD d2,5; if() #3 Body Start
 SUBV d2,360
 STORED d2,5; if() #3 Body End
 LOADD d2,3; if() #1 Else End AND if() #2 Test
 COMPAREV d2,0
-SETTRUEI d2
+SETCMP d2,0.0012
 COMPAREV d2,0
-GOTOTRUE 106; Test 'if'
+GOTOTRUE 100; Test 'if'
 LOADD d2,1; if() #2 Body Start
 PUSHR d2
 LOADD d2,7
@@ -113,7 +107,7 @@ PUSHR d3
 POP d2
 POP REFFFC
 SETR Y,d2
-GOTO 189; if() #2 Body End
+GOTO 183; if() #2 Body End
 LOADD d2,1; if() #2 Else Start
 PUSHR d2
 LOADD d2,7
@@ -198,7 +192,7 @@ POP d2
 POP REFFFC
 SETR Y,d2; if() #2 Else End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 36; while() #1 End AND [Opt:NeverRet] AND void run(int, int, int, int, int) Body End
+GOTO 34; while() #1 End AND [Opt:NeverRet] AND void run(int, int, int, int, int) Body End
 
 
 QUIT; void run() Body

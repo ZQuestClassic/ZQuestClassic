@@ -513,9 +513,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			}
 			else
 			{
-				std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
-					new LiteralArgument(0)));
-				first->setLabel(function.getLabel());
+				std::shared_ptr<Opcode> first(new ONoOp(function.getLabel()));
 				funccode.push_back(std::move(first));
 			}
 			// Push 0s for the local variables.

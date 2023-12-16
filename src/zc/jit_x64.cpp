@@ -237,25 +237,25 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 		{
 			default:
 				break;
-			case CMP_MORE:
+			case CMP_GT:
 				cc.jg(lbl);
 				break;
-			case CMP_MORE|CMP_EQ:
+			case CMP_GT|CMP_EQ:
 				cc.jge(lbl);
 				break;
-			case CMP_LESS:
+			case CMP_LT:
 				cc.jl(lbl);
 				break;
-			case CMP_LESS|CMP_EQ:
+			case CMP_LT|CMP_EQ:
 				cc.jle(lbl);
 				break;
 			case CMP_EQ:
 				cc.je(lbl);
 				break;
-			case CMP_MORE|CMP_LESS:
+			case CMP_GT|CMP_LT:
 				cc.jne(lbl);
 				break;
-			case CMP_MORE|CMP_LESS|CMP_EQ:
+			case CMP_GT|CMP_LT|CMP_EQ:
 				cc.jmp(lbl);
 				break;
 		}
@@ -274,22 +274,22 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 		{
 			default:
 				break;
-			case CMP_MORE:
+			case CMP_GT:
 				if(i10k)
 					cc.cmovg(val, val2);
 				else cc.setg(val);
 				break;
-			case CMP_MORE|CMP_EQ:
+			case CMP_GT|CMP_EQ:
 				if(i10k)
 					cc.cmovge(val, val2);
 				else cc.setge(val);
 				break;
-			case CMP_LESS:
+			case CMP_LT:
 				if(i10k)
 					cc.cmovl(val, val2);
 				else cc.setl(val);
 				break;
-			case CMP_LESS|CMP_EQ:
+			case CMP_LT|CMP_EQ:
 				if(i10k)
 					cc.cmovle(val, val2);
 				else cc.setle(val);
@@ -299,12 +299,12 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 					cc.cmove(val, val2);
 				else cc.sete(val);
 				break;
-			case CMP_MORE|CMP_LESS:
+			case CMP_GT|CMP_LT:
 				if(i10k)
 					cc.cmovne(val, val2);
 				else cc.setne(val);
 				break;
-			case CMP_MORE|CMP_LESS|CMP_EQ:
+			case CMP_GT|CMP_LT|CMP_EQ:
 				if(i10k)
 					cc.mov(val, 10000);
 				else cc.mov(val, 1);

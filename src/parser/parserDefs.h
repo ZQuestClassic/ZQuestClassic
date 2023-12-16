@@ -41,15 +41,15 @@ using namespace util;
 
 #define REGISTRATION_REC_LIMIT		50
 
-#define CMP_MORE  0x01
-#define CMP_LESS  0x02
+#define CMP_GT    0x01
+#define CMP_LT    0x02
 #define CMP_EQ    0x04
 #define CMP_SETI  0x08
 
 #define CMP_FLAGS 0x07
-#define CMP_NE    (CMP_MORE|CMP_LESS)
-#define CMP_GE    (CMP_MORE|CMP_EQ)
-#define CMP_LE    (CMP_LESS|CMP_EQ)
+#define CMP_NE    (CMP_GT|CMP_LT)
+#define CMP_GE    (CMP_GT|CMP_EQ)
+#define CMP_LE    (CMP_LT|CMP_EQ)
 
 #define INVERT_CMP(cmp) ((cmp&(~CMP_FLAGS))|((~cmp)&CMP_FLAGS))
 inline string CMP_STR(uint cmpval)
@@ -58,11 +58,11 @@ inline string CMP_STR(uint cmpval)
 	{
 		case 0: default:
 			return "Never";
-		case CMP_MORE:
+		case CMP_GT:
 			return ">";
 		case CMP_GE:
 			return ">=";
-		case CMP_LESS:
+		case CMP_LT:
 			return "<";
 		case CMP_LE:
 			return "<=";
