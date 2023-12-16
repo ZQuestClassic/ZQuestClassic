@@ -3007,6 +3007,10 @@ string OStoreDirect::toString() const
 {
     return "STORED " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
+string OStoreDirectV::toString() const
+{
+    return "STOREDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
 
 string OQuit::toString() const
 {
