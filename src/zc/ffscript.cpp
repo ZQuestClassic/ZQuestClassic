@@ -35728,9 +35728,9 @@ int32_t run_script_int(bool is_jitted)
 			case GOTOCMP:
 			{
 				bool run = false;
-				if(sarg2 & CMP_MORE)
+				if(sarg2 & CMP_GT)
 					run = run || ((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG));
-				if(sarg2 & CMP_LESS)
+				if(sarg2 & CMP_LT)
 					run = run || !(ri->scriptflag & MOREFLAG);
 				if(sarg2 & CMP_EQ)
 					run = run || (ri->scriptflag & TRUEFLAG);
@@ -35751,9 +35751,9 @@ int32_t run_script_int(bool is_jitted)
 			case SETCMP:
 			{
 				bool run = false;
-				if(sarg2 & CMP_MORE)
+				if(sarg2 & CMP_GT)
 					run = run || ((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG));
-				if(sarg2 & CMP_LESS)
+				if(sarg2 & CMP_LT)
 					run = run || !(ri->scriptflag & MOREFLAG);
 				if(sarg2 & CMP_EQ)
 					run = run || (ri->scriptflag & TRUEFLAG);
