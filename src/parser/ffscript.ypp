@@ -162,6 +162,24 @@ void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&)>
 	delete list;
 }
 
+ASTExpr* handle_statement_expr(ASTExpr* expr)
+{
+	if(ASTExprIncrement* postinc = dynamic_cast<ASTExprIncrement*>(expr))
+	{
+		ASTExprPreIncrement* preinc = new ASTExprPreIncrement(postinc->location);
+		preinc->operand = postinc->operand.release();
+		delete postinc;
+		return preinc;
+	}
+	if(ASTExprDecrement* postdec = dynamic_cast<ASTExprDecrement*>(expr))
+	{
+		ASTExprPreDecrement* predec = new ASTExprPreDecrement(postdec->location);
+		predec->operand = postdec->operand.release();
+		delete postdec;
+		return predec;
+	}
+	return expr;
+}
 
 #pragma warning( disable : 4065 )
 %}
@@ -1418,7 +1436,7 @@ Statement :
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	// Normal Statements
-	| Expression SEMICOLON {$$ = $1;}
+	| Statement_Expression SEMICOLON {$$ = $1;}
 	| Statement_Block {$$ = $1;}
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
@@ -1451,7 +1469,7 @@ Statement_NoSemicolon:
 	| DataTypeDef {$$ = $1;}
 	| DataEnum {$$ = $1;}
 	// Normal Statements
-	| Expression {$$ = $1;}
+	| Statement_Expression {$$ = $1;}
 	| Statement_Block {$$ = $1;}
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
@@ -2268,6 +2286,13 @@ Expr_18 : Expr_17 {$$ = $1;}
 		 ;
 
 Expression : Expr_18 {$$ = $1;};
+
+Statement_Expression :
+	Expression {
+		ASTExpr* expr = (ASTExpr*)$1;
+		expr = handle_statement_expr(expr);
+		$$ = expr;}
+	;
 
 Expression_Constant :
 	Expression {
