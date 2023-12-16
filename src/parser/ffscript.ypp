@@ -50,33 +50,6 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 	}
 }
 
-// Since c macros can't directly contain bison macros, they need to be passed
-// in where they're invoked. The following arguments are named so that 'd'
-// stands in for '$' and 'a' stands in for '@'.
-
-#define PREFIX(klass, dd, d2, ad) \
-	klass* prefix = new klass(ad); \
-	ASTExpr* operand = (ASTExpr*)d2; \
-	prefix->operand = operand; \
-	dd = prefix;
-
-#define POSTFIX(klass, dd, d1, ad) \
-	klass* postfix = new klass(ad); \
-	ASTExpr* operand = (ASTExpr*)d1; \
-	postfix->operand = operand; \
-	dd = postfix;
-
-#define BINARY(klass, dd, d1, d3, ad) \
-	ASTExpr* left = (ASTExpr*)d1; \
-	ASTExpr* right = (ASTExpr*)d3; \
-	dd = new klass(left, right, ad);
-
-#define SHORTCUT(klass, dd, d1, d3, ad, a3)		\
-	ASTExpr* left = (ASTExpr*)d1; \
-	ASTExpr* right = (ASTExpr*)d3; \
-	klass* rval = new klass(left->clone(), right, a3);	\
-	dd = new ASTExprAssign(left, rval, ad);
-
 enum
 {
 	ANNTY_NONE,
@@ -164,19 +137,13 @@ void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&)>
 
 ASTExpr* handle_statement_expr(ASTExpr* expr)
 {
-	if(ASTExprIncrement* postinc = dynamic_cast<ASTExprIncrement*>(expr))
+	if(ASTExprIncrement* increm = dynamic_cast<ASTExprIncrement*>(expr))
 	{
-		ASTExprPreIncrement* preinc = new ASTExprPreIncrement(postinc->location);
-		preinc->operand = postinc->operand.release();
-		delete postinc;
-		return preinc;
+		increm->is_pre = true;
 	}
-	if(ASTExprDecrement* postdec = dynamic_cast<ASTExprDecrement*>(expr))
+	else if(ASTExprDecrement* decrem = dynamic_cast<ASTExprDecrement*>(expr))
 	{
-		ASTExprPreDecrement* predec = new ASTExprPreDecrement(postdec->location);
-		predec->operand = postdec->operand.release();
-		delete postdec;
-		return predec;
+		decrem->is_pre = true;
 	}
 	return expr;
 }
@@ -2128,104 +2095,104 @@ Expr_Arrow :
 
 Expr_3 : Expr_2 {$$ = $1;}
 	// Post Increment
-	| Expr_3 INCREMENT {POSTFIX(ASTExprIncrement, $$, $1, @$)}
+	| Expr_3 INCREMENT {$$ = new ASTExprIncrement(false, (ASTExpr*)$1, @$);}
 	// Post Decrement
-	| Expr_3 DECREMENT {POSTFIX(ASTExprDecrement, $$, $1, @$)}
+	| Expr_3 DECREMENT {$$ = new ASTExprDecrement(false, (ASTExpr*)$1, @$);}
 	// Function Call
 	| Function_Call {$$ = $1;}
 	// Subscript
 	| Expr_3 LBRACKET Expression RBRACKET {
-		BINARY(ASTExprIndex, $$, $1, $3, @$);}
+		$$ = new ASTExprIndex((ASTExpr*)$1, (ASTExpr*)$3, @$);;}
 	// Access
 	| Expr_Arrow {$$ = $1;}
 	;
 
 Expr_4 : Expr_3 {$$ = $1;}
 	// Pre Increment
-	| INCREMENT Expr_4 {PREFIX(ASTExprPreIncrement, $$, $2, @$)}
+	| INCREMENT Expr_4 {$$ = new ASTExprIncrement(true, (ASTExpr*)$2, @$);}
 	// Pre Decrement
-	| DECREMENT Expr_4 {PREFIX(ASTExprPreDecrement, $$, $2, @$)}
+	| DECREMENT Expr_4 {$$ = new ASTExprDecrement(true, (ASTExpr*)$2, @$);}
 	// Unary Minus
-	| MINUS Expr_4 {PREFIX(ASTExprNegate, $$, $2, @$)}
+	| MINUS Expr_4 {$$ = new ASTExprNegate((ASTExpr*)$2, @$);}
 	// Logical Not
-	| NOT Expr_4 {PREFIX(ASTExprNot, $$, $2, @$)}
+	| NOT Expr_4 {$$ = new ASTExprNot((ASTExpr*)$2, @$);}
 	// Bitwise Not
-	| BITNOT Expr_4 {PREFIX(ASTExprBitNot, $$, $2, @$)}
+	| BITNOT Expr_4 {$$ = new ASTExprBitNot((ASTExpr*)$2, @$);}
 	;
 
 Expr_5 : Expr_4 {$$ = $1;}
 	// Exponentiation
-	| Expr_5 EXPN Expr_4 {BINARY(ASTExprExpn, $$, $1, $3, @$)}
+	| Expr_5 EXPN Expr_4 {$$ = new ASTExprExpn((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_6 : Expr_5 {$$ = $1;}
 	// Multiplication
-	| Expr_6 TIMES Expr_5 {BINARY(ASTExprTimes, $$, $1, $3, @$)}
+	| Expr_6 TIMES Expr_5 {$$ = new ASTExprTimes((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Division
-	| Expr_6 DIVIDE Expr_5 {BINARY(ASTExprDivide, $$, $1, $3, @$)}
+	| Expr_6 DIVIDE Expr_5 {$$ = new ASTExprDivide((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Remainder
-	| Expr_6 MODULO Expr_5 {BINARY(ASTExprModulo, $$, $1, $3, @$)}
+	| Expr_6 MODULO Expr_5 {$$ = new ASTExprModulo((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_7 : Expr_6 {$$ = $1;}
 	// Addition
-	| Expr_7 PLUS Expr_6 {BINARY(ASTExprPlus, $$, $1, $3, @$)}
+	| Expr_7 PLUS Expr_6 {$$ = new ASTExprPlus((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Subtraction
-	| Expr_7 MINUS Expr_6 {BINARY(ASTExprMinus, $$, $1, $3, @$)}
+	| Expr_7 MINUS Expr_6 {$$ = new ASTExprMinus((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_8 : Expr_7 {$$ = $1;}
 	// Left Shift
-	| Expr_8 LSHIFT Expr_7 {BINARY(ASTExprLShift, $$, $1, $3, @$)}
+	| Expr_8 LSHIFT Expr_7 {$$ = new ASTExprLShift((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Right Shift
-	| Expr_8 RSHIFT Expr_7 {BINARY(ASTExprRShift, $$, $1, $3, @$)}
+	| Expr_8 RSHIFT Expr_7 {$$ = new ASTExprRShift((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_9 : Expr_8 {$$ = $1;}
 	// Less Than
-	| Expr_9 LT Expr_8 {BINARY(ASTExprLT, $$, $1, $3, @$)}
+	| Expr_9 LT Expr_8 {$$ = new ASTExprLT((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Less Than or Equal
-	| Expr_9 LE Expr_8 {BINARY(ASTExprLE, $$, $1, $3, @$)}
+	| Expr_9 LE Expr_8 {$$ = new ASTExprLE((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Greater Than
-	| Expr_9 GT Expr_8 {BINARY(ASTExprGT, $$, $1, $3, @$)}
+	| Expr_9 GT Expr_8 {$$ = new ASTExprGT((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Greater Than or Equal
-	| Expr_9 GE Expr_8 {BINARY(ASTExprGE, $$, $1, $3, @$)}
+	| Expr_9 GE Expr_8 {$$ = new ASTExprGE((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_10 : Expr_9 {$$ = $1;}
 	// Equality
-	| Expr_10 EQ Expr_9 {BINARY(ASTExprEQ, $$, $1, $3, @$)}
+	| Expr_10 EQ Expr_9 {$$ = new ASTExprEQ((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Inequality
-	| Expr_10 NE Expr_9 {BINARY(ASTExprNE, $$, $1, $3, @$)}
+	| Expr_10 NE Expr_9 {$$ = new ASTExprNE((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Approximate Equality
-	| Expr_10 APPXEQUAL Expr_9 {BINARY(ASTExprAppxEQ, $$, $1, $3, @$)}
+	| Expr_10 APPXEQUAL Expr_9 {$$ = new ASTExprAppxEQ((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Logical XOR
-	| Expr_10 XOR Expr_9 {BINARY(ASTExprXOR, $$, $1, $3, @$)}
+	| Expr_10 XOR Expr_9 {$$ = new ASTExprXOR((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_11 : Expr_10 {$$ = $1;}
 	// Bitwise And
-	| Expr_11 BITAND Expr_10 {BINARY(ASTExprBitAnd, $$, $1, $3, @$)}
+	| Expr_11 BITAND Expr_10 {$$ = new ASTExprBitAnd((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_12 : Expr_11 {$$ = $1;}
 	// Bitwise Xor
-	| Expr_12 BITXOR Expr_11 {BINARY(ASTExprBitXor, $$, $1, $3, @$)}
+	| Expr_12 BITXOR Expr_11 {$$ = new ASTExprBitXor((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_13 : Expr_12 {$$ = $1;}
 	// Bitwise Or
-	| Expr_13 BITOR Expr_12 {BINARY(ASTExprBitOr, $$, $1, $3, @$)}
+	| Expr_13 BITOR Expr_12 {$$ = new ASTExprBitOr((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_14 : Expr_13 {$$ = $1;}
 	// Logical And
-	| Expr_14 AND Expr_13 {BINARY(ASTExprAnd, $$, $1, $3, @$)}
+	| Expr_14 AND Expr_13 {$$ = new ASTExprAnd((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_15 : Expr_14 {$$ = $1;}
 	// Logical Or
-	| Expr_15 OR Expr_14 {BINARY(ASTExprOr, $$, $1, $3, @$)}
+	| Expr_15 OR Expr_14 {$$ = new ASTExprOr((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_16 : Expr_15 {$$ = $1;}
@@ -2249,40 +2216,74 @@ Expr_17 : Expr_16 {$$ = $1;}
 
 Expr_18 : Expr_17 {$$ = $1;}
 	// Assignment
-	| Expr_17 ASSIGN Expr_18 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
+	| Expr_17 ASSIGN Expr_18 {$$ = new ASTExprAssign((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Addition Assignment
-	| Expr_17 PLUSASSIGN Expr_18 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
+	| Expr_17 PLUSASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprPlus(left->clone(), right, @3), @$);}
 	// Subtraction Assignment
-	| Expr_17 MINUSASSIGN Expr_18 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
+	| Expr_17 MINUSASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprMinus(left->clone(), right, @3), @$);}
 	// Multiplication Assignment
-	| Expr_17 TIMESASSIGN Expr_18 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
+	| Expr_17 TIMESASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprTimes(left->clone(), right, @3), @$);}
 	// Division Assignment
-	| Expr_17 DIVIDEASSIGN Expr_18 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
+	| Expr_17 DIVIDEASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprDivide(left->clone(), right, @3), @$);}
 	// Modulus Assignment
-	| Expr_17 MODULOASSIGN Expr_18 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
+	| Expr_17 MODULOASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprModulo(left->clone(), right, @3), @$);}
 	// Left Shift Assignment
-	| Expr_17 LSHIFTASSIGN Expr_18 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
+	| Expr_17 LSHIFTASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprLShift(left->clone(), right, @3), @$);}
 	// Right Shift Assignment
-	| Expr_17 RSHIFTASSIGN Expr_18 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
+	| Expr_17 RSHIFTASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprRShift(left->clone(), right, @3), @$);}
 	// Bitwise And Assignment
-	| Expr_17 BITANDASSIGN Expr_18 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	| Expr_17 BITANDASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprBitAnd(left->clone(), right, @3), @$);}
 	// BitNot Assignment
 	// `a ~= b` == `a &= ~b` == `a = a & ~b`
 	| Expr_17 BITNOTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		ASTExprBitNot* bitnot = new ASTExprBitNot(@$);
-		bitnot->operand = right;
-		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), bitnot, @3);
+		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), new ASTExprBitNot(right, @$), @3);
 		$$ = new ASTExprAssign(left, rval, @$);}
 	// Bitwise Xor Assignment
-	| Expr_17 BITXORASSIGN Expr_18 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
+	| Expr_17 BITXORASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprBitXor(left->clone(), right, @3), @$);}
 	// Bitwise Or Assignment
-	| Expr_17 BITORASSIGN Expr_18 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
+	| Expr_17 BITORASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprBitOr(left->clone(), right, @3), @$);}
 	// Logical And Assignment
-	| Expr_17 ANDASSIGN Expr_18 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
+	| Expr_17 ANDASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprAnd(left->clone(), right, @3), @$);}
 	// Logical Or Assignment
-	| Expr_17 ORASSIGN Expr_18 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
+	| Expr_17 ORASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprOr(left->clone(), right, @3), @$);}
 		 ;
 
 Expression : Expr_18 {$$ = $1;};

@@ -1729,9 +1729,11 @@ void ASTExprDelete::execute(ASTVisitor& visitor, void* param)
 
 // ASTExprNegate
 
-ASTExprNegate::ASTExprNegate(LocationData const& location)
+ASTExprNegate::ASTExprNegate(ASTExpr* op, LocationData const& location)
 	: ASTUnaryExpr(location), done(false)
-{}
+{
+	operand = op;
+}
 
 void ASTExprNegate::execute(ASTVisitor& visitor, void* param)
 {
@@ -1749,9 +1751,11 @@ std::optional<int32_t> ASTExprNegate::getCompileTimeValue(
 
 // ASTExprNot
 
-ASTExprNot::ASTExprNot(LocationData const& location)
+ASTExprNot::ASTExprNot(ASTExpr* op, LocationData const& location)
 	: ASTUnaryExpr(location), inverted(false)
-{}
+{
+	operand = op;
+}
 
 void ASTExprNot::execute(ASTVisitor& visitor, void* param)
 {
@@ -1769,9 +1773,11 @@ std::optional<int32_t> ASTExprNot::getCompileTimeValue(
 
 // ASTExprBitNot
 
-ASTExprBitNot::ASTExprBitNot(LocationData const& location)
+ASTExprBitNot::ASTExprBitNot(ASTExpr* op, LocationData const& location)
 	: ASTUnaryExpr(location)
-{}
+{
+	operand = op;
+}
 
 void ASTExprBitNot::execute(ASTVisitor& visitor, void* param)
 {
@@ -1794,46 +1800,28 @@ std::optional<int32_t> ASTExprBitNot::getCompileTimeValue(
 
 // ASTExprIncrement
 
-ASTExprIncrement::ASTExprIncrement(LocationData const& location)
-	: ASTUnaryExpr(location)
-{}
+ASTExprIncrement::ASTExprIncrement(bool pre, ASTExpr* op, LocationData const& location)
+	: ASTUnaryExpr(location), is_pre(pre)
+{
+	operand = op;
+}
 
 void ASTExprIncrement::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprIncrement(*this, param);
 }
 
-// ASTExprPreIncrement
-
-ASTExprPreIncrement::ASTExprPreIncrement(LocationData const& location)
-	: ASTUnaryExpr(location)
-{}
-
-void ASTExprPreIncrement::execute(ASTVisitor& visitor, void* param)
-{
-	visitor.caseExprPreIncrement(*this, param);
-}
-
 // ASTExprDecrement
 
-ASTExprDecrement::ASTExprDecrement(LocationData const& location)
-	: ASTUnaryExpr(location)
-{}
+ASTExprDecrement::ASTExprDecrement(bool pre, ASTExpr* op, LocationData const& location)
+	: ASTUnaryExpr(location), is_pre(pre)
+{
+	operand = op;
+}
 
 void ASTExprDecrement::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprDecrement(*this, param);
-}
-
-// ASTExprPreDecrement
-
-ASTExprPreDecrement::ASTExprPreDecrement(LocationData const& location)
-	: ASTUnaryExpr(location)
-{}
-
-void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
-{
-	visitor.caseExprPreDecrement(*this, param);
 }
 
 // ASTExprCast

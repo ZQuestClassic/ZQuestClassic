@@ -2583,27 +2583,9 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 	// Increment EXP1
 	addOpcode2(ops, new OAddImmediate(new VarArgument(EXP1),new LiteralArgument(10000)));
 	
-	buildPostOp(host.operand.get(), param, ops);
-}
-
-void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
-{
-	vector<shared_ptr<Opcode>> ops;
-	
-	// Increment EXP1
-	addOpcode2(ops, new OAddImmediate(new VarArgument(EXP1),new LiteralArgument(10000)));
-	
-	buildPreOp(host.operand.get(), param, ops);
-}
-
-void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
-{
-	vector<shared_ptr<Opcode>> ops;
-	
-	// Increment EXP1
-	addOpcode2(ops, new OSubImmediate(new VarArgument(EXP1),new LiteralArgument(10000)));
-	
-	buildPreOp(host.operand.get(), param, ops);
+	if(host.is_pre)
+		buildPreOp(host.operand.get(), param, ops);
+	else buildPostOp(host.operand.get(), param, ops);
 }
 
 void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
@@ -2613,7 +2595,9 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 	// Increment EXP1
 	addOpcode2(ops, new OSubImmediate(new VarArgument(EXP1),new LiteralArgument(10000)));
 	
-	buildPostOp(host.operand.get(), param, ops);
+	if(host.is_pre)
+		buildPreOp(host.operand.get(), param, ops);
+	else buildPostOp(host.operand.get(), param, ops);
 }
 
 void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
