@@ -665,6 +665,7 @@ class CLIPlayerInterface:
 
         if args.jit:
             exe_args.append('-jit')
+            exe_args.append('-jit-fatal-compile-error')
 
         if args.headless:
             exe_args.append('-headless')

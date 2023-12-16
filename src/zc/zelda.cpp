@@ -4952,7 +4952,7 @@ int main(int argc, char **argv)
 	DEBUG_PRINT_TO_FILE = zc_get_config("ZSCRIPT", "print_zasm_to_file", true);
 	DEBUG_PRINT_TO_CONSOLE = zc_get_config("ZSCRIPT", "print_zasm_to_console", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false) || used_switch(argc, argv, "-jit-print-asm");
-	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_exit_on_failure", false);
+	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_fatal_compile_errors", false) || used_switch(argc, argv, "-jit-fatal-compile-error");
 	hangcount = zc_get_config("ZSCRIPT","ZASM_Hangcount",1000);
 	jit_set_enabled(zc_get_config("ZSCRIPT", "jit", false) || used_switch(argc, argv, "-jit") > 0);
 	
