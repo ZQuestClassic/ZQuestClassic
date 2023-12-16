@@ -222,7 +222,7 @@ void ScriptDebugHandle::pre_command()
 
 	print_command(ri->pc);
 
-	if (command == COMPAREV || command == COMPARER)
+	if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
 	{
 		supress_output = true;
 		for (int j = ri->pc + 1; script->zasm[j].command != 0xFFFF; j++)

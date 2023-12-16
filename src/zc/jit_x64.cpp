@@ -363,6 +363,7 @@ static bool command_is_compiled(int command)
 	// These commands are critical to control flow.
 	case COMPARER:
 	case COMPAREV:
+	case COMPAREV2:
 	case GOTO:
 	case GOTOR:
 	case QUIT:
@@ -473,7 +474,7 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			int command = script->zasm[i].command;
 
-			if (command == COMPARER || command == COMPAREV)
+			if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
 			{
 				comparing_state = true;
 			}
@@ -1248,6 +1249,13 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			int val = arg2;
 			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg1);
+			cc.cmp(val2, val);
+		}
+		break;
+		case COMPAREV2:
+		{
+			int val = arg1;
+			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
 			cc.cmp(val2, val);
 		}
 		break;
