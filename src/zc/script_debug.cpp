@@ -1,5 +1,6 @@
 #include "zc/script_debug.h"
 #include "allegro5/file.h"
+#include "base/zapp.h"
 #include "zc/ffscript.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
@@ -12,9 +13,6 @@ bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
 
 bool DEBUG_PRINT_TO_FILE;
 bool DEBUG_PRINT_TO_CONSOLE;
-
-// 0 for off, 1 for per-script execution, 2 for per-instruction.
-static int runtime_debug = 0;
 
 ScriptDebugHandle::ScriptDebugHandle(OutputSplit output_split, script_data* script)
 {
@@ -237,6 +235,7 @@ void ScriptDebugHandle::pre_command()
 		al_fflush(file);
 }
 
+// 0 for off, 1 for per-script execution, 2 for per-instruction.
 int script_debug_is_runtime_debugging()
 {
 	if (!DEBUG_PRINT_TO_FILE && !DEBUG_PRINT_TO_CONSOLE)
@@ -244,6 +243,7 @@ int script_debug_is_runtime_debugging()
 		return 0;
 	}
 
+	static int runtime_debug = get_flag_int("-script-runtime-debug").value_or(0);
 	return runtime_debug;
 }
 

@@ -224,6 +224,9 @@ parser.add_argument('--show', action=argparse.BooleanOptionalAction, default=Fal
 parser.add_argument('--emoji', action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--no_console', action='store_true',
     help='Prevent the debug console from opening')
+parser.add_argument('--no_report_on_failure', action='store_true',
+    help='Do not prompt to create compare report')
+parser.add_argument('--extra_args')
 
 
 mode_group = parser.add_argument_group('Mode','The playback mode')
@@ -652,6 +655,9 @@ class CLIPlayerInterface:
             '-replay-exit-when-done',
             '-replay-output-dir', output_dir,
         ]
+
+        if args.extra_args:
+            exe_args.extend(args.extra_args.split(' '))
 
         if args.debugger:
             exe_args = [sys.executable, root_dir / 'scripts/run_target.py', exe_path.stem] + exe_args[1:]
@@ -1422,7 +1428,7 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{len(failing_replays)} replay tests failed')
-        if not is_ci and sys.stdout.isatty() and replays_dir == script_dir / 'replays':
+        if not is_ci and not args.no_report_on_failure and sys.stdout.isatty() and replays_dir == script_dir / 'replays':
             prompt_to_create_compare_report()
         exit(1)
 else:
