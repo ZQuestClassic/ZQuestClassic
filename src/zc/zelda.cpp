@@ -4231,6 +4231,49 @@ void do_load_and_quit_command(const char* quest_path)
 	exit(ret);
 }
 
+void do_extract_zasm_command(const char* quest_path)
+{
+	// We need to init some stuff before loading a quest file will work.
+	int fake_errno = 0;
+	allegro_errno = &fake_errno;
+	get_qst_buffers();
+	allocate_crap();
+
+	byte skip_flags[] = {0, 0, 0, 0};
+	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
+	if (ret)
+		exit(ret);
+
+	DEBUG_PRINT_TO_FILE = true;
+	strcpy(qstpath, quest_path);
+
+	#define HANDLE_SCRIPTS(array, num)\
+		for (int i = 0; i < num; i++)\
+		{\
+			script_data* script = array[i];\
+			if (script->valid())\
+			{\
+				ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);\
+				h.print_zasm();\
+			}\
+		}
+	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
+	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
+	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
+	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
+	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
+	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
+	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
+	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
+	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
+	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
+	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+
+	exit(0);
+}
+
 int main(int argc, char **argv)
 {
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
@@ -4292,6 +4335,12 @@ int main(int argc, char **argv)
 	if (load_and_quit_arg > 0)
 	{
 		do_load_and_quit_command(argv[load_and_quit_arg+1]);
+	}
+
+	int extract_zasm_arg = used_switch(argc, argv, "-extract-zasm");
+	if (extract_zasm_arg > 0)
+	{
+		do_extract_zasm_command(argv[extract_zasm_arg+1]);
 	}
 
 	int create_save_arg = used_switch(argc,argv,"-create-save");
@@ -4900,7 +4949,6 @@ int main(int argc, char **argv)
 	
 	rgb_map = &rgb_table;
 	
-	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
 	DEBUG_PRINT_TO_FILE = zc_get_config("ZSCRIPT", "print_zasm_to_file", true);
 	DEBUG_PRINT_TO_CONSOLE = zc_get_config("ZSCRIPT", "print_zasm_to_console", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false) || used_switch(argc, argv, "-jit-print-asm");

@@ -7,7 +7,6 @@
 extern refInfo *ri;
 std::string ZASMVarToString(int32_t arg);
 
-bool DEBUG_PRINT_ZASM;
 bool DEBUG_JIT_PRINT_ASM;
 bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
 
@@ -185,13 +184,12 @@ void ScriptDebugHandle::print_command(int i)
 	print("\n");
 }
 
-void ScriptDebugHandle::print_zasm(int script_num, int script_index)
+void ScriptDebugHandle::print_zasm()
 {
-	print("ZASM:\n\n");
 	printf(
 		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-		"script type: %s\nindex: %d\nname: %s\nnum: %d\nindex: %d\n\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str(), script_num, script_index);
+		"script type: %s\nindex: %d\nname: %s\n\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
 	for (size_t i = 0; i < script->size; i++)
 	{
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |

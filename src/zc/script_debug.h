@@ -1,7 +1,6 @@
 #include "base/zdefs.h"
 #include <string>
 
-extern bool DEBUG_PRINT_ZASM;
 extern bool DEBUG_JIT_PRINT_ASM;
 extern bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
 extern bool DEBUG_PRINT_TO_FILE;
@@ -28,7 +27,7 @@ public:
 	void print(const char *str);
 	void print(int32_t attributes, const char *str);
 	void print_command(int i);
-	void print_zasm(int script_num, int script_index);
+	void print_zasm();
 	void pre_command();
 
 private:

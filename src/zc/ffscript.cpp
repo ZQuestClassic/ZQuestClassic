@@ -97,7 +97,6 @@ bool can_neg_array = true;
 
 extern byte monochrome_console;
 
-static std::set<script_id> seen_scripts;
 static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
 static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
@@ -35249,13 +35248,6 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 
 	script_funcrun = false;
 
-	if (DEBUG_PRINT_ZASM && !seen_scripts.contains(curscript->id))
-	{
-		seen_scripts.insert(curscript->id);
-		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, curscript);
-		h.print_zasm(curScriptNum, curScriptIndex);
-	}
-
 	JittedScriptHandle* jitted_script = nullptr;
 	if (jit_is_enabled())
 	{
@@ -42329,7 +42321,6 @@ void FFScript::init()
 		jit_delete_script_handle(it.second);
 	}
 	jitted_scripts.clear();
-	seen_scripts.clear();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
 }
