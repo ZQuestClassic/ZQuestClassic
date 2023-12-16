@@ -1423,6 +1423,19 @@ of iterations is known at compile-time.
 	--end example]
 
 /////////////////
+//  For Loop   //
+/////////////////
+
+	The classic for loop has a couple new things. In addition to the 'Loop-Else' mentioned above,
+		you can now use multiple increment statements with a comma-delimited list.
+	[example--
+		for(int indx = start, count = 10; count > 0; ++indx, --count)
+		{
+			//do something
+		}
+	--end example]
+
+/////////////////
 //  For-Each   //
 /////////////////
 

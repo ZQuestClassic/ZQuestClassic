@@ -328,7 +328,7 @@ void ReturnVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	
 	visit(host.setup.get(), paramNode);
 	visit(host.test.get(), paramNode);
-	visit(host.increment.get(), paramNode);
+	visit(host, host.increments, paramNode);
 	
 	if(!val || *val)
 		host.ends_loop = block_retvisit(host.body.get(), thenNode);
