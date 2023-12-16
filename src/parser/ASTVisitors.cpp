@@ -635,19 +635,7 @@ void RecursiveVisitor::caseExprIncrement(ASTExprIncrement& host, void* param)
 	visit(host.operand.get(), param);
 }
 
-void RecursiveVisitor::caseExprPreIncrement(
-		ASTExprPreIncrement& host, void* param)
-{
-	visit(host.operand.get(), param);
-}
-
 void RecursiveVisitor::caseExprDecrement(ASTExprDecrement& host, void* param)
-{
-	visit(host.operand.get(), param);
-}
-
-void RecursiveVisitor::caseExprPreDecrement(
-		ASTExprPreDecrement& host, void* param)
 {
 	visit(host.operand.get(), param);
 }

@@ -61,9 +61,7 @@ namespace ZScript
 		void caseExprNot(ASTExprNot& host, void* = NULL);
 		void caseExprBitNot(ASTExprBitNot& host, void* = NULL);
 		void caseExprIncrement(ASTExprIncrement& host, void* = NULL);
-		void caseExprPreIncrement(ASTExprPreIncrement& host, void* = NULL);
 		void caseExprDecrement(ASTExprDecrement& host, void* = NULL);
-		void caseExprPreDecrement(ASTExprPreDecrement& host, void* = NULL);
 		void caseExprCast(ASTExprCast& host, void* = NULL);
 		void caseExprAnd(ASTExprAnd& host, void* = NULL);
 		void caseExprOr(ASTExprOr& host, void* = NULL);

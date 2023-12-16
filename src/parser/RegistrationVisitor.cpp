@@ -1228,17 +1228,7 @@ void RegistrationVisitor::caseExprIncrement(ASTExprIncrement& host, void* param)
 	analyzeUnaryExpr(host);
 }
 
-void RegistrationVisitor::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
-{
-	analyzeUnaryExpr(host);
-}
-
 void RegistrationVisitor::caseExprDecrement(ASTExprDecrement& host, void* param)
-{
-	analyzeUnaryExpr(host);
-}
-
-void RegistrationVisitor::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 {
 	analyzeUnaryExpr(host);
 }

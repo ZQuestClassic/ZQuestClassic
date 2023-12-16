@@ -99,9 +99,7 @@ namespace ZScript
 	class ASTExprNot;
 	class ASTExprBitNot;
 	class ASTExprIncrement;
-	class ASTExprPreIncrement;
 	class ASTExprDecrement;
-	class ASTExprPreDecrement;
 	class ASTExprCast;
 	class ASTBinaryExpr; // virtual
 	class ASTLogExpr; // virtual
@@ -1435,7 +1433,7 @@ namespace ZScript
 	class ASTExprNegate : public ASTUnaryExpr
 	{
 	public:
-		ASTExprNegate(LocationData const& location = LOC_NONE);
+		ASTExprNegate(ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprNegate* clone() const {return new ASTExprNegate(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1456,7 +1454,7 @@ namespace ZScript
 	class ASTExprNot : public ASTUnaryExpr
 	{
 	public:
-		ASTExprNot(LocationData const& location = LOC_NONE);
+		ASTExprNot(ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprNot* clone() const {return new ASTExprNot(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1475,7 +1473,7 @@ namespace ZScript
 	class ASTExprBitNot : public ASTUnaryExpr
 	{
 	public:
-		ASTExprBitNot(LocationData const& location = LOC_NONE);
+		ASTExprBitNot(ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprBitNot* clone() const {return new ASTExprBitNot(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1494,7 +1492,7 @@ namespace ZScript
 	class ASTExprIncrement : public ASTUnaryExpr
 	{
 	public:
-		ASTExprIncrement(LocationData const& location = LOC_NONE);
+		ASTExprIncrement(bool pre, ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprIncrement* clone() const {return new ASTExprIncrement(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1509,36 +1507,15 @@ namespace ZScript
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}
-		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
-			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
-	};
-
-	class ASTExprPreIncrement : public ASTUnaryExpr
-	{
-	public:
-		ASTExprPreIncrement(LocationData const& location = LOC_NONE);
-		ASTExprPreIncrement* clone() const {return new ASTExprPreIncrement(*this);}
-
-		void execute(ASTVisitor& visitor, void* param = NULL);
-
-		bool isConstant() const {return false;}
-		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
-
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			if(operand->isLong(scope, errorHandler))
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
-		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
-			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		bool is_pre;
 	};
 
 	class ASTExprDecrement : public ASTUnaryExpr
 	{
 	public:
-		ASTExprDecrement(LocationData const& location = LOC_NONE);
+		ASTExprDecrement(bool pre, ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprDecrement* clone() const {return new ASTExprDecrement(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1553,31 +1530,9 @@ namespace ZScript
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}
-		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
-			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
-	};
-
-	class ASTExprPreDecrement : public ASTUnaryExpr
-	{
-	public:
-		ASTExprPreDecrement(LocationData const& location = LOC_NONE);
-		ASTExprPreDecrement* clone() const {
-			return new ASTExprPreDecrement(*this);}
-
-		void execute(ASTVisitor& visitor, void* param = NULL);
-
-		bool isConstant() const {return false;}
-		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
-
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			if(operand->isLong(scope, errorHandler))
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
-		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
-			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		bool is_pre;
 	};
 	
 	class ASTExprCast : public ASTUnaryExpr
