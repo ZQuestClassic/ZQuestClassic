@@ -47957,12 +47957,12 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig, dword 
 				if(mindig)
 					Z_scripterrlog("Cannot use minimum digits flag for '%%c'\n");
 				int32_t c = (arg / 10000);
-				if ( (char(c)) != c )
+				if ( (byte(c)) != c )
 				{
 					Z_scripterrlog("Illegal char value (%d) passed to sprintf as '%%c' arg\n", c);
 					Z_scripterrlog("Value of invalid char will overflow.\n");
 				}
-				ret.push_back(char(c));
+				ret.push_back(byte(c));
 				return ret.c_str();
 			}
 			//
