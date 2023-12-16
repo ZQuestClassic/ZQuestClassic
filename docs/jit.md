@@ -81,7 +81,7 @@ These are useful config options:
 
 - `[ZSCRIPT] print_zasm = 1`: for each script, write a file to `zscript-debug/zasm` printing the ZASM instructions
 - `[ZSCRIPT] jit_print_asm = 1`: for each script, write a file to `zscript-debug/zasm` printing the x64 assembly
-- `[ZSCRIPT] jit_exit_on_failure = 1`: exit program if JIT fails to compile any script
+- `[ZSCRIPT] jit_fatal_compile_errors = 1`: exit program if JIT fails to compile any script
 
 Given a replay that fails only when using JIT, this is how you can debug what's wrong with the compiled code.
 
