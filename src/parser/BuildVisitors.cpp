@@ -257,7 +257,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 {
-	int32_t ifid = ScriptParser::getUniqueLabelID();
+	uint ifid = host.get_comment_id();
 	bool inv = host.isInverted();
 	string ifstr = inv ? "unless" : "if",
 		truestr = inv ? "false" : "true",
@@ -290,7 +290,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 			return;
 		}
 		
-		int32_t endif = ifid;
+		int32_t endif = ScriptParser::getUniqueLabelID();
 		auto targ_sz = commentTarget();
 		literalVisit(host.declaration.get(), param);
 		commentAt(targ_sz, fmt::format("{}({}) #{} Decl",ifstr,declname,ifid));
@@ -348,7 +348,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 		//Continue
-		int32_t endif = ifid;
+		int32_t endif = ScriptParser::getUniqueLabelID();
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(inv)
 		{
@@ -373,7 +373,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 
 void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 {
-	int32_t ifid = ScriptParser::getUniqueLabelID();
+	uint ifid = host.get_comment_id();
 	bool inv = host.isInverted();
 	string ifstr = inv ? "unless" : "if",
 		truestr = inv ? "false" : "true",
@@ -422,7 +422,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 			return;
 		}
 		
-		int32_t elseif = ifid;
+		int32_t elseif = ScriptParser::getUniqueLabelID();;
 		int32_t endif = ScriptParser::getUniqueLabelID();
 		auto targ_sz = commentTarget();
 		literalVisit(host.declaration.get(), param);
@@ -499,7 +499,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 		//Continue
-		int32_t elseif = ifid;
+		int32_t elseif = ScriptParser::getUniqueLabelID();
 		int32_t endif = ScriptParser::getUniqueLabelID();
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(inv)
@@ -541,8 +541,8 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	map<ASTSwitchCases*, int32_t> labels;
 	vector<ASTSwitchCases*> cases = host.cases.data();
 	
-	int32_t switchid = ScriptParser::getUniqueLabelID();
-	int32_t end_label = switchid;
+	uint switchid = host.get_comment_id();
+	int32_t end_label = ScriptParser::getUniqueLabelID();
 	auto default_label = end_label;
 	
 	// save and override break label.
@@ -799,7 +799,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	literalVisit(host.setup.get(), param);
 	//Deallocate string/array literals from within the setup
 	deallocateRefsUntilCount(setupRefCount);
-	int32_t forid = ScriptParser::getUniqueLabelID();
+	uint forid = host.get_comment_id();
 	commentAt(targ_sz, fmt::format("for() #{} setup",forid));
 	while ((int32_t)arrayRefs.size() > setupRefCount)
 		arrayRefs.pop_back();
@@ -819,7 +819,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 		}
 	}
 	//Continue
-	int32_t loopstart = forid;
+	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopend = ScriptParser::getUniqueLabelID();
 	int32_t loopincr = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
@@ -894,7 +894,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	}
 	scope = host.getScope();
 	
-	int32_t forid = ScriptParser::getUniqueLabelID();
+	uint forid = host.get_comment_id();
 	//Declare the local variable that will hold the array ptr
 	auto targ_sz = commentTarget();
 	literalVisit(host.arrdecl.get(), param);
@@ -912,7 +912,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	int32_t arrdecloffset = 10000L * *getStackOffset(*host.arrdecl.get()->manager);
 	int32_t indxdecloffset = 10000L * *getStackOffset(*host.indxdecl.get()->manager);
 	
-	int32_t loopstart = forid;
+	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopend = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
 	
@@ -984,7 +984,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	}
 	scope = host.getScope();
 	
-	int32_t loopid = ScriptParser::getUniqueLabelID();
+	uint loopid = host.get_comment_id();
 	//Declare the local variable that will hold the current loop value
 	auto targ_sz = commentTarget();
 	literalVisit(host.decl.get(), param);
@@ -992,7 +992,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	
 	int32_t decloffset = 10000L * *getStackOffset(*host.decl.get()->manager);
 	
-	int32_t loopstart = loopid;
+	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopcont = ScriptParser::getUniqueLabelID();
 	int32_t loopend = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
@@ -1324,7 +1324,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	string whilestr = inv ? "until" : "while",
 		truestr = inv ? "false" : "true",
 		falsestr = inv ? "true" : "false";
-	int32_t whileid = ScriptParser::getUniqueLabelID();
+	uint whileid = host.get_comment_id();
 	if(val && (inv != !*val)) //never runs, handle else only
 	{
 		if(host.hasElse())
@@ -1336,7 +1336,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		return;
 	}
 	
-	int32_t startlabel = whileid;
+	int32_t startlabel = ScriptParser::getUniqueLabelID();
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : endlabel;
 	//run the test
@@ -1390,7 +1390,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		visit(host.elseBlock.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",whilestr,whileid));
 	}
-	//if(!val || num_breaks) //no else / end label needed for inf loops unless they break
+	if(!val || num_breaks) //no else / end label needed for inf loops unless they break
 	{
 		next = new ONoOp();
 		next->setLabel(endlabel);
@@ -1404,8 +1404,8 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	bool inv = host.isInverted();
 	bool truthyval = val && inv == (*val==0);
 	bool deadloop = val && !truthyval;
-	int32_t whileid = ScriptParser::getUniqueLabelID();
-	int32_t startlabel = whileid;
+	uint whileid = host.get_comment_id();
+	int32_t startlabel = ScriptParser::getUniqueLabelID();
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : endlabel;
 	int32_t continuelabel = ScriptParser::getUniqueLabelID();
@@ -1515,7 +1515,7 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 	int32_t breaklabel = breaklabelids.at(breaklabelids.size()-host.breakCount);
 	deallocateRefsUntilCount(refcount);
 	addOpcode(new OGotoImmediate(new LabelArgument(breaklabel)));
-	commentBack(fmt::format("break #{}",breaklabel));
+	commentBack(fmt::format("break {};",host.breakCount));
 	inc_break(host.breakCount);
 }
 
@@ -1532,7 +1532,7 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 	int32_t contlabel = continuelabelids.at(continuelabelids.size()-host.contCount);
 	deallocateRefsUntilCount(refcount);
 	addOpcode(new OGotoImmediate(new LabelArgument(contlabel)));
-	commentBack(fmt::format("continue #{}",contlabel));
+	commentBack(fmt::format("continue {};",host.contCount));
 	inc_cont(host.contCount);
 }
 

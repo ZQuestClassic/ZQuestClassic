@@ -714,6 +714,8 @@ void ASTBlock::execute(ASTVisitor& visitor, void* param)
 
 // ASTStmtIf
 
+uint ASTStmtIf::next_comment_id = 0;
+
 ASTStmtIf::ASTStmtIf(ASTExpr* condition,
 					 ASTBlock* thenStatement,
 					 LocationData const& location)
@@ -733,7 +735,9 @@ void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtIfElse
-    
+
+uint ASTStmtIfElse::next_comment_id = 0;
+
 ASTStmtIfElse::ASTStmtIfElse(
 		ASTExpr* condition, ASTBlock* thenStatement,
 		ASTBlock* elseStatement, LocationData const& location)
@@ -753,6 +757,8 @@ void ASTStmtIfElse::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtSwitch
+
+uint ASTStmtSwitch::next_comment_id = 0;
 
 ASTStmtSwitch::ASTStmtSwitch(LocationData const& location)
 	: ASTStmt(location), key(NULL), isString(false)
@@ -877,6 +883,8 @@ optional<int32_t> ASTRange::getEndVal(bool inclusive, CompileErrorHandler* error
 
 // ASTStmtFor
 
+uint ASTStmtFor::next_comment_id = 0;
+
 ASTStmtFor::ASTStmtFor(
 		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
 		ASTStmt* elseBlock, LocationData const& location)
@@ -891,6 +899,8 @@ void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtForEach
+
+uint ASTStmtForEach::next_comment_id = 0;
 
 ASTStmtForEach::ASTStmtForEach(
 	std::string const& identifier, ASTExpr* expr, ASTStmt* body,
@@ -908,6 +918,8 @@ void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
 
 // ASTStmtRangeLoop
 
+uint ASTStmtRangeLoop::next_comment_id = 0;
+
 ASTStmtRangeLoop::ASTStmtRangeLoop(ASTDataType* type, string const& iden,
 	ASTRange* range, ASTExpr* increment, ASTStmt* body, LocationData const& location)
 	: ASTStmt(location), iden(iden), decl(nullptr), type(type),
@@ -923,6 +935,8 @@ void ASTStmtRangeLoop::execute(ASTVisitor& visitor, void* param)
 
 // ASTStmtWhile
 
+uint ASTStmtWhile::next_comment_id = 0;
+
 ASTStmtWhile::ASTStmtWhile(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), test(test), body(body),
@@ -936,6 +950,8 @@ void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtDo
+
+uint ASTStmtDo::next_comment_id = 0;
 
 ASTStmtDo::ASTStmtDo(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
