@@ -32,11 +32,12 @@ public:
 // ReturnVisitor
 
 ReturnVisitor::ReturnVisitor(Program& program)
-	: program(program), extra_pass(false),
-	marked_never_ret(false), missing_ret(false)
+	: program(program), marked_never_ret(false), missing_ret(false),
+	in_func(nullptr)
 {
+	mode = MODE_START;
 	visitFunctionInternals(program);
-	extra_pass = true;
+	mode = MODE_EXPASS;
 	while(marked_never_ret)
 	{
 		if(missing_ret)
@@ -44,6 +45,7 @@ ReturnVisitor::ReturnVisitor(Program& program)
 		marked_never_ret = false;
 		visitFunctionInternals(program);
 	}
+	mode = MODE_FINISH;
 }
 
 void ReturnVisitor::visit(AST& node, void* param)
@@ -55,7 +57,7 @@ void ReturnVisitor::visit(AST& node, void* param)
 }
 
 template <class Container>
-bool ReturnVisitor::block_retvisit(AST& host, Container const& nodes, void* param)
+bool ReturnVisitor::block_retvisit_vec(Container const& nodes, void* param)
 {
 	VisitNode* paramNode = (VisitNode*)param;
 	bool check_early_ret = !paramNode->get_flag(VNODE_FLAG_BRANCH);
@@ -84,7 +86,7 @@ bool ReturnVisitor::block_retvisit(AST& host, void* param)
 		VisitNode* paramNode = (VisitNode*)param;
 		paramNode = paramNode->create(&host);
 		
-		ret = block_retvisit(host, block->statements, paramNode);
+		ret = block_retvisit_vec(block->statements, paramNode);
 		markReachable(host);
 	}
 	else
@@ -116,74 +118,106 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 	ASTBlock* block = node->block.get();
 	if(!node || node->isDisabled()) return;
 	if(!block) return;
-	auto& stmts = block->statements;
-	if(extra_pass) //already parsed through at least once
+	
+	if(mode == MODE_FINISH)
 	{
-		if(function.getFlag(FUNCFLAG_NEVER_RETURN|FUNCFLAG_NIL))
-			return; //nothing more to possibly do here
-		ResetVisitor resetter;
-		resetter.visit(*block); //reset the 'reachable' state
-	}
-	Scope* oldscope = scope;
-	scope = function.getInternalScope();
-	markReachable(*node);
-	markReachable(*block);
-	failure_temp = failure_halt = false;
-	bool no_ret = false;
-	if(stmts.empty()) //Function is completely empty; optimize
-	{
-		function.setFlag(FUNCFLAG_NIL);
-		no_ret = true; //still a missing return error if not void/constructor
-	}
-	else //Visit the function's statements
-	{
-		size_t indx = 0;
-		bool earlyterm = false;
-		VisitNode rootnode(node);
-		in_func_body = true;
-		for(auto it = stmts.begin(); it != stmts.end(); ++it)
+		for(uint q = 0; q < function.paramDatum.size(); ++q)
 		{
-			ASTStmt& stmt = **it;
-			visit(stmt, (void*)&rootnode);
-			earlyterm = rootnode.check_terminate(indx);
-			indx = rootnode.child_index();
-			if(earlyterm)
-				break;
+			if(function.params_used.get(q))
+				continue;
+			//Unused parameters
+			if(ZScript::eraseDatum(*scope, *function.paramDatum[q]))
+				function.paramDatum[q] = nullptr;
 		}
-		in_func_body = false;
-		
-		if(earlyterm)
+	}
+	else
+	{
+		auto& stmts = block->statements;
+		if(mode == MODE_EXPASS) //already parsed through at least once
 		{
-			if(!rootnode.get_flag(VNODE_FLAG_HASRETURN))
+			if(function.getFlag(FUNCFLAG_NEVER_RETURN|FUNCFLAG_NIL))
+				return; //nothing more to possibly do here
+			ResetVisitor resetter;
+			resetter.visit(*block); //reset the 'reachable' state
+			function.params_used.clear();
+		}
+		markReachable(*node);
+		markReachable(*block);
+		failure_temp = failure_halt = false;
+		bool no_ret = false;
+		if(stmts.empty()) //Function is completely empty; optimize
+		{
+			function.setFlag(FUNCFLAG_NIL);
+			no_ret = true; //still a missing return error if not void/constructor
+		}
+		else
+		{
+			ASTStmtReturn* op_ret = dynamic_cast<ASTStmtReturn*>(stmts.front());
+			ASTStmtReturnVal* op_retv = dynamic_cast<ASTStmtReturnVal*>(stmts.front());
+			bool done = false;
+			if(op_ret || op_retv) //function just returns... nil with a def val
 			{
-				no_ret = true;
-				//Terminates without return; infinite loop, or script quit?
-				function.setFlag(FUNCFLAG_NEVER_RETURN);
-				marked_never_ret = true;
+				done = true;
+				if(op_retv)
+				{
+					if(auto val = op_retv->value->getCompileTimeValue(this, scope))
+						function.defaultReturn = val;
+					else done = false;
+				}
+				else function.defaultReturn.reset();
+				if(done)
+					function.setFlag(FUNCFLAG_NIL);
+			}
+			if(!done) //Visit the function's statements
+			{
+				size_t indx = 0;
+				bool earlyterm = false;
+				VisitNode rootnode(node);
+				in_func_body = true;
+				in_func = &function;
+				for(auto it = stmts.begin(); it != stmts.end(); ++it)
+				{
+					ASTStmt& stmt = **it;
+					visit(stmt, (void*)&rootnode);
+					earlyterm = rootnode.check_terminate(indx);
+					indx = rootnode.child_index();
+					if(earlyterm)
+						break;
+				}
+				in_func = nullptr;
+				in_func_body = false;
+				
+				if(earlyterm)
+				{
+					if(!rootnode.get_flag(VNODE_FLAG_HASRETURN))
+					{
+						no_ret = true;
+						//Terminates without return; infinite loop, or script quit?
+						function.setFlag(FUNCFLAG_NEVER_RETURN);
+						marked_never_ret = true;
+					}
+				}
+				else no_ret = true;
 			}
 		}
-		else no_ret = true;
-	}
-	
-	//Void functions && constructors can miss out on returns
-	if(!(function.returnType->isVoid() || function.getFlag(FUNCFLAG_CONSTRUCTOR)) && no_ret)
-	{
-		switch(*ZScript::lookupOption(*scope, CompileOption::OPT_ON_MISSING_RETURN)/10000)
+		//Void functions && constructors can miss out on returns
+		if(!(function.returnType->isVoid() || function.getFlag(FUNCFLAG_CONSTRUCTOR)) && no_ret)
 		{
-			case 0: //No warn
-				break;
-			case 3: //Warn
-				handleError(CompileError::MissingReturnWarn(node, node->name));
-				break;
-			default: //Error
-				handleError(CompileError::MissingReturnError(node, node->name));
-				node->disable();
-				missing_ret = true;
-				break;
+			switch(*ZScript::lookupOption(*scope, CompileOption::OPT_ON_MISSING_RETURN)/10000)
+			{
+				case 0: //No warn
+					break;
+				case 3: //Warn
+					handleError(CompileError::MissingReturnWarn(node, node->name));
+					break;
+				default: //Error
+					handleError(CompileError::MissingReturnError(node, node->name));
+					node->disable();
+					missing_ret = true;
+					break;
+			}
 		}
 	}
-	
-	scope = oldscope;
 }
 
 void ReturnVisitor::caseBlock(ASTBlock& host, void* param)
@@ -191,7 +225,7 @@ void ReturnVisitor::caseBlock(ASTBlock& host, void* param)
 	VisitNode* paramNode = (VisitNode*)param;
 	paramNode = paramNode->create(&host);
 	
-	block_retvisit(host, host.statements, paramNode);
+	block_retvisit_vec(host.statements, paramNode);
 	markReachable(host);
 }
 
@@ -328,7 +362,7 @@ void ReturnVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	
 	visit(host.setup.get(), paramNode);
 	visit(host.test.get(), paramNode);
-	visit(host, host.increments, paramNode);
+	visit_vec(host.increments, paramNode);
 	
 	if(!val || *val)
 		host.ends_loop = block_retvisit(host.body.get(), thenNode);
@@ -460,9 +494,9 @@ void ReturnVisitor::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 	{
 		auto vec = *opt_vec;
 		//continue from the start to first terminator, respecting fallthrough
-		block_retvisit(host, vec, paramNode);
+		block_retvisit_vec(vec, paramNode);
 	}
-	else block_visit(host, host.cases, paramNode);
+	else block_visit_vec(host.cases, paramNode);
 	
 	//if a break/continue moved out of it, don't count it as a terminator
 	if(paramNode->get_flag(VNODE_FLAG_EXITED))
@@ -490,8 +524,8 @@ void ReturnVisitor::caseSwitchCases(ASTSwitchCases& host, void* param)
 	VisitNode* paramNode = (VisitNode*)param;
 	paramNode = paramNode->create(&host);
 	
-	block_visit(host, host.ranges, paramNode);
-	block_visit(host, host.cases, paramNode);
+	block_visit_vec(host.ranges, paramNode);
+	block_visit_vec(host.cases, paramNode);
 	visit(host.block.get(), paramNode);
 	markReachable(host);
 }
@@ -500,7 +534,7 @@ void ReturnVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
 	if(host.left->isTypeArrow())
 		visit(host.left.get(), param);
-	visit(host, host.parameters, param);
+	visit_vec(host.parameters, param);
 	auto& func = *host.binding;
 	bool exiting_call = func.getFlag(FUNCFLAG_EXITS)
 	//This should work, but, FUNCFLAG_NEVER_RETURN won't be set for all
@@ -513,6 +547,24 @@ void ReturnVisitor::caseExprCall(ASTExprCall& host, void* param)
 		paramNode->force_term(true);
 	}
 	markReachable(host);
+}
+
+void ReturnVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
+{
+	RecursiveVisitor::caseExprIdentifier(host, param);
+	if(in_func && host.binding)
+	{
+		//If referencing a function param, mark it used
+		Datum* ptr = host.binding;
+		for(uint q = 0; q < in_func->paramDatum.size(); ++q)
+		{
+			if(ptr == in_func->paramDatum[q])
+			{
+				in_func->params_used.set(q, true);
+				break;
+			}
+		}
+	}
 }
 
 //Helper Functions

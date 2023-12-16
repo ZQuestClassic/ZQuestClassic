@@ -221,6 +221,8 @@ namespace ZScript
 		
 		void buildPreOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
+		
+		void push_param(bool varg = false);
 	};
 
 	class LValBOHelper : public ASTVisitor

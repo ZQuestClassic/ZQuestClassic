@@ -202,13 +202,15 @@ namespace ZScript
 		void caseStmtDo(ASTStmtDo& host, void* param = NULL);
 		void caseStmtSwitch(ASTStmtSwitch& host, void* param = NULL);
 		void caseSwitchCases(ASTSwitchCases & host, void* param = NULL);
+		//expressions
+		void caseExprIdentifier(ASTExprIdentifier& host, void* param = NULL);
 		//functions
 		void caseExprCall(ASTExprCall& host, void* param = NULL);
 		//internals
 		virtual void analyzeFunctionInternals(ZScript::Function& function);
 		
 		template <class Container>
-		bool block_retvisit(AST& host, Container const& nodes, void* param = NULL);
+		bool block_retvisit_vec(Container const& nodes, void* param = NULL);
 		bool block_retvisit(AST& host, void* param = NULL);
 		bool block_retvisit(AST* host, void* param = NULL)
 		{
@@ -224,6 +226,15 @@ namespace ZScript
 	private:
 		ZScript::Program& program;
 		bool extra_pass, marked_never_ret, missing_ret;
+		Function* in_func;
+		
+		enum ReturnVisitorMode
+		{
+			MODE_START,
+			MODE_EXPASS,
+			MODE_FINISH,
+		};
+		ReturnVisitorMode mode;
 		
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);

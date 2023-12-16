@@ -135,7 +135,13 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 
 	for (vector<Function*>::iterator it = functions.begin();
 	     it != functions.end(); ++it)
-		analyzeFunctionInternals(**it);
+	{
+		Function& func = **it;
+		Scope* oldscope = scope;
+		scope = func.getInternalScope();
+		analyzeFunctionInternals(func);
+		scope = oldscope;
+	}
 	
 	for (vector<Script*>::iterator it = program.scripts.begin();
 		 it != program.scripts.end(); ++it)
@@ -145,7 +151,13 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		functions = scope->getLocalFunctions();
 		for (vector<Function*>::iterator it = functions.begin();
 		     it != functions.end(); ++it)
-			analyzeFunctionInternals(**it);
+		{
+			Function& func = **it;
+			Scope* oldscope = scope;
+			scope = func.getInternalScope();
+			analyzeFunctionInternals(func);
+			scope = oldscope;
+		}
 		scope = scope->getParent();
 	}
 	
@@ -157,7 +169,13 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		functions = scope->getLocalFunctions();
 		for (vector<Function*>::iterator it = functions.begin();
 		     it != functions.end(); ++it)
-			analyzeFunctionInternals(**it);
+		{
+			Function& func = **it;
+			Scope* oldscope = scope;
+			scope = func.getInternalScope();
+			analyzeFunctionInternals(func);
+			scope = oldscope;
+		}
 		scope = scope->getParent();
 	}
 	
@@ -176,20 +194,26 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		for (vector<Function*>::iterator it = functions.begin();
 		     it != functions.end(); ++it)
 		{
-			Function* func = *it;
-			analyzeFunctionInternals(*func);
+			Function& func = **it;
+			Scope* oldscope = scope;
+			scope = func.getInternalScope();
+			analyzeFunctionInternals(func);
+			scope = oldscope;
 		}
 		
 		functions = scope->getLocalFunctions();
 		for (vector<Function*>::iterator it = functions.begin();
 		     it != functions.end(); ++it)
 		{
-			Function* func = *it;
-			if(func->getFlag(FUNCFLAG_STATIC))
+			Function& func = **it;
+			if(func.getFlag(FUNCFLAG_STATIC))
 				parsing_user_class = puc_none;
 			else
 				parsing_user_class = puc_funcs;
-			analyzeFunctionInternals(*func);
+			Scope* oldscope = scope;
+			scope = func.getInternalScope();
+			analyzeFunctionInternals(func);
+			scope = oldscope;
 		}
 		
 		functions = cscope->getDestructor();
@@ -197,8 +221,11 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		for (vector<Function*>::iterator it = functions.begin();
 		     it != functions.end(); ++it)
 		{
-			Function* func = *it;
-			analyzeFunctionInternals(*func);
+			Function& func = **it;
+			Scope* oldscope = scope;
+			scope = func.getInternalScope();
+			analyzeFunctionInternals(func);
+			scope = oldscope;
 		}
 		parsing_user_class = puc_none;
 		
@@ -221,29 +248,29 @@ void RecursiveVisitor::checkCast(
 
 void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 {
-	block_visit(host, host.options, param);
+	block_visit_vec(host.options, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.use, param);
+	block_visit_vec(host.use, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.dataTypes, param);
+	block_visit_vec(host.dataTypes, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.scriptTypes, param);
+	block_visit_vec(host.scriptTypes, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.imports, param);
+	block_visit_vec(host.imports, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.condimports, param);
+	block_visit_vec(host.condimports, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.variables, param);
+	block_visit_vec(host.variables, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.functions, param);
+	block_visit_vec(host.functions, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.namespaces, param);
+	block_visit_vec(host.namespaces, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.scripts, param);
+	block_visit_vec(host.scripts, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.classes, param);
+	block_visit_vec(host.classes, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.asserts, param);
+	block_visit_vec(host.asserts, param);
 }
 
 void RecursiveVisitor::caseSetOption(ASTSetOption& host, void* param)
@@ -255,9 +282,9 @@ void RecursiveVisitor::caseSetOption(ASTSetOption& host, void* param)
 
 void RecursiveVisitor::caseBlock(ASTBlock& host, void* param)
 {
-	block_visit(host, host.options, param);
+	block_visit_vec(host.options, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.statements, param);
+	block_visit_vec(host.statements, param);
 }
 
 void RecursiveVisitor::caseStmtIf(ASTStmtIf& host, void* param)
@@ -280,14 +307,14 @@ void RecursiveVisitor::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 {
 	visit(host.key.get(), param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.cases, param);
+	block_visit_vec(host.cases, param);
 }
 
 void RecursiveVisitor::caseSwitchCases(ASTSwitchCases& host, void* param)
 {
-	block_visit(host, host.ranges, param);
+	block_visit_vec(host.ranges, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.cases, param);
+	block_visit_vec(host.cases, param);
 	if (breakRecursion(host, param)) return;
 	visit(host.block.get(), param);
 }
@@ -305,7 +332,7 @@ void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
 	if (breakRecursion(host, param)) return;
-	visit(host, host.increments, param);
+	visit_vec(host.increments, param);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
 	if (breakRecursion(host, param)) return;
@@ -407,7 +434,7 @@ void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
 			handleError(CompileError::ExprNotConstant(&*host.iter));
 		}
 	}
-	visit(host, host.bodies, param);
+	visit_vec(host.bodies, param);
 }
 
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
@@ -421,38 +448,38 @@ void RecursiveVisitor::caseScript(ASTScript& host, void* param)
 {
 	visit(host.type.get(), param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.options, param);
+	block_visit_vec(host.options, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.use, param);
+	block_visit_vec(host.use, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.types, param);
+	block_visit_vec(host.types, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.variables, param);
+	block_visit_vec(host.variables, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.functions, param);
+	block_visit_vec(host.functions, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.asserts, param);
+	block_visit_vec(host.asserts, param);
 }
 void RecursiveVisitor::caseClass(ASTClass& host, void* param)
 {
-	block_visit(host, host.options, param);
+	block_visit_vec(host.options, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.use, param);
+	block_visit_vec(host.use, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.types, param);
+	block_visit_vec(host.types, param);
 	if (breakRecursion(host, param)) return;
 	parsing_user_class = puc_vars;
-	block_visit(host, host.variables, param);
+	block_visit_vec(host.variables, param);
 	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) return;
 	parsing_user_class = puc_funcs;
-	block_visit(host, host.functions, param);
+	block_visit_vec(host.functions, param);
 	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.asserts, param);
+	block_visit_vec(host.asserts, param);
 	if (breakRecursion(host, param)) return;
 	parsing_user_class = puc_construct;
-	block_visit(host, host.constructors, param);
+	block_visit_vec(host.constructors, param);
 	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) return;
 	parsing_user_class = puc_destruct;
@@ -462,25 +489,25 @@ void RecursiveVisitor::caseClass(ASTClass& host, void* param)
 
 void RecursiveVisitor::caseNamespace(ASTNamespace& host, void* param)
 {
-	block_visit(host, host.options, param);
+	block_visit_vec(host.options, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.dataTypes, param);
+	block_visit_vec(host.dataTypes, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.scriptTypes, param);
+	block_visit_vec(host.scriptTypes, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.use, param);
+	block_visit_vec(host.use, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.variables, param);
+	block_visit_vec(host.variables, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.functions, param);
+	block_visit_vec(host.functions, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.namespaces, param);
+	block_visit_vec(host.namespaces, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.scripts, param);
+	block_visit_vec(host.scripts, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.classes, param);
+	block_visit_vec(host.classes, param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.asserts, param);
+	block_visit_vec(host.asserts, param);
 }
 
 void RecursiveVisitor::caseImportDecl(ASTImportDecl& host, void* param)
@@ -515,9 +542,9 @@ void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	}
 	visit(host.returnType.get(), param);
 	if (breakRecursion(host, param)) return;
-	visit(host, host.parameters, param);
+	visit_vec(host.parameters, param);
 	if (breakRecursion(host, param)) return;
-	visit(host, host.optparams, param);
+	visit_vec(host.optparams, param);
 	if (breakRecursion(host, param)) return;
 	if(host.prototype)
 		visit(host.defaultReturn.get(), param);
@@ -528,21 +555,21 @@ void RecursiveVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 {
 	visit(host.baseType.get(), param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.getDeclarations(), param);
+	block_visit_vec(host.getDeclarations(), param);
 }
 
 void RecursiveVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 {
 	visit(host.baseType.get(), param);
 	if (breakRecursion(host, param)) return;
-	block_visit(host, host.getDeclarations(), param);
+	block_visit_vec(host.getDeclarations(), param);
 }
 
 void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 {
 	visit(host.baseType.get(), param);
 	if (breakRecursion(host, param)) return;
-	visit(host, host.extraArrays, param);
+	visit_vec(host.extraArrays, param);
 	if (breakRecursion(host, param)) return;
 	visit(host.getInitializer(), param);
 }
@@ -550,7 +577,7 @@ void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 void RecursiveVisitor::caseDataDeclExtraArray(
 		ASTDataDeclExtraArray& host, void* param)
 {
-	visit(host, host.dimensions, param);
+	visit_vec(host.dimensions, param);
 }
 
 void RecursiveVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
@@ -605,9 +632,9 @@ void RecursiveVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 
 void RecursiveVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
-	//visit(host.left, param);
-	//if (breakRecursion(host, param)) return;
-	visit(host, host.parameters, param);
+	visit(host.left.get(), param);
+	if (breakRecursion(host, param)) return;
+	visit_vec(host.parameters, param);
 }
 
 void RecursiveVisitor::caseExprDelete(ASTExprDelete& host, void* param)
@@ -819,5 +846,5 @@ void RecursiveVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host.size.get(), param);
 	if (breakRecursion(host, param)) return;
-	visit(host, host.elements, param);
+	visit_vec(host.elements, param);
 }

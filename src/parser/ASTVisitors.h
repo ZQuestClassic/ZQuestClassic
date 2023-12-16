@@ -253,18 +253,18 @@ namespace ZScript
 		void visit(AST* node, void* param = NULL);
 		// Visit a group of nodes.
 		template <class Container>
-		void visit(AST& host, Container const& nodes, void* param = NULL)
+		void visit_vec(Container const& nodes, void* param = NULL)
 		{
 			for (typename Container::const_iterator it = nodes.cbegin();
 			     it != nodes.cend(); ++it)
 			{
-				if (breakRecursion(host, param)) return;
+				if (breakRecursion(param)) return;
 				visit(**it, param);
 			}
 		}
 		
 		template <class Container>
-		void block_visit(AST& host, Container const& nodes, void* param = NULL)
+		void block_visit_vec(Container const& nodes, void* param = NULL)
 		{
 			for (typename Container::const_iterator it = nodes.cbegin();
 			     it != nodes.cend(); ++it)

@@ -101,10 +101,10 @@ namespace ZScript
 		//Shortcut for pointer
 		bool registered(AST* node) const;
 		template <class Container>
-		bool registered(AST& host, Container const& nodes) const;
+		bool registered_vec(Container const& nodes) const;
 		//Visiting
 		template <class Container>
-		void block_regvisit(AST& host, Container const& nodes, void* param = NULL);
+		void block_regvisit_vec(Container const& nodes, void* param = NULL);
 	private:
 		ZScript::Program& program;
 		
