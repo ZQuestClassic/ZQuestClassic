@@ -22,10 +22,15 @@ namespace ZScript
 
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
-		void literalVisit(AST& node, void* param = NULL);
-		void literalVisit(AST* node, void* param = NULL);
+		void literal_visit(AST& node, void* param = NULL);
+		void literal_visit(AST* node, void* param = NULL);
 		template <class Container>
-		void literalVisit(AST& host, Container const& nodes, void* param);
+		void literal_visit_vec(Container const& nodes, void* param);
+		
+		void sidefx_visit(AST& node, void* param = NULL);
+		void sidefx_visit(AST* node, void* param = NULL);
+		template <class Container>
+		void sidefx_visit_vec(Container const& nodes, void* param);
 	
 		virtual void caseDefault(AST& host, void* param);
 		virtual void caseSetOption(ASTSetOption& host, void* param);
@@ -212,8 +217,12 @@ namespace ZScript
 				ASTArrayLiteral& host, OpcodeContext& context);
 		// For when ASTArrayLiteral is not a declaration initializer.
 		void arrayLiteralFree(ASTArrayLiteral& host, OpcodeContext& context);
+		
 		void parseExprs(ASTExpr* left, ASTExpr* right, void* param, bool orderMatters = false);
 		void compareExprs(ASTExpr* left, ASTExpr* right, void* param, bool boolMode = false);
+		
+		void buildPreOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
+		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 	};
 
 	class LValBOHelper : public ASTVisitor
