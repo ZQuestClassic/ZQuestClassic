@@ -44,8 +44,14 @@ using namespace util;
 #define CMP_MORE  0x01
 #define CMP_LESS  0x02
 #define CMP_EQ    0x04
-#define CMP_FLAGS 0x07
 #define CMP_SETI  0x08
+
+#define CMP_FLAGS 0x07
+#define CMP_NE    (CMP_MORE|CMP_LESS)
+#define CMP_GE    (CMP_MORE|CMP_EQ)
+#define CMP_LE    (CMP_LESS|CMP_EQ)
+
+#define INVERT_CMP(cmp) ((cmp&(~CMP_FLAGS))|((~cmp)&CMP_FLAGS))
 inline string CMP_STR(uint cmpval)
 {
 	switch(cmpval&CMP_FLAGS)
@@ -54,17 +60,17 @@ inline string CMP_STR(uint cmpval)
 			return "Never";
 		case CMP_MORE:
 			return ">";
-		case CMP_MORE|CMP_EQ:
+		case CMP_GE:
 			return ">=";
 		case CMP_LESS:
 			return "<";
-		case CMP_LESS|CMP_EQ:
+		case CMP_LE:
 			return "<=";
 		case CMP_EQ:
 			return "==";
-		case CMP_LESS|CMP_MORE:
+		case CMP_NE:
 			return "!=";
-		case CMP_LESS|CMP_MORE|CMP_EQ:
+		case CMP_FLAGS:
 			return "Always";
 	}
 }
