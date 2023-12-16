@@ -24,6 +24,8 @@ namespace ZScript
 		void visit(AST& node, void* param = NULL);
 		void literalVisit(AST& node, void* param = NULL);
 		void literalVisit(AST* node, void* param = NULL);
+		template <class Container>
+		void literalVisit(AST& host, Container const& nodes, void* param);
 	
 		virtual void caseDefault(AST& host, void* param);
 		virtual void caseSetOption(ASTSetOption& host, void* param);

@@ -305,7 +305,7 @@ void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
 	if (breakRecursion(host, param)) return;
-	visit(host.increment.get(), param);
+	visit(host, host.increments, param);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
 	if (breakRecursion(host, param)) return;

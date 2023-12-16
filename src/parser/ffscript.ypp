@@ -175,7 +175,7 @@ void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&)>
 }
 
 %glr-parser
-%expect 5
+%expect 6
 %define parse.error verbose
 %start Init
 %parse-param {std::unique_ptr<ZScript::ASTFile>& root}
@@ -1610,30 +1610,44 @@ Statement_For :
 	| Statement_For_Each {$$ = $1;}
 	;
 
+Statement_CommaList :
+	Statement_CommaList COMMA Statement_NoSemicolon {
+		ASTNodeList<ASTStmt>* list = (ASTNodeList<ASTStmt>*)$1;
+		list->push((ASTStmt*)$3);
+		$$ = list;
+	}
+	| Statement_NoSemicolon {
+		ASTNodeList<ASTStmt>* list = new ASTNodeList<ASTStmt>();
+		list->push((ASTStmt*)$1);
+		$$ = list;
+	}
+	;
+
 Statement_For_Standard :
 	FOR LPAREN
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
-		Statement_NoSemicolon RPAREN
+		Statement_CommaList RPAREN
 		Block_Statement
 	{
 		ASTStmt* setup = (ASTStmt*)$3;
 		ASTExpr* test = (ASTExpr*)$5;
-		ASTStmt* increment = (ASTExpr*)$7;
+		ASTNodeList<ASTStmt>* increments = (ASTNodeList<ASTStmt>*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
-		$$ = new ASTStmtFor(setup, test, increment, body, nullptr, @$);
-	} | FOR LPAREN
+		$$ = new ASTStmtFor(setup, test, increments, body, nullptr, @$);
+	}
+	| FOR LPAREN
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
-		Statement_NoSemicolon RPAREN
+		Statement_CommaList RPAREN
 		Block_Statement ELSE Block_Statement
 	{
 		ASTStmt* setup = (ASTStmt*)$3;
 		ASTExpr* test = (ASTExpr*)$5;
-		ASTStmt* increment = (ASTExpr*)$7;
+		ASTNodeList<ASTStmt>* increments = (ASTNodeList<ASTStmt>*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
 		ASTBlock* elseStatement = (ASTBlock*)$11;
-		$$ = new ASTStmtFor(setup, test, increment, body, elseStatement, @$);
+		$$ = new ASTStmtFor(setup, test, increments, body, elseStatement, @$);
 	}
 	;
 

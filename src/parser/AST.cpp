@@ -886,12 +886,14 @@ optional<int32_t> ASTRange::getEndVal(bool inclusive, CompileErrorHandler* error
 uint ASTStmtFor::next_comment_id = 0;
 
 ASTStmtFor::ASTStmtFor(
-		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
+		ASTStmt* setup, ASTExpr* test, ASTNodeList<ASTStmt>* incr_list, ASTStmt* body,
 		ASTStmt* elseBlock, LocationData const& location)
-	: ASTStmt(location), setup(setup), test(test), increment(increment),
+	: ASTStmt(location), setup(setup), test(test), increments(incr_list->take()),
 	  body(body), elseBlock(elseBlock), scope(nullptr),
 	  ends_loop(true), ends_else(true)
-{}
+{
+	delete incr_list;
+}
 
 void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 {

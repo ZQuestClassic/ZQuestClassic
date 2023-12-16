@@ -129,6 +129,18 @@ void BuildOpcodes::literalVisit(AST* node, void* param)
 	if(node) literalVisit(*node, param);
 }
 
+template <class Container>
+void BuildOpcodes::literalVisit(AST& host, Container const& nodes, void* param)
+{
+	for (auto it = nodes.cbegin();
+		 it != nodes.cend(); ++it)
+	{
+		failure_temp = false;
+		literalVisit(**it, param);
+		if(failure_halt) return;
+	}
+}
+
 void BuildOpcodes::caseDefault(AST&, void*)
 {
 	// Unreachable
@@ -858,7 +870,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	addOpcode(next);
 	commentBack(fmt::format("for() #{} LoopIncrement",forid));
 	int32_t incRefCount = arrayRefs.size(); //Store ref count
-	literalVisit(host.increment.get(), param);
+	literalVisit(host, host.increments, param);
 	//Deallocate string/array literals from within the increment
 	deallocateRefsUntilCount(incRefCount);
 	while ((int32_t)arrayRefs.size() > incRefCount)

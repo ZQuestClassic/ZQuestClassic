@@ -288,7 +288,22 @@ namespace ZScript
 
 
 	////////////////////////////////////////////////////////////////
-
+	
+	template<class NodeType>
+	class ASTNodeList : public AST
+	{
+	public:
+		ASTNodeList(LocationData const& location = LOC_NONE) : data() {}
+		ASTNodeList* clone() const {return new ASTNodeList(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL){}
+		
+		owning_vector<NodeType> data;
+		
+		void push(NodeType* node) {data.push_back(node);}
+		owning_vector<NodeType>&& take() {return std::move(data);}
+	};
+	
 	class ASTFile : public AST
 	{
 	public:
@@ -557,7 +572,7 @@ namespace ZScript
 		DEF_COMMENT_UID();
 	public:
 		ASTStmtFor(ASTStmt* setup, ASTExpr* test,
-		           ASTStmt* increment, ASTStmt* body,
+		           ASTNodeList<ASTStmt>* increments, ASTStmt* body,
 				   ASTStmt* elseBlock,
 		           LocationData const& location = LOC_NONE);
 		ASTStmtFor* clone() const {return new ASTStmtFor(*this);}
@@ -566,7 +581,7 @@ namespace ZScript
 
 		owning_ptr<ASTStmt> setup;
 		owning_ptr<ASTExpr> test;
-		owning_ptr<ASTStmt> increment;
+		owning_vector<ASTStmt> increments;
 		owning_ptr<ASTStmt> body;
 		owning_ptr<ASTStmt> elseBlock;
 		
