@@ -230,18 +230,22 @@ void SemanticAnalyzer::caseRange(ASTRange& host, void*)
 {
 	RecursiveVisitor::caseRange(host);
 	if(breakRecursion(host)) return;
-	std::optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
-	std::optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
+	auto start = host.start->getCompileTimeValue(this, scope);
+	auto end = host.end->getCompileTimeValue(this, scope);
 	
 	if(start && end) //constant ranges must be correctly oriented
 	{
+		auto start_incl = host.getStartVal(true, this, scope);
+		auto end_incl = host.getEndVal(true, this, scope);
+		char sc = (host.type & ASTRange::RANGE_L) ? '[' : '(';
+		char ec = (host.type & ASTRange::RANGE_R) ? ']' : ')';
 		if(*start > *end)
 		{
-			handleError(CompileError::RangeInverted(&host, *start, *end));
+			handleError(CompileError::RangeOrientation(&host, fmt::format("Left must be <= right {}{},{}{}", sc, *start, *end, ec).c_str()));
 		}
-		else if(*start == *end)
+		else if(*start_incl > *end_incl)
 		{
-			handleError(CompileError::RangeEqual(&host, *start, *end));
+			handleError(CompileError::RangeOrientation(&host, fmt::format("Range cannot be empty {}{},{}{}", sc, *start, *end, ec).c_str()));
 		}
 	}
 }
@@ -339,38 +343,18 @@ void SemanticAnalyzer::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
 	decl->name = host.iden;
 	decl->baseType = new ASTDataType(dataty, host.location);
 	auto incrval = host.increment->getCompileTimeValue(this, scope);
+	optional<int> declval;
 	if(incrval) //If we know at compile-time what direction we are going, initialize the startval
 	{
 		if(*incrval > 0)
-		{
-			auto startval = host.range->getStartVal(true, this, scope);
-			if(startval)
-				decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*startval), host.location), host.location));
-			else if(host.range->type & ASTRange::RANGE_L)
-				decl->setInitializer(host.range->start->clone());
-			else
-				decl->setInitializer(new ASTExprPlus(host.range->start->clone(), new ASTNumberLiteral(new ASTFloat(0, 1, host.location), host.location), host.location));
-		}
+			declval = host.range->getStartVal(true, this, scope);
 		else if(*incrval < 0)
-		{
-			auto endval = host.range->getEndVal(true, this, scope);
-			if(endval)
-				decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*endval), host.location), host.location));
-			else if(host.range->type & ASTRange::RANGE_R)
-				decl->setInitializer(host.range->start->clone());
-			else
-				decl->setInitializer(new ASTExprPlus(host.range->start->clone(), new ASTNumberLiteral(new ASTFloat(0, -1, host.location), host.location), host.location));
-		}
-		else decl->setInitializer(new ASTNumberLiteral(new ASTFloat(0, host.location), host.location));
+			declval = host.range->getEndVal(true, this, scope);
+		else declval = 0;
 	}
-	//Otherwise, use a constant startval if it exists
-	else if(auto startval = host.range->getStartVal(true, this, scope))
-	{
-		decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*startval), host.location), host.location));
-	}
-	//...or just 0
-	else decl->setInitializer(new ASTNumberLiteral(new ASTFloat(0, host.location), host.location));
-	decl->force_variable = true;
+	if(declval)
+		decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*declval), host.location), host.location));
+	decl->setFlag(ASTDataDecl::FL_FORCE_VAR|ASTDataDecl::FL_SKIP_EMPTY_INIT);
 	host.decl = decl;
 	
 	visit(host.decl.get(), param);
@@ -711,7 +695,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 
 		// Is it a constant?
 		bool isConstant = false;
-		if (type->isConstant() && !host.force_variable)
+		if (type->isConstant() && !host.getFlag(ASTDataDecl::FL_FORCE_VAR))
 		{
 			// A constant without an initializer doesn't make sense.
 			if (!host.getInitializer())
