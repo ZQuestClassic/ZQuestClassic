@@ -1065,7 +1065,11 @@ namespace ZScript
 		// list's base type combined with these.
 		owning_vector<ASTDataDeclExtraArray> extraArrays;
 		
-		bool force_variable;
+		uint flags;
+		bool getFlag(uint flg) const {return flags&flg;}
+		void setFlag(uint flg, bool state = true) {SETFLAG(flags,flg,state);}
+		static const uint FL_FORCE_VAR = 0x01;
+		static const uint FL_SKIP_EMPTY_INIT = 0x02;
 
 	private:
 		// The initialization expression. Optional.

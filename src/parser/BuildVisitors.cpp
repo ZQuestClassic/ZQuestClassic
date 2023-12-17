@@ -1027,13 +1027,13 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	DataType const& declty = host.decl->resolveType(scope, this);
 	bool const_indx = declty.isConstant();
 	
-	auto startval = host.range->getStartVal(false, this, scope);
-	auto endval = host.range->getEndVal(false, this, scope);
+	auto startval_exact = host.range->getStartVal(false, this, scope);
+	auto endval_exact = host.range->getEndVal(false, this, scope);
+	auto startval = host.range->getStartVal(true, this, scope);
+	auto endval = host.range->getEndVal(true, this, scope);
 	auto incrval = host.increment->getCompileTimeValue(this, scope);
 	MiniStackMgr mgr;
 	optional<uint> start_peekind, end_peekind, incr_peekind, indx_peekind, overflow_peekind;
-	bool need_startval = !incrval || *incrval < 0;
-	bool need_endval = !incrval || *incrval > 0;
 	bool infloop = incrval && !*incrval;
 	if(infloop) host.overflow = ASTStmtRangeLoop::OVERFLOW_ALLOW;
 	if(host.overflow != ASTStmtRangeLoop::OVERFLOW_ALLOW)
@@ -1041,10 +1041,42 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		addOpcode(new OPushImmediate(new LiteralArgument(0)));
 		overflow_peekind = mgr.push();
 	}
-	if(!startval && need_startval)
-		VISIT_PUSH(host.range->start.get(), start_peekind);
-	if(!endval && need_endval)
-		VISIT_PUSH(host.range->end.get(), end_peekind);
+	if(!startval)
+	{
+		visit(host.range->start.get(), param);
+		if(!(host.range->type & ASTRange::RANGE_L))
+			addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+		
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		start_peekind = mgr.push();
+		if(incrval && *incrval > 0)
+			addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+	}
+	if(!endval)
+	{
+		visit(host.range->end.get(), param);
+		if(!(host.range->type & ASTRange::RANGE_R))
+			addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(-1)));
+		
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		end_peekind = mgr.push();
+		if(incrval && *incrval < 0)
+			addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+	}
+	if(!startval || !endval) //ensure the range is valid to run at all
+	{
+		if(startval)
+			addOpcode(new OCompareImmediate2(new LiteralArgument(*startval), new VarArgument(EXP1)));
+		else if(endval)
+			addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(*endval)));
+		else
+		{
+			addOpcode(new OPeekAtImmediate(new VarArgument(EXP2), new LiteralArgument(mgr.at(*start_peekind))));
+			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+		}
+		addOpcode(new OGotoCompare(new LabelArgument(loopend), new LiteralArgument(CMP_GT)));
+		commentBack(fmt::format("loop() #{} Range Invalid?",loopid));
+	}
 	if(!incrval)
 	{
 		VISIT_PUSH(host.increment.get(), incr_peekind);
@@ -1067,49 +1099,23 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		{
 			auto lbl2 = ScriptParser::getUniqueLabelID();
 			addOpcode(new OGotoCompare(new LabelArgument(lbl), new LiteralArgument(CMP_LT)));
-			optional<int> sv;
-			if(host.range->type & ASTRange::RANGE_L)
-			{
-				if(startval)
-					sv = *startval;
-				else addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
-			}
+			if(startval)
+				addOpcode(new OStoreDirectV(new LiteralArgument(*startval), new LiteralArgument(decloffset)));
 			else
 			{
-				if(startval)
-					sv = *startval+1;
-				else
-				{
-					addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
-					addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
-				}
+				addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
+				addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			}
-			if(sv)
-				addOpcode(new OStoreDirectV(new LiteralArgument(*sv), new LiteralArgument(decloffset)));
-			else addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			addOpcode(new OGotoImmediate(new LabelArgument(lbl2)));
 			addOpcode(new ONoOp(lbl));
 			
-			optional<int> ev;
-			if(host.range->type & ASTRange::RANGE_R)
-			{
-				if(endval)
-					ev = *endval;
-				else addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
-			}
+			if(endval)
+				addOpcode(new OStoreDirectV(new LiteralArgument(*endval), new LiteralArgument(decloffset)));
 			else
 			{
-				if(endval)
-					ev = *endval-1;
-				else
-				{
-					addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
-					addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(-1)));
-				}
+				addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
+				addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			}
-			if(ev)
-				addOpcode(new OStoreDirectV(new LiteralArgument(*ev), new LiteralArgument(decloffset)));
-			else addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			addOpcode(new ONoOp(lbl2));
 		}
 	}
@@ -1174,11 +1180,8 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		auto cmp = CMP_LT;
-		if(!(host.range->type & ASTRange::RANGE_L))
-			cmp |= CMP_EQ;
-		addOpcode(new OGotoCompare(new LabelArgument(endtestlabel), new LiteralArgument(cmp)));
-		commentBack(fmt::format("{} start, skip to else/end",CMP_STR(cmp)));
+		addOpcode(new OGotoCompare(new LabelArgument(endtestlabel), new LiteralArgument(CMP_LT)));
+		commentBack(fmt::format("{} start, skip to else/end",CMP_STR(CMP_LT)));
 		if(endval)
 		{
 			addOpcode(new OCompareImmediate(new VarArgument(EXP2), new LiteralArgument(*endval)));
@@ -1188,14 +1191,11 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		cmp = CMP_LT;
-		if(host.range->type & ASTRange::RANGE_R)
-			cmp |= CMP_EQ;
-		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(cmp)));
-		commentBack(fmt::format("{} end, keep looping",CMP_STR(cmp)));
+		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(CMP_LE)));
+		commentBack(fmt::format("{} end, keep looping",CMP_STR(CMP_LE)));
 		addOpcode(new ONoOp(endtestlabel));
 	}
-	else if(need_startval)
+	else if(*incrval < 0)
 	{
 		if(startval)
 		{
@@ -1206,13 +1206,10 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		auto cmp = CMP_GT;
-		if(host.range->type & ASTRange::RANGE_L)
-			cmp |= CMP_EQ;
-		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(cmp)));
-		commentBack(fmt::format("{} start, keep looping",CMP_STR(cmp)));
+		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(CMP_GE)));
+		commentBack(fmt::format("{} start, keep looping",CMP_STR(CMP_GE)));
 	}
-	else if(need_endval)
+	else if(*incrval > 0)
 	{
 		if(endval)
 		{
@@ -1223,11 +1220,8 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		auto cmp = CMP_LT;
-		if(host.range->type & ASTRange::RANGE_R)
-			cmp |= CMP_EQ;
-		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(cmp)));
-		commentBack(fmt::format("{} end, keep looping",CMP_STR(cmp)));
+		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(CMP_LE)));
+		commentBack(fmt::format("{} end, keep looping",CMP_STR(CMP_LE)));
 	}
 	else //constant 0 increment, infinite loop
 	{
@@ -1244,41 +1238,20 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		if(host.overflow == ASTStmtRangeLoop::OVERFLOW_LONG)
 		{
 			if(startval)
-			{
-				auto val = *startval;
-				if(!(host.range->type & ASTRange::RANGE_L))
-					++val;
-				sv = val;
-				addOpcode2(op_startval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
-			}
+				addOpcode2(op_startval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*(sv = startval))));
 			else
-			{
 				addOpcode2(op_startval, new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
-				if(!(host.range->type & ASTRange::RANGE_L))
-					addOpcode2(op_startval, new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
-			}
+			
 			if(endval)
-			{
-				auto val = *endval;
-				if(!(host.range->type & ASTRange::RANGE_R))
-					--val;
-				ev = val;
-				addOpcode2(op_endval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
-			}
+				addOpcode2(op_endval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*(ev = endval))));
 			else
-			{
 				addOpcode2(op_endval, new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
-				if(!(host.range->type & ASTRange::RANGE_R))
-					addOpcode2(op_endval, new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(-1)));
-			}
 		}
 		else if(host.overflow == ASTStmtRangeLoop::OVERFLOW_INT)
 		{
 			if(startval)
 			{
 				auto val = *startval;
-				if(!(host.range->type & ASTRange::RANGE_L))
-					++val;
 				val = zslongToFix(val).getTrunc()*10000;
 				sv = val;
 				addOpcode2(op_startval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
@@ -1286,15 +1259,11 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			else
 			{
 				addOpcode2(op_startval, new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
-				if(!(host.range->type & ASTRange::RANGE_L))
-					addOpcode2(op_startval, new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 				addOpcode2(op_startval, new OTruncate(new VarArgument(EXP1)));
 			}
 			if(endval)
 			{
 				auto val = *endval;
-				if(!(host.range->type & ASTRange::RANGE_R))
-					--val;
 				val = zslongToFix(val).getTrunc()*10000;
 				ev = val;
 				addOpcode2(op_endval, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
@@ -1302,8 +1271,6 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			else
 			{
 				addOpcode2(op_endval, new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
-				if(!(host.range->type & ASTRange::RANGE_R))
-					addOpcode2(op_endval, new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(-1)));
 				addOpcode2(op_endval, new OTruncate(new VarArgument(EXP1)));
 			}
 		}
@@ -1608,9 +1575,11 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 {
 	Datum& manager = *host.manager;
-
+	
 	// Load initializer, if present.
 	auto init = host.getInitializer();
+	if(!init && host.getFlag(ASTDataDecl::FL_SKIP_EMPTY_INIT))
+		return;
 	auto val = init ? init->getCompileTimeValue(this, scope) : optional<int>(0);
 	if(!val)
 		visit(init, &context);

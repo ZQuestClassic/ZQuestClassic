@@ -193,8 +193,11 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 					{
 						no_ret = true;
 						//Terminates without return; infinite loop, or script quit?
-						function.setFlag(FUNCFLAG_NEVER_RETURN);
-						marked_never_ret = true;
+						if(!function.getFlag(FUNCFLAG_NEVER_RETURN))
+						{
+							marked_never_ret = true;
+							function.setFlag(FUNCFLAG_NEVER_RETURN);
+						}
 					}
 				}
 				else no_ret = true;

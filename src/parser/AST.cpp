@@ -1297,7 +1297,7 @@ void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
 	: ASTDecl(location), list(NULL), manager(NULL),
-	  baseType(NULL), initializer_(NULL), force_variable(false)
+	  baseType(NULL), initializer_(NULL), flags(0)
 {}
 
 ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
