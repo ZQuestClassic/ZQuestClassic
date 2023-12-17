@@ -110,7 +110,7 @@ BuildOpcodes::BuildOpcodes(LValBOHelper* helper)
 {
 	scope = helper->scope;
 	parsing_user_class = helper->parsing_user_class;
-	in_func_body = helper->in_func_body;
+	in_func = helper->in_func;
 }
 
 void addOpcode2(vector<shared_ptr<Opcode>>& v, Opcode* code)
@@ -1546,9 +1546,9 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 	returnlabelid = ScriptParser::getUniqueLabelID();
 	returnRefCount = arrayRefs.size();
 	
-	in_func_body = true;
+	in_func = host.func;
 	visit(host.block.get(), param);
-	in_func_body = false;
+	in_func = nullptr;
 }
 
 void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
@@ -1598,8 +1598,15 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	{
 		int32_t offset = 10000L * *getStackOffset(manager);
 		if (val)
-			addOpcode(new OStoreDirectV(new LiteralArgument(*val), new LiteralArgument(offset)));
+		{
+			//The first time a stack offset is used, it's already 0, and can skip init
+			//...but subsequent times it needs to be cleared again, and if non-zero still needs init.
+			if(*val || (in_func && in_func->used_stackoffs.contains(offset)))
+				addOpcode(new OStoreDirectV(new LiteralArgument(*val), new LiteralArgument(offset)));
+		}
 		else addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
+		if(in_func)
+			in_func->used_stackoffs.insert(offset);
 	}
 }
 
@@ -3836,7 +3843,7 @@ LValBOHelper::LValBOHelper(BuildOpcodes* bo)
 {
 	ASTVisitor::scope = bo->scope;
 	parsing_user_class = bo->parsing_user_class;
-	in_func_body = bo->in_func_body;
+	in_func = bo->in_func;
 }
 
 void LValBOHelper::caseDefault(void *)

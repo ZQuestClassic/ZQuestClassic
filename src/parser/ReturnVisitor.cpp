@@ -173,7 +173,6 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 				size_t indx = 0;
 				bool earlyterm = false;
 				VisitNode rootnode(node);
-				in_func_body = true;
 				in_func = &function;
 				for(auto it = stmts.begin(); it != stmts.end(); ++it)
 				{
@@ -185,7 +184,6 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 						break;
 				}
 				in_func = nullptr;
-				in_func_body = false;
 				
 				if(earlyterm)
 				{

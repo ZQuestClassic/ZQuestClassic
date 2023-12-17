@@ -564,7 +564,7 @@ Function::Function(DataType const* returnType, string const& name,
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
 	  node(NULL), internalScope(NULL), thisVar(NULL), internal_flags(internal_flags), prototype(prototype),
 	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags), shown_depr(false),
-	  aliased_func(nullptr), paramDatum(), params_used()
+	  aliased_func(nullptr), paramDatum(), params_used(), used_stackoffs()
 {
 	assert(returnType);
 }
