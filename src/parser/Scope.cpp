@@ -1248,9 +1248,31 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 	return true;
 }
+void BasicScope::decr_stack_recursive(optional<int32_t> offset)
+{
+	if(offset)
+	{
+		bool skip = true;
+		for(auto& offs : stackOffsets_)
+			if(offs.second <= *offset)
+			{
+				skip = false;
+				break;
+			}
+		if(skip)
+			return;
+	}
+	--stackDepth_;
+	for(auto& offs : stackOffsets_)
+		--offs.second;
+	for(auto child : getChildren())
+	{
+		BasicScope* scope = static_cast<BasicScope*>(child);
+		scope->decr_stack_recursive();
+	}
+}
 bool BasicScope::remove(Datum& datum)
 {
-	bool erased = false;
 	if (!ZScript::isGlobal(datum))
 	{
 		auto it = stackOffsets_.find(&datum);
@@ -1262,34 +1284,19 @@ bool BasicScope::remove(Datum& datum)
 			for(auto& offs : stackOffsets_)
 				if(offs.second > offset)
 					--offs.second;
-			invalidateStackSize();
-			erased = true;
-		}
-		if(!erased) return false;
-	}
-	if (std::optional<string> name = datum.getName())
-	{
-		auto it = namedData_.find(*name);
-		if (it != namedData_.end())
-		{
-			namedData_.erase(it);
-			erased = true;
-		}
-	}
-	else
-	{
-		for(auto it = anonymousData_.begin(); it != anonymousData_.end();)
-		{
-			if (*it == &datum)
+			for(auto child : getChildren())
 			{
-				it = anonymousData_.erase(it);
-				erased = true;
+				BasicScope* scope = static_cast<BasicScope*>(child);
+				scope->decr_stack_recursive(offset);
 			}
-			else ++it;
+			invalidateStackSize();
+			datum.mark_erased();
+			return true;
 		}
+		return false;
 	}
-
-	return erased;
+	datum.mark_erased();
+	return true;
 }
 
 // Stack

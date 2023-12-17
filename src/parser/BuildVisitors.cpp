@@ -1555,8 +1555,13 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 {
 	if(parsing_user_class == puc_vars) return;
 	OpcodeContext& context = *(OpcodeContext*)param;
-	Datum& manager = *host.manager;
 	ASTExpr* init = host.getInitializer();
+	Datum& manager = *host.manager;
+	if(manager.is_erased()) //var unused, optimized away
+	{
+		sidefx_visit(init, param);
+		return;
+	}
 
 	// Ignore inlined values.
 	if (manager.getCompileTimeValue()) return;
@@ -1937,7 +1942,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (; param_indx < host.parameters.size()-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !(func.isInternal() || func.params_used.get(param_indx));
+			bool unused = !func.isInternal() && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{
@@ -2094,7 +2099,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (; param_indx < num_used_params-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !(func.isInternal() || func.params_used.get(param_indx));
+			bool unused = !func.isInternal() && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{
@@ -2235,7 +2240,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (; param_indx < num_used_params-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !(func.isInternal() || func.params_used.get(param_indx));
+			bool unused = !func.isInternal() && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{

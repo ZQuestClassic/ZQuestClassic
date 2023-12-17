@@ -33,7 +33,7 @@ public:
 
 ReturnVisitor::ReturnVisitor(Program& program)
 	: program(program), marked_never_ret(false), missing_ret(false),
-	in_func(nullptr)
+	in_func(nullptr), var_map()
 {
 	mode = MODE_START;
 	visitFunctionInternals(program);
@@ -46,6 +46,7 @@ ReturnVisitor::ReturnVisitor(Program& program)
 		visitFunctionInternals(program);
 	}
 	mode = MODE_FINISH;
+	visitFunctionInternals(program);
 }
 
 void ReturnVisitor::visit(AST& node, void* param)
@@ -118,16 +119,15 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 	ASTBlock* block = node->block.get();
 	if(!node || node->isDisabled()) return;
 	if(!block) return;
-	
+	auto func_var_map = var_map[&function];
 	if(mode == MODE_FINISH)
 	{
-		for(uint q = 0; q < function.paramDatum.size(); ++q)
+		for(auto& pair : func_var_map)
 		{
-			if(function.params_used.get(q))
-				continue;
-			//Unused parameters
-			if(ZScript::eraseDatum(*scope, *function.paramDatum[q]))
-				function.paramDatum[q] = nullptr;
+			Variable* var = pair.first;
+			ASTDataDecl* node = var->getNode();
+			if(!pair.second) //unused
+				ZScript::eraseDatum(var->scope, *var);
 		}
 	}
 	else
@@ -139,7 +139,7 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 				return; //nothing more to possibly do here
 			ResetVisitor resetter;
 			resetter.visit(*block); //reset the 'reachable' state
-			function.params_used.clear();
+			func_var_map.clear();
 		}
 		markReachable(*node);
 		markReachable(*block);
@@ -394,9 +394,27 @@ void ReturnVisitor::caseStmtForEach(ASTStmtForEach& host, void* param)
 	visit(host.arrExpr.get(), thenNode);
 	host.ends_loop = block_retvisit(host.body.get(), thenNode);
 	if(host.indxdecl)
+	{
 		visit(host.indxdecl.get(), thenNode);
+		if(auto varptr = dynamic_cast<Variable*>(host.indxdecl->manager))
+		{
+			auto& vmap = var_map[in_func];
+			auto it = vmap.find(varptr);
+			if(it != vmap.end())
+				it->second = true; // Mark param as used
+		}
+	}
 	if(host.arrdecl)
+	{
 		visit(host.arrdecl.get(), thenNode);
+		if(auto varptr = dynamic_cast<Variable*>(host.arrdecl->manager))
+		{
+			auto& vmap = var_map[in_func];
+			auto it = vmap.find(varptr);
+			if(it != vmap.end())
+				it->second = true; // Mark param as used
+		}
+	}
 	if(host.decl)
 		visit(host.decl.get(), thenNode);
 	if(host.hasElse())
@@ -417,7 +435,16 @@ void ReturnVisitor::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
 	visit(host.increment.get(), thenNode);
 	host.ends_loop = block_retvisit(host.body.get(), thenNode);
 	if(host.decl)
+	{
 		visit(host.decl.get(), thenNode);
+		if(auto varptr = dynamic_cast<Variable*>(host.decl->manager))
+		{
+			auto& vmap = var_map[in_func];
+			auto it = vmap.find(varptr);
+			if(it != vmap.end())
+				it->second = true; // Mark param as used
+		}
+	}
 	if(host.hasElse())
 		host.ends_else = block_retvisit(host.elseBlock.get(), elseNode);
 	markReachable(host);
@@ -550,21 +577,25 @@ void ReturnVisitor::caseExprCall(ASTExprCall& host, void* param)
 	markReachable(host);
 }
 
+void ReturnVisitor::caseDataDecl(ASTDataDecl& host, void* param)
+{
+	RecursiveVisitor::caseDataDecl(host, param);
+	Datum* ptr = host.manager;
+	Variable* varptr = dynamic_cast<Variable*>(ptr);
+	if(in_func && varptr && ptr->getNode() && !ptr->getGlobalId())
+		var_map[in_func][varptr] = false;
+}
 void ReturnVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	RecursiveVisitor::caseExprIdentifier(host, param);
-	if(in_func && host.binding)
+	Datum* ptr = host.binding;
+	Variable* varptr = dynamic_cast<Variable*>(ptr);
+	if(varptr && in_func)
 	{
-		//If referencing a function param, mark it used
-		Datum* ptr = host.binding;
-		for(uint q = 0; q < in_func->paramDatum.size(); ++q)
-		{
-			if(ptr == in_func->paramDatum[q])
-			{
-				in_func->params_used.set(q, true);
-				break;
-			}
-		}
+		auto& vmap = var_map[in_func];
+		auto it = vmap.find(varptr);
+		if(it != vmap.end())
+			it->second = true; // Mark param as used
 	}
 }
 
