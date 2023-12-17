@@ -443,15 +443,20 @@ namespace ZScript
 		string name;
 		bool hasPrefixType;
 		byte extra_vargs;
+		
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
 		std::vector<Datum*> paramDatum;
+		
 		bitstring params_used;
+		
 		std::vector<int32_t> opt_vals;
 		int32_t id;
 
 		ASTFuncDecl* node;
 		Datum* thisVar;
+		
+		std::set<int32_t> used_stackoffs;
 
 		// Get the opcodes.
 		std::vector<std::shared_ptr<Opcode>> const& getCode() const
@@ -530,6 +535,7 @@ namespace ZScript
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		bool prototype;
+		
 		optional<int32_t> defaultReturn;
 		
 		bool shouldShowDepr(bool err) const;

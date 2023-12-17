@@ -16,7 +16,7 @@ namespace ZScript
 	{
 	public:
 		ASTVisitor() : parsing_user_class(puc_none), scope(nullptr),
-			in_func_body(false), sidefx_only(false) {}
+			in_func(nullptr), sidefx_only(false) {}
 		virtual ~ASTVisitor() = default;
 		
 		virtual void caseDefault(AST& host, void* param = NULL) {}
@@ -206,7 +206,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		
 		int parsing_user_class;
-		bool in_func_body, sidefx_only;
+		bool sidefx_only;
+		Function* in_func;
 		//Current scope
 		ZScript::Scope* scope;
 	};
