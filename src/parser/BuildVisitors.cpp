@@ -944,9 +944,9 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	literal_visit(host.decl.get(), param);
 	commentAt(targ_sz, fmt::format("for(each) #{} ValDecl",forid));
 	
-	int32_t decloffset = 10000L * *getStackOffset(*host.decl.get()->manager);
-	int32_t arrdecloffset = 10000L * *getStackOffset(*host.arrdecl.get()->manager);
-	int32_t indxdecloffset = 10000L * *getStackOffset(*host.indxdecl.get()->manager);
+	int32_t decloffset = host.decl->manager->getStackOffset();
+	int32_t arrdecloffset = host.arrdecl->manager->getStackOffset();
+	int32_t indxdecloffset = host.indxdecl->manager->getStackOffset();
 	
 	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopend = ScriptParser::getUniqueLabelID();
@@ -1017,7 +1017,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	literal_visit(host.decl.get(), param);
 	commentAt(targ_sz, fmt::format("loop() #{} ValDecl",loopid));
 	
-	int32_t decloffset = 10000L * *getStackOffset(*host.decl.get()->manager);
+	int32_t decloffset = host.decl->manager->getStackOffset();
 	
 	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopcont = ScriptParser::getUniqueLabelID();
@@ -1596,7 +1596,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	}
 	else
 	{
-		int32_t offset = 10000L * *getStackOffset(manager);
+		int32_t offset = manager.getStackOffset();
 		if (val)
 		{
 			//The first time a stack offset is used, it's already 0, and can skip init
@@ -1653,7 +1653,7 @@ void BuildOpcodes::buildArrayUninit(
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
-		int32_t offset = 10000L * *getStackOffset(manager);
+		int32_t offset = manager.getStackOffset();
 		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
@@ -1718,7 +1718,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	}
 
 	// Local variable, get its value from the stack.
-	int32_t offset = 10000L * *getStackOffset(*host.binding);
+	int32_t offset = host.binding->getStackOffset();
 	addOpcode(new OLoadDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 }
 
@@ -3386,7 +3386,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L)));
-		int32_t offset = 10000L * *getStackOffset(manager);
+		int32_t offset = manager.getStackOffset();
 		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
@@ -3414,7 +3414,7 @@ void BuildOpcodes::stringLiteralFree(
 	Literal& manager = *host.manager;
 	string data = host.value;
 	int32_t size = data.size() + 1;
-	int32_t offset = *getStackOffset(manager) * 10000L;
+	int32_t offset = manager.getStackOffset();
 	vector<shared_ptr<Opcode>>& init = context.initCode;
 	vector<shared_ptr<Opcode>>& dealloc = context.deallocCode;
 
@@ -3518,7 +3518,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L)));
-		int32_t offset = 10000L * *getStackOffset(manager);
+		int32_t offset = manager.getStackOffset();
 		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
@@ -3591,7 +3591,7 @@ void BuildOpcodes::arrayLiteralFree(
 		return;
 	}
 
-	int32_t offset = 10000L * *getStackOffset(manager);
+	int32_t offset = manager.getStackOffset();
 	
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
@@ -3890,7 +3890,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	}
 
 	// Set the stack.
-	int32_t offset = 10000L * *getStackOffset(*host.binding);
+	int32_t offset = host.binding->getStackOffset();
 
 	addOpcode(new OStoreDirect(new VarArgument(EXP1),new LiteralArgument(offset)));
 }

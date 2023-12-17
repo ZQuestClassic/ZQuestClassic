@@ -265,6 +265,8 @@ namespace ZScript
 		virtual bool isBuiltIn() const {return false;}
 		
 		virtual ~Datum() = default;
+		
+		int32_t getStackOffset(bool i10k = true) const;
 
 	protected:
 		Datum(Scope& scope, DataType const& type);
