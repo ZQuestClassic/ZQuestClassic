@@ -267,10 +267,15 @@ namespace ZScript
 		virtual ~Datum() = default;
 		
 		int32_t getStackOffset(bool i10k = true) const;
+		
+		void mark_erased() {erased = true;}
+		bool is_erased() const {return erased;}
 
 	protected:
 		Datum(Scope& scope, DataType const& type);
-
+		
+		bool erased;
+		
 		// Call in static creation function to register with scope.
 		bool tryAddToScope(CompileErrorHandler* = NULL);
 	};
@@ -449,8 +454,6 @@ namespace ZScript
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
 		std::vector<Datum*> paramDatum;
-		
-		bitstring params_used;
 		
 		std::vector<int32_t> opt_vals;
 		int32_t id;

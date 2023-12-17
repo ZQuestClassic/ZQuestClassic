@@ -12673,13 +12673,13 @@ SETR d2,EWPNMISCD; InlineFunc[untyped Floor(untyped)] Params End
 FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
 STORED d2,10
 SETR d2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body AND for() #165 setup
-STORED d2,2
-LOADD d2,2; for() #165 LoopTest
+STORED d2,3
+LOADD d2,3; for() #165 LoopTest
 COMPAREV d2,0
 SETCMP d2,0.0009
 COMPAREV d2,0
 GOTOTRUE 6893; for() #165 TestFail?
-LOADD d2,2; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Params AND for() #165 Body Start
+LOADD d2,3; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Params AND for() #165 Body Start
 SUBV d2,1; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body Start
 LOADEWEAPONR d2
 SETR d2,REFEWPN; InlineFunc[EWeapon Screen->LoadEWeapon(int)] Body End
@@ -12711,11 +12711,11 @@ SETCMP d2,0.0012
 COMPAREV d2,0
 GOTOTRUE 6889; Test 'if'
 GOTO 6893; break 1; AND if() #592 Body
-LOADD d2,2; for() #165 Body End AND for() #165 LoopIncrement
+LOADD d2,3; for() #165 Body End AND for() #165 LoopIncrement
 SUBV d2,1
-STORED d2,2
+STORED d2,3
 GOTO 6852; for() #165 End
-LOADD d2,2; if() #593 Test
+LOADD d2,3; if() #593 Test
 COMPAREV d2,0
 SETCMP d2,0.0012
 COMPAREV d2,0
@@ -12750,7 +12750,7 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 MODV d2,10
 SUBV d2,6.2832
-STORED d2,4
+STORED d2,5
 LOADD d2,11
 PUSHR d2
 SETV d2,13
@@ -12764,7 +12764,7 @@ POP d3
 SUBR d3,d2
 SETR d2,d3
 MULTV d2,10000
-STORED d2,3
+STORED d2,4
 LOADD d2,11
 PUSHR d2
 SETV d2,14
@@ -12773,13 +12773,13 @@ POP d0
 POP REFEWPN
 SETR d2,EWPNMISCD
 PUSHR d2
-LOADD d2,4
+LOADD d2,5
 POP d3
 SUBR d3,d2
 SETR d2,d3
 DIVV d2,100
 RSHIFTV d2,0
-STORED d2,7
+STORED d2,8
 LOADD d2,11; if() #355 Test
 PUSHR d2
 POP REFEWPN
@@ -12808,7 +12808,7 @@ POP d3
 MULTR d2,d3
 POP d3
 ADDR d2,d3
-STORED d2,6
+STORED d2,7
 LOADD d2,11
 PUSHR d2
 POP REFEWPN
@@ -12829,28 +12829,28 @@ POP d3
 MULTR d2,d3
 POP d3
 ADDR d2,d3
-STORED d2,5
+STORED d2,6
 GOTO 7021; if() #355 Body End
 LOADD d2,11; if() #355 Else Start
 PUSHR d2
 POP REFEWPN
 SETR d2,EWPNX
 ADDV d2,8
-STORED d2,6
+STORED d2,7
 LOADD d2,11
 PUSHR d2
 POP REFEWPN
 SETR d2,EWPNY
 ADDV d2,8
-STORED d2,5; if() #355 Else End
-LOADD d2,7; if() #356 Test
+STORED d2,6; if() #355 Else End
+LOADD d2,8; if() #356 Test
 COMPAREV d2,1
 SETCMP d2,0.0012
 COMPAREV d2,0
 GOTOTRUE 7073; Test 'if'
 LOADD d2,1; for() #166 LoopTest AND if() #356 Body Start
 PUSHR d2
-LOADD d2,3
+LOADD d2,4
 POP d3
 COMPARER d3,d2
 SETCMP d2,0.0010
@@ -12859,11 +12859,11 @@ GOTOTRUE 7064; for() #166 TestFail?
 PUSHR d4; for() #166 Body Start
 LOADD d2,9; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params Start
 PUSHR d2
+LOADD d2,7
+PUSHR d2
 LOADD d2,6
 PUSHR d2
 LOADD d2,5
-PUSHR d2
-LOADD d2,4
 PUSHR d2
 LOADD d2,1
 MULTV d2,6.2832
@@ -12873,7 +12873,7 @@ LOADD d2,1
 POP d3
 MULTR d2,d3
 PUSHR d2
-LOADD d2,3
+LOADD d2,4
 POP d3
 DIVR d3,d2
 SETR d2,d3
@@ -12895,7 +12895,7 @@ POP REFEWPN
 SETR d2,EWPNMISCD; InlineFunc[void Game->PlaySound(int)] Params End
 PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 GOTO 7218; if() #356 Body End
-LOADD d2,7; if() #357 Test AND if() #356 Else Start
+LOADD d2,8; if() #357 Test AND if() #356 Else Start
 COMPAREV d2,2
 SETCMP d2,0.0012
 COMPAREV d2,0
@@ -12903,7 +12903,7 @@ GOTOTRUE 7113; Test 'if'
 STOREDV 0,1; for() #167 setup AND if() #357 Body Start
 LOADD d2,1; for() #167 LoopTest
 PUSHR d2
-LOADD d2,3
+LOADD d2,4
 POP d3
 COMPARER d3,d2
 SETCMP d2,0.0010
@@ -12912,9 +12912,9 @@ GOTOTRUE 7104; for() #167 TestFail?
 PUSHR d4; for() #167 Body Start
 LOADD d2,9; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params Start
 PUSHR d2
-LOADD d2,6
+LOADD d2,7
 PUSHR d2
-LOADD d2,5
+LOADD d2,6
 PUSHR d2
 SETV d3,31416; InlineFunc[int Rand(int)] Params
 RNDR d2,d3; InlineFunc[int Rand(int)] Body
@@ -12935,7 +12935,7 @@ POP REFEWPN
 SETR d2,EWPNMISCD; InlineFunc[void Game->PlaySound(int)] Params End
 PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
 GOTO 7218; if() #357 Body End
-LOADD d2,3; if() #358 Test AND if() #357 Else Start
+LOADD d2,4; if() #358 Test AND if() #357 Else Start
 COMPAREV d2,1
 SETCMP d2,0.0009
 COMPAREV d2,0
@@ -12943,21 +12943,21 @@ GOTOTRUE 7179; Test 'if'
 SETR d2,LINKX; InlineFunc[int ArcTan(int, int)] Params Start AND if() #358 Body Start
 ADDV d2,8
 PUSHR d2
-LOADD d2,6
+LOADD d2,7
 POP d3
 SUBR d3,d2
 PUSHR d3
 SETR d2,LINKY
 ADDV d2,8
 PUSHR d2
-LOADD d2,5
+LOADD d2,6
 POP d3
 SUBR d3,d2
 SETR d1,d3; InlineFunc[int ArcTan(int, int)] Params End
 POP d0; InlineFunc[int ArcTan(int, int)] Body Start
 ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
 PUSHR d2
-LOADD d2,4
+LOADD d2,5
 DIVV d2,2
 POP d3
 SUBR d3,d2
@@ -12965,7 +12965,7 @@ SETR d2,d3
 STORED d2,1
 LOADD d2,0; for() #168 LoopTest
 PUSHR d2
-LOADD d2,3
+LOADD d2,4
 POP d3
 COMPARER d3,d2
 SETCMP d2,0.0010
@@ -12974,19 +12974,19 @@ GOTOTRUE 7178; for() #168 TestFail?
 PUSHR d4; for() #168 Body Start
 LOADD d2,9; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params Start
 PUSHR d2
-LOADD d2,6
+LOADD d2,7
 PUSHR d2
-LOADD d2,5
+LOADD d2,6
 PUSHR d2
 LOADD d2,1
 PUSHR d2
-LOADD d2,4
+LOADD d2,5
 PUSHR d2
 LOADD d2,0
 POP d3
 MULTR d2,d3
 PUSHR d2
-LOADD d2,3
+LOADD d2,4
 SUBV d2,1
 POP d3
 DIVR d3,d2
@@ -13001,7 +13001,7 @@ ADDV d2,1
 STORED d2,0
 GOTO 7141; for() #168 End
 GOTO 7210; if() #358 Body End
-LOADD d2,3; if() #594 Test AND if() #358 Else Start
+LOADD d2,4; if() #594 Test AND if() #358 Else Start
 COMPAREV d2,1
 SETCMP d2,0.0012
 COMPAREV d2,0
@@ -13009,21 +13009,21 @@ GOTOTRUE 7210; Test 'if'
 PUSHR d4; if() #594 Body Start
 LOADD d2,9; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params Start
 PUSHR d2
-LOADD d2,6
+LOADD d2,7
 PUSHR d2
-LOADD d2,5
+LOADD d2,6
 PUSHR d2
 SETR d2,LINKX; InlineFunc[int ArcTan(int, int)] Params Start
 ADDV d2,8
 PUSHR d2
-LOADD d2,6
+LOADD d2,7
 POP d3
 SUBR d3,d2
 PUSHR d3
 SETR d2,LINKY
 ADDV d2,8
 PUSHR d2
-LOADD d2,5
+LOADD d2,6
 POP d3
 SUBR d3,d2
 SETR d1,d3; InlineFunc[int ArcTan(int, int)] Params End

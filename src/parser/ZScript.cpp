@@ -318,7 +318,8 @@ Namespace* ZScript::createNamespace(
 // ZScript::Datum
 
 Datum::Datum(Scope& scope, DataType const& type)
-	: scope(scope), type(type), id(ScriptParser::getUniqueVarID())
+	: scope(scope), type(type), id(ScriptParser::getUniqueVarID()),
+	erased(false)
 {}
 
 bool Datum::tryAddToScope(CompileErrorHandler* errorHandler)
@@ -334,6 +335,8 @@ bool ZScript::isGlobal(Datum const& datum)
 
 std::optional<int32_t> ZScript::getStackOffset(Datum const& datum)
 {
+	if(datum.is_erased())
+		return nullopt;
 	return lookupStackPosition(datum.scope, datum);
 }
 int32_t Datum::getStackOffset(bool i10k) const
@@ -568,7 +571,7 @@ Function::Function(DataType const* returnType, string const& name,
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
 	  node(NULL), internalScope(NULL), thisVar(NULL), internal_flags(internal_flags), prototype(prototype),
 	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags), shown_depr(false),
-	  aliased_func(nullptr), paramDatum(), params_used(), used_stackoffs()
+	  aliased_func(nullptr), paramDatum(), used_stackoffs()
 {
 	assert(returnType);
 }

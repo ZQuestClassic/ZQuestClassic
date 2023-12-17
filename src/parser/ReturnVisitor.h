@@ -202,7 +202,8 @@ namespace ZScript
 		void caseStmtDo(ASTStmtDo& host, void* param = NULL);
 		void caseStmtSwitch(ASTStmtSwitch& host, void* param = NULL);
 		void caseSwitchCases(ASTSwitchCases & host, void* param = NULL);
-		//expressions
+		//data
+		void caseDataDecl(ASTDataDecl& host, void* param = NULL);
 		void caseExprIdentifier(ASTExprIdentifier& host, void* param = NULL);
 		//functions
 		void caseExprCall(ASTExprCall& host, void* param = NULL);
@@ -227,6 +228,8 @@ namespace ZScript
 		ZScript::Program& program;
 		bool extra_pass, marked_never_ret, missing_ret;
 		Function* in_func;
+		
+		map<Function*,map<Variable*, bool>> var_map;
 		
 		enum ReturnVisitorMode
 		{
