@@ -2960,512 +2960,22 @@ bool ffcheck(char const* arg)
 
 std::map<std::string, int32_t> labels;
 
-//The Dialogue that loads an ASM Script filename.
-int32_t parse_script(script_data **script)
-{
-	if(!getname("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
-		return D_CLOSE;
-	labels.clear();
-	FILE *zscript = fopen(temppath,"r");
-			
-	if(zscript == NULL)
-	{
-		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-		return -1;
-	}
-	else return parse_script_file(script,temppath, true);
-}
-
-int32_t parse_script_file(script_data **script, const char *path, bool report_success)
-{
-	FILE *fscript = fopen(path,"rb");
-	int32_t result = parse_script_file(script, fscript, report_success);
-	fclose(fscript);
-	return result;
-}
 #define SUBBUFSZ 0x200
-int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
+#define ERR_INSTRUCTION  0
+#define ERR_PARAM1       1
+#define ERR_PARAM2       2
+#define ERR_STR          3
+#define ERR_VEC          4
+static const char* errstrbuf[] =
 {
-	// TODO: refactor to just take a script_data*
-	ASSERT(*script);
-	saved=false;
-	std::string buffer;
-	char combuf[SUBBUFSZ] = {0};
-	char arg1buf[SUBBUFSZ] = {0};
-	char arg2buf[SUBBUFSZ] = {0};
-	std::vector<int32_t> arr_vec;
-	std::string arr_str;
-	bool has_vec = false;
-	bool has_str = false;
-	bool stop=false;
-	bool success=true;
-	bool meta_done=false;
-	int32_t num_commands;
-	
-	for(int32_t i=0;; i++)
-	{
-		buffer.clear();
-		
-		if(stop)
-		{
-			num_commands=i+1;
-			break;
-		}
-		
-		bool meta = false;
-		bool running = true;
-		while(running)
-		{
-			char c;
-			c = getc(fscript);
-			
-			if(feof(fscript))
-			{
-				stop = true;
-				ungetc(c,fscript);
-				break;
-			}
-			else
-			{
-				buffer += c;
-				if(buffer[0] == '#' && !meta_done) //Metadata line
-				{
-					while(getc(fscript)!='\n')
-					{
-						if(feof(fscript))
-						{
-							stop=true;
-							break;
-						}
-					}
-					--i;
-					meta = true;
-					break;
-				}
-				else if(c == ';' || c == '\n' || c == 13)
-				{
-					if(c != '\n')
-					{
-						while(getc(fscript)!='\n')
-						{
-							if(feof(fscript))
-							{
-								stop=true;
-								break;
-							}
-						}
-					}
-					buffer.pop_back();
-					break;
-				}
-				else if (c == '"' || c == '{')
-				{
-					bool vec = c == '{';
-					auto j = buffer.size()-1;
-					while(true)
-					{
-						char c2 = fgetc(fscript);
-						if(feof(fscript))
-						{
-							stop=true;
-							ungetc(c2,fscript);
-							running = false;
-							break;
-						}
-						buffer += vec ? toupper(c2) : c2;
-						if(vec)
-						{
-							if(c2 == '}')
-							{
-								size_t sz = vecstr_size(buffer.c_str()+j);
-								if(sz)
-								{
-									j += sz;
-									break;
-								}
-							}
-						}
-						else
-						{
-							if(c2 == '"')
-							{
-								size_t sz = escstr_size(buffer.c_str()+j);
-								if(sz)
-								{
-									j += sz;
-									break;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		if(meta) continue;
-		else meta_done = true;
-		int32_t k=0;
-		
-		while(buffer[k] == ' ' || buffer[k] == '\t') k++;
-		
-		if(buffer[k] == '\0')
-		{
-			--i;
-			continue;
-		}
-		
-		k=0;
-		
-		if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
-		{
-			char lbuf[80] = {0};
-			while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
-			{
-				lbuf[k] = buffer[k];
-				k++;
-			}
-			string lbl(lbuf);
-			map<string,int32_t>::iterator it = labels.find(lbl);
-			if(it != labels.end())
-			{
-				char buf[120],buf2[120],buf3[120],name[13];
-				extract_name(temppath,name,FILENAME8_3);
-				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
-				sprintf(buf2,"The error was: Duplicate Label");
-				sprintf(buf3,"The duplicate label was: \"%s\"",lbuf);
-				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				stop=true;
-				success=false;
-				(*script)->disable();
-				goto zasmfile_fail;
-			}
-			labels[lbl] = i;
-			while(buffer[k] == ' ' || buffer[k] == '\t')
-			{
-				++k;
-			}
-			if(buffer[k] == '\0')
-			{
-				--i; //No command on this line
-				continue;
-			}
-		}
-	}
-	
-	fseek(fscript, 0, SEEK_SET);
-	stop = false;
-	meta_done = false;
-	
-	(*script)->null_script(num_commands);
-	
-	for(int32_t i=0; i<num_commands; ++i)
-	{
-		if(stop)
-		{
-			(*script)->zasm[i].clear();
-			break;
-		}
-		else
-		{
-			buffer.clear();
-			combuf[0]=0;
-			arg1buf[0]=0;
-			arg2buf[0]=0;
-			bool meta_mode = false;
-			arr_vec.clear();
-			arr_str.clear();
-			has_vec = false;
-			has_str = false;
-			
-			bool running = true;
-			while(running)
-			{
-				char c;
-				c = getc(fscript);
-				
-				if(feof(fscript))
-				{
-					stop=true;
-					ungetc(c,fscript);
-					break;
-				}
-				else
-				{
-					c = toupper(c);
-					buffer += c;
-					if (buffer[0] == '#' && !meta_done) //Metadata line
-					{
-						meta_mode = true;
-						char temp;
-						while ((temp = getc(fscript)) != '\n')
-						{
-							if (temp != '\r')
-								buffer += temp;
-							if (feof(fscript))
-							{
-								stop = true;
-								break;
-							}
-						}
-						break;
-					}
-					else if (c == ';' || c == '\n' || c == '\r')
-					{
-						if (c != '\n')
-						{
-							while (getc(fscript) != '\n')
-							{
-								if (feof(fscript))
-								{
-									stop = true;
-									break;
-								}
-							}
-						}
-						buffer.pop_back();
-						break;
-					}
-					else if (c == '"' || c == '{')
-					{
-						bool vec = c == '{';
-						auto j = buffer.size()-1;
-						while(true)
-						{
-							char c2 = fgetc(fscript);
-							if(feof(fscript))
-							{
-								stop=true;
-								ungetc(c2,fscript);
-								running = false;
-								break;
-							}
-							buffer += vec ? toupper(c2) : c2;
-							if(vec)
-							{
-								if(c2 == '}')
-								{
-									size_t sz = vecstr_size(buffer.c_str()+j);
-									if(sz)
-									{
-										j += sz;
-										break;
-									}
-								}
-							}
-							else
-							{
-								if(c2 == '"')
-								{
-									size_t sz = escstr_size(buffer.c_str()+j);
-									if(sz)
-									{
-										j += sz;
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			
-			if(meta_mode)
-			{
-				(*script)->meta.parse_meta(buffer.c_str());
-				--i; continue;
-			}
-			meta_done = true;
-			
-			int32_t k=0, l=0;
-			
-			while(buffer[k] == ' ' || buffer[k] == '\t') k++;
-			
-			if(buffer[k] == '\0')
-			{
-				--i;
-				continue;
-			}
-			
-			k=0;
-			
-			while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') k++; //label
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0')  k++; //ws
-			
-			while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //command
-			{
-				combuf[l] = buffer[k];
-				k++;
-				l++;
-			}
-			
-			if(l == 0) //No command
-			{
-				--i;
-				continue;
-			}
-			
-			combuf[l] = '\0';
-			l=0;
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0') k++; //ws
-			
-			if(buffer[k] == '"') //string
-			{
-				arr_str = unescape_string(buffer.c_str()+k);
-				has_str = true;
-				k += escstr_size(buffer.c_str()+k);
-			}
-			else if(buffer[k] == '{') //array
-			{
-				unstringify_vector(arr_vec, buffer.c_str()+k, true);
-				has_vec = true;
-				k += vecstr_size(buffer.c_str()+k);
-			}
-			else while(buffer[k] != ',' && buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg1
-			{
-				arg1buf[l] = buffer[k];
-				k++;
-				l++;
-			}
-			
-			arg1buf[l] = '\0';
-			l=0;
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
-			bool bad_dstr = false;
-			bool bad_dvec = false;
-			if(buffer[k] == '"') //string
-			{
-				if(has_str) bad_dstr = true;
-				else
-				{
-					arr_str = unescape_string(buffer.c_str()+k);
-					has_str = true;
-				}
-				k += escstr_size(buffer.c_str()+k);
-			}
-			else if(buffer[k] == '{') //array
-			{
-				if(has_vec) bad_dvec = true;
-				else
-				{
-					unstringify_vector(arr_vec, buffer.c_str()+k, true);
-					has_vec = true;
-				}
-				k += vecstr_size(buffer.c_str()+k);
-			}
-			else while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg2
-			{
-				arg2buf[l] = buffer[k];
-				k++;
-				l++;
-			}
-			
-			arg2buf[l] = '\0';
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
-			if(buffer[k] == '"') //string
-			{
-				if(has_str) bad_dstr = true;
-				else
-				{
-					arr_str = unescape_string(buffer.c_str()+k);
-					has_str = true;
-				}
-				k += escstr_size(buffer.c_str()+k);
-			}
-			else if(buffer[k] == '{') //array
-			{
-				if(has_vec) bad_dvec = true;
-				else
-				{
-					unstringify_vector(arr_vec, buffer.c_str()+k, true);
-					has_vec = true;
-				}
-				k += vecstr_size(buffer.c_str()+k);
-			}
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
-			if(buffer[k] == '"') //string
-			{
-				if(has_str) bad_dstr = true;
-				else
-				{
-					arr_str = unescape_string(buffer.c_str()+k);
-					has_str = true;
-				}
-				k += escstr_size(buffer.c_str()+k);
-			}
-			else if(buffer[k] == '{') //array
-			{
-				if(has_vec) bad_dvec = true;
-				else
-				{
-					unstringify_vector(arr_vec, buffer.c_str()+k, true);
-					has_vec = true;
-				}
-				k += vecstr_size(buffer.c_str()+k);
-			}
-			
-			int32_t parse_err;
-			if(bad_dstr || bad_dvec ||
-				!(parse_script_section(combuf, arg1buf, arg2buf, script, i, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
-			{
-				if(bad_dstr) parse_err = 3;
-				if(bad_dvec) parse_err = 4;
-				//char buf[80],buf2[80],buf3[80],name[13];
-				char buf[512], name[13];
-				const char* errstrbuf[] =
-				{
-					"invalid instruction!",
-					"parameter 1 invalid!",
-					"parameter 2 invalid!",
-					"string parameter invalid!",
-					"vector parameter invalid!"
-				};
-				extract_name(temppath,name,FILENAME8_3);
-				char vstrbuf[64] = {0};
-				if(has_str || has_vec)
-					sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
-				sprintf(buf,"Unable to parse instruction %d from script %s"
-					"\nThe error was: %s"
-					"\nThe command was (%s) (%s,%s)%s"
-					,i+1,name
-					,errstrbuf[parse_err]
-					,combuf,arg1buf,arg2buf,vstrbuf);
-				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
-				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
-				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
-				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				InfoDialog("Error",buf).show();
-				stop=true;
-				success=false;
-				(*script)->zasm[i].strptr = nullptr;
-				(*script)->zasm[i].vecptr = nullptr;
-				(*script)->disable();
-			}
-		}
-	}
-
-	(*script)->recalc_size();
-
-	if(report_success && success) //(!stop) // stop is never true here
-	{
-		char buf[80],name[13];
-		extract_name(temppath,name,FILENAME8_3);
-		sprintf(buf,"Script %s has been parsed",name);
-		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-	}
-zasmfile_fail:
-	return success?D_O_K:D_CLOSE;
-}
-int32_t parse_script_string(script_data **script, string const& scriptstr, bool report_success)
+	"invalid instruction!",
+	"parameter 1 invalid!",
+	"parameter 2 invalid!",
+	"string parameter invalid!",
+	"vector parameter invalid!"
+};
+int32_t parse_script_string(vector<ffscript>& zasm, string const& scriptstr, bool report_success)
 {
-	// TODO: refactor to just take a script_data*
-	ASSERT(*script);
 	saved=false;
 	string buffer;
 	char combuf[SUBBUFSZ] = {0};
@@ -3477,7 +2987,6 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 	bool has_str = false;
 	bool stop=false;
 	bool success=true;
-	bool meta_done=false;
 	int num_commands;
 	char const* scrptr = scriptstr.c_str();
 	
@@ -3506,7 +3015,7 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 			else
 			{
 				buffer += c;
-				if(buffer[0] == '#' && !meta_done) //Metadata line
+				if(buffer[0] == '#') //Metadata line
 				{
 					while(true)
 					{
@@ -3584,7 +3093,7 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 			}
 		}
 		if(meta) continue;
-		else meta_done = true;
+		
 		int32_t k=0;
 		
 		while(buffer[k] == ' ' || buffer[k] == '\t') k++;
@@ -3609,15 +3118,13 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 			map<string,int32_t>::iterator it = labels.find(lbl);
 			if(it != labels.end())
 			{
-				char buf[120],buf2[120],buf3[120],name[13];
-				extract_name(temppath,name,FILENAME8_3);
-				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
+				char buf[120],buf2[120],buf3[120];
+				sprintf(buf,"Unable to parse instruction %d",i+1);
 				sprintf(buf2,"The error was: Duplicate Label");
 				sprintf(buf3,"The duplicate label was: \"%s\"",lbuf);
 				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				stop=true;
 				success=false;
-				(*script)->disable();
 				goto zasmfile_fail_str;
 			}
 			labels[lbl] = i;
@@ -3635,331 +3142,305 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 	
 	scrptr = scriptstr.c_str(); //reset to start
 	stop = false;
-	meta_done = false;
 	
-	(*script)->null_script(num_commands);
+	zasm.clear();
+	zasm.reserve(num_commands);
 	
-	for(int32_t i=0; i<num_commands; ++i)
+	for(int32_t i=0; i<num_commands && !stop; ++i)
 	{
-		if(stop)
+		buffer.clear();
+		combuf[0]=0;
+		arg1buf[0]=0;
+		arg2buf[0]=0;
+		bool meta_mode = false;
+		arr_vec.clear();
+		arr_str.clear();
+		has_vec = false;
+		has_str = false;
+		
+		bool running = true;
+		while(running)
 		{
-			(*script)->zasm[i].clear();
-			break;
-		}
-		else
-		{
-			buffer.clear();
-			combuf[0]=0;
-			arg1buf[0]=0;
-			arg2buf[0]=0;
-			bool meta_mode = false;
-			arr_vec.clear();
-			arr_str.clear();
-			has_vec = false;
-			has_str = false;
+			char c = *scrptr++;
 			
-			bool running = true;
-			while(running)
+			if(!c) //null terminator
 			{
-				char c = *scrptr++;
-				
-				if(!c) //null terminator
+				stop=true;
+				--scrptr;
+				break;
+			}
+			else
+			{
+				c = toupper(c);
+				buffer += c;
+				if (buffer[0] == '#') //Metadata line
 				{
-					stop=true;
-					--scrptr;
+					meta_mode = true;
+					char temp;
+					bool buffering = true;
+					while ((temp = (*scrptr++)) != '\n')
+					{
+						if (!temp) //null terminator
+						{
+							stop = true;
+							break;
+						}
+						if (temp == '\r')
+							buffering = false;
+						if(buffering)
+							buffer += temp;
+					}
 					break;
 				}
-				else
+				else if (c == ';' || c == '\n' || c == '\r')
 				{
-					c = toupper(c);
-					buffer += c;
-					if (buffer[0] == '#' && !meta_done) //Metadata line
+					if (c != '\n')
 					{
-						meta_mode = true;
-						char temp;
-						bool buffering = true;
-						while ((temp = (*scrptr++)) != '\n')
+						while(true)
 						{
-							if (!temp) //null terminator
+							char c2 = *scrptr++;
+							if(c2 == '\n') break;
+							if(!c2) //null terminator
 							{
-								stop = true;
+								stop=true;
 								break;
 							}
-							if (temp == '\r')
-								buffering = false;
-							if(buffering)
-								buffer += temp;
 						}
-						break;
 					}
-					else if (c == ';' || c == '\n' || c == '\r')
+					buffer.pop_back();
+					break;
+				}
+				else if (c == '"' || c == '{')
+				{
+					bool vec = c == '{';
+					auto j = buffer.size()-1;
+					while(true)
 					{
-						if (c != '\n')
+						char c2 = *scrptr++;
+						if(!c2) //null terminator
 						{
-							while(true)
+							stop=true;
+							--scrptr;
+							running = false;
+							break;
+						}
+						buffer += vec ? toupper(c2) : c2;
+						if(vec)
+						{
+							if(c2 == '}')
 							{
-								char c2 = *scrptr++;
-								if(c2 == '\n') break;
-								if(!c2) //null terminator
+								size_t sz = vecstr_size(buffer.c_str()+j);
+								if(sz)
 								{
-									stop=true;
+									j += sz;
 									break;
 								}
 							}
 						}
-						buffer.pop_back();
-						break;
-					}
-					else if (c == '"' || c == '{')
-					{
-						bool vec = c == '{';
-						auto j = buffer.size()-1;
-						while(true)
+						else
 						{
-							char c2 = *scrptr++;
-							if(!c2) //null terminator
+							if(c2 == '"')
 							{
-								stop=true;
-								--scrptr;
-								running = false;
-								break;
-							}
-							buffer += vec ? toupper(c2) : c2;
-							if(vec)
-							{
-								if(c2 == '}')
+								size_t sz = escstr_size(buffer.c_str()+j);
+								if(sz)
 								{
-									size_t sz = vecstr_size(buffer.c_str()+j);
-									if(sz)
-									{
-										j += sz;
-										break;
-									}
-								}
-							}
-							else
-							{
-								if(c2 == '"')
-								{
-									size_t sz = escstr_size(buffer.c_str()+j);
-									if(sz)
-									{
-										j += sz;
-										break;
-									}
+									j += sz;
+									break;
 								}
 							}
 						}
 					}
 				}
 			}
-			
-			if(meta_mode)
-			{
-				(*script)->meta.parse_meta(buffer.c_str());
-				--i; continue;
-			}
-			meta_done = true;
-			
-			int32_t k=0, l=0;
-			
-			while(buffer[k] == ' ' || buffer[k] == '\t') k++;
-			
-			if(buffer[k] == '\0')
-			{
-				--i;
-				continue;
-			}
-			
-			k=0;
-			
-			while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') k++; //label
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0')  k++; //ws
-			
-			while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //command
-			{
-				combuf[l] = buffer[k];
-				k++;
-				l++;
-			}
-			
-			if(l == 0) //No command
-			{
-				--i;
-				continue;
-			}
-			
-			combuf[l] = '\0';
-			l=0;
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0') k++; //ws
-			
-			if(buffer[k] == '"') //string
+		}
+		
+		if(meta_mode)
+		{
+			//!TODO 'buffer' contains metadata. We don't have metadata yet here.
+			--i; continue;
+		}
+		
+		int32_t k=0, l=0;
+		
+		while(buffer[k] == ' ' || buffer[k] == '\t') k++;
+		
+		if(buffer[k] == '\0')
+		{
+			--i;
+			continue;
+		}
+		
+		k=0;
+		
+		while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') k++; //label
+		
+		while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0')  k++; //ws
+		
+		while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //command
+		{
+			combuf[l] = buffer[k];
+			k++;
+			l++;
+		}
+		
+		if(l == 0) //No command
+		{
+			--i;
+			continue;
+		}
+		
+		combuf[l] = '\0';
+		l=0;
+		
+		while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0') k++; //ws
+		
+		if(buffer[k] == '"') //string
+		{
+			arr_str = unescape_string(buffer.c_str()+k);
+			has_str = true;
+			k += escstr_size(buffer.c_str()+k);
+		}
+		else if(buffer[k] == '{') //array
+		{
+			unstringify_vector(arr_vec, buffer.c_str()+k, true);
+			has_vec = true;
+			k += vecstr_size(buffer.c_str()+k);
+		}
+		else while(buffer[k] != ',' && buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg1
+		{
+			arg1buf[l] = buffer[k];
+			k++;
+			l++;
+		}
+		
+		arg1buf[l] = '\0';
+		l=0;
+		
+		while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
+		
+		bool bad_dstr = false;
+		bool bad_dvec = false;
+		if(buffer[k] == '"') //string
+		{
+			if(has_str) bad_dstr = true;
+			else
 			{
 				arr_str = unescape_string(buffer.c_str()+k);
 				has_str = true;
-				k += escstr_size(buffer.c_str()+k);
 			}
-			else if(buffer[k] == '{') //array
+			k += escstr_size(buffer.c_str()+k);
+		}
+		else if(buffer[k] == '{') //array
+		{
+			if(has_vec) bad_dvec = true;
+			else
 			{
 				unstringify_vector(arr_vec, buffer.c_str()+k, true);
 				has_vec = true;
-				k += vecstr_size(buffer.c_str()+k);
 			}
-			else while(buffer[k] != ',' && buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg1
+			k += vecstr_size(buffer.c_str()+k);
+		}
+		else while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg2
+		{
+			arg2buf[l] = buffer[k];
+			k++;
+			l++;
+		}
+		
+		arg2buf[l] = '\0';
+		
+		while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
+		
+		if(buffer[k] == '"') //string
+		{
+			if(has_str) bad_dstr = true;
+			else
 			{
-				arg1buf[l] = buffer[k];
-				k++;
-				l++;
+				arr_str = unescape_string(buffer.c_str()+k);
+				has_str = true;
 			}
-			
-			arg1buf[l] = '\0';
-			l=0;
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
-			bool bad_dstr = false;
-			bool bad_dvec = false;
-			if(buffer[k] == '"') //string
+			k += escstr_size(buffer.c_str()+k);
+		}
+		else if(buffer[k] == '{') //array
+		{
+			if(has_vec) bad_dvec = true;
+			else
 			{
-				if(has_str) bad_dstr = true;
-				else
-				{
-					arr_str = unescape_string(buffer.c_str()+k);
-					has_str = true;
-				}
-				k += escstr_size(buffer.c_str()+k);
+				unstringify_vector(arr_vec, buffer.c_str()+k, true);
+				has_vec = true;
 			}
-			else if(buffer[k] == '{') //array
+			k += vecstr_size(buffer.c_str()+k);
+		}
+		
+		while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
+		
+		if(buffer[k] == '"') //string
+		{
+			if(has_str) bad_dstr = true;
+			else
 			{
-				if(has_vec) bad_dvec = true;
-				else
-				{
-					unstringify_vector(arr_vec, buffer.c_str()+k, true);
-					has_vec = true;
-				}
-				k += vecstr_size(buffer.c_str()+k);
+				arr_str = unescape_string(buffer.c_str()+k);
+				has_str = true;
 			}
-			else while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg2
+			k += escstr_size(buffer.c_str()+k);
+		}
+		else if(buffer[k] == '{') //array
+		{
+			if(has_vec) bad_dvec = true;
+			else
 			{
-				arg2buf[l] = buffer[k];
-				k++;
-				l++;
+				unstringify_vector(arr_vec, buffer.c_str()+k, true);
+				has_vec = true;
 			}
-			
-			arg2buf[l] = '\0';
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
-			if(buffer[k] == '"') //string
-			{
-				if(has_str) bad_dstr = true;
-				else
-				{
-					arr_str = unescape_string(buffer.c_str()+k);
-					has_str = true;
-				}
-				k += escstr_size(buffer.c_str()+k);
-			}
-			else if(buffer[k] == '{') //array
-			{
-				if(has_vec) bad_dvec = true;
-				else
-				{
-					unstringify_vector(arr_vec, buffer.c_str()+k, true);
-					has_vec = true;
-				}
-				k += vecstr_size(buffer.c_str()+k);
-			}
-			
-			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
-			if(buffer[k] == '"') //string
-			{
-				if(has_str) bad_dstr = true;
-				else
-				{
-					arr_str = unescape_string(buffer.c_str()+k);
-					has_str = true;
-				}
-				k += escstr_size(buffer.c_str()+k);
-			}
-			else if(buffer[k] == '{') //array
-			{
-				if(has_vec) bad_dvec = true;
-				else
-				{
-					unstringify_vector(arr_vec, buffer.c_str()+k, true);
-					has_vec = true;
-				}
-				k += vecstr_size(buffer.c_str()+k);
-			}
-			
-			int32_t parse_err;
-			if(bad_dstr || bad_dvec ||
-				!(parse_script_section(combuf, arg1buf, arg2buf, script, i, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
-			{
-				if(bad_dstr) parse_err = 3;
-				if(bad_dvec) parse_err = 4;
-				//char buf[80],buf2[80],buf3[80],name[13];
-				char buf[512], name[13];
-				const char* errstrbuf[] =
-				{
-					"invalid instruction!",
-					"parameter 1 invalid!",
-					"parameter 2 invalid!",
-					"string parameter invalid!",
-					"vector parameter invalid!"
-				};
-				extract_name(temppath,name,FILENAME8_3);
-				char vstrbuf[64] = {0};
-				if(has_str || has_vec)
-					sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
-				sprintf(buf,"Unable to parse instruction %d from script %s"
-					"\nThe error was: %s"
-					"\nThe command was (%s) (%s,%s)%s"
-					,i+1,name
-					,errstrbuf[parse_err]
-					,combuf,arg1buf,arg2buf,vstrbuf);
-				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
-				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
-				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
-				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				InfoDialog("Error",buf).show();
-				stop=true;
-				success=false;
-				(*script)->zasm[i].strptr = nullptr;
-				(*script)->zasm[i].vecptr = nullptr;
-				(*script)->disable();
-			}
+			k += vecstr_size(buffer.c_str()+k);
+		}
+		
+		int32_t parse_err;
+		ffscript& zasm_cmd = zasm.emplace_back();
+		if(bad_dstr || bad_dvec ||
+			!(parse_script_section(combuf, arg1buf, arg2buf, zasm_cmd, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
+		{
+			if(bad_dstr)
+				parse_err = ERR_STR;
+			if(bad_dvec)
+				parse_err = ERR_VEC;
+			char buf[512], name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			char vstrbuf[64] = {0};
+			if(has_str || has_vec)
+				sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
+			sprintf(buf,"Unable to parse instruction %d"
+				"\nThe error was: %s"
+				"\nThe command was (%s) (%s,%s)%s"
+				,i+1
+				,errstrbuf[parse_err]
+				,combuf,arg1buf,arg2buf,vstrbuf);
+			InfoDialog("Error",buf).show();
+			stop=true;
+			success=false;
+			zasm.pop_back();
 		}
 	}
 
-	(*script)->recalc_size();
-
-	if(report_success && success) //(!stop) // stop is never true here
+	if(report_success && success)
 	{
-		char buf[80],name[13];
-		extract_name(temppath,name,FILENAME8_3);
-		sprintf(buf,"Script %s has been parsed",name);
-		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		jwin_alert("Success",NULL,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 zasmfile_fail_str:
 	return success?D_O_K:D_CLOSE;
 }
 
-int32_t set_argument(char const* argbuf, script_data **script, int32_t com, int32_t argument)
+int32_t set_argument(char const* argbuf, ffscript& zasm_cmd, int32_t argument)
 {
 	int32_t *arg;
 	
 	if(argument)
 	{
-		arg = &((*script)->zasm[com].arg2);
+		arg = &(zasm_cmd.arg2);
 	}
 	else
 	{
-		arg = &((*script)->zasm[com].arg1);
+		arg = &(zasm_cmd.arg1);
 	}
 	
 	int32_t i=0;
@@ -4003,26 +3484,19 @@ int32_t set_argument(char const* argbuf, script_data **script, int32_t com, int3
 	return 0;
 }
 
-#define ERR_INSTRUCTION 0
-#define ERR_PARAM1 1
-#define ERR_PARAM2 2
-#define ERR_STR    3
-#define ERR_VEC    4
-
-int32_t parse_script_section(char const* combuf, char const* arg1buf, char const* arg2buf, script_data **script, int32_t com, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
+int32_t parse_script_section(char const* combuf, char const* arg1buf, char const* arg2buf, ffscript& zasm_cmd, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
 {
-	auto& zas = (*script)->zasm[com];
-	zas.arg1 = 0;
-	zas.arg2 = 0;
-	zas.vecptr = nullptr;
-	zas.strptr = nullptr;
+	zasm_cmd.arg1 = 0;
+	zasm_cmd.arg2 = 0;
+	zasm_cmd.vecptr = nullptr;
+	zasm_cmd.strptr = nullptr;
 	if(vptr)
 	{
-		zas.vecptr = new std::vector<int32_t>(*vptr);
+		zasm_cmd.vecptr = new std::vector<int32_t>(*vptr);
 	}
 	if(sptr)
 	{
-		zas.strptr = new std::string(*sptr);
+		zasm_cmd.strptr = new std::string(*sptr);
 	}
 	bool found_command=false;	
 	
@@ -4031,7 +3505,7 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 		if(strcmp(combuf,command_list[i].name)==0)
 		{
 			found_command=true;
-			zas.command = i;
+			zasm_cmd.command = i;
 			
 			switch(i)
 			{
@@ -4041,9 +3515,9 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 					string lbl(arg1buf);
 					auto it = labels.find(lbl);
 					if(it != labels.end())
-						(*script)->zasm[com].arg1 = (*it).second;
+						zasm_cmd.arg1 = (*it).second;
 					else
-						(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
+						zasm_cmd.arg1 = atoi(arg1buf)-1;
 					
 					if(command_list[i].args > 1)
 					{
@@ -4055,11 +3529,11 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 								return 0;
 							}
 							
-							(*script)->zasm[com].arg2 = ffparse(arg2buf);
+							zasm_cmd.arg2 = ffparse(arg2buf);
 						}
 						else
 						{
-							if(!set_argument(arg2buf, script, com, 1))
+							if(!set_argument(arg2buf, zasm_cmd, 1))
 							{
 								retcode=ERR_PARAM2;
 								return 0;
@@ -4080,11 +3554,11 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 								return 0;
 							}
 							
-							(*script)->zasm[com].arg1 = ffparse(arg1buf);
+							zasm_cmd.arg1 = ffparse(arg1buf);
 						}
 						else
 						{
-							if(!set_argument(arg1buf, script, com, 0))
+							if(!set_argument(arg1buf, zasm_cmd, 0))
 							{
 								retcode=ERR_PARAM1;
 								return 0;
@@ -4101,11 +3575,11 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 									return 0;
 								}
 								
-								(*script)->zasm[com].arg2 = ffparse(arg2buf);
+								zasm_cmd.arg2 = ffparse(arg2buf);
 							}
 							else
 							{
-								if(!set_argument(arg2buf, script, com, 1))
+								if(!set_argument(arg2buf, zasm_cmd, 1))
 								{
 									retcode=ERR_PARAM2;
 									return 0;
@@ -4130,7 +3604,7 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 			switch(i)
 			{
 				case CALLFUNC: //Hardcoded, based on GOTO above
-					(*script)->zasm[com].arg1 -= 1;
+					zasm_cmd.arg1 -= 1;
 					break;
 			}
 		}

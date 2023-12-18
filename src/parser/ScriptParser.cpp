@@ -166,10 +166,11 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 		
 		zconsole_info("%s", "Pass 7: Assembling");
 		zconsole_idle();
+		
+		ScriptAssembler sa(*id.get());
+		sa.assemble();
 
-		ScriptParser::assemble(id.get());
-
-		unique_ptr<ScriptsData> result(new ScriptsData(program));
+		unique_ptr<ScriptsData> result(new ScriptsData(sa));
 		if(!ignore_asserts && casserts.size()) return nullptr;
 		if(zscript_error_out) return nullptr;
 
@@ -676,22 +677,22 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	return unique_ptr<IntermediateData>(rval.release());
 }
 
-static vector<shared_ptr<Opcode>> blankScript()
+ScriptAssembler::ScriptAssembler(IntermediateData& id) : program(id.program),
+	rval(), runlabels(), ginit(id.globalsInit)
+{}
+
+void ScriptAssembler::assemble()
 {
-	vector<shared_ptr<Opcode>> rval;
-	addOpcode2(rval, new OQuit());
-	return rval;
+	assemble_init();
+	assemble_scripts();
+	link_functions();
+	optimize_output();
+	finalize_labels();
 }
 
-void ScriptParser::assemble(IntermediateData *id)
+void ScriptAssembler::assemble_init()
 {
-	Program& program = id->program;
-
-	map<Script*, vector<shared_ptr<Opcode>> > scriptCode;
-	vector<shared_ptr<Opcode>> ginit = id->globalsInit;
-
 	// Do the global inits
-
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
 	if (userInit && (userInit->getType() != ParserScriptType::global || userInit->isPrototypeRun()))
@@ -765,46 +766,72 @@ void ScriptParser::assemble(IntermediateData *id)
 	addOpcode2(ginit, new OQuit());
 	ginit.insert(ginit.end(), ginit_mergefuncs.begin(), ginit_mergefuncs.end());
 	Script* init = program.getScript("~Init");
-	init->code = assembleOne(program, ginit, 0, FunctionSignature("run",{},&DataType::ZVOID));
+	assemble_script(init, ginit, 0, "void run()");
+}
 
+void ScriptAssembler::assemble_script(Script* scr,
+	vector<shared_ptr<Opcode>> runCode, int numparams, string const& runsig)
+{
+	// Push on the params to the run.
+	auto script_start_indx = rval.size();
+	int i = 0;
+	for (; i < numparams && i < 9; ++i)
+		addOpcode2(rval, new OPushRegister(new VarArgument(i)));
+	for (; i < numparams; ++i)
+		addOpcode2(rval, new OPushRegister(new VarArgument(EXP1)));
+	if(rval.size() > script_start_indx)
+		rval[script_start_indx]->setComment(fmt::format("{} Params",runsig));
+
+	// Make the rval
+	auto rv_sz = rval.size();
+	for (vector<shared_ptr<Opcode>>::iterator it = runCode.begin();
+	     it != runCode.end(); ++it)
+		addOpcode2(rval, (*it)->makeClone());
+	if(rval.size() == rv_sz+1)
+		rval.back()->mergeComment(fmt::format("{} Body",runsig));
+	else if(rval.size() > rv_sz)
+	{
+		rval[rv_sz]->mergeComment(fmt::format("{} Body Start",runsig));
+		rval.back()->mergeComment(fmt::format("{} Body End",runsig));
+	}
+	
+	Opcode* firstop = rval[script_start_indx].get();
+	Opcode* lastop = rval.back().get();
+	int startlbl = firstop->getLabel(), endlbl = lastop->getLabel();
+	if(startlbl < 0)
+	{
+		startlbl = ScriptParser::getUniqueLabelID();
+		firstop->setLabel(startlbl);
+	}
+	if(endlbl < 0)
+	{
+		endlbl = ScriptParser::getUniqueLabelID();
+		lastop->setLabel(endlbl);
+	}
+	runlabels[scr] = {startlbl,endlbl};
+}
+
+void ScriptAssembler::assemble_scripts()
+{
 	for (vector<Script*>::const_iterator it = program.scripts.begin();
 	     it != program.scripts.end(); ++it)
 	{
 		Script& script = **it;
 		if(script.getName() == "~Init") continue; //init script
 		if(script.getType() == ParserScriptType::global && (script.getName() == "Init" || script.getInitWeight()))
-		{
-			script.setName("~~"+script.getName()); //'~' start hides the script
 			continue; //init script
-		}
-		if(script.getType() == ParserScriptType::untyped) continue; //untyped script has no body
+		if(script.getType() == ParserScriptType::untyped)
+			continue; //untyped script has no body
 		Function& run = *script.getRun();
-		if(run.prototype) //Generate a minimal script if 'run()' is a prototype.
-		{
-			script.code = blankScript();
-		}
-		else
-		{
-			int32_t numparams = script.getRun()->paramTypes.size();
-			script.code = assembleOne(program, run.getCode(), numparams, run.getUnaliasedSignature(true));
-		}
+		if(run.prototype)
+			continue; //Skip if run is prototype
+		int32_t numparams = script.getRun()->paramTypes.size();
+		assemble_script(&script, run.getCode(), numparams, run.getUnaliasedSignature(true).asString());
 	}
 }
 
-vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
-	vector<shared_ptr<Opcode>> runCode, int32_t numparams,
-	FunctionSignature const& runsig)
+void ScriptAssembler::link_functions()
 {
-	std::vector<std::shared_ptr<Opcode>> rval;
-
-	// Push on the params to the run.
-	int32_t i;
-	for (i = 0; i < numparams && i < 9; ++i)
-		addOpcode2(rval, new OPushRegister(new VarArgument(i)));
-	for (; i < numparams; ++i)
-		addOpcode2(rval, new OPushRegister(new VarArgument(EXP1)));
-	if(rval.size())
-		rval.front()->setComment(fmt::format("{} Params",runsig.asString()));
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);
 	appendElements(allFunctions, program.getUserClassConstructors());
@@ -824,7 +851,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 	// Grab all labels directly jumped to.
 	std::set<int32_t> usedLabels;
 	GetLabels getlabel(usedLabels);
-	getlabel.execute(runCode, nullptr);
+	getlabel.execute(rval, nullptr);
 	std::set<int32_t> unprocessedLabels(usedLabels);
 
 	// Grab labels used by each function until we run out of functions.
@@ -843,19 +870,6 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 		unprocessedLabels.erase(label);
 	}
 
-	// Make the rval
-	auto rv_sz = rval.size();
-	for (vector<shared_ptr<Opcode>>::iterator it = runCode.begin();
-	     it != runCode.end(); ++it)
-		addOpcode2(rval, (*it)->makeClone());
-	if(rval.size() == rv_sz+1)
-		rval.back()->mergeComment(fmt::format("{} Body",runsig.asString()));
-	else if(rval.size() > rv_sz)
-	{
-		rval[rv_sz]->mergeComment(fmt::format("{} Body Start",runsig.asString()));
-		rval.back()->mergeComment(fmt::format("{} Body End",runsig.asString()));
-	}
-
 	for (std::set<int32_t>::iterator it = usedLabels.begin();
 	     it != usedLabels.end(); ++it)
 	{
@@ -865,7 +879,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 		if (!function) continue;
 
 		vector<shared_ptr<Opcode>> functionCode = function->getCode();
-		rv_sz = rval.size();
+		auto rv_sz = rval.size();
 		for (vector<shared_ptr<Opcode>>::iterator it = functionCode.begin();
 		     it != functionCode.end(); ++it)
 			addOpcode2(rval, (*it)->makeClone());
@@ -877,10 +891,11 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			rval.back()->mergeComment(fmt::format("Func[{}] Body End",function->getUnaliasedSignature(true).asString()));
 		}
 	}
-	
+}
+
+void ScriptAssembler::optimize_output()
+{
 	// Run automatic optimizations
-	// functionsByLabel and function labels are rendered invalid here
-	// ...but they've already been handled, so that's fine.
 	{
 		{ //macros
 			#define START_OPT_PASS() \
@@ -1173,7 +1188,10 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			}
 		END_OPT_PASS()
 	}
-	
+}
+
+void ScriptAssembler::finalize_labels()
+{
 	// Set the label line numbers.
 	map<int32_t, int32_t> linenos;
 	int32_t lineno = 1;
@@ -1188,8 +1206,18 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 	// Now fill in those labels
 	SetLabels setlabel;
 	setlabel.execute(rval, &linenos);
-
-	return rval;
+	
+	// ...and for tracking the run functions
+	for(auto& pair : runlabels)
+	{
+		auto& pcs = pair.second;
+		pcs.first = SetLabels::check(pcs.first, linenos);
+		if(pcs.first)
+			--pcs.first; //stupid 1-indexing...
+		pcs.second = SetLabels::check(pcs.second, linenos);
+		if(pcs.second)
+			--pcs.second; //stupid 1-indexing...
+	}
 }
 
 std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts, Scope* scope)
@@ -1271,20 +1299,24 @@ std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts,
 	return rval;
 }
 
-ScriptsData::ScriptsData(Program& program)
+ScriptsData::ScriptsData(ScriptAssembler& assembler)
 {
-	for (vector<Script*>::const_iterator it = program.scripts.begin();
-	     it != program.scripts.end(); ++it)
+	for(auto& pair : assembler.getLabelMap())
 	{
-		Script& script = **it;
-		string const& name = script.getName();
-		zasm_meta& meta = theScripts[name].first;
-		theScripts[name].second = script.code;
-		meta = script.getMetadata();
-		meta.script_type = script.getType().getTrueId();
+		Script* script = pair.first;
+		auto& pcs = pair.second;
+		string const& name = script->getName();
+		
+		zasm_meta& meta = theScripts[name].meta;
+		theScripts[name].pc = pcs.first;
+		theScripts[name].end_pc = pcs.second;
+		scriptTypes[name] = script->getType();
+		
+		meta = script->getMetadata();
+		meta.script_type = script->getType().getTrueId();
 		meta.script_name = name;
-		meta.author = script.getAuthor();
-		if(Function* run = script.getRun())
+		meta.author = script->getAuthor();
+		if(Function* run = script->getRun())
 		{
 			int32_t ind = 0;
 			for(vector<string const*>::const_iterator it = run->paramNames.begin();
@@ -1299,7 +1331,7 @@ ScriptsData::ScriptsData(Program& program)
 			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
 				it != run->paramTypes.end(); ++it)
 			{
-				std::optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
+				std::optional<DataTypeId> id = assembler.program.getTypeStore().getTypeId(**it);
 				meta.run_types[ind] = id ? *id : ZTID_VOID;
 				int8_t ty = -1;
 				if(id) switch(*id)
@@ -1320,8 +1352,7 @@ ScriptsData::ScriptsData(Program& program)
 				if (++ind > 7) break; //sanity check
 			}
 		}
-
-		script.code = vector<shared_ptr<Opcode>>();
-		scriptTypes[name] = script.getType();
 	}
+	zasm = std::move(assembler.getCode());
 }
+

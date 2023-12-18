@@ -5074,5 +5074,7 @@ int32_t get_combopos_ref(int32_t pos, int32_t layer);
 int32_t combopos_ref_to_pos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
 
+bool pc_overflow(dword pc, bool print_err = true);
+
 #endif
 

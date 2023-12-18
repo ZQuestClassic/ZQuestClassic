@@ -6,9 +6,11 @@ Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
+Internal error: couldn't find label 3439
 Success!
 Compile finished with exit code '0' (success)
 
+QUIT; void run() Body
 PUSHARGSV 0,0.0003; void run() Body Start
 SETR d4,SP
 STOREDV 123,1
@@ -25,6 +27,3 @@ LOADD d3,0
 DEALLOCATEMEMR d3
 POPARGS d5,0.0003
 QUIT; void run() Body End
-
-
-QUIT; void run() Body

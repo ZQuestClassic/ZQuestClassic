@@ -134,14 +134,23 @@ bool scr_func_exec::validate()
 	if(!pc || !sc_data || !sc_data->valid()) // Destructor is null or points to bad script
 		return false;
 	
-	ffscript &zas = sc_data->zasm[pc-1];
-	if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
-		return true; //validated! Destructor already points to correct line
+	if(!pc_overflow(pc-1,false))
+	{
+		ffscript &zas = quest_zasm[pc-1];
+		if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
+			return true; //validated! Destructor already points to correct line
+	}
 	dword q = 0;
+	dword max = quest_zasm.size();
+	if(curscript->meta.ffscript_v < 24) //search only that script slot
+	{
+		q = sc_data->pc;
+		max = zc_min(max,q+sc_data->old_size);
+	}
 	while(true)
 	{
-		ffscript& zas = sc_data->zasm[q];
-		if(zas.command == 0xFFFF) //Ran out of script to check
+		ffscript& zas = quest_zasm[q];
+		if(q >= max || zas.command == 0xFFFF) //Ran out of script to check
 		{
 			zprint2("Destructor for class '%s' expected, but not found!\n", name.c_str());
 			return false;
@@ -158,7 +167,10 @@ bool scr_func_exec::validate()
 void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
 	if(!pc) return; //destructor is null
-	ffscript &zas = curscript->zasm[pc-1];
+	if(pc_overflow(pc-1, false))
+		zprint2("Destructor for object not found?\n"); //Should never occur
+	
+	ffscript &zas = quest_zasm[pc-1];
 	if(zas.command == STARTDESTRUCTOR && zas.strptr) //Destructor is valid
 	{
 		destruct.pc = pc;

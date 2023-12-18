@@ -142,6 +142,8 @@ void ScriptDebugHandle::print(int32_t attributes, const char *str)
 
 void ScriptDebugHandle::print_command(int i)
 {
+	//! TODO ZASM MERGE
+	/*
 	word scommand = script->zasm[i].command;
 	int32_t arg1 = script->zasm[i].arg1;
 	int32_t arg2 = script->zasm[i].arg2;
@@ -181,11 +183,13 @@ void ScriptDebugHandle::print_command(int i)
 								"%d", arg2);
 		}
 	}
-	print("\n");
+	print("\n");*/
 }
 
 void ScriptDebugHandle::print_zasm()
 {
+	//! TODO ZASM MERGE
+	/*
 	printf(
 		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
@@ -198,11 +202,13 @@ void ScriptDebugHandle::print_zasm()
 		print_command(i);
 	}
 	if (file)
-		al_fflush(file);
+		al_fflush(file);*/
 }
 
 void ScriptDebugHandle::pre_command()
 {
+	//! TODO ZASM MERGE
+	/*
 	// if (replay_get_frame() < 4034-100) return;
 	// if (script->id != {ScriptType::Player, 2}) return;
 
@@ -234,7 +240,7 @@ void ScriptDebugHandle::pre_command()
 	}
 
 	if (file)
-		al_fflush(file);
+		al_fflush(file);*/
 }
 
 int script_debug_is_runtime_debugging()

@@ -103,7 +103,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_custom.h" // custom items and guys
 #include "zq/zq_strings.h"
 #include "zq/questReport.h"
-#include "zq/ffasmexport.h"
 #include <fstream>
 #include "base/module.h"
 #include "drawing.h"
@@ -115,6 +114,10 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "music_playback.h"
 
 extern CConsoleLoggerEx parser_console;
+
+using ZScript::disassembled_script_data;
+void write_script(vector<shared_ptr<ZScript::Opcode>> const& zasm, string& dest,
+	bool commented, map<string,disassembled_script_data>* scr_meta_map);
 
 namespace fs = std::filesystem;
 
@@ -203,8 +206,8 @@ FFScript FFCore;
 
 void load_size_poses();
 void do_previewtext();
-bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode);
-void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
+bool do_slots(vector<shared_ptr<ZScript::Opcode>> const& zasm,
+	map<string, disassembled_script_data> &scripts, int assign_mode);
 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
@@ -466,6 +469,7 @@ int compact_active_panel = 0;
 
 int combo_col_scale = 1;
 
+vector<ffscript> quest_zasm;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *guyscripts[NUMSCRIPTGUYS];
@@ -568,7 +572,7 @@ int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
 	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
-	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
+	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0,
 	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
 	ActiveLayerHighlight = 0;
 uint8_t InvalidBG = 0;
@@ -1533,8 +1537,6 @@ static NewMenu zscript_menu
 	{},
 	{ "&Compiler Settings", onZScriptCompilerSettings },
 	{ "&Quest Script Settings", onZScriptSettings },
-	{},
-	{ "&Import ZASM Script", onImportZASM },
 };
 
 void set_console_state()
@@ -21557,46 +21559,6 @@ void clearAssignSlotDlg()
 	assignscript_dlg[13].flags = 0;
 }
 
-int32_t onSlotAssign()
-{
-	clearAssignSlotDlg();
-	//Clear right-hand side of names
-	asffcscripts.clear();
-	asffcscripts.push_back("<none>");
-	asglobalscripts.clear();
-	asglobalscripts.push_back("<none>");
-	asitemscripts.clear();
-	asitemscripts.push_back("<none>");
-	asnpcscripts.clear();
-	asnpcscripts.push_back("<none>");
-	aseweaponscripts.clear();
-	aseweaponscripts.push_back("<none>");
-	aslweaponscripts.clear();
-	aslweaponscripts.push_back("<none>");
-	asplayerscripts.clear();
-	asplayerscripts.push_back("<none>");
-	asdmapscripts.clear();
-	asdmapscripts.push_back("<none>");
-	asscreenscripts.clear();
-	asscreenscripts.push_back("<none>");
-	asitemspritescripts.clear();
-	asitemspritescripts.push_back("<none>");
-	
-	ascomboscripts.clear();
-	ascomboscripts.push_back("<none>");
-	asgenericscripts.clear();
-	asgenericscripts.push_back("<none>");
-	assubscreenscripts.clear();
-	assubscreenscripts.push_back("<none>");
-	//Declare new script vector
-	map<string, disassembled_script_data> scripts;
-	
-	do_script_disassembly(scripts, false);
-	
-	do_slots(scripts, false);
-	return D_O_K;
-}
-
 void inc_script_name(string& name)
 {
 	size_t pos = name.find_last_not_of("0123456789");
@@ -21612,514 +21574,6 @@ void inc_script_name(string& name)
 		oss << name.substr(0,pos) << val+1;
 	}
 	name = oss.str();
-}
-
-void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile)
-{
-	clearAssignSlotDlg();
-	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
-	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
-	{
-		if(scripts.find(globalmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[globalmap[i].scriptname].first.script_type != ScriptType::Global)
-			{
-				while(scripts.find(globalmap[i].scriptname) != scripts.end())
-					inc_script_name(globalmap[i].scriptname);
-			}
-			else continue;
-		}
-		switch(i)
-		{
-			case GLOBAL_SCRIPT_INIT:
-			{
-				break;
-			}
-			default:
-				if(!globalmap[i].isEmpty())
-				{
-					if(skipDisassembled && globalmap[i].format != SCRIPT_FORMAT_ZASM
-					   && (globalscripts[i]->meta.flags & ZMETA_IMPORTED) == 0)
-					{
-						globalmap[i].format = SCRIPT_FORMAT_INVALID;
-						continue;
-					}
-					if(globalscripts[i]->valid())
-					{
-						disassembled_script_data data = disassemble_script(globalscripts[i]);
-						if((globalscripts[i]->meta.flags & ZMETA_IMPORTED))
-						{
-							globalmap[i].format = SCRIPT_FORMAT_ZASM;
-							globalmap[i].update();
-						}
-						else if(fromCompile || (globalscripts[i]->meta.flags & ZMETA_DISASSEMBLED))
-						{
-							globalmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-							globalmap[i].update();
-						}
-						data.format = globalmap[i].format;
-						scripts[globalmap[i].scriptname] = data;
-						asglobalscripts.push_back(data.formatName(globalmap[i].scriptname));
-					}
-				}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTFFC-1; ++i)
-	{
-		if(scripts.find(ffcmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[ffcmap[i].scriptname].first.script_type != ScriptType::FFC)
-			{
-				while(scripts.find(ffcmap[i].scriptname) != scripts.end())
-					inc_script_name(ffcmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!ffcmap[i].isEmpty())
-		{
-			if(skipDisassembled && ffcmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (ffscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				ffcmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(ffscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(ffscripts[i+1]);
-				if((ffscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					ffcmap[i].format = SCRIPT_FORMAT_ZASM;
-					ffcmap[i].update();
-				}
-				else if(fromCompile || (ffscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					ffcmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					ffcmap[i].update();
-				}
-				data.format = ffcmap[i].format;
-				scripts[ffcmap[i].scriptname] = data;
-				asffcscripts.push_back(data.formatName(ffcmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTITEM-1; ++i)
-	{
-		if(scripts.find(itemmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[itemmap[i].scriptname].first.script_type != ScriptType::Item)
-			{
-				while(scripts.find(itemmap[i].scriptname) != scripts.end())
-					inc_script_name(itemmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!itemmap[i].isEmpty())
-		{
-			if(skipDisassembled && itemmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (itemscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				itemmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(itemscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(itemscripts[i+1]);
-				if((itemscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					itemmap[i].format = SCRIPT_FORMAT_ZASM;
-					itemmap[i].update();
-				}
-				else if(fromCompile || (itemscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					itemmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					itemmap[i].update();
-				}
-				data.format = itemmap[i].format;
-				scripts[itemmap[i].scriptname] = data;
-				asitemscripts.push_back(data.formatName(itemmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTGUYS-1; ++i)
-	{
-		if(scripts.find(npcmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[npcmap[i].scriptname].first.script_type != ScriptType::NPC)
-			{
-				while(scripts.find(npcmap[i].scriptname) != scripts.end())
-					inc_script_name(npcmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!npcmap[i].isEmpty())
-		{
-			if(skipDisassembled && npcmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (guyscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				npcmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(guyscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(guyscripts[i+1]);
-				if((guyscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					npcmap[i].format = SCRIPT_FORMAT_ZASM;
-					npcmap[i].update();
-				}
-				else if(fromCompile || (guyscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					npcmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					npcmap[i].update();
-				}
-				data.format = npcmap[i].format;
-				scripts[npcmap[i].scriptname] = data;
-				asnpcscripts.push_back(data.formatName(npcmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
-	{
-		if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[lwpnmap[i].scriptname].first.script_type != ScriptType::Lwpn)
-			{
-				while(scripts.find(lwpnmap[i].scriptname) != scripts.end())
-					inc_script_name(lwpnmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!lwpnmap[i].isEmpty())
-		{
-			if(skipDisassembled && lwpnmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (lwpnscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				lwpnmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(lwpnscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(lwpnscripts[i+1]);
-				if((lwpnscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					lwpnmap[i].format = SCRIPT_FORMAT_ZASM;
-					lwpnmap[i].update();
-				}
-				else if(fromCompile || (lwpnscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					lwpnmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					lwpnmap[i].update();
-				}
-				data.format = lwpnmap[i].format;
-				scripts[lwpnmap[i].scriptname] = data;
-				aslweaponscripts.push_back(data.formatName(lwpnmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
-	{
-		if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[ewpnmap[i].scriptname].first.script_type != ScriptType::Ewpn)
-			{
-				while(scripts.find(ewpnmap[i].scriptname) != scripts.end())
-					inc_script_name(ewpnmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!ewpnmap[i].isEmpty())
-		{
-			if(skipDisassembled && ewpnmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (ewpnscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				ewpnmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(ewpnscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(ewpnscripts[i+1]);
-				if((ewpnscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					ewpnmap[i].format = SCRIPT_FORMAT_ZASM;
-					ewpnmap[i].update();
-				}
-				else if(fromCompile || (ewpnscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					ewpnmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					ewpnmap[i].update();
-				}
-				data.format = ewpnmap[i].format;
-				scripts[ewpnmap[i].scriptname] = data;
-				aseweaponscripts.push_back(data.formatName(ewpnmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTPLAYER-1; ++i)
-	{
-		if(scripts.find(playermap[i].scriptname) != scripts.end())
-		{
-			if(scripts[playermap[i].scriptname].first.script_type != ScriptType::Player)
-			{
-				while(scripts.find(playermap[i].scriptname) != scripts.end())
-					inc_script_name(playermap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!playermap[i].isEmpty())
-		{
-			if(skipDisassembled && playermap[i].format != SCRIPT_FORMAT_ZASM
-			   && (playerscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				playermap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(playerscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(playerscripts[i+1]);
-				if((playerscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					playermap[i].format = SCRIPT_FORMAT_ZASM;
-					playermap[i].update();
-				}
-				else if(fromCompile || (playerscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					playermap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					playermap[i].update();
-				}
-				data.format = playermap[i].format;
-				scripts[playermap[i].scriptname] = data;
-				asplayerscripts.push_back(data.formatName(playermap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSDMAP-1; ++i)
-	{
-		if(scripts.find(dmapmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[dmapmap[i].scriptname].first.script_type != ScriptType::DMap)
-			{
-				while(scripts.find(dmapmap[i].scriptname) != scripts.end())
-					inc_script_name(dmapmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!dmapmap[i].isEmpty())
-		{
-			if(skipDisassembled && dmapmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (dmapscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				dmapmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(dmapscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(dmapscripts[i+1]);
-				if((dmapscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					dmapmap[i].format = SCRIPT_FORMAT_ZASM;
-					dmapmap[i].update();
-				}
-				else if(fromCompile || (dmapscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					dmapmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					dmapmap[i].update();
-				}
-				data.format = dmapmap[i].format;
-				scripts[dmapmap[i].scriptname] = data;
-				asdmapscripts.push_back(data.formatName(dmapmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSCREEN-1; ++i)
-	{
-		if(scripts.find(screenmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[screenmap[i].scriptname].first.script_type != ScriptType::Screen)
-			{
-				while(scripts.find(screenmap[i].scriptname) != scripts.end())
-					inc_script_name(screenmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!screenmap[i].isEmpty())
-		{
-			if(skipDisassembled && screenmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (screenscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				screenmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(screenscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(screenscripts[i+1]);
-				if((screenscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					screenmap[i].format = SCRIPT_FORMAT_ZASM;
-					screenmap[i].update();
-				}
-				else if(fromCompile || (screenscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					screenmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					screenmap[i].update();
-				}
-				data.format = screenmap[i].format;
-				scripts[screenmap[i].scriptname] = data;
-				asscreenscripts.push_back(data.formatName(screenmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE-1; ++i)
-	{
-		if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
-		{
-			if(scripts[itemspritemap[i].scriptname].first.script_type != ScriptType::ItemSprite)
-			{
-				while(scripts.find(itemspritemap[i].scriptname) != scripts.end())
-					inc_script_name(itemspritemap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!itemspritemap[i].isEmpty())
-		{
-			if(skipDisassembled && itemspritemap[i].format != SCRIPT_FORMAT_ZASM
-			   && (itemspritescripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				itemspritemap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(itemspritescripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(itemspritescripts[i+1]);
-				if((itemspritescripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					itemspritemap[i].format = SCRIPT_FORMAT_ZASM;
-					itemspritemap[i].update();
-				}
-				else if(fromCompile || (itemspritescripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					itemspritemap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					itemspritemap[i].update();
-				}
-				data.format = itemspritemap[i].format;
-				scripts[itemspritemap[i].scriptname] = data;
-				asitemspritescripts.push_back(data.formatName(itemspritemap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA-1; ++i)
-	{
-		if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[comboscriptmap[i].scriptname].first.script_type != ScriptType::Combo)
-			{
-				while(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
-					inc_script_name(comboscriptmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!comboscriptmap[i].isEmpty())
-		{
-			if(skipDisassembled && comboscriptmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (comboscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				comboscriptmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(comboscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(comboscripts[i+1]);
-				if((comboscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					comboscriptmap[i].format = SCRIPT_FORMAT_ZASM;
-					comboscriptmap[i].update();
-				}
-				else if(fromCompile || (comboscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					comboscriptmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					comboscriptmap[i].update();
-				}
-				data.format = comboscriptmap[i].format;
-				scripts[comboscriptmap[i].scriptname] = data;
-				ascomboscripts.push_back(data.formatName(comboscriptmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSGENERIC-1; ++i)
-	{
-		if(scripts.find(genericmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[genericmap[i].scriptname].first.script_type != ScriptType::Generic)
-			{
-				while(scripts.find(genericmap[i].scriptname) != scripts.end())
-					inc_script_name(genericmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!genericmap[i].isEmpty())
-		{
-			if(skipDisassembled && genericmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (genericscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				genericmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(genericscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(genericscripts[i+1]);
-				if((genericscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					genericmap[i].format = SCRIPT_FORMAT_ZASM;
-					genericmap[i].update();
-				}
-				else if(fromCompile || (genericscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					genericmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					genericmap[i].update();
-				}
-				data.format = genericmap[i].format;
-				scripts[genericmap[i].scriptname] = data;
-				asgenericscripts.push_back(data.formatName(genericmap[i].scriptname));
-			}
-		}
-	}
-	for(int32_t i = 0; i < NUMSCRIPTSSUBSCREEN-1; ++i)
-	{
-		if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
-		{
-			if(scripts[subscreenmap[i].scriptname].first.script_type != ScriptType::EngineSubscreen)
-			{
-				while(scripts.find(subscreenmap[i].scriptname) != scripts.end())
-					inc_script_name(subscreenmap[i].scriptname);
-			}
-			else continue;
-		}
-		if(!subscreenmap[i].isEmpty())
-		{
-			if(skipDisassembled && subscreenmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (subscreenscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
-			{
-				subscreenmap[i].format = SCRIPT_FORMAT_INVALID;
-				continue;
-			}
-			if(subscreenscripts[i+1]->valid())
-			{
-				disassembled_script_data data = disassemble_script(subscreenscripts[i+1]);
-				if((subscreenscripts[i+1]->meta.flags & ZMETA_IMPORTED))
-				{
-					subscreenmap[i].format = SCRIPT_FORMAT_ZASM;
-					subscreenmap[i].update();
-				}
-				else if(fromCompile || (subscreenscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
-				{
-					subscreenmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					subscreenmap[i].update();
-				}
-				data.format = subscreenmap[i].format;
-				scripts[subscreenmap[i].scriptname] = data;
-				assubscreenscripts.push_back(data.formatName(subscreenmap[i].scriptname));
-			}
-		}
-	}
 }
 
 enum script_slot_type
@@ -22154,8 +21608,6 @@ script_slot_type getType(ScriptType type)
 	}
 }
 #define SLOTMSGFLAG_MISSING		0x01
-#define SLOTMSGFLAG_PRESERVED	0x02
-#define SLOTMSGFLAG_IMPORTED	0x04
 #define SLOTMSG_SIZE			512
 bool checkSkip(int32_t format, byte flags)
 {
@@ -22165,10 +21617,6 @@ bool checkSkip(int32_t format, byte flags)
 			return (flags != 0);
 		case SCRIPT_FORMAT_INVALID:
 			return ((flags & SLOTMSGFLAG_MISSING)==0);
-		case SCRIPT_FORMAT_DISASSEMBLED:
-			return ((flags & SLOTMSGFLAG_PRESERVED)==0);
-		case SCRIPT_FORMAT_ZASM:
-			return ((flags & SLOTMSGFLAG_IMPORTED)==0);
 		default: return true;
 	}
 }
@@ -22321,11 +21769,6 @@ void setup_scriptslot_dlg(char* buf, byte flags)
 	strcpy(buf, "Slots with matching names have been updated.\n");
 	if(flags & SLOTMSGFLAG_MISSING)
 		strcat(buf,"Scripts prefixed with '--' were not found, and will not function.\n");
-	if(flags & SLOTMSGFLAG_PRESERVED)
-		strcat(buf,	"Scripts prefixed with '++' were not found, but have been preserved.\n"
-		            "    These scripts may not function correctly if they use global variables.\n");
-	if(flags & SLOTMSGFLAG_IMPORTED)
-		strcat(buf,"Scripts prefixed with '==' are imported ZASM scripts.\n");
 	strcat(buf,"Global scripts named 'Init' will be appended to '~Init'");
 	//
 	SETFLAG(assignscript_dlg[13].flags, D_SELECTED, doslots_log_output);
@@ -22374,12 +21817,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(ffcmap[i].isZASM())
-			{
-				if(ffcmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(ffcmap[i].scriptname) != scripts.end())
+			if(scripts.find(ffcmap[i].scriptname) != scripts.end())
 				ffcmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22395,12 +21833,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		globalmap[i].slotname=fmt::format("{}:",global_slotnames[i]);
 		if(!globalmap[i].isEmpty())
 		{
-			if(globalmap[i].isZASM())
-			{
-				if(globalmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(globalmap[i].scriptname) != scripts.end() || globalmap[i].scriptname == "~Init")
+			if(scripts.find(globalmap[i].scriptname) != scripts.end() || globalmap[i].scriptname == "~Init")
 				globalmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Unloaded
 			{
@@ -22417,12 +21850,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(itemmap[i].isZASM())
-			{
-				if(itemmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(itemmap[i].scriptname) != scripts.end())
+			if(scripts.find(itemmap[i].scriptname) != scripts.end())
 				itemmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22440,12 +21868,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(npcmap[i].isZASM())
-			{
-				if(npcmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(npcmap[i].scriptname) != scripts.end())
+			if(scripts.find(npcmap[i].scriptname) != scripts.end())
 				npcmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22463,12 +21886,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(ewpnmap[i].isZASM())
-			{
-				if(ewpnmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
+			if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
 				ewpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22486,12 +21904,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(lwpnmap[i].isZASM())
-			{
-				if(lwpnmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
+			if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
 				lwpnmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22507,12 +21920,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		playermap[i].slotname=fmt::format("{}:",player_slotnames[i]);
 		if(!playermap[i].isEmpty())
 		{
-			if(playermap[i].isZASM())
-			{
-				if(playermap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(playermap[i].scriptname) != scripts.end())
+			if(scripts.find(playermap[i].scriptname) != scripts.end())
 				playermap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Unloaded
 			{
@@ -22529,12 +21937,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(screenmap[i].isZASM())
-			{
-				if(screenmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(screenmap[i].scriptname) != scripts.end())
+			if(scripts.find(screenmap[i].scriptname) != scripts.end())
 				screenmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22552,12 +21955,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(dmapmap[i].isZASM())
-			{
-				if(dmapmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(dmapmap[i].scriptname) != scripts.end())
+			if(scripts.find(dmapmap[i].scriptname) != scripts.end())
 				dmapmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22575,12 +21973,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(itemspritemap[i].isZASM())
-			{
-				if(itemspritemap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
+			if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
 				itemspritemap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22598,12 +21991,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(comboscriptmap[i].isZASM())
-			{
-				if(comboscriptmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
+			if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
 				comboscriptmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22621,12 +22009,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(genericmap[i].isZASM())
-			{
-				if(genericmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(genericmap[i].scriptname) != scripts.end())
+			if(scripts.find(genericmap[i].scriptname) != scripts.end())
 				genericmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22644,12 +22027,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		else
 		{
 			sprintf(temp, "Slot %d:", i+1);
-			if(subscreenmap[i].isZASM())
-			{
-				if(subscreenmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
-				else slotflags |= SLOTMSGFLAG_PRESERVED;
-			}
-			else if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
+			if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
 				subscreenmap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Previously loaded script not found
 			{
@@ -22668,22 +22046,19 @@ void doClearSlots(byte* flags);
 extern byte compile_success_sample, compile_error_sample,
 	compile_finish_sample, compile_audio_volume;
 static map<string, disassembled_script_data> *doslot_scripts = nullptr;
-bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
+bool handle_slot(script_slot_data& slotdata, script_data* scriptdata)
 {
 	if(slotdata.hasScriptData())
 	{
-		string scriptstr;
-		(*doslot_scripts)[slotdata.scriptname].write(scriptstr, doslots_log_output, false, doslots_comment_output);
-		parse_script_string(&scriptdata[indx],scriptstr,false);
-		
-		if(slotdata.isDisassembled()) scriptdata[indx]->meta.setFlag(ZMETA_DISASSEMBLED);
-		else if(slotdata.isImportedZASM()) scriptdata[indx]->meta.setFlag(ZMETA_IMPORTED);
+		auto& data = (*doslot_scripts)[slotdata.scriptname];
+		scriptdata->meta = data.meta;
+		scriptdata->pc = data.pc;
+		scriptdata->end_pc = data.end_pc;
 	}
-	else if(scriptdata[indx])
+	else if(scriptdata)
 	{
-		delete scriptdata[indx];
-		// script_data::id is not used in editor, so should be fine for now.
-		scriptdata[indx] = new script_data(ScriptType::None, 0);
+		scriptdata->meta.zero();
+		scriptdata->pc = -1;
 	}
 	return true;
 }
@@ -22691,7 +22066,7 @@ bool handle_slot_map(map<int32_t, script_slot_data>& mp, int offs, script_data**
 {
 	for(auto it = mp.begin(); it != mp.end(); it++)
 	{
-		if(!handle_slot(it->second, it->first+offs, scriptdata))
+		if(!handle_slot(it->second, scriptdata[it->first + offs]))
 			return false;
 	}
 	return true;
@@ -22771,7 +22146,8 @@ void smart_slot_type(map<string, disassembled_script_data> &scripts,
 	}
 }
 
-bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
+bool do_slots(vector<shared_ptr<ZScript::Opcode>> const& zasm,
+	map<string, disassembled_script_data> &scripts, int assign_mode)
 {
 	large_dialog(assignscript_dlg);
 	int32_t ret = 3;
@@ -23213,16 +22589,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						break;
 					}
 				}
-				zasm_meta* meta = target ? &target->first : nullptr;
-				if(devpwd() && CHECK_CTRL_CMD)
-				{
-					string str;
-					target->write(str, false, false, (assignscript_dlg[51].flags == D_SELECTED), true);
-					set_al_clipboard(str);
-					displayinfo("Clipboard Copy","Copied ZASM of selected script to clipboard");
-				}
-				else if(meta)
-					showScriptInfo(meta);
+				if(target)
+					showScriptInfo(&target->meta);
 				break;
 			}
 		
@@ -23325,16 +22693,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						break;
 					}
 				}
-				zasm_meta* meta = target ? &target->first : nullptr;
-				if(devpwd() && CHECK_CTRL_CMD)
-				{
-					string str;
-					target->write(str, false, false, (assignscript_dlg[51].flags == D_SELECTED), true);
-					set_al_clipboard(str);
-					displayinfo("Clipboard Copy","Copied ZASM of selected script to clipboard");
-				}
-				else if(meta)
-					showScriptInfo(meta);
+				if(target)
+					showScriptInfo(&target->meta);
 				break;
 			}
 			
@@ -23370,7 +22730,17 @@ auto_do_slots:
 	doslot_scripts = &scripts;
 	//OK
 	{
+		if(doslots_log_output)
+		{
+			string outstr;
+			write_script(zasm, outstr, doslots_comment_output, doslot_scripts);
+			safe_al_trace(outstr);
+		}
 		auto start_assign_time = std::chrono::steady_clock::now();
+		string zasm_str;
+		write_script(zasm, zasm_str, false, nullptr);
+		if(parse_script_string(quest_zasm, zasm_str, false))
+			goto exit_do_slots;
 		if(!handle_slot_map(ffcmap, 1, ffscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(globalmap, 0, globalscripts))
@@ -23504,8 +22874,6 @@ static DIALOG clearslots_dlg[] =
     { jwin_droplist_proc,   50,      28+16,   70,   16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, (void *) &slottype_sel_list, NULL, NULL },
 	{ jwin_radio_proc,      40,      34+00,   81,   9,      vc(14),             vc(1),              0,   D_SELECTED, 0,  0, (void *) "Clear Script Type:", NULL, NULL },
 	{ jwin_radio_proc,      40,      34+32,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Missing (--) Slots", NULL, NULL },
-	{ jwin_radio_proc,      40,      34+48,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Preserved (++) Slots", NULL, NULL },
-	{ jwin_radio_proc,      40,      34+64,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Imported (==) Slots", NULL, NULL },
 	{ jwin_radio_proc,      40,      34+80,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear All", NULL, NULL },
     { d_timer_proc,         0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL },
     { NULL,                 0,       0,       0,    0,      0,                  0,                  0,   0,          0,  0, NULL, NULL, NULL }
@@ -23519,20 +22887,10 @@ void doClearSlots(byte* flags)
 	clearslots_dlg[4].flags |= D_SELECTED;
 	clearslots_dlg[5].flags &= ~D_SELECTED;
 	clearslots_dlg[6].flags &= ~D_SELECTED;
-	clearslots_dlg[7].flags &= ~D_SELECTED;
-	clearslots_dlg[8].flags &= ~D_SELECTED;
 	if(((*flags) & SLOTMSGFLAG_MISSING) == 0)
 		clearslots_dlg[5].flags |= D_DISABLED;
 	else
 		clearslots_dlg[5].flags &= ~D_DISABLED;
-	if(((*flags) & SLOTMSGFLAG_PRESERVED) == 0)
-		clearslots_dlg[6].flags |= D_DISABLED;
-	else
-		clearslots_dlg[6].flags &= ~D_DISABLED;
-	if(((*flags) & SLOTMSGFLAG_IMPORTED) == 0)
-		clearslots_dlg[7].flags |= D_DISABLED;
-	else
-		clearslots_dlg[7].flags &= ~D_DISABLED;
 	//}
 	
 	large_dialog(clearslots_dlg);
@@ -23554,19 +22912,7 @@ void doClearSlots(byte* flags)
 					clearAllSlots(q,SLOTMSGFLAG_MISSING);
 				break;
 			}
-			case 6: //Clear Preserved
-			{
-				for(int32_t q = 0; q <= 10; ++q)
-					clearAllSlots(q,SLOTMSGFLAG_PRESERVED);
-				break;
-			}
-			case 7: //Clear Imported ZASM
-			{
-				for(int32_t q = 0; q <= 10; ++q)
-					clearAllSlots(q,SLOTMSGFLAG_IMPORTED);
-				break;
-			}
-			case 8: //Clear ALL
+			case 6: //Clear ALL
 			{
 				for(int32_t q = 0; q <= 10; ++q)
 					clearAllSlots(q);
@@ -23615,399 +22961,6 @@ static EXT_LIST zasm_extlist[] =
 	{ (char *)"ZASM Files (*.zasm)",                        (char *)"zasm"                                     },
 	{ NULL,                                                  NULL                                              }
 };
-
-int32_t onExportZASM()
-{
-	exportzasm_dlg[0].dp2 = get_zc_font(font_lfont);
-	exportzasm_dlg[3].d1 = type_ffc;
-	exportzasm_dlg[4].dp = (void*)&ffscript_list;
-	exportzasm_dlg[4].d1 = 0;
-	//{ Build script lists
-	build_biffs_list();
-	build_biglobal_list();
-	build_biitems_list();
-	build_binpcs_list();
-	build_bilweapons_list();
-	build_bieweapons_list();
-	build_bihero_list();
-	build_bidmaps_list();
-	build_biscreens_list();
-	build_biitemsprites_list();
-	build_bidcomboscripts_list();
-	//}
-	int32_t indx = 1;
-	script_data const* scriptChoice = NULL;
-	
-	while(!scriptChoice)
-	{
-		large_dialog(exportzasm_dlg);
-		indx = do_zqdialog(exportzasm_dlg, indx);
-		switch(indx)
-		{
-			case 1: //confirm; exit dlg
-			{
-				//{ Find script choice
-				int32_t scriptInd = -1;
-				switch(exportzasm_dlg[3].d1)
-				{
-					case type_ffc:
-						scriptInd = biffs[exportzasm_dlg[4].d1].second;
-						break;
-					case type_global:
-						scriptInd = biglobal[exportzasm_dlg[4].d1].second;
-						break;
-					case type_itemdata:
-						scriptInd = biitems[exportzasm_dlg[4].d1].second;
-						break;
-					case type_npc:
-						scriptInd = binpcs[exportzasm_dlg[4].d1].second;
-						break;
-					case type_lweapon:
-						scriptInd = bilweapons[exportzasm_dlg[4].d1].second;
-						break;
-					case type_eweapon:
-						scriptInd = bieweapons[exportzasm_dlg[4].d1].second;
-						break;
-					case type_hero:
-						scriptInd = bihero[exportzasm_dlg[4].d1].second;
-						break;
-					case type_dmap:
-						scriptInd = bidmaps[exportzasm_dlg[4].d1].second;
-						break;
-					case type_screen:
-						scriptInd = biscreens[exportzasm_dlg[4].d1].second;
-						break;
-					case type_itemsprite:
-						scriptInd = biditemsprites[exportzasm_dlg[4].d1].second;
-						break;
-					case type_combo:
-						scriptInd = bidcomboscripts[exportzasm_dlg[4].d1].second;
-						break;
-				}
-				if(scriptInd < 0) break; //Invalid; likely '(None)'
-				switch(exportzasm_dlg[3].d1)
-				{
-					case type_ffc:
-						scriptChoice = ffscripts[scriptInd];
-						break;
-					case type_global:
-						scriptChoice = globalscripts[scriptInd];
-						break;
-					case type_itemdata:
-						scriptChoice = itemscripts[scriptInd];
-						break;
-					case type_npc:
-						scriptChoice = guyscripts[scriptInd];
-						break;
-					case type_lweapon:
-						scriptChoice = lwpnscripts[scriptInd];
-						break;
-					case type_eweapon:
-						scriptChoice = ewpnscripts[scriptInd];
-						break;
-					case type_hero:
-						scriptChoice = playerscripts[scriptInd];
-						break;
-					case type_dmap:
-						scriptChoice = dmapscripts[scriptInd];
-						break;
-					case type_screen:
-						scriptChoice = screenscripts[scriptInd];
-						break;
-					case type_itemsprite:
-						scriptChoice = itemspritescripts[scriptInd];
-						break;
-					case type_combo:
-						scriptChoice = comboscripts[scriptInd];
-						break;
-					case type_subscreen:
-						scriptChoice = subscreenscripts[scriptInd];
-						break;
-				}
-				//}
-				//{ Find export file
-				if(!getname("Export Script (.zasm)","zasm",zasm_extlist,datapath,false))
-				{
-					scriptChoice = NULL;
-					break;
-				}
-				replace_extension(temppath, temppath, "zasm", 2047);
-				
-				if(exists(temppath))
-				{
-					if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
-					{
-						scriptChoice = NULL;
-						break;
-					}
-				}
-				
-				FILE* zasm_output = fopen(temppath, "w");
-				if(zasm_output == NULL)
-				{
-					jwin_alert("Error","Cannot create specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-					scriptChoice = NULL;
-					break;
-				}
-				//}
-				write_script(zasm_output, scriptChoice);
-				fclose(zasm_output);
-				break;
-			}
-			case 0: case 2: //Cancel/X; quit dlg
-				return D_O_K;
-			case 3: //Type select
-			{
-				switch(exportzasm_dlg[3].d1)
-				{
-					default: //Shouldn't occur, but to be safe
-					case type_ffc:
-						exportzasm_dlg[4].dp = (void*)&ffscript_list;
-						break;
-					case type_global:
-						exportzasm_dlg[4].dp = (void*)&globalscript_list;
-						break;
-					case type_itemdata:
-						exportzasm_dlg[4].dp = (void*)&itemscript_list;
-						break;
-					case type_npc:
-						exportzasm_dlg[4].dp = (void*)&npcscript_list;
-						break;
-					case type_lweapon:
-						exportzasm_dlg[4].dp = (void*)&lweaponscript_list;
-						break;
-					case type_eweapon:
-						exportzasm_dlg[4].dp = (void*)&eweaponscript_list;
-						break;
-					case type_hero:
-						exportzasm_dlg[4].dp = (void*)&playerscript_list;
-						break;
-					case type_dmap:
-						exportzasm_dlg[4].dp = (void*)&dmapscript_list;
-						break;
-					case type_screen:
-						exportzasm_dlg[4].dp = (void*)&screenscript_list;
-						break;
-					case type_itemsprite:
-						exportzasm_dlg[4].dp = (void*)&itemspritescript_list;
-						break;
-					case type_combo:
-						exportzasm_dlg[4].dp = (void*)&comboscript_list;
-						break;
-				}
-				exportzasm_dlg[4].d1 = 0;
-				break;
-			}
-		}
-	}
-	return D_O_K;
-}
-
-int32_t onImportZASM()
-{
-	importzasm_dlg[0].dp2 = get_zc_font(font_lfont);
-	importzasm_dlg[4].dp = (void*)&ffscript_list;
-	if(!getname("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
-	{
-		return D_O_K;
-	}
-	FILE* zasm_import_file = fopen(temppath, "r");
-	if(zasm_import_file == NULL)
-	{
-		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-		return D_O_K;
-	}
-	script_data *temp_slot = new script_data(ScriptType::None, 0);
-	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
-	{
-		fclose(zasm_import_file);
-		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-		delete temp_slot;
-		return D_O_K;
-	}
-	fclose(zasm_import_file);
-
-    std::string namebuf;
-	if(temp_slot->meta.valid()) //Found metadata
-	{
-		importzasm_dlg[3].d1 = getType(temp_slot->meta.script_type);
-		namebuf = temp_slot->meta.script_name;
-		switch(importzasm_dlg[3].d1)
-		{
-			default: //Shouldn't occur, but to be safe
-			case type_ffc:
-				importzasm_dlg[4].dp = (void*)&ffscript_sel_dlg_list;
-				break;
-			case type_global:
-				importzasm_dlg[4].dp = (void*)&gscript_sel_dlg_list;
-				break;
-			case type_itemdata:
-				importzasm_dlg[4].dp = (void*)&itemscript_sel_dlg_list;
-				break;
-			case type_npc:
-				importzasm_dlg[4].dp = (void*)&npcscript_sel_dlg_list;
-				break;
-			case type_lweapon:
-				importzasm_dlg[4].dp = (void*)&lweaponscript_sel_dlg_list;
-				break;
-			case type_eweapon:
-				importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
-				break;
-			case type_hero:
-				importzasm_dlg[4].dp = (void*)&playerscript_sel_dlg_list;
-				break;
-			case type_dmap:
-				importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
-				break;
-			case type_screen:
-				importzasm_dlg[4].dp = (void*)&screenscript_sel_dlg_list;
-				break;
-			case type_itemsprite:
-				importzasm_dlg[4].dp = (void*)&itemspritescript_sel_dlg_list;
-				break;
-			case type_combo:
-				importzasm_dlg[4].dp = (void*)&comboscript_sel_dlg_list;
-				break;
-		}
-		importzasm_dlg[4].d1 = 0;
-	}
-	else
-	{
-		importzasm_dlg[3].d1 = 0;
-		importzasm_dlg[4].dp = (void*)&ffscript_list;
-		importzasm_dlg[4].d1 = 0;
-	}
-	importzasm_dlg[8].dp = (void*)namebuf.c_str();
-	bool confirmed = false;
-	int32_t indx = 1;
-	while(!confirmed)
-	{
-		large_dialog(importzasm_dlg);
-		indx = do_zqdialog(importzasm_dlg, indx);
-		switch(indx)
-		{
-			case 1: //confirm; exit dlg
-			{
-				if(!namebuf[0]) break; //No name?
-				script_data **slot = NULL;
-				script_slot_data *map = NULL;
-				//{ Find script choice
-				int32_t scriptInd = importzasm_dlg[4].d1;
-				switch(importzasm_dlg[3].d1)
-				{
-					case type_ffc:
-						slot = &ffscripts[scriptInd];
-						map = &ffcmap[scriptInd];
-						break;
-					case type_global:
-						slot = &globalscripts[scriptInd];
-						map = &globalmap[scriptInd];
-						break;
-					case type_itemdata:
-						slot = &itemscripts[scriptInd];
-						map = &itemmap[scriptInd];
-						break;
-					case type_npc:
-						slot = &guyscripts[scriptInd];
-						map = &npcmap[scriptInd];
-						break;
-					case type_lweapon:
-						slot = &lwpnscripts[scriptInd];
-						map = &lwpnmap[scriptInd];
-						break;
-					case type_eweapon:
-						slot = &ewpnscripts[scriptInd];
-						map = &ewpnmap[scriptInd];
-						break;
-					case type_hero:
-						slot = &playerscripts[scriptInd];
-						map = &playermap[scriptInd];
-						break;
-					case type_dmap:
-						slot = &dmapscripts[scriptInd];
-						map = &dmapmap[scriptInd];
-						break;
-					case type_screen:
-						slot = &screenscripts[scriptInd];
-						map = &screenmap[scriptInd];
-						break;
-					case type_itemsprite:
-						slot = &itemspritescripts[scriptInd];
-						map = &itemspritemap[scriptInd];
-						break;
-					case type_combo:
-						slot = &comboscripts[scriptInd];
-						map = &comboscriptmap[scriptInd];
-						break;
-					case type_generic:
-						slot = &genericscripts[scriptInd];
-						map = &genericmap[scriptInd];
-						break;
-					case type_subscreen:
-						slot = &subscreenscripts[scriptInd];
-						map = &subscreenmap[scriptInd];
-						break;
-				}
-				//}
-				if(!slot) break; //Not found?
-				temp_slot->transfer(**slot);
-				map->format = SCRIPT_FORMAT_ZASM;
-				map->updateName(namebuf);
-				confirmed = true;
-				break;
-			}
-			case 0: case 2: //Close dlg
-			{
-				delete temp_slot;
-				return D_O_K;
-			}
-			case 3: //Type select
-			{
-				switch(importzasm_dlg[3].d1)
-				{
-					default: //Shouldn't occur, but to be safe
-					case type_ffc:
-						importzasm_dlg[4].dp = (void*)&ffscript_sel_dlg_list;
-						break;
-					case type_global:
-						importzasm_dlg[4].dp = (void*)&gscript_sel_dlg_list;
-						break;
-					case type_itemdata:
-						importzasm_dlg[4].dp = (void*)&itemscript_sel_dlg_list;
-						break;
-					case type_npc:
-						importzasm_dlg[4].dp = (void*)&npcscript_sel_dlg_list;
-						break;
-					case type_lweapon:
-						importzasm_dlg[4].dp = (void*)&lweaponscript_sel_dlg_list;
-						break;
-					case type_eweapon:
-						importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
-						break;
-					case type_hero:
-						importzasm_dlg[4].dp = (void*)&playerscript_sel_dlg_list;
-						break;
-					case type_dmap:
-						importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
-						break;
-					case type_screen:
-						importzasm_dlg[4].dp = (void*)&screenscript_sel_dlg_list;
-						break;
-					case type_itemsprite:
-						importzasm_dlg[4].dp = (void*)&itemspritescript_sel_dlg_list;
-						break;
-					case type_combo:
-						importzasm_dlg[4].dp = (void*)&comboscript_sel_dlg_list;
-						break;
-				}
-				importzasm_dlg[4].d1 = 0;
-				break;
-			}
-		}
-	}
-	delete temp_slot;
-	return D_O_K;
-}
 
 void center_zscript_dialogs()
 {
@@ -26171,7 +25124,6 @@ int32_t main(int32_t argc,char **argv)
 	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",1);
 	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
-	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
 	MMapCursorStyle				= zc_get_config("zquest","cursorblink_style",1);
 	LayerDitherBG				= zc_get_config("zquest", "layer_dither_bg", -1);
 	LayerDitherSz				= zc_get_config("zquest", "layer_dither_sz", 3);

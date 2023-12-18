@@ -270,15 +270,19 @@ namespace ZScript
 	public:
 		void caseLabel(LabelArgument &host, void *param)
 		{
-			std::map<int32_t, int32_t> *labels = (std::map<int32_t, int32_t> *)param;
-			int32_t lineno = (*labels)[host.getID()];
+			host.setLineNo(check(host.getID(), *((map<int32_t,int32_t>*)param)));
+		}
+		static int check(int lbl, map<int32_t, int32_t> const& labels)
+		{
+			auto it = labels.find(lbl);
 			
-			if(lineno==0)
+			if(it == labels.end())
 			{
-				zconsole_error("Internal error: couldn't find function label %d", host.getID());
+				zconsole_error("Internal error: couldn't find label %d", lbl);
+				return 0;
 			}
 			
-			host.setLineNo(lineno);
+			return it->second;
 		}
 	};
 	class MergeLabels : public ArgumentVisitor

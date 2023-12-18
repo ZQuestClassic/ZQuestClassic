@@ -397,7 +397,8 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 // Defer to the ZASM command interpreter for 1+ commands.
 static void compile_command(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex)
 {
-	extern int32_t jitted_uncompiled_command_count;
+	//! TODO ZASM MERGE
+	/*extern int32_t jitted_uncompiled_command_count;
 
 	x86::Gp reg = cc.newIntPtr();
 	cc.mov(reg, (uint64_t)&jitted_uncompiled_command_count);
@@ -429,7 +430,7 @@ static void compile_command(CompilationState& state, x86::Compiler &cc, script_d
 		invokeNode->setRet(0, state.vRetVal);
 		cc.cmp(state.vRetVal, RUNSCRIPT_OK);
 		cc.jne(state.L_End);
-	}
+	}*/
 }
 
 static bool command_is_compiled(int command)
@@ -519,7 +520,9 @@ static void error(ScriptDebugHandle* debug_handle, script_data *script, std::str
 // Compile the entire ZASM script at once, into a single function.
 JittedFunction jit_compile_script(script_data *script)
 {
-	CompilationState state;
+	//! TODO ZASM MERGE
+	return nullptr;
+	/*CompilationState state;
 	state.size = script->size;
 	size_t size = state.size;
 
@@ -1484,7 +1487,7 @@ JittedFunction jit_compile_script(script_data *script)
 		jit_printf("failure\n");
 	}
 
-	return fn;
+	return fn;*/
 }
 
 void jit_release(JittedFunction function)

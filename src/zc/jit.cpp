@@ -248,7 +248,8 @@ static bool set_compilation_thread_pool_size(int target_size)
 
 static void create_compile_tasks()
 {
-	al_lock_mutex(tasks_mutex);
+	//! TODO ZASM MERGE
+	/*al_lock_mutex(tasks_mutex);
 	task_states.clear();
 	active_tasks.clear();
 	pending_scripts.clear();
@@ -281,7 +282,7 @@ static void create_compile_tasks()
 	}
 
 	al_broadcast_cond(tasks_cond);
-	al_unlock_mutex(tasks_mutex);
+	al_unlock_mutex(tasks_mutex);*/
 }
 
 struct JittedScriptHandle
@@ -304,7 +305,9 @@ bool jit_is_enabled()
 
 void jit_set_enabled(bool enabled)
 {
-	is_enabled = enabled;
+	//! TODO ZASM MERGE
+	//is_enabled = enabled;
+	is_enabled = false;
 }
 
 JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)

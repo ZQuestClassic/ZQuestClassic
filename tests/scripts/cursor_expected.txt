@@ -9,6 +9,9 @@ Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
+ALLOCATEGMEMV d2,4096; void run() Body Start
+SETR gd1,d2
+QUIT; void run() Body End
 PUSHR d0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0,0.0002
@@ -39,9 +42,4 @@ PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, 
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
-GOTO 5; while() #8 End AND [Opt:NeverRet] AND void run(int) Body End
-
-
-ALLOCATEGMEMV d2,4096; void run() Body Start
-SETR gd1,d2
-QUIT; void run() Body End
+GOTO 8; while() #8 End AND [Opt:NeverRet] AND void run(int) Body End
