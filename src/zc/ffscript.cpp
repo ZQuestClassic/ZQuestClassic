@@ -22010,12 +22010,7 @@ void set_register(int32_t arg, int32_t value)
 			else if(unsigned(ind) > 7)
 				Z_scripterrlog("Invalid index '%d' passed to 'Screen->SetExDoor()'; must be 0-7\n", ind);
 			else
-			{
-				int bit = 1<<ind;
-				if(!(game->xdoors[mi][dir]&bit) == !value)
-					break; //no change
-				SETFLAG(game->xdoors[mi][dir], bit, value);
-			}
+				set_xdoorstate(mi, dir, ind);
 			break;
 		}
 
@@ -23599,12 +23594,7 @@ void set_register(int32_t arg, int32_t value)
 				else if(unsigned(ind) > 7)
 					Z_scripterrlog("Invalid index '%d' passed to 'mapdata->SetExDoor()'; must be 0-7\n", ind);
 				else
-				{
-					int bit = 1<<ind;
-					if(!(game->xdoors[mi][dir]&bit) == !value)
-						break; //no change
-					SETFLAG(game->xdoors[mi][dir], bit, value);
-				}
+					set_xdoorstate(mi, dir, ind);
 			}
 			else Z_scripterrlog("mapdata->SetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
