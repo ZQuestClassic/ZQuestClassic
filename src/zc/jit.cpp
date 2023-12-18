@@ -263,7 +263,8 @@ static void create_compile_tasks()
 	create_compile_tasks(comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
 	create_compile_tasks(genericscripts, NUMSCRIPTSGENERIC, ScriptType::Generic);
 	create_compile_tasks(subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
-	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_GAME+1, NUMSCRIPTGLOBAL, ScriptType::Global);
+	// Skip the first two - are priortizied below the sort.
+	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_INIT+2, NUMSCRIPTGLOBAL, ScriptType::Global);
 	// Sort by # of commands, so that biggest scripts get compiled first.
 	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
 		return a->size < b->size;
@@ -271,7 +272,7 @@ static void create_compile_tasks()
 	// Make sure player and global scripts (just the INIT and GAME ones) are compiled first, as they
 	// are needed on frame 1.
 	create_compile_tasks(playerscripts, NUMSCRIPTPLAYER, ScriptType::Player);
-	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_GAME, NUMSCRIPTGLOBAL, ScriptType::Global);
+	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_INIT, 2, ScriptType::Global);
 	if (jit_log_enabled)
 	{
 		for (auto a : pending_scripts) 
