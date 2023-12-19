@@ -1,5 +1,6 @@
 #include "zc/replay.h"
 #include "base/version.h"
+#include "base/zapp.h"
 #include "zc/zc_sys.h"
 #include "base/zc_alleg.h"
 #include "base/util.h"
@@ -1011,6 +1012,13 @@ static void check_assert()
                                             replay_step->print(), record_step->print());
             fprintf(stderr, "%s\n", error.c_str());
             replay_save(get_file_path(".roundtrip"));
+
+            static bool fail_instant = get_flag_bool("-replay-fail-assert-instant").value_or(false);
+            if (fail_instant)
+            {
+                replay_stop();
+                return;
+            }
             if (!exit_when_done)
             {
                 enter_sys_pal();
@@ -1344,9 +1352,11 @@ void replay_poll()
     }
     maybe_take_snapshot();
 
-    if (frame_count == 0)
-        save_result();
-    if (std::chrono::steady_clock::now() - time_result_saved > 1s)
+    static bool save_every_frame = get_flag_bool("-replay-save-result-every-frame").value_or(false);
+    bool should_save_result = save_every_frame
+        || frame_count == 0
+        || std::chrono::steady_clock::now() - time_result_saved > 1s;
+    if (should_save_result)
         save_result();
 
     if (mode == ReplayMode::Assert || mode == ReplayMode::Record)

@@ -377,6 +377,8 @@ def clear_progress_str():
 is_mac_ci = args.ci and 'mac' in args.ci
 is_linux_ci = args.ci and 'ubuntu' in args.ci
 is_web = bool(list(args.build_folder.glob('**/play/index.html')))
+if is_web and args.update:
+    raise Exception('--update currently not supported for web build')
 is_web_ci = is_web and args.ci
 is_coverage = args.build_folder.name == 'Coverage' or args.build_type == 'Coverage'
 is_asan = args.build_folder.name == 'Asan' or args.build_type == 'Asan'
@@ -654,6 +656,7 @@ class CLIPlayerInterface:
             '-v1' if args.throttle_fps else '-v0',
             '-replay-exit-when-done',
             '-replay-output-dir', output_dir,
+            '-script-runtime-debug-folder', str(output_dir / 'zscript-debug'),
         ]
 
         if args.extra_args:
@@ -671,7 +674,8 @@ class CLIPlayerInterface:
 
         if args.jit:
             exe_args.append('-jit')
-            exe_args.append('-jit-fatal-compile-error')
+            exe_args.append('-jit-log')
+            exe_args.append('-jit-fatal-compile-errors')
 
         if args.headless:
             exe_args.append('-headless')
@@ -734,30 +738,49 @@ class WebPlayerInterface:
         output_dir = player_args.output_dir
         frame = player_args.frame
 
-        replay_path = replay_path.relative_to(root_dir / 'tests/replays')
+        if replay_path.is_relative_to(root_dir / 'tests/replays'):
+            rel_replay_path = replay_path.relative_to(root_dir / 'tests/replays')
+        else:
+            # Not one of our normal replays - so copy it over.
+            rel_replay_path = 'tmp.zplay'
+            shutil.copy(replay_path, args.build_folder / 'packages/web/files/test_replays' / rel_replay_path)
 
-        url = f'play/?{mode}=test_replays/{replay_path}&replayExitWhenDone&showFps'
+        url = f'play/?{mode}=test_replays/{rel_replay_path}'
+
+        extra_args = [
+            '-replay-exit-when-done',
+            '-show-fps',
+        ]
+        if args.extra_args:
+            extra_args.extend(args.extra_args.split(' '))
 
         if args.headless:
-            url += f'&headless'
+            extra_args.append('-headless')
 
         snapshot_arg = get_arg_for_replay(replay_path, grouped_snapshot_arg)
         if snapshot_arg is not None:
-            url += f'&snapshot={snapshot_arg}'
+            extra_args.append(f'-snapshot {snapshot_arg}')
 
         if frame != None:
-            url += f'&frame={frame}'
+            extra_args.append(f'-frame {frame}')
 
         if args.throttle_fps:
-            url += f'&v1'
+            extra_args.append('-v1')
         else:
-            url += f'&v0'
+            extra_args.append('-v0')
+
+        if args.jit:
+            extra_args.append('-jit')
+            extra_args.append('-jit-log')
+            extra_args.append('-jit-fatal-compile-errors')
 
         exe_args = [
             'node', root_dir / 'web/tests/run_replay.js',
             'http://localhost:8000',
             output_dir,
             url,
+            ' '.join(extra_args),
+            output_dir / replay_path.with_suffix('.zplay.result.txt').name,
         ]
 
         self.p = subprocess.Popen(exe_args,
@@ -792,7 +815,8 @@ class WebPlayerInterface:
 
 def run_replay_test(key: int, replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
     name = get_replay_name(replay_file)
-    result = RunResult(name=name, directory=output_dir.relative_to(test_results_dir).as_posix())
+    directory = output_dir.relative_to(test_results_dir).as_posix()
+    result = RunResult(name=name, directory=directory, path=replay_file.as_posix())
     roundtrip_path = output_dir / f'{name}.roundtrip'
     allegro_log_path = output_dir / 'allegro.log'
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name

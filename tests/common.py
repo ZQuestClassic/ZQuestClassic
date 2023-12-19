@@ -26,6 +26,7 @@ test_builds_dir = root_dir / '.tmp/test_builds'
 class RunResult:
     name: str
     directory: str
+    path: str
     success: bool = False
     stopped: bool = False
     exit_code: int = None
@@ -62,6 +63,9 @@ class ReplayTestResults:
                 for run in runs:
                     # Old property, will error when creating dataclass.
                     run.pop('diff', None)
+                # New property.
+                if 'path' not in run:
+                    run['path'] = ''
                 deserialized.append([RunResult(**run) for run in runs])
             self.runs = deserialized
 

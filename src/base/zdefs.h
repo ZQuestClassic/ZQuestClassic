@@ -1546,6 +1546,7 @@ public:
 	int32_t d[8]; //d registers
 	int32_t a[2]; //a regsisters (reference to another ffc on screen)
 	uint32_t sp; //stack pointer for current script
+	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
 	dword scriptflag; //stores whether various operations were true/false etc.
 	
@@ -1569,7 +1570,6 @@ public:
 	int32_t switchkey; //used for switch statements
 	dword thiskey, thiskey2; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
-	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	
 	void Clear()
 	{

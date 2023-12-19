@@ -28,6 +28,7 @@ add_custom_command(
         package.json
         settings.js
         utils.js
+        zasm.js
     VERBATIM
 )
 add_custom_target(main_bundle DEPENDS ${BUILD_FOLDER}/main.js)

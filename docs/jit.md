@@ -1,5 +1,7 @@
 # JIT
 
+`zplayer` executes a quest's ZASM scripts typically by running them in our ZASM interpreter. To speed things up significantly, we can compile ZASM scripts to native machine code using the JIT (just-in-time) compiler. This runs in `zplayer`, not in the `zscript` compiler. There are two backends for the JIT: `jit_x64.cpp`, and `jit_wasm.cpp` (for the browser build). JIT is not supported for 32-bit.
+
 JIT compilation is off by default. It can be enabled by setting the `[ZSCRIPT] jit = 1` config option, found in the launcher. There is also the `-jit` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
 
 `[ZSCRIPT] jit_precompile = 1` can be set to compile all scripts on quest load, instead of as they are encountered.
@@ -97,6 +99,10 @@ Given a replay that fails only when using JIT, this is how you can debug what's 
 1. Hopefully, you'll now see the exact instruction that results in a problem. If a fix seems non-trivial, it may be best to figure out how to create similar ZASM using a much smaller script, so you don't have to wait however long the replay is when iterating on a fix.
 
 It can also be useful to compile only the script you're debugging in `jit_create_script_handle`: `if (script->id != {ScriptType::Player, 1}) return nullptr;`
+
+## WASM backend
+
+See https://gist.github.com/connorjclark/874f1034809ce475a8e3ea7e09a8cc40 for some notes on the WASM backend.
 
 ## Learning materials
 

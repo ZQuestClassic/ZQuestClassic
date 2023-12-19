@@ -140,6 +140,13 @@ std::optional<int> get_flag_int(const char* name)
 	return std::stoi(argv[arg + 1]);
 }
 
+std::optional<std::string> get_flag_string(const char* name)
+{
+	int arg = used_switch(argc, argv, name);
+	if (arg == 0) return std::nullopt;
+	return argv[arg + 1];
+}
+
 App get_app_id()
 {
     return app_id;

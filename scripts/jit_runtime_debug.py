@@ -19,6 +19,7 @@ import dataclasses
 class RunResult:
     name: str
     directory: str
+    path: str
     success: bool = False
     stopped: bool = False
     exit_code: int = None
@@ -54,6 +55,9 @@ class ReplayTestResults:
                 for run in runs:
                     # Old property, will error when creating dataclass.
                     run.pop('diff', None)
+                # New property.
+                if 'path' not in run:
+                    run['path'] = ''
                 deserialized.append([RunResult(**run) for run in runs])
             self.runs = deserialized
 
@@ -66,6 +70,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--build_folder',
                     default='build/Release',
                     help='The location of the build folder. ex: build/Release')
+parser.add_argument('--baseline_build_folder',
+                    help='The location of the build folder to use to collect non-JIT baseline. Useful to speed things up by giving a non-web build')
 parser.add_argument('--replay_path', required=True)
 
 args = parser.parse_args()
@@ -74,103 +80,196 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 
 build_folder = Path(args.build_folder)
+if args.baseline_build_folder:
+    baseline_build_folder = Path(args.baseline_build_folder)
+else:
+    baseline_build_folder = build_folder
 replay_path = Path(args.replay_path)
-test_results_folder = root_dir / '.tmp/jit_runtime_debug_test_results'
-script_debug_folder = build_folder / 'zscript-debug'
+
+def find_index_containing(lines, str):
+    for i, line in enumerate(lines):
+        if str in line:
+            return i
+
+    raise Exception(f'did not find {str}')
+
+def find_last_index_containing(lines, str, n):
+    count = 0
+    for i, line in reversed(list(enumerate(lines))):
+        if str in line:
+            if count == n:
+                return i
+            count += 1
+
+    raise Exception(f'did not find {str}')
 
 def clear_dir(dir: Path):
     if dir.exists():
         shutil.rmtree(dir)
 
 def run_replay(args: List[str]):
-    clear_dir(script_debug_folder)
-    clear_dir(test_results_folder)
     return subprocess.run([
         sys.executable,
         root_dir / 'tests/run_replay_tests.py',
-        '--build_folder', build_folder,
-        '--test_results_folder', test_results_folder,
         '--no_report_on_failure',
         *args,
     ])
 
+def load_test_results(path: Path):
+    test_results_json = json.loads(path.read_text('utf-8'))
+    return ReplayTestResults(**test_results_json)
+
+def copy_and_trim_zplay(from_path: Path, to_path: Path, frame_limit: int):
+    lines = from_path.read_text().splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith('M'):
+            # qst path resolving is tricky. Need to copy the qst to the target directory.
+            if line.startswith('M qst'):
+                qst_path = line.replace('M qst ', '')
+                dest_qst_path = to_path.parent / qst_path
+                dest_qst_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy(from_path.parent / qst_path, dest_qst_path)
+            continue
+
+        frame = int(line.split(' ')[1])
+        if frame > frame_limit:
+            lines = lines[:i]
+            lines.append('')
+            break
+
+    to_path.write_text('\n'.join(lines))
+
+
+# Get the roundtrip file, cut it at the first failure, then find the last line denoting a script starting.
+# Then find the previous time that script was started. That frame is what we want.
+def find_frame_where_script_broke(test_results_folder: Path):
+    test_results = load_test_results(test_results_folder / 'test_results.json')
+    test_run = test_results.runs[-1][0]
+    roundtrip_path = next((test_results_folder / test_run.directory).glob('*.roundtrip'))
+    roundtrip_lines = roundtrip_path.read_text().splitlines()
+    first_failure_index = find_index_containing(roundtrip_lines, '«')
+    print('first failure:', roundtrip_lines[first_failure_index])
+    if 'result:' in roundtrip_lines[first_failure_index]:
+        # If the result of a script was different than expected, then the issue is not a
+        # prior frame but instead in the same frame as the failure frame.
+        type, frame, data = roundtrip_lines[first_failure_index].split(' ', 2)
+        return frame
+
+    roundtrip_lines = roundtrip_lines[0:first_failure_index]
+    last_index = find_last_index_containing(roundtrip_lines, '=== running script type', 0)
+    needle = roundtrip_lines[last_index].split('===')[1]
+    second_last_index = find_last_index_containing(roundtrip_lines, needle, 1)
+    type, frame, data = roundtrip_lines[second_last_index].split(' ', 2)
+    return int(frame)
+
+
+extra_args = '-jit-log -replay-save-result-every-frame -replay-fail-assert-instant'
+test_results_folder_0 = root_dir / '.tmp/jit_runtime_debug_test_results_0'
+clear_dir(test_results_folder_0)
 p = run_replay([
+    '--test_results_folder', test_results_folder_0,
+    '--build_folder', build_folder,
     '--jit',
-    # TODO: find which frame script _first_ fail, and only print state of each instruction on that frame (and the one prior?)
-    # '--extra_args', '-script-runtime-debug 1',
+    '--extra_args', extra_args,
     '--filter', replay_path,
 ])
 if p.returncode == 0:
     print('replay passed with JIT, nothing to debug')
     exit(0)
 
-test_results_path = test_results_folder / 'test_results.json'
-test_results_json = json.loads(test_results_path.read_text('utf-8'))
-test_results = ReplayTestResults(**test_results_json)
+test_results = load_test_results(test_results_folder_0 / 'test_results.json')
 failing_runs = [r for r in test_results.runs[-1] if not r.success]
-# exit(0)
 
 for run in failing_runs:
     print('processing', run.name)
     frame = next((f for f in [run.failing_frame, run.frame] if f), 0)
 
-    # Get baseline
+    # Copy the failing replay, and update it with script-level runtime debugging.
+    test_zplay_path = root_dir / '.tmp/jit_runtime_debug_test_replay.zplay'
+    print(f'failed at frame {frame}, so cutting replay there')
+    copy_and_trim_zplay(Path(run.path), test_zplay_path, frame)
+
+    extra_args = '-script-runtime-debug 1'
+    test_results_folder_1 =  root_dir / '.tmp/jit_runtime_debug_test_results_1'
+    clear_dir(test_results_folder_1)
     p = run_replay([
+        '--test_results_folder', test_results_folder_1,
+        '--build_folder', baseline_build_folder,
         '--no-jit',
-        '--frame', str(frame),
-        '--extra_args', '-script-runtime-debug 2',
-        # TODO should really have replay path on RunResult
-        '--filter', run.name,
+        '--extra_args', extra_args,
+        '--update',
+        test_zplay_path,
     ])
     if p.returncode:
         print('replay unexpectedly failed without JIT, cannot collect baseline')
         exit(1)
 
-    script_debug_baseline_folder = root_dir / '.tmp/jit_runtime_zscript_debug_baseline'
-    clear_dir(script_debug_baseline_folder)
-    shutil.move(script_debug_folder, script_debug_baseline_folder)
-
     # Get failing JIT
+    extra_args = '-script-runtime-debug 1 -jit-log -replay-save-result-every-frame -replay-fail-assert-instant'
+    test_results_folder_2 =  root_dir / '.tmp/jit_runtime_debug_test_results_2'
+    clear_dir(test_results_folder_2)
     p = run_replay([
+        '--test_results_folder', test_results_folder_2,
+        '--build_folder', build_folder,
         '--jit',
         '--frame', str(frame),
-        '--extra_args', '-script-runtime-debug 2',
-        # TODO should really have replay path on RunResult
-        '--filter', run.name,
+        '--extra_args', extra_args,
+        test_zplay_path,
     ])
 
-    debug_files = list(script_debug_baseline_folder.rglob('debug-*.txt'))
-    debug_files.sort(key=lambda x: int(x.stem.split('debug-')[1]))
-    for baseline_path in debug_files:
-        rel = baseline_path.relative_to(script_debug_baseline_folder)
-        jit_path = script_debug_folder / rel
+    # The script runtime state was bad at failing_frame, which means execution in some previous
+    # frame is where things broke. We need to find the last time the bad script ran.
+    frame = find_frame_where_script_broke(test_results_folder_2)
+    print(f'script seems to have broken at frame: {frame}')
 
-        baseline_text = baseline_path.read_text()
-        jit_text = jit_path.read_text()
-        if baseline_text != jit_text:
-            print('\n=== found difference for', rel)
-            print('baseline path:', baseline_path)
-            print('jit path:', jit_path)
-            print('diff:\n')
+    # Now we update the replay again, but with instruction-level runtime debugging.
+    # Copy the failing replay, and update it with script-level runtime debugging.
+    extra_args = f'-script-runtime-debug 2 -script-runtime-debug-frame {frame}'
+    test_results_folder_3 =  root_dir / '.tmp/jit_runtime_debug_test_results_3'
+    clear_dir(test_results_folder_3)
+    p = run_replay([
+        '--test_results_folder', test_results_folder_3,
+        '--build_folder', baseline_build_folder,
+        '--no-jit',
+        '--extra_args', extra_args,
+        '--update',
+        test_zplay_path,
+    ])
+    if p.returncode:
+        print('replay unexpectedly failed without JIT, cannot collect baseline')
+        exit(1)
 
-            baseline_lines = baseline_text.splitlines()
-            jit_lines = jit_text.splitlines()
+    # Get failing JIT
+    extra_args = f'-script-runtime-debug 2 -script-runtime-debug-frame {frame} -jit-log -replay-fail-assert-instant'
+    test_results_folder_4 =  root_dir / '.tmp/jit_runtime_debug_test_results_4'
+    clear_dir(test_results_folder_4)
+    p = run_replay([
+        '--test_results_folder', test_results_folder_4,
+        '--build_folder', build_folder,
+        '--jit',
+        # '--frame', str(frame),
+        '--extra_args', extra_args,
+        test_zplay_path,
+    ])
 
-            bad_index = None
-            for i in range(len(baseline_lines)):
-                baseline = baseline_lines[i]
-                jit = jit_lines[i]
-                if baseline != jit:
-                    bad_index = i
-                    break
-            
-            start = max(0, bad_index - 10)
-            end = min(len(baseline_lines), bad_index + 10)
-            for i in range(start, end):
-                baseline = baseline_lines[i]
-                jit = jit_lines[i]
-                if baseline != jit:
-                    print(f'-{baseline}')
-                    print(f'+{jit}')
-                else:
-                    print(baseline)
+    test_results = load_test_results(test_results_folder_4 / 'test_results.json')
+    test_run = test_results.runs[-1][0]
+    roundtrip_path = next((test_results_folder_4 / test_run.directory).glob('*.roundtrip'))
+    roundtrip_lines = roundtrip_path.read_text().splitlines()
+    bad_line_index = None
+    for i, line in enumerate(roundtrip_lines):
+        if '«' in line:
+            bad_line_index = i
+            break
+    if bad_line_index == None:
+        raise Exception('did not find marker: «')
+
+    print('found first bad script failure:\n')
+    print(roundtrip_lines[bad_line_index - 2])
+    print(roundtrip_lines[bad_line_index - 1])
+    but_was, shoulda_been = roundtrip_lines[bad_line_index - 0].split('«')
+    print(f'shoulda been:\n\t{shoulda_been.strip()}\nbut was:\n\t{but_was.strip()}')
+    print('\ntip: copy/paste this in an editor with word wrap off')
+
+    # Only bother showing one bad thing at a time.
+    break

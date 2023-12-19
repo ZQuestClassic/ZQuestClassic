@@ -21,6 +21,7 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 #include "base/version.h"
+#include "zc/replay.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
@@ -99,6 +100,7 @@ extern byte monochrome_console;
 
 static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
+// Values may be null.
 static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
 int32_t jitted_uncompiled_command_count;
 
@@ -3198,7 +3200,7 @@ int32_t do_msgwidth(int32_t msg, char const* str);
 //
 
 int32_t earlyretval = -1;
-int32_t get_register(const int32_t arg)
+int32_t get_register(int32_t arg)
 {
 	int32_t ret = 0;
 	
@@ -35278,12 +35280,21 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		}
 		runtime_script_debug_handle = &script_debug_handles.at(curscript->id);
 		runtime_script_debug_handle->update_file();
-		runtime_script_debug_handle->print(fmt::format("\n=== running script type: {} index: {} name: {} i: {} script: {}\n", ScriptTypeToString(curscript->id.type), curscript->id.index, curscript->meta.script_name, i, script).c_str());
+		std::string line = fmt::format("=== running script type: {} index: {} name: {} i: {} script: {}", ScriptTypeToString(curscript->id.type), curscript->id.index, curscript->meta.script_name, i, script);
+		runtime_script_debug_handle->print("\n");
+		runtime_script_debug_handle->print(line.c_str());
+		runtime_script_debug_handle->print("\n");
+
+		replay_step_comment(line);
 	}
 	if (script_debug_is_runtime_debugging() == 1)
 	{
-		runtime_script_debug_handle->print(script_debug_registers_and_stack_to_string().c_str());
+		std::string line = script_debug_registers_and_stack_to_string();
+		runtime_script_debug_handle->print(line.c_str());
 		runtime_script_debug_handle->print("\n");
+
+		util::replchar(line, '\n', ' ');
+		replay_step_comment(line);
 	}
 
 	int32_t result;
@@ -35339,7 +35350,10 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 #endif
 
 	if (runtime_script_debug_handle)
+	{
 		runtime_script_debug_handle->print(fmt::format("result: {}\n", result).c_str());
+		replay_step_comment(fmt::format("result: {}", result));
+	}
 	return result;
 }
 
@@ -42373,7 +42387,7 @@ void FFScript::init()
 	clear_script_engine_data();
 	for (auto &it : jitted_scripts)
 	{
-		jit_delete_script_handle(it.second);
+		if (it.second) jit_delete_script_handle(it.second);
 	}
 	jitted_scripts.clear();
 	script_debug_handles.clear();
@@ -42384,7 +42398,7 @@ void FFScript::shutdown()
 {
 	for (auto &it : jitted_scripts)
 	{
-		jit_delete_script_handle(it.second);
+		if (it.second) jit_delete_script_handle(it.second);
 	}
 	jitted_scripts.clear();
 }
@@ -54577,6 +54591,8 @@ bool command_could_return_not_ok(int command)
 
 const script_command& get_script_command(int command)
 {
+	static script_command null_command = {"0xFFFF", 0, 0, 0, 0};
+	if (command == 0xFFFF) return null_command;
 	return ZASMcommands[command];
 }
 

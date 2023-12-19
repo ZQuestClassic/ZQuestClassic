@@ -1,8 +1,9 @@
 import { configureMount, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
-import { createElement, createUrlString, fetchWithProgress, formatBytes } from "./utils.js";
+import { createElement, createUrlString, fetchWithProgress, formatBytes, fsReadAllFiles } from "./utils.js";
 import { handleFileLaunch } from "./file_launch.js";
+import { compileScriptWasmModule, createScriptWasmHandle, pollScriptWasmHandle, destroyScriptWasmHandle, destroyAllScriptWasmHandles } from "./zasm.js";
 
-window.ZC = {
+globalThis.ZC = {
   // TODO: this should be https://data.zquestclassic.com , but having issues with SSL/X-Amz-Meta-Inflated-Content-Size
   dataOrigin: 'https://zc-data.nyc3.digitaloceanspaces.com',
   pathToUrl: {},
@@ -132,6 +133,12 @@ window.ZC = {
     }));
   },
   configureMount,
+  fsReadAllFiles,
+  compileScriptWasmModule,
+  createScriptWasmHandle,
+  pollScriptWasmHandle,
+  destroyScriptWasmHandle,
+  destroyAllScriptWasmHandles,
 };
 
 async function main() {
@@ -631,24 +638,27 @@ function goFullscreen() {
   document.querySelector('main').requestFullscreen();
 }
 
-main().catch(err => {
-  console.error(err);
-  document.querySelector('.content').textContent = err.toString();
-});
-checkForGamepads();
-window.addEventListener('gamepadconnected', checkForGamepads);
-window.addEventListener('gamepaddisconnected', checkForGamepads);
+// Don't run this in the workers.
+if (typeof window !== 'undefined') {
+  main().catch(err => {
+    console.error(err);
+    document.querySelector('.content').textContent = err.toString();
+  });
+  checkForGamepads();
+  window.addEventListener('gamepadconnected', checkForGamepads);
+  window.addEventListener('gamepaddisconnected', checkForGamepads);
 
-const fullscreenEl = document.createElement('button');
-fullscreenEl.textContent = 'Fullscreen';
-fullscreenEl.classList.add('panel-button');
-fullscreenEl.addEventListener('click', goFullscreen);
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('.panel-buttons').append(fullscreenEl);
-});
+  const fullscreenEl = document.createElement('button');
+  fullscreenEl.textContent = 'Fullscreen';
+  fullscreenEl.classList.add('panel-button');
+  fullscreenEl.addEventListener('click', goFullscreen);
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('.panel-buttons').append(fullscreenEl);
+  });
 
-// If using gamepad, probably want to go fullscreen.
-// TODO https://bugs.chromium.org/p/chromium/issues/detail?id=1413066
-// if (TARGET === 'zplayer') {
-//   window.addEventListener('gamepadconnected', goFullscreen, { once: true });
-// }
+  // If using gamepad, probably want to go fullscreen.
+  // TODO https://bugs.chromium.org/p/chromium/issues/detail?id=1413066
+  // if (TARGET === 'zplayer') {
+  //   window.addEventListener('gamepadconnected', goFullscreen, { once: true });
+  // }
+}

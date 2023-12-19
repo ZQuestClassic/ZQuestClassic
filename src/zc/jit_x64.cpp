@@ -1,7 +1,4 @@
-#include "asmjit/core/archtraits.h"
-#include "asmjit/core/environment.h"
 #include "base/qrs.h"
-#include "base/zapp.h"
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
@@ -14,6 +11,20 @@
 #include <asmjit/asmjit.h>
 
 using namespace asmjit;
+
+struct JittedScriptHandle
+{
+	JittedFunction fn;
+	script_data *script;
+	refInfo *ri;
+	intptr_t call_stack_rets[100];
+	uint32_t call_stack_ret_index;
+};
+
+typedef int32_t (*JittedFunctionImpl)(int32_t *registers, int32_t *global_registers,
+								  int32_t *stack, uint32_t *stack_index, uint32_t *pc,
+								  intptr_t *call_stack_rets, uint32_t *call_stack_ret_index,
+								  uint32_t *wait_index);
 
 static JitRuntime rt;
 
@@ -62,8 +73,6 @@ static void debug_pre_command(int32_t pc, uint16_t sp)
 	if (runtime_script_debug_handle)
 		runtime_script_debug_handle->pre_command();
 }
-
-void set_register(int32_t arg, int32_t value);
 
 class MyErrorHandler : public ErrorHandler
 {
@@ -216,7 +225,6 @@ static void div_10000(x86::Compiler &cc, x86::Gp dividend)
 	}
 	else
 	{
-		ASSERT(false);
 		abort();
 	}
 }
@@ -395,7 +403,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 }
 
 // Defer to the ZASM command interpreter for 1+ commands.
-static void compile_command(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex)
+static void compile_command_interpreter(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex)
 {
 	extern int32_t jitted_uncompiled_command_count;
 
@@ -454,7 +462,7 @@ static bool command_is_compiled(int command)
 	case RETURNFUNC:
 
 	// These commands modify the stack pointer, which is just a local copy. If these commands
-	// were not compiled, then vStackIndex would have to be restored in compile_command.
+	// were not compiled, then vStackIndex would have to be restored after compile_command_interpreter.
 	case POP:
 	case POPARGS:
 	case PUSHR:
@@ -511,7 +519,6 @@ static void error(ScriptDebugHandle* debug_handle, script_data *script, std::str
 
 	if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL)
 	{
-		ASSERT(false);
 		abort();
 	}
 }
@@ -519,14 +526,14 @@ static void error(ScriptDebugHandle* debug_handle, script_data *script, std::str
 // Compile the entire ZASM script at once, into a single function.
 JittedFunction jit_compile_script(script_data *script)
 {
+	if (script->size <= 1)
+		return nullptr;
+
 	CompilationState state;
 	state.size = script->size;
 	size_t size = state.size;
 
 	al_trace("[jit] compiling script type: %s index: %d size: %zu name: %s\n", ScriptTypeToString(script->id.type), script->id.index, size, script->meta.script_name.c_str());
-
-	if (size <= 1)
-		return nullptr;
 
 	// Check if script is like, really big.
 	// Anything over 20,000 takes ~5s, which is an unacceptable delay. Until scripts can be compiled w/o pausing execution of the engine,
@@ -575,7 +582,7 @@ JittedFunction jit_compile_script(script_data *script)
 	}
 
 	CodeHolder code;
-	JittedFunction fn;
+	JittedFunctionImpl fn;
 
 	static bool jit_env_windows = get_flag_bool("-jit-env-windows").value_or(false);
 	if (jit_env_windows)
@@ -592,6 +599,7 @@ JittedFunction jit_compile_script(script_data *script)
 	{
 		code.init(rt.environment());
 	}
+
 	MyErrorHandler myErrorHandler;
 	code.setErrorHandler(&myErrorHandler);
 
@@ -815,7 +823,7 @@ JittedFunction jit_compile_script(script_data *script)
 
 		if (command_is_wait(command))
 		{
-			compile_command(state, cc, script, i, 1, vStackIndex);
+			compile_command_interpreter(state, cc, script, i, 1, vStackIndex);
 			cc.mov(x86::ptr_32(state.ptrWaitIndex), label_index + 1);
 			cc.jmp(state.L_End);
 			cc.bind(wait_frame_labels[label_index]);
@@ -861,7 +869,7 @@ JittedFunction jit_compile_script(script_data *script)
 				}
 			}
 
-			compile_command(state, cc, script, i, uncompiled_command_count, vStackIndex);
+			compile_command_interpreter(state, cc, script, i, uncompiled_command_count, vStackIndex);
 			i += uncompiled_command_count - 1;
 			continue;
 		}
@@ -875,7 +883,7 @@ JittedFunction jit_compile_script(script_data *script)
 			break;
 		case QUIT:
 		{
-			compile_command(state, cc, script, i, 1, vStackIndex);
+			compile_command_interpreter(state, cc, script, i, 1, vStackIndex);
 			cc.mov(x86::ptr_32(state.ptrWaitIndex), 0);
 			cc.jmp(state.L_End);
 		}
@@ -902,11 +910,18 @@ JittedFunction jit_compile_script(script_data *script)
 			}
 		}
 		break;
+
+		// GOTOR is pretty much RETURN - was only used to return to the call location in scripts
+		// compiled before RETURN existed.
+		// Note: for GOTOR the return pc is in a register, but we just ignore it and instead use
+		// the function call return label.
+		case GOTOR:
 		case RETURN:
 		{
-			// Note: the return pc is on the stack, but we just ignore it and instead use
+			// Note: for RETURN the return pc is on the stack, but we just ignore it and instead use
 			// the function call return label.
-			modify_sp(cc, vStackIndex, 1);
+			if (command == RETURN)
+				modify_sp(cc, vStackIndex, 1);
 
 			cc.sub(vCallStackRetIndex, 1);
 			x86::Gp address = cc.newIntPtr();
@@ -926,25 +941,6 @@ JittedFunction jit_compile_script(script_data *script)
 			//Normally the return address is on the 'ret_stack'
 			//...but we can ignore that when jitted
 
-			cc.sub(vCallStackRetIndex, 1);
-			x86::Gp address = cc.newIntPtr();
-			cc.mov(address, x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3));
-
-			int function_index = return_to_function_id.at(i);
-			if (function_jump_annotations.size() <= function_index)
-			{
-				error(debug_handle, script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
-				return nullptr;
-			}
-			cc.jmp(address, function_jump_annotations[function_index]);
-		}
-		break;
-		case GOTOR:
-		{
-			// This is pretty much RETURN - was only used to return to the call location in scripts
-			// compiled before RETURN existed.
-			// Note: the return pc is in a register, but we just ignore it and instead use
-			// the function call return label.
 			cc.sub(vCallStackRetIndex, 1);
 			x86::Gp address = cc.newIntPtr();
 			cc.mov(address, x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3));
@@ -1443,8 +1439,8 @@ JittedFunction jit_compile_script(script_data *script)
 	{
 		debug_handle->printf("time to preprocess: %d ms\n", preprocess_ms);
 		debug_handle->printf("time to compile:    %d ms\n", compile_ms);
-		debug_handle->printf("Code size:          %d kb\n", code.codeSize() / 1024);
 		debug_handle->printf("ZASM instructions:  %zu\n", size);
+		debug_handle->printf("Code size:          %d kb\n", code.codeSize() / 1024);
 		debug_handle->print("\n");
 
 		if (!uncompiled_command_counts.empty())
@@ -1467,7 +1463,7 @@ JittedFunction jit_compile_script(script_data *script)
 			logger.data());
 	}
 
-	al_trace("[jit] finished script type: %s index: %d size: %zu name: %s time: %d ms\n", ScriptTypeToString(script->id.type), script->id.index, size, script->meta.script_name.c_str(), preprocess_ms + compile_ms);
+	al_trace("[jit] finished script %s %d. time: %d ms\n", ScriptTypeToString(script->id.type), script->id.index, preprocess_ms + compile_ms);
 
 	if (fn)
 	{
@@ -1484,10 +1480,43 @@ JittedFunction jit_compile_script(script_data *script)
 		jit_printf("failure\n");
 	}
 
-	return fn;
+	return (JittedFunction)fn;
 }
 
-void jit_release(JittedFunction function)
+JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
 {
-	rt.release(function);
+	JittedScriptHandle *jitted_script = new JittedScriptHandle;
+	jitted_script->call_stack_ret_index = 0;
+	jitted_script->script = script;
+	jitted_script->ri = ri;
+	jitted_script->fn = fn;
+	return jitted_script;
+}
+
+void jit_reinit(JittedScriptHandle *jitted_script)
+{
+	jitted_script->call_stack_ret_index = 0;
+}
+
+int jit_run_script(JittedScriptHandle *jitted_script)
+{
+	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
+
+	auto fn = (JittedFunctionImpl)jitted_script->fn;
+	return fn(
+		jitted_script->ri->d, game->global_d,
+		*stack, &jitted_script->ri->sp,
+		&jitted_script->ri->pc,
+		jitted_script->call_stack_rets, &jitted_script->call_stack_ret_index,
+		&jitted_script->ri->wait_index);
+}
+
+void jit_delete_script_handle(JittedScriptHandle *jitted_script)
+{
+	delete jitted_script;
+}
+
+void jit_release(JittedFunction fn)
+{
+	rt.release(fn);
 }
