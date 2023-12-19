@@ -68,6 +68,8 @@ struct dmap
 	{
 		*this = dmap();
 	}
+	
+	void validate_subscreens();
 };
 
 extern dmap *DMaps;

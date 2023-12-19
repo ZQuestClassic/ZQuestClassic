@@ -7540,6 +7540,8 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
         
         for(int32_t i=start_dmap; i<start_dmap+dmap_count; i++)
         {
+			DMaps[i].validate_subscreens();
+			
             if(!p_putc(DMaps[i].map,f))
             {
                 new_return(6);
