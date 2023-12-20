@@ -4825,8 +4825,8 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			
 			if(i==0 && Header->zelda_version <= 0x190)
 			{
-				tempDMap.cont-=tempDMap.xoff;
-				tempDMap.compass-=tempDMap.xoff;
+				tempDMap.cont = std::max((int)tempDMap.cont - tempDMap.xoff, 0);
+				tempDMap.compass = std::max((int)tempDMap.compass - tempDMap.xoff, 0);
 			}
 			
 			//forgotten -DD
