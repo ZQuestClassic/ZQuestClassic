@@ -114,6 +114,7 @@ struct WasmAssembler : public WasmWriter {
 
     // Parametric operators
     Drop = 0x1a,
+	Select = 0x1b,
 
     // Variable access
     LocalGet = 0x20,
@@ -260,6 +261,7 @@ struct WasmAssembler : public WasmWriter {
   void emitI32ExtendS() { emitOp(Op::I32ExtendS); }
 
   void emitDrop() { emitOp(Op::Drop); }
+  void emitSelect() { emitOp(Op::Select); }
 
   void emitCall(uint32_t idx) {
     emitOp(Op::Call);

@@ -148,11 +148,12 @@ def find_frame_where_script_broke(test_results_folder: Path):
     roundtrip_path = next((test_results_folder / test_run.directory).glob('*.roundtrip'))
     roundtrip_lines = roundtrip_path.read_text().splitlines()
     first_failure_index = find_index_containing(roundtrip_lines, '«')
-    print('first failure:', roundtrip_lines[first_failure_index])
-    if 'result:' in roundtrip_lines[first_failure_index]:
+    first_failure = roundtrip_lines[first_failure_index]
+    print('first failure:', first_failure)
+    if 'result:' in first_failure or 'trace:' in first_failure:
         # If the result of a script was different than expected, then the issue is not a
         # prior frame but instead in the same frame as the failure frame.
-        type, frame, data = roundtrip_lines[first_failure_index].split(' ', 2)
+        type, frame, data = first_failure.split(' ', 2)
         return frame
 
     roundtrip_lines = roundtrip_lines[0:first_failure_index]

@@ -297,12 +297,12 @@ static bool command_is_compiled(int command)
 	// These can be commented out to instead run interpreted. Useful for
 	// singling out problematic instructions.
 	// case ABSR:
-	// case ADDR:
+	case ADDR:
 	case ADDV:
 	// case ANDR:
 	// case ANDV:
-	// case CASTBOOLF:
-	// case CASTBOOLI:
+	case CASTBOOLF:
+	case CASTBOOLI:
 	// case CEILING:
 	case DIVR:
 	case DIVV:
@@ -315,15 +315,15 @@ static bool command_is_compiled(int command)
 	// case MINV:
 	case MODR:
 	case MODV:
-	// case MULTR:
-	// case MULTV:
+	case MULTR:
+	case MULTV:
 	case NOP:
 	case SETR:
 	case SETV:
 	case STORED:
 	// case STOREI:
-	// case SUBR:
-	// case SUBV:
+	case SUBR:
+	case SUBV:
 	// case SUBV2:
 		return true;
 	}
@@ -840,12 +840,41 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				}
 				break;
 
+				case ADDR:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						get_z_register(state, arg2);
+						wasm.emitI32Add();
+					});
+				}
+				break;
 				case ADDV:
 				{
 					set_z_register(state, arg1, [&](){
 						get_z_register(state, arg1);
 						wasm.emitI32Const(arg2);
 						wasm.emitI32Add();
+					});
+				}
+				break;
+
+				case CASTBOOLF:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(0);
+						wasm.emitI32Ne();
+					});
+				}
+				break;
+				case CASTBOOLI:
+				{
+					set_z_register(state, arg1, [&](){
+						wasm.emitI32Const(10000);
+						wasm.emitI32Const(0);
+						get_z_register(state, arg1);
+						wasm.emitSelect();
 					});
 				}
 				break;
@@ -879,6 +908,53 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						get_z_register(state, arg1);
 						wasm.emitI32Const(arg2);
 						wasm.emitI32RemS();
+					});
+				}
+				break;
+
+				case MULTR:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32ExtendS();
+						get_z_register(state, arg2);
+						wasm.emitI32ExtendS();
+						wasm.emitI64Mul();
+						wasm.emitI64Const(10000);
+						wasm.emitI64DivS();
+						wasm.emitI64Wrap();
+					});
+				}
+				break;
+				case MULTV:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32ExtendS();
+						wasm.emitI64Const(arg2);
+						wasm.emitI64Mul();
+						wasm.emitI64Const(10000);
+						wasm.emitI64DivS();
+						wasm.emitI64Wrap();
+					});
+				}
+				break;
+
+				case SUBR:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						get_z_register(state, arg2);
+						wasm.emitI32Sub();
+					});
+				}
+				break;
+				case SUBV:
+				{
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, arg1);
+						wasm.emitI32Const(arg2);
+						wasm.emitI32Sub();
 					});
 				}
 				break;
