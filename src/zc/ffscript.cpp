@@ -34169,26 +34169,17 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	}
 	if ( warpType == wtEXIT )
 	{
-		//game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
-		game->set_continue_scrn(scrID);
+		game->set_continue_scrn(currscr);
 		game->set_continue_dmap(dmapID);
-		lastentrance = scrID;
-		//zprint("Setting Last Entrance to: %d\n", scrID);
-		//zprint("lastentrance = %d\n",lastentrance);
+		lastentrance = currscr;
 		lastentrance_dmap = dmapID;
-		//zprint("Setting Last Entrance DMap to: %d\n", dmapID);
-		//zprint("lastentrance_dmap = %d\n",lastentrance_dmap);
-		//lastentrance_dmap = currdmap;
-		//lastentrance = game->get_continue_scrn();
 	}
 	else
 	{
-		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = scrID;
+		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = currscr;
 		if ( (warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
-		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(scrID);
+		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(currscr);
 		if ( (warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
-		
-		
 	}
 	if(tmpscr->flags4&fAUTOSAVE)
 	{
