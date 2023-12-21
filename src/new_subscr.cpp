@@ -614,7 +614,11 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 int32_t SubscrColorInfo::get_int_color() const
 {
 	if(type == ssctSYSTEM)
+	{
+		if(color == -1)
+			return SUB_COLOR_TRANSPARENT;
 		return -(color+1);
+	}
 	if(type == ssctMISC)
 		return -(color+1+NUM_SYS_COLORS);
 	if(type >= 0 && type < 16)
@@ -628,6 +632,11 @@ void SubscrColorInfo::set_int_color(int32_t val)
 	{
 		type = (val&0xF0)>>4;
 		color = (val&0x0F);
+	}
+	else if(val == SUB_COLOR_TRANSPARENT)
+	{
+		type = ssctSYSTEM;
+		color = -1;
 	}
 	else if(val >= -NUM_SYS_COLORS)
 	{
