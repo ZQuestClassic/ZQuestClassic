@@ -5151,6 +5151,9 @@ bool Flags[WFLAG_MAX];
 int Sprites[WPN_SPRITE_MAX];
  * A set of sprites related to the weapon. See 'WPN_SPRITE_' constants in 'std_constants.zh'
 
+int BurnLightRadius[WPN_SPRITE_MAX];
+ * The burning light radii associated with sprites of the weapon. See 'WPN_SPRITE_' constants in 'std_constants.zh'
+
 int DeathItem;
  * If > -1, this item ID will be spawned when the weapon dies.
 
@@ -6276,6 +6279,9 @@ int Sprites[10]
 
 int BurnSprites[ITM_BURNSPR_MAX];
  * The burning sprites from 'Graphics->Sprites->Burning'. Use the 'ITM_BURNSPR_' constants.
+
+int BurnLightRadius[ITM_BURNSPR_MAX];
+ * The burning light radii from 'Graphics->Sprites->Burning'. Use the 'ITM_BURNSPR_' constants.
 
 bool Flags[16]
  * An array of 16 boolean flags that correspond to the 16 flag tickboxes on the item editor Flags tab.

@@ -1017,7 +1017,15 @@ ItemEditorDialog::ItemEditorDialog(int32_t index):
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 20_em
 
-#define NUM_FIELD(member,_min,_max,wid) \
+#define NUM_FIELD(member,_min,_max) \
+TextField( \
+	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
+	low = _min, high = _max, val = local_itemref.member, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_itemref.member = val; \
+	})
+#define NUM_FIELD_W(member,_min,_max,wid) \
 TextField( \
 	type = GUI::TextField::type::INT_DECIMAL, width = wid, \
 	low = _min, high = _max, val = local_itemref.member, \
@@ -1268,7 +1276,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									InfoDialog("Level Info","Most passive items only take effect if they are the highest level you own.\n"
 										"By default, subscreens use the highest level item of an itemclass for displaying.").show();
 								}),
-							NUM_FIELD(fam_type, 1, 255, ATTR_WID),
+							NUM_FIELD_W(fam_type, 1, 255, ATTR_WID),
 							l_power = Label(width=ATTR_LAB_WID,textAlign=2),
 							ib_power = Button(forceFitH = true, text = "?",
 								disabled = true,
@@ -1276,7 +1284,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								{
 									InfoDialog("Power Info",h_power).show();
 								}),
-							NUM_FIELD(power, 0, 255, ATTR_WID)
+							NUM_FIELD_W(power, 0, 255, ATTR_WID)
 						),
 						Rows<6>(framed = true,
 							ATTRIB_FIELD(misc1,0),
@@ -2090,7 +2098,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						TabRef(name = "Burning", Column(
 							Row(
 								INFOBTN("With this checked, the created weapon will use the appropriate"
-									" burning sprite INSTEAD of its' normal sprite."),
+									" burning sprite INSTEAD of its' normal sprite."
+									"\nAdditionally, the weapon will use the specified light radius."),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_BURNING_SPRITES),
@@ -2101,7 +2110,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							),
-							Rows<3>(
+							Rows<4>(
+								_d, Label(text = "Sprite"), Label(text = "Light Radius"), _d,
+								//
 								Label(text = "No Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
@@ -2110,7 +2121,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.burnsprs[BURNSPR_NONE] = val;
 									}),
-								INFOBTN("Sprite used for the weapon when not on fire"),
+								NUM_FIELD(light_rads[BURNSPR_NONE], 0, 255),
+								INFOBTN("Settings used for the weapon when not on fire"),
+								//
 								Label(text = "Any Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
@@ -2119,7 +2132,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.burnsprs[BURNSPR_ANY] = val;
 									}),
-								INFOBTN("Sprite used for the weapon when on 'Any' fire"),
+								NUM_FIELD(light_rads[BURNSPR_ANY], 0, 255),
+								INFOBTN("Settings used for the weapon when on 'Any' fire"),
+								//
 								Label(text = "Strong Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
@@ -2128,7 +2143,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.burnsprs[BURNSPR_STRONG] = val;
 									}),
-								INFOBTN("Sprite used for the weapon when on 'Strong' fire"),
+								NUM_FIELD(light_rads[BURNSPR_STRONG], 0, 255),
+								INFOBTN("Settings used for the weapon when on 'Strong' fire"),
+								//
 								Label(text = "Magic Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
@@ -2137,7 +2154,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.burnsprs[BURNSPR_MAGIC] = val;
 									}),
-								INFOBTN("Sprite used for the weapon when on 'Magic' fire"),
+								NUM_FIELD(light_rads[BURNSPR_MAGIC], 0, 255),
+								INFOBTN("Settings used for the weapon when on 'Magic' fire"),
+								//
 								Label(text = "Divine Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
@@ -2146,7 +2165,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.burnsprs[BURNSPR_DIVINE] = val;
 									}),
-								INFOBTN("Sprite used for the weapon when on 'Divine' fire")
+								NUM_FIELD(light_rads[BURNSPR_DIVINE], 0, 255),
+								INFOBTN("Settings used for the weapon when on 'Divine' fire")
 							)
 						))
 					)),

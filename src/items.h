@@ -177,6 +177,7 @@ struct itemdata
 	int16_t cost_amount[2]; // Magic usage!
     byte usesound, usesound2;
 	byte burnsprs[BURNSPR_MAX];
+	byte light_rads[BURNSPR_MAX];
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z

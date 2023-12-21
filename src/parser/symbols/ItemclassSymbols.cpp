@@ -192,6 +192,8 @@ static AccessorTable itemclassTable[] =
 	{ "setUseBurnSprites",          0,          ZTID_VOID,   IDATAUSEBURNSPR,           0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getBurnSprites[]",           0,         ZTID_FLOAT,   IDATABURNINGSPR,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "setBurnSprites[]",           0,          ZTID_VOID,   IDATABURNINGSPR,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getBurnLightRadius[]",       0,         ZTID_FLOAT,   IDATABURNINGLIGHTRAD,      0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "setBurnLightRadius[]",       0,          ZTID_VOID,   IDATABURNINGLIGHTRAD,      0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	//Intentionally undocumented
 	{ "getKeep",                    0,          ZTID_BOOL,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS },{} },

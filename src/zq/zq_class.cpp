@@ -8816,8 +8816,12 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			if(!p_putcstr(dispname,f))
 				new_return(92);
 			for(int q = 0; q < BURNSPR_MAX; ++q)
+			{
 				if(!p_putc(itemsbuf[i].burnsprs[q], f))
 					new_return(93);
+				if(!p_putc(itemsbuf[i].light_rads[q], f))
+					new_return(94);
+			}
         }
         
         if(writecycle==0)
