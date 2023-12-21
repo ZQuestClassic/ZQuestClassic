@@ -1698,6 +1698,7 @@ void HeroClass::init()
 	extra_jump_count = 0;
 	hoverflags = 0;
     lbunnyclock = 0;
+	lamp_paid = false;
     
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -28282,7 +28283,6 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 	if(!get_qr(qr_NEW_DARKROOM)) return;
 	int32_t lampid = current_item_id(itype_lantern);
 	if(lampid < 0) return;
-	static bool lamp_paid = false;
 	if(!(checkbunny(lampid) && checkmagiccost(lampid,lamp_paid)))
 	{
 		lamp_paid = false;
