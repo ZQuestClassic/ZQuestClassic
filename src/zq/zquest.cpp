@@ -10769,13 +10769,13 @@ void domouse()
 					};
 					if(show_warps)
 					{
-						draw_rc_menu.add({});
+						draw_rc_menu.add_sep();
 						draw_rc_menu.add({ txt_twarp_follow, [&](){follow_twarp(warpindex);} });
 						draw_rc_menu.add({ txt_twarp_edit, [&](){edit_twarp(warpindex);} });
 					}
 					if(show_ffcs)
 					{
-						draw_rc_menu.add({});
+						draw_rc_menu.add_sep();
 						draw_rc_menu.add({ txt_ffc_edit, [&]()
 							{
 								ffdata tempdat;
@@ -10793,7 +10793,7 @@ void domouse()
 								Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), earliestfreeffc, set_ffc_data);
 							}, nullopt, dis_paste_ffc });
 					}
-					draw_rc_menu.add({});
+					draw_rc_menu.add_sep();
 					draw_rc_menu.add({ "Screen", &rc_menu_screen });
 					draw_rc_menu.pop(x,y);
 				}
