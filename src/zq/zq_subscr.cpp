@@ -737,7 +737,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			object_message(d,MSG_DRAW,0);
 			
 			update_subscr_dlg(false);
-			subscreen_rc_menu.pop(gui_mouse_x(),gui_mouse_y());
+			subscreen_rc_menu.pop(window_mouse_x(),window_mouse_y());
 			
 			clicked_obj = -1;
 			ssmouse_flags = 0;
@@ -748,7 +748,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			object_message(d,MSG_DRAW,0);
 			
 			update_subscr_dlg(false);
-			subscreen_rc_menu_nowidg.pop(gui_mouse_x(),gui_mouse_y());
+			subscreen_rc_menu_nowidg.pop(window_mouse_x(),window_mouse_y());
 			
 			clicked_obj = -1;
 			ssmouse_flags = 0;

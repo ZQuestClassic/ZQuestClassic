@@ -868,7 +868,7 @@ bool ComboPoolPageObj::do_rclick(int indx)
 		{ "&Edit", [&](){try_edit(); ret = true;} },
 		{ "&Delete", [&](){ret = try_delete();} },
 	};
-	rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+	rcmenu.pop(window_mouse_x(),window_mouse_y());
 	return ret;
 }
 bool ComboPoolPageObj::do_tick()
@@ -1014,7 +1014,7 @@ bool AutoComboPageObj::do_rclick(int indx)
 		{ "&Edit", [&](){try_edit(); ret = true;} },
 		{ "&Delete", [&](){ret = try_delete();} },
 	};
-	rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+	rcmenu.pop(window_mouse_x(),window_mouse_y());
 	return ret;
 }
 bool AutoComboPageObj::do_tick()
@@ -1101,7 +1101,7 @@ bool AliasPageObj::do_rclick(int indx)
 		{ "&Edit", [&](){try_edit(); ret = true;} },
 		{ "&Delete", [&](){ret = try_delete();} },
 	};
-	rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+	rcmenu.pop(window_mouse_x(),window_mouse_y());
 	return ret;
 }
 bool AliasPageObj::do_tick()

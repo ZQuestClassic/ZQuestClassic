@@ -280,4 +280,7 @@ void clear_tooltip();
 
 std::pair<int, int> zc_get_mouse();
 
+int window_mouse_x();
+int window_mouse_y();
+
 #endif
