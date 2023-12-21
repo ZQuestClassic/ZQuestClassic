@@ -174,6 +174,7 @@ class zmap
     mapscr *screens;
     int32_t currmap,copymap;
     int32_t currscr,copyscr;
+	optional<int32_t> warpbackmap, warpbackscreen;
     int32_t copyffc;
     int32_t scrpos[MAXMAPS+1];
 	
@@ -306,9 +307,18 @@ public:
     void TemplateAll();
     void Template(int32_t floorcombo, int32_t floorcset, int32_t scr);
     void putdoor(int32_t scr,int32_t side,int32_t door);
-    void dowarp(int32_t type, int32_t index);
+    
+	void goto_dmapscr(int dmap, int scr);
+	void goto_mapscr(int map, int scr);
+	
+	void dowarp(int32_t type, int32_t index);
     void prv_dowarp(int32_t type, int32_t index);
     void dowarp2(int32_t ring,int32_t index);
+	
+	void set_warpback();
+	bool has_warpback();
+	void warpback();
+	
     void set_prvscr(int32_t map, int32_t scr);
     mapscr* get_prvscr();
     void prv_secrets(bool);

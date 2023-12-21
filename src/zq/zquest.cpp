@@ -10716,6 +10716,7 @@ void domouse()
 					bool show_ffcs = earliestfreeffc < MAXFFCS;
 					bool dis_paste_ffc = Map.getCopyFFC() < 0;
 					bool show_warps = warpindex > -1;
+					bool show_warpback = Map.has_warpback();
 					// FFC-specific options
 					if(earliestfreeffc < MAXFFCS)
 					{
@@ -10767,11 +10768,16 @@ void domouse()
 						{ "Brush Settings ", &brush_menu },
 						{ "Set Fill Type ", &fill_menu },
 					};
-					if(show_warps)
+					if(show_warps || show_warpback)
 					{
 						draw_rc_menu.add_sep();
-						draw_rc_menu.add({ txt_twarp_follow, [&](){follow_twarp(warpindex);} });
-						draw_rc_menu.add({ txt_twarp_edit, [&](){edit_twarp(warpindex);} });
+						if(show_warpback)
+							draw_rc_menu.add({ "Warp Back", [&](){Map.warpback();} });
+						if(show_warps)
+						{
+							draw_rc_menu.add({ txt_twarp_follow, [&](){follow_twarp(warpindex);} });
+							draw_rc_menu.add({ txt_twarp_edit, [&](){edit_twarp(warpindex);} });
+						}
 					}
 					if(show_ffcs)
 					{
