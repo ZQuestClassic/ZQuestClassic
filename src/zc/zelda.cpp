@@ -1753,7 +1753,6 @@ int32_t init_game()
 
 	if (testingqst_init_data.size())
 	{
-		zinit.clear();
 		std::string error;
 		zinitdata* new_init = apply_init_data_delta(&zinit, testingqst_init_data, error);
 		if (new_init)
