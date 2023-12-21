@@ -29247,9 +29247,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// FFCs coordinates are world positions, and so don't need an offset like when drawing a specific screen's combos in do_scrolling_layer.
 	// But since their coordinates are in the new coordinate system, we must apply an offset based on the difference between the two coordinate systems.
 	// Only used when drawing the new screens.
-	// TODO z3 !!! this is really complex ...
-	int ffc_offset_x = (-z3_get_region_relative_dx(0) + z3_get_region_relative_dx(0, scrolling_origin_scr)) * 256;
-	int ffc_offset_y = (-z3_get_region_relative_dy(0) + z3_get_region_relative_dy(0, scrolling_origin_scr)) * 176;
+	int ffc_offset_x = (dx - z3_get_region_relative_dx(destscr)) * 256;
+	int ffc_offset_y = (dy - z3_get_region_relative_dy(destscr)) * 176;
 
 	// These mark the top-left coordinate of the new screen and the old screen, relative to the old region world coordinates.
 	int nx = 0;
