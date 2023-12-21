@@ -2411,6 +2411,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
 				glowRad = light_rads[last_burnstate];
 			}
+			else light_rads[BURNSPR_NONE] = glowRad;
 			break;
 	}
 	if(!wpnspr)
