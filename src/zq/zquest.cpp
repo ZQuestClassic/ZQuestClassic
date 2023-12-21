@@ -9692,7 +9692,7 @@ void on_cpane_page()
 }
 void open_cpane_tilepage()
 {
-	onGotoTiles(combobuf[Combo].tile);
+	onGotoTiles(combobuf[Combo].o_tile);
 }
 static int _clicked_fav = 0;
 void fav_rc_remove()
