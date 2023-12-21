@@ -132,20 +132,19 @@ int newcombo::each_tile(std::function<bool(int32_t)> proc) const
 	return -1;
 }
 
-void newcombo::advpaste(newcombo const& other, byte* pasteflags)
+void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 {
-	if(!pasteflags) return;
-	if(get_bit(pasteflags,ADVP_TILE))
+	if(flags.get(CMB_ADVP_TILE))
 	{
 		tile = other.tile;
 		o_tile = other.o_tile;
 		flip = other.flip;
 	}
-	if(get_bit(pasteflags,ADVP_CSET2))
+	if(flags.get(CMB_ADVP_CSET2))
 		csets = other.csets;
-	if(get_bit(pasteflags,ADVP_SOLIDITY))
+	if(flags.get(CMB_ADVP_SOLIDITY))
 		walk = (walk&0xF0) | (other.walk&0x0F);
-	if(get_bit(pasteflags,ADVP_ANIM))
+	if(flags.get(CMB_ADVP_ANIM))
 	{
 		frames = other.frames;
 		speed = other.speed;
@@ -156,32 +155,32 @@ void newcombo::advpaste(newcombo const& other, byte* pasteflags)
 		skipanimy = other.skipanimy;
 		animflags = other.animflags;
 	}
-	if(get_bit(pasteflags,ADVP_TYPE))
+	if(flags.get(CMB_ADVP_TYPE))
 		type = other.type;
-	if(get_bit(pasteflags,ADVP_INHFLAG))
+	if(flags.get(CMB_ADVP_INHFLAG))
 		flag = other.flag;
-	if(get_bit(pasteflags,ADVP_ATTRIBYTE))
+	if(flags.get(CMB_ADVP_ATTRIBYTE))
 		for(int32_t q = 0; q < NUM_COMBO_ATTRIBYTES; ++q)
 			attribytes[q] = other.attribytes[q];
-	if(get_bit(pasteflags,ADVP_ATTRISHORT))
+	if(flags.get(CMB_ADVP_ATTRISHORT))
 		for(int32_t q = 0; q < NUM_COMBO_ATTRISHORTS; ++q)
 			attrishorts[q] = other.attrishorts[q];
-	if(get_bit(pasteflags,ADVP_ATTRIBUTE))
+	if(flags.get(CMB_ADVP_ATTRIBUTE))
 		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 			attributes[q] = other.attributes[q];
-	if(get_bit(pasteflags,ADVP_FLAGS))
+	if(flags.get(CMB_ADVP_FLAGS))
 		usrflags = other.usrflags;
-	if(get_bit(pasteflags,ADVP_LABEL))
+	if(flags.get(CMB_ADVP_LABEL))
 		label = other.label;
-	if(get_bit(pasteflags,ADVP_SCRIPT))
+	if(flags.get(CMB_ADVP_SCRIPT))
 	{
 		script = other.script;
 		for(int32_t q = 0; q < 8; ++q)
 			initd[q] = other.initd[q];
 	}
-	if(get_bit(pasteflags,ADVP_EFFECT))
+	if(flags.get(CMB_ADVP_EFFECT))
 		walk = (walk&0x0F) | (other.walk&0xF0);
-	if(get_bit(pasteflags,ADVP_TRIGGERS))
+	if(flags.get(CMB_ADVP_TRIGGERS))
 	{
 		for(int32_t q = 0; q < 6; ++q)
 			triggerflags[q] = other.triggerflags[q];
@@ -211,7 +210,7 @@ void newcombo::advpaste(newcombo const& other, byte* pasteflags)
 		trig_group = other.trig_group;
 		trig_group_val = other.trig_group_val;
 	}
-	if(get_bit(pasteflags,ADVP_LIFTING))
+	if(flags.get(CMB_ADVP_LIFTING))
 	{
 		liftcmb = other.liftcmb;
 		liftundercmb = other.liftundercmb;
@@ -230,13 +229,13 @@ void newcombo::advpaste(newcombo const& other, byte* pasteflags)
 		lifttime = other.lifttime;
 		lift_parent_item = other.lift_parent_item;
 	}
-	if(get_bit(pasteflags,ADVP_GEN_MOVESPEED))
+	if(flags.get(CMB_ADVP_GEN_MOVESPEED))
 	{
 		speed_mult = other.speed_mult;
 		speed_div = other.speed_div;
 		speed_add = other.speed_add;
 	}
-	if(get_bit(pasteflags,ADVP_GEN_SFX))
+	if(flags.get(CMB_ADVP_GEN_SFX))
 	{
 		sfx_appear = other.sfx_appear;
 		sfx_disappear = other.sfx_disappear;
@@ -245,7 +244,7 @@ void newcombo::advpaste(newcombo const& other, byte* pasteflags)
 		sfx_standing = other.sfx_standing;
 		sfx_tap = other.sfx_tap;
 	}
-	if(get_bit(pasteflags,ADVP_GEN_SPRITES))
+	if(flags.get(CMB_ADVP_GEN_SPRITES))
 	{
 		spr_appear = other.spr_appear;
 		spr_disappear = other.spr_disappear;

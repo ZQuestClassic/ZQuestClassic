@@ -142,5 +142,4 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onIcons();
 void center_zq_tiles_dialogs();
 int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
-void center_zq_tiles_dialog();
 #endif

@@ -36,6 +36,7 @@ src/zc_list_data.cpp
 src/dialog/paledit.cpp
 src/dialog/set_password.cpp
 src/dialog/cheat_codes.cpp
+src/dialog/checklist.cpp
 src/dialog/common.cpp
 src/dialog/info.cpp
 src/dialog/info_lister.cpp

@@ -17156,68 +17156,45 @@ bool select_combo_3(int32_t &cmb,int32_t &cs)
 	return select_combo_2(cmb,cs);
 }
 
-static DIALOG advpaste_dlg[] =
+bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 {
-	/* (dialog proc)     (x)   (y)  (w)    (h)  (fg)(bg)(key)  (flags)   (d1)  (d2)                     (dp) */
-	{ jwin_win_proc,       0,    0, 200,   150,   0,  0,   0,   D_EXIT,    0,    0,                     (void*)"Advanced Paste", NULL, NULL },
-	{ jwin_button_proc,   27,  125,  61,    21,   0,  0, 'k',   D_EXIT,    0,    0,                     (void*)"O&K", NULL, NULL },
-	{ jwin_button_proc,  112,  125,  61,    21,   0,  0,  27,   D_EXIT,    0,    0,                     (void*)"Cancel", NULL, NULL },
+	static bitstring pasteflags;
+	static const vector<string> advp_names = {
+		"Tile",
+		"CSet2",
+		"Solidity",
+		"Animation",
+		"Type",
+		"Inherent Flag",
+		"Attribytes",
+		"Attrishorts",
+		"Attributes",
+		"Flags",
+		"Label",
+		"Script",
+		"Effect",
+		"Triggers Tab",
+		"Lifting Tab",
+		"Gen: Movespeed",
+		"Gen: SFX",
+		"Gen: Sprites",
+	};
+	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
+		return false;
 	
-	{ jwin_check_proc,    10,   20,    33,   9,   0,  0,   0,        0,    1,    ADVP_TILE,             (void*)"Tile", NULL, NULL },
-	{ jwin_check_proc,    10,   30,    33,   9,   0,  0,   0,        0,    1,    ADVP_CSET2,            (void*)"CSet2", NULL, NULL },
-	{ jwin_check_proc,    10,   40,    33,   9,   0,  0,   0,        0,    1,    ADVP_SOLIDITY,         (void*)"Solidity", NULL, NULL },
-	{ jwin_check_proc,    10,   50,    33,   9,   0,  0,   0,        0,    1,    ADVP_ANIM,             (void*)"Animation", NULL, NULL },
-	{ jwin_check_proc,    10,   60,    33,   9,   0,  0,   0,        0,    1,    ADVP_TYPE,             (void*)"Type", NULL, NULL },
-	{ jwin_check_proc,    10,   70,    33,   9,   0,  0,   0,        0,    1,    ADVP_INHFLAG,          (void*)"Inherent Flag", NULL, NULL },
-	{ jwin_check_proc,    10,   80,    33,   9,   0,  0,   0,        0,    1,    ADVP_ATTRIBYTE,        (void*)"Attribytes", NULL, NULL },
-	{ jwin_check_proc,    10,   90,    33,   9,   0,  0,   0,        0,    1,    ADVP_ATTRISHORT,       (void*)"Attrishorts", NULL, NULL },
-	{ jwin_check_proc,    10,  100,    33,   9,   0,  0,   0,        0,    1,    ADVP_ATTRIBUTE,        (void*)"Attributes", NULL, NULL },
-	{ jwin_check_proc,    10,  110,    33,   9,   0,  0,   0,        0,    1,    ADVP_FLAGS,            (void*)"Flags", NULL, NULL },
-	{ jwin_check_proc,   110,   20,    33,   9,   0,  0,   0,        0,    1,    ADVP_LABEL,            (void*)"Label", NULL, NULL },
-	{ jwin_check_proc,   110,   30,    33,   9,   0,  0,   0,        0,    1,    ADVP_SCRIPT,           (void*)"Script", NULL, NULL },
-	{ jwin_check_proc,   110,   40,    33,   9,   0,  0,   0,        0,    1,    ADVP_EFFECT,           (void*)"Effect", NULL, NULL },
-	{ jwin_check_proc,   110,   50,    33,   9,   0,  0,   0,        0,    1,    ADVP_TRIGGERS,         (void*)"Triggers Tab", NULL, NULL },
-	{ jwin_check_proc,   110,   60,    33,   9,   0,  0,   0,        0,    1,    ADVP_LIFTING,          (void*)"Lifting Tab", NULL, NULL },
-	{ jwin_check_proc,   110,   70,    33,   9,   0,  0,   0,        0,    1,    ADVP_GEN_MOVESPEED,    (void*)"Gen: Movespeed", NULL, NULL },
-	{ jwin_check_proc,   110,   80,    33,   9,   0,  0,   0,        0,    1,    ADVP_GEN_SFX,          (void*)"Gen: SFX", NULL, NULL },
-	{ jwin_check_proc,   110,   90,    33,   9,   0,  0,   0,        0,    1,    ADVP_GEN_SPRITES,      (void*)"Gen: Sprites", NULL, NULL },
-	
-	{ NULL,                0,    0,     0,   0,   0,  0,   0,        0,    0,    0,                     NULL, NULL, NULL }
-};
-
-int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
-{
-	advpaste_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	large_dialog(advpaste_dlg);
-	
-	int32_t ret = do_zqdialog(advpaste_dlg,-1);
-	
-	if(ret!=1) return ret;
-	
-	// save original in case it's in paste range
-	newcombo combo=combobuf[copy];
-	
-	//Generate the 'pasteflags'
-	byte pasteflags[ADVP_BYTESZ];
-	for(int q = 3; advpaste_dlg[q].proc; ++q)
-	{
-		set_bit(pasteflags,advpaste_dlg[q].d2,advpaste_dlg[q].flags&D_SELECTED);
-	}
-	
-	//Paste to each combo
+	//Paste to each combo in the range
 	for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
 	{
-		combobuf[i].advpaste(combo,pasteflags);
+		combobuf[i].advpaste(combobuf[copy], pasteflags);
 	}
 	
-	if(get_bit(pasteflags,ADVP_TILE)) //reset animations if needed
+	if(pasteflags.get(CMB_ADVP_TILE)) //reset animations if needed
 	{
 		setup_combo_animations();
 		setup_combo_animations2();
 	}
 	
-	return ret;
+	return true;
 }
 
 int32_t combo_screen(int32_t pg, int32_t tl)
@@ -17503,7 +17480,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			case KEY_V:
 				if((CHECK_CTRL_CMD) && copy != -1)
 				{
-					if(advpaste(tile, tile2, copy)==1)
+					if(advpaste(tile, tile2, copy))
 					{
 						saved=false;
 						redraw=true;
@@ -17875,7 +17852,7 @@ REDRAW:
 					{
 						if((CHECK_CTRL_CMD) && copy != -1)
 						{
-							if(advpaste(tile, tile2, copy)==1)
+							if(advpaste(tile, tile2, copy))
 							{
 								saved=false;
 								redraw=true;
@@ -17886,28 +17863,25 @@ REDRAW:
 						
 						masscopy=(key[KEY_LSHIFT] || key[KEY_RSHIFT])?1:0;
 						
-						if(copy==-1)
-						{
-							go_combos();
-							
-							for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
-							{
-								combobuf[i].flip^=2;
-								byte w2=combobuf[i].walk;
-								combobuf[i].walk=(w2&5)<<1 | (w2& ~5)>>1;
-								w2=combobuf[i].csets;
-								combobuf[i].csets=(w2&0x30)<<2 | (w2& ~0x30)>>2;
-							}
-							
-							saved=false;
-						}
-						else
+						if(copy>-1)
 						{
 							go_combos();
 							copy_combos(tile,tile2,copy,copycnt,masscopy);
 							setup_combo_animations();
 							setup_combo_animations2();
 							saved=false;
+						}
+					} },
+				{ "Adv. Paste", [&]()
+					{
+						if(copy > -1)
+						{
+							if(advpaste(tile, tile2, copy))
+							{
+								saved=false;
+								redraw=true;
+								copy=-1;
+							}
 						}
 					} },
 				{ "Swap", [&]()
@@ -18397,12 +18371,6 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 	
 	return D_O_K;
 }
-
-void center_zq_tiles_dialog()
-{
-	jwin_center_dialog(advpaste_dlg);
-}
-
 
 // Hey, let's have a few hundred more lines of code, why not.
 
