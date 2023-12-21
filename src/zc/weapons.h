@@ -83,6 +83,7 @@ public:
 	
 	word misc_wflags;
 	byte misc_wsprites[WPNSPR_MAX];
+	byte light_rads[WPNSPR_MAX];
 	byte last_burnstate;
 	byte get_burnstate() const;
 	

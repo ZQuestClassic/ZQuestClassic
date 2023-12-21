@@ -1081,7 +1081,10 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		wpn10 = other.wpn10;
 		CPYFLAG(flags, ITEM_BURNING_SPRITES, other.flags);
 		for(int q = 0; q < BURNSPR_MAX; ++q)
+		{
 			burnsprs[q] = other.burnsprs[q];
+			light_rads[q] = other.light_rads[q];
+		}
 	}
 	if(pasteflags.get(ITM_ADVP_ITEMSIZE))
 	{

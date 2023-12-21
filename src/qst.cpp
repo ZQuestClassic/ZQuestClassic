@@ -7242,8 +7242,13 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		if(s_version >= 58)
 		{
 			for(int q = 0; q < BURNSPR_MAX; ++q)
+			{
 				if(!p_getc(&tempitem.burnsprs[q],f))
 					return qe_invalid;
+				if(s_version >= 59)
+					if(!p_getc(&tempitem.light_rads[q],f))
+						return qe_invalid;
+			}
 		}
         
 		if (!should_skip)

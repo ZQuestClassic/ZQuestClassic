@@ -5332,6 +5332,24 @@ int32_t get_register(int32_t arg)
 			ret = itemsbuf[ri->idata].burnsprs[index]*10000;
 			break;
 		}
+		case IDATABURNINGLIGHTRAD:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(index < 0 || index >= BURNSPR_MAX)
+			{
+				Z_scripterrlog("Invalid index to itemdata->BurnLightRadius[]: %d\n", index);
+				ret = -10000;
+				break;
+			}
+			ret = itemsbuf[ri->idata].light_rads[index]*10000;
+			break;
+		}
 		//Hero TIle modifier
 		case IDATALTM:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -6990,6 +7008,18 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
+		case LWPNBURNLIGHTRADIUS:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"BurnLightRadius[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->BurnLightRadius[]") != SH::_NoError)
+					ret = -10000;
+				else
+					ret = ((weapon*)(s))->light_rads[indx]*10000;
+			}
+			break;
+		}
 		
 		case LWPNGLOWRAD:
 			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
@@ -7605,13 +7635,25 @@ int32_t get_register(int32_t arg)
 		}
 		case EWPNSPRITES:
 		{
-			if(0!=(s=checkLWpn(ri->ewpn,"Sprites[]")))
+			if(0!=(s=checkEWpn(ri->ewpn,"Sprites[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
+			}
+			break;
+		}
+		case EWPNBURNLIGHTRADIUS:
+		{
+			if(0!=(s=checkEWpn(ri->ewpn,"BurnLightRadius[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->BurnLightRadius[]") != SH::_NoError)
+					ret = -10000;
+				else
+					ret = ((weapon*)(s))->light_rads[indx]*10000;
 			}
 			break;
 		}
@@ -18271,6 +18313,22 @@ void set_register(int32_t arg, int32_t value)
 			itemsbuf[ri->idata].burnsprs[index] = vbound(value/10000, 0, 255);
 			break;
 		}
+		case IDATABURNINGLIGHTRAD:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(index < 0 || index >= BURNSPR_MAX)
+			{
+				Z_scripterrlog("Invalid index to itemdata->BurnLightRadius[]: %d\n", index);
+				break;
+			}
+			itemsbuf[ri->idata].light_rads[index] = vbound(value/10000, 0, 255);
+			break;
+		}
 		//Hero tile modifier. 
 		case IDATALTM:
 		{
@@ -19017,6 +19075,16 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case LWPNBURNLIGHTRADIUS:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"BurnLightRadius[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->BurnLightRadius[]") == SH::_NoError)
+					((weapon*)(s))->light_rads[indx] = vbound(value/10000,0,255);
+			}
+			break;
+		}
 		
 		case LWPNGLOWRAD:
 			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
@@ -19647,11 +19715,21 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case EWPNSPRITES:
 		{
-			if(0!=(s=checkLWpn(ri->ewpn,"Sprites[]")))
+			if(0!=(s=checkEWpn(ri->ewpn,"Sprites[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") == SH::_NoError)
 					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case EWPNBURNLIGHTRADIUS:
+		{
+			if(0!=(s=checkEWpn(ri->ewpn,"BurnLightRadius[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->BurnLightRadius[]") == SH::_NoError)
+					((weapon*)(s))->light_rads[indx] = vbound(value/10000,0,255);
 			}
 			break;
 		}
@@ -47609,6 +47687,11 @@ script_variable ZASMVars[]=
 	{ "MAPDATAEXDOOR", MAPDATAEXDOOR, 0, 0 },
 	{ "COMBODTRIGEXDOORDIR", COMBODTRIGEXDOORDIR, 0, 0 },
 	{ "COMBODTRIGEXDOORIND", COMBODTRIGEXDOORIND, 0, 0 },
+
+	{ "IDATABURNINGLIGHTRAD", IDATABURNINGLIGHTRAD, 0, 0 },
+
+	{ "LWPNBURNLIGHTRADIUS", LWPNBURNLIGHTRADIUS, 0, 0 },
+	{ "EWPNBURNLIGHTRADIUS", EWPNBURNLIGHTRADIUS, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

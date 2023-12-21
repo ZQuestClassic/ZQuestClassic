@@ -953,6 +953,7 @@ weapon::weapon(weapon const & other):
 	for( int32_t q = 0; q < WPNSPR_MAX; q++ )
 	{
 		misc_wsprites[q] = other.misc_wsprites[q];
+		light_rads[q] = other.light_rads[q];
 	}
 	for( int32_t q = 0; q < 8; q++ ) 
 	{
@@ -2381,7 +2382,10 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	}
 
 	for(int q = 0; q < WPNSPR_MAX; ++q)
+	{
 		misc_wsprites[q] = 0;
+		light_rads[q] = 0;
+	}
 	
 	optional<byte> wpnspr;
 	
@@ -2399,9 +2403,13 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				misc_wflags |= WFLAG_UPDATE_IGNITE_SPRITE;
 				for(int q = 0; q < BURNSPR_MAX; ++q)
+				{
 					misc_wsprites[q] = parent.burnsprs[q];
+					light_rads[q] = parent.light_rads[q];
+				}
 				last_burnstate = get_burnstate();
 				wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
+				glowRad = light_rads[last_burnstate];
 			}
 			break;
 	}
@@ -3835,6 +3843,7 @@ bool weapon::animate(int32_t index)
 		{
 			last_burnstate = burnstate;
 			_handle_loadsprite(misc_wsprites[burnstate]);
+			glowRad = light_rads[burnstate];
 		}
 	}
 	if(misc_wflags & WFLAG_PICKUP_ITEMS) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.
