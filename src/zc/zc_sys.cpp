@@ -459,6 +459,7 @@ void load_game_configs()
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);
 	zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
+	PlayTitleMusic = zc_get_config(cfg_sect,"title_music",1);
 }
 
 void save_control_configs(bool kb)
