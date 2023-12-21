@@ -559,6 +559,14 @@ template<typename T, size_t Sz>
 inline bool p_getarr(std::array<T,Sz>* cont, PACKFILE *f);
 template<typename T, size_t Sz>
 inline bool p_putarr(std::array<T,Sz> const& cont, PACKFILE *f);
+template<typename A, typename B>
+inline bool p_getpair(std::pair<A,B>* cont, PACKFILE *f);
+template<typename A, typename B>
+inline bool p_putpair(std::pair<A,B> const& cont, PACKFILE *f);
+template<typename A, typename B>
+inline bool p_getpair(def_pair<A,B>* cont, PACKFILE *f);
+template<typename A, typename B>
+inline bool p_putpair(def_pair<A,B> const& cont, PACKFILE *f);
 
 bool p_getbitstr(bitstring* ptr, PACKFILE *f);
 bool p_putbitstr(bitstring const& ptr, PACKFILE *f);
@@ -649,6 +657,27 @@ template<typename T, size_t Sz>
 inline bool p_putvar(std::array<T,Sz> const& ptr, PACKFILE *f)
 {
 	return p_putarr(ptr,f);
+}
+
+template<typename A, typename B>
+inline bool p_getvar(std::pair<A,B>* ptr, PACKFILE *f)
+{
+	return p_getpair(ptr,f);
+}
+template<typename A, typename B>
+inline bool p_putvar(std::pair<A,B> const& ptr, PACKFILE *f)
+{
+	return p_putpair(ptr,f);
+}
+template<typename A, typename B>
+inline bool p_getvar(def_pair<A,B>* ptr, PACKFILE *f)
+{
+	return p_getpair(ptr,f);
+}
+template<typename A, typename B>
+inline bool p_putvar(def_pair<A,B> const& ptr, PACKFILE *f)
+{
+	return p_putpair(ptr,f);
 }
 
 //
@@ -846,6 +875,44 @@ inline bool p_putarr(std::array<T,Sz> const& cont, PACKFILE *f)
 	for(size_t q = 0; q < Sz; ++q)
 		if(!p_putvar(cont[q], f))
 			return false;
+	return true;
+}
+
+template<typename A, typename B>
+inline bool p_getpair(std::pair<A,B>* cont, PACKFILE *f)
+{
+	if(!p_getvar(&(cont->first), f))
+		return false;
+	if(!p_getvar(&(cont->second), f))
+		return false;
+	return true;
+}
+template<typename A, typename B>
+inline bool p_putpair(std::pair<A,B> const& cont, PACKFILE *f)
+{
+	if(!p_putvar(cont.first, f))
+		return false;
+	if(!p_putvar(cont.second, f))
+		return false;
+	return true;
+}
+
+template<typename A, typename B>
+inline bool p_getpair(def_pair<A,B>* cont, PACKFILE *f)
+{
+	if(!p_getvar(&(cont->first), f))
+		return false;
+	if(!p_getvar(&(cont->second), f))
+		return false;
+	return true;
+}
+template<typename A, typename B>
+inline bool p_putpair(def_pair<A,B> const& cont, PACKFILE *f)
+{
+	if(!p_putvar(cont.first, f))
+		return false;
+	if(!p_putvar(cont.second, f))
+		return false;
 	return true;
 }
 //

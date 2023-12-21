@@ -310,6 +310,24 @@ private:
 	bounded_vec<word,byte> cont {65535};
 };
 
+template<typename A,typename B>
+class def_pair
+{
+	typedef def_pair<A,B> pair_t;
+public:
+	def_pair() : first(), second(){}
+	def_pair(A const& first) : first(first), second(){}
+	def_pair(A const& first, B const& second) : first(first), second(second){}
+	def_pair(A&& first) : first(std::move(first)), second(){}
+	def_pair(A&& first, B&& second) : first(std::move(first)), second(std::move(second)){}
+	def_pair(A const& first, B&& second) : first(first), second(std::move(second)){}
+	def_pair(A&& first, B const& second) : first(std::move(first)), second(second){}
+	bool operator==(pair_t const& other) const = default;
+	
+	A first;
+	B second;
+};
+
 template<typename T>
 void _do_normalize(T& v){}
 template<>
