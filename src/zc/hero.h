@@ -327,6 +327,7 @@ public:
 
 private:
 	ffcdata const* platform_ffc;
+	bool lamp_paid;
 public:
 	
 	// Methods below here.
