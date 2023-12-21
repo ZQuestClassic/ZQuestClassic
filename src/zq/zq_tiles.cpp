@@ -17159,25 +17159,26 @@ bool select_combo_3(int32_t &cmb,int32_t &cs)
 bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 {
 	static bitstring pasteflags;
-	static const vector<string> advp_names = {
-		"Tile",
-		"CSet2",
-		"Solidity",
-		"Animation",
-		"Type",
-		"Inherent Flag",
-		"Attribytes",
-		"Attrishorts",
-		"Attributes",
-		"Flags",
-		"Label",
-		"Script",
-		"Effect",
-		"Triggers Tab",
-		"Lifting Tab",
-		"Gen: Movespeed",
-		"Gen: SFX",
-		"Gen: Sprites",
+	static const vector<def_pair<string,string>> advp_names =
+	{
+		{ "Tile" },
+		{ "CSet2" },
+		{ "Solidity" },
+		{ "Animation" },
+		{ "Type" },
+		{ "Inherent Flag" },
+		{ "Attribytes" },
+		{ "Attrishorts" },
+		{ "Attributes" },
+		{ "Flags" },
+		{ "Label" },
+		{ "Script" },
+		{ "Effect" },
+		{ "Triggers Tab" },
+		{ "Lifting Tab" },
+		{ "Gen: Movespeed" },
+		{ "Gen: SFX" },
+		{ "Gen: Sprites" },
 	};
 	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
 		return false;

@@ -116,19 +116,20 @@ static int32_t zqstr_copysrc=-1;
 static bool string_advpaste(int indx)
 {
 	static bitstring pasteflags;
-	static const vector<string> advp_names = {
-		"Text",
-		"NextString",
-		"X,Y,W,H",
-		"Portrait",
-		"Background",
-		"Font",
-		"SFX",
-		"Spacing",
-		"Margins",
-		"Shadow",
-		"Layer",
-		"Flags",
+	static const vector<def_pair<string,string>> advp_names =
+	{
+		{ "Text" },
+		{ "NextString" },
+		{ "X,Y,W,H" },
+		{ "Portrait" },
+		{ "Background" },
+		{ "Font" },
+		{ "SFX" },
+		{ "Spacing" },
+		{ "Margins" },
+		{ "Shadow" },
+		{ "Layer" },
+		{ "Flags" },
 	};
 	static const string title = "Advanced Paste";
 	static const string title_all = "Advanced Paste to All";

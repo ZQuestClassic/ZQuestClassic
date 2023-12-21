@@ -2,6 +2,7 @@
 #define ZC_DIALOG_CHECKLIST_H
 
 #include "base/headers.h"
+#include "base/containers.h"
 #include <gui/dialog.h>
 #include <gui/window.h>
 #include <gui/grid.h>
@@ -18,14 +19,14 @@ class ChecklistDialog: public GUI::Dialog<ChecklistDialog>
 public:
 	enum class message { REFR_INFO, OK, CANCEL };
 
-	ChecklistDialog(string const& title, vector<string> const& flagnames,
+	ChecklistDialog(string const& title, vector<def_pair<string,string>> const& flagnames,
 		bitstring& flags, bool& confirm);
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
 protected:
 	string d_title;
-	vector<string> const& flagnames;
+	vector<def_pair<string,string>> const& flagnames;
 	bitstring& flags;
 	bool& confirm;
 	std::shared_ptr<GUI::Window> window;

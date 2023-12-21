@@ -975,3 +975,163 @@ std::string itemdata::get_name(bool init, bool plain) const
 	}
 	return name;
 }
+
+void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
+{
+	if(pasteflags.get(ITM_ADVP_NAME))
+	if(pasteflags.get(ITM_ADVP_DISP_NAME))
+		strcpy(display_name, other.display_name);
+	if(pasteflags.get(ITM_ADVP_ITMCLASS))
+		family = other.family;
+	if(pasteflags.get(ITM_ADVP_EQUIPMENTITM))
+		CPYFLAG(flags, ITEM_GAMEDATA, other.flags);
+	if(pasteflags.get(ITM_ADVP_ATTRIBS))
+	{
+		fam_type = other.fam_type;
+		power = other.power;
+		misc1 = other.misc1;
+		misc2 = other.misc2;
+		misc3 = other.misc3;
+		misc4 = other.misc4;
+		misc5 = other.misc5;
+		misc6 = other.misc6;
+		misc7 = other.misc7;
+		misc8 = other.misc8;
+		misc9 = other.misc9;
+		misc10 = other.misc10;
+	}
+	if(pasteflags.get(ITM_ADVP_GENFLAGS))
+	{
+		CPYFLAG(flags, ITEM_EDIBLE|ITEM_SIDESWIM_DISABLED
+			|ITEM_BUNNY_ENABLED|ITEM_JINX_IMMUNE|ITEM_FLIP_JINX, other.flags);
+	}
+	if(pasteflags.get(ITM_ADVP_TYPEFLAGS))
+	{
+		CPYFLAG(flags, ITEM_FLAG1|ITEM_FLAG2|ITEM_FLAG3|ITEM_FLAG4
+			|ITEM_FLAG5|ITEM_FLAG6|ITEM_FLAG7|ITEM_FLAG8
+			|ITEM_FLAG9|ITEM_FLAG10|ITEM_FLAG11|ITEM_FLAG12
+			|ITEM_FLAG13|ITEM_FLAG14|ITEM_FLAG15, other.flags);
+	}
+	if(pasteflags.get(ITM_ADVP_USECOSTS))
+	{
+		for(int q = 0; q < 2; ++q)
+		{
+			cost_amount[q] = other.cost_amount[q];
+			cost_counter[q] = other.cost_counter[q];
+			magiccosttimer[q] = other.magiccosttimer[q];
+		}
+		CPYFLAG(flags, ITEM_VALIDATEONLY|ITEM_VALIDATEONLY2|ITEM_DOWNGRADE, other.flags);
+	}
+	if(pasteflags.get(ITM_ADVP_USESFX))
+	{
+		usesound = other.usesound;
+		usesound2 = other.usesound2;
+	}
+	if(pasteflags.get(ITM_ADVP_PICKUP))
+	{
+		count = other.count;
+		amount = other.amount;
+		setmax = other.setmax;
+		max = other.max;
+		playsound = other.playsound;
+		pickup_hearts = other.pickup_hearts;
+		CPYFLAG(flags, ITEM_KEEPOLD|ITEM_GAINOLD|ITEM_COMBINE, other.flags);
+	}
+	if(pasteflags.get(ITM_ADVP_PICKUPSTRS))
+	{
+		pstring = other.pstring;
+		pickup_string_flags = other.pickup_string_flags;
+	}
+	if(pasteflags.get(ITM_ADVP_PICKUPFLAGS))
+	{
+		pickup = other.pickup;
+		pickupflag = other.pickupflag;
+	}
+	if(pasteflags.get(ITM_ADVP_WEAPONDATA))
+	{
+		useweapon = other.useweapon;
+		usedefence = other.usedefence;
+		weaprange = other.weaprange;
+		weapduration = other.weapduration;
+		for(int q = 0; q < ITEM_MOVEMENT_PATTERNS; ++q)
+			weap_pattern[q] = other.weap_pattern[q];
+	}
+	if(pasteflags.get(ITM_ADVP_GRAPHICS))
+	{
+		tile = other.tile;
+		csets = other.csets;
+		frames = other.frames;
+		speed = other.speed;
+		delay = other.delay;
+		misc_flags = other.misc_flags;
+	}
+	if(pasteflags.get(ITM_ADVP_TILEMOD))
+		ltm = other.ltm;
+	if(pasteflags.get(ITM_ADVP_SPRITES))
+	{
+		wpn = other.wpn;
+		wpn2 = other.wpn2;
+		wpn3 = other.wpn3;
+		wpn4 = other.wpn4;
+		wpn5 = other.wpn5;
+		wpn6 = other.wpn6;
+		wpn7 = other.wpn7;
+		wpn8 = other.wpn8;
+		wpn9 = other.wpn9;
+		wpn10 = other.wpn10;
+		CPYFLAG(flags, ITEM_BURNING_SPRITES, other.flags);
+		for(int q = 0; q < BURNSPR_MAX; ++q)
+			burnsprs[q] = other.burnsprs[q];
+	}
+	if(pasteflags.get(ITM_ADVP_ITEMSIZE))
+	{
+		overrideFLAGS = other.overrideFLAGS;
+		hxofs = other.hxofs;
+		hyofs = other.hyofs;
+		hxsz = other.hxsz;
+		hysz = other.hysz;
+		hzsz = other.hzsz;
+		xofs = other.xofs;
+		yofs = other.yofs;
+		tilew = other.tilew;
+		tileh = other.tileh;
+	}
+	if(pasteflags.get(ITM_ADVP_WEAPONSIZE))
+	{
+		weapoverrideFLAGS = other.weapoverrideFLAGS;
+		weap_hxofs = other.weap_hxofs;
+		weap_hyofs = other.weap_hyofs;
+		weap_hxsz = other.weap_hxsz;
+		weap_hysz = other.weap_hysz;
+		weap_hzsz = other.weap_hzsz;
+		weap_xofs = other.weap_xofs;
+		weap_yofs = other.weap_yofs;
+		weap_tilew = other.weap_tilew;
+		weap_tileh = other.weap_tileh;
+	}
+	if(pasteflags.get(ITM_ADVP_ITEMSCRIPTS))
+	{
+		for(int q = 0; q < 8; ++q)
+		{
+			initiald[q] = other.initiald[q];
+			strcpy(initD_label[q], other.initD_label[q]);
+			strcpy(sprite_initD_label[q], other.sprite_initD_label[q]);
+			if(q < 2)
+				initiala[q] = other.initiala[q];
+		}
+		script = other.script;
+		collect_script = other.collect_script;
+		sprite_script = other.sprite_script;
+		CPYFLAG(flags, ITEM_PASSIVESCRIPT, other.flags);
+	}
+	if(pasteflags.get(ITM_ADVP_WEAPONSCRIPT))
+	{
+		weaponscript = other.weaponscript;
+		for(int q = 0; q < 8; ++q)
+		{
+			strcpy(weapon_initD_label[q], other.weapon_initD_label[q]);
+			weap_initiald[q] = other.weap_initiald[q];
+		}
+	}
+}
+

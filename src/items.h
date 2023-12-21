@@ -89,6 +89,30 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk);
 void dummyitem_animate(item* dummy, int32_t clk);
 
+enum
+{
+	ITM_ADVP_NAME,
+	ITM_ADVP_DISP_NAME,
+	ITM_ADVP_ITMCLASS,
+	ITM_ADVP_EQUIPMENTITM,
+	ITM_ADVP_ATTRIBS,
+	ITM_ADVP_GENFLAGS,
+	ITM_ADVP_TYPEFLAGS,
+	ITM_ADVP_USECOSTS,
+	ITM_ADVP_USESFX,
+	ITM_ADVP_PICKUP,
+	ITM_ADVP_PICKUPSTRS,
+	ITM_ADVP_PICKUPFLAGS,
+	ITM_ADVP_WEAPONDATA,
+	ITM_ADVP_GRAPHICS,
+	ITM_ADVP_TILEMOD,
+	ITM_ADVP_SPRITES,
+	ITM_ADVP_ITEMSIZE,
+	ITM_ADVP_WEAPONSIZE,
+	ITM_ADVP_ITEMSCRIPTS,
+	ITM_ADVP_WEAPONSCRIPT,
+};
+
 //Now itemdata lives here too!
 
 enum
@@ -274,6 +298,7 @@ struct itemdata
 		}
 		return;
 	}
+	void advpaste(itemdata const& other, bitstring const& pasteflags);
 };
 
 //some methods for dealing with items

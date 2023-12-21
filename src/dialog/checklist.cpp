@@ -4,7 +4,7 @@
 #include <utility>
 
 bool call_checklist_dialog(string const& title,
-	vector<string> const& flagnames, bitstring& flags)
+	vector<def_pair<string,string>> const& flagnames, bitstring& flags)
 {
 	bool ret = false;
 	ChecklistDialog(title, flagnames, flags, ret).show();
@@ -12,7 +12,7 @@ bool call_checklist_dialog(string const& title,
 }
 
 ChecklistDialog::ChecklistDialog(string const& title,
-	vector<string> const& flagnames, bitstring& flags, bool& confirm):
+	vector<def_pair<string,string>> const& flagnames, bitstring& flags, bool& confirm):
 	d_title(title), flagnames(flagnames), flags(flags), confirm(confirm)
 {}
 
@@ -21,14 +21,25 @@ std::shared_ptr<GUI::Widget> ChecklistDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	auto grid = Columns<10>();
+	bool use_info = false;
+	for(uint q = 0; q < flagnames.size(); ++q)
+		if(flagnames[q].second.size())
+		{
+			use_info = true;
+			break;
+		}
 	for(uint q = 0; q < flagnames.size(); ++q)
 	{
-		grid->add(Checkbox(text = flagnames[q], hAlign = 0.0,
+		auto [name,inf] = flagnames[q];
+		auto cbox = Checkbox(text = name, hAlign = 0.0,
 			checked = flags.get(q),
 			onToggleFunc = [&,q](bool state)
 			{
 				flags.set(q, state);
-			}));
+			});
+		if(use_info)
+			grid->add(Row(padding = 0_px, hAlign = 0.0, inf.empty() ? DINFOBTN() : INFOBTN(inf), cbox));
+		else grid->add(cbox);
 	}
 	
 	window = Window(
