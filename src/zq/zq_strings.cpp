@@ -113,6 +113,37 @@ DIALOG editmsg_help_dlg[] =
 };
 
 static int32_t zqstr_copysrc=-1;
+static bool string_advpaste(int indx)
+{
+	static bitstring pasteflags;
+	static const vector<string> advp_names = {
+		"Text",
+		"NextString",
+		"X,Y,W,H",
+		"Portrait",
+		"Background",
+		"Font",
+		"SFX",
+		"Spacing",
+		"Margins",
+		"Shadow",
+		"Layer",
+		"Flags",
+	};
+	static const string title = "Advanced Paste";
+	static const string title_all = "Advanced Paste to All";
+	bool to_all = indx < 0;
+	if(!call_checklist_dialog(to_all ? title_all : title,advp_names,pasteflags))
+		return false;
+	
+	if(to_all)
+	{
+		for(int q = 0; q < msg_count-1; ++q)
+			MsgStrings[q].advpaste(MsgStrings[zqstr_copysrc], pasteflags);
+	}
+	else MsgStrings[indx].advpaste(MsgStrings[zqstr_copysrc], pasteflags);
+	return true;
+}
 void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
 	// Don't do anything on (none) or <New String>
@@ -128,40 +159,30 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 				zqstr_copysrc = msg_at_pos(index);
 			} },
 		{},
-		{ "Paste Style", [&]()
-			{
-				MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_copysrc]);
-				saved = false;
-			}, nullopt, no_pasting },
 		{ "Paste Text", [&]()
 			{
 				MsgStrings[msg_at_pos(index)].copyText(MsgStrings[zqstr_copysrc]);
 				strlist_dlg[2].flags |= D_DIRTY;
 				saved = false;
 			}, nullopt, no_pasting },
-		{ "Paste Both", [&]()
+		{ "Paste", [&]()
 			{
 				//Overloaded assignment copies both
 				MsgStrings[msg_at_pos(index)] = MsgStrings[zqstr_copysrc];
 				strlist_dlg[2].flags|=D_DIRTY;
 				saved = false;
 			}, nullopt, no_pasting },
-		{ "Paste Style to All", [&]()
+		{ "Adv. Paste", [&]()
 			{
-				bool didconfirm = false;
-				AlertDialog("Paste Style to All",
-					"Overwrite style of all strings?",
-					[&](bool ret,bool)
-					{
-						if(ret)
-							didconfirm = true;
-					}).show();
-				if(didconfirm)
-				{
-					for(int q = 0; q < msg_count-1; ++q)
-						MsgStrings[q].copyStyle(MsgStrings[zqstr_copysrc]);
-					saved = false;
-				}
+				string_advpaste(msg_at_pos(index));
+				strlist_dlg[2].flags|=D_DIRTY;
+				saved = false;
+			}, nullopt, no_pasting },
+		{ "Adv. Paste to All", [&]()
+			{
+				string_advpaste(-1);
+				strlist_dlg[2].flags|=D_DIRTY;
+				saved = false;
 			}, nullopt, no_pasting },
 		{},
 		{ "Set As Template", [&]()

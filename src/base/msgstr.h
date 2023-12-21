@@ -3,6 +3,8 @@
 
 #include <string>
 #include "base/ints.h"
+#include "base/headers.h"
+#include "base/containers.h"
 
 #define MAX_SCC_ARG 65023
 
@@ -62,6 +64,22 @@
 #define STRINGFLAG_FULLTILE         0x10
 #define STRINGFLAG_TRANS_BG         0x20
 #define STRINGFLAG_TRANS_FG         0x40
+enum
+{
+	STR_ADVP_TEXT,
+	STR_ADVP_NEXTSTR,
+	STR_ADVP_POSSZ,
+	STR_ADVP_PORTRAIT,
+	STR_ADVP_BACKGROUND,
+	STR_ADVP_FONT,
+	STR_ADVP_SFX,
+	STR_ADVP_SPACING,
+	STR_ADVP_MARGINS,
+	STR_ADVP_SHADOW,
+	STR_ADVP_LAYER,
+	STR_ADVP_FLAGS,
+	STR_ADVP_SZ
+};
 
 struct MsgStr
 {
@@ -98,6 +116,7 @@ struct MsgStr
 	// Copy style data - everything except s, nextstring, and listpos
 	void copyStyle(MsgStr const& other);
 	void copyAll(MsgStr const& other);
+	void advpaste(MsgStr const& other, bitstring const& pasteflags);
 	void clear();
 };
 
