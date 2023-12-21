@@ -223,12 +223,11 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			zinitdata zinit_test = zinit;
 			bool old_saved = saved;
-			doInit(&zinit_test, false);
+			// Only allow configuration for the same stuff visible in the cheat menu in the player.
+			doInit(&zinit_test, true);
 			saved = old_saved;
 
-			zinitdata zinit_base;
-			zinit_base.clear();
-			std::string delta = serialize_init_data_delta(&zinit_base, &zinit_test);
+			std::string delta = serialize_init_data_delta(&zinit, &zinit_test);
 
 			int i = test_init_data.size();
 			test_init_data.push_back(delta);
@@ -245,10 +244,8 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if (test_init_data_val == 0)
 				return false;
 
-			zinitdata zinit_base;
-			zinit_base.clear();
 			std::string error;
-			zinitdata* zinit_test = apply_init_data_delta(&zinit_base, test_init_data[test_init_data_val - 1], error);
+			zinitdata* zinit_test = apply_init_data_delta(&zinit, test_init_data[test_init_data_val - 1], error);
 			if (!zinit_test)
 			{
 				InfoDialog("Error applying init data delta", error).show();
@@ -256,10 +253,10 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 
 			bool old_saved = saved;
-			doInit(zinit_test, false);
+			doInit(zinit_test, true);
 			saved = old_saved;
 
-			std::string delta = serialize_init_data_delta(&zinit_base, zinit_test);
+			std::string delta = serialize_init_data_delta(&zinit, zinit_test);
 			test_init_data[test_init_data_val - 1] = delta;
 			save_test_init_data(test_init_data_val - 1);
 
