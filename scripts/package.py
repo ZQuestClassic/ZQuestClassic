@@ -276,6 +276,8 @@ def do_web_packaging():
     copy_files_to_package(lazy_files, packages_dir / 'web_lazy_files', exclude_files=ignore_files)
     if 'ZC_PACKAGE_REPLAYS' in os.environ:
         shutil.copytree(root_dir / 'tests/replays', packages_dir / 'web_lazy_files/test_replays')
+        # For run_replay_tests.py to copy to when a replay is not from `tests/replays`
+        (packages_dir / 'web_lazy_files/test_replays/tmp.zplay').write_text('')
 
     emcc_dir = Path(shutil.which('emcc')).parent
     subprocess.check_call([

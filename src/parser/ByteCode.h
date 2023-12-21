@@ -1803,6 +1803,10 @@ namespace ZScript
 		virtual void execute(ArgumentVisitor &host, void *param)=0;
 		virtual Argument* clone() const = 0;
 		virtual ~Argument() {}
+		bool operator==(Argument const& other) const
+		{
+			return toString() == other.toString();
+		}
 	};
 
 	class LiteralArgument : public Argument
@@ -1819,8 +1823,24 @@ namespace ZScript
 		{
 			return new LiteralArgument(value);
 		}
+		bool operator==(int val) const
+		{
+			return val == value;
+		}
+		bool operator==(zfix const& val) const
+		{
+			return val.getZLong() == value;
+		}
 		int32_t value;
 	};
+	inline bool operator==(int val, LiteralArgument const& arg)
+	{
+		return arg == val;
+	}
+	inline bool operator==(zfix const& val, LiteralArgument const& arg)
+	{
+		return arg == val;
+	}
 	
 	class StringArgument : public Argument
 	{
@@ -1835,9 +1855,18 @@ namespace ZScript
 		{
 			return new StringArgument(value);
 		}
+		bool operator==(string const& str) const
+		{
+			return str == value;
+		}
 	private:
 		std::string value;
 	};
+	inline bool operator==(string const& val, StringArgument const& arg)
+	{
+		return arg == val;
+	}
+	
 	class VectorArgument : public Argument
 	{
 	public:
@@ -1851,9 +1880,17 @@ namespace ZScript
 		{
 			return new VectorArgument(value);
 		}
+		bool operator==(vector<int32_t> const& vec) const
+		{
+			return vec == value;
+		}
 	private:
 		std::vector<int32_t> value;
 	};
+	inline bool operator==(vector<int32_t> const& val, VectorArgument const& arg)
+	{
+		return arg == val;
+	}
 
 	std::string VarToString(int32_t ID);
 
@@ -1916,12 +1953,20 @@ namespace ZScript
 			haslineno=true;
 			lineno=l;
 		}
+		bool operator==(int lbl) const
+		{
+			return lbl == ID;
+		}
 	private:
 		int32_t ID;
 		int32_t lineno;
 		bool haslineno;
 		bool altstr;
 	};
+	inline bool operator==(int val, LabelArgument const& arg)
+	{
+		return arg == val;
+	}
 
 	class UnaryOpcode : public Opcode
 	{
@@ -1938,6 +1983,12 @@ namespace ZScript
 		Argument const* getArgument() const
 		{
 			return a;
+		}
+		Argument* takeArgument()
+		{
+			auto tmp = a;
+			a = nullptr;
+			return tmp;
 		}
 		void execute(ArgumentVisitor &host, void *param)
 		{
@@ -1971,6 +2022,18 @@ namespace ZScript
 		Argument const* getSecondArgument() const
 		{
 			return b;
+		}
+		Argument* takeFirstArgument()
+		{
+			auto tmp = a;
+			a = nullptr;
+			return tmp;
+		}
+		Argument* takeSecondArgument()
+		{
+			auto tmp = b;
+			b = nullptr;
+			return tmp;
 		}
 		void execute(ArgumentVisitor &host, void *param)
 		{
@@ -2913,6 +2976,11 @@ namespace ZScript
 	class ONoOp : public Opcode
 	{
 	public:
+		ONoOp() = default;
+		ONoOp(int lbl) : ONoOp()
+		{
+			setLabel(lbl);
+		}
 		std::string toString() const;
 		Opcode* clone() const
 		{
@@ -3147,6 +3215,16 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OStoreDirect(a->clone(),b->clone());
+		}
+	};
+	class OStoreDirectV : public BinaryOpcode
+	{
+	public:
+		OStoreDirectV(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStoreDirectV(a->clone(),b->clone());
 		}
 	};
 
@@ -11266,6 +11344,39 @@ namespace ZScript
 		}
 	};
 	
+	class OTruncate : public UnaryOpcode
+	{
+	public:
+		OTruncate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OTruncate(a->clone());
+		}
+	};
+	
+	class ORound : public UnaryOpcode
+	{
+	public:
+		ORound(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORound(a->clone());
+		}
+	};
+	
+	class ORoundAway : public UnaryOpcode
+	{
+	public:
+		ORoundAway(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORoundAway(a->clone());
+		}
+	};
+	
 	class OToInteger : public UnaryOpcode
 	{
 	public:
@@ -12094,6 +12205,54 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OReturnFunc();
+		}
+	};
+
+
+
+	class OSetCompare : public BinaryOpcode
+	{
+	public:
+		OSetCompare(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetCompare(a->clone(),b->clone());
+		}
+	};
+
+	class OGotoCompare : public BinaryOpcode
+	{
+	public:
+		OGotoCompare(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGotoCompare(a->clone(),b->clone());
+		}
+	};
+
+
+
+	class OStackWriteAtRV : public BinaryOpcode
+	{
+	public:
+		OStackWriteAtRV(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStackWriteAtRV(a->clone(),b->clone());
+		}
+	};
+
+	class OStackWriteAtVV : public BinaryOpcode
+	{
+	public:
+		OStackWriteAtVV(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStackWriteAtVV(a->clone(),b->clone());
 		}
 	};
 }

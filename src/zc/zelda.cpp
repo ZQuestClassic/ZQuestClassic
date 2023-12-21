@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 
+#include "zc/zasm_utils.h"
 #include "zscriptversion.h"
 #include "sound/zcmusic.h"
 #include "base/zdefs.h"
@@ -353,6 +354,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
 	Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false,
 	DragAspect=false, SaveWinPos=false, scaleForceInteger=false, stretchGame=false;
+bool PlayTitleMusic = false;
 int32_t Maxfps = 0;
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
@@ -4297,6 +4299,20 @@ int32_t onFullscreen()
     else return D_O_K;
 }
 
+static bool load_replay_file_deffered_called = false;
+static std::string load_replay_file_filename;
+static ReplayMode load_replay_file_mode;
+// Because using "Load Replay" GUI menu can happen while another replay is
+// within an inner game-loop (like scrollscr), which can bleed the old replay
+// into the new one if `replay_start` is called from the GUI control code.
+// Instead, save the information needed to call load_replay_file later.
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file)
+{
+	load_replay_file_deffered_called = true;
+	load_replay_file_mode = mode;
+	load_replay_file_filename = replay_file;
+}
+
 static bool current_session_is_replay = false;
 static void load_replay_file(ReplayMode mode, std::string replay_file, int frame)
 {
@@ -4315,6 +4331,18 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 		}
 	}
 
+	if (!std::filesystem::is_regular_file(testingqst_name))
+	{
+		// TODO: not showing...
+		// InfoDialog("File Error", fmt::format("File not found: {}", testingqst_name)).show();
+		Z_error("File not found: %s\n", testingqst_name.c_str());
+		if (!load_replay_file_deffered_called)
+		{
+			// This was called from the CLI, so abort.
+			abort();
+		}
+	}
+
 	if (replay_get_meta_bool("test_mode"))
 	{
 		testingqst_dmap = replay_get_meta_int("starting_dmap");
@@ -4330,20 +4358,6 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 
 	if (strlen(zc_get_config("zeldadx", "replay_snapshot", "")) > 0)
 		replay_add_snapshot_frame(zc_get_config("zeldadx", "replay_snapshot", ""));
-}
-
-static bool load_replay_file_deffered_called = false;
-static std::string load_replay_file_filename;
-static ReplayMode load_replay_file_mode;
-// Because using "Load Replay" GUI menu can happen while another replay is
-// within an inner game-loop (like scrollscr), which can bleed the old replay
-// into the new one if `replay_start` is called from the GUI control code.
-// Instead, save the information needed to call load_replay_file later.
-void load_replay_file_deferred(ReplayMode mode, std::string replay_file)
-{
-	load_replay_file_deffered_called = true;
-	load_replay_file_mode = mode;
-	load_replay_file_filename = replay_file;
 }
 
 void zc_game_srand(int seed, zc_randgen* rng)
@@ -4460,6 +4474,50 @@ void do_load_and_quit_command(const char* quest_path)
 	exit(ret);
 }
 
+void do_extract_zasm_command(const char* quest_path)
+{
+	// We need to init some stuff before loading a quest file will work.
+	int fake_errno = 0;
+	allegro_errno = &fake_errno;
+	get_qst_buffers();
+	allocate_crap();
+
+	byte skip_flags[] = {0, 0, 0, 0};
+	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
+	if (ret)
+		exit(ret);
+
+	DEBUG_PRINT_TO_FILE = true;
+	strcpy(qstpath, quest_path);
+	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
+
+	#define HANDLE_SCRIPTS(array, num)\
+		for (int i = 0; i < num; i++)\
+		{\
+			script_data* script = array[i];\
+			if (script->valid())\
+			{\
+				ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);\
+				h.print(zasm_to_string(script, generate_yielder).c_str());\
+			}\
+		}
+	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
+	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
+	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
+	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
+	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
+	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
+	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
+	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
+	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
+	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
+	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+
+	exit(0);
+}
+
 int main(int argc, char **argv)
 {
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
@@ -4521,6 +4579,12 @@ int main(int argc, char **argv)
 	if (load_and_quit_arg > 0)
 	{
 		do_load_and_quit_command(argv[load_and_quit_arg+1]);
+	}
+
+	int extract_zasm_arg = used_switch(argc, argv, "-extract-zasm");
+	if (extract_zasm_arg > 0)
+	{
+		do_extract_zasm_command(argv[extract_zasm_arg+1]);
 	}
 
 	int create_save_arg = used_switch(argc,argv,"-create-save");
@@ -5129,11 +5193,10 @@ int main(int argc, char **argv)
 	
 	rgb_map = &rgb_table;
 	
-	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
 	DEBUG_PRINT_TO_FILE = zc_get_config("ZSCRIPT", "print_zasm_to_file", true);
 	DEBUG_PRINT_TO_CONSOLE = zc_get_config("ZSCRIPT", "print_zasm_to_console", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false) || used_switch(argc, argv, "-jit-print-asm");
-	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_exit_on_failure", false);
+	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_fatal_compile_errors", false) || used_switch(argc, argv, "-jit-fatal-compile-errors");
 	hangcount = zc_get_config("ZSCRIPT","ZASM_Hangcount",1000);
 	jit_set_enabled(zc_get_config("ZSCRIPT", "jit", false) || used_switch(argc, argv, "-jit") > 0);
 	

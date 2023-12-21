@@ -39,7 +39,7 @@ class TestJIT(ZCTestCase):
         self.maxDiff = None
 
     def compile_zasm_in_qst(self, replay_path: Path):
-        jit_output_path = run_target.get_build_folder() / 'zscript-debug'
+        jit_output_path = run_target.get_build_folder() / 'zscript-debug' / replay_path.name
         if jit_output_path.exists():
             shutil.rmtree(jit_output_path)
         args = [
@@ -57,7 +57,7 @@ class TestJIT(ZCTestCase):
         ]
         p = run_target.run('zplayer', args)
         if p.returncode:
-            raise Exception(f'error: {p.returncode}\n{p.stdout}')
+            raise Exception(f'error: {p.returncode}\n{p.stderr}')
 
         return jit_output_path
 

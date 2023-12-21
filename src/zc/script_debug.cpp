@@ -1,21 +1,21 @@
 #include "zc/script_debug.h"
 #include "allegro5/file.h"
+#include "base/zapp.h"
 #include "zc/ffscript.h"
+#include "zc/replay.h"
+#include "zc/zasm_utils.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
+#include <iomanip>
 
 extern refInfo *ri;
 std::string ZASMVarToString(int32_t arg);
 
-bool DEBUG_PRINT_ZASM;
 bool DEBUG_JIT_PRINT_ASM;
 bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
 
 bool DEBUG_PRINT_TO_FILE;
 bool DEBUG_PRINT_TO_CONSOLE;
-
-// 0 for off, 1 for per-script execution, 2 for per-instruction.
-static int runtime_debug = 0;
 
 ScriptDebugHandle::ScriptDebugHandle(OutputSplit output_split, script_data* script)
 {
@@ -61,6 +61,8 @@ void ScriptDebugHandle::update_file()
 	if (!DEBUG_PRINT_TO_FILE)
 		return;
 
+	static auto output_folder = get_flag_string("-script-runtime-debug-folder").value_or("zscript-debug");
+
 	if (file)
 		al_fflush(file);
 
@@ -73,16 +75,20 @@ void ScriptDebugHandle::update_file()
 			{
 				al_fclose(file);
 			}
-			std::string dir = fmt::format("zscript-debug/{}", counter / 1000);
+
+			std::string script_name = zasm_script_unique_name(script);
+			std::string dir = fmt::format("{}/{}/{}", output_folder, script_name, counter / 1000);
+
 			al_make_directory(dir.c_str());
 			std::string path = fmt::format("{}/debug-{}.txt", dir, counter);
+
 			file = al_fopen(path.c_str(), "w");
 			file_counter = counter;
 		}
 	}
 	else if (output_split == OutputSplit::ByScript && !file)
 	{
-		std::string dir = fmt::format("zscript-debug/zasm/{}", get_filename(qstpath));
+		std::string dir = fmt::format("{}/zasm/{}", output_folder, get_filename(qstpath));
 		std::string path;
 		
 		if (script->meta.script_name.empty())
@@ -185,13 +191,12 @@ void ScriptDebugHandle::print_command(int i)
 	print("\n");
 }
 
-void ScriptDebugHandle::print_zasm(int script_num, int script_index)
+void ScriptDebugHandle::print_zasm()
 {
-	print("ZASM:\n\n");
 	printf(
 		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-		"script type: %s\nindex: %d\nname: %s\nnum: %d\nindex: %d\n\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str(), script_num, script_index);
+		"script type: %s\nindex: %d\nname: %s\n\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
 	for (size_t i = 0; i < script->size; i++)
 	{
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
@@ -205,7 +210,9 @@ void ScriptDebugHandle::print_zasm(int script_num, int script_index)
 
 void ScriptDebugHandle::pre_command()
 {
-	// if (replay_get_frame() < 4034-100) return;
+	static int frame = get_flag_int("-script-runtime-debug-frame").value_or(-1);
+	if (frame != -1 && replay_get_frame() != frame)
+		return;
 	// if (script->id != {ScriptType::Player, 2}) return;
 
 	// This is only to match the behavior in jitted code, where comparison instructions
@@ -218,13 +225,31 @@ void ScriptDebugHandle::pre_command()
 	if (supress_output)
 		return;
 
+	if (frame != -1)
+	{
+		int i = ri->pc;
+		int32_t arg1 = script->zasm[i].arg1;
+		int32_t arg2 = script->zasm[i].arg2;
+
+		std::string line = script_debug_registers_and_stack_to_string();
+		util::replchar(line, '\n', ' ');
+
+		replay_step_comment(fmt::format("{} {} | {}", i, script_debug_command_to_string(command, arg1, arg2), line));
+
+		if (command == COMPAREV || command == COMPARER)
+		{
+			supress_output = true;
+		}
+		return;
+	}
+
 	int f = CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK;
 	printf(f, "pc:\t%d\n", ri->pc);
 	print(f, script_debug_registers_and_stack_to_string().c_str());
 
 	print_command(ri->pc);
 
-	if (command == COMPAREV || command == COMPARER)
+	if (command == COMPARER || command == COMPAREV || command == COMPAREV2)
 	{
 		supress_output = true;
 		for (int j = ri->pc + 1; script->zasm[j].command != 0xFFFF; j++)
@@ -239,6 +264,7 @@ void ScriptDebugHandle::pre_command()
 		al_fflush(file);
 }
 
+// 0 for off, 1 for per-script execution, 2 for per-instruction.
 int script_debug_is_runtime_debugging()
 {
 	if (!DEBUG_PRINT_TO_FILE && !DEBUG_PRINT_TO_CONSOLE)
@@ -246,6 +272,7 @@ int script_debug_is_runtime_debugging()
 		return 0;
 	}
 
+	static int runtime_debug = get_flag_int("-script-runtime-debug").value_or(0);
 	return runtime_debug;
 }
 
@@ -254,28 +281,28 @@ std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t 
 	std::stringstream ss;
 	script_command c = get_script_command(scommand);
 
-	ss << c.name;
+	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
+	ss << SS_WIDTH(15) << c.name;
 	if (c.args >= 1)
 	{
 		if (c.arg1_type == 0)
 		{
-			ss << "\t " << ZASMVarToString(arg1);
+			ss << " " << SS_WIDTH(16) << ZASMVarToString(arg1);
 		}
 		else
 		{
-			ss << "\t " << arg1;
+			ss << " " << SS_WIDTH(16) << arg1;
 		}
 	}
 	if (c.args >= 2)
 	{
-		ss << ", ";
 		if (c.arg2_type == 0)
 		{
-			ss << ZASMVarToString(arg2);
+			ss << SS_WIDTH(7) << ZASMVarToString(arg2);
 		}
 		else
 		{
-			ss << arg2;
+			ss << SS_WIDTH(7) << arg2;
 		}
 	}
 

@@ -51,4 +51,4 @@ if __name__ == '__main__':
 
     # Doesn't work so well - too many connection reset when running replays in parallel.
     # start_webserver(args.dir)
-    subprocess.check_call(['npx', 'statikk', '--port', '8000', '--coi'], cwd=args.dir)
+    subprocess.check_call(['npx', '--prefer-offline', 'statikk', '--port', '8000', '--coi'], cwd=args.dir)

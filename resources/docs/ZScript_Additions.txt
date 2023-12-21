@@ -1423,6 +1423,99 @@ of iterations is known at compile-time.
 	--end example]
 
 /////////////////
+//  For Loop   //
+/////////////////
+
+	The classic for loop has a couple new things. In addition to the 'Loop-Else' mentioned above,
+		you can now use multiple increment statements with a comma-delimited list.
+	[example--
+		for(int indx = start, count = 10; count > 0; ++indx, --count)
+		{
+			//do something
+		}
+	--end example]
+
+/////////////////
+//  For-Each   //
+/////////////////
+
+	You can now iterate through each element in an array easily!
+	[example--
+		int arr[] = {1,10,25,3,6,2};
+		for(num : arr)
+			Trace(num);
+		//or
+		for(num in arr)
+			Trace(num);
+	--end example]
+
+//////////////////////
+//  'loop' keyword  //
+//////////////////////
+
+	There is a new type of loop, declared using the 'loop' keyword.
+	This new loop can be used in a couple of fancy ways, and is designed
+		to be optimized, and easily accomplish what you need it to.
+	
+	Firstly, by simply declaring `loop()`, it creates an infinite loop,
+		just like a `while(true)`, but shorter to type.
+	
+	Secondly, you can loop through Value Ranges!
+	
+	[example--
+		loop(q : 0=..10)
+			Trace(q); //Traces 0,1,2,3,4,5,6,7,8,9
+	--end example]
+	
+	When looping through a value range, there are several syntax options to go over.
+	
+	loop(TYPE NAME IN RANGE, INCREMENT)
+	
+	- TYPE: You may specify the type of the variable. If it is not specified,
+		it will be `const int` by default. Must also specify a NAME if type is specified.
+	- NAME: You may specify the name of the variable. If it is not specified,
+		it will be `__LOOP_ITER` by default.
+	- IN: Either a colon (:) or the `in` keyword. This should only be present
+		if the NAME was specified.
+	- RANGE: Required. This is the value range to loop through.
+	- INCREMENT: The amount to increment by each loop may be specified.
+		If it (and the comma before it) are left out, it defaults to '1'.
+		If the increment is negative, the loop will start from the high end of the range,
+			and work down to the low end.
+	
+	Some examples:
+	[example--
+		loop(x in [0,100), 10)
+			printf("%d\n",x); //0, 10, 20, 30, 40, 50, 60, 70, 80, 90
+		loop(const long x : [0,1), 100L)
+			printf("%d\n",x); //0.01, 0.02, 0.03, ... 0.97, 0.98, 0.99
+		loop(0=..20)
+			Trace(1); //Traces '1' 20 times in a row
+	--end example]
+	
+	The 'Loop-Else' addition listed above also applies to this new loop type.
+
+Available annotations:
+	@AlwaysRunEndpoint -
+		Value: "int","long", or "float"
+		Function: Causes the loop to run an extra time with an extreme value,
+			preventing the iterator from overflowing the range without reaching the end.
+			If given "int", will truncate to an integer value; otherwise will use
+			the end of the range exactly.
+		[example--
+			loop(x in [0,16), 4)
+				Trace(x); //0,4,8,12
+			
+			@AlwaysRunEndpoint("int")
+			loop(x in [0,16), 4)
+				Trace(x); //0,4,8,12,15 - 15 is the last integer within the range
+			
+			@AlwaysRunEndpoint("long") //"float" is the same
+			loop(x in [0,16), 4)
+				Trace(x); //0,4,8,12,15.9999 - since 16 isn't in the range, 15.9999 is the end.
+		--end example]
+
+/////////////////
 // Switch-Case //
 /////////////////
 
@@ -1504,6 +1597,7 @@ of iterations is known at compile-time.
 	|___/\__,_/_/\__,_/\___/  /_/ |_|\__,_/_/ /_/\__, /\___/ 
 	                                            /____/       
 						    
+	// Value Ranges
 	A Value Range represents a constant range of numbers.
 	
 	Several value range symbols can be used, with slightly different functions:
@@ -2814,7 +2908,13 @@ An annotation is specified as follows:
 Annotations can be listed together to use multiple on the same target, as follows:
 	@Key("Value"), @Key2("Value2")
 
-Presently, annotations are only allowed on scripts.
+Annotations can be attached to various script elements, and will be listed where appropriate.
+
+//////////////////////////////
+//    Script Annotations    //
+//////////////////////////////
+
+The following annotations can be attached to any `script`
 
 	[example--
 		
@@ -2832,51 +2932,43 @@ Presently, annotations are only allowed on scripts.
 Available annotations:
 
 	@Author -
-		Valid on: Scripts
 		Function: Sets the author name metadata field
 		Value: String (limit 255 chars)
 	
 	@Attribute0 - @Attribute9
 	@Flag0 - @Flag15
-		Valid on: Scripts
 		Function: Sets attribute metadata for the script.
 		Editor effect: Combo and Item editor label text
 		Value: String (limit 255 chars)
 	@Attribyte0 - @Attribyte7
 	@Attrishort0 - @Attrishort7
-		Valid on: Scripts
 		Function: Sets attribute metadata for the script.
 		Editor effect: Combo editor label text
 		Value: String (limit 255 chars)
 	
 	@AttributeHelp0 - @AttributeHelp9
 	@FlagHelp0 - @FlagHelp15
-		Valid on: Scripts
 		Function: Sets attribute help text metadata for the script.
 		Editor effect: Combo and Item editor help text
 		Value: String (limit 65535 chars)
 	@AttribyteHelp0 - @AttribyteHelp7
 	@AttrishortHelp0 - @AttrishortHelp7
-		Valid on: Scripts
 		Function: Sets attribute help text metadata for the script.
 		Editor effect: Combo editor help text
 		Value: String (limit 65535 chars)
 	
 	@InitD0 - @InitD7
-		Valid on: Scripts
 		Function: Set InitD label info.
 		Editor effect: Combo, FFC, Item, LWeapon scripts
 		Value: String (limit 255 chars)
 		Default value: void run() parameter name
 	
 	@InitDHelp0 - @InitDHelp7
-		Valid on: Scripts
 		Function: Set InitD help text.
 		Editor effect: Combo, FFC, Item, LWeapon scripts
 		Value: String (limit 65535 chars)
 	
 	@InitDType0 - @InitDType7
-		Valid on: Scripts
 		Function: Set InitD field type.
 		Editor effect: Combo, FFC, Item, LWeapon scripts
 		Value: "D","H","LD","LH","B", or "-1"
@@ -3068,11 +3160,20 @@ void ArrayCopy(untyped *dest, untyped *src);
  * no error or warning on any overflow. 
  * This is an exceptionally fast command, when compared to for loop copying. 
 
-int Floor(float n);
+constexpr int Floor(float n);
  * Truncates n to the nearest integer, rounding downwards.
 
-int Ceiling(float n);
+constexpr int Ceiling(float n);
  * Truncates n to the nearest integer, rounding upwards.
+
+constexpr int Truncate(float n);
+ * Truncates n to the nearest integer, rounding towards 0.
+
+constexpr int RoundAway(float n);
+ * Truncates n to the nearest integer, rounding away from 0.
+
+constexpr int Round(float n);
+ * Truncates n to the nearest integer.
 
 int Integer(float n);
  * Truncates n to an integer.
@@ -3324,14 +3425,28 @@ untyped Untype(any)
 bool IsValidArray(untyped[]);
  * Returns true if the passed array pointer is valid (usable), false if it is invalid (should not be used).
 
-int Pow(int a, int b);
+constexpr int Pow(int a, int b);
  * Returns 'a^^^b' (a raised to the power of b)
  * Ex: Pow(2,2) == 4
 
-long LPow(long a, long b);
+constexpr long LPow(long a, long b);
  * Returns 'a^^^b', using 'long', where 0.0001 is 1L.
  * Ex: LPow(2L,2L) == 4L
 
+constexpr int InvPow(int a, int b);
+ * Returns 'a^^^(1/b)' (a raised to the inverse power of b)
+
+constexpr int Factorial(int val);
+ * Returns the factorial of 'val'
+ * If val < 0, this is 0. If val < 2, this is 1.
+ * Otherwise, this is the product of every number between 'val' and '1'.
+
+constexpr float Abs(float val);
+ * Returns the absolute value of 'val'
+
+constexpr float Sqrt(float val);
+ * Returns the square root of 'val'
+ * Errors if 'val' is negative
 
 /************************************************************************************************************/
 

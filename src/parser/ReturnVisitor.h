@@ -47,6 +47,8 @@ namespace ZScript
 				return true;
 			if(dynamic_cast<ASTStmtForEach*>(node))
 				return true;
+			if(dynamic_cast<ASTStmtRangeLoop*>(node))
+				return true;
 			if(dynamic_cast<ASTStmtWhile*>(node))
 				return true;
 			if(dynamic_cast<ASTStmtDo*>(node))
@@ -195,17 +197,21 @@ namespace ZScript
 		void caseStmtIfElse(ASTStmtIfElse& host, void* param = NULL);
 		void caseStmtFor(ASTStmtFor& host, void* param = NULL);
 		void caseStmtForEach(ASTStmtForEach& host, void* param = NULL);
+		void caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param = NULL);
 		void caseStmtWhile(ASTStmtWhile& host, void* param = NULL);
 		void caseStmtDo(ASTStmtDo& host, void* param = NULL);
 		void caseStmtSwitch(ASTStmtSwitch& host, void* param = NULL);
 		void caseSwitchCases(ASTSwitchCases & host, void* param = NULL);
+		//data
+		void caseDataDecl(ASTDataDecl& host, void* param = NULL);
+		void caseExprIdentifier(ASTExprIdentifier& host, void* param = NULL);
 		//functions
 		void caseExprCall(ASTExprCall& host, void* param = NULL);
 		//internals
 		virtual void analyzeFunctionInternals(ZScript::Function& function);
 		
 		template <class Container>
-		bool block_retvisit(AST& host, Container const& nodes, void* param = NULL);
+		bool block_retvisit_vec(Container const& nodes, void* param = NULL);
 		bool block_retvisit(AST& host, void* param = NULL);
 		bool block_retvisit(AST* host, void* param = NULL)
 		{
@@ -221,6 +227,17 @@ namespace ZScript
 	private:
 		ZScript::Program& program;
 		bool extra_pass, marked_never_ret, missing_ret;
+		Function* in_func;
+		
+		map<Function*,map<Variable*, bool>> var_map;
+		
+		enum ReturnVisitorMode
+		{
+			MODE_START,
+			MODE_EXPASS,
+			MODE_FINISH,
+		};
+		ReturnVisitorMode mode;
 		
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);

@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <cassert>
 #include <string>
+#include <set>
 #include <sstream>
 #include "ASTVisitors.h"
 #include "CompileOption.h"
@@ -49,32 +50,103 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 	}
 }
 
-// Since c macros can't directly contain bison macros, they need to be passed
-// in where they're invoked. The following arguments are named so that 'd'
-// stands in for '$' and 'a' stands in for '@'.
+enum
+{
+	ANNTY_NONE,
+	ANNTY_STR,
+	ANNTY_INT,
+	ANNTY_MAX
+};
+static string annot_tys[ANNTY_MAX] = {"Empty", "String", "Number"};
 
-#define PREFIX(klass, dd, d2, ad) \
-	klass* prefix = new klass(ad); \
-	ASTExpr* operand = (ASTExpr*)d2; \
-	prefix->operand = operand; \
-	dd = prefix;
+int annot_row, annot_col;
+string annot_err_txt;
+static const string annot_err_header = "ERROR: Bad Annotation Value";
+struct AnnotData
+{
+	string key, strval;
+	string val, unescaped_val;
+	int intval;
+	uint type;
+};
+void annot_errstr(string const& str)
+{
+	yyerrmsg(str, annot_row, annot_col, annot_err_txt.c_str());
+}
+void annot_trunc_str(string& str, size_t size)
+{
+	trunc_str(str, size, annot_err_header, annot_row, annot_col, annot_err_txt.c_str());
+}
+bool annot_type_check(uint expected, AnnotData const& data)
+{
+	if(expected == data.type)
+		return true;
+	annot_errstr("ERROR: Bad Annotation Value: @"+data.key
+		+" expects a "+annot_tys[expected]+", not a "+annot_tys[data.type]);
+	return false;
+}
+void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&)> fn)
+{
+	owning_vector<ASTAnnotation>& set = list->set;
+	annot_row = list->location.first_line;
+	annot_col = list->location.first_column;
+	std::set<std::string> used_keys;
+	for(size_t q = 0; q < set.size(); ++q)
+	{
+		ASTAnnotation* a = set[q];
+		AnnotData data = AnnotData();
+		data.key = a->key->getValue();
+		data.type = ANNTY_NONE;
+		data.strval = "";
+		data.intval = 0;
+		if(a->strval)
+		{
+			data.type = ANNTY_STR;
+			data.strval = a->strval->getValue();
+		}
+		else if(a->intval)
+		{
+			data.type = ANNTY_INT;
+			data.intval = a->intval->getValue(nullptr);
+		}
+		
+		data.val = "";
+		data.unescaped_val = "";
+		switch(data.type)
+		{
+			case ANNTY_STR:
+				data.val = data.strval;
+				data.unescaped_val = util::disallow_escapes(util::escape_characters(data.strval));
+				break;
+			case ANNTY_INT:
+				data.val = data.unescaped_val = to_string(data.intval);
+				break;
+		}
+		annot_err_txt = "@" + data.key + "(" + data.val + ")";
+		
+		if(used_keys.contains(data.key))
+		{
+			annot_errstr("ERROR: Duplicate Annotation Key: @"+data.key+" was already set.");
+			continue;
+		}
+		if(!fn(data))
+			annot_errstr("ERROR: Bad Annotation Key: '"+data.val+"'");
+	}
+	delete list;
+}
 
-#define POSTFIX(klass, dd, d1, ad) \
-	klass* postfix = new klass(ad); \
-	ASTExpr* operand = (ASTExpr*)d1; \
-	postfix->operand = operand; \
-	dd = postfix;
-
-#define BINARY(klass, dd, d1, d3, ad) \
-	ASTExpr* left = (ASTExpr*)d1; \
-	ASTExpr* right = (ASTExpr*)d3; \
-	dd = new klass(left, right, ad);
-
-#define SHORTCUT(klass, dd, d1, d3, ad, a3)		\
-	ASTExpr* left = (ASTExpr*)d1; \
-	ASTExpr* right = (ASTExpr*)d3; \
-	klass* rval = new klass(left->clone(), right, a3);	\
-	dd = new ASTExprAssign(left, rval, ad);
+ASTExpr* handle_statement_expr(ASTExpr* expr)
+{
+	if(ASTExprIncrement* increm = dynamic_cast<ASTExprIncrement*>(expr))
+	{
+		increm->is_pre = true;
+	}
+	else if(ASTExprDecrement* decrem = dynamic_cast<ASTExprDecrement*>(expr))
+	{
+		decrem->is_pre = true;
+	}
+	return expr;
+}
 
 #pragma warning( disable : 4065 )
 %}
@@ -88,8 +160,8 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 }
 
 %glr-parser
-%expect 4
-%error-verbose
+%expect 6
+%define parse.error verbose
 %start Init
 %parse-param {std::unique_ptr<ZScript::ASTFile>& root}
 
@@ -99,6 +171,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token SCRIPT
 %token ZCLASS
 %token FOR
+%token LOOP
 %token IF
 %token ELSE
 %token SWITCH
@@ -970,68 +1043,24 @@ Class_Block_Element :
 Annotated_Script :
 	Annotation_List Script {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
-		owning_vector<ASTAnnotation>& set = list->set;
 		ASTScript* script = (ASTScript*)$2;
-		std::string errheader = "ERROR: Bad Annotation Value";
-		int32_t err_row, err_col;
-		err_row = list->location.first_line;
-		err_col = list->location.first_column;
-		std::set<std::string> used_keys;
-		#define ANNOT_ERRSTR(errstr) yyerrmsg(errstr, err_row, err_col, err_txt)
-		for(size_t q = 0; q < set.size(); ++q)
+		handle_annotations(list, [&](AnnotData& data)
 		{
-			ASTAnnotation* a = set[q];
-			std::string key = a->key->getValue();
-			bool is_string = false;
-			
-			std::string strval;
-			int32_t intval = 0;
-			if(a->strval)
-			{
-				is_string = true;
-				strval = a->strval->getValue();
-			}
-			else if(a->intval)
-			{
-				intval = a->intval->getValue(nullptr);
-			}
-			
-			std::string oldstrval = strval;
-			std::string annot_str = "@" + key + "(" + (is_string ? strval : std::to_string(intval)) + ")";
-			std::string val, unescaped_val;
-			if(is_string)
-			{
-				val = strval;
-				unescaped_val = util::disallow_escapes(util::escape_characters(strval));
-			}
-			else
-			{
-				val = unescaped_val = std::to_string(intval);
-			}
-			char const* err_txt = annot_str.c_str();
-			
-			if(used_keys.contains(key))
-			{
-				ANNOT_ERRSTR("ERROR: Duplicate Annotation Key: @"+key+" was already set.");
-				continue;
-			}
-			
+			auto& key = data.key;
 			if(key == "Author")
 			{
-				if(is_string)
+				if(annot_type_check(ANNTY_STR, data))
 				{
-					trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-					script->metadata.author = unescaped_val;
+					annot_trunc_str(data.unescaped_val, 255);
+					script->metadata.author = data.unescaped_val;
 				}
-				else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-				continue;
+				return true;
 			}
 			else if(key == "InitScript")
 			{
-				if(is_string)
-					ANNOT_ERRSTR(errheader+": @"+key+" expects a number, not a string");
-				else script->init_weight = intval;
-				continue;
+				if(annot_type_check(ANNTY_INT, data))
+					script->init_weight = data.intval;
+				return true;
 			}
 			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
 			{
@@ -1040,13 +1069,12 @@ Annotated_Script :
 					c = (c*10)+key[5]-'0';
 				if(c < 16)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-						script->metadata.usrflags[c] = unescaped_val;
+						annot_trunc_str(data.unescaped_val, 255);
+						script->metadata.usrflags[c] = data.unescaped_val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
 			else if((key.size() == 9 || key.size() == 10) && !key.compare(0,8,"FlagHelp"))
@@ -1056,13 +1084,12 @@ Annotated_Script :
 					c = (c*10)+key[9]-'0';
 				if(c < 16)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-						script->metadata.usrflags_help[c] = val;
+						annot_trunc_str(data.val, 65535);
+						script->metadata.usrflags_help[c] = data.val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
 			else if(key.size() == 6 && !key.compare(0,5,"InitD"))
@@ -1070,13 +1097,12 @@ Annotated_Script :
 				byte c = key[5]-'0';
 				if(c < 8)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-						script->metadata.initd[c] = unescaped_val;
+						annot_trunc_str(data.unescaped_val, 255);
+						script->metadata.initd[c] = data.unescaped_val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
 			else if(key.size() == 10)
@@ -1086,21 +1112,21 @@ Annotated_Script :
 				{
 					if(c < 8)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
 							int8_t v = -1;
-							upperstr(val);
-							if(val.size() == 2 && val[0] == 'L')
+							upperstr(data.val);
+							if(data.val.size() == 2 && data.val[0] == 'L')
 							{
-								switch(val[1])
+								switch(data.val[1])
 								{
 									case 'D': v = nswapLDEC; break;
 									case 'H': v = nswapLHEX; break;
 								}
 							}
-							else if(val.size() == 1)
+							else if(data.val.size() == 1)
 							{
-								switch(val[0])
+								switch(data.val[0])
 								{
 									case 'D': v = nswapDEC; break;
 									case 'H': v = nswapHEX; break;
@@ -1109,53 +1135,48 @@ Annotated_Script :
 							}
 							if(unsigned(v) < nswapMAX)
 								script->metadata.initd_type[c] = v;
-							else if(val == "-1")
+							else if(data.val == "-1")
 								script->metadata.initd_type[c] = -1;
-							else yyerrmsg("ERROR: Bad Annotation Value: '@" + key + "' must be"
-									" exactly 'D','H','LD','LH','B', or '-1' NOT '" + oldstrval + "'.",
-									err_row, err_col, err_txt);
+							else annot_errstr("ERROR: Bad Annotation Value: '@" + key + "' must be"
+									" exactly 'D','H','LD','LH','B', or '-1' NOT '" + data.strval + "'.");
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 				else if(!key.compare(0,9,"InitDHelp"))
 				{
 					if(c < 8)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-							script->metadata.initd_help[c] = val;
+							annot_trunc_str(data.val, 65535);
+							script->metadata.initd_help[c] = data.val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 				else if(!key.compare(0,9,"Attribute"))
 				{
 					if(c < 10)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-							script->metadata.attributes[c] = unescaped_val;
+							annot_trunc_str(data.unescaped_val, 255);
+							script->metadata.attributes[c] = data.unescaped_val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 				else if(!key.compare(0,9,"Attribyte"))
 				{
 					if(c < 8)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-							script->metadata.attribytes[c] = unescaped_val;
+							annot_trunc_str(data.unescaped_val, 255);
+							script->metadata.attribytes[c] = data.unescaped_val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 			}
@@ -1164,13 +1185,12 @@ Annotated_Script :
 				byte c = key[10]-'0';
 				if(c < 8)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
-						script->metadata.attrishorts[c] = unescaped_val;
+						annot_trunc_str(data.unescaped_val, 255);
+						script->metadata.attrishorts[c] = data.unescaped_val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
 			else if(key.size() == 14)
@@ -1180,13 +1200,12 @@ Annotated_Script :
 					byte c = key[13]-'0';
 					if(c < 10)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-							script->metadata.attributes_help[c] = val;
+							annot_trunc_str(data.val, 65535);
+							script->metadata.attributes_help[c] = data.val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 				else if(!key.compare(0,13,"AttribyteHelp"))
@@ -1194,13 +1213,12 @@ Annotated_Script :
 					byte c = key[13]-'0';
 					if(c < 8)
 					{
-						if(is_string)
+						if(annot_type_check(ANNTY_STR, data))
 						{
-							trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-							script->metadata.attribytes_help[c] = val;
+							annot_trunc_str(data.val, 65535);
+							script->metadata.attribytes_help[c] = data.val;
 						}
-						else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-						continue;
+						return true;
 					}
 				}
 			}
@@ -1209,20 +1227,16 @@ Annotated_Script :
 				byte c = key[14]-'0';
 				if(c < 8)
 				{
-					if(is_string)
+					if(annot_type_check(ANNTY_STR, data))
 					{
-						trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
-						script->metadata.attrishorts_help[c] = val;
+						annot_trunc_str(data.val, 65535);
+						script->metadata.attrishorts_help[c] = data.val;
 					}
-					else ANNOT_ERRSTR(errheader+": @"+key+" expects a string, not a number");
-					continue;
+					return true;
 				}
 			}
-			
-			//continue before here for valid annotation
-			ANNOT_ERRSTR("ERROR: Bad Annotation Key: '"+annot_str+"'");
-		}
-		delete list;
+			return false;
+		});
 		$$ = script;}
 	;
 
@@ -1357,6 +1371,10 @@ Annotation :
 		val->negative = !val->negative;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
 		$$ = a;}
+	| HANDLE IDENTIFIER LPAREN RPAREN {
+		ASTString* key = (ASTString*)$2;
+		ASTAnnotation* a = new ASTAnnotation(key, @$);
+		$$ = a;}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -1385,11 +1403,12 @@ Statement :
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	// Normal Statements
-	| Expression SEMICOLON {$$ = $1;}
+	| Statement_Expression SEMICOLON {$$ = $1;}
 	| Statement_Block {$$ = $1;}
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
 	| Statement_For {$$ = $1;}
+	| Annotated_Loop {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
 	| Statement_Repeat {$$ = $1;}
@@ -1417,11 +1436,12 @@ Statement_NoSemicolon:
 	| DataTypeDef {$$ = $1;}
 	| DataEnum {$$ = $1;}
 	// Normal Statements
-	| Expression {$$ = $1;}
+	| Statement_Expression {$$ = $1;}
 	| Statement_Block {$$ = $1;}
 	| Statement_If {$$ = $1;}
 	| Statement_Switch {$$ = $1;}
 	| Statement_For {$$ = $1;}
+	| Annotated_Loop {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
 	| Statement_Return {$$ = $1;}
@@ -1535,7 +1555,7 @@ Statement_Switch_Cases :
 		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
 		cases->isDefault = true;
 		$$ = cases;}
-	| Statement_Switch_Cases CASE Expression_Range COLON {
+	| Statement_Switch_Cases CASE Expression_Const_Range COLON {
 		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
 		ASTRange* range = (ASTRange*)$3;
 		cases->ranges.push_back(range);
@@ -1552,7 +1572,7 @@ Statement_Switch_Cases :
 		ASTExprConst* key = (ASTExprConst*)$2;
 		cases->cases.push_back(key);
 		$$ = cases;}
-	| CASE Expression_Range COLON {
+	| CASE Expression_Const_Range COLON {
 		ASTSwitchCases* cases = new ASTSwitchCases(@$);
 		ASTRange* range = (ASTRange*)$2;
 		cases->ranges.push_back(range);
@@ -1575,30 +1595,44 @@ Statement_For :
 	| Statement_For_Each {$$ = $1;}
 	;
 
+Statement_CommaList :
+	Statement_CommaList COMMA Statement_NoSemicolon {
+		ASTNodeList<ASTStmt>* list = (ASTNodeList<ASTStmt>*)$1;
+		list->push((ASTStmt*)$3);
+		$$ = list;
+	}
+	| Statement_NoSemicolon {
+		ASTNodeList<ASTStmt>* list = new ASTNodeList<ASTStmt>();
+		list->push((ASTStmt*)$1);
+		$$ = list;
+	}
+	;
+
 Statement_For_Standard :
 	FOR LPAREN
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
-		Statement_NoSemicolon RPAREN
+		Statement_CommaList RPAREN
 		Block_Statement
 	{
 		ASTStmt* setup = (ASTStmt*)$3;
 		ASTExpr* test = (ASTExpr*)$5;
-		ASTStmt* increment = (ASTExpr*)$7;
+		ASTNodeList<ASTStmt>* increments = (ASTNodeList<ASTStmt>*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
-		$$ = new ASTStmtFor(setup, test, increment, body, nullptr, @$);
-	} | FOR LPAREN
+		$$ = new ASTStmtFor(setup, test, increments, body, nullptr, @$);
+	}
+	| FOR LPAREN
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
-		Statement_NoSemicolon RPAREN
+		Statement_CommaList RPAREN
 		Block_Statement ELSE Block_Statement
 	{
 		ASTStmt* setup = (ASTStmt*)$3;
 		ASTExpr* test = (ASTExpr*)$5;
-		ASTStmt* increment = (ASTExpr*)$7;
+		ASTNodeList<ASTStmt>* increments = (ASTNodeList<ASTStmt>*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
 		ASTBlock* elseStatement = (ASTBlock*)$11;
-		$$ = new ASTStmtFor(setup, test, increment, body, elseStatement, @$);
+		$$ = new ASTStmtFor(setup, test, increments, body, elseStatement, @$);
 	}
 	;
 
@@ -1623,6 +1657,117 @@ Statement_For_Each :
 		
 		$$ = new ASTStmtForEach(iden->getValue(), expr, body, elseblock, @$);
 		delete iden;
+	}
+	;
+
+Annotated_Loop :
+	Annotation_List Statement_Loop {
+		ASTAnnotationList* list = (ASTAnnotationList*)$1;
+		ASTStmtRangeLoop* loop = (ASTStmtRangeLoop*)$2;
+		handle_annotations(list, [&](AnnotData& data)
+		{
+			auto& key = data.key;
+			if(key == "AlwaysRunEndpoint")
+			{
+				if(annot_type_check(ANNTY_STR, data))
+				{
+					if(data.strval == "off")
+						loop->overflow = ASTStmtRangeLoop::OVERFLOW_ALLOW;
+					if(data.strval == "int")
+						loop->overflow = ASTStmtRangeLoop::OVERFLOW_INT;
+					else if(data.strval == "long" || data.strval == "float")
+						loop->overflow = ASTStmtRangeLoop::OVERFLOW_LONG;
+					else annot_errstr(annot_err_header+": '@"+key+"' must be"
+							" exactly 'off','int','float', or 'long', NOT '" + data.strval + "'.");
+				}
+				return true;
+			}
+			return false;
+		});
+		$$ = loop;}
+	| Statement_Loop {$$ = $1;}
+	;
+
+Statement_Loop :
+	Statement_Loop_Inf {$$ = $1;}
+	| Statement_Loop_Range {$$ = $1;}
+	;
+
+Statement_Loop_Inf :
+	LOOP LPAREN RPAREN Block_Statement
+	{
+		ASTExpr* test = new ASTBoolLiteral(true, @$);
+		ASTStmt* body = (ASTStmt*)$4;
+		$$ = new ASTStmtWhile(test,body,nullptr,@$);
+	};
+
+Statement_Loop_Range :
+	Statement_Loop_Range_Base ELSE Block_Statement
+	{
+		ASTStmtRangeLoop* loop = (ASTStmtRangeLoop*)$1;
+		ASTStmt* elseblock = (ASTExpr*)$3;
+		loop->elseBlock = elseblock;
+		$$ = loop;
+	}
+	| Statement_Loop_Range_Base {$$ = $1;}
+	;
+	
+Statement_Loop_Range_Base :
+	LOOP LPAREN DataType IDENTIFIER Token_In Expression_Range COMMA Expression RPAREN Block_Statement
+	{
+		ASTDataType* type = (ASTDataType*)$3;
+		ASTString* iden = (ASTString*)$4;
+		ASTRange* range = (ASTRange*)$6;
+		ASTExpr* incr = (ASTExpr*)$8;
+		ASTStmt* body = (ASTStmt*)$10;
+		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
+		delete iden;
+	}
+	| LOOP LPAREN IDENTIFIER Token_In Expression_Range COMMA Expression RPAREN Block_Statement
+	{
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
+		ASTString* iden = (ASTString*)$3;
+		ASTRange* range = (ASTRange*)$5;
+		ASTExpr* incr = (ASTExpr*)$7;
+		ASTStmt* body = (ASTStmt*)$9;
+		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
+		delete iden;
+	}
+	| LOOP LPAREN Expression_Range COMMA Expression RPAREN Block_Statement
+	{
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
+		ASTRange* range = (ASTRange*)$3;
+		ASTExpr* incr = (ASTExpr*)$5;
+		ASTStmt* body = (ASTStmt*)$7;
+		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
+	}
+	| LOOP LPAREN DataType IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
+	{
+		ASTDataType* type = (ASTDataType*)$3;
+		ASTString* iden = (ASTString*)$4;
+		ASTRange* range = (ASTRange*)$6;
+		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
+		ASTStmt* body = (ASTStmt*)$8;
+		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
+		delete iden;
+	}
+	| LOOP LPAREN IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
+	{
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
+		ASTString* iden = (ASTString*)$3;
+		ASTRange* range = (ASTRange*)$5;
+		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
+		ASTStmt* body = (ASTStmt*)$7;
+		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
+		delete iden;
+	}
+	| LOOP LPAREN Expression_Range RPAREN Block_Statement
+	{
+		ASTDataType* type = new ASTDataType(DataType::CFLOAT, @$);
+		ASTRange* range = (ASTRange*)$3;
+		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
+		ASTStmt* body = (ASTStmt*)$5;
+		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
 	}
 	;
 
@@ -1756,6 +1901,11 @@ Enum_Block:
 ////////////////////////////////////////////////////////////////
 // Expression Helpers
 
+ScopeRes :
+	SCOPERES {$$ = $1;}
+	//| RANGE_N {$$ = $1;}
+	;
+
 Identifier_List :
 	Mixed_Identifier_List {$$ = $1;}
 	| idlist_scopres {$$ = $1;}
@@ -1790,7 +1940,7 @@ Mixed_Identifier_List:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| Mixed_Identifier_List SCOPERES Identifier {
+	| Mixed_Identifier_List ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
@@ -1798,7 +1948,7 @@ Mixed_Identifier_List:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| idlist_dot SCOPERES Identifier {
+	| idlist_dot ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
@@ -1809,7 +1959,7 @@ Mixed_Identifier_List:
 	;
 
 idlist_scopres:
-	idlist_scopres SCOPERES Identifier {
+	idlist_scopres ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
@@ -1817,7 +1967,7 @@ idlist_scopres:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| Ambigious_Iden_List SCOPERES Identifier {
+	| Ambigious_Iden_List ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
@@ -1825,7 +1975,7 @@ idlist_scopres:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| SCOPERES Ambigious_Iden_List {
+	| ScopeRes Ambigious_Iden_List {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$2;
 		identifier->noUsing = true;
 		$$ = identifier;}
@@ -1945,104 +2095,104 @@ Expr_Arrow :
 
 Expr_3 : Expr_2 {$$ = $1;}
 	// Post Increment
-	| Expr_3 INCREMENT {POSTFIX(ASTExprIncrement, $$, $1, @$)}
+	| Expr_3 INCREMENT {$$ = new ASTExprIncrement(false, (ASTExpr*)$1, @$);}
 	// Post Decrement
-	| Expr_3 DECREMENT {POSTFIX(ASTExprDecrement, $$, $1, @$)}
+	| Expr_3 DECREMENT {$$ = new ASTExprDecrement(false, (ASTExpr*)$1, @$);}
 	// Function Call
 	| Function_Call {$$ = $1;}
 	// Subscript
 	| Expr_3 LBRACKET Expression RBRACKET {
-		BINARY(ASTExprIndex, $$, $1, $3, @$);}
+		$$ = new ASTExprIndex((ASTExpr*)$1, (ASTExpr*)$3, @$);;}
 	// Access
 	| Expr_Arrow {$$ = $1;}
 	;
 
 Expr_4 : Expr_3 {$$ = $1;}
 	// Pre Increment
-	| INCREMENT Expr_4 {PREFIX(ASTExprPreIncrement, $$, $2, @$)}
+	| INCREMENT Expr_4 {$$ = new ASTExprIncrement(true, (ASTExpr*)$2, @$);}
 	// Pre Decrement
-	| DECREMENT Expr_4 {PREFIX(ASTExprPreDecrement, $$, $2, @$)}
+	| DECREMENT Expr_4 {$$ = new ASTExprDecrement(true, (ASTExpr*)$2, @$);}
 	// Unary Minus
-	| MINUS Expr_4 {PREFIX(ASTExprNegate, $$, $2, @$)}
+	| MINUS Expr_4 {$$ = new ASTExprNegate((ASTExpr*)$2, @$);}
 	// Logical Not
-	| NOT Expr_4 {PREFIX(ASTExprNot, $$, $2, @$)}
+	| NOT Expr_4 {$$ = new ASTExprNot((ASTExpr*)$2, @$);}
 	// Bitwise Not
-	| BITNOT Expr_4 {PREFIX(ASTExprBitNot, $$, $2, @$)}
+	| BITNOT Expr_4 {$$ = new ASTExprBitNot((ASTExpr*)$2, @$);}
 	;
 
 Expr_5 : Expr_4 {$$ = $1;}
 	// Exponentiation
-	| Expr_5 EXPN Expr_4 {BINARY(ASTExprExpn, $$, $1, $3, @$)}
+	| Expr_5 EXPN Expr_4 {$$ = new ASTExprExpn((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_6 : Expr_5 {$$ = $1;}
 	// Multiplication
-	| Expr_6 TIMES Expr_5 {BINARY(ASTExprTimes, $$, $1, $3, @$)}
+	| Expr_6 TIMES Expr_5 {$$ = new ASTExprTimes((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Division
-	| Expr_6 DIVIDE Expr_5 {BINARY(ASTExprDivide, $$, $1, $3, @$)}
+	| Expr_6 DIVIDE Expr_5 {$$ = new ASTExprDivide((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Remainder
-	| Expr_6 MODULO Expr_5 {BINARY(ASTExprModulo, $$, $1, $3, @$)}
+	| Expr_6 MODULO Expr_5 {$$ = new ASTExprModulo((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_7 : Expr_6 {$$ = $1;}
 	// Addition
-	| Expr_7 PLUS Expr_6 {BINARY(ASTExprPlus, $$, $1, $3, @$)}
+	| Expr_7 PLUS Expr_6 {$$ = new ASTExprPlus((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Subtraction
-	| Expr_7 MINUS Expr_6 {BINARY(ASTExprMinus, $$, $1, $3, @$)}
+	| Expr_7 MINUS Expr_6 {$$ = new ASTExprMinus((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_8 : Expr_7 {$$ = $1;}
 	// Left Shift
-	| Expr_8 LSHIFT Expr_7 {BINARY(ASTExprLShift, $$, $1, $3, @$)}
+	| Expr_8 LSHIFT Expr_7 {$$ = new ASTExprLShift((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Right Shift
-	| Expr_8 RSHIFT Expr_7 {BINARY(ASTExprRShift, $$, $1, $3, @$)}
+	| Expr_8 RSHIFT Expr_7 {$$ = new ASTExprRShift((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_9 : Expr_8 {$$ = $1;}
 	// Less Than
-	| Expr_9 LT Expr_8 {BINARY(ASTExprLT, $$, $1, $3, @$)}
+	| Expr_9 LT Expr_8 {$$ = new ASTExprLT((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Less Than or Equal
-	| Expr_9 LE Expr_8 {BINARY(ASTExprLE, $$, $1, $3, @$)}
+	| Expr_9 LE Expr_8 {$$ = new ASTExprLE((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Greater Than
-	| Expr_9 GT Expr_8 {BINARY(ASTExprGT, $$, $1, $3, @$)}
+	| Expr_9 GT Expr_8 {$$ = new ASTExprGT((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Greater Than or Equal
-	| Expr_9 GE Expr_8 {BINARY(ASTExprGE, $$, $1, $3, @$)}
+	| Expr_9 GE Expr_8 {$$ = new ASTExprGE((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_10 : Expr_9 {$$ = $1;}
 	// Equality
-	| Expr_10 EQ Expr_9 {BINARY(ASTExprEQ, $$, $1, $3, @$)}
+	| Expr_10 EQ Expr_9 {$$ = new ASTExprEQ((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Inequality
-	| Expr_10 NE Expr_9 {BINARY(ASTExprNE, $$, $1, $3, @$)}
+	| Expr_10 NE Expr_9 {$$ = new ASTExprNE((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Approximate Equality
-	| Expr_10 APPXEQUAL Expr_9 {BINARY(ASTExprAppxEQ, $$, $1, $3, @$)}
+	| Expr_10 APPXEQUAL Expr_9 {$$ = new ASTExprAppxEQ((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Logical XOR
-	| Expr_10 XOR Expr_9 {BINARY(ASTExprXOR, $$, $1, $3, @$)}
+	| Expr_10 XOR Expr_9 {$$ = new ASTExprXOR((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_11 : Expr_10 {$$ = $1;}
 	// Bitwise And
-	| Expr_11 BITAND Expr_10 {BINARY(ASTExprBitAnd, $$, $1, $3, @$)}
+	| Expr_11 BITAND Expr_10 {$$ = new ASTExprBitAnd((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_12 : Expr_11 {$$ = $1;}
 	// Bitwise Xor
-	| Expr_12 BITXOR Expr_11 {BINARY(ASTExprBitXor, $$, $1, $3, @$)}
+	| Expr_12 BITXOR Expr_11 {$$ = new ASTExprBitXor((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_13 : Expr_12 {$$ = $1;}
 	// Bitwise Or
-	| Expr_13 BITOR Expr_12 {BINARY(ASTExprBitOr, $$, $1, $3, @$)}
+	| Expr_13 BITOR Expr_12 {$$ = new ASTExprBitOr((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_14 : Expr_13 {$$ = $1;}
 	// Logical And
-	| Expr_14 AND Expr_13 {BINARY(ASTExprAnd, $$, $1, $3, @$)}
+	| Expr_14 AND Expr_13 {$$ = new ASTExprAnd((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_15 : Expr_14 {$$ = $1;}
 	// Logical Or
-	| Expr_15 OR Expr_14 {BINARY(ASTExprOr, $$, $1, $3, @$)}
+	| Expr_15 OR Expr_14 {$$ = new ASTExprOr((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	;
 
 Expr_16 : Expr_15 {$$ = $1;}
@@ -2066,43 +2216,84 @@ Expr_17 : Expr_16 {$$ = $1;}
 
 Expr_18 : Expr_17 {$$ = $1;}
 	// Assignment
-	| Expr_17 ASSIGN Expr_18 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
+	| Expr_17 ASSIGN Expr_18 {$$ = new ASTExprAssign((ASTExpr*)$1, (ASTExpr*)$3, @$);}
 	// Addition Assignment
-	| Expr_17 PLUSASSIGN Expr_18 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
+	| Expr_17 PLUSASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprPlus(left->clone(), right, @3), @$);}
 	// Subtraction Assignment
-	| Expr_17 MINUSASSIGN Expr_18 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
+	| Expr_17 MINUSASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprMinus(left->clone(), right, @3), @$);}
 	// Multiplication Assignment
-	| Expr_17 TIMESASSIGN Expr_18 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
+	| Expr_17 TIMESASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprTimes(left->clone(), right, @3), @$);}
 	// Division Assignment
-	| Expr_17 DIVIDEASSIGN Expr_18 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
+	| Expr_17 DIVIDEASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprDivide(left->clone(), right, @3), @$);}
 	// Modulus Assignment
-	| Expr_17 MODULOASSIGN Expr_18 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
+	| Expr_17 MODULOASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprModulo(left->clone(), right, @3), @$);}
 	// Left Shift Assignment
-	| Expr_17 LSHIFTASSIGN Expr_18 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
+	| Expr_17 LSHIFTASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprLShift(left->clone(), right, @3), @$);}
 	// Right Shift Assignment
-	| Expr_17 RSHIFTASSIGN Expr_18 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
+	| Expr_17 RSHIFTASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprRShift(left->clone(), right, @3), @$);}
 	// Bitwise And Assignment
-	| Expr_17 BITANDASSIGN Expr_18 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	| Expr_17 BITANDASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprBitAnd(left->clone(), right, @3), @$);}
 	// BitNot Assignment
 	// `a ~= b` == `a &= ~b` == `a = a & ~b`
 	| Expr_17 BITNOTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
-		ASTExprBitNot* bitnot = new ASTExprBitNot(@$);
-		bitnot->operand = right;
-		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), bitnot, @3);
+		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), new ASTExprBitNot(right, @$), @3);
 		$$ = new ASTExprAssign(left, rval, @$);}
 	// Bitwise Xor Assignment
-	| Expr_17 BITXORASSIGN Expr_18 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
+	| Expr_17 BITXORASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprBitXor(left->clone(), right, @3), @$);}
 	// Bitwise Or Assignment
-	| Expr_17 BITORASSIGN Expr_18 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
+	| Expr_17 BITORASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprBitOr(left->clone(), right, @3), @$);}
 	// Logical And Assignment
-	| Expr_17 ANDASSIGN Expr_18 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
+	| Expr_17 ANDASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprAnd(left->clone(), right, @3), @$);}
 	// Logical Or Assignment
-	| Expr_17 ORASSIGN Expr_18 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
+	| Expr_17 ORASSIGN Expr_18 {
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* right = (ASTExpr*)$3;
+		$$ = new ASTExprAssign(left, new ASTExprOr(left->clone(), right, @3), @$);}
 		 ;
 
 Expression : Expr_18 {$$ = $1;};
+
+Statement_Expression :
+	Expression {
+		ASTExpr* expr = (ASTExpr*)$1;
+		expr = handle_statement_expr(expr);
+		$$ = expr;}
+	;
 
 Expression_Constant :
 	Expression {
@@ -2110,26 +2301,61 @@ Expression_Constant :
 		$$ = new ASTExprConst(content, @$);}
 	;
 
+Expression_Const_Range :
+	Expression_Range {
+		ASTRange* range = (ASTRange*)$1;
+		ASTExpr* start = range->start.release();
+		range->start = new ASTExprConst(start, start->location);
+		ASTExpr* end = range->end.release();
+		range->end = new ASTExprConst(end, end->location);
+		$$ = range;
+	};
+	
 Expression_Range :
-	Expression_Constant RANGE Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	//Classic A...B -> A <= x <= B
+	Expression RANGE Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
-	| Expression_Constant RANGE_LR Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	//New A=..=B -> A <= x <= B
+	| Expression RANGE_LR Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
-	| Expression_Constant RANGE_L Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	//New A=..B -> A <= x < B
+	| Expression RANGE_L Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_L, @$);}
-	| Expression_Constant RANGE_R Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	//New A..=B -> A < x <= B
+	| Expression RANGE_R Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_R, @$);}
-	| Expression_Constant RANGE_N Expression_Constant {
-		ASTExprConst* start = (ASTExprConst*)$1;
-		ASTExprConst* end = (ASTExprConst*)$3;
+	//New A..B -> A < x < B
+	| Expression RANGE_N Expression {
+		ASTExpr* start = (ASTExpr*)$1;
+		ASTExpr* end = (ASTExpr*)$3;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_N, @$);}
+	//Mathematical [A, B] -> A <= x <= B
+	| LBRACKET Expression COMMA Expression RBRACKET {
+		ASTExpr* start = (ASTExpr*)$2;
+		ASTExpr* end = (ASTExpr*)$4;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_LR, @$);}
+	//Mathematical [A, B) -> A <= x < B
+	| LBRACKET Expression COMMA Expression RPAREN {
+		ASTExpr* start = (ASTExpr*)$2;
+		ASTExpr* end = (ASTExpr*)$4;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_L, @$);}
+	//Mathematical (A, B] -> A < x <= B
+	| LPAREN Expression COMMA Expression RBRACKET {
+		ASTExpr* start = (ASTExpr*)$2;
+		ASTExpr* end = (ASTExpr*)$4;
+		$$ = new ASTRange(start, end, ASTRange::RANGE_R, @$);}
+	//Mathematical (A, B) -> A < x < B
+	| LPAREN Expression COMMA Expression RPAREN {
+		ASTExpr* start = (ASTExpr*)$2;
+		ASTExpr* end = (ASTExpr*)$4;
 		$$ = new ASTRange(start, end, ASTRange::RANGE_N, @$);}
 	;
 
@@ -2145,9 +2371,7 @@ Literal :
 		$$ = new ASTLongNumberLiteral(val, @$);}
 	| SINGLECHAR {
 		ASTString* as = (ASTString*)$1;
-		char val[15];
-		sprintf(val, "%d", as->getValue().at(1));
-		ASTFloat* number = new ASTFloat(val, (ASTFloat::Type)0, @$);
+		ASTFloat* number = new ASTFloat(int(as->getValue().at(1)), 0, @$);
 		$$ = new ASTCharLiteral(number, @$);}
 	| Literal_String {$$ = $1;}
 	| Literal_Bool {$$ = $1;}

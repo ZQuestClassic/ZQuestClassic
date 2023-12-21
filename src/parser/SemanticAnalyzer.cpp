@@ -33,17 +33,16 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		UserClass* _class = function.getClass();
 		DataType const* thisType = &_class->getNode()->type->resolve(*scope,this);
 		DataType const* constType = thisType->getConstType();
-		BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
+		function.thisVar = BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
 		function.getInternalScope()->stackDepth_--;
 	}
 	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
-	Scope& functionScope = *function.getInternalScope();
 
 	// Grab the script.
 	Script* script = NULL;
-	if (ScriptScope* ss = dynamic_cast<ScriptScope*>(scope))
+	if (ScriptScope* ss = dynamic_cast<ScriptScope*>(scope->getParent()))
 		script = &ss->script;
 
 	// Add the parameters to the scope.
@@ -53,9 +52,9 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	{
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
-		DataType const& type = parameter.resolveType(&functionScope, this);
+		DataType const& type = parameter.resolveType(scope, this);
 		if (breakRecursion(parameter)) continue;
-		Variable::create(functionScope, parameter, type, this);
+		function.paramDatum.push_back(Variable::create(*scope, parameter, type, this));
 	}
 	if(breakRecursion()) return;
 	
@@ -68,30 +67,28 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		{
 			case ZTID_PLAYER:
 				function.thisVar =
-					BuiltinConstant::create(functionScope, DataType::PLAYER, "this", 0);
+					BuiltinConstant::create(*scope, DataType::PLAYER, "this", 0);
 				break;
 			case ZTID_SCREEN:
 				function.thisVar =
-					BuiltinConstant::create(functionScope, DataType::SCREEN, "this", 0);
+					BuiltinConstant::create(*scope, DataType::SCREEN, "this", 0);
 				break;
 			case ZTID_VOID:
 				function.thisVar =
-					BuiltinVariable::create(functionScope, DataType::ZVOID, "", 0);
+					BuiltinVariable::create(*scope, DataType::ZVOID, "", 0);
 				break;
 			default:
 				DataType const* thisType = scope->getTypeStore().getType(thisTypeId);
 				DataType const* constType = thisType->getConstType();
 				function.thisVar =
-					BuiltinVariable::create(functionScope, constType != NULL ? *constType : *thisType, "this", this);
+					BuiltinVariable::create(*scope, constType != NULL ? *constType : *thisType, "this", this);
 		}
 	}
 
 	// Evaluate the function block under its scope and return type.
 	DataType const* oldReturnType = returnType;
 	returnType = function.returnType;
-	scope = &functionScope;
 	visit(functionDecl->block.get());
-	scope = scope->getParent();
 	returnType = oldReturnType;
 }
 
@@ -219,7 +216,7 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 		host.isString = true;
 		for (vector<ASTSwitchCases*>::iterator it = host.cases.begin(); it != host.cases.end(); ++it)
 		{
-			visit(host, (*it)->str_cases, param);
+			visit_vec((*it)->str_cases, param);
 		}
 	}
 	
@@ -233,17 +230,23 @@ void SemanticAnalyzer::caseRange(ASTRange& host, void*)
 {
 	RecursiveVisitor::caseRange(host);
 	if(breakRecursion(host)) return;
-	std::optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
-	std::optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
-	//`start` and `end` must exist, as they are ASTConstExpr. -Em
-	assert(start && end);
-	if(*start > *end)
+	auto start = host.start->getCompileTimeValue(this, scope);
+	auto end = host.end->getCompileTimeValue(this, scope);
+	
+	if(start && end) //constant ranges must be correctly oriented
 	{
-		handleError(CompileError::RangeInverted(&host, *start, *end));
-	}
-	else if(*start == *end)
-	{
-		handleError(CompileError::RangeEqual(&host, *start, *end));
+		auto start_incl = host.getStartVal(true, this, scope);
+		auto end_incl = host.getEndVal(true, this, scope);
+		char sc = (host.type & ASTRange::RANGE_L) ? '[' : '(';
+		char ec = (host.type & ASTRange::RANGE_R) ? ']' : ')';
+		if(*start > *end)
+		{
+			handleError(CompileError::RangeOrientation(&host, fmt::format("Left must be <= right {}{},{}{}", sc, *start, *end, ec).c_str()));
+		}
+		else if(*start_incl > *end_incl)
+		{
+			handleError(CompileError::RangeOrientation(&host, fmt::format("Range cannot be empty {}{},{}{}", sc, *start, *end, ec).c_str()));
+		}
 	}
 }
 
@@ -309,6 +312,59 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	
 	scope = scope->getParent();
     if (breakRecursion(host)) return;
+	
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
+}
+
+void SemanticAnalyzer::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
+{
+	//Use sub-scope
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
+	
+	visit(host.type.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	visit(host.range.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	visit(host.increment.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	//Get the type of the decl
+	DataType const& dataty = host.type->resolve(*scope, this);
+	checkCast(DataType::FLOAT, dataty, &host);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	//The data declaration
+	ASTDataDecl* decl = new ASTDataDecl(host.location);
+	decl->name = host.iden;
+	decl->baseType = new ASTDataType(dataty, host.location);
+	auto incrval = host.increment->getCompileTimeValue(this, scope);
+	optional<int> declval;
+	if(incrval) //If we know at compile-time what direction we are going, initialize the startval
+	{
+		if(*incrval > 0)
+			declval = host.range->getStartVal(true, this, scope);
+		else if(*incrval < 0)
+			declval = host.range->getEndVal(true, this, scope);
+		else declval = 0;
+	}
+	if(declval)
+		decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*declval), host.location), host.location));
+	decl->setFlag(ASTDataDecl::FL_FORCE_VAR|ASTDataDecl::FL_SKIP_EMPTY_INIT);
+	host.decl = decl;
+	
+	visit(host.decl.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	visit(host.body.get(), param);
+	if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	scope = scope->getParent();
+	if (breakRecursion(host)) return;
 	
 	if(host.hasElse())
 		visit(host.elseBlock.get(), param);
@@ -509,14 +565,14 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 		}
 	}
 	// Recurse on list contents.
-	visit(host, host.getDeclarations());
+	visit_vec(host.getDeclarations());
 }
 
 void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 {
 	if(host.registered())
 	{
-		visit(host, host.getDeclarations());
+		visit_vec(host.getDeclarations());
 		return;
 	}
 	// Resolve the base type.
@@ -639,7 +695,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 
 		// Is it a constant?
 		bool isConstant = false;
-		if (type->isConstant())
+		if (type->isConstant() && !host.getFlag(ASTDataDecl::FL_FORCE_VAR))
 		{
 			// A constant without an initializer doesn't make sense.
 			if (!host.getInitializer())
@@ -869,7 +925,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	}
 	
 	if(breakRecursion(host)) {scope = oldScope; return;}
-	visit(host, host.optparams, param);
+	visit_vec(host.optparams, param);
 	if(breakRecursion(host)) {scope = oldScope; return;}
 	
 	auto parcnt = paramTypes.size() - host.optparams.size();
@@ -1017,7 +1073,7 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 		//Re-visit the constructors now
 		parsing_user_class = puc_construct;
 		scope = &user_class.getScope();
-		block_visit(host, host.constructors, param);
+		block_visit_vec(host.constructors, param);
 		scope = scope->getParent();
 		parsing_user_class = puc_none;
 	}
@@ -1358,7 +1414,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		if (breakRecursion(host)) return;
 	}
 
-	visit(host, host.parameters);
+	visit_vec(host.parameters);
 	if (breakRecursion(host)) return;
 	
 	if(host.binding)
@@ -1684,17 +1740,7 @@ void SemanticAnalyzer::caseExprIncrement(ASTExprIncrement& host, void*)
 	analyzeIncrement(host);
 }
 
-void SemanticAnalyzer::caseExprPreIncrement(ASTExprPreIncrement& host, void*)
-{
-	analyzeIncrement(host);
-}
-
 void SemanticAnalyzer::caseExprDecrement(ASTExprDecrement& host, void*)
-{
-	analyzeIncrement(host);
-}
-
-void SemanticAnalyzer::caseExprPreDecrement(ASTExprPreDecrement& host, void*)
 {
 	analyzeIncrement(host);
 }

@@ -29,6 +29,16 @@ public:
 			: vector_(first, last) {}
 	owning_vector(owning_vector const& other)
 			: vector_(other.cloneData()) {}
+	owning_vector(owning_vector&& other)
+	{
+		clear();
+		swap(other);
+	}
+	owning_vector& operator=(owning_vector&& other)
+	{
+		clear();
+		swap(other);
+	}
 	~owning_vector() {deleteData();}
 	owning_vector& operator=(owning_vector const& rhs)
 	{

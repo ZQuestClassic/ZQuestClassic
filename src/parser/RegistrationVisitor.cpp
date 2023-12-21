@@ -35,7 +35,7 @@ void RegistrationVisitor::visit(AST& node, void* param)
 }
 
 template <class Container>
-void RegistrationVisitor::block_regvisit(AST& host, Container const& nodes, void* param)
+void RegistrationVisitor::block_regvisit_vec(Container const& nodes, void* param)
 {
 	for (auto it = nodes.cbegin();
 		 it != nodes.cend(); ++it)
@@ -72,31 +72,31 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 		scope = host.scope;
 	else
 		scope = host.scope = scope->makeFileChild(host.asString());
-	block_regvisit(host, host.options, param);
+	block_regvisit_vec(host.options, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.use, param);
+	block_regvisit_vec(host.use, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.dataTypes, param);
+	block_regvisit_vec(host.dataTypes, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.scriptTypes, param);
+	block_regvisit_vec(host.scriptTypes, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.imports, param);
+	block_regvisit_vec(host.imports, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.condimports, param);
+	block_regvisit_vec(host.condimports, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.variables, param);
+	block_regvisit_vec(host.variables, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.functions, param);
+	block_regvisit_vec(host.functions, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.namespaces, param);
+	block_regvisit_vec(host.namespaces, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.scripts, param);
+	block_regvisit_vec(host.scripts, param);
 	if (breakRecursion(host, param)) return;
-	block_regvisit(host, host.classes, param);
-	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
-		&& registered(host, host.scriptTypes) && registered(host, host.imports) && registered(host, host.variables)
-		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts)
-		&& registered(host, host.condimports) && registered(host, host.classes))
+	block_regvisit_vec(host.classes, param);
+	if(registered_vec(host.options) && registered_vec(host.use) && registered_vec(host.dataTypes)
+		&& registered_vec(host.scriptTypes) && registered_vec(host.imports) && registered_vec(host.variables)
+		&& registered_vec(host.functions) && registered_vec(host.namespaces) && registered_vec(host.scripts)
+		&& registered_vec(host.condimports) && registered_vec(host.classes))
 	{
 		doRegister(host);
 	}
@@ -145,20 +145,20 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 
 	// Recurse on script elements with its scope.
 	scope = &script.getScope();
-	block_regvisit(host, host.options, param);
+	block_regvisit_vec(host.options, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.use, param);
+	block_regvisit_vec(host.use, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.types, param);
+	block_regvisit_vec(host.types, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.variables, param);
+	block_regvisit_vec(host.variables, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.functions, param);
+	block_regvisit_vec(host.functions, param);
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
-	if(!(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
-		&& registered(host, host.variables) && registered(host, host.functions)))
+	if(!(registered_vec(host.options) && registered_vec(host.use) && registered_vec(host.types)
+		&& registered_vec(host.variables) && registered_vec(host.functions)))
 	{
 		return;
 	}
@@ -239,22 +239,22 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 
 	// Recurse on user_class elements with its scope.
 	scope = &user_class.getScope();
-	block_regvisit(host, host.options, param);
+	block_regvisit_vec(host.options, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.use, param);
+	block_regvisit_vec(host.use, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit(host, host.types, param);
+	block_regvisit_vec(host.types, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	parsing_user_class = puc_vars;
-	block_regvisit(host, host.variables, param);
+	block_regvisit_vec(host.variables, param);
 	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	parsing_user_class = puc_funcs;
-	block_regvisit(host, host.functions, param);
+	block_regvisit_vec(host.functions, param);
 	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	parsing_user_class = puc_construct;
-	block_regvisit(host, host.constructors, param);
+	block_regvisit_vec(host.constructors, param);
 	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	parsing_user_class = puc_destruct;
@@ -263,9 +263,9 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
-	if(!(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
-		&& registered(host, host.variables) && registered(host, host.functions)
-		&& registered(host, host.constructors) && registered(host.destructor.get())))
+	if(!(registered_vec(host.options) && registered_vec(host.use) && registered_vec(host.types)
+		&& registered_vec(host.variables) && registered_vec(host.functions)
+		&& registered_vec(host.constructors) && registered(host.destructor.get())))
 	{
 		return;
 	}
@@ -282,27 +282,27 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 	// Namespaces' parent scope is RootScope*, not FileScope*. Store the FileScope* temporarily.
 	Scope* temp = scope;
 	scope = &namesp.getScope();
-	block_regvisit(host, host.options, param);
+	block_regvisit_vec(host.options, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit(host, host.dataTypes, param);
+	block_regvisit_vec(host.dataTypes, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit(host, host.scriptTypes, param);
+	block_regvisit_vec(host.scriptTypes, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit(host, host.use, param);
+	block_regvisit_vec(host.use, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit(host, host.variables, param);
+	block_regvisit_vec(host.variables, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit(host, host.functions, param);
+	block_regvisit_vec(host.functions, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit(host, host.namespaces, param);
+	block_regvisit_vec(host.namespaces, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit(host, host.scripts, param);
+	block_regvisit_vec(host.scripts, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit(host, host.classes, param);
+	block_regvisit_vec(host.classes, param);
 	scope = temp;
-	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
-		&& registered(host, host.scriptTypes) && registered(host, host.variables) && registered(host, host.functions)
-		&& registered(host, host.namespaces) && registered(host, host.scripts))
+	if(registered_vec(host.options) && registered_vec(host.use) && registered_vec(host.dataTypes)
+		&& registered_vec(host.scriptTypes) && registered_vec(host.variables) && registered_vec(host.functions)
+		&& registered_vec(host.namespaces) && registered_vec(host.scripts))
 	{
 		doRegister(host);
 	}
@@ -459,9 +459,9 @@ void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 	}
 
 	// Recurse on list contents.
-	visit(host, host.getDeclarations());
+	visit_vec(host.getDeclarations());
 	if (breakRecursion(host)) return;
-	if(registered(host, host.getDeclarations())) doRegister(host);
+	if(registered_vec(host.getDeclarations())) doRegister(host);
 }
 
 void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
@@ -518,7 +518,7 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 			return;
 		}
 	}
-	if(registered(host, host.getDeclarations())) doRegister(host);
+	if(registered_vec(host.getDeclarations())) doRegister(host);
 }
 
 void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
@@ -526,7 +526,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	// First do standard recursing.
 	RecursiveVisitor::caseDataDecl(host, paramRead);
 	if (breakRecursion(host)) return;
-	if(!(registered(host, host.extraArrays) && (!host.getInitializer() || registered(host.getInitializer())))) return;
+	if(!(registered_vec(host.extraArrays) && (!host.getInitializer() || registered(host.getInitializer())))) return;
 	// Then resolve the type.
 	DataType const* type = host.resolve_ornull(scope, this);
 	if (breakRecursion(host)) return;
@@ -643,7 +643,7 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 	// Type Check size expressions.
 	RecursiveVisitor::caseDataDeclExtraArray(host);
 	if (breakRecursion(host)) return;
-	if(!registered(host, host.dimensions)) return;
+	if(!registered_vec(host.dimensions)) return;
 	doRegister(host);
 	
 	// Iterate over sizes.
@@ -771,7 +771,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	}
 	
 	if(breakRecursion(host)) {scope = oldScope; return;}
-	visit(host, host.optparams, param);
+	visit_vec(host.optparams, param);
 	if(breakRecursion(host)) {scope = oldScope; return;}
 	
 	auto parcnt = paramTypes.size() - host.optparams.size();
@@ -908,9 +908,9 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 		r = registered(host.left.get());
 	}
 
-	visit(host, host.parameters);
+	visit_vec(host.parameters);
 	if (breakRecursion(host)) return;
-	if(!(r && registered(host, host.parameters)))
+	if(!(r && registered_vec(host.parameters)))
 		return; //can't resolve yet
 
 	UserClass* user_class = nullptr;
@@ -1228,17 +1228,7 @@ void RegistrationVisitor::caseExprIncrement(ASTExprIncrement& host, void* param)
 	analyzeUnaryExpr(host);
 }
 
-void RegistrationVisitor::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
-{
-	analyzeUnaryExpr(host);
-}
-
 void RegistrationVisitor::caseExprDecrement(ASTExprDecrement& host, void* param)
-{
-	analyzeUnaryExpr(host);
-}
-
-void RegistrationVisitor::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 {
 	analyzeUnaryExpr(host);
 }
@@ -1376,7 +1366,7 @@ void RegistrationVisitor::caseDataType(ASTDataType& host, void* param)
 void RegistrationVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 {
 	RecursiveVisitor::caseArrayLiteral(host, param);
-	if(registered(host.type.get()) && registered(host.size.get()) && registered(host, host.elements))
+	if(registered(host.type.get()) && registered(host.size.get()) && registered_vec(host.elements))
 		doRegister(host);
 }
 
@@ -1416,7 +1406,7 @@ bool RegistrationVisitor::registered(AST* node) const
 }
 
 template <class Container>
-bool RegistrationVisitor::registered(AST& host, Container const& nodes) const
+bool RegistrationVisitor::registered_vec(Container const& nodes) const
 {
 	for(auto it = nodes.cbegin(); it != nodes.cend(); ++it)
 	{

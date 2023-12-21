@@ -180,10 +180,8 @@ void handleNil(int32_t refVar, Function* function)
 	function->setFlag(FUNCFLAG_INLINE);
 	if(refVar == NUL)
 		function->setFlag(IFUNCFLAG_SKIPPOINTER);
-	int32_t label = function->getLabel();
 	vector<shared_ptr<Opcode>> code;
-	addOpcode2(code, new ONoOp());
-	LABELBACK(label);
+	addOpcode2(code, new ONoOp(function->getLabel()));
 	function->giveCode(code);
 }
 

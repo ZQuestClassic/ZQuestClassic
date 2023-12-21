@@ -168,6 +168,7 @@ namespace ZScript
 		//
 		bool operator==(Scope* other) {return id == other->getId();}
 		
+		virtual bool remove(ZScript::Datum&) = 0;
 		
 	protected:
 		TypeStore& typeStore_;
@@ -176,7 +177,7 @@ namespace ZScript
 		int32_t getId() const {return id;}
 
 	private:
-		// Add the datum to this scope, returning if successful. Called by
+		// Add/Remove the datum to this scope, returning if successful. Called by
 		// the Datum classes' ::create functions.
 		virtual bool add(ZScript::Datum&, CompileErrorHandler*) = 0;
 		int32_t id;
@@ -265,6 +266,8 @@ namespace ZScript
 	// Get the stack offset for a datum, checking parents until we hit a
 	// root.
 	std::optional<int32_t> lookupStackOffset(Scope const&, Datum const&);
+	// Remove a datum from existence
+	bool eraseDatum(Scope const& scope, Datum& datum);
 
 	// Find the total size of the stack scope is in.
 	std::optional<int32_t> lookupStackSize(Scope const&);
@@ -381,6 +384,7 @@ namespace ZScript
 		virtual std::optional<int32_t> getLocalStackOffset(Datum const& datum) const;
 
 		int32_t stackDepth_;
+		virtual bool remove(Datum&);
 	protected:
 		Scope* parent_;
 		FileScope* parentFile_;
@@ -404,6 +408,7 @@ namespace ZScript
 
 		virtual bool can_add(Datum&, CompileErrorHandler* errorHandler = nullptr);
 		virtual bool add(Datum&, CompileErrorHandler*);
+		void decr_stack_recursive(optional<int32_t> offset = nullopt);
 		
 	private:
 		// Disabled since it's easy to call by accident instead of the Scope*

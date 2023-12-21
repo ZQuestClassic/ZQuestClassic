@@ -50,6 +50,9 @@ static AccessorTable GlobalTable[] =
 	{ "OverlayTile",             0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "Floor",                   0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
 	{ "Ceiling",                 0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "Truncate",                0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "Round",                   0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "RoundAway",               0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
 	{ "GetSystemTime",           0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
 
 	{ "Distance",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -602,6 +605,17 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0] && args[1])
+				{
+					if(!*args[0] && !*args[1])
+						val = 1; //0^0
+					else val = int(pow(*args[0]/10000.0,*args[1]/10000.0)*10000);
+				}
+				return val;
+			});
 	}
 	//int32_t LPow(int32_t first, int32_t second)
 	{
@@ -614,6 +628,17 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OLPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0] && args[1])
+				{
+					if(!*args[0] && !*args[1])
+						val = 1; //0^0
+					else val = int(pow(*args[0],*args[1]));
+				}
+				return val;
+			});
 	}
 	//int32_t InvPow(int32_t first, int32_t second)
 	{
@@ -626,6 +651,27 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OInvPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0] && args[1])
+				{
+					double v1 = *args[0]/10000.0;
+					if(!*args[1])
+					{
+						handler->handleError(CompileError::DivByZero(&node,"divide","InvPow(): "));
+						val = 10000;
+					}
+					else
+					{
+						double v2 = 10000.0 / *args[1];
+						if(!v1 && !v2)
+							val = 1; //0^0
+						else val = int(pow(v1,v2));
+					}
+				}
+				return val;
+			});
 	}
 	//int32_t Factorial(int32_t val)
 	{
@@ -637,6 +683,24 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OFactorial(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					auto v = *args[0] / 10000;
+					if(v < 2)
+						val = (v >= 0) ? 10000 : 0;
+					else
+					{
+						int prod = 1;
+						for(int q = v; v > 1; --v)
+							prod *= q;
+						val = prod*10000;
+					}
+				}
+				return val;
+			});
 	}
 	//int32_t Abs(int32_t val)
 	{
@@ -648,6 +712,17 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OAbsRegister(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					val = *args[0];
+					if(*val < 0)
+						val = -*val;
+				}
+				return val;
+			});
 	}
 	//int32_t Log10(int32_t val)
 	{
@@ -681,6 +756,24 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OSqrtRegister(new VarArgument(EXP1), new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+				{
+					double v = *args[0]/10000.0;
+					if(v < 0)
+					{
+						handler->handleError(CompileError::NegSqrt(&node));
+						val = -10000;
+					}
+					else
+					{
+						val = int(sqrt(v)*10000);
+					}
+				}
+				return val;
+			});
 	}
 
 
@@ -989,6 +1082,64 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OFloor(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doFloor().getZLong();
+				return val;
+			});
+	}
+	{
+		Function* function = getFunction("Truncate");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTruncate(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doTrunc().getZLong();
+				return val;
+			});
+	}
+	{
+		Function* function = getFunction("Round");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new ORound(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doRound().getZLong();
+				return val;
+			});
+	}
+	{
+		Function* function = getFunction("RoundAway");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new ORoundAway(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doRoundAway().getZLong();
+				return val;
+			});
 	}
 	{
 		Function* function = getFunction("Ceiling");
@@ -999,6 +1150,13 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OCeiling(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = zslongToFix(*args[0]).doCeil().getZLong();
+				return val;
+			});
 	}
 	//int32_t SaveSRAM(eweapon *ptr)
 	{

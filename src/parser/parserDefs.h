@@ -2,6 +2,7 @@
 #define _PARSERDEFS_H_
 
 #include "base/zdefs.h"
+#include "base/headers.h"
 #undef TEXT
 #undef VOID
 
@@ -39,6 +40,40 @@ using namespace util;
 #define MAX_INCLUDE_PATH_CHARS      65535
 
 #define REGISTRATION_REC_LIMIT		50
+
+#define CMP_GT    0x01
+#define CMP_LT    0x02
+#define CMP_EQ    0x04
+#define CMP_SETI  0x08
+
+#define CMP_FLAGS 0x07
+#define CMP_NE    (CMP_GT|CMP_LT)
+#define CMP_GE    (CMP_GT|CMP_EQ)
+#define CMP_LE    (CMP_LT|CMP_EQ)
+
+#define INVERT_CMP(cmp) ((cmp&(~CMP_FLAGS))|((~cmp)&CMP_FLAGS))
+inline string CMP_STR(uint cmpval)
+{
+	switch(cmpval&CMP_FLAGS)
+	{
+		case 0: default:
+			return "Never";
+		case CMP_GT:
+			return ">";
+		case CMP_GE:
+			return ">=";
+		case CMP_LT:
+			return "<";
+		case CMP_LE:
+			return "<=";
+		case CMP_EQ:
+			return "==";
+		case CMP_NE:
+			return "!=";
+		case CMP_FLAGS:
+			return "Always";
+	}
+}
 
 void zconsole_db(const char *format,...);
 void zconsole_warn(const char *format,...);

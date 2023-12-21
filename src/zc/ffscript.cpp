@@ -22,6 +22,7 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 #include "base/version.h"
+#include "zc/replay.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
@@ -99,9 +100,9 @@ bool can_neg_array = true;
 
 extern byte monochrome_console;
 
-static std::set<script_id> seen_scripts;
 static std::map<script_id, ScriptDebugHandle> script_debug_handles;
 ScriptDebugHandle* runtime_script_debug_handle;
+// Values may be null.
 static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
 int32_t jitted_uncompiled_command_count;
 
@@ -3320,7 +3321,7 @@ int32_t do_msgwidth(int32_t msg, char const* str);
 //
 
 int32_t earlyretval = -1;
-int32_t get_register(const int32_t arg)
+int32_t get_register(int32_t arg)
 {
 	int32_t ret = 0;
 	
@@ -22175,12 +22176,7 @@ void set_register(int32_t arg, int32_t value)
 			else if(unsigned(ind) > 7)
 				Z_scripterrlog("Invalid index '%d' passed to 'Screen->SetExDoor()'; must be 0-7\n", ind);
 			else
-			{
-				int bit = 1<<ind;
-				if(!(game->xdoors[mi][dir]&bit) == !value)
-					break; //no change
-				SETFLAG(game->xdoors[mi][dir], bit, value);
-			}
+				set_xdoorstate(mi, dir, ind);
 			break;
 		}
 
@@ -23730,12 +23726,7 @@ void set_register(int32_t arg, int32_t value)
 				else if(unsigned(ind) > 7)
 					Z_scripterrlog("Invalid index '%d' passed to 'mapdata->SetExDoor()'; must be 0-7\n", ind);
 				else
-				{
-					int bit = 1<<ind;
-					if(!(game->xdoors[mi][dir]&bit) == !value)
-						break; //no change
-					SETFLAG(game->xdoors[mi][dir], bit, value);
-				}
+					set_xdoorstate(mi, dir, ind);
 			}
 			else Z_scripterrlog("mapdata->SetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
@@ -28610,6 +28601,13 @@ void do_peekat(const bool v)
 	set_register(sarg1, SH::read_stack(ri->sp+offs));
 }
 
+void do_writeat(const bool v1, const bool v2)
+{
+	auto val = SH::get_arg(sarg1,v1);
+	auto offs = SH::get_arg(sarg2,v2);
+	SH::write_stack(ri->sp+offs, val);
+}
+
 void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the stack.
 {
 	set_register(sarg1, stack_pop(sarg2));
@@ -28642,10 +28640,10 @@ void do_loadd()
 	set_register(sarg1, value);
 }
 
-void do_stored()
+void do_stored(const bool v)
 {
 	const int32_t stackoffset = (sarg2+ri->d[rSFRAME]) / 10000;
-	const int32_t value = get_register(sarg1);
+	const int32_t value = SH::get_arg(sarg1, v);
 	SH::write_stack(stackoffset, value);
 }
 
@@ -29199,7 +29197,6 @@ void do_ipower(const bool v)
 	
 	if(temp == 0 && temp2 == 0)
 	{
-		Z_scripterrlog("Script attempted to calculate 0 to the power 0!\n");
 		set_register(sarg1, 1);
 		return;
 	}
@@ -34312,26 +34309,17 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	}
 	if ( warpType == wtEXIT )
 	{
-		//game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
-		game->set_continue_scrn(scrID);
+		game->set_continue_scrn(currscr);
 		game->set_continue_dmap(dmapID);
-		lastentrance = scrID;
-		//zprint("Setting Last Entrance to: %d\n", scrID);
-		//zprint("lastentrance = %d\n",lastentrance);
+		lastentrance = currscr;
 		lastentrance_dmap = dmapID;
-		//zprint("Setting Last Entrance DMap to: %d\n", dmapID);
-		//zprint("lastentrance_dmap = %d\n",lastentrance_dmap);
-		//lastentrance_dmap = currdmap;
-		//lastentrance = game->get_continue_scrn();
 	}
 	else
 	{
-		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = scrID;
+		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = currscr;
 		if ( (warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
-		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(scrID);
+		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(currscr);
 		if ( (warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
-		
-		
 	}
 	if(tmpscr->flags4&fAUTOSAVE)
 	{
@@ -34709,16 +34697,27 @@ void do_tointeger()
 
 void do_floor()
 {
-	double b1 = get_register(sarg1) / 10000.0;
-	int32_t b2 = floor(b1);
-	set_register(sarg1, b2 * 10000);
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doFloor().getZLong());
+}
+
+void do_trunc()
+{
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doTrunc().getZLong());
 }
 
 void do_ceiling()
 {
-	double b1 = get_register(sarg1) / 10000.0;
-	int32_t b2 = ceil(b1);
-	set_register(sarg1, b2 * 10000);
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doCeil().getZLong());
+}
+
+void do_round()
+{
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doRound().getZLong());
+}
+
+void do_roundaway()
+{
+	set_register(sarg1, zslongToFix(get_register(sarg1)).doRoundAway().getZLong());
 }
 
 void do_toword()
@@ -35390,13 +35389,6 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 
 	script_funcrun = false;
 
-	if (DEBUG_PRINT_ZASM && !seen_scripts.contains(curscript->id))
-	{
-		seen_scripts.insert(curscript->id);
-		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, curscript);
-		h.print_zasm(curScriptNum, curScriptIndex);
-	}
-
 	JittedScriptHandle* jitted_script = nullptr;
 	if (jit_is_enabled())
 	{
@@ -35420,12 +35412,21 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		}
 		runtime_script_debug_handle = &script_debug_handles.at(curscript->id);
 		runtime_script_debug_handle->update_file();
-		runtime_script_debug_handle->print(fmt::format("\n=== running script type: {} index: {} name: {} i: {} script: {}\n", ScriptTypeToString(curscript->id.type), curscript->id.index, curscript->meta.script_name, i, script).c_str());
+		std::string line = fmt::format("=== running script type: {} index: {} name: {} i: {} script: {}", ScriptTypeToString(curscript->id.type), curscript->id.index, curscript->meta.script_name, i, script);
+		runtime_script_debug_handle->print("\n");
+		runtime_script_debug_handle->print(line.c_str());
+		runtime_script_debug_handle->print("\n");
+
+		replay_step_comment(line);
 	}
 	if (script_debug_is_runtime_debugging() == 1)
 	{
-		runtime_script_debug_handle->print(script_debug_registers_and_stack_to_string().c_str());
+		std::string line = script_debug_registers_and_stack_to_string();
+		runtime_script_debug_handle->print(line.c_str());
 		runtime_script_debug_handle->print("\n");
+
+		util::replchar(line, '\n', ' ');
+		replay_step_comment(line);
 	}
 
 	int32_t result;
@@ -35481,7 +35482,10 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 #endif
 
 	if (runtime_script_debug_handle)
+	{
 		runtime_script_debug_handle->print(fmt::format("result: {}\n", result).c_str());
+		replay_step_comment(fmt::format("result: {}", result));
+	}
 	return result;
 }
 
@@ -35857,6 +35861,42 @@ int32_t run_script_int(bool is_jitted)
 				}
 				break;
 			
+			case GOTOCMP:
+			{
+				bool run = false;
+				if(sarg2 & CMP_GT)
+					run = run || ((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG));
+				if(sarg2 & CMP_LT)
+					run = run || !(ri->scriptflag & MOREFLAG);
+				if(sarg2 & CMP_EQ)
+					run = run || (ri->scriptflag & TRUEFLAG);
+				if(run)
+				{
+					if(sarg1 < 0 )
+					{
+						goto_err("GOTOCMP");
+						scommand = 0xFFFF;
+						break;
+					}
+					ri->pc = sarg1;
+					increment = false;
+				}
+				break;
+			}
+			
+			case SETCMP:
+			{
+				bool run = false;
+				if(sarg2 & CMP_GT)
+					run = run || ((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG));
+				if(sarg2 & CMP_LT)
+					run = run || !(ri->scriptflag & MOREFLAG);
+				if(sarg2 & CMP_EQ)
+					run = run || (ri->scriptflag & TRUEFLAG);
+				set_register(sarg1, run ? ((sarg2 & CMP_SETI) ? 10000 : 1) : 0);
+				break;
+			}
+			
 			case CALLFUNC:
 			{
 				retstack_push(ri->pc+1);
@@ -36078,6 +36118,12 @@ int32_t run_script_int(bool is_jitted)
 			case PEEKATV:
 				do_peekat(true);
 				break;
+			case STACKWRITEATRV:
+				do_writeat(false, true);
+				break;
+			case STACKWRITEATVV:
+				do_writeat(true, true);
+				break;
 			case POP:
 				do_pop();
 				break;
@@ -36107,7 +36153,10 @@ int32_t run_script_int(bool is_jitted)
 				break;
 				
 			case STORED:
-				do_stored();
+				do_stored(false);
+				break;
+			case STOREDV:
+				do_stored(true);
 				break;
 				
 			case LOAD1:
@@ -39236,6 +39285,9 @@ int32_t run_script_int(bool is_jitted)
 			case TOINTEGER: do_tointeger(); break;
 			case CEILING: do_ceiling(); break;
 			case FLOOR: do_floor(); break;
+			case TRUNCATE: do_trunc(); break;
+			case ROUND: do_round(); break;
+			case ROUNDAWAY: do_roundaway(); break;
 			
 			case FILECLOSE:
 			{
@@ -42291,10 +42343,9 @@ void FFScript::init()
 	clear_script_engine_data();
 	for (auto &it : jitted_scripts)
 	{
-		jit_delete_script_handle(it.second);
+		if (it.second) jit_delete_script_handle(it.second);
 	}
 	jitted_scripts.clear();
-	seen_scripts.clear();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
 }
@@ -42303,7 +42354,7 @@ void FFScript::shutdown()
 {
 	for (auto &it : jitted_scripts)
 	{
-		jit_delete_script_handle(it.second);
+		if (it.second) jit_delete_script_handle(it.second);
 	}
 	jitted_scripts.clear();
 }
@@ -45858,6 +45909,16 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "CALLFUNC", 1, 1, 0, 0 },
 	{ "RETURNFUNC", 0, 0, 0, 0 },
 
+	{ "SETCMP", 2, 0, 1, 0 },
+	{ "GOTOCMP", 2, 1, 1, 0 },
+	{ "STACKWRITEATRV", 2, 0, 1, 0 },
+	{ "STACKWRITEATVV", 2, 1, 1, 0 },
+
+	{ "TRUNCATE", 1, 0, 0, 0},
+	{ "ROUND", 1, 0, 0, 0},
+	{ "ROUNDAWAY", 1, 0, 0, 0},
+	{ "STOREDV", 2, 1, 1, 0},
+
 	{ "", 0, 0, 0, 0 }
 };
 
@@ -47934,12 +47995,12 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig, dword 
 				if(mindig)
 					Z_scripterrlog("Cannot use minimum digits flag for '%%c'\n");
 				int32_t c = (arg / 10000);
-				if ( (char(c)) != c )
+				if ( (byte(c)) != c )
 				{
 					Z_scripterrlog("Illegal char value (%d) passed to sprintf as '%%c' arg\n", c);
 					Z_scripterrlog("Value of invalid char will overflow.\n");
 				}
-				ret.push_back(char(c));
+				ret.push_back(byte(c));
 				return ret.c_str();
 			}
 			//
@@ -54440,6 +54501,8 @@ bool command_uses_comparison_result(int command)
 	case GOTOFALSE:
 	case GOTOMORE:
 	case GOTOLESS:
+	case GOTOCMP:
+	case SETCMP:
 	case SETTRUE:
 	case SETTRUEI:
 	case SETFALSE:
@@ -54476,6 +54539,8 @@ bool command_could_return_not_ok(int command)
 
 const script_command& get_script_command(int command)
 {
+	static script_command null_command = {"0xFFFF", 0, 0, 0, 0};
+	if (command == 0xFFFF) return null_command;
 	return ZASMcommands[command];
 }
 

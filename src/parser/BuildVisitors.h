@@ -22,8 +22,15 @@ namespace ZScript
 
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
-		void literalVisit(AST& node, void* param = NULL);
-		void literalVisit(AST* node, void* param = NULL);
+		void literal_visit(AST& node, void* param = NULL);
+		void literal_visit(AST* node, void* param = NULL);
+		template <class Container>
+		void literal_visit_vec(Container const& nodes, void* param);
+		
+		void sidefx_visit(AST& node, void* param = NULL);
+		void sidefx_visit(AST* node, void* param = NULL);
+		template <class Container>
+		void sidefx_visit_vec(Container const& nodes, void* param);
 	
 		virtual void caseDefault(AST& host, void* param);
 		virtual void caseSetOption(ASTSetOption& host, void* param);
@@ -36,6 +43,7 @@ namespace ZScript
 		void caseStmtStrSwitch(ASTStmtSwitch &host, void* param);
 		virtual void caseStmtFor(ASTStmtFor &host, void *param);
 		virtual void caseStmtForEach(ASTStmtForEach &host, void *param);
+		virtual void caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param);
 		virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
 		virtual void caseStmtDo(ASTStmtDo &host, void *param);
 		virtual void caseStmtReturn(ASTStmtReturn &host, void *param);
@@ -59,9 +67,7 @@ namespace ZScript
 		virtual void caseExprNot(ASTExprNot &host, void *param);
 		virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
 		virtual void caseExprIncrement(ASTExprIncrement &host, void *param);
-		virtual void caseExprPreIncrement(ASTExprPreIncrement &host, void *param);
 		virtual void caseExprDecrement(ASTExprDecrement &host, void *param);
-		virtual void caseExprPreDecrement(ASTExprPreDecrement &host, void *param);
 		virtual void caseExprAnd(ASTExprAnd &host, void *param);
 		virtual void caseExprOr(ASTExprOr &host, void *param);
 		virtual void caseExprGT(ASTExprGT &host, void *param);
@@ -209,8 +215,14 @@ namespace ZScript
 				ASTArrayLiteral& host, OpcodeContext& context);
 		// For when ASTArrayLiteral is not a declaration initializer.
 		void arrayLiteralFree(ASTArrayLiteral& host, OpcodeContext& context);
+		
 		void parseExprs(ASTExpr* left, ASTExpr* right, void* param, bool orderMatters = false);
 		void compareExprs(ASTExpr* left, ASTExpr* right, void* param, bool boolMode = false);
+		
+		void buildPreOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
+		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
+		
+		void push_param(bool varg = false);
 	};
 
 	class LValBOHelper : public ASTVisitor

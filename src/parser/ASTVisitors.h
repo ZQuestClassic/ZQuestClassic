@@ -16,7 +16,7 @@ namespace ZScript
 	{
 	public:
 		ASTVisitor() : parsing_user_class(puc_none), scope(nullptr),
-			in_func_body(false) {}
+			in_func(nullptr), sidefx_only(false) {}
 		virtual ~ASTVisitor() = default;
 		
 		virtual void caseDefault(AST& host, void* param = NULL) {}
@@ -47,6 +47,8 @@ namespace ZScript
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseStmtForEach(ASTStmtForEach& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -126,14 +128,8 @@ namespace ZScript
 		virtual void caseExprIncrement(
 				ASTExprIncrement& host, void* param = NULL) {
 			caseDefault(host, param);}
-		virtual void caseExprPreIncrement(
-				ASTExprPreIncrement& host, void* param = NULL) {
-			caseDefault(host, param);}
 		virtual void caseExprDecrement(
 				ASTExprDecrement& host, void* param = NULL) {
-			caseDefault(host, param);}
-		virtual void caseExprPreDecrement(
-				ASTExprPreDecrement& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprCast(ASTExprCast& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -210,7 +206,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		
 		int parsing_user_class;
-		bool in_func_body;
+		bool sidefx_only;
+		Function* in_func;
 		//Current scope
 		ZScript::Scope* scope;
 	};
@@ -257,18 +254,18 @@ namespace ZScript
 		void visit(AST* node, void* param = NULL);
 		// Visit a group of nodes.
 		template <class Container>
-		void visit(AST& host, Container const& nodes, void* param = NULL)
+		void visit_vec(Container const& nodes, void* param = NULL)
 		{
 			for (typename Container::const_iterator it = nodes.cbegin();
 			     it != nodes.cend(); ++it)
 			{
-				if (breakRecursion(host, param)) return;
+				if (breakRecursion(param)) return;
 				visit(**it, param);
 			}
 		}
 		
 		template <class Container>
-		void block_visit(AST& host, Container const& nodes, void* param = NULL)
+		void block_visit_vec(Container const& nodes, void* param = NULL)
 		{
 			for (typename Container::const_iterator it = nodes.cbegin();
 			     it != nodes.cend(); ++it)
@@ -294,6 +291,7 @@ namespace ZScript
 		virtual void caseRange(ASTRange & host, void* param = NULL);
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL);
 		virtual void caseStmtForEach(ASTStmtForEach& host, void* param = NULL);
+		virtual void caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param = NULL);
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL);
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL);
 		virtual void caseStmtRepeat(ASTStmtRepeat& host, void* param = NULL);
@@ -328,12 +326,8 @@ namespace ZScript
 		virtual void caseExprBitNot(ASTExprBitNot& host, void* param = NULL);
 		virtual void caseExprIncrement(
 				ASTExprIncrement& host, void* param = NULL);
-		virtual void caseExprPreIncrement(
-				ASTExprPreIncrement& host, void* param = NULL);
 		virtual void caseExprDecrement(
 				ASTExprDecrement& host, void* param = NULL);
-		virtual void caseExprPreDecrement(
-				ASTExprPreDecrement& host, void* param = NULL);
 		virtual void caseExprCast(ASTExprCast& host, void* = NULL);
 		virtual void caseExprAnd(ASTExprAnd& host, void* param = NULL);
 		virtual void caseExprOr(ASTExprOr& host, void* param = NULL);

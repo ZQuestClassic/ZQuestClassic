@@ -10,16 +10,38 @@ const dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const serverUrl = process.argv[2];
 const outputFolder = process.argv[3];
 const urlPath = process.argv[4];
+const extraArgs = process.argv[5] || '';
+const resultPath = process.argv[6] || '';
 
 const replayUrl = new URL(urlPath, serverUrl);
+const args = extraArgs.split(' ');
+let lastKey;
+for (let i = 0; i < args.length; i++) {
+  if (args[i].startsWith('-')) {
+    const key = args[i]
+      .substring(1)
+      .toLowerCase()
+      .split('-')
+      .map((it, i) => {
+        if (i === 0) return it;
+        return it.charAt(0).toUpperCase() + it.substring(1);
+      })
+      .join('');
+    replayUrl.searchParams.set(key, '');
+    lastKey = key;
+  } else if (lastKey) {
+    replayUrl.searchParams.set(lastKey, args[i]);
+    lastKey = null;
+  }
+}
+
 replayUrl.searchParams.append('storage', 'idb');
-const zplay = replayUrl.searchParams.get('assert') || replayUrl.searchParams.get('replay');
+console.log(replayUrl.href);
+const zplay = replayUrl.searchParams.get('assert') || replayUrl.searchParams.get('replay') || replayUrl.searchParams.get('update');
 const headless = replayUrl.searchParams.has('headless');
 
 async function runReplay(zplay) {
   const onClose = () => {
-    fs.closeSync(stdoutFd);
-    fs.closeSync(stderrFd);
     return browser.close();
   };
   const zplaySplit = zplay.split('/');
@@ -30,21 +52,35 @@ async function runReplay(zplay) {
   });
   const page = await browser.newPage();
 
-  const stdoutFd = fs.openSync(`${outputFolder}/stdout.txt`, 'w');
-  const stderrFd = fs.openSync(`${outputFolder}/stderr.txt`, 'w');
   let hasExited = false;
   let exitCode = 0;
 
   const consoleListener = setupConsoleListener(page);
-  page.on('console', e => {
+  page.on('pageerror', e => {
+    process.stderr.write(e.toString());
+    process.stderr.write(e.stack);
+    process.stderr.write('\n');
+    hasExited = true;
+  });
+
+  page.on('console', async (e) => {
     const type = e.type();
-    const text = e.text();
+    const args = await Promise.all(e.args().map(arg => page.evaluate(arg => {
+      if (arg instanceof Error)
+        return arg.message;
+      return arg;
+    }, arg).catch((e) => {
+      console.error(e);
+      return '???';
+    })));
+    const text = args.join(' ');
+
     if (type === 'error' || type === 'warning') {
-      fs.writeSync(stderrFd, text);
-      fs.writeSync(stderrFd, '\n');
+      process.stderr.write(text);
+      process.stderr.write('\n');
     } else {
-      fs.writeSync(stdoutFd, text);
-      fs.writeSync(stdoutFd, '\n');
+      process.stdout.write(text);
+      process.stdout.write('\n');
     }
 
     const bad = [
@@ -54,6 +90,8 @@ async function runReplay(zplay) {
       // shutdown_timers
       // failed: _al_vector_size(&active_timers) == 0, at: /Users/connorclark/code/ZeldaClassic-secondary/build_emscripten/_deps/allegro5-src/src/timernu.c,146,shutdown_timers
       'Uncaught RuntimeError',
+      // 'Aborted(native code called abort())',
+      // 'Assert failed',
     ];
     if (bad.some(t => text.includes(t))) {
       onClose();
@@ -82,9 +120,8 @@ async function runReplay(zplay) {
     }, zplay);
     if (!result) return;
 
-    const tmpPath = `${tmpDir}/tmp.${zplay.replaceAll('/', '-')}.result.txt`;
-    fs.writeFileSync(tmpPath, result);
-    fs.renameSync(tmpPath, `${outputFolder}/${zplayName}.result.txt`);
+    const outPath = resultPath || `${outputFolder}/${zplayName}.result.txt`;
+    fs.writeFileSync(outPath, result);
   }
   while (!hasExited) {
     await getResultFile();

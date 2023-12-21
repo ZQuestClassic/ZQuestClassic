@@ -1,5 +1,7 @@
 # JIT
 
+`zplayer` executes a quest's ZASM scripts typically by running them in our ZASM interpreter. To speed things up significantly, we can compile ZASM scripts to native machine code using the JIT (just-in-time) compiler. This runs in `zplayer`, not in the `zscript` compiler. There are two backends for the JIT: `jit_x64.cpp`, and `jit_wasm.cpp` (for the browser build). JIT is not supported for 32-bit.
+
 JIT compilation is off by default. It can be enabled by setting the `[ZSCRIPT] jit = 1` config option, found in the launcher. There is also the `-jit` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
 
 `[ZSCRIPT] jit_precompile = 1` can be set to compile all scripts on quest load, instead of as they are encountered.
@@ -77,29 +79,30 @@ When a `WaitX` command is hit, the compiled function will save the location of t
 
 ## Debugging
 
+`zplayer -extract-zasm game.qst` will write all scripts as text ZASM to `zscript-debug/zasm`. This is useful for reference.
+
 These are useful config options:
 
-- `[ZSCRIPT] print_zasm = 1`: for each script, write a file to `zscript-debug/zasm` printing the ZASM instructions
 - `[ZSCRIPT] jit_print_asm = 1`: for each script, write a file to `zscript-debug/zasm` printing the x64 assembly
-- `[ZSCRIPT] jit_exit_on_failure = 1`: exit program if JIT fails to compile any script
+- `[ZSCRIPT] jit_fatal_compile_errors = 1`: exit program if JIT fails to compile any script
 
-Given a replay that fails only when using JIT, this is how you can debug what's wrong with the compiled code.
+And some CLI options:
 
-1. Determine the first frame that fails in the replay
-1. At the top of `ScriptDebugHandle::pre_command`, add an early exit based on that frame number. For example, if the first failing frame is 471704, add: `if (replay_get_frame() < 471704 - 100) return;`. This will prevent emitting any debugging information until 100 frames _before_ the first failure (you may need to change this value). This should be enough for context, and prevents the entire thing taking forever to run
-1. Clear any current `zscript-debug` directories: `rm -rf build/Release/zscript-debug*`
-1. Collect the _baseline_ debugging output by running the replay with JIT turned off. You can stop the replay a few frames after the first failing frame. To enable the debugging output, set `runtime_debug` in `script_debug.cpp` to `2`.
-1. Move the results to a new directory. For example: `mv build/Release/zscript-debug build/Release/zscript-debug-baseline`
-1. Run the replay again, but with the JIT enabled.
-1. Find the first file that has different output: `diff --brief --recursive build/Release/zscript-debug* | sort -V`
-1. Whatever the file, diff them however you like. For example: `vimdiff -c 'set diffopt=context:5' build/Release/zscript-debug*/**/debug-47169.txt`. You could also use https://www.diffchecker.com/text-compare/
+- `-script-runtime-debug 1` to print a register/stack summary to `zscript-debug/` before executing every script
+- `-script-runtime-debug 2` same as above, but prints for every instruction (lots of data)
+
+Given a replay that fails only when using JIT, this is how you can debug what's wrong with the compiled code:
+
+1. Have a failing replay, for example: `tests/replays/playground_maths.zplay`
+1. Run `python scripts/jit_runtime_debug.py --replay_path tests/replays/playground_maths.zplay`
+1. The script will run that replay w/ JIT, then w/o JIT, then show you where the registers/stack/pc first differ
 1. Hopefully, you'll now see the exact instruction that results in a problem. If a fix seems non-trivial, it may be best to figure out how to create similar ZASM using a much smaller script, so you don't have to wait however long the replay is when iterating on a fix.
 
-The above _usually_ works to pinpoint the instruction that first messes up.
-
-Because it takes so long to debug print the state of scripts after each instruction, it isn't feasible to just debug print for every frame, hence the early exit in step 2. But it's possible that even looking back at 100, 1000, 10000+ frames won't show you the first time a register or stack value differs from what is expected. The state of a script's memory can mess up far before it ever causes a visual regression in the replay. To get a better value, you can repeat the above steps but instead  set `runtime_debug` in `script_debug.cpp` to `1`. Use this more exact value to repeat the above process.
-
 It can also be useful to compile only the script you're debugging in `jit_create_script_handle`: `if (script->id != {ScriptType::Player, 1}) return nullptr;`
+
+## WASM backend
+
+See https://gist.github.com/connorjclark/874f1034809ce475a8e3ea7e09a8cc40 for some notes on the WASM backend.
 
 ## Learning materials
 

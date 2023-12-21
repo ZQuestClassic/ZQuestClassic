@@ -145,16 +145,20 @@ namespace ZScript
 		}
 		disassembled_script_data() : format(SCRIPT_FORMAT_DEFAULT)
 		{}
-		void write(FILE* dest, bool al = false, bool spaced = false, bool commented = false) const
+		void write(FILE* dest, bool al = false, bool spaced = false, bool commented = false, bool skipmeta = false) const
 		{
-			string str = first.get_meta();
-			if(spaced) fwrite("\n\n", sizeof(char), 2, dest);
-			fwrite(str.c_str(), sizeof(char), str.size(), dest);
-			if(al)
+			string str;
+			if(!skipmeta)
 			{
-				al_trace("\n\n");
-				safe_al_trace(str);
-				al_trace("\n");
+				if(spaced) fwrite("\n\n", sizeof(char), 2, dest);
+				str = first.get_meta();
+				fwrite(str.c_str(), sizeof(char), str.size(), dest);
+				if(al)
+				{
+					al_trace("\n\n");
+					safe_al_trace(str);
+					al_trace("\n");
+				}
 			}
 			for(auto& line : second)
 			{
@@ -164,17 +168,21 @@ namespace ZScript
 				fwrite(str.c_str(), sizeof(char), str.size(), dest);
 			}
 		}
-		void write(string& dest, bool al = false, bool spaced = false, bool commented = false) const
+		void write(string& dest, bool al = false, bool spaced = false, bool commented = false, bool skipmeta = false) const
 		{
 			std::ostringstream output;
-			string str = first.get_meta();
-			if(spaced) output << "\n\n";
-			output << str;
-			if(al)
+			string str;
+			if(!skipmeta)
 			{
-				al_trace("\n\n");
-				safe_al_trace(str);
-				al_trace("\n");
+				if(spaced) output << "\n\n";
+				str = first.get_meta();
+				output << str;
+				if(al)
+				{
+					al_trace("\n\n");
+					safe_al_trace(str);
+					al_trace("\n");
+				}
 			}
 			for(auto& line : second)
 			{

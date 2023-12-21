@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "AST.h"
+#include "base/containers.h"
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "base/general.h"
@@ -264,10 +265,17 @@ namespace ZScript
 		virtual bool isBuiltIn() const {return false;}
 		
 		virtual ~Datum() = default;
+		
+		int32_t getStackOffset(bool i10k = true) const;
+		
+		void mark_erased() {erased = true;}
+		bool is_erased() const {return erased;}
 
 	protected:
 		Datum(Scope& scope, DataType const& type);
-
+		
+		bool erased;
+		
 		// Call in static creation function to register with scope.
 		bool tryAddToScope(CompileErrorHandler* = NULL);
 	};
@@ -434,7 +442,7 @@ namespace ZScript
 	public:
 		Function(DataType const* returnType, std::string const& name,
 		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames,
-		         int32_t id, int32_t flags = 0, int32_t internal_flags = 0, bool prototype = false, ASTExprConst* defaultReturn = NULL);
+		         int32_t id, int32_t flags = 0, int32_t internal_flags = 0, bool prototype = false, optional<int32_t> defaultReturn = nullopt);
 		Function() = default;
 		~Function();
 		
@@ -442,13 +450,18 @@ namespace ZScript
 		string name;
 		bool hasPrefixType;
 		byte extra_vargs;
+		
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
+		std::vector<Datum*> paramDatum;
+		
 		std::vector<int32_t> opt_vals;
 		int32_t id;
 
 		ASTFuncDecl* node;
 		Datum* thisVar;
+		
+		std::set<int32_t> used_stackoffs;
 
 		// Get the opcodes.
 		std::vector<std::shared_ptr<Opcode>> const& getCode() const
@@ -527,7 +540,8 @@ namespace ZScript
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		bool prototype;
-		ASTExprConst* defaultReturn;
+		
+		optional<int32_t> defaultReturn;
 		
 		bool shouldShowDepr(bool err) const;
 		void ShownDepr(bool err);
@@ -538,8 +552,10 @@ namespace ZScript
 		void setEntry(AccessorTable* entry) {table_entry=entry;}
 		AccessorTable const* getEntry() const {return table_entry;}
 		
-		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&)>
-		#define CONSTEXPR_CBACK_HEADER(...) [__VA_ARGS__](vector<optional<int32_t>> const& args) -> optional<int32_t>
+		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&, \
+			AST&, CompileErrorHandler*, Scope*)>
+		#define CONSTEXPR_CBACK_HEADER(...) [__VA_ARGS__](vector<optional<int32_t>> const& args, \
+			AST& node, CompileErrorHandler* handler, Scope* scope) -> optional<int32_t>
 		/** constexpr system:
 		 * This callback lambda uses the header macro 'CONSTEXPR_CBACK_HEADER()' above.
 		 * The 'vector<optional<int>> const& args' parameter contains the compile-time value of each function

@@ -2879,14 +2879,20 @@ void delete_subscreen(size_t ind, byte ty)
 			case sstACTIVE:
 				if(DMaps[i].active_subscreen > count)
 					--DMaps[i].active_subscreen;
+				else if(DMaps[i].active_subscreen == count)
+					DMaps[i].active_subscreen = 0;
 				break;
 			case sstPASSIVE:
 				if(DMaps[i].passive_subscreen > count)
 					--DMaps[i].passive_subscreen;
+				else if(DMaps[i].passive_subscreen == count)
+					DMaps[i].passive_subscreen = 0;
 				break;
 			case sstOVERLAY:
 				if(DMaps[i].overlay_subscreen > count)
 					--DMaps[i].overlay_subscreen;
+				else if(DMaps[i].overlay_subscreen == count)
+					DMaps[i].overlay_subscreen = 0;
 				break;
 		}
 	}

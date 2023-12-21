@@ -13,6 +13,8 @@ namespace ZScript
 #include <map>
 #include <memory>
 #include <string>
+#include "base/ints.h"
+#include "base/headers.h"
 #include "y.tab.hpp"
 #include "Compiler.h"
 #include "CompileOption.h"
@@ -97,9 +99,7 @@ namespace ZScript
 	class ASTExprNot;
 	class ASTExprBitNot;
 	class ASTExprIncrement;
-	class ASTExprPreIncrement;
 	class ASTExprDecrement;
-	class ASTExprPreDecrement;
 	class ASTExprCast;
 	class ASTBinaryExpr; // virtual
 	class ASTLogExpr; // virtual
@@ -139,6 +139,19 @@ namespace ZScript
 	// Types
 	class ASTScriptType;
 	class ASTDataType;
+	
+	//This macro defines a "comment UID" for to be separate per-class.
+	#define DEF_COMMENT_UID() \
+	public: \
+		uint get_comment_id() \
+		{ \
+			if(!comment_id) \
+				comment_id = ++next_comment_id; \
+			return *comment_id; \
+		} \
+	private: \
+		static uint next_comment_id; \
+		optional<uint> comment_id
 
 	//////////////////////////////////////////////////////////////////////////////
 	class LocationData
@@ -273,7 +286,22 @@ namespace ZScript
 
 
 	////////////////////////////////////////////////////////////////
-
+	
+	template<class NodeType>
+	class ASTNodeList : public AST
+	{
+	public:
+		ASTNodeList(LocationData const& location = LOC_NONE) : data() {}
+		ASTNodeList* clone() const {return new ASTNodeList(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL){}
+		
+		owning_vector<NodeType> data;
+		
+		void push(NodeType* node) {data.push_back(node);}
+		owning_vector<NodeType>&& take() {return std::move(data);}
+	};
+	
 	class ASTFile : public AST
 	{
 	public:
@@ -319,8 +347,7 @@ namespace ZScript
 		         LocationData const& location = LOC_NONE);
 		ASTFloat(std::string const& value, Type type,
 		         LocationData const& location = LOC_NONE);
-		ASTFloat(int32_t value, Type type,
-		         LocationData const& location = LOC_NONE);
+		ASTFloat(zfix value, LocationData const& location = LOC_NONE);
 		ASTFloat(int32_t ipart, int32_t dpart,
 		         LocationData const& location = LOC_NONE);
 		ASTFloat* clone() const {return new ASTFloat(*this);}
@@ -359,6 +386,7 @@ namespace ZScript
 		          LocationData const& location = LOC_NONE);
 		ASTAnnotation(ASTString* key, ASTFloat* intval,
 		          LocationData const& location = LOC_NONE);
+		ASTAnnotation(ASTString* key, LocationData const& location = LOC_NONE);
 		ASTAnnotation* clone() const {return new ASTAnnotation(*this);}
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -429,6 +457,7 @@ namespace ZScript
     
 	class ASTStmtIf : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtIf(ASTExpr* condition, ASTBlock* thenStatement,
 		          LocationData const& location = LOC_NONE);
@@ -457,6 +486,7 @@ namespace ZScript
 
 	class ASTStmtIfElse : public ASTStmtIf
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtIfElse(
 				ASTExpr* condition, ASTBlock* thenStatement, ASTBlock* elseStatement,
@@ -474,6 +504,7 @@ namespace ZScript
 	// A switch statement.
 	class ASTStmtSwitch : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtSwitch(LocationData const& location = LOC_NONE);
 		ASTStmtSwitch* clone() const {return new ASTStmtSwitch(*this);}
@@ -516,13 +547,16 @@ namespace ZScript
 	class ASTRange : public AST
 	{
 	public:
-		ASTRange(ASTExprConst* start, ASTExprConst* end, uint type = RANGE_LR, LocationData const& location = LOC_NONE);
+		ASTRange(ASTExpr* start, ASTExpr* end, uint type = RANGE_LR, LocationData const& location = LOC_NONE);
 		ASTRange* clone() const {return new ASTRange(*this);}
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		owning_ptr<ASTExprConst> start;
-		owning_ptr<ASTExprConst> end;
+		owning_ptr<ASTExpr> start;
+		owning_ptr<ASTExpr> end;
+		
+		optional<int32_t> getStartVal(bool inclusive, CompileErrorHandler* errorHandler, Scope* scope);
+		optional<int32_t> getEndVal(bool inclusive, CompileErrorHandler* errorHandler, Scope* scope);
 		uint type;
 		static const uint RANGE_N = 0x0;
 		static const uint RANGE_L = 0x1;
@@ -533,9 +567,10 @@ namespace ZScript
 
 	class ASTStmtFor : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtFor(ASTStmt* setup, ASTExpr* test,
-		           ASTStmt* increment, ASTStmt* body,
+		           ASTNodeList<ASTStmt>* increments, ASTStmt* body,
 				   ASTStmt* elseBlock,
 		           LocationData const& location = LOC_NONE);
 		ASTStmtFor* clone() const {return new ASTStmtFor(*this);}
@@ -544,7 +579,7 @@ namespace ZScript
 
 		owning_ptr<ASTStmt> setup;
 		owning_ptr<ASTExpr> test;
-		owning_ptr<ASTStmt> increment;
+		owning_vector<ASTStmt> increments;
 		owning_ptr<ASTStmt> body;
 		owning_ptr<ASTStmt> elseBlock;
 		
@@ -558,6 +593,7 @@ namespace ZScript
 	};
 	class ASTStmtForEach : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtForEach(std::string const& identifier, ASTExpr* expr,
 		           ASTStmt* body, ASTStmt* elseBlock,
@@ -583,8 +619,41 @@ namespace ZScript
 		Scope* scope;
 	};
 
+	class ASTStmtRangeLoop : public ASTStmt
+	{
+		DEF_COMMENT_UID();
+	public:
+		ASTStmtRangeLoop(ASTDataType* type, string const& iden, ASTRange* range,
+			ASTExpr* increment, ASTStmt* body, LocationData const& location = LOC_NONE);
+		ASTStmtRangeLoop* clone() const {return new ASTStmtRangeLoop(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		string iden;
+		uint overflow;
+		owning_ptr<ASTDataType> type;
+		owning_ptr<ASTDataDecl> decl;
+		owning_ptr<ASTRange> range;
+		owning_ptr<ASTExpr> increment;
+		owning_ptr<ASTStmt> body;
+		owning_ptr<ASTStmt> elseBlock;
+		
+		bool ends_loop, ends_else;
+		
+		bool hasElse() const {return elseBlock;}
+		Scope* getScope() {return scope;}
+		void setScope(Scope* scp) {scope = scp;}
+		
+		static const uint OVERFLOW_ALLOW = 0;
+		static const uint OVERFLOW_INT = 1;
+		static const uint OVERFLOW_LONG = 2;
+	private:
+		Scope* scope;
+	};
+
 	class ASTStmtWhile : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtWhile(ASTExpr* test, ASTStmt* body, ASTStmt* elseBlock,
 		             LocationData const& location = LOC_NONE);
@@ -607,6 +676,7 @@ namespace ZScript
 
 	class ASTStmtDo : public ASTStmt
 	{
+		DEF_COMMENT_UID();
 	public:
 		ASTStmtDo(ASTExpr* test,ASTStmt* body, ASTStmt* elseBlock,
 		          LocationData const& location = LOC_NONE);
@@ -994,6 +1064,12 @@ namespace ZScript
 		// Extra array type for this specific declaration. The final type is the
 		// list's base type combined with these.
 		owning_vector<ASTDataDeclExtraArray> extraArrays;
+		
+		uint flags;
+		bool getFlag(uint flg) const {return flags&flg;}
+		void setFlag(uint flg, bool state = true) {SETFLAG(flags,flg,state);}
+		static const uint FL_FORCE_VAR = 0x01;
+		static const uint FL_SKIP_EMPTY_INIT = 0x02;
 
 	private:
 		// The initialization expression. Optional.
@@ -1361,7 +1437,7 @@ namespace ZScript
 	class ASTExprNegate : public ASTUnaryExpr
 	{
 	public:
-		ASTExprNegate(LocationData const& location = LOC_NONE);
+		ASTExprNegate(ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprNegate* clone() const {return new ASTExprNegate(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1382,7 +1458,7 @@ namespace ZScript
 	class ASTExprNot : public ASTUnaryExpr
 	{
 	public:
-		ASTExprNot(LocationData const& location = LOC_NONE);
+		ASTExprNot(ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprNot* clone() const {return new ASTExprNot(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1401,7 +1477,7 @@ namespace ZScript
 	class ASTExprBitNot : public ASTUnaryExpr
 	{
 	public:
-		ASTExprBitNot(LocationData const& location = LOC_NONE);
+		ASTExprBitNot(ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprBitNot* clone() const {return new ASTExprBitNot(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1420,7 +1496,7 @@ namespace ZScript
 	class ASTExprIncrement : public ASTUnaryExpr
 	{
 	public:
-		ASTExprIncrement(LocationData const& location = LOC_NONE);
+		ASTExprIncrement(bool pre, ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprIncrement* clone() const {return new ASTExprIncrement(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1435,36 +1511,15 @@ namespace ZScript
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}
-		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
-			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
-	};
-
-	class ASTExprPreIncrement : public ASTUnaryExpr
-	{
-	public:
-		ASTExprPreIncrement(LocationData const& location = LOC_NONE);
-		ASTExprPreIncrement* clone() const {return new ASTExprPreIncrement(*this);}
-
-		void execute(ASTVisitor& visitor, void* param = NULL);
-
-		bool isConstant() const {return false;}
-		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
-
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			if(operand->isLong(scope, errorHandler))
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
-		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
-			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		bool is_pre;
 	};
 
 	class ASTExprDecrement : public ASTUnaryExpr
 	{
 	public:
-		ASTExprDecrement(LocationData const& location = LOC_NONE);
+		ASTExprDecrement(bool pre, ASTExpr* op = nullptr, LocationData const& location = LOC_NONE);
 		ASTExprDecrement* clone() const {return new ASTExprDecrement(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -1479,31 +1534,9 @@ namespace ZScript
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}
-		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
-			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
-	};
-
-	class ASTExprPreDecrement : public ASTUnaryExpr
-	{
-	public:
-		ASTExprPreDecrement(LocationData const& location = LOC_NONE);
-		ASTExprPreDecrement* clone() const {
-			return new ASTExprPreDecrement(*this);}
-
-		void execute(ASTVisitor& visitor, void* param = NULL);
-
-		bool isConstant() const {return false;}
-		bool isLiteral() const {return false;}
-		virtual bool isTempVal() const {return false;}
-
-		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
-		{
-			if(operand->isLong(scope, errorHandler))
-				return &DataType::LONG;
-			return &DataType::FLOAT;
-		}
-		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
-			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		bool is_pre;
 	};
 	
 	class ASTExprCast : public ASTUnaryExpr

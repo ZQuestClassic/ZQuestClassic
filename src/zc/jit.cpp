@@ -7,6 +7,7 @@
 // * Compile: LSHIFTR RSHIFTR
 
 #include "zc/jit.h"
+#include "base/zapp.h"
 #include "zc/script_debug.h"
 #include "zc/zelda.h"
 #include <fmt/format.h>
@@ -18,6 +19,7 @@
 
 static bool is_enabled;
 static bool jit_log_enabled;
+// Values may be null.
 static std::map<script_id, JittedFunction> compiled_functions;
 
 void jit_printf(const char *format, ...)
@@ -263,7 +265,8 @@ static void create_compile_tasks()
 	create_compile_tasks(comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
 	create_compile_tasks(genericscripts, NUMSCRIPTSGENERIC, ScriptType::Generic);
 	create_compile_tasks(subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
-	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_GAME+1, NUMSCRIPTGLOBAL, ScriptType::Global);
+	// Skip the first two - are priortizied below the sort.
+	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_INIT+2, NUMSCRIPTGLOBAL, ScriptType::Global);
 	// Sort by # of commands, so that biggest scripts get compiled first.
 	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
 		return a->size < b->size;
@@ -271,7 +274,7 @@ static void create_compile_tasks()
 	// Make sure player and global scripts (just the INIT and GAME ones) are compiled first, as they
 	// are needed on frame 1.
 	create_compile_tasks(playerscripts, NUMSCRIPTPLAYER, ScriptType::Player);
-	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_GAME, NUMSCRIPTGLOBAL, ScriptType::Global);
+	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_INIT, 2, ScriptType::Global);
 	if (jit_log_enabled)
 	{
 		for (auto a : pending_scripts) 
@@ -284,22 +287,9 @@ static void create_compile_tasks()
 	al_unlock_mutex(tasks_mutex);
 }
 
-struct JittedScriptHandle
-{
-	JittedFunction fn;
-	script_data *script;
-	refInfo *ri;
-	intptr_t call_stack_rets[100];
-	uint32_t call_stack_ret_index;
-};
-
 bool jit_is_enabled()
 {
-#ifdef __EMSCRIPTEN__
-	return false;
-#else
 	return is_enabled;
-#endif
 }
 
 void jit_set_enabled(bool enabled)
@@ -309,40 +299,11 @@ void jit_set_enabled(bool enabled)
 
 JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
 {
-	JittedScriptHandle *jitted_script = new JittedScriptHandle;
-	jit_reinit(jitted_script);
-	jitted_script->script = script;
-	jitted_script->ri = ri;
-	jitted_script->fn = compile_if_needed(script);
-	if (!jitted_script->fn)
-	{
-		delete jitted_script;
+	auto fn = compile_if_needed(script);
+	if (!fn)
 		return nullptr;
-	}
 
-	return jitted_script;
-}
-
-void jit_delete_script_handle(JittedScriptHandle *jitted_script)
-{
-	delete jitted_script;
-}
-
-int jit_run_script(JittedScriptHandle *jitted_script)
-{
-	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
-
-	return jitted_script->fn(
-		jitted_script->ri->d, game->global_d,
-		*stack, &jitted_script->ri->sp,
-		&jitted_script->ri->pc,
-		jitted_script->call_stack_rets, &jitted_script->call_stack_ret_index,
-		&jitted_script->ri->wait_index);
-}
-
-void jit_reinit(JittedScriptHandle *jitted_script)
-{
-	jitted_script->call_stack_ret_index = 0;
+	return jit_create_script_handle_impl(script, ri, fn);
 }
 
 void jit_startup()
@@ -357,8 +318,9 @@ void jit_startup()
 	auto processor_count = std::thread::hardware_concurrency();
 	if (num_threads < 0)
 		num_threads = std::max(1, (int)processor_count / -num_threads);
-	if (precompile && num_threads == 0)
-		num_threads = 1;
+	// Currently can only compile WASM on main browser thread.
+	if (is_web())
+		num_threads = 0;
 
 	for (int i = 0; i < thread_infos.size(); i++)
 	{
@@ -403,6 +365,15 @@ void jit_startup()
 
 	if (precompile)
 	{
+		// Handle special case where there are no worker threads.
+		if (num_threads == 0)
+		{
+			while (!pending_scripts.empty())
+			{
+				compile_if_needed(pending_scripts.back());
+			}
+		}
+
 		al_lock_mutex(tasks_mutex);
 		while (pending_scripts.size() || active_tasks.size())
 		{

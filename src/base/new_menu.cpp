@@ -773,7 +773,7 @@ MenuRet NewMenu::run_loop(GuiMenu* parent)
 						for(int n = old_ind-1; n != old_ind; --n)
 						{
 							if(n < 0)
-								n = entries.size()-1;
+								n = chop_sz()-1;
 							if(entries[n].isDisabled())
 								continue;
 							*state.sel_ind = uint(n);
@@ -788,7 +788,7 @@ MenuRet NewMenu::run_loop(GuiMenu* parent)
 						int old_ind = int(*state.sel_ind);
 						for(int n = old_ind+1; n != old_ind; ++n)
 						{
-							if(n >= entries.size())
+							if(n >= chop_sz())
 								n = 0;
 							if(entries[n].isDisabled())
 								continue;
@@ -1255,7 +1255,7 @@ MenuRet TopMenu::run_loop(GuiMenu* parent)
 						for(int n = old_ind-1; n != old_ind; --n)
 						{
 							if(n < 0)
-								n = entries.size()-1;
+								n = chop_sz()-1;
 							if(entries[n].isDisabled())
 								continue;
 							*state.sel_ind = uint(n);
@@ -1270,7 +1270,7 @@ MenuRet TopMenu::run_loop(GuiMenu* parent)
 						int old_ind = int(*state.sel_ind);
 						for(int n = old_ind+1; n != old_ind; ++n)
 						{
-							if(n >= entries.size())
+							if(n >= chop_sz())
 								n = 0;
 							if(entries[n].isDisabled())
 								continue;

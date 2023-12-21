@@ -3377,7 +3377,7 @@ void update_subscreens(int32_t dmap)
 		new_sub_indexes[sstOVERLAY] = indx;
 	}
 	
-	if(get_qr(qr_OLD_SUBSCR) && new_subscreen_active)
+	if(get_qr(qr_OLD_SUBSCR) && new_subscreen_active && next_active)
 	{
 		next_active->curpage = new_subscreen_active->curpage;
 		next_active->cur_page().cursor_pos = new_subscreen_active->cur_page().cursor_pos;

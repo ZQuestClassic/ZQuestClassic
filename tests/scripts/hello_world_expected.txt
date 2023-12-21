@@ -11,8 +11,7 @@ Compile finished with exit code '0' (success)
 
 PUSHARGSV 0,0.0003; void run() Body Start
 SETR d4,SP
-SETV d2,123
-STORED d2,1
+STOREDV 123,1
 ALLOCATEMEMV d2,17
 STORED d2,0
 WRITEPODSTRING d2,"hello world: %d\n"

@@ -3018,6 +3018,10 @@ string OStoreDirect::toString() const
 {
     return "STORED " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
+string OStoreDirectV::toString() const
+{
+    return "STOREDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
 
 string OQuit::toString() const
 {
@@ -6567,6 +6571,21 @@ string OFloor::toString() const
     return "FLOOR " + getArgument()->toString();
 }
 
+string OTruncate::toString() const
+{
+    return "TRUNCATE " + getArgument()->toString();
+}
+
+string ORound::toString() const
+{
+    return "ROUND " + getArgument()->toString();
+}
+
+string ORoundAway::toString() const
+{
+    return "ROUNDAWAY " + getArgument()->toString();
+}
+
 string OCeiling::toString() const
 {
     return "CEILING " + getArgument()->toString();
@@ -6920,5 +6939,26 @@ string OCallFunc::toString() const
 string OReturnFunc::toString() const
 {
 	return "RETURNFUNC";
+}
+
+
+string OSetCompare::toString() const
+{
+	return "SETCMP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OGotoCompare::toString() const
+{
+	return "GOTOCMP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+
+string OStackWriteAtRV::toString() const
+{
+	return "STACKWRITEATRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OStackWriteAtVV::toString() const
+{
+	return "STACKWRITEATVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 

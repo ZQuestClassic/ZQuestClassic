@@ -436,6 +436,13 @@ void ScreenSymbols::generateCode()
 		addOpcode2 (code, new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
 		RETURN();
 		function->giveCode(code);
+		function->set_constexpr(CONSTEXPR_CBACK_HEADER()
+			{
+				optional<int> val;
+				if(args[0])
+					val = *args[0] - 10000;
+				return val;
+			});
 	}
 	//npc LoadNPC(screen, int32_t)
 	{

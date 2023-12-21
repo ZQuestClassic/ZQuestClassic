@@ -54,9 +54,7 @@ namespace ZScript
 		void caseExprNot(ASTExprNot& host, void* param = NULL);
 		void caseExprBitNot(ASTExprBitNot& host, void* param = NULL);
 		void caseExprIncrement(ASTExprIncrement& host, void* param = NULL);
-		void caseExprPreIncrement(ASTExprPreIncrement& host, void* param = NULL);
 		void caseExprDecrement(ASTExprDecrement& host, void* param = NULL);
-		void caseExprPreDecrement(ASTExprPreDecrement& host, void* param = NULL);
 		void caseExprCast(ASTExprCast& host, void* param = NULL);
 		void caseExprAnd(ASTExprAnd& host, void* param = NULL);
 		void caseExprOr(ASTExprOr& host, void* param = NULL);
@@ -103,10 +101,10 @@ namespace ZScript
 		//Shortcut for pointer
 		bool registered(AST* node) const;
 		template <class Container>
-		bool registered(AST& host, Container const& nodes) const;
+		bool registered_vec(Container const& nodes) const;
 		//Visiting
 		template <class Container>
-		void block_regvisit(AST& host, Container const& nodes, void* param = NULL);
+		void block_regvisit_vec(Container const& nodes, void* param = NULL);
 	private:
 		ZScript::Program& program;
 		

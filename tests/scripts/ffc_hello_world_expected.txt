@@ -45,18 +45,16 @@ PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
 LOADD d3,2
 DEALLOCATEMEMR d3
-SETV d2,0
-STORED d2,1
-LOADD d2,1; if() #9322 Test AND while(true) #9320 Body [Opt:AlwaysOn] Start
+LOADD d2,1; if() #558 Test AND while(true) #8 Body [Opt:AlwaysOn] Start
 PUSHR d2
 ADDV d2,1
 STORED d2,1
 POP d2
 COMPAREV d2,30
-SETTRUEI d2
+SETCMP d2,0.0012
 COMPAREV d2,0
-GOTOTRUE 69; Test 'if'
-ALLOCATEMEMV d2,43; if() #9322 Body Start
+GOTOTRUE 67; Test 'if'
+ALLOCATEMEMV d2,43; if() #558 Body Start
 STORED d2,0
 WRITEPODSTRING d2,"FFC script is running, ID: %d x: %d y: %d\n"
 LOADD d2,0; InlineFunc[void printf(char32)] Params Start
@@ -76,10 +74,9 @@ PUSHVARGR Y; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
 LOADD d3,0
-DEALLOCATEMEMR d3; if() #9322 Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #9320 Body [Opt:AlwaysOn] End
-GOTO 39; while() #9320 End
-NOP; [Opt:NeverRet] AND void run(int) Body End
+DEALLOCATEMEMR d3; if() #558 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
+GOTO 37; while() #8 End AND [Opt:NeverRet] AND void run(int) Body End
 
 
 ALLOCATEGMEMV d2,4096; void run() Body Start

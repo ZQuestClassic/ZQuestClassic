@@ -144,24 +144,22 @@ ASTFloat::ASTFloat(
 	initNeg();
 }
 
-ASTFloat::ASTFloat(int32_t val, Type type, LocationData const& location)
-	: AST(location), type(type), negative(false)
+ASTFloat::ASTFloat(zfix val, LocationData const& location)
+	: AST(location), type(TYPE_DECIMAL), negative(false)
 {
-	char tmp[15];
-	sprintf(tmp, "%d", val);
-	value = string(tmp);
+	value = val.str();
 	initNeg();
 }
 
 ASTFloat::ASTFloat(int32_t ipart, int32_t dpart, LocationData const& location)
 	: AST(location), type(TYPE_DECIMAL), negative(false)
 {
-	char tmp[13];
 	if(dpart)
-		sprintf(tmp,"%d.%04d",ipart,dpart);
-	else
-		sprintf(tmp,"%d",ipart);
-	value = string(tmp);
+	{
+		zfix val(ipart,dpart);
+		value = val.str();
+	}
+	else value = to_string(ipart);
 	initNeg();
 }
 
@@ -628,10 +626,13 @@ void ASTString::execute(ASTVisitor& visitor, void* param)
 // ASTAnnotation
 
 ASTAnnotation::ASTAnnotation(ASTString* key, ASTString* strval, LocationData const& location)
-	: AST(location), key(key), strval(strval)
+	: AST(location), key(key), strval(strval), intval()
 {}
 ASTAnnotation::ASTAnnotation(ASTString* key, ASTFloat* intval, LocationData const& location)
-	: AST(location), key(key), intval(intval)
+	: AST(location), key(key), strval(), intval(intval)
+{}
+ASTAnnotation::ASTAnnotation(ASTString* key, LocationData const& location)
+	: AST(location), key(key), strval(), intval()
 {}
 
 void ASTAnnotation::execute(ASTVisitor& visitor, void* param)
@@ -713,6 +714,8 @@ void ASTBlock::execute(ASTVisitor& visitor, void* param)
 
 // ASTStmtIf
 
+uint ASTStmtIf::next_comment_id = 0;
+
 ASTStmtIf::ASTStmtIf(ASTExpr* condition,
 					 ASTBlock* thenStatement,
 					 LocationData const& location)
@@ -732,7 +735,9 @@ void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtIfElse
-    
+
+uint ASTStmtIfElse::next_comment_id = 0;
+
 ASTStmtIfElse::ASTStmtIfElse(
 		ASTExpr* condition, ASTBlock* thenStatement,
 		ASTBlock* elseStatement, LocationData const& location)
@@ -752,6 +757,8 @@ void ASTStmtIfElse::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtSwitch
+
+uint ASTStmtSwitch::next_comment_id = 0;
 
 ASTStmtSwitch::ASTStmtSwitch(LocationData const& location)
 	: ASTStmt(location), key(NULL), isString(false)
@@ -851,7 +858,7 @@ void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
 
 // ASTRange
 
-ASTRange::ASTRange(ASTExprConst* start, ASTExprConst* end, uint type, LocationData const& location)
+ASTRange::ASTRange(ASTExpr* start, ASTExpr* end, uint type, LocationData const& location)
 	: AST(location), start(start), end(end), type(type)
 {}
 
@@ -859,16 +866,34 @@ void ASTRange::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseRange(*this, param);
 }
+optional<int32_t> ASTRange::getStartVal(bool inclusive, CompileErrorHandler* errorHandler, Scope* scope)
+{
+	auto ret = start->getCompileTimeValue(errorHandler, scope);
+	if(inclusive && ret && !(type&RANGE_L))
+		ret = *ret+1;
+	return ret;
+}
+optional<int32_t> ASTRange::getEndVal(bool inclusive, CompileErrorHandler* errorHandler, Scope* scope)
+{
+	auto ret = end->getCompileTimeValue(errorHandler, scope);
+	if(inclusive && ret && !(type&RANGE_R))
+		ret = *ret-1;
+	return ret;
+}
 
 // ASTStmtFor
 
+uint ASTStmtFor::next_comment_id = 0;
+
 ASTStmtFor::ASTStmtFor(
-		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
+		ASTStmt* setup, ASTExpr* test, ASTNodeList<ASTStmt>* incr_list, ASTStmt* body,
 		ASTStmt* elseBlock, LocationData const& location)
-	: ASTStmt(location), setup(setup), test(test), increment(increment),
+	: ASTStmt(location), setup(setup), test(test), increments(incr_list->take()),
 	  body(body), elseBlock(elseBlock), scope(nullptr),
 	  ends_loop(true), ends_else(true)
-{}
+{
+	delete incr_list;
+}
 
 void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 {
@@ -876,6 +901,8 @@ void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtForEach
+
+uint ASTStmtForEach::next_comment_id = 0;
 
 ASTStmtForEach::ASTStmtForEach(
 	std::string const& identifier, ASTExpr* expr, ASTStmt* body,
@@ -891,7 +918,26 @@ void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
 	return visitor.caseStmtForEach(*this, param);
 }
 
+// ASTStmtRangeLoop
+
+uint ASTStmtRangeLoop::next_comment_id = 0;
+
+ASTStmtRangeLoop::ASTStmtRangeLoop(ASTDataType* type, string const& iden,
+	ASTRange* range, ASTExpr* increment, ASTStmt* body, LocationData const& location)
+	: ASTStmt(location), iden(iden), decl(nullptr), type(type),
+		increment(increment), body(body), range(range),
+		elseBlock(nullptr), scope(nullptr), overflow(OVERFLOW_ALLOW),
+	  ends_loop(true), ends_else(true)
+{}
+
+void ASTStmtRangeLoop::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseStmtRangeLoop(*this, param);
+}
+
 // ASTStmtWhile
+
+uint ASTStmtWhile::next_comment_id = 0;
 
 ASTStmtWhile::ASTStmtWhile(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
@@ -906,6 +952,8 @@ void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtDo
+
+uint ASTStmtDo::next_comment_id = 0;
 
 ASTStmtDo::ASTStmtDo(ASTExpr* test, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
@@ -1249,7 +1297,7 @@ void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
 	: ASTDecl(location), list(NULL), manager(NULL),
-	  baseType(NULL), initializer_(NULL)
+	  baseType(NULL), initializer_(NULL), flags(0)
 {}
 
 ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
@@ -1650,7 +1698,7 @@ optional<int32_t> ASTExprCall::getCompileTimeValue(CompileErrorHandler* errorHan
 	vector<optional<int32_t>> param_vals;
 	for(auto expr : parameters)
 		param_vals.push_back(expr->getCompileTimeValue(errorHandler, scope));
-	return constfunc(param_vals);
+	return constfunc(param_vals, *this, errorHandler, scope);
 }
 DataType const* ASTExprCall::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
@@ -1681,9 +1729,11 @@ void ASTExprDelete::execute(ASTVisitor& visitor, void* param)
 
 // ASTExprNegate
 
-ASTExprNegate::ASTExprNegate(LocationData const& location)
+ASTExprNegate::ASTExprNegate(ASTExpr* op, LocationData const& location)
 	: ASTUnaryExpr(location), done(false)
-{}
+{
+	operand = op;
+}
 
 void ASTExprNegate::execute(ASTVisitor& visitor, void* param)
 {
@@ -1701,9 +1751,11 @@ std::optional<int32_t> ASTExprNegate::getCompileTimeValue(
 
 // ASTExprNot
 
-ASTExprNot::ASTExprNot(LocationData const& location)
+ASTExprNot::ASTExprNot(ASTExpr* op, LocationData const& location)
 	: ASTUnaryExpr(location), inverted(false)
-{}
+{
+	operand = op;
+}
 
 void ASTExprNot::execute(ASTVisitor& visitor, void* param)
 {
@@ -1721,9 +1773,11 @@ std::optional<int32_t> ASTExprNot::getCompileTimeValue(
 
 // ASTExprBitNot
 
-ASTExprBitNot::ASTExprBitNot(LocationData const& location)
+ASTExprBitNot::ASTExprBitNot(ASTExpr* op, LocationData const& location)
 	: ASTUnaryExpr(location)
-{}
+{
+	operand = op;
+}
 
 void ASTExprBitNot::execute(ASTVisitor& visitor, void* param)
 {
@@ -1746,46 +1800,28 @@ std::optional<int32_t> ASTExprBitNot::getCompileTimeValue(
 
 // ASTExprIncrement
 
-ASTExprIncrement::ASTExprIncrement(LocationData const& location)
-	: ASTUnaryExpr(location)
-{}
+ASTExprIncrement::ASTExprIncrement(bool pre, ASTExpr* op, LocationData const& location)
+	: ASTUnaryExpr(location), is_pre(pre)
+{
+	operand = op;
+}
 
 void ASTExprIncrement::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprIncrement(*this, param);
 }
 
-// ASTExprPreIncrement
-
-ASTExprPreIncrement::ASTExprPreIncrement(LocationData const& location)
-	: ASTUnaryExpr(location)
-{}
-
-void ASTExprPreIncrement::execute(ASTVisitor& visitor, void* param)
-{
-	visitor.caseExprPreIncrement(*this, param);
-}
-
 // ASTExprDecrement
 
-ASTExprDecrement::ASTExprDecrement(LocationData const& location)
-	: ASTUnaryExpr(location)
-{}
+ASTExprDecrement::ASTExprDecrement(bool pre, ASTExpr* op, LocationData const& location)
+	: ASTUnaryExpr(location), is_pre(pre)
+{
+	operand = op;
+}
 
 void ASTExprDecrement::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprDecrement(*this, param);
-}
-
-// ASTExprPreDecrement
-
-ASTExprPreDecrement::ASTExprPreDecrement(LocationData const& location)
-	: ASTUnaryExpr(location)
-{}
-
-void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
-{
-	visitor.caseExprPreDecrement(*this, param);
 }
 
 // ASTExprCast
@@ -2228,7 +2264,7 @@ std::optional<int32_t> ASTExprDivide::getCompileTimeValue(
 	if (*rightValue == 0)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::DivByZero(this, "divide"));
+			errorHandler->handleError(CompileError::DivByZero(this,"divide",""));
 		return (*leftValue >= 0) ? 2147483647 : -2147483647; //error value
 	}
 	
@@ -2265,7 +2301,7 @@ std::optional<int32_t> ASTExprModulo::getCompileTimeValue(
 	if (*rightValue == 0)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::DivByZero(this,"modulo"));
+			errorHandler->handleError(CompileError::DivByZero(this,"modulo",""));
 		return std::nullopt;
 	}
 	return *leftValue % *rightValue;

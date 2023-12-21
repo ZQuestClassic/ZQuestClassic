@@ -1200,6 +1200,16 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "CALLFUNC", 1, 1, 0, 0 },
 	{ "RETURNFUNC", 0, 0, 0, 0 },
 
+	{ "SETCMP", 2, 0, 1, 0 },
+	{ "GOTOCMP", 2, 1, 1, 0 },
+	{ "STACKWRITEATRV", 2, 0, 1, 0 },
+	{ "STACKWRITEATVV", 2, 1, 1, 0 },
+
+	{ "TRUNCATE", 1, 0, 0, 0},
+	{ "ROUND", 1, 0, 0, 0},
+	{ "ROUNDAWAY", 1, 0, 0, 0},
+	{ "STOREDV", 2, 1, 1, 0},
+
 	{ "", 0, 0, 0, 0 }
 };
 
@@ -4027,7 +4037,7 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 			switch(i)
 			{
 				case GOTO: case LOOP: //Hardcodes for some control flow opcodes
-				case GOTOTRUE: case GOTOFALSE: case GOTOLESS: case GOTOMORE:
+				case GOTOTRUE: case GOTOFALSE: case GOTOLESS: case GOTOMORE: case GOTOCMP:
 				{
 					string lbl(arg1buf);
 					auto it = labels.find(lbl);
@@ -4036,9 +4046,9 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 					else
 						(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
 					
-					if(i == LOOP)
+					if(command_list[i].args > 1)
 					{
-						if(command_list[i].arg2_type==1)  //this should NEVER happen with a loop, as arg2 needs to be a variable
+						if(command_list[i].arg2_type==1)
 						{
 							if(!ffcheck(arg2buf))
 							{

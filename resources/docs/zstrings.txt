@@ -1,6 +1,6 @@
 ZStrings Documentation
-Document Revision: 5th Sept, 2021
-For ZC 2.5 Alpha 96, and above.
+Document Revision: 16th Dec, 2023
+For ZC 2.55 and above
 
 +-----------------------------+
 | STRING CONTROL CODES        |
@@ -8,6 +8,8 @@ For ZC 2.5 Alpha 96, and above.
 
 Enter these control codes into a message string for special formatting, effects, basic dialog
 branching, or modification. (Argument values should be a number from 0 to 9999.)
+
+In the String Editor, the "Insert SCC" button can be used to easily insert and configure these codes.
 
 +-----------------------------+
 | FORMATTING CODES            |

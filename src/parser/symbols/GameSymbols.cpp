@@ -732,7 +732,6 @@ void GameSymbols::generateCode()
 		addOpcode2 (code, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		addOpcode2 (code, new OGotoTrueImmediate(new LabelArgument(done)));
 		addOpcode2 (code, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-		addOpcode2 (code, new OGotoImmediate(new LabelArgument(done)));
 		RETURN();
 		LABELBACK(done);
 		function->giveCode(code);

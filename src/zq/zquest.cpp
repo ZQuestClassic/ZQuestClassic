@@ -23090,7 +23090,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 			case 42:
 				//Script Info, information
 			{
-				zasm_meta* target = NULL;
+				disassembled_script_data* target = nullptr;
 				switch(get_selected_tab((TABPANEL*)assignscript_dlg[1].dp))
 				{
 					default:
@@ -23099,7 +23099,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[4].d1;
 						if(id > -1 && ffcmap[id].hasScriptData())
 						{
-							target = &(scripts[ffcmap[id].scriptname].first);
+							target = &(scripts[ffcmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23108,7 +23108,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[7].d1;
 						if(id > -1 && globalmap[id].hasScriptData())
 						{
-							target = &(scripts[globalmap[id].scriptname].first);
+							target = &(scripts[globalmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23117,7 +23117,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[10].d1;
 						if(id > -1 && itemmap[id].hasScriptData())
 						{
-							target = &(scripts[itemmap[id].scriptname].first);
+							target = &(scripts[itemmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23126,7 +23126,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[19].d1;
 						if(id > -1 && npcmap[id].hasScriptData())
 						{
-							target = &(scripts[npcmap[id].scriptname].first);
+							target = &(scripts[npcmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23135,7 +23135,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[21].d1;
 						if(id > -1 && lwpnmap[id].hasScriptData())
 						{
-							target = &(scripts[lwpnmap[id].scriptname].first);
+							target = &(scripts[lwpnmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23144,7 +23144,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[24].d1;
 						if(id > -1 && ewpnmap[id].hasScriptData())
 						{
-							target = &(scripts[ewpnmap[id].scriptname].first);
+							target = &(scripts[ewpnmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23153,7 +23153,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[27].d1;
 						if(id > -1 && playermap[id].hasScriptData())
 						{
-							target = &(scripts[playermap[id].scriptname].first);
+							target = &(scripts[playermap[id].scriptname]);
 						}
 						break;
 					}
@@ -23162,7 +23162,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[33].d1;
 						if(id > -1 && dmapmap[id].hasScriptData())
 						{
-							target = &(scripts[dmapmap[id].scriptname].first);
+							target = &(scripts[dmapmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23171,7 +23171,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[30].d1;
 						if(id > -1 && screenmap[id].hasScriptData())
 						{
-							target = &(scripts[screenmap[id].scriptname].first);
+							target = &(scripts[screenmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23180,7 +23180,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[36].d1;
 						if(id > -1 && itemspritemap[id].hasScriptData())
 						{
-							target = &(scripts[itemspritemap[id].scriptname].first);
+							target = &(scripts[itemspritemap[id].scriptname]);
 						}
 						break;
 					}
@@ -23189,7 +23189,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[39].d1;
 						if(id > -1 && comboscriptmap[id].hasScriptData())
 						{
-							target = &(scripts[comboscriptmap[id].scriptname].first);
+							target = &(scripts[comboscriptmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23198,7 +23198,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[45].d1;
 						if(id > -1 && genericmap[id].hasScriptData())
 						{
-							target = &(scripts[genericmap[id].scriptname].first);
+							target = &(scripts[genericmap[id].scriptname]);
 						}
 						break;
 					}
@@ -23207,20 +23207,28 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						int32_t id = assignscript_dlg[48].d1;
 						if(id > -1 && subscreenmap[id].hasScriptData())
 						{
-							target = &(scripts[subscreenmap[id].scriptname].first);
+							target = &(scripts[subscreenmap[id].scriptname]);
 						}
 						break;
 					}
 				}
-				if(target)
-					showScriptInfo(target);
+				zasm_meta* meta = target ? &target->first : nullptr;
+				if(devpwd() && CHECK_CTRL_CMD)
+				{
+					string str;
+					target->write(str, false, false, (assignscript_dlg[51].flags == D_SELECTED), true);
+					set_al_clipboard(str);
+					displayinfo("Clipboard Copy","Copied ZASM of selected script to clipboard");
+				}
+				else if(meta)
+					showScriptInfo(meta);
 				break;
 			}
 		
 			case 43:
 				//Script Info, information
 			{
-				zasm_meta* target = NULL;
+				disassembled_script_data* target = NULL;
 				switch(get_selected_tab((TABPANEL*)assignscript_dlg[1].dp))
 				{
 					default:
@@ -23228,96 +23236,104 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 					{
 						int32_t id = assignscript_dlg[5].d1;
 						if(id < 0 || asffcscripts[id] == "<none>" || asffcscripts[id].at(0) == '-') break;
-						target = &(scripts[asffcscripts[id]].first);
+						target = &(scripts[asffcscripts[id]]);
 						break;
 					}
 					case 1: //Global
 					{
 						int32_t id = assignscript_dlg[8].d1;
 						if(id < 0 || asglobalscripts[id] == "<none>" || asglobalscripts[id].at(0) == '-') break;
-						target = &(scripts[asglobalscripts[id]].first);
+						target = &(scripts[asglobalscripts[id]]);
 						break;
 					}
 					case 2: //Item
 					{
 						int32_t id = assignscript_dlg[11].d1;
 						if(id < 0 || asitemscripts[id] == "<none>" || asitemscripts[id].at(0) == '-') break;
-						target = &(scripts[asitemscripts[id]].first);
+						target = &(scripts[asitemscripts[id]]);
 						break;
 					}
 					case 3: //npc
 					{
 						int32_t id = assignscript_dlg[20].d1;
 						if(id < 0 || asnpcscripts[id] == "<none>" || asnpcscripts[id].at(0) == '-') break;
-						target = &(scripts[asnpcscripts[id]].first);
+						target = &(scripts[asnpcscripts[id]]);
 						break;
 					}
 					case 4: //lweapon
 					{
 						int32_t id = assignscript_dlg[22].d1;
 						if(id < 0 || aslweaponscripts[id] == "<none>" || aslweaponscripts[id].at(0) == '-') break;
-						target = &(scripts[aslweaponscripts[id]].first);
+						target = &(scripts[aslweaponscripts[id]]);
 						break;
 					}
 					case 5: //eweapon
 					{
 						int32_t id = assignscript_dlg[25].d1;
 						if(id < 0 || aseweaponscripts[id] == "<none>" || aseweaponscripts[id].at(0) == '-') break;
-						target = &(scripts[aseweaponscripts[id]].first);
+						target = &(scripts[aseweaponscripts[id]]);
 						break;
 					}
 					case 6: //hero
 					{
 						int32_t id = assignscript_dlg[28].d1;
 						if(id < 0 || asplayerscripts[id] == "<none>" || asplayerscripts[id].at(0) == '-') break;
-						target = &(scripts[asplayerscripts[id]].first);
+						target = &(scripts[asplayerscripts[id]]);
 						break;
 					}
 					case 7: //dmap
 					{
 						int32_t id = assignscript_dlg[34].d1;
 						if(id < 0 || asdmapscripts[id] == "<none>" || asdmapscripts[id].at(0) == '-') break;
-						target = &(scripts[asdmapscripts[id]].first);
+						target = &(scripts[asdmapscripts[id]]);
 						break;
 					}
 					case 8: //screen
 					{
 						int32_t id = assignscript_dlg[31].d1;
 						if(id < 0 || asscreenscripts[id] == "<none>" || asscreenscripts[id].at(0) == '-') break;
-						target = &(scripts[asscreenscripts[id]].first);
+						target = &(scripts[asscreenscripts[id]]);
 						break;
 					}
 					case 9: //itemsprite
 					{
 						int32_t id = assignscript_dlg[37].d1;
 						if(id < 0 || asitemspritescripts[id] == "<none>" || asitemspritescripts[id].at(0) == '-') break;
-						target = &(scripts[asitemspritescripts[id]].first);
+						target = &(scripts[asitemspritescripts[id]]);
 						break;
 					}
 					case 10: //combo
 					{
 						int32_t id = assignscript_dlg[40].d1;
 						if(id < 0 || ascomboscripts[id] == "<none>" || ascomboscripts[id].at(0) == '-') break;
-						target = &(scripts[ascomboscripts[id]].first);
+						target = &(scripts[ascomboscripts[id]]);
 						break;
 					}
 					case 11: //generic
 					{
 						int32_t id = assignscript_dlg[46].d1;
 						if(id < 0 || asgenericscripts[id] == "<none>" || asgenericscripts[id].at(0) == '-') break;
-						target = &(scripts[asgenericscripts[id]].first);
+						target = &(scripts[asgenericscripts[id]]);
 						break;
 					}
 					case 12: //subscreen
 					{
 						int32_t id = assignscript_dlg[49].d1;
 						if(id < 0 || assubscreenscripts[id] == "<none>" || assubscreenscripts[id].at(0) == '-') break;
-						target = &(scripts[assubscreenscripts[id]].first);
+						target = &(scripts[assubscreenscripts[id]]);
 						break;
 					}
 				}
-				if(target)
-					showScriptInfo(target);
+				zasm_meta* meta = target ? &target->first : nullptr;
+				if(devpwd() && CHECK_CTRL_CMD)
+				{
+					string str;
+					target->write(str, false, false, (assignscript_dlg[51].flags == D_SELECTED), true);
+					set_al_clipboard(str);
+					displayinfo("Clipboard Copy","Copied ZASM of selected script to clipboard");
+				}
+				else if(meta)
+					showScriptInfo(meta);
 				break;
 			}
 			

@@ -684,6 +684,22 @@ std::optional<int32_t> ZScript::lookupStackOffset(
 	return std::nullopt;
 }
 
+bool ZScript::eraseDatum(Scope const& scope, Datum& datum)
+{
+	Scope* s = const_cast<Scope*>(&scope);
+	while (s)
+	{
+		if (s->getLocalStackOffset(datum))
+			if(s->remove(datum))
+				return true;
+
+		if (isStackRoot(*s)) return false;
+
+		s = s->getParent();
+	}
+	return false;
+}
+
 std::optional<int32_t> ZScript::lookupStackSize(Scope const& scope)
 {
 	Scope* s = const_cast<Scope*>(&scope);
@@ -1075,13 +1091,14 @@ Function* BasicScope::addFunction(
 		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
 	bool prototype = false;
-	ASTExprConst* defRet = NULL;
+	optional<int32_t> defRet;
 	if(node)
 	{
 		prototype = node->prototype;
 		if(prototype)
 		{
-			defRet = node->defaultReturn.get();
+			if(auto expr = node->defaultReturn.get())
+				defRet = expr->getCompileTimeValue(handler, this);
 		}
 	}
 	FunctionSignature signature(name, paramTypes);
@@ -1102,9 +1119,8 @@ Function* BasicScope::addFunction(
 			if(prototype) //Another identical prototype being declared
 			{
 				//Check default returns
-				std::optional<int32_t> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
-				std::optional<int32_t> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
-				if(!val || !val2 || (*val != *val2)) //Different or erroring default returns
+				std::optional<int32_t> val = foundFunc->defaultReturn;
+				if(!defRet || !val || (*defRet != *val)) //Different or erroring default returns
 				{
 					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
 					return NULL;
@@ -1230,6 +1246,56 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 		invalidateStackSize();
 	}
 
+	return true;
+}
+void BasicScope::decr_stack_recursive(optional<int32_t> offset)
+{
+	if(offset)
+	{
+		bool skip = true;
+		for(auto& offs : stackOffsets_)
+			if(offs.second <= *offset)
+			{
+				skip = false;
+				break;
+			}
+		if(skip)
+			return;
+	}
+	--stackDepth_;
+	for(auto& offs : stackOffsets_)
+		--offs.second;
+	for(auto child : getChildren())
+	{
+		BasicScope* scope = static_cast<BasicScope*>(child);
+		scope->decr_stack_recursive();
+	}
+}
+bool BasicScope::remove(Datum& datum)
+{
+	if (!ZScript::isGlobal(datum))
+	{
+		auto it = stackOffsets_.find(&datum);
+		if(it != stackOffsets_.end())
+		{
+			auto offset = it->second;
+			stackOffsets_.erase(it);
+			--stackDepth_;
+			for(auto& offs : stackOffsets_)
+				if(offs.second > offset)
+					--offs.second;
+			for(auto child : getChildren())
+			{
+				BasicScope* scope = static_cast<BasicScope*>(child);
+				scope->decr_stack_recursive(offset);
+			}
+			invalidateStackSize();
+			datum.mark_erased();
+			return true;
+		}
+		return false;
+	}
+	datum.mark_erased();
 	return true;
 }
 
@@ -1843,7 +1909,7 @@ Function* ClassScope::addFunction(
 	bool destructor = (flags&FUNCFLAG_DESTRUCTOR);
 	bool condes = constructor||destructor;
 	bool prototype = false;
-	ASTExprConst* defRet = NULL;
+	optional<int32_t> defRet;
 	if(condes && name.compare(user_class.getName()))
 	{
 		if(constructor)
@@ -1861,7 +1927,8 @@ Function* ClassScope::addFunction(
 		prototype = node->prototype;
 		if(prototype)
 		{
-			defRet = node->defaultReturn.get();
+			if(auto expr = node->defaultReturn.get())
+				defRet = expr->getCompileTimeValue(handler, this);
 		}
 	}
 	FunctionSignature signature(name, paramTypes);
@@ -1883,9 +1950,8 @@ Function* ClassScope::addFunction(
 			if(prototype) //Another identical prototype being declared
 			{
 				//Check default returns
-				std::optional<int32_t> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
-				std::optional<int32_t> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
-				if(!val || !val2 || (*val != *val2)) //Different or erroring default returns
+				std::optional<int32_t> val = foundFunc->defaultReturn;
+				if(!defRet || !val || (*defRet != *val)) //Different or erroring default returns
 				{
 					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
 					return NULL;
