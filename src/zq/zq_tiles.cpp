@@ -16411,7 +16411,7 @@ REDRAW:
 						tile2=tile=z;
 					}, nullopt, type != 0 },
 			};
-			rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+			rcmenu.pop(window_mouse_x(),window_mouse_y());
 			redraw = true;
 			r_click = false;
 			goto REDRAW;
@@ -18042,7 +18042,7 @@ REDRAW:
 						Combo = z;
 					} },
 			};
-			rcmenu.pop(gui_mouse_x(),gui_mouse_y());
+			rcmenu.pop(window_mouse_x(),window_mouse_y());
 			redraw = true;
 			r_click = false;
 			goto REDRAW;

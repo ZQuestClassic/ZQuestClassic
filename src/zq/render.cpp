@@ -25,6 +25,15 @@ static int zc_gui_mouse_y()
 	return rti_screen.rel_mouse().second;
 }
 
+int window_mouse_x()
+{
+	return rti_screen.rel_mouse().first;
+}
+int window_mouse_y()
+{
+	return rti_screen.rel_mouse().second;
+}
+
 bool use_linear_bitmaps()
 {
 	static bool value = zc_get_config("zquest", "scaling_mode", 0) == 1;
