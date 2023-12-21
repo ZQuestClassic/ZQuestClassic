@@ -4,6 +4,7 @@
 #include "base/ints.h"
 #include "base/zfix.h"
 #include "base/headers.h"
+#include "base/containers.h"
 #include <functional>
 
 #define NUM_COMBO_ATTRIBUTES            4
@@ -30,27 +31,26 @@
 
 enum
 {
-	ADVP_TILE,
-	ADVP_CSET2,
-	ADVP_SOLIDITY,
-	ADVP_ANIM,
-	ADVP_TYPE,
-	ADVP_INHFLAG,
-	ADVP_ATTRIBYTE,
-	ADVP_ATTRISHORT,
-	ADVP_ATTRIBUTE,
-	ADVP_FLAGS,
-	ADVP_LABEL,
-	ADVP_SCRIPT,
-	ADVP_EFFECT,
-	ADVP_TRIGGERS,
-	ADVP_LIFTING,
-	ADVP_GEN_MOVESPEED,
-	ADVP_GEN_SFX,
-	ADVP_GEN_SPRITES,
-	ADVP_SZ
+	CMB_ADVP_TILE,
+	CMB_ADVP_CSET2,
+	CMB_ADVP_SOLIDITY,
+	CMB_ADVP_ANIM,
+	CMB_ADVP_TYPE,
+	CMB_ADVP_INHFLAG,
+	CMB_ADVP_ATTRIBYTE,
+	CMB_ADVP_ATTRISHORT,
+	CMB_ADVP_ATTRIBUTE,
+	CMB_ADVP_FLAGS,
+	CMB_ADVP_LABEL,
+	CMB_ADVP_SCRIPT,
+	CMB_ADVP_EFFECT,
+	CMB_ADVP_TRIGGERS,
+	CMB_ADVP_LIFTING,
+	CMB_ADVP_GEN_MOVESPEED,
+	CMB_ADVP_GEN_SFX,
+	CMB_ADVP_GEN_SPRITES,
+	CMB_ADVP_SZ
 };
-#define ADVP_BYTESZ ((ADVP_SZ/8) + (ADVP_SZ%8 ? 1 : 0))
 
 struct newcombo
 {
@@ -133,7 +133,7 @@ struct newcombo
 	
 	int each_tile(std::function<bool(int32_t)> proc) const;
 	
-	void advpaste(newcombo const& other, byte* pasteflags);
+	void advpaste(newcombo const& other, bitstring const& pasteflags);
 };
 
 #define AF_FRESH                        0x01

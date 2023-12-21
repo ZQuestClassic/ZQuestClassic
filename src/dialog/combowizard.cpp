@@ -3573,7 +3573,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							Column(padding = 0_px,
 								Row(padding = 0_px,
 									Label(text = "Buttons:"),
-									INFOBTN("Which buttons should interact with the chest?"
+									INFOBTN("Which buttons should interact with the lockblock?"
 										"\nIf no buttons are selected, walking into the chest will interact with it.")
 								),
 								Columns<4>(
@@ -3962,7 +3962,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							Column(padding = 0_px,
 								Row(padding = 0_px,
 									Label(text = "Buttons:"),
-									INFOBTN("Which buttons should interact with the chest?"
+									INFOBTN("Which buttons should interact with the signpost?"
 										"\nIf no buttons are selected, walking into the chest will interact with it.")
 								),
 								Columns<4>(

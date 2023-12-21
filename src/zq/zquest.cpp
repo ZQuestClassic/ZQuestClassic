@@ -28005,7 +28005,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(template_dlg);
-    center_zq_tiles_dialog();
     jwin_center_dialog(tp_dlg);
     jwin_center_dialog(under_dlg);
     jwin_center_dialog(tilewarp_dlg);
