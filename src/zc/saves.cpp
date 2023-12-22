@@ -2153,17 +2153,11 @@ int saves_do_first_time_stuff(int index)
 
 		// Try to make relative to qstdir.
 		// TODO: this is a weird place to do this.
-		char temppath[2048];
-		memset(temppath, 0, 2048);
 		std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
-		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
-		if (!rel_dir.ends_with(("/")))
-			rel_dir += "/";
-		zc_make_relative_filename(temppath, rel_dir.c_str(), save->game->header.qstpath.c_str(), 2047);
-		if (temppath[0] != 0)
-		{
-			save->game->header.qstpath = temppath;
-		}
+		auto maybe_rel_qstpath = util::is_subpath_of(rel_dir, save->game->header.qstpath) ?
+			fs::relative(save->game->header.qstpath, rel_dir) :
+			fs::path(save->game->header.qstpath);
+		save->game->header.qstpath = maybe_rel_qstpath.string();
 
 		ret = load_quest(save->game);
 		if (ret)
