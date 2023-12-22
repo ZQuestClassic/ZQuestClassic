@@ -476,6 +476,7 @@ void init_custom_fonts()
 		fontscales[q] = zc_get_config("ZQ_GUI", get_font_cfgname(true, q).c_str(), 1);
 		if(unsigned(fontids[q]) >= font_max)
 			fontids[q] = font_lfont_l;
+		fontscales[q] = vbound(fontscales[q], 1, 5);
 		deffonts[q] = get_zc_font(fontids[q]);
 		deffonts_a5[q] = a5fonts[fontids[q]];
 		if(customfonts[q])
