@@ -2249,6 +2249,7 @@ bool saves_test()
 	save.game = game;
 	save.header = &game->header;
 	save.path = "test.sav";
+	save.write_to_disk = true;
 
 	if (write_save(&save))
 	{
