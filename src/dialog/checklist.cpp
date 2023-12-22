@@ -30,15 +30,15 @@ std::shared_ptr<GUI::Widget> ChecklistDialog::view()
 		}
 	for(uint q = 0; q < flagnames.size(); ++q)
 	{
-		auto [name,inf] = flagnames[q];
-		auto cbox = Checkbox(text = name, hAlign = 0.0,
+		auto const& pair = flagnames[q];
+		auto cbox = Checkbox(text = pair.first, hAlign = 0.0,
 			checked = flags.get(q),
 			onToggleFunc = [&,q](bool state)
 			{
 				flags.set(q, state);
 			});
 		if(use_info)
-			grid->add(Row(padding = 0_px, hAlign = 0.0, inf.empty() ? DINFOBTN() : INFOBTN(inf), cbox));
+			grid->add(Row(padding = 0_px, hAlign = 0.0, pair.second.empty() ? DINFOBTN() : INFOBTN(pair.second), cbox));
 		else grid->add(cbox);
 	}
 	
