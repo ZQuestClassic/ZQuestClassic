@@ -1092,6 +1092,10 @@ int32_t custom_game(int32_t file)
 		zc_make_relative_filename(temppath, rel_dir.c_str(), qstpath, 2047);
 
 		saves_get_slot(file, true)->game->set_qstpath(temppath);
+		if (saves_do_first_time_stuff(file))
+		{
+			InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
+		}
 	}
 
 	exit_sys_pal();
