@@ -1601,25 +1601,86 @@ void init_dmap()
     return;
 }
 
+// Sets globals to their default values.
+void init_game_vars()
+{
+	// Various things use the frame counter to do random stuff (ex: runDrunkRNG).
+	// We only bother setting it to 0 here so that recordings will play back the
+	// same way, even if manually started in the ZC UI.
+    frame = 0;
+	new_subscreen_active = nullptr;
+	new_sub_indexes[sstACTIVE] = -1;
+	loadside = 0;
+	view_map_show_mode = 3;
+	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
+	draw_screen_clip_rect_x2=255;
+	draw_screen_clip_rect_y1=0;
+	draw_screen_clip_rect_y2=223;	
+	didpit=false;
+	Hero.unfreeze();
+	Hero.reset_hookshot();
+	Hero.reset_ladder();
+	linkedmsgclk=0;
+	mblock2.clear();
+	add_asparkle=0;
+	add_bsparkle=0;
+	add_df1asparkle=false;
+	add_df1bsparkle=false;
+	add_nl1asparkle=false;
+	add_nl1bsparkle=false;
+	add_nl2asparkle=false;
+	add_nl2bsparkle=false;
+	gofast=false;
+	cheat=0;
+	wavy=quakeclk=0;
+	show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
+	show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
+	cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
+	if (zscriptDrawingRenderTarget) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1);
+	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
+	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] = new_sub_indexes[sstOVERLAY] = -1;
+	script_hero_sprite = 0; 
+	script_hero_flip = -1; 
+	script_hero_cset = -1;
+	darkroom=naturaldark=false;
+	sle_x=sle_y=newscr_clk=opendoors=0;
+	Bwpn=Awpn=Xwpn=Ywpn=-1;
+	FFCore.kb_typing_mode = false;
+	activated_timed_warp=false;
+	clockclk=0;
+	fadeclk=-1;
+	whistleclk=-1;
+	newscr_clk=0;
+	subscr_item_clk=0;
+	wavy=quakeclk=0;
+	show_subscreen_dmap_dots=true;
+	show_subscreen_items=true;
+	show_subscreen_numbers=true;
+	show_subscreen_life=true;
+	for(int32_t x = 0; x < MAXITEMS; x++)
+	{
+		lens_hint_item[x][0]=0;
+		lens_hint_item[x][1]=0;
+	}
+	for(int32_t x = 0; x < MAXWPNS; x++)
+	{
+		lens_hint_weapon[x][0]=0;
+		lens_hint_weapon[x][1]=0;
+	}
+	for(int32_t i=0; i<6; i++)
+	{
+		visited[i]=-1;
+	}
+}
+
 int32_t init_game()
 {
 	if(clearConsoleOnLoad)
 		clearConsole();
-	new_subscreen_active = nullptr;
-	new_sub_indexes[sstACTIVE] = -1;
 	GameLoaded = true;
+	init_game_vars();
 
-    // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
-	// We only bother setting it to 0 here so that recordings will play back the
-	// same way, even if manually started in the ZC UI.
-    frame = 0;
-
-	// Initialize some other values.
-	loadside = 0;
-	view_map_show_mode = 3;
-	subscr_item_clk = 0;
-
-	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
 	// TODO: this is called twice (copying lots of data) when selecting a save slot. See title.cpp
 	if (!saves_select(saves_current_selection()))
@@ -1684,59 +1745,6 @@ int32_t init_game()
 	zc_game_srand(initial_seed);
 	zc_game_srand(initial_seed, &drunk_rng);
 
-	//introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
-	FFCore.kb_typing_mode = false;
-	
-	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
-	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
-	draw_screen_clip_rect_x2=255;
-	draw_screen_clip_rect_y1=0;
-	draw_screen_clip_rect_y2=223;	
-	
-	//Some initialising globals
-	didpit=false;
-	Hero.unfreeze();
-	Hero.reset_hookshot();
-	Hero.reset_ladder();
-	linkedmsgclk=0;
-	mblock2.clear();
-	add_asparkle=0;
-	add_bsparkle=0;
-	add_df1asparkle=false;
-	add_df1bsparkle=false;
-	add_nl1asparkle=false;
-	add_nl1bsparkle=false;
-	add_nl2asparkle=false;
-	add_nl2bsparkle=false;
-	gofast=false;
-	FFCore.init();
-	FFCore.user_bitmaps_init();
-	FFCore.user_files_init();
-	FFCore.user_dirs_init();
-	FFCore.user_stacks_init();
-	FFCore.user_paldata_init();
-	cheat=0;
-	wavy=quakeclk=0;
-	show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
-	show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-	cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
-	//al_trace("Clearing old RenderTarget\n");
-	if ( zscriptDrawingRenderTarget ) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1); //clear the last set Rendertarget between games
-	//zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
-	
-	
-	for(int32_t x = 0; x < MAXITEMS; x++)
-	{
-		lens_hint_item[x][0]=0;
-		lens_hint_item[x][1]=0;
-	}
-	
-	for(int32_t x = 0; x < MAXWPNS; x++)
-	{
-		lens_hint_weapon[x][0]=0;
-		lens_hint_weapon[x][1]=0;
-	}
-
 	onload_gswitch_timers();
 	flushItemCache();
 	ResetSaveScreenSettings();
@@ -1746,10 +1754,16 @@ int32_t init_game()
 	{
 		saves_unselect();
 		Quit = qERROR;
-		//setPackfilePassword(NULL);
+		GameLoaded = false;
 		return 1;
 	}
 
+	FFCore.init();
+	FFCore.user_bitmaps_init();
+	FFCore.user_files_init();
+	FFCore.user_dirs_init();
+	FFCore.user_stacks_init();
+	FFCore.user_paldata_init();
 	script_init_name_to_slot_index_maps();
 
 	if (testingqst_init_data.size())
@@ -1769,7 +1783,6 @@ int32_t init_game()
 		}
 	}
 
-	FFCore.SetNegArray();
 	jit_startup();
 
 	if (!firstplay) load_genscript(*game);
@@ -1817,7 +1830,6 @@ int32_t init_game()
 	}
 	
 	BSZ = get_qr(qr_BSZELDA)!=0;
-	//setupherotiles(zinit.heroAnimationStyle);
 	
 	COOLSCROLL = (get_qr(qr_COOLSCROLL)!=0 ? 1 : 0) |
 				 (get_qr(qr_OVALWIPE)!=0 ? 2 : 0) |
@@ -1825,11 +1837,7 @@ int32_t init_game()
 				 (get_qr(qr_SMASWIPE)!=0 ? 8 : 0) |
 				 (get_qr(qr_FADEBLACKWIPE)!=0 ? 16 : 0);
 	identifyCFEnemies();
-				 
-	//  NEWSUBSCR = get_qr(qr_NEWSUBSCR);
-	
-	//  homescr = currscr = DMaps[0].cont;
-	//  currdmap = warpscr = worldscr=0;
+
 	if(firstplay)
 	{
 		// Without this, during replay assert there is a difference (for rings only?) on playback.
@@ -1845,16 +1853,12 @@ int32_t init_game()
 		if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 )
 		{
 			game->set_maxbombs(8);
-			//al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), (unsigned)FFCore.getQuestHeaderInfo(vZelda));
 		}
 	}
 	
 	timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
-	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
-	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] =
-		new_sub_indexes[sstOVERLAY] = -1;
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)
@@ -1879,27 +1883,17 @@ int32_t init_game()
 	lastentrance_dmap = currdmap;
 	currmap = DMaps[currdmap].map;
 	dlevel = DMaps[currdmap].level;
-	sle_x=sle_y=newscr_clk=opendoors=0;
-	Bwpn=Awpn=Xwpn=Ywpn=-1;
-	fadeclk=-1;
 	
 	if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
 	{
 		game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;			  // mark as visited
 	}
 	
-	for(int32_t i=0; i<6; i++)
-	{
-		visited[i]=-1;
-	}
-	
 	game->lvlitems[9] &= ~liBOSS;
 	
 	ALLOFF(true,true,true);
-	whistleclk=-1;
-	clockclk=0;
+	
 	currcset=DMaps[currdmap].color;
-	darkroom=naturaldark=false;
 	
 	tmpscr[0].zero_memory();
 	tmpscr[1].zero_memory();
@@ -1907,11 +1901,6 @@ int32_t init_game()
 	FFCore.reset_script_engine_data(ScriptType::DMap);
 	//Script-related nonsense
 	script_drawing_commands.Clear();
-	
-	//CLear the scripted Player sprites. 
-	script_hero_sprite = 0; 
-	script_hero_flip = -1; 
-	script_hero_cset = -1; 
 	
 	initZScriptArrayRAM(firstplay);
 	initZScriptGlobalRAM();
@@ -1998,7 +1987,6 @@ int32_t init_game()
 	ringcolor(false);
 	loadlvlpal(DMaps[currdmap].color);
 	lighting(false,true);
-	wavy=quakeclk=0;
 	
 	if(firstplay)
 	{
@@ -2160,17 +2148,9 @@ int32_t init_game()
 		}
 	}
 	
-	show_subscreen_dmap_dots=true;
-	show_subscreen_items=true;
-	show_subscreen_numbers=true;
-	show_subscreen_life=true;
-	
 	Playing=true;
 	
 	map_bkgsfx(true);
-	
-	
-	
 	
 	//Run after Init/onSaveLoad, regardless of firstplay -V
 	FFCore.runOnLaunchEngine();
@@ -2185,16 +2165,12 @@ int32_t init_game()
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
 	openscreen();
-	show_subscreen_numbers=true;
-	show_subscreen_life=true;
 	dointro();
 	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
 
-	
-	activated_timed_warp=false;
 	newscr_clk = frame;
 	
 	if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it

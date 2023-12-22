@@ -42917,11 +42917,6 @@ int32_t FFScript::GetScriptObjectUID(int32_t type)
 	return script_UIDs[type];
 }
 
-void FFScript::SetNegArray()
-{
-	can_neg_array = !get_qr(qr_ZS_NO_NEG_ARRAY);
-}
-
 void FFScript::init()
 {
 	eventData.clear();

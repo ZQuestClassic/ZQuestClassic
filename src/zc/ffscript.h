@@ -1209,8 +1209,6 @@ int32_t getCombodataX(int32_t c, ScriptType scripttype);
 //void deallocateComboArrays();
 
 int32_t GetScriptObjectUID(int32_t type);
-
-void SetNegArray();
     
 //byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
