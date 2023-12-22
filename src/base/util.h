@@ -70,6 +70,7 @@ namespace util
 	size_t vecstr_size(char const* str);
 	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext, bool force_suffix = false);
 	std::string create_temp_file_path(std::string final_destination);
+	bool is_subpath_of(const fs::path& base, const fs::path& sub);
 
 	template <typename T, std::size_t R, std::size_t C>
 	inline void copy_2d_array(T source[R][C] , T dest[R][C])
