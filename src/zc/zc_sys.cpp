@@ -4995,7 +4995,6 @@ void openscreen(int32_t shape)
 		Hero.setDontDraw(true);
 		show_subscreen_dmap_dots=false;
 		show_subscreen_numbers=false;
-		//	show_subscreen_items=false;
 		show_subscreen_life=false;
 	}
 	
@@ -5026,6 +5025,8 @@ void openscreen(int32_t shape)
 	Hero.setDontDraw(false);
 	show_subscreen_items=true;
 	show_subscreen_dmap_dots=true;
+	show_subscreen_numbers=true;
+	show_subscreen_life=true;
 }
 
 void closescreen(int32_t shape)
