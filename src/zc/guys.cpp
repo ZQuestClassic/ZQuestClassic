@@ -4571,13 +4571,6 @@ void enemy::fix_coords(bool bound)
 	
 	if(!OUTOFBOUNDS(id, x, y))
 	{
-		/*x=((int32_t(x)&0xF0)+((int32_t(x)&8)?16:0));
-		
-		if(isSideViewGravity())
-			y=((int32_t(y)&0xF8)+((int32_t(y)&4)?8:0));
-		else
-			y=((int32_t(y)&0xF0)+((int32_t(y)&8)?16:0));
-		*/
 		do_fix(x, 16, true);
 		if(isSideViewGravity())
 			do_fix(y,8,true);
@@ -5373,9 +5366,9 @@ int32_t enemy::slide()
 				if(y < 0)
 					y = 0;
 				else if((int32_t(y)&15) > 7)
-					y=(int32_t(y)&0xF0)+16;
+					y = TRUNCATE_TILE(int32_t(y)) + 16;
 				else
-					y=(int32_t(y)&0xF0);
+					y = TRUNCATE_TILE(int32_t(y));
 					
 				break;
 				
@@ -5384,9 +5377,9 @@ int32_t enemy::slide()
 				if(x < 0)
 					x = 0;
 				else if((int32_t(x)&15) > 7)
-					x=(int32_t(x)&0xF0)+16;
+					x = TRUNCATE_TILE(int32_t(x)) + 16;
 				else
-					x=(int32_t(x)&0xF0);
+					x = TRUNCATE_TILE(int32_t(x));
 					
 				break;
 			}
@@ -5496,18 +5489,18 @@ bool enemy::fslide()
 		case up:
 		case down:
 			if((int32_t(y)&15) > 7)
-				y=(int32_t(y)&0xF0)+16;
+				y = TRUNCATE_TILE(int32_t(y)) + 16;
 			else
-				y=(int32_t(y)&0xF0);
+				y = TRUNCATE_TILE(int32_t(y));
 				
 			break;
 			
 		case left:
 		case right:
 			if((int32_t(x)&15) > 7)
-				x=(int32_t(x)&0xF0)+16;
+				x = TRUNCATE_TILE(int32_t(x)) + 16;
 			else
-				x=(int32_t(x)&0xF0);
+				x = TRUNCATE_TILE(int32_t(x));
 				
 			break;
 		}
@@ -5596,9 +5589,9 @@ bool enemy::runKnockback()
 						if(x < 0)
 							x = 0;
 						else if((int32_t(x)&15) > 7)
-							x=(int32_t(x)&0xF0)+16;
+							x = TRUNCATE_TILE(int32_t(x)) + 16;
 						else
-							x=(int32_t(x)&0xF0);
+							x = TRUNCATE_TILE(int32_t(x));
 						break;
 				}
 				switch(kb_dir)
@@ -5610,9 +5603,9 @@ bool enemy::runKnockback()
 						if(y < 0)
 							y = 0;
 						else if((int32_t(y)&15) > 7)
-							y=(int32_t(y)&0xF0)+16;
+							y = TRUNCATE_TILE(int32_t(y)) + 16;
 						else
-							y=(int32_t(y)&0xF0);
+							y = TRUNCATE_TILE(int32_t(y));
 						break;
 				}
 				break;
@@ -5636,9 +5629,9 @@ bool enemy::runKnockback()
 							if(x < 0)
 								x = 0;
 							else if((int32_t(x)&7) > 3)
-								x=(int32_t(x)&0xF8)+8;
+								x = TRUNCATE_HALF_TILE(int32_t(x)) + 8;
 							else
-								x=(int32_t(x)&0xF8);
+								x = TRUNCATE_HALF_TILE(int32_t(x));
 							break;
 					}
 					switch(kb_dir)
@@ -5650,9 +5643,9 @@ bool enemy::runKnockback()
 							if(y < 0)
 								y = 0;
 							else if((int32_t(y)&7) > 3)
-								y=(int32_t(y)&0xF8)+8;
+								y = TRUNCATE_HALF_TILE(int32_t(y)) + 8;
 							else
-								y=(int32_t(y)&0xF8);
+								y = TRUNCATE_HALF_TILE(int32_t(y));
 							break;
 					}
 				}
@@ -5667,9 +5660,9 @@ bool enemy::runKnockback()
 							if(x < 0)
 								x = 0;
 							else if((int32_t(x)&15) > 7)
-								x=(int32_t(x)&0xF0)+16;
+								x = TRUNCATE_TILE(int32_t(x)) + 16;
 							else
-								x=(int32_t(x)&0xF0);
+								x = TRUNCATE_TILE(int32_t(x));
 							break;
 					}
 					switch(kb_dir)
@@ -5681,9 +5674,9 @@ bool enemy::runKnockback()
 							if(y < 0)
 								y = 0;
 							else if((int32_t(y)&15) > 7)
-								y=(int32_t(y)&0xF0)+16;
+								y = TRUNCATE_TILE(int32_t(y)) + 16;
 							else
-								y=(int32_t(y)&0xF0);
+								y = TRUNCATE_TILE(int32_t(y));
 							break;
 					}
 				}
