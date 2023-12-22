@@ -70,7 +70,7 @@ async function runReplay(zplay) {
         return arg.message;
       return arg;
     }, arg).catch((e) => {
-      console.error(e);
+      console.error('error in run_replay.js', e);
       return '???';
     })));
     const text = args.join(' ');
