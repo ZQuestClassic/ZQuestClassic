@@ -2141,7 +2141,13 @@ int saves_do_first_time_stuff(int index)
 	if (!save->game->get_hasplayed())
 	{
 		if (save->write_to_disk)
+		{
+			// Save file may have already been set but now the player is changing the quest path.
+			// Since this hasn't been played yet, this save file is useless, so just delete it.
+			if (!save->path.empty() && fs::exists(save->path))
+				fs::remove(save->path);
 			save->path = create_path_for_new_save(save->header);
+		}
 
 		save->game->set_quest(save->game->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF);
 
