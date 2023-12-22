@@ -1416,7 +1416,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 
 static int32_t write_save(save_t* save)
 {
-	if (save->path.empty())
+	if (save->path.empty() || !save->write_to_disk)
 		return 0;
 
 	std::string tmp_filename = util::create_temp_file_path(save->path.string());
@@ -2111,12 +2111,13 @@ void saves_copy(int32_t from_index)
 	do_save_order();
 }
 
-bool saves_create_slot(gamedata* game, bool save_to_disk)
+bool saves_create_slot(gamedata* game, bool write_to_disk)
 {
 	auto& save = saves.emplace_back();
 	save.game = game;
 	save.header = &game->header;
-	save.path = save_to_disk ? create_path_for_new_save(save.header) : "";
+	save.path = "";
+	save.write_to_disk = write_to_disk;
 	return true;
 }
 
@@ -2139,6 +2140,9 @@ int saves_do_first_time_stuff(int index)
 
 	if (!save->game->get_hasplayed())
 	{
+		if (save->write_to_disk)
+			save->path = create_path_for_new_save(save->header);
+
 		save->game->set_quest(save->game->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF);
 
 		// Try to make relative to qstdir.
