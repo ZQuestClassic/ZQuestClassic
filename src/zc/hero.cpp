@@ -29290,6 +29290,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		if(Quit)
 		{
+			// Just for compat with pre-z3 replays that quit during a scroll.
+			if (replay_is_recording())
+			{
+				x = script_hero_x;
+				y = script_hero_y;
+			}
 			screenscrolling = false;
 			return;
 		}
