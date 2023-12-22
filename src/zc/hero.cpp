@@ -26336,8 +26336,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		
 		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 						 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
-					
-		if(!(hero_screen->flags3&fIWARPFULLSCREEN))
+		
+		bool kill_action = !(hero_screen->flags3&fIWARPFULLSCREEN);
+		if(kill_action)
 		{
 			//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 			bool wasswimming = (action == swimming);
@@ -26402,8 +26403,17 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		if(DMaps[currdmap].color != c)
 			loadlvlpal(DMaps[currdmap].color);
 		
+		int prevscr = currscr;
 		loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
 		lightingInstant(); // Also sets naturaldark
+
+		// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
+		// state for the new screen.
+		if (!kill_action)
+		{
+			if (loaded_enemies_for_screen.contains(prevscr))
+				loaded_enemies_for_screen.insert(currscr);
+		}
 		
 		x = hero_screen->warpreturnx[wrindex];
 		y = hero_screen->warpreturny[wrindex];

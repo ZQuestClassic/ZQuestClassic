@@ -33717,7 +33717,8 @@ void FFScript::AlloffLimited(int32_t flagset)
 	
 	//  if(watch)
 	//    Hero.setClock(false);
-	watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
+	watch=freeze_guys=loaded_guys=blockpath=false;
+	loaded_enemies_for_screen.clear();
 	
 	activation_counters.clear();
 	activation_counters_ffc.clear();
@@ -33938,7 +33939,16 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				loadlvlpal(DMaps[currdmap].color);
 			
 			lightingInstant(); // Also sets naturaldark
+			int prevscr = currscr;
 			loadscr(currdmap, scrID + DMaps[currdmap].xoff, -1, overlay);
+
+			// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
+			// state for the new screen.
+			if (warpFlags&warpFlagDONTCLEARSPRITES)
+			{
+				if (loaded_enemies_for_screen.contains(prevscr))
+					loaded_enemies_for_screen.insert(currscr);
+			}
 			
 			Hero.x = (zfix)wx;
 			Hero.y = (zfix)wy;

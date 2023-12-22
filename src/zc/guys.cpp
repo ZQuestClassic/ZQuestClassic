@@ -19335,7 +19335,6 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 			script_sle = false;
 		else
 		{
-			loaded_enemies=true;
 			loaded_enemies_for_screen.insert(screen_index);
 		}
 		sle_clk = 0;
@@ -19640,7 +19639,6 @@ enemy* find_guy_nth_for_id(int screen_index, int id, int n, int mask)
 
 bool scriptloadenemies()
 {
-	loaded_enemies = true;
 	if(script_sle || sle_clk) return false;
 	if(tmpscr->pattern==pNOSPAWN) return false;
 	
@@ -19677,8 +19675,6 @@ bool scriptloadenemies()
 
 void loadenemies()
 {
-	loaded_enemies=true;
-
 	// check if it's been long enough to reload all enemies
 	int16_t s = (currmap<<7)+cur_origin_screen_index;
 	bool beenhere = false;
