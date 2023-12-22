@@ -212,6 +212,7 @@ enum // special colors
 	ssctHERODOT, ssctMSGTEXT, ssctMAX
 };
 #define NUM_SYS_COLORS 16
+#define SUB_COLOR_TRANSPARENT (-34)
 enum // special csets
 {
 	sscsTRIFORCECSET, sscsTRIFRAMECSET, sscsOVERWORLDMAPCSET, sscsDUNGEONMAPCSET,

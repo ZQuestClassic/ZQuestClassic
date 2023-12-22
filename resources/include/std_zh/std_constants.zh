@@ -4164,7 +4164,8 @@ enum //Special Subscreen Color Values
 	SUB_COLOR_LMAP_FG     = -31,
 	SUB_COLOR_HERODOT     = -32,
 	SUB_COLOR_MSGTXT      = -33,
-	SUB_COLOR_MIN         = -34
+	SUB_COLOR_TRANSPARENT = -34,
+	SUB_COLOR_MIN         = -35
 };
 enum //Special Subscreen Tile Values
 {

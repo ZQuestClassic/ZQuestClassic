@@ -5404,8 +5404,20 @@ void zmap::update_freeform_combos()
     }
 }
 
+void zmap::goto_dmapscr(int dmap, int scr)
+{
+	setCurrMap(DMaps[dmap].map);
+	setCurrScr(scr+DMaps[dmap].xoff);
+}
+void zmap::goto_mapscr(int map, int scr)
+{
+	setCurrMap(map);
+	setCurrScr(scr);
+}
+
 void zmap::dowarp(int32_t type, int32_t index)
 {
+	set_warpback();
     if(type==0)
     {
     
@@ -5419,8 +5431,7 @@ void zmap::dowarp(int32_t type, int32_t index)
             break;
             
         default:
-            setCurrMap(DMaps[dmap].map);
-            setCurrScr(scr+DMaps[dmap].xoff);
+			goto_dmapscr(dmap, scr);
             break;
         }
     }
@@ -5436,8 +5447,7 @@ void zmap::dowarp(int32_t type, int32_t index)
             break;
             
         default:
-            setCurrMap(DMaps[dmap].map);
-            setCurrScr(scr+DMaps[dmap].xoff);
+			goto_dmapscr(dmap, scr);
             break;
         }
     }
@@ -5499,10 +5509,28 @@ void zmap::prv_dowarp(int32_t type, int32_t index)
 
 void zmap::dowarp2(int32_t ring,int32_t index)
 {
-    int32_t dmap=QMisc.warp[ring].dmap[index];
-    int32_t scr=QMisc.warp[ring].scr[index];
-    setCurrMap(DMaps[dmap].map);
-    setCurrScr(scr+DMaps[dmap].xoff);
+	set_warpback();
+	goto_dmapscr(QMisc.warp[ring].dmap[index], QMisc.warp[ring].scr[index]);
+}
+
+void zmap::set_warpback()
+{
+	warpbackmap = currmap;
+	warpbackscreen = currscr;
+}
+bool zmap::has_warpback()
+{
+	return warpbackmap && warpbackscreen
+		&& !(warpbackmap == currmap && warpbackscreen == currscr);
+}
+void zmap::warpback()
+{
+	if(!has_warpback())
+		return;
+	int m = currmap, s = currscr;
+	goto_mapscr(*warpbackmap, *warpbackscreen);
+	warpbackmap = m;
+	warpbackscreen = s;
 }
 
 /******************************/
@@ -8816,8 +8844,12 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			if(!p_putcstr(dispname,f))
 				new_return(92);
 			for(int q = 0; q < BURNSPR_MAX; ++q)
+			{
 				if(!p_putc(itemsbuf[i].burnsprs[q], f))
 					new_return(93);
+				if(!p_putc(itemsbuf[i].light_rads[q], f))
+					new_return(94);
+			}
         }
         
         if(writecycle==0)

@@ -946,6 +946,22 @@ namespace util
 		// Simplest approach, just append ".tmp" to the final location.
 		return final_destination + ".tmp";
 	}
+
+	fs::path normalized_trimed(const fs::path& p)
+	{
+		auto r = p.lexically_normal();
+		if (r.has_filename()) return r;
+		return r.parent_path();
+	}
+
+	bool is_subpath_of(const fs::path& base, const fs::path& sub)
+	{
+		auto b = normalized_trimed(base);
+		auto s = normalized_trimed(sub).parent_path();
+		auto m = std::mismatch(b.begin(), b.end(), 
+							s.begin(), s.end());
+		return m.first == b.end();
+	}
 }
 
 using namespace util;

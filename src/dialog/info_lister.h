@@ -16,7 +16,7 @@ extern int lister_sel_val;
 class BasicListerDialog: public GUI::Dialog<BasicListerDialog>
 {
 public:
-	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, SAVE, LOAD, CONFIRM };
+	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, ADV_PASTE, SAVE, LOAD, CONFIRM };
 	
 	BasicListerDialog(std::string title, int start_val = 0, bool selecting = false) :
 		titleTxt(title), selected_val(start_val), start_val(start_val), selecting(selecting),
@@ -35,6 +35,7 @@ protected:
 	virtual void rclick(int x, int y){};
 	virtual void copy(){};
 	virtual bool paste(){return false;};
+	virtual bool adv_paste(){return false;};
 	virtual void save(){};
 	virtual bool load(){return false;};
 	
@@ -62,6 +63,7 @@ protected:
 	void rclick(int x, int y) override;
 	void copy() override;
 	bool paste() override;
+	bool adv_paste() override;
 	void save() override;
 	bool load() override;
 };

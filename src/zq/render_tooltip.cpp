@@ -2,6 +2,7 @@
 #include "base/render.h"
 #include "base/zdefs.h"
 #include "zq/render.h"
+#include "zq/render_hotkeys.h"
 #include "zq/zquest.h"
 #include <algorithm>
 
@@ -208,7 +209,7 @@ ToolTipRTI::ToolTipRTI(std::string name) : LegacyBitmapRTI(name) {}
 
 void ToolTipRTI::prepare()
 {
-	if (!EnableTooltips)
+	if (!EnableTooltips || hotkeys_is_active())
 	{
 		visible = false;
 		return;

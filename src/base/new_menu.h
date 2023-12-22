@@ -115,6 +115,7 @@ public:
 	void add(MenuItem const& entry);
 	void add(MenuItem&& entry);
 	void add(std::initializer_list<MenuItem> const& entries);
+	void add_sep();
 	
 	optional<uint> ind_at(uint uid);
 	MenuItem* by_uid(uint uid);

@@ -1197,8 +1197,6 @@ int32_t getCombodataX(int32_t c, ScriptType scripttype);
 //void deallocateComboArrays();
 
 int32_t GetScriptObjectUID(int32_t type);
-
-void SetNegArray();
     
 //byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
@@ -5021,7 +5019,12 @@ enum ASM_DEFINE
 #define COMBODTRIGEXDOORDIR     0x159F
 #define COMBODTRIGEXDOORIND     0x15A0
 
-#define NUMVARIABLES            0x15A1
+#define IDATABURNINGLIGHTRAD    0x15A1
+
+#define LWPNBURNLIGHTRADIUS     0x15A2
+#define EWPNBURNLIGHTRADIUS     0x15A3
+
+#define NUMVARIABLES            0x15A4
 
 //} End variables
 

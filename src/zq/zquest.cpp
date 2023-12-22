@@ -9704,7 +9704,7 @@ void on_cpane_page()
 }
 void open_cpane_tilepage()
 {
-	onGotoTiles(combobuf[Combo].tile);
+	onGotoTiles(combobuf[Combo].o_tile);
 }
 static int _clicked_fav = 0;
 void fav_rc_remove()
@@ -10717,6 +10717,7 @@ void domouse()
 					bool show_ffcs = earliestfreeffc < MAXFFCS;
 					bool dis_paste_ffc = Map.getCopyFFC() < 0;
 					bool show_warps = warpindex > -1;
+					bool show_warpback = Map.has_warpback();
 					// FFC-specific options
 					if(earliestfreeffc < MAXFFCS)
 					{
@@ -10768,15 +10769,20 @@ void domouse()
 						{ "Brush Settings ", &brush_menu },
 						{ "Set Fill Type ", &fill_menu },
 					};
-					if(show_warps)
+					if(show_warps || show_warpback)
 					{
-						draw_rc_menu.add({});
-						draw_rc_menu.add({ txt_twarp_follow, [&](){follow_twarp(warpindex);} });
-						draw_rc_menu.add({ txt_twarp_edit, [&](){edit_twarp(warpindex);} });
+						draw_rc_menu.add_sep();
+						if(show_warpback)
+							draw_rc_menu.add({ "Warp Back", [&](){Map.warpback();} });
+						if(show_warps)
+						{
+							draw_rc_menu.add({ txt_twarp_follow, [&](){follow_twarp(warpindex);} });
+							draw_rc_menu.add({ txt_twarp_edit, [&](){edit_twarp(warpindex);} });
+						}
 					}
 					if(show_ffcs)
 					{
-						draw_rc_menu.add({});
+						draw_rc_menu.add_sep();
 						draw_rc_menu.add({ txt_ffc_edit, [&]()
 							{
 								ffdata tempdat;
@@ -10794,7 +10800,7 @@ void domouse()
 								Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), earliestfreeffc, set_ffc_data);
 							}, nullopt, dis_paste_ffc });
 					}
-					draw_rc_menu.add({});
+					draw_rc_menu.add_sep();
 					draw_rc_menu.add({ "Screen", &rc_menu_screen });
 					draw_rc_menu.pop(x,y);
 				}
@@ -27794,7 +27800,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(template_dlg);
-    center_zq_tiles_dialog();
     jwin_center_dialog(tp_dlg);
     jwin_center_dialog(under_dlg);
     jwin_center_dialog(tilewarp_dlg);

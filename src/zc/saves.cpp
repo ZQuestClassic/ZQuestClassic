@@ -1416,7 +1416,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 
 static int32_t write_save(save_t* save)
 {
-	if (save->path.empty())
+	if (save->path.empty() || !save->write_to_disk)
 		return 0;
 
 	std::string tmp_filename = util::create_temp_file_path(save->path.string());
@@ -2111,12 +2111,13 @@ void saves_copy(int32_t from_index)
 	do_save_order();
 }
 
-bool saves_create_slot(gamedata* game, bool save_to_disk)
+bool saves_create_slot(gamedata* game, bool write_to_disk)
 {
 	auto& save = saves.emplace_back();
 	save.game = game;
 	save.header = &game->header;
-	save.path = save_to_disk ? create_path_for_new_save(save.header) : "";
+	save.path = "";
+	save.write_to_disk = write_to_disk;
 	return true;
 }
 
@@ -2139,21 +2140,24 @@ int saves_do_first_time_stuff(int index)
 
 	if (!save->game->get_hasplayed())
 	{
+		if (save->write_to_disk)
+		{
+			// Save file may have already been set but now the player is changing the quest path.
+			// Since this hasn't been played yet, this save file is useless, so just delete it.
+			if (!save->path.empty() && fs::exists(save->path))
+				fs::remove(save->path);
+			save->path = create_path_for_new_save(save->header);
+		}
+
 		save->game->set_quest(save->game->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF);
 
 		// Try to make relative to qstdir.
 		// TODO: this is a weird place to do this.
-		char temppath[2048];
-		memset(temppath, 0, 2048);
 		std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
-		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
-		if (!rel_dir.ends_with(("/")))
-			rel_dir += "/";
-		zc_make_relative_filename(temppath, rel_dir.c_str(), save->game->header.qstpath.c_str(), 2047);
-		if (temppath[0] != 0)
-		{
-			save->game->header.qstpath = temppath;
-		}
+		auto maybe_rel_qstpath = util::is_subpath_of(rel_dir, save->game->header.qstpath) ?
+			fs::relative(save->game->header.qstpath, rel_dir) :
+			fs::path(save->game->header.qstpath);
+		save->game->header.qstpath = maybe_rel_qstpath.string();
 
 		ret = load_quest(save->game);
 		if (ret)

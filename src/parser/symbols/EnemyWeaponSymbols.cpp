@@ -174,6 +174,8 @@ static AccessorTable ewpnTable[] =
 	
 	{ "getSprites[]",               0,         ZTID_FLOAT,   EWPNSPRITES,               0,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	{ "setSprites[]",               0,          ZTID_VOID,   EWPNSPRITES,               0,  { ZTID_EWPN, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getBurnLightRadius[]",       0,         ZTID_FLOAT,   EWPNBURNLIGHTRADIUS,       0,  { ZTID_EWPN, ZTID_FLOAT },{} },
+	{ "setBurnLightRadius[]",       0,          ZTID_VOID,   EWPNBURNLIGHTRADIUS,       0,  { ZTID_EWPN, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   EWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_EWPN },{} },

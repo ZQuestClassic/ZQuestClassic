@@ -11,17 +11,22 @@
 #include "qst.h"
 #include <fmt/format.h>
 #include <utility>
+#include <sstream>
 
 extern char *item_string[];
 
-static const std::string def_info_nosel =
-	"Ctrl+C/Ctrl+V - Copy/Paste"
-	"\nCtrl+S/Ctrl+L - Save/Load"
-	"\nDouble-Click - Edit";
-static const std::string def_info_sel =
-	"Ctrl+C/Ctrl+V - Copy/Paste"
-	"\nCtrl+S/Ctrl+L - Save/Load"
-	"\nDouble-Click - Confirm";
+static string get_info(bool sel, bool advpaste, bool saveload = true, bool copypaste = true)
+{
+	std::ostringstream oss;
+	if(copypaste)
+		oss << "Ctrl+C/Ctrl+V - Copy/Paste\n";
+	if(advpaste)
+		oss << "Ctrl+A or Ctrl+Shift+V - Adv. Paste\n";
+	if(saveload)
+		oss << "Ctrl+S/Ctrl+L - Save/Load\n";
+	oss << "Double-Click - " << (sel ? "Confirm" : "Edit");
+	return oss.str();
+}
 
 int lister_sel_val = -1;
 
@@ -42,11 +47,13 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 		onClose = message::EXIT,
 		hPadding = 0_px,
 		use_vsync = true,
-		// Don't set info text, because the following shortcuts are only utilized if the subclass implements copy/paste functions.
-		// Subclasses should use window->setHelp(def_info_sel or def_info_nosel)
+		// Don't set info text, because the following shortcuts are only utilized if the subclass implements the functions.
+		// Subclasses should use window->setHelp(get_info(...))
 		shortcuts={
 			Ctrl+C=message::COPY,
 			Ctrl+V=message::PASTE,
+			Ctrl+A=message::ADV_PASTE,
+			Ctrl+Shift+V=message::ADV_PASTE,
 			Ctrl+S=message::SAVE,
 			Ctrl+L=message::LOAD,
 			Enter=message::CONFIRM,
@@ -142,6 +149,9 @@ bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::PASTE:
 			refresh = paste();
 			break;
+		case message::ADV_PASTE:
+			refresh = adv_paste();
+			break;
 		case message::SAVE:
 			save();
 			break;
@@ -186,7 +196,7 @@ void ItemListerDialog::postinit()
 			len = tlen;
 	}
 	widgInfo->minWidth(Size::pixels(len+8));
-	window->setHelp(selecting ? def_info_sel : def_info_nosel);
+	window->setHelp(get_info(selecting, true));
 }
 static int copied_item_id = -1;
 void ItemListerDialog::update()
@@ -251,6 +261,7 @@ void ItemListerDialog::rclick(int x, int y)
 {
 	NewMenu rcmenu {
 		{ "&Copy", [&](){copy(); update();} },
+		{ "&Adv. Paste", [&](){adv_paste(); update();}, 0, copied_item_id < 0 },
 		{ "Paste", "&v", [&](){paste(); update();}, 0, copied_item_id < 0 },
 		{ "&Save", [&](){save(); update();} },
 		{ "&Load", [&](){load(); update();} },
@@ -269,6 +280,44 @@ bool ItemListerDialog::paste()
 	if(copied_item_id == selected_val)
 		return false;
 	itemsbuf[selected_val] = itemsbuf[copied_item_id];
+	saved = false;
+	return true;
+}
+bool ItemListerDialog::adv_paste()
+{
+	if(copied_item_id < 0 || selected_val < 0)
+		return false;
+	if(copied_item_id == selected_val)
+		return false;
+	static bitstring pasteflags;
+	static const vector<def_pair<string,string>> advp_names =
+	{
+		{ "Name" },
+		{ "Display Name" },
+		{ "Itemclass" },
+		{ "Equipment Item" },
+		{ "Attributes", "The 10 type-based attributes, as well"
+			" as 'Level' and 'Power', from the 'Attrib' tab" },
+		{ "Generic Flags", "Does not include 'Constant Script'" },
+		{ "Flags", "The 15 type-based flags on the 'Flags' tab" },
+		{ "Use Costs" },
+		{ "Use SFX" },
+		{ "Pickup", "Everything related to 'Pickup', excluding the"
+			" 'Pickup Flags' tab and pickup string settings." },
+		{ "Pickup Strings" },
+		{ "Pickup Flags" },
+		{ "Weapon Data" },
+		{ "Graphics" },
+		{ "Tile Mod" },
+		{ "Sprites" },
+		{ "Item Size" },
+		{ "Weapon Size" },
+		{ "Item Scripts", "Includes 'Constant Script', all 3 item scripts, and related parameters" },
+		{ "Weapon Script" },
+	};
+	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
+		return false;
+	itemsbuf[selected_val].advpaste(itemsbuf[copied_item_id], pasteflags);
 	saved = false;
 	return true;
 }

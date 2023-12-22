@@ -1083,15 +1083,13 @@ int32_t custom_game(int32_t file)
 	{
 		// Try to make relative to qstdir.
 		// TODO: this is copied from saves_do_first_time_stuff
-		char temppath[2048];
-		memset(temppath, 0, 2048);
 		std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
-		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
-		if (!rel_dir.ends_with(("/")))
-			rel_dir += "/";
-		zc_make_relative_filename(temppath, rel_dir.c_str(), qstpath, 2047);
-
-		saves_get_slot(file, true)->game->set_qstpath(temppath);
+		auto maybe_rel_qstpath = util::is_subpath_of(rel_dir, qstpath) ? fs::relative(qstpath, rel_dir) : qstpath;
+		saves_get_slot(file, true)->game->set_qstpath(maybe_rel_qstpath.string());
+		if (saves_do_first_time_stuff(file))
+		{
+			InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
+		}
 	}
 
 	exit_sys_pal();
@@ -1298,7 +1296,6 @@ static void select_game(bool skip = false)
 			auto save = saves_get_slot(saveslot);
 			if (!save->header->has_played)
 			{
-				save->header->qstpath = qstpath;
 				if (saves_do_first_time_stuff(saveslot))
 				{
 					InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
@@ -1463,6 +1460,7 @@ void titlescreen(int32_t lsave)
 	Playing=Paused=GameLoaded=false;
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
+	saves_unselect();
 
 	if (PlayTitleMusic)
 	{

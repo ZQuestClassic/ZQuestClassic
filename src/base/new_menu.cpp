@@ -349,6 +349,10 @@ void GuiMenu::add(std::initializer_list<MenuItem> const& new_entries)
 {
 	entries.insert(entries.end(), new_entries.begin(), new_entries.end());
 }
+void GuiMenu::add_sep()
+{
+	entries.emplace_back();
+}
 optional<uint> GuiMenu::ind_at(uint uid)
 {
 	uint sz = chop_sz();

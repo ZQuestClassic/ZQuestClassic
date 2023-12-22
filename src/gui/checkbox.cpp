@@ -87,7 +87,7 @@ void Checkbox::realize(DialogRunner& runner)
 void Checkbox::calculateSize()
 {
 	auto prefh = Size::pixels(std::max(text_height(widgFont)+4, 14));
-	setPreferredWidth(prefh+4_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	setPreferredWidth(prefh+4+gui_text_width(widgFont, text.c_str())+2);
 	setPreferredHeight(prefh);
 	Widget::calculateSize();
 }

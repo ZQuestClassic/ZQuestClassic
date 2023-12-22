@@ -202,7 +202,7 @@ if __name__ == '__main__':
 	parser.add_argument('--replay', required=True)
 	parser.add_argument('--output-folder', required=True)
 	parser.add_argument('--skip-save-file-generation', action='store_true', help='Only use this skip if already generated in output folder!')
-	parser.add_argument('--split-threshold', default=100_000, help='If current replay part length at a save point is less than this threshold, the replay will not be cut. It may be long enough on the next save.')
+	parser.add_argument('--split-threshold', default=100_000, type=int, help='If current replay part length at a save point is less than this threshold, the replay will not be cut. It may be long enough on the next save.')
 
 	args = parser.parse_args()
 	split_replay(Path(args.replay), Path(args.output_folder), skip_save_file_generation=args.skip_save_file_generation, split_threshold=args.split_threshold)
