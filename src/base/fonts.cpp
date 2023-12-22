@@ -458,7 +458,8 @@ string get_font_cfgname(bool scale, uint indx, optional<uint> prefid)
 
 int get_def_fontid(uint indx)
 {
-	static int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_lfont_l,font_nfont,font_sfont3,font_lfont,font_lfont_l};
+	//static int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_lfont_l,font_nfont,font_sfont3,font_lfont,font_lfont_l};
+	static int deffont_ids[CFONT_MAX] = {font_dsphantompfont,font_dsphantompfont,font_lfont,font_lfont_l,font_atari800font,font_dsphantompfont,font_lfont_l};
 	return indx < CFONT_MAX ? deffont_ids[indx] : deffont_ids[0];
 }
 
