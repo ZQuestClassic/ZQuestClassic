@@ -118,10 +118,10 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 				if(d->dp2) fonty = (FONT*)d->dp2;
 				if(dis)
 				{
-					textprintf_ex(screen,fonty,d->x+d->w+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"Tile: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->w+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcBOX],"Tile: %d",d->d1);
 					textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcDISABLED_FG],-1,"Tile: %d",d->d1);
 					
-					textprintf_ex(screen,fonty,d->x+d->w+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"CSet: %d",d->d2);
+					textprintf_ex(screen,fonty,d->x+d->w+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcBOX],"CSet: %d",d->d2);
 					textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcDISABLED_FG],-1,"CSet: %d",d->d2);
 				}
 				else
