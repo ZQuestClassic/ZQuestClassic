@@ -4993,7 +4993,7 @@ reload_for_replay_file:
 		if (replay_is_active() && replay_get_meta_str("sav").size())
 		{
 			auto save_path = replay_get_replay_path().parent_path() / replay_get_meta_str("sav");
-			bool success = saves_create_slot(save_path);
+			bool success = saves_create_slot(save_path, false);
 			if (!success)
 				Z_error_fatal("Failed to load replay's save file");
 		}

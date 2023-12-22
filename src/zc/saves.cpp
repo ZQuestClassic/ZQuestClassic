@@ -2121,13 +2121,14 @@ bool saves_create_slot(gamedata* game, bool write_to_disk)
 	return true;
 }
 
-bool saves_create_slot(fs::path path)
+bool saves_create_slot(fs::path path, bool write_to_disk)
 {
 	if (!fs::exists(path))
 		return false;
 
 	auto& save = saves.emplace_back();
 	save.path = path;
+	save.write_to_disk = write_to_disk;
 	return true;
 }
 
