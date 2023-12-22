@@ -1463,6 +1463,7 @@ void titlescreen(int32_t lsave)
 	Playing=Paused=GameLoaded=false;
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
+	saves_unselect();
 
 	if (PlayTitleMusic)
 	{

@@ -10,6 +10,7 @@ namespace fs = std::filesystem;
 struct save_t
 {
 	fs::path path;
+	bool write_to_disk;
 	// If loaded is false, this is null.
 	// If loaded is true and `game` is null, this memory is owned by save_t.
 	// If loaded is true and `game` is not null, this points to the header field in `game`.
@@ -43,7 +44,7 @@ bool saves_select(int32_t index);
 void saves_unselect();
 int32_t saves_count();
 int32_t saves_current_selection();
-bool saves_create_slot(gamedata* game, bool save_to_disk = true);
+bool saves_create_slot(gamedata* game, bool write_to_disk = true);
 bool saves_create_slot(fs::path path);
 bool saves_is_slot_loaded(int32_t index, bool full_data = false);
 const save_t* saves_get_slot(int32_t index, bool full_data = false);
