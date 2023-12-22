@@ -57,18 +57,60 @@ for (const [key, value] of Object.entries(processedArgs)) {
 }
 
 async function run() {
+  console.log(openUrl.href);
   const browser = await puppeteer.launch({
     headless: openUrl.searchParams.has('headless') ? 'new' : false,
   });
   const page = await browser.newPage();
+  let hasExited = false;
+  let exitCode = -1;
+  const onClose = async () => {
+    await browser.close();
+    await server.server.close();
+  };
 
   const consoleListener = setupConsoleListener(page);
-  page.on('console', e => {
+  page.on('pageerror', e => {
+    process.stderr.write(e.toString());
+    process.stderr.write(e.stack);
+    process.stderr.write('\n');
+    hasExited = true;
+  });
+
+  page.on('console', async (e) => {
     const type = e.type();
+    const args = await Promise.all(e.args().map(arg => page.evaluate(arg => {
+      if (arg instanceof Error) {
+        return arg.message + '\n' + arg.stack;
+      }
+      return arg;
+    }, arg).catch((e) => {
+      console.error('error in run_web_version.js', e);
+      return '???';
+    })));
+    const text = args.join(' ');
+
     if (type === 'error' || type === 'warning') {
-      console.error(e.text());
+      process.stderr.write(text);
+      process.stderr.write('\n');
     } else {
-      console.log(e.text());
+      process.stdout.write(text);
+      process.stdout.write('\n');
+    }
+
+    const bad = [
+      'worker sent an error',
+      'ERR_BLOCKED_BY_RESPONSE',
+      'ERR_CONNECTION_RESET',
+      // shutdown_timers
+      // failed: _al_vector_size(&active_timers) == 0, at: /Users/connorclark/code/ZeldaClassic-secondary/build_emscripten/_deps/allegro5-src/src/timernu.c,146,shutdown_timers
+      'Uncaught RuntimeError',
+      'Aborted(native code called abort())',
+      'Assert failed',
+    ];
+    if (bad.some(t => text.includes(t))) {
+      onClose();
+      process.exit(1);
     }
   });
 
@@ -76,8 +118,6 @@ async function run() {
     waitUntil: 'networkidle2',
   });
 
-  let hasExited = false;
-  let exitCode = -1;
   consoleListener.waitFor(/exit with code:/).then(text => {
     hasExited = true;
     exitCode = Number(text.replace('exit with code:', ''));
@@ -96,8 +136,7 @@ async function run() {
     console.log(allegroLog);
   }
 
-  await browser.close();
-  await server.server.close();
+  await onClose();
 
   return exitCode;
 }

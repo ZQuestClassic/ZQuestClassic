@@ -38,9 +38,18 @@ async function runReplay(zplay) {
     process.stderr.write('\n');
     hasExited = true;
   });
-  page.on('console', e => {
+  page.on('console', async (e) => {
     const type = e.type();
-    const text = e.text();
+    const args = await Promise.all(e.args().map(arg => page.evaluate(arg => {
+      if (arg instanceof Error)
+        return arg.message;
+      return arg;
+    }, arg).catch((e) => {
+      console.error('error in run_replay.js', e);
+      return '???';
+    })));
+    const text = args.join(' ');
+
     if (type === 'error' || type === 'warning') {
       process.stderr.write(text);
       process.stderr.write('\n');
