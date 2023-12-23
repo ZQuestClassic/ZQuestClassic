@@ -14,9 +14,9 @@
 // Useful command for quickly verifying valid WASM is generated:
 /*
 	cmake --build build --config Debug -t  zplayer &&
-	rm -rf build/Debug/wat/playground.qst &&
-	./build/Debug/zplayer -replay $PWD/tests/replays/playground_maths.zplay -headless -jit -jit-save-wat -jit-precompile -frame 0 -replay-exit-when-done &&
-	wasm2wat build/Debug/wat/playground.qst/ffc-5-Maths.wat --enable-threads --generate-names
+	rm -rf build/Debug/wasm/playground.qst &&
+	./build/Debug/zplayer -replay $PWD/tests/replays/playground_maths.zplay -headless -jit -jit-save-wasm -jit-precompile -frame 0 -replay-exit-when-done &&
+	wasm2wat build/Debug/wasm/playground.qst/ffc-5-Maths.wasm --enable-threads --generate-names
 */
 
 #include "allegro/debug.h"
@@ -435,8 +435,53 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 
 				int next_command = script->zasm[i + 1].command;
 				int next_arg1 = script->zasm[i + 1].arg1;
+				int next_arg2 = script->zasm[i + 1].arg2;
 
-				if (next_command == SETLESSI || next_command == SETLESS)
+				if (next_command == SETCMP)
+				{
+					set_z_register(state, next_arg1, [&](){
+						VAL(arg1, arg1_from_register);
+						VAL(arg2, arg2_from_register);
+						switch(next_arg2 & CMP_FLAGS)
+						{
+							default:
+								wasm.emitDrop();
+								wasm.emitDrop();
+								wasm.emitI32Const(0);
+								break;
+							case CMP_GT:
+								wasm.emitI32GtS();
+								break;
+							case CMP_GT|CMP_EQ:
+								wasm.emitI32GeS();
+								break;
+							case CMP_LT:
+								wasm.emitI32LtS();
+								break;
+							case CMP_LT|CMP_EQ:
+								wasm.emitI32LeS();
+								break;
+							case CMP_EQ:
+								wasm.emitI32Eq();
+								break;
+							case CMP_GT|CMP_LT:
+								wasm.emitI32Ne();
+								break;
+							case CMP_GT|CMP_LT|CMP_EQ:
+								// TODO could avoid getting values ...
+								wasm.emitDrop();
+								wasm.emitDrop();
+								wasm.emitI32Const(1);
+								break;
+						}
+						if (state.runtime_debugging && (next_arg2 & CMP_SETI))
+						{
+							wasm.emitI32Const(10000);
+							wasm.emitI32Mul();
+						}
+					});
+				}
+				else if (next_command == SETLESSI || next_command == SETLESS)
 				{
 					set_z_register(state, next_arg1, [&](){
 						VAL(arg1, arg1_from_register);
@@ -488,12 +533,49 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						}
 					});
 				}
-				else if (next_command == GOTOTRUE || next_command == GOTOFALSE || next_command == GOTOMORE || next_command == GOTOLESS)
+				else if (next_command == GOTOCMP || next_command == GOTOTRUE || next_command == GOTOFALSE || next_command == GOTOMORE || next_command == GOTOLESS)
 				{
 					VAL(arg1, arg1_from_register);
 					VAL(arg2, arg2_from_register);
 					switch (next_command)
 					{
+						case GOTOCMP:
+						{
+							switch(next_arg2 & CMP_FLAGS)
+							{
+								default:
+									// TODO this is a nop...
+									wasm.emitDrop();
+									wasm.emitDrop();
+									wasm.emitI32Const(0);
+									break;
+								case CMP_GT:
+									wasm.emitI32GtS();
+									break;
+								case CMP_GT|CMP_EQ:
+									wasm.emitI32GeS();
+									break;
+								case CMP_LT:
+									wasm.emitI32LtS();
+									break;
+								case CMP_LT|CMP_EQ:
+									wasm.emitI32LeS();
+									break;
+								case CMP_EQ:
+									wasm.emitI32Eq();
+									break;
+								case CMP_GT|CMP_LT:
+									wasm.emitI32Ne();
+									break;
+								case CMP_GT|CMP_LT|CMP_EQ:
+									// TODO could avoid getting values ...
+									wasm.emitDrop();
+									wasm.emitDrop();
+									wasm.emitI32Const(1);
+									break;
+							}
+						}
+						break;
 						case GOTOTRUE: wasm.emitI32Eq(); break;
 						case GOTOFALSE: wasm.emitI32Ne(); break;
 						case GOTOMORE: wasm.emitI32GeS(); break;
@@ -510,6 +592,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				}
 				else
 				{
+					printf("unexpected command: %d\n", next_command);
 					ASSERT(false);
 				}
 
@@ -558,10 +641,11 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 			{
 				case NOP: break;
 
+				case CALLFUNC:
 				case GOTO:
 				{
 					// A GOTO is either a function call or a branch within a function.
-					if (structured_zasm.function_calls.contains(i))
+					if (structured_zasm.function_calls.contains(i) || command == CALLFUNC)
 					{
 						pc_t fn_id = structured_zasm.start_pc_to_function.at(arg1);
 						if (!may_yield || !structured_zasm.functions[fn_id].may_yield)
@@ -608,6 +692,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				}
 				break;
 
+				case RETURNFUNC:
 				case GOTOR:
 				case RETURN:
 				{
@@ -684,9 +769,6 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				case PUSHARGSR:
 				case PUSHARGSV:
 				{
-					add_sp(wasm, g_idx_sp, -1);
-					wasm.emitGlobalSet(g_idx_sp);
-
 					if (command == PUSHARGSR)
 					{
 						get_z_register(state, arg1);
@@ -696,6 +778,9 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					// TODO: there's certainly a better way to do this.
 					for (int i = 0; i < arg2; i++)
 					{
+						add_sp(wasm, g_idx_sp, -1);
+						wasm.emitGlobalSet(g_idx_sp);
+
 						wasm.emitGlobalGet(g_idx_sp);
 						wasm.emitI32Const(4);
 						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
@@ -961,6 +1046,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 
 				default:
 				{
+					printf("unexpected command: %d\n", command);
 					ASSERT(false);
 				}
 			}
@@ -1120,12 +1206,12 @@ JittedFunction jit_compile_script(script_data *script)
 	comp.builder.moduleName = zasm_script_unique_name(script);
 	auto wm = comp.finish();
 
-	static bool write_to_disk = get_flag_bool("-jit-save-wat").value_or(false);
+	static bool write_to_disk = get_flag_bool("-jit-save-wasm").value_or(false);
 	if (write_to_disk)
 	{
-		fs::path folder = fs::current_path() / "wat" / get_filename(qstpath);
+		fs::path folder = fs::current_path() / "wasm" / get_filename(qstpath);
 		fs::create_directories(folder);
-		fs::path filename = folder / fmt::format("{}.wat", comp.builder.moduleName);
+		fs::path filename = folder / fmt::format("{}.wasm", comp.builder.moduleName);
     	std::ofstream outfile(filename, std::ios::out | std::ios::binary);
 		outfile.write(reinterpret_cast<const char*>(wm.data.data()), wm.data.size());
 	}

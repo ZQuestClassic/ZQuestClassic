@@ -33,7 +33,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			{
 				has_seen_goto = true;
 				if (!is_function_call_like)
-					is_function_call_like = script->zasm[script->zasm[i].arg1 - 1].command == RETURN;
+					is_function_call_like = script->zasm[script->zasm[i].arg1 - 1].command == RETURN || script->zasm[script->zasm[i].arg1 - 1].command == RETURNFUNC;
 			}
 		}
 		else if (command == CALLFUNC)
@@ -156,7 +156,7 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 			int command = script->zasm[i].command;
 			int arg1 = script->zasm[i].arg1;
 
-			if (command == CALLFUNC || command == GOTO || command == GOTOTRUE || command == GOTOFALSE || command == GOTOLESS || command == GOTOMORE)
+			if (command == CALLFUNC || command == GOTO || command == GOTOCMP || command == GOTOTRUE || command == GOTOFALSE || command == GOTOLESS || command == GOTOMORE)
 			{
 				// Ignore GOTO jumps outside provided bounds.
 				// This allows for creating a CFG that is internal to this function only.
@@ -166,11 +166,13 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 				}
 
 				block_starts.insert(arg1);
-				block_starts.insert(i + 1);
+				if (i + 1 <= final_pc)
+					block_starts.insert(i + 1);
 			}
 			else if (command_is_wait(command))
 			{
-				block_starts.insert(i + 1);
+				if (i + 1 <= final_pc)
+					block_starts.insert(i + 1);
 			}
 		}
 	}
@@ -195,7 +197,7 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 			auto other_block = start_pc_to_block_id[prev_arg1];
 			block_edges[j - 1].push_back(other_block);
 		}
-		else if (prev_command == GOTOTRUE || prev_command == GOTOFALSE || prev_command == GOTOLESS || prev_command == GOTOMORE)
+		else if (prev_command == GOTOCMP || prev_command == GOTOTRUE || prev_command == GOTOFALSE || prev_command == GOTOLESS || prev_command == GOTOMORE)
 		{
 			// Previous block conditionally continues to this one, or some other block;
 			block_edges[j - 1].push_back(j);
