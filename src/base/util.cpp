@@ -624,27 +624,25 @@ namespace util
 		for(size_t q = 0; q < len; ++q)
 		{
 			char c = str[q];
-			if(c < ' ' || c > '~')
+			switch(c)
 			{
-				switch(c)
+				case '\n': oss << "\\n"; break;
+				case '\t': oss << "\\t"; break;
+				case '\a': oss << "\\a"; break;
+				case '\b': oss << "\\b"; break;
+				case '\f': oss << "\\f"; break;
+				case '\r': oss << "\\r"; break;
+				case '\v': oss << "\\v"; break;
+				case '"': oss << "\\\""; break;
+				case '\\': oss << "\\\\"; break;
+				default:
 				{
-					case '\n': oss << "\\n"; break;
-					case '\t': oss << "\\t"; break;
-					case '\a': oss << "\\a"; break;
-					case '\b': oss << "\\b"; break;
-					case '\f': oss << "\\f"; break;
-					case '\r': oss << "\\r"; break;
-					case '\v': oss << "\\v"; break;
-					case '"': oss << "\\\""; break;
-					case '\\': oss << "\\\\"; break;
-					default:
-					{
+					if(c < ' ' || c > '~')
 						oss << "\\x" << std::setfill('0') << std::setw(2) << std::hex << (int32_t(c)&0xFF);
-						break;
-					}
+					else oss << c;
+					break;
 				}
 			}
-			else oss << c;
 		}
 		oss << "\"";
 		return oss.str();
