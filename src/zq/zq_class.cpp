@@ -1459,22 +1459,8 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	
 	putcombo(dest,x,y,cmbdat,cset);
 	
-	/* moved to put_walkflags
-	  for(int32_t i=0; i<4; i++) {
-	
-	  int32_t tx=((i&2)<<2)+x;
-	  int32_t ty=((i&1)<<3)+y;
-	  if((flags&cWALK) && (c.walk&(1<<i)))
-	  rectfill(dest,tx,ty,tx+7,ty+7,COLOR_SOLID);
-	  }
-	  */
-	
-	//  if((flags&cFLAGS)&&(cmbdat&0xF800))
 	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
 	{
-		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
-		//    text_mode(-1);
-		//    textprintf_ex(dest,get_zc_font(font_sfont),x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
 		if(sflag)
 		{
 			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));

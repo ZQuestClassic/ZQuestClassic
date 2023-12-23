@@ -18641,7 +18641,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix tx = (dx < 0 ? (x+dx) : (x+8+dx));
 				zfix tx2 = (dx < 0 ? 15 : 0);
 				zfix tx3 = (dx < 0 ? -8 : 8);
-				ladderx = tx.getInt()&0xF8;
+				ladderx = TRUNCATE_HALF_TILE(tx.getInt());
 				laddery = y.getTrunc();
 				if (((iswaterex(MAPCOMBO(ladderx+tx2,y+9), currmap, currscr, -1, ladderx+tx2,y+9) != 0) || getpitfall(ladderx+tx2,y+9))
 				&& ((iswaterex(MAPCOMBO(ladderx+tx2,y+15), currmap, currscr, -1, ladderx+tx2,y+15) != 0) || getpitfall(ladderx+tx2,y+15)))
@@ -18652,7 +18652,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				else if (((iswaterex(MAPCOMBO(ladderx+tx2+tx3,y+9), currmap, currscr, -1, ladderx+tx2+tx3,y+9) != 0) || getpitfall(ladderx+tx2+tx3,y+9))
 				&& ((iswaterex(MAPCOMBO(ladderx+tx2+tx3,y+15), currmap, currscr, -1, ladderx+tx2+tx3,y+15) != 0) || getpitfall(ladderx+tx2+tx3,y+15)))
 				{
-					ladderx = (tx.getInt()+tx3.getInt())&0xF8;
+					ladderx = TRUNCATE_HALF_TILE(tx.getInt()+tx3.getInt());
 					ladderdir = left;
 					ladderstart = dir;
 				}
@@ -18754,7 +18754,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				if (ladderstuff > 0 && !shoved)
 				{
 					zfix tx = (dx < 0 ? (x-12) : (x+20));
-					ladderx = tx.getInt()&0xF8;
+					ladderx = TRUNCATE_HALF_TILE(tx.getInt());
 					laddery = y.getTrunc();
 					ladderdir = left;
 					ladderstart = dir;
@@ -18803,7 +18803,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix ty3 = (dy < 0 ? -8 : 8);
 				
 				ladderx = x.getTrunc();
-				laddery = ty.getInt()&0xF8;
+				laddery = TRUNCATE_HALF_TILE(ty.getInt());
 				if (((iswaterex(MAPCOMBO(x+4,laddery+ty2), currmap, currscr, -1, x+4,laddery+ty2) != 0) || getpitfall(x+4,laddery+ty2))
 				&& ((iswaterex(MAPCOMBO(x+11,laddery+ty2), currmap, currscr, -1, x+11,laddery+ty2) != 0) || getpitfall(x+11,laddery+ty2)))
 				{
@@ -18813,7 +18813,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				else if (((iswaterex(MAPCOMBO(x+4,laddery+ty2+ty3), currmap, currscr, -1, x+4,laddery+ty2+ty3) != 0) || getpitfall(x+4,laddery+ty2+ty3))
 				&& ((iswaterex(MAPCOMBO(x+11,laddery+ty2+ty3), currmap, currscr, -1, x+11,laddery+ty2+ty3) != 0) || getpitfall(x+11,laddery+ty2+ty3)))
 				{
-					laddery = (ty.getInt() + ty3.getInt())&0xF8;
+					laddery = TRUNCATE_HALF_TILE(ty.getInt() + ty3.getInt());
 					ladderdir = up;
 					ladderstart = dir;
 				}
@@ -18915,7 +18915,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				{
 					zfix ty = (dy < 0 ? (y-(bigHitbox?12:4)) : (y+20));
 					ladderx = x.getTrunc();
-					laddery = ty.getInt()&0xF8;
+					laddery = TRUNCATE_HALF_TILE(ty.getInt());
 					ladderdir = up;
 					ladderstart = dir;
 					y += dy;
@@ -21540,9 +21540,6 @@ void HeroClass::oldchecklockblock()
 	int32_t bx = TRUNCATE_TILE(x.getInt());
 	int32_t bx2 = TRUNCATE_TILE(x.getInt() + 8);
 	int32_t by = TRUNCATE_TILE(y.getInt());
-	// int32_t bx = x.getInt()&0xF0;
-	// int32_t bx2 = int32_t(x+8)&0xF0;
-	// int32_t by = y.getInt()&0xF0;
 	
 	switch(dir)
 	{
@@ -24327,7 +24324,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	else
 	{
-		if((int(y)&0xF8)==warpy)
+		if(TRUNCATE_HALF_TILE(int32_t(y))==warpy)
 		{
 			if(x==warpx) 
 			{
@@ -27251,7 +27248,6 @@ void HeroClass::walkdown(bool opening) //entering cave
     stop_item_sfx(itype_brang);
     sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
-    //  int32_t cmby=(y.getInt()&0xF0)+16;
     // Fix Hero's position to the grid
     y=TRUNCATE_TILE(y.getInt());
     action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
@@ -27376,7 +27372,6 @@ void HeroClass::walkup(bool opening) //exiting cave
     sfx(WAV_STAIRS,pan(x.getInt()));
     dir=down;
     clk=0;
-    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
@@ -27428,7 +27423,6 @@ void HeroClass::walkup2(bool opening) //entering cave2
     sfx(WAV_STAIRS,pan(x.getInt()));
     dir=up;
     clk=0;
-    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcovertop; FFCore.setHeroAction(climbcovertop);
     attack=wNone;
     attackid=-1;
@@ -31776,7 +31770,7 @@ void HeroClass::getTriforce(int32_t id2)
 	    
 			if(f<288)
 			{
-				curtain_x=x2&0xF8;
+				curtain_x=TRUNCATE_HALF_TILE(x2);
 				draw_screen_clip_rect_x1=curtain_x;
 				draw_screen_clip_rect_x2=255-curtain_x;
 				draw_screen_clip_rect_y1=0;
