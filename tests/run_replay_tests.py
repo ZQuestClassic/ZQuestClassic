@@ -542,6 +542,9 @@ def get_replay_data(file):
             raise Exception(f'unexpected content found in {name}:\n  {last_step}\nAre you sure this is a zplay file?')
         frames = int(last_step.split(' ')[1])
 
+    if meta['qst'] == 'playground.qst' and meta['version'] != 'latest':
+        raise Exception(f'all playground.qst replays must set version to "latest": {file}')
+
     # Based on speed found on Windows 64-bit in CI. Should be manually updated occasionally.
     # NOTE: this are w/o any concurrency, so real numbers in CI today are expected to be lower. Maybe just remove this?
     estimated_fps = 1500
