@@ -704,8 +704,11 @@ bool zcmusic_set_volume(ZCMUSIC* zcm, int32_t vol)
 			break;
 			
 		case ZCMF_GME:
-			// need to figure out volume switch
-			break;
+		{
+			auto stream = ((GMEFILE*)zcm)->stream;
+			voice_set_volume(stream->voice, vol);
+		}
+		break;
 		}
 	}
 	
