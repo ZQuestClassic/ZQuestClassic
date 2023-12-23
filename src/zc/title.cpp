@@ -394,6 +394,10 @@ static bool register_name()
 		strcpy(name, filename.substr(0, len).c_str());
 		x = strlen(name);
 	}
+	else if (!only_qstpath.empty())
+	{
+		new_game->header.qstpath = only_qstpath;
+	}
 	
 	int32_t letter_grid_x=(NameEntryMode2==2)?34:44;
 	int32_t letter_grid_y=120;
@@ -789,7 +793,9 @@ static bool register_name()
 			if (!saves_create_slot(new_game))
 			{
 				cancel = true;
+				enter_sys_pal();
 				InfoDialog("Error creating save", ":(").show();
+				exit_sys_pal();
 			}
 			else
 			{
@@ -811,10 +817,6 @@ static bool register_name()
 		delete new_game;
 		new_game = nullptr;
 	}
-
-	// std::string filename_prefix = fmt::format("{}-{}", save->title, save->header.name);
-	// sanitize(filename_prefix);
-	// return create_new_file_path(replay_file_dir, filename_prefix, REPLAY_EXTENSION).string();
 
 	listpos=((saves_count()-1)/3)*3;
 	
@@ -1057,7 +1059,9 @@ int32_t custom_game(int32_t file)
 		saves_get_slot(file, true)->game->set_qstpath(maybe_rel_qstpath.string());
 		if (saves_do_first_time_stuff(file))
 		{
+			enter_sys_pal();
 			InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
+			exit_sys_pal();
 		}
 	}
 
@@ -1243,7 +1247,9 @@ static void select_game(bool skip = false)
 				strcpy(qstpath, load_qstpath.c_str());
 				if (saves_do_first_time_stuff(saves_count() - 1))
 				{
+					enter_sys_pal();
 					InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
+					exit_sys_pal();
 				}
 				else
 				{
@@ -1267,7 +1273,9 @@ static void select_game(bool skip = false)
 			{
 				if (saves_do_first_time_stuff(saveslot))
 				{
+					enter_sys_pal();
 					InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
+					exit_sys_pal();
 				}
 				if (is_custom)
 					init_NES_mode();

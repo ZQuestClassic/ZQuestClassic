@@ -4264,7 +4264,7 @@ int main(int argc, char **argv)
 	int only_arg = used_switch(argc, argv, "-only");
 	if (only_arg)
 	{
-		only_qstpath = argv[only_arg+1];
+		only_qstpath = (fs::current_path() / argv[only_arg+1]).string();
 	}
 
 	common_main_setup(App::zelda, argc, argv);
