@@ -233,6 +233,7 @@ namespace ZScript
 				std::pair<std::string,std::string> parts, Scope* scope);
 
 		static int32_t const recursionLimit = 30;
+		static bool assemble_err;
 	private:
 		static bool valid_include(ASTImportDecl& decl, std::string& ret_fname);
 		static std::string prepareFilename(std::string const& filename);
