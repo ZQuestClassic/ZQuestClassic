@@ -25460,10 +25460,8 @@ bool HeroClass::HasHeavyBoots()
 	return false;
 }
 
-static bool refresh_dmap_scrollscript = false;
 bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 {
-	refresh_dmap_scrollscript = false;
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
 	{
@@ -26017,7 +26015,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			sdir = dir;
 		}
-		
+
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
 		//dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
 	
@@ -26557,9 +26555,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		return false;
 	}
-	
-	
-	
+
 	// Stop Hero from drowning!
 	if(action==drowning || action==lavadrowning || action==sidedrowning)
 	{
@@ -26737,11 +26733,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		FFScript::deallocateAllScriptOwned(ScriptType::DMap, olddmap);
 		FFCore.initZScriptDMapScripts();
 		FFCore.initZScriptScriptedActiveSubscreen();
-		if(refresh_dmap_scrollscript)
-		{
-			run_scrolling_script_int(false); //Pre-waitdraw
-			refresh_dmap_scrollscript = false;
-		}
 	}
 	is_warping = false;
 	if(!get_qr(qr_SCROLLWARP_NO_RESET_FRAME))
@@ -28709,7 +28700,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	cx *= delay; //so we can have drawing re-done every frame,
 	//previously it was for(0 to delay) advanceframes at end of loop
 	int32_t no_move = 0;
-	
+
 	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
@@ -29328,8 +29319,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if(get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 	{
 		if(olddmap == newdmap || (replay_version_check(0, 15)))
+		{
 			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
-		else refresh_dmap_scrollscript = true;
+		}
 	}
 	if(!get_qr(qr_SCROLLWARP_NO_RESET_FRAME))
 		GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
