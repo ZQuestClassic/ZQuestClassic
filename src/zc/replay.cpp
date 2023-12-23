@@ -5,6 +5,7 @@
 #include "zc/zelda.h"
 #include <array>
 #include <exception>
+#include <string>
 #include <vector>
 #include <map>
 #include <fstream>
@@ -46,6 +47,7 @@ static const char TypeState = 'S';
 
 static ReplayMode mode = ReplayMode::Off;
 static int version;
+static bool version_use_latest;
 static bool debug;
 static bool snapshot_all_frames;
 static bool exit_when_done;
@@ -614,6 +616,26 @@ static void do_recording_poll()
 	}
 }
 
+static void set_version()
+{
+	version_use_latest = false;
+	if (!meta_map.contains("version"))
+	{
+		version = 1;
+		return;
+	}
+
+	std::string version_str = meta_map.at("version");
+	if (version_str == "latest")
+	{
+		version = VERSION;
+		version_use_latest = true;
+		return;
+	}
+
+	version = std::stoi(version_str);
+}
+
 static void load_replay(std::filesystem::path path)
 {
 #ifdef __EMSCRIPTEN__
@@ -667,7 +689,7 @@ static void load_replay(std::filesystem::path path)
         if (!done_with_meta && type != TypeMeta)
         {
             done_with_meta = true;
-            version = replay_get_meta_int("version", 1);
+            set_version();
             if (version < 5)
                 KeyMapReplayStep::current = key_map;
         }
@@ -808,7 +830,7 @@ static void load_replay(std::filesystem::path path)
     replay_log_current_index = 0;
     replay_log_current_quit_index = 0;
     replay_log_current_state_index = 0;
-    version = replay_get_meta_int("version", 1);
+    set_version();
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
 
@@ -836,7 +858,10 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     std::time_t ct = std::time(0);
     replay_set_meta("time_updated", strtok(ctime(&ct), "\n"));
     replay_set_meta("zc_version_updated", getReleaseTag());
-    replay_set_meta("version", version);
+    if (version_use_latest)
+        replay_set_meta("version", "latest");
+    else
+        replay_set_meta("version", version);
     replay_set_meta("frames", frame_count);
 	replay_set_meta("length", log.size());
 
@@ -1186,6 +1211,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     record_log.clear();
 	snapshot_frames.clear();
     framebuf_history_index = 0;
+    version_use_latest = false;
     replay_forget_input();
 
     switch (mode)
