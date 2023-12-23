@@ -837,6 +837,8 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     replay_set_meta("time_updated", strtok(ctime(&ct), "\n"));
     replay_set_meta("zc_version_updated", getReleaseTag());
     replay_set_meta("version", version);
+    replay_set_meta("frames", frame_count);
+	replay_set_meta("length", log.size());
 
     std::ofstream out(filename, std::ios::binary);
     for (auto it : meta_map)
