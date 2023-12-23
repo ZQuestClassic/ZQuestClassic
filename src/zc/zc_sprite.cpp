@@ -278,8 +278,9 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 	}
     oldflag=f;
 	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
+	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
 	int32_t combopos = RPOS_TO_POS(rpos);
-	mapscr *m = FFCore.tempScreens[blockLayer];
+	mapscr *m = rpos_handle.screen;
     word *di = &(m->data[combopos]);
     byte *ci = &(m->cset[combopos]);
     bcombo =  m->data[combopos];
