@@ -4535,7 +4535,7 @@ int main(int argc, char **argv)
 	int only_arg = used_switch(argc, argv, "-only");
 	if (only_arg)
 	{
-		only_qstpath = argv[only_arg+1];
+		only_qstpath = (fs::current_path() / argv[only_arg+1]).string();
 	}
 
 	if (test_zc_arg)
@@ -5222,7 +5222,7 @@ reload_for_replay_file:
 		if (replay_is_active() && replay_get_meta_str("sav").size())
 		{
 			auto save_path = replay_get_replay_path().parent_path() / replay_get_meta_str("sav");
-			bool success = saves_create_slot(save_path);
+			bool success = saves_create_slot(save_path, false);
 			if (!success)
 				Z_error_fatal("Failed to load replay's save file");
 		}

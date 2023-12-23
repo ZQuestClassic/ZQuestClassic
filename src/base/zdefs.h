@@ -1933,6 +1933,7 @@ struct script_data
 			delete[] zasm;
 		zasm = new ffscript[newSize];
 		zasm[0].clear();
+		meta.zero();
 		size = newSize;
 	}
 	

@@ -25624,10 +25624,8 @@ bool HeroClass::HasHeavyBoots()
 	return false;
 }
 
-static bool refresh_dmap_scrollscript = false;
 bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 {
-	refresh_dmap_scrollscript = false;
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
 	{
@@ -26194,7 +26192,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			sdir = dir;
 		}
-		
+
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
 
 		reset_hookshot();
@@ -26927,11 +26925,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		FFScript::deallocateAllScriptOwned(ScriptType::DMap, olddmap);
 		FFCore.initZScriptDMapScripts();
 		FFCore.initZScriptScriptedActiveSubscreen();
-		if(refresh_dmap_scrollscript)
-		{
-			run_scrolling_script_int(false); //Pre-waitdraw
-			refresh_dmap_scrollscript = false;
-		}
 	}
 	is_warping = false;
 	if(!get_qr(qr_SCROLLWARP_NO_RESET_FRAME))
@@ -29859,9 +29852,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 	{
-		if(old_dmap == new_dmap || (replay_version_check(0, 15)))
+		if (old_dmap == new_dmap || (replay_version_check(0, 15)))
+		{
 			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false); //Prewaitdraw
-		else refresh_dmap_scrollscript = true;
+		}
 	}
 
 	// Bye!

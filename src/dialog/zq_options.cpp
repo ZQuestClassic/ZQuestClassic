@@ -82,21 +82,15 @@ void OptionsDialog::loadOptions()
 	opts[OPT_SHOW_FAV_COMBO_MODES] = ShowFavoriteComboModes?1:0;
 	opts[OPT_NO_HIGHLIGHT_LAYER0] = NoHighlightLayer0?1:0;
 	
-	int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_pfont,font_nfont,font_sfont3,font_lfont,font_lfont_l};
-	char const* _font_titles[CFONT_MAX] = {"dialog", "gui", "title", "favcmd", "textbox", "ttip", "info"};
-	char const* cpref = "compact";
-	char const* lpref = "large";
-	char buf[512];
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
-		sprintf(buf, "font_%s_%s", lpref, _font_titles[q]);
-		opts[q+OPT_FIRSTFONT] = zc_get_config("ZQ_GUI", buf, deffont_ids[q]);
-		sprintf(buf, "font_%s_%s", cpref, _font_titles[q]);
-		opts[q+OPT_FIRSTFONT+CFONT_MAX] = zc_get_config("ZQ_GUI", buf, deffont_ids[q]);
-		sprintf(buf, "fontscale_%s_%s", lpref, _font_titles[q]);
-		opts[q+OPT_FIRST_FONTSCALE] = zc_get_config("ZQ_GUI", buf, 1);
-		sprintf(buf, "fontscale_%s_%s", cpref, _font_titles[q]);
-		opts[q+OPT_FIRST_FONTSCALE+CFONT_MAX] = zc_get_config("ZQ_GUI", buf, 1);
+		auto def = get_def_fontid(q);
+		opts[q+OPT_FIRSTFONT] = zc_get_config("ZQ_GUI", get_font_cfgname(false, q, FONTPREF_LARGE).c_str(), def);
+		opts[q+OPT_FIRST_COMPACTFONT] = zc_get_config("ZQ_GUI", get_font_cfgname(false, q, FONTPREF_COMPACT).c_str(), def);
+		auto lscale = zc_get_config("ZQ_GUI", get_font_cfgname(true, q, FONTPREF_LARGE).c_str(), 1);
+		auto cscale = zc_get_config("ZQ_GUI", get_font_cfgname(true, q, FONTPREF_COMPACT).c_str(), 1);
+		opts[q+OPT_FIRST_FONTSCALE] = zc_max(1,lscale);
+		opts[q+OPT_FIRST_COMPACTFONT_SCALE] = zc_max(1,cscale);
 	}
 	
 	//cleanup
@@ -132,11 +126,17 @@ void OptionsDialog::saveOption(int ind)
 {
 	auto v = opts[ind];
 	if(ind >= OPT_FIRSTFONT && ind <= OPT_LASTFONT)
-		zc_set_config("ZQ_GUI", get_font_cfgname(false, ind-OPT_FIRSTFONT,
-			ind < OPT_FIRST_COMPACTFONT ? FONTPREF_LARGE : FONTPREF_COMPACT).c_str(), v);
+	{
+		bool compact = ind >= OPT_FIRST_COMPACTFONT;
+		auto realind = ind - (compact ? OPT_FIRST_COMPACTFONT : OPT_FIRSTFONT);
+		zc_set_config("ZQ_GUI", get_font_cfgname(false, realind, compact ? FONTPREF_COMPACT : FONTPREF_LARGE).c_str(), v);
+	}
 	else if(ind >= OPT_FIRST_FONTSCALE && ind <= OPT_LAST_FONTSCALE)
-		zc_set_config("ZQ_GUI", get_font_cfgname(true, ind-OPT_FIRST_FONTSCALE,
-			ind < OPT_FIRST_COMPACTFONT_SCALE ? FONTPREF_LARGE : FONTPREF_COMPACT).c_str(), v);
+	{
+		bool compact = ind >= OPT_FIRST_COMPACTFONT_SCALE;
+		auto realind = ind - (compact ? OPT_FIRST_COMPACTFONT_SCALE : OPT_FIRST_FONTSCALE);
+		zc_set_config("ZQ_GUI", get_font_cfgname(true, realind, compact ? FONTPREF_COMPACT : FONTPREF_LARGE).c_str(), v);
+	}
 	else switch(ind)
 	{
 		case OPT_SKIP_LAYER_WARNING:
@@ -681,10 +681,11 @@ void OptionsDialog::preview_font()
 {
 	static FONT* tempfont = nullptr;
 	int scale = do_prevscale ? prevscale : 1;
-	if(tempfont)
-		destroy_font(tempfont);
+	FONT* to_destroy = tempfont;
 	tempfont = scale_font(get_zc_font(prevfont), scale);
 	fprev->setFont(tempfont);
+	if(to_destroy)
+		destroy_font(to_destroy);
 	char buf[512];
 	sprintf(buf, "Font Preview: %s (%d) [x%d]", get_zc_fontname(prevfont), prevfont, scale);
 	fprev_lab->setText(buf);

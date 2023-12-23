@@ -458,7 +458,8 @@ string get_font_cfgname(bool scale, uint indx, optional<uint> prefid)
 
 int get_def_fontid(uint indx)
 {
-	static int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_lfont_l,font_nfont,font_sfont3,font_lfont,font_lfont_l};
+	//static int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_lfont_l,font_nfont,font_sfont3,font_lfont,font_lfont_l};
+	static int deffont_ids[CFONT_MAX] = {font_dsphantompfont,font_dsphantompfont,font_lfont,font_lfont_l,font_atari800font,font_dsphantompfont,font_lfont_l};
 	return indx < CFONT_MAX ? deffont_ids[indx] : deffont_ids[0];
 }
 
@@ -476,6 +477,7 @@ void init_custom_fonts()
 		fontscales[q] = zc_get_config("ZQ_GUI", get_font_cfgname(true, q).c_str(), 1);
 		if(unsigned(fontids[q]) >= font_max)
 			fontids[q] = font_lfont_l;
+		fontscales[q] = vbound(fontscales[q], 1, 5);
 		deffonts[q] = get_zc_font(fontids[q]);
 		deffonts_a5[q] = a5fonts[fontids[q]];
 		if(customfonts[q])

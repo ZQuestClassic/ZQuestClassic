@@ -70,7 +70,7 @@ async function runReplay(zplay) {
         return arg.message;
       return arg;
     }, arg).catch((e) => {
-      console.error(e);
+      console.error('error in run_replay.js', e);
       return '???';
     })));
     const text = args.join(' ');
@@ -90,8 +90,8 @@ async function runReplay(zplay) {
       // shutdown_timers
       // failed: _al_vector_size(&active_timers) == 0, at: /Users/connorclark/code/ZeldaClassic-secondary/build_emscripten/_deps/allegro5-src/src/timernu.c,146,shutdown_timers
       'Uncaught RuntimeError',
-      // 'Aborted(native code called abort())',
-      // 'Assert failed',
+      'Aborted(native code called abort())',
+      'Assert failed',
     ];
     if (bad.some(t => text.includes(t))) {
       onClose();

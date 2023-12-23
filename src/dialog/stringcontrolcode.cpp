@@ -60,6 +60,9 @@ const GUI::ListData SCCListData()
 	ld.add("Text Color", 1);
 	ld.add("Text Speed", 2);
 	ld.add("Text Font", 135);
+	ld.add("Shadow Color", 26);
+	ld.add("Shadow Type", 27);
+	
 	ld.add("Goto If Screen->D[]", 23);
 	ld.add("Goto If Current Screen->D[]", 3);
 	ld.add("Goto If Random", 4);
@@ -68,34 +71,40 @@ const GUI::ListData SCCListData()
 	ld.add("Goto If Counter >= %", 7);
 	ld.add("Goto If Level " + mcguffinname, 8);
 	ld.add("Goto If " + mcguffinname + " Count", 9);
+	
 	ld.add("Counter Increase", 10);
 	ld.add("Counter Decrease", 11);
 	ld.add("Counter Set", 12);
 	ld.add("Counter Increase %", 13);
 	ld.add("Counter Decrease %", 14);
 	ld.add("Counter Set %", 15);
+	
 	ld.add("Give Item", 16);
 	ld.add("Take Item", 17);
+	
 	ld.add("Warp", 18);
-	ld.add("Set Screen->D[]", 19);
 	ld.add("Play SFX", 20);
 	ld.add("Play MIDI", 21);
+	
 	ld.add("Insert Player Name", 22);
-	//ld.add("Change Portrait", 24);
 	ld.add("Line Break", 25);
-	ld.add("Shadow Color", 26);
-	ld.add("Shadow Type", 27);
 	ld.add("Draw Tile", 28);
+	
 	ld.add("End String", 29);
 	ld.add("Wait For Press A", 30);
+	
 	ld.add("Setup Menu Cursor", 128);
 	ld.add("Add Menu Choice", 129);
 	ld.add("Run Menu", 130);
 	ld.add("Goto If Menu Choice", 131);
-	ld.add("Trigger Screen Secrets", 132);
+	
+	ld.add("Set Screen->D[]", 19);
 	ld.add("Set Current Screen State", 133);
 	ld.add("Set Screen State", 134);
+	
 	ld.add("Run Frozen Generic Script", 136);
+	ld.add("Trigger Screen Secrets", 132);
+	ld.add("Trigger Combo Copycat", 137);
 	return ld;
 }
 
@@ -109,6 +118,8 @@ void SCCDialog::default_args()
 	args[MSGC_SHDCOLOR][0] = refstr->shadow_color;
 	args[MSGC_SHDTYPE][0] = refstr->shadow_type;
 	args[MSGC_FONT][0] = refstr->font;
+	
+	args[MSGC_TRIG_CMB_COPYCAT][0] = 1;
 	
 	warp_xy_toggle = true;
 }
@@ -237,6 +248,7 @@ std::string scc_help(byte scc)
 		case MSGC_SETSCREENSTATER: return "Set a state of any screen";
 		case MSGC_FONT: return "Change the text font of text after the SCC";
 		case MSGC_RUN_FRZ_GENSCR: return "Run a generic script in the frozen mode.";
+		case MSGC_TRIG_CMB_COPYCAT: return "Trigger a combo triggers tab 'Copycat' id";
 	}
 	return "";
 }
@@ -1030,6 +1042,16 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					{
 						cur_args[1] = state?1:0;
 					})
+			);
+			break;
+		}
+		case MSGC_TRIG_CMB_COPYCAT:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(
+					TXT("Copycat ID to trigger:"),
+					NUM_FIELD(cur_args[0],1,255)
+				)
 			);
 			break;
 		}

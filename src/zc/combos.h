@@ -52,6 +52,8 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped = false);
 bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped = false);
 void trigger_save(newcombo const& cmb, mapscr* screen);
 
+void trig_copycat(byte copyid);
+
 void do_ex_trigger(const rpos_handle_t& rpos_handle);
 void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle);
 bool force_ex_trigger(const rpos_handle_t& rpos_handle, char xstate = -1);

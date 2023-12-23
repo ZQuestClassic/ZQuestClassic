@@ -2387,6 +2387,56 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 	return false;
 }
 
+static int copycat_skip_lyr = -1, copycat_skip_ffc = -1;
+static rpos_t copycat_skip_rpos = rpos_t::None;
+
+void trig_copycat(byte copyid)
+{
+	if(copycat_id)
+		return;
+	copycat_id = copyid;
+
+	for_every_rpos_in_region([&](const rpos_handle_t& cc_rpos_handle) {
+		if (cc_rpos_handle.layer == copycat_skip_lyr && cc_rpos_handle.rpos == copycat_skip_rpos)
+			return;
+		do_copycat_trigger(cc_rpos_handle);
+	});
+
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
+	{
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			if (ffc_handle.i != copycat_skip_ffc)
+				do_copycat_trigger_ffc(ffc_handle);
+		});
+	}
+	copycat_id = 0;
+}
+
+static void trig_copycat(int cid, const rpos_handle_t& rpos_handle)
+{
+	if(copycat_id)
+		return;
+	if (rpos_handle.data() == cid) //skip self
+	{
+		copycat_skip_lyr = rpos_handle.layer;
+		copycat_skip_rpos = rpos_handle.rpos;
+	}
+	trig_copycat(combobuf[cid].trigcopycat);
+	copycat_skip_lyr = -1;
+	copycat_skip_rpos = rpos_t::None;
+}
+static void trig_copycat(int cid, const ffc_handle_t& ffc_handle)
+{
+	if(copycat_id)
+		return;
+	if (ffc_handle.data() == cid) //skip self
+	{
+		copycat_skip_ffc = ffc_handle.i;
+	}
+	trig_copycat(combobuf[cid].trigcopycat);
+	copycat_skip_ffc = -1;
+}
+
 void do_ex_trigger(const rpos_handle_t& rpos_handle)
 {
 	int32_t cid = rpos_handle.data();
@@ -2409,22 +2459,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 	}
 	
 	if(cmb.trigcopycat) //has a copycat set
-	{
-		if(!copycat_id) //not already in a copycat
-		{
-			bool skipself = rpos_handle.data() == cid;
-			copycat_id = cmb.trigcopycat;
-			for_every_rpos_in_region([&](const rpos_handle_t& cc_rpos_handle) {
-				if (skipself && cc_rpos_handle.screen_index == rpos_handle.screen_index && cc_rpos_handle.layer == rpos_handle.layer && cc_rpos_handle.rpos == rpos_handle.rpos) return;
-				do_copycat_trigger(cc_rpos_handle);
-			});
-			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-			{
-				for_every_ffc_in_region(do_copycat_trigger_ffc);
-			}
-			copycat_id = 0;
-		}
-	}
+		trig_copycat(cid, rpos_handle);
 }
 
 void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
@@ -2450,25 +2485,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 	}
 	
 	if(cmb.trigcopycat) //has a copycat set
-	{
-		if(!copycat_id) //not already in a copycat
-		{
-			bool skipself = ffc_handle.data() == cid;
-			copycat_id = cmb.trigcopycat;
-			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-				do_copycat_trigger(rpos_handle);
-			});
-			copycat_id = 0;
-			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
-					if (skipself && &ffc_handle.ffc == &ffc_handle_2.ffc)
-						return;
-					do_copycat_trigger_ffc(ffc_handle_2);
-				});
-			}
-		}
-	}
+		trig_copycat(cid, ffc_handle);
 }
 
 bool force_ex_trigger(const rpos_handle_t& rpos_handle, char xstate)
@@ -2914,22 +2931,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set
-			{
-				if(!copycat_id) //not already in a copycat
-				{
-					bool skipself = rpos_handle.data() == cid;
-					copycat_id = cmb.trigcopycat;
-					for_every_rpos_in_region([&](const rpos_handle_t& cc_rpos_handle) {
-						if (skipself && cc_rpos_handle.layer == rpos_handle.layer && cc_rpos_handle.rpos == rpos_handle.rpos) return;
-						do_copycat_trigger(cc_rpos_handle);
-					});
-					if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-					{
-						for_every_ffc_in_region(do_copycat_trigger_ffc);
-					}
-					copycat_id = 0;
-				}
-			}
+				trig_copycat(cid, rpos_handle);
 			
 			timer.updateData(rpos_handle.data());
 			if(cmb.trigcooldown)
@@ -3308,30 +3310,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set
-			{
-				if(!copycat_id) //not already in a copycat
-				{
-					bool skipself = ffc->data == cid;
-					copycat_id = cmb.trigcopycat;
-					for(auto cclayer = 0; cclayer < 7; ++cclayer)
-					{
-						for(auto ccpos = 0; ccpos < 176; ++ccpos)
-						{
-							do_copycat_trigger(get_rpos_handle((rpos_t)ccpos, cclayer));
-						}
-					}
-					if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-					{
-						for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
-							if (skipself && &ffc_handle_2.ffc == &ffc_handle.ffc)
-								return;
-
-							do_copycat_trigger_ffc(ffc_handle_2);
-						});
-					}
-					copycat_id = 0;
-				}
-			}
+				trig_copycat(cid, ffc_handle);
 			
 			timer.updateData(ffc_handle.data());
 			if(cmb.trigcooldown)
@@ -3726,6 +3705,11 @@ void cpos_clear_combos()
 
 void cpos_clear_all()
 {
+	//Clearing these here just as a sanity check... -Em
+	copycat_skip_lyr = -1;
+	copycat_skip_rpos = rpos_t::None;
+	copycat_skip_ffc = -1;
+	//
 	cpos_clear_combos();
 	
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {

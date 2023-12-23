@@ -81,10 +81,10 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				int32_t xo = 5;
 				if(dis)
 				{
-					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"Combo: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcBOX],"Combo: %d",d->d1);
 					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+2,jwin_pal[jcDISABLED_FG],-1,"Combo: %d",d->d1);
 					
-					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"CSet: %d",d->d2);
+					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcBOX],"CSet: %d",d->d2);
 					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+text_height(fonty)+3,jwin_pal[jcDISABLED_FG],-1,"CSet: %d",d->d2);
 				}
 				else

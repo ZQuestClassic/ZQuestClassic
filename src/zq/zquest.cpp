@@ -16333,6 +16333,12 @@ static ListData warp_ret_list(warprlist, &font);
 
 int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 {
+	if(msg == MSG_START)
+	{
+		d->d1 = -1; //cached val
+		d->d2 = -1; //cached dmap
+		d->fg = 0; //cached 'force_16'
+	}
 	char* buf = (char*)d->dp;
 	vector<DIALOG*>* dlgs = (vector<DIALOG*>*)d->dp2;
 	int* dmap_ptr = (int*) d->dp3;
@@ -16341,56 +16347,75 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 	bool is_overworld = ((DMaps[*dmap_ptr].type&dmfTYPE)==dmOVERW);
 	int scrw = is_overworld ? 16 : 8, scrh = 9;
 	const int max = 0x87;
+	int bufval = zc_xtoi(buf);
+	int val = vbound(bufval,0,max);
+	bool force_16 = (!is_overworld && (val&0xF) > 0x7) || d->fg;
+	if(force_16) //can't bound, some quests need to warp out of bounds... -Em
+		scrw = 16; //just force show the larger grid instead
+	
 	int xscl = d->w/scrw;
 	int yscl = d->h/scrh;
-	int val = vbound(zc_xtoi(buf),0,max);
-	if(!is_overworld && (val&0xF) > 0x7)
-		val = (val&0xF0)|vbound(val&0xF,0x0,0x7);
 	
 	int ret = D_O_K;
 	bool redraw = false;
-	if(msg != MSG_START)
+	if(d->d1 != val)
 	{
-		if(d->d1 != val)
-		{
-			redraw = true;
-			sprintf(buf, "%02X", val);
-			d->d1 = val;
-		}
-		if(d->d2 != *dmap_ptr)
-		{
-			redraw = true;
-			d->d2 = *dmap_ptr;
-		}
+		redraw = true;
+		d->d1 = val;
+	}
+	if(bufval != val)
+	{
+		redraw = true;
+		sprintf(buf, "%X", val);
+	}
+	if(d->d2 != *dmap_ptr)
+	{
+		redraw = true;
+		d->d2 = *dmap_ptr;
 	}
 	switch(msg)
 	{
-		case MSG_START:
-			d->d1 = d->d2 = -1;
-			break;
 		case MSG_WANTFOCUS:
 			ret = D_WANTFOCUS;
 			break;
 		case MSG_CLICK:
 		{
+			d->fg = force_16 ? 1 : 0;
+			bool redraw2 = false;
 			while(gui_mouse_b())
 			{
+				if(redraw2)
+				{
+					broadcast_dialog_message(MSG_DRAW, 0);
+					redraw2 = false;
+				}
+				if(!d->fg && (gui_mouse_b()&2))
+				{
+					scrw = 16;
+					xscl = d->w/scrw;
+					yscl = d->h/scrh;
+					d->fg = 1;
+					redraw2 = true;
+				}
 				custom_vsync();
 				if(!mouse_in_rect(d->x,d->y,d->w,d->h))
 					continue;
 				int mx = gui_mouse_x()-d->x, my = gui_mouse_y()-d->y;
 				int x = vbound(mx/xscl,0,scrw-1);
 				int y = vbound(my/yscl,0,scrh-1);
-				val = (y*16)+x;
-				if(val > max)
+				auto val2 = (y*16)+x;
+				if(val2 > max) //out of bounds in the bottom-right
 					continue;
+				val = val2;
 				if(d->d1 != val)
 				{
 					d->d1 = val;
 					sprintf(buf, "%02X", val);
-					broadcast_dialog_message(MSG_DRAW, 0);
+					redraw2 = true;
 				}
 			}
+			redraw = true;
+			d->fg = 0;
 			break;
 		}
 		case MSG_DRAW:
@@ -16808,7 +16833,7 @@ struct tw_data
 		twtype[ind] = tilewarp_dlg[4].d1;
 		twdmap[ind] = tilewarp_dlg[5].d1;
 		char* buf = (char*)tilewarp_dlg[6].dp;
-		twscr[ind] = vbound(zc_xtoi(buf),0x00,0x7F);
+		twscr[ind] = vbound(zc_xtoi(buf),0x00,0x87);
 		wret[ind] = tilewarp_dlg[11].d1;
 		set_bit(&oflags, ind, tilewarp_dlg[12].flags & D_SELECTED);
 	}
@@ -16977,7 +17002,7 @@ struct sw_data
 		swtype[ind] = sidewarp_dlg[4].d1;
 		swdmap[ind] = sidewarp_dlg[5].d1;
 		char* buf = (char*)sidewarp_dlg[6].dp;
-		swscr[ind] = vbound(zc_xtoi(buf),0x00,0x7F);
+		swscr[ind] = vbound(zc_xtoi(buf),0x00,0x87);
 		wret[ind] = sidewarp_dlg[11].d1;
 		set_bit(&oflags, ind, sidewarp_dlg[12].flags & D_SELECTED);
 	}

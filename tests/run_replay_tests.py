@@ -512,15 +512,38 @@ def get_replay_name(replay_file: pathlib.Path):
 
 
 @functools.cache
+def read_replay_meta(path: pathlib.Path):
+    meta = {}
+    with path.open('r', encoding='utf-8') as f:
+        while True:
+            line = f.readline()
+            if not line.startswith('M'):
+                break
+            _ , key, value = line.strip().split(' ', 2)
+            meta[key] = value
+    if not meta:
+        raise Exception(f'invalid replay {path}')
+    return meta
+
+
+@functools.cache
 def get_replay_data(file):
     name = get_replay_name(file)
-    last_step = read_last_contentful_line(file)
-    if not last_step:
-        raise Exception(f'no content found in {name}')
-    if not re.match(r'^. \d+ ', last_step):
-        raise Exception(f'unexpected content found in {name}:\n  {last_step}\nAre you sure this is a zplay file?')
+    meta = read_replay_meta(file)
 
-    frames = int(last_step.split(' ')[1])
+    if 'frames' in meta:
+        frames = int(meta['frames'])
+    else:
+        # TODO: delete this when all replay tests have `M frames`
+        last_step = read_last_contentful_line(file)
+        if not last_step:
+            raise Exception(f'no content found in {name}')
+        if not re.match(r'^. \d+ ', last_step):
+            raise Exception(f'unexpected content found in {name}:\n  {last_step}\nAre you sure this is a zplay file?')
+        frames = int(last_step.split(' ')[1])
+
+    if meta['qst'] == 'playground.qst' and meta['version'] != 'latest':
+        raise Exception(f'all playground.qst replays must set version to "latest": {file}')
 
     # Based on speed found on Windows 64-bit in CI. Should be manually updated occasionally.
     # NOTE: this are w/o any concurrency, so real numbers in CI today are expected to be lower. Maybe just remove this?

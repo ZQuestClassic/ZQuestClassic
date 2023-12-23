@@ -39,12 +39,14 @@ class TestJIT(ZCTestCase):
         self.maxDiff = None
 
     def compile_zasm_in_qst(self, replay_path: Path):
-        jit_output_path = run_target.get_build_folder() / 'zscript-debug' / replay_path.name
-        if jit_output_path.exists():
-            shutil.rmtree(jit_output_path)
+        output_dir = root_dir / '.tmp/test_jit' / replay_path.name
+        output_dir.parent.mkdir(exist_ok=True, parents=True)
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
         args = [
             '-headless',
             '-replay', replay_path,
+            '-script-runtime-debug-folder', str(output_dir),
             '-frame', '0',
             '-replay-exit-when-done',
             '-jit',
@@ -59,7 +61,7 @@ class TestJIT(ZCTestCase):
         if p.returncode:
             raise Exception(f'error: {p.returncode}\n{p.stderr}')
 
-        return jit_output_path
+        return output_dir
 
     def run_for_qst(self, qst_name: str, replay_path: Path):
         jit_output_path = self.compile_zasm_in_qst(replay_path)

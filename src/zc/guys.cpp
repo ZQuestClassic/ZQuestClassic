@@ -25,6 +25,7 @@
 #include "base/mapscr.h"
 #include "base/misctypes.h"
 #include "base/initdata.h"
+#include "zc/combos.h"
 #include "iter.h"
 
 extern particle_list particles;
@@ -20730,6 +20731,13 @@ bool parsemsgcode()
 			trigger_secrets_for_screen(TriggerSource::SCC, currscr, false);
 			if(perm)
 				setmapflag(mSECRET);
+			return true;
+		}
+		case MSGC_TRIG_CMB_COPYCAT:
+		{
+			int copy_id = (int)grab_next_argument();
+			if(copy_id == byte(copy_id))
+				trig_copycat(copy_id);
 			return true;
 		}
 		case MSGC_SETSCREENSTATE:

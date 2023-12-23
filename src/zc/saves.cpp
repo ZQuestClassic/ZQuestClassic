@@ -1967,7 +1967,11 @@ int32_t saves_write()
 	Saving = false;
 	// TODO: we should return error messages, not codes.
 	if (ret)
+	{
+		enter_sys_pal();
 		InfoDialog("Error writing saves", fmt::format("Error code: {}. Check allegro.log for more", ret)).show();
+		exit_sys_pal();
+	}
 	return ret;
 }
 
@@ -2121,13 +2125,14 @@ bool saves_create_slot(gamedata* game, bool write_to_disk)
 	return true;
 }
 
-bool saves_create_slot(fs::path path)
+bool saves_create_slot(fs::path path, bool write_to_disk)
 {
 	if (!fs::exists(path))
 		return false;
 
 	auto& save = saves.emplace_back();
 	save.path = path;
+	save.write_to_disk = write_to_disk;
 	return true;
 }
 
@@ -2249,6 +2254,7 @@ bool saves_test()
 	save.game = game;
 	save.header = &game->header;
 	save.path = "test.sav";
+	save.write_to_disk = true;
 
 	if (write_save(&save))
 	{
