@@ -51,6 +51,8 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped = false);
 bool trigger_stepfx_ffc(int32_t pos, bool stepped = false);
 void trigger_save(newcombo const& cmb);
 
+void trig_copycat(byte copyid);
+
 void do_ex_trigger(int32_t lyr, int32_t pos);
 void do_ex_trigger_ffc(int32_t pos);
 bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate = -1);

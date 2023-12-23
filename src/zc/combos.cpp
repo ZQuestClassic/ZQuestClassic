@@ -2401,6 +2401,60 @@ bool do_copycat_trigger_ffc(int32_t pos)
 	return false;
 }
 
+static int copycat_skip_lyr = -1, copycat_skip_pos = -1, copycat_skip_ffc = -1;
+void trig_copycat(byte copyid)
+{
+	if(copycat_id)
+		return;
+	copycat_id = copyid;
+	for(auto cclayer = 0; cclayer < 7; ++cclayer)
+	{
+		for(auto ccpos = 0; ccpos < 176; ++ccpos)
+		{
+			if(cclayer == copycat_skip_lyr && ccpos == copycat_skip_pos)
+				continue;
+			
+			do_copycat_trigger(cclayer, ccpos);
+		}
+	}
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			if(i == copycat_skip_ffc)
+				continue;
+			do_copycat_trigger_ffc(i);
+		}
+	}
+	copycat_id = 0;
+}
+
+void trig_copycat(int cid, int lyr, int pos)
+{
+	if(copycat_id)
+		return;
+	if(FFCore.tempScreens[lyr]->data[pos] == cid) //skip self
+	{
+		copycat_skip_lyr = lyr;
+		copycat_skip_pos = pos;
+	}
+	trig_copycat(combobuf[cid].trigcopycat);
+	copycat_skip_lyr = -1;
+	copycat_skip_pos = -1;
+}
+void trig_copycat(int cid, int ffpos)
+{
+	if(copycat_id)
+		return;
+	if(FFCore.tempScreens[0]->ffcs[ffpos].data == cid) //skip self
+	{
+		copycat_skip_ffc = ffpos;
+	}
+	trig_copycat(combobuf[cid].trigcopycat);
+	copycat_skip_ffc = -1;
+}
+
 void do_ex_trigger(int32_t lyr, int32_t pos)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
@@ -2425,32 +2479,7 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 	}
 	
 	if(cmb.trigcopycat) //has a copycat set
-	{
-		if(!copycat_id) //not already in a copycat
-		{
-			bool skipself = tmp->data[pos] == cid;
-			copycat_id = cmb.trigcopycat;
-			for(auto cclayer = 0; cclayer < 7; ++cclayer)
-			{
-				for(auto ccpos = 0; ccpos < 176; ++ccpos)
-				{
-					if(cclayer == lyr && ccpos == pos && skipself)
-						continue;
-					
-					do_copycat_trigger(cclayer, ccpos);
-				}
-			}
-			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-			{
-				word c = tmpscr->numFFC();
-				for(word i=0; i<c; i++)
-				{
-					do_copycat_trigger_ffc(i);
-				}
-			}
-			copycat_id = 0;
-		}
-	}
+		trig_copycat(cid, lyr, pos);
 }
 
 void do_ex_trigger_ffc(int32_t pos)
@@ -2477,31 +2506,7 @@ void do_ex_trigger_ffc(int32_t pos)
 	}
 	
 	if(cmb.trigcopycat) //has a copycat set
-	{
-		if(!copycat_id) //not already in a copycat
-		{
-			bool skipself = ffc.data == cid;
-			copycat_id = cmb.trigcopycat;
-			for(auto cclayer = 0; cclayer < 7; ++cclayer)
-			{
-				for(auto ccpos = 0; ccpos < 176; ++ccpos)
-				{
-					do_copycat_trigger(cclayer, ccpos);
-				}
-			}
-			copycat_id = 0;
-			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-			{
-				word c = tmpscr->numFFC();
-				for(word i=0; i<c; i++)
-				{
-					if (i == pos && skipself)
-						continue;
-					do_copycat_trigger_ffc(i);
-				}
-			}
-		}
-	}
+		trig_copycat(cid, pos);
 }
 
 bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
@@ -2945,32 +2950,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set
-			{
-				if(!copycat_id) //not already in a copycat
-				{
-					bool skipself = tmp->data[pos] == cid;
-					copycat_id = cmb.trigcopycat;
-					for(auto cclayer = 0; cclayer < 7; ++cclayer)
-					{
-						for(auto ccpos = 0; ccpos < 176; ++ccpos)
-						{
-							if(cclayer == lyr && ccpos == pos && skipself)
-								continue;
-							
-							do_copycat_trigger(cclayer, ccpos);
-						}
-					}
-					if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-					{
-						word c = tmpscr->numFFC();
-						for(word i=0; i<c; i++)
-						{
-							do_copycat_trigger_ffc(i);
-						}
-					}
-					copycat_id = 0;
-				}
-			}
+				trig_copycat(cid, lyr, pos);
 			
 			timer.updateData(tmp->data[pos]);
 			if(cmb.trigcooldown)
@@ -3350,31 +3330,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set
-			{
-				if(!copycat_id) //not already in a copycat
-				{
-					bool skipself = ffc.data == cid;
-					copycat_id = cmb.trigcopycat;
-					for(auto cclayer = 0; cclayer < 7; ++cclayer)
-					{
-						for(auto ccpos = 0; ccpos < 176; ++ccpos)
-						{
-							do_copycat_trigger(cclayer, ccpos);
-						}
-					}
-					if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-					{
-						word c = tmpscr->numFFC();
-						for(word i=0; i<c; i++)
-						{
-							if (i == pos && skipself)
-								continue;
-							do_copycat_trigger_ffc(i);
-						}
-					}
-					copycat_id = 0;
-				}
-			}
+				trig_copycat(cid, pos);
 			
 			timer.updateData(tmpscr->ffcs[pos].data);
 			if(cmb.trigcooldown)
@@ -3756,6 +3712,12 @@ void cpos_update_cache(word oldid, word newid)
 
 void cpos_clear_all()
 {
+	//Clearing these here just as a sanity check... -Em
+	copycat_skip_lyr = -1;
+	copycat_skip_pos = -1;
+	copycat_skip_ffc = -1;
+	//
+	
 	for(auto lyr = 0; lyr < 7; ++lyr)
 		for(auto pos = 0; pos < 176; ++pos)
 			combo_posinfos[lyr][pos].clear();

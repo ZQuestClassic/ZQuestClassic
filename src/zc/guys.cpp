@@ -22,6 +22,7 @@
 #include "base/mapscr.h"
 #include "base/misctypes.h"
 #include "base/initdata.h"
+#include "zc/combos.h"
 extern particle_list particles;
 
 extern FFScript FFCore;
@@ -21043,6 +21044,13 @@ bool parsemsgcode()
 			hidden_entrance(0, true, false, -8);
 			if(perm)
 				setmapflag(mSECRET);
+			return true;
+		}
+		case MSGC_TRIG_CMB_COPYCAT:
+		{
+			int copy_id = (int)grab_next_argument();
+			if(copy_id == byte(copy_id))
+				trig_copycat(copy_id);
 			return true;
 		}
 		case MSGC_SETSCREENSTATE:

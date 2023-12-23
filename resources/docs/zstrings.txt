@@ -141,6 +141,8 @@ If x is negative, y is used for the warp return point (0 to 3; 5 for pit warp).
 
 \132\perm - Triggers secrets, which are permanent unless 'perm' is '0'
 
+\137\copycat_id - Triggers combos with a triggers tab copycat_id matching the specified id
+
 \133\flag\state - Sets a screen state on the current screen.
                   See 'std_constants.zh', the 'ST_' constants, for 'flag'
 				  'state' is 1 to turn on, 0 to turn off
