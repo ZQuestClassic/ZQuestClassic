@@ -137,10 +137,11 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 		{
 			if(function.getFlag(FUNCFLAG_NIL))
 				return; //nothing more to possibly do here
-			ResetVisitor resetter;
-			resetter.visit(*block); //reset the 'reachable' state
-			func_var_map.clear();
 		}
+		ResetVisitor resetter;
+		resetter.visit(*block); //reset the 'reachable' state to false
+		func_var_map.clear();
+		
 		markReachable(*node);
 		markReachable(*block);
 		failure_temp = failure_halt = false;

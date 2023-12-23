@@ -47,7 +47,7 @@ string LocationData::asString() const
 // AST
 
 AST::AST(LocationData const& location)
-	: location(location), errorDisabled(false), disabled_(false), isRegistered(false), isReachable(false)
+	: location(location), errorDisabled(false), disabled_(false), isRegistered(false), isReachable(true)
 {}
 
 // ASTFile
