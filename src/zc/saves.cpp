@@ -1967,7 +1967,11 @@ int32_t saves_write()
 	Saving = false;
 	// TODO: we should return error messages, not codes.
 	if (ret)
+	{
+		enter_sys_pal();
 		InfoDialog("Error writing saves", fmt::format("Error code: {}. Check allegro.log for more", ret)).show();
+		exit_sys_pal();
+	}
 	return ret;
 }
 
