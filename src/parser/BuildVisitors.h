@@ -147,7 +147,7 @@ namespace ZScript
 		{
 			if(!break_depth || !count)
 				return;
-			for(int q = break_depth-1; count && q > 0; --q, --count)
+			for(int q = break_depth-1; count && q >= 0; --q, --count)
 			{
 				++break_past_counts[q];
 				if(count == 1)
@@ -158,7 +158,7 @@ namespace ZScript
 		{
 			if(!continue_depth || !count)
 				return;
-			for(int q = continue_depth-1; count && q > 0; --q, --count)
+			for(int q = continue_depth-1; count && q >= 0; --q, --count)
 			{
 				++continue_past_counts[q];
 				if(count == 1)
