@@ -32,6 +32,12 @@ async function runReplay(zplay) {
   let exitCode = 0;
 
   const consoleListener = setupConsoleListener(page);
+  page.on('pageerror', e => {
+    process.stderr.write(e.toString());
+    process.stderr.write(e.stack);
+    process.stderr.write('\n');
+    hasExited = true;
+  });
   page.on('console', e => {
     const type = e.type();
     const text = e.text();
