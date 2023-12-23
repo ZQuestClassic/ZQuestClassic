@@ -3068,9 +3068,12 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				{
 					bool vec = c == '{';
 					auto j = buffer.size()-1;
+					bool bslash = false;
 					while(true)
 					{
 						char c2 = fgetc(fscript);
+						bslash = c2 == '\\';
+						
 						if(feof(fscript))
 						{
 							stop=true;
@@ -3093,7 +3096,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 						}
 						else
 						{
-							if(c2 == '"')
+							if(!bslash && c2 == '"')
 							{
 								size_t sz = escstr_size(buffer.c_str()+j);
 								if(sz)
@@ -3234,9 +3237,11 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 					{
 						bool vec = c == '{';
 						auto j = buffer.size()-1;
+						bool bslash = false;
 						while(true)
 						{
 							char c2 = fgetc(fscript);
+							bslash = c2 == '\\';
 							if(feof(fscript))
 							{
 								stop=true;
@@ -3259,7 +3264,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 							}
 							else
 							{
-								if(c2 == '"')
+								if(!bslash && c2 == '"')
 								{
 									size_t sz = escstr_size(buffer.c_str()+j);
 									if(sz)
@@ -3550,9 +3555,11 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 				{
 					bool vec = c == '{';
 					auto j = buffer.size()-1;
+					bool bslash = false;
 					while(true)
 					{
 						char c2 = *scrptr++;
+						bslash = c2 == '\\';
 						if(!c2) //null terminator
 						{
 							stop=true;
@@ -3575,7 +3582,7 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 						}
 						else
 						{
-							if(c2 == '"')
+							if(!bslash && c2 == '"')
 							{
 								size_t sz = escstr_size(buffer.c_str()+j);
 								if(sz)
@@ -3720,9 +3727,11 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 					{
 						bool vec = c == '{';
 						auto j = buffer.size()-1;
+						bool bslash = false;
 						while(true)
 						{
 							char c2 = *scrptr++;
+							bslash = c2 == '\\';
 							if(!c2) //null terminator
 							{
 								stop=true;
@@ -3745,7 +3754,7 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 							}
 							else
 							{
-								if(c2 == '"')
+								if(!bslash && c2 == '"')
 								{
 									size_t sz = escstr_size(buffer.c_str()+j);
 									if(sz)
