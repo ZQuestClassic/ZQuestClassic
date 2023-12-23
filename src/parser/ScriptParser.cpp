@@ -82,6 +82,7 @@ void ScriptParser::initialize()
 	fid = 0;
 	gid = 1;
 	lid = 0;
+	assemble_err = false;
 	CompileError::initialize();
 	CompileOption::initialize();
 	includePaths.clear();
@@ -159,7 +160,9 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 		zconsole_info("%s", "Pass 6: Assembling");
 		zconsole_idle();
 
+		ScriptParser::assemble_err = false;
 		ScriptParser::assemble(id.get());
+		if (ScriptParser::assemble_err) return nullptr;
 
 		unique_ptr<ScriptsData> result(new ScriptsData(program));
 		if(!ignore_asserts && casserts.size()) return nullptr;
@@ -205,6 +208,7 @@ int32_t ScriptParser::vid = 0;
 int32_t ScriptParser::fid = 0;
 int32_t ScriptParser::gid = 1;
 int32_t ScriptParser::lid = 0;
+bool ScriptParser::assemble_err = false;
 
 string ScriptParser::prepareFilename(string const& filename)
 {
@@ -1013,6 +1017,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	// Now fill in those labels
 	SetLabels setlabel;
 	setlabel.execute(rval, &linenos);
+	if (setlabel.err)
+		assemble_err = true;
 
 	return rval;
 }
