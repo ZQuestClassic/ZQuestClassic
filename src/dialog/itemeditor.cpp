@@ -156,9 +156,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_shield:
 		{
-			_SET(misc[0], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256, Lightbeam=512)\n"
+			_SET(misc[0], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Fireball2=256, Lightbeam=512,\n"
+				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the player.");
-			_SET(misc[1], "Reflect Flags:", "(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256, Lightbeam=512)\n"
+			_SET(misc[1], "Reflect Flags:", "(Rock=1, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Fireball2=256, Lightbeam=512,\n"
+				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
 				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			_SET(actionsnd[0], "De/Reflection Sound:", "Plays when the shield successfully blocks or reflects a weapon");
@@ -536,10 +538,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(6))
 			{
 				_SET(misc[2], "Block Flags:",
-					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+					"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 					"Sum all of the values you want to apply. Weapons with their flags set will be blocked by the weapon.");
 				_SET(misc[3], "Reflect Flags:",
-					"(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256)\n"
+					"(Rock=1, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+					"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 					"Sum all of the values you want to apply. Weapons with their flags set will be reflected by the weapon.\n"
 					"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			}
@@ -574,10 +578,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(6))
 			{
 				_SET(misc[2], "Block Flags:",
-					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+					"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 					"Sum all of the values you want to apply. Weapons with their flags set will be blocked by the weapon.");
 				_SET(misc[3], "Reflect Flags:",
-					"(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256)\n"
+					"(Rock=1, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+					"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 					"Sum all of the values you want to apply. Weapons with their flags set will be reflected by the weapon.\n"
 					"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			}
@@ -864,7 +870,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(1))
 				_SET(misc[0], "Bounce Power:", "Amount of jump power gained from a bounce."
 					" This value is equal to setting Player->Jump by value divided by 100");
-			_SET(misc[1], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+			_SET(misc[1], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 				"Sum all of the values you want to apply. Weapons with their flags set will be blocked if the player lands on them.");
 			break;
 		}
