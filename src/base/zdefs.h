@@ -742,16 +742,31 @@ enum                                                        // value matters bec
 };
 
 // Shield projectile blocking
-#define shROCK		0x001
-#define shARROW		0x002
-#define shBRANG		0x004
-#define shFIREBALL	0x008
-#define shSWORD		0x010
-#define shMAGIC		0x020
-#define shFLAME		0x040
-#define shSCRIPT	0x080
-#define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
-#define shLIGHTBEAM 0x200 //Light puzzle beams
+#define shROCK        0x00000001
+#define shARROW       0x00000002
+#define shBRANG       0x00000004
+#define shFIREBALL    0x00000008
+#define shSWORD       0x00000010
+#define shMAGIC       0x00000020
+#define shFLAME       0x00000040
+#define shSCRIPT      0x00000080 // If set, blocks all of Script1 through Script10
+#define shFIREBALL2   0x00000100 // Boss fireball, not ewFireball2
+#define shLIGHTBEAM   0x00000200 // Light puzzle beams
+//Individual script blockers:
+#define shSCRIPT1     0x00000400
+#define shSCRIPT2     0x00000800
+#define shSCRIPT3     0x00001000
+#define shSCRIPT4     0x00002000
+#define shSCRIPT5     0x00004000
+#define shSCRIPT6     0x00008000
+#define shSCRIPT7     0x00010000
+#define shSCRIPT8     0x00020000
+#define shSCRIPT9     0x00040000
+#define shSCRIPT10    0x00080000
+
+
+#define sh_ALL_SCR    0x000FFC00
+
 
 
 // item sets
