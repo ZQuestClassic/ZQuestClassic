@@ -3756,6 +3756,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_LIFTSWIM,1);
 		set_qr(qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,1);
 	}
+	if(compatrule_version < 64)
+		set_qr(qr_BROKEN_EWFLAME_REFLECTING,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

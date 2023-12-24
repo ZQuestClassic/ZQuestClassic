@@ -5978,7 +5978,7 @@ static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool bo
 		case ewFlame:
 			if(!(fl_block & shFLAME)) break;
 				
-			reflect = ((fl_ref & shFLAME) != 0); // Actually isn't reflected.
+			reflect = ((fl_ref & shFLAME) != 0);
 			return true;
 			
 		case ewFireball2:

@@ -955,6 +955,8 @@ static GUI::ListData compatRulesList
 	{ "Broken Push (Generic) locking", qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,
 		"If enabled, Push (Generic) combos won't lock into place via the 'Pushed' flag"
 		" (ex. 'clicking into place' for a block trigger)" },
+	{ "Broken Enemy Fire Reflecting", qr_BROKEN_EWFLAME_REFLECTING,
+		"If enabled, Enemy Fire won't reflect off of player shields, even when the reflect flag is set." },
 };
 
 static GUI::ListData enemiesRulesList
