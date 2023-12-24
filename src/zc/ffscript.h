@@ -5015,7 +5015,9 @@ enum ASM_DEFINE
 #define LWPNBURNLIGHTRADIUS     0x15A2
 #define EWPNBURNLIGHTRADIUS     0x15A3
 
-#define NUMVARIABLES            0x15A4
+#define IDATAATTRIB_L           0x15A4
+
+#define NUMVARIABLES            0x15A5
 
 //} End variables
 
