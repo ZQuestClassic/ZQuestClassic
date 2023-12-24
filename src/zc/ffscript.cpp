@@ -5792,40 +5792,42 @@ int32_t get_register(const int32_t arg)
 			break;
 		//Get the ->Attributes[] of an item
 		case IDATAATTRIB:
+		case IDATAATTRIB_L:
 		{
+			int vscale = (arg==IDATAATTRIB_L)?1:10000;
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = -10000;
+				ret = -1*vscale;
 				break;
 			}
 			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
 			switch(index)
 			{
 				case 0:
-					ret=(itemsbuf[ri->idata].misc1)*10000; break;
+					ret=(itemsbuf[ri->idata].misc1); break;
 				case 1:
-					ret=(itemsbuf[ri->idata].misc2)*10000; break;
+					ret=(itemsbuf[ri->idata].misc2); break;
 				case 2:
-					ret=(itemsbuf[ri->idata].misc3)*10000; break;
+					ret=(itemsbuf[ri->idata].misc3); break;
 				case 3:
-					ret=(itemsbuf[ri->idata].misc4)*10000; break;
+					ret=(itemsbuf[ri->idata].misc4); break;
 				case 4:
-					ret=(itemsbuf[ri->idata].misc5)*10000; break;
+					ret=(itemsbuf[ri->idata].misc5); break;
 				case 5:
-					ret=(itemsbuf[ri->idata].misc6)*10000; break;
+					ret=(itemsbuf[ri->idata].misc6); break;
 				case 6:
-					ret=(itemsbuf[ri->idata].misc7)*10000; break;
+					ret=(itemsbuf[ri->idata].misc7); break;
 				case 7:
-					ret=(itemsbuf[ri->idata].misc8)*10000; break;
+					ret=(itemsbuf[ri->idata].misc8); break;
 				case 8:
-					ret=(itemsbuf[ri->idata].misc9)*10000; break;
+					ret=(itemsbuf[ri->idata].misc9); break;
 				case 9:
-					ret=(itemsbuf[ri->idata].misc10)*10000; break;
+					ret=(itemsbuf[ri->idata].misc10); break;
 				default: 
-					ret = -10000; break;
+					ret = -1; break;
 			}
-				
+			ret *= vscale;
 			break;
 		}
 		//Get the ->Sprite[] of an item.
@@ -18772,7 +18774,10 @@ void set_register(int32_t arg, int32_t value)
 			
 			break;*/
 		//Attributes[10]
-		case IDATAATTRIB: {
+		case IDATAATTRIB:
+		case IDATAATTRIB_L:
+		{
+			int val = value/((arg==IDATAATTRIB_L)?1:10000);
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
@@ -18782,26 +18787,26 @@ void set_register(int32_t arg, int32_t value)
 			switch(index)
 			{
 				case 0:
-					itemsbuf[ri->idata].misc1=value/10000;
+					itemsbuf[ri->idata].misc1=val;
 					break;
 				case 1:
-					itemsbuf[ri->idata].misc2=value/10000; break;
+					itemsbuf[ri->idata].misc2=val; break;
 				case 2:
-					itemsbuf[ri->idata].misc3=value/10000; break;
+					itemsbuf[ri->idata].misc3=val; break;
 				case 3:
-					itemsbuf[ri->idata].misc4=value/10000; break;
+					itemsbuf[ri->idata].misc4=val; break;
 				case 4:
-					itemsbuf[ri->idata].misc5=value/10000; break;
+					itemsbuf[ri->idata].misc5=val; break;
 				case 5:
-					itemsbuf[ri->idata].misc6=value/10000; break;
+					itemsbuf[ri->idata].misc6=val; break;
 				case 6:
-					itemsbuf[ri->idata].misc7=value/10000; break;
+					itemsbuf[ri->idata].misc7=val; break;
 				case 7:
-					itemsbuf[ri->idata].misc8=value/10000; break;
+					itemsbuf[ri->idata].misc8=val; break;
 				case 8:
-					itemsbuf[ri->idata].misc9=value/10000; break;
+					itemsbuf[ri->idata].misc9=val; break;
 				case 9:
-					itemsbuf[ri->idata].misc10=value/10000; break;
+					itemsbuf[ri->idata].misc10=val; break;
 
 				default: 
 					break;
@@ -48320,6 +48325,8 @@ script_variable ZASMVars[]=
 
 	{ "LWPNBURNLIGHTRADIUS", LWPNBURNLIGHTRADIUS, 0, 0 },
 	{ "EWPNBURNLIGHTRADIUS", EWPNBURNLIGHTRADIUS, 0, 0 },
+
+	{ "IDATAATTRIB_L", IDATAATTRIB_L, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

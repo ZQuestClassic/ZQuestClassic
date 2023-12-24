@@ -6270,9 +6270,13 @@ int PScript;
 int MinHearts;		
  * The minimum number of hearts required to pick up the item.
 
-untyped Attributes[10] 
- * An array of ten integers that correspond to the ten <Misc> text entries on the item editor Data tab.
- * Now datatype-insensitive.
+untyped Attributes[10];
+ * The item's Attributes, accessed as 'untyped' values.
+ * WARNING: Larger values may be cut off!
+
+long LAttributes[10];
+ * The item's Attributes, accesses as 'long' values
+ * An editor value of '1' will read as '1L', or '0.0001'. This allows all values to "fit".
 
 int Sprites[10]
  * An array of ten integers that correspond to the ten sprite pulldowns on the item editor Action tab.
