@@ -4895,17 +4895,36 @@ void draw_screen(bool showhero, bool runGeneric)
 	});
 	
 	//11. Handle low drawn darkness
-	if(get_qr(qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
+	bool draw_dark = false;
+	if(get_qr(qr_NEW_DARKROOM))
 	{
 		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-			calc_darkroom_combos(screen_index, offx, offy + playing_field_offset);
+			mapscr* base_screen = screen_handles[0].screen;
+			if (base_screen->flags&fDARK)
+			{
+				calc_darkroom_combos(screen_index, offx, offy + playing_field_offset);
+				draw_dark = true;
+			}
 		});
 		if(showhero)
 			Hero.calc_darkroom_hero(0, -playing_field_offset);
+		if (draw_dark)
+		{
+			for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+				mapscr* base_screen = screen_handles[0].screen;
+				bool should_be_dark = (base_screen->flags & fDARK);
+				if (!should_be_dark)
+				{
+					offy += playing_field_offset;
+					rectfill(darkscr_bmp_z3, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+					rectfill(darkscr_bmp_z3_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+				}
+			});
+		}
 	}
 	
 	//Darkroom if under the subscreen
-	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && draw_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
@@ -4945,7 +4964,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	draw_msgstr(6);
 	
 	//14. Handle high-drawn darkness
-	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && draw_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);

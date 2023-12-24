@@ -28536,16 +28536,14 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 	});
 
 	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-		if (scr != currscr && !get_qr(qr_NEWDARK_SCROLLEDGE))
+		mapscr* base_screen = screen_handles[0].base_screen;
+		bool should_be_dark = (base_screen->flags & fDARK) && (scr == currscr || get_qr(qr_NEWDARK_SCROLLEDGE));
+		if (!should_be_dark)
 			return;
 
-		mapscr* base_screen = screen_handles[0].base_screen;
-		if (base_screen->flags & fDARK)
-		{
-			int offx = draw_dx * 256;
-			int offy = draw_dy * 176 + playing_field_offset;
-			calc_darkroom_combos(scr, offx, offy);
-		}
+		int offx = draw_dx * 256;
+		int offy = draw_dy * 176 + playing_field_offset;
+		calc_darkroom_combos(scr, offx, offy);
 	});
 	Hero.calc_darkroom_hero(0, -playing_field_offset);
 
@@ -29174,7 +29172,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	bool draw_dark = false;
 	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-		mapscr* base_screen = screen_handles[0].base_screen;
+		mapscr* base_screen = screen_handles[0].screen;
 		draw_dark = draw_dark || (base_screen->flags&fDARK);
 	});
 
