@@ -28,8 +28,21 @@ zfix vbound(zfix val, zfix low, zfix high);
 
 #define zc_max(a,b) (((a) < (b)) ? (b) : (a))
 #define zc_min(a,b) (((a) < (b)) ? (a) : (b))
-#define SETFLAG(v, fl, b) if(b) v |= (fl); else v &= ~(fl)
-#define TOGGLEFLAG(v, fl) v ^= (fl)
+
+#define SETFLAG(v, fl, b) \
+do { \
+	if(b) v |= (fl); else v &= ~(fl); \
+} while(false)
+
+#define TOGGLEFLAG(v, fl) \
+do { \
+	v ^= (fl); \
+} while(false)
+
+#define CPYFLAG(v, fl, other) \
+do { \
+	v = (v&~fl)|(other&fl); \
+} while(false)
 
 int wrap(int x,int low,int high);
 
