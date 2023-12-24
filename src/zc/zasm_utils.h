@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <functional>
 
 typedef uint32_t pc_t;
 
@@ -18,6 +19,8 @@ struct ZasmFunction
 	pc_t final_pc;
 	bool may_yield;
 	std::set<pc_t> called_by_functions;
+	// Currently nothing needs this.
+	// std::set<pc_t> calls_functions;
 };
 
 struct StructuredZasm
@@ -71,6 +74,8 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 std::string zasm_to_string(const script_data* script, bool generate_yielder = false);
 
 std::string zasm_script_unique_name(const script_data* script);
+
+void zasm_for_every_script(std::function<void(script_data*)> fn);
 
 std::string zasm_analyze_duplication();
 

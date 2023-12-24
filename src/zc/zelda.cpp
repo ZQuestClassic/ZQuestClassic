@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 
+#include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zscriptversion.h"
 #include "sound/zcmusic.h"
@@ -1569,7 +1570,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		
 		exit_sys_pal();
 	}
-	
+
 	return ret;
 }
 
@@ -1755,6 +1756,13 @@ int32_t init_game()
 		GameLoaded = false;
 		return 1;
 	}
+
+	// So far this is very quick. If this ever takes more than a couple seconds, should
+	// optimize scripts lazily just before use. However, if jit background threads
+	// are active it must be done there instead of in ffscript.cpp
+	bool do_optimize = get_flag_bool("-optimize-zasm").value_or(false) || zc_get_config("zeldadx", "optimize_zasm", true);
+	if (do_optimize)
+		zasm_optimize();
 
 	FFCore.init();
 	FFCore.user_bitmaps_init();
@@ -4242,30 +4250,13 @@ void do_extract_zasm_command(const char* quest_path)
 	DEBUG_PRINT_TO_FILE = true;
 	strcpy(qstpath, quest_path);
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
-
-	#define HANDLE_SCRIPTS(array, num)\
-		for (int i = 0; i < num; i++)\
-		{\
-			script_data* script = array[i];\
-			if (script->valid())\
-			{\
-				ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);\
-				h.print(zasm_to_string(script, generate_yielder).c_str());\
-			}\
-		}
-	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
-	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
-	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
-	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
-	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
-	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
-	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
-	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
-	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
-	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
-	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+	bool optimize = get_flag_bool("-extract-zasm-optimize").value_or(false);
+	zasm_for_every_script([&](script_data* script){
+		if (optimize)
+			zasm_optimize(script);
+		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);
+		h.print(zasm_to_string(script, generate_yielder).c_str());
+	});
 
 	exit(0);
 }
@@ -4342,6 +4333,11 @@ int main(int argc, char **argv)
 		{
 			success = false;
 			printf("saves_test failed\n");
+		}
+		if (!zasm_optimize_test())
+		{
+			success = false;
+			printf("zasm_optimize_test failed\n");
 		}
 		if (success)
 			printf("all tests passed\n");

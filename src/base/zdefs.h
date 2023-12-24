@@ -1829,6 +1829,11 @@ struct ffscript
 		vecptr = nullptr;
 		strptr = nullptr;
 	}
+	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0): command(command), arg1(arg1), arg2(arg2)
+	{
+		vecptr = nullptr;
+		strptr = nullptr;
+	}
 	~ffscript()
 	{
 		if(vecptr)

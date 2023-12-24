@@ -94,6 +94,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		pc_t call_pc = std::distance(function_start_pcs.begin(), it);
 
 		functions[call_pc].called_by_functions.insert(callee_pc);
+		// functions[callee_pc].calls_functions.insert(call_pc);
 	}
 
 	return {functions, function_calls, start_pc_to_function};
@@ -433,28 +434,9 @@ std::string zasm_analyze_duplication()
 	std::map<uint64_t, FunctionSummary> function_counts;
 	size_t total_length = 0;
 
-	#define HANDLE_SCRIPTS(array, num)\
-		for (int i = 0; i < num; i++)\
-		{\
-			script_data* script = array[i];\
-			if (script->valid())\
-			{\
-				hash_all_functions(script, function_counts, total_length);\
-			}\
-		}
-	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
-	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
-	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
-	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
-	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
-	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
-	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
-	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
-	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
-	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
-	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+	zasm_for_every_script([&](auto script){
+		hash_all_functions(script, function_counts, total_length);
+	});
 
 	size_t all_duplicates = 0;
 	for (auto [a, b] : function_counts)
@@ -471,6 +453,32 @@ std::string zasm_analyze_duplication()
 
 	std::stringstream ss;
 	return ss.str();
+}
+
+void zasm_for_every_script(std::function<void(script_data*)> fn)
+{
+	#define HANDLE_SCRIPTS(array, num)\
+		for (int i = 0; i < num; i++)\
+		{\
+			script_data* script = array[i];\
+			if (script->valid())\
+			{\
+				fn(script);\
+			}\
+		}
+	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
+	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
+	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
+	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
+	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
+	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
+	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
+	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
+	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
+	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
+	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
 }
 
 // TODO: Broken / not yet needed code for determining how many params a function has, and if it returns something.

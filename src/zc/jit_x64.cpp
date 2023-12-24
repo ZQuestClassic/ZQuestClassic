@@ -744,8 +744,7 @@ JittedFunction jit_compile_script(script_data *script)
 				cur_function_id += 1;
 
 			int command = script->zasm[i].command;
-			if (command == RETURNFUNC || command == RETURN
-				|| (command == GOTOR && script->zasm[i - 1].command == POP))
+			if (command == RETURNFUNC || command == RETURN || command == GOTOR)
 			{
 				return_to_function_id[i] = cur_function_id;
 			}

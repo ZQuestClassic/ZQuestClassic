@@ -29,6 +29,7 @@ src/zc/saves.cpp
 src/zc/db_rng.cpp
 src/zc/zc_ffc.cpp
 src/music_playback.cpp
+src/zc/zasm_optimize.cpp
 src/zc/zasm_utils.cpp
 src/zc/wasm_compiler.cpp
 

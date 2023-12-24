@@ -35727,7 +35727,15 @@ int32_t run_script_int(bool is_jitted)
 				break;
 				
 			case NOP: //No Operation. Do nothing. -Em
+			{
+				// While we are here, skip many NOPs in a row to avoid the overhead
+				// of the interpreter loop. This is especially good for how `zasm_optimize`
+				// works, since it replaces many commands with a sequence of NOPs.
+				// No need to do a bounds check - the last command should always be 0xFFFF.
+				while (curscript->zasm[ri->pc + 1].command == NOP)
+					ri->pc++;
 				break;
+			}
 			case GOTO:
 			{
 				if(sarg1 < 0 )
