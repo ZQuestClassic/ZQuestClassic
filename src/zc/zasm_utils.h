@@ -72,4 +72,6 @@ std::string zasm_to_string(const script_data* script, bool generate_yielder = fa
 
 std::string zasm_script_unique_name(const script_data* script);
 
+std::string zasm_analyze_duplication();
+
 #endif

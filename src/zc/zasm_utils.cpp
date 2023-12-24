@@ -2,7 +2,9 @@
 #include "base/zdefs.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include <cstdint>
 #include <fmt/format.h>
+#include <xxhash.h>
 
 StructuredZasm zasm_construct_structured(const script_data* script)
 {
@@ -261,7 +263,11 @@ std::string zasm_to_string(const script_data* script, bool generate_yielder)
 {
 	std::stringstream ss;
 	auto structured_zasm = zasm_construct_structured(script);
+
+	std::vector<std::pair<pc_t, size_t>> fn_lengths;
+
 	std::set<pc_t> yielding_fns;
+	size_t yielding_fn_length = 0;
 	if (generate_yielder)
 	{
 		yielding_fns = zasm_find_yielding_functions(script, structured_zasm);
@@ -273,11 +279,14 @@ std::string zasm_to_string(const script_data* script, bool generate_yielder)
 		{
 			auto& fn = structured_zasm.functions[fn_id];
 			pc_ranges.emplace_back(fn.start_pc, fn.final_pc);
+			yielding_fn_length += fn.final_pc - fn.start_pc + 1;
 		}
 		auto cfg = zasm_construct_cfg(script, pc_ranges);
 		ss << "yielder" << '\n';
 		ss << zasm_to_string(script, structured_zasm, cfg, yielding_fns);
 		ss << '\n';
+
+		fn_lengths.emplace_back(-1, yielding_fn_length);
 	}
 
 	for (pc_t fn_id = 0; fn_id < structured_zasm.functions.size(); fn_id++)
@@ -290,7 +299,23 @@ std::string zasm_to_string(const script_data* script, bool generate_yielder)
 		ss << zasm_fn_get_name(fn) << '\n';
 		ss << zasm_to_string(script, structured_zasm, cfg, {fn_id});
 		ss << '\n';
+
+		fn_lengths.emplace_back(fn_id, fn.final_pc - fn.start_pc + 1);
 	}
+
+	ss << "Top functions:\n\n";
+	std::sort(fn_lengths.begin(), fn_lengths.end(), [](auto &left, auto &right) {
+		return left.second > right.second;
+	});
+	int lengths_printed = 0;
+	for (auto [fn_id, length] : fn_lengths)
+	{
+		std::string name = fn_id == -1 ? "yielder" : zasm_fn_get_name(structured_zasm.functions.at(fn_id));
+		double percent = (double)length / script->size * 100;
+		ss << std::setw(15) << std::left << name + ": " << std::setw(6) << std::left << length << " " << (int)percent << '%' << '\n';
+		if (++lengths_printed == 5) break;
+	}
+	ss << '\n';
 
 	return ss.str();
 }
@@ -301,6 +326,151 @@ std::string zasm_script_unique_name(const script_data* script)
 		return fmt::format("{}-{}", ScriptTypeToString(script->id.type), script->id.index);
 	else
 		return fmt::format("{}-{}-{}", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name);
+}
+
+static uint64_t generate_function_hash(const script_data* script, const StructuredZasm& structured_zasm, const ZasmFunction& function)
+{
+	std::vector<uint8_t> data;
+
+	for (pc_t i = function.start_pc; i <= function.final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+		int arg1 = script->zasm[i].arg1;
+		int arg2 = script->zasm[i].arg2;
+
+		data.push_back(command);
+
+		if (command == GOTO && structured_zasm.function_calls.contains(i))
+		{
+			const auto& function_call = structured_zasm.functions.at(structured_zasm.start_pc_to_function.at(arg1));
+			// TODO: just an estimate.
+			data.push_back(function_call.final_pc - function_call.start_pc + 1);
+		}
+		else if (command == GOTO || command == GOTOLESS || command == GOTOMORE || command == GOTOTRUE || command == GOTOFALSE)
+		{
+			data.push_back(arg1 - function.start_pc);
+		}
+		else if (command == SETV)
+		{
+			// ...
+			bool is_return_address = false;
+			is_return_address = arg2/10000 >= function.start_pc && arg2/10000 <= function.final_pc;
+
+			data.push_back(arg1);
+			if (is_return_address)
+			{
+				data.push_back(arg2 - function.start_pc);
+			}
+			else
+			{
+				data.push_back(arg2);
+			}
+		}
+		else if (command == PUSHV)
+		{
+			// TODO
+			// get block id. if we leave it before GOTO, it's not a ret addr
+			// 
+			bool is_return_address = false;
+			is_return_address = arg1 >= function.start_pc && arg1 <= function.final_pc;
+			// for (pc_t j = i + 1; j <= function.final_pc; j++)
+			// {
+			// 	if (script->zasm[j].command == LOADD) continue;
+			// 	if (script->zasm[j].command == PUSHR) continue;
+			// 	if (script->zasm[j].command == GOTO && structured_zasm.function_calls.contains(j))
+			// 	{
+			// 		// bounds check may not be necessary.
+			// 		is_return_address = arg1 >= function.start_pc && arg1 <= function.final_pc;
+			// 	}
+			// 	break;
+			// }
+
+			if (is_return_address)
+			{
+				data.push_back(arg1 - function.start_pc);
+			}
+			else
+			{
+				data.push_back(arg1);
+			}
+		}
+		else
+		{
+			data.push_back(arg1);
+			data.push_back(arg2);
+		}
+	}
+
+	return XXH64(data.data(), data.size(), 0);
+}
+
+struct FunctionSummary {
+	size_t length;
+	size_t count;
+};
+
+static void hash_all_functions(const script_data* script, std::map<uint64_t, FunctionSummary>& function_counts, size_t& total_length)
+{
+	auto structured_zasm = zasm_construct_structured(script);
+	for (auto& function : structured_zasm.functions)
+	{
+		auto hash = generate_function_hash(script, structured_zasm, function);
+		if (function_counts.contains(hash))
+		{
+			function_counts.at(hash).count += 1;
+		}
+		else
+		{
+			function_counts[hash] = {function.final_pc - function.start_pc + 1, 1};
+		}
+
+		total_length += function.final_pc - function.start_pc + 1;
+	}
+}
+
+std::string zasm_analyze_duplication()
+{
+	std::map<uint64_t, FunctionSummary> function_counts;
+	size_t total_length = 0;
+
+	#define HANDLE_SCRIPTS(array, num)\
+		for (int i = 0; i < num; i++)\
+		{\
+			script_data* script = array[i];\
+			if (script->valid())\
+			{\
+				hash_all_functions(script, function_counts, total_length);\
+			}\
+		}
+	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
+	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
+	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
+	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
+	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
+	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
+	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
+	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
+	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
+	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
+	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+
+	size_t all_duplicates = 0;
+	for (auto [a, b] : function_counts)
+	{
+		if (b.count > 1)
+		{
+			size_t dupe = (b.count - 1) * b.length;
+			all_duplicates += dupe;
+			printf("count: %zu length: %zu dupe: %zu\n", b.count, b.length, dupe);
+		}
+	}
+
+	printf("all_duplicates: %zu (%d%%)\n", all_duplicates, (int)(all_duplicates * 100.0 / total_length));
+
+	std::stringstream ss;
+	return ss.str();
 }
 
 // TODO: Broken / not yet needed code for determining how many params a function has, and if it returns something.
