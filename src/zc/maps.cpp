@@ -704,7 +704,7 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
-	int pos = COMBOPOS(x, y);
+	int pos = COMBOPOS(x%256, y%176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
 }
 int32_t RPOS_TO_POS(rpos_t rpos)
