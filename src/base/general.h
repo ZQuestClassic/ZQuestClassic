@@ -39,7 +39,10 @@ do { \
 	v ^= (fl); \
 } while(false)
 
-#define CPYFLAG(v, fl, other) SETFLAG(v, fl, other&fl)
+#define CPYFLAG(v, fl, other) \
+do { \
+	v = (v&~fl)|(other&fl); \
+} while(false)
 
 int wrap(int x,int low,int high);
 

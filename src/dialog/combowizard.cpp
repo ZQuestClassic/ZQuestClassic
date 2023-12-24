@@ -4180,13 +4180,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 
 static newcombo* _instance = nullptr;
 static bool defaulted = false;
-bool def_all()
+static bool def_all()
 {
 	combo_default(*_instance, false);
 	defaulted = true;
 	return true;
 }
-bool def_some()
+static bool def_some()
 {
 	combo_default(*_instance, true);
 	defaulted = true;

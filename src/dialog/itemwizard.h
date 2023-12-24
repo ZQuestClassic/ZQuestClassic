@@ -1,17 +1,17 @@
-#ifndef ZC_DIALOG_COMBOWIZARD_H
-#define ZC_DIALOG_COMBOWIZARD_H
+#ifndef ZC_DIALOG_ITEMWIZARD_H
+#define ZC_DIALOG_ITEMWIZARD_H
 
-#include "comboeditor.h"
+#include "itemeditor.h"
 #include <gui/switcher.h>
 #include <gui/frame.h>
 #include <gui/tabpanel.h>
 #include <gui/drop_down_list.h>
 #include <gui/radioset.h>
-bool hasComboWizard(int32_t type);
-void call_combo_wizard(ComboEditorDialog& dlg);
-void combo_default(newcombo& ref, bool typeonly = true);
-bool do_combo_default(newcombo& ref);
-class ComboWizardDialog: public GUI::Dialog<ComboWizardDialog>
+bool hasItemWizard(int32_t type);
+void call_item_wizard(ItemEditorDialog& dlg);
+void item_default(itemdata& ref);
+bool do_item_default(itemdata& ref);
+class ItemWizardDialog: public GUI::Dialog<ItemWizardDialog>
 {
 public:
 	enum class message { REFR_INFO, OK, CANCEL, UPDATE, DEFAULT,
@@ -21,11 +21,11 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	newcombo local_ref;
-	newcombo& dest_ref;
-	newcombo const& src_ref;
-	ComboEditorDialog const& parent;
-	std::string thelp, ctyname;
+	itemdata local_ref;
+	itemdata& dest_ref;
+	itemdata const& src_ref;
+	ItemEditorDialog const& parent;
+	std::string thelp, ityname;
 	
 	int32_t flags;
 	std::shared_ptr<GUI::Window> window;
@@ -36,8 +36,6 @@ private:
 	std::shared_ptr<GUI::Checkbox> cboxes[20];
 	std::shared_ptr<GUI::Switcher> switcher[10];
 	std::shared_ptr<GUI::Label> lbls[10];
-	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
-	std::shared_ptr<GUI::SelComboSwatch> cmbswatches[3];
 	std::shared_ptr<GUI::Frame> frames[10];
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	std::shared_ptr<GUI::Grid> grids[10];
@@ -45,8 +43,7 @@ private:
 	
 	GUI::ListData lists[10];
 	
-	GUI::ListData list_lwscript, list_ewscript, list_sprites,
-		list_dropsets, list_items, list_sfx, list_counters, list_dirs;
+	GUI::ListData list_sfx;
 	
 	void setRadio(size_t rs, size_t ind);
 	size_t getRadio(size_t rs);
@@ -56,8 +53,13 @@ private:
 	
 	void updateTitle();
 	
-	ComboWizardDialog(ComboEditorDialog& parent);
-	friend void call_combo_wizard(ComboEditorDialog& dlg);
+	map<uint,vector<std::shared_ptr<GUI::Widget>>> widgs;
+	std::shared_ptr<GUI::Widget> push_widg(uint id, std::shared_ptr<GUI::Widget> widg);
+	void disable(uint id, bool dis);
+	
+	std::shared_ptr<GUI::Widget> CBOX_IMPL(string const& name, int32_t* mem, int32_t bit, optional<string> info = nullopt);
+	ItemWizardDialog(ItemEditorDialog& parent);
+	friend void call_item_wizard(ItemEditorDialog& dlg);
 };
 
 #endif
