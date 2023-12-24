@@ -7,6 +7,7 @@
 #include "zc/hero.h"
 #include "zc/guys.h"
 #include "subscr.h"
+#include "zc/replay.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
 #include "zc/decorations.h"
@@ -28374,7 +28375,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	ALLOFF(false, false);
 	// for now, restore Hero's previous action
 	if(!get_qr(qr_SCROLLING_KILLS_CHARGE))
-		attackclk = lastattackclk; spins = lastspins; charging = lastcharging; tapping = lasttapping;
+		charging = lastcharging;
+	if (replay_version_check(0, 28))
+	{
+		// nargads_trail_crystal_crusades replay tests need this.
+		if(!get_qr(qr_SCROLLING_KILLS_CHARGE)) attackclk = lastattackclk;
+		spins = lastspins; charging = lastcharging; tapping = lasttapping;
+	}
+
 	action=lastaction; FFCore.setHeroAction(lastaction);
 	
 	lstep = (lstep + 6) % 12;
