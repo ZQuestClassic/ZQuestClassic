@@ -152,7 +152,8 @@ static bool should_allow_regions()
 	{
 		if (get_bit(quest_rules, qr))
 		{
-			return false;
+			// TODO z3 !!
+			// return false;
 		}
 	}
 
@@ -178,9 +179,6 @@ static void draw_region_square(BITMAP* bmp, int region_index, int x, int y, FONT
 	int y0 = y + rg_button_thickness;
 	rectfill(bmp, x0, y0,
 		x + rg_col_width - rg_button_thickness - 1, y + rg_l - rg_button_thickness - 1, color);
-
-	// if (region_index == 0)
-	// 	return;
 
 	// Ideally would just use `getHighlightColor(color)` but the method isn't good enough yet.
 	int text_color;
