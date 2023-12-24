@@ -58,7 +58,7 @@ std::map<int32_t, ItemNameInfo *> *getItemNameMap();
 class ItemEditorDialog: public GUI::Dialog<ItemEditorDialog>
 {
 public:
-	enum class message { REFR_INFO, OK, CANCEL, DEFAULT, ITEMCLASS, RELOAD, GFXSIZE };
+	enum class message { REFR_INFO, OK, CANCEL, DEFAULT, ITEMCLASS, RELOAD, GFXSIZE, WIZARD };
 	
 
 	std::shared_ptr<GUI::Widget> view() override;
@@ -95,6 +95,7 @@ private:
 	std::shared_ptr<GUI::Button> ib_wp_initds[8];
 	std::shared_ptr<GUI::Button> ib_power;
 	std::shared_ptr<GUI::Button> ib_sfx[2];
+	std::shared_ptr<GUI::Button> wizardButton;
 	std::shared_ptr<GUI::TileFrame> animFrame;
 	std::shared_ptr<GUI::Switcher> animSwitcher;
 	std::string itemname;
@@ -109,6 +110,7 @@ private:
 	template <typename T>
 	std::shared_ptr<GUI::Widget> SPRITE_DROP_IMPL(T* mem, int index);
 	friend void call_item_editor(int32_t index);
+	friend class ItemWizardDialog;
 };
 
 #endif

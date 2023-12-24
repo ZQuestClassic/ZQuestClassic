@@ -1,4 +1,5 @@
 #include "itemeditor.h"
+#include "itemwizard.h"
 #include "info.h"
 #include "alert.h"
 #include "base/zsys.h"
@@ -1205,7 +1206,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			Row(
-				Rows<3>(padding = 0_px,
+				Rows<5>(padding = 0_px,
 					Label(text = "Name:", hAlign = 1.0),
 					TextField(
 						fitParent = true,
@@ -1219,7 +1220,17 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							window->setTitle(buf);
 						}
 					),
-					DummyWidget(),
+					_d,
+					Checkbox(
+						checked = (local_itemref.flags & ITEM_GAMEDATA),
+						text = "Equipment Item", _EX_RBOX,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
+						}
+					),
+					INFOBTN("Only 'Equipment Item's can be 'owned' by the player,"
+						" and appear in Init Data."),
 					//
 					Label(text = "Display Name:", hAlign = 1.0),
 					TextField(
@@ -1235,6 +1246,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					INFOBTN("If this field is not blank, this text will display as the 'Selected Item Name' on the subscreen for this item."
 						"\nFor some types, such as Bottles, the text '%s' in the display name will be replaced with a special string (such as the bottle contents)."
 						"\nEx: 'Bottle (%s)' becomes 'Bottle (Empty)', or 'Bottle (Health Potion)'"),
+					wizardButton = Button(
+						text = "Wizard", disabled = !hasItemWizard(local_itemref.family),
+						rowSpan = 2, minwidth = 150_px,
+						padding = 0_px, forceFitH = true, onClick = message::WIZARD
+					),
+					_d,
 					//
 					Label(text = "Type:", hAlign = 1.0),
 					DropDownList(data = list_items,
@@ -1249,18 +1266,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							InfoDialog(ZI.getItemClassName(local_itemref.family),
 								get_ic_help(local_itemref.family)).show();
 						})
-				),
-				Row(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
-					Checkbox(
-						checked = (local_itemref.flags & ITEM_GAMEDATA),
-						text = "Equipment Item", _EX_RBOX,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
-						}
-					),
-					INFOBTN("Only 'Equipment Item's can be 'owned' by the player,"
-						" and appear in Init Data.")
 				)
 			),
 			TabPanel(
@@ -2806,7 +2811,7 @@ void ItemEditorDialog::loadItemClass()
 			load_meta(inf,meta);
 		}
 	}
-	
+	wizardButton->setDisabled(!hasItemWizard(local_itemref.family));
 	#define __SET(obj, mem) \
 	l_##obj->setText(inf.mem.size() ? inf.mem : defInfo.mem); \
 	h_##obj = (inf.h_##mem.size() ? inf.h_##mem : ""); \
@@ -2895,6 +2900,15 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			reset_name = itemname;
 			return true;
 		}
+		
+		case message::WIZARD:
+			if(hasItemWizard(local_itemref.family))
+			{
+				call_item_wizard(*this);
+				rerun_dlg = true;
+				return true;
+			}
+			break;
 		
 		case message::RELOAD:
 		{
