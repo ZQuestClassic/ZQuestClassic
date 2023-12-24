@@ -3986,8 +3986,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	for(int32_t j=0; j<4; ++j)
 	{
 		clear_bitmap(tmpbmp);
-		tempsel.x=0;
-		tempsel.y=0;
+		tempsel.x=viewport.x;
+		tempsel.y=viewport.y;
 		tempsel.draw(tmpbmp);
 		
 		int32_t tmpx = xofs+(big_sel?(j%2?8:-8):0);
