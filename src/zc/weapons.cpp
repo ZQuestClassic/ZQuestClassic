@@ -7051,6 +7051,12 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
     {
         switch(id)
         {
+		case ewFlame:
+			if(get_qr(qr_BROKEN_EWFLAME_REFLECTING))
+				break;
+			ignoreHero=true;
+			goto reflect;
+			
         case ewFireball2:
         case ewFireball:
             id = wRefFireball;
