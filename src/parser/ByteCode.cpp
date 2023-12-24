@@ -2463,6 +2463,8 @@ string ZScript::VarToString(int32_t ID)
 		case LWPNBURNLIGHTRADIUS: return "LWPNBURNLIGHTRADIUS";
 		case EWPNBURNLIGHTRADIUS: return "EWPNBURNLIGHTRADIUS";
 		
+		case IDATAATTRIB_L: return "IDATAATTRIB_L";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);

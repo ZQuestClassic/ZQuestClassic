@@ -1750,7 +1750,9 @@
 #define LWPNBURNLIGHTRADIUS     1644
 #define EWPNBURNLIGHTRADIUS     1645
 
-#define LAST_BYTECODE           1646
+#define IDATAATTRIB_L           1646
+
+#define LAST_BYTECODE           1647
 
 //} END OF BYTECODE
 
