@@ -140,17 +140,13 @@ static void optimize_setv_pushr(OptContext& ctx)
 		{
 			if (ctx.script->zasm[j].command != SETV) continue;
 			if (ctx.script->zasm[j + 1].command != PUSHR) continue;
+			if (ctx.script->zasm[j].arg1 != ctx.script->zasm[j + 1].arg1) continue;
 
-			// static int c = 0;
-			// c++;
-			// if (!(c > 38 && c <= 39)) continue;
-
-			// TODO: this breaks jit finding fn calls.
-			//       should switch them to CALLFUNC/RETURNFUNC first,
-			//       or rework how functions are found.
-
-			ctx.script->zasm[j] = {PUSHV, ctx.script->zasm[j].arg2};
-			ctx.script->zasm[j + 1].command = NOP;
+			// `zasm_construct_structured` is sensitive to a PUSH being just before
+			// a function call, so unlike other places assign the NOP to the first
+			// instruction.
+			ctx.script->zasm[j + 1] = {PUSHV, ctx.script->zasm[j].arg2};
+			ctx.script->zasm[j].command = NOP;
 			ctx.saved += 1;
 		}
 	});
@@ -172,8 +168,6 @@ static void optimize_compare(OptContext& ctx)
 			bool bail = true;
 			int k = j + 1;
 			int cmp = 0;
-			// TODO: does this matter to keep?
-			bool seti = false;
 			for (; k <= final_pc; k += 2)
 			{
 				bool end = false;
@@ -184,7 +178,6 @@ static void optimize_compare(OptContext& ctx)
 					case SETLESSI:
 					case SETMOREI:
 					case SETTRUEI:
-						seti = true;
 					case SETCMP:
 					case SETFALSE:
 					case SETLESS:
@@ -199,7 +192,7 @@ static void optimize_compare(OptContext& ctx)
 
 						// These should only ever appear once.
 						#define ASSIGN_ONCE(v) {ASSERT(!cmp); cmp = v;}
-						if (command == SETCMP) ASSIGN_ONCE(ctx.script->zasm[k].arg2)
+						if (command == SETCMP) ASSIGN_ONCE(ctx.script->zasm[k].arg2 & CMP_FLAGS)
 						if (command == SETLESS || command == SETLESSI) ASSIGN_ONCE(CMP_LE)
 						if (command == SETMORE || command == SETMOREI) ASSIGN_ONCE(CMP_GE)
 						if (command == SETFALSE || command == SETFALSEI) ASSIGN_ONCE(CMP_NE)
@@ -217,7 +210,6 @@ static void optimize_compare(OptContext& ctx)
 					{
 						bail = false;
 						end = true;
-						if (seti) cmp |= CMP_SETI;
 					}
 					break;
 
@@ -240,8 +232,6 @@ static void optimize_compare(OptContext& ctx)
 			// 	continue;
 			// }
 			// 
-
-			cmp = cmp & CMP_FLAGS;
 
 			int start = j;
 			int final = k;
@@ -393,8 +383,7 @@ static int optimize_function(script_data* script, const ZasmFunction& fn)
 	optimize_unreachable_blocks(ctx);
 	optimize_pushr(ctx);
 	optimize_pop(ctx);
-	// TODO need work.
-	// optimize_setv_pushr(ctx);
+	optimize_setv_pushr(ctx);
 
 	// Ideas for more opt passes
 
