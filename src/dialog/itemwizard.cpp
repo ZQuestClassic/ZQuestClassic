@@ -84,6 +84,7 @@ void ItemWizardDialog::update(bool first)
 			break;
 		}
 	}
+	disable(-1, true); //always disabled
 	pendDraw();
 }
 void ItemWizardDialog::endUpdate()
@@ -131,13 +132,6 @@ void ItemWizardDialog::endUpdate()
 		}
 	}
 }
-#define IH_BTN(hei, inf) \
-Button(height = hei, text = "?", \
-	onPressFunc = [=]() \
-	{ \
-		InfoDialog("Info",inf).show(); \
-	})
-#define DDH 21_px
 
 void ItemWizardDialog::updateTitle()
 {
@@ -256,6 +250,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 								CBOX_DI("Swords", misc1, shSWORD),
 								CBOX_DI("Magic", misc1, shMAGIC),
 								CBOX_DI("Flames", misc1, shFLAME),
+								CBOX_I("Flames 2", misc1, shFLAME2, "Might ALWAYS be blocked regardless, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
 								CBOX_I("Custom W. (ALL)", misc1, shSCRIPT, "Checking this has the same effect as checking all 10 below."),
 								CBOX_DI("Custom W. 1", misc1, shSCRIPT1),
 								CBOX_DI("Custom W. 2", misc1, shSCRIPT2),
@@ -273,13 +268,14 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 						TabRef(name = "Reflect",
 							Columns<8>(
 								CBOX_DI("Rocks", misc2, shROCK),
-								CBOX_DI("Arrows", misc2, shARROW),
-								CBOX_DI("Boomerangs", misc2, shBRANG),
+								CBOX_I("Arrows", misc2, shARROW, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
+								push_widg(-1,CBOX_DI("Boomerangs", misc2, shBRANG)),
 								CBOX_DI("Fireballs", misc2, shFIREBALL),
 								CBOX_DI("Fireballs (Boss)", misc2, shFIREBALL2),
 								CBOX_DI("Swords", misc2, shSWORD),
 								CBOX_DI("Magic", misc2, shMAGIC),
-								CBOX_I("Flames", misc2, shFLAME, "Might not be reflectable, depending on 'Broken Enemy Fire Reflecting'."+QRHINT({qr_BROKEN_EWFLAME_REFLECTING})),
+								CBOX_I("Flames", misc2, shFLAME, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
+								CBOX_I("Flames 2", misc2, shFLAME2, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
 								CBOX_I("Custom W. (ALL)", misc2, shSCRIPT, "Checking this has the same effect as checking all 10 below."),
 								CBOX_DI("Custom W. 1", misc2, shSCRIPT1),
 								CBOX_DI("Custom W. 2", misc2, shSCRIPT2),
@@ -447,13 +443,13 @@ bool ItemWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	return false;
 }
 
-std::shared_ptr<GUI::Widget> ItemWizardDialog::push_widg(uint id, std::shared_ptr<GUI::Widget> widg)
+std::shared_ptr<GUI::Widget> ItemWizardDialog::push_widg(int id, std::shared_ptr<GUI::Widget> widg)
 {
 	widgs[id].push_back(widg);
 	return widg;
 }
 
-void ItemWizardDialog::disable(uint id, bool dis)
+void ItemWizardDialog::disable(int id, bool dis)
 {
 	auto it = widgs.find(id);
 	if(it == widgs.end())
