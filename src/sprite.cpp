@@ -2414,6 +2414,19 @@ int32_t sprite_list::idCount(int32_t id, int32_t mask)
     return c;
 }
 
+int32_t sprite_list::idCount(std::set<int32_t> const& ids)
+{
+    int32_t c=0;
+    
+    for(int32_t i=0; i<count; i++)
+    {
+        if(ids.contains(sprites[i]->id))
+            ++c;
+    }
+    
+    return c;
+}
+
 // returns index of first sprite with matching id, -1 if none found
 int32_t sprite_list::idFirst(int32_t id, int32_t mask)
 {

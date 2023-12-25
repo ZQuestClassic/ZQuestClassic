@@ -272,6 +272,9 @@ struct newcombo
 #define combotriggerPUSHEDTRIG          0x00010000
 #define combotriggerDIVETRIG            0x00020000
 #define combotriggerDIVESENSTRIG        0x00040000
+#define combotriggerLWREFARROW          0x00080000
+#define combotriggerLWREFFIRE           0x00100000
+#define combotriggerLWREFFIRE2          0x00200000
 
 #define ctrigNONE                       0x00
 #define ctrigIGNORE_SIGN                0x01

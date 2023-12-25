@@ -53,9 +53,9 @@ private:
 	
 	void updateTitle();
 	
-	map<uint,vector<std::shared_ptr<GUI::Widget>>> widgs;
-	std::shared_ptr<GUI::Widget> push_widg(uint id, std::shared_ptr<GUI::Widget> widg);
-	void disable(uint id, bool dis);
+	map<int,vector<std::shared_ptr<GUI::Widget>>> widgs;
+	std::shared_ptr<GUI::Widget> push_widg(int id, std::shared_ptr<GUI::Widget> widg);
+	void disable(int id, bool dis);
 	
 	std::shared_ptr<GUI::Widget> CBOX_IMPL(string const& name, int32_t* mem, int32_t bit, optional<string> info = nullopt);
 	ItemWizardDialog(ItemEditorDialog& parent);

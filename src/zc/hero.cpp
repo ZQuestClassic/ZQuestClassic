@@ -5964,6 +5964,7 @@ static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool bo
 			reflect = ((fl_ref & shBRANG) != 0);
 			return true;
 		case ewArrow:
+		case wRefArrow:
 			if(!(fl_block & shARROW)) break;
 			
 			reflect = ((fl_ref & shARROW) != 0);
@@ -5976,9 +5977,18 @@ static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool bo
 			reflect = ((fl_ref & shROCK) != 0);
 			return true;
 		case ewFlame:
+		case wRefFire:
 			if(!(fl_block & shFLAME)) break;
 				
 			reflect = ((fl_ref & shFLAME) != 0);
+			return true;
+		case ewFlame2:
+		case wRefFire2:
+			if(get_qr(qr_BROKEN_FLAME_ARROW_REFLECTING))
+				return true;
+			if(!(fl_block & shFLAME2)) break;
+				
+			reflect = ((fl_ref & shFLAME2) != 0);
 			return true;
 			
 		case ewFireball2:
@@ -6106,20 +6116,6 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	int32_t oldid = w->id;
 	w->onhit(false, reflect ? 2 : 1, dir);
 	
-	if(w->id != oldid)                                     // changed type from ewX to wX
-	{
-		//        w->power*=game->get_hero_dmgmult();
-		Lwpns.add(w);
-		Ewpns.remove(w);
-		w->isLWeapon = true; //Make sure this gets set everywhere!
-	}
-	
-	if(w->id==wRefMagic)
-	{
-		w->ignoreHero=true;
-		w->ignorecombo=-1;
-	}
-	
 	sfx(shield.usesound,pan(x.getInt()));
 	return true;
 }
@@ -6201,20 +6197,6 @@ int32_t HeroClass::EwpnHit()
 			int32_t oldid = ew->id;
 			ew->onhit(false, reflect ? 2 : 1, dir);
 			
-			if(ew->id != oldid)                                     // changed type from ewX to wX
-			{
-				//        ew->power*=game->get_hero_dmgmult();
-				Lwpns.add(ew);
-				Ewpns.remove(ew);
-				ew->isLWeapon = true; //Make sure this gets set everywhere!
-			}
-			
-			if(ew->id==wRefMagic)
-			{
-				ew->ignoreHero=true;
-				ew->ignorecombo=-1;
-			}
-			
 			sfx(shield.usesound,pan(x.getInt()));
 		}
 	}
@@ -6238,6 +6220,9 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 				case wRefMagic:
 				case wRefBeam:
 				case wRefRock:
+				case wRefArrow:
+				case wRefFire:
+				case wRefFire2:
 					break;
 				default:
 					return -1;
@@ -6262,9 +6247,7 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			
 			paymagiccost(itemid);
 			
-			lw->onhit(false, 1+reflect, dir);
-			lw->ignoreHero=true;
-			lw->ignorecombo=-1;
+			lw->onhit(false, reflect ? 2 : 1, dir);
 			sfx(shield.usesound,pan(x.getInt()));
 		}
 		
@@ -6400,19 +6383,6 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 						weapon *ew = ((weapon*)t);
 						int32_t oldid = ew->id;
 						ew->onhit(true, reflect ? 2 : 1, w->dir);
-						
-						if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
-						{
-							Lwpns.add(ew);
-							Ewpns.remove(ew);
-							ew->isLWeapon = true; //Make sure this gets set everywhere!
-						}
-						
-						if(ew->id==wRefMagic)
-						{
-							ew->ignoreHero=true;
-							ew->ignorecombo=-1;
-						}
 					}
 					
 					break;
@@ -6895,19 +6865,6 @@ void HeroClass::checkhit()
 							weapon *ew = ((weapon*)t);
 							int32_t oldid = ew->id;
 							ew->onhit(true, reflect ? 2 : 1, s->dir);
-							
-							if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
-							{
-								Lwpns.add(ew);
-								Ewpns.remove(ew);
-								ew->isLWeapon = true; //Make sure this gets set everywhere!
-							}
-							
-							if(ew->id==wRefMagic)
-							{
-								ew->ignoreHero=true;
-								ew->ignorecombo=-1;
-							}
 						}
 						break;
 					}

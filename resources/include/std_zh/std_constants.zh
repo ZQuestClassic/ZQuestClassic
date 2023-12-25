@@ -900,6 +900,9 @@ DEFINE LW_SCRIPT10           = 40;
 //Planned for 2.6
 DEFINE LW_ICE                = 41;
 DEFINE LW_THROWN             = 44;
+DEFINE LW_REFARROW           = 53;
+DEFINE LW_REFFIRE            = 54;
+DEFINE LW_REFFIRE2            = 55;
 
 //EWeapon types. Use with Screen->CreateEWeapon() and Screen->LoadEWeapon().
 DEFINE EW_ARROW              = 130;
@@ -1433,6 +1436,9 @@ DEFINE NPCD_SWORD            = 9;
 DEFINE NPCD_THROWN           = 37;
 DEFINE NPCD_WAND             = 5;
 DEFINE NPCD_WHISTLE          = 35; //whistle lweapon
+DEFINE NPCD_REFARROW         = 38;
+DEFINE NPCD_REFFIRE          = 39;
+DEFINE NPCD_REFFIRE2          = 40;
 
 //NPC Script Weapon Defences
 DEFINE NPCD_SCRIPT1 = 20;
@@ -3607,6 +3613,9 @@ enum ComboTrigFlag
 	TRIGFLAG_TRIG_PUSHED,
 	TRIGFLAG_TRIG_DIVE,
 	TRIGFLAG_TRIG_DIVE_SENS,
+	TRIGFLAG_REFARROW,
+	TRIGFLAG_REFFIRE,
+	TRIGFLAG_REFFIRE2,
 	
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6

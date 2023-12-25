@@ -211,6 +211,7 @@ static bool CanComboTrigger(weapon *w)
 		case ewFireball: case ewFireball2: case ewArrow: case ewBrang: case ewSword: case ewRock:
 		case ewMagic: case ewBomb: case ewSBomb: case ewLitBomb: case ewLitSBomb: case ewFireTrail:
 		case ewFlame: case ewWind: case ewFlame2: case wThrown:
+		case wRefArrow: case wRefFire: case wRefFire2:
 			return true;
 	}
 	return false;
@@ -290,6 +291,9 @@ int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 		case ewFlame: trig = (cmb.triggerflags[2]&combotriggerEWFLAME); break;
 		case ewWind: trig = (cmb.triggerflags[2]&combotriggerEWWIND); break;
 		case ewFlame2: trig = (cmb.triggerflags[2]&combotriggerEWFLAME2); break;
+		case wRefArrow: trig = (cmb.triggerflags[3]&combotriggerLWREFARROW); break;
+		case wRefFire: trig = (cmb.triggerflags[3]&combotriggerLWREFFIRE); break;
+		case wRefFire2: trig = (cmb.triggerflags[3]&combotriggerLWREFFIRE2); break;
 	}
 	if(!trig) return 0;
 	if(w->isLWeapon) //min/max level check
@@ -1617,10 +1621,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			break;
 		}
 		case wArrow:
+		case wRefArrow:
 		{
 			if(isDummy || itemid<0)
 				itemid = getCanonicalItemID(itemsbuf, itype_arrow);
-			step=3;
+			step = id == wRefArrow ? 2 : 3;
 			if ( parentitem > -1 )
 			{
 				//Port Item Editor Weapon Size Values
@@ -1671,6 +1676,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			break;
 		}
 		case wFire:
+		case wRefFire:
+		case wRefFire2:
 		{
 			glowRad = game->get_light_rad(); //Default light radius for fires
 			if ( parentitem > -1 )
@@ -2249,6 +2256,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		}
 		case ewFlame: case ewFlame2:
 		{
+			if(get_qr(qr_EW_FIRE_EMITS_LIGHT))
+				glowRad = game->get_light_rad();
 			if(dir==255)
 			{
 				step=2;
@@ -2613,6 +2622,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			break;
 		}
 		case wArrow:
+		case wRefArrow:
 		{
 			if(spr)
 				ret = *spr;
@@ -2662,6 +2672,8 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 			break;
 		}
 		case wFire:
+		case wRefFire:
+		case wRefFire2:
 		{
 			if(spr)
 				ret = *spr;
@@ -3575,6 +3587,12 @@ void weapon::getBombPoses(std::set<int>& poses)
 				poses.insert(q);
 		}
 	}
+}
+
+static uint flame_count()
+{
+	static std::set<int32_t> flametypes = {wFire, wRefFire, ewFlame};
+	return Lwpns.idCount(flametypes) + Ewpns.idCount(flametypes);
 }
 
 void weapon::limited_animate()
@@ -4680,6 +4698,8 @@ bool weapon::animate(int32_t index)
 		}
 		
 		case wFire:
+		case wRefFire:
+		case wRefFire2:
 		{
 			if(blocked())
 			{
@@ -4687,7 +4707,36 @@ bool weapon::animate(int32_t index)
 			}
 			
 			itemdata const& parent = itemsbuf[parentitem];
-			if(parentitem<0 || (parentitem>-1 && parent.family!=itype_book))
+			if(id != wFire)
+			{
+				if(clk==32)
+				{
+					step=0;
+					
+					if(id != wRefFire2)
+					{
+						isLit = true;
+						checkLightSources(!get_qr(qr_TEMPCANDLELIGHT));
+					}
+				}
+				
+				if(clk==94)
+				{
+					dead=1;
+					
+					if(id != wRefFire2 && get_qr(qr_TEMPCANDLELIGHT) && flame_count()==1)
+					{
+						isLit = false;
+						checkLightSources();
+					}
+				}
+				
+				if(clk==94 || get_qr(qr_INSTABURNFLAGS))
+				{
+					triggerfire(x,y,true,true,false,false,false);
+				}
+			}
+			else if(parentitem<0 || (parentitem>-1 && parent.family!=itype_book))
 			{
 				if(clk==32)
 				{
@@ -4714,8 +4763,7 @@ bool weapon::animate(int32_t index)
 					
 					if((parentitem==-1 ? (get_qr(qr_TEMPCANDLELIGHT))
 					    : (!(parent.flags & ITEM_FLAG2)
-							&&(parent.flags & ITEM_FLAG5))) &&
-					    (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+							&&(parent.flags & ITEM_FLAG5))) && flame_count()==1)
 					{
 						isLit = false;
 						checkLightSources();
@@ -4752,8 +4800,7 @@ bool weapon::animate(int32_t index)
 						parent.flags & ITEM_FLAG10,parent.flags & ITEM_FLAG11);
 					
 					if((parentitem==-1 ? (get_qr(qr_TEMPCANDLELIGHT))
-						: ((parent.flags & ITEM_FLAG5)))
-						&& (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+						: ((parent.flags & ITEM_FLAG5))) && flame_count()==1)
 					{
 						isLit=false;
 						checkLightSources();
@@ -4763,8 +4810,7 @@ bool weapon::animate(int32_t index)
 			
 			// Killed by script?
 			if(dead==0 && (parentitem==-1 ? get_qr(qr_TEMPCANDLELIGHT)
-				: (parent.flags & ITEM_FLAG5))
-				&& (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+				: (parent.flags & ITEM_FLAG5)) && flame_count()==1)
 			{
 				isLit=false;
 				checkLightSources();
@@ -4839,6 +4885,7 @@ bool weapon::animate(int32_t index)
 		}
 		
 		case wArrow:
+		case wRefArrow:
 		{
 			//Z_scripterrlog("Arrow weaponscript is: %d\n", weaponscript);
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
@@ -4853,7 +4900,7 @@ bool weapon::animate(int32_t index)
 				break;
 			}
 			
-			if(misc>0 && clk > misc)
+			if(id == wArrow && misc>0 && clk > misc)
 			{
 				dead=4;
 			}
@@ -4863,24 +4910,27 @@ bool weapon::animate(int32_t index)
 				if (dead < 0) dead=4;
 			}
 			
-			if(findentrance(x,y,mfARROW,true))
+			if(id == wArrow)
 			{
-				if (dead < 0) dead=4;
-			}
-			
-			if(current_item(itype_arrow)>1)
-			{
-				if(findentrance(x,y,mfSARROW,true))
+				if(findentrance(x,y,mfARROW,true))
 				{
 					if (dead < 0) dead=4;
 				}
-			}
-			
-			if(current_item(itype_arrow)>=3)
-			{
-				if(findentrance(x,y,mfGARROW,true))
+				
+				if(current_item(itype_arrow)>1)
 				{
-					if (dead < 0) dead=4;
+					if(findentrance(x,y,mfSARROW,true))
+					{
+						if (dead < 0) dead=4;
+					}
+				}
+				
+				if(current_item(itype_arrow)>=3)
+				{
+					if(findentrance(x,y,mfGARROW,true))
+					{
+						if (dead < 0) dead=4;
+					}
 				}
 			}
 			
@@ -6708,7 +6758,7 @@ bool weapon::animate(int32_t index)
 			}
 			
 			// Killed by script?
-			if(dead==0 && get_qr(qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+			if(dead==0 && get_qr(qr_TEMPCANDLELIGHT) && flame_count()==1)
 			{
 				isLit=false;
 				checkLightSources();
@@ -7038,119 +7088,159 @@ void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)
 
 void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int32_t ehitType)
 {
-    if((scriptcoldet&1) == 0 || fallclk || drownclk)
-    {
-        // These won't hit anything, but they can still go too far offscreen...
-        // Unless the compatibility rule is set.
-        if(get_qr(qr_OFFSCREENWEAPONS) || !clipped)
-            return;
-        goto offscreenCheck;
-    }
-    
-    if(special==2)                                            // hit Hero's mirror shield
-    {
-        switch(id)
-        {
-		case ewFlame:
-			if(get_qr(qr_BROKEN_EWFLAME_REFLECTING))
+	if((scriptcoldet&1) == 0 || fallclk || drownclk)
+	{
+		// These won't hit anything, but they can still go too far offscreen...
+		// Unless the compatibility rule is set.
+		if(get_qr(qr_OFFSCREENWEAPONS) || !clipped)
+			return;
+		goto offscreenCheck;
+	}
+	
+	if(special==2)                                            // hit Hero's mirror shield
+	{
+		bool reflect = false;
+		switch(id)
+		{
+			case ewArrow:
+				if(get_qr(qr_BROKEN_FLAME_ARROW_REFLECTING))
+					break;
+				id = wRefArrow;
+				reflect = true;
 				break;
-			ignoreHero=true;
-			goto reflect;
-			
-        case ewFireball2:
-        case ewFireball:
-            id = wRefFireball;
-            ignoreHero=true;
-            goto reflect;
-            
-        case ewRock:
-        case ewSword:
-        case wRefBeam:
-        case ewMagic:
-        case wRefMagic:
-            //otherwise he can get hit by the newly-created projectile if he's walking into it fast enough -DD
-            ignoreHero=true;
-            id = ((id==ewMagic || id==wRefMagic) ? wRefMagic : id==ewRock ? wRefRock : wRefBeam);
-            goto reflect;
-            
-        case wScript1:
-        case wScript2:
-        case wScript3:
-        case wScript4:
-        case wScript5:
-        case wScript6:
-        case wScript7:
-        case wScript8:
-        case wScript9:
-        case wScript10:
-            // If this isn't set, the weapon may reflect repeatedly
-            ignoreHero=true;
-reflect:
-
-            if(angular) switch(linkdir)
-                {
-                case up:
-                    angle += (PI - angle) * 2.0;
-		    doAutoRotate();
-                    break;
-                    
-                case down:
-                    angle = -angle;
-		    doAutoRotate();
-                    break;
-                    
-                case left:
-                    angle += ((-PI/2) - angle) * 2.0;
-		    doAutoRotate();
-                    break;
-                    
-                case right:
-                    angle += ((PI/2) - angle) * 2.0;
-		    doAutoRotate();
-                    break;
-                    
-                default:
-                    angle += PI;
-		    doAutoRotate();
-                    break;
-                }
-            else
-            {
-                dir ^= 1;
-                
-                if(dir&2)
-                    flip ^= 1;
-                else
-                    flip ^= 2;
-            }
-            
-            return;
-        }
-    }
-    
-    if(special>=1)                                            // hit Hero's shield
-    {
-        switch(id)
-        {
-        case ewRock:
-        case ewMagic:
-        case ewArrow:
-        case ewSword:
-            bounce=true;
-            dead=16;
-            return;
-            
-        case ewBrang:
-            if(misc==0)
-            {
-                clk2=256;
-                misc=1;
-                dir^=1;
-            }
-            
-            return;
-        }
-    }
+			case ewFlame:
+				if(get_qr(qr_BROKEN_FLAME_ARROW_REFLECTING))
+					break;
+				id = wRefFire;
+				reflect = true;
+				break;
+			case ewFlame2:
+				if(get_qr(qr_BROKEN_FLAME_ARROW_REFLECTING))
+					break;
+				id = wRefFire2;
+				reflect = true;
+				break;
+				
+			case ewFireball2:
+			case ewFireball:
+				id = wRefFireball;
+				reflect = true;
+				break;
+				
+			case ewRock:
+				id = wRefRock;
+				reflect = true;
+				break;
+			case ewSword:
+				id = wRefBeam;
+				reflect = true;
+				break;
+			case ewMagic:
+				id = wRefMagic;
+				reflect = true;
+				break;
+			case wRefBeam:
+			case wRefMagic:
+			case wRefArrow:
+			case wRefFire:
+			case wRefFire2:
+				reflect = true;
+				break;
+				
+			case wScript1:
+			case wScript2:
+			case wScript3:
+			case wScript4:
+			case wScript5:
+			case wScript6:
+			case wScript7:
+			case wScript8:
+			case wScript9:
+			case wScript10:
+				reflect = true;
+				
+				//prevents the block below from moving it to 'Lwpns'... needed for compat -Em
+				isLWeapon = true;
+				break;
+		}
+		if(reflect)
+		{
+			ignoreHero = true;
+			if(!isLWeapon)
+			{
+				if(Ewpns.remove(this))
+					Lwpns.add(this);
+				isLWeapon = true;
+			}
+			if(angular)
+			{
+				switch(linkdir)
+				{
+					case up:
+						angle += (PI - angle) * 2.0;
+						doAutoRotate();
+						break;
+						
+					case down:
+						angle = -angle;
+						doAutoRotate();
+						break;
+						
+					case left:
+						angle += ((-PI/2) - angle) * 2.0;
+						doAutoRotate();
+						break;
+						
+					case right:
+						angle += ((PI/2) - angle) * 2.0;
+						doAutoRotate();
+						break;
+						
+					default:
+						angle += PI;
+						doAutoRotate();
+						break;
+				}
+			}
+			else
+			{
+				dir ^= 1;
+				
+				if(dir&2)
+					flip ^= 1;
+				else
+					flip ^= 2;
+			}
+			return;
+		}
+	}
+	
+	if(special>=1)                                            // hit Hero's shield
+	{
+		switch(id)
+		{
+			case ewRock:
+			case ewMagic:
+			case ewArrow:
+			case ewSword:
+				bounce=true;
+				dead=16;
+				return;
+				
+			case ewBrang:
+				if(misc==0)
+				{
+					clk2=256;
+					misc=1;
+					dir^=1;
+				}
+				return;
+			case wRefMagic:
+				ignoreHero=true;
+				ignorecombo=-1;
+				break;
+		}
+	}
     
 offscreenCheck:
     
@@ -7208,8 +7298,12 @@ offscreenCheck:
         break;
     
     case ewFlame:
+    case wRefFire:
         if(!clipped) dead=1;
-        
+        break;
+    case ewFlame2:
+    case wRefFire2:
+        dead=1;
         break;
         
     case wRefBeam:
@@ -7222,6 +7316,7 @@ offscreenCheck:
         break;                           //findentrance(x,y,mfARROW,true); break;
         
     case ewArrow:
+    case wRefArrow:
         dead=clipped?4:1;
         break;
         
@@ -7744,6 +7839,7 @@ void weapon::draw(BITMAP *dest)
 		}
 		
 		case wArrow:
+		case wRefArrow:
 		case ewArrow:
 			if(dead>0 && !bounce)
 			{
