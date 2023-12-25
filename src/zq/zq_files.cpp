@@ -233,6 +233,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		}
 	}
 	onStrFix();
+	applyRuleTemplate(ruletemplateFixCompat, qrptr);
 	
 	alwaysOnRules(); //Set on things that should ALWAYS be on.
 	
