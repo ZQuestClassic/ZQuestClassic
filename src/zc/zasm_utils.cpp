@@ -16,6 +16,13 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 	bool is_init_script = script->id == script_id{ScriptType::Global, GLOBAL_SCRIPT_INIT};
 	bool has_seen_goto = false;
 
+	// There is nothing special marking the start or end of a function in ZASM. So,
+	// the only way to contruct the bounds of each function is to search for function calls,
+	// which gets the function starts. Then, the function ends are derived with these.
+	// Note - if a function is not called at all, then the instructions for that function will
+	// be part of an unreachable sequence of blocks in the prior function that was called.
+	// Therefore, the instructions of uncalled functions should be pruned as part of zasm_optimize.
+
 	for (pc_t i = 1; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;

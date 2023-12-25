@@ -414,9 +414,12 @@ int zasm_optimize(script_data* script)
 	int saved = 0;
 
 	// Optimize unused functions.
-	// TODO: This works, but there is never anything to optimize as the zscript
-	//       compiler has always done a good job with this. However, this could
-	//       have an effect if any opt passes are made that remove dead code.
+	// TODO:
+	// This works, but by construction there is never a function that is not called
+	// (see comment in zasm_construct_structured). Besides, the zscript compiler
+	// probably has always done a good job with pruning unused functions.
+	// However, this could have an effect if any opt passes are made that remove dead
+	// code, so keep the code nearby until then.
 	// std::set<pc_t> seen_ids;
 	// std::set<pc_t> pending_ids = {0};
 	// while (pending_ids.size())

@@ -2,6 +2,7 @@
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
@@ -689,49 +690,20 @@ JittedFunction jit_compile_script(script_data *script)
 		goto_labels[script->zasm[i].arg1] = cc.newLabel();
 	}
 
-	// Find all function calls.
+	auto structured_zasm = zasm_construct_structured(script);
+
+	// Create a return label for every function call.
 	std::map<int, Label> call_pc_to_return_label;
-	std::set<int> function_calls;
-	std::set<int> function_calls_goto_pc;
-	for (size_t i = 1; i < size; i++)
+	for (pc_t pc : structured_zasm.function_calls)
 	{
-		int command = script->zasm[i].command;
-		int prev_command = script->zasm[i - 1].command;
-		
-		bool is_function_call_like = false;
-		if(command == GOTO)
-		{
-			is_function_call_like =
-				// Typical function calls used to push parameters just before the GOTO
-				prev_command == PUSHR || prev_command == PUSHV || prev_command == PUSHARGSR || prev_command == PUSHARGSV ||
-				// Class construction function calls used to do `SETR CLASS_THISKEY, D2` just before its GOTO.
-				(prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
-		}
-		else if(command == CALLFUNC)
-		{
-			is_function_call_like = true;
-		}
-		else continue;
-		
-		if (is_function_call_like)
-		{
-			call_pc_to_return_label[i] = cc.newLabel();
-			function_calls.insert(i);
-			function_calls_goto_pc.insert(script->zasm[i].arg1);
-		}
+		call_pc_to_return_label[pc] = cc.newLabel();
 	}
 
-	std::vector<int> function_start_pcs;
-	std::map<int, int> start_pc_to_function;
+	// Create a jump annotation for the start of every function.
 	std::vector<JumpAnnotation *> function_jump_annotations;
+	for (int i = 0; i < structured_zasm.functions.size(); i++)
 	{
-		int next_fn_id = 0;
-		for (int function_start_pc : function_calls_goto_pc)
-		{
-			function_start_pcs.push_back(function_start_pc);
-			start_pc_to_function[function_start_pc] = next_fn_id++;
-			function_jump_annotations.push_back(cc.newJumpAnnotation());
-		}
+		function_jump_annotations.push_back(cc.newJumpAnnotation());
 	}
 
 	// Map all RETURN to the enclosing function.
@@ -740,7 +712,7 @@ JittedFunction jit_compile_script(script_data *script)
 		int cur_function_id = 0;
 		for (size_t i = 0; i < size; i++)
 		{
-			if (function_start_pcs.size() > cur_function_id + 1 && function_start_pcs.at(cur_function_id + 1) == i)
+			if (structured_zasm.functions.size() > cur_function_id + 1 && structured_zasm.functions.at(cur_function_id + 1).start_pc == i)
 				cur_function_id += 1;
 
 			int command = script->zasm[i].command;
@@ -752,10 +724,10 @@ JittedFunction jit_compile_script(script_data *script)
 	}
 
 	// Annotate all function RETURNs to their calls, to help asmjit with liveness analysis.
-	for (int function_call_pc : function_calls)
+	for (int function_call_pc : structured_zasm.function_calls)
 	{
 		int goto_pc = script->zasm[function_call_pc].arg1;
-		auto it = start_pc_to_function.find(goto_pc);
+		auto it = structured_zasm.start_pc_to_function.find(goto_pc);
 		int function_index = it->second;
 		function_jump_annotations[function_index]->addLabel(call_pc_to_return_label.at(function_call_pc));
 	}
@@ -783,9 +755,9 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.bind(goto_labels.at(i));
 		}
 
-		if (DEBUG_JIT_PRINT_ASM && start_pc_to_function.contains(i))
+		if (DEBUG_JIT_PRINT_ASM && structured_zasm.start_pc_to_function.contains(i))
 		{
-			cc.setInlineComment((comment = fmt::format("function {}", start_pc_to_function.at(i))).c_str());
+			cc.setInlineComment((comment = fmt::format("function {}", structured_zasm.start_pc_to_function.at(i))).c_str());
 			cc.nop();
 		}
 
@@ -852,7 +824,7 @@ JittedFunction jit_compile_script(script_data *script)
 					break;
 				if (goto_labels.contains(j))
 					break;
-				if (start_pc_to_function.contains(j))
+				if (structured_zasm.start_pc_to_function.contains(j))
 					break;
 
 				if (DEBUG_JIT_PRINT_ASM && script->zasm[j].command != 0xFFFF)
@@ -893,7 +865,7 @@ JittedFunction jit_compile_script(script_data *script)
 		[[fallthrough]];
 		case GOTO:
 		{
-			if (function_calls.contains(i))
+			if (structured_zasm.function_calls.contains(i))
 			{
 				// https://github.com/asmjit/asmjit/issues/286
 				x86::Gp address = cc.newIntPtr();
