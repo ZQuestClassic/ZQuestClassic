@@ -276,6 +276,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		qr_ITEMCOMBINE_NEW_PSTR, qr_ITEMCOMBINE_CONTINUOUS,
 		qr_FAIRYDIR, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
 		qr_CONVEYORS_L1_L2, qr_CONVEYORS_ALL_LAYERS,
+		qr_EW_FIRE_EMITS_LIGHT,
 	};
 	static const int rMODERN_O[] = {
 		qr_OLDSPRITEDRAWS

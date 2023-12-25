@@ -955,8 +955,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Push (Generic) locking", qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,
 		"If enabled, Push (Generic) combos won't lock into place via the 'Pushed' flag"
 		" (ex. 'clicking into place' for a block trigger)" },
-	{ "Broken Enemy Fire Reflecting", qr_BROKEN_EWFLAME_REFLECTING,
-		"If enabled, Enemy Fire won't reflect off of player shields, even when the reflect flag is set." },
+	{ "Broken Enemy Fire/Arrow Reflecting", qr_BROKEN_FLAME_ARROW_REFLECTING,
+		"If enabled, Enemy Fire/Arrows won't reflect off of player shields, even when the reflect flag is set."
+		"Enemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by player shields, regardless of block/reflect flags." },
 };
 
 static GUI::ListData enemiesRulesList
@@ -1534,6 +1535,8 @@ static GUI::ListData weaponsRulesList
 	{ "Lifted Bombs Explode In Hand", qr_HELD_BOMBS_EXPLODE,
 		"If enabled, bomb lweapons that are 'lifted' by the player (currently script-only)"
 		" will still tick down their fuse and explode." },
+	{ "Enemy Fire Lights New Dark Rooms", qr_EW_FIRE_EMITS_LIGHT,
+		"If enabled, enemy fire weapons will emit light by default, as player fire does." },
 	
 	//should maybe keep these last
 	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,

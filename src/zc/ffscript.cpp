@@ -2433,7 +2433,10 @@ public:
 			case wLitBomb: return wsBombblast;
 			case wLitSBomb: return wsBombblast;
 			case wArrow: return wsArrow;
+			case wRefArrow: return wsArrow;
 			case wFire: return wsFire;
+			case wRefFire: return wsFire;
+			case wRefFire2: return wsFire;
 			case wWhistle: return wsUnused45;
 			case wBait: return wsBait;
 			case wWand: return wsWandHandle;
@@ -2570,7 +2573,10 @@ public:
 			case wLitBomb: return wsBombblast;
 			case wLitSBomb: return wsBombblast;
 			case wArrow: return wsArrow;
+			case wRefArrow: return wsArrow;
 			case wFire: return wsFire;
+			case wRefFire: return wsFire;
+			case wRefFire2: return wsFire;
 			case wWhistle: return wsUnused45;
 			case wBait: return wsBait;
 			case wWand: return wsWandHandle;
@@ -41858,6 +41864,9 @@ int32_t FFScript::GetDefaultWeaponSprite(int32_t wpn_id)
 		case wLitBomb: return 7;
 		case wLitSBomb: return 8;
 		case wArrow: return 10;
+		case wRefArrow: return 10;
+		case wRefFire: return 12;
+		case wRefFire2: return 12;
 		case wFire: return 12;
 		case wWhistle: return 45; //blank, unused misc sprite
 		case wBait: return 14;
@@ -53284,7 +53293,10 @@ defWpnSprite FFScript::getDefWeaponSprite(int32_t wpnid)
 		case wLitBomb: return wsBombblast;
 		case wLitSBomb: return wsBombblast;
 		case wArrow: return wsArrow;
+		case wRefArrow: return wsArrow;
 		case wFire: return wsFire;
+		case wRefFire: return wsFire;
+		case wRefFire2: return wsFire;
 		case wWhistle: return wsUnused45;
 		case wBait: return wsBait;
 		case wWand: return wsWandHandle;

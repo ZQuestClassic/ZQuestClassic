@@ -297,27 +297,32 @@ bool ZModule::init(bool d) //bool default
 			strcpy(moduledata.roomtype_names[q],zc_get_config_basic("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
-		static const char lweapon_cats[wIce+1][255]=
+		static const char lweapon_cats[wRefFire2+1][255]=
 		{
 			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
 			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
 			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
 			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
 			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
-			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
+			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce",
+			"-wFlame", "-wSound", "-wThrown", "-wPot", "-wLit", "-wBombos", "-wEther", "-wQuake",
+			"-wSword180", "-wSwordLA", "-wBugNet", "wRefArrow", "wRefFire", "wRefFire2"
 		};
-		static const char lweapon_default_names[wIce+1][255]=
+		static const char lweapon_default_names[wRefFire2+1][255]=
 		{
 			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
 			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
 			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshit", "-HSHandle", 
 			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
 			"Cane of Byrna","Reflected Sword Beam", "-Stomp","Script1", "Script2", "Script3", 
-			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
+			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice",
+			"-wFlame", "-wSound", "-wThrown", "-wPot", "-wLit", "-wBombos", "-wEther", "-wQuake",
+			"-wSword180", "-wSwordLA", "-wBugNet", "Reflected Arrow", "Reflected Fire", "Reflected Fire 2"
 		};
-		for ( int32_t q = 0; q < wIce+1; q++ )
+		for ( int32_t q = 0; q < wRefFire2+1; q++ )
 		{
-			strcpy(moduledata.player_weapon_names[q],zc_get_config_basic("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			if(lweapon_cats[q][0] == '-')
+				strcpy(moduledata.player_weapon_names[q],zc_get_config_basic("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 			//al_trace("LWEAPONS %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}

@@ -630,7 +630,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								INFOBTN("Determines the design of dither used by dark rooms." + QRHINT({qr_NEW_DARKROOM})),
 								//
 								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'dithered'" + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons" + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons. QR determines if enemy fire is lit." + QRHINT({qr_NEW_DARKROOM, qr_EW_FIRE_EMITS_LIGHT})),
 								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'" + QRHINT({qr_NEW_DARKROOM})),
 								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM}))
 							)

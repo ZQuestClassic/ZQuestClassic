@@ -760,6 +760,7 @@ enum                                                        // value matters bec
 #define shSCRIPT8     0x00020000
 #define shSCRIPT9     0x00040000
 #define shSCRIPT10    0x00080000
+#define shFLAME2      0x00100000
 
 
 #define sh_ALL_SCR    0x000FFC00
@@ -861,7 +862,8 @@ enum
 	wLit, //Lightning or Electric -Z
 	wBombos, wEther, wQuake,// -Z
 	wSword180, wSwordLA,
-	wBugNet,
+	//52
+	wBugNet, wRefArrow, wRefFire, wRefFire2,
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -1146,15 +1148,15 @@ enum {  e9tMOLDORM=1, e9tVLANMOLA, e9tVMOLDORM, e9tZ3MOLDORM, //restricted to wa
      
 enum
 {
-	edefBRANG, 	edefBOMB, 	edefSBOMB, 	edefARROW, 	edefFIRE, 	//04
-	edefWAND, 	edefMAGIC, 	edefHOOKSHOT, 	edefHAMMER, 	edefSWORD, 	//09
-	edefBEAM, 	edefREFBEAM, 	edefREFMAGIC,	edefREFBALL, 	edefREFROCK,	//14
-	edefSTOMP, 	edefBYRNA, 	edefSCRIPT, 	edefLAST250, 	edefQUAKE, 	//19
-	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
-	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
-	edefICE,	edefBAIT, 	edefWIND,	edefSPARKLE,	edefSONIC,	//34
-	edefWhistle,	edefSwitchHook,	edefTHROWN,	edefRES008,	edefRES009,	//39
-	edefRES010,	//x40
+	edefBRANG, edefBOMB, edefSBOMB, edefARROW, edefFIRE, //04
+	edefWAND, edefMAGIC, edefHOOKSHOT, edefHAMMER, edefSWORD, //09
+	edefBEAM, edefREFBEAM, edefREFMAGIC, edefREFBALL, edefREFROCK, //14
+	edefSTOMP, edefBYRNA, edefSCRIPT, edefLAST250, edefQUAKE, //19
+	edefSCRIPT01, edefSCRIPT02, edefSCRIPT03, edefSCRIPT04, edefSCRIPT05, //24
+	edefSCRIPT06, edefSCRIPT07, edefSCRIPT08, edefSCRIPT09, edefSCRIPT10, //29
+	edefICE, edefBAIT, edefWIND, edefSPARKLE, edefSONIC, //34
+	edefWhistle, edefSwitchHook, edefTHROWN, edefREFARROW, edefREFFIRE, //39
+	edefREFFIRE2, //x40
 	edefLAST255 //41
 	/*
 	edef42,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
