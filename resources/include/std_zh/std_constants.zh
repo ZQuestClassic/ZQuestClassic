@@ -2154,7 +2154,7 @@ enum
 	DMFS_VIEWMAP,             //View overworld map by pressing 'Map'
 	DMFS_DMAPMAP,             //...But only show screens marked in minimap
 	DMFS_MINIMAPCOLORFIX,     //Use minimap foreground colour 2
-	DMFS_MINIMAPCOLOURFIX,    //Use minimap foreground colour 2
+	DMFS_MINIMAPCOLOURFIX = DMFS_MINIMAPCOLORFIX,    //Use minimap foreground colour 2
 	DMFS_SCRIPT1,             //DMap Script Flag 1
 	DMFS_SCRIPT2,             //DMap Script Flag 2
 	DMFS_SCRIPT3,             //DMap Script Flag 3
