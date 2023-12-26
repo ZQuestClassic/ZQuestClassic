@@ -595,6 +595,7 @@ void ComboWizardDialog::endUpdate()
 			
 			if(rad0==0)
 				exstate = 0;
+			SETFLAG(local_ref.usrflags,cflag16,rad0);
 			
 			int16_t& contains_item = local_ref.attrishorts[2];
 			auto rad1 = getRadio(1);
@@ -672,6 +673,7 @@ void ComboWizardDialog::endUpdate()
 			
 			if(rad0==0)
 				exstate = 0;
+			SETFLAG(local_ref.usrflags,cflag16,rad0);
 			
 			//Prompts
 			bool prompt = lvl > 0 && cboxes[1]->getChecked();
