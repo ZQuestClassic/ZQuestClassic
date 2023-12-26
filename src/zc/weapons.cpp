@@ -4605,7 +4605,13 @@ bool weapon::animate(int32_t index)
 				{
 					newcombo const& cmb = combobuf[newmirror];
 					id = wRefBeam;
-					dir = NORMAL_DIR(cmb.attribytes[NORMAL_DIR(dir)]);
+					byte newdir = cmb.attribytes[NORMAL_DIR(dir)];
+					if(newdir > 7)
+					{
+						dead = 0;
+						break;
+					}
+					dir = newdir;
 					fix_mirror_anim = true;
 					ignoreHero=false;
 					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
@@ -6195,7 +6201,13 @@ bool weapon::animate(int32_t index)
 						w=this;
 					}
 					
-					w->dir = NORMAL_DIR(cmb.attribytes[NORMAL_DIR(w->dir)]);
+					byte newdir = cmb.attribytes[NORMAL_DIR(w->dir)];
+					if(newdir > 7)
+					{
+						dead = 0;
+						break;
+					}
+					w->dir = newdir;
 					
 					if(w->id != wWind)
 					{
@@ -6590,7 +6602,13 @@ bool weapon::animate(int32_t index)
 						w=this;
 					}
 					
-					w->dir = NORMAL_DIR(cmb.attribytes[NORMAL_DIR(w->dir)]);
+					byte newdir = cmb.attribytes[NORMAL_DIR(w->dir)];
+					if(newdir > 7)
+					{
+						dead = 0;
+						break;
+					}
+					w->dir = newdir;
 					
 					if(w->id != wWind)
 					{

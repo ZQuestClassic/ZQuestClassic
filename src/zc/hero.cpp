@@ -22608,6 +22608,7 @@ static void handleBeam(spot_t* grid, size_t age, byte spotdir, int32_t curpos, b
 				if(unsigned(cid) >= MAXCOMBOS) break;
 				newcombo const& cmb = combobuf[cid];
 				byte newdir = cmb.attribytes[spotdir];
+				if(newdir > 7) return;
 				if(newdir > 3) break;
 				spotdir = newdir;
 				break;
@@ -22652,6 +22653,15 @@ static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir,
 		{
 			case SPTYPE_SOLID: case cBLOCKALL:
 				return;
+			case cMIRRORNEW:
+			{
+				auto cid = customTypeMap[curpos];
+				if(unsigned(cid) >= MAXCOMBOS) break;
+				newcombo const& cmb = combobuf[cid];
+				byte newdir = cmb.attribytes[spotdir];
+				if(newdir > 7) return;
+				break;
+			}
 		}
 		bool collided_hero = heropos > -1 && curxy.herocollide(beamwid);
 		if(block && (spotdir == oppositeDir[Hero.getDir()]) && collided_hero)
