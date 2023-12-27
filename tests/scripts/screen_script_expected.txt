@@ -37,7 +37,7 @@ POP d3
 COMPARER d3,d2
 SETCMP d2,0.0012
 COMPAREV d2,0
-GOTOTRUE 43; Test 'if'
+GOTOCMP 43,0.0004; Test 'if'
 LOADD d2,0; if() #555 Body Start
 PUSHR d2
 POP d0
@@ -116,7 +116,7 @@ POP d3
 COMPARER d3,d2
 SETCMP d2,0.0010
 COMPAREV d2,0
-GOTOTRUE 112; Test 'if'
+GOTOCMP 112,0.0004; Test 'if'
 LOADD d2,0; if() #129 Body Start
 STORED d2,2
 GOTO 122; if() #129 Body End
@@ -127,7 +127,7 @@ POP d3
 COMPARER d3,d2
 SETCMP d2,0.0009
 COMPAREV d2,0
-GOTOTRUE 122; Test 'if'
+GOTOCMP 122,0.0004; Test 'if'
 LOADD d2,1; if() #352 Body Start
 STORED d2,2; if() #352 Body End
 LOADD d2,2; if() #129 Else End AND return Start

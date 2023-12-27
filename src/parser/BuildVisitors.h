@@ -69,6 +69,7 @@ namespace ZScript
 		virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
 		virtual void caseExprIncrement(ASTExprIncrement &host, void *param);
 		virtual void caseExprDecrement(ASTExprDecrement &host, void *param);
+		virtual void caseExprBoolTree(ASTExprBoolTree &host, void *param);
 		virtual void caseExprAnd(ASTExprAnd &host, void *param);
 		virtual void caseExprOr(ASTExprOr &host, void *param);
 		virtual void caseExprGT(ASTExprGT &host, void *param);
@@ -224,6 +225,8 @@ namespace ZScript
 		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		
 		void push_param(bool varg = false);
+		optional<int> eatSetCompare();
+		optional<bool> rec_booltree(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param);
 	};
 
 	class LValBOHelper : public ASTVisitor
@@ -246,7 +249,18 @@ namespace ZScript
 	
 		std::vector<std::shared_ptr<Opcode>> result;
 	};
-
+	
+	class CleanupVisitor : public RecursiveVisitor
+	{
+	public:
+		using RecursiveVisitor::visit;
+		void visit(AST& node, void* param = NULL);
+		ASTExprBoolTree* booltree;
+		BoolTreeNode* active_node;
+		CleanupVisitor(Scope* curScope) : CleanupVisitor() {scope = curScope;}
+	private:
+		CleanupVisitor() = default;
+	};
 
 
 	class GetLabels : public ArgumentVisitor

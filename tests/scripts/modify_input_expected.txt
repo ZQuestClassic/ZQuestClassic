@@ -13,7 +13,7 @@ PUSHR REFFFC; void run() Body Start
 SETR d4,SP
 SETR d2,INPUTPRESSA; if() #1 Test AND while(true) #1 Body [Opt:AlwaysOn] Start
 COMPAREV d2,0
-GOTOTRUE 11; Test 'if'
+GOTOCMP 11,0.0004; Test 'if'
 SETV d2,0; if() #1 Body Start
 PUSHR d2
 POP d2

@@ -2439,8 +2439,147 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 	else buildPostOp(host.operand.get(), param, ops);
 }
 
+optional<bool> BuildOpcodes::rec_booltree(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param)
+{
+	switch(node.mode)
+	{
+		case BoolTreeNode::MODE_LEAF:
+		{
+			bool _and = parentMode == BoolTreeNode::MODE_AND;
+			auto val = node.leaf->getCompileTimeValue(this, scope);
+			if(val)
+			{
+				if(_and ? *val : !*val)
+					break; //just continue
+				//fail, short-circuit
+				if(_and)
+				{
+					addOpcode(new OGotoImmediate(new LabelArgument(falselbl)));
+					return false;
+				}
+				else
+				{
+					addOpcode(new OGotoImmediate(new LabelArgument(truelbl)));
+					return true;
+				}
+			}
+			else
+			{
+				visit(node.leaf.get(), param);
+				if(auto cmp = eatSetCompare())
+				{
+					int c = *cmp & ~CMP_SETI;
+					if(_and)
+						addOpcode(new OGotoCompare(new LabelArgument(falselbl), new LiteralArgument(INVERT_CMP(c))));
+					else addOpcode(new OGotoCompare(new LabelArgument(truelbl), new LiteralArgument(c)));
+				}
+				else
+				{
+					addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+					if(_and)
+						addOpcode(new OGotoCompare(new LabelArgument(falselbl), new LiteralArgument(CMP_EQ)));
+					else addOpcode(new OGotoCompare(new LabelArgument(truelbl), new LiteralArgument(CMP_NE)));
+				}
+			}
+			break;
+		}
+		case BoolTreeNode::MODE_AND:
+		{
+			optional<bool> ret;
+			for(size_t q = 0; q < node.branch.size(); ++q)
+			{
+				auto& child = node.branch[q];
+				bool last = q == node.branch.size()-1;
+				if(last)
+				{
+					ret = rec_booltree(child, node.mode, truelbl, falselbl, param);
+					addOpcode(new OGotoImmediate(new LabelArgument(truelbl)));
+				}
+				else
+				{
+					auto nextlbl = ScriptParser::getUniqueLabelID();
+					ret = rec_booltree(child, node.mode, nextlbl, falselbl, param);
+					addOpcode(new ONoOp(nextlbl));
+				}
+				if(ret)
+					return *ret;
+			}
+			break;
+		}
+		case BoolTreeNode::MODE_OR:
+		{
+			optional<bool> ret;
+			for(size_t q = 0; q < node.branch.size(); ++q)
+			{
+				auto& child = node.branch[q];
+				bool last = q == node.branch.size()-1;
+				if(last)
+				{
+					ret = rec_booltree(child, node.mode, truelbl, falselbl, param);
+					addOpcode(new OGotoImmediate(new LabelArgument(falselbl)));
+				}
+				else
+				{
+					auto nextlbl = ScriptParser::getUniqueLabelID();
+					ret = rec_booltree(child, node.mode, truelbl, nextlbl, param);
+					addOpcode(new ONoOp(nextlbl));
+				}
+				if(ret)
+					return *ret;
+			}
+			break;
+		}
+	}
+	return nullopt;
+}
+
+void BuildOpcodes::caseExprBoolTree(ASTExprBoolTree& host, void* param)
+{
+	if (auto v = host.getCompileTimeValue(this, scope))
+	{
+		CONST_VAL(*v);
+		return;
+	}
+	auto endlbl = ScriptParser::getUniqueLabelID();
+	auto truelbl = sidefx_only ? endlbl : ScriptParser::getUniqueLabelID();
+	auto falselbl = sidefx_only ? endlbl : ScriptParser::getUniqueLabelID();
+	BoolTreeNode& node = host.root;
+	bool _and = node.mode == BoolTreeNode::MODE_AND;
+	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL);
+	
+	auto sidefx = sidefx_only ;
+	sidefx_only = false;
+	rec_booltree(node, 0, truelbl, falselbl, param);
+	sidefx_only = sidefx;
+	
+	if(sidefx_only)
+		addOpcode(new ONoOp(endlbl));
+	else if(_and)
+	{
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
+		backOpcode()->setLabel(truelbl);
+		addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		backOpcode()->setLabel(falselbl);
+		addOpcode(new ONoOp(endlbl));
+	}
+	else
+	{
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		backOpcode()->setLabel(falselbl);
+		addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
+		backOpcode()->setLabel(truelbl);
+		addOpcode(new ONoOp(endlbl));
+	}
+}
 void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 {
+	if(host.tree)
+	{
+		visit(host.tree.get(), param);
+		return;
+	}
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -2526,6 +2665,11 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 {
+	if(host.tree)
+	{
+		visit(host.tree.get(), param);
+		return;
+	}
 	if (auto v = host.getCompileTimeValue(this, scope))
 	{
 		CONST_VAL(*v);
@@ -3846,6 +3990,17 @@ void BuildOpcodes::push_param(bool varg)
 	addOpcode(op);
 }
 
+optional<int> BuildOpcodes::eatSetCompare()
+{
+	if(OSetCompare* setcmp = dynamic_cast<OSetCompare*>(backOpcode()))
+	{
+		auto cmp = static_cast<LiteralArgument*>(setcmp->getSecondArgument())->value;
+		backTarget().pop_back(); //erase the OSetCompare
+		return cmp;
+	}
+	return nullopt;
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 // LValBOHelper
 
@@ -4109,5 +4264,63 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	}
 	if(indxVal) addOpcode(new OWritePODArrayIR(new LiteralArgument(*indxVal), new VarArgument(EXP1)));
 	else addOpcode(new OWritePODArrayRR(new VarArgument(EXP2), new VarArgument(EXP1)));
+}
+
+
+void CleanupVisitor::visit(AST& node, void* param)
+{
+	if(node.isDisabled()) return; //Don't visit disabled nodes.
+	if(!node.reachable()) return; //Don't visit unreachable nodes for ZASM generation
+	AST* nodeptr = &node;
+	ASTExpr* exprptr = dynamic_cast<ASTExpr*>(nodeptr);
+	ASTExprAnd* andnode = dynamic_cast<ASTExprAnd*>(nodeptr);
+	ASTExprOr* ornode = dynamic_cast<ASTExprOr*>(nodeptr);
+	bool is_boolexpr = andnode || ornode;
+	ASTExprBoolTree* cache_tree = booltree;
+	BoolTreeNode* cache_node = active_node;
+	if(!is_boolexpr)
+	{
+		if(active_node)
+		{
+			exprptr = exprptr->clone();
+			node.disable();
+			active_node = &(active_node->branch.emplace_back());
+			active_node->mode = BoolTreeNode::MODE_LEAF;
+			active_node->leaf = exprptr;
+		}
+		booltree = nullptr;
+		active_node = nullptr;
+	}
+	else
+	{
+		if(!booltree)
+		{
+			booltree = new ASTExprBoolTree(node.location);
+			active_node = &booltree->root;
+			if(andnode)
+			{
+				andnode->tree = booltree;
+				active_node->mode = BoolTreeNode::MODE_AND;
+			}
+			else //if(ornode)
+			{
+				ornode->tree = booltree;
+				active_node->mode = BoolTreeNode::MODE_OR;
+			}
+		}
+		else if(andnode && active_node->mode == BoolTreeNode::MODE_OR)
+		{
+			active_node = &(active_node->branch.emplace_back());
+			active_node->mode = BoolTreeNode::MODE_AND;
+		}
+		else if(ornode && active_node->mode == BoolTreeNode::MODE_AND)
+		{
+			active_node = &(active_node->branch.emplace_back());
+			active_node->mode = BoolTreeNode::MODE_OR;
+		}
+	}
+	RecursiveVisitor::visit(*nodeptr, param);
+	booltree = cache_tree;
+	active_node = cache_node;
 }
 

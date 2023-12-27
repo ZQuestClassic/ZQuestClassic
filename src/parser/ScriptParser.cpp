@@ -426,6 +426,9 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	{
 		Datum& variable = **it;
 		AST& node = *variable.getNode();
+		
+		CleanupVisitor cv(scope);
+		node.execute(cv);
 
 		OpcodeContext oc(typeStore);
 
@@ -529,6 +532,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 												new VarArgument(SP)));
 			if (puc == puc_construct)
 				addOpcode2(funccode, new OPushRegister(new VarArgument(CLASS_THISKEY2)));
+			CleanupVisitor cv(scope);
+			node.execute(cv);
 			OpcodeContext oc(typeStore);
 			BuildOpcodes bo(scope);
 			bo.parsing_user_class = puc;
@@ -637,6 +642,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
 												new VarArgument(SP)));
+			CleanupVisitor cv(scope);
+			node.execute(cv);
 			OpcodeContext oc(typeStore);
 			BuildOpcodes bo(scope);
 			node.execute(bo, &oc);
@@ -897,6 +904,46 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			#define END_OPT_PASS() \
 				++it; \
 			}
+			
+			#define TRASH_OP(ty, is_nop, condfunc) \
+			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			{ \
+				std::function<bool()> proc = condfunc; \
+				if(proc && !proc()) {++it; continue;} \
+				auto it2 = it; \
+				++it2; \
+				Opcode* nextcode = it2 == rval.end() ? nullptr : it2->get(); \
+				if(nextcode) \
+					nextcode->mergeComment(comment, true); \
+				if(lbl == -1) /*no label, just trash it*/ \
+				{ \
+					it = rval.erase(it); \
+					continue; \
+				} \
+				if(!nextcode) \
+				{ \
+					if(!is_nop) \
+					{ \
+						ONoOp* nop = new ONoOp(lbl); \
+						nop->setComment(comment); \
+						it = rval.erase(it); \
+						it = rval.insert(it,std::shared_ptr<Opcode>(nop)); \
+					} \
+					break; /*can't merge with something that doesn't exist*/ \
+				} \
+				auto lbl2 = nextcode->getLabel(); \
+				if(lbl2 == -1) /*next code has no label, pass the label*/ \
+				{ \
+					nextcode->setLabel(lbl); \
+					it = rval.erase(it); \
+					continue; \
+				} \
+				/*Else merge the two labels!*/ \
+				it = rval.erase(it); \
+				MergeLabels temp(lbl2, {lbl}); \
+				temp.execute(rval, nullptr); \
+				continue; \
+			}
 			#define MERGE_CONSEC_1(ty) \
 			if(ty* op = dynamic_cast<ty*>(ocode)) \
 			{ \
@@ -929,6 +976,17 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				++it; \
 				continue; \
 			}
+			#define CONV_GOTO_CMP(ty, cmp) \
+			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			{ \
+				LabelArgument* label_arg = static_cast<LabelArgument*>(op->takeArgument()); \
+				it = rval.erase(it); \
+				OGotoCompare* newop = new OGotoCompare(label_arg,new LiteralArgument(cmp)); \
+				newop->setLabel(lbl); \
+				newop->setComment(comment); \
+				it = rval.insert(it,std::shared_ptr<Opcode>(newop)); \
+				continue; \
+			}
 			#define MERGE_GOTO_NEXT(ty) \
 			if(ty* op = dynamic_cast<ty*>(ocode)) \
 			{ \
@@ -937,6 +995,30 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				if(it2 == rval.end()) \
 					break; \
 				LabelArgument* label_arg = (LabelArgument*)op->getArgument(); \
+				Opcode* nextcode = it2->get(); \
+				auto lbl2 = nextcode->getLabel(); \
+				if(lbl2 > -1 && label_arg->getID() == lbl2) \
+				{ \
+					nextcode->mergeComment(comment, true); \
+					it = rval.erase(it); \
+					if(lbl > -1) \
+					{ \
+						MergeLabels temp(lbl2, {lbl}); \
+						temp.execute(rval, nullptr); \
+					} \
+					continue; \
+				} \
+				++it; \
+				continue; \
+			}
+			#define MERGE_GOTO_NEXT2(ty) \
+			if(ty* op = dynamic_cast<ty*>(ocode)) \
+			{ \
+				auto it2 = it; \
+				++it2; \
+				if(it2 == rval.end()) \
+					break; \
+				LabelArgument* label_arg = (LabelArgument*)op->getFirstArgument(); \
 				Opcode* nextcode = it2->get(); \
 				auto lbl2 = nextcode->getLabel(); \
 				if(lbl2 > -1 && label_arg->getID() == lbl2) \
@@ -1031,33 +1113,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			
 		} //macros
 		START_OPT_PASS() //Trim NoOps
-			if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
-			{
-				auto it2 = it;
-				++it2;
-				Opcode* nextcode = it2 == rval.end() ? nullptr : it2->get();
-				if(nextcode)
-					nextcode->mergeComment(comment, true);
-				if(lbl == -1) //no label, just trash it
-				{
-					it = rval.erase(it);
-					continue;
-				}
-				if(!nextcode)
-					break; //can't merge with something that doesn't exist
-				auto lbl2 = nextcode->getLabel();
-				if(lbl2 == -1) //next code has no label, pass the label
-				{
-					nextcode->setLabel(lbl);
-					it = rval.erase(it);
-					continue;
-				}
-				//Else merge the two labels!
-				it = rval.erase(it);
-				MergeLabels temp(lbl2, {lbl});
-				temp.execute(rval, nullptr);
-				continue;
-			}
+			TRASH_OP(ONoOp, true, nullptr)
 		END_OPT_PASS()
 		START_OPT_PASS()
 			// Change [PEEKAT reg,0] to [PEEK reg]
@@ -1135,24 +1191,160 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			MERGE_CONSEC_REPCOUNT(OPushImmediate,OPushArgsImmediate)
 			MERGE_CONSEC_REPCOUNT(OPushVargR,OPushVargsR)
 			MERGE_CONSEC_REPCOUNT(OPushVargV,OPushVargsV)
-			//Merge consecutive identical GOTOs
+			// goto if never, can be trashed
+			TRASH_OP(OGotoCompare, false, [&]()
+				{
+					auto cmp = static_cast<LiteralArgument*>(op->getSecondArgument())->value;
+					return !(cmp&CMP_FLAGS);
+				})
+			//Convert gotos to OGotoCompare
+			CONV_GOTO_CMP(OGotoTrueImmediate, CMP_EQ)
+			CONV_GOTO_CMP(OGotoFalseImmediate, CMP_NE)
+			CONV_GOTO_CMP(OGotoMoreImmediate, CMP_GE)
+			CONV_GOTO_CMP(OGotoLessImmediate, CMP_LE)
+			//Merge consecutive identical gotos
 			MERGE_CONSEC_1(OGotoImmediate)
-			MERGE_CONSEC_1(OGotoTrueImmediate)
-			MERGE_CONSEC_1(OGotoFalseImmediate)
-			MERGE_CONSEC_1(OGotoMoreImmediate)
-			MERGE_CONSEC_1(OGotoLessImmediate)
 			MERGE_CONSEC_1(OGotoRegister)
+		END_OPT_PASS()
+		START_OPT_PASS()
+			if(OGotoCompare* op = dynamic_cast<OGotoCompare*>(ocode))
+			{
+				auto it2 = it;
+				++it2;
+				if(it2 == rval.end())
+					break;
+				LiteralArgument* cmparg = static_cast<LiteralArgument*>(op->getSecondArgument());
+				cmparg->value &= ~CMP_SETI;
+				auto cmp = cmparg->value;
+				if(OGotoCompare* op2 = dynamic_cast<OGotoCompare*>(it2->get()))
+				{
+					if(!op->getFirstArgument()->toString().compare(
+						op2->getFirstArgument()->toString()))
+					{
+						LiteralArgument* cmparg2 = static_cast<LiteralArgument*>(op2->getSecondArgument());
+						cmparg2->value &= ~CMP_SETI;
+						cmparg2->value |= cmp; //merge compare types
+						auto lbl2 = op2->getLabel();
+						op2->mergeComment(comment, true);
+						if(lbl2 == -1 && lbl > -1)
+						{
+							op2->setLabel(lbl);
+							it = rval.erase(it);
+							continue;
+						}
+						it = rval.erase(it);
+						if(lbl > -1)
+						{
+							MergeLabels temp(lbl2, {lbl});
+							temp.execute(rval, nullptr);
+						}
+						continue;
+					}
+				}
+				if(cmp == CMP_FLAGS)
+				{
+					LabelArgument* label_arg = static_cast<LabelArgument*>(op->takeFirstArgument());
+					it = rval.erase(it);
+					OGotoImmediate* newop = new OGotoImmediate(label_arg);
+					newop->setLabel(lbl);
+					newop->setComment(comment);
+					it = rval.insert(it,std::shared_ptr<Opcode>(newop));
+					continue;
+				}
+				++it;
+				continue;
+			}
 		END_OPT_PASS()
 		START_OPT_PASS()
 			//Trim GOTOs that go to the line directly after them
 			MERGE_GOTO_NEXT(OGotoImmediate)
-			MERGE_GOTO_NEXT(OGotoTrueImmediate)
-			MERGE_GOTO_NEXT(OGotoFalseImmediate)
-			MERGE_GOTO_NEXT(OGotoMoreImmediate)
-			MERGE_GOTO_NEXT(OGotoLessImmediate)
+			MERGE_GOTO_NEXT2(OGotoCompare)
 			MERGE_GOTO_NEXT(OCallFunc)
 		END_OPT_PASS()
-		START_OPT_PASS() //OSetImmediate -> OTraceRegister ('Trace()' optimization)
+		map<int,std::pair<int,int>> gotocmp_map;
+		START_OPT_PASS()
+			if(OGotoImmediate* op = dynamic_cast<OGotoImmediate*>(ocode))
+			{
+				if(lbl > -1) //redirect labels that jump to GOTOs
+				{
+					auto targ_lbl = static_cast<LabelArgument*>(op->getArgument())->getID();
+					MergeLabels temp(targ_lbl, {lbl});
+					temp.execute(rval, nullptr);
+					op->setLabel(-1);
+				}
+				++it;
+				continue;
+			}
+			if(OGotoCompare* op = dynamic_cast<OGotoCompare*>(ocode))
+			{
+				if(lbl > -1) //store labels in map, for optimization in next pass
+				{
+					int targ_lbl = static_cast<LabelArgument*>(op->getFirstArgument())->getID();
+					int cmp = static_cast<LiteralArgument*>(op->getSecondArgument())->value & ~CMP_SETI;
+					gotocmp_map[lbl] = {targ_lbl,cmp};
+				}
+				++it;
+				continue;
+			}
+		END_OPT_PASS()
+		START_OPT_PASS()
+			//[X: GOTO N] [N: GOTOCMP x,cmp] -> [X: GOTOCMP x,cmp] [N: GOTOCMP x,cmp]
+			if(OGotoImmediate* op = dynamic_cast<OGotoImmediate*>(ocode))
+			{
+				LabelArgument* lbl_arg = static_cast<LabelArgument*>(op->getArgument());
+				auto it2 = gotocmp_map.find(lbl_arg->getID());
+				if(it2 != gotocmp_map.end())
+				{
+					lbl_arg = static_cast<LabelArgument*>(op->takeArgument());
+					lbl_arg->setID(it2->second.first);
+					it = rval.erase(it);
+					OGotoCompare* newop = new OGotoCompare(lbl_arg, new LiteralArgument(it2->second.second));
+					newop->setComment(comment);
+					//lbl == -1 is guaranteed
+					it = rval.insert(it,std::shared_ptr<Opcode>(newop));
+					continue;
+				}
+				++it;
+				continue;
+			}
+		END_OPT_PASS()
+		START_OPT_PASS()
+			//[N: GOTOCMP N+2,c] [N+1: GOTO x] -> [N: GOTOCMP x,INV(c)]
+			if(OGotoCompare* op = dynamic_cast<OGotoCompare*>(ocode))
+			{
+				auto it2 = it;
+				++it2;
+				if(it2 == rval.end())
+					break;
+				auto it3 = it2;
+				++it3;
+				if(it3 == rval.end())
+					break;
+				LiteralArgument* cmparg = static_cast<LiteralArgument*>(op->getSecondArgument());
+				if(OGotoImmediate* op2 = dynamic_cast<OGotoImmediate*>(it2->get()))
+				{
+					LabelArgument* mid_lbl_arg = static_cast<LabelArgument*>(op2->getArgument());
+					auto it3_lbl = it3->get()->getLabel();
+					LabelArgument* lblarg = static_cast<LabelArgument*>(op->getFirstArgument());
+					if(it3_lbl == lblarg->getID())
+					{
+						lblarg->setID(mid_lbl_arg->getID());
+						cmparg->value = INVERT_CMP(cmparg->value);
+						op->mergeComment(op2->getComment());
+						rval.erase(it2);
+						++it;
+						continue;
+					}
+				}
+				++it;
+				continue;
+			}
+			MERGE_CONSEC_1(OGotoImmediate) //Redo this here due to timing stuff -Em
+		END_OPT_PASS()
+		START_OPT_PASS()
+			MERGE_GOTO_NEXT(OGotoImmediate) //Redo this here due to timing stuff -Em
+			MERGE_GOTO_NEXT2(OGotoCompare) //Redo this here due to timing stuff -Em
+			//OSetImmediate -> OTraceRegister ('Trace()' optimization)
 			if(OSetImmediate* setop = dynamic_cast<OSetImmediate*>(ocode))
 			{
 				Argument const* regarg = setop->getFirstArgument();
