@@ -3758,6 +3758,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 	if(compatrule_version < 64)
 		set_qr(qr_BROKEN_FLAME_ARROW_REFLECTING,1);
+	if(compatrule_version < 65)
+	{
+		set_qr(qr_OLD_WEAPON_DRAWING,1);
+		set_qr(qr_USESPRITE_SETS_LAYER,1);
+	}
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

@@ -2894,6 +2894,9 @@ script_variable variable_list[]=
 	{ "EWPNBURNLIGHTRADIUS", EWPNBURNLIGHTRADIUS, 0, 0 },
 
 	{ "IDATAATTRIB_L", IDATAATTRIB_L, 0, 0 },
+	
+	{ "LWPNLAYER",         LWPNLAYER,          0,             0 },
+	{ "EWPNLAYER",         EWPNLAYER,          0,             0 },
 
 	{ " ", -1, 0, 0 }
 };

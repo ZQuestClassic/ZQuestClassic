@@ -160,6 +160,7 @@ void do_primitives(BITMAP *bmp, int32_t type, mapscr *layer, int32_t x, int32_t 
 void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(bool scrolling = false);
 void draw_screen(mapscr* this_screen, bool showhero=true, bool runGeneric = false);
+void do_drawweapon(BITMAP *dest, int layer);
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls=false);
 void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);

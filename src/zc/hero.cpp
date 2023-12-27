@@ -3135,6 +3135,7 @@ void HeroClass::draw(BITMAP* dest)
 herodraw_end:
 	xofs=oxofs;
 	yofs=oyofs;
+	do_drawweapon(dest, SPLAYER_PLAYER_DRAW);
 	do_primitives(dest, SPLAYER_PLAYER_DRAW, tmpscr, 0, playing_field_offset);
 }
 
@@ -3166,6 +3167,7 @@ void HeroClass::masked_draw(BITMAP* dest)
 				lift_wpn->has_shadow = false;
 				lift_wpn->z += z;
 				lift_wpn->fakez += fakez;
+				lift_wpn->dodrawupdate();
 				lift_wpn->draw(sub);
 				lift_wpn->has_shadow = shad;
 			}
@@ -3185,6 +3187,7 @@ void HeroClass::masked_draw(BITMAP* dest)
 			lift_wpn->has_shadow = false;
 			lift_wpn->z += z;
 			lift_wpn->fakez += fakez;
+			lift_wpn->dodrawupdate();
 			lift_wpn->draw(dest);
 			lift_wpn->has_shadow = shad;
 		}

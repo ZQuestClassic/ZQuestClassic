@@ -1259,7 +1259,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	}
 	skip_eweapon_script:
 	tilemod = 0;
-	drawlayer = 0;
 	family_class = family_level = 0;
 	flags = 0;
 	collectflags = 0;
@@ -1288,6 +1287,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	//This will need an input in the params! -Z
 		
 	isLWeapon = isLW;
+	drawlayer = isLWeapon ? SPLAYER_LWEAP_FRONT_DRAW : SPLAYER_EWEAP_FRONT_DRAW;
 	minX = minY = maxX = maxY = 0;
 	rundeath = false;
 	shd_aclk = shd_aframe = 0;
@@ -3361,6 +3361,11 @@ void weapon::LOADGFX(int32_t wpn)
     frames = wpnsbuf[wid].frames;
     temp1 = wpnsbuf[wFIRE].tile;
     behind = (wpnsbuf[wid].misc&WF_BEHIND)!=0;
+	if (get_qr(qr_USESPRITE_SETS_LAYER))
+	{
+		if (behind) drawlayer = isLWeapon ? SPLAYER_LWEAP_BEHIND_DRAW : SPLAYER_EWEAP_BEHIND_DRAW;
+		else drawlayer = isLWeapon ? SPLAYER_LWEAP_FRONT_DRAW : SPLAYER_EWEAP_FRONT_DRAW;
+	}
 }
 void weapon::LOADGFX_CMB(int32_t cid, int32_t cset)
 {
@@ -3749,6 +3754,11 @@ void weapon::limited_animate()
 		}
 	}
 	if(rundeath) do_death_fx();
+}
+void weapon::post_animate()
+{
+	if (!get_qr(qr_OLD_WEAPON_DRAWING)) dodrawupdate();
+	sprite::post_animate();
 }
 bool weapon::animate(int32_t index)
 {
@@ -7640,15 +7650,11 @@ void weapon::doAutoRotate(bool dodir, bool doboth)
 	}
 }
 
-void weapon::draw(BITMAP *dest)
+void weapon::dodrawupdate()
 {
 	if(weapon_dying_frame) return;
-	if(fallclk || drownclk)
-	{
-		sprite::draw(dest);
-		return;
-	}
-	bool suspt = (FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon) || (FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon);
+	if(fallclk || drownclk) return;
+	bool suspt = !do_animation || (FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon) || (FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon);
 	if(!suspt)
 	{
 		if(flash==1)
@@ -7710,64 +7716,39 @@ void weapon::draw(BITMAP *dest)
 				}
 			}
 			
-			//tile = o_tile+aframe;
-			if ( do_animation ) 
-			{
-				update_weapon_frame(aframe,o_tile);
-			}
-		}
-	}
-	
-	
-	// do special case stuff
-	switch(id)
-	{
-		case wSword:
-		case wHammer:
-			if(Hero.is_hitflickerframe() ||
-					Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
-				return;
-				
-		case wBeam:
-		case wRefBeam:
+			update_weapon_frame(aframe,o_tile);
+		}	
+		// do special case stuff
+		switch(id)
 		{
-			if(dead==-1) break;
-			if ( !FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon || !FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon)
+			case wSword:
+			case wHammer:
+				if(Hero.is_hitflickerframe() ||
+						Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
+					return;
+					
+			case wBeam:
+			case wRefBeam:
 			{
-				// draw the beam shards
-				int32_t ofs=23-dead;
+				if(dead==-1) break;
 				int32_t f = frame&3;
 				int32_t type2 = o_type;
-				//tile = o_tile+((frames?frames:1)*2);
 				update_weapon_frame(((frames?frames:1)*2),ref_o_tile);
 				
 				if(type2)
 					cs = o_cset>>4;
-				if ( do_animation ) 
-				{
-					if(type2==3 || type2 == 4 && (f&2))
-						++tile;
-				}
-				if(!type2 || type2 == 4 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs)-fakez,cs,0);
-				
-				if(!type2 || type2 == 4 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs)-fakez,cs,1);
-				
-				if(!type2 || type2 == 4 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs-(z+zofs)-fakez,cs,2);
-				
-				if(!type2 || type2 == 4 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs-(z+zofs)-fakez,cs,3);
+				if(type2==3 || type2 == 4 && (f&2))
+					++tile;
 			}
-		}
-		
-		return;											   // don't draw sword
-		
-		case wBomb:
-		case wSBomb:
-		case ewBomb:
-		case ewSBomb:
-		{
-			if(!misc || clk<misc-2) break;
-			if ( !FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon || !FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon)
+			
+			return;											   // don't draw sword
+			
+			case wBomb:
+			case wSBomb:
+			case ewBomb:
+			case ewSBomb:
 			{
+				if(!misc || clk<misc-2) break;
 				// draw the explosion
 				int32_t id2=0;
 				int32_t boomframes = 0;
@@ -7815,19 +7796,165 @@ void weapon::draw(BITMAP *dest)
 				{
 					//equally divide up the explosion time among the frames
 					int32_t perframe = (boomframes >= 34 ? 1 : (boomframes + 34)/boomframes);
-					if ( do_animation ) 
-					{
-						if(clk > misc)
-							tile += (clk-misc)/perframe;
-					}
-					//update_weapon_frame((clk-misc)/perframe,tile);
+					if(clk > misc)
+						tile += (clk-misc)/perframe;
 				}
 				else if(clk>misc+22)
 				{
-					if ( do_animation ) ++tile;
-					//update_weapon_frame(1,tile);
+					++tile;
 				}
+				return;	// don't draw bomb
 			}
+			
+			case wArrow:
+			case wRefArrow:
+			case ewArrow:
+				if(dead>0 && !bounce)
+				{
+					cs=7;
+					tile=54;
+					flip=0;
+				}
+				
+				break;
+				
+			case ewFireTrail:
+			case ewFlame:
+			case wFire:
+			
+				
+				if(frames==0)
+					flip = o_flip & (clk>>2);
+				break;
+				
+			case ewBrang:
+			case wBrang:
+				cs = o_cset&15;
+				
+				if((id == wBrang && (parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1)))
+				|| (id == ewBrang && !get_qr(qr_CORRECTED_EW_BRANG_ANIM)))
+				{
+					tile = o_tile;
+					
+					if(BSZ)
+					{
+						flip = bszboomflip[(clk>>2)&3];
+					}
+					else
+					{
+						//Okay, so since this code confused me, lemme explain it.
+						//that &0xE will cause it to A: loop to a range of 0-15, and B: truncate any odd numbers 
+						//to the even number below it (because it is not &0xF, the least significant bit is not 
+						//being saved, which means it's only treating it as an even number).
+						
+						//Basically, boomframe[] is an array in which even numbers are the frame offset from o_tile for that frame,
+						//and the odd number above it is the flip for that frame; and each frame lasts two... well, frames. This results
+						//in a 16 frame animation using only an A.Speed of 2, and only 3 tiles. It's used to save tile space in older versions.
+						update_weapon_frame(boomframe[clk&0xE],o_tile);
+						flip = boomframe[(clk&0xE)+1];
+					}
+					
+					if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+					{
+					update_weapon_frame((BSZ?1:4)*dir,tile);
+					}
+				}
+				else
+				{
+					if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+					{
+						update_weapon_frame(zc_max(frames,1)*dir,tile);
+					}
+				}
+				
+				if(dead>0)
+				{
+					if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG1)
+					{
+						tile=o_tile+(frames*(itemsbuf[parentitem].flags & ITEM_FLAG2)?8:1);
+					}
+					else
+					{
+						cs=7;
+						tile=54;
+						flip=0;
+					}
+				}
+				
+				break;
+				
+			case wWind:
+				if(frames==0)
+					flip ^= o_flip;
+					
+				if(Dead() && !BSZ)
+					tile = temp1;//wpnsbuf[wFIRE].tile;
+					
+				break;
+			default:
+				break;
+		}
+	}
+	if (has_shadow && (z > 0||fakez > 0) && get_qr(qr_WEAPONSHADOWS) )
+	{
+		wpndata const& spr = wpnsbuf[spr_shadow];
+		if(++shd_aclk >= zc_max(spr.speed,1))
+		{
+			shd_aclk = 0;
+			if(++shd_aframe >= zc_max(spr.frames,1))
+			{
+				shd_aframe = 0;
+			}
+		}
+		shadowtile = spr.tile+shd_aframe;
+	}
+}
+
+void weapon::draw(BITMAP *dest)
+{
+	if(weapon_dying_frame) return;
+	if(fallclk || drownclk)
+	{
+		sprite::draw(dest);
+		return;
+	}
+	if (get_qr(qr_OLD_WEAPON_DRAWING)) dodrawupdate();
+	bool olddraw = get_qr(qr_OLD_WEAPON_DRAWING);
+	bool suspt = (FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon) || (FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon);
+	
+	// do special case stuff
+	switch(id)
+	{
+		case wSword:
+		case wHammer:
+			if(Hero.is_hitflickerframe() ||
+					Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
+				return;
+			if (dead == -1) break;
+		return;
+		case wBeam:
+		case wRefBeam:
+		{
+			if (dead == -1) break;
+			int32_t ofs=23-dead;
+			int32_t f = frame&3;
+			int32_t type2 = o_type;
+			if(!type2 || type2 == 4 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs)-fakez,cs,0);
+			
+			if(!type2 || type2 == 4 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs)-fakez,cs,1);
+			
+			if(!type2 || type2 == 4 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs-(z+zofs)-fakez,cs,2);
+			
+			if(!type2 || type2 == 4 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs-(z+zofs)-fakez,cs,3);
+		}
+		return;											   // don't draw sword
+		
+		case wBomb:
+		case wSBomb:
+		case ewBomb:
+		case ewSBomb:
+		{
+			if(!misc || clk<misc-2) break;
 			
 			overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-fakez-13-(z+zofs),cs,0);
 			overtile16(dest,tile,x,y+yofs-fakez-(z+zofs),cs,0);
@@ -7855,216 +7982,30 @@ void weapon::draw(BITMAP *dest)
 				draw_hitbox();
 			return;											   // don't draw bomb
 		}
-		
-		case wArrow:
-		case wRefArrow:
-		case ewArrow:
-			if(dead>0 && !bounce)
-			{
-				if ( do_animation ) 
-				{
-					if ( !FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon || !FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon)
-					{
-						cs=7;
-						tile=54;
-						flip=0;
-					}
-				}
-			}
-			
-			break;
-			
-		case ewFireTrail:
-		case ewFlame:
-		case wFire:
-		
-			//if no animation, flip tile
-			if ( !FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon || !FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon)
-			{
-				if(frames==0 && do_animation ) //do_animation is a ZScript setting. -Z
-					flip = o_flip & (clk>>2);
-			}
-			break;
-			
-		case ewBrang:
-		case wBrang:
-			if ( !FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon || !FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon)
-			{
-				cs = o_cset&15;
-				
-				if((id == wBrang && (parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1)))
-					|| (id == ewBrang && !get_qr(qr_CORRECTED_EW_BRANG_ANIM)))
-				{
-					if ( do_animation ) 
-					{
-						tile = o_tile;
-						
-						if(BSZ)
-						{
-							flip = bszboomflip[(clk>>2)&3];
-						}
-						else
-						{
-							//Okay, so since this code confused me, lemme explain it.
-							//that &0xE will cause it to A: loop to a range of 0-15, and B: truncate any odd numbers 
-							//to the even number below it (because it is not &0xF, the least significant bit is not 
-							//being saved, which means it's only treating it as an even number).
-							
-							//Basically, boomframe[] is an array in which even numbers are the frame offset from o_tile for that frame,
-							//and the odd number above it is the flip for that frame; and each frame lasts two... well, frames. This results
-							//in a 16 frame animation using only an A.Speed of 2, and only 3 tiles. It's used to save tile space in older versions.
-							update_weapon_frame(boomframe[clk&0xE],o_tile);
-							flip = boomframe[(clk&0xE)+1];
-						}
-						
-						if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
-						{
-						update_weapon_frame((BSZ?1:4)*dir,tile);
-						}
-					}
-				}
-				else
-				{
-					if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
-					{
-						if ( do_animation )update_weapon_frame(zc_max(frames,1)*dir,tile);
-					}
-				}
-				
-				if(dead>0)
-				{
-					if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG1)
-					{
-						if ( do_animation ) 
-						{
-							tile=o_tile+(frames*(itemsbuf[parentitem].flags & ITEM_FLAG2)?8:1);
-						}
-					}
-					else
-					{
-						if ( do_animation ) 
-						{
-							cs=7;
-							tile=54;
-							flip=0;
-						}
-					}
-				}
-			}
-			
-			break;
-			
-		case wHookshot:
-			break;
-			
-		case wWind:
-			if ( !FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon || !FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon)
-			{
-				if(frames==0 && do_animation)
-					flip ^= o_flip;
-					
-				if(Dead() && !BSZ && do_animation)
-					tile = temp1;//wpnsbuf[wFIRE].tile;
-			}
-				
-			break;
-			
-		case ewWind:
-			/*
-			  if(wpnsbuf[wid].frames==0)
-			  flip ^= (wpnsbuf[wid].misc>>2)&3;
-			  */
-			break;
-			
 		case wPhantom:
 			switch(type)
 			{
-			case pDIVINEPROTECTIONROCKET1:
-			case pDIVINEPROTECTIONROCKETRETURN1:
-			case pDIVINEPROTECTIONROCKETTRAIL1:
-			case pDIVINEPROTECTIONROCKETTRAILRETURN1:
-			case pDIVINEPROTECTIONROCKET2:
-			case pDIVINEPROTECTIONROCKETRETURN2:
-			case pDIVINEPROTECTIONROCKETTRAIL2:
-			case pDIVINEPROTECTIONROCKETTRAILRETURN2:
-				if(parentitem>=0 && (itemsbuf[parentitem].flags & ITEM_FLAG1 ? 1 : 0)&&!(frame&1))
-				{
-					return;
-				}
-				
-				break;
-			}
-			
-		case wScript1:
-		case wScript2:
-		case wScript3:
-		case wScript4:
-		case wScript5:
-		case wScript6:
-		case wScript7:
-		case wScript8:
-		case wScript9:
-		case wScript10:
-		{
-			if ( do_animation )
-			{
-				//Bugfix script weapons not animating:
-				//Let's see if this works, and failstobreakanything. -Z
-				//This also will need a QR, if it works!
-				/* Bugged, disabling.
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && get_qr(qr_ANIMATECUSTOMWEAPONS) )
-				{
-					if(frames>1 && ++aframe >= frames)
+				case pDIVINEPROTECTIONROCKET1:
+				case pDIVINEPROTECTIONROCKETRETURN1:
+				case pDIVINEPROTECTIONROCKETTRAIL1:
+				case pDIVINEPROTECTIONROCKETTRAILRETURN1:
+				case pDIVINEPROTECTIONROCKET2:
+				case pDIVINEPROTECTIONROCKETRETURN2:
+				case pDIVINEPROTECTIONROCKETTRAIL2:
+				case pDIVINEPROTECTIONROCKETTRAILRETURN2:
+					if(parentitem>=0 && (itemsbuf[parentitem].flags & ITEM_FLAG1 ? 1 : 0)&&!(frame&1))
 					{
-						aframe = 0;
+						return;
 					}
-					//update_weapon_frame(aframe,o_tile);
-					update_weapon_frame(aframe,o_tile);
-				}
-				*/
-				//al_trace("script_wrote_otile = %d\n",script_wrote_otile);
-				//if ( ScriptGenerated && script_wrote_otile && aframe > 0 ) 
-				//{ 
-				//	script_wrote_otile = 0; // NOTES and ISSUES
-								// I honestly do not recall when or why I added this. I think that it was
-								// in an attempt to fix Tile not being reset when writing to OTile. 
-								// 
-								// PROBLEM
-								// Doing any of this on the first frame of a weapon will overwrite a script-set
-								// tile with the original tile if the scripter does this in a script:
-								//
-								// this->OriginalTile = 6;
-								// this->Tile = 12345; 	// will be overwritten by o_tile because of the 
-								//			// script_wrote_otile FLAG being checked by the engine
-								//			// after the script writes to tile! -Z 26th October, 2019
-					
-					//tile = o_tile; //This will overwrite the tile on the calls above, so we can't do it. Fuck it. 
-				//}
+				default:
+					break;
 			}
-			//Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
-		}
-		break;
+		default:
+			break;
 	}
 	
 	// draw it
-	
-	if (has_shadow && (z > 0||fakez > 0) && get_qr(qr_WEAPONSHADOWS) )
-	{
-		wpndata const& spr = wpnsbuf[spr_shadow];
-		if(!suspt)
-		{
-			if(++shd_aclk >= zc_max(spr.speed,1))
-			{
-				shd_aclk = 0;
-				if(++shd_aframe >= zc_max(spr.frames,1))
-				{
-					shd_aframe = 0;
-				}
-			}
-		}
-		shadowtile = spr.tile+shd_aframe;
-		sprite::drawshadow(dest,get_qr(qr_TRANSSHADOWS) != 0);
-	}
+	sprite::drawshadow(dest,get_qr(qr_TRANSSHADOWS) != 0);
 	sprite::draw(dest);
 }
 
@@ -8078,6 +8019,7 @@ void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type,
     temp.aframe=aframe;
     temp.script = 0; //Can not have script data.
     temp.animate(0); //Scripts run in this function. Call after forcing script data to 0.
+	if (!get_qr(qr_OLD_WEAPON_DRAWING)) temp.dodrawupdate();
     temp.draw(dest);
     aclk=temp.clk2;
     aframe=temp.aframe;
@@ -8232,6 +8174,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
     isLWeapon = 0;
+	drawlayer = isLWeapon ? SPLAYER_LWEAP_FRONT_DRAW : SPLAYER_EWEAP_FRONT_DRAW;
     ScriptGenerated = 0;
     LOADGFX(usesprite);
     //Z_scripterrlog("After calling LOADGFX(), the dummy weapon o_tile is: %d\n", o_tile);

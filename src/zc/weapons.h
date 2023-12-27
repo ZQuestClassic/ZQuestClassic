@@ -123,7 +123,7 @@ public:
     int32_t weapduration; //default duration, 0 = infinite. 
     int32_t clocks[WEAPON_CLOCKS];
     int32_t tilemod;
-    byte drawlayer;
+    int drawlayer;
     word family_class;												
     byte family_level;
     word flags;
@@ -179,6 +179,7 @@ public:
 	bool no_triggers() const;
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
     void limited_animate();
+    virtual void post_animate();
     virtual bool animate(int32_t index);
 	void getBombPoses(std::set<int>& poses);
 	void collision_check();
@@ -190,6 +191,7 @@ public:
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
     virtual void draw(BITMAP *dest);
+    virtual void dodrawupdate();
     virtual void update_weapon_frame(int32_t change, int32_t orig);
 	virtual int32_t run_script(int32_t mode);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;

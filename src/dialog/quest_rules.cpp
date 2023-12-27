@@ -956,8 +956,10 @@ static GUI::ListData compatRulesList
 		"If enabled, Push (Generic) combos won't lock into place via the 'Pushed' flag"
 		" (ex. 'clicking into place' for a block trigger)" },
 	{ "Broken Enemy Fire/Arrow Reflecting", qr_BROKEN_FLAME_ARROW_REFLECTING,
-		"If enabled, Enemy Fire/Arrows won't reflect off of player shields, even when the reflect flag is set."
+		"If enabled, Enemy Fire/Arrows won't reflect off of player shields, even when the reflect flag is set."
 		"Enemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by player shields, regardless of block/reflect flags." },
+	{ "Old Weapon Drawing", qr_OLD_WEAPON_DRAWING,
+		"If enabled, weapon tiles will only change their tile immediately before drawing. The main effect this has is for when scripts attempt to read ->Tile." },
 };
 
 static GUI::ListData enemiesRulesList
@@ -1537,6 +1539,11 @@ static GUI::ListData weaponsRulesList
 		" will still tick down their fuse and explode." },
 	{ "Enemy Fire Lights New Dark Rooms", qr_EW_FIRE_EMITS_LIGHT,
 		"If enabled, enemy fire weapons will emit light by default, as player fire does." },
+	{ "Setting sprite sets layer", qr_USESPRITE_SETS_LAYER,
+		"If enabled, assigning a sprite will set the DrawLayer of a weapon, depending on whether or not "
+		"the 'Behind' checkbox for the sprite is set. If ticked, it will be SPLAYER_LWEAP_BEHIND_DRAW or "
+		"SPLAYER_EWEAP_BEHIND_DRAW depending on if it's an lweapon or eweapon; if not, it will be "
+		"SPLAYER_LWEAP_FRONT_DRAW or SPLAYER_EWEAP_FRONT_DRAW."},
 	
 	//should maybe keep these last
 	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,

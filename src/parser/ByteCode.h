@@ -1752,7 +1752,10 @@
 
 #define IDATAATTRIB_L           1646
 
-#define LAST_BYTECODE           1647
+#define LWPNLAYER               1647
+#define EWPNLAYER               1648
+
+#define LAST_BYTECODE           1649
 
 //} END OF BYTECODE
 

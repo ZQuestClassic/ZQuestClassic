@@ -6664,6 +6664,12 @@ int32_t get_register(int32_t arg)
 				
 			break;
 			
+		case LWPNLAYER:
+			if(0!=(s=checkLWpn(ri->lwpn,"DrawLayer")))
+				ret=((weapon*)(s))->drawlayer*10000;
+				
+			break;
+			
 		case LWPNDRAWTYPE:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
 				ret=((weapon*)(s))->drawstyle*10000;
@@ -7318,6 +7324,12 @@ int32_t get_register(int32_t arg)
 		case EWPNBEHIND:
 			if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
 				ret=((weapon*)(s))->behind*10000;
+				
+			break;
+			
+		case EWPNLAYER:
+			if(0!=(s=checkEWpn(ri->ewpn,"DrawLayer")))
+				ret=((weapon*)(s))->drawlayer*10000;
 				
 			break;
 			
@@ -18717,7 +18729,27 @@ void set_register(int32_t arg, int32_t value)
 			
 		case LWPNBEHIND:
 			if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
+			{
 				((weapon*)s)->behind=(value!=0);
+				if (get_qr(qr_USESPRITE_SETS_LAYER))
+				{
+					if (((weapon*)s)->behind) ((weapon*)s)->drawlayer = SPLAYER_LWEAP_BEHIND_DRAW;
+					else ((weapon*)s)->drawlayer = SPLAYER_LWEAP_FRONT_DRAW;
+				}
+			}
+				
+			break;
+			
+		case LWPNLAYER:
+			if(0!=(s=checkLWpn(ri->lwpn,"DrawLayer")))
+			{
+				((weapon*)s)->drawlayer = (value/10000);
+				if (get_qr(qr_USESPRITE_SETS_LAYER))
+				{
+					if (((weapon*)s)->drawlayer == SPLAYER_LWEAP_BEHIND_DRAW) ((weapon*)s)->behind = true;
+					else ((weapon*)s)->behind = false;
+				}
+			}
 				
 			break;
 			
@@ -19391,8 +19423,27 @@ void set_register(int32_t arg, int32_t value)
 			
 		case EWPNBEHIND:
 			if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
+			{
 				((weapon*)s)->behind=(value!=0);
+				if (get_qr(qr_USESPRITE_SETS_LAYER))
+				{
+					if (((weapon*)s)->behind) ((weapon*)s)->drawlayer = SPLAYER_EWEAP_BEHIND_DRAW;
+					else ((weapon*)s)->drawlayer = SPLAYER_EWEAP_FRONT_DRAW;
+				}
+			}
 				
+			break;
+		
+		case EWPNLAYER:
+			if(0!=(s=checkLWpn(ri->ewpn,"DrawLayer")))
+			{
+				((weapon*)s)->drawlayer = (value/10000);
+				if (get_qr(qr_USESPRITE_SETS_LAYER))
+				{
+					if (((weapon*)s)->drawlayer == SPLAYER_EWEAP_BEHIND_DRAW) ((weapon*)s)->behind = true;
+					else ((weapon*)s)->behind = false;
+				}
+			}
 			break;
 			
 		case EWPNDRAWTYPE:
@@ -47711,6 +47762,9 @@ script_variable ZASMVars[]=
 	{ "EWPNBURNLIGHTRADIUS", EWPNBURNLIGHTRADIUS, 0, 0 },
 
 	{ "IDATAATTRIB_L", IDATAATTRIB_L, 0, 0 },
+	
+	{ "LWPNLAYER",         LWPNLAYER,          0,             0 },
+	{ "EWPNLAYER",         EWPNLAYER,          0,             0 },
 
 	{ " ", -1, 0, 0 }
 };

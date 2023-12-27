@@ -902,6 +902,9 @@ string ZScript::VarToString(int32_t ID)
 		case LWPNBEHIND:
 			return "LWPNBEHIND";
 			
+		case LWPNLAYER:
+			return "LWPNLAYER";
+			
 		case LWPNASPEED:
 			return "LWPNASPEED";
 			
@@ -1004,6 +1007,9 @@ string ZScript::VarToString(int32_t ID)
 			
 		case EWPNBEHIND:
 			return "EWPNBEHIND";
+			
+		case EWPNLAYER:
+			return "EWPNLAYER";
 			
 		case EWPNASPEED:
 			return "EWPNASPEED";
