@@ -2033,7 +2033,7 @@ enum ASM_DEFINE
 	TANV,                 //0x001E
 	MODR,                 //0x001F
 	MODV,                 //0x0020
-	ABSR,                 //0x0021
+	ABS,                 //0x0021
 	MINR,                 //0x0022
 	MINV,                 //0x0023
 	MAXR,                 //0x0024

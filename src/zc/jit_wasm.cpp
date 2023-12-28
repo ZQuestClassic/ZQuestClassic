@@ -296,7 +296,7 @@ static bool command_is_compiled(int command)
 
 	// These can be commented out to instead run interpreted. Useful for
 	// singling out problematic instructions.
-	// case ABSR:
+	// case ABS:
 	case ADDR:
 	case ADDV:
 	// case ANDR:

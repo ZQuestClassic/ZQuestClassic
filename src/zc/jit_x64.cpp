@@ -517,7 +517,7 @@ static bool command_is_compiled(int command)
 
 	// These can be commented out to instead run interpreted. Useful for
 	// singling out problematic instructions.
-	case ABSR:
+	case ABS:
 	case ADDR:
 	case ADDV:
 	case ANDR:
@@ -1115,7 +1115,7 @@ JittedFunction jit_compile_script(script_data *script)
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
-		case ABSR:
+		case ABS:
 		{
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Gp y = cc.newInt32();

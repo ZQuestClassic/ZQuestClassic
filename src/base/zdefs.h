@@ -2057,11 +2057,20 @@ struct script_data
 	}
 };
 
+enum
+{
+    ARGTY_UNUSED_REG,
+    ARGTY_READ_REG,
+    ARGTY_WRITE_REG,
+    ARGTY_READWRITE_REG,
+    ARGTY_LITERAL,
+    ARGTY_COMPARE_OP,
+};
 struct script_command
 {
 	char name[64];
 	byte args;
-	byte arg_type[3]; //0=reg, 1=val, 2=cmp
+	byte arg_type[3]; //ARGTY_
 	byte arr_type; //0x1 = string, 0x2 = array
 };
 

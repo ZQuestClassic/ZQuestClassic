@@ -626,20 +626,22 @@ bool handle_arg(int ty, char const* buf, int& arg)
 {
 	switch(ty)
 	{
-		case 0: //register
+		case ARGTY_READ_REG:
+		case ARGTY_WRITE_REG:
+		case ARGTY_READWRITE_REG:
 		{
 			if(!set_argument(buf, arg))
 				return false;
 			return true;
 		}
-		case 1: //literal
+		case ARGTY_LITERAL:
 		{
 			if(!ffcheck(buf))
 				return false;
 			arg = ffparse(buf);
 			return true;
 		}
-		case 2: //comparison
+		case ARGTY_COMPARE_OP:
 		{
 			if(auto cmpval = check_comparestr(buf))
 			{

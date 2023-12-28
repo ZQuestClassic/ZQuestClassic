@@ -36388,7 +36388,7 @@ int32_t run_script_int(bool is_jitted)
 			case GETCOMBOBYNAME:	FFCore.do_getcombobyname(); break;
 			case GETDMAPBYNAME:	FFCore.do_getdmapbyname(); break;
 				
-			case ABSR:
+			case ABS:
 				do_abs(false);
 				break;
 				
@@ -45012,11 +45012,14 @@ std::string ZASMArgToString(int32_t arg, int32_t arg_ty)
 {
 	switch(arg_ty)
 	{
-		case 0: //register
+		case ARGTY_UNUSED_REG:
+		case ARGTY_READ_REG:
+		case ARGTY_WRITE_REG:
+		case ARGTY_READWRITE_REG:
 			return ZASMVarToString(arg);
-		case 1: //literal
+		case ARGTY_LITERAL:
 			return to_string(arg);
-		case 2: //comparison
+		case ARGTY_COMPARE_OP:
 			return CMP_STR(arg);
 		default:
 			return "ERROR";
@@ -45042,15 +45045,15 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		for(int q = 0; q < s_c.args; ++q)
 		{
 			bool end = q == (s_c.args-1);
-			if(s_c.arg_type[q] == 1) //literal
+			if(s_c.arg_type[q] == ARGTY_LITERAL)
 			{
 				coloured_console.cprintf(color_red,"%10s (val = %2d)%s", "immediate", sargs[q], end ? "\n" : ", ");
 			}
-			else if(s_c.arg_type[q] == 2) //compare
+			else if(s_c.arg_type[q] == ARGTY_COMPARE_OP)
 			{
 				coloured_console.cprintf(color_red,"%10s (%s)", "compare", CMP_STR(sargs[q], true).c_str(), end ? "\n" : ", ");
 			}
-			else //register
+			else //ARGTY_UNUSED_REG, ARGTY_READ_REG, ARGTY_WRITE_REG, ARGTY_READWRITE_REG
 			{
 				coloured_console.cprintf(color_white,"\t %s (val = %2d)%s", ZASMVarToString(sargs[q]).c_str(), get_register(sargs[q]), end ? "\n" : ", ");
 			}
