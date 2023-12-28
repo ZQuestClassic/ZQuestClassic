@@ -19,9 +19,9 @@ STOREDV 1,1
 STOREDV -10,0; for() #1 setup AND while(true) #1 Body [Opt:AlwaysOn] Start
 LOADD d2,0; for() #1 LoopTest
 COMPAREV d2,10
-SETCMP d2,0.0014
+SETCMP d2,I<=
 COMPAREV d2,0
-GOTOCMP 36,0.0004; for() #1 TestFail?
+GOTOCMP 36,==; for() #1 TestFail?
 PUSHR d4; for() #1 Body Start
 LOADD d2,1; UsrFunc[void doMaths(bool, int)] Params Start
 PUSHR d2
@@ -391,7 +391,7 @@ RETURNFUNC; Func[void doMaths(bool, int)] Body End
 SETR d4,SP; Func[void maybePrint(bool, int, int)] Body Start
 LOADD d2,2; if() #1 Test
 COMPAREV d2,0
-GOTOCMP 387,0.0004; Test 'if'
+GOTOCMP 387,==; Test 'if'
 LOADD d2,1; InlineFunc[void printf(char32)] Params Start AND if() #1 Body Start
 PUSHR d2
 LOADD d2,0

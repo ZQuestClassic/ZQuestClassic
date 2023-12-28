@@ -19,16 +19,16 @@ PUSHARGSV 0,0.0002
 SETR d4,SP
 LOADD d2,4; if() #1 Test
 COMPAREV d2,0
-SETCMP d2,0.0012
+SETCMP d2,I==
 COMPAREV d2,0
-GOTOCMP 16,0.0004; Test 'if'
+GOTOCMP 16,==; Test 'if'
 LOADD d2,7; if() #1 Body Start
 STORED d2,4; if() #1 Body End
 LOADD d2,5; if() #2 Test
 COMPAREV d2,0
-SETCMP d2,0.0010
+SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 24,0.0004; Test 'if'
+GOTOCMP 24,==; Test 'if'
 SETV d3,360; InlineFunc[int Rand(int)] Params AND if() #2 Body Start
 RNDR d2,d3; InlineFunc[int Rand(int)] Body
 STORED d2,5; if() #2 Body End
@@ -49,26 +49,26 @@ POP d3
 ADDR d2,d3
 STORED d2,5; if() #1 Test
 COMPAREV d2,-360
-SETCMP d2,0.0010
+SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 48,0.0004; Test 'if'
+GOTOCMP 48,==; Test 'if'
 LOADD d2,5; if() #1 Body Start
 ADDV d2,360
 STORED d2,5
 GOTO 56; if() #1 Body End
 LOADD d2,5; if() #3 Test AND if() #1 Else Start
 COMPAREV d2,360
-SETCMP d2,0.0009
+SETCMP d2,I>
 COMPAREV d2,0
-GOTOCMP 56,0.0004; Test 'if'
+GOTOCMP 56,==; Test 'if'
 LOADD d2,5; if() #3 Body Start
 SUBV d2,360
 STORED d2,5; if() #3 Body End
 LOADD d2,3; if() #1 Else End AND if() #2 Test
 COMPAREV d2,0
-SETCMP d2,0.0012
+SETCMP d2,I==
 COMPAREV d2,0
-GOTOCMP 100,0.0004; Test 'if'
+GOTOCMP 100,==; Test 'if'
 LOADD d2,1; if() #2 Body Start
 PUSHR d2
 LOADD d2,7
