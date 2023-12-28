@@ -1287,7 +1287,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	//This will need an input in the params! -Z
 		
 	isLWeapon = isLW;
-	drawlayer = isLWeapon ? SPLAYER_LWEAP_FRONT_DRAW : SPLAYER_EWEAP_FRONT_DRAW;
+	if (behind) drawlayer = isLWeapon ? SPLAYER_LWEAP_BEHIND_DRAW : SPLAYER_EWEAP_BEHIND_DRAW;
+	else drawlayer = isLWeapon ? SPLAYER_LWEAP_FRONT_DRAW : SPLAYER_EWEAP_FRONT_DRAW;
 	minX = minY = maxX = maxY = 0;
 	rundeath = false;
 	shd_aclk = shd_aframe = 0;
@@ -8174,9 +8175,10 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
     isLWeapon = 0;
-	drawlayer = isLWeapon ? SPLAYER_LWEAP_FRONT_DRAW : SPLAYER_EWEAP_FRONT_DRAW;
     ScriptGenerated = 0;
     LOADGFX(usesprite);
+	if (behind) drawlayer = isLWeapon ? SPLAYER_LWEAP_BEHIND_DRAW : SPLAYER_EWEAP_BEHIND_DRAW;
+	else drawlayer = isLWeapon ? SPLAYER_LWEAP_FRONT_DRAW : SPLAYER_EWEAP_FRONT_DRAW;
     //Z_scripterrlog("After calling LOADGFX(), the dummy weapon o_tile is: %d\n", o_tile);
     step=0;
     weaponscript = 0;

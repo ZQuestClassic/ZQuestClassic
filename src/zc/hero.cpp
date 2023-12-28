@@ -3167,7 +3167,7 @@ void HeroClass::masked_draw(BITMAP* dest)
 				lift_wpn->has_shadow = false;
 				lift_wpn->z += z;
 				lift_wpn->fakez += fakez;
-				lift_wpn->dodrawupdate();
+				if (!get_qr(qr_OLD_WEAPON_DRAWING)) lift_wpn->dodrawupdate();
 				lift_wpn->draw(sub);
 				lift_wpn->has_shadow = shad;
 			}
@@ -3187,7 +3187,7 @@ void HeroClass::masked_draw(BITMAP* dest)
 			lift_wpn->has_shadow = false;
 			lift_wpn->z += z;
 			lift_wpn->fakez += fakez;
-			lift_wpn->dodrawupdate();
+			if (!get_qr(qr_OLD_WEAPON_DRAWING)) lift_wpn->dodrawupdate();
 			lift_wpn->draw(dest);
 			lift_wpn->has_shadow = shad;
 		}

@@ -4287,7 +4287,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, this_screen, 0, playing_field_offset);
 			//Lwpns.draw(framebuf,false);
 			guys.draw(framebuf,false);
-			do_drawweapon(framebuf, SPLAYER_EWEAP_FRONT_DRAW);
+			do_drawweapon(framebuf, SPLAYER_NPC_DRAW);
 			do_primitives(framebuf, SPLAYER_NPC_DRAW, this_screen, 0, playing_field_offset);
 			do_drawweapon(framebuf, SPLAYER_EWEAP_FRONT_DRAW);
 			do_primitives(framebuf, SPLAYER_EWEAP_FRONT_DRAW, this_screen, 0, playing_field_offset);
