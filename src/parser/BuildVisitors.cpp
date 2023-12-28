@@ -2439,7 +2439,8 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 	else buildPostOp(host.operand.get(), param, ops);
 }
 
-optional<bool> BuildOpcodes::rec_booltree(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param)
+static bool booltree_decret = false;
+optional<bool> BuildOpcodes::rec_booltree_shortcircuit(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param)
 {
 	switch(node.mode)
 	{
@@ -2492,13 +2493,13 @@ optional<bool> BuildOpcodes::rec_booltree(BoolTreeNode& node, int parentMode, in
 				bool last = q == node.branch.size()-1;
 				if(last)
 				{
-					ret = rec_booltree(child, node.mode, truelbl, falselbl, param);
+					ret = rec_booltree_shortcircuit(child, node.mode, truelbl, falselbl, param);
 					addOpcode(new OGotoImmediate(new LabelArgument(truelbl)));
 				}
 				else
 				{
 					auto nextlbl = ScriptParser::getUniqueLabelID();
-					ret = rec_booltree(child, node.mode, nextlbl, falselbl, param);
+					ret = rec_booltree_shortcircuit(child, node.mode, nextlbl, falselbl, param);
 					addOpcode(new ONoOp(nextlbl));
 				}
 				if(ret)
@@ -2515,13 +2516,13 @@ optional<bool> BuildOpcodes::rec_booltree(BoolTreeNode& node, int parentMode, in
 				bool last = q == node.branch.size()-1;
 				if(last)
 				{
-					ret = rec_booltree(child, node.mode, truelbl, falselbl, param);
+					ret = rec_booltree_shortcircuit(child, node.mode, truelbl, falselbl, param);
 					addOpcode(new OGotoImmediate(new LabelArgument(falselbl)));
 				}
 				else
 				{
 					auto nextlbl = ScriptParser::getUniqueLabelID();
-					ret = rec_booltree(child, node.mode, truelbl, nextlbl, param);
+					ret = rec_booltree_shortcircuit(child, node.mode, truelbl, nextlbl, param);
 					addOpcode(new ONoOp(nextlbl));
 				}
 				if(ret)
@@ -2532,6 +2533,81 @@ optional<bool> BuildOpcodes::rec_booltree(BoolTreeNode& node, int parentMode, in
 	}
 	return nullopt;
 }
+void BuildOpcodes::rec_booltree_noshort(BoolTreeNode& node, int parentMode, void* param)
+{
+	bool _and = parentMode == BoolTreeNode::MODE_AND;
+	bool _or = parentMode == BoolTreeNode::MODE_OR;
+	switch(node.mode)
+	{
+		case BoolTreeNode::MODE_LEAF:
+		{
+			auto val = node.leaf->getCompileTimeValue(this, scope);
+			if(val)
+			{
+				if(_and)
+				{
+					if(!*val)
+						addOpcode(new OStackWriteAtVV(new LiteralArgument(0), new LiteralArgument(0)));
+					return;
+				}
+				else if(_or)
+				{
+					if(*val)
+						addOpcode(new OStackWriteAtVV(new LiteralArgument(booltree_decret ? 1 : 10000), new LiteralArgument(0)));
+					return;
+				}
+			}
+			else
+			{
+				visit(node.leaf.get(), param);
+				int c = 0;
+				if(auto cmp = eatSetCompare())
+					c = *cmp & ~CMP_SETI;
+				else
+				{
+					addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+					c = CMP_NE;
+				}
+				int val = booltree_decret ? 1 : 10000;
+				if(_and)
+				{
+					val = 0;
+					c = INVERT_CMP(c);
+				}
+				addOpcode(new OStackWriteAtVV_If(new LiteralArgument(val), new LiteralArgument(0), new CompareArgument(c)));
+			}
+			return;
+		}
+		case BoolTreeNode::MODE_AND:
+		{
+			addOpcode(new OPushImmediate(new LiteralArgument(booltree_decret ? 1 : 10000)));
+			for(size_t q = 0; q < node.branch.size(); ++q)
+				rec_booltree_noshort(node.branch[q], node.mode, param);
+			addOpcode(new OPopRegister(new VarArgument(EXP1)));
+			break;
+		}
+		case BoolTreeNode::MODE_OR:
+		{
+			addOpcode(new OPushImmediate(new LiteralArgument(0)));
+			for(size_t q = 0; q < node.branch.size(); ++q)
+				rec_booltree_noshort(node.branch[q], node.mode, param);
+			addOpcode(new OPopRegister(new VarArgument(EXP1)));
+			break;
+		}
+	}
+	if(_and || _or)
+	{
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		int val = booltree_decret ? 1 : 10000;
+		int c = CMP_NE;
+		if(_and)
+		{
+			val = 0;
+			c = INVERT_CMP(c);
+		}
+		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(val), new LiteralArgument(0), new CompareArgument(c)));
+	}
+}
 
 void BuildOpcodes::caseExprBoolTree(ASTExprBoolTree& host, void* param)
 {
@@ -2540,42 +2616,50 @@ void BuildOpcodes::caseExprBoolTree(ASTExprBoolTree& host, void* param)
 		CONST_VAL(*v);
 		return;
 	}
-	auto endlbl = ScriptParser::getUniqueLabelID();
-	auto truelbl = sidefx_only ? endlbl : ScriptParser::getUniqueLabelID();
-	auto falselbl = sidefx_only ? endlbl : ScriptParser::getUniqueLabelID();
 	BoolTreeNode& node = host.root;
 	bool _and = node.mode == BoolTreeNode::MODE_AND;
-	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL);
+	bool decret = booltree_decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL);
+	
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	
 	auto sidefx = sidefx_only ;
 	sidefx_only = false;
-	rec_booltree(node, 0, truelbl, falselbl, param);
-	sidefx_only = sidefx;
-	
-	if(sidefx_only)
-		addOpcode(new ONoOp(endlbl));
-	else if(_and)
+	if(short_circuit)
 	{
-		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
-		backOpcode()->setLabel(truelbl);
-		addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
-		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		backOpcode()->setLabel(falselbl);
-		addOpcode(new ONoOp(endlbl));
+		auto endlbl = ScriptParser::getUniqueLabelID();
+		auto truelbl = sidefx_only ? endlbl : ScriptParser::getUniqueLabelID();
+		auto falselbl = sidefx_only ? endlbl : ScriptParser::getUniqueLabelID();
+		rec_booltree_shortcircuit(node, -1, truelbl, falselbl, param);
+		if(sidefx)
+			addOpcode(new ONoOp(endlbl));
+		else if(_and)
+		{
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
+			backOpcode()->setLabel(truelbl);
+			addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+			backOpcode()->setLabel(falselbl);
+			addOpcode(new ONoOp(endlbl));
+		}
+		else
+		{
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+			backOpcode()->setLabel(falselbl);
+			addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
+			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
+			backOpcode()->setLabel(truelbl);
+			addOpcode(new ONoOp(endlbl));
+		}
 	}
 	else
 	{
-		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		backOpcode()->setLabel(falselbl);
-		addOpcode(new OGotoImmediate(new LabelArgument(endlbl)));
-		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(decret ? 1 : 10000)));
-		backOpcode()->setLabel(truelbl);
-		addOpcode(new ONoOp(endlbl));
+		rec_booltree_noshort(node, -1, param);
 	}
+	sidefx_only = sidefx;
 }
 void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 {
-	if(host.tree)
+	if(host.tree) //should ALWAYS go in here now? -Em
 	{
 		visit(host.tree.get(), param);
 		return;
@@ -2640,32 +2724,39 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		ocode->setLabel(skip);
 		addOpcode(ocode);
 		cmp = CMP_NE;
+		if(!decret)
+			cmp |= CMP_SETI;
+		addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 	}
 	else
 	{
+		addOpcode(new OPushImmediate(new LiteralArgument(decret ? 1 : 10000))); //push true
 		//Get left
 		visit(host.left.get(), param);
-		//Store left for later
-		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		//If false, set retval to 0
+		int cmp = CMP_EQ;
+		if(auto cmpval = eatSetCompare())
+			cmp = INVERT_CMP(*cmpval) & ~CMP_SETI;
+		else addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(0),
+			new LiteralArgument(0), new CompareArgument(cmp)));
 		//Get right
 		visit(host.right.get(), param);
-		//Retrieve left
-		addOpcode(new OPopRegister(new VarArgument(EXP2)));
-		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-		addOpcode(new OCastBoolF(new VarArgument(EXP2)));
-		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(2)));
-		cmp = CMP_GE;
+		//If false, set retval to 0
+		cmp = CMP_EQ;
+		if(auto cmpval = eatSetCompare())
+			cmp = INVERT_CMP(*cmpval) & ~CMP_SETI;
+		else addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(0),
+			new LiteralArgument(0), new CompareArgument(cmp)));
+		//Pop retval
+		addOpcode(new OPopRegister(new VarArgument(EXP1)));
 	}
-	
-	if(!decret)
-		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 {
-	if(host.tree)
+	if(host.tree) //should ALWAYS go in here now? -Em
 	{
 		visit(host.tree.get(), param);
 		return;
@@ -2734,22 +2825,28 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 	}
 	else
 	{
+		auto trueval = decret ? 1 : 10000;
+		addOpcode(new OPushImmediate(new LiteralArgument(0))); //push false
 		//Get left
 		visit(host.left.get(), param);
-		//Store left for later
-		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		//If true, set retval to 1/10000
+		int cmp = CMP_NE;
+		if(auto cmpval = eatSetCompare())
+			cmp = *cmpval & ~CMP_SETI;
+		else addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(trueval),
+			new LiteralArgument(0), new CompareArgument(cmp)));
 		//Get right
 		visit(host.right.get(), param);
-		//Retrieve left
-		addOpcode(new OPopRegister(new VarArgument(EXP2)));
-		addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-		addOpcode(new OCastBoolF(new VarArgument(EXP2)));
-		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
-		auto cmp = CMP_GE;
-		if(!decret)
-			cmp |= CMP_SETI;
-		addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
+		//If true, set retval to 1/10000
+		cmp = CMP_NE;
+		if(auto cmpval = eatSetCompare())
+			cmp = *cmpval & ~CMP_SETI;
+		else addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OStackWriteAtVV_If(new LiteralArgument(trueval),
+			new LiteralArgument(0), new CompareArgument(cmp)));
+		//Pop retval
+		addOpcode(new OPopRegister(new VarArgument(EXP1)));
 	}
 }
 

@@ -1190,6 +1190,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "ROUNDAWAY", 1, { 0, 0, 0 }, 0 },
 	{ "STOREDV", 2, { 1, 1, 0 }, 0 },
 
+	{ "STACKWRITEATVV_IF", 3, { 1, 1, 2 }, 0 },
+
 	{ "", 0, { 0, 0, 0 }, 0 }
 };
 script_variable variable_list[]=

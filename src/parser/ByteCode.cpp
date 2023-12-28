@@ -6966,3 +6966,9 @@ string OStackWriteAtVV::toString() const
 	return "STACKWRITEATVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+
+string OStackWriteAtVV_If::toString() const
+{
+	return "STACKWRITEATVV_IF " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
+}
+

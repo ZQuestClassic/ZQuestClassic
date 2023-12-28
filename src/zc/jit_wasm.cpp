@@ -810,6 +810,20 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					});
 				}
 				break;
+				case STACKWRITEATVV:
+				{
+					// Lit[arg1] -> Stack[arg2]
+					wasm.emitGlobalGet(g_idx_sp);
+					wasm.emitI32Const(arg2);
+					wasm.emitI32Add();
+					wasm.emitI32Const(4);
+					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+					wasm.emitGlobalGet(g_idx_stack);
+					wasm.emitI32Add();
+					wasm.emitI32Const(arg1);
+					wasm.emitI32Store();
+				}
+				break;
 				case STORED:
 				{
 					// Reg[arg1] -> Stack[rSFRAME + arg2]
@@ -1077,6 +1091,11 @@ JittedFunction jit_compile_script(script_data *script)
 		if (command == RUNGENFRZSCR)
 		{
 			error(script, "RUNGENFRZSCR unsupported", true);
+			return nullptr;
+		}
+		else if (command == STACKWRITEATVV_IF)
+		{
+			error(script, "STACKWRITEATVV_IF unsupported", true);
 			return nullptr;
 		}
 	}

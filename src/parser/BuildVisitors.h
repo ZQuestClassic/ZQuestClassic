@@ -226,7 +226,8 @@ namespace ZScript
 		
 		void push_param(bool varg = false);
 		optional<int> eatSetCompare();
-		optional<bool> rec_booltree(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param);
+		optional<bool> rec_booltree_shortcircuit(BoolTreeNode& node, int parentMode, int truelbl, int falselbl, void* param);
+		void rec_booltree_noshort(BoolTreeNode& node, int parentMode, void* param);
 	};
 
 	class LValBOHelper : public ASTVisitor

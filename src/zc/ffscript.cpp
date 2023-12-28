@@ -35241,6 +35241,20 @@ portal* loadportal(savedportal& p);
 //                                       Run the script                                                //
 ///----------------------------------------------------------------------------------------------------//
 
+static bool check_cmp(uint cmp)
+{
+	if(cmp & CMP_GT)
+		if((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG))
+			return true;
+	if(cmp & CMP_LT)
+		if(!(ri->scriptflag & MOREFLAG))
+			return true;
+	if(cmp & CMP_EQ)
+		if(ri->scriptflag & TRUEFLAG)
+			return true;
+	return false;
+}
+
 void goto_err(char const* opname)
 {
 	auto i = curScriptIndex;
@@ -35825,13 +35839,7 @@ int32_t run_script_int(bool is_jitted)
 			
 			case GOTOCMP:
 			{
-				bool run = false;
-				if(sarg2 & CMP_GT)
-					run = run || ((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG));
-				if(sarg2 & CMP_LT)
-					run = run || !(ri->scriptflag & MOREFLAG);
-				if(sarg2 & CMP_EQ)
-					run = run || (ri->scriptflag & TRUEFLAG);
+				bool run = check_cmp(sarg2);
 				if(run)
 				{
 					if(sarg1 < 0 )
@@ -35848,13 +35856,7 @@ int32_t run_script_int(bool is_jitted)
 			
 			case SETCMP:
 			{
-				bool run = false;
-				if(sarg2 & CMP_GT)
-					run = run || ((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG));
-				if(sarg2 & CMP_LT)
-					run = run || !(ri->scriptflag & MOREFLAG);
-				if(sarg2 & CMP_EQ)
-					run = run || (ri->scriptflag & TRUEFLAG);
+				bool run = check_cmp(sarg2);
 				set_register(sarg1, run ? ((sarg2 & CMP_SETI) ? 10000 : 1) : 0);
 				break;
 			}
@@ -36083,6 +36085,10 @@ int32_t run_script_int(bool is_jitted)
 			case STACKWRITEATRV:
 				do_writeat(false, true);
 				break;
+			case STACKWRITEATVV_IF:
+				if(!check_cmp(sarg3))
+					break;
+			[[fallthrough]];
 			case STACKWRITEATVV:
 				do_writeat(true, true);
 				break;
@@ -51792,6 +51798,7 @@ bool command_uses_comparison_result(int command)
 	case SETLESSI:
 	case SETMORE:
 	case SETLESS:
+	case STACKWRITEATVV_IF:
 		return true;
 	}
 	return false;

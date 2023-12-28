@@ -397,6 +397,50 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 		cc.setle(val);
 		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
+	else if(command == STACKWRITEATVV_IF)
+	{
+		// Write directly value on the stack (arg1 to offset arg2)
+		x86::Gp offset = cc.newInt32();
+		cc.mov(offset, arg2);
+		auto cmp = arg3 & CMP_FLAGS;
+		switch(cmp) //but only conditionally
+		{
+			case 0:
+				break;
+			case CMP_GT|CMP_LT|CMP_EQ:
+				cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);
+				break;
+			default:
+			{
+				x86::Gp tmp = cc.newInt32();
+				x86::Gp val = cc.newInt32();
+				cc.mov(tmp, x86::ptr_32(state.ptrStack, offset, 2));
+				cc.mov(val, arg1);
+				switch(cmp)
+				{
+					case CMP_GT:
+						cc.cmovg(tmp, val);
+						break;
+					case CMP_GT|CMP_EQ:
+						cc.cmovge(tmp, val);
+						break;
+					case CMP_LT:
+						cc.cmovl(tmp, val);
+						break;
+					case CMP_LT|CMP_EQ:
+						cc.cmovle(tmp, val);
+						break;
+					case CMP_EQ:
+						cc.cmove(tmp, val);
+						break;
+					case CMP_GT|CMP_LT:
+						cc.cmovne(tmp, val);
+						break;
+				}
+				cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
+			}
+		}
+	}
 	else
 	{
 		Z_error_fatal("Unimplemented: %s", script_debug_command_to_string(command, arg1, arg2, arg3).c_str());
@@ -503,6 +547,9 @@ static bool command_is_compiled(int command)
 	case SUBR:
 	case SUBV:
 	case SUBV2:
+	
+	//
+	case STACKWRITEATVV:
 		return true;
 	}
 
@@ -928,6 +975,14 @@ JittedFunction jit_compile_script(script_data *script)
 				return nullptr;
 			}
 			cc.jmp(address, function_jump_annotations[function_index]);
+		}
+		break;
+		case STACKWRITEATVV:
+		{
+			// Write directly value on the stack (arg1 to offset arg2)
+			x86::Gp offset = cc.newInt32();
+			cc.mov(offset, arg2);
+			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);
 		}
 		break;
 		case PUSHV:

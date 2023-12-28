@@ -12356,6 +12356,19 @@ namespace ZScript
 			return new OStackWriteAtVV(a->clone(),b->clone());
 		}
 	};
+
+
+
+	class OStackWriteAtVV_If : public TernaryOpcode
+	{
+	public:
+		OStackWriteAtVV_If(Argument *A, Argument* B, Argument* C) : TernaryOpcode(A,B,C) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStackWriteAtVV_If(a->clone(),b->clone(),c->clone());
+		}
+	};
 }
 
 #endif
