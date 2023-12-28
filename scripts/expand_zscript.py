@@ -22,10 +22,11 @@ exclgroup.add_argument('--reg','-r', action='store_true',help='Add ZASM register
 exclgroup.add_argument('--opcode','-o', action='store_true',help='Add ZASM opcodes')
 exclgroup.add_argument('--unopcode','-u', action='store_true',help='Add Unary ZASM opcodes')
 exclgroup.add_argument('--binopcode','-b', action='store_true',help='Add Binary ZASM opcodes')
+exclgroup.add_argument('--ternopcode','-t', action='store_true',help='Add Ternary ZASM opcodes')
 
 args = parser.parse_args()
 
-opcodetype = 2 if args.binopcode else (1 if args.unopcode else (0 if args.opcode else -1))
+opcodetype = 3 if args.ternopcode else (2 if args.binopcode else (1 if args.unopcode else (0 if args.opcode else -1)))
 
 if not (args.reg or opcodetype > -1):
     print("Specify either '--reg' or '--opcode'/'--unopcode'/'--binopcode' to choose a mode!", file=sys.stderr)
@@ -37,8 +38,7 @@ oplist_propcase = []
 file_bytecode_cpp = '../src/parser/ByteCode.cpp'
 file_bytecode_h = '../src/parser/ByteCode.h'
 file_ffscript_h = '../src/zc/ffscript.h'
-file_ffscript_cpp = '../src/zc/ffscript.cpp'
-file_ffasm_cpp = '../src/zq/ffasm.cpp'
+file_zasm_table_cpp = '../src/zasm_table.cpp'
         
 def printlns(lns): # For debugging
     for line in lns:
@@ -206,26 +206,8 @@ if args.reg:
     lines[index:index] = newlines
     write_file(file_ffscript_h,lines)
     
-    # ffscript.cpp
-    with open(file_ffscript_cpp, 'r') as file:
-        lines = file.readlines()
-    index = 0
-    while not re.match('script_variable[ \t]+ZASMVars[ \t]*\[\][ \t]*=.*',lines[index]):
-        index = index + 1
-    m = None
-    while not m:
-        index = index + 1
-        m = re.match('([ \t]*){ " ", -1, 0, 0 }',lines[index])
-    ws = m.groups()[0]
-    newlines = []
-    for reg in reglist:
-        newlines.append(f'{ws}{{ "{reg}", {reg}, 0, 0 }},\n')
-    newlines.append('\n')
-    lines[index:index] = newlines
-    write_file(file_ffscript_cpp,lines)
-    
-    # ffasm.cpp
-    with open(file_ffasm_cpp, 'r') as file:
+    # zasm_table.cpp
+    with open(file_zasm_table_cpp, 'r') as file:
         lines = file.readlines()
     index = 0
     while not re.match('script_variable[ \t]+variable_list[ \t]*\[\][ \t]*=.*',lines[index]):
@@ -240,7 +222,7 @@ if args.reg:
         newlines.append(f'{ws}{{ "{reg}", {reg}, 0, 0 }},\n')
     newlines.append('\n')
     lines[index:index] = newlines
-    write_file(file_ffasm_cpp,lines)
+    write_file(file_zasm_table_cpp,lines)
 elif opcodetype > -1:
     # Bytecode.cpp
     lines = []
@@ -256,6 +238,8 @@ elif opcodetype > -1:
         newlines.append(f'string {oplist_propcase[q]}::toString() const\n')
         newlines.append('{\n')
         match opcodetype:
+            case 3:
+                newlines.append(f'\treturn "{oplist_allcaps[q]} " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();\n')
             case 2:
                 newlines.append(f'\treturn "{oplist_allcaps[q]} " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();\n')
             case 1:
@@ -283,6 +267,18 @@ elif opcodetype > -1:
     newlines = ['\n','\n','\n']
     for op in oplist_propcase:
         match opcodetype:
+            case 3:
+                newlines.append(f'\tclass {op} : public TernaryOpcode\n')
+                newlines.append(f'\t{{\n')
+                newlines.append(f'\tpublic:\n')
+                newlines.append(f'\t\t{op}(Argument *A, Argument* B, Argument* C) : TernaryOpcode(A,B,C) {{}}\n')
+                newlines.append(f'\t\tstd::string toString() const;\n')
+                newlines.append(f'\t\tOpcode* clone() const\n')
+                newlines.append(f'\t\t{{\n')
+                newlines.append(f'\t\t\treturn new {op}(a->clone(),b->clone(),c->clone());\n')
+                newlines.append(f'\t\t}}\n')
+                newlines.append(f'\t}};\n')
+                newlines.append(f'\n')
             case 2:
                 newlines.append(f'\tclass {op} : public BinaryOpcode\n')
                 newlines.append(f'\t{{\n')
@@ -345,27 +341,8 @@ elif opcodetype > -1:
     lines[index:index] = newlines
     write_file(file_ffscript_h,lines)
     
-    # ffscript.cpp
-    with open(file_ffscript_cpp, 'r') as file:
-        lines = file.readlines()
-    index = 0
-    while not re.match('script_command[ \t]+ZASMcommands[ \t]*\[[ \t]*NUMCOMMANDS[ \t]*\+[ \t]*1[ \t]*\][ \t]*=.*',lines[index]):
-        index = index + 1
-    m = None
-    while not m:
-        index = index + 1
-        m = re.match('([ \t]*){ *"", *0, *0, *0, *0 *}',lines[index])
-    ws = m.groups()[0]
-    newlines = []
-    for op in oplist_allcaps:
-        newlines.append(f'{ws}{{ "{op}", 0, 0, 0, 0 }},\n')
-    newlines.append('\n')
-    lines[index] = f'{ws}{{ "", 0, 0, 0, 0 }}\n'
-    lines[index:index] = newlines
-    write_file(file_ffscript_cpp,lines)
-    
-    # ffasm.cpp
-    with open(file_ffasm_cpp, 'r') as file:
+    # zasm_table.cpp
+    with open(file_zasm_table_cpp, 'r') as file:
         lines = file.readlines()
     index = 0
     while not re.match('script_command[ \t]+command_list[ \t]*\[[ \t]*NUMCOMMANDS[ \t]*\+[ \t]*1[ \t]*\][ \t]*=.*',lines[index]):
@@ -373,15 +350,14 @@ elif opcodetype > -1:
     m = None
     while not m:
         index = index + 1
-        m = re.match('([ \t]*){ *"", *0, *0, *0, *0 *}',lines[index])
-    ws = m.groups()[0]
+        m = re.match('([ \t]){[ \t]*"",[ \t]*0,[ \t]*{[ \t]*0,[ \t]*0,[ \t]*0[ \t]*},[ \t]*0[ \t]*}',lines[index])
     newlines = []
     for op in oplist_allcaps:
-        newlines.append(f'{ws}{{ "{op}", 0, 0, 0, 0 }},\n')
+        newlines.append(f'\t{{ "{op}", {opcodetype}, {{ 0, 0, 0 }}, 0 }},\n')
     newlines.append('\n')
-    lines[index] = f'{ws}{{ "", 0, 0, 0, 0 }}\n'
+    lines[index] = f'\t{{ "", 0, {{ 0, 0, 0 }}, 0 }}\n'
     lines[index:index] = newlines
-    write_file(file_ffasm_cpp,lines)
+    write_file(file_zasm_table_cpp,lines)
 else:
     exit(0)
 

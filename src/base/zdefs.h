@@ -229,7 +229,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         23
+#define V_FFSCRIPT         24
 #define V_SFX              8
 #define V_FAVORITES        4
 
@@ -1814,11 +1814,11 @@ struct zasm_meta
 ScriptType get_script_type(std::string const& name);
 std::string get_script_name(ScriptType type);
 
+#define NUM_ZS_ARGS 3
 struct ffscript
 {
-    word command;
-    int32_t arg1;
-    int32_t arg2;
+	word command;
+	int32_t arg1, arg2, arg3;
 	std::vector<int32_t> *vecptr;
 	std::string *strptr;
 	ffscript()
@@ -1826,10 +1826,11 @@ struct ffscript
 		command = 0xFFFF;
 		arg1 = 0;
 		arg2 = 0;
+		arg3 = 0;
 		vecptr = nullptr;
 		strptr = nullptr;
 	}
-	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0): command(command), arg1(arg1), arg2(arg2)
+	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0): command(command), arg1(arg1), arg2(arg2), arg3(arg3)
 	{
 		vecptr = nullptr;
 		strptr = nullptr;
@@ -1852,6 +1853,7 @@ struct ffscript
 		other.command = command;
 		other.arg1 = arg1;
 		other.arg2 = arg2;
+		other.arg3 = arg3;
 		other.vecptr = vecptr;
 		other.strptr = strptr;
 		vecptr = nullptr;
@@ -1863,6 +1865,7 @@ struct ffscript
 		command = 0xFFFF;
 		arg1 = 0;
 		arg2 = 0;
+		arg3 = 0;
 		if(vecptr)
 		{
 			delete vecptr;
@@ -1880,6 +1883,7 @@ struct ffscript
 		other.command = command;
 		other.arg1 = arg1;
 		other.arg2 = arg2;
+		other.arg3 = arg3;
 		if(vecptr)
 		{
 			other.vecptr = new std::vector<int32_t>();
@@ -1900,6 +1904,7 @@ struct ffscript
 		if(command != other.command) return false;
 		if(arg1 != other.arg1) return false;
 		if(arg2 != other.arg2) return false;
+		if(arg3 != other.arg3) return false;
 		//Check for pointer existence differences
 		if((vecptr==nullptr)!=(other.vecptr==nullptr)) return false;
 		if((strptr==nullptr)!=(other.strptr==nullptr)) return false;
@@ -1919,10 +1924,6 @@ struct ffscript
 				return false;
 		}
 		return true;
-	}
-	bool operator!=(ffscript const& other) const
-	{
-		return !(*this == other);
 	}
 };
 
@@ -2058,11 +2059,10 @@ struct script_data
 
 struct script_command
 {
-    char name[64];
-    byte args;
-    byte arg1_type; //0=reg, 1=val;
-    byte arg2_type; //0=reg, 1=val;
-    byte arr_type; //0x1 = string, 0x2 = array
+	char name[64];
+	byte args;
+	byte arg_type[3]; //0=reg, 1=val, 2=cmp
+	byte arr_type; //0x1 = string, 0x2 = array
 };
 
 struct script_variable

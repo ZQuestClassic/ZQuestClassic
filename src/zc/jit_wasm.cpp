@@ -411,6 +411,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 			int command = script->zasm[i].command;
 			int arg1 = script->zasm[i].arg1;
 			int arg2 = script->zasm[i].arg2;
+			int arg3 = script->zasm[i].arg3;
 
 			if (state.runtime_debugging && !command_uses_comparison_result(command))
 			{

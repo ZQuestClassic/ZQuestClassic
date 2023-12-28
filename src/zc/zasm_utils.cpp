@@ -244,9 +244,8 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 		for (pc_t i = function.start_pc; i <= function.final_pc; i++)
 		{
 			pc_t command = script->zasm[i].command;
-			pc_t arg1 = script->zasm[i].arg1;
-			pc_t arg2 = script->zasm[i].arg2;
-			std::string str = script_debug_command_to_string(command, arg1, arg2);
+			auto& op = script->zasm[i];
+			std::string str = script_debug_command_to_string(command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr);
 			ss <<
 				std::setw(5) << std::right << i << ": " <<
 				std::left << std::setw(45) << str;
@@ -255,9 +254,9 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 				auto& edges = cfg.block_edges[block_id];
 				ss << fmt::format("[Block {} -> {}]", block_id++, fmt::join(edges, ", "));
 			}
-			if ((command == GOTO && structured_zasm.start_pc_to_function.contains(arg1)) || command == CALLFUNC)
+			if ((command == GOTO && structured_zasm.start_pc_to_function.contains(op.arg1)) || command == CALLFUNC)
 			{
-				ss << fmt::format("[Call {}]", zasm_fn_get_name(structured_zasm.functions[structured_zasm.start_pc_to_function.at(arg1)]));
+				ss << fmt::format("[Call {}]", zasm_fn_get_name(structured_zasm.functions[structured_zasm.start_pc_to_function.at(op.arg1)]));
 			}
 			ss << '\n';
 		}
@@ -345,6 +344,7 @@ static uint64_t generate_function_hash(const script_data* script, const Structur
 		int command = script->zasm[i].command;
 		int arg1 = script->zasm[i].arg1;
 		int arg2 = script->zasm[i].arg2;
+		int arg3 = script->zasm[i].arg3;
 
 		data.push_back(command);
 
@@ -406,6 +406,7 @@ static uint64_t generate_function_hash(const script_data* script, const Structur
 		{
 			data.push_back(arg1);
 			data.push_back(arg2);
+			data.push_back(arg3);
 		}
 	}
 

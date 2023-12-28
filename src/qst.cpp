@@ -12849,7 +12849,6 @@ void reset_scripts()
 	}
 }
 
-extern script_command command_list[];
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, word , script_data **script, word zmeta_version)
 {
 	// TODO: refactor to just take a script_data*
@@ -13066,6 +13065,10 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 			{
 				return qe_invalid;
 			}
+			
+			if(s_version >= 24)
+				if(!p_igetl(&(temp_script.arg3),f))
+					return qe_invalid;
 			
 			if(s_version >= 21)
 			{

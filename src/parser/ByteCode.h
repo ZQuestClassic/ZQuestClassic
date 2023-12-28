@@ -2070,6 +2070,70 @@ namespace ZScript
 		Argument *a;
 		Argument *b;
 	};
+	
+	class TernaryOpcode : public Opcode
+	{
+	public:
+		TernaryOpcode(Argument *A, Argument *B, Argument *C) : a(A), b(B), c(C) {}
+		~TernaryOpcode()
+		{
+			delete a;
+			delete b;
+			delete c;
+		}
+		Argument* getFirstArgument()
+		{
+			return a;
+		}
+		Argument const* getFirstArgument() const
+		{
+			return a;
+		}
+		Argument* getSecondArgument()
+		{
+			return b;
+		}
+		Argument const* getSecondArgument() const
+		{
+			return b;
+		}
+		Argument* getThirdArgument()
+		{
+			return c;
+		}
+		Argument const* getThirdArgument() const
+		{
+			return c;
+		}
+		Argument* takeFirstArgument()
+		{
+			auto tmp = a;
+			a = nullptr;
+			return tmp;
+		}
+		Argument* takeSecondArgument()
+		{
+			auto tmp = b;
+			b = nullptr;
+			return tmp;
+		}
+		Argument* takeThirdArgument()
+		{
+			auto tmp = c;
+			c = nullptr;
+			return tmp;
+		}
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			a->execute(host, param);
+			b->execute(host, param);
+			c->execute(host, param);
+		}
+	protected:
+		Argument *a;
+		Argument *b;
+		Argument *c;
+	};
 
 	class OSetTrue : public UnaryOpcode
 	{

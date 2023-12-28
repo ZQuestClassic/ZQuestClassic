@@ -150,11 +150,9 @@ void ScriptDebugHandle::print(int32_t attributes, const char *str)
 
 void ScriptDebugHandle::print_command(int i)
 {
-	word scommand = script->zasm[i].command;
-	int32_t arg1 = script->zasm[i].arg1;
-	int32_t arg2 = script->zasm[i].arg2;
-	vector<int32_t>* argvec = script->zasm[i].vecptr;
-	string* argstr = script->zasm[i].strptr;
+	auto& op = script->zasm[i];
+	word scommand = op.command;
+	int args[] = {op.arg1, op.arg2, op.arg3};
 	script_command c = get_script_command(scommand);
 
 	printf(CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
@@ -163,13 +161,13 @@ void ScriptDebugHandle::print_command(int i)
 	if (c.args >= 1)
 	{
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\t %s", ZASMArgToString(arg1, c.arg1_type).c_str());
+			"\t %s", ZASMArgToString(args[0], c.arg_type[0]).c_str());
 	}
-	if (c.args >= 2)
+	for(int q = 1; q < c.args; ++q)
 	{
 		print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\t %s", ZASMArgToString(arg2, c.arg2_type).c_str());
+			"\t %s", ZASMArgToString(args[q], c.arg_type[q]).c_str());
 	}
 	if (c.arr_type)
 	{
@@ -177,12 +175,12 @@ void ScriptDebugHandle::print_command(int i)
 		if(c.arr_type == 1)
 		{
 			printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-				"\t %s", argstr->c_str());
+				"\t %s", op.strptr->c_str());
 		}
 		else //if(c.arr_type == 2)
 		{
 			printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-				"\t %s", fmt::format("{{ {} }}", fmt::join(*argvec, ", ")).c_str());
+				"\t %s", fmt::format("{{ {} }}", fmt::join(*op.vecptr, ", ")).c_str());
 		}
 	}
 	print("\n");
@@ -225,15 +223,12 @@ void ScriptDebugHandle::pre_command()
 	if (frame != -1)
 	{
 		int i = ri->pc;
-		int32_t arg1 = script->zasm[i].arg1;
-		int32_t arg2 = script->zasm[i].arg2;
-		vector<int32_t>* argvec = script->zasm[i].vecptr;
-		string* argstr = script->zasm[i].strptr;
+		auto& op = script->zasm[i];
 
 		std::string line = script_debug_registers_and_stack_to_string();
 		util::replchar(line, '\n', ' ');
 
-		replay_step_comment(fmt::format("{} {} | {}", i, script_debug_command_to_string(command, arg1, arg2), line));
+		replay_step_comment(fmt::format("{} {} | {}", i, script_debug_command_to_string(command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr), line));
 
 		if (command == COMPAREV || command == COMPARER)
 		{
@@ -275,20 +270,21 @@ int script_debug_is_runtime_debugging()
 	return runtime_debug;
 }
 
-std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, vector<int>* argvec, string* argstr)
+std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3, vector<int>* argvec, string* argstr)
 {
 	std::stringstream ss;
 	script_command c = get_script_command(scommand);
 
+	int args[] = {arg1, arg2, arg3};
 	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
 	ss << SS_WIDTH(15) << c.name;
 	if (c.args >= 1)
 	{
-		ss << " " << SS_WIDTH(16) << ZASMArgToString(arg1, c.arg1_type);
+		ss << " " << SS_WIDTH(16) << ZASMArgToString(args[0], c.arg_type[0]);
 	}
-	if (c.args >= 2)
+	for(int q = 1; q < c.args; ++q)
 	{
-		ss << SS_WIDTH(7) << ZASMArgToString(arg2, c.arg2_type);
+		ss << SS_WIDTH(7) << ZASMArgToString(args[q], c.arg_type[q]);
 	}
 	if (c.arr_type)
 	{
@@ -306,20 +302,21 @@ std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t 
 	return ss.str();
 }
 
-std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2)
+std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3)
 {
 	std::stringstream ss;
 	script_command c = get_script_command(scommand);
-
+	
+	int args[] = {arg1, arg2, arg3};
 	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
 	ss << SS_WIDTH(15) << c.name;
 	if (c.args >= 1)
 	{
-		ss << " " << SS_WIDTH(16) << ZASMArgToString(arg1, c.arg1_type);
+		ss << " " << SS_WIDTH(16) << ZASMArgToString(args[0], c.arg_type[0]);
 	}
-	if (c.args >= 2)
+	for(int q = 1; q < c.args; ++q)
 	{
-		ss << SS_WIDTH(7) << ZASMArgToString(arg2, c.arg2_type);
+		ss << SS_WIDTH(7) << ZASMArgToString(args[q], c.arg_type[q]);
 	}
 
 	return ss.str();

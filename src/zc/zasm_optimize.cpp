@@ -11,7 +11,7 @@ static void expected_to_str(ffscript* s, size_t len)
 {
 	for (int i = 0; i < len; i++)
 	{
-		printf("%s\n", script_debug_command_to_string(s[i].command, s[i].arg1, s[i].arg2).c_str());
+		printf("%s\n", script_debug_command_to_string(s[i].command, s[i].arg1, s[i].arg2, s[i].arg3, s[i].vecptr, s[i].strptr).c_str());
 	}
 }
 
