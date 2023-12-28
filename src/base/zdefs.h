@@ -2066,12 +2066,16 @@ enum
     ARGTY_LITERAL,
     ARGTY_COMPARE_OP,
 };
+#define ARGFL_COMPARE_USED 0x01
+#define ARGFL_COMPARE_SET  0x02
+#define ARGFL_UNIMPL       0x04
 struct script_command
 {
 	char name[64];
 	byte args;
 	byte arg_type[3]; //ARGTY_
 	byte arr_type; //0x1 = string, 0x2 = array
+	byte flags; //ARGFL_
 };
 
 struct script_variable
