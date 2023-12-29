@@ -358,7 +358,7 @@ extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after,
 extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 extern int32_t swordhearts[4], currcset, currspal6, currspal14, gfc, gfc2, pitx, pity, refill_what, refill_why;
 extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, div_prot_item;
-extern int32_t magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
+extern int32_t magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk;
 extern byte newconveyorclk;
 
 extern bool cheats_execute_goto, cheats_execute_light;

@@ -29251,7 +29251,6 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 				a[j] = 0; //initialize array
 				
 			// Keep track of which object created the array so we know which to deallocate
-			//Z_eventlog("Allocating array %d to script %s, %d\n", ptrval, script_types[type], UID);
 			arrayOwner[ptrval].reown(type, UID);
 		}
 	}

@@ -84,7 +84,6 @@ extern comboclass          *combo_class_buf;
 extern guydata             *guysbuf;
 extern ZCHEATS             zcheats;
 extern char                palnames[MAXLEVELS][17];
-extern int32_t                 memrequested;
 extern char                *byte_conversion(int32_t number, int32_t format);
 extern char                *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
 string				             zScript;
@@ -1201,8 +1200,6 @@ bool reset_mapstyles(bool validate, miscQdata *Misc)
 
 int32_t get_qst_buffers()
 {
-    memrequested+=(sizeof(mapscr)*MAPSCRS);
-    Z_message("Allocating map buffer (%s)... ", byte_conversion2(sizeof(mapscr)*MAPSCRS,memrequested,-1, -1));
     TheMaps.resize(MAPSCRS);
 	map_autolayers.resize(6);
     
@@ -1212,7 +1209,6 @@ int32_t get_qst_buffers()
     //memset(TheMaps, 0, sizeof(mapscr)*MAPSCRS); //shouldn't need this anymore
     Z_message("OK\n");
     
-    // Allocating space for all 65535 strings uses up 10.62MB...
     // The vast majority of finished quests (and I presume this will be consistent for all time) use < 1000 strings in total.
     // (Shoelace's "Hero of Dreams" uses 1415.)
     // So let's be a bit generous and allow 4096 initially.
@@ -1222,8 +1218,6 @@ int32_t get_qst_buffers()
 	//       this threshold. Possibly some bug related to `msglistcache` to being reset?
 	// See https://discord.com/channels/876899628556091432/992984989073416242
     msg_strings_size = 8192;
-    memrequested+=(sizeof(MsgStr)*msg_strings_size);
-    Z_message("Allocating string buffer (%s)... ", byte_conversion2(sizeof(MsgStr)*msg_strings_size,memrequested,-1,-1));
     
 	MsgStrings = new MsgStr[msg_strings_size];
         
@@ -1232,41 +1226,24 @@ int32_t get_qst_buffers()
 	{
 		MsgStrings[q].clear();
 	}
-    Z_message("OK\n");                                        // Allocating string buffer...
     
-    memrequested+=(sizeof(DoorComboSet)*MAXDOORCOMBOSETS);
-    Z_message("Allocating door combo buffer (%s)... ", byte_conversion2(sizeof(DoorComboSet)*MAXDOORCOMBOSETS,memrequested,-1,-1));
     
     if((DoorComboSets=(DoorComboSet*)malloc(sizeof(DoorComboSet)*MAXDOORCOMBOSETS))==NULL)
         return 0;
         
-    Z_message("OK\n");                                        // Allocating door combo buffer...
     
-    memrequested+=(sizeof(dmap)*MAXDMAPS);
-    Z_message("Allocating dmap buffer (%s)... ", byte_conversion2(sizeof(dmap)*MAXDMAPS,memrequested,-1,-1));
     
     if((DMaps=new dmap[MAXDMAPS])==NULL)
         return 0;
 
-    Z_message("OK\n");                                        // Allocating dmap buffer...
     
-    memrequested+=(sizeof(newcombo)*MAXCOMBOS);
-    Z_message("Allocating combo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
     
 	combobuf.clear();
 	combobuf.resize(MAXCOMBOS);
-    Z_message("OK\n");                                        // Allocating combo buffer...
     
-    memrequested+=(psTOTAL255);
-    Z_message("Allocating color data buffer (%s)... ", byte_conversion2(psTOTAL255,memrequested,-1,-1));
     
     if((colordata=(byte*)malloc(psTOTAL255))==NULL)
         return 0;
-        
-    Z_message("OK\n");                                        // Allocating color data buffer...
-    
-    memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
-    Z_message("Allocating tile buffer (%s)... ", byte_conversion2(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)),memrequested,-1,-1));
     
     free_newtilebuf();
     if((newtilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
@@ -1276,70 +1253,43 @@ int32_t get_qst_buffers()
     //Z_message("Performed memset on tiles\n"); 
     clear_tiles(newtilebuf);
     //Z_message("Performed clear_tiles()\n"); 
-    Z_message("OK\n");                                        // Allocating tile buffer...
     
     if(is_editor())
     {
-        memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
-        Z_message("Allocating tile grab buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
-        
         if((grabtilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
             return 0;
             
         memset(grabtilebuf, 0, NEWMAXTILES*sizeof(tiledata));
         clear_tiles(grabtilebuf);
-        Z_message("OK\n");                                        // Allocating tile grab buffer...
     }
-    
-    memrequested+=(100000);
-    Z_message("Allocating trash buffer (%s)... ", byte_conversion2(100000,memrequested,-1,-1));
     
     if((trashbuf=(byte*)malloc(100000))==NULL)
         return 0;
         
-    Z_message("OK\n");                                        // Allocating trash buffer...
-    
     // Big, ugly band-aid here. Perhaps the most common cause of random crashes
     // has been inadvertently accessing itemsbuf[-1]. All such crashes should be
     // fixed by ensuring there's actually itemdata there.
     // If you change this, be sure to update del_qst_buffers, too.
-    
-    memrequested+=(sizeof(itemdata)*(MAXITEMS+1));
-    Z_message("Allocating item buffer (%s)... ", byte_conversion2(sizeof(itemdata)*(MAXITEMS+1),memrequested,-1,-1));
     
     if((itemsbuf=(itemdata*)malloc(sizeof(itemdata)*(MAXITEMS+1)))==NULL)
         return 0;
         
     memset(itemsbuf,0,sizeof(itemdata)*(MAXITEMS+1));
     itemsbuf++;
-    Z_message("OK\n");                                        // Allocating item buffer...
-    
-    memrequested+=(sizeof(wpndata)*MAXWPNS);
-    Z_message("Allocating weapon buffer (%s)... ", byte_conversion2(sizeof(wpndata)*MAXWPNS,memrequested,-1,-1));
     
     if((wpnsbuf=(wpndata*)malloc(sizeof(wpndata)*MAXWPNS))==NULL)
         return 0;
         
     memset(wpnsbuf,0,sizeof(wpndata)*MAXWPNS);
-    Z_message("OK\n");                                        // Allocating weapon buffer...
-    
-    memrequested+=(sizeof(guydata)*MAXGUYS);
-    Z_message("Allocating guy buffer (%s)... ", byte_conversion2(sizeof(guydata)*MAXGUYS,memrequested,-1,-1));
     
     if((guysbuf=(guydata*)malloc(sizeof(guydata)*MAXGUYS))==NULL)
         return 0;
         
     memset(guysbuf,0,sizeof(guydata)*MAXGUYS);
-    Z_message("OK\n");                                        // Allocating guy buffer...
-    
-    memrequested+=(sizeof(comboclass)*cMAX);
-    Z_message("Allocating combo class buffer (%s)... ", byte_conversion2(sizeof(comboclass)*cMAX,memrequested,-1,-1));
     
     if((combo_class_buf=(comboclass*)malloc(sizeof(comboclass)*cMAX))==NULL)
         return 0;
         
-    Z_message("OK\n");										// Allocating combo class buffer...
-    
     return 1;
 }
 

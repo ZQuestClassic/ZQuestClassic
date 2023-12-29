@@ -626,7 +626,6 @@ int32_t LeechUpdateTiles = 0;
 int32_t SnapshotFormat = 0;
 byte SnapshotScale = 0;
 
-int32_t memrequested = 0;
 byte Color = 0;
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
@@ -25705,8 +25704,6 @@ bool no_subscreen()
 
 static void allocate_crap()
 {
-	memrequested+=(2048*5);
-	Z_message("Allocating file path buffers (%s)... ", byte_conversion2(2048*7,memrequested,-1,-1));
 	filepath=(char*)malloc(2048);
 	temppath=(char*)malloc(2048);
 	datapath=(char*)malloc(2048);
@@ -25720,10 +25717,7 @@ static void allocate_crap()
 		Z_error_fatal("Error: no memory for file paths!");
 	}
 	
-	Z_message("OK\n");									  // Allocating file path buffers...
 
-	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
-	Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
 	customtunes = (zctune*)malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 	memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 
@@ -26044,15 +26038,8 @@ int32_t main(int32_t argc,char **argv)
 		Z_error_fatal("Error");
 	}
 	
-	memrequested+=sizeof(newcombo)*MAXCOMBOS;
-	Z_message("Allocating combo undo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
 	undocombobuf.clear();
 	undocombobuf.resize(MAXCOMBOS);
-
-	Z_message("OK\n");									  // Allocating combo undo buffer...
-	
-	memrequested+=(NEWMAXTILES*sizeof(tiledata));
-	Z_message("Allocating new tile undo buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
 	
 	if((newundotilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
 	{
@@ -26060,7 +26047,6 @@ int32_t main(int32_t argc,char **argv)
 	}
 	
 	memset(newundotilebuf, 0, NEWMAXTILES*sizeof(tiledata));
-	Z_message("OK\n");										// Allocating new tile buffer...
 	
 	Z_message("Resetting new tile buffer...");
 	newtilebuf = (tiledata*)malloc(NEWMAXTILES*sizeof(tiledata));
@@ -26069,7 +26055,6 @@ int32_t main(int32_t argc,char **argv)
 		newtilebuf[j].data=NULL;
 		
 	Z_message("OK\n");
-	
 	
 	zc_srand(time(0));
 

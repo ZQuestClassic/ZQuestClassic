@@ -193,7 +193,6 @@ extern int32_t LeechUpdate;
 extern int32_t LeechUpdateTiles;
 extern int32_t SnapshotFormat;
 extern byte SnapshotScale;
-extern int32_t memrequested;
 extern byte Color;
 
 extern byte compile_tune;
