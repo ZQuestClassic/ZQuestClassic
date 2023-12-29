@@ -329,7 +329,7 @@ int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0, 
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
 int32_t nets=1580, magicitem=-1,div_prot_item=-1, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
-int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
+int32_t magicdrainclk=0, conveyclk=3;
 byte newconveyorclk = 0;
 bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
@@ -4470,7 +4470,6 @@ int main(int argc, char **argv)
 	Z_message("OK\n");
 	
 	// allocate bitmap buffers
-	Z_message("Allocating bitmap buffers... ");
 	set_color_depth(8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	menu_bmp  = create_bitmap_ex(8,640,480);
@@ -4513,7 +4512,6 @@ int main(int argc, char **argv)
 	set_clip_state(msg_portrait_display_buf, 1);
 	clear_bitmap(pricesdisplaybuf);
 	set_clip_state(pricesdisplaybuf, 1);
-	Z_message("OK\n");
 	
 	Z_message("Initializing music... ");
 	zcmusic_init();
