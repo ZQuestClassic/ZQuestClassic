@@ -697,7 +697,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 					endval = *endval-1;
 				//Compare key to lower bound
 				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*startval)));
-				addOpcode(new OGotoCompare(new LabelArgument(skipLabel), new LiteralArgument(CMP_GE))); //Skip if key is OUT of the bound
+				addOpcode(new OGotoCompare(new LabelArgument(skipLabel), new LiteralArgument(CMP_LT))); //Skip if key is OUT of the bound
 				commentBack(fmt::format("case '{0}...{1}', key<{0}", OPT_STR(startval), OPT_STR(endval)));
 				
 				//Compare key to upper bound
