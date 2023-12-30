@@ -1222,6 +1222,11 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 						op2->getFirstArgument()->toString()))
 					{
 						CompareArgument* cmparg2 = static_cast<CompareArgument*>(op2->getSecondArgument());
+						if((cmparg2->value & CMP_BOOL) != (cmp & CMP_BOOL)) //differing bool-states are weird...
+						{
+							++it;
+							continue;
+						}
 						cmparg2->value &= ~CMP_SETI;
 						cmparg2->value |= cmp; //merge compare types
 						auto lbl2 = op2->getLabel();
@@ -1241,7 +1246,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 						continue;
 					}
 				}
-				if(cmp == CMP_FLAGS)
+				if((cmp&CMP_FLAGS) == CMP_FLAGS)
 				{
 					LabelArgument* label_arg = static_cast<LabelArgument*>(op->takeFirstArgument());
 					it = rval.erase(it);

@@ -37,7 +37,7 @@ string LiteralArgument::toString() const
 
 string CompareArgument::toString() const
 {
-	return CMP_STR(value, true);
+	return CMP_STR(value);
 }
 
 string ZScript::VarToString(int32_t ID)

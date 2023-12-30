@@ -28621,14 +28621,9 @@ void do_comp(bool v, const bool inv = false)
 {
 	bool v2 = false;
 	if(inv) zc_swap(v,v2);
-	int32_t temp = SH::get_arg(sarg2, v);
-	int32_t temp2 = SH::get_arg(sarg1, v2);
-	
-	if(temp2 >= temp)   ri->scriptflag |= MOREFLAG;
-	else                ri->scriptflag &= ~MOREFLAG;
-	
-	if(temp2 == temp)   ri->scriptflag |= TRUEFLAG;
-	else                ri->scriptflag &= ~TRUEFLAG;
+	ri->cmp_op2 = SH::get_arg(sarg2, v);
+	ri->cmp_op1 = SH::get_arg(sarg1, v2);
+	ri->cmp_strcache = nullopt;
 }
 
 void do_internal_strcmp()
@@ -28639,13 +28634,7 @@ void do_internal_strcmp()
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
 	ArrayH::getString(arrayptr_b, strB);
-	int32_t temp = strcmp(strA.c_str(), strB.c_str());
-	
-	if(temp >= 0)       ri->scriptflag |= MOREFLAG;
-	else                ri->scriptflag &= ~MOREFLAG;
-	
-	if(temp == 0)       ri->scriptflag |= TRUEFLAG;
-	else                ri->scriptflag &= ~TRUEFLAG;
+	ri->cmp_strcache = strcmp(strA.c_str(), strB.c_str());
 }
 
 void do_internal_stricmp()
@@ -28656,13 +28645,7 @@ void do_internal_stricmp()
 	string strB;
 	ArrayH::getString(arrayptr_a, strA);
 	ArrayH::getString(arrayptr_b, strB);
-	int32_t temp = stricmp(strA.c_str(), strB.c_str());
-	
-	if(temp >= 0)       ri->scriptflag |= MOREFLAG;
-	else                ri->scriptflag &= ~MOREFLAG;
-	
-	if(temp == 0)       ri->scriptflag |= TRUEFLAG;
-	else                ri->scriptflag &= ~TRUEFLAG;
+	ri->cmp_strcache = stricmp(strA.c_str(), strB.c_str());
 }
 
 void do_resize_array()
@@ -35243,16 +35226,39 @@ portal* loadportal(savedportal& p);
 
 static bool check_cmp(uint cmp)
 {
-	if(cmp & CMP_GT)
-		if((ri->scriptflag & MOREFLAG) && !(ri->scriptflag & TRUEFLAG))
-			return true;
-	if(cmp & CMP_LT)
-		if(!(ri->scriptflag & MOREFLAG))
-			return true;
-	if(cmp & CMP_EQ)
-		if(ri->scriptflag & TRUEFLAG)
-			return true;
-	return false;
+	if(cmp & CMP_BOOL)
+	{
+		if(ri->cmp_strcache) return false; //Cast string to bool? nonsense...
+		switch(cmp & CMP_FLAGS)
+		{
+			case CMP_EQ:
+				return !ri->cmp_op1 == !ri->cmp_op2;
+			case CMP_NE:
+				return !ri->cmp_op1 != !ri->cmp_op2;
+		}
+		return false;
+	}
+	else if(ri->cmp_strcache)
+	{
+		if(*ri->cmp_strcache < 0)
+			return (cmp & CMP_LT);
+		if(*ri->cmp_strcache > 0)
+			return (cmp & CMP_GT);
+		return (cmp & CMP_EQ);
+	}
+	else
+	{
+		if(cmp & CMP_GT)
+			if(ri->cmp_op1 > ri->cmp_op2)
+				return true;
+		if(cmp & CMP_LT)
+			if(ri->cmp_op1 < ri->cmp_op2)
+				return true;
+		if(cmp & CMP_EQ)
+			if(ri->cmp_op1 == ri->cmp_op2)
+				return true;
+		return false;
+	}
 }
 
 void goto_err(char const* opname)
@@ -35782,7 +35788,7 @@ int32_t run_script_int(bool is_jitted)
 			break;
 			
 			case GOTOTRUE:
-				if(ri->scriptflag & TRUEFLAG)
+				if(check_cmp(CMP_EQ))
 				{
 					if(sarg1 < 0 )
 					{
@@ -35796,7 +35802,7 @@ int32_t run_script_int(bool is_jitted)
 				break;
 				
 			case GOTOFALSE:
-				if(!(ri->scriptflag & TRUEFLAG))
+				if(check_cmp(CMP_NE))
 				{
 					if(sarg1 < 0 )
 					{
@@ -35810,7 +35816,7 @@ int32_t run_script_int(bool is_jitted)
 				break;
 				
 			case GOTOMORE:
-				if(ri->scriptflag & MOREFLAG)
+				if(check_cmp(CMP_GE))
 				{
 					if(sarg1 < 0 )
 					{
@@ -35824,7 +35830,7 @@ int32_t run_script_int(bool is_jitted)
 				break;
 				
 			case GOTOLESS:
-				if(!(ri->scriptflag & MOREFLAG) || (!get_qr(qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
+				if(check_cmp(get_qr(qr_GOTOLESSNOTEQUAL) ? CMP_LT : CMP_LE))
 				{
 					if(sarg1 < 0 )
 					{
@@ -35920,37 +35926,35 @@ int32_t run_script_int(bool is_jitted)
 			}
 			
 			case SETTRUE:
-				set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);
+				set_register(sarg1, check_cmp(CMP_EQ) ? 1 : 0);
 				break;
 				
 			case SETFALSE:
-				set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 1);
+				set_register(sarg1, check_cmp(CMP_NE) ? 1 : 0);
 				break;
 				
 			case SETMORE:
-				set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 1 : 0);
+				set_register(sarg1, check_cmp(CMP_GE) ? 1 : 0);
 				break;
 				
 			case SETLESS:
-				set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
-						 || (ri->scriptflag & TRUEFLAG)) ? 1 : 0);
+				set_register(sarg1, check_cmp(CMP_LE) ? 1 : 0);
 				break;
 			
 			case SETTRUEI:
-				set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 10000 : 0);
+				set_register(sarg1, check_cmp(CMP_EQ) ? 10000 : 0);
 				break;
 				
 			case SETFALSEI:
-				set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 10000);
+				set_register(sarg1, check_cmp(CMP_NE) ? 10000 : 0);
 				break;
 				
 			case SETMOREI:
-				set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 10000 : 0);
+				set_register(sarg1, check_cmp(CMP_GE) ? 10000 : 0);
 				break;
 				
 			case SETLESSI:
-				set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
-						 || (ri->scriptflag & TRUEFLAG)) ? 10000 : 0);
+				set_register(sarg1, check_cmp(CMP_LE) ? 10000 : 0);
 				break;
 	
 			case READPODARRAYR:
@@ -45051,7 +45055,7 @@ void FFScript::ZASMPrintCommand(const word scommand)
 			}
 			else if(s_c.arg_type[q] == ARGTY_COMPARE_OP)
 			{
-				coloured_console.cprintf(color_red,"%10s (%s)", "compare", CMP_STR(sargs[q], true).c_str(), end ? "\n" : ", ");
+				coloured_console.cprintf(color_red,"%10s (%s)", "compare", CMP_STR(sargs[q]).c_str(), end ? "\n" : ", ");
 			}
 			else //ARGTY_UNUSED_REG, ARGTY_READ_REG, ARGTY_WRITE_REG, ARGTY_READWRITE_REG
 			{

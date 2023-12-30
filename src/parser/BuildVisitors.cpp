@@ -2933,8 +2933,10 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 	bool isBoolean = (*ltype == DataType::BOOL || *rtype == DataType::BOOL || *ltype == DataType::CBOOL || *rtype == DataType::CBOOL);
 	
 	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
-	compareExprs(host.left.get(), host.right.get(), param, isBoolean);
+	compareExprs(host.left.get(), host.right.get(), param);
 	auto cmp = CMP_EQ;
+	if(isBoolean)
+		cmp |= CMP_BOOL;
 	if(!decret)
 		cmp |= CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
@@ -2955,8 +2957,10 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 	bool isBoolean = (*ltype == DataType::BOOL || *rtype == DataType::BOOL || *ltype == DataType::CBOOL || *rtype == DataType::CBOOL);
 	
 	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
-	compareExprs(host.left.get(), host.right.get(), param, isBoolean);
+	compareExprs(host.left.get(), host.right.get(), param);
 	auto cmp = CMP_NE;
+	if(isBoolean)
+		cmp |= CMP_BOOL;
 	if(!decret)
 		cmp |= CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
@@ -3014,9 +3018,9 @@ void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)
 	
 	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	
-	compareExprs(host.left.get(), host.right.get(), param, true);
+	compareExprs(host.left.get(), host.right.get(), param);
 	
-	auto cmp = CMP_NE;
+	auto cmp = CMP_NE | CMP_BOOL;
 	if(!decret)
 		cmp |= CMP_SETI;
 	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
@@ -3955,28 +3959,18 @@ void BuildOpcodes::parseExprs(ASTExpr* left, ASTExpr* right, void* param, bool o
 	}
 }
 
-void BuildOpcodes::compareExprs(ASTExpr* left, ASTExpr* right, void* param, bool boolMode)
+void BuildOpcodes::compareExprs(ASTExpr* left, ASTExpr* right, void* param)
 {
 	auto lval = left->getCompileTimeValue(this, scope);
 	auto rval = right->getCompileTimeValue(this, scope);
 	if(lval)
 	{
 		visit(right, param);
-		if(boolMode)
-		{
-			addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-			lval = (*lval) ? 1 : 0;
-		}
 		addOpcode(new OCompareImmediate2(new LiteralArgument(*lval), new VarArgument(EXP1)));
 	}
 	else if (rval)
 	{
 		visit(left, param);
-		if(boolMode)
-		{
-			addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-			rval = (*rval) ? 1 : 0;
-		}
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(*rval)));
 	}
 	else
@@ -3986,11 +3980,6 @@ void BuildOpcodes::compareExprs(ASTExpr* left, ASTExpr* right, void* param, bool
 		addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		visit(right, param);
 		addOpcode(new OPopRegister(new VarArgument(EXP2)));
-		if(boolMode)
-		{
-			addOpcode(new OCastBoolF(new VarArgument(EXP1)));
-			addOpcode(new OCastBoolF(new VarArgument(EXP2)));
-		}
 		addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	}
 }

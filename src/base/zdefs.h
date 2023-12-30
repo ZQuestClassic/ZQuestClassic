@@ -1565,7 +1565,6 @@ public:
 	uint32_t sp; //stack pointer for current script
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
-	dword scriptflag; //stores whether various operations were true/false etc.
 	
 	byte ffcref;
 	int32_t idata;
@@ -1587,6 +1586,9 @@ public:
 	int32_t switchkey; //used for switch statements
 	dword thiskey, thiskey2; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
+	
+	int32_t cmp_op1, cmp_op2; //cached compare operands
+	optional<int32_t> cmp_strcache;
 	
 	void Clear()
 	{

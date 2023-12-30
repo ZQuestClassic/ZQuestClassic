@@ -219,7 +219,7 @@ namespace ZScript
 		void arrayLiteralFree(ASTArrayLiteral& host, OpcodeContext& context);
 		
 		void parseExprs(ASTExpr* left, ASTExpr* right, void* param, bool orderMatters = false);
-		void compareExprs(ASTExpr* left, ASTExpr* right, void* param, bool boolMode = false);
+		void compareExprs(ASTExpr* left, ASTExpr* right, void* param);
 		
 		void buildPreOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);
 		void buildPostOp(ASTExpr* operand, void* param, vector<std::shared_ptr<Opcode>> const& ops);

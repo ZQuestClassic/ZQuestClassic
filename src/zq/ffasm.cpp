@@ -597,6 +597,11 @@ int32_t set_argument(char const* argbuf, int32_t& arg)
 optional<int> check_comparestr(char const* buf)
 {
 	int cmp = 0;
+	if(buf[0] == 'B')
+	{
+		cmp |= CMP_BOOL;
+		++buf;
+	}
 	if(buf[0] == 'I')
 	{
 		cmp |= CMP_SETI;
