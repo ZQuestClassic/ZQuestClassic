@@ -16416,7 +16416,7 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 					int fr = FR_MENU;
 					if(scr == d->d1)
 						fr = FR_GREEN;
-					else if(!is_overworld && (gr&(1<<(scrw-xind-1))))
+					else if(!is_overworld && xind < 8 && (gr&(1<<(8-xind-1))))
 						fr = FR_MENU_INV;
 					jwin_draw_frame(screen, d->x+(xind*xscl), d->y+(yind*yscl), xscl, yscl, fr);
 				}
@@ -17785,14 +17785,14 @@ void EditWarpRingScr(int32_t ring,int32_t index)
 	
 	int32_t ret=do_zqdialog(warpring_warp_dlg,-1);
 	
-	if(ret==7 || ret==8)
+	if(ret==5 || ret==6)
 	{
 		saved=false;
-		QMisc.warp[ring].dmap[index] = warpring_warp_dlg[5].d1;
+		QMisc.warp[ring].dmap[index] = warpring_warp_dlg[3].d1;
 		QMisc.warp[ring].scr[index] = zc_xtoi(buf);
 	}
 	
-	if(ret==8)
+	if(ret==6)
 	{
 		Map.dowarp2(ring,index);
 		refresh(rALL);
