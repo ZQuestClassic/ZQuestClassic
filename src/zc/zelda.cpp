@@ -2135,9 +2135,16 @@ int32_t init_game()
 			}
 			else
 			{
-				Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
-					: selectSword();
-				directItemA = NEG_OR_MASK(Awpn, 0xFF);
+				if(get_qr(qr_SELECTAWPN))
+				{
+					Awpn = new_subscreen_active->get_item_pos(game->awpn);
+					directItemA = NEG_OR_MASK(Awpn, 0xFF);
+				}
+				else
+				{
+					selectSword();
+					directItemA = -1;
+				}
 				Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
 				directItemB = NEG_OR_MASK(Bwpn, 0xFF);
 				Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
