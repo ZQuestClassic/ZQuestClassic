@@ -5213,7 +5213,11 @@ reload_for_replay_file:
 			}
 			game_pal();
 		}
-		else titlescreen(load_save);
+		else 
+		{
+			init_game_vars();
+			titlescreen(load_save);
+		}
 		if(clearConsoleOnReload)
 			clearConsole();
 		load_save=0;
