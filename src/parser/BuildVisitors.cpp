@@ -1627,6 +1627,8 @@ void BuildOpcodes::buildArrayUninit(
 		ASTDataDecl& host, OpcodeContext& context)
 {
 	Datum& manager = *host.manager;
+	if(manager.is_erased()) //var unused, optimized away
+		return;
 
 	// Right now, don't support nested arrays.
 	if (host.extraArrays.size() != 1)
@@ -3352,6 +3354,8 @@ void BuildOpcodes::stringLiteralDeclaration(
 {
 	ASTDataDecl& declaration = *host.declaration;
 	Datum& manager = *declaration.manager;
+	if(manager.is_erased()) //var unused, optimized away
+		return;
 	string const& data = host.value;
 
 	// Grab the size from the declaration.
@@ -3474,6 +3478,11 @@ void BuildOpcodes::arrayLiteralDeclaration(
 {
 	ASTDataDecl& declaration = *host.declaration;
 	Datum& manager = *declaration.manager;
+	if(manager.is_erased()) //var unused, optimized away
+	{
+		sidefx_visit_vec(host.elements, (void*)&context);
+		return;
+	}
 
 	// Find the size.
 	int32_t size = -1;
