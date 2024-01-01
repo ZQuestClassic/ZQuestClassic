@@ -242,7 +242,7 @@ void TextField::setVal(int32_t val)
 				sprintf(buf, "%d", startVal/10000);
 			else
 			{
-				sprintf(buf, "%d.%04d", startVal/10000, startVal%10000);
+				strcpy(buf, zslongToFix(startVal).str().c_str());
 				for(auto q = strlen(buf)-1; buf[q] == '0'; --q)
 					buf[q] = 0;
 			}

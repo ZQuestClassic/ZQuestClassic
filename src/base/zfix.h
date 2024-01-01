@@ -214,7 +214,7 @@ public:
 	
 	std::string str() const
 	{
-		return fmt::format("{}.{:04}",val/10000,abs(val%10000));
+		return fmt::format("{}{}.{:04}",val < 0 ? "-" : "",abs(val/10000),abs(val%10000));
 	}
 public:
 	
