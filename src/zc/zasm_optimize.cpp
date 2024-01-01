@@ -390,7 +390,10 @@ static int optimize_function(script_data* script, const ZasmFunction& fn)
 	// Remove unused writes to a D register
 
 	// Always do this last, as it slightly invalidates the CFG.
-	optimize_compare(ctx);
+	// TODO: for now, disable this opt.
+	static bool is_testing = get_flag_bool("-test-zc").value_or(false);
+	if (is_testing)
+		optimize_compare(ctx);
 
 	return ctx.saved;
 }
