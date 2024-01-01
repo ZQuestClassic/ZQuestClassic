@@ -796,7 +796,7 @@ namespace util
 				if(val % 10000)
 				{
 					char buf[16] = {0};
-					sprintf(buf, "%d.%04d", val/10000, abs(val%10000));
+					strcpy(buf, zslongToFix(val).str().c_str());
 					for(auto q = strlen(buf)-1; buf[q] == '0'; --q)
 					{
 						//Kill trailing zeroes
