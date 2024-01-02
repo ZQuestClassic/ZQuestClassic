@@ -461,7 +461,10 @@ void zasm_optimize()
 	});
 
 	if (size == 0)
+	{
+		printf("\nNo scripts found.\n");
 		return;
+	}
 
 	auto end_time = std::chrono::steady_clock::now();
 	int ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();

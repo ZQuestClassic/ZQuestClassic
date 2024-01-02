@@ -8,6 +8,9 @@
 # To update the snapshots:
 #
 #   python tests/test_jit.py --update
+# or:
+#
+#   python tests/update_snapshots.py
 
 import argparse
 import os
