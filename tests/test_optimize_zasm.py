@@ -24,7 +24,7 @@ args = parser.parse_args()
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 test_dir = root_dir / 'tests'
-expected_dir = test_dir / 'optimize_zasm'
+expected_dir = test_dir / 'snapshots/optimize_zasm'
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
