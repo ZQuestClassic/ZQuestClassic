@@ -52,26 +52,31 @@ using namespace util;
 #define CMP_LE    (CMP_LT|CMP_EQ)
 
 #define INVERT_CMP(cmp) ((cmp&(~CMP_FLAGS))|((~cmp)&CMP_FLAGS))
-inline string CMP_STR(uint cmpval)
+inline string CMP_STR(uint cmpval, bool extended = false)
 {
+	string pref;
+	if(cmpval & CMP_SETI)
+		pref = "I";
 	switch(cmpval&CMP_FLAGS)
 	{
-		case 0: default:
-			return "Never";
+		default:
+			return pref+"??";
+		case 0:
+			return pref+"Never";
 		case CMP_GT:
-			return ">";
+			return pref+">";
 		case CMP_GE:
-			return ">=";
+			return pref+">=";
 		case CMP_LT:
-			return "<";
+			return pref+"<";
 		case CMP_LE:
-			return "<=";
+			return pref+"<=";
 		case CMP_EQ:
-			return "==";
+			return pref+"==";
 		case CMP_NE:
-			return "!=";
+			return pref+"!=";
 		case CMP_FLAGS:
-			return "Always";
+			return pref+"Always";
 	}
 }
 

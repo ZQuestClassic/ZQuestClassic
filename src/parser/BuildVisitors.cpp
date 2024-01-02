@@ -697,12 +697,12 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 					endval = *endval-1;
 				//Compare key to lower bound
 				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*startval)));
-				addOpcode(new OGotoCompare(new LabelArgument(skipLabel), new LiteralArgument(CMP_LT))); //Skip if key is OUT of the bound
+				addOpcode(new OGotoCompare(new LabelArgument(skipLabel), new CompareArgument(CMP_LT))); //Skip if key is OUT of the bound
 				commentBack(fmt::format("case '{0}...{1}', key<{0}", OPT_STR(startval), OPT_STR(endval)));
 				
 				//Compare key to upper bound
 				addOpcode(new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*endval)));
-				addOpcode(new OGotoCompare(new LabelArgument(label), new LiteralArgument(CMP_LE))); //If key is in bounds, jump to its label
+				addOpcode(new OGotoCompare(new LabelArgument(label), new CompareArgument(CMP_LE))); //If key is in bounds, jump to its label
 				commentBack(fmt::format("case '{0}...{1}', {0}<key<{1}", OPT_STR(startval), OPT_STR(endval)));
 				addOpcode(new ONoOp(skipLabel)); //add the skip label
 			}
@@ -961,7 +961,7 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
 	//If the iterator is >= the length, goto the 'else' (end without break)
 	addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
-	addOpcode(new OGotoCompare(new LabelArgument(elselabel), new LiteralArgument(CMP_GE)));
+	addOpcode(new OGotoCompare(new LabelArgument(elselabel), new CompareArgument(CMP_GE)));
 	commentBack(fmt::format("for(each) #{} to Else",forid));
 	
 	//Reaching here, we have a valid index! Load it.
@@ -1074,7 +1074,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP2), new LiteralArgument(mgr.at(*start_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		addOpcode(new OGotoCompare(new LabelArgument(loopend), new LiteralArgument(CMP_GT)));
+		addOpcode(new OGotoCompare(new LabelArgument(loopend), new CompareArgument(CMP_GT)));
 		commentBack(fmt::format("loop() #{} Range Invalid?",loopid));
 	}
 	if(!incrval)
@@ -1085,7 +1085,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		// Depending on the increment, the starting value changes
 		if(startval) //If the startval is constant, it will already be initialized.
 		{
-			addOpcode(new OGotoCompare(new LabelArgument(lbl), new LiteralArgument(CMP_GE)));
+			addOpcode(new OGotoCompare(new LabelArgument(lbl), new CompareArgument(CMP_GE)));
 			if(endval)
 				addOpcode(new OStoreDirectV(new LiteralArgument(*endval), new LiteralArgument(decloffset)));
 			else
@@ -1098,7 +1098,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		else //Otherwise we need to initailize either way
 		{
 			auto lbl2 = ScriptParser::getUniqueLabelID();
-			addOpcode(new OGotoCompare(new LabelArgument(lbl), new LiteralArgument(CMP_LT)));
+			addOpcode(new OGotoCompare(new LabelArgument(lbl), new CompareArgument(CMP_LT)));
 			if(startval)
 				addOpcode(new OStoreDirectV(new LiteralArgument(*startval), new LiteralArgument(decloffset)));
 			else
@@ -1180,7 +1180,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		addOpcode(new OGotoCompare(new LabelArgument(endtestlabel), new LiteralArgument(CMP_LT)));
+		addOpcode(new OGotoCompare(new LabelArgument(endtestlabel), new CompareArgument(CMP_LT)));
 		commentBack(fmt::format("{} start, skip to else/end",CMP_STR(CMP_LT)));
 		if(endval)
 		{
@@ -1191,7 +1191,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(CMP_LE)));
+		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new CompareArgument(CMP_LE)));
 		commentBack(fmt::format("{} end, keep looping",CMP_STR(CMP_LE)));
 		addOpcode(new ONoOp(endtestlabel));
 	}
@@ -1206,7 +1206,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(CMP_GE)));
+		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new CompareArgument(CMP_GE)));
 		commentBack(fmt::format("{} start, keep looping",CMP_STR(CMP_GE)));
 	}
 	else if(*incrval > 0)
@@ -1220,7 +1220,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		}
-		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new LiteralArgument(CMP_LE)));
+		addOpcode(new OGotoCompare(new LabelArgument(loopstart), new CompareArgument(CMP_LE)));
 		commentBack(fmt::format("{} end, keep looping",CMP_STR(CMP_LE)));
 	}
 	else //constant 0 increment, infinite loop
@@ -1296,7 +1296,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 			auto skiplabel = ScriptParser::getUniqueLabelID();
 			auto skiplabel2 = ScriptParser::getUniqueLabelID();
-			addOpcode(new OGotoCompare(new LabelArgument(skiplabel), new LiteralArgument(CMP_LT)));
+			addOpcode(new OGotoCompare(new LabelArgument(skiplabel), new CompareArgument(CMP_LT)));
 			targ.insert(targ.end(), op_endval.begin(), op_endval.end());
 			addOpcode(new OGotoImmediate(new LabelArgument(skiplabel2)));
 			addOpcode(new ONoOp(skiplabel));
@@ -1308,7 +1308,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		if(targv)
 			addOpcode(new OCompareRegister(new VarArgument(EXP2), new LiteralArgument(*targv)));
 		else addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
-		addOpcode(new OGotoCompare(new LabelArgument(elselabel), new LiteralArgument(CMP_EQ)));
+		addOpcode(new OGotoCompare(new LabelArgument(elselabel), new CompareArgument(CMP_EQ)));
 		//If we haven't run the value yet, set it and run the loop one last time
 		if(!const_indx)
 			addOpcode(new OStackWriteAtRV(new VarArgument(EXP2), new LiteralArgument(mgr.at(*indx_peekind))));
@@ -2393,7 +2393,7 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 		auto cmp = CMP_EQ;
 		if(!decret)
 			cmp |= CMP_SETI;
-		addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+		addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 	}
 }
 
@@ -2470,15 +2470,15 @@ optional<bool> BuildOpcodes::rec_booltree(BoolTreeNode& node, int parentMode, in
 				{
 					int c = *cmp & ~CMP_SETI;
 					if(_and)
-						addOpcode(new OGotoCompare(new LabelArgument(falselbl), new LiteralArgument(INVERT_CMP(c))));
-					else addOpcode(new OGotoCompare(new LabelArgument(truelbl), new LiteralArgument(c)));
+						addOpcode(new OGotoCompare(new LabelArgument(falselbl), new CompareArgument(INVERT_CMP(c))));
+					else addOpcode(new OGotoCompare(new LabelArgument(truelbl), new CompareArgument(c)));
 				}
 				else
 				{
 					addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 					if(_and)
-						addOpcode(new OGotoCompare(new LabelArgument(falselbl), new LiteralArgument(CMP_EQ)));
-					else addOpcode(new OGotoCompare(new LabelArgument(truelbl), new LiteralArgument(CMP_NE)));
+						addOpcode(new OGotoCompare(new LabelArgument(falselbl), new CompareArgument(CMP_EQ)));
+					else addOpcode(new OGotoCompare(new LabelArgument(truelbl), new CompareArgument(CMP_NE)));
 				}
 			}
 			break;
@@ -2660,7 +2660,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 	
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
@@ -2728,7 +2728,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		visit(host.right.get(), param);
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		//Set output
-		Opcode* ocode = new OSetCompare(new VarArgument(EXP1), new LiteralArgument(CMP_NE | (decret?CMP_SETI:0)));
+		Opcode* ocode = new OSetCompare(new VarArgument(EXP1), new CompareArgument(CMP_NE | (decret?CMP_SETI:0)));
 		ocode->setLabel(skip);
 		addOpcode(ocode);
 	}
@@ -2749,7 +2749,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		auto cmp = CMP_GE;
 		if(!decret)
 			cmp |= CMP_SETI;
-		addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+		addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 	}
 }
 
@@ -2767,7 +2767,7 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 	auto cmp = CMP_GT;
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
@@ -2784,7 +2784,7 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 	auto cmp = CMP_GE;
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
@@ -2801,7 +2801,7 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 	auto cmp = CMP_LT;
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
@@ -2818,7 +2818,7 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 	auto cmp = CMP_LE;
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
@@ -2840,7 +2840,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 	auto cmp = CMP_EQ;
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
@@ -2862,7 +2862,7 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 	auto cmp = CMP_NE;
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
@@ -2903,7 +2903,7 @@ void BuildOpcodes::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
 	auto cmp = CMP_LE;
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)
@@ -2922,7 +2922,7 @@ void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)
 	auto cmp = CMP_NE;
 	if(!decret)
 		cmp |= CMP_SETI;
-	addOpcode(new OSetCompare(new VarArgument(EXP1), new LiteralArgument(cmp)));
+	addOpcode(new OSetCompare(new VarArgument(EXP1), new CompareArgument(cmp)));
 }
 
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)

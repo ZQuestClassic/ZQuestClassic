@@ -1200,8 +1200,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "CALLFUNC", 1, 1, 0, 0 },
 	{ "RETURNFUNC", 0, 0, 0, 0 },
 
-	{ "SETCMP", 2, 0, 1, 0 },
-	{ "GOTOCMP", 2, 1, 1, 0 },
+	{ "SETCMP", 2, 0, 2, 0 },
+	{ "GOTOCMP", 2, 1, 2, 0 },
 	{ "STACKWRITEATRV", 2, 0, 1, 0 },
 	{ "STACKWRITEATVV", 2, 1, 1, 0 },
 
@@ -3965,19 +3965,8 @@ zasmfile_fail_str:
 	return success?D_O_K:D_CLOSE;
 }
 
-int32_t set_argument(char const* argbuf, script_data **script, int32_t com, int32_t argument)
+int32_t set_argument(char const* argbuf, int32_t& arg)
 {
-	int32_t *arg;
-	
-	if(argument)
-	{
-		arg = &((*script)->zasm[com].arg2);
-	}
-	else
-	{
-		arg = &((*script)->zasm[com].arg1);
-	}
-	
 	int32_t i=0;
 	char tempvar[80];
 	
@@ -3999,7 +3988,7 @@ int32_t set_argument(char const* argbuf, script_data **script, int32_t com, int3
 				if(stricmp(argbuf,tempvar)==0)
 				{
 					int32_t temp = variable_list[i].id+(j*zc_max(1,variable_list[i].multiple));
-					*arg = temp;
+					arg = temp;
 					return 1;
 				}
 			}
@@ -4008,7 +3997,7 @@ int32_t set_argument(char const* argbuf, script_data **script, int32_t com, int3
 		{
 			if(stricmp(argbuf,variable_list[i].name)==0)
 			{
-				*arg = variable_list[i].id;
+				arg = variable_list[i].id;
 				return 1;
 			}
 		}
@@ -4017,6 +4006,63 @@ int32_t set_argument(char const* argbuf, script_data **script, int32_t com, int3
 	}
 	
 	return 0;
+}
+
+optional<int> check_comparestr(char const* buf)
+{
+	int cmp = 0;
+	if(buf[0] == 'I')
+	{
+		cmp |= CMP_SETI;
+		++buf;
+	}
+	if(!strcmp(buf,"<"))
+		cmp |= CMP_LT;
+	else if(!strcmp(buf,">"))
+		cmp |= CMP_GT;
+	else if(!strcmp(buf,"<="))
+		cmp |= CMP_LE;
+	else if(!strcmp(buf,">="))
+		cmp |= CMP_GE;
+	else if(!strcmp(buf,"=="))
+		cmp |= CMP_EQ;
+	else if(!strcmp(buf,"!="))
+		cmp |= CMP_NE;
+	else if(!strcmp(buf,"Never"))
+		;
+	else if(!strcmp(buf,"Always"))
+		cmp |= CMP_FLAGS;
+	else return nullopt; //nonmatching
+	return cmp;
+}
+
+bool handle_arg(int ty, char const* buf, int& arg)
+{
+	switch(ty)
+	{
+		case 0: //register
+		{
+			if(!set_argument(buf, arg))
+				return false;
+		}
+		case 1: //literal
+		{
+			if(!ffcheck(buf))
+				return false;
+			arg = ffparse(buf);
+			return true;
+		}
+		case 2: //comparison
+		{
+			if(auto cmpval = check_comparestr(buf))
+			{
+				arg = *cmpval;
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
 }
 
 #define ERR_INSTRUCTION 0
@@ -4048,99 +4094,51 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 		{
 			found_command=true;
 			zas.command = i;
+			bool is_goto = false;
 			
 			switch(i)
 			{
 				case GOTO: case LOOP: //Hardcodes for some control flow opcodes
 				case GOTOTRUE: case GOTOFALSE: case GOTOLESS: case GOTOMORE: case GOTOCMP:
-				{
-					string lbl(arg1buf);
-					auto it = labels.find(lbl);
-					if(it != labels.end())
-						(*script)->zasm[com].arg1 = (*it).second;
-					else
-						(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
-					
-					if(command_list[i].args > 1)
-					{
-						if(command_list[i].arg2_type==1)
-						{
-							if(!ffcheck(arg2buf))
-							{
-								retcode=ERR_PARAM2;
-								return 0;
-							}
-							
-							(*script)->zasm[com].arg2 = ffparse(arg2buf);
-						}
-						else
-						{
-							if(!set_argument(arg2buf, script, com, 1))
-							{
-								retcode=ERR_PARAM2;
-								return 0;
-							}
-						}
-					}
+					is_goto = true;
 					break;
+			}
+			if(is_goto) //hardcoded arg1
+			{
+				string lbl(arg1buf);
+				auto it = labels.find(lbl);
+				if(it != labels.end())
+					(*script)->zasm[com].arg1 = (*it).second;
+				else
+					(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
+			}
+			else if(command_list[i].args>0)
+			{
+				if(!handle_arg(command_list[i].arg1_type, arg1buf, (*script)->zasm[com].arg1))
+				{
+					retcode=ERR_PARAM1;
+					return 0;
 				}
-				default:
+			}
+			if(command_list[i].args > 1)
+			{
+				if(!handle_arg(command_list[i].arg2_type, arg2buf, (*script)->zasm[com].arg2))
 				{
-					if(command_list[i].args>0)
-					{
-						if(command_list[i].arg1_type==1)
-						{
-							if(!ffcheck(arg1buf))
-							{
-								retcode=ERR_PARAM1;
-								return 0;
-							}
-							
-							(*script)->zasm[com].arg1 = ffparse(arg1buf);
-						}
-						else
-						{
-							if(!set_argument(arg1buf, script, com, 0))
-							{
-								retcode=ERR_PARAM1;
-								return 0;
-							}
-						}
-						
-						if(command_list[i].args>1)
-						{
-							if(command_list[i].arg2_type==1)
-							{
-								if(!ffcheck(arg2buf))
-								{
-									retcode=ERR_PARAM2;
-									return 0;
-								}
-								
-								(*script)->zasm[com].arg2 = ffparse(arg2buf);
-							}
-							else
-							{
-								if(!set_argument(arg2buf, script, com, 1))
-								{
-									retcode=ERR_PARAM2;
-									return 0;
-								}
-							}
-						}
-					}
-					byte b = command_list[i].arr_type;
-					if(!(b&0x1) != !sptr) //string
-					{
-						retcode = ERR_STR;
-						return 0;
-					}
-					if(!(b&0x2) != !vptr) //vector
-					{
-						retcode = ERR_VEC;
-						return 0;
-					}
-					break;
+					retcode=ERR_PARAM2;
+					return 0;
+				}
+			}
+			if(byte b = command_list[i].arr_type)
+			{
+				if(!(b&0x1) != !sptr) //string
+				{
+					retcode = ERR_STR;
+					return 0;
+				}
+				if(!(b&0x2) != !vptr) //vector
+				{
+					retcode = ERR_VEC;
+					return 0;
 				}
 			}
 			switch(i)

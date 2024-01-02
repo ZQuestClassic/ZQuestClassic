@@ -1772,6 +1772,7 @@
 namespace ZScript
 {
 	class LiteralArgument;
+	class CompareArgument;
 	class VarArgument;
 	class LabelArgument;
 	class GlobalArgument;
@@ -1782,6 +1783,7 @@ namespace ZScript
 	{
 	public:
 		virtual void caseLiteral(LiteralArgument&, void *){}
+		virtual void caseCompare(CompareArgument&, void *){}
 		virtual void caseString(StringArgument&, void *){}
 		virtual void caseVector(VectorArgument&, void *){}
 		virtual void caseVar(VarArgument&, void *){}
@@ -1849,6 +1851,22 @@ namespace ZScript
 	{
 		return arg == val;
 	}
+	
+	class CompareArgument : public Argument
+	{
+	public:
+		CompareArgument(int32_t Value) : value(Value) {}
+		std::string toString() const;
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseCompare(*this, param);
+		}
+		Argument* clone() const
+		{
+			return new CompareArgument(value);
+		}
+		int32_t value;
+	};
 	
 	class StringArgument : public Argument
 	{

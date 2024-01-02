@@ -981,7 +981,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			{ \
 				LabelArgument* label_arg = static_cast<LabelArgument*>(op->takeArgument()); \
 				it = rval.erase(it); \
-				OGotoCompare* newop = new OGotoCompare(label_arg,new LiteralArgument(cmp)); \
+				OGotoCompare* newop = new OGotoCompare(label_arg,new CompareArgument(cmp)); \
 				newop->setLabel(lbl); \
 				newop->setComment(comment); \
 				it = rval.insert(it,std::shared_ptr<Opcode>(newop)); \
@@ -1213,7 +1213,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				++it2;
 				if(it2 == rval.end())
 					break;
-				LiteralArgument* cmparg = static_cast<LiteralArgument*>(op->getSecondArgument());
+				CompareArgument* cmparg = static_cast<CompareArgument*>(op->getSecondArgument());
 				cmparg->value &= ~CMP_SETI;
 				auto cmp = cmparg->value;
 				if(OGotoCompare* op2 = dynamic_cast<OGotoCompare*>(it2->get()))
@@ -1221,7 +1221,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 					if(!op->getFirstArgument()->toString().compare(
 						op2->getFirstArgument()->toString()))
 					{
-						LiteralArgument* cmparg2 = static_cast<LiteralArgument*>(op2->getSecondArgument());
+						CompareArgument* cmparg2 = static_cast<CompareArgument*>(op2->getSecondArgument());
 						cmparg2->value &= ~CMP_SETI;
 						cmparg2->value |= cmp; //merge compare types
 						auto lbl2 = op2->getLabel();
@@ -1280,7 +1280,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				if(lbl > -1) //store labels in map, for optimization in next pass
 				{
 					int targ_lbl = static_cast<LabelArgument*>(op->getFirstArgument())->getID();
-					int cmp = static_cast<LiteralArgument*>(op->getSecondArgument())->value & ~CMP_SETI;
+					int cmp = static_cast<CompareArgument*>(op->getSecondArgument())->value & ~CMP_SETI;
 					gotocmp_map[lbl] = {targ_lbl,cmp};
 				}
 				++it;
@@ -1298,7 +1298,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 					lbl_arg = static_cast<LabelArgument*>(op->takeArgument());
 					lbl_arg->setID(it2->second.first);
 					it = rval.erase(it);
-					OGotoCompare* newop = new OGotoCompare(lbl_arg, new LiteralArgument(it2->second.second));
+					OGotoCompare* newop = new OGotoCompare(lbl_arg, new CompareArgument(it2->second.second));
 					newop->setComment(comment);
 					//lbl == -1 is guaranteed
 					it = rval.insert(it,std::shared_ptr<Opcode>(newop));
@@ -1320,7 +1320,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				++it3;
 				if(it3 == rval.end())
 					break;
-				LiteralArgument* cmparg = static_cast<LiteralArgument*>(op->getSecondArgument());
+				CompareArgument* cmparg = static_cast<CompareArgument*>(op->getSecondArgument());
 				if(OGotoImmediate* op2 = dynamic_cast<OGotoImmediate*>(it2->get()))
 				{
 					LabelArgument* mid_lbl_arg = static_cast<LabelArgument*>(op2->getArgument());

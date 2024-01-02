@@ -47859,6 +47859,21 @@ std::string ZASMVarToString(int32_t arg)
 	return "(null)";
 }
 
+std::string ZASMArgToString(int32_t arg, int32_t arg_ty)
+{
+	switch(arg_ty)
+	{
+		case 0: //register
+			return ZASMVarToString(arg);
+		case 1: //literal
+			return to_string(arg);
+		case 2: //comparison
+			return CMP_STR(arg);
+		default:
+			return "ERROR";
+	}
+}
+
 void FFScript::ZASMPrintCommand(const word scommand)
 {
 	if(SKIPZASMPRINT()) return;
@@ -47877,10 +47892,15 @@ void FFScript::ZASMPrintCommand(const word scommand)
 				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %s (val = %2d), ", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
 		}
-		else
+		else if(s_c.arg1_type == 1)
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d), ", "immediate", sarg1);
+		}
+		else //if(s_c.arg1_type == 2)
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (%s), ", "compare", CMP_STR(sarg1, true).c_str());
 		}
 		if(s_c.arg2_type == 0)
 		{
@@ -47888,10 +47908,15 @@ void FFScript::ZASMPrintCommand(const word scommand)
 				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t %s (val = %2d)\n", ZASMVarToString(sarg2).c_str(), get_register(sarg2));
 		}
-		else
+		else if(s_c.arg2_type == 1)
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg2);
+		}
+		else //if(s_c.arg2_type == 2)
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (%s)\n", "compare", CMP_STR(sarg2, true).c_str());
 		}
 	}
 	else if(s_c.args == 1)
@@ -47905,10 +47930,15 @@ void FFScript::ZASMPrintCommand(const word scommand)
 				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %w (val = %2d)\n", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
 		}
-		else
+		else if(s_c.arg1_type == 1)
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY |  
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg1);
+		}
+		else if(s_c.arg1_type == 2)
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY |  
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (%s)\n", "compare", CMP_STR(sarg1, true).c_str());
 		}
 	}
 	else

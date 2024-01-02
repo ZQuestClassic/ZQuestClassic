@@ -35,6 +35,11 @@ string LiteralArgument::toString() const
 	return la_toString(value);
 }
 
+string CompareArgument::toString() const
+{
+	return CMP_STR(value, true);
+}
+
 string ZScript::VarToString(int32_t ID)
 {
 	char temp[128];
