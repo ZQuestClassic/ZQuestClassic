@@ -235,6 +235,13 @@ static void zero(x86::Compiler &cc, x86::Gp reg)
 	cc.xor_(reg, reg);
 }
 
+static void cast_bool(x86::Compiler &cc, x86::Gp reg)
+{
+	cc.test(reg, reg);
+	cc.mov(reg, 0);
+	cc.setne(reg.r8());
+}
+
 static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map<int, Label> &goto_labels, x86::Gp vStackIndex, int command, int arg1, int arg2, int arg3)
 {
 	x86::Gp val = cc.newInt32();
@@ -1139,11 +1146,8 @@ JittedFunction jit_compile_script(script_data *script)
 		case CASTBOOLF:
 		{
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
-			x86::Gp result = cc.newInt32();
-			zero(cc, result);
-			cc.test(val, val);
-			cc.setne(result.r8());
-			set_z_register(state, cc, vStackIndex, arg1, result);
+			cast_bool(cc, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case ADDV:
@@ -1371,6 +1375,16 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			int val = arg2;
 			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg1);
+
+			if (script->zasm[i + 1].command == GOTOCMP || script->zasm[i + 1].command == SETCMP)
+			{
+				if (script->zasm[i + 1].arg2 & CMP_BOOL)
+				{
+					val = val ? 1 : 0;
+					cast_bool(cc, val2);
+				}
+			}
+
 			cc.cmp(val2, val);
 		}
 		break;
@@ -1378,6 +1392,16 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			int val = arg1;
 			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
+
+			if (script->zasm[i + 1].command == GOTOCMP || script->zasm[i + 1].command == SETCMP)
+			{
+				if (script->zasm[i + 1].arg2 & CMP_BOOL)
+				{
+					val = val ? 1 : 0;
+					cast_bool(cc, val2);
+				}
+			}
+
 			cc.cmp(val2, val);
 		}
 		break;
@@ -1385,6 +1409,16 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg2);
 			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg1);
+
+			if (script->zasm[i + 1].command == GOTOCMP || script->zasm[i + 1].command == SETCMP)
+			{
+				if (script->zasm[i + 1].arg2 & CMP_BOOL)
+				{
+					cast_bool(cc, val);
+					cast_bool(cc, val2);
+				}
+			}
+
 			cc.cmp(val2, val);
 		}
 		break;
