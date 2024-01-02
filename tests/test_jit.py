@@ -104,8 +104,8 @@ class TestJIT(ZCTestCase):
             raise unittest.SkipTest('unsupported platform')
 
         self.run_for_qst('playground', test_dir / 'replays/playground_maths.zplay')
-        self.run_for_qst('hollow_forest', test_dir / 'replays/hollow_forest.zplay')
         # These are quite big, so just hash their outputs.
+        self.run_for_qst('hollow_forest', test_dir / 'replays/hollow_forest.zplay', hash=True)
         self.run_for_qst('freedom_in_chains', test_dir / 'replays/freedom_in_chains.zplay', hash=True)
         self.run_for_qst('stellar_seas_randomizer', test_dir / 'replays/stellar_seas_randomizer.zplay', hash=True)
 
