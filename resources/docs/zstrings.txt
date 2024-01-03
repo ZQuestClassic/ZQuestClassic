@@ -67,7 +67,7 @@ If 0, text appears instantaneously. Argument 1 is the speed.
 
 \3\register\value\newstring - Goto If Screen Variable. If one of the Screen->D[] variables of the current screen 
 is at or above a certain value, then ZC switches to another string. Argument 1 is the index into the screen's D array, 
-argument 2 is the value, and argument 3 is the string to switch to. 
+argument 2 is the value (as a LONG), and argument 3 is the string to switch to.
 
 \23\dmap\screen\register\value\newstring - same as \3, but for a remote dmap/screen
 

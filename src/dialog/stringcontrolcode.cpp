@@ -351,7 +351,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					INFOBTN("Index of current screen's 'Screen->D[]' to check"),
 					TXT("Min Value:"),
 					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
-					INFOBTN("Value to check against 'Screen->D[]'")
+					INFOBTN("Value to check against 'Screen->D[]' (This is a 'long' value, so '1' here represents '0.0001' in zscript)")
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("String:"),
@@ -735,7 +735,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("Value:"),
 					NUM_FIELD(cur_args[3],0,MAX_SCC_ARG),
-					INFOBTN("Value to check against 'Screen->D[]'")
+					INFOBTN("Value to check against 'Screen->D[]' (This is a 'long' value, so '1' here represents '0.0001' in zscript)")
 				),
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("String:"),
