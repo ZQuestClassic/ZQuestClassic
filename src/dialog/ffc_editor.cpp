@@ -387,8 +387,9 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						Rows<2>(vAlign = 0.0,
 							SCRIPT_LIST_PROC("Action Script:", list_ffcscript, ffc.script, refreshScript)
 						),
-						Rows<2>(hAlign = 1.0,
+						Rows<3>(hAlign = 1.0,
 							Label(text = "A1:"),
+							INFOBTN("Used for old ZASM script stuff. In new quests, this is basically useless."),
 							TextField(
 								val = ffc.inita[0],
 								type = GUI::TextField::type::INT_DECIMAL,
@@ -399,6 +400,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 								}
 							),
 							Label(text = "A2:"),
+							INFOBTN("Used for old ZASM script stuff. In new quests, this is basically useless."),
 							TextField(
 								val = ffc.inita[1],
 								type = GUI::TextField::type::INT_DECIMAL,
