@@ -33,7 +33,7 @@ public:
 
 ReturnVisitor::ReturnVisitor(Program& program)
 	: program(program), marked_never_ret(false), missing_ret(false),
-	in_func(nullptr), var_map()
+	var_map()
 {
 	mode = MODE_START;
 	visitFunctionInternals(program);
@@ -463,7 +463,7 @@ void ReturnVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 	bool infloop = (val && (inv == !*val));
 	
 	visit(host.test.get(), thenNode);
-	if(!val || *val)
+	if(!val || (inv == !*val)) //Never runs, block unreachable
 		host.ends_loop = block_retvisit(host.body.get(), thenNode);
 	
 	//if a break/continue moved out of it, don't count it as a terminator

@@ -1606,7 +1606,8 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 		{
 			//The first time a stack offset is used, it's already 0, and can skip init
 			//...but subsequent times it needs to be cleared again, and if non-zero still needs init.
-			if(*val || (in_func && in_func->used_stackoffs.contains(offset)))
+			//...also, if the first use is in a *loop*, it needs to be cleared, as that is multiple times.
+			if(*val || (in_func && in_func->used_stackoffs.contains(offset)) || continue_depth)
 				addOpcode(new OStoreDirectV(new LiteralArgument(*val), new LiteralArgument(offset)));
 		}
 		else addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
