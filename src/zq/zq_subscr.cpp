@@ -2532,7 +2532,7 @@ bool edit_subscreen()
 				{
 					exit = false;
 					AlertDialog("Exit without saving?",
-							"Are you sure you want exit without saving your changes to this subscreen?",
+							"Are you sure you want exit without saving your changes to this subscreen? (if you made any)",
 							[&exit](bool ret,bool)
 							{
 								if(ret)
