@@ -13067,6 +13067,8 @@ bool HeroClass::doattack()
 
 bool HeroClass::can_attack()
 {
+	if(lift_wpn && (liftflags & LIFTFL_DIS_ITEMS))
+		return false;
 	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
     if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze
 		|| lstunclock > 0 || is_conveyor_stunned || spins>0 || usingActiveShield()
