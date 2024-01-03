@@ -1,9 +1,8 @@
 # python -m pip install joblib git+ssh://git@github.com/connorjclark/zquest-data.git@2e9c43
 
 # To update the files in docs folder:
-#   python scripts/analyze_quest_rules.py --quest_database ~/code/games/quest-maker/zc_quests/ > docs/quest_database.md
-#   python scripts/analyze_quest_rules.py --quest_database ~/code/games/quest-maker/zc_quests/ --no_compat > docs/quest_database_no_compat.md
-# TODO move the pzc quest database fetching code into this repo
+#   python scripts/analyze_quest_rules.py > docs/quest_database.md
+#   python scripts/analyze_quest_rules.py --no_compat > docs/quest_database_no_compat.md
 
 import logging
 import os
@@ -26,7 +25,7 @@ memory = Memory(tmp_dir / 'memory', verbose=0)
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--quest_database', type=Path, default=tmp_dir / 'database/quests')
+parser.add_argument('--quest_database', type=Path, default=root_dir / '.tmp/database/quests')
 parser.add_argument('--no_compat', action='store_true')
 parser.add_argument('--analyze_replay_tests', action='store_true')
 parser.add_argument('--build_folder', default='build/Release')
