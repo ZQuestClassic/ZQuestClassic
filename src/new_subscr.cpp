@@ -2616,11 +2616,9 @@ void SW_MMapTitle::draw_old(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage
 	FONT* tempfont = get_zc_font(fontid);
 	if(!(flags&SUBSCR_MMAPTIT_REQMAP) || has_item(itype_map, -1))
 	{
-		auto y2 = y+yofs+text_height(tempfont), y1 = y+yofs;
+		auto y1 = y+yofs, y2 = y1+8;
 		if(flags&SUBSCR_MMAPTIT_ONELINE)
 			y2 = y1;
-		if(replay_version_check(0,19))
-			y2 = y1+8;
 		char bufs[2][21] = {0};
 		auto linecnt = get_strs(bufs[0],bufs[1]);
 		if(linecnt == 1)
