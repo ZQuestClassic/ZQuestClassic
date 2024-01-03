@@ -2594,8 +2594,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								SCRIPT_LIST_PROC("Pickup Script:", list_itemdatscript, local_itemref.collect_script, refreshScripts),
 								SCRIPT_LIST_PROC("Sprite Script:", list_itemsprscript, local_itemref.sprite_script, refreshScripts)
 							),
-							Rows<2>(hAlign = 1.0,
+							Rows<3>(hAlign = 1.0,
 								Label(text = "A1:"),
+								INFOBTN("Used for old ZASM script stuff. In new quests, this is basically useless."),
 								TextField(
 									val = local_itemref.initiala[0],
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2606,6 +2607,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								),
 								Label(text = "A2:"),
+								INFOBTN("Used for old ZASM script stuff. In new quests, this is basically useless."),
 								TextField(
 									val = local_itemref.initiala[1],
 									type = GUI::TextField::type::INT_DECIMAL,
