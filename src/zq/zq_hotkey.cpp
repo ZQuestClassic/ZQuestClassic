@@ -266,6 +266,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_COMPILE_SMART: return "Smart Compile ZScript";
 		case ZQKEY_DEBUG_CONSOLE: return "ZQ Debug Console";
 		case ZQKEY_SHOW_HOTKEYS: return "Show Hotkeys";
+		case ZQKEY_BIND_HOTKEYS: return "Rebind Hotkeys";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -486,6 +487,7 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_COMPILE_SMART: return "ZQKEY_COMPILE_SMART";
 		case ZQKEY_DEBUG_CONSOLE: return "ZQKEY_DEBUG_CONSOLE";
 		case ZQKEY_SHOW_HOTKEYS: return "ZQKEY_SHOW_HOTKEYS";
+		case ZQKEY_BIND_HOTKEYS: return "ZQKEY_BIND_HOTKEYS";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -906,6 +908,8 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Toggle the ZQuest Debug Console";
 		case ZQKEY_SHOW_HOTKEYS:
 			return "Show Hotkeys";
+		case ZQKEY_BIND_HOTKEYS:
+			return "Opens the hotkey binding menu";
 	}
 	return "";
 }
@@ -1139,6 +1143,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_COMPILE_SMART].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_DEBUG_CONSOLE].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_SHOW_HOTKEYS].setval(KEY_SLASH, KB_SHIFT_FLAG, 0, 0);
+	zq_hotkeys[ZQKEY_BIND_HOTKEYS].setval(0, 0, 0, 0);
 }
 
 void load_hotkeys()
@@ -1747,6 +1752,9 @@ int run_hotkey(uint hkey)
 			break;
 		case ZQKEY_SHOW_HOTKEYS:
 			showHotkeys();
+			break;
+		case ZQKEY_BIND_HOTKEYS:
+			do_zq_hotkey_dialog();
 			break;
 	}
 	return D_O_K;
