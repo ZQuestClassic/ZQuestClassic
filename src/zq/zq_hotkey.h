@@ -179,6 +179,7 @@ enum
 	
 	ZQKEY_DEBUG_CONSOLE,
 	ZQKEY_SHOW_HOTKEYS,
+	ZQKEY_BIND_HOTKEYS,
 
 	// Note: when adding a new hotkey, categorize in proper group in `render_hotkeys.cpp`.
 	ZQKEY_MAX
