@@ -350,12 +350,15 @@ elif opcodetype > -1:
     m = None
     while not m:
         index = index + 1
-        m = re.match('([ \t]){[ \t]*"",[ \t]*0,[ \t]*{[ \t]*0,[ \t]*0,[ \t]*0[ \t]*},[ \t]*0[ \t]*}',lines[index])
+        m = re.match('([ \t]){[ \t]*"",[ \t]*0,[ \t]*{},[ \t]*0[ \t]*,[ \t]*0[ \t]*}',lines[index])
     newlines = []
+    argstr = ''
+    if opcodetype > 0:
+        argstr = ' ?' + (', ?'*(opcodetype-1)) + ' ';
     for op in oplist_allcaps:
-        newlines.append(f'\t{{ "{op}", {opcodetype}, {{ 0, 0, 0 }}, 0 }},\n')
+        newlines.append(f'\t{{ "{op}", {opcodetype}, {{{argstr}}}, 0, 0 }},\n')
     newlines.append('\n')
-    lines[index] = f'\t{{ "", 0, {{ 0, 0, 0 }}, 0 }}\n'
+    lines[index] = f'\t{{ "", 0, {{}}, 0, 0 }}\n'
     lines[index:index] = newlines
     write_file(file_zasm_table_cpp,lines)
 else:

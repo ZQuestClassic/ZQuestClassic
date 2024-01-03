@@ -1202,7 +1202,7 @@ script_command command_list[NUMCOMMANDS+1]=
 
 	{ "STACKWRITEATVV_IF", 3, { NUM, NUM, CMP }, 0, CMPUSED },
 
-	{ "", 0, {}, 0 }
+	{ "", 0, {}, 0, 0 }
 };
 
 script_variable variable_list[]=
