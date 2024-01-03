@@ -2078,6 +2078,16 @@ struct script_command
 	byte arg_type[3]; //ARGTY_
 	byte arr_type; //0x1 = string, 0x2 = array
 	byte flags; //ARGFL_
+
+	bool is_register(int arg) const
+	{
+		return arg_type[arg] == ARGTY_READ_REG || arg_type[arg] == ARGTY_WRITE_REG || arg_type[arg] == ARGTY_READWRITE_REG;
+	}
+
+	bool writes_to_register(int arg) const
+	{
+		return arg_type[arg] == ARGTY_WRITE_REG || arg_type[arg] == ARGTY_READWRITE_REG;
+	}
 };
 
 struct script_variable

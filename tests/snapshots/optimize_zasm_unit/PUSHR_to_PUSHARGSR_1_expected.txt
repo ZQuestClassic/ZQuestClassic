@@ -1,0 +1,5 @@
+Function #0
+    0: PUSHARGSR       D3              4            [Block 0 -> ]
+    1: NOP
+    2: NOP
+    3: NOP

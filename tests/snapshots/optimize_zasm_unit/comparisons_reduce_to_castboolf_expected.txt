@@ -1,0 +1,70 @@
+[spurious_branches] Block #0
+
+0: COMPAREV        D2              0      
+1: SETFALSE        D2              
+	D2 = Bool(D2)
+2: COMPAREV        D3              0      
+	D2 = Bool(D2)
+3: SETFALSE        D3              
+	D2 = Bool(D2)
+	D3 = Bool(D3)
+4: COMPARER        D2              D3     
+	D2 = Bool(D2)
+	D3 = Bool(D3)
+5: SETFALSE        D2              
+	D2 = (Bool(D2)) != (Bool(D3))
+	D3 = Bool(D3)
+6: COMPAREV        D2              0      
+	D2 = (Bool(D2)) != (Bool(D3))
+	D3 = Bool(D3)
+7: GOTOTRUE        9               
+	D2 = (Bool(D2)) != (Bool(D3))
+	D3 = Bool(D3)
+inferred D2: 0
+9: QUIT           
+	D2 = 0
+	D3 = Bool(D3)
+rewrite 7: GOTOCMP         9               ==     
+
+[reduce_comparisons] Block #0
+
+0: COMPAREV        D2              0      
+1: SETFALSE        D2              
+	D2 = Bool(D2)
+2: COMPAREV        D3              0      
+	D2 = Bool(D2)
+3: SETFALSE        D3              
+	D2 = Bool(D2)
+	D3 = Bool(D3)
+4: COMPARER        D2              D3     
+	D2 = Bool(D2)
+	D3 = Bool(D3)
+5: SETFALSE        D2              
+	D2 = (Bool(D2)) != (Bool(D3))
+	D3 = Bool(D3)
+6: COMPAREV        D2              0      
+	D2 = (Bool(D2)) != (Bool(D3))
+	D3 = Bool(D3)
+7: GOTOCMP         9               ==     
+	D2 = (Bool(D2)) != (Bool(D3))
+	D3 = Bool(D3)
+rewrite 0: 8 -> 2 commands
+0: COMPARER        D2              D3     
+1: GOTOCMP         9               B==    
+2: NOP            
+3: NOP            
+4: NOP            
+5: NOP            
+6: NOP            
+7: NOP            
+Function #0
+    0: COMPARER        D2              D3           [Block 0 -> 1, 2]
+    1: GOTOCMP         9               B==
+    2: NOP                                          [Block 1 -> 2]
+    3: NOP
+    4: NOP
+    5: NOP
+    6: NOP
+    7: NOP
+    8: TRACEV          1
+    9: QUIT                                         [Block 2 -> ]

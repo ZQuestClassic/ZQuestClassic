@@ -1,0 +1,71 @@
+[spurious_branches] Block #0
+
+0: COMPAREV        D2              0      
+1: GOTOTRUE        5               
+inferred D2: 0
+5: COMPAREV        D2              0      
+	D2 = 0
+6: SETCMP          D2              !=     
+	D2 = 0
+7: COMPAREV        D2              0      
+	D2 = 0
+8: GOTOTRUE        10              
+	D2 = 0
+10: QUIT           
+	D2 = 0
+rewrite 1: GOTOCMP         10              ==     
+
+[spurious_branches] Block #2
+
+5: COMPAREV        D2              0      
+6: SETCMP          D2              !=     
+	D2 = Bool(D2)
+7: COMPAREV        D2              0      
+	D2 = Bool(D2)
+8: GOTOTRUE        10              
+	D2 = Bool(D2)
+inferred D2: 0
+10: QUIT           
+	D2 = 0
+rewrite 8: GOTOCMP         10              ==     
+
+[reduce_comparisons] Block #0
+
+0: COMPAREV        D2              0      
+1: GOTOCMP         10              ==     
+rewrite 0: 2 -> 2 commands
+0: COMPAREV        D2              0      
+1: GOTOCMP         10              ==     
+
+[reduce_comparisons] Block #1
+
+3: COMPAREV        D2              0      
+4: SETCMP          D2              ==     
+	D2 = !Bool(D2)
+5: COMPAREV        D2              0      
+	D2 = !Bool(D2)
+6: SETCMP          D2              !=     
+	D2 = !Bool(D2)
+7: COMPAREV        D2              0      
+	D2 = !Bool(D2)
+8: GOTOCMP         10              ==     
+	D2 = !Bool(D2)
+rewrite 3: 6 -> 2 commands
+3: COMPAREV        D2              0      
+4: GOTOCMP         10              !=     
+5: NOP            
+6: NOP            
+7: NOP            
+8: NOP            
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 3]
+    1: GOTOCMP         10              ==
+    2: SETR            D2              LINKZ        [Block 1 -> 2, 3]
+    3: COMPAREV        D2              0
+    4: GOTOCMP         10              !=
+    5: NOP                                          [Block 2 -> 3]
+    6: NOP
+    7: NOP
+    8: NOP
+    9: TRACEV          0
+   10: QUIT                                         [Block 3 -> ]

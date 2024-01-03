@@ -1,0 +1,16 @@
+; comparisons, if COMPARER w/ SETCMP CMP_LE
+; Same thing twice, but second one using modern GOTOCMP
+Function #0
+    0: COMPARER        D3              D2           [Block 0 -> 1, 2]
+    1: SETCMP          D2              <=
+    2: COMPAREV        D2              0
+    3: GOTOTRUE        5
+    4: TRACEV          0                            [Block 1 -> 2]
+    5: NOP                                          [Block 2 -> 3, 4]
+    6: LOADI           D2              D0
+    7: COMPARER        D3              D2
+    8: SETCMP          D2              <=
+    9: COMPAREV        D2              0
+   10: GOTOCMP         12              ==
+   11: TRACEV          0                            [Block 3 -> 4]
+   12: QUIT                                         [Block 4 -> ]

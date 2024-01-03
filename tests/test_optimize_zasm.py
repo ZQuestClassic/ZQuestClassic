@@ -2,7 +2,7 @@
 #
 # To update the snapshots:
 #
-#   python tests/test_zasm.py --update
+#   python tests/test_optimize_zasm.py --update
 #
 # or:
 #
@@ -49,14 +49,22 @@ class TestOptimizeZasm(ZCTestCase):
     def run_for_qst(self, qst_path: Path):
         with self.subTest(msg=f'optimizing {qst_path.name}'):
             stdout = self.optimize_zasm_in_qst(qst_path)
-            lines = stdout.splitlines()
-            output = next((l for l in lines if 'optimized all scripts' in l), None)
-            if not output:
+            filtered_lines = []
+            for line in stdout.splitlines():
+                if filtered_lines:
+                    filtered_lines.append(line.split(',')[0])
+                    if '[total]' in line:
+                        break
+
+                if line.startswith('Finished optimizing scripts'):
+                    filtered_lines.append(line)
+
+            if not filtered_lines:
                 if 'No scripts found' not in stdout:
                     raise Exception(f'Error optimizing scripts:\n{stdout}')
                 return
 
-            output = output.split(',')[0] + '\n'
+            output = '\n'.join(filtered_lines) + '\n'
             expected_path = expected_dir / f'{qst_path.stem}.txt'
             self.expect_snapshot(expected_path, output, args.update)
 

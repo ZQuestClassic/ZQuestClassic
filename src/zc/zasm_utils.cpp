@@ -54,7 +54,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			continue;
 		}
 
-		if (is_function_call_like)
+		if (is_function_call_like && script->zasm[i].arg1 != -1)
 		{
 			function_calls.insert(i);
 			function_calls_goto_pc.insert(script->zasm[i].arg1);
@@ -77,7 +77,8 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			function_final_pcs.push_back(function_start_pc - 1);
 			start_pc_to_function[function_start_pc] = next_fn_id++;
 		}
-		function_final_pcs.push_back(script->size - 1);
+		// Don't include 0xFFFF as part of the last function.
+		function_final_pcs.push_back(script->size - 2);
 
 		// Just so std::lower_bound below will work for last function.
 		function_start_pcs.push_back(script->size);
@@ -209,7 +210,7 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 		}
 		else if (prev_command == GOTOCMP || prev_command == GOTOTRUE || prev_command == GOTOFALSE || prev_command == GOTOLESS || prev_command == GOTOMORE)
 		{
-			// Previous block conditionally continues to this one, or some other block;
+			// Previous block conditionally continues to this one, or some other block.
 			block_edges[j - 1].push_back(j);
 			auto other_block = start_pc_to_block_id[prev_arg1];
 			block_edges[j - 1].push_back(other_block);
@@ -266,7 +267,7 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 	return ss.str();
 }
 
-std::string zasm_to_string(const script_data* script, bool generate_yielder)
+std::string zasm_to_string(const script_data* script, bool top_functions, bool generate_yielder)
 {
 	std::stringstream ss;
 	auto structured_zasm = zasm_construct_structured(script);
@@ -310,19 +311,22 @@ std::string zasm_to_string(const script_data* script, bool generate_yielder)
 		fn_lengths.emplace_back(fn_id, fn.final_pc - fn.start_pc + 1);
 	}
 
-	ss << "Top functions:\n\n";
-	std::sort(fn_lengths.begin(), fn_lengths.end(), [](auto &left, auto &right) {
-		return left.second > right.second;
-	});
-	int lengths_printed = 0;
-	for (auto [fn_id, length] : fn_lengths)
+	if (top_functions)
 	{
-		std::string name = fn_id == -1 ? "yielder" : zasm_fn_get_name(structured_zasm.functions.at(fn_id));
-		double percent = (double)length / script->size * 100;
-		ss << std::setw(15) << std::left << name + ": " << std::setw(6) << std::left << length << " " << (int)percent << '%' << '\n';
-		if (++lengths_printed == 5) break;
+		ss << "Top functions:\n\n";
+		std::sort(fn_lengths.begin(), fn_lengths.end(), [](auto &left, auto &right) {
+			return left.second > right.second;
+		});
+		int lengths_printed = 0;
+		for (auto [fn_id, length] : fn_lengths)
+		{
+			std::string name = fn_id == -1 ? "yielder" : zasm_fn_get_name(structured_zasm.functions.at(fn_id));
+			double percent = (double)length / script->size * 100;
+			ss << std::setw(15) << std::left << name + ": " << std::setw(6) << std::left << length << " " << (int)percent << '%' << '\n';
+			if (++lengths_printed == 5) break;
+		}
+		ss << '\n';
 	}
-	ss << '\n';
 
 	return ss.str();
 }
@@ -557,3 +561,22 @@ void zasm_for_every_script(std::function<void(script_data*)> fn)
 
 // 	int num_returns = has_ret_value?1:0;
 // 	int num_params = num_params_v1;
+
+std::pair<bool, bool> get_command_rw(int command, int arg)
+{
+	bool read = false;
+	bool write = false;
+
+	const auto& sc = get_script_command(command);
+	if (sc.args >= arg)
+	{
+		if (sc.arg_type[arg] == ARGTY_READ_REG)
+			read = true;
+		if (sc.arg_type[arg] == ARGTY_WRITE_REG)
+			write = true;
+		if (sc.arg_type[arg] == ARGTY_READWRITE_REG)
+			read = write = true;
+	}
+	
+	return {read, write};
+}

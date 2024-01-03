@@ -1,0 +1,65 @@
+[spurious_branches] Block #0
+
+0: PUSHR           D4              
+1: COMPAREV        D2              0      
+2: GOTOTRUE        4               
+inferred D2: 0
+4: SETV            D2              0      
+	D2 = 0
+5: STOREI          D2              D0     
+	D2 = 0
+6: SETV            D2              1      
+	D2 = 1
+7: COMPAREV        D2              0      
+	D2 = 1
+8: GOTOTRUE        10              
+	D2 = 1
+rewrite 2: GOTOCMP         4               ==     
+
+[spurious_branches] Block #2
+
+4: SETV            D2              0      
+	D2 = 0
+5: STOREI          D2              D0     
+	D2 = 0
+6: SETV            D2              1      
+	D2 = 1
+7: COMPAREV        D2              0      
+	D2 = 1
+8: GOTOTRUE        10              
+	D2 = 1
+inferred D2: 0
+10: SETR            D6              D4     
+	D2 = 0
+11: QUIT           
+	D2 = 0
+rewrite 8: GOTOCMP         10              ==     
+
+[reduce_comparisons] Block #0
+
+1: COMPAREV        D2              0      
+2: GOTOCMP         4               ==     
+rewrite 1: 2 -> 2 commands
+1: COMPAREV        D2              0      
+2: GOTOCMP         4               ==     
+
+[reduce_comparisons] Block #2
+
+7: COMPAREV        D2              0      
+8: GOTOCMP         10              ==     
+rewrite 7: 2 -> 2 commands
+7: COMPAREV        D2              0      
+8: GOTOCMP         10              ==     
+Function #0
+    0: PUSHR           D4                           [Block 0 -> 1, 2]
+    1: COMPAREV        D2              0
+    2: GOTOCMP         4               ==
+    3: TRACEV          1                            [Block 1 -> 2]
+    4: SETV            D2              0            [Block 2 -> 3, 4]
+    5: STOREI          D2              D0
+    6: SETV            D2              1
+    7: COMPAREV        D2              0
+    8: GOTOCMP         10              ==
+    9: TRACEV          1                            [Block 3 -> 4]
+   10: SETR            D6              D4           [Block 4 -> ]
+   11: QUIT

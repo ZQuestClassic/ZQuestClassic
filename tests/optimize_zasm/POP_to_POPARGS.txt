@@ -1,0 +1,6 @@
+; POP -> POPARGS
+Function #0
+    0: POP             D3                           [Block 0 -> ]
+    1: POP             D3
+    2: POP             D3
+    3: POP             D3

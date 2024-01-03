@@ -5075,9 +5075,13 @@ struct triangle3Dstruct
 #define rSP                     10
 
 bool command_is_wait(int command);
+bool command_is_goto(int command);
 bool command_uses_comparison_result(int command);
+bool command_writes_comparison_result(int command);
+int command_to_cmp(int command, int arg);
 bool command_could_return_not_ok(int command);
 const script_command& get_script_command(int command);
+int get_script_command(std::string name);
 
 int32_t get_combopos_ref(int32_t pos, int32_t layer);
 int32_t combopos_ref_to_pos(int32_t combopos_ref);

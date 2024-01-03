@@ -51786,6 +51786,22 @@ bool command_is_wait(int command)
 	return false;
 }
 
+bool command_is_goto(int command)
+{
+	// GOTOR/return ops left out on purpose.
+	switch (command)
+	{
+	case GOTO:
+	case GOTOCMP:
+	case GOTOLESS:
+	case GOTOMORE:
+	case GOTOTRUE:
+	case GOTOFALSE:
+		return true;
+	}
+	return false;
+}
+
 bool command_uses_comparison_result(int command)
 {
 	switch (command)
@@ -51808,6 +51824,64 @@ bool command_uses_comparison_result(int command)
 		return true;
 	}
 	return false;
+}
+
+bool command_writes_comparison_result(int command)
+{
+	switch (command)
+	{
+	case SETCMP:
+	case SETTRUE:
+	case SETTRUEI:
+	case SETFALSE:
+	case SETFALSEI:
+	case SETMOREI:
+	case SETLESSI:
+	case SETMORE:
+	case SETLESS:
+		return true;
+	}
+	return false;
+}
+
+int command_to_cmp(int command, int arg)
+{
+	switch (command)
+	{
+		case SETCMP:
+		case GOTOCMP:
+			return arg;
+		
+		case GOTOTRUE:
+			return CMP_EQ;
+		case GOTOFALSE:
+			return CMP_NE;
+		case GOTOMORE:
+			return CMP_GE;
+		case GOTOLESS:
+			return get_qr(qr_GOTOLESSNOTEQUAL) ? CMP_LE : CMP_LT;
+
+		case SETTRUE:
+			return CMP_EQ;
+		case SETFALSE:
+			return CMP_NE;
+		case SETMORE:
+			return CMP_GE;
+		case SETLESS:
+			return CMP_LE;
+		
+		case SETTRUEI:
+			return CMP_SETI|CMP_EQ;
+		case SETFALSEI:
+			return CMP_SETI|CMP_NE;
+		case SETMOREI:
+			return CMP_SETI|CMP_GE;
+		case SETLESSI:
+			return CMP_SETI|CMP_LE;
+	}
+
+	ASSERT(false);
+	return 0;
 }
 
 bool command_could_return_not_ok(int command)
@@ -51833,9 +51907,21 @@ bool command_could_return_not_ok(int command)
 
 const script_command& get_script_command(int command)
 {
-	static script_command null_command = {"0xFFFF", 0, 0, 0, 0};
+	static script_command null_command = {"0xFFFF", 0, {0, 0, 0}};
 	if (command == 0xFFFF) return null_command;
 	return command_list[command];
+}
+
+int get_script_command(std::string name)
+{
+	for (int i = 0; i < NUMCOMMANDS; i++)
+	{
+		if (command_list[i].name == name)
+			return i;
+	}
+
+	if (name == "0xFFFF") return 0xFFFF;
+	return -1;
 }
 
 int32_t get_combopos_ref(int32_t pos, int32_t layer)

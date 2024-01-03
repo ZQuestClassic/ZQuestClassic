@@ -1,0 +1,72 @@
+[spurious_branches] Block #0
+
+0: COMPAREV        D2              0      
+1: SETCMP          D2              ==     
+	D2 = !Bool(D2)
+2: COMPAREV        D2              0      
+	D2 = !Bool(D2)
+3: GOTOFALSE       11              
+	D2 = !Bool(D2)
+inferred D2: 0
+11: SETCMP          D2              !=     
+	D2 = 1
+12: COMPAREV        D2              0      
+	D2 = 1
+13: GOTOTRUE        15              
+	D2 = 1
+14: TRACEV          0               
+	D2 = 1
+rewrite 3: GOTOCMP         14              !=     
+
+[reduce_comparisons] Block #0
+
+0: COMPAREV        D2              0      
+1: SETCMP          D2              ==     
+	D2 = !Bool(D2)
+2: COMPAREV        D2              0      
+	D2 = !Bool(D2)
+3: GOTOCMP         14              !=     
+	D2 = !Bool(D2)
+rewrite 0: 4 -> 2 commands
+0: COMPAREV        D2              0      
+1: GOTOCMP         14              ==     
+2: NOP            
+3: NOP            
+
+[reduce_comparisons] Block #1
+
+8: COMPAREV        D2              10000  
+9: SETCMP          D2              ==     
+	D2 = D2 == 10000
+10: COMPAREV        D2              0      
+	D2 = D2 == 10000
+11: SETCMP          D2              !=     
+	D2 = D2 == 10000
+12: COMPAREV        D2              0      
+	D2 = D2 == 10000
+13: GOTOTRUE        15              
+	D2 = D2 == 10000
+rewrite 8: 6 -> 2 commands
+8: COMPAREV        D2              10000  
+9: GOTOCMP         15              !=     
+10: NOP            
+11: NOP            
+12: NOP            
+13: NOP            
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 3]
+    1: GOTOCMP         14              ==
+    2: NOP                                          [Block 1 -> 2, 4]
+    3: NOP
+    4: LOADD           D2              10000
+    5: PUSHR           D2
+    6: POP             REFFFC
+    7: SETR            D2              DATA
+    8: COMPAREV        D2              10000
+    9: GOTOCMP         15              !=
+   10: NOP                                          [Block 2 -> 3]
+   11: NOP
+   12: NOP
+   13: NOP
+   14: TRACEV          0                            [Block 3 -> 4]
+   15: QUIT                                         [Block 4 -> ]

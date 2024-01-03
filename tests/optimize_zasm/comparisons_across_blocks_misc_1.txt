@@ -1,0 +1,13 @@
+; comparisons across blocks, misc (1)
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 2]
+    1: GOTOTRUE        5
+    2: SETR            D2              LINKZ        [Block 1 -> 2]
+    3: COMPAREV        D2              0
+    4: SETCMP          D2              ==
+    5: COMPAREV        D2              0            [Block 2 -> 3, 4]
+    6: SETCMP          D2              !=
+    7: COMPAREV        D2              0
+    8: GOTOTRUE        10
+    9: TRACEV          0                            [Block 3 -> 4]
+   10: QUIT                                         [Block 4 -> ]

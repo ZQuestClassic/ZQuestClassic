@@ -1,0 +1,77 @@
+[spurious_branches] Block #0
+
+0: SETV            D3              0      
+	D3 = 0
+1: PUSHR           D4              
+	D3 = 0
+2: NOP            
+	D3 = 0
+3: PUSHV           80000           
+	D3 = 0
+4: SETR            D2              GD0    
+	D3 = 0
+5: PUSHR           D2              
+	D3 = 0
+6: GOTO            16              
+7: POP             D4              
+	D4 = ?
+8: COMPAREV        D2              0      
+	D4 = ?
+9: GOTOTRUE        12              
+	D4 = ?
+inferred D2: 0
+12: COMPAREV        D3              0      
+	D2 = 0
+	D4 = ?
+13: GOTOTRUE        15              
+	D2 = 0
+	D4 = ?
+rewrite 9: GOTOCMP         12              ==     
+
+[spurious_branches] Block #2
+
+12: COMPAREV        D3              0      
+13: GOTOTRUE        15              
+inferred D2: D2
+15: RETURN         
+	D3 = 0
+rewrite 13: GOTOCMP         15              ==     
+
+[reduce_comparisons] Block #0
+
+8: COMPAREV        D2              0      
+9: GOTOCMP         12              ==     
+rewrite 8: 2 -> 2 commands
+8: COMPAREV        D2              0      
+9: GOTOCMP         12              ==     
+
+[reduce_comparisons] Block #2
+
+12: COMPAREV        D3              0      
+13: GOTOCMP         15              ==     
+rewrite 12: 2 -> 2 commands
+12: COMPAREV        D3              0      
+13: GOTOCMP         15              ==     
+Function #0
+    0: SETV            D3              0            [Block 0 -> 1, 2]
+    1: PUSHR           D4
+    2: NOP
+    3: PUSHV           80000
+    4: SETR            D2              GD0
+    5: PUSHR           D2
+    6: GOTO            16                           [Call Function #1]
+    7: POP             D4
+    8: COMPAREV        D2              0
+    9: GOTOCMP         12              ==
+   10: SETR            D6              D4           [Block 1 -> 2]
+   11: ADDV            D6              60000
+   12: COMPAREV        D3              0            [Block 2 -> 3, 4]
+   13: GOTOCMP         15              ==
+   14: TRACEV          1                            [Block 3 -> 4]
+   15: RETURN                                       [Block 4 -> ]
+
+
+Function #1
+   16: SETR            D2              LINKX        [Block 0 -> ]
+   17: SETR            D3              LINKY
+   18: RETURN

@@ -1,0 +1,35 @@
+[spurious_branches] Block #0
+
+0: COMPAREV        D2              1337   
+1: SETCMP          D2              <=     
+	D2 = D2 <= 1337
+2: COMPAREV        D2              0      
+	D2 = D2 <= 1337
+3: GOTOTRUE        5               
+	D2 = D2 <= 1337
+inferred D2: 0
+5: QUIT           
+	D2 = 0
+rewrite 3: GOTOCMP         5               ==     
+
+[reduce_comparisons] Block #0
+
+0: COMPAREV        D2              1337   
+1: SETCMP          D2              <=     
+	D2 = D2 <= 1337
+2: COMPAREV        D2              0      
+	D2 = D2 <= 1337
+3: GOTOCMP         5               ==     
+	D2 = D2 <= 1337
+rewrite 0: 4 -> 2 commands
+0: COMPAREV        D2              1337   
+1: GOTOCMP         5               >      
+2: NOP            
+3: NOP            
+Function #0
+    0: COMPAREV        D2              1337         [Block 0 -> 1, 2]
+    1: GOTOCMP         5               >
+    2: NOP                                          [Block 1 -> 2]
+    3: NOP
+    4: TRACEV          0
+    5: QUIT                                         [Block 2 -> ]

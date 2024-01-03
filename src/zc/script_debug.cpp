@@ -322,6 +322,11 @@ std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t 
 	return ss.str();
 }
 
+std::string script_debug_command_to_string(const ffscript& c)
+{
+	return script_debug_command_to_string(c.command, c.arg1, c.arg2, c.arg3);
+}
+
 std::string script_debug_command_to_string(word scommand)
 {
 	return get_script_command(scommand).name;

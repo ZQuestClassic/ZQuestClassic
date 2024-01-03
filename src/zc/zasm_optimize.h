@@ -3,8 +3,28 @@
 
 #include "base/zdefs.h"
 
-int zasm_optimize(script_data* script);
-void zasm_optimize();
+#include <map>
+#include <string>
+
+struct OptimizationPass
+{
+	std::string name;
+	uint32_t instructions_saved;
+	// microseconds
+	uint32_t elapsed;
+};
+
+struct OptimizeResults
+{
+	uint32_t instructions_saved;
+	// microseconds
+	uint32_t elapsed;
+	std::vector<OptimizationPass> passes;
+};
+
+OptimizeResults zasm_optimize(script_data* script);
+OptimizeResults zasm_optimize();
 bool zasm_optimize_test();
+void zasm_optimize_run_for_file(std::string path);
 
 #endif

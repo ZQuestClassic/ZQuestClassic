@@ -4256,13 +4256,14 @@ void do_extract_zasm_command(const char* quest_path)
 
 	DEBUG_PRINT_TO_FILE = true;
 	strcpy(qstpath, quest_path);
+	bool top_functions = true;
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
 	bool optimize = get_flag_bool("-extract-zasm-optimize").value_or(false);
 	if (optimize)
 		zasm_optimize();
 	zasm_for_every_script([&](script_data* script){
 		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);
-		h.print(zasm_to_string(script, generate_yielder).c_str());
+		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());
 	});
 
 	exit(0);
@@ -4331,6 +4332,13 @@ int main(int argc, char **argv)
 	if (only_arg)
 	{
 		only_qstpath = (fs::current_path() / argv[only_arg+1]).string();
+	}
+
+	int test_opt_zasm_arg = used_switch(argc, argv, "-test-optimize-zasm");
+	if (test_opt_zasm_arg)
+	{
+		zasm_optimize_run_for_file(argv[test_opt_zasm_arg+1]);
+		exit(0);
 	}
 
 	if (test_zc_arg)

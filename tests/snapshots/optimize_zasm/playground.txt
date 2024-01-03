@@ -1,1 +1,9 @@
-optimized all scripts. saved 632 instr (3%)
+Finished optimizing scripts:
+	[goto_next_instruction] saved 0 instr (0.0%)
+	[unreachable_blocks] saved 41 instr (0.2%)
+	[optimize_conseq_additive] saved 0 instr (0.0%)
+	[setv_pushr] saved 591 instr (3.4%)
+	[spurious_branches] saved 0 instr (0.0%)
+	[reduce_comparisons] saved 1042 instr (6.0%)
+	[unreachable_blocks_2] saved 48 instr (0.3%)
+	[total] saved 1722 instr (9.9%)

@@ -411,7 +411,6 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 			int command = script->zasm[i].command;
 			int arg1 = script->zasm[i].arg1;
 			int arg2 = script->zasm[i].arg2;
-			int arg3 = script->zasm[i].arg3;
 
 			if (state.runtime_debugging && !command_uses_comparison_result(command))
 			{
@@ -428,7 +427,10 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					current_block_index += 1;
 				}
 
-				#define VAL(x, v) (v ? wasm.emitI32Const(x) : get_z_register(state, x))
+				#define VAL(x, v) {\
+					if (v) wasm.emitI32Const(x);\
+					else get_z_register(state, x);\
+				}
 				bool arg1_from_register = false;
 				bool arg2_from_register = command != COMPARER;
 				if (command == COMPAREV2)
@@ -475,7 +477,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 								wasm.emitI32Const(1);
 								break;
 						}
-						if (state.runtime_debugging && (next_arg2 & CMP_SETI))
+						if (next_arg2 & CMP_SETI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -488,7 +490,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						VAL(arg1, arg1_from_register);
 						VAL(arg2, arg2_from_register);
 						wasm.emitI32LeS();
-						if (state.runtime_debugging && next_command == SETLESSI)
+						if (next_command == SETLESSI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -501,7 +503,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						VAL(arg1, arg1_from_register);
 						VAL(arg2, arg2_from_register);
 						wasm.emitI32GeS();
-						if (state.runtime_debugging && next_command == SETMOREI)
+						if (next_command == SETMOREI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -514,7 +516,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						VAL(arg1, arg1_from_register);
 						VAL(arg2, arg2_from_register);
 						wasm.emitI32Ne();
-						if (state.runtime_debugging && next_command == SETFALSEI)
+						if (next_command == SETFALSEI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -527,7 +529,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						VAL(arg1, arg1_from_register);
 						VAL(arg2, arg2_from_register);
 						wasm.emitI32Eq();
-						if (state.runtime_debugging && next_command == SETTRUEI)
+						if (next_command == SETTRUEI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();

@@ -1,0 +1,25 @@
+; Calling a function invalidates registers. If not invalidated, the simulator
+; would assume D3 was 0 at line 12, and rewrite line 9 to incorrectly jump to 15.
+Function #0
+    0: SETV            D3              0            [Block 0 -> 1, 2]
+    1: PUSHR           D4
+    2: SETV            D2              80000
+    3: PUSHR           D2
+    4: SETR            D2              GD0
+    5: PUSHR           D2
+    6: GOTO            16                           [Call Function #1]
+    7: POP             D4
+    8: COMPAREV        D2              0
+    9: GOTOTRUE        12
+   10: SETR            D6              D4           [Block 1 -> 2]
+   11: ADDV            D6              60000
+   12: COMPAREV        D3              0            [Block 2 -> 3, 4]
+   13: GOTOTRUE        15
+   14: TRACEV          1                            [Block 3 -> 4]
+   15: RETURN                                       [Block 4 -> ]
+
+
+Function #1
+   16: SETR            D2              LINKX        [Block 0 -> ]
+   17: SETR            D3              LINKY
+   18: RETURN

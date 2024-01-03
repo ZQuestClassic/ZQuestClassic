@@ -1,0 +1,36 @@
+[spurious_branches] Block #0
+
+0: COMPAREV        D2              0      
+1: GOTOFALSE       5               
+inferred D2: 1
+5: SETCMP          D2              !=     
+	D2 = Bool(D2)
+6: COMPAREV        D2              0      
+	D2 = Bool(D2)
+7: SETCMP          D2              ==     
+	D2 = !Bool(D2)
+8: GOTO            10              
+	D2 = !Bool(D2)
+10: TRACER          D2              
+	D2 = !Bool(D2)
+11: QUIT           
+	D2 = !Bool(D2)
+rewrite 1: GOTOCMP         5               !=     
+
+[reduce_comparisons] Block #0
+
+0: COMPAREV        D2              0      
+1: GOTOCMP         5               !=     
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 2]
+    1: GOTOCMP         5               !=
+    2: LOADD           D2              20000        [Block 1 -> 2]
+    3: TRACEV          1
+    4: COMPAREV        D2              0
+    5: SETCMP          D2              !=           [Block 2 -> 4]
+    6: COMPAREV        D2              0
+    7: SETCMP          D2              ==
+    8: GOTO            10
+    9: NOP                                          [Block 3 -> 4]
+   10: TRACER          D2                           [Block 4 -> ]
+   11: QUIT

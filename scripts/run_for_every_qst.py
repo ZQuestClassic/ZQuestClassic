@@ -2,7 +2,7 @@
 #
 # Example:
 #
-#   python scripts/run_for_every_qst.py --command './build/Debug/zplayer -extract-zasm %s'
+#   python scripts/run_for_every_qst.py ./build/Debug/zplayer -extract-zasm %s
 
 import os
 import json
@@ -17,7 +17,8 @@ tmp_dir = root_dir / '.tmp'
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--starting_index', default=0)
+# 235 is the first qst with scripts
+parser.add_argument('--starting_index', type=int, default=0)
 parser.add_argument('--quest_database', type=Path, default=tmp_dir / 'database/manifest.json')
 parser.add_argument('--build_folder', default='build/Release')
 parser.add_argument('command', nargs=argparse.REMAINDER)

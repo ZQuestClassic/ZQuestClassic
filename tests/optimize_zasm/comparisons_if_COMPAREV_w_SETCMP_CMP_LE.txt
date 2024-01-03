@@ -1,0 +1,8 @@
+; comparisons, if COMPAREV w/ SETCMP CMP_LE
+Function #0
+    0: COMPAREV        D2              1337         [Block 0 -> 1, 2]
+    1: SETCMP          D2              <=
+    2: COMPAREV        D2              0
+    3: GOTOTRUE        5
+    4: TRACEV          0                            [Block 1 -> 2]
+    5: QUIT                                         [Block 2 -> ]
