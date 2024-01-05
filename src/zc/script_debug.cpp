@@ -291,7 +291,10 @@ std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t 
 		ss << SS_WIDTH(7);
 		if(c.arr_type == 1)
 		{
-			ss << *argstr;
+			// NOTE: currently possible to encounter a null pointer here, since the qst loading code
+			// will create no string for these commands if the size was 0.
+			if (argstr)
+				ss << *argstr;
 		}
 		else //if(c.arr_type == 2)
 		{
