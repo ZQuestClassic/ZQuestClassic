@@ -13064,6 +13064,14 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 		temp_script.clear();
 	}
 
+	// If the first command is unknown, invalidate the whole thing.
+	// Saw this for https://www.purezc.net/index.php?page=quests&id=411 hero script 0
+	if ((*script)->zasm[0].command >= NUMCOMMANDS && (*script)->zasm[0].command != 0xFFFF)
+	{
+		al_trace("Warning: found script with bad instruction, disabling script: %s %d\n", ScriptTypeToString((*script)->id.type), (*script)->id.index);
+		(*script)->zasm[0].command = 0xFFFF;
+	}
+
 	(*script)->recalc_size();
 
 	return 0;
