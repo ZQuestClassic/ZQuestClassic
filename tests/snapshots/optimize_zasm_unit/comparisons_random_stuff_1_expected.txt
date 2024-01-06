@@ -7,35 +7,43 @@ inferred D2: 0
 	D2 = 0
 18: QUIT           
 	D2 = 0
+	side_effects
 rewrite 1: GOTOCMP         16              ==     
 
 [spurious_branches] Block #1
 
 2: LOADD           D2              20000  
+	bail
 3: PUSHR           D2              
+	side_effects
+	bail
 4: LOADD           D2              0      
+	side_effects
+	bail
 5: COMPAREV        D2              0      
+	side_effects
+	bail
 6: SETCMP          D2              !=     
 	D2 = Bool(D2)
+	side_effects
+	bail
 7: COMPAREV        D2              0      
 	D2 = Bool(D2)
+	side_effects
+	bail
 8: GOTOTRUE        10              
 	D2 = Bool(D2)
-inferred D2: 0
-10: LOADD           D2              0      
-11: COMPAREV        D2              0      
-12: GOTOTRUE        14              
-rewrite 8: GOTOCMP         10              ==     
+	side_effects
+	bail
 
 [spurious_branches] Block #3
 
 10: LOADD           D2              0      
+	bail
 11: COMPAREV        D2              0      
+	bail
 12: GOTOTRUE        14              
-inferred D2: 0
-14: LOADD           D2              0      
-15: TRACER          D2              
-rewrite 12: GOTOCMP         14              ==     
+	bail
 
 [reduce_comparisons] Block #0
 
@@ -52,7 +60,7 @@ rewrite 0: 2 -> 2 commands
 	D2 = Bool(D2)
 7: COMPAREV        D2              0      
 	D2 = Bool(D2)
-8: GOTOCMP         10              ==     
+8: GOTOTRUE        10              
 	D2 = Bool(D2)
 rewrite 5: 4 -> 2 commands
 5: COMPAREV        D2              0      
@@ -63,7 +71,7 @@ rewrite 5: 4 -> 2 commands
 [reduce_comparisons] Block #3
 
 11: COMPAREV        D2              0      
-12: GOTOCMP         14              ==     
+12: GOTOTRUE        14              
 rewrite 11: 2 -> 2 commands
 11: COMPAREV        D2              0      
 12: GOTOCMP         14              ==     

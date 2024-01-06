@@ -18,6 +18,7 @@ inferred D2: 0
 	D2 = 0
 20: QUIT           
 	D2 = 0
+	side_effects
 rewrite 3: GOTOCMP         20              ==     
 
 [spurious_branches] Block #2
@@ -32,6 +33,7 @@ rewrite 3: GOTOCMP         20              ==
 inferred D2: 0
 20: QUIT           
 	D2 = 0
+	side_effects
 rewrite 18: GOTOCMP         20              ==     
 
 [reduce_comparisons] Block #0
@@ -83,9 +85,9 @@ Function #0
     1: GOTOCMP         20              <
     2: NOP                                          [Block 1 -> 2, 3]
     3: NOP
-    4: SETR            D6              D4
-    5: ADDV            D6              30000
-    6: LOADI           D2              D6
+    4: LOADD           D2              30000
+    5: NOP
+    6: NOP
     7: PUSHR           D2
     8: SETV            D2              386050000
     9: POP             D3

@@ -10,6 +10,7 @@
 inferred D2: 0
 5: QUIT           
 	D2 = 0
+	side_effects
 rewrite 3: GOTOCMP         5               ==     
 
 [reduce_comparisons] Block #0

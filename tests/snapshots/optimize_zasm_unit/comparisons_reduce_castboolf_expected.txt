@@ -20,6 +20,7 @@ inferred D2: 0
 	D2 = 0
 21: TRACEV          1               
 	D2 = 0
+	side_effects
 rewrite 3: GOTOCMP         21              ==     
 
 [spurious_branches] Block #2
@@ -36,6 +37,7 @@ rewrite 3: GOTOCMP         21              ==
 inferred D2: 1
 22: TRACEV          2               
 	D2 = 1
+	side_effects
 rewrite 20: GOTOCMP         22              ==     
 
 [reduce_comparisons] Block #0

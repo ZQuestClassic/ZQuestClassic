@@ -13,8 +13,10 @@ inferred D2: 1
 	D2 = !Bool(D2)
 10: TRACER          D2              
 	D2 = !Bool(D2)
+	side_effects
 11: QUIT           
 	D2 = !Bool(D2)
+	side_effects
 rewrite 1: GOTOCMP         5               !=     
 
 [reduce_comparisons] Block #0

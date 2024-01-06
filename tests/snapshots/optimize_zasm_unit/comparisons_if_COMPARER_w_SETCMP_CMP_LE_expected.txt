@@ -10,28 +10,50 @@
 inferred D2: 0
 5: NOP            
 	D2 = 0
+	side_effects
 6: LOADI           D2              D0     
 	D2 = 0
+	side_effects
+	bail
 7: COMPARER        D3              D2     
 	D2 = 0
+	side_effects
+	bail
 8: SETCMP          D2              <=     
 	D2 = D3 <= 0
+	side_effects
+	bail
 9: COMPAREV        D2              0      
 	D2 = D3 <= 0
+	side_effects
+	bail
 10: GOTOCMP         12              ==     
 	D2 = D3 <= 0
+	side_effects
+	bail
 
 [spurious_branches] Block #2
 
 5: NOP            
+	side_effects
 6: LOADI           D2              D0     
+	side_effects
+	bail
 7: COMPARER        D3              D2     
+	side_effects
+	bail
 8: SETCMP          D2              <=     
 	D2 = D3 <= D2
+	side_effects
+	bail
 9: COMPAREV        D2              0      
 	D2 = D3 <= D2
+	side_effects
+	bail
 10: GOTOCMP         12              ==     
 	D2 = D3 <= D2
+	side_effects
+	bail
 
 [reduce_comparisons] Block #0
 

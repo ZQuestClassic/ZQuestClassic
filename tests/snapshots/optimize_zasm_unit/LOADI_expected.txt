@@ -1,0 +1,18 @@
+Function #0
+    0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
+    1: NOP
+    2: NOP
+    3: NOP
+    4: QUIT
+
+
+Function #1
+    5: LOADD           D2              30000        [Block 0 -> ]
+    6: NOP
+    7: NOP
+    8: PUSHR           D2
+    9: LOADD           D2              20000
+   10: NOP
+   11: NOP
+   12: PUSHR           D2
+   13: RETURNFUNC

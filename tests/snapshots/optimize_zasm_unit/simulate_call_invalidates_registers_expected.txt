@@ -4,21 +4,30 @@
 	D3 = 0
 1: PUSHR           D4              
 	D3 = 0
+	side_effects
 2: NOP            
 	D3 = 0
+	side_effects
 3: PUSHV           80000           
 	D3 = 0
+	side_effects
 4: SETR            D2              GD0    
 	D3 = 0
+	side_effects
 5: PUSHR           D2              
 	D3 = 0
+	side_effects
 6: CALLFUNC        16              
+	side_effects
 7: POP             D4              
 	D4 = ?
+	side_effects
 8: COMPAREV        D2              0      
 	D4 = ?
+	side_effects
 9: GOTOTRUE        12              
 	D4 = ?
+	side_effects
 inferred D2: 0
 12: COMPAREV        D3              0      
 	D2 = 0
@@ -35,6 +44,7 @@ rewrite 9: GOTOCMP         12              ==
 inferred D2: D2
 15: RETURN         
 	D3 = 0
+	side_effects
 rewrite 13: GOTOCMP         15              ==     
 
 [reduce_comparisons] Block #0

@@ -24,6 +24,7 @@ inferred D2: 0
 9: QUIT           
 	D2 = 0
 	D3 = Bool(D3)
+	side_effects
 rewrite 7: GOTOCMP         9               ==     
 
 [reduce_comparisons] Block #0

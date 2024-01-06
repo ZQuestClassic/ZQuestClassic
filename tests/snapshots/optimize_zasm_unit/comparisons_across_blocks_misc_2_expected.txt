@@ -16,6 +16,7 @@ inferred D2: 0
 	D2 = 1
 14: TRACEV          0               
 	D2 = 1
+	side_effects
 rewrite 3: GOTOCMP         14              !=     
 
 [reduce_comparisons] Block #0

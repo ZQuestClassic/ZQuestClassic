@@ -8,55 +8,93 @@
 3: GOTOTRUE        5               
 	D2 = D2 I>= 1
 inferred D2: 0
-5: SETR            D6              D4     
+5: LOADD           D2              0      
 	D2 = 0
-6: ADDV            D6              0      
+	bail
+6: NOP            
 	D2 = 0
-7: LOADI           D2              D6     
+	side_effects
+	bail
+7: NOP            
 	D2 = 0
+	side_effects
+	bail
 8: PUSHR           D2              
 	D2 = 0
+	side_effects
+	bail
 9: SETV            D2              450000 
 	D2 = 450000
+	side_effects
+	bail
 10: POP             D3              
 	D2 = 450000
 	D3 = ?
+	side_effects
+	bail
 11: COMPARER        D3              D2     
 	D2 = 450000
 	D3 = ?
+	side_effects
+	bail
 12: SETLESSI        D2              
 	D2 = ?
 	D3 = ?
+	side_effects
+	bail
 13: COMPAREV        D2              0      
 	D2 = ?
 	D3 = ?
+	side_effects
+	bail
 14: GOTOTRUE        16              
 	D2 = ?
 	D3 = ?
+	side_effects
+	bail
 
 [spurious_branches] Block #2
 
-5: SETR            D6              D4     
-6: ADDV            D6              0      
-7: LOADI           D2              D6     
+5: LOADD           D2              0      
+	bail
+6: NOP            
+	side_effects
+	bail
+7: NOP            
+	side_effects
+	bail
 8: PUSHR           D2              
+	side_effects
+	bail
 9: SETV            D2              450000 
 	D2 = 450000
+	side_effects
+	bail
 10: POP             D3              
 	D2 = 450000
 	D3 = ?
+	side_effects
+	bail
 11: COMPARER        D3              D2     
 	D2 = 450000
 	D3 = ?
+	side_effects
+	bail
 12: SETLESSI        D2              
 	D2 = ?
 	D3 = ?
+	side_effects
+	bail
 13: COMPAREV        D2              0      
 	D2 = ?
 	D3 = ?
+	side_effects
+	bail
 14: GOTOTRUE        16              
 	D2 = ?
 	D3 = ?
+	side_effects
+	bail
 
 [reduce_comparisons] Block #0
 
@@ -93,9 +131,9 @@ Function #0
     2: NOP                                          [Block 1 -> 2]
     3: NOP
     4: TRACEV          0
-    5: SETR            D6              D4           [Block 2 -> 3, 4]
-    6: ADDV            D6              0
-    7: LOADI           D2              D6
+    5: LOADD           D2              0            [Block 2 -> 3, 4]
+    6: NOP
+    7: NOP
     8: PUSHR           D2
     9: SETV            D2              450000
    10: POP             D3

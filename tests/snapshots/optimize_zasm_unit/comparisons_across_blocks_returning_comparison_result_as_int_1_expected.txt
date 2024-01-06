@@ -9,8 +9,10 @@ inferred D2: 1
 	D2 = Bool(D2)
 8: RETURN         
 	D2 = Bool(D2)
+	side_effects
 9: QUIT           
 	D2 = Bool(D2)
+	side_effects
 rewrite 1: GOTOCMP         5               !=     
 
 [reduce_comparisons] Block #0

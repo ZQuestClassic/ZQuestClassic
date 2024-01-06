@@ -13,6 +13,7 @@ inferred D2: 0
 	D2 = 0
 10: QUIT           
 	D2 = 0
+	side_effects
 rewrite 1: GOTOCMP         10              ==     
 
 [spurious_branches] Block #2
@@ -27,6 +28,7 @@ rewrite 1: GOTOCMP         10              ==
 inferred D2: 0
 10: QUIT           
 	D2 = 0
+	side_effects
 rewrite 8: GOTOCMP         10              ==     
 
 [reduce_comparisons] Block #0

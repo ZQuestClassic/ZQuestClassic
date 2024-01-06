@@ -22,16 +22,27 @@ inferred D2: 0
 	D2 = 0
 11: STOREI          D2              D6     
 	D2 = 0
-12: SETR            D6              D4     
+	side_effects
+12: LOADD           D2              190000 
 	D2 = 0
-13: ADDV            D6              190000 
+	side_effects
+	bail
+13: NOP            
 	D2 = 0
-14: LOADI           D2              D6     
+	side_effects
+	bail
+14: NOP            
 	D2 = 0
+	side_effects
+	bail
 15: COMPAREV        D2              0      
 	D2 = 0
+	side_effects
+	bail
 16: GOTOTRUE        18              
 	D2 = 0
+	side_effects
+	bail
 
 [spurious_branches] Block #2
 
@@ -44,16 +55,27 @@ inferred D2: 0
 	D2 = D2 I>= 1
 11: STOREI          D2              D6     
 	D2 = D2 I>= 1
-12: SETR            D6              D4     
+	side_effects
+12: LOADD           D2              190000 
 	D2 = D2 I>= 1
-13: ADDV            D6              190000 
+	side_effects
+	bail
+13: NOP            
 	D2 = D2 I>= 1
-14: LOADI           D2              D6     
+	side_effects
+	bail
+14: NOP            
 	D2 = D2 I>= 1
+	side_effects
+	bail
 15: COMPAREV        D2              0      
 	D2 = D2 I>= 1
+	side_effects
+	bail
 16: GOTOTRUE        18              
 	D2 = D2 I>= 1
+	side_effects
+	bail
 
 [reduce_comparisons] Block #0
 
@@ -88,9 +110,9 @@ Function #0
     9: SETR            D6              D4
    10: ADDV            D6              90000
    11: STOREI          D2              D6
-   12: SETR            D6              D4
-   13: ADDV            D6              190000
-   14: LOADI           D2              D6
+   12: LOADD           D2              190000
+   13: NOP
+   14: NOP
    15: COMPAREV        D2              0
    16: GOTOTRUE        18
    17: TRACEV          1                            [Block 3 -> 4]

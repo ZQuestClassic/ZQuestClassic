@@ -31,6 +31,7 @@ rewrite 3: GOTOCMP         6               ==
 inferred D2: 0
 12: QUIT           
 	D2 = 0
+	side_effects
 rewrite 10: GOTOCMP         12              ==     
 
 [reduce_comparisons] Block #0

@@ -497,6 +497,42 @@ static void optimize_conseq_additive(OptContext& ctx)
 	optimize_conseq_additive_impl(ctx, POP, POPARGS, true);
 }
 
+// SETR, ADDV, LOADI -> LOADD
+// Ex:
+//   SETR            D6              D4
+//   ADDV            D6              40000
+//   LOADI           D2              D6
+// ->
+//   LOADD           D2              40000
+static void optimize_loadi(OptContext& ctx)
+{
+	for (pc_t i = ctx.fn.start_pc + 2; i < ctx.fn.final_pc; i++)
+	{
+		int command = C(i).command;
+		int arg1 = C(i).arg1;
+		int arg2 = C(i).arg2;
+		if (command != LOADI || arg2 != D(6)) continue;
+
+		int addv_command = C(i - 1).command;
+		int addv_arg1 = C(i - 1).arg1;
+		int addv_arg2 = C(i - 1).arg2;
+
+		ASSERT(addv_command == ADDV);
+		ASSERT(addv_arg1 == D(6));
+
+		int setr_command = C(i - 2).command;
+		int setr_arg1 = C(i - 2).arg1;
+		int setr_arg2 = C(i - 2).arg2;
+
+		ASSERT(setr_command == SETR);
+		ASSERT(setr_arg1 == D(6));
+		ASSERT(setr_arg2 == D(4));
+
+		C(i - 2) = {LOADD, arg1, addv_arg2};
+		remove(ctx, i - 1, i);
+	}
+}
+
 // SETV, PUSHR -> PUSHV
 // Ex:
 //   SETV            D2              5420000
@@ -919,6 +955,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 			return;
 		}
 
+		case LOADD:
 		case LOADI:
 		{
 			if (arg1 == D(2))
@@ -1019,6 +1056,8 @@ static void simulate_block(OptContext& ctx, SimulationState& state)
 				if (!state.d[i].is_register())
 					fmt::println("\tD{} = {}", i, state.d[i].to_string());
 			}
+			if (state.side_effects) fmt::println("\tside_effects");
+			if (state.bail) fmt::println("\tbail");
 		}
 		if (state.pc == state.final_pc)
 			break;
@@ -1486,11 +1525,11 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 
 // Ideas for more opt passes:
 // - Remove unused writes to a D register
-// - SETR D6 D4 ; ADDV D6 250000 ; LOADI D2 D6
 static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> passes = {
 	{"goto_next_instruction", optimize_goto_next_instruction},
 	{"unreachable_blocks", optimize_unreachable_blocks},
-	{"optimize_conseq_additive", optimize_conseq_additive},
+	{"conseq_additive", optimize_conseq_additive},
+	{"loadi", optimize_loadi},
 	{"setv_pushr", optimize_setv_pushr},
 	{"spurious_branches", optimize_spurious_branches},
 	{"reduce_comparisons", optimize_reduce_comparisons},
