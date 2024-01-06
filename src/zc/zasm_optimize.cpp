@@ -435,50 +435,53 @@ static void optimize_goto_next_instruction(OptContext& ctx)
 	}
 }
 
-static void optimize_conseq_additive_impl(OptContext& ctx, int from, int to, bool end = false)
+static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, bool write_at_end = false)
 {
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
-		for (int j = start_pc; j <= final_pc; j++)
+		for (pc_t j = final_pc; j > start_pc; j--)
 		{
 			int command = C(j).command;
 			int arg1 = C(j).arg1;
 			if (command != from) continue;
 
-			int start = j;
-			int count = 1;
-			for (int k = start + 1; k <= final_pc; k++)
+			if ((from == PUSHV || from == PUSHR) && ctx.structured_zasm->function_calls.contains(j + 1))
 			{
-				int next_command = C(k).command;
-				int next_arg1 = C(k).arg1;
-				if (next_command != from || next_arg1 != arg1)
-					break;
-
-				count++;
+				// Don't break the thing that function calls are derived from in older ZASM.
+				continue;
 			}
 
+			pc_t start = j;
+			pc_t end = j;
+			while (start >= start_pc)
+			{
+				int prev_command = C(start - 1).command;
+				int prev_arg1 = C(start - 1).arg1;
+				if (prev_command != from)
+					break;
+				// D5 is a special "null" register - it is never valid to read
+				// from it, so we are free to remove writes.
+				// ...except for the initial script call, which may have set initd[5].
+				if (!(prev_arg1 == arg1 || (ctx.fn.id != 0 && prev_arg1 == D(5))))
+					break;
+
+				start--;
+			}
+
+			int count = end - start + 1;
 			if (count > 1)
 			{
-				if ((from == PUSHV || from == PUSHR) && ctx.structured_zasm->function_calls.contains(start + count))
+				if (write_at_end)
 				{
-					// Don't break the thing that function calls are derived from in older ZASM.
-					j = start + count - 1;
-					continue;
-				}
-
-				if (end)
-				{
-					C(start + count - 1).command = to;
-					C(start + count - 1).arg2 = count;
-					remove(ctx, start, start + count - 2);
+					C(end) = {to, arg1, count};
+					remove(ctx, start, end - 1);
 				}
 				else
 				{
-					C(start).command = to;
-					C(start).arg2 = count;
-					remove(ctx, start + 1, start + count - 1);
+					C(start) = {to, arg1, count};
+					remove(ctx, start + 1, end);
 				}
 
-				j = start + count - 1;
+				j = start;
 			}
 		}
 	});

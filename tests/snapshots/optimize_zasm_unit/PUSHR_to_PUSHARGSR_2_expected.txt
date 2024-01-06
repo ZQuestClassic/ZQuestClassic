@@ -1,5 +1,0 @@
-Function #0
-    0: PUSHARGSR       D3              2            [Block 0 -> ]
-    1: NOP
-    2: PUSHR           D2
-    3: PUSHR           D3

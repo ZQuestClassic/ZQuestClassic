@@ -1,0 +1,46 @@
+Function #0
+    0: TRACEV          1337                         [Block 0 -> ]
+    1: PUSHR           D5
+    2: PUSHARGSR       D2              2
+    3: NOP
+    4: NOP
+    5: PUSHARGSV       100000          2
+    6: NOP
+    7: PUSHV           100000
+    8: CALLFUNC        13                           [Call Function #1]
+    9: CALLFUNC        18                           [Call Function #2]
+   10: CALLFUNC        23                           [Call Function #3]
+   11: CALLFUNC        28                           [Call Function #4]
+   12: QUIT
+
+
+Function #1
+   13: PUSHARGSR       D3              4            [Block 0 -> ]
+   14: NOP
+   15: NOP
+   16: NOP
+   17: RETURNFUNC
+
+
+Function #2
+   18: PUSHARGSR       D3              3            [Block 0 -> ]
+   19: NOP
+   20: NOP
+   21: PUSHR           D2
+   22: RETURNFUNC
+
+
+Function #3
+   23: PUSHARGSR       D3              4            [Block 0 -> ]
+   24: NOP
+   25: NOP
+   26: NOP
+   27: RETURNFUNC
+
+
+Function #4
+   28: PUSHARGSR       D3              4            [Block 0 -> ]
+   29: NOP
+   30: NOP
+   31: NOP
+   32: RETURNFUNC

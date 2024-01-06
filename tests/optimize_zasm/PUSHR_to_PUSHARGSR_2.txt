@@ -1,6 +1,0 @@
-; PUSHR -> PUSHARGSR (2)
-Function #0
-    0: PUSHR           D3                           [Block 0 -> ]
-    1: PUSHR           D3
-    2: PUSHR           D2
-    3: PUSHR           D3
