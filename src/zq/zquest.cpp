@@ -8738,6 +8738,12 @@ void doflags()
 					int scr = CurrentLayer ? Map.CurrScr()->layerscreen[CurrentLayer-1] : Map.getCurrScr();
 					Map.DoSetFlagCommand(map, scr, c, Flag);
 				}
+				if(!(cur_scr->valid&mVALID))
+				{
+					Map.CurrScr()->valid|=mVALID;
+					cur_scr->valid|=mVALID;
+					Map.setcolor(Color);
+				}
 				Flag = tflag;
 			}
 		}
