@@ -1468,6 +1468,13 @@ void titlescreen(int32_t lsave)
 	Playing=Paused=GameLoaded=false;
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
+
+	if(q==qCONT)
+	{
+		cont_game();
+		return;
+	}
+
 	saves_unselect();
 
 	if (PlayTitleMusic)
@@ -1476,12 +1483,6 @@ void titlescreen(int32_t lsave)
 			try_zcmusic("assets/title_music.mp3", "", 0, 0, get_emusic_volume());
 		else
 			try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, get_emusic_volume() * 0.6);
-	}
-
-	if(q==qCONT)
-	{
-		cont_game();
-		return;
 	}
 	
 	if (replay_get_mode() == ReplayMode::Record)

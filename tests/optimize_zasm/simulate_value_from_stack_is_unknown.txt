@@ -1,0 +1,20 @@
+; The condition at GOTOTRUE cannot be known when branching from line 3,
+; because the source of D3 is a value from the stack.
+Function #0
+    0: COMPAREV        D2              1            [Block 0 -> 1, 2]
+    1: SETMOREI        D2
+    2: COMPAREV        D2              0
+    3: GOTOTRUE        5
+    4: TRACEV          0                            [Block 1 -> 2]
+    5: SETR            D6              D4           [Block 2 -> 3, 4]
+    6: ADDV            D6              0
+    7: LOADI           D2              D6
+    8: PUSHR           D2
+    9: SETV            D2              450000
+   10: POP             D3
+   11: COMPARER        D3              D2
+   12: SETLESSI        D2
+   13: COMPAREV        D2              0
+   14: GOTOTRUE        16
+   15: TRACEV          1                            [Block 3 -> 4]
+   16: TRACEV          2                            [Block 4 -> ]

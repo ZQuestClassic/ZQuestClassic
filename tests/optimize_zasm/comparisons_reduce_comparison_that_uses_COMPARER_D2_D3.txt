@@ -1,0 +1,12 @@
+; comparisons, reduce comparison that uses COMPARER D2 D3
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 2]
+    1: SETFALSE        D2
+    2: COMPAREV        D3              0
+    3: SETFALSE        D3
+    4: COMPARER        D2              D3
+    5: SETFALSE        D2
+    6: COMPAREV        D2              0
+    7: GOTOTRUE        9
+    8: TRACEV          1                            [Block 1 -> 2]
+    9: QUIT                                         [Block 2 -> ]

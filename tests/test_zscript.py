@@ -4,6 +4,10 @@
 #
 #   python tests/test_zscript.py --update
 #
+# or:
+#
+#   python tests/update_snapshots.py
+#
 # To add a new script to the tests, simply add it to tests/scripts.
 
 import argparse

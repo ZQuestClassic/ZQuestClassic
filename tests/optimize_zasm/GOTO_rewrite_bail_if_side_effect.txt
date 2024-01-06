@@ -1,0 +1,14 @@
+; GOTO rewrite, bail if side effect
+Function #0
+    0: PUSHR           D4                           [Block 0 -> 1, 2]
+    1: COMPAREV        D2              0
+    2: GOTOTRUE        4
+    3: TRACEV          1                            [Block 1 -> 2]
+    4: SETV            D2              0            [Block 2 -> 3, 4]
+    5: STOREI          D2              D0
+    6: SETV            D2              1
+    7: COMPAREV        D2              0
+    8: GOTOTRUE        10
+    9: TRACEV          1                            [Block 3 -> 4]
+   10: SETR            D6              D4           [Block 4 -> ]
+   11: QUIT

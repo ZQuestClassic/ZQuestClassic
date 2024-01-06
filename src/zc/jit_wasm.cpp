@@ -28,6 +28,7 @@
 #include "zc/jit.h"
 #include "zc/script_debug.h"
 #include "zc/wasm_compiler.h"
+#include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include <cstdint>
@@ -296,7 +297,7 @@ static bool command_is_compiled(int command)
 
 	// These can be commented out to instead run interpreted. Useful for
 	// singling out problematic instructions.
-	// case ABSR:
+	// case ABS:
 	case ADDR:
 	case ADDV:
 	// case ANDR:
@@ -427,7 +428,10 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					current_block_index += 1;
 				}
 
-				#define VAL(x, v) (v ? wasm.emitI32Const(x) : get_z_register(state, x))
+				#define VAL(x, v) {\
+					if (v) wasm.emitI32Const(x);\
+					else get_z_register(state, x);\
+				}
 				bool arg1_from_register = false;
 				bool arg2_from_register = command != COMPARER;
 				if (command == COMPAREV2)
@@ -474,7 +478,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 								wasm.emitI32Const(1);
 								break;
 						}
-						if (state.runtime_debugging && (next_arg2 & CMP_SETI))
+						if (next_arg2 & CMP_SETI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -487,7 +491,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						VAL(arg1, arg1_from_register);
 						VAL(arg2, arg2_from_register);
 						wasm.emitI32LeS();
-						if (state.runtime_debugging && next_command == SETLESSI)
+						if (next_command == SETLESSI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -500,7 +504,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						VAL(arg1, arg1_from_register);
 						VAL(arg2, arg2_from_register);
 						wasm.emitI32GeS();
-						if (state.runtime_debugging && next_command == SETMOREI)
+						if (next_command == SETMOREI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -513,7 +517,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						VAL(arg1, arg1_from_register);
 						VAL(arg2, arg2_from_register);
 						wasm.emitI32Ne();
-						if (state.runtime_debugging && next_command == SETFALSEI)
+						if (next_command == SETFALSEI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -526,7 +530,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						VAL(arg1, arg1_from_register);
 						VAL(arg2, arg2_from_register);
 						wasm.emitI32Eq();
-						if (state.runtime_debugging && next_command == SETTRUEI)
+						if (next_command == SETTRUEI)
 						{
 							wasm.emitI32Const(10000);
 							wasm.emitI32Mul();
@@ -809,6 +813,20 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					});
 				}
 				break;
+				case STACKWRITEATVV:
+				{
+					// Lit[arg1] -> Stack[arg2]
+					wasm.emitGlobalGet(g_idx_sp);
+					wasm.emitI32Const(arg2);
+					wasm.emitI32Add();
+					wasm.emitI32Const(4);
+					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+					wasm.emitGlobalGet(g_idx_stack);
+					wasm.emitI32Add();
+					wasm.emitI32Const(arg1);
+					wasm.emitI32Store();
+				}
+				break;
 				case STORED:
 				{
 					// Reg[arg1] -> Stack[rSFRAME + arg2]
@@ -1067,6 +1085,9 @@ JittedFunction jit_compile_script(script_data *script)
 	if (script->size <= 1)
 		return nullptr;
 
+	if (zasm_optimize_enabled() && !script->optimized)
+		zasm_optimize_and_log(script);
+
 	// TODO: support RUNGENFRZSCR by using do_commands_async, which returns a promise. Need a way to defer execution until promise resolves...
 	// https://emscripten.org/docs/porting/asyncify.html
 	// Might need to use atomics. First pass for WASM compiler used that, for reference: https://github.com/connorjclark/ZeldaClassic/commit/eb5fd2c7d83ce084569fe3e73be1a69383416f58
@@ -1076,6 +1097,11 @@ JittedFunction jit_compile_script(script_data *script)
 		if (command == RUNGENFRZSCR)
 		{
 			error(script, "RUNGENFRZSCR unsupported", true);
+			return nullptr;
+		}
+		else if (command == STACKWRITEATVV_IF)
+		{
+			error(script, "STACKWRITEATVV_IF unsupported", true);
 			return nullptr;
 		}
 	}

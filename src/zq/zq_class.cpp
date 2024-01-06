@@ -12922,6 +12922,11 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
             {
                 new_return(22);
             }
+            
+            if(!p_iputl(zas.arg3,f))
+            {
+                new_return(23);
+            }
 			
 			uint32_t sz = 0;
 			if(zas.strptr)

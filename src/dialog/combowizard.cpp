@@ -595,6 +595,7 @@ void ComboWizardDialog::endUpdate()
 			
 			if(rad0==0)
 				exstate = 0;
+			SETFLAG(local_ref.usrflags,cflag16,rad0);
 			
 			int16_t& contains_item = local_ref.attrishorts[2];
 			auto rad1 = getRadio(1);
@@ -672,6 +673,7 @@ void ComboWizardDialog::endUpdate()
 			
 			if(rad0==0)
 				exstate = 0;
+			SETFLAG(local_ref.usrflags,cflag16,rad0);
 			
 			//Prompts
 			bool prompt = lvl > 0 && cboxes[1]->getChecked();
@@ -2333,10 +2335,12 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cMIRRORNEW:
 		{
+			lists[0] = list_dirs;
+			lists[0].add("Block",8);
 			windowRow->add(
 				Rows<3>(
 					Label(text = "Up Reflect", hAlign = 1.0),
-					DropDownList(data = list_dirs,
+					DropDownList(data = lists[0],
 						fitParent = true, selectedValue = local_ref.attribytes[up],
 						onSelectFunc = [&](int32_t val)
 						{
@@ -2344,7 +2348,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						}),
 					INFOBTN("Weapons/light beams facing up (coming from below) will move in this direction."),
 					Label(text = "Down Reflect", hAlign = 1.0),
-					DropDownList(data = list_dirs,
+					DropDownList(data = lists[0],
 						fitParent = true, selectedValue = local_ref.attribytes[down],
 						onSelectFunc = [&](int32_t val)
 						{
@@ -2352,7 +2356,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						}),
 					INFOBTN("Weapons/light beams facing down (coming from above) will move in this direction."),
 					Label(text = "Left Reflect", hAlign = 1.0),
-					DropDownList(data = list_dirs,
+					DropDownList(data = lists[0],
 						fitParent = true, selectedValue = local_ref.attribytes[left],
 						onSelectFunc = [&](int32_t val)
 						{
@@ -2360,7 +2364,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						}),
 					INFOBTN("Weapons/light beams facing left (coming from the right) will move in this direction."),
 					Label(text = "Right Reflect", hAlign = 1.0),
-					DropDownList(data = list_dirs,
+					DropDownList(data = lists[0],
 						fitParent = true, selectedValue = local_ref.attribytes[right],
 						onSelectFunc = [&](int32_t val)
 						{
@@ -2368,7 +2372,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						}),
 					INFOBTN("Weapons/light beams facing right (coming from the left) will move in this direction."),
 					Label(text = "Up-Left Reflect", hAlign = 1.0),
-					DropDownList(data = list_dirs,
+					DropDownList(data = lists[0],
 						fitParent = true, selectedValue = local_ref.attribytes[l_up],
 						onSelectFunc = [&](int32_t val)
 						{
@@ -2376,7 +2380,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						}),
 					INFOBTN("Weapons facing up-left (coming from down-right) will move in this direction."),
 					Label(text = "Up-Right Reflect", hAlign = 1.0),
-					DropDownList(data = list_dirs,
+					DropDownList(data = lists[0],
 						fitParent = true, selectedValue = local_ref.attribytes[r_up],
 						onSelectFunc = [&](int32_t val)
 						{
@@ -2384,7 +2388,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						}),
 					INFOBTN("Weapons facing up-right (coming from down-left) will move in this direction."),
 					Label(text = "Down-Left Reflect", hAlign = 1.0),
-					DropDownList(data = list_dirs,
+					DropDownList(data = lists[0],
 						fitParent = true, selectedValue = local_ref.attribytes[l_down],
 						onSelectFunc = [&](int32_t val)
 						{
@@ -2392,7 +2396,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						}),
 					INFOBTN("Weapons facing down-left (coming from up-right) will move in this direction."),
 					Label(text = "Down-Right Reflect", hAlign = 1.0),
-					DropDownList(data = list_dirs,
+					DropDownList(data = lists[0],
 						fitParent = true, selectedValue = local_ref.attribytes[r_down],
 						onSelectFunc = [&](int32_t val)
 						{
@@ -4180,13 +4184,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 
 static newcombo* _instance = nullptr;
 static bool defaulted = false;
-bool def_all()
+static bool def_all()
 {
 	combo_default(*_instance, false);
 	defaulted = true;
 	return true;
 }
-bool def_some()
+static bool def_some()
 {
 	combo_default(*_instance, true);
 	defaulted = true;

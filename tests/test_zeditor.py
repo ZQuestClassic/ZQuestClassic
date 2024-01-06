@@ -140,7 +140,7 @@ class TestZEditor(unittest.TestCase):
         # Ensure replays continue to pass.
         for original_replay_path in (root_dir / 'tests/replays').glob('playground_*.zplay'):
             with self.subTest(msg=f'{original_replay_path.name}'):
-                replay_path = tmp_dir / 'tmp.zplay'
+                replay_path = tmp_dir / original_replay_path.name
                 shutil.copy(original_replay_path, replay_path)
 
                 output_dir = tmp_dir / 'output' / original_replay_path.name

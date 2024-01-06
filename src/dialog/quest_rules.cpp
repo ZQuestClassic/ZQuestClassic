@@ -955,6 +955,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Push (Generic) locking", qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,
 		"If enabled, Push (Generic) combos won't lock into place via the 'Pushed' flag"
 		" (ex. 'clicking into place' for a block trigger)" },
+	{ "Broken Enemy Fire/Arrow Reflecting", qr_BROKEN_FLAME_ARROW_REFLECTING,
+		"If enabled, Enemy Fire/Arrows won't reflect off of player shields, even when the reflect flag is set."
+		"Enemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by player shields, regardless of block/reflect flags." },
 };
 
 static GUI::ListData enemiesRulesList
@@ -1406,24 +1409,6 @@ static GUI::ListData nesfixesRulesList
 		"If enabled, Player Tile Modifiers from items (such as shields) will always be applied to the player."
 		" \nIf disabled, they will only be applied if the player is walking or standing (either on land or while"
 		" sideswimming), and only if the player is not facing up."},
-	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,
-		"If enabled, Script-created and Enemy-created boomerangs use the same animation as other weapons."
-		" \nIf disabled, they will use one of two hardcoded animations depending on whether or not 'BS-Zelda"
-		" Animation Quirks' is checked or not. \nIf 'BS-Zelda Animation Quirks' is enabled, it will use one"
-		" tile and just flip it, with it alternating between no flip (flip of 0), vertical flip (flip of 2),"
-		" vertical and horizontal flip (flip of 3), and lastly horizontal flip (flip of 1); alternating every"
-		" 4 frames through 4 different flips for an animation that lasts 16 frames. \nIf 'BS-Zelda Animation "
-		" Quirks' is disabled, it will use a combination of 3 different tiles and different flip states to get"
-		" an animation that has 8 different 'tiles'/frames that it alternates between every 2 frames, for an"
-		" animation that, again, lasts 16 frames total. The exact offset from the original tile and the flip"
-		" it uses is complicated, but will be listed below in the format of '({offset from o_tile}, {flip value})';"
-		" in which {offset from o_tile} is the tile difference between the tile used and the sprite's o_tile,"
-		" and {flip value} is the value of the flip, in which flip of 0 is no flip, flip of 1 is horizontal, 2"
-		" is vertical, and 3 is both horizontal and vertical."
-		" \nThe exact offsets and flip values are, as follows: (0, 0), (1, 0), (2, 0), (1, 1), (0, 1), (1, 3), (2, 2), (1, 2)."
-		" \nAgain, none of this matters if you have this rule enabled, as enabling this rule will disable these"
-		" hardcoded values, and will allow you to use the same animation system as every other weapon."
-		" If looking for the player-created weapons version of this, look at the boomerang itemclass."}
 };
 
 static GUI::ListData playerRulesList
@@ -1550,8 +1535,28 @@ static GUI::ListData weaponsRulesList
 	{ "Lifted Bombs Explode In Hand", qr_HELD_BOMBS_EXPLODE,
 		"If enabled, bomb lweapons that are 'lifted' by the player (currently script-only)"
 		" will still tick down their fuse and explode." },
+	{ "Enemy Fire Lights New Dark Rooms", qr_EW_FIRE_EMITS_LIGHT,
+		"If enabled, enemy fire weapons will emit light by default, as player fire does." },
 	
-	//should maybe keep this last as well? -Deedee
+	//should maybe keep these last
+	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,
+		"If enabled, Script-created and Enemy-created boomerangs use the same animation as other weapons."
+		" \nIf disabled, they will use one of two hardcoded animations depending on whether or not 'BS-Zelda"
+		" Animation Quirks' is checked or not. \nIf 'BS-Zelda Animation Quirks' is enabled, it will use one"
+		" tile and just flip it, with it alternating between no flip (flip of 0), vertical flip (flip of 2),"
+		" vertical and horizontal flip (flip of 3), and lastly horizontal flip (flip of 1); alternating every"
+		" 4 frames through 4 different flips for an animation that lasts 16 frames. \nIf 'BS-Zelda Animation "
+		" Quirks' is disabled, it will use a combination of 3 different tiles and different flip states to get"
+		" an animation that has 8 different 'tiles'/frames that it alternates between every 2 frames, for an"
+		" animation that, again, lasts 16 frames total. The exact offset from the original tile and the flip"
+		" it uses is complicated, but will be listed below in the format of '({offset from o_tile}, {flip value})';"
+		" in which {offset from o_tile} is the tile difference between the tile used and the sprite's o_tile,"
+		" and {flip value} is the value of the flip, in which flip of 0 is no flip, flip of 1 is horizontal, 2"
+		" is vertical, and 3 is both horizontal and vertical."
+		" \nThe exact offsets and flip values are, as follows: (0, 0), (1, 0), (2, 0), (1, 1), (0, 1), (1, 3), (2, 2), (1, 2)."
+		" \nAgain, none of this matters if you have this rule enabled, as enabling this rule will disable these"
+		" hardcoded values, and will allow you to use the same animation system as every other weapon."
+		" If looking for the player-created weapons version of this, look at the boomerang itemclass."},
 	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN,
 		"If enabled, weapons can go out of bounds without getting removed. This is"
 		" mainly intended for script use and should not be turned on unless a script"
@@ -1727,6 +1732,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				}
 				set_qr(rule, 0, qrptr);
 			}
+			set_qr(qr_CORRECTED_EW_BRANG_ANIM, 1, qrptr); //this should be on
 			onStrFix();
 			break;
 		}

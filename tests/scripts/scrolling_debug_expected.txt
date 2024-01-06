@@ -139,6 +139,8 @@ PUSHV 0
 PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params End
 DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
 POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
+STOREDV 0,5
+STOREDV 0,4
 SETR d2,VIEWPORT_WIDTH
 SUBV d2,1
 STORED d2,3
@@ -147,7 +149,7 @@ SUBV d2,9
 STORED d2,2
 SETR d2,REGION_ID; if() #558 Test
 COMPAREV d2,0
-GOTOTRUE 201; Test 'if'
+GOTOCMP 203,==; Test 'if'
 PUSHV 7; InlineFunc[void Screen->Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #558 Body Start
 LOADD d2,5
 ADDV d2,4
@@ -214,9 +216,9 @@ PUSHR d2
 POP d0
 SETR d2,GAMESCROLLING
 COMPAREV d2,-1
-SETCMP d2,0.0011
+SETCMP d2,I!=
 COMPAREV d2,0
-GOTOTRUE 334; Test 'if'
+GOTOCMP 335,==; Test 'if'
 SETR d2,LINKX; if() #559 Body Start
 PUSHR d2
 SETR d2,VIEWPORT_X
@@ -254,9 +256,7 @@ SETR d2,GAMESCROLLING
 SUBV2 0,d2
 POP d3
 COMPARER d3,d2
-SETCMP d2,0.0011
-COMPAREV d2,0
-GOTOFALSE 260
+GOTOCMP 261,!=
 SETR d2,VIEWPORT_Y
 PUSHR d2
 SETV d2,22
@@ -266,11 +266,12 @@ SETR d2,GAMESCROLLING
 SUBV2 0,d2
 POP d3
 COMPARER d3,d2
-SETCMP d2,0.0011
+GOTOCMP 261,!=
+SETV d2,0
+GOTO 262
+SETV d2,1
 COMPAREV d2,0
-SETCMP d2,0.0003
-COMPAREV d2,0
-GOTOTRUE 282; Test 'if'
+GOTOCMP 283,==; Test 'if'
 ALLOCATEMEMV d2,33; if() #560 Body Start
 STORED d2,1
 WRITEPODSTRING d2,"failed expectation! %d %d %d %d\n"

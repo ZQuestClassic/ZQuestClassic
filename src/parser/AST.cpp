@@ -1514,6 +1514,71 @@ std::optional<int32_t> ASTExprConst::getCompileTimeValue(
 	return content ? content->getCompileTimeValue(errorHandler, scope) : std::nullopt;
 }
 
+// ASTExprBoolTree
+
+ASTExprBoolTree::ASTExprBoolTree(LocationData const& location)
+	: ASTExpr(location), root()
+{}
+
+void ASTExprBoolTree::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprBoolTree(*this, param);
+}
+
+std::optional<int32_t> BoolTreeNode::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+{
+	if(leaf)
+		return leaf->getCompileTimeValue(errorHandler, scope);
+	if(branch.empty())
+		return nullopt;
+	if(mode == MODE_AND)
+	{
+		for(auto& node : branch)
+		{
+			auto val = node.getCompileTimeValue(errorHandler, scope);
+			if(!val)
+				return nullopt;
+			if(!*val)
+				return 0;
+		}
+		return 1;
+	}
+	else if(mode == MODE_OR)
+	{
+		for(auto& node : branch)
+		{
+			auto val = node.getCompileTimeValue(errorHandler, scope);
+			if(!val)
+				return nullopt;
+			if(*val)
+				return 1;
+		}
+		return 0;
+	}
+	return nullopt;
+}
+std::optional<int32_t> ASTExprBoolTree::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+{
+	auto val = root.getCompileTimeValue(errorHandler, scope);
+	if(val)
+		return *val ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0;
+	return nullopt;
+}
+
+bool BoolTreeNode::isConstant() const
+{
+	if(leaf)
+		return leaf->isConstant();
+	for(auto& node : branch)
+	{
+		if(!node.isConstant())
+			return false;
+	}
+	return true;
+}
+
 // ASTExprVarInitializer
 
 ASTExprVarInitializer::ASTExprVarInitializer(ASTExpr* content, LocationData const& location)

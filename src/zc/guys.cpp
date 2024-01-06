@@ -2115,6 +2115,9 @@ int32_t weaponToDefence(int32_t wid)
 		case wIce:  return edefICE;
 		case wSound: return edefSONIC;
 		case wThrown: return edefTHROWN;
+		case wRefArrow: return edefREFARROW;
+		case wRefFire: return edefREFFIRE;
+		case wRefFire2: return edefREFFIRE2;
 		//case wPot: return edefPOT;
 //		case wLitZap: return edefELECTRIC;
 //		case wZ3Sword: return edefZ3SWORD;
@@ -3560,6 +3563,15 @@ int32_t enemy::defenditemclass(int32_t wpnId, int32_t *power)
 		else break;
 		break;
 	
+	case wRefArrow:
+		def = defend(wpnId, power, edefREFARROW);
+		break;
+	case wRefFire:
+		def = defend(wpnId, power, edefREFFIRE);
+		break;
+	case wRefFire2:
+		def = defend(wpnId, power, edefREFFIRE2);
+		break;
 	
 	//!ZoriaRPG : We need some special cases here, to ensure that old script defs don;t break. 
 	//Probably best to do this from the qest file, loading the values of Script(generic) into each
@@ -3702,6 +3714,8 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 				return 0;
 
 			[[fallthrough]];
+		case wArrow:
+		case wRefArrow:
 		default:
 			shieldCanBlock=true;
 			break;
@@ -3732,6 +3746,8 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 			return 0;
 
 		case wFire:
+		case wRefFire:
+		case wRefFire2:
 			;
 		}
 	}

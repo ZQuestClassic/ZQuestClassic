@@ -13,6 +13,7 @@
 #include "zc/hero.h"
 #include "zc/guys.h"
 #include "subscr.h"
+#include "zc/replay.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
 #include "zc/decorations.h"
@@ -5933,6 +5934,96 @@ bool compareShield(int32_t cmpdir, itemdata const& shield)
 	return false;
 }
 
+static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool boss, bool defret)
+{
+	reflect = false;
+	switch(wty)
+	{
+		case ewBrang:
+			if(!(fl_block & shBRANG)) break;
+			
+			reflect = ((fl_ref & shBRANG) != 0);
+			return true;
+		case ewArrow:
+		case wRefArrow:
+			if(!(fl_block & shARROW)) break;
+			
+			reflect = ((fl_ref & shARROW) != 0);
+			return true;
+			
+		case ewRock:
+		case wRefRock:
+			if(!(fl_block & shROCK)) break;
+			
+			reflect = ((fl_ref & shROCK) != 0);
+			return true;
+		case ewFlame:
+		case wRefFire:
+			if(!(fl_block & shFLAME)) break;
+				
+			reflect = ((fl_ref & shFLAME) != 0);
+			return true;
+		case ewFlame2:
+		case wRefFire2:
+			if(get_qr(qr_BROKEN_FLAME_ARROW_REFLECTING))
+				return true;
+			if(!(fl_block & shFLAME2)) break;
+				
+			reflect = ((fl_ref & shFLAME2) != 0);
+			return true;
+			
+		case ewFireball2:
+		case ewFireball:
+		case wRefFireball:
+		{
+			int32_t mask = (boss ? shFIREBALL2 : shFIREBALL);
+			
+			if(!(fl_block & mask)) break;
+			
+			reflect = ((fl_ref & mask) != 0);
+			return true;
+		}
+		
+		case ewSword:
+		case wRefBeam:
+			if(!(fl_block & shSWORD)) break;
+			
+			reflect = ((fl_ref & shSWORD) != 0);
+			return true;
+			
+		case wRefMagic:
+		case ewMagic:
+			if(!(fl_block & shMAGIC)) break;
+			
+			reflect = ((fl_ref & shMAGIC) != 0);
+			return true;
+			
+		#define SCRIPT_SHBLOCK(scrfl) \
+			if(!(fl_block & (shSCRIPT|scrfl))) break; \
+			reflect = ((fl_ref & (shSCRIPT|scrfl)) != 0); \
+			return true
+		case wScript1: SCRIPT_SHBLOCK(shSCRIPT1);
+		case wScript2: SCRIPT_SHBLOCK(shSCRIPT2);
+		case wScript3: SCRIPT_SHBLOCK(shSCRIPT3);
+		case wScript4: SCRIPT_SHBLOCK(shSCRIPT4);
+		case wScript5: SCRIPT_SHBLOCK(shSCRIPT5);
+		case wScript6: SCRIPT_SHBLOCK(shSCRIPT6);
+		case wScript7: SCRIPT_SHBLOCK(shSCRIPT7);
+		case wScript8: SCRIPT_SHBLOCK(shSCRIPT8);
+		case wScript9: SCRIPT_SHBLOCK(shSCRIPT9);
+		case wScript10: SCRIPT_SHBLOCK(shSCRIPT10);
+		#undef SCRIPT_SHBLOCK
+			
+		case ewLitBomb:
+		case ewLitSBomb:
+			return true;
+		
+		default:
+			return defret;
+	}
+	return false;
+}
+
 bool HeroClass::check_ewpn_collide(weapon* w)
 {
 	if(w->ignoreHero || w->fallclk|| w->drownclk)
@@ -5947,69 +6038,8 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	((isSideViewHero() && (y+16)-(w->y)<=14) && falling_oldy<y)))
 	{
 		itemdata const& stomp = itemsbuf[stompid];
-		bool remove = false;
-		switch(w->id)
-		{
-			case ewFireball2:
-			case ewFireball:
-				if(w->type & 1) //Boss fireball
-				{
-					if(stomp.misc2 & (shFIREBALL2))
-						remove = true;
-				}
-				else
-				{
-					if(stomp.misc2 & (shFIREBALL))
-						remove = true;
-				}
-				
-				break;
-				
-			case ewMagic:
-				if((stomp.misc2 & shMAGIC))
-					remove = true;
-				break;
-				
-			case ewSword:
-				if((stomp.misc2 & shSWORD))
-					remove = true;
-					
-				break;
-				
-			case ewFlame:
-				if((stomp.misc2 & shFLAME))
-					remove = true;
-					
-				break;
-				
-			case ewRock:
-				if((stomp.misc2 & shROCK))
-					remove = true;
-					
-				break;
-				
-			case ewArrow:
-				if((stomp.misc2 & shARROW))
-					remove = true;
-					
-				break;
-				
-			case ewBrang:
-				if((stomp.misc2 & shBRANG))
-					remove = true;
-					
-				break;
-				
-			default: // Just throw the script weapons in here...
-				if(w->id>=wScript1 && w->id<=wScript10)
-				{
-					if((stomp.misc2 & shSCRIPT))
-						remove = true;
-				}
-				
-				break;
-		}
-		if (remove)
+		bool reflect = false; //unused, always false
+		if(!sh_check(stomp.misc2, 0, w->id, reflect, w->type&1, true))
 		{
 			w->onhit(false);
 			sfx(WAV_CHINK,pan(x.getInt()));
@@ -6056,79 +6086,8 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	
 	bool reflect = false;
 	
-	switch(w->id)
-	{
-		case ewFireball2:
-		case ewFireball:
-			if(w->type & 1) //Boss fireball
-			{
-				if(!(shield.misc1 & (shFIREBALL2)))
-					return true;
-					
-				reflect = ((shield.misc2 & shFIREBALL2) != 0);
-			}
-			else
-			{
-				if(!(shield.misc1 & (shFIREBALL)))
-					return true;
-					
-				reflect = ((shield.misc2 & shFIREBALL) != 0);
-			}
-			
-			break;
-			
-		case ewMagic:
-			if(!(shield.misc1 & shMAGIC))
-				return true;
-				
-			reflect = ((shield.misc2 & shMAGIC) != 0);
-			break;
-			
-		case ewSword:
-			if(!(shield.misc1 & shSWORD))
-				return true;
-				
-			reflect = ((shield.misc2 & shSWORD) != 0);
-			break;
-			
-		case ewFlame:
-			if(!(shield.misc1 & shFLAME))
-				return true;
-				
-			reflect = ((shield.misc2 & shFLAME) != 0); // Actually isn't reflected.
-			break;
-			
-		case ewRock:
-			if(!(shield.misc1 & shROCK))
-				return true;
-				
-			reflect = (shield.misc2 & shROCK);
-			break;
-			
-		case ewArrow:
-			if(!(shield.misc1 & shARROW))
-				return true;
-				
-			reflect = ((shield.misc2 & shARROW) != 0); // Actually isn't reflected.
-			break;
-			
-		case ewBrang:
-			if(!(shield.misc1 & shBRANG))
-				return true;
-				
-			break;
-			
-		default: // Just throw the script weapons in here...
-			if(w->id>=wScript1 && w->id<=wScript10)
-			{
-				if(!(shield.misc1 & shSCRIPT))
-					return true;
-					
-				reflect = ((shield.misc2 & shSCRIPT) != 0);
-			}
-			
-			break;
-	}
+	if(!sh_check(shield.misc1, shield.misc2, w->id, reflect, w->type&1, true))
+		return true;
 	
 	if(reflect && (w->unblockable&WPNUNB_REFL))
 		reflect = false;
@@ -6137,20 +6096,6 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	
 	int32_t oldid = w->id;
 	w->onhit(false, reflect ? 2 : 1, dir);
-	
-	if(w->id != oldid)                                     // changed type from ewX to wX
-	{
-		//        w->power*=game->get_hero_dmgmult();
-		Lwpns.add(w);
-		Ewpns.remove(w);
-		w->isLWeapon = true; //Make sure this gets set everywhere!
-	}
-	
-	if(w->id==wRefMagic)
-	{
-		w->ignoreHero=true;
-		w->ignorecombo=-1;
-	}
 	
 	sfx(shield.usesound,pan(x.getInt()));
 	return true;
@@ -6174,69 +6119,8 @@ int32_t HeroClass::EwpnHit()
 			((isSideViewHero() && (y+16)-(ew->y)<=14) && falling_oldy<y)))
 			{
 				itemdata const& stomp = itemsbuf[stompid];
-				bool remove = false;
-				switch(ew->id)
-				{
-					case ewFireball2:
-					case ewFireball:
-						if(ew->type & 1) //Boss fireball
-						{
-							if(stomp.misc2 & (shFIREBALL2))
-								remove = true;
-						}
-						else
-						{
-							if(stomp.misc2 & (shFIREBALL))
-								remove = true;
-						}
-						
-						break;
-						
-					case ewMagic:
-						if((stomp.misc2 & shMAGIC))
-							remove = true;
-						break;
-						
-					case ewSword:
-						if((stomp.misc2 & shSWORD))
-							remove = true;
-							
-						break;
-						
-					case ewFlame:
-						if((stomp.misc2 & shFLAME))
-							remove = true;
-							
-						break;
-						
-					case ewRock:
-						if((stomp.misc2 & shROCK))
-							remove = true;
-							
-						break;
-						
-					case ewArrow:
-						if((stomp.misc2 & shARROW))
-							remove = true;
-							
-						break;
-						
-					case ewBrang:
-						if((stomp.misc2 & shBRANG))
-							remove = true;
-							
-						break;
-						
-					default: // Just throw the script weapons in here...
-						if(ew->id>=wScript1 && ew->id<=wScript10)
-						{
-							if((stomp.misc2 & shSCRIPT))
-								remove = true;
-						}
-						
-						break;
-				}
-				if (remove)
+				bool reflect = false; //unused, always false
+				if(!sh_check(stomp.misc2, 0, ew->id, reflect, ew->type&1, true))
 				{
 					ew->onhit(false);
 					sfx(WAV_CHINK,pan(x.getInt()));
@@ -6283,79 +6167,8 @@ int32_t HeroClass::EwpnHit()
 			
 			bool reflect = false;
 			
-			switch(ew->id)
-			{
-				case ewFireball2:
-				case ewFireball:
-					if(ew->type & 1) //Boss fireball
-					{
-						if(!(shield.misc1 & (shFIREBALL2)))
-							return i;
-							
-						reflect = ((shield.misc2 & shFIREBALL2) != 0);
-					}
-					else
-					{
-						if(!(shield.misc1 & (shFIREBALL)))
-							return i;
-							
-						reflect = ((shield.misc2 & shFIREBALL) != 0);
-					}
-					
-					break;
-					
-				case ewMagic:
-					if(!(shield.misc1 & shMAGIC))
-						return i;
-						
-					reflect = ((shield.misc2 & shMAGIC) != 0);
-					break;
-					
-				case ewSword:
-					if(!(shield.misc1 & shSWORD))
-						return i;
-						
-					reflect = ((shield.misc2 & shSWORD) != 0);
-					break;
-					
-				case ewFlame:
-					if(!(shield.misc1 & shFLAME))
-						return i;
-						
-					reflect = ((shield.misc2 & shFLAME) != 0); // Actually isn't reflected.
-					break;
-					
-				case ewRock:
-					if(!(shield.misc1 & shROCK))
-						return i;
-						
-					reflect = (shield.misc2 & shROCK);
-					break;
-					
-				case ewArrow:
-					if(!(shield.misc1 & shARROW))
-						return i;
-						
-					reflect = ((shield.misc2 & shARROW) != 0); // Actually isn't reflected.
-					break;
-					
-				case ewBrang:
-					if(!(shield.misc1 & shBRANG))
-						return i;
-						
-					break;
-					
-				default: // Just throw the script weapons in here...
-					if(ew->id>=wScript1 && ew->id<=wScript10)
-					{
-						if(!(shield.misc1 & shSCRIPT))
-							return i;
-							
-						reflect = ((shield.misc2 & shSCRIPT) != 0);
-					}
-					
-					break;
-			}
+			if(!sh_check(shield.misc1, shield.misc2, ew->id, reflect, ew->type&1, true))
+				return i;
 			
 			if(reflect && (ew->unblockable&WPNUNB_REFL))
 				reflect = false;
@@ -6364,20 +6177,6 @@ int32_t HeroClass::EwpnHit()
 			
 			int32_t oldid = ew->id;
 			ew->onhit(false, reflect ? 2 : 1, dir);
-			
-			if(ew->id != oldid)                                     // changed type from ewX to wX
-			{
-				//        ew->power*=game->get_hero_dmgmult();
-				Lwpns.add(ew);
-				Ewpns.remove(ew);
-				ew->isLWeapon = true; //Make sure this gets set everywhere!
-			}
-			
-			if(ew->id==wRefMagic)
-			{
-				ew->ignoreHero=true;
-				ew->ignorecombo=-1;
-			}
 			
 			sfx(shield.usesound,pan(x.getInt()));
 		}
@@ -6396,7 +6195,19 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			if((lw->ignoreHero)==true)
 				break;
 			
-			if (!(lw->id == wRefFireball || lw->id == wRefMagic || lw->id == wRefBeam || lw->id == wRefRock)) return -1;
+			switch(lw->id)
+			{
+				case wRefFireball:
+				case wRefMagic:
+				case wRefBeam:
+				case wRefRock:
+				case wRefArrow:
+				case wRefFire:
+				case wRefFire2:
+					break;
+				default:
+					return -1;
+			}
 			int32_t itemid = getCurrentShield(false);
 			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
 				return i;
@@ -6405,69 +6216,19 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			bool hitshield = compareShield(cmpdir, shield);
 			bool reflect = false;
 			
-			switch(lw->id)
-			{
-			case wRefFireball:
-				if(itemid<0)
-					return i;
-					
-				if(lw->type & 1)  //Boss fireball
-					return i;
-					
-				if(!(shield.misc1 & (shFIREBALL)))
-					return i;
-					
-				reflect = ((shield.misc2 & shFIREBALL) != 0);
-				break;
-				
-			case wRefMagic:
-				if(itemid<0)
-					return i;
-					
-				if(!(shield.misc1 & shMAGIC))
-					return i;
-					
-				reflect = ((shield.misc2 & shMAGIC) != 0);
-				break;
-				
-			case wRefBeam:
-				if(itemid<0)
-					return i;
-					
-				if(!(shield.misc1 & shSWORD))
-					return i;
-					
-				reflect = ((shield.misc2 & shSWORD) != 0);
-				break;
-				
-			case wRefRock:
-				if(itemid<0)
-					return i;
-					
-				if(!(shield.misc1 & shROCK))
-					return i;
-					
-				reflect = (shield.misc2 & shROCK);
-				break;
-				
-			default:
-				return -1;
-			}
+			if(!hitshield)
+				return i;
 			
 			bool allow_inactive = (shield.flags & ITEM_FLAG9);
 			if(!allow_inactive && ((lift_wpn && (liftflags & LIFTFL_DIS_SHIELD)) || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF))
 				return i;
 			
-			if(!hitshield)
+			if(!sh_check(shield.misc1, shield.misc2, lw->id, reflect, lw->type&1, true))
 				return i;
-				
-			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
 			
 			paymagiccost(itemid);
 			
-			lw->onhit(false, 1+reflect, dir);
-			lw->ignoreHero=true;
-			lw->ignorecombo=-1;
+			lw->onhit(false, reflect ? 2 : 1, dir);
 			sfx(shield.usesound,pan(x.getInt()));
 		}
 		
@@ -6596,88 +6357,13 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				if(w->hit(t->x+7,t->y+7-t->fakez,t->z,2,2,1))
 				{
 					bool reflect = false;
-				   // sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
-					switch(t->id)
+					// sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
+					if(sh_check(itemsbuf[itemid].misc3, itemsbuf[itemid].misc4, t->id, reflect, ((weapon*)t)->type&1, false))
 					{
-					case ewBrang:
-						if(!(itemsbuf[itemid].misc3 & shBRANG)) break;
-						
-						reflect = ((itemsbuf[itemid].misc4 & shBRANG) != 0);
-						goto killweapon;
-						
-					case ewArrow:
-						if(!(itemsbuf[itemid].misc3 & shARROW)) break;
-						
-						reflect = ((itemsbuf[itemid].misc4 & shARROW) != 0);
-						goto killweapon;
-						
-					case ewRock:
-						if(!(itemsbuf[itemid].misc3 & shROCK)) break;
-						
-						reflect = ((itemsbuf[itemid].misc4 & shROCK) != 0);
-						goto killweapon;
-						
-					case ewFireball2:
-					case ewFireball:
-					{
-						int32_t mask = (((weapon*)t)->type&1 ? shFIREBALL2 : shFIREBALL);
-						
-						if(!(itemsbuf[itemid].misc3 & mask)) break;
-						
-						reflect = ((itemsbuf[itemid].misc4 & mask) != 0);
-						goto killweapon;
-					}
-					
-					case ewSword:
-						if(!(itemsbuf[itemid].misc3 & shSWORD)) break;
-						
-						reflect = ((itemsbuf[itemid].misc4 & shSWORD) != 0);
-						goto killweapon;
-						
-					case wRefMagic:
-					case ewMagic:
-						if(!(itemsbuf[itemid].misc3 & shMAGIC)) break;
-						
-						reflect = ((itemsbuf[itemid].misc4 & shMAGIC) != 0);
-						goto killweapon;
-						
-					case wScript1:
-					case wScript2:
-					case wScript3:
-					case wScript4:
-					case wScript5:
-					case wScript6:
-					case wScript7:
-					case wScript8:
-					case wScript9:
-					case wScript10:
-						if(!(itemsbuf[itemid].misc3 & shSCRIPT)) break;
-						
-						reflect = ((itemsbuf[itemid].misc4 & shSCRIPT) != 0);
-						goto killweapon;
-						
-					case ewLitBomb:
-					case ewLitSBomb:
-killweapon:
 						w->dead=1;
 						weapon *ew = ((weapon*)t);
 						int32_t oldid = ew->id;
 						ew->onhit(true, reflect ? 2 : 1, w->dir);
-						
-						if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
-						{
-							Lwpns.add(ew);
-							Ewpns.remove(ew);
-			ew->isLWeapon = true; //Make sure this gets set everywhere!
-						}
-						
-						if(ew->id==wRefMagic)
-						{
-							ew->ignoreHero=true;
-							ew->ignorecombo=-1;
-						}
-						
-						break;
 					}
 					
 					break;
@@ -7152,90 +6838,15 @@ void HeroClass::checkhit()
 					if(s->hit(t->x+7,t->y+7-t->fakez,t->z,2,2,1))
 					{
 						bool reflect = false;
-					   // sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
-						switch(t->id)
-						{
-						case ewBrang:
-							if(!(itemsbuf[itemid].misc3 & shBRANG)) break;
-							
-							reflect = ((itemsbuf[itemid].misc4 & shBRANG) != 0);
-							goto killweapon;
-							
-						case ewArrow:
-							if(!(itemsbuf[itemid].misc3 & shARROW)) break;
-							
-							reflect = ((itemsbuf[itemid].misc4 & shARROW) != 0);
-							goto killweapon;
-							
-						case ewRock:
-							if(!(itemsbuf[itemid].misc3 & shROCK)) break;
-							
-							reflect = ((itemsbuf[itemid].misc4 & shROCK) != 0);
-							goto killweapon;
-							
-						case ewFireball2:
-						case ewFireball:
-						{
-							int32_t mask = (((weapon*)t)->type&1 ? shFIREBALL2 : shFIREBALL);
-							
-							if(!(itemsbuf[itemid].misc3 & mask)) break;
-							
-							reflect = ((itemsbuf[itemid].misc4 & mask) != 0);
-							goto killweapon;
-						}
+						// sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
 						
-						case ewSword:
-							if(!(itemsbuf[itemid].misc3 & shSWORD)) break;
-							
-							reflect = ((itemsbuf[itemid].misc4 & shSWORD) != 0);
-							goto killweapon;
-							
-						case wRefMagic:
-						case ewMagic:
-							if(!(itemsbuf[itemid].misc3 & shMAGIC)) break;
-							
-							reflect = ((itemsbuf[itemid].misc4 & shMAGIC) != 0);
-							goto killweapon;
-							
-						case wScript1:
-						case wScript2:
-						case wScript3:
-						case wScript4:
-						case wScript5:
-						case wScript6:
-						case wScript7:
-						case wScript8:
-						case wScript9:
-						case wScript10:
-							if(!(itemsbuf[itemid].misc3 & shSCRIPT)) break;
-							
-							reflect = ((itemsbuf[itemid].misc4 & shSCRIPT) != 0);
-							goto killweapon;
-							
-						case ewLitBomb:
-						case ewLitSBomb:
-killweapon:
+						if(sh_check(itemsbuf[itemid].misc3, itemsbuf[itemid].misc4, t->id, reflect, ((weapon*)t)->type&1, false))
+						{
 							((weapon*)s)->dead=1;
 							weapon *ew = ((weapon*)t);
 							int32_t oldid = ew->id;
 							ew->onhit(true, reflect ? 2 : 1, s->dir);
-							
-							if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
-							{
-								Lwpns.add(ew);
-								Ewpns.remove(ew);
-				ew->isLWeapon = true; //Make sure this gets set everywhere!
-							}
-							
-							if(ew->id==wRefMagic)
-							{
-								ew->ignoreHero=true;
-								ew->ignorecombo=-1;
-							}
-							
-							break;
 						}
-						
 						break;
 					}
 				}
@@ -13460,6 +13071,8 @@ bool HeroClass::doattack()
 
 bool HeroClass::can_attack()
 {
+	if(lift_wpn && (liftflags & LIFTFL_DIS_ITEMS))
+		return false;
 	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
     if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze
 		|| lstunclock > 0 || is_conveyor_stunned || spins>0 || usingActiveShield()
@@ -23140,6 +22753,7 @@ static void handleBeam(spot_t* grid, size_t age, byte spotdir, int32_t curpos, b
 				if(unsigned(cid) >= MAXCOMBOS) break;
 				newcombo const& cmb = combobuf[cid];
 				byte newdir = cmb.attribytes[spotdir];
+				if(newdir > 7) return;
 				if(newdir > 3) break;
 				spotdir = newdir;
 				break;
@@ -23185,6 +22799,15 @@ static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir,
 		{
 			case SPTYPE_SOLID: case cBLOCKALL:
 				return;
+			case cMIRRORNEW:
+			{
+				auto cid = customTypeMap[curpos];
+				if(unsigned(cid) >= MAXCOMBOS) break;
+				newcombo const& cmb = combobuf[cid];
+				byte newdir = cmb.attribytes[spotdir];
+				if(newdir > 7) return;
+				break;
+			}
 		}
 		bool collided_hero = heropos > -1 && curxy.herocollide(beamwid);
 		if(block && (spotdir == oppositeDir[Hero.getDir()]) && collided_hero)
@@ -28803,7 +28426,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		ALLOFF(false, false);
 		// for now, restore Hero's previous action
 		if(!get_qr(qr_SCROLLING_KILLS_CHARGE))
-			attackclk = lastattackclk; spins = lastspins; charging = lastcharging; tapping = lasttapping;
+			charging = lastcharging;
+		if (replay_version_check(0, 28))
+		{
+			// nargads_trail_crystal_crusades replay tests need this.
+			if(!get_qr(qr_SCROLLING_KILLS_CHARGE)) attackclk = lastattackclk;
+			spins = lastspins; charging = lastcharging; tapping = lasttapping;
+		}
+
 		action=lastaction; FFCore.setHeroAction(lastaction);
 
 		lstep = (lstep + 6) % 12;

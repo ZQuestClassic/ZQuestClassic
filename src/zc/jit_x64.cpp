@@ -2,6 +2,8 @@
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zc/zasm_optimize.h"
+#include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
@@ -234,13 +236,20 @@ static void zero(x86::Compiler &cc, x86::Gp reg)
 	cc.xor_(reg, reg);
 }
 
-static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map<int, Label> &goto_labels, x86::Gp vStackIndex, int command, int arg, int arg2)
+static void cast_bool(x86::Compiler &cc, x86::Gp reg)
+{
+	cc.test(reg, reg);
+	cc.mov(reg, 0);
+	cc.setne(reg.r8());
+}
+
+static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map<int, Label> &goto_labels, x86::Gp vStackIndex, int command, int arg1, int arg2, int arg3)
 {
 	x86::Gp val = cc.newInt32();
 	
 	if(command == GOTOCMP)
 	{
-		auto lbl = goto_labels.at(arg);
+		auto lbl = goto_labels.at(arg1);
 		switch(arg2 & CMP_FLAGS)
 		{
 			default:
@@ -318,32 +327,32 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 				else cc.mov(val, 1);
 				break;
 		}
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
 	else if (command == GOTOTRUE)
 	{
-		cc.je(goto_labels.at(arg));
+		cc.je(goto_labels.at(arg1));
 	}
 	else if (command == GOTOFALSE)
 	{
-		cc.jne(goto_labels.at(arg));
+		cc.jne(goto_labels.at(arg1));
 	}
 	else if (command == GOTOMORE)
 	{
-		cc.jge(goto_labels.at(arg));
+		cc.jge(goto_labels.at(arg1));
 	}
 	else if (command == GOTOLESS)
 	{
 		if (get_qr(qr_GOTOLESSNOTEQUAL))
-			cc.jle(goto_labels.at(arg));
+			cc.jle(goto_labels.at(arg1));
 		else
-			cc.jl(goto_labels.at(arg));
+			cc.jl(goto_labels.at(arg1));
 	}
 	else if (command == SETTRUE)
 	{
 		cc.mov(val, 0);
 		cc.sete(val);
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
 	else if (command == SETTRUEI)
 	{
@@ -352,13 +361,13 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 		x86::Gp val2 = cc.newInt32();
 		cc.mov(val2, 10000);
 		cc.cmove(val, val2);
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
 	else if (command == SETFALSE)
 	{
 		cc.mov(val, 0);
 		cc.setne(val);
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
 	else if (command == SETFALSEI)
 	{
@@ -366,7 +375,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 		x86::Gp val2 = cc.newInt32();
 		cc.mov(val2, 10000);
 		cc.cmovne(val, val2);
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
 	else if (command == SETMOREI)
 	{
@@ -374,7 +383,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 		x86::Gp val2 = cc.newInt32();
 		cc.mov(val2, 10000);
 		cc.cmovge(val, val2);
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
 	else if (command == SETLESSI)
 	{
@@ -382,23 +391,67 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 		x86::Gp val2 = cc.newInt32();
 		cc.mov(val2, 10000);
 		cc.cmovle(val, val2);
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
 	else if (command == SETMORE)
 	{
 		cc.mov(val, 0);
 		cc.setge(val);
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
 	}
 	else if (command == SETLESS)
 	{
 		cc.mov(val, 0);
 		cc.setle(val);
-		set_z_register(state, cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg1, val);
+	}
+	else if(command == STACKWRITEATVV_IF)
+	{
+		// Write directly value on the stack (arg1 to offset arg2)
+		x86::Gp offset = cc.newInt32();
+		cc.mov(offset, arg2);
+		auto cmp = arg3 & CMP_FLAGS;
+		switch(cmp) //but only conditionally
+		{
+			case 0:
+				break;
+			case CMP_GT|CMP_LT|CMP_EQ:
+				cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);
+				break;
+			default:
+			{
+				x86::Gp tmp = cc.newInt32();
+				x86::Gp val = cc.newInt32();
+				cc.mov(tmp, x86::ptr_32(state.ptrStack, offset, 2));
+				cc.mov(val, arg1);
+				switch(cmp)
+				{
+					case CMP_GT:
+						cc.cmovg(tmp, val);
+						break;
+					case CMP_GT|CMP_EQ:
+						cc.cmovge(tmp, val);
+						break;
+					case CMP_LT:
+						cc.cmovl(tmp, val);
+						break;
+					case CMP_LT|CMP_EQ:
+						cc.cmovle(tmp, val);
+						break;
+					case CMP_EQ:
+						cc.cmove(tmp, val);
+						break;
+					case CMP_GT|CMP_LT:
+						cc.cmovne(tmp, val);
+						break;
+				}
+				cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
+			}
+		}
 	}
 	else
 	{
-		Z_error_fatal("Unimplemented: %s", script_debug_command_to_string(command, arg, 0).c_str());
+		Z_error_fatal("Unimplemented: %s", script_debug_command_to_string(command, arg1, arg2, arg3).c_str());
 	}
 }
 
@@ -472,7 +525,7 @@ static bool command_is_compiled(int command)
 
 	// These can be commented out to instead run interpreted. Useful for
 	// singling out problematic instructions.
-	case ABSR:
+	case ABS:
 	case ADDR:
 	case ADDV:
 	case ANDR:
@@ -502,6 +555,9 @@ static bool command_is_compiled(int command)
 	case SUBR:
 	case SUBV:
 	case SUBV2:
+	
+	//
+	case STACKWRITEATVV:
 		return true;
 	}
 
@@ -528,6 +584,9 @@ JittedFunction jit_compile_script(script_data *script)
 {
 	if (script->size <= 1)
 		return nullptr;
+
+	if (zasm_optimize_enabled() && !script->optimized)
+		zasm_optimize_and_log(script);
 
 	CompilationState state;
 	state.size = script->size;
@@ -689,49 +748,20 @@ JittedFunction jit_compile_script(script_data *script)
 		goto_labels[script->zasm[i].arg1] = cc.newLabel();
 	}
 
-	// Find all function calls.
+	auto structured_zasm = zasm_construct_structured(script);
+
+	// Create a return label for every function call.
 	std::map<int, Label> call_pc_to_return_label;
-	std::set<int> function_calls;
-	std::set<int> function_calls_goto_pc;
-	for (size_t i = 1; i < size; i++)
+	for (pc_t pc : structured_zasm.function_calls)
 	{
-		int command = script->zasm[i].command;
-		int prev_command = script->zasm[i - 1].command;
-		
-		bool is_function_call_like = false;
-		if(command == GOTO)
-		{
-			is_function_call_like =
-				// Typical function calls used to push parameters just before the GOTO
-				prev_command == PUSHR || prev_command == PUSHV || prev_command == PUSHARGSR || prev_command == PUSHARGSV ||
-				// Class construction function calls used to do `SETR CLASS_THISKEY, D2` just before its GOTO.
-				(prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
-		}
-		else if(command == CALLFUNC)
-		{
-			is_function_call_like = true;
-		}
-		else continue;
-		
-		if (is_function_call_like)
-		{
-			call_pc_to_return_label[i] = cc.newLabel();
-			function_calls.insert(i);
-			function_calls_goto_pc.insert(script->zasm[i].arg1);
-		}
+		call_pc_to_return_label[pc] = cc.newLabel();
 	}
 
-	std::vector<int> function_start_pcs;
-	std::map<int, int> start_pc_to_function;
+	// Create a jump annotation for the start of every function.
 	std::vector<JumpAnnotation *> function_jump_annotations;
+	for (int i = 0; i < structured_zasm.functions.size(); i++)
 	{
-		int next_fn_id = 0;
-		for (int function_start_pc : function_calls_goto_pc)
-		{
-			function_start_pcs.push_back(function_start_pc);
-			start_pc_to_function[function_start_pc] = next_fn_id++;
-			function_jump_annotations.push_back(cc.newJumpAnnotation());
-		}
+		function_jump_annotations.push_back(cc.newJumpAnnotation());
 	}
 
 	// Map all RETURN to the enclosing function.
@@ -740,12 +770,11 @@ JittedFunction jit_compile_script(script_data *script)
 		int cur_function_id = 0;
 		for (size_t i = 0; i < size; i++)
 		{
-			if (function_start_pcs.size() > cur_function_id + 1 && function_start_pcs.at(cur_function_id + 1) == i)
+			if (structured_zasm.functions.size() > cur_function_id + 1 && structured_zasm.functions.at(cur_function_id + 1).start_pc == i)
 				cur_function_id += 1;
 
 			int command = script->zasm[i].command;
-			if (command == RETURNFUNC || command == RETURN
-				|| (command == GOTOR && script->zasm[i - 1].command == POP))
+			if (command == RETURNFUNC || command == RETURN || command == GOTOR)
 			{
 				return_to_function_id[i] = cur_function_id;
 			}
@@ -753,10 +782,10 @@ JittedFunction jit_compile_script(script_data *script)
 	}
 
 	// Annotate all function RETURNs to their calls, to help asmjit with liveness analysis.
-	for (int function_call_pc : function_calls)
+	for (int function_call_pc : structured_zasm.function_calls)
 	{
 		int goto_pc = script->zasm[function_call_pc].arg1;
-		auto it = start_pc_to_function.find(goto_pc);
+		auto it = structured_zasm.start_pc_to_function.find(goto_pc);
 		int function_index = it->second;
 		function_jump_annotations[function_index]->addLabel(call_pc_to_return_label.at(function_call_pc));
 	}
@@ -775,24 +804,28 @@ JittedFunction jit_compile_script(script_data *script)
 
 	for (size_t i = 0; i < size; i++)
 	{
-		int command = script->zasm[i].command;
-		int arg1 = script->zasm[i].arg1;
-		int arg2 = script->zasm[i].arg2;
+		auto& op = script->zasm[i];
+		auto arg1 = op.arg1;
+		auto arg2 = op.arg2;
+		auto arg3 = op.arg3;
+		auto argvec = op.vecptr;
+		auto argstr = op.strptr;
+		int command = op.command;
 
 		if (goto_labels.contains(i))
 		{
 			cc.bind(goto_labels.at(i));
 		}
 
-		if (DEBUG_JIT_PRINT_ASM && start_pc_to_function.contains(i))
+		if (DEBUG_JIT_PRINT_ASM && structured_zasm.start_pc_to_function.contains(i))
 		{
-			cc.setInlineComment((comment = fmt::format("function {}", start_pc_to_function.at(i))).c_str());
+			cc.setInlineComment((comment = fmt::format("function {}", structured_zasm.start_pc_to_function.at(i))).c_str());
 			cc.nop();
 		}
 
 		if (DEBUG_JIT_PRINT_ASM)
 		{
-			cc.setInlineComment((comment = fmt::format("{} {}", i, script_debug_command_to_string(command, arg1, arg2))).c_str());
+			cc.setInlineComment((comment = fmt::format("{} {}", i, script_debug_command_to_string(command, arg1, arg2, arg3, argvec, argstr))).c_str());
 		}
 
 		// Can be useful for debugging.
@@ -817,7 +850,7 @@ JittedFunction jit_compile_script(script_data *script)
 
 		if (command_uses_comparison_result(command))
 		{
-			compile_compare(state, cc, goto_labels, vStackIndex, command, arg1, arg2);
+			compile_compare(state, cc, goto_labels, vStackIndex, command, op.arg1, op.arg2, op.arg3);
 			continue;
 		}
 
@@ -839,7 +872,7 @@ JittedFunction jit_compile_script(script_data *script)
 			if (DEBUG_JIT_PRINT_ASM)
 			{
 				std::string command_str =
-					script_debug_command_to_string(command, arg1, arg2);
+					script_debug_command_to_string(command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr);
 				cc.setInlineComment((comment = fmt::format("{} {}", i, command_str)).c_str());
 				cc.nop();
 			}
@@ -853,7 +886,7 @@ JittedFunction jit_compile_script(script_data *script)
 					break;
 				if (goto_labels.contains(j))
 					break;
-				if (start_pc_to_function.contains(j))
+				if (structured_zasm.start_pc_to_function.contains(j))
 					break;
 
 				if (DEBUG_JIT_PRINT_ASM && script->zasm[j].command != 0xFFFF)
@@ -862,8 +895,9 @@ JittedFunction jit_compile_script(script_data *script)
 				uncompiled_command_count += 1;
 				if (DEBUG_JIT_PRINT_ASM)
 				{
+					auto& op = script->zasm[j];
 					std::string command_str =
-						script_debug_command_to_string(script->zasm[j].command, script->zasm[j].arg1, script->zasm[j].arg2);
+						script_debug_command_to_string(op.command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr);
 					cc.setInlineComment((comment = fmt::format("{} {}", j, command_str)).c_str());
 					cc.nop();
 				}
@@ -894,7 +928,7 @@ JittedFunction jit_compile_script(script_data *script)
 		[[fallthrough]];
 		case GOTO:
 		{
-			if (function_calls.contains(i))
+			if (structured_zasm.function_calls.contains(i))
 			{
 				// https://github.com/asmjit/asmjit/issues/286
 				x86::Gp address = cc.newIntPtr();
@@ -952,6 +986,14 @@ JittedFunction jit_compile_script(script_data *script)
 				return nullptr;
 			}
 			cc.jmp(address, function_jump_annotations[function_index]);
+		}
+		break;
+		case STACKWRITEATVV:
+		{
+			// Write directly value on the stack (arg1 to offset arg2)
+			x86::Gp offset = cc.newInt32();
+			cc.mov(offset, arg2);
+			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);
 		}
 		break;
 		case PUSHV:
@@ -1084,7 +1126,7 @@ JittedFunction jit_compile_script(script_data *script)
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
-		case ABSR:
+		case ABS:
 		{
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Gp y = cc.newInt32();
@@ -1108,11 +1150,8 @@ JittedFunction jit_compile_script(script_data *script)
 		case CASTBOOLF:
 		{
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
-			x86::Gp result = cc.newInt32();
-			zero(cc, result);
-			cc.test(val, val);
-			cc.setne(result.r8());
-			set_z_register(state, cc, vStackIndex, arg1, result);
+			cast_bool(cc, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case ADDV:
@@ -1340,6 +1379,16 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			int val = arg2;
 			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg1);
+
+			if (script->zasm[i + 1].command == GOTOCMP || script->zasm[i + 1].command == SETCMP)
+			{
+				if (script->zasm[i + 1].arg2 & CMP_BOOL)
+				{
+					val = val ? 1 : 0;
+					cast_bool(cc, val2);
+				}
+			}
+
 			cc.cmp(val2, val);
 		}
 		break;
@@ -1347,6 +1396,16 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			int val = arg1;
 			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
+
+			if (script->zasm[i + 1].command == GOTOCMP || script->zasm[i + 1].command == SETCMP)
+			{
+				if (script->zasm[i + 1].arg2 & CMP_BOOL)
+				{
+					val = val ? 1 : 0;
+					cast_bool(cc, val2);
+				}
+			}
+
 			cc.cmp(val2, val);
 		}
 		break;
@@ -1354,6 +1413,16 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg2);
 			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg1);
+
+			if (script->zasm[i + 1].command == GOTOCMP || script->zasm[i + 1].command == SETCMP)
+			{
+				if (script->zasm[i + 1].arg2 & CMP_BOOL)
+				{
+					cast_bool(cc, val);
+					cast_bool(cc, val2);
+				}
+			}
+
 			cc.cmp(val2, val);
 		}
 		break;
@@ -1440,7 +1509,14 @@ JittedFunction jit_compile_script(script_data *script)
 		debug_handle->printf("time to preprocess: %d ms\n", preprocess_ms);
 		debug_handle->printf("time to compile:    %d ms\n", compile_ms);
 		debug_handle->printf("Code size:          %d kb\n", code.codeSize() / 1024);
-		debug_handle->printf("ZASM instructions:  %zu\n", size);
+		// Exclude NOPs from size count.
+		int size_no_nops = 0;
+		for (int i = 0; i < size; i++)
+		{
+			if (script->zasm[i].command != NOP)
+				size_no_nops += 1;
+		}
+		debug_handle->printf("ZASM instructions:  %zu\n", size_no_nops);
 		debug_handle->print("\n");
 
 		if (!uncompiled_command_counts.empty())

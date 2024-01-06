@@ -1849,16 +1849,11 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 			//case wQuake:// -Z
 			//case wSword180: 
 			//case wSwordLA:
-				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem,Hero.getUID(),false,0,1,0)); 
-				if (cmb.attribytes[3] > 0 )
-				{
-					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-					w->LOADGFX(cmb.attribytes[3]);
-				}
-				break;
-			
 			case wFire:
-				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
+			case wRefArrow:
+			case wRefFire:
+			case wRefFire2:
+				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem,Hero.getUID(),false,0,1,0)); 
 				if (cmb.attribytes[3] > 0 )
 				{
 					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
@@ -2036,16 +2031,11 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 			//case wQuake:// -Z
 			//case wSword180: 
 			//case wSwordLA:
-				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem,Hero.getUID(),false,0,1,0)); 
-				if (cmb.attribytes[3] > 0 )
-				{
-					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-					w->LOADGFX(cmb.attribytes[3]);
-				}
-				break;
-			
 			case wFire:
-				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
+			case wRefArrow:
+			case wRefFire:
+			case wRefFire2:
+				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem,Hero.getUID(),false,0,1,0)); 
 				if (cmb.attribytes[3] > 0 )
 				{
 					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created

@@ -35,6 +35,11 @@ string LiteralArgument::toString() const
 	return la_toString(value);
 }
 
+string CompareArgument::toString() const
+{
+	return CMP_STR(value);
+}
+
 string ZScript::VarToString(int32_t ID)
 {
 	char temp[128];
@@ -2473,6 +2478,8 @@ string ZScript::VarToString(int32_t ID)
 		
 		case LWPNBURNLIGHTRADIUS: return "LWPNBURNLIGHTRADIUS";
 		case EWPNBURNLIGHTRADIUS: return "EWPNBURNLIGHTRADIUS";
+		
+		case IDATAATTRIB_L: return "IDATAATTRIB_L";
 		
 		default:
 		{
@@ -6965,5 +6972,11 @@ string OStackWriteAtRV::toString() const
 string OStackWriteAtVV::toString() const
 {
 	return "STACKWRITEATVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+
+string OStackWriteAtVV_If::toString() const
+{
+	return "STACKWRITEATVV_IF " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
 }
 

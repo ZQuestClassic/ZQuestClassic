@@ -355,27 +355,32 @@ bool ZModule::init(bool d) //bool default
 		strcpy(moduledata.enemy_scriptweaponweapon_names[8],zc_get_config_basic("EWEAPONS","Custom_9","Custom 09"));
 		strcpy(moduledata.enemy_scriptweaponweapon_names[9],zc_get_config_basic("EWEAPONS","Custom_10","Custom 10"));
 		
-		const char lweapon_cats[wIce+1][255]=
+		const char lweapon_cats[wRefFire2+1][255]=
 		{
 			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
 			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
 			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
 			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
 			"lwCane","lwRefBeam", "lwStomp","","lwScript1", "lwScript2", "lwScript3", 
-			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
+			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce",
+			"-wFlame", "-wSound", "-wThrown", "-wPot", "-wLit", "-wBombos", "-wEther", "-wQuake",
+			"-wSword180", "-wSwordLA", "-wBugNet", "lwRefArrow", "lwRefFire", "lwRefFire2"
 		};
-		const char lweapon_default_names[wIce+1][255]=
+		const char lweapon_default_names[wRefFire2+1][255]=
 		{
 			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
 			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
 			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshot", "-HSHandle", 
 			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
 			"Cane of Byrna","Reflected Sword Beam", "-Stomp","-lwmax","Script1", "Script2", "Script3", 
-			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
+			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice",
+			"-wFlame", "-wSound", "-wThrown", "-wPot", "-wLit", "-wBombos", "-wEther", "-wQuake",
+			"-wSword180", "-wSwordLA", "-wBugNet", "Reflected Arrow", "Reflected Fire", "Reflected Fire 2"
 		};
-		for ( int32_t q = 0; q < wIce+1; q++ )
+		for ( int32_t q = 0; q < wRefFire2+1; q++ )
 		{
-			strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? zc_get_config_basic("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
+			if(lweapon_cats[q][0] == '-')
+				strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? zc_get_config_basic("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
 		

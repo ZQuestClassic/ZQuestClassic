@@ -133,6 +133,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprCast(ASTExprCast& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseExprBoolTree(ASTExprBoolTree& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseExprAnd(ASTExprAnd& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprOr(ASTExprOr& host, void* param = NULL) {

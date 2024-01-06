@@ -2043,7 +2043,7 @@ enum ASM_DEFINE
 	TANV,                 //0x001E
 	MODR,                 //0x001F
 	MODV,                 //0x0020
-	ABSR,                 //0x0021
+	ABS,                 //0x0021
 	MINR,                 //0x0022
 	MINV,                 //0x0023
 	MAXR,                 //0x0024
@@ -3190,6 +3190,9 @@ enum ASM_DEFINE
 	ROUND,
 	ROUNDAWAY,
 	STOREDV,
+
+	
+	STACKWRITEATVV_IF,
 
 	NUMCOMMANDS  //0x045C
 };
@@ -5024,7 +5027,9 @@ enum ASM_DEFINE
 #define LWPNBURNLIGHTRADIUS     0x15A2
 #define EWPNBURNLIGHTRADIUS     0x15A3
 
-#define NUMVARIABLES            0x15A4
+#define IDATAATTRIB_L           0x15A4
+
+#define NUMVARIABLES            0x15A5
 
 //} End variables
 
@@ -5079,9 +5084,13 @@ struct triangle3Dstruct
 #define rSP                     10
 
 bool command_is_wait(int command);
+bool command_is_goto(int command);
 bool command_uses_comparison_result(int command);
+bool command_writes_comparison_result(int command);
+int command_to_cmp(int command, int arg);
 bool command_could_return_not_ok(int command);
 const script_command& get_script_command(int command);
+int get_script_command(std::string name);
 
 int32_t get_combopos_ref(rpos_t rpos, int32_t layer);
 rpos_t combopos_ref_to_rpos(int32_t combopos_ref);

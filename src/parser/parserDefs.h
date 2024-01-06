@@ -41,10 +41,13 @@ using namespace util;
 
 #define REGISTRATION_REC_LIMIT		50
 
+// Base flags, describing the relation
 #define CMP_GT    0x01
 #define CMP_LT    0x02
 #define CMP_EQ    0x04
-#define CMP_SETI  0x08
+// Extra behavior flags
+#define CMP_SETI  0x08 // In 'SETCMP', multiplies the output by 10000.
+#define CMP_BOOL  0x10 // Does a "boolean comparison" (ex. 2 CMP_EQ 3 is true, since !2 == !3)
 
 #define CMP_FLAGS 0x07
 #define CMP_NE    (CMP_GT|CMP_LT)
@@ -54,24 +57,31 @@ using namespace util;
 #define INVERT_CMP(cmp) ((cmp&(~CMP_FLAGS))|((~cmp)&CMP_FLAGS))
 inline string CMP_STR(uint cmpval)
 {
+	string pref;
+	if(cmpval & CMP_BOOL)
+		pref += "B";
+	if(cmpval & CMP_SETI)
+		pref += "I";
 	switch(cmpval&CMP_FLAGS)
 	{
-		case 0: default:
-			return "Never";
+		default:
+			return pref+"??";
+		case 0:
+			return pref+"Never";
 		case CMP_GT:
-			return ">";
+			return pref+">";
 		case CMP_GE:
-			return ">=";
+			return pref+">=";
 		case CMP_LT:
-			return "<";
+			return pref+"<";
 		case CMP_LE:
-			return "<=";
+			return pref+"<=";
 		case CMP_EQ:
-			return "==";
+			return pref+"==";
 		case CMP_NE:
-			return "!=";
+			return pref+"!=";
 		case CMP_FLAGS:
-			return "Always";
+			return pref+"Always";
 	}
 }
 

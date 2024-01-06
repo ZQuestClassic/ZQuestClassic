@@ -1,0 +1,20 @@
+; comparisons across blocks, misc (2)
+; Source: resources/headers/ghost_zh/2.8/ghost2_other.zh
+; int FindUnusedFFC(int startingFrom)
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 2]
+    1: SETCMP          D2              ==
+    2: COMPAREV        D2              0
+    3: GOTOFALSE       11
+    4: LOADD           D2              10000        [Block 1 -> 2]
+    5: PUSHR           D2
+    6: POP             REFFFC
+    7: SETR            D2              DATA
+    8: COMPAREV        D2              10000
+    9: SETCMP          D2              ==
+   10: COMPAREV        D2              0
+   11: SETCMP          D2              !=           [Block 2 -> 3, 4]
+   12: COMPAREV        D2              0
+   13: GOTOTRUE        15
+   14: TRACEV          0                            [Block 3 -> 4]
+   15: QUIT                                         [Block 4 -> ]

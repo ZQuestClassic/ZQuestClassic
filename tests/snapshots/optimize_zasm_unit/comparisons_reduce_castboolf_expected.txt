@@ -1,0 +1,123 @@
+[spurious_branches] Block #0
+
+0: COMPARER        D2              D3     
+1: SETTRUEI        D2              
+	D2 = D2 I== D3
+2: COMPAREV        D2              0      
+	D2 = D2 I== D3
+3: GOTOTRUE        16              
+	D2 = D2 I== D3
+inferred D2: 0
+16: COMPAREV        D2              1      
+	D2 = 0
+17: SETMOREI        D2              
+	D2 = 0
+18: CASTBOOLF       D2              
+	D2 = 0
+19: COMPAREV        D2              1      
+	D2 = 0
+20: GOTOTRUE        22              
+	D2 = 0
+21: TRACEV          1               
+	D2 = 0
+	side_effects
+rewrite 3: GOTOCMP         21              ==     
+
+[spurious_branches] Block #2
+
+16: COMPAREV        D2              1      
+17: SETMOREI        D2              
+	D2 = D2 I>= 1
+18: CASTBOOLF       D2              
+	D2 = D2 >= 1
+19: COMPAREV        D2              1      
+	D2 = D2 >= 1
+20: GOTOTRUE        22              
+	D2 = D2 >= 1
+inferred D2: 1
+22: TRACEV          2               
+	D2 = 1
+	side_effects
+rewrite 20: GOTOCMP         22              ==     
+
+[reduce_comparisons] Block #0
+
+0: COMPARER        D2              D3     
+1: SETTRUEI        D2              
+	D2 = D2 I== D3
+2: COMPAREV        D2              0      
+	D2 = D2 I== D3
+3: GOTOCMP         21              ==     
+	D2 = D2 I== D3
+rewrite 0: 4 -> 2 commands
+0: COMPARER        D2              D3     
+1: GOTOCMP         21              !=     
+2: NOP            
+3: NOP            
+
+[reduce_comparisons] Block #1
+
+11: CASTBOOLF       D2              
+	D2 = Bool(D2)
+12: CASTBOOLF       D3              
+	D2 = Bool(D2)
+	D3 = Bool(D3)
+13: COMPARER        D2              D3     
+	D2 = Bool(D2)
+	D3 = Bool(D3)
+14: SETTRUEI        D2              
+	D2 = (Bool(D2)) I== (Bool(D3))
+	D3 = Bool(D3)
+15: CASTBOOLF       D2              
+	D2 = (Bool(D2)) == (Bool(D3))
+	D3 = Bool(D3)
+16: COMPAREV        D2              1      
+	D2 = (Bool(D2)) == (Bool(D3))
+	D3 = Bool(D3)
+17: SETMOREI        D2              
+	D2 = (Bool(D2)) == (Bool(D3))
+	D3 = Bool(D3)
+18: CASTBOOLF       D2              
+	D2 = (Bool(D2)) == (Bool(D3))
+	D3 = Bool(D3)
+19: COMPAREV        D2              1      
+	D2 = (Bool(D2)) == (Bool(D3))
+	D3 = Bool(D3)
+20: GOTOCMP         22              ==     
+	D2 = (Bool(D2)) == (Bool(D3))
+	D3 = Bool(D3)
+rewrite 11: 10 -> 2 commands
+11: COMPARER        D2              D3     
+12: GOTOCMP         22              B==    
+13: NOP            
+14: NOP            
+15: NOP            
+16: NOP            
+17: NOP            
+18: NOP            
+19: NOP            
+20: NOP            
+Function #0
+    0: COMPARER        D2              D3           [Block 0 -> 1, 3]
+    1: GOTOCMP         21              !=
+    2: NOP                                          [Block 1 -> 2, 4]
+    3: NOP
+    4: NOP
+    5: PUSHV           130000
+    6: POP             D0
+    7: SETR            D2              SCREENSTATED
+    8: PUSHR           D2
+    9: SETV            D2              10000
+   10: POP             D3
+   11: COMPARER        D2              D3
+   12: GOTOCMP         22              B==
+   13: NOP                                          [Block 2 -> 3]
+   14: NOP
+   15: NOP
+   16: NOP
+   17: NOP
+   18: NOP
+   19: NOP
+   20: NOP
+   21: TRACEV          1                            [Block 3 -> 4]
+   22: TRACEV          2                            [Block 4 -> ]

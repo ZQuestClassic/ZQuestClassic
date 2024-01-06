@@ -1,0 +1,14 @@
+; comparisons across blocks, using comparison result as int
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 2]
+    1: GOTOFALSE       5
+    2: LOADD           D2              20000        [Block 1 -> 2]
+    3: TRACEV          1
+    4: COMPAREV        D2              0
+    5: SETCMP          D2              I!=          [Block 2 -> 4]
+    6: NOP
+    7: NOP
+    8: GOTO            10
+    9: NOP                                          [Block 3 -> 4]
+   10: TRACER          D2                           [Block 4 -> ]
+   11: QUIT

@@ -1,5 +1,5 @@
 tests/replays/**/*.zplay filter=lfs diff=lfs merge=lfs -text
 tests/replays/**/*.sav filter=lfs diff=lfs merge=lfs -text
 tests/**/*.qst filter=lfs diff=lfs merge=lfs -text
-tests/jit/**/*.txt filter=lfs diff=lfs merge=lfs -text
+tests/snapshots/jit/**/*.txt filter=lfs diff=lfs merge=lfs -text
 resources/quests/**/*.qst filter=lfs diff=lfs merge=lfs -text

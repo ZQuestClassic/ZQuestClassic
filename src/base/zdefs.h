@@ -240,11 +240,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         23
+#define V_FFSCRIPT         24
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       63
+#define V_COMPATRULE       64
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -749,16 +749,32 @@ enum                                                        // value matters bec
 };
 
 // Shield projectile blocking
-#define shROCK		0x001
-#define shARROW		0x002
-#define shBRANG		0x004
-#define shFIREBALL	0x008
-#define shSWORD		0x010
-#define shMAGIC		0x020
-#define shFLAME		0x040
-#define shSCRIPT	0x080
-#define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
-#define shLIGHTBEAM 0x200 //Light puzzle beams
+#define shROCK        0x00000001
+#define shARROW       0x00000002
+#define shBRANG       0x00000004
+#define shFIREBALL    0x00000008
+#define shSWORD       0x00000010
+#define shMAGIC       0x00000020
+#define shFLAME       0x00000040
+#define shSCRIPT      0x00000080 // If set, blocks all of Script1 through Script10
+#define shFIREBALL2   0x00000100 // Boss fireball, not ewFireball2
+#define shLIGHTBEAM   0x00000200 // Light puzzle beams
+//Individual script blockers:
+#define shSCRIPT1     0x00000400
+#define shSCRIPT2     0x00000800
+#define shSCRIPT3     0x00001000
+#define shSCRIPT4     0x00002000
+#define shSCRIPT5     0x00004000
+#define shSCRIPT6     0x00008000
+#define shSCRIPT7     0x00010000
+#define shSCRIPT8     0x00020000
+#define shSCRIPT9     0x00040000
+#define shSCRIPT10    0x00080000
+#define shFLAME2      0x00100000
+
+
+#define sh_ALL_SCR    0x000FFC00
+
 
 
 // item sets
@@ -856,7 +872,8 @@ enum
 	wLit, //Lightning or Electric -Z
 	wBombos, wEther, wQuake,// -Z
 	wSword180, wSwordLA,
-	wBugNet,
+	//52
+	wBugNet, wRefArrow, wRefFire, wRefFire2,
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -1141,15 +1158,15 @@ enum {  e9tMOLDORM=1, e9tVLANMOLA, e9tVMOLDORM, e9tZ3MOLDORM, //restricted to wa
      
 enum
 {
-	edefBRANG, 	edefBOMB, 	edefSBOMB, 	edefARROW, 	edefFIRE, 	//04
-	edefWAND, 	edefMAGIC, 	edefHOOKSHOT, 	edefHAMMER, 	edefSWORD, 	//09
-	edefBEAM, 	edefREFBEAM, 	edefREFMAGIC,	edefREFBALL, 	edefREFROCK,	//14
-	edefSTOMP, 	edefBYRNA, 	edefSCRIPT, 	edefLAST250, 	edefQUAKE, 	//19
-	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
-	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
-	edefICE,	edefBAIT, 	edefWIND,	edefSPARKLE,	edefSONIC,	//34
-	edefWhistle,	edefSwitchHook,	edefTHROWN,	edefRES008,	edefRES009,	//39
-	edefRES010,	//x40
+	edefBRANG, edefBOMB, edefSBOMB, edefARROW, edefFIRE, //04
+	edefWAND, edefMAGIC, edefHOOKSHOT, edefHAMMER, edefSWORD, //09
+	edefBEAM, edefREFBEAM, edefREFMAGIC, edefREFBALL, edefREFROCK, //14
+	edefSTOMP, edefBYRNA, edefSCRIPT, edefLAST250, edefQUAKE, //19
+	edefSCRIPT01, edefSCRIPT02, edefSCRIPT03, edefSCRIPT04, edefSCRIPT05, //24
+	edefSCRIPT06, edefSCRIPT07, edefSCRIPT08, edefSCRIPT09, edefSCRIPT10, //29
+	edefICE, edefBAIT, edefWIND, edefSPARKLE, edefSONIC, //34
+	edefWhistle, edefSwitchHook, edefTHROWN, edefREFARROW, edefREFFIRE, //39
+	edefREFFIRE2, //x40
 	edefLAST255 //41
 	/*
 	edef42,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
@@ -1555,7 +1572,6 @@ public:
 	uint32_t sp; //stack pointer for current script
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
-	dword scriptflag; //stores whether various operations were true/false etc.
 	
 	uint16_t ffcref;
 	int32_t idata;
@@ -1577,6 +1593,9 @@ public:
 	int32_t switchkey; //used for switch statements
 	dword thiskey, thiskey2; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
+	
+	int32_t cmp_op1, cmp_op2; //cached compare operands
+	optional<int32_t> cmp_strcache;
 	
 	void Clear()
 	{
@@ -1804,11 +1823,11 @@ struct zasm_meta
 ScriptType get_script_type(std::string const& name);
 std::string get_script_name(ScriptType type);
 
+#define NUM_ZS_ARGS 3
 struct ffscript
 {
-    word command;
-    int32_t arg1;
-    int32_t arg2;
+	word command;
+	int32_t arg1, arg2, arg3;
 	std::vector<int32_t> *vecptr;
 	std::string *strptr;
 	ffscript()
@@ -1816,6 +1835,12 @@ struct ffscript
 		command = 0xFFFF;
 		arg1 = 0;
 		arg2 = 0;
+		arg3 = 0;
+		vecptr = nullptr;
+		strptr = nullptr;
+	}
+	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0): command(command), arg1(arg1), arg2(arg2), arg3(arg3)
+	{
 		vecptr = nullptr;
 		strptr = nullptr;
 	}
@@ -1837,6 +1862,7 @@ struct ffscript
 		other.command = command;
 		other.arg1 = arg1;
 		other.arg2 = arg2;
+		other.arg3 = arg3;
 		other.vecptr = vecptr;
 		other.strptr = strptr;
 		vecptr = nullptr;
@@ -1848,6 +1874,7 @@ struct ffscript
 		command = 0xFFFF;
 		arg1 = 0;
 		arg2 = 0;
+		arg3 = 0;
 		if(vecptr)
 		{
 			delete vecptr;
@@ -1865,6 +1892,7 @@ struct ffscript
 		other.command = command;
 		other.arg1 = arg1;
 		other.arg2 = arg2;
+		other.arg3 = arg3;
 		if(vecptr)
 		{
 			other.vecptr = new std::vector<int32_t>();
@@ -1885,6 +1913,7 @@ struct ffscript
 		if(command != other.command) return false;
 		if(arg1 != other.arg1) return false;
 		if(arg2 != other.arg2) return false;
+		if(arg3 != other.arg3) return false;
 		//Check for pointer existence differences
 		if((vecptr==nullptr)!=(other.vecptr==nullptr)) return false;
 		if((strptr==nullptr)!=(other.strptr==nullptr)) return false;
@@ -1905,10 +1934,6 @@ struct ffscript
 		}
 		return true;
 	}
-	bool operator!=(ffscript const& other) const
-	{
-		return !(*this == other);
-	}
 };
 
 struct script_id {
@@ -1924,6 +1949,7 @@ struct script_data
 	zasm_meta meta;
 	script_id id;
 	size_t size;
+	bool optimized;
 	
 	void null_script(size_t newSize = 1)
 	{
@@ -1935,6 +1961,7 @@ struct script_data
 		zasm[0].clear();
 		meta.zero();
 		size = newSize;
+		optimized = false;
 	}
 	
 	bool valid() const
@@ -1948,6 +1975,7 @@ struct script_data
 		{
 			zasm[0].clear();
 			size = 1;
+			optimized = false;
 		}
 	}
 	
@@ -1980,6 +2008,7 @@ struct script_data
 				other.zasm[q].copy(zasm[q]);
 			}
 			size = other.size;
+			optimized = other.optimized;
 		}
 		else
 		{
@@ -2013,6 +2042,7 @@ struct script_data
 			delete[] other.zasm;
 		other.zasm = zasm;
 		other.size = size;
+		other.optimized = optimized;
 		zasm = NULL;
 		null_script();
 	}
@@ -2041,13 +2071,35 @@ struct script_data
 	}
 };
 
+enum
+{
+    ARGTY_UNUSED_REG,
+    ARGTY_READ_REG,
+    ARGTY_WRITE_REG,
+    ARGTY_READWRITE_REG,
+    ARGTY_LITERAL,
+    ARGTY_COMPARE_OP,
+};
+#define ARGFL_COMPARE_USED 0x01
+#define ARGFL_COMPARE_SET  0x02
+#define ARGFL_UNIMPL       0x04
 struct script_command
 {
-    char name[64];
-    byte args;
-    byte arg1_type; //0=reg, 1=val;
-    byte arg2_type; //0=reg, 1=val;
-    byte arr_type; //0x1 = string, 0x2 = array
+	char name[64];
+	byte args;
+	byte arg_type[3]; //ARGTY_
+	byte arr_type; //0x1 = string, 0x2 = array
+	byte flags; //ARGFL_
+
+	bool is_register(int arg) const
+	{
+		return arg_type[arg] == ARGTY_READ_REG || arg_type[arg] == ARGTY_WRITE_REG || arg_type[arg] == ARGTY_READWRITE_REG;
+	}
+
+	bool writes_to_register(int arg) const
+	{
+		return arg_type[arg] == ARGTY_WRITE_REG || arg_type[arg] == ARGTY_READWRITE_REG;
+	}
 };
 
 struct script_variable

@@ -57,6 +57,7 @@ src/dialog/headerdlg.cpp
 src/dialog/alert.cpp
 src/dialog/init_data.cpp
 src/dialog/itemeditor.cpp
+src/dialog/itemwizard.cpp
 src/dialog/alertfunc.cpp
 src/dialog/zq_options.cpp
 src/dialog/bottletype.cpp

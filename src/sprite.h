@@ -241,6 +241,8 @@ public:
     int32_t idLast(int32_t id, int32_t mask);
     // returns the number of sprites with matching id
     int32_t idCount(int32_t id);
+	// returns the number of sprites matching any id in the set
+	int32_t idCount(std::set<int32_t> const& ids);
     // returns index of first sprite with matching id, -1 if none found
     int32_t idFirst(int32_t id);
     // returns index of nth sprite with matching id, -1 if none found

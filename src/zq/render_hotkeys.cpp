@@ -204,6 +204,7 @@ const std::set<int> group_dialog_ids = {
 	ZQKEY_SEARCH_QRS,
 	ZQKEY_RULESETS,
 	ZQKEY_RULETMPLS,
+	ZQKEY_BIND_HOTKEYS,
 };
 
 const std::set<int> group_import_export_ids = {

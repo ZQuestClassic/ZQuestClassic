@@ -58,8 +58,6 @@ private:
 	
 	ComboWizardDialog(ComboEditorDialog& parent);
 	friend void call_combo_wizard(ComboEditorDialog& dlg);
-	friend bool def_all();
-	friend bool def_some();
 };
 
 #endif

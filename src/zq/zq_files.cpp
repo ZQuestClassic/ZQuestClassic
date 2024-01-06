@@ -233,6 +233,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		}
 	}
 	onStrFix();
+	applyRuleTemplate(ruletemplateFixCompat, qrptr);
 	
 	alwaysOnRules(); //Set on things that should ALWAYS be on.
 	
@@ -243,7 +244,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		qr_TRAPPOSFIX, qr_NOBORDER, qr_SUBSCREENOVERSPRITES,
 		qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFHERO2,
 		qr_NOITEMOFFSET, qr_LADDERANYWHERE, qr_TRUEFIXEDBOMBSHIELD, qr_NOTMPNORET, qr_NOFLASHDEATH, qr_BROKENSTATUES, 
-		qr_DYING_ENEMIES_IGNORE_STUN, qr_SHOP_ITEMS_VANISH, qr_EXPANDEDLTM, qr_CORRECTED_EW_BRANG_ANIM, -1
+		qr_DYING_ENEMIES_IGNORE_STUN, qr_SHOP_ITEMS_VANISH, qr_EXPANDEDLTM, qr_CORRECTED_EW_BRANG_ANIM
 	};
 	static const int rNES[] = {
 		qr_OLDPICKUP, qr_OLDSTYLEWARP, qr_OLDSPRITEDRAWS,
@@ -275,6 +276,7 @@ void applyRuleset(int32_t newRuleset, byte *qrptr)
 		qr_ITEMCOMBINE_NEW_PSTR, qr_ITEMCOMBINE_CONTINUOUS,
 		qr_FAIRYDIR, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
 		qr_CONVEYORS_L1_L2, qr_CONVEYORS_ALL_LAYERS,
+		qr_EW_FIRE_EMITS_LIGHT,
 	};
 	static const int rMODERN_O[] = {
 		qr_OLDSPRITEDRAWS

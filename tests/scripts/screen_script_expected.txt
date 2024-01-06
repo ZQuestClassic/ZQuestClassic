@@ -35,9 +35,9 @@ PUSHR d2
 LOADD d2,3
 POP d3
 COMPARER d3,d2
-SETCMP d2,0.0012
+SETCMP d2,I==
 COMPAREV d2,0
-GOTOTRUE 43; Test 'if'
+GOTOCMP 43,==; Test 'if'
 LOADD d2,0; if() #558 Body Start
 PUSHR d2
 POP d0
@@ -87,7 +87,7 @@ PUSHARGSV 0,0.0004; Func[int ComboAt(int, int)] Body Start
 SETR d4,SP
 SETR d2,REGION_ID; if() #26 Test
 COMPAREV d2,0
-GOTOTRUE 135; Test 'if'
+GOTOCMP 135,==; Test 'if'
 PUSHR d4; if() #26 Body Start
 LOADD d2,5; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
@@ -173,9 +173,9 @@ PUSHR d2
 LOADD d2,0
 POP d3
 COMPARER d3,d2
-SETCMP d2,0.0010
+SETCMP d2,I<
 COMPAREV d2,0
-GOTOTRUE 171; Test 'if'
+GOTOCMP 171,==; Test 'if'
 LOADD d2,0; if() #136 Body Start
 STORED d2,2
 GOTO 181; if() #136 Body End
@@ -184,9 +184,9 @@ PUSHR d2
 LOADD d2,1
 POP d3
 COMPARER d3,d2
-SETCMP d2,0.0009
+SETCMP d2,I>
 COMPAREV d2,0
-GOTOTRUE 181; Test 'if'
+GOTOCMP 181,==; Test 'if'
 LOADD d2,1; if() #355 Body Start
 STORED d2,2; if() #355 Body End
 LOADD d2,2; if() #136 Else End AND return Start

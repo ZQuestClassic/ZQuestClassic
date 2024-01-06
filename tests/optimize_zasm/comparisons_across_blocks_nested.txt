@@ -1,0 +1,35 @@
+; comparisons across blocks, nested
+; Source: Function #16 L1622 playground.qst/zasm-ffc-4-Armos_LttP.txt
+; This one gets processed in two passes.
+Function #0
+    0: TRACEV          1                            [Block 0 -> 1, 2]
+    1: COMPAREV        D2              0
+    2: GOTOTRUE        6
+    3: PUSHR           D4                           [Block 1 -> 2]
+    4: LOADD           D2              1337
+    5: POP             D4
+    6: COMPAREV        D2              0            [Block 2 -> 3, 6]
+    7: SETCMP          D2              !=
+    8: COMPAREV        D2              0
+    9: GOTOFALSE       25
+   10: PUSHR           D4                           [Block 3 -> 4, 5]
+   11: PUSHV           80000
+   12: LOADD           D2              1337
+   13: POP             D4
+   14: COMPAREV        D2              0
+   15: GOTOTRUE        22
+   16: LOADD           D2              40000        [Block 4 -> 5]
+   17: PUSHR           D2
+   18: POP             REFNPC
+   19: SETR            D2              NPCSTUN
+   20: COMPAREV        D2              0
+   21: SETCMP          D2              >
+   22: COMPAREV        D2              0            [Block 5 -> 6]
+   23: SETCMP          D2              !=
+   24: COMPAREV        D2              0
+   25: SETCMP          D2              !=           [Block 6 -> 7, 8]
+   26: COMPAREV        D2              0
+   27: GOTOTRUE        30
+   28: LOADD           D2              50000        [Block 7 -> 8]
+   29: TRACEV          0
+   30: QUIT                                         [Block 8 -> ]

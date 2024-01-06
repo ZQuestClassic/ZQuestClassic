@@ -1749,7 +1749,9 @@
 #define LWPNBURNLIGHTRADIUS     1644
 #define EWPNBURNLIGHTRADIUS     1645
 
-#define LAST_BYTECODE           1646
+#define IDATAATTRIB_L           1646
+
+#define LAST_BYTECODE           1647
 
 //} END OF BYTECODE
 
@@ -1769,6 +1771,7 @@
 namespace ZScript
 {
 	class LiteralArgument;
+	class CompareArgument;
 	class VarArgument;
 	class LabelArgument;
 	class GlobalArgument;
@@ -1779,6 +1782,7 @@ namespace ZScript
 	{
 	public:
 		virtual void caseLiteral(LiteralArgument&, void *){}
+		virtual void caseCompare(CompareArgument&, void *){}
 		virtual void caseString(StringArgument&, void *){}
 		virtual void caseVector(VectorArgument&, void *){}
 		virtual void caseVar(VarArgument&, void *){}
@@ -1846,6 +1850,22 @@ namespace ZScript
 	{
 		return arg == val;
 	}
+	
+	class CompareArgument : public Argument
+	{
+	public:
+		CompareArgument(int32_t Value) : value(Value) {}
+		std::string toString() const;
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseCompare(*this, param);
+		}
+		Argument* clone() const
+		{
+			return new CompareArgument(value);
+		}
+		int32_t value;
+	};
 	
 	class StringArgument : public Argument
 	{
@@ -2048,6 +2068,70 @@ namespace ZScript
 	protected:
 		Argument *a;
 		Argument *b;
+	};
+	
+	class TernaryOpcode : public Opcode
+	{
+	public:
+		TernaryOpcode(Argument *A, Argument *B, Argument *C) : a(A), b(B), c(C) {}
+		~TernaryOpcode()
+		{
+			delete a;
+			delete b;
+			delete c;
+		}
+		Argument* getFirstArgument()
+		{
+			return a;
+		}
+		Argument const* getFirstArgument() const
+		{
+			return a;
+		}
+		Argument* getSecondArgument()
+		{
+			return b;
+		}
+		Argument const* getSecondArgument() const
+		{
+			return b;
+		}
+		Argument* getThirdArgument()
+		{
+			return c;
+		}
+		Argument const* getThirdArgument() const
+		{
+			return c;
+		}
+		Argument* takeFirstArgument()
+		{
+			auto tmp = a;
+			a = nullptr;
+			return tmp;
+		}
+		Argument* takeSecondArgument()
+		{
+			auto tmp = b;
+			b = nullptr;
+			return tmp;
+		}
+		Argument* takeThirdArgument()
+		{
+			auto tmp = c;
+			c = nullptr;
+			return tmp;
+		}
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			a->execute(host, param);
+			b->execute(host, param);
+			c->execute(host, param);
+		}
+	protected:
+		Argument *a;
+		Argument *b;
+		Argument *c;
 	};
 
 	class OSetTrue : public UnaryOpcode
@@ -12258,6 +12342,19 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OStackWriteAtVV(a->clone(),b->clone());
+		}
+	};
+
+
+
+	class OStackWriteAtVV_If : public TernaryOpcode
+	{
+	public:
+		OStackWriteAtVV_If(Argument *A, Argument* B, Argument* C) : TernaryOpcode(A,B,C) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStackWriteAtVV_If(a->clone(),b->clone(),c->clone());
 		}
 	};
 }

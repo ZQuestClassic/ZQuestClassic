@@ -91,6 +91,8 @@ static AccessorTable itemclassTable[] =
 	{ "setGainLower",               0,          ZTID_VOID,   IDATAGAINLOWER,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getAttributes[]",            0,       ZTID_UNTYPED,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "setAttributes[]",            0,          ZTID_VOID,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getLAttributes[]",           0,          ZTID_LONG,   IDATAATTRIB_L,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "setLAttributes[]",           0,          ZTID_VOID,   IDATAATTRIB_L,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_LONG },{} },
 	{ "getFlags[]",                 0,          ZTID_BOOL,   IDATAFLAGS,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "setFlags[]",                 0,          ZTID_VOID,   IDATAFLAGS,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_BOOL },{} },
 	

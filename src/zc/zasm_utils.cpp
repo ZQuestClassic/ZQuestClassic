@@ -2,7 +2,9 @@
 #include "base/zdefs.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include <cstdint>
 #include <fmt/format.h>
+#include <xxhash.h>
 
 StructuredZasm zasm_construct_structured(const script_data* script)
 {
@@ -14,19 +16,163 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 	bool is_init_script = script->id == script_id{ScriptType::Global, GLOBAL_SCRIPT_INIT};
 	bool has_seen_goto = false;
 
+	// Three forms of function calls over the ages:
+
+	// 1) GOTO/GOTOR
+	// The oldest looks like this:
+	//
+	//    SETV D2 (pc two after the GOTO)*10000
+	//    PUSHR D2
+	//    ... other ops to push the function args ...
+	//    GOTO x
+	// 
+	// x: ...
+	//    POP D3
+	//    GOTOR D3
+	//
+	// GOTOR only ever used D3. POP D3 could instead be POPARGS.
+	// Could also use D3 to set/push the return address.
+
+	// 2) GOTO/RETURN
+	//
+	//    PUSHV (pc two after the GOTO)
+	//    ... other ops to push the function args ...
+	//    GOTO x
+	// 
+	// x: ...
+	//    RETURN
+
+	// 3) CALLFUNC/RETURNFUNC
+	//
+	//    CALLFUNC x
+	// 
+	// x: ...
+	//    RETURNFUNC
+	//
+	// CALLFUNC pushes the return address onto a function call statck. RETURNFUNC pops from that stack.
+
+	// There is nothing special marking the start or end of a function in ZASM. So,
+	// the only way to contruct the bounds of each function is to search for function calls,
+	// which gets the function starts. Then, the function ends are derived with these.
+	// Note - if a function is not called at all, then the instructions for that function will
+	// be part of an unreachable sequence of blocks in the prior function that was called.
+	// Therefore, the instructions of uncalled functions should be pruned as part of zasm_optimize.
+
+	// First determine if we have the simpler CALLFUNC instructions.
+	int calling_mode = 0;
+	for (pc_t i = 0; i < script->size && !calling_mode; i++)
+	{
+		int command = script->zasm[i].command;
+		switch (command)
+		{
+			case GOTOR:
+				calling_mode = 1;
+				break;
+
+			case RETURN:
+				calling_mode = 2;
+				break;
+
+			case CALLFUNC:
+			case RETURNFUNC:
+				calling_mode = 3;
+				break;
+		}
+	}
+
+	// Remember just some of the most recent values of PUSHV.
+	// It's not certain these values are actually referencing a return address, but hopefully
+	// it works good enough. Mistakes in function attribution should only result in a function
+	// that is larger than it other would be.
+	constexpr int recent_retadd_buf = 20;
+	pc_t recent_retadd[recent_retadd_buf];
+	int recent_retadd_i = 0;
+	// -2, because 0 is a valid pc and -1 shows up as `GOTO -1` for handwritten/bad ZASM.
+	for (int i = 0; i < recent_retadd_buf; i++) recent_retadd[i] = -2;
+
+	// Handle the first one command explictly, since only CALLFUNC doesn't need to check
+	// the previous command.
+	if (script->zasm[0].command == CALLFUNC)
+	{
+		if (script->zasm[0].arg1 != -1)
+		{
+			function_calls.insert(0);
+			function_calls_goto_pc.insert(script->zasm[0].arg1);
+			function_calls_pc_to_pc[0] = script->zasm[0].arg1;
+			ASSERT(script->zasm[0].arg1 != 1);
+		}
+	}
+
 	for (pc_t i = 1; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
 		int prev_command = script->zasm[i - 1].command;
 
-		bool is_function_call_like = false;
-		if (command == GOTO)
+		if (calling_mode == 1 && prev_command == SETV && command == PUSHR)
 		{
-			is_function_call_like =
-				// Typical function calls push the return address to the stack just before the GOTO.
-				prev_command == PUSHR || prev_command == PUSHV ||
-				// Class construction function calls do `SETR CLASS_THISKEY, D2` just before its GOTO.
-				(prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
+			if (script->zasm[i - 1].arg1 < D(8) && script->zasm[i].arg1 == script->zasm[i - 1].arg1)
+			{
+				int arg = script->zasm[i - 1].arg2;
+				if (arg % 10000 != 0)
+					continue;
+				arg /= 10000;
+				if (arg >= i + 3)
+				{
+					recent_retadd[recent_retadd_i] = arg;
+					recent_retadd_i = (recent_retadd_i + 1) % recent_retadd_buf;
+				}
+			}
+			continue;
+		}
+
+		// Note: although original ZASM for GOTOR never used PUSHV, it could after zasm_optimize.
+		// TODO: zasm_optimize should change old calls to CALLFUNC.
+		if ((calling_mode == 1 || calling_mode == 2) && command == PUSHV)
+		{
+			int arg1 = script->zasm[i].arg1;
+			if (calling_mode == 1)
+			{
+				if (arg1 % 10000 != 0)
+					continue;
+				arg1 /= 10000;
+			}
+			if (arg1 >= i + 3)
+			{
+				recent_retadd[recent_retadd_i] = arg1;
+				recent_retadd_i = (recent_retadd_i + 1) % recent_retadd_buf;
+			}
+			continue;
+		}
+
+		bool is_function_call_like = false;
+		if (command == CALLFUNC)
+		{
+			is_function_call_like = true;
+		}
+		else if (command == GOTO)
+		{
+			if ((calling_mode == 1 || calling_mode == 2))
+			{
+				// The last command before an old call GOTO must be some sort of PUSH. It
+				// won't always be the return address (only if the function has no parameters),
+				// but it should be something.
+				if (!(prev_command == PUSHR || prev_command == PUSHV))
+					continue;
+
+				for (int j = 0; j < recent_retadd_buf; j++)
+				{
+					if (recent_retadd[j] == i + 2)
+					{
+						is_function_call_like = true;
+						break;
+					}
+				}
+			}
+
+			// Class construction function calls do `SETR CLASS_THISKEY, D2` just before its GOTO.
+			if (!is_function_call_like)
+				is_function_call_like = (prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
+
 			// Handle special where where the Init script function uses GOTO to go to the real entrypoint,
 			// after it sets up global data. This does not save a return address.
 			if (is_init_script && !has_seen_goto)
@@ -36,20 +182,17 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 					is_function_call_like = script->zasm[script->zasm[i].arg1 - 1].command == RETURN || script->zasm[script->zasm[i].arg1 - 1].command == RETURNFUNC;
 			}
 		}
-		else if (command == CALLFUNC)
-		{
-			is_function_call_like = true;
-		}
 		else
 		{
 			continue;
 		}
 
-		if (is_function_call_like)
+		if (is_function_call_like && script->zasm[i].arg1 != -1)
 		{
 			function_calls.insert(i);
 			function_calls_goto_pc.insert(script->zasm[i].arg1);
 			function_calls_pc_to_pc[i] = script->zasm[i].arg1;
+			ASSERT(script->zasm[i].arg1 != i + 1);
 		}
 	}
 
@@ -68,7 +211,8 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			function_final_pcs.push_back(function_start_pc - 1);
 			start_pc_to_function[function_start_pc] = next_fn_id++;
 		}
-		function_final_pcs.push_back(script->size - 1);
+		// Don't include 0xFFFF as part of the last function.
+		function_final_pcs.push_back(script->size - 2);
 
 		// Just so std::lower_bound below will work for last function.
 		function_start_pcs.push_back(script->size);
@@ -92,6 +236,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		pc_t call_pc = std::distance(function_start_pcs.begin(), it);
 
 		functions[call_pc].called_by_functions.insert(callee_pc);
+		// functions[callee_pc].calls_functions.insert(call_pc);
 	}
 
 	return {functions, function_calls, start_pc_to_function};
@@ -199,7 +344,7 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 		}
 		else if (prev_command == GOTOCMP || prev_command == GOTOTRUE || prev_command == GOTOFALSE || prev_command == GOTOLESS || prev_command == GOTOMORE)
 		{
-			// Previous block conditionally continues to this one, or some other block;
+			// Previous block conditionally continues to this one, or some other block.
 			block_edges[j - 1].push_back(j);
 			auto other_block = start_pc_to_block_id[prev_arg1];
 			block_edges[j - 1].push_back(other_block);
@@ -234,9 +379,8 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 		for (pc_t i = function.start_pc; i <= function.final_pc; i++)
 		{
 			pc_t command = script->zasm[i].command;
-			pc_t arg1 = script->zasm[i].arg1;
-			pc_t arg2 = script->zasm[i].arg2;
-			std::string str = script_debug_command_to_string(command, arg1, arg2);
+			auto& op = script->zasm[i];
+			std::string str = script_debug_command_to_string(command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr);
 			ss <<
 				std::setw(5) << std::right << i << ": " <<
 				std::left << std::setw(45) << str;
@@ -245,9 +389,9 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 				auto& edges = cfg.block_edges[block_id];
 				ss << fmt::format("[Block {} -> {}]", block_id++, fmt::join(edges, ", "));
 			}
-			if ((command == GOTO && structured_zasm.start_pc_to_function.contains(arg1)) || command == CALLFUNC)
+			if ((command == GOTO && structured_zasm.start_pc_to_function.contains(op.arg1)) || command == CALLFUNC)
 			{
-				ss << fmt::format("[Call {}]", zasm_fn_get_name(structured_zasm.functions[structured_zasm.start_pc_to_function.at(arg1)]));
+				ss << fmt::format("[Call {}]", zasm_fn_get_name(structured_zasm.functions[structured_zasm.start_pc_to_function.at(op.arg1)]));
 			}
 			ss << '\n';
 		}
@@ -257,11 +401,15 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 	return ss.str();
 }
 
-std::string zasm_to_string(const script_data* script, bool generate_yielder)
+std::string zasm_to_string(const script_data* script, bool top_functions, bool generate_yielder)
 {
 	std::stringstream ss;
 	auto structured_zasm = zasm_construct_structured(script);
+
+	std::vector<std::pair<pc_t, size_t>> fn_lengths;
+
 	std::set<pc_t> yielding_fns;
+	size_t yielding_fn_length = 0;
 	if (generate_yielder)
 	{
 		yielding_fns = zasm_find_yielding_functions(script, structured_zasm);
@@ -273,11 +421,14 @@ std::string zasm_to_string(const script_data* script, bool generate_yielder)
 		{
 			auto& fn = structured_zasm.functions[fn_id];
 			pc_ranges.emplace_back(fn.start_pc, fn.final_pc);
+			yielding_fn_length += fn.final_pc - fn.start_pc + 1;
 		}
 		auto cfg = zasm_construct_cfg(script, pc_ranges);
 		ss << "yielder" << '\n';
 		ss << zasm_to_string(script, structured_zasm, cfg, yielding_fns);
 		ss << '\n';
+
+		fn_lengths.emplace_back(-1, yielding_fn_length);
 	}
 
 	for (pc_t fn_id = 0; fn_id < structured_zasm.functions.size(); fn_id++)
@@ -290,6 +441,25 @@ std::string zasm_to_string(const script_data* script, bool generate_yielder)
 		ss << zasm_fn_get_name(fn) << '\n';
 		ss << zasm_to_string(script, structured_zasm, cfg, {fn_id});
 		ss << '\n';
+
+		fn_lengths.emplace_back(fn_id, fn.final_pc - fn.start_pc + 1);
+	}
+
+	if (top_functions)
+	{
+		ss << "Top functions:\n\n";
+		std::sort(fn_lengths.begin(), fn_lengths.end(), [](auto &left, auto &right) {
+			return left.second > right.second;
+		});
+		int lengths_printed = 0;
+		for (auto [fn_id, length] : fn_lengths)
+		{
+			std::string name = fn_id == -1 ? "yielder" : zasm_fn_get_name(structured_zasm.functions.at(fn_id));
+			double percent = (double)length / script->size * 100;
+			ss << std::setw(15) << std::left << name + ": " << std::setw(6) << std::left << length << " " << (int)percent << '%' << '\n';
+			if (++lengths_printed == 5) break;
+		}
+		ss << '\n';
 	}
 
 	return ss.str();
@@ -301,6 +471,160 @@ std::string zasm_script_unique_name(const script_data* script)
 		return fmt::format("{}-{}", ScriptTypeToString(script->id.type), script->id.index);
 	else
 		return fmt::format("{}-{}-{}", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name);
+}
+
+static uint64_t generate_function_hash(const script_data* script, const StructuredZasm& structured_zasm, const ZasmFunction& function)
+{
+	std::vector<uint8_t> data;
+
+	for (pc_t i = function.start_pc; i <= function.final_pc; i++)
+	{
+		int command = script->zasm[i].command;
+		int arg1 = script->zasm[i].arg1;
+		int arg2 = script->zasm[i].arg2;
+		int arg3 = script->zasm[i].arg3;
+
+		data.push_back(command);
+
+		if (command == GOTO && structured_zasm.function_calls.contains(i))
+		{
+			const auto& function_call = structured_zasm.functions.at(structured_zasm.start_pc_to_function.at(arg1));
+			// TODO: just an estimate.
+			data.push_back(function_call.final_pc - function_call.start_pc + 1);
+		}
+		else if (command == GOTO || command == GOTOLESS || command == GOTOMORE || command == GOTOTRUE || command == GOTOFALSE)
+		{
+			data.push_back(arg1 - function.start_pc);
+		}
+		else if (command == SETV)
+		{
+			// ...
+			bool is_return_address = false;
+			is_return_address = arg2/10000 >= function.start_pc && arg2/10000 <= function.final_pc;
+
+			data.push_back(arg1);
+			if (is_return_address)
+			{
+				data.push_back(arg2 - function.start_pc);
+			}
+			else
+			{
+				data.push_back(arg2);
+			}
+		}
+		else if (command == PUSHV)
+		{
+			// TODO
+			// get block id. if we leave it before GOTO, it's not a ret addr
+			// 
+			bool is_return_address = false;
+			is_return_address = arg1 >= function.start_pc && arg1 <= function.final_pc;
+			// for (pc_t j = i + 1; j <= function.final_pc; j++)
+			// {
+			// 	if (script->zasm[j].command == LOADD) continue;
+			// 	if (script->zasm[j].command == PUSHR) continue;
+			// 	if (script->zasm[j].command == GOTO && structured_zasm.function_calls.contains(j))
+			// 	{
+			// 		// bounds check may not be necessary.
+			// 		is_return_address = arg1 >= function.start_pc && arg1 <= function.final_pc;
+			// 	}
+			// 	break;
+			// }
+
+			if (is_return_address)
+			{
+				data.push_back(arg1 - function.start_pc);
+			}
+			else
+			{
+				data.push_back(arg1);
+			}
+		}
+		else
+		{
+			data.push_back(arg1);
+			data.push_back(arg2);
+			data.push_back(arg3);
+		}
+	}
+
+	return XXH64(data.data(), data.size(), 0);
+}
+
+struct FunctionSummary {
+	size_t length;
+	size_t count;
+};
+
+static void hash_all_functions(const script_data* script, std::map<uint64_t, FunctionSummary>& function_counts, size_t& total_length)
+{
+	auto structured_zasm = zasm_construct_structured(script);
+	for (auto& function : structured_zasm.functions)
+	{
+		auto hash = generate_function_hash(script, structured_zasm, function);
+		if (function_counts.contains(hash))
+		{
+			function_counts.at(hash).count += 1;
+		}
+		else
+		{
+			function_counts[hash] = {function.final_pc - function.start_pc + 1, 1};
+		}
+
+		total_length += function.final_pc - function.start_pc + 1;
+	}
+}
+
+std::string zasm_analyze_duplication()
+{
+	std::map<uint64_t, FunctionSummary> function_counts;
+	size_t total_length = 0;
+
+	zasm_for_every_script([&](auto script){
+		hash_all_functions(script, function_counts, total_length);
+	});
+
+	size_t all_duplicates = 0;
+	for (auto [a, b] : function_counts)
+	{
+		if (b.count > 1)
+		{
+			size_t dupe = (b.count - 1) * b.length;
+			all_duplicates += dupe;
+			printf("count: %zu length: %zu dupe: %zu\n", b.count, b.length, dupe);
+		}
+	}
+
+	printf("all_duplicates: %zu (%d%%)\n", all_duplicates, (int)(all_duplicates * 100.0 / total_length));
+
+	std::stringstream ss;
+	return ss.str();
+}
+
+void zasm_for_every_script(std::function<void(script_data*)> fn)
+{
+	#define HANDLE_SCRIPTS(array, num)\
+		for (int i = 0; i < num; i++)\
+		{\
+			script_data* script = array[i];\
+			if (script->valid())\
+			{\
+				fn(script);\
+			}\
+		}
+	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
+	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
+	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
+	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
+	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
+	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
+	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
+	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
+	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
+	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
+	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
+	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
 }
 
 // TODO: Broken / not yet needed code for determining how many params a function has, and if it returns something.
@@ -371,3 +695,22 @@ std::string zasm_script_unique_name(const script_data* script)
 
 // 	int num_returns = has_ret_value?1:0;
 // 	int num_params = num_params_v1;
+
+std::pair<bool, bool> get_command_rw(int command, int arg)
+{
+	bool read = false;
+	bool write = false;
+
+	const auto& sc = get_script_command(command);
+	if (sc.args >= arg)
+	{
+		if (sc.arg_type[arg] == ARGTY_READ_REG)
+			read = true;
+		if (sc.arg_type[arg] == ARGTY_WRITE_REG)
+			write = true;
+		if (sc.arg_type[arg] == ARGTY_READWRITE_REG)
+			read = write = true;
+	}
+	
+	return {read, write};
+}

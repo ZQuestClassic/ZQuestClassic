@@ -1240,6 +1240,39 @@ namespace ZScript
 		owning_ptr<ASTExpr> content;
 	};
 	
+	struct BoolTreeNode
+	{
+		enum
+		{
+			MODE_LEAF, MODE_AND, MODE_OR
+		};
+		owning_ptr<ASTExpr> leaf;
+		vector<BoolTreeNode> branch;
+		int mode;
+		
+		optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler, Scope* scope);
+		bool isConstant() const;
+	};
+	class ASTExprBoolTree : public ASTExpr
+	{
+	public:
+		ASTExprBoolTree(LocationData const& location = LOC_NONE);
+		virtual ASTExprBoolTree* clone() const {return new ASTExprBoolTree(*this);}
+
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return root.isConstant();};
+		bool isLiteral() const {return false;}
+		virtual bool isTempVal() const {return false;}
+
+		virtual optional<int32_t> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope);
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		BoolTreeNode root;
+	};
+	
 	class ASTExprVarInitializer : public ASTExprConst
 	{
 	public:
@@ -1600,6 +1633,8 @@ namespace ZScript
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
+		
+		owning_ptr<ASTExprBoolTree> tree;
 	};
 
 	class ASTExprOr : public ASTLogExpr
@@ -1614,6 +1649,7 @@ namespace ZScript
 
 		optional<int32_t> getCompileTimeValue(
 				CompileErrorHandler* errorHandler, Scope* scope);
+		owning_ptr<ASTExprBoolTree> tree;
 	};
 
 	// virtual

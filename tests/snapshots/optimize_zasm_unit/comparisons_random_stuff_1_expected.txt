@@ -1,0 +1,97 @@
+[spurious_branches] Block #0
+
+0: COMPAREV        D2              0      
+1: GOTOTRUE        16              
+inferred D2: 0
+16: GOTO            18              
+	D2 = 0
+18: QUIT           
+	D2 = 0
+	side_effects
+rewrite 1: GOTOCMP         16              ==     
+
+[spurious_branches] Block #1
+
+2: LOADD           D2              20000  
+	bail
+3: PUSHR           D2              
+	side_effects
+	bail
+4: LOADD           D2              0      
+	side_effects
+	bail
+5: COMPAREV        D2              0      
+	side_effects
+	bail
+6: SETCMP          D2              !=     
+	D2 = Bool(D2)
+	side_effects
+	bail
+7: COMPAREV        D2              0      
+	D2 = Bool(D2)
+	side_effects
+	bail
+8: GOTOTRUE        10              
+	D2 = Bool(D2)
+	side_effects
+	bail
+
+[spurious_branches] Block #3
+
+10: LOADD           D2              0      
+	bail
+11: COMPAREV        D2              0      
+	bail
+12: GOTOTRUE        14              
+	bail
+
+[reduce_comparisons] Block #0
+
+0: COMPAREV        D2              0      
+1: GOTOCMP         16              ==     
+rewrite 0: 2 -> 2 commands
+0: COMPAREV        D2              0      
+1: GOTOCMP         16              ==     
+
+[reduce_comparisons] Block #1
+
+5: COMPAREV        D2              0      
+6: SETCMP          D2              !=     
+	D2 = Bool(D2)
+7: COMPAREV        D2              0      
+	D2 = Bool(D2)
+8: GOTOTRUE        10              
+	D2 = Bool(D2)
+rewrite 5: 4 -> 2 commands
+5: COMPAREV        D2              0      
+6: GOTOCMP         10              ==     
+7: NOP            
+8: NOP            
+
+[reduce_comparisons] Block #3
+
+11: COMPAREV        D2              0      
+12: GOTOTRUE        14              
+rewrite 11: 2 -> 2 commands
+11: COMPAREV        D2              0      
+12: GOTOCMP         14              ==     
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 7]
+    1: GOTOCMP         16              ==
+    2: LOADD           D2              20000        [Block 1 -> 2, 3]
+    3: PUSHR           D2
+    4: LOADD           D2              0
+    5: COMPAREV        D2              0
+    6: GOTOCMP         10              ==
+    7: NOP                                          [Block 2 -> 6]
+    8: NOP
+    9: GOTO            15
+   10: LOADD           D2              0            [Block 3 -> 4, 5]
+   11: COMPAREV        D2              0
+   12: GOTOCMP         14              ==
+   13: TRACEV          0                            [Block 4 -> 5]
+   14: LOADD           D2              0            [Block 5 -> 6]
+   15: TRACER          D2                           [Block 6 -> 7]
+   16: GOTO            18                           [Block 7 -> 9]
+   17: NOP                                          [Block 8 -> 9]
+   18: QUIT                                         [Block 9 -> ]

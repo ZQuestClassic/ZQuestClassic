@@ -192,7 +192,6 @@ extern int32_t LeechUpdate;
 extern int32_t LeechUpdateTiles;
 extern int32_t SnapshotFormat;
 extern byte SnapshotScale;
-extern int32_t memrequested;
 extern byte Color;
 
 extern byte compile_tune;
@@ -501,7 +500,6 @@ int32_t onImportGScript();
 int32_t onCompileScript();
 int32_t onSlotPreview();
 int32_t onSlotAssign();
-int32_t onExportZASM();
 int32_t onImportZASM();
 
 

@@ -1,4 +1,5 @@
 #include "itemeditor.h"
+#include "itemwizard.h"
 #include "info.h"
 #include "alert.h"
 #include "base/zsys.h"
@@ -156,9 +157,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_shield:
 		{
-			_SET(misc[0], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256, Lightbeam=512)\n"
+			_SET(misc[0], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Fireball2=256, Lightbeam=512,\n"
+				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the player.");
-			_SET(misc[1], "Reflect Flags:", "(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256, Lightbeam=512)\n"
+			_SET(misc[1], "Reflect Flags:", "(Rock=1, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Fireball2=256, Lightbeam=512,\n"
+				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
 				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			_SET(actionsnd[0], "De/Reflection Sound:", "Plays when the shield successfully blocks or reflects a weapon");
@@ -536,10 +539,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(6))
 			{
 				_SET(misc[2], "Block Flags:",
-					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+					"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 					"Sum all of the values you want to apply. Weapons with their flags set will be blocked by the weapon.");
 				_SET(misc[3], "Reflect Flags:",
-					"(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256)\n"
+					"(Rock=1, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+					"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 					"Sum all of the values you want to apply. Weapons with their flags set will be reflected by the weapon.\n"
 					"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			}
@@ -574,10 +579,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(6))
 			{
 				_SET(misc[2], "Block Flags:",
-					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+					"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 					"Sum all of the values you want to apply. Weapons with their flags set will be blocked by the weapon.");
 				_SET(misc[3], "Reflect Flags:",
-					"(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256)\n"
+					"(Rock=1, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+					"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 					"Sum all of the values you want to apply. Weapons with their flags set will be reflected by the weapon.\n"
 					"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			}
@@ -864,7 +871,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(1))
 				_SET(misc[0], "Bounce Power:", "Amount of jump power gained from a bounce."
 					" This value is equal to setting Player->Jump by value divided by 100");
-			_SET(misc[1], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+			_SET(misc[1], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
+				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
 				"Sum all of the values you want to apply. Weapons with their flags set will be blocked if the player lands on them.");
 			break;
 		}
@@ -1198,7 +1206,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			Row(
-				Rows<3>(padding = 0_px,
+				Rows<5>(padding = 0_px,
 					Label(text = "Name:", hAlign = 1.0),
 					TextField(
 						fitParent = true,
@@ -1212,7 +1220,17 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							window->setTitle(buf);
 						}
 					),
-					DummyWidget(),
+					_d,
+					Checkbox(
+						checked = (local_itemref.flags & ITEM_GAMEDATA),
+						text = "Equipment Item", _EX_RBOX,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
+						}
+					),
+					INFOBTN("Only 'Equipment Item's can be 'owned' by the player,"
+						" and appear in Init Data."),
 					//
 					Label(text = "Display Name:", hAlign = 1.0),
 					TextField(
@@ -1228,6 +1246,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					INFOBTN("If this field is not blank, this text will display as the 'Selected Item Name' on the subscreen for this item."
 						"\nFor some types, such as Bottles, the text '%s' in the display name will be replaced with a special string (such as the bottle contents)."
 						"\nEx: 'Bottle (%s)' becomes 'Bottle (Empty)', or 'Bottle (Health Potion)'"),
+					wizardButton = Button(
+						text = "Wizard", disabled = !hasItemWizard(local_itemref.family),
+						rowSpan = 2, minwidth = 150_px,
+						padding = 0_px, forceFitH = true, onClick = message::WIZARD
+					),
+					_d,
 					//
 					Label(text = "Type:", hAlign = 1.0),
 					DropDownList(data = list_items,
@@ -1242,18 +1266,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							InfoDialog(ZI.getItemClassName(local_itemref.family),
 								get_ic_help(local_itemref.family)).show();
 						})
-				),
-				Row(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
-					Checkbox(
-						checked = (local_itemref.flags & ITEM_GAMEDATA),
-						text = "Equipment Item", _EX_RBOX,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
-						}
-					),
-					INFOBTN("Only 'Equipment Item's can be 'owned' by the player,"
-						" and appear in Init Data.")
 				)
 			),
 			TabPanel(
@@ -2582,8 +2594,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								SCRIPT_LIST_PROC("Pickup Script:", list_itemdatscript, local_itemref.collect_script, refreshScripts),
 								SCRIPT_LIST_PROC("Sprite Script:", list_itemsprscript, local_itemref.sprite_script, refreshScripts)
 							),
-							Rows<2>(hAlign = 1.0,
+							Rows<3>(hAlign = 1.0,
 								Label(text = "A1:"),
+								INFOBTN("Used for old ZASM script stuff. In new quests, this is basically useless."),
 								TextField(
 									val = local_itemref.initiala[0],
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2594,6 +2607,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								),
 								Label(text = "A2:"),
+								INFOBTN("Used for old ZASM script stuff. In new quests, this is basically useless."),
 								TextField(
 									val = local_itemref.initiala[1],
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2799,7 +2813,7 @@ void ItemEditorDialog::loadItemClass()
 			load_meta(inf,meta);
 		}
 	}
-	
+	wizardButton->setDisabled(!hasItemWizard(local_itemref.family));
 	#define __SET(obj, mem) \
 	l_##obj->setText(inf.mem.size() ? inf.mem : defInfo.mem); \
 	h_##obj = (inf.h_##mem.size() ? inf.h_##mem : ""); \
@@ -2888,6 +2902,15 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			reset_name = itemname;
 			return true;
 		}
+		
+		case message::WIZARD:
+			if(hasItemWizard(local_itemref.family))
+			{
+				call_item_wizard(*this);
+				rerun_dlg = true;
+				return true;
+			}
+			break;
 		
 		case message::RELOAD:
 		{

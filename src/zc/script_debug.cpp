@@ -10,6 +10,7 @@
 
 extern refInfo *ri;
 std::string ZASMVarToString(int32_t arg);
+std::string ZASMArgToString(int32_t arg, int32_t arg_ty);
 
 bool DEBUG_JIT_PRINT_ASM;
 bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
@@ -149,9 +150,9 @@ void ScriptDebugHandle::print(int32_t attributes, const char *str)
 
 void ScriptDebugHandle::print_command(int i)
 {
-	word scommand = script->zasm[i].command;
-	int32_t arg1 = script->zasm[i].arg1;
-	int32_t arg2 = script->zasm[i].arg2;
+	auto& op = script->zasm[i];
+	word scommand = op.command;
+	int args[] = {op.arg1, op.arg2, op.arg3};
 	script_command c = get_script_command(scommand);
 
 	printf(CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
@@ -159,33 +160,27 @@ void ScriptDebugHandle::print_command(int i)
 						"%14s", c.name);
 	if (c.args >= 1)
 	{
-		if (c.arg1_type == 0)
-		{
-			printf(CConsoleLoggerEx::COLOR_WHITE |
-									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-								"\t %s", ZASMVarToString(arg1).c_str());
-		}
-		else
-		{
-			printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-								"\t %d", arg1);
-		}
+		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+			"\t %s", ZASMArgToString(args[0], c.arg_type[0]).c_str());
 	}
-	if (c.args >= 2)
+	for(int q = 1; q < c.args; ++q)
 	{
 		print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
-		if (c.arg2_type == 0)
+		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+			"\t %s", ZASMArgToString(args[q], c.arg_type[q]).c_str());
+	}
+	if (c.arr_type)
+	{
+		print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
+		if(c.arr_type == 1)
 		{
-			printf(CConsoleLoggerEx::COLOR_WHITE |
-									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-								"%s", ZASMVarToString(arg2).c_str());
+			printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+				"\t %s", op.strptr->c_str());
 		}
-		else
+		else //if(c.arr_type == 2)
 		{
-			printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-								"%d", arg2);
+			printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+				"\t %s", fmt::format("{{ {} }}", fmt::join(*op.vecptr, ", ")).c_str());
 		}
 	}
 	print("\n");
@@ -228,13 +223,12 @@ void ScriptDebugHandle::pre_command()
 	if (frame != -1)
 	{
 		int i = ri->pc;
-		int32_t arg1 = script->zasm[i].arg1;
-		int32_t arg2 = script->zasm[i].arg2;
+		auto& op = script->zasm[i];
 
 		std::string line = script_debug_registers_and_stack_to_string();
 		util::replchar(line, '\n', ' ');
 
-		replay_step_comment(fmt::format("{} {} | {}", i, script_debug_command_to_string(command, arg1, arg2), line));
+		replay_step_comment(fmt::format("{} {} | {}", i, script_debug_command_to_string(command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr), line));
 
 		if (command == COMPAREV || command == COMPARER)
 		{
@@ -276,37 +270,64 @@ int script_debug_is_runtime_debugging()
 	return runtime_debug;
 }
 
-std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2)
+std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3, vector<int>* argvec, string* argstr)
 {
 	std::stringstream ss;
 	script_command c = get_script_command(scommand);
 
+	int args[] = {arg1, arg2, arg3};
 	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
 	ss << SS_WIDTH(15) << c.name;
 	if (c.args >= 1)
 	{
-		if (c.arg1_type == 0)
-		{
-			ss << " " << SS_WIDTH(16) << ZASMVarToString(arg1);
-		}
-		else
-		{
-			ss << " " << SS_WIDTH(16) << arg1;
-		}
+		ss << " " << SS_WIDTH(16) << ZASMArgToString(args[0], c.arg_type[0]);
 	}
-	if (c.args >= 2)
+	for(int q = 1; q < c.args; ++q)
 	{
-		if (c.arg2_type == 0)
+		ss << SS_WIDTH(7) << ZASMArgToString(args[q], c.arg_type[q]);
+	}
+	if (c.arr_type)
+	{
+		ss << SS_WIDTH(7);
+		if(c.arr_type == 1)
 		{
-			ss << SS_WIDTH(7) << ZASMVarToString(arg2);
+			// NOTE: currently possible to encounter a null pointer here, since the qst loading code
+			// will create no string for these commands if the size was 0.
+			if (argstr)
+				ss << *argstr;
 		}
-		else
+		else //if(c.arr_type == 2)
 		{
-			ss << SS_WIDTH(7) << arg2;
+			ss << fmt::format("{{ {} }}", fmt::join(*argvec, ", "));
 		}
 	}
 
 	return ss.str();
+}
+
+std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3)
+{
+	std::stringstream ss;
+	script_command c = get_script_command(scommand);
+	
+	int args[] = {arg1, arg2, arg3};
+	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
+	ss << SS_WIDTH(15) << c.name;
+	if (c.args >= 1)
+	{
+		ss << " " << SS_WIDTH(16) << ZASMArgToString(args[0], c.arg_type[0]);
+	}
+	for(int q = 1; q < c.args; ++q)
+	{
+		ss << SS_WIDTH(7) << ZASMArgToString(args[q], c.arg_type[q]);
+	}
+
+	return ss.str();
+}
+
+std::string script_debug_command_to_string(const ffscript& c)
+{
+	return script_debug_command_to_string(c.command, c.arg1, c.arg2, c.arg3);
 }
 
 std::string script_debug_command_to_string(word scommand)

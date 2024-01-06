@@ -1,0 +1,48 @@
+[spurious_branches] Block #0
+
+0: COMPARER        D3              D2     
+1: SETMORE         D2              
+	D2 = D3 >= D2
+2: COMPAREV        D2              0      
+	D2 = D3 >= D2
+3: SETTRUE         D2              
+	D2 = D3 < D2
+4: COMPAREV        D2              1      
+	D2 = D3 < D2
+5: GOTOTRUE        7               
+	D2 = D3 < D2
+inferred D2: 1
+7: QUIT           
+	D2 = 1
+	side_effects
+rewrite 5: GOTOCMP         7               ==     
+
+[reduce_comparisons] Block #0
+
+0: COMPARER        D3              D2     
+1: SETMORE         D2              
+	D2 = D3 >= D2
+2: COMPAREV        D2              0      
+	D2 = D3 >= D2
+3: SETTRUE         D2              
+	D2 = D3 < D2
+4: COMPAREV        D2              1      
+	D2 = D3 < D2
+5: GOTOCMP         7               ==     
+	D2 = D3 < D2
+rewrite 0: 6 -> 2 commands
+0: COMPARER        D3              D2     
+1: GOTOCMP         7               <      
+2: NOP            
+3: NOP            
+4: NOP            
+5: NOP            
+Function #0
+    0: COMPARER        D3              D2           [Block 0 -> 1, 2]
+    1: GOTOCMP         7               <
+    2: NOP                                          [Block 1 -> 2]
+    3: NOP
+    4: NOP
+    5: NOP
+    6: TRACEV          0
+    7: QUIT                                         [Block 2 -> ]

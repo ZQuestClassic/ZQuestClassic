@@ -1,0 +1,18 @@
+; comparisons, random stuff (2)
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 2]
+    1: GOTOTRUE        8
+    2: LOADD           D2              20000        [Block 1 -> 2]
+    3: PUSHR           D2
+    4: POP             REFNPC
+    5: SETR            D2              NPCSTUN
+    6: COMPAREV        D2              0
+    7: SETCMP          D2              >
+    8: COMPAREV        D2              0            [Block 2 -> 3, 4]
+    9: SETCMP          D2              !=
+   10: COMPAREV        D2              0
+   11: SETCMP          D2              !=
+   12: COMPAREV        D2              0
+   13: GOTOTRUE        15
+   14: TRACEV          1337                         [Block 3 -> 4]
+   15: QUIT                                         [Block 4 -> ]

@@ -8,10 +8,14 @@
 # To update the snapshots:
 #
 #   python tests/test_jit.py --update
+# or:
+#
+#   python tests/update_snapshots.py
 
 import argparse
 import os
 import re
+import zlib
 import platform
 import shutil
 import sys
@@ -28,7 +32,7 @@ args = parser.parse_args()
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 test_dir = root_dir / 'tests'
-expected_dir = test_dir / 'jit'
+expected_dir = test_dir / 'snapshots/jit'
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
@@ -63,7 +67,7 @@ class TestJIT(ZCTestCase):
 
         return output_dir
 
-    def run_for_qst(self, qst_name: str, replay_path: Path):
+    def run_for_qst(self, qst_name: str, replay_path: Path, hash = False):
         jit_output_path = self.compile_zasm_in_qst(replay_path)
         for output_path in jit_output_path.rglob('*.txt'):
             with self.subTest(msg=f'compile {qst_name} {output_path.stem}'):
@@ -78,8 +82,18 @@ class TestJIT(ZCTestCase):
                         if m:
                             replace_with = '<addr>'.ljust(len(m[0]), ' ')
                             lines[i] = re.sub(p, replace_with, line, 1).strip()
-                output = '\n'.join(lines)
 
+                lines.insert(0, f'# lines: {len(lines)}')
+                if hash:
+                    # Keep first two lines, hash the rest.
+                    data = ''.join(lines[1:]).encode('utf-8')
+                    lines = [
+                        lines[0],
+                        lines[1],
+                        f'hash: {zlib.adler32(data)}',
+                    ]
+
+                output = '\n'.join(lines)
                 expected_path = expected_dir / qst_name / f'{output_path.stem}.txt'
                 self.expect_snapshot(expected_path, output, args.update)
 
@@ -90,9 +104,10 @@ class TestJIT(ZCTestCase):
             raise unittest.SkipTest('unsupported platform')
 
         self.run_for_qst('playground', test_dir / 'replays/playground_maths.zplay')
-        self.run_for_qst('freedom_in_chains', test_dir / 'replays/freedom_in_chains.zplay')
-        self.run_for_qst('hollow_forest', test_dir / 'replays/hollow_forest.zplay')
-        self.run_for_qst('stellar_seas_randomizer', test_dir / 'replays/stellar_seas_randomizer.zplay')
+        # These are quite big, so just hash their outputs.
+        self.run_for_qst('hollow_forest', test_dir / 'replays/hollow_forest.zplay', hash=True)
+        self.run_for_qst('freedom_in_chains', test_dir / 'replays/freedom_in_chains.zplay', hash=True)
+        self.run_for_qst('stellar_seas_randomizer', test_dir / 'replays/stellar_seas_randomizer.zplay', hash=True)
 
 
 if __name__ == '__main__':

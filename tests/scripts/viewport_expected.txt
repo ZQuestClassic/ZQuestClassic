@@ -64,18 +64,18 @@ POP d3
 ADDR d2,d3
 STORED d2,1; if() #189 Test
 COMPAREV d2,-360
-SETCMP d2,0.0010
+SETCMP d2,I<
 COMPAREV d2,0
-GOTOTRUE 63; Test 'if'
+GOTOCMP 63,==; Test 'if'
 LOADD d2,1; if() #189 Body Start
 ADDV d2,360
 STORED d2,1
 GOTO 71; if() #189 Body End
 LOADD d2,1; if() #558 Test AND if() #189 Else Start
 COMPAREV d2,360
-SETCMP d2,0.0009
+SETCMP d2,I>
 COMPAREV d2,0
-GOTOTRUE 71; Test 'if'
+GOTOCMP 71,==; Test 'if'
 LOADD d2,1; if() #558 Body Start
 SUBV d2,360
 STORED d2,1; if() #558 Body End

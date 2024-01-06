@@ -227,7 +227,6 @@ namespace ZScript
 	private:
 		ZScript::Program& program;
 		bool extra_pass, marked_never_ret, missing_ret;
-		Function* in_func;
 		
 		map<Function*,map<Variable*, bool>> var_map;
 		

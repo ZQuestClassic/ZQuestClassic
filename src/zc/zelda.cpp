@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 
+#include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zscriptversion.h"
 #include "sound/zcmusic.h"
@@ -336,7 +337,7 @@ std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
 int32_t nets=1580, magicitem=-1,div_prot_item=-1, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
-int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
+int32_t magicdrainclk=0, conveyclk=3;
 byte newconveyorclk = 0;
 bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
@@ -1798,7 +1799,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		
 		exit_sys_pal();
 	}
-	
+
 	return ret;
 }
 
@@ -1986,6 +1987,9 @@ int32_t init_game()
 		return 1;
 	}
 
+	if (zasm_optimize_enabled() && (get_flag_bool("-test-bisect").has_value() || is_ci()))
+		zasm_optimize();
+
 	FFCore.init();
 	FFCore.user_bitmaps_init();
 	FFCore.user_files_init();
@@ -1996,10 +2000,15 @@ int32_t init_game()
 
 	if (testingqst_init_data.size())
 	{
+		// Some fields are just not saved in the delta string, since it isn't useful for them to change.
+		auto screen_data_backup = zinit.screen_data;
+		zinit.clear();
+
 		std::string error;
 		zinitdata* new_init = apply_init_data_delta(&zinit, testingqst_init_data, error);
 		if (new_init)
 		{
+			new_init->screen_data = screen_data_backup;
 			zinit = *new_init;
 			resetItems(game, new_init, false);
 			ringcolor(false);
@@ -2363,9 +2372,16 @@ int32_t init_game()
 			}
 			else
 			{
-				Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
-					: selectSword();
-				directItemA = NEG_OR_MASK(Awpn, 0xFF);
+				if(get_qr(qr_SELECTAWPN))
+				{
+					Awpn = new_subscreen_active->get_item_pos(game->awpn);
+					directItemA = NEG_OR_MASK(Awpn, 0xFF);
+				}
+				else
+				{
+					selectSword();
+					directItemA = -1;
+				}
 				Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
 				directItemB = NEG_OR_MASK(Bwpn, 0xFF);
 				Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
@@ -4465,31 +4481,36 @@ void do_extract_zasm_command(const char* quest_path)
 
 	DEBUG_PRINT_TO_FILE = true;
 	strcpy(qstpath, quest_path);
+	bool top_functions = true;
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
+	bool optimize = get_flag_bool("-extract-zasm-optimize").value_or(false);
+	if (optimize)
+		zasm_optimize();
+	zasm_for_every_script([&](script_data* script){
+		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);
+		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());
+	});
 
-	#define HANDLE_SCRIPTS(array, num)\
-		for (int i = 0; i < num; i++)\
-		{\
-			script_data* script = array[i];\
-			if (script->valid())\
-			{\
-				ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);\
-				h.print(zasm_to_string(script, generate_yielder).c_str());\
-			}\
-		}
-	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
-	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
-	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
-	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
-	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
-	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
-	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
-	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
-	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
-	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
-	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+	exit(0);
+}
+
+void do_analyze_zasm_duplication_command(const char* quest_path)
+{
+	// We need to init some stuff before loading a quest file will work.
+	int fake_errno = 0;
+	allegro_errno = &fake_errno;
+	get_qst_buffers();
+	allocate_crap();
+
+	byte skip_flags[] = {0, 0, 0, 0};
+	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
+	if (ret)
+		exit(ret);
+
+	DEBUG_PRINT_TO_FILE = true;
+	strcpy(qstpath, quest_path);
+
+	printf("%s\n", zasm_analyze_duplication().c_str());
 
 	exit(0);
 }
@@ -4538,6 +4559,13 @@ int main(int argc, char **argv)
 		only_qstpath = (fs::current_path() / argv[only_arg+1]).string();
 	}
 
+	int test_opt_zasm_arg = used_switch(argc, argv, "-test-optimize-zasm");
+	if (test_opt_zasm_arg)
+	{
+		zasm_optimize_run_for_file(argv[test_opt_zasm_arg+1]);
+		exit(0);
+	}
+
 	if (test_zc_arg)
 	{
 		bool success = true;
@@ -4545,6 +4573,11 @@ int main(int argc, char **argv)
 		{
 			success = false;
 			printf("saves_test failed\n");
+		}
+		if (!zasm_optimize_test())
+		{
+			success = false;
+			printf("zasm_optimize_test failed\n");
 		}
 		if (success)
 			printf("all tests passed\n");
@@ -4561,6 +4594,12 @@ int main(int argc, char **argv)
 	if (extract_zasm_arg > 0)
 	{
 		do_extract_zasm_command(argv[extract_zasm_arg+1]);
+	}
+
+	int analyze_zasm_duplication_arg = used_switch(argc, argv, "-analyze-zasm-duplication");
+	if (analyze_zasm_duplication_arg > 0)
+	{
+		do_analyze_zasm_duplication_command(argv[analyze_zasm_duplication_arg+1]);
 	}
 
 	int create_save_arg = used_switch(argc,argv,"-create-save");
@@ -4664,7 +4703,6 @@ int main(int argc, char **argv)
 	Z_message("OK\n");
 	
 	// allocate bitmap buffers
-	Z_message("Allocating bitmap buffers... ");
 	set_color_depth(8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	menu_bmp  = create_bitmap_ex(8,640,480);
@@ -4707,7 +4745,6 @@ int main(int argc, char **argv)
 	set_clip_state(msg_portrait_display_buf, 1);
 	clear_bitmap(pricesdisplaybuf);
 	set_clip_state(pricesdisplaybuf, 1);
-	Z_message("OK\n");
 	
 	Z_message("Initializing music... ");
 	zcmusic_init();
@@ -5294,7 +5331,11 @@ reload_for_replay_file:
 			}
 			game_pal();
 		}
-		else titlescreen(load_save);
+		else 
+		{
+			init_game_vars();
+			titlescreen(load_save);
+		}
 		if(clearConsoleOnReload)
 			clearConsole();
 		load_save=0;

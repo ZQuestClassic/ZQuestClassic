@@ -1,0 +1,25 @@
+; Lots of CASTBOOLF. They should all go away.
+Function #0
+    0: COMPARER        D2              D3           [Block 0 -> 1, 2]
+    1: SETTRUEI        D2
+    2: COMPAREV        D2              0
+    3: GOTOTRUE        16
+    4: SETV            D2              130000       [Block 1 -> 2]
+    5: PUSHR           D2
+    6: POP             D0
+    7: SETR            D2              SCREENSTATED
+    8: PUSHR           D2
+    9: SETV            D2              10000
+   10: POP             D3
+   11: CASTBOOLF       D2
+   12: CASTBOOLF       D3
+   13: COMPARER        D2              D3
+   14: SETTRUEI        D2
+   15: CASTBOOLF       D2
+   16: COMPAREV        D2              1            [Block 2 -> 3, 4]
+   17: SETMOREI        D2
+   18: CASTBOOLF       D2
+   19: COMPAREV        D2              1
+   20: GOTOTRUE        22
+   21: TRACEV          1                            [Block 3 -> 4]
+   22: TRACEV          2                            [Block 4 -> ]

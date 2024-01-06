@@ -1,0 +1,21 @@
+; comparisons, random stuff (1)
+Function #0
+    0: COMPAREV        D2              0            [Block 0 -> 1, 7]
+    1: GOTOTRUE        16
+    2: LOADD           D2              20000        [Block 1 -> 2, 3]
+    3: PUSHR           D2
+    4: LOADD           D2              0
+    5: COMPAREV        D2              0
+    6: SETCMP          D2              !=
+    7: COMPAREV        D2              0
+    8: GOTOTRUE        10
+    9: GOTO            15                           [Block 2 -> 6]
+   10: LOADD           D2              0            [Block 3 -> 4, 5]
+   11: COMPAREV        D2              0
+   12: GOTOTRUE        14
+   13: TRACEV          0                            [Block 4 -> 5]
+   14: LOADD           D2              0            [Block 5 -> 6]
+   15: TRACER          D2                           [Block 6 -> 7]
+   16: GOTO            18                           [Block 7 -> 9]
+   17: TRACEV          1                            [Block 8 -> 9]
+   18: QUIT                                         [Block 9 -> ]

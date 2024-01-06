@@ -1049,6 +1049,7 @@ Link- A link to another section.
 Page- An html page to display content.
 
 If an entry has no jumps, it will use its' name, split at '/' characters, as jumps.
+Jumps beginning with a '*' are 'Search Jumps'. These... I'm not sure what do differently anymore? Generally they are shorter/more recognizable.
 Double-clicking or right-clicking a jump will edit it.''')
 ## Pages
 def switch(pageclass):
@@ -1979,11 +1980,13 @@ class EditEntryPage(Page):
             self.todo = entry['todo']
         except:
             self.todo = False
-        _spl = entry['name'].split(';;',2)
+        _spl = entry['name'].split(';;',3)
         name = _spl[0].strip()
         jumps = []
         if len(_spl) > 1:
-            jumps = [s.strip() for s in re.split('/|;;',_spl[1])]
+            jumps = [s.strip() for s in re.split('/',_spl[1])]
+            if(len(_spl) > 2):
+                jumps = jumps + ['*' + s.strip() for s in re.split('/',_spl[2])]
         
         val = entry['val']
         is_link = val and val[0] == '$'
@@ -2554,19 +2557,29 @@ def addjump(obj, addjumps):
     else:
         newobj['name'] = name + ' ;; ' + name + ' / ' + ' / '.join(addjumps)
     return newobj
+def filter_stars(jumps, allowlist=False):
+    if allowlist:
+        return [j[1:] for j in jumps if j[0] == '*']
+    return [j for j in jumps if j[0] != '*']
 def get_entry(addjumps=None):
     global mainframe
     
     name = mainframe.field_name.get()
-    jumps = mainframe.list_jumps
+    jumps = filter_stars(mainframe.list_jumps)
+    sjumps = filter_stars(mainframe.list_jumps,True)
+    print(jumps)
+    print(sjumps)
     
     outname = name
+    if (addjumps or sjumps) and not jumps:
+        jumps = [s.strip() for s in re.split('/',name)]
     if addjumps:
-        if not jumps:
-            jumps = [s.strip() for s in re.split('/',name)]
-        jumps = jumps + addjumps
+        jumps = jumps + filter_stars(addjumps)
+        sjumps = sjumps + filter_stars(addjumps,True)
     if jumps:
         outname += ' ;; ' + ' / '.join(jumps)
+    if sjumps:
+        outname += ' ;; ' + ' / '.join(sjumps)
     
     outval = mainframe.get_val().strip('\r\n \t')
     
@@ -3106,6 +3119,7 @@ def popup_brlink():
         fr.pack(side='left')
         row.pack()
     tl.launch(topframe,w=250,h=250,savers=[])
+    destroy_popup()
 
 def goto_todo(todo):
     global toplevel

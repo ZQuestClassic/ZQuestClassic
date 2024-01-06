@@ -1,0 +1,21 @@
+; comparisons across blocks, comparison result stored on stack
+Function #0
+    0: COMPARER        D3              D2           [Block 0 -> 1, 2]
+    1: SETMORE         D2
+    2: COMPAREV        D2              0
+    3: SETTRUEI        D2
+    4: COMPAREV        D2              0
+    5: GOTOTRUE        7
+    6: TRACEV          1                            [Block 1 -> 2]
+    7: COMPAREV        D2              1            [Block 2 -> 3, 4]
+    8: SETMOREI        D2
+    9: SETR            D6              D4
+   10: ADDV            D6              90000
+   11: STOREI          D2              D6
+   12: SETR            D6              D4
+   13: ADDV            D6              190000
+   14: LOADI           D2              D6
+   15: COMPAREV        D2              0
+   16: GOTOTRUE        18
+   17: TRACEV          1                            [Block 3 -> 4]
+   18: QUIT                                         [Block 4 -> ]

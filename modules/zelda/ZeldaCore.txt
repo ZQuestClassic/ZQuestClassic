@@ -6,6 +6,7 @@ set(ZELDA_CORE_SOURCES
 ################################
 src/zscriptversion.cpp
 src/zc/ffscript.cpp
+src/zasm_table.cpp
 src/zc/script_debug.cpp
 src/zc/jit.cpp
 src/gamedata.cpp
@@ -29,6 +30,7 @@ src/zc/saves.cpp
 src/zc/db_rng.cpp
 src/zc/zc_ffc.cpp
 src/music_playback.cpp
+src/zc/zasm_optimize.cpp
 src/zc/zasm_utils.cpp
 src/zc/wasm_compiler.cpp
 

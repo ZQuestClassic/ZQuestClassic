@@ -51,9 +51,9 @@ ADDV d2,1
 STORED d2,1
 POP d2
 COMPAREV d2,30
-SETCMP d2,0.0012
+SETCMP d2,I==
 COMPAREV d2,0
-GOTOTRUE 67; Test 'if'
+GOTOCMP 67,==; Test 'if'
 ALLOCATEMEMV d2,43; if() #558 Body Start
 STORED d2,0
 WRITEPODSTRING d2,"FFC script is running, ID: %d x: %d y: %d\n"
