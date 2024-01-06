@@ -310,6 +310,12 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 					continue;
 				}
 
+				// This is a recursive function call to itself!
+				if (arg1 == start_pc)
+				{
+					continue;
+				}
+
 				block_starts.insert(arg1);
 				if (i + 1 <= final_pc)
 					block_starts.insert(i + 1);

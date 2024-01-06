@@ -1,10 +1,10 @@
 Finished optimizing scripts:
 	[goto_next_instruction] saved 667 instr (0.4%)
-	[unreachable_blocks] saved 560 instr (0.3%)
+	[unreachable_blocks] saved 540 instr (0.3%)
 	[conseq_additive] saved 1658 instr (0.9%)
 	[loadi] saved 0 instr (0.0%)
 	[setv_pushr] saved 2468 instr (1.4%)
 	[spurious_branches] saved 0 instr (0.0%)
 	[reduce_comparisons] saved 8340 instr (4.7%)
-	[unreachable_blocks_2] saved 519 instr (0.3%)
-	[total] saved 14212 instr (8.0%)
+	[unreachable_blocks_2] saved 499 instr (0.3%)
+	[total] saved 14172 instr (8.0%)
