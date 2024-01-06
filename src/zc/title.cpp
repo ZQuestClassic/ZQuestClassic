@@ -1188,12 +1188,13 @@ int32_t getsaveslot()
 	return -1;
 }
 
+static int last_slot_pos;
 static void select_game(bool skip = false)
 {
 	if(standalone_mode || skip)
 		return;
 
-	int32_t pos = zc_max(zc_min(saves_current_selection()-listpos,3),0);
+	int32_t pos = last_slot_pos;
 	int32_t mode = 0;
 	saves_select(-1);
 	
@@ -1444,6 +1445,8 @@ void titlescreen(int32_t lsave)
 		return;
 	}
 
+	if (saves_current_selection() != -1)
+		last_slot_pos = saves_current_selection() % 3;
 	saves_unselect();
 
 	if (replay_get_mode() == ReplayMode::Record)
