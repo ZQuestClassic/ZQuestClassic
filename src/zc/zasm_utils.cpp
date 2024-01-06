@@ -80,6 +80,9 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		}
 	}
 
+	// Starts with implicit first function ("run").
+	std::set<pc_t> function_start_pcs_set = {0};
+
 	for (pc_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
@@ -88,6 +91,11 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		if (command == CALLFUNC)
 		{
 			is_function_call_like = true;
+		}
+		else if (command == STARTDESTRUCTOR)
+		{
+			function_start_pcs_set.insert(i);
+			continue;
 		}
 		else if ((calling_mode == 1 || calling_mode == 2) && command == GOTO)
 		{
@@ -111,24 +119,22 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		if (is_function_call_like && script->zasm[i].arg1 != -1)
 		{
 			function_calls.insert(i);
-			function_calls_goto_pc.insert(script->zasm[i].arg1);
+			function_start_pcs_set.insert(script->zasm[i].arg1);
 			function_calls_pc_to_pc[i] = script->zasm[i].arg1;
 			ASSERT(script->zasm[i].arg1 != i + 1);
 		}
 	}
 
-	std::vector<pc_t> function_start_pcs;
+	std::vector<pc_t> function_start_pcs(function_start_pcs_set.begin(), function_start_pcs_set.end());
 	std::vector<pc_t> function_final_pcs;
 	std::map<pc_t, pc_t> start_pc_to_function;
 	{
-		// Implicit first function ("run").
-		function_start_pcs.push_back(0);
 		start_pc_to_function[0] = 0;
 
 		pc_t next_fn_id = 1;
-		for (pc_t function_start_pc : function_calls_goto_pc)
+		for (int i = 1; i < function_start_pcs.size(); i++)
 		{
-			function_start_pcs.push_back(function_start_pc);
+			pc_t function_start_pc = function_start_pcs[i];
 			function_final_pcs.push_back(function_start_pc - 1);
 			start_pc_to_function[function_start_pc] = next_fn_id++;
 		}
