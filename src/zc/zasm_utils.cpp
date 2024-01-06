@@ -90,6 +90,19 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 	// -2, because 0 is a valid pc and -1 shows up as `GOTO -1` for handwritten/bad ZASM.
 	for (int i = 0; i < recent_retadd_buf; i++) recent_retadd[i] = -2;
 
+	// Handle the first one command explictly, since only CALLFUNC doesn't need to check
+	// the previous command.
+	if (script->zasm[0].command == CALLFUNC)
+	{
+		if (script->zasm[0].arg1 != -1)
+		{
+			function_calls.insert(0);
+			function_calls_goto_pc.insert(script->zasm[0].arg1);
+			function_calls_pc_to_pc[0] = script->zasm[0].arg1;
+			ASSERT(script->zasm[0].arg1 != 1);
+		}
+	}
+
 	for (pc_t i = 1; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
