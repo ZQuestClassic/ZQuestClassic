@@ -799,7 +799,10 @@ static void simulate(OptContext& ctx, SimulationState& state)
 	int arg3 = C(state.pc).arg3;
 	const auto& c = get_script_command(command);
 
-	if (command_is_goto(command) && ctx.structured_zasm->function_calls.contains(state.pc))
+	// Function calls invalidate all registers.
+	bool is_function_call =
+		command == CALLFUNC || (command_is_goto(command) && ctx.structured_zasm->function_calls.contains(state.pc));
+	if (is_function_call)
 	{
 		for (int i = 0; i < 8; i++)
 			state.d[i] = reg(i);

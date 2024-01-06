@@ -7,7 +7,7 @@ Function #0
     3: PUSHR           D2
     4: SETR            D2              GD0
     5: PUSHR           D2
-    6: GOTO            16                           [Call Function #1]
+    6: CALLFUNC        16                           [Call Function #1]
     7: POP             D4
     8: COMPAREV        D2              0
     9: GOTOTRUE        12
@@ -22,4 +22,4 @@ Function #0
 Function #1
    16: SETR            D2              LINKX        [Block 0 -> ]
    17: SETR            D3              LINKY
-   18: RETURN
+   18: RETURNFUNC
