@@ -2776,12 +2776,12 @@ public:
 		for(word i = offset; BC::checkUserArrayIndex(i, sz) == _NoError && am.get(i) != '\0' && num_chars != 0; i++)
 		{
 			int32_t c = am.get(i) / 10000;
-			if(char(c) != c)
+			if(byte(c) != c)
 			{
 				Z_scripterrlog("Illegal char value (%d) at position [%d] in string pointer %d\n", c, i, ptr);
 				Z_scripterrlog("Value of invalid char will overflow.\n");
 			}
-			str += char(c);
+			str += byte(c);
 			--num_chars;
 		}
 	}
