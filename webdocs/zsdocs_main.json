@@ -1771,7 +1771,7 @@
                         },
                         {
                             "name": "<em>randgen</em>",
-                            "val": "<h3>RandGen Pointers</h3>   `randgen`\n\n`randgen` pointers reference specific random number generators. You can create and seed them yourself.\nAny randgen pointer with a value of `NULL` can be used to reference the engine's RNG. The global pointer `RandGen->` is available as a null `randgen` pointer.\n\nSee: ${LoadRNG}"
+                            "val": "<h3>RandGen Pointers</h3>   `randgen`\n\n`randgen` pointers reference specific random number generators. You can create and seed them yourself.\nAny randgen pointer with a value of `NULL` can be used to reference the engine's RNG. The global pointer `RandGen->` is available as a null `randgen` pointer.\n\nSee: ${Game::LoadRNG|LoadRNG}"
                         },
                         {
                             "name": "Rand ;; randgen::Rand ;; Rand",
@@ -1805,7 +1805,7 @@
                         },
                         {
                             "name": "<em>stack</em>",
-                            "val": "<h3>Stack Pointers</h3>   `stack`\n\n`stack` pointers allow storing and managing large sets of data, similar to arrays. The max storage of a stack is `2,147,483,647` elements, compared to arrays which have a maximum of `214,748` elements. Stacks also have various functions for accessing the data.\n\nSee: ${LoadStack}"
+                            "val": "<h3>Stack Pointers</h3>   `stack`\n\n`stack` pointers allow storing and managing large sets of data, similar to arrays. The max storage of a stack is `2,147,483,647` elements, compared to arrays which have a maximum of `214,748` elements. Stacks also have various functions for accessing the data.\n\nSee: ${Game::LoadStack|LoadStack}"
                         },
                         {
                             "name": "Size ;; stack::Size / stack::Full",
@@ -2123,7 +2123,7 @@
                         },
                         {
                             "name": "<em>mapdata</em>",
-                            "val": "<h3>MapData Pointers</h3>   `mapdata`\n\n`mapdata` pointers allow accessing data from any screen.\nDepending on how a mapdata pointer is loaded, it may represent a ${LoadTempScreen|temporary current screen}, a ${LoadScrollingScreen|temporary scrolling screen}, or a ${LoadMapData|permanent screen}.\n\nMany parts of `mapdata` are shared with `Screen->`.\n\nSee: ${LoadTempScreen}, ${LoadScrollingScreen}, ${LoadMapData}"
+                            "val": "<h3>MapData Pointers</h3>   `mapdata`\n\n`mapdata` pointers allow accessing data from any screen.\nDepending on how a mapdata pointer is loaded, it may represent a ${Game::LoadTempScreen|temporary current screen}, a ${Game::LoadScrollingScreen|temporary scrolling screen}, or a ${Game::LoadMapData|permanent screen}.\n\nMany parts of `mapdata` are shared with `Screen->`.\n\nSee: ${Game::LoadTempScreen|LoadTempScreen}, ${Game::LoadScrollingScreen|LoadScrollingScreen}, ${Game::LoadMapData|LoadMapData}"
                         },
                         {
                             "name": "Shared w/ Screen-> ;; mapscrShare",
@@ -2316,7 +2316,7 @@
                         },
                         {
                             "name": "<em>bitmap</em>",
-                            "val": "<h3>Bitmap Pointers</h3>   `bitmap`\n\n`bitmap` pointers allow creating, manipulating, and storing visual data.\n\nA number of drawing commands from `bitmap` are shared with `Screen->`.\n\nSee: ${CreateBitmap}, ${bitmap::Create|Create}"
+                            "val": "<h3>Bitmap Pointers</h3>   `bitmap`\n\n`bitmap` pointers allow creating, manipulating, and storing visual data.\n\nA number of drawing commands from `bitmap` are shared with `Screen->`.\n\nSee: ${Game::CreateBitmap|CreateBitmap}, ${bitmap::Create|Create}"
                         },
                         {
                             "name": "Shared w/ Screen-> ;; bitscrShare",
@@ -2458,12 +2458,12 @@
                             "val": "$Screen"
                         },
                         {
-                            "name": "Tile Draws ;; Screen::DrawTileCloaked / bitmap::DrawTileCloaked / Screen::DrawTile / bitmap::DrawTile / Screen::FastTile / bitmap::FastTile",
+                            "name": "Tile Draws ;; Screen::DrawTileCloaked / bitmap::DrawTileCloaked / Screen::DrawTile / bitmap::DrawTile / Screen::FastTile / bitmap::FastTile ;; DrawTileCloaked / DrawTile / FastTile",
                             "val": "<h3>void FastTile(int layer, int x, int y, int tile, int cset, int opacity = OP_OPAQUE);</h3>\n\nDraws the specified tile in the specified cset, with the upper-left at (x,y).\n\n<h3>void DrawTile(int layer, int x, int y, int tile, int blockw, int blockh,\n        int cset, int xscale = -1, int yscale = -1, int rx = 0, int ry = 0, [[int rangle = 0|Degrees]],\n        int flip = 0, bool transparency = true, int opacity = OP_OPAQUE);</h3>\n\nDraws a block of tiles starting from the specified tile, in the specified cset, with the upper-left at (x,y).\nThe size of the tile block is determined by `blockw` and `blockh`, which must be integers from 1 to 20 inclusive.\nIf `xscale` and `yscale` are both >0, the draw will be stretched to be `xscale by yscale` pixels. Otherwise, the draw will be `16*blockw by 16*blockh` pixels.\nIf `transparency` is false, color 0 in the tile will be drawn as color 0 instead of transparent.\nThe draw will be flipped based on `flip`, using the `FLIP_` constants.\nIf 'rangle' is not 0, it will rotate the draw around the (rx,ry) point.\nIf 'rx' OR 'ry' is `<= -777`, it will rotate around the center of the draw instead of an arbitrary point.\n\n<h3>void DrawTileCloaked(int layer, int x, int y, int tile, int blockw, int blockh, int flip = 0);</h3>\n\nSimilar to `DrawTile()`, but draws with a \"cloaked\" effect. This means that it does not actually draw the tiles, but instead it distorts the destination bitmap in the draw area based on the pixels in the tiles."
                         },
                         {
                             "name": "Combo Draws ;; Screen::DrawComboCloaked / bitmap::DrawComboCloaked / Screen::DrawCombo / bitmap::DrawCombo / Screen::FastCombo / bitmap::FastCombo ;; FastCombo / DrawCombo / DrawComboCloaked",
-                            "val": "<h3>void FastCombo(int layer, int x, int y, int combo, int cset, int opacity = OP_OPAQUE);</h3>\n\nAs ${FastTile|FastTile()}, for the current tile of `combo`.\n\n<h3>void DrawCombo(int layer, int x, int y, int combo, int blockw, int blockh,\n        int cset, int xscale = -1, int yscale = -1, int rx = 0, int ry = 0, [[int rangle = 0|Degrees]],\n        int flip = 0, bool transparency = true, int opacity = OP_OPAQUE);</h3>\n\nAs ${DrawTile|DrawTile()}, but for the current tile of the combos.\n\n<h3>void DrawComboCloaked(int layer, int x, int y, int combo, int blockw, int blockh, int flip = 0);</h3>\n\nAs ${DrawTileCloaked|DrawTileCloaked()}, but for the current tile of the combos."
+                            "val": "<h3>void FastCombo(int layer, int x, int y, int combo, int cset, int opacity = OP_OPAQUE);</h3>\n\nAs ${Screen::FastTile|FastTile()}, for the current tile of `combo`.\n\n<h3>void DrawCombo(int layer, int x, int y, int combo, int blockw, int blockh,\n        int cset, int xscale = -1, int yscale = -1, int rx = 0, int ry = 0, [[int rangle = 0|Degrees]],\n        int flip = 0, bool transparency = true, int opacity = OP_OPAQUE);</h3>\n\nAs ${Screen::DrawTile|DrawTile()}, but for the current tile of the combos.\n\n<h3>void DrawComboCloaked(int layer, int x, int y, int combo, int blockw, int blockh, int flip = 0);</h3>\n\nAs ${Screen::DrawTileCloaked|DrawTileCloaked()}, but for the current tile of the combos."
                         },
                         {
                             "name": "Quad ;; Screen::Quad / bitmap::Quad ;; Quad",
