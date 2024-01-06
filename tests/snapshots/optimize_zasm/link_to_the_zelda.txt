@@ -4,6 +4,7 @@ Finished optimizing scripts:
 	[conseq_additive] saved 5 instr (1.2%)
 	[loadi] saved 22 instr (5.1%)
 	[setv_pushr] saved 26 instr (6.1%)
+	[stack] saved 0 instr (0.0%)
 	[spurious_branches] saved 0 instr (0.0%)
 	[reduce_comparisons] saved 8 instr (1.9%)
 	[unreachable_blocks_2] saved 0 instr (0.0%)

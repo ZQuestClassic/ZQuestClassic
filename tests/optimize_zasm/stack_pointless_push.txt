@@ -1,0 +1,100 @@
+; Function #1 - many pointless push/pop, all except last one
+; Function #2 - function calls necessitate push/pop
+; Function #4 - stack count must even out to remove push/pop
+; Function #5 - if value is popped off stack before matching pop, must keep
+Function #0
+    0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
+    1: CALLFUNC        39                           [Call Function #2]
+    2: CALLFUNC        53                           [Call Function #4]
+    3: CALLFUNC        70                           [Call Function #5]
+    4: QUIT
+
+
+Function #1
+    5: SETR            D0              D2           [Block 0 -> ]
+    6: PUSHR           D0
+    7: SETV            D2              750000
+    8: POP             D0
+    9: SETV            D1              0
+   10: SETR            SCRIPTRAM       D2
+   11: PUSHR           D0
+   12: SETV            D2              970000
+   13: POP             D0
+   14: SETV            D1              10000
+   15: SETR            SCRIPTRAM       D2
+   16: PUSHR           D0
+   17: SETV            D2              1180000
+   18: POP             D0
+   19: SETV            D1              20000
+   20: SETR            SCRIPTRAM       D2
+   21: PUSHR           D0
+   22: SETV            D2              1010000
+   23: POP             D0
+   24: SETV            D1              30000
+   25: SETR            SCRIPTRAM       D2
+   26: PUSHR           D0
+   27: SETV            D2              1140000
+   28: POP             D0
+   29: SETV            D1              40000
+   30: SETR            SCRIPTRAM       D2
+   31: PUSHR           D0
+   32: SETV            D2              1050000
+   33: POP             D0
+   34: SETV            D1              50000
+   35: SETR            SCRIPTRAM       D2
+   36: PUSHR           D0
+   37: SETV            D2              0
+   38: RETURNFUNC
+
+
+Function #2
+   39: SETR            D0              D2           [Block 0 -> ]
+   40: PUSHR           D0
+   41: SETV            D2              750000
+   42: POP             D0
+   43: SETV            D1              0
+   44: SETR            SCRIPTRAM       D2
+   45: PUSHR           D0
+   46: SETV            D2              970000
+   47: CALLFUNC        49                           [Call Function #3]
+   48: POP             D0
+
+
+Function #3
+   49: RETURNFUNC                                   [Block 0 -> ]
+   50: SETV            D0              1337
+   51: TRACER          D0
+   52: RETURNFUNC
+
+
+Function #4
+   53: PUSHR           D0                           [Block 0 -> ]
+   54: PUSHR           REFFFC
+   55: PUSHARGSV       0               7
+   56: SETR            D4              SP
+   57: LOADD           D2              70000
+   58: PUSHR           D2
+   59: POP             REFFFC
+   60: SETR            D2              DATA
+   61: STORED          D2              60000
+   62: PUSHV           0
+   63: LOADD           D2              70000
+   64: POP             D3
+   65: PUSHR           D2
+   66: PUSHR           D3
+   67: PUSHV           70000
+   68: POP             D0
+   69: RETURNFUNC
+
+
+Function #5
+   70: PUSHR           D3                           [Block 0 -> ]
+   71: POP             D2
+   72: POP             REFFFC
+   73: SETR            X               D2
+   74: PUSHR           D4
+   75: SETR            D2              GD3
+   76: PUSHR           D2
+   77: SETR            D2              GD4
+   78: POP             D3
+   79: RETURNFUNC

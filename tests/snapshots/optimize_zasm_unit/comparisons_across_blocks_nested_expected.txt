@@ -124,9 +124,9 @@ Function #0
     0: TRACEV          1                            [Block 0 -> 1, 2]
     1: COMPAREV        D2              0
     2: GOTOCMP         6               ==
-    3: PUSHR           D4                           [Block 1 -> 2]
+    3: NOP                                          [Block 1 -> 2]
     4: LOADD           D2              1337
-    5: POP             D4
+    5: NOP
     6: COMPAREV        D2              0            [Block 2 -> 3, 6]
     7: SETCMP          D2              !=
     8: COMPAREV        D2              0

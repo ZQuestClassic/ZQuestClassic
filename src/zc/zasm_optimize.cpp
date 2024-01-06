@@ -404,6 +404,29 @@ static void remove(OptContext& ctx, pc_t pc)
 	ctx.saved += 1;
 }
 
+static void for_every_command_arg(const ffscript& instr, std::function<void(bool, bool, int)> fn)
+{
+	const auto& sc = get_script_command(instr.command);
+
+	if (sc.is_register(0))
+	{
+		auto [read, write] = get_command_rw(instr.command, 0);
+		fn(read, write, instr.arg1);
+	}
+
+	if (sc.is_register(1))
+	{
+		auto [read, write] = get_command_rw(instr.command, 1);
+		fn(read, write, instr.arg2);
+	}
+
+	if (sc.is_register(2))
+	{
+		auto [read, write] = get_command_rw(instr.command, 2);
+		fn(read, write, instr.arg3);
+	}
+}
+
 static void optimize_by_block(OptContext& ctx, std::function<void(pc_t, pc_t, pc_t)> cb)
 {
 	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
@@ -554,6 +577,67 @@ static void optimize_setv_pushr(OptContext& ctx)
 			// instruction.
 			C(j + 1) = {PUSHV, C(j).arg2};
 			remove(ctx, j);
+		}
+	});
+}
+
+static void optimize_stack(OptContext& ctx)
+{
+	add_context_cfg(ctx);
+	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
+		for (int j = start_pc; j < final_pc; j++)
+		{
+			if (C(j).command != PUSHR) continue;
+
+			int reg = C(j).arg1;
+			int count = 0;
+			for (int k = j + 1; k <= final_pc; k++)
+			{
+				int command = C(k).command;
+				int arg2 = C(k).arg2;
+				if (command == POP && C(k).arg1 == reg)
+				{
+					if (count != 0)
+						break;
+					remove(ctx, j);
+					remove(ctx, k);
+					break;
+				}
+
+				switch (command)
+				{
+					case POP:
+						count--;
+						break;
+					case POPARGS:
+						count -= arg2;
+						break;
+					case PUSHR:
+					case PUSHV:
+						count++;
+						break;
+					case PUSHARGSR:
+					case PUSHARGSV:
+						count += arg2;
+						break;
+				}
+
+				if (count < 0)
+					break;
+
+				bool writes_to_reg = false;
+				for_every_command_arg(C(k), [&](bool read, bool write, int arg){
+					if (arg == reg && write)
+						writes_to_reg = true;
+				});
+				if (writes_to_reg)
+					break;
+
+				bool is_function_call =
+					command == CALLFUNC || (command_is_goto(command) && ctx.structured_zasm->function_calls.contains(k));
+				if (is_function_call)
+					break;
+			}
 		}
 	});
 }
@@ -1191,29 +1275,6 @@ static std::vector<ffscript> compile_conditional(const ffscript& instr, const Si
 	return result;
 }
 
-static void for_every_command_arg(const ffscript& instr, std::function<void(bool, bool, int)> fn)
-{
-	const auto& sc = get_script_command(instr.command);
-
-	if (sc.is_register(0))
-	{
-		auto [read, write] = get_command_rw(instr.command, 0);
-		fn(read, write, instr.arg1);
-	}
-
-	if (sc.is_register(1))
-	{
-		auto [read, write] = get_command_rw(instr.command, 1);
-		fn(read, write, instr.arg2);
-	}
-
-	if (sc.is_register(2))
-	{
-		auto [read, write] = get_command_rw(instr.command, 2);
-		fn(read, write, instr.arg3);
-	}
-}
-
 // 1. If following a branch is guaranteed to jump to some other block given the initial
 //    branch condition, rewrite the branch to jump directly to that end block. This can
 //    only be done when there are no side effects. This removes all spurious branches.
@@ -1531,6 +1592,7 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> pas
 	{"conseq_additive", optimize_conseq_additive},
 	{"loadi", optimize_loadi},
 	{"setv_pushr", optimize_setv_pushr},
+	{"stack", optimize_stack},
 	{"spurious_branches", optimize_spurious_branches},
 	{"reduce_comparisons", optimize_reduce_comparisons},
 	{"unreachable_blocks_2", optimize_unreachable_blocks},
