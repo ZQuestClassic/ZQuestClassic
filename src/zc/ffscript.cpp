@@ -27853,7 +27853,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27895,7 +27895,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27934,7 +27934,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27977,7 +27977,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -28002,7 +28002,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorFill"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -28194,7 +28194,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorPlayer"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -28215,7 +28215,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassBlink"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -28233,7 +28233,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassOff"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -28251,7 +28251,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorRoom"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
