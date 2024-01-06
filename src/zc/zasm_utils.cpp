@@ -80,98 +80,19 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		}
 	}
 
-	// Remember just some of the most recent values of PUSHV.
-	// It's not certain these values are actually referencing a return address, but hopefully
-	// it works good enough. Mistakes in function attribution should only result in a function
-	// that is larger than it other would be.
-	constexpr int recent_retadd_buf = 20;
-	pc_t recent_retadd[recent_retadd_buf];
-	int recent_retadd_i = 0;
-	// -2, because 0 is a valid pc and -1 shows up as `GOTO -1` for handwritten/bad ZASM.
-	for (int i = 0; i < recent_retadd_buf; i++) recent_retadd[i] = -2;
-
-	// Handle the first one command explictly, since only CALLFUNC doesn't need to check
-	// the previous command.
-	if (script->zasm[0].command == CALLFUNC)
-	{
-		if (script->zasm[0].arg1 != -1)
-		{
-			function_calls.insert(0);
-			function_calls_goto_pc.insert(script->zasm[0].arg1);
-			function_calls_pc_to_pc[0] = script->zasm[0].arg1;
-			ASSERT(script->zasm[0].arg1 != 1);
-		}
-	}
-
-	for (pc_t i = 1; i < script->size; i++)
+	for (pc_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
-		int prev_command = script->zasm[i - 1].command;
-
-		if (calling_mode == 1 && prev_command == SETV && command == PUSHR)
-		{
-			if (script->zasm[i - 1].arg1 < D(8) && script->zasm[i].arg1 == script->zasm[i - 1].arg1)
-			{
-				int arg = script->zasm[i - 1].arg2;
-				if (arg % 10000 != 0)
-					continue;
-				arg /= 10000;
-				if (arg >= i + 3)
-				{
-					recent_retadd[recent_retadd_i] = arg;
-					recent_retadd_i = (recent_retadd_i + 1) % recent_retadd_buf;
-				}
-			}
-			continue;
-		}
-
-		// Note: although original ZASM for GOTOR never used PUSHV, it could after zasm_optimize.
-		// TODO: zasm_optimize should change old calls to CALLFUNC.
-		if ((calling_mode == 1 || calling_mode == 2) && command == PUSHV)
-		{
-			int arg1 = script->zasm[i].arg1;
-			if (calling_mode == 1)
-			{
-				if (arg1 % 10000 != 0)
-					continue;
-				arg1 /= 10000;
-			}
-			if (arg1 >= i + 3)
-			{
-				recent_retadd[recent_retadd_i] = arg1;
-				recent_retadd_i = (recent_retadd_i + 1) % recent_retadd_buf;
-			}
-			continue;
-		}
 
 		bool is_function_call_like = false;
 		if (command == CALLFUNC)
 		{
 			is_function_call_like = true;
 		}
-		else if (command == GOTO)
+		else if ((calling_mode == 1 || calling_mode == 2) && command == GOTO)
 		{
-			if ((calling_mode == 1 || calling_mode == 2))
-			{
-				// The last command before an old call GOTO must be some sort of PUSH. It
-				// won't always be the return address (only if the function has no parameters),
-				// but it should be something.
-				if (!(prev_command == PUSHR || prev_command == PUSHV))
-					continue;
-
-				for (int j = 0; j < recent_retadd_buf; j++)
-				{
-					if (recent_retadd[j] == i + 2)
-					{
-						is_function_call_like = true;
-						break;
-					}
-				}
-			}
-
-			// Class construction function calls do `SETR CLASS_THISKEY, D2` just before its GOTO.
-			if (!is_function_call_like)
-				is_function_call_like = (prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
+			// Function calls are directly followed with a POP to restore the stack frame pointer.
+			is_function_call_like = script->zasm[i + 1].command == POP && script->zasm[i + 1].arg1 == D(4);
 
 			// Handle special where where the Init script function uses GOTO to go to the real entrypoint,
 			// after it sets up global data. This does not save a return address.
