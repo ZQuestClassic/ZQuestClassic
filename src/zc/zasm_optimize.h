@@ -22,7 +22,9 @@ struct OptimizeResults
 	std::vector<OptimizationPass> passes;
 };
 
+bool zasm_optimize_enabled();
 OptimizeResults zasm_optimize(script_data* script);
+void zasm_optimize_and_log(script_data* script);
 OptimizeResults zasm_optimize();
 bool zasm_optimize_test();
 void zasm_optimize_run_for_file(std::string path);

@@ -1942,6 +1942,7 @@ struct script_data
 	zasm_meta meta;
 	script_id id;
 	size_t size;
+	bool optimized;
 	
 	void null_script(size_t newSize = 1)
 	{
@@ -1953,6 +1954,7 @@ struct script_data
 		zasm[0].clear();
 		meta.zero();
 		size = newSize;
+		optimized = false;
 	}
 	
 	bool valid() const
@@ -1966,6 +1968,7 @@ struct script_data
 		{
 			zasm[0].clear();
 			size = 1;
+			optimized = false;
 		}
 	}
 	
@@ -1998,6 +2001,7 @@ struct script_data
 				other.zasm[q].copy(zasm[q]);
 			}
 			size = other.size;
+			optimized = other.optimized;
 		}
 		else
 		{
@@ -2031,6 +2035,7 @@ struct script_data
 			delete[] other.zasm;
 		other.zasm = zasm;
 		other.size = size;
+		other.optimized = optimized;
 		zasm = NULL;
 		null_script();
 	}

@@ -22,6 +22,7 @@
 #include "base/initdata.h"
 #include "base/version.h"
 #include "zc/replay.h"
+#include "zc/zasm_optimize.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
@@ -35372,6 +35373,10 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		{
 			jitted_script = it->second;
 		}
+	}
+	else if (zasm_optimize_enabled() && !curscript->optimized && curscript->size > 1)
+	{
+		zasm_optimize_and_log(curscript);
 	}
 
 	runtime_script_debug_handle = nullptr;

@@ -28,6 +28,7 @@
 #include "zc/jit.h"
 #include "zc/script_debug.h"
 #include "zc/wasm_compiler.h"
+#include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include <cstdint>
@@ -1083,6 +1084,9 @@ JittedFunction jit_compile_script(script_data *script)
 {
 	if (script->size <= 1)
 		return nullptr;
+
+	if (zasm_optimize_enabled() && !script->optimized)
+		zasm_optimize_and_log(script);
 
 	// TODO: support RUNGENFRZSCR by using do_commands_async, which returns a promise. Need a way to defer execution until promise resolves...
 	// https://emscripten.org/docs/porting/asyncify.html

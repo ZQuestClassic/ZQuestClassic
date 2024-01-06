@@ -1757,11 +1757,7 @@ int32_t init_game()
 		return 1;
 	}
 
-	// So far this is very quick. If this ever takes more than a couple seconds, should
-	// optimize scripts lazily just before use. However, if jit background threads
-	// are active it must be done there instead of in ffscript.cpp
-	bool do_optimize = get_flag_bool("-optimize-zasm").value_or(false) || zc_get_config("zeldadx", "optimize_zasm", true);
-	if (do_optimize)
+	if (zasm_optimize_enabled() && (get_flag_bool("-test-bisect").has_value() || is_ci()))
 		zasm_optimize();
 
 	FFCore.init();

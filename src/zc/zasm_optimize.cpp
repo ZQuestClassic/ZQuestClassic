@@ -13,7 +13,7 @@
 //
 // 3. zplayer -test-zc will run a few unit tests, located in this file.
 //
-// 4. python scripts/run_for_every_qst.py ./build/Debug/zplayer -extract-zasm %s -extract-zasm-optimize | code -
+// 4. python scripts/run_for_every_qst.py ./build/Debug/zplayer -extract-zasm %s -extract-zasm-optimize 2>&1 | code -
 //
 //    Run in debug mode (for asserts) on every quest in the database.
 //
@@ -41,6 +41,12 @@
 #include <utility>
 
 static bool verbose = false;
+
+bool zasm_optimize_enabled()
+{
+	static bool enabled = get_flag_bool("-optimize-zasm").value_or(false) || zc_get_config("zeldadx", "optimize_zasm", true);
+	return enabled;
+}
 
 // Very useful tool for identifying a single bad optimization.
 // Use with a tool like `find-first-fail`: https://gitlab.com/ole.tange/tangetools/-/blob/master/find-first-fail/find-first-fail
@@ -1196,10 +1202,9 @@ static void optimize_spurious_branches(OptContext& ctx)
 			return;
 
 		// COMPARER is left out because it doesn't seem to introduce any optimizations.
-		// Maybe the TODO below needs to be addressed first.
 		if (!final_pc || !one_of(C(final_pc - 1).command, COMPAREV, COMPAREV2))
 		{
-			ASSERT(false);
+			ASSERT(C(final_pc - 1).command == COMPARER);
 			return;
 		}
 
@@ -1440,17 +1445,17 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 	add_context_cfg(ctx);
 
 	std::set<pc_t> seen_ids = ctx.block_unreachable;
-	std::set<pc_t> pending_ids = {0};
-	while (pending_ids.size())
+	std::vector<pc_t> pending_ids = {0};
+	while (!pending_ids.empty())
 	{
-		pc_t id = *pending_ids.begin();
-		pending_ids.erase(pending_ids.begin());
+		pc_t id = pending_ids.back();
+		pending_ids.pop_back();
 		seen_ids.insert(id);
 
 		for (auto calls_id : ctx.cfg.block_edges.at(id))
 		{
 			if (!seen_ids.contains(calls_id))
-				pending_ids.insert(calls_id);
+				pending_ids.push_back(calls_id);
 		}
 	}
 	for (pc_t i = 0; i < ctx.cfg.block_starts.size(); i++)
@@ -1539,7 +1544,16 @@ OptimizeResults zasm_optimize(script_data* script)
 		results.instructions_saved += pass.instructions_saved;
 	}
 
+	script->optimized = true;
 	return results;
+}
+
+void zasm_optimize_and_log(script_data* script)
+{
+	auto r = zasm_optimize(script);
+	double pct = 100.0 * r.instructions_saved / script->size;
+	std::string str = fmt::format("[{}] optimized script. saved {} instr ({:.1f}%), took {} ms", zasm_script_unique_name(script), r.instructions_saved, pct, r.elapsed / 1000);
+	al_trace("%s\n", str.c_str());
 }
 
 OptimizeResults zasm_optimize()

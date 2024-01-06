@@ -2,6 +2,7 @@
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include "zconsole/ConsoleLogger.h"
@@ -583,6 +584,9 @@ JittedFunction jit_compile_script(script_data *script)
 {
 	if (script->size <= 1)
 		return nullptr;
+
+	if (zasm_optimize_enabled() && !script->optimized)
+		zasm_optimize_and_log(script);
 
 	CompilationState state;
 	state.size = script->size;
