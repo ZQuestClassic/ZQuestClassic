@@ -1587,6 +1587,14 @@ void FFScript::reset_script_engine_data(ScriptType type, int index)
 	get_script_engine_data(type, index).reset();
 }
 
+void on_reassign_script_engine_data(ScriptType type, int index)
+{
+	auto& data = get_script_engine_data(type, index);
+	data.ref.Clear();
+	data.initialized = false;
+	FFScript::deallocateAllScriptOwned(type, index);
+}
+
 void FFScript::clear_script_engine_data(ScriptType type, int index)
 {
 	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::ScriptedPassiveSubscreen || type == ScriptType::ScriptedActiveSubscreen)
@@ -15606,7 +15614,9 @@ void set_register(int32_t arg, int32_t value)
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
 			{
 				tmpscr->ffcs[ri->ffcref].script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
-				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+				for(int32_t i=0; i<16; i++)
+					ffmisc[ri->ffcref][i] = 0;
+				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t i=0; i<2; i++)
 						tmpscr->ffcs[ri->ffcref].inita[i] = 0;
@@ -15614,13 +15624,7 @@ void set_register(int32_t arg, int32_t value)
 					for(int32_t i=0; i<8; i++)
 						tmpscr->ffcs[ri->ffcref].initd[i] = 0;
 				}
-				for(int32_t i=0; i<16; i++)
-					ffmisc[ri->ffcref][i] = 0;
-				
-				auto& data = get_script_engine_data(ScriptType::FFC, ri->ffcref);
-				data.ref.Clear();
-				data.initialized = false;
-				FFScript::deallocateAllScriptOwned(ScriptType::FFC, ri->ffcref);
+				on_reassign_script_engine_data(ScriptType::FFC, ri->ffcref);
 			}
 			break;
 			
@@ -18971,13 +18975,13 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNSCRIPT:
 			if(0!=(s=checkLWpn(ri->lwpn,"Script")))
 			{
-				FFScript::deallocateAllScriptOwned(ScriptType::Lwpn, ri->lwpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						(((weapon*)(s))->weap_initd[q]) = 0;
 				}
+				on_reassign_script_engine_data(ScriptType::Lwpn, ri->lwpn);
 			}  
 			break;
 		
@@ -19631,13 +19635,13 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNSCRIPT:
 			if(0!=(s=checkEWpn(ri->ewpn,"Script")))
 			{
-				FFScript::deallocateAllScriptOwned(ScriptType::Ewpn, ri->ewpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						(((weapon*)(s))->weap_initd[q]) = 0;
 				}
+				on_reassign_script_engine_data(ScriptType::Ewpn, ri->ewpn);
 			}
 			break;
 		
@@ -20394,15 +20398,13 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
 			{
-				FFScript::deallocateAllScriptOwned(ScriptType::NPC, ri->guyref);
-				//enemy *e = (enemy*)guys.spr(ri->guyref);
-				//e->initD[a] = value; 
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						GuyH::getNPC()->initD[q] = 0;
 				}
 				GuyH::getNPC()->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
+				on_reassign_script_engine_data(ScriptType::NPC, ri->guyref);
 			}
 		}
 		break;
@@ -22353,8 +22355,8 @@ void set_register(int32_t arg, int32_t value)
 				for(int32_t q=0; q<8; q++)
 					tmpscr->screeninitd[q] = 0;
 			}
-			FFCore.ref(ScriptType::Screen, 0).Clear();
 			tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+			on_reassign_script_engine_data(ScriptType::Screen, 0);
 			break;
 		}
 		
@@ -22977,15 +22979,13 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(ri->mapsref == MAPSCR_TEMP0) //This mapsref references tmpscr, so can reference a running script!
 				{
-					FFScript::deallocateAllScriptOwned(ScriptType::Screen, 0);
-					
 					if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 					{
 						for(int32_t q=0; q<8; q++)
 							tmpscr->screeninitd[q] = 0;
 					}
 					
-					FFCore.ref(ScriptType::Screen, 0).Clear();
+					on_reassign_script_engine_data(ScriptType::Screen, 0);
 				}
 				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
@@ -23861,8 +23861,9 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPSCRIPT:	//byte
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::DMap, ri->dmapsref);
-			DMaps[ri->dmapsref].script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+			DMaps[ri->dmapsref].script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			on_reassign_script_engine_data(ScriptType::DMap, ri->dmapsref);
+			break;
 		}
 		case DMAPDATASIDEVIEW:	//byte, treat as bool
 		{
@@ -24074,13 +24075,15 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedActiveSubscreen, ri->dmapsref);
-			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			on_reassign_script_engine_data(ScriptType::ScriptedActiveSubscreen, ri->dmapsref);
+			break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::OnMap, ri->dmapsref);
-			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			on_reassign_script_engine_data(ScriptType::OnMap, ri->dmapsref);
+			break;
 		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
