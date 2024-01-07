@@ -21527,7 +21527,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
         //section id
         if(!p_mgetl(&section_id,f))
         {
-            return qe_invalid;
+            goto invalid;
         }
 
         std::set<dword> seen_sections;
@@ -21535,7 +21535,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
         while(!pack_feof(f))
         {
             if (seen_sections.contains(section_id))
-                return qe_invalid;
+                goto invalid;
             seen_sections.insert(section_id);
 
 			if (int retval = maybe_skip_section(f, section_id, skip_flags); retval != qe_OK)
@@ -22008,7 +22008,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                 
                 if(!p_getc(&tempbyte,f))
                 {
-                    return qe_invalid;
+					goto invalid;
                 }
                 
                 section_id+=tempbyte;
@@ -22021,7 +22021,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                 {
                     if(!p_mgetl(&section_id,f))
                     {
-                        return qe_invalid;
+                        goto invalid;
                     }
                 }
             }
@@ -22309,14 +22309,13 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     return qe_OK;
     
 invalid:
+    // TODO: It's too easy to forget to jump to this label, and accidentally leave the file open.
+    // Should wrap PACKFILE in a std::unique_pointer with a custom deallocator.
     box_out("error.");
     box_eol();
     box_end(true);
     
-    if(f)
-    {
-        pack_fclose(f);
-    }
+    pack_fclose(f);
     
     if(!oldquest)
     {
