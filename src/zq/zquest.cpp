@@ -16410,9 +16410,12 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_DRAW:
 		{
 			rectfill(screen,d->x,d->y,d->x+d->w-1,d->y+d->h-1,jwin_pal[jcBOX]);
+			auto& dm = DMaps[*dmap_ptr];
 			for(int yind = 0; yind < scrh; ++yind)
 			{
-				auto gr = yind < 8 ? DMaps[*dmap_ptr].grid[yind] : 0;
+				auto gr = yind < 8 ? dm.grid[yind] : 0;
+				if(dm.xoff < 0)
+					gr >>= (-dm.xoff);
 				for(int xind = 0; xind < scrw; ++xind)
 				{
 					int scr = xind+(yind*16);
