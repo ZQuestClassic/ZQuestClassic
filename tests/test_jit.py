@@ -57,7 +57,7 @@ class TestJIT(ZCTestCase):
             '-jit-log',
             # TODO: why do threads make output files sometimes be empty?
             '-jit-threads', '0',
-            '-jit-env-windows',
+            '-jit-env-test',
             '-jit-precompile',
             '-jit-print-asm',
         ]
@@ -72,7 +72,7 @@ class TestJIT(ZCTestCase):
         for output_path in jit_output_path.rglob('*.txt'):
             with self.subTest(msg=f'compile {qst_name} {output_path.stem}'):
                 # The first two lines have timing information, so remove them.
-                # Third line is code size, but with `-jit-env-windows` that can vary by ~1kb, so remove that too.
+                # Third line is code size, but with `-jit-env-test` that can vary by ~1kb, so remove that too.
                 lines = output_path.read_text().splitlines()[3:]
                 for i, line in enumerate(lines):
                     instruction = line.split(';')[0]
