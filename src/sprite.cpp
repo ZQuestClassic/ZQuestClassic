@@ -1626,7 +1626,12 @@ void sprite::drawzcboss(BITMAP* dest)
 	}
     
 	int32_t sx = real_x(x+xofs);
-	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
+	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
+	// the hero y position is always negative, making the hero invisible. The compiler doesn't do the bad thing when an
+	// intermediate variable is introduced.
+	int32_t syz = real_z(z+zofs);
+	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
     
 	if(id<0)
