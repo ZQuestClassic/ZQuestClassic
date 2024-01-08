@@ -36,8 +36,7 @@ jobs:
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
-            # RelWithDebInfo fails all replays on 32 bit
-            config: Release
+            config: RelWithDebInfo
             extra-args: --max_duration 60
           - runs-on: macos-12
             arch: intel
