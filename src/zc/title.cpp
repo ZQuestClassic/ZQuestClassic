@@ -1,8 +1,11 @@
+#include <cmath>
 #include <filesystem>
 #include <stdio.h>
 #include <ctype.h>
 #include <cstring>
 #include <memory>
+#include "base/fonts.h"
+#include "base/render.h"
 #include "base/zc_alleg.h"
 #include "base/qrs.h"
 #include "base/packfile.h"
@@ -11,6 +14,8 @@
 
 #include "base/zdefs.h"
 #include "music_playback.h"
+#include "sound/zcmusic.h"
+#include "zc/zc_sys.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "qst.h"
@@ -82,6 +87,30 @@ static void framerect(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, 
 	destroy_bitmap(temp);
 }
 
+static RenderTreeItem* get_logo()
+{
+	static std::string logo_path;
+	if (logo_path.empty())
+	{
+		if (exists("assets/logo.png"))
+			logo_path = "assets/logo.png";
+		else
+			logo_path = "assets/zc/ZC_Logo.png";
+	}
+
+	static RenderTreeItem rti_logo("logo");
+	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap(logo_path.c_str());
+
+	if (logo_bitmap)
+	{
+		rti_logo.bitmap = logo_bitmap;
+		rti_logo.freeze = true;
+		rti_game.add_child(&rti_logo);
+	}
+
+	return &rti_logo;
+}
+
 static void selectscreen()
 {
 	FFCore.kb_typing_mode = false;
@@ -124,30 +153,16 @@ static void selectscreen()
 	textout_ex(scrollbuf,get_zc_font(font_zfont)," NAME ",80,48,1,0);
 	textout_ex(scrollbuf,get_zc_font(font_zfont)," LIFE ",152,48,1,0);
 
-	static std::string logo_path;
-	if (logo_path.empty())
+	auto logo = get_logo();
+	if (logo->bitmap)
 	{
-		if (exists("assets/logo.png"))
-			logo_path = "assets/logo.png";
-		else
-			logo_path = "assets/zc/ZC_Logo.png";
-	}
-
-	static RenderTreeItem rti_logo("logo");
-	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap(logo_path.c_str());
-
-	if (logo_bitmap)
-	{
-		static float aspect_ratio = (float)al_get_bitmap_width(logo_bitmap) / al_get_bitmap_height(logo_bitmap);
-		rti_logo.bitmap = logo_bitmap;
-		rti_logo.freeze = true;
-		rti_game.add_child(&rti_logo);
+		static float aspect_ratio = (float)al_get_bitmap_width(logo->bitmap) / al_get_bitmap_height(logo->bitmap);
 
 		int target_height = 46;
 		int target_width = target_height * aspect_ratio;
-		float scale = (float)target_height / al_get_bitmap_height(rti_logo.bitmap);
+		float scale = (float)target_height / al_get_bitmap_height(logo->bitmap);
 		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
-		rti_logo.set_transform({.x = x, .y = -5, .xscale = scale, .yscale = scale});
+		logo->set_transform({.x = x, .y = -5, .xscale = scale, .yscale = scale});
 	}
 	else
 	{
@@ -1461,6 +1476,99 @@ static void select_game(bool skip = false)
 	saveslot = -1;
 }
 
+static void actual_titlescreen()
+{
+	int starting_volume = 0;
+	if (exists("assets/title_music.mp3"))
+	{
+		try_zcmusic("assets/title_music.mp3", "", 0, 0, starting_volume = get_emusic_volume());
+	}
+	else
+	{
+		try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, starting_volume = get_emusic_volume() * 0.7);
+	}
+
+	init_NES_mode();
+	loadfullpal();
+	loadlvlpal(1);
+
+	auto logo = get_logo();
+	if (logo->bitmap)
+	{
+		static float aspect_ratio = (float)al_get_bitmap_width(logo->bitmap) / al_get_bitmap_height(logo->bitmap);
+		int target_height = 46;
+		int target_width = target_height * aspect_ratio;
+		float scale = (float)target_height / al_get_bitmap_height(logo->bitmap);
+		int x = (al_get_bitmap_width(rti_game.bitmap) - target_width) / 2;
+		logo->set_transform({.x = x, .y = -5, .xscale = scale, .yscale = scale});
+	}
+
+	int starting_y = rti_game.height + 46;
+	int final_y = (rti_game.height - 46) / 2;
+
+	bool show_text = false;
+	int duration = 150;
+	int counter = 0;
+	while (!Quit)
+	{
+		if (keypressed())
+		{
+			sfx(WAV_CHIME);
+			break;
+		}
+
+		double ratio = (double)counter / duration;
+
+		auto t = logo->get_transform();
+		t.y = starting_y + (final_y - starting_y) * ratio;
+		logo->set_transform(t);
+
+		if (!show_text)
+		{
+			int pos = zcmusic_get_curpos(zcmusic);
+			if (pos >= 0)
+			{
+				show_text = pos >= 59000;
+			}
+			else
+			{
+				// For if music is not playing.
+				show_text = counter == duration;
+			}
+		}
+
+		clear_bitmap(framebuf);
+		if (show_text)
+		{
+			int w = text_length(get_zc_font(font_zfont), "PRESS ANYTHING TO START");
+			textout_ex(framebuf,get_zc_font(font_zfont),"PRESS ANYTHING TO START",(framebuf->w - w)/2,framebuf->h - 20,WHITE,0);
+		}
+
+		if (counter < duration)
+			counter++;
+		advanceframe(true);
+	}
+
+	clear_bitmap(framebuf);
+
+	starting_y = logo->get_transform().y;
+	final_y = -5;
+	duration = 30;
+	counter = 0;
+	while (!Quit && counter <= duration)
+	{
+		double ratio = (double)counter / duration;
+		zcmusic_set_volume(zcmusic, starting_volume - starting_volume * std::sqrt(ratio));
+
+		auto t = logo->get_transform();
+		t.y = starting_y + (final_y - starting_y) * ratio;
+		logo->set_transform(t);
+
+		counter++;
+		advanceframe(true);
+	}
+}
+
 void titlescreen(int32_t lsave)
 {
 	int32_t q=Quit;
@@ -1469,6 +1577,8 @@ void titlescreen(int32_t lsave)
 	Playing=Paused=GameLoaded=false;
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
+
+	clear_keybuf();
 
 	if(q==qCONT)
 	{
@@ -1480,12 +1590,9 @@ void titlescreen(int32_t lsave)
 		last_slot_pos = saves_current_selection() % 3;
 	saves_unselect();
 
-	if (PlayTitleMusic)
+	if (!SkipTitle)
 	{
-		if (exists("assets/title_music.mp3"))
-			try_zcmusic("assets/title_music.mp3", "", 0, 0, get_emusic_volume());
-		else
-			try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, get_emusic_volume() * 0.6);
+		actual_titlescreen();
 	}
 	
 	if (replay_get_mode() == ReplayMode::Record)

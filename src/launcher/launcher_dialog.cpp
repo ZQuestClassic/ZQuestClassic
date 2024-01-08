@@ -518,7 +518,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				TabRef(name = "ZC Player", Row(framed = true,
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Fullscreen",App::zelda,"zeldadx","fullscreen",0),
-						CONFIG_CHECKBOX("Title music",App::zelda,"zeldadx","title_music",1),
+						CONFIG_CHECKBOX("Skip titlescreen",App::zelda,"zeldadx","skip_title",0),
 						CONFIG_CHECKBOX("Disable Resizing",App::zelda,"gui","disable_window_resizing",0),
 						CONFIG_CHECKBOX("Cap FPS",App::zelda,"zeldadx","throttlefps",1),
 						CONFIG_CHECKBOX("Show FPS",App::zelda,"zeldadx","showfps",0),
