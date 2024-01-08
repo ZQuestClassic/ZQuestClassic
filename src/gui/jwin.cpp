@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <cstring>
+#include "base/zapp.h"
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
 #include "gui/jwin.h"
@@ -9404,8 +9405,11 @@ void box_out(const char *msg)
 		box_out(remainder.c_str());
 		box_log = oldlog;
 	}
-	
-	if (box_active)
+
+	// For web, always call update_hw_screen because it yields to the main thread,
+	// which makes long running tasks like loading a quest not block the main thread,
+	// which would make SFX sound awful on the title screen.
+	if (box_active || is_web())
 		update_hw_screen(true);
 }
 

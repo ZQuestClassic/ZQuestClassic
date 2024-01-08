@@ -28468,6 +28468,9 @@ int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
+	if (is_headless())
+		return;
+
 	if(force || myvsync)
 	{
 		zc_process_display_events();

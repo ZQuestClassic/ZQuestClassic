@@ -545,6 +545,9 @@ static void render_launcher()
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
+	if (is_headless())
+		return;
+
 	if(force || myvsync)
 	{
 		zc_process_display_events();
