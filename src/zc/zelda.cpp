@@ -1769,15 +1769,10 @@ int32_t init_game()
 
 	if (testingqst_init_data.size())
 	{
-		// Some fields are just not saved in the delta string, since it isn't useful for them to change.
-		auto screen_data_backup = zinit.screen_data;
-		zinit.clear();
-
 		std::string error;
 		zinitdata* new_init = apply_init_data_delta(&zinit, testingqst_init_data, error);
 		if (new_init)
 		{
-			new_init->screen_data = screen_data_backup;
 			zinit = *new_init;
 			resetItems(game, new_init, false);
 			ringcolor(false);
