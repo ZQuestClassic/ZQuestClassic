@@ -1071,6 +1071,18 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 		}
 	}
 
+	// Handles scripts that are just a single function. When they execute the last command (0xFFFF),
+	// that exits the script.
+	// Normally a QUIT does this. But, global init scripts don't end with a QUIT.
+	if (function_ids.contains((0)) && script->size - 1 == structured_zasm.functions.at(0).final_pc + 1)
+	{
+		if (script->zasm[script->size - 1].command == 0xFFFF)
+		{
+			// This will run some 0xFFFF specific code, then trap.
+			compile_command_interpreter(state, script, script->size - 1, 1);
+		}
+	}
+
 	// Finish loop construct.
 	wasm.emitBr(0); // Unconditional branch to top of loop.
 	wasm.emitEnd(); // Loop end.
