@@ -1631,7 +1631,6 @@ void init_game_vars()
 	add_nl2asparkle=false;
 	add_nl2bsparkle=false;
 	gofast=false;
-	cheat=0;
 	wavy=quakeclk=0;
 	show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
 	show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
@@ -1822,6 +1821,10 @@ int32_t init_game()
 	{
 		cheat = 4;
 		maxcheat = 4;
+	}
+	else
+	{
+		cheat = 0;
 	}
 	
 	//Calculate the quest's script-file-storage path -Em
