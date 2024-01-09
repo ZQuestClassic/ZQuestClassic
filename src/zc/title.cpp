@@ -1590,7 +1590,7 @@ void titlescreen(int32_t lsave)
 		last_slot_pos = saves_current_selection() % 3;
 	saves_unselect();
 
-	if (!SkipTitle)
+	if (!SkipTitle && load_qstpath.empty())
 	{
 		actual_titlescreen();
 	}
