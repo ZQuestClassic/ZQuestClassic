@@ -30,7 +30,7 @@ class ReplayStep:
 @dataclass
 class ReplayPart:
     steps: List[ReplayStep] = field(default_factory=list) 
-    save_index: int = 0
+    save_index: int = None
     last_key_step: Optional[ReplayStep] = None
 
 
@@ -40,7 +40,7 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 	current_part = replay_parts[0]
 	previous_part = None
 	qst_path = Path()
-	save_index = 0
+	num_saves = 0
 	with replay_path.open('r', encoding='utf-8') as f:
 		for line in f:
 			line = line.strip()
@@ -66,9 +66,9 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 				if len(current_part.steps) > split_threshold:
 					previous_part = current_part
 					current_part = ReplayPart()
-					current_part.save_index = save_index
+					current_part.save_index = num_saves
 					replay_parts.append(current_part)
-				save_index += 1
+				num_saves += 1
 
 			current_part.steps.append(step)
 
@@ -77,7 +77,7 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 		raise Exception('Nothing to split. Either the replay file has no saves, or it is missing "save game" comments (in which case you must update it)')
 	print(f'will split into {total} replays')
 	maxcol1 = len(str(total))
-	maxcol2 = len(str(save_index))
+	maxcol2 = 5
 	for i, part in enumerate(replay_parts):
 		col1 = str(i + 1).rjust(maxcol1, ' ')
 		col2 = str(part.save_index).rjust(maxcol2, ' ')
@@ -96,9 +96,9 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 			'-replay-save-games',
 			'-replay', replay_path.absolute(),
 		], build_folder)
-	save_files = list(saves_folder.rglob('*.sav'))
-	if save_index + 1 != len(save_files):
-		raise Exception(f'expected {save_index} save files, but got {len(save_files)}')
+	save_files = sorted(list(saves_folder.rglob('*.sav')))
+	if num_saves != len(save_files):
+		print(f'expected {num_saves} save files, but got {len(save_files)}')
 
 	output_folder.mkdir(exist_ok=True)
 	# qst file may not be relative to the replay file (ex: quests/Z1 Recreations/classic_1st.qst)
@@ -157,6 +157,15 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 
 		with output_replay.open('w', newline='\n') as f:
 			for line in meta:
+				if line.startswith('M frames'):
+					f.write(f'M frames {part.steps[-1].frame}')
+					f.write('\n')
+					continue
+				if line.startswith('M length'):
+					f.write(f'M length {len(part.steps)}')
+					f.write('\n')
+					continue
+
 				f.write(line)
 				f.write('\n')
 				if line.startswith('M qst '):
