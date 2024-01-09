@@ -50,21 +50,29 @@ bool zasm_optimize_enabled()
 
 // Very useful tool for identifying a single bad optimization.
 // Use with a tool like `find-first-fail`: https://gitlab.com/ole.tange/tangetools/-/blob/master/find-first-fail/find-first-fail
-// 1. Place `if (bisect_tool_should_skip()) return;` somewhere before problematic code
+// 1. Enable ENABLE_BISECT_TOOL below.
 // 2. Make a new script `tmp.sh` calling a failing replay:
 //        python tests/run_replay_tests.py --filter stellar --frame 40000 --extra_args="-test-bisect $1"
 // 3. Run the bisect script (may need to increase the end range up to 100000 or more):
 //        bash ~/tools/find-first-fail.sh -s 0 -e 1000 -v -q bash tmp.sh
 // 4. For the number given, set `-test-bisect` to that, and set a breakpoint
-//    after the call to bisect_tool_should_skip. Whatever block being processed is the one to focus on.
+//    where specified in bisect_tool_should_skip. Whatever block being processed is the one to focus on.
+// #define ENABLE_BISECT_TOOL
 static bool bisect_tool_should_skip()
 {
+#ifdef ENABLE_BISECT_TOOL
 	static int c = 0;
 	static int x = get_flag_int("-test-bisect").value();
 	// Skip the first x calls.
 	bool skip = 0 <= c && c < x;
 	c++;
+	if (!skip)
+		// Set a breakpoint here.
+		x = x;
 	return skip;
+#else
+	return false;
+#endif
 }
 
 enum class ValueType
@@ -452,6 +460,9 @@ static void optimize_goto_next_instruction(OptContext& ctx)
 		// - it also is a minor optimization
 		if (command_is_goto(C(i).command) && C(i).arg1 == i + 1)
 		{
+			if (bisect_tool_should_skip())
+				continue;
+
 			remove(ctx, i);
 			ctx.cfg_stale = true;
 		}
@@ -493,6 +504,9 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 			int count = end - start + 1;
 			if (count > 1)
 			{
+				if (bisect_tool_should_skip())
+					continue;
+
 				if (write_at_end)
 				{
 					C(end) = {to, arg1, count};
@@ -535,6 +549,7 @@ static void optimize_loadi(OptContext& ctx)
 		int arg1 = C(i).arg1;
 		int arg2 = C(i).arg2;
 		if (command != LOADI || arg2 != D(6)) continue;
+		if (bisect_tool_should_skip()) continue;
 
 		int addv_command = C(i - 1).command;
 		int addv_arg1 = C(i - 1).arg1;
@@ -571,6 +586,7 @@ static void optimize_setv_pushr(OptContext& ctx)
 			if (C(j).command != SETV) continue;
 			if (C(j + 1).command != PUSHR) continue;
 			if (C(j).arg1 != C(j + 1).arg1) continue;
+			if (bisect_tool_should_skip()) continue;
 
 			// `zasm_construct_structured` is sensitive to a PUSH being just before
 			// a function call, so unlike other places assign the NOP to the first
@@ -598,6 +614,8 @@ static void optimize_stack(OptContext& ctx)
 				if (command == POP && C(k).arg1 == reg)
 				{
 					if (count != 0)
+						break;
+					if (bisect_tool_should_skip())
 						break;
 					remove(ctx, j);
 					remove(ctx, k);
@@ -1363,6 +1381,8 @@ static void optimize_spurious_branches(OptContext& ctx)
 
 		// If this make the original target block unreachable, the final `unreachable_blocks` pass
 		// will remove it.
+		if (bisect_tool_should_skip())
+			return;
 		if (goto_pc != C(final_pc).arg1)
 			ctx.cfg_stale = true;
 		C(final_pc) = {GOTOCMP, (int)goto_pc, command_to_cmp(command, C(final_pc).arg2)};
@@ -1508,6 +1528,9 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 				}
 			}
 
+			if (bisect_tool_should_skip())
+				return;
+
 			if (target_block_uses_d2)
 			{
 				// TODO: wasm jit backend currently can only handle pairs of a COMPARE with a single SETX/GOTOX.
@@ -1568,6 +1591,9 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 	{
 		if (!seen_ids.contains((i)))
 		{
+			if (bisect_tool_should_skip())
+				continue;
+
 			auto [block_start, block_final] = get_block_bounds(ctx, i);
 			remove(ctx, block_start, block_final);
 
