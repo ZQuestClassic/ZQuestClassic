@@ -15865,7 +15865,8 @@ void edit_tune(int32_t i)
         editmidi_dlg[23].dp = len_str;
         editmidi_dlg[25].dp = timestr(Midi_Info.len_sec);
         editmidi_dlg[26].flags = (flags&tfDISABLESAVE)?D_SELECTED:0;
-        
+
+        popup_zqdialog_start();
         DIALOG_PLAYER *p = init_dialog(editmidi_dlg,-1);
         
         while(update_dialog(p))
@@ -15874,8 +15875,9 @@ void edit_tune(int32_t i)
             //      text_mode(vc(1));
             textprintf_ex(screen,get_zc_font(font_lfont_l),editmidi_dlg[0].x+int32_t(193*1.5),editmidi_dlg[0].y+int32_t(58*1.5),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
         }
-        
+
         ret = shutdown_dialog(p);
+        popup_zqdialog_end();
         
         loop = editmidi_dlg[8].flags?1:0;
         volume = vbound(atoi(volume_str),0,255); // Allegro can't play louder than 255.
