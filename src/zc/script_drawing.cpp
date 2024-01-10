@@ -11036,7 +11036,12 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 
 void CScriptDrawingCommands::Clear()
 {
-	scb.update();
+	for(auto ubmp : used_bitmaps)
+	{
+		--ubmp->use_count;
+		ubmp->update();
+	}
+	used_bitmaps.clear();
 	dirty_layers.clear();
 	if(commands.empty())
 		return;
@@ -11066,6 +11071,34 @@ void CScriptDrawingCommands::push_commands(CScriptDrawingCommands* other, bool d
 	count += other->count;
 	if(del) delete other;
 }
+CScriptDrawingCommands::CScriptDrawingCommands(CScriptDrawingCommands&& other)
+	: commands(std::move(other.commands)), dirty_layers(std::move(other.dirty_layers)),
+	count(other.count), draw_container(std::move(other.draw_container)), used_bitmaps(std::move(other.used_bitmaps))
+{
+	other.used_bitmaps.clear(); //must be cleared before 'other.Clear()'
+	other.Clear();
+}
+void CScriptDrawingCommands::give(CScriptDrawingCommands&& other)
+{
+	Clear();
+	commands = std::move(other.commands);
+	dirty_layers = std::move(other.dirty_layers);
+	used_bitmaps = std::move(other.used_bitmaps);
+	other.used_bitmaps.clear();  //must be cleared before 'other.Clear()'
+	draw_container = std::move(other.draw_container);
+	count = other.count;
+	other.Clear();
+}
+void CScriptDrawingCommands::use_bmp(user_bitmap* ubmp)
+{
+	if(used_bitmaps.contains(ubmp))
+		return;
+	used_bitmaps.insert(ubmp);
+	++ubmp->use_count;
+}
+
+ScriptDrawingBitmapPool CScriptDrawingCommands::bitmap_pool;
+SmallBitmapTextureCache CScriptDrawingCommands::small_tex_cache;
 
 void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int32_t xoff, int32_t yoff, bool hideLayer7)
 {

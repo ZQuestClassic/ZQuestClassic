@@ -9,6 +9,8 @@
 #define MAX_SCRIPT_DRAWING_COMMANDS 10000
 #define SCRIPT_DRAWING_COMMAND_VARIABLES 20
 
+struct user_bitmap;
+
 // For Quad and Triangle. *allegro Bug-Fix* -Gleeok
 class SmallBitmapTextureCache
 {
@@ -151,6 +153,28 @@ public:
         drawstring(), current_string_count(0),
         drawdata(), current_drawdata_count(0)
     {}
+	DrawingContainer(DrawingContainer&& other) :
+		drawstring(std::move(other.drawstring)), current_string_count(other.current_string_count),
+		drawdata(std::move(other.drawdata)), current_drawdata_count(other.current_drawdata_count)
+	{
+		other.drawstring.clear();
+		other.drawdata.clear();
+		other.current_string_count = 0;
+		other.current_drawdata_count = 0;
+	}
+	DrawingContainer& operator=(DrawingContainer&& other)
+	{
+		Clear();
+		drawstring = std::move(other.drawstring);
+		current_string_count = other.current_string_count;
+		drawdata = std::move(other.drawdata);
+		current_drawdata_count = other.current_drawdata_count;
+		other.drawstring.clear();
+		other.drawdata.clear();
+		other.current_string_count = 0;
+		other.current_drawdata_count = 0;
+		return *this;
+	}
     
     ~DrawingContainer()
     {
@@ -297,8 +321,8 @@ public:
     int32_t GetCount();
     void Dispose()
     {
-        bitmap_pool.Dispose();
-        small_tex_cache.Dispose();
+        //bitmap_pool.Dispose();
+        //small_tex_cache.Dispose();
     }
     
     void Init()
@@ -395,16 +419,21 @@ public:
 	
 	CScriptDrawingCommands* pop_commands();
 	void push_commands(CScriptDrawingCommands* other, bool del = true);
-    
+	
+	void give(CScriptDrawingCommands&& cmds);
+    CScriptDrawingCommands(CScriptDrawingCommands&&);
+	
+	void use_bmp(user_bitmap* ubmp);
 public: 
 	int32_t count;
 protected:
     vec_type commands;
     std::set<int> dirty_layers;
+	std::set<user_bitmap*> used_bitmaps;
     
     DrawingContainer draw_container;
-    ScriptDrawingBitmapPool bitmap_pool;
-    SmallBitmapTextureCache small_tex_cache;
+    static ScriptDrawingBitmapPool bitmap_pool;
+    static SmallBitmapTextureCache small_tex_cache;
     
 private:
     CScriptDrawingCommands(const CScriptDrawingCommands&) : count(0) {}

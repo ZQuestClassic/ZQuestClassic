@@ -284,9 +284,10 @@ struct user_bitmap : public user_abstract_obj
 	int32_t height;
 	int32_t depth;
 	byte flags;
+	size_t use_count;
 	
 	user_bitmap() : user_abstract_obj(),
-		u_bmp(NULL), width(0), height(0), depth(0), flags(0)
+		u_bmp(NULL), width(0), height(0), depth(0), flags(0), use_count(0)
 	{}
 	
 	void destroy()
@@ -308,7 +309,7 @@ struct user_bitmap : public user_abstract_obj
 	}
 	void update()
 	{
-		if(flags & UBMPFLAG_FREEING)
+		if((flags & UBMPFLAG_FREEING) && !use_count)
 			clear();
 	}
 	virtual void clear() override
@@ -316,6 +317,7 @@ struct user_bitmap : public user_abstract_obj
 		user_abstract_obj::clear();
 		destroy();
 		flags = 0;
+		use_count = 0;
 	}
 	virtual void free_obj() override
 	{

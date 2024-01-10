@@ -32814,10 +32814,18 @@ INLINE void set_drawing_command_args(const int32_t j, const word numargs)
 
 INLINE void set_user_bitmap_command_args(const int32_t j, const word numargs)
 {
-	//ri->bitmapref = SH::read_stack(ri->sp+numargs);
-	//zprint("Current drawing bitmap ref is: %d\n", ri->bitmapref );
 	for(int32_t k = 1; k <= numargs; k++)
 		script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
+}
+INLINE void set_bmp_used(const int32_t bmpptr)
+{
+	if(user_bitmap* ubmp = checkBitmap(bmpptr, "", false, true))
+		script_drawing_commands.use_bmp(ubmp);
+}
+INLINE void set_user_bitmap_bmpptr(const int32_t j, const int32_t bmpptr)
+{
+	script_drawing_commands[j][17] = bmpptr;
+	set_bmp_used(bmpptr);
 }
 
 void do_drawing_command(const int32_t script_command)
@@ -33193,38 +33201,38 @@ void do_drawing_command(const int32_t script_command)
 		break;
 		
 		case BMPRECTR:	
-			set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);
+			set_user_bitmap_command_args(j, 12); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+12));
 			//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
 			//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12.
 			break;
 		
 		case BMPFRAMER:	
 			set_user_bitmap_command_args(j, 9);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+9));
 			break;
 			
 		case CLEARBITMAP:	
 		{
 			set_user_bitmap_command_args(j, 1);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+1)); 
 			break;
 		}
 		case BITMAPCLEARTOCOLOR:	
 		{
 			set_user_bitmap_command_args(j, 2);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+2)); 
 			break;
 		}
 		case REGENERATEBITMAP:	
 		{
 			set_user_bitmap_command_args(j, 3);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+3));
 			break;
 		}
 		case BMPPOLYGONR:
 		{
 			set_user_bitmap_command_args(j, 5);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5); 
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+5)); 
 			int32_t arrayptr = script_drawing_commands[j][3]/10000;
 			if ( !arrayptr ) //Don't crash because of vector size.
 			{
@@ -33251,7 +33259,7 @@ void do_drawing_command(const int32_t script_command)
 		{
 			//zprint("Calling %s\n","READBITMAP");
 			set_user_bitmap_command_args(j, 2);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+2);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+2));
 			string *str = script_drawing_commands.GetString();
 			ArrayH::getString(script_drawing_commands[j][2] / 10000, *str, 256);
 			
@@ -33275,7 +33283,7 @@ void do_drawing_command(const int32_t script_command)
 		{
 			//zprint("Calling %s\n","WRITEBITMAP");
 			set_user_bitmap_command_args(j, 3);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+3)); 
 			std::string *str = script_drawing_commands.GetString();
 			ArrayH::getString(script_drawing_commands[j][2] / 10000, *str, 256);
 			
@@ -33296,24 +33304,24 @@ void do_drawing_command(const int32_t script_command)
 			break;
 		}
 		
-		case BMPCIRCLER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);  break;
-		case BMPARCR:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14);  break;
-		case BMPELLIPSER:	set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);  break;
-		case BMPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
-		case BMPSPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
-		case BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
-		case BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); break;
-		case BMPDRAWTILECLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
-		case BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
-		case BMPDRAWCOMBOCLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
-		case BMPFASTTILER:	set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
-		case BMPFASTCOMBOR:  set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
-		case BMPDRAWCHARR:	set_user_bitmap_command_args(j, 10); script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); break;
-		case BMPDRAWINTR:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
+		case BMPCIRCLER:	set_user_bitmap_command_args(j, 11); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+11));  break;
+		case BMPARCR:	set_user_bitmap_command_args(j, 14); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+14));  break;
+		case BMPELLIPSER:	set_user_bitmap_command_args(j, 12); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+12));  break;
+		case BMPLINER:	set_user_bitmap_command_args(j, 11); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+11)); break;
+		case BMPSPLINER:	set_user_bitmap_command_args(j, 11); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+11)); break;
+		case BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+8)); break;
+		case BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+15)); break;
+		case BMPDRAWTILECLOAKEDR:	set_user_bitmap_command_args(j, 7); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+7)); break;
+		case BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+16)); break;
+		case BMPDRAWCOMBOCLOAKEDR:	set_user_bitmap_command_args(j, 7); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+7)); break;
+		case BMPFASTTILER:	set_user_bitmap_command_args(j, 6); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+6)); break;
+		case BMPFASTCOMBOR:  set_user_bitmap_command_args(j, 6); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+6)); break;
+		case BMPDRAWCHARR:	set_user_bitmap_command_args(j, 10); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+10)); break;
+		case BMPDRAWINTR:	set_user_bitmap_command_args(j, 11); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+11)); break;
 		case BMPDRAWSTRINGR:	
 		{
 			set_user_bitmap_command_args(j, 9);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+9));
 			// Unused
 			//const int32_t index = script_drawing_commands[j][19] = j;
 			
@@ -33326,7 +33334,7 @@ void do_drawing_command(const int32_t script_command)
 		case BMPDRAWSTRINGR2:	
 		{
 			set_user_bitmap_command_args(j, 11);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+11));
 			// Unused
 			//const int32_t index = script_drawing_commands[j][19] = j;
 			
@@ -33336,7 +33344,11 @@ void do_drawing_command(const int32_t script_command)
 			
 		}
 		break;
-		case BMPQUADR:	set_user_bitmap_command_args(j, 16);  script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
+		case BMPQUADR:
+			set_user_bitmap_command_args(j, 16);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+16));
+			set_bmp_used(script_drawing_commands[j][16]);
+			break;
 		case BMPQUAD3DR:
 		{
 			set_drawing_command_args(j, 9);
@@ -33355,11 +33367,16 @@ void do_drawing_command(const int32_t script_command)
 			ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
 			
 			script_drawing_commands[j].SetVector(v);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+9));
+			set_bmp_used(script_drawing_commands[j][9]);
 			
 		}
 		break;
-		case BMPTRIANGLER:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); break;
+		case BMPTRIANGLER:
+			set_user_bitmap_command_args(j, 14);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+14));
+			set_bmp_used(script_drawing_commands[j][14]);
+			break;
 		case BMPTRIANGLE3DR:
 		{
 			set_drawing_command_args(j, 9);
@@ -33379,26 +33396,27 @@ void do_drawing_command(const int32_t script_command)
 			ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
 			
 			script_drawing_commands[j].SetVector(v);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+9));
+			set_bmp_used(script_drawing_commands[j][9]);
 			break;
 		}
 		
 		case BMPDRAWLAYERR:
 			set_user_bitmap_command_args(j, 8);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+8));
 			break;
 		case BMPDRAWLAYERSOLIDR: 
 		case BMPDRAWLAYERCFLAGR: 
 		case BMPDRAWLAYERCTYPER: 
 		case BMPDRAWLAYERCIFLAGR: 
-		case BMPDRAWLAYERSOLIDITYR: set_user_bitmap_command_args(j, 9); script_drawing_commands[j][17] = SH::read_stack(ri->sp+9); break;
+		case BMPDRAWLAYERSOLIDITYR: set_user_bitmap_command_args(j, 9); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+9)); break;
 		case BMPDRAWSCREENR:
 		case BMPDRAWSCREENSOLIDR:
 		case BMPDRAWSCREENSOLID2R:
 		case BMPDRAWSCREENCOMBOFR:
 		case BMPDRAWSCREENCOMBOIR:
 		case BMPDRAWSCREENCOMBOTR:
-			set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+			set_user_bitmap_command_args(j, 6); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+6)); break;
 		case BITMAPGETPIXEL:
 		{
 			//UNUSED
@@ -33406,7 +33424,7 @@ void do_drawing_command(const int32_t script_command)
 			// {
 				// Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
 			// }
-			set_user_bitmap_command_args(j, 3); script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
+			set_user_bitmap_command_args(j, 3); set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+3));
 			break;
 		}
 		case BMPBLIT:	
@@ -33414,7 +33432,8 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 16); 
 			//for(int32_t q = 0; q < 8; ++q )
 			//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+16));
+			set_bmp_used(script_drawing_commands[j][2]);
 			break;
 		}
 		case BMPBLITTO:	
@@ -33422,7 +33441,8 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 16); 
 			//for(int32_t q = 0; q < 8; ++q )
 			//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+16));
+			set_bmp_used(script_drawing_commands[j][2]);
 			break;
 		}
 		case BMPMODE7:	
@@ -33430,20 +33450,22 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 13); 
 			//for(int32_t q = 0; q < 8; ++q )
 			//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+13);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+13));
+			set_bmp_used(script_drawing_commands[j][2]);
 			break;
 		}
 		
 		case BMPWRITETILE:
 		{
 			set_user_bitmap_command_args(j, 6);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+6));
 			break;
 		}
 		case BMPDITHER:
 		{
 			set_user_bitmap_command_args(j, 5);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+5));
+			set_bmp_used(script_drawing_commands[j][2]);
 			break;
 		}
 		case BMPMASKDRAW:
@@ -33451,7 +33473,8 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 3);
 			script_drawing_commands[j][4] = 0x01 * 10000L;
 			script_drawing_commands[j][5] = 0xFF * 10000L;
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+3));
+			set_bmp_used(script_drawing_commands[j][2]);
 			break;
 		}
 		case BMPMASKDRAW2:
@@ -33459,14 +33482,16 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 4);
 			script_drawing_commands[j][5] = script_drawing_commands[j][4];
 			script_drawing_commands[j][0] = BMPMASKDRAW;
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+4));
+			set_bmp_used(script_drawing_commands[j][2]);
 			break;
 		}
 		case BMPMASKDRAW3:
 		{
 			set_user_bitmap_command_args(j, 5);
 			script_drawing_commands[j][0] = BMPMASKDRAW;
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+5));
+			set_bmp_used(script_drawing_commands[j][2]);
 			break;
 		}
 		case BMPMASKBLIT:
@@ -33474,7 +33499,9 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 4);
 			script_drawing_commands[j][5] = 0x01 * 10000L;
 			script_drawing_commands[j][6] = 0xFF * 10000L;
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+4));
+			set_bmp_used(script_drawing_commands[j][2]);
+			set_bmp_used(script_drawing_commands[j][3]);
 			break;
 		}
 		case BMPMASKBLIT2:
@@ -33482,21 +33509,25 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 5);
 			script_drawing_commands[j][6] = script_drawing_commands[j][5];
 			script_drawing_commands[j][0] = BMPMASKBLIT;
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+5));
+			set_bmp_used(script_drawing_commands[j][2]);
+			set_bmp_used(script_drawing_commands[j][3]);
 			break;
 		}
 		case BMPMASKBLIT3:
 		{
 			set_user_bitmap_command_args(j, 6);
 			script_drawing_commands[j][0] = BMPMASKBLIT;
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+6));
+			set_bmp_used(script_drawing_commands[j][2]);
+			set_bmp_used(script_drawing_commands[j][3]);
 			break;
 		}
 		case BMPREPLCOLOR:
 		case BMPSHIFTCOLOR:
 		{
 			set_user_bitmap_command_args(j, 4);
-			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			set_user_bitmap_bmpptr(j, SH::read_stack(ri->sp+4));
 			break;			
 		}
 	}
@@ -42813,7 +42844,7 @@ void FFScript::runF6Engine()
 			black_opening_count = 0; //No opening wipe during F6 menu
 			if(black_opening_shape==bosFADEBLACK) black_fade(0);
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
-			//auto tmpDrawCommands = script_drawing_commands.pop_commands();
+			CScriptDrawingCommands tmpDrawCommands(std::move(script_drawing_commands));
 			pause_all_sfx();
 
 			auto& data = get_script_engine_data(ScriptType::Global, GLOBAL_SCRIPT_F6);
@@ -42837,7 +42868,7 @@ void FFScript::runF6Engine()
 			}
 			resume_all_sfx();
 			script_drawing_commands.Clear();
-			//script_drawing_commands.push_commands(tmpDrawCommands);
+			script_drawing_commands.give(std::move(tmpDrawCommands));
 			GameFlags &= ~GAMEFLAG_F6SCRIPT_ACTIVE;
 			//Restore opening wipe
 			black_opening_count = openingwipe;
@@ -42869,7 +42900,7 @@ void FFScript::runOnDeathEngine()
 	initZScriptHeroScripts();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	kill_sfx(); //No need to pause/resume; the player is dead.
-	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
+	CScriptDrawingCommands tmpDrawCommands(std::move(script_drawing_commands));
 	
 	auto& data = get_script_engine_data(ScriptType::Player);
 	while (data.doscript && !Quit)
@@ -42890,7 +42921,7 @@ void FFScript::runOnDeathEngine()
 		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
-	//script_drawing_commands.push_commands(tmpDrawCommands);
+	script_drawing_commands.give(std::move(tmpDrawCommands));
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 }
 void FFScript::runOnLaunchEngine()
@@ -42900,7 +42931,7 @@ void FFScript::runOnLaunchEngine()
 	clear_to_color(script_menu_buf,BLACK);
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
-	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
+	CScriptDrawingCommands tmpDrawCommands(std::move(script_drawing_commands));
 
 	auto& data = get_script_engine_data(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH);
 	while (data.doscript && !Quit)
@@ -42922,7 +42953,7 @@ void FFScript::runOnLaunchEngine()
 		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
-	//script_drawing_commands.push_commands(tmpDrawCommands);
+	script_drawing_commands.give(std::move(tmpDrawCommands));
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 }
 bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_data)
@@ -42949,7 +42980,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
-	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
+	CScriptDrawingCommands tmpDrawCommands(std::move(script_drawing_commands));
 	while(doscript(ScriptType::GenericFrozen, local_i) && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -42963,7 +42994,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
-	//script_drawing_commands.push_commands(tmpDrawCommands);
+	script_drawing_commands.give(std::move(tmpDrawCommands));
 	//clear
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	if(fl)
@@ -42990,7 +43021,7 @@ bool FFScript::runScriptedActiveSusbcreen()
 	initZScriptScriptedActiveSubscreen();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
-	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
+	CScriptDrawingCommands tmpDrawCommands(std::move(script_drawing_commands));
 	pause_all_sfx();
 	auto& data = get_script_engine_data(ScriptType::ScriptedActiveSubscreen);
 	while (data.doscript && !Quit)
@@ -43044,7 +43075,7 @@ bool FFScript::runScriptedActiveSusbcreen()
 	}
 	resume_all_sfx();
 	script_drawing_commands.Clear();
-	//script_drawing_commands.push_commands(tmpDrawCommands);
+	script_drawing_commands.give(std::move(tmpDrawCommands));
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
@@ -43058,7 +43089,7 @@ bool FFScript::runOnMapScriptEngine()
 	initZScriptOnMapScript();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
-	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
+	CScriptDrawingCommands tmpDrawCommands(std::move(script_drawing_commands));
 	pause_all_sfx();
 
 	auto& data = get_script_engine_data(ScriptType::OnMap);
@@ -43093,7 +43124,7 @@ bool FFScript::runOnMapScriptEngine()
 	}
 	resume_all_sfx();
 	script_drawing_commands.Clear();
-	//script_drawing_commands.push_commands(tmpDrawCommands);
+	script_drawing_commands.give(std::move(tmpDrawCommands));
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
