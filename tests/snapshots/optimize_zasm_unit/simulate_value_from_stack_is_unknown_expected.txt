@@ -9,92 +9,69 @@
 	D2 = D2 I>= 1
 inferred D2: 0
 5: LOADD           D2              0      
-	D2 = 0
-	bail
 6: NOP            
-	D2 = 0
 	side_effects
-	bail
 7: NOP            
-	D2 = 0
 	side_effects
-	bail
 8: PUSHR           D2              
-	D2 = 0
 	side_effects
-	bail
 9: SETV            D2              450000 
 	D2 = 450000
 	side_effects
-	bail
 10: POP             D3              
 	D2 = 450000
 	D3 = ?
 	side_effects
-	bail
 11: COMPARER        D3              D2     
 	D2 = 450000
 	D3 = ?
 	side_effects
-	bail
 12: SETLESSI        D2              
 	D2 = ?
 	D3 = ?
 	side_effects
-	bail
 13: COMPAREV        D2              0      
 	D2 = ?
 	D3 = ?
 	side_effects
-	bail
 14: GOTOTRUE        16              
 	D2 = ?
 	D3 = ?
 	side_effects
-	bail
+rewrite 3: GOTOCMP         5               ==     
 
 [spurious_branches] Block #2
 
 5: LOADD           D2              0      
-	bail
 6: NOP            
 	side_effects
-	bail
 7: NOP            
 	side_effects
-	bail
 8: PUSHR           D2              
 	side_effects
-	bail
 9: SETV            D2              450000 
 	D2 = 450000
 	side_effects
-	bail
 10: POP             D3              
 	D2 = 450000
 	D3 = ?
 	side_effects
-	bail
 11: COMPARER        D3              D2     
 	D2 = 450000
 	D3 = ?
 	side_effects
-	bail
 12: SETLESSI        D2              
 	D2 = ?
 	D3 = ?
 	side_effects
-	bail
 13: COMPAREV        D2              0      
 	D2 = ?
 	D3 = ?
 	side_effects
-	bail
 14: GOTOTRUE        16              
 	D2 = ?
 	D3 = ?
 	side_effects
-	bail
 
 [reduce_comparisons] Block #0
 
@@ -103,7 +80,7 @@ inferred D2: 0
 	D2 = D2 I>= 1
 2: COMPAREV        D2              0      
 	D2 = D2 I>= 1
-3: GOTOTRUE        5               
+3: GOTOCMP         5               ==     
 	D2 = D2 I>= 1
 rewrite 0: 4 -> 2 commands
 0: COMPAREV        D2              1      

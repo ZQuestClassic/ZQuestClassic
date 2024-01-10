@@ -1111,14 +1111,6 @@ static void simulate(OptContext& ctx, SimulationState& state)
 			return;
 		}
 
-		case LOADD:
-		case LOADI:
-		{
-			if (arg1 == D(2))
-				state.bail = true;
-			return;
-		}
-
 		case STRCMPR:
 		case STRICMPR:
 		{
