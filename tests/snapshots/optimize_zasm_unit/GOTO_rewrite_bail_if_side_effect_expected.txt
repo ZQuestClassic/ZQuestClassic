@@ -73,5 +73,5 @@ Function #0
     7: COMPAREV        D2              0
     8: GOTOCMP         10              ==
     9: TRACEV          1                            [Block 3 -> 4]
-   10: SETR            D6              D4           [Block 4 -> ]
+   10: NOP                                          [Block 4 -> ]
    11: QUIT

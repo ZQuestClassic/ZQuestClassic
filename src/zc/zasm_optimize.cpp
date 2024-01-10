@@ -412,7 +412,8 @@ static void remove(OptContext& ctx, pc_t pc)
 	ctx.saved += 1;
 }
 
-static void for_every_command_arg(const ffscript& instr, std::function<void(bool, bool, int)> fn)
+template <typename T>
+static void for_every_command_arg(const ffscript& instr, T fn)
 {
 	const auto& sc = get_script_command(instr.command);
 
@@ -435,7 +436,60 @@ static void for_every_command_arg(const ffscript& instr, std::function<void(bool
 	}
 }
 
-static void optimize_by_block(OptContext& ctx, std::function<void(pc_t, pc_t, pc_t)> cb)
+template <typename T>
+static void for_every_command_arg_include_indices(const ffscript& instr, T fn)
+{
+	switch (instr.command)
+	{
+		case LOADD:
+		case STORED:
+			fn(true, false, rSFRAME);
+			break;
+
+		case READPODARRAYR:
+		case READPODARRAYV:
+		case WRITEPODARRAYRR:
+		case WRITEPODARRAYRV:
+		case WRITEPODARRAYVR:
+		case WRITEPODARRAYVV:
+			fn(true, false, rINDEX);
+			break;
+
+		case ZCLASS_CONSTRUCT:
+		case ZCLASS_WRITE:
+			fn(true, false, rEXP1);
+			break;
+
+		case ZCLASS_READ:
+		case ZCLASS_FREE:
+			fn(false, true, rEXP1);
+			break;
+		
+		case ARCTANR:
+		case ISSOLID:
+		case MAPDATAISSOLID:
+			fn(true, false, rINDEX);
+			fn(true, false, rINDEX2);
+			break;
+		
+		case MAPDATAISSOLIDLYR:
+		case ISSOLIDLAYER:
+			fn(true, false, rINDEX);
+			fn(true, false, rINDEX2);
+			fn(true, false, rEXP1);
+			break;
+	}
+
+	for_every_command_arg(instr, [&](bool read, bool write, int reg){
+		for (auto r : get_zregister_indices(reg))
+			fn(true, false, r);
+
+		fn(read, write, reg);
+	});
+}
+
+template<typename T>
+static void optimize_by_block(OptContext& ctx, T cb)
 {
 	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
 	{
@@ -1610,8 +1664,125 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 	}
 }
 
-// Ideas for more opt passes:
-// - Remove unused writes to a D register
+// https://en.wikipedia.org/wiki/Data-flow_analysis
+// https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
+// https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
+static void optimize_dead_code(OptContext& ctx)
+{
+	add_context_cfg(ctx);
+
+	std::map<pc_t, std::vector<pc_t>> precede;
+	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
+		precede[i] = {};
+	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
+	{
+		for (pc_t e : E(i))
+		{
+			precede.at(e).push_back(i);
+		}
+	}
+
+	struct block_vars {
+		uint8_t in, out, gen, kill;
+		bool returns;
+	};
+	std::vector<block_vars> vars(ctx.block_starts.size());
+
+	std::set<pc_t> worklist;
+	for (pc_t block_index = 0; block_index < ctx.block_starts.size(); block_index++)
+	{
+		worklist.insert(block_index);
+
+		uint8_t gen = 0;
+		uint8_t kill = 0;
+		bool returns = false;
+		auto [start_pc, final_pc] = get_block_bounds(ctx, block_index);
+		for (pc_t i = start_pc; i <= final_pc; i++)
+		{
+			int command = C(i).command;
+			bool is_function_call =
+				command == CALLFUNC || (command_is_goto(command) && ctx.structured_zasm->function_calls.contains(i));
+			if (is_function_call)
+			{
+				kill = 0xFF;
+				continue;
+			}
+
+			if (command == RETURNFUNC || command == RETURN || command == GOTOR)
+				returns = true;
+
+			for_every_command_arg_include_indices(C(i), [&](bool read, bool write, int reg){
+				if (read && reg < D(8))
+				{
+					if (!(kill & (1 << reg)))
+						gen |= 1 << reg;
+				}
+				if (write && reg < D(8))
+					kill |= 1 << reg;
+			});
+		}
+
+		vars.at(block_index) = {0, 0, gen, kill, returns};
+	}
+
+	while (!worklist.empty())
+	{
+		pc_t block_index = *worklist.begin();
+		worklist.erase(worklist.begin());
+
+		auto& [in, out, gen, kill, returns] = vars.at(block_index);
+
+		out = 0;
+		for (pc_t e : E(block_index))
+			out |= vars.at(e).in;
+		if (returns)
+			out |= 1 << D(2);
+
+		uint8_t old_in = in;
+		in = gen | (out & ~kill);
+
+		if (in != old_in)
+		{
+			for (pc_t e : precede.at(block_index))
+				worklist.insert(e);
+		}
+	}
+
+	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
+		uint8_t out = vars.at(block_index).out;
+
+		// fmt::print("{} in: ", block_index);
+		// for (int i = 0; i < 8; i++) if (in & (1 << i)) fmt::print("D{} ", i);
+		// fmt::print("out: ");
+		// for (int i = 0; i < 8; i++) if (out & (1 << i)) fmt::print("D{} ", i);
+		// fmt::print("\n");
+
+		int live = out;
+		pc_t i = final_pc;
+		while (true)
+		{
+			for_every_command_arg_include_indices(C(i), [&](bool read, bool write, int reg){
+				if (write && reg < D(8))
+				{
+					if (!(live & (1 << reg)))
+					{
+						// Don't remove writes that have other side effects (like modifying the stack).
+						if (command_is_pure(C(i).command) && !bisect_tool_should_skip())
+							remove(ctx, i);
+					}
+					live &= ~(1 << reg);
+				}
+				if (read && reg < D(8))
+					live |= 1 << reg;
+			});
+
+			if (i == start_pc)
+				break;
+			i--;
+		}
+	});
+}
+
 static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> passes = {
 	{"goto_next_instruction", optimize_goto_next_instruction},
 	{"unreachable_blocks", optimize_unreachable_blocks},
@@ -1622,6 +1793,7 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> pas
 	{"spurious_branches", optimize_spurious_branches},
 	{"reduce_comparisons", optimize_reduce_comparisons},
 	{"unreachable_blocks_2", optimize_unreachable_blocks},
+	{"dead_code", optimize_dead_code},
 };
 
 static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair<std::string, std::function<void(OptContext&)>> pass)

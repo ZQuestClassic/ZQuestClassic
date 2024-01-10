@@ -74,7 +74,7 @@ Function #0
     8: COMPAREV        D2              0
     9: GOTOCMP         12              ==
    10: SETR            D6              D4           [Block 1 -> 2]
-   11: ADDV            D6              60000
+   11: NOP
    12: COMPAREV        D3              0            [Block 2 -> 3, 4]
    13: GOTOCMP         15              ==
    14: TRACEV          1                            [Block 3 -> 4]
@@ -83,5 +83,5 @@ Function #0
 
 Function #1
    16: SETR            D2              LINKX        [Block 0 -> ]
-   17: SETR            D3              LINKY
+   17: NOP
    18: RETURNFUNC

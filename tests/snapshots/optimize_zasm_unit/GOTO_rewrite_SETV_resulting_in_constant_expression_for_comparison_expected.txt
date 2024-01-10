@@ -62,11 +62,11 @@ Function #0
     1: COMPAREV        D2              0
     2: GOTOCMP         9               ==
     3: TRACEV          1                            [Block 1 -> 2, 3]
-    4: SETV            D2              0
-    5: SETV            D2              0
+    4: NOP
+    5: NOP
     6: SETV            D2              1
     7: COMPAREV        D2              0
     8: GOTOCMP         10              ==
     9: TRACEV          1                            [Block 2 -> 3]
-   10: SETR            D6              D4           [Block 3 -> ]
+   10: NOP                                          [Block 3 -> ]
    11: QUIT

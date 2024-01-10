@@ -8,4 +8,5 @@ Finished optimizing scripts:
 	[spurious_branches] saved 0 instr (0.0%)
 	[reduce_comparisons] saved 9244 instr (4.9%)
 	[unreachable_blocks_2] saved 1743 instr (0.9%)
-	[total] saved 59006 instr (31.4%)
+	[dead_code] saved 3371 instr (1.8%)
+	[total] saved 62377 instr (33.2%)

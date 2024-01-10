@@ -149,6 +149,6 @@ Function #0
    25: SETCMP          D2              !=           [Block 6 -> 7, 8]
    26: COMPAREV        D2              0
    27: GOTOCMP         30              ==
-   28: LOADD           D2              50000        [Block 7 -> 8]
+   28: NOP                                          [Block 7 -> 8]
    29: TRACEV          0
    30: QUIT                                         [Block 8 -> ]

@@ -630,6 +630,9 @@ JittedFunction jit_compile_script(script_data *script)
 			}
 			else if (comparing_state)
 			{
+				// The optimizer may insert a NOP here.
+				if (command == NOP)
+					continue;
 				if (!command_uses_comparison_result(command))
 					comparing_state = false;
 			}

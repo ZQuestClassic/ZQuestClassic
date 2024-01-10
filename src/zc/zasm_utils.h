@@ -81,4 +81,6 @@ std::string zasm_analyze_duplication();
 
 std::pair<bool, bool> get_command_rw(int command, int arg);
 
+std::initializer_list<int> get_zregister_indices(int reg);
+
 #endif

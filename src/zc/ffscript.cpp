@@ -8212,16 +8212,11 @@ int32_t get_register(int32_t arg)
 		case DISTANCESCALE: 
 		{
 			double x1 = (double)(ri->d[rSFTEMP] / 10000.0);
-			zprint2("x1 is: %f\n", x1);
 			double y1 = (double)(ri->d[rINDEX] / 10000.0);
-			zprint2("y1 is: %f\n", y1);
 			double x2 = (double)(ri->d[rINDEX2] / 10000.0);
-			zprint2("x2 is: %f\n", x2);
 			double y2 = (double)(ri->d[rEXP1] / 10000.0);
-			zprint2("y2 is: %f\n", y2);
 			
 			int32_t scale = (ri->d[rWHAT_NO_7]/10000);
-			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 10000;
 			int32_t result = FFCore.Distance(x1, y1, x2, y2, scale);
@@ -8232,16 +8227,11 @@ int32_t get_register(int32_t arg)
 		case LONGDISTANCESCALE: 
 		{
 			double x1 = (double)(ri->d[rSFTEMP]);
-			zprint2("x1 is: %f\n", x1);
 			double y1 = (double)(ri->d[rINDEX]);
-			zprint2("y1 is: %f\n", y1);
 			double x2 = (double)(ri->d[rINDEX2]);
-			zprint2("x2 is: %f\n", x2);
 			double y2 = (double)(ri->d[rEXP1]);
-			zprint2("y2 is: %f\n", y2);
 			
 			int32_t scale = (ri->d[rWHAT_NO_7]);
-			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 1;
 			int32_t result = FFCore.LongDistance(x1, y1, x2, y2, scale);
@@ -51910,6 +51900,106 @@ bool command_could_return_not_ok(int command)
 	case SETSCREENENEMY:
 		return true;
 	}
+	return false;
+}
+
+bool command_is_pure(int command)
+{
+	switch (command)
+	{
+		case ABS:
+		case ADDR:
+		case ADDV:
+		case ANDR:
+		case ANDR32:
+		case ANDV:
+		case ANDV32:
+		case ARCCOSR:
+		case ARCCOSV:
+		case ARCSINR:
+		case ARCSINV:
+		case BITNOT:
+		case BITNOT32:
+		case CASTBOOLF:
+		case CEILING:
+		case COMPAREV2:
+		case COSR:
+		case COSV:
+		case DIVV2:
+		case FACTORIAL:
+		case FLOOR:
+		case IPOWERR:
+		case IPOWERV:
+		case ISALLOCATEDBITMAP:
+		case LOADD:
+		case LOADI:
+		case LOG10:
+		case LOGE:
+		case LSHIFTR:
+		case LSHIFTR32:
+		case LSHIFTV:
+		case LSHIFTV32:
+		case MAXR:
+		case MAXV:
+		case MAXVARG:
+		case MINR:
+		case MINV:
+		case MINVARG:
+		case MODR:
+		case MODV:
+		case MODV2:
+		case NANDR:
+		case NANDV:
+		case NORR:
+		case NORV:
+		case NOT:
+		case ORR:
+		case ORR32:
+		case ORV:
+		case ORV32:
+		case PEEK:
+		case PEEKATV:
+		case POWERR:
+		case POWERV:
+		case ROUND:
+		case ROUNDAWAY:
+		case RSHIFTR:
+		case RSHIFTR32:
+		case RSHIFTV:
+		case RSHIFTV32:
+		case SETCMP:
+		case SETFALSE:
+		case SETFALSEI:
+		case SETLESS:
+		case SETLESSI:
+		case SETMORE:
+		case SETMOREI:
+		case SETR:
+		case SETTRUE:
+		case SETTRUEI:
+		case SETV:
+		case SINR:
+		case SINV:
+		case SUBR:
+		case SUBV:
+		case SUBV2:
+		case TANR:
+		case TANV:
+		case TOBYTE:
+		case TOINTEGER:
+		case TOSHORT:
+		case TOSIGNEDBYTE:
+		case TOWORD:
+		case TRUNCATE:
+		case XNORR:
+		case XNORV:
+		case XORR:
+		case XORR32:
+		case XORV:
+		case XORV32:
+			return true;
+	}
+
 	return false;
 }
 

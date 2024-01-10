@@ -83,6 +83,6 @@ Function #0
    10: SETV            D2              10000
    11: GOTO            13
    12: NOP                                          [Block 3 -> 4]
-   13: SETV            D3              0            [Block 4 -> ]
+   13: NOP                                          [Block 4 -> ]
    14: POP             D3
    15: RETURN

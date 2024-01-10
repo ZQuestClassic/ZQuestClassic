@@ -52,13 +52,13 @@ Function #2
    44: SETR            SCRIPTRAM       D2
    45: PUSHR           D0
    46: SETV            D2              970000
-   47: CALLFUNC        49                           [Call Function #3]
+   47: CALLFUNC        50                           [Call Function #3]
    48: POP             D0
+   49: RETURNFUNC
 
 
 Function #3
-   49: RETURNFUNC                                   [Block 0 -> ]
-   50: SETV            D0              1337
+   50: SETV            D0              1337         [Block 0 -> ]
    51: TRACER          D0
    52: RETURNFUNC
 
