@@ -1,0 +1,16 @@
+; comparisons, random stuff (3)
+Function #0
+    0: SETR            D6              D4           [Block 0 -> 1, 2]
+    1: ADDV            D6              730000
+    2: LOADI           D2              D6
+    3: PUSHR           D2
+    4: SETV            D2              40000
+    5: POP             D3
+    6: COMPARER        D3              D2
+    7: SETMORE         D2
+    8: COMPAREV        D2              0
+    9: SETTRUEI        D2
+   10: COMPAREV        D2              1
+   11: GOTOMORE        13
+   12: TRACEV          1337                         [Block 1 -> 2]
+   13: QUIT                                         [Block 2 -> ]

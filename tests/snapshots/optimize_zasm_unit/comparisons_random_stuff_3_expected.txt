@@ -1,0 +1,74 @@
+[spurious_branches] Block #0
+
+0: LOADD           D2              730000 
+1: NOP            
+	side_effects
+2: NOP            
+	side_effects
+3: PUSHR           D2              
+	side_effects
+4: SETV            D2              40000  
+	D2 = 40000
+	side_effects
+5: POP             D3              
+	D2 = 40000
+	side_effects
+6: COMPARER        D3              D2     
+	D2 = 40000
+	side_effects
+7: SETMORE         D2              
+	D2 = D3 >= 40000
+	side_effects
+8: COMPAREV        D2              0      
+	D2 = D3 >= 40000
+	side_effects
+9: SETTRUEI        D2              
+	D2 = D3 < 40000
+	side_effects
+10: COMPAREV        D2              1      
+	D2 = D3 < 40000
+	side_effects
+11: GOTOMORE        13              
+	D2 = D3 < 40000
+	side_effects
+inferred D2: 1
+13: QUIT           
+	D2 = 1
+	side_effects
+rewrite 11: GOTOCMP         13              >=     
+
+[reduce_comparisons] Block #0
+
+6: COMPARER        D3              D2     
+7: SETMORE         D2              
+	D2 = D3 >= D2
+8: COMPAREV        D2              0      
+	D2 = D3 >= D2
+9: SETTRUEI        D2              
+	D2 = D3 < D2
+10: COMPAREV        D2              1      
+	D2 = D3 < D2
+11: GOTOCMP         13              >=     
+	D2 = D3 < D2
+rewrite 6: 6 -> 2 commands
+6: COMPARER        D3              D2     
+7: GOTOCMP         13              <      
+8: NOP            
+9: NOP            
+10: NOP            
+11: NOP            
+Function #0
+    0: LOADD           D2              730000       [Block 0 -> 1, 2]
+    1: NOP
+    2: NOP
+    3: PUSHR           D2
+    4: SETV            D2              40000
+    5: POP             D3
+    6: COMPARER        D3              D2
+    7: GOTOCMP         13              <
+    8: NOP                                          [Block 1 -> 2]
+    9: NOP
+   10: NOP
+   11: NOP
+   12: TRACEV          1337
+   13: QUIT                                         [Block 2 -> ]

@@ -20,23 +20,18 @@ inferred D2: 0
 	side_effects
 10: POP             D3              
 	D2 = 450000
-	D3 = ?
 	side_effects
 11: COMPARER        D3              D2     
 	D2 = 450000
-	D3 = ?
 	side_effects
 12: SETLESSI        D2              
-	D2 = ?
-	D3 = ?
+	D2 = D3 I<= 450000
 	side_effects
 13: COMPAREV        D2              0      
-	D2 = ?
-	D3 = ?
+	D2 = D3 I<= 450000
 	side_effects
 14: GOTOTRUE        16              
-	D2 = ?
-	D3 = ?
+	D2 = D3 I<= 450000
 	side_effects
 rewrite 3: GOTOCMP         5               ==     
 
@@ -54,24 +49,24 @@ rewrite 3: GOTOCMP         5               ==
 	side_effects
 10: POP             D3              
 	D2 = 450000
-	D3 = ?
 	side_effects
 11: COMPARER        D3              D2     
 	D2 = 450000
-	D3 = ?
 	side_effects
 12: SETLESSI        D2              
-	D2 = ?
-	D3 = ?
+	D2 = D3 I<= 450000
 	side_effects
 13: COMPAREV        D2              0      
-	D2 = ?
-	D3 = ?
+	D2 = D3 I<= 450000
 	side_effects
 14: GOTOTRUE        16              
-	D2 = ?
-	D3 = ?
+	D2 = D3 I<= 450000
 	side_effects
+inferred D2: 0
+16: TRACEV          2               
+	D2 = 0
+	side_effects
+rewrite 14: GOTOCMP         16              ==     
 
 [reduce_comparisons] Block #0
 
@@ -95,7 +90,7 @@ rewrite 0: 4 -> 2 commands
 	D2 = D3 I<= D2
 13: COMPAREV        D2              0      
 	D2 = D3 I<= D2
-14: GOTOTRUE        16              
+14: GOTOCMP         16              ==     
 	D2 = D3 I<= D2
 rewrite 11: 4 -> 2 commands
 11: COMPARER        D3              D2     

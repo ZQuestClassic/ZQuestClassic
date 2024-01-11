@@ -20,21 +20,16 @@
 6: CALLFUNC        16              
 	side_effects
 7: POP             D4              
-	D4 = ?
 	side_effects
 8: COMPAREV        D2              0      
-	D4 = ?
 	side_effects
 9: GOTOTRUE        12              
-	D4 = ?
 	side_effects
 inferred D2: 0
 12: COMPAREV        D3              0      
 	D2 = 0
-	D4 = ?
 13: GOTOTRUE        15              
 	D2 = 0
-	D4 = ?
 rewrite 9: GOTOCMP         12              ==     
 
 [spurious_branches] Block #2

@@ -132,7 +132,7 @@ struct SimulationValue
 
 	bool is_equality_expression() const
 	{
-		return type == ValueType::Expression && (data & CMP_EQ);
+		return type == ValueType::Expression && (data == CMP_EQ);
 	}
 
 	SimulationValue negate() const
@@ -965,14 +965,21 @@ static void infer_values_given_branch(OptContext& ctx, SimulationState& state)
 
 	// If branching comparison is between a register and a value,
 	// assign that register to what it must be to pass the condition.
+	// TODO: this feels like it could be improved.
 	if (!(state.operand_1_backing_reg != -1 && state.operand_2_backing_reg != -1))
 	{
-		if (state.operand_1_backing_reg != -1)
-			infer_assign(ctx, state, state.operand_1_backing_reg,
-				expr(reg(state.operand_1_backing_reg), branch_cmp, state.operand_2));
-		if (state.operand_2_backing_reg != -1)
-			infer_assign(ctx, state, state.operand_2_backing_reg,
-				expr(state.operand_1, branch_cmp, reg(state.operand_2_backing_reg)));
+		if (state.operand_1_backing_reg != -1 && state.operand_2_backing_reg == -1)
+		{
+			bool seti = state.d[state.operand_1_backing_reg].is_expression() && state.d[state.operand_1_backing_reg].data & CMP_SETI;
+			if ((branch_cmp & CMP_FLAGS) == CMP_GE && state.operand_2 == num_one)
+				state.d[state.operand_1_backing_reg] = state.operand_1 = seti ? num(10000) : num_one;
+			else if ((branch_cmp & CMP_FLAGS) == CMP_EQ && state.operand_2 == num_zero)
+				state.d[state.operand_1_backing_reg] = state.operand_1 = num_zero;
+			else
+				infer_assign(ctx, state, state.operand_1_backing_reg,
+					expr(reg(state.operand_1_backing_reg), branch_cmp, state.operand_2));
+		}
+		// Doing the other case hasn't seemed necessary yet.
 	}
 
 	if (expression.is_number())
@@ -1119,6 +1126,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		}
 
 		case POP:
+		case POPARGS:
 		{
 			if (!(arg1 >= D(0) && arg1 < D(8)))
 			{
@@ -1126,12 +1134,14 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				return;
 			}
 
-			state.d[arg1] = {ValueType::Unknown};
+			// If this register holds some non-default value, mark it unknown.
+			// TODO: need a way to distinguish for ex. "input D3" vs "var from stack"
+			if (state.d[arg1] != reg(arg1))
+				state.d[arg1] = {ValueType::Unknown};
 			state.side_effects = true;
 			return;
 		}
 
-		case POPARGS:
 		case PUSHARGSR:
 		case PUSHR:
 		case SETA1:

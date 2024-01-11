@@ -24,13 +24,10 @@ inferred D2: 0
 12: LOADD           D2              1337   
 	side_effects
 13: POP             D4              
-	D4 = ?
 	side_effects
 14: COMPAREV        D2              0      
-	D4 = ?
 	side_effects
 15: GOTOTRUE        22              
-	D4 = ?
 	side_effects
 rewrite 2: GOTOCMP         10              ==     
 
@@ -64,36 +61,26 @@ rewrite 9: GOTOCMP         28              !=
 12: LOADD           D2              1337   
 	side_effects
 13: POP             D4              
-	D4 = ?
 	side_effects
 14: COMPAREV        D2              0      
-	D4 = ?
 	side_effects
 15: GOTOTRUE        22              
-	D4 = ?
 	side_effects
 inferred D2: 0
 22: COMPAREV        D2              0      
 	D2 = 0
-	D4 = ?
 23: SETCMP          D2              !=     
 	D2 = 0
-	D4 = ?
 24: COMPAREV        D2              0      
 	D2 = 0
-	D4 = ?
 25: SETCMP          D2              !=     
 	D2 = 0
-	D4 = ?
 26: COMPAREV        D2              0      
 	D2 = 0
-	D4 = ?
 27: GOTOTRUE        30              
 	D2 = 0
-	D4 = ?
 30: QUIT           
 	D2 = 0
-	D4 = ?
 	side_effects
 rewrite 15: GOTOCMP         30              ==     
 
