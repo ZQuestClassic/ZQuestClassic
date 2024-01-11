@@ -13300,6 +13300,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(70);
 		if (!p_putc(zinit.spriteflickertransp, f))
 			new_return(71);
+		if (!p_iputzf(zinit.air_drag, f))
+			new_return(72);
 		
 		if(writecycle==0)
 		{

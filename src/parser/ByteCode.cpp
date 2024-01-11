@@ -2470,6 +2470,14 @@ string ZScript::VarToString(int32_t ID)
 		
 		case IDATAATTRIB_L: return "IDATAATTRIB_L";
 		
+		case HEROSLIDING: return "HEROSLIDING";
+		case HEROICECMB: return "HEROICECMB";
+		case HEROSCRICECMB: return "HEROSCRICECMB";
+		case HEROICEVX: return "HEROICEVX";
+		case HEROICEVY: return "HEROICEVY";
+		case HEROICEENTRYFRAMES: return "HEROICEENTRYFRAMES";
+		case HEROICEENTRYMAXFRAMES: return "HEROICEENTRYMAXFRAMES";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);

@@ -92,6 +92,13 @@ bool ispitfall_type(int32_t type);
 bool isdamage_type(int32_t type);
 bool ispitfall(int32_t x, int32_t y);
 int32_t getpitfall(int32_t x, int32_t y);
+enum
+{
+	ICY_BLOCK,
+	ICY_PLAYER,
+	ICY_MAX
+};
+bool check_icy(newcombo const& cmb, int type);
 int get_icy(int x, int y, int type);
 bool isGrassType(int32_t type);
 bool isFlowersType(int32_t type);
@@ -207,4 +214,5 @@ void init_ffpos();
 
 //
 bool is_push(mapscr* m, int32_t pos);
+optional<int32_t> get_combo(int x, int y, int maxlayer, bool ff, std::function<bool(newcombo const&)> proc);
 #endif

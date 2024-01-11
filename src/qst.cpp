@@ -20900,6 +20900,9 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			if (!p_getc(&temp_zinit.spriteflickertransp, f))
 				return qe_invalid;
 		}
+		if(s_version >= 39)
+			if(!p_igetzf(&temp_zinit.air_drag, f))
+				return qe_invalid;
 	}
 	if (should_skip)
 		return 0;

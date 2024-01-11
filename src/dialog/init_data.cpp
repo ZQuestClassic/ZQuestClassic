@@ -595,6 +595,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								padding = 0_px,
 								DEC_VAL_FIELD("Gravity:", 1, 99990000, 4, gravity, isZC), INFOBTN("The rate of gravity, in px/frame^2"),
 								DEC_VAL_FIELD("Terminal Vel:", 1, 999900, 2, terminalv, isZC), INFOBTN("The terminal velocity, in px/frame"),
+								ZFIX_VAL_FIELD("Air Drag:", 0, SWAP_MAX, air_drag, isZC), INFOBTN("The 'Air Drag'. This affects how objects with momentum"
+									" (such as the player, after jumping off of slippery ice) slow down in the air."
+									" Measured as a deceleration in px/frame^2"),
 								VAL_FIELD(word, "Player Step:", 0, 65535, heroStep, isZC), INFOBTN("The player's movement speed, in 100ths px/frame. Only applies if 'New Player Movement' is enabled." + QRHINT({ qr_NEW_HERO_MOVEMENT,qr_NEW_HERO_MOVEMENT2 })),
 								ZFIX_VAL_FIELD("Player Shove:", 0, 160000, shove_offset, isZC), INFOBTN("The player's 'corner shove' leniency, in pixels. Only applies if 'Newer Player Movement' is enabled." + QRHINT({ qr_NEW_HERO_MOVEMENT2 }))
 							)

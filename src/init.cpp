@@ -1090,6 +1090,7 @@ template<std::size_t N, class T>
 constexpr std::size_t countof(T(&)[N]) { return N; }
 
 #define LIST_PROPS \
+	ZFIXPROP(air_drag) \
 	PROP(bomb_ratio) \
 	PROP(bunny_ltm) \
 	PROP(cont_heart) \
@@ -1112,7 +1113,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(heroSideswimSideStep) \
 	PROP(heroSideswimUpStep) \
 	PROP(heroStep) \
-	ZFIXPROP(shove_offset) \
 	PROP(hp_per_heart) \
 	PROP(jump_hero_layer_threshold) \
 	PROP(last_map) \
@@ -1123,6 +1123,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(msg_more_x) \
 	PROP(msg_more_y) \
 	PROP(msg_speed) \
+	ZFIXPROP(shove_offset) \
 	PROP(ss_bbox_1_color) \
 	PROP(ss_bbox_2_color) \
 	PROP(ss_flags) \
