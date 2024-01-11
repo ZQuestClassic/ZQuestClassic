@@ -64,6 +64,7 @@ struct zinitdata
 	byte spriteflickerspeed = 1, spriteflickercolor = 0x00, spriteflickertransp = 0;
 	
 	zfix shove_offset = 6.5_zf;
+	zfix air_drag = 0.0100_zf;
 	
 	bitstring gen_doscript;
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};

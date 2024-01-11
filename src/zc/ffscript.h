@@ -5020,7 +5020,15 @@ enum ASM_DEFINE
 
 #define IDATAATTRIB_L           0x15A4
 
-#define NUMVARIABLES            0x15A5
+#define HEROSLIDING             0x15A5
+#define HEROICECMB              0x15A6
+#define HEROSCRICECMB           0x15A7
+#define HEROICEVX               0x15A8
+#define HEROICEVY               0x15A9
+#define HEROICEENTRYFRAMES      0x15AA
+#define HEROICEENTRYMAXFRAMES   0x15AB
+
+#define NUMVARIABLES            0x15AC
 
 //} End variables
 

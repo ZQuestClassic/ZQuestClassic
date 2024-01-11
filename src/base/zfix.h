@@ -455,6 +455,14 @@ inline zfix operator ""_zf(const char* val)
 {
 	return atozfix(val);
 }
+inline int32_t operator ""_zl(unsigned long long int val)
+{
+	return val*10000;
+}
+inline int32_t operator ""_zl(const char* val)
+{
+	return atozfix(val).getZLong();
+}
 
 static const zfix PI_ZF(3.1416_zf);
 static const zfix PI2_ZF(2*PI_ZF);

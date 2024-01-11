@@ -6,9 +6,6 @@
 #include "alert.h"
 #include "zc_list_data.h"
 
-#define SWAP_MAX 2147483647
-#define SWAP_MIN (-2147483647-1)
-
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern int32_t Combo, CSet;
 static int32_t tCSet;

@@ -66,6 +66,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->jump_hero_layer_threshold=zinit.jump_hero_layer_threshold;
 	zinit2->heroStep=zinit.heroStep;
 	zinit2->shove_offset=zinit.shove_offset;
+	zinit2->air_drag=zinit.air_drag;
 	zinit2->subscrSpeed=zinit.subscrSpeed;
 	zinit2->bomb_ratio = zinit.bomb_ratio;
 	zinit2->hcp = gdata->get_HCpieces();

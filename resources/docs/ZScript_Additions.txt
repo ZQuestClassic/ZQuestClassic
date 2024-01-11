@@ -15,10 +15,7 @@
 
 
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
-	versions 2.54, and 2.55. 
-	
-Document for: 2.55, Alpha 111/112
-Document Revision: 29th Oct, 2022
+	versions 2.55+
 
 
  __           _   _                 
@@ -6306,7 +6303,35 @@ bool MoveFlags[2];
  * [0] == Obeys gravity (see ->Gravity)
  * [1] == Can fall in pitfalls
  * Read-Write
- 
+
+float IceVx;
+float IceVy;
+ * The player's ice velocity (in pixels per frame).
+ * Read/write, has no effect unless the player is Sliding.
+ * If the player is not Sliding, the engine will clear these to '0'.
+
+int IceEntryFrames;
+int IceEntryMaxFrames;
+ * Read/write, 0-255, has no effect unless the player is Sliding.
+ * Used to grant the player some leeway when first entering the ice.
+ * On entering the ice, these are set to the same value, and 'IceEntryFrames'
+ *     then ticks down each frame to 0. Instantly goes to 0 if the player is still.
+ * Based on the ratio between these values, the player's deceleration
+ *     will be somewhere between the IceCombo's deceleration and half of the player's step speed.
+
+int Sliding;
+ * Read-only. One of the 'SLD_' constants:
+ * SLD_NONE (0) - not sliding
+ * SLD_ICE (1) - sliding on the ground, on ice
+ * SLD_AIR (2) - sliding in the air (momentum from ice)
+
+int IceCombo;
+ * Read-only. The icy combo the player is sliding on.
+
+int ScriptIceCombo;
+ * Read-write. If nonzero, this combo is used instead of the IceCombo (can be used to force the player to slide).
+ * If the specified combo is not an Icy Floor combo that affects the player, no sliding will occur.
+
 **************************************************************
 
 untyped HitBy[10];

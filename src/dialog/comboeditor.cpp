@@ -1950,6 +1950,21 @@ void ComboEditorDialog::loadComboType()
 			l_flag[0] = "Slides Blocks";
 			h_flag[0] = "Pushable blocks pushed onto this combo will"
 				" slide past it, if nothing blocks their way.";
+			l_flag[1] = "Slides Player";
+			h_flag[1] = "The player will slip and slide on the ice.";
+			if(FL(cflag2))
+			{
+				l_attribyte[0] = "Start Speed Percentage";
+				h_attribyte[0] = "The percentage of the player's movement speed to carry onto the ice when first stepping onto it.";
+				l_attribyte[1] = "Entry Leeway Frames";
+				h_attribyte[1] = "For this many frames after entering the ice, the player will have additional traction. The traction gradually decreases over time until the frames are up.";
+				l_attribute[0] = "Acceleration";
+				h_attribute[0] = "Speed gained when holding a direction, in pixels per frame.";
+				l_attribute[1] = "Deceleration";
+				h_attribute[1] = "Speed lost when not holding a direction, in pixels per frame.";
+				l_attribute[2] = "Max Speed";
+				h_attribute[2] = "The highest speed that can be reached";
+			}
 			break;
 		}
 		case cMIRRORNEW:

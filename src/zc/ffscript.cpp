@@ -3939,6 +3939,21 @@ int32_t get_register(int32_t arg)
 		case HEROFLICKERTRANSP:
 			ret = (int32_t)(Hero.flickertransp) * 10000; break;
 		
+		case HEROSLIDING:
+			ret = Hero.sliding*10000; break;
+		case HEROICECMB:
+			ret = Hero.ice_combo*10000; break;
+		case HEROSCRICECMB:
+			ret = Hero.script_ice_combo*10000; break;
+		case HEROICEVX:
+			ret = Hero.ice_vx.getZLong(); break;
+		case HEROICEVY:
+			ret = Hero.ice_vy.getZLong(); break;
+		case HEROICEENTRYFRAMES:
+			ret = Hero.ice_entry_count*10000; break;
+		case HEROICEENTRYMAXFRAMES:
+			ret = Hero.ice_entry_mcount*10000; break;
+		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
 		case INPUTSTART:
@@ -8089,7 +8104,7 @@ int32_t get_register(int32_t arg)
 		case GAMEGRAVITY:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if ( ((unsigned)indx) > 2 )
+			if ( ((unsigned)indx) > 3 )
 			//if(indx < 0 || indx > 2)
 			{
 				ret = -10000;
@@ -8107,6 +8122,9 @@ int32_t get_register(int32_t arg)
 						break;
 					case 2: //Sprite Layer Threshold
 						ret = zinit.jump_hero_layer_threshold * 10000;
+						break;
+					case 3: //Air Drag
+						ret = zinit.air_drag.getZLong();
 						break;
 				}
 			}
@@ -16680,6 +16698,16 @@ void set_register(int32_t arg, int32_t value)
 			Hero.flickertransp = value / 10000;
 			break;
 		}
+		case HEROSCRICECMB:
+			Hero.script_ice_combo = vbound(value/10000,-1,MAXCOMBOS); break;
+		case HEROICEVX:
+			Hero.ice_vx = zslongToFix(value); break;
+		case HEROICEVY:
+			Hero.ice_vy = zslongToFix(value); break;
+		case HEROICEENTRYFRAMES:
+			Hero.ice_entry_count = vbound(value/10000,0,255); break;
+		case HEROICEENTRYMAXFRAMES:
+			Hero.ice_entry_mcount = vbound(value/10000,0,255); break;
 		
 		
 	///----------------------------------------------------------------------------------------------------//
@@ -20988,7 +21016,7 @@ void set_register(int32_t arg, int32_t value)
 		case GAMEGRAVITY:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(indx < 0 || indx > 2)
+			if(indx < 0 || indx > 3)
 			{
 				Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
 			}
@@ -21004,6 +21032,9 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					case 2: //Sprite Layer Threshold
 						zinit.jump_hero_layer_threshold = value / 10000;
+						break;
+					case 3: //Air Drag
+						zinit.air_drag = zslongToFix(value);
 						break;
 				}
 			}
