@@ -1,77 +1,163 @@
 [spurious_branches] Block #0
 
-0: LOADD           D2              50000  
-1: CASTBOOLF       D2              
+5: LOADD           D2              50000  
+6: CASTBOOLF       D2              
 	D2 = Bool(D2)
-2: COMPAREV        D2              1      
+7: COMPAREV        D2              1      
 	D2 = Bool(D2)
-3: SETMORE         D2              
+8: SETMORE         D2              
 	D2 = Bool(D2)
-4: COMPAREV        D2              1      
+9: COMPAREV        D2              1      
 	D2 = Bool(D2)
-5: GOTOMORE        9               
+10: GOTOMORE        14              
 	D2 = Bool(D2)
 inferred D2: 1
-9: SETMORE         D2              
+14: SETMORE         D2              
 	D2 = 1
-10: COMPAREV        D2              0      
+15: COMPAREV        D2              0      
 	D2 = 1
-11: GOTOCMP         13              ==     
+16: GOTOCMP         18              ==     
 	D2 = 1
-12: TRACEV          1               
+17: SETV            D2              1      
+	D2 = 1
+18: RETURNFUNC     
 	D2 = 1
 	side_effects
-rewrite 5: GOTOCMP         12              >=     
+rewrite 10: GOTOCMP         17              >=     
 
 [reduce_comparisons] Block #0
 
-1: CASTBOOLF       D2              
+6: CASTBOOLF       D2              
 	D2 = Bool(D2)
-2: COMPAREV        D2              1      
+7: COMPAREV        D2              1      
 	D2 = Bool(D2)
-3: SETMORE         D2              
+8: SETMORE         D2              
 	D2 = Bool(D2)
-4: COMPAREV        D2              1      
+9: COMPAREV        D2              1      
 	D2 = Bool(D2)
-5: GOTOCMP         12              >=     
+10: GOTOCMP         17              >=     
 	D2 = Bool(D2)
-rewrite 1: 5 -> 2 commands
-1: COMPAREV        D2              0      
-2: GOTOCMP         12              !=     
-3: NOP            
-4: NOP            
-5: NOP            
+rewrite 6: 5 -> 2 commands
+6: COMPAREV        D2              0      
+7: GOTOCMP         17              !=     
+8: NOP            
+9: NOP            
+10: NOP            
 
 [reduce_comparisons] Block #1
 
-7: CASTBOOLF       D2              
+12: CASTBOOLF       D2              
 	D2 = Bool(D2)
-8: COMPAREV        D2              1      
+13: COMPAREV        D2              1      
 	D2 = Bool(D2)
-9: SETMORE         D2              
+14: SETMORE         D2              
 	D2 = Bool(D2)
-10: COMPAREV        D2              0      
+15: COMPAREV        D2              0      
 	D2 = Bool(D2)
-11: GOTOCMP         13              ==     
+16: GOTOCMP         18              ==     
 	D2 = Bool(D2)
-rewrite 7: 5 -> 2 commands
-7: COMPAREV        D2              0      
-8: GOTOCMP         13              ==     
-9: NOP            
-10: NOP            
-11: NOP            
+rewrite 12: 5 -> 3 commands
+12: COMPAREV        D2              0      
+13: SETCMP          D2              !=     
+14: GOTOCMP         18              ==     
+15: NOP            
+16: NOP            
+
+[spurious_branches] Block #0
+
+19: LOADD           D2              0      
+20: LOADD           D3              10000  
+21: COMPARER        D3              D2     
+22: SETMORE         D2              
+	D2 = D3 >= D2
+23: COMPAREV        D2              0      
+	D2 = D3 >= D2
+24: SETTRUEI        D2              
+	D2 = D3 I< D2
+25: COMPAREV        D2              1      
+	D2 = D3 I< D2
+26: GOTOCMP         28              >=     
+	D2 = D3 I< D2
+inferred D2: 10000
+28: SETMOREI        D2              
+	D2 = 10000
+29: COMPAREV        D2              0      
+	D2 = 10000
+30: SETTRUEI        D2              
+	D2 = 0
+31: GOTO            33              
+	D2 = 0
+33: RETURNFUNC     
+	D2 = 0
+	side_effects
+rewrite 26: GOTOCMP         28              >=     
+
+[reduce_comparisons] Block #0
+
+21: COMPARER        D3              D2     
+22: SETMORE         D2              
+	D2 = D3 >= D2
+23: COMPAREV        D2              0      
+	D2 = D3 >= D2
+24: SETTRUEI        D2              
+	D2 = D3 I< D2
+25: COMPAREV        D2              1      
+	D2 = D3 I< D2
+26: GOTOCMP         28              >=     
+	D2 = D3 I< D2
+
+[reduce_comparisons] Block #0
+
+23: COMPAREV        D2              0      
+24: SETTRUEI        D2              
+	D2 = !IBool(D2)
+25: COMPAREV        D2              1      
+	D2 = !IBool(D2)
+26: GOTOCMP         28              >=     
+	D2 = !IBool(D2)
+
+[reduce_comparisons] Block #0
+
+25: COMPAREV        D2              1      
+26: GOTOCMP         28              >=     
 Function #0
-    0: LOADD           D2              50000        [Block 0 -> 1, 3]
-    1: COMPAREV        D2              0
-    2: GOTOCMP         12              !=
-    3: NOP                                          [Block 1 -> 2, 4]
-    4: NOP
-    5: NOP
-    6: LOADD           D2              60000
-    7: COMPAREV        D2              0
-    8: GOTOCMP         13              ==
-    9: NOP                                          [Block 2 -> 3]
+    0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
+    1: CALLFUNC        19                           [Call Function #2]
+    2: NOP
+    3: NOP
+    4: QUIT
+
+
+Function #1
+    5: LOADD           D2              50000        [Block 0 -> 1, 3]
+    6: COMPAREV        D2              0
+    7: GOTOCMP         17              !=
+    8: NOP                                          [Block 1 -> 2, 4]
+    9: NOP
    10: NOP
-   11: NOP
-   12: TRACEV          1                            [Block 3 -> 4]
-   13: QUIT                                         [Block 4 -> ]
+   11: LOADD           D2              60000
+   12: COMPAREV        D2              0
+   13: SETCMP          D2              !=
+   14: GOTOCMP         18              ==
+   15: NOP                                          [Block 2 -> 3]
+   16: NOP
+   17: SETV            D2              1            [Block 3 -> 4]
+   18: RETURNFUNC                                   [Block 4 -> ]
+
+
+Function #2
+   19: LOADD           D2              0            [Block 0 -> 1, 2]
+   20: LOADD           D3              10000
+   21: COMPARER        D3              D2
+   22: SETMORE         D2
+   23: COMPAREV        D2              0
+   24: SETTRUEI        D2
+   25: COMPAREV        D2              1
+   26: GOTOCMP         28              >=
+   27: TRACEV          1                            [Block 1 -> 2]
+   28: SETMOREI        D2                           [Block 2 -> 4]
+   29: COMPAREV        D2              0
+   30: SETTRUEI        D2
+   31: GOTO            33
+   32: NOP                                          [Block 3 -> 4]
+   33: RETURNFUNC                                   [Block 4 -> ]

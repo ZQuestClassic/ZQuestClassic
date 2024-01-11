@@ -59,7 +59,7 @@ rewrite 0: 4 -> 2 commands
 12: COMPAREV        D2              0      
 	D2 = D3 >= D2
 13: SETTRUEI        D2              
-	D2 = D3 < D2
+	D2 = D3 I< D2
 14: CASTBOOLF       D2              
 	D2 = D3 < D2
 15: COMPAREV        D2              1      

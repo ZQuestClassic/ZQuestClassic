@@ -23,17 +23,17 @@
 	D2 = D3 >= 40000
 	side_effects
 9: SETTRUEI        D2              
-	D2 = D3 < 40000
+	D2 = D3 I< 40000
 	side_effects
 10: COMPAREV        D2              1      
-	D2 = D3 < 40000
+	D2 = D3 I< 40000
 	side_effects
 11: GOTOMORE        13              
-	D2 = D3 < 40000
+	D2 = D3 I< 40000
 	side_effects
-inferred D2: 1
+inferred D2: 10000
 13: QUIT           
-	D2 = 1
+	D2 = 10000
 	side_effects
 rewrite 11: GOTOCMP         13              >=     
 
@@ -45,11 +45,11 @@ rewrite 11: GOTOCMP         13              >=
 8: COMPAREV        D2              0      
 	D2 = D3 >= D2
 9: SETTRUEI        D2              
-	D2 = D3 < D2
+	D2 = D3 I< D2
 10: COMPAREV        D2              1      
-	D2 = D3 < D2
+	D2 = D3 I< D2
 11: GOTOCMP         13              >=     
-	D2 = D3 < D2
+	D2 = D3 I< D2
 rewrite 6: 6 -> 2 commands
 6: COMPARER        D3              D2     
 7: GOTOCMP         13              <      

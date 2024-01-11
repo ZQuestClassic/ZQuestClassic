@@ -825,7 +825,10 @@ static SimulationValue evaluate_binary_op(int cmp, SimulationValue a, Simulation
 	{
 		if (!seti)
 			a.data = a.data & ~CMP_SETI;
-		return a.negate();
+		auto result = a.negate();
+		if (seti)
+			result.data |= CMP_SETI;
+		return result;
 	}
 
 	if (flags == CMP_EQ && ((a.is_number() && a.data == 0) || (b.is_number() && b.data == 0)))
@@ -1496,8 +1499,8 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 				fmt::println("\n[reduce_comparisons] Block #{}\n", block_index);
 
 			std::vector<ffscript> expression_zasm;
+			SimulationState state{};
 			{
-				SimulationState state{};
 				state.block = block_index;
 				state.pc = j;
 				state.final_pc = final_pc;
@@ -1518,25 +1521,26 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 				}
 			}
 
+			// If the comparison operands are compared again after the branch, then reducing the comparison
+			// would break the code.
 			pc_t target_pc = C(final_pc).arg1;
-			bool target_block_uses_comparison_result = false;
 			{
+				bool target_block_reuses_comparison_operands = false;
 				auto [s, e] = get_block_bounds(ctx, ctx.cfg.start_pc_to_block_id.at(target_pc));
 				for (pc_t i = s; i <= e; i++)
 				{
 					int command = C(i).command;
 					if (command_writes_comparison_result(command))
 					{
-						target_block_uses_comparison_result = true;
+						target_block_reuses_comparison_operands = true;
 						break;
 					}
 					if (one_of(command, COMPAREV, COMPAREV2, COMPARER))
 						break;
 				}
+				if (target_block_reuses_comparison_operands)
+					continue;
 			}
-
-			if (target_block_uses_comparison_result)
-				return;
 
 			// Determine if D2 is reused after the branch. If so, and the original code
 			// sets the comparison result to D2, we need continue setting it (we are removing all but the GOTOCMP).
@@ -1587,26 +1591,13 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 			if (bisect_tool_should_skip())
 				return;
 
-			if (target_block_uses_d2)
+			if (target_block_uses_d2 && state.d[2].is_expression())
 			{
 				// TODO: wasm jit backend currently can only handle pairs of a COMPARE with a single SETX/GOTOX.
 				if (is_web())
 					break;
 
-				int cmp = expression_zasm.back().arg2;
-				for (pc_t k = final_pc - 1; k > j; k--)
-				{
-					// If the last SET for D2 has SETI, need to match that.
-					if (command_writes_comparison_result(C(k).command) && C(k).arg1 == D(2))
-					{
-						if (command_to_cmp(C(k).command, C(k).arg2) & CMP_SETI)
-							cmp |= CMP_SETI;
-						break;
-					}
-				}
-				if (C(final_pc - 1).command == COMPAREV && C(final_pc - 1).arg1 == D(2) && C(final_pc - 1).arg2 == 0)
-					cmp = INVERT_CMP(cmp);
-				expression_zasm.insert(expression_zasm.end() - 1, ffscript{SETCMP, D(2), cmp});
+				expression_zasm.insert(expression_zasm.end() - 1, ffscript{SETCMP, D(2), state.d[2].data});
 			}
 
 			std::copy(expression_zasm.begin(), expression_zasm.end(), &C(j));

@@ -6,11 +6,11 @@
 2: COMPAREV        D2              0      
 	D2 = D3 >= D2
 3: SETTRUEI        D2              
-	D2 = D3 < D2
+	D2 = D3 I< D2
 4: COMPAREV        D2              0      
-	D2 = D3 < D2
+	D2 = D3 I< D2
 5: GOTOTRUE        11              
-	D2 = D3 < D2
+	D2 = D3 I< D2
 inferred D2: 0
 11: COMPAREV        D2              1      
 	D2 = 0
@@ -48,11 +48,11 @@ rewrite 14: GOTOCMP         16              ==
 2: COMPAREV        D2              0      
 	D2 = D3 >= D2
 3: SETTRUEI        D2              
-	D2 = D3 < D2
+	D2 = D3 I< D2
 4: COMPAREV        D2              0      
-	D2 = D3 < D2
+	D2 = D3 I< D2
 5: GOTOCMP         16              ==     
-	D2 = D3 < D2
+	D2 = D3 I< D2
 rewrite 0: 6 -> 2 commands
 0: COMPARER        D3              D2     
 1: GOTOCMP         16              >=     
