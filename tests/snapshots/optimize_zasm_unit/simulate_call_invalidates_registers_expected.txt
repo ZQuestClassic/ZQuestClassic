@@ -11,10 +11,10 @@
 3: PUSHV           80000           
 	D3 = 0
 	side_effects
-4: SETR            D2              GD0    
+4: NOP            
 	D3 = 0
 	side_effects
-5: PUSHR           D2              
+5: PUSHR           GD0             
 	D3 = 0
 	side_effects
 6: CALLFUNC        16              
@@ -62,8 +62,8 @@ Function #0
     1: PUSHR           D4
     2: NOP
     3: PUSHV           80000
-    4: SETR            D2              GD0
-    5: PUSHR           D2
+    4: NOP
+    5: PUSHR           GD0
     6: CALLFUNC        16                           [Call Function #1]
     7: POP             D4
     8: COMPAREV        D2              0

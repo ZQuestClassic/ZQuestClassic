@@ -651,6 +651,42 @@ static void optimize_setv_pushr(OptContext& ctx)
 	});
 }
 
+// SETR, PUSHR -> PUSHV
+// Ex:
+//   SETR            D2              GD0
+//   PUSHR           D2
+// ->
+//   PUSHR           GD0
+static void optimize_setr_pushr(OptContext& ctx)
+{
+	add_context_cfg(ctx);
+	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
+		for (int j = start_pc; j < final_pc; j++)
+		{
+			if (C(j).command != SETR) continue;
+			if (C(j + 1).command != PUSHR) continue;
+			if (C(j).arg1 == rSFRAME) continue;
+			if (C(j).arg1 != C(j + 1).arg1) continue;
+			if (j + 2 <= final_pc)
+			{
+				bool reads_from_reg = false;
+				for_every_command_arg_include_indices(C(j + 2), [&](bool read, bool write, int reg){
+					if (reg == C(j).arg1 && read)
+						reads_from_reg = true;
+				});
+				if (reads_from_reg) continue;
+			}
+			if (bisect_tool_should_skip()) continue;
+
+			// `zasm_construct_structured` is sensitive to a PUSH being just before
+			// a function call, so unlike other places assign the NOP to the first
+			// instruction.
+			C(j + 1) = {PUSHR, C(j).arg2};
+			remove(ctx, j);
+		}
+	});
+}
+
 static void optimize_stack(OptContext& ctx)
 {
 	add_context_cfg(ctx);
@@ -1790,6 +1826,7 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> pas
 	{"conseq_additive", optimize_conseq_additive},
 	{"loadi", optimize_loadi},
 	{"setv_pushr", optimize_setv_pushr},
+	{"setr_pushr", optimize_setr_pushr},
 	{"stack", optimize_stack},
 	{"spurious_branches", optimize_spurious_branches},
 	{"reduce_comparisons", optimize_reduce_comparisons},

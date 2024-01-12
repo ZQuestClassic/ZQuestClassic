@@ -7,7 +7,7 @@ Function #0
 
 
 Function #1
-    5: SETR            D0              D2           [Block 0 -> ]
+    5: LOADD           D0              0            [Block 0 -> ]
     6: NOP
     7: SETV            D2              750000
     8: NOP
@@ -44,7 +44,7 @@ Function #1
 
 
 Function #2
-   39: SETR            D0              D2           [Block 0 -> ]
+   39: LOADD           D0              0            [Block 0 -> ]
    40: NOP
    41: SETV            D2              750000
    42: NOP
@@ -84,13 +84,14 @@ Function #4
 
 
 Function #5
-   70: PUSHR           D3                           [Block 0 -> ]
-   71: POP             D2
-   72: POP             REFFFC
-   73: SETR            X               D2
-   74: PUSHR           D4
-   75: SETR            D2              GD3
-   76: PUSHR           D2
-   77: SETR            D2              GD4
-   78: POP             D3
-   79: RETURNFUNC
+   70: LOADD           D3              0            [Block 0 -> ]
+   71: PUSHR           D3
+   72: POP             D2
+   73: POP             REFFFC
+   74: SETR            X               D2
+   75: PUSHR           D4
+   76: NOP
+   77: PUSHR           GD3
+   78: SETR            D2              GD4
+   79: POP             D3
+   80: RETURNFUNC

@@ -105,8 +105,8 @@ Function #0
     4: NOP
     5: PUSHV           130000
     6: POP             D0
-    7: SETR            D2              SCREENSTATED
-    8: PUSHR           D2
+    7: NOP
+    8: PUSHR           SCREENSTATED
     9: SETV            D2              10000
    10: POP             D3
    11: COMPARER        D2              D3
