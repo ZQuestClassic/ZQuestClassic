@@ -2917,29 +2917,15 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	if(flags&cWALK)
 	{
-		if(LayerMaskInt[0]!=0)
-		{
+		if(layers[0])
 			for(int32_t i=0; i<176; i++)
-			{
-				//put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,basescr->data[i], 0);
-				put_walkflags_layered_external(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1, map, scr);
-			}
-		}
+				put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layers[0]->data[i], 0);
 		
 		for(int32_t k=0; k<2; k++)
 		{
-			if(LayerMaskInt[k+1]!=0)
-			{
-				layermap=basescr->layermap[k]-1;
-				
-				if(layermap>-1 && layermap<map_count)
-				{
-					for(int32_t i=0; i<176; i++)
-					{
-						put_walkflags_layered_external(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k, map, scr);
-					}
-				}
-			}
+			if(layers[k+1])
+				for(int32_t i=0; i<176; i++)
+					put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layers[k+1]->data[i], 0);
 		}
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 		{
