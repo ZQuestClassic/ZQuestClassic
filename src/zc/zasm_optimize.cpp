@@ -1701,6 +1701,82 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 	}
 }
 
+static void optimize_calling_mode(OptContext& ctx)
+{
+	if (ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_CALLFUNC_RETURNFUNC)
+		return;
+
+	int return_command =
+		ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR ? GOTOR : RETURN;
+
+	std::vector<pc_t> push_stack_pcs;
+	for (pc_t i = ctx.fn.start_pc; i < ctx.fn.final_pc; i++)
+	{
+		auto& instr = C(i);
+
+		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
+		{
+			push_stack_pcs.push_back(i);
+			continue;
+		}
+
+		if (instr.command == SETR && instr.arg1 == rSFRAME && instr.arg2 == SP)
+		{
+			push_stack_pcs.clear();
+			continue;
+		}
+
+		if (instr.command != GOTO || !ctx.structured_zasm->function_calls.contains(i))
+			continue;
+
+		ASSERT(C(i + 1).command == POP && C(i + 1).arg1 == rSFRAME);
+
+		pc_t push_stack_pc = push_stack_pcs.back();
+		push_stack_pcs.pop_back();
+
+		pc_t set_ret_addr = -1;
+		pc_t push_ret_addr = -1;
+		for (pc_t k = push_stack_pc + 1; k <= push_stack_pc + 2; k++)
+		{
+			if (C(k).command == NOP)
+				continue;
+			if (C(k).command == SETV)
+			{
+				set_ret_addr = k;
+				if (C(k + 1).command == PUSHR)
+					push_ret_addr = k + 1;
+				break;
+			}
+			if (C(k).command == PUSHV)
+			{
+				push_ret_addr = k;
+				break;
+			}
+			break;
+		}
+		if (push_ret_addr == -1)
+		{
+			ASSERT(false);
+			break;
+		}
+
+		instr.command = CALLFUNC;
+		remove(ctx, push_ret_addr);
+		if (set_ret_addr != -1)
+			remove(ctx, set_ret_addr);
+	}
+
+	if (C(ctx.fn.final_pc).command == return_command)
+	{
+		if (ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR)
+		{
+			ASSERT(C(ctx.fn.final_pc - 1).command == POP && C(ctx.fn.final_pc - 1).arg1 == C(ctx.fn.final_pc).arg1);
+			remove(ctx, ctx.fn.final_pc - 1);
+		}
+		C(ctx.fn.final_pc).command = RETURNFUNC;
+	}
+}
+
 // https://en.wikipedia.org/wiki/Data-flow_analysis
 // https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
@@ -1823,6 +1899,7 @@ static void optimize_dead_code(OptContext& ctx)
 static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> passes = {
 	{"goto_next_instruction", optimize_goto_next_instruction},
 	{"unreachable_blocks", optimize_unreachable_blocks},
+	{"calling_mode", optimize_calling_mode},
 	{"conseq_additive", optimize_conseq_additive},
 	{"loadi", optimize_loadi},
 	{"setv_pushr", optimize_setv_pushr},

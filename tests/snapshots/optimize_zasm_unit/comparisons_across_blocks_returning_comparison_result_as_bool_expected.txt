@@ -85,4 +85,4 @@ Function #0
    12: NOP                                          [Block 3 -> 4]
    13: NOP                                          [Block 4 -> ]
    14: POP             D3
-   15: RETURN
+   15: RETURNFUNC

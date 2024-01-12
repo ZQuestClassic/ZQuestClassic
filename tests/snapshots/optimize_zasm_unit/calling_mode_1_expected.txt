@@ -1,0 +1,26 @@
+Function #0
+    0: PUSHR           D4                           [Block 0 -> ]
+    1: NOP
+    2: CALLFUNC        9                            [Call Function #1]
+    3: POP             D4
+    4: PUSHR           D4
+    5: NOP
+    6: CALLFUNC        14                           [Call Function #2]
+    7: POP             D4
+    8: QUIT
+
+
+Function #1
+    9: TRACEV          1                            [Block 0 -> ]
+   10: TRACEV          1
+   11: TRACEV          1
+   12: NOP
+   13: RETURNFUNC
+
+
+Function #2
+   14: TRACEV          1                            [Block 0 -> ]
+   15: TRACEV          1
+   16: TRACEV          1
+   17: NOP
+   18: RETURNFUNC

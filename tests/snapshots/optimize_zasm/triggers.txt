@@ -1,6 +1,7 @@
 Finished optimizing scripts:
 	[goto_next_instruction] saved 0 instr (0.0%)
 	[unreachable_blocks] saved 0 instr (0.0%)
+	[calling_mode] saved 0 instr (0.0%)
 	[conseq_additive] saved 0 instr (0.0%)
 	[loadi] saved 0 instr (0.0%)
 	[setv_pushr] saved 0 instr (0.0%)

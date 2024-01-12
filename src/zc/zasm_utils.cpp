@@ -60,26 +60,28 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 	// Therefore, the instructions of uncalled functions should be pruned as part of zasm_optimize.
 
 	// First determine if we have the simpler CALLFUNC instructions.
-	int calling_mode = 0;
+	auto calling_mode = StructuredZasm::CALLING_MODE_UNKNOWN;
 	for (pc_t i = 0; i < script->size && !calling_mode; i++)
 	{
 		int command = script->zasm[i].command;
 		switch (command)
 		{
 			case GOTOR:
-				calling_mode = 1;
+				calling_mode = StructuredZasm::CALLING_MODE_GOTO_GOTOR;
 				break;
 
 			case RETURN:
-				calling_mode = 2;
+				calling_mode = StructuredZasm::CALLING_MODE_GOTO_RETURN;
 				break;
 
 			case CALLFUNC:
 			case RETURNFUNC:
-				calling_mode = 3;
+				calling_mode = StructuredZasm::CALLING_MODE_CALLFUNC_RETURNFUNC;
 				break;
 		}
 	}
+	bool legacy_calling_mode =
+		calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR || calling_mode == StructuredZasm::CALLING_MODE_GOTO_RETURN;
 
 	// Starts with implicit first function ("run").
 	std::set<pc_t> function_start_pcs_set = {0};
@@ -98,7 +100,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			function_start_pcs_set.insert(i);
 			continue;
 		}
-		else if ((calling_mode == 1 || calling_mode == 2) && command == GOTO)
+		else if (legacy_calling_mode && command == GOTO)
 		{
 			// Function calls are directly followed with a POP to restore the stack frame pointer.
 			is_function_call_like = script->zasm[i + 1].command == POP && script->zasm[i + 1].arg1 == D(4);
@@ -167,7 +169,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		// functions[callee_pc].calls_functions.insert(call_pc);
 	}
 
-	return {functions, function_calls, start_pc_to_function};
+	return {functions, function_calls, start_pc_to_function, calling_mode};
 }
 
 std::set<pc_t> zasm_find_yielding_functions(const script_data* script, StructuredZasm& structured_zasm)
