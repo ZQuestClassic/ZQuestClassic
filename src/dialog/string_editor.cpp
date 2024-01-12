@@ -1,10 +1,10 @@
 #include "string_editor.h"
 #include "base/zsys.h"
 #include "base/msgstr.h"
-#include "gui/editbox.h"
-#include "gui/EditboxNew.h"
+#include "zq/zquest.h"
 #include "info.h"
 #include "subscr.h"
+#include "gui/editbox.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
 
@@ -12,7 +12,6 @@ extern bool saved;
 extern char msgbuf[MSGBUF_SIZE];
 extern char namebuf[9];
 extern word msg_count;
-extern DIALOG editmsg_help_dlg[];
 extern std::map<int32_t, int32_t> msglistcache;
 extern std::string helpstr;
 
@@ -337,28 +336,12 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					minwidth = 90_px,
 					onPressFunc = []()
 					{
-						// Show string help
-						editmsg_help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-						FILE *stringshelpfile = fopen("docs/zstrings.txt", "r");
-						if (!stringshelpfile )
-						{
-							stringshelpfile = fopen("zstrings.txt", "r");
-							if ( stringshelpfile )
-							{
-								editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],get_custom_font(CFONT_TEXTBOX),vc(0),vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
-							}
-							else
-							{
-								Z_error_fatal("File Missing: zstrings.txt.");
-							}
-						}
+						if(std::filesystem::exists("docs/zstrings.txt"))
+							do_box_edit(fopen("docs/zstrings.txt","r"), "String Control Codes", true);
+						else if(std::filesystem::exists("zstrings.txt"))
+							do_box_edit(fopen("zstrings.txt","r"), "String Control Codes", true);
 						else
-						{
-							editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],get_custom_font(CFONT_TEXTBOX),vc(0),vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
-						}
-						editmsg_help_dlg[2].fg = vc(0);
-						editmsg_help_dlg[2].bg = vc(15);
-						((EditboxModel*)editmsg_help_dlg[2].dp)->doHelp(); // This deletes the EditboxModel too.
+							Z_error_fatal("File Missing: zstrings.txt.");
 					})
 			)
 		));

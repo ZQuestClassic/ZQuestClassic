@@ -21,7 +21,7 @@ using std::string;
 #include "base/emscripten_utils.h"
 #endif
 
-void doEditZScript(int32_t bg,int32_t fg);
+void doEditZScript();
 void clear_map_states();
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
 bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode);
@@ -587,7 +587,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		
 		case message::EDIT:
-			doEditZScript(vc(15),vc(0));
+			doEditZScript();
 			updateLabels();
 			return false;
 		

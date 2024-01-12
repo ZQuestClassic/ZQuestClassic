@@ -92,74 +92,80 @@ static int32_t usesSecretTriggerFlag(int32_t type)
 
 DIALOG integrity_report_dlg[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Quest Report", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8, (240-27)-24,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4, (240-27)-24-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { jwin_button_proc,  64,   240-25,  61,   21, vc(0), vc(11),     13,   D_EXIT,         0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,  192,  240-25,   61,   21, vc(0), vc(11),     27,   D_EXIT,         0,             0, (void *) "Save", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+    /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,     0,    0,    0,    0,   0,       0,       0,  D_EXIT,          0,             0,       (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     0,    0,    0,    0,   0,       0,       0,  D_EXIT,          0,             0,       (void *) "Save", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL }
 };
 
-
-void enlargeIntegrityReportDialog()
+std::string qst_cfg_header_from_path(std::string path);
+extern char *filepath;
+void showQuestReport()
 {
-    integrity_report_dlg[0].w=zq_screen_w;
-    integrity_report_dlg[0].h=zq_screen_h;
-    integrity_report_dlg[1].w=zq_screen_w-8;
-    integrity_report_dlg[1].h=(zq_screen_h-27)-40;
-    integrity_report_dlg[2].w=zq_screen_w-8-4;
-    integrity_report_dlg[2].h=((zq_screen_h-27)-40)-4;
-    integrity_report_dlg[5].x=200-48;
-    integrity_report_dlg[5].y=zq_screen_h-38;
-    integrity_report_dlg[5].w=61*1.5;
-    integrity_report_dlg[5].h=21*1.5;
-    integrity_report_dlg[5].dp2 = get_zc_font(font_lfont_l);
-    integrity_report_dlg[6].x=zq_screen_h-48;
-    integrity_report_dlg[6].y=zq_screen_h-38;
-    integrity_report_dlg[6].w=61*1.5;
-    integrity_report_dlg[6].h=21*1.5;
-    integrity_report_dlg[6].dp2 = get_zc_font(font_lfont_l);
-}
-
-void showQuestReport(int32_t bg,int32_t fg)
-{
-    integrity_report_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], get_custom_font(CFONT_TEXTBOX), fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    integrity_report_dlg[2].bg = bg;
-    int32_t ret=do_zqdialog(integrity_report_dlg,2);
-    delete(EditboxModel*)(integrity_report_dlg[2].dp);
-    
-    if(ret==6)
-    {
-        if(!getname("Save Quest Report (.txt)","txt",NULL,datapath,false))
-            return;
-            
-        if(exists(temppath))
-        {
-            if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
-                return;
-        }
-        
-        FILE *report = fopen(temppath,"w");
-        
-        if(!report)
-        {
-            jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-            return;
-        }
-        
-        int32_t written = (int32_t)fwrite(quest_report_str.c_str(), sizeof(char), quest_report_str.size(), report);
-        
-        if(written != (int32_t)quest_report_str.size())
-            jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-            
-        fclose(report);
-    }
+	do_box_setup(integrity_report_dlg);
+	const int hoffs = 20;
+    integrity_report_dlg[1].h-=hoffs;
+    integrity_report_dlg[2].h-=hoffs;
+    integrity_report_dlg[3].w+=hoffs;
+    integrity_report_dlg[3].h+=hoffs;
+    integrity_report_dlg[3].x-=2*hoffs;
+    integrity_report_dlg[3].y-=hoffs;
+    integrity_report_dlg[4].w+=hoffs;
+    integrity_report_dlg[4].h+=hoffs;
+    integrity_report_dlg[4].x-=hoffs;
+    integrity_report_dlg[4].y-=hoffs;
+	//
+    integrity_report_dlg[7].x=200-48;
+    integrity_report_dlg[7].y=zq_screen_h-38;
+    integrity_report_dlg[7].w=61*1.5;
+    integrity_report_dlg[7].h=21*1.5;
+    integrity_report_dlg[7].dp2 = get_zc_font(font_lfont_l);
+    integrity_report_dlg[8].x=zq_screen_h-48;
+    integrity_report_dlg[8].y=zq_screen_h-38;
+    integrity_report_dlg[8].w=61*1.5;
+    integrity_report_dlg[8].h=21*1.5;
+    integrity_report_dlg[8].dp2 = get_zc_font(font_lfont_l);
+	do_box_edit(integrity_report_dlg, [&](int ret)
+		{
+			switch(ret)
+			{
+				case 8:
+				{
+					if(!getname("Save Quest Report (.txt)","txt",NULL,datapath,false))
+						return false;
+						
+					if(exists(temppath))
+					{
+						if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
+							return false;
+					}
+					
+					FILE *report = fopen(temppath,"w");
+					
+					if(!report)
+					{
+						jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+						return false;
+					}
+					
+					int32_t written = (int32_t)fwrite(quest_report_str.c_str(), sizeof(char), quest_report_str.size(), report);
+					
+					if(written != (int32_t)quest_report_str.size())
+						jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+						
+					fclose(report);
+					return false;
+				}
+			}
+			return true;
+		}, quest_report_str, "Quest Report", true, true);
 }
 
 void TileWarpsReport()
@@ -1481,7 +1487,7 @@ int32_t onIntegrityCheckSpecialItem()
     quest_report_str="";
     integrityCheckSpecialItem();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1490,7 +1496,7 @@ int32_t onIntegrityCheckEnemiesItem()
     quest_report_str="";
     integrityCheckEnemiesItem();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1499,7 +1505,7 @@ int32_t onIntegrityCheckEnemiesSecret()
     quest_report_str="";
     integrityCheckEnemiesSecret();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1508,7 +1514,7 @@ int32_t onIntegrityCheckTileWarpDestSquare()
     quest_report_str="";
     integrityCheckTileWarpDestSquare();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1517,7 +1523,7 @@ int32_t onIntegrityCheckStringNoGuy()
     quest_report_str="";
     integrityCheckStringNoGuy();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1526,7 +1532,7 @@ int32_t onIntegrityCheckGuyNoString()
     quest_report_str="";
     integrityCheckGuyNoString();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1535,7 +1541,7 @@ int32_t onIntegrityCheckRoomNoGuy()
     quest_report_str="";
     integrityCheckRoomNoGuy();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1544,7 +1550,7 @@ int32_t onIntegrityCheckRoomNoString()
     quest_report_str="";
     integrityCheckRoomNoString();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1553,7 +1559,7 @@ int32_t onIntegrityCheckRoomNoGuyNoString()
     quest_report_str="";
     integrityCheckRoomNoGuyNoString();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1562,7 +1568,7 @@ int32_t onIntegrityCheckQuestNumber()
     quest_report_str="";
     integrityCheckQuestNumber();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1571,7 +1577,7 @@ int32_t onIntegrityCheckItemWalkability()
     quest_report_str="";
     integrityCheckItemWalkability();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1580,7 +1586,7 @@ int32_t onIntegrityCheckTileWarpDestSquareWalkability()
     quest_report_str="";
     integrityCheckTileWarpDestSquareWalkability();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1589,7 +1595,7 @@ int32_t onIntegrityCheckTileWarpDestScreenInvalid()
     quest_report_str="";
     integrityCheckTileWarpDestScreenInvalid();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1622,7 +1628,7 @@ int32_t onIntegrityCheckRooms()
     quest_report_str="";
     integrityCheckAllRooms();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1631,7 +1637,7 @@ int32_t onIntegrityCheckWarps()
     quest_report_str="";
     integrityCheckAllWarps();
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1645,7 +1651,7 @@ int32_t onIntegrityCheckAll()
     integrityCheckAllWarps();
     
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -1953,7 +1959,7 @@ int32_t onItemLocationReport()
     itemLocationReport();
     
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -2125,7 +2131,7 @@ int32_t onEnemyLocationReport()
     enemyLocationReport();
     
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -2278,7 +2284,7 @@ int32_t onScriptLocationReport()
     scriptLocationReport();
     
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -2400,7 +2406,7 @@ int32_t onComboLocationReport()
     restore_mouse();
     
     if(quest_report_str!="")
-        showQuestReport(vc(15),vc(0));
+        showQuestReport();
     else
         jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         
@@ -2415,7 +2421,7 @@ int32_t onBuggedNextComboLocationReport()
     restore_mouse();
     
     if(quest_report_str!="")
-        showQuestReport(vc(15),vc(0));
+        showQuestReport();
     else
         jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         
@@ -2607,7 +2613,7 @@ int32_t onComboTypeLocationReport()
     ComboTypeLocationReport();
     
     restore_mouse();
-    showQuestReport(vc(15),vc(0));
+    showQuestReport();
     return D_O_K;
 }
 
@@ -2620,7 +2626,7 @@ int32_t onWhatWarpsReport()
     restore_mouse();
     
     if(quest_report_str!="")
-        showQuestReport(vc(15),vc(0));
+        showQuestReport();
     else
         jwin_alert("What Links Here", "No other screens warp to this screen", "or use this screen as a layer.",NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         

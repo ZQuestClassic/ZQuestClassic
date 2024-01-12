@@ -6029,17 +6029,15 @@ int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c)
     return D_O_K;
 }
 
-const char* rowpref(int32_t row)
+const char* rowpref(int32_t row, bool alt)
 {
-	static const char *lcol = "Level Colors", *sprcol = "Sprite Colors", *bosscol = "Boss Colors", *thmcol = "Theme Colors", *nlcol="";
+	static const char *lcol = "Level Colors", *syscol = "System Colors", *bosscol = "Boss Colors", *thmcol = "Theme Colors", *nlcol="";
 	switch(row)
 	{
 		case 2: case 3: case 4: case 9:
 			return lcol;
-		case 12: case 13:
-			return sprcol;
 		case 14:
-			return bosscol;
+			return alt ? syscol : bosscol;
 		case 15:
 			return thmcol;
 		default:
@@ -6079,7 +6077,8 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	int32_t ret = D_O_K;
 	if(!d->d2) d->d2 = 12;
-	int32_t numcsets = d->d2;
+	bool alt = d->d2 > 16;
+	int32_t numcsets = alt ? 16 : d->d2;
 	int32_t numcol = numcsets*0x10;
 	if(msg==MSG_START)
 	{
@@ -6120,7 +6119,7 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			for(int32_t row = 0; row < numcsets; ++row)
 			{
-				sprintf(buf, "%s 0x%02X", rowpref(row), row*16);
+				sprintf(buf, "%s 0x%02X", rowpref(row, alt), row*16);
 				gui_textout_ln(screen, (uint8_t*)buf, d->x-3, d->y + (csz*row) + (csz-text_height(font))/2, scheme[jcBOXFG], scheme[jcBOX], 2);
 			}
 			
@@ -6220,7 +6219,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 		case MSG_START:
 		{
 			if(d->d2 < 1) d->d2 = 12;
-			else if(d->d2 > 16) d->d2 = 16;
+			else if(d->d2 > 17) d->d2 = 17;
 			break;
 		}
 		
@@ -6271,11 +6270,15 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 			//!TODO Allow loading different level palettes, sprite palettes, etc via buttons
 			PALETTE oldpal;
 			get_palette(oldpal);
-			PALETTE foopal;
-			get_palette(foopal);
-			foopal[BLACK] = _RGB(0,0,0);
-			foopal[WHITE] = _RGB(63,63,63);
-			zc_set_palette(foopal);
+			bool alt = d->d2 > 16;
+			if(!alt)
+			{
+				PALETTE foopal;
+				get_palette(foopal);
+				foopal[BLACK] = _RGB(0,0,0);
+				foopal[WHITE] = _RGB(63,63,63);
+				zc_set_palette(foopal);
+			}
 			
 			jwin_center_dialog(selcolor_dlg);
 			int32_t val = do_zqdialog(selcolor_dlg, 3);
@@ -6288,6 +6291,8 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 				GUI_EVENT(d, geCHANGE_VALUE);
 				ret |= D_REDRAWME;
 			}
+			if(d->flags & D_EXIT)
+				return D_CLOSE;
 			break;
 		}
 	}

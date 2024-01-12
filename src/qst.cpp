@@ -17211,6 +17211,9 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			temp_mapscr->ffcs[m].clear();
 		}
 		//END FFC
+		if(version > 29)
+			if(!p_getlstr(&temp_mapscr->usr_notes, f))
+				return qe_invalid;
 	}
 	return 0;
 }

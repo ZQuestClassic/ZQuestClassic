@@ -9505,6 +9505,9 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			return qe_invalid;
 	}
 	
+	if(!p_putlstr(screen.usr_notes, f))
+		return qe_invalid;
+	
 	return qe_OK;
 }
 

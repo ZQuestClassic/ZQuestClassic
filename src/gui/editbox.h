@@ -2,6 +2,8 @@
 #define _EDITBOX_H_
 
 #include "base/zc_alleg.h"
+#include "base/headers.h"
+#include <functional>
 #include <string>
 //#ifdef __cplusplus
 //extern "C"
@@ -52,6 +54,13 @@ typedef struct editbox_data
 	int32_t selbg;
 	int32_t postpaste_dontmove;
 } editbox_data;
+
+bool do_box_edit(string& str, string const& title, bool wrap, bool rdonly, bool trimstr = false, char const* helpfile = nullptr);
+bool do_box_edit(FILE* f, string const& title, bool wrap, char const* helpfile = nullptr);
+bool do_box_edit(DIALOG* dlg, std::function<bool(int)> proc, string& str, string const& title, bool wrap, bool rdonly, bool trimstr = false, char const* helpfile = nullptr);
+bool do_box_edit(DIALOG* dlg, std::function<bool(int)> proc, FILE* f, string const& title, bool wrap, char const* helpfile = nullptr);
+
+void do_box_setup(DIALOG* dlg);
 
 //#ifdef __cplusplus
 //}

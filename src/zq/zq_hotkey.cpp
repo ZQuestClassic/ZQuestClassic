@@ -267,6 +267,8 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_DEBUG_CONSOLE: return "ZQ Debug Console";
 		case ZQKEY_SHOW_HOTKEYS: return "Show Hotkeys";
 		case ZQKEY_BIND_HOTKEYS: return "Rebind Hotkeys";
+		case ZQKEY_SCREEN_NOTES: return "Screen Notes";
+		case ZQKEY_BROWSE_SCREEN_NOTES: return "Browse Notes";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -488,6 +490,8 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_DEBUG_CONSOLE: return "ZQKEY_DEBUG_CONSOLE";
 		case ZQKEY_SHOW_HOTKEYS: return "ZQKEY_SHOW_HOTKEYS";
 		case ZQKEY_BIND_HOTKEYS: return "ZQKEY_BIND_HOTKEYS";
+		case ZQKEY_SCREEN_NOTES: return "ZQKEY_SCREEN_NOTES";
+		case ZQKEY_BROWSE_SCREEN_NOTES: return "ZQKEY_BROWSE_SCREEN_NOTES";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -910,6 +914,10 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Show Hotkeys";
 		case ZQKEY_BIND_HOTKEYS:
 			return "Opens the hotkey binding menu";
+		case ZQKEY_SCREEN_NOTES:
+			return "Opens the notes for the current screen.";
+		case ZQKEY_BROWSE_SCREEN_NOTES:
+			return "Opens the notes browsing menu.";
 	}
 	return "";
 }
@@ -1144,6 +1152,8 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_DEBUG_CONSOLE].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_SHOW_HOTKEYS].setval(KEY_SLASH, KB_SHIFT_FLAG, 0, 0);
 	zq_hotkeys[ZQKEY_BIND_HOTKEYS].setval(0, 0, 0, 0);
+	zq_hotkeys[ZQKEY_SCREEN_NOTES].setval(0, 0, 0, 0);
+	zq_hotkeys[ZQKEY_BROWSE_SCREEN_NOTES].setval(0, 0, 0, 0);
 }
 
 void load_hotkeys()
@@ -1241,6 +1251,8 @@ bool selected_hotkey(uint hkey)
 			return draw_mode==dm_normal;
 		case ZQKEY_DARK_PREVIEW:
 			return (get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK));
+		case ZQKEY_SCREEN_NOTES:
+			return !Map.CurrScr()->usr_notes.empty();
 	}
 	return false;
 }
@@ -1755,6 +1767,12 @@ int run_hotkey(uint hkey)
 			break;
 		case ZQKEY_BIND_HOTKEYS:
 			do_zq_hotkey_dialog();
+			break;
+		case ZQKEY_SCREEN_NOTES:
+			edit_screen_notes(Map.CurrScr(), Map.getCurrMap(), Map.getCurrScr());
+			break;
+		case ZQKEY_BROWSE_SCREEN_NOTES:
+			browse_screen_notes();
 			break;
 	}
 	return D_O_K;

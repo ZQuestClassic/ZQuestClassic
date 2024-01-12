@@ -12,16 +12,6 @@
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 
-static DIALOG help_dlg[] =
-{
-	{ jwin_win_proc,        0,    0,   320,  240,    0,       vc(15),  0,       D_EXIT,     0,          0, (void *) "ZQuest Help", NULL, NULL },
-	{ jwin_frame_proc,      4,   23,   312,  213,    0,       0,       0,       0,          FR_DEEP,    0,         NULL, NULL, NULL },
-	{ d_editbox_proc,       6,   25,   308,  209,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ d_keyboard_proc,      0,    0,     0,    0,    0,       0,       0,       0,          0,          KEY_ESC, (void *) close_dlg, NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ NULL,                 0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL }
-};
-
 int32_t Unicode::indexToOffset(string &s, int32_t i)
 {
 	return uoffset(s.c_str(), i);
@@ -622,40 +612,9 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
 
 void EditboxModel::doHelp()
 {
-	string helpstr = "";
-	
 	if(!helpfile)
 		return;
 	
-	FILE *hb = fopen(helpfile, "r");
-	
-	if(!hb)
-	{
-		return;
-	}
-	
-	char c = fgetc(hb);
-	
-	while(!feof(hb))
-	{
-		helpstr+=c;
-		c = fgetc(hb);
-	}
-	
-	fclose(hb);
-	
-	help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-	
-	help_dlg[0].w=zq_screen_w;
-	help_dlg[0].h=zq_screen_h;
-	help_dlg[1].w=zq_screen_w-8;
-	help_dlg[1].h=zq_screen_h-27;
-	help_dlg[2].w=zq_screen_w-8-4;
-	help_dlg[2].h=zq_screen_h-27-4;
-	
-	help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-	help_dlg[2].bg = view->getDialog()->bg;
-	do_zqdialog(help_dlg,2);
-	delete(EditboxModel*)(help_dlg[2].dp);
+	do_box_edit(fopen(helpfile, "r"), "Help", true);
 }
 
