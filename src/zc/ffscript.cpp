@@ -34546,8 +34546,8 @@ void FFScript::do_get_music_length()
 
 void FFScript::do_set_music_loop()
 {
-	double start = (get_register(sarg1) / 10000);
-	double end = (get_register(sarg2) / 10000);
+	double start = (get_register(sarg1) / 10000.0);
+	double end = (get_register(sarg2) / 10000.0);
 
 	set_zcmusicloop(start, end);
 }
