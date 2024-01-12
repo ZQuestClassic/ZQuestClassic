@@ -1642,7 +1642,15 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 				continue;
 
 			auto [block_start, block_final] = get_block_bounds(ctx, i);
-			remove(ctx, block_start, block_final);
+			for (pc_t k = block_start; k <= block_final; k++)
+			{
+				// Avoid double counting already removed instructions.
+				if (C(k).command != NOP)
+				{
+					C(k).command = NOP;
+					ctx.saved += 1;
+				}
+			}
 
 			// Don't ever remove the end marker.
 			if (block_final == ctx.script->size - 1)
