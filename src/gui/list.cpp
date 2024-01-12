@@ -75,7 +75,8 @@ void List::setIndex()
 	// value. If nothing matches exactly, take the one that's closest to
 	// the selected value.
 	selectedIndex = 0;
-	int32_t minDiff = std::abs(selectedValue-listData->getValue(0));
+	int minVal = listData->getValue(0);
+	int32_t minDiff = std::abs(selectedValue-minVal);
 	for(size_t i = 1; i < listData->size(); ++i)
 	{
 		int32_t value = listData->getValue(i);
@@ -91,9 +92,11 @@ void List::setIndex()
 			{
 				selectedIndex = i;
 				minDiff=diff;
+				minVal=value;
 			}
 		}
 	}
+	selectedValue = minVal;
 }
 
 void List::setIsABC(bool abc)
@@ -122,7 +125,7 @@ void List::realize(DialogRunner& runner)
 	// An empty list might logically be valid, but there's currently
 	// no way to get a value from it.
 	assert(listData);
-	assert(listData->size() > 0);
+	//assert(listData->size() > 0);
 	if(selectedIndex < 0)
 		setIndex();
 

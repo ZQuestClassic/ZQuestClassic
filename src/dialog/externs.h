@@ -3,6 +3,7 @@
 
 #include "base/headers.h"
 #include "base/containers.h"
+struct mapscr;
 
 void call_cpool_pages(optional<int> val = nullopt);
 void call_autoc_pages(optional<int> val = nullopt);
@@ -17,6 +18,9 @@ void displayinfo(string const& title, string const& text, optional<string> subte
 void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext = nullopt);
 
 bool call_checklist_dialog(string const& title, vector<string> const& flagnames, bitstring& flags);
+
+void edit_screen_notes(mapscr* scr, int map, int screen);
+void browse_screen_notes();
 
 #endif
 

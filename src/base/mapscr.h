@@ -140,6 +140,8 @@ struct mapscr
 	byte hidelayers;
 	byte hidescriptlayers;
 	
+	string usr_notes;
+	
 	void zero_memory();
 
 private:

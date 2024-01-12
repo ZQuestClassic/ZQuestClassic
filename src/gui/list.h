@@ -68,7 +68,9 @@ public:
 	{
 		msg_d = static_cast<int32_t>(m);
 	}
-
+	
+	/* If a value was set rather than an index, find an index to select. */
+	void setIndex();
 private:
 	// A bit ugly because there was already a ListData struct in jwin
 	::ListData jwinListData;
@@ -80,9 +82,7 @@ private:
 	std::function<void(int32_t,int32_t,int32_t)> onRClickFunc;
 	std::function<void(int32_t,int32_t,int32_t)> onDClickFunc;
 	bool isABC;
-
-	/* If a value was set rather than an index, find an index to select. */
-	void setIndex();
+	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;

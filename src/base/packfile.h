@@ -530,6 +530,8 @@ inline bool p_getcstr(string *str, PACKFILE *f);
 inline bool p_putcstr(string const& str, PACKFILE *f);
 inline bool p_getwstr(string *str, PACKFILE *f);
 inline bool p_putwstr(string const& str, PACKFILE *f);
+inline bool p_getlstr(string *str, PACKFILE *f);
+inline bool p_putlstr(string const& str, PACKFILE *f);
 template<typename T>
 inline bool p_getcvec(vector<T> *vec, PACKFILE *f);
 template<typename T>
@@ -909,6 +911,38 @@ inline bool p_putwstr(string const& str, PACKFILE *f)
 {
 	word sz = word(zc_min(65535,str.size()));
 	if(!p_iputw(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_putc(str.at(q),f))
+				return false;
+		}
+	}
+	return true;
+}
+inline bool p_getlstr(string *str, PACKFILE *f)
+{
+	str->clear();
+	dword sz = 0;
+	if(!p_igetl(&sz,f))
+		return false;
+	if(sz)
+	{
+		str->reserve(sz);
+		auto buf = std::make_unique<char[]>(sz + 1);
+		buf[sz] = '\0';
+		if (!pfread(buf.get(), sz, f))
+			return false;
+		*str = buf.get();
+	}
+	return true;
+}
+inline bool p_putlstr(string const& str, PACKFILE *f)
+{
+	dword sz = word(zc_min(UINT32_MAX,str.size()));
+	if(!p_iputl(sz,f))
 		return false;
 	if(sz)
 	{

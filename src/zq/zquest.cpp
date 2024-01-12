@@ -1448,6 +1448,10 @@ void set_rules(byte* newrules)
 
 int32_t onSelectFFCombo();
 
+void onScreenNotes()
+{
+	edit_screen_notes(Map.CurrScr(), Map.getCurrMap(), Map.getCurrScr());
+}
 static NewMenu data_menu
 {
 	{ "&Screen Data", onScrData },
@@ -1460,11 +1464,13 @@ static NewMenu data_menu
 	{ "&Doors", onDoors },
 	{ "&Maze Path", onPath },
 	{},
-	{ "&Room Data", onRoom },
-	{},
 	{ "&Item", onItem },
 	{ "&Enemies", onEnemies },
 	{ "&Palette", onScreenPalette },
+	{},
+	{ "&Room Data", onRoom },
+	{ "&Notes", onScreenNotes },
+	{ "&Browse Notes", browse_screen_notes },
 };
 
 static NewMenu tunes_menu
@@ -21388,36 +21394,17 @@ int32_t onZScriptCompilerSettings()
 	return D_O_K;
 }
 
-//editbox_data zscript_edit_data;
-
-static DIALOG edit_zscript_dlg[] =
+void doEditZScript()
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Edit ZScript", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-12,  240-6-25,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,        NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doEditZScript(int32_t bg,int32_t fg)
-{
-    string old = zScript;
-    EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT), false, (char *)"zscript.txt");
-    edit_zscript_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    edit_zscript_dlg[2].dp = em;
-    edit_zscript_dlg[2].bg = bg;
-    
-    do_zqdialog(edit_zscript_dlg,2);
-    
-    if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
-        zScript = old;
-    else
+	if(do_box_edit(zScript, "ZScript Buffer", false, false))
         saved=false;
-        
-    delete em;
+}
+
+std::string qst_cfg_header_from_path(std::string path);
+extern char *filepath;
+string get_box_cfg_hdr()
+{
+	return qst_cfg_header_from_path(filepath);
 }
 
 //{ Start type-specific import dlgs
@@ -25041,61 +25028,27 @@ void cycle_palette()
 /******  Help  ******/
 /********************/
 
-static DIALOG help_dlg[] =
+void doHelp()
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "ZQuest Help", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doHelp(int32_t bg,int32_t fg)
-{
-    help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    help_dlg[2].bg = bg;
-    do_zqdialog(help_dlg,2);
-    delete(EditboxModel*)(help_dlg[2].dp);
+	do_box_edit(helpstr, "ZQuest Help", true, true);
 }
 
 int32_t onHelp()
 {
     restore_mouse();
-    doHelp(vc(15),vc(0));
+    doHelp();
     return D_O_K;
 }
 
-static DIALOG Zstringshelp_dlg[] =
+void doZstringshelp()
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Zstrings Help", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doZstringshelp(int32_t bg,int32_t fg)
-{
-    Zstringshelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    Zstringshelp_dlg[2].bg = bg;
-    do_zqdialog(Zstringshelp_dlg,2);
-    delete(EditboxModel*)(Zstringshelp_dlg[2].dp);
+	do_box_edit(zstringshelpstr, "ZStrings Help", true, true);
 }
 
 int32_t onZstringshelp()
 {
     restore_mouse();
-    doZstringshelp(vc(15),vc(0));
+    doZstringshelp();
     return D_O_K;
 }
 
@@ -27629,39 +27582,6 @@ void load_size_poses()
 		mainbar.w = compactbtn.x-mainbar.x;
 		mainbar.h = drawmode_btn.h;
 	}
-	//Dialog popups
-	{
-		//Help Dialogue Sizing
-		help_dlg[0].w=zq_screen_w;
-		help_dlg[0].h=zq_screen_h;
-		help_dlg[1].w=zq_screen_w-8;
-		help_dlg[1].h=zq_screen_h-27;
-		help_dlg[2].w=zq_screen_w-8-4;
-		help_dlg[2].h=zq_screen_h-27-4;
-		
-		Zstringshelp_dlg[0].w=zq_screen_w;
-		Zstringshelp_dlg[0].h=zq_screen_h;
-		Zstringshelp_dlg[1].w=zq_screen_w-8;
-		Zstringshelp_dlg[1].h=zq_screen_h-27;
-		Zstringshelp_dlg[2].w=zq_screen_w-8-4;
-		Zstringshelp_dlg[2].h=zq_screen_h-27-4;
-		
-		edit_zscript_dlg[0].w=zq_screen_w;
-		edit_zscript_dlg[0].h=zq_screen_h;
-		edit_zscript_dlg[1].w=zq_screen_w-8;
-		edit_zscript_dlg[1].h=zq_screen_h-27;
-		edit_zscript_dlg[2].w=zq_screen_w-8-4;
-		edit_zscript_dlg[2].h=zq_screen_h-27-4;
-		
-		editmsg_help_dlg[0].w=zq_screen_w;
-		editmsg_help_dlg[0].h=zq_screen_h;
-		editmsg_help_dlg[1].w=zq_screen_w-8;
-		editmsg_help_dlg[1].h=zq_screen_h-27;
-		editmsg_help_dlg[2].w=zq_screen_w-8-4;
-		editmsg_help_dlg[2].h=zq_screen_h-27-4;
-		
-		enlargeIntegrityReportDialog();
-	}
 	
 	//Ensure current combo list selected is valid
 	current_combolist=vbound(current_combolist,0,num_combo_cols-1);
@@ -28047,7 +27967,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
-    jwin_center_dialog(help_dlg);
     jwin_center_dialog(layerdata_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);

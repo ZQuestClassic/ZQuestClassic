@@ -424,6 +424,11 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 	return D_O_K;
 }
 
+string get_box_cfg_hdr()
+{
+	return "misc";
+}
+
 void go()
 {
 	blit(screen,tmp_scr,0,0,0,0,screen->w,screen->h);

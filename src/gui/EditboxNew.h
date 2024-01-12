@@ -264,6 +264,14 @@ public:
 	{
 		return bgcolor;
 	}
+	void setForeground(int color)
+	{
+		fgcolor = color;
+	}
+	void setBackground(int color)
+	{
+		bgcolor = color;
+	}
 protected:
 	void createStripBitmap(list<LineData>::iterator it, int32_t width);
 	virtual void drawExtraComponents()=0;

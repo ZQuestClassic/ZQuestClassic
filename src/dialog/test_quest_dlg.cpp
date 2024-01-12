@@ -96,7 +96,7 @@ void call_testqst_dialog()
 	TestQstDialog().show();
 }
 
-static std::string qst_cfg_header_from_path(std::string path)
+std::string qst_cfg_header_from_path(std::string path)
 {
 	path = relativize_path(path);
 	util::replchar(path, '[', '_');

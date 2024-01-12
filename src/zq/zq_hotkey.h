@@ -180,6 +180,9 @@ enum
 	ZQKEY_DEBUG_CONSOLE,
 	ZQKEY_SHOW_HOTKEYS,
 	ZQKEY_BIND_HOTKEYS,
+	
+	ZQKEY_SCREEN_NOTES,
+	ZQKEY_BROWSE_SCREEN_NOTES,
 
 	// Note: when adding a new hotkey, categorize in proper group in `render_hotkeys.cpp`.
 	ZQKEY_MAX

@@ -93,6 +93,11 @@ public:
 		return _invalid;
 	}
 	
+	inline void clear()
+	{
+		listItems.clear();
+	}
+	
 	inline void setInvalid(bool b)
 	{
 		_invalid = b;
