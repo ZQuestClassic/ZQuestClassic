@@ -5,8 +5,8 @@
 Function #0
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
     1: CALLFUNC        39                           [Call Function #2]
-    2: CALLFUNC        53                           [Call Function #4]
-    3: CALLFUNC        70                           [Call Function #5]
+    2: CALLFUNC        54                           [Call Function #4]
+    3: CALLFUNC        71                           [Call Function #5]
     4: QUIT
 
 
@@ -55,47 +55,48 @@ Function #2
    43: SETV            D1              0
    44: SETR            SCRIPTRAM       D2
    45: PUSHR           D0
-   46: SETV            D2              970000
+   46: PUSHR           D4
    47: CALLFUNC        50                           [Call Function #3]
-   48: POP             D0
+   48: POP             D4
    49: RETURNFUNC
 
 
 Function #3
-   50: SETV            D0              1337         [Block 0 -> ]
+   50: SETR            D0              LINKX        [Block 0 -> ]
    51: TRACER          D0
-   52: RETURNFUNC
+   52: TRACER          D0
+   53: RETURNFUNC
 
 
 Function #4
-   53: PUSHR           D0                           [Block 0 -> ]
-   54: PUSHR           REFFFC
-   55: PUSHARGSV       0               7
-   56: SETR            D4              SP
-   57: LOADD           D2              70000
-   58: PUSHR           D2
-   59: POP             REFFFC
-   60: SETR            D2              DATA
-   61: STORED          D2              60000
-   62: PUSHV           0
-   63: LOADD           D2              70000
-   64: POP             D3
-   65: PUSHR           D2
-   66: PUSHR           D3
-   67: PUSHV           70000
-   68: POP             D0
-   69: RETURNFUNC
+   54: PUSHR           D0                           [Block 0 -> ]
+   55: PUSHR           REFFFC
+   56: PUSHARGSV       0               7
+   57: SETR            D4              SP
+   58: LOADD           D2              70000
+   59: PUSHR           D2
+   60: POP             REFFFC
+   61: SETR            D2              DATA
+   62: STORED          D2              60000
+   63: PUSHV           0
+   64: LOADD           D2              70000
+   65: POP             D3
+   66: PUSHR           D2
+   67: PUSHR           D3
+   68: PUSHV           70000
+   69: POP             D0
+   70: RETURNFUNC
 
 
 Function #5
-   70: LOADD           D3              0            [Block 0 -> ]
-   71: PUSHR           D3
-   72: POP             D2
-   73: POP             REFFFC
-   74: SETR            X               D2
-   75: PUSHR           D4
-   76: SETR            D2              GD3
-   77: PUSHR           D2
-   78: SETR            D2              GD4
-   79: POP             D3
-   80: RETURNFUNC
+   71: LOADD           D3              0            [Block 0 -> ]
+   72: PUSHR           D3
+   73: POP             D2
+   74: POP             REFFFC
+   75: SETR            X               D2
+   76: PUSHR           D4
+   77: SETR            D2              GD3
+   78: PUSHR           D2
+   79: SETR            D2              GD4
+   80: POP             D3
+   81: RETURNFUNC

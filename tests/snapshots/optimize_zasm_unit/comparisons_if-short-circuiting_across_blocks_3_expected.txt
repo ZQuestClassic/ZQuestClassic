@@ -100,4 +100,9 @@ Function #0
 
 
 Function #1
-   17: RETURNFUNC                                   [Block 0 -> ]
+   17: POP             D2                           [Block 0 -> ]
+   18: ADDV            D2              1000
+   19: ADDV            D2              1000
+   20: ADDV            D2              1000
+   21: TRACER          D2
+   22: RETURNFUNC

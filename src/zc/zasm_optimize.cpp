@@ -413,7 +413,7 @@ static void remove(OptContext& ctx, pc_t pc)
 }
 
 template <typename T>
-static void for_every_command_arg(const ffscript& instr, T fn)
+static void for_every_command_register_arg(const ffscript& instr, T fn)
 {
 	const auto& sc = get_script_command(instr.command);
 
@@ -430,6 +430,30 @@ static void for_every_command_arg(const ffscript& instr, T fn)
 	}
 
 	if (sc.is_register(2))
+	{
+		auto [read, write] = get_command_rw(instr.command, 2);
+		fn(read, write, instr.arg3);
+	}
+}
+
+template <typename T>
+static void for_every_command_arg(ffscript& instr, T fn)
+{
+	const auto& sc = get_script_command(instr.command);
+
+	if (sc.args >= 1)
+	{
+		auto [read, write] = get_command_rw(instr.command, 0);
+		fn(read, write, instr.arg1);
+	}
+
+	if (sc.args >= 2)
+	{
+		auto [read, write] = get_command_rw(instr.command, 1);
+		fn(read, write, instr.arg2);
+	}
+
+	if (sc.args >= 3)
 	{
 		auto [read, write] = get_command_rw(instr.command, 2);
 		fn(read, write, instr.arg3);
@@ -480,7 +504,7 @@ static void for_every_command_arg_include_indices(const ffscript& instr, T fn)
 			break;
 	}
 
-	for_every_command_arg(instr, [&](bool read, bool write, int reg){
+	for_every_command_register_arg(instr, [&](bool read, bool write, int reg){
 		for (auto r : get_zregister_indices(reg))
 			fn(true, false, r);
 
@@ -734,7 +758,7 @@ static void optimize_stack(OptContext& ctx)
 					break;
 
 				bool writes_to_reg = false;
-				for_every_command_arg(C(k), [&](bool read, bool write, int arg){
+				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg){
 					if (arg == reg && write)
 						writes_to_reg = true;
 				});
@@ -1520,7 +1544,7 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 					break;
 				}
 
-				for_every_command_arg(C(k), [&](bool read, bool write, int arg){
+				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg){
 					if (arg == D(2) && write)
 					{
 						writes_comparison_result_to_d2 = true;
@@ -1609,7 +1633,7 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 						break;
 
 					bool writes_d2 = false;
-					for_every_command_arg(C(i), [&](bool read, bool write, int arg){
+					for_every_command_register_arg(C(i), [&](bool read, bool write, int arg){
 						if (arg == D(2))
 						{
 							if (read && !writes_d2)
@@ -1777,6 +1801,170 @@ static void optimize_calling_mode(OptContext& ctx)
 	}
 }
 
+static void optimize_inline_functions(OptContext& ctx)
+{
+	std::vector<pc_t> push_stack_pcs;
+	for (pc_t i = ctx.fn.start_pc; i < ctx.fn.final_pc; i++)
+	{
+		auto& instr = C(i);
+
+		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
+		{
+			push_stack_pcs.push_back(i);
+			continue;
+		}
+
+		if (instr.command == PUSHARGSR && instr.arg1 == rSFRAME)
+		{
+			for (int k = 0; k < instr.arg2; k++)
+				push_stack_pcs.push_back(i);
+			continue;
+		}
+
+		if (instr.command == POP && instr.arg1 == rSFRAME)
+		{
+			push_stack_pcs.pop_back();
+			continue;
+		}
+
+		if (instr.command != CALLFUNC)
+			continue;
+
+		const auto& fn = ctx.structured_zasm->functions.at(ctx.structured_zasm->start_pc_to_function.at(instr.arg1));
+		size_t length = fn.final_pc - fn.start_pc + 1;
+		if (length > 4)
+			continue;
+
+		int stack = 0;
+		int internal_reg_to_type[8]; // 0 - stack index, 1 - z-register/number
+		int internal_reg_to_value[8];
+		int stack_to_external_value[8];
+		for (int i = 0; i < 8; i++) internal_reg_to_type[i] = -1;
+		for (int i = 0; i < 8; i++) internal_reg_to_value[i] = -1;
+		for (int i = 0; i < 8; i++) stack_to_external_value[i] = -1;
+
+		ffscript inline_instr;
+		int inline_command_stack_indices[3];
+		for (int i = 0; i < 3; i++) inline_command_stack_indices[i] = -1;
+
+		bool bail = true;
+		bool found_instr = false;
+		for (pc_t k = fn.start_pc; k <= fn.final_pc; k++)
+		{
+			int command = C(k).command;
+			int arg1 = C(k).arg1;
+			int arg2 = C(k).arg2;
+
+			if (one_of(command, NOP, RETURNFUNC, RETURN, GOTOR))
+				continue;
+
+			if (command == POP)
+			{
+				if (found_instr)
+					continue;
+
+				int reg = arg1;
+				if (reg >= D(8))
+				{
+					bail = true;
+					break;
+				}
+
+				// TODO: support more than 1 parameter.
+				if (stack == 1)
+				{
+					bail = true;
+					break;
+				}
+
+				internal_reg_to_value[reg] = stack++;
+				internal_reg_to_type[reg] = 0;
+				continue;
+			}
+
+			if (command == SETR)
+			{
+				if (found_instr)
+					continue;
+
+				int reg = arg1;
+				internal_reg_to_value[reg] = arg2;
+				internal_reg_to_type[reg] = 1;
+				continue;
+			}
+
+			if (found_instr)
+			{
+				bail = true;
+				break;
+			}
+
+			bail = false;
+			found_instr = true;
+			inline_instr = C(k);
+		}
+		if (bail)
+			continue;
+
+		if (bisect_tool_should_skip())
+			continue;
+
+		ASSERT(one_of(C(i - 1).command, PUSHR, PUSHV, NOP));
+		stack_to_external_value[0] = C(i - 1).arg1;
+
+		std::vector<ffscript> inlined_zasm;
+		int arg = 0;
+		for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg){
+			if (read || write)
+			{
+				if (internal_reg_to_type[reg] == 0)
+					reg = stack_to_external_value[internal_reg_to_value[reg]];
+				else if (read)
+				{
+					inlined_zasm.emplace_back(SETR, reg, internal_reg_to_value[reg]);
+				}
+			}
+			arg++;
+		});
+		inlined_zasm.push_back(inline_instr);
+
+		pc_t hole_start_pc = i - 1;
+		pc_t hole_final_pc = i + 1;
+		pc_t push_stack_pc = push_stack_pcs.back();
+		bool push_stack_part_of_hole =
+			(push_stack_pc == hole_start_pc - 1 || push_stack_pc == hole_start_pc) && C(push_stack_pc).command != PUSHARGSR;
+		if (push_stack_part_of_hole)
+			hole_start_pc = push_stack_pc;
+		size_t hole_length = hole_final_pc - hole_start_pc + 1;
+		if (inlined_zasm.size() > hole_length)
+			continue;
+
+		std::copy(inlined_zasm.begin(), inlined_zasm.end(), &C(hole_start_pc));
+		remove(ctx, hole_start_pc + inlined_zasm.size(), hole_final_pc);
+		if (ctx.debug)
+		{
+			fmt::println("rewrite {}: {} -> {} commands", hole_start_pc, hole_length, inlined_zasm.size());
+			for (int i = hole_start_pc; i <= hole_final_pc; i++)
+				fmt::println("{}: {}", i, script_debug_command_to_string(C(i)));
+		}
+
+		if (C(push_stack_pc).command == PUSHARGSR)
+		{
+			if (C(push_stack_pc).arg1 > 2)
+				C(push_stack_pc).arg2 -= 1;
+			else if (C(push_stack_pc).arg1 == 2)
+				C(push_stack_pc) = {PUSHR, rSFRAME};
+			else
+				remove(ctx, push_stack_pc);
+		}
+		else if (!push_stack_part_of_hole)
+			remove(ctx, push_stack_pc);
+
+		if (command_is_wait(inline_instr.command))
+			ctx.cfg_stale = true;
+	}
+}
+
 // https://en.wikipedia.org/wiki/Data-flow_analysis
 // https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
@@ -1900,6 +2088,7 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> pas
 	{"goto_next_instruction", optimize_goto_next_instruction},
 	{"unreachable_blocks", optimize_unreachable_blocks},
 	{"calling_mode", optimize_calling_mode},
+	{"inline_functions", optimize_inline_functions},
 	{"conseq_additive", optimize_conseq_additive},
 	{"loadi", optimize_loadi},
 	{"setv_pushr", optimize_setv_pushr},

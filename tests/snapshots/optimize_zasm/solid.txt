@@ -2,6 +2,7 @@ Finished optimizing scripts:
 	[goto_next_instruction] saved 7 instr (0.6%)
 	[unreachable_blocks] saved 16 instr (1.4%)
 	[calling_mode] saved 12 instr (1.0%)
+	[inline_functions] saved 0 instr (0.0%)
 	[conseq_additive] saved 41 instr (3.6%)
 	[loadi] saved 220 instr (19.1%)
 	[setv_pushr] saved 33 instr (2.9%)
