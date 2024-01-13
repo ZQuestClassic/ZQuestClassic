@@ -333,10 +333,28 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 	return ret;
 }
 
-std::string get_box_cfg_hdr();
+std::string get_box_cfg_hdr(int num);
 int32_t d_timer_proc(int32_t, DIALOG *, int32_t);
 extern int32_t zq_screen_w, zq_screen_h;
 
+void do_box_hoffs(DIALOG* dlg, const int hoffs)
+{
+	dlg[1].h-=hoffs;
+	dlg[2].h-=hoffs;
+	dlg[3].w+=hoffs;
+	dlg[3].h+=hoffs;
+	dlg[3].x-=2*hoffs;
+	dlg[3].y-=hoffs;
+	dlg[4].w+=hoffs;
+	dlg[4].h+=hoffs;
+	dlg[4].x-=hoffs;
+	dlg[4].y-=hoffs;
+	dlg[5].h+=hoffs;
+	dlg[5].x = dlg[3].x-dlg[5].w-2;
+	dlg[5].y-=hoffs;
+	dlg[6].y = dlg[5].y;
+	dlg[6].h = dlg[5].h;
+}
 void do_box_setup(DIALOG* dlg)
 {
 	DIALOG edit_box_dlg[] =
@@ -347,6 +365,8 @@ void do_box_setup(DIALOG* dlg)
 		{ d_editbox_proc,    6,   25,   320-12,  240-6-25,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,        NULL, NULL, NULL },
 		{ jwin_color_swatch,    0,    0,    16,   16,  0,       0,       0,       D_EXIT,     0,          17,       NULL, NULL, NULL },
 		{ jwin_color_swatch,    0,    0,    16,   16,  0,       0,       0,       D_EXIT,     0,          17,       NULL, NULL, NULL },
+		{ jwin_button_proc,     0,    0,    48,    16,   0,       0,       0,  D_EXIT,          0,             0,       (void *) "Set Default", NULL, NULL },
+		{ jwin_button_proc,     0,    0,    48,    16,   0,       0,       0,  D_EXIT,          0,             0,       (void *) "OK", NULL, NULL },
 		{ d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
 		{ d_timer_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,          0,       NULL, NULL, NULL },
 		{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,          0,       NULL, NULL, NULL }
@@ -357,11 +377,23 @@ void do_box_setup(DIALOG* dlg)
 	edit_box_dlg[1].h=zq_screen_h-27-16;
 	edit_box_dlg[2].w=zq_screen_w-8-4;
 	edit_box_dlg[2].h=zq_screen_h-27-4-16;
-	edit_box_dlg[3].x = zq_screen_w-36;
-	edit_box_dlg[3].y = zq_screen_h-18;
 	edit_box_dlg[4].x = zq_screen_w-18;
 	edit_box_dlg[4].y = zq_screen_h-18;
-	memcpy(dlg, edit_box_dlg, sizeof(DIALOG)*7);
+	edit_box_dlg[3].x = edit_box_dlg[4].x-18;
+	edit_box_dlg[3].y = edit_box_dlg[4].y;
+	FONT* dlgfnt = get_custom_font(CFONT_DLG);
+	edit_box_dlg[5].dp2 = dlgfnt;
+	edit_box_dlg[5].w = gui_text_width(dlgfnt, (char const*)edit_box_dlg[5].dp)+16;
+	edit_box_dlg[5].x = edit_box_dlg[3].x-edit_box_dlg[5].w-2;
+	edit_box_dlg[5].y = edit_box_dlg[4].y;
+	edit_box_dlg[5].h = edit_box_dlg[4].h;
+	edit_box_dlg[6].dp2 = dlgfnt;
+	edit_box_dlg[6].h = edit_box_dlg[5].h;
+	edit_box_dlg[6].w = edit_box_dlg[5].w;
+	edit_box_dlg[6].x = zq_screen_w/2-edit_box_dlg[6].w/2;
+	edit_box_dlg[6].y = edit_box_dlg[6].y;
+	do_box_hoffs(edit_box_dlg, 20);
+	memcpy(dlg, edit_box_dlg, sizeof(DIALOG)*9);
 }
 static string file_to_str(FILE* f)
 {
@@ -387,6 +419,8 @@ bool do_box_edit(DIALOG* edit_box_dlg, std::function<bool(int)> proc, string& st
 		{ NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
 		{ NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
 		{ NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
+		{ NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
+		{ NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL },
 		{ NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL }
 	};
 	
@@ -397,9 +431,10 @@ bool do_box_edit(DIALOG* edit_box_dlg, std::function<bool(int)> proc, string& st
 		edit_box_dlg = def_dlg;
 	}
 	
-	string cfg_hdr = get_box_cfg_hdr();
-	auto bg = zc_get_config(cfg_hdr.c_str(), "notes_bg", vc(15));
-	auto fg = zc_get_config(cfg_hdr.c_str(), "notes_fg", vc(0));
+	string def_hdr = get_box_cfg_hdr(1);
+	string cfg_hdr = get_box_cfg_hdr(0);
+	auto bg = zc_get_config(cfg_hdr.c_str(), "notes_bg", zc_get_config(def_hdr.c_str(), "notes_bg", vc(15)));
+	auto fg = zc_get_config(cfg_hdr.c_str(), "notes_fg", zc_get_config(def_hdr.c_str(), "notes_fg", vc(0)));
 	edit_box_dlg[3].d1 = fg;
 	edit_box_dlg[4].d1 = bg;
 	
@@ -434,6 +469,10 @@ bool do_box_edit(DIALOG* edit_box_dlg, std::function<bool(int)> proc, string& st
 				edit_box_dlg[2].bg = bg;
 				zc_set_config(cfg_hdr.c_str(), "notes_bg", bg);
 				view->draw();
+				return false;
+			case 5:
+				zc_set_config(def_hdr.c_str(), "notes_bg", bg);
+				zc_set_config(def_hdr.c_str(), "notes_fg", fg);
 				return false;
 			default:
 				return true;

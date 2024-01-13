@@ -100,7 +100,8 @@ DIALOG integrity_report_dlg[] =
     { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
     { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
     { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     0,    0,    0,    0,   0,       0,       0,  D_EXIT,          0,             0,       (void *) "OK", NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_button_proc,     0,    0,    0,    0,   0,       0,       0,  D_EXIT,          0,             0,       (void *) "Save", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL, NULL }
 };
@@ -110,28 +111,14 @@ extern char *filepath;
 void showQuestReport()
 {
 	do_box_setup(integrity_report_dlg);
-	const int hoffs = 20;
-    integrity_report_dlg[1].h-=hoffs;
-    integrity_report_dlg[2].h-=hoffs;
-    integrity_report_dlg[3].w+=hoffs;
-    integrity_report_dlg[3].h+=hoffs;
-    integrity_report_dlg[3].x-=2*hoffs;
-    integrity_report_dlg[3].y-=hoffs;
-    integrity_report_dlg[4].w+=hoffs;
-    integrity_report_dlg[4].h+=hoffs;
-    integrity_report_dlg[4].x-=hoffs;
-    integrity_report_dlg[4].y-=hoffs;
 	//
-    integrity_report_dlg[7].x=200-48;
-    integrity_report_dlg[7].y=zq_screen_h-38;
-    integrity_report_dlg[7].w=61*1.5;
-    integrity_report_dlg[7].h=21*1.5;
-    integrity_report_dlg[7].dp2 = get_zc_font(font_lfont_l);
-    integrity_report_dlg[8].x=zq_screen_h-48;
-    integrity_report_dlg[8].y=zq_screen_h-38;
-    integrity_report_dlg[8].w=61*1.5;
-    integrity_report_dlg[8].h=21*1.5;
-    integrity_report_dlg[8].dp2 = get_zc_font(font_lfont_l);
+	const int sz = 9;
+	integrity_report_dlg[6].x = zq_screen_w/2-integrity_report_dlg[5].w;
+	integrity_report_dlg[sz+0].x = zq_screen_w/2;
+	integrity_report_dlg[sz+0].y = integrity_report_dlg[5].y;
+	integrity_report_dlg[sz+0].w = integrity_report_dlg[5].w;
+	integrity_report_dlg[sz+0].h = integrity_report_dlg[5].h;
+	integrity_report_dlg[sz+0].dp2 = integrity_report_dlg[5].dp2;
 	do_box_edit(integrity_report_dlg, [&](int ret)
 		{
 			switch(ret)

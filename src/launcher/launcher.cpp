@@ -356,7 +356,7 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 	return D_O_K;
 }
 
-string get_box_cfg_hdr()
+string get_box_cfg_hdr(int num)
 {
 	return "misc";
 }

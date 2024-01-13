@@ -21318,8 +21318,10 @@ void doEditZScript()
 
 std::string qst_cfg_header_from_path(std::string path);
 extern char *filepath;
-string get_box_cfg_hdr()
+string get_box_cfg_hdr(int num)
 {
+	if(num)
+		return "misc";
 	return qst_cfg_header_from_path(filepath);
 }
 
