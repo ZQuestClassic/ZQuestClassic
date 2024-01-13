@@ -12171,8 +12171,12 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!get_qr(qr_CUSTOMWEAPON_IGNORE_COST))
 				paymagiccost(itemid);
 			
+			zfix wpnstep = zfix(itm.misc1)/100;
+			if(replay_version_check(0,30))
+				wpnstep = itm.misc1/100;
+			
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wtype,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1/100;
+			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
 			sfx(itm.usesound,pan(wx));
 		}
 		break;
@@ -12189,9 +12193,13 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			if(!get_qr(qr_CUSTOMWEAPON_IGNORE_COST))
 				paymagiccost(itemid);
+			
+			zfix wpnstep = zfix(itm.misc1)/100;
+			if(replay_version_check(0,30))
+				wpnstep = itm.misc1/100;
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1/100;
+			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
 			sfx(itm.usesound,pan(wx));
 		}
 		break;
