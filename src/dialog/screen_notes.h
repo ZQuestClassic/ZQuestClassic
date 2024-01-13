@@ -3,6 +3,7 @@
 
 #include <gui/dialog.h>
 #include <gui/label.h>
+#include <gui/button.h>
 #include <gui/list.h>
 #include <gui/window.h>
 #include <zq/gui/tileanim_frame.h>
@@ -35,7 +36,7 @@ private:
 class BrowseNotesDialog: public GUI::Dialog<BrowseNotesDialog>
 {
 public:
-	enum class message { REFR_INFO, OK, EDIT };
+	enum class message { REFR_INFO, OK, EDIT, GOTO };
 	
 	BrowseNotesDialog();
 	
@@ -50,6 +51,7 @@ protected:
 	ScreenNotesInfo const* sel_info() const;
 	
 	std::shared_ptr<GUI::List> widgList;
+	std::shared_ptr<GUI::Button> editB, gotoB;
 	std::shared_ptr<GUI::Label> prevlbl;
 	std::shared_ptr<GUI::Window> window;
 };

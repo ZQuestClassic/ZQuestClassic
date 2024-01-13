@@ -131,8 +131,17 @@ std::shared_ptr<GUI::Widget> BrowseNotesDialog::view()
 						{
 							selected_val = val;
 							if(auto inf = sel_info())
+							{
 								prevlbl->setText(inf->notes());
-							else prevlbl->setText("");
+								editB->setDisabled(false);
+								gotoB->setDisabled(inf->map == Map.getCurrMap() && inf->screen == Map.getCurrScr());
+							}
+							else
+							{
+								prevlbl->setText("");
+								editB->setDisabled(true);
+								gotoB->setDisabled(true);
+							}
 						}
 					},
 					onDClick = message::EDIT),
@@ -164,11 +173,16 @@ std::shared_ptr<GUI::Widget> BrowseNotesDialog::view()
 					topPadding = 0.5_em,
 					minwidth = 90_px,
 					onClick = message::OK),
-				Button(
+				editB = Button(
 					text = "Edit",
 					topPadding = 0.5_em,
 					minwidth = 90_px,
-					onClick = message::EDIT)
+					onClick = message::EDIT),
+				gotoB = Button(
+					text = "Goto",
+					topPadding = 0.5_em,
+					minwidth = 90_px,
+					onClick = message::GOTO)
 			)
 		)
 	);
@@ -178,10 +192,16 @@ std::shared_ptr<GUI::Widget> BrowseNotesDialog::view()
 		widgList->setIndex();
 		selected_val = widgList->getSelectedValue();
 	}
+	editB->setDisabled(true);
+	gotoB->setDisabled(true);
 	if(selected_val < 0)
 		prevlbl->setText("No matching notes found!");
 	else if(auto inf = sel_info())
+	{
+		editB->setDisabled(false);
+		gotoB->setDisabled(inf->map == Map.getCurrMap() && inf->screen == Map.getCurrScr());
 		prevlbl->setText(inf->notes());
+	}
 	
 	return window;
 }
@@ -209,6 +229,14 @@ bool BrowseNotesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				if(inf->edit())
 					rerun_dlg = true;
 			return rerun_dlg;
+		case message::GOTO:
+			if(auto inf = sel_info())
+			{
+				Map.set_warpback();
+				Map.goto_mapscr(inf->map, inf->screen);
+				return true;
+			}
+			return false;
 	}
 	return false;
 }
