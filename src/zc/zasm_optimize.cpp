@@ -1988,6 +1988,9 @@ OptimizeResults zasm_optimize()
 		fmt::println("Optimizing scripts...");
 
 	zasm_for_every_script([&](auto script){
+		if (script->optimized)
+			return;
+
 		size += script->size;
 		
 		auto r = zasm_optimize(script);
