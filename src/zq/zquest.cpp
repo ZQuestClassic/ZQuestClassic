@@ -3733,23 +3733,27 @@ int32_t onGotoPage()
 {
 	if (draw_mode==dm_alias)
 	{
-		if(optional<int> v = call_get_num("Scroll to Alias Page", 0, MAXCOMBOALIASES/96, 0))
-			combo_alistpos[current_comboalist] = *v*96;
+		static const int PER_PAGE = 260;
+		if(optional<int> v = call_get_num("Scroll to Alias Page", 0, MAXCOMBOALIASES/PER_PAGE-1, 0))
+			combo_alistpos[current_comboalist] = *v*PER_PAGE;
 	}
 	else if (draw_mode==dm_cpool)
 	{
-		if(optional<int> v = call_get_num("Scroll to Combo Pool Page", 0, MAXCOMBOPOOLS/96, 0))
-			combo_pool_listpos[current_cpoollist] = *v*96;
+		static const int PER_PAGE = 260;
+		if(optional<int> v = call_get_num("Scroll to Combo Pool Page", 0, MAXCOMBOPOOLS/PER_PAGE-1, 0))
+			combo_pool_listpos[current_cpoollist] = *v*PER_PAGE;
 	}
 	else if (draw_mode == dm_auto)
 	{
-		if(optional<int> v = call_get_num("Scroll to Auto Combo Page", 0, MAXAUTOCOMBOS/96, 0))
-			combo_auto_listpos[current_cautolist] = *v*96;
+		static const int PER_PAGE = 260;
+		if(optional<int> v = call_get_num("Scroll to Auto Combo Page", 0, MAXAUTOCOMBOS/PER_PAGE-1, 0))
+			combo_auto_listpos[current_cautolist] = *v*PER_PAGE;
 	}
 	else
 	{
-		if(optional<int> v = call_get_num("Scroll to Combo Page", 0, COMBO_PAGES-1, 0))
-			First[current_combolist] = *v << 8;
+		static const int PER_PAGE = 256;
+		if(optional<int> v = call_get_num("Scroll to Combo Page", 0, MAXCOMBOS/PER_PAGE-1, 0))
+			First[current_combolist] = *v*PER_PAGE;
 	}
     
     return D_O_K;
@@ -5925,6 +5929,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				for(int32_t j=0; j<num_combo_cols; ++j)
 				{
+					auto per_page = (comboaliaslist[j].w * comboaliaslist[j].h);
+					if(combo_alistpos[j] + per_page >= MAXCOMBOALIASES)
+						combo_alistpos[j] = MAXCOMBOALIASES-per_page;
 					auto& col = comboaliaslist[j];
 					for(int32_t i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
 					{
@@ -5993,8 +6000,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					jwin_draw_frame(menu1,pos.x-2,pos.y-2,(pos.w*comboaliaslist[c].xscale)+4,(pos.h*comboaliaslist[c].yscale)+4,FR_DEEP);
 				}
 				
-				for(int32_t j=0; j<num_combo_cols; ++j) //the actual panes
+				for (int32_t j = 0; j < num_combo_cols; ++j) //the actual panes
 				{
+					auto per_page = (comboaliaslist[j].w * comboaliaslist[j].h);
+					if(combo_pool_listpos[j] + per_page >= MAXCOMBOPOOLS)
+						combo_pool_listpos[j] = MAXCOMBOPOOLS-per_page;
 					for(int32_t i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
 					{
 						int32_t cid=-1; int8_t cs=CSet;
@@ -6105,6 +6115,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 
 				for (int32_t j = 0; j < num_combo_cols; ++j) //the actual panes
 				{
+					auto per_page = (comboaliaslist[j].w * comboaliaslist[j].h);
+					if(combo_auto_listpos[j] + per_page >= MAXAUTOCOMBOS)
+						combo_auto_listpos[j] = MAXAUTOCOMBOS-per_page;
 					for (int32_t i = 0; i < (comboaliaslist[j].w * comboaliaslist[j].h); i++)
 					{
 						int32_t cid = -1; int8_t cs = CSet;
@@ -6171,6 +6184,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				for(int32_t j=0; j<num_combo_cols; ++j)
 				{
+					auto per_page = (combolist[j].w * combolist[j].h);
+					if(First[j] + per_page >= MAXCOMBOS)
+						First[j] = MAXCOMBOS-per_page;
 					for(int32_t i=0; i<(combolist[j].w*combolist[j].h); i++)
 					{
 						put_combo(menu1,(i%combolist[j].w)*combolist[j].xscale+combolist[j].x,
