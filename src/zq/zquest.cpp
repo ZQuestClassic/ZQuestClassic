@@ -1365,7 +1365,7 @@ static NewMenu fixtools_menu
 
 static NewMenu tool_menu
 {
-	{ "Combo &Flags", onFlags },
+	{ "Combo &Flags", onFlags, nullopt, MFL_EXIT_PRE_PROC },
 	{ "Fix &Tools ", &fixtools_menu },
 	{ "&NES Dungeon Template", onTemplate },
 	{ "&Apply Template to All", onReTemplate },
@@ -9774,7 +9774,7 @@ void popup_cpane_rc(int x, int y)
 					{ "Combo Locations", onComboLocationReport },
 					{},
 					{ "Scroll to Page...", onGotoPage },
-					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, false, LinkedScroll!=0 },
+					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, LinkedScroll ? MFL_SEL : 0 },
 				});
 			break;
 		case dm_alias:
@@ -9785,7 +9785,7 @@ void popup_cpane_rc(int x, int y)
 					{ fmt::format("Open {} Page", type), on_cpane_page },
 					{},
 					{ "Scroll to Page...", onGotoPage },
-					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, false, LinkedScroll!=0 },
+					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, LinkedScroll ? MFL_SEL : 0 },
 				});
 			break;
 	}

@@ -682,6 +682,19 @@ void get_zqdialog_xy(int& x, int& y)
 	else x = y = 0;
 }
 
+static vector<std::function<void()>> on_close_procs;
+void on_zqdialog_close(std::function<void()>&& proc)
+{
+	on_close_procs.emplace_back(std::move(proc));
+}
+void on_zqdialog_close()
+{
+	vector<std::function<void()>> procs;
+	procs.swap(on_close_procs);
+	for(auto& proc : procs)
+		proc();
+}
+
 static RenderTreeItem* get_active_dialog(bool forTint = false)
 {
 	auto& children = rti_dialogs.get_children();
@@ -737,6 +750,7 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 }
 void popup_zqdialog_end()
 {
+	bool closed = false;
 	if (active_dlg_rti)
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
@@ -751,11 +765,14 @@ void popup_zqdialog_end()
 		{
 			screen = zqdialog_bg_bmp;
 			zqdialog_bg_bmp = nullptr;
+			closed = true;
 		}
 		delete to_del;
 	}
 	position_mouse_z(0);
 	clear_tooltip();
+	if(closed)
+		on_zqdialog_close();
 }
 
 static std::vector<ALLEGRO_STATE> old_a5_states;
@@ -785,6 +802,7 @@ void popup_zqdialog_start_a5()
 
 void popup_zqdialog_end_a5()
 {
+	bool closed = false;
 	if (active_dlg_rti && old_a5_states.size())
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
@@ -793,6 +811,7 @@ void popup_zqdialog_end_a5()
 		if (!active_dlg_rti)
 		{
 			zqdialog_bg_bmp = nullptr;
+			closed = true;
 		}
 		ALLEGRO_STATE& oldstate = old_a5_states.back();
 		al_restore_state(&oldstate);
@@ -802,6 +821,8 @@ void popup_zqdialog_end_a5()
 	}
 	position_mouse_z(0);
 	clear_tooltip();
+	if(closed)
+		on_zqdialog_close();
 }
 
 RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)

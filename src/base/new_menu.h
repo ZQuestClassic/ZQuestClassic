@@ -27,14 +27,17 @@ enum MenuRet
 	MRET_LEFT,
 	MRET_RIGHT,
 };
+#define MFL_DIS            0x00000001
+#define MFL_SEL            0x00000002
+#define MFL_EXIT_PRE_PROC  0x00000004
 class MenuItem
 {
 public:
-	MenuItem(string text = "", GuiMenu* submenu = nullptr, optional<uint> uid = nullopt, bool dis = false, bool sel = false);
-	MenuItem(string text, string subtext, GuiMenu* submenu = nullptr, optional<uint> uid = nullopt, bool dis = false, bool sel = false);
+	MenuItem(string text = "", GuiMenu* submenu = nullptr, optional<uint> uid = nullopt, int32_t flags = 0);
+	MenuItem(string text, string subtext, GuiMenu* submenu = nullptr, optional<uint> uid = nullopt, int32_t flags = 0);
 	
-	MenuItem(string text, std::function<void()> callback, optional<uint> uid = nullopt, bool dis = false, bool sel = false);
-	MenuItem(string text, string subtext, std::function<void()> callback, optional<uint> uid = nullopt, bool dis = false, bool sel = false);
+	MenuItem(string text, std::function<void()> callback, optional<uint> uid = nullopt, int32_t flags = 0);
+	MenuItem(string text, string subtext, std::function<void()> callback, optional<uint> uid = nullopt, int32_t flags = 0);
 	
 	MenuItem(optional<uint> uid);
 	
@@ -63,9 +66,8 @@ public:
 	std::function<void()> onCall;
 	GuiMenu* submenu;
 	
-	bool disabled;
-	bool selected;
 private:
+	int32_t flags;
 	static constexpr uint vborder = 4, lborder = 6, rborder = 4;
 	static constexpr uint t_vborder = 4, t_hborder = 8;
 	static constexpr uint selindent = 12, sel_antiindent = 4;

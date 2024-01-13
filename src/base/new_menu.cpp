@@ -49,37 +49,48 @@ static uint gui_strlen(FONT* f, char const* cstr)
 }
 
 MenuItem::MenuItem(string text, GuiMenu* submenu,
-	optional<uint> uid, bool dis, bool sel)
+	optional<uint> uid, int32_t flags)
     : text(text), subtext(), uid(uid),
 	onCall(),
-	submenu(submenu), disabled(dis), selected(sel)
+	submenu(submenu), flags(flags)
 {}
 MenuItem::MenuItem(string text, string subtext, GuiMenu* submenu,
-	optional<uint> uid, bool dis, bool sel)
+	optional<uint> uid, int32_t flags)
     : text(text), subtext(subtext), uid(uid),
 	onCall(),
-	submenu(submenu), disabled(dis), selected(sel)
+	submenu(submenu), flags(flags)
 {}
 MenuItem::MenuItem(string text, std::function<void()> callback,
-	optional<uint> uid, bool dis, bool sel)
+	optional<uint> uid, int32_t flags)
     : text(text), subtext(), uid(uid),
 	onCall(callback),
-	submenu(nullptr), disabled(dis), selected(sel)
+	submenu(nullptr), flags(flags)
 {}
 MenuItem::MenuItem(string text, string subtext, std::function<void()> callback,
-	optional<uint> uid, bool dis, bool sel)
+	optional<uint> uid, int32_t flags)
     : text(text), subtext(subtext), uid(uid),
 	onCall(callback),
-	submenu(nullptr), disabled(dis), selected(sel)
+	submenu(nullptr), flags(flags)
 {}
 
 MenuItem::MenuItem(optional<uint> uid)
     : text(), subtext(), uid(uid), onCall(),
-	submenu(nullptr), disabled(false), selected(false)
+	submenu(nullptr), flags(0)
 {}
 
 void MenuItem::exec() const
 {
+	if(!onCall)
+		return;
+	if(flags & MFL_EXIT_PRE_PROC)
+	{
+		on_zqdialog_close([=]()
+			{
+				if(onCall)
+					onCall();
+			});
+		return;
+	}
 	if(onCall)
 		onCall();
 }
@@ -133,11 +144,11 @@ uint MenuItem::calc_height(uint style, uint drawflags, optional<FONT*> usefont) 
 
 bool MenuItem::isDisabled() const
 {
-	return disabled || isEmpty();
+	return (flags&MFL_DIS) || isEmpty();
 }
 bool MenuItem::isSelected() const
 {
-	return selected;
+	return (flags&MFL_SEL);
 }
 bool MenuItem::isEmpty() const
 {
@@ -150,18 +161,18 @@ bool MenuItem::isParent() const
 
 void MenuItem::disable(bool dis)
 {
-	disabled = dis;
+	SETFLAG(flags,MFL_DIS,dis);
 }
 void MenuItem::select(bool sel)
 {
-	selected = sel;
+	SETFLAG(flags,MFL_SEL,sel);
 }
 
 void MenuItem::draw(BITMAP* dest, uint x, uint y, uint style, byte drawflags, optional<FONT*> usefont, optional<uint> usew)
 {
 	if(style >= MISTYLE_MAX)
 		return;
-	bool dis = isDisabled(), sel = selected;
+	bool dis = isDisabled(), sel = isSelected();
 	bool highlight = !dis && (drawflags&MENU_DRAWFLAG_HIGHLIGHT);
 	bool inv_frame = (drawflags&MENU_DRAWFLAG_INVFRAME);
 	bool shiftsub = (drawflags&MENU_DRAWFLAG_SHIFTSUBTX);
@@ -219,7 +230,7 @@ void MenuItem::draw(BITMAP* dest, uint x, uint y, uint style, byte drawflags, op
 					draw_arrow_horz(dest, fg, x+w-arrowsz-rb-1, y+vb, arrowsz, false, false);
 				}
 				
-				if(selected)
+				if(sel)
 				{
 					if(dis)
 					{
@@ -572,6 +583,7 @@ uint NewMenu::height() const
 	}
 	return hei + border*2;
 }
+
 void NewMenu::trigger(uint indx)
 {
 	MenuItem& mit = entries[indx];
@@ -668,7 +680,7 @@ void NewMenu::pop_sub(uint indx, GuiMenu* parent)
 						--indx;
 					else
 						indx = entries.size()-1;
-					if(!entries[indx].disabled)
+					if(!entries[indx].isDisabled())
 						break;
 				}
 				while(indx != start_ind);
@@ -677,7 +689,7 @@ void NewMenu::pop_sub(uint indx, GuiMenu* parent)
 				do
 				{
 					indx = (indx+1) % entries.size();
-					if(!entries[indx].disabled)
+					if(!entries[indx].isDisabled())
 						break;
 				}
 				while(indx != start_ind);
@@ -1158,7 +1170,7 @@ void TopMenu::pop_sub(uint indx, GuiMenu* parent)
 						--indx;
 					else
 						indx = entries.size()-1;
-					if(!entries[indx].disabled)
+					if(!entries[indx].isDisabled())
 						break;
 				}
 				while(indx != start_ind);
@@ -1167,7 +1179,7 @@ void TopMenu::pop_sub(uint indx, GuiMenu* parent)
 				do
 				{
 					indx = (indx+1) % entries.size();
-					if(!entries[indx].disabled)
+					if(!entries[indx].isDisabled())
 						break;
 				}
 				while(indx != start_ind);
@@ -1483,7 +1495,7 @@ optional<int> popup_num_menu(uint x, uint y, int min, int max, optional<int> hl,
 	NewMenu popmenu;
 	for(int q = min; q < max; ++q)
 		popmenu.add({ formatter ? formatter(q) : to_string(q),
-			[&retval,q](){retval = q;}, nullopt, false, hl && *hl == q });
+			[&retval,q](){retval = q;}, nullopt, hl && *hl == q ? MFL_SEL : 0 });
 	popmenu.pop(x, y);
 	return retval;
 }
