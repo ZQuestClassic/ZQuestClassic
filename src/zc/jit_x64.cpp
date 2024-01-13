@@ -1,5 +1,6 @@
 #include "asmjit/core/func.h"
 #include "base/qrs.h"
+#include "base/zdefs.h"
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
@@ -925,6 +926,7 @@ JittedFunction jit_compile_script(script_data *script)
 		case QUIT:
 		{
 			compile_command_interpreter(state, cc, script, i, 1, vStackIndex);
+			cc.mov(state.vRetVal, RUNSCRIPT_STOPPED);
 			cc.mov(x86::ptr_32(state.ptrWaitIndex), 0);
 			cc.jmp(state.L_End);
 		}
