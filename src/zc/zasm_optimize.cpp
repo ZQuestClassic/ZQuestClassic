@@ -1734,9 +1734,20 @@ static void optimize_calling_mode(OptContext& ctx)
 		ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR ? GOTOR : RETURN;
 
 	std::vector<pc_t> push_stack_pcs;
-	for (pc_t i = ctx.fn.start_pc; i < ctx.fn.final_pc; i++)
+	for (pc_t i = 0; i < ctx.script->size; i++)
 	{
 		auto& instr = C(i);
+
+		if (instr.command == return_command)
+		{
+			if (ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR)
+			{
+				ASSERT(C(i - 1).command == POP && C(i - 1).arg1 == instr.arg1);
+				remove(ctx, i - 1);
+			}
+			instr.command = RETURNFUNC;
+			continue;
+		}
 
 		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
 		{
@@ -1752,6 +1763,15 @@ static void optimize_calling_mode(OptContext& ctx)
 
 		if (instr.command != GOTO || !ctx.structured_zasm->function_calls.contains(i))
 			continue;
+
+		// Global init scripts have an annoying "function call" that doesn't ever return, so it
+		// won't push rSFRAME to the stack. So keep it as a GOTO.
+		// See zasm_construct_structured
+		if (ctx.script->id == script_id{ScriptType::Global, GLOBAL_SCRIPT_INIT})
+		{
+			if (ctx.structured_zasm->start_pc_to_function.contains(i + 1))
+				continue;
+		}
 
 		ASSERT(C(i + 1).command == POP && C(i + 1).arg1 == rSFRAME);
 
@@ -1789,64 +1809,31 @@ static void optimize_calling_mode(OptContext& ctx)
 		if (set_ret_addr != -1)
 			remove(ctx, set_ret_addr);
 	}
-
-	if (C(ctx.fn.final_pc).command == return_command)
-	{
-		if (ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR)
-		{
-			ASSERT(C(ctx.fn.final_pc - 1).command == POP && C(ctx.fn.final_pc - 1).arg1 == C(ctx.fn.final_pc).arg1);
-			remove(ctx, ctx.fn.final_pc - 1);
-		}
-		C(ctx.fn.final_pc).command = RETURNFUNC;
-	}
 }
 
 static void optimize_inline_functions(OptContext& ctx)
 {
-	std::vector<pc_t> push_stack_pcs;
-	for (pc_t i = ctx.fn.start_pc; i < ctx.fn.final_pc; i++)
+	struct InlineFunctionData
 	{
-		auto& instr = C(i);
+		const ZasmFunction& fn;
+		ffscript inline_instr;
+		int internal_reg_to_type[8]; // 0 - stack index, 1 - z-register/number
+		int internal_reg_to_value[8];
+		bool all_uses_inlined = true;
+	};
 
-		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
-		{
-			push_stack_pcs.push_back(i);
-			continue;
-		}
-
-		if (instr.command == PUSHARGSR && instr.arg1 == rSFRAME)
-		{
-			for (int k = 0; k < instr.arg2; k++)
-				push_stack_pcs.push_back(i);
-			continue;
-		}
-
-		if (instr.command == POP && instr.arg1 == rSFRAME)
-		{
-			push_stack_pcs.pop_back();
-			continue;
-		}
-
-		if (instr.command != CALLFUNC)
-			continue;
-
-		const auto& fn = ctx.structured_zasm->functions.at(ctx.structured_zasm->start_pc_to_function.at(instr.arg1));
+	std::map<pc_t, InlineFunctionData> functions_to_inline;
+	for (const auto& fn : ctx.structured_zasm->functions)
+	{
 		size_t length = fn.final_pc - fn.start_pc + 1;
 		if (length > 4)
 			continue;
 
+		InlineFunctionData data = {fn};
+		for (int i = 0; i < 8; i++) data.internal_reg_to_type[i] = -1;
+		for (int i = 0; i < 8; i++) data.internal_reg_to_value[i] = -1;
+
 		int stack = 0;
-		int internal_reg_to_type[8]; // 0 - stack index, 1 - z-register/number
-		int internal_reg_to_value[8];
-		int stack_to_external_value[8];
-		for (int i = 0; i < 8; i++) internal_reg_to_type[i] = -1;
-		for (int i = 0; i < 8; i++) internal_reg_to_value[i] = -1;
-		for (int i = 0; i < 8; i++) stack_to_external_value[i] = -1;
-
-		ffscript inline_instr;
-		int inline_command_stack_indices[3];
-		for (int i = 0; i < 3; i++) inline_command_stack_indices[i] = -1;
-
 		bool bail = true;
 		bool found_instr = false;
 		for (pc_t k = fn.start_pc; k <= fn.final_pc; k++)
@@ -1877,8 +1864,8 @@ static void optimize_inline_functions(OptContext& ctx)
 					break;
 				}
 
-				internal_reg_to_value[reg] = stack++;
-				internal_reg_to_type[reg] = 0;
+				data.internal_reg_to_value[reg] = stack++;
+				data.internal_reg_to_type[reg] = 0;
 				continue;
 			}
 
@@ -1888,8 +1875,8 @@ static void optimize_inline_functions(OptContext& ctx)
 					continue;
 
 				int reg = arg1;
-				internal_reg_to_value[reg] = arg2;
-				internal_reg_to_type[reg] = 1;
+				data.internal_reg_to_value[reg] = arg2;
+				data.internal_reg_to_type[reg] = 1;
 				continue;
 			}
 
@@ -1901,27 +1888,70 @@ static void optimize_inline_functions(OptContext& ctx)
 
 			bail = false;
 			found_instr = true;
-			inline_instr = C(k);
+			C(k).copy(data.inline_instr);
 		}
 		if (bail)
 			continue;
 
-		if (bisect_tool_should_skip())
+		functions_to_inline.emplace(fn.id, data);
+	}
+
+	std::vector<pc_t> push_stack_pcs;
+	for (pc_t i = 0; i < ctx.script->size; i++)
+	{
+		auto& instr = C(i);
+
+		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
+		{
+			push_stack_pcs.push_back(i);
 			continue;
+		}
+
+		if (instr.command == PUSHARGSR && instr.arg1 == rSFRAME)
+		{
+			for (int k = 0; k < instr.arg2; k++)
+				push_stack_pcs.push_back(i);
+			continue;
+		}
+
+		if (instr.command == POP && instr.arg1 == rSFRAME)
+		{
+			push_stack_pcs.pop_back();
+			continue;
+		}
+
+		if (instr.command != CALLFUNC)
+			continue;
+
+		pc_t fn_id = ctx.structured_zasm->start_pc_to_function.at(instr.arg1);
+		auto it = functions_to_inline.find(fn_id);
+		if (it == functions_to_inline.end())
+			continue;
+
+		auto& data = it->second;
+		if (bisect_tool_should_skip())
+		{
+			data.all_uses_inlined = false;
+			continue;
+		}
+
+		int stack_to_external_value[8];
+		for (int i = 0; i < 8; i++) stack_to_external_value[i] = -1;
 
 		ASSERT(one_of(C(i - 1).command, PUSHR, PUSHV, NOP));
 		stack_to_external_value[0] = C(i - 1).arg1;
 
 		std::vector<ffscript> inlined_zasm;
 		int arg = 0;
+		ffscript inline_instr = data.inline_instr;
 		for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg){
 			if (read || write)
 			{
-				if (internal_reg_to_type[reg] == 0)
-					reg = stack_to_external_value[internal_reg_to_value[reg]];
+				if (data.internal_reg_to_type[reg] == 0)
+					reg = stack_to_external_value[data.internal_reg_to_value[reg]];
 				else if (read)
 				{
-					inlined_zasm.emplace_back(SETR, reg, internal_reg_to_value[reg]);
+					inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);
 				}
 			}
 			arg++;
@@ -1937,7 +1967,10 @@ static void optimize_inline_functions(OptContext& ctx)
 			hole_start_pc = push_stack_pc;
 		size_t hole_length = hole_final_pc - hole_start_pc + 1;
 		if (inlined_zasm.size() > hole_length)
+		{
+			data.all_uses_inlined = false;
 			continue;
+		}
 
 		std::copy(inlined_zasm.begin(), inlined_zasm.end(), &C(hole_start_pc));
 		remove(ctx, hole_start_pc + inlined_zasm.size(), hole_final_pc);
@@ -1962,6 +1995,12 @@ static void optimize_inline_functions(OptContext& ctx)
 
 		if (command_is_wait(inline_instr.command))
 			ctx.cfg_stale = true;
+	}
+
+	for (const auto& [fn_id, data] : functions_to_inline)
+	{
+		if (data.all_uses_inlined)
+			remove(ctx, data.fn.start_pc, data.fn.final_pc);
 	}
 }
 
@@ -2084,11 +2123,14 @@ static void optimize_dead_code(OptContext& ctx)
 	});
 }
 
-static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> passes = {
-	{"goto_next_instruction", optimize_goto_next_instruction},
-	{"unreachable_blocks", optimize_unreachable_blocks},
+static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> script_passes = {
 	{"calling_mode", optimize_calling_mode},
 	{"inline_functions", optimize_inline_functions},
+};
+
+static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> function_passes = {
+	{"goto_next_instruction", optimize_goto_next_instruction},
+	{"unreachable_blocks", optimize_unreachable_blocks},
 	{"conseq_additive", optimize_conseq_additive},
 	{"loadi", optimize_loadi},
 	{"setv_pushr", optimize_setv_pushr},
@@ -2116,16 +2158,20 @@ static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair
 static void optimize_function(OptimizeResults& results, StructuredZasm& structured_zasm, script_data* script, const ZasmFunction& fn)
 {
 	OptContext ctx = create_context_no_cfg(structured_zasm, script, fn);
-	for (int i = 0; i < passes.size(); i++)
+	for (int i = 0; i < function_passes.size(); i++)
 	{
-		run_pass(results, i, ctx, passes[i]);
+		run_pass(results, script_passes.size() + i, ctx, function_passes[i]);
 	}
 }
 
 static OptimizeResults create_opt_results()
 {
 	OptimizeResults results{};
-	for (auto [pass_name, _] : passes)
+	for (auto [pass_name, _] : script_passes)
+	{
+		results.passes.push_back({pass_name, 0, 0});
+	}
+	for (auto [pass_name, _] : function_passes)
 	{
 		results.passes.push_back({pass_name, 0, 0});
 	}
@@ -2138,6 +2184,12 @@ OptimizeResults zasm_optimize(script_data* script)
 
 	auto start_time = std::chrono::steady_clock::now();
 	auto structured_zasm = zasm_construct_structured(script);
+
+	OptContext ctx = create_context_no_cfg(structured_zasm, script, structured_zasm.functions.front());
+	for (int i = 0; i < script_passes.size(); i++)
+	{
+		run_pass(results, i, ctx, script_passes[i]);
+	}
 
 	for (const auto& fn : structured_zasm.functions)
 	{
@@ -2187,7 +2239,7 @@ OptimizeResults zasm_optimize()
 		if (log_level >= 2)
 			fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", zasm_script_unique_name(script), r.instructions_saved, pct, r.elapsed / 1000);
 
-		for (int i = 0; i < passes.size(); i++)
+		for (int i = 0; i < results.passes.size(); i++)
 		{
 			results.passes[i].instructions_saved += r.passes[i].instructions_saved;
 			results.passes[i].elapsed += r.passes[i].elapsed;

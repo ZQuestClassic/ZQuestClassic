@@ -27,10 +27,10 @@ Function #0
    21: CALLFUNC        37                           [Call Function #3]
    22: POP             D4
    23: QUIT
-   24: POP             D3
-   25: SINR            D2              D3
+   24: NOP
+   25: NOP
    26: NOP
-   27: RETURNFUNC
+   27: NOP
 
 
 Function #1

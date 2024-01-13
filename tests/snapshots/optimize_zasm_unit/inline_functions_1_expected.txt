@@ -75,11 +75,11 @@ Function #2
    59: POP             D3
    60: NOP
    61: RETURNFUNC
-   62: POP             D2
-   63: ABS             D2
+   62: NOP
+   63: NOP
    64: NOP
-   65: RETURNFUNC
-   66: POP             D2
-   67: ARRAYSIZE       D2
+   65: NOP
+   66: NOP
+   67: NOP
    68: NOP
-   69: RETURNFUNC
+   69: NOP

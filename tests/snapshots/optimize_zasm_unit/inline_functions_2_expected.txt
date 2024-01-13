@@ -32,13 +32,13 @@ Function #0
    22: POP             D4
    23: QUIT
    24: NOP
-   25: SETR            D2              LINKX
-   26: ADDV            D2              80000
-   27: RETURNFUNC
+   25: NOP
+   26: NOP
+   27: NOP
    28: NOP
-   29: SETR            D2              LINKY
-   30: ADDV            D2              80000
-   31: RETURNFUNC
+   29: NOP
+   30: NOP
+   31: NOP
 
 
 Function #1

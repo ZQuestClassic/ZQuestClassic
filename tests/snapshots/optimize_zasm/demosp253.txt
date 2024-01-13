@@ -1,8 +1,8 @@
 Finished optimizing scripts:
+	[calling_mode] saved 16275 instr (7.7%)
+	[inline_functions] saved 1763 instr (0.8%)
 	[goto_next_instruction] saved 383 instr (0.2%)
 	[unreachable_blocks] saved 904 instr (0.4%)
-	[calling_mode] saved 16275 instr (7.7%)
-	[inline_functions] saved 1281 instr (0.6%)
 	[conseq_additive] saved 3788 instr (1.8%)
 	[loadi] saved 29122 instr (13.7%)
 	[setv_pushr] saved 3998 instr (1.9%)
@@ -12,4 +12,4 @@ Finished optimizing scripts:
 	[reduce_comparisons] saved 6994 instr (3.3%)
 	[unreachable_blocks_2] saved 8 instr (0.0%)
 	[dead_code] saved 6999 instr (3.3%)
-	[total] saved 77271 instr (36.3%)
+	[total] saved 77753 instr (36.6%)
