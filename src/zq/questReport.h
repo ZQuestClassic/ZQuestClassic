@@ -5,9 +5,7 @@
 
 struct mapscr;
 
-void enlargeIntegrityReportDialog();
-
-void showQuestReport(int32_t bg,int32_t fg);
+void showQuestReport();
 
 int32_t onIntegrityCheckRooms();
 int32_t onIntegrityCheckWarps();

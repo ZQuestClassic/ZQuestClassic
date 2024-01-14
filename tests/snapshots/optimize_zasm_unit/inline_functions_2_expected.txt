@@ -1,0 +1,65 @@
+rewrite 13: 3 -> 2 commands
+13: SETR            D2              LINKX  
+14: ADDV            D2              80000  
+15: NOP            
+rewrite 17: 3 -> 2 commands
+17: SETR            D2              LINKY  
+18: ADDV            D2              80000  
+19: NOP            
+Function #0
+    0: SETR            D4              SP           [Block 0 -> ]
+    1: PUSHARGSR       D4              2
+    2: LOADD           D2              70000
+    3: PUSHR           D2
+    4: CALLFUNC        43                           [Call Function #3]
+    5: POP             D4
+    6: PUSHR           D2
+    7: PUSHR           D4
+    8: LOADD           D2              70000
+    9: PUSHR           D2
+   10: CALLFUNC        32                           [Call Function #1]
+   11: POP             D4
+   12: PUSHR           D2
+   13: SETR            D2              LINKX
+   14: ADDV            D2              80000
+   15: NOP
+   16: PUSHR           D2
+   17: SETR            D2              LINKY
+   18: ADDV            D2              80000
+   19: NOP
+   20: PUSHR           D2
+   21: CALLFUNC        37                           [Call Function #2]
+   22: POP             D4
+   23: QUIT
+   24: NOP
+   25: NOP
+   26: NOP
+   27: NOP
+   28: NOP
+   29: NOP
+   30: NOP
+   31: NOP
+
+
+Function #1
+   32: NOP                                          [Block 0 -> ]
+   33: POP             D2
+   34: TRACER          D2
+   35: TRACEV          1
+   36: RETURNFUNC
+
+
+Function #2
+   37: POP             D2                           [Block 0 -> ]
+   38: POP             D1
+   39: POP             D0
+   40: POP             D6
+   41: SETR            D2              DISTANCE
+   42: RETURNFUNC
+
+
+Function #3
+   43: SETR            D0              LINKX        [Block 0 -> ]
+   44: TRACER          D0
+   45: TRACER          D0
+   46: RETURNFUNC

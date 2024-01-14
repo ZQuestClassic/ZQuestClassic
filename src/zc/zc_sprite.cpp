@@ -451,7 +451,7 @@ bool movingblock::animate(int32_t)
 		if(new_block)
 		{
 			if(((block_cmb.usrflags&cflag7) || //icy blocks keep sliding?
-				(!(block_cmb.usrflags&cflag10) && get_icy(endx+8,endy+8,0))))
+				(!(block_cmb.usrflags&cflag10) && get_icy(endx+8,endy+8,ICY_BLOCK))))
 			{
 				bool canslide = true;
 				auto new_endx = endx, new_endy = endy;
@@ -517,7 +517,7 @@ bool movingblock::animate(int32_t)
 				}
 			}
 		}
-		else if(int c = get_icy(x+8,y+8,0))
+		else if(int c = get_icy(x+8,y+8,ICY_BLOCK))
 		{
 			bool canslide = true;
 			auto new_endx = endx, new_endy = endy;

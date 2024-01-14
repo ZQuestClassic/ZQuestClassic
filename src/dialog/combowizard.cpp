@@ -64,6 +64,7 @@ bool hasComboWizard(int32_t type)
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cSLOPE: case cSHOOTER: case cWATER: case cSHALLOWWATER:
 		case cSTEPSFX: case cTORCH: case cMIRRORNEW: case cCRUMBLE:
+		case cICY:
 			return true;
 	}
 	return false;
@@ -358,6 +359,12 @@ void ComboWizardDialog::update(bool first)
 			cboxes[1]->setDisabled(ending);
 			grids[0]->setDisabled(ending);
 			ddls[0]->setDisabled(ending);
+			break;
+		}
+		case cICY:
+		{
+			bool player = (local_ref.usrflags & cflag2);
+			grids[0]->setDisabled(!player);
 			break;
 		}
 	}
@@ -770,6 +777,20 @@ void ComboWizardDialog::endUpdate()
 				local_ref.attrishorts[1] = 0;
 			break;
 		}
+		case cICY:
+		{
+			bool player = (local_ref.usrflags & cflag2);
+			bool wasplayer = (src_ref.usrflags & cflag2);
+			if(wasplayer && !player)
+			{
+				local_ref.attribytes[0] = 0;
+				local_ref.attribytes[1] = 0;
+				local_ref.attributes[0] = 0;
+				local_ref.attributes[1] = 0;
+				local_ref.attributes[2] = 0;
+			}
+			break;
+		}
 	}
 }
 #define IH_BTN(hei, inf) \
@@ -864,6 +885,14 @@ void combo_default(newcombo& ref, bool typeonly)
 			break;
 		case cCRUMBLE:
 			ref.attrishorts[0] = 45;
+			break;
+		case cICY:
+			ref.usrflags |= cflag1|cflag2;
+			ref.attribytes[0] = 75;
+			ref.attribytes[1] = 15;
+			ref.attributes[0] = 0.0400_zl;
+			ref.attributes[1] = 0.0200_zl;
+			ref.attributes[2] = 1.5000_zl;
 			break;
 		//CHESTS
 		case cLOCKEDCHEST:
@@ -2403,6 +2432,87 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							local_ref.attribytes[r_down] = val;
 						}),
 					INFOBTN("Weapons facing down-right (coming from up-left) will move in this direction.")
+				)
+			);
+			break;
+		}
+		case cICY:
+		{
+			windowRow->add(
+				Column(padding = 0_px,
+					Rows<2>(
+						INFOBTN("Pushable blocks pushed onto this combo will slide past it, if nothing blocks their way."),
+						Checkbox(
+							text = "Slides Blocks",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag1, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag1,state);
+							}),
+						INFOBTN("The player will slip and slide on the ice."),
+						Checkbox(
+							text = "Slides Player",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag2, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag2,state);
+								update();
+							})
+					),
+					grids[0] = Rows<3>(
+						Label(text = "Start Speed Percentage", hAlign = 1.0),
+						INFOBTN("The percentage of the player's movement speed to carry onto the ice when first stepping onto it."),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							low = 0, high = 255, val = local_ref.attribytes[0],
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_ref.attribytes[0] = val;
+							}),
+						Label(text = "Entry Leeway Frames", hAlign = 1.0),
+						INFOBTN("For this many frames after entering the ice, the player will have additional traction. The traction gradually decreases over time until the frames are up."),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							low = 0, high = 255, val = local_ref.attribytes[1],
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_ref.attribytes[1] = val;
+							}),
+						Label(text = "Acceleration", hAlign = 1.0),
+						INFOBTN("Speed gained when holding a direction, in pixels per frame."),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							low = 0, high = SWAP_MAX, val = local_ref.attributes[0],
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_ref.attributes[0] = val;
+							}),
+						Label(text = "Deceleration", hAlign = 1.0),
+						INFOBTN("Speed lost when not holding a direction, in pixels per frame."),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							low = 0, high = SWAP_MAX, val = local_ref.attributes[1],
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_ref.attributes[1] = val;
+							}),
+						Label(text = "Max Speed", hAlign = 1.0),
+						INFOBTN("The highest speed that can be reached"),
+						TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							low = 0, high = SWAP_MAX, val = local_ref.attributes[2],
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_ref.attributes[2] = val;
+							})
+					)
 				)
 			);
 			break;

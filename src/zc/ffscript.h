@@ -5029,7 +5029,15 @@ enum ASM_DEFINE
 
 #define IDATAATTRIB_L           0x15A4
 
-#define NUMVARIABLES            0x15A5
+#define HEROSLIDING             0x15A5
+#define HEROICECMB              0x15A6
+#define HEROSCRICECMB           0x15A7
+#define HEROICEVX               0x15A8
+#define HEROICEVY               0x15A9
+#define HEROICEENTRYFRAMES      0x15AA
+#define HEROICEENTRYMAXFRAMES   0x15AB
+
+#define NUMVARIABLES            0x15AC
 
 //} End variables
 
@@ -5089,6 +5097,12 @@ bool command_uses_comparison_result(int command);
 bool command_writes_comparison_result(int command);
 int command_to_cmp(int command, int arg);
 bool command_could_return_not_ok(int command);
+// Returns true if the command has no side effects other than
+// potentially writing some value to a register pointed at by
+// on of its args.
+// The optimizer uses this to know if it is safe to remove a
+// command, given its register output is not needed.
+bool command_is_pure(int command);
 const script_command& get_script_command(int command);
 int get_script_command(std::string name);
 

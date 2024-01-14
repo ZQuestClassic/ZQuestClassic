@@ -213,6 +213,8 @@ enum // special colors
 };
 #define NUM_SYS_COLORS 16
 #define SUB_COLOR_TRANSPARENT (-34)
+#define MIN_SUBSCR_COLOR (-ssctMAX-NUM_SYS_COLORS-1) //== SUB_COLOR_TRANSPARENT at the moment
+#define MAX_SUBSCR_COLOR 255
 enum // special csets
 {
 	sscsTRIFORCECSET, sscsTRIFRAMECSET, sscsOVERWORLDMAPCSET, sscsDUNGEONMAPCSET,

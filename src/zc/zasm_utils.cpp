@@ -4,6 +4,7 @@
 #include "zc/script_debug.h"
 #include <cstdint>
 #include <fmt/format.h>
+#include <initializer_list>
 #include <xxhash.h>
 
 StructuredZasm zasm_construct_structured(const script_data* script)
@@ -59,119 +60,50 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 	// Therefore, the instructions of uncalled functions should be pruned as part of zasm_optimize.
 
 	// First determine if we have the simpler CALLFUNC instructions.
-	int calling_mode = 0;
+	auto calling_mode = StructuredZasm::CALLING_MODE_UNKNOWN;
 	for (pc_t i = 0; i < script->size && !calling_mode; i++)
 	{
 		int command = script->zasm[i].command;
 		switch (command)
 		{
 			case GOTOR:
-				calling_mode = 1;
+				calling_mode = StructuredZasm::CALLING_MODE_GOTO_GOTOR;
 				break;
 
 			case RETURN:
-				calling_mode = 2;
+				calling_mode = StructuredZasm::CALLING_MODE_GOTO_RETURN;
 				break;
 
 			case CALLFUNC:
 			case RETURNFUNC:
-				calling_mode = 3;
+				calling_mode = StructuredZasm::CALLING_MODE_CALLFUNC_RETURNFUNC;
 				break;
 		}
 	}
+	bool legacy_calling_mode =
+		calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR || calling_mode == StructuredZasm::CALLING_MODE_GOTO_RETURN;
 
-	// Remember just some of the most recent values of PUSHV.
-	// It's not certain these values are actually referencing a return address, but hopefully
-	// it works good enough. Mistakes in function attribution should only result in a function
-	// that is larger than it other would be.
-	constexpr int recent_retadd_buf = 20;
-	pc_t recent_retadd[recent_retadd_buf];
-	int recent_retadd_i = 0;
-	// -2, because 0 is a valid pc and -1 shows up as `GOTO -1` for handwritten/bad ZASM.
-	for (int i = 0; i < recent_retadd_buf; i++) recent_retadd[i] = -2;
+	// Starts with implicit first function ("run").
+	std::set<pc_t> function_start_pcs_set = {0};
 
-	// Handle the first one command explictly, since only CALLFUNC doesn't need to check
-	// the previous command.
-	if (script->zasm[0].command == CALLFUNC)
-	{
-		if (script->zasm[0].arg1 != -1)
-		{
-			function_calls.insert(0);
-			function_calls_goto_pc.insert(script->zasm[0].arg1);
-			function_calls_pc_to_pc[0] = script->zasm[0].arg1;
-			ASSERT(script->zasm[0].arg1 != 1);
-		}
-	}
-
-	for (pc_t i = 1; i < script->size; i++)
+	for (pc_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
-		int prev_command = script->zasm[i - 1].command;
-
-		if (calling_mode == 1 && prev_command == SETV && command == PUSHR)
-		{
-			if (script->zasm[i - 1].arg1 < D(8) && script->zasm[i].arg1 == script->zasm[i - 1].arg1)
-			{
-				int arg = script->zasm[i - 1].arg2;
-				if (arg % 10000 != 0)
-					continue;
-				arg /= 10000;
-				if (arg >= i + 3)
-				{
-					recent_retadd[recent_retadd_i] = arg;
-					recent_retadd_i = (recent_retadd_i + 1) % recent_retadd_buf;
-				}
-			}
-			continue;
-		}
-
-		// Note: although original ZASM for GOTOR never used PUSHV, it could after zasm_optimize.
-		// TODO: zasm_optimize should change old calls to CALLFUNC.
-		if ((calling_mode == 1 || calling_mode == 2) && command == PUSHV)
-		{
-			int arg1 = script->zasm[i].arg1;
-			if (calling_mode == 1)
-			{
-				if (arg1 % 10000 != 0)
-					continue;
-				arg1 /= 10000;
-			}
-			if (arg1 >= i + 3)
-			{
-				recent_retadd[recent_retadd_i] = arg1;
-				recent_retadd_i = (recent_retadd_i + 1) % recent_retadd_buf;
-			}
-			continue;
-		}
 
 		bool is_function_call_like = false;
 		if (command == CALLFUNC)
 		{
 			is_function_call_like = true;
 		}
-		else if (command == GOTO)
+		else if (command == STARTDESTRUCTOR)
 		{
-			if ((calling_mode == 1 || calling_mode == 2))
-			{
-				// The last command before an old call GOTO must be some sort of PUSH. It
-				// won't always be the return address (only if the function has no parameters),
-				// but it should be something.
-				if (!(prev_command == PUSHR || prev_command == PUSHV))
-					continue;
-
-				for (int j = 0; j < recent_retadd_buf; j++)
-				{
-					if (recent_retadd[j] == i + 2)
-					{
-						is_function_call_like = true;
-						break;
-					}
-				}
-			}
-
-			// Class construction function calls do `SETR CLASS_THISKEY, D2` just before its GOTO.
-			if (!is_function_call_like)
-				is_function_call_like = (prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
+			function_start_pcs_set.insert(i);
+			continue;
+		}
+		else if (legacy_calling_mode && command == GOTO)
+		{
+			// Function calls are directly followed with a POP to restore the stack frame pointer.
+			is_function_call_like = script->zasm[i + 1].command == POP && script->zasm[i + 1].arg1 == D(4);
 
 			// Handle special where where the Init script function uses GOTO to go to the real entrypoint,
 			// after it sets up global data. This does not save a return address.
@@ -190,24 +122,22 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		if (is_function_call_like && script->zasm[i].arg1 != -1)
 		{
 			function_calls.insert(i);
-			function_calls_goto_pc.insert(script->zasm[i].arg1);
+			function_start_pcs_set.insert(script->zasm[i].arg1);
 			function_calls_pc_to_pc[i] = script->zasm[i].arg1;
 			ASSERT(script->zasm[i].arg1 != i + 1);
 		}
 	}
 
-	std::vector<pc_t> function_start_pcs;
+	std::vector<pc_t> function_start_pcs(function_start_pcs_set.begin(), function_start_pcs_set.end());
 	std::vector<pc_t> function_final_pcs;
 	std::map<pc_t, pc_t> start_pc_to_function;
 	{
-		// Implicit first function ("run").
-		function_start_pcs.push_back(0);
 		start_pc_to_function[0] = 0;
 
 		pc_t next_fn_id = 1;
-		for (pc_t function_start_pc : function_calls_goto_pc)
+		for (int i = 1; i < function_start_pcs.size(); i++)
 		{
-			function_start_pcs.push_back(function_start_pc);
+			pc_t function_start_pc = function_start_pcs[i];
 			function_final_pcs.push_back(function_start_pc - 1);
 			start_pc_to_function[function_start_pc] = next_fn_id++;
 		}
@@ -239,7 +169,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		// functions[callee_pc].calls_functions.insert(call_pc);
 	}
 
-	return {functions, function_calls, start_pc_to_function};
+	return {functions, function_calls, start_pc_to_function, calling_mode};
 }
 
 std::set<pc_t> zasm_find_yielding_functions(const script_data* script, StructuredZasm& structured_zasm)
@@ -306,6 +236,12 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 				// Ignore GOTO jumps outside provided bounds.
 				// This allows for creating a CFG that is internal to this function only.
 				if (!is_in_ranges(arg1, pc_ranges))
+				{
+					continue;
+				}
+
+				// This is a recursive function call to itself!
+				if (arg1 == start_pc)
 				{
 					continue;
 				}
@@ -713,4 +649,362 @@ std::pair<bool, bool> get_command_rw(int command, int arg)
 	}
 	
 	return {read, write};
+}
+
+std::initializer_list<int> get_zregister_indices(int reg)
+{
+	switch (reg)
+	{
+		case AUDIOVOLUME:
+		case BOTTLEAMOUNT:
+		case BOTTLECOUNTER:
+		case BOTTLEFLAGS:
+		case BOTTLEPERCENT:
+		case BSHOPCOMBO:
+		case BSHOPCSET:
+		case BSHOPFILL:
+		case BSHOPPRICE:
+		case BSHOPSTR:
+		case BUTTONHELD:
+		case BUTTONINPUT:
+		case BUTTONPRESS:
+		case COMBOCD:
+		case COMBODATAINITD:
+		case COMBODATTRIBUTES:
+		case COMBODATTRIBYTES:
+		case COMBODATTRISHORTS:
+		case COMBODBLOCKWEAPON:
+		case COMBODD:
+		case COMBODEXPANSION:
+		case COMBODGENFLAGARR:
+		case COMBODSTRIKEWEAPONS:
+		case COMBODTRIGGERBUTTON:
+		case COMBODTRIGGERFLAGS:
+		case COMBODTRIGGERFLAGS2:
+		case COMBOED:
+		case COMBOFD:
+		case COMBOID:
+		case COMBOSD:
+		case COMBOTD:
+		case DEBUGD:
+		case DEBUGGDR:
+		case DISABLEBUTTON:
+		case DISABLEDITEM:
+		case DISABLEKEY:
+		case DMAPCOMPASSD:
+		case DMAPCONTINUED:
+		case DMAPDATACHARTED:
+		case DMAPDATADISABLEDITEMS:
+		case DMAPDATAFLAGARR:
+		case DMAPDATAGRID:
+		case DMAPDATALARGEMAPCSET:
+		case DMAPDATALARGEMAPTILE:
+		case DMAPDATAMAPINITD:
+		case DMAPDATAMINIMAPCSET:
+		case DMAPDATAMINIMAPTILE:
+		case DMAPDATASUBINITD:
+		case DMAPFLAGSD:
+		case DMAPINITD:
+		case DMAPLEVELD:
+		case DMAPLEVELPAL:
+		case DMAPMAP:
+		case DMAPMIDID:
+		case DMAPOFFSET:
+		case DROPSETCHANCES:
+		case DROPSETITEMS:
+		case EWPNBURNLIGHTRADIUS:
+		case EWPNFLAGS:
+		case EWPNMOVEFLAGS:
+		case EWPNSPRITES:
+		case FFFLAGSD:
+		case FFINITDD:
+		case FFMISCD:
+		case FFRULE:
+		case GAMEBOTTLEST:
+		case GAMECOUNTERD:
+		case GAMEDCOUNTERD:
+		case GAMEEVENTDATA:
+		case GAMEGENERICD:
+		case GAMEGRAVITY:
+		case GAMEGSWITCH:
+		case GAMEGUYCOUNT:
+		case GAMEGUYCOUNTD:
+		case GAMEITEMSD:
+		case GAMELITEMSD:
+		case GAMELKEYSD:
+		case GAMELSWITCH:
+		case GAMEMCOUNTERD:
+		case GAMEMISC:
+		case GAMEMISCSFX:
+		case GAMEMISCSPR:
+		case GAMEOVERRIDEITEMS:
+		case GAMESCROLLING:
+		case GAMESUSPEND:
+		case GAMETRIGGROUPS:
+		case GDD:
+		case GENDATADATA:
+		case GENDATAEVENTSTATE:
+		case GENDATAEXITSTATE:
+		case GENDATAINITD:
+		case GENDATARELOADSTATE:
+		case GHOSTARR:
+		case GLOBALRAMD:
+		case HEROLIFTFLAGS:
+		case HEROMOVEFLAGS:
+		case HEROSTEPS:
+		case IDATAATTRIB_L:
+		case IDATAATTRIB:
+		case IDATABURNINGLIGHTRAD:
+		case IDATABURNINGSPR:
+		case IDATAFLAGS:
+		case IDATAINITDD:
+		case IDATAMISCD:
+		case IDATASPRITE:
+		case IDATAUSEMVT:
+		case IDATAWPNINITD:
+		case IS8BITTILE:
+		case ISBLANKTILE:
+		case ITEMMISCD:
+		case ITEMMOVEFLAGS:
+		case ITEMSPRITEINITD:
+		case JOYPADPRESS:
+		case KEYBINDINGS:
+		case KEYINPUT:
+		case KEYPRESS:
+		case LINKDEFENCE:
+		case LINKHITBY:
+		case LINKITEMD:
+		case LINKMISCD:
+		case LWPNBURNLIGHTRADIUS:
+		case LWPNFLAGS:
+		case LWPNINITD:
+		case LWPNMISCD:
+		case LWPNMOVEFLAGS:
+		case LWPNSPRITES:
+		case MAPDATACOMBOCD:
+		case MAPDATACOMBODD:
+		case MAPDATACOMBOED:
+		case MAPDATACOMBOFD:
+		case MAPDATACOMBOID:
+		case MAPDATACOMBOSD:
+		case MAPDATACOMBOTD:
+		case MAPDATADOOR:
+		case MAPDATAENEMY:
+		case MAPDATAEXSTATED:
+		case MAPDATAFFCSET:
+		case MAPDATAFFDATA:
+		case MAPDATAFFDELAY:
+		case MAPDATAFFEFFECTHEIGHT:
+		case MAPDATAFFEFFECTWIDTH:
+		case MAPDATAFFFLAGS:
+		case MAPDATAFFHEIGHT:
+		case MAPDATAFFINITIALISED:
+		case MAPDATAFFLINK:
+		case MAPDATAFFSCRIPT:
+		case MAPDATAFFWIDTH:
+		case MAPDATAFFX:
+		case MAPDATAFFXDELTA:
+		case MAPDATAFFXDELTA2:
+		case MAPDATAFFY:
+		case MAPDATAFFYDELTA:
+		case MAPDATAFFYDELTA2:
+		case MAPDATAFLAGS:
+		case MAPDATAINITD:
+		case MAPDATAINITDARRAY:
+		case MAPDATALAYERINVIS:
+		case MAPDATALAYERMAP:
+		case MAPDATALAYEROPACITY:
+		case MAPDATALAYERSCREEN:
+		case MAPDATALENSHIDES:
+		case MAPDATALENSSHOWS:
+		case MAPDATAMISCD:
+		case MAPDATANUMFF:
+		case MAPDATAPATH:
+		case MAPDATASCRDATA:
+		case MAPDATASCREENEFLAGSD:
+		case MAPDATASCREENFLAGSD:
+		case MAPDATASCREENSTATED:
+		case MAPDATASCRIPTDRAWS:
+		case MAPDATASECRETCOMBO:
+		case MAPDATASECRETCSET:
+		case MAPDATASECRETFLAG:
+		case MAPDATASIDEWARPDMAP:
+		case MAPDATASIDEWARPID:
+		case MAPDATASIDEWARPOVFLAGS:
+		case MAPDATASIDEWARPSC:
+		case MAPDATASIDEWARPTYPE:
+		case MAPDATASWARPRETSQR:
+		case MAPDATATILEWARPDMAP:
+		case MAPDATATILEWARPOVFLAGS:
+		case MAPDATATILEWARPSCREEN:
+		case MAPDATATILEWARPTYPE:
+		case MAPDATATWARPRETSQR:
+		case MAPDATAWARPRETX:
+		case MAPDATAWARPRETY:
+		case MESSAGEDATAFLAGSARR:
+		case MESSAGEDATAMARGINS:
+		case MOUSEARR:
+		case MUSICUPDATEFLAGS:
+		case NPCBEHAVIOUR:
+		case NPCDATAATTRIBUTE:
+		case NPCDATABEHAVIOUR:
+		case NPCDATADEFENSE:
+		case NPCDATAINITD:
+		case NPCDATASHIELD:
+		case NPCDATAWEAPONINITD:
+		case NPCDD:
+		case NPCDEFENSED:
+		case NPCHITBY:
+		case NPCINITD:
+		case NPCMISCD:
+		case NPCMOVEFLAGS:
+		case NPCSCRDEFENSED:
+		case NPCSHIELD:
+		case PALDATAB:
+		case PALDATACOLOR:
+		case PALDATAG:
+		case PALDATAR:
+		case RAWKEY:
+		case READKEY:
+		case SCRDOORD:
+		case SCREENDATADOOR:
+		case SCREENDATAENEMY:
+		case SCREENDATAFFINITIALISED:
+		case SCREENDATAFLAGS:
+		case SCREENDATALAYERINVIS:
+		case SCREENDATALAYERMAP:
+		case SCREENDATALAYEROPACITY:
+		case SCREENDATALAYERSCREEN:
+		case SCREENDATANUMFF:
+		case SCREENDATAPATH:
+		case SCREENDATASCRIPTDRAWS:
+		case SCREENDATASECRETCOMBO:
+		case SCREENDATASECRETCSET:
+		case SCREENDATASECRETFLAG:
+		case SCREENDATASIDEWARPDMAP:
+		case SCREENDATASIDEWARPOVFLAGS:
+		case SCREENDATASIDEWARPSC:
+		case SCREENDATASIDEWARPTYPE:
+		case SCREENDATASWARPRETSQR:
+		case SCREENDATATILEWARPDMAP:
+		case SCREENDATATILEWARPOVFLAGS:
+		case SCREENDATATILEWARPSCREEN:
+		case SCREENDATATILEWARPTYPE:
+		case SCREENDATATWARPRETSQR:
+		case SCREENDATAWARPRETX:
+		case SCREENDATAWARPRETY:
+		case SCREENEFLAGSD:
+		case SCREENEXSTATED:
+		case SCREENFLAGSD:
+		case SCREENINITD:
+		case SCREENLENSHIDES:
+		case SCREENLENSSHOWS:
+		case SCREENSCRDATA:
+		case SCREENSIDEWARPID:
+		case SCREENSTATED:
+		case SCRIPTRAMD:
+		case SHOPDATAHASITEM:
+		case SHOPDATAITEM:
+		case SHOPDATAPRICE:
+		case SHOPDATASTRING:
+		case SPRITEDATAFLAGS:
+		case STDARR:
+		case SUBDATABTNLEFT:
+		case SUBDATABTNRIGHT:
+		case SUBDATAFLAGS:
+		case SUBDATAINITD:
+		case SUBDATAPAGES:
+		case SUBDATASELECTORASPD:
+		case SUBDATASELECTORCSET:
+		case SUBDATASELECTORDELAY:
+		case SUBDATASELECTORFLASHCSET:
+		case SUBDATASELECTORFRM:
+		case SUBDATASELECTORHEI:
+		case SUBDATASELECTORTILE:
+		case SUBDATASELECTORWID:
+		case SUBDATATRANSARGS:
+		case SUBDATATRANSFLAGS:
+		case SUBDATATRANSLEFTARGS:
+		case SUBDATATRANSLEFTFLAGS:
+		case SUBDATATRANSRIGHTARGS:
+		case SUBDATATRANSRIGHTFLAGS:
+		case SUBPGWIDGETS:
+		case SUBWIDGBTNPG:
+		case SUBWIDGBTNPRESS:
+		case SUBWIDGFLAG:
+		case SUBWIDGGENFLAG:
+		case SUBWIDGPOSES:
+		case SUBWIDGPOSFLAG:
+		case SUBWIDGPRESSINITD:
+		case SUBWIDGSELECTORASPD:
+		case SUBWIDGSELECTORCSET:
+		case SUBWIDGSELECTORDELAY:
+		case SUBWIDGSELECTORFLASHCSET:
+		case SUBWIDGSELECTORFRM:
+		case SUBWIDGSELECTORHEI:
+		case SUBWIDGSELECTORTILE:
+		case SUBWIDGSELECTORWID:
+		case SUBWIDGTRANSPGARGS:
+		case SUBWIDGTRANSPGFLAGS:
+		case SUBWIDGTY_CORNER:
+		case SUBWIDGTY_COUNTERS:
+		case SUBWIDGTY_CSET:
+		case SUBWIDGTY_TILE:
+		case TANGOARR:
+		{
+			static auto r1 = {D(0)};
+			return r1;
+		}
+
+		case CREATELWPNDX:
+		case GLOBALRAM:
+		case LINKOTILE:
+		case MAPDATAINITA:
+		case MAPDATAINTID:
+		case MODULEGETINT:
+		case SCREENCATCH:
+		case SCREENENTX:
+		case SCREENENTY:
+		case SCREENGUY:
+		case SCREENITEM:
+		case SCREENROOM:
+		case SCREENSTATEDD:
+		case SCREENSTRING:
+		case SCREENUNDCMB:
+		case SCREENUNDCST:
+		case SCRIPTRAM:
+		case SDDD:
+		{
+			static auto r2 = {D(0), D(1)};
+			return r2;
+		}
+
+		case COMBOCDM:
+		case COMBODDM:
+		case COMBOFDM:
+		case COMBOIDM:
+		case COMBOSDM:
+		case COMBOTDM:
+		case SDDDD:
+		{
+			static auto r3 = {D(0), D(1), D(2)};
+			return r3;
+		}
+
+		case DISTANCE:
+		case LONGDISTANCE:
+		{
+			static auto r4 = {D(0), D(1), D(2), D(6)};
+			return r4;
+		}
+
+		case DISTANCESCALE:
+		case LONGDISTANCESCALE:
+		{
+			static auto r5 = {D(0), D(1), D(2), D(6), D(7)};
+			return r5;
+		}
+	}
+
+	return {};
 }

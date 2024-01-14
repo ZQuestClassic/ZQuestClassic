@@ -1,0 +1,83 @@
+Function #0
+    0: SETR            D4              SP           [Block 0 -> ]
+    1: PUSHR           D4
+    2: SETV            D2              4620000
+    3: PUSHR           D2
+    4: PUSHR           D4
+    5: SETV            D2              4380000
+    6: PUSHR           D2
+    7: SETR            D2              GD0
+    8: PUSHR           D2
+    9: GOTO            66                           [Call Function #4]
+   10: POP             D4
+   11: PUSHR           D2
+   12: PUSHR           D4
+   13: SETV            D2              4560000
+   14: PUSHR           D2
+   15: PUSHR           D4
+   16: SETV            D2              4490000
+   17: PUSHR           D2
+   18: SETR            D2              GD0
+   19: PUSHR           D2
+   20: GOTO            37                           [Call Function #1]
+   21: POP             D4
+   22: PUSHR           D2
+   23: SETV            D2              80000
+   24: POP             D3
+   25: ADDR            D2              D3
+   26: PUSHR           D2
+   27: GOTO            42                           [Call Function #2]
+   28: POP             D4
+   29: POP             D3
+   30: SUBR            D3              D2
+   31: SETR            D2              D3
+   32: PUSHR           D2
+   33: GOTO            62                           [Call Function #3]
+   34: POP             D4
+   35: TRACER          D2
+   36: QUIT
+
+
+Function #1
+   37: POP             D3                           [Block 0 -> ]
+   38: SETR            D5              D3
+   39: SETR            D2              LINKX
+   40: POP             D3
+   41: GOTOR           D3
+
+
+Function #2
+   42: SETV            D2              0            [Block 0 -> ]
+   43: SETR            D4              SP
+   44: SETR            D6              D4
+   45: ADDV            D6              0
+   46: LOADI           D2              D6
+   47: PUSHR           D2
+   48: SETV            D2              40000
+   49: POP             D3
+   50: RSHIFTR         D3              D2
+   51: SETR            D2              D3
+   52: PUSHR           D2
+   53: SETV            D2              40000
+   54: POP             D3
+   55: LSHIFTR         D3              D2
+   56: SETR            D2              D3
+   57: GOTO            1784
+   58: SETV            D3              0
+   59: POP             D3
+   60: POP             D3
+   61: GOTOR           D3
+
+
+Function #3
+   62: POP             D2                           [Block 0 -> ]
+   63: ABS             D2
+   64: POP             D3
+   65: GOTOR           D3
+
+
+Function #4
+   66: POP             D2                           [Block 0 -> ]
+   67: ARRAYSIZE       D2
+   68: POP             D3
+   69: GOTOR           D3

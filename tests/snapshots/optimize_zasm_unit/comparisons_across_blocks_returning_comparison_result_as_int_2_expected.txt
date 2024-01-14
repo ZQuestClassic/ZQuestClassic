@@ -15,5 +15,5 @@ Function #1
    10: COMPAREV        D2              0
    11: NOP
    12: NOP
-   13: SETV            D3              0
+   13: NOP
    14: RETURNFUNC

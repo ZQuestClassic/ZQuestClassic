@@ -195,8 +195,22 @@ static AccessorTable HeroSTable[] =
 	{ "setFlickerTransparencyPasses", 0,          ZTID_VOID,   HEROFLICKERTRANSP,         0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getFlashingCSet",            0,         ZTID_FLOAT,   HEROFLASHINGCSET,          0,  { ZTID_PLAYER },{} },
 	{ "setFlashingCSet",            0,          ZTID_VOID,   HEROFLASHINGCSET,  FL_RDONLY,  { ZTID_PLAYER, ZTID_FLOAT },{} },
-	{ "isFlickerFrame",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER },{} },
-
+	{ "isFlickerFrame",             0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER },{} },
+	{ "getSliding",                 0,         ZTID_FLOAT,   HEROSLIDING,               0,  { ZTID_PLAYER },{} },
+	{ "setSliding",                 0,          ZTID_VOID,   HEROSLIDING,       FL_RDONLY,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getIceCombo",                0,         ZTID_FLOAT,   HEROICECMB,                0,  { ZTID_PLAYER },{} },
+	{ "setIceCombo",                0,          ZTID_VOID,   HEROICECMB,        FL_RDONLY,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getScriptIceCombo",          0,         ZTID_FLOAT,   HEROSCRICECMB,             0,  { ZTID_PLAYER },{} },
+	{ "setScriptIceCombo",          0,          ZTID_VOID,   HEROSCRICECMB,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getIceVx",                   0,         ZTID_FLOAT,   HEROICEVX,                 0,  { ZTID_PLAYER },{} },
+	{ "setIceVx",                   0,          ZTID_VOID,   HEROICEVX,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getIceVy",                   0,         ZTID_FLOAT,   HEROICEVY,                 0,  { ZTID_PLAYER },{} },
+	{ "setIceVy",                   0,          ZTID_VOID,   HEROICEVY,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getIceEntryFrames",          0,         ZTID_FLOAT,   HEROICEENTRYFRAMES,        0,  { ZTID_PLAYER },{} },
+	{ "setIceEntryFrames",          0,          ZTID_VOID,   HEROICEENTRYFRAMES,        0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getIceEntryMaxFrames",       0,         ZTID_FLOAT,   HEROICEENTRYMAXFRAMES,     0,  { ZTID_PLAYER },{} },
+	{ "setIceEntryMaxFrames",       0,          ZTID_VOID,   HEROICEENTRYMAXFRAMES,     0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	
 	
 	//Intentionally undocumented
 	{ "Warp",                       1,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },

@@ -2141,8 +2141,10 @@ bool check_icy(newcombo const& cmb, int type)
 		return false;
 	switch(type)
 	{
-		case 0:
+		case ICY_BLOCK:
 			return cmb.usrflags&cflag1;
+		case ICY_PLAYER:
+			return cmb.usrflags&cflag2;
 	}
 	return false;
 }
@@ -7766,4 +7768,47 @@ void screen_item_clear_state(int screen_index)
 void screen_item_clear_state()
 {
 	screen_item_state.clear();
+}
+
+optional<int32_t> get_combo(int x, int y, int maxlayer, bool ff, std::function<bool(newcombo const&)> proc)
+{
+	if(unsigned(x) >= 256 || unsigned(y) >= 176)
+		return nullopt;
+	if(ff)
+	{
+		int ffcid = MAPFFCOMBO(x,y);
+		if(ffcid && proc(combobuf[ffcid]))
+			return ffcid;
+	}
+	if(maxlayer > 6)
+		maxlayer = 6;
+	int pos = COMBOPOS(x,y);
+	for(int lyr = maxlayer; lyr >= 0; --lyr)
+	{
+		mapscr* m = FFCore.tempScreens[lyr];
+		int cid = m->data[pos];
+		newcombo const& cmb = combobuf[cid];
+		if(_effectflag_layer(x,y,1,m,true) && proc(cmb))
+		{
+			for(int i = lyr; i <=1; ++i)
+			{
+				if(!tmpscr2[i].valid) continue;
+				
+				auto tcid = MAPCOMBO2(i,x,y);
+				if(combobuf[tcid].type == cBRIDGE)
+				{
+					if (get_qr(qr_OLD_BRIDGE_COMBOS))
+					{
+						if (!_walkflag_layer(x,y,1,&(tmpscr2[i]))) return nullopt;
+					}
+					else
+					{
+						if (_effectflag_layer(x,y,1,&(tmpscr2[i]), true)) return nullopt;
+					}
+				}
+			}
+			return cid;
+		}
+	}
+	return nullopt;
 }

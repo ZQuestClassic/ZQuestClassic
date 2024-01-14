@@ -3272,7 +3272,8 @@ enum //Indexes for Game->Gravity[]
 {
 	GR_STRENGTH,
 	GR_TERMINALV,
-	GR_SPRLAYER
+	GR_SPRLAYER,
+	GR_AIRDRAG
 };
 
 enum //Indexes for Game->Scrolling[]
@@ -4371,4 +4372,12 @@ enum // Flags for SUBWIDG_BTNCOUNTER
 
 //} End section for subscreen type-specific flag constants
 //} End section for engine subscreen stuff
+
+enum //Hero->Sliding constants
+{
+	SLD_NONE,
+	SLD_ICE,
+	SLD_AIR,
+	SLD_MAX
+};
 

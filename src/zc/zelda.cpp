@@ -355,7 +355,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
 	Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false,
 	DragAspect=false, SaveWinPos=false, scaleForceInteger=false, stretchGame=false;
-bool PlayTitleMusic = false;
+bool SkipTitle = false;
 int32_t Maxfps = 0;
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
@@ -1861,7 +1861,6 @@ void init_game_vars()
 	add_nl2asparkle=false;
 	add_nl2bsparkle=false;
 	gofast=false;
-	cheat=0;
 	wavy=quakeclk=0;
 	show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
 	show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
@@ -2000,15 +1999,10 @@ int32_t init_game()
 
 	if (testingqst_init_data.size())
 	{
-		// Some fields are just not saved in the delta string, since it isn't useful for them to change.
-		auto screen_data_backup = zinit.screen_data;
-		zinit.clear();
-
 		std::string error;
 		zinitdata* new_init = apply_init_data_delta(&zinit, testingqst_init_data, error);
 		if (new_init)
 		{
-			new_init->screen_data = screen_data_backup;
 			zinit = *new_init;
 			resetItems(game, new_init, false);
 			ringcolor(false);
@@ -2052,6 +2046,10 @@ int32_t init_game()
 	{
 		cheat = 4;
 		maxcheat = 4;
+	}
+	else
+	{
+		cheat = 0;
 	}
 	
 	//Calculate the quest's script-file-storage path -Em
@@ -5911,3 +5909,9 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 
 std::string getComboTypeHelpText(int32_t id) { return ""; }
 std::string getMapFlagHelpText(int32_t id) { return ""; }
+
+string get_box_cfg_hdr(int num)
+{
+	return "misc";
+}
+

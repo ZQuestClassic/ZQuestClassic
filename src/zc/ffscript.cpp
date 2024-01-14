@@ -1615,6 +1615,14 @@ void FFScript::reset_script_engine_data(ScriptType type, int index)
 	get_script_engine_data(type, index).reset();
 }
 
+void on_reassign_script_engine_data(ScriptType type, int index)
+{
+	auto& data = get_script_engine_data(type, index);
+	data.ref.Clear();
+	data.initialized = false;
+	FFScript::deallocateAllScriptOwned(type, index);
+}
+
 void FFScript::clear_script_engine_data(ScriptType type, int index)
 {
 	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::ScriptedPassiveSubscreen || type == ScriptType::ScriptedActiveSubscreen)
@@ -2349,12 +2357,12 @@ public:
 		for(word i = offset; BC::checkUserArrayIndex(i, sz) == _NoError && am.get(i) != '\0' && num_chars != 0; i++)
 		{
 			int32_t c = am.get(i) / 10000;
-			if(char(c) != c)
+			if(byte(c) != c)
 			{
 				Z_scripterrlog("Illegal char value (%d) at position [%d] in string pointer %d\n", c, i, ptr);
 				Z_scripterrlog("Value of invalid char will overflow.\n");
 			}
-			str += char(c);
+			str += byte(c);
 			--num_chars;
 		}
 	}
@@ -4056,6 +4064,21 @@ int32_t get_register(int32_t arg)
 			ret = (int32_t)(Hero.getFlashingCSet()) * 10000; break;
 		case HEROFLICKERTRANSP:
 			ret = (int32_t)(Hero.flickertransp) * 10000; break;
+		
+		case HEROSLIDING:
+			ret = Hero.sliding*10000; break;
+		case HEROICECMB:
+			ret = Hero.ice_combo*10000; break;
+		case HEROSCRICECMB:
+			ret = Hero.script_ice_combo*10000; break;
+		case HEROICEVX:
+			ret = Hero.ice_vx.getZLong(); break;
+		case HEROICEVY:
+			ret = Hero.ice_vy.getZLong(); break;
+		case HEROICEENTRYFRAMES:
+			ret = Hero.ice_entry_count*10000; break;
+		case HEROICEENTRYMAXFRAMES:
+			ret = Hero.ice_entry_mcount*10000; break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
@@ -8207,7 +8230,7 @@ int32_t get_register(int32_t arg)
 		case GAMEGRAVITY:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if ( ((unsigned)indx) > 2 )
+			if ( ((unsigned)indx) > 3 )
 			//if(indx < 0 || indx > 2)
 			{
 				ret = -10000;
@@ -8225,6 +8248,9 @@ int32_t get_register(int32_t arg)
 						break;
 					case 2: //Sprite Layer Threshold
 						ret = zinit.jump_hero_layer_threshold * 10000;
+						break;
+					case 3: //Air Drag
+						ret = zinit.air_drag.getZLong();
 						break;
 				}
 			}
@@ -8330,16 +8356,11 @@ int32_t get_register(int32_t arg)
 		case DISTANCESCALE: 
 		{
 			double x1 = (double)(ri->d[rSFTEMP] / 10000.0);
-			zprint2("x1 is: %f\n", x1);
 			double y1 = (double)(ri->d[rINDEX] / 10000.0);
-			zprint2("y1 is: %f\n", y1);
 			double x2 = (double)(ri->d[rINDEX2] / 10000.0);
-			zprint2("x2 is: %f\n", x2);
 			double y2 = (double)(ri->d[rEXP1] / 10000.0);
-			zprint2("y2 is: %f\n", y2);
 			
 			int32_t scale = (ri->d[rWHAT_NO_7]/10000);
-			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 10000;
 			int32_t result = FFCore.Distance(x1, y1, x2, y2, scale);
@@ -8350,16 +8371,11 @@ int32_t get_register(int32_t arg)
 		case LONGDISTANCESCALE: 
 		{
 			double x1 = (double)(ri->d[rSFTEMP]);
-			zprint2("x1 is: %f\n", x1);
 			double y1 = (double)(ri->d[rINDEX]);
-			zprint2("y1 is: %f\n", y1);
 			double x2 = (double)(ri->d[rINDEX2]);
-			zprint2("x2 is: %f\n", x2);
 			double y2 = (double)(ri->d[rEXP1]);
-			zprint2("y2 is: %f\n", y2);
 			
 			int32_t scale = (ri->d[rWHAT_NO_7]);
-			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 1;
 			int32_t result = FFCore.LongDistance(x1, y1, x2, y2, scale);
@@ -15718,6 +15734,8 @@ void set_register(int32_t arg, int32_t value)
 			{
 				ffcdata* ffc = get_ffc_raw(ri->ffcref);
 				ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+				for(int32_t i=0; i<16; i++)
+					ffc->script_misc[i] = 0;
 				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t i=0; i<2; i++)
@@ -15726,13 +15744,7 @@ void set_register(int32_t arg, int32_t value)
 					for(int32_t i=0; i<8; i++)
 						ffc->initd[i] = 0;
 				}
-				for(int32_t i=0; i<16; i++)
-					ffc->script_misc[i] = 0;
-				
-				auto& data = get_script_engine_data(ScriptType::FFC, ri->ffcref);
-				data.ref.Clear();
-				data.initialized = false;
-				FFScript::deallocateAllScriptOwned(ScriptType::FFC, ri->ffcref);
+				on_reassign_script_engine_data(ScriptType::FFC, ri->ffcref);
 			}
 			break;
 			
@@ -16799,6 +16811,16 @@ void set_register(int32_t arg, int32_t value)
 			Hero.flickertransp = value / 10000;
 			break;
 		}
+		case HEROSCRICECMB:
+			Hero.script_ice_combo = vbound(value/10000,-1,MAXCOMBOS); break;
+		case HEROICEVX:
+			Hero.ice_vx = zslongToFix(value); break;
+		case HEROICEVY:
+			Hero.ice_vy = zslongToFix(value); break;
+		case HEROICEENTRYFRAMES:
+			Hero.ice_entry_count = vbound(value/10000,0,255); break;
+		case HEROICEENTRYMAXFRAMES:
+			Hero.ice_entry_mcount = vbound(value/10000,0,255); break;
 		
 		
 	///----------------------------------------------------------------------------------------------------//
@@ -19084,13 +19106,13 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNSCRIPT:
 			if(0!=(s=checkLWpn(ri->lwpn,"Script")))
 			{
-				FFScript::deallocateAllScriptOwned(ScriptType::Lwpn, ri->lwpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						(((weapon*)(s))->weap_initd[q]) = 0;
 				}
+				on_reassign_script_engine_data(ScriptType::Lwpn, ri->lwpn);
 			}  
 			break;
 		
@@ -19744,13 +19766,13 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNSCRIPT:
 			if(0!=(s=checkEWpn(ri->ewpn,"Script")))
 			{
-				FFScript::deallocateAllScriptOwned(ScriptType::Ewpn, ri->ewpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						(((weapon*)(s))->weap_initd[q]) = 0;
 				}
+				on_reassign_script_engine_data(ScriptType::Ewpn, ri->ewpn);
 			}
 			break;
 		
@@ -20507,15 +20529,13 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
 			{
-				FFScript::deallocateAllScriptOwned(ScriptType::NPC, ri->guyref);
-				//enemy *e = (enemy*)guys.spr(ri->guyref);
-				//e->initD[a] = value; 
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						GuyH::getNPC()->initD[q] = 0;
 				}
 				GuyH::getNPC()->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
+				on_reassign_script_engine_data(ScriptType::NPC, ri->guyref);
 			}
 		}
 		break;
@@ -21109,7 +21129,7 @@ void set_register(int32_t arg, int32_t value)
 		case GAMEGRAVITY:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(indx < 0 || indx > 2)
+			if(indx < 0 || indx > 3)
 			{
 				Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
 			}
@@ -21125,6 +21145,9 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					case 2: //Sprite Layer Threshold
 						zinit.jump_hero_layer_threshold = value / 10000;
+						break;
+					case 3: //Air Drag
+						zinit.air_drag = zslongToFix(value);
 						break;
 				}
 			}
@@ -22510,15 +22533,15 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SCREENSCRIPT:
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::Screen, curScriptIndex);
-			
+			mapscr* screen = get_scr(currmap, curScriptIndex);
 			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
 				for(int32_t q=0; q<8; q++)
-					tmpscr->screeninitd[q] = 0;
+					screen->screeninitd[q] = 0;
 			}
-			FFCore.ref(ScriptType::Screen, curScriptIndex).Clear();
-			tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+			
+			screen->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+			on_reassign_script_engine_data(ScriptType::Screen, curScriptIndex);
 			break;
 		}
 		
@@ -23141,15 +23164,14 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(ri->mapsref == MAPSCR_TEMP0) //This mapsref references tmpscr, so can reference a running script!
 				{
-					FFScript::deallocateAllScriptOwned(ScriptType::Screen, curScriptIndex);
-					
 					if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 					{
+						mapscr* screen = get_scr(currmap, curScriptIndex);
 						for(int32_t q=0; q<8; q++)
-							tmpscr->screeninitd[q] = 0;
+							screen->screeninitd[q] = 0;
 					}
-					
-					FFCore.ref(ScriptType::Screen, curScriptIndex).Clear();
+
+					on_reassign_script_engine_data(ScriptType::Screen, curScriptIndex);
 				}
 				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
@@ -23991,8 +24013,9 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPSCRIPT:	//byte
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::DMap, ri->dmapsref);
-			DMaps[ri->dmapsref].script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+			DMaps[ri->dmapsref].script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			on_reassign_script_engine_data(ScriptType::DMap, ri->dmapsref);
+			break;
 		}
 		case DMAPDATASIDEVIEW:	//byte, treat as bool
 		{
@@ -24204,13 +24227,15 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedActiveSubscreen, ri->dmapsref);
-			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			on_reassign_script_engine_data(ScriptType::ScriptedActiveSubscreen, ri->dmapsref);
+			break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::OnMap, ri->dmapsref);
-			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
+			on_reassign_script_engine_data(ScriptType::OnMap, ri->dmapsref);
+			break;
 		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
@@ -27438,7 +27463,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27480,7 +27505,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27519,7 +27544,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27562,7 +27587,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27587,7 +27612,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorFill"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27779,7 +27804,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorPlayer"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27800,7 +27825,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassBlink"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27818,7 +27843,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassOff"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27836,7 +27861,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorRoom"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -34703,8 +34728,8 @@ void FFScript::do_get_music_length()
 
 void FFScript::do_set_music_loop()
 {
-	double start = (get_register(sarg1) / 10000);
-	double end = (get_register(sarg2) / 10000);
+	double start = (get_register(sarg1) / 10000.0);
+	double end = (get_register(sarg2) / 10000.0);
 
 	set_zcmusicloop(start, end);
 }
@@ -35913,6 +35938,8 @@ int32_t run_script_int(bool is_jitted)
 				// of the interpreter loop. This is especially good for how `zasm_optimize`
 				// works, since it replaces many commands with a sequence of NOPs.
 				// No need to do a bounds check - the last command should always be 0xFFFF.
+				if (is_debugging)
+					break;
 				while (curscript->zasm[ri->pc + 1].command == NOP)
 					ri->pc++;
 				break;
@@ -51880,6 +51907,106 @@ bool command_could_return_not_ok(int command)
 	case SETSCREENENEMY:
 		return true;
 	}
+	return false;
+}
+
+bool command_is_pure(int command)
+{
+	switch (command)
+	{
+		case ABS:
+		case ADDR:
+		case ADDV:
+		case ANDR:
+		case ANDR32:
+		case ANDV:
+		case ANDV32:
+		case ARCCOSR:
+		case ARCCOSV:
+		case ARCSINR:
+		case ARCSINV:
+		case BITNOT:
+		case BITNOT32:
+		case CASTBOOLF:
+		case CEILING:
+		case COMPAREV2:
+		case COSR:
+		case COSV:
+		case DIVV2:
+		case FACTORIAL:
+		case FLOOR:
+		case IPOWERR:
+		case IPOWERV:
+		case ISALLOCATEDBITMAP:
+		case LOADD:
+		case LOADI:
+		case LOG10:
+		case LOGE:
+		case LSHIFTR:
+		case LSHIFTR32:
+		case LSHIFTV:
+		case LSHIFTV32:
+		case MAXR:
+		case MAXV:
+		case MAXVARG:
+		case MINR:
+		case MINV:
+		case MINVARG:
+		case MODR:
+		case MODV:
+		case MODV2:
+		case NANDR:
+		case NANDV:
+		case NORR:
+		case NORV:
+		case NOT:
+		case ORR:
+		case ORR32:
+		case ORV:
+		case ORV32:
+		case PEEK:
+		case PEEKATV:
+		case POWERR:
+		case POWERV:
+		case ROUND:
+		case ROUNDAWAY:
+		case RSHIFTR:
+		case RSHIFTR32:
+		case RSHIFTV:
+		case RSHIFTV32:
+		case SETCMP:
+		case SETFALSE:
+		case SETFALSEI:
+		case SETLESS:
+		case SETLESSI:
+		case SETMORE:
+		case SETMOREI:
+		case SETR:
+		case SETTRUE:
+		case SETTRUEI:
+		case SETV:
+		case SINR:
+		case SINV:
+		case SUBR:
+		case SUBV:
+		case SUBV2:
+		case TANR:
+		case TANV:
+		case TOBYTE:
+		case TOINTEGER:
+		case TOSHORT:
+		case TOSIGNEDBYTE:
+		case TOWORD:
+		case TRUNCATE:
+		case XNORR:
+		case XNORV:
+		case XORR:
+		case XORR32:
+		case XORV:
+		case XORV32:
+			return true;
+	}
+
 	return false;
 }
 

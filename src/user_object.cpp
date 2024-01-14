@@ -107,7 +107,6 @@ void scr_func_exec::execute()
 		ri = &newRI;
 		ri->pc = pc;
 		ri->thiskey = thiskey;
-		ri->sp--;
 		
 		curscript = sc_data;
 		stack = &static_stack;

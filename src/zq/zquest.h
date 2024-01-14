@@ -908,7 +908,7 @@ void cycle_palette();
 /******  Help  ******/
 /********************/
 
-void doHelp(int32_t bg,int32_t fg);
+void doHelp();
 int32_t onZstringshelp();
 int32_t onHelp();
 int32_t onZScripthelp();

@@ -50,21 +50,29 @@ bool zasm_optimize_enabled()
 
 // Very useful tool for identifying a single bad optimization.
 // Use with a tool like `find-first-fail`: https://gitlab.com/ole.tange/tangetools/-/blob/master/find-first-fail/find-first-fail
-// 1. Place `if (bisect_tool_should_skip()) return;` somewhere before problematic code
+// 1. Enable ENABLE_BISECT_TOOL below.
 // 2. Make a new script `tmp.sh` calling a failing replay:
 //        python tests/run_replay_tests.py --filter stellar --frame 40000 --extra_args="-test-bisect $1"
 // 3. Run the bisect script (may need to increase the end range up to 100000 or more):
 //        bash ~/tools/find-first-fail.sh -s 0 -e 1000 -v -q bash tmp.sh
 // 4. For the number given, set `-test-bisect` to that, and set a breakpoint
-//    after the call to bisect_tool_should_skip. Whatever block being processed is the one to focus on.
+//    where specified in bisect_tool_should_skip. Whatever block being processed is the one to focus on.
+// #define ENABLE_BISECT_TOOL
 static bool bisect_tool_should_skip()
 {
+#ifdef ENABLE_BISECT_TOOL
 	static int c = 0;
 	static int x = get_flag_int("-test-bisect").value();
 	// Skip the first x calls.
 	bool skip = 0 <= c && c < x;
 	c++;
+	if (!skip)
+		// Set a breakpoint here.
+		x = x;
 	return skip;
+#else
+	return false;
+#endif
 }
 
 enum class ValueType
@@ -124,7 +132,7 @@ struct SimulationValue
 
 	bool is_equality_expression() const
 	{
-		return type == ValueType::Expression && (data & CMP_EQ);
+		return type == ValueType::Expression && (data == CMP_EQ);
 	}
 
 	SimulationValue negate() const
@@ -404,7 +412,108 @@ static void remove(OptContext& ctx, pc_t pc)
 	ctx.saved += 1;
 }
 
-static void optimize_by_block(OptContext& ctx, std::function<void(pc_t, pc_t, pc_t)> cb)
+template <typename T>
+static void for_every_command_register_arg(const ffscript& instr, T fn)
+{
+	const auto& sc = get_script_command(instr.command);
+
+	if (sc.is_register(0))
+	{
+		auto [read, write] = get_command_rw(instr.command, 0);
+		fn(read, write, instr.arg1);
+	}
+
+	if (sc.is_register(1))
+	{
+		auto [read, write] = get_command_rw(instr.command, 1);
+		fn(read, write, instr.arg2);
+	}
+
+	if (sc.is_register(2))
+	{
+		auto [read, write] = get_command_rw(instr.command, 2);
+		fn(read, write, instr.arg3);
+	}
+}
+
+template <typename T>
+static void for_every_command_arg(ffscript& instr, T fn)
+{
+	const auto& sc = get_script_command(instr.command);
+
+	if (sc.args >= 1)
+	{
+		auto [read, write] = get_command_rw(instr.command, 0);
+		fn(read, write, instr.arg1);
+	}
+
+	if (sc.args >= 2)
+	{
+		auto [read, write] = get_command_rw(instr.command, 1);
+		fn(read, write, instr.arg2);
+	}
+
+	if (sc.args >= 3)
+	{
+		auto [read, write] = get_command_rw(instr.command, 2);
+		fn(read, write, instr.arg3);
+	}
+}
+
+template <typename T>
+static void for_every_command_arg_include_indices(const ffscript& instr, T fn)
+{
+	switch (instr.command)
+	{
+		case LOADD:
+		case STORED:
+			fn(true, false, rSFRAME);
+			break;
+
+		case READPODARRAYR:
+		case READPODARRAYV:
+		case WRITEPODARRAYRR:
+		case WRITEPODARRAYRV:
+		case WRITEPODARRAYVR:
+		case WRITEPODARRAYVV:
+			fn(true, false, rINDEX);
+			break;
+
+		case ZCLASS_CONSTRUCT:
+		case ZCLASS_WRITE:
+			fn(true, false, rEXP1);
+			break;
+
+		case ZCLASS_READ:
+		case ZCLASS_FREE:
+			fn(false, true, rEXP1);
+			break;
+		
+		case ARCTANR:
+		case ISSOLID:
+		case MAPDATAISSOLID:
+			fn(true, false, rINDEX);
+			fn(true, false, rINDEX2);
+			break;
+		
+		case MAPDATAISSOLIDLYR:
+		case ISSOLIDLAYER:
+			fn(true, false, rINDEX);
+			fn(true, false, rINDEX2);
+			fn(true, false, rEXP1);
+			break;
+	}
+
+	for_every_command_register_arg(instr, [&](bool read, bool write, int reg){
+		for (auto r : get_zregister_indices(reg))
+			fn(true, false, r);
+
+		fn(read, write, reg);
+	});
+}
+
+template<typename T>
+static void optimize_by_block(OptContext& ctx, T cb)
 {
 	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
 	{
@@ -429,6 +538,9 @@ static void optimize_goto_next_instruction(OptContext& ctx)
 		// - it also is a minor optimization
 		if (command_is_goto(C(i).command) && C(i).arg1 == i + 1)
 		{
+			if (bisect_tool_should_skip())
+				continue;
+
 			remove(ctx, i);
 			ctx.cfg_stale = true;
 		}
@@ -470,6 +582,9 @@ static void optimize_conseq_additive_impl(OptContext& ctx, word from, word to, b
 			int count = end - start + 1;
 			if (count > 1)
 			{
+				if (bisect_tool_should_skip())
+					continue;
+
 				if (write_at_end)
 				{
 					C(end) = {to, arg1, count};
@@ -512,6 +627,7 @@ static void optimize_loadi(OptContext& ctx)
 		int arg1 = C(i).arg1;
 		int arg2 = C(i).arg2;
 		if (command != LOADI || arg2 != D(6)) continue;
+		if (bisect_tool_should_skip()) continue;
 
 		int addv_command = C(i - 1).command;
 		int addv_arg1 = C(i - 1).arg1;
@@ -548,12 +664,110 @@ static void optimize_setv_pushr(OptContext& ctx)
 			if (C(j).command != SETV) continue;
 			if (C(j + 1).command != PUSHR) continue;
 			if (C(j).arg1 != C(j + 1).arg1) continue;
+			if (bisect_tool_should_skip()) continue;
 
 			// `zasm_construct_structured` is sensitive to a PUSH being just before
 			// a function call, so unlike other places assign the NOP to the first
 			// instruction.
 			C(j + 1) = {PUSHV, C(j).arg2};
 			remove(ctx, j);
+		}
+	});
+}
+
+// SETR, PUSHR -> PUSHV
+// Ex:
+//   SETR            D2              GD0
+//   PUSHR           D2
+// ->
+//   PUSHR           GD0
+static void optimize_setr_pushr(OptContext& ctx)
+{
+	add_context_cfg(ctx);
+	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
+		for (int j = start_pc; j < final_pc; j++)
+		{
+			if (C(j).command != SETR) continue;
+			if (C(j + 1).command != PUSHR) continue;
+			if (C(j).arg1 == rSFRAME) continue;
+			if (C(j).arg1 != C(j + 1).arg1) continue;
+			if (j + 2 <= final_pc)
+			{
+				bool reads_from_reg = false;
+				for_every_command_arg_include_indices(C(j + 2), [&](bool read, bool write, int reg){
+					if (reg == C(j).arg1 && read)
+						reads_from_reg = true;
+				});
+				if (reads_from_reg) continue;
+			}
+			if (bisect_tool_should_skip()) continue;
+
+			// `zasm_construct_structured` is sensitive to a PUSH being just before
+			// a function call, so unlike other places assign the NOP to the first
+			// instruction.
+			C(j + 1) = {PUSHR, C(j).arg2};
+			remove(ctx, j);
+		}
+	});
+}
+
+static void optimize_stack(OptContext& ctx)
+{
+	add_context_cfg(ctx);
+	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
+		for (int j = start_pc; j < final_pc; j++)
+		{
+			if (C(j).command != PUSHR) continue;
+
+			int reg = C(j).arg1;
+			int count = 0;
+			for (int k = j + 1; k <= final_pc; k++)
+			{
+				int command = C(k).command;
+				int arg2 = C(k).arg2;
+				if (command == POP && C(k).arg1 == reg)
+				{
+					if (count != 0)
+						break;
+					if (bisect_tool_should_skip())
+						break;
+					remove(ctx, j);
+					remove(ctx, k);
+					break;
+				}
+
+				switch (command)
+				{
+					case POP:
+						count--;
+						break;
+					case POPARGS:
+						count -= arg2;
+						break;
+					case PUSHR:
+					case PUSHV:
+						count++;
+						break;
+					case PUSHARGSR:
+					case PUSHARGSV:
+						count += arg2;
+						break;
+				}
+
+				if (count < 0)
+					break;
+
+				bool writes_to_reg = false;
+				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg){
+					if (arg == reg && write)
+						writes_to_reg = true;
+				});
+				if (writes_to_reg)
+					break;
+
+				if (command == CALLFUNC)
+					break;
+			}
 		}
 	});
 }
@@ -669,7 +883,10 @@ static SimulationValue evaluate_binary_op(int cmp, SimulationValue a, Simulation
 	{
 		if (!seti)
 			a.data = a.data & ~CMP_SETI;
-		return a.negate();
+		auto result = a.negate();
+		if (seti)
+			result.data |= CMP_SETI;
+		return result;
 	}
 
 	if (flags == CMP_EQ && ((a.is_number() && a.data == 0) || (b.is_number() && b.data == 0)))
@@ -809,14 +1026,21 @@ static void infer_values_given_branch(OptContext& ctx, SimulationState& state)
 
 	// If branching comparison is between a register and a value,
 	// assign that register to what it must be to pass the condition.
+	// TODO: this feels like it could be improved.
 	if (!(state.operand_1_backing_reg != -1 && state.operand_2_backing_reg != -1))
 	{
-		if (state.operand_1_backing_reg != -1)
-			infer_assign(ctx, state, state.operand_1_backing_reg,
-				expr(reg(state.operand_1_backing_reg), branch_cmp, state.operand_2));
-		if (state.operand_2_backing_reg != -1)
-			infer_assign(ctx, state, state.operand_2_backing_reg,
-				expr(state.operand_1, branch_cmp, reg(state.operand_2_backing_reg)));
+		if (state.operand_1_backing_reg != -1 && state.operand_2_backing_reg == -1)
+		{
+			bool seti = state.d[state.operand_1_backing_reg].is_expression() && state.d[state.operand_1_backing_reg].data & CMP_SETI;
+			if ((branch_cmp & CMP_FLAGS) == CMP_GE && state.operand_2 == num_one)
+				state.d[state.operand_1_backing_reg] = state.operand_1 = seti ? num(10000) : num_one;
+			else if ((branch_cmp & CMP_FLAGS) == CMP_EQ && state.operand_2 == num_zero)
+				state.d[state.operand_1_backing_reg] = state.operand_1 = num_zero;
+			else
+				infer_assign(ctx, state, state.operand_1_backing_reg,
+					expr(reg(state.operand_1_backing_reg), branch_cmp, state.operand_2));
+		}
+		// Doing the other case hasn't seemed necessary yet.
 	}
 
 	if (expression.is_number())
@@ -839,9 +1063,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 	const auto& c = get_script_command(command);
 
 	// Function calls invalidate all registers.
-	bool is_function_call =
-		command == CALLFUNC || (command_is_goto(command) && ctx.structured_zasm->function_calls.contains(state.pc));
-	if (is_function_call)
+	if (command == CALLFUNC)
 	{
 		for (int i = 0; i < 8; i++)
 			state.d[i] = reg(i);
@@ -955,14 +1177,6 @@ static void simulate(OptContext& ctx, SimulationState& state)
 			return;
 		}
 
-		case LOADD:
-		case LOADI:
-		{
-			if (arg1 == D(2))
-				state.bail = true;
-			return;
-		}
-
 		case STRCMPR:
 		case STRICMPR:
 		{
@@ -971,6 +1185,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		}
 
 		case POP:
+		case POPARGS:
 		{
 			if (!(arg1 >= D(0) && arg1 < D(8)))
 			{
@@ -978,12 +1193,14 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				return;
 			}
 
-			state.d[arg1] = {ValueType::Unknown};
+			// If this register holds some non-default value, mark it unknown.
+			// TODO: need a way to distinguish for ex. "input D3" vs "var from stack"
+			if (state.d[arg1] != reg(arg1))
+				state.d[arg1] = {ValueType::Unknown};
 			state.side_effects = true;
 			return;
 		}
 
-		case POPARGS:
 		case PUSHARGSR:
 		case PUSHR:
 		case SETA1:
@@ -1191,29 +1408,6 @@ static std::vector<ffscript> compile_conditional(const ffscript& instr, const Si
 	return result;
 }
 
-static void for_every_command_arg(const ffscript& instr, std::function<void(bool, bool, int)> fn)
-{
-	const auto& sc = get_script_command(instr.command);
-
-	if (sc.is_register(0))
-	{
-		auto [read, write] = get_command_rw(instr.command, 0);
-		fn(read, write, instr.arg1);
-	}
-
-	if (sc.is_register(1))
-	{
-		auto [read, write] = get_command_rw(instr.command, 1);
-		fn(read, write, instr.arg2);
-	}
-
-	if (sc.is_register(2))
-	{
-		auto [read, write] = get_command_rw(instr.command, 2);
-		fn(read, write, instr.arg3);
-	}
-}
-
 // 1. If following a branch is guaranteed to jump to some other block given the initial
 //    branch condition, rewrite the branch to jump directly to that end block. This can
 //    only be done when there are no side effects. This removes all spurious branches.
@@ -1302,6 +1496,8 @@ static void optimize_spurious_branches(OptContext& ctx)
 
 		// If this make the original target block unreachable, the final `unreachable_blocks` pass
 		// will remove it.
+		if (bisect_tool_should_skip())
+			return;
 		if (goto_pc != C(final_pc).arg1)
 			ctx.cfg_stale = true;
 		C(final_pc) = {GOTOCMP, (int)goto_pc, command_to_cmp(command, C(final_pc).arg2)};
@@ -1344,7 +1540,7 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 					break;
 				}
 
-				for_every_command_arg(C(k), [&](bool read, bool write, int arg){
+				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg){
 					if (arg == D(2) && write)
 					{
 						writes_comparison_result_to_d2 = true;
@@ -1359,8 +1555,8 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 				fmt::println("\n[reduce_comparisons] Block #{}\n", block_index);
 
 			std::vector<ffscript> expression_zasm;
+			SimulationState state{};
 			{
-				SimulationState state{};
 				state.block = block_index;
 				state.pc = j;
 				state.final_pc = final_pc;
@@ -1381,25 +1577,26 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 				}
 			}
 
+			// If the comparison operands are compared again after the branch, then reducing the comparison
+			// would break the code.
 			pc_t target_pc = C(final_pc).arg1;
-			bool target_block_uses_comparison_result = false;
 			{
+				bool target_block_reuses_comparison_operands = false;
 				auto [s, e] = get_block_bounds(ctx, ctx.cfg.start_pc_to_block_id.at(target_pc));
 				for (pc_t i = s; i <= e; i++)
 				{
 					int command = C(i).command;
 					if (command_writes_comparison_result(command))
 					{
-						target_block_uses_comparison_result = true;
+						target_block_reuses_comparison_operands = true;
 						break;
 					}
 					if (one_of(command, COMPAREV, COMPAREV2, COMPARER))
 						break;
 				}
+				if (target_block_reuses_comparison_operands)
+					continue;
 			}
-
-			if (target_block_uses_comparison_result)
-				return;
 
 			// Determine if D2 is reused after the branch. If so, and the original code
 			// sets the comparison result to D2, we need continue setting it (we are removing all but the GOTOCMP).
@@ -1413,13 +1610,12 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 				for (pc_t i = s; i <= ctx.fn.final_pc; i++)
 				{
 					int command = C(i).command;
-					int arg1 = C(i).arg1;
 
 					if (command == NOP)
 						continue;
 
 					// Functions return their value by setting D2.
-					if (one_of(command, RETURN, RETURNFUNC, GOTOR))
+					if (command == RETURNFUNC)
 					{
 						target_block_uses_d2 = true;
 						break;
@@ -1428,11 +1624,9 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 					// Function calls invalidate D2.
 					if (command == CALLFUNC)
 						break;
-					if (command == GOTO && ctx.structured_zasm->start_pc_to_function.contains(arg1))
-						break;
 
 					bool writes_d2 = false;
-					for_every_command_arg(C(i), [&](bool read, bool write, int arg){
+					for_every_command_register_arg(C(i), [&](bool read, bool write, int arg){
 						if (arg == D(2))
 						{
 							if (read && !writes_d2)
@@ -1447,26 +1641,16 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 				}
 			}
 
-			if (target_block_uses_d2)
+			if (bisect_tool_should_skip())
+				return;
+
+			if (target_block_uses_d2 && state.d[2].is_expression())
 			{
 				// TODO: wasm jit backend currently can only handle pairs of a COMPARE with a single SETX/GOTOX.
 				if (is_web())
 					break;
 
-				int cmp = expression_zasm.back().arg2;
-				for (pc_t k = final_pc - 1; k > j; k--)
-				{
-					// If the last SET for D2 has SETI, need to match that.
-					if (command_writes_comparison_result(C(k).command) && C(k).arg1 == D(2))
-					{
-						if (command_to_cmp(C(k).command, C(k).arg2) & CMP_SETI)
-							cmp |= CMP_SETI;
-						break;
-					}
-				}
-				if (C(final_pc - 1).command == COMPAREV && C(final_pc - 1).arg1 == D(2) && C(final_pc - 1).arg2 == 0)
-					cmp = INVERT_CMP(cmp);
-				expression_zasm.insert(expression_zasm.end() - 1, ffscript{SETCMP, D(2), cmp});
+				expression_zasm.insert(expression_zasm.end() - 1, ffscript{SETCMP, D(2), state.d[2].data});
 			}
 
 			std::copy(expression_zasm.begin(), expression_zasm.end(), &C(j));
@@ -1507,8 +1691,19 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 	{
 		if (!seen_ids.contains((i)))
 		{
+			if (bisect_tool_should_skip())
+				continue;
+
 			auto [block_start, block_final] = get_block_bounds(ctx, i);
-			remove(ctx, block_start, block_final);
+			for (pc_t k = block_start; k <= block_final; k++)
+			{
+				// Avoid double counting already removed instructions.
+				if (C(k).command != NOP)
+				{
+					C(k).command = NOP;
+					ctx.saved += 1;
+				}
+			}
 
 			// Don't ever remove the end marker.
 			if (block_final == ctx.script->size - 1)
@@ -1523,17 +1718,421 @@ static void optimize_unreachable_blocks(OptContext& ctx)
 	}
 }
 
-// Ideas for more opt passes:
-// - Remove unused writes to a D register
-static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> passes = {
+static void optimize_calling_mode(OptContext& ctx)
+{
+	if (ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_CALLFUNC_RETURNFUNC)
+		return;
+
+	int return_command =
+		ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR ? GOTOR : RETURN;
+
+	std::vector<pc_t> push_stack_pcs;
+	for (pc_t i = 0; i < ctx.script->size; i++)
+	{
+		auto& instr = C(i);
+
+		if (instr.command == return_command)
+		{
+			if (ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR)
+			{
+				ASSERT(C(i - 1).command == POP && C(i - 1).arg1 == instr.arg1);
+				remove(ctx, i - 1);
+			}
+			instr.command = RETURNFUNC;
+			continue;
+		}
+
+		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
+		{
+			push_stack_pcs.push_back(i);
+			continue;
+		}
+
+		if (instr.command == SETR && instr.arg1 == rSFRAME && instr.arg2 == SP)
+		{
+			push_stack_pcs.clear();
+			continue;
+		}
+
+		if (instr.command != GOTO || !ctx.structured_zasm->function_calls.contains(i))
+			continue;
+
+		// Global init scripts have an annoying "function call" that doesn't ever return, so it
+		// won't push rSFRAME to the stack. So keep it as a GOTO.
+		// See zasm_construct_structured
+		if (ctx.script->id == script_id{ScriptType::Global, GLOBAL_SCRIPT_INIT})
+		{
+			if (ctx.structured_zasm->start_pc_to_function.contains(i + 1))
+				continue;
+		}
+
+		ASSERT(C(i + 1).command == POP && C(i + 1).arg1 == rSFRAME);
+
+		pc_t push_stack_pc = push_stack_pcs.back();
+		push_stack_pcs.pop_back();
+
+		pc_t set_ret_addr = -1;
+		pc_t push_ret_addr = -1;
+		for (pc_t k = push_stack_pc + 1; k <= push_stack_pc + 2; k++)
+		{
+			if (C(k).command == NOP)
+				continue;
+			if (C(k).command == SETV)
+			{
+				set_ret_addr = k;
+				if (C(k + 1).command == PUSHR)
+					push_ret_addr = k + 1;
+				break;
+			}
+			if (C(k).command == PUSHV)
+			{
+				push_ret_addr = k;
+				break;
+			}
+			break;
+		}
+		if (push_ret_addr == -1)
+		{
+			ASSERT(false);
+			break;
+		}
+
+		instr.command = CALLFUNC;
+		remove(ctx, push_ret_addr);
+		if (set_ret_addr != -1)
+			remove(ctx, set_ret_addr);
+	}
+}
+
+static void optimize_inline_functions(OptContext& ctx)
+{
+	struct InlineFunctionData
+	{
+		const ZasmFunction& fn;
+		ffscript inline_instr;
+		int internal_reg_to_type[8]; // 0 - stack index, 1 - z-register/number
+		int internal_reg_to_value[8];
+		bool all_uses_inlined = true;
+	};
+
+	std::map<pc_t, InlineFunctionData> functions_to_inline;
+	for (const auto& fn : ctx.structured_zasm->functions)
+	{
+		size_t length = fn.final_pc - fn.start_pc + 1;
+		if (length > 4)
+			continue;
+
+		InlineFunctionData data = {fn};
+		for (int i = 0; i < 8; i++) data.internal_reg_to_type[i] = -1;
+		for (int i = 0; i < 8; i++) data.internal_reg_to_value[i] = -1;
+
+		int stack = 0;
+		bool bail = true;
+		bool found_instr = false;
+		for (pc_t k = fn.start_pc; k <= fn.final_pc; k++)
+		{
+			int command = C(k).command;
+			int arg1 = C(k).arg1;
+			int arg2 = C(k).arg2;
+
+			if (one_of(command, NOP, RETURNFUNC))
+				continue;
+
+			if (command == POP)
+			{
+				if (found_instr)
+					continue;
+
+				int reg = arg1;
+				if (reg >= D(8))
+				{
+					bail = true;
+					break;
+				}
+
+				// TODO: support more than 1 parameter.
+				if (stack == 1)
+				{
+					bail = true;
+					break;
+				}
+
+				data.internal_reg_to_value[reg] = stack++;
+				data.internal_reg_to_type[reg] = 0;
+				continue;
+			}
+
+			if (command == SETR)
+			{
+				if (found_instr)
+					continue;
+
+				int reg = arg1;
+				data.internal_reg_to_value[reg] = arg2;
+				data.internal_reg_to_type[reg] = 1;
+				continue;
+			}
+
+			if (found_instr)
+			{
+				bail = true;
+				break;
+			}
+
+			bail = false;
+			found_instr = true;
+			C(k).copy(data.inline_instr);
+		}
+		if (bail)
+			continue;
+
+		functions_to_inline.emplace(fn.id, data);
+	}
+
+	std::vector<pc_t> push_stack_pcs;
+	for (pc_t i = 0; i < ctx.script->size; i++)
+	{
+		auto& instr = C(i);
+
+		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
+		{
+			push_stack_pcs.push_back(i);
+			continue;
+		}
+
+		if (instr.command == PUSHARGSR && instr.arg1 == rSFRAME)
+		{
+			for (int k = 0; k < instr.arg2; k++)
+				push_stack_pcs.push_back(i);
+			continue;
+		}
+
+		if (instr.command == POP && instr.arg1 == rSFRAME)
+		{
+			push_stack_pcs.pop_back();
+			continue;
+		}
+
+		if (instr.command != CALLFUNC)
+			continue;
+
+		pc_t fn_id = ctx.structured_zasm->start_pc_to_function.at(instr.arg1);
+		auto it = functions_to_inline.find(fn_id);
+		if (it == functions_to_inline.end())
+			continue;
+
+		auto& data = it->second;
+		if (bisect_tool_should_skip())
+		{
+			data.all_uses_inlined = false;
+			continue;
+		}
+
+		int stack_to_external_value[8];
+		for (int i = 0; i < 8; i++) stack_to_external_value[i] = -1;
+
+		ASSERT(one_of(C(i - 1).command, PUSHR, PUSHV, NOP));
+		stack_to_external_value[0] = C(i - 1).arg1;
+
+		std::vector<ffscript> inlined_zasm;
+		int arg = 0;
+		ffscript inline_instr = data.inline_instr;
+		for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg){
+			if (read || write)
+			{
+				if (data.internal_reg_to_type[reg] == 0)
+					reg = stack_to_external_value[data.internal_reg_to_value[reg]];
+				else if (read)
+				{
+					inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);
+				}
+			}
+			arg++;
+		});
+		inlined_zasm.push_back(inline_instr);
+
+		pc_t hole_start_pc = i - 1;
+		pc_t hole_final_pc = i + 1;
+		pc_t push_stack_pc = push_stack_pcs.back();
+		bool push_stack_part_of_hole =
+			(push_stack_pc == hole_start_pc - 1 || push_stack_pc == hole_start_pc) && C(push_stack_pc).command != PUSHARGSR;
+		if (push_stack_part_of_hole)
+			hole_start_pc = push_stack_pc;
+		size_t hole_length = hole_final_pc - hole_start_pc + 1;
+		if (inlined_zasm.size() > hole_length)
+		{
+			data.all_uses_inlined = false;
+			continue;
+		}
+
+		std::copy(inlined_zasm.begin(), inlined_zasm.end(), &C(hole_start_pc));
+		remove(ctx, hole_start_pc + inlined_zasm.size(), hole_final_pc);
+		if (ctx.debug)
+		{
+			fmt::println("rewrite {}: {} -> {} commands", hole_start_pc, hole_length, inlined_zasm.size());
+			for (int i = hole_start_pc; i <= hole_final_pc; i++)
+				fmt::println("{}: {}", i, script_debug_command_to_string(C(i)));
+		}
+
+		if (C(push_stack_pc).command == PUSHARGSR)
+		{
+			if (C(push_stack_pc).arg1 > 2)
+				C(push_stack_pc).arg2 -= 1;
+			else if (C(push_stack_pc).arg1 == 2)
+				C(push_stack_pc) = {PUSHR, rSFRAME};
+			else
+				remove(ctx, push_stack_pc);
+		}
+		else if (!push_stack_part_of_hole)
+			remove(ctx, push_stack_pc);
+
+		if (command_is_wait(inline_instr.command))
+			ctx.cfg_stale = true;
+	}
+
+	for (const auto& [fn_id, data] : functions_to_inline)
+	{
+		if (data.all_uses_inlined)
+			remove(ctx, data.fn.start_pc, data.fn.final_pc);
+	}
+}
+
+// https://en.wikipedia.org/wiki/Data-flow_analysis
+// https://www.cs.cornell.edu/courses/cs4120/2022sp/notes.html?id=livevar
+// https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
+static void optimize_dead_code(OptContext& ctx)
+{
+	add_context_cfg(ctx);
+
+	std::map<pc_t, std::vector<pc_t>> precede;
+	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
+		precede[i] = {};
+	for (pc_t i = 0; i < ctx.block_starts.size(); i++)
+	{
+		for (pc_t e : E(i))
+		{
+			precede.at(e).push_back(i);
+		}
+	}
+
+	struct block_vars {
+		uint8_t in, out, gen, kill;
+		bool returns;
+	};
+	std::vector<block_vars> vars(ctx.block_starts.size());
+
+	std::set<pc_t> worklist;
+	for (pc_t block_index = 0; block_index < ctx.block_starts.size(); block_index++)
+	{
+		worklist.insert(block_index);
+
+		uint8_t gen = 0;
+		uint8_t kill = 0;
+		bool returns = false;
+		auto [start_pc, final_pc] = get_block_bounds(ctx, block_index);
+		for (pc_t i = start_pc; i <= final_pc; i++)
+		{
+			int command = C(i).command;
+			if (command == CALLFUNC)
+			{
+				kill = 0xFF;
+				continue;
+			}
+
+			if (command == RETURNFUNC)
+				returns = true;
+
+			for_every_command_arg_include_indices(C(i), [&](bool read, bool write, int reg){
+				if (read && reg < D(8))
+				{
+					if (!(kill & (1 << reg)))
+						gen |= 1 << reg;
+				}
+				if (write && reg < D(8))
+					kill |= 1 << reg;
+			});
+		}
+
+		vars.at(block_index) = {0, 0, gen, kill, returns};
+	}
+
+	while (!worklist.empty())
+	{
+		pc_t block_index = *worklist.begin();
+		worklist.erase(worklist.begin());
+
+		auto& [in, out, gen, kill, returns] = vars.at(block_index);
+
+		out = 0;
+		for (pc_t e : E(block_index))
+			out |= vars.at(e).in;
+		if (returns)
+			out |= 1 << D(2);
+
+		uint8_t old_in = in;
+		in = gen | (out & ~kill);
+
+		if (in != old_in)
+		{
+			for (pc_t e : precede.at(block_index))
+				worklist.insert(e);
+		}
+	}
+
+	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
+		uint8_t out = vars.at(block_index).out;
+
+		// fmt::print("{} in: ", block_index);
+		// for (int i = 0; i < 8; i++) if (in & (1 << i)) fmt::print("D{} ", i);
+		// fmt::print("out: ");
+		// for (int i = 0; i < 8; i++) if (out & (1 << i)) fmt::print("D{} ", i);
+		// fmt::print("\n");
+
+		int live = out;
+		pc_t i = final_pc;
+		while (true)
+		{
+			for_every_command_arg_include_indices(C(i), [&](bool read, bool write, int reg){
+				if (write && reg < D(8))
+				{
+					if (!(live & (1 << reg)))
+					{
+						// Don't remove writes that have other side effects (like modifying the stack).
+						if (command_is_pure(C(i).command) && !bisect_tool_should_skip())
+							remove(ctx, i);
+					}
+					live &= ~(1 << reg);
+				}
+				if (read && reg < D(8))
+					live |= 1 << reg;
+			});
+
+			if (i == start_pc)
+				break;
+			i--;
+		}
+	});
+}
+
+static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> script_passes = {
+	// Convert to modern function calls before anything else, so all
+	// passes may assume that.
+	{"calling_mode", optimize_calling_mode},
+	{"inline_functions", optimize_inline_functions},
+};
+
+static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> function_passes = {
 	{"goto_next_instruction", optimize_goto_next_instruction},
 	{"unreachable_blocks", optimize_unreachable_blocks},
 	{"conseq_additive", optimize_conseq_additive},
 	{"loadi", optimize_loadi},
 	{"setv_pushr", optimize_setv_pushr},
+	{"setr_pushr", optimize_setr_pushr},
+	{"stack", optimize_stack},
 	{"spurious_branches", optimize_spurious_branches},
 	{"reduce_comparisons", optimize_reduce_comparisons},
 	{"unreachable_blocks_2", optimize_unreachable_blocks},
+	{"dead_code", optimize_dead_code},
 };
 
 static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair<std::string, std::function<void(OptContext&)>> pass)
@@ -1552,16 +2151,20 @@ static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair
 static void optimize_function(OptimizeResults& results, StructuredZasm& structured_zasm, script_data* script, const ZasmFunction& fn)
 {
 	OptContext ctx = create_context_no_cfg(structured_zasm, script, fn);
-	for (int i = 0; i < passes.size(); i++)
+	for (int i = 0; i < function_passes.size(); i++)
 	{
-		run_pass(results, i, ctx, passes[i]);
+		run_pass(results, script_passes.size() + i, ctx, function_passes[i]);
 	}
 }
 
 static OptimizeResults create_opt_results()
 {
 	OptimizeResults results{};
-	for (auto [pass_name, _] : passes)
+	for (auto [pass_name, _] : script_passes)
+	{
+		results.passes.push_back({pass_name, 0, 0});
+	}
+	for (auto [pass_name, _] : function_passes)
 	{
 		results.passes.push_back({pass_name, 0, 0});
 	}
@@ -1574,6 +2177,12 @@ OptimizeResults zasm_optimize(script_data* script)
 
 	auto start_time = std::chrono::steady_clock::now();
 	auto structured_zasm = zasm_construct_structured(script);
+
+	OptContext ctx = create_context_no_cfg(structured_zasm, script, structured_zasm.functions.front());
+	for (int i = 0; i < script_passes.size(); i++)
+	{
+		run_pass(results, i, ctx, script_passes[i]);
+	}
 
 	for (const auto& fn : structured_zasm.functions)
 	{
@@ -1613,6 +2222,9 @@ OptimizeResults zasm_optimize()
 		fmt::println("Optimizing scripts...");
 
 	zasm_for_every_script([&](auto script){
+		if (script->optimized)
+			return;
+
 		size += script->size;
 		
 		auto r = zasm_optimize(script);
@@ -1620,7 +2232,7 @@ OptimizeResults zasm_optimize()
 		if (log_level >= 2)
 			fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", zasm_script_unique_name(script), r.instructions_saved, pct, r.elapsed / 1000);
 
-		for (int i = 0; i < passes.size(); i++)
+		for (int i = 0; i < results.passes.size(); i++)
 		{
 			results.passes[i].instructions_saved += r.passes[i].instructions_saved;
 			results.passes[i].elapsed += r.passes[i].elapsed;

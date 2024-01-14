@@ -1751,7 +1751,15 @@
 
 #define IDATAATTRIB_L           1646
 
-#define LAST_BYTECODE           1647
+#define HEROSLIDING             1647
+#define HEROICECMB              1648
+#define HEROSCRICECMB           1649
+#define HEROICEVX               1650
+#define HEROICEVY               1651
+#define HEROICEENTRYFRAMES      1652
+#define HEROICEENTRYMAXFRAMES   1653
+
+#define LAST_BYTECODE           1654
 
 //} END OF BYTECODE
 

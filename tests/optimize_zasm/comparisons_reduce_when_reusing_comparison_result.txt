@@ -1,0 +1,41 @@
+Function #0
+    0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
+    1: CALLFUNC        19                           [Call Function #2]
+    2: NOP
+    3: NOP
+    4: QUIT
+
+
+Function #1
+    5: LOADD           D2              50000        [Block 0 -> 1, 2]
+    6: CASTBOOLF       D2
+    7: COMPAREV        D2              1
+    8: SETMORE         D2
+    9: COMPAREV        D2              1
+   10: GOTOMORE        14
+   11: LOADD           D2              60000        [Block 1 -> 2]
+   12: CASTBOOLF       D2
+   13: COMPAREV        D2              1
+   14: SETMORE         D2                           [Block 2 -> 3, 4]
+   15: COMPAREV        D2              0
+   16: GOTOCMP         18              ==
+   17: SETV            D2              1            [Block 3 -> 4]
+   18: RETURNFUNC                                   [Block 4 -> ]
+
+
+Function #2
+   19: LOADD           D2              0            [Block 0 -> 1, 2]
+   20: LOADD           D3              10000
+   21: COMPARER        D3              D2
+   22: SETMORE         D2
+   23: COMPAREV        D2              0
+   24: SETTRUEI        D2
+   25: COMPAREV        D2              1
+   26: GOTOCMP         28              >=
+   27: TRACEV          1                            [Block 1 -> 2]
+   28: SETMOREI        D2                           [Block 2 -> 4]
+   29: COMPAREV        D2              0
+   30: SETTRUEI        D2
+   31: GOTO            33
+   32: TRACEV          1                            [Block 3 -> 4]
+   33: RETURNFUNC                                   [Block 4 -> ]

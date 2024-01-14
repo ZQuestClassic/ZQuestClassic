@@ -65,7 +65,7 @@ rewrite 0: 4 -> 3 commands
 	D2 = Bool(D2)
 rewrite 5: 5 -> 3 commands
 5: COMPAREV        D2              0      
-6: SETCMP          D2              I!=    
+6: SETCMP          D2              !=     
 7: GOTOCMP         12              ==     
 8: NOP            
 9: NOP            
@@ -76,13 +76,13 @@ Function #0
     3: NOP                                          [Block 1 -> 2, 3]
     4: SETR            D2              INPUTEX2
     5: COMPAREV        D2              0
-    6: SETCMP          D2              I!=
+    6: SETCMP          D2              !=
     7: GOTOCMP         12              ==
     8: NOP                                          [Block 2 -> 4]
     9: NOP
    10: SETV            D2              10000
    11: GOTO            13
    12: NOP                                          [Block 3 -> 4]
-   13: SETV            D3              0            [Block 4 -> ]
+   13: NOP                                          [Block 4 -> ]
    14: POP             D3
-   15: RETURN
+   15: RETURNFUNC

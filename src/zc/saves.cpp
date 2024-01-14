@@ -1932,6 +1932,7 @@ static int32_t do_save_games()
 		auto dir = get_save_folder_path() / "current_replay";
 		fs::create_directories(dir);
 		saves[currgame].path = create_new_file_path(dir, "zc", ".sav", true);
+		saves[currgame].write_to_disk = true;
 		int ret = write_save(&saves[currgame]);
 		if (ret)
 			return ret;

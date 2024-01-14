@@ -429,8 +429,16 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				}
 
 				#define VAL(x, v) {\
-					if (v) wasm.emitI32Const(x);\
-					else get_z_register(state, x);\
+					if (v) wasm.emitI32Const((next_arg2 & CMP_BOOL) ? !!x : x);\
+					else\
+					{\
+						get_z_register(state, x);\
+						if (next_arg2 & CMP_BOOL)\
+						{\
+							wasm.emitI32Const(0);\
+							wasm.emitI32Ne();\
+						}\
+					}\
 				}
 				bool arg1_from_register = false;
 				bool arg2_from_register = command != COMPARER;
@@ -441,7 +449,15 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				int next_arg1 = script->zasm[i + 1].arg1;
 				int next_arg2 = script->zasm[i + 1].arg2;
 
-				if (next_command == SETCMP)
+				if (next_command == NOP)
+				{
+					// The optimizer may turn the usage of the comparison into a NOP, but not actually remove
+					// the comparison command.
+					// Example: hollow_forest.qst/zasm-global-1.txt
+					// 11911: COMPAREV        D2              0            
+					// 11912: GOTOTRUE        11913                        ---- turns into NOP
+				}
+				else if (next_command == SETCMP)
 				{
 					set_z_register(state, next_arg1, [&](){
 						VAL(arg1, arg1_from_register);
@@ -596,7 +612,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				}
 				else
 				{
-					printf("unexpected command: %d\n", next_command);
+					printf("unexpected command %s at index %d\n", script_debug_command_to_string(next_command).c_str(), i + 1);
 					ASSERT(false);
 				}
 
@@ -1064,10 +1080,22 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 
 				default:
 				{
-					printf("unexpected command: %d\n", command);
+					printf("unexpected command %s at index %d\n", script_debug_command_to_string(command).c_str(), i);
 					ASSERT(false);
 				}
 			}
+		}
+	}
+
+	// Handles scripts that are just a single function. When they execute the last command (0xFFFF),
+	// that exits the script.
+	// Normally a QUIT does this. But, global init scripts don't end with a QUIT.
+	if (function_ids.contains((0)) && script->size - 1 == structured_zasm.functions.at(0).final_pc + 1)
+	{
+		if (script->zasm[script->size - 1].command == 0xFFFF)
+		{
+			// This will run some 0xFFFF specific code, then trap.
+			compile_command_interpreter(state, script, script->size - 1, 1);
 		}
 	}
 

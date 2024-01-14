@@ -28,6 +28,12 @@ struct StructuredZasm
 	std::vector<ZasmFunction> functions;
 	std::set<pc_t> function_calls;
 	std::map<pc_t, pc_t> start_pc_to_function;
+	enum CallingMode {
+		CALLING_MODE_UNKNOWN,
+		CALLING_MODE_GOTO_GOTOR,
+		CALLING_MODE_GOTO_RETURN,
+		CALLING_MODE_CALLFUNC_RETURNFUNC,
+	} calling_mode;
 };
 
 struct ZasmCFG
@@ -80,5 +86,7 @@ void zasm_for_every_script(std::function<void(script_data*)> fn);
 std::string zasm_analyze_duplication();
 
 std::pair<bool, bool> get_command_rw(int command, int arg);
+
+std::initializer_list<int> get_zregister_indices(int reg);
 
 #endif

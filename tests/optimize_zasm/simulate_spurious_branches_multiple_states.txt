@@ -1,0 +1,29 @@
+Function #0
+    0: SETR            D2              GD37         [Block 0 -> 1, 2]
+    1: PUSHR           D2
+    2: POP             D0
+    3: READPODARRAYV   D2              70000
+    4: PUSHR           D2
+    5: SETV            D2              20000
+    6: POP             D3
+    7: COMPARER        D2              D3
+    8: SETTRUEI        D2
+    9: COMPAREV        D2              1
+   10: GOTOMORE        22
+   11: SETR            D2              GD37         [Block 1 -> 2]
+   12: PUSHR           D2
+   13: POP             D0
+   14: READPODARRAYV   D2              80000
+   15: PUSHR           D2
+   16: SETV            D2              20000
+   17: POP             D3
+   18: COMPARER        D2              D3
+   19: SETTRUEI        D2
+   20: CASTBOOLF       D2
+   21: COMPAREV        D2              1
+   22: SETMOREI        D2                           [Block 2 -> 3, 4]
+   23: COMPAREV        D2              1
+   24: GOTOMORE        27
+   25: SETR            D2              GD37         [Block 3 -> 4]
+   26: TRACEV          1
+   27: QUIT                                         [Block 4 -> ]

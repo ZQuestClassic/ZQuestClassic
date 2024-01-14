@@ -1,0 +1,40 @@
+Function #0
+    0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
+    1: CALLFUNC        14                           [Call Function #2]
+    2: CALLFUNC        22                           [Call Function #3]
+    3: NOP
+    4: QUIT
+
+
+Function #1
+    5: SETV            D3              10           [Block 0 -> ]
+    6: SETV            D3              10
+    7: SETV            D3              10
+    8: SETV            D4              10
+    9: SETV            D2              10
+   10: SETV            D3              10
+   11: SETV            D2              10
+   12: TRACER          D3
+   13: RETURNFUNC
+
+
+Function #2
+   14: SETV            D0              1337         [Block 0 -> 1, 2]
+   15: SETV            D1              1337
+   16: SETR            D3              LINKX
+   17: COMPAREV        D3              0
+   18: GOTOCMP         20              ==
+   19: SETV            D0              1000         [Block 1 -> 2]
+   20: TRACER          D0                           [Block 2 -> ]
+   21: RETURNFUNC
+
+
+Function #3
+   22: SETV            D0              1337         [Block 0 -> ]
+   23: SETV            D1              1337
+   24: SETR            D3              LINKX
+   25: COMPAREV        D3              0
+   26: GOTOCMP         20              ==
+   27: SETV            D0              1000
+   28: TRACER          D1
+   29: RETURNFUNC

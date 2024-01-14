@@ -324,6 +324,12 @@ public:
 	zfix liftheight;
 	uint32_t liftflags;
 	optional<byte> last_lift_id;
+	
+	zfix ice_vx, ice_vy;
+	int32_t ice_combo;
+	int32_t script_ice_combo;
+	int sliding;
+	byte ice_entry_count, ice_entry_mcount;
 
 private:
 	ffcdata const* platform_ffc;
@@ -331,6 +337,7 @@ private:
 public:
 	
 	// Methods below here.
+	void clear_ice();
 	bool isLifting();
 	void set_liftflags(int liftid);
 	void doSwitchHook(byte style);
@@ -345,6 +352,7 @@ public:
 	bool pitslide();
 	void pitfall();
 	void moveheroOld();
+	void handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy);
 	void mod_steps(std::vector<zfix*>& v);
 	void get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir);
 	bool scr_walkflag(zfix_round dx,zfix_round dy,int dir,bool kb,int* canladder = nullptr);

@@ -153,7 +153,7 @@ int32_t onIncreaseCSet();
 int32_t onDecreaseCSet();
 
 int32_t  onHelp();
-void doHelp(int32_t bg,int32_t fg);
+void doHelp();
 
 int32_t onScrData();
 int32_t onGuy();

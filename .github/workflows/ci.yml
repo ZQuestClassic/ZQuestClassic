@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: git clone
-        uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
+        uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
 
   test:
     needs: warm-lfs-cache
@@ -33,12 +33,11 @@ jobs:
             # RelWithDebInfo invalidates ccache, and we currently can't show backtraces on crash for windows in CI
             # so no need for it yet.
             config: Release
-          # - runs-on: windows-2022
-          #   arch: win32
-          #   compiler: msvc
-          #   # RelWithDebInfo fails all replays on 32 bit
-          #   config: Release
-          #   extra-args: --max_duration 60
+          - runs-on: windows-2022
+            arch: win32
+            compiler: msvc
+            config: RelWithDebInfo
+            extra-args: --max_duration 60
           - runs-on: macos-12
             arch: intel
             compiler: clang
@@ -138,7 +137,7 @@ jobs:
 
     steps:
       - name: git clone
-        uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
+        uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
         with:
           fetch-depth: 0
 

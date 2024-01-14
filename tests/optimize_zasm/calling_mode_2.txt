@@ -1,0 +1,26 @@
+Function #0
+    0: PUSHR           D4                           [Block 0 -> ]
+    1: PUSHV           40000
+    2: GOTO            9                            [Call Function #1]
+    3: POP             D4
+    4: PUSHR           D4
+    5: PUSHV           80000
+    6: GOTO            14                           [Call Function #2]
+    7: POP             D4
+    8: QUIT
+
+
+Function #1
+    9: TRACEV          1                            [Block 0 -> ]
+   10: TRACEV          1
+   11: TRACEV          1
+   12: TRACEV          1
+   13: RETURN
+
+
+Function #2
+   14: TRACEV          1                            [Block 0 -> ]
+   15: TRACEV          1
+   16: TRACEV          1
+   17: TRACEV          1
+   18: RETURN

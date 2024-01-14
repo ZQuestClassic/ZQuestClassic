@@ -356,6 +356,11 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 	return D_O_K;
 }
 
+string get_box_cfg_hdr(int num)
+{
+	return "misc";
+}
+
 void go()
 {
 	blit(screen,tmp_scr,0,0,0,0,screen->w,screen->h);
@@ -545,6 +550,9 @@ static void render_launcher()
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
+	if (is_headless())
+		return;
+
 	if(force || myvsync)
 	{
 		zc_process_display_events();

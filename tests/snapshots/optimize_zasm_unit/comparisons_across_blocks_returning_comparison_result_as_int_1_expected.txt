@@ -7,7 +7,7 @@ inferred D2: 1
 	D2 = Bool(D2)
 6: GOTO            8               
 	D2 = Bool(D2)
-8: RETURN         
+8: RETURNFUNC     
 	D2 = Bool(D2)
 	side_effects
 9: QUIT           
@@ -28,5 +28,5 @@ Function #0
     5: SETCMP          D2              I!=          [Block 2 -> 4]
     6: GOTO            8
     7: NOP                                          [Block 3 -> 4]
-    8: RETURN                                       [Block 4 -> ]
+    8: RETURNFUNC                                   [Block 4 -> ]
     9: QUIT

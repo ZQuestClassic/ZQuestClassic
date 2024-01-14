@@ -497,10 +497,19 @@ void HeroClass::set_respawn_point(bool setwarp)
 	y = oldy;
 }
 
+void HeroClass::clear_ice()
+{
+	ice_vx = ice_vy = 0;
+	ice_entry_count = ice_entry_mcount = 0;
+	ice_combo = 0;
+	sliding = 0;
+}
+
 void HeroClass::go_respawn_point()
 {
 	x = respawn_x;
 	y = respawn_y;
+	clear_ice();
 	handle_portal_prox(&mirror_portal);
 	portals.forEach([&](sprite& p)
 	{
@@ -1725,7 +1734,6 @@ void HeroClass::init()
 	active_shield_id = -1;
 	conv_forcedir = -1;
 	
-    //2.6
 	preventsubscreenfalling = false;  //-Z
 	walkspeed = 0; //not used, yet. -Z
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
@@ -1735,6 +1743,9 @@ void HeroClass::init()
 		defence[q] = hero_defence[q]; //we will need to have a Hero section in the quest load/save code! -Z Added 3/26/21 - Jman
 		//zprint2("defence[%d] is: %d\n", q, defence[q]);
 	}
+	
+	clear_ice();
+	script_ice_combo = 0;
 	//Run script!
 	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
 	{
@@ -2666,6 +2677,7 @@ void HeroClass::draw(BITMAP* dest)
 			
 			int32_t jumping2 = int32_t(jumping*((zinit.gravity / 100)/16.0));
 			bool noliftspr = get_qr(qr_NO_LIFT_SPRITE);
+			bool advancetile = script_hero_sprite <= 0;
 			//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
 			switch(zinit.heroAnimationStyle)
 			{
@@ -2675,7 +2687,7 @@ void HeroClass::draw(BITMAP* dest)
 					if(inwater)
 					{
 						herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
-						if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+						if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
 					}
 					else
 					{
@@ -2685,12 +2697,12 @@ void HeroClass::draw(BITMAP* dest)
 				else if(action==lavadrowning)
 				{
 					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
 				else if(action==sidedrowning)
 				{
 					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
 				else if (action == sideswimming || action == sideswimhit)
 				{
@@ -2700,11 +2712,11 @@ void HeroClass::draw(BITMAP* dest)
 					{
 						if(dir==up)
 						{
-							if ( script_hero_sprite <= 0 ) ++flip;
+							if(advancetile) ++flip;
 						}
 						else
 						{
-							if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+							if(advancetile) extend==2?tile+=2:++tile;
 						}
 					}
 				}
@@ -2716,18 +2728,18 @@ void HeroClass::draw(BITMAP* dest)
 					{
 						if(dir==up)
 						{
-							if ( script_hero_sprite <= 0 ) ++flip;
+							if(advancetile) ++flip;
 						}
 						else
 						{
-							if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+							if(advancetile) extend==2?tile+=2:++tile;
 						}
 					}
 					
 					if(isDiving())
 					{
 						herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
-						if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+						if(advancetile) tile+=((frame>>3) & 1)*(extend==2?2:1);
 					}
 				}
 				else if(charging > 0 && attack != wHammer)
@@ -2738,23 +2750,23 @@ void HeroClass::draw(BITMAP* dest)
 					{
 						if(dir==up)
 						{
-							if ( script_hero_sprite <= 0 ) ++flip;
+							if(advancetile) ++flip;
 						}
 						else
 						{
-							if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+							if(advancetile) extend==2?tile+=2:++tile;
 						}
 					}
 				}
 				else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
 				{
 					herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+					if(advancetile) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 				}
 				else if(fallclk>0)
 				{
 					herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+					if(advancetile) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 				}
 				else if(!noliftspr&&action==lifting&&isLifting())
 				{
@@ -2774,9 +2786,12 @@ void HeroClass::draw(BITMAP* dest)
 				{
 					if(IsSideSwim())
 						herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-					else if(!noliftspr&&isLifting())
-						herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
-					else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+					else
+					{
+						if(!noliftspr&&isLifting())
+							herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+						else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+					}
 					
 					if(dir>up)
 					{
@@ -2784,15 +2799,15 @@ void HeroClass::draw(BITMAP* dest)
 						shieldModify=true;
 					}
 					
-					if(lstep>=6)
+					if(advancetile && lstep>=6)
 					{
 						if(dir==up)
 						{
-							if ( script_hero_sprite <= 0 ) ++flip;
+							++flip;
 						}
 						else
 						{
-							if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+							extend==2?tile+=2:++tile;
 						}
 					}
 				}
@@ -2805,7 +2820,7 @@ void HeroClass::draw(BITMAP* dest)
 					if(inwater)
 					{
 						herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
-						if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+						if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 					}
 					else
 					{
@@ -2815,18 +2830,18 @@ void HeroClass::draw(BITMAP* dest)
 				else if (action == sidedrowning)
 				{
 					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				else if(action==lavadrowning)
 				{
 					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				else if (action == sideswimming || action == sideswimhit)
 				{
 					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
 					
-					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				else if(action==swimming || action==swimhit || hopclk==0xFF)
 				{
@@ -2838,7 +2853,7 @@ void HeroClass::draw(BITMAP* dest)
 					{
 						herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
 					}
-					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 					
 					if(isDiving())
 					{
@@ -2850,23 +2865,23 @@ void HeroClass::draw(BITMAP* dest)
 						{
 							herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
 						}
-						if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+						if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 					}
 				}
 				else if(charging > 0 && attack != wHammer)
 				{
 					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
 				{
 					herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+					if(advancetile) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 				}
 				else if(fallclk>0)
 				{
 					herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+					if(advancetile) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 				}
 				else if(!noliftspr&&action==lifting&&isLifting())
 				{
@@ -2886,23 +2901,19 @@ void HeroClass::draw(BITMAP* dest)
 				{
 					if(IsSideSwim())
 						herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-					else if(!noliftspr&&isLifting())
-						herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
-					else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+					else
+					{
+						if(!noliftspr&&isLifting())
+							herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+						else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+					}
 					
-					if(dir>up)
+					if(dir > up)
 					{
 						useltm=true;
 						shieldModify=true;
 					}
-					
-					/*
-					else if (dir==up)
-					{
-					useltm=true;
-					}
-					*/
-					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				
 				break;
@@ -2987,13 +2998,16 @@ void HeroClass::draw(BITMAP* dest)
 				{
 					if(IsSideSwim())
 						herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-					else if(!noliftspr&&isLifting())
-						herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
-					else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
-					
-					if(action == walking || action == climbcoverbottom || action == climbcovertop)
+					else
 					{
-						if (script_hero_sprite <= 0 ) tile += (extend == 2 ? 2 : 1);
+						if(!noliftspr&&isLifting())
+							herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+						else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+					}
+					
+					if(advancetile && (action == walking || action == climbcoverbottom || action == climbcovertop))
+					{
+						tile += (extend == 2 ? 2 : 1);
 					}
 					
 					if(dir>up)
@@ -3002,13 +3016,13 @@ void HeroClass::draw(BITMAP* dest)
 						shieldModify=true;
 					}
 					
-					if(action == walking || action == hopping || action == climbcoverbottom || action == climbcovertop)
+					if(advancetile && (action == walking || action == hopping || action == climbcoverbottom || action == climbcovertop))
 					{
 						//tile+=(extend==2?2:1);
 						//tile+=(((active_count>>2)%8)*(extend==2?2:1));
 						int32_t l = hero_count / hero_animation_speed;
 						l -= ((l > 3) ? 1 : 0) + ((l > 12) ? 1 : 0);
-						if (script_hero_sprite <= 0 ) tile += (l / 2) * (extend == 2 ? 2 : 1);
+						tile += (l / 2) * (extend == 2 ? 2 : 1);
 					}
 				}
 				
@@ -9994,7 +10008,11 @@ heroanimate_skip_liftwpn:;
 			if(premove())
 				movehero();
 		}
-		else moveheroOld();
+		else
+		{
+			sliding = 0;
+			moveheroOld();
+		}
 	}
 	
 	if(shield_forcedir > -1 && action != rafting)
@@ -12157,8 +12175,12 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!get_qr(qr_CUSTOMWEAPON_IGNORE_COST))
 				paymagiccost(itemid);
 			
+			zfix wpnstep = zfix(itm.misc1)/100;
+			if(replay_version_check(0,30))
+				wpnstep = itm.misc1/100;
+			
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wtype,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1/100;
+			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
 			sfx(itm.usesound,pan(wx));
 		}
 		break;
@@ -12175,9 +12197,13 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			if(!get_qr(qr_CUSTOMWEAPON_IGNORE_COST))
 				paymagiccost(itemid);
+			
+			zfix wpnstep = zfix(itm.misc1)/100;
+			if(replay_version_check(0,30))
+				wpnstep = itm.misc1/100;
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1/100;
+			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = wpnstep;
 			sfx(itm.usesound,pan(wx));
 		}
 		break;
@@ -14139,6 +14165,141 @@ void HeroClass::pitfall()
 	}
 }
 
+void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
+{
+	bool inair = z || fakez;
+	zfix odx = dx, ody = dy;
+	if(sliding == 2 && !inair) //landed from air-sliding
+	{
+		if((ice_vx+odx).sign() != ice_vx.sign())
+			ice_vx = 0;
+		if((ice_vy+ody).sign() != ice_vy.sign())
+			ice_vy = 0;
+		sliding = 1;
+	}
+	if(!sliding) //just hit the ice
+	{
+		if(inair)
+			return;
+		sliding = 1;
+		zfix start_perc = icecmb.attribytes[0] / 100_zf;
+		ice_vx = dx * start_perc;
+		ice_vy = dy * start_perc;
+		ice_entry_count = ice_entry_mcount = icecmb.attribytes[1];
+	}
+	else //not the first frame sliding
+	{
+		if(inair)
+			sliding = 2;
+		zfix accel = zslongToFix(zc_max(1,icecmb.attributes[0]));
+		zfix decel = zslongToFix(zc_max(1,icecmb.attributes[1]));
+		
+		if(ice_entry_count)
+		{
+			if(--ice_entry_count)
+			{
+				zfix perc = zfix(ice_entry_count)/ice_entry_mcount;
+				perc *= perc; //square the portion, for a better transition
+				zfix normal_rate = zfix(steprate)/100/2;
+				decel = (perc*normal_rate)+((1-perc)*decel);
+			}
+		}
+		//!TODO Traction Boots can be added here, with a multiplier on accel/decel
+		//Accelerate in the pushed direction
+		if(inair)
+		{
+			static const int air_accel = 100;
+			accel = abs(odx)/air_accel;
+			if(accel)
+			{
+				if(odx < 0)
+				{
+					if(ice_vx - accel < odx)
+					{
+						if(ice_vx > odx)
+							ice_vx = odx;
+						else odx = 0; //allow decel
+					}
+					else ice_vx -= accel;
+				}
+				else //if(odx > 0)
+				{
+					if(ice_vx + accel > odx)
+					{
+						if(ice_vx < odx)
+							ice_vx = odx;
+						else odx = 0; //allow decel
+					}
+					else ice_vx += accel;
+				}
+			}
+			accel = abs(ody)/air_accel;
+			if(accel)
+			{
+				if(ody < 0)
+				{
+					if(ice_vy - accel < ody)
+					{
+						if(ice_vy > ody)
+							ice_vy = ody;
+						else ody = 0; //allow decel
+					}
+					else ice_vy -= accel;
+				}
+				else //if(ody > 0)
+				{
+					if(ice_vy + accel > ody)
+					{
+						if(ice_vy < ody)
+							ice_vy = ody;
+						else ody = 0; //allow decel
+					}
+					else ice_vy += accel;
+				}
+			}
+		}
+		else if(accel)
+		{
+			if(odx > 0)
+				ice_vx += accel;
+			else if(odx < 0)
+				ice_vx -= accel;
+			if(ody > 0)
+				ice_vy += accel;
+			else if(ody < 0)
+				ice_vy -= accel;
+		}
+		//Decelerate in non-pushed direction
+		if(inair)
+			decel = zinit.air_drag;
+		if(decel)
+		{
+			if(ice_vx)
+			{
+				if(!odx && abs(ice_vx) < decel)
+					ice_vx = 0;
+				else if(ice_vx > 0 && odx <= 0)
+					ice_vx -= decel;
+				else if(ice_vx < 0 && odx >= 0)
+					ice_vx += decel;
+			}
+			if(ice_vy)
+			{
+				if(!ody && abs(ice_vy) < decel)
+					ice_vy = 0;
+				else if(ice_vy > 0 && ody <= 0)
+					ice_vy -= decel;
+				else if(ice_vy < 0 && ody >= 0)
+					ice_vy += decel;
+			}
+		}
+	}
+	zfix cap = zslongToFix(zc_max(1,abs(icecmb.attributes[2])));
+	dx = ice_vx = vbound(ice_vx, -cap, cap);
+	dy = ice_vy = vbound(ice_vy, -cap, cap);
+	if(!dx && !dy)
+		ice_entry_count = 0;
+}
 void HeroClass::mod_steps(std::vector<zfix*>& v)
 {
 	bool can_combo = ((z==0 && fakez==0) || tmpscr->flags2&fAIRCOMBOS);
@@ -19081,6 +19242,10 @@ bool HeroClass::premove()
 }
 void HeroClass::movehero()
 {
+	bool earlyret = false;
+	bool nohorz = (isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam);
+	bool novert = (isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam);
+	zfix dx, dy;
 	auto push=pushing;
 	pushing=0;
 	
@@ -19096,7 +19261,8 @@ void HeroClass::movehero()
 				if(attackclk>0) SetAttack();
 				else {action = none; FFCore.setHeroAction(none);}
 				hero_count=-1;
-				return;
+				earlyret = true;
+				goto newmove_slide;
 			}
 			
 			autostep=false;
@@ -19108,10 +19274,6 @@ void HeroClass::movehero()
 		}
 	}
 	
-	bool nohorz = (isdungeon() && (y<=26 || y>=world_h-42) && !get_qr(qr_FREEFORM) && !toogam);
-	bool novert = (isdungeon() && (x<=26 || x>=world_w - 42) && !get_qr(qr_FREEFORM) && !toogam);
-	
-	zfix dx, dy;
 	if(is_conveyor_stunned)
 	{
 		dx = convey_forcex;
@@ -19276,9 +19438,11 @@ void HeroClass::movehero()
 					}
 				}
 			}
-			return;
+			earlyret = true;
 		}
-		get_move(holddir,dx,dy,dir);
+		if(earlyret)
+			dx = dy = 0;
+		else get_move(holddir,dx,dy,dir);
 	}
 	else //4-way
 	{
@@ -19302,8 +19466,50 @@ void HeroClass::movehero()
 		}
 		get_move(holddir,dx,dy,dir);
 	}
+	
+newmove_slide:
 	if(conv_forcedir > -1)
 		dir = conv_forcedir;
+	if(!is_conveyor_stunned)
+	{
+		bool inair = (z > 0 || fakez > 0);
+		auto ic = ice_combo;
+		if(!inair) //maintain momentum when jumping
+		{
+			const int sens = 2;
+			auto ty = y+(bigHitbox?0:8);
+			int xs[] = {x+7, x+sens, x+sens, x+15-sens, x+15-sens};
+			int ys[] = {y+(bigHitbox?8:12), ty+sens, y+15-sens, ty+sens, y+15-sens};
+			bool found = false;
+			for(int q = 0; q < 5; ++q)
+			{
+				auto ice = get_icy(xs[q], ys[q], ICY_PLAYER);
+				if(ice)
+				{
+					ic = ice_combo = ice;
+					found = true;
+					break;
+				}
+			}
+			if(!found)
+				ic = ice_combo = 0;
+		}
+		if(script_ice_combo)
+		{
+			if((unsigned(script_ice_combo) < MAXCOMBOS) && check_icy(combobuf[script_ice_combo], ICY_PLAYER))
+				ic = script_ice_combo;
+			else ic = 0;
+		}
+		if(ic)
+		{
+			handle_slide(combobuf[ic], dx, dy);
+			earlyret = false;
+		}
+		else clear_ice();
+	}
+	else clear_ice();
+	if(earlyret)
+		return;
 	
 	if(!new_engine_move(dx,dy))
 		pushing = push+1;

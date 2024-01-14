@@ -459,7 +459,7 @@ void load_game_configs()
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);
 	zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
-	PlayTitleMusic = zc_get_config(cfg_sect,"title_music",1);
+	SkipTitle = zc_get_config(cfg_sect,"skip_title",0);
 }
 
 void save_control_configs(bool kb)
@@ -5184,38 +5184,6 @@ int32_t OnnClearQuestDir()
 	else return D_O_K;
 }
 
-
-int32_t onConsoleZASM()
-{
-	if ( !zasm_debugger )
-	{
-		AlertDialog("WARNING: ZASM Debugger",
-			"Enabling this will open the ZASM Debugger Console" 
-			"\nThis will likely grind ZC to a halt with lag."
-			"\nTo make any use of this, it is suggested that you read"
-			"\nthe documentation for 'void Breakpoint(char[] string);'"
-			" in 'ZScript_Additions.txt'"
-			"\nThis is not recommended for normal users,"
-			" and is only intended for ZC developers,"
-			"\nor quest developers coding directly in ZASM"
-			"\nAre you sure that you wish to open the ZASM Debugger?",
-			[&](bool ret,bool)
-			{
-				if(ret)
-				{
-					FFCore.ZASMPrint(true);
-				}
-			}).show();
-		return D_O_K;
-	}
-	else
-	{
-		FFCore.ZASMPrint(false);
-		return D_O_K;
-	}
-}
-
-
 int32_t onConsoleZScript()
 {
 	if ( !zscript_debugger )
@@ -7485,7 +7453,6 @@ static NewMenu misc_menu
 	{ "Take &Snapshot F12", onSnapshot },
 	{ "Sc&reen Saver...", onScreenSaver },
 	{ "Save ZC Configuration", OnSaveZCConfig },
-	{ "Show ZASM Debugger", onConsoleZASM, MENUID_MISC_ZASM_DEBUGGER },
 	{ "Show ZScript Debugger", onConsoleZScript, MENUID_MISC_ZSCRIPT_DEBUGGER },
 	{ "Clear Console on Qst Load", onClrConsoleOnLoad, MENUID_MISC_CLEAR_CONSOLE_ON_LOAD },
 	{ "Clear Directory Cache", OnnClearQuestDir },

@@ -9,6 +9,8 @@
 #include "zc/jit.h"
 #include "base/zapp.h"
 #include "zc/script_debug.h"
+#include "zc/zasm_optimize.h"
+#include "zc/zasm_utils.h"
 #include "zc/zelda.h"
 #include <fmt/format.h>
 #include <algorithm>
@@ -350,6 +352,15 @@ void jit_startup()
 		}
 		compiled_functions.clear();
 		al_unlock_mutex(tasks_mutex);
+	}
+	else if (zasm_optimize_enabled())
+	{
+		// The scripts were reloaded by load_quest in init_game, so must
+		// re-optimize them.
+		zasm_for_every_script([&](auto script){
+			if (!script->optimized && compiled_functions.contains(script->id))
+				zasm_optimize(script);
+		});
 	}
 
 	create_compile_tasks();

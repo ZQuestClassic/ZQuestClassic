@@ -7,6 +7,9 @@
 #include <memory>
 #include <string_view>
 
+#define SWAP_MAX 2147483647
+#define SWAP_MIN (-2147483647-1)
+
 namespace GUI
 {
 

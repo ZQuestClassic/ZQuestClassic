@@ -1363,7 +1363,7 @@ static NewMenu fixtools_menu
 
 static NewMenu tool_menu
 {
-	{ "Combo &Flags", onFlags },
+	{ "Combo &Flags", onFlags, nullopt, MFL_EXIT_PRE_PROC },
 	{ "Fix &Tools ", &fixtools_menu },
 	{ "&NES Dungeon Template", onTemplate },
 	{ "&Apply Template to All", onReTemplate },
@@ -3734,23 +3734,27 @@ int32_t onGotoPage()
 {
 	if (draw_mode==dm_alias)
 	{
-		if(optional<int> v = call_get_num("Scroll to Alias Page", 0, MAXCOMBOALIASES/96, 0))
-			combo_alistpos[current_comboalist] = *v*96;
+		static const int PER_PAGE = 260;
+		if(optional<int> v = call_get_num("Scroll to Alias Page", 0, MAXCOMBOALIASES/PER_PAGE-1, 0))
+			combo_alistpos[current_comboalist] = *v*PER_PAGE;
 	}
 	else if (draw_mode==dm_cpool)
 	{
-		if(optional<int> v = call_get_num("Scroll to Combo Pool Page", 0, MAXCOMBOPOOLS/96, 0))
-			combo_pool_listpos[current_cpoollist] = *v*96;
+		static const int PER_PAGE = 260;
+		if(optional<int> v = call_get_num("Scroll to Combo Pool Page", 0, MAXCOMBOPOOLS/PER_PAGE-1, 0))
+			combo_pool_listpos[current_cpoollist] = *v*PER_PAGE;
 	}
 	else if (draw_mode == dm_auto)
 	{
-		if(optional<int> v = call_get_num("Scroll to Auto Combo Page", 0, MAXAUTOCOMBOS/96, 0))
-			combo_auto_listpos[current_cautolist] = *v*96;
+		static const int PER_PAGE = 260;
+		if(optional<int> v = call_get_num("Scroll to Auto Combo Page", 0, MAXAUTOCOMBOS/PER_PAGE-1, 0))
+			combo_auto_listpos[current_cautolist] = *v*PER_PAGE;
 	}
 	else
 	{
-		if(optional<int> v = call_get_num("Scroll to Combo Page", 0, COMBO_PAGES-1, 0))
-			First[current_combolist] = *v << 8;
+		static const int PER_PAGE = 256;
+		if(optional<int> v = call_get_num("Scroll to Combo Page", 0, MAXCOMBOS/PER_PAGE-1, 0))
+			First[current_combolist] = *v*PER_PAGE;
 	}
     
     return D_O_K;
@@ -5926,6 +5930,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				for(int32_t j=0; j<num_combo_cols; ++j)
 				{
+					auto per_page = (comboaliaslist[j].w * comboaliaslist[j].h);
+					if(combo_alistpos[j] + per_page >= MAXCOMBOALIASES)
+						combo_alistpos[j] = MAXCOMBOALIASES-per_page;
 					auto& col = comboaliaslist[j];
 					for(int32_t i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
 					{
@@ -5994,8 +6001,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					jwin_draw_frame(menu1,pos.x-2,pos.y-2,(pos.w*comboaliaslist[c].xscale)+4,(pos.h*comboaliaslist[c].yscale)+4,FR_DEEP);
 				}
 				
-				for(int32_t j=0; j<num_combo_cols; ++j) //the actual panes
+				for (int32_t j = 0; j < num_combo_cols; ++j) //the actual panes
 				{
+					auto per_page = (comboaliaslist[j].w * comboaliaslist[j].h);
+					if(combo_pool_listpos[j] + per_page >= MAXCOMBOPOOLS)
+						combo_pool_listpos[j] = MAXCOMBOPOOLS-per_page;
 					for(int32_t i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
 					{
 						int32_t cid=-1; int8_t cs=CSet;
@@ -6106,6 +6116,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 
 				for (int32_t j = 0; j < num_combo_cols; ++j) //the actual panes
 				{
+					auto per_page = (comboaliaslist[j].w * comboaliaslist[j].h);
+					if(combo_auto_listpos[j] + per_page >= MAXAUTOCOMBOS)
+						combo_auto_listpos[j] = MAXAUTOCOMBOS-per_page;
 					for (int32_t i = 0; i < (comboaliaslist[j].w * comboaliaslist[j].h); i++)
 					{
 						int32_t cid = -1; int8_t cs = CSet;
@@ -6172,6 +6185,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				for(int32_t j=0; j<num_combo_cols; ++j)
 				{
+					auto per_page = (combolist[j].w * combolist[j].h);
+					if(First[j] + per_page >= MAXCOMBOS)
+						First[j] = MAXCOMBOS-per_page;
 					for(int32_t i=0; i<(combolist[j].w*combolist[j].h); i++)
 					{
 						put_combo(menu1,(i%combolist[j].w)*combolist[j].xscale+combolist[j].x,
@@ -8739,6 +8755,12 @@ void doflags()
 					int scr = CurrentLayer ? Map.CurrScr()->layerscreen[CurrentLayer-1] : Map.getCurrScr();
 					Map.DoSetFlagCommand(map, scr, c, Flag);
 				}
+				if(!(cur_scr->valid&mVALID))
+				{
+					Map.CurrScr()->valid|=mVALID;
+					cur_scr->valid|=mVALID;
+					Map.setcolor(Color);
+				}
 				Flag = tflag;
 			}
 		}
@@ -9780,7 +9802,7 @@ void popup_cpane_rc(int x, int y)
 					{ "Combo Locations", onComboLocationReport },
 					{},
 					{ "Scroll to Page...", onGotoPage },
-					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, false, LinkedScroll!=0 },
+					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, LinkedScroll ? MFL_SEL : 0 },
 				});
 			break;
 		case dm_alias:
@@ -9791,7 +9813,7 @@ void popup_cpane_rc(int x, int y)
 					{ fmt::format("Open {} Page", type), on_cpane_page },
 					{},
 					{ "Scroll to Page...", onGotoPage },
-					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, false, LinkedScroll!=0 },
+					{ "Linked Scrolling", toggle_linked_scrolling, nullopt, LinkedScroll ? MFL_SEL : 0 },
 				});
 			break;
 	}
@@ -15858,7 +15880,8 @@ void edit_tune(int32_t i)
         editmidi_dlg[23].dp = len_str;
         editmidi_dlg[25].dp = timestr(Midi_Info.len_sec);
         editmidi_dlg[26].flags = (flags&tfDISABLESAVE)?D_SELECTED:0;
-        
+
+        popup_zqdialog_start();
         DIALOG_PLAYER *p = init_dialog(editmidi_dlg,-1);
         
         while(update_dialog(p))
@@ -15867,8 +15890,9 @@ void edit_tune(int32_t i)
             //      text_mode(vc(1));
             textprintf_ex(screen,get_zc_font(font_lfont_l),editmidi_dlg[0].x+int32_t(193*1.5),editmidi_dlg[0].y+int32_t(58*1.5),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
         }
-        
+
         ret = shutdown_dialog(p);
+        popup_zqdialog_end();
         
         loop = editmidi_dlg[8].flags?1:0;
         volume = vbound(atoi(volume_str),0,255); // Allegro can't play louder than 255.
@@ -16420,9 +16444,12 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_DRAW:
 		{
 			rectfill(screen,d->x,d->y,d->x+d->w-1,d->y+d->h-1,jwin_pal[jcBOX]);
+			auto& dm = DMaps[*dmap_ptr];
 			for(int yind = 0; yind < scrh; ++yind)
 			{
-				auto gr = yind < 8 ? DMaps[*dmap_ptr].grid[yind] : 0;
+				auto gr = yind < 8 ? dm.grid[yind] : 0;
+				if(dm.xoff < 0)
+					gr >>= (-dm.xoff);
 				for(int xind = 0; xind < scrw; ++xind)
 				{
 					int scr = xind+(yind*16);
@@ -21298,36 +21325,19 @@ int32_t onZScriptCompilerSettings()
 	return D_O_K;
 }
 
-//editbox_data zscript_edit_data;
-
-static DIALOG edit_zscript_dlg[] =
+void doEditZScript()
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Edit ZScript", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-12,  240-6-25,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,        NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doEditZScript(int32_t bg,int32_t fg)
-{
-    string old = zScript;
-    EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT), false, (char *)"zscript.txt");
-    edit_zscript_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    edit_zscript_dlg[2].dp = em;
-    edit_zscript_dlg[2].bg = bg;
-    
-    do_zqdialog(edit_zscript_dlg,2);
-    
-    if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
-        zScript = old;
-    else
+	if(do_box_edit(zScript, "ZScript Buffer", false, false))
         saved=false;
-        
-    delete em;
+}
+
+std::string qst_cfg_header_from_path(std::string path);
+extern char *filepath;
+string get_box_cfg_hdr(int num)
+{
+	if(num)
+		return "misc";
+	return qst_cfg_header_from_path(filepath);
 }
 
 //{ Start type-specific import dlgs
@@ -24488,61 +24498,27 @@ void cycle_palette()
 /******  Help  ******/
 /********************/
 
-static DIALOG help_dlg[] =
+void doHelp()
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "ZQuest Help", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doHelp(int32_t bg,int32_t fg)
-{
-    help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    help_dlg[2].bg = bg;
-    do_zqdialog(help_dlg,2);
-    delete(EditboxModel*)(help_dlg[2].dp);
+	do_box_edit(helpstr, "ZQuest Help", true, true);
 }
 
 int32_t onHelp()
 {
     restore_mouse();
-    doHelp(vc(15),vc(0));
+    doHelp();
     return D_O_K;
 }
 
-static DIALOG Zstringshelp_dlg[] =
+void doZstringshelp()
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Zstrings Help", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doZstringshelp(int32_t bg,int32_t fg)
-{
-    Zstringshelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    Zstringshelp_dlg[2].bg = bg;
-    do_zqdialog(Zstringshelp_dlg,2);
-    delete(EditboxModel*)(Zstringshelp_dlg[2].dp);
+	do_box_edit(zstringshelpstr, "ZStrings Help", true, true);
 }
 
 int32_t onZstringshelp()
 {
     restore_mouse();
-    doZstringshelp(vc(15),vc(0));
+    doZstringshelp();
     return D_O_K;
 }
 
@@ -26908,39 +26884,6 @@ void load_size_poses()
 		mainbar.w = compactbtn.x-mainbar.x;
 		mainbar.h = drawmode_btn.h;
 	}
-	//Dialog popups
-	{
-		//Help Dialogue Sizing
-		help_dlg[0].w=zq_screen_w;
-		help_dlg[0].h=zq_screen_h;
-		help_dlg[1].w=zq_screen_w-8;
-		help_dlg[1].h=zq_screen_h-27;
-		help_dlg[2].w=zq_screen_w-8-4;
-		help_dlg[2].h=zq_screen_h-27-4;
-		
-		Zstringshelp_dlg[0].w=zq_screen_w;
-		Zstringshelp_dlg[0].h=zq_screen_h;
-		Zstringshelp_dlg[1].w=zq_screen_w-8;
-		Zstringshelp_dlg[1].h=zq_screen_h-27;
-		Zstringshelp_dlg[2].w=zq_screen_w-8-4;
-		Zstringshelp_dlg[2].h=zq_screen_h-27-4;
-		
-		edit_zscript_dlg[0].w=zq_screen_w;
-		edit_zscript_dlg[0].h=zq_screen_h;
-		edit_zscript_dlg[1].w=zq_screen_w-8;
-		edit_zscript_dlg[1].h=zq_screen_h-27;
-		edit_zscript_dlg[2].w=zq_screen_w-8-4;
-		edit_zscript_dlg[2].h=zq_screen_h-27-4;
-		
-		editmsg_help_dlg[0].w=zq_screen_w;
-		editmsg_help_dlg[0].h=zq_screen_h;
-		editmsg_help_dlg[1].w=zq_screen_w-8;
-		editmsg_help_dlg[1].h=zq_screen_h-27;
-		editmsg_help_dlg[2].w=zq_screen_w-8-4;
-		editmsg_help_dlg[2].h=zq_screen_h-27-4;
-		
-		enlargeIntegrityReportDialog();
-	}
 	
 	//Ensure current combo list selected is valid
 	current_combolist=vbound(current_combolist,0,num_combo_cols-1);
@@ -27309,7 +27252,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
-    jwin_center_dialog(help_dlg);
     jwin_center_dialog(layerdata_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);
@@ -28462,6 +28404,9 @@ int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
+	if (is_headless())
+		return;
+
 	if(force || myvsync)
 	{
 		zc_process_display_events();

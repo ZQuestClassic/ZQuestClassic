@@ -1217,10 +1217,9 @@ void SemanticAnalyzer::caseExprIdentifier(
 {
 	if(host.binding) return; //Skip if already handled
 	// Bind to named variable.
-	if(parsing_user_class > puc_vars)
+	host.binding = lookupDatum(*scope, host, this);
+	if(!host.binding && parsing_user_class > puc_vars)
 		host.binding = lookupClassVars(*scope, host, this);
-	if(!host.binding)
-		host.binding = lookupDatum(*scope, host, this);
 	if (!host.binding)
 	{
 		handleError(CompileError::VarUndeclared(&host, host.asString()));
@@ -1387,6 +1386,7 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	if (host.index)
 	{
 		visit(host.index.get(), paramRead); //only READ the index!
+		if (breakRecursion(host)) return;
 		checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
 				  host.index.get());
 		if (breakRecursion(host)) return;

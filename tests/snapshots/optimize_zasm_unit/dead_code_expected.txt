@@ -1,0 +1,76 @@
+[spurious_branches] Block #0
+
+14: SETV            D0              1337   
+	D0 = 1337
+15: SETV            D1              1337   
+	D0 = 1337
+	D1 = 1337
+16: SETR            D3              LINKX  
+	D0 = 1337
+	D1 = 1337
+17: COMPAREV        D3              0      
+	D0 = 1337
+	D1 = 1337
+18: GOTOCMP         20              ==     
+	D0 = 1337
+	D1 = 1337
+inferred D2: D2
+20: TRACER          D0              
+	D0 = 1337
+	D1 = 1337
+	D3 = 0
+	side_effects
+21: RETURNFUNC     
+	D0 = 1337
+	D1 = 1337
+	D3 = 0
+	side_effects
+rewrite 18: GOTOCMP         20              ==     
+
+[reduce_comparisons] Block #0
+
+17: COMPAREV        D3              0      
+18: GOTOCMP         20              ==     
+rewrite 17: 2 -> 2 commands
+17: COMPAREV        D3              0      
+18: GOTOCMP         20              ==     
+Function #0
+    0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
+    1: CALLFUNC        14                           [Call Function #2]
+    2: CALLFUNC        22                           [Call Function #3]
+    3: NOP
+    4: QUIT
+
+
+Function #1
+    5: NOP                                          [Block 0 -> ]
+    6: NOP
+    7: NOP
+    8: NOP
+    9: NOP
+   10: SETV            D3              10
+   11: SETV            D2              10
+   12: TRACER          D3
+   13: RETURNFUNC
+
+
+Function #2
+   14: SETV            D0              1337         [Block 0 -> 1, 2]
+   15: NOP
+   16: SETR            D3              LINKX
+   17: COMPAREV        D3              0
+   18: GOTOCMP         20              ==
+   19: SETV            D0              1000         [Block 1 -> 2]
+   20: TRACER          D0                           [Block 2 -> ]
+   21: RETURNFUNC
+
+
+Function #3
+   22: NOP                                          [Block 0 -> ]
+   23: SETV            D1              1337
+   24: SETR            D3              LINKX
+   25: COMPAREV        D3              0
+   26: GOTOCMP         20              ==
+   27: NOP
+   28: TRACER          D1
+   29: RETURNFUNC

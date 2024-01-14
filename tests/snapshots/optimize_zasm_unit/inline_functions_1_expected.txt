@@ -1,0 +1,85 @@
+rewrite 8: 3 -> 1 commands
+8: ARRAYSIZE       D2              
+9: NOP            
+10: NOP            
+rewrite 32: 3 -> 1 commands
+32: ABS             D2              
+33: NOP            
+34: NOP            
+Function #0
+    0: SETR            D4              SP           [Block 0 -> ]
+    1: PUSHR           D4
+    2: NOP
+    3: NOP
+    4: NOP
+    5: NOP
+    6: NOP
+    7: SETR            D2              GD0
+    8: ARRAYSIZE       D2
+    9: NOP
+   10: NOP
+   11: PUSHR           D2
+   12: PUSHR           D4
+   13: NOP
+   14: NOP
+   15: PUSHR           D4
+   16: NOP
+   17: NOP
+   18: NOP
+   19: PUSHR           GD0
+   20: CALLFUNC        37                           [Call Function #1]
+   21: POP             D4
+   22: PUSHR           D2
+   23: SETV            D2              80000
+   24: POP             D3
+   25: ADDR            D2              D3
+   26: PUSHR           D2
+   27: CALLFUNC        42                           [Call Function #2]
+   28: POP             D4
+   29: POP             D3
+   30: SUBR            D3              D2
+   31: SETR            D2              D3
+   32: ABS             D2
+   33: NOP
+   34: NOP
+   35: TRACER          D2
+   36: QUIT
+
+
+Function #1
+   37: POP             D3                           [Block 0 -> ]
+   38: NOP
+   39: SETR            D2              LINKX
+   40: NOP
+   41: RETURNFUNC
+
+
+Function #2
+   42: NOP                                          [Block 0 -> ]
+   43: SETR            D4              SP
+   44: LOADD           D2              0
+   45: NOP
+   46: NOP
+   47: PUSHR           D2
+   48: SETV            D2              40000
+   49: POP             D3
+   50: RSHIFTR         D3              D2
+   51: NOP
+   52: NOP
+   53: SETV            D2              40000
+   54: NOP
+   55: LSHIFTR         D3              D2
+   56: SETR            D2              D3
+   57: GOTO            1784
+   58: NOP
+   59: POP             D3
+   60: NOP
+   61: RETURNFUNC
+   62: NOP
+   63: NOP
+   64: NOP
+   65: NOP
+   66: NOP
+   67: NOP
+   68: NOP
+   69: NOP

@@ -1,4 +1,6 @@
+#include "asmjit/core/func.h"
 #include "base/qrs.h"
+#include "base/zdefs.h"
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
@@ -629,6 +631,9 @@ JittedFunction jit_compile_script(script_data *script)
 			}
 			else if (comparing_state)
 			{
+				// The optimizer may insert a NOP here.
+				if (command == NOP)
+					continue;
 				if (!command_uses_comparison_result(command))
 					comparing_state = false;
 			}
@@ -643,16 +648,19 @@ JittedFunction jit_compile_script(script_data *script)
 	CodeHolder code;
 	JittedFunctionImpl fn;
 
-	static bool jit_env_windows = get_flag_bool("-jit-env-windows").value_or(false);
-	if (jit_env_windows)
+	static bool jit_env_test = get_flag_bool("-jit-env-test").value_or(false);
+	auto calling_convention = CallConvId::kHost;
+	if (jit_env_test)
 	{
 		// This is only for testing purposes, to ensure the same output regardless of
 		// the host machine. Used by test_jit.py
-		Environment env;
-		env._arch = asmjit::_abi_1_11::Arch::kX64;
-		env._platform = Platform::kWindows;
+		Environment env{};
+		env._arch = Arch::kX64;
+		env._platform = Platform::kOSX;
+		env._platformABI = PlatformABI::kGNU;
 		env._objectFormat = ObjectFormat::kJIT;
 		code.init(env);
+		calling_convention = CallConvId::kCDecl;
 	}
 	else
 	{
@@ -672,7 +680,7 @@ JittedFunction jit_compile_script(script_data *script)
 	// cc.addDiagnosticOptions(DiagnosticOptions::kRAAnnotate | DiagnosticOptions::kRADebugAll);
 
 	// Setup parameters.
-	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, intptr_t *, uint32_t *, uint32_t *>(CallConvId::kHost));
+	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, intptr_t *, uint32_t *, uint32_t *>(calling_convention));
 	state.ptrRegisters = cc.newIntPtr("registers_ptr");
 	state.ptrGlobalRegisters = cc.newIntPtr("global_registers_ptr");
 	state.ptrStack = cc.newIntPtr("stack_ptr");
@@ -918,6 +926,7 @@ JittedFunction jit_compile_script(script_data *script)
 		case QUIT:
 		{
 			compile_command_interpreter(state, cc, script, i, 1, vStackIndex);
+			cc.mov(state.vRetVal, RUNSCRIPT_STOPPED);
 			cc.mov(x86::ptr_32(state.ptrWaitIndex), 0);
 			cc.jmp(state.L_End);
 		}
@@ -1544,9 +1553,9 @@ JittedFunction jit_compile_script(script_data *script)
 	if (fn)
 	{
 		jit_printf("success\n");
-		if (jit_env_windows)
+		if (jit_env_test)
 		{
-			jit_printf("discarding compiled function because of -jit-env-windows\n");
+			jit_printf("discarding compiled function because of -jit-env-test\n");
 			return nullptr;
 		}
 	}

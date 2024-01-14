@@ -1,0 +1,63 @@
+Function #0
+    0: SETR            D4              SP           [Block 0 -> ]
+    1: PUSHARGSR       D4              2
+    2: LOADD           D2              70000
+    3: PUSHR           D2
+    4: CALLFUNC        24                           [Call Function #1]
+    5: POP             D4
+    6: PUSHR           D2
+    7: PUSHR           D4
+    8: LOADD           D2              70000
+    9: PUSHR           D2
+   10: CALLFUNC        32                           [Call Function #3]
+   11: POP             D4
+   12: PUSHR           D2
+   13: PUSHR           D4
+   14: CALLFUNC        43                           [Call Function #5]
+   15: POP             D4
+   16: PUSHR           D2
+   17: PUSHR           D4
+   18: CALLFUNC        28                           [Call Function #2]
+   19: POP             D4
+   20: PUSHR           D2
+   21: CALLFUNC        37                           [Call Function #4]
+   22: POP             D4
+   23: QUIT
+
+
+Function #1
+   24: POP             D3                           [Block 0 -> ]
+   25: SINR            D2              D3
+   26: NOP
+   27: RETURNFUNC
+
+
+Function #2
+   28: NOP                                          [Block 0 -> ]
+   29: NOP
+   30: NOP
+   31: NOP
+
+
+Function #3
+   32: NOP                                          [Block 0 -> ]
+   33: NOP
+   34: NOP
+   35: NOP
+   36: NOP
+
+
+Function #4
+   37: NOP                                          [Block 0 -> ]
+   38: NOP
+   39: NOP
+   40: NOP
+   41: NOP
+   42: NOP
+
+
+Function #5
+   43: NOP                                          [Block 0 -> ]
+   44: NOP
+   45: NOP
+   46: NOP
