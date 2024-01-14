@@ -25,6 +25,7 @@
 static int _a5_display_switch_mode = SWITCH_PAUSE;
 
 ALLEGRO_DISPLAY * _a5_display = NULL;
+bool _a5_display_switched_out = false;
 void (*_a5_close_button_proc)(void) = NULL;
 
 static int a5_sys_init(void)

@@ -118,6 +118,10 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
             {
                 case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
                 {
+                    // local edit
+                    if (!all_display_is_active())
+                        break;
+
                     i = a5_get_joystick(event.joystick.id);
                     if(i >= 0)
                     {
@@ -136,6 +140,10 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 }
                 case ALLEGRO_EVENT_JOYSTICK_AXIS:
                 {
+                    // local edit
+                    if (!all_display_is_active())
+                        break;
+
                     i = a5_get_joystick(event.joystick.id);
                     if(i >= 0)
                     {
