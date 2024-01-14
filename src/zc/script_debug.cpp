@@ -9,8 +9,6 @@
 #include <iomanip>
 
 extern refInfo *ri;
-std::string ZASMVarToString(int32_t arg);
-std::string ZASMArgToString(int32_t arg, int32_t arg_ty);
 
 bool DEBUG_JIT_PRINT_ASM;
 bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
@@ -157,7 +155,7 @@ void ScriptDebugHandle::print_command(int i)
 
 	printf(CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
 							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-						"%14s", c.name);
+						"%14s", c.name.c_str());
 	if (c.args >= 1)
 	{
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
@@ -277,7 +275,7 @@ std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t 
 
 	int args[] = {arg1, arg2, arg3};
 	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
-	ss << SS_WIDTH(15) << c.name;
+	ss << SS_WIDTH(15) << c.name.c_str();
 	if (c.args >= 1)
 	{
 		ss << " " << SS_WIDTH(16) << ZASMArgToString(args[0], c.arg_type[0]);
@@ -312,7 +310,7 @@ std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t 
 	
 	int args[] = {arg1, arg2, arg3};
 	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
-	ss << SS_WIDTH(15) << c.name;
+	ss << SS_WIDTH(15) << c.name.c_str();
 	if (c.args >= 1)
 	{
 		ss << " " << SS_WIDTH(16) << ZASMArgToString(args[0], c.arg_type[0]);

@@ -14,7 +14,7 @@
 #define CMPUSED  ARGFL_COMPARE_USED
 #define CMPSET   ARGFL_COMPARE_SET
 #define UNIMPL   ARGFL_UNIMPL
-script_command command_list[NUMCOMMANDS+1]=
+script_command command_list[NUMCOMMANDS+1] =
 {
 	//name args arg1 arg2 more
 	{ "SETV", 2, { REG_W, NUM }, 0, 0 },
@@ -115,16 +115,16 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "PITWARPR", 2, { REG_R, REG_R }, 0, 0 },
 	{ "CLEARSPRITESR", 1, { REG_R }, 0, 0 },
 	{ "CLEARSPRITESV", 1, { NUM }, 0, 0 },
-	{ "RECT", 0, {}, 0, 0 },
-	{ "CIRCLE", 0, {}, 0, 0 },
-	{ "ARC", 0, {}, 0, 0 },
-	{ "ELLIPSE", 0, {}, 0, 0 },
-	{ "LINE", 0, {}, 0, 0 },
-	{ "PUTPIXEL", 0, {}, 0, 0 },
-	{ "DRAWTILE", 0, {}, 0, 0 },
-	{ "DRAWCOMBO", 0, {}, 0, 0 },
+	{ "RECTR", 0, {}, 0, 0 },
+	{ "CIRCLER", 0, {}, 0, 0 },
+	{ "ARCR", 0, {}, 0, 0 },
+	{ "ELLIPSER", 0, {}, 0, 0 },
+	{ "LINER", 0, {}, 0, 0 },
+	{ "PUTPIXELR", 0, {}, 0, 0 },
+	{ "DRAWTILER", 0, {}, 0, 0 },
+	{ "DRAWCOMBOR", 0, {}, 0, 0 },
 	{ "ELLIPSE2", 0, {}, 0, 0 },
-	{ "SPLINE", 0, {}, 0, 0 },
+	{ "SPLINER", 0, {}, 0, 0 },
 	{ "FLOODFILL", 0, {}, 0, 0 },
 	{ "COMPOUNDR", 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
 	{ "COMPOUNDV", 1, { NUM }, 0, UNIMPL }, // Unimplemented - no case
@@ -188,29 +188,29 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "TRACE4", 0, {}, 0, 0 },
 	{ "TRACE5", 0, {}, 0, 0 },
 	{ "SECRETS", 0, {}, 0, 0 },
-	{ "DRAWCHAR", 0, {}, 0, 0 },
+	{ "DRAWCHARR", 0, {}, 0, 0 },
 	{ "GETSCREENFLAGS", 1, { REG_W }, 0, 0 },
-	{ "QUAD", 0, {}, 0, 0 },
-	{ "TRIANGLE", 0, {}, 0, 0 },
+	{ "QUADR", 0, {}, 0, 0 },
+	{ "TRIANGLER", 0, {}, 0, 0 },
 	{ "ARCSINR", 2, { REG_W, REG_R }, 0, 0 },
 	{ "ARCSINV", 2, { NUM, REG }, 0, UNIMPL }, //!TODO ERROR Writes to sarg1 as a register, reads from sarg2 as a literal
 	{ "ARCCOSR", 2, { REG_W, REG_R }, 0, 0 },
 	{ "ARCCOSV", 2, { NUM, REG }, 0, UNIMPL }, //!TODO ERROR Writes to sarg1 as a register, reads from sarg2 as a literal
 	{ "GAMEEND", 0, {}, 0, 0 },
-	{ "DRAWINT", 0, {}, 0, 0 },
+	{ "DRAWINTR", 0, {}, 0, 0 },
 	{ "SETTRUE", 1, { REG_W }, 0, CMPUSED },
 	{ "SETFALSE", 1, { REG_W }, 0, CMPUSED },
 	{ "SETMORE", 1, { REG_W }, 0, CMPUSED },
 	{ "SETLESS", 1, { REG_W }, 0, CMPUSED },
-	{ "FASTTILE", 0, {}, 0, 0 },
-	{ "FASTCOMBO", 0, {}, 0, 0 },
-	{ "DRAWSTRING", 0, {}, 0, 0 },
+	{ "FASTTILER", 0, {}, 0, 0 },
+	{ "FASTCOMBOR", 0, {}, 0, 0 },
+	{ "DRAWSTRINGR", 0, {}, 0, 0 },
 	{ "SETSIDEWARP", 0, {}, 0, 0 },
 	{ "SAVE", 0, {}, 0, 0 },
 	{ "TRACE6", 0, {}, 0, 0 },
 	{ "DEPRECATED", 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
-	{ "QUAD3D", 0, {}, 0, 0 },
-	{ "TRIANGLE3D", 0, {}, 0, 0 },
+	{ "QUAD3DR", 0, {}, 0, 0 },
+	{ "TRIANGLE3DR", 0, {}, 0, 0 },
 	{ "SETCOLORB", 0, {}, 0, 0 },
 	{ "SETDEPTHB", 0, {}, 0, 0 },
 	{ "GETCOLORB", 0, {}, 0, 0 },
@@ -228,14 +228,14 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GETDMAPTITLE", 2, { REG_R, REG_R }, 0, 0 },
 	{ "GETDMAPINTRO", 2, { REG_R, REG_R }, 0, 0 },
 	{ "ALLOCATEGMEMR", 2, { REG_W, REG_R }, 0, 0 },
-	{ "DRAWBITMAP", 0, {}, 0, 0 },
+	{ "BITMAPR", 0, {}, 0, 0 },
 	{ "SETRENDERTARGET", 0, {}, 0, 0 },
 	{ "PLAYENHMUSIC", 2, { REG_R, REG_RW }, 0, 0 },
 	{ "GETMUSICFILE", 2, { REG_R, REG_R }, 0, 0 },
 	{ "GETMUSICTRACK", 1, { REG_RW }, 0, 0 },
 	{ "SETDMAPENHMUSIC", 0, {}, 0, 0 },
-	{ "DRAWLAYER", 0, {}, 0, 0 },
-	{ "DRAWSCREEN", 0, {}, 0, 0 },
+	{ "DRAWLAYERR", 0, {}, 0, 0 },
+	{ "DRAWSCREENR", 0, {}, 0, 0 },
 	{ "BREAKSHIELD", 1, { REG_R }, 0, 0 },
 	{ "SAVESCREEN", 1, { REG_W }, 0, 0 },
 	{ "SAVEQUITSCREEN", 0, {}, 0, 0 },
@@ -1212,7 +1212,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "", 0, {}, 0, 0 }
 };
 
-script_variable variable_list[]=
+script_variable variable_list[] =
 {
 	//name  id
 	{ "D0", D(0) },
@@ -1234,7 +1234,7 @@ script_variable variable_list[]=
 	{ "YD", YD },
 	{ "XD2", XD2 },
 	{ "YD2", YD2 },
-	{ "FLAG", FLAG },
+	{ "FFFLAG", FFFLAG },
 	{ "WIDTH", WIDTH },
 	{ "HEIGHT", HEIGHT },
 	{ "LINK", LINK },
@@ -3941,5 +3941,35 @@ optional<dword> ffscript::max_gvar() const
 		}
 	}
 	return gv;
+}
+
+string ZASMVarToString(int32_t arg)
+{
+	for(int32_t q = 0; variable_list[q].id != -1; ++q)
+	{
+		if(variable_list[q].id == arg)
+			return variable_list[q].name;
+	}
+	return "(null)";
+}
+
+string ZASMArgToString(int32_t arg, int32_t arg_ty)
+{
+	switch(arg_ty)
+	{
+		case ARGTY_UNUSED_REG:
+		case ARGTY_READ_REG:
+		case ARGTY_WRITE_REG:
+		case ARGTY_READWRITE_REG:
+			return ZASMVarToString(arg);
+		case ARGTY_LITERAL:
+		case ARGTY_READ_GVAR:
+		case ARGTY_WRITE_GVAR:
+			return to_string(arg);
+		case ARGTY_COMPARE_OP:
+			return CMP_STR(arg);
+		default:
+			return "ERROR";
+	}
 }
 

@@ -4,7 +4,6 @@
 #include "DataStructs.h"
 #include "zsyssimple.h"
 #include <assert.h>
-#include <iostream>
 #include <cstdlib>
 
 using namespace ZScript;
@@ -40,2450 +39,15 @@ string CompareArgument::toString() const
 	return CMP_STR(value);
 }
 
+extern script_variable variable_list[];
 string ZScript::VarToString(int32_t ID)
 {
-	char temp[128];
-	
-	switch(ID)
+	for(int q = 0; variable_list[q].id > -1; ++q)
 	{
-		case SP:
-			return "SP";
-		case PC:
-			return "PC";
-		case SWITCHKEY:
-			return "SWITCHKEY";
-			
-		case DATA:
-			return "DATA";
-			
-		case FFSCRIPT:
-			return "FFSCRIPT";
-			
-		case FCSET:
-			return "CSET";
-			
-		case DELAY:
-			return "DELAY";
-			
-		case FX:
-			return "X";
-		case FFCID:
-		return "FFCID";
-			
-		case FY:
-			return "Y";
-			
-		case XD:
-			return "XD";
-			
-		case YD:
-			return "YD";
-			
-		case XD2:
-			return "XD2";
-			
-		case YD2:
-			return "YD2";
-			
-		case LINKX:
-			return "LINKX";
-			
-		case LINKY:
-			return "LINKY";
-			
-		case LINKZ:
-			return "LINKZ";
-			
-		case LINKJUMP:
-			return "LINKJUMP";
-			
-		case LINKDIR:
-			return "LINKDIR";
-			
-		case LINKHITDIR:
-			return "LINKHITDIR";
-			
-		case LINKSWORDJINX:
-			return "LINKSWORDJINX";
-			
-		case LINKITEMJINX:
-			return "LINKITEMJINX";
-			
-		case LINKHP:
-			return "LINKHP";
-			
-		case LINKMP:
-			return "LINKMP";
-			
-		case LINKMAXHP:
-			return "LINKMAXHP";
-			
-		case LINKMAXMP:
-			return "LINKMAXMP";
-			
-		case LINKACTION:
-			return "LINKACTION";
-			
-		case LINKHELD:
-			return "LINKHELD";
-			
-		case LINKINVIS:
-			return "LINKINVIS";
-			
-		case LINKINVINC:
-			return "LINKINVINC";
-			
-		case LINKMISCD:
-			return "LINKMISCD";
-			
-		case LINKTILE:
-			return "LINKTILE";
-			
-		case LINKFLIP:
-			return "LINKFLIP";
-			
-		case INPUTSTART:
-			return "INPUTSTART";
-			
-		case INPUTMAP:
-			return "INPUTMAP";
-			
-		case INPUTUP:
-			return "INPUTUP";
-			
-		case INPUTDOWN:
-			return "INPUTDOWN";
-			
-		case INPUTLEFT:
-			return "INPUTLEFT";
-			
-		case INPUTRIGHT:
-			return "INPUTRIGHT";
-			
-		case INPUTA:
-			return "INPUTA";
-			
-		case INPUTB:
-			return "INPUTB";
-			
-		case INPUTL:
-			return "INPUTL";
-			
-		case INPUTR:
-			return "INPUTR";
-			
-		case INPUTEX1:
-			return "INPUTEX1";
-			
-		case INPUTEX2:
-			return "INPUTEX2";
-			
-		case INPUTEX3:
-			return "INPUTEX3";
-			
-		case INPUTEX4:
-			return "INPUTEX4";
-			
-		case INPUTAXISUP:
-			return "INPUTAXISUP";
-			
-		case INPUTAXISDOWN:
-			return "INPUTAXISDOWN";
-			
-		case INPUTAXISLEFT:
-			return "INPUTAXISLEFT";
-			
-		case INPUTAXISRIGHT:
-			return "INPUTAXISRIGHT";
-			
-		case INPUTPRESSSTART:
-			return "INPUTPRESSSTART";
-			
-		case INPUTPRESSMAP:
-			return "INPUTPRESSMAP";
-			
-		case INPUTPRESSUP:
-			return "INPUTPRESSUP";
-			
-		case INPUTPRESSDOWN:
-			return "INPUTPRESSDOWN";
-			
-		case INPUTPRESSLEFT:
-			return "INPUTPRESSLEFT";
-			
-		case INPUTPRESSRIGHT:
-			return "INPUTPRESSRIGHT";
-			
-		case INPUTPRESSA:
-			return "INPUTPRESSA";
-			
-		case INPUTPRESSB:
-			return "INPUTPRESSB";
-			
-		case INPUTPRESSL:
-			return "INPUTPRESSL";
-			
-		case INPUTPRESSR:
-			return "INPUTPRESSR";
-			
-		case INPUTPRESSEX1:
-			return "INPUTPRESSEX1";
-			
-		case INPUTPRESSEX2:
-			return "INPUTPRESSEX2";
-			
-		case INPUTPRESSEX3:
-			return "INPUTPRESSEX3";
-			
-		case INPUTPRESSEX4:
-			return "INPUTPRESSEX4";
-			
-		case INPUTPRESSAXISUP:
-			return "PRESSAXISUP";
-			
-		case INPUTPRESSAXISDOWN:
-			return "PRESSAXISDOWN";
-			
-		case INPUTPRESSAXISLEFT:
-			return "PRESSAXISLEFT";
-			
-		case INPUTPRESSAXISRIGHT:
-			return "PRESSAXISRIGHT";
-			
-		case INPUTMOUSEX:
-			return "INPUTMOUSEX";
-			
-		case INPUTMOUSEY:
-			return "INPUTMOUSEY";
-			
-		case INPUTMOUSEZ:
-			return "INPUTMOUSEZ";
-			
-		case INPUTMOUSEB:
-			return "INPUTMOUSEB";
-		
-		case BUTTONPRESS: return "BUTTONPRESS";
-		case BUTTONINPUT: return "BUTTONINPUT";
-		case BUTTONHELD: return "BUTTONHELD";
-		case RAWKEY: return "RAWKEY";
-		case READKEY: return "READKEY";
-		case DISABLEKEY: return "DISABLEKEY";
-		case DISABLEBUTTON: return "DISABLEBUTTON";
-		case JOYPADPRESS: return "JOYPADPRESS";
-		
-		 case LINKINVFRAME:
-		return "LINKINVFRAME";
-		case LINKCANFLICKER:
-		return "LINKCANFLICKER";
-		case LINKHURTSFX:
-		return "LINKHURTSFX";
-		
-		case LINKEATEN: return "LINKEATEN";
-		case LINKGRABBED: return "LINKGRABBED";
-		case HEROBUNNY: return "HEROBUNNY";
-		
-		case LINKITEMB: return "LINKITEMB";
-
-		case LINKITEMA: return "LINKITEMA";
-		case LINKITEMX: return "LINKITEMX";
-		case LINKITEMY: return "LINKITEMY";
-		case SETITEMSLOT: return "SETITEMSLOT";
-		case GAMESETB: return "GAMESETB";
-		case GAMESETA: return "GAMESETA";
-		case LINKUSINGITEM: return "LINKUSINGITEM";
-		case LINKUSINGITEMA: return "LINKUSINGITEMA";
-		case LINKUSINGITEMB: return "LINKUSINGITEMB";
-		
-		case SDD:
-			return "SDD";
-			
-		case SCREENFLAGSD:
-			return "SCREENFLAGSD";
-			
-		case SCREENEFLAGSD:
-			return "SCREENEFLAGSD";
-			
-		case COMBODD:
-			return "COMBODD";
-			
-		case COMBOCD:
-			return "COMBOCD";
-			
-		case COMBOFD:
-			return "COMBOFD";
-			
-		case COMBODDM:
-			return "COMBODDM";
-			
-		case COMBOCDM:
-			return "COMBOCDM";
-			
-		case COMBOFDM:
-			return "COMBOFDM";
-			
-		case REFFFC:
-			return "REFFFC";
-		
-		case REFMAPDATA: return "REFMAPDATA";
-		case REFSCREENDATA: return "REFSCREENDATA";
-		case REFCOMBODATA: return "REFCOMBODATA";
-		case REFSPRITEDATA: return "REFSPRITEDATA";
-		case REFBITMAP: return "REFBITMAP";
-		case REFNPCCLASS: return "REFNPCCLASS";
-		
-		 case REFDMAPDATA: return "REFDMAPDATA";
-		 case REFSHOPDATA: return "REFSHOPDATA";
-		 case REFMSGDATA: return "REFMSGDATA";
-		 case REFNIL: return "REFNIL";
-		
-		 case REFDROPS: return "REFDROPS";
-		 case REFPONDS: return "REFPONDS";
-		 case REFWARPRINGS: return "REFWARPRINGS";
-		 case REFDOORS: return "REFDOORS";
-		 case REFUICOLOURS: return "REFUICOLOURS";
-		 case REFRGB: return "REFRGB";
-		 case REFPALETTE: return "REFPALETTE";
-		 case REFTUNES: return "REFTUNES";
-		 case REFPALCYCLE: return "REFPALCYCLE";
-		 case REFGAMEDATA: return "REFGAMEDATA";
-		 case REFCHEATS: return "REFCHEATS";
-			
-		case REFITEM:
-			return "REFITEM";
-			
-		case ITEMCOUNT:
-			return "ITEMCOUNT";
-			
-		case ITEMX:
-			return "ITEMX";
-			
-		case ITEMY:
-			return "ITEMY";
-			
-		case ITEMZ:
-			return "ITEMZ";
-			
-		case ITEMJUMP:
-			return "ITEMJUMP";
-			
-		case ITEMDRAWTYPE:
-			return "ITEMDRAWTYPE";
-			
-		case ITEMID:
-			return "ITEMID";
-			
-		case ITEMTILE:
-			return "ITEMTILE";
-			
-		case ITEMCSET:
-			return "ITEMCSET";
-			
-		case ITEMFLASHCSET:
-			return "ITEMFLASHCSET";
-			
-		case ITEMFRAMES:
-			return "ITEMFRAMES";
-			
-		//This DOES NOT DO what ZScript.txt claims that it does, and needs to be fixed. -Z
-		case ITEMFRAME:
-			return "ITEMFRAME";
-			
-		case ITEMASPEED:
-			return "ITEMASPEED";
-		
-		case ITEMACLK:
-			return "ITEMACLK";
-			
-		case ITEMDELAY:
-			return "ITEMDELAY";
-			
-		case ITEMFLASH:
-			return "ITEMFLASH";
-			
-		case ITEMFLIP:
-			return "ITEMFLIP";
-			
-		case ITEMEXTEND:
-			return "ITEMEXTEND";
-			
-		case ITEMPICKUP:
-			return "ITEMPICKUP";
-			
-		case ITEMNOSOUND:
-			return "ITEMNOSOUND";
-			
-		case ITEMNOHOLDSOUND:
-			return "ITEMNOHOLDSOUND";
-			
-		case ITEMMISCD:
-			return "ITEMMISCD";
-			
-		case ITEMCLASSFAMILY:
-			return "IDATAFAMILY";
-			
-		case ITEMCLASSFAMTYPE:
-			return "IDATALEVEL";
-			
-		case ITEMCLASSAMOUNT:
-			return "IDATAAMOUNT";
-			
-		case ITEMCLASSMAX:
-			return "IDATAMAX";
-			
-		case ITEMCLASSSETMAX:
-			return "IDATASETMAX";
-			
-		case ITEMCLASSSETGAME:
-			return "IDATAKEEP";
-			
-		case ITEMCLASSCOUNTER:
-			return "IDATACOUNTER";
-			
-		case ITEMCLASSUSESOUND:
-			return "IDATAUSESOUND";
-		case IDATAUSESOUND2:
-			return "IDATAUSESOUND2";
-			
-		case ITEMCLASSPOWER:
-			return "IDATAPOWER";
-			
-		case ITEMCLASSINITDD:
-			return "IDATAINITDD";
-			
-		case REFITEMCLASS:
-			return "REFITEMCLASS";
-			
-		case COMBOID:
-			return "COMBOID";
-			
-		case COMBOTD:
-			return "COMBOTD";
-			
-		case COMBOSD:
-			return "COMBOSD";
-			
-		case COMBOED:
-			return "COMBOED";
-			
-		case COMBOIDM:
-			return "COMBOIDM";
-			
-		case COMBOTDM:
-			return "COMBOTDM";
-			
-		case COMBOSDM:
-			return "COMBOSDM";
-			
-		case GETMIDI:
-			return "GETMIDI";
-			
-		case CURSCR:
-			return "CURSCR";
-			
-		case CURDSCR:
-			return "CURDSCR";
-			
-		case CURMAP:
-			return "CURMAP";
-			
-		case CURDMAP:
-			return "CURDMAP";
-		case GAMEMAXMAPS: return "GAMEMAXMAPS";
-			
-		case CURLEVEL:
-			return "CURLEVEL";
-			
-		case GAMEDEATHS:
-			return "GAMEDEATHS";
-			
-		case GAMECHEAT:
-			return "GAMECHEAT";
-		case GAMEMAXCHEAT:
-			return "GAMEMAXCHEAT";
-		case SHOWNMSG:
-			return "SHOWNMSG";
-		
-		case ZELDAVERSION:
-		return "ZELDAVERSION";
-		case ZELDABUILD:
-		return "ZELDABUILD";
-		case ZELDABETA:
-		return "ZELDABETA";
-		
-			
-		case GAMETIME:
-			return "GAMETIME";
-			
-		case GAMEHASPLAYED:
-			return "GAMEHASPLAYED";
-			
-		case GAMESTANDALONE:
-			return "GAMESTANDALONE";
-			
-		case GAMETIMEVALID:
-			return "GAMETIMEVALID";
-			
-		case GAMEGUYCOUNT:
-			return "GAMEGUYCOUNT";
-			
-		case GAMECONTSCR:
-			return "GAMECONTSCR";
-			
-		case GAMECONTDMAP:
-			return "GAMECONTDMAP";
-			
-		case GAMEENTRSCR:
-			return "GAMEENTRSCR";
-			
-		case GAMEENTRDMAP:
-			return "GAMEENTRDMAP";
-			
-		case GAMECOUNTERD:
-			return "GAMECOUNTERD";
-			
-		case GAMEMCOUNTERD:
-			return "GAMEMCOUNTERD";
-			
-		case GAMEDCOUNTERD:
-			return "GAMEDCOUNTERD";
-			
-		case GAMEGENERICD:
-			return "GAMEGENERICD";
-		
-		case GAMEMISC:
-			return "GAMEMISC";
-			
-		case GAMEITEMSD:
-			return "GAMEITEMSD";
-			
-		case GAMELITEMSD:
-			return "GAMELITEMSD";
-			
-		case GAMELKEYSD:
-			return "GAMELKEYSD";
-		case GAMELSWITCH:
-			return "GAMELSWITCH";
-		case GAMEGSWITCH:
-			return "GAMEGSWITCH";
-		case GAMEBOTTLEST:
-			return "GAMEBOTTLEST";
-			
-		case REFBOTTLETYPE:
-			return "REFBOTTLETYPE";
-		case REFBOTTLESHOP:
-			return "REFBOTTLESHOP";
-		case BOTTLECOUNTER:
-			return "BOTTLECOUNTER";
-		case BOTTLEAMOUNT:
-			return "BOTTLEAMOUNT";
-		case BOTTLEPERCENT:
-			return "BOTTLEPERCENT";
-		case BOTTLEFLAGS:
-			return "BOTTLEFLAGS";
-		case BOTTLENEXT:
-			return "BOTTLENEXT";
-		case BSHOPFILL:
-			return "BSHOPFILL";
-		case BSHOPCOMBO:
-			return "BSHOPCOMBO";
-		case BSHOPCSET:
-			return "BSHOPCSET";
-		case BSHOPPRICE:
-			return "BSHOPPRICE";
-		case BSHOPSTR:
-			return "BSHOPSTR";
-		case COMBODUSRFLAGARR:
-			return "COMBODUSRFLAGARR";
-		case COMBODGENFLAGARR:
-			return "COMBODGENFLAGARR";
-			
-		case HERORESPAWNX:
-			return "HERORESPAWNX";
-		case HERORESPAWNY:
-			return "HERORESPAWNY";
-		case HERORESPAWNDMAP:
-			return "HERORESPAWNDMAP";
-		case HERORESPAWNSCR:
-			return "HERORESPAWNSCR";
-		case HEROSWITCHTIMER:
-			return "HEROSWITCHTIMER";
-		case HEROSWITCHMAXTIMER:
-			return "HEROSWITCHMAXTIMER";
-		case HEROTOTALDYOFFS:
-			return "HEROTOTALDYOFFS";
-		case NPCTOTALDYOFFS:
-			return "NPCTOTALDYOFFS";
-		case LWPNTOTALDYOFFS:
-			return "LWPNTOTALDYOFFS";
-		case EWPNTOTALDYOFFS:
-			return "EWPNTOTALDYOFFS";
-		case NPCSWHOOKED:
-			return "NPCSWHOOKED";
-		case LWSWHOOKED:
-			return "LWSWHOOKED";
-		case EWSWHOOKED:
-			return "EWSWHOOKED";
-		case ITMSWHOOKED:
-			return "ITMSWHOOKED";
-		case DEBUGTESTING:
-			return "DEBUGTESTING";
-		case GAMEMISCSPR:
-			return "GAMEMISCSPR";
-		case GAMEMISCSFX:
-			return "GAMEMISCSFX";
-		case GAMEEVENTDATA:
-			return "GAMEEVENTDATA";
-			
-		case SCREENSTATED:
-			return "SCREENSTATED";
-			
-		case SCREENSTATEDD:
-			return "SCREENSTATEDD";
-			
-		case DMAPFLAGSD:
-			return "DMAPFLAGSD";
-			
-		case DMAPLEVELD:
-			return "DMAPLEVELD";
-		
-		case DMAPLEVELPAL:
-		return "DMAPLEVELPAL";
-			
-		case DMAPCOMPASSD:
-			return "DMAPCOMPASSD";
-			
-		case DMAPCONTINUED:
-			return "DMAPCONTINUED";
-			
-		case DMAPMIDID:
-			return "DMAPMIDID";
-			
-		case DMAPOFFSET:
-			return "DMAPOFFSET";
-			
-		case DMAPMAP:
-			return "DMAPMAP";
-			
-		case SDDD:
-			return "SDDD";
-			
-		case SDDDD:
-			return "SDDDD";
-			
-		case GAMECLICKFREEZE:
-			return "GAMECLICKFREEZE";
-			
-		case NOACTIVESUBSC: return "NOACTIVESUBSC"; //Disable active subscreen.
-		
-		case FFFLAGSD:
-			return "FFFLAGSD";
-			
-		case FFTWIDTH:
-			return "FFTWIDTH";
-			
-		case FFTHEIGHT:
-			return "FFTHEIGHT";
-			
-		case FFCWIDTH:
-			return "FFCWIDTH";
-			
-		case FFCHEIGHT:
-			return "FFCHEIGHT";
-			
-		case FFLINK:
-			return "FFLINK";
-			
-		case FFMISCD:
-			return "FFMISCD";
-			
-		case FFINITDD:
-			return "FFINITDD";
-			
-			/*case FFDD:
-			return "FFDD";*/
-		case LINKITEMD:
-			return "LINKITEMD";
-		
-		case DISABLEDITEM: return "DISABLEDITEM";
-			
-		case REFNPC:
-			return "REFNPC";
-			
-		case NPCCOUNT:
-			return "NPCCOUNT";
-			
-		case NPCX:
-			return "NPCX";
-			
-		case NPCY:
-			return "NPCY";
-			
-		case NPCZ:
-			return "NPCZ";
-			
-		case NPCJUMP:
-			return "NPCJUMP";
-			
-		case NPCDIR:
-			return "NPCDIR";
-			
-		case NPCRATE:
-			return "NPCRATE";
-			
-		case NPCHOMING:
-			return "NPCHOMING";
-			
-		case NPCFRAMERATE:
-			return "NPCFRAMERATE";
-			
-		case NPCHALTRATE:
-			return "NPCHALTRATE";
-			
-		case NPCDRAWTYPE:
-			return "NPCDRAWTYPE";
-			
-		case NPCHP:
-			return "NPCHP";
-			
-		case NPCID:
-			return "NPCID";
-			
-		case NPCTYPE:
-			return "NPCTYPE";
-			
-		case NPCDP:
-			return "NPCDP";
-			
-		case NPCWDP:
-			return "NPCWDP";
-			
-		case NPCTILE:
-			return "NPCTILE";
-			
-		case NPCOTILE:
-			return "NPCOTILE";
-			
-		case NPCWEAPON:
-			return "NPCWEAPON";
-			
-		case NPCITEMSET:
-			return "NPCITEMSET";
-			
-		case NPCCSET:
-			return "NPCCSET";
-			
-		case NPCBOSSPAL:
-			return "NPCBOSSPAL";
-			
-		case NPCBGSFX:
-			return "NPCBGSFX";
-			
-		case NPCEXTEND:
-			return "NPCEXTEND";
-			
-		case NPCSTEP:
-			return "NPCSTEP";
-			
-		case NPCDEFENSED:
-			return "NPCDEFENSED";
-		case NPCSCRDEFENSED: return "NPCSCRDEFENSED";
-			
-		case NPCMISCD:
-			return "NPCMISCD";
-			
-		case NPCDD:
-			return "NPCDD";
-			
-		case NPCMFLAGS:
-			return "NPCMFLAGS";
-			
-		case NPCCOLLDET:
-			return "NPCCOLLDET";
-			
-		case NPCSTUN:
-			return "NPCSTUN";
-			
-		case NPCHUNGER:
-			return "NPCHUNGER";
-		
-		
-		case NPCINVINC:
-			return "NPCINVINC";
-		case NPCSUPERMAN:
-			return "NPCSUPERMAN";
-		case NPCHASITEM:
-			return "NPCHASITEM";
-		case NPCRINGLEAD:
-			return "NPCRINGLEAD";
-		case NPCSHIELD:
-			return "NPCSHIELD";
-		
-		case NPCFROZEN:
-			return "NPCFROZEN";   
-		case NPCFROZENTILE:
-			return "NPCFROZENTILE";
-		case NPCFROZENCSET:
-			return "NPCFROZENCSET"; 
-		case NPCBEHAVIOUR:
-			return "NPCBEHAVIOUR"; 
-			
-		case SCRDOORD:
-			return "SCRDOORD";
-			
-		case LIT:
-			return "LIT";
-			
-		case WAVY:
-			return "WAVY";
-			
-		case QUAKE:
-			return "QUAKE";
-			
-		case ITEMOTILE:
-			return "ITEMOTILE";
-			
-		case REFLWPN:
-			return "REFLWPN";
-			
-		case LWPNCOUNT:
-			return "LWPNCOUNT";
-			
-		case LWPNX:
-			return "LWPNX";
-			
-		case LWPNY:
-			return "LWPNY";
-			
-		case LWPNZ:
-			return "LWPNZ";
-			
-		case LWPNJUMP:
-			return "LWPNJUMP";
-			
-		case LWPNDIR:
-			return "LWPNDIR";
-			
-		case LWPNANGLE:
-			return "LWPNANGLE";
-		
-		case LWPNDEGANGLE:
-			return "LWPNDEGANGLE";
-			
-		case LWPNVX:
-			return "LWPNVX";
-			
-		case LWPNVY:
-			return "LWPNVY";
-			
-		case LWPNSTEP:
-			return "LWPNSTEP";
-			
-		case LWPNFRAMES:
-			return "LWPNFRAMES";
-			
-		case LWPNFRAME:
-			return "LWPNFRAME";
-			
-		case LWPNDRAWTYPE:
-			return "LWPNDRAWTYPE";
-			
-		case LWPNPOWER:
-			return "LWPNPOWER";
-			
-		case LWPNID:
-			return "LWPNID";
-			
-		case LWPNANGULAR:
-			return "LWPNANGULAR";
-			
-		case LWPNAUTOROTATE:
-			return "LWPNAUTOROTATE";
-			
-		case LWPNFLAGS:
-			return "LWPNFLAGS";
-		case EWPNFLAGS:
-			return "EWPNFLAGS";
-			
-		case LWPNBEHIND:
-			return "LWPNBEHIND";
-			
-		case LWPNASPEED:
-			return "LWPNASPEED";
-			
-		case LWPNTILE:
-			return "LWPNTILE";
-			
-		case LWPNFLASHCSET:
-			return "LWPNFLASHCSET";
-			
-		case LWPNDEAD:
-			return "LWPNDEAD";
-			
-		case LWPNCSET:
-			return "LWPNCSET";
-			
-		case LWPNFLASH:
-			return "LWPNFLASH";
-			
-		case LWPNFLIP:
-			return "LWPNFLIP";
-			
-		case LWPNOTILE:
-			return "LWPNOTILE";
-			
-		case LWPNOCSET:
-			return "LWPNOCSET";
-			
-		case LWPNEXTEND:
-			return "LWPNEXTEND";
-			
-		case LWPNCOLLDET:
-			return "LWPNCOLLDET";
-		
-		case LWPNPARENT:
-			return "LWPNPARENT";
-		case LWPNLEVEL:
-			return "LWPNLEVEL";
-		
-		case EWPNLEVEL:
-			return "EWPNLEVEL";
-		case EWPNPARENT:
-			return "EWPNPARENT";
-			
-		case REFEWPN:
-			return "REFEWPN";
-			
-		case EWPNCOUNT:
-			return "EWPNCOUNT";
-			
-		case EWPNX:
-			return "EWPNX";
-			
-		case EWPNY:
-			return "EWPNY";
-			
-		case EWPNZ:
-			return "EWPNZ";
-			
-		case EWPNJUMP:
-			return "EWPNJUMP";
-			
-		case EWPNDIR:
-			return "EWPNDIR";
-			
-		case EWPNANGLE:
-			return "EWPNANGLE";
-			
-		case EWPNDEGANGLE:
-			return "EWPNDEGANGLE";
-			
-		case EWPNVX:
-			return "EWPNVX";
-			
-		case EWPNVY:
-			return "EWPNVY";
-			
-		case EWPNSTEP:
-			return "EWPNSTEP";
-			
-		case EWPNFRAMES:
-			return "EWPNFRAMES";
-			
-		case EWPNFRAME:
-			return "EWPNFRAME";
-			
-		case EWPNDRAWTYPE:
-			return "EWPNDRAWTYPE";
-			
-		case EWPNPOWER:
-			return "EWPNPOWER";
-			
-		case EWPNID:
-			return "EWPNID";
-			
-		case EWPNANGULAR:
-			return "EWPNANGULAR";
-			
-		case EWPNAUTOROTATE:
-			return "EWPNAUTOROTATE";
-			
-		case EWPNBEHIND:
-			return "EWPNBEHIND";
-			
-		case EWPNASPEED:
-			return "EWPNASPEED";
-			
-		case EWPNTILE:
-			return "EWPNTILE";
-			
-		case EWPNFLASHCSET:
-			return "EWPNFLASHCSET";
-			
-		case EWPNDEAD:
-			return "EWPNDEAD";
-			
-		case EWPNCSET:
-			return "EWPNCSET";
-			
-		case EWPNFLASH:
-			return "EWPNFLASH";
-			
-		case EWPNFLIP:
-			return "EWPNFLIP";
-			
-		case EWPNOTILE:
-			return "EWPNOTILE";
-			
-		case EWPNOCSET:
-			return "EWPNOCSET";
-			
-		case EWPNEXTEND:
-			return "EWPNEXTEND";
-			
-		case EWPNCOLLDET:
-			return "EWPNCOLLDET";
-			
-		case SCRIPTRAM:
-			return "SCRIPTRAM";
-			
-		case GLOBALRAM:
-			return "GLOBALRAM";
-			
-		case SCRIPTRAMD:
-			return "SCRIPTRAMD";
-			
-		case GLOBALRAMD:
-			return "GLOBALRAMD";
-			
-		case LWPNHXOFS:
-			return "LWPNHXOFS";
-			
-		case LWPNHYOFS:
-			return "LWPNHYOFS";
-			
-		case LWPNXOFS:
-			return "LWPNXOFS";
-			
-		case LWPNYOFS:
-			return "LWPNYOFS";
-		
-		case LWPNSHADOWXOFS:
-			return "LWPNSHADOWXOFS";
-			
-		case LWPNSHADOWYOFS:
-			return "LWPNSHADOWYOFS";
-			
-		case LWPNZOFS:
-			return "LWPNZOFS";
-			
-		case LWPNHXSZ:
-			return "LWPNHXSZ";
-			
-		case LWPNHYSZ:
-			return "LWPNHYSZ";
-			
-		case LWPNHZSZ:
-			return "LWPNHZSZ";
-			
-		case LWPNTXSZ:
-			return "LWPNTXSZ";
-			
-		case LWPNTYSZ:
-			return "LWPNTYSZ";
-			
-		case LWPNMISCD:
-			return "LWPNMISCD";
-			
-		case EWPNHXOFS:
-			return "EWPNHXOFS";
-			
-		case EWPNHYOFS:
-			return "EWPNHYOFS";
-			
-		case EWPNXOFS:
-			return "EWPNXOFS";
-			
-		case EWPNYOFS:
-			return "EWPNYOFS";
-			
-		case EWPNSHADOWXOFS:
-			return "EWPNSHADOWXOFS";
-			
-		case EWPNSHADOWYOFS:
-			return "EWPNSHADOWYOFS";
-			
-		case EWPNZOFS:
-			return "EWPNZOFS";
-			
-		case EWPNHXSZ:
-			return "EWPNHXSZ";
-			
-		case EWPNHYSZ:
-			return "EWPNHYSZ";
-			
-		case EWPNHZSZ:
-			return "EWPNHZSZ";
-			
-		case EWPNTXSZ:
-			return "EWPNTXSZ";
-			
-		case EWPNTYSZ:
-			return "EWPNTYSZ";
-			
-		case EWPNMISCD:
-			return "EWPNMISCD";
-			
-		case NPCHXOFS:
-			return "NPCHXOFS";
-			
-		case NPCHYOFS:
-			return "NPCHYOFS";
-			
-		case NPCXOFS:
-			return "NPCXOFS";
-			
-		case NPCYOFS:
-			return "NPCYOFS";
-			
-		case NPCSHADOWXOFS:
-			return "NPCSHADOWXOFS";
-			
-		case NPCSHADOWYOFS:
-			return "NPCSHADOWYOFS";
-			
-		case NPCZOFS:
-			return "NPCZOFS";
-			
-		case NPCHXSZ:
-			return "NPCHXSZ";
-			
-		case NPCHYSZ:
-			return "NPCHYSZ";
-			
-		case NPCHZSZ:
-			return "NPCHZSZ";
-			
-		case NPCTXSZ:
-			return "NPCTXSZ";
-			
-		case NPCTYSZ:
-			return "NPCTYSZ";
-			
-		case ITEMHXOFS:
-			return "ITEMHXOFS";
-			
-		case ITEMHYOFS:
-			return "ITEMHYOFS";
-			
-		case ITEMXOFS:
-			return "ITEMXOFS";
-			
-		case ITEMYOFS:
-			return "ITEMYOFS";
-			
-		case ITEMSHADOWXOFS:
-			return "ITEMSHADOWXOFS";
-			
-		case ITEMSHADOWYOFS:
-			return "ITEMSHADOWYOFS";
-			
-		case ITEMZOFS:
-			return "ITEMZOFS";
-			
-		case ITEMHXSZ:
-			return "ITEMHXSZ";
-			
-		case ITEMHYSZ:
-			return "ITEMHYSZ";
-			
-		case ITEMHZSZ:
-			return "ITEMHZSZ";
-			
-		case ITEMTXSZ:
-			return "ITEMTXSZ";
-			
-		case ITEMTYSZ:
-			return "ITEMTYSZ";
-			
-		case LINKHXOFS:
-			return "LINKHXOFS";
-			
-		case LINKHYOFS:
-			return "LINKHYOFS";
-			
-		case LINKXOFS:
-			return "LINKXOFS";
-			
-		case LINKYOFS:
-			return "LINKYOFS";
-			
-		case HEROSHADOWXOFS:
-			return "HEROSHADOWXOFS";
-			
-		case HEROSHADOWYOFS:
-			return "HEROSHADOWYOFS";
-			
-		case LINKZOFS:
-			return "LINKZOFS";
-			
-		case LINKHXSZ:
-			return "LINKHXSZ";
-			
-		case LINKHYSZ:
-			return "LINKHYSZ";
-			
-		case LINKHZSZ:
-			return "LINKHZSZ";
-			
-		case LINKTXSZ:
-			return "LINKTXSZ";
-			
-		case LINKTYSZ:
-			return "LINKTYSZ";
-			
-		case LINKDRUNK:
-			return "LINKDRUNK";
-			
-		case LINKEQUIP:
-			return "LINKEQUIP";
-			
-		case LINKLADDERX:
-			return "LINKLADDERX";
-			
-		case LINKLADDERY:
-			return "LINKLADDERY";
-			
-		case ROOMTYPE:
-			return "ROOMTYPE";
-			
-		case ROOMDATA:
-			return "ROOMDATA";
-			
-		case PUSHBLOCKX:
-			return "PUSHBLOCKX";
-			
-		case PUSHBLOCKY:
-			return "PUSHBLOCKY";
-			
-		case PUSHBLOCKLAYER:
-			return "PUSHBLOCKLAYER";
-			
-		case PUSHBLOCKCOMBO:
-			return "PUSHBLOCKCOMBO";
-			
-		case PUSHBLOCKCSET:
-			return "PUSHBLOCKCSET";
-			
-		case UNDERCOMBO:
-			return "UNDERCOMBO";
-			
-		case UNDERCSET:
-			return "UNDERCSET";
-		
-		//2.6
-		case CREATELWPNDX: return "CREATELWPNDX";
-		
-		//2.54 -Z
-	/* 2.54 Implemented
-		*/
-		
-		
-	//itemclass / itemdata
-
-		//case IDATAFRAME: return "IDATAFRAME";
-		case IDATACOSTCOUNTER: return "IDATACOSTCOUNTER";
-		case IDATACOSTCOUNTER2: return "IDATACOSTCOUNTER2";
-		case ITEMCLASSID: return "IDATAID";
-		case IDATALTM: return "IDATALTM";
-		case IDATAPSCRIPT: return "IDATAPSCRIPT";
-		case IDATASCRIPT: return "IDATASCRIPT";
-		case IDATAMAGCOST: return "IDATAMAGCOST";
-		case IDATACOST2: return "IDATACOST2";
-		case IDATAMINHEARTS: return "IDATAMINHEARTS";
-		case IDATATILE: return "IDATATILE";
-		case IDATAMISC: return "IDATAMISC";    
-		case IDATACSET: return "IDATACSET";
-		case IDATAFRAMES: return "IDATAFRAMES";
-		case IDATAASPEED: return "IDATAASPEED";
-		case IDATADELAY: return "IDATADELAY"; 
-		case IDATACOMBINE: return "IDATACOMBINE";
-		case IDATADOWNGRADE: return "IDATADOWNGRADE";
-		case IDATAKEEPOLD: return "IDATAKEEPOLD";
-		case IDATARUPEECOST: return "IDATARUPEECOST";
-		case IDATAEDIBLE: return "IDATAEDIBLE";
-		case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
-		case IDATAGAINLOWER: return "IDATAGAINLOWER";
-		case IDATAPSTRING: return "IDATAPSTRING";
-		case IDATAPFLAGS: return "IDATAPFLAGS";
-		
-		//idata arrays
-		case IDATAATTRIB: return "IDATAATTRIB";
-		case IDATAFLAGS: return "IDATAFLAGS";
-		case IDATASPRITE: return "IDATASPRITE";
-			
-		case IDATAUSEWPN: return "IDATAUSEWPN";
-		case IDATAUSEDEF: return "IDATAUSEDEF";
-		case IDATAWRANGE: return "IDATAWRANGE";
-		case IDATAMAGICTIMER: return "IDATAMAGICTIMER";
-		case IDATAMAGICTIMER2: return "IDATAMAGICTIMER2";
-		case IDATAUSEMVT: return "IDATAUSEMVT";
-		case IDATADURATION: return "IDATADURATION";
-		case IDATADUPLICATES: return "IDATADUPLICATES";
-		case IDATADRAWLAYER: return "IDATADRAWLAYER";
-		case IDATACOLLECTFLAGS: return "IDATACOLLECTFLAGS";
-		case IDATAWEAPONSCRIPT: return "IDATAWEAPONSCRIPT";
-		case IDATAMISCD: return "IDATAMISCD";
-		case IDATAWEAPHXOFS: return "IDATAWEAPHXOFS";
-		case IDATAWEAPHYOFS: return "IDATAWEAPHYOFS";
-		case IDATAWEAPHYSZ: return "IDATAWEAPHYSZ";
-		case IDATAWEAPHXSZ: return "IDATAWEAPHXSZ";
-		case IDATAWEAPHZSZ: return "IDATAWEAPHZSZ";
-		case IDATAWEAPXOFS: return "IDATAWEAPXOFS";
-		case IDATAWEAPYOFS: return "IDATAWEAPYOFS";
-		case IDATAWEAPZOFS: return "IDATAWEAPZOFS";
-		case IDATAWPNINITD: return "IDATAWPNINITD";
-		
-		//Item Sizing
-		case IDATAOVERRIDEFLWEAP: return "IDATAOVERRIDEFLWEAP";
-		case IDATATILEHWEAP: return "IDATATILEHWEAP";
-		case IDATATILEWWEAP: return "IDATATILEWWEAP";
-		case IDATAHZSZWEAP: return "IDATAHZSZWEAP";
-		case IDATAHYSZWEAP: return "IDATAHYSZWEAP";
-		case IDATAHXSZWEAP: return "IDATAHXSZWEAP";
-		case IDATADYOFSWEAP: return "IDATADYOFSWEAP";
-		case IDATADXOFSWEAP: return "IDATADXOFSWEAP";
-		case IDATAHYOFSWEAP: return "IDATAHYOFSWEAP";
-		case IDATAHXOFSWEAP: return "IDATAHXOFSWEAP";
-		case IDATAOVERRIDEFL: return "IDATAOVERRIDEFL";
-		case IDATAPICKUP: return "IDATAPICKUP";
-		case IDATATILEH: return "IDATATILEH";
-		case IDATATILEW: return "IDATATILEW";
-		case IDATAHZSZ: return "IDATAHZSZ";
-		case IDATAHYSZ: return "IDATAHYSZ";
-		case IDATAHXSZ: return "IDATAHXSZ";
-		case IDATADYOFS: return "IDATADYOFS";
-		case IDATADXOFS: return "IDATADXOFS";
-		case IDATAHYOFS: return "IDATAHYOFS";
-		case IDATAHXOFS: return "IDATAHXOFS";
-		
-		case NPCWEAPSPRITE: return "NPCWEAPSPRITE";
-		
-		//Debug->
-		
-		case DEBUGREFFFC: return "DEBUGREFFFC";
-		case DEBUGREFITEM: return "DEBUGREFITEM";
-		case DEBUGREFNPC: return "DEBUGREFNPC";
-		case DEBUGREFITEMDATA: return "DEBUGREFITEMDATA";
-		case DEBUGREFLWEAPON: return "DEBUGREFLWEAPON";
-		case DEBUGREFEWEAPON: return "DEBUGREFEWEAPON";
-		case DEBUGSP: return "DEBUGSP";
-		case DEBUGGDR: return "DEBUGGDR";
-		
-		case LWPNRANGE: return "LWPNRANGE";
-		
-		case SETSCREENDOOR: return "SETSCREENDOOR";
-		case SETSCREENENEMY: return "SETSCREENENEMY";
-		case SCREENWIDTH: return "SCREENWIDTH";
-		case SCREENHEIGHT: return "SCREENHEIGHT";
-		case SCREENVIEWX: return "SCREENVIEWX";
-		case SCREENVIEWY: return "SCREENVIEWY";
-		case SCREENGUY: return "SCREENGUY";
-		case SCREENSTRING: return "SCREENSTRING";
-		case SCREENROOM: return "SCREENROOM";
-		case SCREENENTX: return "SCREENENTX";
-		case SCREENENTY: return "SCREENENTY";
-		case SCREENITEM: return "SCREENITEM";
-		case SCREENUNDCMB: return "SCREENUNDCMB";
-		case SCREENUNDCST: return "SCREENUNDCST";
-		case SCREENCATCH: return "SCREENCATCH";
-		case SETSCREENLAYOP: return "SETSCREENLAYOP";
-		case SETSCREENSECCMB: return "SETSCREENSECCMB";
-		case SETSCREENSECCST: return "SETSCREENSECCST";
-		case SETSCREENSECFLG: return "SETSCREENSECFLG";
-		case SETSCREENLAYMAP: return "SETSCREENLAYMAP";
-		case SETSCREENLAYSCR: return "SETSCREENLAYSCR";
-		case SETSCREENPATH: return "SETSCREENPATH";
-		case SETSCREENWARPRX: return "SETSCREENWARPRX";
-		case SETSCREENWARPRY: return "SETSCREENWARPRY";
-		
-		case GAMENUMMESSAGES: return "GAMENUMMESSAGES";
-		case GAMESUBSCHEIGHT: return "GAMESUBSCHEIGHT";
-		case GAMEPLAYFIELDOFS: return "GAMEPLAYFIELDOFS";
-		case PASSSUBOFS: return "PASSSUBOFS";
-		case COMBODATAID: return "COMBODATAID";
-		
-		case LINKBIGHITBOX: return "LINKBIGHITBOX";
-		case LINKDIAG: return "LINKDIAG";
-		
-		//NPCData
-		
-		//three inputs no return (function-only)
-		case SETNPCDATASCRIPTDEF: return "SETNPCDATASCRIPTDEF";
-		case SETNPCDATADEFENSE: return "SETNPCDATADEFENSE";
-		case SETNPCDATASIZEFLAG: return "SETNPCDATASIZEFLAG";
-		case SETNPCDATAATTRIBUTE: return "SETNPCDATAATTRIBUTE";
-		
-		//ComboData
-		
-		//three inputs no return (function-only)
-		case SCDBLOCKWEAPON: return "SCDBLOCKWEAPON";
-		case SCDEXPANSION: return "SCDEXPANSION";
-		case SCDSTRIKEWEAPONS: return "SCDSTRIKEWEAPONS";
-		
-		//Game Over Screen
-		case SETGAMEOVERELEMENT: return "SETGAMEOVERELEMENT";
-		case SETGAMEOVERSTRING: return "SETGAMEOVERSTRING";
-		
-		//Input->Mouse[]
-		case MOUSEARR: return "MOUSEARR";
-		
-		
-		//DataTypes
-		
-		//spritedata sd->
-		case SPRITEDATATILE: return "SPRITEDATATILE";
-		case SPRITEDATAMISC: return "SPRITEDATAMISC";
-		case SPRITEDATAFLAGS: return "SPRITEDATAFLAGS";
-		case SPRITEDATACSETS: return "SPRITEDATACSETS";
-		case SPRITEDATAFLCSET: return "SPRITEDATAFLCSET";
-		case SPRITEDATAFRAMES: return "SPRITEDATAFRAMES";
-		case SPRITEDATASPEED: return "SPRITEDATASPEED";
-		case SPRITEDATATYPE: return "SPRITEDATATYPE";
-		case SPRITEDATAID: return "SPRITEDATAID";
-		
-		//npcdata nd->
-		case NPCDATATILE: return "NPCDATATILE";
-		case NPCDATAHEIGHT: return "NPCDATAHEIGHT";
-		case NPCDATAFLAGS: return "NPCDATAFLAGS";
-		case NPCDATAFLAGS2: return "NPCDATAFLAGS2";
-		case NPCDATAHITSFX: return "NPCDATAHITSFX";
-		case NPCDATAWIDTH: return "NPCDATAWIDTH";
-		case NPCDATASTILE: return "NPCDATASTILE";
-		case NPCDATASWIDTH: return "NPCDATASWIDTH";
-		case NPCDATASHEIGHT: return "NPCDATASHEIGHT";
-		case NPCDATAETILE: return "NPCDATAETILE";
-		case NPCDATAEWIDTH: return "NPCDATAEWIDTH";
-		case NPCDATAEHEIGHT: return "NPCDATAEHEIGHT";
-		case NPCDATAHP: return "NPCDATAHP";
-		case NPCDATAFAMILY: return "NPCDATAFAMILY";
-		case NPCDATACSET: return "NPCDATACSET";
-		case NPCDATAANIM: return "NPCDATAANIM";
-		case NPCDATAEANIM: return "NPCDATAEANIM";
-		case NPCDATAFRAMERATE: return "NPCDATAFRAMERATE";
-		case NPCDATAEFRAMERATE: return "NPCDATAEFRAMERATE";
-		case NPCDATATOUCHDAMAGE: return "NPCDATATOUCHDAMAGE";
-		case NPCDATAWEAPONDAMAGE: return "NPCDATAWEAPONDAMAGE";
-		case NPCDATAWEAPON: return "NPCDATAWEAPON";
-		case NPCDATARANDOM: return "NPCDATARANDOM";
-		case NPCDATAHALT: return "NPCDATAHALT";
-		case NPCDATASTEP: return "NPCDATASTEP";
-		case NPCDATAHOMING: return "NPCDATAHOMING";
-		case NPCDATAHUNGER: return "NPCDATAHUNGER";
-		case NPCDATADROPSET: return "NPCDATADROPSET";
-		case NPCDATABGSFX: return "NPCDATABGSFX";
-		case NPCDATADEATHSFX: return "NPCDATADEATHSFX";
-		case NPCDATAXOFS: return "NPCDATAXOFS";
-		case NPCDATAYOFS: return "NPCDATAYOFS";
-		case NPCDATAZOFS: return "NPCDATAZOFS";
-		case NPCDATAHXOFS: return "NPCDATAHXOFS";
-		case NPCDATAHYOFS: return "NPCDATAHYOFS";
-		case NPCDATAHITWIDTH: return "NPCDATAHITWIDTH";
-		case NPCDATAHITHEIGHT: return "NPCDATAHITHEIGHT";
-		case NPCDATAHITZ: return "NPCDATAHITZ";
-		case NPCDATATILEWIDTH: return "NPCDATATILEWIDTH";
-		case NPCDATATILEHEIGHT: return "NPCDATATILEHEIGHT";
-		case NPCDATAWPNSPRITE: return "NPCDATAWPNSPRITE";
-		case NPCDATADEFENSE: return "NPCDATADEFENSE";
-		case NPCDATASIZEFLAG: return "NPCDATASIZEFLAG";
-		case NPCDATAATTRIBUTE: return "NPCDATAATTRIBUTE";
-		case NPCDATASHIELD: return "NPCDATASHIELD";
-		case NPCDATAFROZENTILE: return "NPCDATAFROZENTILE";
-		case NPCDATAFROZENCSET: return "NPCDATAFROZENCSET";
-		case NPCDATABEHAVIOUR: return "NPCDATABEHAVIOUR";
-			
-		case MAPDATAVALID: return "MAPDATAVALID";
-		case MAPDATAGUY: return "MAPDATAGUY";
-		case MAPDATASTRING: return "MAPDATASTRING";
-		case MAPDATAROOM: return "MAPDATAROOM";
-		case MAPDATAITEM: return "MAPDATAITEM";
-		case MAPDATAHASITEM: return "MAPDATAHASITEM";
-		case MAPDATATILEWARPTYPE: return "MAPDATATILEWARPTYPE";
-		case MAPDATATILEWARPOVFLAGS: return "MAPDATATILEWARPOVFLAGS";
-		case MAPDATADOORCOMBOSET: return "MAPDATADOORCOMBOSET";
-		case MAPDATAWARPRETX: return "MAPDATAWARPRETX";
-		case MAPDATAWARPRETY: return "MAPDATAWARPRETY";
-		case MAPDATAWARPRETURNC: return "MAPDATAWARPRETURNC";
-		case MAPDATASTAIRX: return "MAPDATASTAIRX";
-		case MAPDATASTAIRY: return "MAPDATASTAIRY";
-		case MAPDATACOLOUR: return "MAPDATACOLOUR";
-		case MAPDATAENEMYFLAGS: return "MAPDATAENEMYFLAGS";
-		case MAPDATADOOR: return "MAPDATADOOR";
-		case MAPDATATILEWARPDMAP: return "MAPDATATILEWARPDMAP";
-		case MAPDATATILEWARPSCREEN: return "MAPDATATILEWARPSCREEN";
-		case MAPDATAEXITDIR: return "MAPDATAEXITDIR";
-		case MAPDATAENEMY: return "MAPDATAENEMY";
-		case MAPDATAPATTERN: return "MAPDATAPATTERN";
-		case MAPDATASIDEWARPTYPE: return "MAPDATASIDEWARPTYPE";
-		case MAPDATASIDEWARPOVFLAGS: return "MAPDATASIDEWARPOVFLAGS";
-		case MAPDATAWARPARRIVALX: return "MAPDATAWARPARRIVALX";
-		case MAPDATAWARPARRIVALY: return "MAPDATAWARPARRIVALY";
-		case MAPDATAPATH: return "MAPDATAPATH";
-		case MAPDATASIDEWARPSC: return "MAPDATASIDEWARPSC";
-		case MAPDATASIDEWARPDMAP: return "MAPDATASIDEWARPDMAP";
-		case MAPDATASIDEWARPINDEX: return "MAPDATASIDEWARPINDEX";
-		case MAPDATAUNDERCOMBO: return "MAPDATAUNDERCOMBO";
-		case MAPDATAUNDERCSET: return "MAPDATAUNDERCSET";
-		case MAPDATACATCHALL: return "MAPDATACATCHALL";
-		case MAPDATAFLAGS: return "MAPDATAFLAGS";
-		case MAPDATACSENSITIVE: return "MAPDATACSENSITIVE";
-		case MAPDATANORESET: return "MAPDATANORESET";
-		case MAPDATANOCARRY: return "MAPDATANOCARRY";
-		case MAPDATALAYERMAP: return "MAPDATALAYERMAP";
-		case MAPDATALAYERSCREEN: return "MAPDATALAYERSCREEN";
-		case MAPDATALAYEROPACITY: return "MAPDATALAYEROPACITY";
-		case MAPDATATIMEDWARPTICS: return "MAPDATATIMEDWARPTICS";
-		case MAPDATANEXTMAP: return "MAPDATANEXTMAP";
-		case MAPDATANEXTSCREEN: return "MAPDATANEXTSCREEN";
-		case MAPDATASECRETCOMBO: return "MAPDATASECRETCOMBO";
-		case MAPDATASECRETCSET: return "MAPDATASECRETCSET";
-		case MAPDATASECRETFLAG: return "MAPDATASECRETFLAG";
-		case MAPDATAVIEWX: return "MAPDATAVIEWX";
-		case MAPDATAVIEWY: return "MAPDATAVIEWY";
-		case MAPDATASCREENWIDTH: return "MAPDATASCREENWIDTH";
-		case MAPDATASCREENHEIGHT: return "MAPDATASCREENHEIGHT";
-		case MAPDATAENTRYX: return "MAPDATAENTRYX";
-		case MAPDATAENTRYY: return "MAPDATAENTRYY";
-		case MAPDATANUMFF: return "MAPDATANUMFF";
-		case MAPDATAFFDATA: return "MAPDATAFFDATA";
-		case MAPDATAFFCSET: return "MAPDATAFFCSET";
-		case MAPDATAFFDELAY: return "MAPDATAFFDELAY";
-		case MAPDATAFFX: return "MAPDATAFFX";
-		case MAPDATAFFY: return "MAPDATAFFY";
-		case MAPDATAFFXDELTA: return "MAPDATAFFXDELTA";
-		case MAPDATAFFYDELTA: return "MAPDATAFFYDELTA";
-		case MAPDATAFFXDELTA2: return "MAPDATAFFXDELTA2";
-		case MAPDATAFFYDELTA2: return "MAPDATAFFYDELTA2";
-		case MAPDATAFFFLAGS: return "MAPDATAFFFLAGS";
-		case MAPDATAFFWIDTH: return "MAPDATAFFWIDTH";
-		case MAPDATAFFHEIGHT: return "MAPDATAFFHEIGHT";
-		case MAPDATAFFLINK: return "MAPDATAFFLINK";
-		case MAPDATAFFSCRIPT: return "MAPDATAFFSCRIPT";
-		case MAPDATAINTID: return "MAPDATAINTID"; //needs to be a function; [32][10]
-		case MAPDATAINITA: return "MAPDATAINITA"; //needs to be a function [32][2]
-		case MAPDATAFFINITIALISED: return "MAPDATAFFINITIALISED";
-		case MAPDATASCRIPTENTRY: return "MAPDATASCRIPTENTRY";
-		case MAPDATASCRIPTOCCUPANCY: return "MAPDATASCRIPTOCCUPANCY";
-		case MAPDATASCRIPTEXIT: return "MAPDATASCRIPTEXIT";
-		case MAPDATAOCEANSFX: return "MAPDATAOCEANSFX";
-		case MAPDATABOSSSFX: return "MAPDATABOSSSFX";
-		case MAPDATASECRETSFX: return "MAPDATASECRETSFX";
-		case MAPDATAHOLDUPSFX: return "MAPDATAHOLDUPSFX";
-		case MAPDATASCREENMIDI: return "MAPDATASCREENMIDI";
-		case MAPDATALENSLAYER: return "MAPDATALENSLAYER";
-		
-		case MAPDATACOMBODD: return "MAPDATACOMBODD";
-		case MAPDATACOMBOCD: return "MAPDATACOMBOCD";
-		case MAPDATACOMBOFD: return "MAPDATACOMBOFD";
-		case MAPDATACOMBOTD: return "MAPDATACOMBOTD";
-		case MAPDATACOMBOID: return "MAPDATACOMBOID";
-		case MAPDATACOMBOSD: return "MAPDATACOMBOSD";
-		case MAPDATACOMBOED: return "MAPDATACOMBOED";
-		
-		
-		
-		case MAPDATAMISCD: return "MAPDATAMISCD";
-		case MAPDATASCREENSTATED: return "MAPDATASCREENSTATED";
-		case MAPDATASCREENFLAGSD: return "MAPDATASCREENFLAGSD";
-		case MAPDATASCREENEFLAGSD: return "MAPDATASCREENEFLAGSD";
-		
-			
-		case SCREENDATAVALID: return "SCREENDATAVALID";
-		case SCREENDATAGUY: return "SCREENDATAGUY";
-		case SCREENDATASTRING: return "SCREENDATASTRING";
-		case SCREENDATAROOM: return "SCREENDATAROOM";
-		case SCREENDATAITEM: return "SCREENDATAITEM";
-		case SCREENDATAHASITEM: return "SCREENDATAHASITEM";
-		case SCREENDATATILEWARPTYPE: return "SCREENDATATILEWARPTYPE";
-		case SCREENDATATILEWARPOVFLAGS: return "SCREENDATATILEWARPOVFLAGS";
-		case SCREENDATADOORCOMBOSET: return "SCREENDATADOORCOMBOSET";
-		case SCREENDATAWARPRETX: return "SCREENDATAWARPRETX";
-		case SCREENDATAWARPRETY: return "SCREENDATAWARPRETY";
-		case SCREENDATAWARPRETURNC: return "SCREENDATAWARPRETURNC";
-		case SCREENDATASTAIRX: return "SCREENDATASTAIRX";
-		case SCREENDATASTAIRY: return "SCREENDATASTAIRY";
-		case SCREENDATACOLOUR: return "SCREENDATACOLOUR";
-		case SCREENDATAENEMYFLAGS: return "SCREENDATAENEMYFLAGS";
-		case SCREENDATADOOR: return "SCREENDATADOOR";
-		case SCREENDATATILEWARPDMAP: return "SCREENDATATILEWARPDMAP";
-		case SCREENDATATILEWARPSCREEN: return "SCREENDATATILEWARPSCREEN";
-		case SCREENDATAEXITDIR: return "SCREENDATAEXITDIR";
-		case SCREENDATAENEMY: return "SCREENDATAENEMY";
-		case SCREENDATAPATTERN: return "SCREENDATAPATTERN";
-		case SCREENDATASIDEWARPTYPE: return "SCREENDATASIDEWARPTYPE";
-		case SCREENDATASIDEWARPOVFLAGS: return "SCREENDATASIDEWARPOVFLAGS";
-		case SCREENDATAWARPARRIVALX: return "SCREENDATAWARPARRIVALX";
-		case SCREENDATAWARPARRIVALY: return "SCREENDATAWARPARRIVALY";
-		case SCREENDATAPATH: return "SCREENDATAPATH";
-		case SCREENDATASIDEWARPSC: return "SCREENDATASIDEWARPSC";
-		case SCREENDATASIDEWARPDMAP: return "SCREENDATASIDEWARPDMAP";
-		case SCREENDATASIDEWARPINDEX: return "SCREENDATASIDEWARPINDEX";
-		case SCREENDATAUNDERCOMBO: return "SCREENDATAUNDERCOMBO";
-		case SCREENDATAUNDERCSET: return "SCREENDATAUNDERCSET";
-		case SCREENDATACATCHALL: return "SCREENDATACATCHALL";
-		case SCREENDATAFLAGS: return "SCREENDATAFLAGS";
-		case SCREENDATACSENSITIVE: return "SCREENDATACSENSITIVE";
-		case SCREENDATANORESET: return "SCREENDATANORESET";
-		case SCREENDATANOCARRY: return "SCREENDATANOCARRY";
-		case SCREENDATALAYERMAP: return "SCREENDATALAYERMAP";
-		case SCREENDATALAYERSCREEN: return "SCREENDATALAYERSCREEN";
-		case SCREENDATALAYEROPACITY: return "SCREENDATALAYEROPACITY";
-		case SCREENDATALAYERINVIS: return "SCREENDATALAYERINVIS";
-		case SCREENDATASCRIPTDRAWS: return "SCREENDATASCRIPTDRAWS";
-		case SCREENDATATIMEDWARPTICS: return "SCREENDATATIMEDWARPTICS";
-		case SCREENDATANEXTMAP: return "SCREENDATANEXTMAP";
-		case SCREENDATANEXTSCREEN: return "SCREENDATANEXTSCREEN";
-		case SCREENDATASECRETCOMBO: return "SCREENDATASECRETCOMBO";
-		case SCREENDATASECRETCSET: return "SCREENDATASECRETCSET";
-		case SCREENDATASECRETFLAG: return "SCREENDATASECRETFLAG";
-		case SCREENDATAVIEWX: return "SCREENDATAVIEWX";
-		case SCREENDATAVIEWY: return "SCREENDATAVIEWY";
-		case SCREENDATASCREENWIDTH: return "SCREENDATASCREENWIDTH";
-		case SCREENDATASCREENHEIGHT: return "SCREENDATASCREENHEIGHT";
-		case SCREENDATAENTRYX: return "SCREENDATAENTRYX";
-		case SCREENDATAENTRYY: return "SCREENDATAENTRYY";
-		case SCREENDATANUMFF: return "SCREENDATANUMFF";
-		case SCREENDATAFFDATA: return "SCREENDATAFFDATA";
-		case SCREENDATAFFCSET: return "SCREENDATAFFCSET";
-		case SCREENDATAFFDELAY: return "SCREENDATAFFDELAY";
-		case SCREENDATAFFX: return "SCREENDATAFFX";
-		case SCREENDATAFFY: return "SCREENDATAFFY";
-		case SCREENDATAFFXDELTA: return "SCREENDATAFFXDELTA";
-		case SCREENDATAFFYDELTA: return "SCREENDATAFFYDELTA";
-		case SCREENDATAFFXDELTA2: return "SCREENDATAFFXDELTA2";
-		case SCREENDATAFFYDELTA2: return "SCREENDATAFFYDELTA2";
-		case SCREENDATAFFFLAGS: return "SCREENDATAFFFLAGS";
-		case SCREENDATAFFWIDTH: return "SCREENDATAFFWIDTH";
-		case SCREENDATAFFHEIGHT: return "SCREENDATAFFHEIGHT";
-		case SCREENDATAFFLINK: return "SCREENDATAFFLINK";
-		case SCREENDATAFFSCRIPT: return "SCREENDATAFFSCRIPT";
-		case SCREENDATAINTID: return "SCREENDATAINTID"; //needs to be a function; [32][10]
-		case SCREENDATAINITA: return "SCREENDATAINITA"; //needs to be a function [32][2]
-		case SCREENDATAFFINITIALISED: return "SCREENDATAFFINITIALISED";
-		case SCREENDATASCRIPTENTRY: return "SCREENDATASCRIPTENTRY";
-		case SCREENDATASCRIPTOCCUPANCY: return "SCREENDATASCRIPTOCCUPANCY";
-		case SCREENDATASCRIPTEXIT: return "SCREENDATASCRIPTEXIT";
-		case SCREENDATAOCEANSFX: return "SCREENDATAOCEANSFX";
-		case SCREENDATABOSSSFX: return "SCREENDATABOSSSFX";
-		case SCREENDATASECRETSFX: return "SCREENDATASECRETSFX";
-		case SCREENDATAHOLDUPSFX: return "SCREENDATAHOLDUPSFX";
-		case SCREENDATASCREENMIDI: return "SCREENDATASCREENMIDI";
-		case SCREENDATALENSLAYER: return "SCREENDATALENSLAYER";
-		
-		case LINKSCRIPTTILE: return "LINKSCRIPTTILE";
-		case LINKSCRIPFLIP: return "LINKSCRIPFLIP";
-		case MAPDATAITEMX: return "MAPDATAITEMX";
-		case MAPDATAITEMY: return "MAPDATAITEMY";
-		case SCREENDATAITEMX: return "SCREENDATAITEMX";
-		case SCREENDATAITEMY: return "SCREENDATAITEMY";
-		
-		case MAPDATAFFEFFECTWIDTH: return "MAPDATAFFEFFECTWIDTH";
-		case MAPDATAFFEFFECTHEIGHT: return "MAPDATAFFEFFECTHEIGHT";
-		case SCREENDATAFFEFFECTWIDTH: return "SCREENDATAFFEFFECTWIDTH";
-		case SCREENDATAFFEFFECTHEIGHT: return "SCREENDATAFFEFFECTHEIGHT";
-		case LOADMAPDATA: return "LOADMAPDATA";
-		case CREATEBITMAP: return "CREATEBITMAP";
-		case SHOPDATANAME: return "SHOPDATANAME";
-		case SHOPDATAITEM: return "SHOPDATAITEM";
-		case SHOPDATAHASITEM: return "SHOPDATAHASITEM";
-		case SHOPDATAPRICE: return "SHOPDATAPRICE";
-		case SHOPDATASTRING: return "SHOPDATASTRING";
-		
-		case AUDIOVOLUME: return "AUDIOVOLUME";
-		case AUDIOPAN: return "AUDIOPAN";
-		
-		case MESSAGEDATANEXT: return "MESSAGEDATANEXT";
-		case MESSAGEDATATILE: return "MESSAGEDATATILE";
-		case MESSAGEDATACSET: return "MESSAGEDATACSET";
-		case MESSAGEDATATRANS: return "MESSAGEDATATRANS";
-		case MESSAGEDATAFONT: return "MESSAGEDATAFONT";
-		case MESSAGEDATAX: return "MESSAGEDATAX";
-		case MESSAGEDATAY: return "MESSAGEDATAY";
-		case MESSAGEDATAW: return "MESSAGEDATAW";
-		case MESSAGEDATAH: return "MESSAGEDATAH";
-		case MESSAGEDATASFX: return "MESSAGEDATASFX";
-		case MESSAGEDATALISTPOS: return "MESSAGEDATALISTPOS";
-		case MESSAGEDATAVSPACE: return "MESSAGEDATAVSPACE";
-		case MESSAGEDATAHSPACE: return "MESSAGEDATAHSPACE";
-		case MESSAGEDATAFLAGS: return "MESSAGEDATAFLAGS";
-		case MESSAGEDATAMARGINS: return "MESSAGEDATAMARGINS";
-		case MESSAGEDATAPORTTILE: return "MESSAGEDATAPORTTILE";
-		case MESSAGEDATAPORTCSET: return "MESSAGEDATAPORTCSET";
-		case MESSAGEDATAPORTX: return "MESSAGEDATAPORTX";
-		case MESSAGEDATAPORTY: return "MESSAGEDATAPORTY";
-		case MESSAGEDATAPORTWID: return "MESSAGEDATAPORTWID";
-		case MESSAGEDATAPORTHEI: return "MESSAGEDATAPORTHEI";
-		case MESSAGEDATAFLAGSARR: return "MESSAGEDATAFLAGSARR";
-		case MESSAGEDATATEXTWID: return "MESSAGEDATATEXTWID";
-		case MESSAGEDATATEXTHEI: return "MESSAGEDATATEXTHEI";
-		case MESSAGEDATATEXTLEN: return "MESSAGEDATATEXTLEN";
-		
-		case DMAPDATAID: return "DMAPDATAID";
-		case DMAPDATAMAP: return "DMAPDATAMAP";
-		case DMAPDATALEVEL: return "DMAPDATALEVEL";
-		case DMAPDATAOFFSET: return "DMAPDATAOFFSET";
-		case DMAPDATACOMPASS: return "DMAPDATACOMPASS";
-		case DMAPDATAPALETTE: return "DMAPDATAPALETTE";
-		case DMAPDATAMIDI: return "DMAPDATAMIDI";
-		case DMAPDATACONTINUE: return "DMAPDATACONTINUE";
-		case DMAPDATATYPE: return "DMAPDATATYPE";
-		case DMAPDATAGRID: return "DMAPDATAGRID";
-		case DMAPDATAMINIMAPTILE: return "DMAPDATAMINIMAPTILE";
-		case DMAPDATAMINIMAPCSET: return "DMAPDATAMINIMAPCSET";
-		case DMAPDATALARGEMAPTILE: return "DMAPDATALARGEMAPTILE";
-		case DMAPDATALARGEMAPCSET: return "DMAPDATALARGEMAPCSET";
-		case DMAPDATAMUISCTRACK: return "DMAPDATAMUISCTRACK";
-		case DMAPDATASUBSCRA: return "DMAPDATASUBSCRA";
-		case DMAPDATASUBSCRP: return "DMAPDATASUBSCRP";
-		case DMAPDATADISABLEDITEMS: return "DMAPDATADISABLEDITEMS";
-		case DMAPDATAFLAGS: return "DMAPDATAFLAGS";
-		case DMAPDATAMIRRDMAP: return "DMAPDATAMIRRDMAP";
-		
-		case ITEMPSTRING: return "ITEMPSTRING";
-		case ITEMPSTRINGFLAGS: return "ITEMPSTRINGFLAGS";
-		case ITEMOVERRIDEFLAGS: return "ITEMOVERRIDEFLAGS";
-		case IDATAGRADUAL: return "IDATAGRADUAL";
-		case IDATASPRSCRIPT: return "IDATASPRSCRIPT";
-		case IDATAPSOUND: return "IDATAPSOUND";
-		case IDATACONSTSCRIPT: return "IDATACONSTSCRIPT";
-		case IDATASSWIMDISABLED: return "IDATASSWIMDISABLED";
-		case IDATABUNNYABLE: return "IDATABUNNYABLE";
-		case IDATAJINXIMMUNE: return "IDATAJINXIMMUNE";
-		case IDATAJINXSWAP: return "IDATAJINXSWAP";
-		
-		
-		case LINKPUSH: return "LINKPUSH";
-		case LINKSTUN: return "LINKSTUN";
-		case TYPINGMODE: return "TYPINGMODE";
-	//	case DMAPDATAGRAVITY: return "DMAPDATAGRAVITY";
-	//	case DMAPDATAJUMPLAYER: return "DMAPDATAJUMPLAYER";
-
-
-		//newcombo struct
-		case COMBODTILE: return "COMBODTILE";
-		case COMBODFLIP: return "COMBODFLIP";
-		case COMBODWALK: return "COMBODWALK";
-		case COMBODEFFECT: return "COMBODEFFECT";
-		case COMBODTYPE: return "COMBODTYPE";
-		case COMBODCSET: return "COMBODCSET";
-		case COMBODFOO: return "COMBODFOO";
-		case COMBODFRAMES: return "COMBODFRAMES";
-		case COMBODNEXTD: return "COMBODNEXTD";
-		case COMBODNEXTC: return "COMBODNEXTC";
-		case COMBODFLAG: return "COMBODFLAG";
-		case COMBODSKIPANIM: return "COMBODSKIPANIM";
-		case COMBODNEXTTIMER: return "COMBODNEXTTIMER";
-		case COMBODAKIMANIMY: return "COMBODAKIMANIMY";
-		case COMBODANIMFLAGS: return "COMBODANIMFLAGS";
-		case COMBODEXPANSION: return "COMBODEXPANSION";
-		case COMBODATTRIBUTES: return "COMBODATTRIBUTES";
-		case COMBODATTRIBYTES: return "COMBODATTRIBYTES";
-		case COMBODATTRISHORTS: return "COMBODATTRISHORTS";
-		case COMBODUSRFLAGS: return "COMBODUSRFLAGS";
-		case COMBODTRIGGERFLAGS: return "COMBODTRIGGERFLAGS";
-		case COMBODTRIGGERFLAGS2: return "COMBODTRIGGERFLAGS2";
-		case COMBODTRIGGERBUTTON: return "COMBODTRIGGERBUTTON";
-		case COMBODTRIGGERLEVEL: return "COMBODTRIGGERLEVEL";
-
-		//comboclass struct
-		case COMBODNAME: return "COMBODNAME";
-		case COMBODBLOCKNPC: return "COMBODBLOCKNPC";
-		case COMBODBLOCKHOLE: return "COMBODBLOCKHOLE";
-		case COMBODBLOCKTRIG: return "COMBODBLOCKTRIG";
-		case COMBODBLOCKWEAPON: return "COMBODBLOCKWEAPON";
-		case COMBODCONVXSPEED: return "COMBODCONVXSPEED";
-		case COMBODCONVYSPEED: return "COMBODCONVYSPEED";
-		case COMBODSPAWNNPC: return "COMBODSPAWNNPC";
-		case COMBODSPAWNNPCWHEN: return "COMBODSPAWNNPCWHEN";
-		case COMBODSPAWNNPCCHANGE: return "COMBODSPAWNNPCCHANGE";
-		case COMBODDIRCHANGETYPE: return "COMBODDIRCHANGETYPE";
-		case COMBODDISTANCECHANGETILES: return "COMBODDISTANCECHANGETILES";
-		case COMBODDIVEITEM: return "COMBODDIVEITEM";
-		case COMBODDOCK: return "COMBODDOCK";
-		case COMBODFAIRY: return "COMBODFAIRY";
-		case COMBODFFATTRCHANGE: return "COMBODFFATTRCHANGE";
-		case COMBODFOORDECOTILE: return "COMBODFOORDECOTILE";
-		case COMBODFOORDECOTYPE: return "COMBODFOORDECOTYPE";
-		case COMBODHOOKSHOTPOINT: return "COMBODHOOKSHOTPOINT";
-		case COMBODLADDERPASS: return "COMBODLADDERPASS";
-		case COMBODLOCKBLOCK: return "COMBODLOCKBLOCK";
-		case COMBODLOCKBLOCKCHANGE: return "COMBODLOCKBLOCKCHANGE";
-		case COMBODMAGICMIRROR: return "COMBODMAGICMIRROR";
-		case COMBODMODHPAMOUNT: return "COMBODMODHPAMOUNT";
-		case COMBODMODHPDELAY: return "COMBODMODHPDELAY";
-		case COMBODMODHPTYPE: return "COMBODMODHPTYPE";
-		case COMBODNMODMPAMOUNT: return "COMBODNMODMPAMOUNT";
-		case COMBODMODMPDELAY: return "COMBODMODMPDELAY";
-		case COMBODMODMPTYPE: return "COMBODMODMPTYPE";
-		case COMBODNOPUSHBLOCK: return "COMBODNOPUSHBLOCK";
-		case COMBODOVERHEAD: return "COMBODOVERHEAD";
-		case COMBODPLACENPC: return "COMBODPLACENPC";
-		case COMBODPUSHDIR: return "COMBODPUSHDIR";
-		case COMBODPUSHWAIT: return "COMBODPUSHWAIT";
-		case COMBODPUSHHEAVY: return "COMBODPUSHHEAVY";
-		case COMBODPUSHED: return "COMBODPUSHED";
-		case COMBODRAFT: return "COMBODRAFT";
-		case COMBODRESETROOM: return "COMBODRESETROOM";
-		case COMBODSAVEPOINTTYPE: return "COMBODSAVEPOINTTYPE";
-		case COMBODSCREENFREEZETYPE: return "COMBODSCREENFREEZETYPE";
-		case COMBODSECRETCOMBO: return "COMBODSECRETCOMBO";
-		case COMBODSINGULAR: return "COMBODSINGULAR";
-		case COMBODSLOWWALK: return "COMBODSLOWWALK";
-		case COMBODSTATUETYPE: return "COMBODSTATUETYPE";
-		case COMBODSTEPTYPE: return "COMBODSTEPTYPE";
-		case COMBODSTEPCHANGEINTO: return "COMBODSTEPCHANGEINTO";
-		case COMBODSTRIKEWEAPONS: return "COMBODSTRIKEWEAPONS";
-		case COMBODSTRIKEREMNANTS: return "COMBODSTRIKEREMNANTS";
-		case COMBODSTRIKEREMNANTSTYPE: return "COMBODSTRIKEREMNANTSTYPE";
-		case COMBODSTRIKECHANGE: return "COMBODSTRIKECHANGE";
-		case COMBODSTRIKEITEM: return "COMBODSTRIKEITEM";
-		case COMBODTOUCHITEM: return "COMBODTOUCHITEM";
-		case COMBODTOUCHSTAIRS: return "COMBODTOUCHSTAIRS";
-		case COMBODTRIGGERTYPE: return "COMBODTRIGGERTYPE";
-		case COMBODTRIGGERSENS: return "COMBODTRIGGERSENS";
-		case COMBODWARPTYPE: return "COMBODWARPTYPE";
-		case COMBODWARPSENS: return "COMBODWARPSENS";
-		case COMBODWARPDIRECT: return "COMBODWARPDIRECT";
-		case COMBODWARPLOCATION: return "COMBODWARPLOCATION";
-		case COMBODWATER: return "COMBODWATER";
-		case COMBODWHISTLE: return "COMBODWHISTLE";
-		case COMBODWINGAME: return "COMBODWINGAME";
-		case COMBODBLOCKWPNLEVEL: return "COMBODBLOCKWPNLEVEL";
-		case LINKHITBY: return "LINKHITBY";
-		case LINKDEFENCE: return "LINKDEFENCE";
-		case NPCHITBY: return "NPCHITBY";
-		case NPCISCORE: return "NPCISCORE";
-		case NPCSCRIPTUID: return "NPCSCRIPTUID";
-		case LWEAPONSCRIPTUID: return "LWEAPONSCRIPTUID";
-		case EWEAPONSCRIPTUID: return "EWEAPONSCRIPTUID";
-		case ITEMSCRIPTUID: return "ITEMSCRIPTUID";
-		case DMAPDATASIDEVIEW: return "DMAPDATASIDEVIEW";
-		case DMAPDATAASUBSCRIPT: return "DMAPDATAASUBSCRIPT";
-		case DMAPDATAPSUBSCRIPT: return "DMAPDATAPSUBSCRIPT";
-		case DMAPDATASUBINITD: return "DMAPDATASUBINITD";
-		case DMAPDATAMAPSCRIPT: return "DMAPDATAMAPSCRIPT";
-		case DMAPDATAMAPINITD: return "DMAPDATAMAPINITD";
-		case DMAPDATACHARTED: return "DMAPDATACHARTED";
-		
-		
-		case DONULL: return "DONULL";
-		case DEBUGD: return "DEBUGD";
-		case GETPIXEL: return "GETPIXEL";
-		case DOUNTYPE: return "DOUNTYPE";
-		case LINKTILEMOD: return "LINKTILEMOD";
-		case NPCINITD: return "NPCINITD";
-		
-		case NPCCOLLISION: return "NPCCOLLISION";
-		case NPCLINEDUP: return "NPCLINEDUP";
-		case NPCDATAINITD: return "NPCDATAINITD";
-		case NPCDATASCRIPT: return "NPCDATASCRIPT";
-		case NPCMATCHINITDLABEL: return "NPCMATCHINITDLABEL";
-		//lweapon scripts
-		case LWPNSCRIPT: return "LWPNSCRIPT";
-		case LWPNINITD: return "LWPNINITD";
-		case ITEMFAMILY: return "ITEMFAMILY";
-		case ITEMLEVEL: return "ITEMLEVEL";
-		
-		case EWPNSCRIPT: return "EWPNSCRIPT";
-		case EWPNINITD: return "EWPNINITD";
-		case NPCSCRIPT: return "NPCSCRIPT";
-		case DMAPSCRIPT: return "DMAPSCRIPT";
-		case DMAPINITD: return "DMAPINITD";
-		case SCREENSCRIPT: return "SCREENSCRIPT";
-		case SCREENSECRETSTRIGGERED: return "SCREENSECRETSTRIGGERED";
-		case SCREENINITD: return "SCREENINITD";
-		case LINKINITD: return "LINKINITD";
-		case NPCDATAWEAPONINITD: return "NPCDATAWEAPONINITD";
-		case NPCDATAWEAPONSCRIPT: return "NPCDATAWEAPONSCRIPT";
-		
-		case NPCSCRIPTTILE: return "NPCSCRIPTTILE";
-		case NPCSCRIPTFLIP: return "NPCSCRIPTFLIP";
-		case LWPNSCRIPTTILE: return "LWPNSCRIPTTILE";
-		case LWPNSCRIPTFLIP: return "LWPNSCRIPTFLIP";
-		case EWPNSCRIPTTILE: return "EWPNSCRIPTTILE";
-		case EWPNSCRIPTFLIP: return "EWPNSCRIPTFLIP";
-		
-		case LINKENGINEANIMATE: return "LINKENGINEANIMATE";
-		case NPCENGINEANIMATE: return "NPCENGINEANIMATE";
-		case LWPNENGINEANIMATE: return "LWPNENGINEANIMATE";
-		case EWPNENGINEANIMATE: return "EWPNENGINEANIMATE";
-		
-		case SKIPCREDITS: return "SKIPCREDITS";
-		case SKIPF6: return "SKIPF6";
-		case LWPNUSEWEAPON: return "LWPNUSEWEAPON";
-		case LWPNUSEDEFENCE: return "LWPNUSEDEFENCE";
-
-		case LWPNROTATION: return "LWPNROTATION";
-		case EWPNROTATION: return "EWPNROTATION";
-		case NPCROTATION: return "NPCROTATION";
-		case ITEMROTATION: return "ITEMROTATION";
-		case LINKROTATION: return "LINKROTATION";
-		
-		case LWPNSCALE: return "LWPNSCALE";
-		case EWPNSCALE: return "EWPNSCALE";
-		case NPCSCALE: return "NPCSCALE";
-		case ITEMSCALE: return "ITEMSCALE";
-		case LINKSCALE: return "LINKSCALE";
-		case ITEMSPRITESCRIPT: return "ITEMSPRITESCRIPT";
-		case FFRULE: return "FFRULE";
-		case NUMDRAWS: return "NUMDRAWS";
-		case MAXDRAWS: return "MAXDRAWS";
-		case BITMAPWIDTH: return "BITMAPWIDTH";
-		case BITMAPHEIGHT: return "BITMAPHEIGHT";
-		case ALLOCATEBITMAPR: return "ALLOCATEBITMAPR";
-		case KEYMODIFIERS: return "KEYMODIFIERS";
-		case SIMULATEKEYPRESS: return "SIMULATEKEYPRESS";
-		case KEYBINDINGS: return "KEYBINDINGS";
-		
-		case MAPDATASCRIPT: return "MAPDATASCRIPT";
-		
-		case MAPDATAINITDARRAY: return "MAPDATAINITDARRAY";
-		
-		case LWPNGRAVITY: return "LWPNGRAVITY";
-		case EWPNGRAVITY: return "EWPNGRAVITY";
-		case NPCGRAVITY: return "NPCGRAVITY";
-		case ITEMGRAVITY: return "ITEMGRAVITY";
-		case LINKGRAVITY: return "LINKGRAVITY";
-		case MAPDATASIDEWARPID: return "MAPDATASIDEWARPID";
-		case SCREENSIDEWARPID: return "SCREENSIDEWARPID";
-		
-		case MAPDATALAYERINVIS: return "MAPDATALAYERINVIS";
-		case MAPDATASCRIPTDRAWS: return "MAPDATASCRIPTDRAWS";
-		
-		case ITEMSCRIPTTILE: return "ITEMSCRIPTTILE";
-		case ITEMSCRIPTFLIP: return "ITEMSCRIPTFLIP";
-		case MAPDATAMAP: return "MAPDATAMAP";
-		case MAPDATASCREEN: return "MAPDATASCREEN";
-		case IDATAVALIDATE: return "IDATAVALIDATE";
-		case IDATAVALIDATE2: return "IDATAVALIDATE2";
-		case GAMESUSPEND: return "GAMESUSPEND";
-		case LINKOTILE: return "LINKOTILE";
-		case LINKOFLIP: return "LINKOFLIP";
-		case ITEMSPRITEINITD: return "ITEMSPRITEINITD";
-		case ZSCRIPTVERSION: return "ZSCRIPTVERSION";
-		case REFFILE: return "REFFILE";
-		case REFDIRECTORY: return "REFDIRECTORY";
-		case REFSTACK: return "REFSTACK";
-		case REFSUBSCREEN: return "REFSUBSCREEN";
-		case REFRNG: return "REFRNG";
-		
-		case CLASS_THISKEY: return "CLASS_THISKEY";
-		case CLASS_THISKEY2: return "CLASS_THISKEY2";
-		case ZELDABETATYPE: return "ZELDABETATYPE";
-		case HEROCOYOTETIME: return "HEROCOYOTETIME";
-		case FFCLASTCHANGERX: return "FFCLASTCHANGERX";
-		case FFCLASTCHANGERY: return "FFCLASTCHANGERY";
-		case LWPNTIMEOUT: return "LWPNTIMEOUT";
-		case EWPNTIMEOUT: return "EWPNTIMEOUT";
-		case COMBODTRIGGERLSTATE: return "COMBODTRIGGERLSTATE";
-		case COMBODTRIGGERGSTATE: return "COMBODTRIGGERGSTATE";
-		case COMBODTRIGGERGTIMER: return "COMBODTRIGGERGTIMER";
-		case GAMEMOUSECURSOR: return "GAMEMOUSECURSOR";
-		case COMBODTRIGGERGENSCRIPT: return "COMBODTRIGGERGENSCRIPT";
-		case COMBODTRIGGERGROUP: return "COMBODTRIGGERGROUP";
-		case COMBODTRIGGERGROUPVAL: return "COMBODTRIGGERGROUPVAL";
-		case HEROLIFTEDWPN: return "HEROLIFTEDWPN";
-		case HEROLIFTTIMER: return "HEROLIFTTIMER";
-		case HEROLIFTMAXTIMER: return "HEROLIFTMAXTIMER";
-		case HEROLIFTHEIGHT: return "HEROLIFTHEIGHT";
-		case HEROHAMMERSTATE: return "HEROHAMMERSTATE";
-		case HEROLIFTFLAGS: return "HEROLIFTFLAGS";
-		case COMBODLIFTWEAPONITEM: return "COMBODLIFTWEAPONITEM";
-		case LWPNDEATHITEM: return "LWPNDEATHITEM";
-		case LWPNDEATHDROPSET: return "LWPNDEATHDROPSET";
-		case LWPNDEATHIPICKUP: return "LWPNDEATHIPICKUP";
-		case LWPNDEATHSPRITE: return "LWPNDEATHSPRITE";
-		case LWPNDEATHSFX: return "LWPNDEATHSFX";
-		case EWPNDEATHITEM: return "EWPNDEATHITEM";
-		case EWPNDEATHDROPSET: return "EWPNDEATHDROPSET";
-		case EWPNDEATHIPICKUP: return "EWPNDEATHIPICKUP";
-		case EWPNDEATHSPRITE: return "EWPNDEATHSPRITE";
-		case EWPNDEATHSFX: return "EWPNDEATHSFX";
-		case LWPNLIFTLEVEL: return "LWPNLIFTLEVEL";
-		case LWPNLIFTTIME: return "LWPNLIFTTIME";
-		case LWPNLIFTHEIGHT: return "LWPNLIFTHEIGHT";
-		case EWPNLIFTLEVEL: return "EWPNLIFTLEVEL";
-		case EWPNLIFTTIME: return "EWPNLIFTTIME";
-		case EWPNLIFTHEIGHT: return "EWPNLIFTHEIGHT";
-		case HEROSHIELDJINX: return "HEROSHIELDJINX";
-		case MAPDATALENSSHOWS: return "MAPDATALENSSHOWS";
-		case MAPDATALENSHIDES: return "MAPDATALENSHIDES";
-		case SCREENLENSSHOWS: return "SCREENLENSSHOWS";
-		case SCREENLENSHIDES: return "SCREENLENSHIDES";
-		case GAMETRIGGROUPS: return "GAMETRIGGROUPS";
-		case GAMEOVERRIDEITEMS: return "GAMEOVERRIDEITEMS";
-		case DMAPDATASUBSCRO: return "DMAPDATASUBSCRO";
-		case REFSUBSCREENPAGE: return "REFSUBSCREENPAGE";
-		case REFSUBSCREENWIDG: return "REFSUBSCREENWIDG";
-		case SUBDATACURPG: return "SUBDATACURPG";
-		case SUBDATANUMPG: return "SUBDATANUMPG";
-		case SUBDATAPAGES: return "SUBDATAPAGES";
-		case SUBDATATYPE: return "SUBDATATYPE";
-		case SUBDATAFLAGS: return "SUBDATAFLAGS";
-		case SUBDATACURSORPOS: return "SUBDATACURSORPOS";
-		case SUBDATASCRIPT: return "SUBDATASCRIPT";
-		case SUBDATAINITD: return "SUBDATAINITD";
-		case SUBDATABTNLEFT: return "SUBDATABTNLEFT";
-		case SUBDATABTNRIGHT: return "SUBDATABTNRIGHT";
-		case SUBDATATRANSLEFTTY: return "SUBDATATRANSLEFTTY";
-		case SUBDATATRANSLEFTSFX: return "SUBDATATRANSLEFTSFX";
-		case SUBDATATRANSLEFTFLAGS: return "SUBDATATRANSLEFTFLAGS";
-		case SUBDATATRANSLEFTARGS: return "SUBDATATRANSLEFTARGS";
-		case PORTALX: return "PORTALX";
-		case PORTALY: return "PORTALY";
-		case PORTALDMAP: return "PORTALDMAP";
-		case PORTALSCREEN: return "PORTALSCREEN";
-		case PORTALACLK: return "PORTALACLK";
-		case PORTALAFRM: return "PORTALAFRM";
-		case PORTALOTILE: return "PORTALOTILE";
-		case PORTALASPD: return "PORTALASPD";
-		case PORTALFRAMES: return "PORTALFRAMES";
-		case PORTALSAVED: return "PORTALSAVED";
-		case PORTALCLOSEDIS: return "PORTALCLOSEDIS";
-		case REFPORTAL: return "REFPORTAL";
-		case REFSAVPORTAL: return "REFSAVPORTAL";
-		case PORTALWARPSFX: return "PORTALWARPSFX";
-		case PORTALWARPVFX: return "PORTALWARPVFX";
-		case SAVEDPORTALX: return "SAVEDPORTALX";
-		case SAVEDPORTALY: return "SAVEDPORTALY";
-		case SAVEDPORTALSRCDMAP: return "SAVEDPORTALSRCDMAP";
-		case SAVEDPORTALDESTDMAP: return "SAVEDPORTALDESTDMAP";
-		case SAVEDPORTALSRCSCREEN: return "SAVEDPORTALSRCSCREEN";
-		case SAVEDPORTALDSTSCREEN: return "SAVEDPORTALDSTSCREEN";
-		case SAVEDPORTALWARPSFX: return "SAVEDPORTALWARPSFX";
-		case SAVEDPORTALWARPVFX: return "SAVEDPORTALWARPVFX";
-		case SAVEDPORTALSPRITE: return "SAVEDPORTALSPRITE";
-		case SAVEDPORTALPORTAL: return "SAVEDPORTALPORTAL";
-		case PORTALCOUNT: return "PORTALCOUNT";
-		case SAVEDPORTALCOUNT: return "SAVEDPORTALCOUNT";
-		
-		case LINKCLIMBING: return "LINKCLIMBING";
-		case NPCIMMORTAL: return "NPCIMMORTAL";
-		case NPCNOSLIDE: return "NPCNOSLIDE";
-		case NPCKNOCKBACKSPEED: return "NPCKNOCKBACKSPEED";
-		case NPCNOSCRIPTKB: return "NPCNOSCRIPTKB";
-		case GETRENDERTARGET: return "GETRENDERTARGET";
-		case HERONOSTEPFORWARD: return "HERONOSTEPFORWARD";
-		
-		case SCREENDATATWARPRETSQR: return "SCREENDATATWARPRETSQR";
-		case SCREENDATASWARPRETSQR: return "SCREENDATASWARPRETSQR";
-		case MAPDATATWARPRETSQR: return "MAPDATATWARPRETSQR";
-		case MAPDATASWARPRETSQR: return "MAPDATASWARPRETSQR";
-		case NPCSUBMERGED: return "NPCSUBMERGED";
-		case EWPNPARENTUID: return "EWPNPARENTUID";
-		case GAMEGRAVITY: return "GAMEGRAVITY";
-		case GAMESCROLLING: return "GAMESCROLLING";
-		case COMBODASPEED: return "COMBODASPEED";
-		case DROPSETITEMS: return "DROPSETITEMS";
-		case DROPSETCHANCES: return "DROPSETCHANCES";
-		case DROPSETNULLCHANCE: return "DROPSETNULLCHANCE";
-		case DROPSETCHOOSE: return "DROPSETCHOOSE";
-		case NPCPARENTUID: return "NPCPARENTUID";
-		case KEYPRESS: return "KEYPRESS";
-		case KEYINPUT: return "KEYINPUT";
-		
-		case SPRITEMAXNPC: return "SPRITEMAXNPC";
-		case SPRITEMAXLWPN: return "SPRITEMAXLWPN";
-		case SPRITEMAXEWPN: return "SPRITEMAXEWPN";
-		case SPRITEMAXITEM: return "SPRITEMAXITEM";
-		case SPRITEMAXPARTICLE: return "SPRITEMAXPARTICLE";
-		case SPRITEMAXDECO: return "SPRITEMAXDECO";
-		case HEROHEALTHBEEP: return "HEROHEALTHBEEP";
-		case NPCRANDOM: return "NPCRANDOM";
-		case COMBOXR: return "COMBOXR";
-		case COMBOYR: return "COMBOYR";
-		case COMBOPOSR: return "COMBOPOSR";
-		case COMBOLAYERR: return "COMBOLAYERR";
-		case COMBODATASCRIPT: return "COMBODATASCRIPT";
-		case COMBODATAINITD: return "COMBODATAINITD";
-		case HEROSCRIPTCSET: return "HEROSCRIPTCSET";
-		case SHOPDATATYPE: return "SHOPDATATYPE";
-		case HEROSTEPS: return "HEROSTEPS";
-		case HEROSTEPRATE: return "HEROSTEPRATE";
-		case COMBODOTILE: return "COMBODOTILE";
-		case COMBODFRAME: return "COMBODFRAME";
-		case COMBODACLK: return "COMBODACLK";
-		
-		case FILEPOS: return "FILEPOS";
-		case FILEEOF: return "FILEEOF";
-		case FILEERR: return "FILEERR";
-		
-		case INCQST: return "INCQST";
-		case HEROJUMPCOUNT: return "HEROJUMPCOUNT";
-		
-		case HEROPULLDIR: return "HEROPULLDIR";
-		case HEROPULLCLK: return "HEROPULLCLK";
-		case HEROFALLCLK: return "HEROFALLCLK";
-		case HEROFALLCMB: return "HEROFALLCMB";
-		case HEROMOVEFLAGS: return "HEROMOVEFLAGS";
-		case ITEMFALLCLK: return "ITEMFALLCLK";
-		case ITEMFALLCMB: return "ITEMFALLCMB";
-		case ITEMMOVEFLAGS: return "ITEMMOVEFLAGS";
-		case LWPNFALLCLK: return "LWPNFALLCLK";
-		case LWPNFALLCMB: return "LWPNFALLCMB";
-		case LWPNMOVEFLAGS: return "LWPNMOVEFLAGS";
-		case EWPNFALLCLK: return "EWPNFALLCLK";
-		case EWPNFALLCMB: return "EWPNFALLCMB";
-		case EWPNMOVEFLAGS: return "EWPNMOVEFLAGS";
-		case NPCFALLCLK: return "NPCFALLCLK";
-		case NPCFALLCMB: return "NPCFALLCMB";
-		case NPCMOVEFLAGS: return "NPCMOVEFLAGS";
-		case ISBLANKTILE: return "ISBLANKTILE";
-		case LWPNSPECIAL: return "LWPNSPECIAL";
-		case MODULEGETINT: return "MODULEGETINT";
-		case MODULEGETSTR: return "MODULEGETSTR";
-		case NPCORIGINALHP: return "NPCORIGINALHP";
-		
-		case CLOCKCLK: return "CLOCKCLK";
-		case CLOCKACTIVE: return "CLOCKACTIVE";
-		case NPCHITDIR: return "NPCHITDIR";
-		case DMAPDATAFLAGARR: return "DMAPDATAFLAGARR";
-		case LINKCSET: return "LINKCSET";
-		case NPCSLIDECLK: return "NPCSLIDECLK";
-		case NPCFADING: return "NPCFADING";
-		case DISTANCE: return "DISTANCE";
-		case DISTANCESCALE: return "DISTANCESCALE";
-		case STDARR: return "STDARR";
-		case GHOSTARR: return "GHOSTARR";
-		case TANGOARR: return "TANGOARR";
-		case NPCHALTCLK: return "NPCHALTCLK";
-		case NPCMOVESTATUS: return "NPCMOVESTATUS";
-		case NPCFRAME: return "NPCFRAME";
-		
-		case DIRECTORYSIZE: return "DIRECTORYSIZE";
-		case STACKSIZE: return "STACKSIZE";
-		case STACKFULL: return "STACKFULL";
-		case LONGDISTANCE: return "LONGDISTANCE ";
-		case LONGDISTANCESCALE: return "LONGDISTANCESCALE";
-		case ACTIVESSSPEED: return "ACTIVESSSPEED";
-		case HEROISWARPING: return "HEROISWARPING";
-		
-		case ITEMGLOWRAD: return "ITEMGLOWRAD";
-		case NPCGLOWRAD: return "NPCGLOWRAD";
-		case LWPNGLOWRAD: return "LWPNGLOWRAD";
-		case EWPNGLOWRAD: return "EWPNGLOWRAD";
-		
-		case ITEMGLOWSHP: return "ITEMGLOWSHP";
-		case NPCGLOWSHP: return "NPCGLOWSHP";
-		case LWPNGLOWSHP: return "LWPNGLOWSHP";
-		case EWPNGLOWSHP: return "EWPNGLOWSHP";
-		
-		case ITEMDIR: return "ITEMDIR";
-		case ITEMFORCEGRAB: return "ITEMFORCEGRAB";
-		case COMBODTRIGGERITEM: return "COMBODTRIGGERITEM";
-		case COMBODTRIGGERTIMER: return "COMBODTRIGGERTIMER";
-		case COMBODTRIGGERSFX: return "COMBODTRIGGERSFX";
-		case COMBODTRIGGERCHANGECMB: return "COMBODTRIGGERCHANGECMB";
-		case COMBODTRIGGERPROX: return "COMBODTRIGGERPROX";
-		case COMBODTRIGGERLIGHTBEAM: return "COMBODTRIGGERLIGHTBEAM";
-		case COMBODTRIGGERCTR: return "COMBODTRIGGERCTR";
-		case COMBODTRIGGERCTRAMNT: return "COMBODTRIGGERCTRAMNT";
-		
-		case COMBODTRIGGERCOOLDOWN: return "COMBODTRIGGERCOOLDOWN";
-		case COMBODTRIGGERCOPYCAT: return "COMBODTRIGGERCOPYCAT";
-		case COMBODTRIGITEMPICKUP: return "COMBODTRIGITEMPICKUP";
-		case COMBODTRIGEXSTATE: return "COMBODTRIGEXSTATE";
-		case COMBODTRIGSPAWNENEMY: return "COMBODTRIGSPAWNENEMY";
-		case COMBODTRIGSPAWNITEM: return "COMBODTRIGSPAWNITEM";
-		case COMBODTRIGCSETCHANGE: return "COMBODTRIGCSETCHANGE";
-		case COMBODLIFTGFXCOMBO: return "COMBODLIFTGFXCOMBO";
-		case COMBODLIFTGFXCCSET: return "COMBODLIFTGFXCCSET";
-		case COMBODLIFTUNDERCMB: return "COMBODLIFTUNDERCMB";
-		case COMBODLIFTUNDERCS: return "COMBODLIFTUNDERCS";
-		case COMBODLIFTDAMAGE: return "COMBODLIFTDAMAGE";
-		case COMBODLIFTLEVEL: return "COMBODLIFTLEVEL";
-		case COMBODLIFTITEM: return "COMBODLIFTITEM";
-		case COMBODLIFTFLAGS: return "COMBODLIFTFLAGS";
-		case COMBODLIFTGFXTYPE: return "COMBODLIFTGFXTYPE";
-		case COMBODLIFTGFXSPRITE: return "COMBODLIFTGFXSPRITE";
-		case COMBODLIFTSFX: return "COMBODLIFTSFX";
-		case COMBODLIFTBREAKSPRITE: return "COMBODLIFTBREAKSPRITE";
-		case COMBODLIFTBREAKSFX: return "COMBODLIFTBREAKSFX";
-		case COMBODLIFTHEIGHT: return "COMBODLIFTHEIGHT";
-		case COMBODLIFTTIME: return "COMBODLIFTTIME";
-		
-		case SCREENEXSTATED: return "SCREENEXSTATED";
-		case MAPDATAEXSTATED: return "MAPDATAEXSTATED";
-		case HEROSTANDING: return "HEROSTANDING";
-		
-		case ITEMENGINEANIMATE: return "ITEMENGINEANIMATE";
-		case LWPNUNBL: return "LWPNUNBL";
-		case EWPNUNBL: return "EWPNUNBL";
-		
-		case NPCSHADOWSPR: return "NPCSHADOWSPR";
-		case LWPNSHADOWSPR: return "LWPNSHADOWSPR";
-		case EWPNSHADOWSPR: return "EWPNSHADOWSPR";
-		case ITEMSHADOWSPR: return "ITEMSHADOWSPR";
-		case NPCSPAWNSPR: return "NPCSPAWNSPR";
-		case NPCDEATHSPR: return "NPCDEATHSPR";
-		case NPCDSHADOWSPR: return "NPCDSHADOWSPR";
-		case NPCDSPAWNSPR: return "NPCDSPAWNSPR";
-		case NPCDDEATHSPR: return "NPCDDEATHSPR";
-		case ITEMDROPPEDBY: return "ITEMDROPPEDBY";
-		
-		case REFGENERICDATA: return "REFGENERICDATA";
-		case GENDATARUNNING: return "GENDATARUNNING";
-		case GENDATASIZE: return "GENDATASIZE";
-		case GENDATAEXITSTATE: return "GENDATAEXITSTATE";
-		case GENDATADATA: return "GENDATADATA";
-		case GENDATAINITD: return "GENDATAINITD";
-		case GENDATARELOADSTATE: return "GENDATARELOADSTATE";
-		case GENDATAEVENTSTATE: return "GENDATAEVENTSTATE";
-		
-		case COMBODCSET2FLAGS: return "COMBODCSET2FLAGS";
-		case HEROIMMORTAL: return "HEROIMMORTAL";
-		case NPCCANFLICKER: return "NPCCANFLICKER";
-		case NPCDROWNCLK: return "NPCDROWNCLK";
-		case NPCDROWNCMB: return "NPCDROWNCMB";
-		case ITEMDROWNCLK: return "ITEMDROWNCLK";
-		case ITEMDROWNCMB: return "ITEMDROWNCMB";
-		case LWPNDROWNCLK: return "LWPNDROWNCLK";
-		case LWPNDROWNCMB: return "LWPNDROWNCMB";
-		case EWPNDROWNCLK: return "EWPNDROWNCLK";
-		case EWPNDROWNCMB: return "EWPNDROWNCMB";
-		case HERODROWNCLK: return "HERODROWNCLK";
-		case HERODROWNCMB: return "HERODROWNCMB";
-		case NPCFAKEZ: return "NPCFAKEZ";
-		case ITEMFAKEZ: return "ITEMFAKEZ";
-		case LWPNFAKEZ: return "LWPNFAKEZ";
-		case EWPNFAKEZ: return "EWPNFAKEZ";
-		case HEROFAKEZ: return "HEROFAKEZ";
-		case NPCFAKEJUMP: return "NPCFAKEJUMP";
-		case ITEMFAKEJUMP: return "ITEMFAKEJUMP";
-		case LWPNFAKEJUMP: return "LWPNFAKEJUMP";
-		case EWPNFAKEJUMP: return "EWPNFAKEJUMP";
-		case HEROFAKEJUMP: return "HEROFAKEJUMP";
-		
-		case REFPALDATA: return "REFPALDATA";
-		case PALDATACOLOR: return "PALDATACOLOR";
-		case PALDATAR: return "PALDATAR";
-		case PALDATAG: return "PALDATAG";
-		case PALDATAB: return "PALDATAB";
-		case DMAPDATALOOPSTART: return "DMAPDATALOOPSTART";
-		case DMAPDATALOOPEND: return "DMAPDATALOOPEND";
-		case DMAPDATAXFADEIN: return "DMAPDATAXFADEIN";
-		case DMAPDATAXFADEOUT: return "DMAPDATAXFADEOUT";
-		case MUSICUPDATECOND: return "MUSICUPDATECOND";
-		case MUSICUPDATEFLAGS: return "MUSICUPDATEFLAGS";
-		case DMAPDATAINTROSTRINGID: return "DMAPDATAINTROSTRINGID";
-		case IS8BITTILE: return "IS8BITTILE";
-		case NPCFLICKERCOLOR: return "NPCFLICKERCOLOR";
-		case HEROFLICKERCOLOR: return "HEROFLICKERCOLOR";
-		case NPCFLASHINGCSET: return "NPCFLASHINGCSET";
-		case HEROFLASHINGCSET: return "HEROFLASHINGCSET";
-		case NPCFLICKERTRANSP: return "NPCFLICKERTRANSP";
-		case HEROFLICKERTRANSP: return "HEROFLICKERTRANSP";
-		case RESRVD_VAR_MOOSH15: return "RESRVD_VAR_MOOSH15";
-		case RESRVD_VAR_MOOSH16: return "RESRVD_VAR_MOOSH16";
-		case RESRVD_VAR_MOOSH17: return "RESRVD_VAR_MOOSH17";
-		case RESRVD_VAR_MOOSH18: return "RESRVD_VAR_MOOSH18";
-		case RESRVD_VAR_MOOSH19: return "RESRVD_VAR_MOOSH19";
-		case RESRVD_VAR_MOOSH20: return "RESRVD_VAR_MOOSH20";
-		case RESRVD_VAR_MOOSH21: return "RESRVD_VAR_MOOSH21";
-		case RESRVD_VAR_MOOSH22: return "RESRVD_VAR_MOOSH22";
-		case RESRVD_VAR_MOOSH23: return "RESRVD_VAR_MOOSH23";
-		case RESRVD_VAR_MOOSH24: return "RESRVD_VAR_MOOSH24";
-		case RESRVD_VAR_MOOSH25: return "RESRVD_VAR_MOOSH25";
-		case RESRVD_VAR_MOOSH26: return "RESRVD_VAR_MOOSH26";
-		case RESRVD_VAR_MOOSH27: return "RESRVD_VAR_MOOSH27";
-		case RESRVD_VAR_MOOSH28: return "RESRVD_VAR_MOOSH28";
-		case RESRVD_VAR_MOOSH29: return "RESRVD_VAR_MOOSH29";
-		case RESRVD_VAR_MOOSH30: return "RESRVD_VAR_MOOSH30";
-		case RESRVD_VAR_Z3_01: return "RESRVD_VAR_Z3_01";
-		case RESRVD_VAR_Z3_02: return "RESRVD_VAR_Z3_02";
-		case RESRVD_VAR_Z3_03: return "RESRVD_VAR_Z3_03";
-		case RESRVD_VAR_Z3_04: return "RESRVD_VAR_Z3_04";
-		case RESRVD_VAR_Z3_05: return "RESRVD_VAR_Z3_05";
-		case RESRVD_VAR_Z3_06: return "RESRVD_VAR_Z3_06";
-		case RESRVD_VAR_Z3_07: return "RESRVD_VAR_Z3_07";
-		case RESRVD_VAR_Z3_08: return "RESRVD_VAR_Z3_08";
-		case RESRVD_VAR_Z3_09: return "RESRVD_VAR_Z3_09";
-		case RESRVD_VAR_Z3_10: return "RESRVD_VAR_Z3_10";
-		case RESRVD_VAR_Z3_11: return "RESRVD_VAR_Z3_11";
-		case RESRVD_VAR_Z3_12: return "RESRVD_VAR_Z3_12";
-		case RESRVD_VAR_Z3_13: return "RESRVD_VAR_Z3_13";
-		case RESRVD_VAR_Z3_14: return "RESRVD_VAR_Z3_14";
-		case RESRVD_VAR_Z3_15: return "RESRVD_VAR_Z3_15";
-		case RESRVD_VAR_Z3_16: return "RESRVD_VAR_Z3_16";
-		
-		case SUBDATATRANSRIGHTTY: return "SUBDATATRANSRIGHTTY";
-		case SUBDATATRANSRIGHTSFX: return "SUBDATATRANSRIGHTSFX";
-		case SUBDATATRANSRIGHTFLAGS: return "SUBDATATRANSRIGHTFLAGS";
-		case SUBDATATRANSRIGHTARGS: return "SUBDATATRANSRIGHTARGS";
-		case SUBDATASELECTORDSTX: return "SUBDATASELECTORDSTX";
-		case SUBDATASELECTORDSTY: return "SUBDATASELECTORDSTY";
-		case SUBDATASELECTORDSTW: return "SUBDATASELECTORDSTW";
-		case SUBDATASELECTORDSTH: return "SUBDATASELECTORDSTH";
-		case SUBDATASELECTORWID: return "SUBDATASELECTORWID";
-		case SUBDATASELECTORHEI: return "SUBDATASELECTORHEI";
-		case SUBDATASELECTORTILE: return "SUBDATASELECTORTILE";
-		case SUBDATASELECTORCSET: return "SUBDATASELECTORCSET";
-		case SUBDATASELECTORFRM: return "SUBDATASELECTORFRM";
-		case SUBDATASELECTORASPD: return "SUBDATASELECTORASPD";
-		case SUBDATASELECTORDELAY: return "SUBDATASELECTORDELAY";
-		case SUBDATATRANSCLK: return "SUBDATATRANSCLK";
-		case SUBDATATRANSTY: return "SUBDATATRANSTY";
-		case SUBDATATRANSFLAGS: return "SUBDATATRANSFLAGS";
-		case SUBDATATRANSARGS: return "SUBDATATRANSARGS";
-		case SUBDATATRANSFROMPG: return "SUBDATATRANSFROMPG";
-		case SUBDATATRANSTOPG: return "SUBDATATRANSTOPG";
-		case SUBDATASELECTORFLASHCSET: return "SUBDATASELECTORFLASHCSET";
-		case GAMEASUBOPEN: return "GAMEASUBOPEN";
-		case GAMENUMASUB: return "GAMENUMASUB";
-		case GAMENUMPSUB: return "GAMENUMPSUB";
-		case GAMENUMOSUB: return "GAMENUMOSUB";
-		case SUBPGINDEX: return "SUBPGINDEX";
-		case SUBPGNUMWIDG: return "SUBPGNUMWIDG";
-		case SUBPGWIDGETS: return "SUBPGWIDGETS";
-		case SUBPGSUBDATA: return "SUBPGSUBDATA";
-		case SUBPGCURSORPOS: return "SUBPGCURSORPOS";
-		case SUBWIDGTYPE: return "SUBWIDGTYPE";
-		case SUBWIDGINDEX: return "SUBWIDGINDEX";
-		case SUBWIDGPAGE: return "SUBWIDGPAGE";
-		case SUBWIDGPOS: return "SUBWIDGPOS";
-		case SUBWIDGPOSES: return "SUBWIDGPOSES";
-		case SUBWIDGPOSFLAG: return "SUBWIDGPOSFLAG";
-		case SUBWIDGX: return "SUBWIDGX";
-		case SUBWIDGY: return "SUBWIDGY";
-		case SUBWIDGW: return "SUBWIDGW";
-		case SUBWIDGH: return "SUBWIDGH";
-		case SUBWIDGGENFLAG: return "SUBWIDGGENFLAG";
-		case SUBWIDGFLAG: return "SUBWIDGFLAG";
-		case SUBWIDGSELECTORDSTX: return "SUBWIDGSELECTORDSTX";
-		case SUBWIDGSELECTORDSTY: return "SUBWIDGSELECTORDSTY";
-		case SUBWIDGSELECTORDSTW: return "SUBWIDGSELECTORDSTW";
-		case SUBWIDGSELECTORDSTH: return "SUBWIDGSELECTORDSTH";
-		case SUBWIDGSELECTORWID: return "SUBWIDGSELECTORWID";
-		case SUBWIDGSELECTORHEI: return "SUBWIDGSELECTORHEI";
-		case SUBWIDGSELECTORTILE: return "SUBWIDGSELECTORTILE";
-		
-		case SUBWIDGSELECTORCSET: return "SUBWIDGSELECTORCSET";
-		case SUBWIDGSELECTORFLASHCSET: return "SUBWIDGSELECTORFLASHCSET";
-		case SUBWIDGSELECTORFRM: return "SUBWIDGSELECTORFRM";
-		case SUBWIDGSELECTORASPD: return "SUBWIDGSELECTORASPD";
-		case SUBWIDGSELECTORDELAY: return "SUBWIDGSELECTORDELAY";
-		case SUBWIDGPRESSSCRIPT: return "SUBWIDGPRESSSCRIPT";
-		case SUBWIDGPRESSINITD: return "SUBWIDGPRESSINITD";
-		case SUBWIDGBTNPRESS: return "SUBWIDGBTNPRESS";
-		case SUBWIDGBTNPG: return "SUBWIDGBTNPG";
-		case SUBWIDGPGMODE: return "SUBWIDGPGMODE";
-		case SUBWIDGPGTARG: return "SUBWIDGPGTARG";
-		case SUBWIDGTRANSPGTY: return "SUBWIDGTRANSPGTY";
-		case SUBWIDGTRANSPGSFX: return "SUBWIDGTRANSPGSFX";
-		case SUBWIDGTRANSPGFLAGS: return "SUBWIDGTRANSPGFLAGS";
-		case SUBWIDGTRANSPGARGS: return "SUBWIDGTRANSPGARGS";
-		
-		case SUBWIDGTY_CSET: return "SUBWIDGTY_CSET";
-		case SUBWIDGTY_TILE: return "SUBWIDGTY_TILE";
-		
-		case SUBWIDGTY_FONT: return "SUBWIDGTY_FONT";
-		case SUBWIDGTY_ALIGN: return "SUBWIDGTY_ALIGN";
-		case SUBWIDGTY_SHADOWTY: return "SUBWIDGTY_SHADOWTY";
-		case SUBWIDGTY_COLOR_TXT: return "SUBWIDGTY_COLOR_TXT";
-		case SUBWIDGTY_COLOR_SHD: return "SUBWIDGTY_COLOR_SHD";
-		case SUBWIDGTY_COLOR_BG: return "SUBWIDGTY_COLOR_BG";
-		
-		case SUBWIDGTY_COLOR_OLINE: return "SUBWIDGTY_COLOR_OLINE";
-		case SUBWIDGTY_COLOR_FILL: return "SUBWIDGTY_COLOR_FILL";
-		
-		case SUBWIDGTY_BUTTON: return "SUBWIDGTY_BUTTON";
-		case SUBWIDGTY_COUNTERS: return "SUBWIDGTY_COUNTERS";
-		case SUBWIDGTY_MINDIG: return "SUBWIDGTY_MINDIG";
-		case SUBWIDGTY_MAXDIG: return "SUBWIDGTY_MAXDIG";
-		case SUBWIDGTY_INFITM: return "SUBWIDGTY_INFITM";
-		case SUBWIDGTY_INFCHAR: return "SUBWIDGTY_INFCHAR";
-		case SUBWIDGTY_COSTIND: return "SUBWIDGTY_COSTIND";
-		
-		case SUBWIDGTY_COLOR_PLAYER: return "SUBWIDGTY_COLOR_PLAYER";
-		case SUBWIDGTY_COLOR_CMPBLNK: return "SUBWIDGTY_COLOR_CMPBLNK";
-		case SUBWIDGTY_COLOR_CMPOFF: return "SUBWIDGTY_COLOR_CMPOFF";
-		case SUBWIDGTY_COLOR_ROOM: return "SUBWIDGTY_COLOR_ROOM";
-		case SUBWIDGTY_ITEMCLASS: return "SUBWIDGTY_ITEMCLASS";
-		case SUBWIDGTY_ITEMID: return "SUBWIDGTY_ITEMID";
-		case SUBWIDGTY_FRAMETILE: return "SUBWIDGTY_FRAMETILE";
-		case SUBWIDGTY_FRAMECSET: return "SUBWIDGTY_FRAMECSET";
-		case SUBWIDGTY_PIECETILE: return "SUBWIDGTY_PIECETILE";
-		case SUBWIDGTY_PIECECSET: return "SUBWIDGTY_PIECECSET";
-		case SUBWIDGTY_FLIP: return "SUBWIDGTY_FLIP";
-		case SUBWIDGTY_NUMBER: return "SUBWIDGTY_NUMBER";
-		case SUBWIDGTY_CORNER: return "SUBWIDGTY_CORNER";
-		
-		case SUBWIDGTY_FRAMES: return "SUBWIDGTY_FRAMES";
-		case SUBWIDGTY_SPEED: return "SUBWIDGTY_SPEED";
-		case SUBWIDGTY_DELAY: return "SUBWIDGTY_DELAY";
-		case SUBWIDGTY_CONTAINER: return "SUBWIDGTY_CONTAINER";
-		case SUBWIDGTY_GAUGE_WID: return "SUBWIDGTY_GAUGE_WID";
-		case SUBWIDGTY_GAUGE_HEI: return "SUBWIDGTY_GAUGE_HEI";
-		case SUBWIDGTY_UNITS: return "SUBWIDGTY_UNITS";
-		case SUBWIDGTY_HSPACE: return "SUBWIDGTY_HSPACE";
-		case SUBWIDGTY_VSPACE: return "SUBWIDGTY_VSPACE";
-		case SUBWIDGTY_GRIDX: return "SUBWIDGTY_GRIDX";
-		case SUBWIDGTY_GRIDY: return "SUBWIDGTY_GRIDY";
-		case SUBWIDGTY_ANIMVAL: return "SUBWIDGTY_ANIMVAL";
-		case SUBWIDGTY_SHOWDRAIN: return "SUBWIDGTY_SHOWDRAIN";
-		case SUBWIDGTY_PERCONTAINER: return "SUBWIDGTY_PERCONTAINER";
-		case SUBWIDGTY_TABSIZE: return "SUBWIDGTY_TABSIZE";
-		
-		case GAMEASUBYOFF: return "GAMEASUBYOFF";
-		
-		case SUBWIDGDISPITM: return "SUBWIDGDISPITM";
-		case SUBWIDGEQPITM: return "SUBWIDGEQPITM";
-		
-		case SUBWIDG_DISPX: return "SUBWIDG_DISPX";
-		case SUBWIDG_DISPY: return "SUBWIDG_DISPY";
-		case SUBWIDG_DISPW: return "SUBWIDG_DISPW";
-		case SUBWIDG_DISPH: return "SUBWIDG_DISPH";
-		
-		case SCREENSCRDATASIZE: return "SCREENSCRDATASIZE";
-		case SCREENSCRDATA: return "SCREENSCRDATA";
-		case MAPDATASCRDATASIZE: return "MAPDATASCRDATASIZE";
-		case MAPDATASCRDATA: return "MAPDATASCRDATA";
-		
-		case HEROSHOVEOFFSET: return "HEROSHOVEOFFSET";
-		
-		case SCREENDATAGUYCOUNT: return "SCREENDATAGUYCOUNT";
-		case MAPDATAGUYCOUNT: return "MAPDATAGUYCOUNT";
-		
-		case IDATAUSEBURNSPR: return "IDATAUSEBURNSPR";
-		case IDATABURNINGSPR: return "IDATABURNINGSPR";
-		case LWPNSPRITES: return "LWPNSPRITES";
-		case EWPNSPRITES: return "EWPNSPRITES";
-		
-		case SCREENDATAEXDOOR: return "SCREENDATAEXDOOR";
-		case MAPDATAEXDOOR: return "MAPDATAEXDOOR";
-		case COMBODTRIGEXDOORDIR: return "COMBODTRIGEXDOORDIR";
-		case COMBODTRIGEXDOORIND: return "COMBODTRIGEXDOORIND";
-		
-		case IDATABURNINGLIGHTRAD: return "IDATABURNINGLIGHTRAD";
-		
-		case LWPNBURNLIGHTRADIUS: return "LWPNBURNLIGHTRADIUS";
-		case EWPNBURNLIGHTRADIUS: return "EWPNBURNLIGHTRADIUS";
-		
-		case IDATAATTRIB_L: return "IDATAATTRIB_L";
-		
-		case HEROSLIDING: return "HEROSLIDING";
-		case HEROICECMB: return "HEROICECMB";
-		case HEROSCRICECMB: return "HEROSCRICECMB";
-		case HEROICEVX: return "HEROICEVX";
-		case HEROICEVY: return "HEROICEVY";
-		case HEROICEENTRYFRAMES: return "HEROICEENTRYFRAMES";
-		case HEROICEENTRYMAXFRAMES: return "HEROICEENTRYMAXFRAMES";
-		
-		default:
-		{
-			sprintf(temp, "d%d", ID);
-			return string(temp);
-		}
+		if(variable_list[q].id == ID)
+			return variable_list[q].name;
 	}
+	return fmt::format("d{}", ID);
 }
 
 string VarArgument::toString() const
@@ -2513,3831 +77,3805 @@ string VectorArgument::toString() const
 	return util::stringify_vector(value, true);
 }
 
-string OSetTrue::toString() const
+int32_t OSetTrue::command() const
 {
-    return "SETTRUE " + getArgument()->toString();
+	return SETTRUE;
 }
 
-string OSetTrueI::toString() const
+int32_t OSetTrueI::command() const
 {
-    return "SETTRUEI " + getArgument()->toString();
+	return SETTRUEI;
 }
 
-string OSetFalse::toString() const
+int32_t OSetFalse::command() const
 {
-    return "SETFALSE " + getArgument()->toString();
+	return SETFALSE;
 }
 
-string OSetFalseI::toString() const
+int32_t OSetFalseI::command() const
 {
-    return "SETFALSEI " + getArgument()->toString();
+	return SETFALSEI;
 }
 
-string OSetMore::toString() const
+int32_t OSetMore::command() const
 {
-    return "SETMORE " + getArgument()->toString();
+	return SETMORE;
 }
 
-string OSetMoreI::toString() const
+int32_t OSetMoreI::command() const
 {
-    return "SETMOREI " + getArgument()->toString();
+	return SETMOREI;
 }
 
-string OSetLess::toString() const
+int32_t OSetLess::command() const
 {
-    return "SETLESS " + getArgument()->toString();
+	return SETLESS;
 }
 
-string OSetLessI::toString() const
+int32_t OSetLessI::command() const
 {
-    return "SETLESSI " + getArgument()->toString();
+	return SETLESSI;
 }
 
-string OSetImmediate::toString() const
+int32_t OSetImmediate::command() const
 {
-	return "SETV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SETV;
 }
 
-string OSetRegister::toString() const
+int32_t OSetRegister::command() const
 {
-    return "SETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SETR;
 }
 
-string OReadPODArrayR::toString() const
+int32_t OReadPODArrayR::command() const
 {
-	return "READPODARRAYR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return READPODARRAYR;
 }
 
-string OReadPODArrayI::toString() const
+int32_t OReadPODArrayI::command() const
 {
-	return "READPODARRAYV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return READPODARRAYV;
 }
 
-string OWritePODArrayRR::toString() const
+int32_t OWritePODArrayRR::command() const
 {
-	return "WRITEPODARRAYRR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return WRITEPODARRAYRR;
 }
 
-string OWritePODArrayRI::toString() const
+int32_t OWritePODArrayRI::command() const
 {
-	return "WRITEPODARRAYRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return WRITEPODARRAYRV;
 }
 
-string OWritePODArrayIR::toString() const
+int32_t OWritePODArrayIR::command() const
 {
-	return "WRITEPODARRAYVR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return WRITEPODARRAYVR;
 }
 
-string OWritePODArrayII::toString() const
+int32_t OWritePODArrayII::command() const
 {
-	return "WRITEPODARRAYVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return WRITEPODARRAYVV;
 }
-string OWritePODString::toString() const
+int32_t OWritePODString::command() const
 {
-	return "WRITEPODSTRING " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return WRITEPODSTRING;
 }
-string OWritePODArray::toString() const
+int32_t OWritePODArray::command() const
 {
-	return "WRITEPODARRAY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return WRITEPODARRAY;
 }
-string OConstructClass::toString() const
+int32_t OConstructClass::command() const
 {
-	return "ZCLASS_CONSTRUCT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ZCLASS_CONSTRUCT;
 }
-string OReadObject::toString() const
+int32_t OReadObject::command() const
 {
-	return "ZCLASS_READ " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ZCLASS_READ;
 }
-string OWriteObject::toString() const
+int32_t OWriteObject::command() const
 {
-	return "ZCLASS_WRITE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ZCLASS_WRITE;
 }
-string OFreeObject::toString() const
+int32_t OFreeObject::command() const
 {
-	return "ZCLASS_FREE " + getArgument()->toString();
+	return ZCLASS_FREE;
 }
-string OOwnObject::toString() const
+int32_t OOwnObject::command() const
 {
-	return "ZCLASS_OWN " + getArgument()->toString();
+	return ZCLASS_OWN;
 }
-string ODestructor::toString() const
+int32_t ODestructor::command() const
 {
-	return "STARTDESTRUCTOR " + getArgument()->toString();
+	return STARTDESTRUCTOR;
 }
-string OGlobalObject::toString() const
+int32_t OGlobalObject::command() const
 {
-	return "ZCLASS_GLOBALIZE " + getArgument()->toString();
+	return ZCLASS_GLOBALIZE;
 }
-string OObjOwnBitmap::toString() const
+int32_t OObjOwnBitmap::command() const
 {
-	return "OBJ_OWN_BITMAP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OBJ_OWN_BITMAP;
 }
-string OObjOwnPaldata::toString() const
+int32_t OObjOwnPaldata::command() const
 {
-	return "OBJ_OWN_PALDATA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OBJ_OWN_PALDATA;
 }
-string OObjOwnFile::toString() const
+int32_t OObjOwnFile::command() const
 {
-	return "OBJ_OWN_FILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OBJ_OWN_FILE;
 }
-string OObjOwnDir::toString() const
+int32_t OObjOwnDir::command() const
 {
-	return "OBJ_OWN_DIR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OBJ_OWN_DIR;
 }
-string OObjOwnStack::toString() const
+int32_t OObjOwnStack::command() const
 {
-	return "OBJ_OWN_STACK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OBJ_OWN_STACK;
 }
-string OObjOwnRNG::toString() const
+int32_t OObjOwnRNG::command() const
 {
-	return "OBJ_OWN_RNG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OBJ_OWN_RNG;
 }
-string OObjOwnClass::toString() const
+int32_t OObjOwnClass::command() const
 {
-	return "OBJ_OWN_CLASS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OBJ_OWN_CLASS;
 }
-string OObjOwnArray::toString() const
+int32_t OObjOwnArray::command() const
 {
-	return "OBJ_OWN_ARRAY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OBJ_OWN_ARRAY;
 }
-string OQuitNoDealloc::toString() const
+int32_t OQuitNoDealloc::command() const
 {
-	return "QUIT_NO_DEALLOC";
+	return QUIT_NO_DEALLOC;
 }
-string OSetCustomCursor::toString() const
+int32_t OSetCustomCursor::command() const
 {
-	return "GAMESETCUSTOMCURSOR";
+	return GAMESETCUSTOMCURSOR;
 }
-string OItemGetDispName::toString() const
+int32_t OItemGetDispName::command() const
 {
-	return "ITEMGETDISPLAYNAME " + getArgument()->toString();
+	return ITEMGETDISPLAYNAME;
 }
-string OItemSetDispName::toString() const
+int32_t OItemSetDispName::command() const
 {
-	return "ITEMSETDISPLAYNAME " + getArgument()->toString();
+	return ITEMSETDISPLAYNAME;
 }
-string OItemGetShownName::toString() const
+int32_t OItemGetShownName::command() const
 {
-	return "ITEMGETSHOWNNAME " + getArgument()->toString();
+	return ITEMGETSHOWNNAME;
 }
-string OHeroMoveXY::toString() const
+int32_t OHeroMoveXY::command() const
 {
-	return "HEROMOVEXY";
+	return HEROMOVEXY;
 }
-string OHeroCanMoveXY::toString() const
+int32_t OHeroCanMoveXY::command() const
 {
-	return "HEROCANMOVEXY";
+	return HEROCANMOVEXY;
 }
-string OHeroLiftRelease::toString() const
+int32_t OHeroLiftRelease::command() const
 {
-	return "HEROLIFTRELEASE";
+	return HEROLIFTRELEASE;
 }
-string OHeroLiftGrab::toString() const
+int32_t OHeroLiftGrab::command() const
 {
-	return "HEROLIFTGRAB";
+	return HEROLIFTGRAB;
 }
-string OHeroIsFlickerFrame::toString() const
+int32_t OHeroIsFlickerFrame::command() const
 {
-	return "HEROISFLICKERFRAME";
+	return HEROISFLICKERFRAME;
 }
-string OLoadPortalRegister::toString() const
+int32_t OLoadPortalRegister::command() const
 {
-	return "LOADPORTAL " + getArgument()->toString();
+	return LOADPORTAL;
 }
-string OCreatePortal::toString() const
+int32_t OCreatePortal::command() const
 {
-	return "CREATEPORTAL";
+	return CREATEPORTAL;
 }
-string OLoadSavPortalRegister::toString() const
+int32_t OLoadSavPortalRegister::command() const
 {
-	return "LOADSAVPORTAL " + getArgument()->toString();
+	return LOADSAVPORTAL;
 }
-string OCreateSavPortal::toString() const
+int32_t OCreateSavPortal::command() const
 {
-	return "CREATESAVPORTAL";
+	return CREATESAVPORTAL;
 }
-string OPortalRemove::toString() const
+int32_t OPortalRemove::command() const
 {
-	return "PORTALREMOVE";
+	return PORTALREMOVE;
 }
-string OSavedPortalRemove::toString() const
+int32_t OSavedPortalRemove::command() const
 {
-	return "SAVEDPORTALREMOVE";
+	return SAVEDPORTALREMOVE;
 }
-string OSavedPortalGenerate::toString() const
+int32_t OSavedPortalGenerate::command() const
 {
-	return "SAVEDPORTALGENERATE";
+	return SAVEDPORTALGENERATE;
 }
-string OUseSpritePortal::toString() const
+int32_t OUseSpritePortal::command() const
 {
-	return "PORTALUSESPRITE " + getArgument()->toString();
+	return PORTALUSESPRITE;
 }
-string OHeroMoveAtAngle::toString() const
+int32_t OHeroMoveAtAngle::command() const
 {
-	return "HEROMOVEATANGLE";
+	return HEROMOVEATANGLE;
 }
-string OHeroCanMoveAtAngle::toString() const
+int32_t OHeroCanMoveAtAngle::command() const
 {
-	return "HEROCANMOVEATANGLE";
+	return HEROCANMOVEATANGLE;
 }
-string OHeroMove::toString() const
+int32_t OHeroMove::command() const
 {
-	return "HEROMOVE";
+	return HEROMOVE;
 }
-string OHeroCanMove::toString() const
+int32_t OHeroCanMove::command() const
 {
-	return "HEROCANMOVE";
+	return HEROCANMOVE;
 }
-string ODrawLightCircle::toString() const
+int32_t ODrawLightCircle::command() const
 {
-	return "DRAWLIGHT_CIRCLE";
+	return DRAWLIGHT_CIRCLE;
 }
-string ODrawLightSquare::toString() const
+int32_t ODrawLightSquare::command() const
 {
-	return "DRAWLIGHT_SQUARE";
+	return DRAWLIGHT_SQUARE;
 }
-string ODrawLightCone::toString() const
+int32_t ODrawLightCone::command() const
 {
-	return "DRAWLIGHT_CONE";
+	return DRAWLIGHT_CONE;
 }
-string OPeek::toString() const
+int32_t OPeek::command() const
 {
-	return "PEEK " + getArgument()->toString();
+	return PEEK;
 }
-string OPeekAtImmediate::toString() const
+int32_t OPeekAtImmediate::command() const
 {
-	return "PEEKATV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();;
+	return PEEKATV;
 }
-string OMakeVargArray::toString() const
+int32_t OMakeVargArray::command() const
 {
-	return "MAKEVARGARRAY";
+	return MAKEVARGARRAY;
 }
-string OPrintfArr::toString() const
+int32_t OPrintfArr::command() const
 {
-	return "PRINTFA";
+	return PRINTFA;
 }
-string OSPrintfArr::toString() const
+int32_t OSPrintfArr::command() const
 {
-	return "SPRINTFA";
+	return SPRINTFA;
 }
-string OCurrentItemID::toString() const
+int32_t OCurrentItemID::command() const
 {
-	return "CURRENTITEMID";
+	return CURRENTITEMID;
 }
-string OArrayPush::toString() const
+int32_t OArrayPush::command() const
 {
-	return "ARRAYPUSH";
+	return ARRAYPUSH;
 }
-string OArrayPop::toString() const
+int32_t OArrayPop::command() const
 {
-	return "ARRAYPOP";
+	return ARRAYPOP;
 }
-string OLoadSubscreenDataRV::toString() const
+int32_t OLoadSubscreenDataRV::command() const
 {
-	return "LOADSUBDATARV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LOADSUBDATARV;
 }
-string OSwapSubscrV::toString() const
+int32_t OSwapSubscrV::command() const
 {
-	return "SWAPSUBSCREENV " + getArgument()->toString();
+	return SWAPSUBSCREENV;
 }
-string OGetSubscreenName::toString() const
+int32_t OGetSubscreenName::command() const
 {
-	return "SUBDATA_GET_NAME " + getArgument()->toString();
+	return SUBDATA_GET_NAME;
 }
-string OSetSubscreenName::toString() const
+int32_t OSetSubscreenName::command() const
 {
-	return "SUBDATA_SET_NAME " + getArgument()->toString();
-}
-
-
-string OAddImmediate::toString() const
-{
-    return "ADDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OAddRegister::toString() const
-{
-    return "ADDR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OSubImmediate::toString() const
-{
-    return "SUBV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OSubImmediate2::toString() const
-{
-    return "SUBV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OSubRegister::toString() const
-{
-    return "SUBR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OMultImmediate::toString() const
-{
-    return "MULTV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SUBDATA_SET_NAME;
 }
 
 
-string OMultRegister::toString() const
+int32_t OAddImmediate::command() const
 {
-    return "MULTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ADDV;
 }
 
-string ODivImmediate::toString() const
+int32_t OAddRegister::command() const
 {
-    return "DIVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ADDR;
 }
 
-string ODivImmediate2::toString() const
+int32_t OSubImmediate::command() const
 {
-    return "DIVV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SUBV;
 }
 
-string ODivRegister::toString() const
+int32_t OSubImmediate2::command() const
 {
-    return "DIVR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SUBV2;
 }
 
-string OCompareImmediate::toString() const
+int32_t OSubRegister::command() const
 {
-    return "COMPAREV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SUBR;
 }
 
-string OCompareImmediate2::toString() const
+int32_t OMultImmediate::command() const
 {
-    return "COMPAREV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return MULTV;
 }
 
-string OCompareRegister::toString() const
+
+int32_t OMultRegister::command() const
 {
-    return "COMPARER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return MULTR;
 }
 
-string OInternalStringCompare::toString() const
+int32_t ODivImmediate::command() const
 {
-	return "STRCMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return DIVV;
 }
 
-string OInternalInsensitiveStringCompare::toString() const
+int32_t ODivImmediate2::command() const
 {
-	return "STRICMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return DIVV2;
 }
 
-string OWaitframe::toString() const
+int32_t ODivRegister::command() const
 {
-    return "WAITFRAME";
+	return DIVR;
 }
 
-string OWaitframes::toString() const
+int32_t OCompareImmediate::command() const
 {
-    return "WAITFRAMESR " + getArgument()->toString();
+	return COMPAREV;
 }
 
-string OWaitdraw::toString() const
+int32_t OCompareImmediate2::command() const
 {
-    return "WAITDRAW";
+	return COMPAREV2;
 }
 
-string OWaitTo::toString() const
+int32_t OCompareRegister::command() const
 {
-    return "WAITTO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return COMPARER;
 }
 
-string OWaitEvent::toString() const
+int32_t OInternalStringCompare::command() const
 {
-    return "WAITEVENT";
+	return STRCMPR;
 }
 
-string ONoOp::toString() const
+int32_t OInternalInsensitiveStringCompare::command() const
 {
-	return "NOP";
+	return STRICMPR;
 }
 
-string OCastBoolI::toString() const
+int32_t OWaitframe::command() const
 {
-	return "CASTBOOLI " + getArgument()->toString();
+	return WAITFRAME;
 }
 
-string OCastBoolF::toString() const
+int32_t OWaitframes::command() const
 {
-	return "CASTBOOLF " + getArgument()->toString();
+	return WAITFRAMESR;
+}
+
+int32_t OWaitdraw::command() const
+{
+	return WAITDRAW;
+}
+
+int32_t OWaitTo::command() const
+{
+	return WAITTO;
+}
+
+int32_t OWaitEvent::command() const
+{
+	return WAITEVENT;
+}
+
+int32_t ONoOp::command() const
+{
+	return NOP;
+}
+
+int32_t OCastBoolI::command() const
+{
+	return CASTBOOLI;
+}
+
+int32_t OCastBoolF::command() const
+{
+	return CASTBOOLF;
 }
 
 //I would like to add a Jump instruction tot he parser, which would be 'GOTOLABEL' -Z
-string OGotoImmediate::toString() const
+int32_t OGotoImmediate::command() const
 {
-    return "GOTO " + getArgument()->toString();
+	return GOTO;
 }
 
-string OGotoTrueImmediate::toString() const
+int32_t OGotoTrueImmediate::command() const
 {
-    return "GOTOTRUE " + getArgument()->toString();
+	return GOTOTRUE;
 }
 
-string OGotoFalseImmediate::toString() const
+int32_t OGotoFalseImmediate::command() const
 {
-    return "GOTOFALSE " + getArgument()->toString();
+	return GOTOFALSE;
 }
 
-string OGotoMoreImmediate::toString() const
+int32_t OGotoMoreImmediate::command() const
 {
-    return "GOTOMORE " + getArgument()->toString();
+	return GOTOMORE;
 }
 
-string OGotoLessImmediate::toString() const
+int32_t OGotoLessImmediate::command() const
 {
-    return "GOTOLESS " + getArgument()->toString();
+	return GOTOLESS;
 }
 
-string OPushRegister::toString() const
+int32_t OPushRegister::command() const
 {
-    return "PUSHR " + getArgument()->toString();
+	return PUSHR;
 }
 
-string OPushImmediate::toString() const
+int32_t OPushImmediate::command() const
 {
-	return "PUSHV " + getArgument()->toString();
+	return PUSHV;
 }
 
-string OPopRegister::toString() const
+int32_t OPopRegister::command() const
 {
-    return "POP " + getArgument()->toString();
+	return POP;
 }
 
-string OPopArgsRegister::toString() const
+int32_t OPopArgsRegister::command() const
 {
-    return "POPARGS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return POPARGS;
 }
 
-string OPushArgsRegister::toString() const
+int32_t OPushArgsRegister::command() const
 {
-    return "PUSHARGSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PUSHARGSR;
 }
 
-string OPushArgsImmediate::toString() const
+int32_t OPushArgsImmediate::command() const
 {
-    return "PUSHARGSV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PUSHARGSV;
 }
 
-string OPushVargV::toString() const
+int32_t OPushVargV::command() const
 {
-    return "PUSHVARGV " + getArgument()->toString();
+	return PUSHVARGV;
 }
 
-string OPushVargR::toString() const
+int32_t OPushVargR::command() const
 {
-    return "PUSHVARGR " + getArgument()->toString();
+	return PUSHVARGR;
 }
 
-string OPushVargsV::toString() const
+int32_t OPushVargsV::command() const
 {
-    return "PUSHVARGSV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PUSHVARGSV;
 }
 
-string OPushVargsR::toString() const
+int32_t OPushVargsR::command() const
 {
-    return "PUSHVARGSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PUSHVARGSR;
 }
 
-string OLoadIndirect::toString() const
+int32_t OLoadIndirect::command() const
 {
-    return "LOADI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LOADI;
 }
 
-string OStoreIndirect::toString() const
+int32_t OStoreIndirect::command() const
 {
-    return "STOREI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STOREI;
 }
 
-string OLoadDirect::toString() const
+int32_t OLoadDirect::command() const
 {
-    return "LOADD " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LOADD;
 }
-string OStoreDirect::toString() const
+int32_t OStoreDirect::command() const
 {
-    return "STORED " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STORED;
 }
-string OStoreDirectV::toString() const
+int32_t OStoreDirectV::command() const
 {
-    return "STOREDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STOREDV;
 }
 
-string OQuit::toString() const
+int32_t OQuit::command() const
 {
-    return "QUIT";
+	return QUIT;
 }
 
-string OGotoRegister::toString() const
+int32_t OGotoRegister::command() const
 {
-    return "GOTOR " + getArgument()->toString();
+	return GOTOR;
 }
 
-string OAndImmediate::toString() const
+int32_t OAndImmediate::command() const
 {
-    return "ANDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ANDV;
 }
 
-string OAndRegister::toString() const
+int32_t OAndRegister::command() const
 {
-    return "ANDR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ANDR;
 }
 
-string OOrImmediate::toString() const
+int32_t OOrImmediate::command() const
 {
-    return "ORV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ORV;
 }
 
-string OOrRegister::toString() const
+int32_t OOrRegister::command() const
 {
-    return "ORR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ORR;
 }
 
-string OXorImmediate::toString() const
+int32_t OXorImmediate::command() const
 {
-    return "XORV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return XORV;
 }
 
-string OXorRegister::toString() const
+int32_t OXorRegister::command() const
 {
-    return "XORR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return XORR;
 }
 
-string O32BitAndImmediate::toString() const
+int32_t O32BitAndImmediate::command() const
 {
-    return "ANDV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ANDV32;
 }
 
-string O32BitAndRegister::toString() const
+int32_t O32BitAndRegister::command() const
 {
-    return "ANDR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ANDR32;
 }
 
-string O32BitOrImmediate::toString() const
+int32_t O32BitOrImmediate::command() const
 {
-    return "ORV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ORV32;
 }
 
-string O32BitOrRegister::toString() const
+int32_t O32BitOrRegister::command() const
 {
-    return "ORR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ORR32;
 }
 
-string O32BitXorImmediate::toString() const
+int32_t O32BitXorImmediate::command() const
 {
-    return "XORV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return XORV32;
 }
 
-string O32BitXorRegister::toString() const
+int32_t O32BitXorRegister::command() const
 {
-    return "XORR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return XORR32;
 }
 
-string OSinRegister::toString() const
+int32_t OSinRegister::command() const
 {
-    return "SINR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SINR;
 }
 
-string OCosRegister::toString() const
+int32_t OCosRegister::command() const
 {
-    return "COSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return COSR;
 }
 
-string OTanRegister::toString() const
+int32_t OTanRegister::command() const
 {
-    return "TANR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return TANR;
 }
 
-string OEngineDegtoRad::toString() const
+int32_t OEngineDegtoRad::command() const
 {
-    return "DEGTORAD " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return DEGTORAD;
 }
 
-string OEngineRadtoDeg::toString() const
+int32_t OEngineRadtoDeg::command() const
 {
-    return "RADTODEG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RADTODEG;
 }
 
-string Ostrlen::toString() const
+int32_t Ostrlen::command() const
 {
-    return "STRINGLENGTH " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STRINGLENGTH;
 }
 
-string OATanRegister::toString() const
+int32_t OATanRegister::command() const
 {
-    return "ARCTANR " + getArgument()->toString();
+	return ARCTANR;
 }
 
-string OArcCosRegister::toString() const
+int32_t OArcCosRegister::command() const
 {
-    return "ARCCOSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ARCCOSR;
 }
 
-string OArcSinRegister::toString() const
+int32_t OArcSinRegister::command() const
 {
-    return "ARCSINR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ARCSINR;
 }
 
-string OMinRegister::toString() const
+int32_t OMinRegister::command() const
 {
-    return "MINR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return MINR;
 }
 
-string OMaxRegister::toString() const
+int32_t OMaxRegister::command() const
 {
-    return "MAXR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return MAXR;
 }
-string OMaxNew::toString() const
+int32_t OMaxNew::command() const
 {
-    return "MAXVARG";
+	return MAXVARG;
 }
-string OMinNew::toString() const
+int32_t OMinNew::command() const
 {
-    return "MINVARG";
+	return MINVARG;
 }
-string OChoose::toString() const
+int32_t OChoose::command() const
 {
-    return "CHOOSEVARG";
+	return CHOOSEVARG;
 }
 
-string OPowRegister::toString() const
+int32_t OPowRegister::command() const
 {
-    return "POWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return POWERR;
 }
-string OPowImmediate::toString() const
+int32_t OPowImmediate::command() const
 {
-    return "POWERV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return POWERV;
 }
-string OPowImmediate2::toString() const
+int32_t OPowImmediate2::command() const
 {
-    return "POWERV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return POWERV2;
 }
-string OLPowRegister::toString() const
+int32_t OLPowRegister::command() const
 {
-    return "LPOWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LPOWERR;
 }
-string OLPowImmediate::toString() const
+int32_t OLPowImmediate::command() const
 {
-    return "LPOWERV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LPOWERV;
 }
-string OLPowImmediate2::toString() const
+int32_t OLPowImmediate2::command() const
 {
-    return "LPOWERV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LPOWERV2;
 }
 
-string OInvPowRegister::toString() const
+int32_t OInvPowRegister::command() const
 {
-    return "IPOWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return IPOWERR;
 }
 
-string OFactorial::toString() const
+int32_t OFactorial::command() const
 {
-    return "FACTORIAL " + getArgument()->toString();
+	return FACTORIAL;
 }
 
-string OAbsRegister::toString() const
+int32_t OAbsRegister::command() const
 {
-    return "ABS " + getArgument()->toString();
+	return ABS;
 }
 
-string OLog10Register::toString() const
+int32_t OLog10Register::command() const
 {
-    return "LOG10 " + getArgument()->toString();
+	return LOG10;
 }
 
-string OLogERegister::toString() const
+int32_t OLogERegister::command() const
 {
-    return "LOGE " + getArgument()->toString();
+	return LOGE;
 }
 
-string OArraySize::toString() const
+int32_t OArraySize::command() const
 {
-    return "ARRAYSIZE " + getArgument()->toString();
+	return ARRAYSIZE;
 }
 
 
-string OArraySizeF::toString() const
+int32_t OArraySizeF::command() const
 {
-    return "ARRAYSIZEF " + getArgument()->toString();
+	return ARRAYSIZEF;
 }
-string OArraySizeN::toString() const
+int32_t OArraySizeN::command() const
 {
-    return "ARRAYSIZEN " + getArgument()->toString();
+	return ARRAYSIZEN;
 }
-string OArraySizeE::toString() const
+int32_t OArraySizeE::command() const
 {
-    return "ARRAYSIZEE " + getArgument()->toString();
+	return ARRAYSIZEE;
 }
-string OArraySizeL::toString() const
+int32_t OArraySizeL::command() const
 {
-    return "ARRAYSIZEL " + getArgument()->toString();
+	return ARRAYSIZEL;
 }
-string OArraySizeB::toString() const
+int32_t OArraySizeB::command() const
 {
-    return "ARRAYSIZEB " + getArgument()->toString();
+	return ARRAYSIZEB;
 }
-string OArraySizeI::toString() const
+int32_t OArraySizeI::command() const
 {
-    return "ARRAYSIZEI " + getArgument()->toString();
+	return ARRAYSIZEI;
 }
-string OArraySizeID::toString() const
+int32_t OArraySizeID::command() const
 {
-    return "ARRAYSIZEID " + getArgument()->toString();
+	return ARRAYSIZEID;
 }
 
-
-string OCalcSplineRegister::toString() const
-{
-    return "CALCSPLINER" + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OSetColorRegister::toString() const
-{
-    return "SETCOLORR";
-}
-
-string OSetDepthRegister::toString() const
-{
-    return "SETDEPTHR";
-}
-
-string OCollisionRectRegister::toString() const
-{
-    return "COLLISIONRECTR" + getArgument()->toString();
-}
-
-string OCollisionBoxRegister::toString() const
-{
-    return "COLLISIONBOXR" + getArgument()->toString();
-}
-
-string OLShiftImmediate::toString() const
+int32_t OLShiftImmediate::command() const
 {
-    return "LSHIFTV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LSHIFTV;
 }
 
-string OLShiftRegister::toString() const
+int32_t OLShiftRegister::command() const
 {
-    return "LSHIFTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LSHIFTR;
 }
 
-string ORShiftImmediate::toString() const
+int32_t ORShiftImmediate::command() const
 {
-    return "RSHIFTV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RSHIFTV;
 }
 
-string ORShiftRegister::toString() const
+int32_t ORShiftRegister::command() const
 {
-    return "RSHIFTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RSHIFTR;
 }
 
-string O32BitLShiftImmediate::toString() const
+int32_t O32BitLShiftImmediate::command() const
 {
-    return "LSHIFTV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LSHIFTV32;
 }
 
-string O32BitLShiftRegister::toString() const
+int32_t O32BitLShiftRegister::command() const
 {
-    return "LSHIFTR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LSHIFTR32;
 }
 
-string O32BitRShiftImmediate::toString() const
+int32_t O32BitRShiftImmediate::command() const
 {
-    return "RSHIFTV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RSHIFTV32;
 }
 
-string O32BitRShiftRegister::toString() const
+int32_t O32BitRShiftRegister::command() const
 {
-    return "RSHIFTR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RSHIFTR32;
 }
 
-string OModuloImmediate::toString() const
+int32_t OModuloImmediate::command() const
 {
-    return "MODV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return MODV;
 }
 
-string OModuloImmediate2::toString() const
+int32_t OModuloImmediate2::command() const
 {
-    return "MODV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return MODV2;
 }
 
-string OModuloRegister::toString() const
+int32_t OModuloRegister::command() const
 {
-    return "MODR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return MODR;
 }
 
-string ONot::toString() const
+int32_t ONot::command() const
 {
-    return "BITNOT " + getArgument()->toString();
+	return BITNOT;
 }
 
-string O32BitNot::toString() const
+int32_t O32BitNot::command() const
 {
-    return "BITNOT32 " + getArgument()->toString();
+	return BITNOT32;
 }
 
-string OTraceRegister::toString() const
+int32_t OTraceRegister::command() const
 {
-    return "TRACER " + getArgument()->toString();
+	return TRACER;
 }
-string OTraceImmediate::toString() const
+int32_t OTraceImmediate::command() const
 {
-    return "TRACEV " + getArgument()->toString();
+	return TRACEV;
 }
 
-string OTraceLRegister::toString() const
+int32_t OTraceLRegister::command() const
 {
-    return "TRACELR " + getArgument()->toString();
+	return TRACELR;
 }
 
-string OTrace2Register::toString() const
+int32_t OTrace2Register::command() const
 {
-    return "TRACE2R " + getArgument()->toString();
+	return TRACE2R;
 }
 
-string OTrace3::toString() const
+int32_t OTrace3::command() const
 {
-    return "TRACE3";
+	return TRACE3;
 }
 
-string OTrace4::toString() const
+int32_t OTrace4::command() const
 {
-    return "TRACE4";
+	return TRACE4;
 }
 
-string OTrace5Register::toString() const
+int32_t OTrace5Register::command() const
 {
-    return "TRACE5";
+	return TRACE5;
 }
 
-string OTrace6Register::toString() const
+int32_t OTrace6Register::command() const
 {
-    return "TRACE6 " + getArgument()->toString();
+	return TRACE6;
 }
 
-string OPrintfImmediate::toString() const
+int32_t OPrintfImmediate::command() const
 {
-	return "PRINTFV " + getArgument()->toString();
+	return PRINTFV;
 }
 
-string OSPrintfImmediate::toString() const
+int32_t OSPrintfImmediate::command() const
 {
-	return "SPRINTFV " + getArgument()->toString();
+	return SPRINTFV;
 }
 
-string OPrintfVargs::toString() const
+int32_t OPrintfVargs::command() const
 {
-	return "PRINTFVARG";
+	return PRINTFVARG;
 }
 
-string OSPrintfVargs::toString() const
+int32_t OSPrintfVargs::command() const
 {
-	return "SPRINTFVARG";
+	return SPRINTFVARG;
 }
 
-string OBreakpoint::toString() const
+int32_t OBreakpoint::command() const
 {
-    return "BREAKPOINT " + getArgument()->toString();
+	return BREAKPOINT;
 }
 
 
-string ORandRegister::toString() const
+int32_t ORandRegister::command() const
 {
-    return "RNDR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RNDR;
 }
 
-string OSRandRegister::toString() const
+int32_t OSRandRegister::command() const
 {
-    return "SRNDR " + getArgument()->toString();
+	return SRNDR;
 }
 
-string OSRandImmediate::toString() const
+int32_t OSRandImmediate::command() const
 {
-    return "SRNDV " + getArgument()->toString();
+	return SRNDV;
 }
 
-string OSRandRand::toString() const
+int32_t OSRandRand::command() const
 {
-    return "SRNDRND " + getArgument()->toString();
+	return SRNDRND;
 }
 
-string ORNGRand1::toString() const
+int32_t ORNGRand1::command() const
 {
-    return "RNGRAND1";
+	return RNGRAND1;
 }
 
-string ORNGRand2::toString() const
+int32_t ORNGRand2::command() const
 {
-    return "RNGRAND2 " + getArgument()->toString();
+	return RNGRAND2;
 }
 
-string ORNGRand3::toString() const
+int32_t ORNGRand3::command() const
 {
-    return "RNGRAND3 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RNGRAND3;
 }
 
-string ORNGLRand1::toString() const
+int32_t ORNGLRand1::command() const
 {
-    return "RNGLRAND1";
+	return RNGLRAND1;
 }
 
-string ORNGLRand2::toString() const
+int32_t ORNGLRand2::command() const
 {
-    return "RNGLRAND2 " + getArgument()->toString();
+	return RNGLRAND2;
 }
 
-string ORNGLRand3::toString() const
+int32_t ORNGLRand3::command() const
 {
-    return "RNGLRAND3 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RNGLRAND3;
 }
 
-string ORNGSeed::toString() const
+int32_t ORNGSeed::command() const
 {
-    return "RNGSEED " + getArgument()->toString();
+	return RNGSEED;
 }
 
-string ORNGRSeed::toString() const
+int32_t ORNGRSeed::command() const
 {
-    return "RNGRSEED";
+	return RNGRSEED;
 }
 
-string ORNGFree::toString() const
+int32_t ORNGFree::command() const
 {
-    return "RNGFREE";
+	return RNGFREE;
 }
 
-string OCheckTrig::toString() const
+int32_t OCheckTrig::command() const
 {
-    return "CHECKTRIG";
+	return CHECKTRIG;
 }
 
-string OWarp::toString() const
+int32_t OWarp::command() const
 {
-    return "WARPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return WARPR;
 }
 
-string OPitWarp::toString() const
+int32_t OPitWarp::command() const
 {
-    return "PITWARPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PITWARPR;
 }
 
-string OSqrtRegister::toString() const
+int32_t OSqrtRegister::command() const
 {
-    return "SQROOTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SQROOTR;
 }
 
-string OCreateItemRegister::toString() const
+int32_t OCreateItemRegister::command() const
 {
-    return "CREATEITEMR " + getArgument()->toString();
+	return CREATEITEMR;
 }
 
-string OCreateNPCRegister::toString() const
+int32_t OCreateNPCRegister::command() const
 {
-    return "CREATENPCR " + getArgument()->toString();
+	return CREATENPCR;
 }
 
-string OCreateLWpnRegister::toString() const
+int32_t OCreateLWpnRegister::command() const
 {
-    return "CREATELWEAPONR " + getArgument()->toString();
+	return CREATELWEAPONR;
 }
 
-string OCreateEWpnRegister::toString() const
+int32_t OCreateEWpnRegister::command() const
 {
-    return "CREATEEWEAPONR " + getArgument()->toString();
+	return CREATEEWEAPONR;
 }
 
-string OLoadItemRegister::toString() const
+int32_t OLoadItemRegister::command() const
 {
-    return "LOADITEMR " + getArgument()->toString();
+	return LOADITEMR;
 }
 
-string OLoadItemDataRegister::toString() const
+int32_t OLoadItemDataRegister::command() const
 {
-    return "LOADITEMDATAR " + getArgument()->toString();
+	return LOADITEMDATAR;
 }
 
 //New Types
 
-string OLoadShopDataRegister::toString() const
+int32_t OLoadShopDataRegister::command() const
 {
-    return "LOADSHOPR " + getArgument()->toString();
+	return LOADSHOPR;
 }
-string OLoadInfoShopDataRegister::toString() const
+int32_t OLoadInfoShopDataRegister::command() const
 {
-    return "LOADINFOSHOPR " + getArgument()->toString();
+	return LOADINFOSHOPR;
 }
-string OLoadMessageDataRegister::toString() const
+int32_t OLoadMessageDataRegister::command() const
 {
-    return "LOADMESSAGEDATAR " + getArgument()->toString();
-}
-
-string OLoadDMapDataRegister::toString() const
-{
-    return "LOADDMAPDATAR " + getArgument()->toString();
+	return LOADMESSAGEDATAR;
 }
 
-string OLoadStack::toString() const
+int32_t OLoadDMapDataRegister::command() const
 {
-    return "LOADSTACK";
+	return LOADDMAPDATAR;
 }
 
-string OLoadDirectoryRegister::toString() const
+int32_t OLoadStack::command() const
 {
-    return "LOADDIRECTORYR " + getArgument()->toString();
+	return LOADSTACK;
 }
 
-string OLoadRNG::toString() const
+int32_t OLoadDirectoryRegister::command() const
 {
-    return "LOADRNG";
+	return LOADDIRECTORYR;
 }
 
-string OCreatePalData::toString() const
+int32_t OLoadRNG::command() const
 {
-    return "CREATEPALDATA";
+	return LOADRNG;
 }
 
-string OCreatePalDataClr::toString() const
+int32_t OCreatePalData::command() const
 {
-	return "CREATEPALDATACLR " + getArgument()->toString();
+	return CREATEPALDATA;
 }
 
-string OMixColorArray::toString() const
+int32_t OCreatePalDataClr::command() const
 {
-	return "MIXCLR";
-}
-string OCreateRGBHex::toString() const
-{
-	return "CREATERGBHEX " + getArgument()->toString();
-}
-string OCreateRGB::toString() const
-{
-	return "CREATERGB";
-}
-string OConvertFromRGB::toString() const
-{
-	return "CONVERTFROMRGB";
-}
-string OConvertToRGB::toString() const
-{
-	return "CONVERTTORGB";
-}
-string OGetTilePixel::toString() const
-{
-	return "GETTILEPIXEL";
-}
-string OSetTilePixel::toString() const
-{
-	return "SETTILEPIXEL";
-}
-string OLoadLevelPalette::toString() const
-{
-    return "PALDATALOADLEVEL " + getArgument()->toString();
+	return CREATEPALDATACLR;
 }
 
-string OLoadSpritePalette::toString() const
+int32_t OMixColorArray::command() const
 {
-    return "PALDATALOADSPRITE " + getArgument()->toString();
+	return MIXCLR;
+}
+int32_t OCreateRGBHex::command() const
+{
+	return CREATERGBHEX;
+}
+int32_t OCreateRGB::command() const
+{
+	return CREATERGB;
+}
+int32_t OConvertFromRGB::command() const
+{
+	return CONVERTFROMRGB;
+}
+int32_t OConvertToRGB::command() const
+{
+	return CONVERTTORGB;
+}
+int32_t OGetTilePixel::command() const
+{
+	return GETTILEPIXEL;
+}
+int32_t OSetTilePixel::command() const
+{
+	return SETTILEPIXEL;
+}
+int32_t OLoadLevelPalette::command() const
+{
+	return PALDATALOADLEVEL;
 }
 
-string OLoadMainPalette::toString() const
+int32_t OLoadSpritePalette::command() const
 {
-    return "PALDATALOADMAIN";
+	return PALDATALOADSPRITE;
 }
 
-string OLoadCyclePalette::toString() const
+int32_t OLoadMainPalette::command() const
 {
-	return "PALDATALOADCYCLE " + getArgument()->toString();
+	return PALDATALOADMAIN;
 }
 
-string OLoadBitmapPalette::toString() const
+int32_t OLoadCyclePalette::command() const
 {
-	return "PALDATALOADBITMAP " + getArgument()->toString();
+	return PALDATALOADCYCLE;
 }
 
-string OWriteLevelPalette::toString() const
+int32_t OLoadBitmapPalette::command() const
 {
-    return "PALDATAWRITELEVEL " + getArgument()->toString();
+	return PALDATALOADBITMAP;
 }
 
-string OWriteLevelCSet::toString() const
+int32_t OWriteLevelPalette::command() const
 {
-    return "PALDATAWRITELEVELCS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PALDATAWRITELEVEL;
 }
 
-string OWriteSpritePalette::toString() const
+int32_t OWriteLevelCSet::command() const
 {
-    return "PALDATAWRITESPRITE " + getArgument()->toString();
+	return PALDATAWRITELEVELCS;
 }
 
-string OWriteSpriteCSet::toString() const
+int32_t OWriteSpritePalette::command() const
 {
-    return "PALDATAWRITESPRITECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PALDATAWRITESPRITE;
 }
 
-string OWriteMainPalette::toString() const
+int32_t OWriteSpriteCSet::command() const
 {
-    return "PALDATAWRITEMAIN";
+	return PALDATAWRITESPRITECS;
 }
 
-string OWriteMainCSet::toString() const
+int32_t OWriteMainPalette::command() const
 {
-    return "PALDATAWRITEMAINCS " + getArgument()->toString();
+	return PALDATAWRITEMAIN;
 }
 
-string OWriteCyclePalette::toString() const
+int32_t OWriteMainCSet::command() const
 {
-	return "PALDATAWRITECYCLE " + getArgument()->toString();
+	return PALDATAWRITEMAINCS;
 }
 
-string OWriteCycleCSet::toString() const
+int32_t OWriteCyclePalette::command() const
 {
-	return "PALDATAWRITECYCLECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PALDATAWRITECYCLE;
 }
 
-string OPalDataColorValid::toString() const
+int32_t OWriteCycleCSet::command() const
 {
-	return "PALDATAVALIDCLR " + getArgument()->toString();
+	return PALDATAWRITECYCLECS;
 }
 
-string OPalDataClearColor::toString() const
+int32_t OPalDataColorValid::command() const
 {
-    return "PALDATACLEARCLR " + getArgument()->toString();
+	return PALDATAVALIDCLR;
 }
 
-string OPalDataClearCSet::toString() const
+int32_t OPalDataClearColor::command() const
 {
-	return "PALDATACLEARCSET " + getArgument()->toString();
+	return PALDATACLEARCLR;
 }
 
-string OPalDataMix::toString() const
+int32_t OPalDataClearCSet::command() const
 {
-    return "PALDATAMIX";
+	return PALDATACLEARCSET;
 }
 
-string OPalDataMixCSet::toString() const
+int32_t OPalDataMix::command() const
 {
-    return "PALDATAMIXCS";
+	return PALDATAMIX;
 }
 
-string OPalDataCopy::toString() const
+int32_t OPalDataMixCSet::command() const
 {
-	return "PALDATACOPY " + getArgument()->toString();
+	return PALDATAMIXCS;
 }
 
-string OPalDataCopyCSet::toString() const
+int32_t OPalDataCopy::command() const
 {
-	return "PALDATACOPYCSET";
+	return PALDATACOPY;
 }
 
-string OPalDataFree::toString() const
+int32_t OPalDataCopyCSet::command() const
 {
-	return "PALDATAFREE";
+	return PALDATACOPYCSET;
 }
 
-string OPalDataOwn::toString() const
+int32_t OPalDataFree::command() const
 {
-	return "PALDATAOWN";
+	return PALDATAFREE;
 }
 
-string OLoadDropsetRegister	::toString() const
+int32_t OPalDataOwn::command() const
 {
-    return "LOADDROPSETR " + getArgument()->toString();
+	return PALDATAOWN;
 }
 
-string OGetBottleShopName::toString() const
+int32_t OLoadDropsetRegister	::command() const
 {
-    return "BSHOPNAMEGET " + getArgument()->toString();
+	return LOADDROPSETR;
 }
 
-string OSetBottleShopName::toString() const
+int32_t OGetBottleShopName::command() const
 {
-    return "BSHOPNAMESET " + getArgument()->toString();
+	return BSHOPNAMEGET;
 }
 
-string OGetBottleName::toString() const
+int32_t OSetBottleShopName::command() const
 {
-    return "BOTTLENAMEGET " + getArgument()->toString();
+	return BSHOPNAMESET;
 }
 
-string OSetBottleName::toString() const
+int32_t OGetBottleName::command() const
 {
-    return "BOTTLENAMESET " + getArgument()->toString();
+	return BOTTLENAMEGET;
 }
 
-string OLoadBottleTypeRegister::toString() const
+int32_t OSetBottleName::command() const
 {
-    return "LOADBOTTLETYPE " + getArgument()->toString();
+	return BOTTLENAMESET;
 }
 
-string OLoadBShopRegister::toString() const
+int32_t OLoadBottleTypeRegister::command() const
 {
-    return "LOADBSHOPDATA " + getArgument()->toString();
-}
-string OLoadGenericDataR::toString() const
-{
-    return "LOADGENERICDATA " + getArgument()->toString();
+	return LOADBOTTLETYPE;
 }
 
-string ODMapDataGetNameRegister::toString() const
+int32_t OLoadBShopRegister::command() const
 {
-    return "DMAPDATAGETNAMER " + getArgument()->toString();
+	return LOADBSHOPDATA;
+}
+int32_t OLoadGenericDataR::command() const
+{
+	return LOADGENERICDATA;
 }
 
-string ODMapDataSetNameRegister::toString() const
+int32_t ODMapDataGetNameRegister::command() const
 {
-    return "DMAPDATASETNAMER " + getArgument()->toString();
+	return DMAPDATAGETNAMER;
 }
 
-string ODMapDataGetTitleRegister::toString() const
+int32_t ODMapDataSetNameRegister::command() const
 {
-    return "DMAPDATAGETTITLER " + getArgument()->toString();
+	return DMAPDATASETNAMER;
 }
 
-string ODMapDataSetTitleRegister::toString() const
+int32_t ODMapDataGetTitleRegister::command() const
 {
-    return "DMAPDATASETTITLER " + getArgument()->toString();
+	return DMAPDATAGETTITLER;
 }
 
-string ODMapDataGetIntroRegister::toString() const
+int32_t ODMapDataSetTitleRegister::command() const
 {
-    return "DMAPDATAGETINTROR " + getArgument()->toString();
+	return DMAPDATASETTITLER;
 }
 
-string ODMapDataSetIntroRegister::toString() const
+int32_t ODMapDataGetIntroRegister::command() const
 {
-    return "DMAPDATANSETITROR " + getArgument()->toString();
+	return DMAPDATAGETINTROR;
 }
 
-string ODMapDataGetMusicRegister::toString() const
+int32_t ODMapDataSetIntroRegister::command() const
 {
-    return "DMAPDATAGETMUSICR " + getArgument()->toString();
+	return DMAPDATANSETITROR;
 }
 
-string ODMapDataSetMusicRegister::toString() const
+int32_t ODMapDataGetMusicRegister::command() const
 {
-    return "DMAPDATASETMUSICR " + getArgument()->toString();
+	return DMAPDATAGETMUSICR;
 }
 
-string OMessageDataSetStringRegister::toString() const
+int32_t ODMapDataSetMusicRegister::command() const
 {
-    return "MESSAGEDATASETSTRINGR " + getArgument()->toString();
-}
-string OMessageDataGetStringRegister::toString() const
-{
-    return "MESSAGEDATAGETSTRINGR " + getArgument()->toString();
-}
-string OLoadNPCDataRegister::toString() const
-{
-    return "LOADNPCDATAR " + getArgument()->toString();
-}
-string OLoadComboDataRegister::toString() const
-{
-    return "LOADCOMBODATAR " + getArgument()->toString();
-}
-string OLoadMapDataRegister::toString() const
-{
-    return "LOADMAPDATAR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OLoadSpriteDataRegister::toString() const
-{
-    return "LOADSPRITEDATAR " + getArgument()->toString();
-}
-string OLoadScreenDataRegister::toString() const
-{
-    return "LOADSCREENDATAR " + getArgument()->toString();
-}
-string OLoadBitmapDataRegister::toString() const
-{
-    return "LOADBITMAPDATAR " + getArgument()->toString();
+	return DMAPDATASETMUSICR;
 }
 
-string OLoadNPCRegister::toString() const
+int32_t OMessageDataSetStringRegister::command() const
 {
-    return "LOADNPCR " + getArgument()->toString();
+	return MESSAGEDATASETSTRINGR;
+}
+int32_t OMessageDataGetStringRegister::command() const
+{
+	return MESSAGEDATAGETSTRINGR;
+}
+int32_t OLoadNPCDataRegister::command() const
+{
+	return LOADNPCDATAR;
+}
+int32_t OLoadComboDataRegister::command() const
+{
+	return LOADCOMBODATAR;
+}
+int32_t OLoadMapDataRegister::command() const
+{
+	return LOADMAPDATAR;
+}
+int32_t OLoadSpriteDataRegister::command() const
+{
+	return LOADSPRITEDATAR;
+}
+int32_t OLoadScreenDataRegister::command() const
+{
+	return LOADSCREENDATAR;
+}
+int32_t OLoadBitmapDataRegister::command() const
+{
+	return LOADBITMAPDATAR;
+}
+
+int32_t OLoadNPCRegister::command() const
+{
+	return LOADNPCR;
 }
 
 
-string OLoadLWpnRegister::toString() const
+int32_t OLoadLWpnRegister::command() const
 {
-    return "LOADLWEAPONR " + getArgument()->toString();
+	return LOADLWEAPONR;
 }
 
-string OLoadEWpnRegister::toString() const
+int32_t OLoadEWpnRegister::command() const
 {
-    return "LOADEWEAPONR " + getArgument()->toString();
+	return LOADEWEAPONR;
 }
-string OAdjustVolumeRegister::toString() const
+int32_t OAdjustVolumeRegister::command() const
 {
-    return "ADJUSTVOLUMER " + getArgument()->toString();
+	return ADJUSTVOLUMER;
 }
-string OAdjustSFXVolumeRegister::toString() const
+int32_t OAdjustSFXVolumeRegister::command() const
 {
-    return "ADJUSTSFXVOLUMER " + getArgument()->toString();
+	return ADJUSTSFXVOLUMER;
 }
-string OAdjustSound::toString() const
+int32_t OAdjustSound::command() const
 {
-	return "ADJUSTSFX";
+	return ADJUSTSFX;
 }
-string OPlaySoundEX::toString() const
+int32_t OPlaySoundEX::command() const
 {
-	return "PLAYSOUNDEX";
+	return PLAYSOUNDEX;
 }
-string OGetSoundCompletion::toString() const
+int32_t OGetSoundCompletion::command() const
 {
-	return "GETSFXCOMPLETION " + getArgument()->toString();
+	return GETSFXCOMPLETION;
 }
-string OPlaySoundRegister::toString() const
+int32_t OPlaySoundRegister::command() const
 {
-    return "PLAYSOUNDR " + getArgument()->toString();
-}
-
-string OPlayMIDIRegister::toString() const
-{
-    return "PLAYMIDIR " + getArgument()->toString();
+	return PLAYSOUNDR;
 }
 
-string OPlayEnhancedMusic::toString() const
+int32_t OPlayMIDIRegister::command() const
 {
-    return "PLAYENHMUSIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PLAYMIDIR;
 }
 
-string OPlayEnhancedMusicEx::toString() const
+int32_t OPlayEnhancedMusic::command() const
 {
-    return "PLAYENHMUSICEX " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return PLAYENHMUSIC;
 }
 
-string OGetEnhancedMusicPos::toString() const
+int32_t OPlayEnhancedMusicEx::command() const
 {
-    return "GETENHMUSICPOS " + getArgument()->toString();
+	return PLAYENHMUSICEX;
 }
 
-string OSetEnhancedMusicPos::toString() const
+int32_t OGetEnhancedMusicPos::command() const
 {
-    return "SETENHMUSICPOS " + getArgument()->toString();
+	return GETENHMUSICPOS;
 }
 
-string OSetEnhancedMusicSpeed::toString() const
+int32_t OSetEnhancedMusicPos::command() const
 {
-    return "SETENHMUSICSPEED " + getArgument()->toString();
+	return SETENHMUSICPOS;
 }
 
-string OGetEnhancedMusicLength::toString() const
+int32_t OSetEnhancedMusicSpeed::command() const
 {
-	return "GETENHMUSICLEN " + getArgument()->toString();
+	return SETENHMUSICSPEED;
 }
 
-string OSetEnhancedMusicLoop::toString() const
+int32_t OGetEnhancedMusicLength::command() const
 {
-	return "SETENHMUSICLOOP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return GETENHMUSICLEN;
 }
 
-string OCrossfadeEnhancedMusic::toString() const
+int32_t OSetEnhancedMusicLoop::command() const
 {
-	return "ENHCROSSFADE";
+	return SETENHMUSICLOOP;
 }
 
-string OGetDMapMusicFilename::toString() const
+int32_t OCrossfadeEnhancedMusic::command() const
 {
-    return "GETMUSICFILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ENHCROSSFADE;
 }
 
-string OGetNPCDataInitDLabel::toString() const
+int32_t OGetDMapMusicFilename::command() const
 {
-    return "NPCGETINITDLABEL " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return GETMUSICFILE;
 }
 
-string OGetDMapMusicTrack::toString() const
+int32_t OGetNPCDataInitDLabel::command() const
 {
-    return "GETMUSICTRACK " + getArgument()->toString();
+	return NPCGETINITDLABEL;
+}
+
+int32_t OGetDMapMusicTrack::command() const
+{
+	return GETMUSICTRACK;
 }
 
 // Audio->
-string OEndSoundRegister::toString() const
+int32_t OEndSoundRegister::command() const
 {
-    return "ENDSOUNDR " + getArgument()->toString();
+	return ENDSOUNDR;
 }
 
 
-string OContinueSFX::toString() const
+int32_t OContinueSFX::command() const
 {
-    return "CONTINUESFX " + getArgument()->toString();
+	return CONTINUESFX;
 }
 
-string OPauseSoundRegister::toString() const
+int32_t OPauseSoundRegister::command() const
 {
-    return "PAUSESOUNDR " + getArgument()->toString();
+	return PAUSESOUNDR;
 }
 
-string OPauseMusic::toString() const
+int32_t OPauseMusic::command() const
 {
-    return "PAUSEMUSIC";
+	return PAUSEMUSIC;
 }
-string OResumeMusic::toString() const
+int32_t OResumeMusic::command() const
 {
-    return "RESUMEMUSIC";
+	return RESUMEMUSIC;
 }
 
-string OResumeSoundRegister::toString() const
+int32_t OResumeSoundRegister::command() const
 {
-    return "RESUMESOUNDR " + getArgument()->toString();
+	return RESUMESOUNDR;
 }
 
 //END Audio
 
-string OSetDMapEnhancedMusic::toString() const
+int32_t OSetDMapEnhancedMusic::command() const
 {
-    return "SETDMAPENHMUSIC";
+	return SETDMAPENHMUSIC;
 }
 
-string OGetSaveName::toString() const
+int32_t OGetSaveName::command() const
 {
-    return "GETSAVENAME " + getArgument()->toString();
+	return GETSAVENAME;
 }
 
-string OSetSaveName::toString() const
+int32_t OSetSaveName::command() const
 {
-    return "SETSAVENAME " + getArgument()->toString();
+	return SETSAVENAME;
 }
 
-string OGetDMapName::toString() const
+int32_t OGetDMapName::command() const
 {
-    return "GETDMAPNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return GETDMAPNAME;
 }
 
-string OGetDMapTitle::toString() const
+int32_t OGetDMapTitle::command() const
 {
-    return "GETDMAPTITLE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return GETDMAPTITLE;
 }
 
-string OGetDMapIntro::toString() const
+int32_t OGetDMapIntro::command() const
 {
-    return "GETDMAPINTRO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return GETDMAPINTRO;
 }
 
 
-string OSetDMapName::toString() const
+int32_t OSetDMapName::command() const
 {
-    return "SETDMAPNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SETDMAPNAME;
 }
 
-string OSetDMapTitle::toString() const
+int32_t OSetDMapTitle::command() const
 {
-    return "SETDMAPTITLE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SETDMAPTITLE;
 }
 
-string OSetDMapIntro::toString() const
+int32_t OSetDMapIntro::command() const
 {
-    return "SETDMAPINTRO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SETDMAPINTRO;
 }
 
-string OGetItemName::toString() const
+int32_t OGetItemName::command() const
 {
-    return "ITEMNAME " + getArgument()->toString();
+	return ITEMNAME;
 }
 
-string OGetNPCName::toString() const
+int32_t OGetNPCName::command() const
 {
-    return "NPCNAME " + getArgument()->toString();
+	return NPCNAME;
 }
 
-string OGetMessage::toString() const
+int32_t OGetMessage::command() const
 {
-    return "GETMESSAGE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return GETMESSAGE;
 }
 
 
-string OSetMessage::toString() const
+int32_t OSetMessage::command() const
 {
-    return "SETMESSAGE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SETMESSAGE;
 }
 
-string OClearSpritesRegister::toString() const
+int32_t OClearSpritesRegister::command() const
 {
-    return "CLEARSPRITESR " + getArgument()->toString();
+	return CLEARSPRITESR;
 }
 
-string ORectangleRegister::toString() const
+int32_t ORectangleRegister::command() const
 {
-    return "RECT";
+	return RECTR;
 }
 
-string OFrameRegister::toString() const
+int32_t OFrameRegister::command() const
 {
-    return "FRAMER";
+	return FRAMER;
 }
 
-string OCircleRegister::toString() const
+int32_t OCircleRegister::command() const
 {
-    return "CIRCLE";
+	return CIRCLER;
 }
 
-string OArcRegister::toString() const
+int32_t OArcRegister::command() const
 {
-    return "ARC";
+	return ARCR;
 }
 
-string OEllipseRegister::toString() const
+int32_t OEllipseRegister::command() const
 {
-    return "ELLIPSE";
+	return ELLIPSER;
 }
 
-string OLineRegister::toString() const
+int32_t OLineRegister::command() const
 {
-    return "LINE";
+	return LINER;
 }
 
-string OSplineRegister::toString() const
+int32_t OSplineRegister::command() const
 {
-    return "SPLINE";
+	return SPLINER;
 }
 
-string OPutPixelRegister::toString() const
+int32_t OPutPixelRegister::command() const
 {
-    return "PUTPIXEL";
+	return PUTPIXELR;
 }
 
-string OPutPixelArrayRegister::toString() const
+int32_t OPutPixelArrayRegister::command() const
 {
-    return "PIXELARRAYR";
+	return PIXELARRAYR;
 }
 
-string OPutTileArrayRegister::toString() const
+int32_t OPutTileArrayRegister::command() const
 {
-    return "TILEARRAYR";
+	return TILEARRAYR;
 }
 
-string OPutLinesArrayRegister::toString() const
+int32_t OPutLinesArrayRegister::command() const
 {
-    return "LINESARRAY";
+	return LINESARRAY;
 }
 
-string ODrawCharRegister::toString() const
+int32_t ODrawCharRegister::command() const
 {
-    return "DRAWCHAR";
+	return DRAWCHARR;
 }
 
-string ODrawIntRegister::toString() const
+int32_t ODrawIntRegister::command() const
 {
-    return "DRAWINT";
+	return DRAWINTR;
 }
 
-string ODrawTileRegister::toString() const
+int32_t ODrawTileRegister::command() const
 {
-    return "DRAWTILE";
+	return DRAWTILER;
 }
 
-string ODrawTileCloakedRegister::toString() const
+int32_t ODrawTileCloakedRegister::command() const
 {
-    return "DRAWTILECLOAKEDR";
+	return DRAWTILECLOAKEDR;
 }
 
-string ODrawComboRegister::toString() const
+int32_t ODrawComboRegister::command() const
 {
-    return "DRAWCOMBO";
+	return DRAWCOMBOR;
 }
 
-string ODrawComboCloakedRegister::toString() const
+int32_t ODrawComboCloakedRegister::command() const
 {
-    return "DRAWCOMBOCLOAKEDR";
+	return DRAWCOMBOCLOAKEDR;
 }
 
-string OFastTileRegister::toString() const
+int32_t OFastTileRegister::command() const
 {
-    return "FASTTILE";
+	return FASTTILER;
 }
 
-string OFastComboRegister::toString() const
+int32_t OFastComboRegister::command() const
 {
-    return "FASTCOMBO";
+	return FASTCOMBOR;
 }
 
-string OFastComboArrayRegister::toString() const
+int32_t OFastComboArrayRegister::command() const
 {
-    return "COMBOARRAYR";
+	return COMBOARRAYR;
 }
 
-string ODrawStringRegister::toString() const
+int32_t ODrawStringRegister::command() const
 {
-    return "DRAWSTRING";
+	return DRAWSTRINGR;
 }
 
-string ODrawString2Register::toString() const
+int32_t ODrawString2Register::command() const
 {
-    return "DRAWSTRINGR2";
+	return DRAWSTRINGR2;
 }
 
-string ODrawBitmapRegister::toString() const
+int32_t ODrawBitmapRegister::command() const
 {
-    return "DRAWBITMAP";
+	return BITMAPR;
 }
 
-string ODrawBitmapExRegister::toString() const
+int32_t ODrawBitmapExRegister::command() const
 {
-    return "BITMAPEXR";
+	return BITMAPEXR;
 }
 
-string OSetRenderTargetRegister::toString() const
+int32_t OSetRenderTargetRegister::command() const
 {
-    return "SETRENDERTARGET";
+	return SETRENDERTARGET;
 }
 
-string OSetDepthBufferRegister::toString() const
+int32_t OSetDepthBufferRegister::command() const
 {
-    return "SETDEPTHB";
+	return SETDEPTHB;
 }
 
-string OGetDepthBufferRegister::toString() const
+int32_t OGetDepthBufferRegister::command() const
 {
-    return "GETDEPTHB";
+	return GETDEPTHB;
 }
 
-string OSetColorBufferRegister::toString() const
+int32_t OSetColorBufferRegister::command() const
 {
-    return "SETCOLORB";
+	return SETCOLORB;
 }
 
-string OGetColorBufferRegister::toString() const
+int32_t OGetColorBufferRegister::command() const
 {
-    return "GETCOLORB";
+	return GETCOLORB;
 }
 
-string OQuadRegister::toString() const
+int32_t OQuadRegister::command() const
 {
-    return "QUAD";
+	return QUADR;
 }
 
-string OTriangleRegister::toString() const
+int32_t OTriangleRegister::command() const
 {
-    return "TRIANGLE";
+	return TRIANGLER;
 }
 
 
-string OQuad3DRegister::toString() const
+int32_t OQuad3DRegister::command() const
 {
-    return "QUAD3D";
+	return QUAD3DR;
 }
 
-string OTriangle3DRegister::toString() const
+int32_t OTriangle3DRegister::command() const
 {
-    return "TRIANGLE3D";
+	return TRIANGLE3DR;
 }
 
-string ODrawLayerRegister::toString() const
+int32_t ODrawLayerRegister::command() const
 {
-    return "DRAWLAYER";
+	return DRAWLAYERR;
 }
 
-string ODrawScreenRegister::toString() const
+int32_t ODrawScreenRegister::command() const
 {
-    return "DRAWSCREEN";
+	return DRAWSCREENR;
 }
 
-string OMessageRegister::toString() const
+int32_t OMessageRegister::command() const
 {
-    return "MSGSTRR " + getArgument()->toString();
+	return MSGSTRR;
 }
 
-string OIsSolid::toString() const
+int32_t OIsSolid::command() const
 {
-    return "ISSOLID " + getArgument()->toString();
+	return ISSOLID;
 }
 
-string OIsSolidMapdata::toString() const
+int32_t OIsSolidMapdata::command() const
 {
-    return "MAPDATAISSOLID " + getArgument()->toString();
+	return MAPDATAISSOLID;
 }
 
-string OIsSolidMapdataLayer::toString() const
+int32_t OIsSolidMapdataLayer::command() const
 {
-    return "MAPDATAISSOLIDLYR " + getArgument()->toString();
+	return MAPDATAISSOLIDLYR;
 }
 
-string OIsSolidLayer::toString() const
+int32_t OIsSolidLayer::command() const
 {
-    return "ISSOLIDLAYER " + getArgument()->toString();
+	return ISSOLIDLAYER;
 }
 
-string OLoadTmpScr::toString() const
+int32_t OLoadTmpScr::command() const
 {
-    return "LOADTMPSCR " + getArgument()->toString();
+	return LOADTMPSCR;
 }
 
-string OLoadScrollScr::toString() const
+int32_t OLoadScrollScr::command() const
 {
-    return "LOADSCROLLSCR " + getArgument()->toString();
+	return LOADSCROLLSCR;
 }
 
-string OSetSideWarpRegister::toString() const
+int32_t OSetSideWarpRegister::command() const
 {
-    return "SETSIDEWARP";
+	return SETSIDEWARP;
 }
 
-string OGetSideWarpDMap::toString() const
+int32_t OGetSideWarpDMap::command() const
 {
-    return "GETSIDEWARPDMAP " + getArgument()->toString();
+	return GETSIDEWARPDMAP;
 }
 
-string OGetSideWarpScreen::toString() const
+int32_t OGetSideWarpScreen::command() const
 {
-    return "GETSIDEWARPSCR " + getArgument()->toString();
+	return GETSIDEWARPSCR;
 }
 
-string OGetSideWarpType::toString() const
+int32_t OGetSideWarpType::command() const
 {
-    return "GETSIDEWARPTYPE " + getArgument()->toString();
+	return GETSIDEWARPTYPE;
 }
 
-string OGetTileWarpDMap::toString() const
+int32_t OGetTileWarpDMap::command() const
 {
-    return "GETTILEWARPDMAP " + getArgument()->toString();
+	return GETTILEWARPDMAP;
 }
 
-string OGetTileWarpScreen::toString() const
+int32_t OGetTileWarpScreen::command() const
 {
-    return "GETTILEWARPSCR " + getArgument()->toString();
+	return GETTILEWARPSCR;
 }
 
-string OGetTileWarpType::toString() const
+int32_t OGetTileWarpType::command() const
 {
-    return "GETTILEWARPTYPE " + getArgument()->toString();
+	return GETTILEWARPTYPE;
 }
 
-string OSetTileWarpRegister::toString() const
+int32_t OSetTileWarpRegister::command() const
 {
-    return "SETTILEWARP";
+	return SETTILEWARP;
 }
 
-string OLayerScreenRegister::toString() const
+int32_t OLayerScreenRegister::command() const
 {
-    return "LAYERSCREEN " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return LAYERSCREEN;
 }
 
-string OLayerMapRegister::toString() const
+int32_t OLayerMapRegister::command() const
 {
-    return "LAYERMAP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return LAYERMAP;
 }
 
-string OTriggerSecrets::toString() const
+int32_t OTriggerSecrets::command() const
 {
-    return "SECRETS";
+	return SECRETS;
 }
 
-string OIsValidArray::toString() const
+int32_t OIsValidArray::command() const
 {
-    return "ISVALIDARRAY " + getArgument()->toString();
+	return ISVALIDARRAY;
 }
 
-string OIsValidItem::toString() const
+int32_t OIsValidItem::command() const
 {
-    return "ISVALIDITEM " + getArgument()->toString();
+	return ISVALIDITEM;
 }
 
-string OIsValidNPC::toString() const
+int32_t OIsValidNPC::command() const
 {
-    return "ISVALIDNPC " + getArgument()->toString();
+	return ISVALIDNPC;
 }
 
-string OCopyTileRegister::toString() const
+int32_t OCopyTileRegister::command() const
 {
-    return "COPYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return COPYTILERR;
 }
 
-string Ostrcpy::toString() const
+int32_t Ostrcpy::command() const
 {
-    return "STRINGCOPY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STRINGCOPY;
 }
 
-string OOverlayTileRegister::toString() const
+int32_t OOverlayTileRegister::command() const
 {
-    return "OVERLAYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return OVERLAYTILERR;
 }
 
-string OSwapTileRegister::toString() const
+int32_t OSwapTileRegister::command() const
 {
-    return "SWAPTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SWAPTILERR;
 }
 
-string OClearTileRegister::toString() const
+int32_t OClearTileRegister::command() const
 {
-    return "CLEARTILER " + getArgument()->toString();
+	return CLEARTILER;
 }
 
-string OIsValidLWpn::toString() const
+int32_t OIsValidLWpn::command() const
 {
-    return "ISVALIDLWPN " + getArgument()->toString();
+	return ISVALIDLWPN;
 }
 
-string OIsValidEWpn::toString() const
+int32_t OIsValidEWpn::command() const
 {
-    return "ISVALIDEWPN " + getArgument()->toString();
+	return ISVALIDEWPN;
 }
 
-string OMakeAngularLwpn::toString() const
+int32_t OMakeAngularLwpn::command() const
 {
-    return "LWPNMAKEANGULAR " + getArgument()->toString();
+	return LWPNMAKEANGULAR;
 }
 
-string OMakeAngularEwpn::toString() const
+int32_t OMakeAngularEwpn::command() const
 {
-    return "EWPNMAKEANGULAR " + getArgument()->toString();
+	return EWPNMAKEANGULAR;
 }
 
-string OMakeDirectionalLwpn::toString() const
+int32_t OMakeDirectionalLwpn::command() const
 {
-    return "LWPNMAKEDIRECTIONAL " + getArgument()->toString();
+	return LWPNMAKEDIRECTIONAL;
 }
 
-string OMakeDirectionalEwpn::toString() const
+int32_t OMakeDirectionalEwpn::command() const
 {
-    return "EWPNMAKEDIRECTIONAL " + getArgument()->toString();
+	return EWPNMAKEDIRECTIONAL;
 }
 
-string OUseSpriteLWpn::toString() const
+int32_t OUseSpriteLWpn::command() const
 {
-    return "LWPNUSESPRITER " + getArgument()->toString();
+	return LWPNUSESPRITER;
 }
 
-string OUseSpriteEWpn::toString() const
+int32_t OUseSpriteEWpn::command() const
 {
-    return "EWPNUSESPRITER " + getArgument()->toString();
+	return EWPNUSESPRITER;
 }
 
-string OAllocateMemRegister::toString() const
+int32_t OAllocateMemRegister::command() const
 {
-    return "ALLOCATEMEMR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ALLOCATEMEMR;
 }
 
-string OAllocateMemImmediate::toString() const
+int32_t OAllocateMemImmediate::command() const
 {
-    return "ALLOCATEMEMV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ALLOCATEMEMV;
 }
 
-string OAllocateGlobalMemImmediate::toString() const
+int32_t OAllocateGlobalMemImmediate::command() const
 {
-    return "ALLOCATEGMEMV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ALLOCATEGMEMV;
 }
 
-string OAllocateGlobalMemRegister::toString() const
+int32_t OAllocateGlobalMemRegister::command() const
 {
-    return "ALLOCATEGMEMR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ALLOCATEGMEMR;
 }
 
-string ODeallocateMemRegister::toString() const
+int32_t ODeallocateMemRegister::command() const
 {
-    return "DEALLOCATEMEMR " + getArgument()->toString();
+	return DEALLOCATEMEMR;
 }
 
-string ODeallocateMemImmediate::toString() const
+int32_t ODeallocateMemImmediate::command() const
 {
-    return "DEALLOCATEMEMV " + getArgument()->toString();
+	return DEALLOCATEMEMV;
 }
 
-string OResizeArrayRegister::toString() const
+int32_t OResizeArrayRegister::command() const
 {
-    return "RESIZEARRAYR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return RESIZEARRAYR;
 }
-string OOwnArrayRegister::toString() const
+int32_t OOwnArrayRegister::command() const
 {
-    return "OWNARRAYR " + getArgument()->toString();
+	return OWNARRAYR;
 }
-string ODestroyArrayRegister::toString() const
+int32_t ODestroyArrayRegister::command() const
 {
-    return "DESTROYARRAYR " + getArgument()->toString();
+	return DESTROYARRAYR;
 }
 
-string OSave::toString() const
+int32_t OSave::command() const
 {
-    return "SAVE";
+	return SAVE;
 }
 
-string OGetScreenFlags::toString() const
+int32_t OGetScreenFlags::command() const
 {
-    return "GETSCREENFLAGS " + getArgument()->toString();
+	return GETSCREENFLAGS;
 }
 
-string OGetScreenEFlags::toString() const
+int32_t OGetScreenEFlags::command() const
 {
-    return "GETSCREENEFLAGS " + getArgument()->toString();
+	return GETSCREENEFLAGS;
 }
 
-string OEnd::toString() const
+int32_t OEnd::command() const
 {
-    return "GAMEEND";
+	return GAMEEND;
 }
 
-string OGameReload::toString() const
+int32_t OGameReload::command() const
 {
-    return "GAMERELOAD";
+	return GAMERELOAD;
 }
 
-string OGameContinue::toString() const
+int32_t OGameContinue::command() const
 {
-    return "GAMECONTINUE";
+	return GAMECONTINUE;
 }
 
-string OGameSaveQuit::toString() const
+int32_t OGameSaveQuit::command() const
 {
-    return "GAMESAVEQUIT";
+	return GAMESAVEQUIT;
 }
 
-string OGameSaveContinue::toString() const
+int32_t OGameSaveContinue::command() const
 {
-    return "GAMESAVECONTINUE";
+	return GAMESAVECONTINUE;
 }
 
-string OShowF6Screen::toString() const
+int32_t OShowF6Screen::command() const
 {
-    return "SHOWF6SCREEN";
+	return SHOWF6SCREEN;
 }
 
-string OComboTile::toString() const
+int32_t OComboTile::command() const
 {
-    return "COMBOTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return COMBOTILE;
 }
 
-string OBreakShield::toString() const
+int32_t OBreakShield::command() const
 {
-    return "BREAKSHIELD " + getArgument()->toString();
+	return BREAKSHIELD;
 }
 
-string OShowSaveScreen::toString() const
+int32_t OShowSaveScreen::command() const
 {
-    return "SAVESCREEN " + getArgument()->toString();
+	return SAVESCREEN;
 }
 
-string OShowSaveQuitScreen::toString() const
+int32_t OShowSaveQuitScreen::command() const
 {
-    return "SAVEQUITSCREEN";
+	return SAVEQUITSCREEN;
 }
 
-string OSelectAWeaponRegister::toString() const
+int32_t OSelectAWeaponRegister::command() const
 {
-    return "SELECTAWPNR " + getArgument()->toString();
+	return SELECTAWPNR;
 }
 
-string OSelectBWeaponRegister::toString() const
+int32_t OSelectBWeaponRegister::command() const
 {
-    return "SELECTBWPNR " + getArgument()->toString();
+	return SELECTBWPNR;
 }
 
-string OSelectXWeaponRegister::toString() const
+int32_t OSelectXWeaponRegister::command() const
 {
-    return "SELECTXWPNR " + getArgument()->toString();
+	return SELECTXWPNR;
 }
 
-string OSelectYWeaponRegister::toString() const
+int32_t OSelectYWeaponRegister::command() const
 {
-    return "SELECTYWPNR " + getArgument()->toString();
+	return SELECTYWPNR;
 }
 
-string OGetFFCScript::toString() const
+int32_t OGetFFCScript::command() const
 {
-    return "GETFFCSCRIPT " + getArgument()->toString();
+	return GETFFCSCRIPT;
 }
 
-string OGetComboScript::toString() const
+int32_t OGetComboScript::command() const
 {
-    return "GETCOMBOSCRIPT " + getArgument()->toString();
+	return GETCOMBOSCRIPT;
 }
 
 //2.54
 
-string OGreyscaleOn::toString() const
+int32_t OGreyscaleOn::command() const
 {
-    return "GREYSCALEON";
+	return GREYSCALEON;
 }
 
-string OGreyscaleOff::toString() const
+int32_t OGreyscaleOff::command() const
 {
-    return "GREYSCALEOFF";
+	return GREYSCALEOFF;
 }
 
-string OZapIn::toString() const
+int32_t OZapIn::command() const
 {
-    return "ZAPIN";
+	return ZAPIN;
 }
 
-string OZapOut::toString() const
+int32_t OZapOut::command() const
 {
-    return "ZAPOUT";
+	return ZAPOUT;
 }
 
 //These need to be unary opcodes that accept bool linkvisible. 
-string OWavyIn::toString() const
+int32_t OWavyIn::command() const
 {
-    return "WAVYIN";
+	return WAVYIN;
 }
 
-string OWavyOut::toString() const
+int32_t OWavyOut::command() const
 {
-    return "WAVYOUT";
+	return WAVYOUT;
 }
 
-string OOpenWipe::toString() const
+int32_t OOpenWipe::command() const
 {
-    return "OPENWIPE";
+	return OPENWIPE;
 }
 
-string OCloseWipe::toString() const
+int32_t OCloseWipe::command() const
 {
-    return "CLOSEWIPE";
+	return CLOSEWIPE;
 }
 
-string OOpenWipeShape::toString() const
+int32_t OOpenWipeShape::command() const
 {
-    return "OPENWIPESHAPE " + getArgument()->toString();
+	return OPENWIPESHAPE;
 }
 
-string OCloseWipeShape::toString() const
+int32_t OCloseWipeShape::command() const
 {
-    return "CLOSEWIPESHAPE " + getArgument()->toString();
+	return CLOSEWIPESHAPE;
 }
 
 //Game->GetItemScript(int32_t ptr[])
-string OGetItemScript::toString() const
+int32_t OGetItemScript::command() const
 {
-    return "GETITEMSCRIPT " + getArgument()->toString();
+	return GETITEMSCRIPT;
 }
 
 
-string OGetLWeaponPointer::toString() const
+int32_t OGetLWeaponPointer::command() const
 {
-    return "LWPNARRPTR " + getArgument()->toString();
+	return LWPNARRPTR;
 }
 
-string OSetLWeaponPointer::toString() const
+int32_t OSetLWeaponPointer::command() const
 {
-    return "LWPNARRPTR2 " + getArgument()->toString();
+	return LWPNARRPTR2;
 }
 
-string OGetEWeaponPointer::toString() const
+int32_t OGetEWeaponPointer::command() const
 {
-    return "EWPNARRPTR " + getArgument()->toString();
+	return EWPNARRPTR;
 }
 
-string OSetEWeaponPointer::toString() const
+int32_t OSetEWeaponPointer::command() const
 {
-    return "EWPNARRPTR2 " + getArgument()->toString();
+	return EWPNARRPTR2;
 }
 
-string OGetItemPointer::toString() const
+int32_t OGetItemPointer::command() const
 {
-    return "ITEMARRPTR " + getArgument()->toString();
+	return ITEMARRPTR;
 }
 
-string OSetItemPointer::toString() const
+int32_t OSetItemPointer::command() const
 {
-    return "ITEMARRPTR2 " + getArgument()->toString();
+	return ITEMARRPTR2;
 }
 
-string OGetItemDataPointer::toString() const
+int32_t OGetItemDataPointer::command() const
 {
-    return "IDATAARRPTR " + getArgument()->toString();
+	return IDATAARRPTR;
 }
 
-string OSetItemDataPointer::toString() const
+int32_t OSetItemDataPointer::command() const
 {
-    return "IDATAARRPTR2 " + getArgument()->toString();
+	return IDATAARRPTR2;
 }
 
-string OGetFFCPointer::toString() const
+int32_t OGetFFCPointer::command() const
 {
-    return "FFCARRPTR " + getArgument()->toString();
+	return FFCARRPTR;
 }
 
-string OSetFFCPointer::toString() const
+int32_t OSetFFCPointer::command() const
 {
-    return "FFCARRPTR2 " + getArgument()->toString();
+	return FFCARRPTR2;
 }
 
-string OGetBoolPointer::toString() const
+int32_t OGetBoolPointer::command() const
 {
-    return "BOOLARRPTR " + getArgument()->toString();
+	return BOOLARRPTR;
 }
 
-string OSetBoolPointer::toString() const
+int32_t OSetBoolPointer::command() const
 {
-    return "BOOLARRPTR2 " + getArgument()->toString();
+	return BOOLARRPTR2;
 }
 
-string OGetNPCPointer::toString() const
+int32_t OGetNPCPointer::command() const
 {
-    return "NPCARRPTR " + getArgument()->toString();
+	return NPCARRPTR;
 }
 
-string OSetNPCPointer::toString() const
+int32_t OSetNPCPointer::command() const
 {
-    return "NPCARRPTR2 " + getArgument()->toString();
-}
-
-
-string OGetScreenDoor::toString() const
-{
-    return "GETSCREENDOOR " + getArgument()->toString();
-}
-
-string OGetScreenEnemy::toString() const
-{
-    return "GETSCREENENEMY " + getArgument()->toString();
+	return NPCARRPTR2;
 }
 
 
-string OGetScreenLayerOpacity::toString() const
+int32_t OGetScreenDoor::command() const
 {
-    return "GETSCREENLAYOP " + getArgument()->toString();
+	return GETSCREENDOOR;
 }
 
-string OGetScreenSecretCombo::toString() const
+int32_t OGetScreenEnemy::command() const
 {
-    return "GETSCREENSECCMB " + getArgument()->toString();
+	return GETSCREENENEMY;
 }
 
-string OGetScreenSecretCSet::toString() const
+
+int32_t OGetScreenLayerOpacity::command() const
 {
-    return "GETSCREENSECCST " + getArgument()->toString();
+	return GETSCREENLAYOP;
 }
 
-string OGetScreenSecretFlag::toString() const
+int32_t OGetScreenSecretCombo::command() const
 {
-    return "GETSCREENSECFLG " + getArgument()->toString();
+	return GETSCREENSECCMB;
 }
 
-string OGetScreenLayerMap::toString() const
+int32_t OGetScreenSecretCSet::command() const
 {
-    return "GETSCREENLAYMAP " + getArgument()->toString();
+	return GETSCREENSECCST;
 }
 
-string OGetScreenLayerScreen::toString() const
+int32_t OGetScreenSecretFlag::command() const
 {
-    return "GETSCREENLAYSCR " + getArgument()->toString();
+	return GETSCREENSECFLG;
 }
 
-string OGetScreenPath::toString() const
+int32_t OGetScreenLayerMap::command() const
 {
-    return "GETSCREENPATH " + getArgument()->toString();
+	return GETSCREENLAYMAP;
 }
 
-string OGetScreenWarpReturnX::toString() const
+int32_t OGetScreenLayerScreen::command() const
 {
-    return "GETSCREENWARPRX " + getArgument()->toString();
+	return GETSCREENLAYSCR;
 }
 
-string OGetScreenWarpReturnY::toString() const
+int32_t OGetScreenPath::command() const
 {
-    return "GETSCREENWARPRY " + getArgument()->toString();
+	return GETSCREENPATH;
 }
 
-string OTriggerSecretRegister::toString() const
+int32_t OGetScreenWarpReturnX::command() const
 {
-    return "TRIGGERSECRETR " + getArgument()->toString();
+	return GETSCREENWARPRX;
 }
 
-string OBMPPolygonRegister::toString() const
+int32_t OGetScreenWarpReturnY::command() const
 {
-    return "BMPPOLYGONR";
+	return GETSCREENWARPRY;
 }
 
-string OPolygonRegister::toString() const
+int32_t OTriggerSecretRegister::command() const
 {
-    return "POLYGONR";
+	return TRIGGERSECRETR;
+}
+
+int32_t OBMPPolygonRegister::command() const
+{
+	return BMPPOLYGONR;
+}
+
+int32_t OPolygonRegister::command() const
+{
+	return POLYGONR;
 }
 
 
 //NPCData
 
-string ONDataBaseTile::toString() const
+int32_t ONDataBaseTile::command() const
 {
-    return "GETNPCDATATILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATATILE;
 }
-string ONDataEHeight::toString() const
+int32_t ONDataEHeight::command() const
 {
-    return "GETNPCDATAEHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAEHEIGHT;
 }
 
-string ONDataFlags::toString() const
+int32_t ONDataFlags::command() const
 {
-    return "GETNPCDATAFLAGS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAFLAGS;
 }
-string ONDataFlags2::toString() const
+int32_t ONDataFlags2::command() const
 {
-    return "GETNPCDATAFLAGS2 " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAFLAGS2;
 }
-string ONDataWidth::toString() const
+int32_t ONDataWidth::command() const
 {
-    return "GETNPCDATAWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAWIDTH;
 }
-string ONDataHeight::toString() const
+int32_t ONDataHeight::command() const
 {
-    return "GETNPCDATAHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHEIGHT;
 }
-string ONDataTile::toString() const
+int32_t ONDataTile::command() const
 {
-    return "GETNPCDATASTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATASTILE;
 }
-string ONDataSWidth::toString() const
+int32_t ONDataSWidth::command() const
 {
-    return "GETNPCDATASWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATASWIDTH;
 }
-string ONDataSHeight::toString() const
+int32_t ONDataSHeight::command() const
 {
-    return "GETNPCDATASHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATASHEIGHT;
 }
-string ONDataETile::toString() const
+int32_t ONDataETile::command() const
 {
-    return "GETNPCDATAETILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAETILE;
 }
-string ONDataEWidth::toString() const
+int32_t ONDataEWidth::command() const
 {
-    return "GETNPCDATAEWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAEWIDTH;
 }
-string ONDataHP::toString() const
+int32_t ONDataHP::command() const
 {
-    return "GETNPCDATAHP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHP;
 }
-string ONDataFamily::toString() const
+int32_t ONDataFamily::command() const
 {
-    return "GETNPCDATAFAMILY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAFAMILY;
 }
-string ONDataCSet::toString() const
+int32_t ONDataCSet::command() const
 {
-    return "GETNPCDATACSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATACSET;
 }
-string ONDataAnim::toString() const
+int32_t ONDataAnim::command() const
 {
-    return "GETNPCDATAANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAANIM;
 }
-string ONDataEAnim::toString() const
+int32_t ONDataEAnim::command() const
 {
-    return "GETNPCDATAEANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAEANIM;
 }
-string ONDataFramerate::toString() const
+int32_t ONDataFramerate::command() const
 {
-    return "GETNPCDATAFRAMERATE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAFRAMERATE;
 }
-string ONDataEFramerate::toString() const
+int32_t ONDataEFramerate::command() const
 {
-    return "GETNPCDATAEFRAMERATE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAEFRAMERATE;
 }
-string ONDataTouchDamage::toString() const
+int32_t ONDataTouchDamage::command() const
 {
-    return "GETNPCDATATOUCHDMG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATATOUCHDMG;
 }
-string ONDataWeaponDamage::toString() const
+int32_t ONDataWeaponDamage::command() const
 {
-    return "GETNPCDATAWPNDAMAGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAWPNDAMAGE;
 }
-string ONDataWeapon::toString() const
+int32_t ONDataWeapon::command() const
 {
-    return "GETNPCDATAWEAPON " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAWEAPON;
 }
-string ONDataRandom::toString() const
+int32_t ONDataRandom::command() const
 {
-    return "GETNPCDATARANDOM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATARANDOM;
 }
-string ONDataHalt::toString() const
+int32_t ONDataHalt::command() const
 {
-    return "GETNPCDATAHALT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHALT;
 }
-string ONDataStep::toString() const
+int32_t ONDataStep::command() const
 {
-    return "GETNPCDATASTEP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATASTEP;
 }
-string ONDataHoming::toString() const
+int32_t ONDataHoming::command() const
 {
-    return "GETNPCDATAHOMING " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHOMING;
 }
-string ONDataHunger::toString() const
+int32_t ONDataHunger::command() const
 {
-    return "GETNPCDATAHUNGER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHUNGER;
 }
-string ONDataropset::toString() const
+int32_t ONDataropset::command() const
 {
-    return "GETNPCDATADROPSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATADROPSET;
 }
-string ONDataBGSound::toString() const
+int32_t ONDataBGSound::command() const
 {
-    return "GETNPCDATABGSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATABGSFX;
 }
-string ONDataHitSound::toString() const
+int32_t ONDataHitSound::command() const
 {
-    return "GETNPCDATAHITSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHITSFX;
 }
-string ONDataDeathSound::toString() const
+int32_t ONDataDeathSound::command() const
 {
-    return "GETNPCDATADEATHSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATADEATHSFX;
 }
-string ONDataXofs::toString() const
+int32_t ONDataXofs::command() const
 {
-    return "GETNPCDATAXOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAXOFS;
 }
-string ONDataYofs::toString() const
+int32_t ONDataYofs::command() const
 {
-    return "GETNPCDATAYOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAYOFS;
 }
-string ONDataZofs::toString() const
+int32_t ONDataZofs::command() const
 {
-    return "GETNPCDATAZOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAZOFS;
 }
-string ONDataHitXOfs::toString() const
+int32_t ONDataHitXOfs::command() const
 {
-    return "GETNPCDATAHXOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHXOFS;
 }
-string ONDataHYOfs::toString() const
+int32_t ONDataHYOfs::command() const
 {
-    return "GETNPCDATAHYOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHYOFS;
 }
-string ONDataHitWidth::toString() const
+int32_t ONDataHitWidth::command() const
 {
-    return "GETNPCDATAHITWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHITWIDTH;
 }
-string ONDataHitHeight::toString() const
+int32_t ONDataHitHeight::command() const
 {
-    return "GETNPCDATAHITHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHITHEIGHT;
 }
-string ONDataHitZ::toString() const
+int32_t ONDataHitZ::command() const
 {
-    return "GETNPCDATAHITZ " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAHITZ;
 }
-string ONDataTileWidth::toString() const
+int32_t ONDataTileWidth::command() const
 {
-    return "GETNPCDATATILEWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATATILEWIDTH;
 }
-string ONDataTileHeight::toString() const
+int32_t ONDataTileHeight::command() const
 {
-    return "GETNPCDATATILEHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATATILEHEIGHT;
 }
-string ONDataWeapSprite::toString() const
+int32_t ONDataWeapSprite::command() const
 {
-    return "GETNPCDATAWPNSPRITE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETNPCDATAWPNSPRITE;
 }
 
 //two inputs, one return
-string ONDataScriptDef::toString() const
+int32_t ONDataScriptDef::command() const
 {
-    return "GETNPCDATASCRIPTDEF " + getArgument()->toString();
+	return GETNPCDATASCRIPTDEF;
 }
 //two inputs, one return
-string ONDataDefense::toString() const
+int32_t ONDataDefense::command() const
 {
-    return "GETNPCDATADEFENSE " + getArgument()->toString();
+	return GETNPCDATADEFENSE;
 }
 //two inputs, one return
-string ONDataSizeFlag::toString() const
+int32_t ONDataSizeFlag::command() const
 {
-    return "GETNPCDATASIZEFLAG " + getArgument()->toString();
+	return GETNPCDATASIZEFLAG;
 }
 //two inputs, one return
-string ONDatattributes::toString() const
+int32_t ONDatattributes::command() const
 {
-    return "GETNPCDATAATTRIBUTE " + getArgument()->toString();
+	return GETNPCDATAATTRIBUTE;
 }
 
-string ONDataSetBaseTile::toString() const
+int32_t ONDataSetBaseTile::command() const
 {
-    return "SETNPCDATATILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATATILE;
 }
-string ONDataSetEHeight::toString() const
+int32_t ONDataSetEHeight::command() const
 {
-    return "SETNPCDATAEHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAEHEIGHT;
 }
 
-string ONDataSetFlags::toString() const
+int32_t ONDataSetFlags::command() const
 {
-    return "SETNPCDATAFLAGS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAFLAGS;
 }
-string ONDataSetFlags2::toString() const
+int32_t ONDataSetFlags2::command() const
 {
-    return "SETNPCDATAFLAGS2 " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAFLAGS2;
 }
-string ONDataSetWidth::toString() const
+int32_t ONDataSetWidth::command() const
 {
-    return "SETNPCDATAWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAWIDTH;
 }
-string ONDataSetHeight::toString() const
+int32_t ONDataSetHeight::command() const
 {
-    return "SETNPCDATAHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHEIGHT;
 }
-string ONDataSetTile::toString() const
+int32_t ONDataSetTile::command() const
 {
-    return "SETNPCDATASTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATASTILE;
 }
-string ONDataSetSWidth::toString() const
+int32_t ONDataSetSWidth::command() const
 {
-    return "SETNPCDATASWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATASWIDTH;
 }
-string ONDataSetSHeight::toString() const
+int32_t ONDataSetSHeight::command() const
 {
-    return "SETNPCDATASHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATASHEIGHT;
 }
-string ONDataSetETile::toString() const
+int32_t ONDataSetETile::command() const
 {
-    return "SETNPCDATAETILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAETILE;
 }
-string ONDataSetEWidth::toString() const
+int32_t ONDataSetEWidth::command() const
 {
-    return "SETNPCDATAEWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAEWIDTH;
 }
-string ONDataSetHP::toString() const
+int32_t ONDataSetHP::command() const
 {
-    return "SETNPCDATAHP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHP;
 }
-string ONDataSetFamily::toString() const
+int32_t ONDataSetFamily::command() const
 {
-    return "SETNPCDATAFAMILY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAFAMILY;
 }
-string ONDataSetCSet::toString() const
+int32_t ONDataSetCSet::command() const
 {
-    return "SETNPCDATACSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATACSET;
 }
-string ONDataSetAnim::toString() const
+int32_t ONDataSetAnim::command() const
 {
-    return "SETNPCDATAANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAANIM;
 }
-string ONDataSetEAnim::toString() const
+int32_t ONDataSetEAnim::command() const
 {
-    return "SETNPCDATAEANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAEANIM;
 }
-string ONDataSetFramerate::toString() const
+int32_t ONDataSetFramerate::command() const
 {
-    return "SETNPCDATAFRAMERATE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAFRAMERATE;
 }
-string ONDataSetEFramerate::toString() const
+int32_t ONDataSetEFramerate::command() const
 {
-    return "SETNPCDATAEFRAMERATE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAEFRAMERATE;
 }
-string ONDataSetTouchDamage::toString() const
+int32_t ONDataSetTouchDamage::command() const
 {
-    return "SETNPCDATATOUCHDMG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATATOUCHDMG;
 }
-string ONDataSetWeaponDamage::toString() const
+int32_t ONDataSetWeaponDamage::command() const
 {
-    return "SETNPCDATAWPNDAMAGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAWPNDAMAGE;
 }
-string ONDataSetWeapon::toString() const
+int32_t ONDataSetWeapon::command() const
 {
-    return "SETNPCDATAWEAPON " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAWEAPON;
 }
-string ONDataSetRandom::toString() const
+int32_t ONDataSetRandom::command() const
 {
-    return "SETNPCDATARANDOM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATARANDOM;
 }
-string ONDataSetHalt::toString() const
+int32_t ONDataSetHalt::command() const
 {
-    return "SETNPCDATAHALT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHALT;
 }
-string ONDataSetStep::toString() const
+int32_t ONDataSetStep::command() const
 {
-    return "SETNPCDATASTEP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATASTEP;
 }
-string ONDataSetHoming::toString() const
+int32_t ONDataSetHoming::command() const
 {
-    return "SETNPCDATAHOMING " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHOMING;
 }
-string ONDataSetHunger::toString() const
+int32_t ONDataSetHunger::command() const
 {
-    return "SETNPCDATAHUNGER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHUNGER;
 }
-string ONDataSetropset::toString() const
+int32_t ONDataSetropset::command() const
 {
-    return "SETNPCDATADROPSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATADROPSET;
 }
-string ONDataSetBGSound::toString() const
+int32_t ONDataSetBGSound::command() const
 {
-    return "SETNPCDATABGSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATABGSFX;
 }
-string ONDataSetHitSound::toString() const
+int32_t ONDataSetHitSound::command() const
 {
-    return "SETNPCDATAHITSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHITSFX;
 }
-string ONDataSetDeathSound::toString() const
+int32_t ONDataSetDeathSound::command() const
 {
-    return "SETNPCDATADEATHSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATADEATHSFX;
 }
-string ONDataSetXofs::toString() const
+int32_t ONDataSetXofs::command() const
 {
-    return "SETNPCDATAXOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAXOFS;
 }
-string ONDataSetYofs::toString() const
+int32_t ONDataSetYofs::command() const
 {
-    return "SETNPCDATAYOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAYOFS;
 }
-string ONDataSetZofs::toString() const
+int32_t ONDataSetZofs::command() const
 {
-    return "SETNPCDATAZOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAZOFS;
 }
-string ONDataSetHitXOfs::toString() const
+int32_t ONDataSetHitXOfs::command() const
 {
-    return "SETNPCDATAHXOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHXOFS;
 }
-string ONDataSetHYOfs::toString() const
+int32_t ONDataSetHYOfs::command() const
 {
-    return "SETNPCDATAHYOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHYOFS;
 }
-string ONDataSetHitWidth::toString() const
+int32_t ONDataSetHitWidth::command() const
 {
-    return "SETNPCDATAHITWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHITWIDTH;
 }
-string ONDataSetHitHeight::toString() const
+int32_t ONDataSetHitHeight::command() const
 {
-    return "SETNPCDATAHITHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHITHEIGHT;
 }
-string ONDataSetHitZ::toString() const
+int32_t ONDataSetHitZ::command() const
 {
-    return "SETNPCDATAHITZ " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAHITZ;
 }
-string ONDataSetTileWidth::toString() const
+int32_t ONDataSetTileWidth::command() const
 {
-    return "SETNPCDATATILEWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATATILEWIDTH;
 }
-string ONDataSetTileHeight::toString() const
+int32_t ONDataSetTileHeight::command() const
 {
-    return "SETNPCDATATILEHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATATILEHEIGHT;
 }
-string ONDataSetWeapSprite::toString() const
+int32_t ONDataSetWeapSprite::command() const
 {
-    return "SETNPCDATAWPNSPRITE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETNPCDATAWPNSPRITE;
 }
 
 //ComboData
 
-string OCDataBlockEnemy::toString() const
+int32_t OCDataBlockEnemy::command() const
 {
-    return "GCDBLOCKENEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDBLOCKENEM;
 }
-string OCDataBlockHole::toString() const
+int32_t OCDataBlockHole::command() const
 {
-    return "GCDBLOCKHOLE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDBLOCKHOLE;
 }
-string OCDataBlockTrig::toString() const
+int32_t OCDataBlockTrig::command() const
 {
-    return "GCDBLOCKTRIG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDBLOCKTRIG;
 }
-string OCDataConveyX::toString() const
+int32_t OCDataConveyX::command() const
 {
-    return "GCDCONVEYSPDX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDCONVEYSPDX;
 }
-string OCDataConveyY::toString() const
+int32_t OCDataConveyY::command() const
 {
-    return "GCDCONVEYSPDY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDCONVEYSPDY;
 }
-string OCDataCreateNPC::toString() const
+int32_t OCDataCreateNPC::command() const
 {
-    return "GCDCREATEENEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDCREATEENEM;
 }
-string OCDataCreateEnemW::toString() const
+int32_t OCDataCreateEnemW::command() const
 {
-    return "GCDCREATEENEMWH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDCREATEENEMWH;
 }
-string OCDataCreateEnemC::toString() const
+int32_t OCDataCreateEnemC::command() const
 {
-    return "GCDCREATEENEMCH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDCREATEENEMCH;
 }
-string OCDataDirch::toString() const
+int32_t OCDataDirch::command() const
 {
-    return "GCDDIRCHTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDDIRCHTYPE;
 }
-string OCDataDistTiles::toString() const
+int32_t OCDataDistTiles::command() const
 {
-    return "GCDDISTCHTILES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDDISTCHTILES;
 }
-string OCDataDiveItem::toString() const
+int32_t OCDataDiveItem::command() const
 {
-    return "GCDDIVEITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDDIVEITEM;
 }
-string OCDataDock::toString() const
+int32_t OCDataDock::command() const
 {
-    return "GCDDOCK " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDDOCK;
 }
-string OCDataFairy::toString() const
+int32_t OCDataFairy::command() const
 {
-    return "GCDFAIRY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDFAIRY;
 }
-string OCDataAttrib::toString() const
+int32_t OCDataAttrib::command() const
 {
-    return "GCDFFCOMBOATTRIB " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDFFCOMBOATTRIB;
 }
-string OCDataDecoTile::toString() const
+int32_t OCDataDecoTile::command() const
 {
-    return "GCDFOOTDECOTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-
-string OCDataLadderPass::toString() const
-{
-    return "GCDLADDERPASS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataLadderPass::toString() const
-{
-    return "SCDLADDERPASS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDFOOTDECOTILE;
 }
 
-
-string OCDataDecoType::toString() const
+int32_t OCDataLadderPass::command() const
 {
-    return "GCDFOOTDECOTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDLADDERPASS;
 }
-string OCDataHookshotGrab::toString() const
+int32_t OCSetDataLadderPass::command() const
 {
-    return "GCDHOOKSHOTGRAB " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataLockBlock::toString() const
-{
-    return "GCDLOCKBLOCKTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataLockBlockChange::toString() const
-{
-    return "GCDLOCKBLOCKCHANGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataMagicMirror::toString() const
-{
-    return "GCDMAGICMIRRORTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataModHP::toString() const
-{
-    return "GCDMODIFYHPAMOUNT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataModHPDelay::toString() const
-{
-    return "GCDMODIFYHPDELAY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataModHpType::toString() const
-{
-    return "GCDMODIFYHPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataModMP::toString() const
-{
-    return "GCDMODIFYMPAMOUNT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataMpdMPDelay::toString() const
-{
-    return "GCDMODIFYMPDELAY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataModMPType::toString() const
-{
-    return "GCDMODIFYMPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataNoPush::toString() const
-{
-    return "GCDNOPUSHBLOCKS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataOverhead::toString() const
-{
-    return "GCDOVERHEAD " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataEnemyLoc::toString() const
-{
-    return "GCDPLACEENEMY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataPushDir::toString() const
-{
-    return "GCDPUSHDIR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataPushWeight::toString() const
-{
-    return "GCDPUSHWEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataPushWait::toString() const
-{
-    return "GCDPUSHWAIT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataPushed::toString() const
-{
-    return "GCDPUSHED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataRaft::toString() const
-{
-    return "GCDRAFT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataResetRoom::toString() const
-{
-    return "GCDRESETROOM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataSavePoint::toString() const
-{
-    return "GCDSAVEPOINT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataFreeezeScreen::toString() const
-{
-    return "GCDSCREENFREEZE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataSecretCombo::toString() const
-{
-    return "GCDSECRETCOMBO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataSingular::toString() const
-{
-    return "GCDSINGULAR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataSlowMove::toString() const
-{
-    return "GCDSLOWMOVE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataStatue::toString() const
-{
-    return "GCDSTATUE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataStepType::toString() const
-{
-    return "GCDSTEPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataSteoChange::toString() const
-{
-    return "GCDSTEPCHANGETO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataStrikeRem::toString() const
-{
-    return "GCDSTRIKEREMNANTS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataStrikeRemType::toString() const
-{
-    return "GCDSTRIKEREMNANTSTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataStrikeChange::toString() const
-{
-    return "GCDSTRIKECHANGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataStrikeChangeItem::toString() const
-{
-    return "GCDSTRIKECHANGEITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataTouchItem::toString() const
-{
-    return "GCDTOUCHITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataTouchStairs::toString() const
-{
-    return "GCDTOUCHSTAIRS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataTriggerType::toString() const
-{
-    return "GCDTRIGGERTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataTriggerSens::toString() const
-{
-    return "GCDTRIGGERSENS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataWarpType::toString() const
-{
-    return "GCDWARPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataWarpSens::toString() const
-{
-    return "GCDWARPSENS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataWarpDirect::toString() const
-{
-    return "GCDWARPDIRECT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataWarpLoc::toString() const
-{
-    return "GCDWARPLOCATION " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCDataWater::toString() const
-{
-    return "GCDWATER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SCDLADDERPASS;
 }
 
-string OCDataWinGame::toString() const
+
+int32_t OCDataDecoType::command() const
 {
-    return "GCDWINGAME " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDFOOTDECOTYPE;
 }
-string OCDataWhistle::toString() const
+int32_t OCDataHookshotGrab::command() const
 {
-    return "GCDWHISTLE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDHOOKSHOTGRAB;
 }
-string OCDataWeapBlockLevel::toString() const
+int32_t OCDataLockBlock::command() const
 {
-    return "GCDBLOCKWEAPLVL " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDLOCKBLOCKTYPE;
 }
-string OCDataTile::toString() const
+int32_t OCDataLockBlockChange::command() const
 {
-    return "GCDTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDLOCKBLOCKCHANGE;
 }
-string OCDataFlip::toString() const
+int32_t OCDataMagicMirror::command() const
 {
-    return "GCDFLIP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDMAGICMIRRORTYPE;
 }
-string OCDataWalkability::toString() const
+int32_t OCDataModHP::command() const
 {
-    return "GCDWALK " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDMODIFYHPAMOUNT;
 }
-string OCDataType::toString() const
+int32_t OCDataModHPDelay::command() const
 {
-    return "GCDTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDMODIFYHPDELAY;
 }
-string OCDataCSets::toString() const
+int32_t OCDataModHpType::command() const
 {
-    return "GCDCSETS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDMODIFYHPTYPE;
 }
-string OCDataFoo::toString() const
+int32_t OCDataModMP::command() const
 {
-    return "GCDFOO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDMODIFYMPAMOUNT;
 }
-string OCDataFrames::toString() const
+int32_t OCDataMpdMPDelay::command() const
 {
-    return "GCDFRAMES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDMODIFYMPDELAY;
 }
-string OCDataSpeed::toString() const
+int32_t OCDataModMPType::command() const
 {
-    return "GCDSPEED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDMODIFYMPTYPE;
 }
-string OCDataNext::toString() const
+int32_t OCDataNoPush::command() const
 {
-    return "GCDNEXTCOMBO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDNOPUSHBLOCKS;
 }
-string OCDataNextCSet::toString() const
+int32_t OCDataOverhead::command() const
 {
-    return "GCDNEXTCSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDOVERHEAD;
 }
-string OCDataFlag::toString() const
+int32_t OCDataEnemyLoc::command() const
 {
-    return "GCDFLAG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDPLACEENEMY;
 }
-string OCDataSkipAnim::toString() const
+int32_t OCDataPushDir::command() const
 {
-    return "GCDSKIPANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDPUSHDIR;
 }
-string OCDataTimer::toString() const
+int32_t OCDataPushWeight::command() const
 {
-    return "GCDNEXTTIMER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDPUSHWEIGHT;
 }
-string OCDataAnimY::toString() const
+int32_t OCDataPushWait::command() const
 {
-    return "GCDSKIPANIMY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDPUSHWAIT;
 }
-string OCDataAnimFlags::toString() const
+int32_t OCDataPushed::command() const
 {
-    return "GCDANIMFLAGS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDPUSHED;
+}
+int32_t OCDataRaft::command() const
+{
+	return GCDRAFT;
+}
+int32_t OCDataResetRoom::command() const
+{
+	return GCDRESETROOM;
+}
+int32_t OCDataSavePoint::command() const
+{
+	return GCDSAVEPOINT;
+}
+int32_t OCDataFreeezeScreen::command() const
+{
+	return GCDSCREENFREEZE;
+}
+int32_t OCDataSecretCombo::command() const
+{
+	return GCDSECRETCOMBO;
+}
+int32_t OCDataSingular::command() const
+{
+	return GCDSINGULAR;
+}
+int32_t OCDataSlowMove::command() const
+{
+	return GCDSLOWMOVE;
+}
+int32_t OCDataStatue::command() const
+{
+	return GCDSTATUE;
+}
+int32_t OCDataStepType::command() const
+{
+	return GCDSTEPTYPE;
+}
+int32_t OCDataSteoChange::command() const
+{
+	return GCDSTEPCHANGETO;
+}
+int32_t OCDataStrikeRem::command() const
+{
+	return GCDSTRIKEREMNANTS;
+}
+int32_t OCDataStrikeRemType::command() const
+{
+	return GCDSTRIKEREMNANTSTYPE;
+}
+int32_t OCDataStrikeChange::command() const
+{
+	return GCDSTRIKECHANGE;
+}
+int32_t OCDataStrikeChangeItem::command() const
+{
+	return GCDSTRIKECHANGEITEM;
+}
+int32_t OCDataTouchItem::command() const
+{
+	return GCDTOUCHITEM;
+}
+int32_t OCDataTouchStairs::command() const
+{
+	return GCDTOUCHSTAIRS;
+}
+int32_t OCDataTriggerType::command() const
+{
+	return GCDTRIGGERTYPE;
+}
+int32_t OCDataTriggerSens::command() const
+{
+	return GCDTRIGGERSENS;
+}
+int32_t OCDataWarpType::command() const
+{
+	return GCDWARPTYPE;
+}
+int32_t OCDataWarpSens::command() const
+{
+	return GCDWARPSENS;
+}
+int32_t OCDataWarpDirect::command() const
+{
+	return GCDWARPDIRECT;
+}
+int32_t OCDataWarpLoc::command() const
+{
+	return GCDWARPLOCATION;
+}
+int32_t OCDataWater::command() const
+{
+	return GCDWATER;
 }
 
-string OCDataBlockWeapon::toString() const
+int32_t OCDataWinGame::command() const
 {
-    return "GCDBLOCKWEAPON " + getArgument()->toString();
+	return GCDWINGAME;
 }
-string OCDataExpansion::toString() const
+int32_t OCDataWhistle::command() const
 {
-    return "GCDEXPANSION " + getArgument()->toString();
+	return GCDWHISTLE;
 }
-string OCDataStrikeWeapon::toString() const
+int32_t OCDataWeapBlockLevel::command() const
 {
-    return "GCDSTRIKEWEAPONS " + getArgument()->toString();
+	return GCDBLOCKWEAPLVL;
+}
+int32_t OCDataTile::command() const
+{
+	return GCDTILE;
+}
+int32_t OCDataFlip::command() const
+{
+	return GCDFLIP;
+}
+int32_t OCDataWalkability::command() const
+{
+	return GCDWALK;
+}
+int32_t OCDataType::command() const
+{
+	return GCDTYPE;
+}
+int32_t OCDataCSets::command() const
+{
+	return GCDCSETS;
+}
+int32_t OCDataFoo::command() const
+{
+	return GCDFOO;
+}
+int32_t OCDataFrames::command() const
+{
+	return GCDFRAMES;
+}
+int32_t OCDataSpeed::command() const
+{
+	return GCDSPEED;
+}
+int32_t OCDataNext::command() const
+{
+	return GCDNEXTCOMBO;
+}
+int32_t OCDataNextCSet::command() const
+{
+	return GCDNEXTCSET;
+}
+int32_t OCDataFlag::command() const
+{
+	return GCDFLAG;
+}
+int32_t OCDataSkipAnim::command() const
+{
+	return GCDSKIPANIM;
+}
+int32_t OCDataTimer::command() const
+{
+	return GCDNEXTTIMER;
+}
+int32_t OCDataAnimY::command() const
+{
+	return GCDSKIPANIMY;
+}
+int32_t OCDataAnimFlags::command() const
+{
+	return GCDANIMFLAGS;
 }
 
-string OCSetDataBlockEnemy::toString() const
+int32_t OCDataBlockWeapon::command() const
 {
-    return "SCDBLOCKENEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDBLOCKWEAPON;
 }
-string OCSetDataBlockHole::toString() const
+int32_t OCDataExpansion::command() const
 {
-    return "SCDBLOCKHOLE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDEXPANSION;
 }
-string OCSetDataBlockTrig::toString() const
+int32_t OCDataStrikeWeapon::command() const
 {
-    return "SCDBLOCKTRIG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataConveyX::toString() const
-{
-    return "SCDCONVEYSPDX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataConveyY::toString() const
-{
-    return "SCDCONVEYSPDY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataCreateNPC::toString() const
-{
-    return "SCDCREATEENEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataCreateEnemW::toString() const
-{
-    return "SCDCREATEENEMWH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataCreateEnemC::toString() const
-{
-    return "SCDCREATEENEMCH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataDirch::toString() const
-{
-    return "SCDDIRCHTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataDistTiles::toString() const
-{
-    return "SCDDISTCHTILES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataDiveItem::toString() const
-{
-    return "SCDDIVEITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataDock::toString() const
-{
-    return "SCDDOCK " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataFairy::toString() const
-{
-    return "SCDFAIRY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataAttrib::toString() const
-{
-    return "SCDFFCOMBOATTRIB " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataDecoTile::toString() const
-{
-    return "SCDFOOTDECOTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataDecoType::toString() const
-{
-    return "SCDFOOTDECOTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataHookshotGrab::toString() const
-{
-    return "SCDHOOKSHOTGRAB " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataLockBlock::toString() const
-{
-    return "SCDLOCKBLOCKTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataLockBlockChange::toString() const
-{
-    return "SCDLOCKBLOCKCHANGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataMagicMirror::toString() const
-{
-    return "SCDMAGICMIRRORTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataModHP::toString() const
-{
-    return "SCDMODIFYHPAMOUNT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataModHPDelay::toString() const
-{
-    return "SCDMODIFYHPDELAY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataModHpType::toString() const
-{
-    return "SCDMODIFYHPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataModMP::toString() const
-{
-    return "SCDMODIFYMPAMOUNT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataMpdMPDelay::toString() const
-{
-    return "SCDMODIFYMPDELAY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataModMPType::toString() const
-{
-    return "SCDMODIFYMPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataNoPush::toString() const
-{
-    return "SCDNOPUSHBLOCKS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataOverhead::toString() const
-{
-    return "SCDOVERHEAD " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataEnemyLoc::toString() const
-{
-    return "SCDPLACEENEMY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataPushDir::toString() const
-{
-    return "SCDPUSHDIR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataPushWeight::toString() const
-{
-    return "SCDPUSHWEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataPushWait::toString() const
-{
-    return "SCDPUSHWAIT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataPushed::toString() const
-{
-    return "SCDPUSHED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataRaft::toString() const
-{
-    return "SCDRAFT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataResetRoom::toString() const
-{
-    return "SCDRESETROOM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataSavePoint::toString() const
-{
-    return "SCDSAVEPOINT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataFreeezeScreen::toString() const
-{
-    return "SCDSCREENFREEZE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataSecretCombo::toString() const
-{
-    return "SCDSECRETCOMBO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataSingular::toString() const
-{
-    return "SCDSINGULAR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataSlowMove::toString() const
-{
-    return "SCDSLOWMOVE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataStatue::toString() const
-{
-    return "SCDSTATUE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataStepType::toString() const
-{
-    return "SCDSTEPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataSteoChange::toString() const
-{
-    return "SCDSTEPCHANGETO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataStrikeRem::toString() const
-{
-    return "SCDSTRIKEREMNANTS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataStrikeRemType::toString() const
-{
-    return "SCDSTRIKEREMNANTSTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataStrikeChange::toString() const
-{
-    return "SCDSTRIKECHANGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataStrikeChangeItem::toString() const
-{
-    return "SCDSTRIKECHANGEITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataTouchItem::toString() const
-{
-    return "SCDTOUCHITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataTouchStairs::toString() const
-{
-    return "SCDTOUCHSTAIRS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataTriggerType::toString() const
-{
-    return "SCDTRIGGERTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataTriggerSens::toString() const
-{
-    return "SCDTRIGGERSENS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataWarpType::toString() const
-{
-    return "SCDWARPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataWarpSens::toString() const
-{
-    return "SCDWARPSENS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataWarpDirect::toString() const
-{
-    return "SCDWARPDIRECT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataWarpLoc::toString() const
-{
-    return "SCDWARPLOCATION " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataWater::toString() const
-{
-    return "SCDWATER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataWhistle::toString() const
-{
-    return "SCDWHISTLE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataWeapBlockLevel::toString() const
-{
-    return "SCDBLOCKWEAPLVL " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataTile::toString() const
-{
-    return "SCDTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataFlip::toString() const
-{
-    return "SCDFLIP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataWalkability::toString() const
-{
-    return "SCDWALK " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataType::toString() const
-{
-    return "SCDTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataCSets::toString() const
-{
-    return "SCDCSETS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataFoo::toString() const
-{
-    return "SCDFOO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataFrames::toString() const
-{
-    return "SCDFRAMES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataSpeed::toString() const
-{
-    return "SCDSPEED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataNext::toString() const
-{
-    return "SCDNEXTCOMBO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataNextCSet::toString() const
-{
-    return "SCDNEXTCSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataFlag::toString() const
-{
-    return "SCDFLAG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataSkipAnim::toString() const
-{
-    return "SCDSKIPANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataTimer::toString() const
-{
-    return "SCDNEXTTIMER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataAnimY::toString() const
-{
-    return "SCDSKIPANIMY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
-}
-string OCSetDataAnimFlags::toString() const
-{
-    return "SCDANIMFLAGS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GCDSTRIKEWEAPONS;
 }
 
-string OCSetDataWinGame::toString() const
+int32_t OCSetDataBlockEnemy::command() const
 {
-    return "SCDWINGAME " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SCDBLOCKENEM;
+}
+int32_t OCSetDataBlockHole::command() const
+{
+	return SCDBLOCKHOLE;
+}
+int32_t OCSetDataBlockTrig::command() const
+{
+	return SCDBLOCKTRIG;
+}
+int32_t OCSetDataConveyX::command() const
+{
+	return SCDCONVEYSPDX;
+}
+int32_t OCSetDataConveyY::command() const
+{
+	return SCDCONVEYSPDY;
+}
+int32_t OCSetDataCreateNPC::command() const
+{
+	return SCDCREATEENEM;
+}
+int32_t OCSetDataCreateEnemW::command() const
+{
+	return SCDCREATEENEMWH;
+}
+int32_t OCSetDataCreateEnemC::command() const
+{
+	return SCDCREATEENEMCH;
+}
+int32_t OCSetDataDirch::command() const
+{
+	return SCDDIRCHTYPE;
+}
+int32_t OCSetDataDistTiles::command() const
+{
+	return SCDDISTCHTILES;
+}
+int32_t OCSetDataDiveItem::command() const
+{
+	return SCDDIVEITEM;
+}
+int32_t OCSetDataDock::command() const
+{
+	return SCDDOCK;
+}
+int32_t OCSetDataFairy::command() const
+{
+	return SCDFAIRY;
+}
+int32_t OCSetDataAttrib::command() const
+{
+	return SCDFFCOMBOATTRIB;
+}
+int32_t OCSetDataDecoTile::command() const
+{
+	return SCDFOOTDECOTILE;
+}
+int32_t OCSetDataDecoType::command() const
+{
+	return SCDFOOTDECOTYPE;
+}
+int32_t OCSetDataHookshotGrab::command() const
+{
+	return SCDHOOKSHOTGRAB;
+}
+int32_t OCSetDataLockBlock::command() const
+{
+	return SCDLOCKBLOCKTYPE;
+}
+int32_t OCSetDataLockBlockChange::command() const
+{
+	return SCDLOCKBLOCKCHANGE;
+}
+int32_t OCSetDataMagicMirror::command() const
+{
+	return SCDMAGICMIRRORTYPE;
+}
+int32_t OCSetDataModHP::command() const
+{
+	return SCDMODIFYHPAMOUNT;
+}
+int32_t OCSetDataModHPDelay::command() const
+{
+	return SCDMODIFYHPDELAY;
+}
+int32_t OCSetDataModHpType::command() const
+{
+	return SCDMODIFYHPTYPE;
+}
+int32_t OCSetDataModMP::command() const
+{
+	return SCDMODIFYMPAMOUNT;
+}
+int32_t OCSetDataMpdMPDelay::command() const
+{
+	return SCDMODIFYMPDELAY;
+}
+int32_t OCSetDataModMPType::command() const
+{
+	return SCDMODIFYMPTYPE;
+}
+int32_t OCSetDataNoPush::command() const
+{
+	return SCDNOPUSHBLOCKS;
+}
+int32_t OCSetDataOverhead::command() const
+{
+	return SCDOVERHEAD;
+}
+int32_t OCSetDataEnemyLoc::command() const
+{
+	return SCDPLACEENEMY;
+}
+int32_t OCSetDataPushDir::command() const
+{
+	return SCDPUSHDIR;
+}
+int32_t OCSetDataPushWeight::command() const
+{
+	return SCDPUSHWEIGHT;
+}
+int32_t OCSetDataPushWait::command() const
+{
+	return SCDPUSHWAIT;
+}
+int32_t OCSetDataPushed::command() const
+{
+	return SCDPUSHED;
+}
+int32_t OCSetDataRaft::command() const
+{
+	return SCDRAFT;
+}
+int32_t OCSetDataResetRoom::command() const
+{
+	return SCDRESETROOM;
+}
+int32_t OCSetDataSavePoint::command() const
+{
+	return SCDSAVEPOINT;
+}
+int32_t OCSetDataFreeezeScreen::command() const
+{
+	return SCDSCREENFREEZE;
+}
+int32_t OCSetDataSecretCombo::command() const
+{
+	return SCDSECRETCOMBO;
+}
+int32_t OCSetDataSingular::command() const
+{
+	return SCDSINGULAR;
+}
+int32_t OCSetDataSlowMove::command() const
+{
+	return SCDSLOWMOVE;
+}
+int32_t OCSetDataStatue::command() const
+{
+	return SCDSTATUE;
+}
+int32_t OCSetDataStepType::command() const
+{
+	return SCDSTEPTYPE;
+}
+int32_t OCSetDataSteoChange::command() const
+{
+	return SCDSTEPCHANGETO;
+}
+int32_t OCSetDataStrikeRem::command() const
+{
+	return SCDSTRIKEREMNANTS;
+}
+int32_t OCSetDataStrikeRemType::command() const
+{
+	return SCDSTRIKEREMNANTSTYPE;
+}
+int32_t OCSetDataStrikeChange::command() const
+{
+	return SCDSTRIKECHANGE;
+}
+int32_t OCSetDataStrikeChangeItem::command() const
+{
+	return SCDSTRIKECHANGEITEM;
+}
+int32_t OCSetDataTouchItem::command() const
+{
+	return SCDTOUCHITEM;
+}
+int32_t OCSetDataTouchStairs::command() const
+{
+	return SCDTOUCHSTAIRS;
+}
+int32_t OCSetDataTriggerType::command() const
+{
+	return SCDTRIGGERTYPE;
+}
+int32_t OCSetDataTriggerSens::command() const
+{
+	return SCDTRIGGERSENS;
+}
+int32_t OCSetDataWarpType::command() const
+{
+	return SCDWARPTYPE;
+}
+int32_t OCSetDataWarpSens::command() const
+{
+	return SCDWARPSENS;
+}
+int32_t OCSetDataWarpDirect::command() const
+{
+	return SCDWARPDIRECT;
+}
+int32_t OCSetDataWarpLoc::command() const
+{
+	return SCDWARPLOCATION;
+}
+int32_t OCSetDataWater::command() const
+{
+	return SCDWATER;
+}
+int32_t OCSetDataWhistle::command() const
+{
+	return SCDWHISTLE;
+}
+int32_t OCSetDataWeapBlockLevel::command() const
+{
+	return SCDBLOCKWEAPLVL;
+}
+int32_t OCSetDataTile::command() const
+{
+	return SCDTILE;
+}
+int32_t OCSetDataFlip::command() const
+{
+	return SCDFLIP;
+}
+int32_t OCSetDataWalkability::command() const
+{
+	return SCDWALK;
+}
+int32_t OCSetDataType::command() const
+{
+	return SCDTYPE;
+}
+int32_t OCSetDataCSets::command() const
+{
+	return SCDCSETS;
+}
+int32_t OCSetDataFoo::command() const
+{
+	return SCDFOO;
+}
+int32_t OCSetDataFrames::command() const
+{
+	return SCDFRAMES;
+}
+int32_t OCSetDataSpeed::command() const
+{
+	return SCDSPEED;
+}
+int32_t OCSetDataNext::command() const
+{
+	return SCDNEXTCOMBO;
+}
+int32_t OCSetDataNextCSet::command() const
+{
+	return SCDNEXTCSET;
+}
+int32_t OCSetDataFlag::command() const
+{
+	return SCDFLAG;
+}
+int32_t OCSetDataSkipAnim::command() const
+{
+	return SCDSKIPANIM;
+}
+int32_t OCSetDataTimer::command() const
+{
+	return SCDNEXTTIMER;
+}
+int32_t OCSetDataAnimY::command() const
+{
+	return SCDSKIPANIMY;
+}
+int32_t OCSetDataAnimFlags::command() const
+{
+	return SCDANIMFLAGS;
+}
+
+int32_t OCSetDataWinGame::command() const
+{
+	return SCDWINGAME;
 }
 
 //SpriteData
-string OSDataTile::toString() const
+int32_t OSDataTile::command() const
 {
-    return "GETSPRITEDATATILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETSPRITEDATATILE;
 }
-string OSDataMisc::toString() const
+int32_t OSDataMisc::command() const
 {
-    return "GETSPRITEDATAMISC " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETSPRITEDATAMISC;
 }
-string OSDataCSets::toString() const
+int32_t OSDataCSets::command() const
 {
-    return "GETSPRITEDATACGETS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETSPRITEDATACGETS;
 }
-string OSDataFrames::toString() const
+int32_t OSDataFrames::command() const
 {
-    return "GETSPRITEDATAFRAMES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETSPRITEDATAFRAMES;
 }
-string OSDataSpeed::toString() const
+int32_t OSDataSpeed::command() const
 {
-    return "GETSPRITEDATASPEED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETSPRITEDATASPEED;
 }
-string OSDataType::toString() const
+int32_t OSDataType::command() const
 {
-    return "GETSPRITEDATATYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return GETSPRITEDATATYPE;
 }
 
-string OSSetDataTile::toString() const
+int32_t OSSetDataTile::command() const
 {
-    return "SETSPRITEDATATILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETSPRITEDATATILE;
 }
-string OSSetDataMisc::toString() const
+int32_t OSSetDataMisc::command() const
 {
-    return "SETSPRITEDATAMISC " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETSPRITEDATAMISC;
 }
-string OSSetDataCSets::toString() const
+int32_t OSSetDataCSets::command() const
 {
-    return "SETSPRITEDATACGETS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETSPRITEDATACSETS;
 }
-string OSSetDataFrames::toString() const
+int32_t OSSetDataFrames::command() const
 {
-    return "SETSPRITEDATAFRAMES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETSPRITEDATAFRAMES;
 }
-string OSSetDataSpeed::toString() const
+int32_t OSSetDataSpeed::command() const
 {
-    return "SETSPRITEDATASPEED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETSPRITEDATASPEED;
 }
-string OSSetDataType::toString() const
+int32_t OSSetDataType::command() const
 {
-    return "SETSPRITEDATATYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETSPRITEDATATYPE;
 }
 
 //Continue Screen Settings
-string OSSetContinueScreen::toString() const
+int32_t OSSetContinueScreen::command() const
 {
-    return "SETCONTINUESCREEN " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETCONTINUESCREEN;
 }
-string OSSetContinueString::toString() const
+int32_t OSSetContinueString::command() const
 {
-    return "SETCONTINUESTRING " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+	return SETCONTINUESTRING;
 }
 
 //Visual effects with one bool arg.
 
-string OWavyR::toString() const
+int32_t OWavyR::command() const
 {
-    return "FXWAVYR " + getArgument()->toString();
+	return FXWAVYR;
 }
 
-string OZapR::toString() const
+int32_t OZapR::command() const
 {
-    return "FXZAPR " + getArgument()->toString();
+	return FXZAPR;
 }
 
-string OGreyscaleR::toString() const
+int32_t OGreyscaleR::command() const
 {
-    return "GREYSCALER " + getArgument()->toString();
+	return GREYSCALER;
 }
 
-string OMonochromeR::toString() const
+int32_t OMonochromeR::command() const
 {
-    return "MONOCHROMER " + getArgument()->toString();
+	return MONOCHROMER;
 }
 
-string OClearTint::toString() const
+int32_t OClearTint::command() const
 {
-    return "CLEARTINT";
+	return CLEARTINT;
 }
 
-string OTintR::toString() const
+int32_t OTintR::command() const
 {
-    return "TINT";
+	return TINT;
 }
 
-string OMonoHueR::toString() const
+int32_t OMonoHueR::command() const
 {
-    return "MONOHUE";
+	return MONOHUE;
 }
 
 //Bitmap commands
 
-string OBMPRectangleRegister::toString() const
+int32_t OBMPRectangleRegister::command() const
 {
-    return "BMPRECTR";
+	return BMPRECTR;
 }
 
-string OBMPFrameRegister::toString() const
+int32_t OBMPFrameRegister::command() const
 {
-    return "BMPFRAMER";
+	return BMPFRAMER;
 }
 
-string OBMPCircleRegister::toString() const
+int32_t OBMPCircleRegister::command() const
 {
-    return "BMPCIRCLER";
+	return BMPCIRCLER;
 }
 
-string OBMPArcRegister::toString() const
+int32_t OBMPArcRegister::command() const
 {
-    return "BMPARCR";
+	return BMPARCR;
 }
 
-string OBMPEllipseRegister::toString() const
+int32_t OBMPEllipseRegister::command() const
 {
-    return "BMPELLIPSER";
+	return BMPELLIPSER;
 }
 
-string OBMPLineRegister::toString() const
+int32_t OBMPLineRegister::command() const
 {
-    return "BMPLINER";
+	return BMPLINER;
 }
 
-string OBMPSplineRegister::toString() const
+int32_t OBMPSplineRegister::command() const
 {
-    return "BMPBMPSPLINER";
+	return BMPSPLINER;
 }
 
-string OBMPPutPixelRegister::toString() const
+int32_t OBMPPutPixelRegister::command() const
 {
-    return "BMPPUTPIXELR";
+	return BMPPUTPIXELR;
 }
 
-string OBMPDrawCharRegister::toString() const
+int32_t OBMPDrawCharRegister::command() const
 {
-    return "BMPDRAWCHARR";
+	return BMPDRAWCHARR;
 }
 
-string OBMPDrawIntRegister::toString() const
+int32_t OBMPDrawIntRegister::command() const
 {
-    return "BMPDRAWINTR";
+	return BMPDRAWINTR;
 }
 
-string OBMPDrawTileRegister::toString() const
+int32_t OBMPDrawTileRegister::command() const
 {
-    return "BMPDRAWTILER";
+	return BMPDRAWTILER;
 }
 
-string OBMPDrawTileCloakedRegister::toString() const
+int32_t OBMPDrawTileCloakedRegister::command() const
 {
-    return "BMPDRAWTILECLOAKEDR";
+	return BMPDRAWTILECLOAKEDR;
 }
 
-string OBMPDrawComboRegister::toString() const
+int32_t OBMPDrawComboRegister::command() const
 {
-    return "BMPDRAWCOMBOR";
+	return BMPDRAWCOMBOR;
 }
 
-string OBMPDrawComboCloakedRegister::toString() const
+int32_t OBMPDrawComboCloakedRegister::command() const
 {
-    return "BMPDRAWCOMBOCLOAKEDR";
+	return BMPDRAWCOMBOCLOAKEDR;
 }
 
-string OBMPFastTileRegister::toString() const
+int32_t OBMPFastTileRegister::command() const
 {
-    return "BMPFASTTILER";
+	return BMPFASTTILER;
 }
 
-string OBMPFastComboRegister::toString() const
+int32_t OBMPFastComboRegister::command() const
 {
-    return "BMPFASTCOMBOR";
+	return BMPFASTCOMBOR;
 }
 
-string OBMPDrawStringRegister::toString() const
+int32_t OBMPDrawStringRegister::command() const
 {
-    return "BMPDRAWSTRINGR";
+	return BMPDRAWSTRINGR;
 }
 
-string OBMPDrawString2Register::toString() const
+int32_t OBMPDrawString2Register::command() const
 {
-    return "BMPDRAWSTRINGR2";
+	return BMPDRAWSTRINGR2;
 }
 
-string OBMPDrawBitmapExRegister::toString() const
+int32_t OBMPDrawBitmapExRegister::command() const
 {
-    return "BMPBLIT";
+	return BMPBLIT;
 }
-string OBMPBlitTO::toString() const
+int32_t OBMPBlitTO::command() const
 {
-    return "BMPBLITTO";
-}
-
-string OBMPGetPixel::toString() const
-{
-    return "BITMAPGETPIXEL";
-}
-string OBMPMode7::toString() const
-{
-    return "BMPMODE7";
+	return BMPBLITTO;
 }
 
-string OBMPQuadRegister::toString() const
+int32_t OBMPGetPixel::command() const
 {
-    return "BMPQUADR";
+	return BITMAPGETPIXEL;
+}
+int32_t OBMPMode7::command() const
+{
+	return BMPMODE7;
 }
 
-string OBMPTriangleRegister::toString() const
+int32_t OBMPQuadRegister::command() const
 {
-    return "BMPTRIANGLER";
+	return BMPQUADR;
 }
 
-
-string OBMPQuad3DRegister::toString() const
+int32_t OBMPTriangleRegister::command() const
 {
-    return "BMPQUAD3DR";
-}
-
-string OBMPTriangle3DRegister::toString() const
-{
-    return "BMPTRIANGLE3DR";
-}
-
-string OBMPDrawLayerRegister::toString() const
-{
-    return "BMPDRAWLAYERR";
-}
-
-string OBMPDrawScreenRegister::toString() const
-{
-    return "BMPDRAWSCREENR";
-}
-
-string OHeroWarpExRegister::toString() const
-{
-    return "LINKWARPEXR " + getArgument()->toString();
-}
-
-string OHeroExplodeRegister::toString() const
-{
-    return "LINKEXPLODER " + getArgument()->toString();
-}
-
-string OSwitchNPC::toString() const
-{
-	return "SWITCHNPC " + getArgument()->toString();
-}
-string OSwitchItem::toString() const
-{
-	return "SWITCHITM " + getArgument()->toString();
-}
-string OSwitchLW::toString() const
-{
-	return "SWITCHLW " + getArgument()->toString();
-}
-string OSwitchEW::toString() const
-{
-	return "SWITCHEW " + getArgument()->toString();
-}
-string OSwitchCombo::toString() const
-{
-	return "SWITCHCMB " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OKillPlayer::toString() const
-{
-	return "KILLPLAYER " + getArgument()->toString();
-}
-
-string OScreenDoSpawn::toString() const
-{
-	return "SCREENDOSPAWN";
-}
-
-string OScreenTriggerCombo::toString() const
-{
-	return "SCRTRIGGERCOMBO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string ONPCMovePaused::toString() const
-{
-	return "NPCMOVEPAUSED";
-}
-string ONPCMove::toString() const
-{
-	return "NPCMOVE";
-}
-string ONPCMoveAngle::toString() const
-{
-	return "NPCMOVEANGLE";
-}
-string ONPCMoveXY::toString() const
-{
-	return "NPCMOVEXY";
-}
-string ONPCCanMoveDir::toString() const
-{
-	return "NPCCANMOVEDIR";
-}
-string ONPCCanMoveAngle::toString() const
-{
-	return "NPCCANMOVEANGLE";
-}
-string ONPCCanMoveXY::toString() const
-{
-	return "NPCCANMOVEXY";
-}
-string ONPCCanPlace::toString() const
-{
-	return "NPCCANPLACE";
-}
-string ONPCIsFlickerFrame::toString() const
-{
-	return "NPCISFLICKERFRAME";
+	return BMPTRIANGLER;
 }
 
 
-string OGetSystemRTCRegister::toString() const
+int32_t OBMPQuad3DRegister::command() const
 {
-    return "GETRTCTIMER " + getArgument()->toString();
+	return BMPQUAD3DR;
+}
+
+int32_t OBMPTriangle3DRegister::command() const
+{
+	return BMPTRIANGLE3DR;
+}
+
+int32_t OBMPDrawLayerRegister::command() const
+{
+	return BMPDRAWLAYERR;
+}
+
+int32_t OBMPDrawScreenRegister::command() const
+{
+	return BMPDRAWSCREENR;
+}
+
+int32_t OHeroWarpExRegister::command() const
+{
+	return LINKWARPEXR;
+}
+
+int32_t OHeroExplodeRegister::command() const
+{
+	return LINKEXPLODER;
+}
+
+int32_t OSwitchNPC::command() const
+{
+	return SWITCHNPC;
+}
+int32_t OSwitchItem::command() const
+{
+	return SWITCHITM;
+}
+int32_t OSwitchLW::command() const
+{
+	return SWITCHLW;
+}
+int32_t OSwitchEW::command() const
+{
+	return SWITCHEW;
+}
+int32_t OSwitchCombo::command() const
+{
+	return SWITCHCMB;
+}
+int32_t OKillPlayer::command() const
+{
+	return KILLPLAYER;
+}
+
+int32_t OScreenDoSpawn::command() const
+{
+	return SCREENDOSPAWN;
+}
+
+int32_t OScreenTriggerCombo::command() const
+{
+	return SCRTRIGGERCOMBO;
+}
+
+int32_t ONPCMovePaused::command() const
+{
+	return NPCMOVEPAUSED;
+}
+int32_t ONPCMove::command() const
+{
+	return NPCMOVE;
+}
+int32_t ONPCMoveAngle::command() const
+{
+	return NPCMOVEANGLE;
+}
+int32_t ONPCMoveXY::command() const
+{
+	return NPCMOVEXY;
+}
+int32_t ONPCCanMoveDir::command() const
+{
+	return NPCCANMOVEDIR;
+}
+int32_t ONPCCanMoveAngle::command() const
+{
+	return NPCCANMOVEANGLE;
+}
+int32_t ONPCCanMoveXY::command() const
+{
+	return NPCCANMOVEXY;
+}
+int32_t ONPCCanPlace::command() const
+{
+	return NPCCANPLACE;
+}
+int32_t ONPCIsFlickerFrame::command() const
+{
+	return NPCISFLICKERFRAME;
 }
 
 
-string ONPCExplodeRegister::toString() const
+int32_t OGetSystemRTCRegister::command() const
 {
-    return "NPCEXPLODER " + getArgument()->toString();
-}
-string OLWeaponExplodeRegister::toString() const
-{
-    return "LWEAPONEXPLODER " + getArgument()->toString();
-}
-string OEWeaponExplodeRegister::toString() const
-{
-    return "EWEAPONEXPLODER " + getArgument()->toString();
-}
-string OItemExplodeRegister::toString() const
-{
-    return "ITEMEXPLODER " + getArgument()->toString();
+	return GETRTCTIMER;
 }
 
-string ORunItemScript::toString() const
+
+int32_t ONPCExplodeRegister::command() const
 {
-    return "RUNITEMSCRIPT " + getArgument()->toString();
+	return NPCEXPLODER;
+}
+int32_t OLWeaponExplodeRegister::command() const
+{
+	return LWEAPONEXPLODER;
+}
+int32_t OEWeaponExplodeRegister::command() const
+{
+	return EWEAPONEXPLODER;
+}
+int32_t OItemExplodeRegister::command() const
+{
+	return ITEMEXPLODER;
+}
+
+int32_t ORunItemScript::command() const
+{
+	return RUNITEMSCRIPT;
 }
 
 //new npc-> functions for npc scripts
-string ONPCDead::toString() const
+int32_t ONPCDead::command() const
 {
-    return "NPCDEAD " + getArgument()->toString();
+	return NPCDEAD;
 }
-string ONPCCanSlide::toString() const
+int32_t ONPCCanSlide::command() const
 {
-    return "NPCCANSLIDE " + getArgument()->toString();
+	return NPCCANSLIDE;
 }
-string ONPCSlide::toString() const
+int32_t ONPCSlide::command() const
 {
-    return "NPCSLIDE " + getArgument()->toString();
+	return NPCSLIDE;
 }
-string ONPCBreatheFire::toString() const
+int32_t ONPCBreatheFire::command() const
 {
-    return "NPCFIREBREATH " + getArgument()->toString();
+	return NPCFIREBREATH;
 }
-string ONPCNewDir8::toString() const
+int32_t ONPCNewDir8::command() const
 {
-    return "NPCNEWDIR8 " + getArgument()->toString();
+	return NPCNEWDIR8;
 }
-string ONPCRemove::toString() const
+int32_t ONPCRemove::command() const
 {
-    return "NPCKICKBUCKET " + getArgument()->toString();
+	return NPCKICKBUCKET;
 }
-string OLWpnRemove::toString() const
+int32_t OLWpnRemove::command() const
 {
-    return "LWPNDEL";
+	return LWPNDEL;
 }
-string OEWpnRemove::toString() const
+int32_t OEWpnRemove::command() const
 {
-    return "EWPNDEL";
+	return EWPNDEL;
 }
-string OItemRemove::toString() const
+int32_t OItemRemove::command() const
 {
-    return "ITEMDEL";
+	return ITEMDEL;
 }
-string ONPCStopSFX::toString() const
+int32_t ONPCStopSFX::command() const
 {
-    return "NPCSTOPBGSFX " + getArgument()->toString();
+	return NPCSTOPBGSFX;
 }
-string ONPCAttack::toString() const
+int32_t ONPCAttack::command() const
 {
-    return "NPCATTACK " + getArgument()->toString();
+	return NPCATTACK;
 }
-string ONPCNewDir::toString() const
+int32_t ONPCNewDir::command() const
 {
-    return "NPCNEWDIR " + getArgument()->toString();
+	return NPCNEWDIR;
 }
-string ONPCConstWalk::toString() const
+int32_t ONPCConstWalk::command() const
 {
-    return "NPCCONSTWALK " + getArgument()->toString();
+	return NPCCONSTWALK;
 }
-string ONPCConstWalk8::toString() const
+int32_t ONPCConstWalk8::command() const
 {
-    return "NPCCONSTWALK8 " + getArgument()->toString();
+	return NPCCONSTWALK8;
 }
-string ONPCVarWalk::toString() const
+int32_t ONPCVarWalk::command() const
 {
-    return "NPCVARWALK " + getArgument()->toString();
+	return NPCVARWALK;
 }
-string ONPCVarWalk8::toString() const
+int32_t ONPCVarWalk8::command() const
 {
-    return "NPCVARWALK8 " + getArgument()->toString();
+	return NPCVARWALK8;
 }
-string ONPCHaltWalk::toString() const
+int32_t ONPCHaltWalk::command() const
 {
-    return "NPCHALTWALK " + getArgument()->toString();
+	return NPCHALTWALK;
 }
-string ONPCHaltWalk8::toString() const
+int32_t ONPCHaltWalk8::command() const
 {
-    return "NPCHALTWALK8 " + getArgument()->toString();
+	return NPCHALTWALK8;
 }
-string ONPCFloatWalk::toString() const
+int32_t ONPCFloatWalk::command() const
 {
-    return "NPCFLOATWALK " + getArgument()->toString();
+	return NPCFLOATWALK;
 }
-string ONPCHeroInRange::toString() const
+int32_t ONPCHeroInRange::command() const
 {
-    return "NPCLINKINRANGE " + getArgument()->toString();
+	return NPCLINKINRANGE;
 }
-string ONPCAdd::toString() const
+int32_t ONPCAdd::command() const
 {
-    return "NPCADD " + getArgument()->toString();
+	return NPCADD;
 }
-string ONPCCanMove::toString() const
+int32_t ONPCCanMove::command() const
 {
-    return "NPCCANMOVE " + getArgument()->toString();
+	return NPCCANMOVE;
 }
-string ONPCHitWith::toString() const
+int32_t ONPCHitWith::command() const
 {
-    return "NPCHITWITH " + getArgument()->toString();
+	return NPCHITWITH;
 }
-string ONPCKnockback::toString() const
+int32_t ONPCKnockback::command() const
 {
-    return "NPCKNOCKBACK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OGetNPCDataName::toString() const
-{
-    return "NPCDATAGETNAME " + getArgument()->toString();
+	return NPCKNOCKBACK;
 }
 
-string OAllocateBitmap::toString() const
+int32_t OGetNPCDataName::command() const
 {
-    return "ALLOCATEBITMAP " + getArgument()->toString();
+	return NPCDATAGETNAME;
 }
 
-string OClearBitmap::toString() const
+int32_t OAllocateBitmap::command() const
 {
-    return "CLEARBITMAP";
+	return ALLOCATEBITMAP;
 }
 
-string OBitmapClearToColor::toString() const
+int32_t OClearBitmap::command() const
 {
-    return "BITMAPCLEARTOCOLOR";
+	return CLEARBITMAP;
 }
 
-string ORegenerateBitmap::toString() const
+int32_t OBitmapClearToColor::command() const
 {
-    return "REGENERATEBITMAP";
+	return BITMAPCLEARTOCOLOR;
 }
 
-string OReadBitmap::toString() const
+int32_t ORegenerateBitmap::command() const
 {
-    return "READBITMAP";
-}
-string OWriteBitmap::toString() const
-{
-    return "WRITEBITMAP";
-}
-string OBitmapFree::toString() const
-{
-    return "BITMAPFREE";
-}
-string OBitmapOwn::toString() const
-{
-    return "BITMAPOWN";
-}
-string OFileOwn::toString() const
-{
-    return "FILEOWN";
-}
-string ODirectoryOwn::toString() const
-{
-    return "DIRECTORYOWN";
-}
-string ORNGOwn::toString() const
-{
-    return "RNGOWN";
-}
-string OBitmapWriteTile::toString() const
-{
-    return "BMPWRITETILE";
-}
-string OBitmapDither::toString() const
-{
-    return "BMPDITHER";
-}
-string OBitmapReplColor::toString() const
-{
-    return "BMPREPLCOLOR";
-}
-string OBitmapShiftColor::toString() const
-{
-    return "BMPSHIFTCOLOR";
-}
-string OBitmapMaskDraw::toString() const
-{
-    return "BMPMASKDRAW";
-}
-string OBitmapMaskDraw2::toString() const
-{
-    return "BMPMASKDRAW2";
-}
-string OBitmapMaskDraw3::toString() const
-{
-    return "BMPMASKDRAW3";
-}
-string OBitmapMaskBlit::toString() const
-{
-    return "BMPMASKBLIT";
-}
-string OBitmapMaskBlit2::toString() const
-{
-    return "BMPMASKBLIT2";
-}
-string OBitmapMaskBlit3::toString() const
-{
-    return "BMPMASKBLIT3";
+	return REGENERATEBITMAP;
 }
 
-string OIsValidBitmap::toString() const
+int32_t OReadBitmap::command() const
 {
-    return "ISVALIDBITMAP " + getArgument()->toString();
+	return READBITMAP;
+}
+int32_t OWriteBitmap::command() const
+{
+	return WRITEBITMAP;
+}
+int32_t OBitmapFree::command() const
+{
+	return BITMAPFREE;
+}
+int32_t OBitmapOwn::command() const
+{
+	return BITMAPOWN;
+}
+int32_t OFileOwn::command() const
+{
+	return FILEOWN;
+}
+int32_t ODirectoryOwn::command() const
+{
+	return DIRECTORYOWN;
+}
+int32_t ORNGOwn::command() const
+{
+	return RNGOWN;
+}
+int32_t OBitmapWriteTile::command() const
+{
+	return BMPWRITETILE;
+}
+int32_t OBitmapDither::command() const
+{
+	return BMPDITHER;
+}
+int32_t OBitmapReplColor::command() const
+{
+	return BMPREPLCOLOR;
+}
+int32_t OBitmapShiftColor::command() const
+{
+	return BMPSHIFTCOLOR;
+}
+int32_t OBitmapMaskDraw::command() const
+{
+	return BMPMASKDRAW;
+}
+int32_t OBitmapMaskDraw2::command() const
+{
+	return BMPMASKDRAW2;
+}
+int32_t OBitmapMaskDraw3::command() const
+{
+	return BMPMASKDRAW3;
+}
+int32_t OBitmapMaskBlit::command() const
+{
+	return BMPMASKBLIT;
+}
+int32_t OBitmapMaskBlit2::command() const
+{
+	return BMPMASKBLIT2;
+}
+int32_t OBitmapMaskBlit3::command() const
+{
+	return BMPMASKBLIT3;
 }
 
-string OIsAllocatedBitmap::toString() const
+int32_t OIsValidBitmap::command() const
 {
-    return "ISALLOCATEDBITMAP " + getArgument()->toString();
+	return ISVALIDBITMAP;
+}
+
+int32_t OIsAllocatedBitmap::command() const
+{
+	return ISALLOCATEDBITMAP;
 }
 
 
-string OBMPDrawScreenSolidRegister::toString() const
+int32_t OBMPDrawScreenSolidRegister::command() const
 {
-    return "BMPDRAWSCREENSOLIDR";
+	return BMPDRAWSCREENSOLIDR;
 }
 
-string OBMPDrawScreenSolid2Register::toString() const
+int32_t OBMPDrawScreenSolid2Register::command() const
 {
-    return "BMPDRAWSCREENSOLID2R";
+	return BMPDRAWSCREENSOLID2R;
 }
-string OBMPDrawScreenComboFRegister::toString() const
+int32_t OBMPDrawScreenComboFRegister::command() const
 {
-    return "BMPDRAWSCREENCOMBOFR";
+	return BMPDRAWSCREENCOMBOFR;
 }
-string OBMPDrawScreenComboIRegister::toString() const
+int32_t OBMPDrawScreenComboIRegister::command() const
 {
-    return "BMPDRAWSCREENCOMBOIR";
+	return BMPDRAWSCREENCOMBOIR;
 }
-string OBMPDrawScreenComboTRegister::toString() const
+int32_t OBMPDrawScreenComboTRegister::command() const
 {
-    return "BMPDRAWSCREENCOMBOTR";
+	return BMPDRAWSCREENCOMBOTR;
 }
-string OGraphicsGetpixel::toString() const
+int32_t OGraphicsGetpixel::command() const
 {
-    return "GRAPHICSGETPIXEL " + getArgument()->toString();
+	return GRAPHICSGETPIXEL;
 }
-string OGraphicsCountColor::toString() const
+int32_t OGraphicsCountColor::command() const
 {
-    return "GRAPHICSCOUNTCOLOR " + getArgument()->toString();
+	return GRAPHICSCOUNTCOLOR;
 }
 
-string OBMPDrawScreenSolidityRegister::toString() const
+int32_t OBMPDrawScreenSolidityRegister::command() const
 {
-    return "BMPDRAWLAYERSOLIDITYR";
+	return BMPDRAWLAYERSOLIDITYR;
 }
-string OBMPDrawScreenSolidMaskRegister::toString() const
+int32_t OBMPDrawScreenSolidMaskRegister::command() const
 {
-    return "BMPDRAWLAYERSOLIDR";
+	return BMPDRAWLAYERSOLIDR;
 }
-string OBMPDrawScreenCTypeRegister::toString() const
+int32_t OBMPDrawScreenCTypeRegister::command() const
 {
-    return "BMPDRAWLAYERCTYPER";
+	return BMPDRAWLAYERCTYPER;
 }
-string OBMPDrawScreenCFlagRegister::toString() const
+int32_t OBMPDrawScreenCFlagRegister::command() const
 {
-    return "BMPDRAWLAYERCFLAGR";
+	return BMPDRAWLAYERCFLAGR;
 }
-string OBMPDrawScreenCIFlagRegister::toString() const
+int32_t OBMPDrawScreenCIFlagRegister::command() const
 {
-    return "BMPDRAWLAYERCIFLAGR";
+	return BMPDRAWLAYERCIFLAGR;
 }
 
 //Text ptr opcodes
-string OFontHeight::toString() const
+int32_t OFontHeight::command() const
 {
-	return "FONTHEIGHTR " + getArgument()->toString();
+	return FONTHEIGHTR;
 }
 
-string OStringWidth::toString() const
+int32_t OStringWidth::command() const
 {
-	return "STRINGWIDTHR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STRINGWIDTHR;
 }
 
-string OCharWidth::toString() const
+int32_t OCharWidth::command() const
 {
-	return "CHARWIDTHR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return CHARWIDTHR;
 }
 
-string OMessageWidth::toString() const
+int32_t OMessageWidth::command() const
 {
-	return "MESSAGEWIDTHR " + getArgument()->toString();
+	return MESSAGEWIDTHR;
 }
 
-string OMessageHeight::toString() const
+int32_t OMessageHeight::command() const
 {
-	return "MESSAGEHEIGHTR " + getArgument()->toString();
+	return MESSAGEHEIGHTR;
 }
 
 //
 
-string OStrCmp::toString() const
+int32_t OStrCmp::command() const
 {
-    return "STRINGCOMPARE " + getArgument()->toString();
+	return STRINGCOMPARE;
 }
 
-string OStrNCmp::toString() const
+int32_t OStrNCmp::command() const
 {
-    return "STRINGNCOMPARE " + getArgument()->toString();
+	return STRINGNCOMPARE;
 }
 
-string OStrICmp::toString() const
+int32_t OStrICmp::command() const
 {
-    return "STRINGICOMPARE " + getArgument()->toString();
+	return STRINGICOMPARE;
 }
 
-string OStrNICmp::toString() const
+int32_t OStrNICmp::command() const
 {
-    return "STRINGNICOMPARE " + getArgument()->toString();
+	return STRINGNICOMPARE;
 }
 
 //based on Ostrcpy
-string oARRAYCOPY::toString() const
+int32_t oARRAYCOPY::command() const
 {
-    return "ARRAYCOPY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ARRAYCOPY;
 }
 
 /*to do 
@@ -6350,98 +3888,98 @@ string oARRAYCOPY::toString() const
 
 //1 inp, 1 ret, baseds on STRINGLENGTH / Ostrlen
 
-string Oxlen::toString() const
+int32_t Oxlen::command() const
 {
-    return "XLEN " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return XLEN;
 }
-string Oxtoi::toString() const
+int32_t Oxtoi::command() const
 {
-    return "XTOI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return XTOI;
 }
-string Oilen::toString() const
+int32_t Oilen::command() const
 {
-    return "ILEN " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ILEN;
 }
-string Oatoi::toString() const
+int32_t Oatoi::command() const
 {
-    return "ATOI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ATOI;
 }
 
 //2 inp, 1 ret, based on STRINGCOMPARE / OStrCmp
 
-string Ostrcspn::toString() const
+int32_t Ostrcspn::command() const
 {
-    return "STRCSPN " + getArgument()->toString();
+	return STRCSPN;
 }
 
-string Ostrstr::toString() const
+int32_t Ostrstr::command() const
 {
-    return "STRSTR " + getArgument()->toString();
+	return STRSTR;
 }
 
-string Oitoa::toString() const
+int32_t Oitoa::command() const
 {
-    return "ITOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ITOA;
 }
 
-string Oxtoa::toString() const
+int32_t Oxtoa::command() const
 {
-    return "XTOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return XTOA;
 }
 
-string Oitoacat::toString() const
+int32_t Oitoacat::command() const
 {
-    return "ITOACAT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return ITOACAT;
 }
 
-string OSaveGameStructs::toString() const
+int32_t OSaveGameStructs::command() const
 {
-    return "SAVEGAMESTRUCTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return SAVEGAMESTRUCTS;
 }
 
-string OReadGameStructs::toString() const
+int32_t OReadGameStructs::command() const
 {
-    return "READGAMESTRUCTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return READGAMESTRUCTS;
 }
 
-string Ostrcat::toString() const
+int32_t Ostrcat::command() const
 {
-    return "STRCAT " + getArgument()->toString();
+	return STRCAT;
 }
 
-string Ostrspn::toString() const
+int32_t Ostrspn::command() const
 {
-    return "STRSPN " + getArgument()->toString();
+	return STRSPN;
 }
-string Ostrchr::toString() const
+int32_t Ostrchr::command() const
 {
-    return "STRCHR " + getArgument()->toString();
-}
-
-string Ostrrchr::toString() const
-{
-    return "STRRCHR " + getArgument()->toString();
-}
-string Oxlen2::toString() const
-{
-    return "XLEN2 " + getArgument()->toString();
+	return STRCHR;
 }
 
-string Oxtoi2::toString() const
+int32_t Ostrrchr::command() const
 {
-    return "XTOI2 " + getArgument()->toString();
+	return STRRCHR;
 }
-string Oilen2::toString() const
+int32_t Oxlen2::command() const
 {
-    return "ILEN2 " + getArgument()->toString();
+	return XLEN2;
 }
-string Oatoi2::toString() const
+
+int32_t Oxtoi2::command() const
 {
-    return "ATOI2 " + getArgument()->toString();
+	return XTOI2;
 }
-string Oremchr2::toString() const
+int32_t Oilen2::command() const
 {
-    return "REMCHR2 " + getArgument()->toString();
+	return ILEN2;
+}
+int32_t Oatoi2::command() const
+{
+	return ATOI2;
+}
+int32_t Oremchr2::command() const
+{
+	return REMCHR2;
 }
 
 
@@ -6468,522 +4006,522 @@ string Oremchr2::toString() const
 
 
 
-string Ouppertolower::toString() const
+int32_t Ouppertolower::command() const
 {
-    return "UPPERTOLOWER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return UPPERTOLOWER;
 }
-string Olowertoupper::toString() const
+int32_t Olowertoupper::command() const
 {
-    return "LOWERTOUPPER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return LOWERTOUPPER;
 }
-string Oconvertcase::toString() const
+int32_t Oconvertcase::command() const
 {
-    return "CONVERTCASE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return CONVERTCASE;
 }
 
 //Game->GetByString functions
 //similar to Oconvertcase
 
-string OGETNPCSCRIPT::toString() const
+int32_t OGETNPCSCRIPT::command() const
 {
-    return "GETNPCSCRIPT " + getArgument()->toString();
+	return GETNPCSCRIPT;
 }
-string OGETLWEAPONSCRIPT::toString() const
+int32_t OGETLWEAPONSCRIPT::command() const
 {
-    return "GETLWEAPONSCRIPT " + getArgument()->toString();
+	return GETLWEAPONSCRIPT;
 }
-string OGETEWEAPONSCRIPT::toString() const
+int32_t OGETEWEAPONSCRIPT::command() const
 {
-    return "GETEWEAPONSCRIPT " + getArgument()->toString();
+	return GETEWEAPONSCRIPT;
 }
-string OGETGENERICSCRIPT::toString() const
+int32_t OGETGENERICSCRIPT::command() const
 {
-    return "GETGENERICSCRIPT " + getArgument()->toString();
+	return GETGENERICSCRIPT;
 }
-string OGETHEROSCRIPT::toString() const
+int32_t OGETHEROSCRIPT::command() const
 {
-    return "GETHEROSCRIPT " + getArgument()->toString();
+	return GETHEROSCRIPT;
 }
-string OGETGLOBALSCRIPT::toString() const
+int32_t OGETGLOBALSCRIPT::command() const
 {
-    return "GETGLOBALSCRIPT " + getArgument()->toString();
+	return GETGLOBALSCRIPT;
 }
-string OGETDMAPSCRIPT::toString() const
+int32_t OGETDMAPSCRIPT::command() const
 {
-    return "GETDMAPSCRIPT " + getArgument()->toString();
+	return GETDMAPSCRIPT;
 }
-string OGETSCREENSCRIPT::toString() const
+int32_t OGETSCREENSCRIPT::command() const
 {
-    return "GETSCREENSCRIPT " + getArgument()->toString();
+	return GETSCREENSCRIPT;
 }
-string OGETSPRITESCRIPT::toString() const
+int32_t OGETSPRITESCRIPT::command() const
 {
-    return "GETSPRITESCRIPT " + getArgument()->toString();
+	return GETSPRITESCRIPT;
 }
-string OGETUNTYPEDSCRIPT::toString() const
+int32_t OGETUNTYPEDSCRIPT::command() const
 {
-    return "GETUNTYPEDSCRIPT " + getArgument()->toString();
+	return GETUNTYPEDSCRIPT;
 }
-string OGETSUBSCREENSCRIPT::toString() const
+int32_t OGETSUBSCREENSCRIPT::command() const
 {
-    return "GETSUBSCREENSCRIPT " + getArgument()->toString();
+	return GETSUBSCREENSCRIPT;
 }
-string OGETNPCBYNAME::toString() const
+int32_t OGETNPCBYNAME::command() const
 {
-    return "GETNPCBYNAME " + getArgument()->toString();
+	return GETNPCBYNAME;
 }
-string OGETITEMBYNAME::toString() const
+int32_t OGETITEMBYNAME::command() const
 {
-    return "GETITEMBYNAME " + getArgument()->toString();
+	return GETITEMBYNAME;
 }
-string OGETCOMBOBYNAME::toString() const
+int32_t OGETCOMBOBYNAME::command() const
 {
-    return "GETCOMBOBYNAME " + getArgument()->toString();
+	return GETCOMBOBYNAME;
 }
-string OGETDMAPBYNAME::toString() const
+int32_t OGETDMAPBYNAME::command() const
 {
-    return "GETDMAPBYNAME " + getArgument()->toString();
-}
-
-string OLoadNPCBySUIDRegister::toString() const
-{
-    return "LOADNPCBYSUID " + getArgument()->toString();
-}
-string OLoadLWeaponBySUIDRegister::toString() const
-{
-    return "LOADLWEAPONBYSUID " + getArgument()->toString();
-}
-string OLoadEWeaponBySUIDRegister::toString() const
-{
-    return "LOADWEAPONCBYSUID " + getArgument()->toString();
+	return GETDMAPBYNAME;
 }
 
-string OByte::toString() const
+int32_t OLoadNPCBySUIDRegister::command() const
 {
-    return "TOBYTE " + getArgument()->toString();
+	return LOADNPCBYSUID;
+}
+int32_t OLoadLWeaponBySUIDRegister::command() const
+{
+	return LOADLWEAPONBYSUID;
+}
+int32_t OLoadEWeaponBySUIDRegister::command() const
+{
+	return LOADWEAPONCBYSUID;
 }
 
-string OToInteger::toString() const
+int32_t OByte::command() const
 {
-    return "TOINTEGER " + getArgument()->toString();
+	return TOBYTE;
 }
 
-string OFloor::toString() const
+int32_t OToInteger::command() const
 {
-    return "FLOOR " + getArgument()->toString();
+	return TOINTEGER;
 }
 
-string OTruncate::toString() const
+int32_t OFloor::command() const
 {
-    return "TRUNCATE " + getArgument()->toString();
+	return FLOOR;
 }
 
-string ORound::toString() const
+int32_t OTruncate::command() const
 {
-    return "ROUND " + getArgument()->toString();
+	return TRUNCATE;
 }
 
-string ORoundAway::toString() const
+int32_t ORound::command() const
 {
-    return "ROUNDAWAY " + getArgument()->toString();
+	return ROUND;
 }
 
-string OCeiling::toString() const
+int32_t ORoundAway::command() const
 {
-    return "CEILING " + getArgument()->toString();
+	return ROUNDAWAY;
 }
 
-string OSByte::toString() const
+int32_t OCeiling::command() const
 {
-    return "TOSIGNEDBYTE " + getArgument()->toString();
-}
-string OWord::toString() const
-{
-    return "TOWORD " + getArgument()->toString();
-}
-string OShort::toString() const
-{
-    return "TOSHORT " + getArgument()->toString();
+	return CEILING;
 }
 
-string OReturn::toString() const
+int32_t OSByte::command() const
 {
-	return "RETURN";
+	return TOSIGNEDBYTE;
+}
+int32_t OWord::command() const
+{
+	return TOWORD;
+}
+int32_t OShort::command() const
+{
+	return TOSHORT;
 }
 
-string ODirExists::toString() const
+int32_t OReturn::command() const
 {
-	return "DIREXISTS " + getArgument()->toString();
+	return RETURN;
 }
 
-string OFileExists::toString() const
+int32_t ODirExists::command() const
 {
-	return "FILEEXISTS " + getArgument()->toString();
+	return DIREXISTS;
 }
 
-string OFileSystemRemove::toString() const
+int32_t OFileExists::command() const
 {
-	return "FILESYSREMOVE " + getArgument()->toString();
+	return FILEEXISTS;
 }
 
-string OFileClose::toString() const
+int32_t OFileSystemRemove::command() const
 {
-	return "FILECLOSE";
+	return FILESYSREMOVE;
+}
+
+int32_t OFileClose::command() const
+{
+	return FILECLOSE;
 };
 
-string OFileFree::toString() const
+int32_t OFileFree::command() const
 {
-	return "FILEFREE";
+	return FILEFREE;
 };
 
-string OFileIsAllocated::toString() const
+int32_t OFileIsAllocated::command() const
 {
-	return "FILEISALLOCATED";
+	return FILEISALLOCATED;
 };
 
-string OFileIsValid::toString() const
+int32_t OFileIsValid::command() const
 {
-	return "FILEISVALID";
+	return FILEISVALID;
 };
 
-string OAllocateFile::toString() const
+int32_t OAllocateFile::command() const
 {
-	return "FILEALLOCATE";
+	return FILEALLOCATE;
 };
 
-string OFileFlush::toString() const
+int32_t OFileFlush::command() const
 {
-	return "FILEFLUSH";
+	return FILEFLUSH;
 };
 
-string OFileGetChar::toString() const
+int32_t OFileGetChar::command() const
 {
-	return "FILEGETCHAR";
+	return FILEGETCHAR;
 };
 
-string OFileRewind::toString() const
+int32_t OFileRewind::command() const
 {
-	return "FILEREWIND";
+	return FILEREWIND;
 };
 
-string OFileClearError::toString() const
+int32_t OFileClearError::command() const
 {
-	return "FILECLEARERR";
-};
-//
-string OFileOpen::toString() const
-{
-	return "FILEOPEN " + getArgument()->toString();
-};
-
-string OFileCreate::toString() const
-{
-	return "FILECREATE " + getArgument()->toString();
-};
-
-string OFileReadString::toString() const
-{
-	return "FILEREADSTR " + getArgument()->toString();
-};
-
-string OFileWriteString::toString() const
-{
-	return "FILEWRITESTR " + getArgument()->toString();
-};
-
-string OFilePutChar::toString() const
-{
-	return "FILEPUTCHAR " + getArgument()->toString();
-};
-
-string OFileUngetChar::toString() const
-{
-	return "FILEUNGETCHAR " + getArgument()->toString();
-};
-
-string OFileGetError::toString() const
-{
-	return "FILEGETERROR " + getArgument()->toString();
+	return FILECLEARERR;
 };
 //
-string OFileReadChars::toString() const
+int32_t OFileOpen::command() const
 {
-	return "FILEREADCHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return FILEOPEN;
 };
 
-string OFileReadBytes::toString() const
+int32_t OFileCreate::command() const
 {
-	return "FILEREADBYTES " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OFileReadInts::toString() const
-{
-	return "FILEREADINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return FILECREATE;
 };
 
-string OFileWriteChars::toString() const
+int32_t OFileReadString::command() const
 {
-	return "FILEWRITECHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return FILEREADSTR;
 };
 
-string OFileWriteBytes::toString() const
+int32_t OFileWriteString::command() const
 {
-	return "FILEWRITEBYTES " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OFileWriteInts::toString() const
-{
-	return "FILEWRITEINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return FILEWRITESTR;
 };
 
-string OFileSeek::toString() const
+int32_t OFilePutChar::command() const
 {
-	return "FILESEEK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return FILEPUTCHAR;
 };
 
-string OFileOpenMode::toString() const
+int32_t OFileUngetChar::command() const
 {
-	return "FILEOPENMODE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return FILEUNGETCHAR;
 };
 
-string OFileRemove::toString() const
+int32_t OFileGetError::command() const
 {
-	return "FILEREMOVE";
+	return FILEGETERROR;
+};
+//
+int32_t OFileReadChars::command() const
+{
+	return FILEREADCHARS;
 };
 
-string ODirectoryGet::toString() const
+int32_t OFileReadBytes::command() const
 {
-	return "DIRECTORYGET " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return FILEREADBYTES;
 }
 
-string ODirectoryReload::toString() const
+int32_t OFileReadInts::command() const
 {
-	return "DIRECTORYRELOAD";
+	return FILEREADINTS;
+};
+
+int32_t OFileWriteChars::command() const
+{
+	return FILEWRITECHARS;
+};
+
+int32_t OFileWriteBytes::command() const
+{
+	return FILEWRITEBYTES;
 }
 
-string ODirectoryFree::toString() const
+int32_t OFileWriteInts::command() const
 {
-	return "DIRECTORYFREE";
+	return FILEWRITEINTS;
+};
+
+int32_t OFileSeek::command() const
+{
+	return FILESEEK;
+};
+
+int32_t OFileOpenMode::command() const
+{
+	return FILEOPENMODE;
+};
+
+int32_t OFileRemove::command() const
+{
+	return FILEREMOVE;
+};
+
+int32_t ODirectoryGet::command() const
+{
+	return DIRECTORYGET;
 }
 
-string OStackFree::toString() const
+int32_t ODirectoryReload::command() const
 {
-	return "STACKFREE";
-}
-string OStackOwn::toString() const
-{
-	return "STACKOWN";
-}
-string OStackClear::toString() const
-{
-	return "STACKCLEAR";
+	return DIRECTORYRELOAD;
 }
 
-string OStackPopBack::toString() const
+int32_t ODirectoryFree::command() const
 {
-	return "STACKPOPBACK " + getArgument()->toString();
-}
-string OStackPopFront::toString() const
-{
-	return "STACKPOPFRONT " + getArgument()->toString();
-}
-string OStackPeekBack::toString() const
-{
-	return "STACKPEEKBACK " + getArgument()->toString();
-}
-string OStackPeekFront::toString() const
-{
-	return "STACKPEEKFRONT " + getArgument()->toString();
-}
-string OStackPushBack::toString() const
-{
-	return "STACKPUSHBACK " + getArgument()->toString();
-}
-string OStackPushFront::toString() const
-{
-	return "STACKPUSHFRONT " + getArgument()->toString();
-}
-string OStackGet::toString() const
-{
-	return "STACKGET " + getArgument()->toString();
-}
-string OStackSet::toString() const
-{
-    return "STACKSET " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return DIRECTORYFREE;
 }
 
-string OModuleGetIC::toString() const
+int32_t OStackFree::command() const
 {
-    return "MODULEGETIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STACKFREE;
+}
+int32_t OStackOwn::command() const
+{
+	return STACKOWN;
+}
+int32_t OStackClear::command() const
+{
+	return STACKCLEAR;
+}
+
+int32_t OStackPopBack::command() const
+{
+	return STACKPOPBACK;
+}
+int32_t OStackPopFront::command() const
+{
+	return STACKPOPFRONT;
+}
+int32_t OStackPeekBack::command() const
+{
+	return STACKPEEKBACK;
+}
+int32_t OStackPeekFront::command() const
+{
+	return STACKPEEKFRONT;
+}
+int32_t OStackPushBack::command() const
+{
+	return STACKPUSHBACK;
+}
+int32_t OStackPushFront::command() const
+{
+	return STACKPUSHFRONT;
+}
+int32_t OStackGet::command() const
+{
+	return STACKGET;
+}
+int32_t OStackSet::command() const
+{
+	return STACKSET;
+}
+
+int32_t OModuleGetIC::command() const
+{
+	return MODULEGETIC;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-string ORunGenericFrozenScript::toString() const
+int32_t ORunGenericFrozenScript::command() const
 {
-	return "RUNGENFRZSCR " + getArgument()->toString();
+	return RUNGENFRZSCR;
 };
 
-string OReservedZ3_01::toString() const
+int32_t OReservedZ3_01::command() const
 {
-	return "RESRVD_OP_Z3_01 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_01;
 }
-string OReservedZ3_02::toString() const
+int32_t OReservedZ3_02::command() const
 {
-	return "RESRVD_OP_Z3_02 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_02;
 }
-string OReservedZ3_03::toString() const
+int32_t OReservedZ3_03::command() const
 {
-	return "RESRVD_OP_Z3_03 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_03;
 }
-string OReservedZ3_04::toString() const
+int32_t OReservedZ3_04::command() const
 {
-	return "RESRVD_OP_Z3_04 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_04;
 }
-string OReservedZ3_05::toString() const
+int32_t OReservedZ3_05::command() const
 {
-	return "RESRVD_OP_Z3_05 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_05;
 }
-string OReservedZ3_06::toString() const
+int32_t OReservedZ3_06::command() const
 {
-	return "RESRVD_OP_Z3_06 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_06;
 }
-string OReservedZ3_07::toString() const
+int32_t OReservedZ3_07::command() const
 {
-	return "RESRVD_OP_Z3_07 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_07;
 }
-string OReservedZ3_08::toString() const
+int32_t OReservedZ3_08::command() const
 {
-	return "RESRVD_OP_Z3_08 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_08;
 }
-string OReservedZ3_09::toString() const
+int32_t OReservedZ3_09::command() const
 {
-	return "RESRVD_OP_Z3_09 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RESRVD_OP_Z3_09;
 }
-string OReservedZ3_10::toString() const
+int32_t OReservedZ3_10::command() const
 {
-	return "RESRVD_OP_Z3_10 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-
-string OSubscrSwapPages::toString() const
-{
-	return "SUBDATA_SWAP_PAGES";
-}
-string OSubscrPgFindWidget::toString() const
-{
-	return "SUBPAGE_FIND_WIDGET";
-}
-string OSubscrPgMvCursor::toString() const
-{
-	return "SUBPAGE_MOVE_SEL";
-}
-string OSubscrPgSwapWidgets::toString() const
-{
-	return "SUBPAGE_SWAP_WIDG";
-}
-string OSubscrPgNewWidget::toString() const
-{
-	return "SUBPAGE_NEW_WIDG";
-}
-string OSubscrPgDelete::toString() const
-{
-	return "SUBPAGE_DELETE";
-}
-string OGetSubWidgSelTxtOverride::toString() const
-{
-	return "SUBWIDG_GET_SELTEXT_OVERRIDE " + getArgument()->toString();
-}
-string OSetSubWidgSelTxtOverride::toString() const
-{
-	return "SUBWIDG_SET_SELTEXT_OVERRIDE " + getArgument()->toString();
-}
-string OSubWidgTy_GetText::toString() const
-{
-	return "SUBWIDG_TY_GETTEXT " + getArgument()->toString();
-}
-string OSubWidgTy_SetText::toString() const
-{
-	return "SUBWIDG_TY_SETTEXT " + getArgument()->toString();
+	return RESRVD_OP_Z3_10;
 }
 
 
-string OSubscrPgFindWidgetLbl::toString() const
+int32_t OSubscrSwapPages::command() const
 {
-	return "SUBPAGE_FIND_WIDGET_BY_LABEL";
+	return SUBDATA_SWAP_PAGES;
+}
+int32_t OSubscrPgFindWidget::command() const
+{
+	return SUBPAGE_FIND_WIDGET;
+}
+int32_t OSubscrPgMvCursor::command() const
+{
+	return SUBPAGE_MOVE_SEL;
+}
+int32_t OSubscrPgSwapWidgets::command() const
+{
+	return SUBPAGE_SWAP_WIDG;
+}
+int32_t OSubscrPgNewWidget::command() const
+{
+	return SUBPAGE_NEW_WIDG;
+}
+int32_t OSubscrPgDelete::command() const
+{
+	return SUBPAGE_DELETE;
+}
+int32_t OGetSubWidgSelTxtOverride::command() const
+{
+	return SUBWIDG_GET_SELTEXT_OVERRIDE;
+}
+int32_t OSetSubWidgSelTxtOverride::command() const
+{
+	return SUBWIDG_SET_SELTEXT_OVERRIDE;
+}
+int32_t OSubWidgTy_GetText::command() const
+{
+	return SUBWIDG_TY_GETTEXT;
+}
+int32_t OSubWidgTy_SetText::command() const
+{
+	return SUBWIDG_TY_SETTEXT;
 }
 
 
-string OGetSubWidgLabel::toString() const
+int32_t OSubscrPgFindWidgetLbl::command() const
 {
-	return "SUBWIDG_GET_LABEL " + getArgument()->toString();
-}
-string OSetSubWidgLabel::toString() const
-{
-	return "SUBWIDG_SET_LABEL " + getArgument()->toString();
+	return SUBPAGE_FIND_WIDGET_BY_LABEL;
 }
 
 
-string OWrapRadians::toString() const
+int32_t OGetSubWidgLabel::command() const
 {
-	return "WRAPRADIANS " + getArgument()->toString();
+	return SUBWIDG_GET_LABEL;
 }
-string OWrapDegrees::toString() const
+int32_t OSetSubWidgLabel::command() const
 {
-	return "WRAPDEGREES " + getArgument()->toString();
-}
-
-
-string OCallFunc::toString() const
-{
-	return "CALLFUNC " + getArgument()->toString();
+	return SUBWIDG_SET_LABEL;
 }
 
 
-string OReturnFunc::toString() const
+int32_t OWrapRadians::command() const
 {
-	return "RETURNFUNC";
+	return WRAPRADIANS;
+}
+int32_t OWrapDegrees::command() const
+{
+	return WRAPDEGREES;
 }
 
 
-string OSetCompare::toString() const
+int32_t OCallFunc::command() const
 {
-	return "SETCMP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OGotoCompare::toString() const
-{
-	return "GOTOCMP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return CALLFUNC;
 }
 
 
-string OStackWriteAtRV::toString() const
+int32_t OReturnFunc::command() const
 {
-	return "STACKWRITEATRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OStackWriteAtVV::toString() const
-{
-	return "STACKWRITEATVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return RETURNFUNC;
 }
 
 
-string OStackWriteAtVV_If::toString() const
+int32_t OSetCompare::command() const
 {
-	return "STACKWRITEATVV_IF " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
+	return SETCMP;
+}
+
+int32_t OGotoCompare::command() const
+{
+	return GOTOCMP;
 }
 
 
-string OSetGVarR::toString() const
+int32_t OStackWriteAtRV::command() const
 {
-	return "SETGVARR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STACKWRITEATRV;
 }
-string OSetGVarV::toString() const
+int32_t OStackWriteAtVV::command() const
 {
-	return "SETGVARV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STACKWRITEATVV;
 }
-string OGetGVar::toString() const
+
+
+int32_t OStackWriteAtVV_If::command() const
 {
-	return "GETGVAR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return STACKWRITEATVV_IF;
+}
+
+
+int32_t OSetGVarR::command() const
+{
+	return SETGVARR;
+}
+int32_t OSetGVarV::command() const
+{
+	return SETGVARV;
+}
+int32_t OGetGVar::command() const
+{
+	return GETGVAR;
 }
 

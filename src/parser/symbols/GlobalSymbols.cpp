@@ -235,7 +235,7 @@ void GlobalSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(WHAT_NO_7)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(D(7))));
 		LABELBACK(label);
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -267,7 +267,7 @@ void GlobalSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(WHAT_NO_7)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(D(7))));
 		LABELBACK(label);
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));

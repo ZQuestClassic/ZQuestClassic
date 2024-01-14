@@ -10,20 +10,20 @@ Success!
 Compile finished with exit code '0' (success)
 
 PUSHARGSV 0,0.0003; void run() Body Start
-SETR d4,SP
+SETR D4,SP
 STOREDV 123,1
-ALLOCATEMEMV d2,17
-STORED d2,0
-WRITEPODSTRING d2,"hello world: %d\n"
-LOADD d2,0; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-LOADD d2,1
-PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+ALLOCATEMEMV D2,17
+STORED D2,0
+WRITEPODSTRING D2,"hello world: %d\n"
+LOADD D2,0; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+LOADD D2,1
+PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOADD d3,0
-DEALLOCATEMEMR d3
-POPARGS d5,0.0003
+POP D5; InlineFunc[void printf(char32)] Body End
+LOADD D3,0
+DEALLOCATEMEMR D3
+POPARGS D5,0.0003
 QUIT; void run() Body End
 
 

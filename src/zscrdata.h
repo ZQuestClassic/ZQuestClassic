@@ -176,7 +176,64 @@ void read_meta(zasm_meta& meta, FILE* f)
 	for(auto q = 0; q < 8; ++q)
 		read_b((byte&)meta.initd_type[q], f);
 }
-
+void fread_ffscript(ffscript& op, FILE* tempfile)
+{
+	fread(&op.command, sizeof(word), 1, tempfile);
+	fread(&op.arg1, sizeof(int32_t), 1, tempfile);
+	fread(&op.arg2, sizeof(int32_t), 1, tempfile);
+	fread(&op.arg2, sizeof(int32_t), 1, tempfile);
+	byte fl = 0;
+	fread(&fl, sizeof(byte), 1, tempfile);
+	if(fl&1)
+	{
+		op.strptr = new string();
+		uint32_t sz;
+		fread(&sz, sizeof(uint32_t), 1, tempfile);
+		if(sz)
+		{
+			op.strptr->resize(sz);
+			fread(op.strptr->data(), sizeof(char), sz, tempfile);
+		}
+	}
+	if(fl&2)
+	{
+		op.vecptr = new vector<int32_t>();
+		uint32_t sz;
+		fread(&sz, sizeof(uint32_t), 1, tempfile);
+		if(sz)
+		{
+			op.vecptr->resize(sz);
+			fread(op.vecptr->data(), sizeof(char), sz, tempfile);
+		}
+	}
+}
+void fwrite_ffscript(ffscript const& op, FILE* tempfile)
+{
+	fwrite(&op.command, sizeof(word), 1, tempfile);
+	fwrite(&op.arg1, sizeof(int32_t), 1, tempfile);
+	fwrite(&op.arg2, sizeof(int32_t), 1, tempfile);
+	fwrite(&op.arg2, sizeof(int32_t), 1, tempfile);
+	byte fl = 0;
+	if(op.strptr)
+		fl |= 1;
+	if(op.vecptr)
+		fl |= 2;
+	fwrite(&fl, sizeof(byte), 1, tempfile);
+	if(fl&1)
+	{
+		uint32_t sz = op.strptr->size();
+		fwrite(&sz, sizeof(uint32_t), 1, tempfile);
+		if(sz)
+			fwrite(op.strptr->data(), sizeof(char), sz, tempfile);
+	}
+	if(fl&2)
+	{
+		uint32_t sz = op.vecptr->size();
+		fwrite(&sz, sizeof(uint32_t), 1, tempfile);
+		if(sz)
+			fwrite(op.vecptr->data(), sizeof(char), sz, tempfile);
+	}
+}
 void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)
 {
 	stypes.clear();
@@ -226,23 +283,9 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 		fread(&tmp, sizeof(size_t), 1, tempfile);
 		for(size_t ind2 = 0; ind2 < tmp; ++ind2)
 		{
-			//read opcode into buf2
-			fread(&dummy, sizeof(size_t), 1, tempfile);
-			if (buf2sz < dummy + 1)
-			{
-				if (buf2) free(buf2);
-				buf2sz = zc_max(dummy + 1, 1024);
-				buf2 = (char*)malloc(buf2sz);
-				if (!buf2)
-				{
-					buf2sz = 0;
-					goto read_compile_error;
-				}
-			}
-			dummy = fread(buf2, sizeof(char), dummy, tempfile);
-			if (dummy >= buf2sz)
-				dummy = buf2sz - 1; //This indicates an error, and shouldn't be reached...
-			buf2[dummy] = 0;
+			//read opcode
+			ffscript op;
+			fread_ffscript(op, tempfile);
 			
 			//read comment into buf3
 			fread(&dummy, sizeof(size_t), 1, tempfile);
@@ -264,7 +307,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 			
 			int32_t lbl;
 			fread(&lbl, sizeof(int32_t), 1, tempfile);
-			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(buf2);
+			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(op);
 			oc->setLabel(lbl);
 			oc->setComment(buf3);
 			dsd.second.push_back(oc);
@@ -320,13 +363,12 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 		
 		for(auto it = v.second.begin(); it != v.second.end(); ++it)
 		{
-			string opstr = (*it)->toString();
+			ffscript op;
+			(*it)->get_ffscr(op);
 			string const& commentstr = (*it)->getComment();
 			int32_t lbl = (*it)->getLabel();
 			
-			dummy = opstr.size();
-			fwrite(&dummy, sizeof(size_t), 1, tempfile);
-			fwrite((void*)opstr.c_str(), sizeof(char), dummy, tempfile);
+			fwrite_ffscript(op, tempfile);
 			
 			dummy = commentstr.size();
 			fwrite(&dummy, sizeof(size_t), 1, tempfile);

@@ -10,12 +10,12 @@ Success!
 Compile finished with exit code '0' (success)
 
 PUSHR REFDMAPDATA; void run() Body Start
-SETR d4,SP
+SETR D4,SP
 TRACEV 999; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
-POP d5
+POP D5
 QUIT; void run() Body End
 
 
-ALLOCATEGMEMV d2,4096; void run() Body Start
-SETGVARR 0,d2
+ALLOCATEGMEMV D2,4096; void run() Body Start
+SETGVARR 0,D2
 QUIT; void run() Body End

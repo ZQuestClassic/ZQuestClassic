@@ -66,6 +66,8 @@
 #include "zc/zc_custom.h"
 #include "qst.h"
 
+#include "zasm_table.h"
+
 using namespace util;
 
 #ifdef _WIN32
@@ -45044,34 +45046,6 @@ void FFScript::ZASMPrint(bool open)
 	zc_set_config("CONSOLE","print_ZASM",zasm_debugger);
 }
 
-std::string ZASMVarToString(int32_t arg)
-{
-	for(int32_t q = 0; variable_list[q].id != -1; ++q)
-	{
-		if(variable_list[q].id == arg)
-			return variable_list[q].name;
-	}
-	return "(null)";
-}
-
-std::string ZASMArgToString(int32_t arg, int32_t arg_ty)
-{
-	switch(arg_ty)
-	{
-		case ARGTY_UNUSED_REG:
-		case ARGTY_READ_REG:
-		case ARGTY_WRITE_REG:
-		case ARGTY_READWRITE_REG:
-			return ZASMVarToString(arg);
-		case ARGTY_LITERAL:
-			return to_string(arg);
-		case ARGTY_COMPARE_OP:
-			return CMP_STR(arg);
-		default:
-			return "ERROR";
-	}
-}
-
 void FFScript::ZASMPrintCommand(const word scommand)
 {
 	if(SKIPZASMPRINT()) return;
@@ -45091,17 +45065,19 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		for(int q = 0; q < s_c.args; ++q)
 		{
 			bool end = q == (s_c.args-1);
-			if(s_c.arg_type[q] == ARGTY_LITERAL)
+			switch(s_c.arg_type[q])
 			{
-				coloured_console.cprintf(color_red,"%10s (val = %2d)%s", "immediate", sargs[q], end ? "\n" : ", ");
-			}
-			else if(s_c.arg_type[q] == ARGTY_COMPARE_OP)
-			{
-				coloured_console.cprintf(color_red,"%10s (%s)", "compare", CMP_STR(sargs[q]).c_str(), end ? "\n" : ", ");
-			}
-			else //ARGTY_UNUSED_REG, ARGTY_READ_REG, ARGTY_WRITE_REG, ARGTY_READWRITE_REG
-			{
-				coloured_console.cprintf(color_white,"\t %s (val = %2d)%s", ZASMVarToString(sargs[q]).c_str(), get_register(sargs[q]), end ? "\n" : ", ");
+				case ARGTY_LITERAL:
+				case ARGTY_READ_GVAR:
+				case ARGTY_WRITE_GVAR:
+					coloured_console.cprintf(color_red,"%10s (val = %2d)%s", "immediate", sargs[q], end ? "\n" : ", ");
+					break;
+				case ARGTY_COMPARE_OP:
+					coloured_console.cprintf(color_red,"%10s (%s)", "compare", CMP_STR(sargs[q]).c_str(), end ? "\n" : ", ");
+					break;
+				default: //ARGTY_UNUSED_REG, ARGTY_READ_REG, ARGTY_WRITE_REG, ARGTY_READWRITE_REG
+					coloured_console.cprintf(color_white,"\t %s (val = %2d)%s", ZASMVarToString(sargs[q]).c_str(), get_register(sargs[q]), end ? "\n" : ", ");
+					break;
 			}
 		}
 	}

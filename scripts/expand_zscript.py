@@ -39,6 +39,7 @@ file_bytecode_cpp = '../src/parser/ByteCode.cpp'
 file_bytecode_h = '../src/parser/ByteCode.h'
 file_ffscript_h = '../src/zc/ffscript.h'
 file_zasm_table_cpp = '../src/zasm_table.cpp'
+file_zasm_table_h = '../src/zasm_table.h'
         
 def printlns(lns): # For debugging
     for line in lns:
@@ -143,49 +144,8 @@ else:
             oplist_propcase.append(f'OReserved{name_prop}_{start+q+1}')
         #generated the opcode list
 if args.reg:
-    # Bytecode.cpp
-    lines = []
-    with open(file_bytecode_cpp, 'r') as file:
-        lines = file.readlines()
-    index = 0
-    while lines[index].strip() != 'string ZScript::VarToString(int32_t ID)':
-        index = index + 1
-    while lines[index].strip() != 'default:':
-        index = index + 1
-    # whitespace for line starts
-    ws = re.match('([\t ]*).*',lines[index]).groups()[0]
-    newlines = []
-    for reg in reglist:
-        newlines.append(f'{ws}case {reg}: return "{reg}";\n')
-    newlines.append(f'{ws}\n')
-    
-    lines[index:index] = newlines
-    write_file(file_bytecode_cpp,lines)
-    
-    # Bytecode.h
-    with open(file_bytecode_h, 'r') as file:
-        lines = file.readlines()
-    index = -1
-    m = None
-    while not m:
-        index = index + 1
-        m = re.match('#define LAST_BYTECODE( +)([0-9]+)',lines[index].strip())
-    ws,num = m.groups()
-    num = int(num)
-    newlines = []
-    for reg in reglist:
-        numspace = (13+len(ws))-len(reg)
-        if numspace < 2:
-            numspace = 2
-        newlines.append(f'#define {reg}{" "*numspace}{num}\n')
-        num = num + 1
-    newlines.append('\n')
-    lines[index] = f'#define LAST_BYTECODE{ws}{num}\n'
-    lines[index:index] = newlines
-    write_file(file_bytecode_h,lines)
-    
-    # ffscript.h
-    with open(file_ffscript_h, 'r') as file:
+    # zasm_table.h
+    with open(file_zasm_table_h, 'r') as file:
         lines = file.readlines()
     index = -1
     m = None
@@ -204,7 +164,7 @@ if args.reg:
     newlines.append('\n')
     lines[index] = f'#define NUMVARIABLES{ws}0x{num:04X}\n'
     lines[index:index] = newlines
-    write_file(file_ffscript_h,lines)
+    write_file(file_zasm_table_h,lines)
     
     # zasm_table.cpp
     with open(file_zasm_table_cpp, 'r') as file:
@@ -235,17 +195,9 @@ elif opcodetype > -1:
     # starting index number
     newlines = ['\n','\n']
     for q in range(args.count):
-        newlines.append(f'string {oplist_propcase[q]}::toString() const\n')
+        newlines.append(f'int32_t {oplist_propcase[q]}::command() const\n')
         newlines.append('{\n')
-        match opcodetype:
-            case 3:
-                newlines.append(f'\treturn "{oplist_allcaps[q]} " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();\n')
-            case 2:
-                newlines.append(f'\treturn "{oplist_allcaps[q]} " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();\n')
-            case 1:
-                newlines.append(f'\treturn "{oplist_allcaps[q]} " + getArgument()->toString();\n')
-            case _:
-                newlines.append(f'\treturn "{oplist_allcaps[q]}";\n')
+        newlines.append(f'\treturn {oplist_allcaps[q]};\n')
         newlines.append('}\n')
     wslines = len(lines)-index-1
     if wslines < 2:
@@ -272,7 +224,7 @@ elif opcodetype > -1:
                 newlines.append(f'\t{{\n')
                 newlines.append(f'\tpublic:\n')
                 newlines.append(f'\t\t{op}(Argument *A, Argument* B, Argument* C) : TernaryOpcode(A,B,C) {{}}\n')
-                newlines.append(f'\t\tstd::string toString() const;\n')
+                newlines.append(f'\t\tint32_t command() const;\n')
                 newlines.append(f'\t\tOpcode* clone() const\n')
                 newlines.append(f'\t\t{{\n')
                 newlines.append(f'\t\t\treturn new {op}(a->clone(),b->clone(),c->clone());\n')
@@ -284,7 +236,7 @@ elif opcodetype > -1:
                 newlines.append(f'\t{{\n')
                 newlines.append(f'\tpublic:\n')
                 newlines.append(f'\t\t{op}(Argument *A, Argument* B) : BinaryOpcode(A,B) {{}}\n')
-                newlines.append(f'\t\tstd::string toString() const;\n')
+                newlines.append(f'\t\tint32_t command() const;\n')
                 newlines.append(f'\t\tOpcode* clone() const\n')
                 newlines.append(f'\t\t{{\n')
                 newlines.append(f'\t\t\treturn new {op}(a->clone(),b->clone());\n')
@@ -296,7 +248,7 @@ elif opcodetype > -1:
                 newlines.append(f'\t{{\n')
                 newlines.append(f'\tpublic:\n')
                 newlines.append(f'\t\t{op}(Argument *A) : UnaryOpcode(A) {{}}\n')
-                newlines.append(f'\t\tstd::string toString() const;\n')
+                newlines.append(f'\t\tint32_t command() const;\n')
                 newlines.append(f'\t\tOpcode* clone() const\n')
                 newlines.append(f'\t\t{{\n')
                 newlines.append(f'\t\t\treturn new {op}(a->clone());\n')
@@ -307,7 +259,7 @@ elif opcodetype > -1:
                 newlines.append(f'\tclass {op} : public Opcode\n')
                 newlines.append(f'\t{{\n')
                 newlines.append(f'\tpublic:\n')
-                newlines.append(f'\t\tstd::string toString() const;\n')
+                newlines.append(f'\t\tint32_t command() const;\n')
                 newlines.append(f'\t\tOpcode* clone() const\n')
                 newlines.append(f'\t\t{{\n')
                 newlines.append(f'\t\t\treturn new {op}();\n')
@@ -318,8 +270,8 @@ elif opcodetype > -1:
     lines[index:index] = newlines
     write_file(file_bytecode_h,lines)
     
-    # ffscript.h
-    with open(file_ffscript_h, 'r') as file:
+    # zasm_table.h
+    with open(file_zasm_table_h, 'r') as file:
         lines = file.readlines()
     index = 0
     while not lines[index].strip() == 'enum ASM_DEFINE':
@@ -339,7 +291,7 @@ elif opcodetype > -1:
     newlines.append('\n')
     lines[index] = f'{ws}NUMCOMMANDS  //0x{num:04X}\n'
     lines[index:index] = newlines
-    write_file(file_ffscript_h,lines)
+    write_file(file_zasm_table_h,lines)
     
     # zasm_table.cpp
     with open(file_zasm_table_cpp, 'r') as file:

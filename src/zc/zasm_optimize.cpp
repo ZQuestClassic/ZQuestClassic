@@ -2115,6 +2115,8 @@ static int zasm_arg_from_string(std::string text, int type)
 		break;
 
 		case ARGTY_LITERAL:
+		case ARGTY_READ_GVAR:
+		case ARGTY_WRITE_GVAR:
 		{
 			return std::stoi(text);
 		}

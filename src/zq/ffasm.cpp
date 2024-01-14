@@ -12,6 +12,8 @@
 #include "base/zsys.h"
 #include "base/util.h"
 #include "dialog/info.h"
+
+#include "parser/Compiler.h"
 using namespace util;
 
 #include <sstream>
@@ -551,6 +553,16 @@ zasmfile_fail_str:
 	return success?D_O_K:D_CLOSE;
 }
 
+void parse_script_direct(script_data *script, disassembled_script_data const& dsd)
+{
+	auto& vec = dsd.second;
+	script->null_script(vec.size());
+	for(size_t q = 0; q < vec.size(); ++q)
+		vec[q]->get_ffscr(script->zasm[q]);
+	script->meta = dsd.first;
+	script->recalc_size();
+}
+
 int32_t set_argument(char const* argbuf, int32_t& arg)
 {
 	int32_t i=0;
@@ -616,6 +628,8 @@ bool handle_arg(int ty, char const* buf, int& arg)
 			return true;
 		}
 		case ARGTY_LITERAL:
+		case ARGTY_READ_GVAR:
+		case ARGTY_WRITE_GVAR:
 		{
 			if(!ffcheck(buf))
 				return false;

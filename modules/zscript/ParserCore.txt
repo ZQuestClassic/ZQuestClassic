@@ -6,6 +6,7 @@ set(ZSCRIPT_CORE_SOURCES
 ################################
 src/parser/parser.cpp
 src/parser/config.cpp
+src/zasm_table.cpp
 src/zconfig.cpp
 
 ## End of ZScript Core module

@@ -11,40 +11,40 @@ Compile finished with exit code '0' (success)
 
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0,0.0006
-SETR d4,SP
-ALLOCATEMEMV d2,13; while(true) #8 Body [Opt:AlwaysOn] Start
-STORED d2,5
-WRITEPODSTRING d2,"OX/OY %d %d\n"
-LOADD d2,5; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-SETV d2,3
-PUSHR d2
-POP d0
+SETR D4,SP
+ALLOCATEMEMV D2,13; while(true) #8 Body [Opt:AlwaysOn] Start
+STORED D2,5
+WRITEPODSTRING D2,"OX/OY %d %d\n"
+LOADD D2,5; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+SETV D2,3
+PUSHR D2
+POP D0
 PUSHVARGR GAMESCROLLING
-SETV d2,4
-PUSHR d2
-POP d0
+SETV D2,4
+PUSHR D2
+POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOADD d3,5
-DEALLOCATEMEMR d3
-ALLOCATEMEMV d2,6
-STORED d2,4
-WRITEPODSTRING d2,"OX/OY"
+POP D5; InlineFunc[void printf(char32)] Body End
+LOADD D3,5
+DEALLOCATEMEMR D3
+ALLOCATEMEMV D2,6
+STORED D2,4
+WRITEPODSTRING D2,"OX/OY"
 PUSHV 7; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHARGSV 0,0.0002
 PUSHV 2
 PUSHV 1
 PUSHV 15
 PUSHV 0
-LOADD d2,4
-PUSHR d2
+LOADD D2,4
+PUSHR D2
 PUSHV 128; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params End
-DRAWSTRING; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS d5,0.0009; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body End
-LOADD d3,4
-DEALLOCATEMEMR d3
+DRAWSTRINGR; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body Start
+POPARGS D5,0.0009; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body End
+LOADD D3,4
+DEALLOCATEMEMR D3
 PUSHV 7; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
 PUSHV 40
 PUSHV 0
@@ -52,14 +52,14 @@ PUSHV 2
 PUSHV 1
 PUSHV 15
 PUSHARGSV -1,0.0002
-SETV d2,3
-PUSHR d2
-POP d0
+SETV D2,3
+PUSHR D2
+POP D0
 PUSHR GAMESCROLLING
 PUSHV 0
 PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params End
-DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
+DRAWINTR; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
+POPARGS D5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
 PUSHV 7; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
 PUSHV 120
 PUSHV 0
@@ -67,34 +67,34 @@ PUSHV 2
 PUSHV 1
 PUSHV 15
 PUSHARGSV -1,0.0002
-SETV d2,4
-PUSHR d2
-POP d0
+SETV D2,4
+PUSHR D2
+POP D0
 PUSHR GAMESCROLLING
 PUSHV 0
 PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params End
-DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
-ALLOCATEMEMV d2,13
-STORED d2,3
-WRITEPODSTRING d2,"NX/NY %d %d\n"
-LOADD d2,3; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-SETV d2,1
-PUSHR d2
-POP d0
+DRAWINTR; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
+POPARGS D5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
+ALLOCATEMEMV D2,13
+STORED D2,3
+WRITEPODSTRING D2,"NX/NY %d %d\n"
+LOADD D2,3; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+SETV D2,1
+PUSHR D2
+POP D0
 PUSHVARGR GAMESCROLLING
-SETV d2,2
-PUSHR d2
-POP d0
+SETV D2,2
+PUSHR D2
+POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOADD d3,3
-DEALLOCATEMEMR d3
-ALLOCATEMEMV d2,6
-STORED d2,2
-WRITEPODSTRING d2,"NX/NY"
+POP D5; InlineFunc[void printf(char32)] Body End
+LOADD D3,3
+DEALLOCATEMEMR D3
+ALLOCATEMEMV D2,6
+STORED D2,2
+WRITEPODSTRING D2,"NX/NY"
 PUSHV 7; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHV 0
 PUSHV 8
@@ -102,13 +102,13 @@ PUSHV 2
 PUSHV 1
 PUSHV 15
 PUSHV 0
-LOADD d2,2
-PUSHR d2
+LOADD D2,2
+PUSHR D2
 PUSHV 128; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params End
-DRAWSTRING; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS d5,0.0009; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body End
-LOADD d3,2
-DEALLOCATEMEMR d3
+DRAWSTRINGR; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body Start
+POPARGS D5,0.0009; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body End
+LOADD D3,2
+DEALLOCATEMEMR D3
 PUSHV 7; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
 PUSHV 40
 PUSHV 8
@@ -116,14 +116,14 @@ PUSHV 2
 PUSHV 1
 PUSHV 15
 PUSHARGSV -1,0.0002
-SETV d2,1
-PUSHR d2
-POP d0
+SETV D2,1
+PUSHR D2
+POP D0
 PUSHR GAMESCROLLING
 PUSHV 0
 PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params End
-DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
+DRAWINTR; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
+POPARGS D5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
 PUSHV 7; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
 PUSHV 120
 PUSHV 8
@@ -131,45 +131,45 @@ PUSHV 2
 PUSHV 1
 PUSHV 15
 PUSHARGSV -1,0.0002
-SETV d2,2
-PUSHR d2
-POP d0
+SETV D2,2
+PUSHR D2
+POP D0
 PUSHR GAMESCROLLING
 PUSHV 0
 PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params End
-DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
-SETV d2,0; if() #555 Test
-PUSHR d2
-POP d0
-SETR d2,GAMESCROLLING
-COMPAREV d2,-1
-SETCMP d2,I!=
-COMPAREV d2,0
+DRAWINTR; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
+POPARGS D5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
+SETV D2,0; if() #555 Test
+PUSHR D2
+POP D0
+SETR D2,GAMESCROLLING
+COMPAREV D2,-1
+SETCMP D2,I!=
+COMPAREV D2,0
 GOTOCMP 223,==; Test 'if'
-SETR d2,LINKX; if() #555 Body Start
-PUSHR d2
-SETV d2,1
-PUSHR d2
-POP d0
-SETR d2,GAMESCROLLING
-POP d3
-ADDR d2,d3
-STORED d2,1
-SETR d2,LINKY
-PUSHR d2
-SETV d2,2
-PUSHR d2
-POP d0
-SETR d2,GAMESCROLLING
-POP d3
-ADDR d2,d3
-STORED d2,0
+SETR D2,LINKX; if() #555 Body Start
+PUSHR D2
+SETV D2,1
+PUSHR D2
+POP D0
+SETR D2,GAMESCROLLING
+POP D3
+ADDR D2,D3
+STORED D2,1
+SETR D2,LINKY
+PUSHR D2
+SETV D2,2
+PUSHR D2
+POP D0
+SETR D2,GAMESCROLLING
+POP D3
+ADDR D2,D3
+STORED D2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOADD d2,1
-PUSHR d2
-LOADD d2,0
-PUSHR d2
+LOADD D2,1
+PUSHR D2
+LOADD D2,0
+PUSHR D2
 PUSHV 20
 PUSHARGSV 1,0.0002
 PUSHV 3
@@ -177,25 +177,25 @@ PUSHARGSV -1,0.0002
 PUSHARGSV 0,0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-SETV d2,3
-PUSHR d2
-POP d0
-SETR d2,GAMESCROLLING
-ADDV d2,128
-STORED d2,1
-SETV d2,4
-PUSHR d2
-POP d0
-SETR d2,GAMESCROLLING
-ADDV d2,88
-STORED d2,0
+DRAWCOMBOR; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS D5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+SETV D2,3
+PUSHR D2
+POP D0
+SETR D2,GAMESCROLLING
+ADDV D2,128
+STORED D2,1
+SETV D2,4
+PUSHR D2
+POP D0
+SETR D2,GAMESCROLLING
+ADDV D2,88
+STORED D2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOADD d2,1
-PUSHR d2
-LOADD d2,0
-PUSHR d2
+LOADD D2,1
+PUSHR D2
+LOADD D2,0
+PUSHR D2
 PUSHV 21
 PUSHARGSV 1,0.0002
 PUSHV 3
@@ -203,25 +203,25 @@ PUSHARGSV -1,0.0002
 PUSHARGSV 0,0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-SETV d2,1
-PUSHR d2
-POP d0
-SETR d2,GAMESCROLLING
-ADDV d2,128
-STORED d2,1
-SETV d2,2
-PUSHR d2
-POP d0
-SETR d2,GAMESCROLLING
-ADDV d2,88
-STORED d2,0
+DRAWCOMBOR; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS D5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+SETV D2,1
+PUSHR D2
+POP D0
+SETR D2,GAMESCROLLING
+ADDV D2,128
+STORED D2,1
+SETV D2,2
+PUSHR D2
+POP D0
+SETR D2,GAMESCROLLING
+ADDV D2,88
+STORED D2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOADD d2,1
-PUSHR d2
-LOADD d2,0
-PUSHR d2
+LOADD D2,1
+PUSHR D2
+LOADD D2,0
+PUSHR D2
 PUSHV 44
 PUSHARGSV 1,0.0002
 PUSHV 3
@@ -229,12 +229,12 @@ PUSHARGSV -1,0.0002
 PUSHARGSV 0,0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #555 Body End
+DRAWCOMBOR; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS D5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #555 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
 GOTO 4; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 
 
-ALLOCATEGMEMV d2,4096; void run() Body Start
-SETGVARR 0,d2
+ALLOCATEGMEMV D2,4096; void run() Body Start
+SETGVARR 0,D2
 QUIT; void run() Body End

@@ -10,15 +10,15 @@ Success!
 Compile finished with exit code '0' (success)
 
 PUSHR REFFFC; void run() Body Start
-SETR d4,SP
-SETR d2,INPUTPRESSA; if() #1 Test AND while(true) #1 Body [Opt:AlwaysOn] Start
-COMPAREV d2,0
+SETR D4,SP
+SETR D2,INPUTPRESSA; if() #1 Test AND while(true) #1 Body [Opt:AlwaysOn] Start
+COMPAREV D2,0
 GOTOCMP 11,==; Test 'if'
-SETV d2,0; if() #1 Body Start
-PUSHR d2
-POP d2
-CASTBOOLI d2
-SETR INPUTA,d2; if() #1 Body End
+SETV D2,0; if() #1 Body Start
+PUSHR D2
+POP D2
+CASTBOOLI D2
+SETR INPUTA,D2; if() #1 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
 GOTO 3; while() #1 End AND [Opt:NeverRet] AND void run() Body End
 

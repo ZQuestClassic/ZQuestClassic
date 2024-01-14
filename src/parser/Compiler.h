@@ -46,6 +46,8 @@ namespace ZScript
 		Opcode() : label(-1) {}
 		virtual ~Opcode() {}
 		virtual std::string toString() const = 0;
+		virtual int32_t command() const = 0;
+		virtual void get_ffscr(ffscript& op) const = 0;
 		int getLabel() const
 		{
 			return label;
@@ -105,20 +107,54 @@ namespace ZScript
 		int label;
 		string comment;
 	};
-
+	
+	inline string arg_str(int32_t cmd, vector<string> const& args)
+	{
+		std::ostringstream oss;
+		oss << command_list[cmd].name;
+		if(!args.empty())
+		{
+			oss << " ";
+			int q = 0;
+			oss << args[q++];
+			for(;q < args.size(); ++q)
+				oss << "," << args[q];
+		}
+		return oss.str();
+	}
+	
 	class ArbitraryOpcode : public Opcode
 	{
 	public:
-		ArbitraryOpcode(std::string data) : str(data) {}
-		ArbitraryOpcode(char const* data) : str(data) {}
-		std::string str;
+		ArbitraryOpcode(ffscript data) : scr(data) {}
+		ffscript scr;
+		int32_t command() const
+		{
+			return scr.command;
+		}
 		std::string toString() const
 		{
-			return str;
+			vector<string> args;
+			script_command const& cmd = command_list[scr.command];
+			if(cmd.args > 0)
+				args.emplace_back(ZASMArgToString(scr.arg1, cmd.arg_type[0]));
+			if(cmd.args > 1)
+				args.emplace_back(ZASMArgToString(scr.arg2, cmd.arg_type[1]));
+			if(cmd.args > 2)
+				args.emplace_back(ZASMArgToString(scr.arg3, cmd.arg_type[2]));
+			if(cmd.arr_type == 1 && scr.strptr)
+				args.emplace_back(util::escape_string(*scr.strptr));
+			if(cmd.arr_type == 2 && scr.vecptr)
+				args.emplace_back(util::stringify_vector(*scr.vecptr, true));
+			return arg_str(scr.command, args);
 		}
 		Opcode *clone() const
 		{
-			return new ArbitraryOpcode(str);
+			return new ArbitraryOpcode(scr);
+		}
+		void get_ffscr(ffscript& op) const
+		{
+			op = scr;
 		}
 	};
 
@@ -192,6 +228,23 @@ namespace ZScript
 				output << str;
 			}
 			dest += output.str();
+		}
+		void write_al(bool commented = false, bool skipmeta = false) const
+		{
+			std::ostringstream output;
+			string str;
+			if(!skipmeta)
+			{
+				str = first.get_meta();
+				al_trace("\n\n");
+				safe_al_trace(str);
+				al_trace("\n");
+			}
+			for(auto& line : second)
+			{
+				str = line->printLine(false, commented);
+				safe_al_trace(str);
+			}
 		}
 	};
 
