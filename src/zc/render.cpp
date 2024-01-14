@@ -126,23 +126,28 @@ static void configure_render_tree()
 	int h = rti_game.height;
 	float xscale = (float)resx/w;
 	float yscale = (float)resy/(h+12);
-	float scale = std::min(xscale, yscale);
+	bool keep_aspect_ratio = !stretchGame;
+	if (keep_aspect_ratio)
+		xscale = yscale = std::min(xscale, yscale);
 	if (scaleForceInteger)
-		scale = intscale(scale);
+	{
+		xscale = intscale(xscale);
+		yscale = intscale(yscale);
+	}
 
 	rti_game.set_transform({
-		.x = (int)(resx - w*scale) / 2,
-		.y = (int)(resy - h*scale) / 2,
-		.xscale = scale,
-		.yscale = scale,
+		.x = (int)(resx - w*xscale) / 2,
+		.y = (int)(resy - h*yscale) / 2,
+		.xscale = xscale,
+		.yscale = yscale,
 	});
 	rti_game.visible = true;
 
 	rti_infolayer.set_transform({
-		.x = (int)(resx - w*scale) / 2,
-		.y = (int)(resy - h*scale) / 2,
-		.xscale = scale,
-		.yscale = scale,
+		.x = (int)(resx - w*xscale) / 2,
+		.y = (int)(resy - h*yscale) / 2,
+		.xscale = xscale,
+		.yscale = yscale,
 	});
 	rti_infolayer.visible = true;
 	
