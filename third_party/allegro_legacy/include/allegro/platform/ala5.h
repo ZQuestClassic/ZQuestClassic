@@ -30,6 +30,7 @@
 #endif
 
 AL_LEGACY_VAR(ALLEGRO_DISPLAY *, _a5_display);
+AL_LEGACY_VAR(bool, _a5_display_switched_out);
 
 /* System driver */
 #define SYSTEM_ALLEGRO_5        AL_ID('A','5',' ',' ')

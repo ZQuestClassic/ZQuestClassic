@@ -292,6 +292,7 @@ void all_process_display_events()
       }
       case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
       {
+        _a5_display_switched_out = false;
         _switch_in();
 
   #ifdef _WIN32
@@ -308,6 +309,7 @@ void all_process_display_events()
       }
       case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
       {
+        _a5_display_switched_out = true;
         _switch_out();
         al_clear_keyboard_state(_a5_display);
         break;
@@ -776,6 +778,12 @@ static void render_other(BITMAP * bp, ALLEGRO_BITMAP * a5bp)
 ALLEGRO_DISPLAY * all_get_display(void)
 {
   return _a5_display;
+}
+
+// local edit
+bool all_display_is_active(void)
+{
+  return !_a5_display_switched_out;
 }
 
 void all_render_a5_bitmap(BITMAP * bp, ALLEGRO_BITMAP * a5bp)
