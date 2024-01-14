@@ -8682,6 +8682,20 @@ const char* joystick_name(int32_t s)
 	return joy[joystick_index].stick[s].name;
 }
 
+int32_t button_pressed()
+{
+	if (joystick_index >= MAX_JOYSTICKS)
+		return 0;
+
+	for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+	{
+		if(joybtn(i))
+			return i;
+	}
+
+	return 0;
+}
+
 int32_t next_press_key();
 
 int32_t next_joy_input(bool buttons)
