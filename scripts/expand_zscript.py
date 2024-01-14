@@ -215,11 +215,11 @@ if args.reg:
     m = None
     while not m:
         index = index + 1
-        m = re.match('([ \t]*){ " ", -1, 0, 0 }',lines[index])
+        m = re.match('([ \t]*){ " ", -1 }',lines[index])
     ws = m.groups()[0]
     newlines = []
     for reg in reglist:
-        newlines.append(f'{ws}{{ "{reg}", {reg}, 0, 0 }},\n')
+        newlines.append(f'{ws}{{ "{reg}", {reg} }},\n')
     newlines.append('\n')
     lines[index:index] = newlines
     write_file(file_zasm_table_cpp,lines)

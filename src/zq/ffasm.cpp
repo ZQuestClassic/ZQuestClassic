@@ -558,34 +558,10 @@ int32_t set_argument(char const* argbuf, int32_t& arg)
 	
 	while(variable_list[i].id>-1)
 	{
-		if(variable_list[i].maxcount>1)
+		if(stricmp(argbuf,variable_list[i].name.c_str())==0)
 		{
-			for(int32_t j=0; j<variable_list[i].maxcount; ++j)
-			{
-#ifndef _MSC_VER
-				if (__builtin_strlen(variable_list[i].name) > sizeof(((script_variable*)0)->name))
-					__builtin_unreachable();
-#endif
-
-				if(strcmp(variable_list[i].name,"A")==0)
-					sprintf(tempvar, "%s%d", variable_list[i].name, j+1);
-				else sprintf(tempvar, "%s%d", variable_list[i].name, j);
-				
-				if(stricmp(argbuf,tempvar)==0)
-				{
-					int32_t temp = variable_list[i].id+(j*zc_max(1,variable_list[i].multiple));
-					arg = temp;
-					return 1;
-				}
-			}
-		}
-		else
-		{
-			if(stricmp(argbuf,variable_list[i].name)==0)
-			{
-				arg = variable_list[i].id;
-				return 1;
-			}
+			arg = variable_list[i].id;
+			return 1;
 		}
 		
 		++i;

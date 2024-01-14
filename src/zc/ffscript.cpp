@@ -45048,25 +45048,8 @@ std::string ZASMVarToString(int32_t arg)
 {
 	for(int32_t q = 0; variable_list[q].id != -1; ++q)
 	{
-		if(variable_list[q].maxcount>0)
-		{
-			int32_t start = variable_list[q].id;
-			int32_t mult = zc_max(1,variable_list[q].multiple);
-			if(arg >= start && arg < start+(variable_list[q].maxcount*mult))
-			{
-				for(int32_t w = 0; w < variable_list[q].maxcount; ++w)
-				{
-					if(arg!=start+(w*mult)) continue;
-					
-					char buf[64+1];
-					if(strcmp(variable_list[q].name, "A")==0)
-						sprintf(buf, "%s%d", variable_list[q].name, w+1);
-					else sprintf(buf, "%s%d", variable_list[q].name, w);
-					return string(buf);
-				}
-			}
-		}
-		else if(variable_list[q].id == arg) return string(variable_list[q].name);
+		if(variable_list[q].id == arg)
+			return variable_list[q].name;
 	}
 	return "(null)";
 }

@@ -504,10 +504,8 @@ struct script_command
 
 struct script_variable
 {
-    char name[64];
+    string name;
     int32_t id;
-    word maxcount;
-    byte multiple;
 };
 
 #endif
