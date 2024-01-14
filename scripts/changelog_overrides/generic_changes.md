@@ -33,3 +33,5 @@ squash 593beae6594ff734d535b3664dd867b06bbb6305 test: move zquest save classic_1
 pick 7c8a5625c582a12b7d779cf6173f670543d25214 test: move zquest save classic_1st.qst test to python
 
 drop 2769fc99965e764f2b2f809ea935bb15d5db4213 build: fix windows compile
+
+pick f3e3f7ecbf8d0e1e998296a185fa2eca248dd454 fix(zscript): compiler crash related to invalid array indices
