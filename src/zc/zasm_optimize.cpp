@@ -765,9 +765,7 @@ static void optimize_stack(OptContext& ctx)
 				if (writes_to_reg)
 					break;
 
-				bool is_function_call =
-					command == CALLFUNC || (command_is_goto(command) && ctx.structured_zasm->function_calls.contains(k));
-				if (is_function_call)
+				if (command == CALLFUNC)
 					break;
 			}
 		}
@@ -1065,9 +1063,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 	const auto& c = get_script_command(command);
 
 	// Function calls invalidate all registers.
-	bool is_function_call =
-		command == CALLFUNC || (command_is_goto(command) && ctx.structured_zasm->function_calls.contains(state.pc));
-	if (is_function_call)
+	if (command == CALLFUNC)
 	{
 		for (int i = 0; i < 8; i++)
 			state.d[i] = reg(i);
@@ -1614,13 +1610,12 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 				for (pc_t i = s; i <= ctx.fn.final_pc; i++)
 				{
 					int command = C(i).command;
-					int arg1 = C(i).arg1;
 
 					if (command == NOP)
 						continue;
 
 					// Functions return their value by setting D2.
-					if (one_of(command, RETURN, RETURNFUNC, GOTOR))
+					if (command == RETURNFUNC)
 					{
 						target_block_uses_d2 = true;
 						break;
@@ -1628,8 +1623,6 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 
 					// Function calls invalidate D2.
 					if (command == CALLFUNC)
-						break;
-					if (command == GOTO && ctx.structured_zasm->start_pc_to_function.contains(arg1))
 						break;
 
 					bool writes_d2 = false;
@@ -1842,7 +1835,7 @@ static void optimize_inline_functions(OptContext& ctx)
 			int arg1 = C(k).arg1;
 			int arg2 = C(k).arg2;
 
-			if (one_of(command, NOP, RETURNFUNC, RETURN, GOTOR))
+			if (one_of(command, NOP, RETURNFUNC))
 				continue;
 
 			if (command == POP)
@@ -2040,15 +2033,13 @@ static void optimize_dead_code(OptContext& ctx)
 		for (pc_t i = start_pc; i <= final_pc; i++)
 		{
 			int command = C(i).command;
-			bool is_function_call =
-				command == CALLFUNC || (command_is_goto(command) && ctx.structured_zasm->function_calls.contains(i));
-			if (is_function_call)
+			if (command == CALLFUNC)
 			{
 				kill = 0xFF;
 				continue;
 			}
 
-			if (command == RETURNFUNC || command == RETURN || command == GOTOR)
+			if (command == RETURNFUNC)
 				returns = true;
 
 			for_every_command_arg_include_indices(C(i), [&](bool read, bool write, int reg){
@@ -2124,6 +2115,8 @@ static void optimize_dead_code(OptContext& ctx)
 }
 
 static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> script_passes = {
+	// Convert to modern function calls before anything else, so all
+	// passes may assume that.
 	{"calling_mode", optimize_calling_mode},
 	{"inline_functions", optimize_inline_functions},
 };
