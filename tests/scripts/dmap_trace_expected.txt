@@ -17,5 +17,5 @@ QUIT; void run() Body End
 
 
 ALLOCATEGMEMV d2,4096; void run() Body Start
-SETR gd1,d2
+SETGVARR 0,d2
 QUIT; void run() Body End

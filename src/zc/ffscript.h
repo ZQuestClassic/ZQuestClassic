@@ -3185,14 +3185,17 @@ enum ASM_DEFINE
 	
 	STACKWRITEATVV_IF,
 
-	NUMCOMMANDS  //0x045C
+	
+	SETGVARR,
+	SETGVARV,
+	GETGVAR,
+
+	NUMCOMMANDS  //0x045F
 };
 
 
 //{ ZASM registers
 //When adding indexed variables the index will be loaded into ri.d[0], don't add a register for each one!
-#define D(n)               ((0x0000)+(n)) //8
-#define A(n)               ((0x0008)+(n)) //2
 #define DATA                 0x000A
 #define FCSET                0x000B
 #define DELAY                0x000C
@@ -3414,17 +3417,6 @@ enum ASM_DEFINE
 //I'm stealing this one for the stack pointer -DD
 #define SP                   0x02EC
 
-//#define SD(n)              ((0x02ED)+(n)) //Spare 8
-#define GD(n)              ((0x02F5)+(n)) //1024, spare 352
-
-// Defines for accessing gamedata
-//#define GAMECOUNTER(n)     ((0x03F5)+((n)*3)) //All of these spare
-//#define GAMEMCOUNTER(n)    ((0x03F6)+((n)*3))
-//#define GAMEDCOUNTER(n)    ((0x03F7)+((n)*3))
-//#define GAMEGENERIC(n)     ((0x0455)+(n))
-//#define GAMEITEMS(n)       ((0x0555)+(n))
-//#define GAMELITEMS(n)      ((0x0655)+(n))
-//#define GAMELKEYS(n)       ((0x0755)+(n))
 #define GAMEDEATHS           0x0855
 #define GAMECHEAT            0x0856
 #define GAMETIME             0x0857

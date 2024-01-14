@@ -1363,3 +1363,4 @@ const char* ScriptTypeToString(ScriptType type)
 	};
 	return script_types[(int)type];
 }
+

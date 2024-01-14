@@ -1593,11 +1593,9 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	if (auto globalId = manager.getGlobalId())
 	{
 		if (val)
-			addOpcode(new OSetImmediate(new GlobalArgument(*globalId),
-										new LiteralArgument(*val)));
+			addOpcode(new OSetGVarV(new LiteralArgument(*globalId-1), new LiteralArgument(*val)));
 		else
-			addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-									   new VarArgument(EXP1)));
+			addOpcode(new OSetGVarR(new LiteralArgument(*globalId-1), new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -1655,8 +1653,7 @@ void BuildOpcodes::buildArrayUninit(
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(totalSize)));
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
+		addOpcode(new OSetGVarR(new LiteralArgument(*globalId-1), new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -1720,8 +1717,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	if (auto globalId = host.binding->getGlobalId())
 	{
 		// Global variable, so just get its value.
-		addOpcode(new OSetRegister(new VarArgument(EXP1),
-								   new GlobalArgument(*globalId)));
+		addOpcode(new OGetGVar(new VarArgument(EXP1), new LiteralArgument(*globalId-1)));
 		return;
 	}
 
@@ -3634,8 +3630,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(size * 10000L)));
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
+		addOpcode(new OSetGVarR(new LiteralArgument(*globalId-1), new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -3771,8 +3766,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(size * 10000L)));
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
+		addOpcode(new OSetGVarR(new LiteralArgument(*globalId-1), new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -4140,8 +4134,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	if (auto globalId = host.binding->getGlobalId())
 	{
 		// Global variable.
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
+		addOpcode(new OSetGVarR(new LiteralArgument(*globalId-1), new VarArgument(EXP1)));
 		return;
 	}
 

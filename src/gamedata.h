@@ -88,7 +88,7 @@ struct gamedata
 	bounded_vec<dword,byte> guys {MAXSCRSNORMAL, 0}; // guy counts (enemy kill progress)
 	bool item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
-	int32_t global_d[MAX_SCRIPT_REGISTERS]; // script-controlled global variables
+	std::vector<int32_t> global_d; // script-controlled global variables
 	std::vector<ZCArray<int32_t>> globalRAM;
 	
 	word awpn = 255, bwpn = 255, xwpn = 255, ywpn = 255;

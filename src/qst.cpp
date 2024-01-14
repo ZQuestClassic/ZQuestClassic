@@ -12987,6 +12987,11 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 				temp_meta.initd[q] = temp_meta.run_idens[q];
 			}
 		}
+		if(zmeta_version > 5)
+		{
+			if(!p_igetl(&temp_meta.global_count,f))
+				return qe_invalid;
+		}
 		
 		(*script)->meta = temp_meta;
 	}

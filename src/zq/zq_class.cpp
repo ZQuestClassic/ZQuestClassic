@@ -12914,6 +12914,8 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 		if(!p_putc(tmeta.initd_type[q],f))
 			new_return(37);
 	}
+	if(!p_iputl(tmeta.global_count,f))
+		new_return(38);
 	
     for(int32_t j=0; j<num_commands; j++)
     {

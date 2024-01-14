@@ -189,8 +189,9 @@ static void get_z_register(CompilationState& state, int r)
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
+		auto arg = r - GD(0);
 		state.wasm->emitGlobalGet(state.g_idx_global_d);
-		state.wasm->emitI32Load((r - GD(0)) * 4); // game->global_d[]
+		state.wasm->emitI32Load(arg * 4); // game->global_d[]
 	}
 	else if (r == SP)
 	{
@@ -217,7 +218,8 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 	{
 		state.wasm->emitGlobalGet(state.g_idx_global_d);
 		fn();
-		state.wasm->emitI32Store((r - GD(0)) * 4); // game->global_d[]
+		auto arg = r - GD(0);
+		state.wasm->emitI32Store(arg * 4); // game->global_d[]
 	}
 	else
 	{
@@ -326,6 +328,9 @@ static bool command_is_compiled(int command)
 	case SUBR:
 	case SUBV:
 	// case SUBV2:
+	case SETGVARR:
+	case SETGVARV:
+	case GETGVAR:
 		return true;
 	}
 
@@ -829,6 +834,26 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					});
 				}
 				break;
+				case SETGVARR:
+				{
+					state.wasm->emitGlobalGet(state.g_idx_global_d);
+					get_z_register(state, arg2);
+					state.wasm->emitI32Store(arg1 * 4); // game->global_d[]
+				}
+				break;
+				case SETGVARV:
+				{
+					state.wasm->emitGlobalGet(state.g_idx_global_d);
+					wasm.emitI32Const(arg2);
+					state.wasm->emitI32Store(arg1 * 4); // game->global_d[]
+				}
+				break;
+				case GETGVAR:
+				{
+					wasm.emitGlobalGet(state.g_idx_global_d);
+					wasm.emitI32Load(arg2 * 4); // game->global_d[]
+				}
+				break;
 				case STACKWRITEATVV:
 				{
 					// Lit[arg1] -> Stack[arg2]
@@ -1115,7 +1140,7 @@ JittedFunction jit_compile_script(script_data *script)
 
 	if (zasm_optimize_enabled() && !script->optimized)
 		zasm_optimize_and_log(script);
-
+	
 	// TODO: support RUNGENFRZSCR by using do_commands_async, which returns a promise. Need a way to defer execution until promise resolves...
 	// https://emscripten.org/docs/porting/asyncify.html
 	// Might need to use atomics. First pass for WASM compiler used that, for reference: https://github.com/connorjclark/ZeldaClassic/commit/eb5fd2c7d83ce084569fe3e73be1a69383416f58
@@ -1286,7 +1311,7 @@ JittedFunction jit_compile_script(script_data *script)
 	{
 		jit_printf("success\n");
 	}
-
+	
 	return new int(module_id);
 }
 
@@ -1318,10 +1343,10 @@ static JittedScriptHandle *current_jitted_script;
 int jit_run_script(JittedScriptHandle *jitted_script)
 {
 	extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
-
+	
 	uintptr_t* ptr = (uintptr_t*)malloc(sizeof(uintptr_t) * 5);
 	ptr[0] = (uintptr_t)&*jitted_script->ri;
-	ptr[1] = (uintptr_t)&game->global_d;
+	ptr[1] = (uintptr_t)game->global_d.data();
 	ptr[2] = (uintptr_t)&*stack;
 	ptr[3] = (uintptr_t)&jitted_script->call_stack_rets;
 	ptr[4] = (uintptr_t)&jitted_script->call_stack_ret_index;

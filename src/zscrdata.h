@@ -64,6 +64,14 @@ void read_str(std::string& str, FILE* f)
 		str.push_back(fgetc(f));
 	}
 }
+void write_l(dword val, FILE* f)
+{
+	fwrite(&val, sizeof(dword), 1, f);
+}
+void read_l(dword &val, FILE* f)
+{
+	fread(&val, sizeof(dword), 1, f);
+}
 void write_w(word val, FILE* f)
 {
 	fwrite(&val, sizeof(word), 1, f);
@@ -86,6 +94,7 @@ void write_meta(zasm_meta const& meta, FILE* f)
 	write_w(meta.zasm_v, f);
 	write_w(meta.meta_v, f);
 	write_w(meta.ffscript_v, f);
+	write_l(meta.global_count, f);
 	write_b((byte)meta.script_type, f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.run_idens[q], f);
@@ -127,6 +136,7 @@ void read_meta(zasm_meta& meta, FILE* f)
 	read_w(meta.zasm_v, f);
 	read_w(meta.meta_v, f);
 	read_w(meta.ffscript_v, f);
+	read_l(meta.global_count, f);
 	{
 		byte st = (byte)meta.script_type;
 		read_b(st, f);
@@ -459,6 +469,7 @@ string zasm_meta::get_meta() const
 	oss << "#ZASM_VERSION = " << zasm_v
 		<< "\n#METADATA_VERSION = " << meta_v
 		<< "\n#FFSCRIPT_VERSION = " << ffscript_v
+		<< "\n#GLOBAL_CNT = " << global_count
 		<< "\n#SCRIPT_NAME = " << script_name;
 	if(author.size())
 		oss << "\n#AUTHOR = " << author;
@@ -561,6 +572,10 @@ bool zasm_meta::parse_meta(const char *buffer)
 	else if(cmd == "#AUTHOR")
 	{
 		author = val;
+	}
+	else if(cmd == "#GLOBAL_CNT")
+	{
+		global_count = atoi(val.c_str());
 	}
 	else if(cmd == "#AUTO_GEN")
 	{

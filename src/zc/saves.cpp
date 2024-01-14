@@ -587,29 +587,27 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 						if(!p_igetl(&game.screen_d[j][k],f))
 							return 43;
 			}
-			if ( section_version >= 12 && FFCore.getQuestHeaderInfo(vZelda) >= 0x253 || section_version >= 16)
-			/* 2.53.1 also have a v12 for this section. 
-			I needed to path this to ensure that the s_v is specific to the build.
-			I also skipped 13 to 15 so that 2.53.1 an use these if needed with the current patch. -Z
-			*/
+			if(section_version < 41)
 			{
-				for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+				int glob_cnt = 256;
+				if ( section_version >= 12 && FFCore.getQuestHeaderInfo(vZelda) >= 0x253 || section_version >= 16)
 				{
-				if(!p_igetl(&game.global_d[j],f))
-				{
-					return 45;
+					/* 2.53.1 also have a v12 for this section. 
+					I needed to path this to ensure that the s_v is specific to the build.
+					I also skipped 13 to 15 so that 2.53.1 an use these if needed with the current patch. -Z
+					*/
+					glob_cnt = 1024;
 				}
-				}
+				game.global_d.clear();
+				game.global_d.resize(glob_cnt);
+				for(int q = 0; q < glob_cnt; ++q)
+					if(!p_igetl(&game.global_d[q],f))
+						return 45;
 			}
 			else
 			{
-				for(int32_t j=0; j<256; j++)
-				{
-					if(!p_igetl(&game.global_d[j],f))
-					{
-						return 45;
-					}
-				}
+				if(!p_getlvec(&game.global_d,f))
+					return 45;
 			}
 		}
 		
@@ -1210,9 +1208,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	if(!p_putbmap(game.screen_d,f))
 		return 43;
 	
-	for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
-		if(!p_iputl(game.global_d[j],f))
-			return 44;
+	if(!p_putlvec(game.global_d,f))
+		return 44;
 	
 	word num_ctr = 0;
 	for(auto c = MAX_COUNTERS-1; c >= 0; --c)
@@ -2375,7 +2372,7 @@ bool saves_test()
 	SAVE_TEST_VECTOR(guys);
 	SAVE_TEST_VECTOR(lvlkeys);
 	SAVE_TEST_VECTOR_2D(screen_d);
-	SAVE_TEST_ARRAY(global_d);
+	SAVE_TEST_VECTOR(global_d);
 	SAVE_TEST_ARRAY(_counter);
 	SAVE_TEST_ARRAY(_maxcounter);
 	SAVE_TEST_ARRAY(_dcounter);

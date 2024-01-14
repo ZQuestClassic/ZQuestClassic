@@ -1,4 +1,5 @@
 #include "base/zdefs.h"
+#include "zasm_table.h"
 #include "zc/ffscript.h"
 
 #define NUM      ARGTY_LITERAL
@@ -7,6 +8,8 @@
 #define REG_R    ARGTY_READ_REG
 #define REG_W    ARGTY_WRITE_REG
 #define REG_RW   ARGTY_READWRITE_REG
+#define GLVAR_R  ARGTY_READ_GVAR
+#define GLVAR_W  ARGTY_WRITE_GVAR
 
 #define CMPUSED  ARGFL_COMPARE_USED
 #define CMPSET   ARGFL_COMPARE_SET
@@ -1201,6 +1204,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "STOREDV", 2, { NUM, NUM }, 0, 0 },
 
 	{ "STACKWRITEATVV_IF", 3, { NUM, NUM, CMP }, 0, CMPUSED },
+
+	{ "SETGVARR", 2, { GLVAR_W, REG_R }, 0, 0 },
+	{ "SETGVARV", 2, { GLVAR_W, NUM }, 0, 0 },
+	{ "GETGVAR", 2, { REG_W, GLVAR_R }, 0, 0 },
 
 	{ "", 0, {}, 0, 0 }
 };
@@ -2897,4 +2904,27 @@ script_variable variable_list[]=
 
 	{ " ", -1, 0, 0 }
 };
+
+
+optional<dword> ffscript::max_gvar() const
+{
+	auto& cmd = command_list[command];
+	int args[] = {arg1, arg2, arg3};
+	optional<dword> gv;
+	for(int q = 0; q < cmd.args; ++q)
+	{
+		if(cmd.arg_type[q] == ARGTY_READ_GVAR || cmd.arg_type[q] == ARGTY_WRITE_GVAR)
+		{
+			if(!gv || *gv < args[q])
+				gv = args[q];
+		}
+		if(cmd.is_register(q) && args[q] >= GD(0) && args[q] <= GD(1024))
+		{
+			auto arg = args[q] - GD(0);
+			if(!gv || *gv < arg)
+				gv = arg;
+		}
+	}
+	return gv;
+}
 

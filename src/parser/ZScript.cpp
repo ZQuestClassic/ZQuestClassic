@@ -22,6 +22,7 @@ using std::shared_ptr;
 Program::Program(ASTFile& root, CompileErrorHandler* errorHandler)
 	: rootScope_(new RootScope(typeStore_)), root_(root)
 {
+	gvar_count = 0;
 	// Create the ~Init script.
 	if (Script* initScript =
 	    	createScript(

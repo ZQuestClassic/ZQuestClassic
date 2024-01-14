@@ -74,6 +74,7 @@ int wrap(int x,int low,int high);
 #define MAX_SCRIPT_REGISTERS       (1<<BITS_SP)
 #define MAX_SCRIPT_REGISTERS_250   256
 #define MAX_PC                     dword(-1)
+#define MAX_SCR_GLOBAL_VARS        100000
 
 //Sizes
 #define MAX_SIGNED_32              (2147483647)

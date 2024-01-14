@@ -3218,6 +3218,20 @@ int32_t do_msgheight(int32_t msg, char const* str);
 int32_t do_msgwidth(int32_t msg, char const* str);
 //
 
+void set_gvar(int indx, int val)
+{
+	if(indx >= game->global_d.size())
+		game->global_d.resize(indx+1);
+	game->global_d[indx] = val;
+}
+
+int get_gvar(int indx)
+{
+	if(indx >= game->global_d.size())
+		game->global_d.resize(indx+1);
+	return game->global_d[indx];
+}
+
 int32_t earlyretval = -1;
 int32_t get_register(int32_t arg)
 {
@@ -9626,8 +9640,9 @@ int32_t get_register(int32_t arg)
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
 			int32_t r = -1;
-			if ( game->global_d[a] ) r = game->global_d[a];
-				ret = r * 10000;
+			if ( game->global_d[a] )
+				r = game->global_d[a];
+			ret = r * 10000;
 			break;
 		}
 		
@@ -15555,9 +15570,12 @@ int32_t get_register(int32_t arg)
 		
 		default:
 		{
-			if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
-			else if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
-			else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	ret = game->global_d[arg - GD(0)];
+			if(arg >= D(0) && arg <= D(7))
+				ret = ri->d[arg - D(0)];
+			else if(arg >= A(0) && arg <= A(1))
+				ret = ri->a[arg - A(0)];
+			else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))
+				ret = get_gvar(arg - GD(0));
 			
 			break;
 		}
@@ -22351,7 +22369,6 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case GDD:
-			al_trace("GDD");
 			game->global_d[ri->d[rINDEX]/10000]=value;
 			break;
 			
@@ -28239,9 +28256,12 @@ void set_register(int32_t arg, int32_t value)
 		
 		default:
 		{
-			if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
-			else if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
-			else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	game->global_d[arg-GD(0)] = value;
+			if(arg >= D(0) && arg <= D(7))
+				ri->d[arg - D(0)] = value;
+			else if(arg >= A(0) && arg <= A(1))
+				ri->a[arg - A(0)] = value;
+			else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))
+				set_gvar(arg-GD(0), value);
 			
 			break;
 		}
@@ -35382,7 +35402,10 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	// Otherwise can get freeze, like in ending.cpp
 	// if (!curscript->valid())
 	// 	return RUNSCRIPT_OK;
-
+	
+	if(curscript->meta.global_count > game->global_d.size())
+		game->global_d.resize(curscript->meta.global_count);
+	
 	script_funcrun = false;
 
 	JittedScriptHandle* jitted_script = nullptr;
@@ -36107,7 +36130,6 @@ int32_t run_script_int(bool is_jitted)
 			case PUSHV:
 				do_push(true);
 				break;
-				
 			case PEEK:
 				do_peek();
 				break;
@@ -36158,7 +36180,16 @@ int32_t run_script_int(bool is_jitted)
 			case STOREDV:
 				do_stored(true);
 				break;
-				
+			
+			case SETGVARR:
+				set_gvar(sarg1, get_register(sarg2));
+				break;
+			case SETGVARV:
+				set_gvar(sarg1, sarg2);
+				break;
+			case GETGVAR:
+				set_register(sarg1, get_gvar(sarg2));
+				break;
 			case LOAD1:
 				do_loada(0);
 				break;
@@ -45072,7 +45103,7 @@ void FFScript::ZASMPrintCommand(const word scommand)
 	static const auto color_white = CConsoleLoggerEx::COLOR_WHITE|CConsoleLoggerEx::COLOR_BACKGROUND_BLACK;
 	if(s_c.args)
 	{
-		coloured_console.cprintf(color_blue,"%14s: ", s_c.name);
+		coloured_console.cprintf(color_blue,"%14s: ", s_c.name.c_str());
 		int sargs[] = {sarg1,sarg2,sarg3};
 		for(int q = 0; q < s_c.args; ++q)
 		{
@@ -45091,7 +45122,7 @@ void FFScript::ZASMPrintCommand(const word scommand)
 			}
 		}
 	}
-	else coloured_console.cprintf(color_blue,"%14s\n",s_c.name);
+	else coloured_console.cprintf(color_blue,"%14s\n",s_c.name.c_str());
 }
 
 

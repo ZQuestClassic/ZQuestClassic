@@ -2491,13 +2491,6 @@ string VarArgument::toString() const
 	return VarToString(ID);
 }
 
-string GlobalArgument::toString() const
-{
-    char temp[40];
-    sprintf(temp, "gd%d", ID);
-    return string(temp);
-}
-
 string LabelArgument::toString() const
 {
 	char buf[40];
@@ -6978,5 +6971,19 @@ string OStackWriteAtVV::toString() const
 string OStackWriteAtVV_If::toString() const
 {
 	return "STACKWRITEATVV_IF " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
+}
+
+
+string OSetGVarR::toString() const
+{
+	return "SETGVARR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OSetGVarV::toString() const
+{
+	return "SETGVARV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGetGVar::toString() const
+{
+	return "GETGVAR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 

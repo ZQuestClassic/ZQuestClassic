@@ -47,6 +47,7 @@ namespace ZScript
 		std::vector<Script*> scripts;
 		std::vector<UserClass*> classes;
 		std::vector<Namespace*> namespaces;
+		dword gvar_count;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
 		Script* addScript(ASTScript& node, Scope& parentScope, CompileErrorHandler* handler);

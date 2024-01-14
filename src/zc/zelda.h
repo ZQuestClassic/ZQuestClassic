@@ -424,7 +424,7 @@ extern ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 extern std::map<int32_t,ZScriptArray> objectRAM;
 extern ArrayOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
-dword getNumGlobalArrays();
+std::pair<dword,dword> getNumGlobals();
 
 extern int32_t  resx,resy,scrx,scry;
 extern int32_t window_width, window_height;

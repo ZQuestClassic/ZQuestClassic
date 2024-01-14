@@ -10,5 +10,5 @@ Success!
 Compile finished with exit code '0' (success)
 
 ALLOCATEGMEMV d2,4096; void run() Body Start
-SETR gd1,d2
+SETGVARR 0,d2
 QUIT; void run() Body End

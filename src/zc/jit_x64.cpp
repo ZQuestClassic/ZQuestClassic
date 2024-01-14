@@ -95,7 +95,8 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler &cc, x86::G
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		cc.mov(val, x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4));
+		auto arg = r-GD(0);
+		cc.mov(val, x86::ptr_32(state.ptrGlobalRegisters, arg * 4));
 	}
 	else if (r == SP)
 	{
@@ -126,7 +127,8 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler &cc, x86
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		cc.movsxd(val, x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4));
+		auto arg = r - GD(0);
+		cc.movsxd(val, x86::ptr_32(state.ptrGlobalRegisters, arg * 4));
 	}
 	else if (r == SP)
 	{
@@ -159,7 +161,8 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		cc.mov(x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4), val);
+		auto arg = r - GD(0);
+		cc.mov(x86::ptr_32(state.ptrGlobalRegisters, arg * 4), val);
 	}
 	else if (r == SP)
 	{
@@ -556,6 +559,9 @@ static bool command_is_compiled(int command)
 	case SUBR:
 	case SUBV:
 	case SUBV2:
+	case SETGVARR:
+	case SETGVARV:
+	case GETGVAR:
 	
 	//
 	case STACKWRITEATVV:
@@ -696,7 +702,7 @@ JittedFunction jit_compile_script(script_data *script)
 	cc.setArg(5, state.ptrCallStackRets);
 	cc.setArg(6, state.ptrCallStackRetIndex);
 	cc.setArg(7, state.ptrWaitIndex);
-
+	
 	state.vRetVal = cc.newInt32("return_val");
 	zero(cc, state.vRetVal); // RUNSCRIPT_OK
 
@@ -808,7 +814,7 @@ JittedFunction jit_compile_script(script_data *script)
 	std::string comment;
 
 	std::map<int, int> uncompiled_command_counts;
-
+	
 	for (size_t i = 0; i < size; i++)
 	{
 		auto& op = script->zasm[i];
@@ -1050,6 +1056,25 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// Set register arg1 to value of register arg2.
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg2);
+			set_z_register(state, cc, vStackIndex, arg1, val);
+		}
+		break;
+		
+		case SETGVARR:
+		{
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg2);
+			cc.mov(x86::ptr_32(state.ptrGlobalRegisters, arg1 * 4), val);
+		}
+		break;
+		case SETGVARV:
+		{
+			cc.mov(x86::ptr_32(state.ptrGlobalRegisters, arg1 * 4), arg2);
+		}
+		break;
+		case GETGVAR:
+		{
+			x86::Gp val = cc.newInt32();
+			cc.mov(val, x86::ptr_32(state.ptrGlobalRegisters, arg2 * 4));
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
@@ -1547,7 +1572,7 @@ JittedFunction jit_compile_script(script_data *script)
 	}
 
 	al_trace("[jit] finished script %s %d. time: %d ms\n", ScriptTypeToString(script->id.type), script->id.index, preprocess_ms + compile_ms);
-
+	
 	if (fn)
 	{
 		jit_printf("success\n");
@@ -1587,7 +1612,7 @@ int jit_run_script(JittedScriptHandle *jitted_script)
 
 	auto fn = (JittedFunctionImpl)jitted_script->fn;
 	return fn(
-		jitted_script->ri->d, game->global_d,
+		jitted_script->ri->d, game->global_d.data(),
 		*stack, &jitted_script->ri->sp,
 		&jitted_script->ri->pc,
 		jitted_script->call_stack_rets, &jitted_script->call_stack_ret_index,

@@ -422,44 +422,50 @@ void setZScriptVersion(int32_t s_version)
 
 void initZScriptArrayRAM(bool firstplay)
 {
-    for(word i = 0; i < NUM_ZSCRIPT_ARRAYS; i++)
-    {
-        localRAM[i].Clear();
-        arrayOwner[i].clear();
-    }
-    
-    if(game->globalRAM.size() != 0)
-        game->globalRAM.clear();
-        
-    if(firstplay)
-    {
-        //leave to global script ~Init to allocate global memory first time round
-        game->globalRAM.resize(getNumGlobalArrays());
-    }
-    else
-    {
-        //allocate from save file
-        game->globalRAM.resize(saves_get_current_slot()->game->globalRAM.size());
-        
-        for(dword i = 0; i < game->globalRAM.size(); i++)
-        {
+	for(word i = 0; i < NUM_ZSCRIPT_ARRAYS; i++)
+	{
+		localRAM[i].Clear();
+		arrayOwner[i].clear();
+	}
+	
+	if(game->global_d.size() != 0)
+		game->global_d.clear();
+	if(game->globalRAM.size() != 0)
+		game->globalRAM.clear();
+		
+	if(firstplay)
+	{
+		//leave to global script ~Init to allocate global memory first time round
+		auto [arrays,vars] = getNumGlobals();
+		game->globalRAM.resize(arrays);
+		game->global_d.resize(vars);
+	}
+	else
+	{
+		//allocate from save file
+		game->globalRAM.resize(saves_get_current_slot()->game->globalRAM.size());
+		
+		for(dword i = 0; i < game->globalRAM.size(); i++)
+		{
 #ifdef _DEBUGARRAYALLOC
-            al_trace("Global Array: %i\n",i);
+			al_trace("Global Array: %i\n",i);
 #endif
-            const ZScriptArray &from = saves_get_current_slot()->game->globalRAM[i];
-            ZScriptArray &to = game->globalRAM[i];
-            to.Resize(from.Size());
+			const ZScriptArray &from = saves_get_current_slot()->game->globalRAM[i];
+			ZScriptArray &to = game->globalRAM[i];
+			to.Resize(from.Size());
 			to.setValid(from.Valid());
-            
-            for(dword j = 0; j < from.Size(); j++)
-            {
+			
+			for(dword j = 0; j < from.Size(); j++)
+			{
 #ifdef _DEBUGARRAYALLOC
-                al_trace("Element: %i\nInit: %i, From save file: %i\n", j, to[j], from[j]);
+				al_trace("Element: %i\nInit: %i, From save file: %i\n", j, to[j], from[j]);
 #endif
-                to[j] = from[j];
-            }
-        }
-    }
+				to[j] = from[j];
+			}
+		}
+		
+		game->global_d = saves_get_current_slot()->game->global_d;
+	}
 }
 
 void initZScriptGlobalRAM()
@@ -474,23 +480,22 @@ void initZScriptGlobalScript(int32_t ID)
 {
 	FFCore.reset_script_engine_data(ScriptType::Global, ID);
 }
-
-dword getNumGlobalArrays()
+extern script_command command_list[];
+std::pair<dword,dword> getNumGlobals()
 {
-    word scommand, pc = 0, ret = 0;
-    
+    word pc = 0, scommand;
+	dword garrs = 0, gvars = 0;
     do
     {
-        scommand = globalscripts[GLOBAL_SCRIPT_INIT]->zasm[pc].command;
-        
-        if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
-            ret++;
-            
-        pc++;
+		auto const& zas = globalscripts[GLOBAL_SCRIPT_INIT]->zasm[pc++];
+		scommand = zas.command;
+		
+        if(zas.command == ALLOCATEGMEMV || zas.command == ALLOCATEGMEMR)
+            garrs++;
     }
     while(scommand != 0xFFFF);
     
-    return ret;
+    return {garrs,globalscripts[GLOBAL_SCRIPT_INIT]->meta.global_count};
 }
 
 //movingblock mblock2; //mblock[4]?

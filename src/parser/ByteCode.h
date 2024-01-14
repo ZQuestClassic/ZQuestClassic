@@ -1796,7 +1796,6 @@ namespace ZScript
 		virtual void caseVector(VectorArgument&, void *){}
 		virtual void caseVar(VarArgument&, void *){}
 		virtual void caseLabel(LabelArgument&, void *){}
-		virtual void caseGlobal(GlobalArgument&, void *){}
 		void execute(std::vector<std::shared_ptr<Opcode>>& vec, void* param)
 		{
 			for (auto it = vec.begin(); it != vec.end(); ++it)
@@ -1941,23 +1940,6 @@ namespace ZScript
 		{
 			return new VarArgument(ID);
 		}
-		int32_t ID;
-	};
-
-	class GlobalArgument : public Argument
-	{
-	public:
-		GlobalArgument(int32_t id) : ID(id) {}
-		std::string toString() const;
-		void execute(ArgumentVisitor &host, void *param)
-		{
-			host.caseGlobal(*this,param);
-		}
-		Argument* clone() const
-		{
-			return new GlobalArgument(ID);
-		}
-	private:
 		int32_t ID;
 	};
 
@@ -12375,6 +12357,41 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OStackWriteAtVV_If(a->clone(),b->clone(),c->clone());
+		}
+	};
+
+
+
+	class OSetGVarR : public BinaryOpcode
+	{
+	public:
+		OSetGVarR(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetGVarR(a->clone(),b->clone());
+		}
+	};
+
+	class OSetGVarV : public BinaryOpcode
+	{
+	public:
+		OSetGVarV(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetGVarV(a->clone(),b->clone());
+		}
+	};
+
+	class OGetGVar : public BinaryOpcode
+	{
+	public:
+		OGetGVar(Argument *A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGetGVar(a->clone(),b->clone());
 		}
 	};
 }

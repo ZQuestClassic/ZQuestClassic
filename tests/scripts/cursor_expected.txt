@@ -43,5 +43,5 @@ GOTO 5; while() #8 End AND [Opt:NeverRet] AND void run(int) Body End
 
 
 ALLOCATEGMEMV d2,4096; void run() Body Start
-SETR gd1,d2
+SETGVARR 0,d2
 QUIT; void run() Body End

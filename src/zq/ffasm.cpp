@@ -678,7 +678,7 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, scr
 	
 	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
 	{
-		if(strcmp(combuf,command_list[i].name)==0)
+		if(command_list[i].name == combuf)
 		{
 			found_command=true;
 			zas.command = i;

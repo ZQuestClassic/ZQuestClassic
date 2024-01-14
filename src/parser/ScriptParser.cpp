@@ -144,7 +144,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 
 		FunctionData fd(program);
 		if(zscript_error_out) return nullptr;
-		if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
+		if (fd.globalVariables.size() > MAX_SCR_GLOBAL_VARS)
 		{
 			log_error(CompileError::TooManyGlobal(NULL));
 			return nullptr;
@@ -421,10 +421,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				new OPushRegister(new VarArgument(EXP1)));*/
 
 	// Generate variable init code.
+	program.gvar_count = 0;
 	for (vector<Datum*>::iterator it = globalVariables.begin();
 	     it != globalVariables.end(); ++it)
 	{
 		Datum& variable = **it;
+		auto gid = variable.getGlobalId();
+		if(gid && *gid > program.gvar_count)
+			program.gvar_count = *gid;
+			
 		AST& node = *variable.getNode();
 		
 		CleanupVisitor cv(scope);
@@ -1482,6 +1487,7 @@ ScriptsData::ScriptsData(Program& program)
 		Script& script = **it;
 		string const& name = script.getName();
 		zasm_meta& meta = theScripts[name].first;
+		meta.global_count = program.gvar_count;
 		theScripts[name].second = script.code;
 		meta = script.getMetadata();
 		meta.script_type = script.getType().getTrueId();
