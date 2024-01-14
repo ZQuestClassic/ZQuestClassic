@@ -119,67 +119,32 @@ float intscale(float scale)
 }
 static void configure_render_tree()
 {
-	static const double game_aspect = 240.0/256.0;
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
 	
-	if(stretchGame)
-	{
-		int w = rti_game.width;
-		int h = rti_game.height;
-		float xscale = (float)resx/w;
-		float yscale = (float)resy/h;
-		if (scaleForceInteger)
-		{
-			xscale = intscale(xscale);
-			yscale = intscale(yscale);
-		}
+	int w = rti_game.width;
+	int h = rti_game.height;
+	float xscale = (float)resx/w;
+	float yscale = (float)resy/(h+12);
+	float scale = std::min(xscale, yscale);
+	if (scaleForceInteger)
+		scale = intscale(scale);
 
-		rti_game.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-		rti_game.visible = true;
+	rti_game.set_transform({
+		.x = (int)(resx - w*scale) / 2,
+		.y = (int)(resy - h*scale) / 2,
+		.xscale = scale,
+		.yscale = scale,
+	});
+	rti_game.visible = true;
 
-		rti_infolayer.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-		rti_infolayer.visible = true;
-	}
-	else
-	{
-		int w = rti_game.width;
-		int h = rti_game.height;
-		float txscale = (float)resx/w;
-		float tyscale = (float)resy/(h+12);
-		float yscale = intscale(tyscale), xscale = intscale(yscale/game_aspect);
-		if(xscale*w > resx && yscale > 1)
-		{
-			--yscale;
-			xscale = intscale(yscale/game_aspect);
-		}
-
-		rti_game.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-		rti_game.visible = true;
-
-		rti_infolayer.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-		rti_infolayer.visible = true;
-	}
+	rti_infolayer.set_transform({
+		.x = (int)(resx - w*scale) / 2,
+		.y = (int)(resy - h*scale) / 2,
+		.xscale = scale,
+		.yscale = scale,
+	});
+	rti_infolayer.visible = true;
 	
 	rti_dialogs.visible = rti_dialogs.has_children();
 	rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp;
