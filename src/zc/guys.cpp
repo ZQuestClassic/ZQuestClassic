@@ -4044,8 +4044,6 @@ void enemy::draw(BITMAP *dest)
 		return;
 	if(flags&guy_invisible)
 		return;
-	if(lensclk && (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG7) && !(flags&lens_only))
-		return;
 	
 	//We did the normal don't_draw stuff here so we can make exceptions; specifically the lens check (which should make enemies
 	// be cloaked if they have "invisible displays as cloaked" checked.
