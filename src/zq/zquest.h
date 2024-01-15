@@ -398,6 +398,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal);
 int load_the_pic_new(BITMAP **dst, PALETTE dstpal);
 int32_t onViewPic();
 int32_t load_the_map(bool skipmenu);
+void close_the_map();
 int32_t onViewMap();
 
 char *pathstr(byte path[]);
