@@ -4537,7 +4537,7 @@ int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
     return 0;
 }
 
-int32_t mapMaker(BITMAP * _map, PALETTE _mappal)
+int32_t saveMapAsImage(ALLEGRO_BITMAP* bitmap)
 {
     char buf[200];
     int32_t num=0;
@@ -4549,7 +4549,8 @@ int32_t mapMaker(BITMAP * _map, PALETTE _mappal)
     }
     while(num<99999 && exists(buf));
     
-    save_bitmap(buf,_map,_mappal);
+	if (!al_save_bitmap(buf, bitmap))
+		InfoDialog("Error", "Failed to save map image").show();
     
     return D_O_K;
 }
@@ -4558,6 +4559,41 @@ int32_t onViewPic()
 {
     return launchPicViewer(&pic,picpal,&picx,&picy,&picscale,false);
 }
+
+
+class MapViewRTI : public RenderTreeItem
+{
+public:
+	MapViewRTI(): RenderTreeItem("map_view")
+	{
+	}
+
+	int bw, bh, sw, sh, flags;
+
+private:
+	void render(bool bitmap_resized)
+	{
+		BITMAP* bmap4_single = create_bitmap_ex(8,256,176);
+		ALLEGRO_BITMAP* bmap5_single = al_create_bitmap(256,176);
+		int curscr = Map.getCurrScr();
+		for(int32_t y=0; y<8; y++)
+		{
+			for(int32_t x=0; x<16; x++)
+			{
+				Map.setCurrScr(y*16+x);
+				Map.draw(bmap4_single, 0, 0, flags, -1, y*16+x, -1);
+				stretch_blit(bmap4_single, bmap4_single, 0, 0, 0, 0, 256, 176, 256, 176);
+				all_render_a5_bitmap(bmap4_single, bmap5_single);
+				al_draw_scaled_bitmap(bmap5_single, 0, 0, 256, 176, sw * x, sh * y, sw, sh, 0);
+			}
+		}
+
+		Map.setCurrScr(curscr);
+		destroy_bitmap(bmap4_single);
+		al_destroy_bitmap(bmap5_single);
+	}
+};
+static MapViewRTI rti_map_view;
 
 int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap, bool skipmenu)
 {
@@ -4572,6 +4608,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	{
 		zc_set_palette(RAMpal);
 		popup_zqdialog_end();
+		close_the_map();
 		return D_O_K;
 	}
 	
@@ -4586,33 +4623,63 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	{
 		jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		popup_zqdialog_end();
+		close_the_map();
 		return D_O_K;
 	}
+
+	static LegacyBitmapRTI viewer_overlay_rti("viewer_overlay");
+	viewer_overlay_rti.set_size(buf->w, buf->h);
+	viewer_overlay_rti.a4_bitmap = buf;
+	viewer_overlay_rti.transparency_index = 15;
+	get_root_rti()->add_child(&viewer_overlay_rti);
 	
-	//  go();
-	//    //  clear_bitmap(screen);
 	zc_set_palette(pal);
 
 	if(isviewingmap)
 	{
-		size_t sw = (*pictoview)->w / 16;
-		size_t sh = (*pictoview)->h / 8;
-		int32_t scr = Map.getCurrScr();
+		int sw = rti_map_view.width / 16;
+		int sh = rti_map_view.height / 8;
+		int scr = Map.getCurrScr();
 		if (scr >= 0x00 && scr <= 0x7F)
 		{
-			*px2 = (*pictoview)->w - ((scr % 16) * sw + (sw / 2)) * 2;
-			*py2 = (*pictoview)->h - ((scr / 16) * sh + (sh / 2)) * 2;
+			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
+			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
+			mapx = (-(scr % 16) * sw - sw/2 + dw/2);
+			mapy = (-(scr / 16) * sh - sh/2 + dh/2);
 		}
 	}
 
 	do
 	{
+		if (isviewingmap)
+		{
+			float scale = *scale2;
+			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
+			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
+			mapx = std::clamp(mapx, (int)(-rti_map_view.width*scale + dw), 0);
+			mapy = std::clamp(mapy, (int)(-rti_map_view.height*scale + dh), 0);
+			rti_map_view.set_transform({mapx, mapy, scale, scale});
+		}
+
 		if(redraw)
 		{
-			clear_to_color(buf,pblack);
-			stretch_blit(*pictoview, buf, 0, 0, (*pictoview)->w, (*pictoview)->h,
-				int32_t(zq_screen_w + (*px2 - (*pictoview)->w) * *scale2) / 2, int32_t(zq_screen_h + (*py2 - (*pictoview)->h) * *scale2) / 2,
-				int32_t((*pictoview)->w * *scale2), int32_t((*pictoview)->h * *scale2));
+			clear_to_color(buf,15);
+			int w, h;
+			if (isviewingmap)
+			{
+				w = rti_map_view.width;
+				h = rti_map_view.height;
+			}
+			else
+			{
+				w = (*pictoview)->w;
+				h = (*pictoview)->h;
+			}
+
+			if (!isviewingmap)
+				stretch_blit(*pictoview, buf, 0, 0, w, h,
+					int32_t(zq_screen_w + (*px2 - w) * *scale2) / 2, int32_t(zq_screen_h + (*py2 - h) * *scale2) / 2,
+					int32_t(w * *scale2), int32_t(h * *scale2));
 						 
 			if(vp_showpal)
 				for(int32_t i=0; i<256; i++)
@@ -4620,11 +4687,11 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 					
 			if(vp_showsize)
 			{
-				//        text_mode(pblack);
-				textprintf_ex(buf,font,0,zq_screen_h-8,pwhite,pblack,"%dx%d %.2f%%",(*pictoview)->w,(*pictoview)->h,*scale2*100.0);
+				textprintf_ex(buf,font,0,zq_screen_h-8,pwhite,pblack,"%dx%d %.2f%%",w,h,*scale2*100.0);
 			}
 			
-			blit(buf,screen,0,0,0,0,zq_screen_w,zq_screen_h);
+			if (!isviewingmap)
+				blit(buf,screen,0,0,0,0,zq_screen_w,zq_screen_h);
 			redraw=false;
 		}
 		
@@ -4760,6 +4827,8 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 				break;
 				
 			case KEY_SPACE:
+				close_the_map();
+				// TODO: why is `load_the_map` rendering a black dialog?
 				if(isviewingmap ? load_the_map(skipmenu) : load_the_pic(pictoview,pal)==2)
 				{
 					done=true;
@@ -4786,6 +4855,8 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	
 	popup_zqdialog_end();
 	position_mouse_z(0);
+	viewer_overlay_rti.remove();
+	close_the_map();
 	return D_O_K;
 }
 
@@ -4808,7 +4879,7 @@ static DIALOG loadmap_dlg[] =
     // 11
     {  jwin_button_proc,      42,    110,     61,     21,    vc(14),     vc(1),     13,    D_EXIT,     0,    0, (void *) "OK",                       NULL,   NULL  },
     {  jwin_button_proc,     122,    110,     61,     21,    vc(14),     vc(1),     27,    D_EXIT,     0,    0, (void *) "Cancel",                   NULL,   NULL  },
-    {  jwin_check_proc,       16,    88,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Save to File (Mapmaker)",  NULL,   NULL  },
+    {  jwin_check_proc,       16,    88,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Save to Image",  NULL,   NULL  },
 	// 14
 	{  jwin_radio_proc,       16,    66,     97,      9,    vc(14),     vc(1),       0,    0,          0,    0, (void*)"2x  - 8192x2816",		   NULL,   NULL  },
 	{  jwin_radio_proc,       16,    76,     97,      9,    vc(14),     vc(1),       0,    0,          0,    0, (void*)"4x  - 16384x5632",		   NULL,   NULL  },
@@ -4861,11 +4932,6 @@ int32_t load_the_map(bool skipmenu)
 
 		if(loadmap_dlg[15].flags&D_SELECTED) res=4;
     }
-
-    if(bmap)
-    {
-        destroy_bitmap(bmap);
-    }
     
     int32_t bw = (256*16)>>res;
 	int32_t bh = (176*8)>>res;
@@ -4878,33 +4944,33 @@ int32_t load_the_map(bool skipmenu)
 		sw = 256<<(res-2);
 		sh = 176<<(res-2);
 	}
-    bmap = create_bitmap_ex(8,bw,bh);
-    
-    if(!bmap)
-    {
-        jwin_alert("Error","Error creating bitmap.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-        return 2;
-    }
-    
-    for(int32_t y=0; y<8; y++)
-    {
-        for(int32_t x=0; x<16; x++)
-        {
-            Map.draw(screen2, 0, 0, flags, -1, y*16+x, -1);
-            stretch_blit(screen2, bmap, 0, 0, 256, 176, x*sw, y*sh, sw,sh);
-        }
-    }
-    
-    memcpy(mappal,RAMpal,sizeof(RAMpal));
+
+	rti_map_view.flags = flags;
+	rti_map_view.bw = bw;
+	rti_map_view.bh = bh;
+	rti_map_view.sw = sw;
+	rti_map_view.sh = sh;
+	rti_map_view.set_size(bw, bh);
+	rti_map_view.dirty = true;
+	get_root_rti()->add_child(&rti_map_view);
+	render_zq();
+
     vp_showpal = false;
     get_bw(picpal,pblack,pwhite);
     mapx = mapy = 0;
     mapscale = 1;
     imagepath[0] = 0;
-    
-    if(loadmap_dlg[13].flags & D_SELECTED) mapMaker(bmap, mappal);
-    
+
+    if(loadmap_dlg[13].flags & D_SELECTED) saveMapAsImage(rti_map_view.bitmap);
+
+	memcpy(mappal,RAMpal,sizeof(RAMpal));
+
     return 0;
+}
+
+void close_the_map()
+{
+	rti_map_view.remove();
 }
 
 int32_t onViewMap()
