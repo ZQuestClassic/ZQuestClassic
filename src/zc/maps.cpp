@@ -5472,8 +5472,8 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
-			hiddenstair(tmp,false);
-			hidden_entrance(tmp,false,false,-3);
+			hiddenstair2(tmpscr+tmp,false);
+			hidden_entrance2(tmpscr+tmp,tmpscr2,false,-3);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
