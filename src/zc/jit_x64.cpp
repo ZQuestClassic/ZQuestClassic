@@ -34,6 +34,7 @@ static JitRuntime rt;
 
 struct CompilationState
 {
+	CallConvId calling_convention;
 	// Some globals to prevent passing around everywhere
 	size_t size;
 	x86::Gp vRetVal;
@@ -111,7 +112,7 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler &cc, x86::G
 	{
 		// Call external get_register.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(CallConvId::kHost));
+		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setRet(0, val);
 	}
@@ -143,7 +144,7 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler &cc, x86
 		// Call external get_register.
 		x86::Gp val32 = cc.newInt32();
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(CallConvId::kHost));
+		cc.invoke(&invokeNode, get_register, FuncSignatureT<int32_t, int32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setRet(0, val32);
 		cc.movsxd(val, val32);
@@ -176,7 +177,7 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 	{
 		// Call external set_register.
 		InvokeNode *invokeNode;
-		cc.invoke(&invokeNode, set_register, FuncSignatureT<void, int32_t, int32_t>(CallConvId::kHost));
+		cc.invoke(&invokeNode, set_register, FuncSignatureT<void, int32_t, int32_t>(state.calling_convention));
 		invokeNode->setArg(0, r);
 		invokeNode->setArg(1, val);
 	}
@@ -470,7 +471,7 @@ static void compile_command_interpreter(CompilationState& state, x86::Compiler &
 	cc.mov(x86::ptr_32(state.ptrStackIndex), vStackIndex);
 
 	InvokeNode *invokeNode;
-	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(CallConvId::kHost));
+	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(state.calling_convention));
 	invokeNode->setArg(0, true);
 
 	bool could_return_not_ok = false;
@@ -649,7 +650,7 @@ JittedFunction jit_compile_script(script_data *script)
 	JittedFunctionImpl fn;
 
 	static bool jit_env_test = get_flag_bool("-jit-env-test").value_or(false);
-	auto calling_convention = CallConvId::kHost;
+	state.calling_convention = CallConvId::kHost;
 	if (jit_env_test)
 	{
 		// This is only for testing purposes, to ensure the same output regardless of
@@ -660,7 +661,7 @@ JittedFunction jit_compile_script(script_data *script)
 		env._platformABI = PlatformABI::kGNU;
 		env._objectFormat = ObjectFormat::kJIT;
 		code.init(env);
-		calling_convention = CallConvId::kCDecl;
+		state.calling_convention = CallConvId::kCDecl;
 	}
 	else
 	{
@@ -680,7 +681,7 @@ JittedFunction jit_compile_script(script_data *script)
 	// cc.addDiagnosticOptions(DiagnosticOptions::kRAAnnotate | DiagnosticOptions::kRADebugAll);
 
 	// Setup parameters.
-	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, intptr_t *, uint32_t *, uint32_t *>(calling_convention));
+	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, intptr_t *, uint32_t *, uint32_t *>(state.calling_convention));
 	state.ptrRegisters = cc.newIntPtr("registers_ptr");
 	state.ptrGlobalRegisters = cc.newIntPtr("global_registers_ptr");
 	state.ptrStack = cc.newIntPtr("stack_ptr");
@@ -839,7 +840,7 @@ JittedFunction jit_compile_script(script_data *script)
 		// Can be useful for debugging.
 		// {
 		// 	InvokeNode* invokeNode;
-		// 	cc.invoke(&invokeNode, print, FuncSignatureT<void, int32_t>(CallConvId::kHost));
+		// 	cc.invoke(&invokeNode, print, FuncSignatureT<void, int32_t>(state.calling_convention));
 		// 	invokeNode->setArg(0, i); // or any int32 register
 		// }
 
@@ -851,7 +852,7 @@ JittedFunction jit_compile_script(script_data *script)
 		if (runtime_debugging && !command_uses_comparison_result(command))
 		{
 			InvokeNode *invokeNode;
-			cc.invoke(&invokeNode, debug_pre_command, FuncSignatureT<void, int32_t, uint16_t>(CallConvId::kHost));
+			cc.invoke(&invokeNode, debug_pre_command, FuncSignatureT<void, int32_t, uint16_t>(state.calling_convention));
 			invokeNode->setArg(0, i);
 			invokeNode->setArg(1, vStackIndex);
 		}
