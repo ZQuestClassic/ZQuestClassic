@@ -2916,6 +2916,15 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 	return ret;
 }
 
+void update_slopes()
+{
+	for (auto& p : slopes)
+	{
+		slope_object& s = p.second;
+		s.updateslope(); //sets old x/y poses
+	}
+}
+
 void update_freeform_combos()
 {
 	ffscript_engine(false);

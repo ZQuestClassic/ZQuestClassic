@@ -2915,7 +2915,7 @@ bool insideRotRect(double x, double y, int32_t x1, int32_t y1, int32_t x2, int32
 	return true;
 }
 
-bool lineLineColl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4)
+bool lineLineColl(zfix x1, zfix y1, zfix x2, zfix y2, zfix x3, zfix y3, zfix x4, zfix y4)
 {
 	 float denominator = ((x2 - x1) * (y4 - y3)) - ((y2 - y1) * (x4 - x3));
 	float numerator1 = ((y1 - y3) * (x4 - x3)) - ((x1 - x3) * (y4 - y3));
@@ -2938,17 +2938,27 @@ bool lineLineColl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, in
 }
 
 //Line box collision is just 4 lineline collisions
-bool lineBoxCollision(int32_t linex1, int32_t liney1, int32_t linex2, int32_t liney2, int32_t boxx, int32_t boxy, int32_t boxwidth, int32_t boxheight)
+bool lineBoxCollision(zfix linex1, zfix liney1, zfix linex2, zfix liney2, zfix boxx, zfix boxy, zfix boxwidth, zfix boxheight)
 {
-	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy, boxx+boxwidth-1, boxy)) return true;
-	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy, boxx, boxy+boxheight-1)) return true;
-	if (lineLineColl(linex1, liney1, linex2, liney2, boxx+boxwidth-1, boxy, boxx+boxwidth-1, boxy+boxheight-1)) return true;
-	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy+boxheight-1, boxx+boxwidth-1, boxy+boxheight-1)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy, boxx+boxwidth-0.0001_zf, boxy)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy, boxx, boxy+boxheight-0.0001_zf)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx+boxwidth-0.0001_zf, boxy, boxx+boxwidth-0.0001_zf, boxy+boxheight-0.0001_zf)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy+boxheight-0.0001_zf, boxx+boxwidth-0.0001_zf, boxy+boxheight-0.0001_zf)) return true;
 	return false;
 }
 
 double comparePointLine(double x, double y, double x1, double y1, double x2, double y2)
 {
+	if (x1 == x2)
+	{
+		if (y1 < y2) return x1 - x;
+		else return x - x1;
+	}
+	if (y1 == y2)
+	{
+		if (x1 < x2) return y - y1;
+		else return y1 - y;
+	}
     double slope = (y2-y1)/(x2-x1);
     double b = y1 - (slope*x1);
     double ly = slope*x + b;

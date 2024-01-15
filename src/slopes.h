@@ -25,7 +25,7 @@ struct slope_info
 	bool ignoreleft()   const;
 	bool ignoreright()  const;
 	bool falldown()     const;
-	bool ignore(double lineangle, bool canfall = false, bool onplatform = false) const;
+	bool ignore(zfix sinangle, zfix cosangle, bool canfall = false, bool onplatform = false) const;
 	
 	zfix getX(zfix const& y) const;
 	zfix getY(zfix const& x) const;
@@ -57,11 +57,12 @@ struct slope_object
 	slope_object& operator=(slope_object const& other) = delete;
 };
 
-int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, bool fallthrough = false);
-int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty, bool fallthrough = false);
-slope_object const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
-slope_object const& get_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty);
-int32_t check_slope(solid_object* o, bool onlyNew = false);
+zfix check_slope(zfix tx, zfix ty, zfix tw, zfix th, bool fallthrough = false, bool platformonly = false);
+zfix check_new_slope(zfix tx, zfix ty, zfix tw, zfix th, zfix otx, zfix oty, bool fallthrough = false, bool platformonly = false, zfix ID = 0);
+zfix LinePointDist(slope_info const& s, zfix tx, zfix ty);
+slope_object const& get_slope(zfix tx, zfix ty, zfix tw, zfix th);
+slope_object const& get_new_slope(zfix tx, zfix ty, zfix tw, zfix th, zfix otx, zfix oty);
+zfix check_slope(solid_object* o, bool onlyNew = false);
 slope_object const& get_slope(solid_object* o, bool onlyNew = false);
 bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, zfix& ID);
 void slope_push_int(slope_info const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform = false, bool fallthrough = false);

@@ -82,7 +82,7 @@ bool item_error()
 }
 static inline bool on_sideview_slope(int32_t x, int32_t y, int32_t oldx, int32_t oldy)
 {
-	if(check_new_slope(x, y+1, 16, 16, oldx, oldy) < 0) return true;
+	if(check_new_slope(x, y+0.0001_zf, 16, 16, oldx, oldy, false, true) < 0) return true;
 	return false;
 }
 
@@ -103,28 +103,45 @@ static inline bool platform_fallthrough(bool doslopecheck = true)
 	return false;
 }
 
-static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
+static inline bool on_sideview_solid(zfix x, zfix y, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
 {
-	if(slopesmisc != 1 && check_slope(x, y+1, 16, 16, (slopesmisc == 3)) < 0) return true;
+	if(slopesmisc != 1 && check_slope(x, y + 0.0001_zf, 16, 16, (slopesmisc == 3), true) < 0) return true;
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	if (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
+	if (y>=160_zf && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
-	if(slopesmisc != 1 && check_slope(x, y+1, 16, 16) < 0) return true;
-	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
+	if(slopesmisc != 1 && check_slope(x, y + 0.0001_zf, 16, 16, false, true) < 0) return true;
+	if (y.getInt() % 16 ==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
 		return true;
 	return false;
 }
 
-static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, int32_t oldy, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
+static inline bool on_sideview_solid_oldpos(zfix x, zfix y, zfix oldx, zfix oldy, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
 {
-	if(slopesmisc != 1 && check_new_slope(x, y+1, 16, 16, oldx, oldy, (slopesmisc == 3)) < 0) return true;
+	if(slopesmisc != 1 && check_new_slope(x, y+0.0001_zf, 16, 16, oldx, oldy, (slopesmisc == 3), true) < 0) return true;
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	if (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
+	if (y>=160_zf && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
-	if (slopesmisc != 1 && check_new_slope(x, y + 1, 16, 16, oldx, oldy) < 0) return true;
-	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
+	if (slopesmisc != 1 && check_new_slope(x, y + 0.0001_zf, 16, 16, oldx, oldy, false, true) < 0) return true;
+	if (y.getInt()%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
+		return true;
+	return false;
+}
+
+static inline bool on_sideview_solid_oldpos(sprite* obj, bool ignoreFallthrough = false, int32_t slopesmisc = 0, zfix xofs = 0, zfix yofs = 0)
+{
+	zfix rx = obj->x+obj->hxofs+obj->sxofs+xofs, ry = obj->y+obj->hyofs+obj->syofs+yofs,
+	rw = obj->hit_width+obj->sxsz_ofs, rh = obj->hit_height+obj->sysz_ofs,
+	orx = obj->old_x+obj->hxofs+obj->sxofs, ory = obj->old_y+obj->hyofs+obj->syofs,
+	x = obj->x+xofs, y = obj->y+yofs;
+	if(slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, (slopesmisc == 3), true, obj->slopeid) < 0) return true;
+	if(slopesmisc == 2) return false;
+	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
+	if (y>=160_zf && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
+	if (platform_fallthrough() && !ignoreFallthrough) return false;
+	if (slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, false, true, obj->slopeid) < 0) return true;
+	if (y.getInt()%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
 		return true;
 	return false;
 }
@@ -211,7 +228,7 @@ void HeroClass::clear_platform_ffc()
 
 void HeroClass::snap_platform()
 {
-	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false) < 0)
+	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false, true) < 0)
 		return;
 	if (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN))
 	{
@@ -350,7 +367,7 @@ bool nomove_action(int action)
 bool HeroClass::isStanding(bool forJump)
 {
 	if(z || fakez) return false;
-	if(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y)
+	if(isSideViewHero() && !on_sideview_solid_oldpos(this)
 		&& !ladderx && !laddery && !getOnSideviewLadder())
 		return false;
 	if(hoverclk) return false;
@@ -520,7 +537,7 @@ void HeroClass::go_respawn_point()
 
 void HeroClass::trySideviewLadder()
 {
-	if(canSideviewLadder() && !on_sideview_solid_oldpos(x,y,old_x,old_y))
+	if(canSideviewLadder() && !on_sideview_solid_oldpos(this))
 		setOnSideviewLadder(true);
 }
 
@@ -8457,7 +8474,7 @@ heroanimate_skip_liftwpn:;
 	{
 		//Handle falling through a platform
 		bool platformfell = false;
-		if (on_sideview_solid_oldpos(x,y,old_x,old_y,true,3) && !on_sideview_solid_oldpos(x,y,old_x,old_y,false,3))
+		if (on_sideview_solid_oldpos(this,true,3) && !on_sideview_solid_oldpos(this,false,3))
 		{
 			if (!(!on_sideview_slope(Hero.x, Hero.y,Hero.old_x,Hero.old_y) && (on_sideview_slope(Hero.x,Hero.y+1,Hero.old_x,Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)) && Down())) platformfell = true;
 			y+=1; //Fall down a pixel instantly, through the platform.
@@ -8501,7 +8518,7 @@ heroanimate_skip_liftwpn:;
 				{
 					for(auto q = 0; q < ydiff; ++q)
 					{
-						if(on_sideview_solid_oldpos(x,y+q,old_x,old_y))
+						if(on_sideview_solid_oldpos(this, false, 0, 0, q))
 						{
 							ydiff = q;
 							break;
@@ -8562,7 +8579,7 @@ heroanimate_skip_liftwpn:;
 		}
 		// Stop hovering/falling if you land on something.
 		bool needFall = false;
-		if((on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting && !platformfell2)
+		if((on_sideview_solid_oldpos(this) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting && !platformfell2)
 		{
 			stop_item_sfx(itype_hoverboots);
 			if(get_qr(qr_OLD_SIDEVIEW_LANDING_CODE))
@@ -8593,24 +8610,55 @@ heroanimate_skip_liftwpn:;
 			fall = gravity3;
 			inair = false;
 		}
-		else if (hoverclk < 1 && !inair && fall == 0 && !platformfell && !IsSideSwim() && justmoved <= 0)
+		else if (hoverclk < 1 && !inair && fall == 0 && !IsSideSwim() && justmoved <= 0)
 		{
-			zfix my = y + 4;
 			needFall = true;
-			for (zfix ty = y+1; ty < my; ++ty)
+			if (replay_version_check(0, 23))
 			{
-				//if (on_sideview_solid_oldpos(x, ty,old_x,old_y, false, 1)) break;
-				if (on_sideview_solid_oldpos(x, ty,old_x,old_y, false, 0))
+				zfix my = y + 4;
+				for (zfix ty = y + 1; ty < my; ++ty)
 				{
-					y = ty;
-					if (check_new_slope(x, ty + 1, 16, 16, old_x, old_y, false) < 0)
+					if (on_sideview_solid_oldpos(this, false, 0, 0, ty-y))
 					{
-						if(!slopeid)
-							slopeid = get_new_slope(x, ty + 1, 16, 16, old_x, old_y).get_info().slope();
-						onplatid = 5;
+						y = ty;
+						if (check_new_slope(x, ty + 1, 16, 16, old_x, old_y, false) < 0)
+						{
+							if (!slopeid)
+								slopeid = get_new_slope(x, ty + 1, 16, 16, old_x, old_y).get_info().slope();
+							onplatid = 1;
+						}
+						needFall = false;
+						break;
+					}
+				}
+			}
+			else
+			{
+				zfix dy = 0;
+				bool landed = false;
+				dy = binary_search_zfix(0, 4, [&](zfix val, zfix& retval)
+					{
+						if (on_sideview_solid_oldpos(this, false, 0, 0, val))
+						{
+							retval = val;
+							landed = true;
+							return BSEARCH_CONTINUE_TOWARD0;
+						}
+						else return BSEARCH_CONTINUE_AWAY0;
+					});
+				if (dy)
+				{
+					push_move(0, dy);
+				}
+				if (landed)
+				{
+					if (check_new_slope(x, y + 0.0001_zf, 16, 16, old_x, old_y, false, true) < 0)
+					{
+						if (!slopeid)
+							slopeid = get_new_slope(x, y + 0.0001_zf, 16, 16, old_x, old_y).get_info().slope();
+						onplatid = 1;
 					}
 					needFall = false;
-					break;
 				}
 			}
 		}
@@ -10057,6 +10105,31 @@ heroanimate_skip_liftwpn:;
 			moveheroOld();
 		}
 	}
+	if (isSideViewHero() && slopeid && hoverclk < 1 && !inair && fall == 0 && !IsSideSwim() && justmoved <= 0)
+	{
+		if (!on_sideview_solid_oldpos(this, false, 0))
+		{
+			zfix dy = 0;
+			for (zfix q = 0; q <= 4; ++q)
+			{
+				if (on_sideview_solid_oldpos(this, false, 0, 0, q))
+				{
+					dy = q;
+					break;
+				}
+			}
+			dy = binary_search_zfix(0, dy, [&](zfix val, zfix& retval)
+			{
+				if (on_sideview_solid_oldpos(this, false, 0, 0, val))
+				{
+					retval = val;
+					return BSEARCH_CONTINUE_TOWARD0;
+				}
+				else return BSEARCH_CONTINUE_AWAY0;
+			});
+			if (dy) push_move(0, dy);
+		}
+	}
 	
 	if(shield_forcedir > -1 && action != rafting)
 		dir = shield_forcedir;
@@ -10182,11 +10255,6 @@ heroanimate_skip_liftwpn:;
 	
 	bool awarp = false;
 	//!DIMI: Global Combo Effects (AUTO STUFF)
-	for(auto& p : slopes)
-	{
-		slope_object& s = p.second;
-		s.updateslope(); //sets old x/y poses
-	}
 	for(int32_t i=0; i<176; ++i)
 	{
 		for(int32_t layer=0; layer<7; ++layer)
@@ -10312,19 +10380,21 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	zfix dx, dy;
-	if (sideview_mode() && !on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && on_sideview_solid_oldpos(x, y,old_x,old_y, false, 2) && !toogam)
+	if (sideview_mode() && !on_sideview_solid_oldpos(this, false, 1) && on_sideview_solid_oldpos(this, false, 2) && !toogam)
 	{
 		if (slide_slope(this, dx, dy, slopeid))
 		{
-			onplatid = 5;
+			onplatid = 1;
 			if (dx || dy) push_move(dx, dy);
 		}
 	}
 	if (onplatid <= 0) slopeid = 0;
 	else --onplatid;
-	bool onplatform = (on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && !Up());
+	bool onplatform = (on_sideview_solid_oldpos(this, false, 1) && !Up());
 	for (auto q = 0; (check_slope(this, true) && !toogam) && q < 2; ++q)
 	{
+		dx = 0;
+		dy = 0;
 		if (check_slope(this, true) && !toogam)
 		{
 			slope_info const& s = get_slope(this, true).get_info();
@@ -10336,24 +10406,24 @@ heroanimate_skip_liftwpn:;
 			if (dx || dy) 
 			{
 				int32_t pushret = push_move(dx,dy);
-				onplatform = (on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && !Up());
+				onplatform = (on_sideview_solid_oldpos(this, false, 1) && !Up());
 				if (s.slope() != slopeid && slopeid) staircheck = true;
 				if (onplatform) staircheck = true;
 				if(sideview_mode() && slopeid)
-					onplatid = 5;
+					onplatid = 0;
 				if (pushret == 1)
 				{
 					dx = -1;
 					dy = 0;
 					slope_push_int(s, this, dx, dy, staircheck);
-					push_move(dx,dy);
+					push_move(0,dy);
 				}
 				if (pushret == 2)
 				{
 					dx = 0;
 					dy = -1;
 					slope_push_int(s, this, dx, dy, staircheck);
-					push_move(dx,dy);
+					push_move(dx,0);
 				}
 			}
 		}
@@ -12587,7 +12657,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		break;
 			
 		case itype_divinefire:
-			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder() || IsSideSwim())))
+			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(this) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -12602,7 +12672,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			break;
 			
 		case itype_divineescape:
-			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder() || IsSideSwim())))
+			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(this) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -12617,7 +12687,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			break;
 			
 		case itype_divineprotection:
-			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder() || IsSideSwim())))
+			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(this) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -14374,7 +14444,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 {
 	bool can_combo = ((z==0 && fakez==0) || tmpscr->flags2&fAIRCOMBOS);
 	bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1,-1) && can_combo) ||
-					 (isSideViewHero() && (on_sideview_solid_oldpos(x,y,old_x,old_y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1,-1));
+					 (isSideViewHero() && (on_sideview_solid_oldpos(this)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1,-1));
 			 //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
@@ -14626,6 +14696,7 @@ void HeroClass::moveheroOld()
 		else if(DrunkDown() && canSideviewLadder(true))
 		{
 			y+=1;
+			old_y += 1;
 			setOnSideviewLadder(true);
 		}
 	}
@@ -15239,12 +15310,13 @@ void HeroClass::moveheroOld()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewHero() && !toogam && (!get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW) || !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up))) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !toogam && !((can_deploy_ladder() && get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW)) || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
 					else
 					{
+						if ((get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW) && can_deploy_ladder()) || (ladderx && laddery && ladderdir==up)) justmoved = 2; //Prevent the slope-snap code from running
 						do
 						{
 							zfix ty = y - hero_newstep;
@@ -16158,12 +16230,13 @@ void HeroClass::moveheroOld()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewHero() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !toogam && !(((replay_version_check(0, 23) || get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW)) && can_deploy_ladder()) || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
 					else
 					{
+						if ((can_deploy_ladder() && get_qr(qr_OLD_LADDER_ITEM_SIDEVIEW)) || (ladderx && laddery && ladderdir==up)) justmoved = 2;
 						info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
 						
 						if(x.getInt() & 7)
@@ -19715,6 +19788,11 @@ void HeroClass::get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir)
 		};
 	}
 	
+	if (isSideViewHero() && slopeid)
+	{
+		dy += (dx*slopeid);
+	}
+	
 	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_qr(qr_SIDESWIMDIR) && (movedir == up || movedir == down))) //!DIRECTION SET
 	{
 		facedir = movedir;
@@ -19733,7 +19811,7 @@ bool HeroClass::new_engine_move(zfix dx, zfix dy) //no collision check
 		herostep();
 		
 		//ack... don't walk if in midair! -DD
-		if(charging==0 && spins==0 && z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y) && !getOnSideviewLadder()))
+		if(charging==0 && spins==0 && z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(this) && !getOnSideviewLadder()))
 		{
 			action=walking; FFCore.setHeroAction(walking);
 		}
@@ -19768,7 +19846,7 @@ void HeroClass::moveOld(int32_t d2)
     int32_t z3skip=0;
     int32_t z3diagskip=0;
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && ((z==0 && fakez == 0) || tmpscr->flags2&fAIRCOMBOS)) ||
-                     (isSideViewHero() && (on_sideview_solid_oldpos(x,y,old_x,old_y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
+                     (isSideViewHero() && (on_sideview_solid_oldpos(this)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
     
@@ -20040,7 +20118,7 @@ void HeroClass::moveOld(int32_t d2)
         herostep();
         
         //ack... don't walk if in midair! -DD
-        if(charging==0 && spins==0 && z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y) && !getOnSideviewLadder()))
+        if(charging==0 && spins==0 && z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(this) && !getOnSideviewLadder()))
 	{
             action=walking; FFCore.setHeroAction(walking);
 	}
@@ -20070,7 +20148,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 	}
 	
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && ((z==0 && fakez==0) || tmpscr->flags2&fAIRCOMBOS)) ||
-                     (isSideViewHero() && (on_sideview_solid_oldpos(x,y,old_x,old_y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
+                     (isSideViewHero() && (on_sideview_solid_oldpos(this)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
 		     //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
@@ -20324,13 +20402,17 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 				dy = 0;
 		}
 	}
+	if (isSideViewHero() && slopeid)
+	{
+		dy += (dx * slopeid);
+	}
 	if(dx == 0 && dy == 0) return;
 	if(action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 	{
 		herostep();
 		
 		//ack... don't walk if in midair! -DD
-		if(charging==0 && spins==0 && z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y) && !getOnSideviewLadder()))
+		if(charging==0 && spins==0 && z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(this) && !getOnSideviewLadder()))
 		{
 			action=walking; FFCore.setHeroAction(walking);
 		}
@@ -21018,7 +21100,7 @@ bool HeroClass::checksoliddamage()
 		{
 			if (get_qr(qr_LESS_AWFUL_SIDESPIKES))
 			{
-				if (on_sideview_solid_oldpos(x,y,old_x,old_y) && (!getOnSideviewLadder() || DrunkDown()))
+				if (on_sideview_solid_oldpos(this) && (!getOnSideviewLadder() || DrunkDown()))
 				{
 					if(checkdamagecombos(x+4, x+4, y+16, y+18, i-1, false, false) && checkdamagecombos(x+12, x+12, y+16, y+18, i-1, false, false))
 					{
@@ -21062,7 +21144,7 @@ void HeroClass::checkpushblock()
 		if(x.getInt()&15) earlyReturn=true;
 		
 	// if(y<16) return;
-	if(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y)) return;
+	if(isSideViewHero() && !on_sideview_solid_oldpos(this)) return;
 	
 	int32_t bx = x.getInt()&0xF0;
 	int32_t by = (y.getInt()&0xF0);
@@ -31943,7 +32025,7 @@ bool HeroClass::can_deploy_ladder()
     bool ladderallowed = ((!get_qr(qr_LADDERANYWHERE) && (tmpscr->flags&fLADDER)) || isdungeon()
                           || (get_qr(qr_LADDERANYWHERE) && !(tmpscr->flags&fLADDER)));
     return (current_item_id(itype_ladder)>-1 && ladderallowed && !ilswim && z==0 && fakez==0 &&
-            (!isSideViewHero() || on_sideview_solid_oldpos(x,y,old_x,old_y)));
+            (!isSideViewHero() || on_sideview_solid_oldpos(this)));
 }
 
 void HeroClass::reset_ladder()
@@ -32004,7 +32086,7 @@ void HeroClass::check_conveyor()
 			deltay = zslongToFix(cmb->attributes[1]);
 		}
 		
-		if((deltax==0&&deltay==0)&&(isSideViewHero() && on_sideview_solid_oldpos(x,y,old_x,old_y)))
+		if((deltax==0&&deltay==0)&&(isSideViewHero() && on_sideview_solid_oldpos(this)))
 		{
 			cmbid = MAPCOMBO(x+8,y+16);
 			cmb = &combobuf[cmbid];
@@ -32543,9 +32625,16 @@ bool HeroClass::canSideviewLadder(bool down)
 {
 	if(!isSideViewHero()) return false;
 	if(jumping < 0) return false;
+	if (down)
+	{
+		if (check_new_slope(x, y + 0.0001_zf, 16, 16, old_x, old_y, true))
+		{
+			return false;
+		}
+	}
 	if(down && get_qr(qr_DOWN_DOESNT_GRAB_LADDERS))
 	{
-		bool onSolid = on_sideview_solid_oldpos(x,y,old_x,old_y,true);
+		bool onSolid = on_sideview_solid_oldpos(this,true);
 		return ((isSVLadder(x+4,y+16) && (!isSVLadder(x+4,y)||onSolid)) || (isSVLadder(x+12,y+16) && (!isSVLadder(x+12,y)||onSolid)));
 	}
 	//Are you presently able to climb a sideview ladder?
@@ -32564,7 +32653,7 @@ bool HeroClass::canSideviewLadderRemote(int32_t wx, int32_t wy, bool down)
 	if(jumping < 0) return false;
 	if(down && get_qr(qr_DOWN_DOESNT_GRAB_LADDERS))
 	{
-		bool onSolid = on_sideview_solid_oldpos(x,y,old_x,old_y,true);
+		bool onSolid = on_sideview_solid_oldpos(this,true);
 		return ((isSVLadder(wx+4,wy+16) && (!isSVLadder(wx+4,wy)||onSolid)) || (isSVLadder(wx+12,wy+16) && (!isSVLadder(wx+12,wy)||onSolid)));
 	}
 	//Are you presently able to climb a sideview ladder?

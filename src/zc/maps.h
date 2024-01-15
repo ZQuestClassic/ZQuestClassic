@@ -147,6 +147,7 @@ bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(mapscr *s, int32_t i);
 void hidden_entrance(int32_t tmp,bool refresh, bool high16only=false,int32_t single=-1);
 void hidden_entrance2(mapscr *s, mapscr *t, bool high16only=false,int32_t single=-1);
+void update_slopes();
 void update_freeform_combos();
 bool findentrance(int x, int y, int flag, bool setflag);
 bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine);

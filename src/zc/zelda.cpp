@@ -3231,10 +3231,10 @@ void game_loop()
 		#endif
 		if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_POLL_INPUT);
-		
+
+		update_slopes();
 		if(!freezeff)
 		{
-			//if ( !FFCore.system_suspend[susptUPDATEFFC] ) 
 			update_freeform_combos();
 		}
 		
