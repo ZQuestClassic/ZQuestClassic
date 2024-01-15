@@ -18543,10 +18543,13 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				{
 					ret = false;
 					int xsign = dx.sign();
-					while(scr_canmove(xsign, 0, kb, ign_sv))
+					if(abs(dx) > 1)
 					{
-						x += xsign;
-						dx -= xsign;
+						while(scr_canmove(xsign, 0, kb, ign_sv))
+						{
+							x += xsign;
+							dx -= xsign;
+						}
 					}
 					if(dx)
 					{
@@ -18700,10 +18703,13 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					if(earlyret) return false;
 					ret = false;
 					int ysign = dy.sign();
-					while(scr_canmove(0, ysign, kb, ign_sv))
+					if(abs(dy) > 1)
 					{
-						y += ysign;
-						dy -= ysign;
+						while(scr_canmove(0, ysign, kb, ign_sv))
+						{
+							y += ysign;
+							dy -= ysign;
+						}
 					}
 					if(dy)
 					{
