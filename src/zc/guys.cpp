@@ -4025,9 +4025,6 @@ bool enemy::dont_draw()
 	if(flags&lens_only && !lensclk)
 		return true;
 		
-	if(lensclk && !((flags&lens_only) && (get_qr(qr_LENSSEESENEMIES) || (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG5))))
-		return true;
-		
 	return false;
 }
 
