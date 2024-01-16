@@ -41002,7 +41002,7 @@ void FFScript::do_isvalidbitmap()
 	int32_t UID = get_register(sarg1);
 	//zprint("isValidBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
-	else if ( scb.script_created_bitmaps[UID-10].u_bmp ) 
+	else if ( UID-10>=0 && UID-10 < 256 && scb.script_created_bitmaps[UID-10].u_bmp )
 		set_register(sarg1, 10000);
 	else set_register(sarg1, 0);
 }
@@ -41013,7 +41013,7 @@ void FFScript::do_isallocatedbitmap()
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else
 	{
-		set_register(sarg1, (scb.script_created_bitmaps[UID-10].reserved()) ? 10000L : 0L);
+		set_register(sarg1, (UID-10>=0 && UID-10 < 256 && scb.script_created_bitmaps[UID-10].reserved()) ? 10000L : 0L);
 		/*
 		UID-=10;
 		if ( UID <= highest_valid_user_bitmap() || UID < firstUserGeneratedBitmap)
