@@ -155,7 +155,7 @@ class TestZEditor(unittest.TestCase):
 
         package_dir = run_target.get_build_folder() / 'packages/package-test'
         args_path: Path = package_dir / 'data/zc_args.txt'
-        args_path.write_text(args_path.read_text() + ' -q')
+        args_path.write_text(args_path.read_text() + ' -q -headless')
         run_target.check_run('zplayer', [
             '-package',
         ], package_dir / 'data')
