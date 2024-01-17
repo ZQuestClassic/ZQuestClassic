@@ -16,18 +16,22 @@ inferred D2: 0
 	D2 = 0
 8: SETMOREI        D2              
 	D2 = 0
-9: SETR            D6              D4     
-	D2 = 0
-10: ADDV            D6              90000  
-	D2 = 0
-11: STOREI          D2              D6     
+9: NOP            
 	D2 = 0
 	side_effects
-12: LOADD           D2              190000 
+10: NOP            
+	D2 = 0
+	side_effects
+11: STORED          D2              90000  
+	D2 = 0
+	side_effects
+12: NOP            
+	D2 = 0
 	side_effects
 13: NOP            
+	D2 = 0
 	side_effects
-14: NOP            
+14: LOADD           D2              190000 
 	side_effects
 15: COMPAREV        D2              0      
 	side_effects
@@ -40,18 +44,22 @@ rewrite 5: GOTOCMP         7               ==
 7: COMPAREV        D2              1      
 8: SETMOREI        D2              
 	D2 = D2 I>= 1
-9: SETR            D6              D4     
-	D2 = D2 I>= 1
-10: ADDV            D6              90000  
-	D2 = D2 I>= 1
-11: STOREI          D2              D6     
+9: NOP            
 	D2 = D2 I>= 1
 	side_effects
-12: LOADD           D2              190000 
+10: NOP            
+	D2 = D2 I>= 1
+	side_effects
+11: STORED          D2              90000  
+	D2 = D2 I>= 1
+	side_effects
+12: NOP            
+	D2 = D2 I>= 1
 	side_effects
 13: NOP            
+	D2 = D2 I>= 1
 	side_effects
-14: NOP            
+14: LOADD           D2              190000 
 	side_effects
 15: COMPAREV        D2              0      
 	side_effects
@@ -93,12 +101,12 @@ Function #0
     6: TRACEV          1
     7: COMPAREV        D2              1            [Block 2 -> 3, 4]
     8: SETMOREI        D2
-    9: SETR            D6              D4
-   10: ADDV            D6              90000
-   11: STOREI          D2              D6
-   12: LOADD           D2              190000
+    9: NOP
+   10: NOP
+   11: STORED          D2              90000
+   12: NOP
    13: NOP
-   14: NOP
+   14: LOADD           D2              190000
    15: COMPAREV        D2              0
    16: GOTOCMP         18              ==
    17: TRACEV          1                            [Block 3 -> 4]

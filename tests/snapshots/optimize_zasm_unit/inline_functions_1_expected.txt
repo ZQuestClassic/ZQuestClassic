@@ -57,9 +57,9 @@ Function #1
 Function #2
    42: NOP                                          [Block 0 -> ]
    43: SETR            D4              SP
-   44: LOADD           D2              0
+   44: NOP
    45: NOP
-   46: NOP
+   46: LOADD           D2              0
    47: PUSHR           D2
    48: SETV            D2              40000
    49: POP             D3

@@ -613,39 +613,45 @@ static void optimize_conseq_additive(OptContext& ctx)
 }
 
 // SETR, ADDV, LOADI -> LOADD
+// SETR, ADDV, STOREI -> STORED
 // Ex:
 //   SETR            D6              D4
 //   ADDV            D6              40000
 //   LOADI           D2              D6
 // ->
 //   LOADD           D2              40000
-static void optimize_loadi(OptContext& ctx)
+static void optimize_load_store(OptContext& ctx)
 {
 	for (pc_t i = ctx.fn.start_pc + 2; i < ctx.fn.final_pc; i++)
 	{
 		int command = C(i).command;
 		int arg1 = C(i).arg1;
 		int arg2 = C(i).arg2;
-		if (command != LOADI || arg2 != D(6)) continue;
+		if (!one_of(command, LOADI, STOREI) || arg2 != rSFTEMP) continue;
 		if (bisect_tool_should_skip()) continue;
 
-		int addv_command = C(i - 1).command;
-		int addv_arg1 = C(i - 1).arg1;
-		int addv_arg2 = C(i - 1).arg2;
+		bool bail = false;
+		int setr_pc = i - 2;
+		while (!(C(setr_pc).command == SETR && C(setr_pc).arg1 == rSFTEMP && C(setr_pc).arg2 == rSFRAME))
+		{
+			if (setr_pc == ctx.fn.start_pc)
+			{
+				bail = true;
+				break;
+			}
+			setr_pc -= 1;
+		}
 
-		ASSERT(addv_command == ADDV);
-		ASSERT(addv_arg1 == D(6));
+		ASSERT(!bail);
+		if (bail)
+			continue;
 
-		int setr_command = C(i - 2).command;
-		int setr_arg1 = C(i - 2).arg1;
-		int setr_arg2 = C(i - 2).arg2;
+		int addv_arg2 = C(setr_pc + 1).arg2;
+		ASSERT(C(setr_pc + 1).command == ADDV);
 
-		ASSERT(setr_command == SETR);
-		ASSERT(setr_arg1 == D(6));
-		ASSERT(setr_arg2 == D(4));
-
-		C(i - 2) = {LOADD, arg1, addv_arg2};
-		remove(ctx, i - 1, i);
+		word new_command = command == LOADI ? LOADD : STORED;
+		C(i) = {new_command, arg1, addv_arg2};
+		remove(ctx, setr_pc, setr_pc + 1);
 	}
 }
 
@@ -2125,7 +2131,7 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> fun
 	{"goto_next_instruction", optimize_goto_next_instruction},
 	{"unreachable_blocks", optimize_unreachable_blocks},
 	{"conseq_additive", optimize_conseq_additive},
-	{"loadi", optimize_loadi},
+	{"load_store", optimize_load_store},
 	{"setv_pushr", optimize_setv_pushr},
 	{"setr_pushr", optimize_setr_pushr},
 	{"stack", optimize_stack},

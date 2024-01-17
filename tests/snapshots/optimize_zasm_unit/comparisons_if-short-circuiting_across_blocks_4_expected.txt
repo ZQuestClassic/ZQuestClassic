@@ -85,9 +85,9 @@ Function #0
     1: GOTOCMP         20              <
     2: NOP                                          [Block 1 -> 2, 3]
     3: NOP
-    4: LOADD           D2              30000
+    4: NOP
     5: NOP
-    6: NOP
+    6: LOADD           D2              30000
     7: PUSHR           D2
     8: SETV            D2              386050000
     9: POP             D3

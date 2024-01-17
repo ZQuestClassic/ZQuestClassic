@@ -79,9 +79,9 @@ Function #0
     1: GOTOCMP         15              !=
     2: NOP                                          [Block 1 -> 2, 3]
     3: NOP
-    4: LOADD           D2              60000
+    4: NOP
     5: NOP
-    6: NOP
+    6: LOADD           D2              60000
     7: COMPAREV        D2              0
     8: GOTOCMP         15              !=
     9: NOP                                          [Block 2 -> 3]

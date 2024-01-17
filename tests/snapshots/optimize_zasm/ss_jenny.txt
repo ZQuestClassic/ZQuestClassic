@@ -4,7 +4,7 @@ Finished optimizing scripts:
 	[goto_next_instruction] saved 667 instr (0.4%)
 	[unreachable_blocks] saved 540 instr (0.3%)
 	[conseq_additive] saved 1658 instr (0.9%)
-	[loadi] saved 0 instr (0.0%)
+	[load_store] saved 0 instr (0.0%)
 	[setv_pushr] saved 2468 instr (1.4%)
 	[setr_pushr] saved 2616 instr (1.5%)
 	[stack] saved 318 instr (0.2%)
