@@ -4325,7 +4325,12 @@ int main(int argc, char **argv)
 	int only_arg = used_switch(argc, argv, "-only");
 	if (only_arg)
 	{
-		only_qstpath = (fs::current_path() / argv[only_arg+1]).string();
+		fs::path only_path = (fs::current_path() / argv[only_arg+1]);
+		only_qstpath = only_path.string();
+		if (only_path.extension() != ".qst")
+			Z_error_fatal("-only value must be a qst file, but got: %s\n", only_qstpath.c_str());
+		if (!fs::exists(only_path))
+			Z_error_fatal("Could not find file: %s\n", only_qstpath.c_str());
 	}
 
 	int test_opt_zasm_arg = used_switch(argc, argv, "-test-optimize-zasm");
