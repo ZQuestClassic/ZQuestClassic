@@ -4638,6 +4638,18 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		}
 	}
 
+	int w, h;
+	if (isviewingmap)
+	{
+		w = rti_map_view.width;
+		h = rti_map_view.height;
+	}
+	else
+	{
+		w = (*pictoview)->w;
+		h = (*pictoview)->h;
+	}
+
 	do
 	{
 		if (isviewingmap)
@@ -4645,25 +4657,16 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 			float scale = *scale2;
 			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
 			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
-			mapx = std::clamp(mapx, (int)(-rti_map_view.width*scale + dw), 0);
-			mapy = std::clamp(mapy, (int)(-rti_map_view.height*scale + dh), 0);
+			mapx = std::max(mapx, (int)(-w*scale + dw));
+			mapy = std::max(mapy, (int)(-h*scale + dh));
+			mapx = std::min(mapx, 0);
+			mapy = std::min(mapy, 0);
 			rti_map_view.set_transform({mapx, mapy, scale, scale});
 		}
 
 		if(redraw)
 		{
 			clear_to_color(buf,15);
-			int w, h;
-			if (isviewingmap)
-			{
-				w = rti_map_view.width;
-				h = rti_map_view.height;
-			}
-			else
-			{
-				w = (*pictoview)->w;
-				h = (*pictoview)->h;
-			}
 
 			if (!isviewingmap)
 				stretch_blit(*pictoview, buf, 0, 0, w, h,
@@ -4762,8 +4765,8 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 				break;
 				
 			case KEY_Z:
-				*px2=(*pictoview)->w-zq_screen_w;
-				*py2=(*pictoview)->h-zq_screen_h;
+				*px2=w-zq_screen_w;
+				*py2=h-zq_screen_h;
 				vp_center=false;
 				redraw=true;
 				break;
