@@ -104,6 +104,10 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler &cc, x86::G
 		cc.mov(val, vStackIndex);
 		cc.imul(val, 10000);
 	}
+	else if (r == SP2)
+	{
+		cc.mov(val, vStackIndex);
+	}
 	else if (r == SWITCHKEY)
 	{
 		cc.mov(val, state.vSwitchKey);
@@ -135,6 +139,10 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler &cc, x86
 		cc.movsxd(val, vStackIndex);
 		cc.imul(val, 10000);
 	}
+	else if (r == SP2)
+	{
+		cc.movsxd(val, vStackIndex);
+	}
 	else if (r == SWITCHKEY)
 	{
 		cc.movsxd(val, state.vSwitchKey);
@@ -163,7 +171,7 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 	{
 		cc.mov(x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4), val);
 	}
-	else if (r == SP)
+	else if (r == SP || r == SP2)
 	{
 		// TODO
 		Z_error_fatal("Unimplemented: set SP");
@@ -539,6 +547,7 @@ static bool command_is_compiled(int command)
 	case DIVR:
 	case DIVV:
 	case FLOOR:
+	case LOAD:
 	case LOADD:
 	case LOADI:
 	case MAXR:
@@ -552,6 +561,8 @@ static bool command_is_compiled(int command)
 	case NOP:
 	case SETR:
 	case SETV:
+	case STORE:
+	case STOREV:
 	case STORED:
 	case STOREDV:
 	case STOREI:
@@ -1056,12 +1067,24 @@ JittedFunction jit_compile_script(script_data *script)
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
+		case LOAD:
+		{
+			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
+			x86::Gp offset = cc.newInt32();
+			cc.mov(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			if (arg2)
+				cc.add(offset, arg2);
+
+			set_z_register(state, cc, vStackIndex, arg1, x86::ptr_32(state.ptrStack, offset, 2));
+		}
+		break;
 		case LOADD:
 		{
 			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, arg2);
-			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			cc.mov(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			if (arg2)
+				cc.add(offset, arg2);
 			div_10000(cc, offset);
 
 			set_z_register(state, cc, vStackIndex, arg1, x86::ptr_32(state.ptrStack, offset, 2));
@@ -1074,6 +1097,28 @@ JittedFunction jit_compile_script(script_data *script)
 			div_10000(cc, offset);
 
 			set_z_register(state, cc, vStackIndex, arg1, x86::ptr_32(state.ptrStack, offset, 2));
+		}
+		break;
+		case STORE:
+		{
+			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
+			x86::Gp offset = cc.newInt32();
+			cc.mov(offset, arg2);
+			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
+		}
+		break;
+		case STOREV:
+		{
+			// Write directly value on the stack (offset is arg2 + rSFRAME register).
+			x86::Gp offset = cc.newInt32();
+			cc.mov(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			if (arg2)
+				cc.add(offset, arg2);
+			
+			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);
 		}
 		break;
 		case STORED:
@@ -1092,8 +1137,9 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// Write directly value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, arg2);
-			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			cc.mov(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+			if (arg2)
+				cc.add(offset, arg2);
 			div_10000(cc, offset);
 			
 			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);

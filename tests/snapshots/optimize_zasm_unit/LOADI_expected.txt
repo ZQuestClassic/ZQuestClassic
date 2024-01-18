@@ -9,10 +9,10 @@ Function #0
 Function #1
     5: NOP                                          [Block 0 -> ]
     6: NOP
-    7: LOADD           D2              30000
+    7: LOAD            D2              3
     8: PUSHR           D2
     9: NOP
    10: NOP
-   11: LOADD           D2              20000
+   11: LOAD            D2              2
    12: PUSHR           D2
    13: RETURNFUNC

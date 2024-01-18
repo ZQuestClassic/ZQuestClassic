@@ -76,7 +76,7 @@ Function #0
     1: GOTOCMP         12              >=
     2: NOP                                          [Block 1 -> 2, 3]
     3: NOP
-    4: LOADD           D2              20000
+    4: LOAD            D2              2
     5: COMPAREV        D2              10000
     6: GOTOCMP         12              <
     7: NOP                                          [Block 2 -> 3]

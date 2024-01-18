@@ -59,7 +59,7 @@ Function #0
     1: GOTOCMP         14              ==
     2: NOP                                          [Block 1 -> 2, 4]
     3: NOP
-    4: LOADD           D2              10000
+    4: LOAD            D2              1
     5: PUSHR           D2
     6: POP             REFFFC
     7: SETR            D2              DATA

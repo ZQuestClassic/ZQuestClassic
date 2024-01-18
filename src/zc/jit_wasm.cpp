@@ -198,6 +198,10 @@ static void get_z_register(CompilationState& state, int r)
 		state.wasm->emitI32Const(10000);
 		state.wasm->emitI32Mul();
 	}
+	else if (r == SP2)
+	{
+		state.wasm->emitGlobalGet(state.g_idx_sp);
+	}
 	else
 	{
 		state.wasm->emitI32Const(r);
@@ -308,6 +312,7 @@ static bool command_is_compiled(int command)
 	case DIVR:
 	case DIVV:
 	// case FLOOR:
+	case LOAD:
 	case LOADD:
 	// case LOADI:
 	// case MAXR:
@@ -321,6 +326,7 @@ static bool command_is_compiled(int command)
 	case NOP:
 	case SETR:
 	case SETV:
+	case STORE:
 	case STORED:
 	// case STOREI:
 	case SUBR:
@@ -843,21 +849,60 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					wasm.emitI32Store();
 				}
 				break;
-				case STORED:
+				case STORE:
 				{
 					// Reg[arg1] -> Stack[rSFRAME + arg2]
 					get_z_register(state, rSFRAME);
-					wasm.emitI32Const(10000);
-					wasm.emitI32DivU();
+					if (arg2)
+					{
+						wasm.emitI32Const(arg2);
+						wasm.emitI32Add();
+					}
 
-					wasm.emitI32Const(arg2 / 10000);
-					wasm.emitI32Add();
 					wasm.emitI32Const(4);
 					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
 					wasm.emitGlobalGet(g_idx_stack);
 					wasm.emitI32Add();
 					get_z_register(state, arg1);
 					wasm.emitI32Store();
+				}
+				break;
+				case STORED:
+				{
+					// Reg[arg1] -> Stack[rSFRAME + arg2]
+					get_z_register(state, rSFRAME);
+					wasm.emitI32Const(10000);
+					wasm.emitI32DivU();
+					if (arg2)
+					{
+						wasm.emitI32Const(arg2 / 10000);
+						wasm.emitI32Add();
+					}
+
+					wasm.emitI32Const(4);
+					wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+					wasm.emitGlobalGet(g_idx_stack);
+					wasm.emitI32Add();
+					get_z_register(state, arg1);
+					wasm.emitI32Store();
+				}
+				break;
+				case LOAD:
+				{
+					// Stack[rSFRAME + arg2] -> Reg[arg1]
+					set_z_register(state, arg1, [&](){
+						get_z_register(state, rSFRAME);
+						if (arg2)
+						{
+							wasm.emitI32Const(arg2);
+							wasm.emitI32Add();
+						}
+						wasm.emitI32Const(4);
+						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+						wasm.emitGlobalGet(g_idx_stack);
+						wasm.emitI32Add();
+						wasm.emitI32Load();
+					});
 				}
 				break;
 				case LOADD:
@@ -867,9 +912,12 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 						get_z_register(state, rSFRAME);
 						wasm.emitI32Const(10000);
 						wasm.emitI32DivU();
+						if (arg2)
+						{
+							wasm.emitI32Const(arg2 / 10000);
+							wasm.emitI32Add();
+						}
 
-						wasm.emitI32Const(arg2 / 10000);
-						wasm.emitI32Add();
 						wasm.emitI32Const(4);
 						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
 						wasm.emitGlobalGet(g_idx_stack);

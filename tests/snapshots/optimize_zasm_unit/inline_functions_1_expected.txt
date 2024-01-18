@@ -7,7 +7,7 @@ rewrite 32: 3 -> 1 commands
 33: NOP            
 34: NOP            
 Function #0
-    0: SETR            D4              SP           [Block 0 -> ]
+    0: SETR            D4              SP2          [Block 0 -> ]
     1: PUSHR           D4
     2: NOP
     3: NOP
@@ -56,10 +56,10 @@ Function #1
 
 Function #2
    42: NOP                                          [Block 0 -> ]
-   43: SETR            D4              SP
+   43: SETR            D4              SP2
    44: NOP
    45: NOP
-   46: LOADD           D2              0
+   46: LOAD            D2              0
    47: PUSHR           D2
    48: SETV            D2              40000
    49: POP             D3

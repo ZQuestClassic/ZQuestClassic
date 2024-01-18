@@ -3,15 +3,15 @@ rewrite 3: 3 -> 1 commands
 4: NOP            
 5: NOP            
 Function #0
-    0: SETR            D4              SP           [Block 0 -> ]
+    0: SETR            D4              SP2          [Block 0 -> ]
     1: PUSHARGSR       D4              1
-    2: LOADD           D2              70000
+    2: LOAD            D2              7
     3: SINR            D2              D2
     4: NOP
     5: NOP
     6: PUSHR           D2
     7: PUSHR           D4
-    8: LOADD           D2              70000
+    8: LOAD            D2              7
     9: PUSHR           D2
    10: CALLFUNC        32                           [Call Function #2]
    11: POP             D4

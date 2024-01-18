@@ -1202,6 +1202,10 @@ script_command command_list[NUMCOMMANDS+1]=
 
 	{ "STACKWRITEATVV_IF", 3, { NUM, NUM, CMP }, 0, CMPUSED },
 
+	{ "LOAD", 2, { REG_W, NUM }, 0, 0 },
+	{ "STORE", 2, { REG_R, NUM }, 0, 0 },
+	{ "STOREV", 2, { NUM, NUM }, 0, 0 },
+
 	{ "", 0, {}, 0, 0 }
 };
 
@@ -1399,7 +1403,7 @@ script_variable variable_list[]=
 	{ "EWPNOCSET", EWPNOCSET, 0, 0 },
 	{ "NPCEXTEND", NPCEXTEND, 0, 0 },
 	{ "SP", SP, 0, 0 },
-	{ "SP", SP, 0, 0 },
+	{ "SP2", SP2, 0, 0 },
 	{ "WAVY", WAVY, 0, 0 },
 	{ "QUAKE", QUAKE, 0, 0 },
 	{ "IDATAUSESOUND", IDATAUSESOUND, 0, 0 },

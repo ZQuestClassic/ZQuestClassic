@@ -87,7 +87,7 @@ Function #0
     3: NOP
     4: NOP
     5: NOP
-    6: LOADD           D2              30000
+    6: LOAD            D2              3
     7: PUSHR           D2
     8: SETV            D2              386050000
     9: POP             D3

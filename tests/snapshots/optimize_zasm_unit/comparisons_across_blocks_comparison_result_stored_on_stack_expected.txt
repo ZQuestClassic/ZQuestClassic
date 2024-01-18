@@ -22,7 +22,7 @@ inferred D2: 0
 10: NOP            
 	D2 = 0
 	side_effects
-11: STORED          D2              90000  
+11: STORE           D2              9      
 	D2 = 0
 	side_effects
 12: NOP            
@@ -31,7 +31,7 @@ inferred D2: 0
 13: NOP            
 	D2 = 0
 	side_effects
-14: LOADD           D2              190000 
+14: LOAD            D2              19     
 	side_effects
 15: COMPAREV        D2              0      
 	side_effects
@@ -50,7 +50,7 @@ rewrite 5: GOTOCMP         7               ==
 10: NOP            
 	D2 = D2 I>= 1
 	side_effects
-11: STORED          D2              90000  
+11: STORE           D2              9      
 	D2 = D2 I>= 1
 	side_effects
 12: NOP            
@@ -59,7 +59,7 @@ rewrite 5: GOTOCMP         7               ==
 13: NOP            
 	D2 = D2 I>= 1
 	side_effects
-14: LOADD           D2              190000 
+14: LOAD            D2              19     
 	side_effects
 15: COMPAREV        D2              0      
 	side_effects
@@ -103,10 +103,10 @@ Function #0
     8: SETMOREI        D2
     9: NOP
    10: NOP
-   11: STORED          D2              90000
+   11: STORE           D2              9
    12: NOP
    13: NOP
-   14: LOADD           D2              190000
+   14: LOAD            D2              19
    15: COMPAREV        D2              0
    16: GOTOCMP         18              ==
    17: TRACEV          1                            [Block 3 -> 4]

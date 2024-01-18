@@ -465,8 +465,12 @@ static void for_every_command_arg_include_indices(const ffscript& instr, T fn)
 {
 	switch (instr.command)
 	{
+		case LOAD:
 		case LOADD:
+		case STORE:
+		case STOREV:
 		case STORED:
+		case STOREDV:
 			fn(true, false, rSFRAME);
 			break;
 
@@ -612,23 +616,25 @@ static void optimize_conseq_additive(OptContext& ctx)
 	optimize_conseq_additive_impl(ctx, POP, POPARGS, true);
 }
 
-// SETR, ADDV, LOADI -> LOADD
-// SETR, ADDV, STOREI -> STORED
+// SETR, ADDV, LOADI -> LOAD
+// SETR, ADDV, STOREI -> STORE
 // Ex:
 //   SETR            D6              D4
 //   ADDV            D6              40000
 //   LOADI           D2              D6
 // ->
-//   LOADD           D2              40000
+//   LOAD            D2              4
 static void optimize_load_store(OptContext& ctx)
 {
+	if (bisect_tool_should_skip())
+		return;
+
 	for (pc_t i = ctx.fn.start_pc + 2; i < ctx.fn.final_pc; i++)
 	{
 		int command = C(i).command;
 		int arg1 = C(i).arg1;
 		int arg2 = C(i).arg2;
 		if (!one_of(command, LOADI, STOREI) || arg2 != rSFTEMP) continue;
-		if (bisect_tool_should_skip()) continue;
 
 		bool bail = false;
 		int setr_pc = i - 2;
@@ -652,6 +658,31 @@ static void optimize_load_store(OptContext& ctx)
 		word new_command = command == LOADI ? LOADD : STORED;
 		C(i) = {new_command, arg1, addv_arg2};
 		remove(ctx, setr_pc, setr_pc + 1);
+	}
+
+	for (pc_t i = ctx.fn.start_pc; i < ctx.fn.final_pc; i++)
+	{
+		int command = C(i).command;
+		int arg1 = C(i).arg1;
+		int arg2 = C(i).arg2;
+
+		if (command == SETR && arg1 == rSFRAME && arg2 == SP)
+		{
+			C(i).arg2 = SP2;
+			continue;
+		}
+
+		if (!one_of(command, LOADD, STORED, STOREDV)) continue;
+
+		word new_command;
+		switch (command)
+		{
+			case LOADD: new_command = LOAD; break;
+			case STORED: new_command = STORE; break;
+			case STOREDV: new_command = STOREV; break;
+		}
+		ASSERT(arg2 % 10000 == 0);
+		C(i) = {new_command, arg1, arg2 / 10000};
 	}
 }
 
@@ -1754,7 +1785,7 @@ static void optimize_calling_mode(OptContext& ctx)
 			continue;
 		}
 
-		if (instr.command == SETR && instr.arg1 == rSFRAME && instr.arg2 == SP)
+		if (instr.command == SETR && instr.arg1 == rSFRAME && (instr.arg2 == SP || instr.arg2 == SP2))
 		{
 			push_stack_pcs.clear();
 			continue;

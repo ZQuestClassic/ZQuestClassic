@@ -14,7 +14,7 @@ inferred D2: 0
 6: NOP            
 	D2 = 0
 	side_effects
-7: LOADD           D2              0      
+7: LOAD            D2              0      
 	side_effects
 8: PUSHR           D2              
 	side_effects
@@ -44,7 +44,7 @@ rewrite 3: GOTOCMP         5               ==
 	side_effects
 6: NOP            
 	side_effects
-7: LOADD           D2              0      
+7: LOAD            D2              0      
 	side_effects
 8: PUSHR           D2              
 	side_effects
@@ -109,7 +109,7 @@ Function #0
     4: TRACEV          0
     5: NOP                                          [Block 2 -> 3, 4]
     6: NOP
-    7: LOADD           D2              0
+    7: LOAD            D2              0
     8: PUSHR           D2
     9: SETV            D2              450000
    10: POP             D3

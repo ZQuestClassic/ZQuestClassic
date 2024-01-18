@@ -13131,6 +13131,9 @@ int32_t get_register(int32_t arg)
 		case SP:
 			ret = ri->sp * 10000;
 			break;
+		case SP2:
+			ret = ri->sp;
+			break;
 			
 		case PC:
 			ret = ri->pc;
@@ -25808,6 +25811,11 @@ void set_register(int32_t arg, int32_t value)
 			ri->sp = value / 10000;
 			ri->sp &= MASK_SP;
 			break;
+		
+		case SP2:
+			ri->sp = value;
+			ri->sp &= MASK_SP;
+			break;
 			
 		case PC:
 			ri->pc = value;
@@ -28628,9 +28636,23 @@ void do_loadd()
 	set_register(sarg1, value);
 }
 
+void do_load()
+{
+	const int32_t stackoffset = ri->d[rSFRAME] + sarg2;
+	const int32_t value = SH::read_stack(stackoffset);
+	set_register(sarg1, value);
+}
+
 void do_stored(const bool v)
 {
 	const int32_t stackoffset = (sarg2+ri->d[rSFRAME]) / 10000;
+	const int32_t value = SH::get_arg(sarg1, v);
+	SH::write_stack(stackoffset, value);
+}
+
+void do_store(const bool v)
+{
+	const int32_t stackoffset = ri->d[rSFRAME] + sarg2;
 	const int32_t value = SH::get_arg(sarg1, v);
 	SH::write_stack(stackoffset, value);
 }
@@ -36153,12 +36175,22 @@ int32_t run_script_int(bool is_jitted)
 			case LOADD:
 				do_loadd();
 				break;
+
+			case LOAD:
+				do_load();
+				break;
 				
 			case STORED:
 				do_stored(false);
 				break;
 			case STOREDV:
 				do_stored(true);
+				break;
+			case STORE:
+				do_store(false);
+				break;
+			case STOREV:
+				do_store(true);
 				break;
 				
 			case LOAD1:
@@ -51964,6 +51996,7 @@ bool command_is_pure(int command)
 		case IPOWERR:
 		case IPOWERV:
 		case ISALLOCATEDBITMAP:
+		case LOAD:
 		case LOADD:
 		case LOADI:
 		case LOG10:

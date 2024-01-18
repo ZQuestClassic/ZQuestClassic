@@ -4,7 +4,7 @@
 	side_effects
 1: NOP            
 	side_effects
-2: LOADD           D2              730000 
+2: LOAD            D2              73     
 	side_effects
 3: PUSHR           D2              
 	side_effects
@@ -61,7 +61,7 @@ rewrite 6: 6 -> 2 commands
 Function #0
     0: NOP                                          [Block 0 -> 1, 2]
     1: NOP
-    2: LOADD           D2              730000
+    2: LOAD            D2              73
     3: PUSHR           D2
     4: SETV            D2              40000
     5: POP             D3

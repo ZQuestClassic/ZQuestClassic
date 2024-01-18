@@ -76,7 +76,7 @@ rewrite 6: 8 -> 2 commands
 Function #0
     0: COMPAREV        D2              0            [Block 0 -> 1, 3]
     1: GOTOCMP         15              ==
-    2: LOADD           D2              20000        [Block 1 -> 2, 3]
+    2: LOAD            D2              2            [Block 1 -> 2, 3]
     3: PUSHR           D2
     4: POP             REFNPC
     5: SETR            D2              NPCSTUN
