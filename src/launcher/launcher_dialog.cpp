@@ -520,6 +520,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Disable Resizing",App::zelda,"gui","disable_window_resizing",0),
 						CONFIG_CHECKBOX("Cap FPS",App::zelda,"zeldadx","throttlefps",1),
 						CONFIG_CHECKBOX("Show FPS",App::zelda,"zeldadx","showfps",0),
+						CONFIG_CHECKBOX("Show Game Time",App::zelda,"zeldadx","showtime",0),
 						CONFIG_CHECKBOX("Cont. Heart Beep",App::zelda,"zeldadx","heart_beep",0),
 						CONFIG_CHECKBOX("Disable Sound",App::zelda,"zeldadx","nosound",0),
 						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),

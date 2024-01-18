@@ -280,6 +280,13 @@ void render_zc()
 	std::vector<std::string> lines_left;
 	std::vector<std::string> lines_right;
 
+	if (ShowGameTime && game && Playing)
+	{
+		if (MenuOpen || Paused)
+			lines_left.push_back(fmt::format("{} ({})", time_str_long(game->get_time()), game->get_time()));
+		else
+			lines_left.push_back(fmt::format("{}", ShowGameTime == 2 ? time_str_long(game->get_time()) : time_str_med(game->get_time())));
+	}
 	// TODO calculate fps without using a timer thread.
 	if (ShowFPS)
 		lines_left.push_back(fmt::format("FPS: {}", (int)lastfps));
@@ -291,13 +298,6 @@ void render_zc()
 		lines_right.push_back("PAUSED");
 	if (Saving && use_save_indicator)
 		lines_right.push_back("SAVING ...");
-	if (details && game)
-	{
-		lines_right.push_back(fmt::format("dlvl:{:2} dngn:{}", dlevel, isdungeon()));
-		lines_right.push_back(time_str_long(game->get_time()));
-		for (int i = 0; i < guys.Count(); i++)
-			lines_right.push_back(fmt::format("{}", (int)((enemy*)guys.spr(i))->id));
-	}
 	if (show_ff_scripts)
 	{
 		for (int i = 0; i < tmpscr->numFFC(); i++)

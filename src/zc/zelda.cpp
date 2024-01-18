@@ -348,6 +348,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
 	Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false,
 	DragAspect=false, SaveWinPos=false, scaleForceInteger=false, stretchGame=false;
+int ShowGameTime=0;
 int32_t Maxfps = 0;
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
@@ -355,7 +356,7 @@ bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clea
 bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
-     loaded_enemies= false,drawguys= false,details=false,watch= false;
+     loaded_enemies= false,drawguys= false,watch= false;
 bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
 
 bool down_control_states[controls::btnLast] = {false};
@@ -4560,6 +4561,7 @@ int main(int argc, char **argv)
 	
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
 	if(used_switch(argc,argv,"-show-fps")) ShowFPS=true;
+	if(used_switch(argc,argv,"-show-time")) ShowGameTime=true;
 	
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
