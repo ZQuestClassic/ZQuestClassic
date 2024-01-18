@@ -339,7 +339,7 @@ void jit_startup()
 	// Only clear compiled functions if quest has changed since last quest load.
 	// TODO: could get even smarter and hash each ZASM script, only recompiling if something really changed.
 	static std::pair<std::string, std::filesystem::file_time_type> previous_state;
-	static std::pair<std::string, std::filesystem::file_time_type> state = {qstpath, std::filesystem::last_write_time(qstpath)};
+	std::pair<std::string, std::filesystem::file_time_type> state = {qstpath, std::filesystem::last_write_time(qstpath)};
 	bool should_clear = state != previous_state;
 	if (should_clear)
 	{
