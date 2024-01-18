@@ -3995,40 +3995,6 @@ int32_t isFullScreen()
     return !is_windowed_mode();
 }
 
-int32_t onFullscreen()
-{
-	if(jwin_alert3(
-			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
-			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
-			(is_windowed_mode()) ? "We strongly advise saving your game before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
-			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)	
-    {
-	    PALETTE oldpal;
-	    get_palette(oldpal);
-	    
-	    fullscreen = !fullscreen;
-		all_toggle_fullscreen(fullscreen);
-		zc_set_config("zeldadx","fullscreen",fullscreen);
-	    
-	    zc_set_palette(oldpal);
-	    gui_mouse_focus=0;
-	    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
-	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
-		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
-		set_display_switch_callback(SWITCH_IN, switch_in_callback);
-
-	    return D_REDRAW;
-    }
-    else return D_O_K;
-}
-
 static bool current_session_is_replay = false;
 static void load_replay_file(ReplayMode mode, std::string replay_file, int frame)
 {

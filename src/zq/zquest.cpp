@@ -1573,36 +1573,21 @@ int32_t onResetTransparency()
 
 int32_t onFullScreen()
 {
-	if(jwin_alert3(
-			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
-			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
-			(is_windowed_mode()) ? "We strongly advise saving your quest before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
-			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)	
-	{
-		get_palette(RAMpal);
-		bool windowed=is_windowed_mode()!=0;
-		all_toggle_fullscreen(windowed);
-		
-		gui_mouse_focus=0;
-		gui_bg_color=jwin_pal[jcBOX];
-		gui_fg_color=jwin_pal[jcBOXFG];
-		MouseSprite::set(ZQM_NORMAL);
-		zc_set_palette(RAMpal);
-		position_mouse(zq_screen_w/2,zq_screen_h/2);
-		set_display_switch_mode(SWITCH_BACKGROUND);
-		set_display_switch_callback(SWITCH_OUT, switch_out);
-		set_display_switch_callback(SWITCH_IN, switch_in);
-		zc_set_config("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
-		return D_REDRAW;
-	}
-	else return D_O_K;
+	get_palette(RAMpal);
+	bool windowed=is_windowed_mode()!=0;
+	all_toggle_fullscreen(windowed);
+
+	gui_mouse_focus=0;
+	gui_bg_color=jwin_pal[jcBOX];
+	gui_fg_color=jwin_pal[jcBOXFG];
+	MouseSprite::set(ZQM_NORMAL);
+	zc_set_palette(RAMpal);
+	position_mouse(zq_screen_w/2,zq_screen_h/2);
+	set_display_switch_mode(SWITCH_BACKGROUND);
+	set_display_switch_callback(SWITCH_OUT, switch_out);
+	set_display_switch_callback(SWITCH_IN, switch_in);
+	zc_set_config("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
+	return D_REDRAW;
 }
 
 int32_t onEnter()

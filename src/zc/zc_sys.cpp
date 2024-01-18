@@ -7667,9 +7667,23 @@ int32_t onExtLetterGridEntry()
 static BITMAP* oldscreen;
 int32_t onFullscreenMenu()
 {
-	onFullscreen();
+	PALETTE oldpal;
+	get_palette(oldpal);
+
+	fullscreen = !fullscreen;
+	all_toggle_fullscreen(fullscreen);
+	zc_set_config("zeldadx","fullscreen",fullscreen);
+
+	zc_set_palette(oldpal);
+	gui_mouse_focus=0;
+	extern int32_t switch_type;
+	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+	set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
+	set_display_switch_callback(SWITCH_OUT, switch_out_callback);
+	set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	misc_menu.select_uid(MENUID_MISC_FULLSCREEN, isFullScreen());
 	misc_menu.select_uid(MENUID_MISC_VIDMODE, isFullScreen());
+
 	return D_O_K;
 }
 
