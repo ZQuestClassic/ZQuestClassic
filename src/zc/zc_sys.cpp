@@ -7667,13 +7667,7 @@ int32_t onExtLetterGridEntry()
 static BITMAP* oldscreen;
 int32_t onFullscreenMenu()
 {
-	// super hacks
-	screen = oldscreen;
-	if (onFullscreen() == D_REDRAW)
-	{
-		oldscreen = screen;
-	}
-	screen = menu_bmp;
+	onFullscreen();
 	misc_menu.select_uid(MENUID_MISC_FULLSCREEN, isFullScreen());
 	misc_menu.select_uid(MENUID_MISC_VIDMODE, isFullScreen());
 	return D_O_K;

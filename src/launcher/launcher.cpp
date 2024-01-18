@@ -536,11 +536,8 @@ static void init_render_tree()
 {
 	if (rti_root.has_children())
 		return;
-	
-	if (use_linear_bitmaps())
-		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
-	else
-		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+
+	set_bitmap_create_flags(true);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
 	rti_screen.set_size(screen->w, screen->h);
