@@ -204,6 +204,7 @@ void user_object::clear_nodestruct()
 	data.clear();
 	reserved = false;
 	owned_vars = 0;
+	destruct.clear();
 }
 void user_object::clear()
 {
