@@ -28,7 +28,6 @@ struct itemdata;
 struct MsgStr;
 
 int32_t isFullScreen();
-int32_t onFullscreen();
 extern bool zqtesting_mode;
 extern bool use_testingst_start;
 
