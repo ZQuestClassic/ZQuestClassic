@@ -1586,12 +1586,7 @@ int32_t onFullScreen()
 	{
 		get_palette(RAMpal);
 		bool windowed=is_windowed_mode()!=0;
-		
-		int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
-		if(ret!=0)
-		{
-			Z_error_fatal("Failed to set video mode: %d. allegro_error: %s\n", ret, allegro_error);
-		}
+		all_toggle_fullscreen(windowed);
 		
 		gui_mouse_focus=0;
 		gui_bg_color=jwin_pal[jcBOX];
@@ -4574,6 +4569,7 @@ private:
 	void render(bool bitmap_resized)
 	{
 		BITMAP* bmap4_single = create_bitmap_ex(8,256,176);
+		set_bitmap_create_flags(true);
 		ALLEGRO_BITMAP* bmap5_single = al_create_bitmap(256,176);
 		int curscr = Map.getCurrScr();
 		for(int32_t y=0; y<8; y++)

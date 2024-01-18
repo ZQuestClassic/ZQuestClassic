@@ -26,6 +26,7 @@ extern "C" {
 #endif
 
 AL_LEGACY_FUNC(ALLEGRO_DISPLAY *, all_get_display, (void));
+AL_LEGACY_FUNC(void, all_toggle_fullscreen, (bool));
 AL_LEGACY_FUNC(bool, all_display_is_active, (void));
 AL_LEGACY_FUNC(ALLEGRO_BITMAP *, all_get_a5_bitmap, (BITMAP * bp));
 AL_LEGACY_FUNC(void, all_render_a5_bitmap, (BITMAP * bp, ALLEGRO_BITMAP * a5bp));

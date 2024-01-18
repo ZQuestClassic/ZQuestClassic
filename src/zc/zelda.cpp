@@ -3997,22 +3997,9 @@ int32_t isFullScreen()
     return !is_windowed_mode();
 }
 
-bool setGraphicsMode(bool windowed)
-{
-	int32_t type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
-	int w = resx, h = resy;
-	if (type == GFX_AUTODETECT_WINDOWED)
-	{
-		w = window_width;
-		h = window_height;
-	}
-	bool result = set_gfx_mode(type, w, h, 0, 0)==0;
-	return result;
-}
-
 int32_t onFullscreen()
 {
-    if(jwin_alert3(
+	if(jwin_alert3(
 			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
 			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
 			(is_windowed_mode()) ? "We strongly advise saving your game before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
@@ -4028,26 +4015,9 @@ int32_t onFullscreen()
 	    PALETTE oldpal;
 	    get_palette(oldpal);
 	    
-	    bool windowed=is_windowed_mode()!=0;
-	    
-	    bool success=setGraphicsMode(!windowed);
-	    if(success)
-		{
-			fullscreen=!fullscreen;
-			zc_set_config("zeldadx","fullscreen",fullscreen);
-	    }
-		else
-	    {
-		// Try to restore the previous mode, then...
-		success=setGraphicsMode(windowed);
-		if(!success)
-		{
-			Z_error_fatal("Failed to set video mode. allegro_error: %s\n", allegro_error);
-		}
-	    }
-	    
-	    //Everything set?
-	    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
+	    fullscreen = !fullscreen;
+		all_toggle_fullscreen(fullscreen);
+		zc_set_config("zeldadx","fullscreen",fullscreen);
 	    
 	    zc_set_palette(oldpal);
 	    gui_mouse_focus=0;
@@ -4668,10 +4638,9 @@ int main(int argc, char **argv)
 	auto [w, h] = zc_get_default_display_size(zq_screen_w, zq_screen_h, resx, resy);
 	resx = w;
 	resy = h;
-
 	// TODO: consolidate "resx" and "resy" variables with window_width,height.
-	// window_width = resx;
-	// window_height = resy;
+	window_width = resx;
+	window_height = resy;
 	
 	if(zc_get_config("gui","disable_window_resizing",0))
 		all_set_resize_flag(false);

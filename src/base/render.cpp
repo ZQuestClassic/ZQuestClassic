@@ -284,6 +284,7 @@ void zc_set_palette_range(PALETTE pal, int start, int end, bool)
 void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskind,uint32_t* backpal)
 {
 	if(!backpal) backpal = zc_backend_palette;
+	set_bitmap_create_flags(true);
 	ALLEGRO_BITMAP* buf = al_create_bitmap(w,h);
 	ALLEGRO_LOCKED_REGION * lr;
 	uint8_t * line_8;
@@ -335,7 +336,7 @@ void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::string text, i
 	{
 		if (text_bitmap)
 			al_destroy_bitmap(text_bitmap);
-		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+		set_bitmap_create_flags(true);
 		text_bitmap = al_create_bitmap(resx, h);
 	}
 
@@ -593,6 +594,7 @@ namespace MouseSprite
 			};
 			ALLEGRO_COLOR white = al_map_rgb(255,255,255);
 			ALLEGRO_COLOR black = al_map_rgb(0,0,0);
+			set_bitmap_create_flags(true);
 			ALLEGRO_BITMAP* bmp = al_create_bitmap(16,16);
 			auto* lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
 			for(int y = 0; y < 16; ++y)
@@ -887,6 +889,7 @@ void reload_dialog_tint()
 	if (!rti_tint.bitmap)
 	{
 		rti_tint.set_size(screen->w, screen->h);
+		set_bitmap_create_flags(true);
 		rti_tint.bitmap = create_a5_bitmap(screen->w, screen->h);
 		ALLEGRO_STATE oldstate;
 		al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
