@@ -2,7 +2,7 @@
 #include "base/zdefs.h"
 #include "base/combo.h"
 
-void cpos_update_cache(word oldid, word newid);
+void cpos_update_cache(int32_t oldid, int32_t newid);
 
 void cpos_info::push(int dir, bool cancel)
 {
