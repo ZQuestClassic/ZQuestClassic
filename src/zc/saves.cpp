@@ -2013,6 +2013,11 @@ void saves_unselect()
 {
 	if (currgame == -1)
 		return;
+	if (currgame >= saves.size())
+	{
+		currgame = -1;
+		return;
+	}
 
 	auto& save = saves[currgame];
 	if (save.game)
