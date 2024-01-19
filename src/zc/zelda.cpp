@@ -5248,6 +5248,7 @@ reload_for_replay_file:
 			// Replay is over, so jump up to load the real saves.
 			Quit = 0;
 			use_testingst_start = false;
+			saves_unselect();
 			goto reload_for_replay_file;
 		}
 	}
