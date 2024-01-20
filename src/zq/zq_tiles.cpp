@@ -18233,11 +18233,8 @@ int32_t onIcons()
 }
 
 // Identical to jwin_frame_proc, but is treated differently by large_dialog()
-int32_t d_comboframe_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t d_comboframe_proc(int32_t msg, DIALOG *d, int32_t)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
-	
 	if(msg == MSG_DRAW)
 	{
 		jwin_draw_frame(screen, d->x, d->y, d->w, d->h, d->d1);
@@ -18246,130 +18243,85 @@ int32_t d_comboframe_proc(int32_t msg, DIALOG *d, int32_t c)
 	return D_O_K;
 }
 
-int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
+int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
-	
 	switch(msg)
 	{
-	case MSG_CLICK:
-	{
-		if(d->flags&D_NOCLICK)
+		case MSG_CLICK:
 		{
-			break;
+			if((d->flags&D_NOCLICK))
+				break;
+			
+			int32_t ret = (d->flags & D_EXIT) ? D_CLOSE : D_O_K;
+			int32_t combo2;
+			int32_t cs;
+			
+			if(CHECK_ALT) //place selected cmb/cs
+			{
+				if(gui_mouse_b()&1)
+				{
+					if(!CHECK_SHIFT)
+						d->d1 = Combo;
+					d->fg = CSet;
+				}
+				
+				return ret|D_REDRAW;
+			}
+			else if(gui_mouse_b()&2||nextcombo_fake_click==2)  //clear to 0/0
+			{
+				d->d1=0;
+				d->fg=0;
+				return ret|D_REDRAW;
+			}
+			else if(gui_mouse_b()&1||nextcombo_fake_click==1)  //popup combo picker
+			{
+				combo2=d->d1;
+				cs=d->fg;
+				
+				if((CHECK_CTRL_CMD ? select_combo_3 : select_combo_2)(combo2, cs))
+				{
+					d->d1=combo2;
+					d->fg=cs;
+				}
+				
+				return ret|D_REDRAW;
+			}
+			else return ret|D_REDRAWME;
 		}
+		break;
 		
-		int32_t ret = (d->flags & D_EXIT) ? D_CLOSE : D_O_K;
-		int32_t combo2;
-		int32_t cs;
-		
-		if(key[KEY_LSHIFT])
+		case MSG_DRAW:
 		{
-			if(gui_mouse_b()&1)
+			d->w = 32;
+			d->h = 32;
+			
+			BITMAP *buf = create_bitmap_ex(8,16,16);
+			BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
+			
+			if(buf && bigbmp)
 			{
-				d->d1++;
+				clear_bitmap(buf);
 				
-				if(d->d1>=MAXCOMBOS) d->d1=0;
-			}
-			else if(gui_mouse_b()&2)
-			{
-				d->d1--;
+				if(d->d1==-1) // Display curr_combo instead of combobuf
+				{
+					newcombo hold = combobuf[0];
+					combobuf[0] = curr_combo;
+					putcombo(buf,0,0,0,d->fg);
+					combobuf[0] = hold;
+				}
+				else if(d->d1)
+				{
+					putcombo(buf,0,0,d->d1,d->fg);
+				}
 				
-				if(d->d1<0) d->d1=MAXCOMBOS-1;
+				stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, d->w, d->h);
+				destroy_bitmap(buf);
+				blit(bigbmp,screen,0,0,d->x-1,d->y-1,d->w,d->h);
+				destroy_bitmap(bigbmp);
 			}
-			
-			return ret|D_REDRAW;
 		}
-		else if(key[KEY_RSHIFT])
-		{
-			if(gui_mouse_b()&1)
-			{
-				d->fg++;
-				
-				if(d->fg>11) d->fg=0;
-			}
-			else if(gui_mouse_b()&2)
-			{
-				d->fg--;
-				
-				if(d->fg<0) d->fg=11;
-			}
-			
-			return ret|D_REDRAW;
-		}
-		else if(key[KEY_ALT])
-		{
-			if(gui_mouse_b()&1)
-			{
-				d->d1 = Combo;
-				d->fg = CSet;
-			}
-			
-			return ret|D_REDRAW;
-		}
-		else if(gui_mouse_b()&2||nextcombo_fake_click==2)  //right mouse button
-		{
-			if(d->d1==0&&d->fg==0&&!(gui_mouse_b()&1))
-			{
-				return ret;
-			}
-			
-			d->d1=0;
-			d->fg=0;
-			return ret|D_REDRAW;
-		}
-		else if(gui_mouse_b()&1||nextcombo_fake_click==1)  //left mouse button
-		{
-			combo2=d->d1;
-			cs=d->fg;
-			
-			if(select_combo_2(combo2, cs))
-			{
-				d->d1=combo2;
-				d->fg=cs;
-			}
-			
-			return ret|D_REDRAW;
-		}
-		else
-		{
-			return ret|D_REDRAWME;
-		}
+		break;
 	}
-	
-	break;
-	
-	case MSG_DRAW:
-		d->w = 32;
-		d->h = 32;
-		
-		BITMAP *buf = create_bitmap_ex(8,16,16);
-		BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
-		
-		if(buf && bigbmp)
-		{
-			clear_bitmap(buf);
-			
-			if(d->d1==-1) // Display curr_combo instead of combobuf
-			{
-				newcombo hold = combobuf[0];
-				combobuf[0] = curr_combo;
-				putcombo(buf,0,0,0,d->fg);
-				combobuf[0] = hold;
-			}
-			else if(d->d1)
-			{
-				putcombo(buf,0,0,d->d1,d->fg);
-			}
-			
-			stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, d->w, d->h);
-			destroy_bitmap(buf);
-			blit(bigbmp,screen,0,0,d->x-1,d->y-1,d->w,d->h);
-			destroy_bitmap(bigbmp);
-		}
-	}
-	
 	return D_O_K;
 }
 
