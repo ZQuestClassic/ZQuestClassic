@@ -33,6 +33,8 @@ particle::particle(zfix X,zfix Y,int32_t L,int32_t CS,int32_t C)
 	yofs = 54;
 	dir = 0;
 	step = 0;
+	angular = false;
+	angle = 0;
 }
 
 void particle::move(zfix s)
