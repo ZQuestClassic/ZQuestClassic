@@ -466,10 +466,13 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->actionsnd[0] = "Shield Sound:";
 			break;
 		}
-		case itype_divineescape: //!TODO Help Text
+		case itype_divineescape:
 		{
-			inf->misc[0] = "Warp Animation (0-2):";
-			inf->actionsnd[0] = "Wind Sound:";
+			_SET(misc[0], "Warp Animation (0-2):",
+				"0 = Scatter into dust particles"
+				"\n1 = Rise into the sky as color 0x00 particles"
+				"\n2 = Rise into the sky as a mix of color 0x12 and 0x01 particles");
+			_SET(actionsnd[0], "Warp Sound:", "This sound plays when the player turns into particles");
 			_SET(flag[0], "Continue acts as F6->Continue",
 				"Activates F6->Continue instead of just 'restarting the level'.");
 			break;
