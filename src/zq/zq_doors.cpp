@@ -830,11 +830,17 @@ static DIALOG doorcomboset_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
     //  { d_dummy_proc,      0,    0,      0,    0,    0,       0,      0,       0,          0,             0,       0, NULL, NULL },
-    { jwin_win_proc,     32-8,   3,   256+16,  235,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Door Combos", NULL, NULL },
+    { jwin_win_proc,     32-8,   3,   256+16,  235,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Door Combos", NULL,
+		(void*)"LClick: Choose combo (from clicked combo)"
+		"\nCtrl + LClick: Choose combo (from last open combo page)"
+		"\nRClick: Clear to Combo 0, CSet 0"
+		"\nAlt + LClick: Place selected combo + cset"
+		"\nShift + Alt + LClick: Place selected cset"
+		},
     { jwin_button_proc,     60,   213,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Auto", NULL, NULL },
     { jwin_button_proc,     130,  213,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     200,  213,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    { d_dummy_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
     //5
     { jwin_text_proc,      56,  34-4,   48,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
     { jwin_edit_proc,      104-18,  30-4,   168+18,  16,    vc(12),  vc(1),  0,       0,          20,             0,      NULL , NULL, NULL },
