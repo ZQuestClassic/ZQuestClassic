@@ -30310,25 +30310,6 @@ void HeroClass::checkitems(int32_t index)
 	}
 	else
 	{
-		std::vector<int32_t> &ev = FFCore.eventData;
-		ev.clear();
-		ev.push_back(id2*10000);
-		ev.push_back(pickup*10000);
-		ev.push_back(pstr*10000);
-		ev.push_back(pstr_flags*10000);
-		ev.push_back(0);
-		ev.push_back(ptr->getUID());
-		ev.push_back(GENEVT_ICTYPE_COLLECT*10000);
-		ev.push_back(0);
-		
-		throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
-		bool nullify = ev[4] != 0;
-		if(nullify) return;
-		id2 = ev[0]/10000;
-		pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
-		pstr = ev[2] / 10000;
-		pstr_flags = ev[3] / 10000;
-		
 		if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
 			return; //No picking these up unless you have a bottle to fill!
 		
@@ -30351,7 +30332,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(get_qr(qr_HEARTSREQUIREDFIX) && !canget(id2))
 			return;
-			
+		
 		int32_t nextitem = -1;
 		do
 		{
@@ -30435,7 +30416,29 @@ void HeroClass::checkitems(int32_t index)
 				
 				break;
 			}
+		
+		//EVENT
+		{
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(id2*10000);
+			ev.push_back(pickup*10000);
+			ev.push_back(pstr*10000);
+			ev.push_back(pstr_flags*10000);
+			ev.push_back(0);
+			ev.push_back(ptr->getUID());
+			ev.push_back(GENEVT_ICTYPE_COLLECT*10000);
+			ev.push_back(0);
 			
+			throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+			bool nullify = ev[4] != 0;
+			if(nullify) return;
+			id2 = ev[0]/10000;
+			pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
+			pstr = ev[2] / 10000;
+			pstr_flags = ev[3] / 10000;
+		}
+		
 		if(pickup&ipONETIME)    // set mITEM for one-time-only items
 		{
 			setmapflag(mITEM);
