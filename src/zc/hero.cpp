@@ -14171,9 +14171,9 @@ void HeroClass::pitfall()
 
 void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 {
-	bool inair = z || fakez;
+	bool is_inair = z || fakez;
 	zfix odx = dx, ody = dy;
-	if(sliding == 2 && !inair) //landed from air-sliding
+	if(sliding == 2 && !is_inair) //landed from air-sliding
 	{
 		if((ice_vx+odx).sign() != ice_vx.sign())
 			ice_vx = 0;
@@ -14183,7 +14183,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 	}
 	if(!sliding) //just hit the ice
 	{
-		if(inair)
+		if(is_inair)
 			return;
 		sliding = 1;
 		zfix start_perc = icecmb.attribytes[0] / 100_zf;
@@ -14193,7 +14193,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 	}
 	else //not the first frame sliding
 	{
-		if(inair)
+		if(is_inair)
 			sliding = 2;
 		zfix accel = zslongToFix(zc_max(1,icecmb.attributes[0]));
 		zfix decel = zslongToFix(zc_max(1,icecmb.attributes[1]));
@@ -14210,7 +14210,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 		}
 		//!TODO Traction Boots can be added here, with a multiplier on accel/decel
 		//Accelerate in the pushed direction
-		if(inair)
+		if(is_inair)
 		{
 			static const int air_accel = 100;
 			accel = abs(odx)/air_accel;
@@ -14274,7 +14274,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 				ice_vy -= accel;
 		}
 		//Decelerate in non-pushed direction
-		if(inair)
+		if(is_inair)
 			decel = zinit.air_drag;
 		if(decel)
 		{
@@ -19478,9 +19478,9 @@ newmove_slide:
 		dir = conv_forcedir;
 	if(!is_conveyor_stunned)
 	{
-		bool inair = (z > 0 || fakez > 0);
+		bool is_inair = (z > 0 || fakez > 0);
 		auto ic = ice_combo;
-		if(!inair) //maintain momentum when jumping
+		if(!is_inair) //maintain momentum when jumping
 		{
 			const int sens = 2;
 			auto ty = y+(bigHitbox?0:8);
