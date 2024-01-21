@@ -29,6 +29,7 @@
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
 #include "zc/zasm_utils.h"
+#include "zasm_table.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -675,7 +676,7 @@ static void for_every_command_register_arg_include_indices(const ffscript& instr
 	}
 
 	for_every_command_register_arg(instr, [&](bool read, bool write, int reg, int argn){
-		for (auto r : get_zregister_indices(reg))
+		for (auto r : get_register_dependencies(reg))
 			fn(true, false, r, -1);
 
 		if (write)
@@ -1427,7 +1428,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				// based on D0/D1) should be represented as unknown values on the stack, because their dependant
 				// registers are sure to be invalidated. Theoretically they could be tracked too, as they are often
 				// constant values, but it would greatly complicate things. 
-				if (value.is_register() && get_zregister_indices(value.data).size())
+				if (value.is_register() && get_register_dependencies(value.data).size())
 					value = {ValueType::Unknown};
 				state.stack.push_back(value);
 				state.side_effects = true;
@@ -1840,7 +1841,7 @@ static void optimize_propagate_values(OptContext& ctx)
 						return;
 					}
 
-					if (get_zregister_indices(state.d[reg].data).size() == 0)
+					if (get_register_dependencies(state.d[reg].data).size() == 0)
 					{
 						if (argn == 0) candidates.emplace_back(propagate_candidate{&C(state.pc).arg1, state.d[reg].data});
 						if (argn == 1) candidates.emplace_back(propagate_candidate{&C(state.pc).arg2, state.d[reg].data});
