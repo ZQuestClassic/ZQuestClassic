@@ -22374,6 +22374,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	loadquest_report = false;
 	loading_qst_num = 0;
 
+	zapp_reporting_set_tag("qst.author", Header->author);
 	zapp_reporting_set_tag("qst.title", Header->title);
 	zapp_reporting_set_tag("qst.zc_version", Header->getVerStr());
 
