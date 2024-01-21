@@ -51961,8 +51961,6 @@ bool command_could_return_not_ok(int command)
 	case ITEMDEL:
 	case LWPNDEL:
 	case NPCKICKBUCKET:
-	case SETSCREENDOOR:
-	case SETSCREENENEMY:
 		return true;
 	}
 	return false;

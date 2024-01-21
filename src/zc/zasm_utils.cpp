@@ -714,6 +714,8 @@ std::initializer_list<int> get_zregister_indices(int reg)
 		case DROPSETITEMS:
 		case EWPNBURNLIGHTRADIUS:
 		case EWPNFLAGS:
+		case EWPNINITD:
+		case EWPNMISCD:
 		case EWPNMOVEFLAGS:
 		case EWPNSPRITES:
 		case FFFLAGSD:
@@ -903,6 +905,7 @@ std::initializer_list<int> get_zregister_indices(int reg)
 		case SCREENSIDEWARPID:
 		case SCREENSTATED:
 		case SCRIPTRAMD:
+		case SDD:
 		case SHOPDATAHASITEM:
 		case SHOPDATAITEM:
 		case SHOPDATAPRICE:
@@ -952,16 +955,20 @@ std::initializer_list<int> get_zregister_indices(int reg)
 		case SUBWIDGTY_TILE:
 		case TANGOARR:
 		{
-			static auto r1 = {D(0)};
+			static auto r1 = {rINDEX};
 			return r1;
 		}
 
+		case CREATEBITMAP:
 		case CREATELWPNDX:
 		case GLOBALRAM:
 		case LINKOTILE:
+		case LOADMAPDATA:
 		case MAPDATAINITA:
 		case MAPDATAINTID:
 		case MODULEGETINT:
+		case NPCCOLLISION:
+		case NPCLINEDUP:
 		case SCREENCATCH:
 		case SCREENENTX:
 		case SCREENENTY:
@@ -975,7 +982,7 @@ std::initializer_list<int> get_zregister_indices(int reg)
 		case SCRIPTRAM:
 		case SDDD:
 		{
-			static auto r2 = {D(0), D(1)};
+			static auto r2 = {rINDEX, rINDEX2};
 			return r2;
 		}
 
@@ -987,21 +994,21 @@ std::initializer_list<int> get_zregister_indices(int reg)
 		case COMBOTDM:
 		case SDDDD:
 		{
-			static auto r3 = {D(0), D(1), D(2)};
+			static auto r3 = {rINDEX, rINDEX2, D(2)};
 			return r3;
 		}
 
 		case DISTANCE:
 		case LONGDISTANCE:
 		{
-			static auto r4 = {D(0), D(1), D(2), D(6)};
+			static auto r4 = {rINDEX, rINDEX2, D(2), D(6)};
 			return r4;
 		}
 
 		case DISTANCESCALE:
 		case LONGDISTANCESCALE:
 		{
-			static auto r5 = {D(0), D(1), D(2), D(6), D(7)};
+			static auto r5 = {rINDEX, rINDEX2, D(2), D(6), D(7)};
 			return r5;
 		}
 	}

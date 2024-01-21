@@ -72,8 +72,8 @@ Function #4
    58: LOAD            D2              7
    59: PUSHR           D2
    60: POP             REFFFC
-   61: SETR            D2              DATA
-   62: STORE           D2              6
+   61: NOP
+   62: STORE           DATA            6
    63: PUSHV           0
    64: LOAD            D2              7
    65: POP             D3
@@ -86,13 +86,13 @@ Function #4
 
 Function #5
    71: LOAD            D3              0            [Block 0 -> ]
-   72: PUSHR           D3
-   73: POP             D2
+   72: NOP
+   73: NOP
    74: POP             REFFFC
-   75: SETR            X               D2
+   75: SETR            X               D3
    76: PUSHR           D4
    77: NOP
-   78: PUSHR           GD3
+   78: NOP
    79: SETR            D2              GD4
-   80: POP             D3
+   80: NOP
    81: RETURNFUNC

@@ -776,6 +776,24 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				case PUSHR:
 				case PUSHV:
 				{
+					if (command == PUSHR && (arg1 == SP || arg1 == SP2))
+					{
+						wasm.emitGlobalGet(g_idx_sp);
+						wasm.emitLocalSet(l_idx_scratch);
+
+						add_sp(wasm, g_idx_sp, -1);
+						wasm.emitGlobalSet(g_idx_sp);
+
+						wasm.emitGlobalGet(g_idx_sp);
+						wasm.emitI32Const(4);
+						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+						wasm.emitGlobalGet(g_idx_stack);
+						wasm.emitI32Add(); // Add stack base offset.
+						wasm.emitLocalGet(l_idx_scratch);
+						wasm.emitI32Store();
+						break;
+					}
+
 					add_sp(wasm, g_idx_sp, -1);
 					wasm.emitGlobalSet(g_idx_sp);
 

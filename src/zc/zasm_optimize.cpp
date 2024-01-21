@@ -39,6 +39,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <algorithm>
 
 static bool verbose = false;
 
@@ -420,19 +421,19 @@ static void for_every_command_register_arg(const ffscript& instr, T fn)
 	if (sc.is_register(0))
 	{
 		auto [read, write] = get_command_rw(instr.command, 0);
-		fn(read, write, instr.arg1);
+		fn(read, write, instr.arg1, 0);
 	}
 
 	if (sc.is_register(1))
 	{
 		auto [read, write] = get_command_rw(instr.command, 1);
-		fn(read, write, instr.arg2);
+		fn(read, write, instr.arg2, 1);
 	}
 
 	if (sc.is_register(2))
 	{
 		auto [read, write] = get_command_rw(instr.command, 2);
-		fn(read, write, instr.arg3);
+		fn(read, write, instr.arg3, 2);
 	}
 }
 
@@ -444,24 +445,72 @@ static void for_every_command_arg(ffscript& instr, T fn)
 	if (sc.args >= 1)
 	{
 		auto [read, write] = get_command_rw(instr.command, 0);
-		fn(read, write, instr.arg1);
+		fn(read, write, instr.arg1, 0);
 	}
 
 	if (sc.args >= 2)
 	{
 		auto [read, write] = get_command_rw(instr.command, 1);
-		fn(read, write, instr.arg2);
+		fn(read, write, instr.arg2, 1);
 	}
 
 	if (sc.args >= 3)
 	{
 		auto [read, write] = get_command_rw(instr.command, 2);
-		fn(read, write, instr.arg3);
+		fn(read, write, instr.arg3, 2);
 	}
 }
 
+// TODO: finish implementing these in for_every_command_register_arg_include_indices,
+// then delete this function.
+static bool has_implemented_register_invalidations(int reg)
+{
+	switch (reg)
+	{
+		case CLASS_THISKEY:
+		case CLASS_THISKEY2:
+		case REFBITMAP:
+		case REFBOTTLESHOP:
+		case REFBOTTLETYPE:
+		case REFCHEATS:
+		case REFDIRECTORY:
+		case REFDMAPDATA:
+		case REFDOORS:
+		case REFDROPS:
+		case REFEWPN:
+		case REFFILE:
+		case REFGAMEDATA:
+		case REFGENERICDATA:
+		case REFITEMCLASS:
+		case REFLWPN:
+		case REFMAPDATA:
+		case REFMSGDATA:
+		case REFNPCCLASS:
+		case REFPALCYCLE:
+		case REFPALDATA:
+		case REFPALETTE:
+		case REFPONDS:
+		case REFRGB:
+		case REFRNG:
+		case REFSCREENDATA:
+		case REFSHOPDATA:
+		case REFSPRITEDATA:
+		case REFSTACK:
+		case REFSUBSCREEN:
+		case REFSUBSCREENPAGE:
+		case REFSUBSCREENWIDG:
+		case REFTUNES:
+		case REFUICOLOURS:
+		case REFUNTYPED:
+		case REFWARPRINGS:
+			return false;
+	}
+
+	return true;
+}
+
 template <typename T>
-static void for_every_command_arg_include_indices(const ffscript& instr, T fn)
+static void for_every_command_register_arg_include_indices(const ffscript& instr, T fn)
 {
 	switch (instr.command)
 	{
@@ -471,7 +520,7 @@ static void for_every_command_arg_include_indices(const ffscript& instr, T fn)
 		case STOREV:
 		case STORED:
 		case STOREDV:
-			fn(true, false, rSFRAME);
+			fn(true, false, rSFRAME, -1);
 			break;
 
 		case READPODARRAYR:
@@ -480,39 +529,175 @@ static void for_every_command_arg_include_indices(const ffscript& instr, T fn)
 		case WRITEPODARRAYRV:
 		case WRITEPODARRAYVR:
 		case WRITEPODARRAYVV:
-			fn(true, false, rINDEX);
+			fn(true, false, rINDEX, -1);
 			break;
 
 		case ZCLASS_CONSTRUCT:
 		case ZCLASS_WRITE:
-			fn(true, false, rEXP1);
+			fn(true, false, rEXP1, -1);
+			break;
+		
+		case READBITMAP:
+			fn(true, false, rEXP2, -1);
 			break;
 
-		case ZCLASS_READ:
+		case ARRAYPOP:
+		case ARRAYPUSH:
+		case CHARWIDTHR:
+		case CHOOSEVARG:
+		case CREATEPORTAL:
+		case CREATESAVPORTAL:
+		case CURRENTITEMID:
+		case FILECREATE:
+		case FILEFLUSH:
+		case FILEGETCHAR:
+		case FILEISALLOCATED:
+		case FILEISVALID:
+		case FILEOPEN:
+		case FILEPUTCHAR:
+		case FILEREADSTR:
+		case FILEREMOVE:
+		case FILESEEK:
+		case FILEUNGETCHAR:
+		case FILEWRITESTR:
+		case FONTHEIGHTR:
+		case HEROCANMOVE:
+		case HEROCANMOVEATANGLE:
+		case HEROCANMOVEXY:
+		case HEROISFLICKERFRAME:
+		case HEROLIFTRELEASE:
+		case HEROMOVE:
+		case HEROMOVEATANGLE:
+		case HEROMOVEXY:
+		case LOADPORTAL:
+		case LOADSAVPORTAL:
+		case MAKEVARGARRAY:
+		case MAXVARG:
+		case MESSAGEHEIGHTR:
+		case MESSAGEWIDTHR:
+		case MINVARG:
+		case NPCCANPLACE:
+		case NPCISFLICKERFRAME:
+		case NPCMOVEPAUSED:
+		case RNGLRAND1:
+		case RNGLRAND2:
+		case RNGLRAND3:
+		case RNGRAND1:
+		case RNGRSEED:
+		case SAVEDPORTALGENERATE:
+		case SCREENDOSPAWN:
+		case SPRINTFA:
+		case SPRINTFVARG:
+		case STRINGWIDTHR:
+		case SUBPAGE_FIND_WIDGET_BY_LABEL:
+		case SUBPAGE_FIND_WIDGET:
+		case SUBPAGE_MOVE_SEL:
+		case SUBPAGE_NEW_WIDG:
+		case WRAPDEGREES:
+		case WRAPRADIANS:
 		case ZCLASS_FREE:
-			fn(false, true, rEXP1);
+		case ZCLASS_READ:
+			fn(false, true, rEXP1, -1);
+			break;
+
+		case REGENERATEBITMAP:
+			fn(true, true, rEXP2, -1);
+			break;
+
+		case FILEREADBYTES:
+		case FILEREADCHARS:
+		case FILEREADINTS:
+		case FILEWRITEBYTES:
+		case FILEWRITECHARS:
+		case FILEWRITEINTS:
+			fn(true, false, rINDEX, -1);
+			fn(false, true, rEXP1, -1);
+			break;
+
+		case FILEALLOCATE:
+		case NPCADD:
+			fn(false, true, rEXP1, -1);
+			fn(false, true, rEXP2, -1);
+			break;
+
+		case NPCCANMOVEANGLE:
+		case NPCCANMOVEDIR:
+		case NPCCANMOVEXY:
+		case NPCMOVE:
+		case NPCMOVEANGLE:
+		case NPCMOVEXY:
+			fn(true, false, rINDEX, -1);
+			fn(true, true, rEXP1, -1);
+			fn(true, false, rEXP2, -1);
 			break;
 		
 		case ARCTANR:
 		case ISSOLID:
 		case MAPDATAISSOLID:
-			fn(true, false, rINDEX);
-			fn(true, false, rINDEX2);
+		case STRINGCOMPARE:
+		case STRINGICOMPARE:
+			fn(true, false, rINDEX, -1);
+			fn(true, false, rINDEX2, -1);
 			break;
 		
+		case STRINGNCOMPARE:
+		case STRINGNICOMPARE:
+			fn(true, false, rINDEX, -1);
+			fn(true, false, rEXP1, -1);
+			fn(true, false, rEXP2, -1);
+			break;
+
 		case MAPDATAISSOLIDLYR:
 		case ISSOLIDLAYER:
-			fn(true, false, rINDEX);
-			fn(true, false, rINDEX2);
-			fn(true, false, rEXP1);
+			fn(true, false, rINDEX, -1);
+			fn(true, false, rINDEX2, -1);
+			fn(true, false, rEXP1, -1);
+			break;
+		
+		case POP:
+		case POPARGS:
+		case PUSHARGSR:
+		case PUSHARGSV:
+		case PUSHR:
+		case PUSHV:
+			fn(true, true, SP, -1);
+			fn(true, true, SP2, -1);
 			break;
 	}
 
-	for_every_command_register_arg(instr, [&](bool read, bool write, int reg){
+	for_every_command_register_arg(instr, [&](bool read, bool write, int reg, int argn){
 		for (auto r : get_zregister_indices(reg))
-			fn(true, false, r);
+			fn(true, false, r, -1);
 
-		fn(read, write, reg);
+		if (write)
+		{
+			if (reg == REFFFC)
+			{
+				for (auto r : {DATA, FFSCRIPT, FCSET, DELAY, FX, FY, XD, YD, FFCID, XD2, YD2, FFFLAGSD, FFCWIDTH, FFCHEIGHT, FFTWIDTH, FFTHEIGHT, FFLINK, FFMISCD})
+					fn(false, true, r, -1);
+			}
+
+			if (reg == REFCOMBODATA)
+			{
+				for (auto r : {COMBODTILE, COMBODOTILE, COMBODFRAME, COMBODACLK, COMBODATASCRIPT, COMBODASPEED, COMBODFLIP, COMBODFOO, COMBODATAINITD, COMBODATTRIBYTES, COMBODATTRISHORTS, COMBODUSRFLAGARR, COMBODGENFLAGARR, COMBODUSRFLAGS, COMBODTRIGGERFLAGS, COMBODTRIGGERFLAGS2, COMBODTRIGGERBUTTON, COMBODTRIGGERITEM, COMBODTRIGGERTIMER, COMBODTRIGGERSFX, COMBODTRIGGERCHANGECMB, COMBODTRIGGERPROX, COMBODTRIGGERLIGHTBEAM, COMBODTRIGGERCTR, COMBODTRIGGERCTRAMNT, COMBODTRIGGERCOOLDOWN, COMBODTRIGGERCOPYCAT, COMBODTRIGITEMPICKUP, COMBODTRIGEXSTATE, COMBODTRIGEXDOORDIR, COMBODTRIGEXDOORIND, COMBODTRIGSPAWNENEMY, COMBODTRIGSPAWNITEM, COMBODTRIGCSETCHANGE, COMBODLIFTGFXCOMBO, COMBODLIFTGFXCCSET, COMBODLIFTUNDERCMB, COMBODLIFTUNDERCS, COMBODLIFTDAMAGE, COMBODLIFTLEVEL, COMBODLIFTITEM, COMBODLIFTFLAGS, COMBODLIFTGFXTYPE, COMBODLIFTGFXSPRITE, COMBODLIFTSFX, COMBODLIFTBREAKSPRITE, COMBODLIFTBREAKSFX, COMBODLIFTHEIGHT, COMBODLIFTTIME, COMBODLIFTWEAPONITEM, COMBODTRIGGERLSTATE, COMBODTRIGGERGSTATE, COMBODTRIGGERGROUP, COMBODTRIGGERGROUPVAL, COMBODTRIGGERGTIMER, COMBODTRIGGERGENSCRIPT, COMBODTRIGGERLEVEL, COMBODBLOCKNPC, COMBODBLOCKHOLE, COMBODBLOCKTRIG, COMBODBLOCKWEAPON, COMBODCONVXSPEED, COMBODCONVYSPEED, COMBODSPAWNNPC, COMBODSPAWNNPCWHEN, COMBODSPAWNNPCCHANGE, COMBODDIRCHANGETYPE, COMBODDISTANCECHANGETILES, COMBODDIVEITEM, COMBODDOCK, COMBODFAIRY, COMBODFFATTRCHANGE, COMBODFOORDECOTILE, COMBODFOORDECOTYPE, COMBODHOOKSHOTPOINT, COMBODLADDERPASS, COMBODLOCKBLOCK, COMBODLOCKBLOCKCHANGE, COMBODMAGICMIRROR, COMBODMODHPAMOUNT, COMBODMODHPDELAY, COMBODMODHPTYPE, COMBODNMODMPAMOUNT, COMBODMODMPDELAY, COMBODMODMPTYPE, COMBODNOPUSHBLOCK, COMBODOVERHEAD, COMBODPLACENPC, COMBODPUSHDIR, COMBODPUSHWAIT, COMBODPUSHHEAVY, COMBODPUSHED, COMBODRAFT, COMBODRESETROOM, COMBODSAVEPOINTTYPE, COMBODSCREENFREEZETYPE, COMBODSECRETCOMBO, COMBODSINGULAR, COMBODSLOWWALK, COMBODSTATUETYPE, COMBODSTEPTYPE, COMBODSTEPCHANGEINTO, COMBODSTRIKEWEAPONS, COMBODSTRIKEREMNANTS, COMBODSTRIKEREMNANTSTYPE, COMBODSTRIKECHANGE, COMBODSTRIKEITEM, COMBODTOUCHITEM, COMBODTOUCHSTAIRS, COMBODTRIGGERTYPE, COMBODTRIGGERSENS, COMBODWARPTYPE, COMBODWARPSENS, COMBODWARPDIRECT, COMBODWARPLOCATION, COMBODWATER, COMBODWHISTLE, COMBODWINGAME, COMBODBLOCKWPNLEVEL, COMBODWALK, COMBODEFFECT, COMBODTYPE, COMBODCSET, COMBODCSET2FLAGS, COMBODFRAMES, COMBODNEXTD, COMBODNEXTC, COMBODFLAG, COMBODSKIPANIM, COMBODNEXTTIMER, COMBODAKIMANIMY, COMBODANIMFLAGS, COMBODEXPANSION, COMBODATTRIBUTES})
+					fn(false, true, r, -1);
+			}
+
+			if (reg == REFITEM)
+			{
+				for (auto r : {ITEMSCALE, ITEMX, ITEMSPRITESCRIPT, ITEMSPRITEINITD, ITEMFAMILY, ITEMLEVEL, ITEMSCRIPTUID, ITEMY, ITEMZ, ITEMJUMP, ITEMFAKEJUMP, ITEMDRAWTYPE, ITEMGRAVITY, ITEMID, ITEMTILE, ITEMSCRIPTTILE, ITEMSCRIPTFLIP, ITEMPSTRING, ITEMPSTRINGFLAGS, ITEMOVERRIDEFLAGS, ITEMOTILE, ITEMCSET, ITEMFLASHCSET, ITEMFRAMES, ITEMFRAME, ITEMACLK, ITEMASPEED, ITEMDELAY, ITEMFLIP, ITEMFLASH, ITEMHXOFS, ITEMROTATION, ITEMHYOFS, ITEMXOFS, ITEMYOFS, ITEMSHADOWXOFS, ITEMSHADOWYOFS, ITEMZOFS, ITEMHXSZ, ITEMHYSZ, ITEMHZSZ, ITEMTXSZ, ITEMTYSZ, ITEMCOUNT, GETRENDERTARGET, ITEMEXTEND, ITEMPICKUP, ITEMMISCD, ITEMFALLCLK, ITEMFALLCMB, ITEMDROWNCLK, ITEMDROWNCMB, ITEMFAKEZ, ITEMMOVEFLAGS, ITEMGLOWRAD, ITEMGLOWSHP, ITEMDIR, ITEMENGINEANIMATE, ITEMSHADOWSPR, ITEMDROPPEDBY, ITMSWHOOKED, ITEMFORCEGRAB, ITEMNOSOUND, ITEMNOHOLDSOUND})
+					fn(false, true, r, -1);
+			}
+
+			if (reg == REFNPC)
+			{
+				for (auto r : {DEBUGREFNPC, NPCBEHAVIOUR, NPCBGSFX, NPCBOSSPAL, NPCCANFLICKER, NPCCOLLDET, NPCCSET, NPCDD, NPCDEATHSPR, NPCDEFENSED, NPCDIR, NPCDP, NPCDRAWTYPE, NPCDROWNCLK, NPCDROWNCMB, NPCENGINEANIMATE, NPCEXTEND, NPCFADING, NPCFAKEJUMP, NPCFAKEZ, NPCFALLCLK, NPCFALLCMB, NPCFLICKERCOLOR, NPCFLICKERTRANSP, NPCFRAME, NPCFRAMERATE, NPCFROZEN, NPCFROZENCSET, NPCFROZENTILE, NPCGLOWRAD, NPCGLOWSHP, NPCGRAVITY, NPCHALTCLK, NPCHALTRATE, NPCHASITEM, NPCHITBY, NPCHITDIR, NPCHOMING, NPCHP, NPCHUNGER, NPCHXOFS, NPCHXSZ, NPCHYOFS, NPCHYSZ, NPCHZSZ, NPCIMMORTAL, NPCINITD, NPCINVINC, NPCISCORE, NPCITEMSET, NPCJUMP, NPCKNOCKBACKSPEED, NPCMISCD, NPCMOVEFLAGS, NPCMOVESTATUS, NPCNOSCRIPTKB, NPCNOSLIDE, NPCORIGINALHP, NPCOTILE, NPCPARENTUID, NPCRANDOM, NPCRATE, NPCRINGLEAD, NPCROTATION, NPCSCALE, NPCSCRDEFENSED, NPCSCRIPT, NPCSCRIPTFLIP, NPCSCRIPTTILE, NPCSHADOWSPR, NPCSHADOWXOFS, NPCSHADOWYOFS, NPCSHIELD, NPCSHIELD, NPCSLIDECLK, NPCSPAWNSPR, NPCSTEP, NPCSTUN, NPCSUPERMAN, NPCTILE, NPCTXSZ, NPCTYPE, NPCTYSZ, NPCWDP, NPCWEAPON, NPCWEAPSPRITE, NPCX, NPCXOFS, NPCY, NPCYOFS, NPCZ, NPCZOFS})
+					fn(false, true, r, -1);
+			}
+			// TODO: see has_implemented_register_invalidations
+		}
+
+		fn(read, write, reg, argn);
 	});
 }
 
@@ -731,7 +916,7 @@ static void optimize_setr_pushr(OptContext& ctx)
 			if (j + 2 <= final_pc)
 			{
 				bool reads_from_reg = false;
-				for_every_command_arg_include_indices(C(j + 2), [&](bool read, bool write, int reg){
+				for_every_command_register_arg_include_indices(C(j + 2), [&](bool read, bool write, int reg, int arg){
 					if (reg == C(j).arg1 && read)
 						reads_from_reg = true;
 				});
@@ -795,7 +980,7 @@ static void optimize_stack(OptContext& ctx)
 					break;
 
 				bool writes_to_reg = false;
-				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg){
+				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg, int argn){
 					if (arg == reg && write)
 						writes_to_reg = true;
 				});
@@ -831,6 +1016,8 @@ struct SimulationState
 	int operand_1_backing_reg = -1;
 	SimulationValue operand_2 = {ValueType::Uninitialized};
 	int operand_2_backing_reg = -1;
+	bool simulate_stack = false;
+	std::vector<SimulationValue> stack;
 	bool side_effects = false;
 	bool bail = false;
 
@@ -849,7 +1036,7 @@ struct SimulationState
 
 static SimulationValue evaluate_binary_op(int cmp, SimulationValue a, SimulationValue b)
 {
-	ASSERT(cmp <= (CMP_FLAGS|CMP_BOOL));
+	ASSERT(cmp <= (CMP_FLAGS|CMP_BOOL|CMP_SETI));
 	int flags = cmp & CMP_FLAGS;
 	bool seti = cmp & CMP_SETI;
 	bool boolcast = cmp & CMP_BOOL;
@@ -1089,6 +1276,28 @@ static void infer_values_given_branch(OptContext& ctx, SimulationState& state)
 	infer(state.operand_2, expression);
 }
 
+static void simulate_set_value(OptContext& ctx, SimulationState& state, int reg, SimulationValue value)
+{
+	for (auto& v : state.stack)
+	{
+		if (v == reg(reg))
+			v = {ValueType::Unknown};
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		if (state.d[i] == reg(reg) && i != reg)
+			state.d[i] = {ValueType::Unknown};
+	}
+
+	if (!(reg >= D(0) && reg < D(8)))
+	{
+		state.side_effects = true;
+		return;
+	}
+
+	state.d[reg] = value;
+}
+
 // Simulates execution of a single instruction, updating values for each register
 // and the comparison result.
 static void simulate(OptContext& ctx, SimulationState& state)
@@ -1102,8 +1311,21 @@ static void simulate(OptContext& ctx, SimulationState& state)
 	// Function calls invalidate all registers.
 	if (command == CALLFUNC)
 	{
-		for (int i = 0; i < 8; i++)
-			state.d[i] = reg(i);
+		if (state.simulate_stack)
+		{
+			for (int i = 0; i < 8; i++)
+				state.d[i] = {ValueType::Unknown};
+			for (auto& v : state.stack)
+			{
+				if (!v.is_number())
+					v = {ValueType::Unknown};
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 8; i++)
+				state.d[i] = reg(i);
+		}
 		return;
 	}
 
@@ -1169,15 +1391,79 @@ static void simulate(OptContext& ctx, SimulationState& state)
 	{
 		int cmp = command_to_cmp(command, arg2);
 		auto e = evaluate_binary_op(cmp, state.operand_1, state.operand_2);
-		state.d[arg1] = e;
+		simulate_set_value(ctx, state, arg1, e);
 		return;
 	}
 
-	if (c.args == 0)
+	if (!state.simulate_stack)
+	{
+		if (c.args == 0)
+		{
+			state.side_effects = true;
+			return;
+		}
+	}
+	else if (!command_is_pure(command))
 	{
 		state.side_effects = true;
-		return;
 	}
+
+	if (state.simulate_stack)
+		switch (command)
+		{
+			case PUSHR:
+			{
+				auto value = IS_GENERIC_REG(arg1) ? state.d[arg1] : reg(arg1);
+				// Registers whose value depends on the value of other registers (like indexing into an array
+				// based on D0/D1) should be represented as unknown values on the stack, because their dependant
+				// registers are sure to be invalidated. Theoretically they could be tracked too, as they are often
+				// constant values, but it would greatly complicate things. 
+				if (value.is_register() && get_zregister_indices(value.data).size())
+					value = {ValueType::Unknown};
+				state.stack.push_back(value);
+				state.side_effects = true;
+				break;
+			}
+			case PUSHARGSR:
+			{
+				// for (int i = 0; i < arg2; i++)
+				// {
+				// 	auto value = IS_GENERIC_REG(arg1) ? state.d[arg1] : reg(arg1);
+				// 	state.stack.push_back(value);
+				// 	state.side_effects = true;
+				// }
+				state.bail = true;
+				break;
+			}
+			case PUSHV:
+			{
+				state.stack.push_back(num(arg1));
+				state.side_effects = true;
+				break;
+			}
+
+			// case POP:
+			// {
+			// 	SimulationValue value{ValueType::Unknown};
+			// 	if (!state.stack.empty())
+			// 	{
+			// 		value = state.stack.back();
+			// 		state.stack.pop_back();
+			// 	}
+			// 	simulate_set_value(ctx, state, arg1, value);
+			// 	state.side_effects = true;
+			// 	break;
+			// }
+			case POPARGS:
+			{
+				state.bail = true;
+				// if (IS_GENERIC_REG(arg1))
+				// 	state.d[arg1] = state.stack.back();
+				// state.stack.pop_back();
+				// state.side_effects = true;
+				break;
+			}
+		}
 
 	switch (command)
 	{
@@ -1188,7 +1474,8 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				state.bail = true;
 				return;
 			}
-			state.d[arg1] = evaluate_binary_op(CMP_NE, state.d[arg1], num(0));
+			auto value = evaluate_binary_op(CMP_NE, state.d[arg1], num(0));
+			simulate_set_value(ctx, state, arg1, value);
 			return;
 		}
 
@@ -1199,7 +1486,8 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				state.bail = true;
 				return;
 			}
-			state.d[arg1] = evaluate_binary_op(CMP_NE | CMP_SETI, state.d[arg1], num(0));
+			auto value = evaluate_binary_op(CMP_NE | CMP_SETI, state.d[arg1], num(0));
+			simulate_set_value(ctx, state, arg1, value);
 			return;
 		}
 
@@ -1210,7 +1498,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				state.bail = true;
 				return;
 			}
-			state.d[arg1] = num(arg2);
+			simulate_set_value(ctx, state, arg1, num(arg2));
 			return;
 		}
 
@@ -1224,6 +1512,10 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		case POP:
 		case POPARGS:
 		{
+			// Handled below...
+			if (state.simulate_stack)
+				break;
+
 			if (!(arg1 >= D(0) && arg1 < D(8)))
 			{
 				state.side_effects = true;
@@ -1233,7 +1525,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 			// If this register holds some non-default value, mark it unknown.
 			// TODO: need a way to distinguish for ex. "input D3" vs "var from stack"
 			if (state.d[arg1] != reg(arg1))
-				state.d[arg1] = {ValueType::Unknown};
+				simulate_set_value(ctx, state, arg1, {ValueType::Unknown});
 			state.side_effects = true;
 			return;
 		}
@@ -1256,35 +1548,40 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		}
 	}
 
-	if (c.writes_to_register(0))
-	{
-		if (!(arg1 >= D(0) && arg1 < D(8)))
+	for_every_command_register_arg_include_indices(C(state.pc), [&](bool read, bool write, int reg, int argn){
+		if (write)
 		{
-			state.side_effects = true;
-			return;
+			auto value = reg(reg);
+			if (state.simulate_stack && command == POP && argn == 0)
+			{
+				value = {ValueType::Unknown};
+				if (!state.stack.empty())
+				{
+					value = state.stack.back();
+					state.stack.pop_back();
+				}
+				state.side_effects = true;
+			}
+			if (state.simulate_stack && command == SETR && argn == 0)
+			{
+				value = IS_GENERIC_REG(arg2) ? state.d[arg2] : reg(arg2);
+			}
+			simulate_set_value(ctx, state, reg, value);
 		}
-		state.d[arg1] = reg(arg1);
-	}
 
-	if (c.writes_to_register(1))
-	{
-		if (!(arg2 >= D(0) && arg2 < D(8)))
-		{
-			state.side_effects = true;
-			return;
-		}
-		state.d[arg2] = reg(arg2);
-	}
+		if (write && !has_implemented_register_invalidations(reg))
+			state.bail = true;
+	});
 
-	if (c.writes_to_register(2))
-	{
-		if (!(arg3 >= D(0) && arg3 < D(8)))
-		{
-			state.side_effects = true;
-			return;
-		}
-		state.d[arg3] = reg(arg3);
-	}
+	// #define ARG(n) (n == 0 ? arg1 : n == 1 ? arg2 : arg3)
+	// for (int i = 0; i < 3; i++)
+	// {
+	// 	if (c.writes_to_register(i))
+	// 	{
+	// 		int arg = ARG(i);
+	// 		simulate_set_value(ctx, state, arg, reg(arg));
+	// 	}
+	// }
 
 	return;
 }
@@ -1445,6 +1742,180 @@ static std::vector<ffscript> compile_conditional(const ffscript& instr, const Si
 	return result;
 }
 
+// Assigns a register to its final value directly, without intermediate assignments
+// or using the stack.
+// Ex:
+//    SETR            D3              LINKX
+//    TRACER          D3
+// ->
+//    TRACER LINKX
+//
+// Also works for pushing to stack and reading value later.
+//
+// However, do not propagate the register if read twice from a D-register, since there is
+// significant overhead in calling `get_register`.
+// Ex, do not optimize the following:
+//    SETR            D3              LINKY
+//    TRACER          D3
+//    TRACER          D3
+//
+// Also do not propagate the value if there is some write on the target register (ex: LINKX)
+// between setting to a D-register and using it.
+static void optimize_propagate_values(OptContext& ctx)
+{
+	add_context_cfg(ctx);
+	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
+		SimulationState state{};
+		state.simulate_stack = true;
+		state.set_block(ctx, block_index);
+
+		struct propagate_candidate
+		{
+			int32_t* arg;
+			int32_t new_arg;
+		};
+		std::vector<propagate_candidate> candidates;
+		bool reg_reads[8] = {};
+		for (int i = 0; i < 8; i++) reg_reads[i] = false;
+
+		auto flush = [&](int reg){
+			bool skip = false;
+			bool checked_skip = false;
+			candidates.erase(
+				std::remove_if(
+					candidates.begin(), candidates.end(),
+					[&](auto& c){
+						if (*c.arg != reg && reg != -1)
+							return false;
+
+						if (!checked_skip)
+						{
+							skip = bisect_tool_should_skip();
+							checked_skip = true;
+						}
+						if (!skip)
+							*c.arg = c.new_arg;
+						return true;
+					}),
+				candidates.end());
+		};
+
+		auto remove_candidates = [&](int reg){
+			candidates.erase(
+				std::remove_if(
+					candidates.begin(), candidates.end(),
+					[&](auto& c){ return *c.arg == reg;}),
+				candidates.end());
+		};
+
+		while (true)
+		{
+			for_every_command_register_arg_include_indices(C(state.pc), [&](bool read, bool write, int reg, int argn){
+				if (read && !write)
+				{
+					if (!(reg >= D(0) && reg < D(8)))
+						return;
+
+					if (state.d[reg] == reg(reg))
+						return;
+
+					if (!state.d[reg].is_register())
+						return;
+
+					if (reg_reads[reg])
+					{
+						remove_candidates(reg);
+						return;
+					}
+
+					if (get_zregister_indices(state.d[reg].data).size() == 0)
+					{
+						if (argn == 0) candidates.emplace_back(propagate_candidate{&C(state.pc).arg1, state.d[reg].data});
+						if (argn == 1) candidates.emplace_back(propagate_candidate{&C(state.pc).arg2, state.d[reg].data});
+						if (argn == 2) candidates.emplace_back(propagate_candidate{&C(state.pc).arg3, state.d[reg].data});
+					}
+
+					reg_reads[reg] = true;
+					return;
+				}
+
+				if (write && reg >= D(0) && reg < D(8))
+				{
+					flush(reg);
+					reg_reads[reg] = false;
+				}
+
+				if (write && !has_implemented_register_invalidations(reg))
+					state.bail = true;
+			});
+			if (state.bail)
+				break;
+
+			if (C(state.pc).command == RETURNFUNC)
+			{
+				if (reg_reads[D(2)])
+					remove_candidates(D(2));
+				flush(-1);
+			}
+
+			simulate(ctx, state);
+			if (state.bail)
+				break;
+
+			int command = C(state.pc).command;
+			int arg1 = C(state.pc).arg1;
+
+			if (command == POP && arg1 >= D(0) && arg1 < D(8))
+			{
+				if (state.d[arg1].is_register() && state.d[arg1].data != arg1)
+				{
+					pc_t j = state.pc - 1;
+					bool found = false;
+					while (true)
+					{
+						if (one_of(C(j).command, PUSHR, PUSHV))
+						{
+							found = true;
+							break;
+						}
+
+						// If reads from stack, bail.
+						// TODO: is it worth keeping track of all commands that read stack? For now, use command_is_pure as standin...
+						// if (one_of(C(j).command, PRINTFVARG, SPRINTFVARG))
+						if (!command_is_pure(C(j).command))
+						{
+							break;
+						}
+
+						if (j == start_pc)
+							break;
+						j -= 1;
+					}
+					
+					if (found && !bisect_tool_should_skip())
+					{
+						C(state.pc) = {SETR, arg1, state.d[arg1].data};
+						remove(ctx, j);
+					}
+				}
+			}
+
+			if (command == CALLFUNC)
+			{
+				for (int i = 0; i < 8; i++) reg_reads[i] = false;
+				flush(-1);
+			}
+
+			if (state.pc == state.final_pc)
+				break;
+			state.pc += 1;
+		}
+
+		if (!state.bail)
+			flush(-1);
+	});
+}
+
 // 1. If following a branch is guaranteed to jump to some other block given the initial
 //    branch condition, rewrite the branch to jump directly to that end block. This can
 //    only be done when there are no side effects. This removes all spurious branches.
@@ -1577,7 +2048,7 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 					break;
 				}
 
-				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg){
+				for_every_command_register_arg(C(k), [&](bool read, bool write, int arg, int argn){
 					if (arg == D(2) && write)
 					{
 						writes_comparison_result_to_d2 = true;
@@ -1663,7 +2134,7 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 						break;
 
 					bool writes_d2 = false;
-					for_every_command_register_arg(C(i), [&](bool read, bool write, int arg){
+					for_every_command_register_arg(C(i), [&](bool read, bool write, int arg, int argn){
 						if (arg == D(2))
 						{
 							if (read && !writes_d2)
@@ -1972,9 +2443,8 @@ static void optimize_inline_functions(OptContext& ctx)
 		stack_to_external_value[0] = C(i - 1).arg1;
 
 		std::vector<ffscript> inlined_zasm;
-		int arg = 0;
 		ffscript inline_instr = data.inline_instr;
-		for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg){
+		for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg, int argn){
 			if (read || write)
 			{
 				if (data.internal_reg_to_type[reg] == 0)
@@ -1984,7 +2454,6 @@ static void optimize_inline_functions(OptContext& ctx)
 					inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);
 				}
 			}
-			arg++;
 		});
 		inlined_zasm.push_back(inline_instr);
 
@@ -2079,7 +2548,7 @@ static void optimize_dead_code(OptContext& ctx)
 			if (command == RETURNFUNC)
 				returns = true;
 
-			for_every_command_arg_include_indices(C(i), [&](bool read, bool write, int reg){
+			for_every_command_register_arg_include_indices(C(i), [&](bool read, bool write, int reg, int argn){
 				if (read && reg < D(8))
 				{
 					if (!(kill & (1 << reg)))
@@ -2129,7 +2598,7 @@ static void optimize_dead_code(OptContext& ctx)
 		pc_t i = final_pc;
 		while (true)
 		{
-			for_every_command_arg_include_indices(C(i), [&](bool read, bool write, int reg){
+			for_every_command_register_arg_include_indices(C(i), [&](bool read, bool write, int reg, int argn){
 				if (write && reg < D(8))
 				{
 					if (!(live & (1 << reg)))
@@ -2166,6 +2635,7 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> fun
 	{"setv_pushr", optimize_setv_pushr},
 	{"setr_pushr", optimize_setr_pushr},
 	{"stack", optimize_stack},
+	{"propagate_values", optimize_propagate_values},
 	{"spurious_branches", optimize_spurious_branches},
 	{"reduce_comparisons", optimize_reduce_comparisons},
 	{"unreachable_blocks_2", optimize_unreachable_blocks},
@@ -2252,7 +2722,7 @@ OptimizeResults zasm_optimize(script_data* script)
 		// It's probably fine to not run this per-block?
 		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
 		{
-			for_every_command_register_arg(C(i), [&](bool read, bool write, int reg){
+			for_every_command_register_arg(C(i), [&](bool read, bool write, int reg, int argn){
 				if (reg == SDDDD)
 				{
 					if (state.d[2].type == ValueType::Uninitialized)

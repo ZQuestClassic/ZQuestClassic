@@ -78,7 +78,7 @@ Function #0
 
 Function #1
    16: POP             D2                           [Block 0 -> ]
-   17: SETR            D3              LINKX
-   18: ADDR            D2              D3
+   17: NOP
+   18: ADDR            D2              LINKX
    19: TRACER          D2
    20: RETURNFUNC

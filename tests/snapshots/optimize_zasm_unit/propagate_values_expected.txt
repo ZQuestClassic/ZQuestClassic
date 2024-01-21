@@ -1,0 +1,115 @@
+Function #0
+    0: CALLFUNC        15                           [Block 0 -> ][Call Function #1]
+    1: CALLFUNC        21                           [Call Function #2]
+    2: CALLFUNC        30                           [Call Function #3]
+    3: CALLFUNC        39                           [Call Function #4]
+    4: CALLFUNC        52                           [Call Function #5]
+    5: CALLFUNC        59                           [Call Function #6]
+    6: CALLFUNC        66                           [Call Function #7]
+    7: CALLFUNC        73                           [Call Function #8]
+    8: CALLFUNC        80                           [Call Function #9]
+    9: NOP
+   10: NOP
+   11: NOP
+   12: NOP
+   13: NOP
+   14: QUIT
+
+
+Function #1
+   15: NOP                                          [Block 0 -> ]
+   16: TRACER          LINKX
+   17: SETR            D3              LINKY
+   18: TRACER          D3
+   19: TRACER          D3
+   20: RETURNFUNC
+
+
+Function #2
+   21: NOP                                          [Block 0 -> ]
+   22: NOP
+   23: LOAD            D2              3
+   24: SETR            D0              GD56
+   25: SETR            D1              D2
+   26: SETR            D2              GLOBALRAM
+   27: TRACER          D2
+   28: SETV            D2              0
+   29: RETURNFUNC
+
+
+Function #3
+   30: NOP                                          [Block 0 -> ]
+   31: PUSHR           GD56
+   32: LOAD            D2              3
+   33: ADDR            GD56            D2
+   34: POP             D0
+   35: SETR            D1              D2
+   36: SETR            D2              GLOBALRAM
+   37: TRACER          D2
+   38: RETURNFUNC
+
+
+Function #4
+   39: SETR            D2              GD56         [Block 0 -> ]
+   40: SETV            D3              1000
+   41: ADDR            D3              GD56
+   42: SETR            GD56            D3
+   43: PUSHR           D3
+   44: PUSHR           D2
+   45: LOAD            D2              3
+   46: POP             D0
+   47: SETR            D1              D2
+   48: SETR            D2              GLOBALRAM
+   49: TRACER          D2
+   50: TRACER          D3
+   51: RETURNFUNC
+
+
+Function #5
+   52: NOP                                          [Block 0 -> ]
+   53: PUSHR           FFSCRIPT
+   54: LOAD            D0              0
+   55: SETR            REFFFC          D0
+   56: POP             D3
+   57: TRACER          D3
+   58: RETURNFUNC
+
+
+Function #6
+   59: LOAD            D2              23           [Block 0 -> ]
+   60: PUSHR           D2
+   61: LOAD            D2              21
+   62: SETR            D1              D2
+   63: POP             D0
+   64: STORE           LOADMAPDATA     4
+   65: RETURNFUNC
+
+
+Function #7
+   66: SETR            D3              LINKX        [Block 0 -> ]
+   67: ADDV            D3              1
+   68: SETR            LINKX           D3
+   69: NOP
+   70: NOP
+   71: NOP
+   72: RETURNFUNC
+
+
+Function #8
+   73: NOP                                          [Block 0 -> ]
+   74: NOP
+   75: NOP
+   76: NOP
+   77: NOP
+   78: NOP
+   79: RETURNFUNC
+
+
+Function #9
+   80: NOP                                          [Block 0 -> ]
+   81: NOP
+   82: NOP
+   83: NOP
+   84: NOP
+   85: NOP
+   86: RETURNFUNC
