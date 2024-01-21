@@ -1511,7 +1511,7 @@ static void actual_titlescreen()
 	int counter = 0;
 	while (!Quit)
 	{
-		if (keypressed())
+		if (keypressed() || button_pressed())
 		{
 			sfx(WAV_CHIME);
 			break;

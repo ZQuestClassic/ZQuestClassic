@@ -26,6 +26,7 @@
 #include "allegro/platform/ala5.h"
 // local edit
 #include "a5alleg.h"
+#include "allegro5/display.h"
 
 #ifdef _WIN32
 #define NOGDI
@@ -84,44 +85,14 @@ static bool _a5_setup_screen(int w, int h)
   int pixel_format;
 
   int flags = _a5_display_flags;
-#ifdef __APPLE__
-  // https://www.allegro.cc/forums/thread/615982/1018935
   if (_a5_display_fullscreen) flags |= ALLEGRO_FULLSCREEN_WINDOW;
-#else
-  if (_a5_display_fullscreen) flags |= ALLEGRO_FULLSCREEN;
-#endif
 #ifndef __EMSCRIPTEN__
-  else if(_a5_display_resize) flags |= ALLEGRO_RESIZABLE;
+  if(_a5_display_resize) flags |= ALLEGRO_RESIZABLE;
   else flags &= ~ALLEGRO_RESIZABLE;
 #endif
 
   al_set_new_display_flags(flags);
-  al_set_new_display_option(ALLEGRO_AUTO_CONVERT_BITMAPS, 1, ALLEGRO_SUGGEST);
-
-  // local edit
-  if (flags & ALLEGRO_FULLSCREEN)
-  {
-    // Discard given w,h and pick the highest available fullscreen resolution.
-    int num_modes = al_get_num_display_modes();
-    ALLEGRO_DISPLAY_MODE display_mode;
-    for (int i = 0; i < num_modes; i++)
-    {
-      if (i > 0)
-      {
-        ALLEGRO_DISPLAY_MODE display_mode_temp;
-        al_get_display_mode(i, &display_mode_temp);
-        if (display_mode_temp.width <= display_mode.width)
-          continue; 
-      }
-      al_get_display_mode(i, &display_mode);
-    }
-
-    if (num_modes > 0)
-    {
-      w = display_mode.width;
-      h = display_mode.height;
-    }
-  }
+  al_set_new_display_option(ALLEGRO_AUTO_CONVERT_BITMAPS, 1, ALLEGRO_REQUIRE);
 
   // local edit
   if (_a5_display)
@@ -129,7 +100,6 @@ static bool _a5_setup_screen(int w, int h)
     al_unregister_event_source(_a5_display_thread_event_queue, al_get_display_event_source(_a5_display));
     al_destroy_display(_a5_display);
     _a5_display = al_create_display(w, h);
-    al_convert_memory_bitmaps();
 #ifdef ALLEGRO_MACOSX
     // The content height is actually slightly less than the height the display was created with (due to menu bar?). We can't
     // know the actual content height until a resize event.
@@ -292,6 +262,7 @@ void all_process_display_events()
       }
       case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
       {
+        _a5_display_switched_out = false;
         _switch_in();
 
   #ifdef _WIN32
@@ -308,6 +279,7 @@ void all_process_display_events()
       }
       case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
       {
+        _a5_display_switched_out = true;
         _switch_out();
         al_clear_keyboard_state(_a5_display);
         break;
@@ -776,6 +748,27 @@ static void render_other(BITMAP * bp, ALLEGRO_BITMAP * a5bp)
 ALLEGRO_DISPLAY * all_get_display(void)
 {
   return _a5_display;
+}
+
+void all_toggle_fullscreen(bool fullscreen)
+{
+  al_set_display_flag(_a5_display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+#ifdef ALLEGRO_MACOSX
+  // The content height is actually slightly less than the height the display was created with (due to menu bar?). We can't
+  // know the actual content height until a resize event.
+  // https://discord.com/channels/993415281244393504/1167992634560745582
+  al_resize_display(_a5_display, al_get_display_width(_a5_display), al_get_display_height(_a5_display));
+#endif
+  gfx_driver->w = al_get_display_width(_a5_display);
+  gfx_driver->h = al_get_display_height(_a5_display);
+  al_acknowledge_resize(_a5_display);
+  gfx_driver->windowed = !fullscreen;
+}
+
+// local edit
+bool all_display_is_active(void)
+{
+  return !_a5_display_switched_out;
 }
 
 void all_render_a5_bitmap(BITMAP * bp, ALLEGRO_BITMAP * a5bp)

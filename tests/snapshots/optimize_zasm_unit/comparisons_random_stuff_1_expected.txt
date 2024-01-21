@@ -12,10 +12,10 @@ rewrite 1: GOTOCMP         16              ==
 
 [spurious_branches] Block #1
 
-2: LOADD           D2              20000  
+2: LOAD            D2              2      
 3: PUSHR           D2              
 	side_effects
-4: LOADD           D2              0      
+4: LOAD            D2              0      
 	side_effects
 5: COMPAREV        D2              0      
 	side_effects
@@ -29,18 +29,18 @@ rewrite 1: GOTOCMP         16              ==
 	D2 = Bool(D2)
 	side_effects
 inferred D2: 0
-10: LOADD           D2              0      
+10: LOAD            D2              0      
 11: COMPAREV        D2              0      
 12: GOTOTRUE        14              
 rewrite 8: GOTOCMP         10              ==     
 
 [spurious_branches] Block #3
 
-10: LOADD           D2              0      
+10: LOAD            D2              0      
 11: COMPAREV        D2              0      
 12: GOTOTRUE        14              
 inferred D2: 0
-14: LOADD           D2              0      
+14: LOAD            D2              0      
 15: TRACER          D2              
 	side_effects
 rewrite 12: GOTOCMP         14              ==     
@@ -78,19 +78,19 @@ rewrite 11: 2 -> 2 commands
 Function #0
     0: COMPAREV        D2              0            [Block 0 -> 1, 7]
     1: GOTOCMP         16              ==
-    2: LOADD           D2              20000        [Block 1 -> 2, 3]
+    2: LOAD            D2              2            [Block 1 -> 2, 3]
     3: PUSHR           D2
-    4: LOADD           D2              0
+    4: LOAD            D2              0
     5: COMPAREV        D2              0
     6: GOTOCMP         10              ==
     7: NOP                                          [Block 2 -> 6]
     8: NOP
     9: GOTO            15
-   10: LOADD           D2              0            [Block 3 -> 4, 5]
+   10: LOAD            D2              0            [Block 3 -> 4, 5]
    11: COMPAREV        D2              0
    12: GOTOCMP         14              ==
    13: TRACEV          0                            [Block 4 -> 5]
-   14: LOADD           D2              0            [Block 5 -> 6]
+   14: LOAD            D2              0            [Block 5 -> 6]
    15: TRACER          D2                           [Block 6 -> 7]
    16: GOTO            18                           [Block 7 -> 9]
    17: NOP                                          [Block 8 -> 9]

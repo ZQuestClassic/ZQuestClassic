@@ -2,9 +2,9 @@
 
 0: NOP            
 	side_effects
-1: PUSHR           GD37            
+1: NOP            
 	side_effects
-2: POP             D0              
+2: SETR            D0              GD37   
 	side_effects
 3: READPODARRAYV   D2              70000  
 	side_effects
@@ -84,8 +84,8 @@ rewrite 18: 7 -> 2 commands
 24: NOP            
 Function #0
     0: NOP                                          [Block 0 -> 1, 3]
-    1: PUSHR           GD37
-    2: POP             D0
+    1: NOP
+    2: SETR            D0              GD37
     3: READPODARRAYV   D2              70000
     4: PUSHR           D2
     5: SETV            D2              20000
@@ -95,8 +95,8 @@ Function #0
     9: NOP                                          [Block 1 -> 2, 3]
    10: NOP
    11: NOP
-   12: PUSHR           GD37
-   13: POP             D0
+   12: NOP
+   13: SETR            D0              GD37
    14: READPODARRAYV   D2              80000
    15: PUSHR           D2
    16: SETV            D2              20000

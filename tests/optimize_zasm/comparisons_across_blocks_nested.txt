@@ -6,7 +6,7 @@ Function #0
     1: COMPAREV        D2              0
     2: GOTOTRUE        6
     3: PUSHR           D4                           [Block 1 -> 2]
-    4: LOADD           D2              1337
+    4: LOADD           D2              13370000
     5: POP             D4
     6: COMPAREV        D2              0            [Block 2 -> 3, 6]
     7: SETCMP          D2              !=
@@ -14,7 +14,7 @@ Function #0
     9: GOTOFALSE       25
    10: PUSHR           D4                           [Block 3 -> 4, 5]
    11: PUSHV           80000
-   12: LOADD           D2              1337
+   12: LOADD           D2              13370000
    13: POP             D4
    14: COMPAREV        D2              0
    15: GOTOTRUE        22

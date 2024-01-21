@@ -75,6 +75,7 @@ class TestJIT(ZCTestCase):
                 # Third line is code size, but with `-jit-env-test` that can vary by ~1kb, so remove that too.
                 lines = output_path.read_text().splitlines()[3:]
                 for i, line in enumerate(lines):
+                    lines[i] = line = line.strip()
                     instruction = line.split(';')[0]
                     if instruction.startswith('call') or (instruction.startswith('mov r') and not 'dword' in instruction):
                         p = r'-?\d{6,}'

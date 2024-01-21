@@ -13242,6 +13242,9 @@ int32_t get_register(int32_t arg)
 		case SP:
 			ret = ri->sp * 10000;
 			break;
+		case SP2:
+			ret = ri->sp;
+			break;
 			
 		case PC:
 			ret = ri->pc;
@@ -25939,6 +25942,11 @@ void set_register(int32_t arg, int32_t value)
 			ri->sp = value / 10000;
 			ri->sp &= MASK_SP;
 			break;
+		
+		case SP2:
+			ri->sp = value;
+			ri->sp &= MASK_SP;
+			break;
 			
 		case PC:
 			ri->pc = value;
@@ -28759,9 +28767,23 @@ void do_loadd()
 	set_register(sarg1, value);
 }
 
+void do_load()
+{
+	const int32_t stackoffset = ri->d[rSFRAME] + sarg2;
+	const int32_t value = SH::read_stack(stackoffset);
+	set_register(sarg1, value);
+}
+
 void do_stored(const bool v)
 {
 	const int32_t stackoffset = (sarg2+ri->d[rSFRAME]) / 10000;
+	const int32_t value = SH::get_arg(sarg1, v);
+	SH::write_stack(stackoffset, value);
+}
+
+void do_store(const bool v)
+{
+	const int32_t stackoffset = ri->d[rSFRAME] + sarg2;
 	const int32_t value = SH::get_arg(sarg1, v);
 	SH::write_stack(stackoffset, value);
 }
@@ -36305,12 +36327,22 @@ int32_t run_script_int(bool is_jitted)
 			case LOADD:
 				do_loadd();
 				break;
+
+			case LOAD:
+				do_load();
+				break;
 				
 			case STORED:
 				do_stored(false);
 				break;
 			case STOREDV:
 				do_stored(true);
+				break;
+			case STORE:
+				do_store(false);
+				break;
+			case STOREV:
+				do_store(true);
 				break;
 				
 			case LOAD1:
@@ -41106,7 +41138,7 @@ void FFScript::do_isvalidbitmap()
 	int32_t UID = get_register(sarg1);
 	//zprint("isValidBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
-	else if ( scb.script_created_bitmaps[UID-10].u_bmp ) 
+	else if ( UID-10>=0 && UID-10 < 256 && scb.script_created_bitmaps[UID-10].u_bmp )
 		set_register(sarg1, 10000);
 	else set_register(sarg1, 0);
 }
@@ -41117,7 +41149,7 @@ void FFScript::do_isallocatedbitmap()
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else
 	{
-		set_register(sarg1, (scb.script_created_bitmaps[UID-10].reserved()) ? 10000L : 0L);
+		set_register(sarg1, (UID-10>=0 && UID-10 < 256 && scb.script_created_bitmaps[UID-10].reserved()) ? 10000L : 0L);
 		/*
 		UID-=10;
 		if ( UID <= highest_valid_user_bitmap() || UID < firstUserGeneratedBitmap)
@@ -51903,8 +51935,6 @@ bool command_could_return_not_ok(int command)
 	case ITEMDEL:
 	case LWPNDEL:
 	case NPCKICKBUCKET:
-	case SETSCREENDOOR:
-	case SETSCREENENEMY:
 		return true;
 	}
 	return false;
@@ -51938,6 +51968,7 @@ bool command_is_pure(int command)
 		case IPOWERR:
 		case IPOWERV:
 		case ISALLOCATEDBITMAP:
+		case LOAD:
 		case LOADD:
 		case LOADI:
 		case LOG10:

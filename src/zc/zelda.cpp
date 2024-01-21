@@ -355,6 +355,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
 	Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false,
 	DragAspect=false, SaveWinPos=false, scaleForceInteger=false, stretchGame=false;
+int ShowGameTime=0;
 bool SkipTitle = false;
 int32_t Maxfps = 0;
 double aspect_ratio = 0.75;
@@ -363,9 +364,9 @@ bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clea
 bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
-     drawguys= false,details=false,watch= false;
-std::set<int> loaded_enemies_for_screen;
+     loaded_enemies= false,drawguys= false,watch= false;
 bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
+std::set<int> loaded_enemies_for_screen;
 
 bool down_control_states[controls::btnLast] = {false};
 bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
@@ -4225,70 +4226,6 @@ int32_t isFullScreen()
     return !is_windowed_mode();
 }
 
-bool setGraphicsMode(bool windowed)
-{
-	int32_t type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
-	int w = resx, h = resy;
-	if (type == GFX_AUTODETECT_WINDOWED)
-	{
-		w = window_width;
-		h = window_height;
-	}
-	bool result = set_gfx_mode(type, w, h, 0, 0)==0;
-	return result;
-}
-
-int32_t onFullscreen()
-{
-    if(jwin_alert3(
-			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
-			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
-			(is_windowed_mode()) ? "We strongly advise saving your game before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
-			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		0, 
-		get_zc_font(font_lfont)) == 1)	
-    {
-	    PALETTE oldpal;
-	    get_palette(oldpal);
-	    
-	    bool windowed=is_windowed_mode()!=0;
-	    
-	    bool success=setGraphicsMode(!windowed);
-	    if(success)
-		{
-			fullscreen=!fullscreen;
-			zc_set_config("zeldadx","fullscreen",fullscreen);
-	    }
-		else
-	    {
-		// Try to restore the previous mode, then...
-		success=setGraphicsMode(windowed);
-		if(!success)
-		{
-			Z_error_fatal("Failed to set video mode. allegro_error: %s\n", allegro_error);
-		}
-	    }
-	    
-	    //Everything set?
-	    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
-	    
-	    zc_set_palette(oldpal);
-	    gui_mouse_focus=0;
-	    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
-	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
-		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
-		set_display_switch_callback(SWITCH_IN, switch_in_callback);
-
-	    return D_REDRAW;
-    }
-    else return D_O_K;
-}
-
 static bool load_replay_file_deffered_called = false;
 static std::string load_replay_file_filename;
 static ReplayMode load_replay_file_mode;
@@ -4554,7 +4491,12 @@ int main(int argc, char **argv)
 	int only_arg = used_switch(argc, argv, "-only");
 	if (only_arg)
 	{
-		only_qstpath = (fs::current_path() / argv[only_arg+1]).string();
+		fs::path only_path = (fs::current_path() / argv[only_arg+1]);
+		only_qstpath = only_path.string();
+		if (only_path.extension() != ".qst")
+			Z_error_fatal("-only value must be a qst file, but got: %s\n", only_qstpath.c_str());
+		if (!fs::exists(only_path))
+			Z_error_fatal("Could not find file: %s\n", only_qstpath.c_str());
 	}
 
 	int test_opt_zasm_arg = used_switch(argc, argv, "-test-optimize-zasm");
@@ -4757,6 +4699,7 @@ int main(int argc, char **argv)
 	
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
 	if(used_switch(argc,argv,"-show-fps")) ShowFPS=true;
+	if(used_switch(argc,argv,"-show-time")) ShowGameTime=true;
 	
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
@@ -4890,10 +4833,9 @@ int main(int argc, char **argv)
 	auto [w, h] = zc_get_default_display_size(zq_screen_w, zq_screen_h, resx, resy);
 	resx = w;
 	resy = h;
-
 	// TODO: consolidate "resx" and "resy" variables with window_width,height.
-	// window_width = resx;
-	// window_height = resy;
+	window_width = resx;
+	window_height = resy;
 	
 	if(zc_get_config("gui","disable_window_resizing",0))
 		all_set_resize_flag(false);
@@ -5535,6 +5477,7 @@ reload_for_replay_file:
 			// Replay is over, so jump up to load the real saves.
 			Quit = 0;
 			use_testingst_start = false;
+			saves_unselect();
 			goto reload_for_replay_file;
 		}
 	}

@@ -36,38 +36,37 @@ rewrite 0: 4 -> 2 commands
 
 [reduce_comparisons] Block #1
 
-8: COMPAREV        D2              10000  
+8: COMPAREV        DATA            10000  
+	bail
 9: SETCMP          D2              ==     
-	D2 = D2 == 10000
+	D2 = ?
+	bail
 10: COMPAREV        D2              0      
-	D2 = D2 == 10000
+	D2 = ?
+	bail
 11: SETCMP          D2              !=     
-	D2 = D2 == 10000
+	D2 = ?
+	bail
 12: COMPAREV        D2              0      
-	D2 = D2 == 10000
+	D2 = ?
+	bail
 13: GOTOTRUE        15              
-	D2 = D2 == 10000
-rewrite 8: 6 -> 2 commands
-8: COMPAREV        D2              10000  
-9: GOTOCMP         15              !=     
-10: NOP            
-11: NOP            
-12: NOP            
-13: NOP            
+	D2 = ?
+	bail
 Function #0
-    0: COMPAREV        D2              0            [Block 0 -> 1, 3]
+    0: COMPAREV        D2              0            [Block 0 -> 1, 2]
     1: GOTOCMP         14              ==
-    2: NOP                                          [Block 1 -> 2, 4]
+    2: NOP                                          [Block 1 -> 2, 3]
     3: NOP
-    4: LOADD           D2              10000
+    4: LOAD            D2              1
     5: PUSHR           D2
     6: POP             REFFFC
-    7: SETR            D2              DATA
-    8: COMPAREV        D2              10000
-    9: GOTOCMP         15              !=
-   10: NOP                                          [Block 2 -> 3]
-   11: NOP
-   12: NOP
-   13: NOP
-   14: TRACEV          0                            [Block 3 -> 4]
-   15: QUIT                                         [Block 4 -> ]
+    7: NOP
+    8: COMPAREV        DATA            10000
+    9: SETCMP          D2              ==
+   10: COMPAREV        D2              0
+   11: SETCMP          D2              !=
+   12: COMPAREV        D2              0
+   13: GOTOTRUE        15
+   14: TRACEV          0                            [Block 2 -> 3]
+   15: QUIT                                         [Block 3 -> ]

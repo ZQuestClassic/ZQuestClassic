@@ -269,7 +269,8 @@ public:
 	static int32_t longDiv(int32_t a, int32_t b)	{ zint64 c = int64_t(a)*10000L; return (int32_t)(c/b); }
 	zfix& operator %=  (const zfix fx)	{
 		if(fx.val == 0) val = toZLong(FIX_NAN);
-		else val = val - (longMul(fx.val,longDiv(val, fx.val))); return *this; }
+		else val %= fx.val;
+		return *this;}
 	zfix& operator /=  (const zfix fx)	{
 		if(fx.val == 0) val = toZLong(FIX_NAN);
 		else val = longDiv(val, fx.val); return *this; }

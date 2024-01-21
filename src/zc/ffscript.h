@@ -3194,6 +3194,10 @@ enum ASM_DEFINE
 	
 	STACKWRITEATVV_IF,
 
+	LOAD,
+	STORE,
+	STOREV,
+
 	NUMCOMMANDS  //0x045C
 };
 
@@ -3422,6 +3426,7 @@ enum ASM_DEFINE
 #define UNUSED135            0x02EB
 //I'm stealing this one for the stack pointer -DD
 #define SP                   0x02EC
+#define SP2                   0x02ED
 
 //#define SD(n)              ((0x02ED)+(n)) //Spare 8
 #define GD(n)              ((0x02F5)+(n)) //1024, spare 352

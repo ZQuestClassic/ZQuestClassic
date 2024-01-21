@@ -3302,7 +3302,10 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 			if(cmb.trigcopycat) //has a copycat set
 				trig_copycat(cid, ffc_handle);
 			
-			timer.updateData(ffc_handle.data());
+			if (ffc_handle.ffc->flags & ffCHANGER)
+				timer.updateData(-1);
+			else timer.updateData(ffc_handle.data());
+			
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
@@ -3593,7 +3596,9 @@ void trig_trigger_groups()
 			do_trigger_combo_ffc(ffc_handle);
 			int cid2 = ffc_handle.data();
 			bool recheck = timer.data != cid2;
-			timer.updateData(cid2);
+			if (ffc_handle.ffc->flags & ffCHANGER)
+				timer.updateData(-1);
+			else timer.updateData(cid2);
 
 			if (!recheck)
 				break;
@@ -3638,6 +3643,8 @@ void handle_ffcpos_type(newcombo const& cmb, cpos_info& timer, ffcdata& f)
 		{
 			word cid = f.data;
 			handle_crumble(cmb, timer, cid, f.x+f.hxofs, f.y+f.hyofs, f.hit_width, f.hit_height);
+			if(f.flags & ffCHANGER)
+				timer.updateData(-1);
 			zc_ffc_update(f,cid);
 			break;
 		}
@@ -3675,12 +3682,12 @@ static void cpos_update_cache(newcombo const& cmb, int add)
 	if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
 		trig_groups[cmb.trig_group] += add;
 }
-void cpos_update_cache(word oldid, word newid)
+void cpos_update_cache(int32_t oldid, int32_t newid)
 {
 	if(oldid == newid) return;
-	if(oldid)
+	if(unsigned(oldid) < MAXCOMBOS)
 		cpos_update_cache(combobuf[oldid],-1);
-	if(newid)
+	if(unsigned(newid) < MAXCOMBOS)
 		cpos_update_cache(combobuf[newid],1);
 }
 
@@ -3715,7 +3722,9 @@ void cpos_force_update() //updates without side-effects
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		ffc_handle.ffc->info.updateData(ffc_handle.data());
+		if (ffc_handle.ffc->flags & ffCHANGER)
+			ffc_handle.ffc->info.updateData(-1);
+		else ffc_handle.ffc->info.updateData(ffc_handle.data());
 	});
 }
 void cpos_update() //updates with side-effects
@@ -3765,6 +3774,12 @@ void cpos_update() //updates with side-effects
 
 		ffcdata& f = *ffc_handle.ffc;
 		cpos_info& timer = f.info;
+		if (f.flags & ffCHANGER)
+		{
+			//changers don't contribute
+			timer.updateData(-1);
+			return;
+		}
 		int cid = f.data;
 		timer.updateData(cid);
 		zfix wx = f.x + (f.txsz-1)*8;

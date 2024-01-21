@@ -6192,7 +6192,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(&screen, scr, false);
-			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr : &special_warp_return_screen, true, false, -1);
+			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : &special_warp_return_screen, true, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{

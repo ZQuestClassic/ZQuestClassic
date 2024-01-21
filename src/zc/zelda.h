@@ -29,7 +29,6 @@ struct itemdata;
 struct MsgStr;
 
 int32_t isFullScreen();
-int32_t onFullscreen();
 extern bool zqtesting_mode;
 extern bool use_testingst_start;
 
@@ -385,12 +384,13 @@ extern bool cheats_execute_goto, cheats_execute_light;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal,
 	Playing, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
 	SaveDragResize, DragAspect, SaveWinPos, scaleForceInteger, stretchGame;
+extern int ShowGameTime;
 extern bool SkipTitle;
 extern int32_t Maxfps;
 extern bool GameLoaded;
 extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
-extern bool drawguys,details,debug_enabled,watch;
+extern bool loaded_enemies,drawguys,debug_enabled,watch;
 extern std::set<int> loaded_enemies_for_screen;
 extern bool down_control_states[controls::btnLast];
 extern bool F12,F11,F5,keyI, keyQ;

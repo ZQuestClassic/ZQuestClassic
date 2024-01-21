@@ -7,15 +7,15 @@ rewrite 17: 3 -> 2 commands
 18: ADDV            D2              80000  
 19: NOP            
 Function #0
-    0: SETR            D4              SP           [Block 0 -> ]
+    0: SETR            D4              SP2          [Block 0 -> ]
     1: PUSHARGSR       D4              2
-    2: LOADD           D2              70000
+    2: LOAD            D2              7
     3: PUSHR           D2
     4: CALLFUNC        43                           [Call Function #3]
     5: POP             D4
     6: PUSHR           D2
     7: PUSHR           D4
-    8: LOADD           D2              70000
+    8: LOAD            D2              7
     9: PUSHR           D2
    10: CALLFUNC        32                           [Call Function #1]
    11: POP             D4

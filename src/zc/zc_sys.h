@@ -56,6 +56,7 @@ int32_t onCheatArrows();
 
 int32_t  next_press_key();
 int32_t  next_joy_input(bool buttons);
+int32_t button_pressed();
 bool joybtn(int32_t b);
 const char* joybtn_name(int32_t b);
 const char* joystick_name(int32_t s);

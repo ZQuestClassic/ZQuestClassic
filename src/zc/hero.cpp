@@ -14167,9 +14167,9 @@ void HeroClass::pitfall()
 
 void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 {
-	bool inair = z || fakez;
+	bool is_inair = z || fakez;
 	zfix odx = dx, ody = dy;
-	if(sliding == 2 && !inair) //landed from air-sliding
+	if(sliding == 2 && !is_inair) //landed from air-sliding
 	{
 		if((ice_vx+odx).sign() != ice_vx.sign())
 			ice_vx = 0;
@@ -14179,7 +14179,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 	}
 	if(!sliding) //just hit the ice
 	{
-		if(inair)
+		if(is_inair)
 			return;
 		sliding = 1;
 		zfix start_perc = icecmb.attribytes[0] / 100_zf;
@@ -14189,7 +14189,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 	}
 	else //not the first frame sliding
 	{
-		if(inair)
+		if(is_inair)
 			sliding = 2;
 		zfix accel = zslongToFix(zc_max(1,icecmb.attributes[0]));
 		zfix decel = zslongToFix(zc_max(1,icecmb.attributes[1]));
@@ -14206,7 +14206,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 		}
 		//!TODO Traction Boots can be added here, with a multiplier on accel/decel
 		//Accelerate in the pushed direction
-		if(inair)
+		if(is_inair)
 		{
 			static const int air_accel = 100;
 			accel = abs(odx)/air_accel;
@@ -14270,7 +14270,7 @@ void HeroClass::handle_slide(newcombo const& icecmb, zfix& dx, zfix& dy)
 				ice_vy -= accel;
 		}
 		//Decelerate in non-pushed direction
-		if(inair)
+		if(is_inair)
 			decel = zinit.air_drag;
 		if(decel)
 		{
@@ -18543,10 +18543,13 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				{
 					ret = false;
 					int xsign = dx.sign();
-					while(scr_canmove(xsign, 0, kb, ign_sv))
+					if(abs(dx) > 1)
 					{
-						x += xsign;
-						dx -= xsign;
+						while(scr_canmove(xsign, 0, kb, ign_sv))
+						{
+							x += xsign;
+							dx -= xsign;
+						}
 					}
 					if(dx)
 					{
@@ -18700,10 +18703,13 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					if(earlyret) return false;
 					ret = false;
 					int ysign = dy.sign();
-					while(scr_canmove(0, ysign, kb, ign_sv))
+					if(abs(dy) > 1)
 					{
-						y += ysign;
-						dy -= ysign;
+						while(scr_canmove(0, ysign, kb, ign_sv))
+						{
+							y += ysign;
+							dy -= ysign;
+						}
 					}
 					if(dy)
 					{
@@ -19472,9 +19478,9 @@ newmove_slide:
 		dir = conv_forcedir;
 	if(!is_conveyor_stunned)
 	{
-		bool inair = (z > 0 || fakez > 0);
+		bool is_inair = (z > 0 || fakez > 0);
 		auto ic = ice_combo;
-		if(!inair) //maintain momentum when jumping
+		if(!is_inair) //maintain momentum when jumping
 		{
 			const int sens = 2;
 			auto ty = y+(bigHitbox?0:8);
@@ -30848,25 +30854,6 @@ void HeroClass::checkitems(int32_t index)
 	}
 	else
 	{
-		std::vector<int32_t> &ev = FFCore.eventData;
-		ev.clear();
-		ev.push_back(id2*10000);
-		ev.push_back(pickup*10000);
-		ev.push_back(pstr*10000);
-		ev.push_back(pstr_flags*10000);
-		ev.push_back(0);
-		ev.push_back(ptr->getUID());
-		ev.push_back(GENEVT_ICTYPE_COLLECT*10000);
-		ev.push_back(0);
-		
-		throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
-		bool nullify = ev[4] != 0;
-		if(nullify) return;
-		id2 = ev[0]/10000;
-		pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
-		pstr = ev[2] / 10000;
-		pstr_flags = ev[3] / 10000;
-		
 		if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
 			return; //No picking these up unless you have a bottle to fill!
 		
@@ -30889,7 +30876,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(get_qr(qr_HEARTSREQUIREDFIX) && !canget(id2))
 			return;
-			
+		
 		int32_t nextitem = -1;
 		do
 		{
@@ -30973,7 +30960,29 @@ void HeroClass::checkitems(int32_t index)
 				
 				break;
 			}
+		
+		//EVENT
+		{
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(id2*10000);
+			ev.push_back(pickup*10000);
+			ev.push_back(pstr*10000);
+			ev.push_back(pstr_flags*10000);
+			ev.push_back(0);
+			ev.push_back(ptr->getUID());
+			ev.push_back(GENEVT_ICTYPE_COLLECT*10000);
+			ev.push_back(0);
 			
+			throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+			bool nullify = ev[4] != 0;
+			if(nullify) return;
+			id2 = ev[0]/10000;
+			pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
+			pstr = ev[2] / 10000;
+			pstr_flags = ev[3] / 10000;
+		}
+		
 		if(pickup&ipONETIME)    // set mITEM for one-time-only items
 		{
 			setmapflag(item_screen_index, mITEM);

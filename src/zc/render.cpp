@@ -127,23 +127,28 @@ static void configure_render_tree()
 	int h = rti_game.height;
 	float xscale = (float)resx/w;
 	float yscale = (float)resy/(h+12);
-	float scale = std::min(xscale, yscale);
+	bool keep_aspect_ratio = !stretchGame;
+	if (keep_aspect_ratio)
+		xscale = yscale = std::min(xscale, yscale);
 	if (scaleForceInteger)
-		scale = intscale(scale);
+	{
+		xscale = intscale(xscale);
+		yscale = intscale(yscale);
+	}
 
 	rti_game.set_transform({
-		.x = (int)(resx - w*scale) / 2,
-		.y = (int)(resy - h*scale) / 2,
-		.xscale = scale,
-		.yscale = scale,
+		.x = (int)(resx - w*xscale) / 2,
+		.y = (int)(resy - h*yscale) / 2,
+		.xscale = xscale,
+		.yscale = yscale,
 	});
 	rti_game.visible = true;
 
 	rti_infolayer.set_transform({
-		.x = (int)(resx - w*scale) / 2,
-		.y = (int)(resy - h*scale) / 2,
-		.xscale = scale,
-		.yscale = scale,
+		.x = (int)(resx - w*xscale) / 2,
+		.y = (int)(resy - h*yscale) / 2,
+		.xscale = xscale,
+		.yscale = yscale,
 	});
 	rti_infolayer.visible = true;
 	
@@ -283,6 +288,13 @@ void render_zc()
 	std::vector<std::string> lines_left;
 	std::vector<std::string> lines_right;
 
+	if (ShowGameTime && game && Playing)
+	{
+		if (MenuOpen || Paused)
+			lines_left.push_back(fmt::format("{} ({})", time_str_long(game->get_time()), game->get_time()));
+		else
+			lines_left.push_back(fmt::format("{}", ShowGameTime == 2 ? time_str_long(game->get_time()) : time_str_med(game->get_time())));
+	}
 	// TODO calculate fps without using a timer thread.
 	if (ShowFPS)
 		lines_left.push_back(fmt::format("FPS: {}", (int)lastfps));
@@ -294,13 +306,6 @@ void render_zc()
 		lines_right.push_back("PAUSED");
 	if (Saving && use_save_indicator)
 		lines_right.push_back("SAVING ...");
-	if (details && game)
-	{
-		lines_right.push_back(fmt::format("dlvl:{:2} dngn:{}", dlevel, isdungeon()));
-		lines_right.push_back(time_str_long(game->get_time()));
-		for (int i = 0; i < guys.Count(); i++)
-			lines_right.push_back(fmt::format("{}", (int)((enemy*)guys.spr(i))->id));
-	}
 	if (show_ff_scripts)
 	{
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {

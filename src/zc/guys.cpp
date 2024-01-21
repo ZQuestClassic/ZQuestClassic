@@ -4010,10 +4010,6 @@ bool enemy::dont_draw()
 	if(flags&lens_only && !lensclk)
 		return true;
 		
-	if(lensclk && (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG7) &&
-	!((flags&lens_only) && (get_qr(qr_LENSSEESENEMIES) || (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG5))))
-		return true;
-		
 	return false;
 }
 
@@ -4028,8 +4024,6 @@ void enemy::draw(BITMAP *dest)
 	if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1))) 
 		return;
 	if(flags&guy_invisible)
-		return;
-	if(lensclk && (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG7) && !(flags&lens_only))
 		return;
 	
 	//We did the normal don't_draw stuff here so we can make exceptions; specifically the lens check (which should make enemies
@@ -4067,14 +4061,6 @@ void enemy::draw(BITMAP *dest)
 	//Lens check
 	if (lensclk)
 	{
-		if((itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG6) && !(flags&lens_only))
-		{
-			if (canSee == DRAW_NORMAL) 
-			{
-				if (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG7) canSee = DRAW_CLOAKED;
-				else canSee = DRAW_INVIS; //Should never happen cause dont_draw should catch this, but just in case.
-			}
-		}
 		if(flags&lens_only)
 		{
 			if (canSee == DRAW_INVIS) canSee = DRAW_NORMAL;

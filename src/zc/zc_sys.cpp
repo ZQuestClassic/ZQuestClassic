@@ -410,6 +410,7 @@ void load_game_configs()
 	if (em_is_mobile()) NameEntryMode = 2;
 #endif
 	ShowFPS = zc_get_config(cfg_sect,"showfps",0)!=0;
+	ShowGameTime = zc_get_config(cfg_sect,"showtime",0);
 	NESquit = zc_get_config(cfg_sect,"fastquit",0)!=0;
 	ClickToFreeze = zc_get_config(cfg_sect,"clicktofreeze",1)!=0;
 	abc_patternmatch = zc_get_config(cfg_sect, "lister_pattern_matching", 1);
@@ -4466,15 +4467,6 @@ void syskeys()
 	
 	if(!get_debug() || !SystemKeys || replay_is_replaying())
 		goto bottom;
-		
-	if(zc_readkey(KEY_D))
-	{
-		details = !details;
-		rectfill(screen,0,0,319,7,BLACK);
-		rectfill(screen,0,8,31,239,BLACK);
-		rectfill(screen,288,8,319,239,BLACK);
-		rectfill(screen,32,232,287,239,BLACK);
-	}
 	
 	if(zc_readkey(KEY_P))   Paused=!Paused;
 	
@@ -5268,6 +5260,13 @@ int32_t onShowFPS()
 {
 	ShowFPS = !ShowFPS;
 	zc_set_config(cfg_sect,"showfps",(int32_t)ShowFPS);
+	return D_O_K;
+}
+
+int32_t onShowTime()
+{
+	ShowGameTime = !ShowGameTime;
+	zc_set_config(cfg_sect,"showtime",ShowGameTime);
 	return D_O_K;
 }
 
@@ -7401,6 +7400,7 @@ enum
 	MENUID_SETTINGS_CONTROLS,
 	MENUID_SETTINGS_CAPFPS,
 	MENUID_SETTINGS_SHOWFPS,
+	MENUID_SETTINGS_SHOWTIME,
 	MENUID_SETTINGS_CLICK_FREEZE,
 	MENUID_SETTINGS_TRANSLAYERS,
 	MENUID_SETTINGS_NESQUIT,
@@ -7418,6 +7418,7 @@ static NewMenu settings_menu
 	{},
 	{ "&Cap FPS","F1", onThrottleFPS, MENUID_SETTINGS_CAPFPS },
 	{ "Show &FPS","F2", onShowFPS, MENUID_SETTINGS_SHOWFPS },
+	{ "Show &Time", onShowTime, MENUID_SETTINGS_SHOWTIME },
 	{ "Click to Freeze", onClickToFreeze, MENUID_SETTINGS_CLICK_FREEZE },
 	{ "Cont. &Heart Beep", onHeartBeep, MENUID_SETTINGS_HEARTBEEP },
 	{ "Show Trans. &Layers", onTransLayers, MENUID_SETTINGS_TRANSLAYERS },
@@ -7664,15 +7665,23 @@ int32_t onExtLetterGridEntry()
 static BITMAP* oldscreen;
 int32_t onFullscreenMenu()
 {
-	// super hacks
-	screen = oldscreen;
-	if (onFullscreen() == D_REDRAW)
-	{
-		oldscreen = screen;
-	}
-	screen = menu_bmp;
+	PALETTE oldpal;
+	get_palette(oldpal);
+
+	fullscreen = !fullscreen;
+	all_toggle_fullscreen(fullscreen);
+	zc_set_config("zeldadx","fullscreen",fullscreen);
+
+	zc_set_palette(oldpal);
+	gui_mouse_focus=0;
+	extern int32_t switch_type;
+	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+	set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
+	set_display_switch_callback(SWITCH_OUT, switch_out_callback);
+	set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	misc_menu.select_uid(MENUID_MISC_FULLSCREEN, isFullScreen());
 	misc_menu.select_uid(MENUID_MISC_VIDMODE, isFullScreen());
+
 	return D_O_K;
 }
 
@@ -7877,6 +7886,7 @@ void System()
 			settings_menu.disable_uid(MENUID_SETTINGS_CONTROLS, replay_is_replaying());
 			settings_menu.select_uid(MENUID_SETTINGS_CAPFPS, Throttlefps);
 			settings_menu.select_uid(MENUID_SETTINGS_SHOWFPS, ShowFPS);
+			settings_menu.select_uid(MENUID_SETTINGS_SHOWTIME, ShowGameTime);
 			settings_menu.select_uid(MENUID_SETTINGS_CLICK_FREEZE, ClickToFreeze);
 			settings_menu.select_uid(MENUID_SETTINGS_TRANSLAYERS, TransLayers);
 			settings_menu.select_uid(MENUID_SETTINGS_NESQUIT, NESquit);
@@ -8684,6 +8694,20 @@ const char* joystick_name(int32_t s)
 		return "";
 
 	return joy[joystick_index].stick[s].name;
+}
+
+int32_t button_pressed()
+{
+	if (joystick_index >= MAX_JOYSTICKS)
+		return 0;
+
+	for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+	{
+		if(joybtn(i))
+			return i;
+	}
+
+	return 0;
 }
 
 int32_t next_press_key();
