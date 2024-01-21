@@ -13,7 +13,7 @@
 //
 // 3. zplayer -test-zc will run a few unit tests, located in this file.
 //
-// 4. python scripts/run_for_every_qst.py ./build/Debug/zplayer -extract-zasm %s -extract-zasm-optimize 2>&1 | code -
+// 4. python scripts/run_for_every_qst.py --starting_index 235 ./build/Debug/zplayer -extract-zasm %s -extract-zasm-optimize 2>&1 | code -
 //
 //    Run in debug mode (for asserts) on every quest in the database.
 //
@@ -46,6 +46,15 @@ static bool verbose = false;
 bool zasm_optimize_enabled()
 {
 	static bool enabled = get_flag_bool("-optimize-zasm").value_or(false) || zc_get_config("zeldadx", "optimize_zasm", true);
+	return enabled;
+}
+
+// TODO: remove when more stable.
+// Need to clean up the code for what registers/commands have side effects, use implicit registers, etc.
+// Need to verify nothing was missed.
+static bool should_run_experimental_passes()
+{
+	static bool enabled = get_flag_bool("-optimize-zasm-experimental").has_value() || get_flag_bool("-test-optimize-zasm").has_value() || get_flag_bool("-extract-zasm-optimize").has_value() || get_flag_bool("-replay-exit-when-done").has_value() || is_ci();
 	return enabled;
 }
 
@@ -1763,6 +1772,9 @@ static std::vector<ffscript> compile_conditional(const ffscript& instr, const Si
 // between setting to a D-register and using it.
 static void optimize_propagate_values(OptContext& ctx)
 {
+	if (!should_run_experimental_passes())
+		return;
+
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
 		SimulationState state{};
@@ -2508,6 +2520,9 @@ static void optimize_inline_functions(OptContext& ctx)
 // https://www.cs.cmu.edu/afs/cs/academic/class/15745-s19/www/lectures/L5-Intro-to-Dataflow.pdf
 static void optimize_dead_code(OptContext& ctx)
 {
+	if (!should_run_experimental_passes())
+		return;
+
 	add_context_cfg(ctx);
 
 	std::map<pc_t, std::vector<pc_t>> precede;
