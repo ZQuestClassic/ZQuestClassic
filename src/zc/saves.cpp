@@ -527,21 +527,6 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		if (!p_getwstr(&game.header.qstpath, f))
 			return 38;
 
-		if (standalone_mode)
-		{
-			auto normalized_qstpath = (fs::current_path() / fs::path(qstdir) / fs::path(game.header.qstpath)).lexically_normal();
-			if (standalone_quest != normalized_qstpath)
-			{
-				enter_sys_pal();
-				jwin_alert("Invalid save file",
-						"This save file is for",
-						"a different quest.",
-						"",
-						"OK",NULL,'o',0,get_zc_font(font_lfont));
-				exit(0);
-			}
-		}
-
 		// Convert path separators so save files work across platforms (hopefully)
 		regulate_path(game.header.qstpath);
 		
