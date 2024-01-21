@@ -2221,8 +2221,67 @@ OptimizeResults zasm_optimize(script_data* script)
 		run_pass(results, i, ctx, script_passes[i]);
 	}
 
+	// Do not optimize functions that use a bugged version of SDDDD, or calls a function that does.
+	// SDDDD reads D2, but the bugged compiler would not set it, so whatever D2 happened to be is what
+	// could get used. So the setv_pushr optimization 100% breaks those quests, since it doesn't bother to check
+	// if the register it elides is used beyond the PUSH.
+	// Rather than make that optimization slower, lets just discover which functions we should skip optimizations for.
+	std::set<pc_t> is_bugged_fn;
 	for (const auto& fn : structured_zasm.functions)
 	{
+		bool has_sdddd = false;
+		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+		{
+			// Not all these args are registers args, but that's fine. This is much faster
+			// than using for_every_command_register_arg.
+			if (one_of(SDDDD, script->zasm[i].arg1, script->zasm[i].arg2, script->zasm[i].arg3))
+			{
+				has_sdddd = true;
+				break;
+			}
+		}
+
+		if (!has_sdddd)
+			continue;
+
+		add_context_cfg(ctx);
+		SimulationState state{};
+		state.final_pc = fn.final_pc;
+		state.d[2] = {ValueType::Uninitialized};
+		bool is_bugged = false;
+		// It's probably fine to not run this per-block?
+		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
+		{
+			for_every_command_register_arg(C(i), [&](bool read, bool write, int reg){
+				if (reg == SDDDD)
+				{
+					if (state.d[2].type == ValueType::Uninitialized)
+					{
+						is_bugged = true;
+					}
+				}
+			});
+
+			state.pc = i;
+			simulate(ctx, state);
+
+			if (is_bugged)
+				break;
+		}
+
+		if (is_bugged)
+		{
+			is_bugged_fn.insert(fn.id);
+			for (pc_t fn_id : fn.called_by_functions)
+				is_bugged_fn.insert(fn_id);
+		}
+	}
+
+	for (const auto& fn : structured_zasm.functions)
+	{
+		if (is_bugged_fn.contains(fn.id))
+			continue;
+
 		optimize_function(results, structured_zasm, script, fn);
 	}
 
