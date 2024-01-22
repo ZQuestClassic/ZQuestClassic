@@ -5611,7 +5611,8 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 			remove_bosschests(base_screen, screen_index);
 		}
 		
-		clear_xstatecombos_mi(base_screen, screen_index, mi);
+		clear_xdoors_mi(base_screen, screen_index, mi, true);
+		clear_xstatecombos_mi(base_screen, screen_index, mi, true);
 	}
 
 	// check doors
@@ -6060,8 +6061,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		remove_bosschests(screen, scr);
 	}
 	
-	clear_xdoors(screen, scr);
-	clear_xstatecombos(screen, scr);
+	clear_xdoors(screen, scr, true);
+	clear_xstatecombos(screen, scr, true);
 
 	// check doors
 	if(isdungeon(destdmap,scr))
