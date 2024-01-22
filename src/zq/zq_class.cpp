@@ -14172,19 +14172,11 @@ void zmap::prv_secrets(bool high16only)
                     t[j].data[i] = t[j].secretcombo[(checkflag)-16+4];
                     t[j].cset[i] = t[j].secretcset[(checkflag)-16+4];
                     newflag2 = t[j].secretflag[(checkflag)-16+4];
-                    //          putit = true;
                 }
             }
             
             if(newflag2 >-1) t[j].sflag[i] = newflag2;
         }
-        
-        //} //if(true)
-        
-        /*
-          if(putit && refresh)
-          putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-          */
     }
     
     //FFCs

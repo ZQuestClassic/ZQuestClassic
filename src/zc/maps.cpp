@@ -2661,11 +2661,6 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 				}
 			}
 		}
-		
-		/*
-		  if(putit && refresh)
-		  putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-		  */
 	}
 	
 	for(word i=0; i<c; i++) // FFCs
@@ -3989,19 +3984,16 @@ void draw_msgstr(byte layer)
 	if(!(msg_bg_display_buf->clip))
 	{
 		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
 		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
 		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 }
 
@@ -4019,17 +4011,17 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//The Plan:
 	//1. Draw some background layers
 	//2. Blit scrollbuf onto framebuf
-	//3. Draw some sprites onto framebuf
+	//3. Draw some sprites
 	//4. -----
-	//5. Draw some layers onto framebuf and scrollbuf
+	//5. Draw some layers
 	//6. -----
-	//6b. Draw the subscreen onto frame_buf, without clipping
-	//7. Draw some flying sprites onto framebuf
+	//6b. Draw the subscreen, without clipping
+	//7. Draw some flying sprites
 	//8. -----
-	//9. Draw some layers onto frame_buf and scrollbuf
+	//9. Draw some layers
 	//10. ----
-	//11. Draw some text on framebuf and scrollbuf
-	//12. Draw the subscreen onto framebuf, without clipping
+	//11. Draw some text
+	//12. Draw the subscreen, without clipping
 	clear_bitmap(framebuf);
 	clear_clip_rect(framebuf);
 	
@@ -4368,32 +4360,27 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW, this_screen, 0, playing_field_offset);
 	}
 	
-	//5. Draw some layers onto framebuf and scrollbuf
+	//5. Draw some layers onto framebuf
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	if(!XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 	{
 		do_layer(framebuf, 0, 3, this_screen, 0, 0, 2, false, true);
-		do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2);
 		
 		particles.draw(framebuf, true, 2);
 		draw_msgstr(3);
 	}
 	
 	do_layer(framebuf, 0, 4, this_screen, 0, 0, 2, false, true);
-	do_layer(scrollbuf, 0, 4, this_screen, 0, 0, 2);
 	
 	particles.draw(framebuf, true, 3);
 	draw_msgstr(4);
 	
 	do_layer(framebuf, -1, 0, this_screen, 0, 0, 2);
-	do_layer(scrollbuf, -1, 0, this_screen, 0, 0, 2);
 	if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		do_layer(framebuf, -1, 1, this_screen, 0, 0, 2);
-		do_layer(scrollbuf, -1, 1, this_screen, 0, 0, 2);
 		do_layer(framebuf, -1, 2, this_screen, 0, 0, 2);
-		do_layer(scrollbuf, -1, 2, this_screen, 0, 0, 2);
 	}
 	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB, this_screen, 0, playing_field_offset);
 	
@@ -4457,7 +4444,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			items.spr(i)->draw(framebuf);
 	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW, this_screen, 0, playing_field_offset);
 	
-	//9. Draw some layers onto framebuf and scrollbuf
+	//9. Draw some layers onto framebuf
 
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -4472,17 +4459,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	
 	do_layer(framebuf, 0, 5, this_screen, 0, 0, 2, false, true);
-	do_layer(scrollbuf, 0, 5, this_screen, 0, 0, 2);
 	
 	particles.draw(framebuf, true, 4);
 	draw_msgstr(5);
 	
 	do_layer(framebuf, -4, 0, this_screen, 0, 0, 2); // overhead freeform combos!
-	do_layer(scrollbuf, -4, 0, this_screen, 0, 0, 2);
 	do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, this_screen, 0, playing_field_offset);
 	
 	do_layer(framebuf, 0, 6, this_screen, 0, 0, 2, false, true);
-	do_layer(scrollbuf, 0, 6, this_screen, 0, 0, 2);
 	
 	particles.draw(framebuf, true, 5);
 		
@@ -4520,7 +4504,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//12. Draw some text on framebuf
 	
 	set_clip_rect(framebuf,0,0,256,224);
-	set_clip_rect(scrollbuf,0,0,256,224);
 	
 	draw_msgstr(6);
 	

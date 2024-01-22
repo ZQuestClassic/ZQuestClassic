@@ -20152,7 +20152,6 @@ void loadenemies()
 void moneysign()
 {
 	additem(48,108,iRupy,ipDUMMY);
-	//  textout(scrollbuf,get_zc_font(font_zfont),"X",64,112,CSET(0)+1);
 	set_clip_state(pricesdisplaybuf, 0);
 	textout_ex(pricesdisplaybuf,get_zc_font(font_zfont),"X",64,112,CSET(0)+1,-1);
 }
@@ -20160,9 +20159,6 @@ void moneysign()
 void putprices(bool sign)
 {
 	if(fadeclk > 0) return;
-	// refresh what's under the prices
-	// for(int32_t i=5; i<12; i++)
-	//   putcombo(scrollbuf,i<<4,112,tmpscr->data[112+i],tmpscr->cpage);
 	
 	rectfill(pricesdisplaybuf, 72, 112, pricesdisplaybuf->w-1, pricesdisplaybuf->h-1, 0);
 	int32_t step=32;

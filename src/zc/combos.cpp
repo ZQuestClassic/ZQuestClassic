@@ -614,8 +614,6 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 		}
 	}
 	
-	//putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-	
 	if(get_qr(qr_MORESOUNDS))
 	{
 		if (cmb.usrflags&cflag3)
@@ -714,8 +712,6 @@ void trigger_cuttable_ffc(int32_t pos)
 			items.add(itm);
 		}
 	}
-	
-	//putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 	
 	if(get_qr(qr_MORESOUNDS))
 	{
