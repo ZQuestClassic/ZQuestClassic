@@ -4353,6 +4353,12 @@ int main(int argc, char **argv)
 	}
 
 	three_finger_flag=false;
+
+	// TODO: digi_volume has been removed as a user controllable setting. It is a global volume control for
+	// a4 music streams, but we use emusic_volume for all enhanced music, so it was a weird double volume control.
+	// Should remove all usages of digi_volume (maybe replacing with emusic_volume where appropriate). For now,
+	// just set to 255.
+	digi_volume = 255;
 	
 	load_game_configs();
 
