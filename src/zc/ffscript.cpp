@@ -30779,30 +30779,36 @@ void FFScript::do_loadgenericdata(const bool v)
 void FFScript::do_create_paldata()
 {
 	ri->paldataref = get_free_paldata();
-	user_paldata* pd = &script_paldatas[ri->paldataref-1];
-	for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
-		pd->colors_used[q] = 0;
+	if (ri->paldataref > 0)
+	{
+		user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+		for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
+			pd->colors_used[q] = 0;
+	}
 	ri->d[rEXP1] = ri->paldataref;
 }
 
 void FFScript::do_create_paldata_clr()
 {
 	ri->paldataref = get_free_paldata();
-	user_paldata* pd = &script_paldatas[ri->paldataref - 1];
-	int32_t clri = get_register(sarg1);
-	
-	RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
-
-	if (c.r < 0 || c.g < 0 || c.b < 0)
+	if (ri->paldataref > 0)
 	{
-		Z_scripterrlog("Invalid rgb (%d) passed to Graphics->CreatePalData().\n", clri);
-	}
-	c.r = vbound(c.r, 0, 63);
-	c.g = vbound(c.g, 0, 63);
-	c.b = vbound(c.b, 0, 63);
+		user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+		int32_t clri = get_register(sarg1);
 
-	for(int32_t q = 0; q < 240; ++q)
-		pd->set_color(q, c);
+		RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
+
+		if (c.r < 0 || c.g < 0 || c.b < 0)
+		{
+			Z_scripterrlog("Invalid rgb (%d) passed to Graphics->CreatePalData().\n", clri);
+		}
+		c.r = vbound(c.r, 0, 63);
+		c.g = vbound(c.g, 0, 63);
+		c.b = vbound(c.b, 0, 63);
+
+		for (int32_t q = 0; q < 240; ++q)
+			pd->set_color(q, c);
+	}
 	ri->d[rEXP1] = ri->paldataref;
 }
 
