@@ -390,8 +390,8 @@ void load_game_configs()
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
 	
 	midi_volume = zc_get_config(sfx_sect,"midi",255);
-	sfx_volume = zc_get_config(sfx_sect,"sfx",248);
-	emusic_volume = zc_get_config(sfx_sect,"emusic",248);
+	sfx_volume = zc_get_config(sfx_sect,"sfx",255);
+	emusic_volume = zc_get_config(sfx_sect,"emusic",255);
 	pan_style = zc_get_config(sfx_sect,"pan",1);
 	volkeys = zc_get_config(sfx_sect,"volkeys",0)!=0;
 	zc_vsync = zc_get_config(cfg_sect,"vsync",0);
