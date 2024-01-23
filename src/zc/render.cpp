@@ -153,13 +153,22 @@ static void configure_render_tree()
 	
 	rti_dialogs.visible = rti_dialogs.has_children();
 	rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp;
-	
-	if (rti_dialogs.visible || rti_gui.visible)
+
+	float gui_xscale, gui_yscale;
 	{
 		int w = rti_gui.width;
 		int h = rti_gui.height;
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
+		gui_xscale = gui_yscale = std::min(xscale, yscale);
+	}
+	
+	if (rti_dialogs.visible || rti_gui.visible)
+	{
+		int w = rti_gui.width;
+		int h = rti_gui.height;
+		float xscale = gui_xscale;
+		float yscale = gui_yscale;
 		rti_gui.set_transform({
 			.x = (int)(resx - w*xscale) / 2,
 			.y = (int)(resy - h*yscale) / 2,
@@ -168,8 +177,8 @@ static void configure_render_tree()
 		});
 		
 		rti_dialogs.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
+			.x = 0,
+			.y = 0,
 			.xscale = xscale,
 			.yscale = yscale,
 		});
@@ -180,8 +189,16 @@ static void configure_render_tree()
 	for(auto it = dlgs.rbegin(); it != dlgs.rend(); ++it)
 	{
 		auto rti = *it;
-		if(rti->type == RTI_TY_DIALOG_A4 || rti->type == RTI_TY_DIALOG_A5)
+		if (rti->type == RTI_TY_DIALOG_A4 || rti->type == RTI_TY_DIALOG_A5)
+		{
+			int dialogs_w = rti_gui.width;
+			int dialogs_h = rti_gui.height;
+			auto t = rti->get_transform();
+			t.x = resx / gui_xscale / 2 - dialogs_w / 2;
+			t.y = resy / gui_yscale / 2 - dialogs_h / 2;
+			rti->set_transform(t);
 			has_zqdialog = true;
+		}
 		else if(rti->type == RTI_TY_POPUP_MENU)
 			rti->visible = !has_zqdialog;
 	}
@@ -191,8 +208,8 @@ static void configure_render_tree()
 	{
 		int w = rti_menu.width;
 		int h = rti_menu.height;
-		float xscale = (float)resx/w;
-		float yscale = (float)resy/h;
+		float xscale = gui_xscale;
+		float yscale = gui_yscale;
 		rti_menu.set_transform({
 			.x = 0,
 			.y = 0,
