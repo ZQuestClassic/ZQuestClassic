@@ -8127,48 +8127,73 @@ heroanimate_skip_liftwpn:;
 	
 	if(z<=8&&fakez<=8) //Tall Grass
 	{
+		int maxlyr = get_qr(qr_BUSHESONLAYERS1AND2) ? 2 : 0;
 		if (get_qr(qr_GRASS_SENSITIVE))
 		{
-			bool g1 = isGrassType(COMBOTYPE(x+4,y+15)), g2 = isGrassType(COMBOTYPE(x+11,y+15)), g3 = isGrassType(COMBOTYPE(x+4,y+9)), g4 = isGrassType(COMBOTYPE(x+11,y+9));
-			if(get_qr(qr_BUSHESONLAYERS1AND2))
+			bool g1 = false, g2 = false, g3 = false, g4 = false;
+			for(int q = maxlyr; q >= 0; --q)
 			{
-				g1 = g1 || isGrassType(COMBOTYPEL(1,x+4,y+15)) || isGrassType(COMBOTYPEL(2,x+4,y+15));
-				g2 = g2 || isGrassType(COMBOTYPEL(1,x+11,y+15)) || isGrassType(COMBOTYPEL(2,x+11,y+15));
-				g3 = g3 || isGrassType(COMBOTYPEL(1,x+4,y+9)) || isGrassType(COMBOTYPEL(2,x+4,y+9));
-				g4 = g4 || isGrassType(COMBOTYPEL(1,x+11,y+9)) || isGrassType(COMBOTYPEL(2,x+11,y+9));
+				g1 = g1 || isGrassType(combobuf[MAPCOMBO2(q-1,x+4,y+15)].type);
+				g2 = g2 || isGrassType(combobuf[MAPCOMBO2(q-1,x+11,y+15)].type);
+				g3 = g3 || isGrassType(combobuf[MAPCOMBO2(q-1,x+4,y+9)].type);
+				g4 = g4 || isGrassType(combobuf[MAPCOMBO2(q-1,x+11,y+9)].type);
 			}
 			if(g1 && g2 && g3 && g4)
 			{
-				int grasscid = MAPCOMBO(x+8,y+12);
-				newcombo const& cmb = combobuf[grasscid];
-				if(decorations.idCount(dTALLGRASS)==0)
+				int grasscid = 0;
+				for(int q = maxlyr; q >= 0; --q)
 				{
-					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.attribytes[6]));
+					int cid = MAPCOMBO2(q-1,x+8,y+12);
+					if(cid > 0 && isGrassType(combobuf[cid].type))
+					{
+						grasscid = cid;
+						break;
+					}
 				}
-				int32_t thesfx = cmb.attribytes[3];
-				if (action==walking)
-					sfx_no_repeat(thesfx,pan((int32_t)x));
+				if(grasscid)
+				{
+					newcombo const& cmb = combobuf[grasscid];
+					if(decorations.idCount(dTALLGRASS)==0)
+					{
+						decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.attribytes[6]));
+					}
+					int32_t thesfx = cmb.attribytes[3];
+					if (action==walking)
+						sfx_no_repeat(thesfx,pan((int32_t)x));
+				}
 			}
 		}
 		else
 		{
-			bool g1 = isGrassType(COMBOTYPE(x,y+15)), g2 = isGrassType(COMBOTYPE(x+15,y+15));
-			if(get_qr(qr_BUSHESONLAYERS1AND2))
+			bool g1 = false, g2 = false;
+			for(int q = maxlyr; q >= 0; --q)
 			{
-				g1 = g1 || isGrassType(COMBOTYPEL(1,x,y+15)) || isGrassType(COMBOTYPEL(2,x,y+15));
-				g2 = g2 || isGrassType(COMBOTYPEL(1,x+15,y+15)) || isGrassType(COMBOTYPEL(2,x+15,y+15));
+				g1 = g1 || isGrassType(combobuf[MAPCOMBO2(q-1,x,y+15)].type);
+				g2 = g2 || isGrassType(combobuf[MAPCOMBO2(q-1,x+15,y+15)].type);
 			}
 			if(g1 && g2)
 			{
-				int grasscid = MAPCOMBO(x+8,y+15);
-				newcombo const& cmb = combobuf[grasscid];
-				if(decorations.idCount(dTALLGRASS)==0)
+				int grasscid = 0;
+				for(int q = maxlyr; q >= 0; --q)
 				{
-					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.attribytes[6]));
+					int cid = MAPCOMBO2(q-1,x+8,y+15);
+					if(cid > 0 && isGrassType(combobuf[cid].type))
+					{
+						grasscid = cid;
+						break;
+					}
 				}
-				int32_t thesfx = cmb.attribytes[3];
-				if (action==walking )
-					sfx_no_repeat(thesfx,pan((int32_t)x));
+				if(grasscid)
+				{
+					newcombo const& cmb = combobuf[grasscid];
+					if(decorations.idCount(dTALLGRASS)==0)
+					{
+						decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.attribytes[6]));
+					}
+					int32_t thesfx = cmb.attribytes[3];
+					if (action==walking )
+						sfx_no_repeat(thesfx,pan((int32_t)x));
+				}
 			}
 		}
 	}
