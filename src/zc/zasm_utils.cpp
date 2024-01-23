@@ -640,11 +640,11 @@ std::pair<bool, bool> get_command_rw(int command, int arg)
 	const auto& sc = get_script_command(command);
 	if (sc.args >= arg)
 	{
-		if (sc.arg_type[arg] == ARGTY_READ_REG)
+		if (sc.arg_type[arg] == ARGTY::READ_REG)
 			read = true;
-		if (sc.arg_type[arg] == ARGTY_WRITE_REG)
+		if (sc.arg_type[arg] == ARGTY::WRITE_REG)
 			write = true;
-		if (sc.arg_type[arg] == ARGTY_READWRITE_REG)
+		if (sc.arg_type[arg] == ARGTY::READWRITE_REG)
 			read = write = true;
 	}
 	

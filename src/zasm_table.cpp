@@ -1,13 +1,14 @@
 #include "zasm_table.h"
 #include "base/zdefs.h"
 #include "zc/ffscript.h"
+#include <utility>
 
-#define NUM      ARGTY_LITERAL
-#define CMP      ARGTY_COMPARE_OP
-#define REG      ARGTY_UNUSED_REG
-#define REG_R    ARGTY_READ_REG
-#define REG_W    ARGTY_WRITE_REG
-#define REG_RW   ARGTY_READWRITE_REG
+#define NUM      ARGTY::LITERAL
+#define CMP      ARGTY::COMPARE_OP
+#define REG      ARGTY::UNUSED_REG
+#define REG_R    ARGTY::READ_REG
+#define REG_W    ARGTY::WRITE_REG
+#define REG_RW   ARGTY::READWRITE_REG
 
 #define CMPUSED  ARGFL_COMPARE_USED
 #define CMPSET   ARGFL_COMPARE_SET
@@ -1477,7 +1478,7 @@ script_variable variable_list[]=
 	{ "CURLEVEL", CURLEVEL, 0, 0 },
 	{ "ITEMPICKUP", ITEMPICKUP, 0, 0 },
 	{ "INPUTMAP", INPUTMAP, 0, 0 },
-	{ "NUM", NUM, 0, 0 },
+	{ "NUM", (int)NUM, 0, 0 },
 	{ "INPUTEX1", INPUTEX1, 0, 0 },
 	{ "INPUTEX2", INPUTEX2, 0, 0 },
 	{ "INPUTEX3", INPUTEX3, 0, 0 },
@@ -2902,6 +2903,182 @@ script_variable variable_list[]=
 
 	{ " ", -1, 0, 0 }
 };
+
+std::initializer_list<CommandDependency> get_command_implicit_dependencies(int command)
+{
+	typedef std::initializer_list<CommandDependency> T;
+
+	switch (command)
+	{
+		case LOAD:
+		case LOADD:
+		case STORE:
+		case STOREV:
+		case STORED:
+		case STOREDV:
+		{
+			static T r = {{rSFRAME, REG_R}};
+			return r;
+		}
+
+		case READPODARRAYR:
+		case READPODARRAYV:
+		case WRITEPODARRAYRR:
+		case WRITEPODARRAYRV:
+		case WRITEPODARRAYVR:
+		case WRITEPODARRAYVV:
+		{
+			static T r = {{rINDEX, REG_R}};
+			return r;
+		}
+
+		case ZCLASS_CONSTRUCT:
+		case ZCLASS_WRITE:
+		{
+			static T r = {{rEXP1, REG_R}};
+			return r;
+		}
+		
+		case READBITMAP:
+		{
+			static T r = {{rEXP2, REG_R}};
+			return r;
+		}
+
+		case ARRAYPOP:
+		case ARRAYPUSH:
+		case CHARWIDTHR:
+		case CHOOSEVARG:
+		case CREATEPORTAL:
+		case CREATESAVPORTAL:
+		case CURRENTITEMID:
+		case FILECREATE:
+		case FILEFLUSH:
+		case FILEGETCHAR:
+		case FILEISALLOCATED:
+		case FILEISVALID:
+		case FILEOPEN:
+		case FILEPUTCHAR:
+		case FILEREADSTR:
+		case FILEREMOVE:
+		case FILESEEK:
+		case FILEUNGETCHAR:
+		case FILEWRITESTR:
+		case FONTHEIGHTR:
+		case HEROCANMOVE:
+		case HEROCANMOVEATANGLE:
+		case HEROCANMOVEXY:
+		case HEROISFLICKERFRAME:
+		case HEROLIFTRELEASE:
+		case HEROMOVE:
+		case HEROMOVEATANGLE:
+		case HEROMOVEXY:
+		case LOADPORTAL:
+		case LOADSAVPORTAL:
+		case MAKEVARGARRAY:
+		case MAXVARG:
+		case MESSAGEHEIGHTR:
+		case MESSAGEWIDTHR:
+		case MINVARG:
+		case NPCCANPLACE:
+		case NPCISFLICKERFRAME:
+		case NPCMOVEPAUSED:
+		case RNGLRAND1:
+		case RNGLRAND2:
+		case RNGLRAND3:
+		case RNGRAND1:
+		case RNGRSEED:
+		case SAVEDPORTALGENERATE:
+		case SCREENDOSPAWN:
+		case SPRINTFA:
+		case SPRINTFVARG:
+		case STRINGWIDTHR:
+		case SUBPAGE_FIND_WIDGET_BY_LABEL:
+		case SUBPAGE_FIND_WIDGET:
+		case SUBPAGE_MOVE_SEL:
+		case SUBPAGE_NEW_WIDG:
+		case WRAPDEGREES:
+		case WRAPRADIANS:
+		case ZCLASS_FREE:
+		case ZCLASS_READ:
+		{
+			static T r = {{rEXP1, REG_W}};
+			return r;
+		}
+
+		case REGENERATEBITMAP:
+		{
+			static T r = {{rEXP2, REG_RW}};
+			return r;
+		}
+
+		case FILEREADBYTES:
+		case FILEREADCHARS:
+		case FILEREADINTS:
+		case FILEWRITEBYTES:
+		case FILEWRITECHARS:
+		case FILEWRITEINTS:
+		{
+			static T r = {{rINDEX, REG_R}, {rEXP1, REG_W}};
+			return r;
+		}
+
+		case FILEALLOCATE:
+		case NPCADD:
+		{
+			static T r = {{rEXP1, REG_W}, {rEXP2, REG_W}};
+			return r;
+		}
+
+		case NPCCANMOVEANGLE:
+		case NPCCANMOVEDIR:
+		case NPCCANMOVEXY:
+		case NPCMOVE:
+		case NPCMOVEANGLE:
+		case NPCMOVEXY:
+		{
+			static T r = {{rINDEX, REG_R}, {rEXP1, REG_RW}, {rEXP2, REG_R}};
+			return r;
+		}
+
+		case ARCTANR:
+		case ISSOLID:
+		case MAPDATAISSOLID:
+		case STRINGCOMPARE:
+		case STRINGICOMPARE:
+		{
+			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}};
+			return r;
+		}
+		
+		case STRINGNCOMPARE:
+		case STRINGNICOMPARE:
+		{
+			static T r = {{rINDEX, REG_R}, {rEXP1, REG_R}, {rEXP2, REG_R}};
+			return r;
+		}
+
+		case MAPDATAISSOLIDLYR:
+		case ISSOLIDLAYER:
+		{
+			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}, {rEXP1, REG_R}};
+			return r;
+		}
+		
+		case POP:
+		case POPARGS:
+		case PUSHARGSR:
+		case PUSHARGSV:
+		case PUSHR:
+		case PUSHV:
+		{
+			static T r = {{SP, REG_RW}, {SP2, REG_RW}};
+			return r;
+		}
+	}
+
+	return {};
+}
 
 std::initializer_list<int> get_register_dependencies(int reg)
 {

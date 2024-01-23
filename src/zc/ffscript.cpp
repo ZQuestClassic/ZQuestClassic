@@ -45081,18 +45081,18 @@ std::string ZASMVarToString(int32_t arg)
 	return "(null)";
 }
 
-std::string ZASMArgToString(int32_t arg, int32_t arg_ty)
+std::string ZASMArgToString(int32_t arg, ARGTY arg_ty)
 {
 	switch(arg_ty)
 	{
-		case ARGTY_UNUSED_REG:
-		case ARGTY_READ_REG:
-		case ARGTY_WRITE_REG:
-		case ARGTY_READWRITE_REG:
+		case ARGTY::UNUSED_REG:
+		case ARGTY::READ_REG:
+		case ARGTY::WRITE_REG:
+		case ARGTY::READWRITE_REG:
 			return ZASMVarToString(arg);
-		case ARGTY_LITERAL:
+		case ARGTY::LITERAL:
 			return to_string(arg);
-		case ARGTY_COMPARE_OP:
+		case ARGTY::COMPARE_OP:
 			return CMP_STR(arg);
 		default:
 			return "ERROR";
@@ -45118,15 +45118,15 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		for(int q = 0; q < s_c.args; ++q)
 		{
 			bool end = q == (s_c.args-1);
-			if(s_c.arg_type[q] == ARGTY_LITERAL)
+			if(s_c.arg_type[q] == ARGTY::LITERAL)
 			{
 				coloured_console.cprintf(color_red,"%10s (val = %2d)%s", "immediate", sargs[q], end ? "\n" : ", ");
 			}
-			else if(s_c.arg_type[q] == ARGTY_COMPARE_OP)
+			else if(s_c.arg_type[q] == ARGTY::COMPARE_OP)
 			{
 				coloured_console.cprintf(color_red,"%10s (%s)", "compare", CMP_STR(sargs[q]).c_str(), end ? "\n" : ", ");
 			}
-			else //ARGTY_UNUSED_REG, ARGTY_READ_REG, ARGTY_WRITE_REG, ARGTY_READWRITE_REG
+			else //ARGTY::UNUSED_REG, ARGTY::READ_REG, ARGTY::WRITE_REG, ARGTY::READWRITE_REG
 			{
 				coloured_console.cprintf(color_white,"\t %s (val = %2d)%s", ZASMVarToString(sargs[q]).c_str(), get_register(sargs[q]), end ? "\n" : ", ");
 			}
@@ -52076,7 +52076,7 @@ bool command_is_pure(int command)
 
 const script_command& get_script_command(int command)
 {
-	static script_command null_command = {"0xFFFF", 0, {0, 0, 0}};
+	static script_command null_command = {"0xFFFF", 0, {ARGTY::UNUSED_REG, ARGTY::UNUSED_REG, ARGTY::UNUSED_REG}};
 	if (command == 0xFFFF) return null_command;
 	return command_list[command];
 }

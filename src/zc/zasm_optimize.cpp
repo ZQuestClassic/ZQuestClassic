@@ -522,157 +522,11 @@ static bool has_implemented_register_invalidations(int reg)
 template <typename T>
 static void for_every_command_register_arg_include_indices(const ffscript& instr, T fn)
 {
-	switch (instr.command)
+	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
 	{
-		case LOAD:
-		case LOADD:
-		case STORE:
-		case STOREV:
-		case STORED:
-		case STOREDV:
-			fn(true, false, rSFRAME, -1);
-			break;
-
-		case READPODARRAYR:
-		case READPODARRAYV:
-		case WRITEPODARRAYRR:
-		case WRITEPODARRAYRV:
-		case WRITEPODARRAYVR:
-		case WRITEPODARRAYVV:
-			fn(true, false, rINDEX, -1);
-			break;
-
-		case ZCLASS_CONSTRUCT:
-		case ZCLASS_WRITE:
-			fn(true, false, rEXP1, -1);
-			break;
-		
-		case READBITMAP:
-			fn(true, false, rEXP2, -1);
-			break;
-
-		case ARRAYPOP:
-		case ARRAYPUSH:
-		case CHARWIDTHR:
-		case CHOOSEVARG:
-		case CREATEPORTAL:
-		case CREATESAVPORTAL:
-		case CURRENTITEMID:
-		case FILECREATE:
-		case FILEFLUSH:
-		case FILEGETCHAR:
-		case FILEISALLOCATED:
-		case FILEISVALID:
-		case FILEOPEN:
-		case FILEPUTCHAR:
-		case FILEREADSTR:
-		case FILEREMOVE:
-		case FILESEEK:
-		case FILEUNGETCHAR:
-		case FILEWRITESTR:
-		case FONTHEIGHTR:
-		case HEROCANMOVE:
-		case HEROCANMOVEATANGLE:
-		case HEROCANMOVEXY:
-		case HEROISFLICKERFRAME:
-		case HEROLIFTRELEASE:
-		case HEROMOVE:
-		case HEROMOVEATANGLE:
-		case HEROMOVEXY:
-		case LOADPORTAL:
-		case LOADSAVPORTAL:
-		case MAKEVARGARRAY:
-		case MAXVARG:
-		case MESSAGEHEIGHTR:
-		case MESSAGEWIDTHR:
-		case MINVARG:
-		case NPCCANPLACE:
-		case NPCISFLICKERFRAME:
-		case NPCMOVEPAUSED:
-		case RNGLRAND1:
-		case RNGLRAND2:
-		case RNGLRAND3:
-		case RNGRAND1:
-		case RNGRSEED:
-		case SAVEDPORTALGENERATE:
-		case SCREENDOSPAWN:
-		case SPRINTFA:
-		case SPRINTFVARG:
-		case STRINGWIDTHR:
-		case SUBPAGE_FIND_WIDGET_BY_LABEL:
-		case SUBPAGE_FIND_WIDGET:
-		case SUBPAGE_MOVE_SEL:
-		case SUBPAGE_NEW_WIDG:
-		case WRAPDEGREES:
-		case WRAPRADIANS:
-		case ZCLASS_FREE:
-		case ZCLASS_READ:
-			fn(false, true, rEXP1, -1);
-			break;
-
-		case REGENERATEBITMAP:
-			fn(true, true, rEXP2, -1);
-			break;
-
-		case FILEREADBYTES:
-		case FILEREADCHARS:
-		case FILEREADINTS:
-		case FILEWRITEBYTES:
-		case FILEWRITECHARS:
-		case FILEWRITEINTS:
-			fn(true, false, rINDEX, -1);
-			fn(false, true, rEXP1, -1);
-			break;
-
-		case FILEALLOCATE:
-		case NPCADD:
-			fn(false, true, rEXP1, -1);
-			fn(false, true, rEXP2, -1);
-			break;
-
-		case NPCCANMOVEANGLE:
-		case NPCCANMOVEDIR:
-		case NPCCANMOVEXY:
-		case NPCMOVE:
-		case NPCMOVEANGLE:
-		case NPCMOVEXY:
-			fn(true, false, rINDEX, -1);
-			fn(true, true, rEXP1, -1);
-			fn(true, false, rEXP2, -1);
-			break;
-		
-		case ARCTANR:
-		case ISSOLID:
-		case MAPDATAISSOLID:
-		case STRINGCOMPARE:
-		case STRINGICOMPARE:
-			fn(true, false, rINDEX, -1);
-			fn(true, false, rINDEX2, -1);
-			break;
-		
-		case STRINGNCOMPARE:
-		case STRINGNICOMPARE:
-			fn(true, false, rINDEX, -1);
-			fn(true, false, rEXP1, -1);
-			fn(true, false, rEXP2, -1);
-			break;
-
-		case MAPDATAISSOLIDLYR:
-		case ISSOLIDLAYER:
-			fn(true, false, rINDEX, -1);
-			fn(true, false, rINDEX2, -1);
-			fn(true, false, rEXP1, -1);
-			break;
-		
-		case POP:
-		case POPARGS:
-		case PUSHARGSR:
-		case PUSHARGSV:
-		case PUSHR:
-		case PUSHV:
-			fn(true, true, SP, -1);
-			fn(true, true, SP2, -1);
-			break;
+		bool read = rw == ARGTY::READWRITE_REG || rw == ARGTY::READ_REG;
+		bool write = rw == ARGTY::READWRITE_REG || rw == ARGTY::WRITE_REG;
+		fn(read, write, reg, -1);
 	}
 
 	for_every_command_register_arg(instr, [&](bool read, bool write, int reg, int argn){
@@ -1582,16 +1436,6 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		if (write && !has_implemented_register_invalidations(reg))
 			state.bail = true;
 	});
-
-	// #define ARG(n) (n == 0 ? arg1 : n == 1 ? arg2 : arg3)
-	// for (int i = 0; i < 3; i++)
-	// {
-	// 	if (c.writes_to_register(i))
-	// 	{
-	// 		int arg = ARG(i);
-	// 		simulate_set_value(ctx, state, arg, reg(arg));
-	// 	}
-	// }
 
 	return;
 }
@@ -2941,15 +2785,15 @@ static int32_t set_argument(char const* argbuf, int32_t& arg)
 }
 
 // TODO: Stole from ffasm.cpp
-static int zasm_arg_from_string(std::string text, int type)
+static int zasm_arg_from_string(std::string text, ARGTY type)
 {
 	util::trimstr(text);
 
 	switch (type)
 	{
-		case ARGTY_READ_REG:
-		case ARGTY_WRITE_REG:
-		case ARGTY_READWRITE_REG:
+		case ARGTY::READ_REG:
+		case ARGTY::WRITE_REG:
+		case ARGTY::READWRITE_REG:
 		{
 			int arg = 0;
 			set_argument(text.c_str(), arg);
@@ -2957,12 +2801,12 @@ static int zasm_arg_from_string(std::string text, int type)
 		}
 		break;
 
-		case ARGTY_LITERAL:
+		case ARGTY::LITERAL:
 		{
 			return std::stoi(text);
 		}
 
-		case ARGTY_COMPARE_OP:
+		case ARGTY::COMPARE_OP:
 		{
 			return check_comparestr(text.c_str()).value();
 		}

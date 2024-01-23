@@ -2064,15 +2064,16 @@ struct script_data
 	}
 };
 
-enum
+enum class ARGTY : byte
 {
-    ARGTY_UNUSED_REG,
-    ARGTY_READ_REG,
-    ARGTY_WRITE_REG,
-    ARGTY_READWRITE_REG,
-    ARGTY_LITERAL,
-    ARGTY_COMPARE_OP,
+    UNUSED_REG,
+    READ_REG,
+    WRITE_REG,
+    READWRITE_REG,
+    LITERAL,
+    COMPARE_OP,
 };
+
 #define ARGFL_COMPARE_USED 0x01
 #define ARGFL_COMPARE_SET  0x02
 #define ARGFL_UNIMPL       0x04
@@ -2080,18 +2081,18 @@ struct script_command
 {
 	char name[64];
 	byte args;
-	byte arg_type[3]; //ARGTY_
+	ARGTY arg_type[3];
 	byte arr_type; //0x1 = string, 0x2 = array
 	byte flags; //ARGFL_
 
 	bool is_register(int arg) const
 	{
-		return arg_type[arg] == ARGTY_READ_REG || arg_type[arg] == ARGTY_WRITE_REG || arg_type[arg] == ARGTY_READWRITE_REG;
+		return arg_type[arg] == ARGTY::READ_REG || arg_type[arg] == ARGTY::WRITE_REG || arg_type[arg] == ARGTY::READWRITE_REG;
 	}
 
 	bool writes_to_register(int arg) const
 	{
-		return arg_type[arg] == ARGTY_WRITE_REG || arg_type[arg] == ARGTY_READWRITE_REG;
+		return arg_type[arg] == ARGTY::WRITE_REG || arg_type[arg] == ARGTY::READWRITE_REG;
 	}
 };
 
