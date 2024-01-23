@@ -34,7 +34,6 @@
 #define ZCM_TOGGLE -1
 
 ZCM_EXTERN char const * zcmusic_types;
-ZCM_EXTERN int32_t zcmusic_bufsz;
 
 typedef struct
 {
