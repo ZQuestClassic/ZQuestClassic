@@ -26453,8 +26453,6 @@ int32_t main(int32_t argc,char **argv)
 		Z_error_fatal("couldn't allocate timer");
 	}
 	
-	// 1 <= zcmusic_bufsz <= 128
-	zcmusic_bufsz = vbound(zc_get_config("zquest","zqmusic_bufsz",64),1,128);
 	byte layermask = zc_get_config("zquest","layer_mask",0x7F);
 	int32_t usefullscreen = zc_get_config("zquest","fullscreen",0);
 	tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);

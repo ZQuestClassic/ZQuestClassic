@@ -53,16 +53,11 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
-// might consider replacing the following with user defined values from the
-// 'sound' dialog in the player. This way, each person could tune it as needed.
 #define DUH_CHANNELS  2                                     // stereo
 #define DUH_SAMPLES   44100                                 //Hz
 #define DUH_RESAMPLE  1
 
 char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
-
-int32_t zcmusic_bufsz = 64;
-static int32_t zcmusic_bufsz_private = 64;
 
 ALLEGRO_MUTEX* playlistmutex = NULL;
 
@@ -189,8 +184,6 @@ void zcm_extract_name(const char *path,char *name,int32_t type)
 
 bool zcmusic_init(int32_t flags)                              /* = -1 */
 {
-	zcmusic_bufsz_private = zcmusic_bufsz;
-	
 	if(flags & ZCMF_DUH)
 	{
 		dumb_register_stdfiles();
@@ -511,7 +504,9 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 		case ZCMF_DUH:
 			if(((DUHFILE*)zcm)->s != NULL)
 			{
-				((DUHFILE*)zcm)->p = al_start_duh(((DUHFILE*)zcm)->s, DUH_CHANNELS, 0/*pos*/, ((float)vol) / (float)255, (zcmusic_bufsz_private*1024)/*bufsize*/, DUH_SAMPLES);
+				// Set the buffer to 128KB, which should be ~1.5s of audio.
+				long bufsize = 128*1024;
+				((DUHFILE*)zcm)->p = al_start_duh(((DUHFILE*)zcm)->s, DUH_CHANNELS, 0/*pos*/, ((float)vol) / (float)255, bufsize, DUH_SAMPLES);
 				ret = (((DUHFILE*)zcm)->p != NULL) ? TRUE : FALSE;
 			}
 			
