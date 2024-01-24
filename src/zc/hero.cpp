@@ -26679,7 +26679,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				if(!(wtype==wtSCROLL)||!(get_qr(qr_NOSCROLLCONTINUE)))
 				{
 					game->set_continue_scrn(homescr);
-					//Z_message("continue_scrn = %02X e/e\n",game->get_continue_scrn());
 				}
 				else if(currdmap != game->get_continue_dmap())
 				{
@@ -26691,20 +26690,17 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				if(currdmap != game->get_continue_dmap())
 				{
 					game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
-					//Z_message("continue_scrn = %02X dlevel\n",game->get_continue_scrn());
 				}
 			}
 		}
 		else
 		{
 			game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
-			//Z_message("continue_scrn = %02X\n !dlevel\n",game->get_continue_scrn());
 		}
 		
 		game->set_continue_dmap(currdmap);
 		lastentrance_dmap = currdmap;
 		lastentrance = game->get_continue_scrn();
-		//Z_message("continue_map = %d\n",game->get_continue_dmap());
 	}
 	
 	if(tmpscr->flags4&fAUTOSAVE)

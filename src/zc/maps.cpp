@@ -347,15 +347,13 @@ void z3_update_heroscr()
 	int dx = x / 256;
 	int dy = y / 176;
 	int newscr = cur_origin_screen_index + dx + dy * 16;
-	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
+	if (heroscr != newscr && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
-		// TODO z3 ! can entire conditional check this?
-		bool try_replay_music = heroscr != newscr;
 		heroscr = newscr;
-		if (try_replay_music) playLevelMusic();
 		hero_screen = get_scr(currmap, heroscr);
+		playLevelMusic();
 	}
 }
 
