@@ -67,6 +67,7 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 region current_region;
 
+// TODO z3 !!! rm me
 // entire map is region
 // #define hardcode_regions_mode 1
 
@@ -84,7 +85,7 @@ static int current_region_indices[128] = {
 };
 
 static int scr_xy_to_index(int x, int y) {
-	// TODO can't do this check, because some code expected to be able to go slightly out of bounds
+	// TODO z3 ! can't do this check, because some code expected to be able to go slightly out of bounds
 	// DCHECK(x >= 0 && x < 16 && y >= 0 && y < 8);
 	x = CLAMP(0, x, 15);
 	y = CLAMP(0, y, 7);
@@ -122,7 +123,7 @@ bool is_valid_rpos(rpos_t rpos)
 
 bool is_z3_scrolling_mode()
 {
-	return is_a_region(currdmap, currscr);
+	return current_region.region_id && is_in_current_region(currscr);
 }
 
 bool is_extended_height_mode()
@@ -454,7 +455,7 @@ combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
 }
 
 // These functions all return _temporary_ screens. Any modifications made to them (either by the engine
-// directly or via zscript) only last until the next screen (or region) is loaded (via loadscr).
+// directly or via zscript) only last until the next area is loaded (via loadscr).
 
 // Returns the screen containing the (x, y) world position.
 mapscr* get_screen_for_world_xy(int x, int y)
@@ -669,7 +670,7 @@ int32_t COMBOPOS(int32_t x, int32_t y)
 }
 int32_t COMBOPOS_B(int32_t x, int32_t y)
 {
-	if(unsigned(x) >= world_w || unsigned(y) >= world_h)
+	if(unsigned(x) >= 256 || unsigned(y) >= 176)
 		return -1;
 	return COMBOPOS(x,y);
 }
@@ -684,11 +685,13 @@ int32_t COMBOY(int32_t pos)
 
 rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 {
+	DCHECK(x >= 0 && x < world_w && y >= 0 && y < world_h);
 	if (!is_z3_scrolling_mode())
 		return (rpos_t) COMBOPOS(x, y);
 
-	x = vbound(x, 0, world_w-1);
-	y = vbound(y, 0, world_h-1);
+	// TODO z3 !!! can we not?
+	// x = vbound(x, 0, world_w-1);
+	// y = vbound(y, 0, world_h-1);
 
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
@@ -6058,7 +6061,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{
-		// CHECK(!is_z3_scrolling_mode());
 		for(int32_t i=0; i<4; i++)
 		{
 			int32_t door=screen->door[i];

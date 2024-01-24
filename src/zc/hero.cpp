@@ -8298,9 +8298,12 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		
-		auto rpos = COMBOPOS_REGION(x+8,y+(sideview_mode()?16:12));
+		auto rpos = COMBOPOS_REGION_CHECK_BOUNDS(x+8,y+(sideview_mode()?16:12));
 		for(int q = 0; q < 7; ++q)
 		{
+			if (rpos == rpos_t::None)
+				break;
+
 			auto rpos_handle = get_rpos_handle(rpos, q);
 			auto cid = rpos_handle.data();
 			newcombo const& cmb = combobuf[cid];
@@ -23552,8 +23555,10 @@ void HeroClass::handleSpotlights()
 		ffcdata& ffc = tmpscr->ffcs[i];
 		newcombo const* cmb = &combobuf[ffc.data];
 		size_t pos = get_qr(qr_BROKEN_LIGHTBEAM_HITBOX)
-			? COMBOPOS(ffc.x+8, ffc.y+8)
-			: COMBOPOS(ffc.x+(ffc.hit_width/2), ffc.y+(ffc.hit_height/2));
+			? COMBOPOS_B(ffc.x+8, ffc.y+8)
+			: COMBOPOS_B(ffc.x+(ffc.hit_width/2), ffc.y+(ffc.hit_height/2));
+		if (pos == -1)
+			continue;
 		if(cmb->type == cLIGHTTARGET)
 		{
 			int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
