@@ -1226,8 +1226,8 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 
 int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 {
-    if(layer < 1)
-    {
+	if(layer < 1)
+	{
 		for (int32_t i = layer+1; i <= 1; ++i)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
@@ -1239,15 +1239,13 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return cNONE;
 			}
 		}
-    }
-    if(layer==-1) return COMBOTYPE(x,y);
-	// TODO z3 !!!
-    if(tmpscr2[layer].valid==0)
-    {
-        return 0;
-    }
-    
-    return combobuf[MAPCOMBO2(layer,x,y)].type;
+	}
+	if(layer==-1) return COMBOTYPE(x,y);
+
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
+	if (!rpos_handle.screen->valid) return 0;
+
+	return rpos_handle.combo().type;
 }
 
 // Returns the flag for the combo at the given position.
