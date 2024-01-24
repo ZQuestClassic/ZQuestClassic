@@ -318,9 +318,7 @@ void PalDataSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPalDataCopyCSet());
 		LABELBACK(label);
-		POP_ARGS(3, NUL);
-		//pop pointer
-		POPREF();
+		POP_ARGS(4, NUL);
 		RETURN();
 		function->giveCode(code);
 	}
