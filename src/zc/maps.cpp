@@ -641,8 +641,7 @@ int32_t COMBOY_REGION_EXTENDED(int32_t pos)
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
-	// TODO z3 !
-	// DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
+	DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
 	return (y & 0xF0) + (x >> 4);
 }
 int32_t COMBOPOS_B(int32_t x, int32_t y)
@@ -653,11 +652,11 @@ int32_t COMBOPOS_B(int32_t x, int32_t y)
 }
 int32_t COMBOX(int32_t pos)
 {
-    return ((pos) % 16 * 16);
+    return pos % 16 * 16;
 }
 int32_t COMBOY(int32_t pos)
 {
-    return ((pos) & 0xF0);
+    return pos & 0xF0;
 }
 
 rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
@@ -3455,6 +3454,9 @@ optional<int> nextscr(int dir, bool normal)
 
 void bombdoor(int32_t x,int32_t y)
 {
+	if (x < 0 || y < 0 || x >= world_w || y >= world_h)
+		return;
+
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
 	mapscr* screen = rpos_handle.screen;
 	auto [x0, y0] = translate_screen_coordinates_to_world(rpos_handle.screen_index);

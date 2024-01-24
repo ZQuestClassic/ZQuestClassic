@@ -1,3 +1,4 @@
+#include "base/handles.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
 #include "zc/replay.h"
@@ -7342,7 +7343,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	int32_t bestcid=0;
 	rpos_t best_rpos = rpos_t::None;
 	int32_t hp_modtotal=0;
-	rpos_t rposes[] = {COMBOPOS_REGION(dx1,dy1),COMBOPOS_REGION(dx1,dy2),COMBOPOS_REGION(dx2,dy1),COMBOPOS_REGION(dx2,dy2)};
+	rpos_t rposes[] = {COMBOPOS_REGION_CHECK_BOUNDS(dx1,dy1),COMBOPOS_REGION_CHECK_BOUNDS(dx1,dy2),COMBOPOS_REGION_CHECK_BOUNDS(dx2,dy1),COMBOPOS_REGION_CHECK_BOUNDS(dx2,dy2)};
 	if (!_effectflag(dx1,dy1,1, layer)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
 	if (!_effectflag(dx1,dy2,1, layer)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
 	if (!_effectflag(dx2,dy1,1, layer)) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
@@ -7368,6 +7369,9 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	for(int32_t i=0; i<4; i++)
 	{
+		if (rposes[i] == rpos_t::None)
+			continue;
+
 		if(get_qr(qr_DMGCOMBOPRI))
 		{
 			if(hp_modtotal >= 0) //Okay, if it's over 0, it's healing Hero.
@@ -22047,6 +22051,9 @@ void HeroClass::checkchest(int32_t type)
 
 void HeroClass::checkgenpush(rpos_t rpos)
 {
+	if (rpos == rpos_t::None)
+		return;
+
 	for (int layer = 0; layer < 7; ++layer)
 	{
 		auto rpos_handle = get_rpos_handle(rpos, layer);
@@ -22089,8 +22096,8 @@ void HeroClass::checkgenpush()
 			break;
 	}
 
-	rpos_t rpos_1 = COMBOPOS_REGION(bx, by);
-	rpos_t rpos_2 = COMBOPOS_REGION(bx2, by2);
+	rpos_t rpos_1 = COMBOPOS_REGION_CHECK_BOUNDS(bx, by);
+	rpos_t rpos_2 = COMBOPOS_REGION_CHECK_BOUNDS(bx2, by2);
 	checkgenpush(rpos_1);
 	if (rpos_1 != rpos_2) checkgenpush(rpos_2);
 
