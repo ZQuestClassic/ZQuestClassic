@@ -74,8 +74,8 @@ Function #0
     1: SETCMP          D2              I==
     2: GOTOCMP         12              !=
     3: NOP                                          [Block 1 -> 2, 3]
-    4: SETR            D2              INPUTEX2
-    5: COMPAREV        D2              0
+    4: NOP
+    5: COMPAREV        INPUTEX2        0
     6: SETCMP          D2              !=
     7: GOTOCMP         12              ==
     8: NOP                                          [Block 2 -> 4]

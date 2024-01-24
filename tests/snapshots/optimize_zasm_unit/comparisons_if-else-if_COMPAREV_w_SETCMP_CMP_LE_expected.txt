@@ -9,32 +9,30 @@
 	D2 = D2 <= 1337
 inferred D2: 0
 6: SETR            D2              LINKX  
-7: COMPAREV        LINKX           1338   
-	bail
+7: COMPAREV        D2              1338   
 8: SETCMP          D2              ==     
-	D2 = 1
-	bail
+	D2 = D2 == 1338
 9: COMPAREV        D2              0      
-	D2 = 1
-	bail
+	D2 = D2 == 1338
 10: GOTOTRUE        12              
-	D2 = 1
-	bail
+	D2 = D2 == 1338
+rewrite 3: GOTOCMP         6               ==     
 
 [spurious_branches] Block #2
 
 6: SETR            D2              LINKX  
-7: COMPAREV        LINKX           1338   
-	bail
+7: COMPAREV        D2              1338   
 8: SETCMP          D2              ==     
-	D2 = ?
-	bail
+	D2 = D2 == 1338
 9: COMPAREV        D2              0      
-	D2 = ?
-	bail
+	D2 = D2 == 1338
 10: GOTOTRUE        12              
-	D2 = ?
-	bail
+	D2 = D2 == 1338
+inferred D2: 0
+12: QUIT           
+	D2 = 0
+	side_effects
+rewrite 10: GOTOCMP         12              ==     
 
 [reduce_comparisons] Block #0
 
@@ -43,7 +41,7 @@ inferred D2: 0
 	D2 = D2 <= 1337
 2: COMPAREV        D2              0      
 	D2 = D2 <= 1337
-3: GOTOTRUE        6               
+3: GOTOCMP         6               ==     
 	D2 = D2 <= 1337
 rewrite 0: 4 -> 2 commands
 0: COMPAREV        D2              1337   
@@ -53,17 +51,18 @@ rewrite 0: 4 -> 2 commands
 
 [reduce_comparisons] Block #2
 
-7: COMPAREV        LINKX           1338   
-	bail
+7: COMPAREV        D2              1338   
 8: SETCMP          D2              ==     
-	D2 = ?
-	bail
+	D2 = D2 == 1338
 9: COMPAREV        D2              0      
-	D2 = ?
-	bail
-10: GOTOTRUE        12              
-	D2 = ?
-	bail
+	D2 = D2 == 1338
+10: GOTOCMP         12              ==     
+	D2 = D2 == 1338
+rewrite 7: 4 -> 2 commands
+7: COMPAREV        D2              1338   
+8: GOTOCMP         12              !=     
+9: NOP            
+10: NOP            
 Function #0
     0: COMPAREV        D2              1337         [Block 0 -> 1, 2]
     1: GOTOCMP         6               >
@@ -73,8 +72,8 @@ Function #0
     5: GOTO            12
     6: NOP                                          [Block 2 -> 3, 4]
     7: COMPAREV        LINKX           1338
-    8: SETCMP          D2              ==
-    9: COMPAREV        D2              0
-   10: GOTOTRUE        12
-   11: TRACEV          1                            [Block 3 -> 4]
+    8: GOTOCMP         12              !=
+    9: NOP                                          [Block 3 -> 4]
+   10: NOP
+   11: TRACEV          1
    12: QUIT                                         [Block 4 -> ]

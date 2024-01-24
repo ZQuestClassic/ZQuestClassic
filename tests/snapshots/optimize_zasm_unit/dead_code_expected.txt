@@ -8,21 +8,32 @@
 16: SETR            D3              LINKX  
 	D0 = 1337
 	D1 = 1337
-17: COMPAREV        LINKX           0      
+17: COMPAREV        D3              0      
 	D0 = 1337
 	D1 = 1337
-	bail
 18: GOTOCMP         20              ==     
 	D0 = 1337
 	D1 = 1337
-	bail
+inferred D2: D2
+20: TRACER          D0              
+	D0 = 1337
+	D1 = 1337
+	D3 = 0
+	side_effects
+21: RETURNFUNC     
+	D0 = 1337
+	D1 = 1337
+	D3 = 0
+	side_effects
+rewrite 18: GOTOCMP         20              ==     
 
 [reduce_comparisons] Block #0
 
-17: COMPAREV        LINKX           0      
-	bail
+17: COMPAREV        D3              0      
 18: GOTOCMP         20              ==     
-	bail
+rewrite 17: 2 -> 2 commands
+17: COMPAREV        D3              0      
+18: GOTOCMP         20              ==     
 Function #0
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
     1: CALLFUNC        14                           [Call Function #2]

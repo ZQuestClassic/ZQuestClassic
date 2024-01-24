@@ -2,9 +2,9 @@
 
 0: NOP            
 	side_effects
-1: NOP            
+1: PUSHR           GD37            
 	side_effects
-2: SETR            D0              GD37   
+2: POP             D0              
 	side_effects
 3: READPODARRAYV   D2              70000  
 	side_effects
