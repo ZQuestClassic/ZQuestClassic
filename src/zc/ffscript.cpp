@@ -32097,6 +32097,7 @@ void FFScript::do_paldata_copy()
 
 void FFScript::do_paldata_copycset()
 {
+	ri->paldataref = SH::read_stack(ri->sp + 3);
 	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->CopyCSet()"))
 	{
 		int32_t ref_dest = SH::read_stack(ri->sp + 2);
