@@ -496,6 +496,16 @@ if(NOT WIN32)
 	target_include_directories(zcbase PUBLIC include/pstream)
 endif()
 
+# Only included because AppleClang does not support std::execution::par yet.
+FetchContent_Declare(
+	poolSTL
+	GIT_REPOSITORY https://github.com/alugowski/poolSTL
+	GIT_TAG main
+	GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(poolSTL)
+target_link_libraries(zcbase PUBLIC poolSTL::poolSTL)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -672,7 +682,7 @@ elseif(JIT_BACKEND STREQUAL "x64")
 		GIT_REPOSITORY
 			https://github.com/asmjit/asmjit.git
 		GIT_TAG
-			7e64eabca49c1a4d2cbfb06e4b9d3987bce7f7b3
+			bfa0bf690c2e90cc0844f2f012efa41b916bde7e
 	)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zplayer PRIVATE asmjit)

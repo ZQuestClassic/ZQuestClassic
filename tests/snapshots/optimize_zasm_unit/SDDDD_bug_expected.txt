@@ -8,19 +8,19 @@ Function #0
 
 Function #1
     5: PUSHV           999                          [Block 0 -> ]
-    6: SETV            D2              1000
-    7: PUSHR           D2
-    8: SETV            D2              1001
-    9: PUSHR           D2
-   10: SETV            D2              1002
-   11: PUSHR           D2
+    6: NOP
+    7: PUSHV           1000
+    8: NOP
+    9: PUSHV           1001
+   10: NOP
+   11: PUSHV           1002
    12: CALLFUNC        15                           [Call Function #2]
    13: TRACER          D2
    14: RETURNFUNC
 
 
 Function #2
-   15: POP             D6                           [Block 0 -> ]
+   15: POP             D2                           [Block 0 -> ]
    16: POP             D1
    17: POP             D0
    18: POP             D5

@@ -4353,19 +4353,16 @@ void draw_msgstr(byte layer)
 	if(!(msg_bg_display_buf->clip))
 	{
 		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
 		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
 		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 }
 
@@ -4384,17 +4381,17 @@ void draw_screen(bool showhero, bool runGeneric)
 	//The Plan:
 	//1. Draw some background layers
 	//2. Blit scrollbuf onto framebuf
-	//3. Draw some sprites onto framebuf
+	//3. Draw some sprites
 	//4. -----
-	//5. Draw some layers onto framebuf and scrollbuf
+	//5. Draw some layers
 	//6. -----
-	//6b. Draw the subscreen onto frame_buf, without clipping
-	//7. Draw some flying sprites onto framebuf
+	//6b. Draw the subscreen, without clipping
+	//7. Draw some flying sprites
 	//8. -----
-	//9. Draw some layers onto frame_buf and scrollbuf
+	//9. Draw some layers
 	//10. ----
-	//11. Draw some text on framebuf and scrollbuf
-	//12. Draw the subscreen onto framebuf, without clipping
+	//11. Draw some text
+	//12. Draw the subscreen, without clipping
 	clear_bitmap(framebuf);
 	clear_clip_rect(framebuf);
 	
@@ -4764,7 +4761,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW, 0, playing_field_offset);
 	}
 	
-	//5. Draw some layers onto framebuf and scrollbuf
+	//5. Draw some layers onto framebuf
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
@@ -4857,7 +4854,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			items.spr(i)->draw(framebuf);
 	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW, 0, playing_field_offset);
 	
-	//9. Draw some layers onto framebuf and scrollbuf
+	//9. Draw some layers onto framebuf
 
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	

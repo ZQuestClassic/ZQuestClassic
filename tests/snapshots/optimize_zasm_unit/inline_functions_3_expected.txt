@@ -4,7 +4,7 @@ rewrite 3: 3 -> 1 commands
 5: NOP            
 Function #0
     0: SETR            D4              SP2          [Block 0 -> ]
-    1: PUSHARGSR       D4              1
+    1: PUSHARGSR       SP2             1
     2: LOAD            D2              7
     3: SINR            D2              D2
     4: NOP

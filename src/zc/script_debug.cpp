@@ -10,7 +10,7 @@
 
 extern refInfo *ri;
 std::string ZASMVarToString(int32_t arg);
-std::string ZASMArgToString(int32_t arg, int32_t arg_ty);
+std::string ZASMArgToString(int32_t arg, ARGTY arg_ty);
 
 bool DEBUG_JIT_PRINT_ASM;
 bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;

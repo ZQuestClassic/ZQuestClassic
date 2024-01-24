@@ -12256,7 +12256,6 @@ bool HeroClass::startwpn(int32_t itemid)
 				dismissmsg();
 				clear_bitmap(pricesdisplaybuf);
 				set_clip_state(pricesdisplaybuf, 1);
-				//    putscr(scrollbuf,0,0,tmpscr);
 				setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 				if(!(itm.flags & ITEM_FLAG3)) //"Don't remove when feeding" flag
 				{
@@ -30279,7 +30278,6 @@ void dospecialmoney(int32_t index)
         dismissmsg();
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
-        //    putscr(scrollbuf,0,0,tmpscr);
         verifyBothWeapons();
         break;
 	}
@@ -30312,7 +30310,6 @@ void dospecialmoney(int32_t index)
         dismissmsg();
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
-        //    putscr(scrollbuf,0,0,tmpscr);
         verifyBothWeapons();
         break;
 	}
@@ -30343,7 +30340,6 @@ void dospecialmoney(int32_t index)
         dismissmsg();
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
-        //    putscr(scrollbuf,0,0,tmpscr);
         break;
     }
 }

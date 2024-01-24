@@ -1,13 +1,15 @@
 #include "zasm_table.h"
 #include "base/zdefs.h"
 #include "zc/ffscript.h"
+#include <optional>
+#include <utility>
 
-#define NUM      ARGTY_LITERAL
-#define CMP      ARGTY_COMPARE_OP
-#define REG      ARGTY_UNUSED_REG
-#define REG_R    ARGTY_READ_REG
-#define REG_W    ARGTY_WRITE_REG
-#define REG_RW   ARGTY_READWRITE_REG
+#define NUM      ARGTY::LITERAL
+#define CMP      ARGTY::COMPARE_OP
+#define REG      ARGTY::UNUSED_REG
+#define REG_R    ARGTY::READ_REG
+#define REG_W    ARGTY::WRITE_REG
+#define REG_RW   ARGTY::READWRITE_REG
 
 #define CMPUSED  ARGFL_COMPARE_USED
 #define CMPSET   ARGFL_COMPARE_SET
@@ -1477,7 +1479,7 @@ script_variable variable_list[]=
 	{ "CURLEVEL", CURLEVEL, 0, 0 },
 	{ "ITEMPICKUP", ITEMPICKUP, 0, 0 },
 	{ "INPUTMAP", INPUTMAP, 0, 0 },
-	{ "NUM", NUM, 0, 0 },
+	{ "NUM", (int)NUM, 0, 0 },
 	{ "INPUTEX1", INPUTEX1, 0, 0 },
 	{ "INPUTEX2", INPUTEX2, 0, 0 },
 	{ "INPUTEX3", INPUTEX3, 0, 0 },
@@ -2903,6 +2905,182 @@ script_variable variable_list[]=
 	{ " ", -1, 0, 0 }
 };
 
+std::initializer_list<CommandDependency> get_command_implicit_dependencies(int command)
+{
+	typedef std::initializer_list<CommandDependency> T;
+
+	switch (command)
+	{
+		case LOAD:
+		case LOADD:
+		case STORE:
+		case STOREV:
+		case STORED:
+		case STOREDV:
+		{
+			static T r = {{rSFRAME, REG_R}};
+			return r;
+		}
+
+		case READPODARRAYR:
+		case READPODARRAYV:
+		case WRITEPODARRAYRR:
+		case WRITEPODARRAYRV:
+		case WRITEPODARRAYVR:
+		case WRITEPODARRAYVV:
+		{
+			static T r = {{rINDEX, REG_R}};
+			return r;
+		}
+
+		case ZCLASS_CONSTRUCT:
+		case ZCLASS_WRITE:
+		{
+			static T r = {{rEXP1, REG_R}};
+			return r;
+		}
+		
+		case READBITMAP:
+		{
+			static T r = {{rEXP2, REG_R}};
+			return r;
+		}
+
+		case ARRAYPOP:
+		case ARRAYPUSH:
+		case CHARWIDTHR:
+		case CHOOSEVARG:
+		case CREATEPORTAL:
+		case CREATESAVPORTAL:
+		case CURRENTITEMID:
+		case FILECREATE:
+		case FILEFLUSH:
+		case FILEGETCHAR:
+		case FILEISALLOCATED:
+		case FILEISVALID:
+		case FILEOPEN:
+		case FILEPUTCHAR:
+		case FILEREADSTR:
+		case FILEREMOVE:
+		case FILESEEK:
+		case FILEUNGETCHAR:
+		case FILEWRITESTR:
+		case FONTHEIGHTR:
+		case HEROCANMOVE:
+		case HEROCANMOVEATANGLE:
+		case HEROCANMOVEXY:
+		case HEROISFLICKERFRAME:
+		case HEROLIFTRELEASE:
+		case HEROMOVE:
+		case HEROMOVEATANGLE:
+		case HEROMOVEXY:
+		case LOADPORTAL:
+		case LOADSAVPORTAL:
+		case MAKEVARGARRAY:
+		case MAXVARG:
+		case MESSAGEHEIGHTR:
+		case MESSAGEWIDTHR:
+		case MINVARG:
+		case NPCCANPLACE:
+		case NPCISFLICKERFRAME:
+		case NPCMOVEPAUSED:
+		case RNGLRAND1:
+		case RNGLRAND2:
+		case RNGLRAND3:
+		case RNGRAND1:
+		case RNGRSEED:
+		case SAVEDPORTALGENERATE:
+		case SCREENDOSPAWN:
+		case SPRINTFA:
+		case SPRINTFVARG:
+		case STRINGWIDTHR:
+		case SUBPAGE_FIND_WIDGET_BY_LABEL:
+		case SUBPAGE_FIND_WIDGET:
+		case SUBPAGE_MOVE_SEL:
+		case SUBPAGE_NEW_WIDG:
+		case WRAPDEGREES:
+		case WRAPRADIANS:
+		case ZCLASS_FREE:
+		case ZCLASS_READ:
+		{
+			static T r = {{rEXP1, REG_W}};
+			return r;
+		}
+
+		case REGENERATEBITMAP:
+		{
+			static T r = {{rEXP2, REG_RW}};
+			return r;
+		}
+
+		case FILEREADBYTES:
+		case FILEREADCHARS:
+		case FILEREADINTS:
+		case FILEWRITEBYTES:
+		case FILEWRITECHARS:
+		case FILEWRITEINTS:
+		{
+			static T r = {{rINDEX, REG_R}, {rEXP1, REG_W}};
+			return r;
+		}
+
+		case FILEALLOCATE:
+		case NPCADD:
+		{
+			static T r = {{rEXP1, REG_W}, {rEXP2, REG_W}};
+			return r;
+		}
+
+		case NPCCANMOVEANGLE:
+		case NPCCANMOVEDIR:
+		case NPCCANMOVEXY:
+		case NPCMOVE:
+		case NPCMOVEANGLE:
+		case NPCMOVEXY:
+		{
+			static T r = {{rINDEX, REG_R}, {rEXP1, REG_RW}, {rEXP2, REG_R}};
+			return r;
+		}
+
+		case ARCTANR:
+		case ISSOLID:
+		case MAPDATAISSOLID:
+		case STRINGCOMPARE:
+		case STRINGICOMPARE:
+		{
+			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}};
+			return r;
+		}
+		
+		case STRINGNCOMPARE:
+		case STRINGNICOMPARE:
+		{
+			static T r = {{rINDEX, REG_R}, {rEXP1, REG_R}, {rEXP2, REG_R}};
+			return r;
+		}
+
+		case MAPDATAISSOLIDLYR:
+		case ISSOLIDLAYER:
+		{
+			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}, {rEXP1, REG_R}};
+			return r;
+		}
+		
+		case POP:
+		case POPARGS:
+		case PUSHARGSR:
+		case PUSHARGSV:
+		case PUSHR:
+		case PUSHV:
+		{
+			static T r = {{SP, REG_RW}, {SP2, REG_RW}};
+			return r;
+		}
+	}
+
+	return {};
+}
+
 std::initializer_list<int> get_register_dependencies(int reg)
 {
 	switch (reg)
@@ -3266,4 +3444,334 @@ std::initializer_list<int> get_register_dependencies(int reg)
 	}
 
 	return {};
+}
+
+std::optional<int> get_register_ref_dependency(int reg)
+{
+	switch (reg)
+	{
+		case DATA:
+		case DELAY:
+		case FCSET:
+		case FFCHEIGHT:
+		case FFCID:
+		case FFCWIDTH:
+		case FFFLAGSD:
+		case FFLINK:
+		case FFMISCD:
+		case FFSCRIPT:
+		case FFTHEIGHT:
+		case FFTWIDTH:
+		case FX:
+		case FY:
+		case XD:
+		case XD2:
+		case YD:
+		case YD2:
+			return REFFFC;
+
+		case COMBODACLK:
+		case COMBODAKIMANIMY:
+		case COMBODANIMFLAGS:
+		case COMBODASPEED:
+		case COMBODATAINITD:
+		case COMBODATASCRIPT:
+		case COMBODATTRIBUTES:
+		case COMBODATTRIBYTES:
+		case COMBODATTRISHORTS:
+		case COMBODBLOCKHOLE:
+		case COMBODBLOCKNPC:
+		case COMBODBLOCKTRIG:
+		case COMBODBLOCKWEAPON:
+		case COMBODBLOCKWPNLEVEL:
+		case COMBODCONVXSPEED:
+		case COMBODCONVYSPEED:
+		case COMBODCSET:
+		case COMBODCSET2FLAGS:
+		case COMBODDIRCHANGETYPE:
+		case COMBODDISTANCECHANGETILES:
+		case COMBODDIVEITEM:
+		case COMBODDOCK:
+		case COMBODEFFECT:
+		case COMBODEXPANSION:
+		case COMBODFAIRY:
+		case COMBODFFATTRCHANGE:
+		case COMBODFLAG:
+		case COMBODFLIP:
+		case COMBODFOO:
+		case COMBODFOORDECOTILE:
+		case COMBODFOORDECOTYPE:
+		case COMBODFRAME:
+		case COMBODFRAMES:
+		case COMBODGENFLAGARR:
+		case COMBODHOOKSHOTPOINT:
+		case COMBODLADDERPASS:
+		case COMBODLIFTBREAKSFX:
+		case COMBODLIFTBREAKSPRITE:
+		case COMBODLIFTDAMAGE:
+		case COMBODLIFTFLAGS:
+		case COMBODLIFTGFXCCSET:
+		case COMBODLIFTGFXCOMBO:
+		case COMBODLIFTGFXSPRITE:
+		case COMBODLIFTGFXTYPE:
+		case COMBODLIFTHEIGHT:
+		case COMBODLIFTITEM:
+		case COMBODLIFTLEVEL:
+		case COMBODLIFTSFX:
+		case COMBODLIFTTIME:
+		case COMBODLIFTUNDERCMB:
+		case COMBODLIFTUNDERCS:
+		case COMBODLIFTWEAPONITEM:
+		case COMBODLOCKBLOCK:
+		case COMBODLOCKBLOCKCHANGE:
+		case COMBODMAGICMIRROR:
+		case COMBODMODHPAMOUNT:
+		case COMBODMODHPDELAY:
+		case COMBODMODHPTYPE:
+		case COMBODMODMPDELAY:
+		case COMBODMODMPTYPE:
+		case COMBODNEXTC:
+		case COMBODNEXTD:
+		case COMBODNEXTTIMER:
+		case COMBODNMODMPAMOUNT:
+		case COMBODNOPUSHBLOCK:
+		case COMBODOTILE:
+		case COMBODOVERHEAD:
+		case COMBODPLACENPC:
+		case COMBODPUSHDIR:
+		case COMBODPUSHED:
+		case COMBODPUSHHEAVY:
+		case COMBODPUSHWAIT:
+		case COMBODRAFT:
+		case COMBODRESETROOM:
+		case COMBODSAVEPOINTTYPE:
+		case COMBODSCREENFREEZETYPE:
+		case COMBODSECRETCOMBO:
+		case COMBODSINGULAR:
+		case COMBODSKIPANIM:
+		case COMBODSLOWWALK:
+		case COMBODSPAWNNPC:
+		case COMBODSPAWNNPCCHANGE:
+		case COMBODSPAWNNPCWHEN:
+		case COMBODSTATUETYPE:
+		case COMBODSTEPCHANGEINTO:
+		case COMBODSTEPTYPE:
+		case COMBODSTRIKECHANGE:
+		case COMBODSTRIKEITEM:
+		case COMBODSTRIKEREMNANTS:
+		case COMBODSTRIKEREMNANTSTYPE:
+		case COMBODSTRIKEWEAPONS:
+		case COMBODTILE:
+		case COMBODTOUCHITEM:
+		case COMBODTOUCHSTAIRS:
+		case COMBODTRIGCSETCHANGE:
+		case COMBODTRIGEXDOORDIR:
+		case COMBODTRIGEXDOORIND:
+		case COMBODTRIGEXSTATE:
+		case COMBODTRIGGERBUTTON:
+		case COMBODTRIGGERCHANGECMB:
+		case COMBODTRIGGERCOOLDOWN:
+		case COMBODTRIGGERCOPYCAT:
+		case COMBODTRIGGERCTR:
+		case COMBODTRIGGERCTRAMNT:
+		case COMBODTRIGGERFLAGS:
+		case COMBODTRIGGERFLAGS2:
+		case COMBODTRIGGERGENSCRIPT:
+		case COMBODTRIGGERGROUP:
+		case COMBODTRIGGERGROUPVAL:
+		case COMBODTRIGGERGSTATE:
+		case COMBODTRIGGERGTIMER:
+		case COMBODTRIGGERITEM:
+		case COMBODTRIGGERLEVEL:
+		case COMBODTRIGGERLIGHTBEAM:
+		case COMBODTRIGGERLSTATE:
+		case COMBODTRIGGERPROX:
+		case COMBODTRIGGERSENS:
+		case COMBODTRIGGERSFX:
+		case COMBODTRIGGERTIMER:
+		case COMBODTRIGGERTYPE:
+		case COMBODTRIGITEMPICKUP:
+		case COMBODTRIGSPAWNENEMY:
+		case COMBODTRIGSPAWNITEM:
+		case COMBODTYPE:
+		case COMBODUSRFLAGARR:
+		case COMBODUSRFLAGS:
+		case COMBODWALK:
+		case COMBODWARPDIRECT:
+		case COMBODWARPLOCATION:
+		case COMBODWARPSENS:
+		case COMBODWARPTYPE:
+		case COMBODWATER:
+		case COMBODWHISTLE:
+		case COMBODWINGAME:
+			return REFCOMBODATA;
+
+		case GETRENDERTARGET:
+		case ITEMACLK:
+		case ITEMASPEED:
+		case ITEMCOUNT:
+		case ITEMCSET:
+		case ITEMDELAY:
+		case ITEMDIR:
+		case ITEMDRAWTYPE:
+		case ITEMDROPPEDBY:
+		case ITEMDROWNCLK:
+		case ITEMDROWNCMB:
+		case ITEMENGINEANIMATE:
+		case ITEMEXTEND:
+		case ITEMFAKEJUMP:
+		case ITEMFAKEZ:
+		case ITEMFALLCLK:
+		case ITEMFALLCMB:
+		case ITEMFAMILY:
+		case ITEMFLASH:
+		case ITEMFLASHCSET:
+		case ITEMFLIP:
+		case ITEMFORCEGRAB:
+		case ITEMFRAME:
+		case ITEMFRAMES:
+		case ITEMGLOWRAD:
+		case ITEMGLOWSHP:
+		case ITEMGRAVITY:
+		case ITEMHXOFS:
+		case ITEMHXSZ:
+		case ITEMHYOFS:
+		case ITEMHYSZ:
+		case ITEMHZSZ:
+		case ITEMID:
+		case ITEMJUMP:
+		case ITEMLEVEL:
+		case ITEMMISCD:
+		case ITEMMOVEFLAGS:
+		case ITEMNOHOLDSOUND:
+		case ITEMNOSOUND:
+		case ITEMOTILE:
+		case ITEMOVERRIDEFLAGS:
+		case ITEMPICKUP:
+		case ITEMPSTRING:
+		case ITEMPSTRINGFLAGS:
+		case ITEMROTATION:
+		case ITEMSCALE:
+		case ITEMSCRIPTFLIP:
+		case ITEMSCRIPTTILE:
+		case ITEMSCRIPTUID:
+		case ITEMSHADOWSPR:
+		case ITEMSHADOWXOFS:
+		case ITEMSHADOWYOFS:
+		case ITEMSPRITEINITD:
+		case ITEMSPRITESCRIPT:
+		case ITEMTILE:
+		case ITEMTXSZ:
+		case ITEMTYSZ:
+		case ITEMX:
+		case ITEMXOFS:
+		case ITEMY:
+		case ITEMYOFS:
+		case ITEMZ:
+		case ITEMZOFS:
+		case ITMSWHOOKED:
+			return REFITEM;
+
+		case DEBUGREFNPC:
+		case NPCBEHAVIOUR:
+		case NPCBGSFX:
+		case NPCBOSSPAL:
+		case NPCCANFLICKER:
+		case NPCCOLLDET:
+		case NPCCSET:
+		case NPCDD:
+		case NPCDEATHSPR:
+		case NPCDEFENSED:
+		case NPCDIR:
+		case NPCDP:
+		case NPCDRAWTYPE:
+		case NPCDROWNCLK:
+		case NPCDROWNCMB:
+		case NPCENGINEANIMATE:
+		case NPCEXTEND:
+		case NPCFADING:
+		case NPCFAKEJUMP:
+		case NPCFAKEZ:
+		case NPCFALLCLK:
+		case NPCFALLCMB:
+		case NPCFLICKERCOLOR:
+		case NPCFLICKERTRANSP:
+		case NPCFRAME:
+		case NPCFRAMERATE:
+		case NPCFROZEN:
+		case NPCFROZENCSET:
+		case NPCFROZENTILE:
+		case NPCGLOWRAD:
+		case NPCGLOWSHP:
+		case NPCGRAVITY:
+		case NPCHALTCLK:
+		case NPCHALTRATE:
+		case NPCHASITEM:
+		case NPCHITBY:
+		case NPCHITDIR:
+		case NPCHOMING:
+		case NPCHP:
+		case NPCHUNGER:
+		case NPCHXOFS:
+		case NPCHXSZ:
+		case NPCHYOFS:
+		case NPCHYSZ:
+		case NPCHZSZ:
+		case NPCIMMORTAL:
+		case NPCINITD:
+		case NPCINVINC:
+		case NPCISCORE:
+		case NPCITEMSET:
+		case NPCJUMP:
+		case NPCKNOCKBACKSPEED:
+		case NPCMISCD:
+		case NPCMOVEFLAGS:
+		case NPCMOVESTATUS:
+		case NPCNOSCRIPTKB:
+		case NPCNOSLIDE:
+		case NPCORIGINALHP:
+		case NPCOTILE:
+		case NPCPARENTUID:
+		case NPCRANDOM:
+		case NPCRATE:
+		case NPCRINGLEAD:
+		case NPCROTATION:
+		case NPCSCALE:
+		case NPCSCRDEFENSED:
+		case NPCSCRIPT:
+		case NPCSCRIPTFLIP:
+		case NPCSCRIPTTILE:
+		case NPCSHADOWSPR:
+		case NPCSHADOWXOFS:
+		case NPCSHADOWYOFS:
+		case NPCSHIELD:
+		case NPCSLIDECLK:
+		case NPCSPAWNSPR:
+		case NPCSTEP:
+		case NPCSTUN:
+		case NPCSUPERMAN:
+		case NPCTILE:
+		case NPCTXSZ:
+		case NPCTYPE:
+		case NPCTYSZ:
+		case NPCWDP:
+		case NPCWEAPON:
+		case NPCWEAPSPRITE:
+		case NPCX:
+		case NPCXOFS:
+		case NPCY:
+		case NPCYOFS:
+		case NPCZ:
+		case NPCZOFS:
+			return REFNPC;
+	}
+
+	// TODO: see has_implemented_register_invalidations
+
+	return std::nullopt;
+}
+
+bool has_register_dependency(int reg)
+{
+	return get_register_dependencies(reg).size() || get_register_ref_dependency(reg).has_value();
 }

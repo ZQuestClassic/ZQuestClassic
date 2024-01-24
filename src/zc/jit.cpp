@@ -357,7 +357,7 @@ void jit_startup()
 	{
 		// The scripts were reloaded by load_quest in init_game, so must
 		// re-optimize them.
-		zasm_for_every_script([&](auto script){
+		zasm_for_every_script(true, [&](auto script){
 			if (!script->optimized && compiled_functions.contains(script->id))
 				zasm_optimize(script);
 		});

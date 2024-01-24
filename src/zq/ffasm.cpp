@@ -627,26 +627,26 @@ optional<int> check_comparestr(char const* buf)
 	return cmp;
 }
 
-bool handle_arg(int ty, char const* buf, int& arg)
+bool handle_arg(ARGTY ty, char const* buf, int& arg)
 {
 	switch(ty)
 	{
-		case ARGTY_READ_REG:
-		case ARGTY_WRITE_REG:
-		case ARGTY_READWRITE_REG:
+		case ARGTY::READ_REG:
+		case ARGTY::WRITE_REG:
+		case ARGTY::READWRITE_REG:
 		{
 			if(!set_argument(buf, arg))
 				return false;
 			return true;
 		}
-		case ARGTY_LITERAL:
+		case ARGTY::LITERAL:
 		{
 			if(!ffcheck(buf))
 				return false;
 			arg = ffparse(buf);
 			return true;
 		}
-		case ARGTY_COMPARE_OP:
+		case ARGTY::COMPARE_OP:
 		{
 			if(auto cmpval = check_comparestr(buf))
 			{

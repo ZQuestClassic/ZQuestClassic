@@ -1,5 +1,5 @@
 #include "base/handles.h"
-#include "base/zdefs.h" // TODO @!
+#include "base/zdefs.h"
 #include <cstring>
 #include <optional>
 #include <stdio.h>
@@ -19840,9 +19840,6 @@ void moneysign()
 void putprices(bool sign)
 {
 	if(fadeclk > 0) return;
-	// refresh what's under the prices
-	// for(int32_t i=5; i<12; i++)
-	//   putcombo(scrollbuf,i<<4,112,tmpscr->data[112+i],tmpscr->cpage);
 	
 	rectfill(pricesdisplaybuf, 72, 112, pricesdisplaybuf->w-1, pricesdisplaybuf->h-1, 0);
 	int32_t step=32;

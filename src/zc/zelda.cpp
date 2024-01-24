@@ -4421,7 +4421,7 @@ void do_extract_zasm_command(const char* quest_path)
 	bool optimize = get_flag_bool("-extract-zasm-optimize").value_or(false);
 	if (optimize)
 		zasm_optimize();
-	zasm_for_every_script([&](script_data* script){
+	zasm_for_every_script(true, [&](script_data* script){
 		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);
 		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());
 	});
@@ -4582,6 +4582,12 @@ int main(int argc, char **argv)
 	}
 
 	three_finger_flag=false;
+
+	// TODO: digi_volume has been removed as a user controllable setting. It is a global volume control for
+	// a4 music streams, but we use emusic_volume for all enhanced music, so it was a weird double volume control.
+	// Should remove all usages of digi_volume (maybe replacing with emusic_volume where appropriate). For now,
+	// just set to 255.
+	digi_volume = 255;
 	
 	load_game_configs();
 

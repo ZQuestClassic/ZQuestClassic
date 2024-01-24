@@ -72,8 +72,8 @@ Function #4
    58: LOAD            D2              7
    59: PUSHR           D2
    60: POP             REFFFC
-   61: NOP
-   62: STORE           DATA            6
+   61: SETR            D2              DATA
+   62: STORE           D2              6
    63: PUSHV           0
    64: LOAD            D2              7
    65: POP             D3

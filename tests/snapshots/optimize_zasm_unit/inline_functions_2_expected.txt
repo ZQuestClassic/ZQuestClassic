@@ -8,7 +8,7 @@ rewrite 17: 3 -> 2 commands
 19: NOP            
 Function #0
     0: SETR            D4              SP2          [Block 0 -> ]
-    1: PUSHARGSR       D4              2
+    1: PUSHARGSR       SP2             2
     2: LOAD            D2              7
     3: PUSHR           D2
     4: CALLFUNC        43                           [Call Function #3]

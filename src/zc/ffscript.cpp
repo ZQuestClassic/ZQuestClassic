@@ -30929,30 +30929,36 @@ void FFScript::do_loadgenericdata(const bool v)
 void FFScript::do_create_paldata()
 {
 	ri->paldataref = get_free_paldata();
-	user_paldata* pd = &script_paldatas[ri->paldataref-1];
-	for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
-		pd->colors_used[q] = 0;
+	if (ri->paldataref > 0)
+	{
+		user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+		for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
+			pd->colors_used[q] = 0;
+	}
 	ri->d[rEXP1] = ri->paldataref;
 }
 
 void FFScript::do_create_paldata_clr()
 {
 	ri->paldataref = get_free_paldata();
-	user_paldata* pd = &script_paldatas[ri->paldataref - 1];
-	int32_t clri = get_register(sarg1);
-	
-	RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
-
-	if (c.r < 0 || c.g < 0 || c.b < 0)
+	if (ri->paldataref > 0)
 	{
-		Z_scripterrlog("Invalid rgb (%d) passed to Graphics->CreatePalData().\n", clri);
-	}
-	c.r = vbound(c.r, 0, 63);
-	c.g = vbound(c.g, 0, 63);
-	c.b = vbound(c.b, 0, 63);
+		user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+		int32_t clri = get_register(sarg1);
 
-	for(int32_t q = 0; q < 240; ++q)
-		pd->set_color(q, c);
+		RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
+
+		if (c.r < 0 || c.g < 0 || c.b < 0)
+		{
+			Z_scripterrlog("Invalid rgb (%d) passed to Graphics->CreatePalData().\n", clri);
+		}
+		c.r = vbound(c.r, 0, 63);
+		c.g = vbound(c.g, 0, 63);
+		c.b = vbound(c.b, 0, 63);
+
+		for (int32_t q = 0; q < 240; ++q)
+			pd->set_color(q, c);
+	}
 	ri->d[rEXP1] = ri->paldataref;
 }
 
@@ -31789,6 +31795,7 @@ void FFScript::do_paldata_copy()
 
 void FFScript::do_paldata_copycset()
 {
+	ri->paldataref = SH::read_stack(ri->sp + 3);
 	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->CopyCSet()"))
 	{
 		int32_t ref_dest = SH::read_stack(ri->sp + 2);
@@ -45059,18 +45066,18 @@ std::string ZASMVarToString(int32_t arg)
 	return "(null)";
 }
 
-std::string ZASMArgToString(int32_t arg, int32_t arg_ty)
+std::string ZASMArgToString(int32_t arg, ARGTY arg_ty)
 {
 	switch(arg_ty)
 	{
-		case ARGTY_UNUSED_REG:
-		case ARGTY_READ_REG:
-		case ARGTY_WRITE_REG:
-		case ARGTY_READWRITE_REG:
+		case ARGTY::UNUSED_REG:
+		case ARGTY::READ_REG:
+		case ARGTY::WRITE_REG:
+		case ARGTY::READWRITE_REG:
 			return ZASMVarToString(arg);
-		case ARGTY_LITERAL:
+		case ARGTY::LITERAL:
 			return to_string(arg);
-		case ARGTY_COMPARE_OP:
+		case ARGTY::COMPARE_OP:
 			return CMP_STR(arg);
 		default:
 			return "ERROR";
@@ -45096,15 +45103,15 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		for(int q = 0; q < s_c.args; ++q)
 		{
 			bool end = q == (s_c.args-1);
-			if(s_c.arg_type[q] == ARGTY_LITERAL)
+			if(s_c.arg_type[q] == ARGTY::LITERAL)
 			{
 				coloured_console.cprintf(color_red,"%10s (val = %2d)%s", "immediate", sargs[q], end ? "\n" : ", ");
 			}
-			else if(s_c.arg_type[q] == ARGTY_COMPARE_OP)
+			else if(s_c.arg_type[q] == ARGTY::COMPARE_OP)
 			{
 				coloured_console.cprintf(color_red,"%10s (%s)", "compare", CMP_STR(sargs[q]).c_str(), end ? "\n" : ", ");
 			}
-			else //ARGTY_UNUSED_REG, ARGTY_READ_REG, ARGTY_WRITE_REG, ARGTY_READWRITE_REG
+			else //ARGTY::UNUSED_REG, ARGTY::READ_REG, ARGTY::WRITE_REG, ARGTY::READWRITE_REG
 			{
 				coloured_console.cprintf(color_white,"\t %s (val = %2d)%s", ZASMVarToString(sargs[q]).c_str(), get_register(sargs[q]), end ? "\n" : ", ");
 			}
@@ -52043,7 +52050,7 @@ bool command_is_pure(int command)
 
 const script_command& get_script_command(int command)
 {
-	static script_command null_command = {"0xFFFF", 0, {0, 0, 0}};
+	static script_command null_command = {"0xFFFF", 0, {ARGTY::UNUSED_REG, ARGTY::UNUSED_REG, ARGTY::UNUSED_REG}};
 	if (command == 0xFFFF) return null_command;
 	return command_list[command];
 }
