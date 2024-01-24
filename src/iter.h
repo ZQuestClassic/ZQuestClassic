@@ -92,9 +92,33 @@ ZC_FORCE_INLINE void for_every_ffc_in_region(T&& fn)
 	}
 }
 
+struct every_combo_opts
+{
+	bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY);
+	bool include_rposes = true;
+	bool include_rposes_base_screen_only = false;
+};
+
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, const ffc_handle_t&>
-ZC_FORCE_INLINE void for_every_combo_in_region(T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
+ZC_FORCE_INLINE void for_every_combo(T&& fn, every_combo_opts opts)
+{
+	if (opts.include_rposes_base_screen_only)
+	{
+		for_every_rpos_in_region([&](const rpos_handle_t& handle) {
+			if (handle.layer == 0)
+				fn(handle);
+		});
+	} else if (opts.include_rposes)
+		for_every_rpos_in_region(fn);
+
+	if (opts.include_ffcs)
+		for_every_ffc_in_region(fn);
+}
+
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, const ffc_handle_t&>
+ZC_FORCE_INLINE void for_every_combo(T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 {
 	for_every_rpos_in_region(fn);
 	if (include_ffcs)

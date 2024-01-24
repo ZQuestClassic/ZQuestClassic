@@ -3409,7 +3409,7 @@ void game_loop()
 		// Messages also freeze FF combos.
 		bool freezeff = freezemsg;
 		bool freeze = false;
-		for_every_combo_in_region([&](const auto& handle) {
+		for_every_combo([&](const auto& handle) {
 			if (handle.combo().type == cSCREENFREEZE)
 				freeze = true;
 			if (handle.combo().type == cSCREENFREEZEFF)

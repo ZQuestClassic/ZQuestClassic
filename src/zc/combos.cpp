@@ -1,6 +1,7 @@
 #include "base/handles.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/zdefs.h"
 #include "zc/zc_ffc.h"
 #include "zc/zelda.h"
 #include "sprite.h"
@@ -727,64 +728,33 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 	switch(cmb.type)
 	{
 		case cSTEP:
-			++rpos_handle.screen->data[pos]; break;
+			rpos_handle.increment_data();
+			break;
 		case cSTEPSAME:
 		{
 			// Increment all combos of the same id as the triggered combo on the base screen.
 			// If the trigger is on a layer screen, that will be the only combo on that layer incremented.
 			int32_t id = rpos_handle.data();
-			// auto cb = [&](const auto& handle) {
-			// 	if (handle.data() == id)
-			// 		handle.increment_data();
-			// };
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				for (int q = 0; q < 176; ++q)
-				{
-					if (screen->data[q] == id)
-					{
-						++screen->data[q];
-					}
-				}
-			});
-			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-					if (ffc_handle.data() == id)
-					{
-						ffc_handle.increment_data();
-					}
-				});
-			}
-			
-			// TODO z3 !!! possible?
-			// for_every_combo_in_region([&](const auto& handle) {
-			// 	if (handle.data() == id)
-			// 		handle.increment_data();
-			// });
-			if (rpos_handle.layer > 0) ++rpos_handle.screen->data[pos];
+			every_combo_opts opts{};
+			opts.include_rposes_base_screen_only = true;
+			for_every_combo([&](const auto& handle) {
+				if (handle.data() == id)
+					handle.increment_data();
+			}, opts);
+
+			if (rpos_handle.layer > 0) rpos_handle.increment_data();
 			break;
 		}
 		case cSTEPALL:
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				for (int q = 0; q < 176; ++q)
-				{
-					if (isStepType(combobuf[screen->data[q]].type))
-					{
-						++screen->data[q];
-					}
-				}
-			});
-			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-					if (isStepType(combobuf[ffc_handle.data()].type))
-					{
-						ffc_handle.increment_data();
-					}
-				});
-			}
-			if (rpos_handle.layer > 0) ++rpos_handle.screen->data[pos];
+			every_combo_opts opts{};
+			opts.include_rposes_base_screen_only = true;
+			for_every_combo([&](const auto& handle) {
+				if (isStepType(handle.combo().type))
+					handle.increment_data();
+			}, opts);
+
+			if (rpos_handle.layer > 0) rpos_handle.increment_data();
 			break;
 		}
 	}
@@ -812,47 +782,25 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 		case cSTEPSAME:
 		{
 			int32_t id = ffc_handle.data();
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				for (int q = 0; q < 176; ++q)
-				{
-					if (screen->data[q] == id)
-					{
-						++screen->data[q];
-					}
-				}
-			});
-			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
-					if (ffc_handle_2.data() == id && ffc_handle_2.ffc != ffc_handle.ffc)
-					{
-						ffc_handle_2.increment_data();
-					}
-				});
-			}
+			every_combo_opts opts{};
+			opts.include_rposes_base_screen_only = true;
+			for_every_combo([&](const auto& handle) {
+				if (handle.data() == id)
+					handle.increment_data();
+			}, opts);
+
 			ffc_handle.increment_data();
 			break;
 		}
 		case cSTEPALL:
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				for (int q = 0; q < 176; ++q)
-				{
-					if (isStepType(combobuf[screen->data[q]].type))
-					{
-						++screen->data[q];
-					}
-				}
-			});
-			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
-					if (isStepType(combobuf[ffc_handle_2.data()].type) && ffc_handle_2.ffc != ffc_handle.ffc)
-					{
-						ffc_handle_2.increment_data();
-					}
-				});
-			}
+			every_combo_opts opts{};
+			opts.include_rposes_base_screen_only = true;
+			for_every_combo([&](const auto& handle) {
+				if (isStepType(handle.combo().type))
+					handle.increment_data();
+			}, opts);
+
 			ffc_handle.increment_data();
 			break;
 		}
