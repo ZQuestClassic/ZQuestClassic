@@ -671,7 +671,7 @@ elseif(JIT_BACKEND STREQUAL "x64")
 		GIT_REPOSITORY
 			https://github.com/asmjit/asmjit.git
 		GIT_TAG
-			7e64eabca49c1a4d2cbfb06e4b9d3987bce7f7b3
+			bfa0bf690c2e90cc0844f2f012efa41b916bde7e
 	)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zplayer PRIVATE asmjit)
