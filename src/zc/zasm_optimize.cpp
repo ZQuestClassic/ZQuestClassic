@@ -169,6 +169,7 @@ struct SimulationValue
 
 	std::string to_string() const
 	{
+		std::string ZASMVarToString(int32_t arg);
 		if (type == ValueType::Expression)
 		{
 			if (is_bool_cast())
@@ -184,7 +185,7 @@ struct SimulationValue
 			return fmt::format("{} {} {}", lhs, CMP_STR(data), rhs);
 		}
 		if (type == ValueType::Register)
-			return fmt::format("D{}", data);
+			return ZASMVarToString(data);
 		if (type == ValueType::Number)
 			return fmt::format("{}", data);
 		return "?";
@@ -220,7 +221,7 @@ struct SimulationValue
 		}
 	}
 
-	ValueType type;
+	ValueType type = ValueType::Uninitialized;
 	// [number] integer value
 	// [register] register
 	// [expression] cmp
@@ -849,11 +850,10 @@ struct SimulationState
 	pc_t pc = 0;
 	pc_t final_pc = 0;
 	SimulationValue d[8];
-	SimulationValue operand_1 = {ValueType::Uninitialized};
+	SimulationValue operand_1;
 	int operand_1_backing_reg = -1;
-	SimulationValue operand_2 = {ValueType::Uninitialized};
+	SimulationValue operand_2;
 	int operand_2_backing_reg = -1;
-	bool simulate_stack = false;
 	std::vector<SimulationValue> stack;
 	bool side_effects = false;
 	bool bail = false;
@@ -1139,36 +1139,27 @@ static void simulate_set_value(OptContext& ctx, SimulationState& state, int reg,
 // and the comparison result.
 static void simulate(OptContext& ctx, SimulationState& state)
 {
+	#define IS_GENERIC_REG(x) (x >= D(0) && x < D(8))
+
 	int command = C(state.pc).command;
 	int arg1 = C(state.pc).arg1;
 	int arg2 = C(state.pc).arg2;
-	int arg3 = C(state.pc).arg3;
-	const auto& c = get_script_command(command);
 
 	// Function calls invalidate all registers.
 	if (command == CALLFUNC)
 	{
-		if (state.simulate_stack)
+		for (int i = 0; i < 8; i++)
+			state.d[i] = {ValueType::Unknown};
+		for (auto& v : state.stack)
 		{
-			for (int i = 0; i < 8; i++)
-				state.d[i] = {ValueType::Unknown};
-			for (auto& v : state.stack)
-			{
-				if (!v.is_number())
-					v = {ValueType::Unknown};
-			}
-		}
-		else
-		{
-			for (int i = 0; i < 8; i++)
-				state.d[i] = reg(i);
+			if (!v.is_number())
+				v = {ValueType::Unknown};
 		}
 		return;
 	}
 
 	switch (command)
 	{
-		#define IS_GENERIC_REG(x) (x >= D(0) && x < D(8))
 		case COMPARER:
 			if (arg1 == SWITCHKEY || arg2 == SWITCHKEY)
 			{
@@ -1202,7 +1193,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				return;
 			}
 			state.operand_1 = state.d[arg1];
-			state.operand_2 = {ValueType::Number, arg2};
+			state.operand_2 = num(arg2);
 			state.operand_1_backing_reg = arg1;
 			state.operand_2_backing_reg = -1;
 			return;
@@ -1218,7 +1209,7 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				return;
 			}
 			state.operand_1 = state.d[arg2];
-			state.operand_2 = {ValueType::Number, arg1};
+			state.operand_2 = num(arg1);
 			state.operand_1_backing_reg = arg2;
 			state.operand_2_backing_reg = -1;
 			return;
@@ -1232,78 +1223,109 @@ static void simulate(OptContext& ctx, SimulationState& state)
 		return;
 	}
 
-	if (!state.simulate_stack)
-	{
-		if (c.args == 0)
-		{
-			state.side_effects = true;
-			return;
-		}
-	}
-	else if (!command_is_pure(command))
+	if (!command_is_pure(command) && !command_is_goto(command))
 	{
 		state.side_effects = true;
 	}
 
-	if (state.simulate_stack)
-		switch (command)
-		{
-			case PUSHR:
-			{
-				auto value = IS_GENERIC_REG(arg1) ? state.d[arg1] : reg(arg1);
-				// Registers whose value depends on the value of other registers (like indexing into an array
-				// based on D0/D1) should be represented as unknown values on the stack, because their dependant
-				// registers are sure to be invalidated. Theoretically they could be tracked too, as they are often
-				// constant values, but it would greatly complicate things. 
-				if (value.is_register() && has_register_dependency(value.data))
-					value = {ValueType::Unknown};
-				state.stack.push_back(value);
-				state.side_effects = true;
-				break;
-			}
-			case PUSHARGSR:
-			{
-				// for (int i = 0; i < arg2; i++)
-				// {
-				// 	auto value = IS_GENERIC_REG(arg1) ? state.d[arg1] : reg(arg1);
-				// 	state.stack.push_back(value);
-				// 	state.side_effects = true;
-				// }
-				state.bail = true;
-				break;
-			}
-			case PUSHV:
-			{
-				state.stack.push_back(num(arg1));
-				state.side_effects = true;
-				break;
-			}
-
-			// case POP:
-			// {
-			// 	SimulationValue value{ValueType::Unknown};
-			// 	if (!state.stack.empty())
-			// 	{
-			// 		value = state.stack.back();
-			// 		state.stack.pop_back();
-			// 	}
-			// 	simulate_set_value(ctx, state, arg1, value);
-			// 	state.side_effects = true;
-			// 	break;
-			// }
-			case POPARGS:
-			{
-				state.bail = true;
-				// if (IS_GENERIC_REG(arg1))
-				// 	state.d[arg1] = state.stack.back();
-				// state.stack.pop_back();
-				// state.side_effects = true;
-				break;
-			}
-		}
-
+	bool command_handled = true;
 	switch (command)
 	{
+		case PUSHR:
+		{
+			auto value = IS_GENERIC_REG(arg1) ? state.d[arg1] : reg(arg1);
+			// Registers whose value depends on the value of other registers (like indexing into an array
+			// based on D0/D1) should be represented as unknown on the stack, because their dependant
+			// registers are assumed to be invalidated soon. Theoretically they could be tracked too, as they often
+			// aren't modified. Would need to invalidate the stack value on a write to any dependant register.
+			if (value.is_register() && has_register_dependency(value.data))
+				value = {ValueType::Unknown};
+			state.stack.push_back(value);
+			state.side_effects = true;
+			break;
+		}
+		case PUSHARGSR:
+		{
+			auto value = IS_GENERIC_REG(arg1) ? state.d[arg1] : reg(arg1);
+			if (value.is_register() && has_register_dependency(value.data))
+				value = {ValueType::Unknown};
+			for (int i = 0; i < arg2; i++)
+				state.stack.push_back(value);
+			state.side_effects = true;
+			break;
+		}
+		case PUSHV:
+		{
+			state.stack.push_back(num(arg1));
+			state.side_effects = true;
+			break;
+		}
+		case PUSHARGSV:
+		{
+			for (int i = 0; i < arg2; i++)
+				state.stack.push_back(num(arg1));
+			state.side_effects = true;
+			break;
+		}
+		case POP:
+		{
+			state.side_effects = true;
+			SimulationValue value;
+			if (!state.stack.empty())
+			{
+				value = state.stack.back();
+				state.stack.pop_back();
+				if (value == reg(arg1))
+					break;
+				if (value.type == ValueType::Unknown)
+					value = reg(arg1);
+			}
+			else
+			{
+				value = reg(arg1);
+			}
+			simulate_set_value(ctx, state, arg1, value);
+			break;
+		}
+		case POPARGS:
+		{
+			for (int i = 0; i < arg2; i++)
+			{
+				SimulationValue value;
+				if (!state.stack.empty())
+				{
+					value = state.stack.back();
+					state.stack.pop_back();
+					if (value == reg(arg1))
+						continue;
+					if (value.type == ValueType::Unknown)
+						value = reg(arg1);
+				}
+				else
+				{
+					value = reg(arg1);
+				}
+				simulate_set_value(ctx, state, arg1, value);
+			}
+			state.side_effects = true;
+			break;
+		}
+		case SETR:
+		{
+			auto value = IS_GENERIC_REG(arg2) ? state.d[arg2] : reg(arg2);
+			simulate_set_value(ctx, state, arg1, value);
+			break;
+		}
+		case SETV:
+		{
+			if (!IS_GENERIC_REG(arg1))
+			{
+				state.bail = true;
+				return;
+			}
+			simulate_set_value(ctx, state, arg1, num(arg2));
+			break;
+		}
 		case CASTBOOLF:
 		{
 			if (!IS_GENERIC_REG(arg1))
@@ -1313,9 +1335,8 @@ static void simulate(OptContext& ctx, SimulationState& state)
 			}
 			auto value = evaluate_binary_op(CMP_NE, state.d[arg1], num(0));
 			simulate_set_value(ctx, state, arg1, value);
-			return;
+			break;
 		}
-
 		case CASTBOOLI:
 		{
 			if (!IS_GENERIC_REG(arg1))
@@ -1325,88 +1346,35 @@ static void simulate(OptContext& ctx, SimulationState& state)
 			}
 			auto value = evaluate_binary_op(CMP_NE | CMP_SETI, state.d[arg1], num(0));
 			simulate_set_value(ctx, state, arg1, value);
-			return;
-		}
-
-		case SETV:
-		{
-			if (!IS_GENERIC_REG(arg1))
-			{
-				state.bail = true;
-				return;
-			}
-			simulate_set_value(ctx, state, arg1, num(arg2));
-			return;
+			break;
 		}
 
 		case STRCMPR:
 		case STRICMPR:
 		{
+			// TODO: handle.
 			state.bail = true;
 			return;
 		}
 
-		case POP:
-		case POPARGS:
-		{
-			// Handled below...
-			if (state.simulate_stack)
-				break;
+		// TODO: handle
+		// case STACKWRITEATRV:
+		// case STACKWRITEATVV_IF:
+		// case STACKWRITEATVV:
 
-			if (!(arg1 >= D(0) && arg1 < D(8)))
-			{
-				state.side_effects = true;
-				return;
-			}
-
-			// If this register holds some non-default value, mark it unknown.
-			// TODO: need a way to distinguish for ex. "input D3" vs "var from stack"
-			if (state.d[arg1] != reg(arg1))
-				simulate_set_value(ctx, state, arg1, {ValueType::Unknown});
-			state.side_effects = true;
-			return;
-		}
-
-		case PUSHARGSR:
-		case PUSHR:
-		case SETA1:
-		case SETA2:
-		case STACKWRITEATRV:
-		case STACKWRITEATVV_IF:
-		case STACKWRITEATVV:
-		case STORED:
-		case STOREDV:
-		case STOREI:
-		case TRACER:
-		case TRACEV:
-		{
-			state.side_effects = true;
-			return;
-		}
+		default:
+			command_handled = false;
 	}
 
 	for_every_command_register_arg_include_indices(C(state.pc), [&](bool read, bool write, int reg, int argn){
-		if (write)
-		{
-			auto value = reg(reg);
-			if (state.simulate_stack && command == POP && argn == 0)
-			{
-				value = {ValueType::Unknown};
-				if (!state.stack.empty())
-				{
-					value = state.stack.back();
-					state.stack.pop_back();
-				}
-				state.side_effects = true;
-			}
-			if (state.simulate_stack && command == SETR && argn == 0)
-			{
-				value = IS_GENERIC_REG(arg2) ? state.d[arg2] : reg(arg2);
-			}
-			simulate_set_value(ctx, state, reg, value);
-		}
+		if (!write)
+			return;
 
-		if (write && !has_implemented_register_invalidations(reg))
+		if (!command_handled || argn == -1)
+			simulate_set_value(ctx, state, reg, reg(reg));
+		if (!IS_GENERIC_REG(reg))
+			state.side_effects = true;
+		if (!has_implemented_register_invalidations(reg))
 			state.bail = true;
 	});
 
@@ -1596,7 +1564,6 @@ static void optimize_propagate_values(OptContext& ctx)
 	add_context_cfg(ctx);
 	optimize_by_block(ctx, [&](pc_t block_index, pc_t start_pc, pc_t final_pc){
 		SimulationState state{};
-		state.simulate_stack = true;
 		state.set_block(ctx, block_index);
 
 		struct propagate_candidate

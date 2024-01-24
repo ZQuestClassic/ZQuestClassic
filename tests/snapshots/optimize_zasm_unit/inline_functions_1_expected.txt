@@ -8,7 +8,7 @@ rewrite 32: 3 -> 1 commands
 34: NOP            
 Function #0
     0: SETR            D4              SP2          [Block 0 -> ]
-    1: PUSHR           D4
+    1: PUSHR           SP2
     2: NOP
     3: NOP
     4: NOP

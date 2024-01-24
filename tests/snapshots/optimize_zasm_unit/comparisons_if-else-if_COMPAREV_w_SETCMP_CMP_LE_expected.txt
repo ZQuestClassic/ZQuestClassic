@@ -11,11 +11,11 @@ inferred D2: 0
 6: SETR            D2              LINKX  
 7: COMPAREV        D2              1338   
 8: SETCMP          D2              ==     
-	D2 = D2 == 1338
+	D2 = LINKX == 1338
 9: COMPAREV        D2              0      
-	D2 = D2 == 1338
+	D2 = LINKX == 1338
 10: GOTOTRUE        12              
-	D2 = D2 == 1338
+	D2 = LINKX == 1338
 rewrite 3: GOTOCMP         6               ==     
 
 [spurious_branches] Block #2
@@ -23,11 +23,11 @@ rewrite 3: GOTOCMP         6               ==
 6: SETR            D2              LINKX  
 7: COMPAREV        D2              1338   
 8: SETCMP          D2              ==     
-	D2 = D2 == 1338
+	D2 = LINKX == 1338
 9: COMPAREV        D2              0      
-	D2 = D2 == 1338
+	D2 = LINKX == 1338
 10: GOTOTRUE        12              
-	D2 = D2 == 1338
+	D2 = LINKX == 1338
 inferred D2: 0
 12: QUIT           
 	D2 = 0

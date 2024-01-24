@@ -18,19 +18,42 @@
 	D3 = 0
 	side_effects
 6: CALLFUNC        16              
+	D0 = ?
+	D1 = ?
+	D2 = ?
+	D3 = ?
+	D4 = ?
+	D5 = ?
+	D6 = ?
+	D7 = ?
 	side_effects
 7: POP             D4              
+	D0 = ?
+	D1 = ?
+	D2 = ?
+	D3 = ?
+	D5 = ?
+	D6 = ?
+	D7 = ?
 	side_effects
 8: COMPAREV        D2              0      
+	D0 = ?
+	D1 = ?
+	D2 = ?
+	D3 = ?
+	D5 = ?
+	D6 = ?
+	D7 = ?
 	side_effects
 9: GOTOTRUE        12              
+	D0 = ?
+	D1 = ?
+	D2 = ?
+	D3 = ?
+	D5 = ?
+	D6 = ?
+	D7 = ?
 	side_effects
-inferred D2: 0
-12: COMPAREV        D3              0      
-	D2 = 0
-13: GOTOTRUE        15              
-	D2 = 0
-rewrite 9: GOTOCMP         12              ==     
 
 [spurious_branches] Block #2
 
@@ -45,7 +68,7 @@ rewrite 13: GOTOCMP         15              ==
 [reduce_comparisons] Block #0
 
 8: COMPAREV        D2              0      
-9: GOTOCMP         12              ==     
+9: GOTOTRUE        12              
 rewrite 8: 2 -> 2 commands
 8: COMPAREV        D2              0      
 9: GOTOCMP         12              ==     
