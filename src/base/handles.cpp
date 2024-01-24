@@ -1,4 +1,5 @@
 #include "base/handles.h"
+#include "base/combo.h"
 #include "zc/maps.h"
 #include "zc/zc_ffc.h"
 #include "ffc.h"
@@ -37,6 +38,11 @@ uint8_t rpos_handle_t::sflag() const
 void rpos_handle_t::set_sflag(uint8_t value) const
 {
 	screen->sflag[pos] = value;
+}
+
+uint8_t rpos_handle_t::cflag() const
+{
+	return combobuf[screen->data[pos]].flag;
 }
 
 int32_t ffc_handle_t::data() const

@@ -49,6 +49,8 @@ struct rpos_handle_t
 
 	uint8_t sflag() const;
 	void set_sflag(uint8_t value) const;
+
+	uint8_t cflag() const;
 };
 
 struct ffc_handle_t

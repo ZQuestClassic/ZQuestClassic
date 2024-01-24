@@ -8310,22 +8310,16 @@ void enemy::removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcac
 		return;
 	}
 
-	// TODO z3 !?
-	mapscr* scr = tmpscr;
-	if (is_z3_scrolling_mode())
-	{
-		scr = get_screen_for_world_xy(ax, ay);
-		ax %= 256;
-		ay %= 176;
-	}
-	
+	auto rpos_handle = get_rpos_handle_for_world_xy(ax, ay, 0);
+	mapscr* scr = rpos_handle.screen;
+	ax = TRUNCATE_TILE(ax);
+	ay = TRUNCATE_TILE(ay);
+
 	did_armos=true;
-	ax&=0xF0;
-	ay&=0xF0;
-	int32_t cd = (ax>>4)+ay;
-	int32_t f = MAPFLAG(ax,ay);
-	int32_t f2 = MAPCOMBOFLAG(ax,ay);
-	
+	int32_t cd = rpos_handle.pos;
+	int32_t f = rpos_handle.sflag();
+	int32_t f2 = rpos_handle.cflag();
+
 	if(combobuf[scr->data[cd]].type!=cARMOS)
 	{
 		return;
