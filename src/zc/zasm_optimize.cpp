@@ -2491,67 +2491,30 @@ OptimizeResults zasm_optimize(script_data* script)
 		run_pass(results, i, ctx, script_passes[i]);
 	}
 
-	// Do not optimize functions that use a bugged version of SDDDD, or calls a function that does.
-	// SDDDD reads D2, but the bugged compiler would not set it, so whatever D2 happened to be is what
-	// could get used. So the setv_pushr optimization 100% breaks those quests, since it doesn't bother to check
-	// if the register it elides is used beyond the PUSH.
-	// Rather than make that optimization slower, lets just discover which functions we should skip optimizations for.
-	std::set<pc_t> is_bugged_fn;
-	for (const auto& fn : structured_zasm.functions)
+	// Fix bugged reads of SDDDD.
+	// SDDDD reads D2, but when first introduced the compiler did not set D2. It still just happened to work,
+	// but only by blind luck (see https://www.purezc.net/forums/index.php?showtopic=78604#entry1076373).
+	// setv_pushr optimization 100% breaks these old scripts quests, since it doesn't bother to check
+	// if the register it elides is used beyond the PUSH (or in this case, within a function call).
+	// Let's find those bad POPs and fix them.
+	// TODO: skip this if qst is known to be from non-bugged version.
+	for (pc_t i = 4; i < script->size; i++)
 	{
-		bool has_sdddd = false;
-		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
-		{
-			// Not all these args are registers args, but that's fine. This is much faster
-			// than using for_every_command_register_arg.
-			if (one_of(SDDDD, script->zasm[i].arg1, script->zasm[i].arg2, script->zasm[i].arg3))
-			{
-				has_sdddd = true;
-				break;
-			}
-		}
-
-		if (!has_sdddd)
+		if (!(script->zasm[i].command == SETR && script->zasm[i].arg1 == D(2) && script->zasm[i].arg2 == SDDDD))
 			continue;
 
-		add_context_cfg(ctx);
-		SimulationState state{};
-		state.final_pc = fn.final_pc;
-		state.d[2] = {ValueType::Uninitialized};
-		bool is_bugged = false;
-		// It's probably fine to not run this per-block?
-		for (pc_t i = fn.start_pc; i <= fn.final_pc; i++)
-		{
-			for_every_command_register_arg(C(i), [&](bool read, bool write, int reg, int argn){
-				if (reg == SDDDD)
-				{
-					if (state.d[2].type == ValueType::Uninitialized)
-					{
-						is_bugged = true;
-					}
-				}
-			});
+		// While this bug existed, some internal functions were made inline, which places the bad POP
+		// in a different position relative to the SETR.
+		bool is_func = structured_zasm.start_pc_to_function.contains(i - 4);
+		pc_t pop_pc = is_func ? i - 4 : i - 3;
+		if (!(script->zasm[pop_pc].command == POP && script->zasm[pop_pc].arg1 == D(6)))
+			continue;
 
-			state.pc = i;
-			simulate(ctx, state);
-
-			if (is_bugged)
-				break;
-		}
-
-		if (is_bugged)
-		{
-			is_bugged_fn.insert(fn.id);
-			for (pc_t fn_id : fn.called_by_functions)
-				is_bugged_fn.insert(fn_id);
-		}
+		script->zasm[pop_pc] = {POP, D(2)};
 	}
 
 	for (const auto& fn : structured_zasm.functions)
 	{
-		if (is_bugged_fn.contains(fn.id))
-			continue;
-
 		optimize_function(results, structured_zasm, script, fn);
 	}
 
