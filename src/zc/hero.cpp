@@ -8882,8 +8882,13 @@ heroanimate_skip_liftwpn:;
 	{
 		lbunnyclock = 0;
 	}
-	
-	if(!is_on_conveyor && !(diagonalMovement||NO_GRIDLOCK) && (fall==0 || fakefall==0 || z>0 || fakez>0) && charging==0 && spins<=5
+
+	bool is_broken_behavior = replay_is_active() && replay_get_meta_str("sav") == "link_to_the_zelda_2_of_3.sav";
+	bool fall_check = (fall == 0 || z > 0) && (fakefall == 0 || fakez > 0);
+	if (is_broken_behavior)
+		fall_check = (fall == 0 || z > 0) || (fakefall == 0 || fakez > 0);
+
+	if(!is_on_conveyor && !(diagonalMovement||NO_GRIDLOCK) && fall_check && charging==0 && spins<=5
 			&& action != gothit)
 	{
 		switch(dir)
