@@ -4561,6 +4561,7 @@ private:
 		{
 			for(int32_t x=0; x<16; x++)
 			{
+				clear_bitmap(bmap4_single);
 				Map.setCurrScr(y*16+x);
 				Map.draw(bmap4_single, 0, 0, flags, -1, y*16+x, -1);
 				stretch_blit(bmap4_single, bmap4_single, 0, 0, 0, 0, 256, 176, 256, 176);
