@@ -8,6 +8,14 @@
 #include <type_traits>
 #include <stdint.h>
 
+#if !defined(_DEBUG) && defined(__GNUC__)
+  #define ZC_FORCE_INLINE inline __attribute__((__always_inline__))
+#elif !defined(_DEBUG) && defined(_MSC_VER)
+  #define ZC_FORCE_INLINE __forceinline
+#else
+  #define ZC_FORCE_INLINE inline
+#endif
+
 // Iterates over every base screen in the current region.
 // Callback function: void fn(mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_x)
 // region_scr_x and region_scr_y are the screen coordinates relative to the origin screen. For example, the relative
@@ -15,7 +23,7 @@
 // region.
 template<typename T>
 requires std::is_invocable_v<T, mapscr*, int, unsigned int, unsigned int>
-void for_every_screen_in_region(T&& fn)
+ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
 {
 	if (!is_z3_scrolling_mode())
 	{
@@ -42,7 +50,7 @@ void for_every_screen_in_region(T&& fn)
 // Callback function: void fn(const pos_handle_t& rpos_handle)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
-void for_every_rpos_in_region(T&& fn)
+ZC_FORCE_INLINE void for_every_rpos_in_region(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 
@@ -62,7 +70,7 @@ void for_every_rpos_in_region(T&& fn)
 // Callback function: void fn(const ffc_handle_t& ffc_handle)
 template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
-void for_every_ffc_in_region(T&& fn)
+ZC_FORCE_INLINE void for_every_ffc_in_region(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	
@@ -86,7 +94,7 @@ void for_every_ffc_in_region(T&& fn)
 
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, const ffc_handle_t&>
-void for_every_combo_in_region(T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
+ZC_FORCE_INLINE void for_every_combo_in_region(T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 {
 	for_every_rpos_in_region(fn);
 	if (include_ffcs)
@@ -98,7 +106,7 @@ void for_every_combo_in_region(T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FU
 // If the callback returns false, the exeuction stops early.
 template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
-void for_some_ffcs_in_region(T&& fn)
+ZC_FORCE_INLINE void for_some_ffcs_in_region(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	
@@ -125,7 +133,7 @@ void for_some_ffcs_in_region(T&& fn)
 // Callback function: bool fn(const ffc_handle_t& ffc_handle)
 template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
-std::optional<ffc_handle_t> find_ffc_in_region(T&& fn)
+ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc_in_region(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	
@@ -161,7 +169,7 @@ std::optional<ffc_handle_t> find_ffc_in_region(T&& fn)
 // Callback function: void fn(const pos_handle_t& pos_handle_t)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
-void for_every_rpos_in_screen(mapscr* screen, int screen_index, T&& fn)
+ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* screen, int screen_index, T&& fn)
 {
 	rpos_handle_t rpos_handle;
 	rpos_handle.screen_index = screen_index;
@@ -182,7 +190,7 @@ void for_every_rpos_in_screen(mapscr* screen, int screen_index, T&& fn)
 
 template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
-void for_every_ffc_in_screen(mapscr* screen, int screen_index, T&& fn)
+ZC_FORCE_INLINE void for_every_ffc_in_screen(mapscr* screen, int screen_index, T&& fn)
 {
 	int screen_index_offset = get_region_screen_index_offset(screen_index);
 	int c = screen->numFFC();
