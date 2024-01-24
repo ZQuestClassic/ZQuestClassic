@@ -1,3 +1,4 @@
+#include "base/handles.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
@@ -11,10 +12,9 @@
 // region_scr_x and region_scr_y are the screen coordinates relative to the origin screen. For example, the relative
 // coordinates for the screen just to the right of the origin screen is (1, 0). This is always (0, 0) when not in a
 // region.
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, mapscr*, int, unsigned int, unsigned int>
->>
-void for_every_screen_in_region(T fn)
+template<typename T>
+requires std::is_invocable_v<T, mapscr*, int, unsigned int, unsigned int>
+void for_every_screen_in_region(T&& fn)
 {
 	if (!is_z3_scrolling_mode())
 	{
@@ -39,10 +39,9 @@ void for_every_screen_in_region(T fn)
 
 // Iterates over every rpos in the current region, but only for screens that are valid.
 // Callback function: void fn(const pos_handle_t& rpos_handle)
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, const rpos_handle_t&>
->>
-void for_every_rpos_in_region(T fn)
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&>
+void for_every_rpos_in_region(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 
@@ -60,10 +59,9 @@ void for_every_rpos_in_region(T fn)
 
 // Iterates over every ffc in the current region.
 // Callback function: void fn(const ffc_handle_t& ffc_handle)
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, const ffc_handle_t&>
->>
-void for_every_ffc_in_region(T fn)
+template<typename T>
+requires std::is_invocable_v<T, const ffc_handle_t&>
+void for_every_ffc_in_region(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	
@@ -85,13 +83,20 @@ void for_every_ffc_in_region(T fn)
 	}
 }
 
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, const ffc_handle_t&>
+void for_every_combo_in_region(T&& fn)
+{
+	for_every_rpos_in_region(fn);
+	for_every_ffc_in_region(fn);
+}
+
 // Iterates over every ffc in the current region, until execution is requested to stop.
 // Callback function: bool fn(const ffc_handle_t& ffc_handle)
 // If the callback returns false, the exeuction stops early.
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_r_v<bool, T, const ffc_handle_t&>
->>
-void for_some_ffcs_in_region(T fn)
+template<typename T>
+requires std::is_invocable_v<T, const ffc_handle_t&>
+void for_some_ffcs_in_region(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	
@@ -116,10 +121,9 @@ void for_some_ffcs_in_region(T fn)
 // Iterates over every ffc in the current region, and returns a handle to the
 // first one for which the callback functions evaluates true for.
 // Callback function: bool fn(const ffc_handle_t& ffc_handle)
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_r_v<bool, T, const ffc_handle_t&>
->>
-std::optional<ffc_handle_t> find_ffc_in_region(T fn)
+template<typename T>
+requires std::is_invocable_v<T, const ffc_handle_t&>
+std::optional<ffc_handle_t> find_ffc_in_region(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	
@@ -153,10 +157,9 @@ std::optional<ffc_handle_t> find_ffc_in_region(T fn)
 
 // Iterates over every rpos for a specified screen.
 // Callback function: void fn(const pos_handle_t& pos_handle_t)
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, const rpos_handle_t&>
->>
-void for_every_rpos_in_screen(mapscr* screen, int screen_index, T fn)
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&>
+void for_every_rpos_in_screen(mapscr* screen, int screen_index, T&& fn)
 {
 	rpos_handle_t rpos_handle;
 	rpos_handle.screen_index = screen_index;
@@ -175,10 +178,9 @@ void for_every_rpos_in_screen(mapscr* screen, int screen_index, T fn)
 	}
 }
 
-template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, const ffc_handle_t&>
->>
-void for_every_ffc_in_screen(mapscr* screen, int screen_index, T fn)
+template<typename T>
+requires std::is_invocable_v<T, const ffc_handle_t&>
+void for_every_ffc_in_screen(mapscr* screen, int screen_index, T&& fn)
 {
 	int screen_index_offset = get_region_screen_index_offset(screen_index);
 	int c = screen->numFFC();

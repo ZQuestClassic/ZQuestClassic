@@ -1,6 +1,7 @@
 #ifndef _HANDLES_H_
 #define _HANDLES_H_
 
+#include "base/combo.h"
 #include <stdint.h>
 #include <variant>
 
@@ -40,6 +41,8 @@ struct rpos_handle_t
 	// rpos % 176
 	int32_t pos;
 
+	const newcombo& combo() const;
+
 	int32_t data() const;
 	void set_data(int32_t value) const;
 	void increment_data() const;
@@ -65,11 +68,14 @@ struct ffc_handle_t
 	uint8_t i;
 	ffcdata* ffc;
 
+	const newcombo& combo() const;
+
 	int32_t data() const;
 	void set_data(int32_t value) const;
-	void set_cset(int32_t cset) const;
 	void increment_data() const;
 	void decrement_data() const;
+
+	void set_cset(int32_t cset) const;
 };
 
 // TODO: this may be a tad overengineered for its current usecases. Consider replacing
@@ -78,6 +84,7 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 {
 	using std::variant<rpos_handle_t, ffc_handle_t>::variant;
 
+	const newcombo& combo() const;
 	bool is_rpos() const;
 	bool is_ffc() const;
 	int data() const;

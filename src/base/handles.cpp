@@ -5,6 +5,11 @@
 #include "ffc.h"
 #include <variant>
 
+const newcombo& rpos_handle_t::combo() const
+{
+	return combobuf[screen->data[pos]];
+}
+
 int32_t rpos_handle_t::data() const
 {
 	return screen->data[pos];
@@ -43,6 +48,11 @@ void rpos_handle_t::set_sflag(uint8_t value) const
 uint8_t rpos_handle_t::cflag() const
 {
 	return combobuf[screen->data[pos]].flag;
+}
+
+const newcombo& ffc_handle_t::combo() const
+{
+	return combobuf[ffc->data];
 }
 
 int32_t ffc_handle_t::data() const

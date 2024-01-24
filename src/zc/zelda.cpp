@@ -3409,15 +3409,11 @@ void game_loop()
 		// Messages also freeze FF combos.
 		bool freezeff = freezemsg;
 		bool freeze = false;
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			if (combobuf[ffc_handle.data()].type == cSCREENFREEZE) freeze = true;
-			if (combobuf[ffc_handle.data()].type == cSCREENFREEZEFF) freezeff = true;
+		for_every_combo_in_region([&](const auto& handle) {
+			if (handle.combo().type == cSCREENFREEZE || handle.combo().type == cSCREENFREEZEFF)
+				freeze = true;
 		});
-		for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-			if (combobuf[rpos_handle.data()].type == cSCREENFREEZE) freeze = true;
-			if (combobuf[rpos_handle.data()].type == cSCREENFREEZEFF) freezeff = true;
-		});
-		
+
 		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
 		{
 			for (auto q : activation_counters)
