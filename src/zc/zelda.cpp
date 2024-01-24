@@ -4192,7 +4192,7 @@ void do_extract_zasm_command(const char* quest_path)
 	bool optimize = get_flag_bool("-extract-zasm-optimize").value_or(false);
 	if (optimize)
 		zasm_optimize();
-	zasm_for_every_script([&](script_data* script){
+	zasm_for_every_script(true, [&](script_data* script){
 		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);
 		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());
 	});

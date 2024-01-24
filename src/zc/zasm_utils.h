@@ -81,7 +81,7 @@ std::string zasm_to_string(const script_data* script, bool top_functions = false
 
 std::string zasm_script_unique_name(const script_data* script);
 
-void zasm_for_every_script(std::function<void(script_data*)> fn);
+void zasm_for_every_script(bool parallel, std::function<void(script_data*)> fn);
 
 std::string zasm_analyze_duplication();
 

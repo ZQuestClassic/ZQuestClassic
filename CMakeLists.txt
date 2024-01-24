@@ -495,6 +495,16 @@ if(NOT WIN32)
 	target_include_directories(zcbase PUBLIC include/pstream)
 endif()
 
+# Only included because AppleClang does not support std::execution::par yet.
+FetchContent_Declare(
+	poolSTL
+	GIT_REPOSITORY https://github.com/alugowski/poolSTL
+	GIT_TAG main
+	GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(poolSTL)
+target_link_libraries(zcbase PUBLIC poolSTL::poolSTL)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")

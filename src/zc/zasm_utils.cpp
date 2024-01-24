@@ -7,6 +7,9 @@
 #include <initializer_list>
 #include <xxhash.h>
 
+#define POOLSTL_STD_SUPPLEMENT
+#include <poolstl/poolstl.hpp>
+
 StructuredZasm zasm_construct_structured(const script_data* script)
 {
 	// Find all function calls.
@@ -516,7 +519,7 @@ std::string zasm_analyze_duplication()
 	std::map<uint64_t, FunctionSummary> function_counts;
 	size_t total_length = 0;
 
-	zasm_for_every_script([&](auto script){
+	zasm_for_every_script(false, [&](auto script){
 		hash_all_functions(script, function_counts, total_length);
 	});
 
@@ -537,15 +540,17 @@ std::string zasm_analyze_duplication()
 	return ss.str();
 }
 
-void zasm_for_every_script(std::function<void(script_data*)> fn)
+void zasm_for_every_script(bool parallel, std::function<void(script_data*)> fn)
 {
+	std::vector<script_data*> scripts;
+	scripts.reserve(2000);
 	#define HANDLE_SCRIPTS(array, num)\
 		for (int i = 0; i < num; i++)\
 		{\
 			script_data* script = array[i];\
 			if (script->valid())\
 			{\
-				fn(script);\
+				scripts.push_back(script);\
 			}\
 		}
 	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
@@ -561,6 +566,11 @@ void zasm_for_every_script(std::function<void(script_data*)> fn)
 	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
 	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
 	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+
+	if (parallel)
+		std::for_each(std::execution::par_unseq, scripts.begin(), scripts.end(), fn);
+	else
+		std::for_each(std::execution::seq, scripts.begin(), scripts.end(), fn);
 }
 
 // TODO: Broken / not yet needed code for determining how many params a function has, and if it returns something.

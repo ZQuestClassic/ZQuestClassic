@@ -2587,23 +2587,29 @@ OptimizeResults zasm_optimize()
 	if (log_level >= 1)
 		fmt::println("Optimizing scripts...");
 
-	zasm_for_every_script([&](auto script){
+	bool parallel = !get_flag_bool("-test-bisect").has_value();
+	zasm_for_every_script(parallel, [&](auto script){
 		if (script->optimized)
 			return;
 
-		size += script->size;
-		
 		auto r = zasm_optimize(script);
-		double pct = 100.0 * r.instructions_saved / script->size;
-		if (log_level >= 2)
-			fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", zasm_script_unique_name(script), r.instructions_saved, pct, r.elapsed / 1000);
 
-		for (int i = 0; i < results.passes.size(); i++)
+		static std::mutex mutex;
 		{
-			results.passes[i].instructions_saved += r.passes[i].instructions_saved;
-			results.passes[i].elapsed += r.passes[i].elapsed;
+			std::lock_guard<std::mutex> lock(mutex);
+
+			size += script->size;
+			double pct = 100.0 * r.instructions_saved / script->size;
+			if (log_level >= 2)
+				fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", zasm_script_unique_name(script), r.instructions_saved, pct, r.elapsed / 1000);
+
+			for (int i = 0; i < results.passes.size(); i++)
+			{
+				results.passes[i].instructions_saved += r.passes[i].instructions_saved;
+				results.passes[i].elapsed += r.passes[i].elapsed;
+			}
+			results.instructions_saved += r.instructions_saved;
 		}
-		results.instructions_saved += r.instructions_saved;
 	});
 
 	if (size == 0)
