@@ -217,7 +217,6 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 	
 #endif
 	
-	//textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
 	if(sfxcleanup)
 		sfx_cleanup();
 }

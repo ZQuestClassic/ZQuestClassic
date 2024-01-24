@@ -28442,22 +28442,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
-	// zfix new_hero_x, new_hero_y;
-	viewport_t new_viewport = {0};
+	viewport_t new_viewport{};
 	region new_region;
-	new_hero_x = 0;
-	new_hero_y = 0;
 	{
 		int scr_dx, scr_dy;
-		int odmap = currdmap;
-		int oscr = currscr;
-		// TODO z3 !!!!
-		currdmap = new_dmap;
-		currscr = destscr;
 		z3_calculate_region(new_dmap, destscr, new_region, scr_dx, scr_dy);
-		currdmap = odmap;
-		currscr = oscr;
 
+		new_hero_x = 0;
+		new_hero_y = 0;
 		switch(scrolldir)
 		{
 			case up:
