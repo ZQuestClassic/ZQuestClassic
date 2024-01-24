@@ -1266,6 +1266,7 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 		}
     }
     if(layer==-1) return COMBOTYPE(x,y);
+	// TODO z3 !!!
     if(tmpscr2[layer].valid==0)
     {
         return 0;
@@ -1286,27 +1287,22 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
 	if (!rpos_handle.screen->valid) return 0;
 
-	int cid = rpos_handle.data();
-	return combobuf[cid].flag;
+	return rpos_handle.cflag();
 }
 
 bool HASFLAG(int32_t flag, int32_t layer, rpos_t rpos)
 {
-	DCHECK_LAYER_ZERO_INDEX(layer);
-	if (rpos > region_max_rpos) return false;
-	if(unsigned(layer) > 6) return false;
-	mapscr* m = (layer ? &tmpscr2[layer-1] : tmpscr);
-	if(!m->valid) return false;
-	
+	DCHECK_LAYER_ZERO_INDEX(layer);	
 	auto rpos_handle = get_rpos_handle(rpos, layer);
+	if (!rpos_handle.screen->valid) return false;
 	if (rpos_handle.sflag() == flag) return true;
-	if (combobuf[rpos_handle.data()].flag == flag) return true;
-	
+	if (rpos_handle.cflag() == flag) return true;
 	return false;
 }
 
 bool HASFLAG_ANY(int32_t flag, rpos_t rpos)
 {
+	DCHECK(is_valid_rpos(rpos));
 	if (rpos > region_max_rpos) return false;
 
 	for(auto q = 0; q < 7; ++q)
