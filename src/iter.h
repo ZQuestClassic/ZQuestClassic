@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <stdint.h>
 
-// Iterates over every screen in the current region.
+// Iterates over every base screen in the current region.
 // Callback function: void fn(mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_x)
 // region_scr_x and region_scr_y are the screen coordinates relative to the origin screen. For example, the relative
 // coordinates for the screen just to the right of the origin screen is (1, 0). This is always (0, 0) when not in a

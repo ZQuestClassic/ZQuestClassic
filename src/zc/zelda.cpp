@@ -3410,8 +3410,10 @@ void game_loop()
 		bool freezeff = freezemsg;
 		bool freeze = false;
 		for_every_combo_in_region([&](const auto& handle) {
-			if (handle.combo().type == cSCREENFREEZE || handle.combo().type == cSCREENFREEZEFF)
+			if (handle.combo().type == cSCREENFREEZE)
 				freeze = true;
+			if (handle.combo().type == cSCREENFREEZEFF)
+				freezeff = true;
 		}, true);
 
 		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
