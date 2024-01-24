@@ -1,4 +1,5 @@
 #include "base/handles.h"
+#include "base/qrs.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
@@ -85,10 +86,11 @@ void for_every_ffc_in_region(T&& fn)
 
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, const ffc_handle_t&>
-void for_every_combo_in_region(T&& fn)
+void for_every_combo_in_region(T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 {
 	for_every_rpos_in_region(fn);
-	for_every_ffc_in_region(fn);
+	if (include_ffcs)
+		for_every_ffc_in_region(fn);
 }
 
 // Iterates over every ffc in the current region, until execution is requested to stop.

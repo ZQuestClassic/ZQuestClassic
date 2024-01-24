@@ -1,5 +1,6 @@
 #include "base/handles.h"
 #include "base/combo.h"
+#include "zc/combos.h"
 #include "zc/maps.h"
 #include "zc/zc_ffc.h"
 #include "ffc.h"
@@ -8,6 +9,11 @@
 const newcombo& rpos_handle_t::combo() const
 {
 	return combobuf[screen->data[pos]];
+}
+
+cpos_info& rpos_handle_t::info() const
+{
+	return cpos_get(*this);
 }
 
 int32_t rpos_handle_t::data() const
@@ -53,6 +59,11 @@ uint8_t rpos_handle_t::cflag() const
 const newcombo& ffc_handle_t::combo() const
 {
 	return combobuf[ffc->data];
+}
+
+cpos_info& ffc_handle_t::info() const
+{
+	return ffc->info;
 }
 
 int32_t ffc_handle_t::data() const

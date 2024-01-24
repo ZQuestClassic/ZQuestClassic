@@ -3412,7 +3412,7 @@ void game_loop()
 		for_every_combo_in_region([&](const auto& handle) {
 			if (handle.combo().type == cSCREENFREEZE || handle.combo().type == cSCREENFREEZEFF)
 				freeze = true;
-		});
+		}, true);
 
 		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
 		{

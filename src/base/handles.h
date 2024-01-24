@@ -2,6 +2,7 @@
 #define _HANDLES_H_
 
 #include "base/combo.h"
+#include "base/cpos_info.h"
 #include <stdint.h>
 #include <variant>
 
@@ -42,6 +43,7 @@ struct rpos_handle_t
 	int32_t pos;
 
 	const newcombo& combo() const;
+	cpos_info& info() const;
 
 	int32_t data() const;
 	void set_data(int32_t value) const;
@@ -69,6 +71,7 @@ struct ffc_handle_t
 	ffcdata* ffc;
 
 	const newcombo& combo() const;
+	cpos_info& info() const;
 
 	int32_t data() const;
 	void set_data(int32_t value) const;
@@ -84,7 +87,6 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 {
 	using std::variant<rpos_handle_t, ffc_handle_t>::variant;
 
-	const newcombo& combo() const;
 	bool is_rpos() const;
 	bool is_ffc() const;
 	int data() const;

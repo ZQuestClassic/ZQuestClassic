@@ -733,6 +733,10 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 			// Increment all combos of the same id as the triggered combo on the base screen.
 			// If the trigger is on a layer screen, that will be the only combo on that layer incremented.
 			int32_t id = rpos_handle.data();
+			// auto cb = [&](const auto& handle) {
+			// 	if (handle.data() == id)
+			// 		handle.increment_data();
+			// };
 			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 				for (int q = 0; q < 176; ++q)
 				{
@@ -751,6 +755,12 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 					}
 				});
 			}
+			
+			// TODO z3 !!! possible?
+			// for_every_combo_in_region([&](const auto& handle) {
+			// 	if (handle.data() == id)
+			// 		handle.increment_data();
+			// });
 			if (rpos_handle.layer > 0) ++rpos_handle.screen->data[pos];
 			break;
 		}
@@ -802,10 +812,13 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 		case cSTEPSAME:
 		{
 			int32_t id = ffc_handle.data();
-			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-				if (rpos_handle.data() == id)
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				for (int q = 0; q < 176; ++q)
 				{
-					rpos_handle.increment_data();
+					if (screen->data[q] == id)
+					{
+						++screen->data[q];
+					}
 				}
 			});
 			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
@@ -822,10 +835,13 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 		}
 		case cSTEPALL:
 		{
-			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-				if (isStepType(combobuf[rpos_handle.data()].type))
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				for (int q = 0; q < 176; ++q)
 				{
-					rpos_handle.increment_data();
+					if (isStepType(combobuf[screen->data[q]].type))
+					{
+						++screen->data[q];
+					}
 				}
 			});
 			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
