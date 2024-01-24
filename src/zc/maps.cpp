@@ -67,22 +67,7 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 region current_region;
 
-// TODO z3 !!! rm me
-// entire map is region
-// #define hardcode_regions_mode 1
-
-static int current_region_indices[128] = {
-#ifdef hardcode_regions_mode
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-#endif
-};
+static int current_region_indices[128];
 
 static int scr_xy_to_index(int x, int y) {
 	// TODO z3 ! can't do this check, because some code expected to be able to go slightly out of bounds
@@ -135,17 +120,11 @@ bool is_extended_height_mode()
 int get_region_id(int dmap, int scr)
 {
 	if (scr >= 128) return 0;
-#ifndef hardcode_regions_mode
 	if (dmap == current_region.dmap) return current_region_indices[scr];
-#endif
 
-#ifndef hardcode_regions_mode
 	int sx = scr % 16;
 	int sy = scr / 16;
 	return getNibble(DMaps[dmap].region_indices[sy][sx/2], sx % 2 == 0);
-#else
-	return 1;
-#endif
 }
 
 int get_current_region_id()
@@ -224,7 +203,6 @@ void z3_load_region(int screen_index, int dmap)
 
 	if (dmap == -1) dmap = currdmap;
 
-#ifndef hardcode_regions_mode
 	for (int sy = 0; sy < 8; sy++)
 	{
 		for (int sx = 0; sx < 16; sx++)
@@ -232,7 +210,6 @@ void z3_load_region(int screen_index, int dmap)
 			current_region_indices[sx + sy*16] = getNibble(DMaps[dmap].region_indices[sy][sx/2], sx % 2 == 0);
 		}
 	}
-#endif
 
 	currscr = screen_index;
 	z3_calculate_region(dmap, screen_index, current_region, region_scr_dx, region_scr_dy);
@@ -688,10 +665,6 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 	DCHECK(x >= 0 && x < world_w && y >= 0 && y < world_h);
 	if (!is_z3_scrolling_mode())
 		return (rpos_t) COMBOPOS(x, y);
-
-	// TODO z3 !!! can we not?
-	// x = vbound(x, 0, world_w-1);
-	// y = vbound(y, 0, world_h-1);
 
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
