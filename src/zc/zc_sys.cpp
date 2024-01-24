@@ -3980,12 +3980,12 @@ int32_t onNonGUISnapshot()
 	}
 	while(num<99999 && exists(buf));
 
-	if (tmpscr->flags3&fNOSUBSCR && !(key[KEY_ALT]))
+	if ((tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET)) && !(key[KEY_ALT]))
 	{
 		BITMAP *b = create_bitmap_ex(8,256,168);
 		clear_to_color(b,0);
 		blit(framebuf,b,0,passive_subscreen_height/2,0,0,256,168);
-		alleg4_save_bitmap(b, SnapshotScale, buf);
+		alleg4_save_bitmap(b, SnapshotScale, buf, realpal ? temppal : RAMpal);
 		destroy_bitmap(b);
 	}
 	else
