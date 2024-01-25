@@ -231,6 +231,7 @@ void music_stop();
 void master_volume(int32_t dv,int32_t mv);
 int32_t  sfx_count();
 void sfx_cleanup();
+SAMPLE* sfx_get_sample(int32_t index);
 bool sfx_init(int32_t index);
 void sfx(int32_t index,int32_t pan,bool loop, bool restart = true, int32_t vol = 1000000, int32_t freq = -1);
 int32_t sfx_get_default_freq(int32_t index);
