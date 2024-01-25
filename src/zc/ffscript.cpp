@@ -2024,7 +2024,7 @@ static bool mapRefIsScrolling(int32_t ref)
 // one of the temporary mapscrs loaded via `Game->LoadTempScreen(int layer)` or `Game->LoadScrollingScreen(int layer)`.
 // If temporary, and we are in a region, we allow some functions (like `mapref->ComboX[pos]`) to address any rpos in the current region.
 // Otherwise, only positions in the exact screen referenced by `mapref` can be used (0-175).
-rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
+static rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 {
 	if (mapRefIsTemp(mapref))
 	{
@@ -2076,6 +2076,32 @@ rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 	}
 
 	return {GetMapscr(mapref), getScreen(mapref), 0, rpos, RPOS_TO_POS(rpos)};
+}
+
+static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context)
+{
+	if (mapref == MAPSCR_TEMP0)
+	{
+		if (BC::checkFFC(id, context) != SH::_NoError)
+			return ffc_handle_t{};
+
+		return get_ffc(id);
+	}
+
+	if ( (unsigned)id > MAXFFCS-1 ) 
+	{
+		Z_scripterrlog("%s FFC id (%d) is invalid", context, id); 
+		return ffc_handle_t{};
+	}
+
+	mapscr* m = GetMapscr(mapref);
+	if (!m)
+	{
+		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
+		return ffc_handle_t{};
+	}
+
+	return {m, (uint8_t)getScreen(mapref), (uint16_t)id, (uint8_t)id, &m->ffcs[id]};
 }
 
 int32_t ffmisc[MAXFFCS][16];
@@ -10057,22 +10083,6 @@ int32_t get_register(int32_t arg)
 			} \
 		} \
 		
-		/*
-		#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
-		{ \
-			int32_t indx = ri->d[rINDEX] / 10000; \
-			mapscr *m = GetMapscr(ri->mapsref); \
-			if ( indx == 0 ) \
-			{ \
-				\
-			} \
-			else \
-			{ \
-				ret = (m->member[indx-1] *10000); \
-			} \
-		} \
-		*/
-		
 		#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
@@ -10120,21 +10130,14 @@ int32_t get_register(int32_t arg)
 
 		#define GET_FFC_MAPDATA_BOOL_INDEX(member, str, indexbound) \
 		{ \
-			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			int32_t id = ri->d[rINDEX] / 10000; \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-				ret = -10000; \
-			} \
-			else \
-			{ \
-				if (mapscr *m = GetMapscr(ri->mapsref)) \
+				if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 				{ \
-					ret = (m->ffcs[indx].member?10000:0); \
+					ret = (handle.ffc->member?10000:0); \
 				} \
 				else \
 				{ \
-					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
 					ret = -10000; \
 				} \
 			} \
@@ -10156,57 +10159,39 @@ int32_t get_register(int32_t arg)
 		
 		#define GET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
-			if(indx < 0 || indx > indexbound ) \
+			int32_t id = (ri->d[rINDEX] / 10000)-1; \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
-				ret = -10000; \
-			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				ret = (m->ffcs[indx].member).getZLong(); \
+				ret = (handle.ffc->member).getZLong(); \
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
 				ret = -10000; \
 			} \
 		} \
 		
 		#define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
-			if(indx < 0 || indx > indexbound ) \
+			int32_t id = (ri->d[rINDEX] / 10000)-1; \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
-				ret = -10000; \
-			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				ret = (m->ffcs[indx].member)*10000; \
+				ret = (handle.ffc->member)*10000; \
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
 				ret = -10000; \
 			} \
 		} \
 
 		#define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
-			if(indx < 0 || indx > indexbound ) \
+			int32_t id = (ri->d[rINDEX] / 10000)-1; \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
-				ret = -10000; \
-			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				ret = (m->ffcs[indx].member)*10000; \
+				ret = (handle.ffc->member)*10000; \
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
 				ret = -10000; \
 			} \
 		} \
@@ -10331,20 +10316,14 @@ int32_t get_register(int32_t arg)
 		//Number of ffcs that are in use (have valid data
 		case MAPDATANUMFF: 	
 		{
-			uint32_t indx = ri->d[rINDEX] / 10000;
-			if (!indx || indx > MAXFFCS)
+			uint32_t id = ri->d[rINDEX] / 10000;
+
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "NumFFCs[]"); handle.screen != nullptr)
 			{
-				Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through %d.\n", indx, MAXFFCS);
-				ret = 0;
-			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
-			{
-				--indx;
-				ret = (m->ffcs[indx].data != 0) ? 10000 : 0;
+				ret = (handle.data() != 0) ? 10000 : 0;
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","NumFFCs[]");
 				ret = 0;
 			}
 			break;
@@ -22909,20 +22888,13 @@ void set_register(int32_t arg, int32_t value)
 			break; \
 		} \
 
+
 		#define SET_FFC_MAPDATA_BOOL_INDEX(member, str, indexbound) \
 		{ \
-			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			int32_t id = ri->d[rINDEX] / 10000; \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				m->ffcs[indx].member =( (value/10000) ? 1 : 0 ); \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+				handle.ffc->member =( (value/10000) ? 1 : 0 ); \
 			} \
 			break; \
 		} \
@@ -22947,59 +22919,35 @@ void set_register(int32_t arg, int32_t value)
 		
 		#define SET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
-			if(indx < 0 || indx > indexbound ) \
+			int32_t id = (ri->d[rINDEX] / 10000)-1; \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
-			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				m->ffcs[indx].member = zslongToFix(value); \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				handle.ffc->member = zslongToFix(value); \
 			} \
 			break; \
 		} \
 		
 		#define SET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
-			if(indx < 0 || indx > indexbound ) \
+			int32_t id = (ri->d[rINDEX] / 10000)-1; \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
-			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				m->ffcs[indx].member = value/10000; \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				handle.ffc->member = value/10000; \
 			} \
 			break; \
 		} \
-		
+
 		#define SET_MAPDATA_FFC_INDEX_VBOUND(member, str, indexbound, min, max) \
 		{ \
 			int32_t v = value/10000; \
-			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
-			if(indx < 0 || indx > indexbound ) \
+			int32_t id = (ri->d[rINDEX] / 10000)-1; \
+			if(v < min || v > max ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+				Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", (id+1), str); \
 			} \
-			else if(v < min || v > max ) \
+			else if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 			{ \
-				Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", (indx+1), str); \
-			} \
-			else if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				m->ffcs[indx].member = v; \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				handle.ffc->member = v; \
 			} \
 			break; \
 		} \
@@ -23232,18 +23180,11 @@ void set_register(int32_t arg, int32_t value)
 		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		case MAPDATAFFDATA:         
 		{
-			int32_t indx = (ri->d[rINDEX] / 10000)-1;
-			if(indx < 0 || indx > MAXFFCS-1 )
+			int32_t id = (ri->d[rINDEX] / 10000)-1;
+
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCData"); handle.screen != nullptr)
 			{
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "FFCData");
-			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
-			{
-				zc_ffc_set(m->ffcs[indx], value/10000);
-			}
-			else
-			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised", "FFCData");
+				zc_ffc_set(*handle.ffc, value/10000);
 			}
 			break;  //W, MAXFFCS OF THESE
 		}
@@ -23258,19 +23199,12 @@ void set_register(int32_t arg, int32_t value)
 		
 		case MAPDATAFFFLAGS:
 		{
-			int32_t indx = (ri->d[rINDEX] / 10000)-1;
-			if(indx < 0 || indx > MAXFFCS-1)
+			int32_t id = (ri->d[rINDEX] / 10000)-1;
+
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCFlags"); handle.screen != nullptr)
 			{
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "FFCFlags");
-			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
-			{
-				m->ffcs[indx].flags = value/10000;
-				m->ffcs[indx].updateSolid();
-			}
-			else
-			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCFlags");
+				handle.ffc->flags = value/10000;
+				handle.ffc->updateSolid();
 			}
 			break;
 		}
@@ -23439,35 +23373,16 @@ void set_register(int32_t arg, int32_t value)
 		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", MAX_FFCID, 0, MAX_FFCID+1); break;  //B, MAXFFCS OF THESE
 		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", MAX_FFCID, 0, 255); break; //W, 32 OF THESE
 
-		case MAPDATAINTID: 	 //Same form as SetScreenD()
-			//SetFFCInitD(ffindex, d, value)
+		case MAPDATAINTID:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
-			{
-				//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
-				int32_t ffid = (ri->d[rINDEX]/10000) -1;
-				int32_t indx = ri->d[rINDEX2]/10000;
-					
-				if ( (unsigned)ffid > MAXFFCS-1 ) 
-				{
-					Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-				}
-				else if ( (unsigned)indx > 7 )
-				{
-					Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
-				}
-				else
-				{ 
-					// TODO z3 !!!!!!! ffcs 
-					 m->ffcs[ffid].initd[indx] = value;
-				}
-			}
-			else
-			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitD()");
-			}
+			int32_t id = (ri->d[rINDEX]/10000) -1;
+			int32_t indx = ri->d[rINDEX2]/10000;
+
+			if (BC::checkBounds(indx, 0, 7, "mapdata->FFCInitD[]") != SH::_NoError)
+				break;
+
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "mapdata->FFCInitD[]"); handle.screen != nullptr)
+				handle.ffc->initd[indx] = value;
 			break;
 		}	
 			
@@ -23638,10 +23553,6 @@ void set_register(int32_t arg, int32_t value)
 				rpos_handle.set_data(val);
 				screen_combo_modify_postroutine(rpos_handle);
 			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboD[]");
-			}
 		}
 		break;
 		
@@ -23655,15 +23566,11 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[]"); rpos_handle.screen != nullptr)
 			{
 				screen_combo_modify_preroutine(rpos_handle);
 				rpos_handle.set_cset(val&15);
 				screen_combo_modify_postroutine(rpos_handle);
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboC[]");
 			}
 		}
 		break;
@@ -23678,13 +23585,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[]"); rpos_handle.screen != nullptr)
 			{
 				rpos_handle.set_sflag(val);
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboF[]");
 			}
 		}
 		break;
@@ -23699,16 +23602,12 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[]"); rpos_handle.screen != nullptr)
 			{
 				auto cid = rpos_handle.data();
 				screen_combo_modify_pre(cid);
 				combobuf[cid].type=val;
 				screen_combo_modify_post(cid);
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboT[]");
 			}
 		}
 		break;
@@ -23723,13 +23622,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 			
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[]"); rpos_handle.screen != nullptr)
 			{
 				combobuf[rpos_handle.data()].flag = value/10000;
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboI[]");
 			}
 		}
 		break;
@@ -23744,15 +23639,11 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboS[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboS[]"); rpos_handle.screen != nullptr)
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0x0F;
 				combobuf[cid].walk |= (val)&0x0F;
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboS[]");
 			}
 		}
 		break;
@@ -23767,15 +23658,11 @@ void set_register(int32_t arg, int32_t value)
 			}
 			
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[]"); rpos_handle.screen != nullptr)
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0xF0;
 				combobuf[cid].walk |= ((val)&0x0F)<<4;
-			}
-			else
-			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","ComboE[]");
 			}
 		}
 		break;
@@ -23790,7 +23677,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","State[]");
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","mapdata->State[]");
 			}
 		}
 		break;
