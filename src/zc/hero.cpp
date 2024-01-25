@@ -28653,6 +28653,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	scrolling_dir = (direction) scrolldir;
 	scrolling_scr = heroscr;
 	scrolling_origin_scr = cur_origin_screen_index;
+	scrolling_region = current_region;
 
 	int32_t scx = get_qr(qr_FASTDNGN) ? 30 : 0;
 	if(get_qr(qr_VERYFASTSCROLLING)) //just a minor adjustment.

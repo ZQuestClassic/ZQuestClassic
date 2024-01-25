@@ -34,7 +34,7 @@ TODO
 
 ### MapData and ScreenData
 
-First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions that would just be the only screen that is loaded. With regions, it is the top-left screen of the region. In general these methods have been surpassed by `mapdata`, so if you are scripting with Regions you should entirely avoid `Screen->` for reading/writing to map screens.
+First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions that would just be the only screen that is loaded. With regions, it is the top-left screen of the region. In general these methods have been surpassed by `mapdata`, so if you are scripting with Regions you should entirely avoid `Screen->` for reading/writing to map screens. The only exceptions to this are methods that takes as input a `pos`, such as `Screen->ComboD[pos]` - these can still be used to access any position in the base screen, but `pos` is now called `rpos` and can be greater than 175. Read on for more details.
 
 There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`.
 

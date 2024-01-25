@@ -65,7 +65,7 @@ rpos_t region_max_rpos;
 int region_num_rpos;
 int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
-region current_region;
+region current_region, scrolling_region;
 
 static int current_region_indices[128];
 
@@ -6410,7 +6410,7 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 	return _walkflag(zx,zy,cnt,0_zf);
 }
 
-static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int x, int y, zfix const& switchblockstate, bool is_temp_screens)
+bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int x, int y, zfix const& switchblockstate, bool is_temp_screens)
 {
 	int32_t bx = COMBOPOS(x % 256, y % 176);
 	const newcombo& c = combobuf[s0->data[bx]];
@@ -6608,7 +6608,7 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, mapscr* s1, m
 	if(!s1) s1 = m;
 	if(!s2) s2 = m;
 	
-	int32_t bx=(x>>4)+(y&0xF0);
+	int32_t bx = COMBOPOS(x % 256, y % 176);
 	const newcombo* c = &combobuf[m->data[bx]];
 	const newcombo* c1 = &combobuf[s1->data[bx]];
 	const newcombo* c2 = &combobuf[s2->data[bx]];
@@ -6698,13 +6698,10 @@ bool _walkflag_layer(zfix_round x, zfix_round y, int32_t layer, int32_t cnt)
 	return _walkflag_layer(x, y, cnt, m);
 }
 
-//Only check the given mapscr*, not its layer 1&2
-bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
+static bool _walkflag_layer_new(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, int max_x, int max_y)
 {
 	int x = zx.getRound(), y = zy.getRound();
 
-	int max_x = world_w;
-	int max_y = world_h;
 	if (!get_qr(qr_LTTPWALK))
 	{
 		max_x -= 7;
@@ -6745,6 +6742,17 @@ bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 	}
 	
 	return (c->walk&b) ? !dried : false;
+}
+
+//Only check the given mapscr*, not its layer 1&2
+bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
+{
+	return _walkflag_layer_new(zx, zy, cnt, m, world_w, world_h);
+}
+
+bool _walkflag_layer_scrolling(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
+{
+	return _walkflag_layer_new(zx, zy, cnt, m, scrolling_region.width, scrolling_region.height);
 }
 
 bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt, bool notLink)

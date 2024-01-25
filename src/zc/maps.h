@@ -104,7 +104,7 @@ struct region
 	// World coordinates.
 	int width, height;
 };
-extern region current_region;
+extern region current_region, scrolling_region;
 
 int get_region_id(int dmap, int screen_index);
 int get_current_region_id();
@@ -337,6 +337,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool over
 void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* screen);
 void putscrdoors(BITMAP *dest,int32_t x,int32_t y,mapscr* screen);
 void putscrdoors(BITMAP *dest,int32_t x,int32_t y);
+bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int x, int y, zfix const& switchblockstate, bool is_temp_screens);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate);
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer = -1, bool notLink = false);
@@ -344,6 +345,7 @@ bool _walkflag(zfix_round x,zfix_round y,int32_t cnt, mapscr* m);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2);
 bool _walkflag_layer(zfix_round x,zfix_round y, int32_t layer=-1, int32_t cnt=1);
 bool _walkflag_layer(zfix_round x,zfix_round y,int32_t cnt, mapscr* m);
+bool _walkflag_layer_scrolling(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m);
 bool _effectflag_layer(int32_t x, int32_t y, int32_t layer=-1, int32_t cnt=1, bool notLink = false);
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink = false);
 bool water_walkflag(int32_t x,int32_t y,int32_t cnt);
