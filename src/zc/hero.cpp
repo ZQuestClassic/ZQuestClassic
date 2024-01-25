@@ -9058,8 +9058,7 @@ heroanimate_skip_liftwpn:;
 													movingblock mtemp;
 													mtemp.clear();
 
-													int mx, my;
-													COMBOXY_REGION(plrpos, mx, my);
+													auto [mx, my] = COMBOXY_REGION(plrpos);
 
 													mtemp.set(mx,my,target_scr->data[target_pos],target_scr->cset[target_pos],q,target_scr->sflag[target_pos]);
 													mtemp.dir = getPushDir(target_scr->sflag[target_pos]);
@@ -9180,8 +9179,7 @@ heroanimate_skip_liftwpn:;
 													movingblock mtemp;
 													mtemp.clear();
 
-													int mx, my;
-													COMBOXY_REGION(plrpos, mx, my);
+													auto [mx, my] = COMBOXY_REGION(plrpos);
 
 													mtemp.set(mx,my,target_scr->data[target_pos],target_scr->cset[target_pos],q,target_scr->sflag[target_pos]);
 													mtemp.dir = getPushDir(target_scr->sflag[target_pos]);
@@ -9214,14 +9212,9 @@ heroanimate_skip_liftwpn:;
 										if(switchhook_cost_item > -1)
 											paymagiccost(switchhook_cost_item);
 										zfix tx = x, ty = y;
-										//Position the player at the combo
 
-										{
-											int hx, hy;
-											COMBOXY_REGION(targrpos, hx, hy);
-											x = hx;
-											y = hy;
-										}
+										//Position the player at the combo
+										std::tie(x, y) = COMBOXY_REGION(targrpos);
 
 										dir = oppositeDir[dir];
 										if(w && hw)
@@ -11562,8 +11555,7 @@ void HeroClass::doSwitchHook(byte style)
 			decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, QMisc.sprites[sprSWITCHPOOF]));
 			if(hooked_comborpos != rpos_t::None)
 			{
-				int decx, decy;
-				COMBOXY_REGION(hooked_comborpos, decx, decy);
+				auto [decx, decy] = COMBOXY_REGION(hooked_comborpos);
 				decorations.add(new comboSprite(decx, decy, dCOMBOSPRITE, 0, QMisc.sprites[sprSWITCHPOOF]));
 			}
 			else if(switching_object)

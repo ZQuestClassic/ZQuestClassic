@@ -696,26 +696,24 @@ rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)
 	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
 	return POS_TO_RPOS(pos, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
 }
-// TODO z3 !!! https://clang.godbolt.org/z/5E14ca6Ed
-void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y)
+std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos)
 {
 	int scr_index = static_cast<int32_t>(rpos) / 176;
 	int scr_dx = scr_index % current_region.screen_width;
 	int scr_dy = scr_index / current_region.screen_width;
     int pos = RPOS_TO_POS(rpos);
-	out_x = scr_dx*16*16 + COMBOX(pos);
-	out_y = scr_dy*11*16 + COMBOY(pos);
+	int x = scr_dx*16*16 + COMBOX(pos);
+	int y = scr_dy*11*16 + COMBOY(pos);
+	return {x, y};
 }
 int32_t COMBOX_REGION(rpos_t rpos)
 {
-	int x, y;
-	COMBOXY_REGION(rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos);
 	return x;
 }
 int32_t COMBOY_REGION(rpos_t rpos)
 {
-	int x, y;
-	COMBOXY_REGION(rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos);
 	return y;
 }
 
@@ -2553,13 +2551,12 @@ bool overheadcombos(mapscr *s)
 
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
 {
-    int32_t cx=0, cy=0;
     int32_t ct=combobuf[rpos_handle.data()].type;
     
     if(ct!=cL_STATUE && ct!=cR_STATUE && ct!=cC_STATUE)
         return;
     
-    COMBOXY_REGION(rpos_handle.rpos, cx, cy);
+    auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
     switch(ct)
     {
     case cL_STATUE:

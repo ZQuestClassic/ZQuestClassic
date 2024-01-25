@@ -2,6 +2,7 @@
 #define _MAPS_H_
 
 #include <optional>
+#include <utility>
 #include "base/handles.h"
 // TODO: extract direction so this can be removed.
 #include "base/zdefs.h"
@@ -26,6 +27,7 @@ int32_t RPOS_TO_POS(rpos_t rpos);
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy);
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr);
 void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y);
+std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos);
 int32_t COMBOX_REGION(rpos_t rpos);
 int32_t COMBOY_REGION(rpos_t rpos);
 

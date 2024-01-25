@@ -64,8 +64,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 
 	mapscr* screen = rpos_handle.screen;
 	int pos = rpos_handle.pos;
-	int x, y;
-	COMBOXY_REGION(rpos_handle.rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	if (true) // Probably needs a way to only be triggered once...
@@ -482,8 +481,7 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 
 void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle)
 {
-	int x, y;
-	COMBOXY_REGION(rpos_handle.rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 	spawn_decoration_xy(cmb, x, y);
 }
 
@@ -496,9 +494,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 	if(!isCuttableType(type)) return;
 	auto flag = tmp->sflag[pos];
 	auto flag2 = cmb.flag;
-
-	int32_t x, y;
-	COMBOXY_REGION(rpos_handle.rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 	
 	bool skipSecrets = isNextType(type) && !get_qr(qr_OLD_SLASHNEXT_SECRETS);
 	bool done = false;
@@ -1333,8 +1329,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 	newcombo const& cmb = combobuf[tmp->data[pos]];
 	int32_t eclk = -14;
 	int32_t id2 = 0;
-	int32_t tx, ty;
-	COMBOXY_REGION(rpos_handle.rpos, tx, ty);
+	auto [tx, ty] = COMBOXY_REGION(rpos_handle.rpos);
 	bool nextcmb = false;
 	switch(cmb.type)
 	{
@@ -1735,8 +1730,7 @@ bool trigger_damage_combo(mapscr* screen, int32_t cid, int type, int ptrval, int
 
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 {
-	int32_t tx, ty;
-	COMBOXY_REGION(rpos_handle.rpos, tx, ty);
+	auto [tx, ty] = COMBOXY_REGION(rpos_handle.rpos);
 	tx += 8;
 	ty += 8;
 
@@ -2532,8 +2526,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	int32_t pos = rpos_handle.pos;
 	cpos_info& timer = cpos_get(rpos_handle);
 	int32_t cid = rpos_handle.data();
-	int32_t cx, cy;
-	COMBOXY_REGION(rpos_handle.rpos, cx, cy);
+	auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
 
 	int32_t ocs = rpos_handle.cset();
 	newcombo const& cmb = combobuf[cid];
@@ -3300,8 +3293,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 
 	if(cmb.liftlvl > glove.fam_type) return false;
 
-	int32_t cx, cy;
-	COMBOXY_REGION(rpos_handle.rpos, cx, cy);
+	auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
 
 	//Able to lift, run effects
 	if(cmb.liftsfx) sfx(cmb.liftsfx,pan(cx));
@@ -3433,8 +3425,7 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix 
 
 static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 {
-	int x, y;
-	COMBOXY_REGION(rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos);
 	handle_shooter(cmb, timer, x, y);
 }
 
@@ -3701,8 +3692,7 @@ void cpos_update() //updates with side-effects
 		newcombo const& cmb = combobuf[cid];
 		if(!timer.flags.get(CPOS_FL_APPEARED))
 		{
-			int x, y;
-			COMBOXY_REGION(rpos_handle.rpos, x, y);
+			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 			timer.flags.set(CPOS_FL_APPEARED,true);
 			if(cmb.sfx_appear)
 				sfx(cmb.sfx_appear);

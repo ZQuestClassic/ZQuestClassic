@@ -10759,9 +10759,8 @@ bool eZora::animate(int32_t index)
 		
 		while(!placed && t<160)
 		{
-			int32_t sx, sy;
 			rpos_t rpos = POS_TO_RPOS(pos2, screen_index_spawned);
-			COMBOXY_REGION(rpos, sx, sy);
+			auto [sx, sy] = COMBOXY_REGION(rpos);
 			mapscr* s = get_scr(currmap, screen_index_spawned);
 
 			int32_t watertype = iswaterex_z3(s->data[pos2], -1, sx, sy, false, true, true, (bool)(editorflags & ENEMY_FLAG7));
@@ -18765,8 +18764,7 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 	int32_t ctype = combobuf[rpos_handle.data()].type;
 	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
 
-	int32_t x, y;
-	COMBOXY_REGION(rpos_handle.rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 
 	int32_t cx=-1000, cy=-1000;
 	if(!isfixedtogrid(statueID))
@@ -18935,8 +18933,7 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 	
 	if(isSlope && !wasSlope)
 	{
-		int x, y;
-		COMBOXY_REGION(rpos_handle.rpos, x, y);
+		auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, x, y);
 	}
 	else if(wasSlope && !isSlope)
@@ -19030,8 +19027,7 @@ void awaken_spinning_tile(const rpos_handle_t& rpos_handle)
 {
 	int cid = rpos_handle.data();
 	int cset = rpos_handle.cset();
-	int x, y;
-	COMBOXY_REGION(rpos_handle.rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 	addenemy(rpos_handle.screen_index, x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
 }
 
@@ -19510,7 +19506,7 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 		
 		if (rand_rpos != rpos_t::None)
 		{
-			COMBOXY_REGION(rand_rpos, x, y);
+			std::tie(x, y) = COMBOXY_REGION(rand_rpos);
 		}
 		else // All opportunities failed - abort
 		{

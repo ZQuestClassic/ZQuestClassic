@@ -179,8 +179,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 	int32_t pos = rpos_handle.pos;
 	int32_t layer = rpos_handle.layer;
 	mapscr* screen = rpos_handle.screen;
-	int32_t x, y;
-	COMBOXY_REGION(rpos_handle.rpos, x, y);
+	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	bool checked = w->rposes_checked.contains({rpos_handle.layer, rpos_handle.rpos});
@@ -3388,8 +3387,7 @@ std::set<rpos_t> weapon::getBombPositions()
 		for (int q = 0; q < region_num_rpos; ++q)
 		{
 			rpos_t rpos = (rpos_t)q;
-			int x, y;
-			COMBOXY_REGION(rpos, x, y);
+			auto [x, y] = COMBOXY_REGION(rpos);
 
 			if (distance(tx,ty,x,y) <= rad)
 				rposes.insert(rpos);
@@ -3491,9 +3489,7 @@ void weapon::limited_animate()
 					std::set<rpos_t> rposes = getBombPositions();
 					for (rpos_t rpos : rposes)
 					{
-						int x, y;
-						COMBOXY_REGION(rpos, x, y);
-
+						auto [x, y] = COMBOXY_REGION(rpos);
 						trigger_secrets_if_flag(x,y,mfBOMB,true);
 						if(sbomb) trigger_secrets_if_flag(x,y,mfSBOMB,true);
 						trigger_secrets_if_flag(x,y,mfSTRIKE,true);
@@ -7919,8 +7915,7 @@ void weapon::findcombotriggers()
 		std::set<rpos_t> rposes = getBombPositions();
 		for (rpos_t rpos : rposes)
 		{
-			int x, y;
-			COMBOXY_REGION(rpos, x, y);
+			auto [x, y] = COMBOXY_REGION(rpos);
 
 			for (int32_t ly = 0; ly < layercount; ++ly )
 				MatchComboTrigger2(this, x, y, combobuf.data(), ly);
