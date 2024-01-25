@@ -669,7 +669,7 @@ bool RegionIncludesScreen(int scr)
 // `index` is the screen-specific index of the FFC (what you would see in the editor on that screen).
 int RegionGetFFCId(int scr, int index)
 {
-	int offset = 176 * (RegionRelativeScreenX(scr) + RegionRelativeScreenY(scr)*Region->ScreenWidth);
+	int offset = 128 * (RegionRelativeScreenX(scr) + RegionRelativeScreenY(scr)*Region->ScreenWidth);
 	return offset + index;
 }
 
