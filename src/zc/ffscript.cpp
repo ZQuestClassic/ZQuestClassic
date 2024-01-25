@@ -22,6 +22,7 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 #include "base/version.h"
+#include "zc/maps.h"
 #include "zc/replay.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zc_ffc.h"
@@ -2029,24 +2030,49 @@ rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 	{
 		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
 		{
-			// TODO z3 !! rpos_handle_t{} ? and cast rpos_handle_t to bool?
-			return {nullptr, 0, 0, rpos_t::None, 0};
+			return rpos_handle_t{};
 		}
 
 		int layer = mapRefToLayer(mapref);
 		return get_rpos_handle(rpos, layer);
 	}
 
-	// TODO z3 ! consider supporting for the scrolling temporary screens.
-	if (!mapRefIsScrolling(mapref) && mapref < 0)
+	if (mapRefIsScrolling(mapref))
+	{
+		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1);
+		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max, context) != SH::_NoError)
+		{
+			return rpos_handle_t{};
+		}
+
+		int layer = mapRefToLayer(mapref);
+		int scr;
+		{
+			int origin_scr_x = scrolling_region.origin_screen_index % 16;
+			int origin_scr_y = scrolling_region.origin_screen_index / 16;
+			int scr_index = static_cast<int32_t>(rpos) / 176;
+			int scr_x = origin_scr_x + scr_index%current_region.screen_width;
+			int scr_y = origin_scr_y + scr_index/current_region.screen_width;
+			scr = scr_x + scr_y * 16;
+		}
+		mapscr* m = FFCore.ScrollingScreensAll[scr * 7 + layer];
+		if (m->valid == 0)
+		{
+			return rpos_handle_t{};
+		}
+
+		return {m, scr, layer, rpos, RPOS_TO_POS(rpos)};
+	}
+
+	if (mapref < 0)
 	{
 		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
-		return {nullptr, 0, 0, rpos_t::None, 0};
+		return rpos_handle_t{};
 	}
 
 	if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
 	{
-		return {nullptr, 0, 0, rpos_t::None, 0};
+		return rpos_handle_t{};
 	}
 
 	return {GetMapscr(mapref), getScreen(mapref), 0, rpos, RPOS_TO_POS(rpos)};

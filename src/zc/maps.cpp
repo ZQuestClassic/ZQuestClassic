@@ -679,6 +679,7 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 	int pos = COMBOPOS(x%256, y%176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
 }
+// TODO z3 !! force inline
 int32_t RPOS_TO_POS(rpos_t rpos)
 {
 	DCHECK(rpos != rpos_t::None);
