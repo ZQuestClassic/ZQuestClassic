@@ -28542,8 +28542,6 @@ bool replay_is_active() {return false;}
 bool replay_is_replaying() {return false;}
 bool replay_version_check(int min, int max) {return false;}
 bool replay_is_debug() {return false;}
-// TODO z3 !
-int32_t currscr;
 
 #ifdef __EMSCRIPTEN__
 extern "C" void open_test_mode()
@@ -28575,7 +28573,3 @@ extern "C" void get_shareable_url()
 	}, filepath, Map.getCurrMap(), Map.getCurrScr());
 }
 #endif
-
-// TODO z3 !!
-int32_t scrolling_destdmap = -1, currdmap = 0;
-viewport_t viewport;
