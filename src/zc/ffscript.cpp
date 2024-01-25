@@ -247,6 +247,19 @@ mapscr* GetMapscr(int32_t mapref)
 	}
 }
 
+mapscr* GetScrollingMapscr(int layer, int x, int y)
+{
+	if (!screenscrolling)
+		return nullptr;
+
+	int scr = scrolling_origin_scr + (x / 256) + (y / 176) * 16;
+	mapscr* m = FFCore.ScrollingScreensAll[scr * 7 + layer];
+	if (m->valid == 0)
+		return nullptr;
+
+	return m;
+}
+
 int32_t getMap(int32_t ref)
 {
 	switch(ref)
@@ -23419,6 +23432,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{ 
+					// TODO z3 !!!!!!! ffcs 
 					 m->ffcs[ffid].initd[indx] = value;
 				}
 			}
@@ -29670,10 +29684,17 @@ void do_mapdataissolid()
 			int layer = mapRefToLayer(ri->mapsref);
 			set_register(sarg1, (_walkflag_layer(x, y, layer - 1, 1)) ? 10000 : 0);
 		}
-		else if (ri->mapsref == MAPSCR_SCROLL0)
+		else if (mapRefIsScrolling(ri->mapsref))
 		{
-			// TODO z3 !!!!!! ?
-			set_register(sarg1, (_walkflag(x, y, 1, FFCore.ScrollingScreens[0], FFCore.ScrollingScreens[1], FFCore.ScrollingScreens[2])) ? 10000 : 0);
+			int layer = mapRefToLayer(ri->mapsref);
+			mapscr* m = GetScrollingMapscr(layer, x, y);
+			if (!m)
+			{
+				set_register(sarg1, 0);
+				return;
+			}
+
+			set_register(sarg1, _walkflag(x, y, 1, m) ? 10000 : 0);
 		}
 		else
 		{
@@ -29700,28 +29721,29 @@ void do_mapdataissolid_layer()
 		}
 		else
 		{
-			switch(ri->mapsref)
+			if (mapRefIsTemp(ri->mapsref))
 			{
-				case MAPSCR_TEMP0:
-					set_register(sarg1, (_walkflag_layer(x, y, layer - 1, 1)) ? 10000 : 0);
-					break;
-				case MAPSCR_SCROLL0:
-					// TODO z3 !!!!!! ?
-					set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.ScrollingScreens[layer])) ? 10000 : 0);
-					break;
-				default:
-					mapscr* m = GetMapscr(ri->mapsref);
-					if(layer > 0)
+				set_register(sarg1, (_walkflag_layer(x, y, layer - 1, 1)) ? 10000 : 0);
+			}
+			else if (mapRefIsScrolling(ri->mapsref))
+			{
+				// ...
+				// TODO z3 !!! ?
+				set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.ScrollingScreens[layer])) ? 10000 : 0);
+			}
+			else
+			{
+				mapscr* m = GetMapscr(ri->mapsref);
+				if(layer > 0)
+				{
+					if(m->layermap[layer] == 0)
 					{
-						if(m->layermap[layer] == 0)
-						{
-							set_register(sarg1,10000);
-							break;
-						}
-						m = &TheMaps[(m->layermap[layer]*MAPSCRS + m->layerscreen[layer])];
+						set_register(sarg1,10000);
+						return;
 					}
-					set_register(sarg1, (_walkflag_layer(x, y, 1, m) ? 10000 : 0));
-					break;
+					m = &TheMaps[(m->layermap[layer]*MAPSCRS + m->layerscreen[layer])];
+				}
+				set_register(sarg1, (_walkflag_layer(x, y, 1, m) ? 10000 : 0));
 			}
 		}
 	}
@@ -32803,7 +32825,9 @@ void FFScript::do_loadspritedata(const bool v)
 	//Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
-
+// TODO: Remove? Compiler does not emit this and screenref is not used.
+//       Could be of use for z3 to change which temp screen Screen-> refers to,
+//       but better to encourage Game->LoadTempScreen instead.
 void FFScript::do_loadscreendata(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
@@ -42527,6 +42551,7 @@ void FFScript::init()
 		tempScreens[q+1] = tmpscr2+q;
 		ScrollingScreens[q+1] = tmpscr3+q;
 	}
+	ScrollingScreensAll.clear();
 	memset(ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
 	ScrollingData[SCROLLDATA_DIR] = -1;
 	user_rng_init();

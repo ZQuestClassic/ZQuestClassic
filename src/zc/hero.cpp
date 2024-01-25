@@ -28831,6 +28831,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
+	FFCore.ScrollingScreensAll = old_temporary_screens;
 	currmap = destmap;
 	int old_region_scr_dy = region_scr_dy;
 	int old_world_w = world_w;
@@ -29736,6 +29737,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			old_temporary_screens[i] = NULL;
 		}
 	}
+	FFCore.ScrollingScreensAll.clear();
 
 	if(!get_qr(qr_SCROLLWARP_NO_RESET_FRAME))
 		GameFlags |= GAMEFLAG_RESET_GAME_LOOP;

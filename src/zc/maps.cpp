@@ -211,7 +211,6 @@ void z3_load_region(int screen_index, int dmap)
 		}
 	}
 
-	currscr = screen_index;
 	z3_calculate_region(dmap, screen_index, current_region, region_scr_dx, region_scr_dy);
 	currscr = cur_origin_screen_index = current_region.origin_screen_index;
 	world_w = current_region.width;
