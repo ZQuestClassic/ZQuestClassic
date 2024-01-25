@@ -732,17 +732,6 @@ extern movingblock mblock2;                                 //mblock[4]?
 extern portal mirror_portal;
 bool triggered_screen_secrets=false;
 
-// TODO z3 can this be removed?
-void init_ffpos()
-{
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		ffc_handle.ffc->changer_x = -1000;
-		ffc_handle.ffc->changer_y = -1000;
-		ffc_handle.ffc->prev_changer_x = -10000000;
-		ffc_handle.ffc->prev_changer_y = -10000000;
-	});
-}
-
 void Z_message_d(const char *format,...)
 {
 #ifdef _DEBUG
@@ -5767,7 +5756,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	currdmap = o_currdmap;
 
-	init_ffpos();
 	cpos_clear_all();
 
 	heroscr = scr;

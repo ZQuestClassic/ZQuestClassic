@@ -28867,7 +28867,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (hero_x_before_scripts != x || hero_y_before_scripts != y)
 	{
 		{
-			new_viewport = {0};
+			new_viewport = {};
 			new_hero_x = 0; new_hero_y = 0;
 			// The above `loadscr` has loaded the destination screen's region information into these global variables.
 			int new_origin_scr = cur_origin_screen_index;

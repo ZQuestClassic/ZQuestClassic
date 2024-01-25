@@ -75,9 +75,6 @@ extern string zScript;
 
 zmap Map;
 int32_t prv_mode=0;
-void init_ffpos()
-{
-}
 
 bool save_warn=true;
 

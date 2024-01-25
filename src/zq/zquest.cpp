@@ -2896,7 +2896,6 @@ static ListData autosave_list(autosavelist, &font);
 static ListData autosave_list2(autosavelist2, &font);
 static ListData color_list(colorlist, &font);
 static ListData snapshotformat_list(snapshotformatlist, &font);
-void init_ffpos();
 
 void call_options_dlg();
 int32_t onOptions()
@@ -3048,9 +3047,6 @@ int32_t onCopy()
     if(prv_mode)
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
-        
-        init_ffpos();
-        
         return D_O_K;
     }
     
@@ -26218,8 +26214,6 @@ int32_t main(int32_t argc,char **argv)
 	brush_menu.disable_uid(MENUID_BRUSH_HEIGHT, AutoBrush);
 	brush_menu.select_uid(MENUID_BRUSH_COMBOBRUSH, ComboBrush);
 	brush_menu.select_uid(MENUID_BRUSH_FLOATBRUSH, FloatBrush);
-	
-	init_ffpos();
 	
 	call_foo_dlg();
 

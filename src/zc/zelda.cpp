@@ -5248,8 +5248,6 @@ reload_for_replay_file:
 			printf("Replay is active\n");
 	}
 	
-	init_ffpos();
-	
 	while(Quit!=qEXIT)
 	{
 		// this is here to continually fix the keyboard repeat

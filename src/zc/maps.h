@@ -370,8 +370,6 @@ bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
 int32_t onViewMap();
 
-void init_ffpos();
-
 bool is_push(mapscr* m, int32_t pos);
 
 enum class ScreenItemState {
