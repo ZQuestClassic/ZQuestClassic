@@ -24005,15 +24005,13 @@ void HeroClass::checkspecial()
 		clear_xdoors(screen, screen_index, true);
 		clear_xstatecombos(screen, screen_index, true);
 
-		// TODO z3 ! secrets
 		if (screen_item_get_state(screen_index) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
 		{
 			int32_t Item=screen->item;
 			
 			if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
 			{
-				zfix x = region_scr_x*256 + screen->itemx;
-				zfix y = region_scr_y*176 + ((screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
+				auto [x, y] = translate_screen_coordinates_to_world(screen_index, screen->itemx, (screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
 				add_item_for_screen(screen_index, new item(x, y,
 								(screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 								Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
