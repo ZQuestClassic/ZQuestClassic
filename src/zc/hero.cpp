@@ -8022,6 +8022,8 @@ void HeroClass::handle_portal_prox(portal* p)
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
+	z3_update_heroscr();
+
 	int32_t lsave=0;
 	if(immortal > 0)
 		--immortal;
@@ -25275,14 +25277,6 @@ RaftingStuff:
 	
 	if((type==cCAVE || type==cCAVE2) && (base_scr->tilewarptype[index]==wtNOWARP)) return;
 	
-	//don't do this for canceled warps -DD
-	//I have no idea why we do this skip, but I'll dutifully propagate it to all cases below...
-	/*if(tmpscr[t].tilewarptype[index] != wtNOWARP)
-	{
-		draw_screen();
-		advanceframe(true);
-	}*/
-	
 	bool skippedaframe=false;
 	
 	if(type==cCAVE || type==cCAVE2 || type==cSTAIR)
@@ -27604,8 +27598,6 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 void HeroClass::do_scroll_direction(direction dir)
 {
 	bool should_scroll = true;
-
-	z3_update_heroscr();
 
 	if((z > 0 || fakez > 0 || stomping) && get_qr(qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;
@@ -31632,7 +31624,6 @@ void HeroClass::getTriforce(int32_t id2)
 				draw_screen_clip_rect_x2=255-curtain_x;
 				draw_screen_clip_rect_y1=0;
 				draw_screen_clip_rect_y2=223;
-				//draw_screen();
 			}
 		}
 	

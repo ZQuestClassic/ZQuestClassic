@@ -4312,6 +4312,9 @@ void draw_msgstr(byte layer)
 
 void draw_screen(bool showhero, bool runGeneric)
 {
+	if (!screenscrolling)
+		z3_update_viewport();
+
 	mapscr* this_screen = tmpscr;
 	clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
@@ -4343,10 +4346,6 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	//1. Draw some background layers
 	clear_bitmap(scrollbuf);
-
-	// TODO z3 !!! move to game loop?
-	if (!screenscrolling)
-		z3_update_viewport();
 	
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
 		mapscr* base_screen = screen_handles[0].base_screen;

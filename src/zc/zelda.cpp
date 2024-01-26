@@ -105,8 +105,6 @@ static zc_randgen drunk_rng;
 #include "zconsole.h"
 #include "base/win32.h"
 
-#define LOGGAMELOOP 0
-
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define stricmp _stricmp
@@ -3354,7 +3352,6 @@ void update_msgstr()
 
 extern bool do_end_str;
 #define F7 46+7
-//bool zasmstacktrace = false;
 void game_loop()
 {
 	while(true)
@@ -3375,14 +3372,11 @@ void game_loop()
 			}
 			midi_suspended = midissuspNONE;
 		}
-		
-		//  walkflagx=0; walkflagy=0;
+
 		runDrunkRNG();
 		clear_darkroom_bitmaps();
 		Hero.check_platform_ffc();
-
 		z3_update_viewport();
-		z3_update_heroscr(); // TODO z3 ! move to/near Hero.animate?
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff
 		
@@ -3433,9 +3427,6 @@ void game_loop()
 				}
 			}
 		}
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "animate_combos()\n");
-		#endif
 		if ( !FFCore.system_suspend[susptCOMBOANIM] )
 		{
 			animate_combos();
@@ -3443,9 +3434,6 @@ void game_loop()
 		}
 		run_gswitch_timers();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_ANIM);
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "load_control_state()\n");
-		#endif
 		if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_POLL_INPUT);
 		
@@ -3486,51 +3474,24 @@ void game_loop()
 		
 		if(!freeze && !freezemsg)
 		{
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptMOVINGBLOCKS] )  mblock2.animate(0);
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PUSHBLOCK);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "items.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_SCRIPT);
 			if ( !FFCore.system_suspend[susptITEMS] ) items.animate();
 		
 			//Can't be called in items.animate(), as ZQuest also uses this function.
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptCONVEYORSITEMS] ) items.check_conveyor();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_ANIMATE);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "guys.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptGUYS] ) guys.animate();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NPC_ANIMATE);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "roaming_item()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptROAMINGITEM] ) roaming_item();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "dragging_item()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptDRAGGINGITEM] ) dragging_item();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_ANIMATE);
 			if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_SCRIPT);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is setting: %s\n", "checkhero=true()\n");
-			#endif
 			
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
-			#endif
 			
 			if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 			
@@ -3541,9 +3502,6 @@ void game_loop()
 			{
 				for(int32_t i = 0; i < (gofast ? 8 : 1); i++)
 				{
-					#if LOGGAMELOOP > 0
-					al_trace("game_loop is at: %s\n", "if(Hero.animate(0)\n");
-					#endif
 					if(Hero.animate(0))
 					{
 						if(!Quit)
@@ -3565,37 +3523,19 @@ void game_loop()
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT);
 			
 			//FFCore.itemScriptEngine(); //run before lweapon scripts
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
-			#endif
 			Hero.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
 			if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_CASTING);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
-			#endif
 			//perhaps add sprite.waitdraw, and call sprite script here too?
 			//FFCore.lweaponScriptEngine();
 			if ( !FFCore.system_suspend[susptLWEAPONS] ) Lwpns.animate();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_LWPN_ANIMATE);
 			
 			//FFCore.lweaponScriptEngine();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
-			#endif
 			
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptDECORATIONS] ) decorations.animate();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "particles.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptPARTICLES] ) particles.animate();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DECOPARTICLE_ANIMATE);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptHOOKSHOT] ) update_hookshot();
 			
 			if(conveyclk<=0)
@@ -3604,17 +3544,8 @@ void game_loop()
 			}
 			
 			--conveyclk;
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "check_collisions()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptCOLLISIONS] ) check_collisions();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "dryuplake()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptLAKES] ) dryuplake();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COLLISIONS_PALETTECYCLE);
 		}
@@ -3705,22 +3636,13 @@ void game_loop()
 		
 
 		
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "draw_screen()\n");
-		#endif
 		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(true,true);
 		else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 		
 		//clear Hero's last hits 
 		//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
-		#endif
 		if(linkedmsgclk==1 && !do_end_str)
 		{
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].tile!=0)\n");
-		#endif
 			if(wpnsbuf[iwMore].tile!=0)
 			{
 				putweapon(framebuf,zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
@@ -3729,9 +3651,6 @@ void game_loop()
 		
 		if(!freeze)
 		{
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "putintro()\n");
-		#endif
 			putintro();
 		}
 		
@@ -3770,14 +3689,8 @@ void game_loop()
 				update_msgstr();
 				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
-		#endif
 			do_dcounters();
 			
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_heartring))\n");
-		#endif
 			if(!freezemsg && current_item(itype_heartring))
 			{
 				int32_t itemid = current_item_id(itype_heartring);
@@ -3786,9 +3699,6 @@ void game_loop()
 				if(fskip == 0 || frame % fskip == 0)
 					game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_magicring))\n");
-		#endif
 			if(!freezemsg && current_item(itype_magicring))
 			{
 				int32_t itemid = current_item_id(itype_magicring);
@@ -3799,9 +3709,6 @@ void game_loop()
 					game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
 				}
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_wallet))\n");
-		#endif
 			if(!freezemsg && current_item(itype_wallet))
 			{
 				int32_t itemid = current_item_id(itype_wallet);
@@ -3812,9 +3719,6 @@ void game_loop()
 					game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
 				}
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_bombbag))\n");
-		#endif
 			if(!freezemsg && current_item(itype_bombbag))
 			{
 				int32_t itemid = current_item_id(itype_bombbag);
@@ -3841,9 +3745,6 @@ void game_loop()
 					}
 				}
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_quiver))\n");
-		#endif
 			if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
 			{
 				int32_t itemid = current_item_id(itype_quiver);
@@ -3854,17 +3755,11 @@ void game_loop()
 					game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
 				}
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
-		#endif
 			if(lensclk && !FFCore.system_suspend[susptLENS])
 			{
 				draw_lens_over();
 				--lensclk;
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
-		#endif
 
 			// By default, this is 56 pixels tall. In extended height mode it is 0. Scripts might set their own viewport
 			// height, so this math also supports that.
