@@ -11851,9 +11851,32 @@ bool HeroClass::startwpn(int32_t itemid)
 				++blowcnt;
 			else
 				--blowcnt;
-			
+
+			uint32_t frames_to_wait = 0;
+			if (replay_is_active())
+			{
+				// How long an sfx takes to play (`sfx_allocated`) is not deterministic,
+				// use a fixed number of frames in replay mode.
+				// This has changed over time.
+				if (replay_version_check(0, 26))
+				{
+					frames_to_wait = 180;
+				}
+				else if (replay_version_check(27, 31))
+				{
+					frames_to_wait = 0;
+				}
+				else
+				{
+					SAMPLE* sample = sfx_get_sample(itm.usesound);
+					ASSERT(sample);
+					if (sample && sample->freq)
+						frames_to_wait = 60 * sample->len / sample->freq;
+				}
+			}
+
 			int sfx_count = 0;
-			while ((!replay_is_active() && sfx_allocated(itm.usesound)) || (replay_version_check(0, 26) && sfx_count < 180))
+			while ((!replay_is_active() && sfx_allocated(itm.usesound)) || (replay_is_active() && sfx_count < frames_to_wait))
 			{
 				sfx_count += 1;
 				advanceframe(true);

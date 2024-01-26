@@ -136,7 +136,7 @@ jobs:
         run: echo "CCACHE_DISABLE=1" >> "$GITHUB_ENV"
 
       - name: Build ZScript docs
-        if: ${{ inputs.release-tag }}
+        if: inputs.official
         run: |
           pip install pytz
           python webdocs/docjson_main.py --in webdocs/zsdocs_main.json --out resources/docs/ZScript_Docs.html -c

@@ -8359,6 +8359,31 @@ void sfx_cleanup()
 		}
 }
 
+SAMPLE* sfx_get_sample(int32_t index)
+{
+	// check index
+	if (index<=0 || index>=WAV_COUNT)
+		return nullptr;
+		
+	if (sfxdat)
+	{
+		if (index<Z35)
+		{
+			return (SAMPLE*)sfxdata[index].dat;
+		}
+		else
+		{
+			return (SAMPLE*)sfxdata[Z35].dat;
+		}
+	}
+	else
+	{
+		return &customsfxdata[index];
+	}
+
+	return nullptr;
+}
+
 // allocates a voice for the sample "wav_index" (index into zelda.dat)
 // if a voice is already allocated (and/or playing), then it just returns true
 // Returns true:  voice is allocated
@@ -8368,31 +8393,16 @@ bool sfx_init(int32_t index)
 	// check index
 	if(index<=0 || index>=WAV_COUNT)
 		return false;
-		
-	if(sfx_voice[index]==-1)
+
+	if (sfx_voice[index] == -1)
 	{
-		if(sfxdat)
-		{
-			if(index<Z35)
-			{
-				sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[index].dat);
-			}
-			else
-			{
-				sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[Z35].dat);
-			}
-		}
-		else
-		{
-			sfx_voice[index]=allocate_voice(&customsfxdata[index]);
-		}
-		
-		int32_t temp_volume = sfx_volume;
-		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
-			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
-		voice_set_volume(sfx_voice[index], temp_volume);
+		SAMPLE* sample = sfx_get_sample(index);
+		if (!sample)
+			return false;
+
+		sfx_voice[index] = allocate_voice(sample);
 	}
-	
+
 	return sfx_voice[index] != -1;
 }
 
