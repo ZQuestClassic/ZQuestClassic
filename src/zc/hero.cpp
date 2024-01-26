@@ -24023,9 +24023,12 @@ void HeroClass::checkspecial()
 	});
 }
 
-//Gets the 4 rcomboposes indicated by the coordinates, replacing duplicates with rpos_t::None
-void getRposes(rpos_t* rposes, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+// Returns 4 rpos indicated by all combinations of the coordinates, replacing duplicates with rpos_t::None
+static std::array<rpos_t, 4> getRposes(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
+	std::array<rpos_t, 4> rposes;
+
+	// TODO z3 ! Do not mod this.
 	x1 %= world_w;
 	y1 %= world_h;
 	x2 %= world_w;
@@ -24048,6 +24051,8 @@ void getRposes(rpos_t* rposes, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 	if(tmp == rposes[0] || tmp == rposes[1] || tmp == rposes[2])
 		rposes[3] = rpos_t::None;
 	else rposes[3] = tmp;
+
+	return rposes;
 }
 
 void HeroClass::checkspecial2(int32_t *ls)
@@ -24529,25 +24534,24 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	
 	//Generic Step
-	if (!is_z3_scrolling_mode()) // TODO z3
 	if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_qr(qr_MSGFREEZE)))
 	{
-		rpos_t rposes[4];
-		rpos_t sensRposes[4];
+		auto rposes = diagonalMovement||NO_GRIDLOCK ?
+			getRposes(tx+4, ty+4, tx+11, ty+11) :
+			getRposes(tx+4, ty+4, tx+11, ty+11);
+		auto sensRposes = getRposes(tx, ty+(bigHitbox?0:8), tx+15, ty+15);
 		int32_t xPoses[4] = {tx + 4, tx + 11, tx, tx + 15};
 		int32_t yPoses[4] = {ty + 4, ty + 11, ty+(bigHitbox?0:8), ty + 15};
-		if(diagonalMovement||NO_GRIDLOCK)
-			getRposes(rposes, tx+4, ty+4, tx+11, ty+11);
-		else getRposes(rposes, tx, ty, tx+15, ty+15);
-		getRposes(sensRposes, tx, ty+(bigHitbox?0:8), tx+15, ty+15);
+		
 		bool hasStep[4] = {false};
 		for(auto p = 0; p < 4; ++p)
 		{
-			for(auto lyr = 0; lyr < 7; ++lyr)
+			if (rposes[p] == rpos_t::None) continue;
+
+			for (auto lyr = 0; lyr < 7; ++lyr)
 			{
-				newcombo const* cmb = rposes[p]==rpos_t::None ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(rposes[p])]];
-				if((cmb && (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS)))
-					|| types[p] == cSTEP)
+				auto rpos_handle = get_rpos_handle(rposes[p], lyr);
+				if (rpos_handle.combo().triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS) || types[p] == cSTEP)
 				{
 					hasStep[p] = true;
 					break;
@@ -24564,20 +24568,26 @@ void HeroClass::checkspecial2(int32_t *ls)
 				break;
 			}
 		}
-		for(auto p = 0; p < 4; ++p)
+		for (auto p = 0; p < 4; ++p)
 		{
-			for(auto lyr = 0; lyr < 7; ++lyr)
+			for (auto lyr = 0; lyr < 7; ++lyr)
 			{
-				newcombo const* cmb = rposes[p]==rpos_t::None ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(rposes[p])]];
-				newcombo const* cmb2 = sensRposes[p]==rpos_t::None ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(sensRposes[p])]];
-				if(canNormalStep && cmb && (cmb->triggerflags[0] & combotriggerSTEP))
+				if (rposes[p] != rpos_t::None)
 				{
-					do_trigger_combo(get_rpos_handle(rposes[p], lyr));
-					if(rposes[p] == sensRposes[p]) continue;
+					auto rpos_handle = get_rpos_handle(rposes[p], lyr);
+					if (canNormalStep && (rpos_handle.combo().triggerflags[0] & combotriggerSTEP))
+					{
+						do_trigger_combo(rpos_handle);
+						if (rposes[p] == sensRposes[p]) continue;
+					}
 				}
-				if(cmb2 && (cmb2->triggerflags[0] & combotriggerSTEPSENS))
+				if (sensRposes[p] != rpos_t::None)
 				{
-					do_trigger_combo(get_rpos_handle(sensRposes[p], lyr));
+					auto rpos_handle = get_rpos_handle(sensRposes[p], lyr);
+					if (rpos_handle.combo().triggerflags[0] & combotriggerSTEPSENS)
+					{
+						do_trigger_combo(rpos_handle);
+					}
 				}
 			}
 		}
@@ -24596,8 +24606,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 			if (found)
 			{
-				auto& cmb = ffc_handle.combo();
-				if (cmb.triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
+				if (ffc_handle.combo().triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
 				{
 					do_trigger_combo_ffc(ffc_handle);
 				}
@@ -24611,14 +24620,12 @@ void HeroClass::checkspecial2(int32_t *ls)
 		int x1=x,x2=x+15,y1=y+(bigHitbox?0:8),y2=y+15;
 		int xposes[] = {x1,x1,x2,x2};
 		int yposes[] = {y1,y2,y1,y2};
-		rpos_t rposes[4];
-		getRposes(rposes,x1,y1,x2,y2);
+		auto rposes = getRposes(x1,y1,x2,y2);
 		for(auto lyr = 0; lyr < 7; ++lyr)
 		{
 			auto rpos_handle = get_rpos_handle(rpos, lyr);
-			auto& cmb = rpos_handle.combo();	
 			bool didtrig = false;
-			if (cmb.triggerflags[3] & combotriggerDIVETRIG)
+			if (rpos_handle.combo().triggerflags[3] & combotriggerDIVETRIG)
 			{
 				do_trigger_combo(rpos_handle);
 				didtrig = true;
@@ -24629,8 +24636,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if(rposes[q] == rpos && didtrig) continue;
 
 				auto rpos_handle_2 = get_rpos_handle(rposes[q], lyr);
-				newcombo const& cmb = combobuf[rpos_handle_2.data()];
-				if (cmb.triggerflags[3] & combotriggerDIVESENSTRIG)
+				if (rpos_handle_2.combo().triggerflags[3] & combotriggerDIVESENSTRIG)
 					do_trigger_combo(rpos_handle_2);
 			}
 		}
