@@ -7,6 +7,7 @@
 #include "zc/combos.h"
 #include "drawing.h"
 #include "base/mapscr.h"
+#include "iter.h"
 
 extern FFScript FFCore;
 /*
@@ -357,9 +358,6 @@ bool movingblock::animate(int32_t)
 		return false;
 	}
 
-	// TODO z3 !!?
-	auto base_pos_handle = get_rpos_handle_for_world_xy(x, y, 0);
-
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
 	mapscr* m = rpos_handle.screen;
 	if(get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
@@ -687,69 +685,34 @@ bool movingblock::animate(int32_t)
 			bool didtrigger = trigger;
 			if(didtrigger)
 			{
-				// TODO z3
-				// for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-				// 	if (didtrigger)
-				// 		return;
-				// 	if (rpos_handle.layer > maxLayer)
-				// 		return;
-				// 	if ((!trig_hole_same_only || rpos_handle.layer == blockLayer) && rpos_handle.rpos == comborpos)
-				// 		return;
+				// TODO z3 ! for_every_rpos rename
+				for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+					if (!didtrigger)
+						return;
+					if (rpos_handle.layer > maxLayer)
+						return;
+					if ((!trig_hole_same_only || rpos_handle.layer == blockLayer) && rpos_handle.rpos == comborpos)
+						return;
 
-				// 	int pos = rpos_handle.pos;
-				// 	if (rpos_handle.screen->sflag[pos]==mfBLOCKTRIGGER
-				// 		|| combobuf[rpos_handle.data()].flag==mfBLOCKTRIGGER)
-				// 	{
-				// 		bool found = false;
-				// 		if(no_trig_replace)
-				// 			for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
-				// 			{
-				// 				mapscr* tmp2 = get_screen_layer_for_xy_offset(x, y, lyr2);
-				// 				if(is_push(tmp2, pos))
-				// 				{
-				// 					found = true;
-				// 					break;
-				// 				}
-				// 			}
-				// 		if(!found)
-				// 		{
-				// 			didtrigger=false;
-				// 			break;
-				// 		}
-				// 	}
-				// 	if(!didtrigger) break;
-				// });
-
-				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
-				{
-					mapscr* tmp = get_screen_layer_for_xy_offset(x, y, lyr);
-					for(int32_t pos=0; pos<176; pos++)
+					if (rpos_handle.sflag() == mfBLOCKTRIGGER || rpos_handle.cflag() == mfBLOCKTRIGGER)
 					{
-						if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
-							continue;
-						if(tmp->sflag[pos]==mfBLOCKTRIGGER
-							|| combobuf[tmp->data[pos]].flag==mfBLOCKTRIGGER)
-						{
-							bool found = false;
-							if(no_trig_replace)
-								for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
-								{
-									mapscr* tmp2 = get_screen_layer_for_xy_offset(x, y, lyr2);
-									if(is_push(tmp2, pos))
-									{
-										found = true;
-										break;
-									}
-								}
-							if(!found)
+						bool found = false;
+						if (no_trig_replace)
+							for (auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								didtrigger=false;
-								break;
+								mapscr* tmp2 = get_screen_layer_for_xy_offset(x, y, lyr2);
+								if (is_push(tmp2, rpos_handle.pos))
+								{
+									found = true;
+									break;
+								}
 							}
+						if (!found)
+						{
+							didtrigger=false;
 						}
 					}
-					if(!didtrigger) break;
-				}
+				});
 			}
 			
 			if(!(trigger && !(no_trig_replace && trig_is_layer)) && !bhole)
