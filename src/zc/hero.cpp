@@ -26075,8 +26075,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		if(!intradmap)
 		{
-			// TODO z3 I think this can be removed.
-			// homescr = currscr = wscr + DMaps[wdmap].xoff;
 			init_dmap();
 			
 			int32_t wrx,wry;

@@ -5515,15 +5515,8 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	toggle_switches(game->lvlswitches[destlvl], true, base_screen, screen_index);
 	toggle_gswitches_load(base_screen, screen_index);
 
-	// Old code would call these state functions even for 0x80+ screens, which doesn't
-	// make any damn sense. Technically some quest could rely on this weird behavior
-	// to have state on a 0x80+ screen that stored its data in some random screen of the next map,
-	// so we have a compat rule for this now.
-	// TODO z3 ! make this a compat QR. for now am lazy and using "region mode" as stand-in. Or.... don't bother?
 	int mi = currmap*MAPSCRSNORMAL + screen_index;
-	bool check_for_state_things_0x80_qr = !is_z3_scrolling_mode();
-	bool should_check_for_state_things = (check_for_state_things_0x80_qr || screen_index < 0x80) && mi < MAXMAPS*MAPSCRSNORMAL;
-
+	bool should_check_for_state_things = (screen_index < 0x80) && mi < MAXMAPS*MAPSCRSNORMAL;
 	if (should_check_for_state_things)
 	{
 		if (game->maps[mi]&mLOCKBLOCK)

@@ -34012,6 +34012,9 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			}
 			
 			markBmap(Hero.dir^1);
+
+			Hero.x += region_scr_dx * 256;
+			Hero.y += region_scr_dy * 176;
 			
 			if(iswaterex_z3(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), -1, Hero.x, Hero.y+8, true) && _walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) && current_item(itype_flippers))
 			{
@@ -34136,6 +34139,9 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 						Hero.dir=up;
 					}
 			}
+
+			Hero.x += region_scr_dx * 256;
+			Hero.y += region_scr_dy * 176;
 			
 			if(dlevel)
 			{
