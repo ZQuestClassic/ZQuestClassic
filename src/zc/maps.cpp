@@ -1953,7 +1953,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 				auto found_ffc_not_water = find_ffc([&](const ffc_handle_t& ffc_handle) {
 					if (ffcIsAt(ffc_handle, tx2, ty2))
 					{
-						auto ty = combobuf[ffc_handle.data()].type;
+						auto ty = ffc_handle.combo().type;
 						if(!combo_class_buf[ty].water && !(ShallowCheck && ty == cSHALLOWWATER))
 							return true;
 					}
@@ -1967,7 +1967,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					auto found_ffc_water = find_ffc([&](const ffc_handle_t& ffc_handle) {
 						if (ffcIsAt(ffc_handle, tx2, ty2))
 						{
-							auto ty = combobuf[ffc_handle.data()].type;
+							auto ty = ffc_handle.combo().type;
 							if(combo_class_buf[ty].water || (ShallowCheck && ty == cSHALLOWWATER))
 								return true;
 						}
@@ -2142,17 +2142,17 @@ static bool checkSV(int32_t x, int32_t y, int32_t flag)
 	
 	auto rpos = COMBOPOS_REGION(x, y);
 	auto rpos_handle = get_rpos_handle(rpos, 0);
-	if (rpos_handle.sflag() == flag || combobuf[rpos_handle.data()].flag == flag)
+	if (rpos_handle.sflag() == flag || rpos_handle.combo().flag == flag)
 		return true;
 	
 	change_rpos_handle_layer(rpos_handle, 1);
 	if (rpos_handle.screen->valid)
-		if (rpos_handle.sflag() == flag || combobuf[rpos_handle.data()].flag == flag)
+		if (rpos_handle.sflag() == flag || rpos_handle.combo().flag == flag)
 			return true;
 	
 	change_rpos_handle_layer(rpos_handle, 2);
 	if (rpos_handle.screen->valid)
-		if (rpos_handle.sflag() == flag || combobuf[rpos_handle.data()].flag == flag)
+		if (rpos_handle.sflag() == flag || rpos_handle.combo().flag == flag)
 			return true;
 	
 	return false;
@@ -2219,7 +2219,7 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 		for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, x, y))
 			{
-				newcombo const& cmb = combobuf[ffc_handle.data()];
+				auto& cmb = ffc_handle.combo();
 				if (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb))
 				{
 					ffc = ffc_handle.ffc;
@@ -2551,7 +2551,7 @@ bool overheadcombos(mapscr *s)
 
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
 {
-    int32_t ct=combobuf[rpos_handle.data()].type;
+    int32_t ct=rpos_handle.combo().type;
     
     if(ct!=cL_STATUE && ct!=cR_STATUE && ct!=cC_STATUE)
         return;
@@ -2721,7 +2721,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc_in_screen(s, screen_index, [&](const ffc_handle_t& ffc_handle) {
-			newcombo const& cmb = combobuf[ffc_handle.data()];
+			auto& cmb = ffc_handle.combo();
 			if (cmb.triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo_ffc(ffc_handle);
 		});
@@ -3119,8 +3119,7 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 				continue;
 
 			auto rpos_handle = get_rpos_handle(rpos, q);
-			int cid = rpos_handle.data();
-			if(combobuf[cid].triggerflags[2] & trigflags)
+			if (rpos_handle.combo().triggerflags[2] & trigflags)
 			{
 				do_trigger_combo(rpos_handle);
 				ret = true;
@@ -3129,8 +3128,7 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 	}
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-		if((combobuf[ffc_handle.data()].triggerflags[2] & trigflags)
-			&& ffc_handle.ffc->collide(x,y,16,16))
+		if ((ffc_handle.combo().triggerflags[2] & trigflags) && ffc_handle.ffc->collide(x,y,16,16))
 		{
 			do_trigger_combo_ffc(ffc_handle);
 			ret = true;
@@ -5439,7 +5437,7 @@ void openshutters(mapscr* screen, int screen_index)
 		}
 
 	for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
-		newcombo const& cmb = combobuf[rpos_handle.data()];
+		auto& cmb = rpos_handle.combo();	
 		if (cmb.triggerflags[0] & combotriggerSHUTTER)
 		{
 			do_trigger_combo(rpos_handle);
@@ -5448,7 +5446,7 @@ void openshutters(mapscr* screen, int screen_index)
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc_in_screen(screen, screen_index, [&](const ffc_handle_t& ffc_handle) {
-			newcombo const& cmb = combobuf[ffc_handle.data()];
+			auto& cmb = ffc_handle.combo();
 			if(cmb.triggerflags[0] & combotriggerSHUTTER)
 				do_trigger_combo_ffc(ffc_handle);
 		});

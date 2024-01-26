@@ -343,12 +343,12 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 {
 	int pos = rpos_handle.pos;
-	int cid = rpos_handle.data();
-	newcombo const& cmb = combobuf[cid];
+	auto& cmb = rpos_handle.combo();
 	if(cmb.type != cCSWITCHBLOCK) return;
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
+	int cid = rpos_handle.data();
 	auto newcid = BOUND_COMBO(cid + cmbofs);
 	rpos_handle.set_data(newcid);
 	rpos_handle.set_cset((rpos_handle.cset() + csofs) & 15);
@@ -403,12 +403,12 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 {
 	ffcdata* ffc = ffc_handle.ffc;
-	auto cid = ffc_handle.data();
-	newcombo const& cmb = combobuf[cid];
+	auto& cmb = ffc_handle.combo();
 	if(cmb.type != cCSWITCHBLOCK) return;
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
+	auto cid = ffc_handle.data();
 	ffc_handle.set_data(BOUND_COMBO(cid + cmbofs));
 	ffc->cset = (ffc->cset + csofs) & 15;
 	auto newcid = ffc_handle.data();
@@ -489,7 +489,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 {
 	int pos = rpos_handle.pos;
 	mapscr* tmp = rpos_handle.screen;
-	newcombo const& cmb = combobuf[rpos_handle.data()];
+	auto& cmb = rpos_handle.combo();	
 	auto type = cmb.type;
 	if(!isCuttableType(type)) return;
 	auto flag = tmp->sflag[pos];
@@ -615,7 +615,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 	int pos = ffc_handle.i;
 	if (ffc_handle.id > MAX_FFCID) return;
 	ffcdata& ffc = *ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	auto type = cmb.type;
 	if (!isCuttableType(type)) return;
 	auto flag2 = cmb.flag;
@@ -713,7 +713,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 bool trigger_step(const rpos_handle_t& rpos_handle)
 {
 	int32_t pos = rpos_handle.pos;
-	newcombo const& cmb = combobuf[rpos_handle.data()];
+	auto& cmb = rpos_handle.combo();	
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
 		return false; //lacking required item
@@ -760,7 +760,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 {
 	ffcdata* ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
 		return false; //lacking required item
@@ -972,7 +972,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 {
 	mapscr* base_screen = rpos_handle.layer == 0 ? rpos_handle.screen : get_scr(currmap, rpos_handle.screen_index);
 
-	newcombo const& cmb = combobuf[rpos_handle.data()];
+	auto& cmb = rpos_handle.combo();	
 	switch(cmb.type)
 	{
 		case cLOCKEDCHEST: //Special flags!
@@ -1081,7 +1081,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 
 bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 {
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	int32_t cid = ffc_handle.data();
 	switch(cmb.type)
 	{
@@ -1186,7 +1186,7 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 {
 	DCHECK(rpos_handle.rpos <= region_max_rpos);
 	
-	newcombo const& cmb = combobuf[rpos_handle.data()];
+	auto& cmb = rpos_handle.combo();	
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
@@ -1248,7 +1248,7 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 
 bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 {
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
@@ -1575,7 +1575,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 	if(gc > 10) return false; //Don't do it if there's already 10 enemies onscreen
 	//!TODO: Maybe allow a custom limit?
 	ffcdata* ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	int32_t eclk = -14;
 	int32_t id2 = 0;
 	int32_t tx = ffc->x, ty = ffc->y;
@@ -1735,7 +1735,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 	ty += 8;
 
 	int pos = rpos_handle.pos;
-	newcombo const& cmb = combobuf[rpos_handle.data()];
+	auto& cmb = rpos_handle.combo();	
 
 	int32_t thesfx = cmb.attribytes[0];
 	sfx_no_repeat(thesfx,pan(COMBOX(pos)));
@@ -1917,7 +1917,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 {
 	ffcdata* ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	int32_t tx = ffc->x, ty = ffc->y;
 	int32_t thesfx = cmb.attribytes[0];
 	sfx_no_repeat(thesfx, pan(ffc->x));
@@ -2310,9 +2310,8 @@ static byte copycat_id = 0;
 static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
 {
 	if(!copycat_id) return false;
-	
-	int32_t cid = rpos_handle.data();
-	newcombo const& cmb = combobuf[cid];
+
+	auto& cmb = rpos_handle.combo();
 	if(cmb.trigcopycat == copycat_id)
 	{
 		do_trigger_combo(rpos_handle);
@@ -2325,8 +2324,7 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 {
 	if(!copycat_id) return false;
 
-	int32_t cid = ffc_handle.data();
-	newcombo const& cmb = combobuf[cid];
+	auto& cmb = ffc_handle.combo();
 	if(cmb.trigcopycat == copycat_id)
 	{
 		do_trigger_combo_ffc(ffc_handle);
@@ -2389,7 +2387,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 {
 	int32_t cid = rpos_handle.data();
 	int32_t ocs = rpos_handle.cset();
-	newcombo const& cmb = combobuf[cid];	
+	auto& cmb = rpos_handle.combo();
 	if(cmb.trigchange)
 	{
 		rpos_handle.set_data(cid+cmb.trigchange);
@@ -2415,7 +2413,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 	ffcdata* ffc = ffc_handle.ffc;
 	int32_t cid = ffc_handle.data();
 	int32_t ocs = ffc->cset;
-	newcombo const& cmb = combobuf[cid];	
+	auto& cmb = ffc_handle.combo();
 	if(cmb.trigchange)
 	{
 		ffc_handle.set_data(cid+cmb.trigchange);
@@ -2438,7 +2436,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 
 bool force_ex_trigger(const rpos_handle_t& rpos_handle, char xstate)
 {
-	newcombo const& cmb = combobuf[rpos_handle.data()];	
+	auto& cmb = rpos_handle.combo();	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
 		if(xstate >= 0 || getxmapflag(rpos_handle.screen_index, 1<<cmb.exstate))
@@ -2452,7 +2450,7 @@ bool force_ex_trigger(const rpos_handle_t& rpos_handle, char xstate)
 
 bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, char xstate)
 {
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
 		if(xstate >= 0 || getxmapflag(ffc_handle.screen_index, 1<<cmb.exstate))
@@ -2468,7 +2466,7 @@ bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, int dir, uint ind)
 {
 	if (dir > 3 || ind > 7) return false;
 
-	newcombo const& cmb = combobuf[rpos_handle.data()];
+	auto& cmb = rpos_handle.combo();	
 	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
 	{
 		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
@@ -2483,7 +2481,7 @@ bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, int dir, uint ind
 {
 	if (dir > 3 || ind > 7) return false;
 
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
 	{
 		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
@@ -2529,7 +2527,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
 
 	int32_t ocs = rpos_handle.cset();
-	newcombo const& cmb = combobuf[cid];
+	auto& cmb = rpos_handle.combo();
 	bool hasitem = false;
 	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
 	{
@@ -2911,7 +2909,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 	int32_t ocs = ffc->cset;
 	int32_t cx = ffc->x;
 	int32_t cy = ffc->y;
-	newcombo const& cmb = combobuf[cid];
+	auto& cmb = ffc_handle.combo();
 	bool hasitem = false;
 	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
 	{
@@ -3288,7 +3286,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 
 	int32_t cid = rpos_handle.data();
 	int32_t cset = rpos_handle.cset();
-	newcombo const& cmb = combobuf[cid];
+	auto& cmb = rpos_handle.combo();
 	itemdata const& glove = itemsbuf[gloveid];
 
 	if(cmb.liftlvl > glove.fam_type) return false;
@@ -3686,10 +3684,9 @@ void cpos_update() //updates with side-effects
 {
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		cpos_info& timer = cpos_get(rpos_handle);
-		int cid = rpos_handle.data();
-		timer.updateData(cid);
+		timer.updateData(rpos_handle.data());
 		
-		newcombo const& cmb = combobuf[cid];
+		auto& cmb = rpos_handle.combo();
 		if(!timer.flags.get(CPOS_FL_APPEARED))
 		{
 			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
@@ -3714,8 +3711,7 @@ void cpos_update() //updates with side-effects
 			{
 				timer.clk = 0;
 				do_trigger_combo(rpos_handle);
-				cid = rpos_handle.data();
-				timer.updateData(cid);
+				timer.updateData(rpos_handle.data());
 			}
 		}
 		if(timer.trig_cd) --timer.trig_cd;

@@ -8359,7 +8359,7 @@ void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
 	did_armos=true;
 	ffcdata& ffc = *ffc_handle.ffc;
 	mapscr* screen = ffc_handle.screen;
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	int32_t f2 = cmb.flag;
 	
 	if(cmb.type!=cARMOS)
@@ -18761,7 +18761,7 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 		return;
 	}
 
-	int32_t ctype = combobuf[rpos_handle.data()].type;
+	int32_t ctype = rpos_handle.combo().type;
 	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
 
 	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
@@ -18967,7 +18967,7 @@ void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 	rpos_handle.screen->valid |= mVALID;
 	activate_fireball_statue(rpos_handle);
 
-	if(combobuf[rpos_handle.data()].type==cSPINTILE1)
+	if(rpos_handle.combo().type==cSPINTILE1)
 	{
 		awaken_spinning_tile(rpos_handle);
 	}
@@ -18978,7 +18978,7 @@ void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 {
 	ffcdata* ff = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc_handle.data()];
+	auto& cmb = ffc_handle.combo();
 	
 	rpos_t id = SLOPE_ID(ffc_handle.id, 7);
 	auto it = slopes.find(id);

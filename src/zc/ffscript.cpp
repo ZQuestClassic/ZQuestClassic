@@ -10764,7 +10764,7 @@ int32_t get_register(int32_t arg)
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
 			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = combobuf[rpos_handle.data()].type * 10000;
+				ret = rpos_handle.combo().type * 10000;
 			}
 			else
 			{
@@ -10778,7 +10778,7 @@ int32_t get_register(int32_t arg)
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
 			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = combobuf[rpos_handle.data()].flag * 10000;
+				ret = rpos_handle.combo().flag * 10000;
 			}
 			else
 			{
@@ -10817,7 +10817,7 @@ int32_t get_register(int32_t arg)
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
 			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = ((combobuf[rpos_handle.data()].walk & 0xF0)>>4) * 10000;
+				ret = ((rpos_handle.combo().walk & 0xF0)>>4) * 10000;
 			}
 			else
 			{
