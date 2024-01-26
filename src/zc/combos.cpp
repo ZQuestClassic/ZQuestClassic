@@ -382,7 +382,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 	if (cmb.usrflags&cflag11)
 	{
 		int bx = COMBOX_REGION(rpos_handle.rpos)+8, by = COMBOY_REGION(rpos_handle.rpos)+8;
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by))
 			{
 				ffcdata* ffc = ffc_handle.ffc;
@@ -439,7 +439,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	}
 	if (cmb.usrflags&cflag11)
 	{
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle_2) {
 			if (&ffc_handle_2.ffc == &ffc_handle.ffc) return;
 
 			if (ffcIsAt(ffc_handle_2, ffc->x+8, ffc->y+8))
@@ -2344,7 +2344,7 @@ void trig_copycat(byte copyid)
 		return;
 	copycat_id = copyid;
 
-	for_every_rpos_in_region([&](const rpos_handle_t& cc_rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& cc_rpos_handle) {
 		if (cc_rpos_handle.layer == copycat_skip_lyr && cc_rpos_handle.rpos == copycat_skip_rpos)
 			return;
 		do_copycat_trigger(cc_rpos_handle);
@@ -2352,7 +2352,7 @@ void trig_copycat(byte copyid)
 
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (ffc_handle.i != copycat_skip_ffc)
 				do_copycat_trigger_ffc(ffc_handle);
 		});
@@ -3508,7 +3508,7 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 
 void trig_trigger_groups()
 {
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		int cid = rpos_handle.data();
 		cpos_info& timer = cpos_get(rpos_handle);
 		const newcombo* cmb = &combobuf[cid];
@@ -3533,7 +3533,7 @@ void trig_trigger_groups()
 		}
 	});
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		if (ffc_handle.ffc->flags & ffCHANGER)
 			return; //changers don't contribute
 
@@ -3664,7 +3664,7 @@ void cpos_clear_all()
 	//
 	cpos_clear_combos();
 	
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		ffc_handle.ffc->info.clear();
 	});
 	
@@ -3672,11 +3672,11 @@ void cpos_clear_all()
 }
 void cpos_force_update() //updates without side-effects
 {
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		cpos_get(rpos_handle).updateData(rpos_handle.data());
 	});
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		if (ffc_handle.ffc->flags & ffCHANGER)
 			ffc_handle.ffc->info.updateData(-1);
 		else ffc_handle.ffc->info.updateData(ffc_handle.data());
@@ -3684,7 +3684,7 @@ void cpos_force_update() //updates without side-effects
 }
 void cpos_update() //updates with side-effects
 {
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		cpos_info& timer = cpos_get(rpos_handle);
 		int cid = rpos_handle.data();
 		timer.updateData(cid);
@@ -3722,7 +3722,7 @@ void cpos_update() //updates with side-effects
 		handle_cpos_type(cmb,timer,rpos_handle);
 	});
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		if (ffc_handle.ffc->flags & ffCHANGER)
 			return; //changers don't contribute
 

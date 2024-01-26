@@ -19,7 +19,7 @@ static bool for_every_solid_object(const F& fn)
 {
 #ifdef IS_PLAYER
 	bool should_continue = true;
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 		if (ffc_handle.ffc->flags & ffCHANGER) return true;
 
 		solid_object* obj = ffc_handle.ffc;

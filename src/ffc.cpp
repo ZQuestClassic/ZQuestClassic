@@ -133,7 +133,7 @@ void ffcdata::doContactDamage(int32_t hdir)
 		int ffnum = -1;
 		if(loaded)
 		{
-			auto ffc_handle = find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			auto ffc_handle = find_ffc([&](const ffc_handle_t& ffc_handle) {
 				return this == ffc_handle.ffc;
 			});
 			if (ffc_handle)

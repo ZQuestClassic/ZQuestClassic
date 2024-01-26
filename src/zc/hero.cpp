@@ -3659,7 +3659,7 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 
-			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 				ffc_handle.ffc->recently_hit = false;
 			});
 		}
@@ -3762,7 +3762,7 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 			
-			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 				ffc_handle.ffc->recently_hit = false;
 			});
 		}
@@ -3816,7 +3816,7 @@ bool HeroClass::checkstab()
 			set_bit(screengrid_layer[1],q,0);
 		}
 		
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			ffc_handle.ffc->recently_hit = false;
 		});
 			
@@ -10241,7 +10241,7 @@ heroanimate_skip_liftwpn:;
 	
 	awarp=false;
 	
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 		int32_t ind=0;
 		
 		newcombo const& cmb = combobuf[ffc_handle.data()];
@@ -13033,7 +13033,7 @@ bool HeroClass::doattack()
 							}
 						}
 					}
-					for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+					for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 						newcombo const& cmb = combobuf[ffc_handle.data()];
 						if(distance(x,y,ffc_handle.ffc->x,ffc_handle.ffc->y) > rad) return;
 
@@ -13163,7 +13163,7 @@ void handle_lens_triggers(int32_t l_id)
 {
 	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & ITEM_FLAG6);
 
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		newcombo const& cmb = combobuf[rpos_handle.data()];
 		if (enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
 			: (cmb.triggerflags[1] & combotriggerLENSOFF))
@@ -13174,7 +13174,7 @@ void handle_lens_triggers(int32_t l_id)
 
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if (enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
@@ -22125,7 +22125,7 @@ void HeroClass::checkgenpush()
 
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
 				newcombo const& cmb3 = combobuf[ffc_handle.data()];
@@ -22226,7 +22226,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		foundffc = find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		foundffc = find_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
 				tmp_cmb = &combobuf[ffc_handle.data()];
@@ -23873,7 +23873,7 @@ void HeroClass::checkspecial()
 					do_trigger_combo(rpos_handle);
 				}
 			});
-			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 				newcombo const& cmb = combobuf[ffc_handle.data()];
 				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
@@ -24560,7 +24560,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 		}
 
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			bool found = false;
 			for (int xch = 0; xch < 2; ++xch)
 			{
@@ -24613,7 +24613,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 		}
 
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if ((cmb.triggerflags[3] & combotriggerDIVETRIG) && ffcIsAt(ffc_handle, x+8, y+8))
 			{
@@ -28709,7 +28709,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (ffc_handle.ffc->script != 0 && FFCore.waitdraw(ScriptType::FFC, ffc_handle.id))
 			{
 				ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.id);

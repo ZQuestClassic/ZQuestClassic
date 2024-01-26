@@ -685,8 +685,7 @@ bool movingblock::animate(int32_t)
 			bool didtrigger = trigger;
 			if(didtrigger)
 			{
-				// TODO z3 ! for_every_rpos rename
-				for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+				for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 					if (!didtrigger)
 						return;
 					if (rpos_handle.layer > maxLayer)

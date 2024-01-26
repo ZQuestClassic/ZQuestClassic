@@ -50,7 +50,7 @@ ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
 // Callback function: void fn(const pos_handle_t& rpos_handle)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
-ZC_FORCE_INLINE void for_every_rpos_in_region(T&& fn)
+ZC_FORCE_INLINE void for_every_rpos(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 
@@ -70,7 +70,7 @@ ZC_FORCE_INLINE void for_every_rpos_in_region(T&& fn)
 // Callback function: void fn(const ffc_handle_t& ffc_handle)
 template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
-ZC_FORCE_INLINE void for_every_ffc_in_region(T&& fn)
+ZC_FORCE_INLINE void for_every_ffc(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	
@@ -105,24 +105,24 @@ ZC_FORCE_INLINE void for_every_combo(T&& fn, every_combo_opts opts)
 {
 	if (opts.include_rposes_base_screen_only)
 	{
-		for_every_rpos_in_region([&](const rpos_handle_t& handle) {
+		for_every_rpos([&](const rpos_handle_t& handle) {
 			if (handle.layer == 0)
 				fn(handle);
 		});
 	} else if (opts.include_rposes)
-		for_every_rpos_in_region(fn);
+		for_every_rpos(fn);
 
 	if (opts.include_ffcs)
-		for_every_ffc_in_region(fn);
+		for_every_ffc(fn);
 }
 
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, const ffc_handle_t&>
 ZC_FORCE_INLINE void for_every_combo(T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 {
-	for_every_rpos_in_region(fn);
+	for_every_rpos(fn);
 	if (include_ffcs)
-		for_every_ffc_in_region(fn);
+		for_every_ffc(fn);
 }
 
 // Iterates over every ffc in the current region, until execution is requested to stop.
@@ -130,7 +130,7 @@ ZC_FORCE_INLINE void for_every_combo(T&& fn, bool include_ffcs = !get_qr(qr_OLD_
 // If the callback returns false, the exeuction stops early.
 template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
-ZC_FORCE_INLINE void for_some_ffcs_in_region(T&& fn)
+ZC_FORCE_INLINE void for_some_ffcs(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	
@@ -157,7 +157,7 @@ ZC_FORCE_INLINE void for_some_ffcs_in_region(T&& fn)
 // Callback function: bool fn(const ffc_handle_t& ffc_handle)
 template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
-ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc_in_region(T&& fn)
+ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc(T&& fn)
 {
 	auto [handles, count] = z3_get_current_region_handles();
 	

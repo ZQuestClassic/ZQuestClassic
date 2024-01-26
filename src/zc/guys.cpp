@@ -18943,7 +18943,7 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 }
 void update_slope_comboposes()
 {
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		update_slope_combopos(rpos_handle);
 	});
 }
@@ -18999,7 +18999,7 @@ void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 
 void screen_combo_modify_pre(int32_t cid)
 {
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		if (rpos_handle.data() == cid)
 		{
 			screen_combo_modify_preroutine(rpos_handle);
@@ -19008,14 +19008,14 @@ void screen_combo_modify_pre(int32_t cid)
 }
 void screen_combo_modify_post(int32_t cid)
 {
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		if (rpos_handle.data() == cid)
 		{
 			screen_combo_modify_postroutine(rpos_handle);
 		}
 	});
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		if (ffc_handle.data() == cid)
 		{
 			screen_ffc_modify_postroutine(ffc_handle);

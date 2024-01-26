@@ -422,7 +422,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 	{
 		if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 		{
-			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 				if (ffcIsAt(ffc_handle, bx, by))
 				{
 					if (MatchComboTrigger(w, cbuf, ffc_handle.data()))
@@ -3835,7 +3835,7 @@ bool weapon::animate(int32_t index)
 			screengrid_layer[1][q] = 0;
 		}
 
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			temp_recently_hit[ffc_handle.ffc] = ffc_handle.ffc->recently_hit;
 		});
 		
@@ -3884,7 +3884,7 @@ bool weapon::animate(int32_t index)
 		memcpy(screengrid, temp_screengrid, sizeof(screengrid));
 		memcpy(screengrid_layer[0], temp_screengrid_layer[0], sizeof(screengrid_layer[0]));
 		memcpy(screengrid_layer[1], temp_screengrid_layer[1], sizeof(screengrid_layer[1]));
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			auto it = temp_recently_hit.find(ffc_handle.ffc);
 			if (it != temp_recently_hit.end())
 				ffc_handle.ffc->recently_hit = it->second;

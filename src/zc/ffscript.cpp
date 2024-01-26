@@ -40290,7 +40290,7 @@ int32_t ffscript_engine(const bool preload)
 			});
 		}
 
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if(ffc_handle.ffc->script == 0)
 				return;
 				
@@ -50007,7 +50007,7 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 	}
 
 	///non-scripted effects
-	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		if (!enabled[rpos_handle.layer])
 			return;
 

@@ -1046,7 +1046,7 @@ int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
 
 std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 {
-	return find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	return find_ffc([&](const ffc_handle_t& ffc_handle) {
 		return ffcIsAt(ffc_handle, x, y);
 	});
 }
@@ -1950,7 +1950,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					}
 				}
 
-				auto found_ffc_not_water = find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				auto found_ffc_not_water = find_ffc([&](const ffc_handle_t& ffc_handle) {
 					if (ffcIsAt(ffc_handle, tx2, ty2))
 					{
 						auto ty = combobuf[ffc_handle.data()].type;
@@ -1964,7 +1964,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 
 				if(!i)
 				{
-					auto found_ffc_water = find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+					auto found_ffc_water = find_ffc([&](const ffc_handle_t& ffc_handle) {
 						if (ffcIsAt(ffc_handle, tx2, ty2))
 						{
 							auto ty = combobuf[ffc_handle.data()].type;
@@ -2216,7 +2216,7 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 	ffcdata* ffc = nullptr;
 	if (ret_ffc && !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, x, y))
 			{
 				newcombo const& cmb = combobuf[ffc_handle.data()];
@@ -3128,7 +3128,7 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 		}
 	}
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		if((combobuf[ffc_handle.data()].triggerflags[2] & trigflags)
 			&& ffc_handle.ffc->collide(x,y,16,16))
 		{
@@ -3148,7 +3148,7 @@ void update_freeform_combos()
 		int wrap_right = world_w + 32;
 		int wrap_bottom = world_h + 32;
 
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			mapscr* screen = ffc_handle.screen;
 			ffcdata& thisffc = *ffc_handle.ffc;
 
@@ -3171,7 +3171,7 @@ void update_freeform_combos()
 			// Check for changers
 			if (thisffc.link==0)
 			{
-				for_some_ffcs_in_region([&](const ffc_handle_t& other_ffc_handle) {
+				for_some_ffcs([&](const ffc_handle_t& other_ffc_handle) {
 					if (ffc_handle.id == other_ffc_handle.id)
 						return true;
 
@@ -5759,7 +5759,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	hero_screen = get_scr_no_load(currmap, scr);
 	DCHECK(hero_screen);
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
 		if (ffc_handle.screen_index == cur_origin_screen_index)
 			return;
