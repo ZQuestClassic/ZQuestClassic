@@ -24027,28 +24027,22 @@ void HeroClass::checkspecial()
 static std::array<rpos_t, 4> getRposes(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
 	std::array<rpos_t, 4> rposes;
-
-	// TODO z3 ! Do not mod this.
-	x1 %= world_w;
-	y1 %= world_h;
-	x2 %= world_w;
-	y2 %= world_h;
-
 	rpos_t tmp;
-	rposes[0] = COMBOPOS_REGION(x1,y1);
+
+	rposes[0] = COMBOPOS_REGION_CHECK_BOUNDS(x1,y1);
 	
-	tmp = COMBOPOS_REGION(x1,y2);
-	if(tmp == rposes[0])
+	tmp = COMBOPOS_REGION_CHECK_BOUNDS(x1,y2);
+	if (tmp == rposes[0])
 		rposes[1] = rpos_t::None;
 	else rposes[1] = tmp;
 	
-	tmp = COMBOPOS_REGION(x2,y1);
-	if(tmp == rposes[0] || tmp == rposes[1])
+	tmp = COMBOPOS_REGION_CHECK_BOUNDS(x2,y1);
+	if (tmp == rposes[0] || tmp == rposes[1])
 		rposes[2] = rpos_t::None;
 	else rposes[2] = tmp;
 	
-	tmp = COMBOPOS_REGION(x2,y2);
-	if(tmp == rposes[0] || tmp == rposes[1] || tmp == rposes[2])
+	tmp = COMBOPOS_REGION_CHECK_BOUNDS(x2,y2);
+	if (tmp == rposes[0] || tmp == rposes[1] || tmp == rposes[2])
 		rposes[3] = rpos_t::None;
 	else rposes[3] = tmp;
 
@@ -24175,8 +24169,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 						{
 							setmapflag(rpos_handle.screen, rpos_handle.screen_index, mSECRET);
 						}
-						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
-						//zprint("Step Secrets SFX: %d\n", thesfx);
 						sfx(warpsound,pan((int32_t)x));
 						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, false);
 						didstrig = true;
@@ -24191,10 +24183,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 						bool high16only = get_qr(qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
 						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, high16only);
 						didstrig = true;
-						//play trigger sound
-						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
-						//zprint("Step Secrets SFX: %d\n", thesfx);
-						//sfx(thesfx,pan((int32_t)x));
 						sfx(warpsound,pan((int32_t)x));
 					}
 				}
