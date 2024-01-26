@@ -2703,26 +2703,16 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 
 	if (do_layers)
 	{
-		// TODO z3 ! secret
-		for(auto lyr = 0; lyr < 7; ++lyr)
-		{
-			mapscr* layer_screen = get_layer_scr(currmap, screen_index, lyr - 1);
-			for (auto pos = 0; pos < 176; ++pos)
-			{
-				newcombo const& cmb = combobuf[layer_screen->data[pos]];
-				if(cmb.triggerflags[2] & combotriggerSECRETSTR)
-				{
-					do_trigger_combo(get_rpos_handle_for_screen(layer_screen, currscr, lyr, pos), ctrigSECRETS);
-				}
-			}
-		}
+		for_every_rpos_in_screen(s, screen_index, [&](const rpos_handle_t& rpos_handle) {
+			if (rpos_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
+				do_trigger_combo(rpos_handle, ctrigSECRETS);
+		});
 	}
 
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc_in_screen(s, screen_index, [&](const ffc_handle_t& ffc_handle) {
-			auto& cmb = ffc_handle.combo();
-			if (cmb.triggerflags[2] & combotriggerSECRETSTR)
+			if (ffc_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo_ffc(ffc_handle);
 		});
 	}
