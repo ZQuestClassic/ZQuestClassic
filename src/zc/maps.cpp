@@ -6594,9 +6594,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 	return effectflag(x, y, layer) || (cnt == 2 && effectflag(x + 8, y, layer));
 }
 
-// TODO z3 !!! bound to single screen. re-use main walkflag code?
-//used by mapdata->isSolid(x,y) in ZScript:
-// Note: secrets are not applied, unlike MAPCOMBO3.
+// used by mapdata->isSolid(x,y) in ZScript
 bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 {
 	int x = zx.getRound(), y = zy.getRound();
