@@ -4936,11 +4936,17 @@ void draw_screen(bool showhero, bool runGeneric)
 
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
 {
+	mapscr* m = t == 0 ? tmpscr : &special_warp_return_screen;
+	put_door(dest, m, pos, side, type, redraw, even_walls);
+}
+
+// TODO: separate setting door data and drawing door
+void put_door(BITMAP *dest,mapscr* screen,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
+{
 	if (type > 8) return;
 
-	mapscr& screen = t == 0 ? *tmpscr : special_warp_return_screen;
-	int32_t d=screen.door_combo_set;
-	
+	int32_t d=screen->door_combo_set;
+
 	switch(type)
 	{
 	case dt_wall:
@@ -4962,18 +4968,18 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 		switch(side)
 		{
 		case up:
-			screen.data[pos]   = DoorComboSets[d].doorcombo_u[type][0];
-			screen.cset[pos]   = DoorComboSets[d].doorcset_u[type][0];
-			screen.sflag[pos]  = 0;
-			screen.data[pos+1]   = DoorComboSets[d].doorcombo_u[type][1];
-			screen.cset[pos+1]   = DoorComboSets[d].doorcset_u[type][1];
-			screen.sflag[pos+1]  = 0;
-			screen.data[pos+16]   = DoorComboSets[d].doorcombo_u[type][2];
-			screen.cset[pos+16]   = DoorComboSets[d].doorcset_u[type][2];
-			screen.sflag[pos+16]  = 0;
-			screen.data[pos+16+1]   = DoorComboSets[d].doorcombo_u[type][3];
-			screen.cset[pos+16+1]   = DoorComboSets[d].doorcset_u[type][3];
-			screen.sflag[pos+16+1]  = 0;
+			screen->data[pos]   = DoorComboSets[d].doorcombo_u[type][0];
+			screen->cset[pos]   = DoorComboSets[d].doorcset_u[type][0];
+			screen->sflag[pos]  = 0;
+			screen->data[pos+1]   = DoorComboSets[d].doorcombo_u[type][1];
+			screen->cset[pos+1]   = DoorComboSets[d].doorcset_u[type][1];
+			screen->sflag[pos+1]  = 0;
+			screen->data[pos+16]   = DoorComboSets[d].doorcombo_u[type][2];
+			screen->cset[pos+16]   = DoorComboSets[d].doorcset_u[type][2];
+			screen->sflag[pos+16]  = 0;
+			screen->data[pos+16+1]   = DoorComboSets[d].doorcombo_u[type][3];
+			screen->cset[pos+16+1]   = DoorComboSets[d].doorcset_u[type][3];
+			screen->sflag[pos+16+1]  = 0;
 			
 			if(redraw)
 			{
@@ -4988,18 +4994,18 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 			break;
 			
 		case down:
-			screen.data[pos]   = DoorComboSets[d].doorcombo_d[type][0];
-			screen.cset[pos]   = DoorComboSets[d].doorcset_d[type][0];
-			screen.sflag[pos]  = 0;
-			screen.data[pos+1]   = DoorComboSets[d].doorcombo_d[type][1];
-			screen.cset[pos+1]   = DoorComboSets[d].doorcset_d[type][1];
-			screen.sflag[pos+1]  = 0;
-			screen.data[pos+16]   = DoorComboSets[d].doorcombo_d[type][2];
-			screen.cset[pos+16]   = DoorComboSets[d].doorcset_d[type][2];
-			screen.sflag[pos+16]  = 0;
-			screen.data[pos+16+1]   = DoorComboSets[d].doorcombo_d[type][3];
-			screen.cset[pos+16+1]   = DoorComboSets[d].doorcset_d[type][3];
-			screen.sflag[pos+16+1]  = 0;
+			screen->data[pos]   = DoorComboSets[d].doorcombo_d[type][0];
+			screen->cset[pos]   = DoorComboSets[d].doorcset_d[type][0];
+			screen->sflag[pos]  = 0;
+			screen->data[pos+1]   = DoorComboSets[d].doorcombo_d[type][1];
+			screen->cset[pos+1]   = DoorComboSets[d].doorcset_d[type][1];
+			screen->sflag[pos+1]  = 0;
+			screen->data[pos+16]   = DoorComboSets[d].doorcombo_d[type][2];
+			screen->cset[pos+16]   = DoorComboSets[d].doorcset_d[type][2];
+			screen->sflag[pos+16]  = 0;
+			screen->data[pos+16+1]   = DoorComboSets[d].doorcombo_d[type][3];
+			screen->cset[pos+16+1]   = DoorComboSets[d].doorcset_d[type][3];
+			screen->sflag[pos+16+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5014,24 +5020,24 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 			break;
 			
 		case left:
-			screen.data[pos]   = DoorComboSets[d].doorcombo_l[type][0];
-			screen.cset[pos]   = DoorComboSets[d].doorcset_l[type][0];
-			screen.sflag[pos]  = 0;
-			screen.data[pos+1]   = DoorComboSets[d].doorcombo_l[type][1];
-			screen.cset[pos+1]   = DoorComboSets[d].doorcset_l[type][1];
-			screen.sflag[pos+1]  = 0;
-			screen.data[pos+16]   = DoorComboSets[d].doorcombo_l[type][2];
-			screen.cset[pos+16]   = DoorComboSets[d].doorcset_l[type][2];
-			screen.sflag[pos+16]  = 0;
-			screen.data[pos+16+1]   = DoorComboSets[d].doorcombo_l[type][3];
-			screen.cset[pos+16+1]   = DoorComboSets[d].doorcset_l[type][3];
-			screen.sflag[pos+16+1]  = 0;
-			screen.data[pos+32]   = DoorComboSets[d].doorcombo_l[type][4];
-			screen.cset[pos+32]   = DoorComboSets[d].doorcset_l[type][4];
-			screen.sflag[pos+32]  = 0;
-			screen.data[pos+32+1]   = DoorComboSets[d].doorcombo_l[type][5];
-			screen.cset[pos+32+1]   = DoorComboSets[d].doorcset_l[type][5];
-			screen.sflag[pos+32+1]  = 0;
+			screen->data[pos]   = DoorComboSets[d].doorcombo_l[type][0];
+			screen->cset[pos]   = DoorComboSets[d].doorcset_l[type][0];
+			screen->sflag[pos]  = 0;
+			screen->data[pos+1]   = DoorComboSets[d].doorcombo_l[type][1];
+			screen->cset[pos+1]   = DoorComboSets[d].doorcset_l[type][1];
+			screen->sflag[pos+1]  = 0;
+			screen->data[pos+16]   = DoorComboSets[d].doorcombo_l[type][2];
+			screen->cset[pos+16]   = DoorComboSets[d].doorcset_l[type][2];
+			screen->sflag[pos+16]  = 0;
+			screen->data[pos+16+1]   = DoorComboSets[d].doorcombo_l[type][3];
+			screen->cset[pos+16+1]   = DoorComboSets[d].doorcset_l[type][3];
+			screen->sflag[pos+16+1]  = 0;
+			screen->data[pos+32]   = DoorComboSets[d].doorcombo_l[type][4];
+			screen->cset[pos+32]   = DoorComboSets[d].doorcset_l[type][4];
+			screen->sflag[pos+32]  = 0;
+			screen->data[pos+32+1]   = DoorComboSets[d].doorcombo_l[type][5];
+			screen->cset[pos+32+1]   = DoorComboSets[d].doorcset_l[type][5];
+			screen->sflag[pos+32+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5049,24 +5055,24 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 			break;
 			
 		case right:
-			screen.data[pos]   = DoorComboSets[d].doorcombo_r[type][0];
-			screen.cset[pos]   = DoorComboSets[d].doorcset_r[type][0];
-			screen.sflag[pos]  = 0;
-			screen.data[pos+1]   = DoorComboSets[d].doorcombo_r[type][1];
-			screen.cset[pos+1]   = DoorComboSets[d].doorcset_r[type][1];
-			screen.sflag[pos+1]  = 0;
-			screen.data[pos+16]   = DoorComboSets[d].doorcombo_r[type][2];
-			screen.cset[pos+16]   = DoorComboSets[d].doorcset_r[type][2];
-			screen.sflag[pos+16]  = 0;
-			screen.data[pos+16+1]   = DoorComboSets[d].doorcombo_r[type][3];
-			screen.cset[pos+16+1]   = DoorComboSets[d].doorcset_r[type][3];
-			screen.sflag[pos+16+1]  = 0;
-			screen.data[pos+32]   = DoorComboSets[d].doorcombo_r[type][4];
-			screen.cset[pos+32]   = DoorComboSets[d].doorcset_r[type][4];
-			screen.sflag[pos+32]  = 0;
-			screen.data[pos+32+1]   = DoorComboSets[d].doorcombo_r[type][5];
-			screen.cset[pos+32+1]   = DoorComboSets[d].doorcset_r[type][5];
-			screen.sflag[pos+32+1]  = 0;
+			screen->data[pos]   = DoorComboSets[d].doorcombo_r[type][0];
+			screen->cset[pos]   = DoorComboSets[d].doorcset_r[type][0];
+			screen->sflag[pos]  = 0;
+			screen->data[pos+1]   = DoorComboSets[d].doorcombo_r[type][1];
+			screen->cset[pos+1]   = DoorComboSets[d].doorcset_r[type][1];
+			screen->sflag[pos+1]  = 0;
+			screen->data[pos+16]   = DoorComboSets[d].doorcombo_r[type][2];
+			screen->cset[pos+16]   = DoorComboSets[d].doorcset_r[type][2];
+			screen->sflag[pos+16]  = 0;
+			screen->data[pos+16+1]   = DoorComboSets[d].doorcombo_r[type][3];
+			screen->cset[pos+16+1]   = DoorComboSets[d].doorcset_r[type][3];
+			screen->sflag[pos+16+1]  = 0;
+			screen->data[pos+32]   = DoorComboSets[d].doorcombo_r[type][4];
+			screen->cset[pos+32]   = DoorComboSets[d].doorcset_r[type][4];
+			screen->sflag[pos+32]  = 0;
+			screen->data[pos+32+1]   = DoorComboSets[d].doorcombo_r[type][5];
+			screen->cset[pos+32+1]   = DoorComboSets[d].doorcset_r[type][5];
+			screen->sflag[pos+32+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5149,6 +5155,88 @@ void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side, int32_t xoff, i
 {
 	mapscr& screen = t == 0 ? *tmpscr : special_warp_return_screen;
 	over_door_new(dest, pos, side, screen.door_combo_set, xoff, yoff);
+}
+
+void update_door(mapscr* m,int32_t side,int32_t door,bool even_walls)
+{
+	if(door == dNONE || (!even_walls&&(door==dWALL||door==dWALK)))
+		return;
+	
+	int32_t doortype;
+	
+	switch(door)
+	{
+	case dWALL:
+		doortype=dt_wall;
+		break;
+		
+	case dWALK:
+		doortype=dt_walk;
+		break;
+		
+	case dOPEN:
+		doortype=dt_pass;
+		break;
+		
+	case dLOCKED:
+		doortype=dt_lock;
+		break;
+		
+	case dUNLOCKED:
+		doortype=dt_olck;
+		break;
+		
+	case dSHUTTER:
+		if(screenscrolling && ((HeroDir()^1)==side))
+		{
+			doortype=dt_osht;
+			opendoors=-4;
+			break;
+		}
+
+		[[fallthrough]];
+	case d1WAYSHUTTER:
+		doortype=dt_shut;
+		break;
+		
+	case dOPENSHUTTER:
+		doortype=dt_osht;
+		break;
+		
+	case dBOSS:
+		doortype=dt_boss;
+		break;
+		
+	case dOPENBOSS:
+		doortype=dt_obos;
+		break;
+		
+	case dBOMBED:
+		doortype=dt_bomb;
+		break;
+		
+	default:
+		return;
+	}
+	
+	switch(side)
+	{
+	case up:
+		put_door(nullptr,m,7,side,doortype,false,even_walls);
+		break;
+		
+	case down:
+		put_door(nullptr,m,151,side,doortype,false,even_walls);
+		break;
+		
+	case left:
+		put_door(nullptr,m,64,side,doortype,false,even_walls);
+		break;
+		
+	case right:
+		put_door(nullptr,m,78,side,doortype,false,even_walls);
+		break;
+	}
 }
 
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool even_walls)
@@ -5549,8 +5637,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	}
 
 	// check doors
-	// TODO z3 !!
-	if (isdungeon(dmap, screen_index) && !is_z3_scrolling_mode())
+	if (isdungeon(dmap, screen_index))
 	{
 		for(int32_t i=0; i<4; i++)
 		{
@@ -5592,10 +5679,9 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 				
 				break;
 			}
-			
-			// int tmp = screen_index == currscr ? 0 : 1;
-			// putdoor(scrollbuf,tmp,i,base_screen->door[i],false);
-			
+
+			update_door(base_screen, i, base_screen->door[i]);
+
 			if(door==dSHUTTER||door==d1WAYSHUTTER)
 			{
 				base_screen->door[i]=door;
@@ -6002,7 +6088,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		for(int32_t i=0; i<4; i++)
 		{
 			int32_t door=screen->door[i];
-			bool putit=true;
 			
 			switch(door)
 			{
@@ -6011,7 +6096,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 				if((ldir^1)==i)
 				{
 					screen->door[i]=dOPENSHUTTER;
-					//		  putit=false;
 				}
 				
 				opendoors = -4;
@@ -6021,7 +6105,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
 				{
 					screen->door[i]=dUNLOCKED;
-					//		  putit=false;
 				}
 				
 				break;
@@ -6030,7 +6113,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
 				{
 					screen->door[i]=dOPENBOSS;
-					//		  putit=false;
 				}
 				
 				break;
@@ -6043,12 +6125,9 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 				
 				break;
 			}
-			
-			if(putit)
-			{
-				putdoor(scrollbuf,tmp,i,screen->door[i],false);
-			}
-			
+
+			update_door(screen, i, screen->door[i]);
+
 			if(door==dSHUTTER||door==d1WAYSHUTTER)
 			{
 				screen->door[i]=door;
