@@ -2649,7 +2649,7 @@ void HeroClass::draw(BITMAP* dest)
 				
 				if(attackclk==15 && z==0 && fakez==0 && (sideviewhammerpound() || !isSideViewHero()))
 				{
-					sfx(((iswaterex(MAPCOMBO(x+wx+8,y+wy), currmap, currscr, -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_qr(qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
+					sfx(((iswaterex_z3(MAPCOMBO(x+wx+8,y+wy), -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_qr(qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
 				}
 				
 				goto herodraw_end;
@@ -2674,7 +2674,7 @@ void HeroClass::draw(BITMAP* dest)
 		if(action != casting && action != sideswimcasting)
 		{
 			// Keep this consistent with checkspecial2, line 7800-ish...
-			bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
+			bool inwater = iswaterex_z3(MAPCOMBO(x+4,y+9), -1, x+4, y+9, true, false)  && iswaterex_z3(MAPCOMBO(x+4,y+15), -1, x+4, y+15, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+9), -1, x+11, y+9, true, false) && iswaterex_z3(MAPCOMBO(x+11,y+15), -1, x+11, y+15, true, false);
 			
 			int32_t jumping2 = int32_t(jumping*((zinit.gravity / 100)/16.0));
 			bool noliftspr = get_qr(qr_NO_LIFT_SPRITE);
@@ -8215,7 +8215,7 @@ heroanimate_skip_liftwpn:;
 					auto combined_handle = get_combined_handle_for_world_xy(watercheck_x, watercheck_y, 0);
 					int waterid = combined_handle.data();
 					if(waterid)
-						waterid = iswaterex(waterid, currmap, currscr, -1, watercheck_x,watercheck_y, false, false, true, true);
+						waterid = iswaterex_z3(waterid, -1, watercheck_x,watercheck_y, false, false, true, true);
 					if(waterid)
 					{
 						newcombo const& watercmb = combobuf[waterid];
@@ -17883,7 +17883,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 				else if(dx>=256);
 				else if(dy>=176);
 				else if(get_qr(qr_DROWN) && !ilswim);
-				else if(iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
+				else if(iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
 					solid = false;
 				else
 					solid = true;
@@ -17891,7 +17891,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 		}
 		else
 		{
-			int32_t wtrx  = iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
+			int32_t wtrx  = iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy);
 			
 			if(wtrx)
 				solid = false;
@@ -17956,13 +17956,13 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			// definitions of unwalkablex.
 			// * Instead, prevent the ladder from being used in the
 			// one frame where Hero has landed on water before drowning.
-			unwalkablex = !iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
+			unwalkablex = !iswaterex_z3(MAPCOMBO(x+4,y+11), -1, x+4,y+11);
 		}
 		
 		// check if he can swim
 		if(current_item(itype_flippers) && z==0 && fakez==0)
 		{
-			int32_t wtrx  = iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
+			int32_t wtrx  = iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy);
 			if (current_item(itype_flippers) >= combobuf[wtrx].attribytes[0] && (!(combobuf[wtrx].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
 			{
 				//ladder ignores water combos that are now walkable thanks to flippers -DD
@@ -17989,7 +17989,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			// laddersetup
 		{
 			// Check if there's water to use the ladder over
-			bool wtrx = (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy) != 0);
+			bool wtrx = (iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy) != 0);
 			int32_t ldrid = current_item_id(itype_ladder);
 			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
 			
@@ -18071,12 +18071,12 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 							// to make big changes to this stuff.
 							bool deployLadder=true;
 							int32_t lx=dx&0xF0;
-							if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
+							if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex_z3(MAPCOMBO(lx+8, y+8), -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
 							{
-								if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
-									iswaterex(MAPCOMBO(lx+15, y), currmap, currscr, -1, lx+15, y) &&
-									iswaterex(MAPCOMBO(lx, y+15), currmap, currscr, -1, lx, y+15) && 
-									iswaterex(MAPCOMBO(lx+15, y+15), currmap, currscr, -1, lx+15, y+15))
+								if(iswaterex_z3(MAPCOMBO(lx, y), -1, lx, y) && 
+									iswaterex_z3(MAPCOMBO(lx+15, y), -1, lx+15, y) &&
+									iswaterex_z3(MAPCOMBO(lx, y+15), -1, lx, y+15) && 
+									iswaterex_z3(MAPCOMBO(lx+15, y+15), -1, lx+15, y+15))
 									deployLadder=false;
 							}
 							if(deployLadder)
@@ -18469,14 +18469,14 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix tx3 = (dx < 0 ? -8 : 8);
 				ladderx = TRUNCATE_HALF_TILE(tx.getInt());
 				laddery = y.getTrunc();
-				if (((iswaterex(MAPCOMBO(ladderx+tx2,y+9), currmap, currscr, -1, ladderx+tx2,y+9) != 0) || getpitfall(ladderx+tx2,y+9))
-				&& ((iswaterex(MAPCOMBO(ladderx+tx2,y+15), currmap, currscr, -1, ladderx+tx2,y+15) != 0) || getpitfall(ladderx+tx2,y+15)))
+				if (((iswaterex_z3(MAPCOMBO(ladderx+tx2,y+9), -1, ladderx+tx2,y+9) != 0) || getpitfall(ladderx+tx2,y+9))
+				&& ((iswaterex_z3(MAPCOMBO(ladderx+tx2,y+15), -1, ladderx+tx2,y+15) != 0) || getpitfall(ladderx+tx2,y+15)))
 				{
 					ladderdir = left;
 					ladderstart = dir;
 				}
-				else if (((iswaterex(MAPCOMBO(ladderx+tx2+tx3,y+9), currmap, currscr, -1, ladderx+tx2+tx3,y+9) != 0) || getpitfall(ladderx+tx2+tx3,y+9))
-				&& ((iswaterex(MAPCOMBO(ladderx+tx2+tx3,y+15), currmap, currscr, -1, ladderx+tx2+tx3,y+15) != 0) || getpitfall(ladderx+tx2+tx3,y+15)))
+				else if (((iswaterex_z3(MAPCOMBO(ladderx+tx2+tx3,y+9), -1, ladderx+tx2+tx3,y+9) != 0) || getpitfall(ladderx+tx2+tx3,y+9))
+				&& ((iswaterex_z3(MAPCOMBO(ladderx+tx2+tx3,y+15), -1, ladderx+tx2+tx3,y+15) != 0) || getpitfall(ladderx+tx2+tx3,y+15)))
 				{
 					ladderx = TRUNCATE_HALF_TILE(tx.getInt()+tx3.getInt());
 					ladderdir = left;
@@ -18633,14 +18633,14 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				
 				ladderx = x.getTrunc();
 				laddery = TRUNCATE_HALF_TILE(ty.getInt());
-				if (((iswaterex(MAPCOMBO(x+4,laddery+ty2), currmap, currscr, -1, x+4,laddery+ty2) != 0) || getpitfall(x+4,laddery+ty2))
-				&& ((iswaterex(MAPCOMBO(x+11,laddery+ty2), currmap, currscr, -1, x+11,laddery+ty2) != 0) || getpitfall(x+11,laddery+ty2)))
+				if (((iswaterex_z3(MAPCOMBO(x+4,laddery+ty2), -1, x+4,laddery+ty2) != 0) || getpitfall(x+4,laddery+ty2))
+				&& ((iswaterex_z3(MAPCOMBO(x+11,laddery+ty2), -1, x+11,laddery+ty2) != 0) || getpitfall(x+11,laddery+ty2)))
 				{
 					ladderdir = up;
 					ladderstart = dir;
 				}
-				else if (((iswaterex(MAPCOMBO(x+4,laddery+ty2+ty3), currmap, currscr, -1, x+4,laddery+ty2+ty3) != 0) || getpitfall(x+4,laddery+ty2+ty3))
-				&& ((iswaterex(MAPCOMBO(x+11,laddery+ty2+ty3), currmap, currscr, -1, x+11,laddery+ty2+ty3) != 0) || getpitfall(x+11,laddery+ty2+ty3)))
+				else if (((iswaterex_z3(MAPCOMBO(x+4,laddery+ty2+ty3), -1, x+4,laddery+ty2+ty3) != 0) || getpitfall(x+4,laddery+ty2+ty3))
+				&& ((iswaterex_z3(MAPCOMBO(x+11,laddery+ty2+ty3), -1, x+11,laddery+ty2+ty3) != 0) || getpitfall(x+11,laddery+ty2+ty3)))
 				{
 					laddery = TRUNCATE_HALF_TILE(ty.getInt() + ty3.getInt());
 					ladderdir = up;
@@ -18785,7 +18785,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		return ret;
 	if(dy < 0 && !ign_sv && sideview_mode() && IsSideSwim() && checkladder)
 	{
-		if(!iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)-2), currmap, currscr, -1, x, y+(bigHitbox?0:8) - 2, true, false)
+		if(!iswaterex_z3(MAPCOMBO(x, y+(bigHitbox?0:8)-2), -1, x, y+(bigHitbox?0:8) - 2, true, false)
 			&& !canSideviewLadderRemote(x, y-4) && scr_canmove(0, -2, kb, true) && (y+(bigHitbox?0:8) - 4) > 0)
 		{
 			if (game->get_sideswim_jump() != 0)
@@ -19479,11 +19479,11 @@ void HeroClass::movehero()
 		}
 		else
 		{
-			int32_t wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
-			int32_t wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
-			int32_t wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
-			int32_t wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
-			int32_t wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
+			int32_t wtry  = iswaterex_z3(MAPCOMBO(x,y+15), -1, x,y+15, true, false);
+			int32_t wtry8 = iswaterex_z3(MAPCOMBO(x+15,y+15), -1, x+15,y+15, true, false);
+			int32_t wtrx = iswaterex_z3(MAPCOMBO(x,y+(bigHitbox?0:8)), -1, x,y+(bigHitbox?0:8), true, false);
+			int32_t wtrx8 = iswaterex_z3(MAPCOMBO(x+15,y+(bigHitbox?0:8)), -1, x+15,y+(bigHitbox?0:8), true, false);
+			int32_t wtrc = iswaterex_z3(MAPCOMBO(x+8,y+(bigHitbox?8:12)), -1, x+8,y+(bigHitbox?8:12), true, false);
 			
 			if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))&&!(ladderx+laddery)&&z==0&&fakez==0)
 			{
@@ -20174,7 +20174,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 					if (IsSideSwim()) 
 					{
 						dy = up_step;
-						if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+						if (!iswaterex_z3(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
 					}
 				}
 				break;
@@ -20204,7 +20204,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 						if (IsSideSwim()) 
 						{
 							dy = up_step;
-							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+							if (!iswaterex_z3(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
 						}
 						break;
 					case down:
@@ -20226,7 +20226,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 						if (IsSideSwim()) 
 						{
 							dy = up_step;
-							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+							if (!iswaterex_z3(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
 						}
 						break;
 					case down:

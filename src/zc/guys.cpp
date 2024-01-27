@@ -10655,22 +10655,15 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	Clk=Clk;
 	mainguy=false;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
-	/*if((x>-17 && x<0) && iswaterex(tmpscr->data[(((int32_t)y&0xF0)+((int32_t)x>>4))]))
-	{
-	  clk=1;
-	}*/
-	//nets+880;
+	
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
-   // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
-//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = d->xofs;
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
