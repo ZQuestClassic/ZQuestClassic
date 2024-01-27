@@ -1868,7 +1868,6 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 }
 
 // (x, y) are world coordinates
-// TODO z3 ! just make iswaterrex take world coords, then delete this one.
 int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
 	if (x<0 || x>=world_w || y<0 || y>=world_h)
@@ -3714,7 +3713,6 @@ bool lenscheck(mapscr* basescr, int layer)
 	return true;
 }
 
-// TODO z3 ! remove
 void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
@@ -6626,110 +6624,6 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 
 	zfix unused;
 	return _walkflag_new(m, s1, s2, x, y, unused, false) || (cnt != 1 && _walkflag_new(m, s1, s2, x + 8, y, unused, false));
-}
-
-// TODO z3 !!! script
-bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
-{
-	int x = zx.getRound(), y = zy.getRound();
-	{
-		int max_x = world_w;
-		int max_y = world_h;
-		if (!get_qr(qr_LTTPWALK))
-		{
-			max_x -= 7;
-			max_y -= 7;
-		}
-		if (x < 0 || y < 0) return false;
-		if (x >= max_x) return false;
-		if (x >= max_x - 8 && cnt == 2) return false;
-		if (y >= max_y) return false;
-	}
-
-	if(!s1) s1 = m;
-	if(!s2) s2 = m;
-	
-	int32_t bx = COMBOPOS(x % 256, y % 176);
-	const newcombo* c = &combobuf[m->data[bx]];
-	const newcombo* c1 = &combobuf[s1->data[bx]];
-	const newcombo* c2 = &combobuf[s2->data[bx]];
-	bool dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
-				   (iswater_type(c2->type))) && DRIEDLAKE);
-	int32_t b=1;
-	
-	if(x&8) b<<=2;
-	
-	if(y&8) b<<=1;
-	
-	int32_t cwalkflag = c->walk;
-	if (c1->type == cBRIDGE)
-	{
-		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			int efflag = (c1->walk & 0xF0)>>4;
-			int newsolid = (c1->walk & 0xF);
-			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-		}
-		else cwalkflag &= c1->walk;
-	}
-	else if (s1 != m) cwalkflag |= c1->walk;
-	if (c2->type == cBRIDGE)
-	{
-		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			int efflag = (c2->walk & 0xF0)>>4;
-			int newsolid = (c2->walk & 0xF);
-			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-		}
-		else cwalkflag &= c2->walk;
-	}
-	else if (s2 != m) cwalkflag |= c2->walk;
-	
-	if((cwalkflag&b) && !dried)
-		return true;
-		
-	if(cnt==1) return false;
-	
-	++bx;
-	
-	if(!(x&8))
-		b<<=2;
-	else
-	{
-		c  = &combobuf[m->data[bx]];
-		c1 = &combobuf[s1->data[bx]];
-		c2 = &combobuf[s2->data[bx]];
-		dried = (((iswater_type(c->type)) || (iswater_type(c1->type)) ||
-				  (iswater_type(c2->type))) && DRIEDLAKE);
-		b=1;
-		
-		if(y&8) b<<=1;
-	}
-	
-	cwalkflag = c->walk;
-	if (c1->type == cBRIDGE)
-	{
-		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			int efflag = (c1->walk & 0xF0)>>4;
-			int newsolid = (c1->walk & 0xF);
-			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-		}
-		else cwalkflag &= c1->walk;
-	}
-	else if (s1 != m) cwalkflag |= c1->walk;
-	if (c2->type == cBRIDGE) 
-	{
-		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
-		{
-			int efflag = (c2->walk & 0xF0)>>4;
-			int newsolid = (c2->walk & 0xF);
-			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-		}
-		else cwalkflag &= c2->walk;
-	}
-	else if (s2 != m) cwalkflag |= c2->walk;
-	return (cwalkflag&b) ? !dried : false;
 }
 
 bool _walkflag_layer(zfix_round x, zfix_round y, int32_t layer, int32_t cnt)

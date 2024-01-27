@@ -18042,7 +18042,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 					}
 				}
 			}
-			bool walkwater = (get_qr(qr_DROWN) && !iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy));
+			bool walkwater = (get_qr(qr_DROWN) && !iswaterex_z3(MAPCOMBO(dx,dy), -1, dx,dy));
 			
 			if (!wtrx && solid)
 			{
