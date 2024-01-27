@@ -672,7 +672,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 
 											if (strlen(tmfname) > 55)
 											{
-												jwin_alert("Error", "Filename too long", "(>55 characters", NULL, "O&K", NULL, 'k', 0, get_zc_font(font_lfont));
+												jwin_alert("Error", "Filename too long", "(>55 characters)", NULL, "O&K", NULL, 'k', 0, get_zc_font(font_lfont));
 												temppath[0] = 0;
 											}
 											else
@@ -693,6 +693,10 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 													local_dmap.tmusic[55] = 0;
 
 													zcmusic_unload_file(tempdmapzcmusic);
+												}
+												else
+												{
+													jwin_alert("Error", "Could not load file", "Enhanced music files must be saved in the same folder as the quest, the ZC program folder, or in a \"music\" or \"questname.qst_music\" subfolder of the two", NULL, "O&K", NULL, 'k', 0, get_zc_font(font_lfont));
 												}
 
 												tmusic_field->setText(local_dmap.tmusic);
