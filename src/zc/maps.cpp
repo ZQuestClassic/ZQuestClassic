@@ -51,7 +51,7 @@ extern HeroClass Hero;
 // zscript docs
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
-static mapscr* temporary_screens_currmap[136*7] = {nullptr};
+static mapscr* temporary_screens_currmap[136*7];
 static bool screen_in_current_region[176];
 static rpos_handle_t current_region_rpos_handles[136*7];
 static int current_region_screen_count;
@@ -69,11 +69,9 @@ region current_region, scrolling_region;
 
 static int current_region_indices[128];
 
-static int scr_xy_to_index(int x, int y) {
-	// TODO z3 ! can't do this check, because some code expected to be able to go slightly out of bounds
-	// DCHECK(x >= 0 && x < 16 && y >= 0 && y < 8);
-	x = CLAMP(0, x, 15);
-	y = CLAMP(0, y, 7);
+static int scr_xy_to_index(int x, int y)
+{
+	DCHECK(x >= 0 && x < 16 && y >= 0 && y < 8);
 	return x + y*16;
 }
 
@@ -443,6 +441,8 @@ mapscr* get_screen_for_world_xy(int x, int y)
 
 mapscr* get_screen_for_rpos(rpos_t rpos)
 {
+	// Quick path, but should work the same without.
+	if (!is_z3_scrolling_mode()) return tmpscr;
 	return get_scr(currmap, get_screen_index_for_rpos(rpos));
 }
 
@@ -947,9 +947,6 @@ int32_t MAPFLAG(int32_t x, int32_t y)
 
 int32_t COMBOTYPE(int32_t x,int32_t y)
 {
-	// TODO z3 ! this just break replays, delete ?
-	// if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
-
 	int32_t b=1;
 	if(x&8) b<<=2;
 	if(y&8) b<<=1;
@@ -2139,19 +2136,18 @@ static bool checkSV(int32_t x, int32_t y, int32_t flag)
 	if(x<0 || x>=world_w || y<0 || y>=world_h)
         return false;
 	
-	auto rpos = COMBOPOS_REGION(x, y);
-	auto rpos_handle = get_rpos_handle(rpos, 0);
-	if (rpos_handle.sflag() == flag || rpos_handle.combo().flag == flag)
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
+	if (rpos_handle.sflag() == flag || rpos_handle.cflag() == flag)
 		return true;
 	
 	change_rpos_handle_layer(rpos_handle, 1);
 	if (rpos_handle.screen->valid)
-		if (rpos_handle.sflag() == flag || rpos_handle.combo().flag == flag)
+		if (rpos_handle.sflag() == flag || rpos_handle.cflag() == flag)
 			return true;
 	
 	change_rpos_handle_layer(rpos_handle, 2);
 	if (rpos_handle.screen->valid)
-		if (rpos_handle.sflag() == flag || rpos_handle.combo().flag == flag)
+		if (rpos_handle.sflag() == flag || rpos_handle.cflag() == flag)
 			return true;
 	
 	return false;
@@ -6047,7 +6043,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	}
 	
 	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
-	// TODO z3 !? replay
 	toggle_gswitches_load(tmp == 0 ? tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
