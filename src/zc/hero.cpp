@@ -28858,15 +28858,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		playing_field_offset = old_playing_field_offset;
 	}
 
-	// TODO z3 !!!!! rm dupe
 	// We must recalculate the new hero position and viewport, if a script run above just change the hero position.
 	if (hero_x_before_scripts != x || hero_y_before_scripts != y)
 	{
 		{
 			new_viewport = {};
 			new_hero_x = 0; new_hero_y = 0;
-			// The above `loadscr` has loaded the destination screen's region information into these global variables.
-			int new_origin_scr = cur_origin_screen_index;
 
 			switch(scrolldir)
 			{
@@ -28947,11 +28944,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// change Hero's state if entering water
 	int32_t ahead = lookahead(scrolldir);
-	int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int32_t lookaheadx = vbound(x+8,0,240);
 	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
-		//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-		//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
 	switch(scrolldir)
 	{
 		case up:
@@ -29282,7 +29276,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 			// This is the only thing that moves the hero.
 			x.doClamp(viewport.x, viewport.x + viewport.w - 16);
-			// int bounds_y = viewport.y + playing_field_offset;
 			int bounds_y = viewport.y;
 			y.doClamp(bounds_y, bounds_y + viewport.h - 16);
 
