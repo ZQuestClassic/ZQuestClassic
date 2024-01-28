@@ -205,7 +205,12 @@ void z3_load_region(int screen_index, int dmap)
 	{
 		for (int sx = 0; sx < 16; sx++)
 		{
-			current_region_indices[sx + sy*16] = getNibble(DMaps[dmap].region_indices[sy][sx/2], sx % 2 == 0);
+			int id = getNibble(DMaps[dmap].region_indices[sy][sx/2], sx % 2 == 0);
+			int screen = scr_xy_to_index(sx, sy);
+			if (id && (get_canonical_scr(DMaps[dmap].map, screen)->valid & mVALID))
+				current_region_indices[screen] = id;
+			else
+				current_region_indices[screen] = 0;
 		}
 	}
 
@@ -5815,7 +5820,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	heroscr = scr;
 	hero_screen = get_scr_no_load(currmap, scr);
-	DCHECK(hero_screen);
+	CHECK(hero_screen);
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
