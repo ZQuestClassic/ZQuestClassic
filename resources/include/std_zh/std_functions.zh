@@ -524,9 +524,25 @@ bool Collision(combodata f)
 //Finds the location of a combo, given its (x,y) coordinates on the screen
 int ComboAt(int x, int y)
 {
-	x = VBound(x,255,0);
-	y = VBound(y,175,0);
-	return (y & 240)+(x>>4);
+	// Don't actually need this yet.
+	// if (Region->ID)
+	// {
+	// 	x = VBound(x, Region->Width - 1, 0);
+	// 	y = VBound(y, Region->Height - 1, 0);
+	// 	// Floor'd because in ZScript, ints aren't ints?!
+	// 	int scr_dx = Floor(x / 256);
+	// 	int scr_dy = Floor(y / 176);
+	// 	int offset_pos = (scr_dx + scr_dy * Region->ScreenWidth)*176;
+	// 	int pos = ((y%176) & 240)+((x%256)>>4);
+	// 	return offset_pos + pos;
+	// }
+	// else
+	{
+		// Fast path.
+		x = VBound(x,255,0);
+		y = VBound(y,175,0);
+		return (y & 240)+(x>>4);
+	}
 }
 
 //Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
@@ -542,14 +558,122 @@ bool ComboFI(int loc, int flag)
 	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
 }
 
+// Note: all of the `Region->ID` checks in these various functions are minor performance improvements. The functions
+// likely work even without that.
+
 //Return the coordinates of a combo on the screen
-int ComboX(int loc)
+int ComboX(int rpos)
 {
-	return loc%16*16;
+	// Don't actually need this yet.
+	// if (Region->ID)
+	// {
+	// 	int scr_index = Floor(rpos / 176);
+	// 	int scr_width = Region->ScreenWidth;
+	// 	int scr_dx = scr_index % scr_width;
+	// 	int scr_dy = Floor(scr_index / scr_width);
+	// 	int pos = rpos % 176;
+	// 	return scr_dx*16*16 + pos%16*16;
+	// }
+	// else
+	{
+		return rpos%16*16;
+	}
 }
-int ComboY(int loc)
+int ComboY(int rpos)
 {
-	return loc&0xF0;
+	// Don't actually need this yet.
+	// if (Region->ID)
+	// {
+	// 	int scr_index = Floor(rpos / 176);
+	// 	int scr_width = Region->ScreenWidth;
+	// 	int scr_dx = scr_index % scr_width;
+	// 	int scr_dy = Floor(scr_index / scr_width);
+	// 	int pos = rpos % 176;
+	// 	return scr_dy*11*16 + (pos&0xF0);
+	// }
+	// else
+	{
+		return rpos&0xF0;
+	}
+}
+
+// Given a screen index, returns the screen offset in the X direction in the current region.
+// Example: If the region origin is screen 5, `RegionRelativeScreenX(8) == 3`
+int RegionRelativeScreenX(int scr)
+{
+	if (Region->ID)
+	{
+		return scr%16 - Region->OriginScreen%16;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Given a screen index, returns the screen offset in the Y direction in the current region.
+int RegionRelativeScreenY(int scr)
+{
+	if (Region->ID)
+	{
+		return Floor(scr/16) - Floor(Region->OriginScreen/16);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Given a screen index, returns the world offset in the x direction for the current region.
+int RegionWorldOffsetX(int scr)
+{
+	if (Region->ID)
+	{
+		return RegionRelativeScreenX(scr) * 256;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Given a screen index, returns the world offset in the y direction for the current region.
+int RegionWorldOffsetY(int scr)
+{
+	if (Region->ID)
+	{
+		return RegionRelativeScreenY(scr) * 176;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Returns true if the given screen index is inside the current region.
+// When not in a region, only returns true if scr is equal to Game->CurScreen.
+bool RegionIncludesScreen(int scr)
+{
+	if (Region->ID)
+	{
+		int dx = RegionRelativeScreenX(scr);
+		if (dx < 0 || dx > Region->ScreenWidth) return false;
+
+		int dy = RegionRelativeScreenY(scr);
+		if (dy < 0 || dy > Region->ScreenHeight) return false;
+
+		return true;
+	}
+
+	return scr == Game->CurScreen;
+}
+
+// Returns the FFC ID of the screen `scr`, which must be within the current Region.
+// `index` is the screen-specific index of the FFC (what you would see in the editor on that screen).
+int RegionGetFFCId(int scr, int index)
+{
+	int offset = 128 * (RegionRelativeScreenX(scr) + RegionRelativeScreenY(scr)*Region->ScreenWidth);
+	return offset + index;
 }
 
 //Returns a if cond is true, else b. Overloaded.

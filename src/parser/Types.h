@@ -92,6 +92,7 @@ namespace ZScript
 		ZTID_GAME = ZTID_CLASS_START,
 		ZTID_PLAYER,
 		ZTID_SCREEN,
+		ZTID_REGION,
 		ZTID_FFC,
 		ZTID_ITEM,
 		ZTID_ITEMCLASS,
@@ -166,6 +167,8 @@ namespace ZScript
 				return "PLAYER";
 			case ZTID_SCREEN:
 				return "SCREEN";
+			case ZTID_REGION:
+				return "REGION";
 			case ZTID_FFC:
 				return "FFC";
 			case ZTID_ITEM:
@@ -285,6 +288,8 @@ namespace ZScript
 			return ZTID_PLAYER;
 		else if(name == "SCREEN")
 			return ZTID_SCREEN;
+		else if(name == "REGION")
+			return ZTID_REGION;
 		else if(name == "FFC")
 			return ZTID_FFC;
 		else if(name == "ITEMSPRITE")
@@ -467,6 +472,7 @@ namespace ZScript
 		static DataTypeClassConst GAME;
 		static DataTypeClassConst PLAYER;
 		static DataTypeClassConst SCREEN;
+		static DataTypeClassConst REGION;
 		static DataTypeClassConst AUDIO;
 		static DataTypeClassConst DEBUG;
 		static DataTypeClassConst GRAPHICS;

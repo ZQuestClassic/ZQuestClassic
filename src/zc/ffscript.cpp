@@ -9163,6 +9163,51 @@ int32_t get_register(const int32_t arg)
 				ret = ((combobuf[tmpscr->data[pos]].walk & 0xF0)>>4) * 10000;
 		}
 		break;
+
+		///----------------------------------------------------------------------------------------------------//
+		//Region
+
+		case REGION_WIDTH:
+		{
+			ret = 256 * 10000;
+		}
+		break;
+
+		case REGION_HEIGHT:
+		{
+			ret = 176 * 10000;
+		}
+		break;
+
+		case REGION_SCREEN_WIDTH:
+		{
+			ret = 1 * 10000;
+		}
+		break;
+
+		case REGION_SCREEN_HEIGHT:
+		{
+			ret = 1 * 10000;
+		}
+		break;
+
+		case REGION_NUM_COMBOS:
+		{
+			ret = 176 * 10000;
+		}
+		break;
+
+		case REGION_ID:
+		{
+			ret = 0 * 10000;
+		}
+		break;
+
+		case REGION_ORIGIN_SCREEN:
+		{
+			ret = currscr * 10000;
+		}
+		break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Game->GetComboX
@@ -30220,6 +30265,20 @@ void do_triggersecrets()
 
 
 
+void do_getscreenforcombopos(const bool v)
+{
+	int rpos = (SH::get_arg(sarg1, v) / 10000);
+	
+	if (BC::checkBoundsPos(rpos, 0, 175, "Region->GetScreenForComoboPos") != SH::_NoError)
+	{
+		set_register(sarg1, -10000);
+		return;
+	}
+
+	set_register(sarg1, currscr * 10000);
+}
+
+
 
 void do_getscreenflags()
 {
@@ -40276,6 +40335,23 @@ j_command:
 				set_register(sarg1, r ? 10000L : 0L);
 				break;
 			}
+
+			case REGION_SCREEN_FOR_COMBO_POS:
+				do_getscreenforcombopos(false);
+				break;
+
+			case REGION_TRIGGER_SECRETS:
+			{
+				int screen_index = get_register(sarg1) / 10000;
+				if (screen_index != currscr)
+				{
+					Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen_index);
+					break;
+				}
+
+				do_triggersecrets();
+				break;
+			}
 			
 			///----------------------------------------------------------------------------------------------------//
 			
@@ -48116,20 +48192,16 @@ script_variable ZASMVars[]=
 	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
 	{ "RESRVD_VAR_Z3_01", RESRVD_VAR_Z3_01, 0, 0 },
 	{ "RESRVD_VAR_Z3_02", RESRVD_VAR_Z3_02, 0, 0 },
-	{ "RESRVD_VAR_Z3_03", RESRVD_VAR_Z3_03, 0, 0 },
-	{ "RESRVD_VAR_Z3_04", RESRVD_VAR_Z3_04, 0, 0 },
-	{ "RESRVD_VAR_Z3_05", RESRVD_VAR_Z3_05, 0, 0 },
-	{ "RESRVD_VAR_Z3_06", RESRVD_VAR_Z3_06, 0, 0 },
+	{ "REGION_WIDTH", REGION_WIDTH, 0, 0},
+	{ "REGION_HEIGHT", REGION_HEIGHT, 0, 0},
+	{ "REGION_SCREEN_WIDTH", REGION_SCREEN_WIDTH, 0, 0},
+	{ "REGION_SCREEN_HEIGHT", REGION_SCREEN_HEIGHT, 0, 0},
 	{ "RESRVD_VAR_Z3_07", RESRVD_VAR_Z3_07, 0, 0 },
-	{ "RESRVD_VAR_Z3_08", RESRVD_VAR_Z3_08, 0, 0 },
-	{ "RESRVD_VAR_Z3_09", RESRVD_VAR_Z3_09, 0, 0 },
-	{ "RESRVD_VAR_Z3_10", RESRVD_VAR_Z3_10, 0, 0 },
-	{ "RESRVD_VAR_Z3_11", RESRVD_VAR_Z3_11, 0, 0 },
+	{ "REGION_UNUSED", REGION_UNUSED, 0, 0},
+	{ "REGION_NUM_COMBOS", REGION_NUM_COMBOS, 0, 0},
+	{ "REGION_ID", REGION_ID, 0, 0},
+	{ "REGION_ORIGIN_SCREEN", REGION_ORIGIN_SCREEN, 0, 0},
 	{ "RESRVD_VAR_Z3_12", RESRVD_VAR_Z3_12, 0, 0 },
-	{ "RESRVD_VAR_Z3_13", RESRVD_VAR_Z3_13, 0, 0 },
-	{ "RESRVD_VAR_Z3_14", RESRVD_VAR_Z3_14, 0, 0 },
-	{ "RESRVD_VAR_Z3_15", RESRVD_VAR_Z3_15, 0, 0 },
-	{ "RESRVD_VAR_Z3_16", RESRVD_VAR_Z3_16, 0, 0 },
 	{ "LWPNLIFTLEVEL", LWPNLIFTLEVEL, 0, 0},
 	{ "LWPNLIFTTIME", LWPNLIFTTIME, 0, 0},
 	{ "LWPNLIFTHEIGHT", LWPNLIFTHEIGHT, 0, 0},

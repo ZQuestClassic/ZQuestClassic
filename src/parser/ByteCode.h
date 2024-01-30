@@ -1527,15 +1527,15 @@
 #define RESRVD_VAR_Z3_05        1440
 #define RESRVD_VAR_Z3_06        1441
 #define RESRVD_VAR_Z3_07        1442
-#define RESRVD_VAR_Z3_08        1443
-#define RESRVD_VAR_Z3_09        1444
-#define RESRVD_VAR_Z3_10        1445
-#define RESRVD_VAR_Z3_11        1446
+#define REGION_WIDTH            1443
+#define REGION_HEIGHT           1444
+#define REGION_SCREEN_WIDTH     1445
+#define REGION_SCREEN_HEIGHT    1446
 #define RESRVD_VAR_Z3_12        1447
-#define RESRVD_VAR_Z3_13        1448
-#define RESRVD_VAR_Z3_14        1449
-#define RESRVD_VAR_Z3_15        1450
-#define RESRVD_VAR_Z3_16        1451
+#define REGION_UNUSED           1448
+#define REGION_NUM_COMBOS       1449
+#define REGION_ID               1450
+#define REGION_ORIGIN_SCREEN    1451
 #define LWPNLIFTLEVEL      1452
 #define LWPNLIFTTIME      1453
 #define LWPNLIFTHEIGHT      1454
@@ -5546,6 +5546,17 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OTriggerSecrets();
+		}
+	};
+
+	class OTriggerSecretsFor : public UnaryOpcode
+	{
+	public:
+		OTriggerSecretsFor(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode *clone() const
+		{
+			return new OTriggerSecretsFor(a->clone());
 		}
 	};
 
@@ -11742,6 +11753,16 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OModuleGetIC(a->clone(), b->clone());
+		}
+	};
+	class OGetScreenForComboPos : public UnaryOpcode
+	{
+	public:
+		OGetScreenForComboPos(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode *clone() const
+		{
+			return new OGetScreenForComboPos(a->clone());
 		}
 	};
 	class ORunGenericFrozenScript : public UnaryOpcode

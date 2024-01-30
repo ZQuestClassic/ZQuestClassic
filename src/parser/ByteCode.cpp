@@ -319,6 +319,19 @@ string ZScript::VarToString(int32_t ID)
 		case REFFFC:
 			return "REFFFC";
 		
+		case REGION_WIDTH:
+			return "REGION_WIDTH";
+		case REGION_HEIGHT:
+			return "REGION_HEIGHT";
+		case REGION_SCREEN_WIDTH:
+			return "REGION_SCREEN_WIDTH";
+		case REGION_SCREEN_HEIGHT:
+			return "REGION_SCREEN_HEIGHT";
+		case REGION_UNUSED:
+			return "REGION_UNUSED";
+		case REGION_NUM_COMBOS:
+			return "REGION_NUM_COMBOS";
+		
 		case REFMAPDATA: return "REFMAPDATA";
 		case REFSCREENDATA: return "REFSCREENDATA";
 		case REFCOMBODATA: return "REFCOMBODATA";
@@ -2293,6 +2306,9 @@ string ZScript::VarToString(int32_t ID)
 		case RESRVD_VAR_MOOSH28: return "RESRVD_VAR_MOOSH28";
 		case RESRVD_VAR_MOOSH29: return "RESRVD_VAR_MOOSH29";
 		case RESRVD_VAR_MOOSH30: return "RESRVD_VAR_MOOSH30";
+		case REGION_ID: return "REGION_ID";
+		case REGION_ORIGIN_SCREEN: return "REGION_ORIGIN_SCREEN";
+
 		case RESRVD_VAR_Z3_01: return "RESRVD_VAR_Z3_01";
 		case RESRVD_VAR_Z3_02: return "RESRVD_VAR_Z3_02";
 		case RESRVD_VAR_Z3_03: return "RESRVD_VAR_Z3_03";
@@ -2300,15 +2316,7 @@ string ZScript::VarToString(int32_t ID)
 		case RESRVD_VAR_Z3_05: return "RESRVD_VAR_Z3_05";
 		case RESRVD_VAR_Z3_06: return "RESRVD_VAR_Z3_06";
 		case RESRVD_VAR_Z3_07: return "RESRVD_VAR_Z3_07";
-		case RESRVD_VAR_Z3_08: return "RESRVD_VAR_Z3_08";
-		case RESRVD_VAR_Z3_09: return "RESRVD_VAR_Z3_09";
-		case RESRVD_VAR_Z3_10: return "RESRVD_VAR_Z3_10";
-		case RESRVD_VAR_Z3_11: return "RESRVD_VAR_Z3_11";
 		case RESRVD_VAR_Z3_12: return "RESRVD_VAR_Z3_12";
-		case RESRVD_VAR_Z3_13: return "RESRVD_VAR_Z3_13";
-		case RESRVD_VAR_Z3_14: return "RESRVD_VAR_Z3_14";
-		case RESRVD_VAR_Z3_15: return "RESRVD_VAR_Z3_15";
-		case RESRVD_VAR_Z3_16: return "RESRVD_VAR_Z3_16";
 		
 		case SUBDATATRANSRIGHTTY: return "SUBDATATRANSRIGHTTY";
 		case SUBDATATRANSRIGHTSFX: return "SUBDATATRANSRIGHTSFX";
@@ -4287,6 +4295,11 @@ string OLayerMapRegister::toString() const
 string OTriggerSecrets::toString() const
 {
     return "SECRETS";
+}
+
+string OTriggerSecretsFor::toString() const
+{
+    return "REGION_TRIGGER_SECRETS " + getArgument()->toString();
 }
 
 string OIsValidArray::toString() const
@@ -6805,6 +6818,11 @@ string OStackSet::toString() const
 string OModuleGetIC::toString() const
 {
     return "MODULEGETIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OGetScreenForComboPos::toString() const
+{
+    return "REGION_SCREEN_FOR_COMBO_POS " + getArgument()->toString();
 }
 
 
