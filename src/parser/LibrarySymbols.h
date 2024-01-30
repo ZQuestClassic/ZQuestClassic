@@ -128,6 +128,19 @@ private:
 	void generateCode();
 };
 
+class RegionSymbols : public LibrarySymbols
+{
+public:
+    static RegionSymbols &getInst()
+    {
+        return singleton;
+    }
+private:
+    static RegionSymbols singleton;
+    RegionSymbols();
+	void generateCode();
+};
+
 class ItemSymbols : public LibrarySymbols
 {
 public:

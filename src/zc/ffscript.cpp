@@ -8634,6 +8634,51 @@ int32_t get_register(int32_t arg)
 				ret = ((combobuf[tmpscr->data[pos]].walk & 0xF0)>>4) * 10000;
 		}
 		break;
+
+		///----------------------------------------------------------------------------------------------------//
+		//Region
+
+		case REGION_WIDTH:
+		{
+			ret = 256 * 10000;
+		}
+		break;
+
+		case REGION_HEIGHT:
+		{
+			ret = 176 * 10000;
+		}
+		break;
+
+		case REGION_SCREEN_WIDTH:
+		{
+			ret = 1 * 10000;
+		}
+		break;
+
+		case REGION_SCREEN_HEIGHT:
+		{
+			ret = 1 * 10000;
+		}
+		break;
+
+		case REGION_NUM_COMBOS:
+		{
+			ret = 176 * 10000;
+		}
+		break;
+
+		case REGION_ID:
+		{
+			ret = 0 * 10000;
+		}
+		break;
+
+		case REGION_ORIGIN_SCREEN:
+		{
+			ret = currscr * 10000;
+		}
+		break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Game->GetComboX
@@ -29768,6 +29813,20 @@ void do_triggersecrets()
 
 
 
+void do_getscreenforcombopos(const bool v)
+{
+	int rpos = (SH::get_arg(sarg1, v) / 10000);
+	
+	if (BC::checkBoundsPos(rpos, 0, 175, "Region->GetScreenForComoboPos") != SH::_NoError)
+	{
+		set_register(sarg1, -10000);
+		return;
+	}
+
+	set_register(sarg1, currscr * 10000);
+}
+
+
 
 void do_getscreenflags()
 {
@@ -39737,6 +39796,23 @@ int32_t run_script_int(bool is_jitted)
 			{
 				bool r = FFCore.runGenericFrozenEngine(word(ri->genericdataref));
 				set_register(sarg1, r ? 10000L : 0L);
+				break;
+			}
+
+			case REGION_SCREEN_FOR_COMBO_POS:
+				do_getscreenforcombopos(false);
+				break;
+
+			case REGION_TRIGGER_SECRETS:
+			{
+				int screen_index = get_register(sarg1) / 10000;
+				if (screen_index != currscr)
+				{
+					Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen_index);
+					break;
+				}
+
+				do_triggersecrets();
 				break;
 			}
 			

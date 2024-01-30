@@ -25,6 +25,7 @@ src/parser/symbols/GlobalSymbols.cpp
 src/parser/symbols/FFCSymbols.cpp
 src/parser/symbols/HeroSymbols.cpp
 src/parser/symbols/ScreenSymbols.cpp
+src/parser/symbols/RegionSymbols.cpp
 src/parser/symbols/ItemSymbols.cpp
 src/parser/symbols/ItemclassSymbols.cpp
 src/parser/symbols/GameSymbols.cpp

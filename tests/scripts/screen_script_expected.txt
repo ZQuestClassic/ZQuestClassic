@@ -27,7 +27,7 @@ ADDV d2,8
 PUSHR d2; UsrFunc[int ComboAt(int, int)] Params End
 CALLFUNC 0.0075; UsrFunc[int ComboAt(int, int)] Call
 POP d4
-STORED d2,0; if() #555 Test
+STORED d2,0; if() #558 Test
 PUSHR d2
 POP d0
 SETR d2,COMBODD
@@ -38,7 +38,7 @@ COMPARER d3,d2
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 43,==; Test 'if'
-LOADD d2,0; if() #555 Body Start
+LOADD d2,0; if() #558 Body Start
 PUSHR d2
 POP d0
 SETR d2,COMBODD
@@ -50,7 +50,7 @@ POP d0
 POP d2
 SETR COMBODD,d2
 LOADD d2,2; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body AND if() #555 Body End
+PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body AND if() #558 Body End
 PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
 SETR d2,LINKY
@@ -109,7 +109,7 @@ ADDR d2,d3
 POPARGS d5,0.0002; return End
 RETURNFUNC; Func[int ComboAt(int, int)] Body End
 SETR d4,SP; Func[int VBound(int, int, int)] Body Start
-LOADD d2,2; if() #129 Test
+LOADD d2,2; if() #133 Test
 PUSHR d2
 LOADD d2,0
 POP d3
@@ -117,10 +117,10 @@ COMPARER d3,d2
 SETCMP d2,I<
 COMPAREV d2,0
 GOTOCMP 112,==; Test 'if'
-LOADD d2,0; if() #129 Body Start
+LOADD d2,0; if() #133 Body Start
 STORED d2,2
-GOTO 122; if() #129 Body End
-LOADD d2,2; if() #352 Test AND if() #129 Else Start
+GOTO 122; if() #133 Body End
+LOADD d2,2; if() #355 Test AND if() #133 Else Start
 PUSHR d2
 LOADD d2,1
 POP d3
@@ -128,9 +128,9 @@ COMPARER d3,d2
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 122,==; Test 'if'
-LOADD d2,1; if() #352 Body Start
-STORED d2,2; if() #352 Body End
-LOADD d2,2; if() #129 Else End AND return Start
+LOADD d2,1; if() #355 Body Start
+STORED d2,2; if() #355 Body End
+LOADD d2,2; if() #133 Else End AND return Start
 POPARGS d5,0.0003; return End
 RETURNFUNC; Func[int VBound(int, int, int)] Body End
 

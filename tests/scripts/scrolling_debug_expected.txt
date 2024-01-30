@@ -139,7 +139,7 @@ PUSHV 0
 PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params End
 DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
 POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
-SETV d2,0; if() #555 Test
+SETV d2,0; if() #558 Test
 PUSHR d2
 POP d0
 SETR d2,GAMESCROLLING
@@ -147,7 +147,7 @@ COMPAREV d2,-1
 SETCMP d2,I!=
 COMPAREV d2,0
 GOTOCMP 223,==; Test 'if'
-SETR d2,LINKX; if() #555 Body Start
+SETR d2,LINKX; if() #558 Body Start
 PUSHR d2
 SETV d2,1
 PUSHR d2
@@ -230,7 +230,7 @@ PUSHARGSV 0,0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #555 Body End
+POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #558 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
 GOTO 4; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 
