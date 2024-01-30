@@ -328,14 +328,14 @@ string ZScript::VarToString(int32_t ID)
 			return "REGION_WIDTH";
 		case REGION_HEIGHT:
 			return "REGION_HEIGHT";
-		case REGIONSCREENWIDTH:
-			return "REGIONSCREENWIDTH";
-		case REGIONSCREENHEIGHT:
-			return "REGIONSCREENHEIGHT";
-		case REGION_MAX_RPOS:
-			return "REGION_MAX_RPOS";
-		case REGION_NUM_RPOS:
-			return "REGION_NUM_RPOS";
+		case REGION_SCREEN_WIDTH:
+			return "REGION_SCREEN_WIDTH";
+		case REGION_SCREEN_HEIGHT:
+			return "REGION_SCREEN_HEIGHT";
+		case REGION_UNUSED:
+			return "REGION_UNUSED";
+		case REGION_NUM_COMBOS:
+			return "REGION_NUM_COMBOS";
 		
 		case REFMAPDATA: return "REFMAPDATA";
 		case REFSCREENDATA: return "REFSCREENDATA";
@@ -6835,9 +6835,9 @@ string OModuleGetIC::toString() const
     return "MODULEGETIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
-string OGetScreenIndexForRpos::toString() const
+string OGetScreenForComboPos::toString() const
 {
-    return "GETSCREENINDEXFORRPOS " + getArgument()->toString();
+    return "GETSCREENFORCOMBOPOS " + getArgument()->toString();
 }
 
 string OTriggerSecretsFor::toString() const

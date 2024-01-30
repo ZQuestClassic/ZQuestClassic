@@ -34,7 +34,7 @@ TODO
 
 ### MapData and ScreenData
 
-First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions that would just be the only screen that is loaded. With regions, it is the top-left screen of the region. In general these methods have been surpassed by `mapdata`, so if you are scripting with Regions you should entirely avoid `Screen->` for reading/writing to map screens. The only exceptions to this are methods that takes as input a `pos`, such as `Screen->ComboD[pos]` - these can still be used to access any position in the base screen, but `pos` is now called `rpos` and can be greater than 175. Read on for more details.
+First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions that would just be the only screen that is loaded. With regions, it is the top-left screen of the region. In general these methods have been surpassed by `mapdata`, so if you are scripting with Regions you should entirely avoid `Screen->` for reading/writing to map screens. The only exceptions to this are methods that takes as input a `pos`, such as `Screen->ComboD[pos]` - these can still be used to access any position in the base screen, but `pos` can be greater than 175. Read on for more details.
 
 There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`.
 
@@ -45,11 +45,10 @@ There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `G
 With a `mapdata` from a temporary or scrolling screen, methods such as `mapdata->ComboD[pos]` behave slightly differently than before regions. Before, `pos` (which stands for combo position) is a `0-175` value indexes into the individual combos of a screen. The same is true with regions,  but:
 
 * the range is `0-(the number of screen in a region)*176 - 1`
-* the term `pos` is now `rpos`, or "region combo position"
 
-To get the correct value of `rpos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`.
+To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position.
 
-If you were iterating between 0 and 175 to hit every combo in a `mapdata`, you can use the new `Region->MaxRpos` or `Region->NumRpos`. The only difference between these two is that `Region->MaxRpos` is one less than `Region->NumRpos`. If not in a region, these values are just 175 and 176 respectively. Changing your code to use these instead of 175/176 will make your scripts compatible with regions.
+If you were iterating between 0 and 175 to hit every combo in a `mapdata`, you can use the new `Region->NumCombos`. If not in a region, this values is just 176. Changing your code to use this instead of 176 is necessary to make a script compatible with regions.
 
 (NOT YET IMPLEMENTED): FFCs
 

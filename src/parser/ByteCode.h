@@ -1528,11 +1528,11 @@
 #define RESRVD_VAR_Z3_2         1442
 #define REGION_WIDTH            1443
 #define REGION_HEIGHT           1444
-#define REGIONSCREENWIDTH       1445
-#define REGIONSCREENHEIGHT      1446
+#define REGION_SCREEN_WIDTH     1445
+#define REGION_SCREEN_HEIGHT    1446
 #define FF_SCREEN_INDEX         1447
-#define REGION_MAX_RPOS         1448
-#define REGION_NUM_RPOS         1449
+#define REGION_UNUSED           1448
+#define REGION_NUM_COMBOS       1449
 #define REGION_ID               1450
 #define REGION_ORIGIN_SCREEN    1451
 #define LWPNLIFTLEVEL      1452
@@ -12010,14 +12010,14 @@ namespace ZScript
 		}
 	};
 
-	class OGetScreenIndexForRpos : public UnaryOpcode
+	class OGetScreenForComboPos : public UnaryOpcode
 	{
 	public:
-		OGetScreenIndexForRpos(Argument *A) : UnaryOpcode(A) {}
+		OGetScreenForComboPos(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode *clone() const
 		{
-			return new OGetScreenIndexForRpos(a->clone());
+			return new OGetScreenForComboPos(a->clone());
 		}
 	};
 	class OPalDataFree : public Opcode

@@ -8846,25 +8846,19 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case REGIONSCREENWIDTH:
+		case REGION_SCREEN_WIDTH:
 		{
 			ret = current_region.screen_width * 10000;
 		}
 		break;
 
-		case REGIONSCREENHEIGHT:
+		case REGION_SCREEN_HEIGHT:
 		{
 			ret = current_region.screen_height * 10000;
 		}
 		break;
 
-		case REGION_MAX_RPOS:
-		{
-			ret = (int)region_max_rpos * 10000;
-		}
-		break;
-
-		case REGION_NUM_RPOS:
+		case REGION_NUM_COMBOS:
 		{
 			ret = region_num_rpos * 10000;
 		}
@@ -29799,7 +29793,7 @@ void do_gettilewarptype(const bool v)
 	set_register(sarg1, tmpscr->tilewarptype[warp]*10000);
 }
 
-void do_getscreenindexforrpos(const bool v)
+void do_getscreenforcombopos(const bool v)
 {
 	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
 	
@@ -29835,8 +29829,7 @@ void do_layermap()
 }
 
 
-	
-// TODO z3 what screen?
+
 void do_triggersecrets(int screen_index)
 {
 	if (!is_in_current_region(screen_index))
@@ -39750,8 +39743,8 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			}
 
-			case GETSCREENINDEXFORRPOS:
-				do_getscreenindexforrpos(false);
+			case GETSCREENFORCOMBOPOS:
+				do_getscreenforcombopos(false);
 				break;
 			
 			///----------------------------------------------------------------------------------------------------//
