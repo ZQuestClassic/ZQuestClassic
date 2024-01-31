@@ -1001,9 +1001,8 @@ void update_combo_cycling()
         if(combobuf[x].animflags & AF_FRESH) continue;
         
         //time to restart
-        if((combobuf[x].aclk>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                (combobuf[x].nextcombo!=0))
+		
+        if ((combobuf[x].aclk>=combobuf[x].speed) && combobuf[x].nextcombo!=0 && combocheck(combobuf[x]))
         {
             newdata[i]=combobuf[x].nextcombo;
 			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
@@ -1024,9 +1023,7 @@ void update_combo_cycling()
         if(!(combobuf[x].animflags & AF_FRESH)) continue;
         
         //time to restart
-        if((combobuf[x].aclk>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                (combobuf[x].nextcombo!=0))
+        if ((combobuf[x].aclk>=combobuf[x].speed) && combobuf[x].nextcombo!=0 && combocheck(combobuf[x]))
         {
             newdata[i]=combobuf[x].nextcombo;
             if(!(combobuf[x].animflags & AF_CYCLENOCSET))
@@ -1064,9 +1061,7 @@ void update_combo_cycling()
 		bool fresh = cmb.animflags & AF_FRESH;
         
         //time to restart
-        if((cmb.aclk>=cmb.speed) &&
-                (cmb.tile-cmb.frames>=cmb.o_tile-1) &&
-                (cmb.nextcombo!=0))
+        if ((cmb.aclk>=cmb.speed) && cmb.nextcombo!=0 && combocheck(cmb))
         {
             zc_ffc_set(ffc, cmb.nextcombo);
             if(!(cmb.animflags & AF_CYCLENOCSET))
@@ -1091,9 +1086,7 @@ void update_combo_cycling()
                 if(combobuf[x].animflags & AF_FRESH) continue;
                 
                 //time to restart
-                if((combobuf[x].aclk>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                        (combobuf[x].nextcombo!=0))
+                if ((combobuf[x].aclk>=combobuf[x].speed) && combobuf[x].nextcombo!=0 && combocheck(combobuf[x]))
                 {
                     newdata[i]=combobuf[x].nextcombo;
                     if(!(combobuf[x].animflags & AF_CYCLENOCSET))
@@ -1114,9 +1107,7 @@ void update_combo_cycling()
                 if(!(combobuf[x].animflags & AF_FRESH)) continue;
                 
                 //time to restart
-                if((combobuf[x].aclk>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                        (combobuf[x].nextcombo!=0))
+                if ((combobuf[x].aclk>=combobuf[x].speed) && combobuf[x].nextcombo!=0 && combocheck(combobuf[x]))
                 {
                     newdata2[i]=combobuf[x].nextcombo;
 					if(!(combobuf[x].animflags & AF_CYCLENOCSET))

@@ -34,6 +34,7 @@ void reset_combo_animations();
 void setup_combo_animations2();
 void reset_combo_animation2(int32_t c);
 void reset_combo_animations2();
+bool combocheck(const newcombo& cdata);
 void animate(newcombo& cdata, bool forceNextFrame = false);
 void animate_combos();
 bool isonline(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3);

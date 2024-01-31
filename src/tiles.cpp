@@ -260,9 +260,9 @@ void reset_combo_animations2()
 extern void update_combo_cycling();
 
 //Returns true if 'tile' is the LAST tile in the animation defined by the other parameters.
-bool combocheck(newcombo& cdata)
+bool combocheck(const newcombo& cdata)
 {
-	if(get_qr(qr_BROKEN_ASKIP_Y_FRAMES))
+	if(get_qr(qr_BROKEN_ASKIP_Y_FRAMES) && !get_qr(qr_NEW_COMBO_ANIMATION))
 	{
 		//This is the old calculation for this, which is just wrong.
 		return (cdata.tile-(cdata.frames+((cdata.frames-1)*cdata.skipanim)+(cdata.skipanimy*TILES_PER_ROW)) >=cdata.o_tile-1);
