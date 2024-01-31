@@ -58,7 +58,7 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 			tileToDraw += (frm*data[TileFrame::tfr_skipx]); //xskip
 			if(int32_t rowdiff = (tileToDraw/TILES_PER_ROW)-(data[TileFrame::tfr_tile]/TILES_PER_ROW))
 			{
-				tileToDraw += rowdiff*(data[TileFrame::tfr_skipy]);
+				tileToDraw += rowdiff*(data[TileFrame::tfr_skipy]) * TILES_PER_ROW;
 			}
 			int32_t tw = data[TileFrame::tfr_dosized] ? data[TileFrame::tfr_skipx]+1 : 1;
 			int32_t th = data[TileFrame::tfr_dosized] ? data[TileFrame::tfr_skipy]+1 : 1;
