@@ -7940,7 +7940,7 @@ int32_t get_register(int32_t arg)
 			if ( indx < 0 || indx > 31 )
 			{
 				ret = -10000;
-				Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
+				Z_scripterrlog("Invalid index used to access Game->Misc: %d\n", indx);
 			}
 			else
 			{
@@ -7960,14 +7960,23 @@ int32_t get_register(int32_t arg)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( (unsigned) inx > (susptLAST-1) )
 			{
-				Z_scripterrlog("Invalid array index [%d] passed to Gme->Suspend[]\n");
+				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
 			}
 			ret = (( FFCore.system_suspend[inx] ) ? 10000 : 0);
 			break;
 		}
 		case GAMELITEMSD:
-			ret=game->lvlitems[(ri->d[rINDEX])/10000]*10000;
+		{
+			size_t index = ri->d[rINDEX] / 10000;
+			if (index >= game->lvlitems.size())
+			{
+				ret = 0;
+				Z_scripterrlog("Invalid array index [%d] passed to Game->LItems[]\n", index);
+				break;
+			}
+			ret=game->lvlitems[index]*10000;
 			break;
+		}
 		case GAMELSWITCH:
 		{
 			int32_t ind = (ri->d[rINDEX])/10000;
@@ -20924,15 +20933,20 @@ void set_register(int32_t arg, int32_t value)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( (unsigned) inx > (susptLAST-1) )
 			{
-				Z_scripterrlog("Invalid array index [%d] passed to Gme->Suspend[]\n");
+				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
+				break;
 			}
 			FFCore.system_suspend[inx]= ( (value) ? 1 : 0 );
 			break;
 		}
 			
 		case GAMELITEMSD:
-			game->lvlitems[(ri->d[rINDEX])/10000]=value/10000;
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind) < MAXLEVELS)
+				game->lvlitems[ind]=value/10000;
 			break;
+		}
 		case GAMELSWITCH:
 		{
 			int32_t ind = (ri->d[rINDEX])/10000;
