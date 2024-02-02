@@ -1760,7 +1760,13 @@
 #define HEROICEENTRYFRAMES      1652
 #define HEROICEENTRYMAXFRAMES   1653
 
-#define LAST_BYTECODE           1654
+#define REFWEBSOCKET            1654
+#define WEBSOCKET_STATE         1655
+#define WEBSOCKET_URL           1656
+#define WEBSOCKET_HAS_MESSAGE   1657
+#define WEBSOCKET_MESSAGE_TYPE  1658
+
+#define LAST_BYTECODE           1659
 
 //} END OF BYTECODE
 
@@ -12396,6 +12402,70 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OStackWriteAtVV_If(a->clone(),b->clone(),c->clone());
+		}
+	};
+
+	class OLoadWebSocket : public UnaryOpcode
+	{
+	public:
+		OLoadWebSocket(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadWebSocket(a->clone());
+		}
+	};
+
+	class OWebSocketFree : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWebSocketFree();
+		}
+	};
+
+	class OWebSocketOwn : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWebSocketOwn();
+		}
+	};
+
+	class OWebSocketGetError : public UnaryOpcode
+	{
+	public:
+		OWebSocketGetError(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWebSocketGetError(a->clone());
+		}
+	};
+
+	class OWebSocketSend : public BinaryOpcode
+	{
+	public:
+		OWebSocketSend(Argument *A, Argument *B) : BinaryOpcode(A, B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWebSocketSend(a->clone(), b->clone());
+		}
+	};
+
+	class OWebSocketReceive : public UnaryOpcode
+	{
+	public:
+		OWebSocketReceive(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWebSocketReceive(a->clone());
 		}
 	};
 }

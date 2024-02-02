@@ -995,6 +995,7 @@ void user_objects_init();
 void user_stacks_init();
 void user_rng_init();
 void user_paldata_init();
+void user_websockets_init();
 
 bool get_scriptfile_path(char* buf, const char* path);
 
@@ -3185,7 +3186,14 @@ enum ASM_DEFINE
 	STORE,
 	STOREV,
 
-	NUMCOMMANDS  //0x045C
+	WEBSOCKET_SEND,
+	WEBSOCKET_LOAD,
+	WEBSOCKET_FREE,
+	WEBSOCKET_OWN,
+	WEBSOCKET_ERROR,
+	WEBSOCKET_RECEIVE,
+
+	NUMCOMMANDS
 };
 
 
@@ -5029,7 +5037,13 @@ enum ASM_DEFINE
 #define HEROICEENTRYFRAMES      0x15AA
 #define HEROICEENTRYMAXFRAMES   0x15AB
 
-#define NUMVARIABLES            0x15AC
+#define REFWEBSOCKET            0x15AC
+#define WEBSOCKET_STATE         0x15AD
+#define WEBSOCKET_URL           0x15AE
+#define WEBSOCKET_HAS_MESSAGE   0x15AF
+#define WEBSOCKET_MESSAGE_TYPE  0x15B0
+
+#define NUMVARIABLES            0x15B1
 
 //} End variables
 

@@ -138,6 +138,7 @@ namespace ZScript
 		ZTID_SAVPORTAL,
 		ZTID_SUBSCREENPAGE,
 		ZTID_SUBSCREENWIDGET,
+		ZTID_WEBSOCKET,
 		ZTID_CLASS_END,
 
 		ZTID_END = ZTID_CLASS_END
@@ -255,6 +256,8 @@ namespace ZScript
 				return "SUBSCREENPAGE";
 			case ZTID_SUBSCREENWIDGET:
 				return "SUBSCREENWIDGET";
+			case ZTID_WEBSOCKET:
+				return "WEBSOCKET";
 			default:
 				return "INT";
 				/*char buf[16];
@@ -382,6 +385,8 @@ namespace ZScript
 			return ZTID_SUBSCREENPAGE;
 		else if(name == "SUBSCREENWIDGET")
 			return ZTID_SUBSCREENWIDGET;
+		else if(name == "WEBSOCKET")
+			return ZTID_WEBSOCKET;
 		
 		return ZTID_VOID;
 	}
@@ -519,6 +524,7 @@ namespace ZScript
 		static DataTypeClassConst CSAVEDPORTAL;
 		static DataTypeClassConst CSUBSCREENPAGE;
 		static DataTypeClassConst CSUBSCREENWIDGET;
+		static DataTypeClassConst CWEBSOCKET;
 		//Class: Var Types
 		static DataTypeClass BITMAP;
 		static DataTypeClass CHEATS;
@@ -558,6 +564,7 @@ namespace ZScript
 		static DataTypeClass SAVEDPORTAL;
 		static DataTypeClass SUBSCREENPAGE;
 		static DataTypeClass SUBSCREENWIDGET;
+		static DataTypeClass WEBSOCKET;
 	};
 
 	bool operator==(DataType const&, DataType const&);

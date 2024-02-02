@@ -172,7 +172,7 @@ def collect_licenses(package_dir: Path):
         cmake_deps_dir = build_dir.parent / '_deps'
     third_party_dirs.extend(cmake_deps_dir.glob('*-src'))
 
-    files_to_copy = ['LICENSE', 'LICENSE-BSD', 'LICENSE-MIT', 'LICENSE-Boost', 'AUTHORS', 'CREDITS', 'README']
+    files_to_copy = ['COPYING', 'LICENSE', 'LICENSE-BSD', 'LICENSE-MIT', 'LICENSE-Boost', 'AUTHORS', 'CREDITS', 'README']
 
     for third_party_dir in third_party_dirs:
         if third_party_dir.is_file():
@@ -181,6 +181,9 @@ def collect_licenses(package_dir: Path):
         name = third_party_dir.name.replace('-src', '').replace('_external', '')
         dir = output_dir / name
         dir.mkdir(exist_ok=True)
+
+        if name == 'asio':
+            third_party_dir = third_party_dir/name
 
         for file in files_to_copy:
             # Kinda big.

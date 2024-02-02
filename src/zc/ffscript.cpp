@@ -65,6 +65,7 @@
 
 #include "zc/zc_custom.h"
 #include "qst.h"
+#include "zc/websocket_pool.h"
 
 using namespace util;
 
@@ -129,12 +130,19 @@ struct UserDataContainer
 		}
 	}
 
+	void clear(size_t index)
+	{
+		datas[index] = {};
+	}
+
 	int32_t get_free(bool skipError = false)
 	{
 		for (int32_t i = 0; i < Max; ++i)
 		{
 			if (!datas[i].reserved)
 			{
+				// This breaks stellar seas replay at frame 502 ...
+				// datas[i] = {};
 				datas[i].reserved = true;
 				return i+1; //1-indexed; 0 is null value
 			}
@@ -143,7 +151,7 @@ struct UserDataContainer
 		return 0;
 	}
 
-	T* check(int32_t ref, const char* what, bool skipError)
+	T* check(int32_t ref, const char* what, bool skipError = false)
 	{
 		if (ref > 0 && ref <= Max)
 		{
@@ -170,6 +178,71 @@ static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {"object"
 static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {"paldata"};
 static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {"rng"};
 static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {"stack"};
+
+struct user_websocket : public user_abstract_obj
+{
+	~user_websocket()
+	{
+		if (connection_id != -1)
+			websocket_pool_close(connection_id);
+		if (message_arrayptr)
+			FFScript::deallocateZScriptArray(message_arrayptr);
+	}
+
+	void clear()
+	{
+		this->~user_websocket();
+		*this = {};
+	}
+
+	bool connect(std::string url)
+	{
+		connection_id = websocket_pool_connect(url, err);
+		this->url = url;
+		return connection_id != -1;
+	}
+
+	void send(WebSocketMessageType type, std::string message)
+	{
+		if (connection_id == -1 || type == WebSocketMessageType::None) return;
+		websocket_pool_send(connection_id, type, message);
+	}
+
+	bool has_message()
+	{
+		if (connection_id == -1) return false;
+		return websocket_pool_has_message(connection_id);
+	}
+
+	std::string receive_message()
+	{
+		if (connection_id == -1) return "";
+		auto [type, message] = websocket_pool_receive(connection_id);
+		last_message_type = type;
+		return message;
+	}
+
+	WebSocketStatus get_state() const
+	{
+		if (connection_id == -1) return WebSocketStatus::Closed;
+		return websocket_pool_status(connection_id);
+	}
+
+	std::string get_error() const
+	{
+		if (connection_id == -1) return err;
+		return websocket_pool_error(connection_id);
+	}
+
+	int connection_id = -1;
+	std::string url;
+	std::string err;
+	bool reserved;
+	int message_arrayptr;
+	WebSocketMessageType last_message_type;
+};
+#define MAX_USER_WEBSOCKETS 3
+static UserDataContainer<user_websocket, MAX_USER_WEBSOCKETS> user_websockets = {"websocket"};
 
 user_object& FFScript::get_user_object(size_t index)
 {
@@ -2729,6 +2802,10 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	{
 		user_objects[q].own_clear(scriptType, UID);
 	}
+	for (int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
+	{
+		user_websockets[q].own_clear(scriptType, UID);
+	}
 	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
 		//Keep 2.50.2 behavior if QR unchecked.
@@ -2778,6 +2855,10 @@ void FFScript::deallocateAllScriptOwned()
 	{
 		user_objects[q].own_clear_any();
 	}
+	for(int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
+	{
+		user_websockets[q].own_clear_any();
+	}
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
@@ -2819,6 +2900,10 @@ void FFScript::deallocateAllScriptOwnedCont()
 	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
 		user_objects[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
+	{
+		user_websockets[q].own_clear_cont();
 	}
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -15588,7 +15673,35 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//
-		
+
+		case WEBSOCKET_STATE:
+		{
+			ret = 0;
+			auto ws = user_websockets.check(ri->websocketref, "->State");
+			if (!ws) break;
+
+			ret = (int)ws->get_state();
+			break;
+		}
+		case WEBSOCKET_HAS_MESSAGE:
+		{
+			ret = 0;
+			auto ws = user_websockets.check(ri->websocketref, "->HasMessage");
+			if (!ws) break;
+
+			ret = ws->has_message() * 10000;
+			break;
+		}
+		case WEBSOCKET_MESSAGE_TYPE:
+		{
+			ret = 0;
+			auto ws = user_websockets.check(ri->websocketref, "->MessageType");
+			if (!ws) break;
+
+			ret = (int)ws->last_message_type;
+			break;
+		}
+
 		default:
 		{
 			if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
@@ -28797,16 +28910,15 @@ void do_destroy_array()
 	}
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
-void do_allocatemem(const bool v, const bool local, ScriptType type, const uint32_t UID)
+
+static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID)
 {
-	const int32_t size = SH::get_arg(sarg2, v) / 10000;
 	dword ptrval;
 	
 	if(size < 0)
 	{
 		Z_scripterrlog("Array initialized to invalid size of %d\n", size);
-		set_register(sarg1, 0); //Pass back NULL
-		return;
+		return 0;
 	}
 	
 	if(local)
@@ -28854,8 +28966,14 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 			
 		ptrval += NUM_ZSCRIPT_ARRAYS; //so each pointer has a unique value
 	}
-	
-	
+
+	return ptrval;
+}
+
+void do_allocatemem(bool v, const bool local, ScriptType type, const uint32_t UID)
+{
+	int32_t size = SH::get_arg(sarg2, v) / 10000;
+	dword ptrval = allocatemem(size, local, type, UID);
 	set_register(sarg1, ptrval * 10000);
 	
 	// If this happens once per frame, it can drown out every other message. -L
@@ -40061,6 +40179,98 @@ int32_t run_script_int(bool is_jitted)
 				}
 				break;
 			}
+
+			case WEBSOCKET_OWN:
+			{
+				if (auto ws = user_websockets.check(ri->websocketref, "Own()"))
+				{
+					ws->own(type, i);
+				}
+				break;
+			}
+			case WEBSOCKET_LOAD:
+			{
+				int arrayptr = SH::get_arg(sarg1, false) / 10000;
+				std::string url;
+				ArrayH::getString(arrayptr, url, 512);
+
+				ri->websocketref = 0;
+				ri->d[rEXP1] = 0;
+
+				if (url.size() == 0 || !url.starts_with("ws"))
+				{
+					break;
+				}
+
+				int ref = user_websockets.get_free();
+				if (!ref)
+				{
+					break;
+				}
+
+				auto& ws = user_websockets[ref-1];
+				ws.connect(url);
+
+				ri->websocketref = ref;
+				ri->d[rEXP1] = ref;
+				break;
+			}
+			case WEBSOCKET_FREE:
+			{
+				user_websockets.clear(ri->websocketref);
+				break;
+			}
+			case WEBSOCKET_ERROR:
+			{
+				int32_t arrayptr = get_register(sarg1) / 10000;
+				if (auto ws = user_websockets.check(ri->websocketref, "GetError()"))
+				{
+					ArrayH::setArray(arrayptr, ws->get_error(), true);
+				}
+				else
+				{
+					ArrayH::setArray(arrayptr, "Invalid pointer", true);
+				}
+				break;
+			}
+			case WEBSOCKET_SEND:
+			{
+				int32_t type = get_register(sarg1);
+				int32_t arrayptr = get_register(sarg2) / 10000;
+				if (BC::checkBounds(type, 1, 2, "Send() type") != SH::_NoError)
+				{
+					break;
+				}
+
+				std::string message;
+				ArrayH::getString(arrayptr, message);
+				if (auto ws = user_websockets.check(ri->websocketref, "Send()"))
+				{
+					ws->send((WebSocketMessageType)type, message);
+				}
+				break;
+			}
+			case WEBSOCKET_RECEIVE:
+			{
+				if (auto ws = user_websockets.check(ri->websocketref, "Receive()"))
+				{
+					std::string message = ws->receive_message();
+					auto message_type = ws->last_message_type;
+
+					if (ws->message_arrayptr)
+						FFScript::deallocateZScriptArray(ws->message_arrayptr);
+					ws->message_arrayptr = allocatemem(message.size() + 1, true, type, i);
+
+					if (message_type == WebSocketMessageType::Text)
+						ArrayH::setArray(ws->message_arrayptr, message, false);
+					else
+						ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, false);
+
+					set_register(sarg1, ws->message_arrayptr * 10000);
+				}
+				break;
+			}
+
 			default:
 			{
 				Z_scripterrlog("Invalid ZASM command %lu reached; terminating\n", scommand);
@@ -40425,6 +40635,11 @@ void FFScript::user_rng_init()
 void FFScript::user_paldata_init()
 {
 	user_paldatas.clear();
+}
+
+void FFScript::user_websockets_init()
+{
+	user_websockets.clear();
 }
 
 // Gotten from 'https://fileinfo.com/filetypes/executable'
@@ -42545,6 +42760,7 @@ void FFScript::init()
 	jitted_scripts.clear();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
+	websocket_pool_destroy();
 }
 
 void FFScript::shutdown()

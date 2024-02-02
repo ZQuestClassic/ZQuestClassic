@@ -1766,6 +1766,7 @@ int32_t init_game()
 	FFCore.user_dirs_init();
 	FFCore.user_stacks_init();
 	FFCore.user_paldata_init();
+	FFCore.user_websockets_init();
 	script_init_name_to_slot_index_maps();
 
 	if (testingqst_init_data.size())

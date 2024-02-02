@@ -58,6 +58,7 @@ src/parser/symbols/BottleShopSymbols.cpp
 src/parser/symbols/GenericDataSymbols.cpp
 src/parser/symbols/PortalSymbols.cpp
 src/parser/symbols/SubscreenDataSymbols.cpp
+src/parser/symbols/WebSocketSymbols.cpp
 
 ## End of ZQuest ZScript module
 )

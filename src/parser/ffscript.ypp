@@ -256,6 +256,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token SUBSCREENDATA
 %token SUBSCREENPAGE
 %token SUBSCREENWIDGET
+%token WEBSOCKET
 %token GENERIC
 %token GENERICDATA
 %token PORTAL
@@ -676,6 +677,7 @@ DataType : ZCONST DataType {
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| SUBSCREENPAGE {$$ = new ASTDataType(DataType::SUBSCREENPAGE, @$);}
 	| SUBSCREENWIDGET {$$ = new ASTDataType(DataType::SUBSCREENWIDGET, @$);}
+	| WEBSOCKET {$$ = new ASTDataType(DataType::WEBSOCKET, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
 	| PALDATA {$$ = new ASTDataType(DataType::PALDATA, @$);}
