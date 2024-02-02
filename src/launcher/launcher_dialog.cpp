@@ -611,7 +611,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Save Window Position",App::zquest,"zquest","save_window_position",0,"Remembers the last position of the ZQuest Window."),
 						CONFIG_CHECKBOX_I("Force Integer Values for Scale",App::zquest,"zquest","scaling_force_integer",0,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zquest,"zquest","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
-						CONFIG_CHECKBOX_I("Record During Test Feature",App::zquest,"zquest","test_mode_record",0,"Save a recording to replays/test_XXXXXXXX.zplay when using the GUI test feature."),
 						CONFIG_CHECKBOX_I("Custom Fonts",App::zquest,"ZQ_GUI","custom_fonts",1,"Use custom fonts from the 'customfonts' folder for UI elements.")
 					),
 					Rows<3>(fitParent = true,
