@@ -109,15 +109,76 @@ CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
+
+template <typename T, size_t Max>
+struct UserDataContainer
+{
+	const char* name;
+	T datas[Max];
+
+	T& operator[](size_t index)
+	{
+		return datas[index];
+	}
+
+	void clear()
+	{
+		for (int32_t i = 0; i < Max; ++i)
+		{
+			datas[i] = {};
+		}
+	}
+
+	int32_t get_free(bool skipError = false)
+	{
+		for (int32_t i = 0; i < Max; ++i)
+		{
+			if (!datas[i].reserved)
+			{
+				datas[i].reserved = true;
+				return i+1; //1-indexed; 0 is null value
+			}
+		}
+		if (!skipError) Z_scripterrlog("could not find a valid free %s pointer!\n", name);
+		return 0;
+	}
+
+	T* check(int32_t ref, const char* what, bool skipError)
+	{
+		if (ref > 0 && ref <= Max)
+		{
+			T* data = &datas[ref - 1];
+			if (data->reserved)
+			{
+				return data;
+			}
+		}
+		if (skipError) return NULL;
+
+		Z_scripterrlog("Script attempted to reference a nonexistent %s!\n", name);
+		if (what)
+			Z_scripterrlog("You were trying to reference the '%s' of a %s with UID = %ld\n", what, name, ref);
+		else
+			Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
+		return NULL;
+	}
+};
+
+static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {"directory"};
+static UserDataContainer<user_file, MAX_USER_FILES> user_files = {"file"};
+static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {"object"};
+static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {"paldata"};
+static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {"rng"};
+static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {"stack"};
+
+user_object& FFScript::get_user_object(size_t index)
+{
+	return user_objects[index];
+}
+
 script_bitmaps scb;
-user_file script_files[MAX_USER_FILES];
-user_dir script_dirs[MAX_USER_DIRS];
-user_object script_objects[MAX_USER_OBJECTS];
-user_stack script_stacks[MAX_USER_STACKS];
 user_rng nulrng;
-user_rng script_rngs[MAX_USER_RNGS];
 zc_randgen script_rnggens[MAX_USER_RNGS];
-user_paldata script_paldatas[MAX_USER_PALDATAS];
 
 FONT *get_zc_font(int index);
 
@@ -1985,7 +2046,7 @@ void countObjects()
 	max_valid_object = 0;
 	for(auto q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
-		if(script_objects[q].reserved)
+		if(user_objects[q].reserved)
 			max_valid_object = q+1;
 	}
 }
@@ -2646,27 +2707,27 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	}
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
-		script_rngs[q].own_clear(scriptType, UID);
+		user_rngs[q].own_clear(scriptType, UID);
 	}
 	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
 	{
-		script_paldatas[q].own_clear(scriptType, UID);
+		user_paldatas[q].own_clear(scriptType, UID);
 	}
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
 	{
-		script_files[q].own_clear(scriptType, UID);
+		user_files[q].own_clear(scriptType, UID);
 	}
 	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
 	{
-		script_dirs[q].own_clear(scriptType, UID);
+		user_dirs[q].own_clear(scriptType, UID);
 	}
 	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
 	{
-		script_stacks[q].own_clear(scriptType, UID);
+		user_stacks[q].own_clear(scriptType, UID);
 	}
 	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
-		script_objects[q].own_clear(scriptType, UID);
+		user_objects[q].own_clear(scriptType, UID);
 	}
 	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
@@ -2695,27 +2756,27 @@ void FFScript::deallocateAllScriptOwned()
 	}
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
-		script_rngs[q].own_clear_any();
+		user_rngs[q].own_clear_any();
 	}
 	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
 	{
-		script_paldatas[q].own_clear_any();
+		user_paldatas[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
 	{
-		script_files[q].own_clear_any();
+		user_files[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
 	{
-		script_dirs[q].own_clear_any();
+		user_dirs[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
 	{
-		script_stacks[q].own_clear_any();
+		user_stacks[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
-		script_objects[q].own_clear_any();
+		user_objects[q].own_clear_any();
 	}
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -2737,27 +2798,27 @@ void FFScript::deallocateAllScriptOwnedCont()
 	}
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
-		script_rngs[q].own_clear_cont();
+		user_rngs[q].own_clear_cont();
 	}
 	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
 	{
-		script_paldatas[q].own_clear_cont();
+		user_paldatas[q].own_clear_cont();
 	}
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
 	{
-		script_files[q].own_clear_cont();
+		user_files[q].own_clear_cont();
 	}
 	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
 	{
-		script_dirs[q].own_clear_cont();
+		user_dirs[q].own_clear_cont();
 	}
 	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
 	{
-		script_stacks[q].own_clear_cont();
+		user_stacks[q].own_clear_cont();
 	}
 	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
-		script_objects[q].own_clear_cont();
+		user_objects[q].own_clear_cont();
 	}
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -2842,45 +2903,21 @@ weapon *checkEWpn(int32_t eid, const char *what)
 
 user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool skipError = false)
 {
-	if(ref > 0 && ref <= MAX_USER_FILES)
+	user_file* file = user_files.check(ref, what, skipError);
+	if (file && req_file && !file->file)
 	{
-		user_file* f = &script_files[ref-1];
-		if(f->reserved)
-		{
-			if(req_file && !f->file)
-			{
-				if(skipError) return NULL;
-				Z_scripterrlog("Script attempted to reference an invalid file!\n");
-				Z_scripterrlog("File with UID = %ld does not have an open file connection!\n",ref);
-				Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
-				return NULL;
-			}
-			return f;
-		}
+		if (skipError) return NULL;
+		Z_scripterrlog("Script attempted to reference an invalid file!\n");
+		Z_scripterrlog("File with UID = %ld does not have an open file connection!\n", ref);
+		Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
+		return NULL;
 	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	return file;
 }
 
 user_object *checkObject(int32_t ref, bool skipError = false)
 {
-	if(ref > 0 && ref < MAX_USER_OBJECTS)
-	{
-		user_object* obj = &script_objects[ref-1];
-		if(obj->reserved)
-		{
-			return obj;
-		}
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent object!\n");
-	Z_scripterrlog("You were trying to reference an object with UID = %ld\n", ref);
-	return NULL;
+	return user_objects.check(ref, nullptr, skipError);
 }
 
 user_genscript *checkGenericScr(int32_t ref, const char *what)
@@ -2938,82 +2975,24 @@ int32_t getPortalFromSaved(savedportal* p)
 
 user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
 {
-	if(ref > 0 && ref <= MAX_USER_DIRS)
-	{
-		user_dir* dr = &script_dirs[ref-1];
-		if(dr->reserved)
-		{
-			return dr;
-		}
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	return user_dirs.check(ref, what, skipError);
 }
 
 user_stack *checkStack(int32_t ref, const char *what, bool skipError = false)
 {
-	if(ref > 0 && ref <= USERSTACK_MAX_SIZE)
-	{
-		user_stack* st = &script_stacks[ref-1];
-		if(st->reserved)
-		{
-			return st;
-		}
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent Stack!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a Stack with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	return user_stacks.check(ref, nullptr, skipError);
 }
 
 user_rng *checkRNG(int32_t ref, const char *what, bool skipError = false)
 {
-	if(ref > 0 && ref <= MAX_USER_RNGS)
-	{
-		user_rng* rng = &script_rngs[ref-1];
-		if(rng->reserved)
-		{
-			return rng;
-		}
-	}
-	else if(!ref) //A null RNG pointer is special-case, access engine rng.
-	{
-		return &nulrng;
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent RNG!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a RNG with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	// A null RNG pointer is special-case, access engine rng.
+	if (ref == 0) return &nulrng;
+	return user_rngs.check(ref, nullptr, skipError);
 }
 
 user_paldata* checkPalData(int32_t ref, const char* what, bool skipError = false)
 {
-	if (ref > 0 && ref <= MAX_USER_PALDATAS)
-	{
-		user_paldata* pd = &script_paldatas[ref - 1];
-		if (pd->reserved)
-		{
-			return pd;
-		}
-	}
-	if (skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent paldata!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a paldata with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	return user_paldatas.check(ref, what, skipError);
 }
 
 bottletype *checkBottleData(int32_t ref, const char *what, bool skipError = false)
@@ -30758,7 +30737,7 @@ void FFScript::do_load_subscreendata(const bool v, const bool v2)
 
 void FFScript::do_loadrng()
 {
-	ri->rngref = get_free_rng();
+	ri->rngref = user_rngs.get_free();
 	ri->d[rEXP1] = ri->rngref;
 }
 
@@ -30783,7 +30762,7 @@ void FFScript::do_loaddirectory()
 	regulate_path(buf);
 	if(valid_dir(buf) && checkPath(buf, true))
 	{
-		ri->directoryref = get_free_directory(false);
+		ri->directoryref = user_dirs.get_free();
 		if(!ri->directoryref) return;
 		user_dir* d = checkDir(ri->directoryref, "LoadDirectory", true);
 		set_register(sarg1, ri->directoryref);
@@ -30797,7 +30776,7 @@ void FFScript::do_loaddirectory()
 
 void FFScript::do_loadstack()
 {
-	ri->stackref = get_free_stack();
+	ri->stackref = user_stacks.get_free();
 	ri->d[rEXP1] = ri->stackref;
 }
 
@@ -30851,10 +30830,10 @@ void FFScript::do_loadgenericdata(const bool v)
 
 void FFScript::do_create_paldata()
 {
-	ri->paldataref = get_free_paldata();
+	ri->paldataref = user_paldatas.get_free();
 	if (ri->paldataref > 0)
 	{
-		user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+		user_paldata* pd = &user_paldatas[ri->paldataref - 1];
 		for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
 			pd->colors_used[q] = 0;
 	}
@@ -30863,10 +30842,10 @@ void FFScript::do_create_paldata()
 
 void FFScript::do_create_paldata_clr()
 {
-	ri->paldataref = get_free_paldata();
+	ri->paldataref = user_paldatas.get_free();
 	if (ri->paldataref > 0)
 	{
-		user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+		user_paldata* pd = &user_paldatas[ri->paldataref - 1];
 		int32_t clri = get_register(sarg1);
 
 		RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
@@ -35222,8 +35201,11 @@ void do_constructclass(ScriptType type, word script, int32_t i)
 	size_t num_vars = sargvec->at(0);
 	size_t total_vars = num_vars + sargvec->size()-1;
 	auto destr_pc = ri->d[rEXP1];
-	dword objref = FFCore.get_free_object(false);
-	
+
+	dword objref = user_objects.get_free();
+	if (objref && objref >= max_valid_object)
+		max_valid_object = objref;
+
 	if(user_object* obj = checkObject(objref, true))
 	{
 		obj->own(type, i);
@@ -40401,34 +40383,25 @@ int32_t ffscript_engine(const bool preload)
 
 void FFScript::user_files_init()
 {
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		script_files[q].clear();
-	}
+	user_files.clear();
 }
 
 void FFScript::user_dirs_init()
 {
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		script_dirs[q].clear();
-	}
+	user_dirs.clear();
 }
 void FFScript::user_objects_init()
 {
 	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
-		script_objects[q].clear_nodestruct();
+		user_objects[q].clear_nodestruct();
 	}
 	max_valid_object = 0;
 }
 
 void FFScript::user_stacks_init()
 {
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		script_stacks[q].clear();
-	}
+	user_stacks.clear();
 }
 
 void FFScript::user_rng_init()
@@ -40436,103 +40409,14 @@ void FFScript::user_rng_init()
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
 		replay_register_rng(&script_rnggens[q]);
-		script_rngs[q].clear();
-		script_rngs[q].set_gen(&script_rnggens[q]);
+		user_rngs[q].clear();
+		user_rngs[q].set_gen(&script_rnggens[q]);
 	}
 }
 
 void FFScript::user_paldata_init()
 {
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
-	{
-		script_paldatas[q].clear();
-	}
-}
-
-int32_t FFScript::get_free_file(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		if(!script_files[q].reserved)
-		{
-			script_files[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_object(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
-	{
-		if(!script_objects[q].reserved)
-		{
-			script_objects[q].reserved = true;
-			if(q >= max_valid_object)
-				max_valid_object = q+1;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_object() could not find a valid free object pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_directory(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		if(!script_dirs[q].reserved)
-		{
-			script_dirs[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_directory() could not find a valid free directory pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_rng(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
-	{
-		if(!script_rngs[q].reserved)
-		{
-			script_rngs[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_rng() could not find a valid free rng pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_paldata(bool skipError)
-{
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
-	{
-		if (!script_paldatas[q].reserved)
-		{
-			script_paldatas[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if (!skipError) Z_scripterrlog("get_free_paldata() could not find a valid free paldata pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_stack(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		if(!script_stacks[q].reserved)
-		{
-			script_stacks[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_stack() could not find a valid free stack pointer!\n");
-	return 0;
+	user_paldatas.clear();
 }
 
 // Gotten from 'https://fileinfo.com/filetypes/executable'
@@ -40595,7 +40479,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 	user_file* f = checkFile(ri->fileref, "Open()", false, true);
 	if(!f) //auto-allocate
 	{
-		ri->fileref = get_free_file();
+		ri->fileref = user_files.get_free();
 		f = checkFile(ri->fileref, "Open()", false, true);
 	}
 	ri->d[rEXP2] = ri->fileref; //Returns to the variable!
@@ -40655,7 +40539,7 @@ void FFScript::do_fclose()
 void FFScript::do_allocate_file()
 {
 	//Get a file and return it
-	ri->fileref = get_free_file();
+	ri->fileref = user_files.get_free();
 	ri->d[rEXP2] = ri->fileref; //Return to ptr
 	ri->d[rEXP1] = (ri->d[rEXP2] == 0 ? 0L : 10000L);
 }

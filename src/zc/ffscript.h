@@ -995,12 +995,6 @@ void user_objects_init();
 void user_stacks_init();
 void user_rng_init();
 void user_paldata_init();
-int32_t get_free_file(bool skipError = false);
-int32_t get_free_directory(bool skipError = false);
-int32_t get_free_object(bool skipError = false);
-int32_t get_free_stack(bool skipError = false);
-int32_t get_free_rng(bool skipError = false);
-int32_t get_free_paldata(bool skipError = false);
 
 bool get_scriptfile_path(char* buf, const char* path);
 
@@ -1921,6 +1915,8 @@ enum __Error
 	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways = true);
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
+
+	user_object& get_user_object(size_t index);
 	
     private:
     int32_t sid;
