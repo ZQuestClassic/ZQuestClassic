@@ -40211,7 +40211,9 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
+				int index = GuyH::getNPCIndex(i);
+				if (index != -1)
+					guys.spr(index)->weaponscript = 0;
 			}
 			break;
 			case ScriptType::Lwpn:
@@ -40219,7 +40221,9 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
+				int index = LwpnH::getLWeaponIndex(i);
+				if (index != -1)
+					Lwpns.spr(index)->weaponscript = 0;
 			}
 			break;
 			case ScriptType::Ewpn:
@@ -40227,7 +40231,9 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
+				int index = ItemH::getItemIndex(i);
+				if (index != -1)
+					Ewpns.spr(index)->weaponscript = 0;
 			}
 			break;
 			case ScriptType::ItemSprite:
@@ -40235,7 +40241,9 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				items.spr(ItemH::getItemIndex(i))->script = 0;
+				int index = ItemH::getItemIndex(i);
+				if (index != -1)
+					items.spr(index)->script = 0;
 			}
 			break;
 			
