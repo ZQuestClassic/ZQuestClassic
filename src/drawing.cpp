@@ -416,16 +416,22 @@ void ditherrectfill(BITMAP* dest, int x1, int y1, int x2, int y2, int color,
 {
 	if(x1 > x2) zc_swap(x1,x2);
 	if(y1 > y2) zc_swap(y1,y2);
-	uint wid = zc_min(x2-x1+1, dest->w-x1);
-	uint hei = zc_min(y2-y1+1, dest->h-y1);
-	for(int ty = 0; ty < hei; ++ty)
+	int wid = zc_min(x2-x1+1, dest->w-x1);
+	int hei = zc_min(y2-y1+1, dest->h-y1);
+
+	int xstart = zc_max(0, x1);
+	int xend = x1 + wid;
+	int ystart = zc_max(0, y1);
+	int yend = y1 + hei;
+
+	for(int ty = ystart; ty < yend; ++ty)
 	{
-		uintptr_t write_addr = bmp_write_line(dest, ty+y1);
-		for(int tx = 0; tx < wid; ++tx)
-			if(dithercheck(dType,dArg,tx+x1+xoffs,ty+y1+yoffs,wid,hei))
-				bmp_write8(write_addr+tx+x1, color);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int tx = xstart; tx < xend; ++tx)
+			if(dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
+				bmp_write8(write_addr+tx, color);
 			else if(inv_color)
-				bmp_write8(write_addr+tx+x1, *inv_color);
+				bmp_write8(write_addr+tx, *inv_color);
 	}
 	bmp_unwrite_line(dest);
 }
