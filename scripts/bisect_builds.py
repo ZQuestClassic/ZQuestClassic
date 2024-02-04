@@ -15,6 +15,7 @@
 import argparse
 import os
 import io
+import re
 import subprocess
 import platform
 import requests
@@ -24,7 +25,7 @@ import traceback
 import shutil
 from dataclasses import dataclass
 from joblib import Memory
-from typing import List
+from typing import List, Union, Literal
 from pathlib import Path
 from github import Github
 
@@ -51,8 +52,7 @@ args = parser.parse_args()
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-releases_dir = root_dir / '.tmp/releases'
-local_builds_dir = root_dir / '.tmp/local_builds'
+revisions_dir = root_dir / '.tmp/revisions'
 memory = Memory(root_dir / '.tmp/bisect_builds', verbose=0)
 
 gh = Github(args.token)
@@ -80,6 +80,7 @@ for i, sha in enumerate(shas):
 class Revision:
     tag: str  # also could be a hash
     commit_count: int
+    type: Union[Literal['release'], Literal['test'], Literal['local']]
     is_local_build = False
 
 
@@ -135,6 +136,50 @@ def has_release_package(tag: str):
         return False
 
 
+def can_download_revision(revision: Revision):
+    return has_release_package(revision.tag)
+
+
+urls_by_sha = {}
+
+def get_download_urls():
+    global urls_by_sha
+    if urls_by_sha or channel != 'windows':
+        return urls_by_sha
+
+    bucket_url = 'https://zc-archives.nyc3.cdn.digitaloceanspaces.com'
+    archives_xml = requests.get(bucket_url).text
+    if 'IsTruncated>true' in archives_xml:
+        raise Exception('TODO: paginate')
+
+    keys = re.compile(r'<Key>(.*?)</Key>').findall(archives_xml)
+    keys_by_sha = {}
+    for key in keys:
+        sha, filename = key.split('/', 2)
+        if sha not in keys_by_sha:
+            keys_by_sha[sha] = []
+        keys_by_sha[sha].append(key)
+
+    urls_by_sha = {}
+    for sha, keys in keys_by_sha.items():
+        key = None
+        if channel == 'windows':
+            keys = [k for k in keys if 'windows' in k]
+            if len(keys) == 1:
+                key = keys[0]
+            else:
+                key = next((k for k in keys if 'x64' in k), None) or \
+                    next((k for k in keys if 'x86' in k), None)
+        elif channel == 'mac':
+            key = next((k for k in keys if k.startswith('.dmg')), None)
+        elif channel == 'linux':
+            key = next((k for k in keys if k.startswith('linux')), None)
+        if key:
+            urls_by_sha[sha] = f'{bucket_url}/{key}'
+
+    return urls_by_sha
+
+
 def revision_count_supports_platform(revision_count: int, platform_str: str):
     if platform_str == 'windows' and revision_count < 6252:
         return True
@@ -166,7 +211,16 @@ def get_releases():
             if not has_release_package(tag):
                 continue
 
-        revisions.append(Revision(tag, commit_count))
+        revisions.append(Revision(tag, commit_count, type='release'))
+
+    urls_by_sha = get_download_urls()
+    for sha in urls_by_sha.keys():
+        commit_count = get_release_commit_count(sha)
+        if any(r for r in revisions if r.commit_count == commit_count):
+            continue
+        revisions.append(Revision(sha, commit_count, type='test'))
+
+    revisions.sort(key=lambda x: x.commit_count)
 
     return revisions
 
@@ -174,7 +228,7 @@ def get_releases():
 def get_local_builds(revisions = []):
     for sha, commit_count in commit_counts.items():
         if not next((r for r in revisions if r.commit_count == commit_count), None):
-            r = Revision(sha, commit_count)
+            r = Revision(sha, commit_count, type='local')
             r.is_local_build = True
             revisions.append(r)
 
@@ -213,14 +267,21 @@ def get_release_package_url(tag):
     return asset.browser_download_url
 
 
-def download_release(tag: str):
-    url = get_release_package_url(tag)
-    dest = releases_dir / tag
+def download_release(revision: Revision):
+    dest = revisions_dir / revision.type / revision.tag
     if dest.exists() and list(dest.glob('*')):
         return dest
 
+    sha = git_rev_parse(revision.tag)
+    urls_by_sha = get_download_urls()
+    if sha in urls_by_sha:
+        url = urls_by_sha[sha]
+    else:
+        url = get_release_package_url(revision.tag)
+
     dest.mkdir(parents=True, exist_ok=True)
-    print(f'downloading release {tag}')
+    print(f'downloading release {revision}')
+    print(url)
 
     r = requests.get(url)
     if channel == 'mac':
@@ -241,7 +302,7 @@ def download_release(tag: str):
         zip.extractall(dest)
         zip.close()
 
-    print(f'finished downloading {tag}')
+    print(f'finished downloading {revision.tag}')
     return dest
 
 
@@ -514,7 +575,7 @@ def build_locally(revision: Revision):
             most_recent_rev = get_most_recent_rev(revision)
             if not most_recent_rev:
                 raise Exception('could not find recent build to steal files from')
-            rls_dir = download_release(most_recent_rev.tag)
+            rls_dir = download_release(most_recent_rev)
             shutil.copyfile(rls_dir/need, package_dir/need)
 
         # Modules require tons of handholding to get right. Oh, and at some point the files needed to run the program were no longer
@@ -551,7 +612,7 @@ def build_locally(revision: Revision):
                     most_recent_rev = get_most_recent_rev(revision)
                     if not most_recent_rev:
                         raise Exception('could not find recent build to steal files from')
-                    rls_dir = download_release(most_recent_rev.tag)
+                    rls_dir = download_release(most_recent_rev)
                     shutil.copytree(rls_dir/'modules', package_dir/'modules', dirs_exist_ok=True)
 
         # Fullscreen mode in older builds is often broken on modern Windows.
@@ -586,7 +647,7 @@ def build_locally(revision: Revision):
         if not (package_dir/'zelda.dat').exists() or not (package_dir/'1st.qst').exists():
             most_recent_rev = get_most_recent_rev(revision)
             if most_recent_rev:
-                rls_dir = download_release(most_recent_rev.tag)
+                rls_dir = download_release(most_recent_rev)
                 for path in (rls_dir/'modules/classic').glob('*.*'):
                     shutil.copyfile(path, package_dir/path.name.replace('classic_', ''))
 
@@ -633,7 +694,7 @@ def get_revision_binaries(revision: Revision):
         except:
             return None
     else:
-        dir = download_release(revision.tag)
+        dir = download_release(revision)
 
     return create_binary_paths(dir)
 
@@ -703,7 +764,7 @@ def run_bisect(revisions: List[Revision]):
         print(
             f'changelog of current range: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
 
-        print(f'checking {rev.tag}')
+        print(f'checking {rev}')
         binaries = get_revision_binaries(rev)
 
         down_pivot = int((pivot - lower) / 2) + lower
@@ -775,7 +836,7 @@ def run_bisect(revisions: List[Revision]):
 
 
 if args.download_release:
-    download_release(args.download_release)
+    download_release(Revision(tag=args.download_release, commit_count=0))
     exit(0)
 
 if args.list_releases:
