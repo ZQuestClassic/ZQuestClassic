@@ -1,13 +1,13 @@
 # To run a bisect:
-#   python scripts/bisect_builds.py --token $GH_PAT --good 2.55-alpha-108 --bad 2.55-alpha-109
-#   python scripts/bisect_builds.py --token $GH_PAT --bad 2.55-alpha-108 --good 2.55-alpha-109
+#   python scripts/bisect_builds.py --good 2.55-alpha-108 --bad 2.55-alpha-109
+#   python scripts/bisect_builds.py --bad 2.55-alpha-108 --good 2.55-alpha-109
 #
 # You can automate running a command on each bisect script, like this:
 #   -c '%zq'
 #   -c '%zc -test "quests/Z1 Recreations/classic_1st.qst" 0 119'
 #
 # To download a specific build:
-#   python scripts/bisect_builds.py --token $GH_PAT --download_release 2.55-alpha-109
+#   python scripts/bisect_builds.py --download 2.55-alpha-109
 #
 # Use the '--local_builds' flag to build additional commits locally. This will take much longer, so
 # run without first to get a more narrow range.
@@ -33,12 +33,16 @@ parser = argparse.ArgumentParser(
     description='Runs a bisect using prebuilt releases.')
 parser.add_argument('--good')
 parser.add_argument('--bad')
-parser.add_argument('--token', required=True)
+parser.add_argument('--token')
+parser.add_argument('--bucket_url', default='https://zc-archives.nyc3.cdn.digitaloceanspaces.com')
+parser.add_argument(
+    '--test_builds', action=argparse.BooleanOptionalAction, default=True,
+    help='Includes pre-built builds not associated with official releases')
 parser.add_argument(
     '--local_builds', action=argparse.BooleanOptionalAction, default=False,
     help='Includes all commits and builds locally if prebuilt binaries are not present. Uses a temporary checkout at .tmp/local_build_working_dir')
 parser.add_argument('--list_releases', action='store_true')
-parser.add_argument('--download_release', help='Downloads the given release tag')
+parser.add_argument('--download', help='Downloads the given release (tag or commit sha) to .tmp/archives')
 parser.add_argument('--channel')
 parser.add_argument('--single', help='Runs `--command` for the given version (can be release tag or commit sha), downloading or building as necessary')
 parser.add_argument('-c', '--command',
@@ -52,11 +56,16 @@ args = parser.parse_args()
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-revisions_dir = root_dir / '.tmp/revisions'
+archives_dir = root_dir / '.tmp/archives'
 memory = Memory(root_dir / '.tmp/bisect_builds', verbose=0)
 
-gh = Github(args.token)
-repo = gh.get_repo('ZQuestClassic/ZQuestClassic')
+def get_repo():
+    if not args.token:
+        raise Exception('token required')
+
+    gh = Github(args.token)
+    return gh.get_repo('ZQuestClassic/ZQuestClassic')
+
 
 system = platform.system()
 if args.channel:
@@ -82,6 +91,9 @@ class Revision:
     commit_count: int
     type: Union[Literal['release'], Literal['test'], Literal['local']]
     is_local_build = False
+
+    def dir(self):
+        return archives_dir / self.type / self.tag
 
 
 @memory.cache
@@ -130,98 +142,113 @@ def get_release_commit_count_of_tag(tag: str):
 @memory.cache
 def has_release_package(tag: str):
     try:
-        url = get_release_package_url(tag)
+        url = get_gh_release_package_url(tag)
         return bool(url)
     except:
         return False
 
 
-def can_download_revision(revision: Revision):
-    return has_release_package(revision.tag)
+urls_by_commitish = {}
 
+def get_download_urls(bucket_url: str):
+    global urls_by_commitish
+    if urls_by_commitish:
+        return urls_by_commitish
 
-urls_by_sha = {}
+    keys_by_commitish = {}
+    def get_download_urls_impl(marker: str):
+        url = f'{bucket_url}?max-keys=1000'
+        if marker:
+            url += f'&marker={marker}'
+        archives_xml = requests.get(url).text
 
-def get_download_urls():
-    global urls_by_sha
-    if urls_by_sha or channel != 'windows':
-        return urls_by_sha
+        keys = re.compile(r'<Key>(.*?)</Key>').findall(archives_xml)
+        for key in keys:
+            commitish, filename = key.split('/', 2)
+            if commitish not in keys_by_commitish:
+                keys_by_commitish[commitish] = []
+            keys_by_commitish[commitish].append(key)
 
-    bucket_url = 'https://zc-archives.nyc3.cdn.digitaloceanspaces.com'
-    archives_xml = requests.get(bucket_url).text
-    if 'IsTruncated>true' in archives_xml:
-        raise Exception('TODO: paginate')
+        match = re.compile(r'<NextMarker>(.*?)</NextMarker>').search(archives_xml)
+        if match:
+            return match.group(1)
+        return None
 
-    keys = re.compile(r'<Key>(.*?)</Key>').findall(archives_xml)
-    keys_by_sha = {}
-    for key in keys:
-        sha, filename = key.split('/', 2)
-        if sha not in keys_by_sha:
-            keys_by_sha[sha] = []
-        keys_by_sha[sha].append(key)
+    marker = ''
+    while True:
+        marker = get_download_urls_impl(marker)
+        if not marker:
+            break
 
-    urls_by_sha = {}
-    for sha, keys in keys_by_sha.items():
+    urls_by_commitish = {}
+    for commitish, keys in keys_by_commitish.items():
         key = None
         if channel == 'windows':
-            keys = [k for k in keys if 'windows' in k]
             if len(keys) == 1:
                 key = keys[0]
             else:
-                key = next((k for k in keys if 'x64' in k), None) or \
-                    next((k for k in keys if 'x86' in k), None)
+                keys = [k for k in keys if 'windows' in k]
+                if len(keys) == 1:
+                    key = keys[0]
+                else:
+                    key = next((k for k in keys if 'x64' in k), None) or \
+                        next((k for k in keys if 'x86' in k), None)
         elif channel == 'mac':
-            key = next((k for k in keys if k.startswith('.dmg')), None)
+            key = next((k for k in keys if k.endswith('.dmg')), None)
         elif channel == 'linux':
             key = next((k for k in keys if k.startswith('linux')), None)
         if key:
-            urls_by_sha[sha] = f'{bucket_url}/{key}'
+            urls_by_commitish[commitish] = f'{bucket_url}/{key}'
 
-    return urls_by_sha
+    return urls_by_commitish
 
 
 def revision_count_supports_platform(revision_count: int, platform_str: str):
-    if platform_str == 'windows' and revision_count < 6252:
+    if platform_str == 'windows':
         return True
-    if platform_str == 'mac' and revision_count < 6384:
+    if platform_str == 'mac' and revision_count < get_release_commit_count_of_tag('2.55-alpha-108'):
         return False
-    if platform_str == 'linux' and revision_count < 7404:
+    if platform_str == 'linux' and revision_count < get_release_commit_count_of_tag('2.55-alpha-112'):
         return False
     return True
 
 
-def get_releases():
+def get_releases(include_test_builds: bool):
     revisions: List[Revision] = []
 
     # TODO maybe use: git tag --merged=main 'nightly*' '2.55-alpha-???' --sort=committerdate
     tags = subprocess.check_output(
-        ['git', '-P', 'tag', '--sort=committerdate', '--merged=main'], encoding='utf-8').splitlines()
+        ['git', '-P', 'tag', '--sort=committerdate'], encoding='utf-8').splitlines()
 
     for tag in tags:
+        if not any(tag.startswith(pre) for pre in ['2.55', '3', 'nightly']):
+            continue
+
         try:
             commit_count = get_release_commit_count_of_tag(tag)
         except:
-            continue
+            commit_count = -1
 
-        if not revision_count_supports_platform(commit_count, channel):
+        if commit_count != -1 and not revision_count_supports_platform(commit_count, channel):
             continue
 
         # Every release after this one will have binaries, but before only some do.
-        if commit_count < get_release_commit_count_of_tag('2.55-alpha-107'):
+        if commit_count != -1 and commit_count < get_release_commit_count_of_tag('2.55-alpha-107'):
             if not has_release_package(tag):
                 continue
 
         revisions.append(Revision(tag, commit_count, type='release'))
 
-    urls_by_sha = get_download_urls()
-    for sha in urls_by_sha.keys():
-        commit_count = get_release_commit_count(sha)
-        if any(r for r in revisions if r.commit_count == commit_count):
-            continue
-        revisions.append(Revision(sha, commit_count, type='test'))
+    if include_test_builds:
+        urls_by_commitish = get_download_urls(args.bucket_url)
+        for commitish in urls_by_commitish.keys():
+            if any(r for r in revisions if r.tag == commitish):
+                continue
+
+            commit_count = get_release_commit_count_of_tag(commitish)
+            revisions.append(Revision(commitish, commit_count, type='test'))
 
     revisions.sort(key=lambda x: x.commit_count)
-
     return revisions
 
 
@@ -236,14 +263,16 @@ def get_local_builds(revisions = []):
 
 
 def get_revisions(may_build_locally: bool):
-    revisions = get_releases()
+    revisions = get_releases(include_test_builds=args.test_builds)
     if may_build_locally:
         revisions = get_local_builds(revisions)
     revisions.sort(key=lambda x: x.commit_count)
     return revisions
 
 
-def get_release_package_url(tag):
+# TODO: remove this when uploading releases to s3 bucket is automated.
+def get_gh_release_package_url(tag: str):
+    repo = get_repo()
     release = repo.get_release(tag)
     assets = list(release.get_assets())
 
@@ -267,20 +296,20 @@ def get_release_package_url(tag):
     return asset.browser_download_url
 
 
-def download_release(revision: Revision):
-    dest = revisions_dir / revision.type / revision.tag
+def download_revision(revision: Revision):
+    dest = revision.dir()
     if dest.exists() and list(dest.glob('*')):
         return dest
 
-    sha = git_rev_parse(revision.tag)
-    urls_by_sha = get_download_urls()
-    if sha in urls_by_sha:
-        url = urls_by_sha[sha]
+    commitish = revision.tag
+    urls_by_commitish = get_download_urls(args.bucket_url)
+    if commitish in urls_by_commitish:
+        url = urls_by_commitish[commitish]
     else:
-        url = get_release_package_url(revision.tag)
+        url = get_gh_release_package_url(revision.tag)
 
     dest.mkdir(parents=True, exist_ok=True)
-    print(f'downloading release {revision}')
+    print(f'downloading {revision}')
     print(url)
 
     r = requests.get(url)
@@ -346,8 +375,7 @@ def local_build_error(revision: Revision):
     if not revision.is_local_build:
         return False
 
-    sha = revision.tag
-    dest: Path = local_builds_dir / sha
+    dest = revision.dir()
     if not dest.exists():
         return False
 
@@ -360,9 +388,8 @@ def local_build_error(revision: Revision):
 def has_built_locally(revision: Revision):
     if not revision.is_local_build:
         return False
-    
-    sha = revision.tag
-    dest: Path = local_builds_dir / sha
+
+    dest = revision.dir()
     if not dest.exists():
         return False
 
@@ -388,6 +415,8 @@ def try_run(args, **kwargs):
 def get_most_recent_rev(revision: Revision):
     most_recent_rev = None
     for rev in get_revisions(False):
+        if rev.commit_count == -1:
+            continue
         if rev.is_local_build:
             continue
         if rev.commit_count >= revision.commit_count:
@@ -408,8 +437,7 @@ def build_locally(revision: Revision):
         if path.exists():
             path.unlink()
 
-    sha = revision.tag
-    dest: Path = local_builds_dir / sha
+    dest = revision.dir()
     if local_build_error(revision) or has_built_locally(revision):
         return dest
 
@@ -433,7 +461,7 @@ def build_locally(revision: Revision):
 
     run_command(f'git checkout -- .'.split(' '), cwd=local_build_working_dir)
     run_command(f'git clean -fd'.split(' '), cwd=local_build_working_dir)
-    run_command(f'git checkout -f {sha}'.split(' '), cwd=local_build_working_dir)
+    run_command(f'git checkout -f {revision.tag}'.split(' '), cwd=local_build_working_dir)
 
     # TODO Before cmake, the makefile was garbage ...
     if not (local_build_working_dir/'CMakeLists.txt').exists():
@@ -575,7 +603,7 @@ def build_locally(revision: Revision):
             most_recent_rev = get_most_recent_rev(revision)
             if not most_recent_rev:
                 raise Exception('could not find recent build to steal files from')
-            rls_dir = download_release(most_recent_rev)
+            rls_dir = download_revision(most_recent_rev)
             shutil.copyfile(rls_dir/need, package_dir/need)
 
         # Modules require tons of handholding to get right. Oh, and at some point the files needed to run the program were no longer
@@ -612,7 +640,7 @@ def build_locally(revision: Revision):
                     most_recent_rev = get_most_recent_rev(revision)
                     if not most_recent_rev:
                         raise Exception('could not find recent build to steal files from')
-                    rls_dir = download_release(most_recent_rev)
+                    rls_dir = download_revision(most_recent_rev)
                     shutil.copytree(rls_dir/'modules', package_dir/'modules', dirs_exist_ok=True)
 
         # Fullscreen mode in older builds is often broken on modern Windows.
@@ -647,7 +675,7 @@ def build_locally(revision: Revision):
         if not (package_dir/'zelda.dat').exists() or not (package_dir/'1st.qst').exists():
             most_recent_rev = get_most_recent_rev(revision)
             if most_recent_rev:
-                rls_dir = download_release(most_recent_rev)
+                rls_dir = download_revision(most_recent_rev)
                 for path in (rls_dir/'modules/classic').glob('*.*'):
                     shutil.copyfile(path, package_dir/path.name.replace('classic_', ''))
 
@@ -694,7 +722,7 @@ def get_revision_binaries(revision: Revision):
         except:
             return None
     else:
-        dir = download_release(revision)
+        dir = download_revision(revision)
 
     return create_binary_paths(dir)
 
@@ -835,20 +863,25 @@ def run_bisect(revisions: List[Revision]):
         f'changelog: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
 
 
-if args.download_release:
-    download_release(Revision(tag=args.download_release, commit_count=0))
+if args.download:
+    revisions = get_releases(include_test_builds=True)
+    revision = next(r for r in revisions if r.tag == args.download)
+    download_revision(revision)
     exit(0)
 
 if args.list_releases:
-    releases = get_releases()
+    releases = get_releases(include_test_builds=args.test_builds)
     for release in releases:
-        print(f'@{release.commit_count} {release.tag}')
+        if release.commit_count == -1:
+            print(f'@? {release.tag}')
+        else:
+            print(f'@{release.commit_count} {release.tag}')
     exit(0)
 
 # Clear all builds that failed.
 # for rev in get_revisions(True):
 #     if local_build_error(rev):
-#         shutil.rmtree(local_builds_dir/rev.tag)
+#         shutil.rmtree(rev.dir())
 # exit(0)
 
 # Build a specific revision.
@@ -856,7 +889,7 @@ if args.list_releases:
 # for sha in ['697aca5ea4787bd42c014292a90d624ad719f6cc']:
 #     rev = next(r for r in revs if r.tag == sha)
 #     if local_build_error(rev):
-#        shutil.rmtree(local_builds_dir/rev.tag)
+#        shutil.rmtree(rev.dir())
 #     try:
 #         build_locally(rev)
 #     except KeyboardInterrupt:
@@ -865,8 +898,8 @@ if args.list_releases:
 #         ex = "".join(traceback.format_exception_only(e)).strip()
 #         print('FAIL', rev)
 #         print(ex)
-#         (local_builds_dir/rev.tag).mkdir(exist_ok=True, parents=True)
-#         (local_builds_dir/rev.tag/'error.txt').write_text(ex)
+#         rev.dir().mkdir(exist_ok=True, parents=True)
+#         (rev.dir()/'error.txt').write_text(ex)
 # exit(0)
 
 if args.backfill_local_builds:
@@ -906,8 +939,8 @@ if args.backfill_local_builds:
                 ex = "".join(traceback.format_exception_only(e)).strip()
                 print('FAIL', rev)
                 print(ex)
-                (local_builds_dir/rev.tag).mkdir(exist_ok=True, parents=True)
-                (local_builds_dir/rev.tag/'error.txt').write_text(ex)
+                rev.dir().mkdir(exist_ok=True, parents=True)
+                (rev.dir()/'error.txt').write_text(ex)
 
         if local_build_error(rev):
             failures_in_row += 1
@@ -931,7 +964,6 @@ if args.backfill_local_builds:
     print(largest_gap, largest_gap_revs)
     for rev in revs:
         if largest_gap_revs[0].commit_count < rev.commit_count < largest_gap_revs[1].commit_count:
-            dest: Path = local_builds_dir / sha
             error_path = local_build_error(rev)
             if error_path:
                 print(error_path)
@@ -978,4 +1010,4 @@ if args.single:
 
 
 revisions = get_revisions(may_build_locally=args.local_builds or args.backfill_local_builds)
-run_bisect([r for r in revisions if not local_build_error(r)])
+run_bisect([r for r in revisions if not local_build_error(r) and r.commit_count != -1])
