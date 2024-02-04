@@ -194,6 +194,7 @@ class sprite_list
     sprite *sprites[SLMAX];
     int32_t count;
 	int32_t active_iterator;
+    bool delete_active_iterator;
 	int32_t max_sprites;
     map<int32_t, int32_t> containedUIDs;
     // Cache requests from scripts
@@ -217,7 +218,7 @@ public:
     int32_t getMisc(int32_t j);
 	int32_t getMax() {return max_sprites;}
 	void setMax(int32_t max) {max_sprites = (max < SLMAX ? max : SLMAX);}
-    bool del(int32_t j, bool force = false);
+    bool del(int32_t j, bool force = false, bool may_defer = true);
     void draw(BITMAP* dest,bool lowfirst);
     void drawshadow(BITMAP* dest,bool translucent, bool lowfirst);
     void draw2(BITMAP* dest,bool lowfirst);
