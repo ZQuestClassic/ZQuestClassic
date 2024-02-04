@@ -43,6 +43,8 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				{
 					d->d1 = cmb;
 					d->d2 = cs;
+					reset_combo_animations();
+					reset_combo_animations2();
 					GUI_EVENT(d, geCHANGE_SELECTION);
 					return D_REDRAW;
 				}
