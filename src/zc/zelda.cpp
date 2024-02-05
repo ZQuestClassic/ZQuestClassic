@@ -1602,13 +1602,29 @@ void init_dmap()
 }
 
 // Sets globals to their default values.
-void init_game_vars()
+void init_game_vars(bool is_cont_game = false)
 {
+	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
+
+	// There are many replay tests that were made when these globals were not being reset
+	// on continue. Let's not break them.
+	if (is_cont_game && !(replay_version_check(32) || replay_get_meta_str("qst") == "grassland_attack.qst"))
+		return;
+
+	// Don't reset cheats on continue.
+	if (!is_cont_game)
+	{
+		cheat=0;
+		show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
+		show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
+		cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
+	}
+
 	// Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
 	// same way, even if manually started in the ZC UI.
-    frame = 0;
-	new_subscreen_active = nullptr;
+	frame = 0;
+
 	new_sub_indexes[sstACTIVE] = -1;
 	loadside = 0;
 	view_map_show_mode = 3;
@@ -1633,11 +1649,7 @@ void init_game_vars()
 	add_nl2bsparkle=false;
 	gofast=false;
 	wavy=quakeclk=0;
-	show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
-	show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-	cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
 	if (zscriptDrawingRenderTarget) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1);
-	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
 	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] = new_sub_indexes[sstOVERLAY] = -1;
 	script_hero_sprite = 0; 
 	script_hero_flip = -1; 
@@ -2228,6 +2240,7 @@ int32_t init_game()
 
 int32_t cont_game()
 {
+	init_game_vars(true);
 	replay_step_comment("cont_game");
 	GameLoaded = true;
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
@@ -5033,8 +5046,10 @@ reload_for_replay_file:
 		{
 			int32_t q = Quit;
 			Quit = 0;
-			if(q==qCONT)
+			if (q == qCONT)
+			{
 				cont_game();
+			}
 			else if(init_game())
 			{
 				//Failed initializing? Keep trying.
