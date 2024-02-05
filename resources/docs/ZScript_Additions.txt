@@ -843,7 +843,24 @@ standard C-style syntax of:
 
 	In this declaration, A == 0, B == 1, C == 2, D == 10, 
 		E == 11, F == 12, G == 100, H == 101, and I == 1
-		
+
+By default, enums are constants of type `int`, which auto-increment by `1`.
+You can change the type of the enum to a pre-existing type by using the following syntax:
+	[example--
+	enum = untyped
+	{
+		A, B, C
+	};
+	--end example]
+If the type of an enum is set to `long`, it will auto-increment by `1L` instead of `1`.
+	[example--
+	enum = long
+	{
+		A, //0L
+		B, //1L
+		C  //2L
+	};
+	--end example]
 		
 You can also define a C style enumerated list with an identifier. 
 This act defines a pseudo-datatype, with assignable values limited to
@@ -954,27 +971,28 @@ the values in the enumerated list.
 	
 	[example--
 	
-		untyped script fakestruct
+		ffc script foo
 		{
+			void run(){}
 			enum fktype { seNone, seA, seB, seC };
 			enum fkflag { sfNone, sfA, sfB, sfC = 4 }; 
 		}
 		
-		int getfakestructflag(fakestruct.fkflag flag)
+		int getfakestructflag(foo.fkflag flag)
 		{
 			int r = <int>flag; //cast to int
 			return r;
 		}
 		
 		//Convert a flag to its type ID
-		fakestruct.fktype flagtype(fakestruct.fkflag flag)
+		foo.fktype flagtype(foo.fkflag flag)
 		{
 			switch(flag)
 			{
-				case fakestruct.sfNone: return fakestruct.seNone; 
-				case fakestruct.sfA: return fakestruct.seA; 
-				case fakestruct.sfB: return fakestruct.seB; 
-				case fakestruct.sfC: return fakestruct.seC; 
+				case foo.sfNone: return foo.seNone; 
+				case foo.sfA: return foo.seA; 
+				case foo.sfB: return foo.seB; 
+				case foo.sfC: return foo.seC; 
 			}
 		}
 	

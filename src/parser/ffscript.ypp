@@ -1849,7 +1849,13 @@ Statement_CompileError :
 	;
 
 DataEnum:
-	ENUM LBRACE Enum_Block RBRACE {$$ = $3;};
+	ENUM LBRACE Enum_Block RBRACE {$$ = $3;}
+	| ENUM ASSIGN DataType LBRACE Enum_Block RBRACE {
+		ASTDataEnum* list = (ASTDataEnum*)$5;
+		ASTDataType* type = (ASTDataType*)$3;
+		type->constant_ = 1; //force to be constant, skip `const const` errors
+		list->baseType = type;
+		$$ = list;};
 
 Enum_Block:
 	Enum_Block COMMA Data_Element {

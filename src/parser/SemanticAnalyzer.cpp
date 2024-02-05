@@ -599,7 +599,8 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 	}
 
 	//Handle initializer assignment
-	int32_t ipart = -1, dpart = 0;
+	int32_t ipart = 0, dpart = 0;
+	bool is_first = true;
 	std::vector<ASTDataDecl*> decls = host.getDeclarations();
 	for(vector<ASTDataDecl*>::iterator it = decls.begin();
 		it != decls.end(); ++it)
@@ -608,9 +609,16 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		ASTExpr* init = declaration->getInitializer();
 		if(!init) //auto-fill
 		{
-			ASTNumberLiteral* value = new ASTNumberLiteral(new ASTFloat(++ipart, dpart, host.location), host.location);
+			if(!is_first)
+			{
+				if(baseType->isLong())
+					++dpart;
+				else ++ipart;
+			}
+			ASTNumberLiteral* value = new ASTNumberLiteral(new ASTFloat(ipart, dpart, host.location), host.location);
 			declaration->setInitializer(value);
 		}
+		is_first = false;
 		visit(declaration, param);
 		if(breakRecursion(host, param)) return;
 		if(init) //Set spot for next auto-fill, enforce const-ness
