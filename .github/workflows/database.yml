@@ -13,6 +13,8 @@ jobs:
       - name: Set timezone
         run: sudo timedatectl set-timezone America/Los_Angeles
 
+      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
+
       - name: Setup s3cmd
         uses: s3-actions/s3cmd@4e3a53c3e9313f573ff3f69aec7a772366f2f8f5
         with:
@@ -38,7 +40,7 @@ jobs:
         with:
           python-version: '3.11.4'
       - run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie joblib
-      - run: python scripts/bisect_builds.py --download_release 2.55-alpha-120 --token ${{ secrets.GITHUB_TOKEN }}
+      - run: python scripts/bisect_builds.py --download 2.55-alpha-120 --token ${{ secrets.GITHUB_TOKEN }}
 
       - run: npm install
         working-directory: scripts/database
