@@ -1567,6 +1567,8 @@ static void actual_titlescreen()
 		counter++;
 		advanceframe(true);
 	}
+
+	zcmusic_stop(zcmusic);
 }
 
 void titlescreen(int32_t lsave)
