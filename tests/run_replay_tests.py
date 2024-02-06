@@ -680,6 +680,7 @@ class CLIPlayerInterface:
             '-replay-exit-when-done',
             '-replay-output-dir', output_dir,
             '-script-runtime-debug-folder', str(output_dir / 'zscript-debug'),
+            '-optimize-zasm',
         ]
 
         if args.extra_args:
