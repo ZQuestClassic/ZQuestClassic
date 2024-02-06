@@ -68,6 +68,7 @@
 
 #include "zc/zc_custom.h"
 #include "qst.h"
+#include "zc/websocket_pool.h"
 
 using namespace util;
 
@@ -112,15 +113,148 @@ CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
+
+template <typename T, size_t Max>
+struct UserDataContainer
+{
+	const char* name;
+	T datas[Max];
+
+	T& operator[](size_t index)
+	{
+		return datas[index];
+	}
+
+	void clear()
+	{
+		for (int32_t i = 0; i < Max; ++i)
+		{
+			datas[i] = {};
+		}
+	}
+
+	void clear(size_t index)
+	{
+		datas[index] = {};
+	}
+
+	int32_t get_free(bool skipError = false)
+	{
+		for (int32_t i = 0; i < Max; ++i)
+		{
+			if (!datas[i].reserved)
+			{
+				// This breaks stellar seas replay at frame 502 ...
+				// datas[i] = {};
+				datas[i].reserved = true;
+				return i+1; //1-indexed; 0 is null value
+			}
+		}
+		if (!skipError) Z_scripterrlog("could not find a valid free %s pointer!\n", name);
+		return 0;
+	}
+
+	T* check(int32_t ref, const char* what, bool skipError = false)
+	{
+		if (ref > 0 && ref <= Max)
+		{
+			T* data = &datas[ref - 1];
+			if (data->reserved)
+			{
+				return data;
+			}
+		}
+		if (skipError) return NULL;
+
+		Z_scripterrlog("Script attempted to reference a nonexistent %s!\n", name);
+		if (what)
+			Z_scripterrlog("You were trying to reference the '%s' of a %s with UID = %ld\n", what, name, ref);
+		else
+			Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
+		return NULL;
+	}
+};
+
+static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {"directory"};
+static UserDataContainer<user_file, MAX_USER_FILES> user_files = {"file"};
+static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {"object"};
+static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {"paldata"};
+static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {"rng"};
+static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {"stack"};
+
+struct user_websocket : public user_abstract_obj
+{
+	~user_websocket()
+	{
+		if (connection_id != -1)
+			websocket_pool_close(connection_id);
+		if (message_arrayptr)
+			FFScript::deallocateZScriptArray(message_arrayptr);
+	}
+
+	void clear()
+	{
+		this->~user_websocket();
+		*this = {};
+	}
+
+	bool connect(std::string url)
+	{
+		connection_id = websocket_pool_connect(url, err);
+		this->url = url;
+		return connection_id != -1;
+	}
+
+	void send(WebSocketMessageType type, std::string message)
+	{
+		if (connection_id == -1 || type == WebSocketMessageType::None) return;
+		websocket_pool_send(connection_id, type, message);
+	}
+
+	bool has_message()
+	{
+		if (connection_id == -1) return false;
+		return websocket_pool_has_message(connection_id);
+	}
+
+	std::string receive_message()
+	{
+		if (connection_id == -1) return "";
+		auto [type, message] = websocket_pool_receive(connection_id);
+		last_message_type = type;
+		return message;
+	}
+
+	WebSocketStatus get_state() const
+	{
+		if (connection_id == -1) return WebSocketStatus::Closed;
+		return websocket_pool_status(connection_id);
+	}
+
+	std::string get_error() const
+	{
+		if (connection_id == -1) return err;
+		return websocket_pool_error(connection_id);
+	}
+
+	int connection_id = -1;
+	std::string url;
+	std::string err;
+	bool reserved;
+	int message_arrayptr;
+	WebSocketMessageType last_message_type;
+};
+#define MAX_USER_WEBSOCKETS 3
+static UserDataContainer<user_websocket, MAX_USER_WEBSOCKETS> user_websockets = {"websocket"};
+
+user_object& FFScript::get_user_object(size_t index)
+{
+	return user_objects[index];
+}
+
 script_bitmaps scb;
-user_file script_files[MAX_USER_FILES];
-user_dir script_dirs[MAX_USER_DIRS];
-user_object script_objects[MAX_USER_OBJECTS];
-user_stack script_stacks[MAX_USER_STACKS];
 user_rng nulrng;
-user_rng script_rngs[MAX_USER_RNGS];
 zc_randgen script_rnggens[MAX_USER_RNGS];
-user_paldata script_paldatas[MAX_USER_PALDATAS];
 
 FONT *get_zc_font(int index);
 
@@ -2172,7 +2306,7 @@ void countObjects()
 	max_valid_object = 0;
 	for(auto q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
-		if(script_objects[q].reserved)
+		if(user_objects[q].reserved)
 			max_valid_object = q+1;
 	}
 }
@@ -2833,27 +2967,31 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	}
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
-		script_rngs[q].own_clear(scriptType, UID);
+		user_rngs[q].own_clear(scriptType, UID);
 	}
 	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
 	{
-		script_paldatas[q].own_clear(scriptType, UID);
+		user_paldatas[q].own_clear(scriptType, UID);
 	}
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
 	{
-		script_files[q].own_clear(scriptType, UID);
+		user_files[q].own_clear(scriptType, UID);
 	}
 	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
 	{
-		script_dirs[q].own_clear(scriptType, UID);
+		user_dirs[q].own_clear(scriptType, UID);
 	}
 	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
 	{
-		script_stacks[q].own_clear(scriptType, UID);
+		user_stacks[q].own_clear(scriptType, UID);
 	}
 	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
-		script_objects[q].own_clear(scriptType, UID);
+		user_objects[q].own_clear(scriptType, UID);
+	}
+	for (int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
+	{
+		user_websockets[q].own_clear(scriptType, UID);
 	}
 	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
@@ -2882,27 +3020,31 @@ void FFScript::deallocateAllScriptOwned()
 	}
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
-		script_rngs[q].own_clear_any();
+		user_rngs[q].own_clear_any();
 	}
 	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
 	{
-		script_paldatas[q].own_clear_any();
+		user_paldatas[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
 	{
-		script_files[q].own_clear_any();
+		user_files[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
 	{
-		script_dirs[q].own_clear_any();
+		user_dirs[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
 	{
-		script_stacks[q].own_clear_any();
+		user_stacks[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
-		script_objects[q].own_clear_any();
+		user_objects[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
+	{
+		user_websockets[q].own_clear_any();
 	}
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -2924,27 +3066,31 @@ void FFScript::deallocateAllScriptOwnedCont()
 	}
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
-		script_rngs[q].own_clear_cont();
+		user_rngs[q].own_clear_cont();
 	}
 	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
 	{
-		script_paldatas[q].own_clear_cont();
+		user_paldatas[q].own_clear_cont();
 	}
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
 	{
-		script_files[q].own_clear_cont();
+		user_files[q].own_clear_cont();
 	}
 	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
 	{
-		script_dirs[q].own_clear_cont();
+		user_dirs[q].own_clear_cont();
 	}
 	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
 	{
-		script_stacks[q].own_clear_cont();
+		user_stacks[q].own_clear_cont();
 	}
 	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
-		script_objects[q].own_clear_cont();
+		user_objects[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
+	{
+		user_websockets[q].own_clear_cont();
 	}
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -3029,45 +3175,21 @@ weapon *checkEWpn(int32_t eid, const char *what)
 
 user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool skipError = false)
 {
-	if(ref > 0 && ref <= MAX_USER_FILES)
+	user_file* file = user_files.check(ref, what, skipError);
+	if (file && req_file && !file->file)
 	{
-		user_file* f = &script_files[ref-1];
-		if(f->reserved)
-		{
-			if(req_file && !f->file)
-			{
-				if(skipError) return NULL;
-				Z_scripterrlog("Script attempted to reference an invalid file!\n");
-				Z_scripterrlog("File with UID = %ld does not have an open file connection!\n",ref);
-				Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
-				return NULL;
-			}
-			return f;
-		}
+		if (skipError) return NULL;
+		Z_scripterrlog("Script attempted to reference an invalid file!\n");
+		Z_scripterrlog("File with UID = %ld does not have an open file connection!\n", ref);
+		Z_scripterrlog("Use '->Open()' or '->Create()' to hook to a system file.\n");
+		return NULL;
 	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	return file;
 }
 
 user_object *checkObject(int32_t ref, bool skipError = false)
 {
-	if(ref > 0 && ref < MAX_USER_OBJECTS)
-	{
-		user_object* obj = &script_objects[ref-1];
-		if(obj->reserved)
-		{
-			return obj;
-		}
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent object!\n");
-	Z_scripterrlog("You were trying to reference an object with UID = %ld\n", ref);
-	return NULL;
+	return user_objects.check(ref, nullptr, skipError);
 }
 
 user_genscript *checkGenericScr(int32_t ref, const char *what)
@@ -3125,82 +3247,24 @@ int32_t getPortalFromSaved(savedportal* p)
 
 user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
 {
-	if(ref > 0 && ref <= MAX_USER_DIRS)
-	{
-		user_dir* dr = &script_dirs[ref-1];
-		if(dr->reserved)
-		{
-			return dr;
-		}
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	return user_dirs.check(ref, what, skipError);
 }
 
 user_stack *checkStack(int32_t ref, const char *what, bool skipError = false)
 {
-	if(ref > 0 && ref <= USERSTACK_MAX_SIZE)
-	{
-		user_stack* st = &script_stacks[ref-1];
-		if(st->reserved)
-		{
-			return st;
-		}
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent Stack!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a Stack with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	return user_stacks.check(ref, nullptr, skipError);
 }
 
 user_rng *checkRNG(int32_t ref, const char *what, bool skipError = false)
 {
-	if(ref > 0 && ref <= MAX_USER_RNGS)
-	{
-		user_rng* rng = &script_rngs[ref-1];
-		if(rng->reserved)
-		{
-			return rng;
-		}
-	}
-	else if(!ref) //A null RNG pointer is special-case, access engine rng.
-	{
-		return &nulrng;
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent RNG!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a RNG with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	// A null RNG pointer is special-case, access engine rng.
+	if (ref == 0) return &nulrng;
+	return user_rngs.check(ref, nullptr, skipError);
 }
 
 user_paldata* checkPalData(int32_t ref, const char* what, bool skipError = false)
 {
-	if (ref > 0 && ref <= MAX_USER_PALDATAS)
-	{
-		user_paldata* pd = &script_paldatas[ref - 1];
-		if (pd->reserved)
-		{
-			return pd;
-		}
-	}
-	if (skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent paldata!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a paldata with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
+	return user_paldatas.check(ref, what, skipError);
 }
 
 bottletype *checkBottleData(int32_t ref, const char *what, bool skipError = false)
@@ -8132,7 +8196,7 @@ int32_t get_register(int32_t arg)
 			if ( indx < 0 || indx > 31 )
 			{
 				ret = -10000;
-				Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
+				Z_scripterrlog("Invalid index used to access Game->Misc: %d\n", indx);
 			}
 			else
 			{
@@ -8152,14 +8216,23 @@ int32_t get_register(int32_t arg)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( (unsigned) inx > (susptLAST-1) )
 			{
-				Z_scripterrlog("Invalid array index [%d] passed to Gme->Suspend[]\n");
+				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
 			}
 			ret = (( FFCore.system_suspend[inx] ) ? 10000 : 0);
 			break;
 		}
 		case GAMELITEMSD:
-			ret=game->lvlitems[(ri->d[rINDEX])/10000]*10000;
+		{
+			size_t index = ri->d[rINDEX] / 10000;
+			if (index >= game->lvlitems.size())
+			{
+				ret = 0;
+				Z_scripterrlog("Invalid array index [%d] passed to Game->LItems[]\n", index);
+				break;
+			}
+			ret=game->lvlitems[index]*10000;
 			break;
+		}
 		case GAMELSWITCH:
 		{
 			int32_t ind = (ri->d[rINDEX])/10000;
@@ -15679,7 +15752,35 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//
-		
+
+		case WEBSOCKET_STATE:
+		{
+			ret = 0;
+			auto ws = user_websockets.check(ri->websocketref, "->State");
+			if (!ws) break;
+
+			ret = (int)ws->get_state();
+			break;
+		}
+		case WEBSOCKET_HAS_MESSAGE:
+		{
+			ret = 0;
+			auto ws = user_websockets.check(ri->websocketref, "->HasMessage");
+			if (!ws) break;
+
+			ret = ws->has_message() * 10000;
+			break;
+		}
+		case WEBSOCKET_MESSAGE_TYPE:
+		{
+			ret = 0;
+			auto ws = user_websockets.check(ri->websocketref, "->MessageType");
+			if (!ws) break;
+
+			ret = (int)ws->last_message_type;
+			break;
+		}
+
 		default:
 		{
 			if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
@@ -21003,15 +21104,20 @@ void set_register(int32_t arg, int32_t value)
 			int32_t inx = (ri->d[rINDEX])/10000;
 			if ( (unsigned) inx > (susptLAST-1) )
 			{
-				Z_scripterrlog("Invalid array index [%d] passed to Gme->Suspend[]\n");
+				Z_scripterrlog("Invalid array index [%d] passed to Game->Suspend[]\n");
+				break;
 			}
 			FFCore.system_suspend[inx]= ( (value) ? 1 : 0 );
 			break;
 		}
 			
 		case GAMELITEMSD:
-			game->lvlitems[(ri->d[rINDEX])/10000]=value/10000;
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind) < MAXLEVELS)
+				game->lvlitems[ind]=value/10000;
 			break;
+		}
 		case GAMELSWITCH:
 		{
 			int32_t ind = (ri->d[rINDEX])/10000;
@@ -28810,16 +28916,15 @@ void do_destroy_array()
 	}
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
-void do_allocatemem(const bool v, const bool local, ScriptType type, const uint32_t UID)
+
+static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID)
 {
-	const int32_t size = SH::get_arg(sarg2, v) / 10000;
 	dword ptrval;
 	
 	if(size < 0)
 	{
 		Z_scripterrlog("Array initialized to invalid size of %d\n", size);
-		set_register(sarg1, 0); //Pass back NULL
-		return;
+		return 0;
 	}
 	
 	if(local)
@@ -28867,8 +28972,14 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 			
 		ptrval += NUM_ZSCRIPT_ARRAYS; //so each pointer has a unique value
 	}
-	
-	
+
+	return ptrval;
+}
+
+void do_allocatemem(bool v, const bool local, ScriptType type, const uint32_t UID)
+{
+	int32_t size = SH::get_arg(sarg2, v) / 10000;
+	dword ptrval = allocatemem(size, local, type, UID);
 	set_register(sarg1, ptrval * 10000);
 	
 	// If this happens once per frame, it can drown out every other message. -L
@@ -29793,19 +29904,6 @@ void do_gettilewarptype(const bool v)
 	set_register(sarg1, tmpscr->tilewarptype[warp]*10000);
 }
 
-void do_getscreenforcombopos(const bool v)
-{
-	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
-	
-	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Screen->GetScreenIndexForRpos") != SH::_NoError)
-	{
-		set_register(sarg1, -10000);
-		return;
-	}
-
-	set_register(sarg1, get_screen_index_for_rpos(rpos) * 10000);
-}
-
 void do_layerscreen()
 {
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
@@ -29841,6 +29939,20 @@ void do_triggersecrets(int screen_index)
 	trigger_secrets_for_screen(TriggerSource::Script, screen_index, false);
 }
 
+
+
+void do_getscreenforcombopos(const bool v)
+{
+	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
+	
+	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Screen->GetScreenIndexForRpos") != SH::_NoError)
+	{
+		set_register(sarg1, -10000);
+		return;
+	}
+
+	set_register(sarg1, get_screen_index_for_rpos(rpos) * 10000);
+}
 
 
 
@@ -30760,7 +30872,7 @@ void FFScript::do_load_subscreendata(const bool v, const bool v2)
 
 void FFScript::do_loadrng()
 {
-	ri->rngref = get_free_rng();
+	ri->rngref = user_rngs.get_free();
 	ri->d[rEXP1] = ri->rngref;
 }
 
@@ -30785,7 +30897,7 @@ void FFScript::do_loaddirectory()
 	regulate_path(buf);
 	if(valid_dir(buf) && checkPath(buf, true))
 	{
-		ri->directoryref = get_free_directory(false);
+		ri->directoryref = user_dirs.get_free();
 		if(!ri->directoryref) return;
 		user_dir* d = checkDir(ri->directoryref, "LoadDirectory", true);
 		set_register(sarg1, ri->directoryref);
@@ -30799,7 +30911,7 @@ void FFScript::do_loaddirectory()
 
 void FFScript::do_loadstack()
 {
-	ri->stackref = get_free_stack();
+	ri->stackref = user_stacks.get_free();
 	ri->d[rEXP1] = ri->stackref;
 }
 
@@ -30853,10 +30965,10 @@ void FFScript::do_loadgenericdata(const bool v)
 
 void FFScript::do_create_paldata()
 {
-	ri->paldataref = get_free_paldata();
+	ri->paldataref = user_paldatas.get_free();
 	if (ri->paldataref > 0)
 	{
-		user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+		user_paldata* pd = &user_paldatas[ri->paldataref - 1];
 		for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
 			pd->colors_used[q] = 0;
 	}
@@ -30865,10 +30977,10 @@ void FFScript::do_create_paldata()
 
 void FFScript::do_create_paldata_clr()
 {
-	ri->paldataref = get_free_paldata();
+	ri->paldataref = user_paldatas.get_free();
 	if (ri->paldataref > 0)
 	{
-		user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+		user_paldata* pd = &user_paldatas[ri->paldataref - 1];
 		int32_t clri = get_register(sarg1);
 
 		RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
@@ -35198,8 +35310,11 @@ void do_constructclass(ScriptType type, word script, int32_t i)
 	size_t num_vars = sargvec->at(0);
 	size_t total_vars = num_vars + sargvec->size()-1;
 	auto destr_pc = ri->d[rEXP1];
-	dword objref = FFCore.get_free_object(false);
-	
+
+	dword objref = user_objects.get_free();
+	if (objref && objref >= max_valid_object)
+		max_valid_object = objref;
+
 	if(user_object* obj = checkObject(objref, true))
 	{
 		obj->own(type, i);
@@ -37584,10 +37699,6 @@ int32_t run_script_int(bool is_jitted)
 			case SECRETS:
 				do_triggersecrets(currscr);
 				break;
-
-			case SECRETSFORR:
-				do_triggersecrets(get_register(sarg1) / 10000);
-				break;
 				
 			case GETSCREENFLAGS:
 				do_getscreenflags();
@@ -39743,9 +39854,22 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			}
 
-			case GETSCREENFORCOMBOPOS:
+			case REGION_SCREEN_FOR_COMBO_POS:
 				do_getscreenforcombopos(false);
 				break;
+
+			case REGION_TRIGGER_SECRETS:
+			{
+				int screen_index = get_register(sarg1) / 10000;
+				if (!is_in_current_region(screen_index))
+				{
+					Z_scripterrlog("Region->TriggerSecrets must be given a screen in the current region. got: %d\n", screen_index);
+					break;
+				}
+
+				do_triggersecrets(screen_index);
+				break;
+			}
 			
 			///----------------------------------------------------------------------------------------------------//
 			
@@ -39996,6 +40120,98 @@ int32_t run_script_int(bool is_jitted)
 				}
 				break;
 			}
+
+			case WEBSOCKET_OWN:
+			{
+				if (auto ws = user_websockets.check(ri->websocketref, "Own()"))
+				{
+					ws->own(type, i);
+				}
+				break;
+			}
+			case WEBSOCKET_LOAD:
+			{
+				int arrayptr = SH::get_arg(sarg1, false) / 10000;
+				std::string url;
+				ArrayH::getString(arrayptr, url, 512);
+
+				ri->websocketref = 0;
+				ri->d[rEXP1] = 0;
+
+				if (url.size() == 0 || !url.starts_with("ws"))
+				{
+					break;
+				}
+
+				int ref = user_websockets.get_free();
+				if (!ref)
+				{
+					break;
+				}
+
+				auto& ws = user_websockets[ref-1];
+				ws.connect(url);
+
+				ri->websocketref = ref;
+				ri->d[rEXP1] = ref;
+				break;
+			}
+			case WEBSOCKET_FREE:
+			{
+				user_websockets.clear(ri->websocketref);
+				break;
+			}
+			case WEBSOCKET_ERROR:
+			{
+				int32_t arrayptr = get_register(sarg1) / 10000;
+				if (auto ws = user_websockets.check(ri->websocketref, "GetError()"))
+				{
+					ArrayH::setArray(arrayptr, ws->get_error(), true);
+				}
+				else
+				{
+					ArrayH::setArray(arrayptr, "Invalid pointer", true);
+				}
+				break;
+			}
+			case WEBSOCKET_SEND:
+			{
+				int32_t type = get_register(sarg1);
+				int32_t arrayptr = get_register(sarg2) / 10000;
+				if (BC::checkBounds(type, 1, 2, "Send() type") != SH::_NoError)
+				{
+					break;
+				}
+
+				std::string message;
+				ArrayH::getString(arrayptr, message);
+				if (auto ws = user_websockets.check(ri->websocketref, "Send()"))
+				{
+					ws->send((WebSocketMessageType)type, message);
+				}
+				break;
+			}
+			case WEBSOCKET_RECEIVE:
+			{
+				if (auto ws = user_websockets.check(ri->websocketref, "Receive()"))
+				{
+					std::string message = ws->receive_message();
+					auto message_type = ws->last_message_type;
+
+					if (ws->message_arrayptr)
+						FFScript::deallocateZScriptArray(ws->message_arrayptr);
+					ws->message_arrayptr = allocatemem(message.size() + 1, true, type, i);
+
+					if (message_type == WebSocketMessageType::Text)
+						ArrayH::setArray(ws->message_arrayptr, message, false);
+					else
+						ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, false);
+
+					set_register(sarg1, ws->message_arrayptr * 10000);
+				}
+				break;
+			}
+
 			default:
 			{
 				Z_scripterrlog("Invalid ZASM command %lu reached; terminating\n", scommand);
@@ -40146,7 +40362,9 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
+				int index = GuyH::getNPCIndex(i);
+				if (index != -1)
+					guys.spr(index)->weaponscript = 0;
 			}
 			break;
 			case ScriptType::Lwpn:
@@ -40154,7 +40372,9 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
+				int index = LwpnH::getLWeaponIndex(i);
+				if (index != -1)
+					Lwpns.spr(index)->weaponscript = 0;
 			}
 			break;
 			case ScriptType::Ewpn:
@@ -40162,7 +40382,9 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
+				int index = ItemH::getItemIndex(i);
+				if (index != -1)
+					Ewpns.spr(index)->weaponscript = 0;
 			}
 			break;
 			case ScriptType::ItemSprite:
@@ -40170,7 +40392,9 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 				data.initialized = false;
-				items.spr(ItemH::getItemIndex(i))->script = 0;
+				int index = ItemH::getItemIndex(i);
+				if (index != -1)
+					items.spr(index)->script = 0;
 			}
 			break;
 			
@@ -40313,34 +40537,25 @@ int32_t ffscript_engine(const bool preload)
 
 void FFScript::user_files_init()
 {
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		script_files[q].clear();
-	}
+	user_files.clear();
 }
 
 void FFScript::user_dirs_init()
 {
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		script_dirs[q].clear();
-	}
+	user_dirs.clear();
 }
 void FFScript::user_objects_init()
 {
 	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
-		script_objects[q].clear_nodestruct();
+		user_objects[q].clear_nodestruct();
 	}
 	max_valid_object = 0;
 }
 
 void FFScript::user_stacks_init()
 {
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		script_stacks[q].clear();
-	}
+	user_stacks.clear();
 }
 
 void FFScript::user_rng_init()
@@ -40348,103 +40563,19 @@ void FFScript::user_rng_init()
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
 		replay_register_rng(&script_rnggens[q]);
-		script_rngs[q].clear();
-		script_rngs[q].set_gen(&script_rnggens[q]);
+		user_rngs[q].clear();
+		user_rngs[q].set_gen(&script_rnggens[q]);
 	}
 }
 
 void FFScript::user_paldata_init()
 {
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
-	{
-		script_paldatas[q].clear();
-	}
+	user_paldatas.clear();
 }
 
-int32_t FFScript::get_free_file(bool skipError)
+void FFScript::user_websockets_init()
 {
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		if(!script_files[q].reserved)
-		{
-			script_files[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_object(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
-	{
-		if(!script_objects[q].reserved)
-		{
-			script_objects[q].reserved = true;
-			if(q >= max_valid_object)
-				max_valid_object = q+1;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_object() could not find a valid free object pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_directory(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		if(!script_dirs[q].reserved)
-		{
-			script_dirs[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_directory() could not find a valid free directory pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_rng(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
-	{
-		if(!script_rngs[q].reserved)
-		{
-			script_rngs[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_rng() could not find a valid free rng pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_paldata(bool skipError)
-{
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
-	{
-		if (!script_paldatas[q].reserved)
-		{
-			script_paldatas[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if (!skipError) Z_scripterrlog("get_free_paldata() could not find a valid free paldata pointer!\n");
-	return 0;
-}
-
-int32_t FFScript::get_free_stack(bool skipError)
-{
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		if(!script_stacks[q].reserved)
-		{
-			script_stacks[q].reserved = true;
-			return q+1; //1-indexed; 0 is null value
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_stack() could not find a valid free stack pointer!\n");
-	return 0;
+	user_websockets.clear();
 }
 
 // Gotten from 'https://fileinfo.com/filetypes/executable'
@@ -40507,7 +40638,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 	user_file* f = checkFile(ri->fileref, "Open()", false, true);
 	if(!f) //auto-allocate
 	{
-		ri->fileref = get_free_file();
+		ri->fileref = user_files.get_free();
 		f = checkFile(ri->fileref, "Open()", false, true);
 	}
 	ri->d[rEXP2] = ri->fileref; //Returns to the variable!
@@ -40567,7 +40698,7 @@ void FFScript::do_fclose()
 void FFScript::do_allocate_file()
 {
 	//Get a file and return it
-	ri->fileref = get_free_file();
+	ri->fileref = user_files.get_free();
 	ri->d[rEXP2] = ri->fileref; //Return to ptr
 	ri->d[rEXP1] = (ri->d[rEXP2] == 0 ? 0L : 10000L);
 }
@@ -42438,6 +42569,7 @@ void FFScript::init()
 	jitted_scripts.clear();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
+	websocket_pool_destroy();
 }
 
 void FFScript::shutdown()

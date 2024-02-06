@@ -256,6 +256,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token SUBSCREENDATA
 %token SUBSCREENPAGE
 %token SUBSCREENWIDGET
+%token WEBSOCKET
 %token GENERIC
 %token GENERICDATA
 %token PORTAL
@@ -676,6 +677,7 @@ DataType : ZCONST DataType {
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| SUBSCREENPAGE {$$ = new ASTDataType(DataType::SUBSCREENPAGE, @$);}
 	| SUBSCREENWIDGET {$$ = new ASTDataType(DataType::SUBSCREENWIDGET, @$);}
+	| WEBSOCKET {$$ = new ASTDataType(DataType::WEBSOCKET, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
 	| PALDATA {$$ = new ASTDataType(DataType::PALDATA, @$);}
@@ -1849,7 +1851,13 @@ Statement_CompileError :
 	;
 
 DataEnum:
-	ENUM LBRACE Enum_Block RBRACE {$$ = $3;};
+	ENUM LBRACE Enum_Block RBRACE {$$ = $3;}
+	| ENUM ASSIGN DataType LBRACE Enum_Block RBRACE {
+		ASTDataEnum* list = (ASTDataEnum*)$5;
+		ASTDataType* type = (ASTDataType*)$3;
+		type->constant_ = 1; //force to be constant, skip `const const` errors
+		list->baseType = type;
+		$$ = list;};
 
 Enum_Block:
 	Enum_Block COMMA Data_Element {

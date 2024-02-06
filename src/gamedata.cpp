@@ -41,7 +41,7 @@ void gamedata::save_user_objects()
 #ifndef IS_EDITOR
 	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
-		user_object& obj = script_objects[q];
+		user_object& obj = FFCore.get_user_object(q);
 		if(obj.reserved && obj.isGlobal())
 		{
 			saved_user_object& save_obj = user_objects.emplace_back();
@@ -59,8 +59,9 @@ void gamedata::load_user_objects()
 	for(saved_user_object& obj : user_objects)
 	{
 		auto ind = obj.object_index;
-		script_objects[ind] = obj.obj;
-		script_objects[ind].load_arrays(obj.held_arrays);
+		auto& object = FFCore.get_user_object(ind);
+		object = obj.obj;
+		object.load_arrays(obj.held_arrays);
 	}
 #endif
 }

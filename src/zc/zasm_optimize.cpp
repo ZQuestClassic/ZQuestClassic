@@ -515,6 +515,7 @@ static bool has_implemented_register_invalidations(int reg)
 		case REFUICOLOURS:
 		case REFUNTYPED:
 		case REFWARPRINGS:
+		case REFWEBSOCKET:
 			return false;
 	}
 

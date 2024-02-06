@@ -1008,12 +1008,7 @@ void user_objects_init();
 void user_stacks_init();
 void user_rng_init();
 void user_paldata_init();
-int32_t get_free_file(bool skipError = false);
-int32_t get_free_directory(bool skipError = false);
-int32_t get_free_object(bool skipError = false);
-int32_t get_free_stack(bool skipError = false);
-int32_t get_free_rng(bool skipError = false);
-int32_t get_free_paldata(bool skipError = false);
+void user_websockets_init();
 
 bool get_scriptfile_path(char* buf, const char* path);
 
@@ -1933,6 +1928,8 @@ enum __Error
 	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways = true);
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
+
+	user_object& get_user_object(size_t index);
 	
     private:
     int32_t sid;
@@ -3104,8 +3101,8 @@ enum ASM_DEFINE
 	SPRINTFVARG,
 	TRACELR,
 	WAITFRAMESR,
-	GETSCREENFORCOMBOPOS,
-	SECRETSFORR,
+	REGION_SCREEN_FOR_COMBO_POS,
+	REGION_TRIGGER_SECRETS,
 	RESRVD_OP_Z3_03,
 	RESRVD_OP_Z3_04,
 	RESRVD_OP_Z3_05,
@@ -3199,7 +3196,14 @@ enum ASM_DEFINE
 	STORE,
 	STOREV,
 
-	NUMCOMMANDS  //0x045C
+	WEBSOCKET_SEND,
+	WEBSOCKET_LOAD,
+	WEBSOCKET_FREE,
+	WEBSOCKET_OWN,
+	WEBSOCKET_ERROR,
+	WEBSOCKET_RECEIVE,
+
+	NUMCOMMANDS
 };
 
 
@@ -5043,7 +5047,13 @@ enum ASM_DEFINE
 #define HEROICEENTRYFRAMES      0x15AA
 #define HEROICEENTRYMAXFRAMES   0x15AB
 
-#define NUMVARIABLES            0x15AC
+#define REFWEBSOCKET            0x15AC
+#define WEBSOCKET_STATE         0x15AD
+#define WEBSOCKET_URL           0x15AE
+#define WEBSOCKET_HAS_MESSAGE   0x15AF
+#define WEBSOCKET_MESSAGE_TYPE  0x15B0
+
+#define NUMVARIABLES            0x15B1
 
 //} End variables
 

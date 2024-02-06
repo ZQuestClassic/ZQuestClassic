@@ -164,6 +164,7 @@ bottleshopdata	TOKEN( BOTTLESHOPDATA );
 subscreendata	TOKEN( SUBSCREENDATA );
 subscreenpage	TOKEN( SUBSCREENPAGE );
 subscreenwidget	TOKEN( SUBSCREENWIDGET );
+websocket	TOKEN( WEBSOCKET );
 generic	TOKEN( GENERIC );
 genericdata	TOKEN( GENERICDATA );
 portal TOKEN( PORTAL );

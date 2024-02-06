@@ -14,7 +14,8 @@ static AccessorTable RegionTable[] =
 	{ "getOriginScreen",            0,          ZTID_LONG,   REGION_ORIGIN_SCREEN,               0,  { ZTID_REGION }, {} },
 	
 	
-	{ "GetScreenForComboPos",       0,          ZTID_FLOAT,  -1,                            FL_INL,  { ZTID_REGION, ZTID_FLOAT }, {} },
+	{ "GetScreenForComboPos",      0,          ZTID_FLOAT,  -1,                           FL_INL,   { ZTID_REGION, ZTID_FLOAT }, {} },
+	{ "TriggerSecrets",             0,          ZTID_VOID,   -1,                           FL_INL,   { ZTID_REGION, ZTID_FLOAT }, {} },
 
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
@@ -27,17 +28,30 @@ RegionSymbols::RegionSymbols()
 
 void RegionSymbols::generateCode()
 {
-	//int32_t GetScreenIndexForRpos(region, int32_t)
-    {
-	    Function* function = getFunction("GetScreenForComboPos");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenForComboPos(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	//int32_t GetScreenForComboPos(region, int32_t)
+	{
+		Function* function = getFunction("GetScreenForComboPos");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenForComboPos(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void TriggerSecrets(region, float)
+	{
+		Function* function = getFunction("TriggerSecrets");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OTriggerSecretsFor(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 }

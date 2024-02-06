@@ -513,13 +513,13 @@ void ditherrectfill(BITMAP* dest, int x1, int y1, int x2, int y2, int color,
 {
 	if(x1 > x2) zc_swap(x1,x2);
 	if(y1 > y2) zc_swap(y1,y2);
-	uint wid = zc_min(x2-x1+1, dest->w-x1);
-	uint hei = zc_min(y2-y1+1, dest->h-y1);
+	int wid = zc_min(x2-x1+1, dest->w-x1);
+	int hei = zc_min(y2-y1+1, dest->h-y1);
 
-	uint xstart = zc_max(0, x1);
-	uint xend = x1 + wid;
-	uint ystart = zc_max(0, y1);
-	uint yend = y1 + hei;
+	int xstart = zc_max(0, x1);
+	int xend = x1 + wid;
+	int ystart = zc_max(0, y1);
+	int yend = y1 + hei;
 
 	for(int ty = ystart; ty < yend; ++ty)
 	{

@@ -202,6 +202,17 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 					text = "Create Test Init Data",
 					minwidth = 90_px,
 					onClick = message::CREATE_INIT_DATA)
+			),
+			Row(
+				vAlign = 1.0,
+				INFOBTN("Save a recording to replays/test_XXXXXXXX.zplay."),
+				Checkbox(text = "Record",
+					checked = zc_get_config("zquest", "test_mode_record", false),
+					onToggleFunc = [&](bool state)
+					{
+						zc_set_config("zquest", "test_mode_record", state);
+					}
+				)
 			)
 		)
 	);

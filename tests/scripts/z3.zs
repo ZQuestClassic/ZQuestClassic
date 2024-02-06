@@ -1,10 +1,15 @@
 #include "std.zh"
-#include "scrolling_debug.zs"
 
 ffc script TriggerOnCursor
 {
     void run(int combo, int screen_index)
     {
+		Trace(Region->Width);
+		Trace(Region->Height);
+		Trace(Region->ScreenWidth);
+		Trace(Region->ScreenHeight);
+		Trace(Region->NumCombos);
+
         while (true)
         {
 			int x = Input->Mouse[MOUSE_X];
@@ -15,12 +20,12 @@ ffc script TriggerOnCursor
 				1,
 				3,
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
-			
+
 			x += Viewport->X;
 			y += Viewport->Y;
 			if (this->X < x && this->Y < y && this->X + 32 >= x && this->Y + 32 >= y)
 			{
-				Screen->TriggerSecretsFor(screen_index);
+				Region->TriggerSecrets(screen_index);
 			}
 
             Waitframe();

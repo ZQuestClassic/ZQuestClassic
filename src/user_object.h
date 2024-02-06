@@ -98,7 +98,6 @@ struct saved_user_object
 	user_object obj;
 	std::map<int32_t,ZScriptArray> held_arrays;
 };
-extern user_object script_objects[MAX_USER_OBJECTS];
 
 #endif //ZC_USER_OBJECT
 

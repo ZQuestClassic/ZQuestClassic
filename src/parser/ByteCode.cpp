@@ -2488,7 +2488,13 @@ string ZScript::VarToString(int32_t ID)
 		case HEROICEVY: return "HEROICEVY";
 		case HEROICEENTRYFRAMES: return "HEROICEENTRYFRAMES";
 		case HEROICEENTRYMAXFRAMES: return "HEROICEENTRYMAXFRAMES";
-		
+
+		case REFWEBSOCKET: return "REFWEBSOCKET";
+		case WEBSOCKET_STATE: return "WEBSOCKET_STATE";
+		case WEBSOCKET_URL: return "WEBSOCKET_URL";
+		case WEBSOCKET_HAS_MESSAGE: return "WEBSOCKET_HAS_MESSAGE";
+		case WEBSOCKET_MESSAGE_TYPE: return "WEBSOCKET_MESSAGE_TYPE";
+
 		default:
 		{
 			sprintf(temp, "d%d", ID);
@@ -4300,6 +4306,11 @@ string OLayerMapRegister::toString() const
 string OTriggerSecrets::toString() const
 {
     return "SECRETS";
+}
+
+string OTriggerSecretsFor::toString() const
+{
+    return "REGION_TRIGGER_SECRETS " + getArgument()->toString();
 }
 
 string OIsValidArray::toString() const
@@ -6837,13 +6848,9 @@ string OModuleGetIC::toString() const
 
 string OGetScreenForComboPos::toString() const
 {
-    return "GETSCREENFORCOMBOPOS " + getArgument()->toString();
+    return "REGION_SCREEN_FOR_COMBO_POS " + getArgument()->toString();
 }
 
-string OTriggerSecretsFor::toString() const
-{
-    return "SECRETSFORR " + getArgument()->toString();
-}
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -6988,3 +6995,32 @@ string OStackWriteAtVV_If::toString() const
 	return "STACKWRITEATVV_IF " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
 }
 
+string OLoadWebSocket::toString() const
+{
+	return "WEBSOCKET_LOAD " + getArgument()->toString();
+};
+
+string OWebSocketSend::toString() const
+{
+	return "WEBSOCKET_SEND " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+};
+
+string OWebSocketFree::toString() const
+{
+	return "WEBSOCKET_FREE";
+}
+
+string OWebSocketOwn::toString() const
+{
+	return "WEBSOCKET_OWN";
+}
+
+string OWebSocketGetError::toString() const
+{
+	return "WEBSOCKET_ERROR " + getArgument()->toString();
+}
+
+string OWebSocketReceive::toString() const
+{
+	return "WEBSOCKET_RECEIVE " + getArgument()->toString();
+}

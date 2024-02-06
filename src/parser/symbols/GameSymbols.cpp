@@ -147,6 +147,7 @@ static AccessorTable gameTable[] =
 	{ "LoadDropset",                0,       ZTID_DROPSET,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadRNG",                    0,           ZTID_RNG,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "LoadStack",                  0,         ZTID_STACK,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "LoadWebSocket",              0,     ZTID_WEBSOCKET,   -1,                   FL_INL,  { ZTID_GAME, ZTID_CHAR },{} },
 	{ "LoadBottleData",             0,    ZTID_BOTTLETYPE,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadBottleShopData",         0,    ZTID_BOTTLESHOP,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadGenericData",            0,   ZTID_GENERICDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
@@ -509,6 +510,20 @@ void GameSymbols::generateCode()
 		POPREF();
 		addOpcode2 (code, new OLoadStack());
 		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//websocket LoadWebSocket(Game)
+	{
+		Function* function = getFunction("LoadWebSocket");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadWebSocket(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}

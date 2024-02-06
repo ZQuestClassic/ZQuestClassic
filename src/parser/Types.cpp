@@ -195,6 +195,7 @@ DataTypeClassConst DataType::CPORTAL(ZCLID_PORTAL, "const portal");
 DataTypeClassConst DataType::CSAVEDPORTAL(ZCLID_SAVPORTAL, "const savedportal");
 DataTypeClassConst DataType::CSUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "const SubscreenPage");
 DataTypeClassConst DataType::CSUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "const SubscreenWidget");
+DataTypeClassConst DataType::CWEBSOCKET(ZCLID_WEBSOCKET, "const WebSocket");
 //Class: Var Types
 DataTypeClass DataType::BITMAP(ZCLID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLID_CHEATS, "Cheats", &CCHEATS);
@@ -234,6 +235,7 @@ DataTypeClass DataType::PORTAL(ZCLID_PORTAL, "portal", &CPORTAL);
 DataTypeClass DataType::SAVEDPORTAL(ZCLID_SAVPORTAL, "savedportal", &CSAVEDPORTAL);
 DataTypeClass DataType::SUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "SubscreenPage", &CSUBSCREENPAGE);
 DataTypeClass DataType::SUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "SubscreenWidget", &CSUBSCREENWIDGET);
+DataTypeClass DataType::WEBSOCKET(ZCLID_WEBSOCKET, "WebSocket", &CWEBSOCKET);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -309,6 +311,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZTID_CHEATS: return &CHEATS;
 		case ZTID_FILESYSTEM: return &FILESYSTEM;
 		case ZTID_ZINFO: return &ZINFO;
+		case ZTID_WEBSOCKET: return &WEBSOCKET;
 		default: return NULL;
 	}
 }
@@ -367,6 +370,7 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 		case ZCLID_CHEATS: return &CHEATS;
 		case ZCLID_FILESYSTEM: return &FILESYSTEM;
 		case ZCLID_ZINFO: return &ZINFO;
+		case ZCLID_WEBSOCKET: return &WEBSOCKET;
 		default: return NULL;
 	}
 }

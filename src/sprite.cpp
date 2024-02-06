@@ -2198,6 +2198,7 @@ gotit:
     }
     
     --count;
+    if(j<=active_iterator) --active_iterator;
     //checkConsistency();
     return true;
 }
@@ -2242,12 +2243,24 @@ int32_t sprite_list::getMisc(int32_t j)
     return sprites[j]->misc;
 }
 
-bool sprite_list::del(int32_t j, bool force)
+bool sprite_list::del(int32_t j, bool force, bool may_defer)
 {
 	if(j<0||j>=count)
 		return false;
 	
 	if(!force && sprites[j]->ignore_delete) return false;
+
+	// If this sprite is currently running its `animate` function, just mark it for deletion
+	// to avoid crashing. This allows the sprite to finish its logic even after being told to
+	// go away.
+	if(may_defer && active_iterator == j)
+	{
+		delete_active_iterator = true;
+		// Remove from list so fewer things interact with it.
+		// TODO: better to remove by index.
+		remove(sprites[j]);
+		return false;
+	}
 	
 	map<int32_t, int32_t>::iterator it = containedUIDs.find(sprites[j]->getUID());
 	
@@ -2368,16 +2381,25 @@ void sprite_list::animate()
 		{
 			setCurObject(sprites[active_iterator]);
 			auto tmp_iter = active_iterator;
-			if(sprites[active_iterator]->animate(active_iterator))
+			sprite* cur_sprite = sprites[active_iterator];
+			if (cur_sprite->animate(active_iterator) || delete_active_iterator)
 			{
 #ifdef IS_PLAYER
-				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
+				if (replay_is_active() && dynamic_cast<enemy*>(cur_sprite) != nullptr)
 				{
-					enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
+					enemy* as_enemy = dynamic_cast<enemy*>(cur_sprite);
 					replay_step_comment(fmt::format("enemy died {}", guy_string[as_enemy->id&0xFFF]));
 				}
 #endif
-				del(active_iterator);
+				if (delete_active_iterator)
+				{
+					delete cur_sprite;
+					delete_active_iterator = false;
+				}
+				else
+				{
+					del(active_iterator, false, false);
+				}
 			}
 			else if(tmp_iter == active_iterator)
 			{
@@ -2403,9 +2425,15 @@ void sprite_list::run_script(int32_t mode)
 	
 	while(active_iterator<count)
 	{
-		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
+		sprite* cur_sprite = sprites[active_iterator];
+		if(!(freeze_guys && cur_sprite->canfreeze))
 		{
-			sprites[active_iterator]->run_script(mode);
+			cur_sprite->run_script(mode);
+			if (delete_active_iterator)
+			{
+				delete cur_sprite;
+				delete_active_iterator = false;
+			}
 		}
 		
 		++active_iterator;

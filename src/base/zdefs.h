@@ -1585,6 +1585,7 @@ public:
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
 	int32_t portalref, saveportalref;
+	int32_t websocketref;
 	dword subdataref, subpageref, subwidgref;
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	

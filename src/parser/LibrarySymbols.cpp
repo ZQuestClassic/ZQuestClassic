@@ -65,6 +65,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 		case ZTID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
 		case ZTID_SUBSCREENPAGE: return &SubscreenPageSymbols::getInst();
 		case ZTID_SUBSCREENWIDGET: return &SubscreenWidgetSymbols::getInst();
+		case ZTID_WEBSOCKET: return &WebSocketSymbols::getInst();
 		default: return &nilsymbols;
     }
 }

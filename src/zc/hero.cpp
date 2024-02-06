@@ -1573,8 +1573,22 @@ bool HeroClass::isDiving()
 }
 bool HeroClass::isSwimming()
 {
+	bool include_swimhit = true;
+	if (replay_is_active() && replay_version_check(0, 31))
+	{
+		std::string qst = replay_get_meta_str("qst");
+		bool disable = false;
+		disable |= qst == "demons_inferno.qst";
+		disable |= qst == "demosp253.qst";
+		disable |= qst == "hell_awaits.qst";
+		disable |= qst == "lands_of_serenity.qst";
+		disable |= qst == "link_to_the_heavens.qst";
+		// The others are just a gfx change, but this one actual breaks without this compat check.
+		disable |= qst == "link_to_the_zelda.qst";
+		include_swimhit = !disable;
+	}
     return ((action==swimming)||(action==sideswimming)||IsSideSwim()||
-            (action==waterhold1)||(action==waterhold2)||
+            (action==waterhold1)||(action==waterhold2)||(include_swimhit && action==swimhit)||
             (hopclk==0xFF));
 }
 

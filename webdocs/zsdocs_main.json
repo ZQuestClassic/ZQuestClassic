@@ -288,6 +288,24 @@
             ]
         },
         {
+            "name": "WebSockets",
+            "tabs": [
+                {
+                    "name": "WebSockets ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Managed Pointers ;; function_data_managed",
+                            "val": "$0$7"
+                        },
+                        {
+                            "name": "websocket",
+                            "val": "<h3>WebSocket Pointers</h3>   `websocket`\n\n`websocket` pointers allow for communicating with a WebSocket server to send and receive messages.\n\n\nHere is an example of using a websocket:\n\n```\n#include \"std.zh\"\n\ngeneric script WebSocketScript\n{\n    void run()\n    {\n        printf(\"Connecting to websocket.\\n\");\n        websocket ws = Game->LoadWebSocket(\"ws://ws.ifelse.io\");\n        ws->Own();\n        bool hasSentMessage = false;\n\n        while (true)\n        {\n            if (ws->State == WEBSOCKET_STATE_CONNECTING)\n            {\n                Waitframe();\n                continue;\n            }\n            else if (ws->State == WEBSOCKET_STATE_CLOSED)\n            {\n                char32 error[0];\n                ws->GetError(error);\n                printf(\"Failed to connect: %s\\n\", error);\n                break;\n            }\n\n            if (ws->State != WEBSOCKET_STATE_OPEN)\n            {\n                printf(\"Failed to connect: %l\\n\", ws->State);\n                break;\n            }\n\n            if (!hasSentMessage)\n            {\n                printf(\"Connected!\\n\");\n                ws->Send(\"hello world!\");\n                ws->Send(\"domo arigato!\", WEBSOCKET_MESSAGE_TYPE_BINARY);\n                hasSentMessage = true;\n            }\n\n            while (ws->HasMessage)\n            {\n                int message_ptr = ws->Receive();\n                int type = ws->MessageType;\n                if (type == WEBSOCKET_MESSAGE_TYPE_TEXT)\n                    printf(\"got text message: %s\\n\", message_ptr);\n                else if (type == WEBSOCKET_MESSAGE_TYPE_BINARY)\n                {\n                    int len = SizeOfArray(message_ptr);\n                    printf(\"got binary message of length: %d\\n\", len);\n                    for (int i = 0; i < len; ++i)\n                        printf(\"%d: %l\\n\", i, message_ptr[i]);\n                }\n                else\n                    printf(\"got message, but with unknown type: %l\\n\", type);\n            }\n\n            Waitframe();\n        }\n    }\n}\n```"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Portals",
             "tabs": [
                 {

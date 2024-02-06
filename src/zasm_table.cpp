@@ -1209,6 +1209,13 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "STORE", 2, { REG_R, NUM }, 0, 0 },
 	{ "STOREV", 2, { NUM, NUM }, 0, 0 },
 
+	{ "WEBSOCKET_SEND", 2, { REG_R, REG_R }, 0, 0 },
+	{ "WEBSOCKET_LOAD", 1, { REG_R }, 0, 0 },
+	{ "WEBSOCKET_FREE", 0, { }, 0, 0 },
+	{ "WEBSOCKET_OWN", 0, { }, 0, 0 },
+	{ "WEBSOCKET_ERROR", 1, { REG_W }, 0, 0 },
+	{ "WEBSOCKET_RECEIVE", 1, { REG_W }, 0, 0 },
+
 	{ "", 0, {}, 0, 0 }
 };
 
@@ -2902,6 +2909,12 @@ script_variable variable_list[]=
 	{ "HEROICEENTRYFRAMES", HEROICEENTRYFRAMES, 0, 0 },
 	{ "HEROICEENTRYMAXFRAMES", HEROICEENTRYMAXFRAMES, 0, 0 },
 
+	{ "REFWEBSOCKET", REFWEBSOCKET, 0, 0 },
+	{ "WEBSOCKET_STATE", WEBSOCKET_STATE, 0, 0 },
+	{ "WEBSOCKET_URL", WEBSOCKET_URL, 0, 0 },
+	{ "WEBSOCKET_HAS_MESSAGE", WEBSOCKET_HAS_MESSAGE, 0, 0 },
+	{ "WEBSOCKET_MESSAGE_TYPE", WEBSOCKET_MESSAGE_TYPE, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 
@@ -2998,6 +3011,7 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case SUBPAGE_FIND_WIDGET:
 		case SUBPAGE_MOVE_SEL:
 		case SUBPAGE_NEW_WIDG:
+		case WEBSOCKET_LOAD:
 		case WRAPDEGREES:
 		case WRAPRADIANS:
 		case ZCLASS_FREE:

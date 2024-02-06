@@ -628,11 +628,45 @@ else()
 endif()
 
 #############################################################
-# Zelda
+# Networking
 #############################################################
 
+if(NOT EMSCRIPTEN)
+	FetchContent_Declare(
+		asio
+		GIT_REPOSITORY
+			https://github.com/chriskohlhoff/asio.git
+		GIT_TAG
+			ed5db1b50136bace796062c1a6eab0df9a74f8fa
+		CONFIGURE_COMMAND ""
+		BUILD_COMMAND ""
+	)
+	FetchContent_MakeAvailable(asio)
+	add_library(asio INTERFACE)
+	target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
 
+	FetchContent_Declare(
+		websocketpp
+		GIT_REPOSITORY
+			https://github.com/zaphoyd/websocketpp.git
+		GIT_TAG
+			1b11fd301531e6df35a6107c1e8665b1e77a2d8e
+	)
+	FetchContent_MakeAvailable(websocketpp)
 
+	add_library(websocket INTERFACE)
+	target_include_directories(websocket INTERFACE ${websocketpp_SOURCE_DIR})
+	target_compile_definitions(websocket INTERFACE _WEBSOCKETPP_CPP11_STL_ ASIO_STANDALONE)
+	target_link_libraries(websocket INTERFACE asio)
+	target_sources(websocket INTERFACE src/zc/websocket_pool.cpp)
+else()
+	add_library(websocket INTERFACE)
+	target_sources(websocket INTERFACE src/zc/websocket_pool_unsupported.cpp)
+endif()
+
+#############################################################
+# Zelda
+#############################################################
 
 if(MSVC)
 	list(APPEND ZELDAEXTRASOURCES zc_icon.rc)
@@ -655,11 +689,11 @@ target_include_directories(zplayer PRIVATE include/xxhash)
 target_link_libraries(zplayer PRIVATE allegro_with_legacy)
 
 if(WIN32)
-	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound websocket winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
-	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound websocket ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(APPLE)
-	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound websocket ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
 
 if(JIT_BACKEND STREQUAL "default")

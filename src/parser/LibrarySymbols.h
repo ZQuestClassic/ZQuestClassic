@@ -632,6 +632,19 @@ private:
     SubscreenWidgetSymbols();
     void generateCode();
 };
+class WebSocketSymbols : public LibrarySymbols
+{
+public:
+    static WebSocketSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static WebSocketSymbols singleton;
+    WebSocketSymbols();
+    void generateCode();
+};
 
 #endif
 
