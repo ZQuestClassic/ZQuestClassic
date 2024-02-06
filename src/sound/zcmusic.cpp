@@ -641,7 +641,6 @@ bool zcmusic_stop(ZCMUSIC* zcm)
 		{
 			al_stop_duh(((DUHFILE*)zcm)->p);
 			((DUHFILE*)zcm)->p = NULL;
-			zcm->playing = ZCM_STOPPED;
 		}
 		
 		break;
@@ -660,12 +659,12 @@ bool zcmusic_stop(ZCMUSIC* zcm)
 		if(((GMEFILE*)zcm)->emu != NULL)
 		{
 			if(zcm->playing != ZCM_STOPPED) stop_audio_stream(((GMEFILE*)zcm)->stream);
-			
-			zcm->playing = ZCM_STOPPED;
 		}
 		
 		break;
 	}
+
+	zcm->playing = ZCM_STOPPED;
 	
 	al_unlock_mutex(playlistmutex);
 	return TRUE;
