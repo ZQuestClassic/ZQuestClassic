@@ -6882,8 +6882,7 @@ int32_t onSound()
 			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		for(int32_t i=0; i<WAV_COUNT; ++i)
 		{
-			//allegro assertion fails when passing in -1 as voice -DD
-			if(sfx_voice[i] > 0)
+			if(sfx_voice[i] >= 0)
 				voice_set_volume(sfx_voice[i], temp_volume);
 		}
 		zc_set_config(sfx_sect,"midi",midi_volume);
@@ -8503,6 +8502,7 @@ void cont_sfx(int32_t index)
 	{
 		voice_set_position(sfx_voice[index],0);
 		voice_set_playmode(sfx_voice[index],PLAYMODE_LOOP);
+		voice_set_volume(sfx_voice[index], sfx_volume);
 		voice_start(sfx_voice[index]);
 	}
 	else
