@@ -30,6 +30,9 @@ jobs:
 
       - name: git clone
         uses: actions/checkout@v3
+        with:
+          # Need for bisect_builds.py --download to work.
+          fetch-depth: 0
 
       - name: cache
         uses: actions/cache@v3
