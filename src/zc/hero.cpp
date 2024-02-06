@@ -28763,6 +28763,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		return;
 	}
 
+	// currdmap won't change until the end of the scroll. Store new dmap in this global variable.
+	scrolling_destdmap = new_dmap;
+
 	// Calling functions are responsible for setting currmap (but not currscr...), but before we _actually_
 	// start to scroll we draw a few frames of the current screen (draw_screen). So we need currmap to be the
 	// old value initially. Callers also set the old map value to `scrolling_map`, so we can use that.
@@ -28799,12 +28802,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			++wait_counter;
 		}
 	}
-
-	// Can't change currdmap before scrolling is done, because some places require currdmap to remain the same:
-	//   - fade
-	//   - lighting
-	//   - more?
-	scrolling_destdmap = new_dmap;
 
 	// For the duration of the scrolling, the old screen/region viewport is used for all drawing operations.
 	// This means that the new screens are drawn with offsets relative to the old coordinate system.

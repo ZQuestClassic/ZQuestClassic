@@ -3814,7 +3814,6 @@ void runDrunkRNG(){
 
 int32_t get_currdmap()
 {
-    if (screenscrolling && scrolling_destdmap != -1) return scrolling_destdmap;
 	return currdmap;
 }
 

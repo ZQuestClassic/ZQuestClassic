@@ -2282,12 +2282,6 @@ void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t
     }
 }
 
-static int get_currdmap_subscr()
-{
-	if (scrolling_destdmap != -1) return scrolling_destdmap;
-	return get_currdmap();
-}
-
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
 {
     int32_t si=0;
