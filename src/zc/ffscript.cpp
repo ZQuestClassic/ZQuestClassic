@@ -4266,15 +4266,54 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case ITEMX:
+		{
 			if(0!=(s=checkItem(ri->itemref)))
 			{
+				zfix x;
+				bool is_fairy = itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3;
+				if (is_fairy)
+				{
+					enemy* fairy = (enemy*) guys.getByUID(((item*)(s))->fairyUID);
+					x = fairy ? fairy->x : s->x;
+				}
+				else
+				{
+					x = s->x;
+				}
+
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((item*)(s))->x).getZLong();    
+					ret=x.getZLong();
 				}
-				else ret=((int32_t)((item*)(s))->x)*10000;
+				else ret = (int32_t)x * 10000;
 			}
-			break;
+		}
+		break;
+
+		case ITEMY:
+		{
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				zfix y;
+				bool is_fairy = itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3;
+				if (is_fairy)
+				{
+					enemy* fairy = (enemy*) guys.getByUID(((item*)(s))->fairyUID);
+					y = fairy ? fairy->y : s->y;
+				}
+				else
+				{
+					y = s->y;
+				}
+
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
+				{
+					ret=y.getZLong();
+				}
+				else ret = (int32_t)y * 10000;
+			}
+		}
+		break;
 		
 		case ITEMSPRITESCRIPT:
 			if(0!=(s=checkItem(ri->itemref)))
@@ -4318,18 +4357,7 @@ int32_t get_register(const int32_t arg)
 				ret=((int32_t)((item*)(s))->script_UID); //Literal, not *10000
 			}
 			break;
-			
-		case ITEMY:
-			if(0!=(s=checkItem(ri->itemref)))
-			{
-				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
-				{
-					ret=(((item*)(s))->y).getZLong();    
-				}
-				else 
-					ret=((int32_t)((item*)(s))->y)*10000;
-			}
-			break;
+		
 			
 		case ITEMZ:
 			if(0!=(s=checkItem(ri->itemref)))
@@ -17135,13 +17163,31 @@ void set_register(int32_t arg, int32_t value)
 		case ITEMX:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->x)=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				s->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
-				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
-					movefairynew2(((item*)(s))->x,((item*)(s))->y,*((item*)(s)));
+				if(itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3)
+				{
+					enemy* fairy = (enemy*) guys.getByUID(((item*)(s))->fairyUID);
+					if (fairy)
+						fairy->x = s->x;
+				}
 			}
-			
+			break;
+
+		case ITEMY:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				s->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				
+				// Move the Fairy enemy as well.
+				if(itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3)
+				{
+					enemy* fairy = (enemy*) guys.getByUID(((item*)(s))->fairyUID);
+					if (fairy)
+						fairy->y = s->y;
+				}
+			}
 			break;
 		
 		case ITEMSPRITESCRIPT:
@@ -17162,18 +17208,6 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				(s->scale)=(zfix)(value/100.0);
-			}
-			
-			break;
-			
-		case ITEMY:
-			if(0!=(s=checkItem(ri->itemref)))
-			{
-				(s->y)=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				
-				// Move the Fairy enemy as well.
-				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
-					movefairynew2(((item*)(s))->x,((item*)(s))->y,*((item*)(s)));
 			}
 			
 			break;
