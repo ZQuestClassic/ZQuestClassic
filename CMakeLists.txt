@@ -658,6 +658,8 @@ if(NOT EMSCRIPTEN)
 	target_compile_definitions(websocket INTERFACE _WEBSOCKETPP_CPP11_STL_ ASIO_STANDALONE)
 	target_link_libraries(websocket INTERFACE asio)
 	target_sources(websocket INTERFACE src/zc/websocket_pool.cpp)
+	# websocketpp cmake stomps on ours ...
+	set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 else()
 	add_library(websocket INTERFACE)
 	target_sources(websocket INTERFACE src/zc/websocket_pool_unsupported.cpp)
