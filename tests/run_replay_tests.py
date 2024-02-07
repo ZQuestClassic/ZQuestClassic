@@ -774,6 +774,7 @@ class WebPlayerInterface:
         extra_args = [
             '-replay-exit-when-done',
             '-show-fps',
+            '-optimize-zasm',
         ]
         if args.extra_args:
             extra_args.extend(args.extra_args.split(' '))

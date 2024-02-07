@@ -232,12 +232,20 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 }
 
 // Defer to the ZASM command interpreter for 1+ commands.
-static void compile_command_interpreter(CompilationState& state, script_data *script, int pc, int count)
+static void compile_command_interpreter(CompilationState& state, script_data *script, int pc, int count, bool is_wait = false)
 {
 	state.wasm->emitI32Const(pc);
 	state.wasm->emitI32Const(count);
 	state.wasm->emitGlobalGet(state.g_idx_sp);
 	state.wasm->emitCall(state.f_idx_do_commands);
+
+	if (is_wait)
+	{
+		state.wasm->emitIf();
+		state.wasm->emitReturn(); // End yielder function, return to run function.
+		state.wasm->emitEnd();
+		return;
+	}
 
 	bool could_return_not_ok = false;
 	for (int j = 0; j < count; j++)
@@ -638,8 +646,10 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					wasm.emitI32Store(48);
 				}
 
-				compile_command_interpreter(state, script, i, 1);
-				wasm.emitReturn();
+				// Wait commands normally yield back to the engine, however there are some
+				// special cases where it does not. For example, when WAITFRAMESR arg is 0.
+				// This will return to the run function, but only if actually waiting.
+				compile_command_interpreter(state, script, i, 1, true);
 				continue;
 			}
 

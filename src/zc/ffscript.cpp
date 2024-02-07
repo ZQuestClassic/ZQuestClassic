@@ -35732,6 +35732,7 @@ int32_t run_script_int(bool is_jitted)
 	int32_t i = curScriptIndex;
 
 	int commands_run = 0;
+	int jit_waiting_nop = false;
 	bool old_script_funcrun = script_funcrun && curscript->meta.ffscript_v < 23;
 	if(!is_jitted)
 	{
@@ -35940,9 +35941,11 @@ int32_t run_script_int(bool is_jitted)
 			default: waiting = false;
 		}
 		if(waiting && scommand != NOP)
+		{
+			if (is_jitted)
+				jit_waiting_nop = true;
 			break;
-		if(waiting && is_jitted)
-			break;
+		}
 		
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
@@ -40545,7 +40548,10 @@ int32_t run_script_int(bool is_jitted)
 	}
 	else
 		ri->pc++;
-	
+
+	if(jit_waiting_nop)
+		return RUNSCRIPT_STOPPED;
+
 	return RUNSCRIPT_OK;
 }
 

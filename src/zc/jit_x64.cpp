@@ -451,7 +451,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 }
 
 // Defer to the ZASM command interpreter for 1+ commands.
-static void compile_command_interpreter(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex)
+static void compile_command_interpreter(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex, bool is_wait = false)
 {
 	extern int32_t jitted_uncompiled_command_count;
 
@@ -465,6 +465,15 @@ static void compile_command_interpreter(CompilationState& state, x86::Compiler &
 	InvokeNode *invokeNode;
 	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(state.calling_convention));
 	invokeNode->setArg(0, true);
+
+	if (is_wait)
+	{
+		x86::Gp retVal = cc.newInt32();
+		invokeNode->setRet(0, retVal);
+		cc.cmp(retVal, RUNSCRIPT_OK);
+		cc.jne(state.L_End);
+		return;
+	}
 
 	bool could_return_not_ok = false;
 	for (int j = 0; j < count; j++)
@@ -869,9 +878,11 @@ JittedFunction jit_compile_script(script_data *script)
 
 		if (command_is_wait(command))
 		{
-			compile_command_interpreter(state, cc, script, i, 1, vStackIndex);
+			// Wait commands normally yield back to the engine, however there are some
+			// special cases where it does not. For example, when WAITFRAMESR arg is 0.
 			cc.mov(x86::ptr_32(state.ptrWaitIndex), label_index + 1);
-			cc.jmp(state.L_End);
+			// This will jump to L_End, but only if actually waiting.
+			compile_command_interpreter(state, cc, script, i, 1, vStackIndex, true);
 			cc.bind(wait_frame_labels[label_index]);
 			label_index += 1;
 			continue;
