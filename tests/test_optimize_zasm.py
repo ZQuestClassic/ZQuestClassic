@@ -38,7 +38,7 @@ class TestOptimizeZasm(ZCTestCase):
         args = [
             '-headless',
             '-extract-zasm', qst_path,
-            '-extract-zasm-optimize',
+            '-optimize-zasm',
         ]
         p = run_target.run('zplayer', args)
         if p.returncode:

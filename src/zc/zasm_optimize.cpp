@@ -13,7 +13,7 @@
 //
 // 3. zplayer -test-zc will run a few unit tests, located in this file.
 //
-// 4. python scripts/run_for_every_qst.py --starting_index 235 ./build/Debug/zplayer -extract-zasm %s -extract-zasm-optimize 2>&1 | code -
+// 4. python scripts/run_for_every_qst.py --starting_index 235 ./build/Debug/zplayer -extract-zasm %s -optimize-zasm 2>&1 | code -
 //
 //    Run in debug mode (for asserts) on every quest in the database.
 //
@@ -47,7 +47,12 @@ static bool verbose = false;
 
 bool zasm_optimize_enabled()
 {
-	static bool enabled = get_flag_bool("-optimize-zasm").value_or(false) || zc_get_config("zeldadx", "optimize_zasm", true);
+	static int compat_enabled = zc_get_config("zeldadx", "optimize_zasm", -100);
+	static bool enabled = get_flag_bool("-optimize-zasm").value_or(false) ?
+		true :
+		compat_enabled != -100 ?
+			compat_enabled :
+			zc_get_config("ZSCRIPT", "optimize_zasm", true);
 	return enabled;
 }
 
@@ -56,7 +61,7 @@ bool zasm_optimize_enabled()
 // Need to verify nothing was missed.
 static bool should_run_experimental_passes()
 {
-	static bool enabled = get_flag_bool("-optimize-zasm-experimental").has_value() || get_flag_bool("-test-optimize-zasm").has_value() || get_flag_bool("-extract-zasm-optimize").has_value() || get_flag_bool("-replay-exit-when-done").has_value() || is_ci();
+	static bool enabled = get_flag_bool("-optimize-zasm-experimental").has_value() || get_flag_bool("-test-optimize-zasm").has_value() || get_flag_bool("-extract-zasm").has_value() || get_flag_bool("-replay-exit-when-done").has_value() || is_ci();
 	return enabled;
 }
 

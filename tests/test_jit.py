@@ -53,6 +53,7 @@ class TestJIT(ZCTestCase):
             '-script-runtime-debug-folder', str(output_dir),
             '-frame', '0',
             '-replay-exit-when-done',
+            '-optimize-zasm',
             '-jit',
             '-jit-log',
             # TODO: why do threads make output files sometimes be empty?
