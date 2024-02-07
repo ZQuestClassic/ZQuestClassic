@@ -324,6 +324,7 @@ static bool command_is_compiled(int command)
 	case MULTR:
 	case MULTV:
 	case NOP:
+	case PEEK:
 	case SETR:
 	case SETV:
 	case STORE:
@@ -1005,6 +1006,20 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 					});
 				}
 				break;
+
+				case PEEK:
+				{
+					set_z_register(state, arg1, [&](){
+						wasm.emitGlobalGet(g_idx_sp);
+						wasm.emitI32Const(4);
+						wasm.emitI32Mul(); // Multiply by 4 to get byte offset.
+						wasm.emitGlobalGet(g_idx_stack);
+						wasm.emitI32Add(); // Add stack base offset.
+						wasm.emitI32Load();
+					});
+				}
+				break;
+
 				case DIVV:
 				{
 					set_z_register(state, arg1, [&](){

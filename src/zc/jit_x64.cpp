@@ -543,13 +543,14 @@ static bool command_is_compiled(int command)
 	case MULTR:
 	case MULTV:
 	case NOP:
+	case PEEK:
 	case SETR:
 	case SETV:
 	case STORE:
-	case STOREV:
 	case STORED:
 	case STOREDV:
 	case STOREI:
+	case STOREV:
 	case SUBR:
 	case SUBV:
 	case SUBV2:
@@ -1498,6 +1499,13 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.roundsd(y, y, 10);
 			cc.cvttsd2si(val, y);
 			cc.imul(val, val, 10000);
+			set_z_register(state, cc, vStackIndex, arg1, val);
+		}
+		break;
+		case PEEK:
+		{
+			x86::Gp val = cc.newInt32();
+			cc.mov(val, x86::ptr_32(state.ptrStack, vStackIndex, 2));
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
