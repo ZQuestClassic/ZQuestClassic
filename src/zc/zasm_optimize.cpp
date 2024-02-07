@@ -2073,10 +2073,11 @@ static void optimize_calling_mode(OptContext& ctx)
 				continue;
 		}
 
-		ASSERT(C(i + 1).command == POP && C(i + 1).arg1 == rSFRAME);
+		ASSERT(one_of(C(i + 1).command, POP, PEEK) && C(i + 1).arg1 == rSFRAME);
 
 		pc_t push_stack_pc = push_stack_pcs.back();
-		push_stack_pcs.pop_back();
+		if (C(i + 1).command == POP)
+			push_stack_pcs.pop_back();
 
 		pc_t set_ret_addr = -1;
 		pc_t push_ret_addr = -1;
@@ -2098,14 +2099,10 @@ static void optimize_calling_mode(OptContext& ctx)
 			}
 			break;
 		}
-		if (push_ret_addr == -1)
-		{
-			ASSERT(false);
-			break;
-		}
 
 		instr.command = CALLFUNC;
-		remove(ctx, push_ret_addr);
+		if (push_ret_addr != -1)
+			remove(ctx, push_ret_addr);
 		if (set_ret_addr != -1)
 			remove(ctx, set_ret_addr);
 	}

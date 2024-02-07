@@ -53,22 +53,6 @@ struct CompilationState
 
 extern ScriptDebugHandle* runtime_script_debug_handle;
 
-static void print(int32_t n)
-{
-	if (runtime_script_debug_handle)
-		runtime_script_debug_handle->printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-						"JIT: %d\n", n);
-}
-
-static void print64(int64_t n)
-{
-	if (runtime_script_debug_handle)
-		runtime_script_debug_handle->printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-						"JIT: %ld\n", n);
-}
-
 static void debug_pre_command(int32_t pc, uint16_t sp)
 {
 	extern refInfo *ri;
@@ -593,6 +577,12 @@ static void error(ScriptDebugHandle* debug_handle, script_data *script, std::str
 	}
 }
 
+// Useful if crashing at runtime to find the last command that ran.
+// #define JIT_DEBUG_CRASH
+#ifdef JIT_DEBUG_CRASH
+static size_t debug_last_pc;
+#endif
+
 // Compile the entire ZASM script at once, into a single function.
 JittedFunction jit_compile_script(script_data *script)
 {
@@ -848,12 +838,14 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.setInlineComment((comment = fmt::format("{} {}", i, script_debug_command_to_string(command, arg1, arg2, arg3, argvec, argstr))).c_str());
 		}
 
-		// Can be useful for debugging.
-		// {
-		// 	InvokeNode* invokeNode;
-		// 	cc.invoke(&invokeNode, print, FuncSignatureT<void, int32_t>(state.calling_convention));
-		// 	invokeNode->setArg(0, i); // or any int32 register
-		// }
+#ifdef JIT_DEBUG_CRASH
+		if (true)
+		{
+			x86::Gp reg = cc.newIntPtr();
+			cc.mov(reg, (uint64_t)&debug_last_pc);
+			cc.mov(x86::ptr_32(reg), i);
+		}
+#endif
 
 		// We can't invoke functions between COMPARE and the instructions that use the comparison result,
 		// because that would destroy EFLAGS. And asmjit compiler has no way to save the EFLAGS because we
