@@ -556,7 +556,8 @@ void zasm_for_every_script(bool parallel, std::function<void(script_data*)> fn)
 	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
 	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
 
-	if (parallel)
+	// TODO: debug issues on web build.
+	if (parallel && !is_web())
 		std::for_each(std::execution::par_unseq, scripts.begin(), scripts.end(), fn);
 	else
 		std::for_each(std::execution::seq, scripts.begin(), scripts.end(), fn);
