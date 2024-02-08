@@ -33,10 +33,10 @@ Function #1
 
 
 Function #2
-   28: NOP                                          [Block 0 -> ]
-   29: NOP
-   30: NOP
-   31: NOP
+   28: SETR            D4              SP           [Block 0 -> 1]
+   29: SETR            D2              INPUTA
+   30: GOTO            31
+   31: RETURNFUNC                                   [Block 1 -> ]
 
 
 Function #3

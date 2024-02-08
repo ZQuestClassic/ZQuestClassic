@@ -1,0 +1,36 @@
+Function #0
+    0: PUSHV           0                            [Block 0 -> ]
+    1: NOP
+    2: PUSHR           SP2
+    3: NOP
+    4: CALLFUNC        14                           [Call Function #1]
+    5: NOP
+    6: NOP
+    7: CALLFUNC        18                           [Call Function #2]
+    8: NOP
+    9: NOP
+   10: CALLFUNC        22                           [Call Function #3]
+   11: PEEK            D4
+   12: LOAD            LINKX           0
+   13: QUIT
+
+
+Function #1
+   14: TRACEV          1                            [Block 0 -> ]
+   15: TRACEV          1
+   16: TRACEV          1
+   17: RETURNFUNC
+
+
+Function #2
+   18: TRACEV          1                            [Block 0 -> ]
+   19: TRACEV          1
+   20: TRACEV          1
+   21: RETURNFUNC
+
+
+Function #3
+   22: TRACEV          1                            [Block 0 -> ]
+   23: TRACEV          1
+   24: TRACEV          1
+   25: RETURNFUNC

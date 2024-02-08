@@ -1,0 +1,33 @@
+rewrite 3: 3 -> 1 commands
+3: TRACEV          1               
+4: NOP            
+5: NOP            
+rewrite 6: 3 -> 1 commands
+6: TRACEV          2               
+7: NOP            
+8: NOP            
+rewrite 9: 3 -> 1 commands
+9: TRACEV          3               
+10: NOP            
+11: NOP            
+Function #0
+    0: PUSHV           0                            [Block 0 -> ]
+    1: SETR            D4              SP2
+    2: PUSHR           SP2
+    3: TRACEV          1
+    4: NOP
+    5: NOP
+    6: TRACEV          2
+    7: NOP
+    8: NOP
+    9: TRACEV          3
+   10: NOP
+   11: NOP
+   12: LOAD            LINKX           0
+   13: QUIT
+   14: NOP
+   15: NOP
+   16: NOP
+   17: NOP
+   18: NOP
+   19: NOP

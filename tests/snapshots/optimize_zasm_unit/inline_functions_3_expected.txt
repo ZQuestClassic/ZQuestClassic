@@ -35,9 +35,9 @@ Function #0
 
 Function #1
    28: NOP                                          [Block 0 -> ]
-   29: NOP
+   29: SETR            D2              INPUTA
    30: NOP
-   31: NOP
+   31: RETURNFUNC
 
 
 Function #2

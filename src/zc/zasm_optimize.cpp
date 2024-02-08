@@ -564,7 +564,7 @@ static void optimize_by_block(OptContext& ctx, T cb)
 
 static void optimize_goto_next_instruction(OptContext& ctx)
 {
-	for (pc_t i = ctx.fn.start_pc; i < ctx.fn.final_pc; i++)
+	for (pc_t i = 0; i < ctx.script->size; i++)
 	{
 		// If this is a GOTO to the next instruction, remove it.
 		// This produces better blocks in the CFG construction because:
@@ -576,7 +576,6 @@ static void optimize_goto_next_instruction(OptContext& ctx)
 				continue;
 
 			remove(ctx, i);
-			ctx.cfg_stale = true;
 		}
 	}
 }
@@ -2038,7 +2037,7 @@ static void optimize_calling_mode(OptContext& ctx)
 	int return_command =
 		ctx.structured_zasm->calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR ? GOTOR : RETURN;
 
-	std::vector<pc_t> push_stack_pcs;
+	std::vector<pc_t> store_stack_pcs;
 	for (pc_t i = 0; i < ctx.script->size; i++)
 	{
 		auto& instr = C(i);
@@ -2054,55 +2053,40 @@ static void optimize_calling_mode(OptContext& ctx)
 			continue;
 		}
 
-		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
+		if ((instr.command == PUSHR || instr.command == PEEK) && instr.arg1 == rSFRAME)
 		{
-			push_stack_pcs.push_back(i);
+			store_stack_pcs.push_back(i);
 			continue;
 		}
 
 		if (instr.command == SETR && instr.arg1 == rSFRAME && (instr.arg2 == SP || instr.arg2 == SP2))
 		{
-			push_stack_pcs.clear();
+			store_stack_pcs.clear();
 			continue;
 		}
 
 		if (instr.command != GOTO || !ctx.structured_zasm->function_calls.contains(i))
 			continue;
 
-		// Global init scripts have an annoying "function call" that doesn't ever return, so it
-		// won't push rSFRAME to the stack. So keep it as a GOTO.
-		// See zasm_construct_structured
-		if (ctx.script->id == script_id{ScriptType::Global, GLOBAL_SCRIPT_INIT})
-		{
-			if (ctx.structured_zasm->start_pc_to_function.contains(i + 1))
-				continue;
-		}
-
 		ASSERT(one_of(C(i + 1).command, POP, PEEK) && C(i + 1).arg1 == rSFRAME);
 
-		pc_t push_stack_pc = push_stack_pcs.back();
-		if (C(i + 1).command == POP)
-			push_stack_pcs.pop_back();
+		pc_t store_stack_pc = store_stack_pcs.back();
+		store_stack_pcs.pop_back();
 
 		pc_t set_ret_addr = -1;
 		pc_t push_ret_addr = -1;
-		for (pc_t k = push_stack_pc + 1; k <= push_stack_pc + 2; k++)
+
+		pc_t k = store_stack_pc + 1;
+		while (C(k).command == NOP)
+			k++;
+		if (C(k).command == SETV && C(k + 1).command == PUSHR)
 		{
-			if (C(k).command == NOP)
-				continue;
-			if (C(k).command == SETV)
-			{
-				set_ret_addr = k;
-				if (C(k + 1).command == PUSHR)
-					push_ret_addr = k + 1;
-				break;
-			}
-			if (C(k).command == PUSHV)
-			{
-				push_ret_addr = k;
-				break;
-			}
-			break;
+			set_ret_addr = k;
+			push_ret_addr = k + 1;
+		}
+		else if (C(k).command == PUSHV)
+		{
+			push_ret_addr = k;
 		}
 
 		instr.command = CALLFUNC;
@@ -2194,31 +2178,33 @@ static void optimize_inline_functions(OptContext& ctx)
 		}
 		if (bail)
 			continue;
+		if (command_is_goto(data.inline_instr.command))
+			continue;
 
 		functions_to_inline.emplace(fn.id, data);
 	}
 
-	std::vector<pc_t> push_stack_pcs;
+	std::vector<pc_t> store_stack_pcs;
 	for (pc_t i = 0; i < ctx.script->size; i++)
 	{
 		auto& instr = C(i);
 
-		if (instr.command == PUSHR && instr.arg1 == rSFRAME)
+		if (one_of(instr.command, PUSHR) && instr.arg1 == rSFRAME)
 		{
-			push_stack_pcs.push_back(i);
+			store_stack_pcs.push_back(i);
 			continue;
 		}
 
 		if (instr.command == PUSHARGSR && instr.arg1 == rSFRAME)
 		{
 			for (int k = 0; k < instr.arg2; k++)
-				push_stack_pcs.push_back(i);
+				store_stack_pcs.push_back(i);
 			continue;
 		}
 
 		if (instr.command == POP && instr.arg1 == rSFRAME)
 		{
-			push_stack_pcs.pop_back();
+			store_stack_pcs.pop_back();
 			continue;
 		}
 
@@ -2258,13 +2244,19 @@ static void optimize_inline_functions(OptContext& ctx)
 		});
 		inlined_zasm.push_back(inline_instr);
 
+		pc_t store_stack_pc = store_stack_pcs.back();
+		bool must_keep_store_stack = false;
+		if (C(i + 1).command == PEEK)
+			must_keep_store_stack = true;
+		else
+			store_stack_pcs.pop_back();
+
 		pc_t hole_start_pc = i - 1;
 		pc_t hole_final_pc = i + 1;
-		pc_t push_stack_pc = push_stack_pcs.back();
-		bool push_stack_part_of_hole =
-			(push_stack_pc == hole_start_pc - 1 || push_stack_pc == hole_start_pc) && C(push_stack_pc).command != PUSHARGSR;
-		if (push_stack_part_of_hole)
-			hole_start_pc = push_stack_pc;
+		bool store_stack_part_of_hole =
+			(store_stack_pc == hole_start_pc - 1 || store_stack_pc == hole_start_pc) && C(store_stack_pc).command != PUSHARGSR && !must_keep_store_stack;
+		if (store_stack_part_of_hole)
+			hole_start_pc = store_stack_pc;
 		size_t hole_length = hole_final_pc - hole_start_pc + 1;
 		if (inlined_zasm.size() > hole_length)
 		{
@@ -2281,17 +2273,20 @@ static void optimize_inline_functions(OptContext& ctx)
 				fmt::println("{}: {}", i, script_debug_command_to_string(C(i)));
 		}
 
-		if (C(push_stack_pc).command == PUSHARGSR)
+		if (!must_keep_store_stack)
 		{
-			if (C(push_stack_pc).arg1 > 2)
-				C(push_stack_pc).arg2 -= 1;
-			else if (C(push_stack_pc).arg1 == 2)
-				C(push_stack_pc) = {PUSHR, rSFRAME};
-			else
-				remove(ctx, push_stack_pc);
+			if (C(store_stack_pc).command == PUSHARGSR)
+			{
+				if (C(store_stack_pc).arg1 > 2)
+					C(store_stack_pc).arg2 -= 1;
+				else if (C(store_stack_pc).arg1 == 2)
+					C(store_stack_pc) = {PUSHR, rSFRAME};
+				else
+					remove(ctx, store_stack_pc);
+			}
+			else if (!store_stack_part_of_hole)
+				remove(ctx, store_stack_pc);
 		}
-		else if (!push_stack_part_of_hole)
-			remove(ctx, push_stack_pc);
 
 		if (command_is_wait(inline_instr.command))
 			ctx.cfg_stale = true;
@@ -2428,11 +2423,11 @@ static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> scr
 	// Convert to modern function calls before anything else, so all
 	// passes may assume that.
 	{"calling_mode", optimize_calling_mode},
+	{"goto_next_instruction", optimize_goto_next_instruction},
 	{"inline_functions", optimize_inline_functions},
 };
 
 static std::vector<std::pair<std::string, std::function<void(OptContext&)>>> function_passes = {
-	{"goto_next_instruction", optimize_goto_next_instruction},
 	{"unreachable_blocks", optimize_unreachable_blocks},
 	{"conseq_additive", optimize_conseq_additive},
 	{"load_store", optimize_load_store},
