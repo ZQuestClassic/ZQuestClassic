@@ -142,7 +142,6 @@ jobs:
           cmake --build build
           echo "UNSF=$PWD/build/unsf-static" >> $GITHUB_ENV
 
-      - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"

@@ -155,7 +155,6 @@ jobs:
       - name: Set environment variables
         if: inputs.config == 'Coverage'
         run: echo "TARGET=zplayer" >> "$GITHUB_ENV"
-      - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
         if: ${{ inputs.versiontype }}
       - name: Set release platform
