@@ -583,8 +583,8 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 
 	FetchContent_Declare(
 		gme_external
-		GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
-		GIT_TAG        6cd4bdb69be304f58c9253fb08b8362f541b3b4b
+		GIT_REPOSITORY https://github.com/libgme/game-music-emu
+		GIT_TAG        6b676192d98302e698ac78fe3c00833eae6a74e5
 	)
 	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
 	option(ENABLE_UBSAN "" OFF)
