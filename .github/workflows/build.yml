@@ -143,7 +143,6 @@ jobs:
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-      - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }}
       - name: Set release platform
         id: set-platform
