@@ -404,7 +404,9 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 	{
 		// Write directly value on the stack (arg1 to offset arg2)
 		x86::Gp offset = cc.newInt32();
-		cc.mov(offset, arg2);
+		cc.mov(offset, vStackIndex);
+		if (arg2)
+			cc.add(offset, arg2);
 		auto cmp = arg3 & CMP_FLAGS;
 		switch(cmp) //but only conditionally
 		{
@@ -439,8 +441,10 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 					case CMP_GT|CMP_LT:
 						cc.cmovne(tmp, val);
 						break;
+					default:
+						assert(false);
 				}
-				cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
+				cc.mov(x86::ptr_32(state.ptrStack, offset, 2), tmp);
 			}
 		}
 	}
@@ -1017,7 +1021,9 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// Write directly value on the stack (arg1 to offset arg2)
 			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, arg2);
+			cc.mov(offset, vStackIndex);
+			if (arg2)
+				cc.add(offset, arg2);
 			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);
 		}
 		break;
