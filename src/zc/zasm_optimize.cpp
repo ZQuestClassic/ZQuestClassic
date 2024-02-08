@@ -2155,6 +2155,12 @@ static void optimize_inline_functions(OptContext& ctx)
 				continue;
 			}
 
+			if (command == POPARGS)
+			{
+				bail = true;
+				break;
+			}
+
 			if (command == SETR)
 			{
 				if (found_instr)
@@ -2179,6 +2185,9 @@ static void optimize_inline_functions(OptContext& ctx)
 		if (bail)
 			continue;
 		if (command_is_goto(data.inline_instr.command))
+			continue;
+		// TODO: why does inlining a QUIT break things? It does for crucible_quest.zplay
+		if (data.inline_instr.command == QUIT)
 			continue;
 
 		functions_to_inline.emplace(fn.id, data);

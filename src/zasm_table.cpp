@@ -2932,12 +2932,17 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 			return r;
 		}
 
+		case ATOI2:
+		case ILEN2:
 		case READPODARRAYR:
 		case READPODARRAYV:
+		case REMCHR2:
 		case WRITEPODARRAYRR:
 		case WRITEPODARRAYRV:
 		case WRITEPODARRAYVR:
 		case WRITEPODARRAYVV:
+		case XLEN2:
+		case XTOI2:
 		{
 			static T r = {{rINDEX, REG_R}};
 			return r;
@@ -3056,8 +3061,14 @@ std::initializer_list<CommandDependency> get_command_implicit_dependencies(int c
 		case ARCTANR:
 		case ISSOLID:
 		case MAPDATAISSOLID:
+		case STRCAT:
+		case STRCHR:
+		case STRCSPN:
 		case STRINGCOMPARE:
 		case STRINGICOMPARE:
+		case STRRCHR:
+		case STRSPN:
+		case STRSTR:
 		{
 			static T r = {{rINDEX, REG_R}, {rINDEX2, REG_R}};
 			return r;
