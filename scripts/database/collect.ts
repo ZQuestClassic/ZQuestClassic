@@ -317,7 +317,7 @@ async function uncompressQstAndGzip(qstPath: string) {
     return;
   }
 
-  const releasePath = `${TMP}/releases/2.55-alpha-120`;
+  const releasePath = `${TMP}/archives/release/2.55-alpha-120`;
   if (!fs.existsSync(releasePath)) {
     console.error(`not found: ${releasePath}`);
     process.exit(1);
