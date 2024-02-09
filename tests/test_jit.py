@@ -110,6 +110,8 @@ class TestJIT(ZCTestCase):
         self.run_for_qst('hollow_forest', test_dir / 'replays/hollow_forest.zplay', hash=True)
         self.run_for_qst('freedom_in_chains', test_dir / 'replays/freedom_in_chains.zplay', hash=True)
         self.run_for_qst('stellar_seas_randomizer', test_dir / 'replays/stellar_seas_randomizer.zplay', hash=True)
+        for qst in test_dir.rglob('replays/scripting/**/*.zplay'):
+            self.run_for_qst(qst.stem, qst, hash=True)
 
 
 if __name__ == '__main__':
