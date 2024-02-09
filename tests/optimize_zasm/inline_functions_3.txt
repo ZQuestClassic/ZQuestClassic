@@ -3,61 +3,66 @@ Function #0
     1: PUSHARGSR       D4              2
     2: LOADD           D2              70000
     3: PUSHR           D2
-    4: CALLFUNC        24                           [Call Function #1]
+    4: CALLFUNC        31                           [Call Function #1]
     5: POP             D4
     6: PUSHR           D2
     7: PUSHR           D4
     8: LOADD           D2              70000
     9: PUSHR           D2
-   10: CALLFUNC        32                           [Call Function #3]
+   10: CALLFUNC        39                           [Call Function #3]
    11: POP             D4
    12: PUSHR           D2
    13: PUSHR           D4
-   14: CALLFUNC        43                           [Call Function #5]
+   14: CALLFUNC        48                           [Call Function #5]
    15: POP             D4
    16: PUSHR           D2
    17: PUSHR           D4
-   18: CALLFUNC        28                           [Call Function #2]
+   18: CALLFUNC        35                           [Call Function #2]
    19: POP             D4
-   20: PUSHR           D2
-   21: CALLFUNC        37                           [Call Function #4]
+   20: PUSHARGSR       D4              2
+   21: CALLFUNC        44                           [Call Function #4]
    22: POP             D4
-   23: QUIT
+   23: PUSHR           D4
+   24: CALLFUNC        48                           [Call Function #5]
+   25: POP             D4
+   26: TRACER          D2
+   27: POP             D4
+   28: TRACER          D4
+   29: NOP
+   30: QUIT
 
 
 Function #1
-   24: POP             D3                           [Block 0 -> ]
-   25: SINR            D2              D3
-   26: NOP
-   27: RETURNFUNC
+   31: POP             D3                           [Block 0 -> ]
+   32: SINR            D2              D3
+   33: NOP
+   34: RETURNFUNC
 
 
 Function #2
-   28: SETR            D4              SP           [Block 0 -> 1]
-   29: SETR            D2              INPUTA
-   30: GOTO            31
-   31: RETURNFUNC                                   [Block 1 -> ]
+   35: SETR            D4              SP           [Block 0 -> ]
+   36: SETR            D2              INPUTA
+   37: GOTO            31                           [Call Function #1]
+   38: RETURNFUNC
 
 
 Function #3
-   32: NOP                                          [Block 0 -> ]
-   33: NOP
-   34: NOP
-   35: NOP
-   36: NOP
-
-
-Function #4
-   37: NOP                                          [Block 0 -> ]
-   38: NOP
-   39: NOP
+   39: NOP                                          [Block 0 -> ]
    40: NOP
    41: NOP
    42: NOP
+   43: RETURNFUNC
+
+
+Function #4
+   44: NOP                                          [Block 0 -> ]
+   45: SETR            D2              LINKX
+   46: NOP
+   47: RETURNFUNC
 
 
 Function #5
-   43: NOP                                          [Block 0 -> ]
-   44: NOP
-   45: NOP
-   46: NOP
+   48: POP             D2                           [Block 0 -> ]
+   49: ADDR            D2              D0
+   50: NOP
+   51: RETURNFUNC

@@ -69,7 +69,7 @@ static bool should_run_experimental_passes()
 // Use with a tool like `find-first-fail`: https://gitlab.com/ole.tange/tangetools/-/blob/master/find-first-fail/find-first-fail
 // 1. Enable ENABLE_BISECT_TOOL below.
 // 2. Make a new script `tmp.sh` calling a failing replay:
-//        python tests/run_replay_tests.py --filter stellar --frame 40000 --extra_args="-test-bisect $1"
+//        python tests/run_replay_tests.py --filter stellar --frame 40000 --extra_args="-replay-fail-assert-instant -test-bisect $1"
 // 3. Run the bisect script (may need to increase the end range up to 100000 or more):
 //        bash ~/tools/find-first-fail.sh -s 0 -e 1000 -v -q bash tmp.sh
 // 4. For the number given, set `-test-bisect` to that, and set a breakpoint
@@ -2235,7 +2235,7 @@ static void optimize_inline_functions(OptContext& ctx)
 		int stack_to_external_value[8];
 		for (int i = 0; i < 8; i++) stack_to_external_value[i] = -1;
 
-		ASSERT(one_of(C(i - 1).command, PUSHR, PUSHV, NOP));
+		ASSERT(one_of(C(i - 1).command, PUSHR, PUSHV, PUSHARGSR, PUSHARGSV, NOP));
 		stack_to_external_value[0] = C(i - 1).arg1;
 
 		std::vector<ffscript> inlined_zasm;
@@ -2260,7 +2260,9 @@ static void optimize_inline_functions(OptContext& ctx)
 		else
 			store_stack_pcs.pop_back();
 
-		pc_t hole_start_pc = i - 1;
+		pc_t hole_start_pc = i;
+		if (C(i - 1).command != PUSHARGSR)
+			hole_start_pc -= 1;
 		pc_t hole_final_pc = i + 1;
 		bool store_stack_part_of_hole =
 			(store_stack_pc == hole_start_pc - 1 || store_stack_pc == hole_start_pc) && C(store_stack_pc).command != PUSHARGSR && !must_keep_store_stack;
