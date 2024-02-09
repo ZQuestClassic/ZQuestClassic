@@ -60,14 +60,22 @@ class TestZEditor(unittest.TestCase):
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
         results = ReplayTestResults(**test_results_json)
 
-        run = results.runs[0][0]
-        if not run.success:
-            failing_str = f'failure at frame {run.failing_frame}'
-            if run.unexpected_gfx_segments:
-                segments_str = [
-                    f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments]
-                failing_str += ': ' + ', '.join(segments_str)
+        failing_strs = []
+        for run in results.runs[0]:
+            if not run.success:
+                failing_str = f'failure at frame {run.failing_frame}'
+                if run.unexpected_gfx_segments:
+                    segments_str = [
+                        f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments]
+                    failing_str += ': ' + ', '.join(segments_str)
+                if run.exceptions:
+                    failing_str += '\nExceptions:\n\t' + '\n\t'.join(run.exceptions)
+                failing_strs.append(failing_str)
+
+        failing_str = '\n'.join(failing_strs)
+        if failing_str:
             self.fail(failing_str)
+
         self.assertEqual(output.returncode, 0)
 
     # Simply open the editor with the new quest template.
@@ -128,22 +136,36 @@ class TestZEditor(unittest.TestCase):
         ]
         (run_target.get_build_folder() / 'includepaths.txt').write_text(';'.join(include_paths))
 
-        # Make copy of playground.qst
-        qst_path = tmp_dir / 'playground.qst'
-        shutil.copy(root_dir / 'tests/replays/playground.qst', qst_path)
+        test_cases = [
+            (root_dir / 'tests/replays/playground.qst', list((root_dir / 'tests/replays').glob('playground_*.zplay'))),
+        ]
+        for replay_path in (root_dir / 'tests/replays/scripting').glob('*.zplay'):
+            test_cases.append((replay_path.with_suffix('.qst'), [replay_path]))
 
-        # Re-compile and assign slots.
-        self.quick_assign(qst_path)
+        successful_qsts = []
+        for qst_path, _ in test_cases:
+            with self.subTest(msg=f'compile and quick assign {qst_path.name}'):
+                if not test_cases:
+                    raise Exception('where are the replays?')
 
-        # Ensure replays continue to pass.
-        for original_replay_path in (root_dir / 'tests/replays').glob('playground_*.zplay'):
-            with self.subTest(msg=f'{original_replay_path.name}'):
-                replay_path = tmp_dir / 'tmp.zplay'
-                shutil.copy(original_replay_path, replay_path)
+                tmp_qst_path = tmp_dir / qst_path.name
+                shutil.copy(qst_path, tmp_qst_path)
+                self.quick_assign(tmp_qst_path)
+                successful_qsts.append(qst_path)
 
-                output_dir = tmp_dir / 'output' / original_replay_path.name
-                output_dir.mkdir(exist_ok=True, parents=True)
-                self.run_replay(output_dir, [replay_path])
+        all_replay_paths = []
+        for qst_path, replay_paths in test_cases:
+            if qst_path in successful_qsts:
+                for original_replay_path in replay_paths:
+                    replay_path = tmp_dir / original_replay_path.name
+                    shutil.copy(original_replay_path, replay_path)
+                    all_replay_paths.append(replay_path)
+
+        with self.subTest(msg='replays still pass'):
+            output_dir = tmp_dir / 'replays_output'
+            if output_dir.exists():
+                shutil.rmtree(output_dir)
+            self.run_replay(output_dir, all_replay_paths)
 
     def test_package_export(self):
         if 'emscripten' in str(run_target.get_build_folder()) or platform.system() != 'Windows':
