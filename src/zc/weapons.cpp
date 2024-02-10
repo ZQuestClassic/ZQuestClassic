@@ -7184,6 +7184,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 		if(reflect)
 		{
 			ignoreHero = true;
+			ignorecombo = -1;
 			if(!isLWeapon)
 			{
 				if(Ewpns.remove(this))
