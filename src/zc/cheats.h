@@ -43,6 +43,7 @@ enum Cheat
 	ShowHitbox,
 	ShowFFCScripts,
 	ShowInfoOpacity,
+	HeroPosition,
 	Last,
 };
 
