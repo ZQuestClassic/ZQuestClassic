@@ -4070,6 +4070,10 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 
 	if (strlen(zc_get_config("zeldadx", "replay_snapshot", "")) > 0)
 		replay_add_snapshot_frame(zc_get_config("zeldadx", "replay_snapshot", ""));
+
+	// Older quests don't have a misc section, and QMisc isn't set by default except via loading the default quest.
+	// So do that here, since not all code paths to this will have done it already.
+	init_NES_mode();
 }
 
 void zc_game_srand(int seed, zc_randgen* rng)
