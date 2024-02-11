@@ -264,6 +264,8 @@ else:
 mode = 'assert'
 if args.update:
     mode = 'update'
+    if args.frame:
+        args.headless = False
 elif args.replay:
     mode = 'replay'
 else:
