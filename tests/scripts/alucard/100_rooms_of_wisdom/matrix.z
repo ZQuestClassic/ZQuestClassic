@@ -1,0 +1,32 @@
+import "std_old.zh"
+
+//A couple of combos, some of them must be replaced (like slashing), some must ledt intact.
+// Place invisible FFC anywhere on the screen
+//D0 - Combo that must be changed. All instances of that combo must be changed to solve the puzzle.
+//D1 - Combo that must be left intact. None of those combo must be changed to solve the puzzle.
+//D2 - Id > 0 -> Permanent secrets.
+
+ffc script MatrixBinaryPassword{
+	void run(int cmb_on, int cmb_off, int perm){
+		if (Screen->State[ST_SECRET])Quit();
+		int orig_num_cmb_off=0;
+		for (int i=0; i<176; i++){//count combos that must not be triggered in this puzzle. 
+			if (Screen->ComboD[i]==cmb_off)orig_num_cmb_off++;
+		}
+		while(true){
+			int num_cmb_on = 0;
+			int num_cmb_off = 0;
+			for	(int i=0; i<176; i++){
+				if (Screen->ComboD[i]==cmb_on)num_cmb_on++;
+				if (Screen->ComboD[i]==cmb_off)num_cmb_off++;
+			}
+			if ((num_cmb_on==0)&&(num_cmb_off==orig_num_cmb_off)){
+				Game->PlaySound(SFX_SECRET);
+				Screen->TriggerSecrets();
+				if(perm>0)Screen->State[ST_SECRET]=true;
+				Quit();
+			}
+			Waitframe();
+		}
+	}
+}

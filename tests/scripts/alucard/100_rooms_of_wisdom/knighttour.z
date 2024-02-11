@@ -1,0 +1,83 @@
+import "std_old.zh"
+import "chess.zh"
+
+const int SFX_KNIGHTTOUR_MOVE = 16;//Sound to play when making move.
+const int SFX_KNIGHTTOUR_SOLVED = 27;//Sound to play when puzzle is solved.
+
+const int CSET_KNIGHTTOUR_EMPTY = 11; //Cset used for unvisited spaces of board.
+const int CSET_KNIGHTTOUR_AVAILABLE = 7;//Cser used to highlight spaces that knight can move on at this time.
+const int CSET_KNIGHTTOUR_ACTIVE = 8;//Cst used for current position of the knight.
+const int CSET_KNIGHTTOUR_VISITED = 5;//Cset used for unvisited spaces of board.
+
+//import "chess.zh" REQUIRED!!
+
+//Infamous Knight tour puzzle for ZC 2.53. Perform series of knight moves to visit each space exactly once. Stand on space and press A.
+
+//1. Set up 4 consecutive combos: empty space, available moves highlight, knight`s actual position, and visited space mark.
+//2. Build board of any shape and size, using only 1st combo from step 1. Build chessboard on background layer.
+//3. Place FFC anywhere on the screen.
+//3. D0 - ID of the 1st combo from step 1.
+
+ffc script KnightTour{
+	void run(int cmbspace){
+		int pos[176];
+		int curpos = -1;
+		for (int i=0; i<176; i++){
+			if (Screen->ComboD[i]==cmbspace){ 
+				pos[i]=0;
+				Screen->ComboC[i] = CSET_KNIGHTTOUR_EMPTY;
+			}
+			else pos[i]=-1;
+		}
+		while (true){
+			if (Link->PressA){
+				int cmb = ComboAt (CenterLinkX(), CenterLinkY());
+				if (curpos<0){
+					Screen->ComboC[cmb] = CSET_KNIGHTTOUR_ACTIVE;
+					Screen->ComboD[cmb]++;
+					pos[cmb] = 1;
+					for (int i=0; i<176; i++){
+						if ((pos[i]==0)&&(KnightMoveAdjacent(cmb, i))){
+							Screen->ComboC[i]=CSET_KNIGHTTOUR_AVAILABLE;
+							Screen->ComboD[i]=cmbspace+2;
+						}
+					}
+					curpos=cmb;
+					Game->PlaySound(SFX_KNIGHTTOUR_MOVE);
+				}
+				else if (Screen->ComboD[cmb]==cmbspace+2){
+					for (int i=0; i<176; i++){
+						if (pos[i]==0){
+							Screen->ComboC[i]=CSET_KNIGHTTOUR_EMPTY;
+							Screen->ComboD[i]=cmbspace;
+						}
+					}
+					pos[curpos]=2;
+					Screen->ComboC[curpos] = CSET_KNIGHTTOUR_VISITED;
+					Screen->ComboD[curpos] = cmbspace+3;
+					Screen->ComboC[cmb] = CSET_KNIGHTTOUR_ACTIVE;
+					Screen->ComboD[cmb]=cmbspace+1;
+					pos[cmb] = 1;
+					for (int i=0; i<176; i++){
+						if ((pos[i]==0)&&(KnightMoveAdjacent(cmb, i))){
+							Screen->ComboC[i]=CSET_KNIGHTTOUR_AVAILABLE;
+							Screen->ComboD[i]=cmbspace+2;
+						}
+					}
+					curpos=cmb;
+					Game->PlaySound(SFX_KNIGHTTOUR_MOVE);
+				}
+				for (int i=0; i<176; i++){
+					if (pos[i]==0) break;
+					else if (i==175){
+						Game->PlaySound(SFX_KNIGHTTOUR_SOLVED);
+						Screen->TriggerSecrets();
+						Screen->State[ST_SECRET]=true;
+						Quit();
+					}
+				}
+			}
+			Waitframe();
+		}
+	}
+} 

@@ -1,0 +1,66 @@
+import "std_old.zh"
+import "chess.zh"
+
+const int SFX_QUEEN_PUZZLE_MOVE = 16; //Sound to play when placing queen on board.
+const int SFX_QUEENS_EATING = 32; //Sound to play when queens attack each other on board.
+const int SFX_QUEEN_PUZZLE_SOLVED = 27; //Sound to play when puzzle is solved. 
+
+//import "chess.zh" //REQUIRED!!
+
+//Queen placement puzzle. Place X queens on X*X chessboard so no two queens can attack each other.
+// Stand on board and press A to place a queen. Any attacked pieces are immediately removed.
+//Set up 2 consecutive combos for empty space and queen piece. Build chess board on background layer.
+//Place a square block of combos X*X size of first combo.
+//Place FFC on top ;eft corner of the board.
+//D0 - Board size. Only square boards are supported.
+
+ffc script QueenPlacementPuzzle{
+	void run (int boardsize){
+		if (Screen->State[ST_SECRET]) Quit();
+		int origcmb = ComboAt (CenterX (this), CenterY (this));
+		int boardx = ComboX(origcmb);
+		int emptycmb = Screen->ComboD[origcmb];
+		int queencmb = emptycmb+1;
+		int boardy = ComboY(origcmb);
+		int numqueens = 0;
+		while (true){
+			if (RectCollision(boardx, boardy, boardx+16*boardsize, boardy+16*boardsize, CenterLinkX(), CenterLinkY(), (CenterLinkX()+1), (CenterLinkY())+1)){
+				if (Link->PressA){
+					Game->PlaySound(SFX_HAMMER);
+					int curqueen = ComboAt (CenterLinkX(), CenterLinkY());
+					if (Screen->ComboD[curqueen]== emptycmb){
+						//Game->PlaySound(SFX_HAMMER);
+						Screen->ComboD[curqueen]++;
+						numqueens++;
+						for (int i=0; i<176; i++){
+							if (curqueen==i) continue;
+							if (Screen->ComboD[i]!=queencmb) continue;
+							if (OnSameRank(i, curqueen)){
+								Game->PlaySound(SFX_QUEENS_EATING);
+								Screen->ComboD[i]--;
+								numqueens--;
+							}
+							if (OnSameFile(i, curqueen)){
+								Screen->ComboD[i]--;
+								Game->PlaySound(SFX_QUEENS_EATING);
+								numqueens--;
+							}
+							if (OnSameDiagonal(i, curqueen)){
+								Screen->ComboD[i]--;
+								Game->PlaySound(SFX_QUEENS_EATING);
+								numqueens--;
+							}
+					 	}
+					 	if (numqueens>=boardsize){
+								Game->PlaySound(SFX_SECRET);
+								Screen->TriggerSecrets();
+								Screen->State[ST_SECRET]=true;
+								Quit();
+							}
+					}
+				}
+			}
+			Waitframe();
+		}
+	}
+}

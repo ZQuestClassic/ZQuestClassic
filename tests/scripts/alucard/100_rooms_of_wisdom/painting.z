@@ -1,0 +1,29 @@
+//Painting placed on wall or sign board stand near it and press either A or B to display image.
+//Place FFC on the signboard or painting
+//D0 - Top Left corner of image
+//D1 - Image width, in tiles.
+//D2 - Image height, in tiles.
+//D3 - Cset used for drawing.
+
+import "std_old.zh"
+
+ffc script PaintingSignboard{
+	void run(int tile, int xsize, int ysize, int cset, int Xoffset, int Yoffset){
+		while(true){
+			if (StdOld::LinkCollision(this)){
+				if  ( Link->PressA || Link->PressB ){
+					NoAction();
+					Waitframe();
+					while (StdOld::LinkCollision(this)){
+						if (Link->PressA) break;
+						if (Link->PressB) break;
+						Screen->DrawTile(5, (128-8*xsize)+Xoffset, (88-8*ysize)+Yoffset, tile, xsize, ysize, cset, -1, -1, 0, 0, 0, 0, false, OP_OPAQUE);
+						Waitframe();
+					}
+				}
+			}
+			Waitframe();
+		}
+	
+	}
+}

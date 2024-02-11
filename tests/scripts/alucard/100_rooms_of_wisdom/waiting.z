@@ -1,0 +1,14 @@
+import "std_old.zh"
+
+ffc script WaitingPuzzle{
+	void run (int time){
+		if (Screen->State[ST_SECRET]) Quit();
+		while(time>0){
+			time--;
+			Waitframe();
+		}
+		Game->PlaySound(27);
+		Screen->TriggerSecrets();
+		Screen->State[ST_SECRET]=true;
+	}
+}

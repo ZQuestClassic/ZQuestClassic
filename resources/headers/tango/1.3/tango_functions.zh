@@ -550,7 +550,7 @@ void __Tango_FuncGoto(int newString)
 }
 
 // Implementation of @pressa
-int __Tango_FuncPressA()
+void __Tango_FuncPressA()
 {
     Game->PlaySound(__Tango_GetCurrStyleData(TANGO_STYLE_TEXT_END_SFX));
     __Tango_SetCurrSlotData(__TSDIDX_STATE, __TANGO_STATE_PRESS_A);

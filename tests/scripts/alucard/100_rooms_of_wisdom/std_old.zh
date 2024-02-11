@@ -1,0 +1,54 @@
+import "std.zh"
+
+namespace StdOld
+{
+	// Returns true if there is a collision between Link's hitbox and the npc's.
+	// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
+	bool LinkCollision(ffc f) 
+	{
+		int ax = Link->X + Link->HitXOffset;
+		int ay = Link->Y + Link->HitYOffset;
+		return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+	}
+
+	//Returns true if Link is using item 'id'
+	bool UsingItem(int id)
+	{
+		return (GetEquipmentA() == id && Link->InputA) || (GetEquipmentB() == id && Link->InputB);
+	}
+
+	float WrapDegrees( float degrees ) 
+	{
+		while (degrees <= -180) degrees += 360;
+		while (degrees > 180) degrees -= 360;
+		return degrees;
+	}
+
+	//Truncates x to an integer
+	int Floor(float x) 
+	{
+		if(x < 0)
+			return (x-.9999)<<0;
+		return x<<0;
+	}
+
+	//Constants for AdjacentCombo()
+	//This now uses DIR_* constants, so you can do AdjacentCombo(cmb,Link->Dir)
+	//Returns the Nth combo index of a combo based on a central point, and a direction.
+	//For example, combo 22 + COMBO_UPRIGHT returns '7', 
+	//as combo 7 is to the upper-right of combo 22.
+	int AdjacentCombo(int cmb, int dir)
+	{
+		int combooffsets[13]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
+		if ( cmb % 16 == 0 ) combooffsets[9] = 1;
+		if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
+		if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
+		if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
+		if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN ) ) return 0; //if the left columb
+		if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return 0; //if the right column
+		if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP ) ) return 0; //if the top row
+		if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return 0; //if the bottom row
+		else if ( cmb >= 0 && cmb <= 176 ) return cmb + combooffsets[dir];
+		else return -1;
+	}   
+}
