@@ -41,12 +41,18 @@ static int currgame = -1;
 static std::vector<save_t> saves;
 static bool save_current_replay_games;
 
-save_t::~save_t()
+void save_t::unload()
 {
 	if (this->game)
 		delete this->game;
 	else
 		delete this->header;
+	this->game = nullptr;
+	this->header = nullptr;
+}
+save_t::~save_t()
+{
+	unload();
 }
 
 static fs::path get_legacy_save_file_path()
@@ -2007,6 +2013,18 @@ void saves_unselect()
 		save.game = nullptr;
 	}
 	currgame = -1;
+}
+
+void saves_unload(int32_t index)
+{
+	if (index == -1)
+		return;
+
+	auto& save = saves[index];
+	save.unload();
+
+	if (currgame == index)
+		currgame = -1;
 }
 
 int32_t saves_count()
