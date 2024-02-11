@@ -7183,7 +7183,8 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 		if(reflect)
 		{
 			ignoreHero = true;
-			ignorecombo = -1;
+			if(!(replay_is_active()&&replay_get_meta_str("sav")=="link_to_the_heavens_16_of_17.sav"))
+				ignorecombo = -1;
 			if(!isLWeapon)
 			{
 				if(Ewpns.remove(this))
