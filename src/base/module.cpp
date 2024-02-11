@@ -379,7 +379,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < wRefFire2+1; q++ )
 		{
-			if(lweapon_cats[q][0] == '-')
+			if(lweapon_cats[q][0] != '-')
 				strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? zc_get_config_basic("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
