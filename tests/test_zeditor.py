@@ -78,10 +78,10 @@ class TestZEditor(unittest.TestCase):
 
         self.assertEqual(output.returncode, 0)
 
-    # Simply open ZEditor with the new quest template.
+    # Simply open the editor with the new quest template.
     def test_file_new(self):
         run_target.check_run('zeditor', [
-            'quests/Z1 Recreations/classic_1st.qst',
+            '-new',
             '-headless',
             '-s',
             '-q',
