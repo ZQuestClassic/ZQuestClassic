@@ -1,0 +1,86 @@
+import "std_old.zh"
+
+const int MAGICSQUARE_PUZZLE_MOVE = 16;//Sound to play when switching numbers.
+const int MAGICSQUARE_PUZZLE_SOLVED = 27;//Sound to play when puzzle is solved.
+
+//3*3 grid of numbers from 1 to 9. The goal is to arrange numbers so every row, column, and diagonal has equal sum of the numbers.
+//1. Set up 9 combos for numbers 1-9.
+//2. Build shuffled 3*3 grid in the screen.
+//3. Place FFC at top ledt corner of the screen.
+
+ffc script MagicSquarePuzzle{
+	void run(){
+		int arr[9]={1,2,3,4,5,6,7,8,9};
+		int cmb = ComboAt (CenterX (this), CenterY (this));
+		int origcmb = Screen->ComboD[cmb];
+		int pos[9] = {cmb, cmb+1, cmb+2, cmb+16, cmb+17, cmb+18, cmb+32, cmb+33, cmb+34};
+		int curpos =0;
+		int curnum = 0;
+		int oldpos = 0;
+		int boardx = ComboX(cmb);
+		int boardy = ComboY(cmb);
+		while(true){
+			if (RectCollision(boardx+1, boardy+1, boardx+47, boardy+47, CenterLinkX(), CenterLinkY(), (CenterLinkX()+1), (CenterLinkY())+1)){
+				if (Link->PressA){
+					if (curpos==0){
+						curpos = ComboAt (CenterLinkX(), CenterLinkY());
+						for (int i=0; i<9; i++){
+							if (curpos==pos[i]){
+								curnum=arr[i];
+								oldpos = i;
+							}
+						}
+					}
+					else {
+						Game->PlaySound(MAGICSQUARE_PUZZLE_MOVE);
+						int newpos = ComboAt (CenterLinkX(), CenterLinkY());
+						for (int i=0; i<9; i++){
+							if (newpos==pos[i]){
+								int newnum = arr[i];
+								arr[i]=curnum;
+								arr[oldpos]=newnum;
+							}
+						}
+						SwapCombos(curpos, newpos);
+						curpos = 0;
+						if  (IsMagicSquare(arr)){
+							Game->PlaySound(MAGICSQUARE_PUZZLE_SOLVED);
+							Screen->TriggerSecrets();
+							Screen->State[ST_SECRET] =true;
+							Quit();
+						}
+					}
+				}
+			}
+			if (curpos>0) Screen->Rectangle(0, ComboX(curpos), ComboY(curpos), ComboX(curpos)+16, ComboY(curpos)+16, 3, 1, 0, 0, 0, false, OP_OPAQUE);
+			Waitframe();
+		}
+	}
+	
+	void SwapCombos(int pos1, int pos2){
+		int cmb1 = Screen->ComboD[pos1];
+		int cmb2 = Screen->ComboD[pos2];
+		int cset1 = Screen->ComboC[pos1];
+		int cset2 = Screen->ComboC[pos2];
+		Screen->ComboD[pos1] = cmb2;
+		Screen->ComboD[pos2] = cmb1;
+		Screen->ComboC[pos1] = cset2;
+		Screen->ComboC[pos1] = cset1;
+	}
+	
+	bool IsMagicSquare(int arr){
+		if (SizeOfArray(arr)!=9) Quit();
+		if ((arr[0]+arr[1]+arr[2])!=15) return false;
+		if ((arr[3]+arr[4]+arr[5])!=15) return false;
+		if ((arr[6]+arr[7]+arr[8])!=15) return false;
+		//Game->PlaySound(SFX_WAND);
+		if ((arr[0]+arr[3]+arr[6])!=15) return false;
+		if ((arr[1]+arr[4]+arr[7])!=15) return false;
+		if ((arr[2]+arr[5]+arr[8])!=15) return false;
+		//Game->PlaySound(SFX_HAMMERPOST);
+		if ((arr[0]+arr[4]+arr[8])!=15) return false;
+		if ((arr[2]+arr[4]+arr[6])!=15) return false;
+		return true;
+	}
+}
+

@@ -131,6 +131,7 @@ class TestZEditor(unittest.TestCase):
         # TODO: set this via CLI
         include_paths = [
             str(root_dir / 'tests/scripts'),
+            str(root_dir / 'tests/scripts/alucard/100_rooms_of_wisdom'),
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
         ]

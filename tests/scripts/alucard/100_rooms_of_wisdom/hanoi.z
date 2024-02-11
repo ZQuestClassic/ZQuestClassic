@@ -1,0 +1,128 @@
+import "std_old.zh"
+
+const int TOWER_OF_HANOI_DISK_HEIGHT = 8; //Disk height for Hanoi Tower puzzle
+
+const int TILE_TOWER_OF_HANOI_DISK = 13197; //Tile used for Hanoi tower disks
+
+const int CSet_TOWER_OF_HANOI_IDLE = 11; //CSet used when Hanoi tower pole is in idle state.
+const int CSet_TOWER_OF_HANOI_ACTIVE = 8; //CSet used when Link has disk from this Hanoi tower pole
+const int CSet_TOWER_OF_HANOI_HIGHLIGHT = 5; //CSet used when Link is near Hanoi tower pole
+
+const int SFX_TOWER_OF_HANOI_DISK_PICK = 4; //Sound to play when Link takes disk from Hanoi tower pole.
+const int SFX_TOWER_OF_HANOI_DISK_PLACE = 16; //Sound to play when Link places disk from Hanoi tower pole.
+const int SFX_TOWER_OF_HANOI_SOLVED = 27; //Sound to play when Puzzle has been solved.
+
+const int FFC_MISC_TOWER_OF_HANOI_NUMDISKS = 1; //FFC misc variable for tracking number of disks. 
+//Controller script uses this variable to check if all disks are on the same target pole to trigger puzzle solution reward.
+const int LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND = 1; //Link Misn variable to track if Link has a Tower of Hanoi disk in his hands. 
+
+
+//A tower needs to be moved from one place to another. Link can move 1 disk at time. Larger disks cannot be placed on smaller ones.
+
+//Set up 2 tiles. one for disk and one for tower foundation
+// Place 1 invisible FFC with TowerOfHanoiController FFC script anywhere in the screen.
+//Place 3+ FFC with assigned combo with foundation tile and TowerOfHanoi script.
+// D0 Number of disks at the start. Disk width is automatic.
+// D1 At least 1 FFC must have this argument set to anything >0. All disks must be moved to this FFC to trigger puzzle solution.
+
+ffc script TowerOfHanoiController{
+	void run(){
+		int str[] = "TowerHanoi";
+		int hanoipolescript= Game->GetFFCScript(str);
+		if (hanoipolescript<0){
+			Game->PlaySound(SFX_GANON);
+			Quit();
+		}
+		int totaldisks = 0;
+		for (int i=1; i<=32;i++){
+			ffc f = Screen->LoadFFC(i);
+			if (f->Script== hanoipolescript) totaldisks += f->InitD[0]; 
+		}
+		while (true){
+			for (int i=1; i<=32;i++){
+				ffc f = Screen->LoadFFC(i);
+				if (f->Script== hanoipolescript){
+					if (f->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]==totaldisks){
+						if (f->InitD[1]>0){
+							Game->PlaySound(SFX_TOWER_OF_HANOI_SOLVED);
+							Screen->TriggerSecrets();
+							Screen->State[ST_SECRET]=true;
+							Quit();
+						}
+					}
+				}
+			}
+			Waitframe();
+		}
+	}
+}
+
+ffc script TowerHanoi{
+	void run (int numdisks, int istarget){
+		if (Screen->State[ST_SECRET]) Quit();
+		if (numdisks>16) Quit();
+		this->CSet = CSet_TOWER_OF_HANOI_IDLE;
+		Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]=0;
+		int DISKS[17];
+		for (int i = 0; i<SizeOfArray(DISKS); i++){
+			if (numdisks>0) {
+				DISKS[i]=numdisks;
+				this->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]++;
+				numdisks--;
+			} 
+			else DISKS[i]=0;
+		}
+		while (true){
+			if (StdOld::LinkCollision(this)){
+				if (this->CSet == CSet_TOWER_OF_HANOI_IDLE) this->CSet = CSet_TOWER_OF_HANOI_HIGHLIGHT;
+				if (Link->PressA){
+					if (Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]==0){
+						if (DISKS[0]>0){
+							this->CSet = CSet_TOWER_OF_HANOI_ACTIVE;
+							for (int i =SizeOfArray(DISKS)-1; Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]==0;i--){
+								if (DISKS[i]==0) continue;
+								Game->PlaySound(SFX_TOWER_OF_HANOI_DISK_PICK);
+								Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]=DISKS[i];
+								DISKS[i]=0;
+								this->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]--;
+								break;
+							}
+						}
+					}
+					else{
+						if (DISKS[0]==0){
+							Game->PlaySound(SFX_TOWER_OF_HANOI_DISK_PLACE);
+							DISKS[0]= Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND];
+							Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]=0;
+							this->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]++;
+						}
+						else{	
+							for (int i =SizeOfArray(DISKS)-1; !Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]==0;i--){
+								if (DISKS[i]==0) continue;
+								//Game->PlaySound(SFX_WAND);
+								if ((Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]>DISKS[i])&&(DISKS[i]>0))break;
+								Game->PlaySound(SFX_TOWER_OF_HANOI_DISK_PLACE);
+								DISKS[i+1]= Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND];
+								Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]=0;
+								this->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]++;
+							}
+						}
+					}
+				}
+			}
+			else if (this->CSet == CSet_TOWER_OF_HANOI_HIGHLIGHT) this->CSet = CSet_TOWER_OF_HANOI_IDLE;
+			if ((this->CSet==CSet_TOWER_OF_HANOI_ACTIVE)&&(Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]==0))this->CSet = CSet_TOWER_OF_HANOI_IDLE;
+			RenderHanoiDisks(this, DISKS);
+					Screen->DrawTile(0, (CenterLinkX()-TOWER_OF_HANOI_DISK_HEIGHT/2*Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]), (CenterLinkY()-TOWER_OF_HANOI_DISK_HEIGHT), TILE_TOWER_OF_HANOI_DISK, 1, 1, CSet_TOWER_OF_HANOI_ACTIVE, TOWER_OF_HANOI_DISK_HEIGHT*Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND], TOWER_OF_HANOI_DISK_HEIGHT*2, 0, 0, 0, 0, true, OP_OPAQUE);
+			//debugValue(1, Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND], 0);
+		Waitframe();
+		}
+	}
+}
+
+void RenderHanoiDisks(ffc f, int disks){
+	for (int i=0; i<SizeOfArray(disks);i++){
+		if (disks[i]<=0) continue;
+		Screen->DrawTile(0, (CenterX(f)-TOWER_OF_HANOI_DISK_HEIGHT/2*disks[i]), (f->Y-i*TOWER_OF_HANOI_DISK_HEIGHT-TOWER_OF_HANOI_DISK_HEIGHT), TILE_TOWER_OF_HANOI_DISK, 1, 1, f->CSet, TOWER_OF_HANOI_DISK_HEIGHT*disks[i], TOWER_OF_HANOI_DISK_HEIGHT*2, 0, 0, 0, 0, true, OP_OPAQUE);
+	}
+}

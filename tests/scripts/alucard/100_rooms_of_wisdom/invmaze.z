@@ -1,0 +1,23 @@
+import "std_old.zh"
+
+ffc script InvisibleMaze{
+    void run(int lowered, int raised, int distance){
+
+        while(true){
+
+        this->X=Link->X+8;
+        this->Y=Link->Y+8;
+
+            for(int i=0; i<176; i++){
+                if(Distance(ComboX(i),ComboY(i),this->X,this->Y)<distance && Screen->ComboD[i]==lowered){
+                Screen->ComboD[i]=raised;
+                }
+                if(Distance(ComboX(i),ComboY(i),this->X,this->Y)>=distance && Screen->ComboD[i]==raised){
+                Screen->ComboD[i]=lowered;
+                }
+            }
+
+        Waitframe();
+        }
+    }
+} //InvisibleMaze

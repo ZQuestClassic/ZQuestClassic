@@ -1,0 +1,907 @@
+import "std_old.zh"
+
+//Classic.zh
+
+//Changes
+//1.00
+//1.01
+//1.02
+//1.03
+//1.04
+//1.05
+//1.06
+	//Added Z2 Lantern
+	//Added Version and Time/Data Information
+//1.07
+	//Added the Z2 Lantern Collect Script
+	//Attach it to any cangle (or any item) to give the passive 
+	//Z2v Lantern effect to that item.
+	
+//1.08  //Added Eagle Dungeon Scripts from 1st.qst
+//1.09  //Added screen change tracking and compass beep
+//1.10  //Added ffc script ScreenGuyMusic and fuction: bool __classic_zh_ScreenGuyAlive()
+//1.11  //Added arg for BossExplode ffc for enemy ID override as D7
+//1.12  //Changed import to #include, updated changeroomguy ffc to ignore fires.
+//1.13  //Fixed typo in changeroomguy ffc. 
+//1.14  //Added script CollectHeartContainer for a set of four automated messages.
+#include "ffcscript.zh"
+// #include "stdExtra.zh"
+#include "ghost.zh"
+#include "tango.zh"
+
+//Internal Data Array and its indices.
+int __classic_zc_internal[128];
+const int __classic_zh_WENTINTO_L1 	= 0;
+const int __classic_zh_EXITEDFROM_L1 	= 1;
+const int __classic_zh_SCREENCHANGED 	= 2;
+const int __classic_zh_LASTDMAP 	= 3;
+const int __classic_zh_LASTMAP 		= 4;
+const int __classic_zh_LASTSCR 		= 5;
+
+//Version Information; time is in GMT
+const float __classic_zh_VERSION 	= 1.13;
+const int __classic_zh_YEAR 		= 2030;
+const int __classic_zh_MONTH 		= 9;
+const int __classic_zh_DAY 		= 6;
+const int __classic_zh_HOUR 		= 3;
+const int __classic_zh_MINUTE 		= 56;
+
+
+const int __classic_zh_ITEM_Z2LANTERN 			= 149;
+const int __classic_zh_MAX_ITEMS 			= 512;
+
+
+const int I_HALFMAGIC 					= 144;
+const int I_LEARNSLASH 					= 143;
+
+const int I_MAGICBOSSKEY 				= 146;
+const int I_MAGICMAP 					= 147;
+const int I_MAGICCOMPASS 				= 148;
+const int I_AUTOLANTERN 				= 149;
+
+
+const int NPC_DAIRA1 					= 177;
+const int NPC_DAIRA2 					= 178;
+
+const int _classic_zh__BOSS_EXPLODE_SPRITE 		= 88;
+const int _classic_zh__BOSS_EXPLODE_DUR 		= 150;
+const int _classic_zh__BOSS_EXPLODE_SFX 		= 61;
+const int _classic_zh__BOSS_EXPLODE_DELAY 		= 16;
+const int _classic_zh__BOSS_EXPLODE_RANDOM_MIN 		= -10;
+const int _classic_zh__BOSS_EXPLODE_RANDOM_MAX 		= 10;
+
+
+const int _classic_zh__TRK_BOSS 			= 25;
+const int _classic_zh__MIDI_VICTORY 			= 1;
+const int _classic_zh__TILE_FIREWORK 			= 10140;
+
+const int _classic_zh__REG_BOSS_EXPLODING 		= 1;
+const int _classic_zh__REG_BOSS_DEAD 			= 2;
+const int _classic_zh__REG_BOSS_DROPPED_HEART 		= 3;
+const int _classic_zh__REG_BOSS_DROPPED_TRIFORCE 	= 4;
+
+const int CMB_INVISIBLE 				= 1;
+
+//Z1 Level 1 Door Glitch
+ffc script EagleBugInside
+{
+	void run()
+	{
+		__classic_zc_internal[__classic_zh_WENTINTO_L1]=1;
+		if(__classic_zc_internal[__classic_zh_EXITEDFROM_L1])
+		{
+			Screen->Door[DIR_UP]=D_UNLOCKED;
+			Screen->State[ST_DOORUP]=true;
+			Game->SetScreenState(2, 0x63, ST_DOORDOWN, true);
+		}
+	}
+}
+
+ffc script EagleBugOutside
+{
+	void run()
+	{
+		if(__classic_zc_internal[__classic_zh_WENTINTO_L1])
+		__classic_zc_internal[__classic_zh_EXITEDFROM_L1]=1;
+	}
+}
+
+ffc script EagleBugEast
+{
+	void run()
+	{
+		__classic_zc_internal[__classic_zh_WENTINTO_L1]=0;
+		__classic_zc_internal[__classic_zh_EXITEDFROM_L1]=0;
+	}
+}
+
+
+//New Items
+item script HalfMagic
+{
+	void run()
+	{
+		Game->Generic[GEN_MAGICDRAINRATE] = 1;
+	}
+}
+
+item script LearnSlash
+{
+	void run()
+	{
+		Game->Generic[GEN_CANSLASH] = 1;
+	}
+}
+
+item script ItemMessage
+{
+	void run(int m)
+	{
+		Screen->Message(m);
+	}
+}
+
+item script ItemSound
+{
+	void run(int s)
+	{
+		Game->PlaySound(s);
+	}
+}
+
+item script CollectHeartContainer
+{
+	void run(int m)
+	{
+		Screen->Message(m+Game->Generic[GEN_HEARTPIECES]);
+	}
+}
+
+ffc script BossMusic
+{
+	void run(int reg, int origtile, int mid, int trk)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
+		if ( origtile < 1 ) origtile = _classic_zh__TILE_FIREWORK;
+		if ( trk < 1 ) trk = _classic_zh__TRK_BOSS;
+		if ( mid < 1 ) mid = _classic_zh__MIDI_VICTORY;
+		int filenm[]="Classic.nsf";
+		Waitframes(5);
+		Game->PlayEnhancedMusic(filenm,trk);
+		while(EnemiesAlive()) Waitframe();
+		//for ( int q = Screen->NumLWeapons(); q > 0; --q ) //the number changes, so we need to refresh...
+		for ( int q = 1; q < Screen->NumLWeapons(); ++q ) 
+		{
+			lweapon isFirework = Screen->LoadLWeapon(q);
+			if ( isFirework->OriginalTile == origtile ) 
+			{
+				while(isFirework->isValid()) Waitframe();
+				
+			}
+		}
+		Game->PlayMIDI(mid);
+		for ( int q = 0; q < 601; ++q ) Waitframe();
+		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
+		Screen->D[reg] = _classic_zh__REG_BOSS_DEAD;
+	}
+}
+
+ffc script BossExplode
+{
+	void run(int reg, int spr, int dur, int sfx, int delay, int rmin, int rmax, int enemy_override)
+	{
+		this->Data = CMB_INVISIBLE;
+		int type;
+		if ( spr < 1 ) spr = _classic_zh__BOSS_EXPLODE_SPRITE;
+		if ( dur < 1 ) dur = _classic_zh__BOSS_EXPLODE_DUR;
+		if ( sfx < 1 ) sfx = _classic_zh__BOSS_EXPLODE_SFX;
+		if ( delay < 1 ) delay = _classic_zh__BOSS_EXPLODE_DELAY;
+		if ( rmin < 1 ) rmin = _classic_zh__BOSS_EXPLODE_RANDOM_MIN;
+		if ( rmax < 1 ) rmax = _classic_zh__BOSS_EXPLODE_RANDOM_MAX;
+		Waitframes(5);
+		npc boss; int x; int y; int width; int height; bool alive = true;
+		for ( int q = Screen->NumNPCs(); q > 0; --q )
+		{
+			npc n = Screen->LoadNPC(q);
+			if ( _classic_zh__isBoss(n) || n->ID == enemy_override ) 
+			{
+				boss = n; 
+				width = n->TileWidth;
+				height = n->TileHeight;
+				x = n->X;
+				y = n->Y;
+				type = boss->Type;
+				break;
+			}
+			
+		}
+		if ( !(boss->isValid()) ) Quit();
+		while(alive)
+		{
+			while(boss->isValid()) //boss->HP > 0)
+			{
+				x = boss->X; Trace(x);
+				y = boss->Y; Trace(y);
+				Waitframe();
+				continue;
+			}
+			//Check for more pieces of the boss
+			if ( EnemiesAlive() )
+			{
+				//Find the next piece of it
+				for ( int q = Screen->NumNPCs(); q > 0; --q )
+				{
+					npc n = Screen->LoadNPC(q);
+					if ( n->Type == type ) 
+					{
+						boss = n; 
+						width = n->TileWidth;
+						height = n->TileHeight;
+						x = n->X;
+						y = n->Y;
+						type = boss->Type;
+						break;
+					}
+					
+				}
+			}
+			else { alive = false; break; }
+			Waitframe();
+		}
+			
+		Screen->D[reg] = _classic_zh__REG_BOSS_EXPLODING;
+		for ( int q = dur; q > 0; --q )
+		{
+			//do explosions
+			Game->PlaySound(sfx);
+			lweapon l = Screen->CreateLWeapon(LW_SPARKLE);
+			l->CollDetection = false;
+			l->UseSprite(spr);
+			l->X = x+(Rand((rmin-width), rmax+width));
+			l->Y = y+(Rand((rmin-height), rmax+height));
+			//wait n frames between explosions
+			for ( int w = 0; q < delay; ++w )
+			{
+				Waitframe(); //--q; //Increment the main loop at the same time.
+			}
+			Waitframe();
+		}
+		Screen->D[reg] = _classic_zh__REG_BOSS_DEAD;
+		Quit();
+		
+	}
+}
+
+bool _classic_zh__isBoss(npc n)
+{
+	if ( n->Type == NPCT_AQUAMENTUS ) return true;
+	if ( n->Type == NPCT_MOLDORM ) return true;
+	if ( n->Type == NPCT_DODONGO ) return true;
+	if ( n->Type == NPCT_GLEEOK ) return true;
+	if ( n->Type == NPCT_DIGDOGGER ) return true;
+	if ( n->Type == NPCT_GOHMA ) return true;
+	if ( n->Type == NPCT_LANMOLA ) return true;
+	if ( n->Type == NPCT_MANHANDLA ) return true;
+	if ( n->Type == NPCT_PATRA ) return true;
+	if ( n->Type == NPCT_GANON ) return true;
+	return false;
+}
+const int _classic_zh__SIGNPOST_DIST = 16;
+ffc script SignPost
+{
+	void run(int m, int max_dist)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( max_dist < 1 ) max_dist = _classic_zh__SIGNPOST_DIST;
+		while(1)
+		{
+			if ( Below(this) )
+			{
+				//Trace(1);
+				if ( Facing(this) )
+				{
+					//Trace(2);
+					if ( DistXY(this, max_dist) )
+					{
+						//Trace(3);
+						if ( Link->PressA || Link->PressB )
+						{
+							Screen->Message(m);
+						}
+					}
+				}
+			}
+			//if ( Link->Y > this->Y + 8 )
+			//{
+			//	if ( Abs(Link->X-this->X) < 8 )
+			//	{
+			//		if ( Link->PressA || Link->PressB )
+			//		{
+			//			Screen->Message(m);
+			//		}
+			//	}
+			//}
+			Waitframe();
+		}
+	}
+}
+
+//ffc script PermSecrets
+//{
+//    void run(int reg)
+//    {
+//        while(1)
+//        {
+//            if ( !Screen->D[reg] )
+//            {
+//                if ( Screen->State[ST_SECRET] ) 
+//                {
+//                    Screen->D[reg] = 1;
+//                }
+//            }
+//            else 
+//            {
+//                Screen->TriggerSecrets();
+//                Quit();
+//            }
+//            Waitframe();
+//        }
+//    }
+//}
+
+ffc script ChangeRoomGuy
+{
+	void run(int t, int cs)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( t < 0 ) Quit();
+		Waitframes(4);
+		for ( int q = Screen->NumNPCs(); q > 0; --q )
+		{
+			npc g = Screen->LoadNPC(q);
+			if ( g->Type == NPCT_GUY )
+			{
+				if ( g->ID != NPC_FIRE )
+				{
+					g->OriginalTile = t;
+					if ( cs > 0 ) 
+						g->CSet = cs;
+					break;
+				}
+			}
+		}
+	}
+}
+
+ffc script PermBlockSecrets
+{
+	void run(int reg)
+	{
+		this->Data = CMB_INVISIBLE;
+		int cnt;
+		while(1)
+		{
+			if ( Screen->D[reg] )
+			{
+				Screen->State[ST_SECRET] = true;
+				Screen->TriggerSecrets();
+				Game->PlaySound(SFX_SECRET);
+				Quit();
+			}
+			cnt = 0; 
+			for ( int q = 0; q < 176; ++q )
+			{
+				if ( Screen->ComboF[q] == CF_BLOCKTRIGGER ) ++cnt;
+				if ( Screen->ComboI[q] == CF_BLOCKTRIGGER ) ++cnt;
+			}
+			if ( !cnt ) 
+			{
+				Screen->State[ST_SECRET] = true;
+				Screen->D[reg] = 1; 
+				break;
+			}
+			Waitframe(); 
+		}
+				
+		//count the number of block triggers on the screen
+		//then, if there are none, set the screen state
+		
+	}
+}
+
+ffc script PermBlockShutters
+{
+	void run(int reg)
+	{
+		this->Data = CMB_INVISIBLE;
+		int cnt;
+		while(1)
+		{
+			if ( Screen->D[reg] )
+			{
+				Game->PlaySound(SFX_SECRET);
+				//Screen->Flags[SF_SECRETS] &= ~1;
+				for ( int q = 0; q < 4; ++q )
+				{
+					if ( Screen->Door[q] == D_SHUTTER ) Screen->Door[q] = D_OPEN;
+				}
+				Quit();
+			}
+			cnt = 0; 
+			for ( int q = 0; q < 176; ++q )
+			{
+				if ( Screen->ComboF[q] == CF_BLOCKTRIGGER ) ++cnt;
+				if ( Screen->ComboI[q] == CF_BLOCKTRIGGER ) ++cnt;
+			}
+			if ( !cnt ) 
+			{
+				Screen->State[ST_SECRET] = true;
+				Screen->D[reg] = 1; 
+				break;
+			}
+			Waitframe(); 
+		}
+				
+		//count the number of block triggers on the screen
+		//then, if there are none, set the screen state
+		
+	}
+}
+
+void __classic_zh_do_z2_lantern()
+{
+	if ( Link->Item[__classic_zh_ITEM_Z2LANTERN] )
+	{
+		if ( !Screen->Lit ) { Screen->Lit = true; }
+	}
+}
+
+global script Active
+{
+	void run()
+	{
+		StartGhostZH();
+		Tango_Start();
+		__classic_zh_InitScreenUpdating();
+	    
+		while(true)
+		{
+			UpdateGhostZH1();
+			__classic_zh_UpdateScreenChange1();
+			Tango_Update1();
+			__classic_zh_do_z2_lantern();
+			if ( __classic_zc_internal[__classic_zh_SCREENCHANGED] )
+			{
+				__classic_zh_CompassBeep();
+				__classic_zh_ResetScreenChange();
+			}
+			Waitdraw();
+			UpdateGhostZH2();
+			Tango_Update2();
+			Waitframe();
+		}
+	}
+}
+
+
+//Used by Daira and Lizalfos "Mace only"
+//Type: Other
+//Animation: 4-Frame 4 Direction
+//Attr 1: And the numbers below for abilities
+//1 throws weapon
+//2 reduced knockback "I gave my Lizalfos this, it is optional"
+//4 shielded "Lizalfos have shields, it is optional. See SPINATTACK_SHIELD_OVERRIDE constant below for info"
+//Attr 11: GH_INVISIBLE_COMBO "-1 by default"
+//Attr 12: Script slot number with daira
+//Step speed, random rate, homing factor, & hunger are used.
+
+//Melee weapons arranged in the right 4 columns in up down left right for each respective row of animation.
+//Thrown weapons are on the last row beneath the enemy sprites and use 4 frames and need a custom sprite made.
+//Scripted weapons are used for melee and beams are used for ranged.
+
+//PROTIP: COPY THE SPRITES FROM THE ZELDA AWAKENING ENEMY SHEET AND USE THOSE AS A BASE FOR YOUR EDITS!
+//This is shared by Lizalfos, Ironknuckels, Fokkas, and DairaLizalfos
+const int SPINATTACK_SHIELD_OVERRIDE = 0; //if this on the spin attack will ignore the enemies shields.
+
+ffc script Daira
+{
+	void run(int enemyID)
+	{
+		//Init
+		npc ghost;
+		ghost = Ghost_InitAutoGhost(this, enemyID);
+
+		//Flags
+		Ghost_SetFlag(GHF_NORMAL);
+		if(ghost->Attributes[0]&2)
+			Ghost_SetFlag(GHF_REDUCED_KNOCKBACK);
+
+		//Original Tile
+		int OTile = ghost->OriginalTile;
+
+		//Movement Variables
+		float counter = -1;
+		int step = ghost->Step;
+		int rate = ghost->Rate;
+		int homing = ghost->Homing;
+		int hunger = ghost->Hunger;
+		
+		//Weapon Variables
+		eweapon wpn;
+		int damage = ghost->WeaponDamage;
+		int attackTimer;
+		int attackWait; //Time between swings. 
+		bool throw = (ghost->Attributes[0]&1);
+		bool shielded = ghost->Attributes[0]&4;
+		int wSprite = Ghost_GetAttribute(ghost,1,-1);
+
+		//Behavior
+		while(true)
+		{
+			//Movement
+			counter = Ghost_ConstantWalk4(counter, step, rate, homing, hunger);
+
+			//Attacking
+			if(Distance(Link->X, Link->Y, Ghost_X, Ghost_Y) < 80 && attackTimer==0) //Attacks when close to Link.
+			{
+				attackWait--;
+				if(attackWait<=0)
+				{
+					attackTimer = 21;
+					attackWait = 60;
+				}
+			}
+
+			if(attackTimer>0) //Attacking?
+			{
+				if(ghost->OriginalTile == OTile)
+				{
+					wpn = FireNonAngularEWeapon(EW_SCRIPT1, Ghost_X, Ghost_Y, -1, 0, damage, 0, 0, NULL);
+					SetEWeaponLifespan(wpn, EWL_TIMER, 21);
+					SetEWeaponDeathEffect(wpn, EWD_VANISH, 0);
+					wpn->CSet = Ghost_CSet;
+				}
+				else if(!wpn->isValid())
+				{
+					ghost->OriginalTile = OTile;
+					DairaLizalfos_Waitframe(this,ghost,shielded);
+					attackTimer = 0;
+					continue;
+				}
+				ghost->OriginalTile = OTile + 20*Div(28-attackTimer, 7);
+				wpn->Tile = ghost->OriginalTile+Ghost_Dir+16;
+				wpn->X = Ghost_X;
+				wpn->Y = Ghost_Y;
+				wpn->DeadState = WDS_ALIVE;
+				if(attackTimer>14)
+				{
+					if((Ghost_Dir == DIR_UP || Ghost_Dir == DIR_DOWN))
+						wpn->Y -= 16;
+					else wpn->X -= InFrontX(Ghost_Dir, 0);
+				}
+				else if(attackTimer>7)
+				{
+					if(Ghost_Dir == DIR_UP || Ghost_Dir == DIR_DOWN)
+					{
+						if(Ghost_Dir == DIR_UP || Ghost_FlagIsSet(GHF_REDUCED_KNOCKBACK))
+						wpn->Y -= 16;
+					}
+					else
+					{
+						wpn->X += InFrontX(Ghost_Dir, 0);
+					}
+				}
+				else
+				{
+					wpn->X += InFrontX(Ghost_Dir,0);
+					wpn->Y += InFrontY(Ghost_Dir,0);
+				}
+				//the weapon hit boxes are small.
+				SetWpnHitOffsets(wpn, Ghost_FlagIsSet(GHF_REDUCED_KNOCKBACK), Div(28-attackTimer, 7), Ghost_Dir);
+				attackTimer--;
+			}
+			else if(wpn->isValid())
+			{
+				ghost->OriginalTile = OTile;
+				if(throw)
+				{
+					eweapon e = FireNonAngularEWeapon(EW_BEAM, wpn->X, wpn->Y, Ghost_Dir, 200, damage, wSprite, -1, NULL);
+					e->OriginalTile = ghost->OriginalTile + 80 + (Ghost_Dir*4);
+					e->CSet = Ghost_CSet;
+				}
+			}
+			if(!DairaLizalfos_Waitframe(this,ghost,shielded))
+			{
+				if(wpn->isValid())
+					wpn->DeadState = WDS_DEAD;
+					Quit();
+			}
+		}
+	}
+	void SetWpnHitOffsets(eweapon wpn, bool lizalfos, int frame, int dir)
+	{
+		//Set Default Collision Properties
+		wpn->CollDetection = true;
+		wpn->HitXOffset = 0;
+		wpn->HitYOffset = 0;
+		wpn->HitWidth = 16;
+		wpn->HitHeight = 16;
+
+		//Modify it based off attack frame.
+		if(frame == 1)
+		{
+			if(dir == DIR_UP || dir == DIR_DOWN)
+			{
+				wpn->CollDetection = false;
+				return;
+			}
+			else
+				wpn->HitWidth = 8;
+			if(dir == DIR_RIGHT)
+				wpn->HitXOffset = 8;
+		}
+		else if(frame == 2)
+		{
+			if(dir == DIR_UP || dir==DIR_DOWN)
+			{
+				if(lizalfos) wpn->HitYOffset = 8;
+				wpn->HitHeight = 8;
+				return;
+			}
+			else
+				wpn->HitWidth = 8;
+			if(dir == DIR_LEFT)
+			wpn->HitXOffset = 8; 
+		}
+		else if(frame == 3)
+		{
+			wpn->HitXOffset = Cond(dir==DIR_LEFT, 8, 0);
+			wpn->HitYOffset = Cond(dir==DIR_UP, 8, 0);
+			wpn->HitWidth = Cond(dir==DIR_LEFT||dir==DIR_RIGHT, 8, 16);
+			wpn->HitHeight = Cond(dir==DIR_UP||dir==DIR_DOWN, 8, 16);
+		}
+		else //Out of range.
+		{
+			wpn->DeadState = WDS_DEAD;
+			return;
+		}
+	}
+	bool DairaLizalfos_Waitframe(ffc this, npc ghost, bool shielded)
+	{
+		if(shielded) return Shielded_Waitframe(this,ghost,true,true);
+		else return Ghost_Waitframe(this,ghost,true,false);
+	}
+	bool Shielded_Waitframe(ffc this, npc ghost, bool clearondeath, bool quitondeath)
+	{
+		if(Link->Action==LA_SPINNING && SPINATTACK_SHIELD_OVERRIDE)
+		{
+			ghost->Defense[NPCD_SWORD]=NPCDT_IGNORE;
+			lweapon sword = LoadLWeaponOf(LW_SWORD);
+			if(sword->isValid() && Collision(ghost,sword))
+			{
+				Ghost_HP-=sword->Damage;
+				Ghost_StartFlashing();
+				Game->PlaySound(SFX_EHIT);
+			}
+		}
+		else
+			ghost->Defense[NPCD_SWORD]=NPCDT_NONE;
+		return Ghost_Waitframe(this,ghost,clearondeath,quitondeath);
+	}
+}
+
+
+ffc script DropTRIFORCE
+{
+	void run(int reg, int min)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DROPPED_TRIFORCE ) Quit();
+		if ( min < 1 ) min = _classic_zh__REG_BOSS_DROPPED_HEART;
+		item hc = Screen->CreateItem(I_TRIFORCE);
+		int yy;
+		hc->X = 1; hc->Y = 1; hc->DrawYOffset = -10000; hc->HitYOffset = -10000; hc->Z = 256;
+		while ( Screen->D[reg] < min ) { hc->Z = 256; Waitframe(); }
+		//boss is dead. Position the heart container over Link.
+		hc->X = (Clamp(Link->X, 0, 250)); yy = (Clamp(Link->Y, 0, 150)); //Don't drop partway offscreen.
+		hc->Y = yy;
+		hc->DrawYOffset = 0; hc->HitYOffset = 0; 
+		lweapon shadow = Screen->CreateLWeapon(LW_SCRIPT1);
+		shadow->UseSprite(50);
+		shadow->X = hc->X; shadow->Y = yy+8;
+		shadow->CollDetection = false;
+		while(hc->isValid())
+		{
+			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent. 
+			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow);
+			if ( Collision(hc) ) Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_TRIFORCE; //If Link touches it. 
+			Waitframe();
+			
+		}
+		Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_TRIFORCE;
+	}	
+}
+
+ffc script DropHEARTCONTAINER
+{
+	void run(int reg, int min)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DROPPED_HEART ) Quit();
+		if ( min < 1 ) min = _classic_zh__REG_BOSS_DEAD;
+		item hc = Screen->CreateItem(I_HEARTCONTAINER);
+		int yy;
+		hc->X = 1; hc->Y = 1; hc->DrawYOffset = -10000; hc->HitYOffset = -10000; hc->Z = 256;
+		while ( Screen->D[reg] < min ) { hc->Z = 256; Waitframe();}
+		//boss is dead. Position the heart container over Link.
+		hc->X = (Clamp(Link->X, 0, 250)); yy = (Clamp(Link->Y, 0, 150)); //Don't drop partway offscreen.
+		hc->Y = yy;
+		hc->DrawYOffset = 0; hc->HitYOffset = 0; 
+		lweapon shadow = Screen->CreateLWeapon(LW_SCRIPT1);
+		shadow->UseSprite(50);
+		shadow->X = hc->X; shadow->Y = yy+8;
+		shadow->CollDetection = false;
+		while(hc->isValid())
+		{
+			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent. 
+			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow); 
+			Waitframe();
+		}
+		Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_HEART;
+	}	
+}
+
+//Package script, giving Z2 Lantern with Candle
+//Attach to any candle/lantern as a collect script, to give
+//out the dummy passive lantern item with it.
+item script collect_Z2_lantern
+{
+	void run()
+	{
+		Link->Item[__classic_zh_ITEM_Z2LANTERN] = true;
+	}
+}
+
+//Collect script for Magic Boss Key--works in a levels
+item script MagicBossKey
+{
+	void run()
+	{
+		for ( int q = 0; q < __classic_zh_MAX_ITEMS; ++q )
+		{
+			Game->LItems[q] |= LI_BOSSKEY;
+		}
+	}
+}
+
+//Collect script for Magic Map--works in a levels
+item script MagicMap
+{
+	void run()
+	{
+		for ( int q = 0; q < __classic_zh_MAX_ITEMS; ++q )
+		{
+			Game->LItems[q] |= LI_MAP;
+		}
+	}
+}
+
+//Collect script for Magic Compass-works in all levels
+item script MagicCompass
+{
+	void run()
+	{
+		for ( int q = 0; q < __classic_zh_MAX_ITEMS; ++q )
+		{
+			Game->LItems[q] |= LI_COMPASS;
+		}
+	}
+}
+
+
+
+//Screen update calls.
+void __classic_zh_InitScreenUpdating()
+{
+	__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+	__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+	__classic_zc_internal[__classic_zh_LASTMAP] = Game->GetCurMap();
+	__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
+}
+
+void __classic_zh_UpdateScreenChange1()
+{
+	if ( __classic_zc_internal[__classic_zh_LASTSCR] != Game->GetCurScreen() )
+	{
+		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+		return;
+	}
+	if ( __classic_zc_internal[__classic_zh_LASTDMAP] != Game->GetCurDMap() )
+	{
+		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+	}
+}
+
+void __classic_zh_UpdateScreenChange2()
+{
+	__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+	__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
+}
+
+void __classic_zh_ResetScreenChange()
+{
+	if ( __classic_zc_internal[__classic_zh_SCREENCHANGED] )
+	{
+		__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+		__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
+		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+	}
+}
+
+void __classic_zh_ClearScreenChange()
+{
+	__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+}
+
+//Compass beep. Uses a soundset to the item editor D1 value on the compass item.
+//D0 sets the screen script flag to toggle to make a sound.
+void __classic_zh_CompassBeep()
+{
+	itemdata beep = Game->LoadItemData(I_COMPASS);
+	if ( ScreenFlag(SF_MISC, beep->InitD[0]+2) )
+	{
+		if ( (Game->LItems[Game->GetCurLevel()]&LI_COMPASS) )
+		{
+			if ( !Screen->State[ST_ITEM] )
+			{
+				if ( !Screen->State[ST_SPECIALITEM] )
+				{
+					if ( !Screen->State[ST_CHEST] )
+					{
+						if ( !Screen->State[ST_LOCKEDCHEST] )
+						{
+							if ( !Screen->State[ST_BOSSCHEST] )
+							{
+								Game->PlaySound(beep->InitD[1]);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
+//Returns if there are enemy NPCs alive on the current screen.
+bool __classic_zh_ScreenGuyAlive()
+{
+	bool alive = false; 
+	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	{
+		npc n = Screen->LoadNPC(q); 
+		if ( n->Type == NPCT_GUY )
+		{
+			alive = true;
+		}
+	}
+	return alive;
+}
+
+
+ffc script ScreenGuyMusic
+{
+	void run(int reg, int mid, int trk)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
+		if ( trk < 1 ) trk = _classic_zh__TRK_BOSS;
+		if ( mid < 1 ) mid = _classic_zh__MIDI_VICTORY;
+		int filenm[]="Classic.nsf";
+		Waitframes(5);
+		Game->PlayEnhancedMusic(filenm,trk);
+		while(__classic_zh_ScreenGuyAlive()) Waitframe();
+		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
+	}
+}

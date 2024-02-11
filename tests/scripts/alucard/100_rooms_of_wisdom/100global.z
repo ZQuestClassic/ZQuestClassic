@@ -1,0 +1,7 @@
+import "std_old.zh"
+
+global script OnExit{
+	void run(){
+		Game->Save();
+	}
+}

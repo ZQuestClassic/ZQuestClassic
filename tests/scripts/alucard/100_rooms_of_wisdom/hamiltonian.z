@@ -1,0 +1,78 @@
+import "std_old.zh"
+
+const int SFX_HAMILTINIAN_PATH = 6; //SFX that plays when you step on a hamiltonian path tile
+
+ffc script HamiltonianPath{
+	void run(int cmbInactive, int cmbActive, int cmbCurrent, int cmbFinished, int perm, int sfx){
+		if(sfx==0) //Default secret sound if none specified
+			sfx = SFX_SECRET;
+		if(perm&&Screen->State[ST_SECRET]){ //If secrets are triggered, set all inactive combos to finished
+			for(int i=0; i<176; i++){
+				if(Screen->ComboD[i]==cmbInactive||Screen->ComboD[i]==cmbCurrent)
+					Screen->ComboD[i] = cmbFinished;
+			}
+		}
+		int currentPos = HamiltonianPath_FindCurrentPos(cmbCurrent);
+		int underLinkPos;
+		if(currentPos==-1){ //If there is no starting position placed down
+			while(currentPos==-1){ //Wait until Link steps on an inactive combo
+				underLinkPos = ComboAt(Link->X+8, Link->Y+12);
+				if(Screen->ComboD[underLinkPos]==cmbInactive){
+					//Set the current position to the inactive combo
+					Game->PlaySound(SFX_HAMILTINIAN_PATH);
+					currentPos = ComboAt(Link->X+8, Link->Y+12);
+					Screen->ComboD[underLinkPos] = cmbCurrent;
+				}
+				Waitframe();
+			}
+		}
+		int inactiveCombos = 1;
+		//Keep running until the script fails to find any inactive combos
+		while(inactiveCombos>0){
+			underLinkPos = ComboAt(Link->X+8, Link->Y+12);
+			if(Screen->ComboD[underLinkPos]==cmbInactive){ //If Link is standing on an inactive combo
+				if(underLinkPos==currentPos-1||underLinkPos==currentPos+1||underLinkPos==currentPos-16||underLinkPos==currentPos+16){ //Check if the combo is next to the current one
+					Game->PlaySound(SFX_HAMILTINIAN_PATH);
+					Screen->ComboD[currentPos] = cmbActive;
+					currentPos = underLinkPos;
+					Screen->ComboD[currentPos] = cmbCurrent;
+				}
+			}
+			if(Link->Action==LA_FROZEN){ //If Link hookshots to a different combo, update the current position
+				int hookshotPos = ComboAt(Link->X+8, Link->Y+12);
+				while(Link->Action==LA_FROZEN){
+					Waitframe();
+				}
+				underLinkPos = ComboAt(Link->X+8, Link->Y+12);
+				if(currentPos!=underLinkPos&&Screen->ComboD[hookshotPos]==cmbCurrent&&Screen->ComboD[underLinkPos]==cmbInactive){
+					Game->PlaySound(SFX_HAMILTINIAN_PATH);
+					Screen->ComboD[currentPos] = cmbActive;
+					currentPos = underLinkPos;
+					Screen->ComboD[currentPos] = cmbCurrent;
+				}
+			}
+			//Count up the remaining inactive combos
+			inactiveCombos = 0;
+			for(int i=0; i<176; i++){
+				if(Screen->ComboD[i]==cmbInactive)
+					inactiveCombos++;
+			}
+			Waitframe();
+		}
+		for(int i=0; i<176; i++){ //Set all inactive, active, or current combos to finished
+			if(Screen->ComboD[i]==cmbInactive||Screen->ComboD[i]==cmbCurrent||Screen->ComboD[i]==cmbActive)
+				Screen->ComboD[i] = cmbFinished;
+		}
+		Game->PlaySound(sfx);
+		Screen->TriggerSecrets();
+		if(perm)
+			Screen->State[ST_SECRET] = true;
+	}
+	int HamiltonianPath_FindCurrentPos(int cmbCurrent){
+		for(int i=0; i<176; i++){
+			if(Screen->ComboD[i]==cmbCurrent)
+				return i;
+		}
+		return -1;
+	}
+}
