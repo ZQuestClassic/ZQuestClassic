@@ -529,7 +529,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
-												new VarArgument(SP)));
+												new VarArgument(SP2)));
 			if (puc == puc_construct)
 				addOpcode2(funccode, new OPushRegister(new VarArgument(CLASS_THISKEY2)));
 			CleanupVisitor cv(scope);
@@ -641,7 +641,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
-												new VarArgument(SP)));
+												new VarArgument(SP2)));
 			CleanupVisitor cv(scope);
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
@@ -1131,7 +1131,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				++it;
 				continue;
 			}
-			// If [STORED reg,lit] is followed by [LOADD reg,lit], the LOADD
+			// If [STORE reg,lit] is followed by [LOAD reg,lit], the LOAD
 			// can be deleted, as 'reg' already will contain the value to be loaded.
 			if(OStoreDirect* stored = dynamic_cast<OStoreDirect*>(ocode))
 			{
@@ -1139,7 +1139,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				Argument const* litarg = stored->getSecondArgument();
 				auto it2 = it;
 				++it2;
-				if(OLoadDirect* loadd = dynamic_cast<OLoadDirect*>(it2->get()))
+				if(OLoad* loadd = dynamic_cast<OLoad*>(it2->get()))
 				{
 					if(*regarg == *loadd->getFirstArgument()
 						&& *litarg == *loadd->getSecondArgument()

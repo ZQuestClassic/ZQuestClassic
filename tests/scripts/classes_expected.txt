@@ -11,32 +11,33 @@ Compile finished with exit code '0' (success)
 
 PUSHR REFFFC; void run() Body Start
 PUSHV 0
-SETR d4,SP
+SETR d4,SP2
 PUSHR CLASS_THISKEY
 PUSHR d4
-CALLFUNC 0.0025; ClassFunc[Car Car()] Constructor Call
+CALLFUNC 0.0026; ClassFunc[Car Car()] Constructor Call
 POP d4
 POP CLASS_THISKEY
-STORED d2,0
+STORE d2,0
+LOAD d2,0
 ZCLASS_FREE d2
 WAITFRAME; InlineFunc[void Waitframe()] Body
 PUSHR CLASS_THISKEY
 PUSHR d4
 PUSHV 2000; ClassFunc[Car Car(int)] Params
-CALLFUNC 0.0037; ClassFunc[Car Car(int)] Constructor Call
+CALLFUNC 0.0038; ClassFunc[Car Car(int)] Constructor Call
 POP d4
 PEEK CLASS_THISKEY
 PUSHR d4
 PUSHV 5000; ClassFunc[Car Car(int)] Params
-CALLFUNC 0.0037; ClassFunc[Car Car(int)] Constructor Call
+CALLFUNC 0.0038; ClassFunc[Car Car(int)] Constructor Call
 POP d4
 POP CLASS_THISKEY
 POPARGS d5,0.0002
 QUIT; void run() Body End
-SETV d2,0.0054; Func[Car Car()] Body Start
+SETV d2,0.0055; Func[Car Car()] Body Start
 SETR CLASS_THISKEY2,CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
-SETR d4,SP
+SETR d4,SP2
 PUSHR CLASS_THISKEY2
 SETV d2,100
 ZCLASS_WRITE CLASS_THISKEY,0
@@ -45,25 +46,25 @@ TRACER d2; InlineFunc[void Trace(untyped)] Body
 SETR d2,CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car()] Body End
-SETV d2,0.0054; Func[Car Car(int)] Body Start
+SETV d2,0.0055; Func[Car Car(int)] Body Start
 SETR CLASS_THISKEY2,CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
-SETR d4,SP
+SETR d4,SP2
 PUSHR CLASS_THISKEY2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
 SETR d2,CLASS_THISKEY
 SETR d3,d2
 POP d2
 ZCLASS_WRITE d3,0
-LOADD d2,0; InlineFunc[void Trace(untyped)] Params
+LOAD d2,0; InlineFunc[void Trace(untyped)] Params
 TRACER d2; InlineFunc[void Trace(untyped)] Body
 POP d5
 SETR d2,CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car(int)] Body End
 STARTDESTRUCTOR "Car"; Func[void ~Car()] Body Start
-SETR d4,SP
+SETR d4,SP2
 TRACEV -1; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
 RETURNFUNC; Func[void ~Car()] Body End
 

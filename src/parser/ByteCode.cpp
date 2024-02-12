@@ -48,6 +48,8 @@ string ZScript::VarToString(int32_t ID)
 	{
 		case SP:
 			return "SP";
+		case SP2:
+			return "SP2";
 		case PC:
 			return "PC";
 		case SWITCHKEY:
@@ -3044,6 +3046,19 @@ string OStoreDirect::toString() const
 string OStoreDirectV::toString() const
 {
     return "STOREDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OLoad::toString() const
+{
+    return "LOAD " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OStore::toString() const
+{
+    return "STORE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OStoreV::toString() const
+{
+    return "STOREV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OQuit::toString() const

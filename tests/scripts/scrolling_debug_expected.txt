@@ -11,11 +11,11 @@ Compile finished with exit code '0' (success)
 
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0,0.0006
-SETR d4,SP
+SETR d4,SP2
 ALLOCATEMEMV d2,13; while(true) #8 Body [Opt:AlwaysOn] Start
-STORED d2,5
+STORE d2,0.0005
 WRITEPODSTRING d2,"OX/OY %d %d\n"
-LOADD d2,5; InlineFunc[void printf(char32)] Params Start
+LOAD d2,0.0005; InlineFunc[void printf(char32)] Params Start
 PUSHR d2
 SETV d2,3
 PUSHR d2
@@ -27,10 +27,10 @@ POP d0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
-LOADD d3,5
+LOAD d3,0.0005
 DEALLOCATEMEMR d3
 ALLOCATEMEMV d2,6
-STORED d2,4
+STORE d2,0.0004
 WRITEPODSTRING d2,"OX/OY"
 PUSHV 7; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHARGSV 0,0.0002
@@ -38,12 +38,12 @@ PUSHV 2
 PUSHV 1
 PUSHV 15
 PUSHV 0
-LOADD d2,4
+LOAD d2,0.0004
 PUSHR d2
 PUSHV 128; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params End
 DRAWSTRING; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body Start
 POPARGS d5,0.0009; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body End
-LOADD d3,4
+LOAD d3,0.0004
 DEALLOCATEMEMR d3
 PUSHV 7; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
 PUSHV 40
@@ -76,9 +76,9 @@ PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int
 DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
 POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
 ALLOCATEMEMV d2,13
-STORED d2,3
+STORE d2,0.0003
 WRITEPODSTRING d2,"NX/NY %d %d\n"
-LOADD d2,3; InlineFunc[void printf(char32)] Params Start
+LOAD d2,0.0003; InlineFunc[void printf(char32)] Params Start
 PUSHR d2
 SETV d2,1
 PUSHR d2
@@ -90,10 +90,10 @@ POP d0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
-LOADD d3,3
+LOAD d3,0.0003
 DEALLOCATEMEMR d3
 ALLOCATEMEMV d2,6
-STORED d2,2
+STORE d2,0.0002
 WRITEPODSTRING d2,"NX/NY"
 PUSHV 7; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHV 0
@@ -102,12 +102,12 @@ PUSHV 2
 PUSHV 1
 PUSHV 15
 PUSHV 0
-LOADD d2,2
+LOAD d2,0.0002
 PUSHR d2
 PUSHV 128; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params End
 DRAWSTRING; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body Start
 POPARGS d5,0.0009; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Body End
-LOADD d3,2
+LOAD d3,0.0002
 DEALLOCATEMEMR d3
 PUSHV 7; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
 PUSHV 40
@@ -155,7 +155,7 @@ POP d0
 SETR d2,GAMESCROLLING
 POP d3
 ADDR d2,d3
-STORED d2,1
+STORE d2,0.0001
 SETR d2,LINKY
 PUSHR d2
 SETV d2,2
@@ -164,11 +164,11 @@ POP d0
 SETR d2,GAMESCROLLING
 POP d3
 ADDR d2,d3
-STORED d2,0
+STORE d2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOADD d2,1
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
 PUSHV 20
 PUSHARGSV 1,0.0002
@@ -184,17 +184,17 @@ PUSHR d2
 POP d0
 SETR d2,GAMESCROLLING
 ADDV d2,128
-STORED d2,1
+STORE d2,0.0001
 SETV d2,4
 PUSHR d2
 POP d0
 SETR d2,GAMESCROLLING
 ADDV d2,88
-STORED d2,0
+STORE d2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOADD d2,1
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
 PUSHV 21
 PUSHARGSV 1,0.0002
@@ -210,17 +210,17 @@ PUSHR d2
 POP d0
 SETR d2,GAMESCROLLING
 ADDV d2,128
-STORED d2,1
+STORE d2,0.0001
 SETV d2,2
 PUSHR d2
 POP d0
 SETR d2,GAMESCROLLING
 ADDV d2,88
-STORED d2,0
+STORE d2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOADD d2,1
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
 PUSHV 44
 PUSHARGSV 1,0.0002

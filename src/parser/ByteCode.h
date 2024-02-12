@@ -10,6 +10,10 @@
 
 #include <string>
 
+// Note: these do not match the numbers in ffscript.h/zasm_table.cpp because the compiler just serializes
+// these to their string name (ZScript::VarToString), and then the editor deserializes to the proper ZASM register.
+// total legacy tech debt. Should just have compiler emit the ZASM bytecode directly.
+
 // //Don't do this! This is bad! -V
 //{ START BYTECODE
 /*
@@ -1766,7 +1770,9 @@
 #define WEBSOCKET_HAS_MESSAGE   1657
 #define WEBSOCKET_MESSAGE_TYPE  1658
 
-#define LAST_BYTECODE           1659
+#define SP2                     1659
+
+#define LAST_BYTECODE           1660
 
 //} END OF BYTECODE
 
@@ -3329,6 +3335,37 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OStoreDirectV(a->clone(),b->clone());
+		}
+	};
+
+	class OLoad : public BinaryOpcode
+	{
+	public:
+		OLoad(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoad(a->clone(),b->clone());
+		}
+	};
+	class OStore : public BinaryOpcode
+	{
+	public:
+		OStore(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStore(a->clone(),b->clone());
+		}
+	};
+	class OStoreV : public BinaryOpcode
+	{
+	public:
+		OStoreV(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStoreV(a->clone(),b->clone());
 		}
 	};
 

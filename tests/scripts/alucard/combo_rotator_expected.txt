@@ -17,26 +17,26 @@ PUSHR d4
 PUSHR d5
 PUSHR REFFFC; void run(int, int, int, int, int, int) Body Start
 PUSHARGSV 0,0.0014
-SETR d4,SP
+SETR d4,SP2
 PUSHR d4
-LOADD d2,14; UsrFunc[int ComboAt(int, int)] Params Start
+LOAD d2,0.0014; UsrFunc[int ComboAt(int, int)] Params Start
 PUSHR d2
 POP REFFFC
 PUSHR X
-LOADD d2,14
+LOAD d2,0.0014
 PUSHR d2
 POP REFFFC
 PUSHR Y; UsrFunc[int ComboAt(int, int)] Params End
-CALLFUNC 0.1010; UsrFunc[int ComboAt(int, int)] Call
+CALLFUNC 0.1011; UsrFunc[int ComboAt(int, int)] Call
 POP d4
-STORED d2,13
+STORE d2,0.0013
 PUSHR d4
-LOADD d2,13; UsrFunc[int ComboX(int)] Params Start
+LOAD d2,0.0013; UsrFunc[int ComboX(int)] Params Start
 PUSHR d2; UsrFunc[int ComboX(int)] Params End
-CALLFUNC 0.0999; UsrFunc[int ComboX(int)] Call
+CALLFUNC 0.1000; UsrFunc[int ComboX(int)] Call
 POP d4
 PUSHR d2
-LOADD d2,14
+LOAD d2,0.0014
 POP d3
 PUSHR d2
 PUSHR d3
@@ -44,12 +44,12 @@ POP d2
 POP REFFFC
 SETR X,d2
 PUSHR d4
-LOADD d2,13; UsrFunc[int ComboY(int)] Params Start
+LOAD d2,0.0013; UsrFunc[int ComboY(int)] Params Start
 PUSHR d2; UsrFunc[int ComboY(int)] Params End
-CALLFUNC 0.1005; UsrFunc[int ComboY(int)] Call
+CALLFUNC 0.1006; UsrFunc[int ComboY(int)] Call
 POP d4
 PUSHR d2
-LOADD d2,14
+LOAD d2,0.0014
 POP d3
 PUSHR d2
 PUSHR d3
@@ -57,30 +57,30 @@ POP d2
 POP REFFFC
 SETR Y,d2
 ALLOCATEMEMV d2,8
-STORED d2,10
+STORE d2,0.0010
 ALLOCATEMEMV d2,8
-STORED d2,9
+STORE d2,0.0009
 ALLOCATEMEMV d2,8
-STORED d2,8
+STORE d2,0.0008
 ALLOCATEMEMV d2,8
-STORED d2,7
+STORE d2,0.0007
 ALLOCATEMEMV d2,8
-STORED d2,5
+STORE d2,0.0005
 WRITEPODARRAY d2,{0,5,3,7,1,6,2,4}
 PUSHARGSR d4,0.0002; while(true) #8 Body [Opt:AlwaysOn] Start AND UsrFunc[int ComboAt(int, int)] Params Start
-CALLFUNC 0.0991; UsrFunc[int CenterLinkX()] Call
+CALLFUNC 0.0992; UsrFunc[int CenterLinkX()] Call
 POP d4
 PUSHR d2
 PUSHR d4
-CALLFUNC 0.0995; UsrFunc[int CenterLinkY()] Call
+CALLFUNC 0.0996; UsrFunc[int CenterLinkY()] Call
 POP d4
 PUSHR d2; UsrFunc[int ComboAt(int, int)] Params End
-CALLFUNC 0.1010; UsrFunc[int ComboAt(int, int)] Call
+CALLFUNC 0.1011; UsrFunc[int ComboAt(int, int)] Call
 POP d4
-STORED d2,4
-LOADD d2,13; if() #574 Test
+STORE d2,0.0004
+LOAD d2,0.0013; if() #574 Test
 PUSHR d2
-LOADD d2,4
+LOAD d2,0.0004
 POP d3
 COMPARER d3,d2
 GOTOCMP 81,!=
@@ -93,35 +93,35 @@ SETV d2,0
 COMPAREV d2,0
 GOTOCMP 486,==; Test 'if'
 PUSHR d4; if() #574 Body Start
-LOADD d2,13; UsrFunc[int ComboX(int)] Params Start
+LOAD d2,0.0013; UsrFunc[int ComboX(int)] Params Start
 PUSHR d2; UsrFunc[int ComboX(int)] Params End
-CALLFUNC 0.0999; UsrFunc[int ComboX(int)] Call
+CALLFUNC 0.1000; UsrFunc[int ComboX(int)] Call
 POP d4
 PUSHR d2
 POP d2
 SETR LINKX,d2
 PUSHR d4
-LOADD d2,13; UsrFunc[int ComboY(int)] Params Start
+LOAD d2,0.0013; UsrFunc[int ComboY(int)] Params Start
 PUSHR d2; UsrFunc[int ComboY(int)] Params End
-CALLFUNC 0.1005; UsrFunc[int ComboY(int)] Call
+CALLFUNC 0.1006; UsrFunc[int ComboY(int)] Call
 POP d4
 PUSHR d2
 POP d2
 SETR LINKY,d2
-LOADD d2,19; InlineFunc[void Game->PlaySound(int)] Params
+LOAD d2,0.0019; InlineFunc[void Game->PlaySound(int)] Params
 PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
-STOREDV 0,3; for() #190 setup
-LOADD d2,3; for() #190 LoopTest
+STOREV 0,0.0003; for() #190 setup
+LOAD d2,0.0003; for() #190 LoopTest
 COMPAREV d2,8
 SETCMP d2,I<
 COMPAREV d2,0
 GOTOCMP 199,==; for() #190 TestFail?
 PUSHR d4; for() #190 Body Start
-LOADD d2,4; UsrFunc[int AdjacentComboFix(int, int, int)] Params Start
+LOAD d2,0.0004; UsrFunc[int AdjacentComboFix(int, int, int)] Params Start
 PUSHR d2
-LOADD d2,5
+LOAD d2,0.0005
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
@@ -129,68 +129,68 @@ PUSHV 1; UsrFunc[int AdjacentComboFix(int, int, int)] Params End
 CALLFUNC 0.0498; UsrFunc[int AdjacentComboFix(int, int, int)] Call
 POP d4
 PUSHR d2
-LOADD d2,10
+LOAD d2,0.0010
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2
-LOADD d2,10
+LOAD d2,0.0010
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 POP d0
 SETR d2,COMBODD
 PUSHR d2
-LOADD d2,9
+LOAD d2,0.0009
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2
-LOADD d2,10
+LOAD d2,0.0010
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 POP d0
 SETR d2,COMBOCD
 PUSHR d2
-LOADD d2,8
+LOAD d2,0.0008
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2
-LOADD d2,10
+LOAD d2,0.0010
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 POP d0
 SETR d2,COMBOFD
 PUSHR d2
-LOADD d2,7
+LOAD d2,0.0007
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2
-LOADD d2,10
+LOAD d2,0.0010
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
-STORED d2,2
-LOADD d2,16; if() #575 Test
+STORE d2,0.0002
+LOAD d2,0.0016; if() #575 Test
 ANDV d2,2
 COMPAREV d2,0
 SETCMP d2,I>
@@ -198,320 +198,320 @@ COMPAREV d2,0
 GOTOCMP 195,==; Test 'if'
 SETV d2,1; if() #575 Body Start
 PUSHR d2
-LOADD d2,2
+LOAD d2,0.0002
 PUSHR d2
 POP d0
 POP d2
 SETR COMBODD,d2; if() #575 Body End
-LOADD d2,3; for() #190 Body End AND for() #190 LoopIncrement
+LOAD d2,0.0003; for() #190 Body End AND for() #190 LoopIncrement
 ADDV d2,1
-STORED d2,3
+STORE d2,0.0003
 GOTO 103; for() #190 End
-LOADD d2,20
+LOAD d2,0.0020
 MULTV d2,45
-STORED d2,12
-LOADD d2,12; while() #9 Test
+STORE d2,0.0012
+LOAD d2,0.0012; while() #9 Test
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 339,==; Test 'while'
-LOADD d2,16; if() #576 Test AND while() #9 Body Start
+LOAD d2,0.0016; if() #576 Test AND while() #9 Body Start
 ANDV d2,2
 COMPAREV d2,0
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 339,!=; Test 'if' AND break 1; AND if() #576 Body
-LOADD d2,11
+LOAD d2,0.0011
 PUSHR d2
 PUSHR d4
-LOADD d2,20; UsrFunc[int Sign(int)] Params Start
+LOAD d2,0.0020; UsrFunc[int Sign(int)] Params Start
 PUSHR d2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.1114; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.1116; UsrFunc[int Sign(int)] Call
 POP d4
 MULTV d2,3
 SETV d2,3
 PUSHR d2
 PUSHR d4
-LOADD d2,20; UsrFunc[int Sign(int)] Params Start
+LOAD d2,0.0020; UsrFunc[int Sign(int)] Params Start
 PUSHR d2; UsrFunc[int Sign(int)] Params End
-CALLFUNC 0.1114; UsrFunc[int Sign(int)] Call
+CALLFUNC 0.1116; UsrFunc[int Sign(int)] Call
 POP d4
 POP d3
 MULTR d2,d3
 POP d3
 ADDR d2,d3
-STORED d2,11
-STOREDV 0,3; for() #191 setup
-LOADD d2,3; for() #191 LoopTest
+STORE d2,0.0011
+STOREV 0,0.0003; for() #191 setup
+LOAD d2,0.0003; for() #191 LoopTest
 COMPAREV d2,8
 SETCMP d2,I<
 COMPAREV d2,0
 GOTOCMP 331,==; for() #191 TestFail?
-LOADD d2,3; for() #191 Body Start
+LOAD d2,0.0003; for() #191 Body Start
 MULTV d2,45
 SETV d2,45
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d3
 MULTR d2,d3
 PUSHR d2
-LOADD d2,11
+LOAD d2,0.0011
 POP d3
 ADDR d2,d3
 SUBV d2,90
-STORED d2,2
-LOADD d2,14
+STORE d2,0.0002
+LOAD d2,0.0014
 PUSHR d2
 POP REFFFC
 SETR d2,X
 PUSHR d2
-LOADD d2,2; InlineFunc[int Cos(int)] Params Start
+LOAD d2,0.0002; InlineFunc[int Cos(int)] Params Start
 SETR d3,d2; InlineFunc[int Cos(int)] Params End
 COSR d2,d3; InlineFunc[int Cos(int)] Body
 MULTV d2,20
 SETV d2,20
 PUSHR d2
-LOADD d2,2; InlineFunc[int Cos(int)] Params Start
+LOAD d2,0.0002; InlineFunc[int Cos(int)] Params Start
 SETR d3,d2; InlineFunc[int Cos(int)] Params End
 COSR d2,d3; InlineFunc[int Cos(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
 ADDR d2,d3
-STORED d2,1
-LOADD d2,14
+STORE d2,0.0001
+LOAD d2,0.0014
 PUSHR d2
 POP REFFFC
 SETR d2,Y
 PUSHR d2
-LOADD d2,2; InlineFunc[int Sin(int)] Params Start
+LOAD d2,0.0002; InlineFunc[int Sin(int)] Params Start
 SETR d3,d2; InlineFunc[int Sin(int)] Params End
 SINR d2,d3; InlineFunc[int Sin(int)] Body
 MULTV d2,20
 SETV d2,20
 PUSHR d2
-LOADD d2,2; InlineFunc[int Sin(int)] Params Start
+LOAD d2,0.0002; InlineFunc[int Sin(int)] Params Start
 SETR d3,d2; InlineFunc[int Sin(int)] Params End
 SINR d2,d3; InlineFunc[int Sin(int)] Body
 POP d3
 MULTR d2,d3
 POP d3
 ADDR d2,d3
-STORED d2,0
+STORE d2,0
 PUSHV 1; InlineFunc[void Screen->FastCombo(int, int, int, int, int, int)] Params Start
-LOADD d2,1
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
-LOADD d2,9
+LOAD d2,0.0009
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 PUSHR d4
-LOADD d2,9; UsrFunc[int Cond(bool, int, int)] Params Start
+LOAD d2,0.0009; UsrFunc[int Cond(bool, int, int)] Params Start
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 COMPAREV d2,0
 SETCMP d2,I>
 PUSHR d2
-LOADD d2,15
+LOAD d2,0.0015
 PUSHR d2
 PUSHV 0; UsrFunc[int Cond(bool, int, int)] Params End
-CALLFUNC 0.1060; UsrFunc[int Cond(bool, int, int)] Call
+CALLFUNC 0.1062; UsrFunc[int Cond(bool, int, int)] Call
 POP d4
 POP d3
 ADDR d2,d3
 PUSHR d2
-LOADD d2,8
+LOAD d2,0.0008
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 PUSHV 128; InlineFunc[void Screen->FastCombo(int, int, int, int, int, int)] Params End
 FASTCOMBO; InlineFunc[void Screen->FastCombo(int, int, int, int, int, int)] Body Start
 POPARGS d5,0.0006; InlineFunc[void Screen->FastCombo(int, int, int, int, int, int)] Body End AND for() #191 Body End
-LOADD d2,3; for() #191 LoopIncrement
+LOAD d2,0.0003; for() #191 LoopIncrement
 ADDV d2,1
-STORED d2,3
+STORE d2,0.0003
 GOTO 234; for() #191 End
-LOADD d2,12
+LOAD d2,0.0012
 SUBV d2,3
-STORED d2,12
+STORE d2,0.0012
 PUSHR d4
-CALLFUNC 0.1069; UsrFunc[void NoAction()] Call
+CALLFUNC 0.1071; UsrFunc[void NoAction()] Call
 POP d4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #9 Body End
 GOTO 202; while() #9 End
 SETV d2,0
-STORED d2,11
-STOREDV 1,3; for() #192 setup
-LOADD d2,3; for() #192 LoopTest
+STORE d2,0.0011
+STOREV 1,0.0003; for() #192 setup
+LOAD d2,0.0003; for() #192 LoopTest
 PUSHR d2
-LOADD d2,20; InlineFunc[int Abs(int)] Params
+LOAD d2,0.0020; InlineFunc[int Abs(int)] Params
 ABS d2; InlineFunc[int Abs(int)] Body
 POP d3
 COMPARER d3,d2
 SETCMP d2,I<=
 COMPAREV d2,0
 GOTOCMP 411,==; for() #192 TestFail?
-LOADD d2,20; if() #188 Test AND for() #192 Body Start
+LOAD d2,0.0020; if() #188 Test AND for() #192 Body Start
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 382,==; Test 'if'
 PUSHR d4; if() #188 Body Start
-LOADD d2,9; UsrFunc[void ArrayShiftRight(int)] Params Start
+LOAD d2,0.0009; UsrFunc[void ArrayShiftRight(int)] Params Start
 PUSHR d2; UsrFunc[void ArrayShiftRight(int)] Params End
-CALLFUNC 0.0946; UsrFunc[void ArrayShiftRight(int)] Call
+CALLFUNC 0.0947; UsrFunc[void ArrayShiftRight(int)] Call
 POP d4
-LOADD d2,17; if() #577 Test
+LOAD d2,0.0017; if() #577 Test
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 371,==; Test 'if'
 PUSHR d4; if() #577 Body Start
-LOADD d2,8; UsrFunc[void ArrayShiftRight(int)] Params Start
+LOAD d2,0.0008; UsrFunc[void ArrayShiftRight(int)] Params Start
 PUSHR d2; UsrFunc[void ArrayShiftRight(int)] Params End
-CALLFUNC 0.0946; UsrFunc[void ArrayShiftRight(int)] Call
+CALLFUNC 0.0947; UsrFunc[void ArrayShiftRight(int)] Call
 POP d4; if() #577 Body End
-LOADD d2,18; if() #578 Test
+LOAD d2,0.0018; if() #578 Test
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 407,==; Test 'if'
 PUSHR d4; if() #578 Body Start
-LOADD d2,7; UsrFunc[void ArrayShiftRight(int)] Params Start
+LOAD d2,0.0007; UsrFunc[void ArrayShiftRight(int)] Params Start
 PUSHR d2; UsrFunc[void ArrayShiftRight(int)] Params End
-CALLFUNC 0.0946; UsrFunc[void ArrayShiftRight(int)] Call
+CALLFUNC 0.0947; UsrFunc[void ArrayShiftRight(int)] Call
 POP d4; if() #578 Body End
 GOTO 407; if() #188 Body End
 PUSHR d4; if() #188 Else Start
-LOADD d2,9; UsrFunc[void ArrayShiftLeft(int)] Params Start
+LOAD d2,0.0009; UsrFunc[void ArrayShiftLeft(int)] Params Start
 PUSHR d2; UsrFunc[void ArrayShiftLeft(int)] Params End
-CALLFUNC 0.0898; UsrFunc[void ArrayShiftLeft(int)] Call
+CALLFUNC 0.0899; UsrFunc[void ArrayShiftLeft(int)] Call
 POP d4
-LOADD d2,17; if() #579 Test
+LOAD d2,0.0017; if() #579 Test
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 397,==; Test 'if'
 PUSHR d4; if() #579 Body Start
-LOADD d2,8; UsrFunc[void ArrayShiftLeft(int)] Params Start
+LOAD d2,0.0008; UsrFunc[void ArrayShiftLeft(int)] Params Start
 PUSHR d2; UsrFunc[void ArrayShiftLeft(int)] Params End
-CALLFUNC 0.0898; UsrFunc[void ArrayShiftLeft(int)] Call
+CALLFUNC 0.0899; UsrFunc[void ArrayShiftLeft(int)] Call
 POP d4; if() #579 Body End
-LOADD d2,18; if() #580 Test
+LOAD d2,0.0018; if() #580 Test
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 407,==; Test 'if'
 PUSHR d4; if() #580 Body Start
-LOADD d2,7; UsrFunc[void ArrayShiftLeft(int)] Params Start
+LOAD d2,0.0007; UsrFunc[void ArrayShiftLeft(int)] Params Start
 PUSHR d2; UsrFunc[void ArrayShiftLeft(int)] Params End
-CALLFUNC 0.0898; UsrFunc[void ArrayShiftLeft(int)] Call
+CALLFUNC 0.0899; UsrFunc[void ArrayShiftLeft(int)] Call
 POP d4; if() #580 Body End
-LOADD d2,3; if() #188 Else End AND for() #192 Body End AND for() #192 LoopIncrement
+LOAD d2,0.0003; if() #188 Else End AND for() #192 Body End AND for() #192 LoopIncrement
 ADDV d2,1
-STORED d2,3
+STORE d2,0.0003
 GOTO 342; for() #192 End
-STOREDV 0,3; for() #193 setup
-LOADD d2,3; for() #193 LoopTest
+STOREV 0,0.0003; for() #193 setup
+LOAD d2,0.0003; for() #193 LoopTest
 COMPAREV d2,8
 SETCMP d2,I<
 COMPAREV d2,0
 GOTOCMP 486,==; for() #193 TestFail?
-LOADD d2,16; if() #581 Test AND for() #193 Body Start
+LOAD d2,0.0016; if() #581 Test AND for() #193 Body Start
 ANDV d2,1
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 437,==; Test 'if'
-LOADD d2,9; if() #581 Body Start
+LOAD d2,0.0009; if() #581 Body Start
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 ADDV d2,1
 PUSHR d2
-LOADD d2,9
+LOAD d2,0.0009
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2; if() #581 Body End
-LOADD d2,9
+LOAD d2,0.0009
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
-LOADD d2,10
+LOAD d2,0.0010
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 POP d0
 POP d2
 SETR COMBODD,d2
-LOADD d2,8
+LOAD d2,0.0008
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
-LOADD d2,10
+LOAD d2,0.0010
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 POP d0
 POP d2
 SETR COMBOCD,d2
-LOADD d2,7
+LOAD d2,0.0007
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
-LOADD d2,10
+LOAD d2,0.0010
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
 POP d0
 POP d2
 SETR COMBOFD,d2; for() #193 Body End
-LOADD d2,3; for() #193 LoopIncrement
+LOAD d2,0.0003; for() #193 LoopIncrement
 ADDV d2,1
-STORED d2,3
+STORE d2,0.0003
 GOTO 412; for() #193 End
 WAITFRAME; if() #574 Body End AND InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
 GOTO 59; while() #8 End
-LOADD d3,5
+LOAD d3,0.0005
 DEALLOCATEMEMR d3
-LOADD d3,7
+LOAD d3,0.0007
 DEALLOCATEMEMR d3
-LOADD d3,8
+LOAD d3,0.0008
 DEALLOCATEMEMR d3
-LOADD d3,9
+LOAD d3,0.0009
 DEALLOCATEMEMR d3
-LOADD d3,10
+LOAD d3,0.0010
 DEALLOCATEMEMR d3; [Opt:NeverRet] AND void run(int, int, int, int, int, int) Body End
 PUSHARGSV 0,0.0003; Func[int AdjacentComboFix(int, int, int)] Body Start
-SETR d4,SP
+SETR d4,SP2
 ALLOCATEMEMV d2,13
-STORED d2,1
+STORE d2,0.0001
 WRITEPODARRAY d2,{-16,16,-1,1,-17,-15,15,17}
-LOADD d2,5; if() #27 Test
+LOAD d2,0.0005; if() #27 Test
 MODV d2,16
 COMPAREV d2,0
 SETCMP d2,I==
@@ -519,11 +519,11 @@ COMPAREV d2,0
 GOTOCMP 515,==; Test 'if'
 SETV d2,-1; if() #27 Body Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 9,d2; if() #27 Body End
-LOADD d2,5; if() #28 Test
+LOAD d2,0.0005; if() #28 Test
 MODV d2,16
 COMPAREV d2,15
 SETCMP d2,I==
@@ -531,48 +531,48 @@ COMPAREV d2,0
 GOTOCMP 527,==; Test 'if'
 SETV d2,-1; if() #28 Body Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 10,d2; if() #28 Body End
-LOADD d2,5; if() #29 Test
+LOAD d2,0.0005; if() #29 Test
 COMPAREV d2,16
 SETCMP d2,I<
 COMPAREV d2,0
 GOTOCMP 538,==; Test 'if'
 SETV d2,-1; if() #29 Body Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 11,d2; if() #29 Body End
-LOADD d2,5; if() #30 Test
+LOAD d2,0.0005; if() #30 Test
 COMPAREV d2,159
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 549,==; Test 'if'
 SETV d2,-1; if() #30 Body Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 12,d2; if() #30 Body End
-LOADD d2,1; if() #31 Test
+LOAD d2,0.0001; if() #31 Test
 PUSHR d2
 POP d0
 READPODARRAYV d2,9
 COMPAREV d2,0
 GOTOCMP 569,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,2
 GOTOCMP 567,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,4
 GOTOCMP 567,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,6
 GOTOCMP 567,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,4
 GOTOCMP 569,!=
 SETV d2,1
@@ -581,22 +581,22 @@ SETV d2,0
 COMPAREV d2,0
 GOTOCMP 576,==; Test 'if'
 SETV d2,-1; return Start AND if() #31 Body Start
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #31 Body End
-LOADD d2,1; if() #32 Test
+GOTO 897; return End AND if() #31 Body End
+LOAD d2,0.0001; if() #32 Test
 PUSHR d2
 POP d0
 READPODARRAYV d2,10
 COMPAREV d2,0
 GOTOCMP 593,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,3
 GOTOCMP 591,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,5
 GOTOCMP 591,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,7
 GOTOCMP 593,!=
 SETV d2,1
@@ -605,25 +605,25 @@ SETV d2,0
 COMPAREV d2,0
 GOTOCMP 600,==; Test 'if'
 SETV d2,-1; return Start AND if() #32 Body Start
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #32 Body End
-LOADD d2,1; if() #33 Test
+GOTO 897; return End AND if() #32 Body End
+LOAD d2,0.0001; if() #33 Test
 PUSHR d2
 POP d0
 READPODARRAYV d2,11
 COMPAREV d2,0
 GOTOCMP 620,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,0
 GOTOCMP 618,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,5
 GOTOCMP 618,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,4
 GOTOCMP 618,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,4
 GOTOCMP 620,!=
 SETV d2,1
@@ -632,22 +632,22 @@ SETV d2,0
 COMPAREV d2,0
 GOTOCMP 627,==; Test 'if'
 SETV d2,-1; return Start AND if() #33 Body Start
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #33 Body End
-LOADD d2,1; if() #4 Test
+GOTO 897; return End AND if() #33 Body End
+LOAD d2,0.0001; if() #4 Test
 PUSHR d2
 POP d0
 READPODARRAYV d2,12
 COMPAREV d2,0
 GOTOCMP 644,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,1
 GOTOCMP 642,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,7
 GOTOCMP 642,==
-LOADD d2,4
+LOAD d2,0.0004
 COMPAREV d2,6
 GOTOCMP 644,!=
 SETV d2,1
@@ -656,298 +656,299 @@ SETV d2,0
 COMPAREV d2,0
 GOTOCMP 652,==; Test 'if'
 SETV d2,-1; return Start AND if() #4 Body Start
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End
-GOTO 894; if() #4 Body End
-LOADD d2,5; if() #5 Test AND if() #4 Else Start
+GOTO 897; return End
+GOTO 895; if() #4 Body End
+LOAD d2,0.0005; if() #5 Test AND if() #4 Else Start
 COMPAREV d2,0
 GOTOCMP 660,<
-LOADD d2,5
+LOAD d2,0.0005
 COMPAREV d2,176
 GOTOCMP 660,>=
 SETV d2,1
 GOTO 661
 SETV d2,0
 COMPAREV d2,0
-GOTOCMP 890,==; Test 'if'
+GOTOCMP 891,==; Test 'if'
 ALLOCATEMEMV d2,2; if() #5 Body Start
-STORED d2,0
+STORE d2,0
 SETV d2,0; for() #2 setup
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 1,d2
-LOADD d2,0; for() #2 LoopTest
+LOAD d2,0; for() #2 LoopTest
 PUSHR d2
 POP d0
 READPODARRAYV d2,1
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d3
 COMPARER d3,d2
 SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 881,==; for() #2 TestFail?
-LOADD d2,5; for() #2 Body Start
+GOTOCMP 882,==; for() #2 TestFail?
+LOAD d2,0.0005; for() #2 Body Start
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 0,d2
-LOADD d2,5
+LOAD d2,0.0005
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,4
+LOAD d2,0.0004
 POP d0
 READPODARRAYR d2,d2
 POP d3
 ADDR d2,d3
-STORED d2,5; if() #34 Test
+STORE d2,0.0005
+LOAD d2,0.0005; if() #34 Test
 COMPAREV d2,0
-GOTOCMP 705,<
-LOADD d2,5
+GOTOCMP 706,<
+LOAD d2,0.0005
 COMPAREV d2,175
-GOTOCMP 705,>
+GOTOCMP 706,>
 SETV d2,0
-GOTO 706
+GOTO 707
 SETV d2,1
 COMPAREV d2,0
-GOTOCMP 714,==; Test 'if'
+GOTOCMP 715,==; Test 'if'
 SETV d2,-1; return Start AND if() #34 Body Start
-LOADD d3,0
+LOAD d3,0
 DEALLOCATEMEMR d3
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #34 Body End
-LOADD d2,5; if() #35 Test
+GOTO 897; return End AND if() #34 Body End
+LOAD d2,0.0005; if() #35 Test
 MODV d2,16
 COMPAREV d2,0
 SETCMP d2,I==
 COMPAREV d2,0
-GOTOCMP 726,==; Test 'if'
+GOTOCMP 727,==; Test 'if'
 SETV d2,-1; if() #35 Body Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 9,d2; if() #35 Body End
-LOADD d2,5; if() #36 Test
+LOAD d2,0.0005; if() #36 Test
 MODV d2,16
 COMPAREV d2,15
 SETCMP d2,I==
 COMPAREV d2,0
-GOTOCMP 738,==; Test 'if'
+GOTOCMP 739,==; Test 'if'
 SETV d2,-1; if() #36 Body Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 10,d2; if() #36 Body End
-LOADD d2,5; if() #37 Test
+LOAD d2,0.0005; if() #37 Test
 COMPAREV d2,16
 SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 749,==; Test 'if'
+GOTOCMP 750,==; Test 'if'
 SETV d2,-1; if() #37 Body Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 11,d2; if() #37 Body End
-LOADD d2,5; if() #38 Test
+LOAD d2,0.0005; if() #38 Test
 COMPAREV d2,159
 SETCMP d2,I>
 COMPAREV d2,0
-GOTOCMP 760,==; Test 'if'
+GOTOCMP 761,==; Test 'if'
 SETV d2,-1; if() #38 Body Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 12,d2; if() #38 Body End
-LOADD d2,1; if() #39 Test
+LOAD d2,0.0001; if() #39 Test
 PUSHR d2
 POP d0
 READPODARRAYV d2,9
 COMPAREV d2,0
-GOTOCMP 780,==
-LOADD d2,4
+GOTOCMP 781,==
+LOAD d2,0.0004
 COMPAREV d2,2
-GOTOCMP 778,==
-LOADD d2,4
+GOTOCMP 779,==
+LOAD d2,0.0004
 COMPAREV d2,4
-GOTOCMP 778,==
-LOADD d2,4
+GOTOCMP 779,==
+LOAD d2,0.0004
 COMPAREV d2,6
-GOTOCMP 778,==
-LOADD d2,4
+GOTOCMP 779,==
+LOAD d2,0.0004
 COMPAREV d2,4
-GOTOCMP 780,!=
+GOTOCMP 781,!=
 SETV d2,1
-GOTO 781
+GOTO 782
 SETV d2,0
 COMPAREV d2,0
-GOTOCMP 789,==; Test 'if'
+GOTOCMP 790,==; Test 'if'
 SETV d2,-1; return Start AND if() #39 Body Start
-LOADD d3,0
+LOAD d3,0
 DEALLOCATEMEMR d3
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #39 Body End
-LOADD d2,1; if() #40 Test
+GOTO 897; return End AND if() #39 Body End
+LOAD d2,0.0001; if() #40 Test
 PUSHR d2
 POP d0
 READPODARRAYV d2,10
 COMPAREV d2,0
-GOTOCMP 806,==
-LOADD d2,4
+GOTOCMP 807,==
+LOAD d2,0.0004
 COMPAREV d2,3
-GOTOCMP 804,==
-LOADD d2,4
+GOTOCMP 805,==
+LOAD d2,0.0004
 COMPAREV d2,5
-GOTOCMP 804,==
-LOADD d2,4
+GOTOCMP 805,==
+LOAD d2,0.0004
 COMPAREV d2,7
-GOTOCMP 806,!=
+GOTOCMP 807,!=
 SETV d2,1
-GOTO 807
+GOTO 808
 SETV d2,0
 COMPAREV d2,0
-GOTOCMP 815,==; Test 'if'
+GOTOCMP 816,==; Test 'if'
 SETV d2,-1; return Start AND if() #40 Body Start
-LOADD d3,0
+LOAD d3,0
 DEALLOCATEMEMR d3
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #40 Body End
-LOADD d2,1; if() #41 Test
+GOTO 897; return End AND if() #40 Body End
+LOAD d2,0.0001; if() #41 Test
 PUSHR d2
 POP d0
 READPODARRAYV d2,11
 COMPAREV d2,0
-GOTOCMP 835,==
-LOADD d2,4
+GOTOCMP 836,==
+LOAD d2,0.0004
 COMPAREV d2,0
-GOTOCMP 833,==
-LOADD d2,4
+GOTOCMP 834,==
+LOAD d2,0.0004
 COMPAREV d2,5
-GOTOCMP 833,==
-LOADD d2,4
+GOTOCMP 834,==
+LOAD d2,0.0004
 COMPAREV d2,4
-GOTOCMP 833,==
-LOADD d2,4
+GOTOCMP 834,==
+LOAD d2,0.0004
 COMPAREV d2,4
-GOTOCMP 835,!=
+GOTOCMP 836,!=
 SETV d2,1
-GOTO 836
+GOTO 837
 SETV d2,0
 COMPAREV d2,0
-GOTOCMP 844,==; Test 'if'
+GOTOCMP 845,==; Test 'if'
 SETV d2,-1; return Start AND if() #41 Body Start
-LOADD d3,0
+LOAD d3,0
 DEALLOCATEMEMR d3
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #41 Body End
-LOADD d2,1; if() #42 Test
+GOTO 897; return End AND if() #41 Body End
+LOAD d2,0.0001; if() #42 Test
 PUSHR d2
 POP d0
 READPODARRAYV d2,12
 COMPAREV d2,0
-GOTOCMP 861,==
-LOADD d2,4
+GOTOCMP 862,==
+LOAD d2,0.0004
 COMPAREV d2,1
-GOTOCMP 859,==
-LOADD d2,4
+GOTOCMP 860,==
+LOAD d2,0.0004
 COMPAREV d2,7
-GOTOCMP 859,==
-LOADD d2,4
+GOTOCMP 860,==
+LOAD d2,0.0004
 COMPAREV d2,6
-GOTOCMP 861,!=
+GOTOCMP 862,!=
 SETV d2,1
-GOTO 862
+GOTO 863
 SETV d2,0
 COMPAREV d2,0
-GOTOCMP 870,==; Test 'if'
+GOTOCMP 871,==; Test 'if'
 SETV d2,-1; return Start AND if() #42 Body Start
-LOADD d3,0
+LOAD d3,0
 DEALLOCATEMEMR d3
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #42 Body End
-LOADD d2,0; for() #2 Body End AND for() #2 LoopIncrement
+GOTO 897; return End AND if() #42 Body End
+LOAD d2,0; for() #2 Body End AND for() #2 LoopIncrement
 PUSHR d2
 POP d0
 READPODARRAYV d2,1
 ADDV d2,1
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 1,d2
 GOTO 671; for() #2 End
-LOADD d2,5; return Start
-LOADD d3,0
+LOAD d2,0.0005; return Start
+LOAD d3,0
 DEALLOCATEMEMR d3
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End
-LOADD d3,0
+GOTO 897; return End
+LOAD d3,0
 DEALLOCATEMEMR d3
-GOTO 894; if() #5 Body End
+GOTO 895; if() #5 Body End
 SETV d2,-1; return Start AND if() #5 Else Start
-LOADD d3,1
+LOAD d3,0.0001
 DEALLOCATEMEMR d3
-GOTO 896; return End AND if() #5 Else End
-LOADD d3,1; if() #4 Else End
+GOTO 897; return End AND if() #5 Else End
+LOAD d3,0.0001; if() #4 Else End
 DEALLOCATEMEMR d3
 POPARGS d5,0.0006
 RETURNFUNC; Func[int AdjacentComboFix(int, int, int)] Body End
 PUSHARGSV 0,0.0003; Func[void ArrayShiftLeft(int)] Body Start
-SETR d4,SP
-LOADD d2,3; InlineFunc[int SizeOfArray(untyped)] Params
+SETR d4,SP2
+LOAD d2,0.0003; InlineFunc[int SizeOfArray(untyped)] Params
 ARRAYSIZE d2; InlineFunc[int SizeOfArray(untyped)] Body
 SUBV d2,1
-STORED d2,2
-LOADD d2,3
+STORE d2,0.0002
+LOAD d2,0.0003
 PUSHR d2
 POP d0
 READPODARRAYV d2,0
-STORED d2,1
-LOADD d2,0; for() #3 LoopTest
+STORE d2,0.0001
+LOAD d2,0; for() #3 LoopTest
 PUSHR d2
-LOADD d2,2
+LOAD d2,0.0002
 POP d3
 COMPARER d3,d2
 SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 935,==; for() #3 TestFail?
-LOADD d2,3; for() #3 Body Start
+GOTOCMP 936,==; for() #3 TestFail?
+LOAD d2,0.0003; for() #3 Body Start
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 ADDV d2,1
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2; for() #3 Body End
-LOADD d2,0; for() #3 LoopIncrement
+LOAD d2,0; for() #3 LoopIncrement
 ADDV d2,1
-STORED d2,0
-GOTO 909; for() #3 End
-LOADD d2,1
+STORE d2,0
+GOTO 910; for() #3 End
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 PUSHR d2
-LOADD d2,2
+LOAD d2,0.0002
 SETR d3,d2
 POP d0
 POP d2
@@ -955,188 +956,189 @@ WRITEPODARRAYRR d3,d2
 POPARGS d5,0.0004
 RETURNFUNC; Func[void ArrayShiftLeft(int)] Body End
 PUSHARGSV 0,0.0003; Func[void ArrayShiftRight(int)] Body Start
-SETR d4,SP
-LOADD d2,3; InlineFunc[int SizeOfArray(untyped)] Params
+SETR d4,SP2
+LOAD d2,0.0003; InlineFunc[int SizeOfArray(untyped)] Params
 ARRAYSIZE d2; InlineFunc[int SizeOfArray(untyped)] Body
 SUBV d2,1
-STORED d2,2
-LOADD d2,3
+STORE d2,0.0002
+LOAD d2,0.0003
 PUSHR d2
-LOADD d2,2
+LOAD d2,0.0002
 POP d0
 READPODARRAYR d2,d2
-STORED d2,1
-LOADD d2,2; for() #4 setup
-STORED d2,0
-LOADD d2,0; for() #4 LoopTest
+STORE d2,0.0001
+LOAD d2,0.0002; for() #4 setup
+STORE d2,0
+LOAD d2,0; for() #4 LoopTest
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
-GOTOCMP 983,==; for() #4 TestFail?
-LOADD d2,3; for() #4 Body Start
+GOTOCMP 984,==; for() #4 TestFail?
+LOAD d2,0.0003; for() #4 Body Start
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 SUBV d2,1
 POP d0
 READPODARRAYR d2,d2
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2; for() #4 Body End
-LOADD d2,0; for() #4 LoopIncrement
+LOAD d2,0; for() #4 LoopIncrement
 SUBV d2,1
-STORED d2,0
-GOTO 960; for() #4 End
-LOADD d2,1
+STORE d2,0
+GOTO 961; for() #4 End
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 SETR d0,d2
 POP d2
 WRITEPODARRAYVR 0,d2
 POPARGS d5,0.0004
 RETURNFUNC; Func[void ArrayShiftRight(int)] Body End
-SETR d4,SP; Func[int CenterLinkX()] Body Start
+SETR d4,SP2; Func[int CenterLinkX()] Body Start
 SETR d2,LINKX; return Start
 ADDV d2,8
 RETURNFUNC; return End AND Func[int CenterLinkX()] Body End
-SETR d4,SP; Func[int CenterLinkY()] Body Start
+SETR d4,SP2; Func[int CenterLinkY()] Body Start
 SETR d2,LINKY; return Start
 ADDV d2,8
 RETURNFUNC; return End AND Func[int CenterLinkY()] Body End
-SETR d4,SP; Func[int ComboX(int)] Body Start
-LOADD d2,0; return Start
+SETR d4,SP2; Func[int ComboX(int)] Body Start
+LOAD d2,0; return Start
 MODV d2,16
 MULTV d2,16
 POP d5; return End
 RETURNFUNC; Func[int ComboX(int)] Body End
-SETR d4,SP; Func[int ComboY(int)] Body Start
-LOADD d2,0; return Start
+SETR d4,SP2; Func[int ComboY(int)] Body Start
+LOAD d2,0; return Start
 ANDV d2,240
 POP d5; return End
 RETURNFUNC; Func[int ComboY(int)] Body End
-SETR d4,SP; Func[int ComboAt(int, int)] Body Start
+SETR d4,SP2; Func[int ComboAt(int, int)] Body Start
 PUSHR d4
-LOADD d2,1; UsrFunc[int VBound(int, int, int)] Params Start
+LOAD d2,0.0001; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 PUSHV 255
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.1035; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.1037; UsrFunc[int VBound(int, int, int)] Call
 POP d4
-STORED d2,1
+STORE d2,0.0001
 PUSHR d4
-LOADD d2,0; UsrFunc[int VBound(int, int, int)] Params Start
+LOAD d2,0; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 PUSHV 175
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.1035; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.1037; UsrFunc[int VBound(int, int, int)] Call
 POP d4
-STORED d2,0; return Start
+STORE d2,0
+LOAD d2,0; return Start
 ANDV d2,240
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 RSHIFTV d2,4
 POP d3
 ADDR d2,d3
 POPARGS d5,0.0002; return End
 RETURNFUNC; Func[int ComboAt(int, int)] Body End
-SETR d4,SP; Func[int VBound(int, int, int)] Body Start
-LOADD d2,2; if() #135 Test
+SETR d4,SP2; Func[int VBound(int, int, int)] Body Start
+LOAD d2,0.0002; if() #135 Test
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 POP d3
 COMPARER d3,d2
 SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 1047,==; Test 'if'
-LOADD d2,0; if() #135 Body Start
-STORED d2,2
-GOTO 1057; if() #135 Body End
-LOADD d2,2; if() #371 Test AND if() #135 Else Start
+GOTOCMP 1049,==; Test 'if'
+LOAD d2,0; if() #135 Body Start
+STORE d2,0.0002
+GOTO 1059; if() #135 Body End
+LOAD d2,0.0002; if() #371 Test AND if() #135 Else Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 POP d3
 COMPARER d3,d2
 SETCMP d2,I>
 COMPAREV d2,0
-GOTOCMP 1057,==; Test 'if'
-LOADD d2,1; if() #371 Body Start
-STORED d2,2; if() #371 Body End
-LOADD d2,2; if() #135 Else End AND return Start
+GOTOCMP 1059,==; Test 'if'
+LOAD d2,0.0001; if() #371 Body Start
+STORE d2,0.0002; if() #371 Body End
+LOAD d2,0.0002; if() #135 Else End AND return Start
 POPARGS d5,0.0003; return End
 RETURNFUNC; Func[int VBound(int, int, int)] Body End
-SETR d4,SP; Func[int Cond(bool, int, int)] Body Start
-LOADD d2,2; return Start
+SETR d4,SP2; Func[int Cond(bool, int, int)] Body Start
+LOAD d2,0.0002; return Start
 COMPAREV d2,0
-GOTOCMP 1066,==
-LOADD d2,1
-GOTO 1067
-LOADD d2,0
+GOTOCMP 1068,==
+LOAD d2,0.0001
+GOTO 1069
+LOAD d2,0
 POPARGS d5,0.0003; return End
 RETURNFUNC; Func[int Cond(bool, int, int)] Body End
 PUSHV 0; Func[void NoAction()] Body Start
-SETR d4,SP
-LOADD d2,0; for() #77 LoopTest
+SETR d4,SP2
+LOAD d2,0; for() #77 LoopTest
 COMPAREV d2,14
 SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 1112,==; for() #77 TestFail?
-LOADD d2,0; if() #265 Test AND for() #77 Body Start
+GOTOCMP 1114,==; for() #77 TestFail?
+LOAD d2,0; if() #265 Test AND for() #77 Body Start
 COMPAREV d2,9
-GOTOCMP 1082,!=
-GOTO 1082
+GOTOCMP 1084,!=
+GOTO 1084
 SETV d2,1
-GOTO 1083
+GOTO 1085
 SETV d2,0
 COMPAREV d2,0
-GOTOCMP 1108,!=; Test 'if' AND continue 1; AND if() #265 Body
-LOADD d2,0; if() #266 Test
+GOTOCMP 1110,!=; Test 'if' AND continue 1; AND if() #265 Body
+LOAD d2,0; if() #266 Test
 COMPAREV d2,6
-GOTOCMP 1091,!=
-GOTO 1091
+GOTOCMP 1093,!=
+GOTO 1093
 SETV d2,1
-GOTO 1092
+GOTO 1094
 SETV d2,0
 COMPAREV d2,0
-GOTOCMP 1108,!=; Test 'if' AND continue 1; AND if() #266 Body
+GOTOCMP 1110,!=; Test 'if' AND continue 1; AND if() #266 Body
 SETV d2,0
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
 POP d0
 POP d2
 SETR BUTTONINPUT,d2
 SETV d2,0
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
 POP d0
 POP d2
 SETR BUTTONPRESS,d2; for() #77 Body End
-LOADD d2,0; for() #77 LoopIncrement
+LOAD d2,0; for() #77 LoopIncrement
 ADDV d2,1
-STORED d2,0
-GOTO 1071; for() #77 End
+STORE d2,0
+GOTO 1073; for() #77 End
 POP d5
 RETURNFUNC; Func[void NoAction()] Body End
-SETR d4,SP; Func[int Sign(int)] Body Start
-LOADD d2,0; if() #125 Test
+SETR d4,SP2; Func[int Sign(int)] Body Start
+LOAD d2,0; if() #125 Test
 COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
-GOTOCMP 1122,==; Test 'if'
+GOTOCMP 1124,==; Test 'if'
 SETV d2,1; return Start AND if() #125 Body Start
-GOTO 1130; return End AND if() #125 Body End
-LOADD d2,0; if() #126 Test AND if() #125 Else Start
+GOTO 1132; return End AND if() #125 Body End
+LOAD d2,0; if() #126 Test AND if() #125 Else Start
 COMPAREV d2,0
 SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 1129,==; Test 'if'
+GOTOCMP 1131,==; Test 'if'
 SETV d2,-1; return Start AND if() #126 Body Start
-GOTO 1130; return End AND if() #126 Body End
+GOTO 1132; return End AND if() #126 Body End
 SETV d2,0; return Start AND if() #126 Else Start
 POP d5; return End AND if() #126 Else End AND if() #125 Else End
 RETURNFUNC; Func[int Sign(int)] Body End
