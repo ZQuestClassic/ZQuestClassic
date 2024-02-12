@@ -30233,15 +30233,6 @@ void HeroClass::checkitems(int32_t index)
 		boughtsomething=true;
 		//make the other shop items untouchable after
 		//you buy something
-		int32_t count = 0;
-		
-		for(int32_t i=0; i<3; i++)
-		{
-			if(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[i] != 0)
-			{
-				++count;
-			}
-		}
 		
 		for(int32_t i=0; i<items.Count(); i++)
 		{
@@ -30252,6 +30243,7 @@ void HeroClass::checkitems(int32_t index)
 		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[PriceIndex]);
 		id2 = find_bottle_for_slot(slot);
 		ptr->id = id2;
+		holdid = id2;
 		pstr = 0;
 		pickup |= ipHOLDUP;
 	}
