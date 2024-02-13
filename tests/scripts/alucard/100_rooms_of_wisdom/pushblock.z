@@ -51,12 +51,6 @@ ffc script AutomaticFreeformPushblockPuzzle{
 		int ctweight1[2] = {9,10};
 		int ctweight2[2] = {26,27};
 		int pushflags[177];
-		// TODO: This printf is load bearing. There is an unaddressed compiler
-		// bug that breaks spawning the ffcs, but this printf prevents it for some reason.
-		// Very bad, need to investigate.
-		// See in action by commenting out the printf, open 100_rooms_wisdom.qst and recompile, test mode to room 80,
-		// and in debug console you will see "dont change your array pointers" ... (and the push blocks wont work)
-		printf("AutomaticFreeformPushblockPuzzle\n");
 		for (int i=1; i<176; i++){
 			if (MatchComboI(generic_, i)) pushflags[i] = Screen->ComboI[i];
 			if (MatchComboF(generic_, i)) pushflags[i] = Screen->ComboF[i];
