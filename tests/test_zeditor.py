@@ -162,6 +162,9 @@ class TestZEditor(unittest.TestCase):
                     shutil.copy(original_replay_path, replay_path)
                     all_replay_paths.append(replay_path)
 
+        if not all_replay_paths:
+            raise Exception('missing replays')
+
         with self.subTest(msg='replays still pass'):
             output_dir = tmp_dir / 'replays_output'
             if output_dir.exists():
