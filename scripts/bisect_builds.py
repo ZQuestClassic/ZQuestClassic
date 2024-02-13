@@ -736,6 +736,19 @@ def AskIsGoodBuild():
             return response
 
 
+def run_zc_command(binaries, command):
+    cwd = binaries['dir']
+    if (cwd/'zc.sav').exists():
+        (cwd/'zc.sav').unlink()
+
+    cmd = command
+    cmd = cmd.replace('%zc', f'"{binaries["zc"]}"')
+    cmd = cmd.replace('%zq', f'"{binaries["zq"]}"')
+    cmd = cmd.replace('%zl', f'"{binaries["zl"]}"')
+    print(f'running command: {cmd}')
+    return subprocess.Popen(cmd, cwd=cwd, shell=system != 'Windows')
+
+
 def run_bisect(revisions: List[Revision]):
     tags = [r.tag for r in revisions]
     if args.bad not in tags:
@@ -801,14 +814,9 @@ def run_bisect(revisions: List[Revision]):
         if not binaries:
             answer = 'u'
         elif args.command:
-            cmd = args.command
-            cmd = cmd.replace('%zc', f'"{binaries["zc"]}"')
-            cmd = cmd.replace('%zq', f'"{binaries["zq"]}"')
-            cmd = cmd.replace('%zl', f'"{binaries["zl"]}"')
-            print(f'running command: {cmd}')
-            p = subprocess.Popen(cmd, cwd=binaries['dir'], shell=system != 'Windows')
+            p = run_zc_command(binaries, args.command)
             if args.check_return_code:
-                retcode = p.communicate()
+                retcode = p.wait()
                 answer = 'g' if retcode == 0 else 'b'
                 print(f'code: {retcode}, answer: {answer}')
             else:
@@ -995,18 +1003,8 @@ if args.single:
     if not binaries:
         raise Exception('failed to find revision')
 
-    cmd = args.command
-    cmd = cmd.replace('%zc', f'"{binaries["zc"]}"')
-    cmd = cmd.replace('%zq', f'"{binaries["zq"]}"')
-    cmd = cmd.replace('%zl', f'"{binaries["zl"]}"')
-    print(f'running command: {cmd}')
-    p = subprocess.Popen(cmd, cwd=binaries['dir'], shell=system != 'Windows')
-    if args.check_return_code:
-        retcode = p.communicate()
-        exit(retcode)
-    else:
-        p.terminate()
-        exit(0)
+    p = run_zc_command(binaries, args.command)
+    exit(p.wait())
 
 
 revisions = get_revisions(may_build_locally=args.local_builds or args.backfill_local_builds)
