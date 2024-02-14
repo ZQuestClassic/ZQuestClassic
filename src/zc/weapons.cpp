@@ -4080,7 +4080,8 @@ bool weapon::animate(int32_t index)
 	{
 		if(isSideViewGravity())
 		{
-			if((fall>=0&&!_walkflag(x,y+16,0))||fall<0)
+			if((!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP) && ((fall>=0&&!_walkflag(x,y+16,0))||fall<0)) ||
+				(get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP) && !_walkflag(x, y+16, 0)))
 			{
 				y+=fall/100;
 				

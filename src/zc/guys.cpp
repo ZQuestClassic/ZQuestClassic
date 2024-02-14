@@ -1278,7 +1278,7 @@ bool enemy::animate(int32_t index)
 						y += fall_amnt;
 					if(fall_amnt < 0)
 					{
-						if(!movexy(0,fall_amnt,spw_none,false,true))
+						if(!movexy(0,fall_amnt,spw_none,false,!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)))
 							hit = true;
 					}
 					if(hit)
@@ -1621,7 +1621,7 @@ bool enemy::isOnSideviewPlatform()
 {
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
-	if(fall<0)
+	if(!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)&&fall<0)
 		return false;
 	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
 	if(check_slope(x, y+1, usewid, usehei)) return true;
