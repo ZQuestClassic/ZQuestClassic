@@ -171,6 +171,24 @@ class TestZEditor(unittest.TestCase):
                 shutil.rmtree(output_dir)
             self.run_replay(output_dir, all_replay_paths)
 
+    def test_export_strings(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        tsv_path = tmp_dir / 'strings.tsv'
+        if tsv_path.exists():
+            tsv_path.unlink()
+        args = [
+            '-headless',
+            '-export-strings',
+            'quests/Z1 Recreations/classic_1st.qst',
+            tsv_path,
+        ]
+        run_target.check_run('zeditor', args)
+        tsv = tsv_path.read_text().splitlines()
+        self.assertEqual(tsv[2], '  IT\'S DANGEROUS TO GO      ALONE! TAKE THIS.                           	0	0	0	0	0	24	32	192	24	18	1	0	0	0	8 0 0 8	0	0	0	0	1	1	0	0	6')
+        self.assertEqual(len(tsv), 37)
+
     def test_package_export(self):
         if 'emscripten' in str(run_target.get_build_folder()) or platform.system() != 'Windows':
             raise unittest.SkipTest('unsupported platform')

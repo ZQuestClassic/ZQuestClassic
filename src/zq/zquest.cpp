@@ -799,7 +799,8 @@ static NewMenu import_menu
 	{ "&Enemies", onImport_Guys },
 	{ "&Map", onImport_Map },
 	{ "&DMaps", onImport_DMaps },
-	{ "&String Table", onImport_Msgs },
+	{ "&Strings (.tsv)", onImport_StringsTSV },
+	{ "String Table (deprecated)", onImport_Msgs },
 	{},
 	{ "&Graphics", &import_graphics },
 	{},
@@ -844,8 +845,8 @@ static NewMenu export_menu
 	{ "&Map", onExport_Map },
 	{ "&DMaps", onExport_DMaps },
 	{},
-	{ "&String Table", onExport_Msgs },
-	{ "Text &Dump", onExport_MsgsText },
+	{ "&Strings (.tsv)", onExport_StringsTSV },
+	{ "String Table (deprecated)", onExport_Msgs },
 	{},
 	{ "&Graphics", &export_graphics },
 	{},
@@ -26017,6 +26018,37 @@ int32_t main(int32_t argc,char **argv)
 		if (!success)
 		{
 			printf("Failed to save quest\n");
+			exit(1);
+		}
+
+		exit(0);
+	}
+
+	int export_strings_arg = used_switch(argc, argv, "-export-strings");
+	if (export_strings_arg > 0)
+	{
+		if (export_strings_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -export-strings input.qst output.tsv\n");
+			exit(1);
+		}
+
+		is_zq_replay_test = true;
+		set_headless_mode();
+
+		int load_ret = load_quest(argv[export_strings_arg + 1], false);
+		bool success = load_ret == qe_OK;
+		if (!success)
+		{
+			printf("Failed to load quest: %d\n", load_ret);
+			exit(1);
+		}
+
+		success = save_strings_tsv(argv[export_strings_arg + 2]);
+		if (!success)
+		{
+			printf("Failed to export strings\n");
 			exit(1);
 		}
 

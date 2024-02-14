@@ -1095,6 +1095,47 @@ int32_t onExport_Msgs()
     return D_O_K;
 }
 
+int32_t onImport_StringsTSV()
+{
+    if(!getname("Import Strings (.tsv)","tsv",NULL,datapath,false))
+        return D_O_K;
+        
+    saved=false;
+    
+    if(!load_strings_tsv(temppath))
+    {
+        char buf[256+20],name[256];
+        extract_name(temppath,name,FILENAMEALL);
+        sprintf(buf,"Unable to load %s",name);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+    }
+    
+    return D_O_K;
+}
+
+int32_t onExport_StringsTSV()
+{
+    if(!getname("Export Strings (.tsv)","tsv",NULL,datapath,false))
+        return D_O_K;
+        
+    char buf[256+20],buf2[256+20],name[256];
+    extract_name(temppath,name,FILENAMEALL);
+    
+    if(save_strings_tsv(temppath))
+    {
+        sprintf(buf,"ZQuest");
+        sprintf(buf2,"Saved %s",name);
+    }
+    else
+    {
+        sprintf(buf,"Error");
+        sprintf(buf2,"Error saving %s",name);
+    }
+    
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+    return D_O_K;
+}
+
 
 int32_t onExport_MsgsText()
 {

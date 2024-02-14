@@ -1,9 +1,11 @@
 #include <chrono>
 #include <cstring>
+#include <exception>
 #include <string>
 #include <stdexcept>
 #include <map>
 
+#include "base/general.h"
 #include "base/version.h"
 #include "dialog/info.h"
 #include "metadata/metadata.h"
@@ -5555,6 +5557,25 @@ bool save_msgstrs(const char *path)
     return false;
 }
 
+bool save_strings_tsv(const char *path)
+{
+	PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
+    
+    if(!f)
+    {
+        return false;
+    }
+    
+    if(writestrings_tsv(f)==0)
+    {
+        pack_fclose(f);
+        return true;
+    }
+
+    pack_fclose(f);
+    return false;
+}
+
 bool save_msgstrs_text(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
@@ -5608,6 +5629,20 @@ bool load_msgstrs(const char *path, int32_t startstring)
     
     pack_fclose(f);
     return false;
+}
+
+bool load_strings_tsv(const char *path)
+{
+	try
+	{
+		parse_strings_tsv(util::read_text_file(path));
+	}
+	catch (std::exception& ex)
+	{
+		InfoDialog("Import .tsv Error", ex.what()).show();
+		return false;
+	}
+	return true;
 }
 
 bool save_pals(const char *path)
@@ -10524,6 +10559,178 @@ int32_t writestrings_text(PACKFILE *f)
     }
     
     new_return(0);
+}
+
+int32_t writestrings_tsv(PACKFILE *f)
+{
+	std::stringstream ss;
+
+	int32_t str;
+	std::vector<std::pair<std::string, std::function<std::string(const MsgStr&)>>> fields = {
+		{ "message", [&](auto& msg){
+			encode_msg_str(str);
+			return msgbuf;
+		}},
+		{ "next", [](auto& msg){ return std::to_string(msg.nextstring); } },
+		{ "tile", [](auto& msg){ return std::to_string(msg.tile); } },
+		{ "cset", [](auto& msg){ return std::to_string(msg.cset); } },
+		{ "trans", [](auto& msg){ return std::to_string(msg.trans); } },
+		{ "font", [](auto& msg){ return std::to_string(msg.font); } },
+		{ "x", [](auto& msg){ return std::to_string(msg.x); } },
+		{ "y", [](auto& msg){ return std::to_string(msg.y); } },
+		{ "w", [](auto& msg){ return std::to_string(msg.w); } },
+		{ "h", [](auto& msg){ return std::to_string(msg.h); } },
+		{ "sfx", [](auto& msg){ return std::to_string(msg.sfx); } },
+		{ "pos", [](auto& msg){ return std::to_string(msg.listpos); } },
+		{ "vspace", [](auto& msg){ return std::to_string(msg.vspace); } },
+		{ "hspace", [](auto& msg){ return std::to_string(msg.hspace); } },
+		{ "flags", [](auto& msg){ return std::to_string(msg.stringflags); } },
+		{ "margin", [](auto& msg){ return fmt::format("{} {} {} {}", msg.margins[0], msg.margins[3], msg.margins[1], msg.margins[2]); } },
+		{ "portrait_tile", [](auto& msg){ return std::to_string(msg.portrait_tile); } },
+		{ "portrait_cset", [](auto& msg){ return std::to_string(msg.portrait_cset); } },
+		{ "portrait_x", [](auto& msg){ return std::to_string(msg.portrait_x); } },
+		{ "portrait_y", [](auto& msg){ return std::to_string(msg.portrait_y); } },
+		{ "portrait_tw", [](auto& msg){ return std::to_string(msg.portrait_tw); } },
+		{ "portrait_th", [](auto& msg){ return std::to_string(msg.portrait_th); } },
+		{ "shadow_type", [](auto& msg){ return std::to_string(msg.shadow_type); } },
+		{ "shadow_color", [](auto& msg){ return std::to_string(msg.shadow_color); } },
+		{ "drawlayer", [](auto& msg){ return std::to_string(msg.drawlayer); } },
+	};
+
+	for (auto& [name, fn] : fields)
+	{
+		ss << name;
+		if (name == fields.back().first)
+			break;
+		ss << '\t';
+	}
+	ss << '\n';
+
+	// First entry is a fake string, to help frame the lines. Should be helpful if manually editing these in a text editor or spreadsheet.
+	ss << "|IT'S DANGEROUS TO GO  || ALONE! TAKE THIS.    ||LOREM IPSUM LOREM IPSU|\n";
+
+	for(int32_t i=1; i<msg_count; i++)
+	{
+		str = i;
+		auto& msg = MsgStrings[str];
+		for (auto& [name, fn] : fields)
+		{
+			std::string text = fn(msg);
+			ss << text;
+			if (name == fields.back().first)
+				break;
+			ss << '\t';
+		}
+		ss << '\n';
+	}
+
+	std::string text = ss.str();
+	if (!pack_fwrite(text.c_str(), text.size(), f))
+	{
+		return qe_invalid;
+	}
+    
+    new_return(0);
+}
+
+void parse_strings_tsv(std::string tsv)
+{
+	std::string parse_msg_str(std::string const& s);
+	std::map<std::string, std::function<void(MsgStr&, const std::string&)>> fields = {
+		{ "message", [](auto& msg, auto& text){ msg.s = parse_msg_str(text); } },
+		{ "next", [](auto& msg, auto& text){ msg.nextstring = std::stoi(text); } },
+		{ "tile", [](auto& msg, auto& text){ msg.tile = std::stoi(text); } },
+		{ "cset", [](auto& msg, auto& text){ msg.cset = std::stoi(text); } },
+		{ "trans", [](auto& msg, auto& text){ msg.trans = std::stoi(text); } },
+		{ "font", [](auto& msg, auto& text){ msg.font = std::stoi(text); } },
+		{ "x", [](auto& msg, auto& text){ msg.x = std::stoi(text); } },
+		{ "y", [](auto& msg, auto& text){ msg.y = std::stoi(text); } },
+		{ "w", [](auto& msg, auto& text){ msg.w = std::stoi(text); } },
+		{ "h", [](auto& msg, auto& text){ msg.h = std::stoi(text); } },
+		{ "sfx", [](auto& msg, auto& text){ msg.sfx = std::stoi(text); } },
+		{ "pos", [](auto& msg, auto& text){ msg.listpos = std::stoi(text); } },
+		{ "vspace", [](auto& msg, auto& text){ msg.vspace = std::stoi(text); } },
+		{ "hspace", [](auto& msg, auto& text){ msg.hspace = std::stoi(text); } },
+		{ "flags", [](auto& msg, auto& text){ msg.stringflags = std::stoi(text); } },
+		{ "margin", [&](auto& msg, auto& text){
+			std::vector<std::string> strs;
+			util::split(text, strs, ' ');
+			if (strs.size() != 4)
+				throw std::runtime_error("margin field must have 4 components");
+			msg.margins[0] = std::stoi(strs[0]);
+			msg.margins[1] = std::stoi(strs[1]);
+			msg.margins[2] = std::stoi(strs[2]);
+			msg.margins[3] = std::stoi(strs[3]);
+		} },
+		{ "portrait_tile", [](auto& msg, auto& text){ msg.portrait_tile = std::stoi(text); } },
+		{ "portrait_cset", [](auto& msg, auto& text){ msg.portrait_cset = std::stoi(text); } },
+		{ "portrait_x", [](auto& msg, auto& text){ msg.portrait_x = std::stoi(text); } },
+		{ "portrait_y", [](auto& msg, auto& text){ msg.portrait_y = std::stoi(text); } },
+		{ "portrait_tw", [](auto& msg, auto& text){ msg.portrait_tw = std::stoi(text); } },
+		{ "portrait_th", [](auto& msg, auto& text){ msg.portrait_th = std::stoi(text); } },
+		{ "shadow_type", [](auto& msg, auto& text){ msg.shadow_type = std::stoi(text); } },
+		{ "shadow_color", [](auto& msg, auto& text){ msg.shadow_color = std::stoi(text); } },
+		{ "drawlayer", [](auto& msg, auto& text){ msg.drawlayer = std::stoi(text); } },
+	};
+
+	std::vector<std::string> rows;
+	util::split(tsv, rows, '\n');
+	if (rows.size())
+	{
+		std::string last = rows.back();
+		util::trimstr(last);
+		if (last.empty())
+			rows.pop_back();
+	}
+	if (rows.size() <= 1)
+		throw std::runtime_error("missing header row");
+
+	std::vector<std::string> columns;
+	util::split(rows[0], columns, '\t');
+	for (auto name : columns)
+	{
+		if (!fields.contains(name))
+			throw std::runtime_error(fmt::format("invalid field: {}", name));
+	}
+
+	int start_index = 1;
+	if (rows[start_index].find("||LOREM IPSUM") != std::string::npos)
+		start_index += 1;
+
+	int num_strings = rows.size() - start_index + 1;
+	if (num_strings > MAXMSGS-1)
+		throw std::runtime_error(fmt::format("too many strings, max is {}", MAXMSGS-1));
+
+	std::vector<MsgStr> msgs;
+	msgs.reserve(num_strings);
+	for (int i = start_index; i < rows.size(); i++)
+	{
+		std::vector<std::string> strs;
+		util::split(rows[i], strs, '\t');
+		if (strs.size() != columns.size())
+			throw std::runtime_error(fmt::format("row {} has {} fields, expected {}", i, strs.size(), columns.size()));
+
+		int j = 0;
+		auto& msg = msgs.emplace_back();
+		for (auto& name : columns)
+		{
+			auto& fn = fields[name];
+			try
+			{
+				fn(msg, strs[j++]);
+			}
+			catch (std::exception& ex)
+			{
+				throw std::runtime_error(fmt::format("error parsing row {} field {}: {}", i, name, ex.what()));
+			}
+		}
+	}
+
+	init_msgstrings(0, msgs.size());
+	for (int i = 0; i < msgs.size(); i++)
+		MsgStrings[i + 1] = msgs[i];
+	msg_count = msgs.size();
+	msglistcache.clear();
 }
 
 bool isblanktile(tiledata *buf, int32_t i);
