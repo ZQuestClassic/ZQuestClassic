@@ -958,6 +958,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Enemy Fire/Arrow Reflecting", qr_BROKEN_FLAME_ARROW_REFLECTING,
 		"If enabled, Enemy Fire/Arrows won't reflect off of player shields, even when the reflect flag is set."
 		"Enemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by player shields, regardless of block/reflect flags." },
+	{ "Broken Sideview Sprite Jump", qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
+		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
+		" and cannot be made to jump off via script. " },
 };
 
 static GUI::ListData enemiesRulesList
