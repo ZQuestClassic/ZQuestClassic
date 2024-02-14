@@ -396,6 +396,11 @@ bool save_msgstrs_text(const char *path);
 int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs);
 int32_t writestrings_text(PACKFILE *f);
 
+bool save_strings_tsv(const char *path);
+bool load_strings_tsv(const char *path);
+void parse_strings_tsv(std::string tsv);
+int32_t writestrings_tsv(PACKFILE *f);
+
 bool load_pals(const char *path, int32_t startcset);
 bool save_pals(const char *path);
 int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, word max_csets);

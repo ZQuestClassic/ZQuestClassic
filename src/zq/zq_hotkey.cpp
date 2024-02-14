@@ -1,6 +1,7 @@
 #include "base/zdefs.h"
 #include "base/hotkey.h"
 #include "zq/render_hotkeys.h"
+#include "zq/zq_files.h"
 #include "zq/zquest.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_hotkey.h"
@@ -1453,10 +1454,10 @@ int run_hotkey(uint hkey)
 			onExport_Pals();
 			break;
 		case ZQKEY_IMPORT_STRINGS:
-			onImport_Msgs();
+			onImport_StringsTSV();
 			break;
 		case ZQKEY_EXPORT_STRINGS:
-			onExport_Msgs();
+			onExport_StringsTSV();
 			break;
 		case ZQKEY_IMPORT_TILES:
 			onImport_Tiles();
