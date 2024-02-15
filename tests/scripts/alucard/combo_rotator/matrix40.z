@@ -1,0 +1,97 @@
+// https://www.purezc.net/index.php?page=scripts&id=414
+
+import "std_old.zh"
+
+const int MATRIX_PUZZLE_ALLOW_INPUT_WITH_EX1_BUTTON = 1; //Set to anything > 0 to allow Link to input password by standing on combos and pressing Ex1.
+const int CF_MATRIX_PUZZLE_PIECE = 98;//Combo flag to be places on combos that are a part of a puzzle.
+const int SFX_MATRIX_PUZZLE_COMBO_CHANGE = 16; //Sound to play, when changing password combos by standing on combos and pressing A.
+const int SFX_MATRIX_PUZZLE_SOLVED = 27; //Sound to play, when correct password is inputed.
+
+//Password lock Script 4: The Disconnected Matrix 4
+//1. Set up sequence of combos to for password alphabet, followed by combo that looks like 1st combo in the sequence and cycles to that combo.
+//2. Import and compile the script. It requires ffcscript.zh in addition to default libraries.
+//3. Build the combination lock in it`s solved state. Flag every combo consisting the puzzle with CF_MATRIX_PUZZLE_PIECE.
+//4. Place FFC anywhere in the screen. Assign the script to it and combo to first combo in password alphabet.
+//5. Set "Run at Screen Init" and "Only Visible to Lens of Truth" flags.
+// D0 - Set  to > 0 to Allow using Lens of Truth to crack the code.
+// D1 - Set  to > 0 to disallow input by standing on puzzle combos and pressing Ex1, forcing to use different methods of changing combos.
+// D2 - Set  to > 0 to replace all CF_MATRIX_PUZZLE_PIECE flags with Trigger->Self-only flags on init after defining intended puzzle solution.
+//      Needded if you use trigger flags for building password puzzles. You also need to set "Secrets are Temporary" screen flag 
+//      so secrets won`t open after hitting a trigger, then exiting and reentering screen.
+// D3 - screen layer to define puzzle solution. Use layer, other then 0, if you don`t want changes to layer 0.
+// D4 - tile rotating animation
+
+ffc script MatrixPasswordPuzzle4_0{
+	void run (int lensvis, int noautoinput, int selftrigger, int layer, int rot){
+		if (Screen->State[ST_SECRET]) Quit();
+		//Process creating puzzle solution and resetting combination lock.
+		int solution[176];
+		int origcmb = this->Data;
+		this->Data = FFCS_INVISIBLE_COMBO;
+		int offset = 0;
+		for (int i=0; i<176; i++){
+			if (ComboFI(i, CF_MATRIX_PUZZLE_PIECE) || GetLayerComboF(layer, i)==CF_MATRIX_PUZZLE_PIECE|| GetLayerComboI(layer, i)==CF_MATRIX_PUZZLE_PIECE){
+				if (layer>0){
+					solution[i]=GetLayerComboD(layer, i) - origcmb;
+					//SetLayerComboD(layer, i, 0); 
+				}
+				else{
+					solution[i] = Screen->ComboD[i] - origcmb;
+					Screen->ComboD[i] = origcmb;
+				}
+				if (selftrigger>0) Screen->ComboF[i]=CF_SINGLE;
+				if (Screen->ComboS[i]>0)offset=-2;
+			}
+			else solution[i]= -1;
+		}
+		while(true){
+			if ((MATRIX_PUZZLE_ALLOW_INPUT_WITH_EX1_BUTTON >0)&&(noautoinput==0)){
+				if (Link->PressEx1){//Process Auto-input
+					int cmb = ComboAt(CenterLinkX(), CenterLinkY()+offset);
+					if (solution[cmb] >= 0){
+						Game->PlaySound(SFX_MATRIX_PUZZLE_COMBO_CHANGE);
+						Screen->ComboD[cmb]++;
+						if (rot>0){
+							int origcmb = Screen->ComboD[cmb]-1;
+							Screen->ComboD[cmb]=FFCS_INVISIBLE_COMBO;
+							for (int i=0; i<15; i++){
+								Screen->DrawCombo(1, ComboX(cmb), ComboY(cmb), origcmb, 1, 1, Screen->ComboC[cmb], -1, -1, ComboX(cmb),ComboY(cmb), 6*i, 1, 0, false, OP_OPAQUE);
+								Waitframe();
+							}
+							Screen->ComboD[cmb]=origcmb+1;
+						}
+					}
+				}
+			}
+			if (lensvis>0){
+				//Process cracking the code with Lens of Truth
+				if (UsingItem(I_LENS)){//Allow Lens of Truth to crack the code
+					for (int i=0; i<176; i++){
+						if (solution[i]>=0)
+						Screen->FastCombo(1, ComboX(i), ComboY(i), origcmb+solution[i], Screen->ComboC[i], OP_OPAQUE);
+					}
+				}
+			}
+			for (int i=0;i<=176;i++){
+				if (i==176){
+					Game->PlaySound(SFX_MATRIX_PUZZLE_SOLVED);
+					Screen->TriggerSecrets();
+					Screen->State[ST_SECRET]=true;
+					Quit();
+				}
+				else if (solution[i]<0) continue;
+				else if (Screen->ComboD[i] != (origcmb + solution[i])) break;
+			}
+			//debug
+			//DebugSolution(solution, origcmb);
+			Waitframe();
+		}
+	}
+}
+
+void DebugSolution(int solution, int origcmb){
+	for (int i=0; i<176; i++){
+		if (solution[i]<0) continue;
+		if ((Screen->ComboD[i] == (origcmb + solution[i])))Screen->DrawInteger(2, ComboX(i), ComboY(i),0, 1,0 , -1, -1, solution[i], 0, OP_OPAQUE);
+	}
+}

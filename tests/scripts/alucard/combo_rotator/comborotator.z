@@ -1,6 +1,6 @@
 // https://www.purezc.net/index.php?page=scripts&id=502
 
-#include "std.zh"
+import "std_old.zh"
 
 //Adjacent combo rotator
 
