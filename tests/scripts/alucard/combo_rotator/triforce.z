@@ -1,0 +1,8 @@
+//Wins the quest immediately and boots player straight to file select screen, 
+//like in Moosh`s demo quests.
+//Assign this script to Triforce`s onPickup script slot.
+itemdata script TriforceWinGame{
+	void run(){
+		Game->End();
+	}
+}
