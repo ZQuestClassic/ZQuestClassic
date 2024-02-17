@@ -443,19 +443,19 @@ const char *old_guy_string[OLDMAXGUYS] =
     // 115
     "Dodongo (Fire) ","Trigger", "Bubble (Item, Temporary Disabling)", "Bubble (Item, Permanent Disabling)", "Bubble (Item, Re-enabling)",
     // 120
-    "Stalfos (L3)", "Gohma (L3)", "Gohma (L4)", "NPC 1 (Standing)", "NPC 2 (Standing)",
+    "Stalfos (L3)", "Gohma (L3)", "Gohma (L4)", "NPC 1 (Standing) ", "NPC 2 (Standing) ",
     // 125
-    "NPC 3 (Standing)", "NPC 4 (Standing)", "NPC 5 (Standing)", "NPC 6 (Standing)", "NPC 1 (Walking)",
+    "NPC 3 (Standing) ", "NPC 4 (Standing) ", "NPC 5 (Standing) ", "NPC 6 (Standing) ", "NPC 1 (Walking) ",
     // 130
-    "NPC 2 (Walking)", "NPC 3 (Walking)", "NPC 4 (Walking)", "NPC 5 (Walking)", "NPC 6 (Walking)",
+    "NPC 2 (Walking) ", "NPC 3 (Walking) ", "NPC 4 (Walking) ", "NPC 5 (Walking) ", "NPC 6 (Walking) ",
     // 135
     "Boulder", "Goriya (L3)", "Leever (L3)", "Octorok (L3, Slow)", "Octorok (L3, Fast)",
     // 140
-    "Octorok (L4, Slow)", "Octorok (L4, Fast)", "Trap (8-Way)", "Trap (Diagonal)", "Trap (/, Constant)",
+    "Octorok (L4, Slow)", "Octorok (L4, Fast)", "Trap (8-Way) ", "Trap (Diagonal) ", "Trap (/, Constant) ",
     // 145
-    "Trap (/, Line of Sight)", "Trap (\\, Constant)", "Trap (\\, Line of Sight)", "Trap (CW, Constant)", "Trap (CW, Line of Sight)",
+    "Trap (/, Line of Sight) ", "Trap (\\, Constant) ", "Trap (\\, Line of Sight) ", "Trap (CW, Constant) ", "Trap (CW, Line of Sight) ",
     // 150
-    "Trap (CCW, Constant)", "Trap (CCW, Line of Sight)", "Wizzrobe (Summoner)", "Wizzrobe (Ice)", "Shooter (Magic)",
+    "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) ", "Wizzrobe (Summoner)", "Wizzrobe (Ice) ", "Shooter (Magic)",
     // 155
     "Shooter (Rock)", "Shooter (Spear)", "Shooter (Sword)", "Shooter (Fire)", "Shooter (Fire 2)",
     // 160
@@ -465,7 +465,7 @@ const char *old_guy_string[OLDMAXGUYS] =
     // 170
     "Pols Voice (Magic)", "Pols Voice (Whistle)", "Darknut (Mirror)", "Ghini (L2, Fire)", "Ghini (L2, Magic)",
     // 175
-    "Grappler Bug (HP)", "Grappler Bug (MP)"
+    "Grappler Bug (HP) ", "Grappler Bug (MP) "
 };
 
 char *guy_string[eMAXGUYS];
