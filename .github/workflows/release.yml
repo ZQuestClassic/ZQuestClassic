@@ -34,7 +34,7 @@ jobs:
       previous-release-version: ${{ steps.make-vars.outputs.previous-release-version }}
     steps:
       - name: git clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: git fetch --prune --unshallow --tags
       - id: make-vars
         run: |
@@ -104,7 +104,7 @@ jobs:
 
     steps:
       - name: git clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: mymindstorm/setup-emsdk@v12
         with:
@@ -120,7 +120,7 @@ jobs:
 
       # Setup build cache via ccache.
       - name: ccache cache files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .ccache
           key: web-ccache-release-${{ github.run_id }}
@@ -148,7 +148,7 @@ jobs:
       - run: zip -r ${{ github.workspace }}/${{ needs.create-tag.outputs.release-version }}-web.zip .
         working-directory: build_emscripten/Release/packages/web
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-web
           path: |
@@ -163,11 +163,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: git clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: release-packages
 

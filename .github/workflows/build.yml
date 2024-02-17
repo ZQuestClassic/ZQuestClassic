@@ -76,7 +76,7 @@ jobs:
           include: 'resources/quests/**/*'
           fetch-depth: 0
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11.4'
 
@@ -87,7 +87,7 @@ jobs:
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         name: Install Dependencies
-        uses: crazy-max/ghaction-chocolatey@v2
+        uses: crazy-max/ghaction-chocolatey@0e015857dd851f84fcb7fb53380eb5c4c8202333
         with:
           args: install .github/dependencies.config -y
       - name: Install LLVM and Clang
@@ -124,7 +124,7 @@ jobs:
       # Setup build cache via ccache.
       - name: ccache cache files
         if: inputs.cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .ccache
           key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-v3-ccache-${{ github.run_id }}
@@ -200,10 +200,13 @@ jobs:
           if system == 'Windows':
             arch_label = 'x86' if arch == 'win32' else 'x64'
             package_name = f'{release_version}-windows-{arch_label}.zip'
+            package_orig_name = 'zc.zip'
           elif system == 'Darwin':
             package_name = f'{release_version}-mac.dmg'
+            package_orig_name = 'ZQuestClassic.dmg'
           elif system == 'Linux':
             package_name = f'{release_version}-linux.tar.gz'
+            package_orig_name = 'zc.tar.gz'
 
           package_script_args = ''
           package_script_args_mac = ''
@@ -212,22 +215,20 @@ jobs:
             package_script_args_mac = release_version
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            print('{0}={1}'.format('package-orig-name', package_orig_name), file=f)
             print('{0}={1}'.format('package-name', package_name), file=f)
             print('{0}={1}'.format('package-script-args', package_script_args), file=f)
             print('{0}={1}'.format('package-script-args-mac', package_script_args_mac), file=f)
       - name: Package
-        if: inputs.config != 'Coverage'
-        uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
-        with:
-          windows: |
-            python scripts/package.py ${{ steps.set-package-vars.outputs.package-script-args }} --build_folder build/${{ inputs.config }}
-            mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
-          macos: |
-            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }} ${{ steps.set-package-vars.outputs.package-script-args-mac }}
-            mv build/${{ inputs.config }}/packages/ZQuestClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
-          linux: |
-            python scripts/package.py ${{ steps.set-package-vars.outputs.package-script-args }} --build_folder build/${{ inputs.config }}
-            mv build/${{ inputs.config }}/packages/zc.tar.gz build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
+        if: inputs.config != 'Coverage' && !contains(inputs.runs-on, 'mac')
+        run: |
+          python scripts/package.py ${{ steps.set-package-vars.outputs.package-script-args }} --build_folder build/${{ inputs.config }}
+          mv build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-orig-name }} build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
+      - name: Package
+        if: inputs.config != 'Coverage' && contains(inputs.runs-on, 'mac')
+        run: |
+          sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }} ${{ steps.set-package-vars.outputs.package-script-args-mac }}
+          mv build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-orig-name }} build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
       # Coverage builds need the entire build folder.
       - name: Package
         if: inputs.config == 'Coverage'
@@ -239,7 +240,7 @@ jobs:
           mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}
 
       # Make build result available to other workflows.
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
           path: build/${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}

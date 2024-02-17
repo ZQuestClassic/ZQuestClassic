@@ -66,7 +66,7 @@ jobs:
       REPLAY_FAILURE_DISCORD_WEBHOOK: ${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}
 
     steps:
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11.4' 
       - run: pip install PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
@@ -75,17 +75,16 @@ jobs:
         with:
           node-version: 18.x
       - name: git clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Need history to find baseline commit.
           fetch-depth: 0
 
-      # TODO: there is no simple way to download just the "replay-*" artifacts,
-      # so currently this also downloads each large build artifact.
-      # https://github.com/actions/download-artifact/issues/6
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: test-results
+          pattern: replay-*
+          merge-results: true
 
       # TODO: instead of starting baseline workflow runs when all platforms finish,
       # kick each off as necessary in `test.yml` and just poll for their completion here.
@@ -124,7 +123,7 @@ jobs:
           )
 
       # Upload as artifact, so that if publishing to surge fails the report is still accessible.
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: report
@@ -157,7 +156,7 @@ jobs:
 
       # Setup build cache via ccache.
       - name: ccache cache files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .ccache
           key: web-ccache-v2-${{ github.run_id }}
@@ -199,14 +198,14 @@ jobs:
       - run: BUILD_FOLDER=build_emscripten/RelWithDebInfo xvfb-run --auto-servernum python -Xutf8 tests/test_zeditor.py
       - run: BUILD_FOLDER=build_emscripten/RelWithDebInfo xvfb-run --auto-servernum python -Xutf8 tests/test_zplayer.py
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: emscripten cmake
           path: |
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeOutput.log
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeError.log
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: web test results
