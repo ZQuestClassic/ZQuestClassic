@@ -34,7 +34,7 @@ jobs:
       previous-release-tag: ${{ steps.make-vars.outputs.previous-release-tag }}
     steps:
       - name: git clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: git fetch --prune --unshallow --tags
       - id: make-vars
         run: |
@@ -106,11 +106,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: git clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: release-packages
 

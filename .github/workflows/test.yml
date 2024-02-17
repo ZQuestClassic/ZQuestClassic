@@ -76,7 +76,7 @@ jobs:
       - if: inputs.config == 'Coverage'
         run: sudo pip install gcovr
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
@@ -139,7 +139,7 @@ jobs:
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && inputs.config != 'Coverage' }}
         name: Updater cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
@@ -153,7 +153,7 @@ jobs:
         run: bash tests/generate_coverage_report.sh
         env:
           GCOV: llvm-cov-14 gcov
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: inputs.config == 'Coverage'
         with:
           name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
@@ -169,13 +169,13 @@ jobs:
             cd .tmp/test_results
             bash ../../.github/workflows/run_python.sh -m tarfile -c ../test_results.tar .
           fi
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results.tar
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: contains(inputs.extra-args, '--update')
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
