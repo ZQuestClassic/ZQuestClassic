@@ -135,6 +135,9 @@ def copy_files_to_package(files: List[Tuple[Path, Path]], dest_dir: Path, exclud
             continue
 
         dest.parent.mkdir(parents=True, exist_ok=True)
+        if path.name == '.gitkeep':
+            continue
+
         if path.parent.name == 'base_config' or path.name == 'allegro5.cfg':
             dest.write_text(preprocess_base_config(path.read_text(), cfg_os))
         else:
