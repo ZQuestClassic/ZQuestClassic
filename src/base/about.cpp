@@ -49,8 +49,8 @@ char const* getProgramVerStr()
 	if(V_ZC_FOURTH > 0)
 		sprintf(buf, "%d.%d.%d.%d %s", V_ZC_FIRST, V_ZC_SECOND,
 			V_ZC_THIRD, V_ZC_FOURTH, getProgramAlphaVerStr());
-	else sprintf(buf, "%d.%d.%d %s", V_ZC_FIRST, V_ZC_SECOND,
-			V_ZC_THIRD, getProgramAlphaVerStr());
+	else sprintf(buf, "%d.%d.%d", V_ZC_FIRST, V_ZC_SECOND,
+			V_ZC_THIRD);
 	return buf;
 }
 

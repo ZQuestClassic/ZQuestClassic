@@ -6,27 +6,24 @@ on:
   workflow_dispatch:
     inputs:
       number:
-        description: Version number (Alpha/Beta/Gamma/Release).
+        description: Version number (2.55.x - just type the 'x' part)
         type: string
         required: false
       versiontype:
         type: choice
         description: Whether the build specified is an Alpha/Beta/Gamma/Release
         options:
-          - alpha
-          - beta
-          - gamma
           - release
         required: true
-        default: alpha
+        default: release
       full_release:
         type: boolean
         description: Full Version (i.e. NOT a nightly)
-        default: false
-      build_web_even_for_nightly:
-        type: boolean
-        description: Build web even for nightly. If false, web only builds w/ full release
-        default: false
+        default: true
+      # build_web_even_for_nightly:
+      #   type: boolean
+      #   description: Build web even for nightly. If false, web only builds w/ full release
+      #   default: false
       sentry:
         type: boolean
         description: Perform a sentry release

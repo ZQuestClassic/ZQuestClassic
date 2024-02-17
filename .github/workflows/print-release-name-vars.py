@@ -44,8 +44,8 @@ def maybe_add_org_prefix(tag_name):
 
 if args.full_release:
     release_tag = maybe_add_org_prefix(
-        f'2.55-{args.version_type}-{args.number}')
-    release_name = f'2.55 {args.version_type.capitalize()} {args.number}'
+        f'2.55.{args.number}')
+    release_name = f'2.55.{args.number}'
 else:
     today = time.strftime("%Y-%m-%d")
 

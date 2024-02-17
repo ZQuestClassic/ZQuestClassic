@@ -4305,10 +4305,10 @@ int main(int argc, char **argv)
 	memset(zc_aboutstr,0,80);
 
 	sprintf(zc_builddate,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	sprintf(zc_aboutstr,"%s, Version %s", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	sprintf(zc_aboutstr,"%s, Version %s", ZC_PLAYER_NAME, getReleaseTag());
 	
 
-	Z_title("ZC Launched: %s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
+	Z_title("ZC Launched: %s, v.%s",ZC_PLAYER_NAME, getReleaseTag());
 	
 	if(!get_qst_buffers())
 	{

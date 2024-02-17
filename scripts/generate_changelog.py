@@ -8,6 +8,7 @@ from typing import Dict, List
 from git_hooks.common import valid_types, valid_scopes
 
 release_oneliners = {
+    '2.55.0': 'The one that is official.',
     '2.55-alpha-120': 'The one with crumbling floors, moving platforms, and ExDoors.',
     '2.55-alpha-119': 'The one with subscreen scripts and an autocombo drawing mode.',
     '2.55-alpha-118': 'The one with the bug fixes.',

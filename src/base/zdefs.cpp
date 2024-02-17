@@ -576,8 +576,7 @@ string get_dbreport_string()
 	
 	oss << "```\n"
 		<< ZQ_EDITOR_NAME
-		<< "\nVersion: " << ZQ_EDITOR_V << " " << ALPHA_VER_STR
-		<< "\nTag: " << getReleaseTag();
+		<< "\nVersion: " << getReleaseTag();
 		
 	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
 		(char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
@@ -701,11 +700,9 @@ string generate_zq_about()
 {
 	char buf1[256];
 	std::ostringstream oss;
-	sprintf(buf1,"%s, Version: %s", ZQ_EDITOR_NAME,ZQ_EDITOR_V);
+	sprintf(buf1,"%s", ZQ_EDITOR_NAME);
 	oss << buf1 << '\n';
-	sprintf(buf1,"Tag: %s", getReleaseTag());
-	oss << buf1 << '\n';
-	sprintf(buf1, "%s", ALPHA_VER_STR);
+	sprintf(buf1,"%s", getReleaseTag());
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';

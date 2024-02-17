@@ -1,3 +1,4 @@
+#include "base/about.h"
 #include "base/qrs.h"
 #include "base/packfile.h"
 #include "base/zapp.h"
@@ -1019,10 +1020,10 @@ int32_t onAbout()
         }
 #else
         {
-            sprintf(buf1,"ZQuest %s - DEBUG",ZQ_EDITOR_V);
+            sprintf(buf1,"ZQuest %s - DEBUG",getReleaseTag());
         }
 #endif
-        sprintf(buf2,"Tag: %s", getReleaseTag());
+        sprintf(buf2,"%s", getReleaseTag());
         sprintf(buf3,"This qst file: %04X",header.internal&0xFFFF);
         InfoDialog("About ZQuest", { buf1, buf2, buf3 }).show();
     }
