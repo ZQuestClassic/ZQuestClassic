@@ -22117,7 +22117,7 @@ const char *old_guy_string[OLDMAXGUYS] =
 	// 165
 	"Tektite (L3) ", "Spinning Tile (Combo)", "Spinning Tile (Enemy Sprite)", "Lynel (L3) ", "Peahat (L2) ",
 	// 170
-	"Pols Voice (Magic) ", "Pols Voice (Whistle) ", "Darknut (Mirror) ", "Ghini (L2, Fire) ", "Ghini (L2, Magic) ",
+	"Pols Voice (Magic)", "Pols Voice (Whistle)", "Darknut (Mirror) ", "Ghini (L2, Fire) ", "Ghini (L2, Magic) ",
 	// 175
 	"Grappler Bug (HP) ", "Grappler Bug (MP) "
 };
