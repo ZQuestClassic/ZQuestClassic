@@ -1675,7 +1675,7 @@ void game_over(int32_t type)
 	kill_sfx();
 	music_stop();
 	clear_bitmap(screen);
-	clear_a5_bmp(rti_infolayer.bitmap);
+	clear_info_bmp();
 	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
@@ -1863,7 +1863,7 @@ bool save_game(bool savepoint, int32_t type)
 	kill_sfx();
 	//music_stop();
 	clear_bitmap(screen);
-	clear_a5_bmp(rti_infolayer.bitmap);
+	clear_info_bmp();
 	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	

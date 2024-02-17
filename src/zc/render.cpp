@@ -266,17 +266,33 @@ static void configure_render_tree()
 	reload_dialog_tint();
 }
 
+// This is disabled in the web build because the high cost of swapping textures on the GPU.
+// This is just for displaying a debug layer, so it's fine to disable.
+// The current setup has this bitmap cleared every frame in draw_screen and conditionally drawn to if
+// some debug data must be drawn, so the cost was being paid to swap textures even when not used.
+
+void clear_info_bmp()
+{
+#ifndef __EMSCRIPTEN__
+	clear_a5_bmp(rti_infolayer.bitmap);
+#endif
+}
+
 static ALLEGRO_STATE infobmp_old_state;
 void start_info_bmp()
 {
+#ifndef __EMSCRIPTEN__
 	al_store_state(&infobmp_old_state, ALLEGRO_STATE_TARGET_BITMAP);
 	al_set_target_bitmap(rti_infolayer.bitmap);
 	al_set_clipping_rectangle(0, playing_field_offset, al_get_bitmap_width(rti_infolayer.bitmap), al_get_bitmap_height(rti_infolayer.bitmap)-playing_field_offset);
+#endif
 }
 void end_info_bmp()
 {
+#ifndef __EMSCRIPTEN__
 	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap), al_get_bitmap_height(rti_infolayer.bitmap));
 	al_restore_state(&infobmp_old_state);
+#endif
 }
 
 void render_zc()

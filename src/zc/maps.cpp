@@ -3999,7 +3999,7 @@ void draw_msgstr(byte layer)
 
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
-	clear_a5_bmp(rti_infolayer.bitmap);
+	clear_info_bmp();
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();

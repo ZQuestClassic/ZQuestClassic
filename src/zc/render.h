@@ -10,6 +10,7 @@ extern LegacyBitmapRTI rti_menu;
 extern LegacyBitmapRTI rti_gui;
 extern LegacyBitmapRTI rti_screen;
 
+void clear_info_bmp();
 void start_info_bmp();
 void end_info_bmp();
 void render_zc();

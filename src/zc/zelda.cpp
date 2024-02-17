@@ -5099,7 +5099,7 @@ reload_for_replay_file:
 			//clearing this here makes it impossible 
 			//to read before or after waitdraw in scripts. 
 		}
-		clear_a5_bmp(rti_infolayer.bitmap);
+		clear_info_bmp();
 
 		if (load_replay_file_deffered_called)
 		{
