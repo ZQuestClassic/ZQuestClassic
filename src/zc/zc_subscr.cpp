@@ -148,7 +148,16 @@ void dosubscr()
 	// Consume whatever input was registered during opening animation.
 	if (replay_version_check(18))
 		load_control_state();
-	
+
+	bool legacy_btn_press_peek = false;
+	if (replay_is_active())
+	{
+		std::string qst = replay_get_meta_str("qst");
+		legacy_btn_press_peek |= qst == "demosp253.qst";
+		legacy_btn_press_peek |= qst == "first_quest_layered.qst";
+		legacy_btn_press_peek |= qst == "hell_awaits.qst";
+	}
+
 	do
 	{
 		if (replay_version_check(0, 11))
@@ -162,7 +171,7 @@ void dosubscr()
 		bool can_btn = !subscr_pg_animating;
 		if(can_btn)
 		{
-			byte btn_press = getIntBtnInput(0xFF, true, false, false, false, true);
+			byte btn_press = getIntBtnInput(0xFF, true, false, false, false, legacy_btn_press_peek);
 			int32_t pos = pg.cursor_pos;
 			
 			if(rUp())         pg.move_cursor(SEL_UP);
