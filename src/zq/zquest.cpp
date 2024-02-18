@@ -25568,7 +25568,8 @@ int32_t main(int32_t argc,char **argv)
 
 		const char* input_filename = argv[package_arg + 1];
 		const char* package_name = argv[package_arg + 2];
-		package_create(input_filename, package_name);
+		if (auto error = package_create(input_filename, package_name))
+			Z_error_fatal("%s\n", error->c_str());
 		exit(0);
 	}
 

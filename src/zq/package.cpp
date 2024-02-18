@@ -91,7 +91,7 @@ static bool set_icon(std::wstring exe_path, std::wstring icon_path)
 }
 #endif
 
-void package_create(std::string quest_path_, std::string package_name)
+std::optional<std::string> package_create(std::string quest_path_, std::string package_name)
 {
 #ifdef _WIN32
 	auto root_dir = fs::path("");
@@ -101,8 +101,14 @@ void package_create(std::string quest_path_, std::string package_name)
 	auto extra_dir = root_dir / "packages" / (package_name + "_extra");
 	auto data_dir = package_dir / "data";
 
-	fs::remove_all(package_dir);
-	fs::create_directories(data_dir);
+	std::error_code ec;
+	fs::remove_all(package_dir, ec);
+	if (ec)
+		return fmt::format("Failed to clear {}: {}", package_dir.string(), std::strerror(ec.value()));
+
+	fs::create_directories(data_dir, ec);
+	if (ec)
+		return fmt::format("Failed to create {}: {}", data_dir.string(), std::strerror(ec.value()));
 
 	fs::copy(quest_path, data_dir);
 	fs::copy(root_dir / "zplayer.exe", data_dir / "zplayer.exe");
@@ -119,10 +125,10 @@ void package_create(std::string quest_path_, std::string package_name)
 	// Copy all .dlls
 	ALLEGRO_FS_ENTRY *entry = al_create_fs_entry("");
 	if (!(al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR))
-		return;
+		return "Failed to copy dlls";
 	if (!al_open_directory(entry)) {
 		al_trace("Error opening directory: %s\n", al_get_fs_entry_name(entry));
-		return;
+		return "Failed to copy dlls";
 	}
 	ALLEGRO_FS_ENTRY *next;
 	while (true)
@@ -170,5 +176,9 @@ void package_create(std::string quest_path_, std::string package_name)
 		if (icon_path == extra_dir / "icon.png")
 			fs::copy(icon_path, data_dir, fs::copy_options::overwrite_existing);
 	}
+
+	return std::nullopt;
+#else
+	return "Not implemented";
 #endif
 }

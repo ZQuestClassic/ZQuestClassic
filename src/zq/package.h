@@ -2,7 +2,8 @@
 #define _ZQ_PACKAGE_H_
 
 #include <string>
+#include <optional>
 
-void package_create(std::string quest_path, std::string package_name);
+std::optional<std::string> package_create(std::string quest_path, std::string package_name);
 
 #endif
