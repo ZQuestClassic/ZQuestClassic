@@ -7409,7 +7409,7 @@ static NewMenu misc_menu
 {
 	{ "&About...", onAbout },
 	// TODO: re-enable, but: 1) do not use a bitmap thing that is hard to update 2) update names and 3) don't use the Z-word.
-	{ "&Credits...", onCredits, nullopt, true },
+	// { "&Credits...", onCredits },
 	{ "&Fullscreen", onFullscreenMenu, MENUID_MISC_FULLSCREEN },
 	{ "&Video Mode...", onVidMode, MENUID_MISC_VIDMODE },
 	{},
