@@ -7814,15 +7814,15 @@ void System()
 	//  font=tfont;
 	
 	misc_menu.select_uid(MENUID_MISC_FULLSCREEN, isFullScreen());
-	misc_menu.select_uid(MENUID_MISC_VIDMODE, isFullScreen());
+	misc_menu.disable_uid(MENUID_MISC_VIDMODE, isFullScreen());
 	
 	#if DEVLEVEL > 1
 	dev_menu.disable_uid(MENUID_DEV_SETCHEAT, !Playing);
 	#endif
 	game_menu.disable_uid(MENUID_GAME_LOADQUEST, getsaveslot() < 0);
 	game_menu.disable_uid(MENUID_GAME_ENDGAME, !Playing);
-	misc_menu.select_uid(MENUID_MISC_QUEST_INFO, !Playing);
-	misc_menu.select_uid(MENUID_MISC_QUEST_DIR, Playing);
+	misc_menu.disable_uid(MENUID_MISC_QUEST_INFO, !Playing);
+	misc_menu.disable_uid(MENUID_MISC_QUEST_DIR, Playing);
 	clear_keybuf();
 
 	clear_bitmap(menu_bmp);
