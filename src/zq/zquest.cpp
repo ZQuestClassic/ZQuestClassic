@@ -28420,6 +28420,9 @@ int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c)
 
 void check_autosave()
 {
+    if (!first_save)
+        return;
+
     if(AutoSaveInterval>0)
     {
         time(&auto_save_time_current);
@@ -28428,14 +28431,11 @@ void check_autosave()
         if(auto_save_time_diff>AutoSaveInterval*60)
         {
             MouseSprite::set(ZQM_NORMAL);
-            if(first_save)
-                replace_extension(last_timed_save, filepath, "qt0", 2047);
-            else
-                strcpy(last_timed_save, "untitled.qt0");
+			replace_extension(last_timed_save, filepath, "qt0", 2047);
 			set_last_timed_save(last_timed_save);
             go();
             
-            if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD) && first_save)
+            if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD))
             {
                 jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,get_zc_font(font_lfont));
                 time(&auto_save_time_start);
