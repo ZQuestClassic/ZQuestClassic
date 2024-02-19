@@ -14,6 +14,8 @@
 extern BITMAP* zqdialog_bg_bmp;
 void update_map_count(word newmapcount);
 
+void popup_bugfix_dlg(const char* cfg); //zq_class.cpp
+
 static int wizard_state = 0;
 enum
 {
@@ -192,6 +194,10 @@ bool TilesetWizard::handleMessage(const GUI::DialogMessage<message>& msg)
 				{
 					update_map_count(new_map_count);
 					wizard_state = wizstate_preload;
+					if(zc_get_config("zquest","auto_loadtileset_bugfixes",0))
+						applyRuleTemplate(ruletemplateFixCompat);
+					else
+						popup_bugfix_dlg("dsa_compatrule3");
 					rerun_dlg = false;
 					return true;
 				}
