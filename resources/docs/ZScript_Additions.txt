@@ -8992,7 +8992,7 @@ int Pos;
  * The selector position of this flag.
  * Only used if the widget is selectable (see 'GenFlags[]').
 
-int Poses[4];
+int PosDirs[4];
  * The 4 directional positions for the selector.
  * Use the 'DIR_' constants to index.
  * Only used if the widget is selectable (see 'GenFlags[]').
