@@ -621,7 +621,6 @@ bool edit_dataset(int32_t dataset)
 	PALETTE holdpal;
 	memcpy(holdpal,RAMpal,sizeof(RAMpal));
 	
-	rectfill(screen, 0, 0, screen->w, screen->h, 128);
 	large_dialog(edit_cset_dlg);
 	
 	load_cset(RAMpal,12,dataset);
@@ -657,7 +656,6 @@ bool edit_dataset(int32_t dataset)
 	memcpy(RAMpal, holdpal, sizeof(holdpal));
 	
 	zc_set_palette(RAMpal);
-	rectfill(screen, 0, 0, screen->w, screen->h, BLACK);
 	while(gui_mouse_b()) {
 		rest(1);
 	} //Do nothing
