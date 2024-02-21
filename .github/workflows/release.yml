@@ -20,10 +20,6 @@ on:
         type: boolean
         description: Full Version (i.e. NOT a nightly)
         default: true
-      # build_web_even_for_nightly:
-      #   type: boolean
-      #   description: Build web even for nightly. If false, web only builds w/ full release
-      #   default: false
       sentry:
         type: boolean
         description: Perform a sentry release
@@ -102,68 +98,10 @@ jobs:
       full_release: ${{ inputs.full_release }}
     secrets: inherit
 
-  build-web:
-    runs-on: ubuntu-22.04
-    if: inputs.full_release || inputs.build_web_even_for_nightly
-    needs: create-tag
-
-    steps:
-      - name: git clone
-        uses: actions/checkout@v3
-
-      - uses: mymindstorm/setup-emsdk@v12
-        with:
-          version: "3.1.45"
-          actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
-
-      - name: Install Node.js 18.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
-
-      - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
-
-      # Setup build cache via ccache.
-      - name: ccache cache files
-        uses: actions/cache@v3
-        with:
-          path: .ccache
-          key: web-ccache-${{ github.run_id }}
-          restore-keys: web-ccache-
-      - run: ccache -z
-
-      - run: |
-          git clone https://github.com/psi29a/unsf.git
-          cd unsf
-          cmake -S . -B build .
-          cmake --build build
-          echo "UNSF=$PWD/build/unsf-static" >> $GITHUB_ENV
-
-      - run: |
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
-      - run: bash scripts/configure_emscripten.sh
-        env:
-          ZC_EMCC_CMAKE_EXTRA_FLAGS: -DRELEASE_TAG=${{ needs.create-tag.outputs.release-tag }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-      - run: cmake --build build_emscripten --config Release -t web
-      - run: ccache -s
-
-      - run: npm install
-        working-directory: web
-      - run: zip -r ${{ github.workspace }}/${{ needs.create-tag.outputs.release-tag }}-web.zip .
-        working-directory: build_emscripten/Release/packages/web
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: build-web
-          path: |
-            ${{ github.workspace }}/${{ needs.create-tag.outputs.release-tag }}-web.zip
-
   publish:
     needs:
       - create-tag
       - build-release
-      - build-web
     if: ${{ always() }}
     runs-on: ubuntu-22.04
     steps:
