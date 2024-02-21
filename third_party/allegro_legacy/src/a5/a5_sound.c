@@ -20,7 +20,7 @@
 #include "allegro/platform/ainta5.h"
 #include "allegro/platform/ala5.h"
 
-#define _A5_SOUND_BUFFERS        2
+#define _A5_SOUND_BUFFERS        8
 #define _A5_SOUND_BUFFER_SIZE 1024
 #ifdef __EMSCRIPTEN__
     #define _A5_SOUND_FREQUENCY  22050
@@ -46,6 +46,14 @@ static void * a5_sound_thread_proc(ALLEGRO_THREAD * thread, void * data)
     if(!a5_sound_stream)
     {
         return NULL;
+    }
+    // local edit - Avoids "Out of buffer" warning in logs.
+    while ((fragment = al_get_audio_stream_fragment(a5_sound_stream)))
+    {
+        int bytes_per_sample = al_get_channel_count(_A5_SOUND_CHANNELS) * al_get_audio_depth_size(_A5_SOUND_DEPTH);
+        int samples = _A5_SOUND_BUFFER_SIZE / bytes_per_sample / _A5_SOUND_CHANNELS;
+        al_fill_silence(fragment, samples, _A5_SOUND_DEPTH, _A5_SOUND_CHANNELS);
+        al_set_audio_stream_fragment(a5_sound_stream, fragment);
     }
     if(!al_attach_audio_stream_to_mixer(a5_sound_stream, al_get_default_mixer()))
     {
