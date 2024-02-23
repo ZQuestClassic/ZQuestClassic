@@ -34,7 +34,7 @@ public:
 	{
 		for(size_type q = 0; q < sz; ++q)
 		{
-			if(sz >= size())
+			if(q >= size())
 				arr[q] = default_val;
 			else arr[q] = at(q);
 		}
