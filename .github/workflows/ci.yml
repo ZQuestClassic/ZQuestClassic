@@ -83,7 +83,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: test-results
-          pattern: replay-*
+          pattern: replays-*
           merge-multiple: true
 
       # TODO: instead of starting baseline workflow runs when all platforms finish,
