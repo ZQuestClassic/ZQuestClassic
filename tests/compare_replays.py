@@ -30,7 +30,7 @@ def dir_path(path):
 
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-out_dir = Path(f'{script_dir}/compare-report')
+default_out_dir = Path(f'{script_dir}/compare-report')
 is_ci = 'CI' in os.environ
 
 
@@ -129,7 +129,7 @@ def collect_many_test_results_from_ci(gh: Github, repo: str, workflow_run_id: st
     return collect_many_test_results_from_dir(workflow_dir)
 
 
-def create_compare_report(test_runs: List[ReplayTestResults]):
+def create_compare_report(test_runs: List[ReplayTestResults], out_dir: Path = default_out_dir):
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
@@ -293,7 +293,7 @@ def start_webserver():
         def do_GET(self):
             if self.path == '/':
                 self.path = '/index.html'
-            path = out_dir / self.path[1:]
+            path = default_out_dir / self.path[1:]
 
             file_to_open = None
             try:
@@ -323,7 +323,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--workflow_run', type=int, action='append')
     parser.add_argument('--local', type=dir_path, action='append')
+    parser.add_argument('--dest', type=dir_path, default=default_out_dir)
     parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
+    parser.add_argument('--start-server', action=argparse.BooleanOptionalAction)
     parser.add_argument('--token')
     args = parser.parse_args()
 
@@ -356,6 +358,6 @@ if __name__ == '__main__':
                 print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
 
-    create_compare_report(all_test_runs)
-    if not is_ci:
+    create_compare_report(all_test_runs, args.dest)
+    if not is_ci and args.start_server:
         start_webserver()

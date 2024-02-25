@@ -874,7 +874,7 @@ def run_bisect(revisions: List[Revision]):
 if args.download:
     revisions = get_releases(include_test_builds=True)
     revision = next(r for r in revisions if r.tag == args.download)
-    download_revision(revision)
+    print(download_revision(revision))
     exit(0)
 
 if args.list_releases:

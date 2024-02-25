@@ -52,7 +52,6 @@ from argparse import ArgumentTypeError
 import subprocess
 import os
 import sys
-import re
 import heapq
 import pathlib
 import platform
@@ -70,9 +69,10 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import cutie
 
-from common import ReplayTestResults, RunResult, infer_gha_platform, download_release, maybe_get_downloaded_revision
+from common import ReplayTestResults, RunResult, infer_gha_platform, download_release, maybe_get_downloaded_revision, get_recent_release_tag
 from run_test_workflow import collect_baseline_from_test_results, get_args_for_collect_baseline_from_test_results
 from compare_replays import create_compare_report, start_webserver, collect_many_test_results_from_dir, collect_many_test_results_from_ci
+from lib.replay_helpers import read_replay_meta, parse_result_txt_file
 
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -85,60 +85,6 @@ def dir_path(path):
         return pathlib.Path(path)
     else:
         raise ArgumentTypeError(f'{path} is not a valid directory')
-
-
-def parse_result_txt_file(path: pathlib.Path):
-    if platform.system() == 'Windows':
-        # Windows has a tough time reading this file, sometimes resulting in a permission
-        # denied error. I suspect MSVC's `std::filesystem::rename` is not atomic like it
-        # claims to be. Or maybe the problem lies with Python's mtime.
-        for _ in range(0, 10):
-            try:
-                lines = path.read_text().splitlines()
-                if _ != 0:
-                    logging.warning('finally was able to read it')
-                break
-            except:
-                logging.exception(f'could not read {path}')
-                sleep(0.1)
-    else:
-        lines = path.read_text().splitlines()
-
-    result = {}
-    for line in lines:
-        key, value = line.split(': ', 1)
-        if key == 'unexpected_gfx_frames':
-            value = [int(x) for x in value.split(', ')]
-        elif key == 'unexpected_gfx_segments' or key == 'unexpected_gfx_segments_limited':
-            segments = []
-            for pair in value.split(' '):
-                if '-' in pair:
-                    start, end = pair.split('-')
-                else:
-                    start = int(pair)
-                    end = start
-                segments.append([int(start), int(end)])
-            value = segments
-        elif value == 'true':
-            value = True
-        elif value == 'false':
-            value = False
-        elif value.isdigit():
-            value = int(value)
-        else:
-            try:
-                value = float(value)
-            except:
-                pass
-
-        result[key] = value
-
-    # Check if file is only partially written.
-    if 'stopped' not in result:
-        return None
-
-    return result
-
 
 class ReplayResultUpdatedHandler(FileSystemEventHandler):
 
@@ -226,7 +172,9 @@ parser.add_argument('--no_console', action='store_true',
     help='Prevent the debug console from opening')
 parser.add_argument('--no_report_on_failure', action='store_true',
     help='Do not prompt to create compare report')
+parser.add_argument('--not_interactive', action='store_true')
 parser.add_argument('--extra_args')
+parser.add_argument('--for_dev_server', action=argparse.BooleanOptionalAction, default=False)
 
 
 mode_group = parser.add_argument_group('Mode','The playback mode')
@@ -474,24 +422,6 @@ def time_format(ms: int):
     return '-'
 
 
-def read_last_contentful_line(file):
-    f = pathlib.Path(file).open('rb')
-    try:  # catch OSError in case of a one line file
-        f.seek(-2, os.SEEK_END)
-        found_content = False
-        while True:
-            c = f.read(1)
-            if not c.isspace():
-                found_content = True
-            if found_content and c == b'\n':
-                if found_content:
-                    break
-            f.seek(-2, os.SEEK_CUR)
-    except OSError:
-        f.seek(0)
-    return f.readline().decode()
-
-
 def get_replay_qst(replay_path: pathlib.Path):
     with replay_path.open('r', encoding='utf-8') as f:
         for line in f:
@@ -514,35 +444,8 @@ def get_replay_name(replay_file: pathlib.Path):
 
 
 @functools.cache
-def read_replay_meta(path: pathlib.Path):
-    meta = {}
-    with path.open('r', encoding='utf-8') as f:
-        while True:
-            line = f.readline()
-            if not line.startswith('M'):
-                break
-            _ , key, value = line.strip().split(' ', 2)
-            meta[key] = value
-    if not meta:
-        raise Exception(f'invalid replay {path}')
-    return meta
-
-
-@functools.cache
 def get_replay_data(file):
-    name = get_replay_name(file)
-    meta = read_replay_meta(file)
-
-    if 'frames' in meta:
-        frames = int(meta['frames'])
-    else:
-        # TODO: delete this when all replay tests have `M frames`
-        last_step = read_last_contentful_line(file)
-        if not last_step:
-            raise Exception(f'no content found in {name}')
-        if not re.match(r'^. \d+ ', last_step):
-            raise Exception(f'unexpected content found in {name}:\n  {last_step}\nAre you sure this is a zplay file?')
-        frames = int(last_step.split(' ')[1])
+    meta = read_replay_meta(pathlib.Path(file))
 
     if meta['qst'] == 'playground.qst' and meta['version'] != 'latest':
         raise Exception(f'all playground.qst replays must set version to "latest": {file}')
@@ -582,6 +485,7 @@ def get_replay_data(file):
     if is_asan:
         estimated_fps /= 15
 
+    frames = int(meta['frames'])
     frames_limited = frames
     frame_arg = get_arg_for_replay(file, grouped_frame_arg, is_int=True)
     if frame_arg is not None and frame_arg < frames_limited:
@@ -1023,7 +927,7 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
     print_emoji = args.emoji
 
     use_curses = False
-    if sys.stdout.isatty() and not is_ci:
+    if sys.stdout.isatty() and not is_ci and not args.not_interactive:
         try:
             import curses
             import atexit
@@ -1172,13 +1076,16 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
 
         next_active_tests = []
         active_results = []
+        has_updated = False
         for active_test in active_tests:
             test_index, type, result = next(active_test, None)
 
             if type == 'status':
+                has_updated = True
                 next_active_tests.append(active_test)
                 active_results.append(result)
             elif type == 'finish':
+                has_updated = True
                 replay_finished[result.name] = True
                 results.append(result)
                 if not use_curses:
@@ -1186,6 +1093,12 @@ def run_replay_tests(tests: List[str], runs_dir: pathlib.Path) -> List[RunResult
                     clear_progress_str()
                     print(f'{symbol} {text}')
         active_tests = next_active_tests
+
+        if args.for_dev_server and has_updated:
+            pending_results = [RunResult(str(t.relative_to(replays_dir)), '', str(t)) for t in pending_tests]
+            test_results.runs.append(active_results + pending_results + results)
+            test_results_path.write_text(test_results.to_json())
+            test_results.runs.pop()
 
         if use_curses:
             rows, cols = curses.LINES, curses.COLS
@@ -1265,10 +1178,6 @@ def prompt_for_gh_auth():
 
     return Github(token), repo
 
-
-def get_recent_release_tag(args: List[str]):
-    command = f'git describe --tags --abbrev=0 ' + ' '.join(args)
-    return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 
 def prompt_to_create_compare_report():
     if not cutie.prompt_yes_or_no('Would you like to generate a compare report?', default_is_yes=True):

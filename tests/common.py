@@ -236,6 +236,10 @@ def download_release(gh: Github, repo_str: str, channel: str, tag: str):
     print(f'finished downloading {tag}')
     return dest
 
+def get_recent_release_tag(args: List[str]):
+    command = f'git describe --tags --abbrev=0 ' + ' '.join(args)
+    return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
+
 class ZCTestCase(unittest.TestCase):
     def expect_snapshot(self, expected_path: Path, actual: str, update: bool):
         expected = None
