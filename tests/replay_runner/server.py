@@ -180,8 +180,8 @@ async def handle_compare_command(client: Client, params):
 	tag = get_recent_release_tag(['--match', '3.*.*'])
 	await update_view(view, {'status': f'downloading baseline build {tag}'})
 	args = [
-		root_dir / 'scripts/bisect_builds.py',
-		'--download', tag,
+		root_dir / 'scripts/archives.py',
+		'download', tag,
 	]
 	p = await create_proc(sys.executable, args)
 	if await p.wait() != 0:

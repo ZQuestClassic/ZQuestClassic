@@ -31,7 +31,7 @@ jobs:
       - name: git clone
         uses: actions/checkout@v4
         with:
-          # Need for bisect_builds.py --download to work.
+          # Need for `archives.py download` to work.
           fetch-depth: 0
 
       - name: cache
@@ -43,7 +43,7 @@ jobs:
         with:
           python-version: '3.11.4'
       - run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie joblib
-      - run: python scripts/bisect_builds.py --download 2.55-alpha-120 --token ${{ secrets.GITHUB_TOKEN }}
+      - run: python scripts/archives.py download 2.55-alpha-120
 
       - run: npm install
         working-directory: scripts/database
