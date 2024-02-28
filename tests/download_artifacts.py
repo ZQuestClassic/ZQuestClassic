@@ -1,8 +1,15 @@
 # Downloads artifacts from GitHub Actions.
 
-import argparse
 from github import Github
-from common import get_gha_artifacts
+from pathlib import Path
+import argparse
+import os
+
+script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
+
+os.sys.path.append(str((root_dir / 'scripts').absolute()))
+from github_helpers import get_gha_artifacts
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

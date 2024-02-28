@@ -12,10 +12,14 @@ from typing import List
 from pathlib import Path
 import intervaltree
 from github import Github, GithubException, WorkflowRun, PaginatedList
-from common import get_gha_artifacts, extract_tars, ReplayTestResults
+from common import ReplayTestResults
 from workflow_job import WorkflowJob
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
+
+os.sys.path.append(str((root_dir / 'scripts').absolute()))
+from github_helpers import get_gha_artifacts, extract_tars
 
 
 def arg_path(path):

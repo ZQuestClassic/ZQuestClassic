@@ -69,7 +69,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import cutie
 
-from common import ReplayTestResults, RunResult, infer_gha_platform, get_recent_release_tag
+from common import ReplayTestResults, RunResult, get_recent_release_tag
 from run_test_workflow import collect_baseline_from_test_results, get_args_for_collect_baseline_from_test_results
 from compare_replays import create_compare_report, start_webserver, collect_many_test_results_from_dir, collect_many_test_results_from_ci
 from lib.replay_helpers import read_replay_meta, parse_result_txt_file
@@ -81,6 +81,7 @@ is_ci = 'CI' in os.environ
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import archives
+from github_helpers import infer_gha_platform
 
 def dir_path(path):
     if not os.path.isfile(path) and (os.path.isdir(path) or not os.path.exists(path)):

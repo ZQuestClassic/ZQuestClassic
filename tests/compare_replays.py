@@ -1,10 +1,6 @@
 # Given various test run results (either from local filesystem, or
-# downloaded from a GitHub Actiosn workflow run), generates an HTML report
+# downloaded from a GitHub Actions workflow run), generates an HTML report
 # presenting the snapshots frame-by-frame, and their differences.
-#
-# You must run a local web server for the HTML to work:
-#     cd tests/compare-report
-#     python -m http.server 8000
 
 import argparse
 from argparse import ArgumentTypeError
@@ -16,10 +12,16 @@ import json
 import hashlib
 from pathlib import Path
 from github import Github
-from common import get_gha_artifacts_with_retry, extract_tars, ReplayTestResults, RunResult
+from common import ReplayTestResults, RunResult
 from typing import List
 from PIL import Image
 import intervaltree
+
+script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
+
+os.sys.path.append(str((root_dir / 'scripts').absolute()))
+from github_helpers import get_gha_artifacts_with_retry, extract_tars
 
 
 def dir_path(path):
