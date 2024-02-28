@@ -4,7 +4,6 @@ import os
 import io
 import json
 import subprocess
-import shutil
 import tarfile
 from time import sleep
 from dataclasses import dataclass, field
@@ -193,48 +192,6 @@ def get_release_package_url(gh: Github, repo_str: str, channel: str, tag: str):
 
     return asset.browser_download_url
 
-
-def maybe_get_downloaded_revision(tag: str) -> Optional[Path]:
-    dir = None
-    if (releases_dir / tag).exists():
-        dir = releases_dir / tag
-    elif (test_builds_dir / tag).exists():
-        dir = test_builds_dir / tag
-    if dir and list(dir.glob('*')):
-        return dir
-    return None
-
-
-def download_release(gh: Github, repo_str: str, channel: str, tag: str):
-    dest = releases_dir / tag
-    if dest.exists() and list(dest.glob('*')):
-        return dest
-
-    dest.mkdir(parents=True, exist_ok=True)
-    print(f'downloading release {tag}')
-
-    url = get_release_package_url(gh, repo_str, channel, tag)
-    r = requests.get(url)
-    if channel == 'mac':
-        (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
-        subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
-                              str(dest / 'zc-mounted'), str(dest / 'ZQuestClassic.dmg')], stdout=subprocess.DEVNULL)
-        zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
-        shutil.copytree(zc_app_path, dest / zc_app_path.name)
-        subprocess.check_call(['hdiutil', 'unmount', str(
-            dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
-        (dest / 'ZQuestClassic.dmg').unlink()
-    elif url.endswith('.tar.gz'):
-        tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
-        tf.extractall(dest, filter='data')
-        tf.close()
-    else:
-        zip = zipfile.ZipFile(io.BytesIO(r.content))
-        zip.extractall(dest)
-        zip.close()
-
-    print(f'finished downloading {tag}')
-    return dest
 
 def get_recent_release_tag(args: List[str]):
     command = f'git describe --tags --abbrev=0 ' + ' '.join(args)

@@ -9,7 +9,6 @@ from joblib import Memory
 from pathlib import Path
 from typing import List, Union, Literal
 import argparse
-import build_historical
 import common
 import functools
 import git_helpers
@@ -22,6 +21,10 @@ import subprocess
 import tarfile
 import textwrap
 import zipfile
+
+def _get_historical():
+	import build_historical
+	return build_historical
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -42,7 +45,7 @@ class Revision:
 	def binaries(self, channel: str):
 		if self.is_local_build:
 			try:
-				dir = build_historical.build_locally(self)
+				dir = _get_historical().build_locally(self)
 			except KeyboardInterrupt:
 				exit(1)
 			except:
@@ -204,7 +207,7 @@ def get_revisions(channel: str, include_test_builds = True, may_build_locally = 
 
 	if may_build_locally:
 		revisions = get_local_builds(revisions)
-		revisions = [r for r in revisions if not build_historical.local_build_error(r)]
+		revisions = [r for r in revisions if not _get_historical().local_build_error(r)]
 
 	revisions = [r for r in revisions if r.commit_count != -1]
 	revisions.sort(key=lambda x: x.commit_count)
@@ -398,7 +401,7 @@ class CLI:
 		exit(p.wait())
 
 	def backfill_local_builds(self, args):
-		build_historical.backfill(args.channel)
+		_get_historical().backfill(args.channel)
 
 
 if __name__ == '__main__':

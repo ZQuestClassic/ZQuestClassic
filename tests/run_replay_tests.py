@@ -69,7 +69,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import cutie
 
-from common import ReplayTestResults, RunResult, infer_gha_platform, download_release, maybe_get_downloaded_revision, get_recent_release_tag
+from common import ReplayTestResults, RunResult, infer_gha_platform, get_recent_release_tag
 from run_test_workflow import collect_baseline_from_test_results, get_args_for_collect_baseline_from_test_results
 from compare_replays import create_compare_report, start_webserver, collect_many_test_results_from_dir, collect_many_test_results_from_ci
 from lib.replay_helpers import read_replay_meta, parse_result_txt_file
@@ -79,6 +79,8 @@ root_dir = script_dir.parent
 replays_dir = script_dir / 'replays'
 is_ci = 'CI' in os.environ
 
+sys.path.append(str((root_dir / 'scripts').absolute()))
+import archives
 
 def dir_path(path):
     if not os.path.isfile(path) and (os.path.isdir(path) or not os.path.exists(path)):
@@ -1223,9 +1225,9 @@ def prompt_to_create_compare_report():
         print('Select a release build to use: ')
         selected_index = cutie.select([
             # TODO
-            # 'Most recent passing build from CI (requires token)',
-            f'Most recent nightly ({most_recent_nightly}) (requires token)',
-            f'Most recent stable ({most_recent_stable}) (requires token)',
+            # 'Most recent passing build from CI',
+            f'Most recent nightly ({most_recent_nightly})',
+            f'Most recent stable ({most_recent_stable})',
         ])
         print()
 
@@ -1244,10 +1246,7 @@ def prompt_to_create_compare_report():
         else:
             raise Exception(f'unexpected system: {system}')
 
-        build_dir = maybe_get_downloaded_revision(tag)
-        if not build_dir:
-            gh, repo = prompt_for_gh_auth()
-            build_dir = download_release(gh, repo, channel, tag)
+        build_dir = archives.download(tag, channel)
         if channel == 'mac':
             zc_app_path = next(build_dir.glob('*.app'))
             build_dir = zc_app_path / 'Contents/Resources'
