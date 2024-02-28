@@ -70,12 +70,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11.4'
+          cache: pip
       - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
-        run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie joblib
+        run: pip install -r requirements.txt
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie joblib
-      - if: inputs.config == 'Coverage'
-        run: sudo pip install gcovr
+        run: sudo pip install -r requirements.txt
 
       - uses: actions/download-artifact@v4
         with:

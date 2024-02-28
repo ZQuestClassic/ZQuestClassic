@@ -1,7 +1,5 @@
-# TODO: use virtualenv. For now, manually install these packages:
-#   python -m pip install cutie PyGithub==1.58.2 requests watchdog discord.py Pillow intervaltree
-# For Windows, install this:
-#   python -m pip install windows-curses
+# Install python packages:
+#   python -m pip install -r requirements.txt
 
 # For more information, see replay.h
 

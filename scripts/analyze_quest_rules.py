@@ -1,4 +1,4 @@
-# python -m pip install joblib git+ssh://git@github.com/connorjclark/zquest-data.git@2e9c43
+# python -m pip install git+ssh://git@github.com/connorjclark/zquest-data.git@2e9c43
 
 # To update the files in docs folder:
 #   python scripts/analyze_quest_rules.py > docs/quest_database.md

@@ -79,6 +79,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11.4'
+          cache: pip
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         uses: ilammy/msvc-dev-cmd@v1
@@ -134,9 +135,7 @@ jobs:
 
       - name: Build ZScript docs
         if: inputs.official
-        run: |
-          pip install pytz
-          python webdocs/docjson_main.py --in webdocs/zsdocs_main.json --out resources/docs/ZScript_Docs.html -c
+        run: python webdocs/docjson_main.py --in webdocs/zsdocs_main.json --out resources/docs/ZScript_Docs.html -c
 
       # Configure build.
       - if: inputs.compiler == 'gcc'
