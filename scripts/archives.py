@@ -27,7 +27,7 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 archives_dir = root_dir / '.tmp/archives'
 memory = Memory(root_dir / '.tmp/memory_archives', verbose=0)
-
+bucket_url = 'https://zc-archives.nyc3.cdn.digitaloceanspaces.com'
 
 @dataclass
 class Revision:
@@ -108,7 +108,6 @@ def revision_count_supports_platform(revision_count: int, platform_str: str):
 
 @functools.cache
 def get_download_urls(channel: str):
-	bucket_url = 'https://zc-archives.nyc3.cdn.digitaloceanspaces.com'
 	keys_by_commitish = {}
 	def get_download_urls_impl(marker: str):
 		url = f'{bucket_url}?max-keys=1000'
@@ -235,7 +234,7 @@ def create_binary_paths(dir: Path, channel: str):
 def get_repo():
 	token = os.environ.get('GH_PAT', None)
 	if not token:
-		raise Exception('token required')
+		raise Exception('token required - set GH_PAT env variable')
 
 	gh = Github(token)
 	return gh.get_repo('ZQuestClassic/ZQuestClassic')
@@ -282,15 +281,38 @@ def _download(revision: Revision, channel: str):
 		return dest
 
 	commitish = revision.tag
-	urls_by_commitish = get_download_urls(channel)
-	if commitish in urls_by_commitish:
-		url = urls_by_commitish[commitish]
+	if channel == 'windows':
+		urls = [
+			f'{bucket_url}/{commitish}/windows-x64.zip',
+			f'{bucket_url}/{commitish}/windows-x86.zip',
+		]
+	elif channel == 'mac':
+		urls = [
+			f'{bucket_url}/{commitish}/mac.dmg',
+		]
+	elif channel == 'linux':
+		urls = [
+			f'{bucket_url}/{commitish}/linux.tar.gz',
+		]
 	else:
-		url = get_gh_release_package_url(revision.tag, channel)
+		raise Exception(f'unexpected channel: {channel}')
+
+	found_url = None
+	for url in urls:
+		r = requests.get(url)
+		if not r.ok:
+			print(f'not found: {url}', file=os.sys.stderr)
+			continue
+
+		found_url = url
+		break
+
+	# Fall back to using the GitHub API.
+	if not found_url:
+		found_url = get_gh_release_package_url(revision.tag, channel)
 
 	dest.mkdir(parents=True, exist_ok=True)
-	print(f'downloading {commitish}', file=os.sys.stderr)
-	print(url, file=os.sys.stderr)
+	print(f'downloading {found_url}', file=os.sys.stderr)
 
 	r = requests.get(url)
 	if channel == 'mac':
