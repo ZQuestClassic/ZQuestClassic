@@ -90,6 +90,12 @@ namespace GUI::Lists
 		{ "Pixelated Cover", 1 },
 		{ "Normal Cover", 2 }
 	};
+	static const GUI::ListData invalidDataBGList
+	{
+		{ "X Out", 0 },
+		{ "Static", 1 },
+		{ "Checkerboard", 2 }
+	};
 	static const ListData autoBackupCopiesList = ListData::numbers(false, 0, 11);
 	static const ListData autoSaveCopiesList = ListData::numbers(false, 1, 10);
 	static const ListData frameRestSuggestList = ListData::numbers(false, 0, 3);
@@ -603,7 +609,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					),
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Uncompressed Autosaves",App::zquest,"zquest","uncompressed_auto_saves",1),
-						CONFIG_CHECKBOX_I("Static effect for invalid data",App::zquest,"zquest","invalid_static",0,"Uses an animated static effect for 'invalid' things (filtered out combos, nonexistant screens on the minimap, etc)"),
 						CONFIG_CHECKBOX_I("Warn on Init Script Change",App::zquest,"zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)"),
 						CONFIG_CHECKBOX_I("Show Ruleset Dialog on New Quest",App::zquest,"zquest","rulesetdialog",0,"On creating a 'New' quest, automatically pop up the 'Pick Ruleset' menu. (This can be found any time at 'Quest->Options->Pick Ruleset')"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zquest,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
@@ -617,6 +622,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zquest,"zquest","cursor_scale_large",1.5,1.0,5.0, 4),
+						CONFIG_DROPDOWN_I("Invalid Data BG:",App::zquest,"zquest","invalid_bg",0,invalidDataBGList,"What effect to use for 'invalid' things (filtered out combos, nonexistant screens on the minimap, etc)"),
 						CONFIG_DROPDOWN_I("Bottom 8 pixels:", App::zquest,"ZQ_GUI","bottom_8_pixels",0,bottom8_list,"How to hide the bottom 8 screen pixels"),
 						CONFIG_DROPDOWN_I("Snapshot Output:", App::zquest,"zquest","snapshot_format",3,snapshotFormatList,"The format of map screen snapshots / window screenshots"),
 						CONFIG_DROPDOWN_I("Snapshot Scale:", App::zquest,"zquest","snapshot_scale",2,snapshotScaleList,"The scale of snapshots"),
