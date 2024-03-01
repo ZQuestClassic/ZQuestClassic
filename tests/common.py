@@ -1,9 +1,10 @@
 import difflib
 import os
 import subprocess
-from typing import List
 import unittest
+
 from pathlib import Path
+from typing import List
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent

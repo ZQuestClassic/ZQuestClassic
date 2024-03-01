@@ -1,9 +1,10 @@
 import argparse
-import os
-import shutil
-import re
-from pathlib import Path
 import itertools
+import os
+import re
+import shutil
+
+from pathlib import Path
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', required=True)

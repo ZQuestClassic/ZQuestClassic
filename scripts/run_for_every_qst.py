@@ -4,12 +4,13 @@
 #
 #   python scripts/run_for_every_qst.py ./build/Debug/zplayer -extract-zasm %s
 
-import os
-import json
 import argparse
+import json
+import os
 import subprocess
-from typing import List
+
 from pathlib import Path
+from typing import List
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent

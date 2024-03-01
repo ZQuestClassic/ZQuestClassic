@@ -1,8 +1,9 @@
 import argparse
-import os
-import subprocess
-import shutil
 import itertools
+import os
+import shutil
+import subprocess
+
 from pathlib import Path
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))

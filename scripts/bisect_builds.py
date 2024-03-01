@@ -9,15 +9,18 @@
 # Use the '--local_builds' flag to build additional commits locally. This will take much longer, so
 # run without first to get a more narrow range.
 
-from archives import Revision
-from joblib import Memory
-from pathlib import Path
-from typing import List
-import archives
 import argparse
-import common
 import os
 import platform
+
+from pathlib import Path
+from typing import List
+
+import archives
+import common
+
+from archives import Revision
+from joblib import Memory
 
 parser = argparse.ArgumentParser(description='Runs a bisect using prebuilt releases.')
 parser.add_argument('--good')

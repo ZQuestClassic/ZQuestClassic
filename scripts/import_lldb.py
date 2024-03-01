@@ -30,7 +30,7 @@ def import_lldb():
         lldb_executable = os.environ['LLDB']
 
     # Try using builtin module location support ('lldb -P')
-    from subprocess import check_output, CalledProcessError
+    from subprocess import CalledProcessError, check_output
 
     try:
         with open(os.devnull, 'w') as fnull:

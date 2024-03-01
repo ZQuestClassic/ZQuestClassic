@@ -3,15 +3,18 @@
 # test_results.json files to run just failures from run_replay_tests.py.
 
 import argparse
-from argparse import ArgumentTypeError
-import os
 import json
+import os
 import subprocess
+
+from argparse import ArgumentTypeError
+from pathlib import Path
 from time import sleep
 from typing import List
-from pathlib import Path
+
 import intervaltree
-from github import Github, GithubException, WorkflowRun, PaginatedList
+
+from github import Github, GithubException, PaginatedList, WorkflowRun
 from replays import ReplayTestResults
 from workflow_job import WorkflowJob
 
@@ -19,7 +22,7 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 
 os.sys.path.append(str((root_dir / 'scripts').absolute()))
-from github_helpers import get_gha_artifacts, extract_tars
+from github_helpers import extract_tars, get_gha_artifacts
 
 
 def arg_path(path):

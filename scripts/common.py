@@ -1,7 +1,8 @@
-from pathlib import Path
-from typing import List
 import platform
 import subprocess
+
+from pathlib import Path
+from typing import List
 
 
 def get_channel():

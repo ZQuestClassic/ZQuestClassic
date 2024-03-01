@@ -1,7 +1,9 @@
-import sys
 import subprocess
+import sys
+
 from pathlib import Path
-from common import valid_types, valid_scopes
+
+from common import valid_scopes, valid_types
 
 if len(sys.argv) != 2:
     exit(0)

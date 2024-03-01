@@ -1,10 +1,3 @@
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from time import sleep
-from timeit import default_timer as timer
-from typing import List, Optional, Tuple, Literal, Any, Callable, Union, Generator, Dict
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 import dataclasses
 import heapq
 import json
@@ -17,7 +10,15 @@ import subprocess
 import sys
 import traceback
 
-from lib.replay_helpers import read_replay_meta, parse_result_txt_file
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from time import sleep
+from timeit import default_timer as timer
+from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Tuple, Union
+
+from lib.replay_helpers import parse_result_txt_file, read_replay_meta
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent

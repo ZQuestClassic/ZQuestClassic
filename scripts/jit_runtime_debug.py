@@ -2,18 +2,19 @@
 # of an instruction resulting in unexpected registers/stack.
 
 import argparse
-import os
-import sys
+import dataclasses
 import json
+import os
 import shutil
-from pathlib import Path
 import subprocess
+import sys
+
+from dataclasses import dataclass, field
+from pathlib import Path
 
 # TODO :(
 # from ..tests.replays import ReplayTestResults
-from typing import List, Literal, Tuple, Optional, Any
-from dataclasses import dataclass, field
-import dataclasses
+from typing import Any, List, Literal, Optional, Tuple
 
 
 @dataclass

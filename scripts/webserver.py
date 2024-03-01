@@ -1,12 +1,13 @@
 import argparse
-from argparse import ArgumentTypeError
-from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
-from pathlib import Path
+import mimetypes
 import os
 import shutil
-import urllib.parse
-import mimetypes
 import subprocess
+import urllib.parse
+
+from argparse import ArgumentTypeError
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 
 def dir_path(path):

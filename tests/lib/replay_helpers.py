@@ -1,10 +1,11 @@
-from pathlib import Path
-from time import sleep
 import functools
 import logging
 import os
 import platform
 import re
+
+from pathlib import Path
+from time import sleep
 
 
 def read_last_contentful_line(file: Path):

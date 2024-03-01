@@ -3,25 +3,27 @@
 # presenting the snapshots frame-by-frame, and their differences.
 
 import argparse
-from argparse import ArgumentTypeError
+import hashlib
+import json
 import os
 import re
-import json
 import shutil
-import json
-import hashlib
+
+from argparse import ArgumentTypeError
 from pathlib import Path
-from github import Github
-from replays import ReplayTestResults, RunResult
 from typing import List
-from PIL import Image
+
 import intervaltree
+
+from github import Github
+from PIL import Image
+from replays import ReplayTestResults, RunResult
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 
 os.sys.path.append(str((root_dir / 'scripts').absolute()))
-from github_helpers import get_gha_artifacts_with_retry, extract_tars
+from github_helpers import extract_tars, get_gha_artifacts_with_retry
 
 
 def dir_path(path):
@@ -301,7 +303,7 @@ def create_compare_report(
 
 # TODO use webserver.py
 def start_webserver():
-    from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
     class Serv(BaseHTTPRequestHandler):
         def do_GET(self):

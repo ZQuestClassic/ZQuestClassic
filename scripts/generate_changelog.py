@@ -1,11 +1,13 @@
 import argparse
-import re
 import os
+import re
 import subprocess
-from pathlib import Path
+
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List
-from git_hooks.common import valid_types, valid_scopes
+
+from git_hooks.common import valid_scopes, valid_types
 
 release_oneliners = {
     '2.55-alpha-120': 'The one with crumbling floors, moving platforms, and ExDoors.',

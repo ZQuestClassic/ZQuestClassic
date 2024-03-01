@@ -1,7 +1,9 @@
-from joblib import Memory
-from pathlib import Path
 import os
 import subprocess
+
+from pathlib import Path
+
+from joblib import Memory
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent

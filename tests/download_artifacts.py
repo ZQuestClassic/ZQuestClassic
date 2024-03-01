@@ -1,9 +1,11 @@
 # Downloads artifacts from GitHub Actions.
 
-from github import Github
-from pathlib import Path
 import argparse
 import os
+
+from pathlib import Path
+
+from github import Github
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent

@@ -4,17 +4,19 @@
 #   python scripts/analyze_quest_rules.py > docs/quest_database.md
 #   python scripts/analyze_quest_rules.py --no_compat > docs/quest_database_no_compat.md
 
+import argparse
 import logging
 import os
-import sys
-import argparse
 import subprocess
-from joblib import Memory
-from typing import Set, List
+import sys
+
 from pathlib import Path
+from typing import List, Set
+
+from joblib import Memory
+from zquest import constants
 from zquest.extract import ZeldaClassicReader
 from zquest.section_utils import SECTION_IDS
-from zquest import constants
 
 logging.getLogger('zc').setLevel(logging.FATAL)
 

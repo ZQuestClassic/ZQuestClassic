@@ -1,7 +1,9 @@
-import sys
 import re
+import sys
+
 from pathlib import Path
-from common import valid_types, valid_scopes
+
+from common import valid_scopes, valid_types
 
 commit_msg_path = Path(sys.argv[1])
 commit_msg = commit_msg_path.read_text()

@@ -1,10 +1,11 @@
 import os
-import subprocess
-from typing import List, Optional
-from pathlib import Path
-import sys
 import platform
 import shutil
+import subprocess
+import sys
+
+from pathlib import Path
+from typing import List, Optional
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent

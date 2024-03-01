@@ -4,9 +4,10 @@
 #
 #   python tests/test_zplayer.py
 
-import sys
 import os
+import sys
 import unittest
+
 from pathlib import Path
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))

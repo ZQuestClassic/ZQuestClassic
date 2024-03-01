@@ -1,7 +1,8 @@
 import argparse
-import re
 import os
+import re
 import subprocess
+
 from pathlib import Path
 
 parser = argparse.ArgumentParser()

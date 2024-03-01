@@ -14,13 +14,15 @@
 
 import argparse
 import os
-import re
-import zlib
 import platform
+import re
 import shutil
 import sys
 import unittest
+import zlib
+
 from pathlib import Path
+
 from common import ZCTestCase
 
 parser = argparse.ArgumentParser()

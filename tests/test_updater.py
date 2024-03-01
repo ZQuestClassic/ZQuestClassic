@@ -1,12 +1,13 @@
 # Runs the updater within a copy of a release package, and asserts files
 # were actually updated. Must first run the package step.
 
-import platform
 import os
-import sys
-import unittest
+import platform
 import shutil
 import subprocess
+import sys
+import unittest
+
 from pathlib import Path
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))

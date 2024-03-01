@@ -1,7 +1,8 @@
 import argparse
+import json
 import os
 import re
-import json
+
 from pathlib import Path
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))

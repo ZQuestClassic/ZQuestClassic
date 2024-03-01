@@ -4,11 +4,6 @@
 # TODO: see info about baseline replay run
 # TODO: refactor replay test runner as library
 
-from aiohttp import web
-from dataclasses import dataclass
-from pathlib import Path
-from typing import List
-import aiohttp
 import asyncio
 import json
 import os
@@ -17,12 +12,20 @@ import shutil
 import subprocess
 import sys
 
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List
+
+import aiohttp
+
+from aiohttp import web
+
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = (script_dir / '../..').resolve()
 sys.path.append(str((script_dir / '..').absolute()))
 
-from lib.replay_helpers import read_replay_meta
 from common import get_recent_release_tag
+from lib.replay_helpers import read_replay_meta
 from run_test_workflow import get_args_for_collect_baseline_from_test_results
 
 compare_reports_dir = root_dir / f'.tmp/compare_reports'

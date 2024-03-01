@@ -1,12 +1,15 @@
 # Uploads GitHub releases to an s3 bucket.
 
-from github import Github
-from pathlib import Path
 import argparse
 import os
 import re
-import requests
 import subprocess
+
+from pathlib import Path
+
+import requests
+
+from github import Github
 
 BUCKET = 'zc-archives'
 BUCKET_URL = 'https://zc-archives.nyc3.cdn.digitaloceanspaces.com'

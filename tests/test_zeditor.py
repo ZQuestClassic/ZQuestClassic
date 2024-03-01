@@ -4,14 +4,16 @@
 #
 #   python tests/test_zeditor.py
 
-import sys
-import os
 import json
-import subprocess
-import unittest
-import shutil
+import os
 import platform
+import shutil
+import subprocess
+import sys
+import unittest
+
 from pathlib import Path
+
 from replays import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))

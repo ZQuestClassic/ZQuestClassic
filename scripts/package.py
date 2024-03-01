@@ -1,15 +1,14 @@
 import argparse
 import os
-import re
-import time
-import shutil
 import platform
-import time
+import re
 import shutil
 import subprocess
 import sys
-from typing import List, Tuple
+import time
+
 from pathlib import Path
+from typing import List, Tuple
 
 system = platform.system()
 

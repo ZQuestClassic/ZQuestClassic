@@ -8,13 +8,14 @@
 # If splitting a replay test, be sure to delete the original and the qst file (which was copied into the output folder).
 
 import argparse
-from dataclasses import dataclass, field
 import os
 import shutil
+
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
-import run_target
 
+import run_target
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir / '..'

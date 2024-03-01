@@ -46,39 +46,41 @@
 # and use that as the frame argument.
 
 import argparse
-from argparse import ArgumentTypeError
 import atexit
-import subprocess
 import os
-import sys
 import pathlib
 import platform
 import shutil
+import subprocess
+import sys
 import time
+
+from argparse import ArgumentTypeError
 from time import sleep
 from typing import List
-from github import Github
+
 import cutie
 
 from common import get_recent_release_tag
+from compare_replays import (
+    collect_many_test_results_from_ci,
+    collect_many_test_results_from_dir,
+    create_compare_report,
+    start_webserver,
+)
+from github import Github
+from replays import (
+    Replay,
+    RunReplayTestsProgress,
+    RunResult,
+    configure_estimate_multiplier,
+    estimate_fps,
+    load_replays,
+    run_replays,
+)
 from run_test_workflow import (
     collect_baseline_from_test_results,
     get_args_for_collect_baseline_from_test_results,
-)
-from compare_replays import (
-    create_compare_report,
-    start_webserver,
-    collect_many_test_results_from_dir,
-    collect_many_test_results_from_ci,
-)
-from replays import (
-    Replay,
-    RunResult,
-    RunReplayTestsProgress,
-    configure_estimate_multiplier,
-    load_replays,
-    estimate_fps,
-    run_replays,
 )
 
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
@@ -88,6 +90,7 @@ is_ci = 'CI' in os.environ
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import archives
+
 from github_helpers import infer_gha_platform
 
 

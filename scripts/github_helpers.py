@@ -1,12 +1,15 @@
-from github import Github
-from pathlib import Path
-from time import sleep
 import io
 import os
 import platform
-import requests
 import tarfile
 import zipfile
+
+from pathlib import Path
+from time import sleep
+
+import requests
+
+from github import Github
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
