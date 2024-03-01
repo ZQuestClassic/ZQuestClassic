@@ -1,8 +1,0 @@
-replay: /Users/connorclark/code/ZeldaClassic-secondary/tests/replays/scripting/combo_rotator.qst
-mode: replay
-time: Thu Feb  8 00:43:58 2024
-duration: 0
-zc_version: 3.0.0-prerelease.38+2024-02-07.local
-frame: 0
-fps: 0
-stopped: false

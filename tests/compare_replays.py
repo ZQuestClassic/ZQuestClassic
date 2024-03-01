@@ -12,7 +12,7 @@ import json
 import hashlib
 from pathlib import Path
 from github import Github
-from common import ReplayTestResults, RunResult
+from replays import ReplayTestResults, RunResult
 from typing import List
 from PIL import Image
 import intervaltree

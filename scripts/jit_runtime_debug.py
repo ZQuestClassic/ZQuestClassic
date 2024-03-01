@@ -10,7 +10,7 @@ from pathlib import Path
 import subprocess
 
 # TODO :(
-# from ..tests.common import ReplayTestResults
+# from ..tests.replays import ReplayTestResults
 from typing import List, Literal, Tuple, Optional, Any
 from dataclasses import dataclass, field
 import dataclasses

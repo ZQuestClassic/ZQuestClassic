@@ -12,7 +12,7 @@ from typing import List
 from pathlib import Path
 import intervaltree
 from github import Github, GithubException, WorkflowRun, PaginatedList
-from common import ReplayTestResults
+from replays import ReplayTestResults
 from workflow_job import WorkflowJob
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
