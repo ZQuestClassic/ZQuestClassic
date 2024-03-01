@@ -1,5 +1,5 @@
 # To download a specific build:
-#   python scripts/archives.py 2.55-alpha-109
+#   python scripts/archives.py download 2.55-alpha-109
 #
 # For more, see --help
 
