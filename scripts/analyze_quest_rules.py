@@ -23,9 +23,10 @@ root_dir = script_dir.parent
 tmp_dir = root_dir / '.tmp/cache_analyze_replay_tests'
 memory = Memory(tmp_dir / 'memory', verbose=0)
 
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--quest_database', type=Path, default=root_dir / '.tmp/database/quests')
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument(
+    '--quest_database', type=Path, default=root_dir / '.tmp/database/quests'
+)
 parser.add_argument('--no_compat', action='store_true')
 parser.add_argument('--analyze_replay_tests', action='store_true')
 parser.add_argument('--build_folder', default='build/Release')
@@ -33,8 +34,9 @@ args = parser.parse_args()
 
 build_folder = Path(args.build_folder).absolute()
 
-quest_rules = {qr: qr_name for qr, qr_name in enumerate(
-    constants.quest_rules) if qr_name}
+quest_rules = {
+    qr: qr_name for qr, qr_name in enumerate(constants.quest_rules) if qr_name
+}
 
 quest_database: List[Path] = None
 if args.quest_database:
@@ -53,16 +55,26 @@ def get_post_compat_rules(path: Path):
     exe_name = 'zeditor.exe' if os.name == 'nt' else 'zeditor'
     args = [
         build_folder / exe_name,
-        '-copy-qst', path, tmp_path,
+        '-copy-qst',
+        path,
+        tmp_path,
     ]
-    output = subprocess.run(args, cwd=build_folder, encoding='utf-8',
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = subprocess.run(
+        args,
+        cwd=build_folder,
+        encoding='utf-8',
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
     if output.returncode != 0:
         raise Exception(f'got error: {output.returncode}\n{output.stdout}')
 
-    reader = ZeldaClassicReader(str(tmp_path), {
-        'only_sections': [SECTION_IDS.RULES],
-    })
+    reader = ZeldaClassicReader(
+        str(tmp_path),
+        {
+            'only_sections': [SECTION_IDS.RULES],
+        },
+    )
     reader.read_qst()
     tmp_path.unlink()
     return reader.get_quest_rules()
@@ -70,9 +82,12 @@ def get_post_compat_rules(path: Path):
 
 @memory.cache
 def read_qst_impl(path: Path):
-    reader = ZeldaClassicReader(str(path), {
-        'only_sections': [SECTION_IDS.RULES],
-    })
+    reader = ZeldaClassicReader(
+        str(path),
+        {
+            'only_sections': [SECTION_IDS.RULES],
+        },
+    )
     reader.read_qst()
 
     return reader.header, reader.get_quest_rules(), get_post_compat_rules(path)
@@ -117,8 +132,7 @@ def print_quest_rules(qsts: List[Path]):
         print(f'title: {trim_nul_str(header.title)}')
         print(f'author: {trim_nul_str(header.author)}')
         if header.build:
-            print(
-                f'zc version: 0x{header.zelda_version:02x} build {header.build}')
+            print(f'zc version: 0x{header.zelda_version:02x} build {header.build}')
         else:
             print(f'zc version: 0x{header.zelda_version:02x}')
         print('qrs:', ', '.join(qrs_bf.get_values()))
@@ -152,8 +166,9 @@ def determine_missing_coverage(covered_qrs: Set[int], uncovered_qsts: Set[Path])
     if max_count == 0:
         return []
 
-    candidates = [qst for qst, count in qst_to_uncovered_count.items()
-                  if count == max_count]
+    candidates = [
+        qst for qst, count in qst_to_uncovered_count.items() if count == max_count
+    ]
     return candidates
 
 
@@ -212,21 +227,21 @@ if args.analyze_replay_tests:
 
         critical_path.append(candidates[0])
         uncovered_qsts.remove(candidates[0])
-        covered_qrs = covered_qrs.union(
-            get_qst_rules(candidates[0]).get_indices())
+        covered_qrs = covered_qrs.union(get_qst_rules(candidates[0]).get_indices())
         iterations += 1
 
     print('\ncritical path:')
     for qst in critical_path:
-        new_qr_count = len(
-            set(get_qst_rules(qst).get_indices()) - initial_covered_qrs)
+        new_qr_count = len(set(get_qst_rules(qst).get_indices()) - initial_covered_qrs)
         print(f'\t({new_qr_count}) {qst.relative_to(args.quest_database)}')
 
     exit(0)
 
 
 if args.no_compat:
-    print('the quest rules listed are what the engine considers the QRs to be, after all versioning upgrades\n')
+    print(
+        'the quest rules listed are what the engine considers the QRs to be, after all versioning upgrades\n'
+    )
 
 print(f'number of quests: {len(quest_database)}')
 

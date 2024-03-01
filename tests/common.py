@@ -15,6 +15,7 @@ def get_recent_release_tag(args: List[str]):
     command = f'git describe --tags --abbrev=0 ' + ' '.join(args)
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
 
+
 class ZCTestCase(unittest.TestCase):
     def expect_snapshot(self, expected_path: Path, actual: str, update: bool):
         expected = None
@@ -32,5 +33,8 @@ class ZCTestCase(unittest.TestCase):
                 expected_path.write_text(actual)
             else:
                 if expected != actual:
-                    diff = difflib.context_diff(expected.splitlines(keepends=True), actual.splitlines(keepends=True))
+                    diff = difflib.context_diff(
+                        expected.splitlines(keepends=True),
+                        actual.splitlines(keepends=True),
+                    )
                     self.fail(''.join(diff))

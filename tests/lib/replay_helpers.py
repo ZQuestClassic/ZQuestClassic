@@ -6,50 +6,52 @@ import os
 import platform
 import re
 
+
 def read_last_contentful_line(file: Path):
-	f = file.open('rb')
-	try:  # catch OSError in case of a one line file
-		f.seek(-2, os.SEEK_END)
-		found_content = False
-		while True:
-			c = f.read(1)
-			if not c.isspace():
-				found_content = True
-			if found_content and c == b'\n':
-				if found_content:
-					break
-			f.seek(-2, os.SEEK_CUR)
-	except OSError:
-		f.seek(0)
-	return f.readline().decode()
+    f = file.open('rb')
+    try:  # catch OSError in case of a one line file
+        f.seek(-2, os.SEEK_END)
+        found_content = False
+        while True:
+            c = f.read(1)
+            if not c.isspace():
+                found_content = True
+            if found_content and c == b'\n':
+                if found_content:
+                    break
+            f.seek(-2, os.SEEK_CUR)
+    except OSError:
+        f.seek(0)
+    return f.readline().decode()
 
 
 @functools.cache
 def read_replay_meta(path: Path):
-	meta = {}
-	with path.open('r', encoding='utf-8') as f:
-		while True:
-			line = f.readline()
-			if not line.startswith('M'):
-				break
-			_ , key, value = line.strip().split(' ', 2)
-			meta[key] = value
+    meta = {}
+    with path.open('r', encoding='utf-8') as f:
+        while True:
+            line = f.readline()
+            if not line.startswith('M'):
+                break
+            _, key, value = line.strip().split(' ', 2)
+            meta[key] = value
 
-	if not meta:
-		raise Exception(f'invalid replay {path}')
+    if not meta:
+        raise Exception(f'invalid replay {path}')
 
-	if 'frames' not in meta:
-		# TODO: delete this when all replay tests have `M frames`
-		last_step = read_last_contentful_line(path)
-		if not last_step:
-			raise Exception(f'no content found in {path}')
-		if not re.match(r'^. \d+ ', last_step):
-			raise Exception(f'unexpected content found in {path}:\n  {last_step}\nAre you sure this is a zplay file?')
-		frames = int(last_step.split(' ')[1])
-		meta['frames'] = frames
+    if 'frames' not in meta:
+        # TODO: delete this when all replay tests have `M frames`
+        last_step = read_last_contentful_line(path)
+        if not last_step:
+            raise Exception(f'no content found in {path}')
+        if not re.match(r'^. \d+ ', last_step):
+            raise Exception(
+                f'unexpected content found in {path}:\n  {last_step}\nAre you sure this is a zplay file?'
+            )
+        frames = int(last_step.split(' ')[1])
+        meta['frames'] = frames
 
-
-	return meta
+    return meta
 
 
 def parse_result_txt_file(path: Path):
@@ -74,7 +76,9 @@ def parse_result_txt_file(path: Path):
         key, value = line.split(': ', 1)
         if key == 'unexpected_gfx_frames':
             value = [int(x) for x in value.split(', ')]
-        elif key == 'unexpected_gfx_segments' or key == 'unexpected_gfx_segments_limited':
+        elif (
+            key == 'unexpected_gfx_segments' or key == 'unexpected_gfx_segments_limited'
+        ):
             segments = []
             for pair in value.split(' '):
                 if '-' in pair:

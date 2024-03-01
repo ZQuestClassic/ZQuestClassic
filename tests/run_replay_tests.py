@@ -61,9 +61,25 @@ from github import Github
 import cutie
 
 from common import get_recent_release_tag
-from run_test_workflow import collect_baseline_from_test_results, get_args_for_collect_baseline_from_test_results
-from compare_replays import create_compare_report, start_webserver, collect_many_test_results_from_dir, collect_many_test_results_from_ci
-from replays import Replay, RunResult, RunReplayTestsProgress, configure_estimate_multiplier, load_replays, estimate_fps, run_replays
+from run_test_workflow import (
+    collect_baseline_from_test_results,
+    get_args_for_collect_baseline_from_test_results,
+)
+from compare_replays import (
+    create_compare_report,
+    start_webserver,
+    collect_many_test_results_from_dir,
+    collect_many_test_results_from_ci,
+)
+from replays import (
+    Replay,
+    RunResult,
+    RunReplayTestsProgress,
+    configure_estimate_multiplier,
+    load_replays,
+    estimate_fps,
+    run_replays,
+)
 
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -73,6 +89,7 @@ is_ci = 'CI' in os.environ
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import archives
 from github_helpers import infer_gha_platform
+
 
 def dir_path(path):
     if not os.path.isfile(path) and (os.path.isdir(path) or not os.path.exists(path)):
@@ -87,62 +104,124 @@ if os.name == 'nt':
     sys.stdout.reconfigure(encoding='utf-8')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--build_folder', type=dir_path, default='build/Release',
-    help='The folder containing the exe files', metavar='DIRECTORY')
-parser.add_argument('--build_type', default='Release',
-    help='How to treat the build, for purposes of timeouts and duration estimates')
-parser.add_argument('--test_results_folder', type=dir_path,
-    help='Where to save the replay test artifacts. By default, somewhere in .tmp')
-parser.add_argument('--filter', action='append', metavar='FILEPATH',
-    help='Specify a file to run, instead of running all. Can be supplied multiple times.')
-parser.add_argument('--max_duration', action='append', metavar='SECONDS',
-    help='The maximum time, in seconds, the replay will test for.')
-parser.add_argument('--throttle_fps', action='store_true',
-    help='Supply this to cap the replay\'s FPS')
-parser.add_argument('--retries', type=int, default=0,
-    help='The number of retries (default 0) to give each replay')
-parser.add_argument('-c', '--concurrency', type=int,
-    help='How many replays to run concurrently. If not value not provided, will be set based on the number of available CPU cores (unless --show or --no-headless is used, in which case the value will be set to 1).')
-parser.add_argument('--jit', action=argparse.BooleanOptionalAction, default=True,
-    help='Enables JIT compilation')
-parser.add_argument('--debugger', action=argparse.BooleanOptionalAction, default=is_ci,
-    help='Run in debugger (uses lldb)')
-parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default=True,
-    help='Run without display or sound')
-parser.add_argument('--show', action=argparse.BooleanOptionalAction, default=False,
-    help='Alias for --no-headless and --throttle_fps')
+parser.add_argument(
+    '--build_folder',
+    type=dir_path,
+    default='build/Release',
+    help='The folder containing the exe files',
+    metavar='DIRECTORY',
+)
+parser.add_argument(
+    '--build_type',
+    default='Release',
+    help='How to treat the build, for purposes of timeouts and duration estimates',
+)
+parser.add_argument(
+    '--test_results_folder',
+    type=dir_path,
+    help='Where to save the replay test artifacts. By default, somewhere in .tmp',
+)
+parser.add_argument(
+    '--filter',
+    action='append',
+    metavar='FILEPATH',
+    help='Specify a file to run, instead of running all. Can be supplied multiple times.',
+)
+parser.add_argument(
+    '--max_duration',
+    action='append',
+    metavar='SECONDS',
+    help='The maximum time, in seconds, the replay will test for.',
+)
+parser.add_argument(
+    '--throttle_fps', action='store_true', help='Supply this to cap the replay\'s FPS'
+)
+parser.add_argument(
+    '--retries',
+    type=int,
+    default=0,
+    help='The number of retries (default 0) to give each replay',
+)
+parser.add_argument(
+    '-c',
+    '--concurrency',
+    type=int,
+    help='How many replays to run concurrently. If not value not provided, will be set based on the number of available CPU cores (unless --show or --no-headless is used, in which case the value will be set to 1).',
+)
+parser.add_argument(
+    '--jit',
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help='Enables JIT compilation',
+)
+parser.add_argument(
+    '--debugger',
+    action=argparse.BooleanOptionalAction,
+    default=is_ci,
+    help='Run in debugger (uses lldb)',
+)
+parser.add_argument(
+    '--headless',
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help='Run without display or sound',
+)
+parser.add_argument(
+    '--show',
+    action=argparse.BooleanOptionalAction,
+    default=False,
+    help='Alias for --no-headless and --throttle_fps',
+)
 parser.add_argument('--emoji', action=argparse.BooleanOptionalAction, default=True)
-parser.add_argument('--no_console', action='store_true',
-    help='Prevent the debug console from opening')
-parser.add_argument('--no_report_on_failure', action='store_true',
-    help='Do not prompt to create compare report')
+parser.add_argument(
+    '--no_console', action='store_true', help='Prevent the debug console from opening'
+)
+parser.add_argument(
+    '--no_report_on_failure',
+    action='store_true',
+    help='Do not prompt to create compare report',
+)
 parser.add_argument('--not_interactive', action='store_true')
 parser.add_argument('--extra_args')
-parser.add_argument('--for_dev_server', action=argparse.BooleanOptionalAction, default=False)
+parser.add_argument(
+    '--for_dev_server', action=argparse.BooleanOptionalAction, default=False
+)
 
 
-mode_group = parser.add_argument_group('Mode','The playback mode')
+mode_group = parser.add_argument_group('Mode', 'The playback mode')
 exclgroup = mode_group.add_mutually_exclusive_group()
 
-exclgroup.add_argument('--replay', action='store_true',
-    help='Play back the replay, without updating or asserting.')
-exclgroup.add_argument('--update', action='store_true',
-    help='Update the replays, accepting any changes.')
-exclgroup.add_argument('--assert', dest='assertmode', action='store_true',
-    help='Play back the replays in assert mode. This is the default behavior if no mode is specified.')
+exclgroup.add_argument(
+    '--replay',
+    action='store_true',
+    help='Play back the replay, without updating or asserting.',
+)
+exclgroup.add_argument(
+    '--update', action='store_true', help='Update the replays, accepting any changes.'
+)
+exclgroup.add_argument(
+    '--assert',
+    dest='assertmode',
+    action='store_true',
+    help='Play back the replays in assert mode. This is the default behavior if no mode is specified.',
+)
 
-int_group = parser.add_argument_group('Internal','Use these only if you know what they do.')
+int_group = parser.add_argument_group(
+    'Internal', 'Use these only if you know what they do.'
+)
 
 int_group.add_argument('--snapshot', action='append')
 int_group.add_argument('--frame', action='append')
-int_group.add_argument('--ci', nargs='?',
-    help='Special arg meant for CI behaviors')
+int_group.add_argument('--ci', nargs='?', help='Special arg meant for CI behaviors')
 int_group.add_argument('--shard')
 int_group.add_argument('--print_shards', action='store_true')
 int_group.add_argument('--prune_test_results', action='store_true')
 
-parser.add_argument('replays', nargs='*',
-    help='If provided, will only run these replays rather than those in tests/replays')
+parser.add_argument(
+    'replays',
+    nargs='*',
+    help='If provided, will only run these replays rather than those in tests/replays',
+)
 
 args = parser.parse_args()
 
@@ -164,7 +243,7 @@ if args.update:
 elif args.replay:
     mode = 'replay'
 else:
-    args.assertmode = True #default true, not handled by argparse
+    args.assertmode = True  # default true, not handled by argparse
 
 if args.ci and '_' in args.ci:
     runs_on, arch = args.ci.split('_')
@@ -204,6 +283,7 @@ def group_arg(raw_values: List[str], allow_concat=False):
 def test_r(replay: str):
     return replays_dir / replay
 
+
 def test_expect_error(cb):
     try:
         cb()
@@ -211,22 +291,37 @@ def test_expect_error(cb):
         return
     raise Exception('expected error')
 
+
 if 'LAZY_TEST' in os.environ:
     assert group_arg([]) == ({}, None)
     assert group_arg(['1']) == ({}, '1')
     test_expect_error(lambda: group_arg(['1', '2']))
-    assert group_arg(['classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, None)
-    assert group_arg(['first_quest_layered/first_quest_layered_01_of_18.zplay=10']) == ({
-        test_r('first_quest_layered/first_quest_layered_01_of_18.zplay'): '10'
-    }, None)
-    assert group_arg(['1', 'classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, '1')
+    assert group_arg(['classic_1st.zplay=10']) == (
+        {test_r('classic_1st.zplay'): '10'},
+        None,
+    )
+    assert group_arg(['first_quest_layered/first_quest_layered_01_of_18.zplay=10']) == (
+        {test_r('first_quest_layered/first_quest_layered_01_of_18.zplay'): '10'},
+        None,
+    )
+    assert group_arg(['1', 'classic_1st.zplay=10']) == (
+        {test_r('classic_1st.zplay'): '10'},
+        '1',
+    )
     test_expect_error(lambda: group_arg(['1', 'no_exist.zplay=10']))
-    test_expect_error(lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20']))
-    assert group_arg(['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
-    assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == ({
-        test_r('classic_1st.zplay'): '10',
-        test_r('credits.zplay'): '20',
-    }, '3')
+    test_expect_error(
+        lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20'])
+    )
+    assert group_arg(
+        ['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True
+    ) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
+    assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == (
+        {
+            test_r('classic_1st.zplay'): '10',
+            test_r('credits.zplay'): '20',
+        },
+        '3',
+    )
     print('LAZY_TEST done! exiting')
     exit(0)
 
@@ -244,6 +339,7 @@ def get_arg_for_replay(replay_file, grouped_arg, is_int=False):
 
 
 last_progress_str = None
+
 
 def print_progress_str(s: str):
     global last_progress_str
@@ -298,10 +394,17 @@ else:
 # TODO: move to replays.py
 if is_web:
     print('starting webserver')
-    webserver_p = subprocess.Popen([
-        'python', root_dir / 'scripts/webserver.py',
-        '--dir', args.build_folder / 'packages/web',
-    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    webserver_p = subprocess.Popen(
+        [
+            'python',
+            root_dir / 'scripts/webserver.py',
+            '--dir',
+            args.build_folder / 'packages/web',
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
     while webserver_p.poll() == None:
         if 'Served by' in webserver_p.stdout.readline():
             break
@@ -371,24 +474,27 @@ configure_estimate_multiplier(args.build_folder, args.build_type)
 replays = load_replays(tests, replays_dir)
 
 for replay in replays:
-	frames = replay.frames
-	frame_arg = get_arg_for_replay(replay.path, grouped_frame_arg, is_int=True)
-	if frame_arg and frame_arg < replay.frames:
-		frames = replay.frame_arg = frame_arg
+    frames = replay.frames
+    frame_arg = get_arg_for_replay(replay.path, grouped_frame_arg, is_int=True)
+    if frame_arg and frame_arg < replay.frames:
+        frames = replay.frame_arg = frame_arg
 
-	fps = estimate_fps(replay)
-	estimated_duration = frames / fps
-	max_duration_arg = get_arg_for_replay(replay.path, grouped_max_duration_arg, is_int=True)
-	if max_duration_arg and estimated_duration > max_duration_arg:
-		estimated_duration = max_duration_arg
-		replay.frame_arg = fps * max_duration_arg
-	estimated_durations[replay.name] = estimated_duration
+    fps = estimate_fps(replay)
+    estimated_duration = frames / fps
+    max_duration_arg = get_arg_for_replay(
+        replay.path, grouped_max_duration_arg, is_int=True
+    )
+    if max_duration_arg and estimated_duration > max_duration_arg:
+        estimated_duration = max_duration_arg
+        replay.frame_arg = fps * max_duration_arg
+    estimated_durations[replay.name] = estimated_duration
 
-	snapshot_arg = get_arg_for_replay(replay.path, grouped_snapshot_arg)
-	if snapshot_arg:
-		replay.snapshot_arg = snapshot_arg
+    snapshot_arg = get_arg_for_replay(replay.path, grouped_snapshot_arg)
+    if snapshot_arg:
+        replay.snapshot_arg = snapshot_arg
 
 replays.sort(key=lambda replay: -estimated_durations[replay.name])
+
 
 # https://stackoverflow.com/a/6856593/2788187
 def get_shards(replays: List[Replay], n: int) -> List[List[Replay]]:
@@ -429,10 +535,11 @@ total_frames = sum(r.frames for r in replays)
 total_frames_limited = sum(r.frames_limited() for r in replays)
 frames_limited_ratio = total_frames_limited / total_frames
 if frames_limited_ratio < 1:
-	print(f'\nframes limited: {frames_limited_ratio * 100:.2f}%')
+    print(f'\nframes limited: {frames_limited_ratio * 100:.2f}%')
 
 if args.print_shards:
     exit(0)
+
 
 def prompt_for_gh_auth():
     print('Select the GitHub repo:')
@@ -446,8 +553,12 @@ def prompt_for_gh_auth():
         token = os.environ[default_env_var]
     else:
         print(f'Default environment variable for token (${default_env_var}) not set')
-        print('Note: you can create a token here: https://github.com/settings/personal-access-tokens/new')
-        print('Necessary permissions are: Actions (read and write), Contents (read and write), Metadata (read)')
+        print(
+            'Note: you can create a token here: https://github.com/settings/personal-access-tokens/new'
+        )
+        print(
+            'Necessary permissions are: Actions (read and write), Contents (read and write), Metadata (read)'
+        )
         token = input('Enter a GitHub PAT token: ').strip()
         print()
 
@@ -455,7 +566,9 @@ def prompt_for_gh_auth():
 
 
 def prompt_to_create_compare_report():
-    if not cutie.prompt_yes_or_no('Would you like to generate a compare report?', default_is_yes=True):
+    if not cutie.prompt_yes_or_no(
+        'Would you like to generate a compare report?', default_is_yes=True
+    ):
         return
     print()
 
@@ -470,12 +583,14 @@ def prompt_to_create_compare_report():
     test_runs = []
 
     print('How should we get the baseline run?')
-    selected_index = cutie.select([
-        'Collect from disk',
-        'Run locally',
-        'Run new job in GitHub Actions (requires token)',
-        'Collect from finished job in GitHub Actions (requires token)',
-    ])
+    selected_index = cutie.select(
+        [
+            'Collect from disk',
+            'Run locally',
+            'Run new job in GitHub Actions (requires token)',
+            'Collect from finished job in GitHub Actions (requires token)',
+        ]
+    )
     print()
 
     local_baseline_dir = root_dir / '.tmp/local-baseline'
@@ -488,20 +603,34 @@ def prompt_to_create_compare_report():
         options.extend(gha_cache_dir.glob('*'))
         options.sort(key=os.path.getmtime, reverse=True)
         print('Select a folder to use for the baseline:')
-        selected_index = cutie.select(
-            [p.relative_to(root_dir) for p in options])
+        selected_index = cutie.select([p.relative_to(root_dir) for p in options])
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
-        most_recent_nightly = get_recent_release_tag(['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*'])
-        most_recent_stable = get_recent_release_tag(['--match', '*.*.*', '--match', '2.55-alpha-*', '--exclude', '*.*.*-nightly*', '--exclude', '*.*.*-prerelease*'])
+        most_recent_nightly = get_recent_release_tag(
+            ['--match', '*.*.*-nightly*', '--match', '*.*.*-prerelease*']
+        )
+        most_recent_stable = get_recent_release_tag(
+            [
+                '--match',
+                '*.*.*',
+                '--match',
+                '2.55-alpha-*',
+                '--exclude',
+                '*.*.*-nightly*',
+                '--exclude',
+                '*.*.*-prerelease*',
+            ]
+        )
         print('Select a release build to use: ')
-        selected_index = cutie.select([
-            # TODO
-            # 'Most recent passing build from CI',
-            f'Most recent nightly ({most_recent_nightly})',
-            f'Most recent stable ({most_recent_stable})',
-        ])
+        selected_index = cutie.select(
+            [
+                # TODO
+                # 'Most recent passing build from CI',
+                f'Most recent nightly ({most_recent_nightly})',
+                f'Most recent stable ({most_recent_stable})',
+            ]
+        )
         print()
 
         if selected_index == 0:
@@ -530,8 +659,10 @@ def prompt_to_create_compare_report():
             sys.executable,
             str(root_dir / 'tests/run_replay_tests.py'),
             '--replay',
-            '--build_folder', str(build_dir),
-            '--test_results_folder', str(local_baseline_dir),
+            '--build_folder',
+            str(build_dir),
+            '--test_results_folder',
+            str(local_baseline_dir),
             '--retries=2',
             *get_args_for_collect_baseline_from_test_results([test_results_path]),
         ]
@@ -544,13 +675,19 @@ def prompt_to_create_compare_report():
         test_runs.extend(collect_many_test_results_from_dir(local_baseline_dir))
     elif selected_index == 2:
         gh, repo = prompt_for_gh_auth()
-        baseline_run_id = collect_baseline_from_test_results(gh, repo, '', [test_results_path])
+        baseline_run_id = collect_baseline_from_test_results(
+            gh, repo, '', [test_results_path]
+        )
         print(f'GitHub Actions job is done, the workflow run id is: {baseline_run_id}')
         test_runs.extend(collect_many_test_results_from_ci(gh, repo, baseline_run_id))
-        print('Note: now that you\'ve done this, this will be the first ".gha-cache-dir" option listed in the "Collect from disk" option')
+        print(
+            'Note: now that you\'ve done this, this will be the first ".gha-cache-dir" option listed in the "Collect from disk" option'
+        )
     elif selected_index == 3:
         gh, repo = prompt_for_gh_auth()
-        baseline_run_id = cutie.get_number('Enter a workflow run id: ', allow_float=False)
+        baseline_run_id = cutie.get_number(
+            'Enter a workflow run id: ', allow_float=False
+        )
         test_runs.extend(collect_many_test_results_from_ci(gh, repo, baseline_run_id))
 
     test_runs.extend(collect_many_test_results_from_dir(test_results_dir))
@@ -559,7 +696,9 @@ def prompt_to_create_compare_report():
     start_webserver()
 
 
-if test_results_dir.exists() and next(test_results_dir.rglob('test_results.json'), None):
+if test_results_dir.exists() and next(
+    test_results_dir.rglob('test_results.json'), None
+):
     test_results_path = next(test_results_dir.rglob('test_results.json'))
     print('found existing test results at provided path')
     if is_ci:
@@ -803,7 +942,12 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{len(failing_replays)} replay tests failed')
-        if not is_ci and not args.no_report_on_failure and sys.stdout.isatty() and replays_dir == script_dir / 'replays':
+        if (
+            not is_ci
+            and not args.no_report_on_failure
+            and sys.stdout.isatty()
+            and replays_dir == script_dir / 'replays'
+        ):
             prompt_to_create_compare_report()
         exit(1)
 else:

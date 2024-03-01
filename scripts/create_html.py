@@ -15,7 +15,8 @@ args = parser.parse_args()
 
 html_template = (web_dir / 'index.html').read_text()
 CI = 'ZC_PACKAGE_REPLAYS' in os.environ
-out_file = (Path(args.build_folder) / f'{args.target}.html')
+out_file = Path(args.build_folder) / f'{args.target}.html'
+
 
 def replace(string, pattern, replace_with):
     if not hasattr(pattern, 'match'):
@@ -39,14 +40,20 @@ scripts = [
 if args.target == 'zplayer':
     scripts.append('<script src="../zplayer.data.js"></script>')
 elif args.target == 'zeditor':
-    scripts.extend([
-        '<script src="../zplayer.data.js"></script>',
-        '<script src="../zeditor.data.js"></script>'
-    ])
+    scripts.extend(
+        [
+            '<script src="../zplayer.data.js"></script>',
+            '<script src="../zeditor.data.js"></script>',
+        ]
+    )
 html = replace(html, '__SCRIPTS__', '\n'.join(scripts))
 
 lazy_files_dir = Path(args.build_folder) / 'packages/web_lazy_files'
-lazy_files = [f'/{p.relative_to(lazy_files_dir)}' for p in lazy_files_dir.rglob('*') if os.path.isfile(p)]
+lazy_files = [
+    f'/{p.relative_to(lazy_files_dir)}'
+    for p in lazy_files_dir.rglob('*')
+    if os.path.isfile(p)
+]
 html = replace(html, '__FILES__', json.dumps(lazy_files))
 
 out_file.write_text(html)

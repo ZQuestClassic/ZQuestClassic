@@ -16,8 +16,9 @@ from pathlib import Path
 from common import ZCTestCase
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--update', action='store_true', default=False,
-                    help='Update snapshots')
+parser.add_argument(
+    '--update', action='store_true', default=False, help='Update snapshots'
+)
 parser.add_argument('unittest_args', nargs='*')
 args = parser.parse_args()
 
@@ -37,7 +38,8 @@ class TestOptimizeZasm(ZCTestCase):
     def optimize_zasm_in_qst(self, qst_path: Path):
         args = [
             '-headless',
-            '-extract-zasm', qst_path,
+            '-extract-zasm',
+            qst_path,
             '-optimize-zasm',
         ]
         p = run_target.run('zplayer', args)

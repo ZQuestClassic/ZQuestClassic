@@ -15,11 +15,12 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 tmp_dir = root_dir / '.tmp'
 
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 # 235 is the first qst with scripts
 parser.add_argument('--starting_index', type=int, default=0)
-parser.add_argument('--quest_database', type=Path, default=tmp_dir / 'database/manifest.json')
+parser.add_argument(
+    '--quest_database', type=Path, default=tmp_dir / 'database/manifest.json'
+)
 parser.add_argument('--build_folder', default='build/Release')
 parser.add_argument('command', nargs=argparse.REMAINDER)
 args = parser.parse_args()

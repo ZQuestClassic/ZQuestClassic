@@ -15,14 +15,17 @@ root_dir = script_dir.parent
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
 
+
 class TestZPlayer(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
     def test_zplayer(self):
-        run_target.check_run('zplayer', [
-            '-test-zc',
-        ])
+        run_target.check_run(
+            'zplayer',
+            ['-test-zc'],
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

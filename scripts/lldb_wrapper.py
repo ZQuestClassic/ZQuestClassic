@@ -31,7 +31,18 @@ err = lldb.SBError()
 stdout_f = os.path.join(tempfile.gettempdir(), os.urandom(24).hex())
 stderr_f = os.path.join(tempfile.gettempdir(), os.urandom(24).hex())
 
-process = target.Launch(debugger.GetListener(), args, None, None, stdout_f, stderr_f, os.getcwd(), 0, False, err)
+process = target.Launch(
+    debugger.GetListener(),
+    args,
+    None,
+    None,
+    stdout_f,
+    stderr_f,
+    os.getcwd(),
+    0,
+    False,
+    err,
+)
 sys.stdout.write(Path(stdout_f).read_text())
 sys.stderr.write(Path(stderr_f).read_text())
 os.unlink(stdout_f)

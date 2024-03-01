@@ -24,8 +24,9 @@ from pathlib import Path
 from common import ZCTestCase
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--update', action='store_true', default=False,
-                    help='Update snapshots')
+parser.add_argument(
+    '--update', action='store_true', default=False, help='Update snapshots'
+)
 parser.add_argument('unittest_args', nargs='*')
 args = parser.parse_args()
 
@@ -49,15 +50,19 @@ class TestJIT(ZCTestCase):
             shutil.rmtree(output_dir)
         args = [
             '-headless',
-            '-replay', replay_path,
-            '-script-runtime-debug-folder', str(output_dir),
-            '-frame', '0',
+            '-replay',
+            replay_path,
+            '-script-runtime-debug-folder',
+            str(output_dir),
+            '-frame',
+            '0',
             '-replay-exit-when-done',
             '-optimize-zasm',
             '-jit',
             '-jit-log',
             # TODO: why do threads make output files sometimes be empty?
-            '-jit-threads', '0',
+            '-jit-threads',
+            '0',
             '-jit-env-test',
             '-jit-precompile',
             '-jit-print-asm',
@@ -68,7 +73,7 @@ class TestJIT(ZCTestCase):
 
         return output_dir
 
-    def run_for_qst(self, qst_name: str, replay_path: Path, hash = False):
+    def run_for_qst(self, qst_name: str, replay_path: Path, hash=False):
         jit_output_path = self.compile_zasm_in_qst(replay_path)
         for output_path in jit_output_path.rglob('*.txt'):
             with self.subTest(msg=f'compile {qst_name} {output_path.stem}'):
@@ -78,7 +83,9 @@ class TestJIT(ZCTestCase):
                 for i, line in enumerate(lines):
                     lines[i] = line = line.strip()
                     instruction = line.split(';')[0]
-                    if instruction.startswith('call') or (instruction.startswith('mov r') and not 'dword' in instruction):
+                    if instruction.startswith('call') or (
+                        instruction.startswith('mov r') and not 'dword' in instruction
+                    ):
                         p = r'-?\d{6,}'
                         m = re.search(p, instruction)
                         if m:
@@ -107,9 +114,17 @@ class TestJIT(ZCTestCase):
 
         self.run_for_qst('playground', test_dir / 'replays/playground_maths.zplay')
         # These are quite big, so just hash their outputs.
-        self.run_for_qst('hollow_forest', test_dir / 'replays/hollow_forest.zplay', hash=True)
-        self.run_for_qst('freedom_in_chains', test_dir / 'replays/freedom_in_chains.zplay', hash=True)
-        self.run_for_qst('stellar_seas_randomizer', test_dir / 'replays/stellar_seas_randomizer.zplay', hash=True)
+        self.run_for_qst(
+            'hollow_forest', test_dir / 'replays/hollow_forest.zplay', hash=True
+        )
+        self.run_for_qst(
+            'freedom_in_chains', test_dir / 'replays/freedom_in_chains.zplay', hash=True
+        )
+        self.run_for_qst(
+            'stellar_seas_randomizer',
+            test_dir / 'replays/stellar_seas_randomizer.zplay',
+            hash=True,
+        )
         for qst in test_dir.rglob('replays/scripting/**/*.zplay'):
             self.run_for_qst(qst.stem, qst, hash=True)
 

@@ -16,6 +16,7 @@ release_oneliners = {
     '2.55-alpha-114': 'The one with trigger groups, newer player movement, and bomb flowers.',
 }
 
+
 def str2bool(v):
     if isinstance(v, bool):
         return v
@@ -26,12 +27,12 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
+
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    '--format', choices=['plaintext', 'markdown'], default='plaintext')
+parser.add_argument('--format', choices=['plaintext', 'markdown'], default='plaintext')
 parser.add_argument('--from')
 parser.add_argument('--to', default='HEAD')
 parser.add_argument('--for-nightly', type=str2bool, default=False)
@@ -45,6 +46,7 @@ commit_url_prefix = 'https://github.com/ZQuestClassic/ZQuestClassic/commit'
 overrides = dict()
 overrides_squashes = dict()
 
+
 def parse_override_file(file: Path):
     last_override = None
     current_squash_list = []
@@ -52,7 +54,11 @@ def parse_override_file(file: Path):
     for line in file.read_text().splitlines():
         line = line.rstrip()
 
-        if last_override and last_override[0] in ['reword','section'] and not re.match(r'^(reword|section|subject|squash|drop|pick)', line):
+        if (
+            last_override
+            and last_override[0] in ['reword', 'section']
+            and not re.match(r'^(reword|section|subject|squash|drop|pick)', line)
+        ):
             if line == '=end':
                 last_override = None
                 continue
@@ -109,12 +115,12 @@ def parse_scope_and_type(subject: str):
     if match:
         type, scope, oneline = match.groups()
         return type, scope, oneline, True
-    
+
     match = re.match(r'(\w+)!: (.+)', subject)
     if match:
         type, oneline = match.groups()
         return type, None, oneline, True
-    
+
     match = re.match(r'(\w+)\((\w+)\)<?: (.+)', subject)
     if match:
         type, scope, oneline = match.groups()
@@ -124,7 +130,7 @@ def parse_scope_and_type(subject: str):
     if match:
         type, oneline = match.groups()
         return type, None, oneline, False
-    
+
     return 'misc', None, subject, False
 
 
@@ -144,28 +150,46 @@ def get_scope_index(scope: str):
 
 def get_type_label(type: str):
     match type:
-        case 'feat': return 'Features'
-        case 'fix': return 'Bug Fixes'
-        case 'docs': return 'Documentation'
-        case 'chore': return 'Chores'
-        case 'refactor': return 'Refactors'
-        case 'test': return 'Tests'
-        case 'ci': return 'CI'
-        case 'misc': return 'Misc.'
-        case _: return type.capitalize()
+        case 'feat':
+            return 'Features'
+        case 'fix':
+            return 'Bug Fixes'
+        case 'docs':
+            return 'Documentation'
+        case 'chore':
+            return 'Chores'
+        case 'refactor':
+            return 'Refactors'
+        case 'test':
+            return 'Tests'
+        case 'ci':
+            return 'CI'
+        case 'misc':
+            return 'Misc.'
+        case _:
+            return type.capitalize()
 
 
 def get_scope_label(scope: str):
     match scope:
-        case 'zc': return 'Player'
-        case 'zq': return 'Editor'
-        case 'std_zh': return 'ZScript Standard Library (std.zh)'
-        case 'zscript': return 'ZScript'
-        case 'vscode': return 'Visual Studio Code Extension'
-        case 'launcher': return 'ZLauncher'
-        case 'zconsole': return 'ZConsole'
-        case 'zupdater': return 'ZUpdater'
-        case _: return scope.capitalize()
+        case 'zc':
+            return 'Player'
+        case 'zq':
+            return 'Editor'
+        case 'std_zh':
+            return 'ZScript Standard Library (std.zh)'
+        case 'zscript':
+            return 'ZScript'
+        case 'vscode':
+            return 'Visual Studio Code Extension'
+        case 'launcher':
+            return 'ZLauncher'
+        case 'zconsole':
+            return 'ZConsole'
+        case 'zupdater':
+            return 'ZUpdater'
+        case _:
+            return scope.capitalize()
 
 
 def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
@@ -239,7 +263,9 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
     return lines
 
 
-def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str, to_sha: str) -> str:
+def stringify_changelog(
+    commits_by_type: Dict[str, List[Commit]], format: str, to_sha: str
+) -> str:
     lines = []
     oneliner = release_oneliners.get(to_sha, None)
     is_release = to_sha.startswith('2.55') or to_sha.startswith('3')
@@ -248,7 +274,9 @@ def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str, t
         if oneliner:
             lines.append(f'{oneliner}\n')
         if is_release:
-            lines.append(f'[View release notes and find downloads on the website](https://zquestclassic.com/releases/{to_sha})\n')
+            lines.append(
+                f'[View release notes and find downloads on the website](https://zquestclassic.com/releases/{to_sha})\n'
+            )
 
         for type, commits in commits_by_type.items():
             if type == 'CustomSection':
@@ -265,7 +293,7 @@ def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str, t
                             lines.append(f'   > - {squashed.subject} {link}')
                     lines.append('</details>')
                 continue
-            
+
             label = get_type_label(type)
             lines.append(f'# {label}\n')
 
@@ -344,21 +372,24 @@ def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str, t
 
 
 def generate_changelog(from_sha: str, to_sha: str) -> str:
-    commits_text = subprocess.check_output(f'git log {from_sha}...{to_sha} --reverse --format="%h %H %s"',
+    commits_text = subprocess.check_output(
+        f'git log {from_sha}...{to_sha} --reverse --format="%h %H %s"',
         shell=True,
-        encoding='utf-8').strip()
+        encoding='utf-8',
+    ).strip()
 
     commits: List[Commit] = []
     for commit_text in commits_text.splitlines():
         short_hash, hash, subject = commit_text.split(' ', 2)
         if hash in overrides and overrides[hash][0] == 'drop':
             continue
-        
+
         body = subprocess.check_output(
-            f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
+            f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8'
+        ).strip()
         m = re.search(r'end changelog', body, re.IGNORECASE)
         if m:
-            body = body[0:m.start()].strip()
+            body = body[0 : m.start()].strip()
         type, scope, oneline, drop = parse_scope_and_type(subject)
         if drop:
             continue
@@ -390,7 +421,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         elif manual_squash_hash:
             match = re.match(r'(\w+(?:\(\w+\))?)<(: .+)', commit.subject)
             if match:
-                commit.subject = ''.join(filter(None,match.groups()))
+                commit.subject = ''.join(filter(None, match.groups()))
                 if manual_squash_hash in manual_squashes:
                     manual_squashes[manual_squash_hash].append(commit.hash)
                 else:
@@ -399,7 +430,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
                 manual_squash_hash = commit.hash
         else:
             manual_squash_hash = commit.hash
-           
+
         if reparse:
             type, scope, oneline, drop = parse_scope_and_type(commit.subject)
             commit.type = type
@@ -418,12 +449,14 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
             squash_list = manual_squashes[commit.hash]
         else:
             continue
-        
+
         squashed_hashes.extend(squash_list)
         commit.squashed_commits = [c for c in commits if c.hash in squash_list]
         if add_self:
             commit.squashed_commits.insert(0, Commit(**commit.__dict__))
-        commit.squashed_commits.sort(key=lambda c: (get_type_index(c.type), get_scope_index(c.scope)))
+        commit.squashed_commits.sort(
+            key=lambda c: (get_type_index(c.type), get_scope_index(c.scope))
+        )
     commits = [c for c in commits if c.hash not in squashed_hashes]
 
     commits_by_type: Dict[str, List[Commit]] = {}
@@ -454,10 +487,22 @@ for path in (script_dir / 'changelog_overrides').rglob('*.md'):
         parse_override_file(path)
 
 if args.generate_all:
-    tags = subprocess.check_output(
-        'git tag --list "2.55-alpha-11?" "2.55-alpha-12?" "3*"', shell=True, encoding='utf-8').strip().splitlines()
+    tags = (
+        subprocess.check_output(
+            'git tag --list "2.55-alpha-11?" "2.55-alpha-12?" "3*"',
+            shell=True,
+            encoding='utf-8',
+        )
+        .strip()
+        .splitlines()
+    )
     for i, tag in enumerate(tags):
-        if tag in ['2.55-alpha-113', '2.55-alpha-112', '2.55-alpha-111', '2.55-alpha-110']:
+        if tag in [
+            '2.55-alpha-113',
+            '2.55-alpha-112',
+            '2.55-alpha-111',
+            '2.55-alpha-110',
+        ]:
             continue
         # This one was manually created.
         if tag == '2.55-alpha-114':
@@ -465,7 +510,8 @@ if args.generate_all:
 
         changelog = generate_changelog(tags[i - 1], tag)
         date = subprocess.check_output(
-            f'git show --no-patch --format=%ci {tag}', shell=True, encoding='utf-8').split(' ')[0]
+            f'git show --no-patch --format=%ci {tag}', shell=True, encoding='utf-8'
+        ).split(' ')[0]
         date = date.replace('-', '_')
 
         (root_dir / 'changelogs' / f'{date}-{tag}.txt').write_text(changelog)
@@ -477,11 +523,14 @@ if from_sha:
     branch = from_sha
 else:
     branch = subprocess.check_output(
-        'git describe --tags --abbrev=0', shell=True, encoding='utf-8').strip()
+        'git describe --tags --abbrev=0', shell=True, encoding='utf-8'
+    ).strip()
 
 if args.version:
     if args.format == 'markdown':
-        print(f'To download this release, [visit the ZQuest Classic website](https://zquestclassic.com/releases/{args.version}/) or see the bottom of this page.\n')
+        print(
+            f'To download this release, [visit the ZQuest Classic website](https://zquestclassic.com/releases/{args.version}/) or see the bottom of this page.\n'
+        )
     else:
         print(f'https://zquestclassic.com/releases/{args.version}/\n')
 
@@ -490,7 +539,10 @@ if args.for_nightly:
     print(generate_changelog(branch, args.to))
 
     previous_stable_release_tag = subprocess.check_output(
-        'git describe --tags --abbrev=0 --match "*.*.*" --match "2.55-alpha-1??" --exclude "*-nightly"', shell=True, encoding='utf-8').strip()
+        'git describe --tags --abbrev=0 --match "*.*.*" --match "2.55-alpha-1??" --exclude "*-nightly"',
+        shell=True,
+        encoding='utf-8',
+    ).strip()
     if previous_stable_release_tag != branch:
         print('-------')
         print(f'The following are the changes since {previous_stable_release_tag}:\n\n')
