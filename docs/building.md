@@ -1,6 +1,6 @@
 Some prerequisites to building from source:
 
-- CMake (2.24 or later)
+- CMake (3.24 or later)
 - Install flexbison (Windows, use https://chocolatey.org/: `choco install winflexbison3`)
 - For Windows: Visual Studio 2019 (but later is better)
 

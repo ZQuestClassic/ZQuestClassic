@@ -1,0 +1,93 @@
+import "std_old.zh"
+import "chess.zh"
+
+const int SFX_LIGHTSOUT_PUZZLE_MOVE = 16; //Sound to play when making move.
+const int SFX_LIGHTSOUT_PUZZLE_SOLVED = 27; //Sound to play when puzzle is solved. 
+
+//ZC adaptation of Lights Out puzzle. Can you turn off those nasty lights?
+//Stand on a light combo and press A. This light and all adjacent, depending on type will change state, on or off.
+// Set uo 2 combos, for On and for Off state.
+//Place FFC anywhere on the screen.
+//D0 - Combo for ON light state.
+//D1 - Combo for OFF light bstate.
+// All other combos on the screen are ignored. You can build board of any shape and size, as long, as it fits the screen.
+//D2 - Puzzle type
+/// 0 - Normal Lights Out puzzle. Adjacent combos flick states with targrted one.
+/// 1 - Flip Flop. All combos on the same horizontal and vertical lines flick states with targeted one.
+/// 2 - Knights Out - All combos within knight move flick states, together with targeted one.
+
+ffc script LightsOut{
+	void run (int cmb_on, int cmb_off, int type){
+		int numlightson=0;
+		for (int i = 0; i<176; i++){
+			if (Screen->ComboD[i]==cmb_on){
+				if (Screen->State[ST_SECRET]==true) Screen->ComboD[i]=cmb_off;
+				else numlightson++;
+			}
+		}
+		if (numlightson==0) Quit();
+		while (true){
+			int cmb = ComboAt(CenterLinkX(), CenterLinkY());
+			if ((Screen->ComboD[cmb]==cmb_on)||(Screen->ComboD[cmb]==cmb_off)){
+				if (Link->PressA || Link->PressEx1){
+					Game->PlaySound(SFX_LIGHTSOUT_PUZZLE_MOVE);
+					if (Screen->ComboD[cmb]==cmb_on){
+						Screen->ComboD[cmb] = cmb_off;
+						numlightson--;
+					}
+					else if (Screen->ComboD[cmb]==cmb_off){
+						Screen->ComboD[cmb] = cmb_on;
+						numlightson++;
+					}
+					for (int i = 0; i<176; i++){
+						if (type==0){
+							if (LeaperMoveAdjacent(cmb,i, 0,1 )){
+								if (Screen->ComboD[i]==cmb_on){
+									Screen->ComboD[i] = cmb_off;
+									numlightson--;
+								}
+								else if (Screen->ComboD[i]==cmb_off){
+									Screen->ComboD[i] = cmb_on;
+									numlightson++;
+								}
+							}
+						}
+						else if (type==1){
+							if ((OnSameRank(cmb, i))||(OnSameFile(cmb, i))){
+								if (cmb!=i){
+									if (Screen->ComboD[i]==cmb_on){
+										Screen->ComboD[i] = cmb_off;
+										numlightson--;
+									}
+									else if (Screen->ComboD[i]==cmb_off){
+										Screen->ComboD[i] = cmb_on;
+										numlightson++;
+									}
+								}
+							}
+						}
+						else if (type==2){
+							if (LeaperMoveAdjacent(cmb,i, 2,1 )){
+								if (Screen->ComboD[i]==cmb_on){
+									Screen->ComboD[i] = cmb_off;
+									numlightson--;
+								}
+								else if (Screen->ComboD[i]==cmb_off){
+									Screen->ComboD[i] = cmb_on;
+									numlightson++;
+								}
+							}
+						}
+					}
+					if (numlightson==0){
+						Game->PlaySound(SFX_LIGHTSOUT_PUZZLE_SOLVED);
+						Screen->TriggerSecrets();
+						Screen->State[ST_SECRET]=true;
+						Quit();
+					}
+				}
+			}
+			Waitframe();
+		}
+	}
+}

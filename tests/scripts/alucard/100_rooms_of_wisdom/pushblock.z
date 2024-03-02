@@ -1,0 +1,378 @@
+import "std_old.zh"
+
+const int SFX_PUSHBLOCK_MOVE = 50;// Sound to play when moving a block
+const int SFX_PUSHBLOCK_LAND_ON_TRIGGER = 0; //Sound to play when block gets stuck when landing on trigger.
+const int SFX_ICEBLOCK_PUSH = 21;// Sound to play when iceblock gets pushed.
+const int SFX_ICEBLOCK_STOP = 16;//Sound to play when iceblock stops by hitting obstacle.
+
+const int CF_FFICEBLOCK = 98; //Combo Place Flag used by AutomaticFreeformPushblockPuzzle script to generate iceblocks.
+const int CIF_STACKPUSH_ONLY = 99; //Combo Inherent Flag used by AutomaticFreeformPushblockPuzzle script to generate StackPush only blocks.
+
+const int IC_MULTIPUSHBLOCK = 18; //Class of items used to allow Link to puch stacked blocks
+const int I_MULTIPUSHBLOCK = 56; //If set to >0 Link woldn`t be able to push more than 1 block at time
+
+const int PUSHBLOCK_SENSIVITY = 8; //Pushblock time sensivity.
+
+//Special block flags, OR them toether to define special pushblock properties
+const int PUSHBLOCK_SPECIAL_ENEMY_WAIT = 1; //Cannot be pushed until all enemies on screen are killed. 
+const int PUSHBLOCK_SPECIAL_CAN_PUSH_OFF_TRIGGERS = 2; //Can be pushed off triggers.
+const int PUSHBLOCK_SPECIAL_ONLY_ONE_PUSH= 4; //Gets stuck after 1 push.
+const int PUSHBLOCK_SPECIAL_TRIGGER= 8; //Triggers screen secrets when moved.
+const int PUSHBLOCK_SPECIAL_ICEBLOCK = 16; //Turns this block into Ice Pushblock that after push continues to move until hitting obstacle.
+const int PUSHBLOCK_SPECIAL_REMOVE_ON_SECRET = 32; //Removed when triggering secrets.
+const int PUSHBLOCK_SPECIAL_MULTIPUSH_ONLY = 64; //Cannot be pushed directly, only in stack with other blocks.
+
+const int FFC_MISC_PUSHBLOCK_IMPULSE = 0; //FFC Mis� variable to track block moving direction
+const int FFC_MISC_PUSHBLOCK_POWER = 1;//FFC Mis� variable to track Link`s pushing power granted by IC_MULTIPUSHBLOCK item class. 
+//Maximum stack weight cannot exceed this value.
+
+// Automatic Freeform Push Block generator script.
+//1. Place FFC anywhere on the screen
+//2. Construct block puzzle as if you did it in ZC 2.53- versions, but use only placed flags.
+//  -Flag Ice PushBlocks with CF_FFICEBLOCK flags
+//  - The only inherent flag that works is CIF_STACKPUSH_ONLY that restricts blocks to StackPush only
+//3. D0 - Allow blocks to be pushed off triggers, like in classic Sokoban.
+//   D1 - Remove all blocks and clean up FFC`s when puzzle is solved.
+ffc script AutomaticFreeformPushblockPuzzle{
+	void run(int pushofftriggers, int secretremove){
+		int str[] = "FreeformPushBlock";
+		int scr = Game->GetFFCScript(str);
+		int generic_[22] = {1,2,47,48,49,50,51,52,23,54,55,56,57,58,59,60,61,62,63,64,65,CF_FFICEBLOCK};
+		int dirup[3] = {48, 55, 62};
+		int dirdown[3] = {49,56,63};
+		int dirleft[3] = {50,57,64};
+		int dirright[3] = {51,58,65};
+		int dirhoriz[3] = {47,53,60};
+		int dirvert[3] = {1,52,59};
+		int dir4way[3] = {2,54,61};
+		int pushonce[7] = {52,53,54,55,56,57,58};
+		int pushtrigger[7] = {1,2,47,48,49,50,51};
+		int ctwait[3] = {8,10,27};
+		int ctweight1[2] = {9,10};
+		int ctweight2[2] = {26,27};
+		int pushflags[177];
+		for (int i=1; i<176; i++){
+			if (MatchComboI(generic_, i)) pushflags[i] = Screen->ComboI[i];
+			if (MatchComboF(generic_, i)) pushflags[i] = Screen->ComboF[i];
+			if (pushflags[i]==0)continue;
+			int args[3]= {0,0,0};
+			for (int q=0; q<3; q++){
+				if (pushflags[i]==dirup[q]) args[0] = 1;
+			}
+			for (int q=0; q<3; q++){
+				if (pushflags[i]==dirdown[q]) args[0] = 2;
+			}
+			for (int q=0; q<3; q++){
+				if (pushflags[i]==dirleft[q]) args[0] = 4;
+			}
+			for (int q=0; q<3; q++){
+				if (pushflags[i]==dirright[q]) args[0] = 8;
+			}
+			for (int q=0; q<3; q++){
+				if (pushflags[i]==dirhoriz[q]) args[0] = 12;
+			}
+			for (int q=0; q<3; q++){
+				if (pushflags[i]==dirvert[q]) args[0] = 3;
+			}
+			for (int q=0; q<3; q++){
+				if (pushflags[i]==dir4way[q]) args[0] = 15;
+			}
+			for (int q=0; q<7; q++){
+				if (pushflags[i]==pushonce[q]) args[2] |= 4;
+			}
+			for (int q=0; q<7; q++){
+				if (pushflags[i]==pushtrigger[q]) args[2] |= 12;
+			}
+			for (int q=0; q<3; q++){
+				if (Screen->ComboT[i]==ctwait[q]) args[2] |= 1;
+			}
+			for (int q=0; q<2; q++){
+				if (Screen->ComboT[i]==ctweight1[q]) args[1] = 1;
+			}
+			for (int q=0; q<2; q++){
+				if (Screen->ComboT[i]==ctweight2[q]) args[1] = 2;
+			}
+			if (Screen->ComboI[i]==CIF_STACKPUSH_ONLY) args[2] |= 64;
+			if (pushflags[i]==CF_FFICEBLOCK){
+				args [0] = 15;
+				args [1] = 0;
+				args [2] = 18;
+			}
+			if (pushofftriggers>0) args[2]|=2;
+			if (secretremove>0) args[2]|=32;
+			ffc block = RunFFCScriptOrQuit(scr, args);
+			block->X= ComboX(i);
+			block->Y= ComboY(i);
+			Screen->ComboF[i] = 0;
+		}
+		int tr[] = "FreeformPushBlockTriggers";
+		scr = Game->GetFFCScript(tr);
+		int trarg[2] = {0,0};
+		if (secretremove>0) trarg[1] =1;
+		ffc trig = RunFFCScriptOrQuit(scr,trarg);		
+	}
+}
+
+//Freeform Push Block script. Unlike normal push blocks. Link can push stack of these blocks, instead of 1 at time, if he has the powerful braclet. 
+// Place FFC at position of block.
+// D0 - Allowed push directions for this block.
+// D1 - Weight of block.
+// D2 - Special flags, ORed together. Refer to PUSHBLOCK_SPECIAL_* constants at the top of this script file.
+ffc script FreeformPushBlock {
+	void run(int dircs, int weight, int special){
+		int pos = ComboAt (CenterX (this), CenterY (this));
+		this->Data = Screen->ComboD[pos];
+		this->CSet = Screen->ComboC[pos];
+		this->X= ComboX(pos);
+		this->Y = ComboY(pos);
+		int undercombo = Screen->UnderCombo;
+		int undercset = Screen->UnderCSet;
+		int framecounter=0;
+		int movecounter = 0;
+		bool stackpush = true;
+		if (special&PUSHBLOCK_SPECIAL_MULTIPUSH_ONLY) stackpush = false;
+		int itm = GetHighestLevelItemOwned(IC_MULTIPUSHBLOCK);
+		if (itm>=0){
+			itemdata it= Game->LoadItemData(itm);
+			this->Misc[FFC_MISC_PUSHBLOCK_POWER] = it->Power;
+		}
+		this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]= -1;
+		//this->Misc[FFC_MISC_PUSHBLOCK_POWER] = 0;
+		while (true){
+			// Check if Link is pushing against the block
+			if((Link->X == this->X - 16 && (Link->Y < this->Y + 1 && Link->Y > this->Y - 12) && Link->InputRight && Link->Dir == DIR_RIGHT) || // Right
+			(Link->X == this->X + 16 && (Link->Y < this->Y + 1 && Link->Y > this->Y - 12) && Link->InputLeft && Link->Dir == DIR_LEFT) || // Left
+			(Link->Y == this->Y - 16 && (Link->X < this->X + 4 && Link->X > this->X - 4) && Link->InputDown && Link->Dir == DIR_DOWN) || // Down
+			(Link->Y == this->Y + 8 && (Link->X < this->X + 4 && Link->X > this->X - 4) && Link->InputUp && Link->Dir == DIR_UP)) { // Up
+				framecounter++;
+			}
+			else {
+			// Reset the frame counter
+			framecounter = 0;
+			}
+			if (framecounter>=8){
+					if (CanBePushed(this, Link->Dir, weight, stackpush)){
+					if ((special&PUSHBLOCK_SPECIAL_ICEBLOCK)==0)Game->PlaySound(SFX_PUSHBLOCK_MOVE);
+					else Game->PlaySound(SFX_ICEBLOCK_PUSH);
+				}
+				framecounter=0;
+			}
+			if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]>=0){
+				if (movecounter==0){
+					movecounter = 16;
+					Screen->ComboD[pos] = undercombo;
+					Screen->ComboC[pos] = undercset;
+				}
+				else {
+					NoAction();
+					movecounter--;
+					if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]==DIR_UP) this->Y--;
+					if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]==DIR_DOWN) this->Y++;
+					if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]==DIR_LEFT) this->X--;
+					if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]==DIR_RIGHT) this->X++;
+					if ((special&PUSHBLOCK_SPECIAL_ICEBLOCK)>0){
+						movecounter--;
+						if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]==DIR_UP) this->Y--;
+						if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]==DIR_DOWN) this->Y++;
+						if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]==DIR_LEFT) this->X--;
+						if (this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]==DIR_RIGHT) this->X++;
+					}
+					if (movecounter<=0){
+						if (IceblockCanContinueSlide(this))movecounter=16;
+						else{
+							pos = ComboAt (CenterX (this), CenterY (this));							
+							undercombo = Screen->ComboD[pos];
+							undercset = Screen->ComboC[pos];
+							int flag = Screen->ComboI[pos];
+							if ((Screen->ComboF[pos]==91)||(flag==91)){
+								Screen->ComboD[pos]++;
+								ClearFFC(FFCNum(this));
+								Quit();
+							}
+							Screen->ComboD[pos] = this->Data;
+							Screen->ComboC[pos] =this-> CSet;
+							this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]=-1;
+							if ((special&PUSHBLOCK_SPECIAL_ICEBLOCK)>0) Game->PlaySound(SFX_ICEBLOCK_STOP);
+							if ((special&PUSHBLOCK_SPECIAL_TRIGGER)>0){
+								Game->PlaySound(27);
+								Screen->TriggerSecrets();
+								Screen->State[ST_SECRET]= true;
+								this->InitD[0]=0;
+							}
+							else{
+								if ((special&PUSHBLOCK_SPECIAL_ONLY_ONE_PUSH)>0) Quit();
+								//Game->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
+								if ((Screen->ComboF[pos]==CF_BLOCKTRIGGER)||(flag==CF_BLOCKTRIGGER)){
+									//Game->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
+									if((special&PUSHBLOCK_SPECIAL_CAN_PUSH_OFF_TRIGGERS)==0){
+										Game->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
+										this->InitD[0]=0;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (((special&32)>0)&&(Screen->State[ST_SECRET])){
+				Screen->ComboD[pos] = undercombo;
+				Screen->ComboC[pos] = undercset;
+				ClearFFC(FFCNum(this));
+				Quit();
+			}
+			//Screen->Rectangle(3, ComboX(pos), ComboY(pos), ComboX(pos)+15, ComboY(pos)+15, 3, 1, 0, 0, 0, false, OP_OPAQUE);
+			//debugValue(1, special);
+			//debugValue(2, Screen->ComboI[pos]);
+			Waitframe();
+		}
+	}
+}
+
+bool IceblockCanContinueSlide(ffc f){	
+	if (((f->InitD[2])&PUSHBLOCK_SPECIAL_ICEBLOCK)==0) return false;
+	int pos = ComboAt (CenterX (f), CenterY (f));
+	int adj = StdOld::AdjacentCombo(pos, f->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]);
+	if (ComboFI(adj, CF_NOBLOCKS)) return false;
+	if (Screen->ComboS[adj]>0) return false;
+	return true;
+}
+
+
+bool NoEnemiesLeft (){
+	for (int i = 1; i<= Screen->NumNPCs(); i++){
+		npc n = Screen->LoadNPC(i);
+		if (!(n->isValid())) return true;
+		if ((n->MiscFlags&NPCMF_NOT_BEATABLE)==0) return false;
+	}
+	return true;
+}
+
+bool CanBePushed(ffc f, int dir, int weight, bool stackpushonly){
+	if (!stackpushonly) return false;
+	if (((f->InitD[2])&PUSHBLOCK_SPECIAL_ENEMY_WAIT)>0){
+		if (!NoEnemiesLeft ()) return false;
+	}
+	int str[] = "FreeformPushBlock";
+	int scr = Game->GetFFCScript(str);
+	if ((f->Script)!=scr) return false;
+	//Game->PlaySound(SFX_HAMMER);
+	if (dir==DIR_UP){
+		if (((f->InitD[0])&1)==0) return false;
+	}
+	if (dir==DIR_DOWN){
+		if (((f->InitD[0])&2)==0) return false;
+	}
+	if (dir==DIR_LEFT){
+		if (((f->InitD[0])&4)==0) return false;
+	}
+	if (dir==DIR_RIGHT){
+		if (((f->InitD[0])&8)==0) return false;
+	}
+	//Game->PlaySound(SFX_HAMMER);
+	int power = f->Misc[FFC_MISC_PUSHBLOCK_POWER];
+	if (power<weight) return false;
+	//Game->PlaySound(SFX_HAMMER);
+	int cmb=ComboAt (CenterX (f), CenterY (f));
+	int adj = StdOld::AdjacentCombo(cmb, dir);
+	if (adj<0) return false;
+	//Game->PlaySound(SFX_HAMMER);
+	if (ComboFI(adj, CF_NOBLOCKS))return false;
+	//Game->PlaySound(SFX_WAND);
+	if (Screen->ComboS[adj]>0){
+		if (ComboFI(adj, 91)){
+			f->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]= dir;
+			return true;
+		}
+		if (((f->InitD[2])&PUSHBLOCK_SPECIAL_ICEBLOCK)>0) return false;
+		if ((I_MULTIPUSHBLOCK>0)&&(!Link->Item[I_MULTIPUSHBLOCK])) return false;
+		for (int i=1; i<=32; i++){
+			ffc next = Screen->LoadFFC(i);
+			if ((next->Script) != scr) continue;
+			if (next->X != ComboX(adj))continue;
+			if (next->Y != ComboY(adj))continue;
+			if (((next->InitD[2])&PUSHBLOCK_SPECIAL_ICEBLOCK)>0) return false;
+			if (CanBePushed(next, dir, (weight+next->InitD[1]), true)){
+				f->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]= dir;
+				return true;
+			}
+		}
+		return false;
+	}
+	f->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]= dir;
+	return true;
+}
+
+//Item script needed to update Link`s pushing power, id you have Freeform Pushblocks and IC_MULTIPUSHBLOCK items on the same screen.
+//it`s needed to avoid calling very slow GetHighestLevelItemOwned function every frame just for a single change.
+item script UpdateFreeformBlockPower{
+	void run(){
+		int str[] = "FreeformPushBlock";
+		int scr = Game->GetFFCScript(str);
+		for (int i=1; i<=32; i++){
+			ffc next = Screen->LoadFFC(i);
+			if ((next->Script) != scr) continue;
+			next->Misc[FFC_MISC_PUSHBLOCK_POWER] = this->Power;
+		}
+	}
+}
+
+//FFC script used to track block triggers.
+// Place 1 FFC anywhere on the screen.
+// D0 - remove FFC pushblocks when puzzle is solved.
+ffc script FreeformPushBlockTriggers{
+	void run(int secretremover){
+		if (Screen->State[ST_SECRET])Quit();
+		int scr_iceblock[] = "FreeformPushBlock";
+		int ffcscript_iceblock= Game->GetFFCScript(scr_iceblock);
+		ffc blocks[31];
+		int triggerx[31];
+		int triggery[31];
+		int num_push_blocks = 0;
+		int num_triggers = 0;
+		int good_counter = 0;
+		
+		for(int i = 0; i < 176 && num_triggers < 31; i++) {
+			if(Screen->ComboF[i] == CF_BLOCKTRIGGER || Screen->ComboI[i] == CF_BLOCKTRIGGER) {
+				triggerx[num_triggers] = (i % 16) * 16;
+				triggery[num_triggers] = StdOld::Floor(i / 16) * 16;
+				num_triggers++;
+			}
+		}
+		if(num_triggers == 0) Quit();
+		
+		for(int i = 1; i <= 32; i++) {
+			ffc temp = Screen->LoadFFC(i);
+			if(temp->Script == ffcscript_iceblock) {
+				blocks[num_push_blocks] = temp;
+				num_push_blocks++;
+			}
+		}
+		if(num_push_blocks == 0) Quit();
+		
+		while(true) {
+			for(int i = 0; i < num_push_blocks; i++) {
+					//Check if blocks are on switches and not moving
+					for(int j = 0; j < num_triggers; j++) {
+						if(blocks[i]->X == triggerx[j] && blocks[i]->Y == triggery[j] && blocks[i]->Vx == 0 && blocks[i]->Misc[FFC_MISC_PUSHBLOCK_IMPULSE] < 0) {
+							good_counter++;
+							break;
+						}
+					}
+				}
+				if(good_counter == num_triggers) {
+				Game->PlaySound(SFX_SECRET);
+				if (secretremover>0){
+					for (int i=1; i<=32; i++){
+						ffc f = Screen->LoadFFC(i);
+						if (f->Script==ffcscript_iceblock) ClearFFC(i);
+					}
+				}
+				Screen->TriggerSecrets();
+				if((Screen->Flags[SF_SECRETS] & 2) == 0) Screen->State[ST_SECRET] = true;
+				Quit();
+			}
+			good_counter = 0;
+			Waitframe();
+		}
+	}
+}

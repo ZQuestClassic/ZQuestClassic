@@ -584,8 +584,8 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 
 	FetchContent_Declare(
 		gme_external
-		GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
-		GIT_TAG        6cd4bdb69be304f58c9253fb08b8362f541b3b4b
+		GIT_REPOSITORY https://github.com/libgme/game-music-emu
+		GIT_TAG        6b676192d98302e698ac78fe3c00833eae6a74e5
 	)
 	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
 	option(ENABLE_UBSAN "" OFF)
@@ -659,6 +659,8 @@ if(NOT EMSCRIPTEN)
 	target_compile_definitions(websocket INTERFACE _WEBSOCKETPP_CPP11_STL_ ASIO_STANDALONE)
 	target_link_libraries(websocket INTERFACE asio)
 	target_sources(websocket INTERFACE src/zc/websocket_pool.cpp)
+	# websocketpp cmake stomps on ours ...
+	set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 else()
 	add_library(websocket INTERFACE)
 	target_sources(websocket INTERFACE src/zc/websocket_pool_unsupported.cpp)

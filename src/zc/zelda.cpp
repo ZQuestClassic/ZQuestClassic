@@ -3450,10 +3450,10 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_ANIM);
 		if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_POLL_INPUT);
-		
+
+		update_slopes();
 		if(!freezeff)
 		{
-			//if ( !FFCore.system_suspend[susptUPDATEFFC] ) 
 			update_freeform_combos();
 		}
 		
@@ -4199,6 +4199,10 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 
 	if (strlen(zc_get_config("zeldadx", "replay_snapshot", "")) > 0)
 		replay_add_snapshot_frame(zc_get_config("zeldadx", "replay_snapshot", ""));
+
+	// Older quests don't have a misc section, and QMisc isn't set by default except via loading the default quest.
+	// So do that here, since not all code paths to this will have done it already.
+	init_NES_mode();
 }
 
 void zc_game_srand(int seed, zc_randgen* rng)
@@ -4332,8 +4336,7 @@ void do_extract_zasm_command(const char* quest_path)
 	strcpy(qstpath, quest_path);
 	bool top_functions = true;
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
-	bool optimize = get_flag_bool("-extract-zasm-optimize").value_or(false);
-	if (optimize)
+	if (zasm_optimize_enabled())
 		zasm_optimize();
 	zasm_for_every_script(true, [&](script_data* script){
 		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);
@@ -5223,7 +5226,7 @@ reload_for_replay_file:
 			//clearing this here makes it impossible 
 			//to read before or after waitdraw in scripts. 
 		}
-		clear_a5_bmp(rti_infolayer.bitmap);
+		clear_info_bmp();
 
 		if (load_replay_file_deffered_called)
 		{

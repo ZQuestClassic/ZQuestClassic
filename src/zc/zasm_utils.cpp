@@ -4,7 +4,6 @@
 #include "zc/script_debug.h"
 #include <cstdint>
 #include <fmt/format.h>
-#include <initializer_list>
 #include <xxhash.h>
 
 #define POOLSTL_STD_SUPPLEMENT
@@ -16,9 +15,6 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 	std::set<pc_t> function_calls;
 	std::set<pc_t> function_calls_goto_pc;
 	std::map<pc_t, pc_t> function_calls_pc_to_pc;
-
-	bool is_init_script = script->id == script_id{ScriptType::Global, GLOBAL_SCRIPT_INIT};
-	bool has_seen_goto = false;
 
 	// Three forms of function calls over the ages:
 
@@ -106,16 +102,9 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 		else if (legacy_calling_mode && command == GOTO)
 		{
 			// Function calls are directly followed with a POP to restore the stack frame pointer.
-			is_function_call_like = script->zasm[i + 1].command == POP && script->zasm[i + 1].arg1 == D(4);
-
-			// Handle special where where the Init script function uses GOTO to go to the real entrypoint,
-			// after it sets up global data. This does not save a return address.
-			if (is_init_script && !has_seen_goto)
-			{
-				has_seen_goto = true;
-				if (!is_function_call_like)
-					is_function_call_like = script->zasm[script->zasm[i].arg1 - 1].command == RETURN || script->zasm[script->zasm[i].arg1 - 1].command == RETURNFUNC;
-			}
+			// PEEK is also possible via an optimization done by the compiler.
+			int next_command = script->zasm[i + 1].command;
+			is_function_call_like = (next_command == POP || next_command == PEEK) && script->zasm[i + 1].arg1 == D(4);
 		}
 		else
 		{
@@ -567,7 +556,8 @@ void zasm_for_every_script(bool parallel, std::function<void(script_data*)> fn)
 	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
 	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
 
-	if (parallel)
+	// TODO: debug issues on web build.
+	if (parallel && !is_web())
 		std::for_each(std::execution::par_unseq, scripts.begin(), scripts.end(), fn);
 	else
 		std::for_each(std::execution::seq, scripts.begin(), scripts.end(), fn);

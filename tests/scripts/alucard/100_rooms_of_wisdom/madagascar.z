@@ -1,0 +1,77 @@
+import "std_old.zh"
+import "chess.zh"
+
+const int MADAGASCAR_PUZZLE_MOVE = 16; //Sound to play when making move.
+const int MADAGASCAR_PUZZLE_SOLVED = 27;//Sound to play when puzzle is solved.
+
+//Madagascar Peg Solitaire puzzle
+//A number of pegs are placed in holes on a board. You can remove a peg by jumping an adjacent peg over it 
+//(horizontally or vertically) to a vacant hole on the other side. 
+//Your aim is to remove all but one of the pegs initially present. 
+// Stand on peg, press A, then stand on valid hole and press A to Make the move.
+
+//1. Set up 2 adjacent combos. 1 for empty space and 1 for space occupied by peg.
+//2. Build board using combos from step 1
+//3. Place FFC anywhere in the screen.
+// D0 - ID of the empty space combo.
+// D1 - ID of the peg combo.
+ffc script MadagascarSolitaire{
+	void run (int cmbempty, int cmbpeg){
+		if (Screen->State[ST_SECRET]){
+			int newcombo = ComboAt (CenterX(this), CenterY(this));
+			for (int i=1; i<176 ;i++){
+				if (Screen->ComboD[i] == cmbpeg) Screen->ComboD[i] = cmbempty;
+			}
+			Screen->ComboD[newcombo] = cmbpeg;
+			Quit();
+		}
+		int curpos = -1;
+		while (true){
+			if (Link->PressA){
+				if (curpos<0){
+					int newcombo = ComboAt (CenterLinkX(), CenterLinkY());
+					if (Screen->ComboD[newcombo] == cmbpeg) curpos = ComboAt (CenterLinkX(), CenterLinkY());
+				}
+				else{ 
+					int newcombo = ComboAt (CenterLinkX(), CenterLinkY());
+					if (newcombo == curpos) curpos = -1;
+					if (LeaperMoveAdjacent(curpos, newcombo, 2, 0)){
+						int jumppos = ComboInBetween(curpos, newcombo);
+						if ((Screen->ComboD[jumppos] == cmbpeg)&&(Screen->ComboD[newcombo]== cmbempty)){
+							Game->PlaySound(MADAGASCAR_PUZZLE_MOVE);
+							Screen->ComboD[curpos] = cmbempty;
+							Screen->ComboD[jumppos] = cmbempty;
+							Screen->ComboD[newcombo] = cmbpeg;
+							curpos = -1;
+							int numpegs = 0;
+							for (int i = 1; i<176; i++){
+								if (Screen->ComboD[i] == cmbpeg) numpegs++;
+							} 
+							if (numpegs==1){
+								Game->PlaySound(MADAGASCAR_PUZZLE_SOLVED);
+								Screen->TriggerSecrets();
+								Screen->State[ST_SECRET]=true;
+								Quit();
+							}
+						}
+					}
+				}
+			}
+			if (curpos>0) Screen->Rectangle(0, ComboX(curpos), ComboY(curpos), ComboX(curpos)+16, ComboY(curpos)+16, 3, 1, 0, 0, 0, false, OP_OPAQUE);
+			Waitframe();
+		}
+	}
+	
+	//Returns ID of a combo between chosen ones
+	int ComboInBetween(int loc1, int loc2){
+		if (!LeaperMoveAdjacent(loc1, loc2, 2, 0)){
+			Game->PlaySound(SFX_WAND);
+			return -1;
+		}
+		for (int i=0; i<4; i++){
+			if ((StdOld::AdjacentCombo(loc1, i))
+			==(StdOld::AdjacentCombo(loc2, OppositeDir(i)))) return StdOld::AdjacentCombo(loc1, i);
+		}
+		return -1;
+	}
+}

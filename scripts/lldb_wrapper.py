@@ -1,10 +1,12 @@
 # All this does is call the given process with the provided arguments, and returns
 # with the same exit code when finished. If the process crashes, prints a backtrace.
 
-import sys
 import os
+import sys
 import tempfile
+
 from pathlib import Path
+
 import import_lldb
 
 exe = sys.argv[1]
@@ -31,7 +33,18 @@ err = lldb.SBError()
 stdout_f = os.path.join(tempfile.gettempdir(), os.urandom(24).hex())
 stderr_f = os.path.join(tempfile.gettempdir(), os.urandom(24).hex())
 
-process = target.Launch(debugger.GetListener(), args, None, None, stdout_f, stderr_f, os.getcwd(), 0, False, err)
+process = target.Launch(
+    debugger.GetListener(),
+    args,
+    None,
+    None,
+    stdout_f,
+    stderr_f,
+    os.getcwd(),
+    0,
+    False,
+    err,
+)
 sys.stdout.write(Path(stdout_f).read_text())
 sys.stderr.write(Path(stderr_f).read_text())
 os.unlink(stdout_f)

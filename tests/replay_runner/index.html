@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>ZC Replays</title>
+	<meta charset="UTF-8">
+	<base href="/" target="_blank">
+    <link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="datatables.min.css" />
+</head>
+
+<body>
+	<h1 class="title">ZQuest Classic Replays</h1>
+	
+    <div class="runner-root">
+		<div class="controls">
+			<div class="controls__nav">
+				<button class="btn-new">New</button>
+				<button class="btn-load">Load</button>
+			</div>
+		</div>
+		<hr>
+		<div class="section load hidden">
+			<h2>Load previous run</h2>
+			<div class="content"></div>
+		</div>
+		<div class="section results hidden">
+			<div class="content">
+				<h2>Viewing results - <span class="results__name"></span></h2>
+				<button class="btn-compare hidden">Comparison report</button>
+				<div class="replays-list"></div>
+			</div>
+		</div>
+		<div class="section compare hidden">
+			<h2>Compare report</h2>
+			<div class="content">
+				<button class="btn-compare-generate">Generate</button>
+				<div class="status"></div>
+				<a class="show-link" target="_blank">Open compare report</a>
+			</div>
+		</div>
+		<div class="section new hidden">
+			<h2>Start new run</h2>
+			<div class="content">
+				<table>
+					<thead>
+						<tr>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+    </div>
+
+	<template id="tmpl-replay">
+		<div class="replay">
+			<div class="replay__left">
+				<div class="replay__name"></div>
+				<div class="replay__status"></div>
+				<div>
+					fps: <span class="replay__fps"></span>
+				</div>
+			</div>
+			<div class="replay__right">
+				<div class="replay__eta"></div>
+			</div>
+		</div>
+	</template>
+
+	<script src="datatables.min.js"></script>
+    <script src="table.js"></script>
+	<script src="main.js"></script>
+</body>
+
+</html>

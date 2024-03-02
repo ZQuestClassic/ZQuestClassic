@@ -12,7 +12,7 @@ Compile finished with exit code '0' (success)
 PUSHR d0; void run(int, int) Params
 PUSHR d1
 PUSHARGSV 0,0.0002; void run(int, int) Body Start
-SETR d4,SP
+SETR d4,SP2
 SETR d2,LINKHP
 DIVV d2,2
 PUSHR d2
@@ -25,31 +25,32 @@ PUSHR d2
 SETR d2,LINKY
 ADDV d2,8
 PUSHR d2; UsrFunc[int ComboAt(int, int)] Params End
-CALLFUNC 0.0075; UsrFunc[int ComboAt(int, int)] Call
+CALLFUNC 0.0076; UsrFunc[int ComboAt(int, int)] Call
 POP d4
-STORED d2,0; if() #558 Test
+STORE d2,0
+LOAD d2,0; if() #558 Test
 PUSHR d2
 POP d0
 SETR d2,COMBODD
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 POP d3
 COMPARER d3,d2
 SETCMP d2,I==
 COMPAREV d2,0
-GOTOCMP 43,==; Test 'if'
-LOADD d2,0; if() #558 Body Start
+GOTOCMP 44,==; Test 'if'
+LOAD d2,0; if() #558 Body Start
 PUSHR d2
 POP d0
 SETR d2,COMBODD
 ADDV d2,1
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
 POP d0
 POP d2
 SETR COMBODD,d2
-LOADD d2,2; InlineFunc[void Game->PlaySound(int)] Params
+LOAD d2,0.0002; InlineFunc[void Game->PlaySound(int)] Params
 PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body AND if() #558 Body End
 PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
@@ -84,41 +85,41 @@ POPARGS d5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
 GOTO 10; while() #8 End AND [Opt:NeverRet] AND void run(int, int) Body End
 PUSHARGSV 0,0.0004; Func[int ComboAt(int, int)] Body Start
-SETR d4,SP
+SETR d4,SP2
 SETR d2,REGION_ID; if() #26 Test
 COMPAREV d2,0
-GOTOCMP 135,==; Test 'if'
+GOTOCMP 136,==; Test 'if'
 PUSHR d4; if() #26 Body Start
-LOADD d2,5; UsrFunc[int VBound(int, int, int)] Params Start
+LOAD d2,0.0005; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 SETR d2,REGION_WIDTH
 SUBV d2,1
 PUSHR d2
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0159; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP d4
-STORED d2,5
+STORE d2,0.0005
 PUSHR d4
-LOADD d2,4; UsrFunc[int VBound(int, int, int)] Params Start
+LOAD d2,0.0004; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 SETR d2,REGION_HEIGHT
 SUBV d2,1
 PUSHR d2
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0159; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP d4
-STORED d2,4
-LOADD d2,5; InlineFunc[untyped Floor(untyped)] Params Start
+STORE d2,0.0004
+LOAD d2,0.0005; InlineFunc[untyped Floor(untyped)] Params Start
 DIVV d2,256; InlineFunc[untyped Floor(untyped)] Params End
 FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
-STORED d2,3
-LOADD d2,4; InlineFunc[untyped Floor(untyped)] Params Start
+STORE d2,0.0003
+LOAD d2,0.0004; InlineFunc[untyped Floor(untyped)] Params Start
 DIVV d2,176; InlineFunc[untyped Floor(untyped)] Params End
 FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
-STORED d2,2
-LOADD d2,3
+STORE d2,0.0002
+LOAD d2,0.0003
 PUSHR d2
-LOADD d2,2
+LOAD d2,0.0002
 PUSHR d2
 SETR d2,REGION_SCREEN_WIDTH
 POP d3
@@ -126,70 +127,71 @@ MULTR d2,d3
 POP d3
 ADDR d2,d3
 MULTV d2,176
-STORED d2,1
-LOADD d2,4
+STORE d2,0.0001
+LOAD d2,0.0004
 MODV d2,176
 ANDV d2,240
 PUSHR d2
-LOADD d2,5
+LOAD d2,0.0005
 MODV d2,256
 RSHIFTV d2,4
 POP d3
 ADDR d2,d3
-STORED d2,0
-LOADD d2,1; return Start
+STORE d2,0
+LOAD d2,0.0001; return Start
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 POP d3
 ADDR d2,d3
-GOTO 157; return End AND if() #26 Body End
+GOTO 159; return End AND if() #26 Body End
 PUSHR d4; if() #26 Else Start
-LOADD d2,5; UsrFunc[int VBound(int, int, int)] Params Start
+LOAD d2,0.0005; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 PUSHV 255
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0159; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP d4
-STORED d2,5
+STORE d2,0.0005
 PUSHR d4
-LOADD d2,4; UsrFunc[int VBound(int, int, int)] Params Start
+LOAD d2,0.0004; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR d2
 PUSHV 175
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0159; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP d4
-STORED d2,4; return Start
+STORE d2,0.0004
+LOAD d2,0.0004; return Start
 ANDV d2,240
 PUSHR d2
-LOADD d2,5
+LOAD d2,0.0005
 RSHIFTV d2,4
 POP d3
 ADDR d2,d3
 POPARGS d5,0.0006; return End AND if() #26 Else End
 RETURNFUNC; Func[int ComboAt(int, int)] Body End
-SETR d4,SP; Func[int VBound(int, int, int)] Body Start
-LOADD d2,2; if() #136 Test
+SETR d4,SP2; Func[int VBound(int, int, int)] Body Start
+LOAD d2,0.0002; if() #136 Test
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 POP d3
 COMPARER d3,d2
 SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 171,==; Test 'if'
-LOADD d2,0; if() #136 Body Start
-STORED d2,2
-GOTO 181; if() #136 Body End
-LOADD d2,2; if() #355 Test AND if() #136 Else Start
+GOTOCMP 173,==; Test 'if'
+LOAD d2,0; if() #136 Body Start
+STORE d2,0.0002
+GOTO 183; if() #136 Body End
+LOAD d2,0.0002; if() #355 Test AND if() #136 Else Start
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 POP d3
 COMPARER d3,d2
 SETCMP d2,I>
 COMPAREV d2,0
-GOTOCMP 181,==; Test 'if'
-LOADD d2,1; if() #355 Body Start
-STORED d2,2; if() #355 Body End
-LOADD d2,2; if() #136 Else End AND return Start
+GOTOCMP 183,==; Test 'if'
+LOAD d2,0.0001; if() #355 Body Start
+STORE d2,0.0002; if() #355 Body End
+LOAD d2,0.0002; if() #136 Else End AND return Start
 POPARGS d5,0.0003; return End
 RETURNFUNC; Func[int VBound(int, int, int)] Body End
 

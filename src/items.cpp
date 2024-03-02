@@ -87,9 +87,9 @@ bool item::animate(int32_t)
 		if(isSideViewGravity())
 		{
 			if((
-					(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(x,y)) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
 					||
-					(can_drop(x,y) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
+					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(x,y)) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
 				) 
 				&& 
 				( moveflags & FLAG_OBEYS_GRAV ) //if the user set item->Gravity = false, let it float. -Z

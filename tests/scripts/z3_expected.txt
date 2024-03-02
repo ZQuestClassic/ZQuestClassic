@@ -13,7 +13,7 @@ PUSHR d0; void run(int, int) Params
 PUSHR d1
 PUSHR REFFFC; void run(int, int) Body Start
 PUSHARGSV 0,0.0002
-SETR d4,SP
+SETR d4,SP2
 SETR d2,REGION_WIDTH; InlineFunc[void Trace(long)] Params
 TRACELR d2; InlineFunc[void Trace(long)] Body
 SETR d2,REGION_HEIGHT; InlineFunc[void Trace(long)] Params
@@ -28,18 +28,18 @@ SETV d2,0; while(true) #8 Body [Opt:AlwaysOn] Start
 PUSHR d2
 POP d0
 SETR d2,MOUSEARR
-STORED d2,1
+STORE d2,0.0001
 SETV d2,1
 PUSHR d2
 POP d0
 SETR d2,MOUSEARR
-STORED d2,0
+STORE d2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOADD d2,1
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
-LOADD d2,4
+LOAD d2,0.0004
 PUSHR d2
 PUSHARGSV 1,0.0002
 PUSHV 3
@@ -49,53 +49,53 @@ PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-LOADD d2,1
+LOAD d2,0.0001
 PUSHR d2
 SETR d2,VIEWPORT_X
 POP d3
 ADDR d2,d3
-STORED d2,1
-LOADD d2,0
+STORE d2,0.0001
+LOAD d2,0
 PUSHR d2
 SETR d2,VIEWPORT_Y
 POP d3
 ADDR d2,d3
-STORED d2,0
-LOADD d2,2; if() #558 Test
+STORE d2,0
+LOAD d2,0.0002; if() #558 Test
 PUSHR d2
 POP REFFFC
 SETR d2,X
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 POP d3
 COMPARER d3,d2
 GOTOCMP 93,>=
-LOADD d2,2
+LOAD d2,0.0002
 PUSHR d2
 POP REFFFC
 SETR d2,Y
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 POP d3
 COMPARER d3,d2
 GOTOCMP 93,>=
-LOADD d2,2
+LOAD d2,0.0002
 PUSHR d2
 POP REFFFC
 SETR d2,X
 ADDV d2,32
 PUSHR d2
-LOADD d2,1
+LOAD d2,0.0001
 POP d3
 COMPARER d3,d2
 GOTOCMP 93,<
-LOADD d2,2
+LOAD d2,0.0002
 PUSHR d2
 POP REFFFC
 SETR d2,Y
 ADDV d2,32
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 POP d3
 COMPARER d3,d2
 GOTOCMP 93,<
@@ -104,7 +104,7 @@ GOTO 94
 SETV d2,0
 COMPAREV d2,0
 GOTOCMP 98,==; Test 'if'
-LOADD d2,3; InlineFunc[void Region->TriggerSecrets(int)] Params AND if() #558 Body Start
+LOAD d2,0.0003; InlineFunc[void Region->TriggerSecrets(int)] Params AND if() #558 Body Start
 REGION_TRIGGER_SECRETS d2; InlineFunc[void Region->TriggerSecrets(int)] Body AND if() #558 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
 GOTO 16; while() #8 End AND [Opt:NeverRet] AND void run(int, int) Body End

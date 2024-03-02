@@ -1,0 +1,85 @@
+import "std_old.zh"
+
+const int SFX_WATERJAR_MOVE = 16;//Sound to play when pouring liquid from one jar to another.
+const int SFX_WATERJAR_SOLVED = 27;//Sound to play when puzzle is solved.
+
+const int TILE_WATERJAR_TOP = 16012; //Tile used for jar top
+const int TILE_WATERJAR_MIDDLE = 16011;//Tile used for jar middle
+const int TILE_WATERJAR_BOTTOM = 16010;//Tile used for jar bottom
+
+const int LINK_MISC_JAR_IN_HAND = 0;//Link Misc variable to track which jar Link has in hand.
+
+const int CSET_WATERJAR_ACTIVE = 8;//Cset used for selected jar to pour from
+const int WATERJAR_SIZE_PER_UNIT = 4;//Unit to pixel conversion rate.
+
+const int C_WATERJAR_DEFAULT = 1; //Color used to render non-tiled default rectangle to render jar capacity. 
+const int C_WATERJAR_WATER_COLOR = 3;//Color used to render liquid level in jar.
+const int C_WATERJAR_GOAL_MARK = 5;//Color used to render goal marks on jars.
+
+//You have a cuple of jars with different capacity and amounts of liquid in them. 
+//Some of them have goal marks. You can pour liquid from one jar to another until only either previous is empty or one filld up to it`s capacity.
+//The goal is to end up with all marked jars having filled exactly up to marks placed on them.
+// Stand on jar base, press A, then stand on another jar base and press A to pour liquid.
+
+//1. Set up tiles to render jars. Tiles must be as tall as WATERJAR_SIZE_PER_UNIT constant, rest should be transparent.
+//2. Set up combo for jar base, like table.
+//3. Place jar FFC`s with combo from step 2 as Data and assigned script.
+// D0 - Jar capacity, in units.
+// D1 - Initial amount of liquid in jar, in units.
+// D2 - Target amount of liquid in jar, in units.
+//    - If set to 0, the jar must be empty at the end.
+//    - Set to -1 to remove mark at all.
+ffc script WaterJar{
+	void run (int capacity, int amount, int goal){
+		int defcset = this->CSet;
+		Link->Misc[LINK_MISC_JAR_IN_HAND] = 0;
+		while (true){
+			if (StdOld::LinkCollision(this)){
+				if (Link->PressA){
+					if (Link->Misc[LINK_MISC_JAR_IN_HAND] == 0){
+						Link->Misc[LINK_MISC_JAR_IN_HAND] = FFCNum(this);
+						this->CSet = CSET_WATERJAR_ACTIVE;
+					}
+					else {
+						if (Link->Misc[LINK_MISC_JAR_IN_HAND] != FFCNum(this)){
+							Game->PlaySound(SFX_WATERJAR_MOVE);
+							ffc f= Screen->LoadFFC(Link->Misc[LINK_MISC_JAR_IN_HAND]);
+							while (this->InitD[1]<capacity){
+								if (f->InitD[1]<=0) break;
+								this->InitD[1]++;
+								f->InitD[1]--;
+							}
+							f->CSet = defcset;
+							Link->Misc[LINK_MISC_JAR_IN_HAND] = 0;
+						}
+						else {
+							this->CSet = defcset;
+							Link->Misc[LINK_MISC_JAR_IN_HAND] = 0;
+						}
+					}
+					for (int i=1; i<=32; i++){
+						ffc s = Screen->LoadFFC(i);
+						if ((s->Script==this->Script)&&(s->InitD[2]>=0)&&(s->InitD[1]!= s->InitD[2])) break;
+						else if (i==32){
+							Game->PlaySound(SFX_WATERJAR_SOLVED);
+							Screen->TriggerSecrets();
+							Screen->State[ST_SECRET] = true;
+						}
+					}
+				}
+			}
+			
+			Screen->Rectangle(1, (this->X)+WATERJAR_SIZE_PER_UNIT, this->Y-1, (this->X)+WATERJAR_SIZE_PER_UNIT*3, (this->Y)-(WATERJAR_SIZE_PER_UNIT*(this->InitD[1])), C_WATERJAR_WATER_COLOR, 1, 0, 0, 0, true, OP_OPAQUE);
+			Screen->Rectangle(1, (this->X)+WATERJAR_SIZE_PER_UNIT, this->Y-1, (this->X)+WATERJAR_SIZE_PER_UNIT*3, (this->Y)-(WATERJAR_SIZE_PER_UNIT*(this->InitD[0])), C_WATERJAR_DEFAULT, 1, 0, 0, 0, false, OP_OPAQUE);
+			for (int t=1; t<=capacity; t++){
+				int tile = TILE_WATERJAR_MIDDLE;
+				if (tile==1) tile = TILE_WATERJAR_BOTTOM;
+				if (tile ==capacity) tile = TILE_WATERJAR_TOP;
+				Screen->DrawTile(1, this->X, this->Y-(WATERJAR_SIZE_PER_UNIT*t), tile, 1, 1, 11, -1, -1, 0, 0, 0, 0, true, OP_OPAQUE);
+			}
+			if (goal>0) Screen->Rectangle(1, (this->X)+WATERJAR_SIZE_PER_UNIT, ((this->Y)-WATERJAR_SIZE_PER_UNIT*(this->InitD[2])), (this->X)+WATERJAR_SIZE_PER_UNIT*3, ((this->Y)-WATERJAR_SIZE_PER_UNIT*(this->InitD[2])+1), C_WATERJAR_GOAL_MARK, 1, 0, 0, 0,true, OP_OPAQUE);
+			else if (goal==0) Screen->Rectangle(1, (this->X)+WATERJAR_SIZE_PER_UNIT, (this->Y)-1, (this->X)+WATERJAR_SIZE_PER_UNIT*3, (this->Y)-2, C_WATERJAR_GOAL_MARK, 1, 0, 0, 0,true, OP_OPAQUE);
+			Waitframe();
+		}
+	}
+} 

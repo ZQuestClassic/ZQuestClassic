@@ -1,0 +1,98 @@
+import "std_old.zh"
+
+const int SFX_FROGPUZZLE_MOVE = 16; //Sound to play when making move.
+const int SFX_FROGPUZZLE_SOLVED = 27;//Sound to play when puzzle is solved. 
+
+// 7 spaces in 1 horizontal line. 3 spaces occupied by frogs facing right, 3 by toads facing left and 1 empty space in between
+//Toads and frogs can only move forward and jump 1 space forward, if occupied. Stand on piece that can be moved and press A.
+// The goal is to swap all toads with frogs and vice versa.
+// 1. Set up 3 combos. First, empty space, then frog , then toad.
+// 2.Place FFC at leftmost spot of the puzzle.
+//  D0 - Empty space combo.
+
+ffc script FrogJumpingPuzzle{
+	void run(int cmbfrog){
+		int startpos = ComboAt(CenterX(this), CenterY(this));
+		int pos[7] = {1,1,1,0,2,2,2};
+		int endpos[7] = {2,2,2,0,1,1,1};
+		int cmb[7];
+		if (Screen->State[ST_SECRET]){
+			for (int i=0; i<7; i++){
+				Screen->ComboD[startpos+i] = cmbfrog+endpos[i];
+			}
+			Quit();
+		}
+		for (int i=0; i<7; i++){
+			cmb[i] = startpos+i;
+			Screen->ComboD[startpos+i] = cmbfrog+pos[i];
+		}
+		
+		while (true){
+			if (RectCollision(ComboX(startpos), ComboY(startpos),ComboX(startpos+7)-1, ComboY(startpos)+15, CenterLinkX(), CenterLinkY(), (CenterLinkX()+1), (CenterLinkY())+1)){
+				if (Link->PressA){
+					int curpos = ComboAt(CenterLinkX(), CenterLinkY());
+					int frogpos = curpos-startpos;
+					if (pos[frogpos]==1){
+						if (frogpos<6){
+							if (pos[frogpos+1]==0){
+								Game->PlaySound(SFX_FROGPUZZLE_MOVE);
+								SwapCombos(curpos, curpos+1);
+								pos[frogpos]=0;
+								pos[frogpos+1]=1;
+								
+							}
+						}
+						if (frogpos<5){
+							if ((pos[frogpos+1]>0)&&(pos[frogpos+2]==0)){
+								Game->PlaySound(SFX_FROGPUZZLE_MOVE);
+								SwapCombos(curpos, curpos+2);
+								pos[frogpos]=0;
+								pos[frogpos+2]=1;
+							}
+						}
+					}
+					if (pos[frogpos]==2){
+						if (frogpos>0){
+							if (pos[frogpos-1]==0){
+								Game->PlaySound(SFX_FROGPUZZLE_MOVE);
+								SwapCombos(curpos, curpos-1);
+								pos[frogpos]=0;
+								pos[frogpos-1]=2;
+								
+							}
+						}
+						if (frogpos>1){
+							if ((pos[frogpos-1]>0)&&(pos[frogpos-2]==0)){
+								Game->PlaySound(SFX_FROGPUZZLE_MOVE);
+								SwapCombos(curpos, curpos-2);
+								pos[frogpos]=0;
+								pos[frogpos-2]=2;
+							}
+						}
+					}
+					for (int i=0;i<7;i++){
+						if (pos[i]!=endpos[i]) break;
+							else if (i==6){								
+								Game->PlaySound(SFX_FROGPUZZLE_SOLVED);
+								Screen->TriggerSecrets();
+								Screen->State[ST_SECRET]=true;
+								Quit();
+							}
+					}
+				}
+			}
+			Waitframe();
+		} 
+	}
+	
+	void SwapCombos(int pos1, int pos2){
+		int cmb1 = Screen->ComboD[pos1];
+		int cmb2 = Screen->ComboD[pos2];
+		int cset1 = Screen->ComboC[pos1];
+		int cset2 = Screen->ComboC[pos2];
+		Screen->ComboD[pos1] = cmb2;
+		Screen->ComboD[pos2] = cmb1;
+		Screen->ComboC[pos1] = cset2;
+		Screen->ComboC[pos1] = cset1;
+	}
+}

@@ -1,0 +1,29 @@
+import "std_old.zh"
+
+const int CLUE_ROTATION_SPEED = 1;
+
+ffc script OrbitingClue{
+	void run (int clue1, int clue2, int clue3, int clue4, int sprite1, int sprite2, int sprite3, int sprite4){
+		int clues[4]={clue1, clue2, clue3, clue4};
+		int cluesprites[4]={sprite1, sprite2, sprite3, sprite4};
+		int angle = 0;
+		while (!Screen->State[ST_SECRET]){
+			angle = StdOld::WrapDegrees(angle);
+			for (int i=0; i<SizeOfArray(clues);i++){
+				int clueX = CenterLinkX();
+				int clueY = CenterLinkY();
+				if (clues[i]>0){
+					for (int c=0; c<= clues[i];c++){
+						int cangle = angle+ c*360/clues[i];
+						int radius = 16*i+16;
+						clueX =CenterLinkX() + VectorX(radius, cangle)-8;
+						clueY =CenterLinkY() + VectorY(radius, cangle)-8;
+						Screen->FastCombo(1, clueX, clueY, cluesprites[i], 7, OP_OPAQUE);
+					}
+				}
+			}
+			angle+=CLUE_ROTATION_SPEED;
+			Waitframe();
+		}
+	}
+}

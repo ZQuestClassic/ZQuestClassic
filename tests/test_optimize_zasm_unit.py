@@ -16,14 +16,21 @@ import argparse
 import os
 import sys
 import unittest
+
 from pathlib import Path
+
 from common import ZCTestCase
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--update', action='store_true', default=False,
-                    help='Update snapshots')
-parser.add_argument('--print', action='store_true', default=False,
-                    help='Print all the input/expected ZASM')
+parser.add_argument(
+    '--update', action='store_true', default=False, help='Update snapshots'
+)
+parser.add_argument(
+    '--print',
+    action='store_true',
+    default=False,
+    help='Print all the input/expected ZASM',
+)
 parser.add_argument('unittest_args', nargs='*')
 args = parser.parse_args()
 
@@ -42,10 +49,14 @@ class TestOptimizeZasmUnit(ZCTestCase):
         self.maxDiff = None
 
     def run_test(self, path: Path):
-        p = run_target.run('zplayer', [
-            '-headless',
-            '-test-optimize-zasm', str(path),
-        ])
+        p = run_target.run(
+            'zplayer',
+            [
+                '-headless',
+                '-test-optimize-zasm',
+                str(path),
+            ],
+        )
         if p.returncode:
             raise Exception(f'error: {p.returncode}\n{p.stderr}')
 

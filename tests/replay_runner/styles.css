@@ -1,0 +1,32 @@
+.hidden {
+	display: none;
+}
+
+.controls {
+	display: flex;
+	justify-content: space-between;
+}
+.controls button {
+	margin: 0 10px;
+}
+
+.replays-list {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+}
+
+.replay {
+	padding: 10px;
+}
+.replay--success {
+	background-color: rgb(90, 167, 90);
+}
+.replay--failed {
+	background-color: rgb(167, 116, 90);
+}
+.replay--running {
+	background-color: rgb(206, 203, 64);
+}
+.replay--pending {
+	background-color: rgb(135, 140, 140);
+}

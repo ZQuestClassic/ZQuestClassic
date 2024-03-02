@@ -67,26 +67,26 @@ jobs:
       REPLAY_FAILURE_DISCORD_WEBHOOK: ${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}
 
     steps:
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11.4' 
-      - run: pip install PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
+          python-version: '3.11.4'
+          cache: pip
+      - run: pip install -r requirements.txt
       - name: Install Node.js 18.x
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
       - name: git clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Need history to find baseline commit.
           fetch-depth: 0
 
-      # TODO: there is no simple way to download just the "replay-*" artifacts,
-      # so currently this also downloads each large build artifact.
-      # https://github.com/actions/download-artifact/issues/6
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: test-results
+          pattern: replays-*
+          merge-multiple: true
 
       # TODO: instead of starting baseline workflow runs when all platforms finish,
       # kick each off as necessary in `test.yml` and just poll for their completion here.
@@ -125,7 +125,7 @@ jobs:
           )
 
       # Upload as artifact, so that if publishing to surge fails the report is still accessible.
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: report
@@ -158,7 +158,7 @@ jobs:
 
       # Setup build cache via ccache.
       - name: ccache cache files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .ccache
           key: web-ccache-v2-${{ github.run_id }}
@@ -172,7 +172,6 @@ jobs:
           cmake --build build
           echo "UNSF=$PWD/build/unsf-static" >> $GITHUB_ENV
 
-      - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
@@ -192,7 +191,7 @@ jobs:
         working-directory: web
         env:
           BUILD_FOLDER: ../build_emscripten/RelWithDebInfo
-      - run: pip install PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
+      - run: pip install -r requirements.txt
       # Run each replay for just ~15 seconds, but run all of classic_1st_lvl1.zplay
       # - run: xvfb-run --auto-servernum python -Xutf8 tests/run_replay_tests.py --build_folder build_emscripten/RelWithDebInfo --test_results_folder .tmp/test_results --max_duration 15 --max_duration classic_1st_lvl1.zplay=0 --test_results .tmp/test_results --ci web --retries 2
       # TODO: restore the above, after web replay tests are less flaky / faster.
@@ -201,14 +200,14 @@ jobs:
       - run: BUILD_FOLDER=build_emscripten/RelWithDebInfo xvfb-run --auto-servernum python -Xutf8 tests/test_zeditor.py
       - run: BUILD_FOLDER=build_emscripten/RelWithDebInfo xvfb-run --auto-servernum python -Xutf8 tests/test_zplayer.py
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: emscripten cmake
           path: |
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeOutput.log
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeError.log
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: web test results

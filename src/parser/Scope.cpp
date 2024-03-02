@@ -1254,7 +1254,7 @@ void BasicScope::decr_stack_recursive(optional<int32_t> offset)
 	{
 		bool skip = true;
 		for(auto& offs : stackOffsets_)
-			if(offs.second <= *offset)
+			if(offs.second >= *offset)
 			{
 				skip = false;
 				break;

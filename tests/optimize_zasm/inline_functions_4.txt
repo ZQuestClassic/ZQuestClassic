@@ -1,0 +1,30 @@
+Function #0
+    0: PUSHV           0                            [Block 0 -> ]
+    1: SETR            D4              SP
+    2: PUSHR           D4
+    3: PUSHV           6
+    4: GOTO            14                           [Call Function #1]
+    5: PEEK            D4
+    6: PUSHV           9
+    7: GOTO            16                           [Call Function #2]
+    8: PEEK            D4
+    9: PUSHV           12
+   10: GOTO            18                           [Call Function #3]
+   11: PEEK            D4
+   12: LOAD            LINKX           0
+   13: QUIT
+
+
+Function #1
+   14: TRACEV          1                            [Block 0 -> ]
+   15: RETURN
+
+
+Function #2
+   16: TRACEV          2                            [Block 0 -> ]
+   17: RETURN
+
+
+Function #3
+   18: TRACEV          3                            [Block 0 -> ]
+   19: RETURN

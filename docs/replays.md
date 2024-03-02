@@ -20,6 +20,8 @@ The player emits `.zplay.result.txt` files when the replay system is active. Thi
 
 The replays tests run in CI live in `tests/replays`, and can be run like this: `python3 tests/run_replay_tests.py --filter tests/replays/classic_1st.zplay`. The results are summarized in `.tmp/default/test_results.json`.
 
+A local web app makes common usages simpler. To start, run: `python tests/replay_runner/server.py`.
+
 The `run_test_workflow.py` script can be used to run replays in CI. It can take the results of `run_replay_tests.py` to run just the set of replays that are currently failing.
 
 The `compare_replays.py` script creates an HTML report of a baseline replay tests run and failing replay tests runs.

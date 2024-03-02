@@ -6880,8 +6880,7 @@ int32_t onSound()
 			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		for(int32_t i=0; i<WAV_COUNT; ++i)
 		{
-			//allegro assertion fails when passing in -1 as voice -DD
-			if(sfx_voice[i] > 0)
+			if(sfx_voice[i] >= 0)
 				voice_set_volume(sfx_voice[i], temp_volume);
 		}
 		zc_set_config(sfx_sect,"midi",midi_volume);
@@ -7408,7 +7407,7 @@ static NewMenu misc_menu
 {
 	{ "&About...", onAbout },
 	// TODO: re-enable, but: 1) do not use a bitmap thing that is hard to update 2) update names and 3) don't use the Z-word.
-	{ "&Credits...", onCredits, nullopt, true },
+	// { "&Credits...", onCredits },
 	{ "&Fullscreen", onFullscreenMenu, MENUID_MISC_FULLSCREEN },
 	{ "&Video Mode...", onVidMode, MENUID_MISC_VIDMODE },
 	{},
@@ -7813,15 +7812,15 @@ void System()
 	//  font=tfont;
 	
 	misc_menu.select_uid(MENUID_MISC_FULLSCREEN, isFullScreen());
-	misc_menu.select_uid(MENUID_MISC_VIDMODE, isFullScreen());
+	misc_menu.disable_uid(MENUID_MISC_VIDMODE, isFullScreen());
 	
 	#if DEVLEVEL > 1
 	dev_menu.disable_uid(MENUID_DEV_SETCHEAT, !Playing);
 	#endif
 	game_menu.disable_uid(MENUID_GAME_LOADQUEST, getsaveslot() < 0);
 	game_menu.disable_uid(MENUID_GAME_ENDGAME, !Playing);
-	misc_menu.select_uid(MENUID_MISC_QUEST_INFO, !Playing);
-	misc_menu.select_uid(MENUID_MISC_QUEST_DIR, Playing);
+	misc_menu.disable_uid(MENUID_MISC_QUEST_INFO, !Playing);
+	misc_menu.disable_uid(MENUID_MISC_QUEST_DIR, Playing);
 	clear_keybuf();
 
 	clear_bitmap(menu_bmp);
@@ -8501,6 +8500,7 @@ void cont_sfx(int32_t index)
 	{
 		voice_set_position(sfx_voice[index],0);
 		voice_set_playmode(sfx_voice[index],PLAYMODE_LOOP);
+		voice_set_volume(sfx_voice[index], sfx_volume);
 		voice_start(sfx_voice[index]);
 	}
 	else

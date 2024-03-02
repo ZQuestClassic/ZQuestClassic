@@ -250,8 +250,6 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 						{
 							memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
 						}
-						cls();
-						pendDraw();
 						loadPal();
 					}
 				),
@@ -265,8 +263,6 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 						{
 							memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
 						}
-						cls();
-						pendDraw();
 						loadPal();
 					}
 				),
@@ -278,8 +274,6 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 						{
 							calc_dark(offset);
 							memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
-							cls();
-							pendDraw();
 							loadPal();
 						}
 						else

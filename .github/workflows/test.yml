@@ -67,17 +67,16 @@ jobs:
     steps:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11.4'
+          cache: pip
       - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
-        run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
+        run: pip install -r requirements.txt
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
-      - if: inputs.config == 'Coverage'
-        run: sudo pip install gcovr
+        run: sudo pip install -r requirements.txt
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
@@ -117,7 +116,7 @@ jobs:
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
           --build_folder "${{ env.BUILD_FOLDER }}"
           --build_type ${{ inputs.config }}
-          --test_results_folder .tmp/test_results
+          --test_results_folder .tmp/test_results/${{ github.run_id }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
           --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
@@ -131,6 +130,7 @@ jobs:
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
           --build_folder "${{ env.BUILD_FOLDER }}"
           --build_type ${{ inputs.config }}
+          --test_results_folder .tmp/test_results/${{ github.run_id }}-nojit
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
           --filter playground
@@ -140,7 +140,7 @@ jobs:
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Updater cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
@@ -154,7 +154,7 @@ jobs:
         run: bash tests/generate_coverage_report.sh
         env:
           GCOV: llvm-cov-14 gcov
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: inputs.config == 'Coverage'
         with:
           name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
@@ -170,13 +170,13 @@ jobs:
             cd .tmp/test_results
             bash ../../.github/workflows/run_python.sh -m tarfile -c ../test_results.tar .
           fi
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results.tar
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: contains(inputs.extra-args, '--update')
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}

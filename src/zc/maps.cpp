@@ -3118,6 +3118,15 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 	return ret;
 }
 
+void update_slopes()
+{
+	for (auto& p : slopes)
+	{
+		slope_object& s = p.second;
+		s.updateslope(); //sets old x/y poses
+	}
+}
+
 void update_freeform_combos()
 {
 	ffscript_engine(false);
@@ -4303,7 +4312,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		z3_update_viewport();
 
 	mapscr* this_screen = tmpscr;
-	clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
+	clear_info_bmp();
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();

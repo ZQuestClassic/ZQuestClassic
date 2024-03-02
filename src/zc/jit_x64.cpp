@@ -53,22 +53,6 @@ struct CompilationState
 
 extern ScriptDebugHandle* runtime_script_debug_handle;
 
-static void print(int32_t n)
-{
-	if (runtime_script_debug_handle)
-		runtime_script_debug_handle->printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-						"JIT: %d\n", n);
-}
-
-static void print64(int64_t n)
-{
-	if (runtime_script_debug_handle)
-		runtime_script_debug_handle->printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-						"JIT: %ld\n", n);
-}
-
 static void debug_pre_command(int32_t pc, uint16_t sp)
 {
 	extern refInfo *ri;
@@ -420,7 +404,9 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 	{
 		// Write directly value on the stack (arg1 to offset arg2)
 		x86::Gp offset = cc.newInt32();
-		cc.mov(offset, arg2);
+		cc.mov(offset, vStackIndex);
+		if (arg2)
+			cc.add(offset, arg2);
 		auto cmp = arg3 & CMP_FLAGS;
 		switch(cmp) //but only conditionally
 		{
@@ -455,8 +441,10 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 					case CMP_GT|CMP_LT:
 						cc.cmovne(tmp, val);
 						break;
+					default:
+						assert(false);
 				}
-				cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
+				cc.mov(x86::ptr_32(state.ptrStack, offset, 2), tmp);
 			}
 		}
 	}
@@ -467,7 +455,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 }
 
 // Defer to the ZASM command interpreter for 1+ commands.
-static void compile_command_interpreter(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex)
+static void compile_command_interpreter(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex, bool is_wait = false)
 {
 	extern int32_t jitted_uncompiled_command_count;
 
@@ -481,6 +469,15 @@ static void compile_command_interpreter(CompilationState& state, x86::Compiler &
 	InvokeNode *invokeNode;
 	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(state.calling_convention));
 	invokeNode->setArg(0, true);
+
+	if (is_wait)
+	{
+		x86::Gp retVal = cc.newInt32();
+		invokeNode->setRet(0, retVal);
+		cc.cmp(retVal, RUNSCRIPT_OK);
+		cc.jne(state.L_End);
+		return;
+	}
 
 	bool could_return_not_ok = false;
 	for (int j = 0; j < count; j++)
@@ -559,13 +556,14 @@ static bool command_is_compiled(int command)
 	case MULTR:
 	case MULTV:
 	case NOP:
+	case PEEK:
 	case SETR:
 	case SETV:
 	case STORE:
-	case STOREV:
 	case STORED:
 	case STOREDV:
 	case STOREI:
+	case STOREV:
 	case SUBR:
 	case SUBV:
 	case SUBV2:
@@ -592,6 +590,12 @@ static void error(ScriptDebugHandle* debug_handle, script_data *script, std::str
 		abort();
 	}
 }
+
+// Useful if crashing at runtime to find the last command that ran.
+// #define JIT_DEBUG_CRASH
+#ifdef JIT_DEBUG_CRASH
+static size_t debug_last_pc;
+#endif
 
 // Compile the entire ZASM script at once, into a single function.
 JittedFunction jit_compile_script(script_data *script)
@@ -848,12 +852,14 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.setInlineComment((comment = fmt::format("{} {}", i, script_debug_command_to_string(command, arg1, arg2, arg3, argvec, argstr))).c_str());
 		}
 
-		// Can be useful for debugging.
-		// {
-		// 	InvokeNode* invokeNode;
-		// 	cc.invoke(&invokeNode, print, FuncSignatureT<void, int32_t>(state.calling_convention));
-		// 	invokeNode->setArg(0, i); // or any int32 register
-		// }
+#ifdef JIT_DEBUG_CRASH
+		if (true)
+		{
+			x86::Gp reg = cc.newIntPtr();
+			cc.mov(reg, (uint64_t)&debug_last_pc);
+			cc.mov(x86::ptr_32(reg), i);
+		}
+#endif
 
 		// We can't invoke functions between COMPARE and the instructions that use the comparison result,
 		// because that would destroy EFLAGS. And asmjit compiler has no way to save the EFLAGS because we
@@ -876,9 +882,11 @@ JittedFunction jit_compile_script(script_data *script)
 
 		if (command_is_wait(command))
 		{
-			compile_command_interpreter(state, cc, script, i, 1, vStackIndex);
+			// Wait commands normally yield back to the engine, however there are some
+			// special cases where it does not. For example, when WAITFRAMESR arg is 0.
 			cc.mov(x86::ptr_32(state.ptrWaitIndex), label_index + 1);
-			cc.jmp(state.L_End);
+			// This will jump to L_End, but only if actually waiting.
+			compile_command_interpreter(state, cc, script, i, 1, vStackIndex, true);
 			cc.bind(wait_frame_labels[label_index]);
 			label_index += 1;
 			continue;
@@ -1013,7 +1021,9 @@ JittedFunction jit_compile_script(script_data *script)
 		{
 			// Write directly value on the stack (arg1 to offset arg2)
 			x86::Gp offset = cc.newInt32();
-			cc.mov(offset, arg2);
+			cc.mov(offset, vStackIndex);
+			if (arg2)
+				cc.add(offset, arg2);
 			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), arg1);
 		}
 		break;
@@ -1506,6 +1516,13 @@ JittedFunction jit_compile_script(script_data *script)
 			cc.roundsd(y, y, 10);
 			cc.cvttsd2si(val, y);
 			cc.imul(val, val, 10000);
+			set_z_register(state, cc, vStackIndex, arg1, val);
+		}
+		break;
+		case PEEK:
+		{
+			x86::Gp val = cc.newInt32();
+			cc.mov(val, x86::ptr_32(state.ptrStack, vStackIndex, 2));
 			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;

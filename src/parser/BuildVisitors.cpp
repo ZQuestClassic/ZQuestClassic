@@ -271,12 +271,12 @@ void BuildOpcodes::addOpcodes(Container const& container)
 
 void BuildOpcodes::deallocateArrayRef(int32_t arrayRef)
 {
-	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
+	addOpcode(new OLoad(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
 	addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
 }
 void BuildOpcodes::deallocateArrayRef(int32_t arrayRef, std::vector<std::shared_ptr<Opcode>>& code)
 {
-	addOpcode2(code, new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
+	addOpcode2(code, new OLoad(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
 	addOpcode2(code, new ODeallocateMemRegister(new VarArgument(EXP2)));
 }
 
@@ -944,9 +944,9 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	literal_visit(host.decl.get(), param);
 	commentAt(targ_sz, fmt::format("for(each) #{} ValDecl",forid));
 	
-	int32_t decloffset = host.decl->manager->getStackOffset();
-	int32_t arrdecloffset = host.arrdecl->manager->getStackOffset();
-	int32_t indxdecloffset = host.indxdecl->manager->getStackOffset();
+	int32_t decloffset = host.decl->manager->getStackOffset(false);
+	int32_t arrdecloffset = host.arrdecl->manager->getStackOffset(false);
+	int32_t indxdecloffset = host.indxdecl->manager->getStackOffset(false);
 	
 	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopend = ScriptParser::getUniqueLabelID();
@@ -955,10 +955,10 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	addOpcode(new ONoOp(loopstart));
 	commentBack(fmt::format("for(each) #{} EndArrayCheck",forid));
 	//Check if we've reached the end of the array
-	addOpcode(new OLoadDirect(new VarArgument(INDEX), new LiteralArgument(arrdecloffset)));
+	addOpcode(new OLoad(new VarArgument(INDEX), new LiteralArgument(arrdecloffset)));
 	addOpcode(new OArraySize(new VarArgument(INDEX))); //get sizeofarray
 	//Load the iterator
-	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
+	addOpcode(new OLoad(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
 	//If the iterator is >= the length, goto the 'else' (end without break)
 	addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	addOpcode(new OGotoCompare(new LabelArgument(elselabel), new CompareArgument(CMP_GE)));
@@ -968,10 +968,10 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(EXP2)));
 	commentBack(fmt::format("for(each) #{} Next Index",forid));
 	//... and store it in the local variable.
-	addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+	addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 	//Now increment the iterator for the next loop
 	addOpcode(new OAddImmediate(new VarArgument(EXP2), new LiteralArgument(10000)));
-	addOpcode(new OStoreDirect(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
+	addOpcode(new OStore(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
 	
 	//...and run the inside of the loop.
 	push_break(loopend, arrayRefs.size());
@@ -1017,7 +1017,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	literal_visit(host.decl.get(), param);
 	commentAt(targ_sz, fmt::format("loop() #{} ValDecl",loopid));
 	
-	int32_t decloffset = host.decl->manager->getStackOffset();
+	int32_t decloffset = host.decl->manager->getStackOffset(false);
 	
 	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopcont = ScriptParser::getUniqueLabelID();
@@ -1050,7 +1050,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		start_peekind = mgr.push();
 		if(incrval && *incrval > 0)
-			addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+			addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 	}
 	if(!endval)
 	{
@@ -1061,7 +1061,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		end_peekind = mgr.push();
 		if(incrval && *incrval < 0)
-			addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+			addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 	}
 	if(!startval || !endval) //ensure the range is valid to run at all
 	{
@@ -1087,11 +1087,11 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		{
 			addOpcode(new OGotoCompare(new LabelArgument(lbl), new CompareArgument(CMP_GE)));
 			if(endval)
-				addOpcode(new OStoreDirectV(new LiteralArgument(*endval), new LiteralArgument(decloffset)));
+				addOpcode(new OStoreV(new LiteralArgument(*endval), new LiteralArgument(decloffset)));
 			else
 			{
 				addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
-				addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+				addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			}
 			addOpcode(new ONoOp(lbl));
 		}
@@ -1100,21 +1100,21 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 			auto lbl2 = ScriptParser::getUniqueLabelID();
 			addOpcode(new OGotoCompare(new LabelArgument(lbl), new CompareArgument(CMP_LT)));
 			if(startval)
-				addOpcode(new OStoreDirectV(new LiteralArgument(*startval), new LiteralArgument(decloffset)));
+				addOpcode(new OStoreV(new LiteralArgument(*startval), new LiteralArgument(decloffset)));
 			else
 			{
 				addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*start_peekind))));
-				addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+				addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			}
 			addOpcode(new OGotoImmediate(new LabelArgument(lbl2)));
 			addOpcode(new ONoOp(lbl));
 			
 			if(endval)
-				addOpcode(new OStoreDirectV(new LiteralArgument(*endval), new LiteralArgument(decloffset)));
+				addOpcode(new OStoreV(new LiteralArgument(*endval), new LiteralArgument(decloffset)));
 			else
 			{
 				addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(mgr.at(*end_peekind))));
-				addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+				addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 			}
 			addOpcode(new ONoOp(lbl2));
 		}
@@ -1124,7 +1124,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	{
 		if(!incrval && !startval)
 			;//already in EXP1
-		else addOpcode(new OLoadDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+		else addOpcode(new OLoad(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 		addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		indx_peekind = mgr.push();
 	}
@@ -1144,7 +1144,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	
 	//Load
 	if(const_indx)
-		addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(decloffset)));
+		addOpcode(new OLoad(new VarArgument(EXP2), new LiteralArgument(decloffset)));
 	else addOpcode(new OPeekAtImmediate(new VarArgument(EXP2), new LiteralArgument(mgr.at(*indx_peekind))));
 	backOpcode()->setLabel(loopcont);
 	commentBack(fmt::format("loop() #{} Incr",loopid));
@@ -1165,7 +1165,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		if(!const_indx)
 			addOpcode(new OStackWriteAtRV(new VarArgument(EXP2), new LiteralArgument(mgr.at(*indx_peekind))));
 	}
-	addOpcode(new OStoreDirect(new VarArgument(EXP2), new LiteralArgument(decloffset)));
+	addOpcode(new OStore(new VarArgument(EXP2), new LiteralArgument(decloffset)));
 	
 	targ_sz = commentTarget();
 	if(!incrval)
@@ -1313,8 +1313,8 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		if(!const_indx)
 			addOpcode(new OStackWriteAtRV(new VarArgument(EXP2), new LiteralArgument(mgr.at(*indx_peekind))));
 		if(targv)
-			addOpcode(new OStoreDirectV(new LiteralArgument(*targv), new LiteralArgument(decloffset)));
-		else addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+			addOpcode(new OStoreV(new LiteralArgument(*targv), new LiteralArgument(decloffset)));
+		else addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 		addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
 	}
 	
@@ -1601,16 +1601,16 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	}
 	else
 	{
-		int32_t offset = manager.getStackOffset();
+		int32_t offset = manager.getStackOffset(false);
 		if (val)
 		{
 			//The first time a stack offset is used, it's already 0, and can skip init
 			//...but subsequent times it needs to be cleared again, and if non-zero still needs init.
 			//...also, if the first use is in a *loop*, it needs to be cleared, as that is multiple times.
 			if(*val || (in_func && in_func->used_stackoffs.contains(offset)) || continue_depth)
-				addOpcode(new OStoreDirectV(new LiteralArgument(*val), new LiteralArgument(offset)));
+				addOpcode(new OStoreV(new LiteralArgument(*val), new LiteralArgument(offset)));
 		}
-		else addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
+		else addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		if(in_func)
 			in_func->used_stackoffs.insert(offset);
 	}
@@ -1661,8 +1661,8 @@ void BuildOpcodes::buildArrayUninit(
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
-		int32_t offset = manager.getStackOffset();
-		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
+		int32_t offset = manager.getStackOffset(false);
+		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -1726,8 +1726,8 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	}
 
 	// Local variable, get its value from the stack.
-	int32_t offset = host.binding->getStackOffset();
-	addOpcode(new OLoadDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
+	int32_t offset = host.binding->getStackOffset(false);
+	addOpcode(new OLoad(new VarArgument(EXP1), new LiteralArgument(offset)));
 }
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
@@ -3641,8 +3641,8 @@ void BuildOpcodes::stringLiteralDeclaration(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L)));
-		int32_t offset = manager.getStackOffset();
-		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
+		int32_t offset = manager.getStackOffset(false);
+		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -3669,7 +3669,7 @@ void BuildOpcodes::stringLiteralFree(
 	Literal& manager = *host.manager;
 	string data = host.value;
 	int32_t size = data.size() + 1;
-	int32_t offset = manager.getStackOffset();
+	int32_t offset = manager.getStackOffset(false);
 	vector<shared_ptr<Opcode>>& init = context.initCode;
 	vector<shared_ptr<Opcode>>& dealloc = context.deallocCode;
 
@@ -3680,7 +3680,7 @@ void BuildOpcodes::stringLiteralFree(
 	addOpcode2(init, new OAllocateMemImmediate(
 						   new VarArgument(EXP1),
 						   new LiteralArgument(size * 10000L)));
-	addOpcode2(init, new OStoreDirect(new VarArgument(EXP1),
+	addOpcode2(init, new OStore(new VarArgument(EXP1),
 									  new LiteralArgument(offset)));
 
 	// Initialize.
@@ -3702,7 +3702,7 @@ void BuildOpcodes::stringLiteralFree(
 	// Actual Code.
 
 	// Local variable, get its value from the stack.
-	addOpcode(new OLoadDirect(new VarArgument(EXP1),
+	addOpcode(new OLoad(new VarArgument(EXP1),
 								new LiteralArgument(offset)));
 
 	////////////////////////////////////////////////////////////////
@@ -3778,8 +3778,8 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L)));
-		int32_t offset = manager.getStackOffset();
-		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
+		int32_t offset = manager.getStackOffset(false);
+		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -3851,7 +3851,7 @@ void BuildOpcodes::arrayLiteralFree(
 		return;
 	}
 
-	int32_t offset = manager.getStackOffset();
+	int32_t offset = manager.getStackOffset(false);
 	
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
@@ -3862,7 +3862,7 @@ void BuildOpcodes::arrayLiteralFree(
 			new OAllocateMemImmediate(new VarArgument(EXP1),
 									  new LiteralArgument(size * 10000L)));
 	addOpcode2(context.initCode,
-			new OStoreDirect(new VarArgument(EXP1),
+			new OStore(new VarArgument(EXP1),
 							   new LiteralArgument(offset)));
 
 	// Initialize.
@@ -3908,7 +3908,7 @@ void BuildOpcodes::arrayLiteralFree(
 	// Actual Code.
 
 	// Local variable, get its value from the stack.
-	addOpcode(new OLoadDirect(new VarArgument(EXP1),
+	addOpcode(new OLoad(new VarArgument(EXP1),
 								new LiteralArgument(offset)));
 
 	////////////////////////////////////////////////////////////////
@@ -4146,9 +4146,9 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	}
 
 	// Set the stack.
-	int32_t offset = host.binding->getStackOffset();
+	int32_t offset = host.binding->getStackOffset(false);
 
-	addOpcode(new OStoreDirect(new VarArgument(EXP1),new LiteralArgument(offset)));
+	addOpcode(new OStore(new VarArgument(EXP1),new LiteralArgument(offset)));
 }
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)

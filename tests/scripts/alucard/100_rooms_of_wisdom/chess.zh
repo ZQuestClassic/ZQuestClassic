@@ -1,0 +1,64 @@
+import "std_old.zh"
+
+// Returns vertical component of combo position in screen grid.
+int GetComboRank (int cmb){
+	return (ComboY (cmb)/16);
+}
+
+// Returns horizontal component of combo position in screen grid.
+int GetComboFile (int cmb){
+	return (ComboX (cmb))/16;
+}
+
+// Returns TRUE, if two given combos are on same horizontal row.
+bool OnSameRank(int cmb1, int cmb2){
+	int r1 = ComboY (cmb1);
+	int r2 = ComboY (cmb2);
+	return r1==r2;
+}
+
+// Returns TRUE, if two given combos are on same vertical column.
+bool OnSameFile(int cmb1, int cmb2){
+	int r1 = ComboX (cmb1);
+	int r2 = ComboX (cmb2);
+	return r1==r2;
+}
+
+// Returns TRUE, if two given combos are on same diagonal.
+bool OnSameDiagonal(int cmb1, int cmb2){
+	int r1 = ComboY (cmb1);
+	int r2 = ComboY (cmb2);
+	int f1 = ComboX (cmb1);
+	int f2 = ComboX (cmb2);
+	return (Abs (r1-r2) == Abs (f1-f2));
+}
+
+// Returns TRUE, if two given combos are within move of leaping chess piece.
+bool LeaperMoveAdjacent(int cmb1, int cmb2, int l1, int l2){
+	int r1 = ComboY (cmb1);
+	int r2 = ComboY (cmb2);
+	int f1 = ComboX (cmb1);
+	int f2 = ComboX (cmb2);
+	if ((Abs(r1-r2)/16)==l1){
+		if ((Abs(f1-f2)/16)==l2) return true;
+	}
+	if ((Abs(r1-r2)/16)==l2){
+		if ((Abs(f1-f2)/16)==l1) return true;
+	}
+	return false;
+}
+
+//Shorthand for knight move.
+bool KnightMoveAdjacent(int cmb1, int cmb2){
+	return LeaperMoveAdjacent(cmb1, cmb2, 1, 2);
+}
+
+//test script. Paints all combos within knight move of FFC`s position.
+ffc script chtest{
+	void run(){
+		int cmb = ComboAt (this->X, this->Y);
+		for (int i = 0; i<176; i++){
+			if (LeaperMoveAdjacent(cmb,i, 0,1 )) Screen->ComboC[i]=7;;
+		}
+	}
+}

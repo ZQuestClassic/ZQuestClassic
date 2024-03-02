@@ -1,0 +1,132 @@
+// https://www.purezc.net/index.php?page=scripts&id=502
+
+import "std_old.zh"
+
+//Adjacent combo rotator
+
+//Stand on FFC and press Ex1, and combos around this one will rotate around given one.
+//Place where this puzzle element would be.
+// D0 - How many shifts per press, positive-clockwise, negative - counter-clockwise. 2 means 90 degrees, 4 - 180 degrees.
+// D1 - Sound to play on activation.
+// D2 - Rotate flags.
+// D3 - rotate csets,
+// D4 - change to next on rotation, + 2 - rotation animation
+// D5 - animation offset - uses combos that are D5 positions further in list for rotation animation. Works only, if D4 animation flag is set on. 0 for no offset.
+ffc script AdjacentComboRotator{
+	void run(int speed, int sound, int rotflags, int rotcsets, int flags, int offset){
+		int origcmb = ComboAt(this->X, this->Y);
+		this->X = ComboX(origcmb);
+		this->Y = ComboY(origcmb);
+		int anim=0;
+		int angle=0;
+		int arrcmb[8];
+		int arrdata[8];
+		int arrcset[8];
+		int arrflags[8];
+		int arrdir[8] = {DIR_UP, DIR_RIGHTUP, DIR_RIGHT, DIR_RIGHTDOWN, DIR_DOWN, DIR_LEFTDOWN, DIR_LEFT, DIR_LEFTUP};
+		while(true){
+			int cmb = ComboAt(CenterLinkX(), CenterLinkY());
+			if ((origcmb==cmb)&&(Link->PressEx1)){
+				Link->X = ComboX(origcmb);
+				Link->Y = ComboY(origcmb);
+				Game->PlaySound(sound);
+				for (int i=0; i<8; i++){
+					arrcmb[i] = AdjacentComboFix(cmb, arrdir[i], 1);
+					arrdata[i] = Screen->ComboD[arrcmb[i]];
+					arrcset[i] = Screen->ComboC[arrcmb[i]];
+					arrflags[i] = Screen->ComboF[arrcmb[i]];
+					int cmb = arrcmb[i];
+					if ((flags&2)>0) Screen->ComboD[cmb]=FFCS_INVISIBLE_COMBO;
+				}
+				anim = speed*45;
+				while(anim>0){
+				if ((flags&2)==0) break;
+					angle+= 3*Sign(speed);
+					for (int i = 0; i<8; i++){
+						int ang = 45*i + angle -90;
+						int drawx = this->X + 20 * Cos(ang);
+						int drawy = this->Y + 20 * Sin(ang);
+						Screen->FastCombo(1, drawx, drawy, arrdata[i]+Cond(arrdata[i]>0,offset,0), arrcset[i], OP_OPAQUE);
+					}
+					anim-=3;
+					NoAction();
+					Waitframe();
+				}
+				angle=0;
+				for (int i=1;i<= Abs(speed);i++){
+					if (speed>0){
+						ArrayShiftRight(arrdata);
+						if (rotcsets>0)ArrayShiftRight(arrcset);
+						if (rotflags>0)ArrayShiftRight(arrflags);
+					}
+					else{
+						ArrayShiftLeft(arrdata);
+						if (rotcsets>0)ArrayShiftLeft(arrcset);
+						if (rotflags>0)ArrayShiftLeft(arrflags);
+					}
+				}
+				for (int i=0; i<8; i++){
+					if ((flags&1)>0)arrdata[i]++;
+					Screen->ComboD[arrcmb[i]] = arrdata[i];
+					Screen->ComboC[arrcmb[i]] = arrcset[i];
+					Screen->ComboF[arrcmb[i]] = arrflags[i];
+				}
+			}
+			Waitframe();
+		}
+	}
+}
+
+void ArrayShiftRight(int arr){
+	int lasti = SizeOfArray(arr)-1;
+	int res = arr[lasti];
+	for(int i = lasti; i>0; i--){
+		arr[i] = arr[i-1];
+	}
+	arr[0]=res;
+}
+
+void ArrayShiftLeft(int arr){
+	int lasti = SizeOfArray(arr)-1;
+	int res = arr[0];
+	for(int i = 0; i<lasti; i++){
+		arr[i] = arr[i+1];
+	}
+	arr[lasti]=res;
+}
+
+// Returns the combo ID of a combo based on a location, in a given direction, N combos away.
+int AdjacentComboFix(int cmb, int dir, int dist)
+{
+	int combooffsets[13]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
+	if ( cmb % 16 == 0 ) combooffsets[9] = -1;
+	if ( (cmb % 16) == 15 ) combooffsets[10] = -1; 
+	if ( cmb < 0x10 ) combooffsets[11] = -1; //if it's the top row
+	if ( cmb > 0x9F ) combooffsets[12] = -1; //if it's on the bottom row
+	if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return -1; //if the left columb
+	if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return -1; //if the right column
+	if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return -1; //if the top row
+	if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return -1; //if the bottom row
+	else if ( cmb >= 0 && cmb < 176 ) 
+	{
+		int cmbs[2];//needs a for loop to ensure that t returns the most valid combo
+	    
+		for ( cmbs[1] = 0; cmbs[1] < dist; cmbs[1]++ ) 
+		{
+			cmbs[0] = cmb;
+			cmb += (combooffsets[dir]);
+			if ( cmb < 0 || cmb > 175 ) return -1;
+			if ( cmb % 16 == 0 ) combooffsets[9] = -1;
+			if ( (cmb % 16) == 15 ) combooffsets[10] = -1;  
+			if ( cmb < 0x10 ) combooffsets[11] = -1; //if it's the top row
+			if ( cmb > 0x9F ) combooffsets[12] = -1; //if it's on the bottom row
+			if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return -1; //if the left columb
+			if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return -1; //if the right column
+			if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return -1; //if the top row
+			if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return -1; //if the bottom row
+			
+		}
+		return cmb;
+	}
+	else return -1;
+}

@@ -14,12 +14,15 @@ import argparse
 import os
 import sys
 import unittest
+
 from pathlib import Path
+
 from common import ZCTestCase
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--update', action='store_true', default=False,
-                    help='Update ZASM snapshots')
+parser.add_argument(
+    '--update', action='store_true', default=False, help='Update ZASM snapshots'
+)
 parser.add_argument('unittest_args', nargs='*')
 args = parser.parse_args()
 
@@ -46,11 +49,15 @@ class TestZScript(ZCTestCase):
         zasm_path = run_target.get_build_folder() / 'out.zasm'
         zasm_path.unlink(missing_ok=True)
         args = [
-            '-input', script_path,
-            '-zasm', 'out.zasm', '-commented',
-            '-include', ';'.join(include_paths),
+            '-input',
+            script_path,
+            '-zasm',
+            'out.zasm',
+            '-commented',
+            '-include',
+            ';'.join(include_paths),
             '-unlinked',
-            '-delay_cassert'
+            '-delay_cassert',
         ]
         p = run_target.run('zscript', args)
         stdout = p.stdout.replace(str(script_path), script_path.name)
@@ -60,8 +67,9 @@ class TestZScript(ZCTestCase):
         zasm = zasm_path.read_text()
 
         # Remove metadata.
-        zasm = '\n'.join([l.strip() for l in zasm.splitlines()
-                         if not l.startswith('#')]).strip()
+        zasm = '\n'.join(
+            [l.strip() for l in zasm.splitlines() if not l.startswith('#')]
+        ).strip()
 
         return '\n'.join([stdout, zasm])
 
@@ -70,7 +78,9 @@ class TestZScript(ZCTestCase):
             with self.subTest(msg=f'compile {script_path.name}'):
                 zasm = self.compile_script(script_path)
                 script_subpath = script_path.relative_to(test_scripts_dir)
-                expected_path = expected_dir / script_subpath.with_name(f'{script_subpath.stem}_expected.txt')
+                expected_path = expected_dir / script_subpath.with_name(
+                    f'{script_subpath.stem}_expected.txt'
+                )
                 self.expect_snapshot(expected_path, zasm, args.update)
 
 

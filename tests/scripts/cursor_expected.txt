@@ -12,23 +12,23 @@ Compile finished with exit code '0' (success)
 PUSHR d0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0,0.0002
-SETR d4,SP
+SETR d4,SP2
 SETV d2,0; while(true) #8 Body [Opt:AlwaysOn] Start
 PUSHR d2
 POP d0
 SETR d2,MOUSEARR
-STORED d2,1
+STORE d2,0.0001
 SETV d2,1
 PUSHR d2
 POP d0
 SETR d2,MOUSEARR
-STORED d2,0
+STORE d2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOADD d2,1
+LOAD d2,0.0001
 PUSHR d2
-LOADD d2,0
+LOAD d2,0
 PUSHR d2
-LOADD d2,3
+LOAD d2,0.0003
 PUSHR d2
 PUSHARGSV 1,0.0002
 PUSHV 3

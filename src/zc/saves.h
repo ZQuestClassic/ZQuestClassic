@@ -35,6 +35,7 @@ struct save_t
 	save_t(const save_t&) = delete;
 	save_t& operator=(const save_t&) = delete;
 	~save_t();
+	void unload();
 };
 
 int32_t saves_init();
@@ -42,6 +43,7 @@ int32_t saves_load();
 int32_t saves_write();
 bool saves_select(int32_t index);
 void saves_unselect();
+void saves_unload(int32_t index);
 int32_t saves_count();
 int32_t saves_current_selection();
 bool saves_create_slot(gamedata* game, bool write_to_disk = true);

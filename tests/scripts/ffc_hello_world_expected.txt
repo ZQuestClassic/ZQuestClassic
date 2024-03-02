@@ -12,68 +12,68 @@ Compile finished with exit code '0' (success)
 PUSHR d0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0,0.0004
-SETR d4,SP
+SETR d4,SP2
 ALLOCATEMEMV d2,40
-STORED d2,3
+STORE d2,0.0003
 WRITEPODSTRING d2,"FFC script started, ID: %d x: %d y: %d\n"
-LOADD d2,3; InlineFunc[void printf(char32)] Params Start
+LOAD d2,0.0003; InlineFunc[void printf(char32)] Params Start
 PUSHR d2
-LOADD d2,4
+LOAD d2,0.0004
 PUSHR d2
 POP REFFFC
 PUSHVARGR FFCID
-LOADD d2,4
+LOAD d2,0.0004
 PUSHR d2
 POP REFFFC
 PUSHVARGR X
-LOADD d2,4
+LOAD d2,0.0004
 PUSHR d2
 POP REFFFC
 PUSHVARGR Y; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
-LOADD d3,3
+LOAD d3,0.0003
 DEALLOCATEMEMR d3
 ALLOCATEMEMV d2,9
-STORED d2,2
+STORE d2,0.0002
 WRITEPODSTRING d2,"num: %d\n"
-LOADD d2,2; InlineFunc[void printf(char32)] Params Start
+LOAD d2,0.0002; InlineFunc[void printf(char32)] Params Start
 PUSHR d2
-LOADD d2,5
+LOAD d2,0.0005
 PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
-LOADD d3,2
+LOAD d3,0.0002
 DEALLOCATEMEMR d3
-LOADD d2,1; if() #558 Test AND while(true) #8 Body [Opt:AlwaysOn] Start
+LOAD d2,0.0001; if() #558 Test AND while(true) #8 Body [Opt:AlwaysOn] Start
 PUSHR d2
 ADDV d2,1
-STORED d2,1
+STORE d2,0.0001
 POP d2
 COMPAREV d2,30
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 67,==; Test 'if'
 ALLOCATEMEMV d2,43; if() #558 Body Start
-STORED d2,0
+STORE d2,0
 WRITEPODSTRING d2,"FFC script is running, ID: %d x: %d y: %d\n"
-LOADD d2,0; InlineFunc[void printf(char32)] Params Start
+LOAD d2,0; InlineFunc[void printf(char32)] Params Start
 PUSHR d2
-LOADD d2,4
+LOAD d2,0.0004
 PUSHR d2
 POP REFFFC
 PUSHVARGR FFCID
-LOADD d2,4
+LOAD d2,0.0004
 PUSHR d2
 POP REFFFC
 PUSHVARGR X
-LOADD d2,4
+LOAD d2,0.0004
 PUSHR d2
 POP REFFFC
 PUSHVARGR Y; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
-LOADD d3,0
+LOAD d3,0
 DEALLOCATEMEMR d3; if() #558 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
 GOTO 37; while() #8 End AND [Opt:NeverRet] AND void run(int) Body End

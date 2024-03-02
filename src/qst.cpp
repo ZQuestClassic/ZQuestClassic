@@ -3184,7 +3184,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		if(tempheader.zelda_version>=0x211 && tempheader.build>=18)
 			set_qr(qr_BROKENSTATUES, 1);
 	}
-	if (tempheader.zelda_version <= 0x190)
+	if (tempheader.zelda_version <= 0x190 || (tempheader.zelda_version == 0x192 && std::string(tempheader.title).starts_with("Zelda 3000\0")))
 	{
 		set_qr(qr_COPIED_SWIM_SPRITES, 1);
 	}
@@ -3710,6 +3710,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 	if(compatrule_version < 64)
 		set_qr(qr_BROKEN_FLAME_ARROW_REFLECTING,1);
+	if(compatrule_version < 65)
+		set_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

@@ -1,0 +1,13 @@
+import "std_old.zh"
+
+ffc script LensString{
+	void run (int string){
+		while (true){
+			if (UsingItem(I_LENS)){
+				Screen->Message(string);
+				while (UsingItem(I_LENS)) Waitframe();
+			}
+			Waitframe();
+		}
+	}
+}

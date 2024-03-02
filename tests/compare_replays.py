@@ -1,25 +1,29 @@
 # Given various test run results (either from local filesystem, or
-# downloaded from a GitHub Actiosn workflow run), generates an HTML report
+# downloaded from a GitHub Actions workflow run), generates an HTML report
 # presenting the snapshots frame-by-frame, and their differences.
-#
-# You must run a local web server for the HTML to work:
-#     cd tests/compare-report
-#     python -m http.server 8000
 
 import argparse
-from argparse import ArgumentTypeError
+import hashlib
+import json
 import os
 import re
-import json
 import shutil
-import json
-import hashlib
+
+from argparse import ArgumentTypeError
 from pathlib import Path
-from github import Github
-from common import get_gha_artifacts_with_retry, extract_tars, ReplayTestResults, RunResult
 from typing import List
-from PIL import Image
+
 import intervaltree
+
+from github import Github
+from PIL import Image
+from replays import ReplayTestResults, RunResult
+
+script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
+
+os.sys.path.append(str((root_dir / 'scripts').absolute()))
+from github_helpers import extract_tars, get_gha_artifacts_with_retry
 
 
 def dir_path(path):
@@ -30,7 +34,7 @@ def dir_path(path):
 
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-out_dir = Path(f'{script_dir}/compare-report')
+default_out_dir = Path(f'{script_dir}/compare-report')
 is_ci = 'CI' in os.environ
 
 
@@ -46,8 +50,7 @@ def hash_image(filename):
 # with some additional properties: label and snapshots.
 # We re-use the ReplayTestResults dataclass for convenience.
 def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
-    test_results_json = json.loads(
-        (directory/'test_results.json').read_text('utf-8'))
+    test_results_json = json.loads((directory / 'test_results.json').read_text('utf-8'))
     test_results = ReplayTestResults(**test_results_json)
 
     label_parts = [
@@ -55,10 +58,12 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
         test_results.arch,
     ]
     if test_results.ci:
-        label_parts.extend([
-            f'run_id {test_results.workflow_run_id}',
-            test_results.git_ref,
-        ])
+        label_parts.extend(
+            [
+                f'run_id {test_results.workflow_run_id}',
+                test_results.git_ref,
+            ]
+        )
     test_results.label = ' '.join(label_parts)
 
     snapshot_paths = list(directory.rglob('*.zplay*.png'))
@@ -74,11 +79,14 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
             replay_runs.append(run)
 
     for run in replay_runs:
-        snapshots = [{
-            'path': s,
-            'frame': int(re.match(r'.*\.zplay\.(\d+)', s.name).group(1)),
-            'hash': hash_image(s.absolute()),
-        } for s in (directory/run.directory).rglob('*.zplay*.png')]
+        snapshots = [
+            {
+                'path': s,
+                'frame': int(re.match(r'.*\.zplay\.(\d+)', s.name).group(1)),
+                'hash': hash_image(s.absolute()),
+            }
+            for s in (directory / run.directory).rglob('*.zplay*.png')
+        ]
         if not snapshots:
             continue
 
@@ -124,12 +132,16 @@ def collect_many_test_results_from_dir(directory: Path) -> List[ReplayTestResult
     return runs_by_platform.values()
 
 
-def collect_many_test_results_from_ci(gh: Github, repo: str, workflow_run_id: str) -> List[ReplayTestResults]:
+def collect_many_test_results_from_ci(
+    gh: Github, repo: str, workflow_run_id: str
+) -> List[ReplayTestResults]:
     workflow_dir = get_gha_artifacts_with_retry(gh, repo, workflow_run_id)
     return collect_many_test_results_from_dir(workflow_dir)
 
 
-def create_compare_report(test_runs: List[ReplayTestResults]):
+def create_compare_report(
+    test_runs: List[ReplayTestResults], out_dir: Path = default_out_dir
+):
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
@@ -149,7 +161,8 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
         init_image_count = count_images()
         if init_image_count > max_image_count:
             print(
-                f'found {init_image_count} images, which is too many to upload to surge')
+                f'found {init_image_count} images, which is too many to upload to surge'
+            )
 
             image_budget = max_image_count
             hashes_to_keep = set()
@@ -213,8 +226,12 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
 
                     for frame in frames:
                         for run in runs:
-                            snapshots = (s for s in run.snapshots
-                                         if s['frame'] == frame and s['hash'] not in hashes_to_keep)
+                            snapshots = (
+                                s
+                                for s in run.snapshots
+                                if s['frame'] == frame
+                                and s['hash'] not in hashes_to_keep
+                            )
                             for snapshot in snapshots:
                                 hashes_to_keep.add(snapshot['hash'])
                                 budget -= 1
@@ -225,12 +242,14 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
                             if budget == 0:
                                 break
                         if budget == 0:
-                                break # lol
+                            break  # lol
 
             # Finally, apply the filter.
             for test_results in test_runs:
                 for run in test_results.runs[0]:
-                    run.snapshots = [s for s in run.snapshots if s['hash'] in hashes_to_keep]
+                    run.snapshots = [
+                        s for s in run.snapshots if s['hash'] in hashes_to_keep
+                    ]
 
             final_image_count = count_images()
             if init_image_count != final_image_count:
@@ -250,13 +269,10 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
                     shutil.copy2(snapshot['path'].absolute(), dest)
                 snapshot['path'] = str(dest.relative_to(out_dir))
 
-    html = Path(
-        f'{script_dir}/compare-resources/compare.html').read_text('utf-8')
-    css = Path(
-        f'{script_dir}/compare-resources/compare.css').read_text('utf-8')
+    html = Path(f'{script_dir}/compare-resources/compare.html').read_text('utf-8')
+    css = Path(f'{script_dir}/compare-resources/compare.css').read_text('utf-8')
     js = Path(f'{script_dir}/compare-resources/compare.js').read_text('utf-8')
-    deps = Path(
-        f'{script_dir}/compare-resources/pixelmatch.js').read_text('utf-8')
+    deps = Path(f'{script_dir}/compare-resources/pixelmatch.js').read_text('utf-8')
 
     # Remove unneeded data.
     for test_run in test_runs:
@@ -287,13 +303,13 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
 
 # TODO use webserver.py
 def start_webserver():
-    from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
     class Serv(BaseHTTPRequestHandler):
         def do_GET(self):
             if self.path == '/':
                 self.path = '/index.html'
-            path = out_dir / self.path[1:]
+            path = default_out_dir / self.path[1:]
 
             file_to_open = None
             try:
@@ -323,13 +339,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--workflow_run', type=int, action='append')
     parser.add_argument('--local', type=dir_path, action='append')
+    parser.add_argument('--dest', type=dir_path, default=default_out_dir)
     parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
+    parser.add_argument('--start-server', action=argparse.BooleanOptionalAction)
     parser.add_argument('--token')
     args = parser.parse_args()
 
     if not args.workflow_run and not args.local:
-        raise ArgumentTypeError(
-            'must provide at least one --workflow_run or --local')
+        raise ArgumentTypeError('must provide at least one --workflow_run or --local')
 
     # TODO: push args.* to same array in argparse so that order is preserved.
     # first should always be baseline. For now, assume it is the workflow option.
@@ -356,6 +373,6 @@ if __name__ == '__main__':
                 print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
 
-    create_compare_report(all_test_runs)
-    if not is_ci:
+    create_compare_report(all_test_runs, args.dest)
+    if not is_ci and args.start_server:
         start_webserver()

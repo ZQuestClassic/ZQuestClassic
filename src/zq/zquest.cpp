@@ -800,7 +800,8 @@ static NewMenu import_menu
 	{ "&Enemies", onImport_Guys },
 	{ "&Map", onImport_Map },
 	{ "&DMaps", onImport_DMaps },
-	{ "&String Table", onImport_Msgs },
+	{ "&Strings (.tsv)", onImport_StringsTSV },
+	{ "String Table (deprecated)", onImport_Msgs },
 	{},
 	{ "&Graphics", &import_graphics },
 	{},
@@ -845,8 +846,8 @@ static NewMenu export_menu
 	{ "&Map", onExport_Map },
 	{ "&DMaps", onExport_DMaps },
 	{},
-	{ "&String Table", onExport_Msgs },
-	{ "Text &Dump", onExport_MsgsText },
+	{ "&Strings (.tsv)", onExport_StringsTSV },
+	{ "String Table (deprecated)", onExport_Msgs },
 	{},
 	{ "&Graphics", &export_graphics },
 	{},
@@ -25566,7 +25567,8 @@ int32_t main(int32_t argc,char **argv)
 
 		const char* input_filename = argv[package_arg + 1];
 		const char* package_name = argv[package_arg + 2];
-		package_create(input_filename, package_name);
+		if (auto error = package_create(input_filename, package_name))
+			Z_error_fatal("%s\n", error->c_str());
 		exit(0);
 	}
 
@@ -26016,6 +26018,37 @@ int32_t main(int32_t argc,char **argv)
 		if (!success)
 		{
 			printf("Failed to save quest\n");
+			exit(1);
+		}
+
+		exit(0);
+	}
+
+	int export_strings_arg = used_switch(argc, argv, "-export-strings");
+	if (export_strings_arg > 0)
+	{
+		if (export_strings_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -export-strings input.qst output.tsv\n");
+			exit(1);
+		}
+
+		is_zq_replay_test = true;
+		set_headless_mode();
+
+		int load_ret = load_quest(argv[export_strings_arg + 1], false);
+		bool success = load_ret == qe_OK;
+		if (!success)
+		{
+			printf("Failed to load quest: %d\n", load_ret);
+			exit(1);
+		}
+
+		success = save_strings_tsv(argv[export_strings_arg + 2]);
+		if (!success)
+		{
+			printf("Failed to export strings\n");
 			exit(1);
 		}
 
@@ -27695,6 +27728,9 @@ int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c)
 
 void check_autosave()
 {
+    if (!first_save)
+        return;
+
     if(AutoSaveInterval>0)
     {
         time(&auto_save_time_current);
@@ -27703,14 +27739,11 @@ void check_autosave()
         if(auto_save_time_diff>AutoSaveInterval*60)
         {
             MouseSprite::set(ZQM_NORMAL);
-            if(first_save)
-                replace_extension(last_timed_save, filepath, "qt0", 2047);
-            else
-                strcpy(last_timed_save, "untitled.qt0");
+			replace_extension(last_timed_save, filepath, "qt0", 2047);
 			set_last_timed_save(last_timed_save);
             go();
             
-            if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD) && first_save)
+            if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD))
             {
                 jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,get_zc_font(font_lfont));
                 time(&auto_save_time_start);
