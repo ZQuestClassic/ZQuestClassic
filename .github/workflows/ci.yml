@@ -66,11 +66,6 @@ jobs:
       REPLAY_FAILURE_DISCORD_WEBHOOK: ${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}
 
     steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11.4'
-          cache: pip
-      - run: pip install -r requirements.txt
       - name: Install Node.js 18.x
         uses: actions/setup-node@v3
         with:
@@ -80,6 +75,11 @@ jobs:
         with:
           # Need history to find baseline commit.
           fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.4'
+          cache: pip
+      - run: pip install -r requirements.txt
 
       - uses: actions/download-artifact@v4
         with:
