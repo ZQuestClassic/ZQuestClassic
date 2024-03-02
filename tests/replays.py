@@ -866,15 +866,15 @@ def run_replays(
         shutil.rmtree(test_results_dir)
     test_results_dir.mkdir(parents=True)
 
-    tests_remaining = replays
+    replays_remaining = replays
 
     print(f'running {len(replays)} replays\n')
     for i in range(retries + 1):
         if i != 0:
             last_runs = test_results.runs[-1]
-            failing_runs = [r for r in last_runs if not r.success]
-            tests_remaining = [r for r in tests_remaining if r.name in failing_runs]
-        if not tests_remaining:
+            failures = [r.name for r in last_runs if not r.success]
+            replays_remaining = [r for r in replays_remaining if r.name in failures]
+        if not replays_remaining:
             break
         if i != 0:
             print('\nretrying failures...\n')
@@ -884,7 +884,7 @@ def run_replays(
             RunReplayTestsContext(
                 test_results,
                 mode,
-                tests_remaining,
+                replays_remaining,
                 build_folder,
                 test_results_dir,
                 runs_dir,
