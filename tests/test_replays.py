@@ -5,7 +5,9 @@ import shutil
 import subprocess
 import sys
 import unittest
+
 from pathlib import Path
+
 from common import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -63,9 +65,9 @@ class TestReplays(unittest.TestCase):
         failing_replay_contents = (
             root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
         failing_replay_contents = failing_replay_contents.replace(
-            'C 549 g H!V', 'C 549 g blah')
+            'C 549 g HNN', 'C 549 g blah')
         failing_replay_contents = failing_replay_contents.replace(
-            'C 1574 g H@:', 'C 1574 g blah')
+            'C 1574 g "W', 'C 1574 g blah')
         create_test_replay(failing_replay_contents)
 
         test_results = self.run_replay()
@@ -122,9 +124,9 @@ class TestReplays(unittest.TestCase):
         failing_replay_contents = (
             root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
         failing_replay_contents = failing_replay_contents.replace(
-            'C 549 g H!V\n', '')
+            'C 549 g HNN\n', '')
         failing_replay_contents = failing_replay_contents.replace(
-            'C 1574 g H@:\n', '')
+            'C 1574 g "W\n', '')
         create_test_replay(failing_replay_contents)
 
         test_results = self.run_replay()
