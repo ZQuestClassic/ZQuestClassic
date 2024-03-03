@@ -1608,10 +1608,9 @@ void replay_stop()
         }
     }
 
-    save_result(true);
-
     if (mode == ReplayMode::Assert)
     {
+        save_result(true);
         if (exit_when_done)
             exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         else if (has_assert_failed)
@@ -1648,6 +1647,14 @@ void replay_stop()
             replay_save();
             save_result(true, true);
         }
+        else
+        {
+            save_result(true);
+        }
+    }
+    else
+    {
+        save_result(true);
     }
 
     for (int i = 0; i < framebuf_history.size(); i++)
