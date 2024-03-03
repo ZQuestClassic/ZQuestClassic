@@ -52,6 +52,7 @@ AL_LEGACY_FUNC(void, all_lock_screen, (void));
 AL_LEGACY_FUNC(void, all_unlock_screen, (void));
 AL_LEGACY_FUNC(void, all_set_transparent_palette_index, (int));
 AL_LEGACY_FUNC(void, all_keyboard_queue_register_event_source, (ALLEGRO_EVENT_SOURCE *));
+AL_LEGACY_FUNC(const uint32_t*, all_get_pal, (void));
 
 #ifdef __cplusplus
 }
