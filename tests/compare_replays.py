@@ -8,6 +8,7 @@
 
 import argparse
 from argparse import ArgumentTypeError
+import io
 import os
 import re
 import json
@@ -35,7 +36,9 @@ is_ci = 'CI' in os.environ
 
 
 def hash_image(filename):
-    return hashlib.md5(Image.open(filename).tobytes()).hexdigest()
+    byte_io = io.BytesIO()
+    Image.open(filename).save(byte_io, 'bmp')
+    return hashlib.md5(byte_io.getvalue()).hexdigest()
 
 
 # A `test_results` represents an invocation of run_replay_tests.py, including:
