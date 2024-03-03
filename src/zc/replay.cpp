@@ -573,6 +573,8 @@ static void do_recording_poll()
 		int depth = bitmap_color_depth(framebuf);
 		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
 		uint32_t hash = XXH32(framebuf->dat, len, 0);
+		extern PALETTE* hw_palette;
+		hash += XXH32(hw_palette, sizeof(PALETTE), 0);
 		replay_step_gfx(hash);
 	}
 
@@ -1607,10 +1609,9 @@ void replay_stop()
         }
     }
 
-    save_result(true);
-
     if (mode == ReplayMode::Assert)
     {
+        save_result(true);
         if (exit_when_done)
             exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         else if (has_assert_failed)
@@ -1647,6 +1648,14 @@ void replay_stop()
             replay_save();
             save_result(true, true);
         }
+        else
+        {
+            save_result(true);
+        }
+    }
+    else
+    {
+        save_result(true);
     }
 
     for (int i = 0; i < framebuf_history.size(); i++)

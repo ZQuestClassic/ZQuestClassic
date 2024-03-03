@@ -943,6 +943,12 @@ void all_get_display_transform(int* out_native_width, int* out_native_height,
   if (out_scale) *out_scale = scale;
 }
 
+// local edit
+const uint32_t* all_get_pal()
+{
+  return _a5_screen_palette_a5;
+}
+
 GFX_DRIVER display_allegro_5 = {
    GFX_ALLEGRO_5,                     // int id;
    empty_string,                      // char *name;
