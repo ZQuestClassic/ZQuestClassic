@@ -340,10 +340,10 @@ def _download(revision: Revision, channel: str):
 
     # Fall back to using the GitHub API.
     if not found_url:
-        found_url = get_gh_release_package_url(revision.tag, channel)
+        url = get_gh_release_package_url(revision.tag, channel)
 
     dest.mkdir(parents=True, exist_ok=True)
-    print(f'downloading {found_url}', file=os.sys.stderr)
+    print(f'downloading {url}', file=os.sys.stderr)
 
     r = requests.get(url)
     if channel == 'mac':
