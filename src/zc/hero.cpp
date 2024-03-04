@@ -29415,11 +29415,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			x = script_hero_x;
 			y = script_hero_y;
 			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
+			FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 			x = prev_x;
 			y = prev_y;
 		}
-		
-		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
+
 		// TODO z3 draw straight to framebuf?
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
@@ -29588,11 +29588,23 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			scrollscr_handle_dark(newscr, oldscr, old_temporary_screens);
 		}
 
+		auto prev_x = x;
+		auto prev_y = y;
+		x = script_hero_x;
+		y = script_hero_y;
+
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
-		
 		//end drawing
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
-		advanceframe(true/*,true,false*/);
+
+		{
+			x = prev_x;
+			y = prev_y;
+			advanceframe(true/*,true,false*/);
+			x = script_hero_x;
+			y = script_hero_y;
+		}
+
 		if (scroll_counter > 0 || get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 			script_drawing_commands.Clear();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
@@ -29600,6 +29612,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
 		action=lastaction; FFCore.setHeroAction(lastaction);
+
+		x = prev_x;
+		y = prev_y;
 	}//end main scrolling loop (2 spaces tab width makes me sad =( )
 	currdmap = old_dmap;
 
