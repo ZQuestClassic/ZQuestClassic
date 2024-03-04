@@ -77,7 +77,7 @@ def find_baseline_commit(gh: Github, repo_str: str):
     # TODO z3 !!! upstream
     def look_for_workflow(workflow: Workflow.Workflow, branch: str):
         # Only consider 30 most recent runs.
-        main_runs = it.islice(workflow.get_runs(branch=branch), 30)
+        main_runs = it.islice(workflow.get_runs(branch=branch), 300)
         most_recent_ok = next(
             (
                 r
