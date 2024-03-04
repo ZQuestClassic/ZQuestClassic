@@ -13269,6 +13269,7 @@ int32_t get_register(int32_t arg)
 		case REFSUBSCREENPAGE: ret = ri->subpageref; break;
 		case REFSUBSCREENWIDG: ret = ri->subwidgref; break;
 		case REFRNG: ret = ri->rngref; break;
+		case REFWEBSOCKET: ret = ri->websocketref; break;
 		case CLASS_THISKEY: ret = ri->thiskey; break;
 		case CLASS_THISKEY2: ret = ri->thiskey2; break;
 		case REFPALDATA: ret = ri->paldataref; break;
@@ -26078,6 +26079,7 @@ void set_register(int32_t arg, int32_t value)
 		case REFSUBSCREENPAGE: ri->subpageref = value; break;
 		case REFSUBSCREENWIDG: ri->subwidgref = value; break;
 		case REFRNG: ri->rngref = value; break;
+		case REFWEBSOCKET: ri->websocketref = value; break;
 		case CLASS_THISKEY: ri->thiskey = value; break;
 		case CLASS_THISKEY2: ri->thiskey2 = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
