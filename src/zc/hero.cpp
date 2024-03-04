@@ -28946,10 +28946,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// the passive subscreen during the entire scroll, but for now let's not update them.
 	// TODO z3 final
 	bool freedom_in_chains_hack = false;
-	if (replay_is_active() && (replay_get_meta_str("qst") == "freedom_in_chains.qst" || replay_get_meta_str("qst") == "yuurand.qst"))
+	if (replay_is_debug())
 	{
-		freedom_in_chains_hack = true;
-		playing_field_offset = old_playing_field_offset;
+		std::string qst = replay_get_meta_str("qst");
+		freedom_in_chains_hack |= qst == "freedom_in_chains.qst";
+		freedom_in_chains_hack |= qst == "yuurand.qst";
+		freedom_in_chains_hack |= qst == "100_rooms_of_wisdom.qst";
+		if (freedom_in_chains_hack)
+			playing_field_offset = old_playing_field_offset;
 	}
 
 	// We must recalculate the new hero position and viewport, if a script run above just change the hero position.
