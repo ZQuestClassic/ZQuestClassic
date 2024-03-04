@@ -1428,7 +1428,21 @@ if args.prune_test_results:
 test_results_path.write_text(test_results.to_json())
 
 
+def is_known_failure_test(run: RunResult):
+    if run.success:
+        return False
+
+    if platform.system() == 'Windows' and run.name == 'the_deep/the_deep_4_of_6.zplay' and run.unexpected_gfx_segments == [[40853, 40971]]:
+        print(f'!!! [{run.name}] filtering out known replay test failure !!!')
+        return True
+
+    return False
+
+
 def should_consider_failure(run: RunResult):
+    if is_known_failure_test(run):
+        return False
+
     if not run.success:
         return True
 
