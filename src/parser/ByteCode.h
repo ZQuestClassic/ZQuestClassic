@@ -11066,6 +11066,17 @@ namespace ZScript
 		}
 	};
 	
+	class Oatol : public BinaryOpcode
+	{
+	public:
+		Oatol(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new Oatol(a->clone(), b->clone());
+		}
+	};
+	
 	class Ostrcspn : public UnaryOpcode
 	{
 	public:

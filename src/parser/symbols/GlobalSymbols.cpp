@@ -66,12 +66,13 @@ static AccessorTable GlobalTable[] =
 	{ "strcpy",                  0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "itoacat",                 0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "ArrayCopy",               0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
-	{ "strlen",                  0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
-	{ "atoi",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
+	{ "strlen",                  0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR },{} },
+	{ "atoi",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR },{} },
+	{ "atol",                    0,          ZTID_LONG,   -1,          0,  { ZTID_CHAR },{} },
 	{ "ilen",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
-	{ "utol",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
-	{ "ltou",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
-	{ "convcase",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
+	{ "utol",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR },{} },
+	{ "ltou",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR },{} },
+	{ "convcase",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR },{} },
 	{ "itoa",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "xtoa",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "xtoi",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
@@ -1289,6 +1290,17 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		LABELBACK(label);
 		addOpcode2 (code, new Oatoi(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//long atol(*p)
+	{
+		Function* function = getFunction("atol");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new Oatol(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}

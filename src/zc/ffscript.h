@@ -869,6 +869,7 @@ double LogToBase(double x, double base);
 void do_xtoi(const bool v);
 void do_ilen(const bool v);
 void do_atoi(const bool v);
+void do_atol(const bool v);
 bool isNumber(char chr);
 int32_t UpperToLower(std::string *s);
 int32_t LowerToUpper(std::string *s);
@@ -3192,6 +3193,8 @@ enum ASM_DEFINE
 	WEBSOCKET_OWN,
 	WEBSOCKET_ERROR,
 	WEBSOCKET_RECEIVE,
+	
+	ATOL,
 
 	NUMCOMMANDS
 };

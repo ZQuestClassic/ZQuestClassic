@@ -36638,6 +36638,7 @@ int32_t run_script_int(bool is_jitted)
 			case XTOI: FFCore.do_xtoi(false); break;
 			case ILEN: FFCore.do_ilen(false); break;
 			case ATOI: FFCore.do_atoi(false); break;
+			case ATOL: FFCore.do_atol(false); break;
 			case STRCSPN: FFCore.do_strcspn(); break;
 			case STRSTR: FFCore.do_strstr(); break;
 			case XTOA: FFCore.do_xtoa(); break;
@@ -44810,6 +44811,13 @@ void FFScript::do_atoi(const bool v)
 	string str;
 	ArrayH::getString(arrayptr, str);
 	set_register(sarg1, (atoi(str.c_str()) * 10000));
+}
+void FFScript::do_atol(const bool v)
+{
+	int32_t arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	ArrayH::getString(arrayptr, str);
+	set_register(sarg1, (atoi(str.c_str())));
 }
 
 void FFScript::do_strstr()
