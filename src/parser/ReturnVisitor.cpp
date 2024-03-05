@@ -417,7 +417,16 @@ void ReturnVisitor::caseStmtForEach(ASTStmtForEach& host, void* param)
 		}
 	}
 	if(host.decl)
+	{
 		visit(host.decl.get(), thenNode);
+		if(auto varptr = dynamic_cast<Variable*>(host.decl->manager))
+		{
+			auto& vmap = var_map[in_func];
+			auto it = vmap.find(varptr);
+			if(it != vmap.end())
+				it->second = true; // Mark param as used
+		}
+	}
 	if(host.hasElse())
 		host.ends_else = block_retvisit(host.elseBlock.get(), elseNode);
 	markReachable(host);
