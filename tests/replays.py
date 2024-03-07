@@ -225,7 +225,6 @@ def estimate_fps(replay: Replay):
         'link_to_the_zelda.qst': 2100,
         'nes_remastered.qst': 3000,
         'new2013.qst': 2800,
-        'solid.qst': 1400,
         'ss_jenny.qst': 1500,
         'stellar_seas_randomizer.qst': 500,
         'yuurand.qst': 650,

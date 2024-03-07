@@ -446,7 +446,6 @@ if args.filter:
     tests = list(filtered_tests)
 
 skip_tests = [
-    'solid.zplay',
     # TODO: regression from `30ebe53 fix: passive (non-button) items not respecting "Usable as a Bunny" flag`
     'nargads_trail_crystal_crusades_11_of_24.zplay',
     'nargads_trail_crystal_crusades_19_of_24.zplay',
