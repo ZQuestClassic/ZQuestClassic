@@ -50,6 +50,7 @@ bool saves_create_slot(gamedata* game, bool write_to_disk = true);
 bool saves_create_slot(fs::path path, bool write_to_disk = true);
 bool saves_is_slot_loaded(int32_t index, bool full_data = false);
 const save_t* saves_get_slot(int32_t index, bool full_data = false);
+bool saves_is_valid_slot(int index);
 const save_t* saves_get_current_slot();
 void saves_delete(int32_t index);
 void saves_copy(int32_t from_index);
