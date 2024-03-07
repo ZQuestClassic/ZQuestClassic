@@ -40298,14 +40298,13 @@ int32_t run_script_int(bool is_jitted)
 					std::string message = ws->receive_message();
 					auto message_type = ws->last_message_type;
 
-					if (ws->message_arrayptr)
-						FFScript::deallocateZScriptArray(ws->message_arrayptr);
-					ws->message_arrayptr = allocatemem(message.size() + 1, true, type, i);
+					if (!ws->message_arrayptr)
+						ws->message_arrayptr = allocatemem(message.size() + 1, true, ScriptType::None, -1);
 
 					if (message_type == WebSocketMessageType::Text)
-						ArrayH::setArray(ws->message_arrayptr, message, false);
+						ArrayH::setArray(ws->message_arrayptr, message, true);
 					else
-						ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, false);
+						ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, true);
 
 					set_register(sarg1, ws->message_arrayptr * 10000);
 				}
