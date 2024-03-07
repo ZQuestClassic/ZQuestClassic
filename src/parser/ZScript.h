@@ -460,8 +460,6 @@ namespace ZScript
 
 		ASTFuncDecl* node;
 		Datum* thisVar;
-		
-		std::set<int32_t> used_stackoffs;
 
 		// Get the opcodes.
 		std::vector<std::shared_ptr<Opcode>> const& getCode() const
