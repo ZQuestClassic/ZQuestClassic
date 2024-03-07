@@ -311,6 +311,7 @@ def load_replays(
 class RunReplayTestsContext:
     test_results: ReplayTestResults
     mode: str
+    arch: str
     replays: List[Replay]
     build_folder: pathlib.Path
     test_results_dir: pathlib.Path
@@ -807,6 +808,8 @@ def _run_replays(
                 status[result.name] = 'status'
             elif type == 'finish':
                 has_updated = True
+                if _is_known_failure_test(result, ctx.arch):
+                    result.success = True
                 results.append(result)
                 status[result.name] = 'finish'
         active_tests = next_active_tests
@@ -884,6 +887,7 @@ def run_replays(
             RunReplayTestsContext(
                 test_results,
                 mode,
+                arch,
                 replays_remaining,
                 build_folder,
                 test_results_dir,
@@ -948,3 +952,29 @@ def run_replays(
 
     (test_results_dir / 'test_results.json').write_text(test_results.to_json())
     return test_results
+
+
+def _is_known_failure_test(run: RunResult, arch: str):
+    if run.success:
+        return False
+
+    is_windows = platform.system() == 'Windows'
+    name = pathlib.Path(run.name).name
+    ignore = False
+
+    if (
+        is_windows
+        and name == 'the_deep_4_of_6.zplay'
+        and run.unexpected_gfx_segments == [[40853, 40971]]
+    ):
+        ignore = True
+    if arch == 'win32' and name == 'enigma_of_basilischi_island_basilse_1_of_2.zplay':
+        if run.failing_frame == 135221:
+            ignore = True
+    if arch == 'win32' and name == 'enigma_of_basilischi_island_basilse_2_of_2.zplay':
+        if run.failing_frame == 31839:
+            ignore = True
+
+    if ignore:
+        print(f'!!! [{run.name}] filtering out known replay test failure !!!')
+    return ignore

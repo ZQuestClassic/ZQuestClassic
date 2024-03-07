@@ -851,29 +851,7 @@ class ProgressDisplay:
             sleep(0.25)
 
 
-def is_known_failure_test(run: RunResult):
-    if run.success:
-        return False
-
-    ignore = False
-    if platform.system() == 'Windows' and run.name == 'the_deep/the_deep_4_of_6.zplay' and run.unexpected_gfx_segments == [[40853, 40971]]:
-        ignore = True
-    if platform.system() == 'Windows' and arch == 'win32' and run.name == 'enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_1_of_2.zplay':
-        if run.failing_frame == 135221:
-            ignore = True
-    if platform.system() == 'Windows' and arch == 'win32' and run.name == 'enigma_of_basilischi_island_basilse/enigma_of_basilischi_island_basilse_2_of_2.zplay':
-        if run.failing_frame == 31839:
-            ignore = True
-
-    if ignore:
-        print(f'!!! [{run.name}] filtering out known replay test failure !!!')
-    return ignore
-
-
 def should_consider_failure(run: RunResult):
-    if is_known_failure_test(run):
-        return False
-
     if not run.success:
         return True
 
