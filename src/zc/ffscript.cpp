@@ -40297,14 +40297,34 @@ int32_t run_script_int(bool is_jitted)
 				{
 					std::string message = ws->receive_message();
 					auto message_type = ws->last_message_type;
-
-					if (!ws->message_arrayptr)
-						ws->message_arrayptr = allocatemem(message.size() + 1, true, ScriptType::None, -1);
+					
+					auto target_size = message.size() + ((message_type == WebSocketMessageType::Text) ? 1 : 0);
+					bool check_resize = false;
+					if (ws->message_arrayptr)
+						check_resize = true;
+					else ws->message_arrayptr = allocatemem(target_size, true, ScriptType::None, -1);
 
 					if (message_type == WebSocketMessageType::Text)
+					{
+						if(check_resize)
+						{
+							ArrayManager am(ws->message_arrayptr);
+							auto diff = message.size()+1 - am.size();
+							//1MB or more of wasted memory, reduce
+							if(message.size()+1 > am.size() && diff >= 1000000)
+								am.resize(target_size);
+						}
 						ArrayH::setArray(ws->message_arrayptr, message, true);
+					}
 					else
+					{
+						if(check_resize)
+						{
+							ArrayManager am(ws->message_arrayptr);
+							am.resize(target_size);
+						}
 						ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, true);
+					}
 
 					set_register(sarg1, ws->message_arrayptr * 10000);
 				}
