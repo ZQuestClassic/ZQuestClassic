@@ -48,7 +48,6 @@
 import argparse
 import atexit
 import os
-import pathlib
 import platform
 import shutil
 import subprocess
@@ -56,6 +55,7 @@ import sys
 import time
 
 from argparse import ArgumentTypeError
+from pathlib import Path
 from time import sleep
 from typing import List
 
@@ -83,7 +83,7 @@ from run_test_workflow import (
     get_args_for_collect_baseline_from_test_results,
 )
 
-script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
+script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 replays_dir = script_dir / 'replays'
 is_ci = 'CI' in os.environ
@@ -96,7 +96,7 @@ from github_helpers import infer_gha_platform
 
 def dir_path(path):
     if not os.path.isfile(path) and (os.path.isdir(path) or not os.path.exists(path)):
-        return pathlib.Path(path)
+        return Path(path)
     else:
         raise ArgumentTypeError(f'{path} is not a valid directory')
 
@@ -233,7 +233,7 @@ if args.show:
     args.throttle_fps = True
 
 if args.replays:
-    tests = [pathlib.Path(x) for x in args.replays]
+    tests = [Path(x) for x in args.replays]
     replays_dir = tests[0].parent
 else:
     tests = list(replays_dir.rglob('*.zplay'))
@@ -415,7 +415,7 @@ if is_web:
 
 
 def apply_test_filter(filter: str):
-    filter_as_path = pathlib.Path(filter)
+    filter_as_path = Path(filter)
 
     exact_match = next((t for t in tests if t == filter_as_path.absolute()), None)
     if exact_match:
