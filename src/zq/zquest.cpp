@@ -2375,7 +2375,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 			last_dmap_id = first_dmap_id;
 			first_dmap_id = swap;			
 		}
-		if(!getname("Export DMaps(.zdmapzq)_)","zdmap",NULL,datapath,false))
+		if(!getname("Export DMaps (.zdmap)","zdmap",NULL,datapath,false))
 		
 		
 		saved=false;
