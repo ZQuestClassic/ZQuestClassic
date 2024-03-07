@@ -132,7 +132,8 @@ struct UserDataContainer
 
 	void clear(size_t index)
 	{
-		datas[index] = {};
+		if(index < Max)
+			datas[index] = {};
 	}
 
 	int32_t get_free(bool skipError = false)
@@ -40257,7 +40258,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case WEBSOCKET_FREE:
 			{
-				user_websockets.clear(ri->websocketref);
+				user_websockets.clear(ri->websocketref-1);
 				break;
 			}
 			case WEBSOCKET_ERROR:
