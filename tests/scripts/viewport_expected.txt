@@ -12,6 +12,7 @@ Compile finished with exit code '0' (success)
 PUSHARGSV 0,0.0004; void run() Body Start
 SETR d4,SP2
 STOREV 20,0.0002
+STOREV 0,0.0001
 STOREV 5,0
 SETV d2,2; while(true) #8 Body [Opt:AlwaysOn] Start
 PUSHR d2
@@ -67,21 +68,21 @@ LOAD d2,0.0001; if() #189 Test
 COMPAREV d2,-360
 SETCMP d2,I<
 COMPAREV d2,0
-GOTOCMP 64,==; Test 'if'
+GOTOCMP 65,==; Test 'if'
 LOAD d2,0.0001; if() #189 Body Start
 ADDV d2,360
 STORE d2,0.0001
-GOTO 72; if() #189 Body End
+GOTO 73; if() #189 Body End
 LOAD d2,0.0001; if() #558 Test AND if() #189 Else Start
 COMPAREV d2,360
 SETCMP d2,I>
 COMPAREV d2,0
-GOTOCMP 72,==; Test 'if'
+GOTOCMP 73,==; Test 'if'
 LOAD d2,0.0001; if() #558 Body Start
 SUBV d2,360
 STORE d2,0.0001; if() #558 Body End
 WAITFRAME; if() #189 Else End AND InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
-GOTO 5; while() #8 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 6; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 
 
 ALLOCATEGMEMV d2,4096; void run() Body Start
