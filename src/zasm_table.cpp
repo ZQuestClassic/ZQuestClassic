@@ -1215,6 +1215,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "WEBSOCKET_OWN", 0, { }, 0, 0 },
 	{ "WEBSOCKET_ERROR", 1, { REG_W }, 0, 0 },
 	{ "WEBSOCKET_RECEIVE", 1, { REG_W }, 0, 0 },
+	
+	{ "ATOL", 2, { REG_W, REG_R }, 0, 0 },
 
 	{ "", 0, {}, 0, 0 }
 };

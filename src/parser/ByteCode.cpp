@@ -6411,6 +6411,11 @@ string Oatoi::toString() const
     return "ATOI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string Oatol::toString() const
+{
+	return "ATOL " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 //2 inp, 1 ret, based on STRINGCOMPARE / OStrCmp
 
 string Ostrcspn::toString() const

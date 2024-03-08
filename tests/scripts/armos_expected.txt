@@ -6450,9 +6450,9 @@ SETR d3,d2
 POP d0
 POP d2
 WRITEPODARRAYRR d3,d2
-LOAD d2,0.0007; InlineFunc[int atoi(int)] Params Start
-SETR d3,d2; InlineFunc[int atoi(int)] Params End
-ATOI d2,d3; InlineFunc[int atoi(int)] Body
+LOAD d2,0.0007; InlineFunc[int atoi(char32)] Params Start
+SETR d3,d2; InlineFunc[int atoi(char32)] Params End
+ATOI d2,d3; InlineFunc[int atoi(char32)] Body
 PUSHR d2
 LOAD d2,0.0009
 SETR d0,d2

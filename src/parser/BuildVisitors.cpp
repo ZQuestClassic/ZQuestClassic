@@ -1604,15 +1604,10 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 		int32_t offset = manager.getStackOffset(false);
 		if (val)
 		{
-			//The first time a stack offset is used, it's already 0, and can skip init
-			//...but subsequent times it needs to be cleared again, and if non-zero still needs init.
-			//...also, if the first use is in a *loop*, it needs to be cleared, as that is multiple times.
-			if(*val || (in_func && in_func->used_stackoffs.contains(offset)) || continue_depth)
-				addOpcode(new OStoreV(new LiteralArgument(*val), new LiteralArgument(offset)));
+			// I tried to optimize this away in some circumstances, it lead to only problems -Em
+			addOpcode(new OStoreV(new LiteralArgument(*val), new LiteralArgument(offset)));
 		}
 		else addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
-		if(in_func)
-			in_func->used_stackoffs.insert(offset);
 	}
 }
 

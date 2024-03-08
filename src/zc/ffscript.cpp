@@ -135,7 +135,8 @@ struct UserDataContainer
 
 	void clear(size_t index)
 	{
-		datas[index] = {};
+		if(index < Max)
+			datas[index] = {};
 	}
 
 	int32_t get_free(bool skipError = false)
@@ -13348,6 +13349,7 @@ int32_t get_register(int32_t arg)
 		case REFSUBSCREENPAGE: ret = ri->subpageref; break;
 		case REFSUBSCREENWIDG: ret = ri->subwidgref; break;
 		case REFRNG: ret = ri->rngref; break;
+		case REFWEBSOCKET: ret = ri->websocketref; break;
 		case CLASS_THISKEY: ret = ri->thiskey; break;
 		case CLASS_THISKEY2: ret = ri->thiskey2; break;
 		case REFPALDATA: ret = ri->paldataref; break;
@@ -26084,6 +26086,7 @@ void set_register(int32_t arg, int32_t value)
 		case REFSUBSCREENPAGE: ri->subpageref = value; break;
 		case REFSUBSCREENWIDG: ri->subwidgref = value; break;
 		case REFRNG: ri->rngref = value; break;
+		case REFWEBSOCKET: ri->websocketref = value; break;
 		case CLASS_THISKEY: ri->thiskey = value; break;
 		case CLASS_THISKEY2: ri->thiskey2 = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
@@ -36628,6 +36631,7 @@ int32_t run_script_int(bool is_jitted)
 			case XTOI: FFCore.do_xtoi(false); break;
 			case ILEN: FFCore.do_ilen(false); break;
 			case ATOI: FFCore.do_atoi(false); break;
+			case ATOL: FFCore.do_atol(false); break;
 			case STRCSPN: FFCore.do_strcspn(); break;
 			case STRSTR: FFCore.do_strstr(); break;
 			case XTOA: FFCore.do_xtoa(); break;
@@ -40195,7 +40199,7 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case WEBSOCKET_FREE:
 			{
-				user_websockets.clear(ri->websocketref);
+				user_websockets.clear(ri->websocketref-1);
 				break;
 			}
 			case WEBSOCKET_ERROR:
@@ -40235,14 +40239,13 @@ int32_t run_script_int(bool is_jitted)
 					std::string message = ws->receive_message();
 					auto message_type = ws->last_message_type;
 
-					if (ws->message_arrayptr)
-						FFScript::deallocateZScriptArray(ws->message_arrayptr);
-					ws->message_arrayptr = allocatemem(message.size() + 1, true, type, i);
+					if (!ws->message_arrayptr)
+						ws->message_arrayptr = allocatemem(message.size() + 1, true, ScriptType::None, -1);
 
 					if (message_type == WebSocketMessageType::Text)
-						ArrayH::setArray(ws->message_arrayptr, message, false);
+						ArrayH::setArray(ws->message_arrayptr, message, true);
 					else
-						ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, false);
+						ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, true);
 
 					set_register(sarg1, ws->message_arrayptr * 10000);
 				}
@@ -44627,6 +44630,13 @@ void FFScript::do_atoi(const bool v)
 	string str;
 	ArrayH::getString(arrayptr, str);
 	set_register(sarg1, (atoi(str.c_str()) * 10000));
+}
+void FFScript::do_atol(const bool v)
+{
+	int32_t arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	ArrayH::getString(arrayptr, str);
+	set_register(sarg1, (atoi(str.c_str())));
 }
 
 void FFScript::do_strstr()
