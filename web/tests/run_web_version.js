@@ -6,7 +6,7 @@ const buildFolder = process.argv[2];
 const target = process.argv[3];
 const args = process.argv.slice(4);
 
-const server = statikk({
+const server = await statikk({
   coi: true,
   root: `${buildFolder}/packages/web`,
 });

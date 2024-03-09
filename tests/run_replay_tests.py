@@ -409,7 +409,7 @@ if is_web:
         text=True,
     )
     while webserver_p.poll() == None:
-        if 'Served by' in webserver_p.stdout.readline():
+        if 'serving up' in webserver_p.stdout.readline():
             break
     print('webserver started')
 
