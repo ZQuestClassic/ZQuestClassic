@@ -129,6 +129,8 @@ jobs:
           path: ${{ github.workspace }}/tests/compare-report
 
   web:
+    # Skipped in 2.55 release branch, not needed.
+    if: false
     needs: warm-lfs-cache
     runs-on: ubuntu-22.04
 
