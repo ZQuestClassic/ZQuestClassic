@@ -706,6 +706,9 @@ untyped : A special datatype that can be cast to and from any other type.
 	randgen :
 		Object type for seeded random number generation.
 	
+	websocket :
+		Object type for websocket communication (online)
+	
 	bottledata :
 		Object type for modifying bottle type data
 	
@@ -3817,6 +3820,10 @@ randgen LoadRNG();
  * Opens a free random number generator and returns it.
  * Be sure to '->Free()' it when you are done with it!
 
+websocket LoadWebsocket(char32[] url);
+ * Opens a websocket to the target URL.
+ * URL should begin with 'ws://' or 'wss://' (unsecure, or secure)
+
 stack LoadStack();
  * Opens a free stack object and returns it.
  * Be sure to '->Free()' it when you are done with it!
@@ -4477,6 +4484,42 @@ void Own();
  * When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the pointer will be automatically freed.
 
+/////////////////////
+///   websocket   ///
+/////////////////////
+
+int State;
+ * Read-Only. Returns the current state of the socket.
+ * Compare with the `WEBSOCKET_STATE_` constants.
+
+bool HasMessage;
+ * Read-Only. True if the socket has a message waiting to be received.
+
+void GetError(char32[] buf);
+ * Gets the current socket error message (if any)
+
+void Send(untyped[] buf, long type = WEBSOCKET_MESSAGE_TYPE_TEXT);
+ * Sends a message over the socket.
+ * 'type' is a `WEBSOCKET_MESSAGE_TYPE_` constant.
+ * WEBSOCKET_MESSAGE_TYPE_TEXT: send a string
+ * WEBSOCKET_MESSAGE_TYPE_BINARY: send an array
+
+untyped[] Receive();
+ * If there's a message waiting to be received (see HasMessage),
+ *     returns a pointer to the websocket's internal data array.
+ * If no message is waiting, returns NULL.
+ * Calling 'Receive()' again will overwrite the contents of this array.
+ * The array will be destroyed automatically when the websocket is freed.
+
+void Free();
+ * This will deallocate the websocket pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many websocket pointers may be allocated at once,
+ *     so be sure to free them when you are no longer using them.
+
+void Own();
+ * Grants 'Ownership' of the pointer to the currently running script.
+ * When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the pointer will be automatically freed.
 
 /************************************************************************************************************/
 

@@ -40278,6 +40278,11 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if (auto ws = user_websockets.check(ri->websocketref, "Receive()"))
 				{
+					if (!ws->has_message())
+					{
+						set_register(sarg1, 0);
+						break;
+					}
 					std::string message = ws->receive_message();
 					auto message_type = ws->last_message_type;
 
