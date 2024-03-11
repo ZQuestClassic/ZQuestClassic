@@ -2508,23 +2508,23 @@ public:
 	}
 	
 	template <typename T>
-	static int32_t getArray(const int32_t ptr, const word size, T *refArray)
+	static int32_t getArray(const int32_t ptr, const size_t size, T *refArray)
 	{
 		return getArray(ptr, size, 0, 0, 0, refArray);
 	}
 	
 	template <typename T>
-	static int32_t getArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+	static int32_t getArray(const int32_t ptr, const size_t size, size_t userOffset, const size_t userStride, const size_t refArrayOffset, T *refArray)
 	{
 		ArrayManager am(ptr);
 		
 		if (am.invalid())
 			return _InvalidPointer;
 			
-		word j = 0, k = userStride;
+		size_t j = 0, k = userStride;
 		
 		size_t sz = am.size();
-		for(word i = 0; j < size; i++)
+		for(size_t i = 0; j < size; i++)
 		{
 			if(i >= sz)
 				return _Overflow;
@@ -2552,7 +2552,7 @@ public:
 		if (am.invalid())
 			return _InvalidPointer;
 		
-		word i;
+		size_t i;
 		
 		if(am.can_resize() && resize)
 			am.resize_min(s2.size()+1);
@@ -2578,13 +2578,13 @@ public:
 	
 	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, T *refArray, bool x10k = true, bool resize = false)
+	static int32_t setArray(const int32_t ptr, const size_t size, T *refArray, bool x10k = true, bool resize = false)
 	{
 		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
 	}
 	
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
+	static int32_t setArray(const int32_t ptr, const size_t size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
 	{
 		ArrayManager am(ptr);
 		
