@@ -143,9 +143,9 @@ POP REFWEBSOCKET
 SETR d2,WEBSOCKET_HAS_MESSAGE
 COMPAREV d2,0
 GOTOCMP 223,==; Test 'while'
-LOAD d2,0.0007; InlineFunc[long WebSocket->Receive()] Params Start AND while() #9 Body Start
-SETR REFWEBSOCKET,d2; InlineFunc[long WebSocket->Receive()] Params End
-WEBSOCKET_RECEIVE d2; InlineFunc[long WebSocket->Receive()] Body
+LOAD d2,0.0007; InlineFunc[untyped WebSocket->Receive()] Params Start AND while() #9 Body Start
+SETR REFWEBSOCKET,d2; InlineFunc[untyped WebSocket->Receive()] Params End
+WEBSOCKET_RECEIVE d2; InlineFunc[untyped WebSocket->Receive()] Body
 STORE d2,0.0005
 LOAD d2,0.0007
 PUSHR d2
