@@ -1223,8 +1223,26 @@ void SemanticAnalyzer::caseExprIdentifier(
 	if(host.binding) return; //Skip if already handled
 	// Bind to named variable.
 	host.binding = lookupDatum(*scope, host, this);
-	if(!host.binding && parsing_user_class > puc_vars)
-		host.binding = lookupClassVars(*scope, host, this);
+	if(parsing_user_class > puc_vars)
+	{
+		bool class_bind = true;
+		if(host.binding)
+		{
+			for(Scope* current = &host.binding->scope; current; current = current->getParent())
+			{
+				if(current->isClass())
+				{
+					class_bind = false;
+					break;
+				}
+			}
+		}
+		if(class_bind)
+		{
+			if(UserClassVar* var = lookupClassVars(*scope, host, this))
+				host.binding = var;
+		}
+	}
 	if (!host.binding)
 	{
 		handleError(CompileError::VarUndeclared(&host, host.asString()));
