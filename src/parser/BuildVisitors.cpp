@@ -1987,13 +1987,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		auto it = funcCode.begin();
 		while(OPopRegister* ocode = dynamic_cast<OPopRegister*>(it->get()))
 		{
-			VarArgument const* destreg = static_cast<VarArgument*>(ocode->getArgument());
+			Argument const* destreg = ocode->getArgument();
 			//Optimize
 			Opcode* lastop = optarg->back().get();
 			if(OPushRegister* tmp = dynamic_cast<OPushRegister*>(lastop))
 			{
-				VarArgument const* arg = static_cast<VarArgument*>(tmp->getArgument());
-				if(arg->ID == destreg->ID) //Same register!
+				Argument const* arg = tmp->getArgument();
+				if(*arg == *destreg) //Same register!
 				{
 					optarg->pop_back();
 				}
@@ -4029,8 +4029,8 @@ void BuildOpcodes::push_param(bool varg)
 	Opcode* lastop = optarg->back().get();
 	if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
 	{
-		VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
-		if(destreg->ID == EXP1)
+		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getFirstArgument());
+		if(destreg && destreg->ID == EXP1)
 		{
 			reg = tmp->getSecondArgument()->clone();
 			optarg->pop_back();
@@ -4038,8 +4038,8 @@ void BuildOpcodes::push_param(bool varg)
 	}
 	else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
 	{
-		VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
-		if(destreg->ID == EXP1)
+		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getFirstArgument());
+		if(destreg && destreg->ID == EXP1)
 		{
 			lit = tmp->getSecondArgument()->clone();
 			optarg->pop_back();
@@ -4047,8 +4047,8 @@ void BuildOpcodes::push_param(bool varg)
 	}
 	else if(OPopRegister* tmp = dynamic_cast<OPopRegister*>(lastop))
 	{
-		VarArgument* destreg = static_cast<VarArgument*>(tmp->getArgument());
-		if(destreg->ID == EXP1)
+		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getArgument());
+		if(destreg && destreg->ID == EXP1)
 		{
 			optarg->pop_back();
 			return; //skip end
