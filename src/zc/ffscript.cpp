@@ -22911,7 +22911,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, (indx+1)); \
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
@@ -22919,7 +22919,7 @@ void set_register(int32_t arg, int32_t value)
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised",	str); \
 			} \
 			break; \
 		} \
@@ -22929,7 +22929,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, (indx+1)); \
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
@@ -22937,7 +22937,7 @@ void set_register(int32_t arg, int32_t value)
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised",str); \
 			} \
 			break; \
 		} \
@@ -22948,11 +22948,11 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
 			if(indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, (indx+1)); \
 			} \
 			else if(v < min || v > max ) \
 			{ \
-				Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", (indx+1), str); \
+				Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", str, (indx+1)); \
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
@@ -22960,7 +22960,7 @@ void set_register(int32_t arg, int32_t value)
 			} \
 			else \
 			{ \
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised",str); \
 			} \
 			break; \
 		} \
@@ -23195,7 +23195,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = (ri->d[rINDEX] / 10000)-1;
 			if(indx < 0 || indx > MAXFFCS-1 )
 			{
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "FFCData");
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", "FFCData", (indx+1));
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
