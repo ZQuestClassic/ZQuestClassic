@@ -40688,6 +40688,7 @@ void FFScript::user_paldata_init()
 void FFScript::user_websockets_init()
 {
 	user_websockets.clear();
+	websocket_pool_destroy();
 }
 
 // Gotten from 'https://fileinfo.com/filetypes/executable'
@@ -42808,7 +42809,6 @@ void FFScript::init()
 	jitted_scripts.clear();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
-	websocket_pool_destroy();
 }
 
 void FFScript::shutdown()
