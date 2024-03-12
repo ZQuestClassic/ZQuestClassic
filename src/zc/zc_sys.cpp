@@ -6,6 +6,7 @@
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include <functional>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -7307,12 +7308,12 @@ static NewMenu game_menu
 
 static NewMenu snapshot_format_menu
 {
-	{ "&BMP", onSetSnapshotFormat },
-	{ "&GIF", onSetSnapshotFormat },
-	{ "&JPG", onSetSnapshotFormat },
-	{ "&PNG", onSetSnapshotFormat },
-	{ "PC&X", onSetSnapshotFormat },
-	{ "&TGA", onSetSnapshotFormat },
+	{ "&BMP", std::bind(onSetSnapshotFormat, ssfmtBMP) },
+	{ "&GIF", std::bind(onSetSnapshotFormat, ssfmtGIF) },
+	{ "&JPG", std::bind(onSetSnapshotFormat, ssfmtJPG) },
+	{ "&PNG", std::bind(onSetSnapshotFormat, ssfmtPNG) },
+	{ "PC&X", std::bind(onSetSnapshotFormat, ssfmtPCX) },
+	{ "&TGA", std::bind(onSetSnapshotFormat, ssfmtTGA) },
 };
 
 static NewMenu controls_menu
@@ -7661,41 +7662,11 @@ void fix_menu()
 		settings_menu.chop_index = 13;
 }
 
-int32_t onSetSnapshotFormat()
+int32_t onSetSnapshotFormat(SnapshotType format)
 {
-	switch(active_menu->text[1])
-	{
-	case 'B': //"&BMP"
-		SnapshotFormat=0;
-		break;
-		
-	case 'G': //"&GIF"
-		SnapshotFormat=1;
-		break;
-		
-	case 'J': //"&JPG"
-		SnapshotFormat=2;
-		break;
-		
-	case 'P': //"&PNG"
-		SnapshotFormat=3;
-		break;
-		
-	case 'C': //"PC&X"
-		SnapshotFormat=4;
-		break;
-		
-	case 'T': //"&TGA"
-		SnapshotFormat=5;
-		break;
-		
-	case 'L': //"&LBM"
-		SnapshotFormat=6;
-		break;
-	}
-	zc_set_config("zeldadx", "snapshot_format", SnapshotFormat);
-	
-	snapshot_format_menu.select_only_index(SnapshotFormat);
+	SnapshotFormat = format;
+	zc_set_config("zeldadx", "snapshot_format", format);
+	snapshot_format_menu.select_only_index(format);
 	return D_O_K;
 }
 
