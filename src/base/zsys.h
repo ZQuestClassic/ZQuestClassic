@@ -72,7 +72,7 @@ int32_t anim_3_4(int32_t clk, int32_t speed);
 
 int32_t bound(int32_t &x,int32_t low,int32_t high);
 
-enum {ssfmtBMP, ssfmtGIF, ssfmtJPG, ssfmtPNG, ssfmtPCX, ssfmtTGA, ssfmtMAX };
+enum SnapshotType {ssfmtBMP, ssfmtGIF, ssfmtJPG, ssfmtPNG, ssfmtPCX, ssfmtTGA, ssfmtMAX };
 extern char *snapshotformat_str[ssfmtMAX][2];
 extern const char *snapshotformatlist(int32_t index, int32_t *list_size);
 

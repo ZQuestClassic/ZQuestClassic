@@ -3,6 +3,7 @@
 
 #include "base/zdefs.h"
 #include "base/jwinfsel.h"
+#include "base/zsys.h"
 #include "sound/zcmusic.h"
 
 extern bool is_sys_pal;
@@ -248,7 +249,7 @@ void stop_sfx(int32_t index);
 void stop_item_sfx(int32_t family);
 void kill_sfx();
 int32_t  pan(int32_t x);
-int32_t  onSetSnapshotFormat();
+int32_t  onSetSnapshotFormat(SnapshotType format);
 void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t color, int32_t timer);
 int32_t onKeyboardEntry();
 int32_t onLetterGridEntry();
