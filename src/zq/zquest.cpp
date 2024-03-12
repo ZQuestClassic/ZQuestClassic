@@ -14558,8 +14558,8 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
             {
                 new_return(17);
             }
-            
-            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+
+			if(!p_putwstr(DMaps[i].title,f))
             {
                 new_return(18);
             }
@@ -14753,8 +14753,7 @@ int32_t readsomedmaps(PACKFILE *f)
 	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
-	dmap tempdmap;
-	tempdmap.clear();
+	dmap tempdmap{};
 	
 	int32_t first = 0, last = 0, max = 0, count = 0;
 	int32_t datatype_version = 0;
@@ -14899,11 +14898,23 @@ int32_t readsomedmaps(PACKFILE *f)
 		    {
 			return 0;
 		    }
-		    
-		    if(!pfread(&tempdmap.title,sizeof(DMaps[0].title),f))
-		    {
-			return 0;
-		    }
+
+			if (section_version<20)
+			{
+				char title[22];
+				if (!p_getstr(title, sizeof(title) - 1, f))
+				{
+					return 0;
+				}
+				tempdmap.title.assign(title);
+			}
+			else
+			{
+				if (!p_getwstr(&tempdmap.title, f))
+				{
+					return 0;
+				}
+			}
 		    
 		    if(!pfread(&tempdmap.intro,sizeof(DMaps[0].intro),f))
 		    {
@@ -15085,6 +15096,7 @@ int32_t readsomedmaps(PACKFILE *f)
 					}
 				}
 			}
+			DMaps[i].clear();
 			DMaps[i] = tempdmap;
 	    }
        
@@ -15374,8 +15386,7 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 	dword section_cversion = 0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
-	dmap tempdmap;
-	tempdmap.clear();
+	dmap tempdmap{};
 	int32_t datatype_version = 0;
 	int32_t first = 0;
 	int32_t last = 0;
@@ -15511,7 +15522,24 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
             {
                 return 0;
             }
-            
+
+			if (section_version<20)
+			{
+				char title[22];
+				if (!p_getstr(title, sizeof(title) - 1, f))
+				{
+					return 0;
+				}
+				tempdmap.title.assign(title);
+			}
+			else
+			{
+				if (!p_getwstr(&tempdmap.title, f))
+				{
+					return 0;
+				}
+			}
+
             if(!pfread(&tempdmap.title,sizeof(DMaps[0].title),f))
             {
                 return 0;
