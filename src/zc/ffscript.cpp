@@ -30426,34 +30426,37 @@ void do_getscreennpc()
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
 
-void do_isvalidarray()
+bool is_valid_array(int32_t ptr)
 {
-	int32_t ptr = get_register(sarg1)/10000;
-	
-	set_register(sarg1,0);
-	
-	if(!ptr) return;
+	if(!ptr) return false;
 	
 	if(ptr < 0) //An object array?
 	{
 		int32_t objptr = -ptr;
 		auto it = objectRAM.find(objptr);
 		if(it == objectRAM.end())
-			return;
-		set_register(sarg1,10000);
+			return false;
+		return true;
 	}
 	else if(ptr >= NUM_ZSCRIPT_ARRAYS) //check global
 	{
 		dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 		
 		if(gptr > game->globalRAM.size())
-			return;
-		else set_register(sarg1,game->globalRAM[gptr].Valid() ? 10000 : 0);
+			return false;
+		else return game->globalRAM[gptr].Valid();
 	}
 	else
 	{
-		set_register(sarg1,localRAM[ptr].Valid() ? 10000 : 0); 
+		return localRAM[ptr].Valid();
 	}
+}
+
+void do_isvalidarray()
+{
+	int32_t ptr = get_register(sarg1)/10000;
+	
+	set_register(sarg1,is_valid_array(ptr) ? 10000 : 0);
 }
 
 void do_isvaliditem()
@@ -40281,7 +40284,7 @@ int32_t run_script_int(bool is_jitted)
 					std::string message = ws->receive_message();
 					auto message_type = ws->last_message_type;
 
-					if (!ws->message_arrayptr)
+					if(!(ws->message_arrayptr && is_valid_array(ws->message_arrayptr)))
 						ws->message_arrayptr = allocatemem(message.size() + 1, true, ScriptType::None, -1);
 
 					if (message_type == WebSocketMessageType::Text)
