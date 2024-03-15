@@ -1,7 +1,7 @@
 import argparse
+import os
 import subprocess
 import time
-import os
 
 
 def str2bool(v):
@@ -65,7 +65,7 @@ else:
 
 if args.full_release:
     previous_release_tag = subprocess.check_output(
-        'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8')
+        'git describe --tags --abbrev=0 --match "2.55-*" --match "2.55.*"', shell=True, encoding='utf-8')
 else:
     previous_release_tag = subprocess.check_output(
         'git describe --tags --abbrev=0', shell=True, encoding='utf-8')
