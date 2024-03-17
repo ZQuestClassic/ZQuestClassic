@@ -202,6 +202,7 @@ def collect_licenses(package_dir: Path):
         'LICENSE',
         'LICENSE-BSD',
         'LICENSE-MIT',
+        'LICENSE.MIT',
         'LICENSE-Boost',
         'AUTHORS',
         'CREDITS',

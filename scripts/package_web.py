@@ -85,9 +85,12 @@ else:
 for f in dist_dir.rglob('*-e'):
     f.unlink()
 
-os.system(
+code = os.system(
     f'cd {dist_dir} && {web_dir / "node_modules/.bin/workbox"} generateSW {web_dir / "workbox-config.cjs"}'
 )
+if code != 0:
+    print('failed to make sw.js')
+    exit(code)
 
 copy_from_build('{main.js,main.js.map}', '')
 copy_from_build('{zplayer.data,zplayer.data.js}', '')

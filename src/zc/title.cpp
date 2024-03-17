@@ -1629,6 +1629,11 @@ void titlescreen(int32_t lsave)
 		else
 		{
 			int slot = lsave - 1;
+			if (!saves_is_valid_slot(slot))
+			{
+				Z_error_fatal("Cannot load slot %d, does not exist", lsave);
+			}
+
 			if (saves_get_slot(slot)->header->quest)
 			{
 				saves_select(slot);

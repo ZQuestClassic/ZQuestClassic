@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 import * as url from 'url';
 import puppeteer from 'puppeteer';
 import { setupConsoleListener } from './utils.js';
@@ -110,7 +109,6 @@ async function runReplay(zplay) {
 
   await consoleListener.waitFor(/Replay is active/);
 
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zc-replays-'));
   async function getResultFile() {
     const result = await page.evaluate((zplay) => {
       if (!FS.findObject(`${zplay}.result.txt`)) {
@@ -127,6 +125,7 @@ async function runReplay(zplay) {
     await getResultFile();
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
+  await new Promise(resolve => setTimeout(resolve, 1000));
   await getResultFile();
 
   await page.addScriptTag({ content: fs.readFileSync(`${dirname}/buffer.js`).toString() });

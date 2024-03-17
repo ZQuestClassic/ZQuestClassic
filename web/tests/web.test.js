@@ -53,7 +53,7 @@ before(async () => {
       pageErrors.push(error);
     }
   });
-  server = statikk({
+  server = await statikk({
     coi: true,
     root: (process.env.BUILD_FOLDER || '../build_emscripten/Release') + '/packages/web',
   });

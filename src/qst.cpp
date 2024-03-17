@@ -4632,6 +4632,9 @@ void clear_screen(mapscr *temp_scr)
 	temp_scr->zero_memory();
 }
 
+// NOTE: when modifying this, you need to also update:
+//    readonedmap, readdmaps, and FFScript::read_dmaps
+// (and their associated write functions)
 int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_dmaps);
@@ -4830,13 +4833,10 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			}
 			else
 			{
-				std::string tmptitle;
-				if (!p_getwstr(&tmptitle, f))
+				if (!p_getwstr(&tempDMap.title, f))
 				{
 					return qe_invalid;
 				}
-				tempDMap.title.reserve(tmptitle.size());
-				tempDMap.title = tmptitle;
 			}
 			
 			if(!p_getstr(tempDMap.intro,sizeof(DMaps[0].intro)-1,f))

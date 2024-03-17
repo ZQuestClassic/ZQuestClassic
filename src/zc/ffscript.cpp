@@ -3410,28 +3410,6 @@ void bad_subwidg_type(string const& name, bool func, byte type)
 		func ? "function" : "value");
 }
 
-int32_t get_screen_d(int32_t index1, int32_t index2)
-{
-	if(index2 < 0 || index2 > 7)
-	{
-		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
-		return 0;
-	}
-	
-	return game->screen_d[index1][index2];
-}
-
-void set_screen_d(int32_t index1, int32_t index2, int32_t val)
-{
-	if(index2 < 0 || index2 > 7)
-	{
-		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
-		return;
-	}
-	
-	game->screen_d[index1][index2] = val;
-}
-
 // If scr is currently being used as a layer, return that layer no.
 int32_t whichlayer(int32_t scr)
 {
@@ -41674,6 +41652,11 @@ int32_t FFScript::get_screen_d(int32_t index1, int32_t index2)
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
 		return 0;
 	}
+	if (index1 < 0 || index1 >= game->screen_d.size())
+	{
+		Z_scripterrlog("You were trying to reference an out-of-bounds screen for a D[] array (%ld); valid indices are from 0 to %ld.\n", index1, game->screen_d.size() - 1);
+		return 0;
+	}
 	
 	return game->screen_d[index1][index2];
 }
@@ -41683,6 +41666,11 @@ void FFScript::set_screen_d(int32_t index1, int32_t index2, int32_t val)
 	if(index2 < 0 || index2 > 7)
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+		return;
+	}
+	if (index1 < 0 || index1 >= game->screen_d.size())
+	{
+		Z_scripterrlog("You were trying to reference an out-of-bounds screen for a D[] array (%ld); valid indices are from 0 to %ld.\n", index1, game->screen_d.size() - 1);
 		return;
 	}
 	
@@ -46145,10 +46133,10 @@ void FFScript::write_dmaps(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",15);
 			}
 			
-			if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",16);
-			}
+			if(!p_putwstr(DMaps[i].title,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",16);
+            }
 			
 			if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
 			{
@@ -46333,7 +46321,7 @@ void FFScript::read_dmaps(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",15);
 			}
 			
-			if(!pfread((&DMaps[i].title),sizeof(DMaps[0].title),f))
+			if (!p_getwstr(&DMaps[i].title, f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",16);
 			}
