@@ -133,7 +133,7 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
 endfunction(enable_unity_build)
 
 #############################################################
-# zlib/libpng
+# deps
 #############################################################
 
 if(NOT EMSCRIPTEN)
@@ -174,6 +174,10 @@ if(NOT EMSCRIPTEN)
 		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 	endif()
 endif()
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+# target_link_libraries(foo PRIVATE nlohmann_json::nlohmann_json)
 
 #############################################################
 # Allegro
@@ -838,9 +842,9 @@ if(CURL_FOUND AND WIN32)
 
 	target_link_libraries(zupdater PRIVATE CURL::libcurl)
 
-	add_library(json INTERFACE third_party/json/json/json.h)
-	target_include_directories(json INTERFACE third_party/json)
-	target_link_libraries(zupdater PRIVATE json)
+	# add_library(json INTERFACE third_party/json/json/json.h)
+	# target_include_directories(json INTERFACE third_party/json)
+	target_link_libraries(zupdater PRIVATE nlohmann_json::nlohmann_json)
 
 	set(BUILD_SHARED_LIBS_PREV BUILD_SHARED_LIBS)
 	set(BUILD_SHARED_LIBS OFF)

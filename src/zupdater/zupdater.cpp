@@ -17,10 +17,10 @@
 
 #ifndef UPDATER_USES_PYTHON
 #include <curl/curl.h>
-#include "json/json.h"
+#include <nlohmann/json.hpp>
 #include "miniz.h"
 
-using giri::json::JSON;
+using json = nlohmann::json;
 
 struct MemoryStruct {
   char *memory;
@@ -184,18 +184,16 @@ static std::tuple<std::string, std::string> get_next_release()
 
 	curl_easy_cleanup(curl_handle);
 
-	std::error_code ec;
-	auto json = JSON::Load(chunk.memory, ec);
-
 	std::string tag_name, asset_url;
-	if (!ec)
+	if (auto data = json::parse(chunk.memory, nullptr, false); !data.is_discarded())
 	{
-		tag_name = json["tagName"].ToString();
-		for (auto& asset_json : json["assets"].ArrayRange())
+		tag_name = data["tagName"].template get<std::string>();
+		for (auto& asset_json : data["assets"])
 		{
-			if (asset_json["name"].ToString().find(platform) != std::string::npos)
+			std::string name = asset_json["name"].template get<std::string>();
+			if (name.find(platform) != std::string::npos)
 			{
-				asset_url = asset_json["url"].ToString();
+				asset_url = asset_json["url"].template get<std::string>();
 				break;
 			}
 		}
