@@ -68,16 +68,15 @@ ArrayOwner::ArrayOwner() : user_abstract_obj(),
 	specOwned(false), specCleared(false)
 {}
 
-void ArrayOwner::clear()
+void ArrayOwner::reset()
 {
-	user_abstract_obj::clear();
 	specOwned = false;
 	specCleared = false;
 }
 
 void ArrayOwner::reown(ScriptType ty, int32_t i)
 {
-	clear();
+	reset();
 	own(ty,i);
 }
 
@@ -197,6 +196,7 @@ void user_object::save_arrays(std::map<int32_t,ZScriptArray>& arrs)
 void user_object::clear_nodestruct()
 {
 	disown();
+	// TODO: move to dtor
 	if(data.size() > owned_vars) //owns arrays!
 	{
 		for(auto ind = owned_vars; ind < data.size(); ++ind)
@@ -206,13 +206,12 @@ void user_object::clear_nodestruct()
 		}
 	}
 	data.clear();
-	reserved = false;
 	owned_vars = 0;
 	destruct.clear();
 }
-void user_object::clear()
+
+user_object::~user_object()
 {
 	destruct.execute();
 	clear_nodestruct();
 }
-

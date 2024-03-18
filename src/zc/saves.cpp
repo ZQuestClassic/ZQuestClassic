@@ -969,14 +969,14 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				return 83;
 			for(uint32_t objind = 0; objind < sz; ++objind)
 			{
-				saved_user_object& s_ob = game.user_objects.emplace_back();
-				if(!p_igetl(&s_ob.object_index,f))
+				saved_user_object s_ob;
+				if(!p_igetl(&s_ob.obj.id,f))
 					return 84;
 				//user_object
 				user_object& obj = s_ob.obj;
 				if(!p_getc(&tempbyte,f))
 					return 85;
-				obj.reserved = tempbyte!=0;
+				bool reserved = tempbyte!=0;
 				//Don't need to save owned_type,owned_i?
 				uint32_t datsz;
 				if(!p_igetl(&datsz,f))
@@ -1028,6 +1028,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					}
 					map[arr_index] = zsarr;
 				}
+
+				if (reserved)
+					game.user_objects.emplace_back(s_ob);
 			}
 		}
 		if(section_version >= 32)
@@ -1321,11 +1324,12 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 83;
 	for(saved_user_object const& s_ob : game.user_objects)
 	{
-		if(!p_iputl(s_ob.object_index,f))
+		if(!p_iputl(s_ob.obj.id,f))
 			return 84;
 		//user_object
 		user_object const& obj = s_ob.obj;
-		if(!p_putc(obj.reserved?1:0,f))
+		// removed: obj.reserved
+		if(!p_putc(1,f))
 			return 85;
 		//Don't need to save owned_type,owned_i?
 		uint32_t datsz = obj.data.size();

@@ -7,9 +7,23 @@
 
 enum class ScriptType;
 
+enum class script_object_type
+{
+	bitmap,
+	dir,
+	file,
+	object,
+	paldata,
+	rng,
+	stack,
+	websocket,
+};
+
 struct user_abstract_obj
 {
 	virtual bool operator==(user_abstract_obj const&) const = default;
+	script_object_type type;
+	uint32_t id;
 	ScriptType owned_type;
 	int32_t owned_i;
 	
@@ -18,7 +32,8 @@ struct user_abstract_obj
 	user_abstract_obj(ScriptType owned_type, int32_t owned_i)
 		: owned_type(owned_type), owned_i(owned_i)
 	{}
-	
+	virtual ~user_abstract_obj() = default;
+
 	void disown()
 	{
 		owned_type = ScriptType::None;
@@ -30,7 +45,6 @@ struct user_abstract_obj
 	}
 	virtual void free_obj()
 	{
-		clear();
 	}
 	
 	void own(ScriptType type, int32_t i);
@@ -44,7 +58,7 @@ struct ArrayOwner : user_abstract_obj
 	ArrayOwner();
 	bool specOwned;
 	bool specCleared;
-	virtual void clear() override;
+	void reset();
 	void reown(ScriptType ty, int32_t i);
 };
 
@@ -67,14 +81,9 @@ struct scr_func_exec
 };
 struct user_object : public user_abstract_obj
 {
-	bool reserved;
 	std::vector<int32_t> data;
 	size_t owned_vars;
 	scr_func_exec destruct;
-	
-	user_object() : user_abstract_obj(),
-		reserved(false), owned_vars(0)
-	{}
 	
 	void prep(dword pc, ScriptType type, word script, int32_t i);
 	
@@ -87,14 +96,13 @@ struct user_object : public user_abstract_obj
 	
 	#ifdef IS_PLAYER
 	void clear_nodestruct();
-	virtual void clear() override;
+	~user_object();
 	#endif
 };
 struct saved_user_object
 {
 	bool operator==(const saved_user_object&) const = default;
 
-	int32_t object_index;
 	user_object obj;
 	std::map<int32_t,ZScriptArray> held_arrays;
 };

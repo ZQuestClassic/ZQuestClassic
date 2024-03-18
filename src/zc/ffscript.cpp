@@ -1,8 +1,10 @@
+#include <cstdint>
 #include <deque>
 #include <string>
 #include <sstream>
 #include <math.h>
 #include <cstdio>
+#include <ranges>
 //
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -111,74 +113,147 @@ FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
 
-template <typename T, size_t Max>
+static std::map<uint32_t, std::unique_ptr<user_abstract_obj>> script_objects;
+static std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
+static std::vector<uint32_t> next_script_object_id_freelist;
+
+uint32_t get_next_script_object_id()
+{
+	const auto ID_FREELIST_FILL_AMOUNT = 1000;
+
+	if (next_script_object_id_freelist.empty())
+	{
+		// Don't start at 1 because the first objects are expected to remain allocated.
+		uint32_t id = 1000;
+		while (next_script_object_id_freelist.size() < ID_FREELIST_FILL_AMOUNT)
+		{
+			if (!script_objects.contains(id))
+				next_script_object_id_freelist.push_back(id);
+			id++;
+		}
+	}
+
+	// ~4 billion objects is a lot, so it's unlikely this condition will ever be true.
+	// But just in case...
+	if (next_script_object_id_freelist.empty())
+		Z_error_fatal("Ran out of storage for script objects\n");
+
+	auto id = next_script_object_id_freelist.back();
+	next_script_object_id_freelist.pop_back();
+	return id;
+}
+
+template <typename T>
+static T* create_script_object(script_object_type type, uint32_t id = -1)
+{
+	if (id == -1)
+		id = get_next_script_object_id();
+
+	auto object = new T{};
+	object->type = type;
+	object->id = id;
+	script_objects[id] = std::unique_ptr<T>(object);
+	script_object_ids_by_type[type].push_back(id);
+
+	return object;
+}
+
+void init_script_objects()
+{
+	next_script_object_id_freelist.clear();
+	for (uint32_t i = 1; i < 1000; i++)
+		next_script_object_id_freelist.push_back(i);
+	script_objects.clear();
+	script_object_ids_by_type.clear();
+	FFCore.user_bitmaps_init();
+}
+
+static void delete_script_object(uint32_t id)
+{
+	auto it = script_objects.find(id);
+	if (it == script_objects.end())
+		return;
+
+	auto type = it->second->type;
+	auto& type_ids = script_object_ids_by_type[type];
+	type_ids.erase(std::remove(type_ids.begin(), type_ids.end(), id), type_ids.end());
+	script_objects.erase(it);
+
+	if (next_script_object_id_freelist.size() < 10000)
+		next_script_object_id_freelist.push_back(id);
+}
+
+template <typename T, uint32_t Max>
 struct UserDataContainer
 {
+	script_object_type type;
 	const char* name;
-	T datas[Max];
 
-	T& operator[](size_t index)
+	T& operator[](uint32_t id)
 	{
-		return datas[index];
+		auto& t = script_objects.at(id);
+		assert(t->type == type);
+		T* ptr = dynamic_cast<T*>(t.get());
+		return *ptr;
 	}
 
 	void clear()
 	{
-		for (int32_t i = 0; i < Max; ++i)
+		auto ids = script_object_ids_by_type[type];
+		for (auto id : ids)
 		{
-			datas[i] = {};
+			clear(id);
 		}
 	}
 
-	void clear(size_t index)
+	void clear(uint32_t id)
 	{
-		if(index < Max)
-			datas[index] = {};
+		delete_script_object(id);
 	}
 
-	int32_t get_free(bool skipError = false)
+	T* create(bool skipError = false)
 	{
-		for (int32_t i = 0; i < Max; ++i)
+		if (script_object_ids_by_type[type].size() >= Max)
 		{
-			if (!datas[i].reserved)
-			{
-				// This breaks stellar seas replay at frame 502 ...
-				// datas[i] = {};
-				datas[i].reserved = true;
-				return i+1; //1-indexed; 0 is null value
-			}
+			if (!skipError) Z_scripterrlog("could not find a valid free %s pointer!\n", name);
+			return nullptr;
 		}
-		if (!skipError) Z_scripterrlog("could not find a valid free %s pointer!\n", name);
-		return 0;
+
+		return create_script_object<T>(type);
 	}
 
-	T* check(int32_t ref, const char* what, bool skipError = false)
+	uint32_t get_free(bool skipError = false)
 	{
-		if (ref > 0 && ref <= Max)
+		T* object = create(skipError);
+		if (!object) return 0;
+		return object->id;
+	}
+
+	T* check(uint32_t id, const char* what, bool skipError = false)
+	{
+		if (util::contains(script_object_ids_by_type[type], id))
 		{
-			T* data = &datas[ref - 1];
-			if (data->reserved)
-			{
-				return data;
-			}
+			auto& t = script_objects.at(id);
+			return dynamic_cast<T*>(t.get());
 		}
+
 		if (skipError) return NULL;
 
 		Z_scripterrlog("Script attempted to reference a nonexistent %s!\n", name);
 		if (what)
-			Z_scripterrlog("You were trying to reference the '%s' of a %s with UID = %ld\n", what, name, ref);
+			Z_scripterrlog("You were trying to reference the '%s' of a %s with UID = %ld\n", what, name, id);
 		else
-			Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
+			Z_scripterrlog("You were trying to reference with UID = %ld\n", id);
 		return NULL;
 	}
 };
 
-static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {"directory"};
-static UserDataContainer<user_file, MAX_USER_FILES> user_files = {"file"};
-static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {"object"};
-static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {"paldata"};
-static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {"rng"};
-static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {"stack"};
+static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {script_object_type::dir, "directory"};
+static UserDataContainer<user_file, MAX_USER_FILES> user_files = {script_object_type::file, "file"};
+static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_object_type::object, "object"};
+static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {script_object_type::paldata, "paldata"};
+static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {script_object_type::rng, "rng"};
+static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {script_object_type::stack, "stack"};
 
 struct user_websocket : public user_abstract_obj
 {
@@ -188,12 +263,6 @@ struct user_websocket : public user_abstract_obj
 			websocket_pool_close(connection_id);
 		if (message_arrayptr)
 			FFScript::deallocateZScriptArray(message_arrayptr);
-	}
-
-	void clear()
-	{
-		this->~user_websocket();
-		*this = {};
 	}
 
 	bool connect(std::string url)
@@ -238,16 +307,28 @@ struct user_websocket : public user_abstract_obj
 	int connection_id = -1;
 	std::string url;
 	std::string err;
-	bool reserved;
 	int message_arrayptr;
 	WebSocketMessageType last_message_type;
 };
 #define MAX_USER_WEBSOCKETS 3
-static UserDataContainer<user_websocket, MAX_USER_WEBSOCKETS> user_websockets = {"websocket"};
+static UserDataContainer<user_websocket, MAX_USER_WEBSOCKETS> user_websockets = {script_object_type::websocket, "websocket"};
 
-user_object& FFScript::get_user_object(size_t index)
+user_object& FFScript::create_user_object(uint32_t id)
 {
-	return user_objects[index];
+	auto& vec = next_script_object_id_freelist;
+	vec.erase(std::remove(vec.begin(), vec.end(), id), vec.end());
+	create_script_object<user_object>(script_object_type::object, id);
+	return user_objects[id];
+}
+
+std::vector<user_object*> FFScript::get_user_objects()
+{
+	std::vector<user_object*> result;
+	for (auto id : script_object_ids_by_type[user_objects.type])
+	{
+		result.push_back(&user_objects[id]);
+	}
+	return result;
 }
 
 script_bitmaps scb;
@@ -259,25 +340,12 @@ FONT *get_zc_font(int index);
 int32_t combopos_modified = -1;
 static word combo_id_cache[7*176] = {0};
 
-void user_dir::clear()
-{
-	user_abstract_obj::clear();
-	filepath = "";
-	reserved = false;
-	if(list)
-	{
-		list->clear();
-		free(list);
-		list = NULL;
-	}
-}
 void user_dir::setPath(const char* buf)
 {
 	if(!list)
 	{
 		list = (FLIST *) malloc(sizeof(FLIST));
 	}
-	reserved = true;
 	filepath = std::string(buf) + "/";
 	regulate_path(filepath);
 	list->load(filepath.c_str());
@@ -2056,7 +2124,6 @@ int32_t ffmisc[MAXFFCS][16];
 
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;
-static dword max_valid_object;
 
 void user_genscript::clear()
 {
@@ -2113,15 +2180,6 @@ void countGenScripts()
 	{
 		if(genericscripts[q] && genericscripts[q]->valid())
 			max_valid_genscript = q;
-	}
-}
-void countObjects()
-{
-	max_valid_object = 0;
-	for(auto q = 0; q < MAX_USER_OBJECTS; ++q)
-	{
-		if(user_objects[q].reserved)
-			max_valid_object = q+1;
 	}
 }
 void timeExitAllGenscript(byte exState)
@@ -2779,34 +2837,17 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	{
 		scb.script_created_bitmaps[q].own_clear(scriptType, UID);
 	}
-	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
 	{
-		user_rngs[q].own_clear(scriptType, UID);
+		if (script_object->own_clear(scriptType, UID))
+		{
+			ids_to_clear.push_back(script_object->id);
+		}
 	}
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
-	{
-		user_paldatas[q].own_clear(scriptType, UID);
-	}
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		user_files[q].own_clear(scriptType, UID);
-	}
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		user_dirs[q].own_clear(scriptType, UID);
-	}
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		user_stacks[q].own_clear(scriptType, UID);
-	}
-	for(int32_t q = 0; q < max_valid_object; ++q)
-	{
-		user_objects[q].own_clear(scriptType, UID);
-	}
-	for (int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
-	{
-		user_websockets[q].own_clear(scriptType, UID);
-	}
+	for (auto id : ids_to_clear)
+		delete_script_object(id);
 	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
 		//Keep 2.50.2 behavior if QR unchecked.
@@ -2832,34 +2873,18 @@ void FFScript::deallocateAllScriptOwned()
 	{
 		scb.script_created_bitmaps[q].own_clear_any();
 	}
-	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
 	{
-		user_rngs[q].own_clear_any();
+		if (script_object->own_clear_any())
+		{
+			ids_to_clear.push_back(script_object->id);
+		}
 	}
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
-	{
-		user_paldatas[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		user_files[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		user_dirs[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		user_stacks[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < max_valid_object; ++q)
-	{
-		user_objects[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
-	{
-		user_websockets[q].own_clear_any();
-	}
+	for (auto id : ids_to_clear)
+		delete_script_object(id);
+
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
@@ -2878,34 +2903,16 @@ void FFScript::deallocateAllScriptOwnedCont()
 	{
 		scb.script_created_bitmaps[q].own_clear_cont();
 	}
-	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
 	{
-		user_rngs[q].own_clear_cont();
+		if (script_object->own_clear_cont())
+		{
+			ids_to_clear.push_back(script_object->id);
+		}
 	}
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
-	{
-		user_paldatas[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		user_files[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		user_dirs[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		user_stacks[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < max_valid_object; ++q)
-	{
-		user_objects[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
-	{
-		user_websockets[q].own_clear_cont();
-	}
+	for (auto id : ids_to_clear)
+		delete_script_object(id);
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
@@ -30870,8 +30877,17 @@ void FFScript::do_load_subscreendata(const bool v, const bool v2)
 
 void FFScript::do_loadrng()
 {
-	ri->rngref = user_rngs.get_free();
-	ri->d[rEXP1] = ri->rngref;
+	auto rng = user_rngs.create();
+	if (!rng)
+	{
+		ri->d[rEXP1] = 0;
+		return;
+	}
+
+	int q = script_object_ids_by_type[script_object_type::rng].size() - 1;
+	rng->gen = &script_rnggens[q];
+	ri->rngref = rng->id;
+	ri->d[rEXP1] = rng->id;
 }
 
 void FFScript::do_loaddirectory()
@@ -30964,12 +30980,6 @@ void FFScript::do_loadgenericdata(const bool v)
 void FFScript::do_create_paldata()
 {
 	ri->paldataref = user_paldatas.get_free();
-	if (ri->paldataref > 0)
-	{
-		user_paldata* pd = &user_paldatas[ri->paldataref - 1];
-		for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
-			pd->colors_used[q] = 0;
-	}
 	ri->d[rEXP1] = ri->paldataref;
 }
 
@@ -30978,7 +30988,7 @@ void FFScript::do_create_paldata_clr()
 	ri->paldataref = user_paldatas.get_free();
 	if (ri->paldataref > 0)
 	{
-		user_paldata* pd = &user_paldatas[ri->paldataref - 1];
+		user_paldata& pd = user_paldatas[ri->paldataref];
 		int32_t clri = get_register(sarg1);
 
 		RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
@@ -30992,7 +31002,7 @@ void FFScript::do_create_paldata_clr()
 		c.b = vbound(c.b, 0, 63);
 
 		for (int32_t q = 0; q < 240; ++q)
-			pd->set_color(q, c);
+			pd.set_color(q, c);
 	}
 	ri->d[rEXP1] = ri->paldataref;
 }
@@ -35335,11 +35345,7 @@ void do_constructclass(ScriptType type, word script, int32_t i)
 	size_t total_vars = num_vars + sargvec->size()-1;
 	auto destr_pc = ri->d[rEXP1];
 
-	dword objref = user_objects.get_free();
-	if (objref && objref >= max_valid_object)
-		max_valid_object = objref;
-
-	if(user_object* obj = checkObject(objref, true))
+	if (user_object* obj = user_objects.create())
 	{
 		obj->own(type, i);
 		obj->owned_vars = num_vars;
@@ -35357,8 +35363,8 @@ void do_constructclass(ScriptType type, word script, int32_t i)
 				else obj->data.push_back(0); //nullptr
 			}
 		}
-		set_register(sarg1, objref);
-		ri->thiskey = objref;
+		set_register(sarg1, obj->id);
+		ri->thiskey = obj->id;
 		obj->prep(destr_pc,type,script,i);
 	}
 	else set_register(sarg1, 0);
@@ -35402,7 +35408,7 @@ void do_freeclass()
 	dword objref = get_register(sarg1);
 	if(user_object* obj = checkObject(objref, true))
 	{
-		obj->clear();
+		delete_script_object(obj->id);
 	}
 	ri->d[rEXP1] = 0;
 }
@@ -37456,7 +37462,7 @@ int32_t run_script_int(bool is_jitted)
 			case PALDATAFREE:
 				if (user_paldata* pd = checkPalData(ri->paldataref, "Free()", true))
 				{
-					pd->clear();
+					delete_script_object(pd->id);
 				}
 				break;
 			case PALDATAOWN:
@@ -39734,7 +39740,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(user_stack* st = checkStack(ri->stackref, "Free()", true))
 				{
-					st->clear();
+					delete_script_object(st->id);
 				}
 				break;
 			}
@@ -39913,7 +39919,7 @@ int32_t run_script_int(bool is_jitted)
 			case RNGFREE:
 				if(user_rng* r = checkRNG(ri->rngref, "Free()", true))
 				{
-					r->clear();
+					delete_script_object(r->id);
 				}
 				break;
 			case RNGOWN:
@@ -40221,22 +40227,21 @@ int32_t run_script_int(bool is_jitted)
 					break;
 				}
 
-				int ref = user_websockets.get_free();
-				if (!ref)
+				auto ws = user_websockets.create();
+				if (!ws)
 				{
 					break;
 				}
 
-				auto& ws = user_websockets[ref-1];
-				ws.connect(url);
+				ws->connect(url);
 
-				ri->websocketref = ref;
-				ri->d[rEXP1] = ref;
+				ri->websocketref = ws->id;
+				ri->d[rEXP1] = ws->id;
 				break;
 			}
 			case WEBSOCKET_FREE:
 			{
-				user_websockets.clear(ri->websocketref-1);
+				user_websockets.clear(ri->websocketref);
 				break;
 			}
 			case WEBSOCKET_ERROR:
@@ -40631,11 +40636,10 @@ void FFScript::user_dirs_init()
 }
 void FFScript::user_objects_init()
 {
-	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
+	for (auto id : script_object_ids_by_type[user_objects.type])
 	{
-		user_objects[q].clear_nodestruct();
+		user_objects[id].clear_nodestruct();
 	}
-	max_valid_object = 0;
 }
 
 void FFScript::user_stacks_init()
@@ -40645,11 +40649,14 @@ void FFScript::user_stacks_init()
 
 void FFScript::user_rng_init()
 {
+	user_rngs.clear();
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
 		replay_register_rng(&script_rnggens[q]);
-		user_rngs[q].clear();
-		user_rngs[q].set_gen(&script_rnggens[q]);
+
+		// Just to seed it.
+		user_rng rng;
+		rng.set_gen(&script_rnggens[q]);
 	}
 }
 
@@ -40791,7 +40798,7 @@ void FFScript::do_allocate_file()
 void FFScript::do_deallocate_file()
 {
 	user_file* f = checkFile(ri->fileref, "Free()", false, true);
-	if(f) f->clear();
+	if(f) delete_script_object(f->id);
 }
 
 void FFScript::do_file_isallocated() //Returns true if file is allocated
@@ -41187,7 +41194,7 @@ void FFScript::do_directory_free()
 {
 	if(user_dir* dr = checkDir(ri->directoryref, "Free()", true))
 	{
-		dr->clear();
+		delete_script_object(dr->id);
 	}
 }
 
@@ -42696,7 +42703,6 @@ void FFScript::init()
 {
 	eventData.clear();
 	countGenScripts();
-	countObjects();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger )
@@ -42801,6 +42807,7 @@ void FFScript::shutdown()
 		if (it.second) jit_delete_script_handle(it.second);
 	}
 	jitted_scripts.clear();
+	init_script_objects();
 }
 
 

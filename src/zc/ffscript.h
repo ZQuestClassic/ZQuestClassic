@@ -288,16 +288,21 @@ struct user_bitmap : public user_abstract_obj
 	user_bitmap() : user_abstract_obj(),
 		u_bmp(NULL), width(0), height(0), depth(0), flags(0)
 	{}
-	
+
+	~user_bitmap()
+	{
+		destroy_bitmap(u_bmp);
+	}
+
 	void destroy()
 	{
-		if(u_bmp != NULL)
-			destroy_bitmap(u_bmp);
+		destroy_bitmap(u_bmp);
 		width = 0;
 		height = 0;
 		depth = 0;
 		u_bmp = NULL;
 	}
+	
 	void reserve()
 	{
 		flags |= UBMPFLAG_RESERVED;
@@ -311,13 +316,13 @@ struct user_bitmap : public user_abstract_obj
 		if(flags & UBMPFLAG_FREEING)
 			clear();
 	}
-	virtual void clear() override
+	void clear() override
 	{
 		user_abstract_obj::clear();
 		destroy();
 		flags = 0;
 	}
-	virtual void free_obj() override
+	void free_obj() override
 	{
 		flags |= UBMPFLAG_FREEING;
 	}
@@ -360,11 +365,12 @@ struct user_file : public user_abstract_obj
 {
 	FILE* file;
 	std::string filepath;
-	bool reserved;
-	
-	user_file() : user_abstract_obj(),
-		file(NULL), filepath(""), reserved(false)
-	{}
+
+	~user_file()
+	{
+		if (file)
+			fclose(file);
+	}
 	
 	void close()
 	{
@@ -388,15 +394,6 @@ struct user_file : public user_abstract_obj
 			filepath = buf;
 		else filepath = "";
 	}
-	
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		if(file) fclose(file); //Never leave a hanging FILE*!
-		file = NULL;
-		reserved = false;
-		filepath = "";
-	}
 };
 
 #define MAX_USER_DIRS 256
@@ -404,11 +401,16 @@ struct user_dir : public user_abstract_obj
 {
 	FLIST* list;
 	std::string filepath;
-	bool reserved;
-	
-	user_dir() : user_abstract_obj(),
-		list(NULL), filepath(""), reserved(false)
-	{}
+
+	~user_dir()
+	{
+		if (list)
+		{
+			list->clear();
+			free(list);
+			list = NULL;
+		}
+	}
 	
 	void setPath(const char* buf);
 	void refresh()
@@ -425,8 +427,6 @@ struct user_dir : public user_abstract_obj
 	{
 		return list->get(index, buf);
 	}
-	
-	virtual void clear() override;
 };
 
 
@@ -434,11 +434,7 @@ struct user_dir : public user_abstract_obj
 #define USERSTACK_MAX_SIZE 2147483647
 struct user_stack : public user_abstract_obj
 {
-	bool reserved;
 	std::deque<int32_t> theStack;
-	
-	user_stack() : user_abstract_obj(), reserved(false)
-	{}
 	
 	int32_t size()
 	{
@@ -497,24 +493,13 @@ struct user_stack : public user_abstract_obj
 		theStack.clear();
 		theStack.shrink_to_fit();
 	}
-	
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		clearStack();
-		reserved = false;
-	}
 };
 
 #define MAX_USER_RNGS 256
 struct user_rng : public user_abstract_obj
 {
 	zc_randgen* gen;
-	bool reserved;
 	
-	user_rng() : user_abstract_obj(),
-		gen(NULL), reserved(false)
-	{}
 	int32_t rand()
 	{
 		return zc_rand(gen);
@@ -538,12 +523,6 @@ struct user_rng : public user_abstract_obj
 		gen = newgen;
 		if(newgen) srand();
 	}
-	
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		reserved = false;
-	}
 };
 
 #define MAX_USER_PALDATAS 256
@@ -551,8 +530,6 @@ struct user_rng : public user_abstract_obj
 #define PALDATA_BITSTREAM_SIZE 32
 struct user_paldata : public user_abstract_obj
 {
-	bool reserved;
-
 	RGB colors[PALDATA_NUM_COLORS];
 	byte colors_used[PALDATA_BITSTREAM_SIZE]; //A set of 256 bitflags
 
@@ -580,14 +557,6 @@ struct user_paldata : public user_abstract_obj
 	static double HueToRGB(double v1, double v2, double vH);
 	static double WrapLerp(double a, double b, double t, double min, double max, int32_t direction);
 	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
-
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		for(int32_t q = 0; q < 32; ++q)
-			colors_used[q] = 0;
-		reserved = false;
-	}
 };
 
 //Module System.
@@ -1918,7 +1887,8 @@ enum __Error
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
 
-	user_object& get_user_object(size_t index);
+	user_object& create_user_object(uint32_t id);
+	std::vector<user_object*> get_user_objects();
 	
     private:
     int32_t sid;
@@ -5118,6 +5088,8 @@ int get_script_command(std::string name);
 int32_t get_combopos_ref(int32_t pos, int32_t layer);
 int32_t combopos_ref_to_pos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
+
+void init_script_objects();
 
 #endif
 
