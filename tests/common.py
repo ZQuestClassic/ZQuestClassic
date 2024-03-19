@@ -1,17 +1,20 @@
-import platform
-import os
+import dataclasses
 import io
 import json
-import subprocess
+import os
+import platform
 import shutil
+import subprocess
 import tarfile
-from time import sleep
-from dataclasses import dataclass, field
-import dataclasses
-from typing import List, Literal, Tuple, Optional, Any
-import requests
 import zipfile
+
+from dataclasses import dataclass, field
 from pathlib import Path
+from time import sleep
+from typing import Any, List, Literal, Optional, Tuple
+
+import requests
+
 from github import Github
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -42,7 +45,7 @@ class RunResult:
 
 @dataclass
 class ReplayTestResults:
-    runs_on: Literal['windows-2022', 'macos-12', 'ubuntu-22.04']
+    runs_on: Literal['windows-2022', 'macos-13', 'ubuntu-22.04']
     arch: Literal['x64', 'win32', 'intel']
     ci: bool
     workflow_run_id: Optional[int]
@@ -74,7 +77,7 @@ def infer_gha_platform():
         runs_on = 'windows-2022'
         arch = 'x64' if platform.architecture()[0] == '64bit' else 'win32'
     elif system == 'Darwin':
-        runs_on = 'macos-12'
+        runs_on = 'macos-13'
         arch = 'intel'
     elif system == 'Linux':
         runs_on = 'ubuntu-22.04'
