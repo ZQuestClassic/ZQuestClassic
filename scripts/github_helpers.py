@@ -21,7 +21,7 @@ def infer_gha_platform():
         runs_on = 'windows-2022'
         arch = 'x64' if platform.architecture()[0] == '64bit' else 'win32'
     elif system == 'Darwin':
-        runs_on = 'macos-12'
+        runs_on = 'macos-13'
         arch = 'intel'
     elif system == 'Linux':
         runs_on = 'ubuntu-22.04'

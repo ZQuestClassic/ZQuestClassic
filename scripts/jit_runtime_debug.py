@@ -40,7 +40,7 @@ class RunResult:
 
 @dataclass
 class ReplayTestResults:
-    runs_on: Literal['windows-2022', 'macos-12', 'ubuntu-22.04']
+    runs_on: Literal['windows-2022', 'macos-13', 'ubuntu-22.04']
     arch: Literal['x64', 'win32', 'intel']
     ci: bool
     workflow_run_id: Optional[int]
