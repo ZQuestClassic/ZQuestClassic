@@ -3710,6 +3710,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_FLAME_ARROW_REFLECTING,1);
 	if(compatrule_version < 65)
 		set_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP,1);
+	if(compatrule_version < 66)
+		set_qr(qr_NEWDARK_TRANS_STACKING,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

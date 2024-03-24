@@ -4490,15 +4490,21 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		color_map = &trans_table2;
 		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+		{
 			draw_trans_sprite(framebuf, darkscr_bmp_curscr, 0, playing_field_offset);
-		else 
+			if(get_qr(qr_NEWDARK_TRANS_STACKING))
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+		}
+		else
+		{
 			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
-		draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+			draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+		}
 		color_map = &trans_table;
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		do_primitives(framebuf, SPLAYER_DARKROOM_OVER, this_screen, 0, playing_field_offset);
-	}	
+	}
 	
 	
 	//12. Draw some text on framebuf
@@ -4529,10 +4535,16 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		color_map = &trans_table2;
 		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+		{
 			draw_trans_sprite(framebuf, darkscr_bmp_curscr, 0, playing_field_offset);
-		else 
+			if(get_qr(qr_NEWDARK_TRANS_STACKING))
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+		}
+		else
+		{
 			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
-		draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+			draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+		}
 		color_map = &trans_table;
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
