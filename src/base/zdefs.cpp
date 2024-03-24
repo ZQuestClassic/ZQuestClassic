@@ -920,6 +920,33 @@ int32_t zquestheader::compareVer() const
 	return 0;
 }
 
+// Returns -1 if zquestheader version is older than given version, 1 if newer, 0 if same.
+//
+// For example, to check if the currently loaded quest is older than 2.55.9:
+//
+//    if (QHeader.compareVer(2, 55, 9) < 0)
+//
+// or at least as new as 2.55.9:
+//
+//    if (QHeader.compareVer(2, 55, 9) >= 0)
+//
+int32_t zquestheader::compareVer(int major, int minor, int patch) const
+{
+	if(new_version_id_main > major)
+		return 1;
+	if(new_version_id_main < major)
+		return -1;
+	if(new_version_id_second > minor)
+		return 1;
+	if(new_version_id_second < minor)
+		return -1;
+	if(new_version_id_third > patch)
+		return 1;
+	if(new_version_id_third < patch)
+		return -1;
+	return 0;
+}
+
 int8_t getProgramAlphaState()
 {
 	if(V_ZC_RELEASE) return 3;

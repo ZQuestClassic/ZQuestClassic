@@ -3439,10 +3439,20 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_FLAME_ARROW_REFLECTING,1);
 	if(compatrule_version < 65)
 		set_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP,1);
-	
+
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
+
+	// After this point, these QRs are for changes that were cherry-picked
+	// to the 2.55 branch. We can't bump the compatrule version anymore, so instead
+	// we check the header version.
+
+	// Older than 2.55.9?
+	if (tempheader.compareVer(2, 55, 9) < 0)
+	{
+		set_qr(qr_NEWDARK_TRANS_STACKING,1);
+	}
 	
 	memcpy(Header, &tempheader, sizeof(tempheader));
 	
