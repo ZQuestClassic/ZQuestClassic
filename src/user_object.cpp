@@ -118,9 +118,12 @@ void scr_func_exec::execute()
 		// Run  the destructor script
 		std::string* oldstr = destructstr;
 		destructstr = &name;
+		bool old_funcrun = script_funcrun;
 		script_funcrun = true;
+		
 		run_script_int(false);
-		script_funcrun = false; //If this ever is able to be set elsewhere, this should restore old value...
+		
+		script_funcrun = old_funcrun;
 		destructstr = oldstr;
 		//
 		pop_ri(); //restore the prior script state
