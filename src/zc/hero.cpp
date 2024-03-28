@@ -23252,6 +23252,8 @@ void HeroClass::handleSpotlights()
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = tmpscr->ffcs[i];
+			if(ffc.flags & (ffCHANGER|ffETHEREAL))
+				continue;
 			newcombo const& cmb = combobuf[ffc.data];
 			if(cmb.type == cSPOTLIGHT && (cmb.usrflags&cflag2))
 				launch_fflightbeam(ffc,ffmaps,refl,block);
