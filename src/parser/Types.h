@@ -86,6 +86,8 @@ namespace ZScript
 		ZTID_BOOL,
 		ZTID_LONG,
 		ZTID_RGBDATA,
+		ZTID_TEMPLATE_T,
+		ZTID_TEMPLATE_T_ARR,
 		ZTID_PRIMITIVE_END,
 
 		ZTID_CLASS_START = ZTID_PRIMITIVE_END,
@@ -457,6 +459,8 @@ namespace ZScript
 		DataType* constType;
 		// Standard Types.
 	public:
+		static DataTypeSimpleConst TEMPLATE_T;
+		static DataTypeSimpleConst TEMPLATE_T_ARR;
 		static DataTypeSimpleConst CAUTO;
 		static DataTypeSimpleConst CUNTYPED;
 		static DataTypeSimpleConst CFLOAT;

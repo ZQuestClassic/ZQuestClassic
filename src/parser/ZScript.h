@@ -449,6 +449,7 @@ namespace ZScript
 		DataType const* returnType;
 		string name;
 		bool hasPrefixType;
+		bool isFromTypeTemplate;
 		byte extra_vargs;
 		
 		std::vector<DataType const*> paramTypes;
@@ -460,6 +461,7 @@ namespace ZScript
 
 		ASTFuncDecl* node;
 		Datum* thisVar;
+		Function* aliased_func; //the function this is an alias for, if any
 
 		// Get the opcodes.
 		std::vector<std::shared_ptr<Opcode>> const& getCode() const
@@ -593,7 +595,6 @@ namespace ZScript
 	private:
 		CONSTEXPR_CBACK_TY constexpr_callback;
 		
-		Function* aliased_func; //the function this is an alias for, if any
 		AccessorTable* table_entry; //parent entry
 		
 		mutable std::optional<int32_t> label;

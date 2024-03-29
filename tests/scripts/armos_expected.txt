@@ -4418,11 +4418,11 @@ PUSHR gd6
 PUSHV 2; UsrFunc[void Ghost_Move(int, int, int)] Params End
 CALLFUNC 0.3727; UsrFunc[void Ghost_Move(int, int, int)] Call
 POP d4
-SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params Start
+SETR d2,gd6; InlineFunc[int Max(int, int)] Params Start
 SUBV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV -3.2000; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR gd6,d2
 SETR d2,gd6; if() #348 Test
 COMPAREV d2,0
@@ -4461,11 +4461,11 @@ CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
 GOTOCMP 4460,==; Test 'if'
-SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params Start AND if() #163 Body Start
+SETR d2,gd6; InlineFunc[int Max(int, int)] Params Start AND if() #163 Body Start
 SUBV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV -3.2000; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR gd6,d2
 GOTO 4462; if() #163 Body End
 SETV d2,0; if() #163 Else Start
@@ -4509,11 +4509,11 @@ SETR d2,gd6
 POP d3
 ADDR d2,d3
 SETR gd4,d2
-SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params Start
+SETR d2,gd6; InlineFunc[int Max(int, int)] Params Start
 SUBV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV -3.2000; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR gd6,d2; if() #164 Else End
 SETR d2,gd7; if() #350 Body End AND if() #161 Else End AND unless() #346 Body End AND if() #351 Test
 COMPAREV d2,0
@@ -6556,11 +6556,11 @@ RETURNFUNC; Func[void __AutoGhostKill(NPC)] Body End
 PUSHARGSV 0,0.0002; Func[int FindUnusedFFC(int)] Body Start
 SETR d4,SP2
 STOREV 0,0.0001
-LOAD d2,0.0002; InlineFunc[untyped Max(untyped, untyped)] Params Start AND for() #43 setup
+LOAD d2,0.0002; InlineFunc[int Max(int, const int)] Params Start AND for() #43 setup
 ADDV d2,1
 PUSHVARGR d2
-PUSHVARGV 1; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV 1; InlineFunc[int Max(int, const int)] Params End
+MAXVARG; InlineFunc[int Max(int, const int)] Body
 STORE d2,0
 LOAD d2,0; for() #43 LoopTest
 COMPAREV d2,32
@@ -8547,7 +8547,7 @@ COMPAREV d2,3
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 3113,==; Test 'if'
-PUSHVARGV 0; InlineFunc[untyped Max(untyped, untyped)] Params Start AND if() #560 Body Start
+PUSHVARGV 0; InlineFunc[int Max(int, int)] Params Start AND if() #560 Body Start
 LOAD d2,0.0007
 PUSHR d2
 POP REFEWPN
@@ -8562,8 +8562,8 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 POP d3
 SUBR d3,d2
-PUSHVARGR d3; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGR d3; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 PUSHR d2
 LOAD d2,0.0007
 POP d3
@@ -11068,7 +11068,7 @@ POP d0
 POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2; if() #743 Body End
-LOAD d2,0.0001; InlineFunc[untyped Max(untyped, untyped)] Params Start
+LOAD d2,0.0001; InlineFunc[int Max(int, int)] Params Start
 PUSHR d2
 SETV d2,7
 PUSHR d2
@@ -11086,8 +11086,8 @@ SETR d2,EWPNMISCD
 POP d3
 ADDR d2,d3
 PUSHVARGR d2
-PUSHVARGV 0; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 PUSHR d2
 LOAD d2,0.0001
 POP d3
@@ -11176,7 +11176,7 @@ CALLFUNC 0.9493; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, in
 POP d4
 COMPAREV d2,0
 GOTOCMP 5525,!=; Test 'unless'
-LOAD d2,0.0001; InlineFunc[untyped Max(untyped, untyped)] Params Start AND unless() #744 Body Start
+LOAD d2,0.0001; InlineFunc[int Max(int, int)] Params Start AND unless() #744 Body Start
 PUSHR d2
 SETV d2,6
 PUSHR d2
@@ -11185,8 +11185,8 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 SUBV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV -3.2000; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 PUSHR d2
 LOAD d2,0.0001
 POP d3
@@ -11401,7 +11401,7 @@ PUSHR d3
 POP d2
 POP REFEWPN
 SETR EWPNYOFS,d2; unless() #428 Else End
-LOAD d2,0.0001; InlineFunc[untyped Min(untyped, untyped)] Params Start
+LOAD d2,0.0001; InlineFunc[int Min(int, const int)] Params Start
 PUSHR d2
 SETV d2,6
 PUSHR d2
@@ -11410,8 +11410,8 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 ADDV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV 3.2000; InlineFunc[untyped Min(untyped, untyped)] Params End
-MINVARG; InlineFunc[untyped Min(untyped, untyped)] Body
+PUSHVARGV 3.2000; InlineFunc[int Min(int, const int)] Params End
+MINVARG; InlineFunc[int Min(int, const int)] Body
 PUSHR d2
 LOAD d2,0.0001
 POP d3
@@ -14040,7 +14040,7 @@ COMPAREV d2,512
 SETCMP d2,I!=
 COMPAREV d2,0
 GOTOCMP 8268,!=; Test 'if' AND continue 1; AND if() #599 Body
-LOAD d2,0.0001; InlineFunc[untyped Min(untyped, untyped)] Params Start
+LOAD d2,0.0001; InlineFunc[int Min(int, untyped)] Params Start
 PUSHVARGR d2
 LOAD d2,0.0002
 PUSHR d2
@@ -14048,8 +14048,8 @@ SETV d2,3
 PUSHR d2
 POP d0
 POP REFEWPN
-PUSHVARGR EWPNMISCD; InlineFunc[untyped Min(untyped, untyped)] Params End
-MINVARG; InlineFunc[untyped Min(untyped, untyped)] Body
+PUSHVARGR EWPNMISCD; InlineFunc[int Min(int, untyped)] Params End
+MINVARG; InlineFunc[int Min(int, untyped)] Body
 STORE d2,0.0001; for() #169 Body End
 LOAD d2,0; for() #169 LoopIncrement
 SUBV d2,1

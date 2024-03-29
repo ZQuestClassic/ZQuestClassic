@@ -315,17 +315,6 @@ Function* ZScript::lookupSetter(Scope const& scope, string const& name)
 	return NULL;
 }
 
-/* Nothing calls this. Commenting it out so it can stay for reference. Not updating it, though. -V
-Function* ZScript::lookupFunction(Scope const& scope,
-                         FunctionSignature const& signature)
-{
-	for (Scope const* current = &scope;
-	     current; current = current->getParent())
-		if (Function* function = current->getLocalFunction(signature))
-			return function;
-	return NULL;
-}*/
-
 vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
 {
 	set<Function*> functions;
@@ -517,24 +506,137 @@ vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
 	return functions;
 }
 
+#define APPLY_TEMPLATE_RET_NA 0
+#define APPLY_TEMPLATE_RET_APPLIED 1
+#define APPLY_TEMPLATE_RET_UNSATISFIABLE 2
+
+// Applies a function's template types to the provided parameter types, and sets
+// the out-param `out_resolved_function` to the derived result if a match is successful.
+// Returns APPLY_TEMPLATE_RET_UNSATISFIABLE if the template types could not be satisfied.
+// If no template types in the function signature, then returns APPLY_TEMPLATE_RET_NA.
+//
+// Future work: Templated return types with no associated template param types have nothing
+// to bound T to, so we can't do that right now. We could someday if we allow bounding T in
+// a call expression (ex: someFunc<T>())
+static int applyTemplateTypes(
+    Function* function,
+    std::vector<DataType const *> const &parameter_types,
+	size_t num_params,
+    Function** out_resolved_function)
+{
+	auto resolved_params = function->paramTypes;
+	bool found_template_type = false;
+
+    const DataType* bound_t = nullptr;
+	for (size_t i = 0; i < num_params; ++i)
+	{
+		auto simpleType = dynamic_cast<const DataTypeSimple*>(function->paramTypes[i]);
+		if (!simpleType || simpleType->getId() != ZTID_TEMPLATE_T)
+			continue;
+
+		found_template_type = true;
+		if (!bound_t)
+		{
+			bound_t = resolved_params[i] = parameter_types[i];
+			continue;
+		}
+
+		if (!parameter_types[i]->canCastTo(*bound_t))
+			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+		resolved_params[i] = parameter_types[i];
+	}
+
+	for (size_t i = 0; i < num_params; ++i)
+	{
+		auto simpleType = dynamic_cast<const DataTypeSimple*>(function->paramTypes[i]);
+		if (!simpleType || simpleType->getId() != ZTID_TEMPLATE_T_ARR)
+			continue;
+
+		if (!parameter_types[i]->isArray())
+			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+		auto arr_type = dynamic_cast<const DataTypeArray*>(parameter_types[i]);
+
+		found_template_type = true;
+		if (!bound_t)
+		{
+			bound_t = &arr_type->getElementType();
+			resolved_params[i] = parameter_types[i];
+			continue;
+		}
+
+		if (!arr_type->getElementType().canCastTo(*bound_t))
+			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+		resolved_params[i] = parameter_types[i];
+	}
+
+	auto ret_type = function->returnType;
+	auto ret_type_s = dynamic_cast<const DataTypeSimple*>(function->returnType);
+	if (ret_type_s && (ret_type_s->getId() == ZTID_TEMPLATE_T || ret_type_s->getId() == ZTID_TEMPLATE_T_ARR))
+		found_template_type = true;
+
+	if (!found_template_type)
+		return APPLY_TEMPLATE_RET_NA;
+
+	if (ret_type_s && ret_type_s->getId() == ZTID_TEMPLATE_T)
+	{
+		if (!bound_t)
+			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+		ret_type = bound_t;
+	}
+	else if (ret_type_s && ret_type_s->getId() == ZTID_TEMPLATE_T_ARR)
+	{
+		if (!bound_t)
+			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+		ret_type = new DataTypeArray(*bound_t);
+	}
+
+	if (function->getFlag(FUNCFLAG_VARARGS) && bound_t)
+	{
+		auto last_param_type = dynamic_cast<const DataTypeSimple*>(function->paramTypes[num_params - 1]);
+		if (!last_param_type || (last_param_type->getId() != ZTID_TEMPLATE_T && last_param_type->getId() != ZTID_TEMPLATE_T_ARR))
+			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+		for (size_t i = num_params; i < parameter_types.size(); ++i)
+		{
+			if (!parameter_types[i]->canCastTo(*bound_t))
+				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+		}
+	}
+
+	*out_resolved_function = new Function(*function);
+	(*out_resolved_function)->isFromTypeTemplate = true;
+	(*out_resolved_function)->aliased_func = function;
+	(*out_resolved_function)->paramTypes = resolved_params;
+	(*out_resolved_function)->returnType = ret_type;
+
+	return APPLY_TEMPLATE_RET_APPLIED;
+}
+
 inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses)
 {
+	bool any_from_type_template = false;
+
 	// Filter out invalid functions.
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end();)
 	{
-		Function& function = **it;
-		if(trimClasses && function.getInternalScope()->getClass() && !function.getFlag(FUNCFLAG_STATIC))
+		Function* function = *it;
+		if(trimClasses && function->getInternalScope()->getClass() && !function->getFlag(FUNCFLAG_STATIC))
 		{
 			it = functions.erase(it);
 			continue;
 		}
-		bool vargs = function.getFlag(FUNCFLAG_VARARGS);
-		bool user_vargs = vargs && !function.isInternal();
+		bool vargs = function->getFlag(FUNCFLAG_VARARGS);
+		bool user_vargs = vargs && !function->isInternal();
 		
 		auto targetSize = parameterTypes.size();
-		auto maxSize = function.paramTypes.size() - (user_vargs ? 1 : 0);
-		auto minSize = maxSize - function.opt_vals.size();
+		auto maxSize = function->paramTypes.size() - (user_vargs ? 1 : 0);
+		auto minSize = maxSize - function->opt_vals.size();
 		// Match against parameter count, including std::optional params.
 		if (minSize > targetSize || (!vargs && maxSize < targetSize))
 		{
@@ -544,13 +646,13 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		auto lowsize = zc_min(maxSize, parameterTypes.size());
 		// Check parameter types.
 		bool parametersMatch = true;
-		if(function.getFlag(FUNCFLAG_NOCAST)) //no casting params
+		if(function->getFlag(FUNCFLAG_NOCAST)) //no casting params
 		{
-			Scope* scope = function.getInternalScope();
+			Scope* scope = function->getInternalScope();
 			for (size_t i = 0; i < lowsize; ++i)
 			{
 				if (getNaiveType(*parameterTypes[i],scope)
-					!= getNaiveType(*function.paramTypes[i],scope))
+					!= getNaiveType(*function->paramTypes[i],scope))
 				{
 					parametersMatch = false;
 					break;
@@ -558,7 +660,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			}
 			if(user_vargs && lowsize < targetSize)
 			{
-				auto& vargty = getNaiveType(*function.paramTypes.back(),scope);
+				auto& vargty = getNaiveType(*function->paramTypes.back(),scope);
 				for(size_t i = lowsize; i < targetSize; ++i)
 				{
 					if(getNaiveType(*parameterTypes[i],scope) != vargty)
@@ -571,9 +673,27 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		}
 		else
 		{
+			Function* resolved_function = nullptr;
+			int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function);
+			if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
+			{
+				it = functions.erase(it);
+				continue;
+			}
+
+			if (apply_ret == APPLY_TEMPLATE_RET_APPLIED)
+			{
+				assert(resolved_function);
+				// This is a memory leak. The compiler is a short-lived program, so this isn't so bad.
+				// TODO: store these inside the original function. applyTemplateTypes should handle that.
+				//       should also dedupe as necessary.
+				*it = resolved_function;
+				function = resolved_function;
+			}
+
 			for (size_t i = 0; i < lowsize; ++i)
 			{
-				if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
+				if (!parameterTypes[i]->canCastTo(*function->paramTypes[i]))
 				{
 					parametersMatch = false;
 					break;
@@ -581,7 +701,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			}
 			if(user_vargs && lowsize < targetSize)
 			{
-				auto& vargty = *function.paramTypes.back();
+				auto& vargty = *function->paramTypes.back();
 				for(size_t i = lowsize; i < targetSize; ++i)
 				{
 					if(!parameterTypes[i]->canCastTo(vargty))
@@ -599,7 +719,37 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		}
 
 		// Keep function.
+		if (function->isFromTypeTemplate)
+			any_from_type_template = true;
 		++it;
+	}
+
+	if (!any_from_type_template || functions.size() == 0)
+		return;
+
+	// Ignore templated functions if any non-templated function matched.
+	bool any_not_from_type_template = false;
+	for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); it++)
+	{
+		if (!(*it)->isFromTypeTemplate)
+		{
+			any_not_from_type_template = true;
+			break;
+		}
+	}
+
+	if (!any_not_from_type_template)
+		return;
+
+	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
+	{
+		if ((*it)->isFromTypeTemplate)
+		{
+			it = functions.erase(it);
+			continue;
+		}
+
+		it++;
 	}
 }
 

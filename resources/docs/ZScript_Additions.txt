@@ -3167,7 +3167,7 @@ constexpr float WrapRad(float radians);
 constexpr float WrapAngle(float radians);
  * Wraps a radian value between [-PI,PI)
 
-void ArrayCopy(untyped *dest, untyped *src);
+void ArrayCopy(T[] dest, T[] src);
  * Copies the data from array src to array dest. 
  * If the arrays are the same size, then the data of 'dest' will be
  * identical to the data of 'src'.
@@ -3370,12 +3370,12 @@ void sprintfa(char32[] buf, char32 format[], untyped[] args);
  * Same as 'sprintf', but takes an array of args instead of multiple args.
 
 
-constexpr untyped Min(untyped, untyped, ...untyped);
- * Takes 2 or more untyped arguments, and returns the lowest value between them.
-constexpr untyped Max(untyped, untyped, ...untyped);
- * Takes 2 or more untyped arguments, and returns the highest value between them.
-untyped Choose(untyped, ...untyped);
- * Takes 1 or more untyped arguments, and returns a random argument.
+constexpr T Min(T, T, ...T);
+ * Takes 2 or more arguments, and returns the lowest value between them.
+constexpr T Max(T, T, ...T);
+ * Takes 2 or more arguments, and returns the highest value between them.
+T Choose(T first, ...T);
+ * Takes 1 or more arguments, and returns a random argument.
 
 int GetSystemTime(int index);
  * Returns the time (Real Time Clock) data from the system on which ZC is running.
@@ -3386,33 +3386,33 @@ int GetSystemTime(int index);
 void OverlayTile(int firsttile, int secondtile);		
 * Overlay one tile onto another.
 
-int SizeOfArray(untyped[]);
+int SizeOfArray(T[]);
  * Returns the size of an array (any type)
 
-void ResizeArray(untyped[] arr, int size);
+void ResizeArray(T[] arr, int size);
  * Resizes the array 'arr' to size 'size'.
  * If size is <0, the array will be resized to size '0'.
 
-void OwnArray(untyped[] arr);
+void OwnArray(T[] arr);
  * Grants ownership of the array to the calling script.
  * If the array is a local array, it now will not be deallocated until the current script quits.
  * If the array is a global array, does nothing.
 
-void DestroyArray(untyped[] arr);
+void DestroyArray(T[] arr);
  * Immediately deallocates the specified array, if it is a local array.
  * If the array is a global array, does nothing.
 
-bool ArrayPushBack(untyped[] arr, untyped val);
-bool ArrayPushFront(untyped[] arr, untyped val);
-bool ArrayPushAt(untyped[] arr, untyped val, int indx);
+bool ArrayPushBack(T[] arr, T val);
+bool ArrayPushFront(T[] arr, T val);
+bool ArrayPushAt(T[] arr, T val, int indx);
  * Increases the size of the array by 1, inserting a new value.
  * The new value can either be inserted at the end, start, or an arbitrary index.
  * An invalid index pushes to the end.
  * Returns false if it fails for any reason (ex: array is at max size already)
 
-untyped ArrayPopBack(untyped[] arr);
-untyped ArrayPopFront(untyped[] arr);
-untyped ArrayPopAt(untyped[] arr, int indx);
+T ArrayPopBack(T[] arr);
+T ArrayPopFront(T[] arr);
+T ArrayPopAt(T[] arr, int indx);
  * Decreases the size of the array by 1, removing and returning a value.
  * The new value can either be pulled from the end, start, or an arbitrary index.
  * An invalid index pops from the end.

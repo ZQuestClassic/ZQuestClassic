@@ -126,6 +126,9 @@ bool TypeStore::TypeIdMapComparator::operator()(
 
 ////////////////////////////////////////////////////////////////
 
+// Template types.
+DataTypeSimpleConst DataType::TEMPLATE_T(ZTID_TEMPLATE_T, "T");
+DataTypeSimpleConst DataType::TEMPLATE_T_ARR(ZTID_TEMPLATE_T_ARR, "T[]");
 // Standard Type definitions.
 DataTypeSimpleConst DataType::CAUTO(ZTID_AUTO, "const auto");
 DataTypeSimpleConst DataType::CUNTYPED(ZTID_UNTYPED, "const untyped");
@@ -252,6 +255,8 @@ DataType const* DataType::get(DataTypeId id)
 {
 	switch (id)
 	{
+		case ZTID_TEMPLATE_T: return &TEMPLATE_T;
+		case ZTID_TEMPLATE_T_ARR: return &TEMPLATE_T_ARR;
 		case ZTID_UNTYPED: return &UNTYPED;
 		case ZTID_AUTO: return &ZAUTO;
 		case ZTID_VOID: return &ZVOID;
