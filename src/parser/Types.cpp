@@ -673,7 +673,7 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
 	
-	if(!isClass())
+	if(!isClass() && !isUsrClass())
 	{
 		if (DataTypeSimple const* t =
 				dynamic_cast<DataTypeSimple const*>(&target))

@@ -1979,13 +1979,41 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 				program.getTypeStore().getCanonicalType(
 						DataTypeArray(elementType)));
 	}
-
-	// Otherwise, default to Untyped -Em
 	else
 	{
+		// No explicit type, try to infer one from elements.
+		const DataType* type = nullptr;
+		for (auto&& node : host.elements)
+		{
+			auto node_type = type = node->getReadType(scope, this);
+			if (node_type->isUntyped())
+			{
+				type = nullptr;
+				break;
+			}
+
+			if (!type)
+			{
+				type = node_type;
+				continue;
+			}
+
+			// I think this should accept only exactly matching types. A future
+			// change could modify this to accept the base type of two related types.
+			if (!type->canCastTo(*node_type) || !node_type->canCastTo(*type))
+			{
+				type = nullptr;
+				break;
+			}
+		}
+
+		// Fallback is to create an untyped array.
+		if (!type)
+			type = &DataType::UNTYPED;
+
 		host.setReadType(
 				program.getTypeStore().getCanonicalType(
-						DataTypeArray(DataType::UNTYPED)));
+						DataTypeArray(*type)));
 	}
 
 	// If initialized, check that each element can be cast to type.
