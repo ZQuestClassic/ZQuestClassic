@@ -35,12 +35,19 @@ class TestZEditor(unittest.TestCase):
         ])
 
     def quick_assign(self, qst_path):
+        log = run_target.get_build_folder() / 'allegro.log'
+        if log.exists():
+            log.unlink()
         args = [
             '-headless',
             '-quick-assign',
             qst_path,
         ]
-        run_target.check_run('zeditor', args)
+        try:
+            run_target.check_run('zeditor', args)
+        except Exception as e:
+            e.add_note(log.read_text())
+            raise e
 
     def run_replay(self, output_dir, args):
         args = [
