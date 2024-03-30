@@ -34,8 +34,12 @@ class ZCTestCase(unittest.TestCase):
                 expected_path.write_text(actual)
             else:
                 if expected != actual:
-                    diff = difflib.context_diff(
-                        expected.splitlines(keepends=True),
-                        actual.splitlines(keepends=True),
+                    lines = list(
+                        difflib.context_diff(
+                            expected.splitlines(keepends=True),
+                            actual.splitlines(keepends=True),
+                        )
                     )
-                    self.fail(''.join(diff))
+                    # Limit to 100 lines.
+                    lines = lines[:100]
+                    self.fail(''.join(lines))
