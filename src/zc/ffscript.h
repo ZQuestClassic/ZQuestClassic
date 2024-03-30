@@ -275,19 +275,16 @@ enum mapflagtype
 };
 
 //User-generated / Script-Generated bitmap object
-#define UBMPFLAG_RESERVED		0x01
-#define UBMPFLAG_FREEING		0x02
+#define UBMPFLAG_FREEING               0x01
 struct user_bitmap : public user_abstract_obj
 {
 	BITMAP* u_bmp;
 	int32_t width;
 	int32_t height;
-	int32_t depth;
 	byte flags;
-	
-	user_bitmap() : user_abstract_obj(),
-		u_bmp(NULL), width(0), height(0), depth(0), flags(0)
-	{}
+
+	user_bitmap() = default;
+	user_bitmap(const user_bitmap&) = delete;
 
 	~user_bitmap()
 	{
@@ -299,29 +296,10 @@ struct user_bitmap : public user_abstract_obj
 		destroy_bitmap(u_bmp);
 		width = 0;
 		height = 0;
-		depth = 0;
+		flags = 0;
 		u_bmp = NULL;
 	}
-	
-	void reserve()
-	{
-		flags |= UBMPFLAG_RESERVED;
-	}
-	bool reserved()
-	{
-		return (flags & UBMPFLAG_RESERVED) ? true : false;
-	}
-	void update()
-	{
-		if(flags & UBMPFLAG_FREEING)
-			clear();
-	}
-	void clear() override
-	{
-		user_abstract_obj::clear();
-		destroy();
-		flags = 0;
-	}
+
 	void free_obj() override
 	{
 		flags |= UBMPFLAG_FREEING;
@@ -335,7 +313,6 @@ enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1,
 	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6, firstUserGeneratedBitmap };
 //bitmap constants
 #define MAX_USER_BITMAPS 256
-#define MIN_USER_BITMAPS 7 //starts at rtBMP6 +1
 #define MIN_OLD_RENDERTARGETS -1 //old script drawing
 #define MAX_OLD_RENDERTARGETS 6
 	
@@ -343,21 +320,8 @@ enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1,
 	//User bitmap lowest viable ID is 'rtBMP6+1' (firstUserGeneratedBitmap)
 struct script_bitmaps
 {
-	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
-	void update()
-	{
-		for(int32_t q = 0; q < MAX_USER_BITMAPS; ++q)
-		{
-			script_created_bitmaps[q].update();
-		}
-	}
-	void clear()
-	{
-		for(int32_t q = 0; q < MAX_USER_BITMAPS; ++q)
-		{
-			script_created_bitmaps[q].clear();
-		}
-	}
+	void update();
+	user_bitmap& get(int32_t id);
 };
 
 #define MAX_USER_FILES 256
@@ -1033,11 +997,11 @@ void do_directory_free();
 
 void user_bitmaps_init();
 
-int32_t get_free_bitmap(bool skipError = false);
+uint32_t get_free_bitmap(bool skipError = false);
 void do_deallocate_bitmap();
 bool isSystemBitref(int32_t ref);
 
-int32_t create_user_bitmap_ex(int32_t w, int32_t h, int32_t depth);
+uint32_t create_user_bitmap_ex(int32_t w, int32_t h);
 void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
@@ -1830,7 +1794,6 @@ static void setHeroBigHitbox(bool v);
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
-	static int32_t do_allocate_bitmap();
 	static void do_write_bitmap();
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);

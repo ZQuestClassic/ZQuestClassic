@@ -28250,7 +28250,6 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	FFCore.user_bitmaps_init();
 	initIncludePaths();
 	initRunString();
 	for(int32_t q = 0; q < 7; ++q)
@@ -28408,20 +28407,6 @@ int32_t FFScript::getQuestHeaderInfo(int32_t type)
 {
     return quest_format[type];
 }
-
-
-script_bitmaps scb;
-
-//script_bitmaps scb;
-void FFScript::user_bitmaps_init()
-{
-	scb.clear();
-}
-
-void FFScript::user_files_init(){}
-void FFScript::user_dirs_init(){}
-void FFScript::user_objects_init(){}
-void FFScript::user_stacks_init(){}
 
 bool isSideViewGravity(int32_t t)
 {

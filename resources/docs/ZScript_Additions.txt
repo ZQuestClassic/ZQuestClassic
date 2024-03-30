@@ -648,7 +648,7 @@ untyped : A special datatype that can be cast to and from any other type.
 		Bitmap objects have their own drawing functions, and you may save/load them to/from
 		files by script.
 		
-		There are a maximum of 250 user bitmaps at any one time.
+		There are a maximum of 256 user bitmaps at any one time.
 	
 	npcdata: 
 		Used to access the Enemy/NPC Editor values.
@@ -3744,7 +3744,7 @@ bitmap LoadBitmapID(int id);
 
 bitmap AllocateBitmap();
  * Initialises a bitmap pointer from the pool of unused bitmap IDs in the system.
- * The current maximum number of user bitmaps is 249. 
+ * The current maximum number of user bitmaps is 256.
  * Returns 0 to the pointer on failure. 
 
 int LItems[512];

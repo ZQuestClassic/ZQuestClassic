@@ -39,7 +39,7 @@ struct user_abstract_obj
 		owned_type = ScriptType::None;
 		owned_i = 0;
 	}
-	virtual void clear()
+	void clear()
 	{
 		disown();
 	}

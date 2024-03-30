@@ -165,7 +165,6 @@ void init_script_objects()
 		next_script_object_id_freelist.push_back(i);
 	script_objects.clear();
 	script_object_ids_by_type.clear();
-	FFCore.user_bitmaps_init();
 }
 
 static void delete_script_object(uint32_t id)
@@ -254,6 +253,25 @@ static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_o
 static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {script_object_type::paldata, "paldata"};
 static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {script_object_type::rng, "rng"};
 static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {script_object_type::stack, "stack"};
+static UserDataContainer<user_bitmap, MAX_USER_BITMAPS> user_bitmaps = {script_object_type::bitmap, "bitmap"};
+
+void script_bitmaps::update()
+{
+	auto ids = script_object_ids_by_type[user_bitmaps.type];
+	for (auto id : ids)
+	{
+		auto& bitmap = user_bitmaps[id];
+		if (bitmap.flags & UBMPFLAG_FREEING)
+		{
+			delete_script_object(id);
+		}
+	}
+}
+
+user_bitmap& script_bitmaps::get(int32_t id)
+{
+	return user_bitmaps[id - firstUserGeneratedBitmap];
+}
 
 struct user_websocket : public user_abstract_obj
 {
@@ -2833,11 +2851,6 @@ void deallocateArray(const int32_t ptrval)
 
 void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways)
 {
-	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
-	{
-		scb.script_created_bitmaps[q].own_clear(scriptType, UID);
-	}
-
 	std::vector<uint32_t> ids_to_clear;
 	for (auto& script_object : script_objects | std::views::values)
 	{
@@ -2869,11 +2882,6 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 
 void FFScript::deallocateAllScriptOwned()
 {
-	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
-	{
-		scb.script_created_bitmaps[q].own_clear_any();
-	}
-
 	std::vector<uint32_t> ids_to_clear;
 	for (auto& script_object : script_objects | std::views::values)
 	{
@@ -2899,10 +2907,6 @@ void FFScript::deallocateAllScriptOwned()
 
 void FFScript::deallocateAllScriptOwnedCont()
 {
-	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
-	{
-		scb.script_created_bitmaps[q].own_clear_cont();
-	}
 	std::vector<uint32_t> ids_to_clear;
 	for (auto& script_object : script_objects | std::views::values)
 	{
@@ -3115,21 +3119,18 @@ bottleshoptype *checkBottleShopData(int32_t ref, const char *what, bool skipErro
 user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, bool skipError = false)
 {
 	int32_t ind = ref - 10;
-	if(ind >= firstUserGeneratedBitmap && ind < MAX_USER_BITMAPS)
+	if(ind >= firstUserGeneratedBitmap)
 	{
-		user_bitmap* b = &(scb.script_created_bitmaps[ind]);
-		if(b->reserved())
+		user_bitmap* b = user_bitmaps.check(ind - firstUserGeneratedBitmap, what, skipError);
+		if (req_valid && (!b || !b->u_bmp))
 		{
-			if(req_valid && !b->u_bmp)
-			{
-				if(skipError) return NULL;
-				Z_scripterrlog("Script attempted to reference an invalid bitmap!\n");
-				Z_scripterrlog("Bitmap with UID = %ld does not have a valid memory bitmap!\n",ref);
-				Z_scripterrlog("Use '->Create()' to create a memory bitmap.\n");
-				return NULL;
-			}
-			return b;
+			if (skipError) return NULL;
+			Z_scripterrlog("Script attempted to reference an invalid bitmap!\n");
+			Z_scripterrlog("Bitmap with UID = %ld does not have a valid memory bitmap!\n",ref);
+			Z_scripterrlog("Use '->Create()' to create a memory bitmap.\n");
+			return NULL;
 		}
+		return b;
 	}
 	else
 	{
@@ -8374,7 +8375,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case ALLOCATEBITMAPR:
-			ret=FFCore.do_allocate_bitmap();
+			ret=FFCore.get_free_bitmap();
 			break;
 			
 		case GETMIDI:
@@ -13081,25 +13082,27 @@ int32_t get_register(int32_t arg)
 
 		case BITMAPWIDTH:
 		{
-			//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp ) 
-			//{
-			//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->w * 10000;
-			//}
-			//else ret = 0;
-			ret = scb.script_created_bitmaps[ri->bitmapref-10].width * 10000;
+			if (auto bmp = user_bitmaps.check(ri->bitmapref-10-firstUserGeneratedBitmap, "->Width"); bmp && bmp->u_bmp)
+			{
+				ret = bmp->width * 10000;
+			}
+			else
+			{
+				ret = -10000;
+			}
 			break;
 		}
 
 		case BITMAPHEIGHT:
 		{
-			//Z_scripterrlog("BITMAPHEI|GHT ri->BitmapRef is %d\n", ri->bitmapref);
-			//Z_scripterrlog("ref bitmap height: %d\n", scb.script_created_bitmaps[ri->bitmapref-10].u_bmp->h);
-			//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp )
-			//{
-			//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->h * 10000;
-			//}
-			//else ret = 0;
-			ret = scb.script_created_bitmaps[ri->bitmapref-10].height * 10000;
+			if (auto bmp = user_bitmaps.check(ri->bitmapref-10-firstUserGeneratedBitmap, "->Height"); bmp && bmp->u_bmp)
+			{
+				ret = bmp->height * 10000;
+			}
+			else
+			{
+				ret = -10000;
+			}
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//
@@ -38052,7 +38055,7 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			case READBITMAP:
 			{
-				int32_t bitref = SH::read_stack(ri->sp+2);
+				uint32_t bitref = SH::read_stack(ri->sp+2);
 				if(user_bitmap* b = checkBitmap(bitref,"Read()",false,true))
 					do_drawing_command(scommand);
 				else //If the pointer isn't allocated, attempt to allocate it first
@@ -38082,7 +38085,7 @@ int32_t run_script_int(bool is_jitted)
 						h = h ^ w;
 					}
 					
-					ri->d[rEXP2] = FFCore.create_user_bitmap_ex(h,w,8); //Return to ptr
+					ri->d[rEXP2] = FFCore.create_user_bitmap_ex(h,w); //Return to ptr
 				}
 				break;
 			}
@@ -38097,11 +38100,8 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(FFCore.isSystemBitref(ri->bitmapref))
 					break; //Don't attempt to own system bitmaps!
-				user_bitmap* b = checkBitmap(ri->bitmapref, "Own()", false);
-				if(b)
-				{
-					b->own(type, i);
-				}
+				if (auto bitmap = checkBitmap(ri->bitmapref, "Own()", false))
+					bitmap->own(type, i);
 				break;
 			}
 			
@@ -41233,12 +41233,11 @@ void FFScript::do_write_bitmap()
 			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
 		}
 	}
-	else if ( ref >= 7 )
+	else if ( ref >= firstUserGeneratedBitmap )
 	{
-		if ( scb.script_created_bitmaps[ref].u_bmp ) 
+		if (auto bmp = user_bitmaps.check(ref - firstUserGeneratedBitmap, "", true); bmp && bmp->u_bmp)
 		{
-			save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref-10].u_bmp, RAMpal);
-			// zprint("Wrote image file %s\n",filename_str.c_str());
+			save_bitmap(filename_str.c_str(), bmp->u_bmp, RAMpal);
 		}
 		else
 		{
@@ -41264,74 +41263,61 @@ void FFScript::set_sarg1(int32_t v)
 	set_register(sarg1, v);
 }
 
-//script_bitmaps scb;
-
-int32_t FFScript::do_allocate_bitmap()
-{	
-	return FFCore.get_free_bitmap();
-}
 void FFScript::do_isvalidbitmap()
 {
 	int32_t UID = get_register(sarg1);
-	//zprint("isValidBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
-	else if ( UID-10>=0 && UID-10 < 256 && scb.script_created_bitmaps[UID-10].u_bmp )
-		set_register(sarg1, 10000);
-	else set_register(sarg1, 0);
+	else if (UID-10>=0)
+	{
+		auto bmp = user_bitmaps.check(UID - 10 - firstUserGeneratedBitmap, "", true);
+		if (bmp && bmp->u_bmp)
+		{
+			set_register(sarg1, 10000);
+			return;
+		}
+	}
+
+	set_register(sarg1, 0);
 }
 void FFScript::do_isallocatedbitmap()
 {
 	int32_t UID = get_register(sarg1);
-	//zprint("isAllocatedBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else
 	{
-		set_register(sarg1, (UID-10>=0 && UID-10 < 256 && scb.script_created_bitmaps[UID-10].reserved()) ? 10000L : 0L);
-		/*
-		UID-=10;
-		if ( UID <= highest_valid_user_bitmap() || UID < firstUserGeneratedBitmap)
-			set_register(sarg1, 10000);
-		else set_register(sarg1, 0);
-		*/
-		
+		auto bmp = user_bitmaps.check(UID - 10 - firstUserGeneratedBitmap, "", true);
+		set_register(sarg1, (UID-10>=0 && bmp) ? 10000L : 0L);
 	}
 }
 
 void FFScript::user_bitmaps_init()
 {
-	scb.clear();
+	user_bitmaps.clear();
 }
 
 int32_t FFScript::do_create_bitmap()
 {
-	//zprint("Begin running FFCore.do_create_bitmap()\n");
-	//CreateBitmap(h,w)
 	int32_t w = (ri->d[rINDEX2] / 10000);
 	int32_t h = (ri->d[rINDEX]/10000);
 	if ( get_qr(qr_OLDCREATEBITMAP_ARGS) )
 	{
-		//flip height and width
-		h = h ^ w;
-		w = h ^ w; 
-		h = h ^ w;
+		std::swap(w, h);
 	}
 	
-	return create_user_bitmap_ex(h,w,8);
+	return create_user_bitmap_ex(h,w);
 }
 
-int32_t FFScript::create_user_bitmap_ex(int32_t w, int32_t h, int32_t d = 8)
+uint32_t FFScript::create_user_bitmap_ex(int32_t w, int32_t h)
 {
-	int32_t id = get_free_bitmap();
-	if ( id > 0 )
-	{
-		user_bitmap* bmp = &(scb.script_created_bitmaps[id-10]);
-		bmp->width = w;
-		bmp->height = h;
-		bmp->depth = d;
-		bmp->u_bmp = create_bitmap_ex(d,w,h);
-		clear_bitmap(bmp->u_bmp);
-	}
-	return id;
+	auto bmp = user_bitmaps.create();
+	if (!bmp)
+		return 0;
+
+	bmp->width = w;
+	bmp->height = h;
+	bmp->u_bmp = create_bitmap_ex(8,w,h);
+	clear_bitmap(bmp->u_bmp);
+	return bmp->id + 10 + firstUserGeneratedBitmap;
 }
 
 BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
@@ -41351,7 +41337,7 @@ BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 		}
 		default: 
 		{
-			if(user_bitmap* b = checkBitmap(id+10, NULL, true, skipError))
+			if(user_bitmap* b = checkBitmap(id + 10, NULL, true, skipError))
 			{
 				return b->u_bmp;
 			}
@@ -41360,19 +41346,12 @@ BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 	}
 }
 
-int32_t FFScript::get_free_bitmap(bool skipError)
+uint32_t FFScript::get_free_bitmap(bool skipError)
 {
-	user_bitmap* bmps = scb.script_created_bitmaps;
-	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
-	{
-		if(!bmps[q].reserved())
-		{
-			bmps[q].reserve();
-			return q+10;
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_bitmap() could not find a valid free bitmap pointer!\n");
-	return 0;
+	auto bmp = user_bitmaps.create(skipError);
+	if (!bmp)
+		return 0;
+	return bmp->id + 10 + firstUserGeneratedBitmap;
 }
 
 void FFScript::do_deallocate_bitmap()
@@ -41381,11 +41360,10 @@ void FFScript::do_deallocate_bitmap()
 	{
 		return; //Don't attempt to deallocate system bitmaps!
 	}
-	user_bitmap* b = checkBitmap(ri->bitmapref, "Free()", false, true);
-	if(b)
-	{
+
+	// Bitmaps are not deallocated right away, but deferred until the next call to scb.update()
+	if (auto b = checkBitmap(ri->bitmapref, "Free()", false, true))
 		b->free_obj();
-	}
 }
 
 bool FFScript::isSystemBitref(int32_t ref)
