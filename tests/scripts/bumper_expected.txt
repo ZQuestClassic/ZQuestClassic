@@ -743,7 +743,7 @@ SETV d2,1
 COMPAREV d2,0
 SETCMP d2,I==
 GOTO 747; return End
-ALLOCATEMEMV d2,60; Case block
+ALLOCATEMEMV d2,60,0; Case block
 STORE d2,0
 WRITEPODSTRING d2,"Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n"
 LOAD d2,0; InlineFunc[void printf(char32)] Params Start
@@ -897,6 +897,6 @@ POP d5; return End AND if() #124 Else End AND if() #123 Else End
 RETURNFUNC; Func[int Sign(int)] Body End
 
 
-ALLOCATEGMEMV d2,4096; void run() Body Start
+ALLOCATEGMEMV d2,4096,0; void run() Body Start
 SETR gd1,d2
 QUIT; void run() Body End

@@ -9,7 +9,7 @@ static AccessorTable FileTable[] =
 	{ "Create",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
 	{ "OpenMode",                   0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR, ZTID_CHAR },{} },
 	{ "Close",                      0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE },{} },
-	{ "Free",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,           FL_INL|FL_DEPR,  { ZTID_FILE },{},0,"Free() no longer does anything as of ZC 3.0. Objects are now freed automatically." },
 	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE },{} },
 	{ "isAllocated",                0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE },{} },
 	{ "isValid",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE },{} },

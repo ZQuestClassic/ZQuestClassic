@@ -22,16 +22,12 @@ enum class script_object_type
 struct user_abstract_obj
 {
 	virtual bool operator==(user_abstract_obj const&) const = default;
+	int32_t ref_count;
 	script_object_type type;
 	uint32_t id;
 	ScriptType owned_type;
 	int32_t owned_i;
-	
-	user_abstract_obj() : owned_type(ScriptType::None), owned_i(0)
-	{}
-	user_abstract_obj(ScriptType owned_type, int32_t owned_i)
-		: owned_type(owned_type), owned_i(owned_i)
-	{}
+
 	virtual ~user_abstract_obj() = default;
 
 	void disown()
@@ -42,9 +38,6 @@ struct user_abstract_obj
 	void clear()
 	{
 		disown();
-	}
-	virtual void free_obj()
-	{
 	}
 	
 	void own(ScriptType type, int32_t i);
@@ -83,15 +76,30 @@ struct user_object : public user_abstract_obj
 {
 	std::vector<int32_t> data;
 	size_t owned_vars;
+	std::vector<bool> var_is_object;
 	scr_func_exec destruct;
+	bool global;
+	bool fake;
 	
 	void prep(dword pc, ScriptType type, word script, int32_t i);
 	
 	void load_arrays(std::map<int32_t,ZScriptArray>& arrs);
 	void save_arrays(std::map<int32_t,ZScriptArray>& arrs);
+	void setGlobal(bool value)
+	{
+		global = value;
+	}
 	bool isGlobal() const
 	{
-		return owned_type == ScriptType::None && owned_i == 0;
+		return global;
+	}
+	bool isMemberObjectType(size_t index)
+	{
+		if (index < owned_vars)
+		{
+			return var_is_object.size() > index && var_is_object[index];
+		}
+		return false;
 	}
 	
 	#ifdef IS_PLAYER

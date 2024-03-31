@@ -603,6 +603,21 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				}
 			}
 		}
+
+		if (section_version >= 41)
+		{
+			uint16_t size_of_set;
+			if(!p_igetw(&size_of_set, f))
+				return 121;
+
+			for (size_t i = 0; i < size_of_set; i++)
+			{
+				uint16_t index;
+				if(!p_igetw(&index, f))
+					return 121;
+				game.global_is_object.insert(index);
+			}
+		}
 		
 		if(section_version>2) //read counters
 		{
@@ -722,11 +737,20 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				//We get the size of each container
 				if(!p_igetl(&tempdword, f))
 					return 54;
-					
+
+				if (section_version >= 41)
+				{
+					word flags;
+					if(!p_igetw(&flags, f))
+						return 119;
+					if ((flags & 1) != 0)
+						a.setObjectType(true);
+				}
+	
 				//We allocate the container
 				a.Resize(tempdword);
 				a.setValid(true); //should always be valid
-				
+
 				//And then fill in the contents
 				for(dword k = 0; k < a.Size(); k++)
 					if(!p_igetl(&(a[k]), f))
@@ -969,7 +993,8 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				return 83;
 			for(uint32_t objind = 0; objind < sz; ++objind)
 			{
-				saved_user_object s_ob;
+				saved_user_object s_ob{};
+				s_ob.obj.fake = true;
 				if(!p_igetl(&s_ob.obj.id,f))
 					return 84;
 				//user_object
@@ -989,6 +1014,14 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				}
 				if(!p_igetl(&obj.owned_vars,f))
 					return 88;
+				if (section_version >= 41)
+				{
+					bitstring bits{};
+					if(!p_getbitstr(&bits, f))
+						return 119;
+					for (size_t i = 0; i < bits.length() && i < obj.owned_vars; i++)
+						obj.var_is_object.push_back(bits.get(i));
+				}
 				//scr_func_exec
 				scr_func_exec& exec = obj.destruct;
 				if(!p_igetl(&exec.pc,f))
@@ -1017,8 +1050,18 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					uint32_t arrsz;
 					if(!p_igetl(&arrsz,f))
 						return 97;
+
+					word flags = 0;
+					if (section_version >= 41)
+					{
+						if(!p_igetw(&flags, f))
+							return 99;
+					}
+
 					ZScriptArray zsarr;
 					zsarr.Resize(arrsz);
+					if ((flags & 1) != 0)
+						zsarr.setObjectType(true);
 					zsarr.setValid(true); //should always be valid
 					for(uint32_t q = 0; q < arrsz; ++q)
 					{
@@ -1207,7 +1250,13 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
 		if(!p_iputl(game.global_d[j],f))
 			return 44;
-	
+
+	if(!p_iputw(game.global_is_object.size(),f))
+		return 120;
+	for (auto index : game.global_is_object)
+		if(!p_iputw(index,f))
+			return 121;
+
 	word num_ctr = 0;
 	for(auto c = MAX_COUNTERS-1; c >= 0; --c)
 	{
@@ -1252,6 +1301,10 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		
 		//Then we put the size of each container
 		if(!p_iputl(a.Size(), f))
+			return 52;
+
+		word flags = a.ObjectType() ? 1 : 0;
+		if(!p_iputw(flags, f))
 			return 52;
 			
 		//Followed by its contents
@@ -1338,8 +1391,16 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		for(uint32_t q = 0; q < datsz; ++q)
 			if(!p_iputl(obj.data.at(q),f))
 				return 87;
+
 		if(!p_iputl(obj.owned_vars,f))
 			return 88;
+
+		bitstring bits{};
+		for (int i = 0; i < obj.var_is_object.size(); i++)
+			bits.set(i, true);
+		if (!p_putbitstr(bits, f))
+			return 87;
+
 		//scr_func_exec
 		scr_func_exec const& exec = obj.destruct;
 		if(!p_iputl(exec.pc,f))
@@ -1366,6 +1427,9 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 			auto& zsarr = pair.second;
 			uint32_t arrsz = zsarr.Size();
 			if(!p_iputl(arrsz,f))
+				return 97;
+			word flags = zsarr.ObjectType() ? 1 : 0;
+			if(!p_iputw(flags, f))
 				return 97;
 			for(uint32_t ind = 0; ind < arrsz; ++ind)
 				if(!p_iputl(zsarr[ind],f))

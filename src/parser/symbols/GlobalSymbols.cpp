@@ -155,7 +155,10 @@ static AccessorTable GlobalTable[] =
 	{ "SizeOfArrayEWeapon",      0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
 	{ "SizeOfArrayNPC",          0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
 	{ "SizeOfArrayItemdata",     0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
-	
+
+	{ "RefCount",                0,          ZTID_LONG,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "GC",                      0,          ZTID_VOID,   -1,          0,  {},{} },
+
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 	//Unused old junk
 	//overload, 2 args
@@ -1834,6 +1837,27 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OArrayPop());
 		LABELBACK(label);
 		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+
+	{
+		Function* function = getFunction("GC");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OGC());
+		LABELBACK(label);
+		RETURN();
+		INLINE_CHECK();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("RefCount");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new ORefCount(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}

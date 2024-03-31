@@ -142,25 +142,25 @@ public:
     typedef T* pointer;
     typedef T type;
     
-    ZCArray() : _ptr(NULL), _size(0), _valid(false)
+    ZCArray() : _ptr(NULL), _size(0), _valid(false), _object_type(false)
     {
         for(int32_t i = 0; i < 4; i++)
             _dim[i] = 0;
     }
     
-    ZCArray(size_type _Size) : _ptr(NULL), _valid(false)
+    ZCArray(size_type _Size) : _ptr(NULL), _valid(false), _object_type(false)
     {
         _SetDimensions(0, 0, _Size);
         _Alloc(_size);
     }
     
-    ZCArray(size_type _Y, size_type _X) : _ptr(NULL), _valid(false)
+    ZCArray(size_type _Y, size_type _X) : _ptr(NULL), _valid(false), _object_type(false)
     {
         _SetDimensions(0, _Y, _X);
         _Alloc(_size);
     }
     
-    ZCArray(size_type _Z, size_type _Y, size_type _X) : _ptr(NULL), _valid(false)
+    ZCArray(size_type _Z, size_type _Y, size_type _X) : _ptr(NULL), _valid(false), _object_type(false)
     {
         _SetDimensions(_Z, _Y, _X);
         _Alloc(_size);
@@ -190,6 +190,8 @@ public:
         if(_size != _Array._size)
             return false;
 		if(_valid != _Array._valid)
+			return false;
+		if(_object_type != _Array._object_type)
 			return false;
             
         for(size_type i(0); i < _size; i++)
@@ -382,6 +384,14 @@ public:
 	{
 		_valid = v;
 	}
+	void setObjectType(bool v)
+	{
+		_object_type = v;
+	}
+	bool ObjectType() const
+	{
+		return _object_type;
+	}
     
     size_type Offset(const size_type _Z, const size_type _Y, const size_type _X) const
     {
@@ -468,6 +478,8 @@ public:
             
         for(size_type i(0); i < _size; i++)
             _ptr[ i ] = _Array._ptr[ i ];
+
+		setObjectType(_Array.ObjectType());
     }
     
     void GetDimensions(size_type _4dim[]) const
@@ -482,6 +494,7 @@ public:
     {
         Resize(0);
 		_valid = false;
+		_object_type = false;
     }
     
     
@@ -520,7 +533,7 @@ protected:
 		}
 		
         pointer _oldPtr = _ptr;
-        _ptr = new type[ _NewSize ];
+        _ptr = new type[ _NewSize ]{};
 		if(indx < 0 || indx > _size) indx = _size;
         
         const size_type _copyRange = (_OldSize < _NewSize ? _OldSize : _NewSize);
@@ -677,6 +690,7 @@ private:
     size_type _size;
     size_type _dim[ 4 ];
 	bool _valid;
+	bool _object_type;
     
 };
 

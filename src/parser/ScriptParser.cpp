@@ -510,6 +510,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY2),new VarArgument(CLASS_THISKEY)));
 				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
 					new VectorArgument(user_class.members)));
+				std::vector<int> object_indices;
+				for (auto&& member : user_class.getScope().getClassData())
+				{
+					auto& type = member.second->getNode()->resolveType(scope, nullptr);
+					if (type.canHoldObject())
+						object_indices.push_back(member.second->getIndex());
+				}
+				if (!object_indices.empty())
+					addOpcode2(funccode, new OMarkTypeClass(new VectorArgument(object_indices)));
 				funccode.push_back(std::shared_ptr<Opcode>(new ONoOp(function.getAltLabel())));
 			}
 			else if(puc == puc_destruct)
@@ -535,6 +544,11 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			CleanupVisitor cv(scope);
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
+			if (puc != puc_construct)
+			{
+				auto returnType = function.returnType;
+				oc.returns_object = returnType && returnType->canHoldObject();
+			}
 			BuildOpcodes bo(scope);
 			bo.parsing_user_class = puc;
 			node.execute(bo, &oc);
@@ -642,12 +656,30 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
 												new VarArgument(SP2)));
+
+			// Retain references from parameters that are objects.
+			for (auto&& datum : function.getInternalScope()->getLocalData())
+			{
+				auto position = lookupStackPosition(*scope, *datum);
+				assert(position);
+				if (!position)
+					continue;
+
+				if (datum->type.canHoldObject())
+				{
+					addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
+					addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
+				}
+			}
+
 			CleanupVisitor cv(scope);
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
+			auto returnType = function.returnType;
+			oc.returns_object = returnType && returnType->canHoldObject();
 			BuildOpcodes bo(scope);
 			node.execute(bo, &oc);
-			
+
 			if (bo.hasError()) failure = true;
 			
 			appendElements(funccode, bo.getResult());
@@ -661,6 +693,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			{
 				// Add appendix code.
 				funccode.push_back(std::shared_ptr<Opcode>(new ONoOp(bo.getReturnLabelID())));
+
+				// Release references from parameters that are objects.
+				for (auto&& datum : function.getInternalScope()->getLocalData())
+				{
+					auto position = lookupStackPosition(*scope, *datum);
+					assert(position);
+					if (datum->type.canHoldObject() && position)
+						addOpcode2(funccode, new ORefRemove(new LiteralArgument(*position)));
+				}
 				
 				// Pop off everything.
 				if(stackSize)

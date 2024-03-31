@@ -2586,6 +2586,11 @@ string OSetRegister::toString() const
     return "SETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OSetObject::toString() const
+{
+    return "SET_OBJECT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OReadPODArrayR::toString() const
 {
 	return "READPODARRAYR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -2626,6 +2631,10 @@ string OWritePODArray::toString() const
 string OConstructClass::toString() const
 {
 	return "ZCLASS_CONSTRUCT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OMarkTypeClass::toString() const
+{
+	return "ZCLASS_MARK_TYPE " + getArgument()->toString();
 }
 string OReadObject::toString() const
 {
@@ -3059,6 +3068,10 @@ string OStore::toString() const
 string OStoreV::toString() const
 {
     return "STOREV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OStoreObject::toString() const
+{
+    return "STORE_OBJECT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OQuit::toString() const
@@ -4412,12 +4425,12 @@ string OAllocateMemRegister::toString() const
 
 string OAllocateMemImmediate::toString() const
 {
-    return "ALLOCATEMEMV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ALLOCATEMEMV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
 }
 
 string OAllocateGlobalMemImmediate::toString() const
 {
-    return "ALLOCATEGMEMV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ALLOCATEGMEMV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
 }
 
 string OAllocateGlobalMemRegister::toString() const
@@ -7052,4 +7065,44 @@ string OWebSocketGetError::toString() const
 string OWebSocketReceive::toString() const
 {
 	return "WEBSOCKET_RECEIVE " + getArgument()->toString();
+}
+
+string OGC::toString() const
+{
+	return "GC";
+}
+
+string ORefInc::toString() const
+{
+	return "REF_INC " + getArgument()->toString();
+}
+
+string ORefDec::toString() const
+{
+	return "REF_DEC " + getArgument()->toString();
+}
+
+string ORefAutorelease::toString() const
+{
+	return "REF_AUTORELEASE " + getArgument()->toString();
+}
+
+string ORefRemove::toString() const
+{
+	return "REF_REMOVE " + getArgument()->toString();
+}
+
+string ORefCount::toString() const
+{
+	return "REF_COUNT " + getArgument()->toString();
+}
+
+string OMarkTypeStack::toString() const
+{
+	return "MARK_TYPE_STACK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OMarkTypeRegister::toString() const
+{
+	return "MARK_TYPE_REG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }

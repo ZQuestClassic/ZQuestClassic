@@ -14,7 +14,7 @@ extern int32_t curScriptIndex;
 extern bool script_funcrun;
 extern std::string* destructstr;
 
-void destroy_object_arr(int32_t ptr);
+void destroy_object_arr(int32_t ptr, bool dec_refs);
 script_data* load_scrdata(ScriptType type, word script, int32_t i);
 
 
@@ -27,7 +27,6 @@ bool user_abstract_obj::own_clear(ScriptType type, int32_t i)
 {
 	if(owned_type == type && owned_i == i)
 	{
-		free_obj();
 		return true;
 	}
 	return false;
@@ -36,7 +35,6 @@ bool user_abstract_obj::own_clear_any()
 {
 	if(owned_type != ScriptType::None || owned_i != 0)
 	{
-		free_obj();
 		return true;
 	}
 	return false;
@@ -47,7 +45,6 @@ bool user_abstract_obj::own_clear_cont()
 	{
 		if(owned_type != ScriptType::Generic)
 		{
-			free_obj();
 			return true;
 		}
 		else if(owned_i > 0 && owned_i < NUMSCRIPTSGENERIC)
@@ -56,7 +53,6 @@ bool user_abstract_obj::own_clear_cont()
 			auto& genscr = user_genscript::get(owned_i);
 			if((genscr.exitState|genscr.reloadState) & mask)
 			{
-				free_obj();
 				return true;
 			}
 		}
@@ -205,7 +201,7 @@ void user_object::clear_nodestruct()
 		for(auto ind = owned_vars; ind < data.size(); ++ind)
 		{
 			auto arrptr = data.at(ind)/10000;
-			destroy_object_arr(arrptr);
+			destroy_object_arr(arrptr, true);
 		}
 	}
 	data.clear();
@@ -215,6 +211,7 @@ void user_object::clear_nodestruct()
 
 user_object::~user_object()
 {
+	if (fake) return;
 	destruct.execute();
 	clear_nodestruct();
 }

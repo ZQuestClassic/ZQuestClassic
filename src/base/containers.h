@@ -301,6 +301,10 @@ public:
 		else if(get(ind))
 			cont[ind/8] &= ~(1 << ind%8);
 	}
+	size_t length() const
+	{
+		return cont.inner().size() * 8;
+	}
 	void normalize() {cont.normalize();}
 	void clear() {cont.clear();}
 	bounded_vec<word,byte>& inner() {return cont;}

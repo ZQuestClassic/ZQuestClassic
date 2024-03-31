@@ -30,6 +30,12 @@ namespace util
 		return it != vec.end();
 	}
 
+	template <typename T>
+	void remove_if_exists(std::vector<T>& vec, const T& item)
+	{
+		vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
+	}
+
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	void trimstr(std::string& str);

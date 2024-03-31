@@ -224,12 +224,12 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        40
+#define V_SAVEGAME        41
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         24
+#define V_FFSCRIPT         25
 #define V_SFX              8
 #define V_FAVORITES        4
 
@@ -1590,6 +1590,7 @@ public:
 	
 	int32_t cmp_op1, cmp_op2; //cached compare operands
 	optional<int32_t> cmp_strcache;
+	std::set<uint32_t> stack_pos_is_object;
 	
 	void Clear()
 	{

@@ -8,6 +8,7 @@
 #include <string>
 #include <list>
 #include <deque>
+#include <bitset>
 #include "zc/zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
 #include "zc/replay.h"
 
@@ -276,6 +277,7 @@ enum mapflagtype
 
 //User-generated / Script-Generated bitmap object
 #define UBMPFLAG_FREEING               0x01
+#define UBMPFLAG_CAN_DELETE            0x02
 struct user_bitmap : public user_abstract_obj
 {
 	BITMAP* u_bmp;
@@ -300,9 +302,24 @@ struct user_bitmap : public user_abstract_obj
 		u_bmp = NULL;
 	}
 
-	void free_obj() override
+	void free_obj()
 	{
 		flags |= UBMPFLAG_FREEING;
+	}
+
+	void mark_can_del()
+	{
+		flags |= UBMPFLAG_CAN_DELETE;
+	}
+
+	bool is_freeing()
+	{
+		return flags & UBMPFLAG_FREEING;
+	}
+
+	bool can_del()
+	{
+		return flags & UBMPFLAG_CAN_DELETE;
 	}
 };
 
@@ -748,6 +765,7 @@ mapscr* tempScreens[7];
 mapscr* ScrollingScreens[7];
 int32_t ScrollingData[SZ_SCROLLDATA];
 std::vector<int32_t> eventData;
+
 int32_t getQRBit(int32_t rule);
 void setHeroAction(int32_t a);
 int32_t getHeroAction();
@@ -1794,7 +1812,6 @@ static void setHeroBigHitbox(bool v);
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
-	static void do_write_bitmap();
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);
 	static void do_setMIDI_volume(int32_t m);
@@ -1852,6 +1869,7 @@ enum __Error
 
 	user_object& create_user_object(uint32_t id);
 	std::vector<user_object*> get_user_objects();
+	user_object* get_user_object(uint32_t id);
 	
     private:
     int32_t sid;
@@ -3128,6 +3146,18 @@ enum ASM_DEFINE
 	WEBSOCKET_RECEIVE,
 	
 	ATOL,
+
+	REF_INC,
+	REF_DEC,
+	REF_AUTORELEASE,
+	REF_REMOVE,
+	REF_COUNT,
+	MARK_TYPE_STACK,
+	MARK_TYPE_REG,
+	ZCLASS_MARK_TYPE,
+	STORE_OBJECT,
+	GC,
+	SET_OBJECT,
 
 	NUMCOMMANDS
 };

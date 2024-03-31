@@ -2120,7 +2120,7 @@ POPARGS d5,0.0005
 RETURNFUNC; Func[void __Ghost_DrawShadow(NPC)] Body End
 PUSHARGSV 0,0.0004; Func[void Ghost_WaitframeLight(FFC, NPC)] Body Start
 SETR d4,SP2
-ALLOCATEMEMV d2,24
+ALLOCATEMEMV d2,24,0
 STORE d2,0.0002
 SETR d0,d2
 PUSHR d0
@@ -2215,7 +2215,7 @@ PUSHR d0
 SETR d2,gd24
 POP d0
 WRITEPODARRAYVR 22,d2
-ALLOCATEMEMV d2,21
+ALLOCATEMEMV d2,21,0
 STORE d2,0.0001
 SETR d2,gd26; if() #355 Test
 PUSHR d2
@@ -2277,7 +2277,7 @@ COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 2294,==; Test 'if'
-ALLOCATEMEMV d2,34; if() #167 Body Start
+ALLOCATEMEMV d2,34,0; if() #167 Body Start
 STORE d2,0
 PUSHR d4
 LOAD d2,0.0005; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Params Start
@@ -2302,7 +2302,7 @@ POP d4
 LOAD d3,0
 DEALLOCATEMEMR d3
 GOTO 2324; if() #167 Body End
-ALLOCATEMEMV d2,10; if() #167 Else Start
+ALLOCATEMEMV d2,10,0; if() #167 Else Start
 STORE d2,0
 PUSHR d4
 LOAD d2,0.0005; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Params Start
@@ -4226,13 +4226,13 @@ LOAD d2,0.0005; for() #55 Body End AND for() #55 LoopIncrement
 SUBV d2,1
 STORE d2,0.0005
 GOTO 4123; for() #55 End
-ALLOCATEMEMV d2,60
+ALLOCATEMEMV d2,60,0
 STORE d2,0.0004
 WRITEPODSTRING d2,"ghost.zh: AutoGhost initialization failed - enemy missing.\n"
-ALLOCATEMEMV d2,30
+ALLOCATEMEMV d2,30,0
 STORE d2,0.0002
 WRITEPODSTRING d2,"  DMap %d, screen %X\n"
-ALLOCATEMEMV d2,30
+ALLOCATEMEMV d2,30,0
 STORE d2,0
 WRITEPODSTRING d2,"  Script %d, enemy ID %d\n"
 LOAD d2,0.0004; InlineFunc[void printf(char32)] Params Start
@@ -5939,7 +5939,7 @@ COMPAREV d2,-1
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 172,==; Test 'if'
-ALLOCATEMEMV d2,2; if() #35 Body Start
+ALLOCATEMEMV d2,2,0; if() #35 Body Start
 STORE d2,0
 PUSHR d4
 LOAD d2,0.0006; UsrFunc[int __AutoGhostParseName(NPC, int)] Params Start
@@ -6204,9 +6204,9 @@ POPARGS d5,0.0007
 RETURNFUNC; Func[void AutoGhost()] Body End
 PUSHARGSV 0,0.0009; Func[int __AutoGhostParseName(NPC, int)] Body Start
 SETR d4,SP2
-ALLOCATEMEMV d2,64
+ALLOCATEMEMV d2,64,0
 STORE d2,0.0008
-ALLOCATEMEMV d2,64
+ALLOCATEMEMV d2,64,0
 STORE d2,0.0007
 SETV d2,1
 PUSHR d2
@@ -6312,10 +6312,10 @@ COMPAREV d2,0
 SETCMP d2,I<=
 COMPAREV d2,0
 GOTOCMP 653,==; Test 'if'
-ALLOCATEMEMV d2,59; if() #585 Body Start
+ALLOCATEMEMV d2,59,0; if() #585 Body Start
 STORE d2,0.0002
 WRITEPODSTRING d2,"ghost.zh: AutoGhost setup failed - script does not exist.\n"
-ALLOCATEMEMV d2,80
+ALLOCATEMEMV d2,80,0
 STORE d2,0
 WRITEPODSTRING d2,"  Script name: %s\n"
 LOAD d2,0.0002; InlineFunc[void printf(char32)] Params Start
@@ -6448,13 +6448,13 @@ COMPAREV d2,0
 SETCMP d2,I<=
 COMPAREV d2,0
 GOTOCMP 707,==; Test 'if'
-ALLOCATEMEMV d2,54; if() #589 Body Start
+ALLOCATEMEMV d2,54,0; if() #589 Body Start
 STORE d2,0.0005
 WRITEPODSTRING d2,"ghost.zh: AutoGhost setup failed - script not found.\n"
-ALLOCATEMEMV d2,80
+ALLOCATEMEMV d2,80,0
 STORE d2,0.0003
 WRITEPODSTRING d2,"  Enemy name: %s\n"
-ALLOCATEMEMV d2,55
+ALLOCATEMEMV d2,55,0
 STORE d2,0.0001
 WRITEPODSTRING d2,"  Script name should start after this character: %c\n"
 LOAD d2,0.0005; InlineFunc[void printf(char32)] Params Start
@@ -12681,7 +12681,7 @@ COMPAREV d2,0
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 6919,==; Test 'if'
-ALLOCATEMEMV d2,43; if() #596 Body Start
+ALLOCATEMEMV d2,43,0; if() #596 Body Start
 STORE d2,0
 WRITEPODSTRING d2,"ghost.zh: Failed to find prototype eweapon"
 LOAD d2,0; InlineFunc[void TraceS(int)] Params Start
@@ -15369,7 +15369,7 @@ SETV gd8,0
 SETV gd2,0
 SETV gd3,0
 SETV gd4,0
-ALLOCATEGMEMV d2,25
+ALLOCATEGMEMV d2,25,0
 SETR gd26,d2
 SETV gd16,0
 SETV gd17,0
@@ -15378,14 +15378,14 @@ SETV gd18,0
 SETV gd22,0
 SETV gd19,0
 SETV gd20,0
-ALLOCATEGMEMV d2,32
+ALLOCATEGMEMV d2,32,0
 SETR gd25,d2
 SETV gd23,0
 SETV gd24,0
-ALLOCATEGMEMV d2,8
+ALLOCATEGMEMV d2,8,0
 SETR gd27,d2
-ALLOCATEGMEMV d2,1000
+ALLOCATEGMEMV d2,1000,0
 SETR gd28,d2
-ALLOCATEGMEMV d2,4096
+ALLOCATEGMEMV d2,4096,0
 SETR gd1,d2
 QUIT; void run() Body End

@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <memory>
 
 #include "BuildVisitors.h"
 #include "CompileError.h"
@@ -321,16 +322,40 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 
 	int32_t startRefCount = arrayRefs.size();
 
-	for (auto it = host.statements.begin();
-		 it != host.statements.end(); ++it)
-	{
+	for (auto it = host.statements.begin(); it != host.statements.end(); ++it)
 		literal_visit(*it, param);
-	}
 
 	deallocateRefsUntilCount(startRefCount);
 	while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
-	
+
+	vector<shared_ptr<Opcode>> ops_stack_refs;
+	for (auto&& datum : scope->getLocalData())
+	{
+		// Currently, arrays are not reference counted.
+		if (datum->type.isArray())
+			continue;
+
+		if (!datum->type.canHoldObject())
+			continue;
+
+		auto position = lookupStackPosition(*scope, *datum);
+		assert(position);
+		if (!position)
+			return;
+
+		addOpcode2(ops_stack_refs, new ORefRemove(new LiteralArgument(*position)));
+	}
+
+	if (c->returns_object)
+		ops_stack_refs.insert(ops_stack_refs.begin(), std::make_shared<ORefAutorelease>(new VarArgument(EXP1)));
+
+	bool last_statement_is_return = !host.statements.empty() && dynamic_cast<ASTStmtReturn*>(host.statements.back()) != nullptr;
+	if (last_statement_is_return)
+		opcodeTargets.back()->insert(opcodeTargets.back()->end() - 1, ops_stack_refs.begin(), ops_stack_refs.end());
+	else
+		addOpcodes(ops_stack_refs);
+
 	scope = scope->getParent();
 }
 
@@ -1589,15 +1614,21 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	if(!val)
 		visit(init, &context);
 
-	// Set variable to EXP1 or 0, depending on the initializer.
+	auto writeType = &host.resolveType(scope, this);
+	bool is_object = writeType && writeType->canHoldObject() && !writeType->isArray();
+
+	// Set variable to EXP1 or val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
 	{
+		if (is_object)
+			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument(1)));
+
 		if (val)
-			addOpcode(new OSetImmediate(new GlobalArgument(*globalId),
-										new LiteralArgument(*val)));
+			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*val)));
+		else if (is_object)
+			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		else
-			addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-									   new VarArgument(EXP1)));
+			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -1606,6 +1637,13 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 		{
 			// I tried to optimize this away in some circumstances, it lead to only problems -Em
 			addOpcode(new OStoreV(new LiteralArgument(*val), new LiteralArgument(offset)));
+		}
+		else if (is_object)
+		{
+			// This command decrements the reference of the object currently stored at the position before
+			// setting the new object and incrementing its reference. Since we set the initial value for
+			// stack variables to 0 (aka a null object), this is fine.
+			addOpcode(new OStoreObject(new VarArgument(EXP1), new LiteralArgument(offset)));
 		}
 		else addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 	}
@@ -1644,18 +1682,22 @@ void BuildOpcodes::buildArrayUninit(
 		return;
 	}
 
+	auto& type = host.resolveType(scope, this);
+	bool is_object = type.canHoldObject();
+
 	// Allocate the array.
 	if (auto globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
-						  new LiteralArgument(totalSize)));
+						  new LiteralArgument(totalSize),
+						  new LiteralArgument(is_object)));
 		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
 								   new VarArgument(EXP1)));
 	}
 	else
 	{
-		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
+		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new LiteralArgument(is_object)));
 		int32_t offset = manager.getStackOffset(false);
 		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
@@ -1861,7 +1903,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	INITC_STORE();
 	auto& func = *host.binding;
 	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
-	
+
 	auto* optarg = opcodeTargets.back();
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	const string func_comment = fmt::format("Func[{}]",func.getUnaliasedSignature(true).asString());
@@ -1895,6 +1937,15 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack(fmt::format("Proto{} Set Destructor",func_comment));
 			addOpcode(new OConstructClass(new VarArgument(EXP1),
 				new VectorArgument(user_class.members)));
+			std::vector<int> object_indices;
+			for (auto&& member : user_class.getScope().getClassData())
+			{
+				auto& type = member.second->getNode()->resolveType(scope, nullptr);
+				if (type.canHoldObject())
+					object_indices.push_back(member.second->getIndex());
+			}
+			if (!object_indices.empty())
+				addOpcode(new OMarkTypeClass(new VectorArgument(object_indices)));
 			commentBack(fmt::format("Proto{} Default Construct",func_comment));
 		}
 		else
@@ -2161,6 +2212,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else func_call_comment = fmt::format("Class{} Call",func_comment);
 		}
 		commentBack(func_call_comment);
+
 		if(func.getFlag(FUNCFLAG_NEVER_RETURN))
 			commentBack("[Opt:NeverRet]");
 		else
@@ -2362,6 +2414,7 @@ void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
 {
 	VISIT_USEVAL(host.operand.get(), param);
 	addOpcode(new OFreeObject(new VarArgument(EXP1)));
+	handleError(CompileError::DeprecatedDelete(&host));
 }
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
@@ -3760,19 +3813,27 @@ void BuildOpcodes::arrayLiteralDeclaration(
 		return;
 	}
 
+	// TODO: host.readType_ is not being set for array literals. Can maybe fix in:
+	// SemanticAnalyzer::caseArrayLiteral - see "// Otherwise, default to Untyped -Em"
+	// For now just grab it here.
+	auto& type = host.declaration->resolveType(scope, this);
+	bool is_object = type.canHoldObject();
+
 	// Create the array and store its id.
 	if (auto globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
-						  new LiteralArgument(size * 10000L)));
+						  new LiteralArgument(size * 10000L),
+						  new LiteralArgument(is_object)));
 		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
 								   new VarArgument(EXP1)));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
-											new LiteralArgument(size * 10000L)));
+											new LiteralArgument(size * 10000L),
+											new LiteralArgument(is_object)));
 		int32_t offset = manager.getStackOffset(false);
 		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
@@ -4132,18 +4193,27 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 		return;
 	}
 
+	bool is_object = false;
+	if (auto type = host.getWriteType(scope, nullptr))
+		is_object = type->canHoldObject() && !type->isArray();
+
 	if (auto globalId = host.binding->getGlobalId())
 	{
 		// Global variable.
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
+		if (is_object)
+			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
+		else
+			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		return;
 	}
 
 	// Set the stack.
 	int32_t offset = host.binding->getStackOffset(false);
 
-	addOpcode(new OStore(new VarArgument(EXP1),new LiteralArgument(offset)));
+	if (is_object)
+		addOpcode(new OStoreObject(new VarArgument(EXP1),new LiteralArgument(offset)));
+	else
+		addOpcode(new OStore(new VarArgument(EXP1),new LiteralArgument(offset)));
 }
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)

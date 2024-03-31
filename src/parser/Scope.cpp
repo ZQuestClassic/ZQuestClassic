@@ -1423,6 +1423,9 @@ void BasicScope::decr_stack_recursive(optional<int32_t> offset)
 }
 bool BasicScope::remove(Datum& datum)
 {
+	if (datum.type.canHoldObject())
+		return false;
+
 	if (!ZScript::isGlobal(datum))
 	{
 		auto it = stackOffsets_.find(&datum);
@@ -2037,6 +2040,11 @@ UserClassVar* ClassScope::getClassVar(std::string const& name)
 		return *var;
 	}
 	return nullptr;
+}
+
+const std::map<std::string, UserClassVar*>& ClassScope::getClassData()
+{
+	return classData_;
 }
 
 std::vector<Function*> ClassScope::getConstructors() const

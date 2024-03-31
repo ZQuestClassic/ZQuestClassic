@@ -1699,7 +1699,6 @@ int32_t init_game()
 		Z_error_fatal("Failed to load save file\n");
 	}
 	init_script_objects();
-	game->load_user_objects();
 	bool firstplay = (game->get_hasplayed() == 0);
 
 	// The following code is the setup for recording a save file, enabled via "replay_new_saves" config.

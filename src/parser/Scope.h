@@ -555,6 +555,7 @@ namespace ZScript
 		bool add(Datum& datum, CompileErrorHandler* errorHandler);
 		void parse_ucv();
 		UserClassVar* getClassVar(std::string const& name);
+		const std::map<std::string, UserClassVar*>& getClassData();
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,

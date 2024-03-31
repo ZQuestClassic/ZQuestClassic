@@ -28,6 +28,7 @@ namespace ZScript
 		ZScript::TypeStore* typeStore;
 		std::vector<std::shared_ptr<Opcode>> initCode;
 		std::vector<std::shared_ptr<Opcode>> deallocCode;
+		bool returns_object;
 	};
 }
 

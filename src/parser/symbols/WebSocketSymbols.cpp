@@ -5,7 +5,7 @@ WebSocketSymbols WebSocketSymbols::singleton = WebSocketSymbols();
 static AccessorTable WebSocketTable[] =
 {
 	//name,                       tag,            rettype,   var,                       funcFlags,  params,optparams
-	{ "Free",                       0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_WEBSOCKET },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,           FL_INL|FL_DEPR,  { ZTID_WEBSOCKET },{},0,"Free() no longer does anything as of ZC 3.0. Objects are now freed automatically." },
 	{ "Own",                        0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_WEBSOCKET },{} },
 	{ "GetError",                   0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_WEBSOCKET, ZTID_CHAR },{} },
 	{ "getState",                   0,         ZTID_FLOAT,   WEBSOCKET_STATE,                   0,  { ZTID_WEBSOCKET },{} },

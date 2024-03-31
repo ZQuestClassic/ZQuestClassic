@@ -420,6 +420,7 @@ namespace ZScript
 		virtual std::string getName() const = 0;
 		virtual bool canCastTo(DataType const& target) const = 0;
 		virtual bool canBeGlobal() const {return true;}
+		virtual bool canHoldObject() const {return isUsrClass();}
 		virtual DataType const* getConstType() const {return constType;}
 		virtual DataType const* getMutType() const {return this;}
 
@@ -649,7 +650,7 @@ namespace ZScript
 	{
 	public:
 		DataTypeClass(int32_t classId, DataType* constType);
-		DataTypeClass(int32_t classId, std::string const& className, DataType* constType);
+		DataTypeClass(int32_t classId, std::string const& className, DataType* constType, bool isGarbageCollected = false);
 		DataTypeClass* clone() const {return new DataTypeClass(*this);}
 
 		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
@@ -658,6 +659,7 @@ namespace ZScript
 		virtual std::string getName() const;
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const {return true;}
+		virtual bool canHoldObject() const {return isGarbageCollected;}
 		virtual bool isClass() const {return true;}
 		virtual bool isConstant() const {return false;}
 
@@ -667,6 +669,7 @@ namespace ZScript
 	protected:
 		int32_t classId;
 		std::string className;
+		bool isGarbageCollected;
 
 		int32_t selfCompare(DataType const& other) const;
 	};
@@ -674,7 +677,7 @@ namespace ZScript
 	class DataTypeClassConst : public DataTypeClass
 	{
 	public:
-		DataTypeClassConst(int32_t classId, std::string const& name);
+		DataTypeClassConst(int32_t classId, std::string const& name, bool isGarbageCollected = false);
 		DataTypeClassConst* clone() const {return new DataTypeClassConst(*this);}
 		
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
@@ -695,6 +698,8 @@ namespace ZScript
 			return elementType.getName() + "[]";}
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const {return true;}
+		virtual bool canHoldObject() const {return elementType.canHoldObject();}
+		
 		virtual bool isArray() const {return true;}
 		virtual bool isResolved() const {return elementType.isResolved();}
 		virtual UserClass* getUsrClass() const {return elementType.getUsrClass();}

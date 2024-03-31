@@ -234,6 +234,28 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 // Defer to the ZASM command interpreter for 1+ commands.
 static void compile_command_interpreter(CompilationState& state, script_data *script, int pc, int count, bool is_wait = false)
 {
+	// TODO: fast path for these commands?
+	bool needs_sp = false;
+	for (int j = 0; j < count; j++)
+	{
+		int index = pc + j;
+		if (index >= script->size)
+			break;
+
+		if (script->zasm[index].command == STORE_OBJECT || script->zasm[index].command == REF_REMOVE)
+		{
+			needs_sp = true;
+			break;
+		}
+	}
+	if (needs_sp)
+	{
+		// ri->sp = g_idx_sp
+		state.wasm->emitLocalGet(state.l_idx_ri);
+		state.wasm->emitGlobalGet(state.g_idx_sp);
+		state.wasm->emitI32Store(4*11); // ri->sp
+	}
+
 	state.wasm->emitI32Const(pc);
 	state.wasm->emitI32Const(count);
 	state.wasm->emitGlobalGet(state.g_idx_sp);
@@ -299,7 +321,7 @@ static bool command_is_compiled(int command)
 	case RETURNFUNC:
 
 	// These commands modify the stack pointer, which is just a local copy. If these commands
-	// were not compiled, then vStackIndex would have to be restored after compile_command_interpreter.
+	// were not compiled, then ri->sp would have to be restored after compile_command_interpreter.
 	case POP:
 	case POPARGS:
 	case PUSHR:

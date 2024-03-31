@@ -12,7 +12,7 @@ Compile finished with exit code '0' (success)
 PUSHARGSV 0,0.0003; void run() Body Start
 SETR d4,SP2
 STOREV 123,0.0001
-ALLOCATEMEMV d2,17
+ALLOCATEMEMV d2,17,0
 STORE d2,0
 WRITEPODSTRING d2,"hello world: %d\n"
 LOAD d2,0; InlineFunc[void printf(char32)] Params Start

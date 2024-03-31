@@ -5,6 +5,7 @@
 #include "items.h"
 #include "pal.h"
 #include "base/util.h"
+#include "user_object.h"
 #include "zc/ffscript.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -38,6 +39,7 @@ void gamedata::Copy(const gamedata& g)
 void gamedata::save_user_objects()
 {
 	user_objects.clear();
+
 #ifndef IS_EDITOR
 	for (auto obj : FFCore.get_user_objects())
 	{
@@ -45,6 +47,8 @@ void gamedata::save_user_objects()
 		{
 			saved_user_object& save_obj = user_objects.emplace_back();
 			save_obj.obj = *obj;
+			save_obj.obj.fake = true;
+			save_obj.obj.ref_count = 0;
 			obj->save_arrays(save_obj.held_arrays);
 		}
 	}
@@ -60,6 +64,10 @@ void gamedata::load_user_objects()
 		auto id = obj.obj.id;
 		auto& object = FFCore.create_user_object(id);
 		object = obj.obj;
+		assert(object.ref_count == 0);
+		object.ref_count = 1; // FFCore.create_user_object added to autorelease pool.
+		object.type = script_object_type::object;
+		object.setGlobal(true);
 		object.load_arrays(obj.held_arrays);
 	}
 #endif
