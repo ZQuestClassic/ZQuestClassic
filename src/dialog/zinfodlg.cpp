@@ -81,6 +81,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					),
 					Label(text = "Itemclass Name:"),
 					fields[FLD_IC_NAME] = TextField(
+						maxwidth = 20_em,
 						maxLength = 255, text = ((*icnameptr) ? (*icnameptr) : ""),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
 						{
@@ -100,6 +101,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						}),
 					Label(text = "Itemclass Help Text:"),
 					fields[FLD_IC_HELP] = TextField(
+						maxwidth = 20_em,
 						maxLength = 65535, text = ((*ichelpptr) ? (*ichelpptr) : ""),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
 						{
@@ -188,6 +190,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					),
 					Label(text = "Combo Type Name:"),
 					fields[FLD_CT_NAME] = TextField(
+						maxwidth = 20_em,
 						maxLength = 255, text = ((*ctnameptr) ? (*ctnameptr) : ""),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
 						{
@@ -207,6 +210,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						}),
 					Label(text = "Combo Type Help Text:"),
 					fields[FLD_CT_HELP] = TextField(
+						maxwidth = 20_em,
 						maxLength = 65535, text = ((*cthelpptr) ? (*cthelpptr) : ""),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
 						{
@@ -295,6 +299,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					),
 					Label(text = "Mapflag Name:"),
 					fields[FLD_MF_NAME] = TextField(
+						maxwidth = 20_em,
 						maxLength = 255, text = ((*mfnameptr) ? (*mfnameptr) : ""),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
 						{
@@ -314,6 +319,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						}),
 					Label(text = "Mapflag Help Text:"),
 					fields[FLD_MF_HELP] = TextField(
+						maxwidth = 20_em,
 						maxLength = 65535, text = ((*mfhelpptr) ? (*mfhelpptr) : ""),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
 						{
@@ -397,6 +403,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					),
 					Label(text = "Weapon Name:"),
 					fields[FLD_WPN_NAME] = TextField(
+						maxwidth = 20_em,
 						maxLength = 255, text = ((*wpnptr) ? (*wpnptr) : ""),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
 						{
@@ -454,6 +461,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					),
 					Label(text = "Counter Name:"),
 					fields[FLD_CTR_NAME] = TextField(
+						maxwidth = 20_em,
 						maxLength = 255, text = ((*ctrnameptr) ? (*ctrnameptr) : ""),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
 						{
