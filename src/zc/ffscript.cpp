@@ -7910,9 +7910,8 @@ int32_t get_register(int32_t arg)
 		}
 		case ZELDABETA:
 		{
-			ret = int32_t(1*10000);
-			if(!isStableRelease()) //Nightly 111/112 should return '111.5' not '112'
-				ret -= 5000;
+			int ver = 120;
+			ret = int32_t(ver*10000);
 			break;
 		}
 		case GAMEDEATHS:
