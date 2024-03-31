@@ -7790,9 +7790,8 @@ int32_t get_register(const int32_t arg)
 		}
 		case ZELDABETA:
 		{
-			ret = int32_t(ALPHA_VER*10000);
-			if(ZC_IS_NIGHTLY) //Nightly 111/112 should return '111.5' not '112'
-				ret -= 5000;
+			int ver = 120;
+			ret = int32_t(ver*10000);
 			break;
 		}
 		case GAMEDEATHS:
