@@ -1445,6 +1445,10 @@ void set_rules(byte* newrules)
 
 int32_t onSelectFFCombo();
 
+void onScreenNotes()
+{
+	edit_screen_notes(Map.CurrScr(), Map.getCurrMap(), Map.getCurrScr());
+}
 static NewMenu data_menu
 {
 	{ "&Screen Data", onScrData },
@@ -1457,11 +1461,13 @@ static NewMenu data_menu
 	{ "&Doors", onDoors },
 	{ "&Maze Path", onPath },
 	{},
-	{ "&Room Data", onRoom },
-	{},
 	{ "&Item", onItem },
 	{ "&Enemies", onEnemies },
 	{ "&Palette", onScreenPalette },
+	{},
+	{ "&Room Data", onRoom },
+	{ "&Notes", onScreenNotes },
+	{ "&Browse Notes", browse_screen_notes },
 };
 
 static NewMenu tunes_menu
