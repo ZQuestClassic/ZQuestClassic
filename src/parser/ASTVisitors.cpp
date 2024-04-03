@@ -97,19 +97,15 @@ void RecursiveVisitor::deprecWarn(Function* func, AST* host, std::string const& 
 		case 0: //No warn
 			break;
 		case 2: //Error
-			//Only show once, if func is deprecated. Show error even if warn shown before.
 			if(func->shouldShowDepr(true))
 			{
 				handleError(CompileError::DeprecatedError(host, s1, s2), &func->getInfo());
-				func->ShownDepr(true);
 			}
 			break;
 		default: //Warn
-			//Only show once, if func is deprecated
 			if(func->shouldShowDepr(false))
 			{
 				handleError(CompileError::DeprecatedWarn(host, s1, s2), &func->getInfo());
-				func->ShownDepr(false);
 			}
 			break;
 	}

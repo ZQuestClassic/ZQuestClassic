@@ -544,7 +544,6 @@ namespace ZScript
 		optional<int32_t> defaultReturn;
 		
 		bool shouldShowDepr(bool err) const;
-		void ShownDepr(bool err);
 		
 		void alias(Function* func, bool force = false);
 		bool is_aliased() const {return bool(aliased_func);}
@@ -601,7 +600,6 @@ namespace ZScript
 		mutable std::optional<int32_t> altlabel;
 		int32_t flags, internal_flags;
 		FunctionScope* internalScope;
-		byte shown_depr;
 		string info;
 
 		// Code implementing this function.
