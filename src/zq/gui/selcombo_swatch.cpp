@@ -53,25 +53,37 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 		break;
 		
 		case MSG_DRAW:
-			BITMAP *buf = create_bitmap_ex(8,20,20);
-			BITMAP *bigbmp = create_bitmap_ex(8,d->h,d->h);
+		{
+			static const int TILE_SZ = 32;
+			int tw = (d->w-4)/TILE_SZ, th = (d->h-4)/TILE_SZ;
+			BITMAP *buf = create_bitmap_ex(8,16*tw+4,16*th+4);
+			BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
 			
 			if(buf && bigbmp)
 			{
 				if(dis)
-					rectfill(bigbmp,0,0,d->h-1,d->h-1,jwin_pal[jcBOX]);
+					rectfill(bigbmp,0,0,d->w-1,d->h-1,jwin_pal[jcBOX]);
 				else
 				{
 					clear_bitmap(buf);
-					
+					clear_bitmap(bigbmp);
 					if(d->d1)
-						overtile16(buf,combobuf[d->d1].tile,2,2,d->d2,combobuf[d->d1].flip);
-						
-					stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
+					{
+						if(tw > 1 || th > 1)
+						{
+							overtileblock16(buf, combobuf[d->d1].tile, 2, 2, tw, th, d->d2, combobuf[d->d1].flip, 0);
+							stretch_blit(buf, bigbmp, 2,2, tw*16, th*16, 2, 2, d->w-4, d->h-4);
+						}
+						else
+						{
+							overtile16(buf,combobuf[d->d1].tile,2,2,d->d2,combobuf[d->d1].flip);
+							stretch_blit(buf, bigbmp, 2,2, 16, 16, 2, 2, d->w-4, d->h-4);
+						}
+					}
 				}
 				destroy_bitmap(buf);
-				jwin_draw_frame(bigbmp,0,0,d->h,d->h,FR_DEEP);
-				blit(bigbmp,screen,0,0,d->x,d->y,d->h,d->h);
+				jwin_draw_frame(bigbmp,0,0,d->w,d->h,FR_DEEP);
+				blit(bigbmp,screen,0,0,d->x,d->y,d->w,d->h);
 				destroy_bitmap(bigbmp);
 			}
 			
@@ -83,19 +95,20 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				int32_t xo = 5;
 				if(dis)
 				{
-					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcBOX],"Combo: %d",d->d1);
-					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+2,jwin_pal[jcDISABLED_FG],-1,"Combo: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->w+xo+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcBOX],"Combo: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->w+xo,d->y+2,jwin_pal[jcDISABLED_FG],-1,"Combo: %d",d->d1);
 					
-					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcBOX],"CSet: %d",d->d2);
-					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+text_height(fonty)+3,jwin_pal[jcDISABLED_FG],-1,"CSet: %d",d->d2);
+					textprintf_ex(screen,fonty,d->x+d->w+xo+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcBOX],"CSet: %d",d->d2);
+					textprintf_ex(screen,fonty,d->x+d->w+xo,d->y+text_height(fonty)+3,jwin_pal[jcDISABLED_FG],-1,"CSet: %d",d->d2);
 				}
 				else
 				{
-					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Combo: %d",d->d1);
-					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
+					textprintf_ex(screen,fonty,d->x+d->w+xo,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Combo: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->w+xo,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
 				}
 			}
 			break;
+		}
 	}
 	return D_O_K;
 }

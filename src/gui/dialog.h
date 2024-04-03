@@ -67,6 +67,8 @@ public:
 		rerun_dlg = true;
 		close();
 	}
+	
+	virtual void post_realize(){}
 
 	/* Subclasses must define an int32_t-convertible type called `message`
 	 * and implement:
