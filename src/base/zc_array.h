@@ -7,6 +7,7 @@
 #define __zc_array_h_
 
 #include "base/zdefs.h"
+#include "base/general.h"
 #include <sstream>
 #include <functional>
 //#define _DEBUGZCARRAY
@@ -142,25 +143,25 @@ public:
     typedef T* pointer;
     typedef T type;
     
-    ZCArray() : _ptr(NULL), _size(0), _valid(false), _object_type(false)
+    ZCArray() : _ptr(NULL), _size(0), _valid(false), _object_type(script_object_type::none)
     {
         for(int32_t i = 0; i < 4; i++)
             _dim[i] = 0;
     }
     
-    ZCArray(size_type _Size) : _ptr(NULL), _valid(false), _object_type(false)
+    ZCArray(size_type _Size) : _ptr(NULL), _valid(false), _object_type(script_object_type::none)
     {
         _SetDimensions(0, 0, _Size);
         _Alloc(_size);
     }
     
-    ZCArray(size_type _Y, size_type _X) : _ptr(NULL), _valid(false), _object_type(false)
+    ZCArray(size_type _Y, size_type _X) : _ptr(NULL), _valid(false), _object_type(script_object_type::none)
     {
         _SetDimensions(0, _Y, _X);
         _Alloc(_size);
     }
     
-    ZCArray(size_type _Z, size_type _Y, size_type _X) : _ptr(NULL), _valid(false), _object_type(false)
+    ZCArray(size_type _Z, size_type _Y, size_type _X) : _ptr(NULL), _valid(false), _object_type(script_object_type::none)
     {
         _SetDimensions(_Z, _Y, _X);
         _Alloc(_size);
@@ -384,13 +385,17 @@ public:
 	{
 		_valid = v;
 	}
-	void setObjectType(bool v)
+	void setObjectType(script_object_type v)
 	{
 		_object_type = v;
 	}
-	bool ObjectType() const
+	script_object_type ObjectType() const
 	{
 		return _object_type;
+	}
+	bool HoldsObjects() const
+	{
+		return _object_type != script_object_type::none;
 	}
     
     size_type Offset(const size_type _Z, const size_type _Y, const size_type _X) const
@@ -494,7 +499,7 @@ public:
     {
         Resize(0);
 		_valid = false;
-		_object_type = false;
+		_object_type = script_object_type::none;
     }
     
     
@@ -690,8 +695,7 @@ private:
     size_type _size;
     size_type _dim[ 4 ];
 	bool _valid;
-	bool _object_type;
-    
+	script_object_type _object_type;
 };
 
 typedef ZCArray<int32_t> ZScriptArray;

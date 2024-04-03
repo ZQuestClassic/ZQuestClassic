@@ -200,6 +200,21 @@ enum controls //Args for 'getInput()'
 #define INT_BTN_X       INT_BTN_EX1
 #define INT_BTN_Y       INT_BTN_EX2
 
+// These values must remain stable.
+enum class script_object_type
+{
+	none,
+	bitmap,
+	dir,
+	file,
+	paldata,
+	rng,
+	stack,
+	websocket,
+	object,
+	last = object,
+};
+
 enum // used for gamedata ITEMS
 {
 	// 0

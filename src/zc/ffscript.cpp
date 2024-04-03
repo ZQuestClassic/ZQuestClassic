@@ -16,6 +16,7 @@
 //
 
 #include "allegro/mouse.h"
+#include "base/general.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/msgstr.h"
@@ -342,7 +343,7 @@ static void run_gc()
 	}
 	for (auto& aptr : game->globalRAM)
 	{
-		if (aptr.ObjectType())
+		if (aptr.HoldsObjects())
 		{
 			for (int i = 0; i < aptr.Size(); i++)
 			{
@@ -352,7 +353,7 @@ static void run_gc()
 	}
 	for (auto& aptr : localRAM)
 	{
-		if (aptr.ObjectType())
+		if (aptr.HoldsObjects())
 		{
 			for (int i = 0; i < aptr.Size(); i++)
 			{
@@ -360,9 +361,10 @@ static void run_gc()
 			}
 		}
 	}
-	for (int i : game->global_is_object)
+	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
 	{
-		live_object_ids.insert(game->global_d[i]);
+		if (game->global_d_types[i] != script_object_type::none)
+			live_object_ids.insert(game->global_d[i]);
 	}
 	for (auto& data : scriptEngineDatas | std::views::values)
 	{
@@ -433,7 +435,7 @@ static void run_gc()
 				continue;
 
 			auto& aptr = objectRAM.at(-ptr);
-			if (!aptr.ObjectType())
+			if (!aptr.HoldsObjects())
 				continue;
 
 			for (int i = 0; i < aptr.Size(); i++)
@@ -468,6 +470,7 @@ static void run_gc()
 				void destroy_object_arr(int32_t ptr, bool dec_refs);
 				destroy_object_arr(ptr, false);
 			}
+			usr_object->owned_vars = 0;
 			usr_object->data.clear();
 		}
 
@@ -498,27 +501,57 @@ void init_script_objects()
 	deallocations_since_last_gc = 0;
 
 	// Load globals and set their reference counts.
+	// Only custom user objects can be restored right now, so
+	// any other object type will be set to NULL.
 	game->load_user_objects();
 	if (!ZScriptVersion::gc())
 		return;
-	for (auto id : game->global_is_object)
-		script_object_ref_inc(game->global_d[id]);
+	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
+	{
+		auto type = game->global_d_types[i];
+		if (type == script_object_type::object && script_objects.contains(game->global_d[i]))
+			script_object_ref_inc(game->global_d[i]);
+		else if (type != script_object_type::none)
+			game->global_d[i] = 0;
+	}
 	for (auto& aptr : game->globalRAM)
 	{
-		if (!aptr.ObjectType())
+		if (!aptr.HoldsObjects())
 			continue;
 
+		if (aptr.ObjectType() != script_object_type::object)
+		{
+			aptr.Clear();
+			continue;
+		}
+
 		for (int i = 0; i < aptr.Size(); i++)
-			script_object_ref_inc(aptr[i]);
+		{
+			if (script_objects.contains(aptr[i]))
+				script_object_ref_inc(aptr[i]);
+			else
+				aptr[i] = 0;
+		}
 	}
 	// This covers any arrays held by saved objects.
 	for (auto& aptr : objectRAM | std::views::values)
 	{
-		if (!aptr.ObjectType())
+		if (!aptr.HoldsObjects())
 			continue;
 
+		if (aptr.ObjectType() != script_object_type::object)
+		{
+			aptr.Clear();
+			continue;
+		}
+
 		for (int i = 0; i < aptr.Size(); i++)
-			script_object_ref_inc(aptr[i]);
+		{
+			if (script_objects.contains(aptr[i]))
+				script_object_ref_inc(aptr[i]);
+			else
+				aptr[i] = 0;
+		}
 	}
 	for (auto& object : FFCore.get_user_objects())
 	{
@@ -528,8 +561,10 @@ void init_script_objects()
 			if (!object->isMemberObjectType(i))
 				continue;
 
-			auto id = object->data[i];
-			script_object_ref_inc(id);
+			if (object->var_types[i] == script_object_type::object && script_objects.contains(object->data[i]))
+				script_object_ref_inc(object->data[i]);
+			else
+				object->data[i] = 0;
 		}
 	}
 }
@@ -3061,13 +3096,13 @@ void ArrayManager::set(int32_t indx, int32_t val)
 		{
 			if(indx < 0)
 				indx += sz; //[-1] becomes [size-1] -Em
-			if (aptr->ObjectType())
+			if (aptr->HoldsObjects())
 			{
 				int id = (*aptr)[indx];
 				script_object_ref_dec(id);
 			}
 			(*aptr)[indx] = val;
-			if (aptr->ObjectType())
+			if (aptr->HoldsObjects())
 				script_object_ref_inc(val);
 		}
 	}
@@ -3103,7 +3138,7 @@ bool ArrayManager::resize(size_t newsize)
 		Z_scripterrlog("Special internal array '%d' not valid for operation 'Resize'\n", ptr);
 		return false;
 	}
-	if (aptr->ObjectType())
+	if (aptr->HoldsObjects())
 	{
 		for (int i = newsize; i < aptr->Size(); i++)
 		{
@@ -3138,7 +3173,7 @@ bool ArrayManager::push(int32_t val, int indx)
 	if(aptr->Size() == ZCARRAY_MAX_SIZE)
 		return false;
 	aptr->Push(val,indx);
-	if (aptr->ObjectType())
+	if (aptr->HoldsObjects())
 		script_object_ref_inc(val);
 	return true;
 }
@@ -3156,7 +3191,7 @@ int32_t ArrayManager::pop(int indx)
 		return -10000;
 	}
 	int32_t val = aptr->Pop(indx);
-	if (aptr->ObjectType())
+	if (aptr->HoldsObjects())
 		script_object_ref_dec(val);
 	return val;
 }
@@ -3202,7 +3237,7 @@ void deallocateArray(const int32_t ptrval)
 			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
 		else
 		{
-			if (localRAM[ptrval].ObjectType())
+			if (localRAM[ptrval].HoldsObjects())
 			{
 				auto&& aptr = localRAM[ptrval];
 				for (int i = 0; i < aptr.Size(); i++)
@@ -29363,7 +29398,7 @@ void do_destroy_array()
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
-static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, bool is_object_type = false)
+static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type = script_object_type::none)
 {
 	dword ptrval;
 	
@@ -29389,7 +29424,7 @@ static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32
 			
 			a.Resize(size);
 			a.setValid(true);
-			a.setObjectType(is_object_type);
+			a.setObjectType(object_type);
 			
 			for(dword j = 0; j < (dword)size; j++)
 				a[j] = 0; //initialize array
@@ -29413,7 +29448,7 @@ static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32
 		
 		a.Resize(size);
 		a.setValid(true);
-		a.setObjectType(is_object_type);
+		a.setObjectType(object_type);
 		
 		for(dword j = 0; j < (dword)size; j++)
 			a[j] = 0;
@@ -29427,7 +29462,8 @@ static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32
 void do_allocatemem(bool v, const bool local, ScriptType type, const uint32_t UID)
 {
 	int32_t size = SH::get_arg(sarg2, v) / 10000;
-	dword ptrval = allocatemem(size, local, type, UID, sarg3 == 1);
+	assert(sarg3 >= 0 && sarg3 <= (int)script_object_type::last);
+	dword ptrval = allocatemem(size, local, type, UID, (script_object_type)sarg3);
 	set_register(sarg1, ptrval * 10000);
 }
 
@@ -35761,7 +35797,7 @@ void destroy_object_arr(int32_t ptr, bool dec_refs)
 		if(it != objectRAM.end())
 		{
 			auto& aptr = it->second;
-			if (dec_refs && aptr.ObjectType())
+			if (dec_refs && aptr.HoldsObjects())
 			{
 				for (int i = 0; i < aptr.Size(); i++)
 					script_object_ref_dec(aptr[i]);
@@ -40840,17 +40876,14 @@ int32_t run_script_int(bool is_jitted)
 					assert(false);
 					break;
 				}
-				if (sarg2 < 0 || sarg2 > 1)
+				if (!(sarg2 >= 0 && sarg2 <= (int)script_object_type::last))
 				{
 					assert(false);
 					break;
 				}
 
 				int index = sarg1 - GD(0);
-				if (sarg2)
-					game->global_is_object.insert(index);
-				else
-					game->global_is_object.erase(index);
+				game->global_d_types[index] = (script_object_type)sarg2;
 				break;
 			}
 			case REF_REMOVE:
@@ -40861,25 +40894,31 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case ZCLASS_MARK_TYPE:
 			{
+				auto& vec = *sargvec;
+				assert(vec.size() % 2 == 0);
+
 				uint32_t id = ri->thiskey;
 				if (auto obj = user_objects.check(id, "ZCLASS_MARK_TYPE"))
 				{
-					for (auto index : *sargvec)
+					for (size_t i = 0; i < vec.size(); i += 2)
 					{
+						int index = vec[i];
+						assert(vec[i + 1] >= 0 && vec[i + 1] <= (int)script_object_type::last);
+						auto type = (script_object_type)vec[i + 1];
 						if (index >= obj->owned_vars)
 						{
 							int ptr = -obj->data[index] / 10000;
 							if (ptr)
 							{
 								ZScriptArray& a = objectRAM.at(ptr);
-								a.setObjectType(true);
+								a.setObjectType(type);
 							}
 						}
 						else
 						{
-							if (obj->var_is_object.size() <= index)
-								obj->var_is_object.resize(index + 1);
-							obj->var_is_object[index] = true;
+							if (obj->var_types.size() <= index)
+								obj->var_types.resize(index + 1);
+							obj->var_types[index] = type;
 						}
 					}
 				}
@@ -40906,7 +40945,7 @@ int32_t run_script_int(bool is_jitted)
 
 				int value = get_register(sarg2);
 				int index = sarg1-GD(0);
-				assert(game->global_is_object.contains(index));
+				assert(game->global_d_types[index] != script_object_type::none);
 				script_object_ref_inc(value);
 				script_object_ref_dec(game->global_d[index]);
 				game->global_d[index] = value;
@@ -42268,7 +42307,7 @@ void FFScript::deallocateZScriptArray(const int32_t ptrval)
 			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
 		else
 		{
-			if (localRAM[ptrval].ObjectType())
+			if (localRAM[ptrval].HoldsObjects())
 			{
 				auto&& aptr = localRAM[ptrval];
 				for (int i = 0; i < aptr.Size(); i++)

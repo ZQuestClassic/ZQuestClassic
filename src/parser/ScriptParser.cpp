@@ -515,7 +515,10 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				{
 					auto& type = member.second->getNode()->resolveType(scope, nullptr);
 					if (type.canHoldObject())
+					{
 						object_indices.push_back(member.second->getIndex());
+						object_indices.push_back((int)type.getScriptObjectTypeId());
+					}
 				}
 				if (!object_indices.empty())
 					addOpcode2(funccode, new OMarkTypeClass(new VectorArgument(object_indices)));

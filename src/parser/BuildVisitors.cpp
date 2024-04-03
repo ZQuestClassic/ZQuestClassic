@@ -5,6 +5,7 @@
 #include "CompileError.h"
 #include "Types.h"
 #include "ZScript.h"
+#include "parser/ByteCode.h"
 
 using namespace ZScript;
 using std::map;
@@ -1623,7 +1624,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	if (auto globalId = manager.getGlobalId())
 	{
 		if (is_object)
-			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument(1)));
+			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 
 		if (val)
 			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*val)));
@@ -1685,7 +1686,7 @@ void BuildOpcodes::buildArrayUninit(
 	}
 
 	auto& type = host.resolveType(scope, this);
-	bool is_object = type.canHoldObject();
+	int script_object_type_id = (int)type.getScriptObjectTypeId();
 
 	// Allocate the array.
 	if (auto globalId = manager.getGlobalId())
@@ -1693,13 +1694,13 @@ void BuildOpcodes::buildArrayUninit(
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(totalSize),
-						  new LiteralArgument(is_object)));
+						  new LiteralArgument(script_object_type_id)));
 		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
 								   new VarArgument(EXP1)));
 	}
 	else
 	{
-		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new LiteralArgument(is_object)));
+		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new LiteralArgument(script_object_type_id)));
 		int32_t offset = manager.getStackOffset(false);
 		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
@@ -1944,7 +1945,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			{
 				auto& type = member.second->getNode()->resolveType(scope, nullptr);
 				if (type.canHoldObject())
+				{
 					object_indices.push_back(member.second->getIndex());
+					object_indices.push_back((int)type.getScriptObjectTypeId());
+				}
 			}
 			if (!object_indices.empty())
 				addOpcode(new OMarkTypeClass(new VectorArgument(object_indices)));
@@ -3819,7 +3823,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	// SemanticAnalyzer::caseArrayLiteral - see "// Otherwise, default to Untyped -Em"
 	// For now just grab it here.
 	auto& type = host.declaration->resolveType(scope, this);
-	bool is_object = type.canHoldObject();
+	int script_object_type_id = (int)type.getScriptObjectTypeId();
 
 	// Create the array and store its id.
 	if (auto globalId = manager.getGlobalId())
@@ -3827,7 +3831,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(size * 10000L),
-						  new LiteralArgument(is_object)));
+						  new LiteralArgument(script_object_type_id)));
 		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
 								   new VarArgument(EXP1)));
 	}
@@ -3835,7 +3839,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L),
-											new LiteralArgument(is_object)));
+											new LiteralArgument(script_object_type_id)));
 		int32_t offset = manager.getStackOffset(false);
 		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
