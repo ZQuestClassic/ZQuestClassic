@@ -1,6 +1,7 @@
 #include "zc/saves.h"
 
 #include "allegro/file.h"
+#include "base/general.h"
 #include "base/packfile.h"
 #include "base/misctypes.h"
 #include "base/fonts.h"
@@ -606,19 +607,17 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 
 		if (section_version >= 41)
 		{
-			uint16_t size_of_set;
-			if(!p_igetw(&size_of_set, f))
-				return 121;
-
-			for (size_t i = 0; i < size_of_set; i++)
+			for (int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
 			{
-				uint16_t index;
-				if(!p_igetw(&index, f))
-					return 121;
-				game.global_is_object.insert(index);
+				word type;
+				if (!p_igetw(&type,f))
+				{
+					return 45;
+				}
+				game.global_d_types[j] = (script_object_type)type;
 			}
 		}
-		
+
 		if(section_version>2) //read counters
 		{
 			word num_ctr = 32;
@@ -740,11 +739,10 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 
 				if (section_version >= 41)
 				{
-					word flags;
-					if(!p_igetw(&flags, f))
+					word type;
+					if(!p_igetw(&type, f))
 						return 119;
-					if ((flags & 1) != 0)
-						a.setObjectType(true);
+					a.setObjectType((script_object_type)type);
 				}
 	
 				//We allocate the container
@@ -1016,11 +1014,11 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					return 88;
 				if (section_version >= 41)
 				{
-					bitstring bits{};
-					if(!p_getbitstr(&bits, f))
+					std::vector<word> types;
+					if (!p_getvec(&types, f))
 						return 119;
-					for (size_t i = 0; i < bits.length() && i < obj.owned_vars; i++)
-						obj.var_is_object.push_back(bits.get(i));
+					for (auto type : types)
+						obj.var_types.push_back((script_object_type)type);
 				}
 				//scr_func_exec
 				scr_func_exec& exec = obj.destruct;
@@ -1051,17 +1049,16 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					if(!p_igetl(&arrsz,f))
 						return 97;
 
-					word flags = 0;
+					word type = 0;
 					if (section_version >= 41)
 					{
-						if(!p_igetw(&flags, f))
+						if(!p_igetw(&type, f))
 							return 99;
 					}
 
 					ZScriptArray zsarr;
 					zsarr.Resize(arrsz);
-					if ((flags & 1) != 0)
-						zsarr.setObjectType(true);
+					zsarr.setObjectType((script_object_type)type);
 					zsarr.setValid(true); //should always be valid
 					for(uint32_t q = 0; q < arrsz; ++q)
 					{
@@ -1251,10 +1248,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputl(game.global_d[j],f))
 			return 44;
 
-	if(!p_iputw(game.global_is_object.size(),f))
-		return 120;
-	for (auto index : game.global_is_object)
-		if(!p_iputw(index,f))
+	for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+		if(!p_iputw((word)game.global_d_types[j],f))
 			return 121;
 
 	word num_ctr = 0;
@@ -1303,8 +1298,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputl(a.Size(), f))
 			return 52;
 
-		word flags = a.ObjectType() ? 1 : 0;
-		if(!p_iputw(flags, f))
+		if(!p_iputw((word)a.ObjectType(), f))
 			return 52;
 			
 		//Followed by its contents
@@ -1395,10 +1389,10 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputl(obj.owned_vars,f))
 			return 88;
 
-		bitstring bits{};
-		for (int i = 0; i < obj.var_is_object.size(); i++)
-			bits.set(i, true);
-		if (!p_putbitstr(bits, f))
+		std::vector<word> types;
+		for (auto type : obj.var_types)
+			types.push_back((word)type);
+		if (!p_putvec(types, f))
 			return 87;
 
 		//scr_func_exec
@@ -1428,8 +1422,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 			uint32_t arrsz = zsarr.Size();
 			if(!p_iputl(arrsz,f))
 				return 97;
-			word flags = zsarr.ObjectType() ? 1 : 0;
-			if(!p_iputw(flags, f))
+			if(!p_iputw((word)zsarr.ObjectType(), f))
 				return 97;
 			for(uint32_t ind = 0; ind < arrsz; ++ind)
 				if(!p_iputl(zsarr[ind],f))

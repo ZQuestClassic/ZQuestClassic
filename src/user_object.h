@@ -7,18 +7,6 @@
 
 enum class ScriptType;
 
-enum class script_object_type
-{
-	bitmap,
-	dir,
-	file,
-	object,
-	paldata,
-	rng,
-	stack,
-	websocket,
-};
-
 struct user_abstract_obj
 {
 	virtual bool operator==(user_abstract_obj const&) const = default;
@@ -76,7 +64,7 @@ struct user_object : public user_abstract_obj
 {
 	std::vector<int32_t> data;
 	size_t owned_vars;
-	std::vector<bool> var_is_object;
+	std::vector<script_object_type> var_types;
 	scr_func_exec destruct;
 	bool global;
 	bool fake;
@@ -97,7 +85,7 @@ struct user_object : public user_abstract_obj
 	{
 		if (index < owned_vars)
 		{
-			return var_is_object.size() > index && var_is_object[index];
+			return var_types.size() > index && var_types[index] != script_object_type::none;
 		}
 		return false;
 	}

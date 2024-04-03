@@ -880,6 +880,29 @@ inline bool p_putarr(std::array<T,Sz> const& cont, PACKFILE *f)
 	return true;
 }
 
+template<typename T>
+inline bool p_getvec(std::vector<T>* cont, PACKFILE *f)
+{
+	uint16_t sz;
+	if(!p_igetw(&sz,f))
+		return false;
+	cont->resize(sz);
+	for(size_t q = 0; q < sz && q < sz; ++q)
+		if(!p_getvar(&((*cont)[q]), f))
+			return false;
+	return true;
+}
+template<typename T>
+inline bool p_putvec(std::vector<T> const& cont, PACKFILE *f)
+{
+	if(!p_iputw(cont.size(),f))
+		return false;
+	for(size_t q = 0; q < cont.size(); ++q)
+		if(!p_putvar(cont[q], f))
+			return false;
+	return true;
+}
+
 template<typename A, typename B>
 inline bool p_getpair(std::pair<A,B>* cont, PACKFILE *f)
 {

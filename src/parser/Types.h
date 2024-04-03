@@ -8,6 +8,8 @@
 #include <vector>
 #include <type_traits>
 #include "CompilerUtils.h"
+#include "base/general.h"
+#include "parser/Scope.h"
 #include "parserDefs.h"
 
 namespace ZScript
@@ -421,6 +423,11 @@ namespace ZScript
 		virtual bool canCastTo(DataType const& target) const = 0;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return isUsrClass();}
+		virtual script_object_type getScriptObjectTypeId() const {
+			if (isUsrClass())
+				return script_object_type::object;
+			return script_object_type::none;
+		}
 		virtual DataType const* getConstType() const {return constType;}
 		virtual DataType const* getMutType() const {return this;}
 
@@ -660,6 +667,19 @@ namespace ZScript
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return isGarbageCollected;}
+		virtual script_object_type getScriptObjectTypeId() const {
+			switch (classId)
+			{
+				case ZCLID_BITMAP: return script_object_type::bitmap;
+				case ZCLID_DIRECTORY: return script_object_type::dir;
+				case ZCLID_FILE: return script_object_type::file;
+				case ZCLID_PALDATA: return script_object_type::paldata;
+				case ZCLID_RNG: return script_object_type::rng;
+				case ZCLID_STACK: return script_object_type::stack;
+				case ZCLID_WEBSOCKET: return script_object_type::websocket;
+			}
+			return script_object_type::none;
+		}
 		virtual bool isClass() const {return true;}
 		virtual bool isConstant() const {return false;}
 
@@ -699,6 +719,7 @@ namespace ZScript
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return elementType.canHoldObject();}
+		virtual script_object_type getScriptObjectTypeId() const {return elementType.getScriptObjectTypeId();}
 		
 		virtual bool isArray() const {return true;}
 		virtual bool isResolved() const {return elementType.isResolved();}
