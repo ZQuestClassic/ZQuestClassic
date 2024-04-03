@@ -927,6 +927,8 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	if (arrow)
 	{
 		DataType const* arrtype = arrow->left->getReadType(scope, this);
+		if(!arrtype)
+			return;
 		if((user_class = arrtype->getUsrClass()))
 			;
 		else parameterTypes.push_back(arrtype);
