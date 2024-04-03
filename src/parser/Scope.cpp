@@ -1236,6 +1236,19 @@ Function* BasicScope::addSetter(
 	return fun;
 }
 
+void BasicScope::addGetter(Function* func)
+{
+	string const& name = func->name;
+	if(find<Function*>(getters_, name)) return;
+	getters_[name] = func;
+}
+void BasicScope::addSetter(Function* func)
+{
+	string const& name = func->name;
+	if(find<Function*>(setters_, name)) return;
+	setters_[name] = func;
+}
+
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
 		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)

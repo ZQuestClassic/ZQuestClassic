@@ -137,6 +137,7 @@ static AccessorTable itemTable[] =
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   ITEMSCRIPTUID,       FL_DEPR,  { ZTID_ITEM },{} },
+	{ "setUID",                     0,          ZTID_VOID,   ITEMSCRIPTUID, FL_DEPR|FL_RDONLY, { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getSizeFlags",               0,         ZTID_FLOAT,   ITEMOVERRIDEFLAGS,   FL_DEPR,  { ZTID_ITEM },{} },
 	{ "setSizeFlags",               0,          ZTID_VOID,   ITEMOVERRIDEFLAGS,   FL_DEPR,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	

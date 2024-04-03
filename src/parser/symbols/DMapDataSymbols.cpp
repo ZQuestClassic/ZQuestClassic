@@ -15,6 +15,7 @@ static AccessorTable DMapDataTable[] =
 	{ "SetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
 	//
 	{ "getID",                      0,         ZTID_FLOAT,   DMAPDATAID,                0,  { ZTID_DMAPDATA },{} },
+	{ "setID",                      0,          ZTID_VOID,   DMAPDATAID,        FL_RDONLY,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "getMap",                     0,         ZTID_FLOAT,   DMAPDATAMAP,               0,  { ZTID_DMAPDATA },{} },
 	{ "setMap",                     0,          ZTID_VOID,   DMAPDATAMAP,               0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "getLevel",                   0,         ZTID_FLOAT,   DMAPDATALEVEL,             0,  { ZTID_DMAPDATA },{} },

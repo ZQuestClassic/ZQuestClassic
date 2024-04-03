@@ -179,6 +179,7 @@ static AccessorTable ewpnTable[] =
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   EWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_EWPN },{} },
+	{ "setUID",                     0,          ZTID_VOID,   EWEAPONSCRIPTUID, FL_DEPR|FL_RDONLY, { ZTID_EWPN, ZTID_FLOAT },{} },
 	{ "getParentUID",               0,         ZTID_FLOAT,   EWPNPARENTUID,       FL_DEPR,  { ZTID_EWPN },{} },
 	{ "setParentUID",               0,          ZTID_VOID,   EWPNPARENTUID,       FL_DEPR,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	

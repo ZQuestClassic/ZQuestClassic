@@ -135,7 +135,7 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 		auto& stmts = block->statements;
 		if(mode == MODE_EXPASS) //already parsed through at least once
 		{
-			if(function.getFlag(FUNCFLAG_NIL))
+			if(function.isNil())
 				return; //nothing more to possibly do here
 		}
 		ResetVisitor resetter;

@@ -6,6 +6,7 @@ static AccessorTable SpriteDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getID",                      0,         ZTID_FLOAT,   SPRITEDATAID,              0,  { ZTID_SPRITEDATA },{} },
+	{ "setID",                      0,          ZTID_VOID,   SPRITEDATAID,      FL_RDONLY,  { ZTID_SPRITEDATA, ZTID_FLOAT },{} },
 	{ "getTile",                    0,         ZTID_FLOAT,   SPRITEDATATILE,            0,  { ZTID_SPRITEDATA },{} },
 	{ "setTile",                    0,          ZTID_VOID,   SPRITEDATATILE,            0,  { ZTID_SPRITEDATA, ZTID_FLOAT },{} },
 	{ "getCSet",                    0,         ZTID_FLOAT,   SPRITEDATACSETS,           0,  { ZTID_SPRITEDATA },{} },
