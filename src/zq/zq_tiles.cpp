@@ -17170,6 +17170,7 @@ bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 		"Attrishorts",
 		"Attributes",
 		"Flags",
+		"Gen. Flags",
 		"Label",
 		"Script",
 		"Effect",
