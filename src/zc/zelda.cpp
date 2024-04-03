@@ -5190,7 +5190,8 @@ reload_for_replay_file:
 		}
 		else 
 		{
-			init_game_vars();
+			if(Quit != qCONT)
+				init_game_vars();
 			titlescreen(load_save);
 		}
 		if(clearConsoleOnReload)
