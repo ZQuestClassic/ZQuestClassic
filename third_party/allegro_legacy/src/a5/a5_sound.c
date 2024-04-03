@@ -20,7 +20,7 @@
 #include "allegro/platform/ainta5.h"
 #include "allegro/platform/ala5.h"
 
-#define _A5_SOUND_BUFFERS        8
+#define _A5_SOUND_BUFFERS        3
 #define _A5_SOUND_BUFFER_SIZE 1024
 #ifdef __EMSCRIPTEN__
     #define _A5_SOUND_FREQUENCY  22050
