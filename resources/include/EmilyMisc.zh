@@ -1481,7 +1481,6 @@ namespace Emily
 			colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
 			Waitframe();
 		}
-		b->Free();
 		dm->Map = olddm[0];
 		dm->Level = olddm[1];
 		dm->Offset = olddm[2];
@@ -1617,7 +1616,6 @@ namespace Emily
 				Waitframe();
 			}
 		}
-		b->Free();
 		dm->Map = olddm[0];
 		dm->Level = olddm[1];
 		dm->Offset = olddm[2];
