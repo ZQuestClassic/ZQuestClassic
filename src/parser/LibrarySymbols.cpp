@@ -198,15 +198,45 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		try
 		{
 			AccessorTable& entry = table[i];
+			
+			std::string const& name = entry.name;
+			std::string varName = name;
+			
+			// Strip out the array at the end.
+			bool isArray = name.substr(name.size() - 2) == "[]";
+			if (isArray)
+				varName = name.substr(0, name.size() - 2);
+			
 			if(entry.alias_name)
 			{
 				Function* func = new Function();
-				func->name = entry.name;
 				func->setInfo(entry.info);
 				func->setFlag(entry.funcFlags);
 				func->setEntry(&entry);
 				if(hasPrefixType)
 					func->hasPrefixType = true;
+				if (name.substr(0, 3) == "set")
+				{
+					assert(entry.alias_name->substr(0, 3) == "set");
+					varName = varName.substr(3); // Strip out "set".
+					func->name = varName;
+				}
+				else if (name.substr(0, 5) == "const")
+				{
+					assert(entry.alias_name->substr(0, 5) == "const");
+					varName = varName.substr(5); // Strip out "const".
+					func->name = varName;
+				}
+				else if (name.substr(0, 3) == "get")
+				{
+					assert(entry.alias_name->substr(0, 3) == "get");
+					varName = varName.substr(3); // Strip out "get".
+					func->name = varName;
+				}
+				else
+				{
+					func->name = varName;
+				}
 				alias_functions[make_pair(entry.name,entry.tag)] = func;
 				continue;
 			}
@@ -215,14 +245,6 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			vector<DataType const*> paramTypes;
 			for (auto& ptype : entry.params)
 				paramTypes.push_back(typeStore.getType(ptype));
-					
-			std::string const& name = entry.name;
-			std::string varName = name;
-				
-			// Strip out the array at the end.
-			bool isArray = name.substr(name.size() - 2) == "[]";
-			if (isArray)
-				varName = name.substr(0, name.size() - 2);
 
 			// Create function object.
 			auto setorget = FUNCTION;
@@ -277,7 +299,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			}
 			// Generate function code for getters/setters
 			int32_t label = function->getLabel();
-			if(function->getFlag(FUNCFLAG_NIL))
+			if(function->isNil())
 			{
 				handleNil(refVar, function);
 			}
@@ -313,10 +335,16 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		for(auto& p : alias_functions)
 		{
 			Function* func = p.second;
-			auto entry = func->getEntry();
-			Function* alias_func = getAlias(*entry->alias_name, entry->alias_tag);
+			auto& entry = *func->getEntry();
+			Function* alias_func = getAlias(*entry.alias_name, entry.alias_tag);
 			func->alias(alias_func);
-			scope.addAlias(func);
+			if (entry.name.substr(0, 3) == "set")
+				scope.addSetter(func);
+			else if (entry.name.substr(0, 5) == "const")
+				scope.addGetter(func);
+			else if (entry.name.substr(0, 3) == "get")
+				scope.addGetter(func);
+			else scope.addAlias(func);
 		}
 		generateCode();
 	}

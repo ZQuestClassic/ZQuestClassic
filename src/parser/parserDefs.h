@@ -23,6 +23,7 @@ using namespace util;
 #define FUNCFLAG_NIL                0x00000400 //Function does 'nothing' (optimizable)
 #define FUNCFLAG_EXITS              0x00000800 //Function exits the current script (or game)
 #define FUNCFLAG_NEVER_RETURN       0x00001000 //Function never returns
+#define FUNCFLAG_READ_ONLY          0x00002000 //Function is read-only
 
 #define IFUNCFLAG_SKIPPOINTER	      0x01
 #define IFUNCFLAG_REASSIGNPTR	      0x02

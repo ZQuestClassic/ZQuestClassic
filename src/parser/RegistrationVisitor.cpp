@@ -1195,6 +1195,8 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	
 	host.binding = bestFunctions.front();
 	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
+	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
+		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));
 	
 	if(!host.binding->get_constexpr())
 		handleError(CompileError::GlobalVarFuncCall(&host));

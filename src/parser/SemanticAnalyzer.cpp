@@ -1370,6 +1370,9 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 								leftType->getName().c_str()));
 				return;
 			}
+			if(host.writeFunction->getFlag(FUNCFLAG_READ_ONLY))
+				handleError(CompileError::ReadOnly(&host, fmt::format("{}->{}{}",
+					leftType->getName().c_str(), host.right, (host.index ? "[]" : ""))));
 		}
 		
 		if(host.arrayFunction)
@@ -1720,6 +1723,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	
 	host.binding = bestFunctions.front();
 	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
+	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
+		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

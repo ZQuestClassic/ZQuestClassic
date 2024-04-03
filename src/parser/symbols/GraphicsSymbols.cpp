@@ -13,6 +13,7 @@ static AccessorTable GraphicsTable[] =
 	{ "MonochromeHue",              0,          ZTID_VOID,   -1,                        0,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 10000 } },
 	{ "ClearTint",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS },{} },
 	{ "getIsBlankTile[]",           0,         ZTID_FLOAT,   ISBLANKTILE,               0,  { ZTID_GRAPHICS, ZTID_FLOAT },{} },
+	{ "setIsBlankTile[]",           0,          ZTID_VOID,   ISBLANKTILE,       FL_RDONLY,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "_getNumDraws",               0,         ZTID_FLOAT,   NUMDRAWS,                  0,  { ZTID_GRAPHICS },{} },
 	{ "_getMaxDraws",               0,         ZTID_FLOAT,   MAXDRAWS,                  0,  { ZTID_GRAPHICS },{} },
 	{ "GetPixel",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GRAPHICS, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -25,7 +26,8 @@ static AccessorTable GraphicsTable[] =
 	{ "ConvertToRGB",               0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetTilePixel",               0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
 	{ "SetTilePixel",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "getIs8BitTile[]",           0,         ZTID_FLOAT,   IS8BITTILE,               0,  { ZTID_GRAPHICS, ZTID_FLOAT },{} },
+	{ "getIs8BitTile[]",           0,          ZTID_BOOL,   IS8BITTILE,               0,  { ZTID_GRAPHICS, ZTID_FLOAT },{} },
+	{ "setIs8BitTile[]",           0,          ZTID_VOID,   IS8BITTILE,       FL_RDONLY,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_BOOL },{} },
 
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

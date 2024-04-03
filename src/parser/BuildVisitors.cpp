@@ -351,7 +351,9 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 		ops_stack_refs.insert(ops_stack_refs.begin(), std::make_shared<ORefAutorelease>(new VarArgument(EXP1)));
 
 	bool last_statement_is_return = !host.statements.empty() && dynamic_cast<ASTStmtReturn*>(host.statements.back()) != nullptr;
-	if (last_statement_is_return)
+	if (ops_stack_refs.empty())
+		;
+	else if (last_statement_is_return)
 		opcodeTargets.back()->insert(opcodeTargets.back()->end() - 1, ops_stack_refs.begin(), ops_stack_refs.end());
 	else
 		addOpcodes(ops_stack_refs);
@@ -1782,7 +1784,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 	Function* readfunc = isarray ? host.arrayFunction : host.readFunction;
 	assert(readfunc->isInternal());
 	
-	if(readfunc->getFlag(FUNCFLAG_NIL))
+	if(readfunc->isNil())
 	{
 		bool skipptr = readfunc->getIntFlag(IFUNCFLAG_SKIPPOINTER);
 		
@@ -4240,7 +4242,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
 	
-	if(host.writeFunction->getFlag(FUNCFLAG_NIL))
+	if(host.writeFunction->isNil())
 	{
 		bool skipptr = host.writeFunction->getIntFlag(IFUNCFLAG_SKIPPOINTER);
 		bool needs_pushpop = isIndexed || !skipptr;
