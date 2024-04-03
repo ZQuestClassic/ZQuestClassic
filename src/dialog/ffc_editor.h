@@ -53,7 +53,7 @@ public:
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 	
-	virtual void post_realize();
+	void post_realize() override;
 private:
 	std::shared_ptr<GUI::Widget> FFC_INITD(int index);
 	void refreshScript();
