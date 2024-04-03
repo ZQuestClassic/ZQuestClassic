@@ -9,7 +9,12 @@ ZQ_BUFFER Line 431 @ Columns 4-12 - Warning G103: The 'delete' operator no longe
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 83,
+  "symbols": 88,
+  "identifiers": 440
+}
 PUSHR REFFFC; void run() Body Start
 PUSHARGSV 0,0.0053
 SETR d4,SP2

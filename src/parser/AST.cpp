@@ -614,6 +614,12 @@ ASTString::ASTString(const char* str, LocationData const& location)
 	: AST(location), str(static_cast<string>(str))
 {}
 
+ASTString::ASTString(const char* str, std::string comment, LocationData const& location)
+	: AST(location), str(static_cast<string>(str))
+{
+	doc_comment = comment;
+}
+
 ASTString::ASTString(string const& str, LocationData const& location)
 	: AST(location), str(str)
 {}
@@ -1047,7 +1053,7 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), script(NULL)
+	: ASTDecl(location), type(NULL), script(NULL), name_location()
 {
 	metadata.autogen();
 }
@@ -1082,7 +1088,7 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 // ASTClass
 
 ASTClass::ASTClass(LocationData const& location)
-	: ASTDecl(location), name(""), user_class(NULL)
+	: ASTDecl(location), name(""), user_class(NULL), name_location()
 {}
 
 void ASTClass::execute(ASTVisitor& visitor, void* param)
@@ -1669,7 +1675,7 @@ DataType const* ASTExprIdentifier::getWriteType(Scope* scope, CompileErrorHandle
 
 // ASTExprArrow
 
-ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
+ASTExprArrow::ASTExprArrow(ASTExpr* left, ASTString* right,
 						   LocationData const& location)
 	: ASTExpr(location), left(left), right(right), index(NULL),
 	  leftClass(NULL), arrayFunction(NULL), readFunction(NULL), writeFunction(NULL),
@@ -1683,7 +1689,7 @@ void ASTExprArrow::execute(ASTVisitor& visitor, void* param)
 
 string ASTExprArrow::asString() const
 {
-	string s = left->asString() + "->" + right;
+	string s = left->asString() + "->" + right->getValue();
 	if (index != NULL) s += "[" + index->asString() + "]";
 	return s;
 }

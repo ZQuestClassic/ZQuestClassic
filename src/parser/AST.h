@@ -250,6 +250,9 @@ namespace ZScript
 		// Filename and linenumber.
 		LocationData location;
 
+		// Documentation string associated with this node.
+		string doc_comment;
+
 		// List of expected compile error ids for this node. They are
 		// removed as they are encountered.
 		owning_vector<ASTExprConst> compileErrorCatches;
@@ -367,6 +370,9 @@ namespace ZScript
 	public:
 		ASTString(const char* str,
 		          LocationData const& location = LOC_NONE);
+		ASTString(const char* str,
+				  std::string comment,
+		          LocationData const& location);
 		ASTString(std::string const& str,
 		          LocationData const& location = LOC_NONE);
 		ASTString* clone() const {return new ASTString(*this);}
@@ -824,6 +830,7 @@ namespace ZScript
 		optional<int32_t> init_weight;
 		
 		Script* script;
+		LocationData name_location;
 	};
 	class ASTClass : public ASTDecl
 	{
@@ -839,6 +846,7 @@ namespace ZScript
 		void addDeclaration(ASTDecl& declaration);
 
 		std::string name;
+		LocationData name_location;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
@@ -1337,6 +1345,7 @@ namespace ZScript
 	
 		// The identifier components separated by '.' or '::'.
 		std::vector<std::string> components;
+		std::vector<std::shared_ptr<ASTString>> componentNodes;
 		//Which symbol was used to delimit each?
 		std::vector<std::string> delimiters;
 
@@ -1352,8 +1361,8 @@ namespace ZScript
 	class ASTExprArrow : public ASTExpr
 	{
 	public:
-		ASTExprArrow(ASTExpr* left = NULL,
-		             std::string const& right = "",
+		ASTExprArrow(ASTExpr* left,
+		             ASTString* right,
 		             LocationData const& location = LOC_NONE);
 		ASTExprArrow* clone() const {return new ASTExprArrow(*this);}
 
@@ -1371,7 +1380,7 @@ namespace ZScript
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 	
 		owning_ptr<ASTExpr> left;
-		std::string right;
+		owning_ptr<ASTString> right;
 		owning_ptr<ASTExpr> index;
 
 		ZClass* leftClass;

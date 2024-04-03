@@ -1487,7 +1487,7 @@ std::optional<int32_t> BasicScope::getLocalStackOffset(Datum const& datum) const
 // FileScope
 
 FileScope::FileScope(Scope* parent, string const& filename)
-	: BasicScope(parent, NULL), filename_(filename)
+	: BasicScope(parent, NULL, filename), filename_(filename)
 {
 	//defaultOption_ = CompileOptionSetting::Default; //No, let it default to `Inherit`. -V
 }

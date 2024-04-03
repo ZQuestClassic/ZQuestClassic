@@ -11,7 +11,12 @@ ZQ_BUFFER Line 12 @ Columns 40-48 - Warning C020: Constant 10000000 is too long 
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 6,
+  "symbols": 9,
+  "identifiers": 82
+}
 PUSHR REFFFC; void run() Body Start
 PUSHARGSV 0,0.0002
 SETR d4,SP2

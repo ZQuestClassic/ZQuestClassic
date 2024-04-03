@@ -1066,10 +1066,11 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 	//
 	if(!host.constructors.size())
 	{
-		ASTFuncDecl* defcon = new ASTFuncDecl(host.location);
-		ASTExprIdentifier* iden = new ASTExprIdentifier(name, host.location);
+		ASTFuncDecl* defcon = new ASTFuncDecl(host.name_location);
+		ASTExprIdentifier* iden = new ASTExprIdentifier(name, host.name_location);
 		defcon->iden = iden;
 		defcon->name = name;
+		defcon->doc_comment = host.doc_comment;
 		defcon->prototype = true;
 		defcon->defaultReturn = new ASTExprConst(new ASTExprCast(
 				new ASTDataType(DataType::CUNTYPED, host.location),
@@ -1274,7 +1275,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	if(UserClass* user_class = base_ltype.getUsrClass())
 	{
 		ClassScope* cscope = &user_class->getScope();
-		if(UserClassVar* dat = cscope->getClassVar(host.right))
+		if(UserClassVar* dat = cscope->getClassVar(host.right->getValue()))
 		{
 			host.rtype = &dat->type;
 			if(!dat->type.isConstant())
@@ -1284,7 +1285,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		else if(!host.iscall)
 			handleError(CompileError::ArrowNoVar(
 				&host,
-				host.right,
+				host.right->getValue(),
 				user_class->getName().c_str()));
 		return;
 	}
@@ -1297,7 +1298,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	}
 	host.leftClass = program.getTypeStore().getClass(leftType->getClassId());
 	// zconsole_db("Arrow for type '%s->'", leftType->getName());
-	Function* reader = lookupGetter(*host.leftClass, host.right);
+	Function* reader = lookupGetter(*host.leftClass, host.right->getValue());
 	if(reader && reader->getFlag(FUNCFLAG_INTARRAY))
 		host.arrayFunction = reader;
 	
@@ -1310,7 +1311,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : ""),
+							host.right->getValue() + (host.index ? "[]" : ""),
 							leftType->getName().c_str()));
 			return;
 		}
@@ -1321,14 +1322,14 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			handleError(
 					CompileError::ArrowNoVar(
 							&host,
-							host.right + (host.index ? "[]" : ""),
+							host.right->getValue() + (host.index ? "[]" : ""),
 							leftType->getName().c_str()));
 			return;
 		}
 		
 		if(host.arrayFunction)
-			deprecWarn(host.arrayFunction, &host, "IntArray", leftType->getName() + "->" + host.right);
-		else deprecWarn(host.readFunction, &host, "Variable", leftType->getName() + "->" + host.right);
+			deprecWarn(host.arrayFunction, &host, "IntArray", leftType->getName() + "->" + host.right->getValue());
+		else deprecWarn(host.readFunction, &host, "Variable", leftType->getName() + "->" + host.right->getValue());
 	}
 
 	// Find write function.
@@ -1342,20 +1343,20 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 				handleError(
 						CompileError::ArrowNoVar(
 								&host,
-								host.right + (host.index ? "[]" : ""),
+								host.right->getValue() + (host.index ? "[]" : ""),
 								leftType->getName().c_str()));
 				return;
 			}
 		}
 		else
 		{
-			host.writeFunction = lookupSetter(*host.leftClass, host.right);
+			host.writeFunction = lookupSetter(*host.leftClass, host.right->getValue());
 			if (!host.writeFunction)
 			{
 				handleError(
 						CompileError::ArrowNoVar(
 								&host,
-								host.right + (host.index ? "[]" : ""),
+								host.right->getValue() + (host.index ? "[]" : ""),
 								leftType->getName().c_str()));
 				return;
 			}
@@ -1366,18 +1367,18 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 				handleError(
 						CompileError::ArrowNoVar(
 								&host,
-								host.right + (host.index ? "[]" : ""),
+								host.right->getValue() + (host.index ? "[]" : ""),
 								leftType->getName().c_str()));
 				return;
 			}
 			if(host.writeFunction->getFlag(FUNCFLAG_READ_ONLY))
 				handleError(CompileError::ReadOnly(&host, fmt::format("{}->{}{}",
-					leftType->getName().c_str(), host.right, (host.index ? "[]" : ""))));
+					leftType->getName().c_str(), host.right->getValue(), (host.index ? "[]" : ""))));
 		}
 		
 		if(host.arrayFunction)
-			deprecWarn(host.arrayFunction, &host, "Constant", leftType->getName() + "->" + host.right);
-		else deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right);
+			deprecWarn(host.arrayFunction, &host, "Constant", leftType->getName() + "->" + host.right->getValue());
+		else deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right->getValue());
 	}
 
 	if (host.index)
@@ -1494,9 +1495,9 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else if(user_class)
 	{
-		functions = lookupClassFuncs(*user_class, arrow->right, parameterTypes);
+		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes);
 	}
-	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
+	else functions = lookupFunctions(*arrow->leftClass, arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;

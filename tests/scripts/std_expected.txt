@@ -8,7 +8,12 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 0,
+  "symbols": 0,
+  "identifiers": 0
+}
 ALLOCATEGMEMV d2,4096,0; void run() Body Start
 SETR gd1,d2
 QUIT; void run() Body End

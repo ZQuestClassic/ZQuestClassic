@@ -8,7 +8,12 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 56,
+  "symbols": 83,
+  "identifiers": 250
+}
 PUSHR REFFFC; void run() Body Start
 SETR d4,SP2
 CALLFUNC 0.0546; UsrFunc[void runTestCredits()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End

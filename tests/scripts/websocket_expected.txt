@@ -8,7 +8,12 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 9,
+  "symbols": 12,
+  "identifiers": 33
+}
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0,0.0010
 SETR d4,SP2

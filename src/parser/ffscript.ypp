@@ -30,6 +30,7 @@ extern char* yytext;
 extern int32_t yyleng;
 extern int32_t yylex(void);
 extern FILE *yyin, *yyout;
+extern ZScript::AST* first_identifier_for_line;
 extern void resetLexer();
 void yyerror(std::unique_ptr<ASTFile>& root, const char* s);
 void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
@@ -741,8 +742,11 @@ Data_Element_Array_List :
 			ASTString* name = (ASTString*)$1;
 			ASTDataDecl* element = new ASTDataDecl(@$);
 			element->name = name->getValue();
+			element->doc_comment = std::move(name->doc_comment);
+			if (!first_identifier_for_line) first_identifier_for_line = element;
+			delete name;
 			$$ = element;
-			delete name;}
+		}
 	;
 
 Single_Data_req_assign :
@@ -850,6 +854,7 @@ Function_Heading :
 		func->iden = iden;
 		func->name = iden->components.back();
 		func->location = @$;
+		func->doc_comment = std::move(iden->doc_comment);
 		$$ = func;}
 	;
 
@@ -925,6 +930,9 @@ Class :
 		ASTClass* user_class = (ASTClass*)$3;
 		user_class->name = name->getValue();
 		user_class->location = @$;
+		user_class->name_location = name->location;
+		user_class->doc_comment = std::move(name->doc_comment);
+		if (!first_identifier_for_line) first_identifier_for_line = user_class;
 		$$ = user_class;
 		delete name;}
 	;
@@ -1250,6 +1258,7 @@ Script :
 		script->type = type;
 		script->metadata.script_name = name->getValue();
 		script->location = @$;
+		script->name_location = name->location;
 		$$ = script;
 		delete name;}
 
@@ -1260,6 +1269,7 @@ Script :
 		script->type = type;
 		script->metadata.script_name = name->getValue();
 		script->location = @$;
+		script->name_location = name->location;
 		$$ = script;
 		delete name;}
 	;
@@ -1878,32 +1888,40 @@ Enum_Block:
 		ASTString* name = (ASTString*)$3;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
+		element->doc_comment = std::move(name->doc_comment);
 		en->add(element);
+		delete name;
 		$$ = en;}
 	| Enum_Block COMMA IDENTIFIER ASSIGN Expression_Constant {
 		ASTDataEnum* en = (ASTDataEnum*)$1;
 		ASTString* name = (ASTString*)$3;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
+		element->doc_comment = std::move(name->doc_comment);
 		ASTExprConst* value = (ASTExprConst*)$5;
 		element->setInitializer(value);
 		en->add(element);
+		delete name;
 		$$ = en;}
 	| IDENTIFIER {
 		ASTDataEnum* en = new ASTDataEnum(@$);
 		ASTString* name = (ASTString*)$1;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
+		element->doc_comment = std::move(name->doc_comment);
 		en->add(element);
+		delete name;
 		$$ = en;}
 	| IDENTIFIER ASSIGN Expression_Constant {
 		ASTDataEnum* en = new ASTDataEnum(@$);
 		ASTString* name = (ASTString*)$1;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
+		element->doc_comment = std::move(name->doc_comment);
 		ASTExprConst* value = (ASTExprConst*)$3;
 		element->setInitializer(value);
 		en->add(element);
+		delete name;
 		$$ = en;}*/
 
 ////////////////////////////////////////////////////////////////
@@ -1936,34 +1954,34 @@ Mixed_Identifier_List:
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back(".");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| idlist_scopres DOT Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back(".");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| Mixed_Identifier_List ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back("::");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| idlist_dot ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back("::");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	;
 
 idlist_scopres:
@@ -1971,18 +1989,18 @@ idlist_scopres:
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back("::");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| Ambigious_Iden_List ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back("::");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| ScopeRes Ambigious_Iden_List {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$2;
 		identifier->noUsing = true;
@@ -1994,25 +2012,28 @@ idlist_dot:
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back(".");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| Ambigious_Iden_List DOT Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back(".");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	;
 
 Ambigious_Iden_List:
 	Identifier {
 		ASTString* name = (ASTString*)$1;
-		$$ = new ASTExprIdentifier(name->getValue(), @$);
-		delete name;}
+		ASTExprIdentifier* identifier = new ASTExprIdentifier(name->getValue(), @$);
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
+		identifier->doc_comment = std::move(name->doc_comment);
+		if (!first_identifier_for_line) first_identifier_for_line = identifier;
+		$$ = identifier;}
 	;
 
 Identifier :
@@ -2097,8 +2118,7 @@ Expr_Arrow :
 	Expr_3 ARROW IDENTIFIER {
 			ASTExpr* left = (ASTExpr*)$1;
 			ASTString* right = (ASTString*)$3;
-			$$ = new ASTExprArrow(left, right->getValue(), @$);
-			delete right;}
+			$$ = new ASTExprArrow(left, right, @$);}
 	;
 
 Expr_3 : Expr_2 {$$ = $1;}

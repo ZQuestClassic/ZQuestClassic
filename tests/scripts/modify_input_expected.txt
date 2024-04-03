@@ -8,7 +8,12 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 2,
+  "symbols": 0,
+  "identifiers": 0
+}
 PUSHR REFFFC; void run() Body Start
 SETR d4,SP2
 SETR d2,INPUTPRESSA; if() #1 Test AND while(true) #1 Body [Opt:AlwaysOn] Start

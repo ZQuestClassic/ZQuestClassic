@@ -8,7 +8,12 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 3,
+  "symbols": 1,
+  "identifiers": 1
+}
 PUSHARGSV 0,0.0003; void run() Body Start
 SETR d4,SP2
 STOREV 123,0.0001

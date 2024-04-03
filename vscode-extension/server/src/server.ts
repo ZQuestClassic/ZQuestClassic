@@ -7,19 +7,26 @@ import {
 	InitializeParams,
 	DidChangeConfigurationNotification,
 	CompletionItem,
-	CompletionItemKind,
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
-	InitializeResult
+	InitializeResult,
+	HoverParams,
+	Hover,
+	DocumentSymbolParams,
+	DocumentSymbol,
+	MarkupKind,
+	DefinitionParams
 } from 'vscode-languageserver/node';
 import {URI} from 'vscode-uri';
 import {
+	Range,
 	TextDocument
 } from 'vscode-languageserver-textdocument';
 import * as childProcess from 'child_process';
 import {promisify} from 'util';
 import * as os from 'os';
 import * as fs from 'fs';
+import assert = require('assert');
 
 const execFile = promisify(childProcess.execFile);
 
@@ -57,7 +64,12 @@ connection.onInitialize((params: InitializeParams) => {
 			// Tell the client that this server supports code completion.
 			completionProvider: {
 				resolveProvider: true
-			}
+			},
+			hoverProvider: true,
+			definitionProvider: true,
+			documentSymbolProvider: {
+				label: 'ZScript',
+			},
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -140,8 +152,6 @@ documents.onDidChangeContent(change => {
 	processScript(change.document);
 });
 
-let globalTmpDir = '';
-
 // TODO: this should not be necessary. Get path in better OS-agnostic way.
 function cleanupFile(fname:string)
 {
@@ -153,6 +163,26 @@ function fileMatches(f1:string, f2:string)
 {
 	return cleanupFile(f1) == cleanupFile(f2);
 }
+
+interface SymbolPos {
+	line: number;
+	character: number;
+	length: number;
+}
+
+interface DocumentMetaData {
+	currentFileSymbols: DocumentSymbol[];
+	symbols: Record<number, {doc?: string, loc: {range: Range, uri: string}}>;
+	identifiers: Array<{
+		loc: SymbolPos,
+		symbol: number,
+	}>;
+}
+const docMetadataMap = new Map<string, DocumentMetaData>();
+
+const globalTmpDir = os.tmpdir();
+const tmpInput = cleanupFile(`${globalTmpDir}/tmp2.zs`);
+const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
 
 async function processScript(textDocument: TextDocument): Promise<void> {
 	const settings = await getDocumentSettings(textDocument.uri);
@@ -172,9 +202,6 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 		return;
 	}
 
-	if (!globalTmpDir) {
-		globalTmpDir = os.tmpdir();
-	}
 	if (settings.defaultIncludePaths)
 	{
 		settings.defaultIncludePaths.forEach(str => {
@@ -188,8 +215,6 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 		});
 	}
 
-	const tmpInput = cleanupFile(`${globalTmpDir}/tmp2.zs`);
-	const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
 	includeText += `#include "${tmpScript}"\n`;
 	let stdout = '';
 	let success = false;
@@ -211,26 +236,30 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 			'-unlinked',
 			'-delay_cassert',
 			'-input', tmpInput,
-			'-force_ignore', originPath
+			'-force_ignore', originPath,
+			'-metadata',
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');
 		const cp = await execFile(exe, args, {
 			cwd: settings.installationFolder,
+			maxBuffer: 2_000_000,
 		});
 		success = true;
 		stdout = cp.stdout;
 	} catch (e: any) {
+		console.error(e);
 		if (e.code === undefined) throw e;
 		stdout = e.stdout || e.toString();
 	}
-	if (settings.printCompilerOutput) {
-		console.log(stdout);
-	}
 
+	const [compilerOutput, metadataStr] = stdout.split('=== METADATA', 2);
+	if (settings.printCompilerOutput) {
+		console.log(compilerOutput);
+	}
 	
 	const diagnostics: Diagnostic[] = [];
-	for (const line of stdout.split('\n')) {
+	for (const line of compilerOutput.split('\n')) {
 		if (line.includes('syntax error')) {
 			const m = line.match(/syntax error, (.*) \[(.*) Line (\d+) Column (\d+).*\].*/);
 			let message = '';
@@ -378,13 +407,24 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 				start: textDocument.positionAt(0),
 				end: textDocument.positionAt(0),
 			},
-			message: stdout,
+			message: compilerOutput,
 			source: exe,
 		});
 	}
 
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+
+	if (!metadataStr || !success) return;
+
+	try {
+		const metadata: DocumentMetaData = JSON.parse(metadataStr);
+		if (!metadata.currentFileSymbols.length)
+			return;
+		docMetadataMap.set(textDocument.uri, metadata);
+	} catch (e: any) {
+		connection.console.error(e.toString());
+	}
 }
 
 connection.onDidChangeWatchedFiles(_change => {
@@ -428,6 +468,51 @@ connection.onCompletionResolve(
 		return item;
 	}
 );
+
+connection.onHover((item: HoverParams): Hover | null => {
+	const metadata = docMetadataMap.get(item.textDocument.uri);
+	if (!metadata)
+		return null;
+
+	const pos = item.position;
+	const identifier = metadata.identifiers.find(ident =>
+		ident.loc.line == pos.line &&
+		pos.character >= ident.loc.character &&
+		pos.character < ident.loc.character + ident.loc.length);
+	if (!identifier)
+		return null;
+
+	const value = metadata.symbols[identifier.symbol].doc;
+	if (!value)
+		return null;
+
+	return {
+		contents: {kind: MarkupKind.Markdown, value},
+	};
+});
+
+connection.onDocumentSymbol((p: DocumentSymbolParams) => {
+	return docMetadataMap.get(p.textDocument.uri)?.currentFileSymbols;
+});
+
+connection.onDefinition((p: DefinitionParams) => {
+	const metadata = docMetadataMap.get(p.textDocument.uri);
+	if (!metadata)
+		return null;
+
+	const pos = p.position;
+	const identifier = metadata.identifiers.find(ident =>
+		ident.loc.line == pos.line &&
+		pos.character >= ident.loc.character &&
+		pos.character < ident.loc.character + ident.loc.length);
+	if (!identifier)
+		return null;
+
+	const symbol = metadata.symbols[identifier.symbol];
+	if (URI.parse(symbol.loc.uri).fsPath === tmpScript)
+		symbol.loc.uri = p.textDocument.uri;
+	return symbol.loc;
+});
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

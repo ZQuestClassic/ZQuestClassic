@@ -8,7 +8,12 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 4,
+  "symbols": 7,
+  "identifiers": 35
+}
 PUSHR d0; void run(int, int, int, int, int) Params
 PUSHR d1
 PUSHR d2

@@ -7,6 +7,7 @@
 %option never-interactive
 
 %x COMMENT
+%x BLOCK_COMMENT
 %x STRING
 %x IMPORTING
 %x IMPORTSTR
@@ -24,6 +25,9 @@ int32_t doImportStr = 0;
 
 enum {st_none, st_case};
 int32_t special_state = st_none;
+std::ostringstream comment_str;
+// Resets every newline. Used to attach comments on the same line (but after) a declaration.
+ZScript::AST* first_identifier_for_line = nullptr;
 
 // Defined in ffscript.ypp.
 void yymsg(std::string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
@@ -57,6 +61,7 @@ yylloc.last_column = yycol
 #define VALUE(NAME, CONSTRUCTOR) \
 UPDATE_YYLLOC; \
 yylval = new CONSTRUCTOR; \
+comment_str.str(""); \
 return TOK_##NAME
 
 #define ESC_CHAR(CHAR) \
@@ -289,21 +294,33 @@ appx_equal	TOKEN( APPXEQUAL );
 
  /* Line Comments */
 "//".*		/* hit end of file */
-"//".*\n	NEWLINE;
+"//".*\n	{
+	NEWLINE;
+	if (first_identifier_for_line)
+	{
+		first_identifier_for_line->doc_comment = &yytext[2];
+		first_identifier_for_line = nullptr;
+	}
+	else
+	{
+		comment_str << &yytext[2];
+	}
+}
 
  /* Block Comments */
 "/*"[^*\n]*			{
 	srow = yyrow;
 	scol = yycol;
+	comment_str.str("");
 	ADVANCE; 
-	BEGIN( COMMENT );
+	BEGIN( BLOCK_COMMENT );
 } 
-<COMMENT>{
-	[^*\n]*			ADVANCE;
-	[^*\n]*\n		NEWLINE;
-	"*"+[^*/\n]*		ADVANCE;
-	"*"+[^*/\n]*\n		NEWLINE;
-	"*"+"/"			ADVANCE; BEGIN( INITIAL );
+<BLOCK_COMMENT>{
+	[^*\n]*			ADVANCE; comment_str << yytext;
+	[^*\n]*\n		NEWLINE; comment_str << yytext;
+	"*"+[^*/\n]*	ADVANCE; comment_str << &yytext[1];
+	"*"+[^*/\n]*\n	NEWLINE; comment_str << &yytext[1];
+	"*"+"/"			ADVANCE; comment_str << '\n'; BEGIN( INITIAL );
 	<<EOF>>			{
 		yyerrmsg("ERROR: Comment does not end.", srow, scol);
 		TERMINATE;
@@ -464,7 +481,7 @@ appx_equal	TOKEN( APPXEQUAL );
 
  /* Identifier */
 [_a-zA-Z][_a-zA-Z0-9]*	{
-	VALUE( IDENTIFIER, ASTString(yytext, yylloc) );
+	VALUE( IDENTIFIER, ASTString(yytext, comment_str.str().c_str(), yylloc) );
 }
 
  /* Numbers */
@@ -575,7 +592,10 @@ appx_equal	TOKEN( APPXEQUAL );
 }
 
  /* Whitespace */
-[ \t\r]*\n	NEWLINE;
+[ \t\r]*\n	{
+	NEWLINE;
+	first_identifier_for_line = nullptr;
+}
 [ \t\r]+	ADVANCE;
 
  /* Error */
@@ -593,4 +613,6 @@ void resetLexer() {
 	yycol = 1;
 	doImportStr = 0;
 	special_state = st_none;
+	comment_str.str("");
+	first_identifier_for_line = nullptr;
 }

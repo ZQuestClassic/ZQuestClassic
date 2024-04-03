@@ -967,9 +967,9 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else if(user_class)
 	{
-		functions = lookupClassFuncs(*user_class, arrow->right, parameterTypes);
+		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes);
 	}
-	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
+	else functions = lookupFunctions(*arrow->leftClass, arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;

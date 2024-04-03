@@ -8,7 +8,12 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 2,
+  "symbols": 0,
+  "identifiers": 0
+}
 PUSHR REFDMAPDATA; void run() Body Start
 SETR d4,SP2
 TRACEV 999; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body

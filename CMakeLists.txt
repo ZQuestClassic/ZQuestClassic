@@ -788,7 +788,7 @@ endif()
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src)
-	target_link_libraries(zscript PRIVATE fmt zcbase zconsolelogger ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript PRIVATE fmt zcbase zconsolelogger ${ZSCRIPTLIBSEXTRA} nlohmann_json::nlohmann_json)
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 

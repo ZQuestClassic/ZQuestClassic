@@ -327,17 +327,17 @@ namespace time
 	
 	namespace version
 	{
-		const float VERSION = 1.0003;		/**< The header version ID */
-		const int ALPHA = 0;			/**< The header Alpha ID */
-		const int BETA = 4;			/**< The header Beta ID */
-		const int GAMMA = 0;			/**< The header Gamma ID */
-		const int RELEASE = 0;			/**< The header Release ID */
-		const int YEAR = 2019;			/**< The header Year of Update */
-		const int MONTH = 11;			/**< The header Month of Update */
-		const int DAY = 19;			/**< The header Day of Update */
-		const int HOUR = 13;			/**< The header Hour of Update */
-		const int MINUTE = 07;			/**< The header Minute of Update */
-		const int TIMEZONE = time::tzGMT;	/**< The header Timezone of Update */
+		const float VERSION = 1.0003;		// The header version ID
+		const int ALPHA = 0;			// The header Alpha ID
+		const int BETA = 4;			// The header Beta ID
+		const int GAMMA = 0;			// The header Gamma ID
+		const int RELEASE = 0;			// The header Release ID
+		const int YEAR = 2019;			// The header Year of Update
+		const int MONTH = 11;			// The header Month of Update
+		const int DAY = 19;			// The header Day of Update
+		const int HOUR = 13;			// The header Hour of Update
+		const int MINUTE = 07;			// The header Minute of Update
+		const int TIMEZONE = time::tzGMT;	// The header Timezone of Update
 		/*!
 		*	Returns the datestamp of the header in the format of DDMM.YYYY
 		*/

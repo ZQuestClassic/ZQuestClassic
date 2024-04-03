@@ -200,7 +200,7 @@ void zconsole_idle(dword seconds)
 }
 
 static bool linked = true;
-std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
+std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path, bool include_metadata)
 {
 	if(linked)
 		zconsole_info("Compiling the editor script buffer...");
@@ -226,7 +226,7 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 		return NULL;
 	}
 	
-	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(tmpfilename));
+	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(tmpfilename, include_metadata));
 	unlink(tmpfilename);
 	return res;
 }
@@ -393,7 +393,8 @@ int32_t main(int32_t argc, char **argv)
 			std::this_thread::sleep_for(1s);
 		}
 	}
-	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
+
+	unique_ptr<ZScript::ScriptsData> result(compile(script_path, used_switch(argc, argv, "-metadata")));
 	if(!result)
 		zconsole_info("%s", "Failure!");
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
@@ -428,6 +429,9 @@ int32_t main(int32_t argc, char **argv)
 			else zconsole_error("Compile finished with exit code '%d' (compiled with errors)", res);
 		}
 		else zconsole_info("Compile finished with exit code '0' (success)");
+
+		if (result && !result->metadata.empty())
+			printf("=== METADATA\n%s\n", result->metadata.c_str());
 	}
 	if(!zasm_out.empty() && result)
 	{

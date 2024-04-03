@@ -1,4 +1,5 @@
 //2.53 Updated to 16th Jan, 2017
+#include "parser/MetadataVisitor.h"
 #include "zsyssimple.h"
 #include "ByteCode.h"
 #include "CompileError.h"
@@ -65,17 +66,6 @@ static std::filesystem::path derelativize_path(std::string src_path)
 
 
 extern std::vector<string> ZQincludePaths;
-//#define PARSER_DEBUG
-
-ScriptsData* compile(string const& filename);
-
-#if PARSER_DEBUG < 0
-int32_t main(int32_t argc, char *argv[])
-{
-	if (argc < 2) return -1;
-	compile(string(argv[1]));
-}
-#endif
 
 void ScriptParser::initialize()
 {
@@ -93,7 +83,7 @@ extern uint32_t zscript_failcode;
 extern bool zscript_error_out;
 extern bool delay_asserts, ignore_asserts;
 vector<ZScript::BasicCompileError> casserts;
-static unique_ptr<ScriptsData> _compile_helper(string const& filename)
+static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool include_metadata)
 {
 	using namespace ZScript;
 	zscript_failcode = 0;
@@ -172,13 +162,21 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 		ScriptParser::assemble(id.get());
 		if (ScriptParser::assemble_err) return nullptr;
 
-		unique_ptr<ScriptsData> result(new ScriptsData(program));
+		auto result = std::make_unique<ScriptsData>(program);
 		if(!ignore_asserts && casserts.size()) return nullptr;
 		if(zscript_error_out) return nullptr;
 
+		if (include_metadata)
+		{
+			MetadataVisitor md(program);
+			if(zscript_error_out) return nullptr;
+			if(rv.hasFailed()) return nullptr;
+			result->metadata = md.getOutput();
+		}
+
 		zconsole_info("%s", "Success!");
 
-		return unique_ptr<ScriptsData>(result.release());
+		return result;
 	}
 	catch (compile_exception &e)
 	{
@@ -203,9 +201,9 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 	}
 #endif
 }
-unique_ptr<ScriptsData> ZScript::compile(string const& filename)
+unique_ptr<ScriptsData> ZScript::compile(string const& filename, bool include_metadata)
 {
-	auto ret = _compile_helper(filename);
+	auto ret = _compile_helper(filename, include_metadata);
 	if(!ignore_asserts)
 		for(BasicCompileError const& error : casserts)
 			error.handle();
@@ -365,8 +363,9 @@ bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
 	
 	if (reclimit == 0)
 	{
-		log_error(CompileError::ImportRecursion(NULL, recursionLimit));
-		exit(1);
+		auto error = CompileError::ImportRecursion(NULL, recursionLimit);
+		log_error(error);
+		throw compile_exception(error.toString());
 	}
 	for(auto it = root->inclpaths.begin();
 	     it != root->inclpaths.end(); ++it)
