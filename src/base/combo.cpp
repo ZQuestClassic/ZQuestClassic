@@ -170,6 +170,8 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 			attributes[q] = other.attributes[q];
 	if(flags.get(CMB_ADVP_FLAGS))
 		usrflags = other.usrflags;
+	if(flags.get(CMB_ADVP_GENFLAGS))
+		genflags = other.genflags;
 	if(flags.get(CMB_ADVP_LABEL))
 		label = other.label;
 	if(flags.get(CMB_ADVP_SCRIPT))

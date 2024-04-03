@@ -17170,15 +17170,16 @@ bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 		{ "Attribytes" },
 		{ "Attrishorts" },
 		{ "Attributes" },
-		{ "Flags" },
+		{ "Flags", "The 16 Flags on the 'Flags' tab" },
+		{ "Gen. Flags", "The 2 'General Flags' on the 'Flags' tab" },
 		{ "Label" },
 		{ "Script" },
 		{ "Effect" },
 		{ "Triggers Tab" },
 		{ "Lifting Tab" },
-		{ "Gen: Movespeed" },
-		{ "Gen: SFX" },
-		{ "Gen: Sprites" },
+		{ "Gen: Movespeed", "The Movespeed related values from the 'General' tab" },
+		{ "Gen: SFX", "The SFX related values from the 'General' tab" },
+		{ "Gen: Sprites", "The Sprites related values from the 'General' tab" },
 	};
 	if(!call_checklist_dialog("Advanced Paste",advp_names,pasteflags))
 		return false;
