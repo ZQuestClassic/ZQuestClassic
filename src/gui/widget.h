@@ -334,6 +334,15 @@ public:
 	{
 		return std::any_cast<T>(userData);
 	}
+	
+	int32_t getX() const
+	{
+		return x;
+	}
+	int32_t getY() const
+	{
+		return y;
+	}
 
 protected:
 	inline bool getWidthOverridden() const noexcept {return flags&f_WIDTH_OVERRIDDEN;}

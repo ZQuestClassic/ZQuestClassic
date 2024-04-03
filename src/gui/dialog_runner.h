@@ -29,7 +29,12 @@ public:
 		
 		std::shared_ptr<Widget> root = dlg.view();
 		if(root)
+		{
+			realize(root);
+			realized = true;
+			dlg.post_realize();
 			runInner(root);
+		}
 	}
 
 	/* Add a DIALOG and connect it to its owner.

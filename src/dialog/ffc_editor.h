@@ -2,6 +2,7 @@
 #define ZC_DIALOG_FFCDLG_H
 
 #include <gui/dialog.h>
+#include <gui/grid.h>
 #include <gui/checkbox.h>
 #include <gui/text_field.h>
 #include <zq/gui/selcombo_swatch.h>
@@ -51,10 +52,12 @@ public:
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
-
+	
+	virtual void post_realize();
 private:
 	std::shared_ptr<GUI::Widget> FFC_INITD(int index);
 	void refreshScript();
+	void refreshSize();
 	
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::SelComboSwatch> cmbsw;
@@ -63,6 +66,7 @@ private:
 	std::shared_ptr<GUI::TextField> tf_initd[8];
 	std::shared_ptr<GUI::Button> ib_initds[8];
 	std::shared_ptr<GUI::Label> l_initds[8];
+	std::shared_ptr<GUI::Grid> cmb_container;
 	
 	ffdata ffc;
 	mapscr* thescr;
