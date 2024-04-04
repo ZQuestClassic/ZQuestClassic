@@ -97,9 +97,16 @@ struct TileRef
 	int32_t* tile;
 	uint w, h;
 	string name;
-	TileRef() : tile(nullptr), w(1), h(1), name(){}
-	TileRef(int32_t* tile, string name = "") : tile(tile), w(1), h(1), name(name){}
-	TileRef(int32_t* tile, uint w, uint h, string name = "") : tile(tile), w(zc_max(1,w)), h(zc_max(1,h)), name(name){}
+	newcombo* combo;
+	TileRef()
+		: tile(nullptr), w(1), h(1), name(), combo(nullptr)
+	{}
+	TileRef(int32_t* tile, string name = "")
+		: tile(tile), w(1), h(1), name(name), combo(nullptr)
+	{}
+	TileRef(int32_t* tile, uint w, uint h, string name = "")
+		: tile(tile), w(zc_max(1,w)), h(zc_max(1,h)), name(name), combo(nullptr)
+	{}
 };
 
 #endif                                                      // _ZC_TILES_H_

@@ -7021,44 +7021,60 @@ struct MoveList
 vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 {
 	vector<std::unique_ptr<MoveList>> vec;
-	
-	auto subscr_list = std::make_unique<MoveList>(
-		move
-		? "The tiles used by the following subscreen widgets will be partially cleared by the move."
-		: "The tiles used by the following subscreen widgets will be partially or completely overwritten by this process."
-		);
+	//Combos
+	{
+		auto combo_list = std::make_unique<MoveList>(
+			move
+			? "The tiles used by the following combos will be partially cleared by the move."
+			: "The tiles used by the following combos will be partially or completely overwritten by this process."
+			);
+		combo_list->move_refs.reserve(MAXCOMBOS);
+		for(int32_t u=0; u<MAXCOMBOS; u++)
+		{
+			auto& ref = combo_list->move_refs.emplace_back(&combobuf[u].o_tile, fmt::format("Combo {}", u));
+			ref.combo = &combobuf[u];
+		}
 		
-	//Load references
-	for(auto q = 0; q < subscreens_active.size(); ++q)
-	{
-		vector<TileRef> v;
-		subscreens_active[q].collect_tiles(v);
-		for(TileRef& ref : v)
-			ref.name = fmt::format("Active Subscr {} - {}", q, ref.name);
-		auto& tile_vec = subscr_list->move_refs;
-		tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+		vec.push_back(std::move(combo_list));
 	}
-	for(auto q = 0; q < subscreens_passive.size(); ++q)
+	//Subscreens
 	{
-		vector<TileRef> v;
-		subscreens_passive[q].collect_tiles(v);
-		for(TileRef& ref : v)
-			ref.name = fmt::format("Passive Subscr {} - {}", q, ref.name);
-		auto& tile_vec = subscr_list->move_refs;
-		tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+		auto subscr_list = std::make_unique<MoveList>(
+			move
+			? "The tiles used by the following subscreen widgets will be partially cleared by the move."
+			: "The tiles used by the following subscreen widgets will be partially or completely overwritten by this process."
+			);
+		
+		for(auto q = 0; q < subscreens_active.size(); ++q)
+		{
+			vector<TileRef> v;
+			subscreens_active[q].collect_tiles(v);
+			for(TileRef& ref : v)
+				ref.name = fmt::format("Active Subscr {} - {}", q, ref.name);
+			auto& tile_vec = subscr_list->move_refs;
+			tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+		}
+		for(auto q = 0; q < subscreens_passive.size(); ++q)
+		{
+			vector<TileRef> v;
+			subscreens_passive[q].collect_tiles(v);
+			for(TileRef& ref : v)
+				ref.name = fmt::format("Passive Subscr {} - {}", q, ref.name);
+			auto& tile_vec = subscr_list->move_refs;
+			tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+		}
+		for(auto q = 0; q < subscreens_overlay.size(); ++q)
+		{
+			vector<TileRef> v;
+			subscreens_overlay[q].collect_tiles(v);
+			for(TileRef& ref : v)
+				ref.name = fmt::format("Overlay Subscr {} - {}", q, ref.name);
+			auto& tile_vec = subscr_list->move_refs;
+			tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+		}
+		
+		vec.push_back(std::move(subscr_list));
 	}
-	for(auto q = 0; q < subscreens_overlay.size(); ++q)
-	{
-		vector<TileRef> v;
-		subscreens_overlay[q].collect_tiles(v);
-		for(TileRef& ref : v)
-			ref.name = fmt::format("Overlay Subscr {} - {}", q, ref.name);
-		auto& tile_vec = subscr_list->move_refs;
-		tile_vec.insert(tile_vec.end(), v.begin(), v.end());
-	}
-	
-	vec.push_back(std::move(subscr_list));
-	
 	return vec;
 }
 
@@ -7273,7 +7289,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	bool flood;
 	
 	int32_t i;
-	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[MAXITEMS];
 	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
@@ -7315,64 +7330,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		
 		if(move||q==0)
 		{
-			//check combos
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				
-				for(int32_t u=0; u<MAXCOMBOS; u++)
-				{
-					move_combo_list[u]=false;
-					
-					if(rect)
-					{
-						i = move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i = move_intersection_ss(combobuf[u], selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(combobuf[u].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%d\n", u);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_combo_list[u]=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following combos will be partially cleared by the move."
-					: "The tiles used by the following combos will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check items
 			if(!done)
 			{
@@ -8231,7 +8188,13 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					if(list->move_bits.get(indx))
 						continue;
 					
-					if(rect)
+					if(ref.combo)
+					{
+						if(rect)
+							i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
+						else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
+					}
+					else if(rect)
 					{
 						if(ref.h > 1)
 							i=move_intersection_rr(TILECOL(*ref.tile), TILEROW(*ref.tile), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
@@ -8326,14 +8289,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		
 		if(move)
 		{
-			for(int32_t u=0; u<MAXCOMBOS; u++)
-			{
-				if(move_combo_list[u])
-				{
-					combobuf[u].tile+=diff;
-				}
-			}
-			
 			for(int32_t u=0; u<MAXITEMS; u++)
 			{
 				if(move_items_list[u])
@@ -8428,7 +8383,10 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					if(!list->move_bits.get(indx))
 						continue;
 					
-					(*(list->move_refs[indx].tile)) += diff;
+					auto& ref = list->move_refs[indx];
+					if(ref.combo)
+						ref.combo->set_tile(*ref.tile + diff);
+					else *ref.tile += diff;
 				}
 			}
 		}
@@ -8439,7 +8397,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	register_used_tiles();
 	
 	delete[] tile_move_list_text;
-	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
 	
@@ -8483,7 +8440,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 	bool flood;
 	
 	int32_t i;
-	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[MAXITEMS];
 	bool *move_weapons_list = new bool[MAXWPNS];
 	bool *move_enemy_list = new bool[eMAXGUYS];
@@ -8528,65 +8484,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 		}
 		
 		{
-			//check combos
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				
-				for(int32_t u=0; u<MAXCOMBOS; u++)
-				{
-					if(first) move_combo_list[u]=false;
-					else if(move_combo_list[u]) continue;
-					
-					if(tmd.rect)
-					{
-						i=move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(combobuf[u], selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(combobuf[u].o_tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%d\n", u);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if (i == ti_encompass)
-						{
-							move_combo_list[u] = true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(tmd.move
-					? "The tiles used by the following combos will be partially cleared by the move."
-					: "The tiles used by the following combos will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check items
 			if(!done)
 			{
@@ -9470,7 +9367,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 					if(list->move_bits.get(indx))
 						continue;
 					
-					if(tmd.rect)
+					if(ref.combo)
+					{
+						if(tmd.rect)
+							i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
+						else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
+					}
+					else if(tmd.rect)
 					{
 						if(ref.h > 1)
 							i=move_intersection_rr(TILECOL(*ref.tile), TILEROW(*ref.tile), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
@@ -9596,14 +9499,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 		
 		if(tmd.move)
 		{
-			for(int32_t u=0; u<MAXCOMBOS; u++)
-			{
-				if(move_combo_list[u])
-				{
-					combobuf[u].set_tile(combobuf[u].o_tile+diff);
-				}
-			}
-			
 			for(int32_t u=0; u<MAXITEMS; u++)
 			{
 				if(move_items_list[u])
@@ -9716,7 +9611,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 					if(!list->move_bits.get(indx))
 						continue;
 					
-					(*(list->move_refs[indx].tile)) += diff;
+					auto& ref = list->move_refs[indx];
+					if(ref.combo)
+						ref.combo->set_tile(*ref.tile + diff);
+					else *ref.tile += diff;
 				}
 			}
 		}
@@ -9727,7 +9625,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 	register_used_tiles();
 	
 	delete[] tile_move_list_text;
-	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
 	delete[] move_enemy_list;
@@ -10009,7 +9906,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	bool flood;
 	
 	int32_t i;
-	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[MAXITEMS];
 	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
@@ -10051,64 +9947,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		
 		if(move||q==0)
 		{
-			//check combos
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				
-				for(int32_t u=0; u<MAXCOMBOS; u++)
-				{
-					move_combo_list[u]=false;
-					
-					if(rect)
-					{
-						i = move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i = move_intersection_ss(combobuf[u], selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(combobuf[u].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%d\n", u);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_combo_list[u]=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following combos will be partially cleared by the move."
-					: "The tiles used by the following combos will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check items
 			if(!done)
 			{
@@ -10964,7 +10802,13 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					if(list->move_bits.get(indx))
 						continue;
 					
-					if(tmd.rect)
+					if(ref.combo)
+					{
+						if(rect)
+							i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
+						else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
+					}
+					else if(rect)
 					{
 						if(ref.h > 1)
 							i=move_intersection_rr(TILECOL(*ref.tile), TILEROW(*ref.tile), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
@@ -11070,7 +10914,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	register_used_tiles();
 	
 	delete[] tile_move_list_text;
-	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
 	
@@ -11187,47 +11030,6 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	int32_t i;
 	bool done = false;
 	bool ignore_frames=false;
-	
-	//check combos
-	if(!done)
-	{
-		//this is here to allow this section to fold
-		tile_move_list_text[0]=0;
-		found=false;
-		flood=false;
-		
-		for(int32_t u=0; u<MAXCOMBOS; u++)
-		{
-			i=move_intersection_sr(combobuf[u], dest_left, dest_top, dest_width, dest_height);
-			
-			if((i!=ti_none)&&(combobuf[u].o_tile!=0))
-			{
-				sprintf(temptext, "%d\n", u);
-				
-				if(strlen(tile_move_list_text)<65000)
-				{
-					strcat(tile_move_list_text, temptext);
-				}
-				else
-				{
-					if(!flood)
-					{
-						strcat(tile_move_list_text, "...\n...\n...\nmany others");
-						flood=true;
-					}
-				}
-				
-				found=true;
-			}
-		}
-		
-		if(found && !popup_tile_move_dlg(
-			"The tiles used by the following combos will be partially or completely overwritten by this process.",
-			tile_move_list_text))
-		{
-			done = true;
-		}
-	}
 	
 	//check items
 	if(!done)
@@ -11892,7 +11694,11 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 			if(list->move_bits.get(indx))
 				continue;
 			
-			if(ref.h > 1)
+			if(ref.combo)
+			{
+				i=move_intersection_sr(*ref.combo, dest_left, dest_top, dest_width, dest_height);
+			}
+			else if(ref.h > 1)
 				i=move_intersection_rr(TILECOL(*ref.tile), TILEROW(*ref.tile), ref.w, ref.h, dest_left, dest_top, dest_width, dest_height);
 			else i=move_intersection_sr(*ref.tile, (*ref.tile)+ref.w-1, dest_left, dest_top, dest_width, dest_height);
 			
