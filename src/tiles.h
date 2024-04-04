@@ -100,6 +100,7 @@ struct TileRef
 	newcombo* combo;
 	bool no_move;
 	int xoff, yoff;
+	vector<std::tuple<int,int,int>> extra_rects;
 	int offset() const
 	{
 		return xoff+yoff*TILES_PER_ROW;

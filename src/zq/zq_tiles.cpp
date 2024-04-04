@@ -6162,24 +6162,6 @@ typedef struct move_tiles_item
 	int32_t height;
 } move_tiles_item;
 
-move_tiles_item map_styles_items[6]=
-{
-	{ "Frame",                  0,  2,  2 },
-	{ "Heart Container Piece",  0,  1,  1 },
-	{ "Triforce Fragment",      0, -1, -1 },
-	{ "Triforce Frame",         0, -1, -1 },
-	{ "Overworld Map",          0,  5,  3 },
-	{ "Dungeon Map",            0,  5,  3 },
-};
-
-move_tiles_item dmap_map_items[4]=
-{
-	{ "Minimap (Empty)",        0,  5,  3 },
-	{ "Minimap (Filled)",       0,  5,  3 },
-	{ "Large Map (Empty)",      0, -1,  5 },
-	{ "Large Map (Filled)",     0, -1,  5 },
-};
-
 int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 {
 	return a==0?b:a==1?c:d;
@@ -6317,28 +6299,6 @@ void register_used_tiles()
 	}
 	
 	BSZ2 = get_qr(qr_BSZELDA);
-	map_styles_items[0].tile=QMisc.colors.blueframe_tile;
-	map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
-	map_styles_items[1].width=zinit.hcp_per_hc;
-	map_styles_items[2].tile=QMisc.colors.triforce_tile;
-	map_styles_items[2].width=BSZ2?2:1;
-	map_styles_items[2].height=BSZ2?3:1;
-	map_styles_items[3].tile=QMisc.colors.triframe_tile;
-	map_styles_items[3].width=BSZ2?7:6;
-	map_styles_items[3].height=BSZ2?7:3;
-	map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
-	map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
-	
-	for(int32_t u=0; u<6; u++)
-	{
-		for(int32_t r=zc_max(TILEROW(map_styles_items[u].tile),0); r<zc_min(TILEROW(map_styles_items[u].tile)+zc_max(map_styles_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-		{
-			for(int32_t c=zc_max(TILECOL(map_styles_items[u].tile),0); c<zc_min(TILECOL(map_styles_items[u].tile)+zc_max(map_styles_items[u].width,1),TILES_PER_ROW); ++c)
-			{
-				used_tile_table[(r*TILES_PER_ROW)+c]=true;
-			}
-		}
-	}
 	
 	for(int32_t u=0; u<4; u++)
 	{
@@ -6349,28 +6309,7 @@ void register_used_tiles()
 	}
 	
 	BSZ2 = get_qr(qr_BSZELDA);
-	
-	for(int32_t d=0; d<MAXDMAPS; d++)
-	{
-		dmap_map_items[0].tile=DMaps[d].minimap_1_tile;
-		dmap_map_items[1].tile=DMaps[d].minimap_2_tile;
-		dmap_map_items[2].tile=DMaps[d].largemap_1_tile;
-		dmap_map_items[2].width=BSZ2?7:9;
-		dmap_map_items[3].tile=DMaps[d].largemap_2_tile;
-		dmap_map_items[3].width=BSZ2?7:9;
 		
-		for(int32_t u=0; u<4; u++)
-		{
-			for(int32_t r=zc_max(TILEROW(dmap_map_items[u].tile),0); r<zc_min(TILEROW(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-			{
-				for(int32_t c=zc_max(TILECOL(dmap_map_items[u].tile),0); c<zc_min(TILECOL(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].width,1),TILES_PER_ROW); ++c)
-				{
-					used_tile_table[(r*TILES_PER_ROW)+c]=true;
-				}
-			}
-		}
-	}
-	
 	bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 	int32_t u;
 	
@@ -6539,20 +6478,30 @@ bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, 
 	return copied;
 }
 
-struct MoveList
+struct TileMoveList
 {
 	vector<TileRef> move_refs;
 	bitstring move_bits;
 	string msg;
-	MoveList() = default;
-	MoveList(string msg) : msg(msg) {}
+	
+	TileMoveList() = default;
+	TileMoveList(string msg) : msg(msg) {}
+	
+	template<class... Args>
+	TileRef* add(int32_t* tile, Args&&... args)
+	{
+		if(!tile || !*tile)
+			return nullptr;
+		return &move_refs.emplace_back(tile, args...);
+	}
 };
-vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
+vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 {
-	vector<std::unique_ptr<MoveList>> vec;
+	bool BSZ2 = get_qr(qr_BSZELDA);
+	vector<std::unique_ptr<TileMoveList>> vec;
 	//Combos
 	{
-		auto combo_list = std::make_unique<MoveList>(
+		auto combo_list = std::make_unique<TileMoveList>(
 			move
 			? "The tiles used by the following combos will be partially cleared by the move."
 			: "The tiles used by the following combos will be partially or completely overwritten by this process."
@@ -6560,15 +6509,20 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 		combo_list->move_refs.reserve(MAXCOMBOS);
 		for(int32_t u=0; u<MAXCOMBOS; u++)
 		{
-			auto& ref = combo_list->move_refs.emplace_back(&combobuf[u].o_tile, fmt::format("Combo {}", u));
-			ref.combo = &combobuf[u];
+			auto& cmb = combobuf[u];
+			string name;
+			if(cmb.label.empty())
+				name = fmt::format("Combo {}", u);
+			else name = fmt::format("Combo {} ({})", u, cmb.label);
+			auto ref = combo_list->add(&cmb.o_tile, name);
+			if(ref) ref->combo = &combobuf[u];
 		}
 		
 		vec.push_back(std::move(combo_list));
 	}
 	//Items
 	{
-		auto item_list = std::make_unique<MoveList>(
+		auto item_list = std::make_unique<TileMoveList>(
 			move
 			? "The tiles used by the following items will be partially cleared by the move."
 			: "The tiles used by the following items will be partially or completely overwritten by this process."
@@ -6580,14 +6534,14 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 		{
 			auto id = bii[u].i;
 			itemdata& itm = itemsbuf[id];
-			item_list->move_refs.emplace_back(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
+			item_list->add(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
 		}
 		
 		vec.push_back(std::move(item_list));
 	}
 	//Weapon sprites
 	{
-		auto wpn_list = std::make_unique<MoveList>(
+		auto wpn_list = std::make_unique<TileMoveList>(
 			move
 			? "The tiles used by the following weapons will be partially cleared by the move."
 			: "The tiles used by the following weapons will be partially or completely overwritten by this process."
@@ -6595,7 +6549,6 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 		wpn_list->move_refs.reserve(MAXWPNS);
 		
 		build_biw_list();
-		bool BSZ2=get_qr(qr_BSZELDA)!=0;
 		
 		for(int32_t u=0; u<MAXWPNS; u++)
 		{
@@ -6687,7 +6640,7 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 				break;
 			}
 			
-			wpn_list->move_refs.emplace_back(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)+m,
+			wpn_list->add(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)+m,
 				1, fmt::format("{} {}", biw[u].s, id));
 			
 			//Tile 54+55 are "Impact (not shown in sprite list)", for u==3 "Arrow" and u==9 "Boomerang"
@@ -6697,9 +6650,9 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 				static int32_t impact_tiles[2] = {54,54};
 				auto& tile = impact_tiles[u==3 ? 0 : 1];
 				tile = 54; //dummy tile, ensure it's correct
-				auto& ref = wpn_list->move_refs.emplace_back(&tile, 2, 1,
+				auto ref = wpn_list->add(&tile, 2, 1,
 					fmt::format("{} Impact (not shown in sprite list)",(u==3)?"Arrow":"Boomerang"));
-				ref.no_move = true;
+				if(ref) ref->no_move = true;
 			}
 		}
 		
@@ -6707,7 +6660,7 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 	}
 	//Player sprites
 	{
-		auto player_list = std::make_unique<MoveList>(
+		auto player_list = std::make_unique<TileMoveList>(
 			move
 			? "The tiles used by the following player sprites will be partially cleared by the move."
 			: "The tiles used by the following player sprites will be partially or completely overwritten by this process."
@@ -6718,12 +6671,13 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 			#define ADD_PLAYER_SPRITE(ref_sprite, frames, name) \
 			do \
 			{ \
-				auto& ref = player_list->move_refs.emplace_back(&ref_sprite[spr_tile], \
+				auto ref = player_list->add(&ref_sprite[spr_tile], \
 					(ref_sprite[spr_extend] < 2 ? 1 : 2) * frames, \
 					ref_sprite[spr_extend] < 1 ? 1 : 2, \
 					name); \
-				ref.xoff = ref_sprite[spr_extend] < 2 ? 0 : -1; \
-				ref.yoff = ref_sprite[spr_extend] < 1 ? 0 : -1; \
+				if(!ref) break; \
+				ref->xoff = ref_sprite[spr_extend] < 2 ? 0 : -1; \
+				ref->yoff = ref_sprite[spr_extend] < 1 ? 0 : -1; \
 			} while(false)
 			// + (ref_sprite[spr_extend] < 2 ? 0 : 1) //this was on some of the 'width's before... but doesn't make sense?
 			
@@ -6846,25 +6800,143 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 	}
 	//Map Styles
 	{
-		auto mapstyle_list = std::make_unique<MoveList>(
+		auto mapstyle_list = std::make_unique<TileMoveList>(
 			move
 			? "The tiles used by the following map styles will be partially cleared by the move."
 			: "The tiles used by the following map styles will be partially or completely overwritten by this process."
 			);
 		mapstyle_list->move_refs.reserve(6);
-		bool BSZ2 = get_qr(qr_BSZELDA);
-		mapstyle_list->move_refs.emplace_back(&QMisc.colors.blueframe_tile, 2, 2, "Frame");
-		mapstyle_list->move_refs.emplace_back(&QMisc.colors.HCpieces_tile, zinit.hcp_per_hc, 1, "Heart Container Piece");
-		mapstyle_list->move_refs.emplace_back(&QMisc.colors.triforce_tile, BSZ2?2:1, BSZ2?3:1, "McGuffin Fragment");
-		mapstyle_list->move_refs.emplace_back(&QMisc.colors.triframe_tile, BSZ2?7:6, BSZ2?7:3, "McGuffin Frame");
-		mapstyle_list->move_refs.emplace_back(&QMisc.colors.overworld_map_tile, 5, 3, "Overworld Map");
-		mapstyle_list->move_refs.emplace_back(&QMisc.colors.dungeon_map_tile, 5, 3, "Dungeon Map");
+		mapstyle_list->add(&QMisc.colors.blueframe_tile, 2, 2, "Frame");
+		mapstyle_list->add(&QMisc.colors.HCpieces_tile, zinit.hcp_per_hc, 1, "Heart Container Piece");
+		mapstyle_list->add(&QMisc.colors.triforce_tile, BSZ2?2:1, BSZ2?3:1, "McGuffin Fragment");
+		mapstyle_list->add(&QMisc.colors.triframe_tile, BSZ2?7:6, BSZ2?7:3, "McGuffin Frame");
+		mapstyle_list->add(&QMisc.colors.overworld_map_tile, 5, 3, "Overworld Map");
+		mapstyle_list->add(&QMisc.colors.dungeon_map_tile, 5, 3, "Dungeon Map");
 		
 		vec.push_back(std::move(mapstyle_list));
 	}
+	//Game Icons
+	{
+		auto gameicon_list = std::make_unique<TileMoveList>(
+			move
+			? "The tiles used by the following game icons will be partially cleared by the move."
+			: "The tiles used by the following game icons will be partially or completely overwritten by this process."
+			);
+		gameicon_list->move_refs.reserve(4);
+		for(int32_t u=0; u<4; u++)
+			gameicon_list->add(&QMisc.icons[u], fmt::format("Game Icon {}", u));
+		
+		vec.push_back(std::move(gameicon_list));
+	}
+	//DMaps
+	{
+		auto dmap_list = std::make_unique<TileMoveList>(
+			move
+			? "The tiles used by the following dmaps will be partially cleared by the move."
+			: "The tiles used by the following dmaps will be partially or completely overwritten by this process."
+			);
+		dmap_list->move_refs.reserve(MAXDMAPS*4);
+		for(int32_t u=0; u<MAXDMAPS; u++)
+		{
+			auto& dm = DMaps[u];
+			dmap_list->add(&dm.minimap_1_tile, 5, 3, fmt::format("DMap {} - Minimap (Empty)", u));
+			dmap_list->add(&dm.minimap_2_tile, 5, 3, fmt::format("DMap {} - Minimap (Filled)", u));
+			dmap_list->add(&dm.largemap_1_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Empty)", u));
+			dmap_list->add(&dm.largemap_2_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Filled)", u));
+		}
+		
+		vec.push_back(std::move(dmap_list));
+	}
+	//Enemies
+	{
+		auto enemy_list = std::make_unique<TileMoveList>(
+			move
+			? "The tiles used by the following enemies will be partially cleared by the move."
+			: "The tiles used by the following enemies will be partially or completely overwritten by this process."
+			);
+		enemy_list->move_refs.reserve(eMAXGUYS);
+		build_bie_list(false);
+		bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
+		for(int u=0; u<eMAXGUYS; u++)
+		{
+			guydata& enemy=guysbuf[bie[u].i];
+			bool darknut=false;
+			int32_t gleeok=0;
+			
+			if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
+				darknut=true;
+			else if(enemy.family==eeGLEEOK)
+			{
+				// Not certain this is the right thing to check...
+				if(enemy.misc3==0)
+					gleeok=1;
+				else
+					gleeok=2;
+			}
+			
+			// Dummied out enemies
+			if(bie[u].i>=eOCTO1S && bie[u].i<e177)
+			{
+				if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
+				{
+					continue;
+				}
+			}
+			
+			if(newtiles)
+			{
+				if(guysbuf[bie[u].i].e_tile==0)
+				{
+					continue;
+				}
+				
+				auto ref = enemy_list->add(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", u, bie[u].s));
+				
+				if(!ref)
+					continue;
+				
+				if(darknut)
+				{
+					ref->extra_rects.emplace_back(enemy.e_tile+6*TILES_PER_ROW, enemy.e_width, enemy.e_height);
+				}
+				else if(enemy.family==eeGANON)
+				{
+					ref->extra_rects.emplace_back(enemy.e_tile+2*TILES_PER_ROW, 20, 4);
+				}
+				else if(gleeok) //No idea if this is actually *RIGHT*, but I copied what was here before faithfully -Em
+				{
+					for(int32_t j=0; j<4; ++j)
+					{
+						ref->extra_rects.emplace_back(
+							TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)) + TILES_PER_ROW*TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0),
+							4, 1);
+					}
+					int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
+					int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+					ref->extra_rects.emplace_back(c+TILES_PER_ROW*r, 20, 3);
+					ref->extra_rects.emplace_back(c+TILES_PER_ROW*(r+3), 16, 6);
+				}
+			}
+			else
+			{
+				if(guysbuf[bie[u].i].tile==0)
+				{
+					continue;
+				}
+				enemy_list->add(&enemy.tile, enemy.width, enemy.height, fmt::format("Enemy {} ({}) 'Old'", u, bie[u].s));
+				
+				if(guysbuf[bie[u].i].s_tile!=0)
+				{
+					enemy_list->add(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
+				}
+			}
+		}
+		
+		vec.push_back(std::move(enemy_list));
+	}
 	//Subscreens
 	{
-		auto subscr_list = std::make_unique<MoveList>(
+		auto subscr_list = std::make_unique<TileMoveList>(
 			move
 			? "The tiles used by the following subscreen widgets will be partially cleared by the move."
 			: "The tiles used by the following subscreen widgets will be partially or completely overwritten by this process."
@@ -7106,25 +7178,22 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
 	
-	sprintf(buf, "Destination Warning");
+	sprintf(buf, "Tile Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
 	bool flood;
 	
 	int32_t i;
-	bool move_game_icons_list[4];
-	bool move_dmap_maps_list[MAXDMAPS][4];
 	
-	auto move_lists = load_move_lists(move);
+	auto move_lists = load_tile_move_lists(move);
 	// warn if paste overwrites other defined tiles or
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
 	
-	for(int32_t q=0; q<2 && !done; ++q)
+	for(int32_t q=0; q < (move?2:1) && !done; ++q)
 	{
-	
 		switch(q)
 		{
 		case 0:
@@ -7146,550 +7215,77 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			break;
 		}
 		
-		if(move||q==0)
+		for(auto &list : move_lists)
 		{
-			//check game icons
-			if(!done)
+			if(done) break;
+			tile_move_list_text[0]=0;
+			found=false;
+			flood=false;
+			for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
 			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				const char *icon_title[4]=
-				{
-					"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
-				};
+				TileRef& ref = list->move_refs[indx];
 				
-				for(int32_t u=0; u<4; u++)
+				if(list->move_bits.get(indx))
+					continue;
+				auto t = *ref.tile + ref.offset();
+				
+				if(ref.combo)
 				{
-					move_game_icons_list[u]=false;
-					
 					if(rect)
-					{
-						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(QMisc.icons[u]!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", icon_title[u]);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_game_icons_list[u]=true;
-						}
-					}
+						i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
+					else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
 				}
-				
-				if(rect)
+				else if(rect)
 				{
-					i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
+					if(ref.h > 1)
+						i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
+					else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
 				}
 				else
 				{
-					i=move_intersection_ss(41, 41, selection_first, selection_last);
+					if(ref.h > 1)
+						i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
+					else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
 				}
 				
-				if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
+				for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
 				{
-					sprintf(temptext, "Quest Sword");
-					
-					if(strlen(tile_move_list_text)<65000)
+					auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
+					if(rect)
+						i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_left, selection_top, selection_width, selection_height);
+					else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_first, selection_last);
+				}
+				
+				if((i!=ti_none)&&((*ref.tile)!=0))
+				{
+					if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
 					{
-						strcat(tile_move_list_text, temptext);
-					}
-					else
-					{
-						if(!flood)
+						sprintf(temptext, "%s\n", ref.name.c_str());
+						
+						if(strlen(tile_move_list_text)<65000)
 						{
-							strcat(tile_move_list_text, "...\n...\n...\nmany others");
-							flood=true;
+							strcat(tile_move_list_text, temptext);
 						}
+						else
+						{
+							if(!flood)
+							{
+								strcat(tile_move_list_text, "...\n...\n...\nmany others");
+								flood=true;
+							}
+						}
+						
+						found=true;
 					}
-					
-					found=true;
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following quest icons will be partially cleared by the move."
-					: "The tiles used by the following quest icons will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
+					else if(i==ti_encompass)
+					{
+						list->move_bits.set(indx, true);
+					}
 				}
 			}
 			
-			//check dmap maps
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				bool BSZ2 = get_qr(qr_BSZELDA);
-				
-				for(int32_t t=0; t<MAXDMAPS; t++)
-				{
-					dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
-					dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
-					dmap_map_items[2].tile=DMaps[t].largemap_1_tile;
-					dmap_map_items[2].width=BSZ2?7:9;
-					dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
-					dmap_map_items[3].width=BSZ2?7:9;
-					
-					for(int32_t u=0; u<4; u++)
-					{
-						move_dmap_maps_list[t][u]=false;
-						
-						if(rect)
-						{
-							i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
-						}
-						else
-						{
-							i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
-						}
-						
-						if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
-						{
-							if(i==ti_broken || q==0)
-							{
-								sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-							else if(i==ti_encompass)
-							{
-								move_dmap_maps_list[t][u]=true;
-							}
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following dmap-specific subscreen maps will be partially cleared by the move."
-					: "The tiles used by the following dmap-specific subscreen maps will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check enemies
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_bie_list(false);
-				bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
-				int32_t u;
-				
-				for(u=0; u<eMAXGUYS; u++)
-				{
-					const guydata& enemy=guysbuf[bie[u].i];
-					bool darknut=false;
-					int32_t gleeok=0;
-					
-					if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
-						darknut=true;
-					else if(enemy.family==eeGLEEOK)
-					{
-						// Not certain this is the right thing to check...
-						if(enemy.misc3==0)
-							gleeok=1;
-						else
-							gleeok=2;
-					}
-					
-					// Dummied out enemies
-					if(bie[u].i>=eOCTO1S && bie[u].i<e177)
-					{
-						if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
-						{
-							continue;
-						}
-					}
-					
-					if(newtiles)
-					{
-						if(guysbuf[bie[u].i].e_tile==0)
-						{
-							continue;
-						}
-						
-						if(guysbuf[bie[u].i].e_height==0)
-						{
-							if(rect)
-							{
-								i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_ss(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_first, selection_last);
-							}
-						}
-						else
-						{
-							if(rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
-							}
-						}
-						
-						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-						{
-							sprintf(temptext, "%s\n", bie[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						
-						if(darknut)
-						{
-							if(rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-						}
-						else if(enemy.family==eeGANON && i==ti_none)
-						{
-							if(rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-						}
-						else if(gleeok && i==ti_none)
-						{
-							for(int32_t j=0; j<4 && i==ti_none; ++j)
-							{
-								if(rect)
-								{
-									i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
-								}
-							}
-							
-							if(i==ti_none)
-							{
-								int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-								int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-								
-								if(rect)
-								{
-									i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
-								}
-								
-								if(i==ti_none)
-								{
-									if(rect)
-									{
-										i=move_intersection_rr(c, r+3, 16, 6, selection_left, selection_top, selection_width, selection_height);
-									}
-									else
-									{
-										i=move_intersection_rs(c, r+3, 16, 6, selection_first, selection_last);
-									}
-								}
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-						}
-					}
-					else
-					{
-						if(guysbuf[bie[u].i].tile==0)
-						{
-							continue;
-						}
-						else if(guysbuf[bie[u].i].height==0)
-						{
-							if(rect)
-							{
-								i=move_intersection_sr(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_ss(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_first, selection_last);
-							}
-						}
-						else
-						{
-							if(rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
-							}
-						}
-						
-						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-						{
-							sprintf(temptext, "%s\n", bie[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						
-						if(guysbuf[bie[u].i].s_tile!=0)
-						{
-							if(guysbuf[bie[u].i].s_height==0)
-							{
-								if(rect)
-								{
-									i=move_intersection_sr(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_ss(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_first, selection_last);
-								}
-							}
-							else
-							{
-								if(rect)
-								{
-									i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
-								}
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following enemies will be partially cleared by the move."
-					: "The tiles used by the following enemies will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check other stuff
-			for(auto &list : move_lists)
-			{
-				if(done) break;
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-				{
-					TileRef& ref = list->move_refs[indx];
-					
-					if(list->move_bits.get(indx))
-						continue;
-					auto t = *ref.tile + ref.offset();
-					
-					if(ref.combo)
-					{
-						if(rect)
-							i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
-						else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
-					}
-					else if(rect)
-					{
-						if(ref.h > 1)
-							i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
-						else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						if(ref.h > 1)
-							i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
-						else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&((*ref.tile)!=0))
-					{
-						if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
-						{
-							sprintf(temptext, "%s\n", ref.name.c_str());
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							list->move_bits.set(indx, true);
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
-					done = true;
-			}
+			if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
+				done = true;
 		}
 	}
 	
@@ -7741,42 +7337,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		
 		if(move)
 		{
-			for(int32_t u=0; u<4; u++)
-			{
-				if(move_game_icons_list[u])
-				{
-					QMisc.icons[u]+=diff;
-				}
-			}
-			
-			for(int32_t t=0; t<MAXDMAPS; t++)
-			{
-				for(int32_t u=0; u<4; u++)
-				{
-					if(move_dmap_maps_list[t][u])
-					{
-						switch(u)
-						{
-						case 0:
-							DMaps[t].minimap_1_tile+=diff;
-							break;
-							
-						case 1:
-							DMaps[t].minimap_2_tile+=diff;
-							break;
-							
-						case 2:
-							DMaps[t].largemap_1_tile+=diff;
-							break;
-							
-						case 3:
-							DMaps[t].largemap_2_tile+=diff;
-							break;
-						}
-					}
-				}
-			}
-			
 			for(auto &list : move_lists)
 			{
 				for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
@@ -7831,7 +7391,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
 	
-	sprintf(buf, "Destination Warning");
+	sprintf(buf, "Tile Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
@@ -7839,10 +7399,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 	
 	int32_t i;
 	bool *move_enemy_list = new bool[eMAXGUYS];
-	bool move_game_icons_list[4];
-	bool move_dmap_maps_list[MAXDMAPS][4];
 	
-	auto move_lists = load_move_lists(tmd.move);
+	auto move_lists = load_tile_move_lists(tmd.move);
 	// warn if paste overwrites other defined tiles or
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
@@ -7875,572 +7433,77 @@ bool do_movetile_united(tile_move_data const& tmd)
 				break;
 		}
 		
+		for(auto &list : move_lists)
 		{
-			//check game icons
-			if(!done)
+			if(done) break;
+			tile_move_list_text[0]=0;
+			found=false;
+			flood=false;
+			for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
 			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				const char *icon_title[4]=
-				{
-					"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
-				};
+				TileRef& ref = list->move_refs[indx];
 				
-				for(int32_t u=0; u<4; u++)
+				if(list->move_bits.get(indx))
+					continue;
+				auto t = *ref.tile + ref.offset();
+				
+				if(ref.combo)
 				{
-					if(first) move_game_icons_list[u]=false;
-					else if(move_game_icons_list[u]) continue;
-					
 					if(tmd.rect)
-					{
-						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(QMisc.icons[u]!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", icon_title[u]);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_game_icons_list[u]=true;
-						}
-					}
+						i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
+					else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
 				}
-				
-				if(tmd.rect)
+				else if(tmd.rect)
 				{
-					i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
+					if(ref.h > 1)
+						i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
+					else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
 				}
 				else
 				{
-					i=move_intersection_ss(41, 41, selection_first, selection_last);
+					if(ref.h > 1)
+						i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
+					else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
 				}
 				
-				if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
+				for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
 				{
-					sprintf(temptext, "Quest Sword");
-					
-					if(strlen(tile_move_list_text)<65000)
+					auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
+					if(tmd.rect)
+						i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_left, selection_top, selection_width, selection_height);
+					else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_first, selection_last);
+				}
+				
+				if((i!=ti_none)&&((*ref.tile)!=0))
+				{
+					if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
 					{
-						strcat(tile_move_list_text, temptext);
-					}
-					else
-					{
-						if(!flood)
+						sprintf(temptext, "%s\n", ref.name.c_str());
+						
+						if(strlen(tile_move_list_text)<65000)
 						{
-							strcat(tile_move_list_text, "...\n...\n...\nmany others");
-							flood=true;
+							strcat(tile_move_list_text, temptext);
 						}
+						else
+						{
+							if(!flood)
+							{
+								strcat(tile_move_list_text, "...\n...\n...\nmany others");
+								flood=true;
+							}
+						}
+						
+						found=true;
 					}
-					
-					found=true;
-				}
-				
-				if(found && !popup_tile_move_dlg(tmd.move
-					? "The tiles used by the following quest icons will be partially cleared by the move."
-					: "The tiles used by the following quest icons will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
+					else if(i==ti_encompass)
+					{
+						list->move_bits.set(indx, true);
+					}
 				}
 			}
 			
-			//check dmap maps
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				bool BSZ2 = get_qr(qr_BSZELDA);
-				
-				for(int32_t t=0; t<MAXDMAPS; t++)
-				{
-					dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
-					dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
-					dmap_map_items[2].tile=DMaps[t].largemap_1_tile;
-					dmap_map_items[2].width=BSZ2?7:9;
-					dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
-					dmap_map_items[3].width=BSZ2?7:9;
-					
-					for(int32_t u=0; u<4; u++)
-					{
-						if(first) move_dmap_maps_list[t][u]=false;
-						else if(move_dmap_maps_list[t][u]) continue;
-						
-						if(tmd.rect)
-						{
-							i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
-						}
-						else
-						{
-							i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
-						}
-						
-						if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
-						{
-							if(i==ti_broken || q==0)
-							{
-								sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-							else if(i==ti_encompass)
-							{
-								move_dmap_maps_list[t][u]=true;
-							}
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(tmd.move
-					? "The tiles used by the following dmap-specific subscreen maps will be partially cleared by the move."
-					: "The tiles used by the following dmap-specific subscreen maps will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check enemies
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_bie_list(false);
-				int32_t u;
-				
-				for(u=0; u<eMAXGUYS; u++)
-				{
-					if(first) move_enemy_list[u] = false;
-					else if(move_enemy_list[u]) continue;
-					const guydata& enemy=guysbuf[bie[u].i];
-					bool darknut=false;
-					int32_t gleeok=0;
-					
-					if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
-						darknut=true;
-					else if(enemy.family==eeGLEEOK)
-					{
-						// Not certain this is the right thing to check...
-						if(enemy.misc3==0)
-							gleeok=1;
-						else
-							gleeok=2;
-					}
-					
-					// Dummied out enemies
-					if(bie[u].i>=eOCTO1S && bie[u].i<e177)
-					{
-						if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
-						{
-							continue;
-						}
-					}
-					
-					if(newtiles)
-					{
-						if(guysbuf[bie[u].i].e_tile==0)
-						{
-							continue;
-						}
-						
-						if(guysbuf[bie[u].i].e_height==0)
-						{
-							if(tmd.rect)
-							{
-								i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_ss(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_first, selection_last);
-							}
-						}
-						else
-						{
-							if(tmd.rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
-							}
-						}
-						
-						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-						{
-							sprintf(temptext, "%s\n", bie[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i == ti_encompass)
-							move_enemy_list[u] = true;
-						
-						if(darknut)
-						{
-							bool did_move = move_enemy_list[u];
-							if(first) move_enemy_list[u] = false;
-							if(tmd.rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-							else if(i == ti_encompass && did_move)
-								move_enemy_list[u] = true;
-						}
-						else if(enemy.family==eeGANON && i!=ti_broken)
-						{
-							bool did_move = move_enemy_list[u];
-							if(first) move_enemy_list[u] = false;
-							if(tmd.rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-							else if(i == ti_encompass && did_move)
-								move_enemy_list[u] = true;
-						}
-						else if(gleeok && i!=ti_broken)
-						{
-							bool did_move = move_enemy_list[u];
-							if(first) move_enemy_list[u] = false;
-							for(int32_t j=0; j<4 && i==ti_none; ++j)
-							{
-								if(tmd.rect)
-								{
-									i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
-								}
-							}
-							
-							if(i==ti_none)
-							{
-								int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-								int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-								
-								if(tmd.rect)
-								{
-									i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
-								}
-								
-								if(i==ti_none)
-								{
-									if(tmd.rect)
-									{
-										i=move_intersection_rr(c, r+3, 16, 6, selection_left, selection_top, selection_width, selection_height);
-									}
-									else
-									{
-										i=move_intersection_rs(c, r+3, 16, 6, selection_first, selection_last);
-									}
-								}
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-							else if(i == ti_encompass && did_move)
-								move_enemy_list[u] = true;
-						}
-					}
-					else
-					{
-						if(guysbuf[bie[u].i].tile==0)
-						{
-							continue;
-						}
-						else if(guysbuf[bie[u].i].height==0)
-						{
-							if(tmd.rect)
-							{
-								i=move_intersection_sr(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_ss(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_first, selection_last);
-							}
-						}
-						else
-						{
-							if(tmd.rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
-							}
-						}
-						
-						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-						{
-							sprintf(temptext, "%s\n", bie[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i == ti_encompass)
-							move_enemy_list[u] = true;
-						
-						if(guysbuf[bie[u].i].s_tile!=0)
-						{
-							bool did_move = move_enemy_list[u];
-							if(first) move_enemy_list[u] = false;
-							if(guysbuf[bie[u].i].s_height==0)
-							{
-								if(tmd.rect)
-								{
-									i=move_intersection_sr(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_ss(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_first, selection_last);
-								}
-							}
-							else
-							{
-								if(tmd.rect)
-								{
-									i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
-								}
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-							else if(i == ti_encompass && did_move)
-								move_enemy_list[u] = true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(tmd.move
-					? "The tiles used by the following enemies will be partially cleared by the move."
-					: "The tiles used by the following enemies will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check other stuff
-			for(auto &list : move_lists)
-			{
-				if(done) break;
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-				{
-					TileRef& ref = list->move_refs[indx];
-					
-					if(list->move_bits.get(indx))
-						continue;
-					auto t = *ref.tile + ref.offset();
-					
-					if(ref.combo)
-					{
-						if(tmd.rect)
-							i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
-						else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
-					}
-					else if(tmd.rect)
-					{
-						if(ref.h > 1)
-							i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
-						else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						if(ref.h > 1)
-							i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
-						else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&((*ref.tile)!=0))
-					{
-						if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
-						{
-							sprintf(temptext, "%s\n", ref.name.c_str());
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							list->move_bits.set(indx, true);
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
-					done = true;
-			}
+			if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
+				done = true;
 		}
 		first = false;
 	}
@@ -8523,44 +7586,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 		
 		if(tmd.move)
 		{
-			for(int32_t u=0; u<4; u++)
-			{
-				if(move_game_icons_list[u])
-				{
-					QMisc.icons[u]+=diff;
-				}
-			}
-			
-			for(int32_t t=0; t<MAXDMAPS; t++)
-			{
-				for(int32_t u=0; u<4; u++)
-				{
-					move_dmap_maps_list[t][u]=false;
-					
-					if(move_dmap_maps_list[t][u])
-					{
-						switch(u)
-						{
-						case 0:
-							DMaps[t].minimap_1_tile+=diff;
-							break;
-							
-						case 1:
-							DMaps[t].minimap_2_tile+=diff;
-							break;
-							
-						case 2:
-							DMaps[t].largemap_1_tile+=diff;
-							break;
-							
-						case 3:
-							DMaps[t].largemap_2_tile+=diff;
-							break;
-						}
-					}
-				}
-			}
-		
 			for(int32_t u=0; u<eMAXGUYS; u++)
 			{
 				if(move_enemy_list[u])
@@ -8869,25 +7894,22 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
 	
-	sprintf(buf, "Destination Warning");
+	sprintf(buf, "Tile Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
 	bool flood;
 	
 	int32_t i;
-	bool move_game_icons_list[4];
-	bool move_dmap_maps_list[MAXDMAPS][4];
 	
-	auto move_lists = load_move_lists(move);
+	auto move_lists = load_tile_move_lists(move);
 	// warn if paste overwrites other defined tiles or
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
 	
-	for(int32_t q=0; q<2 && !done; ++q)
+	for(int32_t q=0; q < (move?2:1) && !done; ++q)
 	{
-	
 		switch(q)
 		{
 		case 0:
@@ -8909,550 +7931,77 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 			break;
 		}
 		
-		if(move||q==0)
+		for(auto &list : move_lists)
 		{
-			//check game icons
-			if(!done)
+			if(done) break;
+			tile_move_list_text[0]=0;
+			found=false;
+			flood=false;
+			for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
 			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				const char *icon_title[4]=
-				{
-					"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
-				};
+				TileRef& ref = list->move_refs[indx];
 				
-				for(int32_t u=0; u<4; u++)
+				if(list->move_bits.get(indx))
+					continue;
+				auto t = *ref.tile + ref.offset();
+				
+				if(ref.combo)
 				{
-					move_game_icons_list[u]=false;
-					
 					if(rect)
-					{
-						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(QMisc.icons[u]!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", icon_title[u]);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_game_icons_list[u]=true;
-						}
-					}
+						i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
+					else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
 				}
-				
-				if(rect)
+				else if(rect)
 				{
-					i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
+					if(ref.h > 1)
+						i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
+					else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
 				}
 				else
 				{
-					i=move_intersection_ss(41, 41, selection_first, selection_last);
+					if(ref.h > 1)
+						i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
+					else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
 				}
 				
-				if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
+				for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
 				{
-					sprintf(temptext, "Quest Sword");
-					
-					if(strlen(tile_move_list_text)<65000)
+					auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
+					if(rect)
+						i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_left, selection_top, selection_width, selection_height);
+					else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_first, selection_last);
+				}
+				
+				if((i!=ti_none)&&((*ref.tile)!=0))
+				{
+					if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
 					{
-						strcat(tile_move_list_text, temptext);
-					}
-					else
-					{
-						if(!flood)
+						sprintf(temptext, "%s\n", ref.name.c_str());
+						
+						if(strlen(tile_move_list_text)<65000)
 						{
-							strcat(tile_move_list_text, "...\n...\n...\nmany others");
-							flood=true;
+							strcat(tile_move_list_text, temptext);
 						}
+						else
+						{
+							if(!flood)
+							{
+								strcat(tile_move_list_text, "...\n...\n...\nmany others");
+								flood=true;
+							}
+						}
+						
+						found=true;
 					}
-					
-					found=true;
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following quest icons will be partially cleared by the move."
-					: "The tiles used by the following quest icons will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
+					else if(i==ti_encompass)
+					{
+						list->move_bits.set(indx, true);
+					}
 				}
 			}
 			
-			//check dmap maps
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				bool BSZ2 = get_qr(qr_BSZELDA);
-				
-				for(int32_t t=0; t<MAXDMAPS; t++)
-				{
-					dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
-					dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
-					dmap_map_items[2].tile=DMaps[t].largemap_1_tile;
-					dmap_map_items[2].width=BSZ2?7:9;
-					dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
-					dmap_map_items[3].width=BSZ2?7:9;
-					
-					for(int32_t u=0; u<4; u++)
-					{
-						move_dmap_maps_list[t][u]=false;
-						
-						if(rect)
-						{
-							i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
-						}
-						else
-						{
-							i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
-						}
-						
-						if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
-						{
-							if(i==ti_broken || q==0)
-							{
-								sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-							else if(i==ti_encompass)
-							{
-								move_dmap_maps_list[t][u]=true;
-							}
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following dmap-specific subscreen maps will be partially cleared by the move."
-					: "The tiles used by the following dmap-specific subscreen maps will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check enemies
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_bie_list(false);
-				bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
-				int32_t u;
-				
-				for(u=0; u<eMAXGUYS; u++)
-				{
-					const guydata& enemy=guysbuf[bie[u].i];
-					bool darknut=false;
-					int32_t gleeok=0;
-					
-					if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
-						darknut=true;
-					else if(enemy.family==eeGLEEOK)
-					{
-						// Not certain this is the right thing to check...
-						if(enemy.misc3==0)
-							gleeok=1;
-						else
-							gleeok=2;
-					}
-					
-					// Dummied out enemies
-					if(bie[u].i>=eOCTO1S && bie[u].i<e177)
-					{
-						if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
-						{
-							continue;
-						}
-					}
-					
-					if(newtiles)
-					{
-						if(guysbuf[bie[u].i].e_tile==0)
-						{
-							continue;
-						}
-						
-						if(guysbuf[bie[u].i].e_height==0)
-						{
-							if(rect)
-							{
-								i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_ss(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_first, selection_last);
-							}
-						}
-						else
-						{
-							if(rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
-							}
-						}
-						
-						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-						{
-							sprintf(temptext, "%s\n", bie[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						
-						if(darknut)
-						{
-							if(rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-						}
-						else if(enemy.family==eeGANON && i==ti_none)
-						{
-							if(rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-						}
-						else if(gleeok && i==ti_none)
-						{
-							for(int32_t j=0; j<4 && i==ti_none; ++j)
-							{
-								if(rect)
-								{
-									i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
-								}
-							}
-							
-							if(i==ti_none)
-							{
-								int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-								int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-								
-								if(rect)
-								{
-									i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
-								}
-								
-								if(i==ti_none)
-								{
-									if(rect)
-									{
-										i=move_intersection_rr(c, r+3, 16, 6, selection_left, selection_top, selection_width, selection_height);
-									}
-									else
-									{
-										i=move_intersection_rs(c, r+3, 16, 6, selection_first, selection_last);
-									}
-								}
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s\n", bie[u].s);
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-						}
-					}
-					else
-					{
-						if(guysbuf[bie[u].i].tile==0)
-						{
-							continue;
-						}
-						else if(guysbuf[bie[u].i].height==0)
-						{
-							if(rect)
-							{
-								i=move_intersection_sr(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_ss(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_first, selection_last);
-							}
-						}
-						else
-						{
-							if(rect)
-							{
-								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
-							}
-							else
-							{
-								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
-							}
-						}
-						
-						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-						{
-							sprintf(temptext, "%s\n", bie[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						
-						if(guysbuf[bie[u].i].s_tile!=0)
-						{
-							if(guysbuf[bie[u].i].s_height==0)
-							{
-								if(rect)
-								{
-									i=move_intersection_sr(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_ss(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_first, selection_last);
-								}
-							}
-							else
-							{
-								if(rect)
-								{
-									i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
-								}
-								else
-								{
-									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
-								}
-							}
-							
-							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-							{
-								sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-								
-								if(strlen(tile_move_list_text)<65000)
-								{
-									strcat(tile_move_list_text, temptext);
-								}
-								else
-								{
-									if(!flood)
-									{
-										strcat(tile_move_list_text, "...\n...\n...\nmany others");
-										flood=true;
-									}
-								}
-								
-								found=true;
-							}
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following enemies will be partially cleared by the move."
-					: "The tiles used by the following enemies will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check other stuff
-			for(auto &list : move_lists)
-			{
-				if(done) break;
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-				{
-					TileRef& ref = list->move_refs[indx];
-					
-					if(list->move_bits.get(indx))
-						continue;
-					auto t = *ref.tile + ref.offset();
-					
-					if(ref.combo)
-					{
-						if(rect)
-							i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
-						else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
-					}
-					else if(rect)
-					{
-						if(ref.h > 1)
-							i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
-						else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						if(ref.h > 1)
-							i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
-						else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&((*ref.tile)!=0))
-					{
-						if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
-						{
-							sprintf(temptext, "%s\n", ref.name.c_str());
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							list->move_bits.set(indx, true);
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
-					done = true;
-			}
+			if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
+				done = true;
 		}
 	}
 	
@@ -9620,7 +8169,7 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
 	
-	sprintf(buf, "Destination Warning");
+	sprintf(buf, "Tile Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
@@ -9629,366 +8178,7 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	int32_t i;
 	bool done = false;
 	
-	//check game icons
-	if(!done)
-	{
-		//this is here to allow this section to fold
-		tile_move_list_text[0]=0;
-		found=false;
-		flood=false;
-		const char *icon_title[4]=
-		{
-			"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
-		};
-		
-		for(int32_t u=0; u<4; u++)
-		{
-			i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], dest_left, dest_top, dest_width, dest_height);
-			
-			if((i!=ti_none)&&(QMisc.icons[u]!=0))
-			{
-				sprintf(temptext, "%s\n", icon_title[u]);
-				
-				if(strlen(tile_move_list_text)<65000)
-				{
-					strcat(tile_move_list_text, temptext);
-				}
-				else
-				{
-					if(!flood)
-					{
-						strcat(tile_move_list_text, "...\n...\n...\nmany others");
-						flood=true;
-					}
-				}
-				
-				found=true;
-			}
-		}
-		
-		i=move_intersection_sr(41, 41, dest_left, dest_top, dest_width, dest_height);
-		
-		if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
-		{
-			sprintf(temptext, "Quest Sword");
-			
-			if(strlen(tile_move_list_text)<65000)
-			{
-				strcat(tile_move_list_text, temptext);
-			}
-			else
-			{
-				if(!flood)
-				{
-					strcat(tile_move_list_text, "...\n...\n...\nmany others");
-					flood=true;
-				}
-			}
-			
-			found=true;
-		}
-		
-		if(found && !popup_tile_move_dlg(
-			"The tiles used by the following quest icons will be partially or completely overwritten by this process.",
-			tile_move_list_text))
-		{
-			done = true;
-		}
-	}
-	
-	//check dmap maps
-	if(!done)
-	{
-		//this is here to allow this section to fold
-		tile_move_list_text[0]=0;
-		found=false;
-		flood=false;
-		bool BSZ2 = get_qr(qr_BSZELDA);
-		
-		for(int32_t t=0; t<MAXDMAPS; t++)
-		{
-			dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
-			dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
-			dmap_map_items[2].tile=DMaps[t].largemap_1_tile;
-			dmap_map_items[2].width=BSZ2?7:9;
-			dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
-			dmap_map_items[3].width=BSZ2?7:9;
-			
-			for(int32_t u=0; u<4; u++)
-			{
-				i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, dest_left, dest_top, dest_width, dest_height);
-				
-				if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
-				{
-					sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-					
-					if(strlen(tile_move_list_text)<65000)
-					{
-						strcat(tile_move_list_text, temptext);
-					}
-					else
-					{
-						if(!flood)
-						{
-							strcat(tile_move_list_text, "...\n...\n...\nmany others");
-							flood=true;
-						}
-					}
-					
-					found=true;
-				}
-			}
-		}
-		
-		if(found && !popup_tile_move_dlg(
-			"The tiles used by the following dmap-specific subscreen maps will be partially or completely overwritten by this process.",
-			tile_move_list_text))
-		{
-			done = true;
-		}
-	}
-	
-	//check enemies
-	if(!done)
-	{
-		//this is here to allow this section to fold
-		tile_move_list_text[0]=0;
-		found=false;
-		flood=false;
-		build_bie_list(false);
-		bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
-		int32_t u;
-		
-		for(u=0; u<eMAXGUYS; u++)
-		{
-			const guydata& enemy=guysbuf[bie[u].i];
-			bool darknut=false;
-			int32_t gleeok=0;
-			
-			if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
-				darknut=true;
-			else if(enemy.family==eeGLEEOK)
-			{
-				// Not certain this is the right thing to check...
-				if(enemy.misc3==0)
-					gleeok=1;
-				else
-					gleeok=2;
-			}
-			
-			// Dummied out enemies
-			if(bie[u].i>=eOCTO1S && bie[u].i<e177)
-			{
-				if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
-				{
-					continue;
-				}
-			}
-			
-			if(newtiles)
-			{
-				if(guysbuf[bie[u].i].e_tile==0)
-				{
-					continue;
-				}
-				
-				if(guysbuf[bie[u].i].e_height==0)
-				{
-					i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), dest_left, dest_top, dest_width, dest_height);
-				}
-				else
-				{
-					i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, dest_left, dest_top, dest_width, dest_height);
-				}
-				
-				if(i!=ti_none)
-				{
-					sprintf(temptext, "%s\n", bie[u].s);
-					
-					if(strlen(tile_move_list_text)<65000)
-					{
-						strcat(tile_move_list_text, temptext);
-					}
-					else
-					{
-						if(!flood)
-						{
-							strcat(tile_move_list_text, "...\n...\n...\nmany others");
-							flood=true;
-						}
-					}
-					
-					found=true;
-				}
-				
-				if(darknut)
-				{
-					i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, dest_left, dest_top, dest_width, dest_height);
-					
-					if(i!=ti_none)
-					{
-						sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-						
-						if(strlen(tile_move_list_text)<65000)
-						{
-							strcat(tile_move_list_text, temptext);
-						}
-						else
-						{
-							if(!flood)
-							{
-								strcat(tile_move_list_text, "...\n...\n...\nmany others");
-								flood=true;
-							}
-						}
-						
-						found=true;
-					}
-				}
-				else if(enemy.family==eeGANON && i==ti_none)
-				{
-					i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, dest_left, dest_top, dest_width, dest_height);
-					
-					if(i!=ti_none)
-					{
-						sprintf(temptext, "%s\n", bie[u].s);
-						
-						if(strlen(tile_move_list_text)<65000)
-						{
-							strcat(tile_move_list_text, temptext);
-						}
-						else
-						{
-							if(!flood)
-							{
-								strcat(tile_move_list_text, "...\n...\n...\nmany others");
-								flood=true;
-							}
-						}
-						
-						found=true;
-					}
-				}
-				else if(gleeok && i==ti_none)
-				{
-					for(int32_t j=0; j<4 && i==ti_none; ++j)
-					{
-						i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, dest_left, dest_top, dest_width, dest_height);
-					}
-					
-					if(i==ti_none)
-					{
-						int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-						int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-						
-						i=move_intersection_rr(c, r, 20, 3, dest_left, dest_top, dest_width, dest_height);
-						
-						if(i==ti_none)
-						{
-							i=move_intersection_rr(c, r+3, 16, 6, dest_left, dest_top, dest_width, dest_height);
-						}
-					}
-					
-					if(i!=ti_none)
-					{
-						sprintf(temptext, "%s\n", bie[u].s);
-						
-						if(strlen(tile_move_list_text)<65000)
-						{
-							strcat(tile_move_list_text, temptext);
-						}
-						else
-						{
-							if(!flood)
-							{
-								strcat(tile_move_list_text, "...\n...\n...\nmany others");
-								flood=true;
-							}
-						}
-						
-						found=true;
-					}
-				}
-			}
-			else
-			{
-				if(guysbuf[bie[u].i].tile==0)
-				{
-					continue;
-				}
-				else if(guysbuf[bie[u].i].height==0)
-				{
-					i=move_intersection_sr(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), dest_left, dest_top, dest_width, dest_height);
-				}
-				else
-				{
-					i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, dest_left, dest_top, dest_width, dest_height);
-				}
-				
-				if(i!=ti_none)
-				{
-					sprintf(temptext, "%s\n", bie[u].s);
-					
-					if(strlen(tile_move_list_text)<65000)
-					{
-						strcat(tile_move_list_text, temptext);
-					}
-					else
-					{
-						if(!flood)
-						{
-							strcat(tile_move_list_text, "...\n...\n...\nmany others");
-							flood=true;
-						}
-					}
-					
-					found=true;
-				}
-				
-				if(guysbuf[bie[u].i].s_tile!=0)
-				{
-					if(guysbuf[bie[u].i].s_height==0)
-					{
-						i=move_intersection_sr(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), dest_left, dest_top, dest_width, dest_height);
-					}
-					else
-					{
-						i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, dest_left, dest_top, dest_width, dest_height);
-					}
-					
-					if(i!=ti_none)
-					{
-						sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-						
-						if(strlen(tile_move_list_text)<65000)
-						{
-							strcat(tile_move_list_text, temptext);
-						}
-						else
-						{
-							if(!flood)
-							{
-								strcat(tile_move_list_text, "...\n...\n...\nmany others");
-								flood=true;
-							}
-						}
-						
-						found=true;
-					}
-				}
-			}
-		}
-		
-		if(found && !popup_tile_move_dlg(
-			"The tiles used by the following enemies will be partially or completely overwritten by this process.",
-			tile_move_list_text))
-		{
-			done = true;
-		}
-	}
-	
-	//check other stuff
-	auto move_lists = load_move_lists(false);
+	auto move_lists = load_tile_move_lists(false);
 	for(auto &list : move_lists)
 	{
 		if(done) break;
@@ -10010,6 +8200,12 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 			else if(ref.h > 1)
 				i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, dest_left, dest_top, dest_width, dest_height);
 			else i=move_intersection_sr(t, t+ref.w-1, dest_left, dest_top, dest_width, dest_height);
+			
+			for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
+			{
+				auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
+				i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, dest_left, dest_top, dest_width, dest_height);
+			}
 			
 			if((i!=ti_none)&&((*ref.tile)!=0))
 			{
