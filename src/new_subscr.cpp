@@ -4422,8 +4422,15 @@ int32_t SW_GaugePiece::write(PACKFILE* f) const
 }
 void SW_GaugePiece::collect_tiles(vector<TileRef>& tile_vec)
 {
+	int fr = frames ? frames : 1;
+	fr = fr * (1+(get_per_container()/(unit_per_frame+1)));
+	if(!(flags&SUBSCR_GAUGE_FULLTILE))
+		fr = (fr/4_zf).getCeil();
+	
 	for(auto q = 0; q < 4; ++q)
-		tile_vec.emplace_back(&mts[q].mt_tile, fmt::format("Gauge Tile {}", q));
+	{
+		tile_vec.emplace_back(&mts[q].mt_tile, fr, 1, fmt::format("Gauge Tile {}", q));
+	}
 }
 
 SW_LifeGaugePiece::SW_LifeGaugePiece(subscreen_object const& old) : SW_LifeGaugePiece()
@@ -4475,7 +4482,7 @@ bool SW_LifeGaugePiece::infinite() const
 }
 word SW_LifeGaugePiece::get_per_container() const
 {
-	return game->get_hp_per_heart();
+	return game ? game->get_hp_per_heart() : zinit.hp_per_heart;
 }
 void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -4555,7 +4562,7 @@ bool SW_MagicGaugePiece::infinite() const
 }
 word SW_MagicGaugePiece::get_per_container() const
 {
-	return game->get_mp_per_block();
+	return game ? game->get_mp_per_block() : zinit.magic_per_block;
 }
 void SW_MagicGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
