@@ -6099,13 +6099,12 @@ int32_t move_intersection_rr(int32_t check_left, int32_t check_top, int32_t chec
 static DIALOG tile_move_list_dlg[] =
 {
 	// (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-	{ jwin_win_proc,      0,   0,   300,  220,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      NULL, NULL, NULL },
+	{ jwin_win_proc,      0,   0,   300,  212,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      NULL, NULL, NULL },
 	{ jwin_ctext_proc,   150,  18,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) "", NULL, NULL },
 	{ jwin_ctext_proc,   150,  28,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) "", NULL, NULL },
-	{ jwin_ctext_proc,   150,  38,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) "", NULL, NULL },
-	{ jwin_textbox_proc,  12,   50,   277,  138,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,      NULL, NULL, NULL },
-	{ jwin_button_proc,   80,   195,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ jwin_button_proc,  160,   195,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_textbox_proc,  12,   40,   277,  138,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,      NULL, NULL, NULL },
+	{ jwin_button_proc,   80,   185,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ jwin_button_proc,  160,   185,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
 	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -6117,8 +6116,8 @@ bool popup_tile_move_dlg(string const& msg, char* textbox)
 	char buf1[512] = {0};
 	char buf2[512] = {0};
 	large_dialog(tile_move_list_dlg);
+	DIALOG& tbox = tile_move_list_dlg[3];
 	{
-		DIALOG& tbox = tile_move_list_dlg[4];
 		FONT* f = tbox.dp2 ? (FONT*)tbox.dp2 : get_custom_font(CFONT_GUI);
 		int indx = 0, word_indx = 0;
 		for(char c : msg)
@@ -6136,14 +6135,23 @@ bool popup_tile_move_dlg(string const& msg, char* textbox)
 	}
 	tile_move_list_dlg[1].dp = buf1;
 	tile_move_list_dlg[2].dp = buf2;
-	tile_move_list_dlg[3].dp = (void*)"Proceed?";
-	tile_move_list_dlg[4].dp = textbox;
-	tile_move_list_dlg[4].d2 = 0;
+	tbox.dp = textbox;
+	tbox.d2 = 0;
+	auto tby = tbox.y;
+	auto tbh = tbox.h;
+	if(!buf2[0])
+	{
+		auto diff = tile_move_list_dlg[2].h;
+		tbox.y -= diff;
+		tbox.h += diff;
+	}
 	
 	int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 	position_mouse_z(0);
+	tbox.y = tby;
+	tbox.h = tbh;
 	
-	return ret == 5;
+	return ret == 4;
 }
 
 typedef struct move_tiles_item
@@ -7037,6 +7045,145 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 		
 		vec.push_back(std::move(combo_list));
 	}
+	//Items
+	{
+		auto item_list = std::make_unique<MoveList>(
+			move
+			? "The tiles used by the following items will be partially cleared by the move."
+			: "The tiles used by the following items will be partially or completely overwritten by this process."
+			);
+		item_list->move_refs.reserve(MAXITEMS);
+		
+		build_bii_list(false);
+		for(int32_t u=0; u<MAXITEMS; u++)
+		{
+			auto id = bii[u].i;
+			itemdata& itm = itemsbuf[id];
+			item_list->move_refs.emplace_back(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
+		}
+		
+		vec.push_back(std::move(item_list));
+	}
+	//Weapon sprites
+	{
+		auto wpn_list = std::make_unique<MoveList>(
+			move
+			? "The tiles used by the following weapons will be partially cleared by the move."
+			: "The tiles used by the following weapons will be partially or completely overwritten by this process."
+			);
+		wpn_list->move_refs.reserve(MAXWPNS);
+		
+		build_biw_list();
+		bool BSZ2=get_qr(qr_BSZELDA)!=0;
+		
+		for(int32_t u=0; u<MAXWPNS; u++)
+		{
+			bool ignore_frames=false;
+			int32_t m=0;
+			
+			auto id = biw[u].i;
+			auto& wpn = wpnsbuf[id];
+			
+			switch(biw[u].i)
+			{
+			case wSWORD:
+			case wWSWORD:
+			case wMSWORD:
+			case wXSWORD:
+				m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
+				break;
+				
+			case wSWORDSLASH:
+			case wWSWORDSLASH:
+			case wMSWORDSLASH:
+			case wXSWORDSLASH:
+				m=4;
+				break;
+				
+			case iwMMeter:
+				m=9;
+				break;
+				
+			case wBRANG:
+			case wMBRANG:
+			case wFBRANG:
+				m=BSZ2?1:3;
+				break;
+				
+			case wBOOM:
+			case wSBOOM:
+			case ewBOOM:
+			case ewSBOOM:
+				ignore_frames=true;
+				m=2;
+				break;
+				
+			case wWAND:
+				m=1;
+				break;
+				
+			case wMAGIC:
+				m=1;
+				break;
+				
+			case wARROW:
+			case wSARROW:
+			case wGARROW:
+			case ewARROW:
+				m=1;
+				break;
+				
+			case wHAMMER:
+				m=8;
+				break;
+				
+			case wHSHEAD:
+				m=1;
+				break;
+				
+			case wHSCHAIN_H:
+				m=1;
+				break;
+				
+			case wHSCHAIN_V:
+				m=1;
+				break;
+				
+			case wHSHANDLE:
+				m=1;
+				break;
+				
+			case iwDeath:
+				m=BSZ2?4:2;
+				break;
+				
+			case iwSpawn:
+				m=3;
+				break;
+				
+			default:
+				m=0;
+				break;
+			}
+			
+			wpn_list->move_refs.emplace_back(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)+m,
+				1, fmt::format("{} {}", biw[u].s, id));
+			
+			//Tile 54+55 are "Impact (not shown in sprite list)", for u==3 "Arrow" and u==9 "Boomerang"
+			//...these can't be updated by a move.
+			if((u==3)||(u==9))
+			{
+				static int32_t impact_tiles[2] = {54,54};
+				auto& tile = impact_tiles[u==3 ? 0 : 1];
+				tile = 54; //dummy tile, ensure it's correct
+				auto& ref = wpn_list->move_refs.emplace_back(&tile, 2, 1,
+					fmt::format("{} Impact (not shown in sprite list)",(u==3)?"Arrow":"Boomerang"));
+				ref.no_move = true;
+			}
+		}
+		
+		vec.push_back(std::move(wpn_list));
+	}
 	//Subscreens
 	{
 		auto subscr_list = std::make_unique<MoveList>(
@@ -7082,7 +7229,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 {
 	bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
 	bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-	bool ignore_frames=false;
 	
 	// if tile>tile2 then swap them
 	if(tile>tile2)
@@ -7289,8 +7435,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	bool flood;
 	
 	int32_t i;
-	bool *move_items_list = new bool[MAXITEMS];
-	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -7330,243 +7474,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		
 		if(move||q==0)
 		{
-			//check items
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_bii_list(false);
-				
-				for(int32_t u=0; u<MAXITEMS; u++)
-				{
-					move_items_list[u]=false;
-					
-					if(rect)
-					{
-						i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", bii[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_items_list[u]=true;
-						}
-					}
-				}
-				
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following items will be partially cleared by the move."
-					: "The tiles used by the following items will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check weapons/misc
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_biw_list();
-				bool BSZ2=get_qr(qr_BSZELDA)!=0;
-				
-				for(int32_t u=0; u<MAXWPNS; u++)
-				{
-					ignore_frames=false;
-					move_weapons_list[u]=false;
-					int32_t m=0;
-					
-					switch(biw[u].i)
-					{
-					case wSWORD:
-					case wWSWORD:
-					case wMSWORD:
-					case wXSWORD:
-						m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
-						break;
-						
-					case wSWORDSLASH:
-					case wWSWORDSLASH:
-					case wMSWORDSLASH:
-					case wXSWORDSLASH:
-						m=4;
-						break;
-						
-					case iwMMeter:
-						m=9;
-						break;
-						
-					case wBRANG:
-					case wMBRANG:
-					case wFBRANG:
-						m=BSZ2?1:3;
-						break;
-						
-					case wBOOM:
-					case wSBOOM:
-					case ewBOOM:
-					case ewSBOOM:
-						ignore_frames=true;
-						m=2;
-						break;
-						
-					case wWAND:
-						m=1;
-						break;
-						
-					case wMAGIC:
-						m=1;
-						break;
-						
-					case wARROW:
-					case wSARROW:
-					case wGARROW:
-					case ewARROW:
-						m=1;
-						break;
-						
-					case wHAMMER:
-						m=8;
-						break;
-						
-					case wHSHEAD:
-						m=1;
-						break;
-						
-					case wHSCHAIN_H:
-						m=1;
-						break;
-						
-					case wHSCHAIN_V:
-						m=1;
-						break;
-						
-					case wHSHANDLE:
-						m=1;
-						break;
-						
-					case iwDeath:
-						m=BSZ2?4:2;
-						break;
-						
-					case iwSpawn:
-						m=3;
-						break;
-						
-					default:
-						m=0;
-						break;
-					}
-					
-					if(rect)
-					{
-						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", biw[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_weapons_list[u]=true;
-						}
-					}
-					
-					if((u==3)||(u==9))
-					{
-						if(rect)
-						{
-							i=move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
-						}
-						else
-						{
-							i=move_intersection_ss(54, 55, selection_first, selection_last);
-						}
-						
-						if(i!=ti_none)
-						{
-							sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-					}
-				}
-				
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following weapons will be partially cleared by the move."
-					: "The tiles used by the following weapons will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check Player sprites
 			if(!done)
 			{
@@ -8209,7 +8116,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					
 					if((i!=ti_none)&&((*ref.tile)!=0))
 					{
-						if(i==ti_broken || q==0)
+						if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
 						{
 							sprintf(temptext, "%s\n", ref.name.c_str());
 							
@@ -8289,22 +8196,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		
 		if(move)
 		{
-			for(int32_t u=0; u<MAXITEMS; u++)
-			{
-				if(move_items_list[u])
-				{
-					itemsbuf[bii[u].i].tile+=diff;
-				}
-			}
-			
-			for(int32_t u=0; u<MAXWPNS; u++)
-			{
-				if(move_weapons_list[u])
-				{
-					wpnsbuf[biw[u].i].tile+=diff;
-				}
-			}
-			
 			handle_hero_sprite_move(move_hero_sprites_list,diff);
 			
 			for(int32_t u=0; u<6; u++)
@@ -8397,8 +8288,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	register_used_tiles();
 	
 	delete[] tile_move_list_text;
-	delete[] move_items_list;
-	delete[] move_weapons_list;
 	
 	if(done)
 		return false;
@@ -8408,7 +8297,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 //
 bool do_movetile_united(tile_move_data const& tmd)
 {
-	bool ignore_frames=false;
 	char buf[80], buf2[80], buf3[80], buf4[80];
 	sprintf(buf, " ");
 	sprintf(buf2, " ");
@@ -8440,8 +8328,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 	bool flood;
 	
 	int32_t i;
-	bool *move_items_list = new bool[MAXITEMS];
-	bool *move_weapons_list = new bool[MAXWPNS];
 	bool *move_enemy_list = new bool[eMAXGUYS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
@@ -8484,244 +8370,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 		}
 		
 		{
-			//check items
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_bii_list(false);
-				
-				for(int32_t u=0; u<MAXITEMS; u++)
-				{
-					if(first) move_items_list[u]=false;
-					else if(move_items_list[u]) continue;
-					
-					if(tmd.rect)
-					{
-						i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", bii[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_items_list[u]=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(tmd.move
-					? "The tiles used by the following items will be partially cleared by the move."
-					: "The tiles used by the following items will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check weapons/misc
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_biw_list();
-				bool BSZ2=get_qr(qr_BSZELDA)!=0;
-				
-				for(int32_t u=0; u<MAXWPNS; u++)
-				{
-					ignore_frames=false;
-					if(first) move_weapons_list[u]=false;
-					else if(move_weapons_list[u]) continue;
-					
-					int32_t m=0;
-					
-					switch(biw[u].i)
-					{
-					case wSWORD:
-					case wWSWORD:
-					case wMSWORD:
-					case wXSWORD:
-						m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
-						break;
-						
-					case wSWORDSLASH:
-					case wWSWORDSLASH:
-					case wMSWORDSLASH:
-					case wXSWORDSLASH:
-						m=4;
-						break;
-						
-					case iwMMeter:
-						m=9;
-						break;
-						
-					case wBRANG:
-					case wMBRANG:
-					case wFBRANG:
-						m=BSZ2?1:3;
-						break;
-						
-					case wBOOM:
-					case wSBOOM:
-					case ewBOOM:
-					case ewSBOOM:
-						ignore_frames=true;
-						m=2;
-						break;
-						
-					case wWAND:
-						m=1;
-						break;
-						
-					case wMAGIC:
-						m=1;
-						break;
-						
-					case wARROW:
-					case wSARROW:
-					case wGARROW:
-					case ewARROW:
-						m=1;
-						break;
-						
-					case wHAMMER:
-						m=8;
-						break;
-						
-					case wHSHEAD:
-						m=1;
-						break;
-						
-					case wHSCHAIN_H:
-						m=1;
-						break;
-						
-					case wHSCHAIN_V:
-						m=1;
-						break;
-						
-					case wHSHANDLE:
-						m=1;
-						break;
-						
-					case iwDeath:
-						m=BSZ2?4:2;
-						break;
-						
-					case iwSpawn:
-						m=3;
-						break;
-						
-					default:
-						m=0;
-						break;
-					}
-					
-					if(tmd.rect)
-					{
-						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", biw[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_weapons_list[u]=true;
-						}
-					}
-					
-					if((u==3)||(u==9))
-					{
-						if(tmd.rect)
-						{
-							i=move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
-						}
-						else
-						{
-							i=move_intersection_ss(54, 55, selection_first, selection_last);
-						}
-						
-						if(i!=ti_none)
-						{
-							sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(tmd.move
-					? "The tiles used by the following weapons will be partially cleared by the move."
-					: "The tiles used by the following weapons will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check Player sprites
 			if(!done)
 			{
@@ -9388,7 +9036,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if((i!=ti_none)&&((*ref.tile)!=0))
 					{
-						if(i==ti_broken || q==0)
+						if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
 						{
 							sprintf(temptext, "%s\n", ref.name.c_str());
 							
@@ -9499,22 +9147,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 		
 		if(tmd.move)
 		{
-			for(int32_t u=0; u<MAXITEMS; u++)
-			{
-				if(move_items_list[u])
-				{
-					itemsbuf[bii[u].i].tile+=diff;
-				}
-			}
-			
-			for(int32_t u=0; u<MAXWPNS; u++)
-			{
-				if(move_weapons_list[u])
-				{
-					wpnsbuf[biw[u].i].tile+=diff;
-				}
-			}
-			
 			handle_hero_sprite_move(move_hero_sprites_list,diff);
 			
 			for(int32_t u=0; u<6; u++)
@@ -9625,8 +9257,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 	register_used_tiles();
 	
 	delete[] tile_move_list_text;
-	delete[] move_items_list;
-	delete[] move_weapons_list;
 	delete[] move_enemy_list;
 	
 	if(done)
@@ -9820,7 +9450,6 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move)
 {
 	assert(!move); //not implemented
-	bool ignore_frames=false;
 	
 	// if tile>tile2 then swap them
 	if(tile>tile2)
@@ -9906,8 +9535,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	bool flood;
 	
 	int32_t i;
-	bool *move_items_list = new bool[MAXITEMS];
-	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -9947,241 +9574,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		
 		if(move||q==0)
 		{
-			//check items
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_bii_list(false);
-				
-				for(int32_t u=0; u<MAXITEMS; u++)
-				{
-					move_items_list[u]=false;
-					
-					if(rect)
-					{
-						i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", bii[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_items_list[u]=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following items will be partially cleared by the move."
-					: "The tiles used by the following items will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
-			//check weapons/misc
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				build_biw_list();
-				bool BSZ2=get_qr(qr_BSZELDA)!=0;
-				
-				for(int32_t u=0; u<MAXWPNS; u++)
-				{
-					ignore_frames=false;
-					move_weapons_list[u]=false;
-					int32_t m=0;
-					
-					switch(biw[u].i)
-					{
-					case wSWORD:
-					case wWSWORD:
-					case wMSWORD:
-					case wXSWORD:
-						m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
-						break;
-						
-					case wSWORDSLASH:
-					case wWSWORDSLASH:
-					case wMSWORDSLASH:
-					case wXSWORDSLASH:
-						m=4;
-						break;
-						
-					case iwMMeter:
-						m=9;
-						break;
-						
-					case wBRANG:
-					case wMBRANG:
-					case wFBRANG:
-						m=BSZ2?1:3;
-						break;
-						
-					case wBOOM:
-					case wSBOOM:
-					case ewBOOM:
-					case ewSBOOM:
-						ignore_frames=true;
-						m=2;
-						break;
-						
-					case wWAND:
-						m=1;
-						break;
-						
-					case wMAGIC:
-						m=1;
-						break;
-						
-					case wARROW:
-					case wSARROW:
-					case wGARROW:
-					case ewARROW:
-						m=1;
-						break;
-						
-					case wHAMMER:
-						m=8;
-						break;
-						
-					case wHSHEAD:
-						m=1;
-						break;
-						
-					case wHSCHAIN_H:
-						m=1;
-						break;
-						
-					case wHSCHAIN_V:
-						m=1;
-						break;
-						
-					case wHSHANDLE:
-						m=1;
-						break;
-						
-					case iwDeath:
-						m=BSZ2?4:2;
-						break;
-						
-					case iwSpawn:
-						m=3;
-						break;
-						
-					default:
-						m=0;
-						break;
-					}
-					
-					if(rect)
-					{
-						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", biw[u].s);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_weapons_list[u]=true;
-						}
-					}
-					
-					if((u==3)||(u==9))
-					{
-						if(rect)
-						{
-							i=move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
-						}
-						else
-						{
-							i=move_intersection_ss(54, 55, selection_first, selection_last);
-						}
-						
-						if(i!=ti_none)
-						{
-							sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following weapons will be partially cleared by the move."
-					: "The tiles used by the following weapons will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check Player sprites
 			if(!done)
 			{
@@ -10823,7 +10215,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					
 					if((i!=ti_none)&&((*ref.tile)!=0))
 					{
-						if(i==ti_broken || q==0)
+						if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
 						{
 							sprintf(temptext, "%s\n", ref.name.c_str());
 							
@@ -10914,8 +10306,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	register_used_tiles();
 	
 	delete[] tile_move_list_text;
-	delete[] move_items_list;
-	delete[] move_weapons_list;
 	
 	if(done)
 		return false;
@@ -11029,202 +10419,6 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	
 	int32_t i;
 	bool done = false;
-	bool ignore_frames=false;
-	
-	//check items
-	if(!done)
-	{
-		//this is here to allow this section to fold
-		tile_move_list_text[0]=0;
-		found=false;
-		flood=false;
-		build_bii_list(false);
-		
-		for(int32_t u=0; u<MAXITEMS; u++)
-		{
-			i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, dest_left, dest_top, dest_width, dest_height);
-			
-			if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
-			{
-				sprintf(temptext, "%s\n", bii[u].s);
-				
-				if(strlen(tile_move_list_text)<65000)
-				{
-					strcat(tile_move_list_text, temptext);
-				}
-				else
-				{
-					if(!flood)
-					{
-						strcat(tile_move_list_text, "...\n...\n...\nmany others");
-						flood=true;
-					}
-				}
-				
-				found=true;
-			}
-		}
-		
-		if(found && !popup_tile_move_dlg(
-			"The tiles used by the following items will be partially or completely overwritten by this process.",
-			tile_move_list_text))
-		{
-			done = true;
-		}
-	}
-	
-	//check weapons/misc
-	if(!done)
-	{
-		//this is here to allow this section to fold
-		tile_move_list_text[0]=0;
-		found=false;
-		flood=false;
-		build_biw_list();
-		bool BSZ2=get_qr(qr_BSZELDA)!=0;
-		
-		for(int32_t u=0; u<MAXWPNS; u++)
-		{
-			ignore_frames=false;
-			int32_t m=0;
-			
-			switch(biw[u].i)
-			{
-			case wSWORD:
-			case wWSWORD:
-			case wMSWORD:
-			case wXSWORD:
-				m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
-				break;
-				
-			case wSWORDSLASH:
-			case wWSWORDSLASH:
-			case wMSWORDSLASH:
-			case wXSWORDSLASH:
-				m=4;
-				break;
-				
-			case iwMMeter:
-				m=9;
-				break;
-				
-			case wBRANG:
-			case wMBRANG:
-			case wFBRANG:
-				m=BSZ2?1:3;
-				break;
-				
-			case wBOOM:
-			case wSBOOM:
-			case ewBOOM:
-			case ewSBOOM:
-				ignore_frames=true;
-				m=2;
-				break;
-				
-			case wWAND:
-				m=1;
-				break;
-				
-			case wMAGIC:
-				m=1;
-				break;
-				
-			case wARROW:
-			case wSARROW:
-			case wGARROW:
-			case ewARROW:
-				m=1;
-				break;
-				
-			case wHAMMER:
-				m=8;
-				break;
-				
-			case wHSHEAD:
-				m=1;
-				break;
-				
-			case wHSCHAIN_H:
-				m=1;
-				break;
-				
-			case wHSCHAIN_V:
-				m=1;
-				break;
-				
-			case wHSHANDLE:
-				m=1;
-				break;
-				
-			case iwDeath:
-				m=BSZ2?4:2;
-				break;
-				
-			case iwSpawn:
-				m=3;
-				break;
-				
-			default:
-				m=0;
-				break;
-			}
-			
-			i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, dest_left, dest_top, dest_width, dest_height);
-			
-			if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
-			{
-				sprintf(temptext, "%s\n", biw[u].s);
-					
-				if(strlen(tile_move_list_text)<65000)
-				{
-					strcat(tile_move_list_text, temptext);
-				}
-				else
-				{
-					if(!flood)
-					{
-						strcat(tile_move_list_text, "...\n...\n...\nmany others");
-						flood=true;
-					}
-				}
-					
-				found=true;
-			}
-			
-			if((u==3)||(u==9))
-			{
-				i=move_intersection_sr(54, 55, dest_left, dest_top, dest_width, dest_height);
-				
-				if(i!=ti_none)
-				{
-					sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-					
-					if(strlen(tile_move_list_text)<65000)
-					{
-						strcat(tile_move_list_text, temptext);
-					}
-					else
-					{
-						if(!flood)
-						{
-							strcat(tile_move_list_text, "...\n...\n...\nmany others");
-							flood=true;
-						}
-					}
-					
-					found=true;
-				}
-			}
-		}
-		
-		if(found && !popup_tile_move_dlg(
-			"The tiles used by the following weapons will be partially or completely overwritten by this process.",
-			tile_move_list_text))
-		{
-			done = true;
-		}
-	}
 	
 	//check Player sprites
 	if(!done)
@@ -11704,7 +10898,7 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 			
 			if((i!=ti_none)&&((*ref.tile)!=0))
 			{
-				if(i==ti_broken)
+				if(i==ti_broken || (i==ti_encompass && ref.no_move))
 				{
 					sprintf(temptext, "%s\n", ref.name.c_str());
 					

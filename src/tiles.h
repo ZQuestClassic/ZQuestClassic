@@ -98,14 +98,15 @@ struct TileRef
 	uint w, h;
 	string name;
 	newcombo* combo;
+	bool no_move;
 	TileRef()
-		: tile(nullptr), w(1), h(1), name(), combo(nullptr)
+		: tile(nullptr), w(1), h(1), name(), combo(nullptr), no_move(false)
 	{}
 	TileRef(int32_t* tile, string name = "")
-		: tile(tile), w(1), h(1), name(name), combo(nullptr)
+		: tile(tile), w(1), h(1), name(name), combo(nullptr), no_move(false)
 	{}
 	TileRef(int32_t* tile, uint w, uint h, string name = "")
-		: tile(tile), w(zc_max(1,w)), h(zc_max(1,h)), name(name), combo(nullptr)
+		: tile(tile), w(zc_max(1,w)), h(zc_max(1,h)), name(name), combo(nullptr), no_move(false)
 	{}
 };
 
