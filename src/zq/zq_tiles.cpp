@@ -6494,6 +6494,84 @@ struct TileMoveList
 			return nullptr;
 		return &move_refs.emplace_back(tile, args...);
 	}
+	
+	bool process(bool rect, bool is_dest, int _l, int _t, int _w, int _h, int _first, int _last)
+	{
+		std::ostringstream oss;
+		bool found = false, flood = false;
+		for(size_t indx = 0; indx < move_refs.size(); ++indx)
+		{
+			TileRef& ref = move_refs[indx];
+			int i = ti_none;
+			
+			if(move_bits.get(indx))
+				continue;
+			auto t = *ref.tile + ref.offset();
+			
+			if(ref.combo)
+			{
+				if(rect)
+					i=move_intersection_sr(*ref.combo, _l, _t, _w, _h);
+				else i=move_intersection_ss(*ref.combo, _first, _last);
+			}
+			else if(rect)
+			{
+				if(ref.h > 1)
+					i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, _l, _t, _w, _h);
+				else i=move_intersection_sr(t, t+ref.w-1, _l, _t, _w, _h);
+			}
+			else
+			{
+				if(ref.h > 1)
+					i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, _first, _last);
+				else i=move_intersection_ss(t, t+ref.w-1, _first, _last);
+			}
+			
+			for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
+			{
+				auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
+				if(rect)
+					i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _l, _t, _w, _h);
+				else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _first, _last);
+			}
+			
+			if((i!=ti_none)&&((*ref.tile)!=0))
+			{
+				if(i==ti_broken || is_dest || (i==ti_encompass && ref.no_move))
+				{
+					if(flood || oss.view().size() >= 65000)
+					{
+						if(!flood)
+							oss << "...\n...\n...\nmany others";
+						flood = true;
+					}
+					else oss << ref.name << '\n';
+					
+					found=true;
+				}
+				else if(i==ti_encompass)
+				{
+					move_bits.set(indx, true);
+				}
+			}
+		}
+		
+		return found && !popup_tile_move_dlg(msg, oss.str().data());
+	}
+	
+	void add_diff(int diff)
+	{
+		for(size_t indx = 0; indx < move_refs.size(); ++indx)
+		{
+			if(!move_bits.get(indx))
+				continue;
+			
+			auto& ref = move_refs[indx];
+			if(ref.combo)
+				ref.combo->set_tile(*ref.tile + diff);
+			else *ref.tile += diff;
+		}
+	}
 };
 vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 {
@@ -7175,7 +7253,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		// }
 	}
 	
-	char *tile_move_list_text = new char[65535];
 	char temptext[80];
 	
 	sprintf(buf, "Tile Warning");
@@ -7218,73 +7295,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		for(auto &list : move_lists)
 		{
 			if(done) break;
-			tile_move_list_text[0]=0;
-			found=false;
-			flood=false;
-			for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-			{
-				TileRef& ref = list->move_refs[indx];
-				
-				if(list->move_bits.get(indx))
-					continue;
-				auto t = *ref.tile + ref.offset();
-				
-				if(ref.combo)
-				{
-					if(rect)
-						i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
-					else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
-				}
-				else if(rect)
-				{
-					if(ref.h > 1)
-						i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
-					else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
-				}
-				else
-				{
-					if(ref.h > 1)
-						i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
-					else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
-				}
-				
-				for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
-				{
-					auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
-					if(rect)
-						i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_left, selection_top, selection_width, selection_height);
-					else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_first, selection_last);
-				}
-				
-				if((i!=ti_none)&&((*ref.tile)!=0))
-				{
-					if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
-					{
-						sprintf(temptext, "%s\n", ref.name.c_str());
-						
-						if(strlen(tile_move_list_text)<65000)
-						{
-							strcat(tile_move_list_text, temptext);
-						}
-						else
-						{
-							if(!flood)
-							{
-								strcat(tile_move_list_text, "...\n...\n...\nmany others");
-								flood=true;
-							}
-						}
-						
-						found=true;
-					}
-					else if(i==ti_encompass)
-					{
-						list->move_bits.set(indx, true);
-					}
-				}
-			}
-			
-			if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
+			if(list->process(rect, q==0, selection_left, selection_top, selection_width, selection_height, selection_first, selection_last))
 				done = true;
 		}
 	}
@@ -7336,28 +7347,14 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		}
 		
 		if(move)
-		{
 			for(auto &list : move_lists)
-			{
-				for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-				{
-					if(!list->move_bits.get(indx))
-						continue;
-					
-					auto& ref = list->move_refs[indx];
-					if(ref.combo)
-						ref.combo->set_tile(*ref.tile + diff);
-					else *ref.tile += diff;
-				}
-			}
-		}
+				list->add_diff(diff);
 	}
 	
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
 	
-	delete[] tile_move_list_text;
 	
 	if(done)
 		return false;
@@ -7388,7 +7385,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 		// }
 	}
 	
-	char *tile_move_list_text = new char[65535];
 	char temptext[80];
 	
 	sprintf(buf, "Tile Warning");
@@ -7398,14 +7394,12 @@ bool do_movetile_united(tile_move_data const& tmd)
 	bool flood;
 	
 	int32_t i;
-	bool *move_enemy_list = new bool[eMAXGUYS];
 	
 	auto move_lists = load_tile_move_lists(tmd.move);
 	// warn if paste overwrites other defined tiles or
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
-	bool first = true;
 	bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 	int32_t diff = 0;
 	for(int32_t q=tmd.move?1:0; q>=0 && !done; --q)
@@ -7436,76 +7430,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 		for(auto &list : move_lists)
 		{
 			if(done) break;
-			tile_move_list_text[0]=0;
-			found=false;
-			flood=false;
-			for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-			{
-				TileRef& ref = list->move_refs[indx];
-				
-				if(list->move_bits.get(indx))
-					continue;
-				auto t = *ref.tile + ref.offset();
-				
-				if(ref.combo)
-				{
-					if(tmd.rect)
-						i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
-					else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
-				}
-				else if(tmd.rect)
-				{
-					if(ref.h > 1)
-						i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
-					else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
-				}
-				else
-				{
-					if(ref.h > 1)
-						i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
-					else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
-				}
-				
-				for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
-				{
-					auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
-					if(tmd.rect)
-						i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_left, selection_top, selection_width, selection_height);
-					else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_first, selection_last);
-				}
-				
-				if((i!=ti_none)&&((*ref.tile)!=0))
-				{
-					if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
-					{
-						sprintf(temptext, "%s\n", ref.name.c_str());
-						
-						if(strlen(tile_move_list_text)<65000)
-						{
-							strcat(tile_move_list_text, temptext);
-						}
-						else
-						{
-							if(!flood)
-							{
-								strcat(tile_move_list_text, "...\n...\n...\nmany others");
-								flood=true;
-							}
-						}
-						
-						found=true;
-					}
-					else if(i==ti_encompass)
-					{
-						list->move_bits.set(indx, true);
-					}
-				}
-			}
-			
-			if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
+			if(list->process(rect, q==0, selection_left, selection_top, selection_width, selection_height, selection_first, selection_last))
 				done = true;
 		}
-		first = false;
 	}
 	
 	//
@@ -7585,45 +7512,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 		}
 		
 		if(tmd.move)
-		{
-			for(int32_t u=0; u<eMAXGUYS; u++)
-			{
-				if(move_enemy_list[u])
-				{
-					guydata& enemy=guysbuf[bie[u].i];
-					if(newtiles)
-						enemy.e_tile += diff;
-					else
-					{
-						enemy.tile += diff;
-						if(enemy.s_tile)
-							enemy.s_tile += diff;
-					}
-				}
-			}
-			
 			for(auto &list : move_lists)
-			{
-				for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-				{
-					if(!list->move_bits.get(indx))
-						continue;
-					
-					auto& ref = list->move_refs[indx];
-					if(ref.combo)
-						ref.combo->set_tile(*ref.tile + diff);
-					else *ref.tile += diff;
-				}
-			}
-		}
+				list->add_diff(diff);
 	}
 	
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
-	
-	delete[] tile_move_list_text;
-	delete[] move_enemy_list;
 	
 	if(done)
 		return false;
@@ -7891,7 +7786,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		// }
 	}
 	
-	char *tile_move_list_text = new char[65535];
 	char temptext[80];
 	
 	sprintf(buf, "Tile Warning");
@@ -7934,73 +7828,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		for(auto &list : move_lists)
 		{
 			if(done) break;
-			tile_move_list_text[0]=0;
-			found=false;
-			flood=false;
-			for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-			{
-				TileRef& ref = list->move_refs[indx];
-				
-				if(list->move_bits.get(indx))
-					continue;
-				auto t = *ref.tile + ref.offset();
-				
-				if(ref.combo)
-				{
-					if(rect)
-						i=move_intersection_sr(*ref.combo, selection_left, selection_top, selection_width, selection_height);
-					else i=move_intersection_ss(*ref.combo, selection_first, selection_last);
-				}
-				else if(rect)
-				{
-					if(ref.h > 1)
-						i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_left, selection_top, selection_width, selection_height);
-					else i=move_intersection_sr(t, t+ref.w-1, selection_left, selection_top, selection_width, selection_height);
-				}
-				else
-				{
-					if(ref.h > 1)
-						i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, selection_first, selection_last);
-					else i=move_intersection_ss(t, t+ref.w-1, selection_first, selection_last);
-				}
-				
-				for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
-				{
-					auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
-					if(rect)
-						i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_left, selection_top, selection_width, selection_height);
-					else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, selection_first, selection_last);
-				}
-				
-				if((i!=ti_none)&&((*ref.tile)!=0))
-				{
-					if(i==ti_broken || q==0 || (i==ti_encompass && ref.no_move))
-					{
-						sprintf(temptext, "%s\n", ref.name.c_str());
-						
-						if(strlen(tile_move_list_text)<65000)
-						{
-							strcat(tile_move_list_text, temptext);
-						}
-						else
-						{
-							if(!flood)
-							{
-								strcat(tile_move_list_text, "...\n...\n...\nmany others");
-								flood=true;
-							}
-						}
-						
-						found=true;
-					}
-					else if(i==ti_encompass)
-					{
-						list->move_bits.set(indx, true);
-					}
-				}
-			}
-			
-			if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
+			if(list->process(rect, q==0, selection_left, selection_top, selection_width, selection_height, selection_first, selection_last))
 				done = true;
 		}
 	}
@@ -8063,7 +7891,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	register_blank_tiles();
 	register_used_tiles();
 	
-	delete[] tile_move_list_text;
 	
 	if(done)
 		return false;
@@ -8166,7 +7993,6 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
-	char *tile_move_list_text = new char[65535];
 	char temptext[80];
 	
 	sprintf(buf, "Tile Warning");
@@ -8182,60 +8008,7 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	for(auto &list : move_lists)
 	{
 		if(done) break;
-		tile_move_list_text[0]=0;
-		found=false;
-		flood=false;
-		for(size_t indx = 0; indx < list->move_refs.size(); ++indx)
-		{
-			TileRef& ref = list->move_refs[indx];
-			
-			if(list->move_bits.get(indx))
-				continue;
-			auto t = *ref.tile + ref.offset();
-			
-			if(ref.combo)
-			{
-				i=move_intersection_sr(*ref.combo, dest_left, dest_top, dest_width, dest_height);
-			}
-			else if(ref.h > 1)
-				i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, dest_left, dest_top, dest_width, dest_height);
-			else i=move_intersection_sr(t, t+ref.w-1, dest_left, dest_top, dest_width, dest_height);
-			
-			for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
-			{
-				auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
-				i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, dest_left, dest_top, dest_width, dest_height);
-			}
-			
-			if((i!=ti_none)&&((*ref.tile)!=0))
-			{
-				if(i==ti_broken || (i==ti_encompass && ref.no_move))
-				{
-					sprintf(temptext, "%s\n", ref.name.c_str());
-					
-					if(strlen(tile_move_list_text)<65000)
-					{
-						strcat(tile_move_list_text, temptext);
-					}
-					else
-					{
-						if(!flood)
-						{
-							strcat(tile_move_list_text, "...\n...\n...\nmany others");
-							flood=true;
-						}
-					}
-					
-					found=true;
-				}
-				else if(i==ti_encompass)
-				{
-					list->move_bits.set(indx, true);
-				}
-			}
-		}
-		
-		if(found && !popup_tile_move_dlg(list->msg, tile_move_list_text))
+		if(list->process(rect, false, dest_left, dest_top, dest_width, dest_height, dest_first, dest_last))
 			done = true;
 	}
 	//}
