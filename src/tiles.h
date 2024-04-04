@@ -91,5 +91,16 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
 bool is_valid_format(byte format);
 int32_t tilesize(byte format);
 int32_t comboa_lmasktotal(byte layermask);
+
+struct TileRef
+{
+	int32_t* tile;
+	uint w, h;
+	string name;
+	TileRef() : tile(nullptr), w(1), h(1), name(){}
+	TileRef(int32_t* tile, string name = "") : tile(tile), w(1), h(1), name(name){}
+	TileRef(int32_t* tile, uint w, uint h, string name = "") : tile(tile), w(zc_max(1,w)), h(zc_max(1,h)), name(name){}
+};
+
 #endif                                                      // _ZC_TILES_H_
  

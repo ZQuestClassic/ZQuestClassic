@@ -762,35 +762,47 @@ void SubscrColorInfo::load_old(subscreen_object const& old, int indx)
 
 int32_t SubscrMTInfo::tile() const
 {
-	return tilecrn>>2;
+	return mt_tile;
 }
 byte SubscrMTInfo::crn() const
 {
-	return tilecrn%4;
+	return mt_crn;
+}
+int32_t SubscrMTInfo::getTileCrn() const
+{
+	return (mt_tile<<2)|(mt_crn%4);
 }
 void SubscrMTInfo::setTileCrn(int32_t tile, byte crn)
 {
-	tilecrn = (tile<<2)|(crn%4);
+	mt_tile = tile;
+	mt_crn = crn;
+}
+void SubscrMTInfo::setTileCrn(int32_t tilecrn)
+{
+	mt_tile = tilecrn>>2;
+	mt_crn = tilecrn%4;
 }
 void SubscrMTInfo::setTile(int32_t tile)
 {
-	tilecrn = (tile<<2)|(crn()%4);
+	mt_tile = tile;
 }
 void SubscrMTInfo::setCrn(byte crn)
 {
-	tilecrn = (tile()<<2)|(crn%4);
+	mt_crn = crn;
 }
 int32_t SubscrMTInfo::read(PACKFILE *f, word s_version)
 {
+	int32_t tilecrn;
 	if(!p_igetl(&tilecrn,f))
 		return qe_invalid;
+	setTileCrn(tilecrn);
 	if(!p_getc(&cset,f))
 		return qe_invalid;
 	return 0;
 }
 int32_t SubscrMTInfo::write(PACKFILE *f) const
 {
-	if(!p_iputl(tilecrn,f))
+	if(!p_iputl(getTileCrn(),f))
 		new_return(1);
 	if(!p_putc(cset,f))
 		new_return(1);
@@ -1296,6 +1308,10 @@ ZCSubscreen const* SubscrWidget::getParentSub() const
 {
 	return parentPage ? parentPage->getParent() : nullptr;
 }
+void SubscrWidget::collect_tiles(vector<TileRef>& tile_vec)
+{
+	
+}
 
 SW_2x2Frame::SW_2x2Frame(subscreen_object const& old) : SW_2x2Frame()
 {
@@ -1363,6 +1379,10 @@ int32_t SW_2x2Frame::write(PACKFILE *f) const
 	if(auto ret = cs.write(f))
 		return ret;
 	return 0;
+}
+void SW_2x2Frame::collect_tiles(vector<TileRef>& tile_vec)
+{
+	tile_vec.emplace_back(&tile, 2, 2, "2x2 Frame");
 }
 
 SW_Text::SW_Text(subscreen_object const& old) : SW_Text()
@@ -3513,6 +3533,11 @@ int32_t SW_TriFrame::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
+void SW_TriFrame::collect_tiles(vector<TileRef>& tile_vec)
+{
+	tile_vec.emplace_back(&frame_tile, 6, 3, "McGuffin Frame - Frame");
+	tile_vec.emplace_back(&piece_tile, "McGuffin Frame - Piece");
+}
 
 SW_McGuffin::SW_McGuffin(subscreen_object const& old) : SW_McGuffin()
 {
@@ -3593,6 +3618,10 @@ int32_t SW_McGuffin::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
+void SW_McGuffin::collect_tiles(vector<TileRef>& tile_vec)
+{
+	tile_vec.emplace_back(&tile, "McGuffin Piece");
+}
 
 SW_TileBlock::SW_TileBlock(subscreen_object const& old) : SW_TileBlock()
 {
@@ -3666,6 +3695,10 @@ int32_t SW_TileBlock::write(PACKFILE *f) const
 	if(auto ret =  cs.write(f))
 		return ret;
 	return 0;
+}
+void SW_TileBlock::collect_tiles(vector<TileRef>& tile_vec)
+{
+	tile_vec.emplace_back(&tile, w, h, "TileBlock");
 }
 
 SW_MiniTile::SW_MiniTile(subscreen_object const& old) : SW_MiniTile()
@@ -3815,6 +3848,12 @@ int32_t SW_MiniTile::write(PACKFILE *f) const
 	if(auto ret =  cs.write(f))
 		return ret;
 	return 0;
+}
+void SW_MiniTile::collect_tiles(vector<TileRef>& tile_vec)
+{
+	if(tile == -1)
+		return;
+	tile_vec.emplace_back(&tile, "MiniTile");
 }
 
 SW_Selector::SW_Selector(byte ty) : SubscrWidget(ty)
@@ -4064,7 +4103,7 @@ void SW_GaugePiece::draw_piece(BITMAP* dest, int dx, int dy, int container, int 
 		ind = 2;
 	//else if (container>containers+1)
 	
-	int mtile = mts[ind].tilecrn;
+	int mtile = mts[ind].getTileCrn();
 	int cset = mts[ind].cset;
 	bool mod_value = (flags&(SUBSCR_GAUGE_MOD1<<ind));
 	int tile = mtile>>2;
@@ -4381,6 +4420,11 @@ int32_t SW_GaugePiece::write(PACKFILE* f) const
 	}
 	return 0;
 }
+void SW_GaugePiece::collect_tiles(vector<TileRef>& tile_vec)
+{
+	for(auto q = 0; q < 4; ++q)
+		tile_vec.emplace_back(&mts[q].mt_tile, fmt::format("Gauge Tile {}", q));
+}
 
 SW_LifeGaugePiece::SW_LifeGaugePiece(subscreen_object const& old) : SW_LifeGaugePiece()
 {
@@ -4391,13 +4435,13 @@ bool SW_LifeGaugePiece::load_old(subscreen_object const& old)
 	if(old.type != ssoLIFEGAUGE)
 		return false;
 	SubscrWidget::load_old(old);
-	mts[0].tilecrn = old.d2;
+	mts[0].setTileCrn(old.d2);
 	mts[0].cset = old.colortype1;
-	mts[1].tilecrn = old.d3;
+	mts[1].setTileCrn(old.d3);
 	mts[1].cset = old.color1;
-	mts[2].tilecrn = old.d4;
+	mts[2].setTileCrn(old.d4);
 	mts[2].cset = old.colortype2;
-	mts[3].tilecrn = old.d5;
+	mts[3].setTileCrn(old.d5);
 	mts[3].cset = old.color2;
 	SETFLAG(flags, SUBSCR_GAUGE_MOD1, old.d10&0x01);
 	SETFLAG(flags, SUBSCR_GAUGE_MOD2, old.d10&0x02);
@@ -4468,13 +4512,13 @@ bool SW_MagicGaugePiece::load_old(subscreen_object const& old)
 	if(old.type != ssoMAGICGAUGE)
 		return false;
 	SubscrWidget::load_old(old);
-	mts[0].tilecrn = old.d2;
+	mts[0].setTileCrn(old.d2);
 	mts[0].cset = old.colortype1;
-	mts[1].tilecrn = old.d3;
+	mts[1].setTileCrn(old.d3);
 	mts[1].cset = old.color1;
-	mts[2].tilecrn = old.d4;
+	mts[2].setTileCrn(old.d4);
 	mts[2].cset = old.colortype2;
-	mts[3].tilecrn = old.d5;
+	mts[3].setTileCrn(old.d5);
 	mts[3].cset = old.color2;
 	SETFLAG(flags, SUBSCR_GAUGE_MOD1, old.d10&0x01);
 	SETFLAG(flags, SUBSCR_GAUGE_MOD2, old.d10&0x02);
@@ -5525,7 +5569,17 @@ void SubscrPage::force_update()
 	for(SubscrWidget* w : contents)
 		w->parentPage = this;
 }
-
+void SubscrPage::collect_tiles(vector<TileRef>& tile_vec)
+{
+	for(auto q = 0; q < contents.size(); ++q)
+	{
+		vector<TileRef> v;
+		contents[q]->collect_tiles(v);
+		for(TileRef& ref : v)
+			ref.name = fmt::format("Widget {} - {}", q, ref.name);
+		tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+	}
+}
 SubscrPage& ZCSubscreen::cur_page()
 {
 	if(pages.empty())
@@ -5893,6 +5947,17 @@ void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& tran
 		return;
 	subscrpg_animate(curpage,pg,trans,*this);
 }
+void ZCSubscreen::collect_tiles(vector<TileRef>& tile_vec)
+{
+	for(auto q = 0; q < pages.size(); ++q)
+	{
+		vector<TileRef> v;
+		pages[q].collect_tiles(v);
+		for(TileRef& ref : v)
+			ref.name = fmt::format("Page {} - {}", q, ref.name);
+		tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+	}
+}
 
 ZCSubscreen::ZCSubscreen(ZCSubscreen const& other)
 {
@@ -5903,3 +5968,4 @@ ZCSubscreen& ZCSubscreen::operator=(ZCSubscreen const& other)
 	copy_settings(other,true);
 	return *this;
 }
+
