@@ -6844,6 +6844,24 @@ vector<std::unique_ptr<MoveList>> load_move_lists(bool move)
 		
 		vec.push_back(std::move(player_list));
 	}
+	//Map Styles
+	{
+		auto mapstyle_list = std::make_unique<MoveList>(
+			move
+			? "The tiles used by the following map styles will be partially cleared by the move."
+			: "The tiles used by the following map styles will be partially or completely overwritten by this process."
+			);
+		mapstyle_list->move_refs.reserve(6);
+		bool BSZ2 = get_qr(qr_BSZELDA);
+		mapstyle_list->move_refs.emplace_back(&QMisc.colors.blueframe_tile, 2, 2, "Frame");
+		mapstyle_list->move_refs.emplace_back(&QMisc.colors.HCpieces_tile, zinit.hcp_per_hc, 1, "Heart Container Piece");
+		mapstyle_list->move_refs.emplace_back(&QMisc.colors.triforce_tile, BSZ2?2:1, BSZ2?3:1, "McGuffin Fragment");
+		mapstyle_list->move_refs.emplace_back(&QMisc.colors.triframe_tile, BSZ2?7:6, BSZ2?7:3, "McGuffin Frame");
+		mapstyle_list->move_refs.emplace_back(&QMisc.colors.overworld_map_tile, 5, 3, "Overworld Map");
+		mapstyle_list->move_refs.emplace_back(&QMisc.colors.dungeon_map_tile, 5, 3, "Dungeon Map");
+		
+		vec.push_back(std::move(mapstyle_list));
+	}
 	//Subscreens
 	{
 		auto subscr_list = std::make_unique<MoveList>(
@@ -7095,11 +7113,8 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	bool flood;
 	
 	int32_t i;
-	bool move_mapstyles_list[6];
-	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
 	bool move_dmap_maps_list[MAXDMAPS][4];
-	//    bool move_enemies_list[eMAXGUYS];  //to be implemented once custom enemies are in
 	
 	auto move_lists = load_move_lists(move);
 	// warn if paste overwrites other defined tiles or
@@ -7133,76 +7148,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		
 		if(move||q==0)
 		{
-			//check map styles
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				bool BSZ2 = get_qr(qr_BSZELDA);
-				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
-				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
-				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=QMisc.colors.triforce_tile;
-				map_styles_items[2].width=BSZ2?2:1;
-				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=QMisc.colors.triframe_tile;
-				map_styles_items[3].width=BSZ2?7:6;
-				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
-				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
-				
-				for(int32_t u=0; u<6; u++)
-				{
-					move_mapstyles_list[u]=false;
-					
-					if(rect)
-					{
-						i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(map_styles_items[u].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", map_styles_items[u].name);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_mapstyles_list[u]=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following map styles will be partially cleared by the move."
-					: "The tiles used by the following map styles will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check game icons
 			if(!done)
 			{
@@ -7796,39 +7741,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		
 		if(move)
 		{
-			for(int32_t u=0; u<6; u++)
-			{
-				if(move_mapstyles_list[u])
-				{
-					switch(u)
-					{
-					case 0:
-						QMisc.colors.blueframe_tile+=diff;
-						break;
-						
-					case 1:
-						QMisc.colors.HCpieces_tile+=diff;
-						break;
-						
-					case 2:
-						QMisc.colors.triforce_tile+=diff;
-						break;
-						
-					case 3:
-						QMisc.colors.triframe_tile+=diff;
-						break;
-						
-					case 4:
-						QMisc.colors.overworld_map_tile+=diff;
-						break;
-						
-					case 5:
-						QMisc.colors.dungeon_map_tile+=diff;
-						break;
-					}
-				}
-			}
-			
 			for(int32_t u=0; u<4; u++)
 			{
 				if(move_game_icons_list[u])
@@ -7927,11 +7839,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 	
 	int32_t i;
 	bool *move_enemy_list = new bool[eMAXGUYS];
-	bool move_mapstyles_list[6];
-	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
 	bool move_dmap_maps_list[MAXDMAPS][4];
-	//    bool move_enemies_list[eMAXGUYS];  //to be implemented once custom enemies are in
 	
 	auto move_lists = load_move_lists(tmd.move);
 	// warn if paste overwrites other defined tiles or
@@ -7967,77 +7876,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 		}
 		
 		{
-			//check map styles
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				bool BSZ2 = get_qr(qr_BSZELDA);
-				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
-				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
-				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=QMisc.colors.triforce_tile;
-				map_styles_items[2].width=BSZ2?2:1;
-				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=QMisc.colors.triframe_tile;
-				map_styles_items[3].width=BSZ2?7:6;
-				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
-				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
-				
-				for(int32_t u=0; u<6; u++)
-				{
-					if(first) move_mapstyles_list[u]=false;
-					else if(move_mapstyles_list[u]) continue;
-					
-					if(tmd.rect)
-					{
-						i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(map_styles_items[u].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", map_styles_items[u].name);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_mapstyles_list[u]=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(tmd.move
-					? "The tiles used by the following map styles will be partially cleared by the move."
-					: "The tiles used by the following map styles will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check game icons
 			if(!done)
 			{
@@ -8685,39 +8523,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 		
 		if(tmd.move)
 		{
-			for(int32_t u=0; u<6; u++)
-			{
-				if(move_mapstyles_list[u])
-				{
-					switch(u)
-					{
-					case 0:
-						QMisc.colors.blueframe_tile+=diff;
-						break;
-						
-					case 1:
-						QMisc.colors.HCpieces_tile+=diff;
-						break;
-						
-					case 2:
-						QMisc.colors.triforce_tile+=diff;
-						break;
-						
-					case 3:
-						QMisc.colors.triframe_tile+=diff;
-						break;
-						
-					case 4:
-						QMisc.colors.overworld_map_tile+=diff;
-						break;
-						
-					case 5:
-						QMisc.colors.dungeon_map_tile+=diff;
-						break;
-					}
-				}
-			}
-			
 			for(int32_t u=0; u<4; u++)
 			{
 				if(move_game_icons_list[u])
@@ -9071,11 +8876,8 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	bool flood;
 	
 	int32_t i;
-	bool move_mapstyles_list[6];
-	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
 	bool move_dmap_maps_list[MAXDMAPS][4];
-	//    bool move_enemies_list[eMAXGUYS];  //to be implemented once custom enemies are in
 	
 	auto move_lists = load_move_lists(move);
 	// warn if paste overwrites other defined tiles or
@@ -9109,76 +8911,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		
 		if(move||q==0)
 		{
-			//check map styles
-			if(!done)
-			{
-				//this is here to allow this section to fold
-				tile_move_list_text[0]=0;
-				found=false;
-				flood=false;
-				bool BSZ2 = get_qr(qr_BSZELDA);
-				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
-				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
-				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=QMisc.colors.triforce_tile;
-				map_styles_items[2].width=BSZ2?2:1;
-				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=QMisc.colors.triframe_tile;
-				map_styles_items[3].width=BSZ2?7:6;
-				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
-				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
-				
-				for(int32_t u=0; u<6; u++)
-				{
-					move_mapstyles_list[u]=false;
-					
-					if(rect)
-					{
-						i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
-					}
-					else
-					{
-						i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
-					}
-					
-					if((i!=ti_none)&&(map_styles_items[u].tile!=0))
-					{
-						if(i==ti_broken || q==0)
-						{
-							sprintf(temptext, "%s\n", map_styles_items[u].name);
-							
-							if(strlen(tile_move_list_text)<65000)
-							{
-								strcat(tile_move_list_text, temptext);
-							}
-							else
-							{
-								if(!flood)
-								{
-									strcat(tile_move_list_text, "...\n...\n...\nmany others");
-									flood=true;
-								}
-							}
-							
-							found=true;
-						}
-						else if(i==ti_encompass)
-						{
-							move_mapstyles_list[u]=true;
-						}
-					}
-				}
-				
-				if(found && !popup_tile_move_dlg(move
-					? "The tiles used by the following map styles will be partially cleared by the move."
-					: "The tiles used by the following map styles will be partially or completely overwritten by this process.",
-					tile_move_list_text))
-				{
-					done = true;
-				}
-			}
-			
 			//check game icons
 			if(!done)
 			{
@@ -9896,59 +9628,6 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	
 	int32_t i;
 	bool done = false;
-	
-	//check map styles
-	if(!done)
-	{
-		//this is here to allow this section to fold
-		tile_move_list_text[0]=0;
-		found=false;
-		flood=false;
-		bool BSZ2 = get_qr(qr_BSZELDA);
-		map_styles_items[0].tile=QMisc.colors.blueframe_tile;
-		map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
-		map_styles_items[1].width=zinit.hcp_per_hc;
-		map_styles_items[2].tile=QMisc.colors.triforce_tile;
-		map_styles_items[2].width=BSZ2?2:1;
-		map_styles_items[2].height=BSZ2?3:1;
-		map_styles_items[3].tile=QMisc.colors.triframe_tile;
-		map_styles_items[3].width=BSZ2?7:6;
-		map_styles_items[3].height=BSZ2?7:3;
-		map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
-		map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
-		
-		for(int32_t u=0; u<6; u++)
-		{
-			i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, dest_left, dest_top, dest_width, dest_height);
-			
-			if((i!=ti_none)&&(map_styles_items[u].tile!=0))
-			{
-				sprintf(temptext, "%s\n", map_styles_items[u].name);
-				
-				if(strlen(tile_move_list_text)<65000)
-				{
-					strcat(tile_move_list_text, temptext);
-				}
-				else
-				{
-					if(!flood)
-					{
-						strcat(tile_move_list_text, "...\n...\n...\nmany others");
-						flood=true;
-					}
-				}
-				
-				found=true;
-			}
-		}
-		
-		if(found && !popup_tile_move_dlg(
-			"The tiles used by the following map styles will be partially or completely overwritten by this process.",
-			tile_move_list_text))
-		{
-			done = true;
-		}
-	}
 	
 	//check game icons
 	if(!done)
