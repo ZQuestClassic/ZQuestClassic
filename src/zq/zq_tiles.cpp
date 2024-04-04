@@ -6167,317 +6167,6 @@ int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 	return a==0?b:a==1?c:d;
 }
 
-void register_used_tiles()
-{
-	bool ignore_frames=false;
-	
-	for(int32_t t=0; t<NEWMAXTILES; ++t)
-	{
-		used_tile_table[t]=false;
-	}
-	reset_combo_animations();
-	reset_combo_animations2();
-	for(int32_t u=0; u<MAXCOMBOS; u++)
-	{
-		/* This doesn't account for ASkipX, or ASkipY... Time to rewrite.
-		for(int32_t t=zc_max(combobuf[u].o_tile,0); t<zc_min(combobuf[u].o_tile+zc_max(combobuf[u].frames,1),NEWMAXTILES); ++t)
-		{
-			used_tile_table[t]=true;
-		} */
-		do
-		{
-			used_tile_table[combobuf[u].tile] = true;
-			animate(combobuf[u], true);
-		}
-		while(combobuf[u].tile != combobuf[u].o_tile);
-	}
-	
-	for(int32_t u=0; u<iLast; u++)
-	{
-		for(int32_t t=zc_max(itemsbuf[u].tile,0); t<zc_min(itemsbuf[u].tile+zc_max(itemsbuf[u].frames,1),NEWMAXTILES); ++t)
-		{
-			used_tile_table[t]=true;
-		}
-	}
-	
-	bool BSZ2=get_qr(qr_BSZELDA);
-	
-	for(int32_t u=0; u<wLast; u++)
-	{
-		int32_t m=0;
-		ignore_frames=false;
-		
-		switch(u)
-		{
-		case wSWORD:
-		case wWSWORD:
-		case wMSWORD:
-		case wXSWORD:
-			m=3+((wpnsbuf[u].type==3)?1:0);
-			break;
-			
-		case wSWORDSLASH:
-		case wWSWORDSLASH:
-		case wMSWORDSLASH:
-		case wXSWORDSLASH:
-			m=4;
-			break;
-			
-		case iwMMeter:
-			m=9;
-			break;
-			
-		case wBRANG:
-		case wMBRANG:
-		case wFBRANG:
-			m=BSZ2?1:3;
-			break;
-			
-		case wBOOM:
-		case wSBOOM:
-		case ewBOOM:
-		case ewSBOOM:
-			ignore_frames=true;
-			m=2;
-			break;
-			
-		case wWAND:
-			m=1;
-			break;
-			
-		case wMAGIC:
-			m=1;
-			break;
-			
-		case wARROW:
-		case wSARROW:
-		case wGARROW:
-		case ewARROW:
-			m=1;
-			break;
-			
-		case wHAMMER:
-			m=8;
-			break;
-			
-		case wHSHEAD:
-			m=1;
-			break;
-			
-		case wHSCHAIN_H:
-			m=1;
-			break;
-			
-		case wHSCHAIN_V:
-			m=1;
-			break;
-			
-		case wHSHANDLE:
-			m=1;
-			break;
-			
-		case iwDeath:
-			m=BSZ2?4:2;
-			break;
-			
-		case iwSpawn:
-			m=3;
-			break;
-			
-		default:
-			m=0;
-			break;
-		}
-		
-		for(int32_t t=zc_max(wpnsbuf[u].tile,0); t<zc_min(wpnsbuf[u].tile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
-		{
-			used_tile_table[t]=true;
-		}
-		
-		used_tile_table[54]=true;
-		used_tile_table[55]=true;
-	}
-	
-	BSZ2 = get_qr(qr_BSZELDA);
-	
-	for(int32_t u=0; u<4; u++)
-	{
-		for(int32_t t=zc_max(QMisc.icons[u],0); t<zc_min(QMisc.icons[u]+1,NEWMAXTILES); ++t)
-		{
-			used_tile_table[t]=true;
-		}
-	}
-	
-	BSZ2 = get_qr(qr_BSZELDA);
-		
-	bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
-	int32_t u;
-	
-	for(u=0; u<eMAXGUYS; u++)
-	{
-		bool darknut=false;
-		int32_t gleeok=0;
-		
-		switch(u)
-		{
-		case eDKNUT1:
-		case eDKNUT2:
-		case eDKNUT3:
-		case eDKNUT5:
-			darknut=true;
-			break;
-		}
-		
-		if(u>=eGLEEOK1 && u<=eGLEEOK4)
-		{
-			gleeok=1;
-		}
-		else if(u>=eGLEEOK1F && u<=eGLEEOK4F)
-		{
-			gleeok=2;
-		}
-		
-		if(newtiles)
-		{
-			if(guysbuf[u].e_tile==0)
-			{
-				continue;
-			}
-			
-			if(guysbuf[u].e_height==0)
-			{
-				for(int32_t t=zc_max(guysbuf[u].e_tile,0); t<zc_min(guysbuf[u].e_tile+zc_max(guysbuf[u].e_width, 0),NEWMAXTILES); ++t)
-				{
-					used_tile_table[t]=true;
-				}
-			}
-			else
-			{
-				for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-				{
-					for(int32_t c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
-					{
-						used_tile_table[(r*TILES_PER_ROW)+c]=true;
-					}
-				}
-			}
-			
-			if(darknut)
-			{
-				for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile+120),0); r<zc_min(TILEROW(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-				{
-					for(int32_t c=zc_max(TILECOL(guysbuf[u].e_tile+120),0); c<zc_min(TILECOL(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
-					{
-						used_tile_table[(r*TILES_PER_ROW)+c]=true;
-					}
-				}
-			}
-			else if(u==eGANON)
-			{
-				for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile),0); r<zc_min(TILEROW(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-				{
-					for(int32_t c=zc_max(TILECOL(guysbuf[u].e_tile),0); c<zc_min(TILECOL(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
-					{
-						used_tile_table[(r*TILES_PER_ROW)+c]=true;
-					}
-				}
-			}
-			else if(gleeok)
-			{
-				for(int32_t j=0; j<4; ++j)
-				{
-					for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(TILEROW(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-					{
-						for(int32_t c=zc_max(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(TILECOL(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
-						{
-							used_tile_table[(r*TILES_PER_ROW)+c]=true;
-						}
-					}
-				}
-				
-				int32_t c3=TILECOL(guysbuf[u].e_tile)+(gleeok>1?-12:0);
-				int32_t r3=TILEROW(guysbuf[u].e_tile)+(gleeok>1?17:8);
-				
-				for(int32_t r=zc_max(r3,0); r<zc_min(r3+3,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-				{
-					for(int32_t c=zc_max(c3,0); c<zc_min(c3+20,TILES_PER_ROW); ++c)
-					{
-						used_tile_table[(r*TILES_PER_ROW)+c]=true;
-					}
-				}
-				
-				for(int32_t r=zc_max(r3+3,0); r<zc_min(r3+3+6,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-				{
-					for(int32_t c=zc_max(c3,0); c<zc_min(c3+16,TILES_PER_ROW); ++c)
-					{
-						used_tile_table[(r*TILES_PER_ROW)+c]=true;
-					}
-				}
-			}
-		}
-		else
-		{
-			if(guysbuf[u].tile==0)
-			{
-				continue;
-			}
-			
-			if(guysbuf[u].height==0)
-			{
-				for(int32_t t=zc_max(guysbuf[u].tile,0); t<zc_min(guysbuf[u].tile+zc_max(guysbuf[u].width, 0),NEWMAXTILES); ++t)
-				{
-					used_tile_table[t]=true;
-				}
-			}
-			else
-			{
-				for(int32_t r=zc_max(TILEROW(guysbuf[u].tile),0); r<zc_min(TILEROW(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-				{
-					for(int32_t c=zc_max(TILECOL(guysbuf[u].tile),0); c<zc_min(TILECOL(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
-					{
-						used_tile_table[(r*TILES_PER_ROW)+c]=true;
-					}
-				}
-			}
-			
-			if(guysbuf[u].s_tile!=0)
-			{
-				if(guysbuf[u].s_height==0)
-				{
-					for(int32_t t=zc_max(guysbuf[u].s_tile,0); t<zc_min(guysbuf[u].s_tile+zc_max(guysbuf[u].s_width, 0),NEWMAXTILES); ++t)
-					{
-						used_tile_table[t]=true;
-					}
-				}
-				else
-				{
-					for(int32_t r=zc_max(TILEROW(guysbuf[u].s_tile),0); r<zc_min(TILEROW(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-					{
-						for(int32_t c=zc_max(TILECOL(guysbuf[u].s_tile),0); c<zc_min(TILECOL(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
-						{
-							used_tile_table[(r*TILES_PER_ROW)+c]=true;
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards)
-{
-	bool ctrl=(CHECK_CTRL_CMD);
-	bool copied=false;
-	copied=overlay_tiles_united(tile,tile2,copy,copycnt,rect_sel,move,cs,backwards);
-	
-	if(copied)
-	{
-		saved=false;
-	}
-	
-	return copied;
-}
-
 struct TileMoveList
 {
 	vector<TileRef> move_refs;
@@ -7051,6 +6740,55 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 		vec.push_back(std::move(subscr_list));
 	}
 	return vec;
+}
+
+void register_used_tiles()
+{
+	for(int32_t t=0; t<NEWMAXTILES; ++t)
+		used_tile_table[t]=false;
+	reset_combo_animations();
+	reset_combo_animations2();
+	used_tile_table[54]=true;
+	used_tile_table[55]=true;
+	auto move_lists = load_tile_move_lists(false);
+	for(auto &list : move_lists)
+	{
+		for(auto &ref : list->move_refs)
+		{
+			if(ref.combo)
+			{
+				do
+				{
+					used_tile_table[ref.combo->tile] = true;
+					animate(*ref.combo, true);
+				}
+				while(ref.combo->tile != ref.combo->o_tile);
+			}
+			else
+			{
+				int t = *ref.tile + ref.offset();
+				for(int x = 0; x < ref.w; ++x)
+					for(int y = 0; y < ref.h; ++y)
+					{
+						used_tile_table[t + x + TILES_PER_ROW*y] = true;
+					}
+			}
+		}
+	}
+}
+
+bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards)
+{
+	bool ctrl=(CHECK_CTRL_CMD);
+	bool copied=false;
+	copied=overlay_tiles_united(tile,tile2,copy,copycnt,rect_sel,move,cs,backwards);
+	
+	if(copied)
+	{
+		saved=false;
+	}
+	
+	return copied;
 }
 
 bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move, int32_t cs, bool backwards)
