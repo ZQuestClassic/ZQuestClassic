@@ -8,6 +8,7 @@
 #include "base/packfile.h"
 #include "base/gui.h"
 #include "base/combo.h"
+#include "base/msgstr.h"
 #include "base/zdefs.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
@@ -6738,6 +6739,26 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 		}
 		
 		vec.push_back(std::move(subscr_list));
+	}
+	//Strings
+	{
+		auto strings_list = std::make_unique<TileMoveList>(
+			move
+			? "The tiles used by the following strings will be partially cleared by the move."
+			: "The tiles used by the following strings will be partially or completely overwritten by this process."
+			);
+		strings_list->move_refs.reserve(msg_count*2);
+		for(size_t q = 0; q < msg_count; ++q)
+		{
+			MsgStr& str = MsgStrings[q];
+			bool fulltile = str.stringflags & STRINGFLAG_FULLTILE;
+			strings_list->add(&str.tile, fulltile ? (str.w/16_zf).getCeil() : 2,
+				fulltile ? (str.h/16_zf).getCeil() : 2, fmt::format("{} (BG): '{}'", q, util::snip(str.s,100)));
+			strings_list->add(&str.portrait_tile, str.portrait_tw, str.portrait_th,
+				fmt::format("{} (Port.): '{}'", q, util::snip(str.s,100)));
+		}
+		
+		vec.push_back(std::move(strings_list));
 	}
 	return vec;
 }
