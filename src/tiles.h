@@ -99,14 +99,19 @@ struct TileRef
 	string name;
 	newcombo* combo;
 	bool no_move;
+	int xoff, yoff;
+	int offset() const
+	{
+		return xoff+yoff*TILES_PER_ROW;
+	}
 	TileRef()
-		: tile(nullptr), w(1), h(1), name(), combo(nullptr), no_move(false)
+		: tile(nullptr), w(1), h(1), name(), combo(nullptr), no_move(false), xoff(0), yoff(0)
 	{}
 	TileRef(int32_t* tile, string name = "")
-		: tile(tile), w(1), h(1), name(name), combo(nullptr), no_move(false)
+		: tile(tile), w(1), h(1), name(name), combo(nullptr), no_move(false), xoff(0), yoff(0)
 	{}
 	TileRef(int32_t* tile, uint w, uint h, string name = "")
-		: tile(tile), w(zc_max(1,w)), h(zc_max(1,h)), name(name), combo(nullptr), no_move(false)
+		: tile(tile), w(zc_max(1,w)), h(zc_max(1,h)), name(name), combo(nullptr), no_move(false), xoff(0), yoff(0)
 	{}
 };
 
