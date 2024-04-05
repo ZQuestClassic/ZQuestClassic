@@ -146,12 +146,12 @@ struct combo_auto
 
 	std::map<int32_t,byte> getMapping();
 
+	int32_t cid_display = 0;
+	int32_t cid_erase = 0;
 private:
 	byte type = AUTOCOMBO_NONE;
 	byte arg = 0;
 	byte invalid_reasons = 0;
-	int32_t cid_display = 0;
-	int32_t cid_erase = 0;
 	std::pair<byte, byte> offsets;
 };
 

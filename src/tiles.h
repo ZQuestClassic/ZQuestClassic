@@ -180,20 +180,14 @@ struct TileMoveList
 	{
 		if(!tile || !*tile)
 			return nullptr;
-		auto ptr = std::make_unique<TileRefPtr>(tile, args...);
-		auto ret = ptr.get();
-		move_refs.emplace_back(std::move(ptr));
-		return ret;
+		return (TileRefPtr*)move_refs.emplace_back(std::make_unique<TileRefPtr>(tile, args...)).get();
 	}
 	template<class... Args>
 	TileRefCombo* add_combo(newcombo* combo, Args&&... args)
 	{
 		if(!combo || !combo->o_tile)
 			return nullptr;
-		auto ptr = std::make_unique<TileRefCombo>(combo, args...);
-		auto ret = ptr.get();
-		move_refs.emplace_back(std::move(ptr));
-		return ret;
+		return (TileRefCombo*)move_refs.emplace_back(std::make_unique<TileRefCombo>(combo, args...)).get();
 	}
 	
 	

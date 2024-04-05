@@ -338,7 +338,7 @@ struct combo_move_data
 		copycnt = tcnt;
 	}
 };
-void do_movecombo(combo_move_data const& cmd);
+bool do_movecombo(combo_move_data const& cmd);
 static combo_move_data* last_combo_move = NULL;
 
 int refl_flags = 0;
@@ -634,7 +634,11 @@ void comeback_combos()
 		last_combo_move->flip();
 		bool t = nogocombos;
 		nogocombos = true;
-		do_movecombo(*last_combo_move);
+		if(!do_movecombo(*last_combo_move))
+		{
+			nogocombos = t;
+			return;
+		}
 		nogocombos = t;
 		delete last_combo_move;
 		last_combo_move = NULL;
@@ -6097,7 +6101,7 @@ int32_t move_intersection_rr(int32_t check_left, int32_t check_top, int32_t chec
 
 
 
-static DIALOG tile_move_list_dlg[] =
+static DIALOG move_textbox_list_dlg[] =
 {
 	// (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
 	{ jwin_win_proc,      0,   0,   300,  212,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      NULL, NULL, NULL },
@@ -6110,14 +6114,14 @@ static DIALOG tile_move_list_dlg[] =
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-bool popup_tile_move_dlg(string const& msg, char* textbox)
+bool popup_move_textbox_dlg(string const& msg, char* textbox, char const* title)
 {
 	if(!TileProtection)
 		return true;
 	char buf1[512] = {0};
 	char buf2[512] = {0};
-	large_dialog(tile_move_list_dlg);
-	DIALOG& tbox = tile_move_list_dlg[3];
+	large_dialog(move_textbox_list_dlg);
+	DIALOG& tbox = move_textbox_list_dlg[3];
 	{
 		FONT* f = tbox.dp2 ? (FONT*)tbox.dp2 : get_custom_font(CFONT_GUI);
 		int indx = 0, word_indx = 0;
@@ -6134,20 +6138,23 @@ bool popup_tile_move_dlg(string const& msg, char* textbox)
 			}
 		}
 	}
-	tile_move_list_dlg[1].dp = buf1;
-	tile_move_list_dlg[2].dp = buf2;
+	
+	move_textbox_list_dlg[0].dp = (void*)title;
+	move_textbox_list_dlg[0].dp2 = get_zc_font(font_lfont);
+	move_textbox_list_dlg[1].dp = buf1;
+	move_textbox_list_dlg[2].dp = buf2;
 	tbox.dp = textbox;
 	tbox.d2 = 0;
 	auto tby = tbox.y;
 	auto tbh = tbox.h;
 	if(!buf2[0])
 	{
-		auto diff = tile_move_list_dlg[2].h;
+		auto diff = move_textbox_list_dlg[2].h;
 		tbox.y -= diff;
 		tbox.h += diff;
 	}
 	
-	int32_t ret=do_zqdialog(tile_move_list_dlg,2);
+	int32_t ret=do_zqdialog(move_textbox_list_dlg,2);
 	position_mouse_z(0);
 	tbox.y = tby;
 	tbox.h = tbh;
@@ -6203,13 +6210,19 @@ bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int 
 			else i=move_intersection_ss(t, t+ref->w-1, _first, _last);
 		}
 		
-		for(size_t q = 0; i == ti_none && q < ref->extra_rects.size(); ++q)
+		bool in = i != ti_none, out = i != ti_encompass;
+		for(size_t q = 0; !(in&&out) && q < ref->extra_rects.size(); ++q)
 		{
 			auto [ex_t,ex_w,ex_h] = ref->extra_rects[q];
 			if(rect)
 				i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _l, _t, _w, _h);
 			else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _first, _last);
+			if(i != ti_none)
+				in = true;
+			if(i != ti_encompass)
+				out = true;
 		}
+		i = in ? (out ? ti_broken : ti_encompass) : ti_none;
 		
 		if(i != ti_none && ref->getTile() != 0)
 		{
@@ -6237,7 +6250,7 @@ bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int 
 		}
 	}
 	
-	return found && !popup_tile_move_dlg(msg, oss.str().data());
+	return found && !popup_move_textbox_dlg(msg, oss.str().data(), "Tile Warning");
 }
 void TileMoveList::add_diff(int diff)
 {
@@ -6247,6 +6260,64 @@ void TileMoveList::add_diff(int diff)
 			continue;
 		
 		move_refs[indx]->addTile(diff);
+	}
+}
+
+//from 'combo.h'
+bool ComboMoveList::process(bool is_dest, int _first, int _last)
+{
+	std::ostringstream oss;
+	bool found = false, flood = false;
+	size_t flood_count = 0;
+	for(size_t indx = 0; indx < move_refs.size(); ++indx)
+	{
+		auto& ref = move_refs[indx];
+		int i = ti_none;
+		
+		if(move_bits.get(indx))
+			continue;
+		auto c = ref->getCombo();
+		
+		i = move_intersection_ss(c, c, _first, _last);
+		
+		//!TODOMOVE Somehow handle 'c' being a combo that is 'relative' to other combos? (->Next, ->Combo Change)
+		
+		if(i != ti_none && ref->getCombo() != 0)
+		{
+			if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
+			{
+				if(flood || flood_count >= 65000)
+				{
+					if(!flood)
+						oss << "...\n...\n...\nmany others";
+					flood = true;
+				}
+				else
+				{
+					//Count this in a var, because 'oss.view().size()' doesn't work on MacOS -Em
+					flood_count += ref->name.size()+1;
+					oss << ref->name << '\n';
+				}
+				
+				found=true;
+			}
+			else if(i==ti_encompass)
+			{
+				move_bits.set(indx, true);
+			}
+		}
+	}
+	
+	return found && !popup_move_textbox_dlg(msg, oss.str().data(), "Combo Warning");
+}
+void ComboMoveList::add_diff(int diff)
+{
+	for(size_t indx = 0; indx < move_refs.size(); ++indx)
+	{
+		if(!move_bits.get(indx))
+			continue;
+		
+		move_refs[indx]->addCombo(diff);
 	}
 }
 
@@ -6752,6 +6823,205 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 	return vec;
 }
 
+vector<std::unique_ptr<ComboMoveList>> load_combo_move_lists(bool move)
+{
+	bool BSZ2 = get_qr(qr_BSZELDA);
+	vector<std::unique_ptr<ComboMoveList>> vec;
+	
+	//Screens
+	{
+		auto screen_list = std::make_unique<ComboMoveList>(
+			move
+			? "The combos used by the following screens will be partially cleared by the move."
+			: "The combos used by the following screens will be partially or completely overwritten by this process."
+			);
+		screen_list->move_refs.reserve(20000); //kinda arbitrary
+		
+		for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
+		{
+			for(int32_t j=0; j<MAPSCRS; j++)
+			{
+				mapscr& scr = TheMaps[i*MAPSCRS+j];
+				
+				if(!(scr.valid&mVALID))
+					continue;
+				
+				screen_list->add_combo(&scr.undercombo, fmt::format("{}x{:02X} - UnderCombo", i, j));
+				for(int32_t k=0; k<176; k++)
+					screen_list->add_combo(&scr.data[k], fmt::format("{}x{:02X} - Pos {}", i, j, k));
+				
+				for(int32_t k=0; k<128; k++)
+					screen_list->add_combo(&scr.secretcombo[k], fmt::format("{}x{:02X} - SecretCombo {}", i, j, k));
+				
+				word maxffc = scr.numFFC();
+				for(word k=0; k<maxffc; k++)
+				{
+					ffcdata& ffc = scr.ffcs[k];
+					screen_list->add_combo(&ffc.data, fmt::format("{}x{:02X} - FFC {}", i, j, k+1));
+				}
+			}
+		}
+		
+		vec.push_back(std::move(screen_list));
+	}
+	//Door Combo Sets
+	{
+		auto dcs_list = std::make_unique<ComboMoveList>(
+			move
+			? "The combos used by the following screens will be partially cleared by the move."
+			: "The combos used by the following screens will be partially or completely overwritten by this process."
+			);
+		static const char* door_names[9] = {
+			"Wall", "Locked", "Shuttered", "Boss", "Bombed", "Open", "Unlocked", "Open Shuttered", "Open Boss"
+		};
+		for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
+		{
+			auto& dcs = DoorComboSets[i];
+			for(int32_t j=0; j<9; j++)
+			{
+				if(j<4)
+				{
+					dcs_list->add_combo(&dcs.walkthroughcombo[j], fmt::format("{} ({}): Walk-Through {}", i, dcs.name, j));
+					
+					if(j<3)
+					{
+						if(j<2)
+						{
+							dcs_list->add_combo(&dcs.bombdoorcombo_u[j], fmt::format("{} ({}): Unused? bombdoorcombo_u {}", i, dcs.name, j));
+							dcs_list->add_combo(&dcs.bombdoorcombo_d[j], fmt::format("{} ({}): Unused? bombdoorcombo_d {}", i, dcs.name, j));
+						}
+						dcs_list->add_combo(&dcs.bombdoorcombo_l[j], fmt::format("{} ({}): Unused? bombdoorcombo_l {}", i, dcs.name, j));
+						dcs_list->add_combo(&dcs.bombdoorcombo_r[j], fmt::format("{} ({}): Unused? bombdoorcombo_r {}", i, dcs.name, j));
+					}
+				}
+				
+				for(int32_t k=0; k<6; k++)
+				{
+					if(k<4)
+					{
+						dcs_list->add_combo(&dcs.doorcombo_u[j][k], fmt::format("{} ({}): Top, {} #{}", i, dcs.name, door_names[j], k));
+						dcs_list->add_combo(&dcs.doorcombo_d[j][k], fmt::format("{} ({}): Bottom, {} #{}", i, dcs.name, door_names[j], k));
+					}
+					
+					dcs_list->add_combo(&dcs.doorcombo_l[j][k], fmt::format("{} ({}): Left, {} #{}", i, dcs.name, door_names[j], k));
+					dcs_list->add_combo(&dcs.doorcombo_r[j][k], fmt::format("{} ({}): Right, {} #{}", i, dcs.name, door_names[j], k));
+				}
+			}
+		}
+		
+		vec.push_back(std::move(dcs_list));
+	}
+	//Combos
+	{
+		auto combo_list = std::make_unique<ComboMoveList>(
+			move
+			? "The combos used by the following combos will be partially cleared by the move."
+			: "The combos used by the following combos will be partially or completely overwritten by this process."
+			);
+		for(int32_t i=0; i<MAXCOMBOS; i++)
+		{
+			newcombo& cmb = combobuf[i];
+			combo_list->add_combo(&cmb.nextcombo, fmt::format("{}{} - Combo Cycle", i,
+				cmb.label.empty() ? "" : fmt::format(" ({})", cmb.label)));
+			combo_list->add_combo(&cmb.liftcmb, fmt::format("{}{} - Lift Combo", i,
+				cmb.label.empty() ? "" : fmt::format(" ({})", cmb.label)));
+			combo_list->add_combo(&cmb.liftundercmb, fmt::format("{}{} - Lift Undercombo", i,
+				cmb.label.empty() ? "" : fmt::format(" ({})", cmb.label)));
+			combo_list->add_combo(&cmb.prompt_cid, fmt::format("{}{} - Triggers ButtonPrompt", i,
+				cmb.label.empty() ? "" : fmt::format(" ({})", cmb.label)));
+			//!TODOMOVE Type-specific things like lockblock 'locked prompt'?
+		}
+		
+		vec.push_back(std::move(combo_list));
+	}
+	//Combo Pools
+	{
+		auto cpool_list = std::make_unique<ComboMoveList>(
+			move
+			? "The combos used by the following combo pools will be partially cleared by the move."
+			: "The combos used by the following combo pools will be partially or completely overwritten by this process."
+			);
+		for(auto q = 0; q < MAXCOMBOPOOLS; ++q)
+		{
+			combo_pool& pool = combo_pools[q];
+			int idx = 0;
+			for(cpool_entry& cp : pool.combos)
+				cpool_list->add_combo(&cp.cid, fmt::format("{} index {}", q, idx++));
+		}
+		
+		vec.push_back(std::move(cpool_list));
+	}
+	//Auto Combos
+	{
+		auto autocombo_list = std::make_unique<ComboMoveList>(
+			move
+			? "The combos used by the following autocombos will be partially cleared by the move."
+			: "The combos used by the following autocombos will be partially or completely overwritten by this process."
+			);
+		for (auto q = 0; q < MAXAUTOCOMBOS; ++q)
+		{
+			combo_auto& cauto = combo_autos[q];
+			int idx = 0;
+			for (autocombo_entry& ac : cauto.combos)
+				autocombo_list->add_combo(&ac.cid, fmt::format("{} index {}", q, idx++));
+			autocombo_list->add_combo(&cauto.cid_erase, fmt::format("{} Erase Combo", q));
+			autocombo_list->add_combo(&cauto.cid_display, fmt::format("{} Display Combo", q));
+		}
+		
+		vec.push_back(std::move(autocombo_list));
+	}
+	//Combo Aliases
+	{
+		auto alias_list = std::make_unique<ComboMoveList>(
+			move
+			? "The combos used by the following aliases will be partially cleared by the move."
+			: "The combos used by the following aliases will be partially or completely overwritten by this process."
+			);
+		for(int32_t i=0; i<MAXCOMBOALIASES; i++)
+		{
+			//dimensions are 1 less than you would expect -DD
+			int32_t count=(comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
+			
+			for(int32_t j=0; j<count; j++)
+			{
+				alias_list->add_combo(&combo_aliases[i].combos[j], fmt::format("{} index {}", i, j));
+			}
+		}
+		
+		vec.push_back(std::move(alias_list));
+	}
+	//Favorite Combos
+	{
+		auto favoritecombo_list = std::make_unique<ComboMoveList>(
+			move
+			? "The combos used by the following favorite combos will be partially cleared by the move."
+			: "The combos used by the following favorite combos will be partially or completely overwritten by this process."
+			);
+		for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
+		{
+			if(favorite_combo_modes[i] != dm_normal) //don't hit pools/aliases/autos, only combos!
+				continue;
+			favoritecombo_list->add_combo(&favorite_combos[i], fmt::format("Favorite {}", i));
+		}
+		
+		vec.push_back(std::move(favoritecombo_list));
+	}
+	//Bottle Shops
+	{
+		auto bshop_list = std::make_unique<ComboMoveList>(
+			move
+			? "The combos used by the following bottle shops will be partially cleared by the move."
+			: "The combos used by the following bottle shops will be partially or completely overwritten by this process."
+			);
+		for(auto q = 0; q < 256; ++q)
+			for(auto p = 0; p < 3; ++p)
+				bshop_list->add_combo(&QMisc.bottle_shop_types[q].comb[p], fmt::format("{} slot {}", q, p));
+		
+		vec.push_back(std::move(bshop_list));
+	}
+	return vec;
+}
+
 void register_used_tiles()
 {
 	for(int32_t t=0; t<NEWMAXTILES; ++t)
@@ -6966,8 +7236,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	
 	
 	
-	char buf[80], buf2[80], buf3[80], buf4[80];
-	sprintf(buf, " ");
+	char buf2[80], buf3[80], buf4[80];
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
@@ -6988,10 +7257,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	}
 	
 	char temptext[80];
-	
-	sprintf(buf, "Tile Warning");
-	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	int32_t i;
 	
@@ -7096,8 +7361,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 //
 bool do_movetile_united(tile_move_data const& tmd)
 {
-	char buf[80], buf2[80], buf3[80], buf4[80];
-	sprintf(buf, " ");
+	char buf2[80], buf3[80], buf4[80];
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
@@ -7118,10 +7382,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 	}
 	
 	char temptext[80];
-	
-	sprintf(buf, "Tile Warning");
-	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	int32_t i;
 	
@@ -7495,8 +7755,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	
 	
 	
-	char buf[80], buf2[80], buf3[80], buf4[80];
-	sprintf(buf, " ");
+	char buf2[80], buf3[80], buf4[80];
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
@@ -7517,10 +7776,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	}
 	
 	char temptext[80];
-	
-	sprintf(buf, "Tile Warning");
-	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	int32_t i;
 	
@@ -7716,16 +7971,11 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	}
 	
 	//{ Overwrite warnings
-	char buf[80], buf2[80], buf3[80], buf4[80];
-	sprintf(buf, " ");
+	char buf2[80], buf3[80], buf4[80];
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
 	char temptext[80];
-	
-	sprintf(buf, "Tile Warning");
-	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	int32_t i;
 	bool done = false;
@@ -7793,6 +8043,19 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 		zc_swap(tile,tile2);
 	}
 	
+	auto move_lists = load_combo_move_lists(false);
+	bool done = false;
+	auto first = tile;
+	auto last = masscopy ? tile2 : first + copycnt-1;
+	for(auto &list : move_lists)
+	{
+		if(done) break;
+		if(list->process(true, first, last))
+			done = true;
+	}
+	if(done)
+		return;
+	
 	if(!masscopy)
 	{
 		if(tile==copy)
@@ -7839,14 +8102,32 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 	
 	setup_combo_animations();
 	setup_combo_animations2();
-	return;
 }
 
-void do_movecombo(combo_move_data const& cmd)
+bool do_movecombo(combo_move_data const& cmd)
 {
 	reset_combo_animations();
 	reset_combo_animations2();
 	go_combos();
+	
+	auto move_lists = load_combo_move_lists(true);
+	bool done = false;
+	for(int q = 0; q < 2 && !done; ++q)
+	{
+		auto first = (q == 0) ? cmd.tile : cmd.copy1;
+		auto last = first + cmd.copycnt-1;
+		for(auto &list : move_lists)
+		{
+			if(done) break;
+			if(list->process(q==0, first, last))
+				done = true;
+		}
+	}
+	if(done)
+		return false;
+	auto diff = cmd.tile - cmd.copy1;
+	for(auto &list : move_lists)
+		list->add_diff(diff);
 	
 	for(int32_t t=(cmd.tile<cmd.copy1)?0:(cmd.copycnt-1); (cmd.tile<cmd.copy1)?(t<cmd.copycnt):(t>=0); (cmd.tile<cmd.copy1)?(t++):(t--))
 	{
@@ -7856,198 +8137,11 @@ void do_movecombo(combo_move_data const& cmd)
 			clear_combo(cmd.copy1+t);
 		}
 	}
-	int32_t diff = cmd.tile - cmd.copy1;
-	for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
-	{
-		for(int32_t j=0; j<MAPSCRS; j++)
-		{
-			mapscr& scr = TheMaps[i*MAPSCRS+j];
-			for(int32_t k=0; k<176; k++)
-			{
-				if((scr.data[k]>=cmd.copy1)&&(scr.data[k]<cmd.copy1+cmd.copycnt))
-				{
-					scr.data[k] += diff;
-				}
-			}
-			
-			for(int32_t k=0; k<128; k++)
-			{
-				if((scr.secretcombo[k]>=cmd.copy1)&& (scr.secretcombo[k]<cmd.copy1+cmd.copycnt))
-				{
-					scr.secretcombo[k] += diff;
-				}
-			}
-			
-			if((scr.undercombo>=cmd.copy1)&&(scr.undercombo<cmd.copy1+cmd.copycnt))
-			{
-				scr.undercombo += diff;
-			}
-			
-			word maxffc = scr.numFFC();
-			for(word k=0; k<maxffc; k++)
-			{
-				ffcdata& ffc = scr.ffcs[k];
-				if((ffc.data >= cmd.copy1) && (ffc.data < cmd.copy1+cmd.copycnt)
-					&& (ffc.data != 0) && (ffc.data+diff!=0))
-				{
-					ffc.data += diff;
-				}
-			}
-		}
-	}
-	
-	for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
-	{
-		for(int32_t j=0; j<9; j++)
-		{
-			if(j<4)
-			{
-				if((DoorComboSets[i].walkthroughcombo[j]>=cmd.copy1)&&(DoorComboSets[i].walkthroughcombo[j]<cmd.copy1+cmd.copycnt))
-				{
-					DoorComboSets[i].walkthroughcombo[j] += diff;
-				}
-				
-				if(j<3)
-				{
-					if(j<2)
-					{
-						if((DoorComboSets[i].bombdoorcombo_u[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_u[j]<cmd.copy1+cmd.copycnt))
-						{
-							DoorComboSets[i].bombdoorcombo_u[j] += diff;
-						}
-						
-						if((DoorComboSets[i].bombdoorcombo_d[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_d[j]<cmd.copy1+cmd.copycnt))
-						{
-							DoorComboSets[i].bombdoorcombo_d[j] += diff;
-						}
-					}
-					
-					if((DoorComboSets[i].bombdoorcombo_l[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_l[j]<cmd.copy1+cmd.copycnt))
-					{
-						DoorComboSets[i].bombdoorcombo_l[j] += diff;
-					}
-					
-					if((DoorComboSets[i].bombdoorcombo_r[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_r[j]<cmd.copy1+cmd.copycnt))
-					{
-						DoorComboSets[i].bombdoorcombo_r[j] += diff;
-					}
-				}
-			}
-			
-			for(int32_t k=0; k<6; k++)
-			{
-				if(k<4)
-				{
-					if((DoorComboSets[i].doorcombo_u[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_u[j][k]<cmd.copy1+cmd.copycnt))
-					{
-						DoorComboSets[i].doorcombo_u[j][k] += diff;
-					}
-					
-					if((DoorComboSets[i].doorcombo_d[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_d[j][k]<cmd.copy1+cmd.copycnt))
-					{
-						DoorComboSets[i].doorcombo_d[j][k] += diff;
-					}
-				}
-				
-				if((DoorComboSets[i].doorcombo_l[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_l[j][k]<cmd.copy1+cmd.copycnt))
-				{
-					DoorComboSets[i].doorcombo_l[j][k] += diff;
-				}
-				
-				if((DoorComboSets[i].doorcombo_r[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_r[j][k]<cmd.copy1+cmd.copycnt))
-				{
-					DoorComboSets[i].doorcombo_r[j][k] += diff;
-				}
-			}
-		}
-	}
-	
-	for(int32_t i=0; i<MAXCOMBOS; i++)
-	{
-		newcombo& cmb = combobuf[i];
-		if(cmb.nextcombo && (cmb.nextcombo>=cmd.copy1)&&(cmb.nextcombo<cmd.copy1+cmd.copycnt))
-		{
-			cmb.nextcombo += diff;
-		}
-		if(cmb.liftcmb && (cmb.liftcmb>=cmd.copy1)&&(cmb.liftcmb<cmd.copy1+cmd.copycnt))
-		{
-			cmb.liftcmb += diff;
-		}
-		if(cmb.liftundercmb && (cmb.liftundercmb>=cmd.copy1)&&(cmb.liftundercmb<cmd.copy1+cmd.copycnt))
-		{
-			cmb.liftundercmb += diff;
-		}
-		if(cmb.prompt_cid && (cmb.prompt_cid>=cmd.copy1)&&(cmb.prompt_cid<cmd.copy1+cmd.copycnt))
-		{
-			cmb.prompt_cid += diff;
-		}
-	}
-	for(auto q = 0; q < MAXCOMBOPOOLS; ++q)
-	{
-		combo_pool& pool = combo_pools[q];
-		for(cpool_entry& cp : pool.combos)
-		{
-			if(cp.cid && (cp.cid >= cmd.copy1) && (cp.cid < cmd.copy1+cmd.copycnt))
-			{
-				cp.cid += diff;
-			}
-		}
-	}
-	for (auto q = 0; q < MAXAUTOCOMBOS; ++q)
-	{
-		combo_auto& cauto = combo_autos[q];
-		for (autocombo_entry& ac : cauto.combos)
-		{
-			if (ac.cid && (ac.cid >= cmd.copy1) && (ac.cid < cmd.copy1 + cmd.copycnt))
-			{
-				ac.cid += diff;
-			}
-		}
-		int32_t ec = cauto.getEraseCombo();
-		if (ec > 0 && (ec >= cmd.copy1) && (ec < cmd.copy1 + cmd.copycnt))
-		{
-			cauto.setEraseCombo(ec + diff);
-		}
-		int32_t dc = cauto.getIconDisplay();
-		if (dc > 0 && (dc >= cmd.copy1) && (dc < cmd.copy1 + cmd.copycnt))
-		{
-			cauto.setDisplay(dc + diff);
-		}
-	}
-	
-	for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-	{
-		//dimensions are 1 less than you would expect -DD
-		int32_t count=(comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
-		
-		for(int32_t j=0; j<count; j++)
-		{
-		
-			if((combo_aliases[i].combos[j]>=cmd.copy1)&&(combo_aliases[i].combos[j]<cmd.copy1+cmd.copycnt)&&(combo_aliases[i].combos[j]!=0))
-			{
-				combo_aliases[i].combos[j] += diff;
-			}
-		}
-	}
-	
-	for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
-	{
-		if(favorite_combos[i]>=cmd.copy1 && favorite_combos[i]<cmd.copy1+cmd.copycnt)
-			favorite_combos[i] += diff;
-	}
-	
-	for(auto q = 0; q < 256; ++q)
-	{
-		for(auto p = 0; p < 3; ++p)
-		{
-			if(QMisc.bottle_shop_types[q].comb[p] >= cmd.copy1 && QMisc.bottle_shop_types[q].comb[p] < cmd.copy1+cmd.copycnt)
-				QMisc.bottle_shop_types[q].comb[p] += diff;
-		}
-	}
 	
 	setup_combo_animations();
 	setup_combo_animations2();
 	saved=false;
+	return true;
 }
 
 void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
@@ -8070,7 +8164,8 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 	cmd.copy1 = copy;
 	cmd.copycnt = copycnt;
 	
-	do_movecombo(cmd);
+	if(!do_movecombo(cmd))
+		return;
 	if(last_combo_move)
 		delete last_combo_move;
 	last_combo_move = new combo_move_data(cmd);
@@ -12504,7 +12599,7 @@ void center_zq_tiles_dialogs()
 	jwin_center_dialog(create_relational_tiles_dlg);
 	jwin_center_dialog(icon_dlg);
 	jwin_center_dialog(leech_dlg);
-	jwin_center_dialog(tile_move_list_dlg);
+	jwin_center_dialog(move_textbox_list_dlg);
 	jwin_center_dialog(recolor_4bit_dlg);
 	jwin_center_dialog(recolor_8bit_dlg);
 }

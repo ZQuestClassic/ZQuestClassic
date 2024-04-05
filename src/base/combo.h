@@ -293,5 +293,74 @@ extern std::vector<newcombo> combobuf;
 
 bool is_push_flag(int flag, optional<int> dir = nullopt);
 
+
+struct BaseComboRef
+{
+	string name;
+	bool no_move;
+	virtual int32_t getCombo() const = 0;
+	virtual void addCombo(int32_t offs) = 0;
+	virtual void setCombo(int32_t val) = 0;
+	BaseComboRef(string name = "")
+		: name(name), no_move(false)
+	{}
+};
+struct ComboRefPtr : public BaseComboRef
+{
+	word* combo;
+	int32_t getCombo() const override {return *combo;}
+	void addCombo(int32_t offs) override {*combo += offs;}
+	void setCombo(int32_t val) override {*combo = val;}
+	ComboRefPtr()
+		: BaseComboRef(), combo(nullptr)
+	{}
+	ComboRefPtr(word* combo, string name = "")
+		: BaseComboRef(name), combo(combo)
+	{}
+};
+struct ComboRefPtr32 : public BaseComboRef
+{
+	int32_t* combo;
+	int32_t getCombo() const override {return *combo;}
+	void addCombo(int32_t offs) override {*combo += offs;}
+	void setCombo(int32_t val) override {*combo = val;}
+	ComboRefPtr32()
+		: BaseComboRef(), combo(nullptr)
+	{}
+	ComboRefPtr32(int32_t* combo, string name = "")
+		: BaseComboRef(name), combo(combo)
+	{}
+};
+struct ComboMoveList
+{
+	vector<std::unique_ptr<BaseComboRef>> move_refs;
+	bitstring move_bits;
+	string msg;
+	
+	ComboMoveList() = default;
+	ComboMoveList(string msg) : msg(msg) {}
+	
+	template<class... Args>
+	ComboRefPtr* add_combo(word* combo, Args&&... args)
+	{
+		if(!combo || !*combo)
+			return nullptr;
+		return (ComboRefPtr*)move_refs.emplace_back(std::make_unique<ComboRefPtr>(combo, args...)).get();
+	}
+	template<class... Args>
+	ComboRefPtr32* add_combo(int32_t* combo, Args&&... args)
+	{
+		if(!combo || !*combo)
+			return nullptr;
+		return (ComboRefPtr32*)move_refs.emplace_back(std::make_unique<ComboRefPtr32>(combo, args...)).get();
+	}
+	
+	
+	#ifdef IS_EDITOR
+	bool process(bool is_dest, int _first, int _last);
+	void add_diff(int diff);
+	#endif
+};
+
 #endif
 
