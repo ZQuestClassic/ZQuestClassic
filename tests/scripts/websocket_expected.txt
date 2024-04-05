@@ -174,8 +174,8 @@ COMPAREV d2,0.0002
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 211,==; Test 'if'
-LOAD d2,0.0005; InlineFunc[int SizeOfArray(char32)] Params AND if() #188 Body Start
-ARRAYSIZE d2; InlineFunc[int SizeOfArray(char32)] Body
+LOAD d2,0.0005; InlineFunc[int SizeOfArray(int)] Params AND if() #188 Body Start
+ARRAYSIZE d2; InlineFunc[int SizeOfArray(int)] Body
 STORE d2,0.0003
 ALLOCATEMEMV d2,34,0
 STORE d2,0.0002

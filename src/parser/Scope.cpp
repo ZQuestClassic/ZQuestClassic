@@ -553,20 +553,30 @@ static int applyTemplateTypes(
 		if (!simpleType || simpleType->getId() != ZTID_TEMPLATE_T_ARR)
 			continue;
 
-		if (!parameter_types[i]->isArray())
+		bool is_valid_array_type = parameter_types[i]->isArray();
+
+		// This does not need to be configurable yet, as there is no way to pass around array
+		// types until we support arrays as parameters. So most scripts would need this on right now.
+		bool allow_old_ptr_compat = true;
+		if (allow_old_ptr_compat)
+			is_valid_array_type = true;
+
+		if (!is_valid_array_type)
 			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 
-		auto arr_type = dynamic_cast<const DataTypeArray*>(parameter_types[i]);
+		auto el_type = parameter_types[i]->isArray() ?
+			&dynamic_cast<const DataTypeArray*>(parameter_types[i])->getElementType() :
+			parameter_types[i];
 
 		found_template_type = true;
 		if (!bound_t)
 		{
-			bound_t = &arr_type->getElementType();
+			bound_t = el_type;
 			resolved_params[i] = parameter_types[i];
 			continue;
 		}
 
-		if (!arr_type->getElementType().canCastTo(*bound_t))
+		if (!el_type->canCastTo(*bound_t))
 			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 
 		resolved_params[i] = parameter_types[i];

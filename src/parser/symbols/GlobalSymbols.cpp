@@ -43,11 +43,7 @@ static AccessorTable GlobalTable[] =
 	{ "SwapTile",                0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "ClearTile",               0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT },{} },
 	{ "SizeOfArray",             0,         ZTID_FLOAT,   -1,          0,  { ZTID_TEMPLATE_T_ARR },{} },
-	// TODO: for compat, until we work out how best to handle proper strings
-	{ "SizeOfArray",             1,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR },{} },
 	{ "ResizeArray",             0,          ZTID_VOID,   -1,          0,  { ZTID_TEMPLATE_T_ARR, ZTID_FLOAT },{} },
-	// TODO: for compat, until we work out how best to handle proper strings
-	{ "ResizeArray",             1,          ZTID_VOID,   -1,          0,  { ZTID_CHAR, ZTID_FLOAT },{} },
 	{ "OwnArray",                0,          ZTID_VOID,   -1,          0,  { ZTID_TEMPLATE_T_ARR },{} },
 	{ "DestroyArray",            0,          ZTID_VOID,   -1,          0,  { ZTID_TEMPLATE_T_ARR },{} },
 	{ "OwnObject",               0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED },{} },
@@ -955,32 +951,9 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//int32_t SizeOfArray(char32 val)
-	{
-		Function* function = getFunction("SizeOfArray", 1);
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-		addOpcode2 (code, new OArraySize(new VarArgument(EXP1)));
-		RETURN();
-		function->giveCode(code);
-	}
 	//void ResizeArray(T[] ptr, int sz)
 	{
 		Function* function = getFunction("ResizeArray");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		addOpcode2 (code, new OResizeArrayRegister(new VarArgument(EXP1),new VarArgument(EXP2)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//void ResizeArray(char32 ptr, int sz)
-	{
-		Function* function = getFunction("ResizeArray", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
