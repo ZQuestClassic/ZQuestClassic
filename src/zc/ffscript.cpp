@@ -30046,6 +30046,11 @@ void do_warp(bool v)
 	tmpscr->sidewarpdmap[0] = dmapid;
 	tmpscr->sidewarpscr[0]  = screenid;
 	tmpscr->sidewarptype[0] = wtIWARP;
+	if(!get_qr(qr_OLD_HERO_WARP_RETSQUARE))
+	{
+		tmpscr->warpreturnc &= ~(3 << 8);
+		set_bit(&tmpscr->sidewarpoverlayflags,0,0);
+	}
 	Hero.ffwarp = true;
 }
 
@@ -30072,6 +30077,11 @@ void do_pitwarp(bool v)
 	tmpscr->sidewarpdmap[0] = dmapid;
 	tmpscr->sidewarpscr[0]  = screenid;
 	tmpscr->sidewarptype[0] = wtIWARP;
+	if(!get_qr(qr_OLD_HERO_WARP_RETSQUARE))
+	{
+		tmpscr->warpreturnc &= ~(3 << 8);
+		set_bit(&tmpscr->sidewarpoverlayflags,0,0);
+	}
 	Hero.ffwarp = true;
 	Hero.ffpit = true;
 }

@@ -3713,6 +3713,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP,1);
 	if(compatrule_version < 66)
 		set_qr(qr_NEWDARK_TRANS_STACKING,1);
+	if(compatrule_version < 67)
+		set_qr(qr_OLD_HERO_WARP_RETSQUARE,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

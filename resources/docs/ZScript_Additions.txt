@@ -6355,6 +6355,12 @@ int Attack;
 	* Sets the extend value for all of Link's various actions.
 */
 
+void Warp(int DMap, int screen);
+ * Warps link to the given screen in the given DMap, just like if he'd
+ * triggered an 'Insta-Warp'-type warp.
+ * Uses warp return square A, unless compat rule `Old 'Hero->Warp' Return Square' is on,
+ *    in which case it uses the warp return square of the current screen's Sidewarp A.
+
 void WarpEx(int ptr[])
 
 * Similar to Link->Warp, but with more options. This takes an array, or
