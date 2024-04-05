@@ -6173,6 +6173,7 @@ bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int 
 {
 	std::ostringstream oss;
 	bool found = false, flood = false;
+	size_t flood_count = 0;
 	for(size_t indx = 0; indx < move_refs.size(); ++indx)
 	{
 		auto& ref = move_refs[indx];
@@ -6214,13 +6215,18 @@ bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int 
 		{
 			if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
 			{
-				if(flood || oss.view().size() >= 65000)
+				if(flood || flood_count >= 65000)
 				{
 					if(!flood)
 						oss << "...\n...\n...\nmany others";
 					flood = true;
 				}
-				else oss << ref->name << '\n';
+				else
+				{
+					//Count this in a var, because 'oss.view().size()' doesn't work on MacOS -Em
+					flood_count += ref->name.size()+1;
+					oss << ref->name << '\n';
+				}
 				
 				found=true;
 			}
@@ -6986,8 +6992,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	sprintf(buf, "Tile Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
-	bool found;
-	bool flood;
 	
 	int32_t i;
 	
@@ -7118,8 +7122,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 	sprintf(buf, "Tile Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
-	bool found;
-	bool flood;
 	
 	int32_t i;
 	
@@ -7519,8 +7521,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	sprintf(buf, "Tile Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
-	bool found;
-	bool flood;
 	
 	int32_t i;
 	
@@ -7726,8 +7726,6 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	sprintf(buf, "Tile Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
-	bool found;
-	bool flood;
 	
 	int32_t i;
 	bool done = false;
