@@ -131,6 +131,23 @@ struct TileRefPtr : public BaseTileRef
 		: BaseTileRef(w,h,name), tile(tile)
 	{}
 };
+struct TileRefPtr10k : public BaseTileRef
+{
+	int32_t* tile;
+	int32_t getTile() const override {return *tile / 10000;}
+	void addTile(int32_t offs) override {*tile += offs * 10000;}
+	void setTile(int32_t val) override {*tile = val * 10000;}
+	void forEach(std::function<void(int32_t)> proc) const override;
+	TileRefPtr10k()
+		: BaseTileRef(), tile(nullptr)
+	{}
+	TileRefPtr10k(int32_t* tile, string name = "")
+		: BaseTileRef(name), tile(tile)
+	{}
+	TileRefPtr10k(int32_t* tile, uint w, uint h, string name = "")
+		: BaseTileRef(w,h,name), tile(tile)
+	{}
+};
 struct TileRefCombo : public BaseTileRef
 {
 	newcombo* combo;
@@ -180,20 +197,21 @@ struct TileMoveList
 	{
 		if(!tile || !*tile)
 			return nullptr;
-		auto ptr = std::make_unique<TileRefPtr>(tile, args...);
-		auto ret = ptr.get();
-		move_refs.emplace_back(std::move(ptr));
-		return ret;
+		return (TileRefPtr*)move_refs.emplace_back(std::make_unique<TileRefPtr>(tile, args...)).get();
+	}
+	template<class... Args>
+	TileRefPtr10k* add_tile_10k(int32_t* tile, Args&&... args)
+	{
+		if(!tile || !*tile)
+			return nullptr;
+		return (TileRefPtr10k*)move_refs.emplace_back(std::make_unique<TileRefPtr10k>(tile, args...)).get();
 	}
 	template<class... Args>
 	TileRefCombo* add_combo(newcombo* combo, Args&&... args)
 	{
 		if(!combo || !combo->o_tile)
 			return nullptr;
-		auto ptr = std::make_unique<TileRefCombo>(combo, args...);
-		auto ret = ptr.get();
-		move_refs.emplace_back(std::move(ptr));
-		return ret;
+		return (TileRefCombo*)move_refs.emplace_back(std::make_unique<TileRefCombo>(combo, args...)).get();
 	}
 	
 	
