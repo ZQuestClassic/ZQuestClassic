@@ -6162,14 +6162,6 @@ bool popup_move_textbox_dlg(string const& msg, char* textbox, char const* title)
 	return ret == 4;
 }
 
-typedef struct move_tiles_item
-{
-	const char *name;
-	int32_t tile;
-	int32_t width;
-	int32_t height;
-} move_tiles_item;
-
 int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 {
 	return a==0?b:a==1?c:d;
@@ -6918,18 +6910,44 @@ vector<std::unique_ptr<ComboMoveList>> load_combo_move_lists(bool move)
 			? "The combos used by the following combos will be partially cleared by the move."
 			: "The combos used by the following combos will be partially or completely overwritten by this process."
 			);
-		for(int32_t i=0; i<MAXCOMBOS; i++)
+		for(int32_t q = 0; q < MAXCOMBOS; ++q)
 		{
-			newcombo& cmb = combobuf[i];
-			combo_list->add_combo(&cmb.nextcombo, fmt::format("{}{} - Combo Cycle", i,
-				cmb.label.empty() ? "" : fmt::format(" ({})", cmb.label)));
-			combo_list->add_combo(&cmb.liftcmb, fmt::format("{}{} - Lift Combo", i,
-				cmb.label.empty() ? "" : fmt::format(" ({})", cmb.label)));
-			combo_list->add_combo(&cmb.liftundercmb, fmt::format("{}{} - Lift Undercombo", i,
-				cmb.label.empty() ? "" : fmt::format(" ({})", cmb.label)));
-			combo_list->add_combo(&cmb.prompt_cid, fmt::format("{}{} - Triggers ButtonPrompt", i,
-				cmb.label.empty() ? "" : fmt::format(" ({})", cmb.label)));
-			//!TODOMOVE Type-specific things like lockblock 'locked prompt'?
+			newcombo& cmb = combobuf[q];
+			auto lbl = fmt::format("{}{}", q, cmb.label.empty() ? ""
+				: fmt::format(" ({})", cmb.label));
+			combo_list->add_combo(&cmb.nextcombo, fmt::format("{} - Combo Cycle", lbl));
+			combo_list->add_combo(&cmb.liftcmb, fmt::format("{}{} - Lift Combo", lbl));
+			combo_list->add_combo(&cmb.liftundercmb, fmt::format("{}{} - Lift Undercombo", lbl));
+			combo_list->add_combo(&cmb.prompt_cid, fmt::format("{}{} - Triggers ButtonPrompt", lbl));
+			
+			//type-specific
+			char const* type_name = ZI.getComboTypeName(cmb.type)
+			switch(cmb.type)
+			{
+				case cLOCKEDCHEST: case cBOSSCHEST:
+					if(cmb.usrflags & cflag13)
+						combo_list->add_combo(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
+				[[fallthrough]];
+				case cCHEST:
+					if(cmb.usrflags & cflag13)
+						combo_list->add_combo(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+					break;
+				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+					if(cmb.usrflags & cflag13)
+					{
+						combo_list->add_combo(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						combo_list->add_combo(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
+					}
+					break;
+				case cSIGNPOST:
+					if(cmb.usrflags & cflag13)
+						combo_list->add_combo(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+					break;
+				case cBUTTONPROMPT:
+					if(cmb.usrflags & cflag13)
+						combo_list->add_combo(&cmb.attributes[0], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+					break;
+			}
 		}
 		
 		vec.push_back(std::move(combo_list));
