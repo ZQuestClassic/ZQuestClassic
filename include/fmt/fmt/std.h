@@ -8,6 +8,8 @@
 #ifndef FMT_STD_H_
 #define FMT_STD_H_
 
+#include <atomic>
+#include <bitset>
 #include <cstdlib>
 #include <exception>
 #include <memory>
@@ -15,6 +17,7 @@
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
+#include <vector>
 
 #include "format.h"
 #include "ostream.h"
@@ -33,6 +36,10 @@
 #  if FMT_HAS_INCLUDE(<optional>)
 #    include <optional>
 #  endif
+#endif
+
+#if FMT_CPLUSPLUS > 201703L && FMT_HAS_INCLUDE(<source_location>)
+#  include <source_location>
 #endif
 
 // GCC 4 does not support FMT_HAS_INCLUDE.
@@ -56,43 +63,53 @@
 #  endif
 #endif
 
-#ifdef __cpp_lib_filesystem
+// For older Xcode versions, __cpp_lib_xxx flags are inaccurately defined.
+#ifndef FMT_CPP_LIB_FILESYSTEM
+#  ifdef __cpp_lib_filesystem
+#    define FMT_CPP_LIB_FILESYSTEM __cpp_lib_filesystem
+#  else
+#    define FMT_CPP_LIB_FILESYSTEM 0
+#  endif
+#endif
+
+#ifndef FMT_CPP_LIB_VARIANT
+#  ifdef __cpp_lib_variant
+#    define FMT_CPP_LIB_VARIANT __cpp_lib_variant
+#  else
+#    define FMT_CPP_LIB_VARIANT 0
+#  endif
+#endif
+
+#if FMT_CPP_LIB_FILESYSTEM
 FMT_BEGIN_NAMESPACE
 
 namespace detail {
 
-template <typename Char> auto get_path_string(const std::filesystem::path& p) {
-  return p.string<Char>();
+template <typename Char, typename PathChar>
+auto get_path_string(const std::filesystem::path& p,
+                     const std::basic_string<PathChar>& native) {
+  if constexpr (std::is_same_v<Char, char> && std::is_same_v<PathChar, wchar_t>)
+    return to_utf8<wchar_t>(native, to_utf8_error_policy::replace);
+  else
+    return p.string<Char>();
 }
 
-template <typename Char>
+template <typename Char, typename PathChar>
 void write_escaped_path(basic_memory_buffer<Char>& quoted,
-                        const std::filesystem::path& p) {
-  write_escaped_string<Char>(std::back_inserter(quoted), p.string<Char>());
-}
-
-#  ifdef _WIN32
-template <>
-auto get_path_string<char>(const std::filesystem::path& p) {
-  return to_utf8<wchar_t>(p.native(), to_utf8_error_policy::replace);
-}
-
-template <>
-inline void write_escaped_path<char>(memory_buffer& quoted,
-                                     const std::filesystem::path& p) {
-  auto buf = basic_memory_buffer<wchar_t>();
-  write_escaped_string<wchar_t>(std::back_inserter(buf), p.native());
-  bool valid = to_utf8<wchar_t>::convert(quoted, {buf.data(), buf.size()});
-  FMT_ASSERT(valid, "invalid utf16");
-}
-#  endif  // _WIN32
-
-template <>
-inline void write_escaped_path<std::filesystem::path::value_type>(
-    basic_memory_buffer<std::filesystem::path::value_type>& quoted,
-    const std::filesystem::path& p) {
-  write_escaped_string<std::filesystem::path::value_type>(
-      std::back_inserter(quoted), p.native());
+                        const std::filesystem::path& p,
+                        const std::basic_string<PathChar>& native) {
+  if constexpr (std::is_same_v<Char, char> &&
+                std::is_same_v<PathChar, wchar_t>) {
+    auto buf = basic_memory_buffer<wchar_t>();
+    write_escaped_string<wchar_t>(std::back_inserter(buf), native);
+    bool valid = to_utf8<wchar_t>::convert(quoted, {buf.data(), buf.size()});
+    FMT_ASSERT(valid, "invalid utf16");
+  } else if constexpr (std::is_same_v<Char, PathChar>) {
+    write_escaped_string<std::filesystem::path::value_type>(
+        std::back_inserter(quoted), native);
+  } else {
+    write_escaped_string<Char>(std::back_inserter(quoted), p.string<Char>());
+  }
 }
 
 }  // namespace detail
@@ -103,6 +120,7 @@ template <typename Char> struct formatter<std::filesystem::path, Char> {
   format_specs<Char> specs_;
   detail::arg_ref<Char> width_ref_;
   bool debug_ = false;
+  char path_type_ = 0;
 
  public:
   FMT_CONSTEXPR void set_debug_format(bool set = true) { debug_ = set; }
@@ -119,29 +137,62 @@ template <typename Char> struct formatter<std::filesystem::path, Char> {
       debug_ = true;
       ++it;
     }
+    if (it != end && (*it == 'g')) path_type_ = *it++;
     return it;
   }
 
   template <typename FormatContext>
   auto format(const std::filesystem::path& p, FormatContext& ctx) const {
     auto specs = specs_;
+#  ifdef _WIN32
+    auto path_string = !path_type_ ? p.native() : p.generic_wstring();
+#  else
+    auto path_string = !path_type_ ? p.native() : p.generic_string();
+#  endif
+
     detail::handle_dynamic_spec<detail::width_checker>(specs.width, width_ref_,
                                                        ctx);
     if (!debug_) {
-      auto s = detail::get_path_string<Char>(p);
+      auto s = detail::get_path_string<Char>(p, path_string);
       return detail::write(ctx.out(), basic_string_view<Char>(s), specs);
     }
     auto quoted = basic_memory_buffer<Char>();
-    detail::write_escaped_path(quoted, p);
+    detail::write_escaped_path(quoted, p, path_string);
     return detail::write(ctx.out(),
                          basic_string_view<Char>(quoted.data(), quoted.size()),
                          specs);
   }
 };
 FMT_END_NAMESPACE
-#endif
+#endif  // FMT_CPP_LIB_FILESYSTEM
 
 FMT_BEGIN_NAMESPACE
+FMT_EXPORT
+template <std::size_t N, typename Char>
+struct formatter<std::bitset<N>, Char> : nested_formatter<string_view> {
+ private:
+  // Functor because C++11 doesn't support generic lambdas.
+  struct writer {
+    const std::bitset<N>& bs;
+
+    template <typename OutputIt>
+    FMT_CONSTEXPR auto operator()(OutputIt out) -> OutputIt {
+      for (auto pos = N; pos > 0; --pos) {
+        out = detail::write<Char>(out, bs[pos - 1] ? Char('1') : Char('0'));
+      }
+
+      return out;
+    }
+  };
+
+ public:
+  template <typename FormatContext>
+  auto format(const std::bitset<N>& bs, FormatContext& ctx) const
+      -> decltype(ctx.out()) {
+    return write_padded(ctx, writer{bs});
+  }
+};
+
 FMT_EXPORT
 template <typename Char>
 struct formatter<std::thread::id, Char> : basic_ostream_formatter<Char> {};
@@ -177,7 +228,7 @@ struct formatter<std::optional<T>, Char,
   }
 
   template <typename FormatContext>
-  auto format(std::optional<T> const& opt, FormatContext& ctx) const
+  auto format(const std::optional<T>& opt, FormatContext& ctx) const
       -> decltype(ctx.out()) {
     if (!opt) return detail::write<Char>(ctx.out(), none);
 
@@ -191,7 +242,32 @@ struct formatter<std::optional<T>, Char,
 FMT_END_NAMESPACE
 #endif  // __cpp_lib_optional
 
-#ifdef __cpp_lib_variant
+#ifdef __cpp_lib_source_location
+FMT_BEGIN_NAMESPACE
+FMT_EXPORT
+template <> struct formatter<std::source_location> {
+  template <typename ParseContext> FMT_CONSTEXPR auto parse(ParseContext& ctx) {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const std::source_location& loc, FormatContext& ctx) const
+      -> decltype(ctx.out()) {
+    auto out = ctx.out();
+    out = detail::write(out, loc.file_name());
+    out = detail::write(out, ':');
+    out = detail::write<char>(out, loc.line());
+    out = detail::write(out, ':');
+    out = detail::write<char>(out, loc.column());
+    out = detail::write(out, ": ");
+    out = detail::write(out, loc.function_name());
+    return out;
+  }
+};
+FMT_END_NAMESPACE
+#endif
+
+#if FMT_CPP_LIB_VARIANT
 FMT_BEGIN_NAMESPACE
 namespace detail {
 
@@ -282,7 +358,7 @@ struct formatter<
   }
 };
 FMT_END_NAMESPACE
-#endif  // __cpp_lib_variant
+#endif  // FMT_CPP_LIB_VARIANT
 
 FMT_BEGIN_NAMESPACE
 FMT_EXPORT
@@ -306,7 +382,7 @@ template <typename Char> struct formatter<std::error_code, Char> {
 FMT_EXPORT
 template <typename T, typename Char>
 struct formatter<
-    T, Char,
+    T, Char,  // DEPRECATED! Mixing code unit types.
     typename std::enable_if<std::is_base_of<std::exception, T>::value>::type> {
  private:
   bool with_typename_ = false;
@@ -337,7 +413,7 @@ struct formatter<
 #  ifdef FMT_HAS_ABI_CXA_DEMANGLE
     int status = 0;
     std::size_t size = 0;
-    std::unique_ptr<char, decltype(&std::free)> demangled_name_ptr(
+    std::unique_ptr<char, void (*)(void*)> demangled_name_ptr(
         abi::__cxa_demangle(ti.name(), nullptr, &size, &status), &std::free);
 
     string_view demangled_name_view;
@@ -389,6 +465,73 @@ struct formatter<
 #endif
   }
 };
-FMT_END_NAMESPACE
 
+namespace detail {
+
+template <typename T, typename Enable = void>
+struct has_flip : std::false_type {};
+
+template <typename T>
+struct has_flip<T, void_t<decltype(std::declval<T>().flip())>>
+    : std::true_type {};
+
+template <typename T> struct is_bit_reference_like {
+  static constexpr const bool value =
+      std::is_convertible<T, bool>::value &&
+      std::is_nothrow_assignable<T, bool>::value && has_flip<T>::value;
+};
+
+#ifdef _LIBCPP_VERSION
+
+// Workaround for libc++ incompatibility with C++ standard.
+// According to the Standard, `bitset::operator[] const` returns bool.
+template <typename C>
+struct is_bit_reference_like<std::__bit_const_reference<C>> {
+  static constexpr const bool value = true;
+};
+
+#endif
+
+}  // namespace detail
+
+// We can't use std::vector<bool, Allocator>::reference and
+// std::bitset<N>::reference because the compiler can't deduce Allocator and N
+// in partial specialization.
+FMT_EXPORT
+template <typename BitRef, typename Char>
+struct formatter<BitRef, Char,
+                 enable_if_t<detail::is_bit_reference_like<BitRef>::value>>
+    : formatter<bool, Char> {
+  template <typename FormatContext>
+  FMT_CONSTEXPR auto format(const BitRef& v, FormatContext& ctx) const
+      -> decltype(ctx.out()) {
+    return formatter<bool, Char>::format(v, ctx);
+  }
+};
+
+FMT_EXPORT
+template <typename T, typename Char>
+struct formatter<std::atomic<T>, Char,
+                 enable_if_t<is_formattable<T, Char>::value>>
+    : formatter<T, Char> {
+  template <typename FormatContext>
+  auto format(const std::atomic<T>& v, FormatContext& ctx) const
+      -> decltype(ctx.out()) {
+    return formatter<T, Char>::format(v.load(), ctx);
+  }
+};
+
+#ifdef __cpp_lib_atomic_flag_test
+FMT_EXPORT
+template <typename Char>
+struct formatter<std::atomic_flag, Char> : formatter<bool, Char> {
+  template <typename FormatContext>
+  auto format(const std::atomic_flag& v, FormatContext& ctx) const
+      -> decltype(ctx.out()) {
+    return formatter<bool, Char>::format(v.test(), ctx);
+  }
+};
+#endif  // __cpp_lib_atomic_flag_test
+
+FMT_END_NAMESPACE
 #endif  // FMT_STD_H_
