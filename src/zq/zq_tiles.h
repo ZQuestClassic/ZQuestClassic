@@ -107,8 +107,6 @@ bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move);
 bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move, int32_t cs, bool backwards);
 bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards);
-bool overlay_tiles_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards);
-bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move, int32_t cs, bool backwards);
 void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool masscopy);
 void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt);
 void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel);

@@ -36,6 +36,7 @@ namespace util
 		vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
 	}
 
+	std::string snip(std::string const& str, size_t length, std::string trail = "...");
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	void trimstr(std::string& str);

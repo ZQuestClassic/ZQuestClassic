@@ -15,6 +15,11 @@ namespace fs = std::filesystem;
 
 namespace util
 {
+	string snip(string const& str, size_t length, string trail)
+	{
+		return str.size() > length ? str.substr(0,length)+trail : str;
+	}
+	
 	void upperstr(string& str)
 	{
 		for(int32_t q = str.size() - 1; q >= 0; --q)
