@@ -1,57 +1,38 @@
 [Theme]
-////////////////////////////////////////////////////////
-// VGA Colours 1 to 8
-////////////////////////////////////////////////////////
-dvc1_r = 59
-dvc1_g = 60
-dvc1_b = 60
+color_1 = ECF0F0
+color_2 = C46460
+color_3 = B04C4C
+color_4 = A03838
+color_5 = 8C0000
+color_6 = 7C1818
+color_7 = 3C1010
+color_8 = 140000
+ztheme_ver = 1
 
-dvc2_r = 49
-dvc2_g = 25
-dvc2_b = 24
 
-dvc3_r = 44
-dvc3_g = 19
-dvc3_b = 19
 
-dvc4_r = 40
-dvc4_g = 14
-dvc4_b = 14
 
-dvc5_r = 35
-dvc5_g = 09
-dvc5_b = 09
 
-dvc6_r = 31
-dvc6_g = 06
-dvc6_b = 06
 
-dvc7_r = 15
-dvc7_g = 04
-dvc7_b = 04
 
-dvc8_r = 05
-dvc8_g = 08
-dvc8_b = 08
 
-////////////////////////////////////////////////////////
-// System Elements
-////////////////////////////////////////////////////////
-jcbox     = 4 		//Box BG
-jclight   = 2 		//Box Outlines (Lightest to darkest)
-jcmedlt   = 3 		//
+jcbox = 4 		//Box BG
+jclight = 2 		//Box Outlines (Lightest to darkest)
+jcmedlt = 3 		//
 jcmeddark = 4 		//
-jcdark    = 8 		//
-jcboxfg   = 8 		//Box Text
-jctitlel  = 7 		//Title Bar (Left End)
-jctitler  = 7 		//Title Bar (Right End)
+jcdark = 8 		//
+jcboxfg = 8 		//Box Text
+jctitlel = 7 		//Title Bar (Left End)
+jctitler = 7 		//Title Bar (Right End)
 jctitlefg = 1 		//Title Bar (Text)
-jctextbg  = 6 		//Radio Button BG
-jctextfg  = 1 		//Radio Button FG
-jcselbg   = 4 		//Menu Selection BG
-jcselfg   = 1 		//Menu Selection Text
+jctextbg = 6 		//Radio Button BG
+jctextfg = 1 		//Radio Button FG
+jcselbg = 4 		//Menu Selection BG
+jcselfg = 1 		//Menu Selection Text
 
 jccursormisc = 1	//Mouse Bottom Edge
 jccursoroutline = 1	//Mouse Left/Right Edges
 jccursorlight = 3	//Mouse Core, Light Half
 jccursordark = 4	//Mouse Core, Dark Half
+jc_disabled_fg = 4
+jc_disabled_bg = 6

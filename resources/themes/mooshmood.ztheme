@@ -30,5 +30,5 @@ jccursordark = 1
 
 jc_alt_textfg = 6
 jc_alt_textbg = 8
-jc_disabled_fg = 6
-jc_disabled_bg = 5
+jc_disabled_fg = 5
+jc_disabled_bg = 6

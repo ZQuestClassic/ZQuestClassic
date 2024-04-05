@@ -115,6 +115,21 @@ static void update_theme(int fromver)
 	}
 	zc_set_config_basic("Theme","ztheme_ver",VER_ZTHEME);
 }
+struct PaletteDefault
+{
+	virtual int get() const {return v ? *v : r_dvc(jwin_pal[*i]);}
+	static PaletteDefault val(int v)
+	{
+		return PaletteDefault(v, nullopt);
+	}
+	static PaletteDefault indx(int v)
+	{
+		return PaletteDefault(nullopt, v);
+	}
+private:
+	optional<int> v, i;
+	PaletteDefault(optional<int> v, optional<int> ind) : v(v), i(ind) {}
+};
 const char* t_cfg_name[jcMAX] =
 {
 	"jcbox","jclight","jcmedlt","jcmeddark","jcdark","jcboxfg","jctitlel",
@@ -122,9 +137,13 @@ const char* t_cfg_name[jcMAX] =
 	"jccursormisc", "jccursoroutline", "jccursorlight", "jccursordark",
 	"jc_alt_textfg", "jc_alt_textbg", "jc_disabled_fg", "jc_disabled_bg"
 };
-const int t_cfg_def[jcMAX] =
+const PaletteDefault t_cfg_def[jcMAX] =
 {
-	4,5,4,3,2,1,3,5,7,5,1,8,6,1,2,3,5,3,1,3,4
+	#define _PD PaletteDefault
+	_PD::val(4),_PD::val(5),_PD::val(4),_PD::val(3),_PD::val(2),_PD::val(1),_PD::val(3),
+	_PD::val(5),_PD::val(7),_PD::val(5),_PD::val(1),_PD::val(8),_PD::val(6),
+	_PD::val(1),_PD::val(2),_PD::val(3),_PD::val(5),
+	_PD::indx(jcMEDDARK),_PD::indx(jcTEXTFG),_PD::indx(jcBOX),_PD::indx(jcMEDDARK)
 };
 void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 {
@@ -147,7 +166,7 @@ void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 	
 	for(int q = 0; q < jcMAX; ++q)
 	{
-		int v = zc_get_config_basic("Theme",t_cfg_name[q],t_cfg_def[q]);
+		int v = zc_get_config_basic("Theme",t_cfg_name[q],t_cfg_def[q].get());
 		if(v < 1 || v > 8)
 		{
 			v = vbound(v,1,8);
@@ -547,14 +566,8 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 	
 	if(!udef) //Auto-fill the indexes that aren't used in old styles
 	{
-		jwin_pal[jcCURSORMISC] = dvc(1);
-		jwin_pal[jcCURSOROUTLINE] = dvc(2);
-		jwin_pal[jcCURSORLIGHT] = dvc(3);
-		jwin_pal[jcCURSORDARK] = dvc(5);
-		jwin_pal[jcALT_TEXTFG] = jwin_pal[jcMEDDARK];
-		jwin_pal[jcALT_TEXTBG] = jwin_pal[jcTEXTFG];
-		jwin_pal[jcDISABLED_FG] = jwin_pal[jcMEDDARK];
-		jwin_pal[jcDISABLED_BG] = jwin_pal[jcBOX];
+		for(int q = jcCURSORMISC; q <= jcDISABLED_BG; ++q)
+			jwin_pal[jcCURSORMISC] = dvc(t_cfg_def[q].get());
 		
 		for(int q = 1; q <= 8; ++q)
 		{

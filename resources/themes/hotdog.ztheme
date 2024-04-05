@@ -1,52 +1,14 @@
 [Theme]
+color_1 = 0
+color_2 = FCFCFC
+color_3 = FCFC00
+color_4 = FC0000
+color_5 = FCFCFC
+color_6 = FCA0A0
+color_7 = A00000
+color_8 = 500000
+ztheme_ver = 1
 
-////////////////////////////////////////////////////////
-// VGA Colours 1 to 8
-////////////////////////////////////////////////////////
-
-//Black
-dvc1_r = 0
-dvc1_g = 0
-dvc1_b = 0
-
-//White
-dvc2_r = 63
-dvc2_g = 63
-dvc2_b = 63
-
-//Window BG
-dvc3_r = 63
-dvc3_g = 63
-dvc3_b = 0
-
-//Window TitleBar
-dvc4_r = 63
-dvc4_g = 0
-dvc4_b = 0
-
-//Window Outlines (Light)
-dvc5_r = 63
-dvc5_g = 63
-dvc5_b = 63
-
-//Window Outlines(Medium Light)
-dvc6_r = 63
-dvc6_g = 40
-dvc6_b = 40
-
-//Window Outlines (Medium Dark)
-dvc7_r = 40
-dvc7_g = 0
-dvc7_b = 0
-
-//Window Outlines (Dark)
-dvc8_r = 20
-dvc8_g = 0
-dvc8_b = 0
-
-////////////////////////////////////////////////////////
-// System Elements
-////////////////////////////////////////////////////////
 jcbox = 3		//Box BG
 jclight = 5		//Box Outlines (Lightest to darkest)
 jcmedlt = 6
@@ -61,7 +23,7 @@ jctextfg = 1		//Radio Button FG
 jcselbg = 1		//Menu Selection BG
 jcselfg = 2		//Menu Selection Text
 
-jccursormisc = 		//Mouse Bottom Edge
-jccursoroutline = 	//Mouse Left/Right Edges
-jccursorlight = 	//Mouse Core, Light Half
-jccursordark = 		//Mouse Core, Dark Half
+jccursormisc = 1
+jccursoroutline = 1
+jccursorlight = 1
+jccursordark = 1
