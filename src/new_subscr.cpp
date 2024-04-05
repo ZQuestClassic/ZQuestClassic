@@ -1308,7 +1308,7 @@ ZCSubscreen const* SubscrWidget::getParentSub() const
 {
 	return parentPage ? parentPage->getParent() : nullptr;
 }
-void SubscrWidget::collect_tiles(vector<TileRef>& tile_vec)
+void SubscrWidget::collect_tiles(TileMoveList& list)
 {
 	
 }
@@ -1380,9 +1380,9 @@ int32_t SW_2x2Frame::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
-void SW_2x2Frame::collect_tiles(vector<TileRef>& tile_vec)
+void SW_2x2Frame::collect_tiles(TileMoveList& list)
 {
-	tile_vec.emplace_back(&tile, 2, 2, "2x2 Frame");
+	list.add_tile(&tile, 2, 2, "2x2 Frame");
 }
 
 SW_Text::SW_Text(subscreen_object const& old) : SW_Text()
@@ -3533,10 +3533,10 @@ int32_t SW_TriFrame::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
-void SW_TriFrame::collect_tiles(vector<TileRef>& tile_vec)
+void SW_TriFrame::collect_tiles(TileMoveList& list)
 {
-	tile_vec.emplace_back(&frame_tile, 6, 3, "McGuffin Frame - Frame");
-	tile_vec.emplace_back(&piece_tile, "McGuffin Frame - Piece");
+	list.add_tile(&frame_tile, 6, 3, "McGuffin Frame - Frame");
+	list.add_tile(&piece_tile, "McGuffin Frame - Piece");
 }
 
 SW_McGuffin::SW_McGuffin(subscreen_object const& old) : SW_McGuffin()
@@ -3618,9 +3618,9 @@ int32_t SW_McGuffin::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
-void SW_McGuffin::collect_tiles(vector<TileRef>& tile_vec)
+void SW_McGuffin::collect_tiles(TileMoveList& list)
 {
-	tile_vec.emplace_back(&tile, "McGuffin Piece");
+	list.add_tile(&tile, "McGuffin Piece");
 }
 
 SW_TileBlock::SW_TileBlock(subscreen_object const& old) : SW_TileBlock()
@@ -3696,9 +3696,9 @@ int32_t SW_TileBlock::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
-void SW_TileBlock::collect_tiles(vector<TileRef>& tile_vec)
+void SW_TileBlock::collect_tiles(TileMoveList& list)
 {
-	tile_vec.emplace_back(&tile, w, h, "TileBlock");
+	list.add_tile(&tile, w, h, "TileBlock");
 }
 
 SW_MiniTile::SW_MiniTile(subscreen_object const& old) : SW_MiniTile()
@@ -3849,11 +3849,11 @@ int32_t SW_MiniTile::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
-void SW_MiniTile::collect_tiles(vector<TileRef>& tile_vec)
+void SW_MiniTile::collect_tiles(TileMoveList& list)
 {
 	if(tile == -1)
 		return;
-	tile_vec.emplace_back(&tile, "MiniTile");
+	list.add_tile(&tile, "MiniTile");
 }
 
 SW_Selector::SW_Selector(byte ty) : SubscrWidget(ty)
@@ -4420,7 +4420,7 @@ int32_t SW_GaugePiece::write(PACKFILE* f) const
 	}
 	return 0;
 }
-void SW_GaugePiece::collect_tiles(vector<TileRef>& tile_vec)
+void SW_GaugePiece::collect_tiles(TileMoveList& list)
 {
 	int fr = frames ? frames : 1;
 	fr = fr * (1+(get_per_container()/(unit_per_frame+1)));
@@ -4429,7 +4429,7 @@ void SW_GaugePiece::collect_tiles(vector<TileRef>& tile_vec)
 	
 	for(auto q = 0; q < 4; ++q)
 	{
-		tile_vec.emplace_back(&mts[q].mt_tile, fr, 1, fmt::format("Gauge Tile {}", q));
+		list.add_tile(&mts[q].mt_tile, fr, 1, fmt::format("Gauge Tile {}", q));
 	}
 }
 
@@ -5576,15 +5576,17 @@ void SubscrPage::force_update()
 	for(SubscrWidget* w : contents)
 		w->parentPage = this;
 }
-void SubscrPage::collect_tiles(vector<TileRef>& tile_vec)
+void SubscrPage::collect_tiles(TileMoveList& list)
 {
 	for(auto q = 0; q < contents.size(); ++q)
 	{
-		vector<TileRef> v;
-		contents[q]->collect_tiles(v);
-		for(TileRef& ref : v)
-			ref.name = fmt::format("Widget {} - {}", q, ref.name);
-		tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+		size_t indx = list.move_refs.size();
+		contents[q]->collect_tiles(list);
+		for(; indx < list.move_refs.size(); ++indx)
+		{
+			auto& ref = list.move_refs[indx];
+			ref->name = fmt::format("Widget {} - {}", q, ref->name);
+		}
 	}
 }
 SubscrPage& ZCSubscreen::cur_page()
@@ -5954,15 +5956,17 @@ void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& tran
 		return;
 	subscrpg_animate(curpage,pg,trans,*this);
 }
-void ZCSubscreen::collect_tiles(vector<TileRef>& tile_vec)
+void ZCSubscreen::collect_tiles(TileMoveList& list)
 {
 	for(auto q = 0; q < pages.size(); ++q)
 	{
-		vector<TileRef> v;
-		pages[q].collect_tiles(v);
-		for(TileRef& ref : v)
-			ref.name = fmt::format("Page {} - {}", q, ref.name);
-		tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+		size_t indx = list.move_refs.size();
+		pages[q].collect_tiles(list);
+		for(; indx < list.move_refs.size(); ++indx)
+		{
+			auto& ref = list.move_refs[indx];
+			ref->name = fmt::format("Page {} - {}", q, ref->name);
+		}
 	}
 }
 

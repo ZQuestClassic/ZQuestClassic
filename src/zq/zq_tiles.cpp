@@ -6168,101 +6168,82 @@ int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 	return a==0?b:a==1?c:d;
 }
 
-struct TileMoveList
+//from 'tiles.h'
+bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int _h, int _first, int _last)
 {
-	vector<TileRef> move_refs;
-	bitstring move_bits;
-	string msg;
-	
-	TileMoveList() = default;
-	TileMoveList(string msg) : msg(msg) {}
-	
-	template<class... Args>
-	TileRef* add(int32_t* tile, Args&&... args)
+	std::ostringstream oss;
+	bool found = false, flood = false;
+	for(size_t indx = 0; indx < move_refs.size(); ++indx)
 	{
-		if(!tile || !*tile)
-			return nullptr;
-		return &move_refs.emplace_back(tile, args...);
-	}
-	
-	bool process(bool rect, bool is_dest, int _l, int _t, int _w, int _h, int _first, int _last)
-	{
-		std::ostringstream oss;
-		bool found = false, flood = false;
-		for(size_t indx = 0; indx < move_refs.size(); ++indx)
+		auto& ref = move_refs[indx];
+		TileRefCombo* combo_ref = dynamic_cast<TileRefCombo*>(ref.get());
+		int i = ti_none;
+		
+		if(move_bits.get(indx))
+			continue;
+		auto t = ref->getTile() + ref->offset();
+		
+		if(combo_ref)
 		{
-			TileRef& ref = move_refs[indx];
-			int i = ti_none;
-			
-			if(move_bits.get(indx))
-				continue;
-			auto t = *ref.tile + ref.offset();
-			
-			if(ref.combo)
-			{
-				if(rect)
-					i=move_intersection_sr(*ref.combo, _l, _t, _w, _h);
-				else i=move_intersection_ss(*ref.combo, _first, _last);
-			}
-			else if(rect)
-			{
-				if(ref.h > 1)
-					i=move_intersection_rr(TILECOL(t), TILEROW(t), ref.w, ref.h, _l, _t, _w, _h);
-				else i=move_intersection_sr(t, t+ref.w-1, _l, _t, _w, _h);
-			}
-			else
-			{
-				if(ref.h > 1)
-					i=move_intersection_rs(TILECOL(t), TILEROW(t), ref.w, ref.h, _first, _last);
-				else i=move_intersection_ss(t, t+ref.w-1, _first, _last);
-			}
-			
-			for(size_t q = 0; i == ti_none && q < ref.extra_rects.size(); ++q)
-			{
-				auto [ex_t,ex_w,ex_h] = ref.extra_rects[q];
-				if(rect)
-					i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _l, _t, _w, _h);
-				else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _first, _last);
-			}
-			
-			if((i!=ti_none)&&((*ref.tile)!=0))
-			{
-				if(i==ti_broken || is_dest || (i==ti_encompass && ref.no_move))
-				{
-					if(flood || oss.view().size() >= 65000)
-					{
-						if(!flood)
-							oss << "...\n...\n...\nmany others";
-						flood = true;
-					}
-					else oss << ref.name << '\n';
-					
-					found=true;
-				}
-				else if(i==ti_encompass)
-				{
-					move_bits.set(indx, true);
-				}
-			}
+			if(rect)
+				i=move_intersection_sr(*combo_ref->combo, _l, _t, _w, _h);
+			else i=move_intersection_ss(*combo_ref->combo, _first, _last);
+		}
+		else if(rect)
+		{
+			if(ref->h > 1)
+				i=move_intersection_rr(TILECOL(t), TILEROW(t), ref->w, ref->h, _l, _t, _w, _h);
+			else i=move_intersection_sr(t, t+ref->w-1, _l, _t, _w, _h);
+		}
+		else
+		{
+			if(ref->h > 1)
+				i=move_intersection_rs(TILECOL(t), TILEROW(t), ref->w, ref->h, _first, _last);
+			else i=move_intersection_ss(t, t+ref->w-1, _first, _last);
 		}
 		
-		return found && !popup_tile_move_dlg(msg, oss.str().data());
-	}
-	
-	void add_diff(int diff)
-	{
-		for(size_t indx = 0; indx < move_refs.size(); ++indx)
+		for(size_t q = 0; i == ti_none && q < ref->extra_rects.size(); ++q)
 		{
-			if(!move_bits.get(indx))
-				continue;
-			
-			auto& ref = move_refs[indx];
-			if(ref.combo)
-				ref.combo->set_tile(*ref.tile + diff);
-			else *ref.tile += diff;
+			auto [ex_t,ex_w,ex_h] = ref->extra_rects[q];
+			if(rect)
+				i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _l, _t, _w, _h);
+			else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _first, _last);
+		}
+		
+		if(i != ti_none && ref->getTile() != 0)
+		{
+			if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
+			{
+				if(flood || oss.view().size() >= 65000)
+				{
+					if(!flood)
+						oss << "...\n...\n...\nmany others";
+					flood = true;
+				}
+				else oss << ref->name << '\n';
+				
+				found=true;
+			}
+			else if(i==ti_encompass)
+			{
+				move_bits.set(indx, true);
+			}
 		}
 	}
-};
+	
+	return found && !popup_tile_move_dlg(msg, oss.str().data());
+}
+void TileMoveList::add_diff(int diff)
+{
+	for(size_t indx = 0; indx < move_refs.size(); ++indx)
+	{
+		if(!move_bits.get(indx))
+			continue;
+		
+		move_refs[indx]->addTile(diff);
+	}
+}
+
 vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 {
 	bool BSZ2 = get_qr(qr_BSZELDA);
@@ -6282,8 +6263,7 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 			if(cmb.label.empty())
 				name = fmt::format("Combo {}", u);
 			else name = fmt::format("Combo {} ({})", u, cmb.label);
-			auto ref = combo_list->add(&cmb.o_tile, name);
-			if(ref) ref->combo = &combobuf[u];
+			combo_list->add_combo(&cmb, name);
 		}
 		
 		vec.push_back(std::move(combo_list));
@@ -6302,7 +6282,7 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 		{
 			auto id = bii[u].i;
 			itemdata& itm = itemsbuf[id];
-			item_list->add(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
+			item_list->add_tile(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
 		}
 		
 		vec.push_back(std::move(item_list));
@@ -6408,7 +6388,7 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 				break;
 			}
 			
-			wpn_list->add(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)+m,
+			wpn_list->add_tile(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)+m,
 				1, fmt::format("{} {}", biw[u].s, id));
 			
 			//Tile 54+55 are "Impact (not shown in sprite list)", for u==3 "Arrow" and u==9 "Boomerang"
@@ -6418,7 +6398,7 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 				static int32_t impact_tiles[2] = {54,54};
 				auto& tile = impact_tiles[u==3 ? 0 : 1];
 				tile = 54; //dummy tile, ensure it's correct
-				auto ref = wpn_list->add(&tile, 2, 1,
+				auto ref = wpn_list->add_tile(&tile, 2, 1,
 					fmt::format("{} Impact (not shown in sprite list)",(u==3)?"Arrow":"Boomerang"));
 				if(ref) ref->no_move = true;
 			}
@@ -6439,7 +6419,7 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 			#define ADD_PLAYER_SPRITE(ref_sprite, frames, name) \
 			do \
 			{ \
-				auto ref = player_list->add(&ref_sprite[spr_tile], \
+				auto ref = player_list->add_tile(&ref_sprite[spr_tile], \
 					(ref_sprite[spr_extend] < 2 ? 1 : 2) * frames, \
 					ref_sprite[spr_extend] < 1 ? 1 : 2, \
 					name); \
@@ -6574,12 +6554,12 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 			: "The tiles used by the following map styles will be partially or completely overwritten by this process."
 			);
 		mapstyle_list->move_refs.reserve(6);
-		mapstyle_list->add(&QMisc.colors.blueframe_tile, 2, 2, "Frame");
-		mapstyle_list->add(&QMisc.colors.HCpieces_tile, zinit.hcp_per_hc, 1, "Heart Container Piece");
-		mapstyle_list->add(&QMisc.colors.triforce_tile, BSZ2?2:1, BSZ2?3:1, "McGuffin Fragment");
-		mapstyle_list->add(&QMisc.colors.triframe_tile, BSZ2?7:6, BSZ2?7:3, "McGuffin Frame");
-		mapstyle_list->add(&QMisc.colors.overworld_map_tile, 5, 3, "Overworld Map");
-		mapstyle_list->add(&QMisc.colors.dungeon_map_tile, 5, 3, "Dungeon Map");
+		mapstyle_list->add_tile(&QMisc.colors.blueframe_tile, 2, 2, "Frame");
+		mapstyle_list->add_tile(&QMisc.colors.HCpieces_tile, zinit.hcp_per_hc, 1, "Heart Container Piece");
+		mapstyle_list->add_tile(&QMisc.colors.triforce_tile, BSZ2?2:1, BSZ2?3:1, "McGuffin Fragment");
+		mapstyle_list->add_tile(&QMisc.colors.triframe_tile, BSZ2?7:6, BSZ2?7:3, "McGuffin Frame");
+		mapstyle_list->add_tile(&QMisc.colors.overworld_map_tile, 5, 3, "Overworld Map");
+		mapstyle_list->add_tile(&QMisc.colors.dungeon_map_tile, 5, 3, "Dungeon Map");
 		
 		vec.push_back(std::move(mapstyle_list));
 	}
@@ -6592,7 +6572,7 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 			);
 		gameicon_list->move_refs.reserve(4);
 		for(int32_t u=0; u<4; u++)
-			gameicon_list->add(&QMisc.icons[u], fmt::format("Game Icon {}", u));
+			gameicon_list->add_tile(&QMisc.icons[u], fmt::format("Game Icon {}", u));
 		
 		vec.push_back(std::move(gameicon_list));
 	}
@@ -6607,10 +6587,10 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 		for(int32_t u=0; u<MAXDMAPS; u++)
 		{
 			auto& dm = DMaps[u];
-			dmap_list->add(&dm.minimap_1_tile, 5, 3, fmt::format("DMap {} - Minimap (Empty)", u));
-			dmap_list->add(&dm.minimap_2_tile, 5, 3, fmt::format("DMap {} - Minimap (Filled)", u));
-			dmap_list->add(&dm.largemap_1_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Empty)", u));
-			dmap_list->add(&dm.largemap_2_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Filled)", u));
+			dmap_list->add_tile(&dm.minimap_1_tile, 5, 3, fmt::format("DMap {} - Minimap (Empty)", u));
+			dmap_list->add_tile(&dm.minimap_2_tile, 5, 3, fmt::format("DMap {} - Minimap (Filled)", u));
+			dmap_list->add_tile(&dm.largemap_1_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Empty)", u));
+			dmap_list->add_tile(&dm.largemap_2_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Filled)", u));
 		}
 		
 		vec.push_back(std::move(dmap_list));
@@ -6658,7 +6638,7 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 					continue;
 				}
 				
-				auto ref = enemy_list->add(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", u, bie[u].s));
+				auto ref = enemy_list->add_tile(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", u, bie[u].s));
 				
 				if(!ref)
 					continue;
@@ -6691,11 +6671,11 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 				{
 					continue;
 				}
-				enemy_list->add(&enemy.tile, enemy.width, enemy.height, fmt::format("Enemy {} ({}) 'Old'", u, bie[u].s));
+				enemy_list->add_tile(&enemy.tile, enemy.width, enemy.height, fmt::format("Enemy {} ({}) 'Old'", u, bie[u].s));
 				
 				if(guysbuf[bie[u].i].s_tile!=0)
 				{
-					enemy_list->add(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
+					enemy_list->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
 				}
 			}
 		}
@@ -6712,30 +6692,33 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 		
 		for(auto q = 0; q < subscreens_active.size(); ++q)
 		{
-			vector<TileRef> v;
-			subscreens_active[q].collect_tiles(v);
-			for(TileRef& ref : v)
-				ref.name = fmt::format("Active Subscr {} - {}", q, ref.name);
-			auto& tile_vec = subscr_list->move_refs;
-			tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+			size_t indx = subscr_list->move_refs.size();
+			subscreens_active[q].collect_tiles(*subscr_list.get());
+			for(; indx < subscr_list->move_refs.size(); ++indx)
+			{
+				auto& ref = subscr_list->move_refs[indx];
+				ref->name = fmt::format("Active Subscr {} - {}", q, ref->name);
+			}
 		}
 		for(auto q = 0; q < subscreens_passive.size(); ++q)
 		{
-			vector<TileRef> v;
-			subscreens_passive[q].collect_tiles(v);
-			for(TileRef& ref : v)
-				ref.name = fmt::format("Passive Subscr {} - {}", q, ref.name);
-			auto& tile_vec = subscr_list->move_refs;
-			tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+			size_t indx = subscr_list->move_refs.size();
+			subscreens_passive[q].collect_tiles(*subscr_list.get());
+			for(; indx < subscr_list->move_refs.size(); ++indx)
+			{
+				auto& ref = subscr_list->move_refs[indx];
+				ref->name = fmt::format("Passive Subscr {} - {}", q, ref->name);
+			}
 		}
 		for(auto q = 0; q < subscreens_overlay.size(); ++q)
 		{
-			vector<TileRef> v;
-			subscreens_overlay[q].collect_tiles(v);
-			for(TileRef& ref : v)
-				ref.name = fmt::format("Overlay Subscr {} - {}", q, ref.name);
-			auto& tile_vec = subscr_list->move_refs;
-			tile_vec.insert(tile_vec.end(), v.begin(), v.end());
+			size_t indx = subscr_list->move_refs.size();
+			subscreens_overlay[q].collect_tiles(*subscr_list.get());
+			for(; indx < subscr_list->move_refs.size(); ++indx)
+			{
+				auto& ref = subscr_list->move_refs[indx];
+				ref->name = fmt::format("Overlay Subscr {} - {}", q, ref->name);
+			}
 		}
 		
 		vec.push_back(std::move(subscr_list));
@@ -6752,9 +6735,9 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 		{
 			MsgStr& str = MsgStrings[q];
 			bool fulltile = str.stringflags & STRINGFLAG_FULLTILE;
-			strings_list->add(&str.tile, fulltile ? (str.w/16_zf).getCeil() : 2,
+			strings_list->add_tile(&str.tile, fulltile ? (str.w/16_zf).getCeil() : 2,
 				fulltile ? (str.h/16_zf).getCeil() : 2, fmt::format("{} (BG): '{}'", q, util::snip(str.s,100)));
-			strings_list->add(&str.portrait_tile, str.portrait_tw, str.portrait_th,
+			strings_list->add_tile(&str.portrait_tile, str.portrait_tw, str.portrait_th,
 				fmt::format("{} (Port.): '{}'", q, util::snip(str.s,100)));
 		}
 		
@@ -6776,24 +6759,10 @@ void register_used_tiles()
 	{
 		for(auto &ref : list->move_refs)
 		{
-			if(ref.combo)
-			{
-				do
+			ref->forEach([&](int tile)
 				{
-					used_tile_table[ref.combo->tile] = true;
-					animate(*ref.combo, true);
-				}
-				while(ref.combo->tile != ref.combo->o_tile);
-			}
-			else
-			{
-				int t = *ref.tile + ref.offset();
-				for(int x = 0; x < ref.w; ++x)
-					for(int y = 0; y < ref.h; ++y)
-					{
-						used_tile_table[t + x + TILES_PER_ROW*y] = true;
-					}
-			}
+					used_tile_table[tile] = true;
+				});
 		}
 	}
 }

@@ -92,12 +92,10 @@ bool is_valid_format(byte format);
 int32_t tilesize(byte format);
 int32_t comboa_lmasktotal(byte layermask);
 
-struct TileRef
+struct BaseTileRef
 {
-	int32_t* tile;
-	uint w, h;
 	string name;
-	newcombo* combo;
+	uint w, h; //should never be 0
 	bool no_move;
 	int xoff, yoff;
 	vector<std::tuple<int,int,int>> extra_rects;
@@ -105,15 +103,104 @@ struct TileRef
 	{
 		return xoff+yoff*TILES_PER_ROW;
 	}
-	TileRef()
-		: tile(nullptr), w(1), h(1), name(), combo(nullptr), no_move(false), xoff(0), yoff(0)
+	virtual int32_t getTile() const = 0;
+	virtual void addTile(int32_t offs) = 0;
+	virtual void setTile(int32_t val) = 0;
+	virtual void forEach(std::function<void(int32_t)> proc) const = 0;
+	BaseTileRef(string name = "")
+		: name(name), w(1), h(1), no_move(false), xoff(0), yoff(0), extra_rects()
 	{}
-	TileRef(int32_t* tile, string name = "")
-		: tile(tile), w(1), h(1), name(name), combo(nullptr), no_move(false), xoff(0), yoff(0)
+	BaseTileRef(uint w, uint h, string name = "")
+		: name(name), w(zc_max(1,w)), h(zc_max(1,h)), no_move(false), xoff(0), yoff(0), extra_rects()
 	{}
-	TileRef(int32_t* tile, uint w, uint h, string name = "")
-		: tile(tile), w(zc_max(1,w)), h(zc_max(1,h)), name(name), combo(nullptr), no_move(false), xoff(0), yoff(0)
+};
+struct TileRefPtr : public BaseTileRef
+{
+	int32_t* tile;
+	int32_t getTile() const override {return *tile;}
+	void addTile(int32_t offs) override {*tile += offs;}
+	void setTile(int32_t val) override {*tile = val;}
+	void forEach(std::function<void(int32_t)> proc) const override;
+	TileRefPtr()
+		: BaseTileRef(), tile(nullptr)
 	{}
+	TileRefPtr(int32_t* tile, string name = "")
+		: BaseTileRef(name), tile(tile)
+	{}
+	TileRefPtr(int32_t* tile, uint w, uint h, string name = "")
+		: BaseTileRef(w,h,name), tile(tile)
+	{}
+};
+struct TileRefCombo : public BaseTileRef
+{
+	newcombo* combo;
+	int32_t getTile() const override {return combo->o_tile;}
+	void addTile(int32_t offs) override {combo->set_tile(combo->o_tile + offs);}
+	void setTile(int32_t val) override {combo->set_tile(val);}
+	void forEach(std::function<void(int32_t)> proc) const override;
+	TileRefCombo()
+		: BaseTileRef(), combo(nullptr)
+	{}
+	TileRefCombo(newcombo* combo, string name = "")
+		: BaseTileRef(name), combo(combo)
+	{}
+	TileRefCombo(newcombo* combo, uint w, uint h, string name = "")
+		: BaseTileRef(w,h,name), combo(combo)
+	{}
+};
+/* TODO: SCCs?
+struct TileRefSCC : public BaseTileRef
+{
+	int32_t getTile() const override {assert(false); return 0;}
+	void addTile(int32_t offs) override {assert(false);}
+	void setTile(int32_t val) override {assert(false);}
+	void forEach(std::function<void(int32_t)> proc) const override {}
+	TileRefSCC()
+		: BaseTileRef()
+	{}
+	TileRefSCC(string name = "")
+		: BaseTileRef(name)
+	{}
+	TileRefSCC(uint w, uint h, string name = "")
+		: BaseTileRef(w,h,name)
+	{}
+};*/
+
+struct TileMoveList
+{
+	vector<std::unique_ptr<BaseTileRef>> move_refs;
+	bitstring move_bits;
+	string msg;
+	
+	TileMoveList() = default;
+	TileMoveList(string msg) : msg(msg) {}
+	
+	template<class... Args>
+	TileRefPtr* add_tile(int32_t* tile, Args&&... args)
+	{
+		if(!tile || !*tile)
+			return nullptr;
+		auto ptr = std::make_unique<TileRefPtr>(tile, args...);
+		auto ret = ptr.get();
+		move_refs.emplace_back(std::move(ptr));
+		return ret;
+	}
+	template<class... Args>
+	TileRefCombo* add_combo(newcombo* combo, Args&&... args)
+	{
+		if(!combo || !combo->o_tile)
+			return nullptr;
+		auto ptr = std::make_unique<TileRefCombo>(combo, args...);
+		auto ret = ptr.get();
+		move_refs.emplace_back(std::move(ptr));
+		return ret;
+	}
+	
+	
+	#ifdef IS_EDITOR
+	bool process(bool rect, bool is_dest, int _l, int _t, int _w, int _h, int _first, int _last);
+	void add_diff(int diff);
+	#endif
 };
 
 #endif                                                      // _ZC_TILES_H_
