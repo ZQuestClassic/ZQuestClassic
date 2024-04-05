@@ -528,6 +528,40 @@ static bool has_implemented_register_invalidations(int reg)
 }
 
 template <typename T>
+static void for_every_command_register_arg_d(const ffscript& instr, T fn)
+{
+	std::array<bool, 8> r{}, w{};
+
+	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
+	{
+		if (reg >= 8)
+			continue;
+
+		r[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::READ_REG;
+		w[reg] |= rw == ARGTY::READWRITE_REG || rw == ARGTY::WRITE_REG;
+	}
+
+	for_every_command_register_arg(instr, [&](bool read, bool write, int reg, int argn){
+		for (auto reg2 : get_register_dependencies(reg))
+			if (reg2 < 8) r[reg2] |= true;
+
+		if (reg >= 8)
+			return;
+
+		r[reg] |= read;
+		w[reg] |= write;
+	});
+
+	for (int i = 0; i < 8; i++)
+	{
+		bool read = r[i];
+		bool write = w[i];
+		if (read || write)
+			fn(read, write, i);
+	}
+}
+
+template <typename T>
 static void for_every_command_register_arg_include_indices(const ffscript& instr, T fn)
 {
 	for (auto [reg, rw] : get_command_implicit_dependencies(instr.command))
@@ -2358,13 +2392,13 @@ static void optimize_dead_code(OptContext& ctx)
 			if (command == RETURNFUNC)
 				returns = true;
 
-			for_every_command_register_arg_include_indices(C(i), [&](bool read, bool write, int reg, int argn){
-				if (read && reg < D(8))
+			for_every_command_register_arg_d(C(i), [&](bool read, bool write, int reg){
+				if (read)
 				{
 					if (!(kill & (1 << reg)))
 						gen |= 1 << reg;
 				}
-				if (write && reg < D(8))
+				if (write)
 					kill |= 1 << reg;
 			});
 		}
@@ -2408,8 +2442,8 @@ static void optimize_dead_code(OptContext& ctx)
 		pc_t i = final_pc;
 		while (true)
 		{
-			for_every_command_register_arg_include_indices(C(i), [&](bool read, bool write, int reg, int argn){
-				if (write && reg < D(8))
+			for_every_command_register_arg_d(C(i), [&](bool read, bool write, int reg){
+				if (write)
 				{
 					if (!(live & (1 << reg)))
 					{
@@ -2419,7 +2453,7 @@ static void optimize_dead_code(OptContext& ctx)
 					}
 					live &= ~(1 << reg);
 				}
-				if (read && reg < D(8))
+				if (read)
 					live |= 1 << reg;
 			});
 

@@ -360,8 +360,7 @@ class CLIPlayerInterface:
             output_dir,
             '-script-runtime-debug-folder',
             str(output_dir / 'zscript-debug'),
-            # TODO: restore (class construction broken by dead code opt, see gc zplay).
-            # '-optimize-zasm',
+            '-optimize-zasm',
         ]
 
         if extra_args:
@@ -454,8 +453,7 @@ class WebPlayerInterface:
         extra_args = [
             '-replay-exit-when-done',
             '-show-fps',
-            # TODO: restore
-            # '-optimize-zasm',
+            '-optimize-zasm',
         ]
         if ctx.extra_args:
             extra_args.extend(ctx.extra_args)
