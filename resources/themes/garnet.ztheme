@@ -1,42 +1,21 @@
 [Theme]
-////////////////////////////////////////////////////////
-// VGA Colours 1 to 8
-////////////////////////////////////////////////////////
-dvc1_r = 52
-dvc1_g = 56
-dvc1_b = 63
+color_1 = D0E0FC
+color_2 = C8B4A0
+color_3 = F07450
+color_4 = DC4034
+color_5 = D01438
+color_6 = 182038
+color_7 = 100420
+color_8 = 0
+ztheme_ver = 1
 
-dvc2_r = 50
-dvc2_g = 45
-dvc2_b = 40
 
-dvc3_r = 60
-dvc3_g = 29
-dvc3_b = 20
 
-dvc4_r = 55
-dvc4_g = 16
-dvc4_b = 13	
 
-dvc5_r = 52
-dvc5_g = 5
-dvc5_b = 14
 
-dvc6_r = 6
-dvc6_g = 8
-dvc6_b = 14
 
-dvc7_r = 4
-dvc7_g = 1
-dvc7_b = 8
 
-dvc8_r = 0
-dvc8_g = 0
-dvc8_b = 0
 
-////////////////////////////////////////////////////////
-// System Elements
-////////////////////////////////////////////////////////
 jcbox = 5		//Box BG
 jclight = 3		//Box Outlines (Lightest to darkest)
 jcmedlt = 4
@@ -51,7 +30,7 @@ jctextfg = 2		//Radio Button FG
 jcselbg = 2		//Menu Selection BG
 jcselfg = 6		//Menu Selection Text
 
-jccursormisc = 		//Mouse Bottom Edge
-jccursoroutline = 	//Mouse Left/Right Edges
-jccursorlight = 	//Mouse Core, Light Half
-jccursordark = 		//Mouse Core, Dark Half
+jccursormisc = 1
+jccursoroutline = 1
+jccursorlight = 1
+jccursordark = 1
