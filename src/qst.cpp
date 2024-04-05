@@ -13672,1362 +13672,1110 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		}
     }
 	
-    
-    if(guyversion<=2)
-    {
-        return readherosprites2(f, guyversion==2?0:-1, 0);
-    }
-    
-    if(guyversion > 3)
-    {
-        guydata tempguy;
-        
-        for(int32_t i=0; i<MAXGUYS; i++)
-        {
-            if(guyversion < 23)   // May 2012 : 512 max enemies
-            {
-                if(i >= OLDBETAMAXGUYS)
-                {
-                    memset(&guysbuf[i], 0, sizeof(guydata));
-                    continue;
-                }
-            }
-            
-            memset(&tempguy, 0, sizeof(guydata));
-            
-            if(!p_igetl(&(tempguy.flags),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetl(&(tempguy.flags2),f))
-            {
-                return qe_invalid;
-            }
-            
-	    if ( guyversion >= 36 ) //expanded tiles
-	    {
-		    if(!p_igetl(&(tempguy.tile),f))
-		    {
-			return qe_invalid;
-		    }
-	    }
-	    else
-	    {
-		    if(!p_igetw(&(tempguy.tile),f))
-		    {
-			return qe_invalid;
-		    }
-	    }    
-            if(!p_getc(&(tempguy.width),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.height),f))
-            {
-                return qe_invalid;
-            }
-            
-	    if ( guyversion >= 36 ) //expanded tiles
-	    {
-		    if(!p_igetl(&(tempguy.s_tile),f))
-		    {
-			return qe_invalid;
-		    }
-	    }
-	    else
-	    {
-		    if(!p_igetw(&(tempguy.s_tile),f))
-		    {
-			return qe_invalid;
-		    }
-	    }
-	    
-            if(!p_getc(&(tempguy.s_width),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.s_height),f))
-            {
-                return qe_invalid;
-            }
-            
-	    if ( guyversion >= 36 ) //expanded tiles
-	    {
-		    if(!p_igetl(&(tempguy.e_tile),f))
-		    {
-			return qe_invalid;
-		    }
-	    }
-	    else
-	    {
-		    if(!p_igetw(&(tempguy.e_tile),f))
-		    {
-			return qe_invalid;
-		    }
-	    }
-	    
-            if(!p_getc(&(tempguy.e_width),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.e_height),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.hp),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.family),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(guyversion < 9 && (i==eDKNUT1 || i==eDKNUT2 || i==eDKNUT3 || i==eDKNUT4 || i==eDKNUT5)) // Whoops, forgot about Darknuts...
-            {
-                if(get_qr(qr_NEWENEMYTILES))
-                {
-                    tempguy.s_tile=tempguy.e_tile+120;
-                    tempguy.s_width=tempguy.e_width;
-                    tempguy.s_height=tempguy.e_height;
-                }
-                else tempguy.s_tile=860;
-            }
-            
-            if(!p_igetw(&(tempguy.cset),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.anim),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.e_anim),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.frate),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.e_frate),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(guyversion < 13)  // April 2009
-            {
-                if(get_bit(deprecated_rules, qr_SLOWENEMYANIM_DEP))
-                {
-                    tempguy.frate *= 2;
-                    tempguy.e_frate *= 2;
-                }
-            }
-            
-            if(guyversion < 14)  // May 1 2009
-            {
-                if(tempguy.anim==a2FRMSLOW)
-                {
-                    tempguy.anim=a2FRM;
-                    tempguy.frate *= 2;
-                }
-                
-                if(tempguy.e_anim==a2FRMSLOW)
-                {
-                    tempguy.e_anim=a2FRM;
-                    tempguy.e_frate *= 2;
-                }
-                
-                if(tempguy.anim==aFLIPSLOW)
-                {
-                    tempguy.anim=aFLIP;
-                    tempguy.frate *= 2;
-                }
-                
-                if(tempguy.e_anim==aFLIPSLOW)
-                {
-                    tempguy.e_anim=aFLIP;
-                    tempguy.e_frate *= 2;
-                }
-                
-                if(tempguy.anim == aNEWDWALK) tempguy.anim = a4FRM4DIR;
-                
-                if(tempguy.e_anim == aNEWDWALK) tempguy.e_anim = a4FRM4DIR;
-                
-                if(tempguy.anim == aNEWPOLV || tempguy.anim == a4FRM3TRAP)
-                {
-                    tempguy.anim=a4FRM4DIR;
-                    tempguy.s_tile=(get_qr(qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
-                }
-                
-                if(tempguy.e_anim == aNEWPOLV || tempguy.e_anim == a4FRM3TRAP)
-                {
-                    tempguy.e_anim=a4FRM4DIR;
-                    tempguy.s_tile=(get_qr(qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
-                }
-            }
-            
-            if(!p_igetw(&(tempguy.dp),f))
-            {
-                return qe_invalid;
-            }
-            
-            //correction for guy fire
-            if(guyversion < 6)
-            {
-                if(i == gFIRE)
-                    tempguy.dp = 2;
-            }
-            
-            if(!p_igetw(&(tempguy.wdp),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.weapon),f))
-            {
-                return qe_invalid;
-            }
-            
-            //correction for bosses using triple, "rising" fireballs
-            if(guyversion < 5)
-            {
-                if(i == eLAQUAM || i == eRAQUAM || i == eGOHMA1 || i == eGOHMA2 ||
-                        i == eGOHMA3 || i == eGOHMA4)
-                {
-                    if(tempguy.weapon == ewFireball)
-                        tempguy.weapon = ewFireball2;
-                }
-            }
-            
-            if(!p_igetw(&(tempguy.rate),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.hrate),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.step),f))
-            {
-                return qe_invalid;
-            }
-            
-            // HIGHLY UNORTHODOX UPDATING THING, part 2
-            if(fixpolsvoice && tempguy.family==eePOLSV)
-            {
-                tempguy.step /= 2;
-            }
-            
-            if(!p_igetw(&(tempguy.homing),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.grumble),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.item_set),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(guyversion>=22) // Version 22: Expand misc attributes to 32 bits
-            {
-                if(!p_igetl(&(tempguy.misc1),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc2),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc3),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc4),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc5),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc6),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc7),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc8),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc9),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc10),f))
-                {
-                    return qe_invalid;
-                }
-            }
-            else
-            {
-                int16_t tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc1=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc2=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc3=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc4=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc5=tempMisc;
-                
-                if(guyversion < 13)  // April 2009 - a tiny Wizzrobe update
-                {
-                    if(tempguy.family == eeWIZZ && !(tempguy.misc1))
-                        tempguy.misc5 = 74;
-                }
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc6=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc7=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc8=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc9=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc10=tempMisc;
-            }
-            
-            if(!p_igetw(&(tempguy.bgsfx),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.bosspal),f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.extend),f))
-            {
-                return qe_invalid;
-            }
-            
-	    //! Enemy Defences
-	    
-	    //If a 2.50 quest, use only the 2.5 defences. 
-            if(guyversion >= 16 )  // November 2009 - Super Enemy Editor
-            {
-                for(int32_t j=0; j<edefLAST; j++)
-                {
-                    if(!p_getc(&(tempguy.defense[j]),f))
-                    {
-                        return qe_invalid;
-                    }
-                }
-		//then copy the generic script defence to all the new script defences
-		
-            }
-	    
-	    
-	    
-            
-            if(guyversion >= 18)
-            {
-                if(!p_getc(&(tempguy.hitsfx),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&(tempguy.deadsfx),f))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(guyversion >= 22)
-            {
-                if(!p_igetl(&(tempguy.misc11),f))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc12),f))
-                {
-                    return qe_invalid;
-                }
-            }
-            else if(guyversion >= 19)
-            {
-                int16_t tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc11=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc12=tempMisc;
-            }
-	    
-	    //If a 2.54 or later quest, use all of the defences. 
-	    if(guyversion > 24) // Add new guyversion conditional statement 
-            {
-		for(int32_t j=edefLAST; j<edefLAST255; j++)
-                {
-                    if(!p_getc(&(tempguy.defense[j]),f))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-	    
-	    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
-            {
-		for(int32_t j=edefSCRIPT01; j<=edefSCRIPT10; j++)
-                {
-                    tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
-                }
-            }
-	    
-	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
-	    if(guyversion > 25)
-	    {
-		    if(!p_igetl(&(tempguy.txsz),f))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.tysz),f))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hxsz),f))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hysz),f))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hzsz),f))
-                    {
-                        return qe_invalid;
-                    }
-		    /* Is it safe to read a fixed with getl, or do I need to typecast it? -Z
-		   
-		    */
-	    }
-	    //More Enemy Editor vars for 2.60
-	    if(guyversion > 26)
-	    {
-		    if(!p_igetl(&(tempguy.hxofs),f))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hyofs),f))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.xofs),f))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.yofs),f))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.zofs),f))
-                    {
-                        return qe_invalid;
-                    }
-	    }
-	    
-	    if(guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
-            {
-		tempguy.wpnsprite = 0;
-            }
-	    
-	    if(guyversion > 27)
-	    {
-	        if(!p_igetl(&(tempguy.wpnsprite),f))
-                    {
-                        return qe_invalid;
-                    }
-	    }
-	    if(guyversion <= 28) // Port over generic script settings from old quests in the new editor. 
-            {
-		tempguy.SIZEflags = 0;
-            }
-	    if(guyversion > 28)
-	    {
-		if(!p_igetl(&(tempguy.SIZEflags),f))
-		    {
-			return qe_invalid;
-		    }
-		
-	    }
-	    if(guyversion < 30) // Port over generic script settings from old quests in the new editor. 
-            {
-		tempguy.frozentile = 0;
-		tempguy.frozencset = 0;
-		tempguy.frozenclock = 0;
-		for ( int32_t q = 0; q < 10; q++ ) tempguy.frozenmisc[q] = 0;
-            }
-	    if(guyversion >= 30)
-	    {
-		if(!p_igetl(&(tempguy.frozentile),f))
+	for(int32_t i=0; i<MAXGUYS; i++)
+	{
+		guydata _temp_guy;
+		guydata& tempguy = guyversion > 3 ? _temp_guy : guysbuf[i];
+		if(guyversion > 3 && (i < OLDBETAMAXGUYS || guyversion >= 23)) //v23 - May 2012 : 512 max enemies
 		{
-			return qe_invalid;
-		}  
-		if(!p_igetl(&(tempguy.frozencset),f))
-		{
-			return qe_invalid;
-		}  
-		if(!p_igetl(&(tempguy.frozenclock),f))
-		{
-			return qe_invalid;
-		}  
-		for ( int32_t q = 0; q < 10; q++ ) {
-			if(!p_igetw(&(tempguy.frozenmisc[q]),f))
-			{
+			if(!p_igetl(&(tempguy.flags),f))
 				return qe_invalid;
-			}
-		}
-		
-	    }
-	    
-	    if(guyversion >= 34)
-	    {
-		if(!p_igetw(&(tempguy.firesfx),f))
-		{
-			return qe_invalid;
-		}  
-		if(!p_igetl(&(tempguy.misc16),f))
-		{
-			return qe_invalid;
-		}  
-		if(!p_igetl(&(tempguy.misc17),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc18),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc19),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc20),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc21),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc22),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc23),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc24),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc25),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc26),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc27),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc28),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc29),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc30),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc31),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc32),f))
-		{
-			return qe_invalid;
-		} 
-		
-		for ( int32_t q = 0; q < 32; q++ ) {
-			if(!p_igetl(&(tempguy.movement[q]),f))
-			{
+			
+			if(!p_igetl(&(tempguy.flags2),f))
 				return qe_invalid;
-			}
-		}
-		for ( int32_t q = 0; q < 32; q++ ) {
-			if(!p_igetl(&(tempguy.new_weapon[q]),f))
+			
+			if ( guyversion >= 36 ) //expanded tiles
 			{
-				return qe_invalid;
-			}
-		}
-		if(!p_igetw(&(tempguy.script),f))
-		{
-			return qe_invalid;
-		} 
-                //al_trace("NPC Script ID is: %d\n",tempguy.script);
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			if(!p_igetl(&(tempguy.initD[q]),f))
-			{
-				return qe_invalid;
-			} 			
-		}
-		for ( int32_t q = 0; q < 2; q++ )
-		{
-			if(!p_igetl(&(tempguy.initA[q]),f))
-			{
-				return qe_invalid;
-			} 			
-		}
-		
-	    }
-	    
-	    if(guyversion >= 37)
-	    {
-		if(!p_igetl(&(tempguy.editorflags),f))
-		{
-			return qe_invalid;
-		}     
-	    }
-	    if ( guyversion < 37 ) { tempguy.editorflags = 0; }
-	    if(guyversion >= 38)
-	    {
-		if(!p_igetl(&(tempguy.misc13),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc14),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.misc15),f))
-		{
-			return qe_invalid;
-		}  
-		   
-	    }
-	    if ( guyversion < 38 ) 
-	    { 
-		tempguy.misc13 = 0; 
-		tempguy.misc14 = 0; 
-		tempguy.misc15 = 0; 
-	    }
-	    
-	    if ( guyversion >= 39 )
-	    {
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			for ( int32_t w = 0; w < 65; w++ )
-			{
-				if(!p_getc(&(tempguy.initD_label[q][w]),f))
-				{
+				if(!p_igetl(&(tempguy.tile),f))
 					return qe_invalid;
-				} 
 			}
-			for ( int32_t w = 0; w < 65; w++ )
+			else
 			{
-				if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f))
-				{
+				if(!p_igetw(&(tempguy.tile),f))
 					return qe_invalid;
-				} 
-			}
-		}
-		    
-		    
-	    }
-	    if ( guyversion < 39 ) //apply old InitD strings to both
-	    {
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			sprintf(tempguy.initD_label[q],"InitD[%d]",q);
-			sprintf(tempguy.weapon_initD_label[q],"InitD[%d]",q);
-		}
-	    }
-	    if ( guyversion >= 40 )
-	    {
-		    if(!p_igetw(&(tempguy.weaponscript),f))
-		    {
+			}    
+			if(!p_getc(&(tempguy.width),f))
 				return qe_invalid;
-		    } 
-	    }
-	    if ( guyversion < 40 ) 
-	    {
-		    tempguy.weaponscript = 0;
-	    }
-	    //eweapon script InitD
-	    if ( guyversion >= 41 )
-	    {
-		    for ( int32_t q = 0; q < 8; q++ )
-		    {
-			    if(!p_igetl(&(tempguy.weap_initiald[q]),f))
-			    {
-					return qe_invalid;
-			    } 
-		    }
-		    if ( guy_cversion < 4 )
-		    {
-			if ( tempguy.family == eeKEESE )
+			
+			if(!p_getc(&(tempguy.height),f))
+				return qe_invalid;
+			
+			if ( guyversion >= 36 ) //expanded tiles
 			{
-
-				if ( !tempguy.misc1 )
+				if(!p_igetl(&(tempguy.s_tile),f))
+					return qe_invalid;
+			}
+			else
+			{
+				if(!p_igetw(&(tempguy.s_tile),f))
+					return qe_invalid;
+			}
+		
+			if(!p_getc(&(tempguy.s_width),f))
+				return qe_invalid;
+			
+			if(!p_getc(&(tempguy.s_height),f))
+				return qe_invalid;
+			
+			if ( guyversion >= 36 ) //expanded tiles
+			{
+				if(!p_igetl(&(tempguy.e_tile),f))
+					return qe_invalid;
+			}
+			else
+			{
+				if(!p_igetw(&(tempguy.e_tile),f))
+					return qe_invalid;
+			}
+		
+			if(!p_getc(&(tempguy.e_width),f))
+				return qe_invalid;
+			
+			if(!p_getc(&(tempguy.e_height),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.hp),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.family),f))
+				return qe_invalid;
+			
+			if(guyversion < 9 && (i==eDKNUT1 || i==eDKNUT2 || i==eDKNUT3 || i==eDKNUT4 || i==eDKNUT5)) // Whoops, forgot about Darknuts...
+			{
+				if(get_qr(qr_NEWENEMYTILES))
 				{
-					tempguy.misc16 = 120;
-					tempguy.misc17 = 16;
-					
+					tempguy.s_tile=tempguy.e_tile+120;
+					tempguy.s_width=tempguy.e_width;
+					tempguy.s_height=tempguy.e_height;
+				}
+				else tempguy.s_tile=860;
+			}
+			
+			if(!p_igetw(&(tempguy.cset),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.anim),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.e_anim),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.frate),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.e_frate),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.dp),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.wdp),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.weapon),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.rate),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.hrate),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.step),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.homing),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.grumble),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.item_set),f))
+				return qe_invalid;
+			
+			if(guyversion>=22) // Version 22: Expand misc attributes to 32 bits
+			{
+				if(!p_igetl(&(tempguy.misc1),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc2),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc3),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc4),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc5),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc6),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc7),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc8),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc9),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc10),f))
+					return qe_invalid;
+			}
+			else
+			{
+				int16_t tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc1=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc2=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc3=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc4=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc5=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc6=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc7=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc8=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc9=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc10=tempMisc;
+			}
+			
+			if(!p_igetw(&(tempguy.bgsfx),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.bosspal),f))
+				return qe_invalid;
+			
+			if(!p_igetw(&(tempguy.extend),f))
+				return qe_invalid;
+			
+			//! Enemy Defences
+			
+			//If a 2.50 quest, use only the 2.5 defences. 
+			if(guyversion >= 16 )  // November 2009 - Super Enemy Editor
+			{
+				for(int32_t j=0; j<edefLAST; j++)
+				{
+					if(!p_getc(&(tempguy.defense[j]),f))
+						return qe_invalid;
+				}
+				//then copy the generic script defence to all the new script defences
+			}
+			
+			if(guyversion >= 18)
+			{
+				if(!p_getc(&(tempguy.hitsfx),f))
+					return qe_invalid;
+				
+				if(!p_getc(&(tempguy.deadsfx),f))
+					return qe_invalid;
+			}
+			
+			if(guyversion >= 22)
+			{
+				if(!p_igetl(&(tempguy.misc11),f))
+					return qe_invalid;
+				
+				if(!p_igetl(&(tempguy.misc12),f))
+					return qe_invalid;
+			}
+			else if(guyversion >= 19)
+			{
+				int16_t tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc11=tempMisc;
+				
+				if(!p_igetw(&tempMisc,f))
+					return qe_invalid;
+				
+				tempguy.misc12=tempMisc;
+			}
+			
+			//If a 2.54 or later quest, use all of the defences. 
+			if(guyversion > 24) // Add new guyversion conditional statement 
+			{
+				for(int32_t j=edefLAST; j<edefLAST255; j++)
+				{
+					if(!p_getc(&(tempguy.defense[j]),f))
+						return qe_invalid;
 				}
 			}
-			if ( tempguy.family == eePEAHAT )
-			{	
-				tempguy.misc16 = 80;
-				tempguy.misc17 = 16;
-			}
-
-			if ( tempguy.family == eeGHINI )
-			{	
-				tempguy.misc16 = 120;
-				tempguy.misc17 = 10;
-			}			
-			    
-		    }
-	    }
-	    
-	    
-	    
-	    //default weapon sprites (quest version < 2.54)
-	    //port over old defaults -Z
-	    if(guyversion < 32)
-	    {
-		if ( tempguy.wpnsprite <= 0 )
-		{
-			switch(tempguy.weapon)
-			{
-				case wNone:
-					tempguy.wpnsprite = 0; break;
-				
-				case wSword:
-				case wBeam:
-				case wBrang:
-				case wBomb:
-				case wSBomb:
-				case wLitBomb:
-				case wLitSBomb:
-				case wArrow:
-				case wFire:
-				case wWhistle:
-				case wBait:
-				case wWand:
-				case wMagic:
-				case wCatching:
-				case wWind:
-				case wRefMagic:
-				case wRefFireball:
-				case wRefRock:
-				case wHammer:
-				case wHookshot:
-				case wHSHandle:
-				case wHSChain:
-				case wSSparkle:
-				case wFSparkle:
-				case wSmack:
-				case wPhantom:
-				case wCByrna:
-				case wRefBeam:
-				case wStomp:
-				case lwMax:
-				case wScript1:
-				case wScript2:
-				case wScript3:
-				case wScript4:
-				case wScript5:
-				case wScript6:
-				case wScript7:
-				case wScript8:
-				case wScript9:
-				case wScript10:
-				case wIce:
-					//Cannot use any of these weapons yet. 
-					tempguy.wpnsprite = -1;
-					break;
-				
-				case wEnemyWeapons:
-				case ewFireball: tempguy.wpnsprite = 17; break;
-				
-				case ewArrow: tempguy.wpnsprite = 19; break;
-				case ewBrang: tempguy.wpnsprite = 4; break;
-				case ewSword: tempguy.wpnsprite = 20; break;
-				case ewRock: tempguy.wpnsprite = 18; break;
-				case ewMagic: tempguy.wpnsprite = 21; break;
-				case ewBomb: tempguy.wpnsprite = 78; break;
-				case ewSBomb: tempguy.wpnsprite = 79; break;
-				case ewLitBomb: tempguy.wpnsprite = 76; break;
-				case ewLitSBomb: tempguy.wpnsprite = 77; break;
-				case ewFireTrail: tempguy.wpnsprite = 80; break;
-				case ewFlame: tempguy.wpnsprite = 35; break;
-				case ewWind: tempguy.wpnsprite = 36; break;
-				case ewFlame2: tempguy.wpnsprite = 81; break;
-				case ewFlame2Trail: tempguy.wpnsprite = 82; break;
-				case ewIce: tempguy.wpnsprite = 83; break;
-				case ewFireball2: tempguy.wpnsprite = 17; break; //fireball (rising)
-				
-					
-				default: break; //No assign.
-			}
-		}
-	    }
-	    
-	    //default weapon fire sound (quest version < 2.54)
-	    //port over old defaults and zero new data. -Z
-	    if(guyversion < 34)
-	    {
-		for ( int32_t q = 0; q < 32; q++ )
-		{
-			tempguy.movement[q] = 0;
-			tempguy.new_weapon[q] = 0;
 			
-		}
-		
-		//NPC Script attributes.
-		tempguy.script = 0; //No scripted enemies existed. -Z
-		for ( int32_t q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
-		for ( int32_t q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
-		
-		tempguy.misc16 = 0;
-		tempguy.misc17 = 0;
-		tempguy.misc18 = 0;
-		tempguy.misc19 = 0;
-		tempguy.misc20 = 0;
-		tempguy.misc21 = 0;
-		tempguy.misc22 = 0;
-		tempguy.misc23 = 0;
-		tempguy.misc24 = 0;
-		tempguy.misc25 = 0;
-		tempguy.misc26 = 0;
-		tempguy.misc27 = 0;
-		tempguy.misc28 = 0;
-		tempguy.misc29 = 0;
-		tempguy.misc30 = 0;
-		tempguy.misc31 = 0;
-		tempguy.misc32 = 0;
-
-		//old default sounds
-		if ( tempguy.firesfx <= 0 )
-		{
-			switch(tempguy.weapon)
+			//tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+			if(guyversion > 25)
 			{
-				case wNone:
-					tempguy.firesfx = 0; break;
-				
-				case wSword:
-				case wBeam:
-				case wBrang:
-				case wBomb:
-				case wSBomb:
-				case wLitBomb:
-				case wLitSBomb:
-				case wArrow:
-				case wFire:
-				case wWhistle:
-				case wBait:
-				case wWand:
-				case wMagic:
-				case wCatching:
-				case wWind:
-				case wRefMagic:
-				case wRefFireball:
-				case wRefRock:
-				case wHammer:
-				case wHookshot:
-				case wHSHandle:
-				case wHSChain:
-				case wSSparkle:
-				case wFSparkle:
-				case wSmack:
-				case wPhantom:
-				case wCByrna:
-				case wRefBeam:
-				case wStomp:
-				case lwMax:
-				case wScript1:
-				case wScript2:
-				case wScript3:
-				case wScript4:
-				case wScript5:
-				case wScript6:
-				case wScript7:
-				case wScript8:
-				case wScript9:
-				case wScript10:
-				case wIce:
-					//Cannot use any of these weapons yet. 
-					tempguy.firesfx = -1;
-					break;
-				
-				case wEnemyWeapons:
-				case ewFireball: tempguy.firesfx = 40; break;
-				
-				case ewArrow: tempguy.firesfx = 1; break; //Ghost.zh has 0?
-				case ewBrang: tempguy.firesfx = 4; break; //Ghost.zh has 0?
-				case ewSword: tempguy.firesfx = 20; break; //Ghost.zh has 0?
-				case ewRock: tempguy.firesfx = 51; break;
-				case ewMagic: tempguy.firesfx = 32; break;
-				case ewBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
-				case ewSBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
-				case ewLitBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
-				case ewLitSBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
-				case ewFireTrail: tempguy.firesfx = 13; break;
-				case ewFlame: tempguy.firesfx = 13; break;
-				case ewWind: tempguy.firesfx = 32; break;
-				case ewFlame2: tempguy.firesfx = 13; break;
-				case ewFlame2Trail: tempguy.firesfx = 13; break;
-				case ewIce: tempguy.firesfx = 44; break;
-				case ewFireball2: tempguy.firesfx = 40; break; //fireball (rising)
-				
-				//what about special attacks (e.g. summoning == 56)
-				default: break; //No assign.
+				if(!p_igetl(&(tempguy.txsz),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.tysz),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.hxsz),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.hysz),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.hzsz),f))
+					return qe_invalid;
 			}
-		}
-	    }
-	    
-	    //Port hardcoded hit sound to the enemy hitsfx defaults for older quests. 
-	    if(Header->zelda_version <= 0x250 || ( Header->zelda_version > 0x250 && guyversion < 35 ))
-	    {
-		    if ( tempguy.hitsfx == 0 ) tempguy.hitsfx = 11;
-	    }
-	    //Keese and bat halt rates.
-	    if ( guyversion < 42 && guy_cversion < 4  ) 
-	    {
-		    
-			if ( tempguy.family == eeKEESE )
+			//More Enemy Editor vars for 2.60
+			if(guyversion > 26)
 			{
-
-				if ( !tempguy.misc1 )
-				{
-					tempguy.misc16 = 120;
-					tempguy.misc17 = 16;
-					
+				if(!p_igetl(&(tempguy.hxofs),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.hyofs),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.xofs),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.yofs),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.zofs),f))
+					return qe_invalid;
+			}
+			
+			if(guyversion > 27)
+			{
+				if(!p_igetl(&(tempguy.wpnsprite),f))
+					return qe_invalid;
+			}
+			
+			if(guyversion > 28)
+				if(!p_igetl(&(tempguy.SIZEflags),f))
+					return qe_invalid;
+			
+			if(guyversion >= 30)
+			{
+				if(!p_igetl(&(tempguy.frozentile),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.frozencset),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.frozenclock),f))
+					return qe_invalid;
+				for ( int32_t q = 0; q < 10; q++ ) {
+					if(!p_igetw(&(tempguy.frozenmisc[q]),f))
+						return qe_invalid;
 				}
 			}
-			if ( tempguy.family == eePEAHAT )
-			{	
-				tempguy.misc16 = 80;
-				tempguy.misc17 = 16;
-			}
-			if ( tempguy.family == eeGHINI )
-			{	
-				tempguy.misc16 = 120;
-				tempguy.misc17 = 10;
-			}			
-			    
-		    
-	    }
-		
-	    
-            //miscellaneous other corrections
-            //fix the mirror wizzrobe -DD
-            if(guyversion < 7)
-            {
-                if(i == eMWIZ)
-                {
-                    tempguy.misc2 = 0;
-                    tempguy.misc4 = 1;
-                }
-            }
-            
-            if(guyversion < 8)
-            {
-                if(i == eGLEEOK1 || i == eGLEEOK2 || i == eGLEEOK3 || i == eGLEEOK4 || i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
-                {
-                    // Some of these are deliberately different to NewDefault/defdata.cpp, by the way. -L
-                    tempguy.misc5 = 4; //neck length in segments
-                    tempguy.misc6 = 8; //neck offset from first body tile
-                    tempguy.misc7 = 40; //offset for each subsequent neck tile from the first neck tile
-                    tempguy.misc8 = 168; //head offset from first body tile
-                    tempguy.misc9 = 228; //flying head offset from first body tile
-                    
-                    if(i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
-                    {
-                        tempguy.misc6 += 10; //neck offset from first body tile
-                        tempguy.misc8 -= 12; //head offset from first body tile
-                    }
-                }
-            }
-            
-            if(guyversion < 10) // December 2007 - Dodongo CSet fix
-            {
-                if(get_bit(deprecated_rules,46) && tempguy.family==eeDONGO && tempguy.misc1==0)
-                    tempguy.bosspal = spDIG;
-            }
-            
-            if(guyversion < 11) // December 2007 - Spinning Tile fix
-            {
-                if(tempguy.family==eeSPINTILE)
-                {
-                    tempguy.flags |= guy_superman;
-                    tempguy.item_set = 0; // Don't drop items
-                    tempguy.step = 300;
-                }
-            }
-            
-            if(guyversion < 12) // October 2008 - Flashing Bubble, Rope 2, and Ghini 2 fix
-            {
-                if(get_bit(deprecated_rules, qr_NOROPE2FLASH_DEP))
-                {
-                    if(tempguy.family==eeROPE)
-                    {
-                        tempguy.flags2 &= ~guy_flashing;
-                    }
-                }
-                
-                if(get_bit(deprecated_rules, qr_NOBUBBLEFLASH_DEP))
-                {
-                    if(tempguy.family==eeBUBBLE)
-                    {
-                        tempguy.flags2 &= ~guy_flashing;
-                    }
-                }
-                
-                if((tempguy.family==eeGHINI)&&(tempguy.misc1))
-                {
-                    if(get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
-                    {
-                        tempguy.flags2 |= guy_blinking;
-                    }
-                    
-                    if(get_bit(deprecated_rules, qr_PHANTOMGHINI2_DEP))
-                    {
-                        tempguy.flags2 |= guy_transparent;
-                    }
-                }
-            }
-            
-            if(guyversion < 15) // July 2009 - Guy Fire and Fairy fix
-            {
-                if(i==gFIRE)
-                {
-                    tempguy.e_anim = aFLIP;
-                    tempguy.e_frate = 24;
-                }
-                
-                if(i==gFAIRY)
-                {
-                    tempguy.e_anim = a2FRM;
-                    tempguy.e_frate = 16;
-                }
-            }
-            
-            if(guyversion < 16)  // November 2009 - Super Enemy Editor part 1
-            {
-                if(i==0) Z_message("Updating guys to version 16...\n");
-                
-                update_guy_1(&tempguy);
-                
-                if(i==eMPOLSV)
-                {
-                    tempguy.defense[edefARROW] = edCHINK;
-                    tempguy.defense[edefMAGIC] = ed1HKO;
-                    tempguy.defense[edefREFMAGIC] = ed1HKO;
-                }
-            }
-            
-            if(guyversion < 17)  // December 2009
-            {
-                if(tempguy.family==eePROJECTILE)
-                {
-                    tempguy.misc1 = 0;
-                }
-            }
-            
-            if(guyversion < 18)  // January 2010
-            {
-                bool boss = (tempguy.family == eeAQUA || tempguy.family==eeDONGO || tempguy.family == eeMANHAN || tempguy.family == eeGHOMA || tempguy.family==eeDIG
-                             || tempguy.family == eeGLEEOK || tempguy.family==eePATRA || tempguy.family == eeGANON || tempguy.family==eeMOLD);
-                             
-                tempguy.hitsfx = (boss && tempguy.family != eeMOLD && tempguy.family != eeDONGO && tempguy.family != eeDIG) ? WAV_GASP : 0;
-                tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.misc10 == 0)) ? WAV_GASP : WAV_EDEAD;
-                
-                if(tempguy.family == eeAQUA)
-                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eRAQUAM].defense[j];
-                else if(tempguy.family == eeMANHAN)
-                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eMANHAN].defense[j];
-                else if(tempguy.family==eePATRA)
-                    for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
-                else if(tempguy.family==eeGHOMA)
-                {
-                    for(int32_t j=0; j<edefLAST; j++)
-                        tempguy.defense[j] = default_guys[eGOHMA1].defense[j];
-                        
-                    tempguy.defense[edefARROW] = ((tempguy.misc1==3) ? edCHINKL8 : (tempguy.misc1==2) ? edCHINKL4 : 0);
-                    
-                    if(tempguy.misc1==3 && !tempguy.weapon) tempguy.weapon = ewFlame;
-                    
-                    tempguy.misc1--;
-                }
-                else if(tempguy.family == eeGLEEOK)
-                {
-                    for(int32_t j=0; j<edefLAST; j++)
-                        tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
-                        
-                    if(tempguy.misc3==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
-                }
-                else if(tempguy.family == eeARMOS)
-                {
-                    tempguy.family=eeWALK;
-                    tempguy.hrate = 0;
-                    tempguy.misc10 = tempguy.misc1;
-                    tempguy.misc1 = tempguy.misc2 = tempguy.misc3 = tempguy.misc4 = tempguy.misc5 = tempguy.misc6 = tempguy.misc7 = tempguy.misc8 = 0;
-                    tempguy.misc9 = e9tARMOS;
-                }
-                else if(tempguy.family == eeGHINI && !tempguy.misc1)
-                {
-                    tempguy.family=eeWALK;
-                    tempguy.hrate = 0;
-                    tempguy.misc1 = tempguy.misc2 = tempguy.misc3 = tempguy.misc4 = tempguy.misc5 = tempguy.misc6 =
-                                                        tempguy.misc7 = tempguy.misc8 = tempguy.misc9 = tempguy.misc10 = 0;
-                }
-                
-                // Spawn animation flags
-                if(tempguy.family == eeWALK && (tempguy.flags2&cmbflag_armos || tempguy.flags2&cmbflag_ghini))
-                    tempguy.flags |= guy_fadeflicker;
-                else
-                    tempguy.flags &= 0x0F00000F; // Get rid of the unused flags!
-            }
-            
-            if(guyversion < 20)  // April 2010
-            {
-                if(tempguy.family == eeTRAP)
-                {
-                    tempguy.misc2 = tempguy.misc10;
-                    
-                    if(tempguy.misc10>=1)
-                    {
-                        tempguy.misc1++;
-                    }
-                    
-                    tempguy.misc10 = 0;
-                }
-                
-                // Bomb Blast fix
-                if(tempguy.weapon==ewBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
-                    tempguy.weapon = ewLitBomb;
-                else if(tempguy.weapon==ewSBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
-                    tempguy.weapon = ewLitSBomb;
-            }
-            
-            if(guyversion < 21)  // September 2011
-            {
-                if(tempguy.family == eeKEESE || tempguy.family == eeKEESETRIB)
-                {
-                    if(tempguy.family == eeKEESETRIB)
-                    {
-                        tempguy.family = eeKEESE;
-                        tempguy.misc2 = e2tKEESETRIB;
-                        tempguy.misc1 = 0;
-                    }
-                    
-                    tempguy.rate = 2;
-                    tempguy.hrate = 8;
-                    tempguy.homing = 0;
-                    tempguy.step= (tempguy.family == eeKEESE && tempguy.misc1 ? 100:62);
-                }
-                else if(tempguy.family == eePEAHAT || tempguy.family==eePATRA)
-                {
-                    if(tempguy.family == eePEAHAT)
-                    {
-                        tempguy.rate = 4;
-                        tempguy.step = 62;
-                    }
-                    else
-                        tempguy.step = 25;
-                        
-                    tempguy.hrate = 8;
-                    tempguy.homing = 0;
-                }
-                else if(tempguy.family == eeDIG || tempguy.family == eeMANHAN)
-                {
-                    if(tempguy.family == eeMANHAN)
-                        tempguy.step=50;
-                        
-                    tempguy.hrate = 16;
-                    tempguy.homing = 0;
-                }
-                else if(tempguy.family == eeGLEEOK)
-                {
-                    tempguy.rate = 2;
-                    tempguy.homing = 0;
-                    tempguy.hrate = 9;
-                    tempguy.step=89;
-                }
-                else if(tempguy.family == eeGHINI)
-                {
-                    tempguy.rate = 4;
-                    tempguy.hrate = 12;
-                    tempguy.step=62;
-                    tempguy.homing = 0;
-                }
-                
-                // Bigdig random rate fix
-                if(tempguy.family==eeDIG && tempguy.misc10==1)
-                {
-                    tempguy.rate = 2;
-                }
-            }
-            
-            if(guyversion < 24) // November 2012
-            {
-                if(tempguy.family==eeLANM)
-                    tempguy.misc3 = 1;
-                else if(tempguy.family==eeMOLD)
-                    tempguy.misc2 = 0;
-            }
-	    
-	    if(guyversion < 33) //Whistle defence did not exist before this version of 2.54. -Z
-	    {
-		if(tempguy.family!=eeDIG)
-		{
-			tempguy.defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally. 
-		}
 			
-	    }
-	    // does not seem to solve the issue!
-	    if ( Header->zelda_version <= 0x210 ) 
-	    {
-		al_trace("Detected version %d for dodongo patch.\n",Header->zelda_version);
-		if ( tempguy.family == eeDONGO ) 
-		{
-			tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
-		}
-	    }
-            
+			if(guyversion >= 34)
+			{
+				if(!p_igetw(&(tempguy.firesfx),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc16),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc17),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc18),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc19),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc20),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc21),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc22),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc23),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc24),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc25),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc26),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc27),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc28),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc29),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc30),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc31),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc32),f))
+					return qe_invalid;
+				
+				for ( int32_t q = 0; q < 32; q++ ) {
+					if(!p_igetl(&(tempguy.movement[q]),f))
+						return qe_invalid;
+				}
+				for ( int32_t q = 0; q < 32; q++ ) {
+					if(!p_igetl(&(tempguy.new_weapon[q]),f))
+						return qe_invalid;
+				}
+				if(!p_igetw(&(tempguy.script),f))
+					return qe_invalid;
+				//al_trace("NPC Script ID is: %d\n",tempguy.script);
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					if(!p_igetl(&(tempguy.initD[q]),f))
+						return qe_invalid;
+				}
+				for ( int32_t q = 0; q < 2; q++ )
+				{
+					if(!p_igetl(&(tempguy.initA[q]),f))
+						return qe_invalid;
+				}
+			}
+			
+			if(guyversion >= 37)
+			{
+				if(!p_igetl(&(tempguy.editorflags),f))
+					return qe_invalid;
+			}
+			
+			if(guyversion >= 38)
+			{
+				if(!p_igetl(&(tempguy.misc13),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc14),f))
+					return qe_invalid;
+				if(!p_igetl(&(tempguy.misc15),f))
+					return qe_invalid;
+			}
+			
+			if ( guyversion >= 39 )
+			{
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					for ( int32_t w = 0; w < 65; w++ )
+					{
+						if(!p_getc(&(tempguy.initD_label[q][w]),f))
+							return qe_invalid;
+					}
+					for ( int32_t w = 0; w < 65; w++ )
+					{
+						if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f))
+							return qe_invalid;
+					}
+				}
+			}
+			
+			if ( guyversion >= 40 )
+			{
+				if(!p_igetw(&(tempguy.weaponscript),f))
+					return qe_invalid;
+			}
+			
+			//eweapon script InitD
+			if ( guyversion >= 41 )
+			{
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					if(!p_igetl(&(tempguy.weap_initiald[q]),f))
+						return qe_invalid;
+				}
+				if ( guy_cversion < 4 )
+				{
+					if ( tempguy.family == eeKEESE )
+					{
+						if ( !tempguy.misc1 )
+						{
+							tempguy.misc16 = 120;
+							tempguy.misc17 = 16;
+						}
+					}
+					if ( tempguy.family == eePEAHAT )
+					{	
+						tempguy.misc16 = 80;
+						tempguy.misc17 = 16;
+					}
+					
+					if ( tempguy.family == eeGHINI )
+					{	
+						tempguy.misc16 = 120;
+						tempguy.misc17 = 10;
+					}
+				}
+			}
+			
 			if(guyversion >= 42)
 			{
 				if(guyversion >= 47)
 				{
 					if(!p_igetl(&(tempguy.moveflags),f))
-					{
 						return qe_invalid;
-					}
 				}
 				else
 				{
 					byte fl;
 					if(!p_getc(&fl,f))
-					{
 						return qe_invalid;
-					}
 					tempguy.moveflags = fl;
 				}
 			}
-			else
+			
+			if (guyversion > 44)
+			{
+				if(!p_getc(&(tempguy.spr_shadow),f))
+					return qe_invalid;
+				if(!p_getc(&(tempguy.spr_death),f))
+					return qe_invalid;
+				if(!p_getc(&(tempguy.spr_spawn),f))
+					return qe_invalid;
+			}
+		}
+		//Run regardless, for updating old enemies
+		{
+			if(guyversion < 13)  // April 2009
+			{
+				if(get_bit(deprecated_rules, qr_SLOWENEMYANIM_DEP))
+				{
+					tempguy.frate *= 2;
+					tempguy.e_frate *= 2;
+				}
+			}
+			
+			if(guyversion < 14)  // May 1 2009
+			{
+				if(tempguy.anim==a2FRMSLOW)
+				{
+					tempguy.anim=a2FRM;
+					tempguy.frate *= 2;
+				}
+				
+				if(tempguy.e_anim==a2FRMSLOW)
+				{
+					tempguy.e_anim=a2FRM;
+					tempguy.e_frate *= 2;
+				}
+				
+				if(tempguy.anim==aFLIPSLOW)
+				{
+					tempguy.anim=aFLIP;
+					tempguy.frate *= 2;
+				}
+				
+				if(tempguy.e_anim==aFLIPSLOW)
+				{
+					tempguy.e_anim=aFLIP;
+					tempguy.e_frate *= 2;
+				}
+				
+				if(tempguy.anim == aNEWDWALK) tempguy.anim = a4FRM4DIR;
+				
+				if(tempguy.e_anim == aNEWDWALK) tempguy.e_anim = a4FRM4DIR;
+				
+				if(tempguy.anim == aNEWPOLV || tempguy.anim == a4FRM3TRAP)
+				{
+					tempguy.anim=a4FRM4DIR;
+					tempguy.s_tile=(get_qr(qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
+				}
+				
+				if(tempguy.e_anim == aNEWPOLV || tempguy.e_anim == a4FRM3TRAP)
+				{
+					tempguy.e_anim=a4FRM4DIR;
+					tempguy.s_tile=(get_qr(qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
+				}
+			}
+			
+			//correction for guy fire
+			if(guyversion < 6)
+			{
+				if(i == gFIRE)
+					tempguy.dp = 2;
+			}
+			
+			//correction for bosses using triple, "rising" fireballs
+			if(guyversion < 5)
+			{
+				if(i == eLAQUAM || i == eRAQUAM || i == eGOHMA1 || i == eGOHMA2 ||
+						i == eGOHMA3 || i == eGOHMA4)
+				{
+					if(tempguy.weapon == ewFireball)
+						tempguy.weapon = ewFireball2;
+				}
+			}
+			
+			// HIGHLY UNORTHODOX UPDATING THING, part 2
+			if(fixpolsvoice && tempguy.family==eePOLSV)
+				tempguy.step /= 2;
+				
+			if(guyversion < 13)  // April 2009 - a tiny Wizzrobe update
+			{
+				if(tempguy.family == eeWIZZ && !(tempguy.misc1))
+					tempguy.misc5 = 74;
+			}
+			
+			if(guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
+			{
+				for(int32_t j=edefSCRIPT01; j<=edefSCRIPT10; j++)
+					tempguy.defense[j] = tempguy.defense[edefSCRIPT];
+			}
+			
+			if(guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
+				tempguy.wpnsprite = 0;
+			
+			if(guyversion <= 28) // Port over generic script settings from old quests in the new editor. 
+				tempguy.SIZEflags = 0;
+			
+			if(guyversion < 30) // Port over generic script settings from old quests in the new editor. 
+			{
+				tempguy.frozentile = 0;
+				tempguy.frozencset = 0;
+				tempguy.frozenclock = 0;
+				for ( int32_t q = 0; q < 10; q++ )
+					tempguy.frozenmisc[q] = 0;
+			}
+			
+			if ( guyversion < 37 )
+				tempguy.editorflags = 0;
+			
+			if ( guyversion < 38 ) 
+			{ 
+				tempguy.misc13 = 0;
+				tempguy.misc14 = 0;
+				tempguy.misc15 = 0;
+			}
+			
+			if ( guyversion < 39 ) //apply old InitD strings to both
+			{
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					sprintf(tempguy.initD_label[q],"InitD[%d]",q);
+					sprintf(tempguy.weapon_initD_label[q],"InitD[%d]",q);
+				}
+			}
+			
+			if ( guyversion < 40 ) 
+				tempguy.weaponscript = 0;
+			
+			//default weapon sprites (quest version < 2.54)
+			//port over old defaults -Z
+			if(guyversion < 32)
+			{
+				if ( tempguy.wpnsprite <= 0 )
+				{
+					switch(tempguy.weapon)
+					{
+						case wNone:
+							tempguy.wpnsprite = 0; break;
+						
+						case wSword:
+						case wBeam:
+						case wBrang:
+						case wBomb:
+						case wSBomb:
+						case wLitBomb:
+						case wLitSBomb:
+						case wArrow:
+						case wFire:
+						case wWhistle:
+						case wBait:
+						case wWand:
+						case wMagic:
+						case wCatching:
+						case wWind:
+						case wRefMagic:
+						case wRefFireball:
+						case wRefRock:
+						case wHammer:
+						case wHookshot:
+						case wHSHandle:
+						case wHSChain:
+						case wSSparkle:
+						case wFSparkle:
+						case wSmack:
+						case wPhantom:
+						case wCByrna:
+						case wRefBeam:
+						case wStomp:
+						case lwMax:
+						case wScript1:
+						case wScript2:
+						case wScript3:
+						case wScript4:
+						case wScript5:
+						case wScript6:
+						case wScript7:
+						case wScript8:
+						case wScript9:
+						case wScript10:
+						case wIce:
+							//Cannot use any of these weapons yet. 
+							tempguy.wpnsprite = -1;
+							break;
+						
+						case wEnemyWeapons:
+						case ewFireball: tempguy.wpnsprite = 17; break;
+						
+						case ewArrow: tempguy.wpnsprite = 19; break;
+						case ewBrang: tempguy.wpnsprite = 4; break;
+						case ewSword: tempguy.wpnsprite = 20; break;
+						case ewRock: tempguy.wpnsprite = 18; break;
+						case ewMagic: tempguy.wpnsprite = 21; break;
+						case ewBomb: tempguy.wpnsprite = 78; break;
+						case ewSBomb: tempguy.wpnsprite = 79; break;
+						case ewLitBomb: tempguy.wpnsprite = 76; break;
+						case ewLitSBomb: tempguy.wpnsprite = 77; break;
+						case ewFireTrail: tempguy.wpnsprite = 80; break;
+						case ewFlame: tempguy.wpnsprite = 35; break;
+						case ewWind: tempguy.wpnsprite = 36; break;
+						case ewFlame2: tempguy.wpnsprite = 81; break;
+						case ewFlame2Trail: tempguy.wpnsprite = 82; break;
+						case ewIce: tempguy.wpnsprite = 83; break;
+						case ewFireball2: tempguy.wpnsprite = 17; break; //fireball (rising)
+						
+							
+						default: break; //No assign.
+					}
+				}
+			}
+			
+			//default weapon fire sound (quest version < 2.54)
+			//port over old defaults and zero new data. -Z
+			if(guyversion < 34)
+			{
+				for ( int32_t q = 0; q < 32; q++ )
+				{
+					tempguy.movement[q] = 0;
+					tempguy.new_weapon[q] = 0;
+				}
+				
+				//NPC Script attributes.
+				tempguy.script = 0; //No scripted enemies existed. -Z
+				for ( int32_t q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
+				for ( int32_t q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
+				
+				tempguy.misc16 = 0;
+				tempguy.misc17 = 0;
+				tempguy.misc18 = 0;
+				tempguy.misc19 = 0;
+				tempguy.misc20 = 0;
+				tempguy.misc21 = 0;
+				tempguy.misc22 = 0;
+				tempguy.misc23 = 0;
+				tempguy.misc24 = 0;
+				tempguy.misc25 = 0;
+				tempguy.misc26 = 0;
+				tempguy.misc27 = 0;
+				tempguy.misc28 = 0;
+				tempguy.misc29 = 0;
+				tempguy.misc30 = 0;
+				tempguy.misc31 = 0;
+				tempguy.misc32 = 0;
+
+				//old default sounds
+				if ( tempguy.firesfx <= 0 )
+				{
+					switch(tempguy.weapon)
+					{
+						case wNone:
+							tempguy.firesfx = 0; break;
+						
+						case wSword:
+						case wBeam:
+						case wBrang:
+						case wBomb:
+						case wSBomb:
+						case wLitBomb:
+						case wLitSBomb:
+						case wArrow:
+						case wFire:
+						case wWhistle:
+						case wBait:
+						case wWand:
+						case wMagic:
+						case wCatching:
+						case wWind:
+						case wRefMagic:
+						case wRefFireball:
+						case wRefRock:
+						case wHammer:
+						case wHookshot:
+						case wHSHandle:
+						case wHSChain:
+						case wSSparkle:
+						case wFSparkle:
+						case wSmack:
+						case wPhantom:
+						case wCByrna:
+						case wRefBeam:
+						case wStomp:
+						case lwMax:
+						case wScript1:
+						case wScript2:
+						case wScript3:
+						case wScript4:
+						case wScript5:
+						case wScript6:
+						case wScript7:
+						case wScript8:
+						case wScript9:
+						case wScript10:
+						case wIce:
+							//Cannot use any of these weapons yet. 
+							tempguy.firesfx = -1;
+							break;
+						
+						case wEnemyWeapons:
+						case ewFireball: tempguy.firesfx = 40; break;
+						
+						case ewArrow: tempguy.firesfx = 1; break; //Ghost.zh has 0?
+						case ewBrang: tempguy.firesfx = 4; break; //Ghost.zh has 0?
+						case ewSword: tempguy.firesfx = 20; break; //Ghost.zh has 0?
+						case ewRock: tempguy.firesfx = 51; break;
+						case ewMagic: tempguy.firesfx = 32; break;
+						case ewBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
+						case ewSBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
+						case ewLitBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
+						case ewLitSBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
+						case ewFireTrail: tempguy.firesfx = 13; break;
+						case ewFlame: tempguy.firesfx = 13; break;
+						case ewWind: tempguy.firesfx = 32; break;
+						case ewFlame2: tempguy.firesfx = 13; break;
+						case ewFlame2Trail: tempguy.firesfx = 13; break;
+						case ewIce: tempguy.firesfx = 44; break;
+						case ewFireball2: tempguy.firesfx = 40; break; //fireball (rising)
+						
+						//what about special attacks (e.g. summoning == 56)
+						default: break; //No assign.
+					}
+				}
+			}
+			
+			//Port hardcoded hit sound to the enemy hitsfx defaults for older quests. 
+			if(Header->zelda_version <= 0x250 || ( Header->zelda_version > 0x250 && guyversion < 35 ))
+			{
+				if ( tempguy.hitsfx == 0 )
+					tempguy.hitsfx = 11;
+			}
+			//Keese and bat halt rates.
+			if ( guyversion < 42 && guy_cversion < 4  ) 
+			{
+				if ( tempguy.family == eeKEESE )
+				{
+					if ( !tempguy.misc1 )
+					{
+						tempguy.misc16 = 120;
+						tempguy.misc17 = 16;
+					}
+				}
+				if ( tempguy.family == eePEAHAT )
+				{	
+					tempguy.misc16 = 80;
+					tempguy.misc17 = 16;
+				}
+				if ( tempguy.family == eeGHINI )
+				{	
+					tempguy.misc16 = 120;
+					tempguy.misc17 = 10;
+				}
+			}
+			
+			//miscellaneous other corrections
+			//fix the mirror wizzrobe -DD
+			if(guyversion < 7)
+			{
+				if(i == eMWIZ)
+				{
+					tempguy.misc2 = 0;
+					tempguy.misc4 = 1;
+				}
+			}
+			
+			if(guyversion < 8)
+			{
+				if(i == eGLEEOK1 || i == eGLEEOK2 || i == eGLEEOK3 || i == eGLEEOK4 || i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
+				{
+					// Some of these are deliberately different to NewDefault/defdata.cpp, by the way. -L
+					tempguy.misc5 = 4; //neck length in segments
+					tempguy.misc6 = 8; //neck offset from first body tile
+					tempguy.misc7 = 40; //offset for each subsequent neck tile from the first neck tile
+					tempguy.misc8 = 168; //head offset from first body tile
+					tempguy.misc9 = 228; //flying head offset from first body tile
+					
+					if(i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
+					{
+						tempguy.misc6 += 10; //neck offset from first body tile
+						tempguy.misc8 -= 12; //head offset from first body tile
+					}
+				}
+			}
+			
+			if(guyversion < 10) // December 2007 - Dodongo CSet fix
+			{
+				if(get_bit(deprecated_rules,46) && tempguy.family==eeDONGO && tempguy.misc1==0)
+					tempguy.bosspal = spDIG;
+			}
+			
+			if(guyversion < 11) // December 2007 - Spinning Tile fix
+			{
+				if(tempguy.family==eeSPINTILE)
+				{
+					tempguy.flags |= guy_superman;
+					tempguy.item_set = 0; // Don't drop items
+					tempguy.step = 300;
+				}
+			}
+			
+			if(guyversion < 12) // October 2008 - Flashing Bubble, Rope 2, and Ghini 2 fix
+			{
+				if(get_bit(deprecated_rules, qr_NOROPE2FLASH_DEP))
+				{
+					if(tempguy.family==eeROPE)
+					{
+						tempguy.flags2 &= ~guy_flashing;
+					}
+				}
+				
+				if(get_bit(deprecated_rules, qr_NOBUBBLEFLASH_DEP))
+				{
+					if(tempguy.family==eeBUBBLE)
+					{
+						tempguy.flags2 &= ~guy_flashing;
+					}
+				}
+				
+				if((tempguy.family==eeGHINI)&&(tempguy.misc1))
+				{
+					if(get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
+					{
+						tempguy.flags2 |= guy_blinking;
+					}
+					
+					if(get_bit(deprecated_rules, qr_PHANTOMGHINI2_DEP))
+					{
+						tempguy.flags2 |= guy_transparent;
+					}
+				}
+			}
+			
+			if(guyversion < 15) // July 2009 - Guy Fire and Fairy fix
+			{
+				if(i==gFIRE)
+				{
+					tempguy.e_anim = aFLIP;
+					tempguy.e_frate = 24;
+				}
+				
+				if(i==gFAIRY)
+				{
+					tempguy.e_anim = a2FRM;
+					tempguy.e_frate = 16;
+				}
+			}
+			
+			if(guyversion < 16)  // November 2009 - Super Enemy Editor part 1
+			{
+				if(i==0) Z_message("Updating guys to version 16...\n");
+				
+				update_guy_1(&tempguy);
+				
+				if(i==eMPOLSV)
+				{
+					tempguy.defense[edefARROW] = edCHINK;
+					tempguy.defense[edefMAGIC] = ed1HKO;
+					tempguy.defense[edefREFMAGIC] = ed1HKO;
+				}
+			}
+			
+			if(guyversion < 17)  // December 2009
+			{
+				if(tempguy.family==eePROJECTILE)
+				{
+					tempguy.misc1 = 0;
+				}
+			}
+			
+			if(guyversion < 18)  // January 2010
+			{
+				bool boss = (tempguy.family == eeAQUA || tempguy.family==eeDONGO || tempguy.family == eeMANHAN || tempguy.family == eeGHOMA || tempguy.family==eeDIG
+							 || tempguy.family == eeGLEEOK || tempguy.family==eePATRA || tempguy.family == eeGANON || tempguy.family==eeMOLD);
+							 
+				tempguy.hitsfx = (boss && tempguy.family != eeMOLD && tempguy.family != eeDONGO && tempguy.family != eeDIG) ? WAV_GASP : 0;
+				tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.misc10 == 0)) ? WAV_GASP : WAV_EDEAD;
+				
+				if(tempguy.family == eeAQUA)
+					for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eRAQUAM].defense[j];
+				else if(tempguy.family == eeMANHAN)
+					for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eMANHAN].defense[j];
+				else if(tempguy.family==eePATRA)
+					for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
+				else if(tempguy.family==eeGHOMA)
+				{
+					for(int32_t j=0; j<edefLAST; j++)
+						tempguy.defense[j] = default_guys[eGOHMA1].defense[j];
+						
+					tempguy.defense[edefARROW] = ((tempguy.misc1==3) ? edCHINKL8 : (tempguy.misc1==2) ? edCHINKL4 : 0);
+					
+					if(tempguy.misc1==3 && !tempguy.weapon) tempguy.weapon = ewFlame;
+					
+					tempguy.misc1--;
+				}
+				else if(tempguy.family == eeGLEEOK)
+				{
+					for(int32_t j=0; j<edefLAST; j++)
+						tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
+						
+					if(tempguy.misc3==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
+				}
+				else if(tempguy.family == eeARMOS)
+				{
+					tempguy.family=eeWALK;
+					tempguy.hrate = 0;
+					tempguy.misc10 = tempguy.misc1;
+					tempguy.misc1 = tempguy.misc2 = tempguy.misc3 = tempguy.misc4 = tempguy.misc5 = tempguy.misc6 = tempguy.misc7 = tempguy.misc8 = 0;
+					tempguy.misc9 = e9tARMOS;
+				}
+				else if(tempguy.family == eeGHINI && !tempguy.misc1)
+				{
+					tempguy.family=eeWALK;
+					tempguy.hrate = 0;
+					tempguy.misc1 = tempguy.misc2 = tempguy.misc3 = tempguy.misc4 = tempguy.misc5 = tempguy.misc6 =
+														tempguy.misc7 = tempguy.misc8 = tempguy.misc9 = tempguy.misc10 = 0;
+				}
+				
+				// Spawn animation flags
+				if(tempguy.family == eeWALK && (tempguy.flags2&cmbflag_armos || tempguy.flags2&cmbflag_ghini))
+					tempguy.flags |= guy_fadeflicker;
+				else
+					tempguy.flags &= 0x0F00000F; // Get rid of the unused flags!
+			}
+			
+			if(guyversion < 20)  // April 2010
+			{
+				if(tempguy.family == eeTRAP)
+				{
+					tempguy.misc2 = tempguy.misc10;
+					
+					if(tempguy.misc10>=1)
+					{
+						tempguy.misc1++;
+					}
+					
+					tempguy.misc10 = 0;
+				}
+				
+				// Bomb Blast fix
+				if(tempguy.weapon==ewBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
+					tempguy.weapon = ewLitBomb;
+				else if(tempguy.weapon==ewSBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
+					tempguy.weapon = ewLitSBomb;
+			}
+			
+			if(guyversion < 21)  // September 2011
+			{
+				if(tempguy.family == eeKEESE || tempguy.family == eeKEESETRIB)
+				{
+					if(tempguy.family == eeKEESETRIB)
+					{
+						tempguy.family = eeKEESE;
+						tempguy.misc2 = e2tKEESETRIB;
+						tempguy.misc1 = 0;
+					}
+					
+					tempguy.rate = 2;
+					tempguy.hrate = 8;
+					tempguy.homing = 0;
+					tempguy.step= (tempguy.family == eeKEESE && tempguy.misc1 ? 100:62);
+				}
+				else if(tempguy.family == eePEAHAT || tempguy.family==eePATRA)
+				{
+					if(tempguy.family == eePEAHAT)
+					{
+						tempguy.rate = 4;
+						tempguy.step = 62;
+					}
+					else
+						tempguy.step = 25;
+						
+					tempguy.hrate = 8;
+					tempguy.homing = 0;
+				}
+				else if(tempguy.family == eeDIG || tempguy.family == eeMANHAN)
+				{
+					if(tempguy.family == eeMANHAN)
+						tempguy.step=50;
+						
+					tempguy.hrate = 16;
+					tempguy.homing = 0;
+				}
+				else if(tempguy.family == eeGLEEOK)
+				{
+					tempguy.rate = 2;
+					tempguy.homing = 0;
+					tempguy.hrate = 9;
+					tempguy.step=89;
+				}
+				else if(tempguy.family == eeGHINI)
+				{
+					tempguy.rate = 4;
+					tempguy.hrate = 12;
+					tempguy.step=62;
+					tempguy.homing = 0;
+				}
+				
+				// Bigdig random rate fix
+				if(tempguy.family==eeDIG && tempguy.misc10==1)
+				{
+					tempguy.rate = 2;
+				}
+			}
+			
+			if(guyversion < 24) // November 2012
+			{
+				if(tempguy.family==eeLANM)
+					tempguy.misc3 = 1;
+				else if(tempguy.family==eeMOLD)
+					tempguy.misc2 = 0;
+			}
+			
+			if(guyversion < 33) //Whistle defence did not exist before this version of 2.54. -Z
+			{
+				if(tempguy.family!=eeDIG)
+					tempguy.defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally. 
+			}
+			// does not seem to solve the issue!
+			if ( Header->zelda_version <= 0x210 ) 
+			{
+				//al_trace("Detected version %d for dodongo patch.\n",Header->zelda_version);
+				if ( tempguy.family == eeDONGO )
+					tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+			}
+			
+			if(guyversion < 42)
 			{
 				switch(tempguy.family)
 				{
@@ -15070,6 +14818,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
 				}
 			}
+			
 			if(guyversion < 43)
 			{
 				switch(tempguy.family)
@@ -15088,29 +14837,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 						break;
 				}
 			}
+			
 			if (guyversion < 44)
 			{
 				if ( tempguy.family == eeGHOMA )
-				{
 					tempguy.flags |= guy_fadeinstant;
-				}
 			}
-			if (guyversion > 44)
-			{
-				if(!p_getc(&(tempguy.spr_shadow),f))
-				{
-					return qe_invalid;
-				}
-				if(!p_getc(&(tempguy.spr_death),f))
-				{
-					return qe_invalid;
-				}
-				if(!p_getc(&(tempguy.spr_spawn),f))
-				{
-					return qe_invalid;
-				}
-			}
-			else
+			
+			if (guyversion <= 44)
 			{
 				tempguy.spr_shadow = (tempguy.family==eeROCK && tempguy.misc10==1) ? iwLargeShadow : iwShadow;
 				tempguy.spr_death = iwDeath;
@@ -15120,20 +14854,22 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			if(guyversion < 46)
 			{
 				if(tempguy.family == eeWALK && tempguy.misc9 == e9tPOLSVOICE)
-				{
 					tempguy.moveflags |= FLAG_CAN_WATERWALK;
-				}
 			}
-			
-			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
-			{
-				tempguy.script = 0;
-				for(int q = 0; q < 8; ++q)
-					tempguy.initD[q] = 0;
-			}
-			guysbuf[i] = tempguy;
-        }
-    }
+		}
+		if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+		{
+			tempguy.script = 0;
+			for(int q = 0; q < 8; ++q)
+				tempguy.initD[q] = 0;
+		}
+		
+		if(guyversion > 3)
+			guysbuf[i] = _temp_guy;
+	}
+	
+    if(guyversion<=2)
+        return readherosprites2(f, guyversion==2?0:-1, 0);
     
     return 0;
 }
