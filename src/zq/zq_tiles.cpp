@@ -6117,8 +6117,6 @@ static DIALOG move_textbox_list_dlg[] =
 
 bool popup_move_textbox_dlg(string const& msg, char* textbox, char const* title)
 {
-	if(!TileProtection)
-		return true;
 	char buf1[512] = {0};
 	char buf2[512] = {0};
 	large_dialog(move_textbox_list_dlg);
@@ -6243,7 +6241,7 @@ bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int 
 		}
 	}
 	
-	return found && !popup_move_textbox_dlg(msg, oss.str().data(), "Tile Warning");
+	return TileProtection && found && !popup_move_textbox_dlg(msg, oss.str().data(), "Tile Warning");
 }
 void TileMoveList::add_diff(int diff)
 {
@@ -6362,7 +6360,7 @@ bool ComboMoveList::process(bool is_dest, SuperSet const& combo_links, int _firs
 		flood_count += str.size();
 		oss << str;
 	}
-	return found && !popup_move_textbox_dlg(msg, oss.str().data(), "Combo Warning");
+	return ComboProtection && found && !popup_move_textbox_dlg(msg, oss.str().data(), "Combo Warning");
 }
 void ComboMoveList::add_diff(int diff)
 {

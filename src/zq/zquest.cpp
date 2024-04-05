@@ -565,7 +565,7 @@ int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
-	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	TileProtection = 0, ComboProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
 	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
@@ -25775,6 +25775,7 @@ int32_t main(int32_t argc,char **argv)
 	LayerDitherSz				= zc_get_config("zquest", "layer_dither_sz", 3);
 	InvalidBG					= zc_get_config("zquest", "invalid_bg", 0);
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
+	ComboProtection				 = zc_get_config("zquest","combo_protection",TileProtection);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
