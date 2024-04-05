@@ -331,6 +331,19 @@ struct ComboRefPtr32 : public BaseComboRef
 		: BaseComboRef(name), combo(combo)
 	{}
 };
+struct ComboRefPtr10k : public BaseComboRef
+{
+	int32_t* combo;
+	int32_t getCombo() const override {return *combo/10000;}
+	void addCombo(int32_t offs) override {*combo += offs*10000;}
+	void setCombo(int32_t val) override {*combo = val*10000;}
+	ComboRefPtr10k()
+		: BaseComboRef(), combo(nullptr)
+	{}
+	ComboRefPtr10k(int32_t* combo, string name = "")
+		: BaseComboRef(name), combo(combo)
+	{}
+};
 struct ComboMoveList
 {
 	vector<std::unique_ptr<BaseComboRef>> move_refs;
@@ -354,10 +367,17 @@ struct ComboMoveList
 			return nullptr;
 		return (ComboRefPtr32*)move_refs.emplace_back(std::make_unique<ComboRefPtr32>(combo, args...)).get();
 	}
+	template<class... Args>
+	ComboRefPtr10k* add_combo_10k(int32_t* combo, Args&&... args)
+	{
+		if(!combo || !*combo)
+			return nullptr;
+		return (ComboRefPtr10k*)move_refs.emplace_back(std::make_unique<ComboRefPtr10k>(combo, args...)).get();
+	}
 	
 	
 	#ifdef IS_EDITOR
-	bool process(bool is_dest, int _first, int _last);
+	bool process(bool is_dest, SuperSet const& combo_links, int _first, int _last);
 	void add_diff(int diff);
 	#endif
 };

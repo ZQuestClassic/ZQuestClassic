@@ -33,6 +33,7 @@
 #include "zq/render.h"
 #include "zinfo.h"
 #include <fmt/format.h>
+using std::set;
 
 extern zcmodule moduledata;
 
@@ -6233,7 +6234,7 @@ bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int 
 					oss << ref->name << '\n';
 				}
 				
-				found=true;
+				found = true;
 			}
 			else if(i==ti_encompass)
 			{
@@ -6256,11 +6257,13 @@ void TileMoveList::add_diff(int diff)
 }
 
 //from 'combo.h'
-bool ComboMoveList::process(bool is_dest, int _first, int _last)
+bool ComboMoveList::process(bool is_dest, SuperSet const& combo_links, int _first, int _last)
 {
 	std::ostringstream oss;
 	bool found = false, flood = false;
 	size_t flood_count = 0;
+	set<int> combos;
+	set<int> non_move_combos;
 	for(size_t indx = 0; indx < move_refs.size(); ++indx)
 	{
 		auto& ref = move_refs[indx];
@@ -6269,10 +6272,10 @@ bool ComboMoveList::process(bool is_dest, int _first, int _last)
 		if(move_bits.get(indx))
 			continue;
 		auto c = ref->getCombo();
-		
+		combos.insert(c);
+		if(ref->no_move)
+			non_move_combos.insert(c);
 		i = move_intersection_ss(c, c, _first, _last);
-		
-		//!TODOMOVE Somehow handle 'c' being a combo that is 'relative' to other combos? (->Next, ->Combo Change)
 		
 		if(i != ti_none && ref->getCombo() != 0)
 		{
@@ -6291,7 +6294,7 @@ bool ComboMoveList::process(bool is_dest, int _first, int _last)
 					oss << ref->name << '\n';
 				}
 				
-				found=true;
+				found = true;
 			}
 			else if(i==ti_encompass)
 			{
@@ -6300,6 +6303,65 @@ bool ComboMoveList::process(bool is_dest, int _first, int _last)
 		}
 	}
 	
+	vector<set<int> const*> subset = combo_links.subset(combos);
+	bool subset_header = false;
+	for(auto s : subset)
+	{
+		if(flood || flood_count >= 65000)
+		{
+			if(!flood)
+				oss << "...\n...\n...\nmany others";
+			flood = true;
+			break;
+		}
+		set<int> in_set, out_set;
+		bool no_move = is_dest;
+		for(int c : *s)
+		{
+			int i = move_intersection_ss(c, c, _first, _last);
+			if(i != ti_none)
+				in_set.insert(c);
+			if(i != ti_encompass)
+				out_set.insert(c);
+			if(!no_move && non_move_combos.contains(c))
+				no_move = true;
+		}
+		int i = in_set.empty() ? ti_none : (out_set.empty() ? ti_encompass : ti_broken);
+		if(i == ti_encompass && !no_move)
+			continue;
+		if(i == ti_none)
+			continue;
+		found = true;
+		if(!subset_header)
+		{
+			subset_header = true;
+			flood_count += 41;
+			oss << "===== Broken Relative Combo Groups =====\n";
+		}
+		std::ostringstream oss2;
+		bool comma = false;
+		oss2 << "In(";
+		for(int c : in_set)
+		{
+			if(comma)
+				oss2 << ",";
+			else comma = true;
+			oss2 << c;
+		}
+		oss2 << "),Out(";
+		comma = false;
+		for(int c : out_set)
+		{
+			if(comma)
+				oss2 << ",";
+			else comma = true;
+			oss2 << c;
+		}
+		oss2 << ")\n";
+		auto str = oss2.str();
+		flood_count += str.size();
+		oss << str;
+	}
 	return found && !popup_move_textbox_dlg(msg, oss.str().data(), "Combo Warning");
 }
 void ComboMoveList::add_diff(int diff)
@@ -6325,14 +6387,25 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 			: "The tiles used by the following combos will be partially or completely overwritten by this process."
 			);
 		combo_list->move_refs.reserve(MAXCOMBOS);
-		for(int32_t u=0; u<MAXCOMBOS; u++)
+		for(int32_t q = 0; q < MAXCOMBOS; ++q)
 		{
-			auto& cmb = combobuf[u];
-			string name;
-			if(cmb.label.empty())
-				name = fmt::format("Combo {}", u);
-			else name = fmt::format("Combo {} ({})", u, cmb.label);
-			combo_list->add_combo(&cmb, name);
+			auto& cmb = combobuf[q];
+			auto lbl = fmt::format("Combo {}{}", q, cmb.label.empty() ? ""
+				: fmt::format(" ({})", cmb.label));
+			combo_list->add_combo(&cmb, lbl);
+			
+			//type-specific
+			char const* type_name = ZI.getComboTypeName(cmb.type);
+			switch(cmb.type)
+			{
+				case cSPOTLIGHT:
+				{
+					if(!(cmb.usrflags & cflag1))
+						break;
+					combo_list->add_tile_10k(&cmb.attributes[0], 16, 1, fmt::format("{} - Type '{}' - Beam Tiles", lbl, type_name));
+					break;
+				}
+			}
 		}
 		
 		vec.push_back(std::move(combo_list));
@@ -6815,11 +6888,11 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 	return vec;
 }
 
-vector<std::unique_ptr<ComboMoveList>> load_combo_move_lists(bool move)
+vector<std::unique_ptr<ComboMoveList>> load_combo_move_lists(bool move, SuperSet& combo_links)
 {
 	bool BSZ2 = get_qr(qr_BSZELDA);
 	vector<std::unique_ptr<ComboMoveList>> vec;
-	
+	combo_links.clear();
 	//Screens
 	{
 		auto screen_list = std::make_unique<ComboMoveList>(
@@ -6916,38 +6989,72 @@ vector<std::unique_ptr<ComboMoveList>> load_combo_move_lists(bool move)
 			auto lbl = fmt::format("{}{}", q, cmb.label.empty() ? ""
 				: fmt::format(" ({})", cmb.label));
 			combo_list->add_combo(&cmb.nextcombo, fmt::format("{} - Combo Cycle", lbl));
-			combo_list->add_combo(&cmb.liftcmb, fmt::format("{}{} - Lift Combo", lbl));
-			combo_list->add_combo(&cmb.liftundercmb, fmt::format("{}{} - Lift Undercombo", lbl));
-			combo_list->add_combo(&cmb.prompt_cid, fmt::format("{}{} - Triggers ButtonPrompt", lbl));
+			combo_list->add_combo(&cmb.liftcmb, fmt::format("{} - Lift Combo", lbl));
+			combo_list->add_combo(&cmb.liftundercmb, fmt::format("{} - Lift Undercombo", lbl));
+			combo_list->add_combo(&cmb.prompt_cid, fmt::format("{} - Triggers ButtonPrompt", lbl));
 			
 			//type-specific
-			char const* type_name = ZI.getComboTypeName(cmb.type)
+			char const* type_name = ZI.getComboTypeName(cmb.type);
 			switch(cmb.type)
 			{
 				case cLOCKEDCHEST: case cBOSSCHEST:
 					if(cmb.usrflags & cflag13)
-						combo_list->add_combo(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
+						combo_list->add_combo_10k(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
 				[[fallthrough]];
 				case cCHEST:
 					if(cmb.usrflags & cflag13)
-						combo_list->add_combo(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						combo_list->add_combo_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
 					break;
 				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 					if(cmb.usrflags & cflag13)
 					{
-						combo_list->add_combo(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
-						combo_list->add_combo(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
+						combo_list->add_combo_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						combo_list->add_combo_10k(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
 					}
 					break;
 				case cSIGNPOST:
 					if(cmb.usrflags & cflag13)
-						combo_list->add_combo(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						combo_list->add_combo_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
 					break;
 				case cBUTTONPROMPT:
 					if(cmb.usrflags & cflag13)
-						combo_list->add_combo(&cmb.attributes[0], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						combo_list->add_combo_10k(&cmb.attributes[0], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
 					break;
 			}
+			
+			//relative links
+			if(cmb.trigchange)
+				combo_links.add_to(q, q+cmb.trigchange);
+			bool next = cmb.flag == mfSECRETSNEXT;
+			switch(cmb.type)
+			{
+				case cPOUND:
+				case cLOCKBLOCK: case cLOCKBLOCK2:
+				case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
+				case cCHEST: case cCHEST2:
+				case cLOCKEDCHEST: case cLOCKEDCHEST2:
+				case cBOSSCHEST: case cBOSSCHEST2:
+				case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
+				case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
+				case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY: case cBUSHNEXTTOUCHY:
+				case cTALLGRASSNEXT: case cCRUMBLE:
+					next = true;
+					break;
+				case cCSWITCH: case cCSWITCHBLOCK:
+					combo_links.add_to(q, q+cmb.attributes[0]);
+					break;
+				case cLIGHTTARGET:
+					if(cmb.usrflags & cflag1)
+						combo_links.add_to(q, q-1);
+					else next = true;
+					break;
+				case cSTEPSFX:
+					if((cmb.usrflags&(cflag1|cflag3)) == cflag1)
+						next = true;
+					break;
+			}
+			if(next)
+				combo_links.add_to(q, q+1);
 		}
 		
 		vec.push_back(std::move(combo_list));
@@ -8061,14 +8168,15 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 		zc_swap(tile,tile2);
 	}
 	
-	auto move_lists = load_combo_move_lists(false);
+	SuperSet combo_links;
+	auto move_lists = load_combo_move_lists(false, combo_links);
 	bool done = false;
 	auto first = tile;
 	auto last = masscopy ? tile2 : first + copycnt-1;
 	for(auto &list : move_lists)
 	{
 		if(done) break;
-		if(list->process(true, first, last))
+		if(list->process(true, combo_links, first, last))
 			done = true;
 	}
 	if(done)
@@ -8128,7 +8236,8 @@ bool do_movecombo(combo_move_data const& cmd)
 	reset_combo_animations2();
 	go_combos();
 	
-	auto move_lists = load_combo_move_lists(true);
+	SuperSet combo_links;
+	auto move_lists = load_combo_move_lists(true, combo_links);
 	bool done = false;
 	for(int q = 0; q < 2 && !done; ++q)
 	{
@@ -8137,7 +8246,7 @@ bool do_movecombo(combo_move_data const& cmd)
 		for(auto &list : move_lists)
 		{
 			if(done) break;
-			if(list->process(q==0, first, last))
+			if(list->process(q==0, combo_links, first, last))
 				done = true;
 		}
 	}

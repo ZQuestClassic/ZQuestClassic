@@ -2712,7 +2712,14 @@ int32_t tilesize(byte format)
 
 void TileRefPtr::forEach(std::function<void(int32_t)> proc) const
 {
-	auto t = *tile + offset();
+	auto t = getTile() + offset();
+	for(int x = 0; x < w; ++x)
+		for(int y = 0; y < h; ++y)
+			proc(t + x + y*TILES_PER_ROW);
+}
+void TileRefPtr10k::forEach(std::function<void(int32_t)> proc) const
+{
+	auto t = getTile() + offset();
 	for(int x = 0; x < w; ++x)
 		for(int y = 0; y < h; ++y)
 			proc(t + x + y*TILES_PER_ROW);
