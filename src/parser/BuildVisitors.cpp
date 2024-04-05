@@ -82,6 +82,16 @@ public:
 			--q;
 		return true;
 	}
+	uint pop_all()
+	{
+		uint sz = peekinds.size();
+		peekinds.clear();
+		return sz;
+	}
+	uint count()
+	{
+		return peekinds.size();
+	}
 };
 #define VISIT_PUSH(node, ind) \
 do { \
@@ -1160,7 +1170,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	addOpcode(new ONoOp(loopstart));
 	
 	//run the inside of the loop.
-	push_break(loopend, arrayRefs.size());
+	push_break(loopend, arrayRefs.size(), mgr.count());
 	push_cont(loopcont, arrayRefs.size());
 	
 	targ_sz = commentTarget();
@@ -1348,6 +1358,8 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	
 	scope = scope->getParent();
 	
+	addOpcode(new OPopArgsRegister(new VarArgument(NUL), new LiteralArgument(mgr.pop_all())));
+	
 	if(host.hasElse())
 	{
 		addOpcode(new ONoOp(elselabel));
@@ -1357,8 +1369,6 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	}
 	
 	addOpcode(new ONoOp(loopend));
-	while(mgr.pop())
-		addOpcode(new OPopRegister(new VarArgument(NUL)));
 }
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
@@ -1511,6 +1521,8 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 {
 	deallocateRefsUntilCount(0);
+	if(uint pops = scope_pops_count())
+		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 	commentBack("return (Void)");
 }
@@ -1523,6 +1535,8 @@ void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 	INITC_INIT();
 	INITC_DEALLOC();
 	deallocateRefsUntilCount(0);
+	if(uint pops = scope_pops_count())
+		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 	commentStartEnd(targ_sz,"return");
 }
@@ -1538,6 +1552,8 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 	int32_t refcount = breakRefCounts.at(breakRefCounts.size()-host.breakCount);
 	int32_t breaklabel = breaklabelids.at(breaklabelids.size()-host.breakCount);
 	deallocateRefsUntilCount(refcount);
+	if(uint pops = scope_pops_back(host.breakCount))
+		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(breaklabel)));
 	commentBack(fmt::format("break {};",host.breakCount));
 	inc_break(host.breakCount);
@@ -1555,6 +1571,8 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 	int32_t refcount = continueRefCounts.at(continueRefCounts.size()-host.contCount);
 	int32_t contlabel = continuelabelids.at(continuelabelids.size()-host.contCount);
 	deallocateRefsUntilCount(refcount);
+	if(uint pops = scope_pops_back(host.contCount-1))
+		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(contlabel)));
 	commentBack(fmt::format("continue {};",host.contCount));
 	inc_cont(host.contCount);
@@ -4148,6 +4166,12 @@ optional<int> BuildOpcodes::eatSetCompare()
 		return cmp;
 	}
 	return nullopt;
+}
+
+void BuildOpcodes::pop_params(uint count)
+{
+	if(count)
+		addOpcode(new OPopArgsRegister(new VarArgument(NUL), new LiteralArgument(count)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////
