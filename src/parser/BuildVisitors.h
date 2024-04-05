@@ -139,6 +139,7 @@ namespace ZScript
 		std::vector<uint> break_to_counts;
 		std::vector<uint> continue_past_counts;
 		std::vector<uint> continue_to_counts;
+		std::vector<uint> scope_allocations;
 		std::list<int32_t> arrayRefs;
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;
@@ -166,13 +167,14 @@ namespace ZScript
 					++continue_to_counts[q];
 			}
 		}
-		void push_break(int32_t id, int32_t count)
+		void push_break(int32_t id, int32_t count, uint scope_pops = 0)
 		{
 			++break_depth;
 			breaklabelids.push_back(id);
 			breakRefCounts.push_back(count);
 			break_past_counts.push_back(0);
 			break_to_counts.push_back(0);
+			scope_allocations.emplace_back(scope_pops);
 		}
 		void push_cont(int32_t id, int32_t count)
 		{
@@ -189,6 +191,7 @@ namespace ZScript
 			breakRefCounts.pop_back();
 			break_past_counts.pop_back();
 			break_to_counts.pop_back();
+			scope_allocations.pop_back();
 		}
 		void pop_cont()
 		{
@@ -198,9 +201,26 @@ namespace ZScript
 			continue_past_counts.pop_back();
 			continue_to_counts.pop_back();
 		}
+		uint scope_pops_back(uint break_count)
+		{
+			uint ret = 0;
+			for(auto it = scope_allocations.rbegin(); break_count && it != scope_allocations.rend(); ++it)
+			{
+				ret += *it;
+				--break_count;
+			}
+			return ret;
+		}
+		uint scope_pops_count()
+		{
+			uint ret = 0;
+			for(uint v : scope_allocations)
+				ret += v;
+			return ret;
+		}
 		
 		// Helper Functions.
-
+		void pop_params(uint count);
 		// For when ASTDataDecl is for a single variable.
 		void buildVariable(ASTDataDecl& host, OpcodeContext& context);
 		// For when ASTDataDecl is an initialized array.
