@@ -307,8 +307,6 @@ struct tile_move_data
 	}
 };
 bool do_movetile_united(tile_move_data const& tmd);
-static tile_move_data* last_tile_move = NULL;
-
 
 struct combo_move_data
 {
@@ -343,6 +341,7 @@ struct combo_move_data
 
 bool do_movecombo(combo_move_data const& cmd, ComboMoveUndo& on_undo, bool is_undoing = false);
 static optional<ComboMoveUndo> last_combo_move_list;
+static optional<TileMoveUndo> last_tile_move_list;
 
 int refl_flags = 0;
 enum
@@ -526,11 +525,7 @@ static bool nogocombos = false;
 void go_tiles()
 {
 	if(nogotiles) return;
-	if(last_tile_move)
-	{
-		delete last_tile_move;
-		last_tile_move = NULL;
-	}
+	last_tile_move_list = nullopt;
 	for(int32_t i=0; i<NEWMAXTILES; ++i)
 	{
 		newundotilebuf[i].format=newtilebuf[i].format;
@@ -579,41 +574,27 @@ void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 
 void comeback_tiles()
 {
-	if(last_tile_move && last_tile_move->move)
+	if(last_tile_move_list)
 	{
-		last_tile_move->flip();
-		bool t = nogotiles;
-		nogotiles = true;
-		do_movetile_united(*last_tile_move);
-		nogotiles = t;
-		delete last_tile_move;
-		last_tile_move = NULL;
+		last_tile_move_list->undo();
+		last_tile_move_list = nullopt;
 	}
 	for(dword i=0; i<NEWMAXTILES; ++i)
 	{
-		newtilebuf[i].format=newundotilebuf[i].format;
-		
-		if(newtilebuf[i].data!=NULL)
+		if(newtilebuf[i].format != newundotilebuf[i].format || !newtilebuf[i].data)
 		{
-			free(newtilebuf[i].data);
-		}
-		
-		newtilebuf[i].data=(byte *)malloc(tilesize(newtilebuf[i].format));
-		
-		if(newtilebuf[i].data==NULL)
-		{
-			Z_error_fatal("Unable to initialize tile #%ld.\n", i);
+			newtilebuf[i].format = newundotilebuf[i].format;
+			
+			if(newtilebuf[i].data!=NULL)
+				free(newtilebuf[i].data);
+			newtilebuf[i].data=(byte *)malloc(tilesize(newtilebuf[i].format));
+			if(newtilebuf[i].data==NULL)
+				Z_error_fatal("Unable to initialize tile #%ld.\n", i);
 		}
 		
 		memcpy(newtilebuf[i].data,newundotilebuf[i].data,tilesize(newtilebuf[i].format));
 	}
 	
-	/*
-	  int32_t *si = (int32_t*)undotilebuf;
-	  int32_t *di = (int32_t*)tilebuf;
-	  for(int32_t i=0; i<NEWTILE_SIZE2/4; i++)
-	  *(di++) = *(si++);
-	  */
 	register_blank_tiles();
 	register_used_tiles();
 }
@@ -6155,87 +6136,83 @@ int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 	return a==0?b:a==1?c:d;
 }
 
-//from 'tiles.h'
-bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int _h, int _first, int _last)
+bool TileMoveList::process(bool is_dest, std::unique_ptr<BaseTileRef>& ref, TileMoveProcess const& proc)
 {
-	std::ostringstream oss;
-	bool found = false, flood = false;
-	for(size_t indx = 0; indx < move_refs.size(); ++indx)
+	TileRefCombo* combo_ref = dynamic_cast<TileRefCombo*>(ref.get());
+	int i = ti_none;
+	auto t = ref->getTile() + ref->offset();
+	
+	if(combo_ref)
 	{
-		auto& ref = move_refs[indx];
-		TileRefCombo* combo_ref = dynamic_cast<TileRefCombo*>(ref.get());
-		int i = ti_none;
-		
-		if(move_bits.get(indx))
-			continue;
-		auto t = ref->getTile() + ref->offset();
-		
-		if(combo_ref)
-		{
-			if(rect)
-				i=move_intersection_sr(*combo_ref->combo, _l, _t, _w, _h);
-			else i=move_intersection_ss(*combo_ref->combo, _first, _last);
-		}
-		else if(rect)
-		{
-			if(ref->h > 1)
-				i=move_intersection_rr(TILECOL(t), TILEROW(t), ref->w, ref->h, _l, _t, _w, _h);
-			else i=move_intersection_sr(t, t+ref->w-1, _l, _t, _w, _h);
-		}
-		else
-		{
-			if(ref->h > 1)
-				i=move_intersection_rs(TILECOL(t), TILEROW(t), ref->w, ref->h, _first, _last);
-			else i=move_intersection_ss(t, t+ref->w-1, _first, _last);
-		}
-		
-		bool in = i != ti_none, out = i != ti_encompass;
-		for(size_t q = 0; !(in&&out) && q < ref->extra_rects.size(); ++q)
-		{
-			auto [ex_t,ex_w,ex_h] = ref->extra_rects[q];
-			if(rect)
-				i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _l, _t, _w, _h);
-			else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, _first, _last);
-			if(i != ti_none)
-				in = true;
-			if(i != ti_encompass)
-				out = true;
-		}
-		i = in ? (out ? ti_broken : ti_encompass) : ti_none;
-		
-		if(i != ti_none && ref->getTile() != 0)
-		{
-			if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
-			{
-				if(flood || oss.tellp() >= 65000)
-				{
-					if(!flood)
-						oss << "...\n...\n...\nmany others";
-					flood = true;
-				}
-				else
-					oss << ref->name << '\n';
-				
-				found = true;
-			}
-			else if(i==ti_encompass)
-			{
-				move_bits.set(indx, true);
-			}
-		}
+		if(proc.rect)
+			i=move_intersection_sr(*combo_ref->combo, proc._l, proc._t, proc._w, proc._h);
+		else i=move_intersection_ss(*combo_ref->combo, proc._first, proc._last);
+	}
+	else if(proc.rect)
+	{
+		if(ref->h > 1)
+			i=move_intersection_rr(TILECOL(t), TILEROW(t), ref->w, ref->h, proc._l, proc._t, proc._w, proc._h);
+		else i=move_intersection_sr(t, t+ref->w-1, proc._l, proc._t, proc._w, proc._h);
+	}
+	else
+	{
+		if(ref->h > 1)
+			i=move_intersection_rs(TILECOL(t), TILEROW(t), ref->w, ref->h, proc._first, proc._last);
+		else i=move_intersection_ss(t, t+ref->w-1, proc._first, proc._last);
 	}
 	
-	return TileProtection && found && !popup_move_textbox_dlg(msg, oss.str().data(), "Tile Warning");
+	bool in = i != ti_none, out = i != ti_encompass;
+	for(size_t q = 0; !(in&&out) && q < ref->extra_rects.size(); ++q)
+	{
+		auto [ex_t,ex_w,ex_h] = ref->extra_rects[q];
+		if(proc.rect)
+			i = move_intersection_rr(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, proc._l, proc._t, proc._w, proc._h);
+		else i = move_intersection_rs(TILECOL(t+ex_t), TILEROW(t+ex_t), ex_w, ex_h, proc._first, proc._last);
+		if(i != ti_none)
+			in = true;
+		if(i != ti_encompass)
+			out = true;
+	}
+	i = in ? (out ? ti_broken : ti_encompass) : ti_none;
+	
+	if(i != ti_none && ref->getTile() != 0)
+	{
+		if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
+		{
+			if(warning_flood || warning_list.tellp() >= 65000)
+			{
+				if(!warning_flood)
+					warning_list << "...\n...\n...\nmany others";
+				warning_flood = true;
+			}
+			else
+				warning_list << ref->name << '\n';
+		}
+		else if(i==ti_encompass)
+		{
+			move_refs.emplace_back(std::move(ref));
+			return true;
+		}
+	}
+	return false;
 }
+
+bool TileMoveList::check_prot()
+{
+	if(!TileProtection)
+		return true;
+	auto ret = !warning_list.tellp() || popup_move_textbox_dlg(msg, warning_list.str().data(), "Tile Warning");
+	
+	warning_flood = false;
+	warning_list.clear();
+	
+	return ret;
+}
+
 void TileMoveList::add_diff(int diff)
 {
-	for(size_t indx = 0; indx < move_refs.size(); ++indx)
-	{
-		if(!move_bits.get(indx))
-			continue;
-		
-		move_refs[indx]->addTile(diff);
-	}
+	for(auto& ref : move_refs)
+		ref->addTile(diff);
 }
 
 //from 'combo.h'
@@ -6366,24 +6343,30 @@ void ComboMoveList::add_diff(int diff)
 		ref->addCombo(diff);
 }
 
-vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
+bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> source_process, int diff, TileMoveUndo* on_undo, std::function<void(int32_t)> every_proc)
 {
 	bool BSZ2 = get_qr(qr_BSZELDA);
-	vector<std::unique_ptr<TileMoveList>> vec;
+	bool move = source_process.has_value();
+	TileMoveUndo local_undo;
+	TileMoveUndo& storage = on_undo ? *on_undo : local_undo;
+	auto& vec = storage.vec;
+	storage.diff = diff;
+	storage.state = false;
+	
 	//Combos
 	{
-		auto combo_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following combos will be partially cleared by the move."
 			: "The tiles used by the following combos will be partially or completely overwritten by this process."
-			);
-		combo_list->move_refs.reserve(MAXCOMBOS);
+			));
 		for(int32_t q = 0; q < MAXCOMBOS; ++q)
 		{
 			auto& cmb = combobuf[q];
 			auto lbl = fmt::format("Combo {}{}", q, cmb.label.empty() ? ""
 				: fmt::format(" ({})", cmb.label));
-			combo_list->add_combo(&cmb, lbl);
+			movelist->add_combo(&cmb, lbl);
 			
 			//type-specific
 			char const* type_name = ZI.getComboTypeName(cmb.type);
@@ -6393,42 +6376,40 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 				{
 					if(!(cmb.usrflags & cflag1))
 						break;
-					combo_list->add_tile_10k(&cmb.attributes[0], 16, 1, fmt::format("{} - Type '{}' - Beam Tiles", lbl, type_name));
+					movelist->add_tile_10k(&cmb.attributes[0], 16, 1, fmt::format("{} - Type '{}' - Beam Tiles", lbl, type_name));
 					break;
 				}
 			}
 		}
-		
-		vec.push_back(std::move(combo_list));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//Items
 	{
-		auto item_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following items will be partially cleared by the move."
 			: "The tiles used by the following items will be partially or completely overwritten by this process."
-			);
-		item_list->move_refs.reserve(MAXITEMS);
-		
+			));
 		build_bii_list(false);
 		for(int32_t u=0; u<MAXITEMS; u++)
 		{
 			auto id = bii[u].i;
 			itemdata& itm = itemsbuf[id];
-			item_list->add_tile(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
+			movelist->add_tile(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
 		}
-		
-		vec.push_back(std::move(item_list));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//Weapon sprites
 	{
-		auto wpn_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following weapons will be partially cleared by the move."
 			: "The tiles used by the following weapons will be partially or completely overwritten by this process."
-			);
-		wpn_list->move_refs.reserve(MAXWPNS);
-		
+			));
 		build_biw_list();
 		
 		for(int32_t u=0; u<MAXWPNS; u++)
@@ -6521,7 +6502,7 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 				break;
 			}
 			
-			wpn_list->add_tile(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)+m,
+			movelist->add_tile(&wpn.tile, zc_max((ignore_frames?0:wpn.frames),1)+m,
 				1, fmt::format("{} {}", biw[u].s, id));
 			
 			//Tile 54+55 are "Impact (not shown in sprite list)", for u==3 "Arrow" and u==9 "Boomerang"
@@ -6531,34 +6512,33 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 				static int32_t impact_tiles[2] = {54,54};
 				auto& tile = impact_tiles[u==3 ? 0 : 1];
 				tile = 54; //dummy tile, ensure it's correct
-				auto ref = wpn_list->add_tile(&tile, 2, 1,
-					fmt::format("{} Impact (not shown in sprite list)",(u==3)?"Arrow":"Boomerang"));
-				if(ref) ref->no_move = true;
+				movelist->add_tile(&tile, 2, 1,
+					fmt::format("{} Impact (not shown in sprite list)",(u==3)?"Arrow":"Boomerang"),
+					true);
 			}
 		}
-		
-		vec.push_back(std::move(wpn_list));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//Player sprites
 	{
-		auto player_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following player sprites will be partially cleared by the move."
 			: "The tiles used by the following player sprites will be partially or completely overwritten by this process."
-			);
-		player_list->move_refs.reserve(91);
+			));
 		{
 			int32_t a_style=(zinit.heroAnimationStyle);
 			#define ADD_PLAYER_SPRITE(ref_sprite, frames, name) \
 			do \
 			{ \
-				auto ref = player_list->add_tile(&ref_sprite[spr_tile], \
+				movelist->add_tile(&ref_sprite[spr_tile], \
 					(ref_sprite[spr_extend] < 2 ? 1 : 2) * frames, \
 					ref_sprite[spr_extend] < 1 ? 1 : 2, \
-					name); \
-				if(!ref) break; \
-				ref->xoff = ref_sprite[spr_extend] < 2 ? 0 : -1; \
-				ref->yoff = ref_sprite[spr_extend] < 1 ? 0 : -1; \
+					name, false, \
+					ref_sprite[spr_extend] < 2 ? 0 : -1, \
+					ref_sprite[spr_extend] < 1 ? 0 : -1); \
 			} while(false)
 			// + (ref_sprite[spr_extend] < 2 ? 0 : 1) //this was on some of the 'width's before... but doesn't make sense?
 			
@@ -6676,66 +6656,66 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 			}
 			//91
 		}
-		
-		vec.push_back(std::move(player_list));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//Map Styles
 	{
-		auto mapstyle_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following map styles will be partially cleared by the move."
 			: "The tiles used by the following map styles will be partially or completely overwritten by this process."
-			);
-		mapstyle_list->move_refs.reserve(6);
-		mapstyle_list->add_tile(&QMisc.colors.blueframe_tile, 2, 2, "Frame");
-		mapstyle_list->add_tile(&QMisc.colors.HCpieces_tile, zinit.hcp_per_hc, 1, "Heart Container Piece");
-		mapstyle_list->add_tile(&QMisc.colors.triforce_tile, BSZ2?2:1, BSZ2?3:1, "McGuffin Fragment");
-		mapstyle_list->add_tile(&QMisc.colors.triframe_tile, BSZ2?7:6, BSZ2?7:3, "McGuffin Frame");
-		mapstyle_list->add_tile(&QMisc.colors.overworld_map_tile, 5, 3, "Overworld Map");
-		mapstyle_list->add_tile(&QMisc.colors.dungeon_map_tile, 5, 3, "Dungeon Map");
-		
-		vec.push_back(std::move(mapstyle_list));
+			));
+		movelist->add_tile(&QMisc.colors.blueframe_tile, 2, 2, "Frame");
+		movelist->add_tile(&QMisc.colors.HCpieces_tile, zinit.hcp_per_hc, 1, "Heart Container Piece");
+		movelist->add_tile(&QMisc.colors.triforce_tile, BSZ2?2:1, BSZ2?3:1, "McGuffin Fragment");
+		movelist->add_tile(&QMisc.colors.triframe_tile, BSZ2?7:6, BSZ2?7:3, "McGuffin Frame");
+		movelist->add_tile(&QMisc.colors.overworld_map_tile, 5, 3, "Overworld Map");
+		movelist->add_tile(&QMisc.colors.dungeon_map_tile, 5, 3, "Dungeon Map");
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//Game Icons
 	{
-		auto gameicon_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following game icons will be partially cleared by the move."
 			: "The tiles used by the following game icons will be partially or completely overwritten by this process."
-			);
-		gameicon_list->move_refs.reserve(4);
+			));
 		for(int32_t u=0; u<4; u++)
-			gameicon_list->add_tile(&QMisc.icons[u], fmt::format("Game Icon {}", u));
-		
-		vec.push_back(std::move(gameicon_list));
+			movelist->add_tile(&QMisc.icons[u], fmt::format("Game Icon {}", u));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//DMaps
 	{
-		auto dmap_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following dmaps will be partially cleared by the move."
 			: "The tiles used by the following dmaps will be partially or completely overwritten by this process."
-			);
-		dmap_list->move_refs.reserve(MAXDMAPS*4);
+			));
 		for(int32_t u=0; u<MAXDMAPS; u++)
 		{
 			auto& dm = DMaps[u];
-			dmap_list->add_tile(&dm.minimap_1_tile, 5, 3, fmt::format("DMap {} - Minimap (Empty)", u));
-			dmap_list->add_tile(&dm.minimap_2_tile, 5, 3, fmt::format("DMap {} - Minimap (Filled)", u));
-			dmap_list->add_tile(&dm.largemap_1_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Empty)", u));
-			dmap_list->add_tile(&dm.largemap_2_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Filled)", u));
+			movelist->add_tile(&dm.minimap_1_tile, 5, 3, fmt::format("DMap {} - Minimap (Empty)", u));
+			movelist->add_tile(&dm.minimap_2_tile, 5, 3, fmt::format("DMap {} - Minimap (Filled)", u));
+			movelist->add_tile(&dm.largemap_1_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Empty)", u));
+			movelist->add_tile(&dm.largemap_2_tile, BSZ2?7:9, 5, fmt::format("DMap {} - Large Map (Filled)", u));
 		}
-		
-		vec.push_back(std::move(dmap_list));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//Enemies
 	{
-		auto enemy_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following enemies will be partially cleared by the move."
 			: "The tiles used by the following enemies will be partially or completely overwritten by this process."
-			);
-		enemy_list->move_refs.reserve(eMAXGUYS);
+			));
 		build_bie_list(false);
 		bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 		for(int u=0; u<eMAXGUYS; u++)
@@ -6771,32 +6751,31 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 					continue;
 				}
 				
-				auto ref = enemy_list->add_tile(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", u, bie[u].s));
-				
-				if(!ref)
-					continue;
+				vector<std::tuple<int,int,int>> rects;
 				
 				if(darknut)
 				{
-					ref->extra_rects.emplace_back(enemy.e_tile+6*TILES_PER_ROW, enemy.e_width, enemy.e_height);
+					rects.emplace_back(enemy.e_tile+6*TILES_PER_ROW, enemy.e_width, enemy.e_height);
 				}
 				else if(enemy.family==eeGANON)
 				{
-					ref->extra_rects.emplace_back(enemy.e_tile+2*TILES_PER_ROW, 20, 4);
+					rects.emplace_back(enemy.e_tile+2*TILES_PER_ROW, 20, 4);
 				}
 				else if(gleeok) //No idea if this is actually *RIGHT*, but I copied what was here before faithfully -Em
 				{
 					for(int32_t j=0; j<4; ++j)
 					{
-						ref->extra_rects.emplace_back(
+						rects.emplace_back(
 							TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)) + TILES_PER_ROW*TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0),
 							4, 1);
 					}
 					int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
 					int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-					ref->extra_rects.emplace_back(c+TILES_PER_ROW*r, 20, 3);
-					ref->extra_rects.emplace_back(c+TILES_PER_ROW*(r+3), 16, 6);
+					rects.emplace_back(c+TILES_PER_ROW*r, 20, 3);
+					rects.emplace_back(c+TILES_PER_ROW*(r+3), 16, 6);
 				}
+				movelist->add_tile(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", u, bie[u].s),
+					false, 0, 0, rects);
 			}
 			else
 			{
@@ -6804,79 +6783,101 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 				{
 					continue;
 				}
-				enemy_list->add_tile(&enemy.tile, enemy.width, enemy.height, fmt::format("Enemy {} ({}) 'Old'", u, bie[u].s));
+				movelist->add_tile(&enemy.tile, enemy.width, enemy.height, fmt::format("Enemy {} ({}) 'Old'", u, bie[u].s));
 				
 				if(guysbuf[bie[u].i].s_tile!=0)
 				{
-					enemy_list->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
+					movelist->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
 				}
 			}
 		}
-		
-		vec.push_back(std::move(enemy_list));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//Subscreens
 	{
-		auto subscr_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following subscreen widgets will be partially cleared by the move."
 			: "The tiles used by the following subscreen widgets will be partially or completely overwritten by this process."
-			);
+			));
 		
 		for(auto q = 0; q < subscreens_active.size(); ++q)
 		{
-			size_t indx = subscr_list->move_refs.size();
-			subscreens_active[q].collect_tiles(*subscr_list.get());
-			for(; indx < subscr_list->move_refs.size(); ++indx)
+			size_t indx = movelist->move_refs.size();
+			subscreens_active[q].collect_tiles(*movelist.get());
+			for(; indx < movelist->move_refs.size(); ++indx)
 			{
-				auto& ref = subscr_list->move_refs[indx];
+				auto& ref = movelist->move_refs[indx];
 				ref->name = fmt::format("Active Subscr {} - {}", q, ref->name);
 			}
 		}
 		for(auto q = 0; q < subscreens_passive.size(); ++q)
 		{
-			size_t indx = subscr_list->move_refs.size();
-			subscreens_passive[q].collect_tiles(*subscr_list.get());
-			for(; indx < subscr_list->move_refs.size(); ++indx)
+			size_t indx = movelist->move_refs.size();
+			subscreens_passive[q].collect_tiles(*movelist.get());
+			for(; indx < movelist->move_refs.size(); ++indx)
 			{
-				auto& ref = subscr_list->move_refs[indx];
+				auto& ref = movelist->move_refs[indx];
 				ref->name = fmt::format("Passive Subscr {} - {}", q, ref->name);
 			}
 		}
 		for(auto q = 0; q < subscreens_overlay.size(); ++q)
 		{
-			size_t indx = subscr_list->move_refs.size();
-			subscreens_overlay[q].collect_tiles(*subscr_list.get());
-			for(; indx < subscr_list->move_refs.size(); ++indx)
+			size_t indx = movelist->move_refs.size();
+			subscreens_overlay[q].collect_tiles(*movelist.get());
+			for(; indx < movelist->move_refs.size(); ++indx)
 			{
-				auto& ref = subscr_list->move_refs[indx];
+				auto& ref = movelist->move_refs[indx];
 				ref->name = fmt::format("Overlay Subscr {} - {}", q, ref->name);
 			}
 		}
-		
-		vec.push_back(std::move(subscr_list));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
 	//Strings
 	{
-		auto strings_list = std::make_unique<TileMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
+			dest_process, source_process,
 			move
 			? "The tiles used by the following strings will be partially cleared by the move."
 			: "The tiles used by the following strings will be partially or completely overwritten by this process."
-			);
-		strings_list->move_refs.reserve(msg_count*2);
+			));
 		for(size_t q = 0; q < msg_count; ++q)
 		{
 			MsgStr& str = MsgStrings[q];
 			bool fulltile = str.stringflags & STRINGFLAG_FULLTILE;
-			strings_list->add_tile(&str.tile, fulltile ? (str.w/16_zf).getCeil() : 2,
+			movelist->add_tile(&str.tile, fulltile ? (str.w/16_zf).getCeil() : 2,
 				fulltile ? (str.h/16_zf).getCeil() : 2, fmt::format("{} (BG): '{}'", q, util::snip(str.s,100)));
-			strings_list->add_tile(&str.portrait_tile, str.portrait_tw, str.portrait_th,
+			movelist->add_tile(&str.portrait_tile, str.portrait_tw, str.portrait_th,
 				fmt::format("{} (Port.): '{}'", q, util::snip(str.s,100)));
 		}
-		
-		vec.push_back(std::move(strings_list));
+		if(!every_proc && !movelist->check_prot())
+			return false;
 	}
-	return vec;
+	
+	if(source_process) //Apply the 'diff' value to all moved tiles
+		storage.redo();
+	if(every_proc)
+		for(auto &list : vec)
+			for(auto &ref : list->move_refs)
+				ref->forEach(every_proc);
+	return true;
+}
+bool handle_tile_move(TileMoveProcess dest_process)
+{
+	return _handle_tile_move(dest_process, nullopt, 0, nullptr, nullptr);
+}
+bool handle_tile_move(TileMoveProcess dest_process, TileMoveProcess source_process, int diff, TileMoveUndo& on_undo)
+{
+	return _handle_tile_move(dest_process, source_process, diff, &on_undo, nullptr);
+}
+void for_every_used_tile(std::function<void(int32_t)> proc)
+{
+	reset_combo_animations();
+	reset_combo_animations2();
+	_handle_tile_move({}, nullopt, 0, nullptr, proc);
 }
 
 bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess> source_process, int diff, ComboMoveUndo* on_undo)
@@ -7183,23 +7184,11 @@ bool handle_combo_move(ComboMoveProcess dest_process, ComboMoveProcess source_pr
 }
 void register_used_tiles()
 {
-	for(int32_t t=0; t<NEWMAXTILES; ++t)
-		used_tile_table[t]=false;
-	reset_combo_animations();
-	reset_combo_animations2();
-	used_tile_table[54]=true;
-	used_tile_table[55]=true;
-	auto move_lists = load_tile_move_lists(false);
-	for(auto &list : move_lists)
-	{
-		for(auto &ref : list->move_refs)
+	memset(used_tile_table, 0, sizeof(used_tile_table));
+	for_every_used_tile([&](int tile)
 		{
-			ref->forEach([&](int tile)
-				{
-					used_tile_table[tile] = true;
-				});
-		}
-	}
+			used_tile_table[tile] = true;
+		});
 }
 
 bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move, int32_t cs, bool backwards)
@@ -7415,51 +7404,23 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		// }
 	}
 	
-	char temptext[80];
 	
-	int32_t i;
-	
-	auto move_lists = load_tile_move_lists(move);
-	// warn if paste overwrites other defined tiles or
-	// if delete erases other defined tiles
-	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
-	bool done = false;
-	
-	for(int32_t q=0; q < (move?2:1) && !done; ++q)
+	TileMoveUndo on_undo;
+	// Overwrite warnings
+	TileMoveProcess dest{rect, dest_left, dest_top, dest_width, dest_height, dest_first, dest_last};
+	if(move)
 	{
-		switch(q)
-		{
-		case 0:
-			selection_first=dest_first;
-			selection_last=dest_last;
-			selection_left=dest_left;
-			selection_top=dest_top;
-			selection_width=dest_width;
-			selection_height=dest_height;
-			break;
-			
-		case 1:
-			selection_first=src_first;
-			selection_last=src_last;
-			selection_left=src_left;
-			selection_top=src_top;
-			selection_width=src_width;
-			selection_height=src_height;
-			break;
-		}
-		
-		for(auto &list : move_lists)
-		{
-			if(done) break;
-			if(list->process(rect, q==0, selection_left, selection_top, selection_width, selection_height, selection_first, selection_last))
-				done = true;
-		}
+		TileMoveProcess src{rect, src_left, src_top, src_width, src_height, src_first, src_last};
+		if(!handle_tile_move(dest, src, dest_first-src_first, on_undo))
+			return false;
 	}
-	
-	//
+	else
+	{
+		if(!handle_tile_move(dest))
+			return false;
+	}
 	// copy tiles and delete if needed (move)
 	
-	if(!done)
 	{
 		go_tiles();
 		
@@ -7501,20 +7462,14 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 		}
-		
-		if(move)
-			for(auto &list : move_lists)
-				list->add_diff(diff);
 	}
 	
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
 	
-	
-	if(done)
-		return false;
-		
+	if(move)
+		last_tile_move_list = std::move(on_undo);
 	return true;
 }
 //
@@ -7533,65 +7488,26 @@ bool do_movetile_united(tile_move_data const& tmd)
 		sprintf(buf4, "%s operation cancelled.", tmd.move?"Move":"Copy");
 		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
 		return false;
-//fix this below to allow the operation to complete with a modified start or end instead of just cancelling
-		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', get_zc_font(font_lfont))==2)
-		// {
-		//  return false;
-		// }
 	}
 	
-	char temptext[80];
-	
-	int32_t i;
-	
-	auto move_lists = load_tile_move_lists(tmd.move);
-	// warn if paste overwrites other defined tiles or
-	// if delete erases other defined tiles
-	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
-	bool done = false;
-	bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
-	int32_t diff = 0;
-	for(int32_t q=tmd.move?1:0; q>=0 && !done; --q)
+	TileMoveUndo on_undo;
+	// Overwrite warnings
+	TileMoveProcess dest{tmd.rect, tmd.dest_left, tmd.dest_top, tmd.dest_width, tmd.dest_height, tmd.dest_first, tmd.dest_last};
+	if(tmd.move)
 	{
-		switch(q)
-		{
-			case 0:
-				if(tmd.move)
-					diff = tmd.dest_first-tmd.src_first;
-				selection_first=tmd.dest_first;
-				selection_last=tmd.dest_last;
-				selection_left=tmd.dest_left;
-				selection_top=tmd.dest_top;
-				selection_width=tmd.dest_width;
-				selection_height=tmd.dest_height;
-				break;
-				
-			case 1: case 2:
-				selection_first=tmd.src_first;
-				selection_last=tmd.src_last;
-				selection_left=tmd.src_left;
-				selection_top=tmd.src_top;
-				selection_width=tmd.src_width;
-				selection_height=tmd.src_height;
-				break;
-		}
-		
-		for(auto &list : move_lists)
-		{
-			if(done) break;
-			if(list->process(rect, q==0, selection_left, selection_top, selection_width, selection_height, selection_first, selection_last))
-				done = true;
-		}
+		TileMoveProcess src{tmd.rect, tmd.src_left, tmd.src_top, tmd.src_width, tmd.src_height, tmd.src_first, tmd.src_last};
+		if(!handle_tile_move(dest, src, tmd.dest_first-tmd.src_first, on_undo))
+			return false;
+	}
+	else
+	{
+		if(!handle_tile_move(dest))
+			return false;
 	}
 	
-	//
 	// copy tiles and delete if needed (tmd.move)
-	
-	if(!done)
 	{
 		go_tiles();
-		
-		int32_t diff=tmd.dest_first-tmd.src_first;
 		
 		if(tmd.rect)
 		{
@@ -7659,19 +7575,14 @@ bool do_movetile_united(tile_move_data const& tmd)
 				}
 			}
 		}
-		
-		if(tmd.move)
-			for(auto &list : move_lists)
-				list->add_diff(diff);
 	}
 	
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
 	
-	if(done)
-		return false;
-		
+	if(tmd.move)
+		last_tile_move_list = std::move(on_undo);
 	return true;
 }
 
@@ -7845,14 +7756,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 		tmd.copies=tmd.dest_last-tmd.dest_first+1;
 	}
 	
-	bool ret = do_movetile_united(tmd);
-	if(ret)
-	{
-		if(last_tile_move)
-			delete last_tile_move;
-		last_tile_move = new tile_move_data(tmd);
-	}
-	return ret;
+	return do_movetile_united(tmd);
 }
 
 //
@@ -7866,7 +7770,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	{
 		zc_swap(tile, tile2);
 	}
-		
+	
 	tile_move_data tmd;
 	tmd.copies=copycnt;
 	tmd.dest_first=tile;
@@ -7934,51 +7838,23 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		// }
 	}
 	
-	char temptext[80];
-	
-	int32_t i;
-	
-	auto move_lists = load_tile_move_lists(move);
-	// warn if paste overwrites other defined tiles or
-	// if delete erases other defined tiles
-	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
-	bool done = false;
-	
-	for(int32_t q=0; q < (move?2:1) && !done; ++q)
+	TileMoveUndo on_undo;
+	// Overwrite warnings
+	TileMoveProcess dest{tmd.rect, tmd.dest_left, tmd.dest_top, tmd.dest_width, tmd.dest_height, tmd.dest_first, tmd.dest_last};
+	if(tmd.move)
 	{
-		switch(q)
-		{
-		case 0:
-			selection_first=tmd.dest_first;
-			selection_last=tmd.dest_last;
-			selection_left=tmd.dest_left;
-			selection_top=tmd.dest_top;
-			selection_width=tmd.dest_width;
-			selection_height=tmd.dest_height;
-			break;
-			
-		case 1:
-			selection_first=tmd.src_first;
-			selection_last=tmd.src_last;
-			selection_left=tmd.src_left;
-			selection_top=tmd.src_top;
-			selection_width=tmd.src_width;
-			selection_height=tmd.src_height;
-			break;
-		}
-		
-		for(auto &list : move_lists)
-		{
-			if(done) break;
-			if(list->process(rect, q==0, selection_left, selection_top, selection_width, selection_height, selection_first, selection_last))
-				done = true;
-		}
+		TileMoveProcess src{tmd.rect, tmd.src_left, tmd.src_top, tmd.src_width, tmd.src_height, tmd.src_first, tmd.src_last};
+		if(!handle_tile_move(dest, src, tmd.dest_first-tmd.src_first, on_undo))
+			return false;
+	}
+	else
+	{
+		if(!handle_tile_move(dest))
+			return false;
 	}
 	
-	//
 	// copy tiles and delete if needed (move)
 	
-	if(!done)
 	{
 		go_tiles();
 		
@@ -8032,11 +7908,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
-	
-	
-	if(done)
-		return false;
 		
+	if(tmd.move)
+		last_tile_move_list = std::move(on_undo);
 	return true;
 }
 //
@@ -8129,26 +8003,11 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 		return false;
 	}
 	
-	//{ Overwrite warnings
-	char buf2[80], buf3[80], buf4[80];
-	sprintf(buf2, " ");
-	sprintf(buf3, " ");
-	sprintf(buf4, " ");
-	char temptext[80];
+	// Overwrite warnings
+	if(!handle_tile_move({true, dest_left, dest_top, dest_width, dest_height, dest_first, dest_last}))
+		return false;
 	
-	int32_t i;
-	bool done = false;
-	
-	auto move_lists = load_tile_move_lists(false);
-	for(auto &list : move_lists)
-	{
-		if(done) break;
-		if(list->process(rect, false, dest_left, dest_top, dest_width, dest_height, dest_first, dest_last))
-			done = true;
-	}
-	//}
-	
-	if(!done)
+	//Do the rotate
 	{
 		go_tiles();
 		
@@ -8188,7 +8047,7 @@ bool scale_or_rotate_tiles(int32_t &tile, int32_t &tile2, int32_t &cs, bool rota
 	
 	register_blank_tiles();
 	register_used_tiles();
-	return !done;
+	return true;
 }
 
 void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool masscopy)

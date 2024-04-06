@@ -27,12 +27,17 @@ struct BaseTileRef
 	virtual void addTile(int32_t offs) = 0;
 	virtual void setTile(int32_t val) = 0;
 	virtual void forEach(std::function<void(int32_t)> proc) const = 0;
-	BaseTileRef(string name = "")
-		: name(name), w(1), h(1), no_move(false), xoff(0), yoff(0), extra_rects()
+	BaseTileRef(string name = "", bool no_move = false, int xoff = 0, int yoff = 0,
+		vector<std::tuple<int,int,int>> rects = {})
+		: name(name), w(1), h(1), no_move(no_move), xoff(xoff), yoff(yoff), extra_rects(std::move(rects))
 	{}
-	BaseTileRef(uint w, uint h, string name = "")
-		: name(name), w(zc_max(1,w)), h(zc_max(1,h)), no_move(false), xoff(0), yoff(0), extra_rects()
-	{}
+	template<class... Args>
+	BaseTileRef(uint w, uint h, Args&&... args)
+		: BaseTileRef(args...)
+	{
+		this->w = zc_max(1,w);
+		this->h = zc_max(1,h);
+	}
 };
 struct TileRefPtr : public BaseTileRef
 {
@@ -44,11 +49,13 @@ struct TileRefPtr : public BaseTileRef
 	TileRefPtr()
 		: BaseTileRef(), tile(nullptr)
 	{}
-	TileRefPtr(int32_t* tile, string name = "")
-		: BaseTileRef(name), tile(tile)
+	template<class... Args>
+	TileRefPtr(int32_t* tile, Args&&... args)
+		: BaseTileRef(args...), tile(tile)
 	{}
-	TileRefPtr(int32_t* tile, uint w, uint h, string name = "")
-		: BaseTileRef(w,h,name), tile(tile)
+	template<class... Args>
+	TileRefPtr(int32_t* tile, uint w, uint h, Args&&... args)
+		: BaseTileRef(w,h,args...), tile(tile)
 	{}
 };
 struct TileRefPtr10k : public BaseTileRef
@@ -61,11 +68,13 @@ struct TileRefPtr10k : public BaseTileRef
 	TileRefPtr10k()
 		: BaseTileRef(), tile(nullptr)
 	{}
-	TileRefPtr10k(int32_t* tile, string name = "")
-		: BaseTileRef(name), tile(tile)
+	template<class... Args>
+	TileRefPtr10k(int32_t* tile, Args&&... args)
+		: BaseTileRef(args...), tile(tile)
 	{}
-	TileRefPtr10k(int32_t* tile, uint w, uint h, string name = "")
-		: BaseTileRef(w,h,name), tile(tile)
+	template<class... Args>
+	TileRefPtr10k(int32_t* tile, uint w, uint h, Args&&... args)
+		: BaseTileRef(w,h,args...), tile(tile)
 	{}
 };
 struct TileRefCombo : public BaseTileRef
@@ -78,11 +87,13 @@ struct TileRefCombo : public BaseTileRef
 	TileRefCombo()
 		: BaseTileRef(), combo(nullptr)
 	{}
-	TileRefCombo(newcombo* combo, string name = "")
-		: BaseTileRef(name), combo(combo)
+	template<class... Args>
+	TileRefCombo(newcombo* combo, Args&&... args)
+		: BaseTileRef(args...), combo(combo)
 	{}
-	TileRefCombo(newcombo* combo, uint w, uint h, string name = "")
-		: BaseTileRef(w,h,name), combo(combo)
+	template<class... Args>
+	TileRefCombo(newcombo* combo, uint w, uint h, Args&&... args)
+		: BaseTileRef(w,h,args...), combo(combo)
 	{}
 };
 /* TODO: SCCs?
@@ -111,39 +122,58 @@ struct TileMoveProcess
 struct TileMoveList
 {
 	vector<std::unique_ptr<BaseTileRef>> move_refs;
-	bitstring_long move_bits;
-	string msg;
 	
-	TileMoveList() = default;
-	TileMoveList(string msg) : msg(msg) {}
+	string msg; //message for the overwrite warning
+	std::ostringstream warning_list; //list of overwrite warnings
+	bool warning_flood; //if the overwrite warnings ran out of space
+	
+	//The processes to check tiles with
+	optional<TileMoveProcess> source_process;
+	TileMoveProcess dest_process;
+	
+	TileMoveList(TileMoveProcess dest_p, optional<TileMoveProcess> src_p = nullopt, string msg = "")
+		: move_refs(), msg(msg), warning_list(), warning_flood(false),
+		source_process(src_p), dest_process(dest_p)
+	{}
 	
 	template<class... Args>
-	TileRefPtr* add_tile(int32_t* tile, Args&&... args)
+	void add_tile(int32_t* tile, Args&&... args)
 	{
 		if(!tile || !*tile)
-			return nullptr;
-		return (TileRefPtr*)move_refs.emplace_back(std::make_unique<TileRefPtr>(tile, args...)).get();
+			return;
+		add_ref(std::move(std::make_unique<TileRefPtr>(tile, args...)));
 	}
 	template<class... Args>
-	TileRefPtr10k* add_tile_10k(int32_t* tile, Args&&... args)
+	void add_tile_10k(int32_t* tile, Args&&... args)
 	{
 		if(!tile || !*tile)
-			return nullptr;
-		return (TileRefPtr10k*)move_refs.emplace_back(std::make_unique<TileRefPtr10k>(tile, args...)).get();
+			return;
+		add_ref(std::move(std::make_unique<TileRefPtr10k>(tile, args...)));
 	}
 	template<class... Args>
-	TileRefCombo* add_combo(newcombo* combo, Args&&... args)
+	void add_combo(newcombo* combo, Args&&... args)
 	{
 		if(!combo || !combo->o_tile)
-			return nullptr;
-		return (TileRefCombo*)move_refs.emplace_back(std::make_unique<TileRefCombo>(combo, args...)).get();
+			return;
+		add_ref(std::move(std::make_unique<TileRefCombo>(combo, args...)));
 	}
 	
 	
-	#ifdef IS_EDITOR
-	bool process(bool rect, bool is_dest, int _l, int _t, int _w, int _h, int _first, int _last);
+	//Adds 'ref', either to 'move_refs' or 'warning_list' as appropriate based on the process rules.
+	void add_ref(std::unique_ptr<BaseTileRef> ref)
+	{
+		if(source_process)
+			if(process(false, ref, *source_process))
+				return;
+		process(true, ref, dest_process);
+	}
+	
+	//Returns true if 'ref' was moved to the 'move_refs'
+	bool process(bool is_dest, std::unique_ptr<BaseTileRef>& ref, TileMoveProcess const& proc);
+	//Checks overwrite protection
+	bool check_prot();
+	//Adds 'diff' to every tile in 'move_refs'
 	void add_diff(int diff);
-	#endif
 };
 
 //Combos
@@ -265,6 +295,26 @@ struct ComboMoveUndo
 {
 	SuperSet combo_links;
 	vector<std::unique_ptr<ComboMoveList>> vec;
+	int diff;
+	bool state;
+	void undo()
+	{
+		if(!state) return;
+		state = false;
+		for(auto& list : vec)
+			list->add_diff(-diff);
+	}
+	void redo()
+	{
+		if(state) return;
+		state = true;
+		for(auto& list : vec)
+			list->add_diff(diff);
+	}
+};
+struct TileMoveUndo
+{
+	vector<std::unique_ptr<TileMoveList>> vec;
 	int diff;
 	bool state;
 	void undo()
