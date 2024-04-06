@@ -31,7 +31,7 @@
 				},
 				{
 					"name": "constant.language.annotation.zscript",
-					"match": "@(Author|Attribute(Help)?[0-9]|Flag(Help)?[0-9]|Flag(Help)?1[0-5]|Attribyte(Help)?[0-7]|Attrishort(Help)?[0-7]|InitD(Help|Type)?[0-7]|InitScript)"
+					"match": "@(Author|Attribute(Help)?[0-9]|Flag(Help)?[0-9]|Flag(Help)?1[0-5]|Attribyte(Help)?[0-7]|Attrishort(Help)?[0-7]|InitD(Help|Type)?[0-7]|InitScript|AlwaysRunEndpoint)"
 				},
 				{
 					"name": "invalid.illegal",
