@@ -366,7 +366,7 @@ bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
 	if (reclimit == 0)
 	{
 		log_error(CompileError::ImportRecursion(NULL, recursionLimit));
-		return false;
+		exit(1);
 	}
 	for(auto it = root->inclpaths.begin();
 	     it != root->inclpaths.end(); ++it)
