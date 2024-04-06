@@ -120,6 +120,21 @@ struct SuperSet
 		}
 		return ret;
 	}
+	template<typename T>
+	vector<std::set<int> const*> subset(std::map<int,T> const& s) const
+	{
+		vector<std::set<int> const*> ret;
+		for(auto& s2 : superset)
+		{
+			for(auto p : s)
+				if(s2.contains(p.first))
+				{
+					ret.emplace_back(&s2);
+					break;
+				}
+		}
+		return ret;
+	}
 	std::set<int> banned_vals = {0};
 private:
 	vector<std::set<int>> superset;

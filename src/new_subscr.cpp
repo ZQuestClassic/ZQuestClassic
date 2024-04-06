@@ -1308,10 +1308,6 @@ ZCSubscreen const* SubscrWidget::getParentSub() const
 {
 	return parentPage ? parentPage->getParent() : nullptr;
 }
-void SubscrWidget::collect_tiles(TileMoveList& list)
-{
-	
-}
 
 SW_2x2Frame::SW_2x2Frame(subscreen_object const& old) : SW_2x2Frame()
 {
@@ -1379,10 +1375,6 @@ int32_t SW_2x2Frame::write(PACKFILE *f) const
 	if(auto ret = cs.write(f))
 		return ret;
 	return 0;
-}
-void SW_2x2Frame::collect_tiles(TileMoveList& list)
-{
-	list.add_tile(&tile, 2, 2, "2x2 Frame");
 }
 
 SW_Text::SW_Text(subscreen_object const& old) : SW_Text()
@@ -3533,11 +3525,6 @@ int32_t SW_TriFrame::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
-void SW_TriFrame::collect_tiles(TileMoveList& list)
-{
-	list.add_tile(&frame_tile, 6, 3, "McGuffin Frame - Frame");
-	list.add_tile(&piece_tile, "McGuffin Frame - Piece");
-}
 
 SW_McGuffin::SW_McGuffin(subscreen_object const& old) : SW_McGuffin()
 {
@@ -3618,10 +3605,6 @@ int32_t SW_McGuffin::write(PACKFILE *f) const
 		return ret;
 	return 0;
 }
-void SW_McGuffin::collect_tiles(TileMoveList& list)
-{
-	list.add_tile(&tile, "McGuffin Piece");
-}
 
 SW_TileBlock::SW_TileBlock(subscreen_object const& old) : SW_TileBlock()
 {
@@ -3695,10 +3678,6 @@ int32_t SW_TileBlock::write(PACKFILE *f) const
 	if(auto ret =  cs.write(f))
 		return ret;
 	return 0;
-}
-void SW_TileBlock::collect_tiles(TileMoveList& list)
-{
-	list.add_tile(&tile, w, h, "TileBlock");
 }
 
 SW_MiniTile::SW_MiniTile(subscreen_object const& old) : SW_MiniTile()
@@ -3848,12 +3827,6 @@ int32_t SW_MiniTile::write(PACKFILE *f) const
 	if(auto ret =  cs.write(f))
 		return ret;
 	return 0;
-}
-void SW_MiniTile::collect_tiles(TileMoveList& list)
-{
-	if(tile == -1)
-		return;
-	list.add_tile(&tile, "MiniTile");
 }
 
 SW_Selector::SW_Selector(byte ty) : SubscrWidget(ty)
@@ -4419,18 +4392,6 @@ int32_t SW_GaugePiece::write(PACKFILE* f) const
 			new_return(1);
 	}
 	return 0;
-}
-void SW_GaugePiece::collect_tiles(TileMoveList& list)
-{
-	int fr = frames ? frames : 1;
-	fr = fr * (1+(get_per_container()/(unit_per_frame+1)));
-	if(!(flags&SUBSCR_GAUGE_FULLTILE))
-		fr = (fr/4_zf).getCeil();
-	
-	for(auto q = 0; q < 4; ++q)
-	{
-		list.add_tile(&mts[q].mt_tile, fr, 1, fmt::format("Gauge Tile {}", q));
-	}
 }
 
 SW_LifeGaugePiece::SW_LifeGaugePiece(subscreen_object const& old) : SW_LifeGaugePiece()
@@ -5576,19 +5537,6 @@ void SubscrPage::force_update()
 	for(SubscrWidget* w : contents)
 		w->parentPage = this;
 }
-void SubscrPage::collect_tiles(TileMoveList& list)
-{
-	for(auto q = 0; q < contents.size(); ++q)
-	{
-		size_t indx = list.move_refs.size();
-		contents[q]->collect_tiles(list);
-		for(; indx < list.move_refs.size(); ++indx)
-		{
-			auto& ref = list.move_refs[indx];
-			ref->name = fmt::format("Widget {} - {}", q, ref->name);
-		}
-	}
-}
 SubscrPage& ZCSubscreen::cur_page()
 {
 	if(pages.empty())
@@ -5956,6 +5904,72 @@ void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& tran
 		return;
 	subscrpg_animate(curpage,pg,trans,*this);
 }
+
+ZCSubscreen::ZCSubscreen(ZCSubscreen const& other)
+{
+	copy_settings(other,true);
+}
+ZCSubscreen& ZCSubscreen::operator=(ZCSubscreen const& other)
+{
+	copy_settings(other,true);
+	return *this;
+}
+
+
+#ifdef IS_EDITOR
+
+void SubscrWidget::collect_tiles(TileMoveList& list)
+{
+	
+}
+void SW_2x2Frame::collect_tiles(TileMoveList& list)
+{
+	list.add_tile(&tile, 2, 2, "2x2 Frame");
+}
+void SW_TriFrame::collect_tiles(TileMoveList& list)
+{
+	list.add_tile(&frame_tile, 6, 3, "McGuffin Frame - Frame");
+	list.add_tile(&piece_tile, "McGuffin Frame - Piece");
+}
+void SW_McGuffin::collect_tiles(TileMoveList& list)
+{
+	list.add_tile(&tile, "McGuffin Piece");
+}
+void SW_TileBlock::collect_tiles(TileMoveList& list)
+{
+	list.add_tile(&tile, w, h, "TileBlock");
+}
+void SW_MiniTile::collect_tiles(TileMoveList& list)
+{
+	if(tile == -1)
+		return;
+	list.add_tile(&tile, "MiniTile");
+}
+void SW_GaugePiece::collect_tiles(TileMoveList& list)
+{
+	int fr = frames ? frames : 1;
+	fr = fr * (1+(get_per_container()/(unit_per_frame+1)));
+	if(!(flags&SUBSCR_GAUGE_FULLTILE))
+		fr = (fr/4_zf).getCeil();
+	
+	for(auto q = 0; q < 4; ++q)
+	{
+		list.add_tile(&mts[q].mt_tile, fr, 1, fmt::format("Gauge Tile {}", q));
+	}
+}
+void SubscrPage::collect_tiles(TileMoveList& list)
+{
+	for(auto q = 0; q < contents.size(); ++q)
+	{
+		size_t indx = list.move_refs.size();
+		contents[q]->collect_tiles(list);
+		for(; indx < list.move_refs.size(); ++indx)
+		{
+			auto& ref = list.move_refs[indx];
+			ref->name = fmt::format("Widget {} - {}", q, ref->name);
+		}
+	}
+}
 void ZCSubscreen::collect_tiles(TileMoveList& list)
 {
 	for(auto q = 0; q < pages.size(); ++q)
@@ -5969,14 +5983,5 @@ void ZCSubscreen::collect_tiles(TileMoveList& list)
 		}
 	}
 }
-
-ZCSubscreen::ZCSubscreen(ZCSubscreen const& other)
-{
-	copy_settings(other,true);
-}
-ZCSubscreen& ZCSubscreen::operator=(ZCSubscreen const& other)
-{
-	copy_settings(other,true);
-	return *this;
-}
+#endif
 

@@ -33,6 +33,7 @@
 #include "zq/render.h"
 #include "zinfo.h"
 #include <fmt/format.h>
+#include "zq/moveinfo.h"
 using std::set;
 
 extern zcmodule moduledata;
@@ -339,8 +340,9 @@ struct combo_move_data
 		copycnt = tcnt;
 	}
 };
-bool do_movecombo(combo_move_data const& cmd);
-static combo_move_data* last_combo_move = NULL;
+
+bool do_movecombo(combo_move_data const& cmd, ComboMoveUndo& on_undo, bool is_undoing = false);
+static optional<ComboMoveUndo> last_combo_move_list;
 
 int refl_flags = 0;
 enum
@@ -619,30 +621,17 @@ void comeback_tiles()
 void go_combos()
 {
 	if(nogocombos) return;
-	if(last_combo_move)
-	{
-		delete last_combo_move;
-		last_combo_move = NULL;
-	}
+	last_combo_move_list = nullopt;
 
 	undocombobuf = combobuf;
 }
 
 void comeback_combos()
 {
-	if(last_combo_move)
+	if(last_combo_move_list)
 	{
-		last_combo_move->flip();
-		bool t = nogocombos;
-		nogocombos = true;
-		if(!do_movecombo(*last_combo_move))
-		{
-			nogocombos = t;
-			return;
-		}
-		nogocombos = t;
-		delete last_combo_move;
-		last_combo_move = NULL;
+		last_combo_move_list->undo();
+		last_combo_move_list = nullopt;
 	}
 
 	combobuf = undocombobuf;
@@ -6250,114 +6239,131 @@ void TileMoveList::add_diff(int diff)
 }
 
 //from 'combo.h'
-bool ComboMoveList::process(bool is_dest, SuperSet const& combo_links, int _first, int _last)
+bool ComboMoveList::process(bool is_dest, std::unique_ptr<BaseComboRef>& ref, ComboMoveProcess const& proc)
 {
-	std::ostringstream oss;
-	bool found = false, flood = false;
-	set<int> combos;
-	set<int> non_move_combos;
-	for(size_t indx = 0; indx < move_refs.size(); ++indx)
+	int i = ti_none;
+	auto c = ref->getCombo();
+	
+	if(ref->no_move)
+		processed_combos[c] = true;
+	else processed_combos[c]; //inserts element if does not exist
+	i = move_intersection_ss(c, c, proc._first, proc._last);
+	
+	if(i != ti_none && ref->getCombo() != 0)
 	{
-		auto& ref = move_refs[indx];
-		int i = ti_none;
-		
-		if(move_bits.get(indx))
-			continue;
-		auto c = ref->getCombo();
-		combos.insert(c);
-		if(ref->no_move)
-			non_move_combos.insert(c);
-		i = move_intersection_ss(c, c, _first, _last);
-		
-		if(i != ti_none && ref->getCombo() != 0)
+		if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
 		{
-			if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
+			if(ComboProtection)
 			{
-				if(flood || oss.tellp() >= 65000)
+				if(warning_flood || warning_list.tellp() >= 65000)
 				{
-					if(!flood)
-						oss << "...\n...\n...\nmany others";
-					flood = true;
+					if(!warning_flood)
+						warning_list << "...\n...\n...\nmany others";
+					warning_flood = true;
 				}
 				else
-					oss << ref->name << '\n';
-				
-				found = true;
-			}
-			else if(i==ti_encompass)
-			{
-				move_bits.set(indx, true);
+					warning_list << ref->name << '\n';
 			}
 		}
+		else if(i==ti_encompass)
+		{
+			move_refs.emplace_back(std::move(ref));
+			return true;
+		}
 	}
-	
-	vector<set<int> const*> subset = combo_links.subset(combos);
-	bool subset_header = false;
-	for(auto s : subset)
-	{
-		if(flood || oss.tellp() >= 65000)
-		{
-			if(!flood)
-				oss << "...\n...\n...\nmany others";
-			flood = true;
-			break;
-		}
-		set<int> in_set, out_set;
-		bool no_move = is_dest;
-		for(int c : *s)
-		{
-			int i = move_intersection_ss(c, c, _first, _last);
-			if(i != ti_none)
-				in_set.insert(c);
-			if(i != ti_encompass)
-				out_set.insert(c);
-			if(!no_move && non_move_combos.contains(c))
-				no_move = true;
-		}
-		int i = in_set.empty() ? ti_none : (out_set.empty() ? ti_encompass : ti_broken);
-		if(i == ti_encompass && !no_move)
-			continue;
-		if(i == ti_none)
-			continue;
-		found = true;
-		if(!subset_header)
-		{
-			subset_header = true;
-			oss << "===== Broken Relative Combo Groups =====\n";
-		}
-		std::ostringstream oss2;
-		bool comma = false;
-		oss2 << "In(";
-		for(int c : in_set)
-		{
-			if(comma)
-				oss2 << ",";
-			else comma = true;
-			oss2 << c;
-		}
-		oss2 << "),Out(";
-		comma = false;
-		for(int c : out_set)
-		{
-			if(comma)
-				oss2 << ",";
-			else comma = true;
-			oss2 << c;
-		}
-		oss2 << ")\n";
-		oss << oss2.str();
-	}
-	return ComboProtection && found && !popup_move_textbox_dlg(msg, oss.str().data(), "Combo Warning");
+	return false;
 }
+
+bool ComboMoveList::check_prot()
+{
+	if(!ComboProtection)
+		return true;
+	vector<set<int> const*> subset = combo_links.subset(processed_combos);
+	bool subset_header = false;
+	for(int q = 0; q < 2; ++q)
+	{
+		bool is_dest = (q==1);
+		if(!is_dest && !source_process)
+			continue;
+		ComboMoveProcess const& proc = is_dest ? dest_process : *source_process;
+		for(auto it = subset.begin(); it != subset.end();)
+		{
+			auto s = *it;
+			if(warning_flood || warning_list.tellp() >= 65000)
+			{
+				if(!warning_flood)
+					warning_list << "...\n...\n...\nmany others";
+				warning_flood = true;
+				break;
+			}
+			set<int> in_set, out_set;
+			bool no_move = is_dest;
+			for(int c : *s)
+			{
+				int i = move_intersection_ss(c, c, proc._first, proc._last);
+				if(i != ti_none)
+					in_set.insert(c);
+				if(i != ti_encompass)
+					out_set.insert(c);
+				if(!no_move)
+				{
+					auto it = processed_combos.find(c);
+					if(it != processed_combos.end() && it->second)
+						no_move = true;
+				}
+			}
+			int i = in_set.empty() ? ti_none : (out_set.empty() ? ti_encompass : ti_broken);
+			if(i == ti_encompass && !no_move)
+			{
+				it = subset.erase(it);
+				continue;
+			}
+			if(i == ti_none)
+			{
+				++it;
+				continue;
+			}
+			
+			if(!subset_header)
+			{
+				subset_header = true;
+				warning_list << "===== Broken Relative Combo Groups =====\n";
+			}
+			bool comma = false;
+			warning_list << "In(";
+			for(int c : in_set)
+			{
+				if(comma)
+					warning_list << ",";
+				else comma = true;
+				warning_list << c;
+			}
+			warning_list << "),Out(";
+			comma = false;
+			for(int c : out_set)
+			{
+				if(comma)
+					warning_list << ",";
+				else comma = true;
+				warning_list << c;
+			}
+			warning_list << ")\n";
+			it = subset.erase(it);
+		}
+	}
+	auto ret = !warning_list.tellp() || popup_move_textbox_dlg(msg, warning_list.str().data(), "Combo Warning");
+	
+	processed_combos.clear();
+	warning_flood = false;
+	warning_list.clear();
+	
+	return ret;
+}
+
 void ComboMoveList::add_diff(int diff)
 {
-	for(size_t indx = 0; indx < move_refs.size(); ++indx)
-	{
-		if(!move_bits.get(indx))
-			continue;
-		
-		move_refs[indx]->addCombo(diff);
-	}
+	for(auto& ref : move_refs)
+		ref->addCombo(diff);
 }
 
 vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
@@ -6873,141 +6879,21 @@ vector<std::unique_ptr<TileMoveList>> load_tile_move_lists(bool move)
 	return vec;
 }
 
-vector<std::unique_ptr<ComboMoveList>> load_combo_move_lists(bool move, SuperSet& combo_links)
+bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess> source_process, int diff, ComboMoveUndo* on_undo)
 {
 	bool BSZ2 = get_qr(qr_BSZELDA);
-	vector<std::unique_ptr<ComboMoveList>> vec;
-	combo_links.clear();
-	//Screens
+	bool move = source_process.has_value();
+	ComboMoveUndo local_undo;
+	ComboMoveUndo& storage = on_undo ? *on_undo : local_undo;
+	auto& vec = storage.vec;
+	auto& combo_links = storage.combo_links;
+	storage.diff = diff;
+	storage.state = false;
+	//Combo relative links
 	{
-		auto screen_list = std::make_unique<ComboMoveList>(
-			move
-			? "The combos used by the following screens will be partially cleared by the move."
-			: "The combos used by the following screens will be partially or completely overwritten by this process."
-			);
-		screen_list->move_refs.reserve(20000); //kinda arbitrary
-		
-		for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
-		{
-			for(int32_t j=0; j<MAPSCRS; j++)
-			{
-				mapscr& scr = TheMaps[i*MAPSCRS+j];
-				
-				if(!(scr.valid&mVALID))
-					continue;
-				
-				screen_list->add_combo(&scr.undercombo, fmt::format("{}x{:02X} - UnderCombo", i, j));
-				for(int32_t k=0; k<176; k++)
-					screen_list->add_combo(&scr.data[k], fmt::format("{}x{:02X} - Pos {}", i, j, k));
-				
-				for(int32_t k=0; k<128; k++)
-					screen_list->add_combo(&scr.secretcombo[k], fmt::format("{}x{:02X} - SecretCombo {}", i, j, k));
-				
-				word maxffc = scr.numFFC();
-				for(word k=0; k<maxffc; k++)
-				{
-					ffcdata& ffc = scr.ffcs[k];
-					screen_list->add_combo(&ffc.data, fmt::format("{}x{:02X} - FFC {}", i, j, k+1));
-				}
-			}
-		}
-		
-		vec.push_back(std::move(screen_list));
-	}
-	//Door Combo Sets
-	{
-		auto dcs_list = std::make_unique<ComboMoveList>(
-			move
-			? "The combos used by the following screens will be partially cleared by the move."
-			: "The combos used by the following screens will be partially or completely overwritten by this process."
-			);
-		static const char* door_names[9] = {
-			"Wall", "Locked", "Shuttered", "Boss", "Bombed", "Open", "Unlocked", "Open Shuttered", "Open Boss"
-		};
-		for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
-		{
-			auto& dcs = DoorComboSets[i];
-			for(int32_t j=0; j<9; j++)
-			{
-				if(j<4)
-				{
-					dcs_list->add_combo(&dcs.walkthroughcombo[j], fmt::format("{} ({}): Walk-Through {}", i, dcs.name, j));
-					
-					if(j<3)
-					{
-						if(j<2)
-						{
-							dcs_list->add_combo(&dcs.bombdoorcombo_u[j], fmt::format("{} ({}): Unused? bombdoorcombo_u {}", i, dcs.name, j));
-							dcs_list->add_combo(&dcs.bombdoorcombo_d[j], fmt::format("{} ({}): Unused? bombdoorcombo_d {}", i, dcs.name, j));
-						}
-						dcs_list->add_combo(&dcs.bombdoorcombo_l[j], fmt::format("{} ({}): Unused? bombdoorcombo_l {}", i, dcs.name, j));
-						dcs_list->add_combo(&dcs.bombdoorcombo_r[j], fmt::format("{} ({}): Unused? bombdoorcombo_r {}", i, dcs.name, j));
-					}
-				}
-				
-				for(int32_t k=0; k<6; k++)
-				{
-					if(k<4)
-					{
-						dcs_list->add_combo(&dcs.doorcombo_u[j][k], fmt::format("{} ({}): Top, {} #{}", i, dcs.name, door_names[j], k));
-						dcs_list->add_combo(&dcs.doorcombo_d[j][k], fmt::format("{} ({}): Bottom, {} #{}", i, dcs.name, door_names[j], k));
-					}
-					
-					dcs_list->add_combo(&dcs.doorcombo_l[j][k], fmt::format("{} ({}): Left, {} #{}", i, dcs.name, door_names[j], k));
-					dcs_list->add_combo(&dcs.doorcombo_r[j][k], fmt::format("{} ({}): Right, {} #{}", i, dcs.name, door_names[j], k));
-				}
-			}
-		}
-		
-		vec.push_back(std::move(dcs_list));
-	}
-	//Combos
-	{
-		auto combo_list = std::make_unique<ComboMoveList>(
-			move
-			? "The combos used by the following combos will be partially cleared by the move."
-			: "The combos used by the following combos will be partially or completely overwritten by this process."
-			);
 		for(int32_t q = 0; q < MAXCOMBOS; ++q)
 		{
 			newcombo& cmb = combobuf[q];
-			auto lbl = fmt::format("{}{}", q, cmb.label.empty() ? ""
-				: fmt::format(" ({})", cmb.label));
-			combo_list->add_combo(&cmb.nextcombo, fmt::format("{} - Combo Cycle", lbl));
-			combo_list->add_combo(&cmb.liftcmb, fmt::format("{} - Lift Combo", lbl));
-			combo_list->add_combo(&cmb.liftundercmb, fmt::format("{} - Lift Undercombo", lbl));
-			combo_list->add_combo(&cmb.prompt_cid, fmt::format("{} - Triggers ButtonPrompt", lbl));
-			
-			//type-specific
-			char const* type_name = ZI.getComboTypeName(cmb.type);
-			switch(cmb.type)
-			{
-				case cLOCKEDCHEST: case cBOSSCHEST:
-					if(cmb.usrflags & cflag13)
-						combo_list->add_combo_10k(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
-				[[fallthrough]];
-				case cCHEST:
-					if(cmb.usrflags & cflag13)
-						combo_list->add_combo_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
-					break;
-				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-					if(cmb.usrflags & cflag13)
-					{
-						combo_list->add_combo_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
-						combo_list->add_combo_10k(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
-					}
-					break;
-				case cSIGNPOST:
-					if(cmb.usrflags & cflag13)
-						combo_list->add_combo_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
-					break;
-				case cBUTTONPROMPT:
-					if(cmb.usrflags & cflag13)
-						combo_list->add_combo_10k(&cmb.attributes[0], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
-					break;
-			}
-			
-			//relative links
 			if(cmb.trigchange)
 				combo_links.add_to(q, q+cmb.trigchange);
 			bool next = cmb.flag == mfSECRETSNEXT;
@@ -7041,52 +6927,163 @@ vector<std::unique_ptr<ComboMoveList>> load_combo_move_lists(bool move, SuperSet
 			if(next)
 				combo_links.add_to(q, q+1);
 		}
+	}
+	
+	//This function is expensive! Any optimizations possible should be made. -Em
+	
+	//OPT: Check for a 0-val preemptively, to avoid processing the fmt::format strings
+	#define ADDC(ptr, ...) \
+	if(*ptr) movelist->add_combo(ptr, __VA_ARGS__);
+	#define ADDC_10k(ptr, ...) \
+	if(*ptr) movelist->add_combo_10k(ptr, __VA_ARGS__);
+	//Combos
+	{
+		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
+			combo_links, dest_process, source_process,
+			move
+			? "The combos used by the following combos will be partially cleared by the move."
+			: "The combos used by the following combos will be partially or completely overwritten by this process."
+			));
+		for(int32_t q = 0; q < MAXCOMBOS; ++q)
+		{
+			newcombo& cmb = combobuf[q];
+			auto lbl = fmt::format("{}{}", q, cmb.label.empty() ? ""
+				: fmt::format(" ({})", cmb.label));
+			ADDC(&cmb.nextcombo, fmt::format("{} - Combo Cycle", lbl));
+			ADDC(&cmb.liftcmb, fmt::format("{} - Lift Combo", lbl));
+			ADDC(&cmb.liftundercmb, fmt::format("{} - Lift Undercombo", lbl));
+			ADDC(&cmb.prompt_cid, fmt::format("{} - Triggers ButtonPrompt", lbl));
+			
+			//type-specific
+			char const* type_name = ZI.getComboTypeName(cmb.type);
+			switch(cmb.type)
+			{
+				case cLOCKEDCHEST: case cBOSSCHEST:
+					if(cmb.usrflags & cflag13)
+						ADDC_10k(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
+				[[fallthrough]];
+				case cCHEST:
+					if(cmb.usrflags & cflag13)
+						ADDC_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+					break;
+				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+					if(cmb.usrflags & cflag13)
+					{
+						ADDC_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+						ADDC_10k(&cmb.attributes[2], fmt::format("{} - Type '{}' - Locked Prompt", lbl, type_name));
+					}
+					break;
+				case cSIGNPOST:
+					if(cmb.usrflags & cflag13)
+						ADDC_10k(&cmb.attributes[1], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+					break;
+				case cBUTTONPROMPT:
+					if(cmb.usrflags & cflag13)
+						ADDC_10k(&cmb.attributes[0], fmt::format("{} - Type '{}' - Prompt", lbl, type_name));
+					break;
+			}
+		}
 		
-		vec.push_back(std::move(combo_list));
+		if(!movelist->check_prot())
+			return false;
+	}
+	//Door Combo Sets
+	{
+		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
+			combo_links, dest_process, source_process,
+			move
+			? "The combos used by the following screens will be partially cleared by the move."
+			: "The combos used by the following screens will be partially or completely overwritten by this process."
+			));
+		static const char* door_names[9] = {
+			"Wall", "Locked", "Shuttered", "Boss", "Bombed", "Open", "Unlocked", "Open Shuttered", "Open Boss"
+		};
+		for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
+		{
+			auto& dcs = DoorComboSets[i];
+			for(int32_t j=0; j<9; j++)
+			{
+				if(j<4)
+				{
+					ADDC(&dcs.walkthroughcombo[j], fmt::format("{} ({}): Walk-Through {}", i, dcs.name, j));
+					
+					if(j<3)
+					{
+						if(j<2)
+						{
+							ADDC(&dcs.bombdoorcombo_u[j], fmt::format("{} ({}): Unused? bombdoorcombo_u {}", i, dcs.name, j));
+							ADDC(&dcs.bombdoorcombo_d[j], fmt::format("{} ({}): Unused? bombdoorcombo_d {}", i, dcs.name, j));
+						}
+						ADDC(&dcs.bombdoorcombo_l[j], fmt::format("{} ({}): Unused? bombdoorcombo_l {}", i, dcs.name, j));
+						ADDC(&dcs.bombdoorcombo_r[j], fmt::format("{} ({}): Unused? bombdoorcombo_r {}", i, dcs.name, j));
+					}
+				}
+				
+				for(int32_t k=0; k<6; k++)
+				{
+					if(k<4)
+					{
+						ADDC(&dcs.doorcombo_u[j][k], fmt::format("{} ({}): Top, {} #{}", i, dcs.name, door_names[j], k));
+						ADDC(&dcs.doorcombo_d[j][k], fmt::format("{} ({}): Bottom, {} #{}", i, dcs.name, door_names[j], k));
+					}
+					
+					ADDC(&dcs.doorcombo_l[j][k], fmt::format("{} ({}): Left, {} #{}", i, dcs.name, door_names[j], k));
+					ADDC(&dcs.doorcombo_r[j][k], fmt::format("{} ({}): Right, {} #{}", i, dcs.name, door_names[j], k));
+				}
+			}
+		}
+		
+		if(!movelist->check_prot())
+			return false;
 	}
 	//Combo Pools
 	{
-		auto cpool_list = std::make_unique<ComboMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
+			combo_links, dest_process, source_process,
 			move
 			? "The combos used by the following combo pools will be partially cleared by the move."
 			: "The combos used by the following combo pools will be partially or completely overwritten by this process."
-			);
+			));
 		for(auto q = 0; q < MAXCOMBOPOOLS; ++q)
 		{
 			combo_pool& pool = combo_pools[q];
 			int idx = 0;
 			for(cpool_entry& cp : pool.combos)
-				cpool_list->add_combo(&cp.cid, fmt::format("{} index {}", q, idx++));
+				ADDC(&cp.cid, fmt::format("{} index {}", q, idx++));
 		}
 		
-		vec.push_back(std::move(cpool_list));
+		if(!movelist->check_prot())
+			return false;
 	}
 	//Auto Combos
 	{
-		auto autocombo_list = std::make_unique<ComboMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
+			combo_links, dest_process, source_process,
 			move
 			? "The combos used by the following autocombos will be partially cleared by the move."
 			: "The combos used by the following autocombos will be partially or completely overwritten by this process."
-			);
+			));
 		for (auto q = 0; q < MAXAUTOCOMBOS; ++q)
 		{
 			combo_auto& cauto = combo_autos[q];
 			int idx = 0;
 			for (autocombo_entry& ac : cauto.combos)
-				autocombo_list->add_combo(&ac.cid, fmt::format("{} index {}", q, idx++));
-			autocombo_list->add_combo(&cauto.cid_erase, fmt::format("{} Erase Combo", q));
-			autocombo_list->add_combo(&cauto.cid_display, fmt::format("{} Display Combo", q));
+				ADDC(&ac.cid, fmt::format("{} index {}", q, idx++));
+			ADDC(&cauto.cid_erase, fmt::format("{} Erase Combo", q));
+			ADDC(&cauto.cid_display, fmt::format("{} Display Combo", q));
 		}
 		
-		vec.push_back(std::move(autocombo_list));
+		if(!movelist->check_prot())
+			return false;
 	}
 	//Combo Aliases
 	{
-		auto alias_list = std::make_unique<ComboMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
+			combo_links, dest_process, source_process,
 			move
 			? "The combos used by the following aliases will be partially cleared by the move."
 			: "The combos used by the following aliases will be partially or completely overwritten by this process."
-			);
+			));
 		for(int32_t i=0; i<MAXCOMBOALIASES; i++)
 		{
 			//dimensions are 1 less than you would expect -DD
@@ -7094,44 +7091,96 @@ vector<std::unique_ptr<ComboMoveList>> load_combo_move_lists(bool move, SuperSet
 			
 			for(int32_t j=0; j<count; j++)
 			{
-				alias_list->add_combo(&combo_aliases[i].combos[j], fmt::format("{} index {}", i, j));
+				ADDC(&combo_aliases[i].combos[j], fmt::format("{} index {}", i, j));
 			}
 		}
 		
-		vec.push_back(std::move(alias_list));
+		if(!movelist->check_prot())
+			return false;
 	}
 	//Favorite Combos
 	{
-		auto favoritecombo_list = std::make_unique<ComboMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
+			combo_links, dest_process, source_process,
 			move
 			? "The combos used by the following favorite combos will be partially cleared by the move."
 			: "The combos used by the following favorite combos will be partially or completely overwritten by this process."
-			);
+			));
 		for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
 		{
 			if(favorite_combo_modes[i] != dm_normal) //don't hit pools/aliases/autos, only combos!
 				continue;
-			favoritecombo_list->add_combo(&favorite_combos[i], fmt::format("Favorite {}", i));
+			ADDC(&favorite_combos[i], fmt::format("Favorite {}", i));
 		}
 		
-		vec.push_back(std::move(favoritecombo_list));
+		if(!movelist->check_prot())
+			return false;
 	}
 	//Bottle Shops
 	{
-		auto bshop_list = std::make_unique<ComboMoveList>(
+		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
+			combo_links, dest_process, source_process,
 			move
 			? "The combos used by the following bottle shops will be partially cleared by the move."
 			: "The combos used by the following bottle shops will be partially or completely overwritten by this process."
-			);
+			));
 		for(auto q = 0; q < 256; ++q)
 			for(auto p = 0; p < 3; ++p)
-				bshop_list->add_combo(&QMisc.bottle_shop_types[q].comb[p], fmt::format("{} slot {}", q, p));
+				ADDC(&QMisc.bottle_shop_types[q].comb[p], fmt::format("{} slot {}", q, p));
 		
-		vec.push_back(std::move(bshop_list));
+		if(!movelist->check_prot())
+			return false;
 	}
-	return vec;
+	//Screens //EXPENSIVE! DO THIS LAST!
+	{
+		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
+			combo_links, dest_process, source_process,
+			move
+			? "The combos used by the following screens will be partially cleared by the move."
+			: "The combos used by the following screens will be partially or completely overwritten by this process."
+			));		
+		
+		for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
+		{
+			for(int32_t j=0; j<MAPSCRS; j++)
+			{
+				mapscr& scr = TheMaps[i*MAPSCRS+j];
+				
+				if(!(scr.valid&mVALID))
+					continue;
+				
+				ADDC(&scr.undercombo, fmt::format("{}x{:02X} - UnderCombo", i, j));
+				for(int32_t k=0; k<176; k++)
+					ADDC(&scr.data[k], fmt::format("{}x{:02X} - Pos {}", i, j, k));
+				
+				for(int32_t k=0; k<128; k++)
+					ADDC(&scr.secretcombo[k], fmt::format("{}x{:02X} - SecretCombo {}", i, j, k));
+				
+				word maxffc = scr.numFFC();
+				for(word k=0; k<maxffc; k++)
+				{
+					ffcdata& ffc = scr.ffcs[k];
+					ADDC(&ffc.data, fmt::format("{}x{:02X} - FFC {}", i, j, k+1));
+				}
+			}
+		}
+		
+		if(!movelist->check_prot())
+			return false;
+	}
+	if(source_process) //Apply the 'diff' value to all moved combos
+		storage.redo();
+	return true;
 }
 
+bool handle_combo_move(ComboMoveProcess dest_process)
+{
+	return _handle_combo_move(dest_process, nullopt, 0, nullptr);
+}
+bool handle_combo_move(ComboMoveProcess dest_process, ComboMoveProcess source_process, int diff, ComboMoveUndo& on_undo)
+{
+	return _handle_combo_move(dest_process, source_process, diff, &on_undo);
+}
 void register_used_tiles()
 {
 	for(int32_t t=0; t<NEWMAXTILES; ++t)
@@ -8153,18 +8202,9 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 		zc_swap(tile,tile2);
 	}
 	
-	SuperSet combo_links;
-	auto move_lists = load_combo_move_lists(false, combo_links);
-	bool done = false;
 	auto first = tile;
 	auto last = masscopy ? tile2 : first + copycnt-1;
-	for(auto &list : move_lists)
-	{
-		if(done) break;
-		if(list->process(true, combo_links, first, last))
-			done = true;
-	}
-	if(done)
+	if(!handle_combo_move({first,last}))
 		return;
 	
 	if(!masscopy)
@@ -8215,31 +8255,17 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 	setup_combo_animations2();
 }
 
-bool do_movecombo(combo_move_data const& cmd)
+bool do_movecombo(combo_move_data const& cmd, ComboMoveUndo& on_undo, bool is_undoing)
 {
 	reset_combo_animations();
 	reset_combo_animations2();
 	go_combos();
 	
-	SuperSet combo_links;
-	auto move_lists = load_combo_move_lists(true, combo_links);
-	bool done = false;
-	for(int q = 0; q < 2 && !done; ++q)
-	{
-		auto first = (q == 0) ? cmd.tile : cmd.copy1;
-		auto last = first + cmd.copycnt-1;
-		for(auto &list : move_lists)
-		{
-			if(done) break;
-			if(list->process(q==0, combo_links, first, last))
-				done = true;
-		}
-	}
-	if(done)
-		return false;
 	auto diff = cmd.tile - cmd.copy1;
-	for(auto &list : move_lists)
-		list->add_diff(diff);
+	if(is_undoing)
+		on_undo.undo();
+	else if(!handle_combo_move({cmd.tile,cmd.tile+cmd.copycnt-1},{cmd.copy1,cmd.copy1+cmd.copycnt-1}, diff, on_undo))
+		return false;
 	
 	for(int32_t t=(cmd.tile<cmd.copy1)?0:(cmd.copycnt-1); (cmd.tile<cmd.copy1)?(t<cmd.copycnt):(t>=0); (cmd.tile<cmd.copy1)?(t++):(t--))
 	{
@@ -8276,11 +8302,10 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 	cmd.copy1 = copy;
 	cmd.copycnt = copycnt;
 	
-	if(!do_movecombo(cmd))
+	ComboMoveUndo on_undo;
+	if(!do_movecombo(cmd, on_undo))
 		return;
-	if(last_combo_move)
-		delete last_combo_move;
-	last_combo_move = new combo_move_data(cmd);
+	last_combo_move_list = std::move(on_undo);
 	copy=-1;
 	tile2=tile;
 }
