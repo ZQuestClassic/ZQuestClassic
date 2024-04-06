@@ -48,7 +48,7 @@ extern bool cancelgetnum;
 extern int32_t RulesetDialog;
 
 extern bool disable_saving, OverwriteProtection;
-extern int32_t TileProtection;
+extern int32_t TileProtection, ComboProtection;
 
 extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage;
 extern int32_t DMapEditorLastMaptileUsed;

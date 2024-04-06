@@ -39,6 +39,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_ANIM_COMBOS] = AnimationOn ? 1 : 0;
 	opts[OPT_OW_PROT] = OverwriteProtection ? 1 : 0;
 	opts[OPT_TILE_PROT] = TileProtection ? 1 : 0;
+	opts[OPT_COMBO_PROT] = ComboProtection ? 1 : 0;
 	opts[OPT_RULESET] = RulesetDialog ? 1 : 0;
 	opts[OPT_TOOLTIPS] = EnableTooltips ? 1 : 0;
 	opts[OPT_TOOLTIP_HIGHLIGHT] = TooltipsHighlight ? 1 : 0;
@@ -166,6 +167,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_TILE_PROT:
 			TileProtection = v;
 			zc_set_config("zquest", "tile_protection", v);
+			break;
+		case OPT_COMBO_PROT:
+			ComboProtection = v;
+			zc_set_config("zquest", "combo_protection", v);
 			break;
 		case OPT_GRIDCOL:
 			GridColor = v;
@@ -836,6 +841,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),
 					ROW_CHECK(OPT_OW_PROT, "Overwrite Protection"),
 					ROW_CHECK(OPT_TILE_PROT, "Tile Protection"),
+					ROW_CHECK(OPT_COMBO_PROT, "Combo Protection"),
 					//ROW_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
 					ROW_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
 					ROW_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
