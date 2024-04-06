@@ -186,7 +186,7 @@ struct TileRefSCC : public BaseTileRef
 struct TileMoveList
 {
 	vector<std::unique_ptr<BaseTileRef>> move_refs;
-	bitstring move_bits;
+	bitstring_long move_bits;
 	string msg;
 	
 	TileMoveList() = default;

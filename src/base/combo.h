@@ -347,7 +347,7 @@ struct ComboRefPtr10k : public BaseComboRef
 struct ComboMoveList
 {
 	vector<std::unique_ptr<BaseComboRef>> move_refs;
-	bitstring move_bits;
+	bitstring_long move_bits;
 	string msg;
 	
 	ComboMoveList() = default;

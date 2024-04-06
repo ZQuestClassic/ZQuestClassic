@@ -415,28 +415,63 @@ private:
 class bitstring
 {
 public:
-	bool get(size_t ind) const
+	typedef size_t index_t;
+	typedef word storage_t;
+	static constexpr storage_t max_bytes = 65535;
+	
+	bool get(index_t ind) const
 	{
 		return cont[ind/8] & (1 << ind%8);
 	}
-	void set(size_t ind, bool state)
+	void set(index_t ind, bool state)
 	{
 		if(state)
 			cont[ind/8] |= (1 << ind%8);
 		else if(get(ind))
 			cont[ind/8] &= ~(1 << ind%8);
 	}
-	size_t length() const
+	index_t length() const
 	{
 		return cont.inner().size() * 8;
 	}
 	void normalize() {cont.normalize();}
 	void clear() {cont.clear();}
-	bounded_vec<word,byte>& inner() {return cont;}
-	bounded_vec<word,byte> const& inner() const {return cont;}
+	bounded_vec<storage_t,byte>& inner() {return cont;}
+	bounded_vec<storage_t,byte> const& inner() const {return cont;}
 	bool operator==(bitstring const& other) const = default;
 private:
-	bounded_vec<word,byte> cont {65535};
+	bounded_vec<storage_t,byte> cont {max_bytes};
+};
+
+class bitstring_long
+{
+public:
+	typedef uint64_t index_t;
+	typedef uint32_t storage_t;
+	static constexpr storage_t max_bytes = 4294967295;
+	
+	bool get(index_t ind) const
+	{
+		return cont[ind/8] & (1 << ind%8);
+	}
+	void set(index_t ind, bool state)
+	{
+		if(state)
+			cont[ind/8] |= (1 << ind%8);
+		else if(get(ind))
+			cont[ind/8] &= ~(1 << ind%8);
+	}
+	index_t length() const
+	{
+		return cont.inner().size() * 8;
+	}
+	void normalize() {cont.normalize();}
+	void clear() {cont.clear();}
+	bounded_vec<storage_t,byte>& inner() {return cont;}
+	bounded_vec<storage_t,byte> const& inner() const {return cont;}
+	bool operator==(bitstring_long const& other) const = default;
+private:
+	bounded_vec<storage_t,byte> cont {max_bytes};
 };
 
 template<typename A,typename B>
