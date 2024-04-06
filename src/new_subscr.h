@@ -5,6 +5,7 @@
 #include "base/zc_alleg.h"
 #include "base/general.h"
 #include "tiles.h"
+#include "zq/moveinfo.h"
 #include <string>
 #include <vector>
 
@@ -344,7 +345,9 @@ struct SubscrWidget
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false);
 	virtual int32_t write(PACKFILE *f) const;
 	
+	#ifdef IS_EDITOR
 	virtual void collect_tiles(TileMoveList& list);
+	#endif
 	
 	void check_btns(byte btnflgs, ZCSubscreen& parent) const;
 	std::string getTypeName() const;
@@ -388,7 +391,9 @@ struct SW_2x2Frame : public SubscrWidget
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
+	#ifdef IS_EDITOR
 	virtual void collect_tiles(TileMoveList& list) override;
+	#endif
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
@@ -777,7 +782,9 @@ struct SW_TriFrame : public SubscrWidget
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
+	#ifdef IS_EDITOR
 	virtual void collect_tiles(TileMoveList& list) override;
+	#endif
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
@@ -802,7 +809,9 @@ struct SW_McGuffin : public SubscrWidget
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
+	#ifdef IS_EDITOR
 	virtual void collect_tiles(TileMoveList& list) override;
+	#endif
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
@@ -827,7 +836,9 @@ struct SW_TileBlock : public SubscrWidget
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
+	#ifdef IS_EDITOR
 	virtual void collect_tiles(TileMoveList& list) override;
+	#endif
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
@@ -855,7 +866,9 @@ struct SW_MiniTile : public SubscrWidget
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
+	#ifdef IS_EDITOR
 	virtual void collect_tiles(TileMoveList& list) override;
+	#endif
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
@@ -924,7 +937,9 @@ struct SW_GaugePiece : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
+	#ifdef IS_EDITOR
 	virtual void collect_tiles(TileMoveList& list) override;
+	#endif
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 	virtual void draw_piece(BITMAP* dest, int dx, int dy, int container, int anim_offs) const;
@@ -1080,7 +1095,9 @@ struct SubscrPage
 	SubscrWidget* at(size_t ind);
 	SubscrWidget* const& operator[](size_t ind) const;
 	
+	#ifdef IS_EDITOR
 	void collect_tiles(TileMoveList& list);
+	#endif
 private:
 	std::vector<SubscrWidget*> contents;
 	word index;
@@ -1131,7 +1148,9 @@ struct ZCSubscreen
 	
 	void check_btns(byte btnflgs);
 	void page_change(byte mode, byte targ, SubscrTransition const& trans, bool nowrap);
+	#ifdef IS_EDITOR
 	void collect_tiles(TileMoveList& list);
+	#endif
 private:
 	bool wrap_pg(int& pg, bool nowrap);
 };
