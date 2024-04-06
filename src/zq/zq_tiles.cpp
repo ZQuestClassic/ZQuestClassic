@@ -6171,7 +6171,6 @@ bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int 
 {
 	std::ostringstream oss;
 	bool found = false, flood = false;
-	size_t flood_count = 0;
 	for(size_t indx = 0; indx < move_refs.size(); ++indx)
 	{
 		auto& ref = move_refs[indx];
@@ -6219,18 +6218,14 @@ bool TileMoveList::process(bool rect, bool is_dest, int _l, int _t, int _w, int 
 		{
 			if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
 			{
-				if(flood || flood_count >= 65000)
+				if(flood || oss.tellp() >= 65000)
 				{
 					if(!flood)
 						oss << "...\n...\n...\nmany others";
 					flood = true;
 				}
 				else
-				{
-					//Count this in a var, because 'oss.view().size()' doesn't work on MacOS -Em
-					flood_count += ref->name.size()+1;
 					oss << ref->name << '\n';
-				}
 				
 				found = true;
 			}
@@ -6259,7 +6254,6 @@ bool ComboMoveList::process(bool is_dest, SuperSet const& combo_links, int _firs
 {
 	std::ostringstream oss;
 	bool found = false, flood = false;
-	size_t flood_count = 0;
 	set<int> combos;
 	set<int> non_move_combos;
 	for(size_t indx = 0; indx < move_refs.size(); ++indx)
@@ -6279,18 +6273,14 @@ bool ComboMoveList::process(bool is_dest, SuperSet const& combo_links, int _firs
 		{
 			if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
 			{
-				if(flood || flood_count >= 65000)
+				if(flood || oss.tellp() >= 65000)
 				{
 					if(!flood)
 						oss << "...\n...\n...\nmany others";
 					flood = true;
 				}
 				else
-				{
-					//Count this in a var, because 'oss.view().size()' doesn't work on MacOS -Em
-					flood_count += ref->name.size()+1;
 					oss << ref->name << '\n';
-				}
 				
 				found = true;
 			}
@@ -6305,7 +6295,7 @@ bool ComboMoveList::process(bool is_dest, SuperSet const& combo_links, int _firs
 	bool subset_header = false;
 	for(auto s : subset)
 	{
-		if(flood || flood_count >= 65000)
+		if(flood || oss.tellp() >= 65000)
 		{
 			if(!flood)
 				oss << "...\n...\n...\nmany others";
@@ -6333,7 +6323,6 @@ bool ComboMoveList::process(bool is_dest, SuperSet const& combo_links, int _firs
 		if(!subset_header)
 		{
 			subset_header = true;
-			flood_count += 41;
 			oss << "===== Broken Relative Combo Groups =====\n";
 		}
 		std::ostringstream oss2;
@@ -6356,9 +6345,7 @@ bool ComboMoveList::process(bool is_dest, SuperSet const& combo_links, int _firs
 			oss2 << c;
 		}
 		oss2 << ")\n";
-		auto str = oss2.str();
-		flood_count += str.size();
-		oss << str;
+		oss << oss2.str();
 	}
 	return ComboProtection && found && !popup_move_textbox_dlg(msg, oss.str().data(), "Combo Warning");
 }
