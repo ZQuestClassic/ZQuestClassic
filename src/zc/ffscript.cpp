@@ -521,7 +521,8 @@ void init_script_objects()
 
 		if (aptr.ObjectType() != script_object_type::object)
 		{
-			aptr.Clear();
+			for (int i = 0; i < aptr.Size(); i++)
+				aptr[i] = 0;
 			continue;
 		}
 
@@ -541,7 +542,8 @@ void init_script_objects()
 
 		if (aptr.ObjectType() != script_object_type::object)
 		{
-			aptr.Clear();
+			for (int i = 0; i < aptr.Size(); i++)
+				aptr[i] = 0;
 			continue;
 		}
 

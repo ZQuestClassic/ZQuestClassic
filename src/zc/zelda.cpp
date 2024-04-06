@@ -428,39 +428,13 @@ void initZScriptArrayRAM(bool firstplay)
         localRAM[i].Clear();
         arrayOwner[i].clear();
     }
-    
-    if(game->globalRAM.size() != 0)
-        game->globalRAM.clear();
-        
-    if(firstplay)
-    {
-        //leave to global script ~Init to allocate global memory first time round
-        game->globalRAM.resize(getNumGlobalArrays());
-    }
-    else
-    {
-        //allocate from save file
-        game->globalRAM.resize(saves_get_current_slot()->game->globalRAM.size());
-        
-        for(dword i = 0; i < game->globalRAM.size(); i++)
-        {
-#ifdef _DEBUGARRAYALLOC
-            al_trace("Global Array: %i\n",i);
-#endif
-            const ZScriptArray &from = saves_get_current_slot()->game->globalRAM[i];
-            ZScriptArray &to = game->globalRAM[i];
-            to.Resize(from.Size());
-			to.setValid(from.Valid());
-            
-            for(dword j = 0; j < from.Size(); j++)
-            {
-#ifdef _DEBUGARRAYALLOC
-                al_trace("Element: %i\nInit: %i, From save file: %i\n", j, to[j], from[j]);
-#endif
-                to[j] = from[j];
-            }
-        }
-    }
+
+	if (!firstplay)
+		return;
+
+	//leave to global script ~Init to allocate global memory first time round
+	game->globalRAM.clear();
+	game->globalRAM.resize(getNumGlobalArrays());
 }
 
 void initZScriptGlobalRAM()
@@ -1698,7 +1672,6 @@ int32_t init_game()
 	{
 		Z_error_fatal("Failed to load save file\n");
 	}
-	init_script_objects();
 	bool firstplay = (game->get_hasplayed() == 0);
 
 	// The following code is the setup for recording a save file, enabled via "replay_new_saves" config.
@@ -1920,7 +1893,8 @@ int32_t init_game()
 	FFCore.reset_script_engine_data(ScriptType::DMap);
 	//Script-related nonsense
 	script_drawing_commands.Clear();
-	
+
+	init_script_objects();
 	initZScriptArrayRAM(firstplay);
 	initZScriptGlobalRAM();
 	FFCore.initZScriptHeroScripts();
