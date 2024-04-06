@@ -168,8 +168,8 @@ void zmap::clear()
 void zmap::force_refr_pointer()
 {
 	if(unsigned(currmap) > map_count || (currmap*MAPSCRS > TheMaps.size()))
-		screens = &TheMaps[currmap*MAPSCRS];
-	else screens = nullptr;
+		screens = nullptr;
+	else screens = &TheMaps[currmap*MAPSCRS];
 }
 bool zmap::CanUndo()
 {
@@ -6404,6 +6404,7 @@ bool setMapCount2(int32_t c)
         return false;
     }
     
+    bound(currmap,0,c-1);
     if(map_count>oldmapcount)
     {
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
@@ -6415,9 +6416,11 @@ bool setMapCount2(int32_t c)
                 Map.clearscr(ms);
             }
         }
+        Map.setCurrMap(currmap);
     }
     else
     {
+        Map.setCurrMap(currmap);
         if(!layers_valid(Map.CurrScr()))
             fix_layers(Map.CurrScr(), false);
             
@@ -6429,8 +6432,6 @@ bool setMapCount2(int32_t c)
             }
         }
     }
-    
-    Map.setCurrMap(bound(currmap,0,c-1));
     
     return true;
 }
