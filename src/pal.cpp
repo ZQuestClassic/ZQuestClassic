@@ -521,7 +521,30 @@ void lightingInstant()
 	
 	naturaldark = newstate;
 }
-
+bool get_lights()
+{
+	if(get_qr(qr_NEW_DARKROOM))
+		return !room_is_dark;
+	return !room_is_dark || stayLit;
+}
+void set_lights(bool state, int32_t specialstate)
+{
+	room_is_dark = !state;
+	if(!get_qr(qr_NEW_DARKROOM))
+	{
+		naturaldark = !state;
+		lighting(false, false);
+	}
+}
+void toggle_lights(int32_t specialstate)
+{
+	room_is_dark = get_lights();
+	if(!get_qr(qr_NEW_DARKROOM))
+	{
+		naturaldark = room_is_dark;
+		lighting(false, false);
+	}
+}
 byte drycolors[11] = {0x12,0x11,0x22,0x21,0x31,0x32,0x33,0x35,0x34,0x36,0x37};
 
 void dryuplake()

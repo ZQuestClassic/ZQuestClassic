@@ -4471,14 +4471,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	particles.draw(framebuf, true, 5);
 		
 	//11. Handle low drawn darkness
-	if(get_qr(qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
+	if(get_qr(qr_NEW_DARKROOM)&& room_is_dark)
 	{
 		calc_darkroom_combos();
 		if(showhero)
 			Hero.calc_darkroom_hero();
 	}
 	//Darkroom if under the subscreen
-	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && room_is_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
@@ -4523,7 +4523,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	
 	//14. Handle high-drawn darkness
-	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && room_is_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
@@ -5139,12 +5139,15 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	mapscr ffscr = tmpscr[tmp];
 	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
 	if (!tmp)
+	{
+		room_is_dark = (tmpscr[tmp].flags & fDARK);
 		for(int i = 0; i < MAXFFCS; ++i)
 		{
 			tmpscr[tmp].ffcs[i].setLoaded(true);
 			tmpscr[tmp].ffcs[i].solid_update(false);
 			screen_ffc_modify_postroutine(i);
 		}
+	}
 	
 	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
 	memcpy(tmpscr[tmp].data, TheMaps[currmap*MAPSCRS+scr].data, sizeof(tmpscr[tmp].data));

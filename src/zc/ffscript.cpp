@@ -9967,7 +9967,7 @@ int32_t get_register(int32_t arg)
 	 
 			
 		case LIT:
-			ret= darkroom ? 0 : 10000;
+			ret= get_lights() ? 10000 : 0;
 			break;
 			
 		case WAVY:
@@ -22996,8 +22996,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LIT:
-			naturaldark = !value;
-			lighting(false, false);
+			set_lights(value);
 			break;
 			
 		case WAVY:

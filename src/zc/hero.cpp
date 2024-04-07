@@ -28299,6 +28299,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		return;
 	bool isForceFaceUp = getOnSideviewLadder() && canSideviewLadder() &&
 		!(jumping<0 || fall!=0 || fakefall!=0) && get_qr(qr_SIDEVIEWLADDER_FACEUP);
+	bool room_was_dark = room_is_dark;
 	if(isForceFaceUp) dir = up;
 	kill_enemy_sfx();
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
@@ -28662,7 +28663,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	// The naturaldark state can be read/set by an FFC script before
 	// fade() or lighting() is called.
-	naturaldark = ((TheMaps[currmap*MAPSCRS+currscr].flags & fDARK) != 0);
+	naturaldark = !get_qr(qr_NEW_DARKROOM) && (newscr->flags & fDARK);
 	
 	if(newscr->oceansfx != oldscr->oceansfx)	adjust_sfx(oldscr->oceansfx, 128, false);
 	
@@ -29014,7 +29015,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
 		}
 			
-		if(get_qr(qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
+		if(get_qr(qr_NEW_DARKROOM) && (room_is_dark||room_was_dark))
 		{
 			clear_darkroom_bitmaps();
 			calc_darkroom_combos(true);
@@ -29026,7 +29027,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
 			int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
 			int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
-			if(newscr->flags & fDARK)
+			if(room_is_dark)
 			{
 				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
 				{
@@ -29042,7 +29043,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
 				color_map = &trans_table;
 			}
-			if(oldscr->flags & fDARK)
+			if(room_was_dark)
 			{
 				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
 				{
@@ -29069,7 +29070,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
 			int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
 			int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
-			if(newscr->flags & fDARK)
+			if(room_is_dark)
 			{
 				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
 				{
@@ -29085,7 +29086,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
 				color_map = &trans_table;
 			}
-			if(oldscr->flags & fDARK)
+			if(room_was_dark)
 			{
 				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
 				{
@@ -29198,7 +29199,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
 	}
-		
+	
 	//if Hero is going from non-water to water, and we set his animation to "hopping" above, we must now
 	//change it to swimming - since we have manually moved Hero onto the first tile, the hopping code
 	//will get confused and try to hop Hero onto the next (possibly nonexistant) water tile in his current
@@ -29283,7 +29284,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		action=none; FFCore.setHeroAction(none);
 	}
-		
+	
 	if(action != attacking && action != sideswimattacking)
 	{
 		charging = 0;

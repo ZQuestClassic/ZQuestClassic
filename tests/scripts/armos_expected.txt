@@ -11,7 +11,7 @@ Compile finished with exit code '0' (success)
 === METADATA (elided)
 {
   "currentFileSymbols": 13,
-  "symbols": 23,
+  "symbols": 24,
   "identifiers": 70
 }
 PUSHR d0; void run(int) Params
