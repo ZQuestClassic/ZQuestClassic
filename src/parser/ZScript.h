@@ -471,7 +471,8 @@ namespace ZScript
 		}
 		bool getFlag(int32_t flag) const {return (flags & flag) != 0;}
 		
-		bool isInternal() const {return !node;};
+		bool isInternal() const {return !node;}
+		bool isNil() const {return prototype || getFlag(FUNCFLAG_NIL|FUNCFLAG_READ_ONLY);}
 		
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;

@@ -27,11 +27,13 @@ static AccessorTable InputTable[] =
 	
 	//Not documenting in web docs
 	{ "getJoypad[]",                0,          ZTID_BOOL,   JOYPADPRESS,               0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setJoypad[]",                0,          ZTID_VOID,   JOYPADPRESS,       FL_RDONLY,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
 //	{ "getSimulateKeypress[]",      0,          ZTID_BOOL,   SIMULATEKEYPRESS,          0,  { ZTID_INPUT, ZTID_FLOAT },{} },
 	{ "setSimulateKeypress[]",      0,          ZTID_VOID,   SIMULATEKEYPRESS,          0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
 
 	//Intentionally Undocumented
 	{ "getReadKey[]",               0,          ZTID_BOOL,   READKEY,             FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT },{},0,"Use '->KeyPress[]' instead!" },
+	{ "setReadKey[]",               0,          ZTID_VOID,   READKEY,   FL_DEPR|FL_RDONLY,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{},0,"Use '->KeyPress[]' instead!" },
 	{ "getHold[]",                  0,          ZTID_BOOL,   BUTTONHELD,          FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT },{},0,"Use '->Button[]' instead!" },
 	{ "setHold[]",                  0,          ZTID_VOID,   BUTTONHELD,          FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{},0,"Use '->Button[]' instead!" },
 	{ "getKeyRaw[]",                0,          ZTID_BOOL,   RAWKEY,              FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT },{},0,"Unsafe!" },

@@ -187,18 +187,18 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		{
 			AccessorTable& entry = table[i];
 			
-			DataType const* returnType = typeStore.getType(entry.rettype);
-			vector<DataType const*> paramTypes;
-			for (auto& ptype : entry.params)
-				paramTypes.push_back(typeStore.getType(ptype));
-					
 			std::string const& name = entry.name;
 			std::string varName = name;
-				
+			
 			// Strip out the array at the end.
 			bool isArray = name.substr(name.size() - 2) == "[]";
 			if (isArray)
 				varName = name.substr(0, name.size() - 2);
+			
+			DataType const* returnType = typeStore.getType(entry.rettype);
+			vector<DataType const*> paramTypes;
+			for (auto& ptype : entry.params)
+				paramTypes.push_back(typeStore.getType(ptype));
 
 			// Create function object.
 			auto setorget = FUNCTION;
@@ -252,7 +252,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			}
 			// Generate function code for getters/setters
 			int32_t label = function->getLabel();
-			if(function->getFlag(FUNCFLAG_NIL))
+			if(function->isNil())
 			{
 				handleNil(refVar, function);
 			}

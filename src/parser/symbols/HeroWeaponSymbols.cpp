@@ -185,6 +185,7 @@ static AccessorTable lwpnTable[] =
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   LWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_LWPN },{} },
+	{ "setUID",                     0,          ZTID_VOID,   LWEAPONSCRIPTUID, FL_DEPR|FL_RDONLY, { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getDefence",                 0,         ZTID_FLOAT,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN },{} },
 	{ "setDefence",                 0,          ZTID_VOID,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	

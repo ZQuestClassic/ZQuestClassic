@@ -120,6 +120,7 @@ static AccessorTable HeroSTable[] =
 	{ "getJumpCount",               0,         ZTID_FLOAT,   HEROJUMPCOUNT,             0,  { ZTID_PLAYER },{} },
 	{ "setJumpCount",               0,          ZTID_VOID,   HEROJUMPCOUNT,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getPitPullDir",              0,         ZTID_FLOAT,   HEROPULLDIR,               0,  { ZTID_PLAYER },{} },
+	{ "setPitPullDir",              0,          ZTID_VOID,   HEROPULLDIR,       FL_RDONLY,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getPitPullTimer",            0,         ZTID_FLOAT,   HEROPULLCLK,               0,  { ZTID_PLAYER },{} },
 	{ "setPitPullTimer",            0,          ZTID_VOID,   HEROPULLCLK,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getFalling",                 0,         ZTID_FLOAT,   HEROFALLCLK,               0,  { ZTID_PLAYER },{} },
@@ -135,6 +136,7 @@ static AccessorTable HeroSTable[] =
 	{ "getCSet",                    0,         ZTID_FLOAT,   LINKCSET,                  0,  { ZTID_PLAYER },{} },
 	{ "setCSet",                    0,          ZTID_VOID,   LINKCSET,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getIsWarping",               0,          ZTID_BOOL,   HEROISWARPING,             0,  { ZTID_PLAYER },{} },
+	{ "setIsWarping",               0,          ZTID_VOID,   HEROISWARPING,     FL_RDONLY,  { ZTID_PLAYER, ZTID_BOOL },{} },
 	
 	{ "getRespawnX",                0,         ZTID_FLOAT,   HERORESPAWNX,              0,  { ZTID_PLAYER },{} },
 	{ "setRespawnX",                0,          ZTID_VOID,   HERORESPAWNX,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
@@ -165,6 +167,7 @@ static AccessorTable HeroSTable[] =
 	{ "getShadowYOffset",           0,         ZTID_FLOAT,   HEROSHADOWYOFS,            0,  { ZTID_PLAYER },{} },
 	{ "setShadowYOffset",           0,          ZTID_VOID,   HEROSHADOWYOFS,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getStanding",                0,          ZTID_BOOL,   HEROSTANDING,              0,  { ZTID_PLAYER },{} },
+	{ "setStanding",                0,          ZTID_VOID,   HEROSTANDING,      FL_RDONLY,  { ZTID_PLAYER, ZTID_BOOL },{} },
 	{ "getCoyoteTime",              0,         ZTID_FLOAT,   HEROCOYOTETIME,            0,  { ZTID_PLAYER },{} },
 	{ "setCoyoteTime",              0,          ZTID_VOID,   HEROCOYOTETIME,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "MoveXY",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },

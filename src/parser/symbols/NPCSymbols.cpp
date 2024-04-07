@@ -246,6 +246,7 @@ static AccessorTable npcTable[] =
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   NPCSCRIPTUID,        FL_DEPR,  { ZTID_NPC },{} },
+	{ "setUID",                     0,          ZTID_VOID,   NPCSCRIPTUID, FL_DEPR|FL_RDONLY, { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getParentUID",               0,         ZTID_FLOAT,   NPCPARENTUID,        FL_DEPR,  { ZTID_NPC },{} },
 	{ "setParentUID",               0,          ZTID_VOID,   NPCPARENTUID,        FL_DEPR,  { ZTID_NPC, ZTID_FLOAT },{} },
 	

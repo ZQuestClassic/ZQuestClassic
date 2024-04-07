@@ -1192,7 +1192,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 	Function* readfunc = isarray ? host.arrayFunction : host.readFunction;
 	assert(readfunc->isInternal());
 	
-	if(readfunc->getFlag(FUNCFLAG_NIL))
+	if(readfunc->isNil())
 	{
 		bool skipptr = readfunc->internal_flags & IFUNCFLAG_SKIPPOINTER;
 		if (!skipptr)
@@ -3376,7 +3376,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
 	
-	if(host.writeFunction->getFlag(FUNCFLAG_NIL))
+	if(host.writeFunction->isNil())
 	{
 		bool skipptr = host.writeFunction->internal_flags & IFUNCFLAG_SKIPPOINTER;
 		bool needs_pushpop = isIndexed || !skipptr;

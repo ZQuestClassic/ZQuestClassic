@@ -6,9 +6,9 @@ static AccessorTable BitmapTable[] =
 {
 //	  name,                    tag,            rettype,  var,          funcFlags,  params,optparams
 	{ "getWidth",                0,         ZTID_FLOAT,   BITMAPWIDTH,         0,  { ZTID_BITMAP },{} },
-	{ "setWidth",                0,          ZTID_VOID,   BITMAPWIDTH,         0,  { ZTID_BITMAP, ZTID_FLOAT },{} },
+	{ "setWidth",                0,          ZTID_VOID,   BITMAPWIDTH, FL_RDONLY,  { ZTID_BITMAP, ZTID_FLOAT },{} },
 	{ "getHeight",               0,         ZTID_FLOAT,   BITMAPHEIGHT,        0,  { ZTID_BITMAP },{} },
-	{ "setHeight",               0,          ZTID_VOID,   BITMAPHEIGHT,        0,  { ZTID_BITMAP, ZTID_FLOAT },{} },
+	{ "setHeight",               0,          ZTID_VOID,   BITMAPHEIGHT,FL_RDONLY,  { ZTID_BITMAP, ZTID_FLOAT },{} },
 	
 	{ "GetPixel",                0,         ZTID_FLOAT,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "CountColor",              0,         ZTID_FLOAT,   -1,                  0,  { ZTID_BITMAP, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000 } },

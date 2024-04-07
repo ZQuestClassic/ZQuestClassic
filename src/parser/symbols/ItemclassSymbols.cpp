@@ -28,6 +28,7 @@ static AccessorTable itemclassTable[] =
 	{ "getUseSound2",               0,         ZTID_FLOAT,   IDATAUSESOUND2,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setUseSound2",               0,          ZTID_VOID,   IDATAUSESOUND2,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getID",                      0,         ZTID_FLOAT,   ITEMCLASSID,               0,  { ZTID_ITEMCLASS },{} },
+	{ "setID",                      0,          ZTID_VOID,   ITEMCLASSID,       FL_RDONLY,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	
 	{ "getPower",                   0,         ZTID_FLOAT,   ITEMCLASSPOWER,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setPower",                   0,          ZTID_VOID,   ITEMCLASSPOWER,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },

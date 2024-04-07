@@ -43,6 +43,7 @@ static AccessorTable DebugTable[] =
 	{ "SetItemdataPointer",         0,     ZTID_ITEMCLASS,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	
 	{ "getPlayfieldOffset",         0,         ZTID_FLOAT,   GAMEPLAYFIELDOFS,          0,  { ZTID_DEBUG },{} },
+	{ "setPlayfieldOffset",         0,          ZTID_VOID,   GAMEPLAYFIELDOFS,  FL_RDONLY,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	{ "TriggerSecret",              0,          ZTID_VOID,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	{ "ChangeFFCScript",            0,          ZTID_VOID,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	
@@ -51,9 +52,12 @@ static AccessorTable DebugTable[] =
 	{ "_getNULL",                   0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
 	{ "_getNull",                   0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
 	{ "getNULL",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
+	{ "setNULL",                    0,          ZTID_VOID,   DONULL,            FL_RDONLY,  { ZTID_DEBUG, ZTID_UNTYPED },{} },
 	{ "getNull",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
+	{ "setNull",                    0,          ZTID_VOID,   DONULL,            FL_RDONLY,  { ZTID_DEBUG, ZTID_UNTYPED },{} },
 	{ "Breakpoint",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_DEBUG, ZTID_CHAR },{ 0 } },
 	{ "getTesting",                 0,          ZTID_BOOL,   DEBUGTESTING,              0,  { ZTID_DEBUG },{} },
+	{ "setTesting",                 0,          ZTID_VOID,   DEBUGTESTING,      FL_RDONLY,  { ZTID_DEBUG, ZTID_BOOL },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
