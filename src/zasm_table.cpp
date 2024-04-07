@@ -2925,6 +2925,8 @@ script_variable variable_list[]=
 	{ "WEBSOCKET_URL", WEBSOCKET_URL, 0, 0 },
 	{ "WEBSOCKET_HAS_MESSAGE", WEBSOCKET_HAS_MESSAGE, 0, 0 },
 	{ "WEBSOCKET_MESSAGE_TYPE", WEBSOCKET_MESSAGE_TYPE, 0, 0 },
+	
+	{ "LIT", LIT, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

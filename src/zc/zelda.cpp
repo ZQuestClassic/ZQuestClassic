@@ -357,7 +357,7 @@ bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,watch= false;
-bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
+bool room_is_dark=false, darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
 
 bool down_control_states[controls::btnLast] = {false};
 bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
@@ -1628,7 +1628,7 @@ void init_game_vars(bool is_cont_game = false)
 	script_hero_sprite = 0; 
 	script_hero_flip = -1; 
 	script_hero_cset = -1;
-	darkroom=naturaldark=false;
+	room_is_dark=darkroom=naturaldark=false;
 	sle_x=sle_y=newscr_clk=opendoors=0;
 	Bwpn=Awpn=Xwpn=Ywpn=-1;
 	FFCore.kb_typing_mode = false;
@@ -1919,6 +1919,7 @@ int32_t init_game()
 	}
 	//loadscr(0,currscr,up);
 	loadscr(0,currdmap,currscr,-1,false);
+	
 	putscr(scrollbuf,0,0,&tmpscr[0]);
 	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
 	
@@ -2284,12 +2285,13 @@ int32_t cont_game()
 	ALLOFF();
 	whistleclk=-1;
 	currcset=DMaps[currdmap].color;
-	darkroom=naturaldark=false;
+	room_is_dark=darkroom=naturaldark=false;
 	tmpscr[0].zero_memory();
 	tmpscr[1].zero_memory();
 	
 //loadscr(0,currscr,up);
 	loadscr(0,currdmap,currscr,-1,false);
+	
 	putscr(scrollbuf,0,0,&tmpscr[0]);
 	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
 	script_drawing_commands.Clear();
@@ -2435,7 +2437,7 @@ void restart_level()
 		
 	ALLOFF();
 	whistleclk=-1;
-	darkroom=naturaldark=false;
+	room_is_dark=darkroom=naturaldark=false;
 	tmpscr[0].zero_memory();
 	tmpscr[1].zero_memory();
 	

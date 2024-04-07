@@ -52,7 +52,7 @@ void sprite::check_conveyor()
 void sprite::handle_sprlighting()
 {
 	if(!get_qr(qr_NEW_DARKROOM)) return;
-	if(!(tmpscr->flags & fDARK)) return;
+	if(!room_is_dark) return;
 	handle_lighting(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2),glowShape,glowRad,dir);
 }
 
