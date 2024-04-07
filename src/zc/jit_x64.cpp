@@ -557,8 +557,10 @@ static bool command_is_compiled(int command)
 	case MULTV:
 	case NOP:
 	case PEEK:
+	case REF_REMOVE:
 	case SETR:
 	case SETV:
+	case STORE_OBJECT:
 	case STORE:
 	case STORED:
 	case STOREDV:
@@ -1109,6 +1111,18 @@ JittedFunction jit_compile_script(script_data *script)
 			set_z_register(state, cc, vStackIndex, arg1, x86::ptr_32(state.ptrStack, offset, 2));
 		}
 		break;
+		case REF_REMOVE:
+		{
+			x86::Gp offset = cc.newInt32();
+			cc.mov(offset, arg1);
+			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+
+			InvokeNode *invokeNode;
+			void script_remove_object_ref(int32_t offset);
+			cc.invoke(&invokeNode, script_remove_object_ref, FuncSignatureT<void, int32_t>(state.calling_convention));
+			invokeNode->setArg(0, offset);
+		}
+		break;
 		case STORE:
 		{
 			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
@@ -1118,6 +1132,22 @@ JittedFunction jit_compile_script(script_data *script)
 
 			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
+		}
+		break;
+		case STORE_OBJECT:
+		{
+			// Same as STORE, but for a ref-counted object.
+			x86::Gp offset = cc.newInt32();
+			cc.mov(offset, arg2);
+			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
+
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+
+			InvokeNode *invokeNode;
+			void script_store_object(uint32_t offset, uint32_t new_id);
+			cc.invoke(&invokeNode, script_store_object, FuncSignatureT<void, uint32_t, uint32_t>(state.calling_convention));
+			invokeNode->setArg(0, offset);
+			invokeNode->setArg(1, val);
 		}
 		break;
 		case STOREV:

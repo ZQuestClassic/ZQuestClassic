@@ -96,10 +96,10 @@ jobs:
         with:
           args: install .github/dependencies.config -y
       - name: Install LLVM and Clang
-        if: inputs.compiler == 'clang'
+        if: inputs.compiler == 'clang' && runner.os == 'Linux'
         uses: KyleMayes/install-llvm-action@v1
         with:
-          version: ${{ runner.os == 'Linux' && '17.0.2' || '14.0.6' }}
+          version: 17.0.2
           env: true
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         name: Set vcpkg env vars

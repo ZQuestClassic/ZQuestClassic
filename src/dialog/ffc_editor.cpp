@@ -167,6 +167,17 @@ TextField( \
 	{ \
 		mem = byte(val)-offs; \
 	})
+#define SWAPFIELDB_PROC(str, mem, lb, hb, offs, proc) \
+Label(text = str, hAlign = 1.0), \
+TextField( \
+	type = GUI::TextField::type::SWAP_BYTE, \
+	low = lb, high = hb, val = mem+offs, \
+	leftPadding = 0_px, fitParent = true, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		mem = byte(val)-offs; \
+		proc(); \
+	})
 
 #define CHECKB(str, fl, inf) \
 Row( \
@@ -252,6 +263,13 @@ void FFCDialog::refreshScript()
 	}
 }
 
+void FFCDialog::refreshSize()
+{
+	GUI::DialogRef& ref = cmbsw->alDialog;
+	if(!ref) return;
+	ref->w = (ffc.twid+1)*32+4;
+	ref->h = (ffc.thei+1)*32+4;
+}
 static size_t ffctab = 0;
 std::shared_ptr<GUI::Widget> FFCDialog::view()
 {
@@ -273,42 +291,47 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 		Column(
 			TabPanel(
 				ptr = &ffctab,
-				TabRef(name = "Data", Rows<4>(
-					Label(text = "Link to:", hAlign = 1.0),
-					DropDownList(data = list_link,
-						fitParent = true,
-						selectedValue = ffc.link,
-						onSelectFunc = [&](int32_t val)
-						{
-							ffc.link = (byte)val;
-						}
+				TabRef(name = "Data", Row(
+					Rows<4>(
+						SWAPFIELD("X Pos:", ffc.x, SWAP_MIN, SWAP_MAX),
+						SWAPFIELD("X Speed:", ffc.dx, SWAP_MIN, SWAP_MAX),
+						//
+						SWAPFIELD("Y Pos:", ffc.y, SWAP_MIN, SWAP_MAX),
+						SWAPFIELD("Y Speed:", ffc.dy, SWAP_MIN, SWAP_MAX),
+						//
+						SWAPFIELDB("Combo W:", ffc.fwid, 1, 64, 1),
+						SWAPFIELD("X Accel:", ffc.ax, SWAP_MIN, SWAP_MAX),
+						//
+						SWAPFIELDB("Combo H:", ffc.fhei, 1, 64, 1),
+						SWAPFIELD("Y Accel:", ffc.ay, SWAP_MIN, SWAP_MAX),
+						//
+						SWAPFIELDB_PROC("Tile W:", ffc.twid, 1, 4, 1, refreshSize),
+						SWAPFIELDS("A. Delay:", ffc.delay, 0, 9999),
+						//
+						SWAPFIELDB_PROC("Tile H:", ffc.thei, 1, 4, 1, refreshSize),
+						Label(text = "Link to:", hAlign = 1.0),
+						DropDownList(data = list_link,
+							fitParent = true,
+							selectedValue = ffc.link,
+							onSelectFunc = [&](int32_t val)
+							{
+								ffc.link = (byte)val;
+							}
+						)
 					),
-					cmbsw = SelComboSwatch(
-						combo = ffc.data,
-						cset = ffc.cset,
-						rowSpan = 2, colSpan = 2,
-						// showvals = false,
-						onSelectFunc = [&](int32_t cmb, int32_t c)
-						{
-							ffc.data = cmb;
-							ffc.cset = c;
-							tCSet = c;
-						}
-					),
-					// DummyWidget(),
-					SWAPFIELD("X Pos:", ffc.x, SWAP_MIN, SWAP_MAX),
-					// DummyWidget(),
-					// DummyWidget(),
-					SWAPFIELD("Y Pos:", ffc.y, SWAP_MIN, SWAP_MAX),
-					SWAPFIELDB("Combo W:", ffc.fwid, 1, 64, 1),
-					SWAPFIELD("X Speed:", ffc.dx, SWAP_MIN, SWAP_MAX),
-					SWAPFIELDB("Combo H:", ffc.fhei, 1, 64, 1),
-					SWAPFIELD("Y Speed:", ffc.dy, SWAP_MIN, SWAP_MAX),
-					SWAPFIELDB("Tile W:", ffc.twid, 1, 4, 1),
-					SWAPFIELD("X Accel:", ffc.ax, SWAP_MIN, SWAP_MAX),
-					SWAPFIELDB("Tile H:", ffc.thei, 1, 4, 1),
-					SWAPFIELD("Y Accel:", ffc.ay, SWAP_MIN, SWAP_MAX),
-					SWAPFIELDS("A. Delay:", ffc.delay, 0, 9999)
+					cmb_container = Column(width = 128_px + 5_px + 1_em + text_length(GUI_DEF_FONT, "Combo: 99999"), height = 128_px,
+						cmbsw = SelComboSwatch(vAlign = 0.0, hAlign = 0.0,
+							combo = ffc.data,
+							cset = ffc.cset,
+							// showvals = false,
+							onSelectFunc = [&](int32_t cmb, int32_t c)
+							{
+								ffc.data = cmb;
+								ffc.cset = c;
+								tCSet = c;
+							}
+						)
+					)
 				)),
 				TabRef(name = "Flags", Column(
 					Rows<2>(
@@ -429,6 +452,11 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 	);
 	refreshScript();
 	return window;
+}
+
+void FFCDialog::post_realize()
+{
+	refreshSize();
 }
 
 bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)

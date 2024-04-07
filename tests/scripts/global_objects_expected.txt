@@ -1,0 +1,222 @@
+Compiling 'global_objects.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+PUSHR REFFFC; void run() Body Start
+PUSHARGSV 0,0.0005
+SETR d4,SP2
+SETR d2,gd2; unless() #558 Test
+COMPAREV d2,0
+GOTOCMP 81,!=; Test 'unless'
+SETV d2,0; ProtoFunc[Thing Thing()] Set Destructor AND unless() #558 Body Start
+ZCLASS_CONSTRUCT d2,{0.0003,0.0005}
+ZCLASS_MARK_TYPE {0.0001,0.0001,0.0002,0.0008,0,0.0008,0.0003,0.0008}; ProtoFunc[Thing Thing()] Default Construct
+SET_OBJECT gd2,d2
+SETV d2,0; ProtoFunc[Thing Thing()] Set Destructor
+ZCLASS_CONSTRUCT d2,{0.0003,0.0005}
+ZCLASS_MARK_TYPE {0.0001,0.0001,0.0002,0.0008,0,0.0008,0.0003,0.0008}; ProtoFunc[Thing Thing()] Default Construct
+PUSHR d2
+SETR d2,gd2
+SETR d3,d2
+POP d2
+ZCLASS_WRITE d3,0
+SETV d2,0; ProtoFunc[Counter Counter()] Set Destructor
+ZCLASS_CONSTRUCT d2,{0.0001}; ProtoFunc[Counter Counter()] Default Construct
+PUSHR d2
+SETR d2,gd2
+ZCLASS_READ d2,0.0003
+SETR d0,d2
+POP d2
+WRITEPODARRAYVR 0,d2
+SETV d2,0; ProtoFunc[Counter Counter()] Set Destructor
+ZCLASS_CONSTRUCT d2,{0.0001}; ProtoFunc[Counter Counter()] Default Construct
+PUSHR d2
+SETR d2,gd2
+ZCLASS_READ d2,0
+ZCLASS_READ d2,0.0003
+SETR d0,d2
+POP d2
+WRITEPODARRAYVR 0,d2
+SETR d2,gd2; InlineFunc[void GlobalObject(untyped)] Params
+ZCLASS_GLOBALIZE d2; InlineFunc[void GlobalObject(untyped)] Body
+SETR d2,gd2; InlineFunc[void GlobalObject(untyped)] Params Start
+ZCLASS_READ d2,0; InlineFunc[void GlobalObject(untyped)] Params End
+ZCLASS_GLOBALIZE d2; InlineFunc[void GlobalObject(untyped)] Body
+SETR d2,gd2; InlineFunc[void GlobalObject(untyped)] Params Start
+ZCLASS_READ d2,0.0003
+PUSHR d2
+POP d0
+READPODARRAYV d2,0; InlineFunc[void GlobalObject(untyped)] Params End
+ZCLASS_GLOBALIZE d2; InlineFunc[void GlobalObject(untyped)] Body
+SETR d2,gd2; InlineFunc[void GlobalObject(untyped)] Params Start
+ZCLASS_READ d2,0
+ZCLASS_READ d2,0.0003
+PUSHR d2
+POP d0
+READPODARRAYV d2,0; InlineFunc[void GlobalObject(untyped)] Params End
+ZCLASS_GLOBALIZE d2; InlineFunc[void GlobalObject(untyped)] Body
+PUSHV 256; InlineFunc[Bitmap Game->CreateBitmap(int, int)] Params Start
+SETV d1,256; InlineFunc[Bitmap Game->CreateBitmap(int, int)] Params End
+POP d0; InlineFunc[Bitmap Game->CreateBitmap(int, int)] Body Start
+SETR d2,CREATEBITMAP; InlineFunc[Bitmap Game->CreateBitmap(int, int)] Body End
+PUSHR d2
+SETR d2,gd2
+SETR d3,d2
+POP d2
+ZCLASS_WRITE d3,0.0001
+SETV d2,0; ProtoFunc[Counter Counter()] Set Destructor
+ZCLASS_CONSTRUCT d2,{0.0001}; ProtoFunc[Counter Counter()] Default Construct
+PUSHR d2
+SETR d2,gd2
+SETR d3,d2
+POP d2
+ZCLASS_WRITE d3,0.0002
+SETV d2,1337
+PUSHR d2
+SETR d2,gd2
+ZCLASS_READ d2,0.0002
+SETR d3,d2
+POP d2
+ZCLASS_WRITE d3,0
+SETV d2,0; ProtoFunc[Thing Thing()] Set Destructor
+ZCLASS_CONSTRUCT d2,{0.0003,0.0005}
+ZCLASS_MARK_TYPE {0.0001,0.0001,0.0002,0.0008,0,0.0008,0.0003,0.0008}; ProtoFunc[Thing Thing()] Default Construct
+SET_OBJECT gd3,d2; unless() #558 Body End
+SETR d2,gd2
+ZCLASS_READ d2,0.0003
+PUSHR d2
+POP d0
+READPODARRAYV d2,0
+ZCLASS_READ d2,0
+ADDV d2,1
+PUSHR d2
+SETR d2,gd2
+ZCLASS_READ d2,0.0003
+PUSHR d2
+POP d0
+READPODARRAYV d2,0
+SETR d3,d2
+POP d2
+ZCLASS_WRITE d3,0
+SETR d2,gd2
+ZCLASS_READ d2,0
+ZCLASS_READ d2,0.0003
+PUSHR d2
+POP d0
+READPODARRAYV d2,0
+ZCLASS_READ d2,0
+SUBV d2,1
+PUSHR d2
+SETR d2,gd2
+ZCLASS_READ d2,0
+ZCLASS_READ d2,0.0003
+PUSHR d2
+POP d0
+READPODARRAYV d2,0
+SETR d3,d2
+POP d2
+ZCLASS_WRITE d3,0
+ALLOCATEMEMV d2,40,0
+STORE d2,0.0004
+WRITEPODSTRING d2,"globalThing->someCounters[0]->field %d\n"
+LOAD d2,0.0004; InlineFunc[void printf(char32)] Params Start
+PUSHR d2
+SETR d2,gd2
+ZCLASS_READ d2,0.0003
+PUSHR d2
+POP d0
+READPODARRAYV d2,0
+ZCLASS_READ d2,0
+PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOAD d3,0.0004
+DEALLOCATEMEMR d3
+ALLOCATEMEMV d2,52,0
+STORE d2,0.0003
+WRITEPODSTRING d2,"globalThing->otherThing->someCounters[0]->field %d\n"
+LOAD d2,0.0003; InlineFunc[void printf(char32)] Params Start
+PUSHR d2
+SETR d2,gd2
+ZCLASS_READ d2,0
+ZCLASS_READ d2,0.0003
+PUSHR d2
+POP d0
+READPODARRAYV d2,0
+ZCLASS_READ d2,0
+PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOAD d3,0.0003
+DEALLOCATEMEMR d3
+ALLOCATEMEMV d2,41,0
+STORE d2,0.0002
+WRITEPODSTRING d2,"globalThing->a_bitmap->isAllocated() %d\n"
+LOAD d2,0.0002; InlineFunc[void printf(char32)] Params Start
+PUSHR d2
+SETR d2,gd2; InlineFunc[bool Bitmap->isAllocated()] Params Start
+ZCLASS_READ d2,0.0001; InlineFunc[bool Bitmap->isAllocated()] Params End
+ISALLOCATEDBITMAP d2; InlineFunc[bool Bitmap->isAllocated()] Body
+COMPAREV d2,0
+GOTOCMP 160,==
+SETV d2,1
+GOTO 161
+SETV d2,0
+PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOAD d3,0.0002
+DEALLOCATEMEMR d3
+ALLOCATEMEMV d2,39,0
+STORE d2,0.0001
+WRITEPODSTRING d2,"globalThing->not_globalized->field %d\n"
+LOAD d2,0.0001; InlineFunc[void printf(char32)] Params Start
+PUSHR d2
+SETR d2,gd2
+ZCLASS_READ d2,0.0002
+COMPAREV d2,0
+GOTOCMP 179,==
+SETR d2,gd2
+ZCLASS_READ d2,0.0002
+ZCLASS_READ d2,0
+GOTO 180
+SETV d2,0
+PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOAD d3,0.0001
+DEALLOCATEMEMR d3
+ALLOCATEMEMV d2,23,0
+STORE d2,0
+WRITEPODSTRING d2,"thingNotGlobalized %d\n"
+LOAD d2,0; InlineFunc[void printf(char32)] Params Start
+PUSHR d2
+SETR d2,gd3
+COMPAREV d2,0
+GOTOCMP 195,==
+SETV d2,1
+GOTO 196
+SETV d2,0
+PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP d5; InlineFunc[void printf(char32)] Body End
+LOAD d3,0
+DEALLOCATEMEMR d3
+POPARGS d5,0.0006
+QUIT; void run() Body End
+
+
+MARK_TYPE_REG gd2,0.0008; void run() Body Start
+SETV gd2,0
+MARK_TYPE_REG gd3,0.0008
+SETV gd3,0
+ALLOCATEGMEMV d2,4096,0
+SETR gd1,d2
+QUIT; void run() Body End

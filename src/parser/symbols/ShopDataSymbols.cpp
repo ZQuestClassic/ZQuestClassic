@@ -6,6 +6,7 @@ static AccessorTable ShopDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getType",                    0,         ZTID_FLOAT,   SHOPDATATYPE,              0,  { ZTID_SHOPDATA },{} },
+	{ "setType",                    0,          ZTID_VOID,   SHOPDATATYPE,      FL_RDONLY,  { ZTID_SHOPDATA, ZTID_FLOAT },{} },
 	{ "getItem[]",                  0,         ZTID_FLOAT,   SHOPDATAITEM,              0,  { ZTID_SHOPDATA, ZTID_FLOAT },{} },
 	{ "setItem[]",                  0,          ZTID_VOID,   SHOPDATAITEM,              0,  { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	

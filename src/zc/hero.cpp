@@ -1716,6 +1716,8 @@ void HeroClass::init()
     xofs=0;
     yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
     cs=6;
+	flickercolor=-1;
+	flickertransp=-1;
     pushing=fairyclk=0;
     id=0;
     inlikelike=0;
@@ -23608,6 +23610,8 @@ void HeroClass::handleSpotlights()
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = tmpscr->ffcs[i];
+			if(ffc.flags & (ffCHANGER|ffETHEREAL))
+				continue;
 			newcombo const& cmb = combobuf[ffc.data];
 			if(cmb.type == cSPOTLIGHT && (cmb.usrflags&cflag2))
 				launch_fflightbeam(ffc,ffmaps,refl,block);

@@ -156,8 +156,8 @@ void zmap::clear()
 void zmap::force_refr_pointer()
 {
 	if(unsigned(currmap) > map_count || (currmap*MAPSCRS > TheMaps.size()))
-		screens = &TheMaps[currmap*MAPSCRS];
-	else screens = nullptr;
+		screens = nullptr;
+	else screens = &TheMaps[currmap*MAPSCRS];
 }
 bool zmap::CanUndo()
 {
@@ -6405,6 +6405,7 @@ bool setMapCount2(int32_t c)
         return false;
     }
     
+    bound(currmap,0,c-1);
     if(map_count>oldmapcount)
     {
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
@@ -6416,9 +6417,11 @@ bool setMapCount2(int32_t c)
                 Map.clearscr(ms);
             }
         }
+        Map.setCurrMap(currmap);
     }
     else
     {
+        Map.setCurrMap(currmap);
         if(!layers_valid(Map.CurrScr()))
             fix_layers(Map.CurrScr(), false);
             
@@ -6430,8 +6433,6 @@ bool setMapCount2(int32_t c)
             }
         }
     }
-    
-    Map.setCurrMap(bound(currmap,0,c-1));
     
     return true;
 }
@@ -6704,6 +6705,25 @@ int32_t load_quest(const char *filename, bool show_progress)
 			Map.clear();
 			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
 			Map.setCurrScr(zinit.last_screen);
+			extern int32_t current_mappage;
+			current_mappage = 0;
+			bool found_default = false;
+			for(int q = 0; q < MAX_MAPPAGE_BTNS; ++q)
+			{
+				auto &pg = map_page[q];
+				if(pg.map == Map.getCurrMap() && pg.screen == Map.getCurrScr())
+				{
+					current_mappage = q;
+					break;
+				}
+				else if(found_default || pg.map > 1 || (pg.map == 1 && pg.screen > 0))
+					continue;
+				else
+				{
+					current_mappage = q;
+					found_default = true;
+				}
+			}
 			refresh(rALL);
 			refresh_pal();
 			set_rules(quest_rules);
@@ -6761,6 +6781,25 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 			Map.clear();
 			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
 			Map.setCurrScr(zinit.last_screen);
+			extern int32_t current_mappage;
+			current_mappage = 0;
+			bool found_default = false;
+			for(int q = 0; q < MAX_MAPPAGE_BTNS; ++q)
+			{
+				auto &pg = map_page[q];
+				if(pg.map == Map.getCurrMap() && pg.screen == Map.getCurrScr())
+				{
+					current_mappage = q;
+					break;
+				}
+				else if(found_default || pg.map > 1 || (pg.map == 1 && pg.screen > 0))
+					continue;
+				else
+				{
+					current_mappage = q;
+					found_default = true;
+				}
+			}
 			refresh(rALL);
 			refresh_pal();
 			set_rules(quest_rules);

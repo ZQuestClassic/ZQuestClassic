@@ -1,9 +1,11 @@
+#include <cstdint>
 #include <deque>
 #include <string>
 #include <sstream>
 #include <math.h>
 #include <cstdio>
 #include <algorithm>
+#include <ranges>
 //
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -15,6 +17,7 @@
 //
 
 #include "base/handles.h"
+#include "base/general.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/msgstr.h"
@@ -95,6 +98,31 @@ static int64_t script_execount[NUMCOMMANDS];
 using namespace util;
 using std::ostringstream;
 
+struct ScriptEngineData {
+	refInfo ref;
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+	bounded_vec<word, int32_t> ret_stack {65535};
+	// This is used as a boolean for all but ScriptType::Item.
+	byte doscript = true;
+	bool waitdraw;
+	bool initialized;
+
+	void reset()
+	{
+		// No need to zero the stack.
+		ref = refInfo();
+		doscript = true;
+		waitdraw = false;
+		initialized = false;
+	}
+};
+
+// (type, index) => ScriptEngineData
+static std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
+
+static int allocations_since_last_gc;
+static int deallocations_since_last_gc;
+
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
 
@@ -114,74 +142,528 @@ FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
 
-template <typename T, size_t Max>
+// Returns true if an id is not usable for an object id.
+bool is_reserved_object_id(uint32_t id)
+{
+	// Used by internal bitmaps (see do_loadbitmapid).
+	if (id >= 9 && id <= 16)
+		return true;
+
+	return false;
+}
+
+static std::map<uint32_t, std::unique_ptr<user_abstract_obj>> script_objects;
+static std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
+static std::vector<uint32_t> script_object_autorelease_pool;
+static std::vector<uint32_t> next_script_object_id_freelist;
+
+uint32_t get_next_script_object_id()
+{
+	const auto ID_FREELIST_FILL_AMOUNT = 1000;
+
+	if (next_script_object_id_freelist.empty())
+	{
+		// Don't start at 1 because the first objects are expected to remain allocated.
+		uint32_t id = 1000;
+		while (next_script_object_id_freelist.size() < ID_FREELIST_FILL_AMOUNT)
+		{
+			if (!script_objects.contains(id))
+				next_script_object_id_freelist.push_back(id);
+			id++;
+		}
+	}
+
+	// ~4 billion objects is a lot, so it's unlikely this condition will ever be true.
+	// But just in case...
+	if (next_script_object_id_freelist.empty())
+		Z_error_fatal("Ran out of storage for script objects\n");
+
+	auto id = next_script_object_id_freelist.back();
+	next_script_object_id_freelist.pop_back();
+	return id;
+}
+
+template <typename T>
+static T* create_script_object(script_object_type type, uint32_t id = -1)
+{
+	if (id == -1)
+		id = get_next_script_object_id();
+
+	auto object = new T{};
+	object->type = type;
+	object->id = id;
+	script_objects[id] = std::unique_ptr<T>(object);
+	script_object_ids_by_type[type].push_back(id);
+
+	allocations_since_last_gc++;
+	object->ref_count = 1;
+	script_object_autorelease_pool.push_back(id);
+
+	return object;
+}
+
+static user_abstract_obj* get_script_object(uint32_t id)
+{
+	auto it = script_objects.find(id);
+	if (it != script_objects.end())
+		return it->second.get();
+	return nullptr;
+}
+
+static user_abstract_obj* get_script_object_checked(uint32_t id)
+{
+	if (is_reserved_object_id(id))
+		return nullptr;
+
+	auto object = get_script_object(id);
+	if (!object)
+		Z_error_fatal("Invalid object pointer used in get_script_object_checked\n");
+	return object;
+}
+
+static void script_object_ref_inc(user_abstract_obj* object)
+{
+	object->ref_count++;
+}
+
+static void script_object_ref_inc(uint32_t id)
+{
+	if (!id)
+		return;
+
+	auto object = get_script_object_checked(id);
+	if (object)
+		script_object_ref_inc(object);
+}
+
+static void delete_script_object(uint32_t id);
+
+static void script_object_ref_dec(user_abstract_obj* object)
+{
+	assert(object->ref_count > 0);
+	object->ref_count--;
+
+	if (auto usr_object = dynamic_cast<user_object*>(object))
+		if (usr_object->isGlobal())
+			return;
+
+	if (ZScriptVersion::gc() && object->ref_count == 0)
+		delete_script_object(object->id);
+}
+
+static void script_object_ref_dec(uint32_t id)
+{
+	if (!id)
+		return;
+
+	auto object = get_script_object_checked(id);
+	if (object)
+		script_object_ref_dec(object);
+}
+
+static void delete_script_object(uint32_t id)
+{
+	auto it = script_objects.find(id);
+	if (it == script_objects.end())
+		return;
+
+	auto& object = it->second;
+
+	// Bitmap objects can't be deleted right away, since drawing operations are deferred slightly.
+	// We must wait for the script drawing to be done with it, which is signaled by script_bitmaps::update
+	if (object->type == script_object_type::bitmap)
+	{
+		auto bitmap = static_cast<user_bitmap*>(object.get());
+		if (!bitmap->can_del())
+		{
+			bitmap->free_obj();
+			return;
+		}
+	}
+
+	if (object->type == script_object_type::object)
+	{
+		auto usr_object = static_cast<user_object*>(object.get());
+		for (int i = 0; i < usr_object->owned_vars; i++)
+		{
+			if (usr_object->isMemberObjectType(i))
+				script_object_ref_dec(usr_object->data[i]);
+		}
+	}
+
+	util::remove_if_exists(script_object_ids_by_type[object->type], id);
+	script_objects.erase(it);
+	deallocations_since_last_gc++;
+
+	if (next_script_object_id_freelist.size() < 10000)
+		next_script_object_id_freelist.push_back(id);
+}
+
+static void own_script_object(user_abstract_obj* object, ScriptType type, int i)
+{
+	if (!ZScriptVersion::gc())
+	{
+		object->own(type, i);
+		return;
+	}
+
+	bool was_owned = object->owned_type != ScriptType::None;
+	object->own(type, i);
+	bool is_owned = type != ScriptType::None;
+	if (was_owned && !is_owned)
+		script_object_ref_dec(object);
+	else if (!was_owned && is_owned)
+		script_object_ref_inc(object);
+}
+
+static void free_script_object(uint32_t id)
+{
+	if (!ZScriptVersion::gc())
+		delete_script_object(id);
+}
+
+// Find unreachable objects via mark-and-sweep, and destroy them.
+// This handles cyclical objects.
+// It should not be called very often as it can be expensive.
+// Note: Most objects are cleared up via reference counting
+// (when ref_count is zero in script_object_ref_dec).
+static void run_gc()
+{
+	std::vector<user_abstract_obj*> all_objects;
+	for (auto& [id, object] : script_objects)
+		all_objects.push_back(object.get());
+
+	std::set<uint32_t> live_object_ids;
+
+	for (auto& object : all_objects)
+	{
+		if (object->type != script_object_type::object)
+			continue;
+
+		auto usr_object = static_cast<user_object*>(object);
+		if (usr_object->isGlobal())
+			live_object_ids.insert(object->id);
+	}
+	for (auto& aptr : game->globalRAM)
+	{
+		if (aptr.HoldsObjects())
+		{
+			for (int i = 0; i < aptr.Size(); i++)
+			{
+				live_object_ids.insert(aptr[i]);
+			}
+		}
+	}
+	for (auto& aptr : localRAM)
+	{
+		if (aptr.HoldsObjects())
+		{
+			for (int i = 0; i < aptr.Size(); i++)
+			{
+				live_object_ids.insert(aptr[i]);
+			}
+		}
+	}
+	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
+	{
+		if (game->global_d_types[i] != script_object_type::none)
+			live_object_ids.insert(game->global_d[i]);
+	}
+	for (auto& data : scriptEngineDatas | std::views::values)
+	{
+		for (int i : data.ref.stack_pos_is_object)
+			live_object_ids.insert(data.stack[i]);
+	}
+
+	// Insert all root objects into worklist.
+	std::set<user_abstract_obj*> worklist;
+	for (auto& id : live_object_ids)
+	{
+		if (is_reserved_object_id(id))
+			continue;
+
+		auto object = get_script_object(id);
+		assert(id == 0 || object);
+		if (!object)
+			continue;
+
+		bool can_hold_objects = false;
+		switch (object->type)
+		{
+			case script_object_type::object:
+			// TODO: handle stacks?
+			// case script_object_type::stack:
+				can_hold_objects = true;
+				break;
+		}
+		if (!can_hold_objects)
+			continue;
+
+		auto usr_object = dynamic_cast<user_object*>(object);
+		assert(usr_object);
+		if (!usr_object)
+			continue;
+
+		worklist.insert(usr_object);
+	}
+
+	// Find all the reachable objects.
+	while (worklist.size())
+	{
+		auto base_object = *worklist.begin();
+		worklist.erase(worklist.begin());
+
+		// Currently only user objects retain references.
+		if (base_object->type != script_object_type::object)
+			continue;
+
+		auto object = static_cast<user_object*>(base_object);
+		for (int i = 0; i < object->owned_vars; i++)
+		{
+			if (!object->isMemberObjectType(i))
+				continue;
+
+			auto id = object->data[i];
+			if (id && !live_object_ids.contains(id))
+			{
+				live_object_ids.insert(id);
+				worklist.insert(get_script_object(id));
+			}
+		}
+
+		for (int i = object->owned_vars; i < object->data.size(); i++)
+		{
+			auto ptr = object->data[i]/10000;
+			if (ptr == 0)
+				continue;
+
+			auto& aptr = objectRAM.at(-ptr);
+			if (!aptr.HoldsObjects())
+				continue;
+
+			for (int i = 0; i < aptr.Size(); i++)
+			{
+				auto id = aptr[i];
+				if (id && !live_object_ids.contains(id))
+				{
+					live_object_ids.insert(id);
+					worklist.insert(get_script_object(id));
+				}
+			}
+		}
+	}
+
+	// Delete unreachable objects.
+	for (auto& object : all_objects)
+	{
+		if (live_object_ids.contains(object->id))
+			continue;
+
+		// This object is not reachable.
+
+		if (auto usr_object = dynamic_cast<user_object*>(object))
+		{
+			// To avoid problems when `delete_script_object` deletes the object, clear the
+			// members here.
+			// Any references held in members are also not reachable, so this is fine to do
+			// because they will also be deleted by this gc call.
+			for (int i = usr_object->owned_vars; i < usr_object->data.size(); i++)
+			{
+				auto ptr = usr_object->data[i]/10000;
+				void destroy_object_arr(int32_t ptr, bool dec_refs);
+				destroy_object_arr(ptr, false);
+			}
+			usr_object->owned_vars = 0;
+			usr_object->data.clear();
+		}
+
+		util::remove_if_exists(script_object_autorelease_pool, object->id);
+		delete_script_object(object->id);
+	}
+
+	allocations_since_last_gc = 0;
+	deallocations_since_last_gc = 0;
+}
+
+static void maybe_run_gc()
+{
+	if (allocations_since_last_gc - deallocations_since_last_gc > 700)
+		run_gc();
+}
+
+void init_script_objects()
+{
+	next_script_object_id_freelist.clear();
+	// See `is_reserved_object_id` for why ids do not begin at 1.
+	for (uint32_t id = 1000; id >= 100; id--)
+		next_script_object_id_freelist.push_back(id);
+	script_objects.clear();
+	script_object_ids_by_type.clear();
+	script_object_autorelease_pool.clear();
+	allocations_since_last_gc = 0;
+	deallocations_since_last_gc = 0;
+
+	// Load globals and set their reference counts.
+	// Only custom user objects can be restored right now, so
+	// any other object type will be set to NULL.
+	game->load_user_objects();
+	if (!ZScriptVersion::gc())
+		return;
+	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
+	{
+		auto type = game->global_d_types[i];
+		if (type == script_object_type::object && script_objects.contains(game->global_d[i]))
+			script_object_ref_inc(game->global_d[i]);
+		else if (type != script_object_type::none)
+			game->global_d[i] = 0;
+	}
+	for (auto& aptr : game->globalRAM)
+	{
+		if (!aptr.HoldsObjects())
+			continue;
+
+		if (aptr.ObjectType() != script_object_type::object)
+		{
+			for (int i = 0; i < aptr.Size(); i++)
+				aptr[i] = 0;
+			continue;
+		}
+
+		for (int i = 0; i < aptr.Size(); i++)
+		{
+			if (script_objects.contains(aptr[i]))
+				script_object_ref_inc(aptr[i]);
+			else
+				aptr[i] = 0;
+		}
+	}
+	// This covers any arrays held by saved objects.
+	for (auto& aptr : objectRAM | std::views::values)
+	{
+		if (!aptr.HoldsObjects())
+			continue;
+
+		if (aptr.ObjectType() != script_object_type::object)
+		{
+			for (int i = 0; i < aptr.Size(); i++)
+				aptr[i] = 0;
+			continue;
+		}
+
+		for (int i = 0; i < aptr.Size(); i++)
+		{
+			if (script_objects.contains(aptr[i]))
+				script_object_ref_inc(aptr[i]);
+			else
+				aptr[i] = 0;
+		}
+	}
+	for (auto& object : FFCore.get_user_objects())
+	{
+		assert(object->isGlobal());
+		for (int i = 0; i < object->owned_vars; i++)
+		{
+			if (!object->isMemberObjectType(i))
+				continue;
+
+			if (object->var_types[i] == script_object_type::object && script_objects.contains(object->data[i]))
+				script_object_ref_inc(object->data[i]);
+			else
+				object->data[i] = 0;
+		}
+	}
+}
+
+template <typename T, uint32_t Max>
 struct UserDataContainer
 {
+	script_object_type type;
 	const char* name;
-	T datas[Max];
 
-	T& operator[](size_t index)
+	T& operator[](uint32_t id)
 	{
-		return datas[index];
+		auto& t = script_objects.at(id);
+		assert(t->type == type);
+		T* ptr = static_cast<T*>(t.get());
+		return *ptr;
 	}
 
 	void clear()
 	{
-		for (int32_t i = 0; i < Max; ++i)
-		{
-			datas[i] = {};
-		}
+		auto ids = script_object_ids_by_type[type];
+		for (auto id : ids)
+			delete_script_object(id);
 	}
 
-	void clear(size_t index)
+	T* create(bool skipError = false)
 	{
-		if(index < Max)
-			datas[index] = {};
+		if (script_object_ids_by_type[type].size() >= Max)
+			run_gc();
+
+		if (script_object_ids_by_type[type].size() >= Max)
+		{
+			if (!skipError) Z_scripterrlog("could not find a valid free %s pointer!\n", name);
+			return nullptr;
+		}
+
+		return create_script_object<T>(type);
 	}
 
-	int32_t get_free(bool skipError = false)
+	uint32_t get_free(bool skipError = false)
 	{
-		for (int32_t i = 0; i < Max; ++i)
-		{
-			if (!datas[i].reserved)
-			{
-				// This breaks stellar seas replay at frame 502 ...
-				// datas[i] = {};
-				datas[i].reserved = true;
-				return i+1; //1-indexed; 0 is null value
-			}
-		}
-		if (!skipError) Z_scripterrlog("could not find a valid free %s pointer!\n", name);
-		return 0;
+		T* object = create(skipError);
+		if (!object) return 0;
+		return object->id;
 	}
 
-	T* check(int32_t ref, const char* what, bool skipError = false)
+	T* check(uint32_t id, const char* what, bool skipError = false)
 	{
-		if (ref > 0 && ref <= Max)
+		if (util::contains(script_object_ids_by_type[type], id))
 		{
-			T* data = &datas[ref - 1];
-			if (data->reserved)
-			{
-				return data;
-			}
+			auto& t = script_objects.at(id);
+			return static_cast<T*>(t.get());
 		}
+
 		if (skipError) return NULL;
 
 		Z_scripterrlog("Script attempted to reference a nonexistent %s!\n", name);
 		if (what)
-			Z_scripterrlog("You were trying to reference the '%s' of a %s with UID = %ld\n", what, name, ref);
+			Z_scripterrlog("You were trying to reference the '%s' of a %s with UID = %ld\n", what, name, id);
 		else
-			Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
+			Z_scripterrlog("You were trying to reference with UID = %ld\n", id);
 		return NULL;
 	}
 };
 
-static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {"directory"};
-static UserDataContainer<user_file, MAX_USER_FILES> user_files = {"file"};
-static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {"object"};
-static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {"paldata"};
-static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {"rng"};
-static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {"stack"};
+static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {script_object_type::dir, "directory"};
+static UserDataContainer<user_file, MAX_USER_FILES> user_files = {script_object_type::file, "file"};
+static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_object_type::object, "object"};
+static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {script_object_type::paldata, "paldata"};
+static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {script_object_type::rng, "rng"};
+static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {script_object_type::stack, "stack"};
+static UserDataContainer<user_bitmap, MAX_USER_BITMAPS> user_bitmaps = {script_object_type::bitmap, "bitmap"};
+
+void script_bitmaps::update()
+{
+	auto ids = script_object_ids_by_type[user_bitmaps.type];
+	for (auto id : ids)
+	{
+		auto& bitmap = user_bitmaps[id];
+		if (bitmap.is_freeing())
+		{
+			bitmap.mark_can_del();
+			delete_script_object(id);
+		}
+	}
+}
+
+user_bitmap& script_bitmaps::get(int32_t id)
+{
+	static user_bitmap fake;
+	if (auto bitmap = user_bitmaps.check(id, "script drawing"))
+		return *bitmap;
+	return fake;
+}
 
 struct user_websocket : public user_abstract_obj
 {
@@ -191,12 +673,6 @@ struct user_websocket : public user_abstract_obj
 			websocket_pool_close(connection_id);
 		if (message_arrayptr)
 			FFScript::deallocateZScriptArray(message_arrayptr);
-	}
-
-	void clear()
-	{
-		this->~user_websocket();
-		*this = {};
 	}
 
 	bool connect(std::string url)
@@ -241,16 +717,33 @@ struct user_websocket : public user_abstract_obj
 	int connection_id = -1;
 	std::string url;
 	std::string err;
-	bool reserved;
 	int message_arrayptr;
 	WebSocketMessageType last_message_type;
 };
 #define MAX_USER_WEBSOCKETS 3
-static UserDataContainer<user_websocket, MAX_USER_WEBSOCKETS> user_websockets = {"websocket"};
+static UserDataContainer<user_websocket, MAX_USER_WEBSOCKETS> user_websockets = {script_object_type::websocket, "websocket"};
 
-user_object& FFScript::get_user_object(size_t index)
+user_object& FFScript::create_user_object(uint32_t id)
 {
-	return user_objects[index];
+	auto& vec = next_script_object_id_freelist;
+	vec.erase(std::remove(vec.begin(), vec.end(), id), vec.end());
+	create_script_object<user_object>(script_object_type::object, id);
+	return user_objects[id];
+}
+
+std::vector<user_object*> FFScript::get_user_objects()
+{
+	std::vector<user_object*> result;
+	for (auto id : script_object_ids_by_type[user_objects.type])
+	{
+		result.push_back(&user_objects[id]);
+	}
+	return result;
+}
+
+user_object* FFScript::get_user_object(uint32_t id)
+{
+	return user_objects.check(id, "", true);
 }
 
 script_bitmaps scb;
@@ -262,25 +755,12 @@ FONT *get_zc_font(int index);
 int32_t combopos_modified = -1;
 static std::vector<word> combo_id_cache;
 
-void user_dir::clear()
-{
-	user_abstract_obj::clear();
-	filepath = "";
-	reserved = false;
-	if(list)
-	{
-		list->clear();
-		free(list);
-		list = NULL;
-	}
-}
 void user_dir::setPath(const char* buf)
 {
 	if(!list)
 	{
 		list = (FLIST *) malloc(sizeof(FLIST));
 	}
-	reserved = true;
 	filepath = std::string(buf) + "/";
 	regulate_path(filepath);
 	list->load(filepath.c_str());
@@ -1710,28 +2190,6 @@ void clearScriptHelperData()
 static int32_t numInstructions = 0; // Used to detect hangs
 static bool scriptCanSave = true;
 
-struct ScriptEngineData {
-	refInfo ref;
-	int32_t stack[MAX_SCRIPT_REGISTERS];
-	bounded_vec<word, int32_t> ret_stack {65535};
-	// This is used as a boolean for all but ScriptType::Item.
-	byte doscript = true;
-	bool waitdraw;
-	bool initialized;
-
-	void reset()
-	{
-		// No need to zero the stack.
-		ref = refInfo();
-		doscript = true;
-		waitdraw = false;
-		initialized = false;
-	}
-};
-
-// (type, index) => ScriptEngineData
-static std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
-
 static ScriptEngineData& get_script_engine_data(ScriptType type, int index)
 {
 	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::ScriptedPassiveSubscreen || type == ScriptType::ScriptedActiveSubscreen)
@@ -2243,7 +2701,6 @@ int32_t ffmisc[MAXFFCS][16];
 
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;
-static dword max_valid_object;
 
 void user_genscript::clear()
 {
@@ -2300,15 +2757,6 @@ void countGenScripts()
 	{
 		if(genericscripts[q] && genericscripts[q]->valid())
 			max_valid_genscript = q;
-	}
-}
-void countObjects()
-{
-	max_valid_object = 0;
-	for(auto q = 0; q < MAX_USER_OBJECTS; ++q)
-	{
-		if(user_objects[q].reserved)
-			max_valid_object = q+1;
 	}
 }
 void timeExitAllGenscript(byte exState)
@@ -2637,23 +3085,23 @@ public:
 	}
 	
 	template <typename T>
-	static int32_t getArray(const int32_t ptr, const word size, T *refArray)
+	static int32_t getArray(const int32_t ptr, const size_t size, T *refArray)
 	{
 		return getArray(ptr, size, 0, 0, 0, refArray);
 	}
 	
 	template <typename T>
-	static int32_t getArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+	static int32_t getArray(const int32_t ptr, const size_t size, size_t userOffset, const size_t userStride, const size_t refArrayOffset, T *refArray)
 	{
 		ArrayManager am(ptr);
 		
 		if (am.invalid())
 			return _InvalidPointer;
 			
-		word j = 0, k = userStride;
+		size_t j = 0, k = userStride;
 		
 		size_t sz = am.size();
-		for(word i = 0; j < size; i++)
+		for(size_t i = 0; j < size; i++)
 		{
 			if(i >= sz)
 				return _Overflow;
@@ -2681,7 +3129,7 @@ public:
 		if (am.invalid())
 			return _InvalidPointer;
 		
-		word i;
+		size_t i;
 		
 		if(am.can_resize() && resize)
 			am.resize_min(s2.size()+1);
@@ -2707,13 +3155,13 @@ public:
 	
 	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, T *refArray, bool x10k = true, bool resize = false)
+	static int32_t setArray(const int32_t ptr, const size_t size, T *refArray, bool x10k = true, bool resize = false)
 	{
 		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
 	}
 	
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
+	static int32_t setArray(const int32_t ptr, const size_t size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
 	{
 		ArrayManager am(ptr);
 		
@@ -2837,7 +3285,14 @@ void ArrayManager::set(int32_t indx, int32_t val)
 		{
 			if(indx < 0)
 				indx += sz; //[-1] becomes [size-1] -Em
+			if (aptr->HoldsObjects())
+			{
+				int id = (*aptr)[indx];
+				script_object_ref_dec(id);
+			}
 			(*aptr)[indx] = val;
+			if (aptr->HoldsObjects())
+				script_object_ref_inc(val);
 		}
 	}
 	else //internal special array
@@ -2872,6 +3327,14 @@ bool ArrayManager::resize(size_t newsize)
 		Z_scripterrlog("Special internal array '%d' not valid for operation 'Resize'\n", ptr);
 		return false;
 	}
+	if (aptr->HoldsObjects())
+	{
+		for (int i = newsize; i < aptr->Size(); i++)
+		{
+			auto id = (*aptr)[i];
+			script_object_ref_dec(id);
+		}
+	}
 	aptr->Resize(newsize);
 	return true;
 }
@@ -2899,6 +3362,8 @@ bool ArrayManager::push(int32_t val, int indx)
 	if(aptr->Size() == ZCARRAY_MAX_SIZE)
 		return false;
 	aptr->Push(val,indx);
+	if (aptr->HoldsObjects())
+		script_object_ref_inc(val);
 	return true;
 }
 int32_t ArrayManager::pop(int indx)
@@ -2914,7 +3379,10 @@ int32_t ArrayManager::pop(int indx)
 		Z_scripterrlog("Array %d had nothing to Pop!\n",ptr);
 		return -10000;
 	}
-	return aptr->Pop(indx);
+	int32_t val = aptr->Pop(indx);
+	if (aptr->HoldsObjects())
+		script_object_ref_dec(val);
+	return val;
 }
 
 std::string ArrayManager::asString(std::function<char const*(int32_t)> formatter, const size_t& limit) const
@@ -2939,6 +3407,7 @@ std::string ArrayManager::asString(std::function<char const*(int32_t)> formatter
 	return oss.str();
 }
 
+// TODO: this is a dupe of FFScript::deallocateZScriptArray
 // Called to deallocate arrays when a script stops running
 void deallocateArray(const int32_t ptrval)
 {
@@ -2956,44 +3425,42 @@ void deallocateArray(const int32_t ptrval)
 		if(!localRAM[ptrval].Valid())
 			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
 		else
+		{
+			if (localRAM[ptrval].HoldsObjects())
+			{
+				auto&& aptr = localRAM[ptrval];
+				for (int i = 0; i < aptr.Size(); i++)
+				{
+					auto id = aptr[i];
+					script_object_ref_dec(id);
+				}
+			}
 			localRAM[ptrval].Clear();
+		}
 	}
 }
 
 void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways)
 {
-	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
 	{
-		scb.script_created_bitmaps[q].own_clear(scriptType, UID);
+		if (script_object->own_clear(scriptType, UID))
+		{
+			ids_to_clear.push_back(script_object->id);
+		}
 	}
-	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	if (ZScriptVersion::gc())
 	{
-		user_rngs[q].own_clear(scriptType, UID);
+		for (auto id : ids_to_clear)
+			script_object_ref_dec(id);
 	}
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	else
 	{
-		user_paldatas[q].own_clear(scriptType, UID);
+		for (auto id : ids_to_clear)
+			delete_script_object(id);
 	}
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		user_files[q].own_clear(scriptType, UID);
-	}
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		user_dirs[q].own_clear(scriptType, UID);
-	}
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		user_stacks[q].own_clear(scriptType, UID);
-	}
-	for(int32_t q = 0; q < max_valid_object; ++q)
-	{
-		user_objects[q].own_clear(scriptType, UID);
-	}
-	for (int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
-	{
-		user_websockets[q].own_clear(scriptType, UID);
-	}
+
 	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
 		//Keep 2.50.2 behavior if QR unchecked.
@@ -3015,38 +3482,25 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 
 void FFScript::deallocateAllScriptOwned()
 {
-	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
 	{
-		scb.script_created_bitmaps[q].own_clear_any();
+		if (script_object->own_clear_any())
+		{
+			ids_to_clear.push_back(script_object->id);
+		}
 	}
-	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	if (ZScriptVersion::gc())
 	{
-		user_rngs[q].own_clear_any();
+		for (auto id : ids_to_clear)
+			script_object_ref_dec(id);
 	}
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	else
 	{
-		user_paldatas[q].own_clear_any();
+		for (auto id : ids_to_clear)
+			delete_script_object(id);
 	}
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		user_files[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		user_dirs[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		user_stacks[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < max_valid_object; ++q)
-	{
-		user_objects[q].own_clear_any();
-	}
-	for(int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
-	{
-		user_websockets[q].own_clear_any();
-	}
+
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
@@ -3061,38 +3515,25 @@ void FFScript::deallocateAllScriptOwned()
 
 void FFScript::deallocateAllScriptOwnedCont()
 {
-	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
 	{
-		scb.script_created_bitmaps[q].own_clear_cont();
+		if (script_object->own_clear_cont())
+		{
+			ids_to_clear.push_back(script_object->id);
+		}
 	}
-	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	if (ZScriptVersion::gc())
 	{
-		user_rngs[q].own_clear_cont();
+		for (auto id : ids_to_clear)
+			script_object_ref_dec(id);
 	}
-	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	else
 	{
-		user_paldatas[q].own_clear_cont();
+		for (auto id : ids_to_clear)
+			delete_script_object(id);
 	}
-	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
-	{
-		user_files[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
-	{
-		user_dirs[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
-	{
-		user_stacks[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < max_valid_object; ++q)
-	{
-		user_objects[q].own_clear_cont();
-	}
-	for(int32_t q = 0; q < MAX_USER_WEBSOCKETS; ++q)
-	{
-		user_websockets[q].own_clear_cont();
-	}
+
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
@@ -3294,15 +3735,34 @@ bottleshoptype *checkBottleShopData(int32_t ref, const char *what, bool skipErro
 
 user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, bool skipError = false)
 {
-	int32_t ind = ref - 10;
-	if(ind >= firstUserGeneratedBitmap && ind < MAX_USER_BITMAPS)
+	switch (ref - 10)
 	{
-		user_bitmap* b = &(scb.script_created_bitmaps[ind]);
-		if(b->reserved())
+		case rtSCREEN:
+		case rtBMP0:
+		case rtBMP1:
+		case rtBMP2:
+		case rtBMP3:
+		case rtBMP4:
+		case rtBMP5:
+		case rtBMP6:
+			zprint2("Internal error: 'checkBitmap()' recieved ref pointing to system bitmap!\n");
+			zprint2("Please report this as a bug!\n");
+
+			if(skipError) return NULL;
+			Z_scripterrlog("Script attempted to reference a nonexistent bitmap!\n");
+			if(what)
+				Z_scripterrlog("You were trying to reference the '%s' of a bitmap with UID = %ld\n", what, ref);
+			else
+				Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
+			return NULL;
+			break;
+
+		default:
 		{
-			if(req_valid && !b->u_bmp)
+			user_bitmap* b = user_bitmaps.check(ref, what, skipError);
+			if (req_valid && (!b || !b->u_bmp))
 			{
-				if(skipError) return NULL;
+				if (skipError) return NULL;
 				Z_scripterrlog("Script attempted to reference an invalid bitmap!\n");
 				Z_scripterrlog("Bitmap with UID = %ld does not have a valid memory bitmap!\n",ref);
 				Z_scripterrlog("Use '->Create()' to create a memory bitmap.\n");
@@ -3311,30 +3771,6 @@ user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, 
 			return b;
 		}
 	}
-	else
-	{
-		switch(ind)
-		{
-			case rtSCREEN:
-			case rtBMP0:
-			case rtBMP1:
-			case rtBMP2:
-			case rtBMP3:
-			case rtBMP4:
-			case rtBMP5:
-			case rtBMP6:
-				zprint2("Internal error: 'checkBitmap()' recieved ref pointing to system bitmap!\n");
-				zprint2("Please report this as a bug!\n");
-				break;
-		}
-	}
-	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent bitmap!\n");
-	if(what)
-		Z_scripterrlog("You were trying to reference the '%s' of a bitmap with UID = %ld\n", what, ref);
-	else
-		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
-	return NULL;
 }
 
 extern const std::string subscr_names[sstMAX];
@@ -8094,9 +8530,8 @@ int32_t get_register(int32_t arg)
 		}
 		case ZELDABETA:
 		{
-			ret = int32_t(1*10000);
-			if(!isStableRelease()) //Nightly 111/112 should return '111.5' not '112'
-				ret -= 5000;
+			int ver = 120;
+			ret = int32_t(ver*10000);
 			break;
 		}
 		case GAMEDEATHS:
@@ -8559,7 +8994,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case ALLOCATEBITMAPR:
-			ret=FFCore.do_allocate_bitmap();
+			ret=FFCore.get_free_bitmap();
 			break;
 			
 		case GETMIDI:
@@ -13153,25 +13588,27 @@ int32_t get_register(int32_t arg)
 
 		case BITMAPWIDTH:
 		{
-			//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp ) 
-			//{
-			//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->w * 10000;
-			//}
-			//else ret = 0;
-			ret = scb.script_created_bitmaps[ri->bitmapref-10].width * 10000;
+			if (auto bmp = user_bitmaps.check(ri->bitmapref, "->Width"); bmp && bmp->u_bmp)
+			{
+				ret = bmp->width * 10000;
+			}
+			else
+			{
+				ret = -10000;
+			}
 			break;
 		}
 
 		case BITMAPHEIGHT:
 		{
-			//Z_scripterrlog("BITMAPHEI|GHT ri->BitmapRef is %d\n", ri->bitmapref);
-			//Z_scripterrlog("ref bitmap height: %d\n", scb.script_created_bitmaps[ri->bitmapref-10].u_bmp->h);
-			//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp )
-			//{
-			//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->h * 10000;
-			//}
-			//else ret = 0;
-			ret = scb.script_created_bitmaps[ri->bitmapref-10].height * 10000;
+			if (auto bmp = user_bitmaps.check(ri->bitmapref, "->Height"); bmp && bmp->u_bmp)
+			{
+				ret = bmp->height * 10000;
+			}
+			else
+			{
+				ret = -10000;
+			}
 			break;
 		}
 		///----------------------------------------------------------------------------------------------------//
@@ -23055,7 +23492,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t id = (ri->d[rINDEX] / 10000)-1; \
 			if(v < min || v > max ) \
 			{ \
-				Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", (id+1), str); \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, (id+1)); \
 			} \
 			else if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
 			{ \
@@ -28829,6 +29266,43 @@ void do_store(const bool v)
 	SH::write_stack(stackoffset, value);
 }
 
+void script_store_object(uint32_t offset, uint32_t new_id)
+{
+	// Increase, then decrease, to handle the case where a variable (holding the only reference to an object) is assigned to itself.
+	// This is unlikely so lets not bother with a conditional that skips both ref modifications when the ids are equal.
+	uint32_t id = SH::read_stack(offset);
+	script_object_ref_inc(new_id);
+	if (ri->stack_pos_is_object.contains(offset))
+		script_object_ref_dec(id);
+	else
+		ri->stack_pos_is_object.insert(offset);
+
+	SH::write_stack(offset, new_id);
+}
+
+void do_store_object(const bool v)
+{
+	const int32_t stackoffset = ri->d[rSFRAME] + sarg2;
+	const int32_t new_id = SH::get_arg(sarg1, v);
+	script_store_object(stackoffset, new_id);
+}
+
+void script_remove_object_ref(int32_t offset)
+{
+	if (offset < 0 || offset >= MAX_SCRIPT_REGISTERS)
+	{
+		assert(false);
+		return;
+	}
+
+	if (!ri->stack_pos_is_object.contains(offset))
+		return;
+
+	uint32_t id = SH::read_stack(offset);
+	script_object_ref_dec(id);
+	ri->stack_pos_is_object.erase(offset);
+}
+
 void do_enqueue(const bool)
 {
 }
@@ -28932,7 +29406,7 @@ void do_destroy_array()
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
-static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID)
+static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type = script_object_type::none)
 {
 	dword ptrval;
 	
@@ -28958,6 +29432,7 @@ static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32
 			
 			a.Resize(size);
 			a.setValid(true);
+			a.setObjectType(object_type);
 			
 			for(dword j = 0; j < (dword)size; j++)
 				a[j] = 0; //initialize array
@@ -28981,6 +29456,7 @@ static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32
 		
 		a.Resize(size);
 		a.setValid(true);
+		a.setObjectType(object_type);
 		
 		for(dword j = 0; j < (dword)size; j++)
 			a[j] = 0;
@@ -28994,12 +29470,9 @@ static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32
 void do_allocatemem(bool v, const bool local, ScriptType type, const uint32_t UID)
 {
 	int32_t size = SH::get_arg(sarg2, v) / 10000;
-	dword ptrval = allocatemem(size, local, type, UID);
+	assert(sarg3 >= 0 && sarg3 <= (int)script_object_type::last);
+	dword ptrval = allocatemem(size, local, type, UID, (script_object_type)sarg3);
 	set_register(sarg1, ptrval * 10000);
-	
-	// If this happens once per frame, it can drown out every other message. -L
-	/*Z_eventlog("Allocated %s array of size %d, pointer address %ld\n",
-				local ? "local": "global", size, ptrval);*/
 }
 
 void do_deallocatemem()
@@ -29581,6 +30054,11 @@ void do_warp(bool v)
 	tmpscr->sidewarpdmap[0] = dmapid;
 	tmpscr->sidewarpscr[0]  = screenid;
 	tmpscr->sidewarptype[0] = wtIWARP;
+	if(!get_qr(qr_OLD_HERO_WARP_RETSQUARE))
+	{
+		tmpscr->warpreturnc &= ~(3 << 8);
+		set_bit(&tmpscr->sidewarpoverlayflags,0,0);
+	}
 	Hero.ffwarp = true;
 }
 
@@ -29607,6 +30085,11 @@ void do_pitwarp(bool v)
 	tmpscr->sidewarpdmap[0] = dmapid;
 	tmpscr->sidewarpscr[0]  = screenid;
 	tmpscr->sidewarptype[0] = wtIWARP;
+	if(!get_qr(qr_OLD_HERO_WARP_RETSQUARE))
+	{
+		tmpscr->warpreturnc &= ~(3 << 8);
+		set_bit(&tmpscr->sidewarpoverlayflags,0,0);
+	}
 	Hero.ffwarp = true;
 	Hero.ffpit = true;
 }
@@ -30005,16 +30488,10 @@ void FFScript::do_graphics_getpixel()
 	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	int32_t ref = (ri->d[rEXP1]);
 	
-	if ( ref == -10000 || ref == -20000 || ref >= 10000 ) //Bitmaps Loaded by LoadBitmapID have values of -10000 to 70000
-	{
-		ref /= 10000;
-	}
-	else ref -= 10; //Bitmaps other than those loaded by LoadBitmapID
-	
 	BITMAP *bitty = FFCore.GetScriptBitmap(ref);
 	int32_t xpos  = ri->d[rINDEX2] / 10000;
 	
-	if(!brokenOffset && ref == -1 )
+	if(!brokenOffset && (ref-10) == -1 )
 	{
 		yoffset = 56; //should this be -56?
 	}
@@ -30443,34 +30920,37 @@ void do_getscreennpc()
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
 
-void do_isvalidarray()
+bool is_valid_array(int32_t ptr)
 {
-	int32_t ptr = get_register(sarg1)/10000;
-	
-	set_register(sarg1,0);
-	
-	if(!ptr) return;
+	if(!ptr) return false;
 	
 	if(ptr < 0) //An object array?
 	{
 		int32_t objptr = -ptr;
 		auto it = objectRAM.find(objptr);
 		if(it == objectRAM.end())
-			return;
-		set_register(sarg1,10000);
+			return false;
+		return true;
 	}
 	else if(ptr >= NUM_ZSCRIPT_ARRAYS) //check global
 	{
 		dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 		
 		if(gptr > game->globalRAM.size())
-			return;
-		else set_register(sarg1,game->globalRAM[gptr].Valid() ? 10000 : 0);
+			return false;
+		else return game->globalRAM[gptr].Valid();
 	}
 	else
 	{
-		set_register(sarg1,localRAM[ptr].Valid() ? 10000 : 0); 
+		return localRAM[ptr].Valid();
 	}
+}
+
+void do_isvalidarray()
+{
+	int32_t ptr = get_register(sarg1)/10000;
+	
+	set_register(sarg1,is_valid_array(ptr) ? 10000 : 0);
 }
 
 void do_isvaliditem()
@@ -30887,8 +31367,17 @@ void FFScript::do_load_subscreendata(const bool v, const bool v2)
 
 void FFScript::do_loadrng()
 {
-	ri->rngref = user_rngs.get_free();
-	ri->d[rEXP1] = ri->rngref;
+	auto rng = user_rngs.create();
+	if (!rng)
+	{
+		ri->d[rEXP1] = 0;
+		return;
+	}
+
+	int q = script_object_ids_by_type[script_object_type::rng].size() - 1;
+	rng->gen = &script_rnggens[q];
+	ri->rngref = rng->id;
+	ri->d[rEXP1] = rng->id;
 }
 
 void FFScript::do_loaddirectory()
@@ -30981,12 +31470,6 @@ void FFScript::do_loadgenericdata(const bool v)
 void FFScript::do_create_paldata()
 {
 	ri->paldataref = user_paldatas.get_free();
-	if (ri->paldataref > 0)
-	{
-		user_paldata* pd = &user_paldatas[ri->paldataref - 1];
-		for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
-			pd->colors_used[q] = 0;
-	}
 	ri->d[rEXP1] = ri->paldataref;
 }
 
@@ -30995,7 +31478,7 @@ void FFScript::do_create_paldata_clr()
 	ri->paldataref = user_paldatas.get_free();
 	if (ri->paldataref > 0)
 	{
-		user_paldata* pd = &user_paldatas[ri->paldataref - 1];
+		user_paldata& pd = user_paldatas[ri->paldataref];
 		int32_t clri = get_register(sarg1);
 
 		RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
@@ -31009,7 +31492,7 @@ void FFScript::do_create_paldata_clr()
 		c.b = vbound(c.b, 0, 63);
 
 		for (int32_t q = 0; q < 240; ++q)
-			pd->set_color(q, c);
+			pd.set_color(q, c);
 	}
 	ri->d[rEXP1] = ri->paldataref;
 }
@@ -32843,14 +33326,14 @@ void FFScript::do_loadbitmapid(const bool v)
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	switch(ID)
 	{
-		case -1:
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-		case 6:
+		case rtSCREEN:
+		case rtBMP0:
+		case rtBMP1:
+		case rtBMP2:
+		case rtBMP3:
+		case rtBMP4:
+		case rtBMP5:
+		case rtBMP6:
 			ri->bitmapref = ID+10; break;
 		default:
 		{
@@ -35309,13 +35792,21 @@ int32_t get_object_arr(size_t sz)
 	
 	return -free_ptr;
 }
-void destroy_object_arr(int32_t ptr)
+void destroy_object_arr(int32_t ptr, bool dec_refs)
 {
 	if(ptr < 0)
 	{
 		auto it = objectRAM.find(-ptr);
 		if(it != objectRAM.end())
+		{
+			auto& aptr = it->second;
+			if (dec_refs && aptr.HoldsObjects())
+			{
+				for (int i = 0; i < aptr.Size(); i++)
+					script_object_ref_dec(aptr[i]);
+			}
 			objectRAM.erase(it);
+		}
 	}
 }
 void do_constructclass(ScriptType type, word script, int32_t i)
@@ -35326,13 +35817,13 @@ void do_constructclass(ScriptType type, word script, int32_t i)
 	size_t total_vars = num_vars + sargvec->size()-1;
 	auto destr_pc = ri->d[rEXP1];
 
-	dword objref = user_objects.get_free();
-	if (objref && objref >= max_valid_object)
-		max_valid_object = objref;
-
-	if(user_object* obj = checkObject(objref, true))
+	if (auto obj = user_objects.create())
 	{
-		obj->own(type, i);
+		// Before gc/reference counting, allocating a custom object automatically assigns
+		// ownership to the current script. Not needed anymore, but important to keep
+		// doing for compat.
+		if (!ZScriptVersion::gc())
+			own_script_object(obj, type, i);
 		obj->owned_vars = num_vars;
 		for(size_t q = 0; q < total_vars; ++q)
 		{
@@ -35348,8 +35839,8 @@ void do_constructclass(ScriptType type, word script, int32_t i)
 				else obj->data.push_back(0); //nullptr
 			}
 		}
-		set_register(sarg1, objref);
-		ri->thiskey = objref;
+		set_register(sarg1, obj->id);
+		ri->thiskey = obj->id;
 		obj->prep(destr_pc,type,script,i);
 	}
 	else set_register(sarg1, 0);
@@ -35384,17 +35875,18 @@ void do_writeclass()
 		}
 		else
 		{
+			bool is_object = obj->isMemberObjectType(ind);
+			if (is_object)
+				script_object_ref_dec(obj->data[ind]);
 			obj->data[ind] = ri->d[rEXP1];
+			if (is_object)
+				script_object_ref_inc(obj->data[ind]);
 		}
 	}
 }
 void do_freeclass()
 {
-	dword objref = get_register(sarg1);
-	if(user_object* obj = checkObject(objref, true))
-	{
-		obj->clear();
-	}
+	// Deleting is no longer needed. To keep reference counting simpler, simply do nothing on delete.
 	ri->d[rEXP1] = 0;
 }
 
@@ -35656,6 +36148,19 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	else
 	{
 		result = run_script_int(false);
+	}
+
+	if (ZScriptVersion::gc())
+	{
+		// Drain the autorelease pool.
+		// Move the vector, since destructors can possibly
+		// create objects and modify `script_object_autorelease_pool`.
+		auto ids = std::move(script_object_autorelease_pool);
+		for (auto id : ids)
+			script_object_ref_dec(id);
+
+		// This throttles the actual full GC run.
+		maybe_run_gc();
 	}
 
 	if (replay_is_active() && replay_get_meta_bool("debug_script_state"))
@@ -36263,7 +36768,8 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(user_object* obj = checkObject(get_register(sarg1), true))
 				{
-					obj->own(type,i);
+					obj->setGlobal(false);
+					own_script_object(obj, type, i);
 				}
 				break;
 			}
@@ -36278,7 +36784,8 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(user_object* obj = checkObject(get_register(sarg1), true))
 				{
-					obj->disown();
+					obj->setGlobal(true);
+					own_script_object(obj, ScriptType::None, 0);
 				}
 				break;
 			}
@@ -36381,6 +36888,9 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			case STOREV:
 				do_store(true);
+				break;
+			case STORE_OBJECT:
+				do_store_object(false);
 				break;
 				
 			case LOAD1:
@@ -37448,13 +37958,13 @@ int32_t run_script_int(bool is_jitted)
 			case PALDATAFREE:
 				if (user_paldata* pd = checkPalData(ri->paldataref, "Free()", true))
 				{
-					pd->clear();
+					free_script_object(pd->id);
 				}
 				break;
 			case PALDATAOWN:
 				if (user_paldata* pd = checkPalData(ri->paldataref, "Own()", false))
 				{
-					pd->own(type, i);
+					own_script_object(pd, type, i);
 				}
 				break;
 			case LOADDROPSETR: //command
@@ -37978,7 +38488,7 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			case READBITMAP:
 			{
-				int32_t bitref = SH::read_stack(ri->sp+2);
+				uint32_t bitref = SH::read_stack(ri->sp+2);
 				if(user_bitmap* b = checkBitmap(bitref,"Read()",false,true))
 					do_drawing_command(scommand);
 				else //If the pointer isn't allocated, attempt to allocate it first
@@ -38008,7 +38518,7 @@ int32_t run_script_int(bool is_jitted)
 						h = h ^ w;
 					}
 					
-					ri->d[rEXP2] = FFCore.create_user_bitmap_ex(h,w,8); //Return to ptr
+					ri->d[rEXP2] = FFCore.create_user_bitmap_ex(h,w); //Return to ptr
 				}
 				break;
 			}
@@ -38023,11 +38533,9 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(FFCore.isSystemBitref(ri->bitmapref))
 					break; //Don't attempt to own system bitmaps!
-				user_bitmap* b = checkBitmap(ri->bitmapref, "Own()", false);
-				if(b)
-				{
-					b->own(type, i);
-				}
+
+				if (auto bitmap = checkBitmap(ri->bitmapref, "Own()", false))
+					own_script_object(bitmap, type, i);
 				break;
 			}
 			
@@ -38040,7 +38548,7 @@ int32_t run_script_int(bool is_jitted)
 				if(!b) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
-				b->own(own_type,own_i);
+				own_script_object(b, own_type, own_i);
 				break;
 			}
 			case OBJ_OWN_PALDATA:
@@ -38050,7 +38558,7 @@ int32_t run_script_int(bool is_jitted)
 				if(!pd) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
-				pd->own(own_type,own_i);
+				own_script_object(pd, own_type, own_i);
 				break;
 			}
 			case OBJ_OWN_FILE:
@@ -38060,7 +38568,7 @@ int32_t run_script_int(bool is_jitted)
 				if(!f) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
-				f->own(own_type,own_i);
+				own_script_object(f, own_type, own_i);
 				break;
 			}
 			case OBJ_OWN_DIR:
@@ -38070,7 +38578,7 @@ int32_t run_script_int(bool is_jitted)
 				if(!dr) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
-				dr->own(own_type,own_i);
+				own_script_object(dr, own_type, own_i);
 				break;
 			}
 			case OBJ_OWN_STACK:
@@ -38080,7 +38588,7 @@ int32_t run_script_int(bool is_jitted)
 				if(!st) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
-				st->own(own_type,own_i);
+				own_script_object(st, own_type, own_i);
 				break;
 			}
 			case OBJ_OWN_RNG:
@@ -38090,7 +38598,7 @@ int32_t run_script_int(bool is_jitted)
 				if(!r) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
-				r->own(own_type,own_i);
+				own_script_object(r, own_type, own_i);
 				break;
 			}
 			case OBJ_OWN_CLASS:
@@ -38100,7 +38608,7 @@ int32_t run_script_int(bool is_jitted)
 				if(!obj) break;
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
-				obj->own(own_type,own_i);
+				own_script_object(obj, own_type, own_i);
 				break;
 			}
 			case OBJ_OWN_ARRAY:
@@ -39522,8 +40030,8 @@ int32_t run_script_int(bool is_jitted)
 			}
 			case FILEOWN:
 			{
-				user_file* f = checkFile(ri->fileref, "Free()", false);
-				if(f) f->own(type, i);
+				user_file* f = checkFile(ri->fileref, "Own()", false);
+				if(f) own_script_object(f, type, i);
 				break;
 			}
 			case FILEISALLOCATED:
@@ -39666,7 +40174,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(user_dir* dr = checkDir(ri->directoryref, "Own()"))
 				{
-					dr->own(type, i);
+					own_script_object(dr, type, i);
 				}
 				break;
 			}
@@ -39675,7 +40183,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(user_stack* st = checkStack(ri->stackref, "Free()", true))
 				{
-					st->clear();
+					free_script_object(st->id);
 				}
 				break;
 			}
@@ -39683,7 +40191,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if(user_stack* st = checkStack(ri->stackref, "Own()"))
 				{
-					st->own(type, i);
+					own_script_object(st, type, i);
 				}
 				break;
 			}
@@ -39854,13 +40362,13 @@ int32_t run_script_int(bool is_jitted)
 			case RNGFREE:
 				if(user_rng* r = checkRNG(ri->rngref, "Free()", true))
 				{
-					r->clear();
+					free_script_object(r->id);
 				}
 				break;
 			case RNGOWN:
 				if(user_rng* r = checkRNG(ri->rngref, "Own()", false))
 				{
-					r->own(type, i);
+					own_script_object(r, type, i);
 				}
 				break;
 			//}
@@ -40144,7 +40652,7 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if (auto ws = user_websockets.check(ri->websocketref, "Own()"))
 				{
-					ws->own(type, i);
+					own_script_object(ws, type, i);
 				}
 				break;
 			}
@@ -40162,22 +40670,24 @@ int32_t run_script_int(bool is_jitted)
 					break;
 				}
 
-				int ref = user_websockets.get_free();
-				if (!ref)
+				auto ws = user_websockets.create();
+				if (!ws)
 				{
 					break;
 				}
 
-				auto& ws = user_websockets[ref-1];
-				ws.connect(url);
+				ws->connect(url);
 
-				ri->websocketref = ref;
-				ri->d[rEXP1] = ref;
+				ri->websocketref = ws->id;
+				ri->d[rEXP1] = ws->id;
 				break;
 			}
 			case WEBSOCKET_FREE:
 			{
-				user_websockets.clear(ri->websocketref-1);
+				if (auto ws = checkPalData(ri->websocketref, "Free()", true))
+				{
+					free_script_object(ws->id);
+				}
 				break;
 			}
 			case WEBSOCKET_ERROR:
@@ -40214,10 +40724,15 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if (auto ws = user_websockets.check(ri->websocketref, "Receive()"))
 				{
+					if (!ws->has_message())
+					{
+						set_register(sarg1, 0);
+						break;
+					}
 					std::string message = ws->receive_message();
 					auto message_type = ws->last_message_type;
 
-					if (!ws->message_arrayptr)
+					if(!(ws->message_arrayptr && is_valid_array(ws->message_arrayptr)))
 						ws->message_arrayptr = allocatemem(message.size() + 1, true, ScriptType::None, -1);
 
 					if (message_type == WebSocketMessageType::Text)
@@ -40227,6 +40742,166 @@ int32_t run_script_int(bool is_jitted)
 
 					set_register(sarg1, ws->message_arrayptr * 10000);
 				}
+				break;
+			}
+
+			case REF_INC:
+			{
+				int offset = ri->d[rSFRAME] + sarg1;
+				if (!ri->stack_pos_is_object.contains(offset))
+				{
+					assert(false);
+					break;
+				}
+
+				uint32_t id = SH::read_stack(offset);
+				script_object_ref_inc(id);
+				break;
+			}
+			case REF_DEC:
+			{
+				int offset = ri->d[rSFRAME] + sarg1;
+				if (!ri->stack_pos_is_object.contains(offset))
+				{
+					assert(false);
+					break;
+				}
+
+				uint32_t id = SH::read_stack(offset);
+				script_object_ref_dec(id);
+				break;
+			}
+			case REF_AUTORELEASE:
+			{
+				uint32_t id = get_register(sarg1);
+				script_object_autorelease_pool.push_back(id);
+				script_object_ref_inc(id);
+				break;
+			}
+			case REF_COUNT:
+			{
+				if (!use_testingst_start)
+				{
+					Z_error_fatal("RefCount can only be used in test mode\n");
+					break;
+				}
+
+				static bool has_warned = false;
+				if (zscript_debugger && !has_warned) 
+				{
+					has_warned = true;
+					zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
+							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),
+							"RefCount() only works in test mode!");
+				}
+
+				uint32_t id = get_register(sarg1);
+				auto object = get_script_object(id);
+				int count = object ? object->ref_count : -1;
+				set_register(sarg1, count);
+				break;
+			}
+			case MARK_TYPE_STACK:
+			{
+				int offset = ri->d[rSFRAME] + sarg2;
+				if (offset < 0 || offset >= MAX_SCRIPT_REGISTERS)
+				{
+					assert(false);
+					break;
+				}
+				if (sarg1 < 0 || sarg1 > 1)
+				{
+					assert(false);
+					break;
+				}
+
+				if (sarg1)
+					ri->stack_pos_is_object.insert(offset);
+				else
+					ri->stack_pos_is_object.erase(offset);
+				break;
+			}
+			case MARK_TYPE_REG:
+			{
+				// Currently only marking globals as objects is supported.
+				if (!(sarg1 >= GD(0) && sarg1 <= GD(MAX_SCRIPT_REGISTERS)))
+				{
+					assert(false);
+					break;
+				}
+				if (!(sarg2 >= 0 && sarg2 <= (int)script_object_type::last))
+				{
+					assert(false);
+					break;
+				}
+
+				int index = sarg1 - GD(0);
+				game->global_d_types[index] = (script_object_type)sarg2;
+				break;
+			}
+			case REF_REMOVE:
+			{
+				int offset = ri->d[rSFRAME] + sarg1;
+				script_remove_object_ref(offset);
+				break;
+			}
+			case ZCLASS_MARK_TYPE:
+			{
+				auto& vec = *sargvec;
+				assert(vec.size() % 2 == 0);
+
+				uint32_t id = ri->thiskey;
+				if (auto obj = user_objects.check(id, "ZCLASS_MARK_TYPE"))
+				{
+					for (size_t i = 0; i < vec.size(); i += 2)
+					{
+						int index = vec[i];
+						assert(vec[i + 1] >= 0 && vec[i + 1] <= (int)script_object_type::last);
+						auto type = (script_object_type)vec[i + 1];
+						if (index >= obj->owned_vars)
+						{
+							int ptr = -obj->data[index] / 10000;
+							if (ptr)
+							{
+								ZScriptArray& a = objectRAM.at(ptr);
+								a.setObjectType(type);
+							}
+						}
+						else
+						{
+							if (obj->var_types.size() <= index)
+								obj->var_types.resize(index + 1);
+							obj->var_types[index] = type;
+						}
+					}
+				}
+				break;
+			}
+			case GC:
+			{
+				if (!use_testingst_start)
+				{
+					Z_error_fatal("GC can only be used in test mode\n");
+					break;
+				}
+
+				run_gc();
+				break;
+			}
+			case SET_OBJECT:
+			{
+				if (!(sarg1 >= GD(0) && sarg1 <= GD(MAX_SCRIPT_REGISTERS)))
+				{
+					assert(false);
+					break;
+				}
+
+				int value = get_register(sarg2);
+				int index = sarg1-GD(0);
+				assert(game->global_d_types[index] != script_object_type::none);
+				script_object_ref_inc(value);
+				script_object_ref_dec(game->global_d[index]);
+				game->global_d[index] = value;
 				break;
 			}
 
@@ -40567,11 +41242,10 @@ void FFScript::user_dirs_init()
 }
 void FFScript::user_objects_init()
 {
-	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
+	for (auto id : script_object_ids_by_type[user_objects.type])
 	{
-		user_objects[q].clear_nodestruct();
+		user_objects[id].clear_nodestruct();
 	}
-	max_valid_object = 0;
 }
 
 void FFScript::user_stacks_init()
@@ -40581,11 +41255,14 @@ void FFScript::user_stacks_init()
 
 void FFScript::user_rng_init()
 {
+	user_rngs.clear();
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
 		replay_register_rng(&script_rnggens[q]);
-		user_rngs[q].clear();
-		user_rngs[q].set_gen(&script_rnggens[q]);
+
+		// Just to seed it.
+		user_rng rng;
+		rng.set_gen(&script_rnggens[q]);
 	}
 }
 
@@ -40597,6 +41274,7 @@ void FFScript::user_paldata_init()
 void FFScript::user_websockets_init()
 {
 	user_websockets.clear();
+	websocket_pool_destroy();
 }
 
 // Gotten from 'https://fileinfo.com/filetypes/executable'
@@ -40727,7 +41405,7 @@ void FFScript::do_allocate_file()
 void FFScript::do_deallocate_file()
 {
 	user_file* f = checkFile(ri->fileref, "Free()", false, true);
-	if(f) f->clear();
+	if(f) free_script_object(f->id);
 }
 
 void FFScript::do_file_isallocated() //Returns true if file is allocated
@@ -41123,140 +41801,83 @@ void FFScript::do_directory_free()
 {
 	if(user_dir* dr = checkDir(ri->directoryref, "Free()", true))
 	{
-		dr->clear();
+		free_script_object(dr->id);
 	}
 }
 
 ///----------------------------------------------------------------------------------------------------
-
-
-void FFScript::do_write_bitmap()
-{
-	// for ( int32_t q = 0; q < 16; q++)
-	// zprint("do_write_bitmap stack sp+%d: %d\n", q, SH::read_stack(ri->sp+q));
-	int32_t arrayptr = get_register(sarg2) / 10000;
-	string filename_str;
-
-	ArrayH::getString(arrayptr, filename_str, 512);
-	int32_t ref = ri->bitmapref-10;
-	// zprint("WriteBitmap() filename is %s\n",filename_str.c_str());
-	// zprint("WriteBitmap ri->bitmapref is: %d\n",ref );
-	if ( ref <= 0 )
-	{
-		if (ref == -2 )
-		{
-			save_bitmap(filename_str.c_str(), framebuf, RAMpal);
-			// zprint("Wrote image file %s\n",filename_str.c_str());
-		}
-		else
-		{
-			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
-		}
-	}
-	else if ( ref >= 7 )
-	{
-		if ( scb.script_created_bitmaps[ref].u_bmp ) 
-		{
-			save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref-10].u_bmp, RAMpal);
-			// zprint("Wrote image file %s\n",filename_str.c_str());
-		}
-		else
-		{
-			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
-		}
-	}
-	else
-	{
-		if ( zscriptDrawingRenderTarget->GetBitmapPtr(ref) ) 
-		{
-			save_bitmap(filename_str.c_str(), zscriptDrawingRenderTarget->GetBitmapPtr(ref), RAMpal);
-			// zprint("Wrote image file %s\n",filename_str.c_str());
-		}
-		else
-		{
-			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
-		}
-	}
-}
 
 void FFScript::set_sarg1(int32_t v)
 {
 	set_register(sarg1, v);
 }
 
-//script_bitmaps scb;
-
-int32_t FFScript::do_allocate_bitmap()
-{	
-	return FFCore.get_free_bitmap();
-}
 void FFScript::do_isvalidbitmap()
 {
-	int32_t UID = get_register(sarg1);
-	//zprint("isValidBitmap() bitmap pointer value is %d\n", UID);
-	if ( UID <= 0 ) set_register(sarg1, 0); 
-	else if ( UID-10>=0 && UID-10 < 256 && scb.script_created_bitmaps[UID-10].u_bmp )
-		set_register(sarg1, 10000);
-	else set_register(sarg1, 0);
+	int32_t id = get_register(sarg1);
+
+	if (id >= 0)
+	{
+		auto bmp = user_bitmaps.check(id, "", true);
+		if (bmp && bmp->u_bmp)
+		{
+			set_register(sarg1, 10000);
+			return;
+		}
+	}
+
+	set_register(sarg1, 0);
 }
 void FFScript::do_isallocatedbitmap()
 {
-	int32_t UID = get_register(sarg1);
-	//zprint("isAllocatedBitmap() bitmap pointer value is %d\n", UID);
-	if ( UID <= 0 ) set_register(sarg1, 0); 
-	else
+	int32_t id = get_register(sarg1);
+
+	if (id >= 0)
 	{
-		set_register(sarg1, (UID-10>=0 && UID-10 < 256 && scb.script_created_bitmaps[UID-10].reserved()) ? 10000L : 0L);
-		/*
-		UID-=10;
-		if ( UID <= highest_valid_user_bitmap() || UID < firstUserGeneratedBitmap)
+		auto bmp = user_bitmaps.check(id, "", true);
+		if (bmp)
+		{
 			set_register(sarg1, 10000);
-		else set_register(sarg1, 0);
-		*/
-		
+			return;
+		}
 	}
+
+	set_register(sarg1, 0);
 }
 
 void FFScript::user_bitmaps_init()
 {
-	scb.clear();
+	user_bitmaps.clear();
 }
 
 int32_t FFScript::do_create_bitmap()
 {
-	//zprint("Begin running FFCore.do_create_bitmap()\n");
-	//CreateBitmap(h,w)
 	int32_t w = (ri->d[rINDEX2] / 10000);
 	int32_t h = (ri->d[rINDEX]/10000);
 	if ( get_qr(qr_OLDCREATEBITMAP_ARGS) )
 	{
-		//flip height and width
-		h = h ^ w;
-		w = h ^ w; 
-		h = h ^ w;
+		std::swap(w, h);
 	}
 	
-	return create_user_bitmap_ex(h,w,8);
+	return create_user_bitmap_ex(h,w);
 }
 
-int32_t FFScript::create_user_bitmap_ex(int32_t w, int32_t h, int32_t d = 8)
+uint32_t FFScript::create_user_bitmap_ex(int32_t w, int32_t h)
 {
-	int32_t id = get_free_bitmap();
-	if ( id > 0 )
-	{
-		user_bitmap* bmp = &(scb.script_created_bitmaps[id-10]);
-		bmp->width = w;
-		bmp->height = h;
-		bmp->depth = d;
-		bmp->u_bmp = create_bitmap_ex(d,w,h);
-		clear_bitmap(bmp->u_bmp);
-	}
-	return id;
+	auto bmp = user_bitmaps.create();
+	if (!bmp)
+		return 0;
+
+	bmp->width = w;
+	bmp->height = h;
+	bmp->u_bmp = create_bitmap_ex(8,w,h);
+	clear_bitmap(bmp->u_bmp);
+	return bmp->id;
 }
 
 BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 {
-	switch(id)
+	switch (id - 10)
 	{
 		case rtSCREEN:
 		case rtBMP0:
@@ -41269,43 +41890,35 @@ BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 		{
 			return zscriptDrawingRenderTarget->GetBitmapPtr(id);
 		}
-		default: 
-		{
-			if(user_bitmap* b = checkBitmap(id+10, NULL, true, skipError))
-			{
-				return b->u_bmp;
-			}
-			else return NULL;
-		}
 	}
+
+	if (auto bitmap = checkBitmap(id, NULL, true, skipError))
+		return bitmap->u_bmp;
+
+	return nullptr;
 }
 
-int32_t FFScript::get_free_bitmap(bool skipError)
+uint32_t FFScript::get_free_bitmap(bool skipError)
 {
-	user_bitmap* bmps = scb.script_created_bitmaps;
-	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
-	{
-		if(!bmps[q].reserved())
-		{
-			bmps[q].reserve();
-			return q+10;
-		}
-	}
-	if(!skipError) Z_scripterrlog("get_free_bitmap() could not find a valid free bitmap pointer!\n");
-	return 0;
+	auto bmp = user_bitmaps.create(skipError);
+	if (!bmp)
+		return 0;
+	return bmp->id;
 }
 
 void FFScript::do_deallocate_bitmap()
 {
+	if (ZScriptVersion::gc())
+		return;
+
 	if(isSystemBitref(ri->bitmapref))
 	{
 		return; //Don't attempt to deallocate system bitmaps!
 	}
-	user_bitmap* b = checkBitmap(ri->bitmapref, "Free()", false, true);
-	if(b)
-	{
+
+	// Bitmaps are not deallocated right away, but deferred until the next call to scb.update()
+	if (auto b = checkBitmap(ri->bitmapref, "Free()", false, true))
 		b->free_obj();
-	}
 }
 
 bool FFScript::isSystemBitref(int32_t ref)
@@ -41549,13 +42162,13 @@ int32_t FFScript::do_getpixel()
 	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0)
 		|| (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	
-	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
+	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref);
 	if(!bitty)
 	{
 		bitty = scrollbuf;
 	}
 	// draw to screen with subscreen offset
-	if(!brokenOffset && ri->bitmapref == 10-1 )
+	if(!brokenOffset && ri->bitmapref == rtSCREEN + 10 )
 	{
 		xoffset = xoff;
 		yoffset = 56; //should this be -56?
@@ -41581,8 +42194,8 @@ void FFScript::do_bmpcollision()
 	int32_t y = SH::read_stack(ri->sp + 2) / 10000;
 	int32_t checkCol = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t maskCol = SH::read_stack(ri->sp + 0) / 10000;
-	BITMAP *checkbit = FFCore.GetScriptBitmap(bmpref-10, true);
-	BITMAP *maskbit = FFCore.GetScriptBitmap(maskbmpref-10, true);
+	BITMAP *checkbit = FFCore.GetScriptBitmap(bmpref, true);
+	BITMAP *maskbit = FFCore.GetScriptBitmap(maskbmpref, true);
 	if(!(checkbit && maskbit))
 	{
 		set_register(sarg1, -10000);
@@ -41641,7 +42254,18 @@ void FFScript::deallocateZScriptArray(const int32_t ptrval)
 		if(!localRAM[ptrval].Valid())
 			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
 		else
+		{
+			if (localRAM[ptrval].HoldsObjects())
+			{
+				auto&& aptr = localRAM[ptrval];
+				for (int i = 0; i < aptr.Size(); i++)
+				{
+					int id = aptr[i];
+					script_object_ref_dec(id);
+				}
+			}
 			localRAM[ptrval].Clear();
+		}
 	}
 }
 
@@ -42507,7 +43131,6 @@ void FFScript::init()
 {
 	eventData.clear();
 	countGenScripts();
-	countObjects();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger )
@@ -42600,7 +43223,6 @@ void FFScript::init()
 	jitted_scripts.clear();
 	script_debug_handles.clear();
 	runtime_script_debug_handle = nullptr;
-	websocket_pool_destroy();
 }
 
 void FFScript::shutdown()
@@ -42610,6 +43232,8 @@ void FFScript::shutdown()
 		if (it.second) jit_delete_script_handle(it.second);
 	}
 	jitted_scripts.clear();
+	objectRAM.clear();
+	script_objects.clear();
 }
 
 

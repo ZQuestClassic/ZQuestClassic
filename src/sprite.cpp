@@ -86,6 +86,7 @@ sprite::sprite(): solid_object()
     angle=0;
     misc=0;
 	flickercolor = -1;
+	flickertransp = -1;
     pit_pulldir = -1;
 	pit_pullclk = 0;
 	fallclk = 0;
@@ -286,6 +287,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     hzsz=1;
     misc=0;
 	flickercolor = -1;
+	flickertransp = -1;
     c_clk=0;
     shadowtile=0;
     screenedge = 0;
@@ -1131,13 +1133,17 @@ void sprite::draw(BITMAP* dest)
 				//clear_bitmap(temp);
 				if ( sprBMP2 ) clear_bitmap(sprBMP2);
             
+				BITMAP *temp2 = create_bitmap_ex(8, 16, 32);
+				clear_bitmap(temp2);
 				//Draw sprite tiles to the temp (scratch) bitmap.
-				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
-				overtile16(temp,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp2,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp2,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
 				
 				//Recolor for flicker animations
 				if (sprite_flicker_color)
-					SPRITE_MONOCOLOR(temp);
+					SPRITE_MONOCOLOR(temp2);
+
+				masked_blit(temp2, temp, 0, 0, 0, 0, 16, 32);
 
 				//Blit to the screen...
 				if ( rotation )
@@ -1163,6 +1169,7 @@ void sprite::draw(BITMAP* dest)
 				}
 				//clean-up
 				destroy_bitmap(temp);
+				destroy_bitmap(temp2);
 				break;
 			}
 			case 2:
@@ -1172,17 +1179,22 @@ void sprite::draw(BITMAP* dest)
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
 				//clear_bitmap(temp);
 				clear_bitmap(sprBMP2);
+
+				BITMAP* temp3 = create_bitmap_ex(8, 32, 32);
+				clear_bitmap(temp3);
             
-				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
-				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
-				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,0,cs,((scriptflip > -1) ? scriptflip : flip));
-				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)),16,16,cs,((scriptflip > -1) ? scriptflip : flip));
-				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
-				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,0,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)),16,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,16,cs,((scriptflip > -1) ? scriptflip : flip));
 				
 				//Recolor for flicker animations
 				if (sprite_flicker_color)
-					SPRITE_MONOCOLOR(temp);
+					SPRITE_MONOCOLOR(temp3);
+
+				masked_blit(temp3, temp, 0, 0, 0, 0, 32, 32);
 
 				if ( rotation )
 				{
@@ -1214,6 +1226,7 @@ void sprite::draw(BITMAP* dest)
 				
 				destroy_bitmap(temp);
 				destroy_bitmap(temp2);
+				destroy_bitmap(temp3);
 				break;
 			}
 			case 3:

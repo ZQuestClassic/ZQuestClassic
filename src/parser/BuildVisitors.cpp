@@ -1,9 +1,11 @@
 #include <assert.h>
+#include <memory>
 
 #include "BuildVisitors.h"
 #include "CompileError.h"
 #include "Types.h"
 #include "ZScript.h"
+#include "parser/ByteCode.h"
 
 using namespace ZScript;
 using std::map;
@@ -79,6 +81,16 @@ public:
 		for(uint& q : peekinds)
 			--q;
 		return true;
+	}
+	uint pop_all()
+	{
+		uint sz = peekinds.size();
+		peekinds.clear();
+		return sz;
+	}
+	uint count()
+	{
+		return peekinds.size();
 	}
 };
 #define VISIT_PUSH(node, ind) \
@@ -321,16 +333,42 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 
 	int32_t startRefCount = arrayRefs.size();
 
-	for (auto it = host.statements.begin();
-		 it != host.statements.end(); ++it)
-	{
+	for (auto it = host.statements.begin(); it != host.statements.end(); ++it)
 		literal_visit(*it, param);
-	}
 
 	deallocateRefsUntilCount(startRefCount);
 	while ((int32_t)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
-	
+
+	vector<shared_ptr<Opcode>> ops_stack_refs;
+	for (auto&& datum : scope->getLocalData())
+	{
+		// Currently, arrays are not reference counted.
+		if (datum->type.isArray())
+			continue;
+
+		if (!datum->type.canHoldObject())
+			continue;
+
+		auto position = lookupStackPosition(*scope, *datum);
+		assert(position);
+		if (!position)
+			return;
+
+		addOpcode2(ops_stack_refs, new ORefRemove(new LiteralArgument(*position)));
+	}
+
+	if (c->returns_object)
+		ops_stack_refs.insert(ops_stack_refs.begin(), std::make_shared<ORefAutorelease>(new VarArgument(EXP1)));
+
+	bool last_statement_is_return = !host.statements.empty() && dynamic_cast<ASTStmtReturn*>(host.statements.back()) != nullptr;
+	if (ops_stack_refs.empty())
+		;
+	else if (last_statement_is_return)
+		opcodeTargets.back()->insert(opcodeTargets.back()->end() - 1, ops_stack_refs.begin(), ops_stack_refs.end());
+	else
+		addOpcodes(ops_stack_refs);
+
 	scope = scope->getParent();
 }
 
@@ -1132,7 +1170,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	addOpcode(new ONoOp(loopstart));
 	
 	//run the inside of the loop.
-	push_break(loopend, arrayRefs.size());
+	push_break(loopend, arrayRefs.size(), mgr.count());
 	push_cont(loopcont, arrayRefs.size());
 	
 	targ_sz = commentTarget();
@@ -1320,6 +1358,8 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	
 	scope = scope->getParent();
 	
+	addOpcode(new OPopArgsRegister(new VarArgument(NUL), new LiteralArgument(mgr.pop_all())));
+	
 	if(host.hasElse())
 	{
 		addOpcode(new ONoOp(elselabel));
@@ -1329,8 +1369,6 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	}
 	
 	addOpcode(new ONoOp(loopend));
-	while(mgr.pop())
-		addOpcode(new OPopRegister(new VarArgument(NUL)));
 }
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
@@ -1483,6 +1521,8 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 {
 	deallocateRefsUntilCount(0);
+	if(uint pops = scope_pops_count())
+		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 	commentBack("return (Void)");
 }
@@ -1495,6 +1535,8 @@ void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 	INITC_INIT();
 	INITC_DEALLOC();
 	deallocateRefsUntilCount(0);
+	if(uint pops = scope_pops_count())
+		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 	commentStartEnd(targ_sz,"return");
 }
@@ -1510,6 +1552,8 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 	int32_t refcount = breakRefCounts.at(breakRefCounts.size()-host.breakCount);
 	int32_t breaklabel = breaklabelids.at(breaklabelids.size()-host.breakCount);
 	deallocateRefsUntilCount(refcount);
+	if(uint pops = scope_pops_back(host.breakCount))
+		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(breaklabel)));
 	commentBack(fmt::format("break {};",host.breakCount));
 	inc_break(host.breakCount);
@@ -1527,6 +1571,8 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 	int32_t refcount = continueRefCounts.at(continueRefCounts.size()-host.contCount);
 	int32_t contlabel = continuelabelids.at(continuelabelids.size()-host.contCount);
 	deallocateRefsUntilCount(refcount);
+	if(uint pops = scope_pops_back(host.contCount-1))
+		pop_params(pops);
 	addOpcode(new OGotoImmediate(new LabelArgument(contlabel)));
 	commentBack(fmt::format("continue {};",host.contCount));
 	inc_cont(host.contCount);
@@ -1589,15 +1635,21 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	if(!val)
 		visit(init, &context);
 
-	// Set variable to EXP1 or 0, depending on the initializer.
+	auto writeType = &host.resolveType(scope, this);
+	bool is_object = writeType && writeType->canHoldObject() && !writeType->isArray();
+
+	// Set variable to EXP1 or val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
 	{
+		if (is_object)
+			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
+
 		if (val)
-			addOpcode(new OSetImmediate(new GlobalArgument(*globalId),
-										new LiteralArgument(*val)));
+			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*val)));
+		else if (is_object)
+			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		else
-			addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-									   new VarArgument(EXP1)));
+			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -1606,6 +1658,13 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 		{
 			// I tried to optimize this away in some circumstances, it lead to only problems -Em
 			addOpcode(new OStoreV(new LiteralArgument(*val), new LiteralArgument(offset)));
+		}
+		else if (is_object)
+		{
+			// This command decrements the reference of the object currently stored at the position before
+			// setting the new object and incrementing its reference. Since we set the initial value for
+			// stack variables to 0 (aka a null object), this is fine.
+			addOpcode(new OStoreObject(new VarArgument(EXP1), new LiteralArgument(offset)));
 		}
 		else addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 	}
@@ -1644,18 +1703,22 @@ void BuildOpcodes::buildArrayUninit(
 		return;
 	}
 
+	auto& type = host.resolveType(scope, this);
+	int script_object_type_id = (int)type.getScriptObjectTypeId();
+
 	// Allocate the array.
 	if (auto globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
-						  new LiteralArgument(totalSize)));
+						  new LiteralArgument(totalSize),
+						  new LiteralArgument(script_object_type_id)));
 		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
 								   new VarArgument(EXP1)));
 	}
 	else
 	{
-		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
+		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new LiteralArgument(script_object_type_id)));
 		int32_t offset = manager.getStackOffset(false);
 		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
@@ -1740,7 +1803,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 	Function* readfunc = isarray ? host.arrayFunction : host.readFunction;
 	assert(readfunc->isInternal());
 	
-	if(readfunc->getFlag(FUNCFLAG_NIL))
+	if(readfunc->isNil())
 	{
 		bool skipptr = readfunc->getIntFlag(IFUNCFLAG_SKIPPOINTER);
 		
@@ -1861,7 +1924,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	INITC_STORE();
 	auto& func = *host.binding;
 	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
-	
+
 	auto* optarg = opcodeTargets.back();
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	const string func_comment = fmt::format("Func[{}]",func.getUnaliasedSignature(true).asString());
@@ -1895,6 +1958,18 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack(fmt::format("Proto{} Set Destructor",func_comment));
 			addOpcode(new OConstructClass(new VarArgument(EXP1),
 				new VectorArgument(user_class.members)));
+			std::vector<int> object_indices;
+			for (auto&& member : user_class.getScope().getClassData())
+			{
+				auto& type = member.second->getNode()->resolveType(scope, nullptr);
+				if (type.canHoldObject())
+				{
+					object_indices.push_back(member.second->getIndex());
+					object_indices.push_back((int)type.getScriptObjectTypeId());
+				}
+			}
+			if (!object_indices.empty())
+				addOpcode(new OMarkTypeClass(new VectorArgument(object_indices)));
 			commentBack(fmt::format("Proto{} Default Construct",func_comment));
 		}
 		else
@@ -1987,13 +2062,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		auto it = funcCode.begin();
 		while(OPopRegister* ocode = dynamic_cast<OPopRegister*>(it->get()))
 		{
-			VarArgument const* destreg = static_cast<VarArgument*>(ocode->getArgument());
+			Argument const* destreg = ocode->getArgument();
 			//Optimize
 			Opcode* lastop = optarg->back().get();
 			if(OPushRegister* tmp = dynamic_cast<OPushRegister*>(lastop))
 			{
-				VarArgument const* arg = static_cast<VarArgument*>(tmp->getArgument());
-				if(arg->ID == destreg->ID) //Same register!
+				Argument const* arg = tmp->getArgument();
+				if(*arg == *destreg) //Same register!
 				{
 					optarg->pop_back();
 				}
@@ -2161,6 +2236,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else func_call_comment = fmt::format("Class{} Call",func_comment);
 		}
 		commentBack(func_call_comment);
+
 		if(func.getFlag(FUNCFLAG_NEVER_RETURN))
 			commentBack("[Opt:NeverRet]");
 		else
@@ -2362,6 +2438,7 @@ void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
 {
 	VISIT_USEVAL(host.operand.get(), param);
 	addOpcode(new OFreeObject(new VarArgument(EXP1)));
+	handleError(CompileError::DeprecatedDelete(&host));
 }
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
@@ -3760,19 +3837,27 @@ void BuildOpcodes::arrayLiteralDeclaration(
 		return;
 	}
 
+	// TODO: host.readType_ is not being set for array literals. Can maybe fix in:
+	// SemanticAnalyzer::caseArrayLiteral - see "// Otherwise, default to Untyped -Em"
+	// For now just grab it here.
+	auto& type = host.declaration->resolveType(scope, this);
+	int script_object_type_id = (int)type.getScriptObjectTypeId();
+
 	// Create the array and store its id.
 	if (auto globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
-						  new LiteralArgument(size * 10000L)));
+						  new LiteralArgument(size * 10000L),
+						  new LiteralArgument(script_object_type_id)));
 		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
 								   new VarArgument(EXP1)));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
-											new LiteralArgument(size * 10000L)));
+											new LiteralArgument(size * 10000L),
+											new LiteralArgument(script_object_type_id)));
 		int32_t offset = manager.getStackOffset(false);
 		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
@@ -4029,8 +4114,8 @@ void BuildOpcodes::push_param(bool varg)
 	Opcode* lastop = optarg->back().get();
 	if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
 	{
-		VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
-		if(destreg->ID == EXP1)
+		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getFirstArgument());
+		if(destreg && destreg->ID == EXP1)
 		{
 			reg = tmp->getSecondArgument()->clone();
 			optarg->pop_back();
@@ -4038,8 +4123,8 @@ void BuildOpcodes::push_param(bool varg)
 	}
 	else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
 	{
-		VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
-		if(destreg->ID == EXP1)
+		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getFirstArgument());
+		if(destreg && destreg->ID == EXP1)
 		{
 			lit = tmp->getSecondArgument()->clone();
 			optarg->pop_back();
@@ -4047,8 +4132,8 @@ void BuildOpcodes::push_param(bool varg)
 	}
 	else if(OPopRegister* tmp = dynamic_cast<OPopRegister*>(lastop))
 	{
-		VarArgument* destreg = static_cast<VarArgument*>(tmp->getArgument());
-		if(destreg->ID == EXP1)
+		VarArgument* destreg = dynamic_cast<VarArgument*>(tmp->getArgument());
+		if(destreg && destreg->ID == EXP1)
 		{
 			optarg->pop_back();
 			return; //skip end
@@ -4081,6 +4166,12 @@ optional<int> BuildOpcodes::eatSetCompare()
 		return cmp;
 	}
 	return nullopt;
+}
+
+void BuildOpcodes::pop_params(uint count)
+{
+	if(count)
+		addOpcode(new OPopArgsRegister(new VarArgument(NUL), new LiteralArgument(count)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -4132,18 +4223,27 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 		return;
 	}
 
+	bool is_object = false;
+	if (auto type = host.getWriteType(scope, nullptr))
+		is_object = type->canHoldObject() && !type->isArray();
+
 	if (auto globalId = host.binding->getGlobalId())
 	{
 		// Global variable.
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
+		if (is_object)
+			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
+		else
+			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		return;
 	}
 
 	// Set the stack.
 	int32_t offset = host.binding->getStackOffset(false);
 
-	addOpcode(new OStore(new VarArgument(EXP1),new LiteralArgument(offset)));
+	if (is_object)
+		addOpcode(new OStoreObject(new VarArgument(EXP1),new LiteralArgument(offset)));
+	else
+		addOpcode(new OStore(new VarArgument(EXP1),new LiteralArgument(offset)));
 }
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
@@ -4170,7 +4270,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
 	
-	if(host.writeFunction->getFlag(FUNCFLAG_NIL))
+	if(host.writeFunction->isNil())
 	{
 		bool skipptr = host.writeFunction->getIntFlag(IFUNCFLAG_SKIPPOINTER);
 		bool needs_pushpop = isIndexed || !skipptr;

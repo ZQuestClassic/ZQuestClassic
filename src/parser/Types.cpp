@@ -126,6 +126,9 @@ bool TypeStore::TypeIdMapComparator::operator()(
 
 ////////////////////////////////////////////////////////////////
 
+// Template types.
+DataTypeSimpleConst DataType::TEMPLATE_T(ZTID_TEMPLATE_T, "T");
+DataTypeSimpleConst DataType::TEMPLATE_T_ARR(ZTID_TEMPLATE_T_ARR, "T[]");
 // Standard Type definitions.
 DataTypeSimpleConst DataType::CAUTO(ZTID_AUTO, "const auto");
 DataTypeSimpleConst DataType::CUNTYPED(ZTID_UNTYPED, "const untyped");
@@ -157,7 +160,6 @@ DataTypeClassConst DataType::TEXT(ZCLID_TEXT, "Text");
 DataTypeClassConst DataType::FILESYSTEM(ZCLID_FILESYSTEM, "FileSystem");
 DataTypeClassConst DataType::ZINFO(ZCLID_ZINFO, "ZInfo");
 //Class: Types
-DataTypeClassConst DataType::CBITMAP(ZCLID_BITMAP, "const Bitmap");
 DataTypeClassConst DataType::CCHEATS(ZCLID_CHEATS, "const Cheats");
 DataTypeClassConst DataType::CCOMBOS(ZCLID_COMBOS, "const Combos");
 DataTypeClassConst DataType::CDOORSET(ZCLID_DOORSET, "const DoorSet");
@@ -183,11 +185,6 @@ DataTypeClassConst DataType::CSPRITEDATA(ZCLID_SPRITEDATA, "const SpriteData");
 DataTypeClassConst DataType::CTUNES(ZCLID_TUNES, "const Tunes");
 DataTypeClassConst DataType::CWARPRING(ZCLID_WARPRING, "const WarpRing");
 DataTypeClassConst DataType::CSUBSCREENDATA(ZCLID_SUBSCREENDATA, "const SubscreenData");
-DataTypeClassConst DataType::CFILE(ZCLID_FILE, "const File");
-DataTypeClassConst DataType::CDIRECTORY(ZCLID_DIRECTORY, "const Directory");
-DataTypeClassConst DataType::CSTACK(ZCLID_STACK, "const Stack");
-DataTypeClassConst DataType::CRNG(ZCLID_RNG, "const RNG");
-DataTypeClassConst DataType::CPALDATA(ZCLID_PALDATA, "const paldata");
 DataTypeClassConst DataType::CBOTTLETYPE(ZCLID_BOTTLETYPE, "const bottledata");
 DataTypeClassConst DataType::CBOTTLESHOP(ZCLID_BOTTLESHOP, "const bottleshopdata");
 DataTypeClassConst DataType::CGENERICDATA(ZCLID_GENERICDATA, "const genericdata");
@@ -195,9 +192,7 @@ DataTypeClassConst DataType::CPORTAL(ZCLID_PORTAL, "const portal");
 DataTypeClassConst DataType::CSAVEDPORTAL(ZCLID_SAVPORTAL, "const savedportal");
 DataTypeClassConst DataType::CSUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "const SubscreenPage");
 DataTypeClassConst DataType::CSUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "const SubscreenWidget");
-DataTypeClassConst DataType::CWEBSOCKET(ZCLID_WEBSOCKET, "const WebSocket");
 //Class: Var Types
-DataTypeClass DataType::BITMAP(ZCLID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLID_CHEATS, "Cheats", &CCHEATS);
 DataTypeClass DataType::COMBOS(ZCLID_COMBOS, "Combos", &CCOMBOS);
 DataTypeClass DataType::DOORSET(ZCLID_DOORSET, "DoorSet", &CDOORSET);
@@ -223,11 +218,6 @@ DataTypeClass DataType::SPRITEDATA(ZCLID_SPRITEDATA, "SpriteData", &CSPRITEDATA)
 DataTypeClass DataType::TUNES(ZCLID_TUNES, "Tunes", &CTUNES);
 DataTypeClass DataType::WARPRING(ZCLID_WARPRING, "WarpRing", &CWARPRING);
 DataTypeClass DataType::SUBSCREENDATA(ZCLID_SUBSCREENDATA, "SubscreenData", &CSUBSCREENDATA);
-DataTypeClass DataType::FILE(ZCLID_FILE, "File", &CFILE);
-DataTypeClass DataType::DIRECTORY(ZCLID_DIRECTORY, "Directory", &CDIRECTORY);
-DataTypeClass DataType::STACK(ZCLID_STACK, "Stack", &CSTACK);
-DataTypeClass DataType::RNG(ZCLID_RNG, "RNG", &CRNG);
-DataTypeClass DataType::PALDATA(ZCLID_PALDATA, "PALDATA", &CPALDATA);
 DataTypeClass DataType::BOTTLETYPE(ZCLID_BOTTLETYPE, "bottledata", &CBOTTLETYPE);
 DataTypeClass DataType::BOTTLESHOP(ZCLID_BOTTLESHOP, "bottleshopdata", &CBOTTLESHOP);
 DataTypeClass DataType::GENERICDATA(ZCLID_GENERICDATA, "genericdata", &CGENERICDATA);
@@ -235,7 +225,21 @@ DataTypeClass DataType::PORTAL(ZCLID_PORTAL, "portal", &CPORTAL);
 DataTypeClass DataType::SAVEDPORTAL(ZCLID_SAVPORTAL, "savedportal", &CSAVEDPORTAL);
 DataTypeClass DataType::SUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "SubscreenPage", &CSUBSCREENPAGE);
 DataTypeClass DataType::SUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "SubscreenWidget", &CSUBSCREENWIDGET);
-DataTypeClass DataType::WEBSOCKET(ZCLID_WEBSOCKET, "WebSocket", &CWEBSOCKET);
+//Class: Reference Counted (garbage collected) Types
+DataTypeClassConst DataType::CBITMAP(ZCLID_BITMAP, "const Bitmap", true);
+DataTypeClassConst DataType::CFILE(ZCLID_FILE, "const File", true);
+DataTypeClassConst DataType::CDIRECTORY(ZCLID_DIRECTORY, "const Directory", true);
+DataTypeClassConst DataType::CSTACK(ZCLID_STACK, "const Stack", true);
+DataTypeClassConst DataType::CRNG(ZCLID_RNG, "const RNG", true);
+DataTypeClassConst DataType::CPALDATA(ZCLID_PALDATA, "const paldata", true);
+DataTypeClassConst DataType::CWEBSOCKET(ZCLID_WEBSOCKET, "const WebSocket", true);
+DataTypeClass DataType::BITMAP(ZCLID_BITMAP, "Bitmap", &CBITMAP, true);
+DataTypeClass DataType::FILE(ZCLID_FILE, "File", &CFILE, true);
+DataTypeClass DataType::DIRECTORY(ZCLID_DIRECTORY, "Directory", &CDIRECTORY, true);
+DataTypeClass DataType::STACK(ZCLID_STACK, "Stack", &CSTACK, true);
+DataTypeClass DataType::RNG(ZCLID_RNG, "RNG", &CRNG, true);
+DataTypeClass DataType::PALDATA(ZCLID_PALDATA, "PALDATA", &CPALDATA, true);
+DataTypeClass DataType::WEBSOCKET(ZCLID_WEBSOCKET, "WebSocket", &CWEBSOCKET, true);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -253,6 +257,8 @@ DataType const* DataType::get(DataTypeId id)
 {
 	switch (id)
 	{
+		case ZTID_TEMPLATE_T: return &TEMPLATE_T;
+		case ZTID_TEMPLATE_T_ARR: return &TEMPLATE_T_ARR;
 		case ZTID_UNTYPED: return &UNTYPED;
 		case ZTID_AUTO: return &ZAUTO;
 		case ZTID_VOID: return &ZVOID;
@@ -570,11 +576,11 @@ DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler*
 // DataTypeClass
 
 DataTypeClass::DataTypeClass(int32_t classId, DataType* constType)
-	: DataType(constType), classId(classId), className("")
+	: DataType(constType), classId(classId), className(""), isGarbageCollected(false)
 {}
 
-DataTypeClass::DataTypeClass(int32_t classId, string const& className, DataType* constType)
-	: DataType(constType), classId(classId), className(className)
+DataTypeClass::DataTypeClass(int32_t classId, string const& className, DataType* constType, bool isGarbageCollected)
+	: DataType(constType), classId(classId), className(className), isGarbageCollected(isGarbageCollected)
 {}
 
 DataType* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHandler)
@@ -625,8 +631,8 @@ int32_t DataTypeClass::selfCompare(DataType const& rhs) const
 ////////////////////////////////////////////////////////////////
 // DataTypeClassConst
 
-DataTypeClassConst::DataTypeClassConst(int32_t classId, string const& name)
-	: DataTypeClass(classId, name, NULL)
+DataTypeClassConst::DataTypeClassConst(int32_t classId, string const& name, bool isGarbageCollected)
+	: DataTypeClass(classId, name, NULL, isGarbageCollected)
 {}
 DataType const* DataTypeClassConst::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
@@ -680,7 +686,7 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
 	
-	if(!isClass())
+	if(!isClass() && !isUsrClass())
 	{
 		if (DataTypeSimple const* t =
 				dynamic_cast<DataTypeSimple const*>(&target))

@@ -196,6 +196,6 @@ POPARGS d5,0.0003; return End
 RETURNFUNC; Func[int VBound(int, int, int)] Body End
 
 
-ALLOCATEGMEMV d2,4096; void run() Body Start
+ALLOCATEGMEMV d2,4096,0; void run() Body Start
 SETR gd1,d2
 QUIT; void run() Body End

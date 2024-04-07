@@ -18,6 +18,11 @@ public:
     {
         CurrentVersion = newVersion;
     }
+
+    static inline bool gc()
+    {
+        return CurrentVersion >= 25;
+    }
     
     static inline int32_t RunScript(ScriptType type, const word script, const int32_t i = 0)
     {

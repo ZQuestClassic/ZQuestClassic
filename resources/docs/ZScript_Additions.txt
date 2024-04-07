@@ -1,20 +1,17 @@
-		
-
-
- /@@@@@@@@  /@@@@@@                      /@@             /@@                        /@@ /@@   /@@
-|_____ @@  /@@__  @@                    |__/            | @@                      /@@@@| @@  | @@
-     /@@/ | @@  \__/  /@@@@@@@  /@@@@@@  /@@  /@@@@@@  /@@@@@@         /@@    /@@|_  @@| @@  | @@
-    /@@/  |  @@@@@@  /@@_____/ /@@__  @@| @@ /@@__  @@|_  @@_/        |  @@  /@@/  | @@| @@@@@@@@
-   /@@/    \____  @@| @@      | @@  \__/| @@| @@  \ @@  | @@           \  @@/@@/   | @@|_____  @@
-  /@@/     /@@  \ @@| @@      | @@      | @@| @@  | @@  | @@ /@@        \  @@@/    | @@      | @@
- /@@@@@@@@|  @@@@@@/|  @@@@@@@| @@      | @@| @@@@@@@/  |  @@@@/         \  @/    /@@@@@@    | @@
-|________/ \______/  \_______/|__/      |__/| @@____/    \___/            \_/    |______/    |__/
+ /@@@@@@@@  /@@@@@@                      /@@             /@@
+|_____ @@  /@@__  @@                    |__/            | @@
+     /@@/ | @@  \__/  /@@@@@@@  /@@@@@@  /@@  /@@@@@@  /@@@@@@
+    /@@/  |  @@@@@@  /@@_____/ /@@__  @@| @@ /@@__  @@|_  @@_/
+   /@@/    \____  @@| @@      | @@  \__/| @@| @@  \ @@  | @@
+  /@@/     /@@  \ @@| @@      | @@      | @@| @@  | @@  | @@ /@@
+ /@@@@@@@@|  @@@@@@/|  @@@@@@@| @@      | @@| @@@@@@@/  |  @@@@/
+|________/ \______/  \_______/|__/      |__/| @@____/    \___/
                                             | @@                                                 
                                             | @@                                                 
                                             |__/                                                 
 
 
-The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
+The following documents the changes, and expansions to the ZScript language in ZC 
 	versions 2.55+
 
 
@@ -376,10 +373,6 @@ void some_other_func()
 	//Draw them.
 	a->draw();
 	b->draw();
-	
-	//Delete them if you're done
-	delete a;
-	delete b;
 }
 //Or you can even set up loops or such.
 Rect arr[176]; //global arrays of objects work fine
@@ -401,19 +394,14 @@ void draw_arr()
 --end example]
 
 Some misc notes:
-When an object is created, it will be "Owned" by the script that created it.
-Ownership can be changed by having another script call "OwnObject()" on the object,
-	or ownership can be revoked by calling "GlobalObject()".
-When a script terminates, any objects it owns will be deleted, calling their
-	destructors immediately.
-When a quest exits, ALL owned objects are deleted. If the quest is saved,
-	however, objects made global with "GlobalObject" will be *saved to the save file*,
-	and will still be valid on reloading the save. This includes all variables and arrays.
+
 Note that inside the class, the functions do not use an '->' of any kind to access the
-	variables or functions. They actually are using 'this->', but they are able to do so
-	automatically because they are smart. (using 'this->' manually still works).
+variables or functions. They actually are using 'this->', but they are able to do so
+automatically because they are smart. (using 'this->' manually still works).
+
 Functions in a class may be declared as "static". This effectively removes them from objects,
-	making them a 'global function' in the class's name.
+making them a 'global function' in the class's name.
+
 [example--
 class foo
 {
@@ -459,6 +447,89 @@ That said, they *have* normal array pointers, and as such can be used by basical
 
 (Any further questions about classes can be directed to @EmilyV in the development discord)
 (Any ideas on better/further documentation for this are much welcome)
+
+
+
+//////////////////////////////
+// Object Memory Management //
+//////////////////////////////
+
+Pre-3.0, objects had to be manually deleted, but with ZC 3.0 there is now a garbage
+collector to automate freeing objects for scripters.
+
+TL;DR for experienced ZScript users: you don't need to use `delete` or `Free()` anymore, and
+you probably never need to use `->Own` either. Read on for specifics.
+
+The following types are objects that are tracked by the garbage collector:
+
+* any custom user class
+* bitmap
+* directory
+* file
+* paldata
+* randgen
+* stack
+* websocket
+
+Note: there are other object types, but they are never explicitly created or deleted by scripts.
+
+The ZScript garbage collector has two ways for knowing when to delete objects:
+
+1. Reference counting - variables and arrays containing an object count as references, and
+   as long as there is one reference to an object it will not be deleted
+2. Reachability - objects that are not reachable from a global object, local/global variable,
+   or local/global array are considered unreachable, and will be deleted. This is necessary
+   to detect objects that may always have a reference count greater than zero (for example:
+   two objects holding a reference to each other, but otherwise no longer in use). The process
+   of detecting unreachable objects is a "full garbage collection", and only runs occasionally.
+
+Objects made global with "GlobalObject" are never deleted by the garbage collector.
+
+To tie an object to at least the lifetime of the currently running script, use "OwnObject".
+This associates a reference to the object with the current script, so when that script ends
+if there are no other references to the object it will be destroyed. Only one script may
+own a particular object - subsequent calls transfer which script holds the reference.
+You shouldn't need this functionality for most usages. One example of it being necessary
+is if the only place you store an object is an untyped variable, which does not hold a reference.
+
+Variables only retain a reference to an object if typed as an object. For example, using
+`int` or `untyped` to store an object pointer won't count as a reference, so may result in
+premature deletion. If you must store objects like that for some reason, call "OwnObject"
+so its reference count is always greater than zero (as long as that script is alive), or make
+it a global object.
+
+For simple objects with no cyclical references, they are destroyed just after their last
+reference is removed (as local variable going out of scope, or being overwritten, etc).
+
+New objects have an implicit reference added to an "autorelease pool" (a construct borrowed
+from Objective-C). This reference is removed the next time the script yields (such as by
+calling Waitframe). If the object has not been stored somewhere by then, or made global, it
+is deleted when the script yields.
+
+For objects with cyclical references (or self-references), their deletion is deferred until
+a full garbage collection run. When an object is found to be unreachable by
+any global or local variables, it will be deleted. This procedure is much more expensive
+than reference counting, so it doesn't run often, and when exactly it runs is subject to change.
+
+You should not expect destructors to run at any specific time, or even at all. You should only
+use destructors for debugging purposes, or for deleting/disowning other objects. Exactly when
+the garbage collector runs or an object destructor is called is an implementation detail that
+may change. Do NOT implement critical game functionality in destructors - doing so will result
+in unpredictable behavior, and may break your quest in future versions of ZC.
+
+Script ownership can be revoked by calling "GlobalObject()". Global objects are never deleted
+by the garbage collector. You can delete a global object by making it no longer global (call
+"Own" on it).
+
+When a script terminates, objects it owns will lose a reference count, calling their
+destructors immediately if their reference count is now zero.
+
+When a quest exits, ALL non-global objects are deleted. If the quest is saved,
+however, objects made global with "GlobalObject" will be *saved to the save file*,
+and will still be valid on reloading the save. This includes all variables and arrays.
+
+Currently objects in a stack do not count as a reference.
+
 
 
   ________.__        ___.          .__    __________      .__        __                       
@@ -592,6 +663,9 @@ untyped : A special datatype that can be cast to and from any other type.
 		bool a = true;
 		untyped b = a; //b == 1
 		int c = b; //c == 1
+	
+	Note: untyped does not retain references to objects. If not careful, object pointers will be
+	      deleted if only an untyped variable holds it.
 
 
 ///////////////////////
@@ -648,7 +722,7 @@ untyped : A special datatype that can be cast to and from any other type.
 		Bitmap objects have their own drawing functions, and you may save/load them to/from
 		files by script.
 		
-		There are a maximum of 250 user bitmaps at any one time.
+		There are a maximum of 256 user bitmaps at any one time.
 	
 	npcdata: 
 		Used to access the Enemy/NPC Editor values.
@@ -705,6 +779,9 @@ untyped : A special datatype that can be cast to and from any other type.
 	
 	randgen :
 		Object type for seeded random number generation.
+	
+	websocket :
+		Object type for websocket communication (online)
 	
 	bottledata :
 		Object type for modifying bottle type data
@@ -3164,7 +3241,7 @@ constexpr float WrapRad(float radians);
 constexpr float WrapAngle(float radians);
  * Wraps a radian value between [-PI,PI)
 
-void ArrayCopy(untyped *dest, untyped *src);
+void ArrayCopy(T[] dest, T[] src);
  * Copies the data from array src to array dest. 
  * If the arrays are the same size, then the data of 'dest' will be
  * identical to the data of 'src'.
@@ -3367,12 +3444,12 @@ void sprintfa(char32[] buf, char32 format[], untyped[] args);
  * Same as 'sprintf', but takes an array of args instead of multiple args.
 
 
-constexpr untyped Min(untyped, untyped, ...untyped);
- * Takes 2 or more untyped arguments, and returns the lowest value between them.
-constexpr untyped Max(untyped, untyped, ...untyped);
- * Takes 2 or more untyped arguments, and returns the highest value between them.
-untyped Choose(untyped, ...untyped);
- * Takes 1 or more untyped arguments, and returns a random argument.
+constexpr T Min(T, T, ...T);
+ * Takes 2 or more arguments, and returns the lowest value between them.
+constexpr T Max(T, T, ...T);
+ * Takes 2 or more arguments, and returns the highest value between them.
+T Choose(T first, ...T);
+ * Takes 1 or more arguments, and returns a random argument.
 
 int GetSystemTime(int index);
  * Returns the time (Real Time Clock) data from the system on which ZC is running.
@@ -3383,33 +3460,33 @@ int GetSystemTime(int index);
 void OverlayTile(int firsttile, int secondtile);		
 * Overlay one tile onto another.
 
-int SizeOfArray(untyped[]);
+int SizeOfArray(T[]);
  * Returns the size of an array (any type)
 
-void ResizeArray(untyped[] arr, int size);
+void ResizeArray(T[] arr, int size);
  * Resizes the array 'arr' to size 'size'.
  * If size is <0, the array will be resized to size '0'.
 
-void OwnArray(untyped[] arr);
+void OwnArray(T[] arr);
  * Grants ownership of the array to the calling script.
  * If the array is a local array, it now will not be deallocated until the current script quits.
  * If the array is a global array, does nothing.
 
-void DestroyArray(untyped[] arr);
+void DestroyArray(T[] arr);
  * Immediately deallocates the specified array, if it is a local array.
  * If the array is a global array, does nothing.
 
-bool ArrayPushBack(untyped[] arr, untyped val);
-bool ArrayPushFront(untyped[] arr, untyped val);
-bool ArrayPushAt(untyped[] arr, untyped val, int indx);
+bool ArrayPushBack(T[] arr, T val);
+bool ArrayPushFront(T[] arr, T val);
+bool ArrayPushAt(T[] arr, T val, int indx);
  * Increases the size of the array by 1, inserting a new value.
  * The new value can either be inserted at the end, start, or an arbitrary index.
  * An invalid index pushes to the end.
  * Returns false if it fails for any reason (ex: array is at max size already)
 
-untyped ArrayPopBack(untyped[] arr);
-untyped ArrayPopFront(untyped[] arr);
-untyped ArrayPopAt(untyped[] arr, int indx);
+T ArrayPopBack(T[] arr);
+T ArrayPopFront(T[] arr);
+T ArrayPopAt(T[] arr, int indx);
  * Decreases the size of the array by 1, removing and returning a value.
  * The new value can either be pulled from the end, start, or an arbitrary index.
  * An invalid index pops from the end.
@@ -3741,7 +3818,7 @@ bitmap LoadBitmapID(int id);
 
 bitmap AllocateBitmap();
  * Initialises a bitmap pointer from the pool of unused bitmap IDs in the system.
- * The current maximum number of user bitmaps is 249. 
+ * The current maximum number of user bitmaps is 256.
  * Returns 0 to the pointer on failure. 
 
 int LItems[512];
@@ -3815,11 +3892,13 @@ shopdata LoadInfoShopData(int shop);
 
 randgen LoadRNG();
  * Opens a free random number generator and returns it.
- * Be sure to '->Free()' it when you are done with it!
+
+websocket LoadWebsocket(char32[] url);
+ * Opens a websocket to the target URL.
+ * URL should begin with 'ws://' or 'wss://' (unsecure, or secure)
 
 stack LoadStack();
  * Opens a free stack object and returns it.
- * Be sure to '->Free()' it when you are done with it!
 
 genericdata LoadGenericData(int scriptslot);
  * Loads the 'genericdata' pointer referencing the specified generic script slot.
@@ -4118,14 +4197,8 @@ directory LoadDirectory(char32[] path);
  *
  * There is a limit of 256 file pointers. A pointer does not need to have a file
  *     open to count against this limit. Any pointer that returns true from
- *     'isAllocated()' counts against this limit. Calling 'Free()' will deallocate
- *     a pointer, thus no longer counting against this limit. If you open many files
- *     without calling 'Free()', you may run out of pointers, and be unable to open
- *     further files (until you call 'Free()' on some existing pointers).
- *
- * Files are NOT automatically freed if they fall out of scope. You should be sure to
- *     manually call 'Free()' before this happens, or you may lose the pointer, and be
- *     unable to free it later. This could lead to running out of available file pointers.
+ *     'isAllocated()' counts against this limit. As long as you don't hold references
+ *     to files you no longer need, you won't hit this limit.
  *
  * Remember: POSIX filesystems are Case-SenSitive. 
  */
@@ -4188,6 +4261,8 @@ void Close();
  * This does NOT deallocate the pointer; it is still free to open new files on.
 
 void Free();
+ * DEPRECATED: This no longer does anything - objects are freed automatically now.
+               See "Object Memory Management" section
  * Closes any open file connected to the file pointer.
  * This will deallocate the file pointer, so that the pointer ID may be re-used.
  * There is a limit to how many file pointers may be allocated at once.
@@ -4195,8 +4270,9 @@ void Free();
 
 void Own();
  * Grants 'Ownership' of the pointer to the currently running script.
- * When the script terminates (at the same time any Local Arrays in the script
+ * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the pointer will be automatically freed.
+ * See "Object Memory Management" section
 
 bool isAllocated();
  * Returns true if this file pointer is allocated.
@@ -4373,14 +4449,17 @@ void Reload();
  * Refreshes the directory, so that it can 'see' changes to files.
 
 void Free();
+ * DEPRECATED: This no longer does anything - objects are freed automatically now.
+               See "Object Memory Management" section
  * This will deallocate the directory pointer, so that the pointer ID may be re-used.
  * There is a limit to how many directory pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
 
 void Own();
  * Grants 'Ownership' of the pointer to the currently running script.
- * When the script terminates (at the same time any Local Arrays in the script
+ * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the pointer will be automatically freed.
+ * See "Object Memory Management" section
 
 
 /************************************************************************************************************/
@@ -4425,14 +4504,17 @@ void Set(long ind, untyped val);
  * If an invalid index is given, nothing happens.
 
 void Free();
+ * DEPRECATED: This no longer does anything - objects are freed automatically now.
+               See "Object Memory Management" section
  * This will deallocate the stack pointer, so that the pointer ID may be re-used.
  * There is a limit to how many stack pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
 
 void Own();
  * Grants 'Ownership' of the pointer to the currently running script.
- * When the script terminates (at the same time any Local Arrays in the script
+ * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the pointer will be automatically freed.
+ * See "Object Memory Management" section
 
 /************************************************************************************************************/
 
@@ -4468,15 +4550,57 @@ long SRand()
  * Seeds this randgen with an effectively randomized seed, and returns the chosen seed.
 
 void Free();
+ * DEPRECATED: This no longer does anything - objects are freed automatically now.
+               See "Object Memory Management" section
  * This will deallocate the randgen pointer, so that the pointer ID may be re-used.
  * There is a limit to how many randgen pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
 
 void Own();
  * Grants 'Ownership' of the pointer to the currently running script.
- * When the script terminates (at the same time any Local Arrays in the script
+ * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the pointer will be automatically freed.
+ * See "Object Memory Management" section
 
+/////////////////////
+///   websocket   ///
+/////////////////////
+
+int State;
+ * Read-Only. Returns the current state of the socket.
+ * Compare with the `WEBSOCKET_STATE_` constants.
+
+bool HasMessage;
+ * Read-Only. True if the socket has a message waiting to be received.
+
+void GetError(char32[] buf);
+ * Gets the current socket error message (if any)
+
+void Send(untyped[] buf, long type = WEBSOCKET_MESSAGE_TYPE_TEXT);
+ * Sends a message over the socket.
+ * 'type' is a `WEBSOCKET_MESSAGE_TYPE_` constant.
+ * WEBSOCKET_MESSAGE_TYPE_TEXT: send a string
+ * WEBSOCKET_MESSAGE_TYPE_BINARY: send an array
+
+untyped[] Receive();
+ * If there's a message waiting to be received (see HasMessage),
+ *     returns a pointer to the websocket's internal data array.
+ * If no message is waiting, returns NULL.
+ * Calling 'Receive()' again will overwrite the contents of this array.
+ * The array will be destroyed automatically when the websocket is freed.
+
+void Free();
+ * DEPRECATED: This no longer does anything - objects are freed automatically now.
+               See "Object Memory Management" section
+ * This will deallocate the websocket pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many websocket pointers may be allocated at once,
+ *     so be sure to free them when you are no longer using them.
+
+void Own();
+ * Grants 'Ownership' of the pointer to the currently running script.
+ * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the pointer will be automatically freed.
+ * See "Object Memory Management" section
 
 /************************************************************************************************************/
 
@@ -6230,6 +6354,12 @@ int Attack;
 	int Extend;			
 	* Sets the extend value for all of Link's various actions.
 */
+
+void Warp(int DMap, int screen);
+ * Warps link to the given screen in the given DMap, just like if he'd
+ * triggered an 'Insta-Warp'-type warp.
+ * Uses warp return square A, unless compat rule `Old 'Hero->Warp' Return Square' is on,
+ *    in which case it uses the warp return square of the current screen's Sidewarp A.
 
 void WarpEx(int ptr[])
 
@@ -8382,6 +8512,8 @@ int Height;
  * READ-ONLY. Bitmaps cannot be resized by writing to this. 
 
 void Free();
+ * DEPRECATED: This no longer does anything - objects are freed automatically now.
+               See "Object Memory Management" section
  * If the bitmap is allocated, frees the bitmap.
  *     This means that this bitmap ID is able to be returned by subsequent
  *     calls to 'Game->AllocateBitmap()' and such.
@@ -8393,7 +8525,7 @@ void Free();
 void Own();
  * Requires an allocated bitmap.
  * Grants 'Ownership' of the bitmap to the currently running script.
- * When the script terminates (at the same time any Local Arrays in the script
+ * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the bitmap will be automatically freed.
 
 bool isValid();
@@ -8961,14 +9093,17 @@ void CopyCSet(paldata target, int src_cset, int dest_cset);
  * Copies all the colors from one cset on this paldata to another on the target. 
 
 void Free();
+ * DEPRECATED: This no longer does anything - objects are freed automatically now.
+               See "Object Memory Management" section
  * This will deallocate the paldata pointer, so that the pointer ID may be re-used.
  * There is a limit to how many paldata pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
 
 void Own();
  * Grants 'Ownership' of the pointer to the currently running script.
- * When the script terminates (at the same time any Local Arrays in the script
+ * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the pointer will be automatically freed.
+ * See "Object Memory Management" section
 
 /////////////////////
 //  subscreendata  //

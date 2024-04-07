@@ -5,6 +5,146 @@
 #include <array>
 #include <stdexcept>
 
+struct SuperSet
+{
+	std::set<int>* get(int v)
+	{
+		for(auto& s : superset)
+		{
+			if(s.contains(v))
+				return &s;
+		}
+		return nullptr;
+	}
+	std::set<int> const* get(int v) const
+	{
+		for(auto& s : superset)
+		{
+			if(s.contains(v))
+				return &s;
+		}
+		return nullptr;
+	}
+	std::set<int>* get_add(int v)
+	{
+		if(auto s = get(v))
+			return s;
+		if(banned_vals.contains(v))
+			return nullptr;
+		auto& s = superset.emplace_back();
+		s.insert(v);
+		return &s;
+	}
+	std::set<int>* add_to(int targ, int v)
+	{
+		if(banned_vals.contains(targ))
+			return get(v);
+		if(banned_vals.contains(v))
+			return get(targ);
+		
+		auto s = get_add(targ);
+		if(auto s2 = get(v))
+		{
+			if(s != s2)
+				merge(*s,*s2);
+		}
+		else s->insert(v);
+		return s;
+	}
+	std::set<int>* add(std::set<int> const& s)
+	{
+		std::set<int>* ptr = nullptr;
+		for(int v : s)
+		{
+			if(banned_vals.contains(v))
+				continue;
+			if(ptr)
+			{
+				if(auto ptr2 = get(v))
+				{
+					if(ptr != ptr2)
+						merge(*ptr, *ptr2);
+				}
+				else
+				{
+					ptr->insert(v);
+				}
+			}
+			else
+			{
+				ptr = get_add(v);
+			}
+		}
+		return ptr;
+	}
+	void clear()
+	{
+		superset.clear();
+	}
+	size_t size() const
+	{
+		size_t sz = 0;
+		for(auto& s : superset)
+			sz += s.size();
+		return sz;
+	}
+	bool empty() const
+	{
+		return superset.empty();
+	}
+	bool remove(std::set<int>& s)
+	{
+		for(auto it = superset.begin(); it != superset.end();)
+		{
+			std::set<int>& s2 = *it;
+			if(&s == &s2)
+			{
+				superset.erase(it);
+				return true;
+			}
+			else ++it;
+		}
+		return false;
+	}
+	vector<std::set<int> const*> subset(std::set<int> const& s) const
+	{
+		vector<std::set<int> const*> ret;
+		for(auto& s2 : superset)
+		{
+			for(auto v : s)
+				if(s2.contains(v))
+				{
+					ret.emplace_back(&s2);
+					break;
+				}
+		}
+		return ret;
+	}
+	template<typename T>
+	vector<std::set<int> const*> subset(std::map<int,T> const& s) const
+	{
+		vector<std::set<int> const*> ret;
+		for(auto& s2 : superset)
+		{
+			for(auto p : s)
+				if(s2.contains(p.first))
+				{
+					ret.emplace_back(&s2);
+					break;
+				}
+		}
+		return ret;
+	}
+	std::set<int> banned_vals = {0};
+private:
+	vector<std::set<int>> superset;
+	void merge(std::set<int>& dest, std::set<int>& src)
+	{
+		dest.insert(src.begin(), src.end());
+		remove(src);
+	}
+};
+
 template<typename Sz,typename T>
 class bounded_container
 {
@@ -290,24 +430,63 @@ private:
 class bitstring
 {
 public:
-	bool get(size_t ind) const
+	typedef size_t index_t;
+	typedef word storage_t;
+	static constexpr storage_t max_bytes = 65535;
+	
+	bool get(index_t ind) const
 	{
 		return cont[ind/8] & (1 << ind%8);
 	}
-	void set(size_t ind, bool state)
+	void set(index_t ind, bool state)
 	{
 		if(state)
 			cont[ind/8] |= (1 << ind%8);
 		else if(get(ind))
 			cont[ind/8] &= ~(1 << ind%8);
 	}
+	index_t length() const
+	{
+		return cont.inner().size() * 8;
+	}
 	void normalize() {cont.normalize();}
 	void clear() {cont.clear();}
-	bounded_vec<word,byte>& inner() {return cont;}
-	bounded_vec<word,byte> const& inner() const {return cont;}
+	bounded_vec<storage_t,byte>& inner() {return cont;}
+	bounded_vec<storage_t,byte> const& inner() const {return cont;}
 	bool operator==(bitstring const& other) const = default;
 private:
-	bounded_vec<word,byte> cont {65535};
+	bounded_vec<storage_t,byte> cont {max_bytes};
+};
+
+class bitstring_long
+{
+public:
+	typedef uint64_t index_t;
+	typedef uint32_t storage_t;
+	static constexpr storage_t max_bytes = 4294967295;
+	
+	bool get(index_t ind) const
+	{
+		return cont[ind/8] & (1 << ind%8);
+	}
+	void set(index_t ind, bool state)
+	{
+		if(state)
+			cont[ind/8] |= (1 << ind%8);
+		else if(get(ind))
+			cont[ind/8] &= ~(1 << ind%8);
+	}
+	index_t length() const
+	{
+		return cont.inner().size() * 8;
+	}
+	void normalize() {cont.normalize();}
+	void clear() {cont.clear();}
+	bounded_vec<storage_t,byte>& inner() {return cont;}
+	bounded_vec<storage_t,byte> const& inner() const {return cont;}
+	bool operator==(bitstring_long const& other) const = default;
+private:
+	bounded_vec<storage_t,byte> cont {max_bytes};
 };
 
 template<typename A,typename B>

@@ -449,6 +449,7 @@ namespace ZScript
 		DataType const* returnType;
 		string name;
 		bool hasPrefixType;
+		bool isFromTypeTemplate;
 		byte extra_vargs;
 		
 		std::vector<DataType const*> paramTypes;
@@ -460,6 +461,7 @@ namespace ZScript
 
 		ASTFuncDecl* node;
 		Datum* thisVar;
+		Function* aliased_func; //the function this is an alias for, if any
 
 		// Get the opcodes.
 		std::vector<std::shared_ptr<Opcode>> const& getCode() const
@@ -533,7 +535,7 @@ namespace ZScript
 		}
 		
 		bool isInternal() const {return !node;}
-		bool isNil() const {return prototype || getFlag(FUNCFLAG_NIL);}
+		bool isNil() const {return prototype || getFlag(FUNCFLAG_NIL|FUNCFLAG_READ_ONLY);}
 		
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
@@ -542,7 +544,6 @@ namespace ZScript
 		optional<int32_t> defaultReturn;
 		
 		bool shouldShowDepr(bool err) const;
-		void ShownDepr(bool err);
 		
 		void alias(Function* func, bool force = false);
 		bool is_aliased() const {return bool(aliased_func);}
@@ -593,14 +594,12 @@ namespace ZScript
 	private:
 		CONSTEXPR_CBACK_TY constexpr_callback;
 		
-		Function* aliased_func; //the function this is an alias for, if any
 		AccessorTable* table_entry; //parent entry
 		
 		mutable std::optional<int32_t> label;
 		mutable std::optional<int32_t> altlabel;
 		int32_t flags, internal_flags;
 		FunctionScope* internalScope;
-		byte shown_depr;
 		string info;
 
 		// Code implementing this function.

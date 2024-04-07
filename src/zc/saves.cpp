@@ -1,6 +1,7 @@
 #include "zc/saves.h"
 
 #include "allegro/file.h"
+#include "base/general.h"
 #include "base/packfile.h"
 #include "base/misctypes.h"
 #include "base/fonts.h"
@@ -603,7 +604,20 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				}
 			}
 		}
-		
+
+		if (section_version >= 41)
+		{
+			for (int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+			{
+				word type;
+				if (!p_igetw(&type,f))
+				{
+					return 45;
+				}
+				game.global_d_types[j] = (script_object_type)type;
+			}
+		}
+
 		if(section_version>2) //read counters
 		{
 			word num_ctr = 32;
@@ -722,11 +736,19 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				//We get the size of each container
 				if(!p_igetl(&tempdword, f))
 					return 54;
-					
+
+				if (section_version >= 41)
+				{
+					word type;
+					if(!p_igetw(&type, f))
+						return 119;
+					a.setObjectType((script_object_type)type);
+				}
+	
 				//We allocate the container
 				a.Resize(tempdword);
 				a.setValid(true); //should always be valid
-				
+
 				//And then fill in the contents
 				for(dword k = 0; k < a.Size(); k++)
 					if(!p_igetl(&(a[k]), f))
@@ -969,14 +991,15 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				return 83;
 			for(uint32_t objind = 0; objind < sz; ++objind)
 			{
-				saved_user_object& s_ob = game.user_objects.emplace_back();
-				if(!p_igetl(&s_ob.object_index,f))
+				saved_user_object s_ob{};
+				s_ob.obj.fake = true;
+				if(!p_igetl(&s_ob.obj.id,f))
 					return 84;
 				//user_object
 				user_object& obj = s_ob.obj;
 				if(!p_getc(&tempbyte,f))
 					return 85;
-				obj.reserved = tempbyte!=0;
+				bool reserved = tempbyte!=0;
 				//Don't need to save owned_type,owned_i?
 				uint32_t datsz;
 				if(!p_igetl(&datsz,f))
@@ -989,6 +1012,14 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				}
 				if(!p_igetl(&obj.owned_vars,f))
 					return 88;
+				if (section_version >= 41)
+				{
+					std::vector<word> types;
+					if (!p_getwvec(&types, f))
+						return 119;
+					for (auto type : types)
+						obj.var_types.push_back((script_object_type)type);
+				}
 				//scr_func_exec
 				scr_func_exec& exec = obj.destruct;
 				if(!p_igetl(&exec.pc,f))
@@ -1017,8 +1048,17 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					uint32_t arrsz;
 					if(!p_igetl(&arrsz,f))
 						return 97;
+
+					word type = 0;
+					if (section_version >= 41)
+					{
+						if(!p_igetw(&type, f))
+							return 99;
+					}
+
 					ZScriptArray zsarr;
 					zsarr.Resize(arrsz);
+					zsarr.setObjectType((script_object_type)type);
 					zsarr.setValid(true); //should always be valid
 					for(uint32_t q = 0; q < arrsz; ++q)
 					{
@@ -1028,6 +1068,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					}
 					map[arr_index] = zsarr;
 				}
+
+				if (reserved)
+					game.user_objects.emplace_back(s_ob);
 			}
 		}
 		if(section_version >= 32)
@@ -1204,7 +1247,11 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
 		if(!p_iputl(game.global_d[j],f))
 			return 44;
-	
+
+	for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+		if(!p_iputw((word)game.global_d_types[j],f))
+			return 121;
+
 	word num_ctr = 0;
 	for(auto c = MAX_COUNTERS-1; c >= 0; --c)
 	{
@@ -1249,6 +1296,9 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		
 		//Then we put the size of each container
 		if(!p_iputl(a.Size(), f))
+			return 52;
+
+		if(!p_iputw((word)a.ObjectType(), f))
 			return 52;
 			
 		//Followed by its contents
@@ -1321,11 +1371,12 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 83;
 	for(saved_user_object const& s_ob : game.user_objects)
 	{
-		if(!p_iputl(s_ob.object_index,f))
+		if(!p_iputl(s_ob.obj.id,f))
 			return 84;
 		//user_object
 		user_object const& obj = s_ob.obj;
-		if(!p_putc(obj.reserved?1:0,f))
+		// removed: obj.reserved
+		if(!p_putc(1,f))
 			return 85;
 		//Don't need to save owned_type,owned_i?
 		uint32_t datsz = obj.data.size();
@@ -1334,8 +1385,16 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		for(uint32_t q = 0; q < datsz; ++q)
 			if(!p_iputl(obj.data.at(q),f))
 				return 87;
+
 		if(!p_iputl(obj.owned_vars,f))
 			return 88;
+
+		std::vector<word> types;
+		for (auto type : obj.var_types)
+			types.push_back((word)type);
+		if (!p_putwvec(types, f))
+			return 87;
+
 		//scr_func_exec
 		scr_func_exec const& exec = obj.destruct;
 		if(!p_iputl(exec.pc,f))
@@ -1362,6 +1421,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 			auto& zsarr = pair.second;
 			uint32_t arrsz = zsarr.Size();
 			if(!p_iputl(arrsz,f))
+				return 97;
+			if(!p_iputw((word)zsarr.ObjectType(), f))
 				return 97;
 			for(uint32_t ind = 0; ind < arrsz; ++ind)
 				if(!p_iputl(zsarr[ind],f))

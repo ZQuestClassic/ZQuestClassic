@@ -10,6 +10,7 @@
 #include "base/combo.h"
 #include "base/msgstr.h"
 #include <filesystem>
+#include <optional>
 #include <stdio.h>
 #include <cstring>
 #include <string>
@@ -3712,6 +3713,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_FLAME_ARROW_REFLECTING,1);
 	if(compatrule_version < 65)
 		set_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP,1);
+	if(compatrule_version < 66)
+		set_qr(qr_NEWDARK_TRANS_STACKING,1);
+	if(compatrule_version < 67)
+		set_qr(qr_OLD_HERO_WARP_RETSQUARE,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -12011,7 +12016,7 @@ extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
-
+static std::vector<const script_data*> read_scripts;
 
 int32_t readffscript(PACKFILE *f, zquestheader *Header)
 {
@@ -12020,6 +12025,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	byte numscripts=0;
 	numscripts=numscripts; //to avoid unused variables warnings
 	int32_t ret;
+	read_scripts.clear();
 	
 	//section version info
 	if(!p_igetw(&s_version,f))
@@ -12048,10 +12054,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	{
 		return qe_invalid;
 	}
-	
-	//ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
-	setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
-	//miscQdata *the_misc;
+
 	if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
 	al_trace("Loaded scripts last compiled in ZScript version: %d\n", (FFCore.quest_format[vLastCompile]));
 	
@@ -12689,7 +12692,37 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 		}
 	}
-	
+
+	// Set ZScriptVersion to the value encoded in the script's meta.ffscript_v.
+	// This is only updated when the scripts have been recompiled.
+	// They should all match each other.
+	std::optional<word> zscript_version;
+	if (s_version >= 16)
+	{
+		for (auto script : read_scripts)
+		{
+			if (script->meta.ffscript_v == 0 || script->meta.ffscript_v > s_version)
+				break;
+
+			if (!zscript_version.has_value())
+			{
+				zscript_version = script->meta.ffscript_v;
+				continue;
+			}
+
+			if (zscript_version.value() != script->meta.ffscript_v)
+			{
+				zscript_version.reset();
+				break;
+			}
+		}
+
+		if (!zscript_version.has_value())
+			al_trace("WARNING: Setting zscript version to section version as fallback.\n");
+	}
+	setZScriptVersion(zscript_version.value_or(s_version));
+	read_scripts.clear();
+
 	return 0;
 }
 
@@ -13074,6 +13107,8 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	}
 
 	(*script)->recalc_size();
+	if ((*script)->valid())
+		read_scripts.push_back(*script);
 
 	return 0;
 }

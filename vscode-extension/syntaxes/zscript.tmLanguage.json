@@ -31,7 +31,7 @@
 				},
 				{
 					"name": "constant.language.annotation.zscript",
-					"match": "@(Author|Attribute(Help)?[0-9]|Flag(Help)?[0-9]|Flag(Help)?1[0-5]|Attribyte(Help)?[0-7]|Attrishort(Help)?[0-7]|InitD(Help|Type)?[0-7]|InitScript)"
+					"match": "@(Author|Attribute(Help)?[0-9]|Flag(Help)?[0-9]|Flag(Help)?1[0-5]|Attribyte(Help)?[0-7]|Attrishort(Help)?[0-7]|InitD(Help|Type)?[0-7]|InitScript|AlwaysRunEndpoint)"
 				},
 				{
 					"name": "invalid.illegal",
@@ -83,7 +83,7 @@
 				},
 				{
 					"name": "keyword.control.zscript",
-					"match": "\\b(break|case|catch|continue|default|do|else|for|if|return|repeat|switch|unless|until|while)\\b"
+					"match": "\\b(break|case|catch|continue|default|do|else|for|loop|if|return|repeat|switch|unless|until|while)\\b"
 				},
 				{
 					"name": "keyword.other.zscript",
@@ -96,6 +96,10 @@
 				{
 					"name": "keyword.operator.special.zscript",
 					"match": "\\b(OPTION_VALUE|IS_INCLUDED|new|delete)\\b"
+				},
+				{
+					"name": "keyword.operator.misc.zscript",
+					"match": "(=\\.\\.=|\\.\\.\\.|=\\.\\.|\\.\\.=|\\.\\.)"
 				},
 				{
 					"name": "keyword.operator.misc.zscript",

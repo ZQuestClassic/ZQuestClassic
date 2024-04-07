@@ -30,6 +30,7 @@ src/zq/autocombo/pattern_replace.cpp
 src/zq/render_hotkeys.cpp
 src/zq/render_minimap.cpp
 src/zq/render_tooltip.cpp
+src/zq/moveinfo.cpp
 
 
 ## End of ZQuest Misc module

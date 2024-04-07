@@ -85,6 +85,6 @@ WAITFRAME; if() #189 Else End AND InlineFunc[void Waitframe()] Body AND while(tr
 GOTO 6; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 
 
-ALLOCATEGMEMV d2,4096; void run() Body Start
+ALLOCATEGMEMV d2,4096,0; void run() Body Start
 SETR gd1,d2
 QUIT; void run() Body End

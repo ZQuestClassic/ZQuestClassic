@@ -217,6 +217,21 @@ enum controls //Args for 'getInput()'
 #define INT_BTN_X       INT_BTN_EX1
 #define INT_BTN_Y       INT_BTN_EX2
 
+// These values must remain stable.
+enum class script_object_type
+{
+	none,
+	bitmap,
+	dir,
+	file,
+	paldata,
+	rng,
+	stack,
+	websocket,
+	object,
+	last = object,
+};
+
 enum // used for gamedata ITEMS
 {
 	// 0
@@ -342,6 +357,7 @@ enum class ScriptType {
 // directions
 enum direction { dir_invalid = -1, up, down, left, right, l_up, r_up, l_down, r_down };
 static const char* dirstr[] = {"up","down","left","right","up-left","up-right","down-left","down-right"};
+static const char* dirstr_proper[] = {"Up","Down","Left","Right","Up-Left","Up-Right","Down-Left","Down-Right"};
 const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
 const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
 const direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,right };

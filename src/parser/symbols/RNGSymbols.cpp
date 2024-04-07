@@ -14,7 +14,7 @@ static AccessorTable RNGTable[] =
 	{ "LRand",                      2,          ZTID_LONG,   -1,                   FL_INL,  { ZTID_RNG, ZTID_LONG, ZTID_LONG },{} },
 	{ "SRand",                      0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_RNG, ZTID_LONG },{} },
 	{ "SRand",                      1,          ZTID_LONG,   -1,                   FL_INL,  { ZTID_RNG },{} },
-	{ "Free",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_RNG },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,           FL_INL|FL_DEPR,  { ZTID_RNG },{},0,"Free() no longer does anything as of ZC 3.0. Objects are now freed automatically." },
 	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_RNG },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }

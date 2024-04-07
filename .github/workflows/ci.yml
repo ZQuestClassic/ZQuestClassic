@@ -38,7 +38,7 @@ jobs:
             compiler: msvc
             config: RelWithDebInfo
             extra-args: --max_duration 60
-          - runs-on: macos-12
+          - runs-on: macos-13
             arch: intel
             compiler: clang
             config: RelWithDebInfo

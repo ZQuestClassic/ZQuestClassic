@@ -6,8 +6,10 @@ static AccessorTable StackTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getSize",                    0,          ZTID_LONG,   STACKSIZE,                 0,  { ZTID_STACK },{} },
+	{ "setSize",                    0,          ZTID_VOID,   STACKSIZE,         FL_RDONLY,  { ZTID_STACK, ZTID_LONG },{} },
 	{ "getFull",                    0,          ZTID_BOOL,   STACKFULL,                 0,  { ZTID_STACK },{} },
-	{ "Free",                       0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK },{} },
+	{ "setFull",                    0,          ZTID_VOID,   STACKFULL,         FL_RDONLY,  { ZTID_STACK, ZTID_BOOL },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_STACK },{},0,"Free() no longer does anything as of ZC 3.0. Objects are now freed automatically." },
 	{ "Own",                        0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK },{} },
 	{ "Clear",                      0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK },{} },
 	{ "PushBack",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK, ZTID_UNTYPED },{} },

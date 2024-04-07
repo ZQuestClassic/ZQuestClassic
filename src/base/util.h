@@ -23,6 +23,20 @@ namespace fs = std::filesystem;
 
 namespace util
 {
+	template <typename T>
+	bool contains(const std::vector<T>& vec, const T& item)
+	{
+		auto it = std::find(vec.begin(), vec.end(), item);
+		return it != vec.end();
+	}
+
+	template <typename T>
+	void remove_if_exists(std::vector<T>& vec, const T& item)
+	{
+		vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
+	}
+
+	std::string snip(std::string const& str, size_t length, std::string trail = "...");
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	void trimstr(std::string& str);

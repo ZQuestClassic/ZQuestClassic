@@ -165,8 +165,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LOADEWEAPONR", 1, { REG_R }, 0, 0 },
 	{ "LOADEWEAPONV", 1, { NUM }, 0, 0 },
 	{ "ALLOCATEMEMR", 2, { REG_W, REG_R }, 0, 0 },
-	{ "ALLOCATEMEMV", 2, { REG_W, NUM }, 0, 0 },
-	{ "ALLOCATEGMEMV", 2, { REG_W, NUM }, 0, 0 },
+	{ "ALLOCATEMEMV", 3, { REG_W, NUM, NUM }, 0, 0 },
+	{ "ALLOCATEGMEMV", 3, { REG_W, NUM, NUM }, 0, 0 },
 	{ "DEALLOCATEMEMR", 1, { REG_R }, 0, 0 },
 	{ "DEALLOCATEMEMV", 1, { NUM }, 0, 0 },
 	{ "WAITDRAW", 0, {}, 0, 0 },
@@ -1217,6 +1217,18 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "WEBSOCKET_RECEIVE", 1, { REG_W }, 0, 0 },
 	
 	{ "ATOL", 2, { REG_W, REG_R }, 0, 0 },
+
+	{ "REF_INC", 1, { NUM }, 0, 0 },
+	{ "REF_DEC", 1, { NUM }, 0, 0 },
+	{ "REF_AUTORELEASE", 1, { REG_R }, 0, 0 },
+	{ "REF_REMOVE", 1, { NUM }, 0, 0 },
+	{ "REF_COUNT", 1, { REG_RW }, 0, 0 },
+	{ "MARK_TYPE_STACK", 2, { NUM, NUM }, 0, 0 },
+	{ "MARK_TYPE_REG", 2, { REG_W, NUM }, 0, 0 },
+	{ "ZCLASS_MARK_TYPE", 0, {}, 2, 0 },
+	{ "STORE_OBJECT", 2, { REG_R, NUM }, 0, 0 },
+	{ "GC", 0, { }, 0, 0 },
+	{ "SET_OBJECT", 2, { REG_W, REG_R }, 0, 0 },
 
 	{ "", 0, {}, 0, 0 }
 };

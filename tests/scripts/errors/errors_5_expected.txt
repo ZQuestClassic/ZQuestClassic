@@ -1,0 +1,15 @@
+Compiling 'errors_5.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+ZQ_BUFFER Line 9 @ Columns 3-18 - Warning C104: 'Game->CurScreen' is read-only, and cannot be written to!
+ZQ_BUFFER Line 10 @ Columns 3-16 - Warning C104: 'Game->CurDMap' is read-only, and cannot be written to!
+ZQ_BUFFER Line 11 @ Columns 3-17 - Warning C104: 'Player->IceCombo' is read-only, and cannot be written to!
+ZQ_BUFFER Line 13 @ Columns 3-12 - Error S094: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
+INFO: Use casting '<untyped>(var)' instead!
+ZQ_BUFFER Line 14 @ Columns 3-31 - Error S094: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
+INFO: Use 'Trace()' instead!
+ZQ_BUFFER Line 15 @ Columns 9-28 - Error S094: Variable 'Screen->ScriptEntry' is deprecated, and cannot be used due to current compiler settings.
+Failure!
+Compile finished with exit code '94' (compiled with errors)

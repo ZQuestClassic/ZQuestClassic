@@ -6958,14 +6958,33 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 						}
 					}
 				}
-				//Read as just an index? //Not leaving this in, can enable if needed -Em
-				/*
-				if(!foundmatch && unsigned(num) < max)
+				//Search for match with first number in string?
+				if(!foundmatch)
 				{
-					d->d1 = num;
-					d->d2 = zc_max(zc_min(num-(h>>1), max-h), 0);
-					foundmatch = true;
-				}//*/
+					auto buf = fmt::format("{}", num);
+					for(int32_t listpos = 0; listpos < max; ++listpos)
+					{
+						std::string str((data->listFunc(listpos,&dummy)));
+						size_t pos1 = -1;
+						do
+						{
+							pos1 = str.find_first_of("-0123456789", pos1+1);
+						} while(pos1 != string::npos && str[pos1] == '-' && pos1+1 < str.size() && !isdigit(str[pos1+1]));
+						if(pos1 == string::npos)
+							continue;
+						size_t pos2 = str.find_first_not_of("-0123456789", pos1);
+						if(pos2 == string::npos)
+							continue;
+						str = str.substr(pos1,pos2-pos1);
+						if(buf == str)
+						{
+							d->d1 = listpos;
+							d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+							foundmatch = true;
+							break;
+						}
+					}
+				}
 			}
 			if(!foundmatch)
 			{

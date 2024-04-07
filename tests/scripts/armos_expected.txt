@@ -2179,7 +2179,7 @@ POPARGS d5,0.0005
 RETURNFUNC; Func[void __Ghost_DrawShadow(NPC)] Body End
 PUSHARGSV 0,0.0004; Func[void Ghost_WaitframeLight(FFC, NPC)] Body Start
 SETR d4,SP2
-ALLOCATEMEMV d2,24
+ALLOCATEMEMV d2,24,0
 STORE d2,0.0002
 SETR d0,d2
 PUSHR d0
@@ -2274,7 +2274,7 @@ PUSHR d0
 SETR d2,gd24
 POP d0
 WRITEPODARRAYVR 22,d2
-ALLOCATEMEMV d2,21
+ALLOCATEMEMV d2,21,0
 STORE d2,0.0001
 SETR d2,gd26; if() #355 Test
 PUSHR d2
@@ -2336,7 +2336,7 @@ COMPAREV d2,0
 SETCMP d2,I>
 COMPAREV d2,0
 GOTOCMP 2353,==; Test 'if'
-ALLOCATEMEMV d2,34; if() #170 Body Start
+ALLOCATEMEMV d2,34,0; if() #170 Body Start
 STORE d2,0
 PUSHR d4
 LOAD d2,0.0005; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Params Start
@@ -2361,7 +2361,7 @@ POP d4
 LOAD d3,0
 DEALLOCATEMEMR d3
 GOTO 2383; if() #170 Body End
-ALLOCATEMEMV d2,10; if() #170 Else Start
+ALLOCATEMEMV d2,10,0; if() #170 Else Start
 STORE d2,0
 PUSHR d4
 LOAD d2,0.0005; UsrFunc[void __SetUpDrawingArray(FFC, NPC, int)] Params Start
@@ -4285,13 +4285,13 @@ LOAD d2,0.0005; for() #55 Body End AND for() #55 LoopIncrement
 SUBV d2,1
 STORE d2,0.0005
 GOTO 4182; for() #55 End
-ALLOCATEMEMV d2,60
+ALLOCATEMEMV d2,60,0
 STORE d2,0.0004
 WRITEPODSTRING d2,"ghost.zh: AutoGhost initialization failed - enemy missing.\n"
-ALLOCATEMEMV d2,30
+ALLOCATEMEMV d2,30,0
 STORE d2,0.0002
 WRITEPODSTRING d2,"  DMap %d, screen %X\n"
-ALLOCATEMEMV d2,30
+ALLOCATEMEMV d2,30,0
 STORE d2,0
 WRITEPODSTRING d2,"  Script %d, enemy ID %d\n"
 LOAD d2,0.0004; InlineFunc[void printf(char32)] Params Start
@@ -4477,11 +4477,11 @@ PUSHR gd6
 PUSHV 2; UsrFunc[void Ghost_Move(int, int, int)] Params End
 CALLFUNC 0.3786; UsrFunc[void Ghost_Move(int, int, int)] Call
 POP d4
-SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params Start
+SETR d2,gd6; InlineFunc[int Max(int, int)] Params Start
 SUBV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV -3.2000; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR gd6,d2
 SETR d2,gd6; if() #348 Test
 COMPAREV d2,0
@@ -4520,11 +4520,11 @@ CALLFUNC 0.0393; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP d4
 COMPAREV d2,0
 GOTOCMP 4519,==; Test 'if'
-SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params Start AND if() #166 Body Start
+SETR d2,gd6; InlineFunc[int Max(int, int)] Params Start AND if() #166 Body Start
 SUBV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV -3.2000; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR gd6,d2
 GOTO 4521; if() #166 Body End
 SETV d2,0; if() #166 Else Start
@@ -4568,11 +4568,11 @@ SETR d2,gd6
 POP d3
 ADDR d2,d3
 SETR gd4,d2
-SETR d2,gd6; InlineFunc[untyped Max(untyped, untyped)] Params Start
+SETR d2,gd6; InlineFunc[int Max(int, int)] Params Start
 SUBV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV -3.2000; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR gd6,d2; if() #167 Else End
 SETR d2,gd7; if() #350 Body End AND if() #164 Else End AND unless() #346 Body End AND if() #351 Test
 COMPAREV d2,0
@@ -5998,7 +5998,7 @@ COMPAREV d2,-1
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 172,==; Test 'if'
-ALLOCATEMEMV d2,2; if() #35 Body Start
+ALLOCATEMEMV d2,2,0; if() #35 Body Start
 STORE d2,0
 PUSHR d4
 LOAD d2,0.0006; UsrFunc[int __AutoGhostParseName(NPC, int)] Params Start
@@ -6263,9 +6263,9 @@ POPARGS d5,0.0007
 RETURNFUNC; Func[void AutoGhost()] Body End
 PUSHARGSV 0,0.0009; Func[int __AutoGhostParseName(NPC, int)] Body Start
 SETR d4,SP2
-ALLOCATEMEMV d2,64
+ALLOCATEMEMV d2,64,0
 STORE d2,0.0008
-ALLOCATEMEMV d2,64
+ALLOCATEMEMV d2,64,0
 STORE d2,0.0007
 SETV d2,1
 PUSHR d2
@@ -6371,10 +6371,10 @@ COMPAREV d2,0
 SETCMP d2,I<=
 COMPAREV d2,0
 GOTOCMP 653,==; Test 'if'
-ALLOCATEMEMV d2,59; if() #585 Body Start
+ALLOCATEMEMV d2,59,0; if() #585 Body Start
 STORE d2,0.0002
 WRITEPODSTRING d2,"ghost.zh: AutoGhost setup failed - script does not exist.\n"
-ALLOCATEMEMV d2,80
+ALLOCATEMEMV d2,80,0
 STORE d2,0
 WRITEPODSTRING d2,"  Script name: %s\n"
 LOAD d2,0.0002; InlineFunc[void printf(char32)] Params Start
@@ -6507,13 +6507,13 @@ COMPAREV d2,0
 SETCMP d2,I<=
 COMPAREV d2,0
 GOTOCMP 707,==; Test 'if'
-ALLOCATEMEMV d2,54; if() #589 Body Start
+ALLOCATEMEMV d2,54,0; if() #589 Body Start
 STORE d2,0.0005
 WRITEPODSTRING d2,"ghost.zh: AutoGhost setup failed - script not found.\n"
-ALLOCATEMEMV d2,80
+ALLOCATEMEMV d2,80,0
 STORE d2,0.0003
 WRITEPODSTRING d2,"  Enemy name: %s\n"
-ALLOCATEMEMV d2,55
+ALLOCATEMEMV d2,55,0
 STORE d2,0.0001
 WRITEPODSTRING d2,"  Script name should start after this character: %c\n"
 LOAD d2,0.0005; InlineFunc[void printf(char32)] Params Start
@@ -6615,11 +6615,11 @@ RETURNFUNC; Func[void __AutoGhostKill(NPC)] Body End
 PUSHARGSV 0,0.0002; Func[int FindUnusedFFC(int)] Body Start
 SETR d4,SP2
 STOREV 0,0.0001
-LOAD d2,0.0002; InlineFunc[untyped Max(untyped, untyped)] Params Start AND for() #43 setup
+LOAD d2,0.0002; InlineFunc[int Max(int, const int)] Params Start AND for() #43 setup
 ADDV d2,1
 PUSHVARGR d2
-PUSHVARGV 1; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV 1; InlineFunc[int Max(int, const int)] Params End
+MAXVARG; InlineFunc[int Max(int, const int)] Body
 STORE d2,0
 LOAD d2,0; for() #43 LoopTest
 COMPAREV d2,32
@@ -8606,7 +8606,7 @@ COMPAREV d2,3
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 3113,==; Test 'if'
-PUSHVARGV 0; InlineFunc[untyped Max(untyped, untyped)] Params Start AND if() #560 Body Start
+PUSHVARGV 0; InlineFunc[int Max(int, int)] Params Start AND if() #560 Body Start
 LOAD d2,0.0007
 PUSHR d2
 POP REFEWPN
@@ -8621,8 +8621,8 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 POP d3
 SUBR d3,d2
-PUSHVARGR d3; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGR d3; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 PUSHR d2
 LOAD d2,0.0007
 POP d3
@@ -11127,7 +11127,7 @@ POP d0
 POP d2
 POP REFEWPN
 SETR EWPNMISCD,d2; if() #743 Body End
-LOAD d2,0.0001; InlineFunc[untyped Max(untyped, untyped)] Params Start
+LOAD d2,0.0001; InlineFunc[int Max(int, int)] Params Start
 PUSHR d2
 SETV d2,7
 PUSHR d2
@@ -11145,8 +11145,8 @@ SETR d2,EWPNMISCD
 POP d3
 ADDR d2,d3
 PUSHVARGR d2
-PUSHVARGV 0; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV 0; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 PUSHR d2
 LOAD d2,0.0001
 POP d3
@@ -11235,7 +11235,7 @@ CALLFUNC 0.9493; UsrFunc[bool ghost2__OnSidePlatform(int, int, int, int, int, in
 POP d4
 COMPAREV d2,0
 GOTOCMP 5525,!=; Test 'unless'
-LOAD d2,0.0001; InlineFunc[untyped Max(untyped, untyped)] Params Start AND unless() #744 Body Start
+LOAD d2,0.0001; InlineFunc[int Max(int, int)] Params Start AND unless() #744 Body Start
 PUSHR d2
 SETV d2,6
 PUSHR d2
@@ -11244,8 +11244,8 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 SUBV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV -3.2000; InlineFunc[untyped Max(untyped, untyped)] Params End
-MAXVARG; InlineFunc[untyped Max(untyped, untyped)] Body
+PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 PUSHR d2
 LOAD d2,0.0001
 POP d3
@@ -11460,7 +11460,7 @@ PUSHR d3
 POP d2
 POP REFEWPN
 SETR EWPNYOFS,d2; unless() #431 Else End
-LOAD d2,0.0001; InlineFunc[untyped Min(untyped, untyped)] Params Start
+LOAD d2,0.0001; InlineFunc[int Min(int, const int)] Params Start
 PUSHR d2
 SETV d2,6
 PUSHR d2
@@ -11469,8 +11469,8 @@ POP REFEWPN
 SETR d2,EWPNMISCD
 ADDV d2,0.1600
 PUSHVARGR d2
-PUSHVARGV 3.2000; InlineFunc[untyped Min(untyped, untyped)] Params End
-MINVARG; InlineFunc[untyped Min(untyped, untyped)] Body
+PUSHVARGV 3.2000; InlineFunc[int Min(int, const int)] Params End
+MINVARG; InlineFunc[int Min(int, const int)] Body
 PUSHR d2
 LOAD d2,0.0001
 POP d3
@@ -12740,7 +12740,7 @@ COMPAREV d2,0
 SETCMP d2,I==
 COMPAREV d2,0
 GOTOCMP 6919,==; Test 'if'
-ALLOCATEMEMV d2,43; if() #596 Body Start
+ALLOCATEMEMV d2,43,0; if() #596 Body Start
 STORE d2,0
 WRITEPODSTRING d2,"ghost.zh: Failed to find prototype eweapon"
 LOAD d2,0; InlineFunc[void TraceS(int)] Params Start
@@ -14099,7 +14099,7 @@ COMPAREV d2,512
 SETCMP d2,I!=
 COMPAREV d2,0
 GOTOCMP 8268,!=; Test 'if' AND continue 1; AND if() #599 Body
-LOAD d2,0.0001; InlineFunc[untyped Min(untyped, untyped)] Params Start
+LOAD d2,0.0001; InlineFunc[int Min(int, untyped)] Params Start
 PUSHVARGR d2
 LOAD d2,0.0002
 PUSHR d2
@@ -14107,8 +14107,8 @@ SETV d2,3
 PUSHR d2
 POP d0
 POP REFEWPN
-PUSHVARGR EWPNMISCD; InlineFunc[untyped Min(untyped, untyped)] Params End
-MINVARG; InlineFunc[untyped Min(untyped, untyped)] Body
+PUSHVARGR EWPNMISCD; InlineFunc[int Min(int, untyped)] Params End
+MINVARG; InlineFunc[int Min(int, untyped)] Body
 STORE d2,0.0001; for() #169 Body End
 LOAD d2,0; for() #169 LoopIncrement
 SUBV d2,1
@@ -15428,7 +15428,7 @@ SETV gd8,0
 SETV gd2,0
 SETV gd3,0
 SETV gd4,0
-ALLOCATEGMEMV d2,25
+ALLOCATEGMEMV d2,25,0
 SETR gd26,d2
 SETV gd16,0
 SETV gd17,0
@@ -15437,14 +15437,14 @@ SETV gd18,0
 SETV gd22,0
 SETV gd19,0
 SETV gd20,0
-ALLOCATEGMEMV d2,32
+ALLOCATEGMEMV d2,32,0
 SETR gd25,d2
 SETV gd23,0
 SETV gd24,0
-ALLOCATEGMEMV d2,8
+ALLOCATEGMEMV d2,8,0
 SETR gd27,d2
-ALLOCATEGMEMV d2,1000
+ALLOCATEGMEMV d2,1000,0
 SETR gd28,d2
-ALLOCATEGMEMV d2,4096
+ALLOCATEGMEMV d2,4096,0
 SETR gd1,d2
 QUIT; void run() Body End

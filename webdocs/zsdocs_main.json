@@ -1452,7 +1452,7 @@
                         },
                         {
                             "name": "ArrayCopy",
-                            "val": "<h3>void ArrayCopy(untyped[] dest, untyped[] src);</h3>\n\nCopies all data from 'src' to 'dest'. If the arrays are not the same size, the smaller size is used, and the excess in the larger array is ignored."
+                            "val": "<h3>void ArrayCopy(T[] dest, T[] src);</h3>\n\nCopies all data from 'src' to 'dest'. If the arrays are not the same size, the smaller size is used, and the excess in the larger array is ignored."
                         },
                         {
                             "name": "IsValidArray",
@@ -1460,19 +1460,19 @@
                         },
                         {
                             "name": "SizeOfArray",
-                            "val": "<h3>int SizeOfArray(untyped[] arr);</h3>\n\nReturns the size of the array"
+                            "val": "<h3>int SizeOfArray(T[] arr);</h3>\n\nReturns the size of the array"
                         },
                         {
                             "name": "ResizeArray",
-                            "val": "<h3>void ResizeArray(untyped[] arr, int size);</h3>\n\nResizes the array 'arr' to size 'size'. If 'size' is &lt;1, the array becomes size 1 instead."
+                            "val": "<h3>void ResizeArray(T[] arr, int size);</h3>\n\nResizes the array 'arr' to size 'size'. If 'size' is &lt;1, the array becomes size 1 instead."
                         },
                         {
                             "name": "OwnArray / DestroyArray",
-                            "val": "<h3>void OwnArray(untyped[] arr);</h3>\nGrants ownership of the target array to the currently running script.\nIf this array is not a local array, nothing happens.\nIf it is a local array, the array will no longer be destroyed when it reaches the end of its' declaring scope- it will last until the owning script ends, at which point it will be freed.\n\n<h3>void DestroyArray(untyped[] arr);</h3>\nIf 'arr' is a local array, destroys it immediately. Otherwise does nothing."
+                            "val": "<h3>void OwnArray(T[] arr);</h3>\nGrants ownership of the target array to the currently running script.\nIf this array is not a local array, nothing happens.\nIf it is a local array, the array will no longer be destroyed when it reaches the end of its' declaring scope- it will last until the owning script ends, at which point it will be freed.\n\n<h3>void DestroyArray(untyped[] arr);</h3>\nIf 'arr' is a local array, destroys it immediately. Otherwise does nothing."
                         },
                         {
                             "name": "Push / Pop ;; ArrayPushBack / ArrayPushFront / ArrayPushAt / ArrayPopBack / ArrayPopFront / ArrayPopAt",
-                            "val": "<h3>bool ArrayPushBack(untyped[] arr, untyped val);\nbool ArrayPushFront(untyped[] arr, untyped val);\nbool ArrayPushAt(untyped[] arr, untyped val, int indx);</h3>\n\nIncreases the size of the array by 1, inserting 'val' at the back/front/specified index of the array. If an invalid index is passed, the back of the array will be targetted.\nReturns false if it fails for any reason, such as the array being max-sized already.\n\n<h3>untyped ArrayPopBack(untyped[] arr);\nuntyped ArrayPopFront(untyped[] arr);\nuntyped ArrayPopAt(untyped[] arr, int indx);</h3>\n\nDecreases the size of the array by 1, removing and returning the element at the back/front/specified index of the array. If an invalid index is passed, the back of the array will be targetted.\nErrors and returns `-1` if the array is size 0."
+                            "val": "<h3>bool ArrayPushBack(T[] arr, T val);\nbool ArrayPushFront(T[] arr, T val);\nbool ArrayPushAt(T[] arr, T val, int indx);</h3>\n\nIncreases the size of the array by 1, inserting 'val' at the back/front/specified index of the array. If an invalid index is passed, the back of the array will be targetted.\nReturns false if it fails for any reason, such as the array being max-sized already.\n\n<h3>T ArrayPopBack(T[] arr);\nT ArrayPopFront(T[] arr);\nT ArrayPopAt(T[] arr, int indx);</h3>\n\nDecreases the size of the array by 1, removing and returning the element at the back/front/specified index of the array. If an invalid index is passed, the back of the array will be targetted.\nErrors and returns `-1` if the array is size 0."
                         }
                     ]
                 }

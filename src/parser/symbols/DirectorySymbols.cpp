@@ -6,9 +6,10 @@ static AccessorTable DirectoryTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getSize",                    0,         ZTID_FLOAT,   DIRECTORYSIZE,             0,  { ZTID_DIRECTORY },{} },
+	{ "setSize",                    0,          ZTID_VOID,   DIRECTORYSIZE,     FL_RDONLY,  { ZTID_DIRECTORY, ZTID_FLOAT },{} },
 	{ "GetFilename",                0,          ZTID_BOOL,   -1,                        0,  { ZTID_DIRECTORY, ZTID_FLOAT, ZTID_CHAR },{} },
 	{ "Reload",                     0,          ZTID_VOID,   -1,                        0,  { ZTID_DIRECTORY },{} },
-	{ "Free",                       0,          ZTID_VOID,   -1,                        0,  { ZTID_DIRECTORY },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_DIRECTORY },{},0,"Free() no longer does anything as of ZC 3.0. Objects are now freed automatically." },
 	{ "Own",                        0,          ZTID_VOID,   -1,                        0,  { ZTID_DIRECTORY },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }

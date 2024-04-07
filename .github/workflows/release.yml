@@ -71,7 +71,7 @@ jobs:
             compiler: msvc
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
-          - runs-on: macos-12
+          - runs-on: macos-13
             arch: intel
             compiler: clang
             config: RelWithDebInfo
@@ -105,7 +105,10 @@ jobs:
 
     steps:
       - name: git clone
-        uses: actions/checkout@v4
+        uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
+        with:
+          include: 'resources/quests/**/*'
+          fetch-depth: 0
 
       - uses: mymindstorm/setup-emsdk@v12
         with:

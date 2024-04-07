@@ -1276,6 +1276,9 @@ static GUI::ListData miscRulesList
 	{ "New Darkness Draws Under Layer 7", qr_NEWDARK_L6,
 		"If enabled, the new dark rooms will draw under layer 7, allowing scripts to draw over dark rooms by drawing to Layer 7."
 		" If disabled, scripts are never able to draw above the new dark rooms."},
+	{ "New Darkness Trans Layer Stacking", qr_NEWDARK_TRANS_STACKING,
+		"If enabled, new dark rooms with multiple transparent layers will stack the transparency. Otherwise,"
+		" the transparency will not stack, drawing only one layer." },
 	{ "Item Cellars/Passageways/Caves use own music", qr_SCREEN80_OWN_MUSIC,
 		"If enabled, screen 80/81 will play a midi if one is assigned to screen 80/81."},
 	{ "New Darkroom Lanterns Cross Screen Boundary", qr_NEWDARK_SCROLLEDGE,
@@ -1678,6 +1681,9 @@ GUI::ListData bugfixRulesList
 		" will not work properly, and instead a mixture of the two settings will occur (Always resetting if it's off,"
 		" and always continuing if it's on)."
 		"\nIf disabled, the reset and continue flags will work separately, not using the old behavior." },
+	{ "Old 'Hero->Warp' Return Square", qr_OLD_HERO_WARP_RETSQUARE,
+		"If checked, 'Hero->Warp()' uses the return square of the current screen's Sidewarp A."
+		" Otherwise, it uses return square A." },
 };
 
 extern GUI::ListData compileSettingList;
@@ -1760,7 +1766,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
-				qr_OLD_BROKEN_WARPEX_MUSIC,
+				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);

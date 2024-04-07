@@ -317,7 +317,7 @@ static AccessorTable MapDataTable[] =
 	{ "setEntryY",                  0,          ZTID_VOID,   MAPDATAENTRYY,              FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "getNumFFCs[]",               0,          ZTID_BOOL,   MAPDATANUMFF,               FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	//read-only, for now?
-	{ "setNumFFCs[]",               0,          ZTID_VOID,   MAPDATANUMFF,               FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "setNumFFCs[]",               0,          ZTID_VOID,   MAPDATANUMFF,     FL_DEPR|FL_RDONLY,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getScriptEntry",             0,         ZTID_FLOAT,   MAPDATASCRIPTENTRY,         FL_DEPR,  { ZTID_MAPDATA },{} },
 	{ "setScriptEntry",             0,          ZTID_VOID,   MAPDATASCRIPTENTRY,         FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "getScriptOccupancy",         0,         ZTID_FLOAT,   MAPDATASCRIPTOCCUPANCY,     FL_DEPR,  { ZTID_MAPDATA },{} },

@@ -29,12 +29,12 @@ public:
 	{
 		message = static_cast<int32_t>(m);
 	}
+	DialogRef alDialog;
 protected:
 	int32_t message;
 private:
 	int32_t combo, cset;
 	bool showsVals;
-	DialogRef alDialog;
 	std::function<void(int32_t,int32_t)> onSelectFunc;
 	
 	void applyVisibility(bool visible) override;

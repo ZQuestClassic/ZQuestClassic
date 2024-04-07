@@ -2,13 +2,13 @@ rewrite 3: 3 -> 1 commands
 3: SINR            D2              D2     
 4: NOP            
 5: NOP            
-rewrite 13: 3 -> 2 commands
-13: SETR            D0              (null) 
-14: ADDR            D4              D0     
+rewrite 13: 3 -> 1 commands
+13: ADDR            D4              D4     
+14: NOP            
 15: NOP            
-rewrite 23: 3 -> 2 commands
-23: SETR            D0              (null) 
-24: ADDR            D4              D0     
+rewrite 23: 3 -> 1 commands
+23: ADDR            D4              D4     
+24: NOP            
 25: NOP            
 Function #0
     0: SETR            D4              SP2          [Block 0 -> ]
@@ -24,8 +24,8 @@ Function #0
    10: CALLFUNC        39                           [Call Function #2]
    11: POP             D4
    12: PUSHR           D2
-   13: NOP
-   14: ADDR            D4              (null)
+   13: ADDR            D4              D4
+   14: NOP
    15: NOP
    16: PUSHR           D2
    17: PUSHR           D4

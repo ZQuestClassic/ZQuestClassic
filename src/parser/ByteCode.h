@@ -2264,6 +2264,17 @@ namespace ZScript
 		}
 	};
 
+	class OSetObject : public BinaryOpcode
+	{
+	public:
+		OSetObject(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetObject(a->clone(),b->clone());
+		}
+	};
+
 	class OReadPODArrayR : public BinaryOpcode
 	{
 	public:
@@ -2359,6 +2370,18 @@ namespace ZScript
 			return new OConstructClass(a->clone(),b->clone());
 		}
 	};
+
+	class OMarkTypeClass : public UnaryOpcode
+	{
+	public:
+		OMarkTypeClass(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OMarkTypeClass(a->clone());
+		}
+	};
+
 	class OReadObject : public BinaryOpcode
 	{
 	public:
@@ -3365,6 +3388,16 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OStoreV(a->clone(),b->clone());
+		}
+	};
+	class OStoreObject : public BinaryOpcode
+	{
+	public:
+		OStoreObject(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStoreObject(a->clone(),b->clone());
 		}
 	};
 
@@ -6364,25 +6397,25 @@ namespace ZScript
 		}
 	};
 
-	class OAllocateMemImmediate : public BinaryOpcode
+	class OAllocateMemImmediate : public TernaryOpcode
 	{
 	public:
-		OAllocateMemImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OAllocateMemImmediate(Argument *A, Argument *B, Argument* C = new LiteralArgument(0)) : TernaryOpcode(A,B,C) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OAllocateMemImmediate(a->clone(),b->clone());
+			return new OAllocateMemImmediate(a->clone(),b->clone(),c->clone());
 		}
 	};
 
-	class OAllocateGlobalMemImmediate : public BinaryOpcode
+	class OAllocateGlobalMemImmediate : public TernaryOpcode
 	{
 	public:
-		OAllocateGlobalMemImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OAllocateGlobalMemImmediate(Argument *A, Argument* B, Argument* C = new LiteralArgument(0)) : TernaryOpcode(A,B,C) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OAllocateGlobalMemImmediate(a->clone(),b->clone());
+			return new OAllocateGlobalMemImmediate(a->clone(),b->clone(),c->clone());
 		}
 	};
 
@@ -12481,6 +12514,94 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OWebSocketReceive(a->clone());
+		}
+	};
+
+	class OGC : public Opcode
+	{
+	public:
+		OGC() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGC();
+		}
+	};
+
+	class ORefInc : public UnaryOpcode
+	{
+	public:
+		ORefInc(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORefInc(a->clone());
+		}
+	};
+
+	class ORefDec : public UnaryOpcode
+	{
+	public:
+		ORefDec(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORefDec(a->clone());
+		}
+	};
+
+	class ORefAutorelease : public UnaryOpcode
+	{
+	public:
+		ORefAutorelease(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORefAutorelease(a->clone());
+		}
+	};
+
+	class ORefRemove : public UnaryOpcode
+	{
+	public:
+		ORefRemove(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORefRemove(a->clone());
+		}
+	};
+
+	class ORefCount : public UnaryOpcode
+	{
+	public:
+		ORefCount(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new ORefCount(a->clone());
+		}
+	};
+
+	class OMarkTypeStack : public BinaryOpcode
+	{
+	public:
+		OMarkTypeStack(Argument *A, Argument *B) : BinaryOpcode(A, B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OMarkTypeStack(a->clone(), b->clone());
+		}
+	};
+
+	class OMarkTypeRegister : public BinaryOpcode
+	{
+	public:
+		OMarkTypeRegister(Argument *A, Argument *B) : BinaryOpcode(A, B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OMarkTypeRegister(a->clone(), b->clone());
 		}
 	};
 }

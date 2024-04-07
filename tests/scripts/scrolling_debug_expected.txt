@@ -12,7 +12,7 @@ Compile finished with exit code '0' (success)
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0,0.0010
 SETR d4,SP2
-ALLOCATEMEMV d2,13; while(true) #8 Body [Opt:AlwaysOn] Start
+ALLOCATEMEMV d2,13,0; while(true) #8 Body [Opt:AlwaysOn] Start
 STORE d2,0.0009
 WRITEPODSTRING d2,"OX/OY %d %d\n"
 LOAD d2,0.0009; InlineFunc[void printf(char32)] Params Start
@@ -29,7 +29,7 @@ PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
 LOAD d3,0.0009
 DEALLOCATEMEMR d3
-ALLOCATEMEMV d2,6
+ALLOCATEMEMV d2,6,0
 STORE d2,0.0008
 WRITEPODSTRING d2,"OX/OY"
 PUSHV 7; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params Start
@@ -75,7 +75,7 @@ PUSHV 0
 PUSHV 128; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params End
 DRAWINT; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body Start
 POPARGS d5,0.0011; InlineFunc[void Screen->DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Body End
-ALLOCATEMEMV d2,13
+ALLOCATEMEMV d2,13,0
 STORE d2,0.0007
 WRITEPODSTRING d2,"NX/NY %d %d\n"
 LOAD d2,0.0007; InlineFunc[void printf(char32)] Params Start
@@ -92,7 +92,7 @@ PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
 LOAD d3,0.0007
 DEALLOCATEMEMR d3
-ALLOCATEMEMV d2,6
+ALLOCATEMEMV d2,6,0
 STORE d2,0.0006
 WRITEPODSTRING d2,"NX/NY"
 PUSHV 7; InlineFunc[void Screen->DrawString(int, int, int, int, int, int, int, int, int)] Params Start
@@ -177,7 +177,7 @@ PUSHARGSV 0,0.0004
 PUSHV 128; InlineFunc[void Screen->Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 RECT; InlineFunc[void Screen->Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS d5,0.0012; InlineFunc[void Screen->Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-ALLOCATEMEMV d2,15
+ALLOCATEMEMV d2,15,0
 STORE d2,0.0001
 WRITEPODSTRING d2,"ORX/ORY %d %d\n"
 LOAD d2,0.0001; InlineFunc[void printf(char32)] Params Start
@@ -194,7 +194,7 @@ PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP d5; InlineFunc[void printf(char32)] Body End
 LOAD d3,0.0001
 DEALLOCATEMEMR d3
-ALLOCATEMEMV d2,15
+ALLOCATEMEMV d2,15,0
 STORE d2,0
 WRITEPODSTRING d2,"NRX/NRY %d %d\n"
 LOAD d2,0; InlineFunc[void printf(char32)] Params Start
@@ -272,7 +272,7 @@ GOTO 262
 SETV d2,1
 COMPAREV d2,0
 GOTOCMP 283,==; Test 'if'
-ALLOCATEMEMV d2,33; if() #560 Body Start
+ALLOCATEMEMV d2,33,0; if() #560 Body Start
 STORE d2,0.0001
 WRITEPODSTRING d2,"failed expectation! %d %d %d %d\n"
 LOAD d2,0.0001; InlineFunc[void printf(char32)] Params Start
@@ -347,6 +347,6 @@ WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:Always
 GOTO 4; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 
 
-ALLOCATEGMEMV d2,4096; void run() Body Start
+ALLOCATEGMEMV d2,4096,0; void run() Body Start
 SETR gd1,d2
 QUIT; void run() Body End

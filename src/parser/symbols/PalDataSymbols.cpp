@@ -26,7 +26,7 @@ static AccessorTable PalDataTable[] =
 	{ "MixCSet",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_PALDATA, ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 5000, 0 } },
 	{ "Copy",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_PALDATA },{} },
 	{ "CopyCSet",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "Free",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,           FL_INL|FL_DEPR,  { ZTID_PALDATA },{},0,"Free() no longer does anything as of ZC 3.0. Objects are now freed automatically." },
 	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA },{} },
 	{ "getColor[]",                 0,       ZTID_RGBDATA,   PALDATACOLOR,         FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
 	{ "setColor[]",                 0,          ZTID_VOID,   PALDATACOLOR,         FL_INL,  { ZTID_PALDATA, ZTID_FLOAT, ZTID_RGBDATA },{} },

@@ -1675,7 +1675,7 @@ Annotated_Loop :
 				{
 					if(data.strval == "off")
 						loop->overflow = ASTStmtRangeLoop::OVERFLOW_ALLOW;
-					if(data.strval == "int")
+					else if(data.strval == "int")
 						loop->overflow = ASTStmtRangeLoop::OVERFLOW_INT;
 					else if(data.strval == "long" || data.strval == "float")
 						loop->overflow = ASTStmtRangeLoop::OVERFLOW_LONG;

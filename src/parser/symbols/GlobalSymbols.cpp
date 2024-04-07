@@ -1,4 +1,5 @@
 #include "SymbolDefs.h"
+#include "parser/Types.h"
 
 const int32_t radsperdeg = 572958;
 GlobalSymbols GlobalSymbols::singleton;
@@ -41,10 +42,10 @@ static AccessorTable GlobalTable[] =
 
 	{ "SwapTile",                0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "ClearTile",               0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT },{} },
-	{ "SizeOfArray",             0,         ZTID_FLOAT,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "ResizeArray",             0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED, ZTID_FLOAT },{} },
-	{ "OwnArray",                0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "DestroyArray",            0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "SizeOfArray",             0,         ZTID_FLOAT,   -1,          0,  { ZTID_TEMPLATE_T_ARR },{} },
+	{ "ResizeArray",             0,          ZTID_VOID,   -1,          0,  { ZTID_TEMPLATE_T_ARR, ZTID_FLOAT },{} },
+	{ "OwnArray",                0,          ZTID_VOID,   -1,          0,  { ZTID_TEMPLATE_T_ARR },{} },
+	{ "DestroyArray",            0,          ZTID_VOID,   -1,          0,  { ZTID_TEMPLATE_T_ARR },{} },
 	{ "OwnObject",               0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED },{} },
 	{ "GlobalObject",            0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED },{} },
 	{ "OverlayTile",             0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -65,7 +66,7 @@ static AccessorTable GlobalTable[] =
 	{ "strnicmp",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "strcpy",                  0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "itoacat",                 0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "ArrayCopy",               0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
+	{ "ArrayCopy",               0,          ZTID_VOID,   -1,          0,  { ZTID_TEMPLATE_T_ARR, ZTID_TEMPLATE_T_ARR },{} },
 	{ "strlen",                  0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR },{} },
 	{ "atoi",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR },{} },
 	{ "atol",                    0,          ZTID_LONG,   -1,          0,  { ZTID_CHAR },{} },
@@ -101,19 +102,19 @@ static AccessorTable GlobalTable[] =
 
 	{ "printf",                  0,          ZTID_VOID,   -1,    FL_VARG,  { ZTID_CHAR },{} },
 	{ "sprintf",                 0,         ZTID_FLOAT,   -1,    FL_VARG,  { ZTID_CHAR, ZTID_CHAR },{} },
-	{ "printfa",                 0,          ZTID_VOID,   -1,          0,  { ZTID_CHAR, ZTID_UNTYPED },{} },
-	{ "sprintfa",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR, ZTID_CHAR, ZTID_UNTYPED },{} },
+	{ "printfa",                 0,          ZTID_VOID,   -1,          0,  { ZTID_CHAR, ZTID_TEMPLATE_T_ARR },{} },
+	{ "sprintfa",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR, ZTID_CHAR, ZTID_TEMPLATE_T_ARR },{} },
 	
-	{ "Max",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
-	{ "Min",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
-	{ "Choose",                  0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED },{},1 },
+	{ "Max",                     0,    ZTID_TEMPLATE_T,   -1,    FL_VARG,  { ZTID_TEMPLATE_T, ZTID_TEMPLATE_T },{},2 },
+	{ "Min",                     0,    ZTID_TEMPLATE_T,   -1,    FL_VARG,  { ZTID_TEMPLATE_T, ZTID_TEMPLATE_T },{},2 },
+	{ "Choose",                  0,    ZTID_TEMPLATE_T,   -1,    FL_VARG,  { ZTID_TEMPLATE_T },{},1 },
 	
-	{ "ArrayPushBack",           0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
-	{ "ArrayPushFront",          0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
-	{ "ArrayPushAt",             0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED, ZTID_FLOAT },{} },
-	{ "ArrayPopBack",            0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "ArrayPopFront",           0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "ArrayPopAt",              0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED, ZTID_FLOAT },{} },
+	{ "ArrayPushBack",           0,          ZTID_BOOL,   -1,          0,  { ZTID_TEMPLATE_T_ARR, ZTID_TEMPLATE_T },{} },
+	{ "ArrayPushFront",          0,          ZTID_BOOL,   -1,          0,  { ZTID_TEMPLATE_T_ARR, ZTID_TEMPLATE_T },{} },
+	{ "ArrayPushAt",             0,          ZTID_BOOL,   -1,          0,  { ZTID_TEMPLATE_T_ARR, ZTID_TEMPLATE_T, ZTID_FLOAT },{} },
+	{ "ArrayPopBack",            0,    ZTID_TEMPLATE_T,   -1,          0,  { ZTID_TEMPLATE_T_ARR },{} },
+	{ "ArrayPopFront",           0,    ZTID_TEMPLATE_T,   -1,          0,  { ZTID_TEMPLATE_T_ARR },{} },
+	{ "ArrayPopAt",              0,    ZTID_TEMPLATE_T,   -1,          0,  { ZTID_TEMPLATE_T_ARR, ZTID_FLOAT },{} },
 	
 	//Undocumented intentionally - compat only
 	{ "Rand",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
@@ -150,7 +151,10 @@ static AccessorTable GlobalTable[] =
 	{ "SizeOfArrayEWeapon",      0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
 	{ "SizeOfArrayNPC",          0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
 	{ "SizeOfArrayItemdata",     0, "SizeOfArray",         0,    FL_DEPR, "Use 'SizeOfArray()' instead!" },
-	
+
+	{ "RefCount",                0,          ZTID_LONG,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "GC",                      0,          ZTID_VOID,   -1,          0,  {},{} },
+
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 	//Unused old junk
 	//overload, 2 args
@@ -936,7 +940,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//int32_t SizeOfArray(int32_t val)
+	//int32_t SizeOfArray(T[] val)
 	{
 		Function* function = getFunction("SizeOfArray");
 		int32_t label = function->getLabel();
@@ -947,7 +951,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void ResizeArray(untyped ptr, int sz)
+	//void ResizeArray(T[] ptr, int sz)
 	{
 		Function* function = getFunction("ResizeArray");
 		int32_t label = function->getLabel();
@@ -959,7 +963,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void OwnArray(untyped ptr)
+	//void OwnArray(T[] ptr)
 	{
 		Function* function = getFunction("OwnArray");
 		int32_t label = function->getLabel();
@@ -992,7 +996,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void DestroyArray(untyped ptr)
+	//void DestroyArray(T[] ptr)
 	{
 		Function* function = getFunction("DestroyArray");
 		int32_t label = function->getLabel();
@@ -1270,7 +1274,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 
-	//int32_t ArrayCopy(int32_t source, int32_t dest)
+	//void ArrayCopy(T[] source, T[] dest)
 	{
 		Function* function = getFunction("ArrayCopy");
 		int32_t label = function->getLabel();
@@ -1579,7 +1583,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void printfa(str* format, untyped[] args)
+	//void printfa(str* format, T[] args)
 	{
 		Function* function = getFunction("printfa");
 		int32_t label = function->getLabel();
@@ -1590,7 +1594,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void sprintfa(str* buf, str* format, untyped[] args)
+	//void sprintfa(str* buf, str* format, T[] args)
 	{
 		Function* function = getFunction("sprintfa");
 		int32_t label = function->getLabel();
@@ -1685,7 +1689,7 @@ void GlobalSymbols::generateCode()
 			});
 	}
 	
-	//constexpr untyped Max(untyped first, untyped second, untyped ..args)
+	//constexpr T Max(T first, T second, T ..args)
 	{
 		Function* function = getFunction("Max");
 		int32_t label = function->getLabel();
@@ -1707,7 +1711,7 @@ void GlobalSymbols::generateCode()
 				return val;
 			});
 	}
-	//constexpr untyped Min(untyped first, untyped second, untyped ..args)
+	//constexpr T Min(T first, T second, T ..args)
 	{
 		Function* function = getFunction("Min");
 		int32_t label = function->getLabel();
@@ -1729,7 +1733,7 @@ void GlobalSymbols::generateCode()
 				return val;
 			});
 	}
-	//untyped Choose(untyped first, untyped ..args)
+	//T Choose(T first, T ..args)
 	{
 		Function* function = getFunction("Choose");
 		int32_t label = function->getLabel();
@@ -1739,7 +1743,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void ArrayPushFront(untyped[] arr, untyped val)
+	//void ArrayPushFront(T[] arr, T val)
 	{
 		Function* function = getFunction("ArrayPushFront");
 		int32_t label = function->getLabel();
@@ -1751,7 +1755,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void ArrayPushBack(untyped[] arr, untyped val)
+	//void ArrayPushBack(T[] arr, T val)
 	{
 		Function* function = getFunction("ArrayPushBack");
 		int32_t label = function->getLabel();
@@ -1763,7 +1767,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void ArrayPushAt(untyped[] arr, untyped val, int indx)
+	//void ArrayPushAt(T[] arr, T val, int indx)
 	{
 		Function* function = getFunction("ArrayPushAt");
 		int32_t label = function->getLabel();
@@ -1774,7 +1778,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void ArrayPopFront(untyped[] arr)
+	//T ArrayPopFront(T[] arr)
 	{
 		Function* function = getFunction("ArrayPopFront");
 		int32_t label = function->getLabel();
@@ -1786,7 +1790,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void ArrayPopBack(untyped[] arr)
+	//T ArrayPopBack(T[] arr)
 	{
 		Function* function = getFunction("ArrayPopBack");
 		int32_t label = function->getLabel();
@@ -1798,7 +1802,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void ArrayPopAt(untyped[] arr, int indx)
+	//T ArrayPopAt(T[] arr, int indx)
 	{
 		Function* function = getFunction("ArrayPopAt");
 		int32_t label = function->getLabel();
@@ -1806,6 +1810,27 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OArrayPop());
 		LABELBACK(label);
 		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+
+	{
+		Function* function = getFunction("GC");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OGC());
+		LABELBACK(label);
+		RETURN();
+		INLINE_CHECK();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("RefCount");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new ORefCount(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}

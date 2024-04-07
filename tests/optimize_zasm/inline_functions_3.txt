@@ -63,6 +63,6 @@ Function #4
 
 Function #5
    48: POP             D2                           [Block 0 -> ]
-   49: ADDR            D2              D0
+   49: ADDR            D2              D2
    50: NOP
    51: RETURNFUNC

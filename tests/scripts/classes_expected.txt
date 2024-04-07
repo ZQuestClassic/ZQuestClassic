@@ -5,36 +5,43 @@ Pass 3: Registration
 Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
+ZQ_BUFFER Line 28 @ Columns 3-15 - Warning G103: The 'delete' operator no longer does anything. Objects are freed automatically when they become unreachable
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
 
 PUSHR REFFFC; void run() Body Start
-PUSHV 0
+PUSHARGSV 0,0.0003
 SETR d4,SP2
 PUSHR CLASS_THISKEY
 PUSHR d4
-CALLFUNC 0.0026; ClassFunc[Car Car()] Constructor Call
+CALLFUNC 0.0032; ClassFunc[Car Car()] Constructor Call
 POP d4
 POP CLASS_THISKEY
-STORE d2,0
-LOAD d2,0
+STORE_OBJECT d2,0.0002
+LOAD d2,0.0002
 ZCLASS_FREE d2
 WAITFRAME; InlineFunc[void Waitframe()] Body
 PUSHR CLASS_THISKEY
 PUSHR d4
 PUSHV 2000; ClassFunc[Car Car(int)] Params
-CALLFUNC 0.0038; ClassFunc[Car Car(int)] Constructor Call
-POP d4
-PEEK CLASS_THISKEY
-PUSHR d4
-PUSHV 5000; ClassFunc[Car Car(int)] Params
-CALLFUNC 0.0038; ClassFunc[Car Car(int)] Constructor Call
+CALLFUNC 0.0044; ClassFunc[Car Car(int)] Constructor Call
 POP d4
 POP CLASS_THISKEY
-POPARGS d5,0.0002
+STORE_OBJECT d2,0.0001
+PUSHR CLASS_THISKEY
+PUSHR d4
+PUSHV 5000; ClassFunc[Car Car(int)] Params
+CALLFUNC 0.0044; ClassFunc[Car Car(int)] Constructor Call
+POP d4
+POP CLASS_THISKEY
+STORE_OBJECT d2,0
+REF_REMOVE 0.0002
+REF_REMOVE 0.0001
+REF_REMOVE 0
+POPARGS d5,0.0004
 QUIT; void run() Body End
-SETV d2,0.0055; Func[Car Car()] Body Start
+SETV d2,0.0061; Func[Car Car()] Body Start
 SETR CLASS_THISKEY2,CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
 SETR d4,SP2
@@ -46,7 +53,7 @@ TRACER d2; InlineFunc[void Trace(untyped)] Body
 SETR d2,CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car()] Body End
-SETV d2,0.0055; Func[Car Car(int)] Body Start
+SETV d2,0.0061; Func[Car Car(int)] Body Start
 SETR CLASS_THISKEY2,CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
 SETR d4,SP2

@@ -6,9 +6,9 @@ static AccessorTable BitmapTable[] =
 {
 //	  name,                    tag,            rettype,  var,          funcFlags,  params,optparams
 	{ "getWidth",                0,         ZTID_FLOAT,   BITMAPWIDTH,         0,  { ZTID_BITMAP },{} },
-	{ "setWidth",                0,          ZTID_VOID,   BITMAPWIDTH,         0,  { ZTID_BITMAP, ZTID_FLOAT },{} },
+	{ "setWidth",                0,          ZTID_VOID,   BITMAPWIDTH, FL_RDONLY,  { ZTID_BITMAP, ZTID_FLOAT },{} },
 	{ "getHeight",               0,         ZTID_FLOAT,   BITMAPHEIGHT,        0,  { ZTID_BITMAP },{} },
-	{ "setHeight",               0,          ZTID_VOID,   BITMAPHEIGHT,        0,  { ZTID_BITMAP, ZTID_FLOAT },{} },
+	{ "setHeight",               0,          ZTID_VOID,   BITMAPHEIGHT,FL_RDONLY,  { ZTID_BITMAP, ZTID_FLOAT },{} },
 	
 	{ "GetPixel",                0,         ZTID_FLOAT,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "CountColor",              0,         ZTID_FLOAT,   -1,                  0,  { ZTID_BITMAP, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000 } },
@@ -45,12 +45,12 @@ static AccessorTable BitmapTable[] =
 	{ "Create",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 2560000, 2560000 } },
 	{ "Polygon",                 0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 1280000 } },
 	{ "ClearToColor",            0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "Free",                    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP },{} },
+	{ "Free",                    0,          ZTID_VOID,   -1,            FL_DEPR,  { ZTID_BITMAP },{},0,"Free() no longer does anything as of ZC 3.0. Objects are now freed automatically." },
 	{ "Own",                     0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP },{} },
 	{ "DrawFrame",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ 10000, 1280000 } },
 	{ "WriteTile",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL },{ 10000, 0 } },
 	
-	{ "Dither",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "Dither",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "ReplaceColors",           0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "ShiftColors",             0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "MaskedDraw",              0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_FLOAT },{} },
@@ -76,7 +76,7 @@ static AccessorTable BitmapTable[] =
 	{ "DrawLayerComboIFlags",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	//Intentionally Undocumented
-	{ "RevBlit",                 0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
+	{ "RevBlit",                 0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
 	
 	{ "",                        0,          ZTID_VOID,   -1,                  0,  {},{} }
 };

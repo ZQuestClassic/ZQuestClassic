@@ -136,6 +136,8 @@ namespace ZScript
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
 				int32_t flags = 0, AST* node = NULL)
 		= 0;
+		virtual void addGetter(Function* func) = 0;
+		virtual void addSetter(Function* func) = 0;
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
@@ -369,6 +371,8 @@ namespace ZScript
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
 				int32_t flags = 0, AST* node = NULL);
+		virtual void addGetter(Function* func);
+		virtual void addSetter(Function* func);
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
@@ -555,6 +559,7 @@ namespace ZScript
 		bool add(Datum& datum, CompileErrorHandler* errorHandler);
 		void parse_ucv();
 		UserClassVar* getClassVar(std::string const& name);
+		const std::map<std::string, UserClassVar*>& getClassData();
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,

@@ -1,42 +1,21 @@
 [Theme]
-//////////////////////////////////////////////////////// = 
-// = VGA Colours 1 to 8
-//////////////////////////////////////////////////////// = 
-dvc1_r = 0
-dvc1_g = 56
-dvc1_b = 0
+color_1 = E000
+color_2 = 4040C8
+color_3 = 3030B8
+color_4 = 2020A8
+color_5 = 88
+color_6 = 0
+color_7 = 585450
+color_8 = A8A8E0
+ztheme_ver = 1
 
-dvc2_r = 16
-dvc2_g = 16
-dvc2_b = 50
 
-dvc3_r = 12
-dvc3_g = 12
-dvc3_b = 46
 
-dvc4_r = 8
-dvc4_g = 8
-dvc4_b = 42
 
-dvc5_r = 0
-dvc5_g = 0
-dvc5_b = 34
 
-dvc6_r = 0
-dvc6_g = 0
-dvc6_b = 0
 
-dvc7_r = 22
-dvc7_g = 21
-dvc7_b = 20
 
-dvc8_r = 42
-dvc8_g = 42
-dvc8_b = 56
 
-//////////////////////////////////////////////////////// = 
-// = System Elements
-//////////////////////////////////////////////////////// = 
 jcbox = 4
 jclight = 2
 jcmedlt = 3
@@ -55,3 +34,5 @@ jccursormisc = 1
 jccursoroutline = 1
 jccursorlight = 3
 jccursordark = 4
+jc_disabled_fg = 4
+jc_disabled_bg = 7

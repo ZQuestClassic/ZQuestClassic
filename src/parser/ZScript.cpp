@@ -567,10 +567,10 @@ string FunctionSignature::asString() const
 Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int32_t id,
 				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
-	: returnType(returnType), name(name), hasPrefixType(false),
+	: returnType(returnType), name(name), hasPrefixType(false), isFromTypeTemplate(false),
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
 	  node(NULL), internalScope(NULL), thisVar(NULL), internal_flags(internal_flags), prototype(prototype),
-	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags), shown_depr(false),
+	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags),
 	  aliased_func(nullptr), paramDatum()
 {
 	assert(returnType);
@@ -646,16 +646,7 @@ bool Function::isTracing() const
 //Return true the first time it is called, if func is deprecated
 bool Function::shouldShowDepr(bool err) const
 {
-	if(!getFlag(FUNCFLAG_DEPRECATED)) return false;
-	if(err) return shown_depr < 2;
-	return !shown_depr;
-}
-void Function::ShownDepr(bool err)
-{
-	if(err)
-		shown_depr = 2;
-	else if(shown_depr < 2)
-		shown_depr = 1;
+	return getFlag(FUNCFLAG_DEPRECATED);
 }
 
 void Function::alias(Function* func, bool force)

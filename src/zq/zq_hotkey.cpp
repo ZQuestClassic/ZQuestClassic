@@ -152,7 +152,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_CAUTO_HEIGHTMINUS: return "Autocombo Height -";
 		case ZQKEY_CAUTO_HEIGHTPLUS: return "Autocombo Height +";
 		case ZQKEY_CURR_LAYER_HL: return "Highlight Current Layer";
-		case ZQKEY_VIEW_MAP: return "Quick View Map";
+		case ZQKEY_VIEW_MAP: return "View Map";
 		case ZQKEY_DRAWMODE_NORMAL: return "Drawing Mode (Normal)";
 		case ZQKEY_DRAWMODE_ALIAS: return "Drawing Mode (Alias)";
 		case ZQKEY_DRAWMODE_POOL: return "Drawing Mode (Pool)";
@@ -1421,7 +1421,7 @@ int run_hotkey(uint hkey)
 			onToggleHighlightLayer();
 			break;
 		case ZQKEY_VIEW_MAP:
-			onViewMapEx(true);
+			onViewMapEx(false);
 			break;
 		case ZQKEY_DRAWMODE_NORMAL:
 			onDrawingModeNormal();

@@ -4,18 +4,22 @@ WebSocketSymbols WebSocketSymbols::singleton = WebSocketSymbols();
 
 static AccessorTable WebSocketTable[] =
 {
-	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
-	{ "Free",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_WEBSOCKET },{} },
-	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_WEBSOCKET },{} },
-	{ "GetError",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_WEBSOCKET, ZTID_CHAR },{} },
-	{ "getState",                   0,         ZTID_FLOAT,   WEBSOCKET_STATE,           0,  { ZTID_WEBSOCKET },{} },
-	{ "Send",                       0,         ZTID_VOID,    -1,                   FL_INL,  { ZTID_WEBSOCKET, ZTID_CHAR, ZTID_LONG },{1}, {} },
-	{ "getHasMessage",              0,         ZTID_BOOL,    WEBSOCKET_HAS_MESSAGE,     0,  { ZTID_WEBSOCKET },{} },
-	{ "getMessageType",             0,        ZTID_FLOAT,    WEBSOCKET_MESSAGE_TYPE,    0,  { ZTID_WEBSOCKET },{} },
-	{ "Receive",                    0,         ZTID_LONG,    -1,                   FL_INL,  { ZTID_WEBSOCKET },{} },
-	{ "getURL",                     0,         ZTID_CHAR,    WEBSOCKET_URL,             0,  { ZTID_WEBSOCKET },{} },
+	//name,                       tag,            rettype,   var,                       funcFlags,  params,optparams
+	{ "Free",                       0,          ZTID_VOID,   -1,           FL_INL|FL_DEPR,  { ZTID_WEBSOCKET },{},0,"Free() no longer does anything as of ZC 3.0. Objects are now freed automatically." },
+	{ "Own",                        0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_WEBSOCKET },{} },
+	{ "GetError",                   0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_WEBSOCKET, ZTID_CHAR },{} },
+	{ "getState",                   0,         ZTID_FLOAT,   WEBSOCKET_STATE,                   0,  { ZTID_WEBSOCKET },{} },
+	{ "setState",                   0,          ZTID_VOID,   WEBSOCKET_STATE,           FL_RDONLY,  { ZTID_WEBSOCKET, ZTID_FLOAT },{} },
+	{ "Send",                       0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_WEBSOCKET, ZTID_CHAR, ZTID_LONG },{1}, {} },
+	{ "getHasMessage",              0,          ZTID_BOOL,   WEBSOCKET_HAS_MESSAGE,             0,  { ZTID_WEBSOCKET },{} },
+	{ "setHasMessage",              0,          ZTID_BOOL,   WEBSOCKET_HAS_MESSAGE,     FL_RDONLY,  { ZTID_WEBSOCKET, ZTID_BOOL },{} },
+	{ "getMessageType",             0,          ZTID_LONG,   WEBSOCKET_MESSAGE_TYPE,            0,  { ZTID_WEBSOCKET },{} },
+	{ "setMessageType",             0,          ZTID_VOID,   WEBSOCKET_MESSAGE_TYPE,    FL_RDONLY,  { ZTID_WEBSOCKET, ZTID_LONG },{} },
+	{ "Receive",                    0,       ZTID_UNTYPED,   -1,                           FL_INL,  { ZTID_WEBSOCKET },{} },
+	{ "getURL",                     0,          ZTID_CHAR,   WEBSOCKET_URL,                     0,  { ZTID_WEBSOCKET },{} },
+	{ "setURL",                     0,          ZTID_VOID,   WEBSOCKET_URL,                     0,  { ZTID_WEBSOCKET },{} },
 	
-	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
+	{ "",                           0,          ZTID_VOID,   -1,                                0,  {},{} }
 };
 
 WebSocketSymbols::WebSocketSymbols()

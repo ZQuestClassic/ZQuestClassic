@@ -927,6 +927,8 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	if (arrow)
 	{
 		DataType const* arrtype = arrow->left->getReadType(scope, this);
+		if(!arrtype)
+			return;
 		if((user_class = arrtype->getUsrClass()))
 			;
 		else parameterTypes.push_back(arrtype);
@@ -1195,6 +1197,8 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	
 	host.binding = bestFunctions.front();
 	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
+	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
+		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));
 	
 	if(!host.binding->get_constexpr())
 		handleError(CompileError::GlobalVarFuncCall(&host));

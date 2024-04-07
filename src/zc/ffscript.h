@@ -8,6 +8,7 @@
 #include <string>
 #include <list>
 #include <deque>
+#include <bitset>
 #include "zc/zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
 #include "zc/replay.h"
 
@@ -287,51 +288,50 @@ enum mapflagtype
 };
 
 //User-generated / Script-Generated bitmap object
-#define UBMPFLAG_RESERVED		0x01
-#define UBMPFLAG_FREEING		0x02
+#define UBMPFLAG_FREEING               0x01
+#define UBMPFLAG_CAN_DELETE            0x02
 struct user_bitmap : public user_abstract_obj
 {
 	BITMAP* u_bmp;
 	int32_t width;
 	int32_t height;
-	int32_t depth;
 	byte flags;
-	
-	user_bitmap() : user_abstract_obj(),
-		u_bmp(NULL), width(0), height(0), depth(0), flags(0)
-	{}
-	
+
+	user_bitmap() = default;
+	user_bitmap(const user_bitmap&) = delete;
+
+	~user_bitmap()
+	{
+		destroy_bitmap(u_bmp);
+	}
+
 	void destroy()
 	{
-		if(u_bmp != NULL)
-			destroy_bitmap(u_bmp);
+		destroy_bitmap(u_bmp);
 		width = 0;
 		height = 0;
-		depth = 0;
+		flags = 0;
 		u_bmp = NULL;
 	}
-	void reserve()
-	{
-		flags |= UBMPFLAG_RESERVED;
-	}
-	bool reserved()
-	{
-		return (flags & UBMPFLAG_RESERVED) ? true : false;
-	}
-	void update()
-	{
-		if(flags & UBMPFLAG_FREEING)
-			clear();
-	}
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		destroy();
-		flags = 0;
-	}
-	virtual void free_obj() override
+
+	void free_obj()
 	{
 		flags |= UBMPFLAG_FREEING;
+	}
+
+	void mark_can_del()
+	{
+		flags |= UBMPFLAG_CAN_DELETE;
+	}
+
+	bool is_freeing()
+	{
+		return flags & UBMPFLAG_FREEING;
+	}
+
+	bool can_del()
+	{
+		return flags & UBMPFLAG_CAN_DELETE;
 	}
 };
 
@@ -342,7 +342,6 @@ enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1,
 	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6, firstUserGeneratedBitmap };
 //bitmap constants
 #define MAX_USER_BITMAPS 256
-#define MIN_USER_BITMAPS 7 //starts at rtBMP6 +1
 #define MIN_OLD_RENDERTARGETS -1 //old script drawing
 #define MAX_OLD_RENDERTARGETS 6
 	
@@ -350,21 +349,8 @@ enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1,
 	//User bitmap lowest viable ID is 'rtBMP6+1' (firstUserGeneratedBitmap)
 struct script_bitmaps
 {
-	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
-	void update()
-	{
-		for(int32_t q = 0; q < MAX_USER_BITMAPS; ++q)
-		{
-			script_created_bitmaps[q].update();
-		}
-	}
-	void clear()
-	{
-		for(int32_t q = 0; q < MAX_USER_BITMAPS; ++q)
-		{
-			script_created_bitmaps[q].clear();
-		}
-	}
+	void update();
+	user_bitmap& get(int32_t id);
 };
 
 #define MAX_USER_FILES 256
@@ -372,11 +358,12 @@ struct user_file : public user_abstract_obj
 {
 	FILE* file;
 	std::string filepath;
-	bool reserved;
-	
-	user_file() : user_abstract_obj(),
-		file(NULL), filepath(""), reserved(false)
-	{}
+
+	~user_file()
+	{
+		if (file)
+			fclose(file);
+	}
 	
 	void close()
 	{
@@ -400,15 +387,6 @@ struct user_file : public user_abstract_obj
 			filepath = buf;
 		else filepath = "";
 	}
-	
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		if(file) fclose(file); //Never leave a hanging FILE*!
-		file = NULL;
-		reserved = false;
-		filepath = "";
-	}
 };
 
 #define MAX_USER_DIRS 256
@@ -416,11 +394,16 @@ struct user_dir : public user_abstract_obj
 {
 	FLIST* list;
 	std::string filepath;
-	bool reserved;
-	
-	user_dir() : user_abstract_obj(),
-		list(NULL), filepath(""), reserved(false)
-	{}
+
+	~user_dir()
+	{
+		if (list)
+		{
+			list->clear();
+			free(list);
+			list = NULL;
+		}
+	}
 	
 	void setPath(const char* buf);
 	void refresh()
@@ -437,8 +420,6 @@ struct user_dir : public user_abstract_obj
 	{
 		return list->get(index, buf);
 	}
-	
-	virtual void clear() override;
 };
 
 
@@ -446,11 +427,7 @@ struct user_dir : public user_abstract_obj
 #define USERSTACK_MAX_SIZE 2147483647
 struct user_stack : public user_abstract_obj
 {
-	bool reserved;
 	std::deque<int32_t> theStack;
-	
-	user_stack() : user_abstract_obj(), reserved(false)
-	{}
 	
 	int32_t size()
 	{
@@ -509,24 +486,13 @@ struct user_stack : public user_abstract_obj
 		theStack.clear();
 		theStack.shrink_to_fit();
 	}
-	
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		clearStack();
-		reserved = false;
-	}
 };
 
 #define MAX_USER_RNGS 256
 struct user_rng : public user_abstract_obj
 {
 	zc_randgen* gen;
-	bool reserved;
 	
-	user_rng() : user_abstract_obj(),
-		gen(NULL), reserved(false)
-	{}
 	int32_t rand()
 	{
 		return zc_rand(gen);
@@ -550,12 +516,6 @@ struct user_rng : public user_abstract_obj
 		gen = newgen;
 		if(newgen) srand();
 	}
-	
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		reserved = false;
-	}
 };
 
 #define MAX_USER_PALDATAS 256
@@ -563,8 +523,6 @@ struct user_rng : public user_abstract_obj
 #define PALDATA_BITSTREAM_SIZE 32
 struct user_paldata : public user_abstract_obj
 {
-	bool reserved;
-
 	RGB colors[PALDATA_NUM_COLORS];
 	byte colors_used[PALDATA_BITSTREAM_SIZE]; //A set of 256 bitflags
 
@@ -592,14 +550,6 @@ struct user_paldata : public user_abstract_obj
 	static double HueToRGB(double v1, double v2, double vH);
 	static double WrapLerp(double a, double b, double t, double min, double max, int32_t direction);
 	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
-
-	virtual void clear() override
-	{
-		user_abstract_obj::clear();
-		for(int32_t q = 0; q < 32; ++q)
-			colors_used[q] = 0;
-		reserved = false;
-	}
 };
 
 //Module System.
@@ -828,6 +778,7 @@ mapscr* ScrollingScreens[7];
 std::vector<mapscr*> ScrollingScreensAll;
 int32_t ScrollingData[SZ_SCROLLDATA];
 std::vector<int32_t> eventData;
+
 int32_t getQRBit(int32_t rule);
 void setHeroAction(int32_t a);
 int32_t getHeroAction();
@@ -1077,11 +1028,11 @@ void do_directory_free();
 
 void user_bitmaps_init();
 
-int32_t get_free_bitmap(bool skipError = false);
+uint32_t get_free_bitmap(bool skipError = false);
 void do_deallocate_bitmap();
 bool isSystemBitref(int32_t ref);
 
-int32_t create_user_bitmap_ex(int32_t w, int32_t h, int32_t depth);
+uint32_t create_user_bitmap_ex(int32_t w, int32_t h);
 void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
@@ -1873,8 +1824,6 @@ static void setHeroBigHitbox(bool v);
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
-	static int32_t do_allocate_bitmap();
-	static void do_write_bitmap();
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);
 	static void do_setMIDI_volume(int32_t m);
@@ -1930,7 +1879,9 @@ enum __Error
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
 
-	user_object& get_user_object(size_t index);
+	user_object& create_user_object(uint32_t id);
+	std::vector<user_object*> get_user_objects();
+	user_object* get_user_object(uint32_t id);
 	
     private:
     int32_t sid;
@@ -3205,6 +3156,18 @@ enum ASM_DEFINE
 	WEBSOCKET_RECEIVE,
 	
 	ATOL,
+
+	REF_INC,
+	REF_DEC,
+	REF_AUTORELEASE,
+	REF_REMOVE,
+	REF_COUNT,
+	MARK_TYPE_STACK,
+	MARK_TYPE_REG,
+	ZCLASS_MARK_TYPE,
+	STORE_OBJECT,
+	GC,
+	SET_OBJECT,
 
 	NUMCOMMANDS
 };
@@ -5128,6 +5091,8 @@ int get_script_command(std::string name);
 int32_t get_combopos_ref(rpos_t rpos, int32_t layer);
 rpos_t combopos_ref_to_rpos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
+
+void init_script_objects();
 
 #endif
 

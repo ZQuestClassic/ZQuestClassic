@@ -566,7 +566,7 @@ int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
-	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	TileProtection = 0, ComboProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
 	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
@@ -1446,6 +1446,10 @@ void set_rules(byte* newrules)
 
 int32_t onSelectFFCombo();
 
+void onScreenNotes()
+{
+	edit_screen_notes(Map.CurrScr(), Map.getCurrMap(), Map.getCurrScr());
+}
 static NewMenu data_menu
 {
 	{ "&Screen Data", onScrData },
@@ -1458,11 +1462,13 @@ static NewMenu data_menu
 	{ "&Doors", onDoors },
 	{ "&Maze Path", onPath },
 	{},
-	{ "&Room Data", onRoom },
-	{},
 	{ "&Item", onItem },
 	{ "&Enemies", onEnemies },
 	{ "&Palette", onScreenPalette },
+	{},
+	{ "&Room Data", onRoom },
+	{ "&Notes", onScreenNotes },
+	{ "&Browse Notes", browse_screen_notes },
 };
 
 static NewMenu tunes_menu
@@ -25768,6 +25774,7 @@ int32_t main(int32_t argc,char **argv)
 	LayerDitherSz				= zc_get_config("zquest", "layer_dither_sz", 3);
 	InvalidBG					= zc_get_config("zquest", "invalid_bg", 0);
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
+	ComboProtection				 = zc_get_config("zquest","combo_protection",TileProtection);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
@@ -28247,7 +28254,6 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	FFCore.user_bitmaps_init();
 	initIncludePaths();
 	initRunString();
 	for(int32_t q = 0; q < 7; ++q)
@@ -28405,20 +28411,6 @@ int32_t FFScript::getQuestHeaderInfo(int32_t type)
 {
     return quest_format[type];
 }
-
-
-script_bitmaps scb;
-
-//script_bitmaps scb;
-void FFScript::user_bitmaps_init()
-{
-	scb.clear();
-}
-
-void FFScript::user_files_init(){}
-void FFScript::user_dirs_init(){}
-void FFScript::user_objects_init(){}
-void FFScript::user_stacks_init(){}
 
 bool isSideViewGravity(int32_t t)
 {
