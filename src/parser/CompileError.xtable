@@ -104,6 +104,7 @@ X(	GlobalVarFuncCall,				R,	A,	E,	VOID,	VOID,	"Global variable initializers can 
 X(	NoArrayGlobalVar,				R,	A,	E,	VOID,	VOID,	"Arrays cannot be used in global variable initializers!"				)
 X(	TooManyType,				P,	A,	E,	STR,	VOID,	"There are too many types named %s. Check your 'using' statements."				)
 X(	RangeOrientation,				CX,	A,	E,	STR,	VOID,	"Range Error: %s"				)
+X(	RangeEqual,				CX,	D,	W,	INT,	INT,	"Range is of equal value (%d...%d) on both ends"				)
 X(	BadReassignCall,				C,	A,	W,	STR,	VOID,	"Reassigning function '%s' was called on a constant value! Reassign failed."				)
 X(	MixedSwitch,				CX,	A,	E,	VOID,	VOID,	"Switch contains both strings and numbers"				)
 X(	AssertFail,				C,	A,	E,	STR,	VOID,	"Assert Failed! %s"				)

@@ -5,7 +5,7 @@ Pass 3: Registration
 Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
-ZQ_BUFFER Line 28 @ Columns 3-15 - Warning G103: The 'delete' operator no longer does anything. Objects are freed automatically when they become unreachable
+ZQ_BUFFER Line 28 @ Columns 3-15 - Warning G104: The 'delete' operator no longer does anything. Objects are freed automatically when they become unreachable
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
