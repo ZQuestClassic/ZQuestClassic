@@ -74,29 +74,33 @@ class TestZScript(ZCTestCase):
 
         # Run the compiler '-metadata' for every script for coverage, but only keep
         # the full results in the stdout for this one script.
-        if script_path.name != 'metadata.zs':
+        elide_metadata = script_path.name != 'metadata.zs'
 
-            def recursive_len(l):
-                if not l:
-                    return 0
-                else:
-                    c = len(l)
-                    for child in l:
-                        c += recursive_len(child['children'])
-                    return c
+        def recursive_len(l):
+            if not l:
+                return 0
+            else:
+                c = len(l)
+                for child in l:
+                    c += recursive_len(child['children'])
+                return c
 
-            lines = stdout.splitlines(keepends=True)
-            start = lines.index('=== METADATA\n') + 1
-            end = lines.index('}\n', start) + 1
-            metadata = json.loads(''.join(lines[start:end]))
+        lines = stdout.splitlines(keepends=True)
+        start = lines.index('=== METADATA\n') + 1
+        end = lines.index('}\n', start) + 1
+        metadata = json.loads(''.join(lines[start:end]))
+        if elide_metadata:
             metadata['currentFileSymbols'] = recursive_len(
                 metadata['currentFileSymbols']
             )
             metadata['symbols'] = len(metadata['symbols'])
             metadata['identifiers'] = len(metadata['identifiers'])
-            lines[start:end] = json.dumps(metadata, indent=2).splitlines(keepends=True)
-            lines[start - 1] = '=== METADATA (elided)\n'
-            stdout = ''.join(lines)
+        else:
+            for symbol in metadata['symbols'].values():
+                symbol['loc']['uri'] = 'URI'
+        lines[start:end] = json.dumps(metadata, indent=2).splitlines(keepends=True)
+        lines[start - 1] = '=== METADATA (elided)\n'
+        stdout = ''.join(lines)
 
         return '\n'.join([stdout, zasm])
 

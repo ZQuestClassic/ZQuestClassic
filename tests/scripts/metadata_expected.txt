@@ -8,7 +8,7 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA
+=== METADATA (elided)
 {
   "currentFileSymbols": [
     {
@@ -579,7 +579,7 @@ Compile finished with exit code '0' (success)
             "character": 15
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "THIS COMMENT USED #1"
     },
@@ -595,7 +595,7 @@ Compile finished with exit code '0' (success)
             "character": 22
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "THIS COMMENT USED #2"
     },
@@ -611,7 +611,7 @@ Compile finished with exit code '0' (success)
             "character": 9
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "x marks the spot\n  still line one still line one still line one still line one still line one\n  \n  line two\n  line two still\n \n  line three\n \n  - list item 1\n  - list item 2\n  - list item 3"
     },
@@ -627,7 +627,7 @@ Compile finished with exit code '0' (success)
             "character": 18
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "A lovely function."
     },
@@ -643,7 +643,7 @@ Compile finished with exit code '0' (success)
             "character": 18
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "a ctor with 1 param"
     },
@@ -659,7 +659,7 @@ Compile finished with exit code '0' (success)
             "character": 13
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "How fast it goes"
     },
@@ -675,7 +675,7 @@ Compile finished with exit code '0' (success)
             "character": 27
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "i am a car"
     },
@@ -691,7 +691,7 @@ Compile finished with exit code '0' (success)
             "character": 23
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       }
     },
     "39": {
@@ -706,7 +706,7 @@ Compile finished with exit code '0' (success)
             "character": 11
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "hmmmmmm"
     },
@@ -722,7 +722,7 @@ Compile finished with exit code '0' (success)
             "character": 5
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "hello world"
     },
@@ -738,7 +738,7 @@ Compile finished with exit code '0' (success)
             "character": 12
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       }
     },
     "32": {
@@ -753,7 +753,7 @@ Compile finished with exit code '0' (success)
             "character": 8
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "absolute trash"
     },
@@ -769,7 +769,7 @@ Compile finished with exit code '0' (success)
             "character": 9
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "top class"
     },
@@ -785,7 +785,7 @@ Compile finished with exit code '0' (success)
             "character": 7
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "meh"
     },
@@ -801,7 +801,7 @@ Compile finished with exit code '0' (success)
             "character": 19
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       }
     },
     "40": {
@@ -816,7 +816,7 @@ Compile finished with exit code '0' (success)
             "character": 13
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "How fast it goes"
     },
@@ -832,7 +832,7 @@ Compile finished with exit code '0' (success)
             "character": 16
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "Go fast"
     },
@@ -848,7 +848,7 @@ Compile finished with exit code '0' (success)
             "character": 13
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       },
       "doc": "How fast it goes"
     },
@@ -864,7 +864,7 @@ Compile finished with exit code '0' (success)
             "character": 17
           }
         },
-        "uri": "ZQ_BUFFER"
+        "uri": "URI"
       }
     }
   },
@@ -1047,7 +1047,6 @@ Compile finished with exit code '0' (success)
     }
   ]
 }
-
 PUSHR d0; void run(int, int, int, int, int) Params
 PUSHR d1
 PUSHR d2

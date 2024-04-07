@@ -27,6 +27,7 @@ import {promisify} from 'util';
 import * as os from 'os';
 import * as fs from 'fs';
 import assert = require('assert');
+import path = require('path');
 
 const execFile = promisify(childProcess.execFile);
 
@@ -141,9 +142,14 @@ function getDocumentSettings(resource: string): Thenable<Settings> {
 	return result;
 }
 
+documents.onDidOpen(e => {
+	processScript(e.document);
+});
+
 // Only keep settings for open documents
 documents.onDidClose(e => {
 	documentSettings.delete(e.document.uri);
+	docMetadataMap.delete(e.document.uri);
 });
 
 // The content of a text document has changed. This event is emitted
@@ -153,10 +159,22 @@ documents.onDidChangeContent(change => {
 });
 
 // TODO: this should not be necessary. Get path in better OS-agnostic way.
-function cleanupFile(fname:string)
+function cleanupFile(fname: string)
 {
 	if (os.platform() !== 'win32')
 		return fname.trim();
+	return fname.replace(/\//g, '\\').trim();
+}
+function cleanupFile2(fname: string)
+{
+	if (os.platform() !== 'win32')
+		return fname.trim();
+
+	fname = URI.parse(fname).fsPath;
+	if (fname.match(/[a-z]:\\.*/)) {
+		// capitalize drive letters
+		fname = fname[0].toUpperCase() + fname.slice(1);
+	}
 	return fname.replace(/\//g, '\\').trim();
 }
 function fileMatches(f1:string, f2:string)
@@ -509,7 +527,7 @@ connection.onDefinition((p: DefinitionParams) => {
 		return null;
 
 	const symbol = metadata.symbols[identifier.symbol];
-	if (URI.parse(symbol.loc.uri).fsPath === tmpScript)
+	if (cleanupFile2(symbol.loc.uri) === tmpScript || symbol.loc.uri === 'file://' + tmpScript)
 		symbol.loc.uri = p.textDocument.uri;
 	return symbol.loc;
 });

@@ -123,11 +123,17 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 
 	if (!root["symbols"].contains(symbol_id))
 	{
+#ifdef _WIN32
+		std::string uri = "file:///" + symbol_node->location.fname;
+		util::replstr(uri, "\\", "/");
+#else
+		std::string uri = "file://" + symbol_node->location.fname;
+#endif
 		root["symbols"][symbol_id] = {
 			// TODO LocationData_location_json
 			{"loc", {
 				{"range", LocationData_json(symbol_node->location)},
-				{"uri", symbol_node->location.fname},
+				{"uri", uri},
 			}},
 		};
 
