@@ -1,0 +1,44 @@
+https://zquestclassic.com/releases/2.55.1
+
+# Features
+
+include The Deep quest in release package
+
+# Bug Fixes
+
+generic script InitD[] not working at all
+increase sfx buffer to prevent "Out of buffers" log spam
+zc: improve replay stop process for update mode
+zc: check if save slot is valid before loading
+zc: fix crash in Options>Snapshot Format
+zq: minor typo in Export DMaps title
+
+zq: correctly handle variable length title in all dmap reading/writing
+  6bd8a9a added support for variable length dmap titles, but only for the
+  main dmap reading/writing code. This functionality is duplicated across
+  dmap import/export and other places, but wasn't updated.
+
+zscript: verify first index for screen_d
+  This fixes a crash in Titan's Gate.
+
+launcher: "Static for invalid data" option not working in zlauncher
+
+# Tests
+
+include palette in gfx frame hash
+
+fix hash for compare replay image dedupe
+  The previous hash did not take into account the image format's color
+  palette, so hash collisions prevented some failing frames from showing.
+
+fix --split-threshold cli arg for split_replay.py
+add the_deep.zplay
+add enigma_of_basilischi_island_basilse.zplay
+
+# CI
+
+upload releases to s3 bucket
+
+# Misc.
+
+add min replay size threshold when splitting replays
