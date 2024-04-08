@@ -8155,8 +8155,7 @@ heroanimate_skip_liftwpn:;
 	
 	if(cheats_execute_light)
 	{
-		naturaldark = !naturaldark;
-		lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding its current setting
+		toggle_lights(pal_litOVERRIDE); //Forcibly set permLit, overriding its current setting
 		cheats_execute_light = false;
 	}
 	
