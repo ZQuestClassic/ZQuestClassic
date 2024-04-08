@@ -615,7 +615,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "x marks the spot\n  still line one still line one still line one still line one still line one\n  \n  line two\n  line two still\n \n  line three\n \n  - list item 1\n  - list item 2\n  - list item 3"
     },
-    "3521": {
+    "3476": {
       "loc": {
         "range": {
           "start": {
@@ -631,7 +631,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "A lovely function."
     },
-    "3525": {
+    "3480": {
       "loc": {
         "range": {
           "start": {
@@ -789,7 +789,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "meh"
     },
-    "3526": {
+    "3481": {
       "loc": {
         "range": {
           "start": {
@@ -820,7 +820,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "How fast it goes"
     },
-    "3523": {
+    "3478": {
       "loc": {
         "range": {
           "start": {
@@ -907,7 +907,7 @@ Compile finished with exit code '0' (success)
         "character": 15,
         "length": 2
       },
-      "symbol": "3521"
+      "symbol": "3476"
     },
     {
       "loc": {
@@ -923,7 +923,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 3
       },
-      "symbol": "3525"
+      "symbol": "3480"
     },
     {
       "loc": {
@@ -1003,7 +1003,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 13
       },
-      "symbol": "3526"
+      "symbol": "3481"
     },
     {
       "loc": {
@@ -1011,7 +1011,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 3
       },
-      "symbol": "3525"
+      "symbol": "3480"
     },
     {
       "loc": {
@@ -1027,7 +1027,7 @@ Compile finished with exit code '0' (success)
         "character": 8,
         "length": 5
       },
-      "symbol": "3523"
+      "symbol": "3478"
     },
     {
       "loc": {
