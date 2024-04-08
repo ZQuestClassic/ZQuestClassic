@@ -161,6 +161,16 @@ inline std::shared_ptr<Grid> makeRows(size_t size)
 	return Grid::rows(size);
 }
 
+inline std::shared_ptr<Grid> makeRowsColumns(size_t size, size_t size2)
+{
+	return Grid::rows_columns(size, size2);
+}
+
+inline std::shared_ptr<Grid> makeColumnsRows(size_t size, size_t size2)
+{
+	return Grid::columns_rows(size, size2);
+}
+
 inline std::shared_ptr<ScrollingPane> makeScrollingPane()
 {
 	return std::make_shared<ScrollingPane>();
@@ -396,6 +406,8 @@ ZCGUI_BUILDER_FUNCTION(Grid, Row, makeRow)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Rows, makeRows, std::size_t)
 ZCGUI_BUILDER_FUNCTION(Grid, Column, makeColumn)
 ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Columns, makeColumns, std::size_t)
+ZCGUI_BUILDER_FUNCTION_TEMPLATE2(Grid, Rows_Columns, makeRowsColumns, std::size_t, std::size_t)
+ZCGUI_BUILDER_FUNCTION_TEMPLATE2(Grid, Columns_Rows, makeColumnsRows, std::size_t, std::size_t)
 
 
 ZCGUI_BUILDER_START(ScrollingPane)

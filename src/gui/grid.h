@@ -14,9 +14,9 @@ namespace GUI
 class Grid: public Widget
 {
 public:
-	enum class type { ROWS, COLUMNS };
+	enum class type { ROWS, COLUMNS, ROWS_COLUMNS, COLUMNS_ROWS };
 
-	Grid(type growthType, size_t growthLimit);
+	Grid(type growthType, size_t size1, size_t size2 = 0);
 
 	/* Create a new grid that fills left-to-right, then top-to-bottom. */
 	static inline std::shared_ptr<Grid> rows(size_t itemsPerRow)
@@ -28,6 +28,18 @@ public:
 	inline static std::shared_ptr<Grid> columns(size_t itemsPerCol)
 	{
 		return std::make_shared<Grid>(type::COLUMNS, itemsPerCol);
+	}
+
+	/* Create a new grid that fills left-to-right, then top-to-bottom, then left-to-right. */
+	inline static std::shared_ptr<Grid> rows_columns(size_t itemsPerRow, size_t rowsPerCol)
+	{
+		return std::make_shared<Grid>(type::ROWS_COLUMNS, itemsPerRow, rowsPerCol);
+	}
+	
+	/* Create a new grid that fills top-to-bottom, then left-to-right, then top-to-bottom. */
+	inline static std::shared_ptr<Grid> columns_rows(size_t itemsPerCol, size_t colsPerRow)
+	{
+		return std::make_shared<Grid>(type::COLUMNS_ROWS, itemsPerCol, colsPerRow);
 	}
 
 	/* Set the space between rows. */
@@ -66,12 +78,16 @@ private:
 	std::map<size_t, bool> usedIndexes;
 	
 	type growthType;
-	size_t growthLimit;
+	size_t size1, size2;
 	
-	size_t maxChildIndex()
+	size_t maxChildIndex() const
 	{
 		return children.rbegin()->first;
 	}
+	size_t get_index(size_t row, size_t col) const;
+	size_t get_row(size_t index) const;
+	size_t get_col(size_t index) const;
+	std::pair<size_t,size_t> get_counts() const;
 };
 
 }

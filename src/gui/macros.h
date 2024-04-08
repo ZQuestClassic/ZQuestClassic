@@ -340,4 +340,14 @@ inline std::shared_ptr<::GUI:: widgetType> ZCGUI_WIDGET_NAME(functionName)(Props
     return ret.resolve();                                                                          \
 }
 
+#define ZCGUI_BUILDER_FUNCTION_TEMPLATE2(widgetType, functionName, implCreator, T, T2)  \
+template<T t, T2 t2, typename... PropsType>                                   \
+inline std::shared_ptr<::GUI:: widgetType> ZCGUI_WIDGET_NAME(functionName)(PropsType&&... props)   \
+{                                                                                                  \
+    widgetType##Builder ret(::GUI::Internal:: implCreator(t,t2));                         \
+    ::GUI::Internal::applyArgs(::GUI::Internal::dummy, ret,                                        \
+        std::forward<PropsType>(props)...);                                                        \
+    return ret.resolve();                                                                          \
+}
+
 #endif
