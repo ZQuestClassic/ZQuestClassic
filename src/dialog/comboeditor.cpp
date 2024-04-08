@@ -2825,39 +2825,51 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						),
 						Row(padding = 0_px,
-							Rows<4>(framed = true, vAlign = 0.0,
-								INFOBTN("Triggers every frame automatically"),
-								TRIGFLAG(47,"Always Triggered"),
-								INFOBTN("Triggers when room shutters would open"),
-								TRIGFLAG(27,"Shutter->"),
+							Rows<6>(framed = true, vAlign = 0.0,
 								INFOBTN("Triggers when stepped on"),
 								TRIGFLAG(25,"Step->"),
 								INFOBTN("Triggers when stepped on by even a pixel"),
 								TRIGFLAG(26,"Step-> (Sensitive)"),
+								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
+								TRIGFLAG(19,"Invert Proximity Req"),
+								//
 								INFOBTN("Triggered when hit by a Light Beam matching the 'LightBeam' value"),
 								TRIGFLAG(55,"Light On->"),
 								INFOBTN("Triggered when NOT hit by a Light Beam matching the 'LightBeam' value"),
 								TRIGFLAG(56,"Light Off->"),
+								INFOBTN("Triggers every frame automatically"),
+								TRIGFLAG(47,"Always Triggered"),
+								//
 								INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
 									+ " with 'Triggers Lens Trigflag' checked is activated."),
 								TRIGFLAG(58,"Lens On->"),
 								INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
 									+ " with 'Triggers Lens Trigflag' checked is NOT activated."),
 								TRIGFLAG(59,"Lens Off->"),
+								INFOBTN("Triggers when room shutters would open"),
+								TRIGFLAG(27,"Shutter->"),
+								//
 								INFOBTN("Triggered when the player pushes against the combo"),
 								TRIGFLAG(57,"Push->"),
 								INFOBTN("Triggered when the combo is pushed as a pushblock (after it settles into the new position)."),
 								TRIGFLAG(112,"Pushed->"),
-								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
-								TRIGFLAG(19,"Invert Proximity Req"),
 								INFOBTN("Triggers when all enemies are defeated"),
 								TRIGFLAG(87, "Enemies->"),
+								//
 								INFOBTN("Triggers when the player dives on this combo"),
 								TRIGFLAG(113, "Dive->"),
 								INFOBTN("Triggers when the player dives on this combo (more sensitive hitbox)"),
 								TRIGFLAG(114, "Dive-> (Sensitive)"),
 								INFOBTN("Triggers when screen secrets trigger"),
-								TRIGFLAG(88, "Secrets->")
+								TRIGFLAG(88, "Secrets->"),
+								//
+								INFOBTN("Can only trigger if the room is darkened."
+									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+								TRIGFLAG(119, "Req. Darkness"),
+								INFOBTN("Can only trigger if the room is NOT darkened."
+									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+								TRIGFLAG(120, "Req. No Darkness"),
+								DummyWidget(), DummyWidget()
 							),
 							Rows<3>(framed = true, vAlign = 0.0,
 								Label(text = "Proximity:", fitParent = true),

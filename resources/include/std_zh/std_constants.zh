@@ -3619,6 +3619,8 @@ enum ComboTrigFlag
 	TRIGFLAG_REFFIRE, //Weapons->Refl. Fire
 	TRIGFLAG_REFFIRE2, //Weapons->Refl. Fire 2
 	TRIGFLAG_TOGGLE_DARKNESS, //Effects->Toggle Darkness
+	TRIGFLAG_REQ_DARKNESS, //Other->Req. Darkness
+	TRIGFLAG_REQ_NO_DARKNESS, //Other->Req. Darkness
 	
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
