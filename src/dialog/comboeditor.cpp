@@ -2861,7 +2861,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										InfoDialog("Proximity Requirement","If the value is >0, the combo "
 											" will only trigger if the player is within that number of pixels of the combo."
-											"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead.").show();
+											"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead."
+											"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work.").show();
 									}
 								),
 								Label(text = "LightBeam:", fitParent = true),
@@ -3094,9 +3095,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						),
 						Rows<2>(
-							INFOBTN("Only trigger if the specified counter has at least the specified amount."),
+							INFOBTN("Only trigger if the specified counter has at least the specified amount."
+								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
 							TRIGFLAG(51,"Require >="),
-							INFOBTN("Only trigger if the specified counter has less than the specified amount."),
+							INFOBTN("Only trigger if the specified counter has less than the specified amount."
+								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
 							TRIGFLAG(52,"Require <"),
 							INFOBTN("If the counter has the specified amount, consume it."
 								" Negative amount will add to the counter."),
@@ -3124,7 +3127,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									InfoDialog("Item Requirement","If the value is >0, the item "
 										" id set here must be owned to trigger the combo."
 										"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
-										"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering.").show();
+										"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering."
+										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work.").show();
 								}
 							),
 							Label(text = "Spawn Item:", fitParent = true),
