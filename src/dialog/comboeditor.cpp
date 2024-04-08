@@ -2946,6 +2946,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
 											" unless 'Temporary Secrets' screen data flag is checked."),
 										TRIGFLAG(48,"Triggers Secrets"),
+										INFOBTN("Triggering the combo toggles the screen's \"darkness\". This resets upon leaving the screen."),
+										TRIGFLAG(118,"Toggle Darkness"),
 										INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
 											" (by any trigger effect), the new combo is the one that resets."),
 										TRIGFLAG(18,"Reset Anim"),
