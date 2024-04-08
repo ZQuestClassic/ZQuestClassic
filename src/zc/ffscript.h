@@ -5009,7 +5009,10 @@ enum ASM_DEFINE
 #define WEBSOCKET_HAS_MESSAGE   0x15AF
 #define WEBSOCKET_MESSAGE_TYPE  0x15B0
 
-#define NUMVARIABLES            0x15B1
+#define COMBODTRIGLITEMS        0x15B1
+#define COMBODTRIGDMAPLVL       0x15B2
+
+#define NUMVARIABLES            0x15B3
 
 //} End variables
 

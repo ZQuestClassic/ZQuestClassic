@@ -355,5 +355,21 @@ direction GET_YDIR(zfix const& sign);
 direction GET_DIR(zfix const& dx, zfix const& dy);
 #define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : dir_invalid)
 
+
+
+struct CheckListInfo
+{
+	std::string name, info;
+	byte flags;
+	static const byte DISABLED = 0x1;
+	
+	CheckListInfo(std::string name = "", std::string info = "")
+		: name(std::move(name)), info(std::move(info)), flags(0)
+	{}
+	CheckListInfo(byte flags, std::string name = "", std::string info = "")
+		: name(std::move(name)), info(std::move(info)), flags(flags)
+	{}
+};
+
 #endif
 

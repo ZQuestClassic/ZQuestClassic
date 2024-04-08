@@ -2458,7 +2458,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)
 				)
 			)),
-			TabRef(name = "Effects", Column(
+			TabRef(name = "Weapon Effects", Column(
 				Frame(fitParent = true, title = "Weapon Effects",
 					info = "Trigger effects related to the weapon that triggered this combo. These"
 						" effects will not occur if the combo is triggered by a non-weapon trigger.",
@@ -2489,7 +2489,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				Column(framed = true, vAlign = 1.0,
 					Row(padding = 0_px,
 						Label(text = "Buttons:"),
-						TextField(
+						trig_buttons_field = TextField(
 							fitParent = true,
 							bottomPadding = 0_px,
 							type = GUI::TextField::type::INT_DECIMAL,
@@ -2500,13 +2500,34 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							}),
 						Button(
 							width = 1.5_em, padding = 0_px, forceFitH = true,
+							text = "P", hAlign = 1.0, onPressFunc = [&]()
+							{
+								int32_t flags = local_comboref.triggerbtn;
+								static const vector<CheckListInfo> button_names =
+								{
+									{ "A" },
+									{ "B" },
+									{ "L" },
+									{ "R" },
+									{ "Ex1" },
+									{ "Ex2" },
+									{ "Ex3" },
+									{ "Ex4" },
+								};
+								if(!call_checklist_dialog("Select 'Buttons'",button_names,flags))
+									return;
+								local_comboref.triggerbtn = flags;
+								trig_buttons_field->setVal(local_comboref.triggerbtn);
+							}
+						),
+						Button(
+							width = 1.5_em, padding = 0_px, forceFitH = true,
 							text = "?", hAlign = 1.0, onPressFunc = [&]()
 							{
-								InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
-									"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
-									"Buttons used while standing against the combo from a direction"
-									" with the 'Btn: [dir]' flag checked for that side"
-									" will trigger the combo.").show();
+								InfoDialog("Button Triggers","Buttons used while standing"
+									" against the combo from a direction with the 'Btn: [dir]'"
+									" flag checked for that side will trigger the combo."
+									"\nUse the 'P' button to pick the flags for this value.").show();
 							}
 						)
 					),
@@ -2837,42 +2858,121 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)
 				)
 			),
-			Frame(title = "Items",
-				Column(padding = 0_px,
-					Rows<3>(
-						Label(text = "Req Item:", fitParent = true),
-						TextField(
-							fitParent = true,
-							vPadding = 0_px,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = 0, high = 255, val = local_comboref.triggeritem,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.triggeritem = val;
-							}),
-						Button(
-							width = 1.5_em, padding = 0_px, forceFitH = true,
-							text = "?", hAlign = 1.0, onPressFunc = [&]()
-							{
-								InfoDialog("Item Requirement","If the value is >0, the item "
-									" id set here must be owned to trigger the combo."
-									"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
-									"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering."
-									"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work.").show();
-							}
+			Row(padding = 0_px,
+				Frame(title = "Items", vAlign = 0.0,
+					Column(padding = 0_px,
+						Rows<3>(
+							Label(text = "Req Item:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_comboref.triggeritem,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.triggeritem = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("Item Requirement","If the value is >0, the item "
+										" id set here must be owned to trigger the combo."
+										"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
+										"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering."
+										"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work.").show();
+								}
+							)
+						),
+						Rows<2>(
+							INFOBTN("'Req Item:' must NOT be owned to trigger"),
+							TRIGFLAG(49,"Invert Item Req"),
+							INFOBTN("'Req Item:' will be taken when triggering"),
+							TRIGFLAG(50,"Consume Item Req")
 						)
-					),
-					Rows<2>(
-						INFOBTN("'Req Item:' must NOT be owned to trigger"),
-						TRIGFLAG(49,"Invert Item Req"),
-						INFOBTN("'Req Item:' will be taken when triggering"),
-						TRIGFLAG(50,"Consume Item Req")
+					)
+				),
+				Frame(title = "Level Flags", vAlign = 0.0,
+					Column(padding = 0_px,
+						Rows<4>(
+							Label(text = "Req Flags:", fitParent = true),
+							req_litems_field = TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_comboref.trig_levelitems,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_levelitems = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "P", hAlign = 1.0, onPressFunc = [&]()
+								{
+									int32_t flags = local_comboref.trig_levelitems;
+									static const vector<CheckListInfo> litem_names =
+									{
+										{ "McGuffin", "The player has the McGuffin for the 'Trig DMap Level'" },
+										{ "Map", "The player has the Map for the 'Trig DMap Level'" },
+										{ "Compass", "The player has the Compass for the 'Trig DMap Level'" },
+										{ "Boss Killed", "The player has cleared the 'Dungeon Boss' room for the 'Trig DMap Level'" },
+										{ "Boss Key", "The player has the Boss Key for the 'Trig DMap Level'" },
+									};
+									if(!call_checklist_dialog("Select 'Req Flags'",litem_names,flags))
+										return;
+									local_comboref.trig_levelitems = flags;
+									req_litems_field->setVal(local_comboref.trig_levelitems);
+								}
+							),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("Level Flags","See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
+										"\nUse the 'P' button to pick the flags for this value.").show();
+								}
+							),
+							//
+							Label(text = "Trig DMap Level", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -1, high = MAXDMAPS, val = local_comboref.trigdmlevel,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trigdmlevel = val;
+								}),
+							DummyWidget(),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("Trig DMap Level","The dmap level referenced by 'Req Flags'.",
+										" If '-1', uses the current dmap's level.").show();
+								}
+							)
+						),
+						Rows_Columns<2,2>(
+							INFOBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
+								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+							TRIGFLAG(121,"Require All"),
+							INFOBTN("The level flags set for 'Req Flags:' must NOT ALL (some is ok) be on for this to trigger."
+								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
+							TRIGFLAG(122,"Require Not All"),
+							INFOBTN("The level flags set for 'Req Flags:' will be enabled when this combo triggers."
+								" If '->Unset' is also checked, the flags will be toggled instead."),
+							TRIGFLAG(123,"->Set"),
+							INFOBTN("The level flags set for 'Req Flags:' will be disabled when this combo triggers."
+								" If '->Set' is also checked, the flags will be toggled instead."),
+							TRIGFLAG(124,"->Unset")
+						)
 					)
 				)
 			)
 		)),
 		TabRef(name = "States/Spawning", Rows<3>(
-			Rows<3>(framed = true, fitParent = true,
+			Rows<4>(framed = true, fitParent = true,
 				Label(text = "Spawn Item:", fitParent = true),
 				TextField(
 					fitParent = true,
@@ -2883,6 +2983,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.spawnitem = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -2896,6 +2997,56 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							"\nExState on being triggered, instead setting it when the item is picked up.").show();
 					}
 				),
+				//
+				Label(text = "Spawned Item Pickup:", fitParent = true),
+				spawned_ip_field = TextField(
+					fitParent = true,
+					vPadding = 0_px,
+					type = GUI::TextField::type::INT_DECIMAL,
+					maxLength = 12, val = local_comboref.spawnip,
+					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+					{
+						local_comboref.spawnip = val;
+					}),
+				Button(
+					width = 1.5_em, padding = 0_px, forceFitH = true,
+					text = "P", hAlign = 1.0, onPressFunc = [&]()
+					{
+						int32_t flags = local_comboref.spawnip;
+						static const vector<CheckListInfo> pickups =
+						{
+							{ CheckListInfo::DISABLED, "Large Collision Rectangle (INTERNAL)" },
+							{ "Hold Up Item" },
+							{ CheckListInfo::DISABLED, "Sets Screen State ST_ITEM" },
+							{ CheckListInfo::DISABLED, "Dummy Item" },
+							{ CheckListInfo::DISABLED, "Shop Item (INTERNAL)" },
+							{ CheckListInfo::DISABLED, "Pay for Info (INTERNAL)" },
+							{ CheckListInfo::DISABLED, "Item Fades" },
+							{ CheckListInfo::DISABLED, "Enemy Carries Item" },
+							{ "Item Disappears" },
+							{ CheckListInfo::DISABLED, "Big McGuffin (INTERNAL)" },
+							{ CheckListInfo::DISABLED, "Invisible" },
+							{ CheckListInfo::DISABLED, "Triggers Screen State ST_SP_ITEM" },
+							{ "Triggers Screen Secrets" },
+							{ "Always Grabbable" },
+							{ CheckListInfo::DISABLED },
+							{ CheckListInfo::DISABLED },
+						};
+						if(!call_checklist_dialog("Select 'Spawned Item Pickup'",pickups,flags))
+							return;
+						local_comboref.spawnip = flags;
+						spawned_ip_field->setVal(local_comboref.spawnip);
+					}
+				),
+				Button(
+					width = 1.5_em, padding = 0_px, forceFitH = true,
+					text = "?", hAlign = 1.0, onPressFunc = [&]()
+					{
+						InfoDialog("Spawn Item Pickup","Represents the pickup flags of the spawned item."
+							" Only some flags are valid. Click the 'P' button for a selector list.").show();
+					}
+				),
+				//
 				Label(text = "Spawn Enemy:", fitParent = true),
 				TextField(
 					fitParent = true,
@@ -2906,6 +3057,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.spawnenemy = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -2916,6 +3068,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							"\nExState on being triggered, instead setting it when the enemy is defeated.").show();
 					}
 				),
+				//
 				Label(text = "ExState:", fitParent = true),
 				TextField(
 					fitParent = true,
@@ -2926,6 +3079,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.exstate = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -2936,6 +3090,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							"\nwithout any effects other than combo/cset change.").show();
 					}
 				),
+				//
 				Label(text = "Copycat:", fitParent = true),
 				TextField(
 					fitParent = true,
@@ -2946,6 +3101,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.trigcopycat = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -2966,6 +3122,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.trig_lstate = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -2974,6 +3131,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							" '->LevelState' and 'LevelState->'. 0-31.").show();
 					}
 				),
+				//
 				Label(text = "GlobalState:", fitParent = true),
 				TextField(
 					fitParent = true,
@@ -2984,6 +3142,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.trig_gstate = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -2992,6 +3151,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							" '->GlobalState' and 'GlobalState->'. 0-255.").show();
 					}
 				),
+				//
 				Label(text = "GlobalState Timer:", fitParent = true),
 				TextField(
 					fitParent = true,
@@ -3002,6 +3162,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.trig_statetime = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -3012,6 +3173,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							" the global state.").show();
 					}
 				),
+				//
 				Label(text = "Trigger Group:", fitParent = true),
 				TextField(
 					fitParent = true,
@@ -3022,6 +3184,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.trig_group = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -3030,6 +3193,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							" 'TrigGroup Less->', 'TrigGroup Greater->', and '->TrigGroup'. 0-255.").show();
 					}
 				),
+				//
 				Label(text = "Trigger Group Val:", fitParent = true),
 				TextField(
 					fitParent = true,
@@ -3040,6 +3204,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.trig_group_val = val;
 					}),
+				DummyWidget(),
 				Button(
 					width = 1.5_em, padding = 0_px, forceFitH = true,
 					text = "?", hAlign = 1.0, onPressFunc = [&]()
@@ -3048,6 +3213,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							" 'TrigGroup Less->' and 'TrigGroup Greater->'. 0-65535.").show();
 					}
 				),
+				//
 				Label(text = "ExDoor Dir:", fitParent = true),
 				DropDownList(data = list_dirs4n, fitParent = true,
 					selectedValue = local_comboref.exdoor_dir,
@@ -3055,10 +3221,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.exdoor_dir = val;
 					}),
+				DummyWidget(),
 				INFOBTN("If not '(None)', triggering this combo sets the extra doorstate"
 					" in the specified direction (of the index set for 'ExDoor Index')."
 					" Additionally, if that door state is already set, the combo will"
 					" automatically trigger without any effects other than combo/cset change."),
+				//
 				Label(text = "ExDoor Index:", fitParent = true),
 				DropDownList(data = list_0_7, fitParent = true,
 					selectedValue = local_comboref.exdoor_ind,
@@ -3066,6 +3234,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					{
 						local_comboref.exdoor_ind = val;
 					}),
+				DummyWidget(),
 				INFOBTN("Which door index of the specified direction to use. (See ? for 'ExDoor Dir' for more info)")
 			),
 			Rows<4>(framed = true, fitParent = true,
@@ -3092,12 +3261,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				TRIGFLAG(110, "TrigGroup Less->"),
 				INFOBTN("When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo."),
 				TRIGFLAG(111, "TrigGroup Greater->")
-			),
-			Column(framed = true, fitParent = true, frameText = "Spawned Item Pickup",
-				MISCFLAG(spawnip, ipHOLDUP, "Hold Up Item"),
-				MISCFLAG(spawnip, ipTIMER, "Time Out Item"),
-				MISCFLAG(spawnip, ipSECRETS, "Item Triggers Secrets"),
-				MISCFLAG(spawnip, ipCANGRAB, "Can Hook Item")
 			)
 		))
 	);

@@ -2601,11 +2601,20 @@ bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bo
 				return false;
 		}
 	}
+	
 	if(cmb.triggerflags[3] & combotriggerCOND_DARK)
 		if(!get_lights())
 			return false;
 	if(cmb.triggerflags[3] & combotriggerCOND_NODARK)
 		if(get_lights())
+			return false;
+	
+	auto dmap_level = cmb.trigdmlevel > -1 ? cmb.trigdmlevel : dlevel;
+	if(cmb.triggerflags[3] & combotriggerLITEM_COND)
+		if((cmb.trig_levelitems & game->lvlitems[dmap_level]) != cmb.trig_levelitems)
+			return false;
+	if(cmb.triggerflags[3] & combotriggerLITEM_REVCOND)
+		if((cmb.trig_levelitems & game->lvlitems[dmap_level]) == cmb.trig_levelitems)
 			return false;
 	
 	if(!!(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
@@ -2764,6 +2773,19 @@ void handle_trigger_results(newcombo const& cmb, int32_t cx, int32_t cy, bool& h
 				if(itm) itm->set_forcegrab(true);
 			}
 		}
+	}
+	
+	//Level Item stuff
+	{
+		auto dmap_level = cmb.trigdmlevel > -1 ? cmb.trigdmlevel : dlevel;
+		bool _set = cmb.triggerflags[3] & combotriggerLITEM_SET,
+			_unset = cmb.triggerflags[3] & combotriggerLITEM_UNSET;
+		if(_set && _unset) //toggle
+			game->lvlitems[dmap_level] ^= cmb.trig_levelitems;
+		else if(_set)
+			game->lvlitems[dmap_level] |= cmb.trig_levelitems;
+		else if(_unset)
+			game->lvlitems[dmap_level] &= ~cmb.trig_levelitems;
 	}
 	
 	if(cmb.exstate > -1 && trigexstate)

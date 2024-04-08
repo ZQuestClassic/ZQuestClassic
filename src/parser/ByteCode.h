@@ -1772,7 +1772,10 @@
 
 #define SP2                     1659
 
-#define LAST_BYTECODE           1660
+#define COMBODTRIGLITEMS        1660
+#define COMBODTRIGDMAPLVL       1661
+
+#define LAST_BYTECODE           1662
 
 //} END OF BYTECODE
 

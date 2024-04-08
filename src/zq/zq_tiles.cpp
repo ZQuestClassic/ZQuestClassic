@@ -11048,7 +11048,7 @@ bool select_combo_3(int32_t &cmb,int32_t &cs)
 bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 {
 	static bitstring pasteflags;
-	static const vector<def_pair<string,string>> advp_names =
+	static const vector<CheckListInfo> advp_names =
 	{
 		{ "Tile" },
 		{ "CSet2" },

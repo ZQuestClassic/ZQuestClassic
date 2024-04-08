@@ -17,7 +17,8 @@ optional<zfix> call_get_zfix(string const& lbl, string const& inf, zfix dv, zfix
 void displayinfo(string const& title, string const& text, optional<string> subtext = nullopt);
 void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext = nullopt);
 
-bool call_checklist_dialog(string const& title, vector<def_pair<string,string>> const& flagnames, bitstring& flags);
+bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& flagnames, bitstring& flags);
+bool call_checklist_dialog(string const& title, vector<CheckListInfo> const& flagnames, int32_t& flags);
 
 void edit_screen_notes(mapscr* scr, int map, int screen);
 void browse_screen_notes();

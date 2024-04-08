@@ -3621,6 +3621,10 @@ enum ComboTrigFlag
 	TRIGFLAG_TOGGLE_DARKNESS, //Effects->Toggle Darkness
 	TRIGFLAG_REQ_DARKNESS, //Other->Req. Darkness
 	TRIGFLAG_REQ_NO_DARKNESS, //Other->Req. Darkness
+	TRIGFLAG_LITEM_REQUIRE, //Counters/Items->Require All
+	TRIGFLAG_LITEM_INV_REQUIRE, //Counters/Items->Require Not All
+	TRIGFLAG_LITEM_SET, //Counters/Items->'->Set'
+	TRIGFLAG_LITEM_UNSET, //Counters/Items->'->Unset'
 	
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6

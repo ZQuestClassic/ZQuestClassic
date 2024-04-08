@@ -64,6 +64,8 @@ bool newcombo::is_blank(bool ignoreEff)
 	if(trig_genscr) return false;
 	if(trig_group) return false;
 	if(trig_group_val) return false;
+	if(trig_levelitems) return false;
+	if(trigdmlevel > -1) return false;
 	if(!label.empty()) return false;
 	for(auto q = 0; q < NUM_COMBO_ATTRIBYTES; ++q)
 		if(attribytes[q]) return false;
@@ -188,6 +190,10 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 			triggerflags[q] = other.triggerflags[q];
 		triggerlevel = other.triggerlevel;
 		triggerbtn = other.triggerbtn;
+		prompt_cid = other.prompt_cid;
+		prompt_cs = other.prompt_cs;
+		prompt_x = other.prompt_x;
+		prompt_y = other.prompt_y;
 		triggeritem = other.triggeritem;
 		trigtimer = other.trigtimer;
 		trigsfx = other.trigsfx;
@@ -211,6 +217,8 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		trig_genscr = other.trig_genscr;
 		trig_group = other.trig_group;
 		trig_group_val = other.trig_group_val;
+		trig_levelitems = other.trig_levelitems;
+		trigdmlevel = other.trigdmlevel;
 	}
 	if(flags.get(CMB_ADVP_LIFTING))
 	{
