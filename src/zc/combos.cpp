@@ -2775,6 +2775,10 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		
 		if(!check_bit)
 		{
+			if(cmb.triggerflags[3]&combotriggerTOGGLEDARK)
+			{
+				toggle_lights(pal_litOVERRIDE);
+			}
 			if (cmb.triggerflags[1]&combotriggerSECRETS)
 			{
 				used_bit = true;
@@ -3156,6 +3160,10 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 		
 		if(!check_bit)
 		{
+			if(cmb.triggerflags[3]&combotriggerTOGGLEDARK)
+			{
+				toggle_lights(pal_litOVERRIDE);
+			}
 			if (cmb.triggerflags[1]&combotriggerSECRETS)
 			{
 				used_bit = true;
