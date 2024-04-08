@@ -2575,47 +2575,8 @@ void do_weapon_fx(weapon* w, newcombo const& cmb)
 		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
 }
 
-//Triggers a combo at a given position
-bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
+bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bool& hasitem)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	cpos_info& timer = cpos_get(lyr, pos);
-	int32_t cid = tmp->data[pos];
-	int32_t ocs = tmp->cset[pos];
-	int32_t cx = COMBOX(pos);
-	int32_t cy = COMBOY(pos);
-	newcombo const& cmb = combobuf[cid];
-	bool hasitem = false;
-	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
-	{
-		do_weapon_fx(w,cmb);
-		return true;
-	}
-	
-	word ctramnt = game->get_counter(cmb.trigctr);
-	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
-	
-	int32_t flag = tmp->sflag[pos];
-	int32_t flag2 = cmb.flag;
-	
-	byte* grid = nullptr;
-	bool check_bit = false;
-	bool used_bit = false;
-	
-	uint32_t exflag = 0;
-	
-	if(cmb.exstate > -1)
-	{
-		exflag = 1<<cmb.exstate;
-		if(force_ex_trigger(lyr,pos))
-			return true;
-	}
-	if(cmb.exdoor_dir > -1)
-	{
-		if(force_ex_door_trigger(lyr,pos))
-			return true;
-	}
 	if(cmb.triggeritem) //Item requirement
 	{
 		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
@@ -2647,23 +2608,66 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		if(get_lights())
 			return false;
 	
-	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+	if(!!(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
-		if(ctramnt >= cmb.trigctramnt)
+		if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
 		{
 			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
 		}
 	}
 	if(cmb.triggerflags[1] & combotriggerCOUNTERGE)
 	{
-		if(ctramnt < cmb.trigctramnt)
+		if(game->get_counter(cmb.trigctr) < cmb.trigctramnt)
 			return false;
 	}
 	if(cmb.triggerflags[1] & combotriggerCOUNTERLT)
 	{
-		if(ctramnt >= cmb.trigctramnt)
+		if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
 			return false;
 	}
+	return true;
+}
+
+//Triggers a combo at a given position
+bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	cpos_info& timer = cpos_get(lyr, pos);
+	int32_t cid = tmp->data[pos];
+	int32_t ocs = tmp->cset[pos];
+	int32_t cx = COMBOX(pos);
+	int32_t cy = COMBOY(pos);
+	newcombo const& cmb = combobuf[cid];
+	bool hasitem = false;
+	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
+	{
+		do_weapon_fx(w,cmb);
+		return true;
+	}
+	
+	int32_t flag = tmp->sflag[pos];
+	int32_t flag2 = cmb.flag;
+	
+	byte* grid = nullptr;
+	bool check_bit = false;
+	bool used_bit = false;
+	
+	uint32_t exflag = 0;
+	
+	if(cmb.exstate > -1)
+	{
+		exflag = 1<<cmb.exstate;
+		if(force_ex_trigger(lyr,pos))
+			return true;
+	}
+	if(cmb.exdoor_dir > -1)
+	{
+		if(force_ex_door_trigger(lyr,pos))
+			return true;
+	}
+	if(!handle_trigger_conditionals(cmb, cx, cy, hasitem))
+		return false;
 	
 	if(w)
 	{
@@ -2872,9 +2876,9 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			{
 				takeitem(cmb.triggeritem);
 			}
-			if(onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+			if(!(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 			{
-				if(ctramnt >= cmb.trigctramnt)
+				if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
 				{
 					game->change_counter(-cmb.trigctramnt, cmb.trigctr);
 				}
@@ -2986,9 +2990,6 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 		return true;
 	}
 	
-	word ctramnt = game->get_counter(cmb.trigctr);
-	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
-	
 	int32_t flag2 = cmb.flag;
 	
 	byte* grid = nullptr;
@@ -3007,54 +3008,8 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 		if(force_ex_door_trigger_ffc(pos))
 			return true;
 	}
-	if(cmb.triggeritem) //Item requirement
-	{
-		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
-			&& checkbunny(cmb.triggeritem);
-		if(cmb.triggerflags[1] & combotriggerINVERTITEM)
-		{
-			if(hasitem) return false;
-		}
-		else if(!hasitem) return false;
-	}
-	if(cmb.trigprox) //Proximity requirement
-	{
-		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
-		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
-		{
-			if(d < cmb.trigprox) //inside, cancel
-				return false;
-		}
-		else //trigger inside the radius
-		{
-			if(d >= cmb.trigprox) //outside, cancel
-				return false;
-		}
-	}
-	if(cmb.triggerflags[3] & combotriggerCOND_DARK)
-		if(!get_lights())
-			return false;
-	if(cmb.triggerflags[3] & combotriggerCOND_NODARK)
-		if(get_lights())
-			return false;
-	
-	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
-	{
-		if(ctramnt >= cmb.trigctramnt)
-		{
-			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
-		}
-	}
-	if(cmb.triggerflags[1] & combotriggerCOUNTERGE)
-	{
-		if(ctramnt < cmb.trigctramnt)
-			return false;
-	}
-	if(cmb.triggerflags[1] & combotriggerCOUNTERLT)
-	{
-		if(ctramnt >= cmb.trigctramnt)
-			return false;
-	}
+	if(!handle_trigger_conditionals(cmb, cx, cy, hasitem))
+		return false;
 	
 	if(w)
 	{
@@ -3262,9 +3217,9 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			{
 				takeitem(cmb.triggeritem);
 			}
-			if(onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+			if(!(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 			{
-				if(ctramnt >= cmb.trigctramnt)
+				if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
 				{
 					game->change_counter(-cmb.trigctramnt, cmb.trigctr);
 				}
