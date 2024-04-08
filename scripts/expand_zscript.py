@@ -267,7 +267,7 @@ if args.reg:
         lines = file.readlines()
     index = 0
     while not re.match(
-        'script_variable[ \t]+variable_list[ \t]*\[\][ \t]*=.*', lines[index]
+        r'script_variable[ \t]+variable_list[ \t]*\[\][ \t]*=.*', lines[index]
     ):
         index = index + 1
     m = None
@@ -416,7 +416,7 @@ elif opcodetype > -1:
         lines = file.readlines()
     index = 0
     while not re.match(
-        'script_command[ \t]+command_list[ \t]*\[[ \t]*NUMCOMMANDS[ \t]*\+[ \t]*1[ \t]*\][ \t]*=.*',
+        r'script_command[ \t]+command_list[ \t]*\[[ \t]*NUMCOMMANDS[ \t]*\+[ \t]*1[ \t]*\][ \t]*=.*',
         lines[index],
     ):
         index = index + 1
