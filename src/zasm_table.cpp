@@ -2928,6 +2928,9 @@ script_variable variable_list[]=
 	
 	{ "LIT", LIT, 0, 0 },
 
+	{ "COMBODTRIGLITEMS", COMBODTRIGLITEMS, 0, 0 },
+	{ "COMBODTRIGDMAPLVL", COMBODTRIGDMAPLVL, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 
@@ -3813,3 +3816,4 @@ bool has_register_dependency(int reg)
 {
 	return get_register_dependencies(reg).size() || get_register_ref_dependency(reg).has_value();
 }
+

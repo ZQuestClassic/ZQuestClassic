@@ -2494,6 +2494,9 @@ string ZScript::VarToString(int32_t ID)
 		case WEBSOCKET_HAS_MESSAGE: return "WEBSOCKET_HAS_MESSAGE";
 		case WEBSOCKET_MESSAGE_TYPE: return "WEBSOCKET_MESSAGE_TYPE";
 
+		case COMBODTRIGLITEMS: return "COMBODTRIGLITEMS";
+		case COMBODTRIGDMAPLVL: return "COMBODTRIGDMAPLVL";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);
@@ -7106,3 +7109,4 @@ string OMarkTypeRegister::toString() const
 {
 	return "MARK_TYPE_REG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
+

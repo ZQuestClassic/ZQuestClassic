@@ -103,7 +103,7 @@ static int32_t zqstr_copysrc=-1;
 static bool string_advpaste(int indx)
 {
 	static bitstring pasteflags;
-	static const vector<def_pair<string,string>> advp_names =
+	static const vector<CheckListInfo> advp_names =
 	{
 		{ "Text" },
 		{ "NextString" },

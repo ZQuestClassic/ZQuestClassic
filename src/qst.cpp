@@ -18115,6 +18115,13 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.exdoor_ind,f))
 					return qe_invalid;
 			}
+			if(s_version >= 46)
+			{
+				if(!p_getc(&temp_combo.trig_levelitems,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.trigdmlevel,f))
+					return qe_invalid;
+			}
 		}
 		if(combo_has_flags&CHAS_LIFT)
 		{

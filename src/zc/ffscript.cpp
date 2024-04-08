@@ -12711,6 +12711,26 @@ int32_t get_register(int32_t arg)
 			else ret = (combobuf[ri->combosref].trigcschange) * 10000;
 			break;
 		}
+		case COMBODTRIGLITEMS:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLItems: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_levelitems) * 10000;
+			break;
+		}
+		case COMBODTRIGDMAPLVL:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigDMapLvl: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trigdmlevel) * 10000;
+			break;
+		}
 		case COMBODLIFTGFXCOMBO:
 		{
 			ret = -10000;
@@ -25603,6 +25623,24 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigCSetChange: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].trigcschange = vbound(value/10000, -15, 15);
+			break;
+		}
+		case COMBODTRIGLITEMS:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLItems: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_levelitems = (value/10000)&liALL;
+			break;
+		}
+		case COMBODTRIGDMAPLVL:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigDMapLvl: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigdmlevel = vbound(value/10000, -1, MAXDMAPS-1);
 			break;
 		}
 		case COMBODLIFTGFXCOMBO:
