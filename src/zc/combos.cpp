@@ -2640,6 +2640,12 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				return false;
 		}
 	}
+	if(cmb.triggerflags[3] & combotriggerCOND_DARK)
+		if(!get_lights())
+			return false;
+	if(cmb.triggerflags[3] & combotriggerCOND_NODARK)
+		if(get_lights())
+			return false;
 	
 	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
@@ -3025,6 +3031,12 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 				return false;
 		}
 	}
+	if(cmb.triggerflags[3] & combotriggerCOND_DARK)
+		if(!get_lights())
+			return false;
+	if(cmb.triggerflags[3] & combotriggerCOND_NODARK)
+		if(get_lights())
+			return false;
 	
 	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
