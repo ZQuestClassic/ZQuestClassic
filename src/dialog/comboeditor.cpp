@@ -2924,14 +2924,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									req_litems_field->setVal(local_comboref.trig_levelitems);
 								}
 							),
-							Button(
-								width = 1.5_em, padding = 0_px, forceFitH = true,
-								text = "?", hAlign = 1.0, onPressFunc = [&]()
-								{
-									InfoDialog("Level Flags","See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
-										"\nUse the 'P' button to pick the flags for this value.").show();
-								}
-							),
+							INFOBTN("See 'Require All', 'Require Not All', '->Set', and '->Unset' below."
+								"\nUse the 'P' button to pick the flags for this value."),
 							//
 							Label(text = "Trig DMap Level", fitParent = true),
 							TextField(
@@ -2944,14 +2938,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									local_comboref.trigdmlevel = val;
 								}),
 							DummyWidget(),
-							Button(
-								width = 1.5_em, padding = 0_px, forceFitH = true,
-								text = "?", hAlign = 1.0, onPressFunc = [&]()
-								{
-									InfoDialog("Trig DMap Level","The dmap level referenced by 'Req Flags'.",
-										" If '-1', uses the current dmap's level.").show();
-								}
-							)
+							INFOBTN("The dmap level referenced by 'Req Flags'."
+								" If '-1', uses the current dmap's level.")
 						),
 						Rows_Columns<2,2>(
 							INFOBTN("The level flags set for 'Req Flags:' must ALL be on for this to trigger."
@@ -3262,6 +3250,47 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				INFOBTN("When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo."),
 				TRIGFLAG(111, "TrigGroup Greater->")
 			)
+		)),
+		TabRef(name = "Graphics", Column(
+			Frame(title = "Tint", Column(
+				Row(
+					Label(text = "Tint Palette R/G/B:", fitParent = true),
+					TextField(
+						fitParent = true, padding = 0_px,
+						type = GUI::TextField::type::NOSWAP_ZSINT,
+						swap_type = nswapLDEC,
+						low = -63, high = 63, val = local_comboref.trigtint[0],
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							local_comboref.trigtint[0] = val;
+						}),
+					TextField(
+						fitParent = true, padding = 0_px,
+						type = GUI::TextField::type::NOSWAP_ZSINT,
+						swap_type = nswapLDEC,
+						low = -63, high = 63, val = local_comboref.trigtint[1],
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							local_comboref.trigtint[1] = val;
+						}),
+					TextField(
+						fitParent = true, padding = 0_px,
+						type = GUI::TextField::type::NOSWAP_ZSINT,
+						swap_type = nswapLDEC,
+						low = -63, high = 63, val = local_comboref.trigtint[2],
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							local_comboref.trigtint[2] = val;
+						}),
+					INFOBTN("Applies a tint to the palette, same as the script 'Graphics->Tint()'."
+						"Can be cleared using the '->ClearTint' flag.")
+				),
+				Rows<2>(
+					INFOBTN("Clears all 'tint' from the palette, same as the script 'Graphics->ClearTint()'."
+						" Runs before the above 'Tint Palette' effect, if both are set."),
+					TRIGFLAG(125,"->ClearTint")
+				)
+			))
 		))
 	);
 	window = Window(
@@ -4185,7 +4214,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			// We could remove this check, but user would not really know what combo they were editing any more.
 			// If we showed the current tile in the corner somewhere, we could remove this.
-			if(cmb_tabs[0]) break;
+			//if(cmb_tabs[0]) break; //I think it's fine, honestly? Combo number is in the title bar. -Em
 			if(index == combobuf.size() - 1) break;
 
 			apply_combo();
@@ -4198,7 +4227,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			// We could remove this check, but user would not really know what combo they were editing any more.
 			// If we showed the current tile in the corner somewhere, we could remove this.
-			if(cmb_tabs[0]) break;
+			//if(cmb_tabs[0]) break; //I think it's fine, honestly? Combo number is in the title bar. -Em
 			if(index==0) break;
 
 			apply_combo();

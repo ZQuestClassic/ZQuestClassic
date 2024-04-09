@@ -98,6 +98,7 @@ struct newcombo
 	word trig_group_val;
 	byte trig_levelitems;
 	int16_t trigdmlevel = -1;
+	int8_t trigtint[3]; //r,g,b range [-63,63]
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -285,7 +286,7 @@ struct newcombo
 #define combotriggerLITEM_REVCOND       0x04000000
 #define combotriggerLITEM_SET           0x08000000
 #define combotriggerLITEM_UNSET         0x10000000
-//#define combotrigger                    0x20000000
+#define combotriggerTINT_CLEAR          0x20000000
 //#define combotrigger                    0x40000000
 //#define combotrigger                    0x80000000
 

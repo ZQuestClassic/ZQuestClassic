@@ -2497,6 +2497,10 @@ string ZScript::VarToString(int32_t ID)
 		case COMBODTRIGLITEMS: return "COMBODTRIGLITEMS";
 		case COMBODTRIGDMAPLVL: return "COMBODTRIGDMAPLVL";
 		
+		case COMBODTRIGTINTR: return "COMBODTRIGTINTR";
+		case COMBODTRIGTINTG: return "COMBODTRIGTINTG";
+		case COMBODTRIGTINTB: return "COMBODTRIGTINTB";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);

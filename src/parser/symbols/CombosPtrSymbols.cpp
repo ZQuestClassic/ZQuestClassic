@@ -126,6 +126,12 @@ static AccessorTable CombosTable[] =
 	{ "setTrigLItems",              0,          ZTID_VOID,   COMBODTRIGLITEMS,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getTrigDMapLvl",             0,         ZTID_FLOAT,   COMBODTRIGDMAPLVL,         0,  { ZTID_COMBOS },{} },
 	{ "setTrigDMapLvl",             0,          ZTID_VOID,   COMBODTRIGDMAPLVL,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigTintR",               0,         ZTID_FLOAT,   COMBODTRIGTINTR,           0,  { ZTID_COMBOS },{} },
+	{ "setTrigTintR",               0,          ZTID_VOID,   COMBODTRIGTINTR,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigTintG",               0,         ZTID_FLOAT,   COMBODTRIGTINTR,           0,  { ZTID_COMBOS },{} },
+	{ "setTrigTintG",               0,          ZTID_VOID,   COMBODTRIGTINTR,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigTintB",               0,         ZTID_FLOAT,   COMBODTRIGTINTR,           0,  { ZTID_COMBOS },{} },
+	{ "setTrigTintB",               0,          ZTID_VOID,   COMBODTRIGTINTR,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 	
 	{ "getLiftGFXCombo",            0,         ZTID_FLOAT,   COMBODLIFTGFXCOMBO,        0,  { ZTID_COMBOS },{} },
@@ -215,6 +221,12 @@ static AccessorTable CombosTable[] =
 	{ "setTriggerLItems",           0, "setTrigLItems",           0 },
 	{ "getTriggerDMapLvl",          0, "getTrigDMapLvl",          0 },
 	{ "setTriggerDMapLvl",          0, "setTrigDMapLvl",          0 },
+	{ "getTriggerTintR",            0, "getTrigTintR",            0 },
+	{ "setTriggerTintR",            0, "setTrigTintR",            0 },
+	{ "getTriggerTintG",            0, "getTrigTintG",            0 },
+	{ "setTriggerTintG",            0, "setTrigTintG",            0 },
+	{ "getTriggerTintB",            0, "getTrigTintB",            0 },
+	{ "setTriggerTintB",            0, "setTrigTintB",            0 },
 	
 	{ "_getPosX",                   0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
 	{ "_getPosY",                   0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },

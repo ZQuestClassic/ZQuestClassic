@@ -12731,6 +12731,33 @@ int32_t get_register(int32_t arg)
 			else ret = (combobuf[ri->combosref].trigdmlevel) * 10000;
 			break;
 		}
+		case COMBODTRIGTINTR:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintR: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trigtint[0]) * 10000;
+			break;
+		}
+		case COMBODTRIGTINTG:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trigtint[1]) * 10000;
+			break;
+		}
+		case COMBODTRIGTINTB:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trigtint[2]) * 10000;
+			break;
+		}
 		case COMBODLIFTGFXCOMBO:
 		{
 			ret = -10000;
@@ -25641,6 +25668,33 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigDMapLvl: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].trigdmlevel = vbound(value/10000, -1, MAXDMAPS-1);
+			break;
+		}
+		case COMBODTRIGTINTR:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintR: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigtint[0] = vbound(value/10000, -63, 63);
+			break;
+		}
+		case COMBODTRIGTINTG:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigtint[1] = vbound(value/10000, -63, 63);
+			break;
+		}
+		case COMBODTRIGTINTB:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintB: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigtint[2] = vbound(value/10000, -63, 63);
 			break;
 		}
 		case COMBODLIFTGFXCOMBO:

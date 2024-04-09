@@ -1775,7 +1775,11 @@
 #define COMBODTRIGLITEMS        1660
 #define COMBODTRIGDMAPLVL       1661
 
-#define LAST_BYTECODE           1662
+#define COMBODTRIGTINTR         1662
+#define COMBODTRIGTINTG         1663
+#define COMBODTRIGTINTB         1664
+
+#define LAST_BYTECODE           1665
 
 //} END OF BYTECODE
 
