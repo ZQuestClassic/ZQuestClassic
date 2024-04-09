@@ -3497,134 +3497,135 @@ enum ItemButton
 
 enum ComboTrigFlag
 {
-	TRIGFLAG_SWORD, //Weapons->LWeapons->Sword
-	TRIGFLAG_SWORDBEAM, //Weapons->LWeapons->Sword Beam
-	TRIGFLAG_BRANG, //Weapons->LWeapons->Boomerang
-	TRIGFLAG_BOMB, //Weapons->LWeapons->Bomb Boom
-	TRIGFLAG_SBOMB, //Weapons->LWeapons->Super Bomb Boom
-	TRIGFLAG_LITBOMB, //Weapons->LWeapons->Placed Bomb
-	TRIGFLAG_LITSBOMB, //Weapons->LWeapons->Placed Super Bomb
-	TRIGFLAG_ARROW, //Weapons->LWeapons->Arrow
-	TRIGFLAG_FIRE, //Weapons->LWeapons->Fire
-	TRIGFLAG_WHISTLE, //Weapons->LWeapons->Whistle
-	TRIGFLAG_BAIT, //Weapons->LWeapons->Bait
-	TRIGFLAG_WAND, //Weapons->LWeapons->Wand
-	TRIGFLAG_MAGIC, //Weapons->LWeapons->Magic
-	TRIGFLAG_WIND, //Weapons->LWeapons->Wind
-	TRIGFLAG_REFMAGIC, //Weapons->LWeapons->Refl. Magic
-	TRIGFLAG_REFFIREBALL, //Weapons->LWeapons->Refl. Fireball
-	TRIGFLAG_REFROCK, //Weapons->LWeapons->Refl. Rock
-	TRIGFLAG_HAMMER, //Weapons->LWeapons->Hammer
-	TRIGFLAG_RESET_ANIM, //Effects->Reset Anim
-	TRIGFLAG_INVERT_PROXIMITY, //Other->Invert Proximity Req.
-	TRIGFLAG_BTN_TOP, //Other->Btn: Top
-	TRIGFLAG_BTN_BOTTOM, //Other->Btn: Bottom
-	TRIGFLAG_BTN_LEFT, //Other->Btn: Left
-	TRIGFLAG_BTN_RIGHT, //Other->Btn: Right
-	TRIGFLAG_INVERT_MIN_MAX, //Weapons->LWeapons->Max Level Instead
-	TRIGFLAG_STEP, //Other->'Step->'
-	TRIGFLAG_STEP_SENS, //Other->'Step-> (Sensitive)'
-	TRIGFLAG_SHUTTER, //Other->'Shutter->'
-	TRIGFLAG_CTYPE_EFFECTS, //Effects->'->ComboType Effects'
-	TRIGFLAG_ONLY_GENTRIG, //Other->'Only Gen Triggers'
-	TRIGFLAG_KILL_WEAPON, //Weapons->Effects->'Kill Triggering Weapon'
-	TRIGFLAG_EW_FIREBALL, //Weapons->EWeapons->Fireball
+	TRIGFLAG_SWORD, //Weapons->LWeapons->Sword - Triggered by Sword LWeapons
+	TRIGFLAG_SWORDBEAM, //Weapons->LWeapons->Sword Beam - Triggered by Sword Beam LWeapons
+	TRIGFLAG_BRANG, //Weapons->LWeapons->Boomerang - Triggered by Boomerang LWeapons
+	TRIGFLAG_BOMB, //Weapons->LWeapons->Bomb Boom - Triggered by Bomb (explosion) LWeapons
+	TRIGFLAG_SBOMB, //Weapons->LWeapons->Super Bomb Boom - Triggered by Super Bomb (explosion) LWeapons
+	TRIGFLAG_LITBOMB, //Weapons->LWeapons->Placed Bomb - Triggered by Bomb (placed) LWeapons
+	TRIGFLAG_LITSBOMB, //Weapons->LWeapons->Placed Super Bomb - Triggered by Super Bomb (placed) LWeapons
+	TRIGFLAG_ARROW, //Weapons->LWeapons->Arrow - Triggered by Arrow LWeapons
+	TRIGFLAG_FIRE, //Weapons->LWeapons->Fire - Triggered by Fire LWeapons
+	TRIGFLAG_WHISTLE, //Weapons->LWeapons->Whistle - Triggered by Whistle LWeapons (whistle played)
+	TRIGFLAG_BAIT, //Weapons->LWeapons->Bait - Triggered by Bait LWeapons
+	TRIGFLAG_WAND, //Weapons->LWeapons->Wand - Triggered by Wand Handle LWeapon
+	TRIGFLAG_MAGIC, //Weapons->LWeapons->Magic - Triggered by Magic LWeapons
+	TRIGFLAG_WIND, //Weapons->LWeapons->Wind - Triggered by Wind LWeapons
+	TRIGFLAG_REFMAGIC, //Weapons->LWeapons->Refl. Magic - Triggered by Reflected Magic LWeapons
+	TRIGFLAG_REFFIREBALL, //Weapons->LWeapons->Refl. Fireball - Triggered by Reflected Fireball LWeapons
+	TRIGFLAG_REFROCK, //Weapons->LWeapons->Refl. Rock - Triggered by Reflected Rock LWeapons
+	TRIGFLAG_HAMMER, //Weapons->LWeapons->Hammer - Triggered by Hammer LWeapon
+	TRIGFLAG_RESET_ANIM, //Effects->Reset Anim - On trigger, reset the animation of the combo.
+	TRIGFLAG_INVERT_PROXIMITY, //Other->Invert Proximity Req. - Proximity requirement is reversed
+	TRIGFLAG_BTN_TOP, //Other->Btn: Top - Triggered by button press from above
+	TRIGFLAG_BTN_BOTTOM, //Other->Btn: Bottom - Trigger by button press from below
+	TRIGFLAG_BTN_LEFT, //Other->Btn: Left - Trigger by button press from left
+	TRIGFLAG_BTN_RIGHT, //Other->Btn: Right - Trigger by button press from right
+	TRIGFLAG_INVERT_MIN_MAX, //Weapons->LWeapons->Max Level Instead - Treat the 'TriggerLevel' as a max instead of a min
+	TRIGFLAG_STEP, //Other->'Step->' - Triggered by 'Step->'
+	TRIGFLAG_STEP_SENS, //Other->'Step-> (Sensitive)' - Triggered by 'Step->Sensitive'
+	TRIGFLAG_SHUTTER, //Other->'Shutter->' - Triggered by 'Shutter->'
+	TRIGFLAG_CTYPE_EFFECTS, //Effects->'->ComboType Effects' - On trigger, cause the combo's type-related effects to occur. (ex: opening a chest)
+	TRIGFLAG_ONLY_GENTRIG, //Other->'Only Gen Triggers' - Don't allow the combo to trigger via it's normal trigger methods (ex: bush via slashing)
+	TRIGFLAG_KILL_WEAPON, //Weapons->Effects->'Kill Triggering Weapon' - If triggered by a weapon, kill the weapon.
+	TRIGFLAG_EW_FIREBALL, //Weapons->EWeapons->Fireball - Triggered by Fireball EWeapons
 	//32
-	TRIGFLAG_HOOKSHOT, //Weapons->LWeapons->Hookshot
-	TRIGFLAG_SPARKLE, //Weapons->LWeapons->Sparkle
-	TRIGFLAG_BYRNA, //Weapons->LWeapons->Byrna
-	TRIGFLAG_REFBEAM, //Weapons->LWeapons->Refl. Beam
-	TRIGFLAG_STOMP, //Weapons->LWeapons->Stomp
-	TRIGFLAG_SCRIPT1, //Weapons->LWeapons->Custom Weapon 1
-	TRIGFLAG_SCRIPT2, //Weapons->LWeapons->Custom Weapon 2
-	TRIGFLAG_SCRIPT3, //Weapons->LWeapons->Custom Weapon 3
-	TRIGFLAG_SCRIPT4, //Weapons->LWeapons->Custom Weapon 4
-	TRIGFLAG_SCRIPT5, //Weapons->LWeapons->Custom Weapon 5
-	TRIGFLAG_SCRIPT6, //Weapons->LWeapons->Custom Weapon 6
-	TRIGFLAG_SCRIPT7, //Weapons->LWeapons->Custom Weapon 7
-	TRIGFLAG_SCRIPT8, //Weapons->LWeapons->Custom Weapon 8
-	TRIGFLAG_SCRIPT9, //Weapons->LWeapons->Custom Weapon 9
-	TRIGFLAG_SCRIPT10, //Weapons->LWeapons->Custom Weapon 10
-	TRIGFLAG_AUTO, //Other->Always Triggered
-	TRIGFLAG_TRIG_SECRETS, //Effects->Triggers Secrets
-	TRIGFLAG_INVERT_ITEMREQ, //Counters/Items->Invert Item Req
-	TRIGFLAG_CONSUME_ITEMREQ, //Counters/Items->Consume Item Req
-	TRIGFLAG_COUNTER_GE, //Counters/Items->'Require >='
-	TRIGFLAG_COUNTER_LT, //Counters/Items->'Require <'
-	TRIGFLAG_COUNTER_EAT, //Counters/Items->Consume Amount
-	TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT, //Counters/Items->Consume w/o trig
-	TRIGFLAG_LIGHTON, //Other->'Light On->'
-	TRIGFLAG_LIGHTOFF, //Other->'Light Off->'
-	TRIGFLAG_PUSH, //Other->'Push->'
-	TRIGFLAG_LENS_ON, //Other->'Lens On->'
-	TRIGFLAG_LENS_OFF, //Other->'Lens Off->'
-	TRIGFLAG_EW_ARROW, //Weapons->EWeapons->Arrow
-	TRIGFLAG_EW_BRANG, //Weapons->EWeapons->Boomerang
-	TRIGFLAG_EW_SWORD, //Weapons->EWeapons->Sword
-	TRIGFLAG_EW_ROCK, //Weapons->EWeapons->Rock
+	TRIGFLAG_HOOKSHOT, //Weapons->LWeapons->Hookshot - Triggered by Hookshot LWeapons
+	TRIGFLAG_SPARKLE, //Weapons->LWeapons->Sparkle - Triggered by Sparkle LWeapons
+	TRIGFLAG_BYRNA, //Weapons->LWeapons->Byrna - Triggered by Byrna LWeapons
+	TRIGFLAG_REFBEAM, //Weapons->LWeapons->Refl. Beam - Triggered by Reflected Beam LWeapons
+	TRIGFLAG_STOMP, //Weapons->LWeapons->Stomp - Triggered by Stomp Boot LWeapons
+	TRIGFLAG_SCRIPT1, //Weapons->LWeapons->Custom Weapon 1 - Triggered by 'Custom Weapon 01' LWeapons
+	TRIGFLAG_SCRIPT2, //Weapons->LWeapons->Custom Weapon 2 - Triggered by 'Custom Weapon 02' LWeapons
+	TRIGFLAG_SCRIPT3, //Weapons->LWeapons->Custom Weapon 3 - Triggered by 'Custom Weapon 03' LWeapons
+	TRIGFLAG_SCRIPT4, //Weapons->LWeapons->Custom Weapon 4 - Triggered by 'Custom Weapon 04' LWeapons
+	TRIGFLAG_SCRIPT5, //Weapons->LWeapons->Custom Weapon 5 - Triggered by 'Custom Weapon 05' LWeapons
+	TRIGFLAG_SCRIPT6, //Weapons->LWeapons->Custom Weapon 6 - Triggered by 'Custom Weapon 06' LWeapons
+	TRIGFLAG_SCRIPT7, //Weapons->LWeapons->Custom Weapon 7 - Triggered by 'Custom Weapon 07' LWeapons
+	TRIGFLAG_SCRIPT8, //Weapons->LWeapons->Custom Weapon 8 - Triggered by 'Custom Weapon 08' LWeapons
+	TRIGFLAG_SCRIPT9, //Weapons->LWeapons->Custom Weapon 9 - Triggered by 'Custom Weapon 09' LWeapons
+	TRIGFLAG_SCRIPT10, //Weapons->LWeapons->Custom Weapon 10 - Triggered by 'Custom Weapon 10' LWeapons
+	TRIGFLAG_AUTO, //Other->Always Triggered - Triggered automatically, every frame.
+	TRIGFLAG_TRIG_SECRETS, //Effects->Triggers Secrets - Triggered by 'Secrets->'
+	TRIGFLAG_INVERT_ITEMREQ, //Counters/Items->Invert Item Req - Invert the item requirement (require NOT having the item)
+	TRIGFLAG_CONSUME_ITEMREQ, //Counters/Items->Consume Item Req - On trigger, consume the required item.
+	TRIGFLAG_COUNTER_GE, //Counters/Items->'Require >=' - Only trigger if the counter has >= the specified amount
+	TRIGFLAG_COUNTER_LT, //Counters/Items->'Require <' - Only trigger if the counter has < the specified amount
+	TRIGFLAG_COUNTER_EAT, //Counters/Items->Consume Amount - Consume the specified amount from the counter. Negative amounts add.
+	TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT, //Counters/Items->Consume w/o trig - Consume the specified amount from the counter even if the combo failed to trigger.
+	TRIGFLAG_LIGHTON, //Other->'Light On->' - Triggered by a lightbeam.
+	TRIGFLAG_LIGHTOFF, //Other->'Light Off->' - Triggered by lack of a lightbeam.
+	TRIGFLAG_PUSH, //Other->'Push->' - Triggered when the player pushes into the combo.
+	TRIGFLAG_LENS_ON, //Other->'Lens On->' - Triggered when the lens is revealing.
+	TRIGFLAG_LENS_OFF, //Other->'Lens Off->' - Triggered when the lens is not revealing.
+	TRIGFLAG_EW_ARROW, //Weapons->EWeapons->Arrow - Triggered by Arrow EWeapons
+	TRIGFLAG_EW_BRANG, //Weapons->EWeapons->Boomerang - Triggered by Boomerang EWeapons
+	TRIGFLAG_EW_SWORD, //Weapons->EWeapons->Sword - Triggered by Sword EWeapons
+	TRIGFLAG_EW_ROCK, //Weapons->EWeapons->Rock - Triggered by Rock EWeapons
 	//64
-	TRIGFLAG_EW_SCRIPT1, //Weapons->EWeapons->Custom Weapon 1
-	TRIGFLAG_EW_SCRIPT2, //Weapons->EWeapons->Custom Weapon 2
-	TRIGFLAG_EW_SCRIPT3, //Weapons->EWeapons->Custom Weapon 3
-	TRIGFLAG_EW_SCRIPT4, //Weapons->EWeapons->Custom Weapon 4
-	TRIGFLAG_EW_SCRIPT5, //Weapons->EWeapons->Custom Weapon 5
-	TRIGFLAG_EW_SCRIPT6, //Weapons->EWeapons->Custom Weapon 6
-	TRIGFLAG_EW_SCRIPT7, //Weapons->EWeapons->Custom Weapon 7
-	TRIGFLAG_EW_SCRIPT8, //Weapons->EWeapons->Custom Weapon 8
-	TRIGFLAG_EW_SCRIPT9, //Weapons->EWeapons->Custom Weapon 9
-	TRIGFLAG_EW_SCRIPT10, //Weapons->EWeapons->Custom Weapon 10
-	TRIGFLAG_EW_MAGIC, //Weapons->EWeapons->Magic
-	TRIGFLAG_EW_BBLAST, //Weapons->EWeapons->Bomb Blast
-	TRIGFLAG_EW_SBBLAST, //Weapons->EWeapons->SBomb Blast
-	TRIGFLAG_EW_LITBOMB, //Weapons->EWeapons->Lit Bomb
-	TRIGFLAG_EW_LITSBOMB, //Weapons->EWeapons->Lit SBomb
-	TRIGFLAG_EW_FIRETRAIL, //Weapons->EWeapons->Fire Trail
-	TRIGFLAG_EW_FLAME, //Weapons->EWeapons->Flame
-	TRIGFLAG_EW_WIND, //Weapons->EWeapons->Wind
-	TRIGFLAG_EW_FLAME2, //Weapons->EWeapons->Flame 2
-	TRIGFLAG_SPECIAL_ITEM, //States/Spawning->Spawns Special Item
-	TRIGFLAG_EXST_ITEM, //States/Spawning->Trigger ExState after item pickup
-	TRIGFLAG_EXST_ENEMY, //States/Spawning->Trigger ExState after enemy kill
-	TRIGFLAG_AUTOGRAB_ITEM, //States/Spawning->Spawned Item auto-collects
-	TRIGFLAG_KILL_ENEMIES, //Other->'Enemies->'
-	TRIGFLAG_SECRETSTR, //Other->'Secrets->'
-	TRIGFLAG_THROWN, //Weapons->LWeapons->Thrown
-	TRIGFLAG_QUAKESTUN, //Weapons->LWeapons->Quake Hammer
-	TRIGFLAG_SQUAKESTUN, //Weapons->LWeapons->S. Quake Hammer
-	TRIGFLAG_ANYFIRE, //Weapons->LWeapons->Any Fire
-	TRIGFLAG_STRONGFIRE, //Weapons->LWeapons->Strong Fire
-	TRIGFLAG_MAGICFIRE, //Weapons->LWeapons->Magic Fire
-	TRIGFLAG_DIVINEFIRE, //Weapons->LWeapons->Divine Fire
+	TRIGFLAG_EW_SCRIPT1, //Weapons->EWeapons->Custom Weapon 1 - Triggered by 'Custom Weapon 01' EWeapons
+	TRIGFLAG_EW_SCRIPT2, //Weapons->EWeapons->Custom Weapon 2 - Triggered by 'Custom Weapon 02' EWeapons
+	TRIGFLAG_EW_SCRIPT3, //Weapons->EWeapons->Custom Weapon 3 - Triggered by 'Custom Weapon 03' EWeapons
+	TRIGFLAG_EW_SCRIPT4, //Weapons->EWeapons->Custom Weapon 4 - Triggered by 'Custom Weapon 04' EWeapons
+	TRIGFLAG_EW_SCRIPT5, //Weapons->EWeapons->Custom Weapon 5 - Triggered by 'Custom Weapon 05' EWeapons
+	TRIGFLAG_EW_SCRIPT6, //Weapons->EWeapons->Custom Weapon 6 - Triggered by 'Custom Weapon 06' EWeapons
+	TRIGFLAG_EW_SCRIPT7, //Weapons->EWeapons->Custom Weapon 7 - Triggered by 'Custom Weapon 07' EWeapons
+	TRIGFLAG_EW_SCRIPT8, //Weapons->EWeapons->Custom Weapon 8 - Triggered by 'Custom Weapon 08' EWeapons
+	TRIGFLAG_EW_SCRIPT9, //Weapons->EWeapons->Custom Weapon 9 - Triggered by 'Custom Weapon 09' EWeapons
+	TRIGFLAG_EW_SCRIPT10, //Weapons->EWeapons->Custom Weapon 10 - Triggered by 'Custom Weapon 10' EWeapons
+	TRIGFLAG_EW_MAGIC, //Weapons->EWeapons->Magic - Triggered by Magic EWeapons
+	TRIGFLAG_EW_BBLAST, //Weapons->EWeapons->Bomb Blast - Triggered by Bomb (explosion) EWeapons
+	TRIGFLAG_EW_SBBLAST, //Weapons->EWeapons->SBomb Blast - Triggered by Super Bomb (explosion) EWeapons
+	TRIGFLAG_EW_LITBOMB, //Weapons->EWeapons->Lit Bomb - Triggered by Bomb (unexploded) EWeapons
+	TRIGFLAG_EW_LITSBOMB, //Weapons->EWeapons->Lit SBomb - Triggered by Super Bomb (unexploded) EWeapons
+	TRIGFLAG_EW_FIRETRAIL, //Weapons->EWeapons->Fire Trail - Triggered by Fire Trail EWeapons
+	TRIGFLAG_EW_FLAME, //Weapons->EWeapons->Flame - Triggered by Flame EWeapons
+	TRIGFLAG_EW_WIND, //Weapons->EWeapons->Wind - Triggered by Wind EWeapons
+	TRIGFLAG_EW_FLAME2, //Weapons->EWeapons->Flame 2 - Triggered by Flame 2 EWeapons
+	TRIGFLAG_SPECIAL_ITEM, //States/Spawning->Spawns Special Item - The spawned item will be the special item
+	TRIGFLAG_EXST_ITEM, //States/Spawning->Trigger ExState after item pickup - Trigger ExState after picking up the spawned item
+	TRIGFLAG_EXST_ENEMY, //States/Spawning->Trigger ExState after enemy kill - Trigger ExState after killing the spawned enemy
+	TRIGFLAG_AUTOGRAB_ITEM, //States/Spawning->Spawned Item auto-collects - Spawned item auto-collects
+	TRIGFLAG_KILL_ENEMIES, //Other->'Enemies->' - Triggered when all enemies are killed
+	TRIGFLAG_SECRETSTR, //Other->'Secrets->' - Triggered when screen secrets are triggered
+	TRIGFLAG_THROWN, //Weapons->LWeapons->Thrown - Triggered by Thrown Object weapons
+	TRIGFLAG_QUAKESTUN, //Weapons->LWeapons->Quake Hammer - Triggered by a Quake Stun
+	TRIGFLAG_SQUAKESTUN, //Weapons->LWeapons->S. Quake Hammer - Triggered by a Super Quake Stun
+	TRIGFLAG_ANYFIRE, //Weapons->LWeapons->Any Fire - Triggered by Any Fire
+	TRIGFLAG_STRONGFIRE, //Weapons->LWeapons->Strong Fire - Triggered by Strong Fire
+	TRIGFLAG_MAGICFIRE, //Weapons->LWeapons->Magic Fire - Triggered by Magic Fire
+	TRIGFLAG_DIVINEFIRE, //Weapons->LWeapons->Divine Fire - Triggered by Divine Fire
 	//96
-	TRIGFLAG_TRIGLEVELSTATE, //States/Spawning->'LevelState->'
-	TRIGFLAG_LEVELSTATE, //States/Spawning->'->LevelState'
-	TRIGFLAG_TRIGGLOBALSTATE, //States/Spawning->'GlobalState->'
-	TRIGFLAG_GLOBALSTATE, //States/Spawning->'->GlobalState'
-	TRIGFLAG_DO_KILL_ENEMIES, //Effects->Kill Enemies
-	TRIGFLAG_DO_CLEAR_ENEMIES, //Effects->Clear Enemies
-	TRIGFLAG_DO_CLEAR_LWEAPONS, //Effects->Clear LWeapons
-	TRIGFLAG_DO_CLEAR_EWEAPONS, //Effects->Clear EWeapons
-	TRIGFLAG_IGNITE_WEAPONS_ANY, //Weapons->Effects->Ignite Weapon (Any)
-	TRIGFLAG_IGNITE_WEAPONS_STRONG, //Weapons->Effects->Ignite Weapon (Strong)
-	TRIGFLAG_IGNITE_WEAPONS_MAGIC, //Weapons->Effects->Ignite Weapon (Magic)
-	TRIGFLAG_IGNITE_WEAPONS_DIVINE, //Weapons->Effects->Ignite Weapon (Divine)
-	TRIGFLAG_SEPARATE_WEAPON_TRIGGERS, //Weapons->Effects->Weapon Separate Triggers
-	TRIGFLAG_TGROUP_CONTRIB, //States/Spawning->Contributes To TrigGroup
-	TRIGFLAG_TGROUP_LESS, //States/Spawning->'TrigGroup Less->'
-	TRIGFLAG_TGROUP_GREATER, //States/Spawning->'TrigGroup Greater->'
-	TRIGFLAG_TRIG_PUSHED, //Other->'Pushed->'
-	TRIGFLAG_TRIG_DIVE, //Other->'Dive->'
-	TRIGFLAG_TRIG_DIVE_SENS, //Other->'Dive-> (Sensitive)'
-	TRIGFLAG_REFARROW, //Weapons->LWeapons->Refl. Arrow
-	TRIGFLAG_REFFIRE, //Weapons->LWeapons->Refl. Fire
-	TRIGFLAG_REFFIRE2, //Weapons->LWeapons->Refl. Fire 2
-	TRIGFLAG_TOGGLE_DARKNESS, //Effects->Toggle Darkness
-	TRIGFLAG_REQ_DARKNESS, //Other->Req. Darkness
-	TRIGFLAG_REQ_NO_DARKNESS, //Other->Req. Darkness
-	TRIGFLAG_LITEM_REQUIRE, //Counters/Items->Require All
-	TRIGFLAG_LITEM_INV_REQUIRE, //Counters/Items->Require Not All
-	TRIGFLAG_LITEM_SET, //Counters/Items->'->Set'
-	TRIGFLAG_LITEM_UNSET, //Counters/Items->'->Unset'
+	TRIGFLAG_TRIGLEVELSTATE, //States/Spawning->'LevelState->' - Triggered by Level State
+	TRIGFLAG_LEVELSTATE, //States/Spawning->'->LevelState' - Triggers Level State
+	TRIGFLAG_TRIGGLOBALSTATE, //States/Spawning->'GlobalState->' - Triggered by Global State
+	TRIGFLAG_GLOBALSTATE, //States/Spawning->'->GlobalState' - Triggers Global State
+	TRIGFLAG_DO_KILL_ENEMIES, //Effects->Kill Enemies - Kill all enemies
+	TRIGFLAG_DO_CLEAR_ENEMIES, //Effects->Clear Enemies - Delete all enemies
+	TRIGFLAG_DO_CLEAR_LWEAPONS, //Effects->Clear LWeapons - Delete all lweapons
+	TRIGFLAG_DO_CLEAR_EWEAPONS, //Effects->Clear EWeapons - Delete all eweapons
+	TRIGFLAG_IGNITE_WEAPONS_ANY, //Weapons->Effects->Ignite Weapon (Any) - Light the triggering weapon on normal fire.
+	TRIGFLAG_IGNITE_WEAPONS_STRONG, //Weapons->Effects->Ignite Weapon (Strong) - Light the triggering weapon on strong fire.
+	TRIGFLAG_IGNITE_WEAPONS_MAGIC, //Weapons->Effects->Ignite Weapon (Magic) - Light the triggering weapon on magic fire.
+	TRIGFLAG_IGNITE_WEAPONS_DIVINE, //Weapons->Effects->Ignite Weapon (Divine) - Light the triggering weapon on divine fire.
+	TRIGFLAG_SEPARATE_WEAPON_TRIGGERS, //Weapons->Effects->Weapon Separate Triggers - Triggering weapons only trigger weapon-related effects
+	TRIGFLAG_TGROUP_CONTRIB, //States/Spawning->Contributes To TrigGroup - This combo contributes to its' TrigGroup
+	TRIGFLAG_TGROUP_LESS, //States/Spawning->'TrigGroup Less->' - When the number of combos that contribute to this combo's Trigger Group is LESS than the Trigger Group Val, trigger this combo.
+	TRIGFLAG_TGROUP_GREATER, //States/Spawning->'TrigGroup Greater->' - When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo.
+	TRIGFLAG_TRIG_PUSHED, //Other->'Pushed->' - Triggers when this combo, as a pushblock, settles into a new positon.
+	TRIGFLAG_TRIG_DIVE, //Other->'Dive->' - Triggers when the player dives on this combo.
+	TRIGFLAG_TRIG_DIVE_SENS, //Other->'Dive-> (Sensitive)' - Triggers when the player dives on this combo. More sensitive hitbox than 'TRIGFLAG_TRIG_DIVE'
+	TRIGFLAG_REFARROW, //Weapons->LWeapons->Refl. Arrow - Triggered by Reflected Arrow LWeapons
+	TRIGFLAG_REFFIRE, //Weapons->LWeapons->Refl. Fire - Triggered by Reflected Fire LWeapons
+	TRIGFLAG_REFFIRE2, //Weapons->LWeapons->Refl. Fire 2 - Triggered by Reflected Fire 2 LWeapons
+	TRIGFLAG_TOGGLE_DARKNESS, //Effects->Toggle Darkness - Toggle the screen being a dark room
+	TRIGFLAG_REQ_DARKNESS, //Other->Req. Darkness - Can only trigger if the screen is a dark room
+	TRIGFLAG_REQ_NO_DARKNESS, //Other->Req. Darkness - Can only trigger if the screen is lit (not a dark room)
+	TRIGFLAG_LITEM_REQUIRE, //Counters/Items->Require All - Require all the specified LItems to trigger the combo
+	TRIGFLAG_LITEM_INV_REQUIRE, //Counters/Items->Require Not All - Require not all (some is ok) of the specified LItems to trigger the combo
+	TRIGFLAG_LITEM_SET, //Counters/Items->'->Set' - Grants the specified LItems. If 'TRIGFLAG_LITEM_UNSET' is also on, toggles them instead.
+	TRIGFLAG_LITEM_UNSET, //Counters/Items->'->Unset' - Removes the specified LItems. If 'TRIGFLAG_LITEM_SET' is also on, toggles them instead.
+	TRIGFLAG_TINT_CLEAR, //Graphics->'->Clear Tint' - Clears the palette tint.
 	
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6

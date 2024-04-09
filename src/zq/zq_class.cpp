@@ -9708,6 +9708,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
 		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
 		combo_has_flags |= CHAS_TRIG;
+	else for(int q = 0; q < 3; ++q)
+		if(tmp_cmb.trigtint[q])
+			combo_has_flags |= CHAS_TRIG;
 	if(tmp_cmb.usrflags || tmp_cmb.genflags)
 		combo_has_flags |= CHAS_FLAG;
 	if(tmp_cmb.frames || tmp_cmb.speed || tmp_cmb.nextcombo
@@ -9885,6 +9888,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 91;
 		if(!p_iputw(tmp_cmb.trigdmlevel,f))
 			return 92;
+		for(int q = 0; q < 3; ++q)
+			if(!p_putc(tmp_cmb.trigtint[q],f))
+				return 92;
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{

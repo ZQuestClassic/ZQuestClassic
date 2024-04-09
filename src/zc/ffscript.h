@@ -5012,7 +5012,11 @@ enum ASM_DEFINE
 #define COMBODTRIGLITEMS        0x15B1
 #define COMBODTRIGDMAPLVL       0x15B2
 
-#define NUMVARIABLES            0x15B3
+#define COMBODTRIGTINTR         0x15B3
+#define COMBODTRIGTINTG         0x15B4
+#define COMBODTRIGTINTB         0x15B5
+
+#define NUMVARIABLES            0x15B6
 
 //} End variables
 

@@ -18121,6 +18121,9 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 					return qe_invalid;
 				if(!p_igetw(&temp_combo.trigdmlevel,f))
 					return qe_invalid;
+				for(int q = 0; q < 3; ++q)
+					if(!p_getc(&temp_combo.trigtint[q],f))
+						return qe_invalid;
 			}
 		}
 		if(combo_has_flags&CHAS_LIFT)

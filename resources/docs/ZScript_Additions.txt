@@ -7835,6 +7835,11 @@ int TrigDMapLvl;
  * The 'Level' used by 'TrigLItems'.
  * -1 represents the 'current level', otherwise a valid dmap level indicates that level.
 
+int TrigTintR;
+int TrigTintG;
+int TrigTintB;
+ * The R/G/B values to tint the palette by when triggered. -63 to 63.
+
 int TrigGenScript;
  * When triggered, this generic script will be run in the 'RunFrozen' mode.
 

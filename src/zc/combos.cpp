@@ -2788,6 +2788,14 @@ void handle_trigger_results(newcombo const& cmb, int32_t cx, int32_t cy, bool& h
 			game->lvlitems[dmap_level] &= ~cmb.trig_levelitems;
 	}
 	
+	//Graphical stuff
+	{
+		if(cmb.triggerflags[3] & combotriggerTINT_CLEAR)
+			doClearTint();
+		if(cmb.trigtint[0] || cmb.trigtint[1] || cmb.trigtint[2])
+			doTint(cmb.trigtint[0], cmb.trigtint[1], cmb.trigtint[2]);
+	}
+	
 	if(cmb.exstate > -1 && trigexstate)
 	{
 		setxmapflag(1<<cmb.exstate);

@@ -3006,12 +3006,12 @@ def sub_brlink(br,s,txt):
     global _sub_count
     output = txt
     escbr = re.escape(br)
-    pat1 = re.compile('\$\{'+escbr+'\}')
+    pat1 = re.compile(r'\$\{'+escbr+r'\}')
     count = len(re.findall(pat1, output))
     if count:
         output = re.sub(pat1, '${'+s+'|'+br+'}', output)
         _sub_count += count
-    pat2 = re.compile('\$\{'+escbr+'\|')
+    pat2 = re.compile(r'\$\{'+escbr+r'\|')
     count = len(re.findall(pat2, output))
     if count:
         output = re.sub(pat2, '${'+s+'|', output)
