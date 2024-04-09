@@ -7840,6 +7840,15 @@ int TrigTintG;
 int TrigTintB;
  * The R/G/B values to tint the palette by when triggered. -63 to 63.
 
+int TrigLvlPal;
+ * The level palette to change to when triggered. -1 for none.
+int TrigBossPal;
+ * The boss palette to change to when triggered. -1 for none.
+int TrigQuakeTimer;
+ * The quake timer to set when triggered. -1 for none.
+int TrigWavyTimer;
+ * The wavy timer to set when triggered. -1 for none.
+
 int TrigGenScript;
  * When triggered, this generic script will be run in the 'RunFrozen' mode.
 

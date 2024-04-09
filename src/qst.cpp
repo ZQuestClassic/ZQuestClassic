@@ -18124,6 +18124,14 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				for(int q = 0; q < 3; ++q)
 					if(!p_getc(&temp_combo.trigtint[q],f))
 						return qe_invalid;
+				if(!p_igetw(&temp_combo.triglvlpalette,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.trigbosspalette,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.trigquaketime,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.trigwavytime,f))
+					return qe_invalid;
 			}
 		}
 		if(combo_has_flags&CHAS_LIFT)

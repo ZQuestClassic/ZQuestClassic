@@ -99,6 +99,8 @@ struct newcombo
 	byte trig_levelitems;
 	int16_t trigdmlevel = -1;
 	int8_t trigtint[3]; //r,g,b range [-63,63]
+	int16_t triglvlpalette = -1, trigbosspalette = -1;
+	int16_t trigquaketime = -1, trigwavytime = -1;
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
