@@ -3251,8 +3251,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				TRIGFLAG(111, "TrigGroup Greater->")
 			)
 		)),
-		TabRef(name = "Graphics", Column(
-			Frame(title = "Tint", Column(
+		TabRef(name = "Graphics", Rows<2>(
+			Frame(title = "Tint", fitParent = true, Column(
 				Row(
 					Label(text = "Tint Palette R/G/B:", fitParent = true),
 					TextField(
@@ -3290,6 +3290,60 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						" Runs before the above 'Tint Palette' effect, if both are set."),
 					TRIGFLAG(125,"->ClearTint")
 				)
+			)),
+			Frame(title = "Palette", fitParent = true, Rows<3>(
+				Label(text = "Load Level Palette", fitParent = true),
+				TextField(
+					fitParent = true, padding = 0_px,
+					type = GUI::TextField::type::NOSWAP_ZSINT,
+					swap_type = nswapLDEC,
+					low = -1, high = 512, val = local_comboref.triglvlpalette,
+					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+					{
+						local_comboref.triglvlpalette = val;
+					}),
+				INFOBTN("Loads the specified level palette over the current level palette."
+					" '-1' for 'none'."),
+				//
+				Label(text = "Load Boss Palette", fitParent = true),
+				TextField(
+					fitParent = true, padding = 0_px,
+					type = GUI::TextField::type::NOSWAP_ZSINT,
+					swap_type = nswapLDEC,
+					low = -1, high = 29, val = local_comboref.trigbosspalette,
+					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+					{
+						local_comboref.trigbosspalette = val;
+					}),
+				INFOBTN("Loads the specified level palette over the current boss palette."
+					" '-1' for 'none'.")
+			)),
+			Frame(title = "VFX", fitParent = true, Rows<3>(
+				Label(text = "Quake", fitParent = true),
+				TextField(
+					fitParent = true, padding = 0_px,
+					type = GUI::TextField::type::NOSWAP_ZSINT,
+					swap_type = nswapLDEC,
+					low = -1, high = 999999, val = local_comboref.trigquaketime,
+					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+					{
+						local_comboref.trigquaketime = val;
+					}),
+				INFOBTN("Sets the quake timer to the specified duration."
+					" '-1' for 'none'."),
+				//
+				Label(text = "Wavy", fitParent = true),
+				TextField(
+					fitParent = true, padding = 0_px,
+					type = GUI::TextField::type::NOSWAP_ZSINT,
+					swap_type = nswapLDEC,
+					low = -1, high = 999999, val = local_comboref.trigwavytime,
+					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+					{
+						local_comboref.trigwavytime = val;
+					}),
+				INFOBTN("Sets the wavy timer to the specified duration."
+					" '-1' for 'none'.")
 			))
 		))
 	);

@@ -2794,6 +2794,14 @@ void handle_trigger_results(newcombo const& cmb, int32_t cx, int32_t cy, bool& h
 			doClearTint();
 		if(cmb.trigtint[0] || cmb.trigtint[1] || cmb.trigtint[2])
 			doTint(cmb.trigtint[0], cmb.trigtint[1], cmb.trigtint[2]);
+		if(cmb.triglvlpalette > -1)
+			loadlvlpal(cmb.triglvlpalette);
+		if(cmb.trigbosspalette > -1)
+			loadpalset(csBOSS,pSprite(cmb.trigbosspalette));
+		if(cmb.trigquaketime > -1)
+			quakeclk = cmb.trigquaketime;
+		if(cmb.trigwavytime > -1)
+			wavy = cmb.trigwavytime;
 	}
 	
 	if(cmb.exstate > -1 && trigexstate)

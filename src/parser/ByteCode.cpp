@@ -2501,6 +2501,11 @@ string ZScript::VarToString(int32_t ID)
 		case COMBODTRIGTINTG: return "COMBODTRIGTINTG";
 		case COMBODTRIGTINTB: return "COMBODTRIGTINTB";
 		
+		case COMBODTRIGLVLPAL: return "COMBODTRIGLVLPAL";
+		case COMBODTRIGBOSSPAL: return "COMBODTRIGBOSSPAL";
+		case COMBODTRIGQUAKETIME: return "COMBODTRIGQUAKETIME";
+		case COMBODTRIGWAVYTIME: return "COMBODTRIGWAVYTIME";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);
