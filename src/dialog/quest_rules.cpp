@@ -807,7 +807,7 @@ static GUI::ListData compatRulesList
 	{ "Old Enemy Tile Behavior with Animation (None) Enemies", qr_OLD_TILE_INITIALIZATION,
 		"If enabled, enemies initialize their tile every frame by setting it to their O_Tile, even if they have an animation"
 		" of type (none). If disabled, enemies without animation will only initialize their tile if their tile is 0; which it"
-		" is when it is first created. This does not affect enemies that has an animation set."},
+		" is when it is first created. This does not affect enemies that have an animation set."},
 	{ "Enemy->Jump Fluctuates When on Ground", qr_FLUCTUATING_ENEMY_JUMP,
 		"If enabled, gravity applies to enemies every other frame when they are on the ground,"
 		" setting their jump value to the negative value of gravity for a frame before reverting"
@@ -838,7 +838,7 @@ static GUI::ListData compatRulesList
 	{ "Custom Weapon / Ice Rod Bugged Cost", qr_CUSTOMWEAPON_IGNORE_COST,
 		"Custom Weapon and Ice Rod itemclasses will not charge the use cost set"
 		" in the item editor if this is enabled." },
-	{ "Leever's Still Submerge If Stunned", qr_LEEVERS_DONT_OBEY_STUN,
+	{ "Leevers Still Submerge If Stunned", qr_LEEVERS_DONT_OBEY_STUN,
 		"If enabled, Leevers will still submerge if they are stunned. If disabled, they will"
 		" not submerge while stunned, but they will unsubmerge if they are currently submerged."},
 	{ "Wizzrobes Still Teleport If Stunned", qr_WIZZROBES_DONT_OBEY_STUN,
