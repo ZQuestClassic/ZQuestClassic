@@ -407,7 +407,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		{
 #ifdef SOUND_LIBS_BUILT_FROM_SOURCE
 			// No idea what this second arg does...
-			d = dumb_load_mod(filename, 2);
+			d = dumb_load_mod(filename, 0);
 #else
 			d = dumb_load_mod(filename);
 #endif
