@@ -22200,7 +22200,6 @@ void HeroClass::checkchest(int32_t type)
 
 void HeroClass::checkgenpush()
 {
-	if(pushing < 8 || pushing % 8) return;
 	zfix bx, by;
 	zfix bx2, by2;
 	switch(dir)
@@ -22238,13 +22237,15 @@ void HeroClass::checkgenpush()
 		
 		newcombo const& cmb1 = combobuf[tmp->data[pos1]];
 		if(cmb1.triggerflags[1] & combotriggerPUSH)
-			do_trigger_combo(layer,pos1);
+			if(pushing && !(pushing % zc_max(1,cmb1.trig_pushtime)))
+				do_trigger_combo(layer,pos1);
 		
 		if(pos1==pos2) continue;
 		
 		newcombo const& cmb2 = combobuf[tmp->data[pos2]];
 		if(cmb2.triggerflags[1] & combotriggerPUSH)
-			do_trigger_combo(layer,pos2);
+			if(pushing && !(pushing % zc_max(1,cmb2.trig_pushtime)))
+				do_trigger_combo(layer,pos2);
 	}
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
@@ -22257,8 +22258,11 @@ void HeroClass::checkgenpush()
 				newcombo const& cmb3 = combobuf[ffc.data];
 				if(cmb3.triggerflags[1] & combotriggerPUSH)
 				{
-					do_trigger_combo_ffc(i);
-					break;
+					if(pushing && !(pushing % zc_max(1,cmb3.trig_pushtime)))
+					{
+						do_trigger_combo_ffc(i);
+						break;
+					}
 				}
 			}
 		}

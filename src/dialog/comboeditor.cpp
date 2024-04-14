@@ -2649,7 +2649,18 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							InfoDialog("Trigger Cooldown","If the value is >0, the combo will"
 								" be unable to be triggered for 'n' frames after being triggered.").show();
 						}
-					)
+					),
+					Label(text = "Push Time:", fitParent = true),
+					TextField(
+						fitParent = true,
+						vPadding = 0_px,
+						type = GUI::TextField::type::INT_DECIMAL,
+						low = 0, high = 255, val = local_comboref.trig_pushtime,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							local_comboref.trig_pushtime = val;
+						}),
+					INFOBTN("The number of frames you need to push against a block for 'Push->' to activate.")
 				)
 			),
 			Row(padding = 0_px,
@@ -2706,7 +2717,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			)
 		)),
 		TabRef(name = "Effects", Rows<2>(
-				Rows_Columns<2,4>(framed = true, vAlign = 1.0,
+				Rows_Columns<2,4>(framed = true, vAlign = 1.0, hAlign = 1.0,
 					INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
 						" unless 'Temporary Secrets' screen data flag is checked."),
 					TRIGFLAG(48,"Triggers Secrets"),
@@ -2770,7 +2781,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)
 				),
 				Rows<3>(framed = true, padding = DEFAULT_PADDING*1.5, vAlign = 0.0,
-					colSpan = 2, hAlign = 1.0,
+					hAlign = 1.0,
 					Label(text = "SFX:", hAlign = 1.0),
 					DropDownList(data = list_sfx,
 						vPadding = 0_px,
@@ -2801,6 +2812,73 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						{
 							InfoDialog("Run Frozen Generic Script","The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)").show();
 						}
+					)
+				),
+				Frame(title = "Status Effects",
+					Rows<3>(padding = 0_px,
+						Label(text = "Sword Jinx:", fitParent = true),
+						TextField(
+							fitParent = true,
+							vPadding = 0_px,
+							type = GUI::TextField::type::INT_DECIMAL,
+							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_swjinxtime,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_comboref.trig_swjinxtime = val;
+							}),
+						INFOBTN("Sets the duration of the 'Sword Jinx' status effect."
+							"\n'-2' indicates not to do anything."
+							"\n'-1' inflicts the status indefinitely, until cured."
+							"\n'0' cures the status."
+							"\nAny value above 0 inflicts the status for that many frames."),
+						//
+						Label(text = "Item Jinx:", fitParent = true),
+						TextField(
+							fitParent = true,
+							vPadding = 0_px,
+							type = GUI::TextField::type::INT_DECIMAL,
+							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_itmjinxtime,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_comboref.trig_itmjinxtime = val;
+							}),
+						INFOBTN("Sets the duration of the 'Item Jinx' status effect."
+							"\n'-2' indicates not to do anything."
+							"\n'-1' inflicts the status indefinitely, until cured."
+							"\n'0' cures the status."
+							"\nAny value above 0 inflicts the status for that many frames."),
+						//
+						Label(text = "Stun:", fitParent = true),
+						TextField(
+							fitParent = true,
+							vPadding = 0_px,
+							type = GUI::TextField::type::INT_DECIMAL,
+							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_stuntime,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_comboref.trig_stuntime = val;
+							}),
+						INFOBTN("Sets the duration of the 'Stun' status effect."
+							"\n'-2' indicates not to do anything."
+							"\n'-1' inflicts the status indefinitely, until cured."
+							"\n'0' cures the status."
+							"\nAny value above 0 inflicts the status for that many frames."),
+						//
+						Label(text = "Bunny:", fitParent = true),
+						TextField(
+							fitParent = true,
+							vPadding = 0_px,
+							type = GUI::TextField::type::INT_DECIMAL,
+							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_bunnytime,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_comboref.trig_bunnytime = val;
+							}),
+						INFOBTN("Sets the duration of the 'Bunny' status effect."
+							"\n'-2' indicates not to do anything."
+							"\n'-1' inflicts the status indefinitely, until cured."
+							"\n'0' cures the status."
+							"\nAny value above 0 inflicts the status for that many frames.")
 					)
 				)
 			)

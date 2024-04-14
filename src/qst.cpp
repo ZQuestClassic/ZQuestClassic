@@ -18132,6 +18132,16 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 					return qe_invalid;
 				if(!p_igetw(&temp_combo.trigwavytime,f))
 					return qe_invalid;
+				if(!p_igetw(&temp_combo.trig_swjinxtime,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.trig_itmjinxtime,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.trig_stuntime,f))
+					return qe_invalid;
+				if(!p_igetw(&temp_combo.trig_bunnytime,f))
+					return qe_invalid;
+				if(!p_getc(&temp_combo.trig_pushtime,f))
+					return qe_invalid;
 			}
 		}
 		if(combo_has_flags&CHAS_LIFT)

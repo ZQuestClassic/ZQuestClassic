@@ -2804,6 +2804,18 @@ void handle_trigger_results(newcombo const& cmb, int32_t cx, int32_t cy, bool& h
 			wavy = cmb.trigwavytime;
 	}
 	
+	//Status Effects
+	{
+		if(cmb.trig_swjinxtime > -2)
+			Hero.setSwordClk(cmb.trig_swjinxtime);
+		if(cmb.trig_itmjinxtime > -2)
+			Hero.setItemClk(cmb.trig_itmjinxtime);
+		if(cmb.trig_stuntime > -2)
+			Hero.setStunClock(cmb.trig_stuntime);
+		if(cmb.trig_bunnytime > -2)
+			Hero.setBunnyClock(cmb.trig_bunnytime);
+	}
+	
 	if(cmb.exstate > -1 && trigexstate)
 	{
 		setxmapflag(1<<cmb.exstate);

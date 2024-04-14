@@ -72,6 +72,11 @@ bool newcombo::is_blank(bool ignoreEff)
 	if(trigbosspalette > -1) return false;
 	if(trigquaketime > -1) return false;
 	if(trigwavytime > -1) return false;
+	if(trig_swjinxtime > -2) return false;
+	if(trig_itmjinxtime > -2) return false;
+	if(trig_stuntime > -2) return false;
+	if(trig_bunnytime > -2) return false;
+	if(trig_pushtime != 8) return false;
 	if(!label.empty()) return false;
 	for(auto q = 0; q < NUM_COMBO_ATTRIBYTES; ++q)
 		if(attribytes[q]) return false;
@@ -231,6 +236,11 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		trigbosspalette = other.trigbosspalette;
 		trigquaketime = other.trigquaketime;
 		trigwavytime = other.trigwavytime;
+		trig_swjinxtime = other.trig_swjinxtime;
+		trig_itmjinxtime = other.trig_itmjinxtime;
+		trig_stuntime = other.trig_stuntime;
+		trig_bunnytime = other.trig_bunnytime;
+		trig_pushtime = other.trig_pushtime;
 	}
 	if(flags.get(CMB_ADVP_LIFTING))
 	{

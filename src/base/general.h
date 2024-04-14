@@ -78,6 +78,8 @@ int wrap(int x,int low,int high);
 //Sizes
 #define MAX_SIGNED_32              (2147483647)
 #define MIN_SIGNED_32              (-2147483647-1)
+#define MAX_ZSCRIPT_INT            (214748)
+#define MIN_ZSCRIPT_INT            (-214748)
 #define MAX_DWORD                  dword(-1)
 #define MIN_DWORD                  0
 
