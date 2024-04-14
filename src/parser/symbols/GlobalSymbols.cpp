@@ -457,7 +457,7 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("TraceS");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		LABELBACK(label);
 		addOpcode2 (code, new OTrace6Register(new VarArgument(EXP2)));
 		RETURN();

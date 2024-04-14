@@ -12690,7 +12690,7 @@ ALLOCATEMEMV d2,43,0; if() #596 Body Start
 STORE d2,0
 WRITEPODSTRING d2,"ghost.zh: Failed to find prototype eweapon"
 LOAD d2,0; InlineFunc[void TraceS(int)] Params Start
-SETR d0,d2; InlineFunc[void TraceS(int)] Params End
+SETR d3,d2; InlineFunc[void TraceS(int)] Params End
 TRACE6 d3; InlineFunc[void TraceS(int)] Body
 TRACE3; InlineFunc[void TraceNL()] Body
 SETV d2,0
