@@ -4656,7 +4656,7 @@ string OSetEWeaponPointer::toString() const
 
 string OGetItemPointer::toString() const
 {
-    return "ITEMARRPTR " + getArgument()->toString();
+    return "IDATAARRPTR " + getArgument()->toString();
 }
 
 string OSetItemPointer::toString() const
@@ -5886,7 +5886,7 @@ string OBMPLineRegister::toString() const
 
 string OBMPSplineRegister::toString() const
 {
-    return "BMPBMPSPLINER";
+    return "BMPSPLINER";
 }
 
 string OBMPPutPixelRegister::toString() const
