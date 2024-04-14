@@ -7,7 +7,6 @@ set(ZQUEST_MISC_SOURCES
 src/items.cpp
 src/zq/questReport.cpp
 src/zq/ffasm.cpp
-src/zasm_table.cpp
 src/zq/zquest.cpp
 src/zq/package.cpp
 src/zq/render.cpp

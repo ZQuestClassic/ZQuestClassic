@@ -6,7 +6,6 @@ set(ZELDA_CORE_SOURCES
 ################################
 src/zscriptversion.cpp
 src/zc/ffscript.cpp
-src/zasm_table.cpp
 src/zc/script_debug.cpp
 src/zc/jit.cpp
 src/gamedata.cpp

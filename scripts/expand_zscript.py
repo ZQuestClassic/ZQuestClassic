@@ -59,7 +59,7 @@ oplist_propcase = []
 file_bytecode_cpp = '../src/parser/ByteCode.cpp'
 file_bytecode_h = '../src/parser/ByteCode.h'
 file_ffscript_h = '../src/zc/ffscript.h'
-file_zasm_table_cpp = '../src/zasm_table.cpp'
+file_zasm_table_cpp = '../src/zasm/zasm_table.cpp'
 
 
 def printlns(lns):  # For debugging

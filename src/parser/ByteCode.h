@@ -10,7 +10,7 @@
 
 #include <string>
 
-// Note: these do not match the numbers in ffscript.h/zasm_table.cpp because the compiler just serializes
+// Note: these do not match the numbers in ffscript.h/table.cpp because the compiler just serializes
 // these to their string name (ZScript::VarToString), and then the editor deserializes to the proper ZASM register.
 // total legacy tech debt. Should just have compiler emit the ZASM bytecode directly.
 

@@ -24,6 +24,8 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 #include "base/version.h"
+#include "zasm/serialize.h"
+#include "zasm/table.h"
 #include "zc/replay.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zc_ffc.h"
@@ -84,13 +86,6 @@ using namespace util;
 //Define this register, so it can be treated specially
 #define NUL		5
 #define MAX_ZC_ARRAY_SIZE 214748
-
-// #define _SCRIPT_COUNTER
-
-#ifdef _SCRIPT_COUNTER
-static int64_t script_timer[NUMCOMMANDS];
-static int64_t script_execount[NUMCOMMANDS];
-#endif
 
 using namespace util;
 using std::ostringstream;
@@ -36440,31 +36435,6 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		replay_step_comment(str);
 	}
 
-#ifdef _SCRIPT_COUNTER
-	if (replay_get_frame() > 10000-50)
-	{
-		al_trace("\nPrinting ZASM timings:\n\n");
-
-		std::vector<std::pair<int, int>> timing_results;
-		for (int j = 0; j < NUMCOMMANDS; j++)
-		{
-			if (script_execount[j])
-			{
-				int32_t ms = script_timer[j] / 1000000.0;
-				timing_results.push_back({j, ms});
-			}
-		}
-		std::sort(timing_results.begin(), timing_results.end(), [](auto &left, auto &right) {
-			return left.second > right.second;
-		});
-		for (auto &it : timing_results)
-		{
-			al_trace("Command %s took %d ms complete in %ld executions.\n",
-					script_debug_command_to_string(it.first).c_str(), it.second, script_execount[it.first]);
-		}
-	}
-#endif
-
 	if (runtime_script_debug_handle)
 	{
 		runtime_script_debug_handle->print(fmt::format("result: {}\n", result).c_str());
@@ -36545,12 +36515,7 @@ int32_t run_script_int(bool is_jitted)
 	bool no_dealloc = false;
 	while(scommand != 0xFFFF)
 	{
-#ifdef _SCRIPT_COUNTER
-		std::chrono::steady_clock::time_point start_time, end_time;
-		start_time = std::chrono::steady_clock::now();
-#endif
-
-		auto& op = curscript->zasm[ri->pc];
+		const auto& op = curscript->zasm[ri->pc];
 		scommand = op.command;
 		sarg1 = op.arg1;
 		sarg2 = op.arg2;
@@ -41248,12 +41213,6 @@ int32_t run_script_int(bool is_jitted)
 		if(hit_invalid_zasm) break;
 		if(old_script_funcrun && (ri->pc == MAX_PC || scommand == RETURN))
 			return RUNSCRIPT_OK;
-
-#ifdef _SCRIPT_COUNTER
-		end_time = std::chrono::steady_clock::now();
-		script_timer[scommand] += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-		script_execount[scommand] += 1;
-#endif
 		
 		if (type == ScriptType::Combo)
 		{
@@ -46057,9 +46016,6 @@ double FFScript::LogToBase(double x, double base)
 	return FFCore.ln(x)/FFCore.ln(base);
 }
 
-extern script_command command_list[];
-extern script_variable variable_list[];
-
 
 ///----------------------------------------------------------------------------------------------------//
 //Debugger and Logging Consoles
@@ -46176,57 +46132,12 @@ void FFScript::ZASMPrint(bool open)
 	zc_set_config("CONSOLE","print_ZASM",zasm_debugger);
 }
 
-std::string ZASMVarToString(int32_t arg)
-{
-	for(int32_t q = 0; variable_list[q].id != -1; ++q)
-	{
-		if(variable_list[q].maxcount>0)
-		{
-			int32_t start = variable_list[q].id;
-			int32_t mult = zc_max(1,variable_list[q].multiple);
-			if(arg >= start && arg < start+(variable_list[q].maxcount*mult))
-			{
-				for(int32_t w = 0; w < variable_list[q].maxcount; ++w)
-				{
-					if(arg!=start+(w*mult)) continue;
-					
-					char buf[64+1];
-					if(strcmp(variable_list[q].name, "A")==0)
-						sprintf(buf, "%s%d", variable_list[q].name, w+1);
-					else sprintf(buf, "%s%d", variable_list[q].name, w);
-					return string(buf);
-				}
-			}
-		}
-		else if(variable_list[q].id == arg) return string(variable_list[q].name);
-	}
-	return "(null)";
-}
-
-std::string ZASMArgToString(int32_t arg, ARGTY arg_ty)
-{
-	switch(arg_ty)
-	{
-		case ARGTY::UNUSED_REG:
-		case ARGTY::READ_REG:
-		case ARGTY::WRITE_REG:
-		case ARGTY::READWRITE_REG:
-			return ZASMVarToString(arg);
-		case ARGTY::LITERAL:
-			return to_string(arg);
-		case ARGTY::COMPARE_OP:
-			return CMP_STR(arg);
-		default:
-			return "ERROR";
-	}
-}
-
 void FFScript::ZASMPrintCommand(const word scommand)
 {
 	if(SKIPZASMPRINT()) return;
 	//if ( !zasm_debugger ) return;
 	
-	script_command s_c = command_list[scommand];
+	auto& s_c = get_script_command(scommand);
 	
 	static const auto color_blue = CConsoleLoggerEx::COLOR_BLUE|CConsoleLoggerEx::COLOR_INTENSITY|
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK;
@@ -46250,7 +46161,7 @@ void FFScript::ZASMPrintCommand(const word scommand)
 			}
 			else //ARGTY::UNUSED_REG, ARGTY::READ_REG, ARGTY::WRITE_REG, ARGTY::READWRITE_REG
 			{
-				coloured_console.cprintf(color_white,"\t %s (val = %2d)%s", ZASMVarToString(sargs[q]).c_str(), get_register(sargs[q]), end ? "\n" : ", ");
+				coloured_console.cprintf(color_white,"\t %s (val = %2d)%s", zasm_var_to_string(sargs[q]).c_str(), get_register(sargs[q]), end ? "\n" : ", ");
 			}
 		}
 	}
@@ -46266,7 +46177,7 @@ void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 	// script_variable s_v = variable_list[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",ZASMVarToString(arg).c_str());
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",zasm_var_to_string(arg).c_str());
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
@@ -46280,7 +46191,7 @@ void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 	// script_variable s_v = variable_list[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",ZASMVarToString(arg).c_str());
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",zasm_var_to_string(arg).c_str());
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
@@ -53194,25 +53105,6 @@ bool command_is_pure(int command)
 	}
 
 	return false;
-}
-
-const script_command& get_script_command(int command)
-{
-	static script_command null_command = {"0xFFFF", 0, {ARGTY::UNUSED_REG, ARGTY::UNUSED_REG, ARGTY::UNUSED_REG}};
-	if (command == 0xFFFF) return null_command;
-	return command_list[command];
-}
-
-int get_script_command(std::string name)
-{
-	for (int i = 0; i < NUMCOMMANDS; i++)
-	{
-		if (command_list[i].name == name)
-			return i;
-	}
-
-	if (name == "0xFFFF") return 0xFFFF;
-	return -1;
 }
 
 int32_t get_combopos_ref(int32_t pos, int32_t layer)

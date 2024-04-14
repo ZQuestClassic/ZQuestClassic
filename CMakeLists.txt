@@ -557,6 +557,12 @@ add_library(zcgui STATIC
 target_link_libraries(zcgui PUBLIC allegro_with_legacy zcbase)
 target_include_directories(zcgui PRIVATE src)
 
+add_library(zasm STATIC
+	src/zasm/serialize.cpp
+	src/zasm/table.cpp
+)
+target_link_libraries(zasm PUBLIC allegro_with_legacy zcbase fmt)
+
 #############################################################
 # ZConsole
 #############################################################
@@ -579,12 +585,6 @@ target_link_libraries(zcbase PUBLIC zconsolelogger)
 set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
 
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
-	if(WIN32)
-		set(SOUND_LIB_SHARED STATIC)
-	else()
-		set(SOUND_LIB_SHARED SHARED)
-	endif()
-
 	FetchContent_Declare(
 		gme_external
 		GIT_REPOSITORY https://github.com/libgme/game-music-emu
@@ -691,7 +691,7 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE allegro_with_legacy)
+target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm)
 
 if(WIN32)
 	target_link_libraries(zplayer PRIVATE zalleg zconsolelogger zcbase zcgui zcsound websocket winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
@@ -759,7 +759,7 @@ endif()
 add_executable(zeditor ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 set_property(TARGET zeditor PROPERTY VS_DPI_AWARE "PerMonitor")
 
-target_link_libraries(zeditor PUBLIC zalleg zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+target_link_libraries(zeditor PUBLIC zalleg zconsolelogger zcbase zcgui zcsound zasm ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 target_include_directories(zeditor PRIVATE src)
 
 if(MSVC)

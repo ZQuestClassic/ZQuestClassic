@@ -7,6 +7,7 @@
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
+#include "zasm/serialize.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 #include <memory>
@@ -450,7 +451,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 	}
 	else
 	{
-		Z_error_fatal("Unimplemented: %s", script_debug_command_to_string(command, arg1, arg2, arg3).c_str());
+		Z_error_fatal("Unimplemented: %s", zasm_op_to_string(command, arg1, arg2, arg3, nullptr, nullptr).c_str());
 	}
 }
 
@@ -830,12 +831,9 @@ JittedFunction jit_compile_script(script_data *script)
 
 	for (size_t i = 0; i < size; i++)
 	{
-		auto& op = script->zasm[i];
+		const auto& op = script->zasm[i];
 		auto arg1 = op.arg1;
 		auto arg2 = op.arg2;
-		auto arg3 = op.arg3;
-		auto argvec = op.vecptr;
-		auto argstr = op.strptr;
 		int command = op.command;
 
 		if (goto_labels.contains(i))
@@ -851,7 +849,7 @@ JittedFunction jit_compile_script(script_data *script)
 
 		if (DEBUG_JIT_PRINT_ASM)
 		{
-			cc.setInlineComment((comment = fmt::format("{} {}", i, script_debug_command_to_string(command, arg1, arg2, arg3, argvec, argstr))).c_str());
+			cc.setInlineComment((comment = fmt::format("{} {}", i, zasm_op_to_string(op))).c_str());
 		}
 
 #ifdef JIT_DEBUG_CRASH
@@ -901,9 +899,8 @@ JittedFunction jit_compile_script(script_data *script)
 
 			if (DEBUG_JIT_PRINT_ASM)
 			{
-				std::string command_str =
-					script_debug_command_to_string(command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr);
-				cc.setInlineComment((comment = fmt::format("{} {}", i, command_str)).c_str());
+				std::string op_str = zasm_op_to_string(op);
+				cc.setInlineComment((comment = fmt::format("{} {}", i, op_str)).c_str());
 				cc.nop();
 			}
 
@@ -925,10 +922,9 @@ JittedFunction jit_compile_script(script_data *script)
 				uncompiled_command_count += 1;
 				if (DEBUG_JIT_PRINT_ASM)
 				{
-					auto& op = script->zasm[j];
-					std::string command_str =
-						script_debug_command_to_string(op.command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr);
-					cc.setInlineComment((comment = fmt::format("{} {}", j, command_str)).c_str());
+					const auto& op = script->zasm[j];
+					std::string op_str = zasm_op_to_string(op);
+					cc.setInlineComment((comment = fmt::format("{} {}", j, op_str)).c_str());
 					cc.nop();
 				}
 			}
@@ -1627,7 +1623,7 @@ JittedFunction jit_compile_script(script_data *script)
 			debug_handle->print("=== uncompiled commands:\n");
 			for (auto &it : uncompiled_command_counts)
 			{
-				debug_handle->printf("%s: %d\n", script_debug_command_to_string(it.first).c_str(), it.second);
+				debug_handle->printf("%s: %d\n", zasm_op_to_string(it.first).c_str(), it.second);
 			}
 			debug_handle->print("\n");
 		}

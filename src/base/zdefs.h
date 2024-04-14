@@ -2106,7 +2106,6 @@ struct script_variable
     char name[64];
     int32_t id;
     word maxcount;
-    byte multiple;
 };
 
 //Sprite boundary array indices

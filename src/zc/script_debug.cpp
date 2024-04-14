@@ -4,13 +4,13 @@
 #include "zc/ffscript.h"
 #include "zc/replay.h"
 #include "zc/zasm_utils.h"
+#include "zasm/table.h"
+#include "zasm/serialize.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 #include <iomanip>
 
 extern refInfo *ri;
-std::string ZASMVarToString(int32_t arg);
-std::string ZASMArgToString(int32_t arg, ARGTY arg_ty);
 
 bool DEBUG_JIT_PRINT_ASM;
 bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
@@ -153,7 +153,7 @@ void ScriptDebugHandle::print_command(int i)
 	auto& op = script->zasm[i];
 	word scommand = op.command;
 	int args[] = {op.arg1, op.arg2, op.arg3};
-	script_command c = get_script_command(scommand);
+	auto& c = get_script_command(scommand);
 
 	printf(CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
 							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
@@ -161,13 +161,13 @@ void ScriptDebugHandle::print_command(int i)
 	if (c.args >= 1)
 	{
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\t %s", ZASMArgToString(args[0], c.arg_type[0]).c_str());
+			"\t %s", zasm_arg_to_string(args[0], c.arg_type[0]).c_str());
 	}
 	for(int q = 1; q < c.args; ++q)
 	{
 		print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\t %s", ZASMArgToString(args[q], c.arg_type[q]).c_str());
+			"\t %s", zasm_arg_to_string(args[q], c.arg_type[q]).c_str());
 	}
 	if (c.arr_type)
 	{
@@ -223,12 +223,12 @@ void ScriptDebugHandle::pre_command()
 	if (frame != -1)
 	{
 		int i = ri->pc;
-		auto& op = script->zasm[i];
+		const auto& op = script->zasm[i];
 
 		std::string line = script_debug_registers_and_stack_to_string();
 		util::replchar(line, '\n', ' ');
 
-		replay_step_comment(fmt::format("{} {} | {}", i, script_debug_command_to_string(command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr), line));
+		replay_step_comment(fmt::format("{} {} | {}", i, zasm_op_to_string(op), line));
 
 		if (command == COMPAREV || command == COMPARER)
 		{
@@ -268,71 +268,6 @@ int script_debug_is_runtime_debugging()
 
 	static int runtime_debug = get_flag_int("-script-runtime-debug").value_or(0);
 	return runtime_debug;
-}
-
-std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3, vector<int>* argvec, string* argstr)
-{
-	std::stringstream ss;
-	script_command c = get_script_command(scommand);
-
-	int args[] = {arg1, arg2, arg3};
-	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
-	ss << SS_WIDTH(15) << c.name;
-	if (c.args >= 1)
-	{
-		ss << " " << SS_WIDTH(16) << ZASMArgToString(args[0], c.arg_type[0]);
-	}
-	for(int q = 1; q < c.args; ++q)
-	{
-		ss << SS_WIDTH(7) << ZASMArgToString(args[q], c.arg_type[q]);
-	}
-	if (c.arr_type)
-	{
-		ss << SS_WIDTH(7);
-		if(c.arr_type == 1)
-		{
-			// NOTE: currently possible to encounter a null pointer here, since the qst loading code
-			// will create no string for these commands if the size was 0.
-			if (argstr)
-				ss << *argstr;
-		}
-		else //if(c.arr_type == 2)
-		{
-			ss << fmt::format("{{ {} }}", fmt::join(*argvec, ", "));
-		}
-	}
-
-	return ss.str();
-}
-
-std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3)
-{
-	std::stringstream ss;
-	script_command c = get_script_command(scommand);
-	
-	int args[] = {arg1, arg2, arg3};
-	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
-	ss << SS_WIDTH(15) << c.name;
-	if (c.args >= 1)
-	{
-		ss << " " << SS_WIDTH(16) << ZASMArgToString(args[0], c.arg_type[0]);
-	}
-	for(int q = 1; q < c.args; ++q)
-	{
-		ss << SS_WIDTH(7) << ZASMArgToString(args[q], c.arg_type[q]);
-	}
-
-	return ss.str();
-}
-
-std::string script_debug_command_to_string(const ffscript& c)
-{
-	return script_debug_command_to_string(c.command, c.arg1, c.arg2, c.arg3);
-}
-
-std::string script_debug_command_to_string(word scommand)
-{
-	return get_script_command(scommand).name;
 }
 
 std::string script_debug_registers_and_stack_to_string()
