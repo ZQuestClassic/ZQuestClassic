@@ -1047,102 +1047,102 @@ Compile finished with exit code '0' (success)
     }
   ]
 }
-PUSHR d0; void run(int, int, int, int, int) Params
-PUSHR d1
-PUSHR d2
-PUSHR d3
-PUSHR d4
+PUSHR D0; void run(int, int, int, int, int) Params
+PUSHR D1
+PUSHR D2
+PUSHR D3
+PUSHR D4
 PUSHR REFFFC; void run(int, int, int, int, int) Body Start
 PUSHARGSV 0,0.0005
-SETR d4,SP2
-ALLOCATEMEMV d2,7,0
-STORE d2,0.0004
-WRITEPODSTRING d2,"%d %d\n"
-LOAD d2,0.0004; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-SETR d2,gd1
-PUSHR d2
-SETR d2,gd2
-POP d3
-ADDR d2,d3
-PUSHVARGR d2
-SETR d2,gd3
-ADDV d2,1
-ADDV d2,2
-PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+SETR D4,SP2
+ALLOCATEMEMV D2,7,0
+STORE D2,0.0004
+WRITEPODSTRING D2,"%d %d\n"
+LOAD D2,0.0004; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+SETR D2,GD1
+PUSHR D2
+SETR D2,GD2
+POP D3
+ADDR D2,D3
+PUSHVARGR D2
+SETR D2,GD3
+ADDV D2,1
+ADDV D2,2
+PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOAD d3,0.0004
-DEALLOCATEMEMR d3
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0.0004
+DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
-PUSHR d4
+PUSHR D4
 PUSHV 2; ClassFunc[Car Car(int)] Params
 CALLFUNC 0.0076; ClassFunc[Car Car(int)] Constructor Call
-POP d4
+POP D4
 POP CLASS_THISKEY
-STORE_OBJECT d2,0.0003
-ALLOCATEMEMV d2,10,0
-STORE d2,0.0002
-WRITEPODSTRING d2,"%d %d %d\n"
-LOAD d2,0.0002; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-LOAD d2,0.0003
-ZCLASS_READ d2,0
-PUSHVARGR d2
-LOAD d2,0.0010
-PUSHVARGR d2
-SETR d2,gd6
-PUSHR d2
-SETR d2,gd4
-POP d3
-ADDR d2,d3
-PUSHR d2
-SETR d2,gd5
-POP d3
-ADDR d2,d3
-ADDV d2,1
-ADDV d2,2
-PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+STORE_OBJECT D2,0.0003
+ALLOCATEMEMV D2,10,0
+STORE D2,0.0002
+WRITEPODSTRING D2,"%d %d %d\n"
+LOAD D2,0.0002; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+LOAD D2,0.0003
+ZCLASS_READ D2,0
+PUSHVARGR D2
+LOAD D2,0.0010
+PUSHVARGR D2
+SETR D2,GD6
+PUSHR D2
+SETR D2,GD4
+POP D3
+ADDR D2,D3
+PUSHR D2
+SETR D2,GD5
+POP D3
+ADDR D2,D3
+ADDV D2,1
+ADDV D2,2
+PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOAD d3,0.0002
-DEALLOCATEMEMR d3
-SETV d2,0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor()] Set Destructor
-ZCLASS_CONSTRUCT d2,{0}; ProtoFunc[IhaveAdefCtor IhaveAdefCtor()] Default Construct
-STORE_OBJECT d2,0.0001
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0.0002
+DEALLOCATEMEMR D3
+SETV D2,0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor()] Set Destructor
+ZCLASS_CONSTRUCT D2,{0}; ProtoFunc[IhaveAdefCtor IhaveAdefCtor()] Default Construct
+STORE_OBJECT D2,0.0001
 PUSHR CLASS_THISKEY
-PUSHR d4
+PUSHR D4
 PUSHV 2; ClassFunc[Car Car(int)] Params
 CALLFUNC 0.0076; ClassFunc[Car Car(int)] Constructor Call
-POP d4
+POP D4
 POP CLASS_THISKEY
-STORE_OBJECT d2,0
+STORE_OBJECT D2,0
 REF_REMOVE 0.0003
 REF_REMOVE 0
 REF_REMOVE 0.0001
-POPARGS d5,0.0011
+POPARGS D5,0.0011
 QUIT; void run(int, int, int, int, int) Body End
-SETV d2,0; Func[Car Car(int)] Body Start
+SETV D2,0; Func[Car Car(int)] Body Start
 SETR CLASS_THISKEY2,CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
-SETR d4,SP2
+SETR D4,SP2
 PUSHR CLASS_THISKEY2
-LOAD d2,0
-PUSHR d2
-SETR d2,CLASS_THISKEY
-SETR d3,d2
-POP d2
-ZCLASS_WRITE d3,0
-POP d5
-SETR d2,CLASS_THISKEY
+LOAD D2,0
+PUSHR D2
+SETR D2,CLASS_THISKEY
+SETR D3,D2
+POP D2
+ZCLASS_WRITE D3,0
+POP D5
+SETR D2,CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car(int)] Body End
 
 
-SETV gd1,1; void run() Body Start
-SETV gd2,1
-SETV gd3,1
-SETV gd4,0
-SETV gd5,2
-SETV gd6,0
+SETV GD1,1; void run() Body Start
+SETV GD2,1
+SETV GD3,1
+SETV GD4,0
+SETV GD5,2
+SETV GD6,0
 QUIT; void run() Body End

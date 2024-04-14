@@ -14,38 +14,38 @@ Compile finished with exit code '0' (success)
   "symbols": 7,
   "identifiers": 7
 }
-PUSHR d0; void run(int, int) Params
-PUSHR d1
+PUSHR D0; void run(int, int) Params
+PUSHR D1
 PUSHR REFFFC; void run(int, int) Body Start
 PUSHARGSV 0,0.0002
-SETR d4,SP2
-SETR d2,REGION_WIDTH; InlineFunc[void Trace(long)] Params
-TRACELR d2; InlineFunc[void Trace(long)] Body
-SETR d2,REGION_HEIGHT; InlineFunc[void Trace(long)] Params
-TRACELR d2; InlineFunc[void Trace(long)] Body
-SETR d2,REGION_SCREEN_WIDTH; InlineFunc[void Trace(long)] Params
-TRACELR d2; InlineFunc[void Trace(long)] Body
-SETR d2,REGION_SCREEN_HEIGHT; InlineFunc[void Trace(long)] Params
-TRACELR d2; InlineFunc[void Trace(long)] Body
-SETR d2,REGION_NUM_COMBOS; InlineFunc[void Trace(long)] Params
-TRACELR d2; InlineFunc[void Trace(long)] Body
-SETV d2,0; while(true) #8 Body [Opt:AlwaysOn] Start
-PUSHR d2
-POP d0
-SETR d2,MOUSEARR
-STORE d2,0.0001
-SETV d2,1
-PUSHR d2
-POP d0
-SETR d2,MOUSEARR
-STORE d2,0
+SETR D4,SP2
+SETR D2,REGION_WIDTH; InlineFunc[void Trace(long)] Params
+TRACELR D2; InlineFunc[void Trace(long)] Body
+SETR D2,REGION_HEIGHT; InlineFunc[void Trace(long)] Params
+TRACELR D2; InlineFunc[void Trace(long)] Body
+SETR D2,REGION_SCREEN_WIDTH; InlineFunc[void Trace(long)] Params
+TRACELR D2; InlineFunc[void Trace(long)] Body
+SETR D2,REGION_SCREEN_HEIGHT; InlineFunc[void Trace(long)] Params
+TRACELR D2; InlineFunc[void Trace(long)] Body
+SETR D2,REGION_NUM_COMBOS; InlineFunc[void Trace(long)] Params
+TRACELR D2; InlineFunc[void Trace(long)] Body
+SETV D2,0; while(true) #8 Body [Opt:AlwaysOn] Start
+PUSHR D2
+POP D0
+SETR D2,MOUSEARR
+STORE D2,0.0001
+SETV D2,1
+PUSHR D2
+POP D0
+SETR D2,MOUSEARR
+STORE D2,0
 PUSHV 3; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-LOAD d2,0.0001
-PUSHR d2
-LOAD d2,0
-PUSHR d2
-LOAD d2,0.0004
-PUSHR d2
+LOAD D2,0.0001
+PUSHR D2
+LOAD D2,0
+PUSHR D2
+LOAD D2,0.0004
+PUSHR D2
 PUSHARGSV 1,0.0002
 PUSHV 3
 PUSHARGSV -1,0.0002
@@ -53,56 +53,56 @@ PUSHARGSV 0,0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS d5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-LOAD d2,0.0002; if() #558 Test
-PUSHR d2
+POPARGS D5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+LOAD D2,0.0002; if() #558 Test
+PUSHR D2
 POP REFFFC
-SETR d2,X
-PUSHR d2
-LOAD d2,0.0001
-POP d3
-COMPARER d3,d2
+SETR D2,X
+PUSHR D2
+LOAD D2,0.0001
+POP D3
+COMPARER D3,D2
 GOTOCMP 81,>=
-LOAD d2,0.0002
-PUSHR d2
+LOAD D2,0.0002
+PUSHR D2
 POP REFFFC
-SETR d2,Y
-PUSHR d2
-LOAD d2,0
-POP d3
-COMPARER d3,d2
+SETR D2,Y
+PUSHR D2
+LOAD D2,0
+POP D3
+COMPARER D3,D2
 GOTOCMP 81,>=
-LOAD d2,0.0002
-PUSHR d2
+LOAD D2,0.0002
+PUSHR D2
 POP REFFFC
-SETR d2,X
-ADDV d2,32
-PUSHR d2
-LOAD d2,0.0001
-POP d3
-COMPARER d3,d2
+SETR D2,X
+ADDV D2,32
+PUSHR D2
+LOAD D2,0.0001
+POP D3
+COMPARER D3,D2
 GOTOCMP 81,<
-LOAD d2,0.0002
-PUSHR d2
+LOAD D2,0.0002
+PUSHR D2
 POP REFFFC
-SETR d2,Y
-ADDV d2,32
-PUSHR d2
-LOAD d2,0
-POP d3
-COMPARER d3,d2
+SETR D2,Y
+ADDV D2,32
+PUSHR D2
+LOAD D2,0
+POP D3
+COMPARER D3,D2
 GOTOCMP 81,<
-SETV d2,1
+SETV D2,1
 GOTO 82
-SETV d2,0
-COMPAREV d2,0
+SETV D2,0
+COMPAREV D2,0
 GOTOCMP 86,==; Test 'if'
-LOAD d2,0.0003; InlineFunc[void Region->TriggerSecrets(int)] Params AND if() #558 Body Start
-REGION_TRIGGER_SECRETS d2; InlineFunc[void Region->TriggerSecrets(int)] Body AND if() #558 Body End
+LOAD D2,0.0003; InlineFunc[void Region->TriggerSecrets(int)] Params AND if() #558 Body Start
+REGION_TRIGGER_SECRETS D2; InlineFunc[void Region->TriggerSecrets(int)] Body AND if() #558 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
 GOTO 16; while() #8 End AND [Opt:NeverRet] AND void run(int, int) Body End
 
 
-ALLOCATEGMEMV d2,4096,0; void run() Body Start
-SETR gd1,d2
+ALLOCATEGMEMV D2,4096,0; void run() Body Start
+SETR GD1,D2
 QUIT; void run() Body End
