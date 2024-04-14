@@ -7849,6 +7849,18 @@ int TrigQuakeTimer;
 int TrigWavyTimer;
  * The wavy timer to set when triggered. -1 for none.
 
+int TrigSwordJinx;
+ * The duration to Sword Jinx the player for. -2 for none, -1 for 'until cured', 0 to cure.
+int TrigItemJinx;
+ * The duration to Item Jinx the player for. -2 for none, -1 for 'until cured', 0 to cure.
+int TrigStun;
+ * The duration to Stun the player for. -2 for none, -1 for 'until cured', 0 to cure.
+int TrigBunny;
+ * The duration to Bunny the player for. -2 for none, -1 for 'until cured', 0 to cure.
+
+int TrigPushTime;
+ * The duration that the combo must be pushed against for the 'Push->' trigger flag to take effect.
+
 int TrigGenScript;
  * When triggered, this generic script will be run in the 'RunFrozen' mode.
 

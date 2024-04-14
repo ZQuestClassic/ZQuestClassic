@@ -12798,6 +12798,56 @@ int32_t get_register(int32_t arg)
 			else ret = 10000 * combobuf[ri->combosref].trigwavytime;
 			break;
 		}
+		case COMBODTRIGSWORDJINX:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSwordJinx: %d\n", (ri->combosref*10000));
+			}
+			else ret = 10000 * combobuf[ri->combosref].trig_swjinxtime;
+			break;
+		}
+		case COMBODTRIGITEMJINX:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigItemJinx: %d\n", (ri->combosref*10000));
+			}
+			else ret = 10000 * combobuf[ri->combosref].trig_itmjinxtime;
+			break;
+		}
+		case COMBODTRIGSTUN:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigStun: %d\n", (ri->combosref*10000));
+			}
+			else ret = 10000 * combobuf[ri->combosref].trig_stuntime;
+			break;
+		}
+		case COMBODTRIGBUNNY:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigBunny: %d\n", (ri->combosref*10000));
+			}
+			else ret = 10000 * combobuf[ri->combosref].trig_bunnytime;
+			break;
+		}
+		case COMBODTRIGPUSHTIME:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigPushTime: %d\n", (ri->combosref*10000));
+			}
+			else ret = 10000 * combobuf[ri->combosref].trig_pushtime;
+			break;
+		}
 		case COMBODLIFTGFXCOMBO:
 		{
 			ret = -10000;
@@ -25771,6 +25821,51 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigWavyTimer: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].trigwavytime = zc_max(value/10000, -1);
+			break;
+		}
+		case COMBODTRIGSWORDJINX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSwordJinx: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_swjinxtime = zc_max(value/10000, -2);
+			break;
+		}
+		case COMBODTRIGITEMJINX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigItemJinx: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_itmjinxtime = zc_max(value/10000, -2);
+			break;
+		}
+		case COMBODTRIGSTUN:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigStun: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_bunnytime = zc_max(value/10000, -2);
+			break;
+		}
+		case COMBODTRIGBUNNY:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigBunny: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_bunnytime = zc_max(value/10000, -2);
+			break;
+		}
+		case COMBODTRIGPUSHTIME:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigPushTime: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_pushtime = vbound(value/10000, 0, 255);
 			break;
 		}
 		case COMBODLIFTGFXCOMBO:
