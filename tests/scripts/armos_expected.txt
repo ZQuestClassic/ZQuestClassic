@@ -13818,7 +13818,7 @@ ALLOCATEMEMV d2,43
 STORED d2,0
 WRITEPODSTRING d2,"ghost.zh: Failed to find prototype eweapon"
 LOADD d2,0
-SETR d0,d2
+SETR d3,d2
 TRACE6 d3
 TRACE3
 SETV d2,0
