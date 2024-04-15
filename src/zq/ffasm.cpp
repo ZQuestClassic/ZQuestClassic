@@ -1677,7 +1677,7 @@ script_variable variable_list[]=
 	{ "IDATAMISCD", IDATAMISCD, 0, 0 }, //WeaponMisc[32]
 	{ "IDATAWEAPHXOFS", IDATAWEAPHXOFS, 0, 0 }, //WeaponHitXOffset
 	{ "IDATAWEAPHYOFS", IDATAWEAPHYOFS, 0, 0 }, //WeaponHitYOffset
-	{ "IDATAWEAPHXSZ", IDATAWEAPHYSZ, 0, 0 }, //WeaponHitWidth
+	{ "IDATAWEAPHXSZ", IDATAWEAPHXSZ, 0, 0 }, //WeaponHitWidth
 	{ "IDATAWEAPHYSZ", IDATAWEAPHYSZ, 0, 0 }, //WeaponHitHeight
 	{ "IDATAWEAPHZSZ", IDATAWEAPHZSZ, 0, 0 }, //WeaponHitZHeight
 	{ "IDATAWEAPXOFS", IDATAWEAPXOFS, 0, 0 }, //WeaponDrawXOffset
@@ -2189,7 +2189,7 @@ script_variable variable_list[]=
 	{"NPCCOLLISION", NPCCOLLISION, 0, 0 },
 	{"NPCLINEDUP", NPCLINEDUP, 0, 0 },
 	
-	{"NPCDATAINITD", NPCLINEDUP, 0, 0 },
+	{"NPCDATAINITD", NPCDATAINITD, 0, 0 },
 	{"NPCDATASCRIPT", NPCDATASCRIPT, 0, 0 },
 	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0, 0 },
 	//lweapon scripts
