@@ -3622,7 +3622,7 @@ string ONPCNewDir8::toString() const
 }
 string ONPCRemove::toString() const
 {
-    return "NPCKICKBUCKET " + getArgument()->toString();
+    return "NPCKICKBUCKET";
 }
 string OLWpnRemove::toString() const
 {
@@ -3638,11 +3638,11 @@ string OItemRemove::toString() const
 }
 string ONPCStopSFX::toString() const
 {
-    return "NPCSTOPBGSFX " + getArgument()->toString();
+    return "NPCSTOPBGSFX";
 }
 string ONPCAttack::toString() const
 {
-    return "NPCATTACK " + getArgument()->toString();
+    return "NPCATTACK";
 }
 string ONPCNewDir::toString() const
 {

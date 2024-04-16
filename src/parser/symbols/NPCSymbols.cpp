@@ -330,7 +330,7 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Check validity
 		addOpcode2 (code, new ONPCDead(new VarArgument(EXP1)));
@@ -343,7 +343,7 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Check validity
 		addOpcode2 (code, new ONPCCanSlide(new VarArgument(EXP1)));
@@ -356,7 +356,7 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Check validity
 		addOpcode2 (code, new ONPCSlide(new VarArgument(EXP1)));
@@ -372,7 +372,7 @@ void NPCSymbols::generateCode()
 		POPREF();
 		LABELBACK(label);
 		//Break shield
-		addOpcode2 (code, new ONPCRemove(new VarArgument(EXP1)));
+		addOpcode2 (code, new ONPCRemove());
 		RETURN();
 		 function->giveCode(code);
 	}
@@ -382,10 +382,10 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Break shield
-		addOpcode2 (code, new ONPCStopSFX(new VarArgument(EXP1)));
+		addOpcode2 (code, new ONPCStopSFX());
 		RETURN();
 		 function->giveCode(code);
 	}
@@ -395,10 +395,10 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Break shield
-		addOpcode2 (code, new ONPCAttack(new VarArgument(EXP1)));
+		addOpcode2 (code, new ONPCAttack());
 		RETURN();
 		 function->giveCode(code);
 	}

@@ -8600,14 +8600,14 @@ namespace ZScript
 			return new ONPCSlide(a->clone());
 		}
 	};
-	class ONPCRemove : public UnaryOpcode
+	class ONPCRemove : public Opcode
 	{
 	public:
-		ONPCRemove(Argument *A) : UnaryOpcode(A) {}
+		ONPCRemove() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new ONPCRemove(a->clone());
+			return new ONPCRemove();
 		}
 	};
 	
@@ -8641,24 +8641,24 @@ namespace ZScript
 			return new OItemRemove();
 		}
 	};
-	class ONPCStopSFX : public UnaryOpcode
+	class ONPCStopSFX : public Opcode
 	{
 	public:
-		ONPCStopSFX(Argument *A) : UnaryOpcode(A) {}
+		ONPCStopSFX() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new ONPCStopSFX(a->clone());
+			return new ONPCStopSFX();
 		}
 	};
-	class ONPCAttack : public UnaryOpcode
+	class ONPCAttack : public Opcode
 	{
 	public:
-		ONPCAttack(Argument *A) : UnaryOpcode(A) {}
+		ONPCAttack() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new ONPCAttack(a->clone());
+			return new ONPCAttack();
 		}
 	};
 	class ONPCNewDir : public UnaryOpcode

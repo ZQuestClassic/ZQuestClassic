@@ -12,5 +12,5 @@ Finished optimizing scripts:
 	[reduce_comparisons] saved 280 instr (2.6%)
 	[propagate_values] saved 0 instr (0.0%)
 	[unreachable_blocks_2] saved 1 instr (0.0%)
-	[dead_code] saved 337 instr (3.1%)
-	[total] saved 4514 instr (41.4%)
+	[dead_code] saved 335 instr (3.1%)
+	[total] saved 4512 instr (41.3%)
