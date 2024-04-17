@@ -1053,7 +1053,7 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), script(NULL), name_location()
+	: ASTDecl(location), identifier(NULL), type(NULL), script(NULL)
 {
 	metadata.autogen();
 }
@@ -1088,7 +1088,7 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 // ASTClass
 
 ASTClass::ASTClass(LocationData const& location)
-	: ASTDecl(location), name(""), user_class(NULL), name_location()
+	: ASTDecl(location), identifier(NULL), user_class(NULL)
 {}
 
 void ASTClass::execute(ASTVisitor& visitor, void* param)
@@ -1120,8 +1120,8 @@ void ASTClass::addDeclaration(ASTDecl& declaration)
 
 // ASTNamespace
 
-ASTNamespace::ASTNamespace(LocationData const& location, std::string name)
-	: ASTDecl(location), name(name), namesp(NULL)
+ASTNamespace::ASTNamespace(LocationData const& location)
+	: ASTDecl(location), namesp(NULL)
 {}
 
 void ASTNamespace::addDeclaration(ASTDecl& declaration)
@@ -1202,8 +1202,8 @@ void ASTImportCondDecl::execute(ASTVisitor& visitor, void* param)
 // ASTFuncDecl
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
-	: ASTDecl(location), returnType(NULL), iden(NULL), block(NULL), invalidMsg(""), func(NULL), parentScope(NULL), prototype(false),
-	  defaultReturn(NULL), flags(0)
+	: ASTDecl(location), identifier(NULL), returnType(NULL), block(NULL), invalidMsg(""), func(NULL), parentScope(NULL),
+	  prototype(false), defaultReturn(NULL), flags(0)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
@@ -1227,7 +1227,17 @@ void ASTFuncDecl::setFlag(int32_t flag, bool state)
 
 bool ASTFuncDecl::isRun() const
 {
-	return name == FFCore.scriptRunString;
+	return getName() == FFCore.scriptRunString;
+}
+
+const std::string& ASTFuncDecl::getName() const
+{
+	return identifier->components.back();
+}
+
+std::optional<LocationData> ASTFuncDecl::getIdentifierLocation() const
+{
+	return identifier->componentNodes.back()->location;
 }
 
 // ASTDataDeclList
@@ -1302,15 +1312,15 @@ void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 // ASTDataDecl
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
-	: ASTDecl(location), list(NULL), manager(NULL),
-	  baseType(NULL), initializer_(NULL), flags(0)
+	: ASTDecl(location), identifier(NULL), list(NULL),
+	  manager(NULL), baseType(NULL), flags(0), initializer_(NULL)
 {}
 
 ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
 	: ASTDecl(other),
-	  list(NULL), manager(NULL),
+	  identifier(other.identifier), list(NULL),
+	  manager(NULL),
 	  baseType(other.baseType),
-	  name(other.name),
 	  extraArrays(other.extraArrays)
 {
 	if(other.initializer_)
@@ -1324,7 +1334,7 @@ ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
 	list = NULL;
 	manager = NULL;
 	baseType = rhs.baseType;
-	name = rhs.name;
+	identifier = rhs.identifier;
 	extraArrays = rhs.extraArrays;
 	setInitializer(rhs.initializer_.clone());
 

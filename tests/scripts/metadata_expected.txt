@@ -106,7 +106,7 @@ Compile finished with exit code '0' (success)
         },
         "end": {
           "line": 2,
-          "character": 15
+          "character": 11
         }
       },
       "children": []
@@ -131,7 +131,7 @@ Compile finished with exit code '0' (success)
         },
         "end": {
           "line": 3,
-          "character": 22
+          "character": 12
         }
       },
       "children": []
@@ -156,7 +156,7 @@ Compile finished with exit code '0' (success)
         },
         "end": {
           "line": 16,
-          "character": 9
+          "character": 5
         }
       },
       "children": []
@@ -206,7 +206,7 @@ Compile finished with exit code '0' (success)
         },
         "end": {
           "line": 18,
-          "character": 12
+          "character": 8
         }
       },
       "children": []
@@ -227,11 +227,11 @@ Compile finished with exit code '0' (success)
       "selectionRange": {
         "start": {
           "line": 67,
-          "character": 0
+          "character": 10
         },
         "end": {
-          "line": 74,
-          "character": 1
+          "line": 67,
+          "character": 15
         }
       },
       "children": [
@@ -280,7 +280,7 @@ Compile finished with exit code '0' (success)
             },
             "end": {
               "line": 69,
-              "character": 18
+              "character": 11
             }
           },
           "children": []
@@ -331,7 +331,7 @@ Compile finished with exit code '0' (success)
             },
             "end": {
               "line": 55,
-              "character": 71
+              "character": 12
             }
           },
           "children": [
@@ -355,7 +355,7 @@ Compile finished with exit code '0' (success)
                 },
                 "end": {
                   "line": 59,
-                  "character": 27
+                  "character": 14
                 }
               },
               "children": []
@@ -380,7 +380,7 @@ Compile finished with exit code '0' (success)
                 },
                 "end": {
                   "line": 61,
-                  "character": 36
+                  "character": 14
                 }
               },
               "children": []
@@ -405,7 +405,7 @@ Compile finished with exit code '0' (success)
                 },
                 "end": {
                   "line": 62,
-                  "character": 27
+                  "character": 14
                 }
               },
               "children": []
@@ -483,7 +483,7 @@ Compile finished with exit code '0' (success)
             },
             "end": {
               "line": 31,
-              "character": 16
+              "character": 14
             }
           },
           "children": []
@@ -508,7 +508,7 @@ Compile finished with exit code '0' (success)
             },
             "end": {
               "line": 35,
-              "character": 17
+              "character": 15
             }
           },
           "children": []
@@ -533,7 +533,7 @@ Compile finished with exit code '0' (success)
             },
             "end": {
               "line": 26,
-              "character": 18
+              "character": 7
             }
           },
           "children": []

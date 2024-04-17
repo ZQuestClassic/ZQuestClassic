@@ -277,7 +277,9 @@ namespace ZScript
 		virtual bool isTypeArrayDecl() const {return false;}
 		virtual bool isStringLiteral() const {return false;}
 		virtual bool isArrayLiteral() const {return false;}
-		
+
+		virtual std::optional<LocationData> getIdentifierLocation() const {return std::nullopt;}
+
 	private:
 		//If this node has been disabled, for some reason or other. This will prevent any visitor from visiting the node (instant return, without error)
 		bool disabled_;
@@ -380,7 +382,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
 		void append(std::string const& newstr) {str += newstr;}
-		std::string getValue() const {return str;}
+		const std::string& getValue() const {return str;}
 	private:
 		std::string str;
 	};
@@ -818,6 +820,10 @@ namespace ZScript
 		// Adds a declaration to the proper vector.
 		void addDeclaration(ASTDecl& declaration);
 
+		const std::string& getName() const {return identifier->getValue();}
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		owning_ptr<ASTString> identifier;
 		owning_ptr<ASTScriptType> type;
 		zasm_meta metadata;
 		owning_vector<ASTSetOption> options;
@@ -830,7 +836,6 @@ namespace ZScript
 		optional<int32_t> init_weight;
 		
 		Script* script;
-		LocationData name_location;
 	};
 	class ASTClass : public ASTDecl
 	{
@@ -845,8 +850,10 @@ namespace ZScript
 		// Adds a declaration to the proper vector.
 		void addDeclaration(ASTDecl& declaration);
 
-		std::string name;
-		LocationData name_location;
+		const std::string& getName() const {return identifier->getValue();}
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		owning_ptr<ASTString> identifier;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
@@ -865,18 +872,20 @@ namespace ZScript
 	class ASTNamespace : public ASTDecl
 	{
 	public:
-		ASTNamespace(LocationData const& location = LOC_NONE, std::string name = "");
+		ASTNamespace(LocationData const& location = LOC_NONE);
 		ASTNamespace* clone() const {return new ASTNamespace(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		Type getDeclarationType() const /*override*/ {return TYPE_NAMESPACE;}
-		
-		void setName(std::string newname) {name = newname;}
     
 		// Adds a declaration to the proper vector.
 		void addDeclaration(ASTDecl& declaration);
 
+		const std::string& getName() const {return identifier->getValue();}
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		owning_ptr<ASTString> identifier;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
@@ -887,7 +896,6 @@ namespace ZScript
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
 		owning_vector<ASTAssert> asserts;
-		std::string name;
 		
 		Namespace* namesp;
 	};
@@ -971,12 +979,14 @@ namespace ZScript
 		int32_t getFlags() const {return flags;}
 		bool isRun() const;
 
+		const std::string& getName() const;
+		std::optional<LocationData> getIdentifierLocation() const;
+
+		owning_ptr<ASTExprIdentifier> identifier;
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
 		owning_vector<ASTExprConst> optparams;
 		std::vector<int32_t> optvals;
-		owning_ptr<ASTExprIdentifier> iden;
-		std::string name;
 		owning_ptr<ASTBlock> block;
 		std::string invalidMsg;
 		Function* func;
@@ -1052,6 +1062,12 @@ namespace ZScript
 		DataType const* resolve_ornull(Scope* scope, CompileErrorHandler* errorHandler);
 
 		void replaceType(DataType const& newty);
+
+		const std::string& getName() const {return identifier->getValue();}
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		// The symbol this declaration is binding.
+		owning_ptr<ASTString> identifier;
 		
 		// The list containing this declaration. Should be set by that list when
 		// this is added.
@@ -1065,9 +1081,6 @@ namespace ZScript
 		// set if this declaration is not part of a list, as the list's base type
 		// should be used instead in that case.
 		owning_ptr<ASTDataType> baseType;
-
-		// The symbol this declaration is binding.
-		std::string name;
 
 		// Extra array type for this specific declaration. The final type is the
 		// list's base type combined with these.

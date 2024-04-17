@@ -48,29 +48,19 @@ enum class SymbolKind
 template <typename T>
 static std::string getName(const T& node)
 {
-	return node.name;
+	return node.getName();
 }
 static std::string getName(const ASTFile& node)
 {
 	return node.scope->getName().value_or("<file>");
 }
-static std::string getName(const ASTScript& node)
-{
-	return node.script->getName();
-}
 
 template <typename T>
 static LocationData getSelectionRange(const T& node)
 {
+	if (auto loc = node.getIdentifierLocation())
+		return *loc;
 	return node.location;
-}
-static LocationData getSelectionRange(const ASTScript& node)
-{
-	return node.name_location;
-}
-static LocationData getSelectionRange(const ASTClass& node)
-{
-	return node.name_location;
 }
 
 static auto LocationData_json(const LocationData& loc)

@@ -1185,7 +1185,7 @@ ClassScope* BasicScope::makeClassChild(UserClass& user_class)
 
 NamespaceScope* BasicScope::makeNamespaceChild(ASTNamespace& node)
 {
-	string name = node.name;
+	string name = node.getName();
 	if (Scope* scope = getChild(name))
 	{
 		if(scope->isNamespace()) return static_cast<NamespaceScope*>(scope);
@@ -1295,7 +1295,7 @@ Function* BasicScope::addFunction(
 				std::optional<int32_t> val = foundFunc->defaultReturn;
 				if(!defRet || !val || (*defRet != *val)) //Different or erroring default returns
 				{
-					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
+					handler->handleError(CompileError::BadDefaultReturn(node, node->getName()));
 					return NULL;
 				}
 				else //Same default return; disable duplicate prototype without error
@@ -1521,7 +1521,7 @@ ClassScope* FileScope::makeClassChild(UserClass& user_class)
 
 NamespaceScope* FileScope::makeNamespaceChild(ASTNamespace& node)
 {
-	string name = node.name;
+	string name = node.getName();
 	if (Scope* scope = find<Scope*>(children_, name).value_or(std::add_pointer<Scope>::type()))
 	{
 		if(scope->isNamespace())
@@ -2133,7 +2133,7 @@ Function* ClassScope::addFunction(
 				std::optional<int32_t> val = foundFunc->defaultReturn;
 				if(!defRet || !val || (*defRet != *val)) //Different or erroring default returns
 				{
-					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
+					handler->handleError(CompileError::BadDefaultReturn(node, node->getName()));
 					return NULL;
 				}
 				else //Same default return; disable duplicate prototype without error

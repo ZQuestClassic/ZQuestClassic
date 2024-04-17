@@ -275,7 +275,12 @@ string CompileError::toString() const
 
 	// Output location data.
 	if (AST const* source = pimpl_->getSource())
-	    oss << source->location.asString();
+	{
+		if (auto loc = source->getIdentifierLocation())
+			oss << loc->asString();
+		else
+	    	oss << source->location.asString();
+	}
 
 	// Error or warning?
 	oss << " - " << (isStrict() ? "Error" : "Warning");

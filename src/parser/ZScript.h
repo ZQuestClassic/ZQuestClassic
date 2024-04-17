@@ -191,7 +191,7 @@ namespace ZScript
 	public:
 		~UserClass();
 
-		std::string const& getName() const {return node.name;}
+		std::string const& getName() const {return node.getName();}
 		ASTClass* getNode() const {return &node;}
 		ClassScope& getScope() {return *scope;}
 		ClassScope const& getScope() const {return *scope;}
@@ -313,7 +313,7 @@ namespace ZScript
 				Scope&, ASTDataDecl&, DataType const&,
 				CompileErrorHandler* = NULL);
 
-		std::optional<std::string> getName() const {return node.name;}
+		std::optional<std::string> getName() const {return node.getName();}
 		std::optional<std::string> getDocComment() const {return node.doc_comment;}
 		ASTDataDecl* getNode() const {return &node;}
 		std::optional<int32_t> getGlobalId() const {return globalId;}
@@ -333,7 +333,7 @@ namespace ZScript
 				Scope&, ASTDataDecl&, DataType const&,
 				CompileErrorHandler* = NULL);
 
-		std::optional<std::string> getName() const {return node.name;}
+		std::optional<std::string> getName() const {return node.getName();}
 		std::optional<std::string> getDocComment() const {return node.doc_comment;}
 		ASTDataDecl* getNode() const {return &node;}
 		UserClass* getClass() const {return &(scope.getClass()->user_class);}

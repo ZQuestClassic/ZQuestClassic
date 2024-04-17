@@ -184,7 +184,7 @@ UserClass* ZScript::createClass(
 	{
 		if (errorHandler)
 			errorHandler->handleError(
-				CompileError::ClassRedef(&node, user_class->getName().c_str()));
+				CompileError::ClassRedef(node.identifier.get(), user_class->getName().c_str()));
 		delete user_class;
 		return NULL;
 	}
@@ -301,7 +301,7 @@ std::optional<int32_t> ZScript::getLabel(Script const& script)
 // ZScript::Namespace
 
 Namespace::Namespace(ASTNamespace& namesp)
-	: name(namesp.name)
+	: name(namesp.getName())
 {}
 
 Namespace* ZScript::createNamespace(
@@ -471,7 +471,7 @@ Constant::Constant(
 	node.manager = this;
 }
 
-std::optional<string> Constant::getName() const {return node.name;}
+std::optional<string> Constant::getName() const {return node.getName();}
 
 // ZScript::BuiltinConstant
 
