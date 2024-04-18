@@ -2,7 +2,51 @@
 
 ## For users
 
-Get the extension [here](https://marketplace.visualstudio.com/items?itemName=cjamcl.zquest-lsp).
+Setup:
+
+1. Get the extension [here](https://marketplace.visualstudio.com/items?itemName=cjamcl.zquest-lsp) or by searching "zquest lsp" in the VS Code extensions panel
+1. Set the "Installation Folder" setting of the extension to where you keep ZC. Open the settings with `Ctrl/CMD + ,` and search for "zscript"
+
+### Features
+
+* Error and warning diagnostics
+* Syntax highlighting
+* "Go to Definition" support for variables/functions/other symbols (`Ctrl/CMD + click` or right-click)
+* Document outline for all the symbols in a script
+* Hover tooltips to show code documentation
+* Some support for autoformatting
+
+
+### Hover tooltips
+
+When a symbol has a comment near it like this, hovering over any usage displays a tooltip:
+
+```c++
+// Some comment
+// Can be longer than one line
+int counter1;
+int counter2; // Some comment
+/** Some comment */
+int counter3;
+/**
+ * Some comment
+ */
+int counter4;
+```
+
+Comments are rendered as markdown.
+
+Comments may contain inline links to other symbols with the [`@link`](https://jsdoc.app/tags-inline-link) tag:
+
+```c++
+// Better than {@link counter2} ... {@link counter2|that counter is lame}
+int counter1;
+// You can also use a shorthand for links like this: [counter1]
+int counter2;
+```
+
+
+### Autoformatting
 
 If you want formatting, you'll need `clang-format` installed and accessible on your PATH. See [this page](https://www.dynamsoft.com/codepool/vscode-format-c-code-windows-linux.html) for more.
 
@@ -45,43 +89,3 @@ Most of the interesting code is in `server.ts`. `syntaxes/` has grammar stuff.
 Read this:
 - https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide#scope-inspector
 - https://macromates.com/manual/en/language_grammars (standard grammar scopes at bottom)
-
-The rest of this README is left unmodified from the example project this was taken from.
-
-_______
-
-Heavily documented sample code for https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
-
-## Functionality
-
-This Language Server works for plain text file. It has the following language features:
-- Completions
-- Diagnostics regenerated on each file change or configuration change
-
-It also includes an End-to-End test.
-
-## Structure
-
-```
-.
-├── client // Language Client
-│   ├── src
-│   │   ├── test // End to End tests for Language Client / Server
-│   │   └── extension.ts // Language Client entry point
-├── package.json // The extension manifest.
-└── server // Language Server
-    └── src
-        └── server.ts // Language Server entry point
-```
-
-## Running the Sample
-
-- Run `npm install` in this folder. This installs all necessary npm modules in both the client and server folder
-- Open VS Code on this folder.
-- Press Ctrl+Shift+B to start compiling the client and server in [watch mode](https://code.visualstudio.com/docs/editor/tasks#:~:text=The%20first%20entry%20executes,the%20HelloWorld.js%20file.).
-- Switch to the Run and Debug View in the Sidebar (Ctrl+Shift+D).
-- Select `Launch Client` from the drop down (if it is not already).
-- Press ▷ to run the launch config (F5).
-- In the [Extension Development Host](https://code.visualstudio.com/api/get-started/your-first-extension#:~:text=Then%2C%20inside%20the%20editor%2C%20press%20F5.%20This%20will%20compile%20and%20run%20the%20extension%20in%20a%20new%20Extension%20Development%20Host%20window.) instance of VSCode, open a document in 'plain text' language mode.
-  - Type `j` or `t` to see `Javascript` and `TypeScript` completion.
-  - Enter text content such as `AAA aaa BBB`. The extension will emit diagnostics for all words in all-uppercase.

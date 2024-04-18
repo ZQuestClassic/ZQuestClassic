@@ -20,7 +20,7 @@ int y, z = 2;
 
 // A car, duh
 class Car {
-    /** How fast it goes */
+    /** How fast it goes. See {@link vroom|the vroom method} or {@link speed} or [x] */
     int speed;
 
     // a ctor with 1 param
@@ -57,6 +57,7 @@ ffc script Metadata {
         printf("%d %d\n", postfix + postfix2, 1 + x + 2);
         utils::fn(postfix);
         // i am a car
+        // {@link lololol|i dont exist}
         auto c = new Car(2);
         printf("%d %d %d\n", c->speed, radius, utils::hmm + y + z + Dull + Fancy + Mid);
         auto d = new IhaveAdefCtor();
@@ -66,10 +67,10 @@ ffc script Metadata {
 
 // a namespace for cool things
 namespace utils {
-    /** A lovely function. */
+    /** A lovely function. See {@link utils::fn} or {@link x} or {@link fn} or {@link Car} */
     void fn(int a) {
 
     }
 
-    int hmm; // hmmmmmm
+    int hmm; // hmmmmmm See {@link utils::fn} or {@link x} or {@link fn}
 }

@@ -394,7 +394,18 @@ int32_t main(int32_t argc, char **argv)
 		}
 	}
 
-	unique_ptr<ZScript::ScriptsData> result(compile(script_path, used_switch(argc, argv, "-metadata")));
+	bool metadata = used_switch(argc, argv, "-metadata") > 0;
+	int metadata_tmp_path_idx = used_switch(argc, argv, "-metadata-tmp-path");
+	int metadata_orig_path_idx = used_switch(argc, argv, "-metadata-orig-path");
+	if (metadata && metadata_tmp_path_idx > 0 && metadata_orig_path_idx > 0)
+	{
+		extern std::string metadata_tmp_path;
+		extern std::string metadata_orig_path;
+		metadata_tmp_path = argv[metadata_tmp_path_idx + 1];
+		metadata_orig_path = argv[metadata_orig_path_idx + 1];
+	}
+
+	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata));
 	if(!result)
 		zconsole_info("%s", "Failure!");
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));

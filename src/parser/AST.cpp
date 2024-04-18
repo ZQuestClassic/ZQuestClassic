@@ -1409,6 +1409,11 @@ void ASTDataDecl::replaceType(DataType const& newty)
 	baseTypeNode->replace(newty);
 }
 
+Scope* ASTDataDecl::getScope() const
+{
+	return &manager->scope;
+}
+
 bool ZScript::hasSize(ASTDataDecl const& decl)
 {
 	for (auto it = decl.extraArrays.cbegin(); it != decl.extraArrays.cend(); ++it)

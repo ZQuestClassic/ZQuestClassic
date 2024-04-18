@@ -315,7 +315,7 @@ Function* ZScript::lookupSetter(Scope const& scope, string const& name)
 	return NULL;
 }
 
-vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
+vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass, bool skipParamCheck)
 {
 	set<Function*> functions;
 	Scope const* current = &scope;
@@ -331,7 +331,8 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 		if(current->isFile())
 			foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
-		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+		if (!skipParamCheck)
+			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	if(!noUsing)
@@ -342,7 +343,8 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 		{
 			NamespaceScope* nsscope = *it;
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
-			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+			if (!skipParamCheck)
+				trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
@@ -351,12 +353,12 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 }
 
 vector<Function*> ZScript::lookupFunctions(
-		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
+		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass, bool skipParamCheck)
 {
 	if (names.size() == 0)
 		return vector<Function*>();
 	else if (names.size() == 1)
-		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass);
+		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass, skipParamCheck);
 
 	vector<Function*> functions;
 	string const& name = names.back();
@@ -376,7 +378,8 @@ vector<Function*> ZScript::lookupFunctions(
 		}
 		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
-		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+		if (!skipParamCheck)
+			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
@@ -388,7 +391,8 @@ vector<Function*> ZScript::lookupFunctions(
 		{
 			Scope& current = **it;
 			vector<Function*> currentFunctions = current.getLocalFunctions(name);
-			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+			if (!skipParamCheck)
+				trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 			functions.insert(functions.end(),
 							 currentFunctions.begin(), currentFunctions.end());
 		}

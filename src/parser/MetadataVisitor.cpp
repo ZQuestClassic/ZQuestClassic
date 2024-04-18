@@ -7,9 +7,13 @@
 #include "CompileError.h"
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
+#include <regex>
 
 using namespace ZScript;
 using json = nlohmann::ordered_json;
+
+std::string metadata_tmp_path;
+std::string metadata_orig_path;
 
 json root;
 json* active;
@@ -45,24 +49,6 @@ enum class SymbolKind
 	TypeParameter,
 };
 
-template <typename T>
-static std::string getName(const T& node)
-{
-	return node.getName();
-}
-static std::string getName(const ASTFile& node)
-{
-	return node.scope->getName().value_or("<file>");
-}
-
-template <typename T>
-static LocationData getSelectionRange(const T& node)
-{
-	if (auto loc = node.getIdentifierLocation())
-		return *loc;
-	return node.location;
-}
-
 static auto LocationData_json(const LocationData& loc)
 {
 	return json{
@@ -81,6 +67,155 @@ static auto LocationData_pos_json(const LocationData& loc)
 	return json{
 		{"line", loc.first_line - 1}, {"character", loc.first_column - 1}, {"length", loc.last_column - loc.first_column},
 	};
+}
+
+static ASTExprIdentifier parseExprIdentifier(std::string str)
+{
+	ASTExprIdentifier ident;
+	std::vector<std::string> components = util::split(str, "::");
+	for (auto& str : components)
+	{
+		ident.components.push_back(std::move(str));
+		ident.delimiters.push_back("::");
+	}
+	return ident;
+}
+
+static std::string url_encode(const std::string &value)
+{
+    std::ostringstream escaped;
+    escaped.fill('0');
+    escaped << std::hex;
+
+    for (string::const_iterator i = value.begin(), n = value.end(); i != n; ++i) {
+        string::value_type c = (*i);
+
+        // Keep alphanumeric and other accepted characters intact
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+            continue;
+        }
+
+        // Any other characters are percent-encoded
+        escaped << std::uppercase;
+        escaped << '%' << std::setw(2) << int((unsigned char) c);
+        escaped << std::nouppercase;
+    }
+
+    return escaped.str();
+}
+
+static void parseCommentForLinks(std::string& comment, const AST* node)
+{
+	Scope* scope = scope = node->getScope();
+	if (!scope)
+		return;
+
+	// Supports:
+	// @link {symbol}
+	// @link {symbol|text}
+	// [symbol]
+	const std::regex r("\\{\\@link ([a-zA-Z_][->a-zA-Z0-9_:]*)[|]?([^}]+)?\\}|\\[([a-zA-Z_][->a-zA-Z0-9_:]*)\\]");
+	std::sregex_iterator it(comment.begin(), comment.end(), r);
+	std::sregex_iterator end;
+
+	std::vector<std::tuple<std::string, int, int, std::string>> matches;
+	while (it != end)
+	{
+		auto pos = (*it).position(0);
+		auto len = (*it).length(0);
+		std::string symbol_name, link_text;
+		if ((*it)[3].matched)
+		{
+			symbol_name = (*it)[3].str();
+		}
+		else
+		{
+			symbol_name = (*it)[1].str();
+			link_text = (*it)[2].matched ? (*it)[2].str() : "";
+		}
+		matches.emplace_back(symbol_name, pos, len, link_text);
+		it++;
+	}
+
+	for (auto it = matches.rbegin(); it != matches.rend(); it++)
+	{
+		auto& [symbol_name, pos, len, link_text] = *it;
+		if (link_text.empty())
+			link_text = symbol_name;
+
+		const AST* symbol_node = nullptr;
+		auto fn = lookupGetter(*scope, symbol_name);
+		if (!fn)
+			fn = lookupSetter(*scope, symbol_name);
+		if (!fn)
+		{
+			// TODO: possibly support param types for overloaded functions: `CenterX(npc, bool)`
+			auto ident = parseExprIdentifier(symbol_name);
+			auto fns = lookupFunctions(*scope, ident.components, ident.delimiters, {}, false, false, true);
+			if (!fns.empty())
+				fn = fns[0];
+		}
+		if (fn && fn->node)
+			symbol_node = fn->node;
+		if (!symbol_node)
+		{
+			auto ident = parseExprIdentifier(symbol_name);
+			if (auto datum = lookupDatum(*scope, ident, nullptr))
+				symbol_node = datum->getNode();
+		}
+		if (!symbol_node)
+		{
+			auto ident = parseExprIdentifier(symbol_name);
+			if (auto datum = lookupClassVars(*scope, ident, nullptr))
+				symbol_node = datum->getNode();
+		}
+		if (!symbol_node)
+		{
+			auto ident = parseExprIdentifier(symbol_name);
+			if (auto type = lookupDataType(*scope, ident, nullptr))
+			{
+				if (type->isUsrClass())
+					symbol_node = type->getUsrClass()->getNode();
+			}
+		}
+
+		if (!symbol_node)
+		{
+			comment.replace(pos, len, fmt::format("`{}`", link_text));
+			logDebugMessage(fmt::format("could not resolve symbol \"{}\"", symbol_name).c_str());
+			continue;
+		}
+
+		auto location = symbol_node->getIdentifierLocation();
+		std::string path = location ? location->fname : symbol_node->location.fname;
+		if (path == "ZQ_BUFFER" || path == metadata_tmp_path)
+			path = metadata_orig_path;
+		auto args = json{
+			{"file", path},
+			{"position", LocationData_json(*location)},
+		};
+		std::string command = fmt::format("zscript.openLink?{}", url_encode(args.dump()));
+		comment.replace(pos, len, fmt::format("[`{}`](command:{})", link_text, command));
+	}
+}
+
+template <typename T>
+static std::string getName(const T& node)
+{
+	return node.getName();
+}
+static std::string getName(const ASTFile& node)
+{
+	return node.scope->getName().value_or("<file>");
+}
+
+template <typename T>
+static LocationData getSelectionRange(const T& node)
+{
+	if (auto loc = node.getIdentifierLocation())
+		return *loc;
+	return node.location;
 }
 
 template <typename T>
@@ -129,7 +264,10 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 
 		auto comment = cleanComment(symbol_node->doc_comment);
 		if (!comment.empty())
+		{
+			parseCommentForLinks(comment, symbol_node);
 			root["symbols"][symbol_id]["doc"] = comment;
+		}
 	}
 
 	root["identifiers"].push_back({

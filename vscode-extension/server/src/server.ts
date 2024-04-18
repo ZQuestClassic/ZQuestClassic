@@ -256,6 +256,8 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 			'-input', tmpInput,
 			'-force_ignore', originPath,
 			'-metadata',
+			'-metadata-tmp-path', tmpScript,
+			'-metadata-orig-path', originPath,
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');

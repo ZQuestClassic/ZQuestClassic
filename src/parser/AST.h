@@ -279,6 +279,7 @@ namespace ZScript
 		virtual bool isArrayLiteral() const {return false;}
 
 		virtual std::optional<LocationData> getIdentifierLocation() const {return std::nullopt;}
+		virtual Scope* getScope() const {return nullptr;}
 
 	private:
 		//If this node has been disabled, for some reason or other. This will prevent any visitor from visiting the node (instant return, without error)
@@ -981,6 +982,7 @@ namespace ZScript
 
 		const std::string& getName() const;
 		std::optional<LocationData> getIdentifierLocation() const;
+		Scope* getScope() const {return parentScope;}
 
 		owning_ptr<ASTExprIdentifier> identifier;
 		owning_ptr<ASTDataType> returnType;
@@ -1091,6 +1093,8 @@ namespace ZScript
 		void setFlag(uint flg, bool state = true) {SETFLAG(flags,flg,state);}
 		static const uint FL_FORCE_VAR = 0x01;
 		static const uint FL_SKIP_EMPTY_INIT = 0x02;
+
+		Scope* getScope() const;
 
 	private:
 		// The initialization expression. Optional.
