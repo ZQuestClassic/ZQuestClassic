@@ -29,7 +29,7 @@ SETR D2,REGION_SCREEN_HEIGHT; InlineFunc[void Trace(long)] Params
 TRACELR D2; InlineFunc[void Trace(long)] Body
 SETR D2,REGION_NUM_COMBOS; InlineFunc[void Trace(long)] Params
 TRACELR D2; InlineFunc[void Trace(long)] Body
-SETV D2,0; while(true) #8 Body [Opt:AlwaysOn] Start
+SETV D2,0; while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D0
 SETR D2,MOUSEARR
@@ -54,7 +54,7 @@ PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-LOAD D2,0.0002; if() #558 Test
+LOAD D2,0.0002; if() #448 Test
 PUSHR D2
 POP REFFFC
 SETR D2,X
@@ -97,10 +97,10 @@ GOTO 82
 SETV D2,0
 COMPAREV D2,0
 GOTOCMP 86,==; Test 'if'
-LOAD D2,0.0003; InlineFunc[void Region->TriggerSecrets(int)] Params AND if() #558 Body Start
-REGION_TRIGGER_SECRETS D2; InlineFunc[void Region->TriggerSecrets(int)] Body AND if() #558 Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
-GOTO 16; while() #8 End AND [Opt:NeverRet] AND void run(int, int) Body End
+LOAD D2,0.0003; InlineFunc[void Region->TriggerSecrets(int)] Params AND if() #448 Body Start
+REGION_TRIGGER_SECRETS D2; InlineFunc[void Region->TriggerSecrets(int)] Body AND if() #448 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
+GOTO 16; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
 
 
 ALLOCATEGMEMV D2,4096,0; void run() Body Start

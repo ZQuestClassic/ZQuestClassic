@@ -1,4 +1,7 @@
 #option SHORT_CIRCUIT on
+
+#include "std.zh"
+
 /**
 * Author: Emily
 * Version: 1.4.6

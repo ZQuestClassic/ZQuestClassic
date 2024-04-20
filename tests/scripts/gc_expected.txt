@@ -2228,13 +2228,13 @@ CALLFUNC 0.2460; UsrFunc[void check(char32, int, int)] Call
 POP D4
 LOAD D3,0.0005
 DEALLOCATEMEMR D3
-STOREV 0,0.0004; for() #187 setup
-LOAD D2,0.0004; for() #187 LoopTest
+STOREV 0,0.0004; for() #160 setup
+LOAD D2,0.0004; for() #160 LoopTest
 COMPAREV D2,10
 SETCMP D2,I<
 COMPAREV D2,0
-GOTOCMP 2269,==; for() #187 TestFail?
-ALLOCATEMEMV D2,12,0; for() #187 Body Start
+GOTOCMP 2269,==; for() #160 TestFail?
+ALLOCATEMEMV D2,12,0; for() #160 Body Start
 STORE D2,0.0003
 WRITEPODSTRING D2,"RefCount(a)"
 PUSHR D4
@@ -2278,11 +2278,11 @@ PUSHV 2; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.2487; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
 REF_REMOVE 0.0002
-REF_REMOVE 0; for() #187 Body End
-LOAD D2,0.0004; for() #187 LoopIncrement
+REF_REMOVE 0; for() #160 Body End
+LOAD D2,0.0004; for() #160 LoopIncrement
 ADDV D2,1
 STORE D2,0.0004
-GOTO 2215; for() #187 End
+GOTO 2215; for() #160 End
 PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.2487; UsrFunc[void checkCountWithGC(int)] Call
@@ -2305,20 +2305,20 @@ PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP D5; InlineFunc[void printf(char32)] Body End
 LOAD D3,0.0006
 DEALLOCATEMEMR D3
-STOREV 0,0.0005; for() #188 setup
-LOAD D2,0.0005; for() #188 LoopTest
+STOREV 0,0.0005; for() #161 setup
+LOAD D2,0.0005; for() #161 LoopTest
 COMPAREV D2,300
 SETCMP D2,I<
 COMPAREV D2,0
-GOTOCMP 2317,==; for() #188 TestFail?
-LOADRNG; InlineFunc[RNG Game->LoadRNG()] Body AND for() #188 Body Start
+GOTOCMP 2317,==; for() #161 TestFail?
+LOADRNG; InlineFunc[RNG Game->LoadRNG()] Body AND for() #161 Body Start
 STORE_OBJECT D2,0.0004
-LOAD D2,0.0004; if() #561 Test
+LOAD D2,0.0004; if() #451 Test
 COMPAREV D2,0
 SETCMP D2,I==
 COMPAREV D2,0
 GOTOCMP 2313,==; Test 'if'
-ALLOCATEMEMV D2,28,0; if() #561 Body Start
+ALLOCATEMEMV D2,28,0; if() #451 Body Start
 STORE D2,0.0003
 WRITEPODSTRING D2,"failed to allocate randgen\n"
 LOAD D2,0.0003; InlineFunc[void printf(char32)] Params Start
@@ -2326,11 +2326,11 @@ PUSHR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP D5; InlineFunc[void printf(char32)] Body End
 LOAD D3,0.0003
-DEALLOCATEMEMR D3; if() #561 Body End
-LOAD D2,0.0005; for() #188 Body End AND for() #188 LoopIncrement
+DEALLOCATEMEMR D3; if() #451 Body End
+LOAD D2,0.0005; for() #161 Body End AND for() #161 LoopIncrement
 ADDV D2,1
 STORE D2,0.0005
-GOTO 2292; for() #188 End
+GOTO 2292; for() #161 End
 GC; InlineFunc[void GC()] Body
 ALLOCATEMEMV D2,18,0
 STORE D2,0.0005
@@ -2454,15 +2454,15 @@ PUSHR D4
 PUSHV 1; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.2487; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-SETR D2,GD4; while() #8 Test
+SETR D2,GD4; while() #2 Test
 COMPAREV D2,100
 SETCMP D2,I<
 COMPAREV D2,0
 GOTOCMP 2449,==; Test 'while'
-PUSHR D4; while() #8 Body Start
+PUSHR D4; while() #2 Body Start
 CALLFUNC 0.2576; UsrFunc[void yield()] Call
-POP D4; while() #8 Body End
-GOTO 2440; while() #8 End
+POP D4; while() #2 Body End
+GOTO 2440; while() #2 End
 ALLOCATEMEMV D2,17,0
 STORE D2,0.0003
 WRITEPODSTRING D2,"Done with tests\n"
@@ -2476,7 +2476,7 @@ POPARGS D5,0.0054
 QUIT; void run() Body End
 PUSHV 0; Func[void check(char32, int, int)] Body Start
 SETR D4,SP2
-LOAD D2,0.0002; if() #558 Test
+LOAD D2,0.0002; if() #448 Test
 PUSHR D2
 LOAD D2,0.0001
 POP D3
@@ -2484,7 +2484,7 @@ COMPARER D3,D2
 SETCMP D2,I!=
 COMPAREV D2,0
 GOTOCMP 2485,==; Test 'if'
-ALLOCATEMEMV D2,36,0; if() #558 Body Start
+ALLOCATEMEMV D2,36,0; if() #448 Body Start
 STORE D2,0
 WRITEPODSTRING D2,"[%s] ERROR: expected %l but got %l\n"
 LOAD D2,0; InlineFunc[void printf(char32)] Params Start
@@ -2498,12 +2498,12 @@ PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP D5; InlineFunc[void printf(char32)] Body End
 LOAD D3,0
-DEALLOCATEMEMR D3; if() #558 Body End
+DEALLOCATEMEMR D3; if() #448 Body End
 POPARGS D5,0.0004
 RETURNFUNC; Func[void check(char32, int, int)] Body End
 PUSHV 0; Func[void checkCountWithGC(int)] Body Start
 SETR D4,SP2
-SETR D2,GD2; if() #559 Test
+SETR D2,GD2; if() #449 Test
 PUSHR D2
 LOAD D2,0.0001
 POP D3
@@ -2511,7 +2511,7 @@ COMPARER D3,D2
 SETCMP D2,I!=
 COMPAREV D2,0
 GOTOCMP 2510,==; Test 'if'
-ALLOCATEMEMV D2,6,0; if() #559 Body Start
+ALLOCATEMEMV D2,6,0; if() #449 Body Start
 STORE D2,0
 WRITEPODSTRING D2,"count"
 PUSHR D4
@@ -2523,9 +2523,9 @@ PUSHR D2; UsrFunc[void check(char32, int, int)] Params End
 CALLFUNC 0.2460; UsrFunc[void check(char32, int, int)] Call
 POP D4
 LOAD D3,0
-DEALLOCATEMEMR D3; if() #559 Body End
+DEALLOCATEMEMR D3; if() #449 Body End
 GC; InlineFunc[void GC()] Body
-SETR D2,GD2; if() #560 Test
+SETR D2,GD2; if() #450 Test
 PUSHR D2
 LOAD D2,0.0001
 POP D3
@@ -2533,7 +2533,7 @@ COMPARER D3,D2
 SETCMP D2,I!=
 COMPAREV D2,0
 GOTOCMP 2532,==; Test 'if'
-ALLOCATEMEMV D2,16,0; if() #560 Body Start
+ALLOCATEMEMV D2,16,0; if() #450 Body Start
 STORE D2,0
 WRITEPODSTRING D2,"count (post GC)"
 PUSHR D4
@@ -2545,7 +2545,7 @@ PUSHR D2; UsrFunc[void check(char32, int, int)] Params End
 CALLFUNC 0.2460; UsrFunc[void check(char32, int, int)] Call
 POP D4
 LOAD D3,0
-DEALLOCATEMEMR D3; if() #560 Body End
+DEALLOCATEMEMR D3; if() #450 Body End
 POPARGS D5,0.0002
 RETURNFUNC; Func[void checkCountWithGC(int)] Body End
 PUSHV 0; Func[Person createPerson1()] Body Start

@@ -23,7 +23,7 @@ DIVV D2,2
 PUSHR D2
 POP D2
 SETR LINKHP,D2
-PUSHR D4; while(true) #8 Body [Opt:AlwaysOn] Start
+PUSHR D4; while(true) #2 Body [Opt:AlwaysOn] Start
 SETR D2,LINKX; UsrFunc[int ComboAt(int, int)] Params Start
 ADDV D2,8
 PUSHR D2
@@ -33,7 +33,7 @@ PUSHR D2; UsrFunc[int ComboAt(int, int)] Params End
 CALLFUNC 0.0076; UsrFunc[int ComboAt(int, int)] Call
 POP D4
 STORE D2,0
-LOAD D2,0; if() #558 Test
+LOAD D2,0; if() #448 Test
 PUSHR D2
 POP D0
 SETR D2,COMBODD
@@ -44,7 +44,7 @@ COMPARER D3,D2
 SETCMP D2,I==
 COMPAREV D2,0
 GOTOCMP 44,==; Test 'if'
-LOAD D2,0; if() #558 Body Start
+LOAD D2,0; if() #448 Body Start
 PUSHR D2
 POP D0
 SETR D2,COMBODD
@@ -56,7 +56,7 @@ POP D0
 POP D2
 SETR COMBODD,D2
 LOAD D2,0.0002; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body AND if() #558 Body End
+PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body AND if() #448 Body End
 PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
 SETR D2,LINKY
@@ -87,8 +87,8 @@ PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
-GOTO 10; while() #8 End AND [Opt:NeverRet] AND void run(int, int) Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
+GOTO 10; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
 SETR D4,SP2; Func[int ComboAt(int, int)] Body Start
 PUSHR D4
 LOAD D2,0.0001; UsrFunc[int VBound(int, int, int)] Params Start

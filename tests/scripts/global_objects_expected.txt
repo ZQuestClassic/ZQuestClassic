@@ -17,10 +17,10 @@ Compile finished with exit code '0' (success)
 PUSHR REFFFC; void run() Body Start
 PUSHARGSV 0,0.0005
 SETR D4,SP2
-SETR D2,GD2; unless() #558 Test
+SETR D2,GD2; unless() #448 Test
 COMPAREV D2,0
 GOTOCMP 81,!=; Test 'unless'
-SETV D2,0; ProtoFunc[Thing Thing()] Set Destructor AND unless() #558 Body Start
+SETV D2,0; ProtoFunc[Thing Thing()] Set Destructor AND unless() #448 Body Start
 ZCLASS_CONSTRUCT D2,{0.0003,0.0005}
 ZCLASS_MARK_TYPE {0.0001,0.0001,0.0002,0.0008,0,0.0008,0.0003,0.0008}; ProtoFunc[Thing Thing()] Default Construct
 SET_OBJECT GD2,D2
@@ -93,7 +93,7 @@ ZCLASS_WRITE D3,0
 SETV D2,0; ProtoFunc[Thing Thing()] Set Destructor
 ZCLASS_CONSTRUCT D2,{0.0003,0.0005}
 ZCLASS_MARK_TYPE {0.0001,0.0001,0.0002,0.0008,0,0.0008,0.0003,0.0008}; ProtoFunc[Thing Thing()] Default Construct
-SET_OBJECT GD3,D2; unless() #558 Body End
+SET_OBJECT GD3,D2; unless() #448 Body End
 SETR D2,GD2
 ZCLASS_READ D2,0.0003
 PUSHR D2

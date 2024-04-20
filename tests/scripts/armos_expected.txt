@@ -68,7 +68,7 @@ POP D0
 POP REFNPC
 SETR D2,NPCDD
 STORE D2,0
-SETR D2,GD4; if() #954 Test AND while(true) #15 Body [Opt:AlwaysOn] Start
+SETR D2,GD4; if() #844 Test AND while(true) #9 Body [Opt:AlwaysOn] Start
 COMPAREV D2,0
 GOTOCMP 63,!=
 SETR D2,GD6
@@ -79,10 +79,10 @@ GOTO 64
 SETV D2,0
 COMPAREV D2,0
 GOTOCMP 70,==; Test 'if'
-SETV D2,1.5000; if() #954 Body Start
+SETV D2,1.5000; if() #844 Body Start
 SETR GD6,D2
 LOAD D2,0; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body AND if() #954 Body End
+PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body AND if() #844 Body End
 PUSHR D4
 LOAD D2,0.0001; UsrFunc[void Ghost_MoveTowardLink(int, int)] Params Start
 PUSHR D2
@@ -95,8 +95,8 @@ LOAD D2,0.0002
 PUSHR D2
 PUSHARGSV 1,0.0002; UsrFunc[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Params End
 CALLFUNC 0.4350; UsrFunc[bool Ghost_Waitframe(FFC, NPC, bool, bool)] Call
-POP D4; while(true) #15 Body [Opt:AlwaysOn] End
-GOTO 55; while() #15 End AND [Opt:NeverRet] AND void run(int) Body End
+POP D4; while(true) #9 Body [Opt:AlwaysOn] End
+GOTO 55; while() #9 End AND [Opt:NeverRet] AND void run(int) Body End
 SETR D4,SP2; Func[int Angle(int, int, int, int)] Body Start
 LOAD D2,0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int RadtoDeg(int)] Params Start AND return Start
 PUSHR D2
@@ -5646,13 +5646,13 @@ POP D2
 CASTBOOLI D2
 POP REFNPC
 SETR NPCCOLLDET,D2
-STOREV 0,0; for() #257 setup
-LOAD D2,0; for() #257 LoopTest
+STOREV 0,0; for() #230 setup
+LOAD D2,0; for() #230 LoopTest
 COMPAREV D2,32
 SETCMP D2,I<
 COMPAREV D2,0
-GOTOCMP 5744,==; for() #257 TestFail?
-SETV D2,0; for() #257 Body Start
+GOTOCMP 5744,==; for() #230 TestFail?
+SETV D2,0; for() #230 Body Start
 PUSHR D2
 LOAD D2,0.0005
 POP D3
@@ -5714,12 +5714,12 @@ LOAD D2,0.0004
 PUSHR D2; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Params End
 CALLFUNC 0.2110; UsrFunc[void Ghost_WaitframeLight(FFC, NPC)] Call
 POP D4
-LOAD D2,0; if() #953 Test
+LOAD D2,0; if() #843 Test
 COMPAREV D2,29
 SETCMP D2,I==
 COMPAREV D2,0
 GOTOCMP 5740,==; Test 'if'
-SETR D2,UNDERCOMBO; if() #953 Body Start
+SETR D2,UNDERCOMBO; if() #843 Body Start
 PUSHR D2
 PUSHR D4
 LOAD D2,0.0005; UsrFunc[int ComboAt(int, int)] Params Start
@@ -5752,11 +5752,11 @@ POP D4
 PUSHR D2
 POP D0
 POP D2
-SETR COMBOCD,D2; if() #953 Body End
-LOAD D2,0; for() #257 Body End AND for() #257 LoopIncrement
+SETR COMBOCD,D2; if() #843 Body End
+LOAD D2,0; for() #230 Body End AND for() #230 LoopIncrement
 ADDV D2,1
 STORE D2,0
-GOTO 5634; for() #257 End
+GOTO 5634; for() #230 End
 LOAD D2,0.0003
 PUSHR D2
 LOAD D2,0.0005
@@ -5794,15 +5794,15 @@ SETR D4,SP2
 PUSHR D4
 CALLFUNC 0.2390; UsrFunc[void StartGhostZH()] Call
 POP D4
-PUSHR D4; while(true) #14 Body [Opt:AlwaysOn] Start
+PUSHR D4; while(true) #8 Body [Opt:AlwaysOn] Start
 CALLFUNC 0.8764; UsrFunc[void UpdateGhostZH1()] Call
 POP D4
 WAITDRAW; InlineFunc[void Waitdraw()] Body
 PUSHR D4
 CALLFUNC 0.8826; UsrFunc[void UpdateGhostZH2()] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #14 Body [Opt:AlwaysOn] End
-GOTO 6; while() #14 End AND [Opt:NeverRet] AND void run() Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
+GOTO 6; while() #8 End AND [Opt:NeverRet] AND void run() Body End
 POP D2; Func[int Distance(int, int, int, int)] Body Start
 POP D1
 POP D0
@@ -15338,24 +15338,24 @@ RETURNFUNC; Func[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Body
 PUSHR D0; void run(int) Params
 PUSHR REFITEMCLASS; void run(int) Body Start
 SETR D4,SP2
-LOAD D2,0.0001; if() #524 Test
+LOAD D2,0.0001; if() #498 Test
 COMPAREV D2,0
 SETCMP D2,I<=
 COMPAREV D2,0
 GOTOCMP 16,==; Test 'if'
-SETV D2,-1; if() #524 Body Start
+SETV D2,-1; if() #498 Body Start
 PUSHR D2
 SETR D2,GD27
 SETR D0,D2
 POP D2
 WRITEPODARRAYVR 6,D2
-GOTO 22; if() #524 Body End
-LOAD D2,0.0001; if() #524 Else Start
+GOTO 22; if() #498 Body End
+LOAD D2,0.0001; if() #498 Else Start
 PUSHR D2
 SETR D2,GD27
 SETR D0,D2
 POP D2
-WRITEPODARRAYVR 6,D2; if() #524 Else End
+WRITEPODARRAYVR 6,D2; if() #498 Else End
 POPARGS D5,0.0002
 QUIT; void run(int) Body End
 

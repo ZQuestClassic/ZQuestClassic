@@ -18,7 +18,7 @@ PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0,0.0002
 SETR D4,SP2
-SETV D2,0; while(true) #8 Body [Opt:AlwaysOn] Start
+SETV D2,0; while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D0
 SETR D2,MOUSEARR
@@ -43,8 +43,8 @@ PUSHV 1
 PUSHV 128; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBO; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5,0.0016; InlineFunc[void Screen->DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
-GOTO 5; while() #8 End AND [Opt:NeverRet] AND void run(int) Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
+GOTO 5; while() #2 End AND [Opt:NeverRet] AND void run(int) Body End
 
 
 ALLOCATEGMEMV D2,4096,0; void run() Body Start
