@@ -108,13 +108,13 @@ static AccessorTable GlobalTable[] =
 	{ "SRand",                   0,          ZTID_VOID,   -1,          0,  { ZTID_LONG },{} },
 	{ "SRand",                   1,          ZTID_LONG,   -1,          0,  {},{} },
 	{ "Untype",                  0,       ZTID_UNTYPED,   -1,    FL_DEPR,  { ZTID_UNTYPED },{},0,"Use casting '<untyped>(var)' instead!" },
-	{ "Byte",                    0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "Int8",                    0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "SignedByte",              0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "Word",                    0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "Int16",                   0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "Short",                   0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "Integer",                 0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "Byte",                    0,       ZTID_FLOAT,   -1,      FL_DEPR,  { ZTID_FLOAT },{} },
+	{ "Int8",                    0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
+	{ "SignedByte",              0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
+	{ "Word",                    0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
+	{ "Int16",                   0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
+	{ "Short",                   0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
+	{ "Integer",                 0,       ZTID_FLOAT,   -1,          FL_DEPR,  { ZTID_FLOAT },{} },
 	{ "GetScriptRAM",            0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_FLOAT },{} },
 	{ "SetScriptRAM",            0,          ZTID_VOID,   -1,    FL_DEPR,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetGlobalRAM",            0,         ZTID_FLOAT,   -1,    FL_DEPR,  { ZTID_FLOAT },{} },
@@ -490,7 +490,7 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void TraceS(bool val)
+	//void TraceS(char32 val)
 	{
 		Function* function = getFunction("TraceS");
 		int32_t label = function->getLabel();

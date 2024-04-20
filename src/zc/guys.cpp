@@ -485,7 +485,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	
 	scripttile = -1;
 	scriptflip = -1;
-	do_animation = 1;
+	do_animation = true;
 	immortal = false;
 	noSlide = false;
 	deathexstate = -1;
@@ -4453,7 +4453,7 @@ bool enemy::hit(weapon *w)
 
 	if (replay_version_check(0, 14))
 	{
-		if(!(w->scriptcoldet&1) || w->fallclk || w->drownclk)
+		if(!w->scriptcoldet || w->fallclk || w->drownclk)
 			return false;
 		return sprite::hit(w);
 	}
@@ -13173,7 +13173,7 @@ void eAquamentus::draw(BITMAP *dest)
 
 bool eAquamentus::hit(weapon *w)
 {
-	if(!(w->scriptcoldet&1) || w->fallclk || w->drownclk) return false;
+	if(!w->scriptcoldet || w->fallclk || w->drownclk) return false;
 	
 	switch(w->id)
 	{

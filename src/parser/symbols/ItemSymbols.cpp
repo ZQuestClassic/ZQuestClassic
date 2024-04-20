@@ -110,7 +110,7 @@ static AccessorTable itemTable[] =
 	{ "setLightShape",              0,          ZTID_VOID,   ITEMGLOWSHP,               0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getDir",                     0,         ZTID_FLOAT,   ITEMDIR,                   0,  { ZTID_ITEM },{} },
 	{ "setDir",                     0,          ZTID_VOID,   ITEMDIR,                   0,  { ZTID_ITEM, ZTID_FLOAT },{} },
-	{ "getAnimation",               0,         ZTID_FLOAT,   ITEMENGINEANIMATE,         0,  { ZTID_ITEM },{} },
+	{ "getAnimation",               0,          ZTID_BOOL,   ITEMENGINEANIMATE,         0,  { ZTID_ITEM },{} },
 	{ "setAnimation",               0,          ZTID_VOID,   ITEMENGINEANIMATE,         0,  { ZTID_ITEM, ZTID_BOOL },{} },
 	{ "Remove",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEM },{} },
 	{ "getShadowSprite",            0,         ZTID_FLOAT,   ITEMSHADOWSPR,             0,  { ZTID_ITEM },{} },

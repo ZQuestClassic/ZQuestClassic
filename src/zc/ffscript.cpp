@@ -16212,7 +16212,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case LINKENGINEANIMATE:
-			Hero.do_animation=(value ? 1 : 0);
+			Hero.do_animation=value;
 			break;
 			
 		case LINKSWORDJINX:
@@ -17691,7 +17691,7 @@ void set_register(int32_t arg, int32_t value)
 		case ITEMENGINEANIMATE:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->do_animation=(value ? 1 : 0);
+				((item*)(s))->do_animation=value;
 			}
 			break;
 			
@@ -18983,13 +18983,13 @@ void set_register(int32_t arg, int32_t value)
 			
 		case LWPNCOLLDET:
 			if(0!=(s=checkLWpn(ri->lwpn,"CollDetection")))
-				(((weapon*)(s))->scriptcoldet)=value/10000;
-				
+				(((weapon*)(s))->scriptcoldet) = value;
+
 			break;
 		
 		case LWPNENGINEANIMATE:
 			if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
-				(((weapon*)(s))->do_animation)=(value ? 1 : 0);
+				(((weapon*)(s))->do_animation)=value;
 				
 			break;
 		
@@ -19647,13 +19647,13 @@ void set_register(int32_t arg, int32_t value)
 			
 		case EWPNCOLLDET:
 			if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
-				(((weapon*)(s))->scriptcoldet)=value/10000;
+				(((weapon*)(s))->scriptcoldet)=value;
 				
 			break;
 		
 		case EWPNENGINEANIMATE:
 			if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
-				(((weapon*)(s))->do_animation)=(value ? 1 : 0);
+				(((weapon*)(s))->do_animation)=value;
 				
 			break;
 		

@@ -42,7 +42,7 @@ static AccessorTable FFCTable[] =
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   FFINITDD,                  0,  { ZTID_FFC, ZTID_FLOAT },{} },
 	{ "setInitD[]",                 0,          ZTID_VOID,   FFINITDD,                  0,  { ZTID_FFC, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "getID",                      0,         ZTID_FLOAT,   FFCID,                     0,  { ZTID_FFC },{} },
-	{ "setID",                      0,          ZTID_VOID,   FFCID,                     0,  { ZTID_FFC, ZTID_FLOAT },{} },
+	{ "setID",                      0,          ZTID_VOID,   FFCID,                   FL_RDONLY,  { ZTID_FFC, ZTID_FLOAT },{} },
 	{ "getLastChangerX",            0,         ZTID_FLOAT,   FFCLASTCHANGERX,           0,  { ZTID_FFC },{} },
 	{ "setLastChangerX",            0,          ZTID_VOID,   FFCLASTCHANGERX,           0,  { ZTID_FFC, ZTID_FLOAT },{} },
 	{ "getLastChangerY",            0,         ZTID_FLOAT,   FFCLASTCHANGERY,           0,  { ZTID_FFC },{} },

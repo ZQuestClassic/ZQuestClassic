@@ -1185,7 +1185,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	hit_height=15;
 	hzsz=8;
 	autorotate = false;
-	do_animation = 1;
+	do_animation = true;
 	ref_o_tile = 0;
 	useweapon = usedefence = useweapondummy = usedefencedummy = 0;
 	weaprange = weapduration = 0;
@@ -7106,7 +7106,7 @@ void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)
 
 void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int32_t ehitType)
 {
-	if((scriptcoldet&1) == 0 || fallclk || drownclk)
+	if(!scriptcoldet || fallclk || drownclk)
 	{
 		// These won't hit anything, but they can still go too far offscreen...
 		// Unless the compatibility rule is set.
@@ -7523,7 +7523,7 @@ offscreenCheck:
 // override hit detection to check for invicibility, etc
 bool weapon::hit()
 {
-    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
+    if(!scriptcoldet || fallclk || drownclk) return false;
     
 	if(id==wBugNet) return false;
     if(id==ewBrang && misc)

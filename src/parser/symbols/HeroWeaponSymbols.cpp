@@ -82,7 +82,7 @@ static AccessorTable lwpnTable[] =
 	{ "getDrawYOffset",             0,         ZTID_FLOAT,   LWPNYOFS,                  0,  { ZTID_LWPN },{} },
 	{ "setDrawYOffset",             0,          ZTID_VOID,   LWPNYOFS,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getTotalDYOffset",           0,         ZTID_FLOAT,   LWPNTOTALDYOFFS,           0,  { ZTID_LWPN },{} },
-	{ "setTotalDYOffset",           0,          ZTID_VOID,   LWPNTOTALDYOFFS,           0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "setTotalDYOffset",           0,          ZTID_VOID,   LWPNTOTALDYOFFS,           FL_RDONLY,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getDrawZOffset",             0,         ZTID_FLOAT,   LWPNZOFS,                  0,  { ZTID_LWPN },{} },
 	{ "setDrawZOffset",             0,          ZTID_VOID,   LWPNZOFS,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getHitXOffset",              0,         ZTID_FLOAT,   LWPNHXOFS,                 0,  { ZTID_LWPN },{} },
