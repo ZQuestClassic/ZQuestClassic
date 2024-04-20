@@ -1,3 +1,6 @@
+#include "std.zh"
+#include "gui.zh"
+
 global script GUITest
 {
     void run()
@@ -102,4 +105,3 @@ global script GUITest
         }
     }
 }
-

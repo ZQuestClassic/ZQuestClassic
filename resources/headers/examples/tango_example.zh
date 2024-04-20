@@ -1,6 +1,6 @@
-// tango.zh
-// Version 1.3.3
-
+#include "std.zh"
+#include "tango.zh"
+#include "tango/font/tango_OracleProportional.zh"
 
 // Background CSet and color 0-15
 const int TQS_BG_CSET = 0;
@@ -31,8 +31,6 @@ const int TQS_SFX_CANCEL = 0;
 
 // End settings
 
-
-#include "tango/font/tango_OracleProportional.zh"
 
 const int STYLE_TQS = 0;
 
