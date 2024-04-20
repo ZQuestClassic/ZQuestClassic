@@ -43,7 +43,7 @@ ffc script KnightTour{
 						}
 					}
 					curpos=cmb;
-					Game->PlaySound(SFX_KNIGHTTOUR_MOVE);
+					Audio->PlaySound(SFX_KNIGHTTOUR_MOVE);
 				}
 				else if (Screen->ComboD[cmb]==cmbspace+2){
 					for (int i=0; i<176; i++){
@@ -65,12 +65,12 @@ ffc script KnightTour{
 						}
 					}
 					curpos=cmb;
-					Game->PlaySound(SFX_KNIGHTTOUR_MOVE);
+					Audio->PlaySound(SFX_KNIGHTTOUR_MOVE);
 				}
 				for (int i=0; i<176; i++){
 					if (pos[i]==0) break;
 					else if (i==175){
-						Game->PlaySound(SFX_KNIGHTTOUR_SOLVED);
+						Audio->PlaySound(SFX_KNIGHTTOUR_SOLVED);
 						Screen->TriggerSecrets();
 						Screen->State[ST_SECRET]=true;
 						Quit();

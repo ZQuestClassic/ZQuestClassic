@@ -19,7 +19,7 @@ ffc script HamiltonianPath{
 				underLinkPos = ComboAt(Link->X+8, Link->Y+12);
 				if(Screen->ComboD[underLinkPos]==cmbInactive){
 					//Set the current position to the inactive combo
-					Game->PlaySound(SFX_HAMILTINIAN_PATH);
+					Audio->PlaySound(SFX_HAMILTINIAN_PATH);
 					currentPos = ComboAt(Link->X+8, Link->Y+12);
 					Screen->ComboD[underLinkPos] = cmbCurrent;
 				}
@@ -32,7 +32,7 @@ ffc script HamiltonianPath{
 			underLinkPos = ComboAt(Link->X+8, Link->Y+12);
 			if(Screen->ComboD[underLinkPos]==cmbInactive){ //If Link is standing on an inactive combo
 				if(underLinkPos==currentPos-1||underLinkPos==currentPos+1||underLinkPos==currentPos-16||underLinkPos==currentPos+16){ //Check if the combo is next to the current one
-					Game->PlaySound(SFX_HAMILTINIAN_PATH);
+					Audio->PlaySound(SFX_HAMILTINIAN_PATH);
 					Screen->ComboD[currentPos] = cmbActive;
 					currentPos = underLinkPos;
 					Screen->ComboD[currentPos] = cmbCurrent;
@@ -45,7 +45,7 @@ ffc script HamiltonianPath{
 				}
 				underLinkPos = ComboAt(Link->X+8, Link->Y+12);
 				if(currentPos!=underLinkPos&&Screen->ComboD[hookshotPos]==cmbCurrent&&Screen->ComboD[underLinkPos]==cmbInactive){
-					Game->PlaySound(SFX_HAMILTINIAN_PATH);
+					Audio->PlaySound(SFX_HAMILTINIAN_PATH);
 					Screen->ComboD[currentPos] = cmbActive;
 					currentPos = underLinkPos;
 					Screen->ComboD[currentPos] = cmbCurrent;
@@ -63,7 +63,7 @@ ffc script HamiltonianPath{
 			if(Screen->ComboD[i]==cmbInactive||Screen->ComboD[i]==cmbCurrent||Screen->ComboD[i]==cmbActive)
 				Screen->ComboD[i] = cmbFinished;
 		}
-		Game->PlaySound(sfx);
+		Audio->PlaySound(sfx);
 		Screen->TriggerSecrets();
 		if(perm)
 			Screen->State[ST_SECRET] = true;

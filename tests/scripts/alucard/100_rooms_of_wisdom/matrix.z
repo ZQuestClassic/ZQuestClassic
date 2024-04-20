@@ -21,7 +21,7 @@ ffc script MatrixBinaryPassword{
 				if (Screen->ComboD[i]==cmb_off)num_cmb_off++;
 			}
 			if ((num_cmb_on==0)&&(num_cmb_off==orig_num_cmb_off)){
-				Game->PlaySound(SFX_SECRET);
+				Audio->PlaySound(SFX_SECRET);
 				Screen->TriggerSecrets();
 				if(perm>0)Screen->State[ST_SECRET]=true;
 				Quit();

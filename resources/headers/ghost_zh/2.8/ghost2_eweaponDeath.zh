@@ -17,7 +17,7 @@ void __DoEWeaponDeathPrototype(eweapon wpn)
 
     // Find the prototype
     id=Floor(wpn->Misc[__EWI_ON_DEATH]);
-    for(i=Screen->NumEWeapons(); i>0; i--)
+    for(i=Screen->NumEWeapons; i>0; i--)
     {
         prototype=Screen->LoadEWeapon(i);
         if((prototype->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)!=__EWFI_DUMMY_CHECK)
@@ -60,7 +60,7 @@ void __DoEWeaponDeathPrototype(eweapon wpn)
     {
         for(float i=0; i<numShots; i++)
             __CopyEWeapon(prototype, centerX, centerY, angle+6.2832*i/numShots);
-        Game->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
+        Audio->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
     }
 
     // Random angles
@@ -68,7 +68,7 @@ void __DoEWeaponDeathPrototype(eweapon wpn)
     {
         for(int i=0; i<numShots; i++)
             __CopyEWeapon(prototype, centerX, centerY, Rand(31416)/5000);
-        Game->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
+        Audio->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
     }
 
     // Aimed at Link
@@ -83,7 +83,7 @@ void __DoEWeaponDeathPrototype(eweapon wpn)
         else if(numShots==1)
             __CopyEWeapon(prototype, centerX, centerY, ArcTan(Link->X+8-centerX, Link->Y+8-centerY));
 
-        Game->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
+        Audio->PlaySound(prototype->Misc[__EWI_DUMMY_SOUND]);
     }
 
     wpn->DeadState=0;
@@ -176,7 +176,7 @@ void __DoEWeaponDeath4FiresHV(eweapon wpn)
 {
     for(int i=0; i<4; i++)
         FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 100, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
-    Game->PlaySound(SFX_FIRE); // Only play sound once
+    Audio->PlaySound(SFX_FIRE); // Only play sound once
     wpn->DeadState=0;
 }
 
@@ -184,7 +184,7 @@ void __DoEWeaponDeath4FiresDiag(eweapon wpn)
 {
     for(int i=4; i<8; i++)
         FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 71, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
-    Game->PlaySound(SFX_FIRE);
+    Audio->PlaySound(SFX_FIRE);
     wpn->DeadState=0;
 }
 
@@ -201,7 +201,7 @@ void __DoEWeaponDeath4FiresRand(eweapon wpn)
             FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 71, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
     }
 
-    Game->PlaySound(SFX_FIRE);
+    Audio->PlaySound(SFX_FIRE);
     wpn->DeadState=0;
 }
 
@@ -211,14 +211,14 @@ void __DoEWeaponDeath8Fires(eweapon wpn)
         FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 100, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
     for(int i=4; i<8; i++)
         FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, i, 71, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
-    Game->PlaySound(SFX_FIRE);
+    Audio->PlaySound(SFX_FIRE);
     wpn->DeadState=0;
 }
 
 void __DoEWeaponDeathSingleFire(eweapon wpn)
 {
     FireNonAngularEWeapon(EW_FIRE, CenterX(wpn)-8, CenterY(wpn)-8, wpn->Dir, 0, wpn->Damage/2, wpn->Misc[__EWI_ON_DEATH_ARG], 0, 0);
-    Game->PlaySound(SFX_FIRE);
+    Audio->PlaySound(SFX_FIRE);
     wpn->DeadState=0;
 }
 
@@ -248,7 +248,7 @@ void __DoEWeaponDeathRunScript(eweapon wpn)
     f=Screen->LoadFFC(ffcID);
     
     // Give the weapon an ID number so it can be found later
-    for(int i=Screen->NumEWeapons(); i>0; i--)
+    for(int i=Screen->NumEWeapons; i>0; i--)
     {
         checkWpn=Screen->LoadEWeapon(i);
         if((checkWpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)!=__EWFI_IS_GHZH_EWPN) // Filter out dummies

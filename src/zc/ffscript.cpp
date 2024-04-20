@@ -34488,7 +34488,7 @@ void do_sfx(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(BC::checkSFXID(ID, "Game->PlaySound") != SH::_NoError)
+	if(BC::checkSFXID(ID, "Audio->PlaySound") != SH::_NoError)
 		return;
 		
 	sfx(ID);

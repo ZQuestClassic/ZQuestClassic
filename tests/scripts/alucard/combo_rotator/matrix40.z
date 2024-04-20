@@ -49,7 +49,7 @@ ffc script MatrixPasswordPuzzle4_0{
 				if (Link->PressEx1){//Process Auto-input
 					int cmb = ComboAt(CenterLinkX(), CenterLinkY()+offset);
 					if (solution[cmb] >= 0){
-						Game->PlaySound(SFX_MATRIX_PUZZLE_COMBO_CHANGE);
+						Audio->PlaySound(SFX_MATRIX_PUZZLE_COMBO_CHANGE);
 						Screen->ComboD[cmb]++;
 						if (rot>0){
 							int origcmb = Screen->ComboD[cmb]-1;
@@ -74,7 +74,7 @@ ffc script MatrixPasswordPuzzle4_0{
 			}
 			for (int i=0;i<=176;i++){
 				if (i==176){
-					Game->PlaySound(SFX_MATRIX_PUZZLE_SOLVED);
+					Audio->PlaySound(SFX_MATRIX_PUZZLE_SOLVED);
 					Screen->TriggerSecrets();
 					Screen->State[ST_SECRET]=true;
 					Quit();

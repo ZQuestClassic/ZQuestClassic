@@ -264,10 +264,11 @@ static AccessorTable CombosTable[] =
 	{ "getTriggerPushTime",         0, "getTrigPushTime",         0 },
 	{ "setTriggerPushTime",         0, "setTrigPushTime",         0 },
 	
-	{ "_getPosX",                   0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
-	{ "_getPosY",                   0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },
-	{ "_getPos",                    0,         ZTID_FLOAT,   COMBOPOSR,                 0,  { ZTID_COMBOS },{} },
-	{ "_getLayer",                  0,         ZTID_FLOAT,   COMBOLAYERR,               0,  { ZTID_COMBOS },{} },
+	{ "_getPosX",                   0,         ZTID_FLOAT,   COMBOXR,            FL_DEPR,  { ZTID_COMBOS },{},0,"Use '->X' instead!" },
+	{ "_getPosY",                   0,         ZTID_FLOAT,   COMBOYR,            FL_DEPR,  { ZTID_COMBOS },{},0,"Use '->Y' instead!" },
+	{ "_getPos",                    0,         ZTID_FLOAT,   COMBOPOSR,          FL_DEPR,  { ZTID_COMBOS },{},0,"Use '->Pos' instead!" },
+	{ "_getLayer",                  0,         ZTID_FLOAT,   COMBOLAYERR,        FL_DEPR,  { ZTID_COMBOS },{},0,"Use '->Layer' instead!" },
+
 	{ "getSkipAnim",                0,         ZTID_FLOAT,   COMBODSKIPANIM,            0,  { ZTID_COMBOS },{} },
 	{ "setSkipAnim",                0,          ZTID_VOID,   COMBODSKIPANIM,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getUserFlags",               0,         ZTID_FLOAT,   COMBODUSRFLAGS,            0,  { ZTID_COMBOS },{} },

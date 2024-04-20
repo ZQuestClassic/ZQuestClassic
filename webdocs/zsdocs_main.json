@@ -506,7 +506,7 @@
                         },
                         {
                             "name": "Sprite Limit ;; npc::Max",
-                            "val": "<h3>int Max();</h3>\nReturns the max number of npcs currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of npcs allowed to a new value. Range `1-1024`.\n"
+                            "val": "<h3>int Max;</h3>\nReturns the max number of npcs currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of npcs allowed to a new value. Range `1-1024`.\n"
                         },
                         {
                             "name": "Owning ;; npc::Own / npc::OwnArray / npc::OwnObject",
@@ -661,7 +661,7 @@
                         },
                         {
                             "name": "Sprite Limit ;; lweapon::Max / eweapon::Max",
-                            "val": "<h3>int Max();</h3>\nReturns the max number of weapons currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of weapons allowed to a new value. Range `1-1024`.\n"
+                            "val": "<h3>int Max;</h3>\nReturns the max number of weapons currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of weapons allowed to a new value. Range `1-1024`.\n"
                         },
                         {
                             "name": "Graphical Info ;; lweapon::OriginalTile / eweapon::OriginalTile / lweapon::Tile / eweapon::Tile / lweapon::OriginalCSet / eweapon::OriginalCSet / lweapon::CSet / eweapon::CSet / lweapon::NumFrames / eweapon::NumFrames / lweapon::Frame / eweapon::Frame / lweapon::ASpeed / eweapon::ASpeed / lweapon::Flash / eweapon::Flash / lweapon::FlashCSet / eweapon::FlashCSet / lweapon::Flip / eweapon::Flip / lweapon::UseSprite / eweapon::UseSprite / lweapon::Sprites[] / eweapon::Sprites[]",
@@ -944,7 +944,7 @@
                         },
                         {
                             "name": "Sprite Limit ;; itemsprite::Max",
-                            "val": "<h3>int Max();</h3>\nReturns the max number of itemsprites currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of itemsprites allowed to a new value. Range `1-1024`.\n"
+                            "val": "<h3>int Max;</h3>\nReturns the max number of itemsprites currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of itemsprites allowed to a new value. Range `1-1024`.\n"
                         },
                         {
                             "name": "Graphical Info ;; itemsprite::OriginalTile / itemsprite::Tile / itemsprite::CSet / itemsprite::NumFrames / itemsprite::Frame / itemsprite::ASpeed / itemsprite::AClock / itemsprite::Delay / itemsprite::Flash / itemsprite::FlashCSet / itemsprite::Flip",
@@ -1059,7 +1059,7 @@
                         },
                         {
                             "name": "Current Position ;; Game::CurLevel / Game::CurDMap / Game::CurMap / Game::CurDMScreen / Game::CurDMapScreen / Game::CurScreen / Game::GetCurLevel / Game::GetCurDMap / Game::GetCurMap / Game::GetCurDMapScreen / Game::GetCurScreen",
-                            "val": "<h3>int CurScreen;\nint GetCurScreen();</h3>\nReturns the screen the player is currently on.\n\n<h3>int CurDMapScreen;\nint CurDMScreen;\nint GetCurDMapScreen();</h3>\nReturns the screen the player is currently on, offset by the current dmap offset.\n\n<h3>int CurMap;\nint GetCurMap();</h3>\nReturns the map the player is currently on.\n\n<h3>int CurDMap;\nint GetCurDMap();</h3>\nReturns the dmap the player is currently on.\n\n<h3>int CurLevel;\nint GetCurLevel();</h3>\nReturns the level the player is currently on."
+                            "val": "<h3>int CurScreen;\nint GetCurScreen();</h3>\nReturns the screen the player is currently on.\n\n<h3>int CurDMapScreen;\nint CurDMScreen;\nint CurDMapScreen;</h3>\nReturns the screen the player is currently on, offset by the current dmap offset.\n\n<h3>int CurMap;\nint GetCurMap();</h3>\nReturns the map the player is currently on.\n\n<h3>int CurDMap;\nint CurDMap;</h3>\nReturns the dmap the player is currently on.\n\n<h3>int CurLevel;\nint GetCurLevel();</h3>\nReturns the level the player is currently on."
                         },
                         {
                             "name": "Counters ;; Game::Counter / Game::MCounter / Game::DCounter",
@@ -2116,7 +2116,7 @@
                         },
                         {
                             "name": "Screen Objects ;; Screen::LoadFFC / Screen::CreateEWeapon / Screen::LoadEWeapon / Screen::NumEWeapons / Screen::CreateLWeapon / Screen::LoadLWeapon / Screen::NumLWeapons / Screen::CreateNPC / Screen::LoadNPC / Screen::NumNPCs / Screen::CreateItem / Screen::LoadItem / Screen::NumItems / LoadFFC / LoadNPC / LoadLWeapon / LoadEWeapon / LoadItem / LoadPortal / CreateNPC / CreateLWeapon / CreateEWeapon / CreateItem / CreatePortal / NumFFCs / NumNPCs / NumLWeapons / NumEWeapons / NumItems / NumPortals",
-                            "val": "<h3>int NumItems();\nint NumNPCs();\nint NumLWeapons();\nint NumEWeapons();\nint NumFFCs();\nint NumPortals();</h3>\nReturns the number of the given object type that are present on the current screen.\n\n<h3>${itemsprite} CreateItem(int id);\n${npc} CreateNPC(int id);\n${lweapon} CreateLWeapon(int id);\n${eweapon} CreateEWeapon(int id);\n${portal} CreatePortal();</h3>\nCreates a new sprite object, with the given ID. Use the `LW_` and `EW_` constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.\n\n<h3>${itemsprite} LoadItem(int n);\n${npc} LoadNPC(int n);\n${lweapon} LoadLWeapon(int n);\n${eweapon} LoadEWeapon(int n);\n${portal} LoadPortal(int n);</h3>\nWhere `1 &lt;= n &lt;= NumObjects`, returns a pointer to the nth object on the screen.\nUsed to access itemsprites, npcs, lweapons, and eweapons that currently exist on the screen.\nFor 'LoadPortal()', use '-1' to access the Magic Mirror's portal, which is inactive if its' dmap is -1.\n\n<h3>${ffc} LoadFFC(int n);</h3>\nReturns a pointer to the nth FFC on the screen, where `1 &lt;= n &lt;= MAX_FFC`.\nUsed to access ffcs that currently exist on the screen.\n\n<h3>${itemsprite} Items[];\n${npc} NPCs[];\n${lweapon} LWeapons[];\n${eweapon} EWeapons[];\n${ffc} FFCs[];\n${portal} Portals[];</h3>\n${Internal Arrays|Internal Array pointers} to arrays containing all of each respective type of object on the screen. These arrays are 0-indexed."
+                            "val": "<h3>int NumItems;\nint NumNPCs;\nint NumLWeapons;\nint NumEWeapons;\nint NumFFCs();\nint NumPortals();</h3>\nReturns the number of the given object type that are present on the current screen.\n\n<h3>${itemsprite} CreateItem(int id);\n${npc} CreateNPC(int id);\n${lweapon} CreateLWeapon(int id);\n${eweapon} CreateEWeapon(int id);\n${portal} CreatePortal();</h3>\nCreates a new sprite object, with the given ID. Use the `LW_` and `EW_` constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.\n\n<h3>${itemsprite} LoadItem(int n);\n${npc} LoadNPC(int n);\n${lweapon} LoadLWeapon(int n);\n${eweapon} LoadEWeapon(int n);\n${portal} LoadPortal(int n);</h3>\nWhere `1 &lt;= n &lt;= NumObjects`, returns a pointer to the nth object on the screen.\nUsed to access itemsprites, npcs, lweapons, and eweapons that currently exist on the screen.\nFor 'LoadPortal()', use '-1' to access the Magic Mirror's portal, which is inactive if its' dmap is -1.\n\n<h3>${ffc} LoadFFC(int n);</h3>\nReturns a pointer to the nth FFC on the screen, where `1 &lt;= n &lt;= MAX_FFC`.\nUsed to access ffcs that currently exist on the screen.\n\n<h3>${itemsprite} Items[];\n${npc} NPCs[];\n${lweapon} LWeapons[];\n${eweapon} EWeapons[];\n${ffc} FFCs[];\n${portal} Portals[];</h3>\n${Internal Arrays|Internal Array pointers} to arrays containing all of each respective type of object on the screen. These arrays are 0-indexed."
                         },
                         {
                             "name": "Moving Blocks ;; Screen::MovingBlockX / Screen::MovingBlockY / Screen::MovingBlockLayer / Screen::MovingBlockCombo / Screen::MovingBlockCSet",
@@ -2666,7 +2666,7 @@
                         },
                         {
                             "name": "Draw Count ;; Graphics::NumDraws / Graphics::MaxDraws",
-                            "val": "<h3>int NumDraws();</h3>\n\nReturns the number of script drawing commands that are currently waiting in the draw queue.\n\n<h3>int MaxDraws();</h3>\r\n\r\nReturns the limit of the drawing queue. If ${Graphics::NumDraws|NumDraws()} returns the same as this, no further drawing commands will work until the queue has been cleared (i.e. the next frame)"
+                            "val": "<h3>int NumDraws;</h3>\n\nReturns the number of script drawing commands that are currently waiting in the draw queue.\n\n<h3>int MaxDraws();</h3>\r\n\r\nReturns the limit of the drawing queue. If ${Graphics::NumDraws|NumDraws} returns the same as this, no further drawing commands will work until the queue has been cleared (i.e. the next frame)"
                         },
                         {
                             "name": "GetPixel ;; Graphics::GetPixel",

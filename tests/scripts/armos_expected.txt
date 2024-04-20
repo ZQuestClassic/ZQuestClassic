@@ -39,14 +39,14 @@ PEEK D4
 PUSHV 16384; UsrFunc[void Ghost_SetFlag(int)] Params
 CALLFUNC 0.3048; UsrFunc[void Ghost_SetFlag(int)] Call
 POP D4
-LOAD D2,0.0002; InlineFunc[void Game->PlaySound(int)] Params Start
+LOAD D2,0.0002; InlineFunc[void Audio->PlaySound(int)] Params Start
 PUSHR D2
 SETV D2,0
 PUSHR D2
 POP D0
 POP REFNPC
-SETR D2,NPCDD; InlineFunc[void Game->PlaySound(int)] Params End
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETR D2,NPCDD; InlineFunc[void Audio->PlaySound(int)] Params End
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 PUSHR D4
 LOAD D2,0.0003; UsrFunc[void SpawnAnimation(FFC, NPC)] Params Start
 PUSHR D2
@@ -81,8 +81,8 @@ COMPAREV D2,0
 GOTOCMP 70,==; Test 'if'
 SETV D2,1.5000; if() #844 Body Start
 SETR GD6,D2
-LOAD D2,0; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body AND if() #844 Body End
+LOAD D2,0; InlineFunc[void Audio->PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body AND if() #844 Body End
 PUSHR D4
 LOAD D2,0.0001; UsrFunc[void Ghost_MoveTowardLink(int, int)] Params Start
 PUSHR D2
@@ -4134,7 +4134,7 @@ PUSHARGSV 0,0.0008; Func[NPC Ghost_InitAutoGhost(FFC, int)] Body Start
 SETR D4,SP2
 STOREV 0,0.0007
 STOREV 0,0.0006
-SETR D2,NPCCOUNT; InlineFunc[int Screen->NumNPCs()] Body AND for() #55 setup
+SETR D2,NPCCOUNT; for() #55 setup
 STORE D2,0.0005
 LOAD D2,0.0005; for() #55 LoopTest
 COMPAREV D2,0
@@ -5865,7 +5865,7 @@ GOTOCMP 417,!=; Test 'if' AND return (Void) AND if() #29 Body
 STOREV 0,0.0006
 STOREV 0,0.0005
 STOREV 0,0.0004
-SETR D2,NPCCOUNT; InlineFunc[int Screen->NumNPCs()] Body AND for() #2 setup
+SETR D2,NPCCOUNT; for() #2 setup
 STORE D2,0.0003
 LOAD D2,0.0003; for() #2 LoopTest
 COMPAREV D2,0
@@ -6830,7 +6830,7 @@ STORE D2,0.0002
 STOREV 1,0.0001; for() #20 setup
 LOAD D2,0.0001; for() #20 LoopTest
 PUSHR D2
-SETR D2,NPCCOUNT; InlineFunc[int Screen->NumNPCs()] Body
+SETR D2,NPCCOUNT
 POP D3
 COMPARER D3,D2
 SETCMP D2,I<=
@@ -7258,8 +7258,8 @@ POP D0
 POP D2
 POP REFEWPN
 SETR EWPNMISCD,D2
-LOAD D2,0.0002; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+LOAD D2,0.0002; InlineFunc[void Audio->PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 LOAD D2,0; return Start
 POPARGS D5,0.0010; return End
 RETURNFUNC; Func[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Body End
@@ -12639,7 +12639,7 @@ POP REFEWPN
 SETR D2,EWPNMISCD; InlineFunc[untyped Floor(untyped)] Params End
 FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
 STORE D2,0.0010
-SETR D2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body AND for() #165 setup
+SETR D2,EWPNCOUNT; for() #165 setup
 STORE D2,0.0003
 LOAD D2,0.0003; for() #165 LoopTest
 COMPAREV D2,0
@@ -12853,14 +12853,14 @@ LOAD D2,0.0001; for() #166 LoopIncrement
 ADDV D2,1
 STORE D2,0.0001
 GOTO 7027; for() #166 End
-LOAD D2,0.0009; InlineFunc[void Game->PlaySound(int)] Params Start
+LOAD D2,0.0009; InlineFunc[void Audio->PlaySound(int)] Params Start
 PUSHR D2
 SETV D2,2
 PUSHR D2
 POP D0
 POP REFEWPN
-SETR D2,EWPNMISCD; InlineFunc[void Game->PlaySound(int)] Params End
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETR D2,EWPNMISCD; InlineFunc[void Audio->PlaySound(int)] Params End
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 GOTO 7220; if() #360 Body End
 LOAD D2,0.0008; if() #361 Test AND if() #360 Else Start
 COMPAREV D2,2
@@ -12893,14 +12893,14 @@ LOAD D2,0.0001; for() #167 LoopIncrement
 ADDV D2,1
 STORE D2,0.0001
 GOTO 7080; for() #167 End
-LOAD D2,0.0009; InlineFunc[void Game->PlaySound(int)] Params Start
+LOAD D2,0.0009; InlineFunc[void Audio->PlaySound(int)] Params Start
 PUSHR D2
 SETV D2,2
 PUSHR D2
 POP D0
 POP REFEWPN
-SETR D2,EWPNMISCD; InlineFunc[void Game->PlaySound(int)] Params End
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETR D2,EWPNMISCD; InlineFunc[void Audio->PlaySound(int)] Params End
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 GOTO 7220; if() #361 Body End
 LOAD D2,0.0004; if() #362 Test AND if() #361 Else Start
 COMPAREV D2,1
@@ -13000,14 +13000,14 @@ ARCTANR D2; InlineFunc[int ArcTan(int, int)] Body End
 PUSHR D2; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Params End
 CALLFUNC 0.8998; UsrFunc[void __CopyEWeapon(EWeapon, int, int, int)] Call
 POP D4; if() #597 Body End
-LOAD D2,0.0009; if() #362 Else End AND InlineFunc[void Game->PlaySound(int)] Params Start
+LOAD D2,0.0009; if() #362 Else End AND InlineFunc[void Audio->PlaySound(int)] Params Start
 PUSHR D2
 SETV D2,2
 PUSHR D2
 POP D0
 POP REFEWPN
-SETR D2,EWPNMISCD; InlineFunc[void Game->PlaySound(int)] Params End
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body AND if() #361 Else End
+SETR D2,EWPNMISCD; InlineFunc[void Audio->PlaySound(int)] Params End
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body AND if() #361 Else End
 SETV D2,0; if() #360 Else End
 PUSHR D2
 LOAD D2,0.0011
@@ -13605,8 +13605,8 @@ LOAD D2,0; for() #159 LoopIncrement
 ADDV D2,1
 STORE D2,0
 GOTO 7773; for() #159 End
-SETV D2,13; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETV D2,13; InlineFunc[void Audio->PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 SETV D2,0
 PUSHR D2
 LOAD D2,0.0001
@@ -13665,8 +13665,8 @@ LOAD D2,0; for() #158 LoopIncrement
 ADDV D2,1
 STORE D2,0
 GOTO 7833; for() #158 End
-SETV D2,13; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETV D2,13; InlineFunc[void Audio->PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 SETV D2,0
 PUSHR D2
 LOAD D2,0.0001
@@ -13777,8 +13777,8 @@ LOAD D2,0; for() #161 LoopIncrement
 ADDV D2,1
 STORE D2,0
 GOTO 7945; for() #161 End
-SETV D2,13; if() #353 Else End AND InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETV D2,13; if() #353 Else End AND InlineFunc[void Audio->PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 SETV D2,0
 PUSHR D2
 LOAD D2,0.0001
@@ -13882,8 +13882,8 @@ LOAD D2,0; for() #164 LoopIncrement
 ADDV D2,1
 STORE D2,0
 GOTO 8050; for() #164 End
-SETV D2,13; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETV D2,13; InlineFunc[void Audio->PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 SETV D2,0
 PUSHR D2
 LOAD D2,0.0001
@@ -13980,8 +13980,8 @@ PUSHR EWPNMISCD
 PUSHARGSV 0,0.0002; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.1316; UsrFunc[EWeapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
 POP D4
-SETV D2,13; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETV D2,13; InlineFunc[void Audio->PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 SETV D2,0
 PUSHR D2
 LOAD D2,0
@@ -14021,7 +14021,7 @@ GOTO 8369; return (Void) AND if() #598 Body End
 LOAD D2,0.0004; InlineFunc[FFC Screen->LoadFFC(int)] Params
 SUBV D2,1; InlineFunc[FFC Screen->LoadFFC(int)] Body
 STORE D2,0.0003
-SETR D2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body AND for() #169 setup
+SETR D2,EWPNCOUNT; for() #169 setup
 STORE D2,0
 LOAD D2,0; for() #169 LoopTest
 COMPAREV D2,0
@@ -14179,7 +14179,7 @@ GOTO 8389
 SETV D2,1
 COMPAREV D2,0
 GOTOCMP 8438,!=; Test 'unless'
-SETR D2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body AND for() #149 setup AND unless() #345 Body Start
+SETR D2,EWPNCOUNT; for() #149 setup AND unless() #345 Body Start
 STORE D2,0
 LOAD D2,0; for() #149 LoopTest
 COMPAREV D2,0
@@ -14226,7 +14226,7 @@ SUBV D2,1
 STORE D2,0
 GOTO 8393; for() #149 End
 GOTO 8484; unless() #345 Body End
-SETR D2,EWPNCOUNT; InlineFunc[int Screen->NumEWeapons()] Body AND for() #150 setup AND unless() #345 Else Start
+SETR D2,EWPNCOUNT; for() #150 setup AND unless() #345 Else Start
 STORE D2,0
 LOAD D2,0; for() #150 LoopTest
 COMPAREV D2,0
@@ -14563,10 +14563,10 @@ POP D4
 RETURNFUNC; Func[void UpdateGhostZH1()] Body End
 PUSHV 0; Func[void UpdateGhostZHData1()] Body Start
 SETR D4,SP2
-SETR D2,CURDMAP; InlineFunc[int Game->GetCurDMap()] Body
+SETR D2,CURDMAP
 LSHIFTV D2,8
 PUSHR D2
-SETR D2,CURDSCR; InlineFunc[int Game->GetCurDMapScreen()] Body
+SETR D2,CURDSCR
 POP D3
 ADDR D2,D3
 STORE D2,0

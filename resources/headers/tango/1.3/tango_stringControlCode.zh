@@ -114,9 +114,9 @@ int __Tango_RunStringControlCode(int pos)
         else if(code==__TANGO_SCC_REMOVE_ITEM)
             Link->Item[args[0]]=false;
         else if(code==__TANGO_SCC_PLAY_SOUND)
-            Game->PlaySound(args[0]);
+            Audio->PlaySound(args[0]);
         else if(code==__TANGO_SCC_PLAY_MIDI)
-            Game->PlayMIDI(args[0]);
+            Audio->PlayMIDI(args[0]);
     }
     
     return numArgs+1;

@@ -33,12 +33,16 @@ static AccessorTable ScreenTable[] =
 	{ "setWavy",                    0,          ZTID_VOID,   WAVY,                              0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "getQuake",                   0,         ZTID_FLOAT,   QUAKE,                             0,  { ZTID_SCREEN },{} },
 	{ "setQuake",                   0,          ZTID_VOID,   QUAKE,                             0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	{ "_getNumItems",               0,         ZTID_FLOAT,   ITEMCOUNT,                         0,  { ZTID_SCREEN },{} },
+	{ "_getNumItems",               0,         ZTID_FLOAT,   ITEMCOUNT,                   FL_DEPR,  { ZTID_SCREEN },{},0,"Use '->NumItems' instead!" },
+	{ "getNumItems",                0,         ZTID_FLOAT,   ITEMCOUNT,                         0,  { ZTID_SCREEN },{} },
+	{ "setNumItems",                0,         ZTID_VOID,    ITEMCOUNT,                 FL_RDONLY,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "GetRenderTarget",            0,         ZTID_FLOAT,   GETRENDERTARGET,                   0,  { ZTID_SCREEN },{} },
 	{ "LoadItem",                   0,          ZTID_ITEM,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "CreateItem",                 0,          ZTID_ITEM,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "LoadFFC",                    0,           ZTID_FFC,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	{ "_getNumNPCs",                0,         ZTID_FLOAT,   NPCCOUNT,                          0,  { ZTID_SCREEN },{} },
+	{ "_getNumNPCs",                0,         ZTID_FLOAT,   NPCCOUNT,                   FL_DEPR,  { ZTID_SCREEN },{},0,"Use '->NumNPCs' instead!" },
+	{ "getNumNPCs",                 0,         ZTID_FLOAT,   NPCCOUNT,                         0,  { ZTID_SCREEN },{} },
+	{ "setNumNPCs",                 0,         ZTID_VOID,    NPCCOUNT,                 FL_RDONLY,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "LoadNPC",                    0,           ZTID_NPC,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "CreateNPC",                  0,           ZTID_NPC,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "ClearSprites",               0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
@@ -76,10 +80,18 @@ static AccessorTable ScreenTable[] =
 	{ "Message",                    0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "getShowingMessage",          0,         ZTID_FLOAT,   SHOWNMSG,                          0,  { ZTID_SCREEN },{} },
 	{ "setShowingMessage",          0,          ZTID_VOID,   SHOWNMSG,                  FL_RDONLY,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	{ "_getNumLWeapons",            0,         ZTID_FLOAT,   LWPNCOUNT,                         0,  { ZTID_SCREEN },{} },
+
+	{ "_getNumLWeapons",                0,         ZTID_FLOAT,   LWPNCOUNT,                   FL_DEPR,  { ZTID_SCREEN },{},0,"Use '->NumLWeapons' instead!" },
+	{ "getNumLWeapons",                 0,         ZTID_FLOAT,   LWPNCOUNT,                         0,  { ZTID_SCREEN },{} },
+	{ "setNumLWeapons",                 0,         ZTID_VOID,    LWPNCOUNT,                 FL_RDONLY,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+
 	{ "LoadLWeapon",                0,          ZTID_LWPN,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "CreateLWeapon",              0,          ZTID_LWPN,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	{ "_getNumEWeapons",            0,         ZTID_FLOAT,   EWPNCOUNT,                         0,  { ZTID_SCREEN },{} },
+
+	{ "_getNumEWeapons",                0,         ZTID_FLOAT,   EWPNCOUNT,                   FL_DEPR,  { ZTID_SCREEN },{},0,"Use '->NumEWeapons' instead!" },
+	{ "getNumEWeapons",                 0,         ZTID_FLOAT,   EWPNCOUNT,                         0,  { ZTID_SCREEN },{} },
+	{ "setNumEWeapons",                 0,         ZTID_VOID,    EWPNCOUNT,                 FL_RDONLY,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+
 	{ "LoadEWeapon",                0,          ZTID_EWPN,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "CreateEWeapon",              0,          ZTID_EWPN,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "isSolid",                    0,          ZTID_BOOL,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -269,13 +281,18 @@ static AccessorTable ScreenTable[] =
 	{ "setInitD[]",                 0,          ZTID_VOID,   SCREENINITD,                       0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
 	{ "DrawFrame",                  0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ 10000, 1280000 } },
-	
-	{ "_getSecretsTriggered",       0,          ZTID_BOOL,   SCREENSECRETSTRIGGERED,            0,  { ZTID_SCREEN },{} },
+
+	{ "_getSecretsTriggered",       0,         ZTID_BOOL,   SCREENSECRETSTRIGGERED,       FL_DEPR,  { ZTID_SCREEN },{},0,"Use '->SecretsTriggered' instead!" },
+	{ "getSecretsTriggered",        0,         ZTID_BOOL,   SCREENSECRETSTRIGGERED,             0,  { ZTID_SCREEN },{} },
+	{ "setSecretsTriggered",        0,         ZTID_VOID,    SCREENSECRETSTRIGGERED,     FL_RDONLY,  { ZTID_SCREEN, ZTID_BOOL },{} },
 	
 	{ "SpawnScreenEnemies",         0,          ZTID_BOOL,   -1,                           FL_INL,  { ZTID_SCREEN },{} },
 	{ "TriggerCombo",               0,          ZTID_BOOL,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
-	
-	{ "_getNumPortals",             0,         ZTID_FLOAT,   PORTALCOUNT,                       0,  { ZTID_SCREEN },{} },
+
+	{ "_getNumPortals",                0,         ZTID_FLOAT,   PORTALCOUNT,                   FL_DEPR,  { ZTID_SCREEN },{},0,"Use '->NumPortals' instead!" },
+	{ "getNumPortals",                 0,         ZTID_FLOAT,   PORTALCOUNT,                         0,  { ZTID_SCREEN },{} },
+	{ "setNumPortals",                 0,         ZTID_VOID,    PORTALCOUNT,                 FL_RDONLY,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+
 	{ "LoadPortal",                 0,        ZTID_PORTAL,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "CreatePortal",               0,        ZTID_PORTAL,   -1,                           FL_INL,  { ZTID_SCREEN },{} },
 	

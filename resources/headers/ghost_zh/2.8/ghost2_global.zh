@@ -37,7 +37,7 @@ void UpdateGhostZHData1()
     // Update the clock
     
     // Check for screen change first
-    int screen=(Game->GetCurDMap()<<8)+Game->GetCurDMapScreen();
+    int screen=(Game->CurDMap<<8)+Game->CurDMapScreen;
     if(__ghzhData[__GHI_PREV_SCREEN]!=screen) // Changed screens, end clock
     {
         __ghzhData[__GHI_CLOCK_TIMER]=0;
@@ -91,7 +91,7 @@ void UpdateEWeapons()
     if(!(Link->Action==LA_HOLD1LAND || Link->Action==LA_HOLD2LAND ||
          Link->Action==LA_HOLD1WATER || Link->Action==LA_HOLD2WATER))
    {
-        for(int i=Screen->NumEWeapons(); i>0; i--)
+        for(int i=Screen->NumEWeapons; i>0; i--)
         {
             wpn=Screen->LoadEWeapon(i);
             
@@ -108,7 +108,7 @@ void UpdateEWeapons()
    // If he is, just update appearance-related flags.
    else
    {
-        for(int i=Screen->NumEWeapons(); i>0; i--)
+        for(int i=Screen->NumEWeapons; i>0; i--)
         {
             wpn=Screen->LoadEWeapon(i);
             
@@ -155,7 +155,7 @@ void AutoGhost()
 	ffc f;
     
 	// Search enemies for one that should be autoghosted
-	for( int i = Screen->NumNPCs(); i > 0; --i)
+	for( int i = Screen->NumNPCs; i > 0; --i)
 	{
 		enemy=Screen->LoadNPC(i);
         

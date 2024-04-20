@@ -55,8 +55,8 @@ PUSHR D2
 POP D0
 POP D2
 SETR COMBODD,D2
-LOAD D2,0.0002; InlineFunc[void Game->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body AND if() #448 Body End
+LOAD D2,0.0002; InlineFunc[void Audio->PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body AND if() #448 Body End
 PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
 SETR D2,LINKY

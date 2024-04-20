@@ -32,7 +32,7 @@ ffc script MagicSquarePuzzle{
 						}
 					}
 					else {
-						Game->PlaySound(MAGICSQUARE_PUZZLE_MOVE);
+						Audio->PlaySound(MAGICSQUARE_PUZZLE_MOVE);
 						int newpos = ComboAt (CenterLinkX(), CenterLinkY());
 						for (int i=0; i<9; i++){
 							if (newpos==pos[i]){
@@ -44,7 +44,7 @@ ffc script MagicSquarePuzzle{
 						SwapCombos(curpos, newpos);
 						curpos = 0;
 						if  (IsMagicSquare(arr)){
-							Game->PlaySound(MAGICSQUARE_PUZZLE_SOLVED);
+							Audio->PlaySound(MAGICSQUARE_PUZZLE_SOLVED);
 							Screen->TriggerSecrets();
 							Screen->State[ST_SECRET] =true;
 							Quit();
@@ -73,11 +73,11 @@ ffc script MagicSquarePuzzle{
 		if ((arr[0]+arr[1]+arr[2])!=15) return false;
 		if ((arr[3]+arr[4]+arr[5])!=15) return false;
 		if ((arr[6]+arr[7]+arr[8])!=15) return false;
-		//Game->PlaySound(SFX_WAND);
+		//Audio->PlaySound(SFX_WAND);
 		if ((arr[0]+arr[3]+arr[6])!=15) return false;
 		if ((arr[1]+arr[4]+arr[7])!=15) return false;
 		if ((arr[2]+arr[5]+arr[8])!=15) return false;
-		//Game->PlaySound(SFX_HAMMERPOST);
+		//Audio->PlaySound(SFX_HAMMERPOST);
 		if ((arr[0]+arr[4]+arr[8])!=15) return false;
 		if ((arr[2]+arr[4]+arr[6])!=15) return false;
 		return true;

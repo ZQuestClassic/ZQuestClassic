@@ -19,7 +19,7 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     // but negative means it's strictly off-limits.
     
     // Tiles too close to other enemies are undesirable
-    for(int i=Screen->NumNPCs(); i>0; i--)
+    for(int i=Screen->NumNPCs; i>0; i--)
     {
         otherNPC=Screen->LoadNPC(i);
         checkCombo=ComboAt(otherNPC->X, otherNPC->Y);
@@ -141,7 +141,7 @@ int FindSpawnPoint(int type, int flag)
     npc otherNPC;
     
     // Too close to other enemies
-    for(int i=Screen->NumNPCs(); i>0; i--)
+    for(int i=Screen->NumNPCs; i>0; i--)
     {
         otherNPC=Screen->LoadNPC(i);
         checkCombo=ComboAt(otherNPC->X, otherNPC->Y);

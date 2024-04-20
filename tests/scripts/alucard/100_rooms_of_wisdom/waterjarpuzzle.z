@@ -42,7 +42,7 @@ ffc script WaterJar{
 					}
 					else {
 						if (Link->Misc[LINK_MISC_JAR_IN_HAND] != FFCNum(this)){
-							Game->PlaySound(SFX_WATERJAR_MOVE);
+							Audio->PlaySound(SFX_WATERJAR_MOVE);
 							ffc f= Screen->LoadFFC(Link->Misc[LINK_MISC_JAR_IN_HAND]);
 							while (this->InitD[1]<capacity){
 								if (f->InitD[1]<=0) break;
@@ -61,7 +61,7 @@ ffc script WaterJar{
 						ffc s = Screen->LoadFFC(i);
 						if ((s->Script==this->Script)&&(s->InitD[2]>=0)&&(s->InitD[1]!= s->InitD[2])) break;
 						else if (i==32){
-							Game->PlaySound(SFX_WATERJAR_SOLVED);
+							Audio->PlaySound(SFX_WATERJAR_SOLVED);
 							Screen->TriggerSecrets();
 							Screen->State[ST_SECRET] = true;
 						}

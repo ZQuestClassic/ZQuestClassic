@@ -300,7 +300,7 @@ int __Tango_RunFunction(int pos, bool clear)
         if(function==__TANGO_FUNC_ORDINAL)
             __Tango_FuncOrdinal(args[0], pos);
         else if(function==__TANGO_FUNC_PLAYSFX)
-            Game->PlaySound(args[0]);
+            Audio->PlaySound(args[0]);
         else if(function==__TANGO_FUNC_SUSPEND)
         {
             Tango_SuspendSlot(__Tango_Data[__TCS_ID]);
@@ -552,7 +552,7 @@ void __Tango_FuncGoto(int newString)
 // Implementation of @pressa
 void __Tango_FuncPressA()
 {
-    Game->PlaySound(__Tango_GetCurrStyleData(TANGO_STYLE_TEXT_END_SFX));
+    Audio->PlaySound(__Tango_GetCurrStyleData(TANGO_STYLE_TEXT_END_SFX));
     __Tango_SetCurrSlotData(__TSDIDX_STATE, __TANGO_STATE_PRESS_A);
 }
 

@@ -5,8 +5,10 @@ ItemSymbols ItemSymbols::singleton = ItemSymbols();
 static AccessorTable itemTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
-	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXITEM,             0,  { ZTID_ITEM },{} },
-	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXITEM,       FL_DEPR,  { ZTID_ITEM },{},0,"Use '->Max' instead!" },
+	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXITEM,       FL_DEPR,  { ZTID_ITEM, ZTID_FLOAT },{},0,"Use '->Max' instead!" },
+	{ "getMax",                     0,         ZTID_FLOAT,   SPRITEMAXITEM,             0,  { ZTID_ITEM },{} },
+	{ "setMax",                     0,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getX",                       0,         ZTID_FLOAT,   ITEMX,                     0,  { ZTID_ITEM },{} },
 	{ "setX",                       0,          ZTID_VOID,   ITEMX,                     0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getY",                       0,         ZTID_FLOAT,   ITEMY,                     0,  { ZTID_ITEM },{} },

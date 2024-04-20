@@ -35,7 +35,7 @@ ffc script FrogJumpingPuzzle{
 					if (pos[frogpos]==1){
 						if (frogpos<6){
 							if (pos[frogpos+1]==0){
-								Game->PlaySound(SFX_FROGPUZZLE_MOVE);
+								Audio->PlaySound(SFX_FROGPUZZLE_MOVE);
 								SwapCombos(curpos, curpos+1);
 								pos[frogpos]=0;
 								pos[frogpos+1]=1;
@@ -44,7 +44,7 @@ ffc script FrogJumpingPuzzle{
 						}
 						if (frogpos<5){
 							if ((pos[frogpos+1]>0)&&(pos[frogpos+2]==0)){
-								Game->PlaySound(SFX_FROGPUZZLE_MOVE);
+								Audio->PlaySound(SFX_FROGPUZZLE_MOVE);
 								SwapCombos(curpos, curpos+2);
 								pos[frogpos]=0;
 								pos[frogpos+2]=1;
@@ -54,7 +54,7 @@ ffc script FrogJumpingPuzzle{
 					if (pos[frogpos]==2){
 						if (frogpos>0){
 							if (pos[frogpos-1]==0){
-								Game->PlaySound(SFX_FROGPUZZLE_MOVE);
+								Audio->PlaySound(SFX_FROGPUZZLE_MOVE);
 								SwapCombos(curpos, curpos-1);
 								pos[frogpos]=0;
 								pos[frogpos-1]=2;
@@ -63,7 +63,7 @@ ffc script FrogJumpingPuzzle{
 						}
 						if (frogpos>1){
 							if ((pos[frogpos-1]>0)&&(pos[frogpos-2]==0)){
-								Game->PlaySound(SFX_FROGPUZZLE_MOVE);
+								Audio->PlaySound(SFX_FROGPUZZLE_MOVE);
 								SwapCombos(curpos, curpos-2);
 								pos[frogpos]=0;
 								pos[frogpos-2]=2;
@@ -73,7 +73,7 @@ ffc script FrogJumpingPuzzle{
 					for (int i=0;i<7;i++){
 						if (pos[i]!=endpos[i]) break;
 							else if (i==6){								
-								Game->PlaySound(SFX_FROGPUZZLE_SOLVED);
+								Audio->PlaySound(SFX_FROGPUZZLE_SOLVED);
 								Screen->TriggerSecrets();
 								Screen->State[ST_SECRET]=true;
 								Quit();

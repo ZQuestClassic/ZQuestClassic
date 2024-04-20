@@ -152,8 +152,8 @@ ffc script FreeformPushBlock {
 			}
 			if (framecounter>=8){
 					if (CanBePushed(this, Link->Dir, weight, stackpush)){
-					if ((special&PUSHBLOCK_SPECIAL_ICEBLOCK)==0)Game->PlaySound(SFX_PUSHBLOCK_MOVE);
-					else Game->PlaySound(SFX_ICEBLOCK_PUSH);
+					if ((special&PUSHBLOCK_SPECIAL_ICEBLOCK)==0)Audio->PlaySound(SFX_PUSHBLOCK_MOVE);
+					else Audio->PlaySound(SFX_ICEBLOCK_PUSH);
 				}
 				framecounter=0;
 			}
@@ -192,20 +192,20 @@ ffc script FreeformPushBlock {
 							Screen->ComboD[pos] = this->Data;
 							Screen->ComboC[pos] =this-> CSet;
 							this->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]=-1;
-							if ((special&PUSHBLOCK_SPECIAL_ICEBLOCK)>0) Game->PlaySound(SFX_ICEBLOCK_STOP);
+							if ((special&PUSHBLOCK_SPECIAL_ICEBLOCK)>0) Audio->PlaySound(SFX_ICEBLOCK_STOP);
 							if ((special&PUSHBLOCK_SPECIAL_TRIGGER)>0){
-								Game->PlaySound(27);
+								Audio->PlaySound(27);
 								Screen->TriggerSecrets();
 								Screen->State[ST_SECRET]= true;
 								this->InitD[0]=0;
 							}
 							else{
 								if ((special&PUSHBLOCK_SPECIAL_ONLY_ONE_PUSH)>0) Quit();
-								//Game->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
+								//Audio->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
 								if ((Screen->ComboF[pos]==CF_BLOCKTRIGGER)||(flag==CF_BLOCKTRIGGER)){
-									//Game->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
+									//Audio->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
 									if((special&PUSHBLOCK_SPECIAL_CAN_PUSH_OFF_TRIGGERS)==0){
-										Game->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
+										Audio->PlaySound(SFX_PUSHBLOCK_LAND_ON_TRIGGER);
 										this->InitD[0]=0;
 									}
 								}
@@ -239,7 +239,7 @@ bool IceblockCanContinueSlide(ffc f){
 
 
 bool NoEnemiesLeft (){
-	for (int i = 1; i<= Screen->NumNPCs(); i++){
+	for (int i = 1; i<= Screen->NumNPCs; i++){
 		npc n = Screen->LoadNPC(i);
 		if (!(n->isValid())) return true;
 		if ((n->MiscFlags&NPCMF_NOT_BEATABLE)==0) return false;
@@ -255,7 +255,7 @@ bool CanBePushed(ffc f, int dir, int weight, bool stackpushonly){
 	int str[] = "FreeformPushBlock";
 	int scr = Game->GetFFCScript(str);
 	if ((f->Script)!=scr) return false;
-	//Game->PlaySound(SFX_HAMMER);
+	//Audio->PlaySound(SFX_HAMMER);
 	if (dir==DIR_UP){
 		if (((f->InitD[0])&1)==0) return false;
 	}
@@ -268,16 +268,16 @@ bool CanBePushed(ffc f, int dir, int weight, bool stackpushonly){
 	if (dir==DIR_RIGHT){
 		if (((f->InitD[0])&8)==0) return false;
 	}
-	//Game->PlaySound(SFX_HAMMER);
+	//Audio->PlaySound(SFX_HAMMER);
 	int power = f->Misc[FFC_MISC_PUSHBLOCK_POWER];
 	if (power<weight) return false;
-	//Game->PlaySound(SFX_HAMMER);
+	//Audio->PlaySound(SFX_HAMMER);
 	int cmb=ComboAt (CenterX (f), CenterY (f));
 	int adj = StdOld::AdjacentCombo(cmb, dir);
 	if (adj<0) return false;
-	//Game->PlaySound(SFX_HAMMER);
+	//Audio->PlaySound(SFX_HAMMER);
 	if (ComboFI(adj, CF_NOBLOCKS))return false;
-	//Game->PlaySound(SFX_WAND);
+	//Audio->PlaySound(SFX_WAND);
 	if (Screen->ComboS[adj]>0){
 		if (ComboFI(adj, 91)){
 			f->Misc[FFC_MISC_PUSHBLOCK_IMPULSE]= dir;
@@ -360,7 +360,7 @@ ffc script FreeformPushBlockTriggers{
 					}
 				}
 				if(good_counter == num_triggers) {
-				Game->PlaySound(SFX_SECRET);
+				Audio->PlaySound(SFX_SECRET);
 				if (secretremover>0){
 					for (int i=1; i<=32; i++){
 						ffc f = Screen->LoadFFC(i);

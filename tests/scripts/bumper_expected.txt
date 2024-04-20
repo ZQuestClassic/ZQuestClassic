@@ -91,8 +91,8 @@ COMPAREV D2,0
 SETCMP D2,I==
 COMPAREV D2,0
 GOTOCMP 107,==; Test 'if'
-SETV D2,76; InlineFunc[void Game->PlaySound(int)] Params AND if() #449 Body Start
-PLAYSOUNDR D2; InlineFunc[void Game->PlaySound(int)] Body
+SETV D2,76; InlineFunc[void Audio->PlaySound(int)] Params AND if() #449 Body Start
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
 PUSHARGSR D4,0.0002; UsrFunc[int Angle(int, int, int, int)] Params Start
 LOAD D2,0.0007; UsrFunc[int CenterX(FFC)] Params Start
 PUSHR D2; UsrFunc[int CenterX(FFC)] Params End

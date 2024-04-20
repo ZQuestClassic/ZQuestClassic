@@ -30,7 +30,7 @@ ffc script Register_Check{
 
 			//Play sound effect for secrets
 
-			Game->PlaySound(SFX_SECRET);
+			Audio->PlaySound(SFX_SECRET);
 
 			//Trigger screen secrets
 
@@ -272,7 +272,7 @@ ffc script ColorCube{
 
 									//Play sound of pushed block
 
-									Game->PlaySound(sfx);
+									Audio->PlaySound(sfx);
 
 									//Save what direction the block has been pushed
 
@@ -324,7 +324,7 @@ ffc script ColorCube{
 
 								else{
 
-									Game->PlaySound(sfx);
+									Audio->PlaySound(sfx);
 
 									Pushing = DIR_LEFT;
 
@@ -372,7 +372,7 @@ ffc script ColorCube{
 
 								else{
 
-									Game->PlaySound(sfx);
+									Audio->PlaySound(sfx);
 
 									Pushing = DIR_DOWN;
 
@@ -420,7 +420,7 @@ ffc script ColorCube{
 
 								else{
 
-									Game->PlaySound(sfx);
+									Audio->PlaySound(sfx);
 
 									Pushing = DIR_UP;
 
@@ -492,7 +492,7 @@ ffc script ColorCube{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(sfx);
+								Audio->PlaySound(sfx);
 
 							//Increment variable for sound effect
 
@@ -552,7 +552,7 @@ ffc script ColorCube{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(sfx);
+								Audio->PlaySound(sfx);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -602,7 +602,7 @@ ffc script ColorCube{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(sfx);
+								Audio->PlaySound(sfx);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -652,7 +652,7 @@ ffc script ColorCube{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(sfx);
+								Audio->PlaySound(sfx);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -794,7 +794,7 @@ ffc script ColorCube{
 
 			//Play secret sfx
 
-			Game->PlaySound(SFX_SECRET);
+			Audio->PlaySound(SFX_SECRET);
 
 			//Increment Screen->D register
 
@@ -946,7 +946,7 @@ ffc script DominionBlock{
 
 							//Play a sound
 
-							Game->PlaySound(sfx);
+							Audio->PlaySound(sfx);
 
 							//Set variable to indicate pushing to the right
 
@@ -998,7 +998,7 @@ ffc script DominionBlock{
 
 						else{
 
-							Game->PlaySound(sfx);
+							Audio->PlaySound(sfx);
 
 							Pushing = DIR_LEFT;
 
@@ -1046,7 +1046,7 @@ ffc script DominionBlock{
 
 						else{
 
-							Game->PlaySound(sfx);
+							Audio->PlaySound(sfx);
 
 							Pushing = DIR_DOWN;
 
@@ -1094,7 +1094,7 @@ ffc script DominionBlock{
 
 						else{
 
-							Game->PlaySound(sfx);
+							Audio->PlaySound(sfx);
 
 							Pushing = DIR_UP;
 
@@ -1176,7 +1176,7 @@ ffc script DominionBlock{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(sfx);
+								Audio->PlaySound(sfx);
 
 							//Determine when to play the sound
 
@@ -1296,7 +1296,7 @@ ffc script DominionBlock{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(sfx);
+								Audio->PlaySound(sfx);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -1392,7 +1392,7 @@ ffc script DominionBlock{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(sfx);
+								Audio->PlaySound(sfx);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -1446,7 +1446,7 @@ ffc script DominionBlock{
 
 										else{
 
-											Game->PlaySound(sfx);
+											Audio->PlaySound(sfx);
 
 											Pushing = DIR_RIGHT;
 
@@ -1500,7 +1500,7 @@ ffc script DominionBlock{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(sfx);
+								Audio->PlaySound(sfx);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -1554,7 +1554,7 @@ ffc script DominionBlock{
 
 										else{
 
-											Game->PlaySound(sfx);
+											Audio->PlaySound(sfx);
 
 											Pushing = DIR_RIGHT;
 
@@ -1676,7 +1676,7 @@ ffc script Type_Puzzle{
 
 				//Play a sound
 
-				Game->PlaySound(SFX_SECRET);
+				Audio->PlaySound(SFX_SECRET);
 
 				//End infinite loop
 
@@ -1766,7 +1766,7 @@ ffc script Combo_Change{
 
             if(playSound){
 
-                Game->PlaySound(sfx);
+                Audio->PlaySound(sfx);
 
                 playSound=false;
 
@@ -1786,7 +1786,7 @@ ffc script Combo_Change{
 
 			Screen->State[ST_SECRET] = true;
 
-			Game->PlaySound(SFX_SECRET);
+			Audio->PlaySound(SFX_SECRET);
 
 		}
 
@@ -1956,7 +1956,7 @@ ffc script PushBlock{
 
 					if(Is_Switch(loc)){
 
-						Game->PlaySound(SFX_SWITCH_PUSH);
+						Audio->PlaySound(SFX_SWITCH_PUSH);
 
 						Movable= false;
 
@@ -1968,7 +1968,7 @@ ffc script PushBlock{
 
 							if(ComboFI(loc,flag)){
 
-								Game->PlaySound(SFX_SWITCH_PUSH);
+								Audio->PlaySound(SFX_SWITCH_PUSH);
 
 								Movable= false;
 
@@ -1980,7 +1980,7 @@ ffc script PushBlock{
 
 							if(Screen->ComboT[loc]==type){
 
-								Game->PlaySound(SFX_SWITCH_PUSH);
+								Audio->PlaySound(SFX_SWITCH_PUSH);
 
 								Movable= false;
 
@@ -2032,7 +2032,7 @@ ffc script PushBlock{
 
 									else{
 
-										Game->PlaySound(SFX_PUSH_SOMARIA);
+										Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 										Pushing = DIR_RIGHT;
 
@@ -2078,7 +2078,7 @@ ffc script PushBlock{
 
 									else{
 
-										Game->PlaySound(SFX_PUSH_SOMARIA);
+										Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 										Pushing = DIR_LEFT;
 
@@ -2124,7 +2124,7 @@ ffc script PushBlock{
 
 									else{
 
-										Game->PlaySound(SFX_PUSH_SOMARIA);
+										Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 										Pushing = DIR_DOWN;
 
@@ -2170,7 +2170,7 @@ ffc script PushBlock{
 
 									else{
 
-										Game->PlaySound(SFX_PUSH_SOMARIA);
+										Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 										Pushing = DIR_UP;
 
@@ -2212,7 +2212,7 @@ ffc script PushBlock{
 
 							Screen->ComboD[loc]= this->Data;
 
-							Game->PlaySound(SFX_SWITCH_PUSH);
+							Audio->PlaySound(SFX_SWITCH_PUSH);
 
 							Movable= false;
 
@@ -2224,7 +2224,7 @@ ffc script PushBlock{
 
 								if(ComboFI(loc,flag)){
 
-									Game->PlaySound(SFX_SWITCH_PUSH);
+									Audio->PlaySound(SFX_SWITCH_PUSH);
 
 									Movable= false;
 
@@ -2236,7 +2236,7 @@ ffc script PushBlock{
 
 								if(Screen->ComboT[loc]==type){
 
-									Game->PlaySound(SFX_SWITCH_PUSH);
+									Audio->PlaySound(SFX_SWITCH_PUSH);
 
 									Movable= false;
 
@@ -2278,7 +2278,7 @@ ffc script PushBlock{
 
 										else{
 
-											Game->PlaySound(SFX_PUSH_SOMARIA);
+											Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 											Pushing = DIR_UP;
 
@@ -2328,7 +2328,7 @@ ffc script PushBlock{
 
 										else{
 
-											Game->PlaySound(SFX_PUSH_SOMARIA);
+											Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 											Pushing = DIR_DOWN;
 
@@ -2378,7 +2378,7 @@ ffc script PushBlock{
 
 										else{
 
-											Game->PlaySound(SFX_PUSH_SOMARIA);
+											Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 											Pushing = DIR_LEFT;
 
@@ -2428,7 +2428,7 @@ ffc script PushBlock{
 
 										else{
 
-											Game->PlaySound(SFX_PUSH_SOMARIA);
+											Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 											Pushing = DIR_RIGHT;
 
@@ -2478,7 +2478,7 @@ ffc script PushBlock{
 
 										else{
 
-											Game->PlaySound(SFX_PUSH_SOMARIA);
+											Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 											Pushing = DIR_RIGHT;
 
@@ -2524,7 +2524,7 @@ ffc script PushBlock{
 
 										else{
 
-											Game->PlaySound(SFX_PUSH_SOMARIA);
+											Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 											Pushing = DIR_LEFT;
 
@@ -2574,7 +2574,7 @@ ffc script PushBlock{
 
 										else{
 
-											Game->PlaySound(SFX_PUSH_SOMARIA);
+											Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 											Pushing = DIR_UP;
 
@@ -2620,7 +2620,7 @@ ffc script PushBlock{
 
 										else{
 
-											Game->PlaySound(SFX_PUSH_SOMARIA);
+											Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 											Pushing = DIR_DOWN;
 
@@ -2664,7 +2664,7 @@ ffc script PushBlock{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(SFX_PUSH_SOMARIA);
+								Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -2684,7 +2684,7 @@ ffc script PushBlock{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(SFX_PUSH_SOMARIA);
+								Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -2704,7 +2704,7 @@ ffc script PushBlock{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(SFX_PUSH_SOMARIA);
+								Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -2724,7 +2724,7 @@ ffc script PushBlock{
 
 							if(Sfx_Timer==0)
 
-								Game->PlaySound(SFX_PUSH_SOMARIA);
+								Audio->PlaySound(SFX_PUSH_SOMARIA);
 
 							Sfx_Timer = (Sfx_Timer+1)%8;
 
@@ -2766,7 +2766,7 @@ ffc script PushBlock{
 
 						Screen->ComboD[loc]= this->Data;
 
-						Game->PlaySound(SFX_SWITCH_PUSH);
+						Audio->PlaySound(SFX_SWITCH_PUSH);
 
 						Movable= false;
 
@@ -2778,7 +2778,7 @@ ffc script PushBlock{
 
 							if(ComboFI(loc,flag)){
 
-								Game->PlaySound(SFX_SWITCH_PUSH);
+								Audio->PlaySound(SFX_SWITCH_PUSH);
 
 								Movable= false;
 
@@ -2790,7 +2790,7 @@ ffc script PushBlock{
 
 							if(Screen->ComboT[loc]==type){
 
-								Game->PlaySound(SFX_SWITCH_PUSH);
+								Audio->PlaySound(SFX_SWITCH_PUSH);
 
 								Movable= false;
 
@@ -2842,7 +2842,7 @@ int EnemyCount(){
 
 	int count;
 
-	for(int i=Screen->NumNPCs(); i>0; i--){
+	for(int i=Screen->NumNPCs; i>0; i--){
 
 		npc n = Screen->LoadNPC(i);
 

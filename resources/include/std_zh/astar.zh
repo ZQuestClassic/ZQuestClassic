@@ -180,7 +180,7 @@ namespace astar
 					}
 				}
 			   
-				// Game->PlaySound(2);
+				// Audio->PlaySound(2);
 			}
 		   
 			for(i = 0; i < SETSIZE; ++i)
