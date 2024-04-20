@@ -107,6 +107,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		zconsole_info("%s", "Pass 2: Preprocessing");
 		zconsole_idle();
 
+		root->imports.insert(root->imports.begin(), new ASTImportDecl("bindings.zh"));
 		if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 			return nullptr;
 		if(zscript_error_out) return nullptr;
@@ -482,8 +483,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			scriptname = functionScript->getName();
 		}
 		scope = function.getInternalScope();
-		
-		if(classfunc)
+
+		if (classfunc)
 		{
 			UserClass& user_class = scope->getClass()->user_class;
 			
@@ -667,7 +668,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!position)
 					continue;
 
-				if (datum->type.canHoldObject())
+				if (datum->type.canHoldObject() && datum->getName() != "this")
 				{
 					addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
 					addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
@@ -701,7 +702,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				{
 					auto position = lookupStackPosition(*scope, *datum);
 					assert(position);
-					if (datum->type.canHoldObject() && position)
+					if (datum->type.canHoldObject() && position && datum->getName() != "this")
 						addOpcode2(funccode, new ORefRemove(new LiteralArgument(*position)));
 				}
 				

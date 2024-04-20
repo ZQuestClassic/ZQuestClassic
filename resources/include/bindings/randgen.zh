@@ -1,0 +1,94 @@
+// @zasm_ref REFRNG
+class randgen {
+	// @zasm
+	//   LOADRNG
+	internal randgen();
+
+	// Returns a random number `-214748 to 214748`, inclusive.
+	//
+	// @zasm
+	//   POP REFRNG
+	//   RNGRAND1
+	internal int Rand();
+
+	// Returns a random number `0 to bound`, inclusive.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFRNG
+	//   RNGRAND2 D2
+	internal int Rand(int bound);
+
+	// Returns a random number `bound1 to bound2`, inclusive.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFRNG
+	//   RNGRAND3 D2 D3
+	internal int Rand(int bound1, int bound2);
+
+	// Returns a random long number `-2147483648L to 2147483647L`, inclusive.
+	//
+	// @zasm
+	//   POP REFRNG
+	//   RNGLRAND1
+	internal long LRand();
+
+	// Returns a random long number `0L to bound`, inclusive.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFRNG
+	//   RNGLRAND2 D2
+	internal long LRand(long bound);
+
+	// Returns a random long number `bound1 to bound2`, inclusive.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFRNG
+	//   RNGLRAND3 D2 D3
+	internal long LRand(long bound1, long bound2);
+
+	// Seeds the RNG with the given seed.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFRNG
+	//   RNGSEED D2
+	internal void SRand(long seed);
+
+	// Seeds the RNG with a randomly-determined seed, based off of the system
+	// clock and the previous RNG.
+	//
+	// @zasm
+	//   POP REFRNG
+	//   RNGRSEED
+	internal long SRand();
+
+	// De-allocates this `randgen` pointer, so that its' pointer ID may be
+	// re-used. You may only have a limited number of randgen pointers active at
+	// a time; freeing them when you are done with them helps not reach the
+	// limit.
+	//
+	// @deprecated Free() no longer does anything as of ZC 3.0. Objects are now
+	// freed automatically.
+	// @zasm
+	//   POP REFRNG
+	//   RNGFREE
+	internal void Free();
+
+	// Grants 'Ownership' of the randgen pointer to the script that calls this
+	// function. When the script with 'Ownership' terminates (at the same time
+	// its' local arrays are deallocated), this randgen pointer will
+	// automatically be 'Free()'d.
+	//
+	// @zasm
+	//   POP REFRNG
+	//   RNGOWN
+	internal void Own();
+}
+
+internal const randgen RandGen;

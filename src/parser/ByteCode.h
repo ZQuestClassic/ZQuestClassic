@@ -7,6 +7,9 @@
 #include "zsyssimple.h"
 #include "zasm/defines.h"
 
+#include <memory>
+#include <sstream>
+#include <vector>
 #include <string>
 
 /*
@@ -40,6 +43,8 @@
 #define INTARR_SAVPRTL          (65536+6)
 
 //} END INTERNAL ARRAYS
+
+int32_t StringToVar(std::string var);
 
 namespace ZScript
 {
@@ -294,6 +299,24 @@ namespace ZScript
 		}
 	protected:
 		Argument *a;
+	};
+
+	class RawOpcode : public Opcode
+	{
+	public:
+		RawOpcode(std::string str) : str(str) {}
+		void execute(ArgumentVisitor &host, void *param)
+		{
+		}
+		std::string toString() const
+		{
+			return str;
+		}
+		Opcode* clone() const
+		{
+			return new RawOpcode(str);
+		}
+		std::string str;
 	};
 
 	class BinaryOpcode : public Opcode

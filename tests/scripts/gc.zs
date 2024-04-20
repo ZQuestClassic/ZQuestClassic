@@ -126,6 +126,14 @@ ffc script GarbageCollection
 
 		printf("=== Test %d === \n", ++tests);
 		{
+			randgen rng = new randgen();
+			yield();
+			check("RefCount(a)", RefCount(rng), 1L);
+		}
+		checkCountWithGC(0);
+
+		printf("=== Test %d === \n", ++tests);
+		{
 			int scratch;
 			{
 				randgen rng = Game->LoadRNG();

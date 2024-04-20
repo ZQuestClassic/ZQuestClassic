@@ -55,6 +55,7 @@ namespace ZScript
 		std::vector<ZScript::ZClass*> getClasses() const {
 			return ownedClasses;}
 		ZScript::ZClass* getClass(int32_t classId) const;
+		ZClass* getClass(std::string name) const;
 		ZScript::ZClass* createClass(std::string const& name);
 
 	private:
@@ -89,6 +90,7 @@ namespace ZScript
 		ZTID_LONG,
 		ZTID_RGBDATA,
 		ZTID_TEMPLATE_T,
+		// TODO: remove once array type is supported in params
 		ZTID_TEMPLATE_T_ARR,
 		ZTID_PRIMITIVE_END,
 
@@ -422,12 +424,8 @@ namespace ZScript
 		virtual std::string getName() const = 0;
 		virtual bool canCastTo(DataType const& target) const = 0;
 		virtual bool canBeGlobal() const {return true;}
-		virtual bool canHoldObject() const {return isUsrClass();}
-		virtual script_object_type getScriptObjectTypeId() const {
-			if (isUsrClass())
-				return script_object_type::object;
-			return script_object_type::none;
-		}
+		virtual bool canHoldObject() const {return getScriptObjectTypeId() != script_object_type::none;}
+		virtual script_object_type getScriptObjectTypeId() const {return script_object_type::none;}
 		virtual DataType const* getConstType() const {return constType;}
 		virtual DataType const* getMutType() const {return this;}
 
@@ -467,8 +465,8 @@ namespace ZScript
 		DataType* constType;
 		// Standard Types.
 	public:
-		static DataTypeSimpleConst TEMPLATE_T;
-		static DataTypeSimpleConst TEMPLATE_T_ARR;
+		static DataTypeSimpleConst CTEMPLATE_T;
+		static DataTypeSimpleConst CTEMPLATE_T_ARR;
 		static DataTypeSimpleConst CAUTO;
 		static DataTypeSimpleConst CUNTYPED;
 		static DataTypeSimpleConst CFLOAT;
@@ -476,6 +474,8 @@ namespace ZScript
 		static DataTypeSimpleConst CLONG;
 		static DataTypeSimpleConst CBOOL;
 		static DataTypeSimpleConst CRGBDATA;
+		static DataTypeSimple TEMPLATE_T;
+		static DataTypeSimple TEMPLATE_T_ARR;
 		static DataTypeSimple UNTYPED;
 		static DataTypeSimple ZAUTO;
 		static DataTypeSimple ZVOID;
@@ -653,6 +653,7 @@ namespace ZScript
 		virtual DataType const* getMutType() const {return get(getId());}
 	};
 
+	// TODO remove this after binding work is done
 	class DataTypeClass : public DataType
 	{
 	public:
@@ -693,7 +694,8 @@ namespace ZScript
 
 		int32_t selfCompare(DataType const& other) const;
 	};
-	
+
+	// TODO remove this after binding work is done
 	class DataTypeClassConst : public DataTypeClass
 	{
 	public:
@@ -746,6 +748,20 @@ namespace ZScript
 		virtual bool isCustom() const {return true;}
 		virtual bool isUsrClass() const {return user_class != nullptr;}
 		virtual bool canBeGlobal() const {return true;}
+		virtual bool canHoldObject() const;
+		virtual script_object_type getScriptObjectTypeId() const {
+			std::string name = getName();
+			if (name == "bitmap") return script_object_type::bitmap;
+			if (name == "directory") return script_object_type::dir;
+			if (name == "file") return script_object_type::file;
+			if (name == "paldata") return script_object_type::paldata;
+			if (name == "randgen") return script_object_type::rng;
+			if (name == "stack") return script_object_type::stack;
+			if (name == "websocket") return script_object_type::websocket;
+			if (canHoldObject())
+				return script_object_type::object;
+			return script_object_type::none;
+		}
 		virtual UserClass* getUsrClass() const {return user_class;}
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;

@@ -1,0 +1,562 @@
+// @zasm_ref REFCOMBODATA
+class combodata {
+	// @delete
+	internal combodata();
+
+	// Returns the X-coordinate of a combo from a combodata script, from the
+	// 'this->' pointer as 'this->X'.
+	//
+	// Using this from any other combodata variable is illegal and undefined.
+	//
+	// @zasm_var COMBOXR
+	internal const int X;
+
+	// Returns the Y-coordinate of a combo from a combodata script, from the
+	// 'this->' pointer as 'this->Y'.
+	//
+	// Using this from any other combodata variable is illegal and undefined.
+	//
+	// @zasm_var COMBOYR
+	internal const int Y;
+
+	// Returns the combo screen index of a combo from a combodata script, from
+	// the 'this->' pointer as 'this->Pos'.
+	//
+	// Using this from any other combodata variable is illegal and undefined.
+	//
+	// @zasm_var COMBOPOSR
+	internal const int Pos;
+
+	// Returns the layer the combo is on in a combodata script, from the
+	// 'this->' pointer as 'this->Layer'.
+	//
+	// Using this from any other combodata variable is illegal and undefined.
+	//
+	// @zasm_var COMBOLAYERR
+	internal const int Layer;
+
+	// The 2 InitD values for the combo script.
+	//
+	// @zasm_var COMBODATAINITD
+	internal untyped InitD[];
+
+	// The combo ID this combodata points to.
+	//
+	// @zasm_var COMBODATAID
+	internal const int ID;
+
+	// The 'Original Tile' of the combo, used as the start of its animation.
+	//
+	// @zasm_var COMBODOTILE
+	internal int OriginalTile;
+
+	// The current animation frame the combo is on in its animation. Set to 0
+	// to reset to start of animation.
+	//
+	// @zasm_var COMBODFRAME
+	internal int Frame;
+
+	// The animation clock of the combo. Set to 0 to reset the timer.
+	//
+	// @zasm_var COMBODACLK
+	internal int AClk;
+
+	// The tile currently being displayed by the combo. This is automatically
+	// overwritten each frame by the engine.
+	//
+	// @zasm_var COMBODTILE
+	internal int Tile;
+
+	// The combo script that this combo runs.
+	//
+	// @zasm_var COMBODATASCRIPT
+	internal int Script;
+
+	// The combo animation speed.
+	//
+	// @zasm_var COMBODASPEED
+	internal int ASpeed;
+
+	// The combo's flip value. Use the `FLIP_` or `ROT_` constants from
+	// `std_constants.zh` for this value.
+	//
+	// @zasm_var COMBODFLIP
+	internal int Flip;
+
+	// The solidity bitmask of the combo (same as [Screen->ComboS[]])
+	//
+	// @zasm_var COMBODWALK
+	internal int Walk;
+
+	// The effect bitmask of the combo (same as [Screen->ComboE[]])
+	//
+	// @zasm_var COMBODEFFECT
+	internal int Effect;
+
+	// The combo type of the combo. Use the `CT_` constants from
+	// `std_constants.zh`.
+	//
+	// @zasm_var COMBODTYPE
+	internal int Type;
+
+	// @deprecated Use [CSet2] instead!
+	// @zasm_var COMBODCSET
+	internal int CSet;
+
+	// The CSet2 offset for this combo.
+	//
+	// @zasm_var COMBODCSET
+	internal int CSet2;
+
+	// Bitwise access to the 4 corners of the cset2 square.
+	// <todo>Untested!</todo>
+	//
+	// @zasm_var COMBODCSET2FLAGS
+	internal int CSet2Flags;
+
+	// The number of frames in the combo animation before it loops.
+	//
+	// @zasm_var COMBODFRAMES
+	internal int Frames;
+
+	// If `> 0`, cycling is enabled for this combo. When the combo's animation
+	// would normally loop, instead the combo will change to the `NextData`
+	// combo.
+	//
+	// @zasm_var COMBODNEXTD
+	internal int NextData;
+
+	// If the [AnimFlags] `AF_CYCLENOCSET` is NOT set, the combo will change to
+	// this cset when it cycles.
+	//
+	// @zasm_var COMBODNEXTC
+	internal int NextCSet;
+
+	// The inherent flag of the combo. Use the `CF_` constants from
+	// `std_constants.zh`.
+	//
+	// @zasm_var COMBODFLAG
+	internal int Flag;
+
+	// The number of extra tiles to move horizontally between each frame.
+	//
+	// @zasm_var COMBODSKIPANIM
+	internal int SkipAnimX;
+
+	// The number of extra tiles to move vertically, when the horizontal
+	// movement goes past the end of a tile row.
+	//
+	// @zasm_var COMBODAKIMANIMY
+	internal int SkipAnimY;
+
+	// Bitwise access to the combo's animation flags. Use the `AF_` constants to
+	// access.
+	//
+	// @zasm_var COMBODANIMFLAGS
+	internal int AnimFlags;
+
+	// The 4 combo attributes. These have a full range (all zscript values,
+	// including decimal). Their effect depends on the combo type.
+	//
+	// @zasm_var COMBODATTRIBUTES
+	internal int Attributes[];
+
+	// The 8 combo attribytes. These have a byte-sized range, `0 to 255`. Their
+	// effect depends on the combo type.
+	//
+	// @zasm_var COMBODATTRIBYTES
+	internal int Attribytes[];
+
+	// The 8 combo attrishorts. These have a short-sized range, `-32768 to
+	// 32767`. Their effect depends on the combo type.
+	//
+	// @zasm_var COMBODATTRISHORTS
+	internal int Attrishorts[];
+
+	// The trigger flags of the combo
+	//
+	// Use the `TRIGFLAG_` constants from `std_constants.zh`
+	//
+	// @zasm_var COMBODTRIGGERFLAGS2
+	internal bool TrigFlags[];
+
+	// The 16 combo flags. Their effect depends on the combo type.
+	//
+	// @zasm_var COMBODUSRFLAGARR
+	internal bool Flags[];
+
+	// The combo generic flags, specified by the `GENFLAG_` constants.
+	//
+	// @zasm_var COMBODGENFLAGARR
+	internal bool GenFlags[];
+
+	// @zasm_var COMBODTRIGGERBUTTON
+	internal bool TrigButton[];
+
+	// @zasm_var COMBODTRIGGERLEVEL
+	internal int TrigLevel;
+
+	// @zasm_var COMBODTRIGGERITEM
+	internal int TrigItem;
+
+	// @zasm_var COMBODTRIGGERTIMER
+	internal int TrigTimer;
+
+	// The SFX to play when the combo is triggered. If 0, no SFX will be played.
+	//
+	// @zasm_var COMBODTRIGGERSFX
+	internal int TrigSFX;
+
+	// The amount the combo will change by when triggered.
+	//
+	// Ex. '1' acts as '->Next', '-1' acts as '->Prev'.
+	//
+	// If '0', no change occurs.
+	//
+	// @zasm_var COMBODTRIGGERCHANGECMB
+	internal int TrigChange;
+
+	// @zasm_var COMBODTRIGGERPROX
+	internal int TrigProximity;
+
+	// The light beam trigger set that (may) trigger this combo.
+	//
+	// 0 means any beams, 1-32 mean only matching beams.
+	//
+	// Related:
+	// - TriggerFlags[TRIGFLAG_LIGHTON] (trigger when hit by matching light)
+	// - TriggerFlags[TRIGFLAG_LIGHTOFF] (trigger when NOT hit by matching
+	// light)
+	//
+	// @zasm_var COMBODTRIGGERLIGHTBEAM
+	internal int TrigLightBeam;
+
+	// @zasm_var COMBODTRIGGERCTR
+	internal int TrigCounter;
+
+	// @zasm_var COMBODTRIGGERCTRAMNT
+	internal int TrigCtrAmount;
+
+	// The combo's cooldown between triggers
+	//
+	// @zasm_var COMBODTRIGGERCOOLDOWN
+	internal int TrigCooldown;
+
+	// If > 0, triggering this combo triggers all other combos with matching
+	// TrigCopycat.
+	//
+	// @zasm_var COMBODTRIGGERCOPYCAT
+	internal int TrigCopycat;
+
+	// The item pickup flags for the spawned item
+	//
+	// Only the flags `IP_HOLDUP`, `IP_TIMEOUT`, `IP_TRIGGERSECRETS`,
+	// `IP_ALWAYSGRAB` are used.
+	//
+	// @zasm_var COMBODTRIGITEMPICKUP
+	internal int TrigSpawnItemPickup;
+
+	// If > -1, the ExState that the combo is linked to.
+	//
+	// @zasm_var COMBODTRIGEXSTATE
+	internal int TrigExState;
+
+	// If > -1, the direction of ExDoor that the combo is linked to
+	//
+	// @zasm_var COMBODTRIGEXDOORDIR
+	internal int TrigExDoorDir;
+
+	// If [TrigExDoorDir] is > -1, the index of that direction of ExDoor that
+	// the combo is linked to.
+	//
+	// @zasm_var COMBODTRIGEXDOORIND
+	internal int TrigExDoorIndex;
+
+	// If > 0, the enemy ID spawned when the combo is triggered.
+	//
+	// @zasm_var COMBODTRIGSPAWNENEMY
+	internal int TrigSpawnEnemy;
+
+	// If > 0, the item ID (or dropset ID) spawned when the combo is triggered.
+	//
+	// @zasm_var COMBODTRIGSPAWNITEM
+	internal int TrigSpawnItem;
+
+	// The amount the cset will change by when triggered.
+	//
+	// @zasm_var COMBODTRIGCSETCHANGE
+	internal int TrigCSetChange;
+
+	// The LevelState used for the `TRIGFLAG_TRIGLEVELSTATE` and
+	// `TRIGFLAG_LEVELSTATE`
+	//
+	// flags. 0-31, inclusive.
+	//
+	// @zasm_var COMBODTRIGGERLSTATE
+	internal int TrigLevelState;
+
+	// The GlobalState used for the `TRIGFLAG_TRIGGLOBALSTATE` and
+	// `TRIGFLAG_GLOBALSTATE`
+	//
+	// flags. 0-255, inclusive.
+	//
+	// @zasm_var COMBODTRIGGERGSTATE
+	internal int TrigGlobalState;
+
+	// If `> 0`,  the global trigger caused by `TRIGFLAG_GLOBALSTATE` will set
+	// to the 'on' state with this value as a timer in frames.
+	//
+	// If this value is 0, it instead toggles the state as normal.
+	//
+	// @zasm_var COMBODTRIGGERGTIMER
+	internal int TrigGStateTimer;
+
+	// When triggered, this generic script will be run in the 'RunFrozen' mode.
+	//
+	// @zasm_var COMBODTRIGGERGENSCRIPT
+	internal int TrigGenScript;
+
+	// The Trigger Group used for the `TRIGFLAG_TGROUP_CONTRIB`,
+	// `TRIGFLAG_TGROUP_LESS`, and `TRIGFLAG_TGROUP_GREATER` flags.
+	//
+	// 0-255, inclusive.
+	//
+	// @zasm_var COMBODTRIGGERGROUP
+	internal int TrigGroup;
+
+	// The value used for the `TRIGFLAG_TGROUP_LESS` and
+	// `TRIGFLAG_TGROUP_GREATER` flags.
+	//
+	// 0-65535, inclusive.
+	//
+	// @zasm_var COMBODTRIGGERGROUPVAL
+	internal int TrigGroupVal;
+
+	// 'LI_' flags used by the
+	// `TRIGFLAG_LITEM_REQUIRE`,`TRIGFLAG_LITEM_INV_REQUIRE`,`TRIGFLAG_LITEM_SET`,`TRIGFLAG_LITEM_UNSET`
+	// flags.
+	//
+	// @zasm_var COMBODTRIGLITEMS
+	internal int TrigLItems;
+
+	// The 'Level' used by 'TrigLItems'.
+	//
+	// -1 represents the 'current level', otherwise a valid dmap level indicates
+	// that level.
+	//
+	// @zasm_var COMBODTRIGDMAPLVL
+	internal int TrigDMapLvl;
+
+	// The R/G/B values to tint the palette by when triggered. -63 to 63.
+	//
+	// @zasm_var COMBODTRIGTINTR
+	internal int TrigTintR;
+
+	// The R/G/B values to tint the palette by when triggered. -63 to 63.
+	//
+	// @zasm_var COMBODTRIGTINTG
+	internal int TrigTintG;
+
+	// The R/G/B values to tint the palette by when triggered. -63 to 63.
+	//
+	// @zasm_var COMBODTRIGTINTB
+	internal int TrigTintB;
+
+	// The level palette to change to when triggered. -1 for none.
+	//
+	// @zasm_var COMBODTRIGLVLPAL
+	internal int TrigLvlPal;
+
+	// The boss palette to change to when triggered. -1 for none.
+	//
+	// @zasm_var COMBODTRIGBOSSPAL
+	internal int TrigBossPal;
+
+	// The quake timer to set when triggered. -1 for none.
+	//
+	// @zasm_var COMBODTRIGQUAKETIME
+	internal int TrigQuakeTimer;
+
+	// The wavy timer to set when triggered. -1 for none.
+	//
+	// @zasm_var COMBODTRIGWAVYTIME
+	internal int TrigWavyTimer;
+
+	// The duration to Sword Jinx the player for. -2 for none, -1 for 'until
+	// cured', 0 to cure.
+	//
+	// @zasm_var COMBODTRIGSWORDJINX
+	internal int TrigSwordJinx;
+
+	// The duration to Item Jinx the player for. -2 for none, -1 for 'until
+	// cured', 0 to cure.
+	//
+	// @zasm_var COMBODTRIGITEMJINX
+	internal int TrigItemJinx;
+
+	// The duration to Stun the player for. -2 for none, -1 for 'until cured', 0
+	// to cure.
+	//
+	// @zasm_var COMBODTRIGSTUN
+	internal int TrigStun;
+
+	// The duration to Bunny the player for. -2 for none, -1 for 'until cured',
+	// 0 to cure.
+	//
+	// @zasm_var COMBODTRIGBUNNY
+	internal int TrigBunny;
+
+	// The duration that the combo must be pushed against for the 'Push->'
+	// trigger flag to take effect.
+	//
+	// @zasm_var COMBODTRIGPUSHTIME
+	internal int TrigPushTime;
+
+	// The GFX combo/cset used to display the object, if 'Other Combo GFX' is
+	// the GFX mode.
+	//
+	// @zasm_var COMBODLIFTGFXCOMBO
+	internal int LiftGFXCombo;
+
+	// The GFX combo/cset used to display the object, if 'Other Combo GFX' is
+	// the GFX mode.
+	//
+	// @zasm_var COMBODLIFTGFXCCSET
+	internal int LiftGFXCSet;
+
+	// The combo/cset that will be left behind when this combo is lifted.
+	//
+	// @zasm_var COMBODLIFTUNDERCMB
+	internal int LiftUnderCombo;
+
+	// The combo/cset that will be left behind when this combo is lifted.
+	//
+	// @zasm_var COMBODLIFTUNDERCS
+	internal int LiftUnderCSet;
+
+	// The weapon damage of the thrown object.
+	//
+	// @zasm_var COMBODLIFTDAMAGE
+	internal int LiftDamage;
+
+	// The minimum lift glove level required to lift this object.
+	//
+	// @zasm_var COMBODLIFTLEVEL
+	internal int LiftLevel;
+
+	// If `> 0`, drops this item ID.
+	//
+	// @zasm_var COMBODLIFTITEM
+	internal int LiftItem;
+
+	// The combo lift flags.
+	//
+	// @zasm_var COMBODLIFTFLAGS
+	internal bool LiftFlags[];
+
+	// What GFX to use to display the lifted object.
+	//
+	// @zasm_var COMBODLIFTGFXTYPE
+	internal int LiftGFXType;
+
+	// The GFX sprite used to display the object, if 'Sprite Data GFX' is the
+	// GFX mode.
+	//
+	// @zasm_var COMBODLIFTGFXSPRITE
+	internal int LiftGFXSprite;
+
+	// The SFX played on lifting.
+	//
+	// @zasm_var COMBODLIFTSFX
+	internal int LiftSFX;
+
+	// The Sprite Data sprite displayed when the object breaks.
+	//
+	// @zasm_var COMBODLIFTBREAKSPRITE
+	internal int LiftBreakSprite;
+
+	// The SFX played on breaking.
+	//
+	// @zasm_var COMBODLIFTBREAKSFX
+	internal int LiftBreakSFX;
+
+	// The height above the player's head to lift the object.
+	//
+	// @zasm_var COMBODLIFTHEIGHT
+	internal int LiftHeight;
+
+	// The number of frames it takes to lift the object to its full height.
+	//
+	// @zasm_var COMBODLIFTTIME
+	internal int LiftTime;
+
+	// If >0, the weapon will behave specially based on the provided item ID.
+	//
+	// @zasm_var COMBODLIFTWEAPONITEM
+	internal int LiftWeaponItem;
+
+	// Corresponds to 'A.SkipX' in the Combo Editor.
+	//
+	// @zasm_var COMBODSKIPANIM
+	internal int SkipAnim;
+
+	// @zasm_var COMBODUSRFLAGS
+	internal int UserFlags;
+
+	// Reserved for future use by the Combo Editor.
+	//
+	// @zasm_var COMBODEXPANSION
+	internal int Expansion[];
+
+	// @zasm_var COMBODNEXTTIMER
+	internal int NextTimer;
+
+	// @zasm_var COMBODTRIGGERFLAGS
+	internal int TriggerFlags[];
+
+	// Returns the X-coordinate of a combo from a combodata script, from the
+	// 'this->' pointer as 'this->PosX()'.
+	//
+	// Using this from any other combodata variable is illegal and undefined.
+	//
+	// @deprecated Use [X] instead!
+	// @zasm
+	//   POP REFCOMBODATA
+	//   SETR D2 COMBOXR
+	internal int PosX();
+
+	// Returns the Y-coordinate of a combo from a combodata script, from the
+	// 'this->' pointer as 'this->PosY()'.
+	//
+	// Using this from any other combodata variable is illegal and undefined.
+	//
+	// @deprecated Use [Y] instead!
+	// @zasm
+	//   POP REFCOMBODATA
+	//   SETR D2 COMBOYR
+	internal int PosY();
+
+	// Returns the combo screen index of a combo from a combodata script, from
+	// the 'this->' pointer as 'this->Pos()'.
+	//
+	// Using this from any other combodata variable is illegal and undefined.
+	//
+	// @deprecated Use [Pos] instead!
+	// @zasm
+	//   POP REFCOMBODATA
+	//   SETR D2 COMBOPOSR
+	internal int Pos();
+
+	// Returns the layer the combo is on in a combodata script, from the
+	// 'this->' pointer as 'this->Layer()'
+	//
+	// Using this from any other combodata variable is illegal and undefined.
+	//
+	// @deprecated Use [Layer] instead!
+	// @zasm
+	//   POP REFCOMBODATA
+	//   SETR D2 COMBOLAYERR
+	internal int Layer();
+}
+
+internal const combodata ComboData;

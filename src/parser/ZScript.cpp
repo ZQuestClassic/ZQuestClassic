@@ -309,6 +309,7 @@ Namespace* ZScript::createNamespace(
 		CompileErrorHandler* errorHandler)
 {
 	NamespaceScope* scope = parentScope.makeNamespaceChild(node);
+	if (!scope) return nullptr;
 	Namespace* namesp = scope->namesp;
 
 	return namesp;
@@ -404,11 +405,19 @@ UserClassVar* UserClassVar::create(
 	UserClassVar* ucv = new UserClassVar(scope, node, type);
 	if (ucv->tryAddToScope(errorHandler))
 	{
+		ucv->is_readonly = node.list->readonly;
+		ucv->is_arr = type.isArray();
+
+		if (node.list->internal)
+		{
+			ucv->is_internal = true;
+			return ucv;
+		}
+
 		ClassScope* cscope = scope.getClass();
 		UserClass& user_class = cscope->user_class;
 		if(type.isArray())
 		{
-			ucv->is_arr = true;
 			int32_t totalSize = -1;
 			if (std::optional<int32_t> size = node.extraArrays[0]->getCompileTimeSize(errorHandler, &scope))
 				totalSize = *size;
@@ -426,7 +435,7 @@ UserClassVar* UserClassVar::create(
 UserClassVar::UserClassVar(
 		Scope& scope, ASTDataDecl& node, DataType const& type)
 	: Datum(scope, type), is_arr(false),
-	  _index(0), node(node)
+	  is_internal(false), is_readonly(false), _index(0), node(node)
 {
 	node.manager = this;
 }
@@ -473,23 +482,6 @@ Constant::Constant(
 
 std::optional<string> Constant::getName() const {return node.getName();}
 
-// ZScript::BuiltinConstant
-
-
-BuiltinConstant* BuiltinConstant::create(
-		Scope& scope, DataType const& type, string const& name, int32_t value,
-		CompileErrorHandler* errorHandler)
-{
-	BuiltinConstant* builtin = new BuiltinConstant(scope, type, name, value);
-	if (builtin->tryAddToScope(errorHandler)) return builtin;
-	delete builtin;
-	return NULL;
-}
-
-BuiltinConstant::BuiltinConstant(
-		Scope& scope, DataType const& type, string const& name, int32_t value)
-	: Datum(scope, type), name(name), value(value)
-{}
 
 // ZScript::FunctionSignature
 
@@ -502,7 +494,10 @@ FunctionSignature::FunctionSignature(string const& name,
 FunctionSignature::FunctionSignature(Function const& function, bool useret)
 	: name(function.name), prefix(function.hasPrefixType), destructor(function.getFlag(FUNCFLAG_DESTRUCTOR)),
 	parameterTypes(function.paramTypes), returnType(useret ? function.returnType : nullptr)
-{}
+{
+	if (function.getClass())
+		name = function.getClass()->getName() + "::" + name;
+}
 		
 int32_t FunctionSignature::compare(FunctionSignature const& other) const
 {

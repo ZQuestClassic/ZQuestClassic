@@ -1,0 +1,54 @@
+// @zasm_ref REFGENERICDATA
+class genericdata {
+	// @delete
+	internal genericdata();
+
+	// True if the script is currently running passively.
+	// Set to false to stop it.
+	//
+	// @zasm_var GENDATARUNNING
+	internal bool Running;
+
+	// The size of the script's [Data[]] (see below). Writing this
+	// resizes the array, where any area above the previous maximum is cleared
+	// to '0'.
+	//
+	// @zasm_var GENDATASIZE
+	internal int DataSize;
+
+	// Arrays of exit and reload conditions. All states default to 'false'.
+	//
+	// @zasm_var GENDATAEXITSTATE
+	internal bool ExitState[];
+
+	// Arrays of exit and reload conditions. All states default to 'false'.
+	//
+	// @zasm_var GENDATARELOADSTATE
+	internal bool ReloadState[];
+
+	// Array of event listener conditions. When [WaitEvent()] is called, the
+	// script will wait until any event which has a value of 'true' in this
+	// array occurs.
+	//
+	// @zasm_var GENDATAEVENTSTATE
+	internal bool EventListen[];
+
+	// A misc data array, resizable by writing to [DataSize] (see above). All
+	// indexes are saved with the save file, including any resizing.
+	//
+	// @zasm_var GENDATADATA
+	internal untyped Data[];
+
+	// The 8 InitD[] parameters for the generic script. Shared by passive and
+	// frozen run modes.
+	//
+	// @zasm_var GENDATAINITD
+	internal untyped InitD[];
+
+	// Attempt to run the generic script in frozen mode.
+	//
+	// @zasm
+	//   POP REFGENERICDATA
+	//   RUNGENFRZSCR D2
+	internal bool RunFrozen();
+}

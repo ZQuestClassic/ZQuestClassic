@@ -295,7 +295,7 @@ static AccessorTable MapDataTable[] =
 	{ "setD[]",                     0,          ZTID_VOID,   MAPDATAMISCD,               FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_UNTYPED },{},0,"mapdata->D[] has never worked!" },
 	{ "getHasItem",                 0,         ZTID_FLOAT,   MAPDATAHASITEM,             FL_DEPR,  { ZTID_MAPDATA },{},0,"Check '->Item > -1' instead!" },
 	{ "setHasItem",                 0,          ZTID_VOID,   MAPDATAHASITEM,             FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
-	{ "getSFlags[]",                0,         ZTID_FLOAT,   MAPDATASCREENFLAGSD,        FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{},0,"Use '->Flags[]' instead!" },
+	{ "getSFlags[]",                0,         ZTID_FLOAT,   MAPDATASCREENFLAGSD,        FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{},0,"Use [Flags] instead!" },
 //	{ "setSFlags[]",                0,          ZTID_VOID,   MAPDATASCREENFLAGSD,        FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getWarpReturnC",             0,         ZTID_FLOAT,   MAPDATAWARPRETURNC,         FL_DEPR,  { ZTID_MAPDATA },{} },
 	{ "setWarpReturnC",             0,          ZTID_VOID,   MAPDATAWARPRETURNC,         FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },

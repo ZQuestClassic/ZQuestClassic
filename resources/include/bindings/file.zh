@@ -1,0 +1,254 @@
+// @zasm_ref REFFILE
+class file {
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   SETV REFFILE 0
+	//   FILEOPENMODE D2 D3
+	//   SETR D2 D3
+	internal file(char32 path, char32 mode);
+
+	// This represents the current position in the file.
+	//
+	// @zasm_var FILEPOS
+	internal const long Pos;
+
+	// Returns true if a read call attempted to read past the end of the file.
+	//
+	// @zasm_var FILEEOF
+	internal const int EOF;
+
+	// Returns 0 if the file has not enountered an error.
+	//
+	// @zasm_var FILEERR
+	internal const int Error;
+
+	// If the file pointer is not allocated, this will allocate it. Also closes
+	// any file that is already open on the pointer.
+	//
+	// @reassign_ptr
+	// @zasm
+	//   POP D2
+	//   POP REFFILE
+	//   FILEOPEN D2
+	internal bool Open(char32 filepath);
+
+	// If the file pointer is not allocated, this will allocate it. Also closes
+	// any file that is already open on the pointer.
+	//
+	// @reassign_ptr
+	// @zasm
+	//   POP D2
+	//   POP REFFILE
+	//   FILECREATE D2
+	internal bool Create(char32 filepath);
+
+	// If the file pointer is not allocated, this will allocate it. Also closes
+	// any file that is already open on the pointer.
+	//
+	// @reassign_ptr
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFFILE
+	//   FILEOPENMODE D2 D3
+	internal bool OpenMode(char32 filepath, char32 mode_string);
+
+	// Closes any open file connected to the file pointer (which also includes
+	// 'Flush()'). Does *NOT* deallocate the pointer, it is still reserved to
+	// open new files on.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILECLOSE
+	internal void Close();
+
+	// Closes the currently open file as if calling [Close()], then deallocates
+	// the file pointer so it may be re-used.
+	//
+	// @deprecated Free() no longer does anything as of ZC 3.0. Objects are now
+	// freed automatically.
+	// @zasm
+	//   POP REFFILE
+	//   FILEFREE
+	internal void Free();
+
+	// Grants 'Ownership' of the file pointer to the script that calls this
+	// function. When the script with 'Ownership' terminates (at the same time
+	// its' local arrays are deallocated), this file pointer will automatically
+	// be 'Free()'d.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILEOWN
+	internal void Own();
+
+	// Returns true if this pointer is allocated. This does not necessarily mean
+	// a file is open, just that the pointer has a reserved ID.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILEISALLOCATED
+	internal bool isAllocated();
+
+	// Returns true if a file is open on the pointer.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILEISVALID
+	internal bool isValid();
+
+	// Attempts to allocate the file pointer. If it was already allocated, this
+	// will re-allocate it without freeing it!
+	//
+	// @reassign_ptr
+	// @zasm
+	//   POP REFFILE
+	//   FILEALLOCATE
+	internal bool Allocate();
+
+	// Flushes the buffer of the file being written to.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILEFLUSH
+	internal bool Flush();
+
+	// Reads a section of characters from the file.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D3
+	//   POP D2
+	//   POP REFFILE
+	//   FILEREADCHARS D2 D3
+	internal int ReadChars(char32 buf, int count = -1, int pos = 0);
+
+	// Reads a section of binary data from the file.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D3
+	//   POP D2
+	//   POP REFFILE
+	//   FILEREADINTS D2 D3
+	internal int ReadInts(char32 buf, int count = -1, int pos = 0);
+
+	// Writes characters from 'buf' to file.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D3
+	//   POP D2
+	//   POP REFFILE
+	//   FILEWRITECHARS D2 D3
+	internal int WriteChars(char32 buf, int count = -1, int pos = 0);
+
+	// Writes 32b binary data from 'arr' to file.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D3
+	//   POP D2
+	//   POP REFFILE
+	//   FILEWRITEINTS D2 D3
+	internal int WriteInts(char32 arr, int count = -1, int pos = 0);
+
+	// Reads a section of characters from the file.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFILE
+	//   FILEREADSTR D2
+	internal int ReadString(char32 buf);
+
+	// Writes the string stored in 'str' to the file.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFILE
+	//   FILEWRITESTR D2
+	internal int WriteString(char32 str);
+
+	// Reads and returns the next character in the file.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILEGETCHAR
+	internal char32 GetChar();
+
+	// Writes 'c' to file.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFILE
+	//   FILEPUTCHAR D2
+	internal char32 PutChar(char32 c);
+
+	// Un-reads 'c' to the input stream.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFILE
+	//   FILEUNGETCHAR D2
+	internal char32 UngetChar(char32 c);
+
+	// Moves the current position of the file.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFFILE
+	//   FILESEEK D2 D3
+	internal bool Seek(long pos, bool from_current = false);
+
+	// Rewinds to the beginning of the file.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILEREWIND
+	internal void Rewind();
+
+	// Clears the active EOF and Error indicators.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILECLEARERR
+	internal void ClearError();
+
+	// Stores a string describing the current error into the buffer provided.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFILE
+	//   FILEGETERROR D2
+	internal void GetError(char32 buf);
+
+	// Deletes the file. This will close it, as with [Close()], and then delete
+	// it from the filesystem.
+	//
+	// @zasm
+	//   POP REFFILE
+	//   FILEREMOVE
+	internal bool Remove();
+
+	// Writes 8b binary data from 'arr' to file.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D3
+	//   POP D2
+	//   POP REFFILE
+	//   FILEWRITEBYTES D2 D3
+	internal int WriteBytes(char32 arr, int count = -1, int pos = 0);
+
+	// Reads a section of binary data from the file.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D3
+	//   POP D2
+	//   POP REFFILE
+	//   FILEREADBYTES D2 D3
+	internal int ReadBytes(char32 buf, int count = -1, int pos = 0);
+}

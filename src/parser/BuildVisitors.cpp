@@ -6,6 +6,7 @@
 #include "Types.h"
 #include "ZScript.h"
 #include "parser/ByteCode.h"
+#include "parser/parserDefs.h"
 
 using namespace ZScript;
 using std::map;
@@ -1625,6 +1626,9 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 
 void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 {
+	if (host.list->internal)
+		return;
+
 	Datum& manager = *host.manager;
 	
 	// Load initializer, if present.
@@ -1790,18 +1794,18 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
-	if(UserClassVar* ucv = host.u_datum)
+	if (UserClassVar* ucv = host.u_datum; ucv && !ucv->is_internal)
 	{
 		SIDEFX_CHECK(host.left.get());
 		visit(host.left.get(), param);
 		addOpcode(new OReadObject(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
+
 	OpcodeContext *c = (OpcodeContext *)param;
 	bool isarray = host.arrayFunction;
 	bool isIndexed = isarray ? false : host.index;
 	Function* readfunc = isarray ? host.arrayFunction : host.readFunction;
-	assert(readfunc->isInternal());
 	
 	if(readfunc->isNil())
 	{
@@ -1878,6 +1882,12 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 		ASTExprArrow* arrow = static_cast<ASTExprArrow*>(host.array.get());
 		if(!arrow->arrayFunction && !arrow->isTypeArrowUsrClass())
 		{
+			caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
+			return;
+		}
+		if (arrow->u_datum->is_internal)
+		{
+			assert(arrow->u_datum->is_arr);
 			caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 			return;
 		}
@@ -1985,7 +1995,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 		}
 	}
-	else if(func.getFlag(FUNCFLAG_INLINE) && func.isInternal()) //Inline function
+	else if(func.getFlag(FUNCFLAG_INLINE) && (func.isInternal() || func.getFlag(FUNCFLAG_INTERNAL))) //Inline function
 	{
 		// User functions actually can't really benefit from any optimization like this... -Em
 		size_t num_actual_params = func.paramTypes.size() - func.extra_vargs;
@@ -1993,7 +2003,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 		if (host.left->isTypeArrow())
 		{
-			++num_used_params;
+			// Note: FUNCFLAG_INTERNAL are bindings written in .zs w/ 'internal' keyword.
+			// But Function.isInternal is for symbols written in src/parser/symbols/*.cpp
+			// Only the latter have an actual parameter of the LHS type in their param list.
+			if (!func.getFlag(FUNCFLAG_INTERNAL))
+				++num_used_params;
 			if (!(func.getIntFlag(IFUNCFLAG_SKIPPOINTER)))
 			{
 				//load the value of the left-hand of the arrow into EXP1
@@ -2015,7 +2029,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (; param_indx < host.parameters.size()-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !func.isInternal() && func.paramDatum[param_indx]->is_erased();
+			bool unused = !func.isInternal() && !func.getFlag(FUNCFLAG_INTERNAL) && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{
@@ -2058,10 +2072,14 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 			}
 		}
+
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
 		auto it = funcCode.begin();
 		while(OPopRegister* ocode = dynamic_cast<OPopRegister*>(it->get()))
 		{
+			if (optarg->empty())
+				break;
+
 			Argument const* destreg = ocode->getArgument();
 			//Optimize
 			Opcode* lastop = optarg->back().get();
@@ -2254,7 +2272,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else
 	{
-		const string comment_pref = func.isInternal() ? "Int." : "Usr";
+		const string comment_pref = func.isInternal() || func.getFlag(FUNCFLAG_INTERNAL) ? "Int." : "Usr";
 		int32_t funclabel = func.getLabel();
 		
 		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
@@ -2314,7 +2332,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (; param_indx < num_used_params-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !func.isInternal() && func.paramDatum[param_indx]->is_erased();
+			bool unused = !func.isInternal() && !func.getFlag(FUNCFLAG_INTERNAL) && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{
@@ -4248,7 +4266,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
-	if(UserClassVar* ucv = host.u_datum)
+	if(UserClassVar* ucv = host.u_datum; ucv && !ucv->is_internal)
 	{
 		BuildOpcodes oc(this);
 		oc.parsing_user_class = parsing_user_class;

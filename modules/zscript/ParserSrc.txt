@@ -14,6 +14,7 @@ src/parser/CompileOption.cpp
 src/parser/DataStructs.cpp
 src/parser/LibrarySymbols.cpp
 src/parser/Scope.cpp
+src/parser/ParserHelper.cpp
 src/parser/ScriptParser.cpp
 src/parser/SemanticAnalyzer.cpp
 src/parser/RegistrationVisitor.cpp

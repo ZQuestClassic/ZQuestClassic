@@ -109,7 +109,7 @@ std::string zasm_op_to_string(word scommand)
 	return get_script_command(scommand).name;
 }
 
-static std::optional<int> check_comparestr(char const* buf)
+std::optional<int> parse_zasm_compare_arg(char const* buf)
 {
 	int cmp = 0;
 	if(buf[0] == 'B')
@@ -165,7 +165,7 @@ static std::optional<int> parse_zasm_arg(const std::string& text, ARGTY type)
 
 		case ARGTY::COMPARE_OP:
 		{
-			return check_comparestr(text.c_str()).value();
+			return parse_zasm_compare_arg(text.c_str()).value();
 		}
 	}
 

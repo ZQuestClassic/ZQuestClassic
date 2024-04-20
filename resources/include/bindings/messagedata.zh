@@ -1,0 +1,172 @@
+// @zasm_ref REFMSGDATA
+class messagedata {
+	// @delete
+	internal messagedata();
+
+	// The 'next' message, which will be automatically displayed when this
+	// message finishes.
+	//
+	// @zasm_var MESSAGEDATANEXT
+	internal int Next;
+
+	// The tile used for the background.
+	//
+	// @zasm_var MESSAGEDATATILE
+	internal int Tile;
+
+	// The CSet to draw the background in.
+	//
+	// @zasm_var MESSAGEDATACSET
+	internal int CSet;
+
+	// The font to display the message in. Use the `FONT_` constants for this
+	// value.
+	//
+	// @zasm_var MESSAGEDATAFONT
+	internal int Font;
+
+	// The X position of the message box.
+	//
+	// @zasm_var MESSAGEDATAX
+	internal int X;
+
+	// The Y position of the message box.
+	//
+	// @zasm_var MESSAGEDATAY
+	internal int Y;
+
+	// The width of the message box, in pixels.
+	//
+	// @zasm_var MESSAGEDATAW
+	internal int Width;
+
+	// The height of the message box, in pixels.
+	//
+	// @zasm_var MESSAGEDATAH
+	internal int Height;
+
+	// The SFX to play when a new character is drawn (including spaces).
+	//
+	// @zasm_var MESSAGEDATASFX
+	internal int Sound;
+
+	// The list position of the messagedata as it is displayed in ZQ.
+	//
+	// @zasm_var MESSAGEDATALISTPOS
+	internal int ListPosition;
+
+	// The spacing between lines/characters, in pixels.
+	//
+	// @zasm_var MESSAGEDATAVSPACE
+	internal int VSpace;
+
+	// The spacing between lines/characters, in pixels.
+	//
+	// @zasm_var MESSAGEDATAHSPACE
+	internal int HSpace;
+
+	// A set of flags for the messagedata.
+	//
+	// @zasm_var MESSAGEDATAFLAGSARR
+	internal bool Flags[];
+
+	// The margins, in pixels, from each edge of the text box. Use the `DIR_`
+	// constants to access this.
+	//
+	// @zasm_var MESSAGEDATAMARGINS
+	internal int Margins[];
+
+	// The upper-left corner tile of the portrait. If set to 0, no portrait will
+	// be displayed.
+	//
+	// @zasm_var MESSAGEDATAPORTTILE
+	internal int PortraitTile;
+
+	// The CSet to draw the portrait in
+	//
+	// @zasm_var MESSAGEDATAPORTCSET
+	internal int PortraitCSet;
+
+	// The X/Y position of the portrait.
+	//
+	// @zasm_var MESSAGEDATAPORTX
+	internal int PortraitX;
+
+	// The X/Y position of the portrait.
+	//
+	// @zasm_var MESSAGEDATAPORTY
+	internal int PortraitY;
+
+	// The tile width/height of the portrait. Max 16 and 14 respectively. If
+	// either is '0', no portrait will be displayed.
+	//
+	// @zasm_var MESSAGEDATAPORTWID
+	internal int PortraitTileWidth;
+
+	// The tile width/height of the portrait. Max 16 and 14 respectively. If
+	// either is '0', no portrait will be displayed.
+	//
+	// @zasm_var MESSAGEDATAPORTHEI
+	internal int PortraitTileHeight;
+
+	// Returns the height, in pixels, of the message text - not including line
+	// wrap / breaks.
+	//
+	// @zasm_var MESSAGEDATATEXTHEI
+	internal const int TextHeight;
+
+	// Returns the width, in pixels, of the message text - not including line
+	// wrap / breaks.
+	//
+	// @zasm_var MESSAGEDATATEXTWID
+	internal const int TextWidth;
+
+	// The length, in characters, of the message.
+	//
+	// @zasm_var MESSAGEDATATEXTLEN
+	internal const int Length;
+
+	// @deprecated Unused! Does nothing!
+	// @zasm_var MESSAGEDATATRANS
+	internal bool Transparent;
+
+	// @deprecated Use [Flags[]] instead!
+	// @zasm_var MESSAGEDATAFLAGS
+	internal int Flag;
+
+	// Loads the message into the provided string buffer.
+	//
+	// @zasm
+	//   POP D3
+	//   POP REFMSGDATA
+	//   MESSAGEDATAGETSTRINGR D3
+	internal void Get(int str);
+
+	// Sets the message to the provided string.
+	//
+	// @zasm
+	//   POP D3
+	//   POP REFMSGDATA
+	//   MESSAGEDATASETSTRINGR D3
+	internal void Set(int str);
+
+	// Returns the width/height, in pixels, of the message text - not including
+	// line wrap / breaks.
+	//
+	// @deprecated Use [TextHeight] instead!
+	// @zasm
+	//   POP REFMSGDATA
+	//   SETR D2 MESSAGEDATATEXTHEI
+	internal int TextHeight();
+
+	// Returns the width/height, in pixels, of the message text - not including
+	// line wrap / breaks.
+	//
+	// @deprecated Use [TextWidth] instead!
+	// @zasm
+	//   POP REFMSGDATA
+	//   SETR D2 MESSAGEDATATEXTWID
+	internal int TextWidth();
+}
+
+internal const messagedata MessageData;

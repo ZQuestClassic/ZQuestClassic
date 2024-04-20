@@ -32,10 +32,10 @@ static AccessorTable InputTable[] =
 	{ "setSimulateKeypress[]",      0,          ZTID_VOID,   SIMULATEKEYPRESS,          0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
 
 	//Intentionally Undocumented
-	{ "getReadKey[]",               0,          ZTID_BOOL,   READKEY,             FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT },{},0,"Use '->KeyPress[]' instead!" },
-	{ "setReadKey[]",               0,          ZTID_VOID,   READKEY,   FL_DEPR|FL_RDONLY,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{},0,"Use '->KeyPress[]' instead!" },
-	{ "getHold[]",                  0,          ZTID_BOOL,   BUTTONHELD,          FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT },{},0,"Use '->Button[]' instead!" },
-	{ "setHold[]",                  0,          ZTID_VOID,   BUTTONHELD,          FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{},0,"Use '->Button[]' instead!" },
+	{ "getReadKey[]",               0,          ZTID_BOOL,   READKEY,             FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT },{},0,"Use [KeyPress] instead!" },
+	{ "setReadKey[]",               0,          ZTID_VOID,   READKEY,   FL_DEPR|FL_RDONLY,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{},0,"Use [KeyPress] instead!" },
+	{ "getHold[]",                  0,          ZTID_BOOL,   BUTTONHELD,          FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT },{},0,"Use [Button] instead!" },
+	{ "setHold[]",                  0,          ZTID_VOID,   BUTTONHELD,          FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{},0,"Use [Button] instead!" },
 	{ "getKeyRaw[]",                0,          ZTID_BOOL,   RAWKEY,              FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT },{},0,"Unsafe!" },
 	{ "setKeyRaw[]",                0,          ZTID_VOID,   RAWKEY,              FL_DEPR,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{},0,"Unsafe!" },
 	

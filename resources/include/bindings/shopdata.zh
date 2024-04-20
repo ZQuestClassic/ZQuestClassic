@@ -1,0 +1,33 @@
+// @zasm_ref REFSHOPDATA
+class shopdata {
+	// @delete
+	internal shopdata();
+
+	// Returns the type of the shop, where:
+	// TODO document values
+	//
+	// @zasm_var SHOPDATATYPE
+	internal const int Type;
+
+	// The 3 items available in the shop.
+	//
+	// @zasm_var SHOPDATAITEM
+	internal int Item[];
+
+	// Whether a given position should have an item.
+	//
+	// @zasm_var SHOPDATAHASITEM
+	internal bool HasItem[];
+
+	// The price, in rupees (0-65535) to purchase each index.
+	//
+	// @zasm_var SHOPDATAPRICE
+	internal int Price[];
+
+	// The message string to display upon purchasing each index.
+	//
+	// @zasm_var SHOPDATASTRING
+	internal int String[];
+}
+
+internal const shopdata ShopData;

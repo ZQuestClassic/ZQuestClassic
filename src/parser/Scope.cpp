@@ -1,3 +1,8 @@
+#include "base/util.h"
+#include "base/zdefs.h"
+#include "parser/BuildVisitors.h"
+#include "parser/ByteCode.h"
+#include "parser/ParserHelper.h"
 #include "parserDefs.h"
 #include "Scope.h"
 
@@ -6,12 +11,15 @@
 #include "LibrarySymbols.h"
 #include "Types.h"
 #include "ZScript.h"
+#include "zasm/table.h"
+#include "zasm/serialize.h"
 #include <sstream>
 
 using namespace ZScript;
 using namespace util;
 using std::set;
 using std::unique_ptr;
+
 ////////////////////////////////////////////////////////////////
 // Scope
 
@@ -31,6 +39,184 @@ void Scope::invalidateStackSize()
 {
 	if (Scope* parent = getParent())
 		parent->invalidateStackSize();
+}
+
+void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
+{
+	auto parsed_comment = fn->getNode()->getParsedDocComment();
+	if (parsed_comment.contains("delete"))
+	{
+		fn->setFlag(FUNCFLAG_NIL);
+		return;
+	}
+
+	// All internal binding functions are inline.
+	fn->setFlag(FUNCFLAG_INLINE);
+
+	if (parsed_comment.contains("alias"))
+	{
+		std::vector<std::string> aliases;
+		util::split(parsed_comment["alias"], aliases, '\n');
+		for (auto& alias : aliases)
+		{
+			auto alias_fn = new Function();
+			alias_fn->name = alias;
+			alias_fn->alias(fn);
+			addAlias(alias_fn, handler);
+		}
+	}
+
+	if (parsed_comment.contains("deprecated_alias"))
+	{
+		std::vector<std::string> aliases;
+		util::split(parsed_comment["deprecated_alias"], aliases, '\n');
+		for (auto& alias : aliases)
+		{
+			auto alias_fn = new Function();
+			alias_fn->name = alias;
+			alias_fn->alias(fn);
+			alias_fn->setFlag(FUNCFLAG_DEPRECATED);
+			alias_fn->setInfo(fmt::format("Use {} instead", fn->name));
+			addAlias(alias_fn, handler);
+		}
+	}
+
+	if (parsed_comment.contains("exit"))
+		fn->setFlag(FUNCFLAG_EXITS|FUNCFLAG_NEVER_RETURN);
+	if (parsed_comment.contains("deprecated"))
+		fn->setFlag(FUNCFLAG_DEPRECATED);
+	if (parsed_comment.contains("reassign_ptr"))
+		fn->setIntFlag(IFUNCFLAG_REASSIGNPTR);
+
+	if (parsed_comment.contains("vargs"))
+	{
+		fn->extra_vargs = std::stoi(parsed_comment["vargs"]);
+		fn->setFlag(FUNCFLAG_VARARGS);
+	}
+
+	auto it = parsed_comment.find("zasm");
+	std::vector<std::string> zasm_lines;
+	if (it != parsed_comment.cend())
+	{
+		const auto& zasm_str = it->second;
+		std::vector<std::string> zasm;
+		util::split(zasm_str, zasm_lines, '\n');
+	}
+
+	std::vector<std::shared_ptr<Opcode>> code;
+	for (auto& op_string : zasm_lines)
+	{
+		if (op_string.empty())
+			continue;
+
+		// Note: this does not support vec or str args.
+		std::vector<std::string> tokens;
+		util::split(op_string, tokens, ' ');
+
+		std::string command = tokens[0];
+		auto command_opt = get_script_command(command);
+		if (!command_opt)
+		{
+			handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm command `{}`", command)));
+			return;
+		}
+
+		auto sv = get_script_command(*command_opt);
+		if (sv.args != tokens.size() - 1)
+		{
+			handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Wrong number of zasm args for command `{}`", command)));
+			return;
+		}
+
+		for (int i = 1; i < tokens.size(); i++)
+		{
+			switch (sv.arg_type[i - 1])
+			{
+				case ARGTY::READ_REG:
+				case ARGTY::WRITE_REG:
+				case ARGTY::READWRITE_REG:
+				case ARGTY::UNUSED_REG:
+				{
+					if (!get_script_variable(tokens[i]))
+					{
+						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
+						return;
+					}
+					break;
+				}
+
+				case ARGTY::LITERAL:
+				{
+					try {
+						int val = std::stoi(tokens[i]);
+					} catch (std::exception ex) {
+						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
+						return;
+					}
+					break;
+				}
+
+				case ARGTY::COMPARE_OP:
+				{
+					if (!parse_zasm_compare_arg(tokens[i].c_str()))
+					{
+						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
+						return;
+					}
+					break;
+				}
+
+				default:
+				{
+					handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Unsupported zasm arg type in command `{}`", command)));
+					return;
+				}
+			}
+		}
+
+		// Optimizations in the compiler will look at the class of the code in functions,
+		// so do minimal parsing to cover that. For the rest, just do RawOpcode.
+		if (command == "POP")
+			addOpcode2(code, new OPopRegister(new VarArgument(StringToVar(tokens[1]))));
+		else if (command == "PUSHR")
+			addOpcode2(code, new OPushRegister(new VarArgument(StringToVar(tokens[1]))));
+		else if (command == "PUSHV")
+			addOpcode2(code, new OPushImmediate(new LiteralArgument(std::stoi(tokens[1]))));
+		else if (command == "TRACER")
+			addOpcode2(code, new OTraceRegister(new VarArgument(StringToVar(tokens[1]))));
+		else if (command == "SETR")
+		{
+			auto arg1 = new VarArgument(StringToVar(tokens[1]));
+			auto arg2 = new VarArgument(StringToVar(tokens[2]));
+			addOpcode2(code, new OSetRegister(arg1, arg2));
+		}
+		else if (op_string.starts_with("SETV "))
+		{
+			auto arg1 = new VarArgument(StringToVar(tokens[1]));
+			auto arg2 = new LiteralArgument(std::stoi(tokens[2]));
+			addOpcode2(code, new OSetImmediate(arg1, arg2));
+		}
+		else
+			addOpcode2(code, new RawOpcode(op_string));
+	}
+
+	if (code.empty())
+	{
+		handler->handleError(CompileError::BadInternal(fn->node, fmt::format("No @zasm provided for internal function `{}`", fn->name)));
+		return;
+	}
+
+	fn->giveCode(code);
+
+	bool is_constexpr = fn->getFlag(FUNCFLAG_CONSTEXPR);
+	bool found_constexpr_impl = setConstExprForBinding(fn);
+	if (is_constexpr != found_constexpr_impl)
+	{
+		if (is_constexpr)
+			handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Function `{}` marked constexpr but no internal implementation was found", fn->name)));
+		else
+			handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Function `{}` not marked constexpr but an internal constexpr implementation was found", fn->name)));
+	}
 }
 
 // Inheritance
@@ -215,6 +401,9 @@ DataType const* ZScript::lookupDataType(
 
 ParserScriptType ZScript::lookupScriptType(Scope const& scope, string const& name)
 {
+	if (auto type = ParserHelper::getScriptType(name); type != ParserScriptType::invalid)
+		return type;
+
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
 		if (std::optional<ParserScriptType> type = current->getLocalScriptType(name))
@@ -640,13 +829,18 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		 it != functions.end();)
 	{
 		Function* function = *it;
+		if (function->getFlag(FUNCFLAG_NIL))
+		{
+			it = functions.erase(it);
+			continue;
+		}
 		if(trimClasses && function->getInternalScope()->getClass() && !function->getFlag(FUNCFLAG_STATIC))
 		{
 			it = functions.erase(it);
 			continue;
 		}
 		bool vargs = function->getFlag(FUNCFLAG_VARARGS);
-		bool user_vargs = vargs && !function->isInternal();
+		bool user_vargs = vargs && !function->isInternal() && !function->getFlag(FUNCFLAG_INTERNAL);
 		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function->paramTypes.size() - (user_vargs ? 1 : 0);
@@ -813,6 +1007,8 @@ vector<NamespaceScope*> ZScript::lookupUsingNamespaces(Scope const& scope)
 			break; //Don't go to parent file!
 		}
 	}
+	if (!first->getFile())
+		return {};
 	if(!foundFile && !first->isRoot()) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) - Also, don't get this for root. That crashes. -V
 	{
 		vector<NamespaceScope*> currentNamespaces = first->getFile()->getUsingNamespaces();
@@ -1325,6 +1521,7 @@ Function* BasicScope::addFunction(
 
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
+	fun->node = node;
 	fun->setInternalScope(makeFunctionChild(*fun));
 	if(node)
 	{
@@ -1333,6 +1530,8 @@ Function* BasicScope::addFunction(
 			fun->opt_vals.push_back(*it);
 		}
 	}
+	if (flags&FUNCFLAG_INTERNAL)
+		initFunctionBinding(fun, handler);
 
 	functionsByName_[name].push_back(fun);
 	functionsBySignature_[signature] = fun;
@@ -1673,7 +1872,13 @@ RootScope::RootScope(TypeStore& typeStore)
 	: BasicScope(typeStore, "root")
 {
 	std::ostringstream errorstream;
-	
+
+	// TODO remove this after binding work is done
+	bool make_bindings = std::getenv("MAKE_ZSCRIPT_BINDINGS") != nullptr;
+
+	if (make_bindings)
+	{
+
 	try
 	{
 		// Add global library functions.
@@ -1694,6 +1899,8 @@ RootScope::RootScope(TypeStore& typeStore)
 				*static_cast<DataTypeClass const*>(DataType::get(typeId));
 			ZClass& klass = *typeStore.getClass(type.getClassId());
 			LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
+			library.name = type.getClassName();
+			library.type = &type;
 			library.addSymbolsToScope(klass);
 		}
 		catch(std::exception &e)
@@ -1701,43 +1908,12 @@ RootScope::RootScope(TypeStore& typeStore)
 			errorstream << e.what() << '\n';
 		}
 	}
+
+	}
 	
 	std::string errors = errorstream.str();
 	if(!errors.empty())
 		throw compile_exception(errors);
-
-	// Add builtin pointers.
-	BuiltinConstant::create(*this, DataType::PLAYER, "Link", 1); //compat
-	BuiltinConstant::create(*this, DataType::PLAYER, "Hero", 1);
-	BuiltinConstant::create(*this, DataType::PLAYER, "Player", 1);
-	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 1);
-	BuiltinConstant::create(*this, DataType::REGION, "Region", 1);
-	BuiltinConstant::create(*this, DataType::GAME, "Game", 1);
-	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 1);
-	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 1);
-	BuiltinConstant::create(*this, DataType::NPCDATA, "NPCData", 1);
-	BuiltinConstant::create(*this, DataType::TEXT, "Text", 1);
-	BuiltinConstant::create(*this, DataType::COMBOS, "ComboData", 1);
-	BuiltinConstant::create(*this, DataType::SPRITEDATA, "SpriteData", 1);
-	BuiltinConstant::create(*this, DataType::INPUT, "Input", 1);
-	BuiltinConstant::create(*this, DataType::GRAPHICS, "Graphics", 1);
-	BuiltinConstant::create(*this, DataType::MAPDATA, "MapData", 1);
-	BuiltinConstant::create(*this, DataType::DMAPDATA, "DMapData", 1);
-	BuiltinConstant::create(*this, DataType::ZMESSAGE, "MessageData", 1);
-	BuiltinConstant::create(*this, DataType::SHOPDATA, "ShopData", 1);
-	BuiltinConstant::create(*this, DataType::DROPSET, "DropData", 1);
-	BuiltinConstant::create(*this, DataType::PONDS, "PondData", 1);
-	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 1);
-	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 1);
-	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 1);
-	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 1);
-	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 1);
-	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 1);
-	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 1);
-	BuiltinConstant::create(*this, DataType::FILESYSTEM, "FileSystem", 1);
-	BuiltinConstant::create(*this, DataType::ZINFO, "Module", 1); //compat
-	BuiltinConstant::create(*this, DataType::ZINFO, "ZInfo", 1);
-	BuiltinConstant::create(*this, DataType::CRNG, "RandGen", 0); //Nullptr is valid for engine RNG
 }
 
 std::optional<int32_t> RootScope::getRootStackSize() const
@@ -2024,6 +2200,17 @@ bool ClassScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 				return false;
 			}
 			classData_[*name] = ucv;
+
+			bool internal = ucv->getNode()->list->internal;
+			if (internal)
+			{
+				// scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
+				// addGetter(&ucv->type, name.value(), {}, {}, FUNCFLAG_READ_ONLY);
+				// if (ucv)
+				// addSetter(&ucv->type, name.value(), {}, {}, FUNCFLAG_READ_ONLY);
+				return true;
+			}
+
 			ucv->setOrder(classData_.size());
 			if (!ZScript::isGlobal(datum))
 			{
@@ -2035,6 +2222,14 @@ bool ClassScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 		return false;
 	}
 	else return BasicScope::add(datum, errorHandler);
+}
+
+void ClassScope::removeFunction(Function* function)
+{
+	BasicScope::removeFunction(function);
+
+	FunctionSignature signature(function->name, function->paramTypes);
+	constructorsBySignature_.erase(signature);
 }
 
 void ClassScope::parse_ucv()
@@ -2163,12 +2358,22 @@ Function* ClassScope::addFunction(
 
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
+	fun->node = node;
 	fun->setInternalScope(makeFunctionChild(*fun));
 	if(node)
 	{
 		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
 		{
 			fun->opt_vals.push_back(*it);
+		}
+	}
+	if (flags&FUNCFLAG_INTERNAL)
+	{
+		// initInternalFunction(fun, handler);
+		if (fun->getFlag(FUNCFLAG_NIL))
+		{
+			delete fun;
+			return nullptr;
 		}
 	}
 	

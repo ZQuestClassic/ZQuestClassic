@@ -24,6 +24,8 @@ using namespace util;
 #define FUNCFLAG_EXITS              0x00000800 //Function exits the current script (or game)
 #define FUNCFLAG_NEVER_RETURN       0x00001000 //Function never returns
 #define FUNCFLAG_READ_ONLY          0x00002000 //Function is read-only
+#define FUNCFLAG_INTERNAL           0x00004000 //Function is internal
+#define FUNCFLAG_CONSTEXPR          0x00008000 //Function is constexpr
 
 #define IFUNCFLAG_SKIPPOINTER	      0x01
 #define IFUNCFLAG_REASSIGNPTR	      0x02

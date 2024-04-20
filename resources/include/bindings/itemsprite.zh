@@ -1,0 +1,454 @@
+typedef itemsprite item;
+
+// @zasm_ref REFITEM
+class itemsprite {
+	// @delete
+	internal itemsprite();
+
+	// Max number of itemsprites currently allowed.
+	//
+	// @zasm_var SPRITEMAXITEM
+	internal int Max;
+
+	// @zasm_var ITEMX
+	internal int X;
+
+	// @zasm_var ITEMY
+	internal int Y;
+
+	// @zasm_var ITEMZ
+	internal int Z;
+
+	// Upward velocity, in pixels per frame. Affected by gravity each frame, if
+	// [Gravity] is true.
+	//
+	// @zasm_var ITEMJUMP
+	internal int Jump;
+
+	// The drawing mode used, defined by the `DS_` constants.
+	//
+	// @zasm_var ITEMDRAWTYPE
+	internal int DrawStyle;
+
+	// The item ID to give when the item is collected.
+	//
+	// @zasm_var ITEMID
+	internal int ID;
+
+	// The type [itemdata] of the item. Uses the `IC_` constants.
+	//
+	// @zasm_var ITEMFAMILY
+	internal int Type;
+
+	// The type [itemdata] of the item. Uses the `IC_` constants.
+	//
+	// @zasm_var ITEMFAMILY
+	internal int Family;
+
+	// The item's level
+	//
+	// @zasm_var ITEMLEVEL
+	internal int Level;
+
+	// The currently displaying tile of the itemsprite's animation. Set by the
+	// engine each frame if [Animation] is enabled.
+	//
+	// @zasm_var ITEMTILE
+	internal int Tile;
+
+	// -1 by default. If this is set > -1, this tile will be displayed by the
+	// engine, regardless of the normal engine animation. Set back to -1 to
+	// restore engine animation.
+	//
+	// @zasm_var ITEMSCRIPTTILE
+	internal int ScriptTile;
+
+	// -1 by default. If this is set > -1, this flip value will be used instead
+	// of the normal 'Flip' value. Set back to -1 to restore normal flip.
+	//
+	// @zasm_var ITEMSCRIPTFLIP
+	internal int ScriptFlip;
+
+	// The starting tile of the itemsprite's animation.
+	//
+	// @zasm_var ITEMOTILE
+	internal int OriginalTile;
+
+	// The CSet of the itemsprite.
+	//
+	// @zasm_var ITEMCSET
+	internal int CSet;
+
+	// The secondary CSet used for flashing.
+	//
+	// @zasm_var ITEMFLASHCSET
+	internal int FlashCSet;
+
+	// The number of frames in the itemsprite's animation.
+	//
+	// @zasm_var ITEMFRAMES
+	internal int NumFrames;
+
+	// The current frame number that the animation is on.
+	//
+	// @zasm_var ITEMFRAME
+	internal int Frame;
+
+	// The speed of the animation, in frames per frame.
+	//
+	// @zasm_var ITEMASPEED
+	internal int ASpeed;
+
+	// The number of delay frames at the start of the itemsprite's animation.
+	//
+	// @zasm_var ITEMDELAY
+	internal int Delay;
+
+	// If the itemsprite is flashing or not. When flashing, it changes between
+	// its' CSet and FlashCSet.
+	//
+	// @zasm_var ITEMFLASH
+	internal bool Flash;
+
+	// The flip status of the itemsprite's tile. Uses the `FLIP_` constants.
+	//
+	// @zasm_var ITEMFLIP
+	internal int Flip;
+
+	// If the item sprite should be extended (large). Set to 3 to extend, 0
+	// otherwise.
+	//
+	// @zasm_var ITEMEXTEND
+	internal int Extend;
+
+	// The width/height of the hitbox, in pixels.
+	//
+	// @zasm_var ITEMHXSZ
+	internal int HitWidth;
+
+	// The width/height of the hitbox, in pixels.
+	//
+	// @zasm_var ITEMHYSZ
+	internal int HitHeight;
+
+	// The height of the hitbox in the Z-axis, in pixels.
+	//
+	// @zasm_var ITEMHZSZ
+	internal int HitZHeight;
+
+	// The width/height of the sprite's graphic, in tiles.
+	//
+	// @zasm_var ITEMTXSZ
+	internal int TileWidth;
+
+	// The width/height of the sprite's graphic, in tiles.
+	//
+	// @zasm_var ITEMTYSZ
+	internal int TileHeight;
+
+	// The visual offset, in pixels.
+	//
+	// @zasm_var ITEMXOFS
+	internal int DrawXOffset;
+
+	// The visual offset, in pixels.
+	//
+	// @zasm_var ITEMYOFS
+	internal int DrawYOffset;
+
+	// The Z offset, in pixels.
+	//
+	// @zasm_var ITEMZOFS
+	internal int DrawZOffset;
+
+	// The hitbox offset, in pixels.
+	//
+	// @zasm_var ITEMHXOFS
+	internal int HitXOffset;
+
+	// The hitbox offset, in pixels.
+	//
+	// @zasm_var ITEMHYOFS
+	internal int HitYOffset;
+
+	// The item pickup flags, as a bitwise flagset. Use the `IP_` constants to
+	// access. Take care when using any `INTERNAL` flags.
+	//
+	// @zasm_var ITEMPICKUP
+	internal int Pickup;
+
+	// If true, picking up the item does not play it's usual pickup sound
+	// assigned in the item editor. Does not affect holdup sound.
+	//
+	// @zasm_var ITEMNOSOUND
+	internal bool NoSound;
+
+	// If true, picking up the item does not play the screen's holdup sound.
+	// Does not affect the usual pickup sound assigned in the item editor.
+	//
+	// @zasm_var ITEMNOHOLDSOUND
+	internal bool NoHoldSound;
+
+	// An array of misc values for script use.
+	//
+	// @zasm_var ITEMMISCD
+	internal untyped Misc[];
+
+	// The 8 InitD[] arguments for the itemsprite script.
+	//
+	// @zasm_var ITEMSPRITEINITD
+	internal untyped InitD[];
+
+	// The timer that ASpeed is used with.
+	//
+	// @zasm_var ITEMACLK
+	internal int AClock;
+
+	// The message string to display upon picking up the item.
+	//
+	// @zasm_var ITEMPSTRING
+	internal int PickupString;
+
+	// The flags associated with the pickup string, as bitwise flags. Use the
+	// `IPSTR_` constants to access this.
+	//
+	// @zasm_var ITEMPSTRINGFLAGS
+	internal int PickupStringFlags;
+
+	// A rotation of the sprite draw, in degrees.
+	//
+	// @zasm_var ITEMROTATION
+	internal int Rotation;
+
+	// A scale of the sprite draw, as a multiplier.
+	//
+	// @zasm_var ITEMSCALE
+	internal int Scale;
+
+	// The itemsprite script running on this itemsprite.
+	//
+	// @zasm_var ITEMSPRITESCRIPT
+	internal int Script;
+
+	// True by default. If false, gravity will no longer affect this itemsprite.
+	//
+	// @zasm_var ITEMGRAVITY
+	internal bool Gravity;
+
+	// The timer indicating how long left the sprite will be falling. If 0, the
+	// sprite is not falling. Max value of 70, which is the value at the start
+	// of falling.
+	//
+	// @zasm_var ITEMFALLCLK
+	internal int Falling;
+
+	// The pitfall combo the sprite is falling into, if it is falling.
+	//
+	// @zasm_var ITEMFALLCMB
+	internal int FallCombo;
+
+	// The movement flags of the itemsprite. See `ITEMMV_` constants.
+	//
+	// @zasm_var ITEMMOVEFLAGS
+	internal bool MoveFlags[];
+
+	// The size of the light emitted by this sprite, in pixels.
+	//
+	// @zasm_var ITEMGLOWRAD
+	internal int LightRadius;
+
+	// The shape of light emitted by this sprite. Uses the `LIGHT_` constants.
+	//
+	// @zasm_var ITEMGLOWSHP
+	internal int LightShape;
+
+	// The item's direction
+	//
+	// @zasm_var ITEMDIR
+	internal int Dir;
+
+	// If the engine should animate the item's graphics
+	//
+	// @zasm_var ITEMENGINEANIMATE
+	internal bool Animation;
+
+	// The ${spritedata} sprite ID to use for the item's shadow.
+	//
+	// @zasm_var ITEMSHADOWSPR
+	internal int ShadowSprite;
+
+	// The dropset that this item was dropped by. Will be set for engine-dropped
+	// items, can be written by scripts as well.
+	//
+	// @zasm_var ITEMDROPPEDBY
+	internal int DroppedBy;
+
+	// If the sprite is currently being switch-hooked.
+	//
+	// @zasm_var ITMSWHOOKED
+	internal bool SwitchHooked;
+
+	// The timer indicating how long left the sprite will be drowning. If 0, the
+	// sprite is not drowning. Max value of 64, which is the value at the start
+	// of drowning.
+	//
+	// @zasm_var ITEMDROWNCLK
+	internal int Drowning;
+
+	// The liquid combo the sprite is drowning in, if it is drowning.
+	//
+	// @zasm_var ITEMDROWNCMB
+	internal int DrownCombo;
+
+	// The position of the itemsprite on the FakeZ axis.
+	//
+	// @zasm_var ITEMFAKEZ
+	internal int FakeZ;
+
+	// The velocity of the itemsprite in the FakeZ axis.
+	//
+	// @zasm_var ITEMFAKEJUMP
+	internal int FakeJump;
+
+	// The x/y offset of the sprite's shadow.
+	//
+	// @zasm_var ITEMSHADOWXOFS
+	internal int ShadowXOffset;
+
+	// The x/y offset of the sprite's shadow.
+	//
+	// @zasm_var ITEMSHADOWYOFS
+	internal int ShadowYOffset;
+
+	// If set to true, the item will automatically be collected by the player as
+	// soon as possible.
+	//
+	// @zasm_var ITEMFORCEGRAB
+	internal bool ForceGrab;
+
+	// @deprecated
+	// @zasm_var ITEMSCRIPTUID
+	internal const int UID;
+
+	// A flagset that determines how internal engine sizing of items is applied.
+	//
+	// Values are ORd together, as follows:
+	//
+	// @deprecated
+	// @zasm_var ITEMOVERRIDEFLAGS
+	internal int SizeFlags;
+
+	// Returns the max number of itemsprites currently allowed.
+	//
+	// @deprecated Use [Max] instead!
+	// @zasm
+	//   POP REFITEM
+	//   SETR D2 SPRITEMAXITEM
+	internal int Max();
+
+	// Sets the max number of itemsprites allowed to a new value. Range
+	// `1-1024`.
+	//
+	// @deprecated Use [Max] instead!
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   SETR SPRITEMAXITEM D2
+	internal void Max(int value);
+
+	// Returns true if this pointer points to a valid itemsprite. If this
+	// returns false, using any other value of this pointer will error.
+	//
+	// @zasm
+	//   POP D2
+	//   ISVALIDITEM D2
+	internal bool isValid();
+
+	// Creates an explosion particle effect in mode 0, 1, or 2 of the sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   ITEMEXPLODER D2
+	internal void Explode(int mode);
+
+	// Instantly deletes the itemsprite.
+	//
+	// @zasm
+	//   POP REFITEM
+	//   ITEMDEL
+	internal void Remove();
+
+	// Switch the player with this sprite. Use the `SW_EFF_` constants for
+	// 'effect' to select a visual style for the switch.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   SWITCHITM D2
+	internal bool Switch(int effect);
+
+	// Grants 'Ownership' of the parameter object to the itemsprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   OBJ_OWN_BITMAP D2 0.0011
+	internal void Own(bitmap b);
+
+	// Grants 'Ownership' of the parameter object to the itemsprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   OBJ_OWN_PALDATA D2 0.0011
+	internal void Own(paldata b);
+
+	// Grants 'Ownership' of the parameter object to the itemsprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   OBJ_OWN_FILE D2 0.0011
+	internal void Own(file b);
+
+	// Grants 'Ownership' of the parameter object to the itemsprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   OBJ_OWN_DIR D2 0.0011
+	internal void Own(directory b);
+
+	// Grants 'Ownership' of the parameter object to the itemsprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   OBJ_OWN_STACK D2 0.0011
+	internal void Own(stack b);
+
+	// Grants 'Ownership' of the parameter object to the itemsprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   OBJ_OWN_RNG D2 0.0011
+	internal void Own(randgen b);
+
+	// Grants 'Ownership' of the parameter object to the itemsprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   OBJ_OWN_ARRAY D2 0.0011
+	internal void OwnArray(untyped array);
+
+	// Grants 'Ownership' of the parameter object to the itemsprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEM
+	//   OBJ_OWN_CLASS D2 0.0011
+	internal void OwnObject(untyped object);
+}

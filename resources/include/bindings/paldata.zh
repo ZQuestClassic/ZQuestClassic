@@ -1,0 +1,241 @@
+// @zasm_ref REFPALDATA
+class paldata {
+	// @zasm
+	//   CREATEPALDATA
+	internal paldata();
+
+	// @zasm
+	//   POP D2
+	//   CREATEPALDATACLR D2
+	internal paldata(rgb color);
+
+	// Access colors of the paldata as [PalData::rgb]. Reading an invalid color
+	// will return INVALID_COLOR (-1). To write a color as invalid, use
+	// ClearColor() instead.
+	//
+	// @zasm_var PALDATACOLOR
+	internal rgb Color[];
+
+	// Access the Red values of the paldata, ranging from 0-63. Reading an
+	// invalid color will return -1. To write a color as invalid, use
+	// ClearColor() instead.
+	//
+	// @zasm_var PALDATAR
+	internal int R[];
+
+	// Access the Green values of the paldata, ranging from 0-63. Reading an
+	// invalid color will return -1. To write a color as invalid, use
+	// ClearColor() instead.
+	//
+	// @zasm_var PALDATAG
+	internal int G[];
+
+	// Access the Blue values of the paldata, ranging from 0-63. Reading an
+	// invalid color will return -1. To write a color as invalid, use
+	// ClearColor() instead.
+	//
+	// @zasm_var PALDATAB
+	internal int B[];
+
+	// Loads a level's palette to the paldata.
+	//
+	// CSets will be arranged as they appear on the main palette, so CSet 2
+	// starts at index 0x20, ect.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATALOADLEVEL D2
+	internal void LoadLevelPalette(int pal);
+
+	// Loads a page of sprite palettes to the paldata.
+	//
+	// Currently only values of 0 and 1 are valid.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATALOADSPRITE D2
+	internal void LoadSpritePalette(int pal);
+
+	// Loads the main palette to the paldata.
+	//
+	// @zasm
+	//   POP REFPALDATA
+	//   PALDATALOADMAIN
+	internal void LoadMainPalette();
+
+	// Loads the cycle/dark room csets from a level palette to the paldata.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATALOADCYCLE D2
+	internal void LoadCyclePalette(int pal);
+
+	// Loads the palette from an image. Currently only BMP, PCX, and TGA are
+	// supported.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATALOADBITMAP D2
+	internal void LoadBitmapPalette(int pal);
+
+	// Writes the paldata to a level palette. Empty color indices will be
+	// skipped.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATAWRITELEVEL D2
+	internal void WriteLevelPalette(int pal);
+
+	// Writes a cset of the paldata to a level palette. Empty color indices will
+	// be skipped.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATAWRITELEVELCS D2 D3
+	internal void WriteLevelCSet(int pal, int cset);
+
+	// Writes the paldata to a sprite palette page. Empty color indices will be
+	// skipped.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATAWRITESPRITE D2
+	internal void WriteSpritePalette(int pal);
+
+	// Writes a cset of the paldata to a sprite palette page. Empty color
+	// indices will be skipped.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATAWRITESPRITECS D2 D3
+	internal void WriteSpriteCSet(int pal, int cset);
+
+	// Writes the paldata to the main palette. Empty color indices will be
+	// skipped.
+	//
+	// @zasm
+	//   POP REFPALDATA
+	//   PALDATAWRITEMAIN
+	internal void WriteMainPalette();
+
+	// Writes a cset of the paldata to the main palette. Empty color indices
+	// will be skipped.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATAWRITEMAINCS D2
+	internal void WriteMainCSet(int cset);
+
+	// Writes the paldata to a level palette's cycle/dark room csets. Empty
+	// color indices will be skipped.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATAWRITECYCLE D2
+	internal void WriteCyclePalette(int pal);
+
+	// Writes a cset of the paldata to a level's cycle/dark room palette.
+	//
+	// Empty color indices will be skipped.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATAWRITECYCLECS D2 D3
+	internal void WriteCycleCSet(int pal, int cset);
+
+	// Returns true if the color at index is valid.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATAVALIDCLR D2
+	internal bool ColorValid(int index);
+
+	// Clears the color at index on the paldata. Cleared colors will be skipped
+	// when writing to a palette.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATACLEARCLR D2
+	internal void ClearColor(int index);
+
+	// Clears an cset on the paldata. Cleared colors will be skipped when
+	// writing to a palette.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATACLEARCSET D2
+	internal void ClearCSet(int cset);
+
+	// Interpolates all the colors on a paldata between start and end.
+	//
+	// @zasm
+	//   PALDATAMIX
+	//   POPARGS D5 0.0004
+	//   POP REFPALDATA
+	internal void Mix(paldata start, paldata end, int percent = 5000L,
+					  int color_space = 0);
+
+	// Interpolates all the colors on a cset of a paldata between start and end.
+	//
+	// @zasm
+	//   PALDATAMIXCS
+	//   POPARGS D5 0.0005
+	//   POP REFPALDATA
+	internal void MixCSet(paldata start, paldata end, int cset,
+						  int percent = 5000L, int color_space = 0);
+
+	// Copies all the colors from this paldata to the target.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFPALDATA
+	//   PALDATACOPY D2
+	internal void Copy(paldata target);
+
+	// Copies all the colors from one cset on this paldata to another on the
+	// target.
+	//
+	// @zasm
+	//   PALDATACOPYCSET
+	//   POPARGS D5 0.0004
+	internal void CopyCSet(paldata target, int src_cset, int dest_cset);
+
+	// De-allocates this `paldata` pointer, so that its' pointer ID may be
+	// re-used. You may only have a limited number of paldata pointers active at
+	// a time; freeing them when you are done with them helps not reach the
+	// limit.
+	//
+	// @deprecated Free() no longer does anything as of ZC 3.0. Objects are now
+	// freed automatically.
+	// @zasm
+	//   POP REFPALDATA
+	//   PALDATAFREE
+	internal void Free();
+
+	// Grants 'Ownership' of the paldata pointer to the script that calls this
+	// function. When the script with 'Ownership' terminates (at the same time
+	// its' local arrays are deallocated), this paldata pointer will
+	// automatically be 'Free()'d.
+	//
+	// @zasm
+	//   POP REFPALDATA
+	//   PALDATAOWN
+	internal void Own();
+}

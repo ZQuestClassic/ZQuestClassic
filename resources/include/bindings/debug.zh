@@ -1,0 +1,167 @@
+class Debug {
+	// @delete
+	internal Debug();
+
+	// @zasm_var DEBUGREFFFC
+	internal int RefFFC;
+
+	// @zasm_var DEBUGREFITEM
+	internal int RefItem;
+
+	// @zasm_var DEBUGREFITEMDATA
+	internal int RefItemdata;
+
+	// @zasm_var DEBUGREFNPC
+	internal int RefNPC;
+
+	// @zasm_var DEBUGREFLWEAPON
+	internal int RefLWeapon;
+
+	// @zasm_var DEBUGREFEWEAPON
+	internal int RefEWeapon;
+
+	// @zasm_var SP
+	internal int SP;
+
+	// @zasm_var PC
+	internal int PC;
+
+	// @zasm_var DEBUGGDR
+	internal int GDR[];
+
+	// @zasm_var GAMEPLAYFIELDOFS
+	internal const int PlayfieldOffset;
+
+	// This is the value of the ri->d[] registers.
+	//
+	// These vary depending on the function, or the instruction.
+	//
+	// For variable access, SETTER: ri->d[0] is the value being passed to the
+	// variable.
+	//
+	// For variable access, GETTER: ri->d[0] *MIGHT BE* the value read from ther
+	// variable. (Need to verify.)
+	//
+	// For array access, SETTER: ri->d[0] is the array index, and ri->d[1] is
+	// the value.
+	//
+	// For array access, GETTER: ri->d[0] is the array index. Not sure on the
+	// RVal at this time.
+	//
+	// @zasm_var DEBUGD
+	internal int D[];
+
+	// @zasm_var DONULL
+	internal const untyped NULL;
+
+	// Returns true if this instance of ZC was launched from the 'Quest->Test'
+	// option in ZQ.
+	//
+	// @zasm_var DEBUGTESTING
+	internal const bool Testing;
+
+	// @zasm
+	//   POP D2
+	//   BOOLARRPTR D2
+	internal int GetBoolPointer(bool arg1);
+
+	// @zasm
+	//   POP D2
+	//   BOOLARRPTR2 D2
+	internal bool SetBoolPointer(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   NPCARRPTR D2
+	internal int GetNPCPointer(npc arg1);
+
+	// @zasm
+	//   POP D2
+	//   NPCARRPTR2 D2
+	internal npc SetNPCPointer(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   LWPNARRPTR D2
+	internal int GetLWeaponPointer(lweapon arg1);
+
+	// @zasm
+	//   POP D2
+	//   LWPNARRPTR2 D2
+	internal lweapon SetLWeaponPointer(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   EWPNARRPTR D2
+	internal int GetEWeaponPointer(eweapon arg1);
+
+	// @zasm
+	//   POP D2
+	//   EWPNARRPTR2 D2
+	internal eweapon SetEWeaponPointer(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   FFCARRPTR D2
+	internal int GetFFCPointer(ffc arg1);
+
+	// @zasm
+	//   POP D2
+	//   FFCARRPTR2 D2
+	internal ffc SetFFCPointer(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   IDATAARRPTR D2
+	internal int GetItemPointer(itemsprite arg1);
+
+	// @zasm
+	//   POP D2
+	//   ITEMARRPTR2 D2
+	internal itemsprite SetItemPointer(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   IDATAARRPTR D2
+	internal int GetItemdataPointer(itemdata arg1);
+
+	// @zasm
+	//   POP D2
+	//   IDATAARRPTR2 D2
+	internal itemdata SetItemdataPointer(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   TRIGGERSECRETR D2
+	internal void TriggerSecret(int arg1);
+
+	// If the ZASM debugger is open, this will break execution, and print the
+	// given string.
+	//
+	// Break controls:
+	//
+	// - 'Insert' - break, or step forward if broken
+	// - 'Shift+Insert' - Step forward until next breakpoint, or start of next
+	// script, whichever comes first
+	// - 'Ctrl+Shift+Insert' - Same as above, but, doesn't print any ZASM until
+	// it breaks.
+	// - 'Alt+Insert' - Step forward until next breakpoint
+	// - 'Ctrl+Alt+Insert' - Same as above, but, doesn't print any ZASM until it
+	// breaks.
+	// - 'Ctrl+Insert' - Exit the ZASM debugger entirely
+	//
+	// If the ZASM debugger is not open, this instruction does NOTHING.
+	//
+	// Passing NULL to this function will not produce an error, instead printing
+	// no label
+	//
+	// In ZASM scripts, passing the 'NUL' register to this instruction will not
+	// produce an error, instead printing no label
+	//
+	// @zasm
+	//   POP D3
+	//   BREAKPOINT D3
+	internal void Breakpoint(char32 string = 0);
+}
+
+internal const Debug Debug;

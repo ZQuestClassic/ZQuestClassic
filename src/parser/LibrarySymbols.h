@@ -18,6 +18,8 @@ namespace ZScript
 	class Scope;
 }
 
+bool setConstExprForBinding(Function* fn);
+
 static const int32_t SETTER = 0;
 static const int32_t GETTER = 1;
 static const int32_t FUNCTION = 2;
@@ -53,8 +55,12 @@ class LibrarySymbols
 public:
 	static LibrarySymbols* getTypeInstance(DataTypeId typeId);
 
+	void processSymbol(Scope& scope, const AccessorTable& entry, std::string indent, bool is_global, std::vector<std::string>& methods, std::vector<std::string>& properties);
+	void writeSymbolsToBindings(ZScript::Scope& scope);
 	virtual void addSymbolsToScope(ZScript::Scope& scope);
     virtual ~LibrarySymbols();
+	std::string name;
+	const DataTypeClass* type;
 
 protected:
 	LibrarySymbols() : table(nullptr), refVar(0),

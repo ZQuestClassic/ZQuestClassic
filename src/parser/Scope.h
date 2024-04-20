@@ -171,7 +171,9 @@ namespace ZScript
 		bool operator==(Scope* other) {return id == other->getId();}
 		
 		virtual bool remove(ZScript::Datum&) = 0;
-		
+
+		void initFunctionBinding(Function* fn, CompileErrorHandler* handler);
+
 	protected:
 		TypeStore& typeStore_;
 		std::optional<std::string> name_;
@@ -557,6 +559,7 @@ namespace ZScript
 		std::vector<Function*> getConstructors() const;
 		std::vector<Function*> getDestructor() const;
 		bool add(Datum& datum, CompileErrorHandler* errorHandler);
+		void removeFunction(Function* function);
 		void parse_ucv();
 		UserClassVar* getClassVar(std::string const& name);
 		const std::map<std::string, UserClassVar*>& getClassData();

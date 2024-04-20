@@ -1,0 +1,37 @@
+class Region {
+	// @delete
+	internal Region();
+
+	// @zasm_var REGION_WIDTH
+	internal const long Width;
+
+	// @zasm_var REGION_HEIGHT
+	internal const long Height;
+
+	// @zasm_var REGION_SCREEN_WIDTH
+	internal const long ScreenWidth;
+
+	// @zasm_var REGION_SCREEN_HEIGHT
+	internal const long ScreenHeight;
+
+	// @zasm_var REGION_NUM_COMBOS
+	internal const long NumCombos;
+
+	// @zasm_var REGION_ID
+	internal const long ID;
+
+	// @zasm_var REGION_ORIGIN_SCREEN
+	internal const long OriginScreen;
+
+	// @zasm
+	//   POP D2
+	//   REGION_SCREEN_FOR_COMBO_POS D2
+	internal int GetScreenForComoboPos(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   REGION_TRIGGER_SECRETS D2
+	internal void TriggerSecrets(int arg1);
+}
+
+internal const Region Region;

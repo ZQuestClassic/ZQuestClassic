@@ -1,0 +1,59 @@
+// All internal classes, functions and properties are defined in `bindings`
+// This script is automatically imported for you.
+
+/**
+░░░░░░░▄▄▀▀▀▀▀▀▄▄░░░░░░░
+░░░░░▄▀░░░░░░░░░░▀▄░░░░░
+░░░▄▀░░░░░░░░░░░░░░▀▄░░░
+░░▄░░░░░░░░░░░░░░░░░░▄░░
+░▄░░░▄▄░░░░░░░░░░▄▄░░░▄░
+░░░░▌░░█░░░░░░░░▐░░█░░░░
+░▌░░▀██▀░▄████▄░▒▀██░░▐░
+░░░░▒▒▒▒░█▄▄▄▄█░▒▒▒▒░░░░
+░▀░░▒▒░░░░░░░░░░▒▒▒░░▀░░
+░░▀▄░▒░░░░░░░░░░▒▒░▄▀░░░
+░░░░▀▄▒░░░░░░░░░▒░▄▀░░░░
+░░░░░░░▀▀▀▀▀▀▀▀▀▀░░░░░░░
+*/
+
+import "bindings/audio.zh"
+import "bindings/bitmap.zh"
+import "bindings/bottledata.zh"
+import "bindings/bottleshopdata.zh"
+import "bindings/combodata.zh"
+import "bindings/debug.zh"
+import "bindings/directory.zh"
+import "bindings/dmapdata.zh"
+import "bindings/dropsetdata.zh"
+import "bindings/eweapon.zh"
+import "bindings/ffc.zh"
+import "bindings/file.zh"
+import "bindings/filesystem.zh"
+import "bindings/game.zh"
+import "bindings/genericdata.zh"
+import "bindings/global.zh"
+import "bindings/graphics.zh"
+import "bindings/input.zh"
+import "bindings/itemdata.zh"
+import "bindings/itemsprite.zh"
+import "bindings/lweapon.zh"
+import "bindings/mapdata.zh"
+import "bindings/messagedata.zh"
+import "bindings/npc.zh"
+import "bindings/npcdata.zh"
+import "bindings/paldata.zh"
+import "bindings/player.zh"
+import "bindings/portal.zh"
+import "bindings/randgen.zh"
+import "bindings/region.zh"
+import "bindings/savedportal.zh"
+import "bindings/screendata.zh"
+import "bindings/shopdata.zh"
+import "bindings/spritedata.zh"
+import "bindings/stack.zh"
+import "bindings/subscreendata.zh"
+import "bindings/subscreenpage.zh"
+import "bindings/subscreenwidget.zh"
+import "bindings/text.zh"
+import "bindings/websocket.zh"
+import "bindings/zinfo.zh"

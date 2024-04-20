@@ -22,7 +22,7 @@ static AccessorTable AudioTable[] =
 	{ "setMIDI",                 0,          ZTID_VOID,   GETMIDI,        FL_RDONLY,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	
 	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
-	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [PlayEnhancedMusic] instead!" },
 	{ "GetMusicPos",             0,         ZTID_FLOAT,   -1,                FL_INL,  { ZTID_AUDIO },{} },
 	{ "SetMusicPos",             0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "SetMusicSpeed",           0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT },{} },

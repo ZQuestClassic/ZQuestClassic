@@ -48,8 +48,8 @@ static AccessorTable MessageDataTable[] =
 	{ "setPortraitTileWidth",       0,          ZTID_VOID,   MESSAGEDATAPORTWID,        0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
 	{ "getPortraitTileHeight",      0,         ZTID_FLOAT,   MESSAGEDATAPORTHEI,        0,  { ZTID_ZMESSAGE },{} },
 	{ "setPortraitTileHeight",      0,          ZTID_VOID,   MESSAGEDATAPORTHEI,        0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
-	{ "_getTextHeight",             0,         ZTID_FLOAT,   MESSAGEDATATEXTHEI,  FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Use '->TextHeight' instead!" },
-	{ "_getTextWidth",              0,         ZTID_FLOAT,   MESSAGEDATATEXTWID,  FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Use '->TextWidth' instead!" },
+	{ "_getTextHeight",             0,         ZTID_FLOAT,   MESSAGEDATATEXTHEI,  FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Use [TextHeight] instead!" },
+	{ "_getTextWidth",              0,         ZTID_FLOAT,   MESSAGEDATATEXTWID,  FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Use [TextWidth] instead!" },
 	{ "getTextHeight",              0,         ZTID_FLOAT,   MESSAGEDATATEXTHEI,        0,  { ZTID_ZMESSAGE },{} },
 	{ "getTextWidth",               0,         ZTID_FLOAT,   MESSAGEDATATEXTWID,        0,  { ZTID_ZMESSAGE },{} },
 	{ "setTextHeight",              0,          ZTID_VOID,   MESSAGEDATATEXTHEI,FL_RDONLY,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
@@ -59,8 +59,8 @@ static AccessorTable MessageDataTable[] =
 	
 	{ "getTransparent",             0,          ZTID_BOOL,   MESSAGEDATATRANS,    FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Unused! Does nothing!" },
 	{ "setTransparent",             0,          ZTID_VOID,   MESSAGEDATATRANS,    FL_DEPR,  { ZTID_ZMESSAGE, ZTID_BOOL },{},0,"Unused! Does nothing!" },
-	{ "getFlag",                    0,         ZTID_FLOAT,   MESSAGEDATAFLAGS,    FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Use '->Flags[]' instead!" },
-	{ "setFlag",                    0,          ZTID_VOID,   MESSAGEDATAFLAGS,    FL_DEPR,  { ZTID_ZMESSAGE, ZTID_FLOAT },{},0,"Use '->Flags[]' instead!" },
+	{ "getFlag",                    0,         ZTID_FLOAT,   MESSAGEDATAFLAGS,    FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Use [Flags[]] instead!" },
+	{ "setFlag",                    0,          ZTID_VOID,   MESSAGEDATAFLAGS,    FL_DEPR,  { ZTID_ZMESSAGE, ZTID_FLOAT },{},0,"Use [Flags[]] instead!" },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

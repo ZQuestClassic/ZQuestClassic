@@ -1,0 +1,736 @@
+// @zasm_ref REFNPCCLASS
+class npcdata {
+	// @delete
+	internal npcdata();
+
+	// The base tile used by the enemy.
+	//
+	// @zasm_var NPCDATATILE
+	internal int Tile;
+
+	// @zasm_var NPCDATAFLAGS
+	internal int Flags;
+
+	// @zasm_var NPCDATAFLAGS2
+	internal int Flags2;
+
+	// The 'width' (W) of base tile used by the enemy.
+	//
+	// @zasm_var NPCDATAWIDTH
+	internal int Width;
+
+	// The 'height' (H) of base tile used by the enemy.
+	//
+	// @zasm_var NPCDATAHEIGHT
+	internal int Height;
+
+	// The base 'special' tile used by the enemy.
+	//
+	// @zasm_var NPCDATASTILE
+	internal int STile;
+
+	// The 'width' (W) of base 'special' tile used by the enemy.
+	//
+	// @zasm_var NPCDATASWIDTH
+	internal int SWidth;
+
+	// The 'height' (H) of base 'special' tile used by the enemy.
+	//
+	// @zasm_var NPCDATASHEIGHT
+	internal int SHeight;
+
+	// The base EXPANDED ('New') tile used by the enemy.
+	//
+	// @zasm_var NPCDATAETILE
+	internal int ExTile;
+
+	// The 'width' (W) of base EXPANDED ('New') tile used by the enemy.
+	//
+	// @zasm_var NPCDATAEWIDTH
+	internal int ExWidth;
+
+	// The 'height' (H) of base EXPANDED ('New') tile used by the enemy.
+	//
+	// @zasm_var NPCDATAEHEIGHT
+	internal int ExHeight;
+
+	// The enemy's base hit points.
+	//
+	// @zasm_var NPCDATAHP
+	internal int HP;
+
+	// The Family (Enemy Class) of the npc.
+	//
+	// @zasm_var NPCDATAFAMILY
+	internal int Family;
+
+	// @zasm_var NPCDATACSET
+	internal int CSet;
+
+	// The 'O.Anim' used by the enemy.
+	//
+	// @zasm_var NPCDATAANIM
+	internal int Anim;
+
+	// The 'E.Anim' used by the enemy.
+	//
+	// @zasm_var NPCDATAEANIM
+	internal int ExAnim;
+
+	// The 'O.Anim' animation framerate used by the enemy.
+	//
+	// @zasm_var NPCDATAFRAMERATE
+	internal int Framerate;
+
+	// The 'E.Anim' animation framerate used by the enemy.
+	//
+	// @zasm_var NPCDATAEFRAMERATE
+	internal int ExFramerate;
+
+	// The amount of contact damage that the enemy causes when it collides with
+	// Link.
+	//
+	// @zasm_var NPCDATATOUCHDAMAGE
+	internal int TouchDamage;
+
+	// The power of the weapons fired by the enemy.
+	//
+	// @zasm_var NPCDATAWEAPONDAMAGE
+	internal int WeaponDamage;
+
+	// The weapon type used by the enemy.
+	//
+	// @zasm_var NPCDATAWEAPON
+	internal int Weapon;
+
+	// The 'random rate' of the enemy.
+	//
+	// @zasm_var NPCDATARANDOM
+	internal int Random;
+
+	// The 'turn frequency' used by the enemy during its movement phase.
+	//
+	// @zasm_var NPCDATAHALT
+	internal int Haltrate;
+
+	// The enem's step speed.
+	//
+	// @zasm_var NPCDATASTEP
+	internal int Step;
+
+	// The homing factor of the enemy. Greater values home more keenly on Link.
+	//
+	// @zasm_var NPCDATAHOMING
+	internal int Homing;
+
+	// The 'hunger' value of the enemy.
+	//
+	// Higher values make it more likely that the enemy is attracted to Bait.
+	//
+	// Valid only for NPCT_WALKING enemies.
+	//
+	// @zasm_var NPCDATAHUNGER
+	internal int Hunger;
+
+	// The dropset used by the enemy.
+	//
+	// @zasm_var NPCDATADROPSET
+	internal int Dropset;
+
+	// The Ambient sound that the enemy emits.
+	//
+	// @zasm_var NPCDATABGSFX
+	internal int BGSFX;
+
+	// The sound that is played when the enemy dies.
+	//
+	// @zasm_var NPCDATADEATHSFX
+	internal int DeathSFX;
+
+	// The sound that is played when the enemy is hit by an lweapon.
+	//
+	// @zasm_var NPCDATAHITSFX
+	internal int HitSFX;
+
+	// The horizontal draw offset of the enemy.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATAXOFS
+	internal int DrawXOffset;
+
+	// The vertical draw offset of the enemy.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATAYOFS
+	internal int DrawYOffset;
+
+	// The depth draw offset of the enemy.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATAZOFS
+	internal int DrawZOffset;
+
+	// The horizontal hitbox offset of the enemy.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATAHXOFS
+	internal int HitXOffset;
+
+	// The vertical hitbox offset of the enemy.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATAHYOFS
+	internal int HitYOffset;
+
+	// The hitbox width (X component), in pixels, for the enemy.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATAHITWIDTH
+	internal int HitWidth;
+
+	// The hitbox height (Y component), in pixels, for the enemy.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATAHITHEIGHT
+	internal int HitHeight;
+
+	// The hitbox height (Z component), in pixels, for the enemy.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATAHITZ
+	internal int HitZHeight;
+
+	// The drawn width (X component) of the enemy in increments of one tile.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATATILEWIDTH
+	internal int TileWidth;
+
+	// The drawn height (Y component) of the enemy in increments of one tile.
+	//
+	// Note: SizeFlag[??] must be enabled for this to function.
+	//
+	// @zasm_var NPCDATATILEHEIGHT
+	internal int TileHeight;
+
+	// The sprite used to draw the enemy weapon.
+	//
+	// @zasm_var NPCDATAWPNSPRITE
+	internal int WeaponSprite;
+
+	// The defense categories for the enemy.
+	//
+	// @zasm_var NPCDATADEFENSE
+	internal int Defense[];
+
+	// A set of flags that determine if the values for the Enemy Editor 'Size'
+	// tab
+	//
+	// are rendered by the engine.
+	//
+	// @zasm_var NPCDATASIZEFLAG
+	internal bool SizeFlag[];
+
+	// The 'Misc. Attributes' of the enemy; now 32 of these; and
+	// datatype-insensitive.
+	//
+	// @zasm_var NPCDATAATTRIBUTE
+	internal int Attributes[];
+
+	// The shield status of the enemy.
+	//
+	// [0] through [3] correspond to DIR* constants (wherein DIR_UP represents
+	// FRONT, and DIR_DOWN represents BACK)
+	//
+	// [4] corresponds to 'Shield can be broken'.
+	//
+	// @zasm_var NPCDATASHIELD
+	internal bool Shield[];
+
+	// @zasm_var NPCDATABEHAVIOUR
+	internal bool BFlags[];
+
+	// The base tile used to draw the enemy, when the enemy is frozen solid.
+	// //Not yet implemented in-engine.
+	//
+	// @zasm_var NPCDATAFROZENTILE
+	internal int FrozenTile;
+
+	// The CSet value used to render the enemy, when the enemy is frozen solid.
+	// //Not yet implemented in-engine.
+	//
+	// @zasm_var NPCDATAFROZENCSET
+	internal int FrozenCSet;
+
+	// The npc action script used by this enemy.
+	//
+	// @zasm_var NPCDATASCRIPT
+	internal int Script;
+
+	// The eight InitD args used by the npc action script for this enemy.
+	//
+	// @zasm_var NPCDATAINITD
+	internal int InitD[];
+
+	// The weapon action script assigned to this enemy.
+	//
+	// @zasm_var NPCDATAWEAPONSCRIPT
+	internal int WeaponScript;
+
+	// The eight InitD args assigned to the weapon script used by this enemy.
+	//
+	// @zasm_var NPCDATAWEAPONINITD
+	internal int WeaponInitD[];
+
+	// The shadow sprite used by the enemy, 0-255
+	//
+	// @zasm_var NPCDSHADOWSPR
+	internal int ShadowSprite;
+
+	// The spawn sprite used by the enemy, 0-255
+	//
+	// @zasm_var NPCDSPAWNSPR
+	internal int SpawnSprite;
+
+	// The death sprite used by the enemy, 0-255
+	//
+	// @zasm_var NPCDDEATHSPR
+	internal int DeathSprite;
+
+	// Puts the text of the Enemy Name field into string 'ptr'.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPCCLASS
+	//   NPCDATAGETNAME D2
+	internal void GetName(int ptr);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATATILE D2 D3
+	internal int GetTile(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAEHEIGHT D2 D3
+	internal int GetEHeight(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAFLAGS D2 D3
+	internal int GetFlags(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAFLAGS2 D2 D3
+	internal int GetFlags2(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAWIDTH D2 D3
+	internal int GetWidth(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHEIGHT D2 D3
+	internal int GetHeight(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATASTILE D2 D3
+	internal int GetSTile(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATASWIDTH D2 D3
+	internal int GetSWidth(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATASHEIGHT D2 D3
+	internal int GetSHeight(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAETILE D2 D3
+	internal int GetETile(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAEWIDTH D2 D3
+	internal int GetEWidth(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHP D2 D3
+	internal int GetHP(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAFAMILY D2 D3
+	internal int GetFamily(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATACSET D2 D3
+	internal int GetCSet(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAANIM D2 D3
+	internal int GetAnim(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAEANIM D2 D3
+	internal int GetEAnim(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAFRAMERATE D2 D3
+	internal int GetFramerate(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAEFRAMERATE D2 D3
+	internal int GetEFramerate(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATATOUCHDMG D2 D3
+	internal int GetTouchDamage(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAWPNDAMAGE D2 D3
+	internal int GetWeaponDamage(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAWEAPON D2 D3
+	internal int GetWeapon(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATARANDOM D2 D3
+	internal int GetRandom(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHALT D2 D3
+	internal int GetHaltRate(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATASTEP D2 D3
+	internal int GetStep(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHOMING D2 D3
+	internal int GetHoming(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHUNGER D2 D3
+	internal int GetHunger(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATADROPSET D2 D3
+	internal int GetDropset(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATABGSFX D2 D3
+	internal int GetBGSFX(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHITSFX D2 D3
+	internal int GetHitSFX(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATADEATHSFX D2 D3
+	internal int GetDeathSFX(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAXOFS D2 D3
+	internal int GetDrawXOffset(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAYOFS D2 D3
+	internal int GetDrawYOffset(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAZOFS D2 D3
+	internal int GetDrawZOffset(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHXOFS D2 D3
+	internal int GetHitXOffset(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHYOFS D2 D3
+	internal int GetHitYOffset(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHITWIDTH D2 D3
+	internal int GetHitWidth(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHITHEIGHT D2 D3
+	internal int GetHitHeight(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAHITZ D2 D3
+	internal int GetHitZHeight(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATATILEWIDTH D2 D3
+	internal int GetTileWidth(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATATILEHEIGHT D2 D3
+	internal int GetTileHeight(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   POP REFNPCCLASS
+	//   GETNPCDATAWPNSPRITE D2 D3
+	internal int GetWeaponSprite(int arg1);
+
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFNPCCLASS
+	//   GETNPCDATASCRIPTDEF D2
+	internal int GetScriptDefense(int arg1, int arg2);
+
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFNPCCLASS
+	//   GETNPCDATADEFENSE D2
+	internal int GetDefense(int arg1, int arg2);
+
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFNPCCLASS
+	//   GETNPCDATASIZEFLAG D2
+	internal bool GetSizeFlag(int arg1, int arg2);
+
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFNPCCLASS
+	//   GETNPCDATAATTRIBUTE D2
+	internal int GetAttribute(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATATILE D3 D2
+	internal void SetTile(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAEHEIGHT D3 D2
+	internal void SetEHeight(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAFLAGS D3 D2
+	internal void SetFlags(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAFLAGS2 D3 D2
+	internal void SetFlags2(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAWIDTH D3 D2
+	internal void SetWidth(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAHEIGHT D3 D2
+	internal void SetHeight(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATASTILE D3 D2
+	internal void SetSTile(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATASWIDTH D3 D2
+	internal void SetSWidth(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATASHEIGHT D3 D2
+	internal void SetSHeight(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAETILE D3 D2
+	internal void SetETile(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAEWIDTH D3 D2
+	internal void SetEWidth(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAHP D3 D2
+	internal void SetHP(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAFAMILY D3 D2
+	internal void SetFamily(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATACSET D3 D2
+	internal void SetCSet(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAANIM D3 D2
+	internal void SetAnim(int arg1, int arg2);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   SETNPCDATAEANIM D3 D2
+	internal void SetEAnim(int arg1, int arg2);
+
+	// @zasm
+	//   POP D6
+	//   POP D1
+	//   POP D0
+	//   POP REFNPCCLASS
+	//   SETR SETNPCDATASCRIPTDEF D6
+	internal void SetScriptDefense(int arg1, int arg2, int arg3);
+
+	// @zasm
+	//   POP D6
+	//   POP D1
+	//   POP D0
+	//   POP REFNPCCLASS
+	//   SETR SETNPCDATADEFENSE D6
+	internal void SetDefense(int arg1, int arg2, int arg3);
+
+	// @zasm
+	//   POP D6
+	//   POP D1
+	//   POP D0
+	//   POP REFNPCCLASS
+	//   SETR SETNPCDATASIZEFLAG D6
+	internal void SetSizeFlag(int arg1, int arg2, bool arg3);
+
+	// @zasm
+	//   POP D6
+	//   POP D1
+	//   POP D0
+	//   POP REFNPCCLASS
+	//   SETR SETNPCDATAATTRIBUTE D6
+	internal void SetAttribute(int arg1, int arg2, int arg3);
+}
+
+internal const npcdata NPCData;

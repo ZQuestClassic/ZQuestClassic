@@ -1,0 +1,178 @@
+class Graphics {
+	// @delete
+	internal Graphics();
+
+	// True if the given tile is entirely blank (all color 0).
+	//
+	// @zasm_var ISBLANKTILE
+	internal const int IsBlankTile[];
+
+	// Returns the number of script drawing commands that are currently waiting
+	// in the draw queue.
+	//
+	// @zasm_var NUMDRAWS
+	internal const int NumDraws;
+
+	// Returns the limit of the drawing queue. If [NumDraws] returns the same as
+	// this, no further drawing commands will work until the queue has been
+	// cleared (i.e. the next frame)
+	//
+	// @zasm_var MAXDRAWS
+	internal const int MaxDraws;
+
+	// True if the given tile uses 8-bit color.
+	//
+	// @zasm_var IS8BITTILE
+	internal const bool Is8BitTile[];
+
+	// Creates a 'wave' effect, as a 'Wavy' warp type uses.
+	//
+	// @zasm
+	//   POP D3
+	//   FXWAVYR D3
+	internal void Wavy(bool style_in);
+
+	// Creates a 'zap' effect, as a 'Zap' warp type uses.
+	//
+	// @zasm
+	//   POP D3
+	//   FXZAPR D3
+	internal void Zap(bool style_in);
+
+	// Enables or disables 'greyscale' mode. [MonochromeHue] works similarly,
+	// but with more options.
+	//
+	// @zasm
+	//   POP D3
+	//   GREYSCALER D3
+	internal void Greyscale(bool enable);
+
+	// Activates a monochrome preset.
+	//
+	// @zasm
+	//   POP D3
+	//   MONOCHROMER D3
+	internal void Monochrome(int preset);
+
+	// Tints the palette by adding `red`, `green`, and `blue` to the respective
+	// values of every palette swatch. Subsequent calls to these functions will
+	// SUM the tint with all previous tints.
+	//
+	// @zasm
+	//   TINT
+	//   POP D3
+	//   POP D3
+	//   POP D3
+	internal void Tint(int red, int green, int blue);
+
+	// Tints the palette by adding `red`, `green`, and `blue` to the respective
+	// values of every palette swatch. Subsequent calls to these functions will
+	// SUM the tint with all previous tints.
+	//
+	// @zasm
+	//   MONOHUE
+	//   POP D3
+	//   POP D3
+	//   POP D3
+	//   POP D3
+	internal void MonochromeHue(int red, int green, int blue,
+								bool distributed = true);
+
+	// Clears all tint effects.
+	//
+	// @zasm
+	//   CLEARTINT
+	internal void ClearTint();
+
+	// Returns the number of script drawing commands that are currently waiting
+	// in the draw queue.
+	//
+	// @deprecated Use [NumDraws] instead!
+	// @zasm
+	//   SETR D2 NUMDRAWS
+	internal int NumDraws();
+
+	// Returns the limit of the drawing queue. If [NumDraws] returns the same as
+	// this, no further drawing commands will work until the queue has been
+	// cleared (i.e. the next frame)
+	//
+	// @deprecated Use [MaxDraws] instead!
+	// @zasm
+	//   SETR D2 MAXDRAWS
+	internal int MaxDraws();
+
+	// Same as [bitmap::GetPixel]
+	//
+	// @zasm
+	//   POP D0
+	//   POP D1
+	//   POP D2
+	//   GRAPHICSGETPIXEL D2
+	internal int GetPixel(untyped b, int x, int y);
+
+	// Creates a new paldata. If 'color' is specified, fills the palette with
+	// that rgb color.
+	//
+	// @deprecated Use `new paldata()` instead!
+	// @zasm
+	//   CREATEPALDATA
+	internal paldata CreatePalData();
+
+	// Creates a new paldata. If 'color' is specified, fills the palette with
+	// that rgb color.
+	//
+	// @zasm
+	//   POP D2
+	//   CREATEPALDATACLR D2
+	internal paldata CreatePalData(rgb color);
+
+	// Interpolates a color between start and end and then returns the resulting
+	// rgb.
+	//
+	// @zasm
+	//   MIXCLR
+	//   POPARGS D5 0.0004
+	internal rgb MixColor(rgb start, rgb end, int percent, int color_space = 0);
+
+	// Takes either an (r,g,b) ranging 0 <= n <= 63, or takes a long hexcode
+	// (0xRRGGBBL), with each rgb section 0 <= n <= 255.
+	//
+	// @zasm
+	//   POP D2
+	//   CREATERGBHEX D2
+	internal rgb CreateRGB(long hexcode);
+
+	// Takes either an (r,g,b) ranging 0 <= n <= 63, or takes a long hexcode
+	// (0xRRGGBBL), with each rgb section 0 <= n <= 255.
+	//
+	// @zasm
+	//   CREATERGB
+	//   POPARGS D5 0.0003
+	internal rgb CreateRGB(int r, int g, int b);
+
+	// @zasm
+	//   CONVERTFROMRGB
+	//   POPARGS D5 0.0003
+	internal void ConvertFromRGB(int arg1, rgb arg2, int arg3);
+
+	// @zasm
+	//   CONVERTTORGB
+	//   POPARGS D5 0.0002
+	internal rgb ConvertToRGB(int arg1, int arg2);
+
+	// Returns the color index at an x,y coordinate of a tile.
+	//
+	// @zasm
+	//   GETTILEPIXEL
+	//   POPARGS D5 0.0004
+	internal int GetTilePixel(int tile, int x, int y, int cset = 0);
+
+	// Sets the color index an an x,y coordinate of a tile.
+	//
+	// @zasm
+	//   SETTILEPIXEL
+	//   POPARGS D5 0.0004
+	internal void SetTilePixel(int tile, int x, int y, int color);
+}
+
+internal const Graphics Graphics;

@@ -15,11 +15,11 @@ static AccessorTable gameTable[] =
 	{ "_setMaxEWeapons",            0,          ZTID_VOID,   SPRITEMAXEWPN,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "_getMaxItemsprites",         0,         ZTID_FLOAT,   SPRITEMAXITEM,             0,  { ZTID_GAME },{} },
 	{ "_setMaxItemsprites",         0,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
-	{ "_getGetCurScreen",           0,         ZTID_FLOAT,   CURSCR,              FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurScreen' instead!" },
-	{ "_getGetCurDMapScreen",       0,         ZTID_FLOAT,   CURDSCR,             FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurDMapScreen' instead!" },
-	{ "_getGetCurMap",              0,         ZTID_FLOAT,   CURMAP,              FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurMap' instead!" },
-	{ "_getGetCurDMap",             0,         ZTID_FLOAT,   CURDMAP,             FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurDMap' instead!" },
-	{ "_getGetCurLevel",            0,         ZTID_FLOAT,   CURLEVEL,            FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurLevel' instead!" },
+	{ "_getGetCurScreen",           0,         ZTID_FLOAT,   CURSCR,              FL_DEPR,  { ZTID_GAME },{},0,"Use [CurScreen] instead!" },
+	{ "_getGetCurDMapScreen",       0,         ZTID_FLOAT,   CURDSCR,             FL_DEPR,  { ZTID_GAME },{},0,"Use [CurDMapScreen] instead!" },
+	{ "_getGetCurMap",              0,         ZTID_FLOAT,   CURMAP,              FL_DEPR,  { ZTID_GAME },{},0,"Use [CurMap] instead!" },
+	{ "_getGetCurDMap",             0,         ZTID_FLOAT,   CURDMAP,             FL_DEPR,  { ZTID_GAME },{},0,"Use [CurDMap] instead!" },
+	{ "_getGetCurLevel",            0,         ZTID_FLOAT,   CURLEVEL,            FL_DEPR,  { ZTID_GAME },{},0,"Use [CurLevel] instead!" },
 	{ "getCurScreen",               0,         ZTID_FLOAT,   CURSCR,                    0,  { ZTID_GAME },{} },
 	{ "setCurScreen",               0,          ZTID_VOID,   CURSCR,            FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "getCurDMapScreen",           0,         ZTID_FLOAT,   CURDSCR,                   0,  { ZTID_GAME },{} },
@@ -79,7 +79,7 @@ static AccessorTable gameTable[] =
 	{ "GetDMapScreenD",             0,       ZTID_UNTYPED,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "SetDMapScreenD",             0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "LoadItemData",               0,     ZTID_ITEMCLASS,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
-	{ "_getGetMIDI",                0,         ZTID_FLOAT,   GETMIDI,             FL_DEPR,  { ZTID_GAME },{},0,"Use 'Audio->MIDI' instead!" },
+	{ "_getGetMIDI",                0,         ZTID_FLOAT,   GETMIDI,             FL_DEPR,  { ZTID_GAME },{},0,"Use [Audio->MIDI] instead!" },
 	{ "Save",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "End",                        0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
 	{ "Reload",                     0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
@@ -128,7 +128,7 @@ static AccessorTable gameTable[] =
 	{ "getDisableItem[]",           0,          ZTID_BOOL,   DISABLEDITEM,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setDisableItem[]",           0,          ZTID_VOID,   DISABLEDITEM,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
 //	Get the map count 
-	{ "_getMapCount",               0,         ZTID_FLOAT,   GAMEMAXMAPS,         FL_DEPR,  { ZTID_GAME },{},0,"Use '->MapCount' instead!" },
+	{ "_getMapCount",               0,         ZTID_FLOAT,   GAMEMAXMAPS,         FL_DEPR,  { ZTID_GAME },{},0,"Use [MapCount] instead!" },
 	{ "getMapCount",                0,         ZTID_FLOAT,   GAMEMAXMAPS,               0,  { ZTID_GAME },{} },
 	{ "setMapCount",                0,          ZTID_VOID,   GAMEMAXMAPS,       FL_RDONLY,  { ZTID_GAME,ZTID_FLOAT },{} },
 //	Versioning
@@ -187,7 +187,7 @@ static AccessorTable gameTable[] =
 	{ "setMouseCursor",             0,          ZTID_VOID,   GAMEMOUSECURSOR,           0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "SetCustomCursor",            0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL },{ 0, 0 } },
 	
-	{ "_getNumSavedPortals",        0,         ZTID_FLOAT,   SAVEDPORTALCOUNT,    FL_DEPR,  { ZTID_GAME },{},0,"Use '->NumSavedPortals' instead!" },
+	{ "_getNumSavedPortals",        0,         ZTID_FLOAT,   SAVEDPORTALCOUNT,    FL_DEPR,  { ZTID_GAME },{},0,"Use [NumSavedPortals] instead!" },
 	{ "getNumSavedPortals",         0,         ZTID_FLOAT,   SAVEDPORTALCOUNT,          0,  { ZTID_GAME },{} },
 	{ "setNumSavedPortals",         0,          ZTID_VOID,   SAVEDPORTALCOUNT,  FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadSavedPortal",            0,     ZTID_SAVPORTAL,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT },{} },
@@ -239,15 +239,15 @@ static AccessorTable gameTable[] =
 	{ "GreyscaleOff",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "ComboTile",                  0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	
-	{ "PlaySound",                  0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'Audio->' instead!" },
-	{ "PlayMIDI",                   0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'Audio->' instead!" },
-	{ "PlayEnhancedMusic",          0,          ZTID_BOOL,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'Audio->' instead!" },
-	{ "PlayOgg",                    0,          ZTID_BOOL,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "PlaySound",                  0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [Audio->PlaySound] instead!" },
+	{ "PlayMIDI",                   0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [Audio->PlayMIDI] instead!" },
+	{ "PlayEnhancedMusic",          0,          ZTID_BOOL,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [Audio->PlayEnhancedMusic] instead!" },
+	{ "PlayOgg",                    0,          ZTID_BOOL,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [Audio->PlayEnhancedMusic] instead!" },
 	{ "GetOggPos",                  0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME },{} },
 	{ "SetOggPos",                  0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "SetOggSpeed",                0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{} },
 	
-	{ "getReadKey[]",               0,          ZTID_BOOL,   READKEY,             FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'Input->KeyPress[]' instead!" },
+	{ "getReadKey[]",               0,          ZTID_BOOL,   READKEY,             FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [Input->KeyPress[]] instead!" },
 	{ "GetScreenEnemy",             0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
 	{ "SetScreenEnemy",             0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
 	{ "GetScreenDoor",              0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
@@ -295,54 +295,54 @@ static AccessorTable gameTable[] =
 	{ "GetScreenState",             0,          ZTID_BOOL,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
 	{ "SetScreenState",             0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{},0,"Use 'mapdata->' vars instead!" },
 	
-	{ "GetComboData",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboD' instead!" },
-	{ "SetComboData",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboD'  instead!" },
-	{ "GetComboCSet",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboC'  instead!" },
-	{ "SetComboCSet",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboC'  instead!" },
-	{ "GetComboFlag",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboF'  instead!" },
-	{ "SetComboFlag",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboF'  instead!" },
-	{ "GetComboType",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboT'  instead!" },
-	{ "SetComboType",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboT'  instead!" },
-	{ "GetComboInherentFlag",       0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboI'  instead!" },
-	{ "SetComboInherentFlag",       0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboI'  instead!" },
-	{ "GetComboSolid",              0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboS'  instead!" },
-	{ "SetComboSolid",              0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->ComboS'  instead!" },
+	{ "GetComboData",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboD[]]' instead!" },
+	{ "SetComboData",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboD[]]'  instead!" },
+	{ "GetComboCSet",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboC[]]'  instead!" },
+	{ "SetComboCSet",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboC[]]'  instead!" },
+	{ "GetComboFlag",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboF[]]'  instead!" },
+	{ "SetComboFlag",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboF[]]'  instead!" },
+	{ "GetComboType",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboT[]]'  instead!" },
+	{ "SetComboType",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboT[]]'  instead!" },
+	{ "GetComboInherentFlag",       0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboI[]]'  instead!" },
+	{ "SetComboInherentFlag",       0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboI[]]'  instead!" },
+	{ "GetComboSolid",              0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboS[]]'  instead!" },
+	{ "SetComboSolid",              0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [mapdata::ComboS[]]'  instead!" },
 	
-	{ "getJoypadPress[]",           0,          ZTID_BOOL,   JOYPADPRESS,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'Input->Joypad[]' instead!" },
-	{ "getButtonPress[]",           0,          ZTID_BOOL,   BUTTONPRESS,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'Input->Press[]' instead!" },
-	{ "setButtonPress[]",           0,          ZTID_VOID,   BUTTONPRESS,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{},0,"Use 'Input->Press[]' instead!" },
-	{ "getButtonInput[]",           0,          ZTID_BOOL,   BUTTONINPUT,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'Input->Button[]' instead!" },
-	{ "setButtonInput[]",           0,          ZTID_VOID,   BUTTONINPUT,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{},0,"Use 'Input->Button[]' instead!" },
-	{ "getButtonHeld[]",            0,          ZTID_BOOL,   BUTTONHELD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'Input->Button[]' instead!" },
-	{ "setButtonHeld[]",            0,          ZTID_VOID,   BUTTONHELD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{},0,"Use 'Input->Button[]' instead!" },
+	{ "getJoypadPress[]",           0,          ZTID_BOOL,   JOYPADPRESS,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [Input->Joypad[]] instead!" },
+	{ "getButtonPress[]",           0,          ZTID_BOOL,   BUTTONPRESS,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [Input->Press[]] instead!" },
+	{ "setButtonPress[]",           0,          ZTID_VOID,   BUTTONPRESS,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{},0,"Use [Input->Press[]] instead!" },
+	{ "getButtonInput[]",           0,          ZTID_BOOL,   BUTTONINPUT,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [Input->Button[]] instead!" },
+	{ "setButtonInput[]",           0,          ZTID_VOID,   BUTTONINPUT,         FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{},0,"Use [Input->Button[]] instead!" },
+	{ "getButtonHeld[]",            0,          ZTID_BOOL,   BUTTONHELD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [Input->Button[]] instead!" },
+	{ "setButtonHeld[]",            0,          ZTID_VOID,   BUTTONHELD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{},0,"Use [Input->Button[]] instead!" },
 	{ "GetUntypedScript",           0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "GetSubscreenScript",         0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{} },
 	
-	{ "getDMapPalette[]",           0,         ZTID_FLOAT,   DMAPLEVELPAL,        FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->Palette' instead!" },
-	{ "setDMapPalette[]",           0,          ZTID_VOID,   DMAPLEVELPAL,        FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->Palette' instead!" },
-	{ "GetDMapMusicFilename",       0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->GetMusic()' instead!" },
-	{ "GetDMapMusicTrack",          0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->MusicTrack' instead!" },
-	{ "SetDMapEnhancedMusic",       0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->SetMusic()' instead!" },
-	{ "getDMapFlags[]",             0,         ZTID_FLOAT,   DMAPFLAGSD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->Flagset[]' instead!" },
-	{ "setDMapFlags[]",             0,          ZTID_VOID,   DMAPFLAGSD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->Flagset[]' instead!" },
-	{ "getDMapLevel[]",             0,         ZTID_FLOAT,   DMAPLEVELD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->Level' instead!" },
-	{ "setDMapLevel[]",             0,          ZTID_VOID,   DMAPLEVELD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->Level' instead!" },
-	{ "getDMapCompass[]",           0,         ZTID_FLOAT,   DMAPCOMPASSD,        FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->Compass' instead!" },
-	{ "setDMapCompass[]",           0,          ZTID_VOID,   DMAPCOMPASSD,        FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->Compass' instead!" },
-	{ "getDMapContinue[]",          0,         ZTID_FLOAT,   DMAPCONTINUED,       FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->Continue' instead!" },
-	{ "setDMapContinue[]",          0,          ZTID_VOID,   DMAPCONTINUED,       FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->Continue' instead!" },
-	{ "getDMapMIDI[]",              0,         ZTID_FLOAT,   DMAPMIDID,           FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->MIDI' instead!" },
-	{ "setDMapMIDI[]",              0,          ZTID_VOID,   DMAPMIDID,           FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->MIDI' instead!" },
-	{ "GetDMapName",                0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->GetName()' instead!" },
-	{ "SetDMapName",                0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->SetName()' instead!" },
-	{ "GetDMapTitle",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->GetTitle()' instead!" },
-	{ "SetDMapTitle",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->SetTitle()' instead!" },
-	{ "GetDMapIntro",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->GetIntro()' instead!" },
-	{ "SetDMapIntro",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->SetIntro()' instead!" },
-	{ "getDMapOffset[]",            0,         ZTID_FLOAT,   DMAPOFFSET,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->Offset' instead!" },
-	{ "setDMapOffset[]",            0,          ZTID_VOID,   DMAPOFFSET,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->Offset' instead!" },
-	{ "getDMapMap[]",               0,         ZTID_FLOAT,   DMAPMAP,             FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use 'dmapdata->Map' instead!" },
-	{ "setDMapMap[]",               0,          ZTID_VOID,   DMAPMAP,             FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'dmapdata->Map' instead!" },
+	{ "getDMapPalette[]",           0,         ZTID_FLOAT,   DMAPLEVELPAL,        FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::Palette] instead!" },
+	{ "setDMapPalette[]",           0,          ZTID_VOID,   DMAPLEVELPAL,        FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::Palette] instead!" },
+	{ "GetDMapMusicFilename",       0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::GetMusic] instead!" },
+	{ "GetDMapMusicTrack",          0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::MusicTrack] instead!" },
+	{ "SetDMapEnhancedMusic",       0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::SetMusic] instead!" },
+	{ "getDMapFlags[]",             0,         ZTID_FLOAT,   DMAPFLAGSD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::Flagset[]] instead!" },
+	{ "setDMapFlags[]",             0,          ZTID_VOID,   DMAPFLAGSD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::Flagset[]] instead!" },
+	{ "getDMapLevel[]",             0,         ZTID_FLOAT,   DMAPLEVELD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::Level] instead!" },
+	{ "setDMapLevel[]",             0,          ZTID_VOID,   DMAPLEVELD,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::Level] instead!" },
+	{ "getDMapCompass[]",           0,         ZTID_FLOAT,   DMAPCOMPASSD,        FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::Compass] instead!" },
+	{ "setDMapCompass[]",           0,          ZTID_VOID,   DMAPCOMPASSD,        FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::Compass] instead!" },
+	{ "getDMapContinue[]",          0,         ZTID_FLOAT,   DMAPCONTINUED,       FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::Continue] instead!" },
+	{ "setDMapContinue[]",          0,          ZTID_VOID,   DMAPCONTINUED,       FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::Continue] instead!" },
+	{ "getDMapMIDI[]",              0,         ZTID_FLOAT,   DMAPMIDID,           FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::MIDI] instead!" },
+	{ "setDMapMIDI[]",              0,          ZTID_VOID,   DMAPMIDID,           FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::MIDI] instead!" },
+	{ "GetDMapName",                0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::GetName] instead!" },
+	{ "SetDMapName",                0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::SetName] instead!" },
+	{ "GetDMapTitle",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::GetTitle] instead!" },
+	{ "SetDMapTitle",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::SetTitle] instead!" },
+	{ "GetDMapIntro",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::GetIntro] instead!" },
+	{ "SetDMapIntro",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::SetIntro] instead!" },
+	{ "getDMapOffset[]",            0,         ZTID_FLOAT,   DMAPOFFSET,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::Offset] instead!" },
+	{ "setDMapOffset[]",            0,          ZTID_VOID,   DMAPOFFSET,          FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::Offset] instead!" },
+	{ "getDMapMap[]",               0,         ZTID_FLOAT,   DMAPMAP,             FL_DEPR,  { ZTID_GAME, ZTID_FLOAT },{},0,"Use [dmapdata::Map] instead!" },
+	{ "setDMapMap[]",               0,          ZTID_VOID,   DMAPMAP,             FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use [dmapdata::Map] instead!" },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
@@ -740,7 +740,6 @@ void GameSymbols::generateCode()
 	{
 		Function* function = getFunction("GetScreenState");
 		int32_t label = function->getLabel();
-		int32_t done = ScriptParser::getUniqueLabelID();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -754,17 +753,14 @@ void GameSymbols::generateCode()
 		POPREF();
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENSTATEDD)));
 		addOpcode2 (code, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode2 (code, new OGotoTrueImmediate(new LabelArgument(done)));
-		addOpcode2 (code, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		addOpcode2 (code, new OSetCompare(new VarArgument(EXP1), new CompareArgument(CMP_NE)));
 		RETURN();
-		LABELBACK(done);
 		function->giveCode(code);
 	}
 	//void SetScreenState(game, int32_t,int32_t,int32_t,bool)
 	{
 		Function* function = getFunction("SetScreenState");
 		int32_t label = function->getLabel();
-		int32_t done = ScriptParser::getUniqueLabelID();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
 		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
@@ -778,10 +774,7 @@ void GameSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		addOpcode2 (code, new OCompareImmediate(new VarArgument(SFTEMP), new LiteralArgument(0)));
-		addOpcode2 (code, new OGotoTrueImmediate(new LabelArgument(done)));
-		addOpcode2 (code, new OSetImmediate(new VarArgument(SFTEMP), new LiteralArgument(10000)));
-		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENSTATEDD), new VarArgument(SFTEMP)));
-		LABELBACK(done);
+		addOpcode2 (code, new OSetCompare(new VarArgument(SCREENSTATEDD), new CompareArgument(CMP_NE)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1810,7 +1803,6 @@ void GameSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-
 	//void SetScreenGuy(game, int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetScreenGuy");

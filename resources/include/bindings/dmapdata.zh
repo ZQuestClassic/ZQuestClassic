@@ -1,0 +1,282 @@
+// @zasm_ref REFDMAPDATA
+class dmapdata {
+	// @delete
+	internal dmapdata();
+
+	// The DMap's ID number.
+	//
+	// @zasm_var DMAPDATAID
+	internal const int ID;
+
+	// Which map this DMap is associated with.
+	//
+	// @zasm_var DMAPDATAMAP
+	internal int Map;
+
+	// The Level Number of this dmap.
+	//
+	// @zasm_var DMAPDATALEVEL
+	internal int Level;
+
+	// The DMap offset.
+	//
+	// @zasm_var DMAPDATAOFFSET
+	internal int Offset;
+
+	// The compass marker and continue screen numbers.
+	//
+	// @zasm_var DMAPDATACOMPASS
+	internal int Compass;
+
+	// The level palette to use for this DMap
+	//
+	// @zasm_var DMAPDATAPALETTE
+	internal int Palette;
+
+	// The MIDI set to play on this dmap.
+	//
+	// @zasm_var DMAPDATAMIDI
+	internal int MIDI;
+
+	// The compass marker and continue screen numbers.
+	//
+	// @zasm_var DMAPDATACONTINUE
+	internal int Continue;
+
+	// The type of the dmap, using the `DMAP_` constants.
+	//
+	// @zasm_var DMAPDATATYPE
+	internal int Type;
+
+	// The dmapdata script to run on this dmap.
+	//
+	// @zasm_var DMAPSCRIPT
+	internal int Script;
+
+	// The track number to use for enhanced music. See [GetMusic].
+	//
+	// @zasm_var DMAPDATAMUISCTRACK
+	internal int MusicTrack;
+
+	// Which engine active subscreen to use on this dmap.
+	//
+	// @zasm_var DMAPDATASUBSCRA
+	internal int ActiveSubscreen;
+
+	// Which engine passive subscreen to use on this dmap.
+	//
+	// @zasm_var DMAPDATASUBSCRP
+	internal int PassiveSubscreen;
+
+	// Which engine overlay subscreen to use on this dmap.
+	//
+	// @zasm_var DMAPDATASUBSCRO
+	internal int OverlaySubscreen;
+
+	// Bitwise values representing the state of the map grid. Make use of the
+	// functions in `std_zh/dmapgrid.zh` to access these values.
+	//
+	// @zasm_var DMAPDATAGRID
+	internal int Grid[];
+
+	// The tile used for the engine subscreen Small Map. The [0] index tile is
+	// used without the dungeon map, and the [1] index with the dungeon map.
+	//
+	// @zasm_var DMAPDATAMINIMAPTILE
+	internal int MiniMapTile[];
+
+	// The csets used for the engine subscreen Small Map, to go along with the
+	// MiniMapTile[].
+	//
+	// @zasm_var DMAPDATAMINIMAPCSET
+	internal int MiniMapCSet[];
+
+	// The 8 InitD values for the active dmap script.
+	//
+	// @zasm_var DMAPINITD
+	internal int InitD[];
+
+	// The tile used for the engine subscreen Large Map. The [0] index tile is
+	// used without the dungeon map, and the [1] index with the dungeon map.
+	//
+	// @zasm_var DMAPDATALARGEMAPTILE
+	internal int MapTile[];
+
+	// The csets used for the engine subscreen Large Map, to go along with the
+	// MapTile[].
+	//
+	// @zasm_var DMAPDATALARGEMAPCSET
+	internal int MapCSet[];
+
+	// If each item on the dmap is disabled.
+	//
+	// @zasm_var DMAPDATADISABLEDITEMS
+	internal bool DisabledItems[];
+
+	// The flags for the dmap. Uses the `DMFS_` constants.
+	//
+	// @zasm_var DMAPDATAFLAGARR
+	internal int Flagset[];
+
+	// If true, the dmap is treated as sideview by default; screens with the
+	// sideview flag enabled will toggle sideview back *off*.
+	//
+	// @zasm_var DMAPDATASIDEVIEW
+	internal bool Sideview;
+
+	// Which dmapdata script to use as a replacement for the engine active
+	// subscreen (0 for none).
+	//
+	// @zasm_var DMAPDATAASUBSCRIPT
+	internal int ASubScript;
+
+	// Which dmapdata script to run for passive subscreen draws.
+	//
+	// @zasm_var DMAPDATAPSUBSCRIPT
+	internal int PSubScript;
+
+	// The 8 InitD values shared by the Active and Passive Subscreen Scripts.
+	//
+	// @zasm_var DMAPDATASUBINITD
+	internal untyped SubInitD[];
+
+	// Which dmapdata script to use as a replacement for the engine fullscreen
+	// map (0 for none).
+	//
+	// @zasm_var DMAPDATAMAPSCRIPT
+	internal int MapScript;
+
+	// The 8 InitD values used by the Map Script.
+	//
+	// @zasm_var DMAPDATAMAPINITD
+	internal untyped MapInitD[];
+
+	// Stores the large map exploration data for each screen on the dmap.
+	// <todo>Test if works on overworld dmaps.</todo>
+	//
+	// @zasm_var DMAPDATACHARTED
+	internal int Charted[];
+
+	// The DMap ID that using a Mirror will take you to. If this is '-1',
+	// Mirrors will not be able to warp you to another dmap. If the [Flagset]
+	// 'Mirror Continues instead of Warping' is set, the mirror dmap setting is
+	// not used.
+	//
+	// @zasm_var DMAPDATAMIRRDMAP
+	internal int MirrorDMap;
+
+	// The flags used by the DMap. These are OR'd together.
+	//
+	// - CAVES               0x0001
+	// - 3STAIR              0x0002
+	// - WHIRLWIND           0x0004
+	// - GUYCAVES            0x0008
+	// - NOCOMPASS           0x0010
+	// - WAVY                0x0020
+	// - WHIRLWINDRET        0x0040
+	// - ALWAYSMSG           0x0080
+	// - VIEWMAP             0x0100
+	// - DMAPMAP             0x0200
+	// - MINIMAPCOLORFIX     0x0400
+	// - SCRIPT1             0x0800
+	// - SCRIPT2             0x1000
+	// - SCRIPT3             0x2000
+	// - SCRIPT4             0x4000
+	// - SCRIPT5             0x8000
+	//
+	// @zasm_var DMAPDATAFLAGS
+	internal int Flags;
+
+	// The starting loop point for enhanced music in seconds.
+	//
+	// @zasm_var DMAPDATALOOPSTART
+	internal int MusicLoopStart;
+
+	// The ending loop point for enhanced music in seconds.
+	//
+	// @zasm_var DMAPDATALOOPEND
+	internal int MusicLoopEnd;
+
+	// The number of frames enhanced music fades in for.
+	//
+	// @zasm_var DMAPDATAXFADEIN
+	internal int MusicCrossfadeIn;
+
+	// The number of frames enhanced music fades out for.
+	//
+	// @zasm_var DMAPDATAXFADEOUT
+	internal int MusicCrossfadeOut;
+
+	// The ID in the string editor for the dmap's intro string.
+	//
+	// @zasm_var DMAPDATAINTROSTRINGID
+	internal int IntroStringID;
+
+	// Fills the buffer with the dmap's name.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFDMAPDATA
+	//   DMAPDATAGETNAMER D2
+	internal void GetName(char32 buffer);
+
+	// Sets the DMap's name to the buffer contents.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFDMAPDATA
+	//   DMAPDATASETNAMER D2
+	internal void SetName(char32 buffer);
+
+	// Fills the buffer with the dmap's title.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFDMAPDATA
+	//   DMAPDATAGETTITLER D2
+	internal void GetTitle(char32 buf);
+
+	// Sets the DMap's title to the buffer contents.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFDMAPDATA
+	//   DMAPDATASETTITLER D2
+	internal void SetTitle(char32 buf);
+
+	// Fills the buffer with the dmap's intro.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFDMAPDATA
+	//   DMAPDATAGETINTROR D2
+	internal void GetIntro(char32 buffer);
+
+	// Sets the DMap's intro to the buffer contents.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFDMAPDATA
+	//   DMAPDATANSETITROR D2
+	internal void SetIntro(char32 buffer);
+
+	// Fills the buffer with the dmap's enhanced music filename. See
+	// [MusicTrack].
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFDMAPDATA
+	//   DMAPDATAGETMUSICR D2
+	internal void GetMusic(char32 buffer);
+
+	// Sets the DMap's enhanced music filename to the buffer contents. See
+	// [MusicTrack].
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFDMAPDATA
+	//   DMAPDATASETMUSICR D2
+	internal void SetMusic(char32 filename);
+}
+
+internal const dmapdata DMapData;

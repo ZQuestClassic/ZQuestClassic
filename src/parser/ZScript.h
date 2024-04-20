@@ -8,6 +8,7 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "base/general.h"
+#include "parser/parserDefs.h"
 
 struct AccessorTable;
 
@@ -198,6 +199,7 @@ namespace ZScript
 		DataType* getType() {return classType;}
 		void setType(DataType* t) {classType = t;}
 		
+		std::string internalRefVar;
 		std::vector<int32_t> members;
 	protected:
 		UserClass(Program& program, ASTClass& user_class);
@@ -343,6 +345,8 @@ namespace ZScript
 		void setOrder(int32_t ind) {_order_ind = ind;}
 		
 		bool is_arr;
+		bool is_internal;
+		bool is_readonly;
 	private:
 		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
 		
@@ -389,27 +393,6 @@ namespace ZScript
 		Constant(Scope&, ASTDataDecl&, DataType const&, int32_t value);
 
 		ASTDataDecl& node;
-		int32_t value;
-	};
-
-	// A builtin data value.
-	class BuiltinConstant : public Datum
-	{
-	public:
-		static BuiltinConstant* create(
-				Scope&, DataType const&, std::string const& name, int32_t value,
-				CompileErrorHandler* = NULL);
-
-		std::optional<std::string> getName() const {return name;}
-		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
-
-		virtual bool isBuiltIn() const {return true;}
-		
-	private:
-		BuiltinConstant(Scope&, DataType const&,
-		                std::string const& name, int32_t value);
-
-		std::string name;
 		int32_t value;
 	};
 
@@ -540,7 +523,18 @@ namespace ZScript
 		}
 		
 		bool isInternal() const {return !node;}
-		bool isNil() const {return prototype || getFlag(FUNCFLAG_NIL|FUNCFLAG_READ_ONLY);}
+		bool isNil() const {
+			if (prototype || getFlag(FUNCFLAG_NIL|FUNCFLAG_READ_ONLY))
+				return true;
+
+			if (getFlag(FUNCFLAG_INTERNAL))
+			{
+				assert(!getCode().empty());
+				return false;
+			}
+
+			return false;
+		}
 		
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;

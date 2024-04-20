@@ -1,0 +1,615 @@
+// @zasm_ref REFLWPN
+class lweapon {
+	// @delete
+	internal lweapon();
+
+	// These values store the weapon's position on each of the three axes.
+	//
+	// @zasm_var LWPNX
+	internal int X;
+
+	// The special info for the lweapon.
+	//
+	// Used by wind lweapons, instead of Level, to determine their effects.
+	//
+	// @zasm_var LWPNSPECIAL
+	internal int Special;
+
+	// Returns the max number of weapons currently allowed.
+	//
+	// @zasm_var SPRITEMAXLWPN
+	internal int Max;
+
+	// @zasm_var LWPNY
+	internal int Y;
+
+	// @zasm_var LWPNZ
+	internal int Z;
+
+	// The weapon's upward velocity, in pixels per frame. Affected by gravity
+	// each frame, if gravity is enabled for this weapon.
+	//
+	// @zasm_var LWPNJUMP
+	internal int Jump;
+
+	// The weapon's direction.
+	//
+	// @zasm_var LWPNDIR
+	internal int Dir;
+
+	// The angle of the weapon, in radians for Angle or degrees for DegAngle.
+	// Has no real effect if the weapon is not `Angular`.
+	//
+	// @zasm_var LWPNANGLE
+	internal int Angle;
+
+	// The movement speed of the weapon, in 100th's/pixel per frame.
+	//
+	// @zasm_var LWPNSTEP
+	internal int Step;
+
+	// The number of frames in the weapon's animation.
+	//
+	// @zasm_var LWPNFRAMES
+	internal int NumFrames;
+
+	// The current frame number that the animation is on.
+	//
+	// @zasm_var LWPNFRAME
+	internal int Frame;
+
+	// The mode for the sprite's draws, using the `DS_` constants.
+	//
+	// @zasm_var LWPNDRAWTYPE
+	internal int DrawStyle;
+
+	// The amount of damage the weapon deals.
+	//
+	// @zasm_var LWPNPOWER
+	internal int Power;
+
+	// The amount of damage the weapon deals.
+	//
+	// @zasm_var LWPNPOWER
+	internal int Damage;
+
+	// The weapon type of the weapon. Some types have hardcoded behaviors.
+	//
+	// @zasm_var LWPNID
+	internal int ID;
+
+	// The weapon type of the weapon. Some types have hardcoded behaviors.
+	//
+	// @zasm_var LWPNID
+	internal int Type;
+
+	// The weapon type of the weapon. Some types have hardcoded behaviors.
+	//
+	// @zasm_var LWPNID
+	internal int Family;
+
+	// If the weapon is angular (instead of directional)
+	//
+	// @zasm_var LWPNANGULAR
+	internal bool Angular;
+
+	// If true, the weapon's sprite will draw behind the player and enemies.
+	//
+	// @zasm_var LWPNBEHIND
+	internal bool Behind;
+
+	// The speed of the animation, in frames per frame.
+	//
+	// @zasm_var LWPNASPEED
+	internal int ASpeed;
+
+	// The currently displaying tile of the weapon's animation. Set by the
+	// engine each frame if [lweapon::Animation] is enabled.
+	//
+	// @zasm_var LWPNTILE
+	internal int Tile;
+
+	// -1 by default. If this is set > -1, this tile will be displayed by the
+	// engine, regardless of the normal engine animation. Set back to -1 to
+	// restore engine animation.
+	//
+	// @zasm_var LWPNSCRIPTTILE
+	internal int ScriptTile;
+
+	// -1 by default. If this is set > -1, this flip value will be used instead
+	// of the normal 'Flip' value. Set back to -1 to restore normal flip.
+	//
+	// @zasm_var LWPNSCRIPTFLIP
+	internal int ScriptFlip;
+
+	// The secondary CSet used for flashing.
+	//
+	// @zasm_var LWPNFLASHCSET
+	internal int FlashCSet;
+
+	// The deadstate of the weapon, denoted by the `WDS_` constants.
+	//
+	// @zasm_var LWPNDEAD
+	internal int DeadState;
+
+	// The CSet of the weapon.
+	//
+	// @zasm_var LWPNCSET
+	internal int CSet;
+
+	// If the weapon is flashing or not. When flashing, it changes between its'
+	// CSet and FlashCSet.
+	//
+	// @zasm_var LWPNFLASH
+	internal bool Flash;
+
+	// The flip status of the weapon's tile. Uses the `FLIP_` constants.
+	//
+	// @zasm_var LWPNFLIP
+	internal int Flip;
+
+	// The starting tile of the weapon's animation.
+	//
+	// @zasm_var LWPNOTILE
+	internal int OriginalTile;
+
+	// The starting cset of the weapon.
+	//
+	// @zasm_var LWPNOCSET
+	internal int OriginalCSet;
+
+	// If the sprite should be extended (large). Set to 3 to extend, 0
+	// otherwise.
+	//
+	// @zasm_var LWPNEXTEND
+	internal int Extend;
+
+	// The width/height of the hitbox, in pixels.
+	//
+	// @zasm_var LWPNHXSZ
+	internal int HitWidth;
+
+	// The width/height of the hitbox, in pixels.
+	//
+	// @zasm_var LWPNHYSZ
+	internal int HitHeight;
+
+	// The height of the hitbox in the Z-axis, in pixels.
+	//
+	// @zasm_var LWPNHZSZ
+	internal int HitZHeight;
+
+	// The width/height of the sprite's graphic, in tiles.
+	//
+	// @zasm_var LWPNTXSZ
+	internal int TileWidth;
+
+	// The width/height of the sprite's graphic, in tiles.
+	//
+	// @zasm_var LWPNTYSZ
+	internal int TileHeight;
+
+	// The visual offset, in pixels.
+	//
+	// @zasm_var LWPNXOFS
+	internal int DrawXOffset;
+
+	// The visual offset, in pixels.
+	//
+	// @zasm_var LWPNYOFS
+	internal int DrawYOffset;
+
+	// the weapon's total visual Y-offset.
+	//
+	// @zasm_var LWPNTOTALDYOFFS
+	internal const int TotalDYOffset;
+
+	// The Z offset, in pixels.
+	//
+	// @zasm_var LWPNZOFS
+	internal int DrawZOffset;
+
+	// The hitbox offset, in pixels.
+	//
+	// @zasm_var LWPNHXOFS
+	internal int HitXOffset;
+
+	// The hitbox offset, in pixels.
+	//
+	// @zasm_var LWPNHYOFS
+	internal int HitYOffset;
+
+	// An array of misc values for script use.
+	//
+	// @zasm_var LWPNMISCD
+	internal untyped Misc[];
+
+	// If the weapon's collision is enabled. Set to false to disable collision
+	// entirely.
+	//
+	// @zasm_var LWPNCOLLDET
+	internal bool CollDetection;
+
+	// If the engine should animate the weapon's graphics.
+	//
+	// @zasm_var LWPNENGINEANIMATE
+	internal bool Animation;
+
+	// The ID of the item, or pointer of the npc (respectively for lweapon, and
+	// for eweapon) that created this weapon.
+	//
+	// Weapons created by script have a default Parent of -1 (lweapon) and
+	// <npc>-0.0001 (eweapon).
+	//
+	// For lweapons, this value determines what item editor index to read item
+	// flags from.
+	//
+	// Setting it to an item of a class that does not normally generate the
+	// given weapon type may have unexpected effects.
+	//
+	// @zasm_var LWPNPARENT
+	internal int Parent;
+
+	// For lweapons, the level of the weapon.
+	//
+	// @zasm_var LWPNLEVEL
+	internal int Level;
+
+	// The weapon script running on this weapon.
+	//
+	// @zasm_var LWPNSCRIPT
+	internal int Script;
+
+	// The UseWeapon property for this weapon.
+	//
+	// If set to a value greater than 0, all collisions with npcs will use this
+	// as if it was the weapon's ID for calculating the defense value for it.
+	//
+	// e.g., if a LW_MAGIC weapon is set to a Weapon of LW_BRANG, when it
+	// collides with an npc, the npc will use Defense[LW_BRANG] to resolve its
+	// effects.
+	//
+	// Some weapons will also trigger map flags, and screen combos as if the
+	// natural weapon was the value set as ->Weapon.,
+	//
+	// e.g. If you set a LW_BRANG weapon to a ->Weapon of LW_SWORD, it will cut
+	// bushes.
+	//
+	// @zasm_var LWPNUSEWEAPON
+	internal int Weapon;
+
+	// The default defense value for this weapon.
+	//
+	// If set greater than 0, then when this weapon collides with an npc, if
+	// that npc has its Defense[n] value set to NONE for this weapon's type, it
+	// will resolve using this Defense value (e.g. Stun).
+	//
+	// @zasm_var LWPNUSEDEFENCE
+	internal int Defense;
+
+	// The 8 InitD[] arguments for the weapon script.
+	//
+	// @zasm_var LWPNINITD
+	internal untyped InitD[];
+
+	// A rotation of the sprite draw, in degrees.
+	//
+	// @zasm_var LWPNROTATION
+	internal int Rotation;
+
+	// A scale of the sprite draw, as a multiplier.
+	//
+	// @zasm_var LWPNSCALE
+	internal int Scale;
+
+	// True by default. If false, gravity will no longer affect this weapon.
+	//
+	// @zasm_var LWPNGRAVITY
+	internal bool Gravity;
+
+	// The timer indicating how long left the sprite will be falling. If 0, the
+	// sprite is not falling. Max value of 70, which is the value at the start
+	// of falling.
+	//
+	// @zasm_var LWPNFALLCLK
+	internal int Falling;
+
+	// The pitfall combo the sprite is falling into, if it is falling.
+	//
+	// @zasm_var LWPNFALLCMB
+	internal int FallCombo;
+
+	// The movement flags of the weapon. See `WPNMV_` constants.
+	//
+	// @zasm_var LWPNMOVEFLAGS
+	internal bool MoveFlags[];
+
+	// The size of the light emitted by this sprite, in pixels.
+	//
+	// @zasm_var LWPNGLOWRAD
+	internal int LightRadius;
+
+	// The shape of light emitted by this sprite. Uses the `LIGHT_` constants.
+	//
+	// @zasm_var LWPNGLOWSHP
+	internal int LightShape;
+
+	// A bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.
+	//
+	// @zasm_var LWPNUNBL
+	internal int Unblockable;
+
+	// The ${spritedata} sprite ID to use for the item's shadow.
+	//
+	// @zasm_var LWPNSHADOWSPR
+	internal int ShadowSprite;
+
+	// If the sprite is currently being switch-hooked.
+	//
+	// @zasm_var LWSWHOOKED
+	internal bool SwitchHooked;
+
+	// If > 0, ticks down each frame. When ticking down to 0, kills the weapon.
+	//
+	// @zasm_var LWPNTIMEOUT
+	internal int Timeout;
+
+	// The timer indicating how long left the sprite will be drowning. If 0, the
+	// sprite is not drowning. Max value of 64, which is the value at the start
+	// of drowning.
+	//
+	// @zasm_var LWPNDROWNCLK
+	internal int Drowning;
+
+	// The liquid combo the sprite is drowning in, if it is drowning.
+	//
+	// @zasm_var LWPNDROWNCMB
+	internal int DrownCombo;
+
+	// The position of the weapon on the FakeZ axis.
+	//
+	// @zasm_var LWPNFAKEZ
+	internal int FakeZ;
+
+	// The velocity of the weapon in the FakeZ axis.
+	//
+	// @zasm_var LWPNFAKEJUMP
+	internal int FakeJump;
+
+	// The x/y offset of the sprite's shadow.
+	//
+	// @zasm_var LWPNSHADOWXOFS
+	internal int ShadowXOffset;
+
+	// The x/y offset of the sprite's shadow.
+	//
+	// @zasm_var LWPNSHADOWYOFS
+	internal int ShadowYOffset;
+
+	// The angle of the weapon, in radians for Angle or degrees for DegAngle.
+	// Has no real effect if the weapon is not `Angular`.
+	//
+	// @zasm_var LWPNDEGANGLE
+	internal int DegAngle;
+
+	// The velocity on the X or Y axis. Setting these will make the weapon
+	// Angular if it isn't already, and will adjust the weapon's Angle and Step
+	// speed.
+	//
+	// @zasm_var LWPNVX
+	internal int Vx;
+
+	// The velocity on the X or Y axis. Setting these will make the weapon
+	// Angular if it isn't already, and will adjust the weapon's Angle and Step
+	// speed.
+	//
+	// @zasm_var LWPNVY
+	internal int Vy;
+
+	// If true, the weapon's 'Rotation' will be automatically set based on its'
+	// Angle.
+	//
+	// @zasm_var LWPNAUTOROTATE
+	internal bool AutoRotate;
+
+	// A set of weapon flags. Use the `WFLAG_` constants as indexes.
+	//
+	// @zasm_var LWPNFLAGS
+	internal bool Flags[];
+
+	// If `> -1`, this item will be spawned when the weapon dies.
+	//
+	// @zasm_var LWPNDEATHITEM
+	internal int DeathItem;
+
+	// If `> -1`, this item dropset will be rolled for a drop when the weapon
+	// dies.
+	//
+	// @zasm_var LWPNDEATHDROPSET
+	internal int DeathDropset;
+
+	// The [itemsprite::Pickup] to use for the item dropped via `DeathItem` or
+	// `DeathDropset`.
+	//
+	// @zasm_var LWPNDEATHIPICKUP
+	internal int DeathItemPFlags;
+
+	// If `> -1`, display this Sprite Data sprite when the weapon dies.
+	//
+	// @zasm_var LWPNDEATHSPRITE
+	internal int DeathSprite;
+
+	// If `> 0`, this SFX will be played when the weapon dies.
+	//
+	// @zasm_var LWPNDEATHSFX
+	internal int DeathSFX;
+
+	// NOTE: Currently only `lweapon`s can be lifted.
+	//
+	// @zasm_var LWPNLIFTLEVEL
+	internal int LiftLevel;
+
+	// The time it takes to lift this weapon via engine lifting.
+	//
+	// @zasm_var LWPNLIFTTIME
+	internal int LiftTime;
+
+	// The height to lift this weapon to via engine lifting.
+	//
+	// @zasm_var LWPNLIFTHEIGHT
+	internal int LiftHeight;
+
+	// Various sprites used by the weapon.
+	//
+	// @zasm_var LWPNSPRITES
+	internal int Sprites[];
+
+	// The burning light radii associated with sprites of the weapon. See
+	// 'WPN_SPRITE_' constants in 'std_constants.zh'
+	//
+	// @zasm_var LWPNBURNLIGHTRADIUS
+	internal int BurnLightRadius[];
+
+	// @deprecated
+	// @zasm_var LWEAPONSCRIPTUID
+	internal const int UID;
+
+	// Returns the max number of weapons currently allowed.
+	//
+	// @deprecated Use [Max]' instead!
+	// @zasm
+	//   POP REFLWPN
+	//   SETR D2 SPRITEMAXLWPN
+	internal int Max();
+
+	// Sets the max number of weapons allowed to a new value. Range `1-1024`.
+	//
+	// @deprecated Use [Max]' instead!
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   SETR SPRITEMAXLWPN D2
+	internal void Max(int value);
+
+	// Returns true if this pointer points to a valid weapon. If this returns
+	// false, using any other value of this pointer will error.
+	//
+	// @zasm
+	//   POP D2
+	//   ISVALIDLWPN D2
+	internal bool isValid();
+
+	// Loads the graphical information from the ${spritedata} indicated by
+	// `spriteid` to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   SETR REFLWPN D3
+	//   LWPNUSESPRITER D2
+	internal void UseSprite(int spriteid);
+
+	// Creates an explosion particle effect in mode 0, 1, or 2 of the sprite.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   LWEAPONEXPLODER D2
+	internal void Explode(int mode);
+
+	// Instantly deletes the weapon.
+	//
+	// @zasm
+	//   POP REFLWPN
+	//   LWPNDEL
+	internal void Remove();
+
+	// Switch the player with this sprite. Use the `SW_EFF_` constants for
+	// 'effect' to select a visual style for the switch.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   SWITCHLW D2
+	internal bool Switch(int effect);
+
+	// If the weapon is not Angular, makes it Angular, and sets its' Angle based
+	// on its' Dir.
+	//
+	// @zasm
+	//   POP D2
+	//   LWPNMAKEANGULAR D2
+	internal bool MakeAngular();
+
+	// If the weapon is Angular, makes it not Angular, and sets its' Dir based
+	// on its' Angle.
+	//
+	// @zasm
+	//   POP D2
+	//   LWPNMAKEDIRECTIONAL D2
+	internal bool MakeDirectional();
+
+	// Grants 'Ownership' of the parameter object to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   OBJ_OWN_BITMAP D2 0.0006
+	internal void Own(bitmap b);
+
+	// Grants 'Ownership' of the parameter object to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   OBJ_OWN_PALDATA D2 0.0006
+	internal void Own(paldata b);
+
+	// Grants 'Ownership' of the parameter object to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   OBJ_OWN_FILE D2 0.0006
+	internal void Own(file b);
+
+	// Grants 'Ownership' of the parameter object to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   OBJ_OWN_DIR D2 0.0006
+	internal void Own(directory b);
+
+	// Grants 'Ownership' of the parameter object to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   OBJ_OWN_STACK D2 0.0006
+	internal void Own(stack b);
+
+	// Grants 'Ownership' of the parameter object to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   OBJ_OWN_RNG D2 0.0006
+	internal void Own(randgen b);
+
+	// Grants 'Ownership' of the parameter object to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   OBJ_OWN_ARRAY D2 0.0006
+	internal void OwnArray(untyped array);
+
+	// Grants 'Ownership' of the parameter object to the weapon.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFLWPN
+	//   OBJ_OWN_CLASS D2 0.0006
+	internal void OwnObject(untyped object);
+}

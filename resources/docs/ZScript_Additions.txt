@@ -3204,8 +3204,7 @@ float Distance(float x1, float y1, float x1, float y2)
  * The old version is now std::Distance(...)
  
 float Distance(float x1, float y1, float x2, float y2, int scale)
- * Calculates the distance over a scale 'divisor' that would otherwise 
-   overflow Distance(), allowing negative coordinates.
+ * Calculates the distance over a scale 'divisor' that would otherwise overflow Distance(), allowing negative coordinates.
  * The old version is now std::Distance(...) or LargeDistance(...).
    
 long LongDistance(long x1, long y1, long x1, long y2)
@@ -3214,8 +3213,7 @@ long LongDistance(long x1, long y1, long x1, long y2)
  * Retrns a vale as a long.
  
 long LongDistance(long x1, long y1, long x1, long y2, long scale)
- * Calculates the distance over a scale 'divisor' that would otherwise 
-   overflow Distance(), allowing negative coordinates.
+ * Calculates the distance over a scale 'divisor' that would otherwise overflow Distance(), allowing negative coordinates.
  * Takes args only as long (e.g. 100L).
  * Retrns a vale as a long.
  
@@ -3272,7 +3270,7 @@ int Integer(float n);
 
 untyped Byte(untyped n);
 untyped Int8(untyped n);
- * Clamps and returns 'n' sized to an unsigned byte, with appropriate oberflow.
+ * Clamps and returns 'n' sized to an unsigned byte, with appropriate overflow.
  
 untyped Word(untyped n);
 untyped Int16(untyped n);
@@ -3284,12 +3282,12 @@ untyped Short(untyped n);
 untyped SignedByte(untyped n);
  * Clamps and returns 'n' sized to a signed byte, with appropriate overflow.
 
-void SaveSRAM("filename.zcsram", int flags);
-void LoadSRAM("filename.zcsram", int flags);
+void SaveSRAM(char32[] filename, int flags);
+void LoadSRAM(char32[] filename, int flags);
  * Saves or loads the internal datatype dats to a .zcsram file.
  * As of SRAM_VERSION 1, the datatypes (below) are saved.
  * The user can specify which types to save by passing a flagset, 
- * where eaxh ttype ias OR'd together. Pasasing '0' uses all of them:
+ * where each type is OR'd together. Pasasing '0' uses all of them:
  * 	TYPE		FLAG
  *	npcdata		0x01
  *	itemdata	0x02
@@ -3304,98 +3302,98 @@ void SRand(long seed);
 long SRand(); 
  * Generates a random seed, sets it, and returns it.
 	
-int utol(*string);
+int utol(char32[] str);
  * Converts all uppercase characters in a string to lowercase characters.
  * Returns the pointer to the string.
  * String MUST not be a literal.
  
-int ltou(*string);
+int ltou(char32[] str);
  * Converts all lowercase characters in a string to uppercase characters.
  * Returns the pointer to the string.
  * String MUST not be a literal.
  
-int convcase(*string);
+int convcase(char32[] str);
  * Converts all lowercase characters in a string to uppercase characters, and
  * all uppercase characters in a string to lowercase characters.
  * Returns the pointer to the string.
  * String MUST not be a literal.
 
-int ilen(string[]);
+int ilen(char32[] str);
  * Returns the number of characters used by a number in the string.
  * Includes the sign, if negative. 
 
-int itoa(dest_string[], int value);
+int itoa(char32[] dest_str, int value);
  * Places value into a string as char. 
  * Returns the number of characters used in the conversion. 
  * This will be renamed to itoa() in the near future and <string> will be
  * updated to reflect the change. The old <string> function will remain
  * available as std::string::itoa.
  
-int xtoa(dest_string[], int value);
+int xtoa(char32[] dest_str, int value);
  * Places a hexidecimal value into a string as char. 
  * Returns the number of characters used in the conversion. 
  * This will be renamed to xtoa() in the near future and <string> will be
  * updated to reflect the change. The old <string> function will remain
  * available as std::string::xtoa.
 
-int itoacat(dest_string[], int value);
+int itoacat(char32[] dest_str, int value);
  * Appends value into a string as char, combining itoa() with strcat().
  * Returns the number of characters used in the conversion. 
 
-int strcmp(string_a[], string_b[]);
- * Iterates through string_a and string_b until a character is found which is not the same in
+int strcmp(char32[] string_a, char32[] string_b);
+ * Iterates through char32[] string_and string_b until a character is found which is not the same in
  * both strings, and then returns > 0 if the character is larger in str1, and < 0 if it is
  * larger in str2. Returns 0 if the strings are equal.
  * The old string.zh version of this function is still available as:
  * std::string::strcmp(*a, *b).
  
-int strncmp(string_a[], string_b[], int num_chars);
+int strncmp(char32[] string_a, char32[] string_b, int num_chars);
  * As strcmp(*a, *b), but compares only the first nth characters, specified as num_chars.
  * The old string.zh version of this function is still available as:
  * std::string::strncmp(*a, *b, int).
 
-int stricmp(string_a[], string_b[]);
+int stricmp(char32[] string_a, char32[] string_b);
  * As strcmp(*a, *b), but case-insensitive.
 
-int strnicmp(string_a[], string_b[], int num_chars);
+int strnicmp(char32[] string_a, char32[] string_b, int num_chars);
  * As strncmp(*a, *b, num_chars), but case-insensitive.
 
-int strlen(string[]);
+int strlen(char32[] str);
  * Returns the length of a string in characters.
  * The old string.zh version of this function is still available as:
  * std::string::strlen(*a).
 
-void strcpy(string_dest[], string_src[]);
+void strcpy(char32[] string_dest, char32[] string_src);
  * Copies string string_src into string_dest.
  * The old string.zh version of this function is still available as:
  * std::string::strcpy(*a,*b).
  
-int atoi(string[]);
+int atoi(char32[] str);
  * Returns the decimal value of a string consisting of a number.
  * e.g. ("26" would return 26).
  
-int xtoi(string[]);
+int xtoi(char32[] str);
  * Converts a hexidecimal value presented as a string into an integer. 
  * e.g. ("0x100" would return 256, which is 0x100).
  * This will be renamed to xtoi() in the near future and <string> will be
  * updated to reflect the change. The old <string> function will remain
  * available as std::string::xtoi.
  
-int strcat(atring_a[], string_b[]);
+int strcat(char32[] string_a, char32[] string_b);
  * Append the contents of string_b onto string_a.
  * Returns the pointer to string_a.
  
-int strchr(string[], int chr);
+int strchr(char32[] str, int chr);
  * Returns the first index in string that matches 'chr'.
 
-int strrchr(string[], int chr);
+int strrchr(char32[] str, int chr);
  * Reverse of strchr, finding the last instance of a character in a string.
  
-int strspn(string[], string_keys[]);
+int strspn(char32[] str, char32[] string_keys);
  * Returns the number of characters in a string before a character not contained in
  * 'string_keys' is found
  
-int strcspn(string[], string_keys[]);
+int strcspn(char32[] str, char32[] string_keys);
  * Returns the length of characters in a string before a character contained in
  * 'string_keys' is found
 
@@ -3444,9 +3442,9 @@ void sprintfa(char32[] buf, char32 format[], untyped[] args);
  * Same as 'sprintf', but takes an array of args instead of multiple args.
 
 
-constexpr T Min(T, T, ...T);
+constexpr T Min(T val1, T val2, ...T);
  * Takes 2 or more arguments, and returns the lowest value between them.
-constexpr T Max(T, T, ...T);
+constexpr T Max(T val1, T val2, ...T);
  * Takes 2 or more arguments, and returns the highest value between them.
 T Choose(T first, ...T);
  * Takes 1 or more arguments, and returns a random argument.
@@ -3460,7 +3458,7 @@ int GetSystemTime(int index);
 void OverlayTile(int firsttile, int secondtile);		
 * Overlay one tile onto another.
 
-int SizeOfArray(T[]);
+int SizeOfArray(T[] arr);
  * Returns the size of an array (any type)
 
 void ResizeArray(T[] arr, int size);
@@ -3501,20 +3499,22 @@ void GlobalObject([Object] obj);
  * Transfers ownership of the object to the global scope.
  * Objects owned by the global scope are saved to the save file.
 
-void Trace(untyped)
+void Trace(untyped value)
  * The Trace() instruction now supports all datatypes.
 
 void ClearTrace();
  * Clears the log file output, and the debug console screen.
 
-untyped Untype(any)
+untyped Untype(untyped value)
  * Converts the value of any datatype to another, similar to typecasting.
  * Example:
-  int x; 
-  npc n = Screen->LoadNPC(10);
-  x = Untype(n);
+ * ```
+ *  int x; 
+ *  npc n = Screen->LoadNPC(10);
+ *  x = Untype(n);
+ * ```
   
-bool IsValidArray(untyped[]);
+bool IsValidArray(untyped[] arr);
  * Returns true if the passed array pointer is valid (usable), false if it is invalid (should not be used).
 
 constexpr int Pow(int a, int b);
@@ -3672,7 +3672,7 @@ int IncrementQuest();
  * in MODULES and requires the use of QUEST NUMBERS to work.
 
 int MaxNPCs();
- * Returns the maximum number of npc sprites that arw allowed
+ * Returns the maximum number of npc sprites that are allowed
  * to be on the screen at one time. 
  
 void MaxNPCs(int newmax);
@@ -3681,7 +3681,7 @@ void MaxNPCs(int newmax);
  * 1 to 1024.
  
 int MaxLWeapons();
- * Returns the maximum number of lweapon sprites that arw allowed
+ * Returns the maximum number of lweapon sprites that are allowed
  * to be on the screen at one time. 
  
 void MaxLWeapons(int newmax);
@@ -3690,7 +3690,7 @@ void MaxLWeapons(int newmax);
  * 1 to 1024.
  
 int MaxEWeapons();
- * Returns the maximum number of eweapon sprites that arw allowed
+ * Returns the maximum number of eweapon sprites that are allowed
  * to be on the screen at one time. 
  
 void MaxEWeapons(int newmax);
@@ -3699,7 +3699,7 @@ void MaxEWeapons(int newmax);
  * 1 to 1024.
  
  int MaxItemsprites();
- * Returns the maximum number of itemsprite sprites that arw allowed
+ * Returns the maximum number of itemsprite sprites that are allowed
  * to be on the screen at one time. 
  
 void MaxItemsprites(int newmax);
@@ -3720,65 +3720,65 @@ int Scrolling[5];
      * SCROLL_OX: The x-offset for the old screen. Returns 0 while not scrolling.
      * SCROLL_OY: The y-offset for the old screen. Returns 0 while not scrolling.
 
-int Game->GetNPCScript("name");
+int Game->GetNPCScript(char32[] name);
  * Returns the slot ID of the npc script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetComboScript("name");
+int Game->GetComboScript(char32[] name);
  * Returns the slot ID of the combodata script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetLWeaponScript("name");
+int Game->GetLWeaponScript(char32[] name);
  * Returns the slot ID of the lweapon script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetEWeaponScript("name");
+int Game->GetEWeaponScript(char32[] name);
  * Returns the slot ID of the eweapon script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetHeroScript("name");
-int Game->GetLinkScript("name");
-int Game->GetPlayerScript("name");
+int Game->GetHeroScript(char32[] name);
+int Game->GetLinkScript(char32[] name);
+int Game->GetPlayerScript(char32[] name);
  * Returns the slot ID of the hero script 'name'.
  * Returns -1 if there is no match.
 
-int Game->GetDMapScript("name");
+int Game->GetDMapScript(char32[] name);
  * Returns the slot ID of the dmapdata script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetScreenScript("name");
+int Game->GetScreenScript(char32[] name);
  * Returns the slot ID of the screendata script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetSubscreenScript("name");
+int Game->GetSubscreenScript(char32[] name);
  * Returns the slot ID of the subscreen script 'name'.
  * Returns -1 if there is no match.
  * Thos script type is not implemented at this time.
  
-int Game->GetUntypedScript("name");
+int Game->GetUntypedScript(char32[] name);
  * Returns 0; not implemented as this script type has no slot assignment at this time.
  
-int Game->GetItemSpriteScript("name");
+int Game->GetItemSpriteScript(char32[] name);
  * Returns the slot ID of the itemsprite script 'name'.
  * Returns -1 if there is no match.
 
-int Game->GetGenericScript("name");
+int Game->GetGenericScript(char32[] name);
  * Returns the slot ID of the generic script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetNPC("name");
+int Game->GetNPC(char32[] name);
  * Returns the ID of the npc 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetItem("name");
+int Game->GetItem(char32[] name);
  * Returns the ID of the item 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetDMap("name");
+int Game->GetDMap(char32[] name);
  * Returns the ID of the DMap 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetCombo("name");
+int Game->GetCombo(char32[] name);
  * Returns the ID of the first combo with label 'name'.
  * Returns -1 if there is no match.
  
@@ -4126,7 +4126,7 @@ bool Joypad[18];
  
 float Mouse[6];
  * An array of boolean values that correspond to whether a mouse button, was clicked this frame,
-   plus the x/y components of the mouse.
+ * plus the x/y components of the mouse.
  *	Replaces mouse variables under Link->.
  * indices: 
  * 	float Mouse[0] Mouse X Position
@@ -4157,19 +4157,19 @@ void GetItemClass(char32 buffer[256], int itemclass_id);
 //  FileSystem  //
 //////////////////
 
-bool DirExists(char32[] "filepath");
+bool DirExists(char32[] filepath);
  * Returns true if the string passed to 'filepath' is a valid directory path,
  *     relative to the current ZC path.
  * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
  *     then this is relative to "[zc root]/Files/[quest name]/"
 
-bool FileExists(char32[] "filepath");
+bool FileExists(char32[] filepath);
  * Returns true if the string passed to 'filepath' is a valid file path,
  *     relative to the current ZC path.
  * If the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder" is on,
  *     then this is relative to "[zc root]/Files/[quest name]/"
 
-bool Remove(char32[] "filepath");
+bool Remove(char32[] filepath);
  * Deletes the file pointed to by 'filepath'.
  * Regardless of the quest rule "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder",
  *     this will ALWAYS be relative to "[zc root]/Files/[quest name]/"
@@ -4203,28 +4203,28 @@ directory LoadDirectory(char32[] path);
  * Remember: POSIX filesystems are Case-SenSitive. 
  */
 
-bool Open("filepath");
+bool Open(char32[] filepath);
  * If the file pointer has not been allocated, this function will allocate it.
  * Closes any open file connected to the file pointer.
  * Attempts to open the file at "[zc root]/Files/[questname]/[filepath]"
  * Returns true if successful, false if not.
  * File is opened with mode "rb+" (a read/write binary mode)
  *     If the file does not exist, it will fail.
- * For an equivalent text file mode, use 'OpenMode("filepath", "r+")'
+ * For an equivalent text file mode, use 'OpenMode(filepath, "r+")'
 
-bool Create("filepath");
+bool Create(char32[] filepath);
  * If the file pointer has not been allocated, this function will allocate it.
  * Closes any open file connected to the file pointer.
  * Same as 'Open()', but the file is opened with mode "wb+".
  *     If the file does not exist, it will be created.
  *     If the file DOES exist, all data in the file will be deleted.
- * For an equivalent text file mode, use 'OpenMode("filepath", "w+")'
+ * For an equivalent text file mode, use 'OpenMode(filepath, "w+")'
 
 bool Remove();
  * Deletes the file. This will close it, as with '->Close()', and then delete it from the filesystem.
  * Returns true if successful. The file will be closed even on a failure.
 
-bool OpenMode("filepath", "mode_string");
+bool OpenMode(char32[] filepath, char32[] mode);
  * If the file pointer has not been allocated, this function will allocate it.
  * Closes any open file connected to the file pointer.
  * Same as 'Open()', but the file is opened with the specified mode.
@@ -4262,7 +4262,7 @@ void Close();
 
 void Free();
  * DEPRECATED: This no longer does anything - objects are freed automatically now.
-               See "Object Memory Management" section
+ *             See "Object Memory Management" section
  * Closes any open file connected to the file pointer.
  * This will deallocate the file pointer, so that the pointer ID may be re-used.
  * There is a limit to how many file pointers may be allocated at once.
@@ -4450,7 +4450,7 @@ void Reload();
 
 void Free();
  * DEPRECATED: This no longer does anything - objects are freed automatically now.
-               See "Object Memory Management" section
+ *             See "Object Memory Management" section
  * This will deallocate the directory pointer, so that the pointer ID may be re-used.
  * There is a limit to how many directory pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
@@ -4505,7 +4505,7 @@ void Set(long ind, untyped val);
 
 void Free();
  * DEPRECATED: This no longer does anything - objects are freed automatically now.
-               See "Object Memory Management" section
+ *             See "Object Memory Management" section
  * This will deallocate the stack pointer, so that the pointer ID may be re-used.
  * There is a limit to how many stack pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
@@ -4551,7 +4551,7 @@ long SRand()
 
 void Free();
  * DEPRECATED: This no longer does anything - objects are freed automatically now.
-               See "Object Memory Management" section
+ *             See "Object Memory Management" section
  * This will deallocate the randgen pointer, so that the pointer ID may be re-used.
  * There is a limit to how many randgen pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
@@ -4579,8 +4579,8 @@ void GetError(char32[] buf);
 void Send(untyped[] buf, long type = WEBSOCKET_MESSAGE_TYPE_TEXT);
  * Sends a message over the socket.
  * 'type' is a `WEBSOCKET_MESSAGE_TYPE_` constant.
- * WEBSOCKET_MESSAGE_TYPE_TEXT: send a string
- * WEBSOCKET_MESSAGE_TYPE_BINARY: send an array
+ * - WEBSOCKET_MESSAGE_TYPE_TEXT: send a string
+ * - WEBSOCKET_MESSAGE_TYPE_BINARY: send an array
 
 untyped[] Receive();
  * If there's a message waiting to be received (see HasMessage),
@@ -4591,7 +4591,7 @@ untyped[] Receive();
 
 void Free();
  * DEPRECATED: This no longer does anything - objects are freed automatically now.
-               See "Object Memory Management" section
+ *             See "Object Memory Management" section
  * This will deallocate the websocket pointer, so that the pointer ID may be re-used.
  * There is a limit to how many websocket pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
@@ -4722,8 +4722,7 @@ bool LayerInvisible[7];
  * Writing this true for layers 1 through 6 will make those layers invisible.
  
 bool ScriptDraws[8];
- * If true, the ZC engine will perform script draws on the given
- * queue layer. 
+ * If true, the ZC engine will perform script draws on the given queue layer. 
  * Each queue layer returns true by default. 
  * Writing this false disables script draws targetted to a specific layer queue. 
 
@@ -4805,7 +4804,7 @@ void DrawComboCloaked(int layer, int x, int y,
 void DrawString(int layer, 
 			int x, int y, 
 			int font, int color, int background_color, int format, 
-			"string", 
+			char32[] str, 
 			int opacity,
 			int shadow_type, int shadow_color);
  * As DrawString(), but includes a shadow on the text.
@@ -5124,12 +5123,12 @@ bool Animation;
 int Max;
  * Returns the maximum number of itemsprite sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
- * pointer type) that arw allowed to be on the screen at one time. 
+ * pointer type) that are allowed to be on the screen at one time. 
 
 void Max(int newmax);
  * Sets the maximum number of itemsprite sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
- * pointer type) that arw allowed to be on the screen at one time. 
+ * pointer type) that are allowed to be on the screen at one time. 
  * The current legal range is 
  * 1 to 1024.
  
@@ -5300,7 +5299,7 @@ bool Animation;
 int Max;
  * Returns the maximum number of weapon sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
- * pointer type) that arw allowed to be on the screen at one time. 
+ * pointer type) that are allowed to be on the screen at one time. 
 
 void Max(int newmax);
  * Sets the maximum number of weapon sprites (eweapon and lweapon are
@@ -5559,12 +5558,12 @@ bool Animation;
 int Max;
  * Returns the maximum number of npc sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
- * pointer type) that arw allowed to be on the screen at one time. 
+ * pointer type) that are allowed to be on the screen at one time. 
 
 void Max(int newmax);
  * Sets the maximum number of npc sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
- * pointer type) that arw allowed to be on the screen at one time. 
+ * pointer type) that are allowed to be on the screen at one time. 
  * The current legal range is 
  * 1 to 1024.
  
@@ -5640,7 +5639,6 @@ bool Knockback(int time, int dir, int speed = 4);
  *     'bool npc->NoScriptKnockback;' was set true for this enemy
 
 int HitDir;
- * Read-Only.
  * Returns a direction constant if the npc is being knocked back.
  * Returns -1 if the npc is not being knockd back.
  * Writing to this has no effect, and is ignored. 
@@ -5841,31 +5839,31 @@ bool SwitchHooked;
 untyped HitBy[10];
  * Stores the ID/UIDs of objects that hurt the npc this frame.
  * Indices:
-
+ *
  * The first four indices are for the *screen index* of objects:
-
+ *
  * Description		Index	Status
  * HIT_BY_NPC 		[0] 	Not used at this time. 
  * HIT_BY_EWEAPON 	[1] 	Not used at this time. 
  * HIT_BY_LWEAPON 	[2]	In use by the engine.
  * HIT_BY_FFC 		[3] 	Not used at this time. 
-
+ *
  * The next four, are for the FFCore 'script' UIDs of objects:
-
+ *
  * Description		Index	Status
  * HIT_BY_NPC_UID 	[4] 	Not used at this time. 
  * HIT_BY_EWEAPON_UID 	[5] 	Not used at this time. 
  * HIT_BY_LWEAPON_UID 	[6]	In use by the engine.
  * HIT_BY_FFC_UID 	[7] 	Not used at this time. 
-
+ *
  * The last two, are reserved for special damage-object types. 
-
+ *
  * Description		Index	Status
  * HIT_BY_COMBO 	[8]	Not used at this time. 
  * HIT_BY_MAPFLAG 	[9] 	Not used at this time. 
-
+ *
  * These indices are uniform across all HitBy[] array members, for any datatype with that member. 
-
+ *
  * Some lweapons, notably some melee weapons such as swords (but not sword beams), and boomerangs
  * are not yet implemented in this mechanic. 
 
@@ -6848,7 +6846,7 @@ int CollectFlags;
  * Not implemented at this time.
 
 t/b/a
-itemdata GetItem(name[]);
+itemdata GetItem(char32[] name);
 
 /************************************************************************************************************/
 
@@ -7152,10 +7150,10 @@ void SetIntro(char32 buffer[]);
 void GetIntro(char32 buffer[]);
  * Copies the intro text of the DMap into a client string 'buffer'.
 
-void SetMusic(char32 "filename"); 
+void SetMusic(char32[] filename); 
  * Sets the enhanced music used by the DMap to a specified filename.
  
-void GetMusic(char2 buffer[]);
+void GetMusic(char32[] buffer);
  * Copies the filename of the DMap enhanced music into a client string 'buffer'.
 
 
@@ -7292,7 +7290,7 @@ int ItemY;
 
 int Palette;
 int CSet;
- * ? The screen palette. ?
+ * The screen palette.
 
 int Door[4];
  * The door state for the screen. See D_* constants for direction and door type.
@@ -7569,7 +7567,7 @@ int FFCScript[MAX_FFC];
 bool FFCRunning[MAX_FFC];
  * Returns true if the specified ffc is running a script?
  * May be used to pause/resume ffc script execution?
- * This needs to be cloned over to ffc->Running -Z
+ * This needs to be cloned over to ffc->Running
 
  //Functions
 int GetFFCInitD(int ffc_index, int n);
@@ -8204,56 +8202,6 @@ int NothingChance;
 	 * Sets the name of the dropset from the buffer
 */
 
-t/b/a
-
-//////////////////
-///  ponddata  ///
-//////////////////								// Ponddata
-
-t/b/a
-
-//////////////////
-///  warpring  ///
-//////////////////								// Warpringdata
-
-t/b/a
-
-/////////////////
-///  doorset  ///
-/////////////////								// Doorsetdata
-
-t/b/a
-
-////////////////////
-///  misccolors  ///
-////////////////////								// Miscdata
-
-t/b/a
-
-////////////////
-///  zcmidi  ///
-////////////////								// MIDI
-
-t/b/a
-
-//////////////////
-///  palcycle  ///
-//////////////////								// Palcycledata
-
-t/b/a
-
-//////////////////
-///  gamedata  ///
-//////////////////								// Gamedata
-
-t/b/a
-
-////////////////
-///  cheats  ///
-////////////////								// Cheatdata
-
-t/b/a
-
   ________                    .__    .__                  ____      _________                        .___
  /  _____/___________  ______ |  |__ |__| ____   ______  /  _ \    /   _____/ ____  __ __  ____    __| _/
 /   \  __\_  __ \__  \ \____ \|  |  \|  |/ ___\ /  ___/  >  _ </\  \_____  \ /  _ \|  |  \/    \  / __ | 
@@ -8286,7 +8234,7 @@ void MonochromeHue(int red, int green, int blue, bool distributed = true);
  * as `red`, `green`, and `blue`. 
  * This respects the current DMap (level) palette, and it affects the entire main game palette. 
 
-void Tint(int red, int green, blue);
+void Tint(int red, int green, int blue);
  * Tints the entire display with a palette shift using the values that you supply as `red`, `green`, and `blue`.
  * This respects the current DMap (level) palette, and it affects the entire main game palette. 
 
@@ -8378,13 +8326,11 @@ void SetMusicLoop(float start, float end);
  * Loops the currently playing enhanced music between two timestamps in seconds.
  * CURRENTLY ONLY SUPPORTS MP3 / OGG
 
-void PlaySound(int soundid);	ZASM Instruction: 
-					PLAYSOUNDR
-					PLAYSOUNDV
-	/**
-	* Plays one of the quest's sound effects. Use the SFX_ constants in
-	* std.zh as values of soundid.
-	*/ Example Use: !#!
+void PlaySound(int soundid);
+
+ * Plays one of the quest's sound effects. Use the SFX_ constants in
+ * std.zh as values of soundid.
+
 	
 void EndSound(int soundid);
  * If sfx_id is playing, calling this immediately stops that sound.
@@ -8439,26 +8385,21 @@ void ResumeCurMIDI();
  * Note: This does not affect Enhanced Music playback.
  * See also: Audio->PauseCurMIDI().
 
-void PlayMIDI(int MIDIid);	ZASM Instruction: 
-					PLAYMIDIR
-					PLAYMIDIV
+void PlayMIDI(int MIDIid);
 	/**
 	* Changes the current screen MIDI to MIDIid.
 	* Will revert to the DMap (or screen) MIDI upon leaving the screen.
 	*/ Example Use: !#!
 
 bool PlayEnhancedMusic(int filename[], int track);
-		
-					ZASM Instruction: 
-					PLAYENHMUSIC
-	/**
-	* Play the specified enhanced music if it's available. If the music
-	* cannot be played, the current music will continue. The music will
-	* revert to normal upon leaving the screen.
-	* Returns true if the music file was loaded successfully.
-	* The filename cannot be more than 255 characters. If the music format
-	* does not support multiple tracks, the track argument will be ignored.
-	*/ Example Use: 
+* Play the specified enhanced music if it's available. If the music
+* cannot be played, the current music will continue. The music will
+* revert to normal upon leaving the screen.
+* Returns true if the music file was loaded successfully.
+* The filename cannot be more than 255 characters. If the music format
+* does not support multiple tracks, the track argument will be ignored.
+
+ Example Use: 
 	
 		int music[]="myfile.mp3"; // Make a string with the filename of the music to play.
 		if ( !Game->PlayEnhancedMusic(music, 1) ) Audio->PlayMIDI(midi_id);
@@ -8493,8 +8434,6 @@ bool MusicRefreshFlags[2];
  *   MRF_NOCUT: Warp types that cut to silence, don't do that
  *   MRF_REVERT: Upon taking a warp that triggers refresh, revert to MR_SCREEN
 
-//int Volume[4]
- * Deprecated; raw access to the UI audio controls. (Now unsupported officially.)
 
 ////////////////
 ///  Text->  ///
@@ -8507,18 +8446,15 @@ int CharHeight(char32 chr, int font);
 
 int StringWidth(char32 ptr, int font);
  * Returns the width, in pixels, of the string pointed to by 'ptr', in the given font.
- * This is the width as DrawString() will draw it, so some special characters such as '\n'
- * 	may not be fully accurate, as DrawString() does not draw these properly.
+ * This is the width as DrawString() will draw it, so some special characters such as '\n' may not be fully accurate, as DrawString() does not draw these properly.
 
 int CharWidth(char32 chr, int font);
  * Returns the width, in pixels, of the character 'chr', in the given font.
- * This is the width as DrawString() will draw it, so some special characters such as '\n'
- * 	may not be fully accurate, as DrawString() does not draw these properly.
+ * This is the width as DrawString() will draw it, so some special characters such as '\n' may not be fully accurate, as DrawString() does not draw these properly.
 
 int MessageWidth(int msg);
  * Returns the width, in pixels, of the internal string at index 'msg'.
- * This uses the font and text as set in the 'Strings' editor,
- * 	and ignores both trailing spaces and line breaks.
+ * This uses the font and text as set in the 'Strings' editor, and ignores both trailing spaces and line breaks.
 
 int MessageHeight(int msg);
  * Returns the height, in pixels, of the internal string at index 'msg'.
@@ -8532,8 +8468,7 @@ int MessageHeight(int msg);
 void DrawPlane(int layer, bitmap src, int src_x, int src_y, int dest_x,
 			int dest_y, int dest_w, int dest_h, int space_z, int horizon, 
 			float scale_x = 1, float scale_y = 1, bool mask = true);
- * Draws a scaled 'Mode 7' style effect, line-by-line, where each raster is scaled down toward 
- * a horizon point.
+ * Draws a scaled 'Mode 7' style effect, line-by-line, where each raster is scaled down toward a horizon point.
  
 int Width;
  * Returns the width of the bitmap, in pixels. 
@@ -8545,7 +8480,7 @@ int Height;
 
 void Free();
  * DEPRECATED: This no longer does anything - objects are freed automatically now.
-               See "Object Memory Management" section
+ *             See "Object Memory Management" section
  * If the bitmap is allocated, frees the bitmap.
  *     This means that this bitmap ID is able to be returned by subsequent
  *     calls to 'Game->AllocateBitmap()' and such.
@@ -8557,8 +8492,7 @@ void Free();
 void Own();
  * Requires an allocated bitmap.
  * Grants 'Ownership' of the bitmap to the currently running script.
- * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script
- *     are cleared), the bitmap will be automatically freed.
+ * [pre-3.0] When the script terminates (at the same time any Local Arrays in the script are cleared), the bitmap will be automatically freed.
 
 bool isValid();
  * Returns true if the bitmap points to a valid bitmap
@@ -8576,27 +8510,19 @@ int GetPixel(int x, int y);
 void Create(int layer = 0, int width = 256, int height = 256);
  * Creates a bitmap on a bitmap pointer, with a size of height, width.
  * Destroys any existing bitmap on that pointer before creating a new one.
- * You can use this on an initialized bitmap pointer; either one allocated with 'Game->AllocateBitmap()', or
- *     a bitmap pointer that has a valid bitmap on it.
- * You can ALSO use this on an uninitialised pointer, and it will attempt to initialize it.
- *     The layer arg will be ignored when this is used on an uninitialised pointer.
- * Note: The 'layer' arg in this function is exclusively for ordering. 
- *       This WILL NOT clear a specific 'layer' of a bitmap. 
- *       Layers in ZC are only an expression of drawing order/sequence!
+ * You can use this on an initialized bitmap pointer; either one allocated with 'Game->AllocateBitmap()', or a bitmap pointer that has a valid bitmap on it.
+ * You can ALSO use this on an uninitialised pointer, and it will attempt to initialize it. The layer arg will be ignored when this is used on an uninitialised pointer.
+ * Note: The 'layer' arg in this function is exclusively for ordering. This WILL NOT clear a specific 'layer' of a bitmap. Layers in ZC are only an expression of drawing order/sequence!
  
 void Clear(int layer = 0);
  * Clears the bitmap to colour 0. 
- * Note: The 'layer' arg in this function is exclusively for ordering. 
- *       This WILL NOT write out a specific 'layer' of a bitmap.
- *        Layers in ZC are only an expression of drawing order/sequence!
+ * Note: The 'layer' arg in this function is exclusively for ordering. This WILL NOT write out a specific 'layer' of a bitmap. Layers in ZC are only an expression of drawing order/sequence!
  
 void ClearToColor(int layer, int color);
  * Clears the bitmap to the chosen color.
- * Note: The 'layer' arg in this function is exclusively for ordering. 
- *       This WILL NOT write out a specific 'layer' of a bitmap.
- *        Layers in ZC are only an expression of drawing order/sequence!
+ * Note: The 'layer' arg in this function is exclusively for ordering. This WILL NOT write out a specific 'layer' of a bitmap. Layers in ZC are only an expression of drawing order/sequence!
  
-void Read(int layer, "filename");
+void Read(int layer, char32[] filename);
  * Reads a valid graphic file into a bitmap pointer.
  * If used on an uninitialised pointer, it will first attempt to allocate it.
  *     If it fails to allocate the pointer, it will not attempt the read operation.
@@ -8612,7 +8538,7 @@ void Read(int layer, "filename");
  * 	The file is missing.
  * 	The filename is incorrect. Remember that POSIX filesystems are Case-SenSitive. 
  
-void Write(int layer, "filename", bool allow_overwrite = false);
+void Write(int layer, char32[] filename, bool allow_overwrite = false);
  * Writes a bitmap out as a graphic file.
  * This supports the following formats/extensions:
  *     .png, .gif, .pcx, .tgx, and .bmp. 
@@ -8642,18 +8568,15 @@ void MaskedDraw( int layer, bitmap mask, int color );
 void MaskedDraw( int layer, bitmap mask, int color, int maskColor );
  * Same as above, but instead of any non-0 pixels, pixels that match 'maskColor' are used
 void MaskedDraw( int layer, bitmap mask, int color, int startMaskColor, int endMaskColor );
- * Same as above, but colors c such that 'startMaskColor <= c <= endMaskColor' will be used
- *  as the mask.
+ * Same as above, but colors c such that 'startMaskColor <= c <= endMaskColor' will be used as the mask.
 
 void MaskedBlit( int layer, bitmap mask, bitmap pattern, bool repeatPattern );
 void MaskedBlit( int layer, bitmap mask, bitmap pattern, bool repeatPattern, int maskColor );
 void MaskedBlit( int layer, bitmap mask, bitmap pattern, bool repeatPattern, int startMaskColor, int endMaskColor );
  * Same as 'MaskedDraw', but instead of drawing a color to the masked portions, draws from
  * a supplied 'pattern' bitmap.
- * If 'repeatPattern' is false, the pattern will be drawn at `0,0` with the width/height of the
- *     pattern bitmap, and nowhere else.
- * If 'repeatPattern' is true, the pattern will repeat in a tiled manner, starting from `0,0`,
- *     up to the width/height of the destination bitmap.
+ * If 'repeatPattern' is false, the pattern will be drawn at `0,0` with the width/height of the pattern bitmap, and nowhere else.
+ * If 'repeatPattern' is true, the pattern will repeat in a tiled manner, starting from `0,0`, up to the width/height of the destination bitmap.
  * 'repeatPattern' does not affect the mask bitmap.
 
 void Dither( int layer, bitmap mask, int color, int ditherType, int ditherArg )
@@ -8668,15 +8591,10 @@ void ShiftColors( int layer, int shift, int startCol, int endCol )
  * Adds 'shift' to colors >= startCol and <= endCol
 
 int CountColor(bitmap mask, int x, int y, int checkColor, int maskColor = -1);
- * Checks the area of the bitmap specified by the mask for the specified 'checkColor',
- *     returning how many pixels match.
- * If 'maskColor' is '-1', any non-0 portion of the mask bitmap will be checked.
- *     Otherwise, only areas of the mask bitmap that match the maskColor will be checked.
- * The area checked is from `x,y` to `x+mask->Width,y+mask->Height`. If this goes out of bounds,
- *     the out of bounds area is ignored.
- * As this is not a drawing function, draws that occur this frame will *NOT* be read-
- *     only whatever was drawn to the bitmap at the end of the previous frame will
- *     (similar to GetPixel())
+ * Checks the area of the bitmap specified by the mask for the specified 'checkColor', returning how many pixels match.
+ * If 'maskColor' is '-1', any non-0 portion of the mask bitmap will be checked. Otherwise, only areas of the mask bitmap that match the maskColor will be checked.
+ * The area checked is from `x,y` to `x+mask->Width,y+mask->Height`. If this goes out of bounds, the out of bounds area is ignored.
+ * As this is not a drawing function, draws that occur this frame will *NOT* be read-only whatever was drawn to the bitmap at the end of the previous frame will (similar to GetPixel())
 
 void Blit(int layer, bitmap target,
 		int source_x, int source_y, int source_w, int source_h,
@@ -8686,20 +8604,19 @@ void Blit(int layer, bitmap target,
  * BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP.
  * As DrawBitmapEx(), except that it draws FROM an initialised bitmap pointer,
  * TO a target bitmap, which may be a user-created bitmap, or it may be the screen.
- * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
- *	as the argument to 'bitmap target'.
+ * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh as the argument to 'bitmap target'.
  * To draw to a user created bitmap, pass its pointer to 'bitmap target'.
- *
  * Blit supports multiple MODES, OR'd together as a bitmask:
+ * ```
  * const int BITDX_NORMAL = 0;
  * const int BITDX_TRANS = 0x01; //Translucent
  * const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific point, instead of its centre.
  * const int BITDX_HFLIP = 0x04; //Horizontal Flip
  * const int BITDX_VFLIP = 0x08; //Vertical Flip.
+ * ```
  * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
  * If these are non-zero, the rotation anchor point will centre on these coordinates.
- * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
- * colour index of the main palette.
+ * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that colour index of the main palette.
 
 
 void BlitTo(int layer, bitmap source,
@@ -8713,17 +8630,17 @@ void BlitTo(int layer, bitmap source,
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
  *	as the argument to 'bitmap source'.
  * To draw from a user created bitmap, pass its pointer to 'bitmap source.
- *
  * BlitTo supports multiple MODES, OR'd together as a bitmask:
+ * ```
  * const int BITDX_NORMAL = 0;
  * const int BITDX_TRANS = 0x01; //Translucent
  * const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific point, instead of its centre.
  * const int BITDX_HFLIP = 0x04; //Horizontal Flip
  * const int BITDX_VFLIP = 0x08; //Vertical Flip.
+ * ```
  * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
  * If these are non-zero, the rotation anchor point will centre on these coordinates.
- * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
- * colour index of the main palette. 
+ * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that colour index of the main palette. 
 
 void Rectangle(int layer,
 			int x, int y, int x2, int y2,
@@ -8760,7 +8677,7 @@ void Line(int layer, int x, int y, int x2, int y2,
  * Identical to Screen->Line(), but it draws to a target bitmap.
 
 void Spline(int layer, 
-		int x1, int y1, int x2, int y2, #
+		int x1, int y1, int x2, int y2,
 		int x3, int y3,int x4, int y4, 
 		int color, int opacity = OP_OPAQUE);
  * Identical to Screen->Spline(), but it draws to a target bitmap.
@@ -8773,7 +8690,7 @@ void PutPixel(int layer, int x, int y,
 
 void DrawCharacter(int layer, int x, int y, 
 			int font, int color, int background_color, 
-			int width, int height, 'char', 
+			int width, int height, int char, 
 			int opacity = OP_OPAQUE);
  * Identical to Screen->DrawCharacter(), but it draws to a target bitmap.
 
@@ -8812,14 +8729,14 @@ void DrawCombo(int layer, int x, int y,
 void DrawString(int layer, 
 			int x, int y, 
 			int font, int color, int background_color, int format, 
-			"string", 
+			char32[] str, 
 			int opacity = OP_OPAQUE);
  * Identical to Screen->DrawString(), but it draws to a target bitmap.
  
 void DrawString(int layer, 
 			int x, int y, 
 			int font, int color, int background_color, int format, 
-			"string", 
+			char32[] str, 
 			int opacity,
 			int shadow_type, int shadow_color);
  * Identical to Screen->DrawString(), but it draws to a target bitmap.
@@ -8847,8 +8764,7 @@ void Quad( int layer,
  * For bitmap textures, specify the exact height and width of the texture as args 'w' and 'h'.
  * If rendering a bitmap as a texture, the 'h' and 'w' args need not be a power of 2. 
  * If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
- * If the pointer supplied to render_source is invalid (contains no data), then
- * this function will default to using a tile. 
+ * If the pointer supplied to render_source is invalid (contains no data), then this function will default to using a tile. 
 
 void Triangle	( int layer, 
 			int x1, int y1, int x2, 
@@ -8864,8 +8780,7 @@ void Triangle	( int layer,
  * For bitmap textures, specify the exact height and width of the texture as args 'w' and 'h'.
  * If rendering a bitmap as a texture, the 'h' and 'w' args need not be a power of 2. 
  * If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
- * If the pointer supplied to render_source is invalid (contains no data), then
- * this function will default to using a tile. 
+ * If the pointer supplied to render_source is invalid (contains no data), then this function will default to using a tile. 
 
 void Quad3D( int layer, 
 			int pos[12], int uv[8], int cset[4], int size[2], 
@@ -8877,8 +8792,7 @@ void Quad3D( int layer,
  * For bitmap textures, specify the exact height and width of the texture as args 'w' and 'h'.
  * If rendering a bitmap as a texture, the 'h' and 'w' args need not be a power of 2. 
  * If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
- * If the pointer supplied to render_source is invalid (contains no data), then
- * this function will default to using a tile.
+ * If the pointer supplied to render_source is invalid (contains no data), then this function will default to using a tile.
 
 void Triangle3D( int layer, 
 			int pos[9], int uv[6], int csets[3], int size[2], 
@@ -9126,7 +9040,7 @@ void CopyCSet(paldata target, int src_cset, int dest_cset);
 
 void Free();
  * DEPRECATED: This no longer does anything - objects are freed automatically now.
-               See "Object Memory Management" section
+ *             See "Object Memory Management" section
  * This will deallocate the paldata pointer, so that the pointer ID may be re-used.
  * There is a limit to how many paldata pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
@@ -9234,10 +9148,8 @@ int SelectorDestX;
 int SelectorDestY;
 int SelectorDestW;
 int SelectorDestH;
- * The X/Y/W/H offsets for the selector on this subscreen,
- *     if the selector is overridden (see `Flags[]`).
- * These values will be ADDED to the x/y/w/h that the
- *     selector would normally draw to.
+ * The X/Y/W/H offsets for the selector on this subscreen, if the selector is overridden (see `Flags[]`).
+ * These values will be ADDED to the x/y/w/h that the selector would normally draw to.
 
 int SelectorWid[2];
 int SelectorHei[2];
@@ -9247,10 +9159,8 @@ int SelectorFlashCSet[2];
 int SelectorFrames[2];
 int SelectorASpeed[2];
 int SelectorDelay[2];
- * The pixel-size, tile, cset/flashcset, and animation information for
- *     the two selector overrides.
- * These will be used by the selector on this subscreen,
- *     if the selector is overridden (see `Flags[]`).
+ * The pixel-size, tile, cset/flashcset, and animation information for the two selector overrides.
+ * These will be used by the selector on this subscreen, if the selector is overridden (see `Flags[]`).
 
 /////////////////////
 //  subscreenpage  //
@@ -9391,8 +9301,7 @@ int SelectorFlashCSet[2];
 int SelectorFrames[2];
 int SelectorASpeed[2];
 int SelectorDelay[2];
- * The pixel-size, tile, cset/flashcset, and animation information for
- *     the two selector overrides.
+ * The pixel-size, tile, cset/flashcset, and animation information for the two selector overrides.
  * These will be used by the selector on this widget,
  *     if the selector is overridden (see 'GenFlags[]').
 
@@ -9451,39 +9360,39 @@ int Tile[];
  * The widget's tile(s).
  * For SUBWIDG_MINITILE, can use the 'SUB_SPTILE_' constant values.
  * VALID WIDGETS:
- *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1],
- *  SUBWIDG_MISCGAUGE[4], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4]
+ *
+ *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1], SUBWIDG_MISCGAUGE[4], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4]
 
 int CSet[];
  * The widget's cset(s).
- * For SUBWIDG_FRAME,SUBWIDG_MCGUFF,SUBWIDG_TILEBLOCK,SUBWIDG_MINITILE,
- *     can use the 'SUB_CS_' constants.
+ * For SUBWIDG_FRAME,SUBWIDG_MCGUFF,SUBWIDG_TILEBLOCK,SUBWIDG_MINITILE: can use the 'SUB_CS_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1],
- *  SUBWIDG_MISCGAUGE[4], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4]
+ *
+ *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1], SUBWIDG_MISCGAUGE[4], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4]
 
 int Flip;
  * The widget's flip value.
  * VALID WIDGETS:
+ *
  *  SUBWIDG_MCGUFF, SUBWIDG_TILEBLOCK, SUBWIDG_MINITILE
 
 int Font;
  * The widget's Font, use the 'FONT_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
+ *
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
 
 int Align;
  * The widget's Alignment, use the 'TF_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
+ *
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
 
 int ShadowType;
  * The widget's Shadow Type, use the 'SHD_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
+ *
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
 
 void GetText(char32[] buf);
 void SetText(char32[] str);
@@ -9491,102 +9400,117 @@ void SetText(char32[] str);
  * If the buffer provided for GetText() is too small,
  *     it will *automatically be resized to fit*.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX
+ *
+ * SUBWIDG_TEXT, SUBWIDG_TEXTBOX
 
 int ColorText;
  * The widget's color index used for Text
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT, SUBWIDG_MCGUFF_FRAME
+ *
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT, SUBWIDG_MCGUFF_FRAME
 
 int ColorShadow;
  * The widget's color index used for Shadows
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
+ *
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
 
 int ColorBG;
  * The widget's color index used for background
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT, SUBWIDG_BGCOLOR
+ *
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT, SUBWIDG_BGCOLOR
 
 int ColorOutline;
  * The widget's color index used for outline
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LINE, SUBWIDG_RECT, SUBWIDG_MCGUFF_FRAME
 
 int ColorFill;
  * The widget's color index used for fill
  * VALID WIDGETS:
+ *
  *  SUBWIDG_RECT
 
 int ColorPlayer;
  * The widget's color index used to indicate the player
  * VALID WIDGETS:
+ *
  *  SUBWIDG_MMAP, SUBWIDG_LMAP
 
 int ColorCompassBlink;
  * The widget's color index used to indicate the blinking compass
  * VALID WIDGETS:
+ *
  *  SUBWIDG_MMAP
 
 int ColorCompassOff;
  * The widget's color index used to indicate the off compass
  * VALID WIDGETS:
+ *
  *  SUBWIDG_MMAP
 
 int ColorRoom;
  * The widget's color index used to indicate rooms
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LMAP
 
 int Button;
  * The item button associated with the widget.
  * Use the 'ITMBTN_' constants for this value.
  * VALID WIDGETS:
+ *
  *  SUBWIDG_BTNITM, SUBWIDG_BTNCOUNTER
 
 int Counter[];
  * The counter(s) associated with the widget.
  * Use the 'CR_' constants for the values.
  * VALID WIDGETS:
+ *
  *  SUBWIDG_COUNTER[3], SUBWIDG_MISCGAUGE[1]
 
 int MinDigits;
  * The minimum digits of the widget.
  * VALID WIDGETS:
+ *
  *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER
 
 int MaxDigits;
  * The maximum digits of the widget.
  * VALID WIDGETS:
+ *
  *  SUBWIDG_COUNTER, SUBWIDG_BTNCOUNTER
 
 int InfiniteItem;
  * The infinite item of the widget.
  * VALID WIDGETS:
- *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_LGAUGE,
- *  SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+ *
+ *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 char32 InfiniteChar;
  * The infinite character of the widget.
  * VALID WIDGETS:
+ *
  *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER
 
 int CostIndex;
  * The index of cost to use for this widget
  * VALID WIDGETS:
+ *
  *  SUBWIDG_BTNCOUNTER
 
 int ItemClass;
  * The itemclass used by the widget (0 <= ItemClass < IC_MAXUSABLE)
  * VALID WIDGETS:
+ *
  *  SUBWIDG_ITEMSLOT
 
 int ItemID;
  * The item ID used by the widget (-1 <= ItemID < NUM_ITEMDATA)
  * VALID WIDGETS:
+ *
  *  SUBWIDG_ITEMSLOT
 
 int FrameTile;
@@ -9595,80 +9519,94 @@ int FrameCSet;
 int PieceCSet;
  * The frame/piece tile/cset used by the widget.
  * VALID WIDGETS:
+ *
  *  SUBWIDG_MCGUFF_FRAME
 
 int Number;
  * The number associated with the widget.
  * VALID WIDGETS:
+ *
  *  SUBWIDG_MCGUFF
 
 int Corner[];
  * The corner(s) associated with the widget.
  * VALID WIDGETS:
- *  SUBWIDG_MINITILE[1], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4],
- *  SUBWIDG_MISCGAUGE[4]
+ *
+ *  SUBWIDG_MINITILE[1], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4], SUBWIDG_MISCGAUGE[4]
 
 int Frames;
  * The widget's frames
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 int Speed;
  * The widget's speed
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 int Delay;
  * The widget's delay
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 int Container;
  * The widget's container number
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 int GaugeWid;
 int GaugeHei;
  * The widget's gauge width/height
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 int Units;
  * The widgets unit value
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
  
 int HSpace;
 int VSpace;
  * The widget's hspace/vspace
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 int GridX;
 int GridY;
  * The widget's grid x/y
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 int AnimVal;
  * The widget's animation value
  * VALID WIDGETS:
+ *
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 int TabSize;
  * The widget's tabsize value
  * VALID WIDGETS:
+ *
  *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX
 
 int ShowDrain;
  * The magic drain rate this widget will be visible at (-1 for any)
  * VALID WIDGETS:
+ *
  *  SUBWIDG_MGAUGE
 
 int PerContainer;
  * The counter amount per "container" for the widget
  * VALID WIDGETS:
+ *
  *  SUBWIDG_MISCGAUGE
 
 ////////////////////////////////////
@@ -9730,72 +9668,6 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 	SetEWeaponPointer(), RefFFC, RefItem, RefItemdata, RefLWeapon, RefEWeapon, RefNPC, SP
 ,
 
-
-
-/************************************************************************************************************/
-Game->DEBUGGING: These might find their way into namespace Debug-> instead of Game-> in the future. 
-/************************************************************************************************************/	
-
-int RefFFC; 				ZASM Instruction:
-					REFFFC
-	/**
-	* Returns the present ffc reference from the stack. FOR DEBUGGING ONLY!
-	* THIS WILL BE DISABLED IN RELEASE BUILDS !
-	*/ Example Use:
-	
-/************************************************************************************************************/	
-
-int RefItem; 				ZASM Instruction:
-					REFITEM
-	/**
-	* Returns the present item reference from the stack. FOR DEBUGGING ONLY!
-	* THIS WILL BE DISABLED IN RELEASE BUILDS !
-	*/ Example Use:
-	
-/************************************************************************************************************/	
-
-int RefItemdata; 			ZASM Instruction:
-					REFIDATA
-	/**
-	* Returns the present itemdata reference from the stack. FOR DEBUGGING ONLY!
-	* THIS WILL BE DISABLED IN RELEASE BUILDS !
-	*/ Example Use:
-	
-/************************************************************************************************************/	
-
-int RefLWeapon; 			ZASM Instruction:
-					REFLWPN
-	/**
-	* Returns the present lweapon reference from the stack. FOR DEBUGGING ONLY!
-	* THIS WILL BE DISABLED IN RELEASE BUILDS !
-	*/ Example Use:
-	
-/************************************************************************************************************/	
-
-int RefEWeapon; 			ZASM Instruction:
-					REFEWPN
-	/**
-	* Returns the present eweapon reference from the stack. FOR DEBUGGING ONLY!
-	* THIS WILL BE DISABLED IN RELEASE BUILDS !
-	*/ Example Use:
-	
-/************************************************************************************************************/	
-
-int RefNPC; 				ZASM Instruction:
-					REFNPC
-	/**
-	* Returns the present npc reference from the stack. FOR DEBUGGING ONLY!
-	* THIS WILL BE DISABLED IN RELEASE BUILDS !
-	*/ Example Use:
-	
-/************************************************************************************************************/	
-
-int SP; 				ZASM Instruction:
-					SP
-	/**
-	* Returns the value of the stack pointer. FOR DEBUGGING ONLY!
-	* THIS WILL BE DISABLED IN RELEASE BUILDS !
-	*/ Example Use:
 
 **********************************************************************************************************/
 

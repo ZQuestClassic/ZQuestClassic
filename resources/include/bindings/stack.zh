@@ -1,0 +1,121 @@
+// @zasm_ref REFSTACK
+class stack {
+	// @zasm
+	//   LOADSTACK
+	internal stack();
+
+	// The size of the stack, given as a LONG. This means that a stack with 5
+	// items will have a size of '5L'.
+	//
+	// @zasm_var STACKSIZE
+	internal const long Size;
+
+	// Returns true if the stack cannot hold any more elements.
+	//
+	// @zasm_var STACKFULL
+	internal const bool Full;
+
+	// De-allocates this `stack` pointer, so that its' pointer ID may be
+	// re-used. You may only have a limited number of stack pointers active at a
+	// time; freeing them when you are done with them helps not reach the limit.
+	//
+	// @deprecated Free() no longer does anything as of ZC 3.0. Objects are now
+	// freed automatically.
+	// @zasm
+	//   POP REFSTACK
+	//   STACKFREE
+	internal void Free();
+
+	// Grants 'Ownership' of the stack pointer to the script that calls this
+	// function. When the script with 'Ownership' terminates (at the same time
+	// its' local arrays are deallocated), this stack pointer will automatically
+	// be 'Free()'d.
+	//
+	// @zasm
+	//   POP REFSTACK
+	//   STACKOWN
+	internal void Own();
+
+	// Removes every element from the stack.
+	//
+	// @zasm
+	//   POP REFSTACK
+	//   STACKCLEAR
+	internal void Clear();
+
+	// Pushes the given value to the back or front of the stack.
+	//
+	// If the stack is at max capacity, does nothing.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSTACK
+	//   STACKPUSHBACK D2
+	internal void PushBack(untyped val);
+
+	// Pushes the given value to the back or front of the stack.
+	//
+	// If the stack is at max capacity, does nothing.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSTACK
+	//   STACKPUSHFRONT D2
+	internal void PushFront(untyped val);
+
+	// Removes the back or front element of the stack, and returns it.
+	//
+	// If the stack is empty, '0' is returned.
+	//
+	// @zasm
+	//   POP REFSTACK
+	//   STACKPOPBACK D2
+	internal untyped PopBack();
+
+	// Removes the back or front element of the stack, and returns it.
+	//
+	// If the stack is empty, '0' is returned.
+	//
+	// @zasm
+	//   POP REFSTACK
+	//   STACKPOPFRONT D2
+	internal untyped PopFront();
+
+	// Returns the back or front element of the stack, without removing it.
+	//
+	// If the stack is empty, '0' is returned.
+	//
+	// @zasm
+	//   POP REFSTACK
+	//   STACKPEEKBACK D2
+	internal untyped PeekBack();
+
+	// Returns the back or front element of the stack, without removing it.
+	//
+	// If the stack is empty, '0' is returned.
+	//
+	// @zasm
+	//   POP REFSTACK
+	//   STACKPEEKFRONT D2
+	internal untyped PeekFront();
+
+	// Returns the element at the index 'ind', which is a LONG value. This means
+	// that '0L' is the first element, '1L' is the second, etc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSTACK
+	//   STACKGET D2
+	internal untyped Get(long ind);
+
+	// Overwrites the element at the index 'ind' (which is a LONG value) with
+	// 'val'. This means that '0L' is the first element, '1L' is the second,
+	// etc.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFSTACK
+	//   STACKSET D2 D3
+	internal void Set(long ind, untyped val);
+}

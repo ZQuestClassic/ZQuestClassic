@@ -16,6 +16,7 @@
 #include "ASTVisitors.h"
 #include "CompileOption.h"
 #include "zsyssimple.h"
+#include "parser/ParserHelper.h"
 #include "base/util.h"
 
 using std::string;
@@ -183,7 +184,6 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token ZTRUE
 %token ZFALSE
 %token WHILE
-%token GLOBAL
 %token BREAK
 %token CONTINUE
 %token ZCONST
@@ -205,6 +205,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token UNLESS
 %token REPEAT
 %token INLINE
+%token INTERNAL
 %token STATIC
 %token CONSTEXPR
 %left NEW
@@ -213,6 +214,8 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 
  // Types
 %token ZAUTO
+%token TEMPLATE_T
+%token TEMPLATE_T_ARR
 %token ZVOID
 %token UNTYPED
 %token ZBOOL
@@ -220,51 +223,6 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token ZCHAR
 %token ZLONG
 %token ZRGB
-%token BITMAP
-%token CHEAT
-%token COMBO
-%token DOORSET
-%token DROPSET
-%token DMAP
-%token EWEAPON
-%token FFC
-%token GAMEDATA
-%token ITEM
-%token ITEMCLASS
-%token LWEAPON
-%token MAP
-%token MESSAGE
-%token MISCCOLOR
-%token NPC
-%token NPCDATA
-%token PALCYCLE
-// %token PALETTE
-%token POND
-// %token RGB
-%token SHOP
-%token SPRITE
-%token TUNE
-%token WARPRING
-%token SCREEN
-%token LINK
-%token ITEMSPRITE
-%token FILE
-%token DIRECTORY
-%token STACK
-%token RANDGEN
-%token BOTTLEDATA
-%token BOTTLESHOPDATA
-%token SUBSCREENDATA
-%token SUBSCREENPAGE
-%token SUBSCREENWIDGET
-%token WEBSOCKET
-%token GENERIC
-%token GENERICDATA
-%token PORTAL
-%token SAVEDPORTAL
-%token PARTICLE
-%token DECORATION
-%token PALDATA
 
  // Syntax
 %token COMMA
@@ -337,7 +295,6 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token SINGLECHAR
 %token NUMBER
 %token LONGNUMBER
-%token SCRIPTSTRUCT
 
  // Precedence setting
 %precedence RPAREN
@@ -394,6 +351,8 @@ Namespace :
 		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
 		ASTNamespace* namesp = new ASTNamespace(@$);
 		namesp->identifier = idens->componentNodes.front()->clone();
+		if (!ParserHelper::isValidIdentifier(namesp->getName()))
+			yyerrmsg("ERROR: invalid identifier",idens->location.first_line,idens->location.first_column,namesp->getName().c_str());
 		auto& components = idens->componentNodes;
 		if(components.size() > 1)
 			for(auto it = components.begin() + 1;
@@ -401,6 +360,8 @@ Namespace :
 			{
 				ASTNamespace* subsp = new ASTNamespace(@$);
 				subsp->identifier = (*it)->clone();
+				if (!ParserHelper::isValidIdentifier(subsp->getName()))
+					yyerrmsg("ERROR: invalid identifier",idens->location.first_line,idens->location.first_column,subsp->getName().c_str());
 				namesp->namespaces.push_back(subsp);
 			}
 		delete idens;
@@ -451,6 +412,10 @@ Namespace :
 			delete idens;
 			$$ = top;
 		}
+
+		auto ns = (ASTNamespace*)$$;
+		if (!ParserHelper::isValidIdentifier(ns->getName()))
+			yyerrmsg("ERROR: invalid identifier",idens->location.first_line,idens->location.first_column,ns->getName().c_str());
 	}
 	;
 
@@ -638,6 +603,8 @@ DataType : ZCONST DataType {
 	}
 	//Standard types
 	| ZAUTO {$$ = new ASTDataType(DataType::ZAUTO, @$);}
+	| TEMPLATE_T {$$ = new ASTDataType(DataType::TEMPLATE_T, @$);}
+	| TEMPLATE_T_ARR {$$ = new ASTDataType(DataType::TEMPLATE_T_ARR, @$);}
 	| ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
 	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
@@ -645,49 +612,13 @@ DataType : ZCONST DataType {
 	| ZCHAR {$$ = new ASTDataType(DataType::CHAR, @$);}
 	| ZLONG {$$ = new ASTDataType(DataType::LONG, @$);}
 	| ZRGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
-	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
-	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
-	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
-	| DOORSET {$$ = new ASTDataType(DataType::DOORSET, @$);}
-	| DROPSET {$$ = new ASTDataType(DataType::DROPSET, @$);}
-	| DMAP {$$ = new ASTDataType(DataType::DMAPDATA, @$);}
-	| EWEAPON	{$$ = new ASTDataType(DataType::EWPN, @$);}
-	| FFC {$$ = new ASTDataType(DataType::FFC, @$);}
-	| GAMEDATA	{$$ = new ASTDataType(DataType::GAMEDATA, @$);}
-	| ITEMSPRITE {$$ = new ASTDataType(DataType::ITEM, @$);}
-	| ITEMCLASS {$$ = new ASTDataType(DataType::ITEMCLASS, @$);}
-	| LWEAPON {$$ = new ASTDataType(DataType::LWPN, @$);}
-	| MAP {$$ = new ASTDataType(DataType::MAPDATA, @$);}
-	| MESSAGE {$$ = new ASTDataType(DataType::ZMESSAGE, @$);}
-	| MISCCOLOR {$$ = new ASTDataType(DataType::ZUICOLOURS, @$);}
-	| NPC {$$ = new ASTDataType(DataType::NPC, @$);}
-	| NPCDATA {$$ = new ASTDataType(DataType::NPCDATA, @$);}
-	| PALCYCLE {$$ = new ASTDataType(DataType::PALCYCLE, @$);}
-	// | PALETTE {$$ = new ASTDataType(DataType::PALETTE, @$);}
-	| POND {$$ = new ASTDataType(DataType::PONDS, @$);}
-	// | RGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
-	| SHOP {$$ = new ASTDataType(DataType::SHOPDATA, @$);}
-	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
-	| FILE {$$ = new ASTDataType(DataType::FILE, @$);}
-	| DIRECTORY {$$ = new ASTDataType(DataType::DIRECTORY, @$);}
-	| STACK {$$ = new ASTDataType(DataType::STACK, @$);}
-	| RANDGEN {$$ = new ASTDataType(DataType::RNG, @$);}
-	| BOTTLEDATA {$$ = new ASTDataType(DataType::BOTTLETYPE, @$);}
-	| BOTTLESHOPDATA {$$ = new ASTDataType(DataType::BOTTLESHOP, @$);}
-	| GENERICDATA {$$ = new ASTDataType(DataType::GENERICDATA, @$);}
-	| PORTAL {$$ = new ASTDataType(DataType::PORTAL, @$);}
-	| SAVEDPORTAL {$$ = new ASTDataType(DataType::SAVEDPORTAL, @$);}
-	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
-	| SUBSCREENPAGE {$$ = new ASTDataType(DataType::SUBSCREENPAGE, @$);}
-	| SUBSCREENWIDGET {$$ = new ASTDataType(DataType::SUBSCREENWIDGET, @$);}
-	| WEBSOCKET {$$ = new ASTDataType(DataType::WEBSOCKET, @$);}
-	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
-	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
-	| PALDATA {$$ = new ASTDataType(DataType::PALDATA, @$);}
 	//Typedef types
 	| Identifier_List {
 			ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
-			$$ = new ASTDataType(new DataTypeUnresolved(iden), @$);
+			std::string comment = std::move(iden->doc_comment);
+			ASTDataType* datatype = new ASTDataType(new DataTypeUnresolved(iden), @$);
+			datatype->doc_comment = std::move(comment);
+			$$ = datatype;
 			}
 	;
 
@@ -701,10 +632,19 @@ ScriptTypeDef : SCRIPT TYPEDEF Script_Type IDENTIFIER {
 ////////////////////////////////////////////////////////////////
 // Data Declaration
 
-Data : DataType Data_List {
+Data : 
+	INTERNAL Data {
+		ASTDataDeclList* list = (ASTDataDeclList*)$2;
+		if (list->internal)
+			yyerrmsg("internal modifier used twice");
+		list->internal = true;
+		$$ = list;}
+	| DataType Data_List {
 		ASTDataType* type = (ASTDataType*)$1;
 		ASTDataDeclList* list = (ASTDataDeclList*)$2;
 		list->baseType = type;
+		if (!type->doc_comment.empty())
+			list->doc_comment = std::move(type->doc_comment);
 		list->location = @$;
 		$$ = list;}
 	;
@@ -720,6 +660,8 @@ Data_List :
 			ASTDataDecl* element = (ASTDataDecl*)$1;
 			ASTDataDeclList* list = new ASTDataDeclList(@$);
 			list->addDeclaration(element);
+			if (!element->doc_comment.empty())
+				list->doc_comment = std::move(element->doc_comment);
 			$$ = list;}
 	;
 
@@ -744,6 +686,8 @@ Data_Element_Array_List :
 			ASTString* name = (ASTString*)$1;
 			ASTDataDecl* element = new ASTDataDecl(@$);
 			element->identifier = name;
+			if (!ParserHelper::isValidIdentifier(name->getValue()))
+				yyerrmsg("ERROR: invalid identifier",name->location.first_line,name->location.first_column,name->getValue().c_str());
 			element->doc_comment = std::move(name->doc_comment);
 			if (!first_identifier_for_line) first_identifier_for_line = element;
 			$$ = element;
@@ -792,8 +736,12 @@ Function :
 	CONSTEXPR Function
 	{
 		ASTFuncDecl* func = (ASTFuncDecl*)$2;
-		func->setFlag(FUNCFLAG_INVALID);
-		func->invalidMsg += " User functions cannot be 'constexpr' (yet?).";
+		if(func->getFlag(FUNCFLAG_CONSTEXPR))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `constexpr`.";
+		}
+		func->setFlag(FUNCFLAG_CONSTEXPR);
 		$$ = func;
 	}
 	| STATIC Function
@@ -823,9 +771,28 @@ Function :
 		else func->setFlag(FUNCFLAG_INLINE);
 		$$ = func;
 	}
+	| INTERNAL Function
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if(func->getFlag(FUNCFLAG_INTERNAL))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `internal`.";
+		}
+		if(func->block)
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Internal function must not have a body.";
+		}
+		func->setFlag(FUNCFLAG_INTERNAL);
+		func->prototype = false;
+		$$ = func;
+	}
 	| DataType Function_Typeless {
 		ASTDataType* returnType = (ASTDataType*)$1;
 		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if (!returnType->doc_comment.empty())
+			func->doc_comment = std::move(returnType->doc_comment);
 		func->returnType = returnType;
 		$$ = func;}
 	;
@@ -922,8 +889,11 @@ Function_VarArg_Element :
 
 ////////////////////////////////////////////////////////////////
 // Class Declaration
+Class_Ident :
+	IDENTIFIER {$$ = $1;};
+
 Class :
-	ZCLASS IDENTIFIER Class_Block {
+	ZCLASS Class_Ident Class_Block {
 		ASTString* name = (ASTString*)$2;
 		ASTClass* user_class = (ASTClass*)$3;
 		user_class->location = @$;
@@ -1000,7 +970,17 @@ Class_Block_List :
 	;
 
 Class_Constructor :
-	Function_Typeless {
+	INTERNAL Class_Constructor {
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if(func->getFlag(FUNCFLAG_INTERNAL))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `internal`.";
+		}
+		else func->setFlag(FUNCFLAG_INTERNAL);
+		func->prototype = false;
+		$$ = func;}
+	| Function_Typeless {
 		ASTFuncDecl* func = (ASTFuncDecl*)$1;
 		ASTDataType* returnType = new ASTDataType(DataType::ZVOID, @$);
 		func->returnType = returnType;
@@ -1026,8 +1006,12 @@ Class_Destructor :
 		$$ = func;}
 	;
 
+Class_Data :
+	Data {$$ = $1;}
+	;
+
 Class_Block_Element :
-	Data SEMICOLON {$$ = $1;}
+	Class_Data SEMICOLON {$$ = $1;}
 	| Function {
 		ASTFuncDecl* func = (ASTFuncDecl*)$1;
 		func->setFlag(FUNCFLAG_CLASSFUNC);
@@ -1256,35 +1240,11 @@ Script :
 		script->metadata.script_name = name->getValue();
 		script->location = @$;
 		$$ = script;}
-
-	| SCRIPTSTRUCT IDENTIFIER Script_Block {
-		ASTScriptType* type = new ASTScriptType(ParserScriptType::untyped, @$);
-		ASTString* name = (ASTString*)$2;
-		ASTScript* script = (ASTScript*)$3;
-		script->identifier = name;
-		script->type = type;
-		script->metadata.script_name = name->getValue();
-		script->location = @$;
-		$$ = script;}
 	;
 
 
 Script_Type :
-	GLOBAL {$$ = new ASTScriptType(ParserScriptType::global, @$);}
-	| FFC {$$ = new ASTScriptType(ParserScriptType::ffc, @$);}
-	| ITEMCLASS {$$ = new ASTScriptType(ParserScriptType::item, @$);}
-	| EWEAPON {$$ = new ASTScriptType(ParserScriptType::eweapon, @$);}
-	| LWEAPON {$$ = new ASTScriptType(ParserScriptType::lweapon, @$);}
-	| NPC {$$ = new ASTScriptType(ParserScriptType::npc, @$);}
-	| SCREEN {$$ = new ASTScriptType(ParserScriptType::screendata, @$);}
-	| DMAP {$$ = new ASTScriptType(ParserScriptType::dmapdata, @$);}
-	| LINK {$$ = new ASTScriptType(ParserScriptType::player, @$);}
-	| ITEMSPRITE {$$ = new ASTScriptType(ParserScriptType::itemsprite, @$);}
-	| UNTYPED {$$ = new ASTScriptType(ParserScriptType::untyped, @$);}
-	| SUBSCREENDATA {$$ = new ASTScriptType(ParserScriptType::subscreendata, @$);}
-	| GENERIC {$$ = new ASTScriptType(ParserScriptType::genericscr, @$);}
-	| COMBO {$$ = new ASTScriptType(ParserScriptType::combodata, @$);}
-	| IDENTIFIER {
+	IDENTIFIER {
 		ASTString* name = static_cast<ASTString*>($1);
 		$$ = new ASTScriptType(name->getValue(), @$);
 		delete name;}

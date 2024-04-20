@@ -1,0 +1,674 @@
+// @zasm_ref REFBITMAP
+class bitmap {
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   SETR D2 CREATEBITMAP
+	internal bitmap(int width = 256, int height = 256);
+
+	// The width of the bitmap *at the start of this frame* in pixels.
+	//
+	// @zasm_var BITMAPWIDTH
+	internal const int Width;
+
+	// The height of the bitmap *at the start of this frame* in pixels.
+	//
+	// @zasm_var BITMAPHEIGHT
+	internal const int Height;
+
+	// Returns the palette index at the given position on the bitmap *at the
+	// start of the frame*.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D1
+	//   POP D2
+	//   GRAPHICSGETPIXEL D2
+	internal int GetPixel(int x, int y);
+
+	// Checks the area of this bitmap specified by the area on the [mask] bitmap
+	// which matches the [maskColor]. For a [maskColor] of `-1`, all non-zero
+	// values will match.
+	//
+	// @zasm
+	//   GRAPHICSCOUNTCOLOR D2
+	//   POPARGS REFBITMAP 0.0006
+	internal int CountColor(bitmap mask, int x, int y, int checkColor,
+							int maskColor = -1);
+
+	// Identical to [Screen->Rectangle()], but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPRECTR
+	//   POPARGS D5 0.0012
+	//   POP D3
+	internal void Rectangle(int layer, int x, int y, int x2, int y2, int color,
+							int scale = 1, int rx = 0, int ry = 0,
+							int rangle = 0, bool fill = true,
+							int opacity = 128);
+
+	// Identical to Screen->Circle(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPCIRCLER
+	//   POPARGS D5 0.0011
+	//   POP D3
+	internal void Circle(int layer, int x, int y, int radius, int color,
+						 int scale = 1, int rx = 0, int ry = 0, int rangle = 0,
+						 bool fill = true, int opacity = 128);
+
+	// Identical to Screen->Arc(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPARCR
+	//   POPARGS D5 0.0014
+	//   POP D3
+	internal void Arc(int layer, int x, int y, int radius, int startangle,
+					  int endangle, int color, int scale = 1, int rx = 0,
+					  int ry = 0, int rangle = 0, bool closed = true,
+					  bool fill = true, int opacity = 128);
+
+	// Identical to Screen->Ellipse(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPELLIPSER
+	//   POPARGS D5 0.0012
+	//   POP D3
+	internal void Ellipse(int layer, int x, int y, int xradius, int yradius,
+						  int color, int scale = 1, int rx = 0, int ry = 0,
+						  int rangle = 0, bool fill = true, int opacity = 128);
+
+	// Identical to Screen->Line(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPLINER
+	//   POPARGS D5 0.0011
+	//   POP D3
+	internal void Line(int layer, int x, int y, int x2, int y2, int color,
+					   int scale = 1, int rx = 0, int ry = 0, int rangle = 0,
+					   int opacity = 128);
+
+	// Identical to Screen->Spline(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPSPLINER
+	//   POPARGS D5 0.0011
+	//   POP D3
+	internal void Spline(int layer, int x1, int y1, int x2, int y2, int x3,
+						 int y3, int x4, int y4, int color, int opacity = 1);
+
+	// Identical to Screen->PutPixel(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPPUTPIXELR
+	//   POPARGS D5 0.0008
+	//   POP D3
+	internal void PutPixel(int layer, int x, int y, int color, int rx = 0,
+						   int ry = 0, int rangle = 0, int opacity = 128);
+
+	// Identical to Screen->DrawCharacter(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDRAWCHARR
+	//   POPARGS D5 0.0010
+	//   POP D3
+	internal void DrawCharacter(int layer, int x, int y, int font, int color,
+								int background_color, int width, int height,
+								char32 char, int opacity = 128);
+
+	// Identical to Screen->DrawInteger(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDRAWINTR
+	//   POPARGS D5 0.0011
+	//   POP D3
+	internal void DrawInteger(int layer, int x, int y, int font, int color,
+							  int background_color, int width, int height,
+							  int number, int number_decimal_places = 0,
+							  int opacity = 128);
+
+	// Identical to Screen->DrawTile(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDRAWTILER
+	//   POPARGS D5 0.0015
+	//   POP D3
+	internal void DrawTile(int layer, int x, int y, int tile, int blockw,
+						   int blockh, int cset, int xscale = -1,
+						   int yscale = -1, int rx = 0, int ry = 0,
+						   int rangle = 0, int flip = 0,
+						   bool transparency = true, int opacity = 128);
+
+	// Identical to Screen->DrawTileCloaked(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDRAWTILECLOAKEDR
+	//   POPARGS D5 0.0007
+	//   POP D3
+	internal void DrawTileCloaked(int layer, int x, int y, int tile, int blockw,
+								  int blockh, int flip = 0);
+
+	// @zasm
+	//   BMPDRAWCOMBOR
+	//   POPARGS D5 0.0016
+	//   POP D3
+	internal void DrawCombo(int arg1, int arg2, int arg3, int arg4, int arg5,
+							int arg6, int arg7, int arg8, int arg9 = -1,
+							int arg10 = -1, int arg11 = 0, int arg12 = 0,
+							int arg13 = 0, int arg14 = 0, bool arg15 = true,
+							int arg16 = 128);
+
+	// Identical to Screen->DrawComboCloaked(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDRAWCOMBOCLOAKEDR
+	//   POPARGS D5 0.0007
+	//   POP D3
+	internal void DrawComboCloaked(int layer, int x, int y, int combo,
+								   int tilewidth, int tileheight, int flip = 0);
+
+	// Identical to Screen->Quad(), but it draws to a target bitmap, and you can
+	// specify a bitmap as your texture.
+	//
+	// Pass the bitmap pointer that you want to use to 'bitmap render_source'.
+	//
+	// If you do not wish to use a bitmap as a texture, pass NULL to the arg
+	// 'bitmap render_source'.
+	//
+	// Use PT_TEXTURE or a similar polytype, to render your bitmap as a texture.
+	//
+	// For bitmap textures, specify the exact height and width of the texture as
+	// args 'w' and 'h'.
+	//
+	// If rendering a bitmap as a texture, the 'h' and 'w' args need not be a
+	// power of 2.
+	//
+	// If `bitmap render_source` != NULL, then it will use this as the texture,
+	// instead of a tile or combo.
+	//
+	// If the pointer supplied to render_source is invalid (contains no data),
+	// then this function will default to using a tile.
+	//
+	// @zasm
+	//   BMPQUADR
+	//   POPARGS D5 0.0016
+	//   POP D3
+	internal void Quad(int layer, int x1, int y1, int x2, int y2, int x3,
+					   int y3, int x4, int y4, int w, int h, int cset, int flip,
+					   int texture, int render_mode,
+					   bitmap render_source = < bitmap > 0);
+
+	// @zasm
+	//   BMPTRIANGLER
+	//   POPARGS D5 0.0014
+	//   POP D3
+	internal void Triangle(int layer, int x1, int y1, int x2, int y2, int x3,
+						   int y3, int w, int h, int cset, int flip,
+						   int texture, int render_mode, bitmap render_source);
+
+	// Identical to Screen->Quad(), but it draws to a target bitmap, and you can
+	// specify a bitmap as your texture.
+	//
+	// Pass the bitmap pointer that you want to use to [render_source].
+	//
+	// If you do not wish to use a bitmap as a texture, pass NULL to the arg
+	// [render_source].
+	//
+	// Use PT_TEXTURE or a similar polytype, to render your bitmap as a texture.
+	//
+	// For bitmap textures, specify the exact height and width of the texture as
+	// args 'w' and 'h'.
+	//
+	// If rendering a bitmap as a texture, the 'h' and 'w' args need not be a
+	// power of 2.
+	//
+	// If [render_source] != NULL, then it will use this as the texture,
+	// instead of a tile or combo.
+	//
+	// If the pointer supplied to [render_source] is invalid (contains no data),
+	// then this function will default to using a tile.
+	//
+	// @zasm
+	//   BMPQUAD3DR
+	//   POPARGS D5 0.0009
+	//   POP D3
+	internal void Quad3D(int layer, int pos, int uv, int cset, int size,
+						 int flip, int texture, int polytype,
+						 bitmap render_source);
+
+	// @zasm
+	//   BMPTRIANGLE3DR
+	//   POPARGS D5 0.0009
+	//   POP D3
+	internal void Triangle3D(int layer, int pos, int uv, int csets, int size,
+							 int flip, int tile, int polytype,
+							 bitmap render_source);
+
+	// Draws the specified tile in the specified cset, with the upper-left at
+	// (x,y).
+	//
+	// @zasm
+	//   BMPFASTTILER
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void FastTile(int layer, int x, int y, int tile, int cset,
+						   int opacity = 128);
+
+	// As [Screen->FastTile], for the current tile of `combo`.
+	//
+	// @zasm
+	//   BMPFASTCOMBOR
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void FastCombo(int layer, int x, int y, int combo, int cset,
+							int opacity = 128);
+
+	// Identical to Screen->DrawString(), but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDRAWSTRINGR
+	//   POPARGS D5 0.0009
+	//   POP D3
+	internal void DrawString(int layer, int x, int y, int font, int color,
+							 int background_color, int format, char32 str,
+							 int opacity = 128);
+
+	// Identical to [Screen->DrawString()], but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDRAWSTRINGR2
+	//   POPARGS D5 0.0011
+	//   POP D3
+	internal void DrawString(int layer, int x, int y, int font, int color,
+							 int background_color, int format, char32 str,
+							 int opacity, int shadow_type, int shadow_color);
+
+	// Identical to [Screen->DrawLayer()], but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDRAWLAYERR
+	//   POPARGS D5 0.0008
+	//   POP D3
+	internal void DrawLayer(int layer, int source_map, int source_screen,
+							int source_layer, int x, int y, int rotation = 0,
+							int opacity = 128);
+
+	// @zasm
+	//   BMPDRAWSCREENR
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void DrawScreen(int layer, int map, int source_screen, int x,
+							 int y, int rotation = 0);
+
+	// BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP.
+	//
+	// As DrawBitmapEx(), except that it draws FROM an initialised bitmap
+	// pointer,
+	//
+	// TO a target bitmap, which may be a user-created bitmap, or it may be the
+	// screen.
+	//
+	// To draw to the screen, or to one of the old system bitmaps, use the RT_*
+	// value from std_constants.zh as the argument to 'bitmap target'.
+	//
+	// To draw to a user created bitmap, pass its pointer to 'bitmap target'.
+	//
+	// Blit supports multiple MODES, OR'd together as a bitmask:
+	//
+	// ```
+	// const int BITDX_NORMAL = 0;
+	// const int BITDX_TRANS = 0x01; //Translucent
+	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
+	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
+	// ```
+	//
+	// You can also set a pivot point for the rotation, using 'int cx' and 'int
+	// cy'
+	//
+	// If these are non-zero, the rotation anchor point will centre on these
+	// coordinates.
+	//
+	// You may specify a colour to 'int lit' to use a lit mode. This tints the
+	// entire bitmap using that colour index of the main palette.
+	//
+	// @zasm
+	//   BMPBLIT
+	//   POPARGS D5 0.0016
+	//   POP REFBITMAP
+	internal void Blit(int layer, untyped target, int source_x, int source_y,
+					   int source_w, int source_h, int dest_x, int dest_y,
+					   int dest_w, int dest_h, int rotation = 0, int cx = 0,
+					   int cy = 0, int mode = 0, int lit = 0, bool mask = true);
+
+	// BLITS ANOTHER BITMAP TO THE POINTER 'b'.
+	//
+	// As Blit(), except that it draws TO an initialised bitmap pointer,
+	//
+	// FROM a source bitmap, which may be a user-created bitmap, or it may be
+	// the screen.
+	//
+	// To draw to the screen, or to one of the old system bitmaps, use the RT_*
+	// value from std_constants.zh
+	//
+	// as the argument to 'bitmap source'.
+	//
+	// To draw from a user created bitmap, pass its pointer to 'bitmap source.
+	//
+	// BlitTo supports multiple MODES, OR'd together as a bitmask:
+	//
+	// ```
+	// const int BITDX_NORMAL = 0;
+	// const int BITDX_TRANS = 0x01; //Translucent
+	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
+	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
+	// ```
+	//
+	// You can also set a pivot point for the rotation, using 'int cx' and 'int
+	// cy'
+	//
+	// If these are non-zero, the rotation anchor point will centre on these
+	// coordinates.
+	//
+	// You may specify a colour to 'int lit' to use a lit mode. This tints the
+	// entire bitmap using that colour index of the main palette.
+	//
+	// @zasm
+	//   BMPBLITTO
+	//   POPARGS D5 0.0016
+	//   POP REFBITMAP
+	internal void BlitTo(int layer, untyped source, int source_x, int source_y,
+						 int source_w, int source_h, int dest_x, int dest_y,
+						 int dest_w, int dest_h, int rotation = 0, int cx = 0,
+						 int cy = 0, int mode = 0, int lit = 0,
+						 bool mask = true);
+
+	// Draws a scaled 'Mode 7' style effect, line-by-line, where each raster is
+	// scaled down toward a horizon point.
+	//
+	// @zasm
+	//   BMPMODE7
+	//   POPARGS D5 0.0013
+	//   POP REFBITMAP
+	internal void DrawPlane(int layer, untyped src, int src_x, int src_y,
+							int dest_x, int dest_y, int dest_w, int dest_h,
+							int space_z, int horizon, int scale_x = 1,
+							int scale_y = 1, bool mask = true);
+
+	// Returns true if the bitmap pointer has been created to be drawn to.
+	//
+	// @zasm
+	//   POP D2
+	//   ISVALIDBITMAP D2
+	internal bool isValid();
+
+	// Returns true if the bitmap pointer has been allocated for use.
+	//
+	// @zasm
+	//   POP D2
+	//   ISALLOCATEDBITMAP D2
+	internal bool isAllocated();
+
+	// Writes from the bitmap to the specified image file. Requires one of:
+	// `.png`,`.gif`,`pcx`,`.tgx`,`.bmp`. Fails otherwise.
+	//
+	// @zasm
+	//   WRITEBITMAP
+	//   POPARGS D5 0.0003
+	//   POP D3
+	internal void Write(int layer, char32 filename,
+						bool allow_overwrite = false);
+
+	// Reads from the specified image file into the bitmap.  Read() will fail
+	// if:
+	//
+	// @reassign_ptr
+	// @zasm
+	//   READBITMAP
+	//   POPARGS D5 0.0002
+	//   POP REFBITMAP
+	internal void Read(int layer, char32 filename);
+
+	// Creates a bitmap on the pointer of [width] x [height], destroying any data
+	// that was previously on the pointer.
+	//
+	// @reassign_ptr
+	// @zasm
+	//   REGENERATEBITMAP
+	//   POPARGS D5 0.0003
+	//   POP REFBITMAP
+	internal void Create(int layer = 0, int width = 256, int height = 256);
+
+	// @zasm
+	//   BMPPOLYGONR
+	//   POPARGS D5 0.0005
+	//   POP D3
+	internal void Polygon(int layer, int num_points, int vertices, int colour,
+						  int opacity = 128);
+
+	// Clears the bitmap to the specified color on the specified layer timing.
+	//
+	// @zasm
+	//   BITMAPCLEARTOCOLOR
+	//   POPARGS D5 0.0002
+	//   POP D3
+	internal void ClearToColor(int layer, int color);
+
+	// De-allocates this `bitmap` pointer, so that its' pointer ID may be
+	// re-used. You may only have a limited number of bitmap pointers active at
+	// a time; freeing them when you are done with them helps not reach the
+	// limit.
+	//
+	// @deprecated Free() no longer does anything as of ZC 3.0. Objects are now
+	// freed automatically.
+	// @zasm
+	//   POP REFBITMAP
+	//   BITMAPFREE
+	internal void Free();
+
+	// Grants 'Ownership' of the bitmap pointer to the script that calls this
+	// function. When the script with 'Ownership' terminates (at the same time
+	// its' local arrays are deallocated), this bitmap pointer will
+	// automatically be 'Free()'d.
+	//
+	// @zasm
+	//   POP REFBITMAP
+	//   BITMAPOWN
+	internal void Own();
+
+	// Identical to [Screen->DrawFrame()], but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPFRAMER
+	//   POPARGS D5 0.0009
+	//   POP D3
+	internal void DrawFrame(int layer, int x, int y, int tile, int cset,
+							int width, int height, bool overlay = true,
+							int opacity = 128);
+
+	// Writes a 16x16 area from the bitmap to the tile `tile`. The tile's 8-bit
+	// status will be set to the value of `is8bit`. If [mask] is true, the draw
+	// will be an `Overlay`- otherwise it will overwrite.
+	//
+	// @zasm
+	//   BMPWRITETILE
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void WriteTile(int layer, int x, int y, int tile,
+							bool is8bit = true, bool mask = false);
+
+	// Draws [color] onto the bitmap on pixels that are non-color-0 on the
+	// [mask] bitmap, based on the
+	// Identical to [Screen->Rectangle()], but it draws to a target bitmap.
+	//
+	// @zasm
+	//   BMPDITHER
+	//   POPARGS D5 0.0005
+	//   POP D3
+	internal void Dither(int layer, bitmap mask, int color, int ditherType,
+						 int ditherArg);
+
+	// Replaces colors that are [startCol] <= [color] <= [endCol].
+	//
+	// @zasm
+	//   BMPREPLCOLOR
+	//   POPARGS D5 0.0004
+	//   POP D3
+	internal void ReplaceColors(int layer, int color, int startCol, int endCol);
+
+	// Shifts colors that are >= [startCol] and <= [endCol] by adding [shift] to
+	// them.
+	//
+	// @zasm
+	//   BMPSHIFTCOLOR
+	//   POPARGS D5 0.0004
+	//   POP D3
+	internal void ShiftColors(int layer, int shift, int startCol, int endCol);
+
+	// Draws [color] to this bitmap, in the area specified by the [mask]. Any
+	// pixel on the [mask] which matches the [maskColor] will be drawn.
+	//
+	// @zasm
+	//   BMPMASKDRAW
+	//   POPARGS D5 0.0003
+	//   POP D3
+	internal void MaskedDraw(int layer, bitmap mask, int color);
+
+	// Draws [color] to this bitmap, in the area specified by the [mask]. Any
+	// pixel on the [mask] which matches the [maskColor] will be drawn.
+	//
+	// @zasm
+	//   BMPMASKDRAW2
+	//   POPARGS D5 0.0004
+	//   POP D3
+	internal void MaskedDraw(int layer, bitmap mask, int color, int maskColor);
+
+	// Draws [color] to this bitmap, in the area specified by the [mask]. Any
+	// pixel on the [mask] which matches the [maskColor] will be drawn.
+	//
+	// @zasm
+	//   BMPMASKDRAW3
+	//   POPARGS D5 0.0005
+	//   POP D3
+	internal void MaskedDraw(int layer, bitmap mask, int color,
+							 int startMaskColor, int endMaskColor);
+
+	// Same as [MaskedDraw], except instead of drawing a specified [color] to
+	// this bitmap, it draws from a [pattern] bitmap.
+	//
+	// @zasm
+	//   BMPMASKBLIT
+	//   POPARGS D5 0.0004
+	//   POP D3
+	internal void MaskedBlit(int layer, bitmap mask, bitmap pattern,
+							 bool repeatPattern);
+
+	// Same as [MaskedDraw], except instead of drawing a specified [color] to
+	// this bitmap, it draws from a [pattern] bitmap.
+	//
+	// @zasm
+	//   BMPMASKBLIT2
+	//   POPARGS D5 0.0005
+	//   POP D3
+	internal void MaskedBlit(int layer, bitmap mask, bitmap pattern,
+							 bool repeatPattern, int maskColor);
+
+	// Same as [MaskedDraw], except instead of drawing a specified [color] to
+	// this bitmap, it draws from a [pattern] bitmap.
+	//
+	// @zasm
+	//   BMPMASKBLIT3
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void MaskedBlit(int layer, bitmap mask, bitmap pattern,
+							 bool repeatPattern, int startMaskColor,
+							 int endMaskColor);
+
+	// Clears the bitmap to color 0 on the specified [layer] timing.
+	//
+	// @zasm
+	//   CLEARBITMAP
+	//   POPARGS D5 0.0001
+	//   POP D3
+	internal void Clear(int layer = 0);
+
+	// @zasm
+	//   BMPDRAWSCREENSOLID2R
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void DrawScreenSolid(int layer, int map, int source_screen, int x,
+								  int y, int rotation = 0);
+
+	// @zasm
+	//   BMPDRAWSCREENSOLIDR
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void DrawScreenSolidity(int layer, int map, int source_screen,
+									 int x, int y, int rotation = 0);
+
+	// @zasm
+	//   BMPDRAWSCREENCOMBOTR
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void DrawScreenComboTypes(int layer, int map, int source_screen,
+									   int x, int y, int rotation = 0);
+
+	// @zasm
+	//   BMPDRAWSCREENCOMBOFR
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void DrawScreenComboFlags(int layer, int map, int source_screen,
+									   int x, int y, int rotation = 0);
+
+	// @zasm
+	//   BMPDRAWSCREENCOMBOIR
+	//   POPARGS D5 0.0006
+	//   POP D3
+	internal void DrawScreenComboIFlags(int layer, int map, int source_screen,
+										int x, int y, int rotation = 0);
+
+	// @zasm
+	//   BMPDRAWLAYERSOLIDR
+	//   POPARGS D5 0.0008
+	//   POP D3
+	internal void DrawLayerSolid(int arg1, int arg2, int arg3, int arg4,
+								 int arg5, int arg6, int arg7, int arg8);
+
+	// @zasm
+	//   BMPDRAWLAYERSOLIDITYR
+	//   POPARGS D5 0.0008
+	//   POP D3
+	internal void DrawLayerSolidity(int arg1, int arg2, int arg3, int arg4,
+									int arg5, int arg6, int arg7, int arg8);
+
+	// @zasm
+	//   BMPDRAWLAYERCTYPER
+	//   POPARGS D5 0.0008
+	//   POP D3
+	internal void DrawLayerComboTypes(int arg1, int arg2, int arg3, int arg4,
+									  int arg5, int arg6, int arg7, int arg8);
+
+	// @zasm
+	//   BMPDRAWLAYERCFLAGR
+	//   POPARGS D5 0.0008
+	//   POP D3
+	internal void DrawLayerComboFlags(int arg1, int arg2, int arg3, int arg4,
+									  int arg5, int arg6, int arg7, int arg8);
+
+	// @zasm
+	//   BMPDRAWLAYERCIFLAGR
+	//   POPARGS D5 0.0008
+	//   POP D3
+	internal void DrawLayerComboIFlags(int arg1, int arg2, int arg3, int arg4,
+									   int arg5, int arg6, int arg7, int arg8);
+
+	// @zasm
+	//   BMPBLITTO
+	//   POPARGS D5 0.0016
+	//   POP REFBITMAP
+	internal void RevBlit(int arg1, bitmap arg2, int arg3, int arg4, int arg5,
+						  int arg6, int arg7, int arg8, int arg9, int arg10,
+						  int arg11 = 0, int arg12 = 0, int arg13 = 0,
+						  int arg14 = 0, int arg15 = 0, bool arg16 = true);
+}

@@ -1,0 +1,30 @@
+// @zasm_ref REFDROPS
+class dropsetdata {
+	// @delete
+	internal dropsetdata();
+
+	// The item IDs stored in this dropset.
+	//
+	// @zasm_var DROPSETITEMS
+	internal int Items[];
+
+	// The chances for each item to appear. These are not percentages, but
+	// weights; changing one will affect the odds of all of them.
+	//
+	// @zasm_var DROPSETCHANCES
+	internal int Chances[];
+
+	// The weighted value for no item being chosen at all.
+	//
+	// @zasm_var DROPSETNULLCHANCE
+	internal int NothingChance;
+
+	// Randomly selects an item from the dropset, and returns its ID.
+	//
+	// @zasm
+	//   POP REFDROPS
+	//   SETR D2 DROPSETCHOOSE
+	internal int Choose();
+}
+
+internal const dropsetdata DropData;

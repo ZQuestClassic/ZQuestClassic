@@ -1,0 +1,964 @@
+// Exits the current script entirely. Has the same effect as `void run()`
+// ending.
+//
+// @exit
+// @zasm
+//   QUIT
+internal void Quit();
+
+// Exits the current script entirely, and forcibly skips the de-allocating of
+// objects 'Owned' by the script. Only use this if you know what you are doing!
+//
+// @exit
+// @zasm
+//   QUIT_NO_DEALLOC
+internal void QuitNoKill();
+
+// Yields the script to the engine for the current frame. The engine will
+// proceed with one frame of gameplay before resuming this execution of this
+// script.
+//
+// @zasm
+//   WAITFRAME
+internal void Waitframe();
+
+// Waitframe() for 'count' frames in a row.
+//
+// If 'count <= 0', no wait occurs.
+//
+// 'count' will be rounded up.
+//
+// @zasm
+//   POP D2
+//   WAITFRAMESR D2
+internal void Waitframes(int count);
+
+// When called the first time in a frame, the script ends running for a portion
+// of time. The engine will proceed with part of a frame of gameplay, allowing
+// other engine activities to occur, before resuming this script.
+//
+// @zasm
+//   WAITDRAW
+internal void Waitdraw();
+
+// Can only be used in a passively-running {@link genericdata|Generic Script}.
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   WAITTO D2 D3
+internal void WaitTo(int timing, bool at_least = false);
+
+// Can only be used in a passively-running {@link genericdata|Generic Script}.
+//
+// @zasm
+//   WAITEVENT
+internal int WaitEvent();
+
+// Prints the passed value to the output console. Includes a newline character
+// after the value.
+//
+// @deprecated_alias TraceLWeapon
+// @deprecated_alias TraceEWeapon
+// @deprecated_alias TraceNPC
+// @deprecated_alias TraceFFC
+// @deprecated_alias TraceItem
+// @deprecated_alias TraceItemData
+// @zasm
+//   POP D2
+//   TRACER D2
+internal void Trace(untyped val);
+
+// Prints the passed value to the output console. Includes a newline character
+// after the value.
+//
+// @deprecated_alias TraceLWeapon
+// @deprecated_alias TraceEWeapon
+// @deprecated_alias TraceNPC
+// @deprecated_alias TraceFFC
+// @deprecated_alias TraceItem
+// @deprecated_alias TraceItemData
+// @zasm
+//   POP D2
+//   TRACELR D2
+internal void Trace(long val);
+
+// Prints the passed value to the output console, as "true" if the value is
+// nonzero, or "false" if the value is 0. Includes a newline character after the
+// value.
+//
+// @zasm
+//   POP D2
+//   TRACE2R D2
+internal void TraceB(bool val);
+
+// Prints the passed string to the output console. Does not include a newline
+// character after the string.
+//
+// @zasm
+//   POP D3
+//   TRACE6 D3
+internal void TraceS(int string);
+
+// Prints a newline character to the output console.
+//
+// @zasm
+//   TRACE3
+internal void TraceNL();
+
+// Clears the logs from ${allegro.log}, and clears the ${output console}.
+//
+// @zasm
+//   TRACE4
+internal void ClearTrace();
+
+// Prints the passed value to the output console, in the specified base, where
+// "2 <= [base] <= 36". Value will be floored before print, so decimal values
+// are not printed. Will print at least 'mindigits digits, using leading 0s as
+// needed. Includes a newline character after the value.
+//
+// @zasm
+//   TRACE5
+//   POPARGS D5 0.0003
+internal void TraceToBase(int val, int base, int mindigits);
+
+// Returns the trig Sin of the degree value given.
+//
+// @zasm
+//   POP D3
+//   SINR D2 D3
+internal int Sin(int deg);
+
+// Returns the trig Cos of the degree value given.
+//
+// @zasm
+//   POP D3
+//   COSR D2 D3
+internal int Cos(int deg);
+
+// Returns the trig Tan of the degree value given.
+//
+// @zasm
+//   POP D3
+//   TANR D2 D3
+internal int Tan(int deg);
+
+// Returns the trig ArcTan of the values given.
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   ARCTANR D2
+internal int ArcTan(int x, int y);
+
+// Returns the trig ArcSin of the value given.
+//
+// @zasm
+//   POP D3
+//   ARCSINR D2 D3
+internal int ArcSin(int x);
+
+// Returns the trig ArcCos of the value given.
+//
+// @zasm
+//   POP D3
+//   ARCCOSR D2 D3
+internal int ArcCos(int x);
+
+// Returns the trig Sin of the radian value given.
+//
+// @zasm
+//   POP D3
+//   MULTV D3 57.2958
+//   SINR D2 D3
+internal int RadianSin(int rad);
+
+// Returns the trig Cos of the radian value given.
+//
+// @zasm
+//   POP D3
+//   MULTV D3 57.2958
+//   COSR D2 D3
+internal int RadianCos(int rad);
+
+// Returns the trig Tan of the radian value given.
+//
+// @zasm
+//   POP D3
+//   MULTV D3 57.2958
+//   TANR D2 D3
+internal int RadianTan(int rad);
+
+// Returns 'base**exp', with '0**0==1'. Negative values of 'exp' work, though
+// may not be useful, as the return value is truncated to the nearest integer.
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   POWERR D2 D3
+internal constexpr int Pow(int base, int exp);
+
+// Returns 'base**exp', with '0**0==1'. Negative values of 'exp' work, though
+// may not be useful, as the return value is truncated to the nearest long.
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   LPOWERR D2 D3
+internal constexpr long LPow(long base, long exp);
+
+// Returns 'base**(1/exp)', undefined if 'exp' is 0, or if 'exp' is even and
+// 'base' is negative. Negative values of 'exp' work, though may not be useful,
+// as the return value is truncated to the nearest integer.
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   IPOWERR D2 D3
+internal constexpr int InvPow(int base, int exp);
+
+// Returns `val!`. Returns '0' for negative values.
+//
+// @zasm
+//   POP D2
+//   FACTORIAL D2
+internal constexpr int Factorial(int val);
+
+// Returns the absolute value of the parameter.
+//
+// @zasm
+//   POP D2
+//   ABS D2
+internal constexpr int Abs(int val);
+
+// Returns the log\_10 of the value. Values <= 0 return 0.
+//
+// @zasm
+//   POP D2
+//   LOG10 D2
+internal int Log10(int val);
+
+// Returns the natural log (log\_e) of the value. Values <= 0  return 0.
+//
+// @zasm
+//   POP D2
+//   LOGE D2
+internal int Ln(int val);
+
+// Returns the square root of the value. Undefined for negative values, and will
+// return an error.
+//
+// @zasm
+//   POP D2
+//   SQROOTR D2 D2
+internal constexpr int Sqrt(int val);
+
+// Copies tile 'src' to tile [dest].
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   COPYTILERR D2 D3
+internal void CopyTile(int src, int dest);
+
+// Swaps the tiles 'a' and 'b'.
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   SWAPTILERR D2 D3
+internal void SwapTile(int a, int b);
+
+// Clears the tile 'tile' to be blank.
+//
+// @zasm
+//   POP D3
+//   CLEARTILER D3
+internal void ClearTile(int tile);
+
+// Returns the size of the array
+//
+// @deprecated_alias SizeOfArrayBool
+// @deprecated_alias SizeOfArrayFFC
+// @deprecated_alias SizeOfArrayItem
+// @deprecated_alias SizeOfArrayLWeapon
+// @deprecated_alias SizeOfArrayEWeapon
+// @deprecated_alias SizeOfArrayNPC
+// @deprecated_alias SizeOfArrayItemdata
+// @zasm
+//   POP D2
+//   ARRAYSIZE D2
+internal int SizeOfArray(T_ARR arr);
+
+// Resizes the array 'arr' to size 'size'. If 'size' is <1, the array becomes
+// size 1 instead.
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   RESIZEARRAYR D2 D3
+internal void ResizeArray(T_ARR arr, int size);
+
+// Grants ownership of the target array to the currently running script.
+//
+// @zasm
+//   POP D2
+//   OWNARRAYR D2
+internal void OwnArray(T_ARR arr);
+
+// If [arr] is a local array, destroys it immediately. Otherwise does nothing.
+//
+// @zasm
+//   POP D2
+//   DESTROYARRAYR D2
+internal void DestroyArray(T_ARR arr);
+
+// Takes an Object parameter. Grants ownership of the object to the currently
+// running script.
+//
+// @zasm
+//   POP D2
+//   ZCLASS_OWN D2
+internal void OwnObject(untyped obj);
+
+// Takes an Object parameter. Globalizes the object, making it no longer owned
+// by any script.
+//
+// @zasm
+//   POP D2
+//   ZCLASS_GLOBALIZE D2
+internal void GlobalObject(untyped obj);
+
+// Overlays tile [src] over tile [dest].
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   OVERLAYTILERR D2 D3
+internal void OverlayTile(int src, int dest);
+
+// Returns [val] rounded down to the next lower integer.
+//
+// @zasm
+//   POP D2
+//   FLOOR D2
+internal constexpr untyped Floor(untyped val);
+
+// Returns [val] rounded up to the next higher integer.
+//
+// @zasm
+//   POP D2
+//   CEILING D2
+internal constexpr untyped Ceiling(untyped val);
+
+// Truncates [n] to the nearest integer, rounding towards 0.
+//
+// @zasm
+//   POP D2
+//   TRUNCATE D2
+internal constexpr untyped Truncate(untyped n);
+
+// Truncates [n] to the nearest integer.
+//
+// @zasm
+//   POP D2
+//   ROUND D2
+internal constexpr untyped Round(untyped n);
+
+// Truncates [n] to the nearest integer, rounding away from 0.
+//
+// @zasm
+//   POP D2
+//   ROUNDAWAY D2
+internal constexpr untyped RoundAway(untyped n);
+
+// Returns information from the real-time clock of the system.
+//
+// @zasm
+//   POP D2
+//   GETRTCTIMER D2
+internal int GetSystemTime(int index);
+
+// Calculates the distance between two points, optionally using a scale divisor
+// to handle distances that would otherwise overflow.
+//
+// @zasm
+//   POP D2
+//   POP D1
+//   POP D0
+//   POP D6
+//   SETR D2 DISTANCE
+internal int Distance(int x1, int y1, int x2, int y2);
+
+// Calculates the distance between two points, optionally using a scale divisor
+// to handle distances that would otherwise overflow.
+//
+// @zasm
+//   POP D7
+//   POP D2
+//   POP D1
+//   POP D0
+//   POP D6
+//   SETR D2 DISTANCESCALE
+internal int Distance(int x1, int y1, int x2, int y2, int scale);
+
+// Same as [Distance()], but takes distances as 'long' coordinates, returning a
+// 'long' distance value.
+//
+// @zasm
+//   POP D2
+//   POP D1
+//   POP D0
+//   POP D6
+//   SETR D2 LONGDISTANCE
+internal long LongDistance(long x1, long y1, long x2, long y2);
+
+// Same as [Distance()], but takes distances as 'long' coordinates, returning a
+// 'long' distance value.
+//
+// @zasm
+//   POP D7
+//   POP D2
+//   POP D1
+//   POP D0
+//   POP D6
+//   SETR D2 LONGDISTANCESCALE
+internal long LongDistance(long x1, long y1, long x2, long y2, long scale);
+
+// Compares the contents of the two strings.
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   STRINGCOMPARE D2
+internal int strcmp(int str1, int str2);
+
+// Compares the contents of the two strings.
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   POP D3
+//   STRINGNCOMPARE D2
+internal int strncmp(int str1, int str2, int num_chars);
+
+// Compares the contents of the two strings.
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   STRINGICOMPARE D2
+internal int stricmp(int str1, int str2);
+
+// Compares the contents of the two strings.
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   POP D3
+//   STRINGNICOMPARE D2
+internal int strnicmp(int str1, int str2, int num_chars);
+
+// Copies the string 'src' to [dest].
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   STRINGCOPY D2 D3
+internal void strcpy(int dest, int src);
+
+// Appends the value [val] on the end of the [dest] string; combining [itoa]
+// with [strcat].
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   ITOACAT D2 D3
+internal void itoacat(int dest, int val);
+
+// Copies all data from [src] to [dest]. If the arrays are not the same size,
+// the smaller size is used, and the excess in the larger array is ignored.
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   ARRAYCOPY D2 D3
+internal void ArrayCopy(T_ARR dest, T_ARR src);
+
+// Returns the length of the string in characters.
+//
+// @zasm
+//   POP D3
+//   STRINGLENGTH D2 D3
+internal int strlen(char32 str);
+
+// Converts a string containing a number to its numeric value.
+//
+// @zasm
+//   POP D3
+//   ATOI D2 D3
+internal int atoi(char32 str);
+
+// @zasm
+//   POP D3
+//   ATOL D2 D3
+internal long atol(char32 arg1);
+
+// Returns the number of characters in the string that are taken up by a number
+// (as would be read by [atoi, including negative sign)
+//
+// @zasm
+//   POP D3
+//   ILEN D2 D3
+internal int ilen(int string);
+
+// Lowercases the string (modifies).
+//
+// @zasm
+//   POP D3
+//   UPPERTOLOWER D2 D3
+internal int utol(char32 string);
+
+// Uppercases the string (modifies).
+//
+// @zasm
+//   POP D3
+//   LOWERTOUPPER D2 D3
+internal int ltou(char32 string);
+
+// Swaps casing (a->A, A->a) for the string passed (modifies).
+//
+// @zasm
+//   POP D3
+//   CONVERTCASE D2 D3
+internal int convcase(char32 string);
+
+// Converts the value [val] to a string, and writes to [dest].
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   ITOA D2 D3
+internal int itoa(int dest, int val);
+
+// Converts [val] to a string, as hexadecimal, and writes to [dest].
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   XTOA D2 D3
+internal int xtoa(int dest, int val);
+
+// Converts a string containing a hexadecimal number to its numeric value.
+//
+// @zasm
+//   POP D3
+//   XTOI D2 D3
+internal int xtoi(int str);
+
+// Saves/loads internal data (which is normally temporarily altered by scripts)
+// of the types specified in [flags].
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   SAVEGAMESTRUCTS D2 D3
+internal int SaveSRAM(int filename, int flags);
+
+// Saves/loads internal data (which is normally temporarily altered by scripts)
+// of the types specified in [flags].
+//
+// @zasm
+//   POP D3
+//   POP D2
+//   READGAMESTRUCTS D2 D3
+internal int LoadSRAM(int filename, int flags);
+
+// Appends 'src' to the end of [dest]. Returns [dest].
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   STRCAT D2
+internal int strcat(int dest, int src);
+
+// Returns the first index of [str] that contains the character [c].
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   STRCHR D2
+internal int strchr(int str, int c);
+
+// Returns the length in [str] before any character in 'chars' is found.
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   STRCSPN D2
+internal int strcspn(int str, int chars);
+
+// Returns the number of characters in a string before a character not contained
+// in
+//
+// 'string_keys' is found
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   STRSPN D2
+internal int strspn(int str, int string_keys);
+
+// Returns the index of the first instance of the string [tofind] within [str].
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   STRSTR D2
+internal int strstr(int str, int tofind);
+
+// Returns the last index of [str] that contains the character [c].
+//
+// @zasm
+//   POP D1
+//   POP D0
+//   STRRCHR D2
+internal int strrchr(int str, int c);
+
+// Returns true if the value 'arr' points to a valid array.
+//
+// @zasm
+//   POP D2
+//   ISVALIDARRAY D2
+internal bool IsValidArray(untyped arr);
+
+// Converts Degrees to Radians. More accurate than the old std_functions
+// DegtoRad.
+//
+// Because radians are mostly decimal and zscript can only have 4 decimals,
+// there is very minor inaccuracies
+//
+// with this conversion that are not feasibly fixable; however, it is still more
+// accurate than the old std.zh conversion function,
+//
+// where the old conversion could potentially be 2 entire degrees off at certain
+// angles, while this version only loses about 0.0004 degrees of accuracy.
+//
+// In addition, casting between [DegtoRad] and [RadtoDeg] repeatedly will *not*
+// lose additional precision with each call; only the first call will lose
+// precision.
+//
+// @alias DegToRad
+// @deprecated_alias EngineDegtoRad
+// @zasm
+//   POP D3
+//   DEGTORAD D2 D3
+internal constexpr int DegtoRad(int degrees);
+
+// Converts Radians to Degrees. More accurate than the old std_functions
+// RadtoDeg.
+//
+// See [DegtoRad] for more details on how this is more accurate.
+//
+// @alias RadToDeg
+// @deprecated_alias EngineRadtoDeg
+// @zasm
+//   POP D3
+//   RADTODEG D2 D3
+internal constexpr int RadtoDeg(int radians);
+
+// Returns the [radians] value, wrapped between [-PI,PI)
+//
+// @alias WrapAngle
+// @alias WrapRad
+// @zasm
+//   POP D2
+//   WRAPRADIANS D2
+internal constexpr int WrapRadians(int radians);
+
+// Returns the [degrees] value, wrapped between [-180,180)
+//
+// @alias WrapDeg
+// @zasm
+//   POP D2
+//   WRAPDEGREES D2
+internal constexpr int WrapDegrees(int degrees);
+
+// Prints the specified format_string to the output console, using the given
+// args to fill in parts of the string that are specially marked. Does not
+// include a newline character after the string.
+//
+// @vargs 0
+// @zasm
+//   PRINTFVARG
+//   POP D5
+internal void printf(char32 format);
+
+// Acts exactly as output console, it is instead placed in the [dest] buffer. If
+// the [dest] buffer is too small, it will be resized to fit the contents.
+//
+// @vargs 0
+// @zasm
+//   SPRINTFVARG
+//   POPARGS D5 0.0002
+internal int sprintf(char32 buf, char32 format);
+
+// Prints the specified format_string to the output console, using the given
+// args to fill in parts of the string that are specially marked. Does not
+// include a newline character after the string.
+//
+// @zasm
+//   PRINTFA
+//   POPARGS D5 0.0002
+internal void printfa(char32 format, T_ARR args);
+
+// Acts exactly as output console, it is instead placed in the [dest] buffer. If
+// the [dest] buffer is too small, it will be resized to fit the contents.
+//
+// @zasm
+//   SPRINTFA
+//   POPARGS D5 0.0003
+internal int sprintfa(char32 buf, char32 format, T_ARR args);
+
+// Returns the largest parameter.
+//
+// @vargs 2
+// @zasm
+//   MAXVARG
+internal constexpr T Max(T val1, T val2);
+
+// Returns the smallest parameter.
+//
+// @vargs 2
+// @zasm
+//   MINVARG
+internal constexpr T Min(T val1, T val2);
+
+// Returns a random parameter, using the global RandGen.
+//
+// @vargs 1
+// @zasm
+//   CHOOSEVARG
+internal T Choose(T arg1);
+
+// Increases the size of the array by 1, inserting [val] at the
+// back/front/specified index of the array. If an invalid index is passed, the
+// back of the array will be targetted.
+//
+// @zasm
+//   PUSHV -1
+//   ARRAYPUSH
+//   POPARGS D5 0.0003
+internal bool ArrayPushBack(T_ARR arr, T val);
+
+// Increases the size of the array by 1, inserting [val] at the
+// back/front/specified index of the array. If an invalid index is passed, the
+// back of the array will be targetted.
+//
+// @zasm
+//   PUSHV 0
+//   ARRAYPUSH
+//   POPARGS D5 0.0003
+internal bool ArrayPushFront(T_ARR arr, T val);
+
+// Increases the size of the array by 1, inserting [val] at the
+// back/front/specified index of the array. If an invalid index is passed, the
+// back of the array will be targetted.
+//
+// @zasm
+//   ARRAYPUSH
+//   POPARGS D5 0.0003
+internal bool ArrayPushAt(T_ARR arr, T val, int indx);
+
+// Decreases the size of the array by 1, removing and returning the element at
+// the back/front/specified index of the array. If an invalid index is passed,
+// the back of the array will be targetted.
+//
+// @zasm
+//   PUSHV -1
+//   ARRAYPOP
+//   POPARGS D5 0.0002
+internal T ArrayPopBack(T_ARR arr);
+
+// Decreases the size of the array by 1, removing and returning the element at
+// the back/front/specified index of the array. If an invalid index is passed,
+// the back of the array will be targetted.
+//
+// @zasm
+//   PUSHV 0
+//   ARRAYPOP
+//   POPARGS D5 0.0002
+internal T ArrayPopFront(T_ARR arr);
+
+// Decreases the size of the array by 1, removing and returning the element at
+// the back/front/specified index of the array. If an invalid index is passed,
+// the back of the array will be targetted.
+//
+// @zasm
+//   ARRAYPOP
+//   POPARGS D5 0.0002
+internal T ArrayPopAt(T_ARR arr, int indx);
+
+// @zasm
+//   POP D3
+//   RNDR D2 D3
+internal int Rand(int arg1);
+
+// Sets the current random seed to a given value, input from script. (DOES NOT
+// /10000)
+//
+// @zasm
+//   POP D3
+//   SRNDR D3
+internal void SRand(long seed);
+
+// Generates a random seed, sets it, and returns it.
+//
+// @zasm
+//   SRNDRND D2
+internal long SRand();
+
+// Converts the value of any datatype to another, similar to typecasting.
+//
+// Example:
+//
+// ```
+// int x;
+// npc n = Screen->LoadNPC(10);
+// x = Untype(n);
+// ```
+//
+// @deprecated Use casting `<untyped>(var)` instead!
+// @zasm
+//   POP D2
+internal constexpr untyped Untype(untyped value);
+
+// Clamps and returns [n] sized to an unsigned byte, with appropriate overflow.
+//
+// @deprecated
+// @zasm
+//   POP D2
+//   TOBYTE D2
+internal int Byte(int n);
+
+// Clamps and returns [n] sized to an unsigned byte, with appropriate overflow.
+//
+// @deprecated
+// @zasm
+//   POP D2
+//   TOBYTE D2
+internal int Int8(int n);
+
+// Clamps and returns [n] sized to a signed byte, with appropriate overflow.
+//
+// @deprecated
+// @zasm
+//   POP D2
+//   TOSIGNEDBYTE D2
+internal int SignedByte(int n);
+
+// Clamps and returns [n] sized to an unsigned 16-bit integer, with appropriate
+// overflow.
+//
+// @deprecated
+// @zasm
+//   POP D2
+//   TOWORD D2
+internal int Word(int n);
+
+// Clamps and returns [n] sized to an unsigned 16-bit integer, with appropriate
+// overflow.
+//
+// @deprecated
+// @zasm
+//   POP D2
+//   TOWORD D2
+internal int Int16(int n);
+
+// Clamps and returns [n] sized to a signed 16-bit integer, with appropriate
+// overflow.
+//
+// @deprecated
+// @zasm
+//   POP D2
+//   TOSHORT D2
+internal int Short(int n);
+
+// Truncates n to an integer.
+//
+// @deprecated
+// @zasm
+//   POP D2
+//   TOINTEGER D2
+internal int Integer(int n);
+
+// @deprecated
+// @zasm
+//   POP D0
+//   SETR D2 SCRIPTRAMD
+internal int GetScriptRAM(int arg1);
+
+// @deprecated
+// @zasm
+//   POP D3
+//   POP D0
+//   SETR SCRIPTRAMD D3
+internal void SetScriptRAM(int arg1, int arg2);
+
+// @deprecated
+// @zasm
+//   POP D0
+//   SETR D2 GLOBALRAMD
+internal int GetGlobalRAM(int arg1);
+
+// @deprecated
+// @zasm
+//   POP D3
+//   POP D0
+//   SETR GLOBALRAMD D3
+internal void SetGlobalRAM(int arg1, int arg2);
+
+// @deprecated
+// @zasm
+//   SETCOLORB
+//   POP D3
+//   POP D3
+//   POP D3
+//   POP D3
+internal void SetColorBuffer(int arg1, int arg2, int arg3, int arg4);
+
+// @deprecated
+// @zasm
+//   SETDEPTHB
+//   POP D3
+//   POP D3
+//   POP D3
+//   POP D3
+internal void SetDepthBuffer(int arg1, int arg2, int arg3, int arg4);
+
+// @deprecated
+// @zasm
+//   GETCOLORB
+//   POP D3
+//   POP D3
+//   POP D3
+//   POP D3
+internal void GetColorBuffer(int arg1, int arg2, int arg3, int arg4);
+
+// @deprecated
+// @zasm
+//   GETDEPTHB
+//   POP D3
+//   POP D3
+//   POP D3
+//   POP D3
+internal void GetDepthBuffer(int arg1, int arg2, int arg3, int arg4);
+
+// @zasm
+//   POP D2
+//   REF_COUNT D2
+internal long RefCount(untyped arg1);
+
+// @zasm
+//   GC
+internal void GC();

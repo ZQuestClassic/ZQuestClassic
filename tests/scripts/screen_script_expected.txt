@@ -11,137 +11,137 @@ Compile finished with exit code '0' (success)
 === METADATA (elided)
 {
   "currentFileSymbols": 3,
-  "symbols": 5,
-  "identifiers": 9
+  "symbols": 18,
+  "identifiers": 43
 }
 PUSHR D0; void run(int, int) Params
 PUSHR D1
-PUSHARGSV 0,0.0002; void run(int, int) Body Start
-SETR D4,SP2
-SETR D2,LINKHP
-DIVV D2,2
+PUSHARGSV 0 0.0002; void run(int, int) Body Start
+SETR D4 SP2
+SETR D2 LINKHP
+DIVV D2 2
 PUSHR D2
 POP D2
-SETR LINKHP,D2
+SETR LINKHP D2
 PUSHR D4; while(true) #2 Body [Opt:AlwaysOn] Start
-SETR D2,LINKX; UsrFunc[int ComboAt(int, int)] Params Start
-ADDV D2,8
+SETR D2 LINKX; UsrFunc[int ComboAt(int, int)] Params Start
+ADDV D2 8
 PUSHR D2
-SETR D2,LINKY
-ADDV D2,8
+SETR D2 LINKY
+ADDV D2 8
 PUSHR D2; UsrFunc[int ComboAt(int, int)] Params End
 CALLFUNC 0.0076; UsrFunc[int ComboAt(int, int)] Call
 POP D4
-STORE D2,0
-LOAD D2,0; if() #448 Test
+STORE D2 0
+LOAD D2 0; if() #448 Test
 PUSHR D2
 POP D0
-SETR D2,COMBODD
+SETR D2 COMBODD
 PUSHR D2
-LOAD D2,0.0003
+LOAD D2 0.0003
 POP D3
-COMPARER D3,D2
-SETCMP D2,I==
-COMPAREV D2,0
-GOTOCMP 44,==; Test 'if'
-LOAD D2,0; if() #448 Body Start
+COMPARER D3 D2
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 44 ==; Test 'if'
+LOAD D2 0; if() #448 Body Start
 PUSHR D2
 POP D0
-SETR D2,COMBODD
-ADDV D2,1
+SETR D2 COMBODD
+ADDV D2 1
 PUSHR D2
-LOAD D2,0
+LOAD D2 0
 PUSHR D2
 POP D0
 POP D2
-SETR COMBODD,D2
-LOAD D2,0.0002; InlineFunc[void Audio->PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body AND if() #448 Body End
-PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
+SETR COMBODD D2
+LOAD D2 0.0002; InlineFunc[void Audio::PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #448 Body End
+PUSHV 6; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
-SETR D2,LINKY
-SUBV D2,16
+SETR D2 LINKY
+SUBV D2 16
 PUSHR D2
 PUSHR LINKTILE
-PUSHARGSV 1,0.0002
+PUSHARGSV 1 0.0002
 PUSHR LINKCSET
-PUSHARGSV -1,0.0002
-PUSHARGSV 0,0.0004
+PUSHARGSV -1 0.0002
+PUSHARGSV 0 0.0004
 PUSHV 1
-PUSHV 128; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
+DRAWTILE; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITDRAW; InlineFunc[void Waitdraw()] Body
-PUSHV 6; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
+PUSHV 6; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 PUSHR LINKX
-SETR D2,LINKY
-ADDV D2,16
+SETR D2 LINKY
+ADDV D2 16
 PUSHR D2
 PUSHR LINKTILE
-PUSHARGSV 1,0.0002
+PUSHARGSV 1 0.0002
 PUSHR LINKCSET
-PUSHARGSV -1,0.0002
-PUSHARGSV 0,0.0003
+PUSHARGSV -1 0.0002
+PUSHARGSV 0 0.0003
 PUSHV 2
 PUSHV 1
-PUSHV 128; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWTILE; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5,0.0015; InlineFunc[void Screen->DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
+PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
+DRAWTILE; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 10; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
-SETR D4,SP2; Func[int ComboAt(int, int)] Body Start
+SETR D4 SP2; Func[int ComboAt(int, int)] Body Start
 PUSHR D4
-LOAD D2,0.0001; UsrFunc[int VBound(int, int, int)] Params Start
+LOAD D2 0.0001; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR D2
 PUSHV 255
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
 CALLFUNC 0.0102; UsrFunc[int VBound(int, int, int)] Call
 POP D4
-STORE D2,0.0001
+STORE D2 0.0001
 PUSHR D4
-LOAD D2,0; UsrFunc[int VBound(int, int, int)] Params Start
+LOAD D2 0; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR D2
 PUSHV 175
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
 CALLFUNC 0.0102; UsrFunc[int VBound(int, int, int)] Call
 POP D4
-STORE D2,0
-LOAD D2,0; return Start
-ANDV D2,240
+STORE D2 0
+LOAD D2 0; return Start
+ANDV D2 240
 PUSHR D2
-LOAD D2,0.0001
-RSHIFTV D2,4
+LOAD D2 0.0001
+RSHIFTV D2 4
 POP D3
-ADDR D2,D3
-POPARGS D5,0.0002; return End
+ADDR D2 D3
+POPARGS D5 0.0002; return End
 RETURNFUNC; Func[int ComboAt(int, int)] Body End
-SETR D4,SP2; Func[int VBound(int, int, int)] Body Start
-LOAD D2,0.0002; if() #133 Test
+SETR D4 SP2; Func[int VBound(int, int, int)] Body Start
+LOAD D2 0.0002; if() #133 Test
 PUSHR D2
-LOAD D2,0
+LOAD D2 0
 POP D3
-COMPARER D3,D2
-SETCMP D2,I<
-COMPAREV D2,0
-GOTOCMP 114,==; Test 'if'
-LOAD D2,0; if() #133 Body Start
-STORE D2,0.0002
+COMPARER D3 D2
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 114 ==; Test 'if'
+LOAD D2 0; if() #133 Body Start
+STORE D2 0.0002
 GOTO 124; if() #133 Body End
-LOAD D2,0.0002; if() #355 Test AND if() #133 Else Start
+LOAD D2 0.0002; if() #355 Test AND if() #133 Else Start
 PUSHR D2
-LOAD D2,0.0001
+LOAD D2 0.0001
 POP D3
-COMPARER D3,D2
-SETCMP D2,I>
-COMPAREV D2,0
-GOTOCMP 124,==; Test 'if'
-LOAD D2,0.0001; if() #355 Body Start
-STORE D2,0.0002; if() #355 Body End
-LOAD D2,0.0002; if() #133 Else End AND return Start
-POPARGS D5,0.0003; return End
+COMPARER D3 D2
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 124 ==; Test 'if'
+LOAD D2 0.0001; if() #355 Body Start
+STORE D2 0.0002; if() #355 Body End
+LOAD D2 0.0002; if() #133 Else End AND return Start
+POPARGS D5 0.0003; return End
 RETURNFUNC; Func[int VBound(int, int, int)] Body End
 
 
-ALLOCATEGMEMV D2,4096,0; void run() Body Start
-SETR GD1,D2
+ALLOCATEGMEMV D2 4096 0; void run() Body Start
+SETR GD1 D2
 QUIT; void run() Body End

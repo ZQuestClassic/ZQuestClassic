@@ -131,5 +131,6 @@ X(	MissingReturnError,			S,	A,	E,	STR,	VOID,	"Function '%s' is not void, and mus
 X(	NegSqrt,			T,	A,	E,	VOID,	VOID,	"Attempting to take the square root of a negative number!"								)
 X(	DeprecatedDelete,	G,	A,	W,	VOID,	VOID,	"The 'delete' operator no longer does anything. Objects are freed automatically when they become unreachable"								)
 X(	ReadOnly,	C,	A,	W,	STR,	VOID,	"'%s' is read-only, and cannot be written to!"								)
+X(  BadInternal,            S,  A,  E,  STR,    VOID,   "%s"	 					)
 
 #undef STR

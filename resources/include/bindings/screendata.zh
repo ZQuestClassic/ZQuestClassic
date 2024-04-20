@@ -1,0 +1,1282 @@
+class screendata {
+	// @delete
+	internal screendata();
+
+	// A set of 8 misc values for each screen.
+	//
+	// @zasm_var SDD
+	internal untyped D[];
+
+	// @zasm_var COMBODD
+	internal int ComboD[];
+
+	// @zasm_var COMBOCD
+	internal int ComboC[];
+
+	// @zasm_var COMBOFD
+	internal int ComboF[];
+
+	// @zasm_var COMBOID
+	internal int ComboI[];
+
+	// @zasm_var COMBOTD
+	internal int ComboT[];
+
+	// @zasm_var COMBOSD
+	internal int ComboS[];
+
+	// The effect area bits of each of the 176 combos used on the screen.
+	//
+	// @zasm_var COMBOED
+	internal int ComboE[];
+
+	// @zasm_var SCRDOORD
+	internal int Door[];
+
+	// The 32 screen states used by this screen. Use the 'ST_' constants to
+	// access.
+	//
+	// @zasm_var SCREENSTATED
+	internal bool State[];
+
+	// The 'Extra States' used by this screen.
+	//
+	// @zasm_var SCREENEXSTATED
+	internal bool ExState[];
+
+	// Whether or not the screen is 'lit'. Applies to Classic Darkrooms.
+	//
+	// @zasm_var LIT
+	internal bool Lit;
+
+	// The remaining time, in frames, of the 'Wavy' visual effect. Decrements by
+	// 1 each frame.
+	//
+	// @zasm_var WAVY
+	internal int Wavy;
+
+	// The remaining time, in frames, of the 'Quake' visual effect. Decrements
+	// by 1 each frame.
+	//
+	// @zasm_var QUAKE
+	internal int Quake;
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @zasm_var ITEMCOUNT
+	internal const int NumItems;
+
+	// Gets/sets the current "Render Target". Most times this should be
+	// 'RT_SCREEN', though versions older than 2.55 required using this for
+	// bitmap drawing. 2.55's [bitmap] effectively obsolete the render target
+	// system, and should be used instead of this.
+	//
+	// @zasm_var GETRENDERTARGET
+	internal const int GetRenderTarget;
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @zasm_var NPCCOUNT
+	internal const int NumNPCs;
+
+	// The message ID of the currently active message. 0 if no message is
+	// displayed.
+	//
+	// @zasm_var SHOWNMSG
+	internal const int ShowingMessage;
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @zasm_var LWPNCOUNT
+	internal const int NumLWeapons;
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @zasm_var EWPNCOUNT
+	internal const int NumEWeapons;
+
+	// @zasm_var SCREENFLAGSD
+	internal int Flags[];
+
+	// @zasm_var SCREENEFLAGSD
+	internal int EFlags[];
+
+	// The screen room type.
+	//
+	// @zasm_var ROOMTYPE
+	internal int RoomType;
+
+	// @zasm_var PUSHBLOCKX
+	internal int MovingBlockX;
+
+	// @zasm_var PUSHBLOCKY
+	internal int MovingBlockY;
+
+	// The layer of a currently moving pushblock.
+	// Is -1 and ignores writes if there is no pushblock currently moving.
+	// Allows values 0-6; the block will "settle into place" on this layer.
+	//
+	// @zasm_var PUSHBLOCKLAYER
+	internal int MovingBlockLayer;
+
+	// @zasm_var PUSHBLOCKCOMBO
+	internal int MovingBlockCombo;
+
+	// @zasm_var PUSHBLOCKCSET
+	internal int MovingBlockCSet;
+
+	// The undercombo ID used by the screen.
+	//
+	// @zasm_var UNDERCOMBO
+	internal int UnderCombo;
+
+	// The CSet of the undercombo used by the screen.
+	//
+	// @zasm_var UNDERCSET
+	internal int UnderCSet;
+
+	// @zasm_var SCREENDATAVALID
+	internal int Valid;
+
+	// The screen guy.
+	//
+	// @zasm_var SCREENDATAGUY
+	internal int Guy;
+
+	// The screen string.
+	//
+	// @zasm_var SCREENDATASTRING
+	internal int String;
+
+	// The screen item.
+	//
+	// To determine if there is an item on the screen, if you ever assigned item
+	// 0 as a valid screen item in your quest, you will also want to read
+	// [HasItem] for that screen.
+	//
+	// Note: The NULL value is '0', which is a valid item.
+	//
+	// @zasm_var SCREENDATAITEM
+	internal int Item;
+
+	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
+	// respectively.
+	//
+	// See std_constants.zh TWTYPE_* constants for valid types.
+	//
+	// @zasm_var SCREENDATATILEWARPTYPE
+	internal int TileWarpType[];
+
+	// Set or get the overlay state for the warp ID corresponding to the index
+	// of this array.
+	//
+	// @zasm_var SCREENDATATILEWARPOVFLAGS
+	internal bool TileWarpOverlay[];
+
+	// The doorset used by the screen, for NES dungeon doors.
+	//
+	// @zasm_var SCREENDATADOORCOMBOSET
+	internal int DoorComboSet;
+
+	// The X-component for each of the four 2.50+ (blue) warp return squares.
+	//
+	// @zasm_var SCREENDATAWARPRETX
+	internal int WarpReturnX[];
+
+	// The Y-component for each of the four 2.50+ (blue) warp return squares.
+	//
+	// @zasm_var SCREENDATAWARPRETY
+	internal int WarpReturnY[];
+
+	// The X component for where a Stairs secret appears on the screen.
+	//
+	// @zasm_var SCREENDATASTAIRX
+	internal int StairsX;
+
+	// The Y component for where a Stairs secret appears on the screen.
+	//
+	// @zasm_var SCREENDATASTAIRY
+	internal int StairsY;
+
+	// The X component for the item location on the screen.
+	//
+	// @zasm_var SCREENDATAITEMX
+	internal int ItemX;
+
+	// The Y component for the item location on the screen.
+	//
+	// @zasm_var SCREENDATAITEMY
+	internal int ItemY;
+
+	// The destination DMap for each of the four warp types.
+	//
+	// @zasm_var SCREENDATATILEWARPDMAP
+	internal int TileWarpDMap[];
+
+	// The destination screen for each of the four warp types.
+	//
+	// @zasm_var SCREENDATATILEWARPSCREEN
+	internal int TileWarpScreen[];
+
+	// The Maze Path 'Exit Direction'.
+	//
+	// @zasm_var SCREENDATAEXITDIR
+	internal int ExitDir;
+
+	// The IDs of the enemies that spawn on the screen.
+	//
+	// @zasm_var SCREENDATAENEMY
+	internal int Enemy[];
+
+	// The enemy 'Spawn Pattern'.
+	//
+	// Use the PATTERN_* constants in std.zh for the valid values
+	//
+	// @zasm_var SCREENDATAPATTERN
+	internal int Pattern;
+
+	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
+	// respectively.
+	//
+	// See std_constants.zh SWTYPE_* constants for valid types.
+	//
+	// @zasm_var SCREENDATASIDEWARPTYPE
+	internal int SideWarpType[];
+
+	// Set or get the overlay state for the warp ID corresponding to the index
+	// of this array.
+	//
+	// @zasm_var SCREENDATASIDEWARPOVFLAGS
+	internal bool SideWarpOverlay[];
+
+	// The X-component for the pre-2.50 (green) arrival square.
+	//
+	// @zasm_var SCREENDATAWARPARRIVALX
+	internal int WarpArrivalX;
+
+	// The X-component for the pre-2.50 (green) arrival square.
+	//
+	// @zasm_var SCREENDATAWARPARRIVALY
+	internal int WarpArrivalY;
+
+	// The four Maze Path directions.
+	//
+	// @zasm_var SCREENDATAPATH
+	internal int MazePath[];
+
+	// The destination screen for each of the four sidewarps.
+	//
+	// @zasm_var SCREENDATASIDEWARPSC
+	internal int SideWarpScreen[];
+
+	// Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
+	//
+	// Returns -1 if there is no sidewarp in that direction.
+	//
+	// Use the SIDEWARP_* constants in std.zh for the value of this (read return
+	// value, or write value).
+	//
+	// Use the `DIR_` constants in std.zh for the index values.
+	//
+	// @zasm_var SCREENSIDEWARPID
+	internal int SideWarpID[];
+
+	// The return square (A->D) used by Tile Warp[A->D].
+	//
+	// @zasm_var SCREENDATATWARPRETSQR
+	internal int TileWarpReturnSquare[];
+
+	// The return square (A->D) used by Side Warp[A->D].
+	//
+	// @zasm_var SCREENDATASWARPRETSQR
+	internal int SideWarpReturnSquare[];
+
+	// The destination DMap for each of the four sidewarps.
+	//
+	// @zasm_var SCREENDATASIDEWARPDMAP
+	internal int SideWarpDMap[];
+
+	// The palette for the screen set via 'F4' or 'Screen>>Palette' in ZQuest
+	//
+	// @zasm_var SCREENDATACOLOUR
+	internal int Palette;
+
+	// The screen 'Catchall' value.
+	//
+	// @zasm_var SCREENDATACATCHALL
+	internal int Catchall;
+
+	// The value of Damage Combo Sensitivity for the screen.
+	//
+	// @zasm_var SCREENDATACSENSITIVE
+	internal int CSensitive;
+
+	// The No Reset Flagset. Values are ORd together as follows:
+	//
+	// TODO: document values
+	//
+	// @zasm_var SCREENDATANORESET
+	internal int NoReset;
+
+	// The No Carry Over Flagset. Values are ORd together s follows:
+	//
+	// TODO: document values
+	//
+	// @zasm_var SCREENDATANOCARRY
+	internal int NoCarry;
+
+	// The Map IDs used by screen layers 1 through 6, represented as [1] through
+	// [6].
+	//
+	// Index [0] does nothing, and trying to access it will report an error to
+	// the log.
+	//
+	// @zasm_var SCREENDATALAYERMAP
+	internal int LayerMap[];
+
+	// The Screen IDs used by screen layers 1 through 6, represented as [1]
+	// through [6].
+	//
+	// Index [0] does nothing, and trying to access it will report an error to
+	// the log.
+	//
+	// @zasm_var SCREENDATALAYERSCREEN
+	internal int LayerScreen[];
+
+	// The opacity value for each layer used by this screen.
+	//
+	// Valid layers are 1 through 6, represented as [1] through [6].
+	//
+	// Index [0] does nothing, and trying to access it will report an error to
+	// the log.
+	//
+	// @zasm_var SCREENDATALAYEROPACITY
+	internal int LayerOpacity[];
+
+	// If true, the current layer is invisible.
+	//
+	// Writing this true for layers 1 through 6 will make those layers
+	// invisible.
+	//
+	// @zasm_var SCREENDATALAYERINVIS
+	internal bool LayerInvisible[];
+
+	// If true, the ZC engine will perform script draws on the given queue
+	// layer.
+	//
+	// Each queue layer returns true by default.
+	//
+	// Writing this false disables script draws targetted to a specific layer
+	// queue.
+	//
+	// @zasm_var SCREENDATASCRIPTDRAWS
+	internal bool ScriptDraws[];
+
+	// The timer used by 'Time Warp Tics' in Screen Data->T.Warp
+	//
+	// @zasm_var SCREENDATATIMEDWARPTICS
+	internal int TimedWarpTimer;
+
+	// The map to where secrets on the current mapscreen carry over.
+	//
+	// Corresponds to the Screen Data>>>Screen State Carryover 'Next Map'
+	// selection in the ZQ Editor.
+	//
+	// @zasm_var SCREENDATANEXTMAP
+	internal int NextMap;
+
+	// The screen to where secrets on the current mapscreen carry over.
+	//
+	// Corresponds to the Screen Data>>>Screen State Carryover 'Next Screen'
+	// selection in the ZQ Editor.
+	//
+	// @zasm_var SCREENDATANEXTSCREEN
+	internal int NextScreen;
+
+	// The Combo IDs used by 'Secret Combos' on this screen.
+	//
+	// See `SECCMB_` in std_constants.zh for more information.
+	//
+	// @zasm_var SCREENDATASECRETCOMBO
+	internal int SecretCombo[];
+
+	// The CSets used by 'Secret Combos' on this screen.
+	//
+	// See `SECCMB_` in std_constants.zh for more information.
+	//
+	// @zasm_var SCREENDATASECRETCSET
+	internal int SecretCSet[];
+
+	// The Combo Flags used by 'Secret Combos' on this screen.
+	//
+	// See `SECCMB_` in std_constants.zh for more information.
+	//
+	// @zasm_var SCREENDATASECRETFLAG
+	internal int SecretFlags[];
+
+	// The 'Ambient Sound' under S.Data2.
+	//
+	// @zasm_var SCREENDATAOCEANSFX
+	internal int AmbientSFX;
+
+	// The Boss Roar sound for this screen.
+	//
+	// @zasm_var SCREENDATABOSSSFX
+	internal int BossSFX;
+
+	// The sound that will play on this screen, when secrets are triggered.
+	//
+	// @zasm_var SCREENDATASECRETSFX
+	internal int SecretSFX;
+
+	// The sound that will play if Link holds an item over his head on this
+	// screen.
+	//
+	// @zasm_var SCREENDATAHOLDUPSFX
+	internal int ItemSFX;
+
+	// The MIDI that plays on this screen.
+	//
+	// @zasm_var SCREENDATASCREENMIDI
+	internal int MIDI;
+
+	// The screendata script used for the current screen.
+	//
+	// @zasm_var SCREENSCRIPT
+	internal int Script;
+
+	// The eight D args used by the screendata script for the current screen.
+	//
+	// @zasm_var SCREENINITD
+	internal untyped InitD[];
+
+	// Returns true if secrets have been triggered on this screen (including
+	// temp).
+	//
+	// @zasm_var SCREENSECRETSTRIGGERED
+	internal const bool SecretsTriggered;
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @zasm_var PORTALCOUNT
+	internal const int NumPortals;
+
+	// Internal Array pointers to arrays containing all of each respective type
+	// of object on the screen. These arrays are 0-indexed.
+	//
+	// @zasm_internal_array 0
+	internal const npc NPCs[];
+
+	// Internal Array pointers to arrays containing all of each respective type
+	// of object on the screen. These arrays are 0-indexed.
+	//
+	// @zasm_internal_array 1
+	internal const itemsprite Items[];
+
+	// Internal Array pointers to arrays containing all of each respective type
+	// of object on the screen. These arrays are 0-indexed.
+	//
+	// @zasm_internal_array 2
+	internal const lweapon LWeapons[];
+
+	// Internal Array pointers to arrays containing all of each respective type
+	// of object on the screen. These arrays are 0-indexed.
+	//
+	// @zasm_internal_array 3
+	internal const eweapon EWeapons[];
+
+	// Internal Array pointers to arrays containing all of each respective type
+	// of object on the screen. These arrays are 0-indexed.
+	//
+	// @zasm_internal_array 4
+	internal const ffc FFCs[];
+
+	// Internal Array pointers to arrays containing all of each respective type
+	// of object on the screen. These arrays are 0-indexed.
+	//
+	// @zasm_internal_array 5
+	internal const portal Portals[];
+
+	// Arrays of the layers which the lens shows, and hides, respectively.
+	//
+	// @zasm_var SCREENLENSSHOWS
+	internal bool LensShows[];
+
+	// Arrays of the layers which the lens shows, and hides, respectively.
+	//
+	// @zasm_var SCREENLENSHIDES
+	internal bool LensHides[];
+
+	// The size of the [Data[]] array.
+	//
+	// Changes save to the save file.
+	//
+	// @zasm_var SCREENSCRDATASIZE
+	internal int DataSize;
+
+	// Resizable array of data for scripts to use.
+	//
+	// Changes save to the save file.
+	//
+	// @zasm_var SCREENSCRDATA
+	internal untyped Data[];
+
+	// Number of enemies remaining alive on this screen.
+	//
+	// @zasm_var SCREENDATAGUYCOUNT
+	internal int GuyCount;
+
+	// @zasm_var SCREENDATAOCEANSFX
+	internal int OceanSFX;
+
+	// @zasm_var ROOMDATA
+	internal int RoomData;
+
+	// The palette for the screen set via 'F4' or 'Screen>>Palette' in ZQuest
+	//
+	// @zasm_var SCREENDATACOLOUR
+	internal int CSet;
+
+	// @zasm_var SCREENDATANEXTMAP
+	internal int CarryoverMap;
+
+	// @zasm_var SCREENDATANEXTSCREEN
+	internal int CarryoverScreen;
+
+	// Stores the information on warp returns, butwise.
+	//
+	// Deprecated by [SideWarpReturnSquare[4]] and [TileWarpReturnSquare[4]].
+	//
+	// The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp
+	// returns, and the right is tilewarp returns.
+	//
+	// @zasm_var SCREENDATAWARPRETURNC
+	internal int WarpReturnC;
+
+	// If not zero, then the item for this screen will be shown.
+	//
+	// When the player takes the item on a screen, this is set to 0.
+	//
+	// @deprecated Check '->Item > -1' instead!
+	// @zasm_var SCREENDATAHASITEM
+	internal int HasItem;
+
+	// @deprecated
+	// @zasm_var SCREENDATAFLAGS
+	internal int ScreenFlags[];
+
+	// A flagset for enemies on the screen (E.Flags).
+	//
+	// Valid values (ORd) together, are:
+	//
+	// @deprecated
+	// @zasm_var SCREENDATAENEMYFLAGS
+	internal int EnemyFlags;
+
+	// The warp return IDs. Deprecated by SideWarpID[].
+	//
+	// @deprecated
+	// @zasm_var SCREENDATASIDEWARPINDEX
+	internal int SideWarpIndex;
+
+	// @deprecated
+	// @zasm_var SCREENDATANUMFF
+	internal bool NumFFCs[];
+
+	// @deprecated
+	// @zasm_var SCREENDATASCRIPTENTRY
+	internal int ScriptEntry;
+
+	// @deprecated
+	// @zasm_var SCREENDATASCRIPTOCCUPANCY
+	internal int ScriptOccupancy;
+
+	// @deprecated
+	// @zasm_var SCREENDATASCRIPTEXIT
+	internal int ExitScript;
+
+	// @deprecated Use [Hero->RespawnX] instead!
+	// @zasm_var SCREENDATAENTRYX
+	internal int EntryX;
+
+	// @deprecated Use [Hero->RespawnY] instead!
+	// @zasm_var SCREENDATAENTRYY
+	internal int EntryY;
+
+	// @deprecated
+	// @zasm_var SCREENDATALENSLAYER
+	internal int LensLayer;
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @deprecated Use [NumItems] instead!
+	// @zasm
+	//   SETR D2 ITEMCOUNT
+	internal int NumItems();
+
+	// Where '1 <= n <= [NumObjects]', returns a pointer to the nth object on
+	// the screen.
+	//
+	// @zasm
+	//   POP D2
+	//   SUBV D2 1
+	//   LOADITEMR D2
+	//   SETR D2 REFITEM
+	internal itemsprite LoadItem(int n);
+
+	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
+	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
+	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	//
+	// @zasm
+	//   POP D2
+	//   CREATEITEMR D2
+	//   SETR D2 REFITEM
+	internal itemsprite CreateItem(int id);
+
+	// Returns a pointer to the nth FFC on the screen, where `1 <= n <=
+	// MAX_FFC`.
+	//
+	// @zasm
+	//   POP D2
+	//   SUBV D2 1
+	internal constexpr ffc LoadFFC(int n);
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @deprecated Use [NumNPCs] instead!
+	// @zasm
+	//   SETR D2 NPCCOUNT
+	internal int NumNPCs();
+
+	// Where `1 <= n <= NumObjects`, returns a pointer to the nth object on the
+	// screen.
+	//
+	// @zasm
+	//   POP D2
+	//   SUBV D2 1
+	//   LOADNPCR D2
+	//   SETR D2 REFNPC
+	internal npc LoadNPC(int n);
+
+	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
+	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
+	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	//
+	// @zasm
+	//   POP D2
+	//   CREATENPCR D2
+	//   SETR D2 REFNPC
+	internal npc CreateNPC(int id);
+
+	// Kills all sprite objects of the specified type, using the `SL_`
+	// constants.
+	//
+	// @zasm
+	//   POP D2
+	//   CLEARSPRITESR D2
+	//   SETR D2 REFNPC
+	internal void ClearSprites(int spritelist);
+
+	// @zasm
+	//   RECT
+	//   POPARGS D5 0.0012
+	internal void Rectangle(int arg1, int arg2, int arg3, int arg4, int arg5,
+							int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
+							int arg10 = 0, bool arg11 = true, int arg12 = 128);
+
+	// @zasm
+	//   CIRCLE
+	//   POPARGS D5 0.0011
+	internal void Circle(int arg1, int arg2, int arg3, int arg4, int arg5,
+						 int arg6 = 1, int arg7 = 0, int arg8 = 0, int arg9 = 0,
+						 bool arg10 = true, int arg11 = 128);
+
+	// @zasm
+	//   ARC
+	//   POPARGS D5 0.0014
+	internal void Arc(int arg1, int arg2, int arg3, int arg4, int arg5,
+					  int arg6, int arg7, int arg8 = 1, int arg9 = 0,
+					  int arg10 = 0, int arg11 = 0, bool arg12 = true,
+					  bool arg13 = true, int arg14 = 128);
+
+	// @zasm
+	//   ELLIPSE
+	//   POPARGS D5 0.0012
+	internal void Ellipse(int arg1, int arg2, int arg3, int arg4, int arg5,
+						  int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
+						  int arg10 = 0, bool arg11 = true, int arg12 = 128);
+
+	// @zasm
+	//   LINE
+	//   POPARGS D5 0.0011
+	internal void Line(int arg1, int arg2, int arg3, int arg4, int arg5,
+					   int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
+					   int arg10 = 0, int arg11 = 128);
+
+	// @zasm
+	//   SPLINE
+	//   POPARGS D5 0.0011
+	internal void Spline(int arg1, int arg2, int arg3, int arg4, int arg5,
+						 int arg6, int arg7, int arg8, int arg9, int arg10,
+						 int arg11 = 1);
+
+	// @zasm
+	//   PUTPIXEL
+	//   POPARGS D5 0.0008
+	internal void PutPixel(int arg1, int arg2, int arg3, int arg4, int arg5 = 0,
+						   int arg6 = 0, int arg7 = 0, int arg8 = 128);
+
+	// Puts multiple pixels to the screen in one function call.
+	//
+	// PutPixels() expects an array as its arg, with the array in the format of
+	// repeating blocks of `{ x, y, color, trans }` Example:
+	//
+	// ```
+	// PutPixels(1, { 25, 10, 5, OP_OPAQUE, 26, 10, 6, OP_OPAQUE }, 0, 0, 0 );
+	// ```
+	//
+	// This draws two pixels to the screen.
+	// The first is at coordinates `(25, 10)`, color 5, and it is opaque. The
+	// second is at coordinates `(26, 10)`, color 6, and opaque.
+	//
+	// @zasm
+	//   PIXELARRAYR
+	//   POPARGS D5 0.0005
+	internal void PutPixels(int layer, int ptr, int rx, int ry, int rangle);
+
+	// Similar to FastTile(), but it draws multiple tiles in one call.
+	//
+	// The arg *ptr[] should be an array with repeating sets of:
+	// `{x,y,tile,color,opacity}`
+	//
+	// ...per tile that you want to draw.
+	//
+	// @zasm
+	//   TILEARRAYR
+	//   POPARGS D5 0.0002
+	internal void DrawTiles(int layer, int ptr);
+
+	// Similar to FastCombo, but draws multiple combos in one call.
+	//
+	// The arg *ptr[] should be an array with repeating sets of:
+	// `{x,y,combo,cset,opacity}`
+	//
+	// ...per combo that you want to draw.
+	//
+	// @zasm
+	//   COMBOARRAYR
+	//   POPARGS D5 0.0002
+	internal void DrawCombos(int layer, int ptr);
+
+	// Similar to Line(0, but draws multiple lines in one call.
+	//
+	// The arg *ptr[] should be an array with repeating sets of: `{ x, y, x2,
+	// y2, color, scale, rx, ry, angle, opacity }`
+	//
+	// ...per line that you want to draw.
+	//
+	// @zasm
+	//   LINESARRAY
+	//   POPARGS D5 0.0002
+	internal void Lines(int layer, int ptr);
+
+	// @zasm
+	//   DRAWCHAR
+	//   POPARGS D5 0.0010
+	internal void DrawCharacter(int arg1, int arg2, int arg3, int arg4,
+								int arg5, int arg6, int arg7, int arg8,
+								int arg9, int arg10 = 128);
+
+	// @zasm
+	//   DRAWINT
+	//   POPARGS D5 0.0011
+	internal void DrawInteger(int arg1, int arg2, int arg3, int arg4, int arg5,
+							  int arg6, int arg7, int arg8, int arg9,
+							  int arg10 = 0, int arg11 = 128);
+
+	// @zasm
+	//   DRAWTILE
+	//   POPARGS D5 0.0015
+	internal void DrawTile(int arg1, int arg2, int arg3, int arg4, int arg5,
+						   int arg6, int arg7, int arg8 = -1, int arg9 = -1,
+						   int arg10 = 0, int arg11 = 0, int arg12 = 0,
+						   int arg13 = 0, bool arg14 = true, int arg15 = 128);
+
+	// As DrawTile(), but draws with a cloaked effect.
+	//
+	// @zasm
+	//   DRAWTILECLOAKEDR
+	//   POPARGS D5 0.0007
+	internal void DrawTileCloaked(int layer, int x, int y, int tile, int blockw,
+								  int blockh, int flip = 0);
+
+	// @zasm
+	//   DRAWCOMBO
+	//   POPARGS D5 0.0016
+	internal void DrawCombo(int arg1, int arg2, int arg3, int arg4, int arg5,
+							int arg6, int arg7, int arg8, int arg9 = -1,
+							int arg10 = -1, int arg11 = 0, int arg12 = 0,
+							int arg13 = 0, int arg14 = 0, bool arg15 = true,
+							int arg16 = 128);
+
+	// As DrawCombo(), but draws with a cloaked effect.
+	//
+	// @zasm
+	//   DRAWCOMBOCLOAKEDR
+	//   POPARGS D5 0.0007
+	internal void DrawComboCloaked(int layer, int x, int y, int combo,
+								   int tilewidth, int tileheight, int flip = 0);
+
+	// @zasm
+	//   QUAD
+	//   POPARGS D5 0.0015
+	internal void Quad(int arg1, int arg2, int arg3, int arg4, int arg5,
+					   int arg6, int arg7, int arg8, int arg9, int arg10,
+					   int arg11, int arg12, int arg13, int arg14, int arg15);
+
+	// @zasm
+	//   TRIANGLE
+	//   POPARGS D5 0.0013
+	internal void Triangle(int arg1, int arg2, int arg3, int arg4, int arg5,
+						   int arg6, int arg7, int arg8, int arg9, int arg10,
+						   int arg11, int arg12, int arg13);
+
+	// @zasm
+	//   QUAD3D
+	//   POPARGS D5 0.0008
+	internal void Quad3D(int arg1, int arg2, int arg3, int arg4, int arg5,
+						 int arg6, int arg7, int arg8);
+
+	// @zasm
+	//   TRIANGLE3D
+	//   POPARGS D5 0.0008
+	internal void Triangle3D(int arg1, int arg2, int arg3, int arg4, int arg5,
+							 int arg6, int arg7, int arg8);
+
+	// @zasm
+	//   FASTTILE
+	//   POPARGS D5 0.0006
+	internal void FastTile(int arg1, int arg2, int arg3, int arg4, int arg5,
+						   int arg6 = 128);
+
+	// @zasm
+	//   FASTCOMBO
+	//   POPARGS D5 0.0006
+	internal void FastCombo(int arg1, int arg2, int arg3, int arg4, int arg5,
+							int arg6 = 128);
+
+	// @zasm
+	//   DRAWSTRING
+	//   POPARGS D5 0.0009
+	internal void DrawString(int arg1, int arg2, int arg3, int arg4, int arg5,
+							 int arg6, int arg7, int arg8, int arg9 = 128);
+
+	// As DrawString(), but includes a shadow on the text.
+	//
+	// Use the 'SHD_' constants for 'shadow_type'.
+	//
+	// @zasm
+	//   DRAWSTRINGR2
+	//   POPARGS D5 0.0011
+	internal void DrawString(int layer, int x, int y, int font, int color,
+							 int background_color, int format, int str,
+							 int opacity, int shadow_type, int shadow_color);
+
+	// @zasm
+	//   DRAWLAYER
+	//   POPARGS D5 0.0008
+	internal void DrawLayer(int arg1, int arg2, int arg3, int arg4, int arg5,
+							int arg6, int arg7 = 0, int arg8 = 128);
+
+	// @zasm
+	//   DRAWSCREEN
+	//   POPARGS D5 0.0006
+	internal void DrawScreen(int arg1, int arg2, int arg3, int arg4, int arg5,
+							 int arg6 = 0);
+
+	// @zasm
+	//   DRAWBITMAP
+	//   POPARGS D5 0.0012
+	internal void DrawBitmap(int arg1, int arg2, int arg3, int arg4, int arg5,
+							 int arg6, int arg7, int arg8, int arg9, int arg10,
+							 int arg11, bool arg12);
+
+	// @zasm
+	//   BITMAPEXR
+	//   POPARGS D5 0.0016
+	internal void DrawBitmapEx(int layer, int bitmap_id, int source_x,
+							   int source_y, int source_w, int source_h,
+							   int dest_x, int dest_y, int dest_w, int dest_h,
+							   int rotation = 0, int cx = 0, int cy = 0,
+							   int mode = 0, int lit = 0, bool mask = true);
+
+	// Gets/sets the current "Render Target". Most times this should be
+	// 'RT_SCREEN', though versions older than 2.55 required using this for
+	// bitmap drawing. 2.55's [bitmap] effectively obsolete the render target
+	// system, and should be used instead of this.
+	//
+	// @zasm
+	//   SETRENDERTARGET
+	//   POP D3
+	internal void SetRenderTarget(int rt);
+
+	// Triggers the message number [message_id] from the Strings table to be
+	// displayed on the screen.
+	//
+	// If [message_id] is 0, any message being displayed will be removed.
+	//
+	// @zasm
+	//   POP D3
+	//   MSGSTRR D3
+	internal void Message(int message_id);
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @deprecated Use [NumLWeapons] instead!
+	// @zasm
+	//   SETR D2 LWPNCOUNT
+	internal int NumLWeapons();
+
+	// Where `1 <= n <= NumObjects`, returns a pointer to the nth object on the
+	// screen.
+	//
+	// @zasm
+	//   POP D2
+	//   SUBV D2 1
+	//   LOADLWEAPONR D2
+	//   SETR D2 REFLWPN
+	internal lweapon LoadLWeapon(int n);
+
+	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
+	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
+	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	//
+	// @zasm
+	//   POP D2
+	//   CREATELWEAPONR D2
+	//   SETR D2 REFLWPN
+	internal lweapon CreateLWeapon(int id);
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @deprecated Use [NumEWeapons] instead!
+	// @zasm
+	//   SETR D2 EWPNCOUNT
+	internal int NumEWeapons();
+
+	// Where `1 <= n <= NumObjects`, returns a pointer to the nth object on the
+	// screen.
+	//
+	// @zasm
+	//   POP D2
+	//   SUBV D2 1
+	//   LOADEWEAPONR D2
+	//   SETR D2 REFEWPN
+	internal eweapon LoadEWeapon(int n);
+
+	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
+	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
+	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	//
+	// @zasm
+	//   POP D2
+	//   CREATEEWEAPONR D2
+	//   SETR D2 REFEWPN
+	internal eweapon CreateEWeapon(int id);
+
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   ISSOLID D2
+	internal bool isSolid(int arg1, int arg2);
+
+	// As 'Screen->isSolid()', but instead of returning true if there is
+	// solidity on layers 0, 1, or 2,
+	//
+	// returns the solidity only for the specified layer.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D1
+	//   POP D0
+	//   ISSOLIDLAYER D2
+	internal bool isSolidLayer(int x, int y, int layer);
+
+	// Triggers secrets on this screen (temp only, write [State] to set the perm
+	// secret state)
+	//
+	// @zasm
+	//   SECRETS
+	internal void TriggerSecrets();
+
+	// Plays the warping screen 'zap' effect.
+	//
+	// @zasm
+	//   ZAPIN
+	//   ZAPIN
+	internal void ZapIn();
+
+	// Plays the warping screen 'zap' effect.
+	//
+	// @zasm
+	//   ZAPOUT
+	internal void ZapOut();
+
+	// Plays the warping screen 'wave' effect.
+	//
+	// @zasm
+	//   WAVYIN
+	internal void WavyIn();
+
+	// Plays the warping screen 'wave' effect.
+	//
+	// @zasm
+	//   WAVYOUT
+	internal void WavyOut();
+
+	// Plays the warping screen 'wipe' effect, respecting the wipe-related QRs.
+	//
+	// @zasm
+	//   OPENWIPE
+	internal void OpeningWipe();
+
+	// Plays the warping screen 'wipe' effect, respecting the wipe-related QRs.
+	//
+	// @zasm
+	//   CLOSEWIPE
+	internal void ClosingWipe();
+
+	// Plays the warping screen 'wipe' effect with the specified shape, using
+	// the `WIPE_` constants for the shape.
+	//
+	// @zasm
+	//   POP D2
+	//   OPENWIPESHAPE D2
+	internal void OpeningWipe(int shape);
+
+	// Plays the warping screen 'wipe' effect with the specified shape, using
+	// the `WIPE_` constants for the shape.
+	//
+	// @zasm
+	//   POP D2
+	//   CLOSEWIPESHAPE D2
+	internal void ClosingWipe(int shape);
+
+	// @zasm
+	//   POLYGONR
+	//   POPARGS D5 0.0005
+	internal void Polygon(int layer, int num_points, int vertices, int color,
+						  int opacity = 128);
+
+	// Draws a frame using a 2x2 block of tiles, where the upper-left corner of
+	// which is the 'tile' value
+	//
+	// This works based on how the engine subscreen frame object works,
+	// stretching the frame from those tiles to whatever size you specify.
+	//
+	// Width/height are in 8-pixel increments; ex. 4,4 would give a 2x2 tile
+	// block; 8,8 would give a 4x4.
+	//
+	// @zasm
+	//   FRAMER
+	//   POPARGS D5 0.0009
+	internal void DrawFrame(int layer, int x, int y, int tile, int cset,
+							int width, int height, bool overlay = true,
+							int opacity = 128);
+
+	// Returns true if secrets have been triggered on this screen (including
+	// temp).
+	//
+	// @deprecated Use [SecretsTriggered] instead!
+	// @zasm
+	//   SETR D2 SCREENSECRETSTRIGGERED
+	internal bool SecretsTriggered();
+
+	// Immediately attempts to spawn the [Enemy], using the [Pattern].
+	//
+	// @zasm
+	//   SCREENDOSPAWN
+	internal bool SpawnScreenEnemies();
+
+	// Attempts to trigger the combo at 'layer,pos'. Returns true on success,
+	// false on failure.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   SCRTRIGGERCOMBO D2 D3
+	internal bool TriggerCombo(int layer, int pos);
+
+	// Returns the number of the given object type that are present on the
+	// current screen.
+	//
+	// @deprecated Use [NumPortals] instead!
+	// @zasm
+	//   SETR D2 PORTALCOUNT
+	internal int NumPortals();
+
+	// Where `1 <= n <= NumObjects`, returns a pointer to the nth object on the
+	// screen.
+	//
+	// @zasm
+	//   POP D2
+	//   LOADPORTAL D2
+	internal portal LoadPortal(int n);
+
+	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
+	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
+	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	//
+	// @zasm
+	//   CREATEPORTAL
+	internal portal CreatePortal();
+
+	// @zasm
+	//   DRAWLIGHT_SQUARE
+	//   POPARGS D5 0.0007
+	internal void DrawLightSquare(int arg1, int arg2, int arg3 = -1,
+								  int arg4 = -1, int arg5 = -1, int arg6 = -1,
+								  int arg7 = -1);
+
+	// @zasm
+	//   DRAWLIGHT_CIRCLE
+	//   POPARGS D5 0.0007
+	internal void DrawLightCircle(int arg1, int arg2, int arg3 = -1,
+								  int arg4 = -1, int arg5 = -1, int arg6 = -1,
+								  int arg7 = -1);
+
+	// Draws a cone of light to the engine darkroom bitmap, emanating in the
+	// 8-dir 'dir' from the point 'cx,cy'.
+	//
+	// @zasm
+	//   DRAWLIGHT_CONE
+	//   POPARGS D5 0.0008
+	internal void DrawLightCone(int cx, int cy, int dir, int length = -1,
+								int transp_rad = -1, int dith_rad = -1,
+								int dith_type = -1, int dith_arg = -1);
+
+	// Returns a door state for the screen.
+	//
+	// Each direction (DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT) has 8 indexes (0-7)
+	//
+	// @zasm
+	//   SETR D2 SCREENDATAEXDOOR
+	//   POPARGS D5 0.0002
+	internal bool GetExDoor(int dir, int index);
+
+	// Sets a door state for the screen.
+	//
+	// Each direction (DIR_UP,DIR_DOWN,DIR_LEFT,DIR_RIGHT) has 8 indexes (0-7)
+	//
+	// @zasm
+	//   POP D2
+	//   SETR SCREENDATAEXDOOR D2
+	//   POPARGS D5 0.0002
+	internal void SetExDoor(int dir, int index, bool state);
+
+	// @zasm
+	//   SETSIDEWARP
+	//   POP D3
+	//   POP D3
+	//   POP D3
+	//   POP D3
+	internal void SetSideWarp(int arg1, int arg2, int arg3, int arg4);
+
+	// @zasm
+	//   SETTILEWARP
+	//   POP D3
+	//   POP D3
+	//   POP D3
+	//   POP D3
+	internal void SetTileWarp(int arg1, int arg2, int arg3, int arg4);
+
+	// Create an lweapon with sprites, sounds, and other values set as if it was
+	// generated by a specific item.
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   SETR D2 CREATELWPNDX
+	internal lweapon CreateLWeaponDx(int type, int baseitem);
+
+	// @deprecated
+	// @zasm
+	//   POP D2
+	//   LOADNPCBYSUID D2
+	//   SETR D2 REFNPC
+	internal npc LoadNPCByUID(int arg1);
+
+	// @deprecated
+	// @zasm
+	//   POP D2
+	//   LOADLWEAPONBYSUID D2
+	//   SETR D2 REFLWPN
+	internal lweapon LoadLWeaponByUID(int arg1);
+
+	// @deprecated
+	// @zasm
+	//   POP D2
+	//   LOADWEAPONCBYSUID D2
+	//   SETR D2 REFEWPN
+	internal eweapon LoadEWeaponByUID(int arg1);
+
+	// @deprecated Use [LayerMap[]] instead!
+	// @zasm
+	//   POP D3
+	//   LAYERMAP D2 D3
+	internal int LayerMap(int arg1);
+
+	// @deprecated Use [LayerScreen[]] instead!
+	// @zasm
+	//   POP D3
+	//   LAYERSCREEN D2 D3
+	internal int LayerScreen(int arg1);
+
+	// @deprecated Use [SideWarpDMap] instead!
+	// @zasm
+	//   POP D2
+	//   GETSIDEWARPDMAP D2
+	internal int GetSideWarpDMap(int arg1);
+
+	// @deprecated Use [SideWarpScreen] instead!
+	// @zasm
+	//   POP D2
+	//   GETSIDEWARPSCR D2
+	internal int GetSideWarpScreen(int arg1);
+
+	// @deprecated Use [SideWarpType] instead!
+	// @zasm
+	//   POP D2
+	//   GETSIDEWARPTYPE D2
+	internal int GetSideWarpType(int arg1);
+
+	// @deprecated Use [TileWarpDMap] instead!
+	// @zasm
+	//   POP D2
+	//   GETTILEWARPDMAP D2
+	internal int GetTileWarpDMap(int arg1);
+
+	// @deprecated Use [TileWarpScreen] instead!
+	// @zasm
+	//   POP D2
+	//   GETTILEWARPSCR D2
+	internal int GetTileWarpScreen(int arg1);
+
+	// @deprecated Use [TileWarpType] instead!
+	// @zasm
+	//   POP D2
+	//   GETTILEWARPTYPE D2
+	internal int GetTileWarpType(int arg1);
+}
+
+internal const screendata Screen;

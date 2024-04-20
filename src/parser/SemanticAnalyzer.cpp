@@ -7,6 +7,8 @@
 #include "CompileError.h"
 #include "base/headers.h"
 #include "parser/AST.h"
+#include "parser/CompilerUtils.h"
+#include "parser/parserDefs.h"
 using std::ostringstream;
 using std::unique_ptr;
 using namespace ZScript;
@@ -40,6 +42,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
+	if (!functionDecl) return;
 
 	// Grab the script.
 	Script* script = NULL;
@@ -62,26 +65,20 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	// If this is the script's run method, add "this" to the scope.
 	if (isRun(function))
 	{
-		DataTypeId thisTypeId = script->getType().getThisTypeId();
-		switch(thisTypeId)
+		std::string typeName = script->getType().getName();
+		if (typeName == "generic")
+			typeName = "genericdata";
+		auto klass = program.getClass(typeName);
+		if (klass)
 		{
-			case ZTID_PLAYER:
-				function.thisVar =
-					BuiltinConstant::create(*scope, DataType::PLAYER, "this", 0);
-				break;
-			case ZTID_SCREEN:
-				function.thisVar =
-					BuiltinConstant::create(*scope, DataType::SCREEN, "this", 0);
-				break;
-			case ZTID_VOID:
-				function.thisVar =
-					BuiltinVariable::create(*scope, DataType::ZVOID, "", 0);
-				break;
-			default:
-				DataType const* thisType = scope->getTypeStore().getType(thisTypeId);
-				DataType const* constType = thisType->getConstType();
-				function.thisVar =
-					BuiltinVariable::create(*scope, constType != NULL ? *constType : *thisType, "this", this);
+			auto t = klass->getType();
+			function.thisVar =
+				BuiltinVariable::create(*scope, *t, "this");
+		}
+		else
+		{
+			function.thisVar =
+				BuiltinVariable::create(*scope, DataType::ZVOID, "", 0);
 		}
 	}
 
@@ -1094,6 +1091,8 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 
 void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)
 {
+	if (!host.namesp)
+		return;
 	assert(host.namesp); //Scope must be made during registration
 	Scope* temp = scope;
 	scope = &host.namesp->getScope();
@@ -1251,12 +1250,28 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	visit(host.left.get());
     if (breakRecursion(host)) return;
 
+	if (host.index)
+	{
+		visit(host.index.get());
+        if (breakRecursion(host)) return;
+
+        checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
+                  host.index.get());
+        if (breakRecursion(host)) return;
+    }
+
 	// Grab the left side's class.
 	DataType const& base_ltype = *host.left->getReadType(scope, this);
+	bool is_internal = false;
 	if(UserClass* user_class = base_ltype.getUsrClass())
 	{
 		ClassScope* cscope = &user_class->getScope();
-		if(UserClassVar* dat = cscope->getClassVar(host.right->getValue()))
+		if(UserClassVar* dat = cscope->getClassVar(host.right->getValue()); dat && dat->is_internal)
+		{
+			host.u_datum = dat;
+			is_internal = true;
+		}
+		else if (dat)
 		{
 			host.rtype = &dat->type;
 			if(!dat->type.isConstant())
@@ -1268,18 +1283,19 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 				&host,
 				host.right->getValue(),
 				user_class->getName().c_str()));
-		return;
+
+		if (!is_internal)
+			return;
 	}
-    DataTypeClass const* leftType =
-		dynamic_cast<DataTypeClass const*>(&getNaiveType(base_ltype, scope));
+    DataTypeCustom const* leftType =
+		dynamic_cast<DataTypeCustom const*>(&getNaiveType(base_ltype, scope));
     if (!leftType)
 	{
 		handleError(CompileError::ArrowNotPointer(&host));
         return;
 	}
-	host.leftClass = program.getTypeStore().getClass(leftType->getClassId());
-	// zconsole_db("Arrow for type '%s->'", leftType->getName());
-	Function* reader = lookupGetter(*host.leftClass, host.right->getValue());
+	host.leftClass = leftType->getUsrClass();
+	Function* reader = lookupGetter(host.leftClass->getScope(), host.right->getValue());
 	if(reader && reader->getFlag(FUNCFLAG_INTARRAY))
 		host.arrayFunction = reader;
 	
@@ -1331,7 +1347,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		}
 		else
 		{
-			host.writeFunction = lookupSetter(*host.leftClass, host.right->getValue());
+			host.writeFunction = lookupSetter(host.leftClass->getScope(), host.right->getValue());
 			if (!host.writeFunction)
 			{
 				handleError(
@@ -1361,16 +1377,6 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			deprecWarn(host.arrayFunction, &host, "Constant", leftType->getName() + "->" + host.right->getValue());
 		else deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right->getValue());
 	}
-
-	if (host.index)
-	{
-		visit(host.index.get());
-        if (breakRecursion(host)) return;
-
-        checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
-                  host.index.get());
-        if (breakRecursion(host)) return;
-    }
 }
 
 void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
@@ -1478,7 +1484,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	{
 		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes);
 	}
-	else functions = lookupFunctions(*arrow->leftClass, arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
+	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
