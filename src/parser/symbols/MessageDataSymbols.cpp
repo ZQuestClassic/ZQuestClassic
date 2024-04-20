@@ -51,7 +51,7 @@ static AccessorTable MessageDataTable[] =
 	{ "_getTextHeight",             0,         ZTID_FLOAT,   MESSAGEDATATEXTHEI,        0,  { ZTID_ZMESSAGE },{} },
 	{ "_getTextWidth",              0,         ZTID_FLOAT,   MESSAGEDATATEXTWID,        0,  { ZTID_ZMESSAGE },{} },
 	{ "getLength",                  0,         ZTID_FLOAT,   MESSAGEDATATEXTLEN,        0,  { ZTID_ZMESSAGE },{} },
-	{ "setLength",                  0,          ZTID_VOID,   MESSAGEDATATEXTLEN,        0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
+	{ "setLength",                  0,          ZTID_VOID,   MESSAGEDATATEXTLEN,       FL_RDONLY,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
 	
 	{ "getTransparent",             0,          ZTID_BOOL,   MESSAGEDATATRANS,    FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Unused! Does nothing!" },
 	{ "setTransparent",             0,          ZTID_VOID,   MESSAGEDATATRANS,    FL_DEPR,  { ZTID_ZMESSAGE, ZTID_BOOL },{},0,"Unused! Does nothing!" },

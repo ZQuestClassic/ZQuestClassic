@@ -616,7 +616,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "x marks the spot\n  still line one still line one still line one still line one still line one\n  \n  line two\n  line two still\n \n  line three\n \n  - list item 1\n  - list item 2\n  - list item 3"
     },
-    "3500": {
+    "3475": {
       "loc": {
         "range": {
           "start": {
@@ -632,7 +632,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "A lovely function. See [`utils::fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
     },
-    "3504": {
+    "3479": {
       "loc": {
         "range": {
           "start": {
@@ -790,7 +790,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "meh"
     },
-    "3505": {
+    "3480": {
       "loc": {
         "range": {
           "start": {
@@ -821,7 +821,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D)"
     },
-    "3502": {
+    "3477": {
       "loc": {
         "range": {
           "start": {
@@ -908,7 +908,7 @@ Compile finished with exit code '0' (success)
         "character": 15,
         "length": 2
       },
-      "symbol": "3500"
+      "symbol": "3475"
     },
     {
       "loc": {
@@ -924,7 +924,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 3
       },
-      "symbol": "3504"
+      "symbol": "3479"
     },
     {
       "loc": {
@@ -1004,7 +1004,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 13
       },
-      "symbol": "3505"
+      "symbol": "3480"
     },
     {
       "loc": {
@@ -1012,7 +1012,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 3
       },
-      "symbol": "3504"
+      "symbol": "3479"
     },
     {
       "loc": {
@@ -1028,7 +1028,7 @@ Compile finished with exit code '0' (success)
         "character": 8,
         "length": 5
       },
-      "symbol": "3502"
+      "symbol": "3477"
     },
     {
       "loc": {

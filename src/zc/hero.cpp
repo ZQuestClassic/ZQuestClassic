@@ -1625,7 +1625,7 @@ void HeroClass::init()
 	usecounts.clear();
 	scale = 0;
 	rotation = 0;
-	do_animation = 1;
+	do_animation = true;
 	if(lift_wpn)
 	{
 		delete lift_wpn;
@@ -1707,7 +1707,7 @@ void HeroClass::init()
     id=0;
     inlikelike=0;
     superman=inwallm=false;
-    scriptcoldet=1;
+    scriptcoldet=true;
     blowcnt=whirlwind=specialcave=0;
     hopclk=diveclk=fallclk=0;
 	fallCombo = 0;
@@ -6307,7 +6307,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	int indx = Lwpns.find(w);
 	//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
 	//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
-	if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
+	if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 	{
 		if(w->id==wFire && (superman ? (diagonalMovement?w->hit(x+4,y+4-fakez,z,7,7,1):w->hit(x+7,y+7-fakez,z,2,2,1)) : w->hit(this))&&
 					(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
@@ -6440,7 +6440,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	
 	if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_qr(qr_OUCHBOMBS)))
 	{
-		if(((w->id==wBomb)||(w->id==wSBomb)) && !superman && (scriptcoldet&1) && !fallclk)
+		if(((w->id==wBomb)||(w->id==wSBomb)) && !superman && scriptcoldet && !fallclk)
 		{
 			bool didhit = w->hit(this);
 			if(didhit)
@@ -6787,7 +6787,7 @@ void HeroClass::checkhit()
 		int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
 		//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
 		//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
-		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
+		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 		{
 			if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4-fakez,z,7,7,1):s->hit(x+7,y+7-fakez,z,2,2,1)) : s->hit(this))&&
 						(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
@@ -6921,7 +6921,7 @@ void HeroClass::checkhit()
 		
 		if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_qr(qr_OUCHBOMBS)))
 		{
-			if(((s->id==wBomb)||(s->id==wSBomb)) && !superman && (scriptcoldet&1) && !fallclk)
+			if(((s->id==wBomb)||(s->id==wSBomb)) && !superman && scriptcoldet && !fallclk)
 			{
 				weapon* w = (weapon*)s;
 				bool didhit = s->hit(this);
@@ -7091,7 +7091,7 @@ void HeroClass::checkhit()
 			if (hithero(hit2) == 0) return;
 		}
 	} while (hit2 != -1);
-	if (superman || !(scriptcoldet&1) || fallclk) return;
+	if (superman || !scriptcoldet || fallclk) return;
 	hit2 = LwpnHit();
 	
 	if(hit2!=-1)
@@ -7670,7 +7670,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		
 		return -1;
 	}
-	else if(superman || !(scriptcoldet&1) || fallclk)
+	else if(superman || !scriptcoldet || fallclk)
 		return 0;
 	//!TODO SOLIDPUSH Enemy flag to make them not deal contact damage
 	//!Add a flag check to this if:
@@ -31464,7 +31464,7 @@ void HeroClass::heroDeathAnimation()
 	music_stop();
 	
 	attackclk=hclk=superman=0;
-	scriptcoldet = 1;
+	scriptcoldet = true;
     
 	for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -31506,7 +31506,7 @@ void HeroClass::heroDeathAnimation()
 				music_stop();
 				
 				attackclk=hclk=superman=0;
-				scriptcoldet = 1;
+				scriptcoldet = true;
 			    
 				for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
 			    
