@@ -1,3 +1,6 @@
+#option WARN_DEPRECATED error
+#option NO_ERROR_HALT on
+
 import "std.zh"
 import "ghost.zh"
 
@@ -18,7 +21,7 @@ void run(int enemyID)
 	 Ghost_SetFlag(GHF_NORMAL);
 	 Ghost_SetFlag(GHF_KNOCKBACK_4WAY);
 	 Ghost_SetFlag(GHF_FAKE_Z);
-	 Game->PlaySound(ghost->Attributes[ARMOS_ATTR_START_SOUND]);
+	 Audio->PlaySound(ghost->Attributes[ARMOS_ATTR_START_SOUND]);
 	 SpawnAnimation(this, ghost);
 	
 	 step=ghost->Step/100;
@@ -30,7 +33,7 @@ void run(int enemyID)
 		 if(Ghost_Z==0 && Ghost_Jump<=0)
 		 {
 			 Ghost_Jump=ARMOS_JUMP_HEIGHT;
-			 Game->PlaySound(jumpSound);
+			 Audio->PlaySound(jumpSound);
 		 }
 		
 		 Ghost_MoveTowardLink(step, 3);

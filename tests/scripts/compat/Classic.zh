@@ -145,7 +145,7 @@ item script ItemSound
 {
 	void run(int s)
 	{
-		Game->PlaySound(s);
+		Audio->PlaySound(s);
 	}
 }
 
@@ -170,8 +170,8 @@ ffc script BossMusic
 		Waitframes(5);
 		Game->PlayEnhancedMusic(filenm,trk);
 		while(EnemiesAlive()) Waitframe();
-		//for ( int q = Screen->NumLWeapons(); q > 0; --q ) //the number changes, so we need to refresh...
-		for ( int q = 1; q < Screen->NumLWeapons(); ++q ) 
+		//for ( int q = Screen->NumLWeapons; q > 0; --q ) //the number changes, so we need to refresh...
+		for ( int q = 1; q < Screen->NumLWeapons; ++q ) 
 		{
 			lweapon isFirework = Screen->LoadLWeapon(q);
 			if ( isFirework->OriginalTile == origtile ) 
@@ -180,9 +180,9 @@ ffc script BossMusic
 				
 			}
 		}
-		Game->PlayMIDI(mid);
+		Audio->PlayMIDI(mid);
 		for ( int q = 0; q < 601; ++q ) Waitframe();
-		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
+		Audio->PlayMIDI(Game->DMapMIDI[Game->CurDMap]);	
 		Screen->D[reg] = _classic_zh__REG_BOSS_DEAD;
 	}
 }
@@ -201,7 +201,7 @@ ffc script BossExplode
 		if ( rmax < 1 ) rmax = _classic_zh__BOSS_EXPLODE_RANDOM_MAX;
 		Waitframes(5);
 		npc boss; int x; int y; int width; int height; bool alive = true;
-		for ( int q = Screen->NumNPCs(); q > 0; --q )
+		for ( int q = Screen->NumNPCs; q > 0; --q )
 		{
 			npc n = Screen->LoadNPC(q);
 			if ( _classic_zh__isBoss(n) || n->ID == enemy_override ) 
@@ -230,7 +230,7 @@ ffc script BossExplode
 			if ( EnemiesAlive() )
 			{
 				//Find the next piece of it
-				for ( int q = Screen->NumNPCs(); q > 0; --q )
+				for ( int q = Screen->NumNPCs; q > 0; --q )
 				{
 					npc n = Screen->LoadNPC(q);
 					if ( n->Type == type ) 
@@ -254,7 +254,7 @@ ffc script BossExplode
 		for ( int q = dur; q > 0; --q )
 		{
 			//do explosions
-			Game->PlaySound(sfx);
+			Audio->PlaySound(sfx);
 			lweapon l = Screen->CreateLWeapon(LW_SPARKLE);
 			l->CollDetection = false;
 			l->UseSprite(spr);
@@ -357,7 +357,7 @@ ffc script ChangeRoomGuy
 		this->Data = CMB_INVISIBLE;
 		if ( t < 0 ) Quit();
 		Waitframes(4);
-		for ( int q = Screen->NumNPCs(); q > 0; --q )
+		for ( int q = Screen->NumNPCs; q > 0; --q )
 		{
 			npc g = Screen->LoadNPC(q);
 			if ( g->Type == NPCT_GUY )
@@ -386,7 +386,7 @@ ffc script PermBlockSecrets
 			{
 				Screen->State[ST_SECRET] = true;
 				Screen->TriggerSecrets();
-				Game->PlaySound(SFX_SECRET);
+				Audio->PlaySound(SFX_SECRET);
 				Quit();
 			}
 			cnt = 0; 
@@ -420,7 +420,7 @@ ffc script PermBlockShutters
 		{
 			if ( Screen->D[reg] )
 			{
-				Game->PlaySound(SFX_SECRET);
+				Audio->PlaySound(SFX_SECRET);
 				//Screen->Flags[SF_SECRETS] &= ~1;
 				for ( int q = 0; q < 4; ++q )
 				{
@@ -682,7 +682,7 @@ ffc script Daira
 			{
 				Ghost_HP-=sword->Damage;
 				Ghost_StartFlashing();
-				Game->PlaySound(SFX_EHIT);
+				Audio->PlaySound(SFX_EHIT);
 			}
 		}
 		else
@@ -805,7 +805,7 @@ item script MagicCompass
 void __classic_zh_InitScreenUpdating()
 {
 	__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
-	__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+	__classic_zc_internal[__classic_zh_LASTDMAP] = Game->CurDMap;
 	__classic_zc_internal[__classic_zh_LASTMAP] = Game->GetCurMap();
 	__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
 }
@@ -817,7 +817,7 @@ void __classic_zh_UpdateScreenChange1()
 		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
 		return;
 	}
-	if ( __classic_zc_internal[__classic_zh_LASTDMAP] != Game->GetCurDMap() )
+	if ( __classic_zc_internal[__classic_zh_LASTDMAP] != Game->CurDMap )
 	{
 		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
 	}
@@ -825,7 +825,7 @@ void __classic_zh_UpdateScreenChange1()
 
 void __classic_zh_UpdateScreenChange2()
 {
-	__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+	__classic_zc_internal[__classic_zh_LASTDMAP] = Game->CurDMap;
 	__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
 }
 
@@ -833,7 +833,7 @@ void __classic_zh_ResetScreenChange()
 {
 	if ( __classic_zc_internal[__classic_zh_SCREENCHANGED] )
 	{
-		__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+		__classic_zc_internal[__classic_zh_LASTDMAP] = Game->CurDMap;
 		__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
 		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
 	}
@@ -863,7 +863,7 @@ void __classic_zh_CompassBeep()
 						{
 							if ( !Screen->State[ST_BOSSCHEST] )
 							{
-								Game->PlaySound(beep->InitD[1]);
+								Audio->PlaySound(beep->InitD[1]);
 							}
 						}
 					}
@@ -878,7 +878,7 @@ void __classic_zh_CompassBeep()
 bool __classic_zh_ScreenGuyAlive()
 {
 	bool alive = false; 
-	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	for ( int q = Screen->NumNPCs; q > 0; --q )
 	{
 		npc n = Screen->LoadNPC(q); 
 		if ( n->Type == NPCT_GUY )
@@ -902,6 +902,6 @@ ffc script ScreenGuyMusic
 		Waitframes(5);
 		Game->PlayEnhancedMusic(filenm,trk);
 		while(__classic_zh_ScreenGuyAlive()) Waitframe();
-		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
+		Audio->PlayMIDI(Game->DMapMIDI[Game->CurDMap]);	
 	}
 }

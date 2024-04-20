@@ -81,13 +81,13 @@ ffc script NPC_MIDI
 		bool enhanced =  ( enh_music[0] != 0 ); //is the dmap music enhanced?
 		
 		int originalmusic = Game->DMapMIDI[Game->GetCurDMap()];
-		while(!Screen->NumNPCs()) 
+		while(!Screen->NumNPCs) 
 		{
-			//LogPrint("NPC_MIDI is %s \n", "Waiting (!Screen->NumNPCs())");
+			//LogPrint("NPC_MIDI is %s \n", "Waiting (!Screen->NumNPCs)");
 			Waitframe();
 		}
 		while(true){
-			for ( q[0] = Screen->NumNPCs(); q[0] > 0; --q[0] ) {
+			for ( q[0] = Screen->NumNPCs; q[0] > 0; --q[0] ) {
 				n = Screen->LoadNPC(q);
 				if ( n->ID == npc_ID ) 
 				{
@@ -114,7 +114,7 @@ ffc script NPC_MIDI
 		
 		while(1)
 		{
-			for ( int w = Screen->NumNPCs(); w > 0; --w )
+			for ( int w = Screen->NumNPCs; w > 0; --w )
 			{
 				npc n = Screen->LoadNPC(w);
 				if ( n->ID == npc_ID )
@@ -172,10 +172,10 @@ ffc script NPC_Music
 		bool playing;
 		
 		int originalmusic = Game->DMapMIDI[Game->GetCurDMap()];
-		while(!Screen->NumNPCs()) Waitframe();
+		while(!Screen->NumNPCs) Waitframe();
 		
 		while(true){
-			for ( q[0] = Screen->NumNPCs(); q[0] > 0; --q[0] ) 
+			for ( q[0] = Screen->NumNPCs; q[0] > 0; --q[0] ) 
 			{
 				n = Screen->LoadNPC(q);
 				if ( n->ID == npc_ID ) 
@@ -199,7 +199,7 @@ ffc script NPC_Music
 		bool stillalive;
 		while(1)
 		{
-			for ( int w = Screen->NumNPCs(); w > 0; --w )
+			for ( int w = Screen->NumNPCs; w > 0; --w )
 			{
 				npc n = Screen->LoadNPC(w);
 				if ( n->ID == npc_ID )
@@ -291,7 +291,7 @@ ffc script MusicZH_BossMusic
 		{
 			dat = Game->GetScreenD(curScreen,reg);
 			
-			if ( enem == -1 && !Screen->NumNPCs() ) 
+			if ( enem == -1 && !Screen->NumNPCs ) 
 			{
 				Game->SetScreenD(curScreen,reg,1);
 			}
@@ -474,7 +474,7 @@ ffc script BossMusicEnhanced_InternalStrings
 			dat = Game->GetScreenD(curScreen,reg);
 			//Waitframes(6); //Wait for enemies to spawn. 1.3.4
 			//Set Screen->D[reg] = 1 if the enemy is dead.
-			if ( enem == -1 && !Screen->NumNPCs() ) 
+			if ( enem == -1 && !Screen->NumNPCs ) 
 			{
 				Game->SetScreenD(curScreen,reg,1);
 			}
@@ -526,7 +526,7 @@ ffc script BossMusicEnhanced_InternalStrings
 							Game->PlayMIDI(midiNumber); //Play MIDI if enhanced music is not available. 
 						}
 					}
-					if ( enem == -1 && !Screen->NumNPCs() ) 
+					if ( enem == -1 && !Screen->NumNPCs ) 
 					{
 						Game->SetScreenD(curScreen,reg,1);
 					}
@@ -772,7 +772,7 @@ ffc script BossMusicEnhanced_old
 			dat = Game->GetScreenD(curScreen,reg);
 			//Waitframes(6); //Wait for enemies to spawn. 1.3.4
 			//Set Screen->D[reg] = 1 if the enemy is dead.
-			if ( enem == -1 && !Screen->NumNPCs() ) 
+			if ( enem == -1 && !Screen->NumNPCs ) 
 			{
 				Game->SetScreenD(curScreen,reg,1);
 			}
@@ -831,7 +831,7 @@ ffc script BossMusicEnhanced_old
 							}
 						}
 					}
-					if ( enem == -1 && !Screen->NumNPCs() ) 
+					if ( enem == -1 && !Screen->NumNPCs ) 
 					{
 						Game->SetScreenD(curScreen,reg,1);
 					}

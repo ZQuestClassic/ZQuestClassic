@@ -203,7 +203,7 @@ void __Tango_UpdateMenu()
     else if(pos!=oldPos)
     {
         __Tango_ScrollToMenuCursor(pos);
-        Game->PlaySound(__Tango_Data[__TDIDX_MENU_CURSOR_SFX]);
+        Audio->PlaySound(__Tango_Data[__TDIDX_MENU_CURSOR_SFX]);
         __Tango_Data[__TDIDX_MENU_CURSOR_POS]=pos;
         
         if(oldPosWasValid)
@@ -389,7 +389,7 @@ void __Tango_MenuSelect(int pos)
     int dataStart=__TDIDX_CHOICE_DATA+pos*__TANGO_SIZEOF_CHOICE;
     __Tango_Data[__TDIDX_LAST_CHOICE]=
       __Tango_Data[dataStart+__TANGO_CHOICE_VALUE];
-    Game->PlaySound(__Tango_Data[__TDIDX_MENU_SELECT_SFX]);
+    Audio->PlaySound(__Tango_Data[__TDIDX_MENU_SELECT_SFX]);
     __Tango_Data[__TDIDX_GLOBAL_FLAGS]|=__TANGO_GFLAG_UNPRESS_MENU;
     if((__Tango_Data[__TDIDX_MENU_FLAGS]&TANGO_MENU_PERSISTENT)==0)
         Tango_DeactivateMenu();
@@ -402,7 +402,7 @@ void __Tango_MenuCancel()
     
     __Tango_Data[__TDIDX_LAST_CHOICE]=0;
     __Tango_Data[__TDIDX_MENU_CURSOR_POS]=-214747.9999;
-    Game->PlaySound(__Tango_Data[__TDIDX_MENU_CANCEL_SFX]);
+    Audio->PlaySound(__Tango_Data[__TDIDX_MENU_CANCEL_SFX]);
     __Tango_MenuNotify();
     __Tango_Data[__TDIDX_GLOBAL_FLAGS]|=__TANGO_GFLAG_UNPRESS_MENU;
 }

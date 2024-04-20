@@ -46,9 +46,9 @@ Search for !#! to find areas that require completion.
 * 	and "[property]" is the function. 
 *	
 * 	Example:
-* 	void GetCurDMap() is a Game property, and is called as:
+* 	void CurDMap is a Game property, and is called as:
 *
-* 	Game->GetCurDMap();
+* 	Game->CurDMap;
 *
 * 	"Link", "Screen" and "Game" are always available and don't need to be 
 * 	instantiated, while you must initialise other classes, such as ffc, item,
@@ -813,7 +813,7 @@ float Sqrt(float val);			ZASM Instruction:
 
 /************************************************************************************************************/
 
-	int GetCurDMapScreen();		ZASM Instruction: 
+	int CurDMapScreen;		ZASM Instruction: 
 					CURDSCR
 	/**
 	* Retrieves the number of the current screen within the current DMap.
@@ -839,7 +839,7 @@ float Sqrt(float val);			ZASM Instruction:
 
 /************************************************************************************************************/
 
-	int GetCurDMap();		ZASM Instruction: 
+	int CurDMap;		ZASM Instruction: 
 					CURDMAP
 	/**
 	* Returns the number of the current DMap.
@@ -887,7 +887,7 @@ float Sqrt(float val);			ZASM Instruction:
 	* Positive numbers are for custom MIDIs, and negative values are used for
 	* the built-in game MIDIs. Because of the way DMap MIDIs are handled
 	* internally, however, built-in MIDIs besides the overworld, dungeon, and
-	* level 9 songs won't match up with Game->PlayMIDI() and Game->GetMIDI().
+	* level 9 songs won't match up with Audio->PlayMIDI() and Game->GetMIDI().
 	*/ Example Use: !#!
 
 /************************************************************************************************************/
@@ -1262,7 +1262,7 @@ float Sqrt(float val);			ZASM Instruction:
 	*/ Example Use: 
 	
 		int music[]="myfile.mp3"; // Make a string with the filename of the music to play.
-		if ( !Game->PlayEnhancedMusic(music, 1) ) Game->PlayMIDI(midi_id);
+		if ( !Game->PlayEnhancedMusic(music, 1) ) Audio->PlayMIDI(midi_id);
 		
 		// Plays the enhanced music file 'myfle.mp3', track 1. 
 		// If the file is mssing, the game will instead play 
@@ -2047,7 +2047,7 @@ int LayerScreen(int n);			ZASM Instruction:
 
 /************************************************************************************************************/
 
-int NumItems();				ZASM Instruction: 
+int NumItems;				ZASM Instruction: 
 					ITEMCOUNT
 
 /**
@@ -2067,7 +2067,7 @@ item LoadItem(int num);			ZASM Instruction:
 
 /**
 * Returns a pointer to the numth item on the current screen. The return
-* value is undefined unless 1 <= num <= NumItems().
+* value is undefined unless 1 <= num <= NumItems.
 *
 * Attempting to return an invalid item pointer will print an error to allegro.log. 
 *
@@ -2100,7 +2100,7 @@ ffc LoadFFC(int num);			ZASM Instruction:
 
 /************************************************************************************************************/
 
-int NumNPCs();				ZASM Instruction: 
+int NumNPCs;				ZASM Instruction: 
 					NPCCOUNT
 
 /**
@@ -2118,7 +2118,7 @@ npc LoadNPC(int num);			ZASM Instruction:
 
 /**
 * Returns a pointer to the numth NPC on the current screen. The return
-* value is undefined unless 1 <= num <= NumNPCs().
+* value is undefined unless 1 <= num <= NumNPCs.
 *
 */ Example Use: !#!
 
@@ -2139,7 +2139,7 @@ npc CreateNPC(int id);			ZASM Instruction:
 
 /************************************************************************************************************/
 	
-int NumLWeapons();			ZASM Instruction: 
+int NumLWeapons;			ZASM Instruction: 
 					LWPNCOUNT
 
 /**
@@ -2157,7 +2157,7 @@ lweapon LoadLWeapon(int num);		ZASM Instruction:
 
 /**
 * Returns a pointer to the num-th lweapon on the current screen. The return
-* value is undefined unless 1 <= num <= NumLWeapons().
+* value is undefined unless 1 <= num <= NumLWeapons.
 *
 */ Example Use: !#!
 
@@ -2180,7 +2180,7 @@ lweapon CreateLWeapon(int type);	ZASM Instruction:
 
 /************************************************************************************************************/
 	
-int NumEWeapons();			ZASM Instruction: 
+int NumEWeapons;			ZASM Instruction: 
 					EWPNCOUNT
 
 /**
@@ -2198,7 +2198,7 @@ eweapon LoadEWeapon(int num);		ZASM Instruction:
 
 /**
 * Returns a pointer to the numth eweapon on the current screen. The return
-* value is undefined unless 1 <= num <= NumEWeapons().
+* value is undefined unless 1 <= num <= NumEWeapons.
 *
 */ Example Use: !#!
 
@@ -6148,7 +6148,7 @@ The maximum number of arrays in operation at one time is 4095.
 
 You attempted to reference a game object that has a maximum legal range of 1 to 255. 
 It is possible that you tried to read outside that range, or that the pointer that you were loading is not valid.
-Check NumItems(), NumLWeapons(), NumEWeapons(0, and NumNPCs() before referencing them; and verify that the object ->IsValid()
+Check NumItems, NumLWeapons, NumEWeapons(0, and NumNPCs before referencing them; and verify that the object ->IsValid()
 Check for loops that may attempt ro reference items outside of the range that actually exist.
 Look for any for loops that access these objects, that start, or end at zero.
 
@@ -6158,9 +6158,9 @@ The best way to ensure this does not occur, is to make a for loop as follows:
 
 			//or//
 
-	for ( int q = Screen->NumLWeapons(); q > 0; q-- ) 
+	for ( int q = Screen->NumLWeapons; q > 0; q-- ) 
 
-...replacing NumLWeapons() withthe appropriate type that you are attempting to load.
+...replacing NumLWeapons withthe appropriate type that you are attempting to load.
 
 You may be attempting to refrence a pointer that has fallen out of scope.
 You may be attempting to reference a pointer that is no longer valid, or has been removed.
@@ -6205,7 +6205,7 @@ Chweck for any hardcoded values, or constants that are in use with these functio
     
 You may create a maximum of 255 of any one object type on the screen at any one time.
 Look for anything that is generating extra pointers, and add a statement such as:
-	if ( Screen->NumNPCs() < 255 ) 
+	if ( Screen->NumNPCs < 255 ) 
     
 	"Max draw primitive limit reached\n"
 The maximum number of drawing function calls, per frame, is 1,000.

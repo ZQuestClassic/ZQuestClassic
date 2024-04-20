@@ -1403,7 +1403,7 @@ of iterations is known at compile-time.
 	will run if the loop ends naturally, i.e. not via 'return' or 'break'.
 	
 	[example--
-		for(int q = 1; q <= Screen->NumNPCs(); ++q)
+		for(int q = 1; q <= Screen->NumNPCs; ++q)
 		{
 			npc n = Screen->LoadNPC(q);
 			if(Distance(n->X,n->Y,Hero->X,Hero->Y) < 64)
@@ -3313,7 +3313,7 @@ int GetCurScreen();
 int CurScreen; //Read-only
  * The current screen, relative to the top-left corner of the map
 
-int GetCurDMapScreen();
+int CurDMapScreen;
 int CurDMScreen; //Read-only
  * The current screen, relative to the top-left corner of the DMap
  * (Accounts for the DMap offset)
@@ -3322,7 +3322,7 @@ int GetCurMap();
 int CurMap; //Read-only
  * The current map
 
-int GetCurDMap();
+int CurDMap;
 int CurDMap; //Read-only
  * The current dmap
 
@@ -4829,7 +4829,7 @@ bool Animation;
  * Normally 'true'. If enabled, the item is animated by the ZC engine.
  * Set this false to disable engine animation.
  
-int Max();
+int Max;
  * Returns the maximum number of itemsprite sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
  * pointer type) that arw allowed to be on the screen at one time. 
@@ -4938,7 +4938,7 @@ int DroppedBy;
 
 void Remove();
  * Instantly DELETES an itemsprite.
- * This will immediately invalidate the itemsprite pointer, as well as update 'Screen->NumItems()', and change the indexes for 'Screen->LoadItem()'
+ * This will immediately invalidate the itemsprite pointer, as well as update 'Screen->NumItems', and change the indexes for 'Screen->LoadItem()'
  * If called from an itemsprite script on the itemsprite running the script, immediately terminates the script.
 
 bool SwitchHooked;
@@ -5005,7 +5005,7 @@ bool Animation;
  * Normally 'true'. If enabled, the weapon is animated by the ZC engine.
  * Set this false to disable engine animation.
 
-int Max();
+int Max;
  * Returns the maximum number of weapon sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
  * pointer type) that arw allowed to be on the screen at one time. 
@@ -5264,7 +5264,7 @@ bool Animation;
  * Normally 'true'. If enabled, the npc is animated by the ZC engine.
  * Set this false to disable engine animation.
 
-int Max();
+int Max;
  * Returns the maximum number of npc sprites (eweapon and lweapon are
  * separate values, and should be read from the appropriate 
  * pointer type) that arw allowed to be on the screen at one time. 
@@ -5658,7 +5658,7 @@ int DeathSprite;
  
 void Remove();
  * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
- * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
+ * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs', and change the indexes for 'Screen->LoadNPC()'
  * If called from an NPC script on the NPC running the script, immediately terminates the script.
 
 bool Switch(int effect);
@@ -7284,7 +7284,7 @@ void SetFFCInitA(int ffc_index, int init_a, float value);
 
 int Layer();
 int Layer;
- * Returns the layer the combo is on in a combodata script, from the 'this->' pointer as 'this->Layer()'
+ * Returns the layer the combo is on in a combodata script, from the 'this->' pointer as 'this->Layer'
  * Using this from any other combodata variable is illegal and undefined.
 
 int Pos();
@@ -7916,7 +7916,7 @@ Commands for graphics, sound, text, and bitmap objects.
 int GetPixel(bitmap b, int x, int y);
  * Returns the palette index value for a pixel on a bitmap, at coordinates x, y on that bitmap.
 
-int NumDraws();
+int NumDraws;
  * Returns the number of script draws that have been executed during the current frame.
  
 int MaxDraws();
@@ -8108,7 +8108,7 @@ bool PlayEnhancedMusic(int filename[], int track);
 	*/ Example Use: 
 	
 		int music[]="myfile.mp3"; // Make a string with the filename of the music to play.
-		if ( !Game->PlayEnhancedMusic(music, 1) ) Game->PlayMIDI(midi_id);
+		if ( !Game->PlayEnhancedMusic(music, 1) ) Audio->PlayMIDI(midi_id);
 		
 		// Plays the enhanced music file 'myfle.mp3', track 1. 
 		// If the file is mssing, the game will instead play 

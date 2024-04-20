@@ -699,7 +699,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		case CF_ARROW:
 		{
 			// Loop through all weapons
-			for (int i = Screen->NumLWeapons(); i > 0; --i)
+			for (int i = Screen->NumLWeapons; i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
 				
@@ -722,7 +722,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		case CF_BOMB:
 		{
 			// Loop through all weapons
-			for (int i = Screen->NumLWeapons(); i > 0; --i)
+			for (int i = Screen->NumLWeapons; i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
 				
@@ -744,7 +744,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		case CF_WANDMAGIC:
 		{
 			// Loop through all weapons
-			for (int i = Screen->NumLWeapons(); i > 0; --i)
+			for (int i = Screen->NumLWeapons; i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
 				
@@ -770,7 +770,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		{
 			
 			// Loop through all weapons
-			for (int i = Screen->NumLWeapons(); i > 0; --i)
+			for (int i = Screen->NumLWeapons; i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
 				
@@ -797,7 +797,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		{
 			
 			// Loop through all weapons
-			for (int i = Screen->NumLWeapons(); i > 0; --i)
+			for (int i = Screen->NumLWeapons; i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
 				
@@ -818,7 +818,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		case CF_HOOKSHOT:
 		{
 			// Loop through all weapons
-			for (int i = Screen->NumLWeapons(); i > 0; --i)
+			for (int i = Screen->NumLWeapons; i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
 				
@@ -841,7 +841,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		case CF_HAMMER:
 		{
 			// Loop through all weapons
-			for (int i = Screen->NumLWeapons(); i > 0; --i)
+			for (int i = Screen->NumLWeapons; i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
 				
@@ -864,7 +864,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		case CF_STRIKE:
 		{
 			// Loop through all weapons
-			for (int i = Screen->NumLWeapons(); i > 0; --i)
+			for (int i = Screen->NumLWeapons; i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
 				
@@ -974,7 +974,7 @@ void CFlag(int x1, int y1, int x2, int y2, int flag, bool SFX)
 	
 	// If requested, play the normal secret SFX
 	if(SFX)
-		Game->PlaySound(SFX_SECRET);
+		Audio->PlaySound(SFX_SECRET);
 }
 
 // Normal CFlag function on combo that will wait until one happens, then activate secrets
@@ -988,7 +988,7 @@ void CFlag(int x, int y, int flag, bool SFX)
 	
 	// If requested, play the normal secret SFX
 	if(SFX)
-		Game->PlaySound(SFX_SECRET);
+		Audio->PlaySound(SFX_SECRET);
 }
 
 // Normal CFlag function on combo that will wait until one happens, then activate secrets
@@ -1002,7 +1002,7 @@ void CFlag(ffc object, int flag, bool SFX)
 	
 	// If requested, play the normal secret SFX
 	if(SFX)
-		Game->PlaySound(SFX_SECRET);
+		Audio->PlaySound(SFX_SECRET);
 }
 
 // Checks if the given direction is the only direction being pressed.

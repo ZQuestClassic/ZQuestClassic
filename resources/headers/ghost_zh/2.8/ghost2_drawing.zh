@@ -73,7 +73,7 @@ void DrawGhostFFCs()
         overlayLayer=5;
     }
     
-    for(int i=1; i<=Screen->NumNPCs(); i++)
+    for(int i=1; i<=Screen->NumNPCs; i++)
     {
         ghost=Screen->LoadNPC(i);
         aptr=__GetDrawingArray(ghost);

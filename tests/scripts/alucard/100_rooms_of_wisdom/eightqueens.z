@@ -26,33 +26,33 @@ ffc script QueenPlacementPuzzle{
 		while (true){
 			if (RectCollision(boardx, boardy, boardx+16*boardsize, boardy+16*boardsize, CenterLinkX(), CenterLinkY(), (CenterLinkX()+1), (CenterLinkY())+1)){
 				if (Link->PressA){
-					Game->PlaySound(SFX_HAMMER);
+					Audio->PlaySound(SFX_HAMMER);
 					int curqueen = ComboAt (CenterLinkX(), CenterLinkY());
 					if (Screen->ComboD[curqueen]== emptycmb){
-						//Game->PlaySound(SFX_HAMMER);
+						//Audio->PlaySound(SFX_HAMMER);
 						Screen->ComboD[curqueen]++;
 						numqueens++;
 						for (int i=0; i<176; i++){
 							if (curqueen==i) continue;
 							if (Screen->ComboD[i]!=queencmb) continue;
 							if (OnSameRank(i, curqueen)){
-								Game->PlaySound(SFX_QUEENS_EATING);
+								Audio->PlaySound(SFX_QUEENS_EATING);
 								Screen->ComboD[i]--;
 								numqueens--;
 							}
 							if (OnSameFile(i, curqueen)){
 								Screen->ComboD[i]--;
-								Game->PlaySound(SFX_QUEENS_EATING);
+								Audio->PlaySound(SFX_QUEENS_EATING);
 								numqueens--;
 							}
 							if (OnSameDiagonal(i, curqueen)){
 								Screen->ComboD[i]--;
-								Game->PlaySound(SFX_QUEENS_EATING);
+								Audio->PlaySound(SFX_QUEENS_EATING);
 								numqueens--;
 							}
 					 	}
 					 	if (numqueens>=boardsize){
-								Game->PlaySound(SFX_SECRET);
+								Audio->PlaySound(SFX_SECRET);
 								Screen->TriggerSecrets();
 								Screen->State[ST_SECRET]=true;
 								Quit();

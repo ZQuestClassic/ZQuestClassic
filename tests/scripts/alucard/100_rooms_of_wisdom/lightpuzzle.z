@@ -43,7 +43,7 @@ ffc script LightPath{
 			//solved, play the chime and solve it.
 			if(vars[0]<=0&&!alreadyTriggered){
 				alreadyTriggered = true;
-				Game->PlaySound(sfx);
+				Audio->PlaySound(sfx);
 				Screen->TriggerSecrets();
 				Screen->State[ST_SECRET] = true;
 			}
@@ -171,7 +171,7 @@ ffc script LightPath{
 			if(pos>-1){ //Rotating path
 				if(Distance(Link->X, Link->Y, sword->X, sword->Y)>10){
 					if(rotTime[pos]==0){
-						Game->PlaySound(SFX_LIGHTPANEL_TURN);
+						Audio->PlaySound(SFX_LIGHTPANEL_TURN);
 						rotTime[pos] = 1;
 					}
 				}

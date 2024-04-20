@@ -48,8 +48,6 @@ static AccessorTable DebugTable[] =
 	
 	{ "getD[]",                     0,         ZTID_FLOAT,   DEBUGD,                    0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	{ "setD[]",                     0,         ZTID_FLOAT,   DEBUGD,                    0,  { ZTID_DEBUG, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "_getNULL",                   0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
-	{ "_getNull",                   0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
 	{ "getNULL",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
 	{ "setNULL",                    0,          ZTID_VOID,   DONULL,            FL_RDONLY,  { ZTID_DEBUG, ZTID_UNTYPED },{} },
 	{ "getNull",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
