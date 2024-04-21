@@ -50,13 +50,6 @@ namespace ZScript
 			return static_cast<Type const*>(
 					ownedTypes[*opt]);
 		}
-	
-		// Classes
-		std::vector<ZScript::ZClass*> getClasses() const {
-			return ownedClasses;}
-		ZScript::ZClass* getClass(int32_t classId) const;
-		ZClass* getClass(std::string name) const;
-		ZScript::ZClass* createClass(std::string const& name);
 
 	private:
 		// Comparator for pointers to types.
@@ -68,10 +61,7 @@ namespace ZScript
 
 		std::vector<DataType const*> ownedTypes;
 		std::map<DataType const*, DataTypeId, TypeIdMapComparator> typeIdMap;
-		std::vector<ZClass*> ownedClasses;
 	};
-
-	std::vector<Function*> getClassFunctions(TypeStore const&);
 
 	////////////////////////////////////////////////////////////////
 	// Data Types
@@ -94,60 +84,22 @@ namespace ZScript
 		ZTID_TEMPLATE_T_ARR,
 		ZTID_PRIMITIVE_END,
 
-		ZTID_CLASS_START = ZTID_PRIMITIVE_END,
-		ZTID_GAME = ZTID_CLASS_START,
-		ZTID_PLAYER,
-		ZTID_SCREEN,
-		ZTID_REGION,
+		ZTID_SCRIPT_TYPE_START = ZTID_PRIMITIVE_END,
+		ZTID_COMBOS,
+		ZTID_DMAPDATA,
+		ZTID_EWPN,
 		ZTID_FFC,
+		ZTID_GENERICDATA,
 		ZTID_ITEM,
 		ZTID_ITEMCLASS,
-		ZTID_NPC,
 		ZTID_LWPN,
-		ZTID_EWPN,
-		ZTID_NPCDATA,
-		ZTID_DEBUG,
-		ZTID_AUDIO,
-		ZTID_COMBOS,
-		ZTID_SPRITEDATA,
-		ZTID_GRAPHICS,
-		ZTID_BITMAP,
-		ZTID_TEXT,
-		ZTID_INPUT,
-		ZTID_MAPDATA,
-		ZTID_DMAPDATA,
-		ZTID_ZMESSAGE,
-		ZTID_SHOPDATA,
-		ZTID_DROPSET,
-		ZTID_PONDS,
-		ZTID_WARPRING,
-		ZTID_DOORSET,
-		ZTID_ZUICOLOURS,
-		ZTID_RGBDATAOLD, // ZTID_RGBDATA,
-		ZTID_PALETTEOLD, // ZTID_PALETTE
-		ZTID_TUNES,
-		ZTID_PALCYCLE,
-		ZTID_GAMEDATA,
-		ZTID_CHEATS,
-		ZTID_FILESYSTEM,
+		ZTID_NPC,
+		ZTID_PLAYER,
+		ZTID_SCREEN,
 		ZTID_SUBSCREENDATA,
-		ZTID_FILE,
-		ZTID_ZINFO,
-		ZTID_DIRECTORY,
-		ZTID_RNG,
-		ZTID_BOTTLETYPE,
-		ZTID_BOTTLESHOP,
-		ZTID_GENERICDATA,
-		ZTID_STACK,
-		ZTID_PALDATA,
-		ZTID_PORTAL,
-		ZTID_SAVPORTAL,
-		ZTID_SUBSCREENPAGE,
-		ZTID_SUBSCREENWIDGET,
-		ZTID_WEBSOCKET,
-		ZTID_CLASS_END,
+		ZTID_SCRIPT_TYPE_END,
 
-		ZTID_END = ZTID_CLASS_END
+		ZTID_END = ZTID_SCRIPT_TYPE_END
 	};
 
 	static std::string getDataTypeName(DataTypeId id)
@@ -168,14 +120,10 @@ namespace ZScript
 				return "BOOL";
 			case ZTID_RGBDATA:
 				return "RGB";
-			case ZTID_GAME:
-				return "GAME";
 			case ZTID_PLAYER:
 				return "PLAYER";
 			case ZTID_SCREEN:
 				return "SCREEN";
-			case ZTID_REGION:
-				return "REGION";
 			case ZTID_FFC:
 				return "FFC";
 			case ZTID_ITEM:
@@ -188,88 +136,14 @@ namespace ZScript
 				return "LWEAPON";
 			case ZTID_EWPN:
 				return "EWEAPON";
-			case ZTID_NPCDATA:
-				return "NPCDATA";
-			case ZTID_DEBUG:
-				return "DEBUG";
-			case ZTID_AUDIO:
-				return "AUDIO";
 			case ZTID_COMBOS:
 				return "COMBOS";
-			case ZTID_SPRITEDATA:
-				return "SPRITEDATA";
-			case ZTID_GRAPHICS:
-				return "GRAPHICS";
-			case ZTID_BITMAP:
-				return "BITMAP";
-			case ZTID_TEXT:
-				return "TEXT";
-			case ZTID_INPUT:
-				return "INPUT";
-			case ZTID_MAPDATA:
-				return "MAPDATA";
 			case ZTID_DMAPDATA:
 				return "DMAPDATA";
-			case ZTID_ZMESSAGE:
-				return "ZMESSAGE";
-			case ZTID_SHOPDATA:
-				return "SHOPDATA";
-			case ZTID_DROPSET:
-				return "DROPSET";
-			case ZTID_PONDS:
-				return "PONDS";
-			case ZTID_WARPRING:
-				return "WARPRING";
-			case ZTID_DOORSET:
-				return "DOORSET";
-			case ZTID_ZUICOLOURS:
-				return "ZUICOLOURS";
-			case ZTID_TUNES:
-				return "TUNES";
-			case ZTID_PALCYCLE:
-				return "PALCYCLE";
-			case ZTID_GAMEDATA:
-				return "GAMEDATA";
-			case ZTID_CHEATS:
-				return "CHEATS";
-			case ZTID_FILESYSTEM:
-				return "FILESYSTEM";
 			case ZTID_SUBSCREENDATA:
 				return "SUBSCREENDATA";
-			case ZTID_FILE:
-				return "FILE";
-			case ZTID_DIRECTORY:
-				return "DIRECTORY";
-			case ZTID_STACK:
-				return "STACK";
-			case ZTID_RNG:
-				return "RNG";
-			case ZTID_PALDATA:
-				return "PALDATA";
-			case ZTID_BOTTLETYPE:
-				return "BOTTLETYPE";
-			case ZTID_BOTTLESHOP:
-				return "BOTTLESHOP";
-			case ZTID_GENERICDATA:
-				return "GENERICDATA";
-			case ZTID_PORTAL:
-				return "PORTAL";
-			case ZTID_SAVPORTAL:
-				return "SAVEDPORTAL";
-			case ZTID_ZINFO:
-				return "ZINFO";
-			case ZTID_SUBSCREENPAGE:
-				return "SUBSCREENPAGE";
-			case ZTID_SUBSCREENWIDGET:
-				return "SUBSCREENWIDGET";
-			case ZTID_WEBSOCKET:
-				return "WEBSOCKET";
 			default:
 				return "INT";
-				/*char buf[16];
-				_itoa(id,buf,10);
-				std::string str(buf);
-				return str;*/
 		}
 	}
 	
@@ -291,14 +165,10 @@ namespace ZScript
 			return ZTID_BOOL;
 		else if (name == "RGB")
 			return ZTID_RGBDATA;
-		else if(name == "GAME")
-			return ZTID_GAME;
 		else if(name == "PLAYER")
 			return ZTID_PLAYER;
 		else if(name == "SCREEN")
 			return ZTID_SCREEN;
-		else if(name == "REGION")
-			return ZTID_REGION;
 		else if(name == "FFC")
 			return ZTID_FFC;
 		else if(name == "ITEMSPRITE")
@@ -311,96 +181,20 @@ namespace ZScript
 			return ZTID_LWPN;
 		else if(name == "EWEAPON")
 			return ZTID_EWPN;
-		else if(name == "NPCDATA")
-			return ZTID_NPCDATA;
-		else if(name == "DEBUG")
-			return ZTID_DEBUG;
-		else if(name == "AUDIO")
-			return ZTID_AUDIO;
 		else if(name == "COMBOS")
 			return ZTID_COMBOS;
-		else if(name == "SPRITEDATA")
-			return ZTID_SPRITEDATA;
-		else if(name == "GRAPHICS")
-			return ZTID_GRAPHICS;
-		else if(name == "BITMAP")
-			return ZTID_BITMAP;
-		else if(name == "TEXT")
-			return ZTID_TEXT;
-		else if(name == "INPUT")
-			return ZTID_INPUT;
-		else if(name == "MAPDATA")
-			return ZTID_MAPDATA;
 		else if(name == "DMAPDATA")
 			return ZTID_DMAPDATA;
-		else if(name == "ZMESSAGE")
-			return ZTID_ZMESSAGE;
-		else if(name == "SHOPDATA")
-			return ZTID_SHOPDATA;
-		else if(name == "DROPSET")
-			return ZTID_DROPSET;
-		else if(name == "PONDS")
-			return ZTID_PONDS;
-		else if(name == "WARPRING")
-			return ZTID_WARPRING;
-		else if(name == "DOORSET")
-			return ZTID_DOORSET;
-		else if(name == "ZUICOLOURS")
-			return ZTID_ZUICOLOURS;
-		// else if(name == "RGBDATA")
-		// 	return ZTID_RGBDATA;
-		// else if(name == "PALETTE")
-		// 	return ZTID_PALETTE;
-		else if(name == "TUNES")
-			return ZTID_TUNES;
-		else if(name == "PALCYCLE")
-			return ZTID_PALCYCLE;
-		else if(name == "GAMEDATA")
-			return ZTID_GAMEDATA;
-		else if(name == "CHEATS")
-			return ZTID_CHEATS;
-		else if(name == "FILESYSTEM")
-			return ZTID_FILESYSTEM;
 		else if(name == "SUBSCREENDATA")
 			return ZTID_SUBSCREENDATA;
-		else if(name == "FILE")
-			return ZTID_FILE;
-		else if(name == "DIRECTORY")
-			return ZTID_DIRECTORY;
-		else if(name == "STACK")
-			return ZTID_STACK;
-		else if(name == "MODULE")
-			return ZTID_ZINFO;
-		else if(name == "ZINFO")
-			return ZTID_ZINFO;
-		else if(name == "RNG")
-			return ZTID_RNG;
-		else if(name == "PALDATA")
-			return ZTID_PALDATA;
-		else if(name == "BOTTLETYPE")
-			return ZTID_BOTTLETYPE;
-		else if(name == "BOTTLESHOP")
-			return ZTID_BOTTLESHOP;
 		else if(name == "GENERICDATA")
 			return ZTID_GENERICDATA;
-		else if(name == "PORTAL")
-			return ZTID_PORTAL;
-		else if(name == "SAVEDPORTAL")
-			return ZTID_SAVPORTAL;
-		else if(name == "SUBSCREENPAGE")
-			return ZTID_SUBSCREENPAGE;
-		else if(name == "SUBSCREENWIDGET")
-			return ZTID_SUBSCREENWIDGET;
-		else if(name == "WEBSOCKET")
-			return ZTID_WEBSOCKET;
 		
 		return ZTID_VOID;
 	}
 	
 	class DataTypeSimple;
 	class DataTypeSimpleConst;
-	class DataTypeClass;
-	class DataTypeClassConst;
 	class DataTypeArray;
 	class DataTypeCustom;
 	class DataTypeCustomConst;
@@ -446,7 +240,6 @@ namespace ZScript
 		
 		//Static functions
 		static DataType const* get(DataTypeId id);
-		static DataTypeClass const* getClass(int32_t classId);
 		static DataTypeCustom const* getCustom(int32_t customId) {
 			return find<DataTypeCustom*>(customTypes, customId).value_or(std::add_pointer<DataTypeCustom>::type());
 		};
@@ -485,98 +278,6 @@ namespace ZScript
 		static DataTypeSimple BOOL;
 		static DataTypeSimple RGBDATA;
 		static DataTypeArray STRING;
-		//Classes: Global Pointer
-		static DataTypeClassConst GAME;
-		static DataTypeClassConst PLAYER;
-		static DataTypeClassConst SCREEN;
-		static DataTypeClassConst REGION;
-		static DataTypeClassConst AUDIO;
-		static DataTypeClassConst DEBUG;
-		static DataTypeClassConst GRAPHICS;
-		static DataTypeClassConst INPUT;
-		static DataTypeClassConst TEXT;
-		static DataTypeClassConst FILESYSTEM;
-		static DataTypeClassConst ZINFO;
-		//Class: Types
-		static DataTypeClassConst CBITMAP;
-		static DataTypeClassConst CCHEATS;
-		static DataTypeClassConst CCOMBOS;
-		static DataTypeClassConst CDOORSET;
-		static DataTypeClassConst CDROPSET;
-		static DataTypeClassConst CDMAPDATA;
-		static DataTypeClassConst CEWPN;
-		static DataTypeClassConst CFFC;
-		static DataTypeClassConst CGAMEDATA;
-		static DataTypeClassConst CITEM;
-		static DataTypeClassConst CITEMCLASS;
-		static DataTypeClassConst CLWPN;
-		static DataTypeClassConst CMAPDATA;
-		static DataTypeClassConst CZMESSAGE;
-		static DataTypeClassConst CZUICOLOURS;
-		static DataTypeClassConst CNPC;
-		static DataTypeClassConst CNPCDATA;
-		static DataTypeClassConst CPALCYCLE;
-		static DataTypeClassConst CPALETTEOLD; //unused
-		static DataTypeClassConst CPONDS;
-		static DataTypeClassConst CRGBDATAOLD; //unused
-		static DataTypeClassConst CSHOPDATA;
-		static DataTypeClassConst CSPRITEDATA;
-		static DataTypeClassConst CTUNES;
-		static DataTypeClassConst CWARPRING;
-		static DataTypeClassConst CSUBSCREENDATA;
-		static DataTypeClassConst CFILE;
-		static DataTypeClassConst CDIRECTORY;
-		static DataTypeClassConst CSTACK;
-		static DataTypeClassConst CRNG;
-		static DataTypeClassConst CPALDATA;
-		static DataTypeClassConst CBOTTLETYPE;
-		static DataTypeClassConst CBOTTLESHOP;
-		static DataTypeClassConst CGENERICDATA;
-		static DataTypeClassConst CPORTAL;
-		static DataTypeClassConst CSAVEDPORTAL;
-		static DataTypeClassConst CSUBSCREENPAGE;
-		static DataTypeClassConst CSUBSCREENWIDGET;
-		static DataTypeClassConst CWEBSOCKET;
-		//Class: Var Types
-		static DataTypeClass BITMAP;
-		static DataTypeClass CHEATS;
-		static DataTypeClass COMBOS;
-		static DataTypeClass DOORSET;
-		static DataTypeClass DROPSET;
-		static DataTypeClass DMAPDATA;
-		static DataTypeClass EWPN;
-		static DataTypeClass FFC;
-		static DataTypeClass GAMEDATA;
-		static DataTypeClass ITEM;
-		static DataTypeClass ITEMCLASS;
-		static DataTypeClass LWPN;
-		static DataTypeClass MAPDATA;
-		static DataTypeClass ZMESSAGE;
-		static DataTypeClass ZUICOLOURS;
-		static DataTypeClass NPC;
-		static DataTypeClass NPCDATA;
-		static DataTypeClass PALCYCLE;
-		static DataTypeClass PALETTEOLD; //unused
-		static DataTypeClass PONDS;
-		static DataTypeClass RGBDATAOLD; //unused
-		static DataTypeClass SHOPDATA;
-		static DataTypeClass SPRITEDATA;
-		static DataTypeClass TUNES;
-		static DataTypeClass WARPRING;
-		static DataTypeClass SUBSCREENDATA;
-		static DataTypeClass FILE;
-		static DataTypeClass DIRECTORY;
-		static DataTypeClass STACK;
-		static DataTypeClass RNG;
-		static DataTypeClass PALDATA;
-		static DataTypeClass BOTTLETYPE;
-		static DataTypeClass BOTTLESHOP;
-		static DataTypeClass GENERICDATA;
-		static DataTypeClass PORTAL;
-		static DataTypeClass SAVEDPORTAL;
-		static DataTypeClass SUBSCREENPAGE;
-		static DataTypeClass SUBSCREENWIDGET;
-		static DataTypeClass WEBSOCKET;
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -651,62 +352,6 @@ namespace ZScript
 		virtual bool isConstant() const {return true;}
 		virtual DataType const* getConstType() const {return this;}
 		virtual DataType const* getMutType() const {return get(getId());}
-	};
-
-	// TODO remove this after binding work is done
-	class DataTypeClass : public DataType
-	{
-	public:
-		DataTypeClass(int32_t classId, DataType* constType);
-		DataTypeClass(int32_t classId, std::string const& className, DataType* constType, bool isGarbageCollected = false);
-		DataTypeClass* clone() const {return new DataTypeClass(*this);}
-
-		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
-
-		virtual std::string getName() const;
-		virtual bool canCastTo(DataType const& target) const;
-		virtual bool canBeGlobal() const {return true;}
-		virtual bool canHoldObject() const {return isGarbageCollected;}
-		virtual script_object_type getScriptObjectTypeId() const {
-			switch (classId)
-			{
-				case ZCLID_BITMAP: return script_object_type::bitmap;
-				case ZCLID_DIRECTORY: return script_object_type::dir;
-				case ZCLID_FILE: return script_object_type::file;
-				case ZCLID_PALDATA: return script_object_type::paldata;
-				case ZCLID_RNG: return script_object_type::rng;
-				case ZCLID_STACK: return script_object_type::stack;
-				case ZCLID_WEBSOCKET: return script_object_type::websocket;
-			}
-			return script_object_type::none;
-		}
-		virtual bool isClass() const {return true;}
-		virtual bool isConstant() const {return false;}
-
-		std::string getClassName() const {return className;}
-		int32_t getClassId() const {return classId;}
-		
-	protected:
-		int32_t classId;
-		std::string className;
-		bool isGarbageCollected;
-
-		int32_t selfCompare(DataType const& other) const;
-	};
-
-	// TODO remove this after binding work is done
-	class DataTypeClassConst : public DataTypeClass
-	{
-	public:
-		DataTypeClassConst(int32_t classId, std::string const& name, bool isGarbageCollected = false);
-		DataTypeClassConst* clone() const {return new DataTypeClassConst(*this);}
-		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
-		
-		virtual bool isConstant() const {return true;}
-		virtual DataType const* getConstType() const {return this;}
-		virtual DataType const* getMutType() const {return getClass(getClassId());}
 	};
 
 	class DataTypeArray : public DataType

@@ -7,10 +7,8 @@
 #include "Types.h"
 #include "AST.h"
 
-
 using namespace ZScript;
 using std::string;
-using std::vector;
 
 ////////////////////////////////////////////////////////////////
 // TypeStore
@@ -18,23 +16,13 @@ using std::vector;
 TypeStore::TypeStore()
 {
 	// Assign builtin types.
-	for (DataTypeId id = ZTID_START; id < ZTID_END; ++id)
+	for (DataTypeId id = ZTID_PRIMITIVE_START; id < ZTID_PRIMITIVE_END; ++id)
 		assignTypeId(*DataType::get(id));
-
-	// Assign builtin classes.
-	for (int32_t id = ZTID_CLASS_START; id < ZTID_CLASS_END; ++id)
-	{
-		DataTypeClass& type = *(DataTypeClass*)DataType::get(id);
-		assert(type.getClassId() == ownedClasses.size());
-		ownedClasses.push_back(
-				new ZClass(*this, type.getClassName(), type.getClassId()));
-	}
 }
 
 TypeStore::~TypeStore()
 {
 	deleteElements(ownedTypes);
-	deleteElements(ownedClasses);
 }
 
 // Types
@@ -85,45 +73,6 @@ std::optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 	return id;
 }
 
-// Classes
-
-ZClass* TypeStore::getClass(int32_t classId) const
-{
-	if (classId < 0 || classId > int32_t(ownedClasses.size())) return NULL;
-	return ownedClasses[classId];
-}
-
-ZClass* TypeStore::getClass(std::string name) const
-{
-	for (auto klass : ownedClasses)
-	{
-		if (klass->getName() == name)
-			return klass;
-	}
-	return nullptr;
-}
-
-ZClass* TypeStore::createClass(string const& name)
-{
-	ZClass* klass = new ZClass(*this, name, ownedClasses.size());
-	ownedClasses.push_back(klass);
-	return klass;
-}
-
-vector<Function*> ZScript::getClassFunctions(TypeStore const& store)
-{
-	vector<Function*> functions;
-	vector<ZClass*> classes = store.getClasses();
-	for (vector<ZClass*>::const_iterator it = classes.begin();
-	     it != classes.end(); ++it)
-	{
-		appendElements(functions, (*it)->getLocalFunctions());
-		appendElements(functions, (*it)->getLocalGetters());
-		appendElements(functions, (*it)->getLocalSetters());
-	}
-	return functions;
-}
-
 // Internal
 
 bool TypeStore::TypeIdMapComparator::operator()(
@@ -158,99 +107,6 @@ DataTypeSimple DataType::LONG(ZTID_LONG, "long", &CLONG);
 DataTypeSimple DataType::BOOL(ZTID_BOOL, "bool", &CBOOL);
 DataTypeSimple DataType::RGBDATA(ZTID_RGBDATA, "rgb", &CRGBDATA);
 DataTypeArray DataType::STRING(CHAR);
-//Classes: Global Pointer
-DataTypeClassConst DataType::GAME(ZCLID_GAME, "Game");
-DataTypeClassConst DataType::PLAYER(ZCLID_PLAYER, "player");
-DataTypeClassConst DataType::SCREEN(ZCLID_SCREEN, "screendata");
-DataTypeClassConst DataType::REGION(ZCLID_REGION, "Region");
-DataTypeClassConst DataType::AUDIO(ZCLID_AUDIO, "Audio");
-DataTypeClassConst DataType::DEBUG(ZCLID_DEBUG, "Debug");
-DataTypeClassConst DataType::GRAPHICS(ZCLID_GRAPHICS, "Graphics");
-DataTypeClassConst DataType::INPUT(ZCLID_INPUT, "Input");
-DataTypeClassConst DataType::TEXT(ZCLID_TEXT, "Text");
-DataTypeClassConst DataType::FILESYSTEM(ZCLID_FILESYSTEM, "FileSystem");
-DataTypeClassConst DataType::ZINFO(ZCLID_ZINFO, "ZInfo");
-//Class: Types
-DataTypeClassConst DataType::CCHEATS(ZCLID_CHEATS, "const Cheats");
-DataTypeClassConst DataType::CCOMBOS(ZCLID_COMBOS, "const combodata");
-DataTypeClassConst DataType::CDOORSET(ZCLID_DOORSET, "const DoorSet");
-DataTypeClassConst DataType::CDROPSET(ZCLID_DROPSET, "const dropsetdata");
-DataTypeClassConst DataType::CDMAPDATA(ZCLID_DMAPDATA, "const dmapdata");
-DataTypeClassConst DataType::CEWPN(ZCLID_EWPN, "const eweapon");
-DataTypeClassConst DataType::CFFC(ZCLID_FFC, "const ffc");
-DataTypeClassConst DataType::CGAMEDATA(ZCLID_GAMEDATA, "const GameData");
-DataTypeClassConst DataType::CITEM(ZCLID_ITEM, "const itemsprite");
-DataTypeClassConst DataType::CITEMCLASS(ZCLID_ITEMCLASS, "const itemdata");
-DataTypeClassConst DataType::CLWPN(ZCLID_LWPN, "const lweapon");
-DataTypeClassConst DataType::CMAPDATA(ZCLID_MAPDATA, "const mapdata");
-DataTypeClassConst DataType::CZMESSAGE(ZCLID_ZMESSAGE, "const messagedata");
-DataTypeClassConst DataType::CZUICOLOURS(ZCLID_ZUICOLOURS, "const ZuiColours");
-DataTypeClassConst DataType::CNPC(ZCLID_NPC, "const npc");
-DataTypeClassConst DataType::CNPCDATA(ZCLID_NPCDATA, "const npcdata");
-DataTypeClassConst DataType::CPALCYCLE(ZCLID_PALCYCLE, "const PalCycle");
-DataTypeClassConst DataType::CPALETTEOLD(ZTID_PALETTEOLD, "const paletteold");
-DataTypeClassConst DataType::CPONDS(ZCLID_PONDS, "const Ponds");
-DataTypeClassConst DataType::CRGBDATAOLD(ZTID_RGBDATAOLD, "const rgbdataold");
-DataTypeClassConst DataType::CSHOPDATA(ZCLID_SHOPDATA, "const shopdata");
-DataTypeClassConst DataType::CSPRITEDATA(ZCLID_SPRITEDATA, "const spritedata");
-DataTypeClassConst DataType::CTUNES(ZCLID_TUNES, "const Tunes");
-DataTypeClassConst DataType::CWARPRING(ZCLID_WARPRING, "const WarpRing");
-DataTypeClassConst DataType::CSUBSCREENDATA(ZCLID_SUBSCREENDATA, "const subscreendata");
-DataTypeClassConst DataType::CBOTTLETYPE(ZCLID_BOTTLETYPE, "const bottledata");
-DataTypeClassConst DataType::CBOTTLESHOP(ZCLID_BOTTLESHOP, "const bottleshopdata");
-DataTypeClassConst DataType::CGENERICDATA(ZCLID_GENERICDATA, "const genericdata");
-DataTypeClassConst DataType::CPORTAL(ZCLID_PORTAL, "const portal");
-DataTypeClassConst DataType::CSAVEDPORTAL(ZCLID_SAVPORTAL, "const savedportal");
-DataTypeClassConst DataType::CSUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "const subscreenpage");
-DataTypeClassConst DataType::CSUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "const subscreenwidget");
-//Class: Var Types
-DataTypeClass DataType::CHEATS(ZCLID_CHEATS, "Cheats", &CCHEATS);
-DataTypeClass DataType::COMBOS(ZCLID_COMBOS, "combodata", &CCOMBOS);
-DataTypeClass DataType::DOORSET(ZCLID_DOORSET, "DoorSet", &CDOORSET);
-DataTypeClass DataType::DROPSET(ZCLID_DROPSET, "dropsetdata", &CDROPSET);
-DataTypeClass DataType::DMAPDATA(ZCLID_DMAPDATA, "dmapdata", &CDMAPDATA);
-DataTypeClass DataType::EWPN(ZCLID_EWPN, "eweapon", &CEWPN);
-DataTypeClass DataType::FFC(ZCLID_FFC, "ffc", &CFFC);
-DataTypeClass DataType::GAMEDATA(ZCLID_GAMEDATA, "GameData", &CGAMEDATA);
-DataTypeClass DataType::ITEM(ZCLID_ITEM, "itemsprite", &CITEM);
-DataTypeClass DataType::ITEMCLASS(ZCLID_ITEMCLASS, "itemdata", &CITEMCLASS);
-DataTypeClass DataType::LWPN(ZCLID_LWPN, "lweapon", &CLWPN);
-DataTypeClass DataType::MAPDATA(ZCLID_MAPDATA, "mapdata", &CMAPDATA);
-DataTypeClass DataType::ZMESSAGE(ZCLID_ZMESSAGE, "messagedata", &CZMESSAGE);
-DataTypeClass DataType::ZUICOLOURS(ZCLID_ZUICOLOURS, "ZuiColours", &CZUICOLOURS);
-DataTypeClass DataType::NPC(ZCLID_NPC, "npc", &CNPC);
-DataTypeClass DataType::NPCDATA(ZCLID_NPCDATA, "npcdata", &CNPCDATA);
-DataTypeClass DataType::PALCYCLE(ZCLID_PALCYCLE, "PalCycle", &CPALCYCLE);
-DataTypeClass DataType::PALETTEOLD(ZCLID_PALETTE, "paletteold", &CPALETTEOLD);
-DataTypeClass DataType::PONDS(ZCLID_PONDS, "Ponds", &CPONDS);
-DataTypeClass DataType::RGBDATAOLD(ZCLID_RGBDATA, "rgbdataold", &CRGBDATAOLD);
-DataTypeClass DataType::SHOPDATA(ZCLID_SHOPDATA, "shopdata", &CSHOPDATA);
-DataTypeClass DataType::SPRITEDATA(ZCLID_SPRITEDATA, "spritedata", &CSPRITEDATA);
-DataTypeClass DataType::TUNES(ZCLID_TUNES, "Tunes", &CTUNES);
-DataTypeClass DataType::WARPRING(ZCLID_WARPRING, "WarpRing", &CWARPRING);
-DataTypeClass DataType::SUBSCREENDATA(ZCLID_SUBSCREENDATA, "subscreendata", &CSUBSCREENDATA);
-DataTypeClass DataType::BOTTLETYPE(ZCLID_BOTTLETYPE, "bottledata", &CBOTTLETYPE);
-DataTypeClass DataType::BOTTLESHOP(ZCLID_BOTTLESHOP, "bottleshopdata", &CBOTTLESHOP);
-DataTypeClass DataType::GENERICDATA(ZCLID_GENERICDATA, "genericdata", &CGENERICDATA);
-DataTypeClass DataType::PORTAL(ZCLID_PORTAL, "portal", &CPORTAL);
-DataTypeClass DataType::SAVEDPORTAL(ZCLID_SAVPORTAL, "savedportal", &CSAVEDPORTAL);
-DataTypeClass DataType::SUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "subscreenpage", &CSUBSCREENPAGE);
-DataTypeClass DataType::SUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "subscreenwidget", &CSUBSCREENWIDGET);
-//Class: Reference Counted (garbage collected) Types
-DataTypeClassConst DataType::CBITMAP(ZCLID_BITMAP, "const bitmap", true);
-DataTypeClassConst DataType::CFILE(ZCLID_FILE, "const file", true);
-DataTypeClassConst DataType::CDIRECTORY(ZCLID_DIRECTORY, "const directory", true);
-DataTypeClassConst DataType::CSTACK(ZCLID_STACK, "const Stack", true);
-DataTypeClassConst DataType::CRNG(ZCLID_RNG, "const randgen", true);
-DataTypeClassConst DataType::CPALDATA(ZCLID_PALDATA, "const paldata", true);
-DataTypeClassConst DataType::CWEBSOCKET(ZCLID_WEBSOCKET, "const websocket", true);
-DataTypeClass DataType::BITMAP(ZCLID_BITMAP, "bitmap", &CBITMAP, true);
-DataTypeClass DataType::FILE(ZCLID_FILE, "file", &CFILE, true);
-DataTypeClass DataType::DIRECTORY(ZCLID_DIRECTORY, "directory", &CDIRECTORY, true);
-DataTypeClass DataType::STACK(ZCLID_STACK, "stack", &CSTACK, true);
-DataTypeClass DataType::RNG(ZCLID_RNG, "randgen", &CRNG, true);
-DataTypeClass DataType::PALDATA(ZCLID_PALDATA, "paldata", &CPALDATA, true);
-DataTypeClass DataType::WEBSOCKET(ZCLID_WEBSOCKET, "websocket", &CWEBSOCKET, true);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -278,114 +134,6 @@ DataType const* DataType::get(DataTypeId id)
 		case ZTID_LONG: return &LONG;
 		case ZTID_BOOL: return &BOOL;
 		case ZTID_RGBDATA: return &RGBDATA;
-		case ZTID_GAME: return &GAME;
-		case ZTID_PLAYER: return &PLAYER;
-		case ZTID_SCREEN: return &SCREEN;
-		case ZTID_REGION: return &REGION;
-		case ZTID_FFC: return &FFC;
-		case ZTID_ITEM: return &ITEM;
-		case ZTID_ITEMCLASS: return &ITEMCLASS;
-		case ZTID_NPC: return &NPC;
-		case ZTID_LWPN: return &LWPN;
-		case ZTID_EWPN: return &EWPN;
-		case ZTID_NPCDATA: return &NPCDATA;
-		case ZTID_DEBUG: return &DEBUG;
-		case ZTID_AUDIO: return &AUDIO;
-		case ZTID_COMBOS: return &COMBOS;
-		case ZTID_SPRITEDATA: return &SPRITEDATA;
-		case ZTID_SUBSCREENDATA: return &SUBSCREENDATA;
-		case ZTID_SUBSCREENPAGE: return &SUBSCREENPAGE;
-		case ZTID_SUBSCREENWIDGET: return &SUBSCREENWIDGET;
-		case ZTID_FILE: return &FILE;
-		case ZTID_DIRECTORY: return &DIRECTORY;
-		case ZTID_STACK: return &STACK;
-		case ZTID_RNG: return &RNG;
-		case ZTID_PALDATA: return &PALDATA;
-		case ZTID_BOTTLETYPE: return &BOTTLETYPE;
-		case ZTID_BOTTLESHOP: return &BOTTLESHOP;
-		case ZTID_GENERICDATA: return &GENERICDATA;
-		case ZTID_PORTAL: return &PORTAL;
-		case ZTID_SAVPORTAL: return &SAVEDPORTAL;
-		case ZTID_GRAPHICS: return &GRAPHICS;
-		case ZTID_BITMAP: return &BITMAP;
-		case ZTID_TEXT: return &TEXT;
-		case ZTID_INPUT: return &INPUT;
-		case ZTID_MAPDATA: return &MAPDATA;
-		case ZTID_DMAPDATA: return &DMAPDATA;
-		case ZTID_ZMESSAGE: return &ZMESSAGE;
-		case ZTID_SHOPDATA: return &SHOPDATA;
-		case ZTID_DROPSET: return &DROPSET;
-		case ZTID_PONDS: return &PONDS;
-		case ZTID_WARPRING: return &WARPRING;
-		case ZTID_DOORSET: return &DOORSET;
-		case ZTID_ZUICOLOURS: return &ZUICOLOURS;
-		case ZTID_RGBDATAOLD: return &RGBDATAOLD;
-		case ZTID_PALETTEOLD: return &PALETTEOLD;
-		case ZTID_TUNES: return &TUNES;
-		case ZTID_PALCYCLE: return &PALCYCLE;
-		case ZTID_GAMEDATA: return &GAMEDATA;
-		case ZTID_CHEATS: return &CHEATS;
-		case ZTID_FILESYSTEM: return &FILESYSTEM;
-		case ZTID_ZINFO: return &ZINFO;
-		case ZTID_WEBSOCKET: return &WEBSOCKET;
-		default: return NULL;
-	}
-}
-
-DataTypeClass const* DataType::getClass(int32_t classId)
-{
-	switch (classId)
-	{
-		case ZCLID_GAME: return &GAME;
-		case ZCLID_PLAYER: return &PLAYER;
-		case ZCLID_SCREEN: return &SCREEN;
-		case ZCLID_REGION: return &REGION;
-		case ZCLID_FFC: return &FFC;
-		case ZCLID_ITEM: return &ITEM;
-		case ZCLID_ITEMCLASS: return &ITEMCLASS;
-		case ZCLID_NPC: return &NPC;
-		case ZCLID_LWPN: return &LWPN;
-		case ZCLID_EWPN: return &EWPN;
-		case ZCLID_NPCDATA: return &NPCDATA;
-		case ZCLID_DEBUG: return &DEBUG;
-		case ZCLID_AUDIO: return &AUDIO;
-		case ZCLID_COMBOS: return &COMBOS;
-		case ZCLID_SPRITEDATA: return &SPRITEDATA;
-		case ZCLID_SUBSCREENDATA: return &SUBSCREENDATA;
-		case ZCLID_SUBSCREENPAGE: return &SUBSCREENPAGE;
-		case ZCLID_SUBSCREENWIDGET: return &SUBSCREENWIDGET;
-		case ZCLID_FILE: return &FILE;
-		case ZCLID_DIRECTORY: return &DIRECTORY;
-		case ZCLID_STACK: return &STACK;
-		case ZCLID_RNG: return &RNG;
-		case ZCLID_PALDATA: return &PALDATA;
-		case ZCLID_BOTTLETYPE: return &BOTTLETYPE;
-		case ZCLID_BOTTLESHOP: return &BOTTLESHOP;
-		case ZCLID_GENERICDATA: return &GENERICDATA;
-		case ZCLID_PORTAL: return &PORTAL;
-		case ZCLID_SAVPORTAL: return &SAVEDPORTAL;
-		case ZCLID_GRAPHICS: return &GRAPHICS;
-		case ZCLID_BITMAP: return &BITMAP;
-		case ZCLID_TEXT: return &TEXT;
-		case ZCLID_INPUT: return &INPUT;
-		case ZCLID_MAPDATA: return &MAPDATA;
-		case ZCLID_DMAPDATA: return &DMAPDATA;
-		case ZCLID_ZMESSAGE: return &ZMESSAGE;
-		case ZCLID_SHOPDATA: return &SHOPDATA;
-		case ZCLID_DROPSET: return &DROPSET;
-		case ZCLID_PONDS: return &PONDS;
-		case ZCLID_WARPRING: return &WARPRING;
-		case ZCLID_DOORSET: return &DOORSET;
-		case ZCLID_ZUICOLOURS: return &ZUICOLOURS;
-		// case ZCLID_RGBDATA: return &RGBDATA;
-		// case ZCLID_PALETTE: return &PALETTE;
-		case ZCLID_TUNES: return &TUNES;
-		case ZCLID_PALCYCLE: return &PALCYCLE;
-		case ZCLID_GAMEDATA: return &GAMEDATA;
-		case ZCLID_CHEATS: return &CHEATS;
-		case ZCLID_FILESYSTEM: return &FILESYSTEM;
-		case ZCLID_ZINFO: return &ZINFO;
-		case ZCLID_WEBSOCKET: return &WEBSOCKET;
 		default: return NULL;
 	}
 }
@@ -444,11 +192,6 @@ DataType const& ZScript::getNaiveType(DataType const& type, Scope* scope)
 		if(DataTypeSimpleConst const* ts = dynamic_cast<DataTypeSimpleConst const*>(t))
 		{
 			t = DataType::get(ts->getId());
-		}
-		
-		if(DataTypeClassConst const* tc = dynamic_cast<DataTypeClassConst const*>(t))
-		{
-			t = DataType::getClass(tc->getClassId());
 		}
 		
 		if(DataTypeCustomConst const* tcu = dynamic_cast<DataTypeCustomConst const*>(t))
@@ -582,74 +325,6 @@ DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler*
 }
 
 ////////////////////////////////////////////////////////////////
-// DataTypeClass
-
-DataTypeClass::DataTypeClass(int32_t classId, DataType* constType)
-	: DataType(constType), classId(classId), className(""), isGarbageCollected(false)
-{}
-
-DataTypeClass::DataTypeClass(int32_t classId, string const& className, DataType* constType, bool isGarbageCollected)
-	: DataType(constType), classId(classId), className(className), isGarbageCollected(isGarbageCollected)
-{}
-
-DataType* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHandler)
-{
-	// Grab the proper name for the class the first time it's resolved.
-	if (className == "")
-		className = scope.getTypeStore().getClass(classId)->name;
-
-	return this;
-}
-DataType const* DataTypeClass::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
-{
-	return DataType::getClass(classId);
-}
-
-string DataTypeClass::getName() const
-{
-	/* This doesn't look good in errors/warns...
-	string name = className == "" ? "anonymous" : className;
-	char tmp[32];
-	sprintf(tmp, "%d", classId);
-	return name + "[class " + tmp + "]";*/
-	return className;
-}
-
-bool DataTypeClass::canCastTo(DataType const& target) const
-{
-	if (target.isVoid()) return false;
-	if (target.isUntyped()) return true;
-	
-	if (DataTypeArray const* t =
-			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(getBaseType(*t));
-
-	if (DataTypeClass const* t =
-			dynamic_cast<DataTypeClass const*>(&target))
-		return classId == t->classId;
-		
-	return false;
-}
-
-int32_t DataTypeClass::selfCompare(DataType const& rhs) const
-{
-	DataTypeClass const& o = static_cast<DataTypeClass const&>(rhs);
-	return classId - o.classId;
-}
-
-////////////////////////////////////////////////////////////////
-// DataTypeClassConst
-
-DataTypeClassConst::DataTypeClassConst(int32_t classId, string const& name, bool isGarbageCollected)
-	: DataTypeClass(classId, name, NULL, isGarbageCollected)
-{}
-DataType const* DataTypeClassConst::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
-{
-	auto* ty = DataType::getClass(classId);
-	return ty ? ty->getConstType() : nullptr;
-}
-
-////////////////////////////////////////////////////////////////
 // DataTypeArray
 
 bool DataTypeArray::canCastTo(DataType const& target) const
@@ -757,7 +432,6 @@ namespace // file local
 		string name;
 		DataTypeId thisTypeId;
 	};
-	//the 'this' 'this->' stuff. -Z
 	ScriptTypeData scriptTypes[ParserScriptType::idEnd] = {
 		{"invalid", ZTID_VOID},
 		{"global", ZTID_VOID},

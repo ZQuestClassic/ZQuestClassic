@@ -1,6 +1,4 @@
 #include "parser/ParserHelper.h"
-#include "parser/AST.h"
-#include <map>
 
 ParserScriptType ParserHelper::getScriptType(std::string name)
 {

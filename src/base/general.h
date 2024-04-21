@@ -205,6 +205,7 @@ enum controls //Args for 'getInput()'
 #define INT_BTN_Y       INT_BTN_EX2
 
 // These values must remain stable.
+// Also must update getScriptObjectTypeId in Types.h
 enum class script_object_type
 {
 	none,

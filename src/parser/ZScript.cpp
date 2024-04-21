@@ -120,19 +120,6 @@ vector<Function*> Program::getUserFunctions() const
 	return functions;
 }
 
-vector<Function*> Program::getInternalFunctions() const
-{
-	vector<Function*> functions = getFunctions(*this);
-	for (vector<Function*>::iterator it = functions.begin();
-	     it != functions.end();)
-	{
-		Function& function = **it;
-		if (function.isInternal()) ++it;
-		else it = functions.erase(it);
-	}
-	return functions;
-}
-
 vector<Function*> Program::getUserClassConstructors() const
 {
 	vector<Function*> functions;
@@ -157,7 +144,6 @@ vector<Function*> Program::getUserClassDestructors() const
 vector<Function*> ZScript::getFunctions(Program const& program)
 {
 	vector<Function*> functions = getFunctionsInBranch(program.getScope());
-	appendElements(functions, getClassFunctions(program.getTypeStore()));
 	return functions;
 }
 
