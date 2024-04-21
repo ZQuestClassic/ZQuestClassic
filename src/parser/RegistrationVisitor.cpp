@@ -4,6 +4,7 @@
  * Author: Emily
  */
 
+#include "parser/LibrarySymbols.h"
 #include "parser/Types.h"
 #include "parser/ZScript.h"
 #include "parserDefs.h"
@@ -20,12 +21,6 @@ using std::ostringstream;
 using namespace ZScript;
 using std::unique_ptr;
 
-void getConstant(int32_t refVar, Function* function, int32_t var);
-void getVariable(int32_t refVar, Function* function, int32_t var);
-void setVariable(int32_t refVar, Function* function, int32_t var);
-void getIndexedVariable(int32_t refVar, Function* function, int32_t var);
-void setIndexedVariable(int32_t refVar, Function* function, int32_t var);
-void setBoolVariable(int32_t refVar, Function* function, int32_t var);
 int32_t StringToVar(std::string var);
 
 ////////////////////////////////////////////////////////////////
@@ -978,7 +973,6 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	// that name.
 	if (function == NULL)
 	{
-		if (host.getFlags()&FUNCFLAG_INTERNAL) return; // TODO remove this after binding work is done
 		if(host.prototype) return; //Skip this error for prototype functions; error is handled inside 'addFunction()' above
 		handleError(CompileError::FunctionRedef(&host, host.getName()));
 		return;

@@ -10,8 +10,6 @@
 #include "base/general.h"
 #include "parser/parserDefs.h"
 
-struct AccessorTable;
-
 namespace ZScript
 {
 	class CompileErrorHandler;
@@ -547,9 +545,6 @@ namespace ZScript
 		void alias(Function* func, bool force = false);
 		bool is_aliased() const {return bool(aliased_func);}
 		
-		void setEntry(AccessorTable* entry) {table_entry=entry;}
-		AccessorTable const* getEntry() const {return table_entry;}
-		
 		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&, \
 			AST&, CompileErrorHandler*, Scope*)>
 		#define CONSTEXPR_CBACK_HEADER(...) [__VA_ARGS__](vector<optional<int32_t>> const& args, \
@@ -597,8 +592,6 @@ namespace ZScript
 		
 	private:
 		CONSTEXPR_CBACK_TY constexpr_callback;
-		
-		AccessorTable* table_entry; //parent entry
 		
 		mutable std::optional<int32_t> label;
 		mutable std::optional<int32_t> altlabel;

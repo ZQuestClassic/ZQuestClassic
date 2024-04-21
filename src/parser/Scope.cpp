@@ -1870,51 +1870,7 @@ namespace // file local
 
 RootScope::RootScope(TypeStore& typeStore)
 	: BasicScope(typeStore, "root")
-{
-	std::ostringstream errorstream;
-
-	// TODO remove this after binding work is done
-	bool make_bindings = std::getenv("MAKE_ZSCRIPT_BINDINGS") != nullptr;
-
-	if (make_bindings)
-	{
-
-	try
-	{
-		// Add global library functions.
-		GlobalSymbols::getInst().addSymbolsToScope(*this);
-	}
-	catch(std::exception &e)
-	{
-		errorstream << e.what() << '\n';
-	}
-	
-	// Create builtin classes (not primitives like void, float, and bool).
-	for (DataTypeId typeId = ZTID_CLASS_START;
-	     typeId < ZTID_CLASS_END; ++typeId)
-	{
-		try
-		{
-			DataTypeClass const& type =
-				*static_cast<DataTypeClass const*>(DataType::get(typeId));
-			ZClass& klass = *typeStore.getClass(type.getClassId());
-			LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
-			library.name = type.getClassName();
-			library.type = &type;
-			library.addSymbolsToScope(klass);
-		}
-		catch(std::exception &e)
-		{
-			errorstream << e.what() << '\n';
-		}
-	}
-
-	}
-	
-	std::string errors = errorstream.str();
-	if(!errors.empty())
-		throw compile_exception(errors);
-}
+{}
 
 std::optional<int32_t> RootScope::getRootStackSize() const
 {
