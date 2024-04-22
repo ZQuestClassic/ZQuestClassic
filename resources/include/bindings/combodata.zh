@@ -558,5 +558,3 @@ class combodata {
 	//   SETR D2 COMBOLAYERR
 	internal int Layer();
 }
-
-internal const combodata ComboData;

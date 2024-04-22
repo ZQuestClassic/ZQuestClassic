@@ -33,7 +33,7 @@ class subscreenpage {
 	// @zasm
 	//   SUBPAGE_FIND_WIDGET_BY_LABEL
 	//   POPARGS D5 0.0002
-	internal subscreenwidget GetWidget(char32 label);
+	internal subscreenwidget GetWidget(char32[] label);
 
 	// Adds a new widget of the specified type to the end of the page.
 	//

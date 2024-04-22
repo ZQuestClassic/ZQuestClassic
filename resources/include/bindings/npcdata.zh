@@ -312,7 +312,7 @@ class npcdata {
 	//   POP D2
 	//   POP REFNPCCLASS
 	//   NPCDATAGETNAME D2
-	internal void GetName(int ptr);
+	internal void GetName(char32[] ptr);
 
 	// @zasm
 	//   POP D3
@@ -732,5 +732,3 @@ class npcdata {
 	//   SETR SETNPCDATAATTRIBUTE D6
 	internal void SetAttribute(int arg1, int arg2, int arg3);
 }
-
-internal const npcdata NPCData;

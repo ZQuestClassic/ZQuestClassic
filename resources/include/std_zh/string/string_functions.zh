@@ -3,7 +3,7 @@
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
-int NumCharsOf(char32 ptr, char32 chr)
+int NumCharsOf(char32[] ptr, char32 chr)
 {
 	int chars; 
 	for ( int q = 0; ptr[q]!=0; ++q ) {
@@ -12,7 +12,7 @@ int NumCharsOf(char32 ptr, char32 chr)
 	return chars;
 }
 
-int NumCharsOf(char32 ptr, int pos, char32 chr)
+int NumCharsOf(char32[] ptr, int pos, char32 chr)
 {
 	int chars; 
 	for ( int q = pos; ptr[q]!=0; ++q ) {
@@ -23,7 +23,7 @@ int NumCharsOf(char32 ptr, int pos, char32 chr)
 
 //reversed
 //Returns the number of chracters of a given type in a specified string.
-int NumCharsOfRev(char32 ptr, char32 chr)
+int NumCharsOfRev(char32[] ptr, char32 chr)
 {
 	int chars;
 	for ( int q = SizeOfArray(ptr)-1; q >= 0; --q ) {
@@ -32,7 +32,7 @@ int NumCharsOfRev(char32 ptr, char32 chr)
 	return chars;
 }
 
-int NumCharsOfRev(char32 ptr, int pos, char32 chr)
+int NumCharsOfRev(char32[] ptr, int pos, char32 chr)
 {
 	int chars; 
 	for ( int q = pos; q >= 0; --q ) {
@@ -125,7 +125,7 @@ bool isVowel(char32 chr)
 }
 
 //Returns true if the string contains a specific character.
-bool ContainsChar(char32 chr, char32 buffer)
+bool ContainsChar(char32 chr, char32[] buffer)
 {
 	//int sz = SizeOfArray(buffer)-1;
 	for ( int q = 0; buffer[q]!=0; ++q )
@@ -136,7 +136,7 @@ bool ContainsChar(char32 chr, char32 buffer)
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPos(char32 chr, char32 buffer){
+int ContainsCharPos(char32 chr, char32[] buffer){
 	//int sz = SizeOfArray(buffer)-1;
 	for ( int q = 0; buffer[q]!=0; ++q )
 	{
@@ -146,7 +146,7 @@ int ContainsCharPos(char32 chr, char32 buffer){
 }
 
 //Returns true if the string contains a specific character.
-bool ContainsChar(char32 chr, int pos, char32 buffer)
+bool ContainsChar(char32 chr, int pos, char32[] buffer)
 {
 	//int sz = SizeOfArray(buffer)-1;
 	for ( int q = pos; buffer[q]!=0; ++q )
@@ -157,7 +157,7 @@ bool ContainsChar(char32 chr, int pos, char32 buffer)
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPos(char32 chr, int pos, char32 buffer)
+int ContainsCharPos(char32 chr, int pos, char32[] buffer)
 {
 	//int sz = SizeOfArray(buffer)-1;
 	for ( int q = pos; buffer[q]!=0; ++q )
@@ -169,7 +169,7 @@ int ContainsCharPos(char32 chr, int pos, char32 buffer)
 
 
 //Returns true if the string contains a specific character.
-bool ContainsCharRev(char32 chr, char32 buffer)
+bool ContainsCharRev(char32 chr, char32[] buffer)
 {
 	for ( int q = (SizeOfArray(buffer)-1); q >= 0; --q )
 	{
@@ -179,7 +179,7 @@ bool ContainsCharRev(char32 chr, char32 buffer)
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPosRev(char32 chr, char32 buffer)
+int ContainsCharPosRev(char32 chr, char32[] buffer)
 {
 	for ( int q = (SizeOfArray(buffer)-1); q >= 0; --q )
 	{
@@ -190,7 +190,7 @@ int ContainsCharPosRev(char32 chr, char32 buffer)
 
 
 //Returns true if the string contains a specific character.
-bool ContainsCharRev(char32 chr, int pos, char32 buffer)
+bool ContainsCharRev(char32 chr, int pos, char32[] buffer)
 {
 	for ( int q = pos; q >= 0; --q )
 	{
@@ -200,7 +200,7 @@ bool ContainsCharRev(char32 chr, int pos, char32 buffer)
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPosRev(char32 chr, int pos, char32 buffer)
+int ContainsCharPosRev(char32 chr, int pos, char32[] buffer)
 {
 	for ( int q = pos; q >= 0; --q )
 	{
@@ -240,35 +240,35 @@ char32 ConvertCase(char32 chr)
 //Memory Manipulation
 //Memory Set
 //Sets block of memory of size 'n' pointed by 'ptr' to 'value'
-void memset(untyped ptr, int pos, untyped value, int n)
+void memset(untyped[] ptr, int pos, untyped value, int n)
 {
 	for(int i = 0; i < n; ++i)
 		ptr[pos + i] = value;
 }
-void memset(untyped ptr, untyped value, int n)
+void memset(untyped[] ptr, untyped value, int n)
 {
 	memset(ptr, 0, value, n);
 }
 
 //Memory Copy
 //Copys block of memory pointed by 'src' of size 'n' to 'dest'
-void memcpy(untyped dest, int dpos, untyped src, int spos, int n)
+void memcpy(untyped[] dest, int dpos, untyped[] src, int spos, int n)
 {
 	for(int i = 0; i < n; ++i)
 		dest[dpos + i] = src[spos + i];
 }
-void memcpy(untyped dest, untyped src, int n)
+void memcpy(untyped[] dest, untyped[] src, int n)
 {
 	memcpy(dest, 0, src, 0, n);
 }
-void memcpy(untyped dest, untyped src)
+void memcpy(untyped[] dest, untyped[] src)
 {
 	memcpy(dest, 0, src, 0, Max(SizeOfArray(dest), SizeOfArray(src)));
 }
 
 //Memory Move
 //As memcpy, but uses a buffer so memory space can overlap
-untyped memmove(untyped dest, int dpos, untyped src, int spos, int n)
+untyped memmove(untyped[] dest, int dpos, untyped[] src, int spos, int n)
 {
 	untyped buffer[0x100];
 	for(int i = 0; i < n; ++i)
@@ -280,18 +280,16 @@ untyped memmove(untyped dest, int dpos, untyped src, int spos, int n)
 
 
 //Array Set
-//Assign all elements of array. Overloaded.
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-                    int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-	a[0x8] = a8; a[0x9] = a9; a[0xa] = aa; a[0xb] = ab; a[0xc] = ac; a[0xd] = ad; a[0xe] = ae; a[0xf] = af;
+//Assign all elements of array.
+void arrayset(untyped[] a, ...untyped[] args){
+	memcpy(a, args, SizeOfArray(args));
 }
 
 
 //String Manipulation
 //String Copy
 //Copys string 'src' into string 'dest' without checking for overflow in 'dest'
-void strcpy(int dest, int dpos, int src, int spos)
+void strcpy(int[] dest, int dpos, int[] src, int spos)
 {
 	for(int i = 0; src[spos + i] != 0; ++i)
 		dest[dpos + i] = src[spos + i];
@@ -299,32 +297,32 @@ void strcpy(int dest, int dpos, int src, int spos)
 
 
 //As strcpy, but only takes the first 'n' characters from src
-void strncpy(int dest, int dpos, int src, int spos, int n)
+void strncpy(int[] dest, int dpos, int[] src, int spos, int n)
 {
 	for(int i = 0; src[spos + i] != 0 && i < n; ++i)
 		dest[dpos + i] = src[spos + i];
 }
-void strncpy(int dest, int src, int n)
+void strncpy(int[] dest, int[] src, int n)
 {
 	strncpy(dest, 0, src, 0, n);
 }
 
 //Remove Characters
 //Remove all characters starting from pointer 'string'
-void remchr(char32 ptr, int pos)
+void remchr(char32[] ptr, int pos)
 {
 	for(int i = 0; ptr[pos + i] != 0; ++i)
 		ptr[pos + i] = 0;
 }
 
-void remchr(char32 ptr)
+void remchr(char32[] ptr)
 {
 	for(int i = 0; ptr[i] != 0; ++i)
 		ptr[i] = 0;
 }
 
 //Remove 'n' characters and shift string back to pointer 'string'
-void remnchr(char32 ptr, int pos, int n)
+void remnchr(char32[] ptr, int pos, int n)
 {
 	int l = strlen(ptr);
 	int temp = n + pos;
@@ -337,7 +335,7 @@ void remnchr(char32 ptr, int pos, int n)
 //String Concatenate
 //Appends string 'src' onto string 'dest' (assuming dest has enough extra memory
 //allocated to allow the operation)
-void strcat(int dest, int src, int spos)
+void strcat(int[] dest, int[] src, int spos)
 {
 	int i;
 	int l = strlen(dest);
@@ -347,7 +345,7 @@ void strcat(int dest, int src, int spos)
 }
 
 //strcat up to 'n' characters in src
-void strncat(int dest, int src, int spos, int n)
+void strncat(int[] dest, int[] src, int spos, int n)
 {
 	int i;
 	int l = strlen(dest);
@@ -355,7 +353,7 @@ void strncat(int dest, int src, int spos, int n)
 		dest[l + i] = src[spos + i];
 	dest[l + i] = 0;
 }
-void strncat(int dest, int src, int n)
+void strncat(int[] dest, int[] src, int n)
 {
 	strncat(dest, src, 0, n);
 }
@@ -365,7 +363,7 @@ void strncat(int dest, int src, int n)
 //String Character
 //Returns the position of the first occurence of 'character' in 'string',
 //or -1 if none are found
-int strchr(char32 ptr, int pos, char32 chr)
+int strchr(char32[] ptr, int pos, char32 chr)
 {
 	for(int i = 0; ptr[pos + i] != 0; ++i)
 		if(ptr[pos + i] == chr)
@@ -377,7 +375,7 @@ int strchr(char32 ptr, int pos, char32 chr)
 //String Reverse Character
 //Returns the position of the last occurence of 'character' in 'string'
 //starting from the end, or -1 if none are found
-int strrchr(char32 ptr, int pos, char32 chr)
+int strrchr(char32[] ptr, int pos, char32 chr)
 {
 	for(int i = strlen(ptr) - pos; i > 0; --i)
 		if(ptr[i] == chr)
@@ -390,7 +388,7 @@ int strrchr(char32 ptr, int pos, char32 chr)
 //String Sub-String
 //Returns the position of the first occurence of sub-string 'sub' in 'string',
 //or -1 if sub is not found
-int strstr(char32 ptr, int pos, int sub)
+int strstr(char32[] ptr, int pos, char32[] sub)
 {
 	int l = strlen(sub) - 1;
 	for(int i = 0; ptr[pos + i] != 0; ++i)
@@ -404,7 +402,7 @@ int strstr(char32 ptr, int pos, int sub)
 //String Span
 //Returns the length of characters in 'ptr' before a character not contained in
 //'keys' is found
-int strspn(char32 ptr, int pos, int keys)
+int strspn(char32[] ptr, int pos, char32[] keys)
 {
 	int i;
 	bool found;
@@ -423,7 +421,7 @@ int strspn(char32 ptr, int pos, int keys)
 //String Complement Span
 //Returns the length of characters in 'ptr' before a character contained in
 //'keys' is found
-int strcspn(char32 ptr, int pos, int keys)
+int strcspn(char32[] ptr, int pos, char32[] keys)
 {
 	int i;
 	for(i = 0; ptr[pos + i] != 0; ++i)
@@ -439,7 +437,7 @@ int strcspn(char32 ptr, int pos, int keys)
 //Iterates through ptr1 and ptr2 until a character is found which is not the same in
 //both strings, and then returns > 0 if the character is larger in ptr1, and < 0 if it is
 //larger in ptr2. Returns 0 if the strings are equal
-int strcmp(char32 ptr1, int pos1, char32 ptr2, int pos2)
+int strcmp(char32[] ptr1, int pos1, char32[] ptr2, int pos2)
 {
 	int i;
 	for(i = 0; ptr1[pos1 + i] != 0 && ptr2[pos2 + i] != 0 && ptr1[pos1 + i] == ptr2[pos2 + i]; ++i);
@@ -447,7 +445,7 @@ int strcmp(char32 ptr1, int pos1, char32 ptr2, int pos2)
 }
 
 //strcmp up to 'n' characters
-int strncmp(char32 ptr1, int pos1, char32 ptr2, int pos2, int n)
+int strncmp(char32[] ptr1, int pos1, char32[] ptr2, int pos2, int n)
 {
 	int i;
 	for(i = 0; ptr1[pos1 + i] != 0 && ptr2[pos2 + i] != 0 && ptr1[pos1 + i] == ptr2[pos2 + i] && i < n; ++i);
@@ -461,7 +459,7 @@ int strncmp(char32 ptr1, int pos1, char32 ptr2, int pos2, int n)
 //Converting between variables and strings
 //ASCII to Integer
 //Returns the decimal integer pointed by 'string'
-int atoi(char32 ptr, int pos)
+int atoi(char32[] ptr, int pos)
 {
 	int i=0;
 	bool neg = false;
@@ -478,7 +476,7 @@ int atoi(char32 ptr, int pos)
 
 //Integer Length
 //Returns the length of characters of the decimal integer pointed by 'string'
-int ilen(char32 ptr, int pos)
+int ilen(char32[] ptr, int pos)
 {
 	int ret = 0;
 	if(ptr[pos] == '-')
@@ -490,7 +488,7 @@ int ilen(char32 ptr, int pos)
 
 //Hexadecimal ASCII to Integer
 //Returns the (positive) hexadecimal integer pointed by 'string'
-int xtoi(char32 ptr, int pos)
+int xtoi(char32[] ptr, int pos)
 {
 	int ret = 0;
 	for(int i = 0; isHex(ptr[pos + i]); ++i)
@@ -500,20 +498,16 @@ int xtoi(char32 ptr, int pos)
 
 //Hexadecimal Length
 //Returns the length of characters of the (positive) hexadecimal integer pointed by 'string'
-int xlen(char32 ptr, int pos)
+int xlen(char32[] ptr, int pos = 0)
 {
 	int ret = 0;
 	for(; isHex(ptr[pos + ret]); ++ret);
 	return ret;
 }
-int xlen(char32 ptr)
-{
-	return xlen(ptr, 0);
-}
 
 //ASCII to Float
 //Returns the floating point number pointed by 'string'
-float atof(char32 ptr, int pos)
+float atof(char32[] ptr, int pos = 0)
 {
 	int i = 0;
 	bool neg = false;
@@ -537,14 +531,10 @@ float atof(char32 ptr, int pos)
 
 	return neg ? -(ret + decimal/10000) : (ret + decimal/10000);
 }
-float atof(char32 ptr)
-{
-	return atof(ptr, 0);
-}
 
 //Float Length
 //Returns the length of characters of the floating point number pointed by 'string'
-int flen(char32 ptr, int pos)
+int flen(char32[] ptr, int pos = 0)
 {
 	int ret = ilen(ptr, pos);
 
@@ -554,14 +544,10 @@ int flen(char32 ptr, int pos)
 
 	return ret + ilen(ptr, pos + ret);
 }
-int flen(char32 ptr)
-{
-	return flen(ptr, 0);
-}
 
 //ASCII to Number
 //Calls either atoi or atof depending on context
-int aton(char32 ptr, int pos)
+int aton(char32[] ptr, int pos = 0)
 {
 	int i = 0;
 	if(ptr[pos + i] == '-')
@@ -573,14 +559,10 @@ int aton(char32 ptr, int pos)
 	else
 		return atoi(ptr, pos);
 }
-int aton(char32 ptr)
-{
-	return aton(ptr, 0);
-}
 
 //Number Length
 //Calls either flen or ilen depending on context
-int nlen(char32 ptr, int pos)
+int nlen(char32[] ptr, int pos = 0)
 {
 	int i = 0;
 	if(ptr[pos + i] == '-')
@@ -592,16 +574,12 @@ int nlen(char32 ptr, int pos)
 	else
 		return ilen(ptr, pos);
 }
-int nlen(char32 ptr)
-{
-	return nlen(ptr, 0);
-}
 
 
 //Integer to ASCII
 //Places integer 'num' into string 'string' without checking for overflow,
 //and returns the number of characters used
-int itoa(char32 ptr, int pos, int num)
+int itoa(char32[] ptr, int pos, int num)
 {
 	int ret = 0;
 	if(num < 0)
@@ -625,7 +603,7 @@ int itoa(char32 ptr, int pos, int num)
 //Hexadecimal Integer to ASCII
 //Places integer 'num' into string 'string' in base 16 without checking for overflow,
 //and returns the number of characters used
-int xtoa(char32 ptr, int pos, int num, bool upper)
+int xtoa(char32[] ptr, int pos, int num, bool upper)
 {
     num = Floor(Abs(num));
     ptr[pos] = '0';
@@ -647,7 +625,7 @@ int xtoa(char32 ptr, int pos, int num, bool upper)
 	}
 	return ret + digits;
 }
-int xtoa(char32 ptr, int num, bool upper)
+int xtoa(char32[] ptr, int num, bool upper)
 {
 	return xtoa(ptr, 0, num, upper);
 }
@@ -656,7 +634,7 @@ int xtoa(char32 ptr, int num, bool upper)
 //Places float 'num' into string 'string' without checking for overflow,
 //and returns the number of characters used. If 'printall' is true, it will add 4 decimal places
 //regardless of the most significant digit
-int ftoa(char32 ptr, int pos, float num, bool printall)
+int ftoa(char32[] ptr, int pos, float num, bool printall)
 {
 	if(OPTION_VALUE(TRUE_INT_SIZE) && num == -214748.3648)
 	{
@@ -741,29 +719,29 @@ int ftoa(char32 ptr, int pos, float num, bool printall)
     
     return pos-oldPos;
 }
-int ftoa(char32 ptr, float num, bool printall)
+int ftoa(char32[] ptr, float num, bool printall)
 {
 	return ftoa(ptr, 0, num, printall);
 }
-int ftoa(char32 ptr, int pos, float num)
+int ftoa(char32[] ptr, int pos, float num)
 {
 	return ftoa(ptr, pos, num, false);
 }
-int ftoa(char32 ptr, float num)
+int ftoa(char32[] ptr, float num)
 {
 	return ftoa(ptr, 0, num, false);
 }
 
 //Number to ASCII
 //Checks whether 'num' is an integer or not, and calls the appropriate function
-int ntoa(char32 ptr, int pos, float num)
+int ntoa(char32[] ptr, int pos, float num)
 {
 	unless(num%1)
 		return itoa(ptr, pos, num);
 	else
 		return ftoa(ptr, pos, num, false);
 }
-int ntoa(char32 ptr, float num)
+int ntoa(char32[] ptr, float num)
 {
 	return ntoa(ptr, 0, num);
 }
@@ -772,7 +750,7 @@ int ntoa(char32 ptr, float num)
 //String Formating
 //String Concatenate Format
 //Appends 'arg' onto 'dest' as the MF_ constant passed into 'format'
-void strcatf(int dest, int arg, int format)
+void strcatf(int[] dest, untyped arg, int format)
 {
 	switch(format)
 	{
@@ -839,7 +817,7 @@ void strcatf(int dest, int arg, int format)
 }
 
 //As strcatf, using only 'n' characters of 'arg'
-void strncatf(int dest, int arg, int format, int n)
+void strncatf(int[] dest, untyped arg, int format, int n)
 {
 	switch(format)
 	{
@@ -928,77 +906,15 @@ int sprintf_MFCodeToInt(char32 chr)
 	}
 }
 
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-				int a8,int a9,int aa,int ab, int ac, int ad, int ae){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-	a[0x8] = a8; a[0x9] = a9; a[0xa] = aa; a[0xb] = ab; a[0xc] = ac; a[0xd] = ad; a[0xe] = ae;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-				int a8,int a9,int aa,int ab, int ac, int ad){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-	a[0x8] = a8; a[0x9] = a9; a[0xa] = aa; a[0xb] = ab; a[0xc] = ac; a[0xd] = ad;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-				int a8,int a9,int aa,int ab, int ac){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-	a[0x8] = a8; a[0x9] = a9; a[0xa] = aa; a[0xb] = ab; a[0xc] = ac;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-				int a8,int a9,int aa,int ab){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-	a[0x8] = a8; a[0x9] = a9; a[0xa] = aa; a[0xb] = ab;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-				int a8,int a9,int aa){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-	a[0x8] = a8; a[0x9] = a9; a[0xa] = aa;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-				int a8,int a9){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-	a[0x8] = a8; a[0x9] = a9;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-				int a8){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-	a[0x8] = a8;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6; a[0x7] = a7;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5; a[0x6] = a6;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4; a[0x5] = a5;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3,int a4){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3; a[0x4] = a4;
-}
-void arrayset(int a,int a0,int a1,int a2,int a3){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2; a[0x3] = a3;
-}
-void arrayset(int a,int a0,int a1,int a2){
-	a[0x0] = a0; a[0x1] = a1; a[0x2] = a2;
-}
-void arrayset(int a,int a0,int a1){
-	a[0x0] = a0; a[0x1] = a1;
-}
-void arrayset(int a,int a0){
-	a[0x0] = a0;
-}
-
-
-int ReturnStringCharPos(char32 ptr, char32 chr)
+int ReturnStringCharPos(char32[] ptr, char32 chr)
 {
-	int sz = strlen(ptr-1);
 	for ( int q = 0; ptr[q]!=0; ++q ) {
 		if ( ptr[q] == chr ) return q;
 	}
 	return -1;
 }
 
-int ReturnStringCharPos(char32 ptr, int pos, char32 chr)
+int ReturnStringCharPos(char32[] ptr, int pos, char32 chr)
 {
 	for ( int q = pos; ptr[q]!=0; ++q ) {
 		if ( ptr[q] == chr ) return q;
@@ -1006,16 +922,16 @@ int ReturnStringCharPos(char32 ptr, int pos, char32 chr)
 	return -1;
 }
 
-int ReturnStringCharPosRev(char32 ptr, char32 chr)
+int ReturnStringCharPosRev(char32[] ptr, char32 chr)
 {
-	for ( int q = strlen(ptr-1); q >= 0; --q ) {
+	for ( int q = strlen(ptr)-1; q >= 0; --q ) {
 		int a = ptr[q];
 		if ( a == chr ) return q;
 	}
 	return -1;
 }
 
-int ReturnStringCharPosRev(char32 ptr, int pos, char32 chr)
+int ReturnStringCharPosRev(char32[] ptr, int pos, char32 chr)
 {
 	for ( int q = pos; q >= 0; --q ) {
 		int a = ptr[q];
@@ -1040,7 +956,7 @@ void TraceError(char32 s, float v)
 //	`int args` is an array literal with the following format required:
 //	{ LAYER, X, Y, FONT, TEXT_COLOUR, TEXT_BG_COLOUR, FORMAT, OPCITY }
 
-void ScreenPrint(char32 s, untyped v, int args) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void ScreenPrint(char32[] s, untyped v, int[] args) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int args_size = SizeOfArray(args);
 	if ( args_size < 8 )
@@ -1060,13 +976,13 @@ namespace std
 	{
 
 		//Now an internal function. -Z ( 15th May, 2019 )
-		int strcmp(char32 ptr1, char32 ptr2)
+		int strcmp(char32[] ptr1, char32[] ptr2)
 		{
 			return strcmp(ptr1, 0, ptr2, 0);
 		}
 
 		//Now an internal function. -Z ( 15th May, 2019 )
-		int strncmp(char32 ptr1, char32 ptr2, int n)
+		int strncmp(char32[] ptr1, char32[] ptr2, int n)
 		{
 			return strncmp(ptr1, 0, ptr2, 0 , n);
 		}
@@ -1074,60 +990,60 @@ namespace std
 		//Internal as of 2.55 Alpha 23, 15th may, 2019 
 		//String Length
 		//Returns the length of string 'string'
-		int strlen(char32 ptr)
+		int strlen(char32[] ptr)
 		{
 			int l;
 			for(l = 0; ptr[l] != 0; ++l);
-		return l;
+			return l;
 		}
 
-		void strcpy(int dest, int src)
+		void strcpy(char32[] dest, char32[] src)
 		{
 			strcpy(dest, 0, src, 0);
 		}
-		int atoi(char32 ptr)
+		int atoi(char32[] ptr)
 		{
 			return atoi(ptr, 0);
 		}
-		void strcat(int dest, int src)
+		void strcat(char32[] dest, char32[] src)
 		{
 			strcat(dest, src, 0);
 		}
-		int strchr(char32 ptr, char32 chr)
+		int strchr(char32[] ptr, char32 chr)
 		{
 			return strchr(ptr, 0, chr);
 		}
-		int strrchr(char32 ptr, char32 chr)
+		int strrchr(char32[] ptr, char32 chr)
 		{
 			return strrchr(ptr, 0, chr);
 		}
-		int strspn(char32 ptr, int keys)
+		int strspn(char32[] ptr, char32[] keys)
 		{
 			return strspn(ptr, 0, keys);
 		}
-		int strcspn(char32 ptr, int keys)
+		int strcspn(char32[] ptr, char32[] keys)
 		{
 			return strcspn(ptr, 0, keys);
 		}
-		int strstr(char32 ptr, int sub)
+		int strstr(char32[] ptr, char32[] sub)
 		{
 			return strstr(ptr, 0, sub);
 		}
-		int ilen(char32 ptr)
+		int ilen(char32[] ptr)
 		{
 			return ilen(ptr, 0);
 		}
-		int xtoi(char32 ptr)
+		int xtoi(char32[] ptr)
 		{
 			return xtoi(ptr, 0);
 		}
 		
-		int itoa(char32 ptr, int num)
+		int itoa(char32[] ptr, int num)
 		{
 			return itoa(ptr, 0, num);
 		}
 		
-		int xtoa(char32 ptr, int num)
+		int xtoa(char32[] ptr, int num)
 		{
 			return xtoa(ptr, 0, num, true);
 		}
@@ -1136,8 +1052,8 @@ namespace std
 		
 		//Prints string 'formatstr' into 'ret' according to the arguments inputted (see C function for reference)
 		//Maximum 16 arguments
-		int sprintf(int ret, char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-										  int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af)
+		int sprintf(char32[] ret, char32[] formatstr,int a0=0,int a1=0,int a2=0,int a3=0,int a4=0,int a5=0,int a6=0,int a7=0,
+										  int a8=0,int a9=0,int aa=0,int ab=0,int ac=0,int ad=0,int ae=0,int af=0)
 		{
 			int pos = 0;
 			int currentarg = 0;
@@ -1178,120 +1094,12 @@ namespace std
 			return pos;
 		}
 		//Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af)
+		void printf(char32[] formatstr,int a0=0,int a1=0,int a2=0,int a3=0,int a4=0,int a5=0,int a6=0,int a7=0,
+								  int a8=0,int a9=0,int aa=0,int ab=0,int ac=0,int ad=0,int ae=0,int af=0)
 		{
 			char32 buffer[0x200]; //Max TraceS length is 512
 			sprintf(buffer,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
 			TraceS(buffer);
-		}
-		//Function overloads
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-										   int a8,int a9,int aa,int ab,int ac,int ad,int ae){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-										   int a8,int a9,int aa,int ab,int ac,int ad){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-										   int a8,int a9,int aa,int ab){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-										   int a8,int a9,int aa){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-										   int a8,int a9){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-										   int a8){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,0,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,0,0,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,0,0,0,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,a4,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3){
-			return sprintf(ret,formatstr,a0,a1,a2,a3,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1,int a2){
-			return sprintf(ret,formatstr,a0,a1,a2,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0,int a1){
-			return sprintf(ret,formatstr,a0,a1,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr,int a0){
-			return sprintf(ret,formatstr,a0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		int sprintf(int ret,char32 formatstr){
-			return sprintf(ret,formatstr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8,int a9,int aa,int ab,int ac,int ad,int ae){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8,int a9,int aa,int ab,int ac,int ad){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8,int a9,int aa,int ab,int ac){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8,int a9,int aa,int ab){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8,int a9,int aa){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8,int a9){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
-								  int a8){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,0,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,a6,0,0,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
-			printf(formatstr,a0,a1,a2,a3,a4,a5,0,0,0,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4){
-			printf(formatstr,a0,a1,a2,a3,a4,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2,int a3){
-			printf(formatstr,a0,a1,a2,a3,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1,int a2){
-			printf(formatstr,a0,a1,a2,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0,int a1){
-			printf(formatstr,a0,a1,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr,int a0){
-			printf(formatstr,a0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		}
-		void printf(char32 formatstr){
-			printf(formatstr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 		}
 	}
 }

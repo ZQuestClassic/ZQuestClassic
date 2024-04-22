@@ -12,22 +12,22 @@ const int __TANGO_PAD_SAVENAME = 8;
 
 
 // Loads a ZScript string into a text slot.
-void Tango_LoadString(int slot, int string)
+void Tango_LoadString(int slot, char32[] string)
 {
     __Tango_LoadString(slot, string, false, 0);
 }
 
-void Tango_LoadString(int slot, int string, int startChar)
+void Tango_LoadString(int slot, char32[] string, int startChar)
 {
     __Tango_LoadString(slot, string, false, startChar);
 }
 
-void Tango_AppendString(int slot, int string)
+void Tango_AppendString(int slot, char32[] string)
 {
     __Tango_LoadString(slot, string, true, 0);
 }
 
-void Tango_AppendString(int slot, int string, int startChar)
+void Tango_AppendString(int slot, char32[] string, int startChar)
 {
     __Tango_LoadString(slot, string, true, startChar);
 }
@@ -54,7 +54,7 @@ void Tango_AppendMessage(int slot, int messageID, int startChar)
 }
 
 // Implementation of the above
-void __Tango_LoadString(int slot, int str, bool append, int startChar)
+void __Tango_LoadString(int slot, char32[] str, bool append, int startChar)
 {
     if(!__Tango_ValidateSlot(slot))
         return;
@@ -97,7 +97,7 @@ void __Tango_LoadMessage(int slot, int msg, bool append, int startChar)
 }
 
 // Find the position after the start character or 0 if it's not in the string.
-int __Tango_FindSrcStart(int str, int startChar)
+int __Tango_FindSrcStart(char32[] str, char32 startChar)
 {
     if(startChar<=0)
         return 0;
@@ -129,12 +129,12 @@ int __Tango_FindDestStart(bool append)
 }
 
 // Copies a string into __Tango_Buffer and compiles any code it contains.
-void __Tango_LoadIntoBuffer(int src, int srcPtr, int destPtr)
+void __Tango_LoadIntoBuffer(char32[] src, int srcPtr, int destPtr)
 {
     __Tango_LogMessage(__TANGO_MSG_LOAD_START, src);
     int end=__Tango_GetStringEnd(src);
-    int newPos[2]; // Pointer output array for code parsing functions
-    int c; // The character currently being processed
+    char32 newPos[2]; // Pointer output array for code parsing functions
+    char32 c; // The character currently being processed
     bool doubleChar; // True if the next character is the same as this one
     
     while(srcPtr<=end)
@@ -245,10 +245,10 @@ void __Tango_LoadIntoBuffer(int src, int srcPtr, int destPtr)
 // Parses functions and ASCII values at the top level in src and writes them
 // to the buffer. srcPtr points to just after '@'. Returns true if there was
 // an error, false if not.
-bool __Tango_ParseTopLevelCode(int src, int srcPtr, int destPtr, int ptrOut)
+bool __Tango_ParseTopLevelCode(char32[] src, int srcPtr, int destPtr, int[] ptrOut)
 {
     int fnStart=destPtr;
-    int character=src[srcPtr];
+    char32 character=src[srcPtr];
     
     // At the top level, ASCII codes and functions are legal;
     // variables are not. Not all functions are valid here,
@@ -338,9 +338,9 @@ bool __Tango_ParseTopLevelCode(int src, int srcPtr, int destPtr, int ptrOut)
 // Parse the arguments to a function and writes them to __Tango_Buffer[].
 // srcPtr points to the first character after '('; the closing parenthesis
 // will be handled. Returns true if there was an error, false if not.
-bool __Tango_ParseArguments(int src, int srcPtr, int destPtr, int ptrOut)
+bool __Tango_ParseArguments(char32[] src, int srcPtr, int destPtr, int[] ptrOut)
 {
-    int character;
+    char32 character;
     bool negative=false;
     
     while(true)
@@ -428,8 +428,8 @@ bool __Tango_ParseArguments(int src, int srcPtr, int destPtr, int ptrOut)
 // Reads a code argument from src[srcPtr] and writes it to the buffer.
 // srcPtr points to just after the '@'. Returns true if there was an error,
 // false if not.
-bool __Tango_ParseArgumentCode(int src, int srcPtr, int destPtr, bool negative,
-                               int ptrOut)
+bool __Tango_ParseArgumentCode(char32[] src, int srcPtr, int destPtr, bool negative,
+                               int[] ptrOut)
 {
     int fnStart=destPtr;
     
@@ -473,10 +473,10 @@ bool __Tango_ParseArgumentCode(int src, int srcPtr, int destPtr, bool negative,
 }
 
 // Reads and returns a number starting from src[srcPtr].
-float __Tango_ReadNumber(int src, int srcPtr, bool integer, int ptrOut)
+float __Tango_ReadNumber(char32[] src, int srcPtr, bool integer, int[] ptrOut)
 {
     int accumulator=0;
-    int character;
+    char32 character;
     bool fraction=false;
     int fractionPlace=0.1;
     
@@ -519,10 +519,10 @@ float __Tango_ReadNumber(int src, int srcPtr, bool integer, int ptrOut)
 
 // Reads the name of a variable or function starting from src[srcPtr] and
 // returns the compiled form.
-float __Tango_ReadIdentifier(int src, int srcPtr, int ptrOut)
+float __Tango_ReadIdentifier(char32[] src, int srcPtr, int[] ptrOut)
 {
     float accumulator=0;
-    int character;
+    char32 character;
     
     while(true)
     {
@@ -587,7 +587,7 @@ int __Tango_SetEndMarker(int destPtr, int func)
     }
 }
 
-bool __Tango_LoadStringControlCode(int src, int srcPtr, int destPtr, int ptrOut)
+bool __Tango_LoadStringControlCode(char32[] src, int srcPtr, int destPtr, int[] ptrOut)
 {
     if(__TANGO_CONTROL_CODES_ENABLED==0)
     {
@@ -595,7 +595,7 @@ bool __Tango_LoadStringControlCode(int src, int srcPtr, int destPtr, int ptrOut)
         return true;
     }
     
-    int code=src[srcPtr];
+    char32 code=src[srcPtr];
     __Tango_Buffer[destPtr]=code;
     srcPtr++;
     destPtr++;
@@ -624,7 +624,7 @@ bool __Tango_LoadStringControlCode(int src, int srcPtr, int destPtr, int ptrOut)
         // Screen->LoadMessage() changes in the future.
         if(src[srcPtr]==-1 || src[srcPtr]==255)
         {
-            int nextByte=src[srcPtr+1];
+            char32 nextByte=src[srcPtr+1];
             if(nextByte==0)
             {
                 __Tango_LogError(__TANGO_ERROR_INCOMPLETE_SCC, srcPtr+1);
@@ -646,7 +646,7 @@ bool __Tango_LoadStringControlCode(int src, int srcPtr, int destPtr, int ptrOut)
 }
 
 // Advances srcPtr beyond any spaces in src.
-int __Tango_EatSpaces(int src, int srcPtr)
+int __Tango_EatSpaces(char32[] src, int srcPtr)
 {
     while(src[srcPtr]==' ')
         srcPtr++;
@@ -692,7 +692,7 @@ void __Tango_SetChar(int pos, int character)
 
 // Finds the position of the last character before the null terminator or
 // any trailing space. This function will not detect @0.
-int __Tango_GetStringEnd(int string)
+int __Tango_GetStringEnd(char32[] string)
 {
     int lastNonSpace=0;
     int pos=0;

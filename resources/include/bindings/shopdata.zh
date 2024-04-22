@@ -29,5 +29,3 @@ class shopdata {
 	// @zasm_var SHOPDATASTRING
 	internal int String[];
 }
-
-internal const shopdata ShopData;

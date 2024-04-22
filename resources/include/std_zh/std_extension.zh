@@ -1438,7 +1438,7 @@ int Greater(int valA, int valB, int valC, int valD, int valE, int valF, int valG
 }
 
 //Returns the greatest value in an array
-int Greatest(int arr)
+int Greatest(int[] arr)
 {
 	int val1;
 	int val2 = arr[SizeOfArray(arr)-1];
@@ -1452,7 +1452,7 @@ int Greatest(int arr)
 
 //Returns the index holding the highest value in an array
 //If the highest value is present in two or more indices, this will return the highest-numbered index of the set.
-int GreatestIndex(int arr)
+int GreatestIndex(int[] arr)
 {
 	int val1; int indx;
 	int val2 = arr[SizeOfArray(arr)-1];
@@ -1601,7 +1601,7 @@ bool inRoom()
 //L
 
 //Returns the lowest value in an array
-int Least(int arr)
+int Least(int[] arr)
 {
 	int val1;
 	int val2 = arr[SizeOfArray(arr)-1];
@@ -1615,7 +1615,7 @@ int Least(int arr)
 
 //Returns the index holding the lowest value in an array
 //If the lowest value is present in two or more indices, this will return the highest-numbered index of the set.
-int LeastIndex(int arr)
+int LeastIndex(int[] arr)
 {
 	int val1; int indx;
 	int val2 = arr[SizeOfArray(arr)-1];
@@ -1909,7 +1909,7 @@ int LWeaponToEWeaponID(int type)
 //Match the present Link->Action to those on array 'list'.
 //Returns true of any of the entries on the list match. 
 //Checks if the present Link->Action is one from a predefined list.
-bool MatchAction(int list)
+bool MatchAction(int[] list)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -1922,7 +1922,7 @@ bool MatchAction(int list)
 
 //Compares combo 'cmb' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its CSet.
-bool MatchComboC(int list, int cmb)
+bool MatchComboC(int[] list, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -1934,7 +1934,7 @@ bool MatchComboC(int list, int cmb)
 
 //Compares combo 'cmb' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Data. 
-bool MatchComboD(int list, int cmb)
+bool MatchComboD(int[] list, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -1947,7 +1947,7 @@ bool MatchComboD(int list, int cmb)
 
 //Compares combo 'cmb' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Flag.
-bool MatchComboF(int list, int cmb)
+bool MatchComboF(int[] list, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -1959,7 +1959,7 @@ bool MatchComboF(int list, int cmb)
 
 //Compares combo 'cmb' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Inherent Flag.
-bool MatchComboI(int list, int cmb)
+bool MatchComboI(int[] list, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -1971,7 +1971,7 @@ bool MatchComboI(int list, int cmb)
 
 //Compares combo 'cmb' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Solidity.
-bool MatchComboS(int list, int cmb)
+bool MatchComboS(int[] list, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -1983,7 +1983,7 @@ bool MatchComboS(int list, int cmb)
 
 //Compares combo 'cmb' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Type.
-bool MatchComboT(int list, int cmb)
+bool MatchComboT(int[] list, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -1996,7 +1996,7 @@ bool MatchComboT(int list, int cmb)
 
 //Match a given eweapon to the contents of an array 'list'
 //Returns true of any of the entries on the list match. 
-bool MatchEWeaponType(int list, eweapon e)
+bool MatchEWeaponType(int[] list, eweapon e)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2019,7 +2019,7 @@ int MatchFFCScript(int script_id)
 //Compares the scripts of all running ffcs, to all indices of an array 'list' searching for
 //a match to ffc script 'script_id'.
 //If there is a match, it MatchScript() will return the first match (FFC number) found. 
-int MatchFFCScript(int script_id, int list)
+int MatchFFCScript(int script_id, int[] list)
 {
 	bool match;
 	for ( int q = 1; q < 32; q++ ) {
@@ -2034,7 +2034,7 @@ int MatchFFCScript(int script_id, int list)
 
 //Match a given item ID number to the contents of an array 'list'
 //Returns true of any of the entries on the list match. 
-bool MatchItem(int list, item i)
+bool MatchItem(int[] list, item i)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2046,7 +2046,7 @@ bool MatchItem(int list, item i)
 
 //Compares combo 'cmb' on Layer 'layer' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its CSet.
-bool MatchLayerComboC(int list, int layer, int cmb)
+bool MatchLayerComboC(int[] list, int layer, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2058,7 +2058,7 @@ bool MatchLayerComboC(int list, int layer, int cmb)
 
 //Compares combo 'cmb' on Layer 'layer' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Data. 
-bool MatchLayerComboD(int list, int layer, int cmb)
+bool MatchLayerComboD(int[] list, int layer, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2071,7 +2071,7 @@ bool MatchLayerComboD(int list, int layer, int cmb)
 
 //Compares combo 'cmb' on Layer 'layer' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Flag.
-bool MatchLayerComboF(int list, int layer, int cmb)
+bool MatchLayerComboF(int[] list, int layer, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2083,7 +2083,7 @@ bool MatchLayerComboF(int list, int layer, int cmb)
 
 //Compares combo 'cmb' on Layer 'layer' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Inherent Flag.
-bool MatchLayerComboI(int list, int layer, int cmb)
+bool MatchLayerComboI(int[] list, int layer, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2095,7 +2095,7 @@ bool MatchLayerComboI(int list, int layer, int cmb)
 
 //Compares combo 'cmb' on Layer 'layer' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Solidity.
-bool MatchLayerComboS(int list, int layer, int cmb)
+bool MatchLayerComboS(int[] list, int layer, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2107,7 +2107,7 @@ bool MatchLayerComboS(int list, int layer, int cmb)
 
 //Compares combo 'cmb' on Layer 'layer' and compares it to the values in array 'list'. 
 //Returns true of any of the entries on the list match its Type.
-bool MatchLayerComboT(int list, int layer, int cmb)
+bool MatchLayerComboT(int[] list, int layer, int cmb)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2119,7 +2119,7 @@ bool MatchLayerComboT(int list, int layer, int cmb)
 
 //Match a given lweapon to the contents of an array 'list'
 //Returns true of any of the entries on the list match. 
-bool MatchLWeaponType(int list, lweapon l)
+bool MatchLWeaponType(int[] list, lweapon l)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2131,7 +2131,7 @@ bool MatchLWeaponType(int list, lweapon l)
 
 //Match a given npc ID number to the contents of an array 'list'
 //Returns true of any of the entries on the list match. 
-bool MatchNPC(int list, npc n)
+bool MatchNPC(int[] list, npc n)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -2143,7 +2143,7 @@ bool MatchNPC(int list, npc n)
 
 //Match a given NPC TYPE to the contents of an array 'list'
 //Returns true of any of the entries on the list match. 
-bool MatchNPCT(int list, npc n)
+bool MatchNPCT(int[] list, npc n)
 {
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
@@ -3189,7 +3189,7 @@ void Shuffle(untyped ptr)
 }
 
 //Shuffles the values of an string.
-void ShuffleString(char32 ptr) 
+void ShuffleString(char32[] ptr) 
 {
 	unless(IsValidArray(ptr))
 	{
@@ -3220,7 +3220,7 @@ int SpeedRev(int speed, int reduceinertia)
 
 //Trace the indices of an array, with a space between each. max 20 per line. 
 //NOT overloaded to accept all array types. Trace() does not work on ffc, item, itemdata, lweapon, or eweapon until 2.54.x->2.55.
-void TraceArray(untyped arr)
+void TraceArray(untyped[] arr)
 {
 	unless(IsValidArray(arr))
 	{
@@ -3236,7 +3236,7 @@ void TraceArray(untyped arr)
 	}
 }
 
-void TraceArray(untyped arr, bool verbose)
+void TraceArray(untyped[] arr, bool verbose)
 {
 	unless(IsValidArray(arr))
 	{
@@ -3266,7 +3266,7 @@ void TraceArray(untyped arr, bool verbose)
 }
 
 //Trace the indices of a Boolean array, with a space between each. max 20 per line. 
-void TraceArrayB(bool arr, int size)
+void TraceArrayB(bool[] arr, int size)
 {
 	unless(IsValidArray(arr))
 	{
@@ -3283,7 +3283,7 @@ void TraceArrayB(bool arr, int size)
 
 
 //Trace the indices of a Boolean array, allows verbose logging.
-void TraceArrayB(bool arr, int size, bool verbose)
+void TraceArrayB(bool[] arr, int size, bool verbose)
 {
 	unless(IsValidArray(arr))
 	{
@@ -3313,7 +3313,7 @@ void TraceArrayB(bool arr, int size, bool verbose)
 
 //Traces a float, or int; whether a variable, an internal variable, array index, or other
 //along with a given string in one function.
-void TraceStr(char32 ptr, int value)
+void TraceStr(char32[] ptr, int value)
 {
 	TraceNL(); TraceS(ptr); Trace(value); TraceNL();
 }
@@ -3321,7 +3321,7 @@ void TraceStr(char32 ptr, int value)
 //This is where having char would be nice.
 
 //As TraceStr, but for boolean values.
-void TraceStrB(char32 ptr, bool val)
+void TraceStrB(char32[] ptr, bool val)
 {
 	TraceNL(); TraceS(ptr); TraceB(val); TraceNL();
 }

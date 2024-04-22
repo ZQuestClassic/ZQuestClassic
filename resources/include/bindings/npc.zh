@@ -551,7 +551,7 @@ class npc {
 	//   POP D2
 	//   POP REFNPC
 	//   NPCNAME D2
-	internal void GetName(int buffer);
+	internal void GetName(char32[] buffer);
 
 	// @zasm
 	//   POP D2

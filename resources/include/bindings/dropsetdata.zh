@@ -26,5 +26,3 @@ class dropsetdata {
 	//   SETR D2 DROPSETCHOOSE
 	internal int Choose();
 }
-
-internal const dropsetdata DropData;

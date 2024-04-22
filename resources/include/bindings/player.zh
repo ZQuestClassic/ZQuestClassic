@@ -824,7 +824,7 @@ class player {
 	// @zasm
 	//   POP D2
 	//   LINKWARPEXR D2
-	internal void WarpEx(int ptr);
+	internal void WarpEx(int[] ptr);
 
 	// @zasm
 	//   POP D2

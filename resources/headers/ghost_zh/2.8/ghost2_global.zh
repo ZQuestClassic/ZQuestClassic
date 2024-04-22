@@ -290,7 +290,7 @@ void AutoGhost()
 
 // Reads a script name and combo number from the enemy's name. The script
 // number and combo are stored in output[0] and output[1], respectively.
-int __AutoGhostParseName(npc enemy, int output)
+int __AutoGhostParseName(npc enemy, int[] output)
 {
 	int npcName[64];
 	int buffer[64];

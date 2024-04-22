@@ -98,7 +98,7 @@ void Tango_SetCustomVar(float var, float value)
 
 // Custom functions
 
-float __Tango_RunCustomFunction(float function, float args)
+float __Tango_RunCustomFunction(float function, float[] args)
 {
     Tango_LogUndefinedFunction(function);
     return 0;
@@ -106,7 +106,7 @@ float __Tango_RunCustomFunction(float function, float args)
 
 // Menu data
 const int __TANGO_MAX_MENU_ITEMS = 20;
-float __Tango_Data[94]; // 34+3*__TANGO_MAX_MENU_ITEMS
+untyped __Tango_Data[94]; // 34+3*__TANGO_MAX_MENU_ITEMS
 
 // Style data
 const int __TANGO_NUM_STYLES = 10;

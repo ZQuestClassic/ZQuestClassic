@@ -108,7 +108,7 @@ class Audio {
 	//   POP D2
 	//   POP D3
 	//   PLAYENHMUSIC D3 D2
-	internal bool PlayEnhancedMusic(int filename, int track = 0);
+	internal bool PlayEnhancedMusic(char32[] filename, int track = 0);
 
 	// Change properties on a currently playing sound.
 	//
@@ -201,7 +201,7 @@ class Audio {
 	// @zasm
 	//   ENHCROSSFADE
 	//   POPARGS D5 0.0006
-	internal bool CrossfadeEnhancedMusic(int filename, int track,
+	internal bool CrossfadeEnhancedMusic(char32[] filename, int track,
 										 int fadeoutframes, int fadeinframes,
 										 int delayframes = 0, int startpos = 0);
 }

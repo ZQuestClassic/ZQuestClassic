@@ -21,7 +21,7 @@ void assert(bool expr, int codevalue)
 	}
 }
 
-void assert(untyped ptr)
+void assert(untyped[] ptr)
 {
 	unless(isValidArray(ptr))
 	{

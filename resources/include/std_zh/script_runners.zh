@@ -3,7 +3,7 @@
 //start NPC
 DEFINE MIN_NPCSCRIPT = 1;
 DEFINE MAX_NPCSCRIPT = 255;
-int CheckNPCScript(char32 scriptname)
+int CheckNPCScript(char32[] scriptname)
 {
 	int id = Game->GetNPCScript(scriptname);
 	if(id < 0)
@@ -13,7 +13,7 @@ int CheckNPCScript(char32 scriptname)
 	}
 	return id;
 }
-npc RunNPCScript(int ID, int scriptNum, untyped args = NULL)
+npc RunNPCScript(int ID, int scriptNum, untyped[] args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_NPCSCRIPT || scriptNum > MAX_NPCSCRIPT)
@@ -29,7 +29,7 @@ npc RunNPCScript(int ID, int scriptNum, untyped args = NULL)
 	return obj;
 }
 
-npc RunNPCScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
+npc RunNPCScriptAt(int ID, int scriptNum, int x, int y, untyped[] args = NULL)
 {
 	npc obj = RunNPCScript(ID, scriptNum, args);
 	obj->X = x;
@@ -41,7 +41,7 @@ npc RunNPCScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
 //start LWeapon
 DEFINE MIN_LWEAPONSCRIPT = 1;
 DEFINE MAX_LWEAPONSCRIPT = 255;
-int CheckLWeaponScript(char32 scriptname)
+int CheckLWeaponScript(char32[] scriptname)
 {
 	int id = Game->GetLWeaponScript(scriptname);
 	if(id < 0)
@@ -51,7 +51,7 @@ int CheckLWeaponScript(char32 scriptname)
 	}
 	return id;
 }
-lweapon RunLWeaponScript(int ID, int scriptNum, untyped args = NULL)
+lweapon RunLWeaponScript(int ID, int scriptNum, untyped[] args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_LWEAPONSCRIPT || scriptNum > MAX_LWEAPONSCRIPT)
@@ -67,7 +67,7 @@ lweapon RunLWeaponScript(int ID, int scriptNum, untyped args = NULL)
 	return obj;
 }
 
-lweapon RunLWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
+lweapon RunLWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped[] args = NULL)
 {
 	lweapon obj = RunLWeaponScript(ID, scriptNum, args);
 	obj->X = x;
@@ -79,7 +79,7 @@ lweapon RunLWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args = N
 //start EWeapon
 DEFINE MIN_EWEAPONSCRIPT = 1;
 DEFINE MAX_EWEAPONSCRIPT = 255;
-int CheckEWeaponScript(char32 scriptname)
+int CheckEWeaponScript(char32[] scriptname)
 {
 	int id = Game->GetEWeaponScript(scriptname);
 	if(id < 0)
@@ -89,7 +89,7 @@ int CheckEWeaponScript(char32 scriptname)
 	}
 	return id;
 }
-eweapon RunEWeaponScript(int ID, int scriptNum, untyped args = NULL)
+eweapon RunEWeaponScript(int ID, int scriptNum, untyped[] args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_EWEAPONSCRIPT || scriptNum > MAX_EWEAPONSCRIPT)
@@ -105,7 +105,7 @@ eweapon RunEWeaponScript(int ID, int scriptNum, untyped args = NULL)
 	return obj;
 }
 
-eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
+eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped[] args = NULL)
 {
 	eweapon obj = RunEWeaponScript(ID, scriptNum, args);
 	obj->X = x;
@@ -117,7 +117,7 @@ eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args = N
 //start ItemSprite
 DEFINE MIN_ITEMSPRITESCRIPT = 1;
 DEFINE MAX_ITEMSPRITESCRIPT = 255;
-int CheckItemSpriteScript(char32 scriptname)
+int CheckItemSpriteScript(char32[] scriptname)
 {
 	int id = Game->GetItemSpriteScript(scriptname);
 	if(id < 0)
@@ -127,7 +127,7 @@ int CheckItemSpriteScript(char32 scriptname)
 	}
 	return id;
 }
-itemsprite RunItemSpriteScript(int ID, int scriptNum, untyped args = NULL)
+itemsprite RunItemSpriteScript(int ID, int scriptNum, untyped[] args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_ITEMSPRITESCRIPT || scriptNum > MAX_ITEMSPRITESCRIPT)
@@ -143,7 +143,7 @@ itemsprite RunItemSpriteScript(int ID, int scriptNum, untyped args = NULL)
 	return obj;
 }
 
-itemsprite RunItemSpriteScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
+itemsprite RunItemSpriteScriptAt(int ID, int scriptNum, int x, int y, untyped[] args = NULL)
 {
 	itemsprite obj = RunItemSpriteScript(ID, scriptNum, args);
 	obj->X = x;
@@ -155,7 +155,7 @@ itemsprite RunItemSpriteScriptAt(int ID, int scriptNum, int x, int y, untyped ar
 //start Generic
 DEFINE MIN_GENERICSCRIPT = 1;
 DEFINE MAX_GENERICSCRIPT = 511;
-int CheckGenericScript(char32 scriptname)
+int CheckGenericScript(char32[] scriptname)
 {
 	int id = Game->GetGenericScript(scriptname);
 	if(id < 0)
@@ -165,7 +165,7 @@ int CheckGenericScript(char32 scriptname)
 	}
 	return id;
 }
-genericdata RunGenericScript(int scriptNum, untyped args = NULL)
+genericdata RunGenericScript(int scriptNum, untyped[] args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_GENERICSCRIPT || scriptNum > MAX_GENERICSCRIPT)
@@ -180,7 +180,7 @@ genericdata RunGenericScript(int scriptNum, untyped args = NULL)
 	obj->Running = true;
 	return obj;
 }
-genericdata RunGenericScriptFrz(int scriptNum, untyped args = NULL)
+genericdata RunGenericScriptFrz(int scriptNum, untyped[] args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_GENERICSCRIPT || scriptNum > MAX_GENERICSCRIPT)

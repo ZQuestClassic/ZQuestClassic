@@ -140,7 +140,7 @@ class messagedata {
 	//   POP D3
 	//   POP REFMSGDATA
 	//   MESSAGEDATAGETSTRINGR D3
-	internal void Get(int str);
+	internal void Get(char32[] str);
 
 	// Sets the message to the provided string.
 	//
@@ -148,7 +148,7 @@ class messagedata {
 	//   POP D3
 	//   POP REFMSGDATA
 	//   MESSAGEDATASETSTRINGR D3
-	internal void Set(int str);
+	internal void Set(char32[] str);
 
 	// Returns the width/height, in pixels, of the message text - not including
 	// line wrap / breaks.
@@ -168,5 +168,3 @@ class messagedata {
 	//   SETR D2 MESSAGEDATATEXTWID
 	internal int TextWidth();
 }
-
-internal const messagedata MessageData;
