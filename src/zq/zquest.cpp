@@ -16454,9 +16454,21 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 	const int max = 0x87;
 	int bufval = zc_xtoi(buf);
 	int val = vbound(bufval,0,max);
-	bool force_16 = (!is_overworld && (val&0xF) > 0x7) || d->fg;
+	auto& dm = DMaps[*dmap_ptr];
+	auto val_offset = dm.xoff < 0 ? -dm.xoff : 0;
+	bool force_16 = d->fg;
+	if(!is_overworld)
+	{
+		if((val&0xF) >= 0x8)
+			force_16 = true;
+		else if((val&0xF) < val_offset && (val&0xF0) < 0x80)
+			force_16 = true;
+	}
 	if(force_16) //can't bound, some quests need to warp out of bounds... -Em
+	{
 		scrw = 16; //just force show the larger grid instead
+		val_offset = 0;
+	}
 	
 	int xscl = d->w/scrw;
 	int yscl = d->h/scrh;
@@ -16499,6 +16511,7 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 					scrw = 16;
 					xscl = d->w/scrw;
 					yscl = d->h/scrh;
+					val_offset = 0;
 					d->fg = 1;
 					redraw2 = true;
 				}
@@ -16506,8 +16519,9 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 				if(!mouse_in_rect(d->x,d->y,d->w,d->h))
 					continue;
 				int mx = gui_mouse_x()-d->x, my = gui_mouse_y()-d->y;
-				int x = vbound(mx/xscl,0,scrw-1);
 				int y = vbound(my/yscl,0,scrh-1);
+				auto offs = y==8 ? 0 : val_offset;
+				int x = vbound(mx/xscl,offs,scrw-1);
 				auto val2 = (y*16)+x;
 				if(val2 > max) //out of bounds in the bottom-right
 					continue;
@@ -16526,13 +16540,11 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_DRAW:
 		{
 			rectfill(screen,d->x,d->y,d->x+d->w-1,d->y+d->h-1,jwin_pal[jcBOX]);
-			auto& dm = DMaps[*dmap_ptr];
+			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_MENU);
 			for(int yind = 0; yind < scrh; ++yind)
 			{
-				auto gr = yind < 8 ? dm.grid[yind] : 0;
-				if(dm.xoff < 0)
-					gr >>= (-dm.xoff);
-				for(int xind = 0; xind < scrw; ++xind)
+				auto gr = (yind < 8 ? dm.grid[yind] : 0);
+				for(int xind = (yind == 8 ? 0 : val_offset); xind < scrw; ++xind)
 				{
 					int scr = xind+(yind*16);
 					if(scr > max)
@@ -16549,10 +16561,11 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 		}
 		case MSG_XCHAR:
 		{
+			bool on_80 = (val&0xF0) == 0x80;
 			switch(c>>8)
 			{
 				case KEY_UP:
-					if(val&0xF0)
+					if((val&0xF0) && !(val_offset && on_80 && (val&0xF) < val_offset))
 					{
 						val -= 0x10;
 						redraw = true;
@@ -16568,7 +16581,7 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 					ret |= D_USED_CHAR;
 					break;
 				case KEY_LEFT:
-					if(val&0xF)
+					if((val&0xF) > (on_80 ? 0 : val_offset))
 					{
 						--val;
 						redraw = true;
@@ -16576,7 +16589,7 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 					ret |= D_USED_CHAR;
 					break;
 				case KEY_RIGHT:
-					if((val&0xF) < 0xF && val < 0x87)
+					if((val&0xF) < scrw-1 && val < 0x87)
 					{
 						++val;
 						redraw = true;

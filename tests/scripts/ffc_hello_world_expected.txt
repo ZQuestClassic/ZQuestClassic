@@ -8,78 +8,83 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
-PUSHR d0; void run(int) Params
+=== METADATA (elided)
+{
+  "currentFileSymbols": 3,
+  "symbols": 2,
+  "identifiers": 2
+}
+PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0,0.0004
-SETR d4,SP2
-ALLOCATEMEMV d2,40,0
-STORE d2,0.0003
-WRITEPODSTRING d2,"FFC script started, ID: %d x: %d y: %d\n"
-LOAD d2,0.0003; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-LOAD d2,0.0004
-PUSHR d2
+SETR D4,SP2
+ALLOCATEMEMV D2,40,0
+STORE D2,0.0003
+WRITEPODSTRING D2,"FFC script started, ID: %d x: %d y: %d\n"
+LOAD D2,0.0003; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+LOAD D2,0.0004
+PUSHR D2
 POP REFFFC
 PUSHVARGR FFCID
-LOAD d2,0.0004
-PUSHR d2
+LOAD D2,0.0004
+PUSHR D2
 POP REFFFC
 PUSHVARGR X
-LOAD d2,0.0004
-PUSHR d2
+LOAD D2,0.0004
+PUSHR D2
 POP REFFFC
 PUSHVARGR Y; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOAD d3,0.0003
-DEALLOCATEMEMR d3
-ALLOCATEMEMV d2,9,0
-STORE d2,0.0002
-WRITEPODSTRING d2,"num: %d\n"
-LOAD d2,0.0002; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-LOAD d2,0.0005
-PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0.0003
+DEALLOCATEMEMR D3
+ALLOCATEMEMV D2,9,0
+STORE D2,0.0002
+WRITEPODSTRING D2,"num: %d\n"
+LOAD D2,0.0002; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+LOAD D2,0.0005
+PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOAD d3,0.0002
-DEALLOCATEMEMR d3
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0.0002
+DEALLOCATEMEMR D3
 STOREV 0,0.0001
-LOAD d2,0.0001; if() #558 Test AND while(true) #8 Body [Opt:AlwaysOn] Start
-PUSHR d2
-ADDV d2,1
-STORE d2,0.0001
-POP d2
-COMPAREV d2,30
-SETCMP d2,I==
-COMPAREV d2,0
+LOAD D2,0.0001; if() #448 Test AND while(true) #2 Body [Opt:AlwaysOn] Start
+PUSHR D2
+ADDV D2,1
+STORE D2,0.0001
+POP D2
+COMPAREV D2,30
+SETCMP D2,I==
+COMPAREV D2,0
 GOTOCMP 68,==; Test 'if'
-ALLOCATEMEMV d2,43,0; if() #558 Body Start
-STORE d2,0
-WRITEPODSTRING d2,"FFC script is running, ID: %d x: %d y: %d\n"
-LOAD d2,0; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-LOAD d2,0.0004
-PUSHR d2
+ALLOCATEMEMV D2,43,0; if() #448 Body Start
+STORE D2,0
+WRITEPODSTRING D2,"FFC script is running, ID: %d x: %d y: %d\n"
+LOAD D2,0; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+LOAD D2,0.0004
+PUSHR D2
 POP REFFFC
 PUSHVARGR FFCID
-LOAD d2,0.0004
-PUSHR d2
+LOAD D2,0.0004
+PUSHR D2
 POP REFFFC
 PUSHVARGR X
-LOAD d2,0.0004
-PUSHR d2
+LOAD D2,0.0004
+PUSHR D2
 POP REFFFC
 PUSHVARGR Y; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOAD d3,0
-DEALLOCATEMEMR d3; if() #558 Body End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
-GOTO 38; while() #8 End AND [Opt:NeverRet] AND void run(int) Body End
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0
+DEALLOCATEMEMR D3; if() #448 Body End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
+GOTO 38; while() #2 End AND [Opt:NeverRet] AND void run(int) Body End
 
 
-ALLOCATEGMEMV d2,4096,0; void run() Body Start
-SETR gd1,d2
+ALLOCATEGMEMV D2,4096,0; void run() Body Start
+SETR GD1,D2
 QUIT; void run() Body End

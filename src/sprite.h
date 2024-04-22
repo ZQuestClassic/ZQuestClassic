@@ -82,7 +82,7 @@ public:
     int32_t extend;
     // Scripting additions
     int32_t miscellaneous[32];
-    byte scriptcoldet;
+    bool scriptcoldet;
     int32_t wpnsprite; //wpnsprite is new for 2.6 -Z
     dword scriptflag;
     word script;
@@ -93,7 +93,7 @@ public:
     int32_t weap_inita[2];
     int32_t scripttile;
     signed char scriptflip;
-    byte do_animation;
+    bool do_animation;
     int32_t rotation;
     int32_t scale; 
     dword moveflags;

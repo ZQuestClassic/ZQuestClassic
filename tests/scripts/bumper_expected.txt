@@ -8,427 +8,432 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
-PUSHR d0; void run(int) Params
+=== METADATA (elided)
+{
+  "currentFileSymbols": 16,
+  "symbols": 28,
+  "identifiers": 75
+}
+PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0,0.0007
-SETR d4,SP2
-LOAD d2,0.0007
-PUSHR d2
+SETR D4,SP2
+LOAD D2,0.0007
+PUSHR D2
 POP REFFFC
-SETR d2,DATA
-STORE d2,0.0006
+SETR D2,DATA
+STORE D2,0.0006
 STOREV 0,0.0005
 STOREV 0,0.0004
-SETV d2,0
-PUSHR d2
-LOAD d2,0.0007
-POP d3
-PUSHR d2
-PUSHR d3
-SETV d2,7
-PUSHR d2
-POP d0
-POP d2
+SETV D2,0
+PUSHR D2
+LOAD D2,0.0007
+POP D3
+PUSHR D2
+PUSHR D3
+SETV D2,7
+PUSHR D2
+POP D0
+POP D2
 POP REFFFC
-SETR FFINITDD,d2
+SETR FFINITDD,D2
 STOREV 0,0.0003
 STOREV 0,0.0002
 STOREV 0,0.0001
-PUSHARGSR d4,0.0002; if() #558 Test AND while(true) #8 Body [Opt:AlwaysOn] Start AND Int.Func[int Distance(int, int, int, int)] Params Start
-LOAD d2,0.0007; UsrFunc[int CenterX(FFC)] Params Start
-PUSHR d2; UsrFunc[int CenterX(FFC)] Params End
+PUSHARGSR D4,0.0002; if() #448 Test AND while(true) #2 Body [Opt:AlwaysOn] Start AND Int.Func[int Distance(int, int, int, int)] Params Start
+LOAD D2,0.0007; UsrFunc[int CenterX(FFC)] Params Start
+PUSHR D2; UsrFunc[int CenterX(FFC)] Params End
 CALLFUNC 0.0757; UsrFunc[int CenterX(FFC)] Call
-POP d4
-PUSHR d2
-PUSHR d4
-LOAD d2,0.0007; UsrFunc[int CenterY(FFC)] Params Start
-PUSHR d2; UsrFunc[int CenterY(FFC)] Params End
+POP D4
+PUSHR D2
+PUSHR D4
+LOAD D2,0.0007; UsrFunc[int CenterY(FFC)] Params Start
+PUSHR D2; UsrFunc[int CenterY(FFC)] Params End
 CALLFUNC 0.0780; UsrFunc[int CenterY(FFC)] Call
-POP d4
-PUSHR d2
-PUSHR d4
+POP D4
+PUSHR D2
+PUSHR D4
 CALLFUNC 0.0749; UsrFunc[int CenterLinkX()] Call
-POP d4
-PUSHR d2
-PUSHR d4
+POP D4
+PUSHR D2
+PUSHR D4
 CALLFUNC 0.0753; UsrFunc[int CenterLinkY()] Call
-POP d4
-PUSHR d2; Int.Func[int Distance(int, int, int, int)] Params End
+POP D4
+PUSHR D2; Int.Func[int Distance(int, int, int, int)] Params End
 CALLFUNC 0.0412; Int.Func[int Distance(int, int, int, int)] Call
-POP d4
-PUSHR d2
-LOAD d2,0.0007
-PUSHR d2
+POP D4
+PUSHR D2
+LOAD D2,0.0007
+PUSHR D2
 POP REFFFC
-SETR d2,FFTWIDTH
-MULTV d2,8
-ADDV d2,2
-POP d3
-COMPARER d3,d2
+SETR D2,FFTWIDTH
+MULTV D2,8
+ADDV D2,2
+POP D3
+COMPARER D3,D2
 GOTOCMP 64,>=
-SETR d2,LINKZ
-COMPAREV d2,0
+SETR D2,LINKZ
+COMPAREV D2,0
 GOTOCMP 64,!=
-SETV d2,1
+SETV D2,1
 GOTO 65
-SETV d2,0
-COMPAREV d2,0
+SETV D2,0
+COMPAREV D2,0
 GOTOCMP 110,==; Test 'if'
-LOAD d2,0.0007; if() #559 Test AND if() #558 Body Start
-PUSHR d2
-SETV d2,7
-PUSHR d2
-POP d0
+LOAD D2,0.0007; if() #449 Test AND if() #448 Body Start
+PUSHR D2
+SETV D2,7
+PUSHR D2
+POP D0
 POP REFFFC
-SETR d2,FFINITDD
-COMPAREV d2,0
-SETCMP d2,I==
-COMPAREV d2,0
+SETR D2,FFINITDD
+COMPAREV D2,0
+SETCMP D2,I==
+COMPAREV D2,0
 GOTOCMP 107,==; Test 'if'
-SETV d2,76; InlineFunc[void Game->PlaySound(int)] Params AND if() #559 Body Start
-PLAYSOUNDR d2; InlineFunc[void Game->PlaySound(int)] Body
-PUSHARGSR d4,0.0002; UsrFunc[int Angle(int, int, int, int)] Params Start
-LOAD d2,0.0007; UsrFunc[int CenterX(FFC)] Params Start
-PUSHR d2; UsrFunc[int CenterX(FFC)] Params End
+SETV D2,76; InlineFunc[void Audio->PlaySound(int)] Params AND if() #449 Body Start
+PLAYSOUNDR D2; InlineFunc[void Audio->PlaySound(int)] Body
+PUSHARGSR D4,0.0002; UsrFunc[int Angle(int, int, int, int)] Params Start
+LOAD D2,0.0007; UsrFunc[int CenterX(FFC)] Params Start
+PUSHR D2; UsrFunc[int CenterX(FFC)] Params End
 CALLFUNC 0.0757; UsrFunc[int CenterX(FFC)] Call
-POP d4
-PUSHR d2
-PUSHR d4
-LOAD d2,0.0007; UsrFunc[int CenterY(FFC)] Params Start
-PUSHR d2; UsrFunc[int CenterY(FFC)] Params End
+POP D4
+PUSHR D2
+PUSHR D4
+LOAD D2,0.0007; UsrFunc[int CenterY(FFC)] Params Start
+PUSHR D2; UsrFunc[int CenterY(FFC)] Params End
 CALLFUNC 0.0780; UsrFunc[int CenterY(FFC)] Call
-POP d4
-PUSHR d2
-PUSHR d4
+POP D4
+PUSHR D2
+PUSHR D4
 CALLFUNC 0.0749; UsrFunc[int CenterLinkX()] Call
-POP d4
-PUSHR d2
-PUSHR d4
+POP D4
+PUSHR D2
+PUSHR D4
 CALLFUNC 0.0753; UsrFunc[int CenterLinkY()] Call
-POP d4
-PUSHR d2; UsrFunc[int Angle(int, int, int, int)] Params End
+POP D4
+PUSHR D2; UsrFunc[int Angle(int, int, int, int)] Params End
 CALLFUNC 0.0457; UsrFunc[int Angle(int, int, int, int)] Call
-POP d4
-STORE d2,0.0005
-LOAD d2,0.0008
-STORE d2,0.0004
-SETV d2,16
-STORE d2,0.0003; if() #559 Body End
-PUSHR d4
+POP D4
+STORE D2,0.0005
+LOAD D2,0.0008
+STORE D2,0.0004
+SETV D2,16
+STORE D2,0.0003; if() #449 Body End
+PUSHR D4
 CALLFUNC 0.0803; UsrFunc[void NoAction()] Call
-POP d4; if() #558 Body End
-LOAD d2,0.0004; if() #560 Test
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+POP D4; if() #448 Body End
+LOAD D2,0.0004; if() #450 Test
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 140,==; Test 'if'
-LOAD d2,0.0002; if() #560 Body Start
-PUSHR d2
-PUSHR d4
+LOAD D2,0.0002; if() #450 Body Start
+PUSHR D2
+PUSHR D4
 PUSHV 3; UsrFunc[int VectorX(int, int)] Params Start
-LOAD d2,0.0005
-PUSHR d2; UsrFunc[int VectorX(int, int)] Params End
+LOAD D2,0.0005
+PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
 CALLFUNC 0.0849; UsrFunc[int VectorX(int, int)] Call
-POP d4
-POP d3
-ADDR d2,d3
-STORE d2,0.0002
-LOAD d2,0.0001
-PUSHR d2
-PUSHR d4
+POP D4
+POP D3
+ADDR D2,D3
+STORE D2,0.0002
+LOAD D2,0.0001
+PUSHR D2
+PUSHR D4
 PUSHV 3; UsrFunc[int VectorY(int, int)] Params Start
-LOAD d2,0.0005
-PUSHR d2; UsrFunc[int VectorY(int, int)] Params End
+LOAD D2,0.0005
+PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
 CALLFUNC 0.0859; UsrFunc[int VectorY(int, int)] Call
-POP d4
-POP d3
-ADDR d2,d3
-STORE d2,0.0001
-LOAD d2,0.0004
-SUBV d2,1
-STORE d2,0.0004; if() #560 Body End
-LOAD d2,0.0002; InlineFunc[int Abs(int)] Params AND if() #561 Test
-ABS d2; InlineFunc[int Abs(int)] Body
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+POP D4
+POP D3
+ADDR D2,D3
+STORE D2,0.0001
+LOAD D2,0.0004
+SUBV D2,1
+STORE D2,0.0004; if() #450 Body End
+LOAD D2,0.0002; InlineFunc[int Abs(int)] Params AND if() #451 Test
+ABS D2; InlineFunc[int Abs(int)] Body
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 264,==; Test 'if'
-STOREV 0,0; for() #187 setup AND if() #561 Body Start
-LOAD d2,0; for() #187 LoopTest
-COMPAREV d2,4
+STOREV 0,0; for() #160 setup AND if() #451 Body Start
+LOAD D2,0; for() #160 LoopTest
+COMPAREV D2,4
 GOTOCMP 155,>=
-LOAD d2,0.0002
-COMPAREV d2,-1
+LOAD D2,0.0002
+COMPAREV D2,-1
 GOTOCMP 155,>
-SETV d2,1
+SETV D2,1
 GOTO 156
-SETV d2,0
-COMPAREV d2,0
-GOTOCMP 205,==; for() #187 TestFail?
-PUSHR d4; if() #189 Test AND for() #187 Body Start
+SETV D2,0
+COMPAREV D2,0
+GOTOCMP 205,==; for() #160 TestFail?
+PUSHR D4; if() #163 Test AND for() #160 Body Start
 PUSHR LINKX; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR LINKY
 PUSHV 2
 PUSHV 1
 PUSHV 0; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params End
 CALLFUNC 0.0476; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
-POP d4
-COMPAREV d2,0
+POP D4
+COMPAREV D2,0
 GOTOCMP 177,==; Test 'if'
-SETR d2,LINKX; if() #189 Body Start
-SUBV d2,1
-PUSHR d2
-POP d2
-SETR LINKX,d2
-LOAD d2,0.0002
-ADDV d2,1
-STORE d2,0.0002
-GOTO 201; if() #189 Body End
-LOAD d2,0.0001; InlineFunc[int Abs(int)] Params AND if() #562 Test AND if() #189 Else Start
-ABS d2; InlineFunc[int Abs(int)] Body
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+SETR D2,LINKX; if() #163 Body Start
+SUBV D2,1
+PUSHR D2
+POP D2
+SETR LINKX,D2
+LOAD D2,0.0002
+ADDV D2,1
+STORE D2,0.0002
+GOTO 201; if() #163 Body End
+LOAD D2,0.0001; InlineFunc[int Abs(int)] Params AND if() #452 Test AND if() #163 Else Start
+ABS D2; InlineFunc[int Abs(int)] Body
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 199,==; Test 'if'
-LOAD d2,0.0001; if() #562 Body Start
-PUSHR d2
-PUSHR d4
-LOAD d2,0.0001; UsrFunc[int Sign(int)] Params Start
-PUSHR d2; UsrFunc[int Sign(int)] Params End
+LOAD D2,0.0001; if() #452 Body Start
+PUSHR D2
+PUSHR D4
+LOAD D2,0.0001; UsrFunc[int Sign(int)] Params Start
+PUSHR D2; UsrFunc[int Sign(int)] Params End
 CALLFUNC 0.0869; UsrFunc[int Sign(int)] Call
-POP d4
-PUSHR d2
-LOAD d2,0.0002; InlineFunc[int Abs(int)] Params Start
-DIVV d2,2; InlineFunc[int Abs(int)] Params End
-ABS d2; InlineFunc[int Abs(int)] Body
-POP d3
-MULTR d2,d3
-POP d3
-ADDR d2,d3
-STORE d2,0.0001; if() #562 Body End
-SETV d2,0
-STORE d2,0.0002; if() #189 Else End
-LOAD d2,0; for() #187 Body End AND for() #187 LoopIncrement
-ADDV d2,1
-STORE d2,0
-GOTO 147; for() #187 End
-STOREV 0,0; for() #188 setup
-LOAD d2,0; for() #188 LoopTest
-COMPAREV d2,4
+POP D4
+PUSHR D2
+LOAD D2,0.0002; InlineFunc[int Abs(int)] Params Start
+DIVV D2,2; InlineFunc[int Abs(int)] Params End
+ABS D2; InlineFunc[int Abs(int)] Body
+POP D3
+MULTR D2,D3
+POP D3
+ADDR D2,D3
+STORE D2,0.0001; if() #452 Body End
+SETV D2,0
+STORE D2,0.0002; if() #163 Else End
+LOAD D2,0; for() #160 Body End AND for() #160 LoopIncrement
+ADDV D2,1
+STORE D2,0
+GOTO 147; for() #160 End
+STOREV 0,0; for() #161 setup
+LOAD D2,0; for() #161 LoopTest
+COMPAREV D2,4
 GOTOCMP 214,>=
-LOAD d2,0.0002
-COMPAREV d2,1
+LOAD D2,0.0002
+COMPAREV D2,1
 GOTOCMP 214,<
-SETV d2,1
+SETV D2,1
 GOTO 215
-SETV d2,0
-COMPAREV d2,0
-GOTOCMP 264,==; for() #188 TestFail?
-PUSHR d4; if() #190 Test AND for() #188 Body Start
+SETV D2,0
+COMPAREV D2,0
+GOTOCMP 264,==; for() #161 TestFail?
+PUSHR D4; if() #164 Test AND for() #161 Body Start
 PUSHR LINKX; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR LINKY
 PUSHV 3
 PUSHV 1
 PUSHV 0; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params End
 CALLFUNC 0.0476; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
-POP d4
-COMPAREV d2,0
+POP D4
+COMPAREV D2,0
 GOTOCMP 236,==; Test 'if'
-SETR d2,LINKX; if() #190 Body Start
-ADDV d2,1
-PUSHR d2
-POP d2
-SETR LINKX,d2
-LOAD d2,0.0002
-SUBV d2,1
-STORE d2,0.0002
-GOTO 260; if() #190 Body End
-LOAD d2,0.0001; InlineFunc[int Abs(int)] Params AND if() #563 Test AND if() #190 Else Start
-ABS d2; InlineFunc[int Abs(int)] Body
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+SETR D2,LINKX; if() #164 Body Start
+ADDV D2,1
+PUSHR D2
+POP D2
+SETR LINKX,D2
+LOAD D2,0.0002
+SUBV D2,1
+STORE D2,0.0002
+GOTO 260; if() #164 Body End
+LOAD D2,0.0001; InlineFunc[int Abs(int)] Params AND if() #453 Test AND if() #164 Else Start
+ABS D2; InlineFunc[int Abs(int)] Body
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 258,==; Test 'if'
-LOAD d2,0.0001; if() #563 Body Start
-PUSHR d2
-PUSHR d4
-LOAD d2,0.0001; UsrFunc[int Sign(int)] Params Start
-PUSHR d2; UsrFunc[int Sign(int)] Params End
+LOAD D2,0.0001; if() #453 Body Start
+PUSHR D2
+PUSHR D4
+LOAD D2,0.0001; UsrFunc[int Sign(int)] Params Start
+PUSHR D2; UsrFunc[int Sign(int)] Params End
 CALLFUNC 0.0869; UsrFunc[int Sign(int)] Call
-POP d4
-PUSHR d2
-LOAD d2,0.0002; InlineFunc[int Abs(int)] Params Start
-DIVV d2,2; InlineFunc[int Abs(int)] Params End
-ABS d2; InlineFunc[int Abs(int)] Body
-POP d3
-MULTR d2,d3
-POP d3
-ADDR d2,d3
-STORE d2,0.0001; if() #563 Body End
-SETV d2,0
-STORE d2,0.0002; if() #190 Else End
-LOAD d2,0; for() #188 Body End AND for() #188 LoopIncrement
-ADDV d2,1
-STORE d2,0
-GOTO 206; for() #188 End
-LOAD d2,0.0001; if() #561 Body End AND InlineFunc[int Abs(int)] Params AND if() #564 Test
-ABS d2; InlineFunc[int Abs(int)] Body
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+POP D4
+PUSHR D2
+LOAD D2,0.0002; InlineFunc[int Abs(int)] Params Start
+DIVV D2,2; InlineFunc[int Abs(int)] Params End
+ABS D2; InlineFunc[int Abs(int)] Body
+POP D3
+MULTR D2,D3
+POP D3
+ADDR D2,D3
+STORE D2,0.0001; if() #453 Body End
+SETV D2,0
+STORE D2,0.0002; if() #164 Else End
+LOAD D2,0; for() #161 Body End AND for() #161 LoopIncrement
+ADDV D2,1
+STORE D2,0
+GOTO 206; for() #161 End
+LOAD D2,0.0001; if() #451 Body End AND InlineFunc[int Abs(int)] Params AND if() #454 Test
+ABS D2; InlineFunc[int Abs(int)] Body
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 387,==; Test 'if'
-STOREV 0,0; for() #189 setup AND if() #564 Body Start
-LOAD d2,0; for() #189 LoopTest
-COMPAREV d2,4
+STOREV 0,0; for() #162 setup AND if() #454 Body Start
+LOAD D2,0; for() #162 LoopTest
+COMPAREV D2,4
 GOTOCMP 279,>=
-LOAD d2,0.0001
-COMPAREV d2,-1
+LOAD D2,0.0001
+COMPAREV D2,-1
 GOTOCMP 279,>
-SETV d2,1
+SETV D2,1
 GOTO 280
-SETV d2,0
-COMPAREV d2,0
-GOTOCMP 329,==; for() #189 TestFail?
-PUSHR d4; if() #191 Test AND for() #189 Body Start
+SETV D2,0
+COMPAREV D2,0
+GOTOCMP 329,==; for() #162 TestFail?
+PUSHR D4; if() #165 Test AND for() #162 Body Start
 PUSHR LINKX; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR LINKY
 PUSHV 0
 PUSHV 1
 PUSHV 0; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params End
 CALLFUNC 0.0476; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
-POP d4
-COMPAREV d2,0
+POP D4
+COMPAREV D2,0
 GOTOCMP 301,==; Test 'if'
-SETR d2,LINKY; if() #191 Body Start
-SUBV d2,1
-PUSHR d2
-POP d2
-SETR LINKY,d2
-LOAD d2,0.0001
-ADDV d2,1
-STORE d2,0.0001
-GOTO 325; if() #191 Body End
-LOAD d2,0.0002; InlineFunc[int Abs(int)] Params AND if() #565 Test AND if() #191 Else Start
-ABS d2; InlineFunc[int Abs(int)] Body
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+SETR D2,LINKY; if() #165 Body Start
+SUBV D2,1
+PUSHR D2
+POP D2
+SETR LINKY,D2
+LOAD D2,0.0001
+ADDV D2,1
+STORE D2,0.0001
+GOTO 325; if() #165 Body End
+LOAD D2,0.0002; InlineFunc[int Abs(int)] Params AND if() #455 Test AND if() #165 Else Start
+ABS D2; InlineFunc[int Abs(int)] Body
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 323,==; Test 'if'
-LOAD d2,0.0002; if() #565 Body Start
-PUSHR d2
-PUSHR d4
-LOAD d2,0.0002; UsrFunc[int Sign(int)] Params Start
-PUSHR d2; UsrFunc[int Sign(int)] Params End
+LOAD D2,0.0002; if() #455 Body Start
+PUSHR D2
+PUSHR D4
+LOAD D2,0.0002; UsrFunc[int Sign(int)] Params Start
+PUSHR D2; UsrFunc[int Sign(int)] Params End
 CALLFUNC 0.0869; UsrFunc[int Sign(int)] Call
-POP d4
-PUSHR d2
-LOAD d2,0.0001; InlineFunc[int Abs(int)] Params Start
-DIVV d2,2; InlineFunc[int Abs(int)] Params End
-ABS d2; InlineFunc[int Abs(int)] Body
-POP d3
-MULTR d2,d3
-POP d3
-ADDR d2,d3
-STORE d2,0.0002; if() #565 Body End
-SETV d2,0
-STORE d2,0.0001; if() #191 Else End
-LOAD d2,0; for() #189 Body End AND for() #189 LoopIncrement
-ADDV d2,1
-STORE d2,0
-GOTO 271; for() #189 End
-STOREV 0,0; for() #190 setup
-LOAD d2,0; for() #190 LoopTest
-COMPAREV d2,4
+POP D4
+PUSHR D2
+LOAD D2,0.0001; InlineFunc[int Abs(int)] Params Start
+DIVV D2,2; InlineFunc[int Abs(int)] Params End
+ABS D2; InlineFunc[int Abs(int)] Body
+POP D3
+MULTR D2,D3
+POP D3
+ADDR D2,D3
+STORE D2,0.0002; if() #455 Body End
+SETV D2,0
+STORE D2,0.0001; if() #165 Else End
+LOAD D2,0; for() #162 Body End AND for() #162 LoopIncrement
+ADDV D2,1
+STORE D2,0
+GOTO 271; for() #162 End
+STOREV 0,0; for() #163 setup
+LOAD D2,0; for() #163 LoopTest
+COMPAREV D2,4
 GOTOCMP 338,>=
-LOAD d2,0.0001
-COMPAREV d2,1
+LOAD D2,0.0001
+COMPAREV D2,1
 GOTOCMP 338,<
-SETV d2,1
+SETV D2,1
 GOTO 339
-SETV d2,0
-COMPAREV d2,0
-GOTOCMP 387,==; for() #190 TestFail?
-PUSHR d4; if() #192 Test AND for() #190 Body Start
+SETV D2,0
+COMPAREV D2,0
+GOTOCMP 387,==; for() #163 TestFail?
+PUSHR D4; if() #166 Test AND for() #163 Body Start
 PUSHR LINKX; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR LINKY
 PUSHARGSV 1,0.0002
 PUSHV 0; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params End
 CALLFUNC 0.0476; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
-POP d4
-COMPAREV d2,0
+POP D4
+COMPAREV D2,0
 GOTOCMP 359,==; Test 'if'
-SETR d2,LINKY; if() #192 Body Start
-ADDV d2,1
-PUSHR d2
-POP d2
-SETR LINKY,d2
-LOAD d2,0.0001
-SUBV d2,1
-STORE d2,0.0001
-GOTO 383; if() #192 Body End
-LOAD d2,0.0002; InlineFunc[int Abs(int)] Params AND if() #566 Test AND if() #192 Else Start
-ABS d2; InlineFunc[int Abs(int)] Body
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+SETR D2,LINKY; if() #166 Body Start
+ADDV D2,1
+PUSHR D2
+POP D2
+SETR LINKY,D2
+LOAD D2,0.0001
+SUBV D2,1
+STORE D2,0.0001
+GOTO 383; if() #166 Body End
+LOAD D2,0.0002; InlineFunc[int Abs(int)] Params AND if() #456 Test AND if() #166 Else Start
+ABS D2; InlineFunc[int Abs(int)] Body
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 381,==; Test 'if'
-LOAD d2,0.0002; if() #566 Body Start
-PUSHR d2
-PUSHR d4
-LOAD d2,0.0002; UsrFunc[int Sign(int)] Params Start
-PUSHR d2; UsrFunc[int Sign(int)] Params End
+LOAD D2,0.0002; if() #456 Body Start
+PUSHR D2
+PUSHR D4
+LOAD D2,0.0002; UsrFunc[int Sign(int)] Params Start
+PUSHR D2; UsrFunc[int Sign(int)] Params End
 CALLFUNC 0.0869; UsrFunc[int Sign(int)] Call
-POP d4
-PUSHR d2
-LOAD d2,0.0001; InlineFunc[int Abs(int)] Params Start
-DIVV d2,2; InlineFunc[int Abs(int)] Params End
-ABS d2; InlineFunc[int Abs(int)] Body
-POP d3
-MULTR d2,d3
-POP d3
-ADDR d2,d3
-STORE d2,0.0002; if() #566 Body End
-SETV d2,0
-STORE d2,0.0001; if() #192 Else End
-LOAD d2,0; for() #190 Body End AND for() #190 LoopIncrement
-ADDV d2,1
-STORE d2,0
-GOTO 330; for() #190 End
-LOAD d2,0.0003; if() #564 Body End AND if() #567 Test
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+POP D4
+PUSHR D2
+LOAD D2,0.0001; InlineFunc[int Abs(int)] Params Start
+DIVV D2,2; InlineFunc[int Abs(int)] Params End
+ABS D2; InlineFunc[int Abs(int)] Body
+POP D3
+MULTR D2,D3
+POP D3
+ADDR D2,D3
+STORE D2,0.0002; if() #456 Body End
+SETV D2,0
+STORE D2,0.0001; if() #166 Else End
+LOAD D2,0; for() #163 Body End AND for() #163 LoopIncrement
+ADDV D2,1
+STORE D2,0
+GOTO 330; for() #163 End
+LOAD D2,0.0003; if() #454 Body End AND if() #457 Test
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 395,==; Test 'if'
-LOAD d2,0.0003; if() #567 Body Start
-SUBV d2,1
-STORE d2,0.0003; if() #567 Body End
-LOAD d2,0.0006
-PUSHR d2
-LOAD d2,0.0003; InlineFunc[untyped Floor(untyped)] Params Start
-DIVV d2,4; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR d2; InlineFunc[untyped Floor(untyped)] Body
-POP d3
-ADDR d2,d3
-PUSHR d2
-LOAD d2,0.0007
-POP d3
-PUSHR d2
-PUSHR d3
-POP d2
+LOAD D2,0.0003; if() #457 Body Start
+SUBV D2,1
+STORE D2,0.0003; if() #457 Body End
+LOAD D2,0.0006
+PUSHR D2
+LOAD D2,0.0003; InlineFunc[untyped Floor(untyped)] Params Start
+DIVV D2,4; InlineFunc[untyped Floor(untyped)] Params End
+FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+POP D3
+ADDR D2,D3
+PUSHR D2
+LOAD D2,0.0007
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
 POP REFFFC
-SETR DATA,d2
-WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #8 Body [Opt:AlwaysOn] End
-GOTO 27; while() #8 End AND [Opt:NeverRet] AND void run(int) Body End
-POP d2; Func[int Distance(int, int, int, int)] Body Start
-POP d1
-POP d0
-POP d6
-SETR d2,DISTANCE
+SETR DATA,D2
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
+GOTO 27; while() #2 End AND [Opt:NeverRet] AND void run(int) Body End
+POP D2; Func[int Distance(int, int, int, int)] Body Start
+POP D1
+POP D0
+POP D6
+SETR D2,DISTANCE
 RETURNFUNC; Func[int Distance(int, int, int, int)] Body End
-SETR d4,SP2; Func[int DirNormal(int)] Body Start
-LOAD d2,0; switch() #15 Key
-SETR SWITCHKEY,d2; Store key
+SETR D4,SP2; Func[int DirNormal(int)] Body Start
+LOAD D2,0; switch() #15 Key
+SETR SWITCHKEY,D2; Store key
 COMPAREV SWITCHKEY,8
 GOTOCMP 438,==; case '80000'
 COMPAREV SWITCHKEY,9
@@ -446,64 +451,64 @@ GOTOCMP 450,==; case '140000'
 COMPAREV SWITCHKEY,15
 GOTOCMP 452,==; case '150000'
 GOTO 454; switch() #15 NoMatch
-SETV d2,0; Case block AND return Start
+SETV D2,0; Case block AND return Start
 GOTO 455; return End
-SETV d2,5; Case block AND return Start
+SETV D2,5; Case block AND return Start
 GOTO 455; return End
-SETV d2,3; Case block AND return Start
+SETV D2,3; Case block AND return Start
 GOTO 455; return End
-SETV d2,7; Case block AND return Start
+SETV D2,7; Case block AND return Start
 GOTO 455; return End
-SETV d2,1; Case block AND return Start
+SETV D2,1; Case block AND return Start
 GOTO 455; return End
-SETV d2,6; Case block AND return Start
+SETV D2,6; Case block AND return Start
 GOTO 455; return End
-SETV d2,2; Case block AND return Start
+SETV D2,2; Case block AND return Start
 GOTO 455; return End
-SETV d2,4; Case block AND return Start
+SETV D2,4; Case block AND return Start
 GOTO 455; return End
-LOAD d2,0; Case block AND return Start
-POP d5; return End
+LOAD D2,0; Case block AND return Start
+POP D5; return End
 RETURNFUNC; Func[int DirNormal(int)] Body End
-SETR d4,SP2; Func[int Angle(int, int, int, int)] Body Start
-LOAD d2,0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int RadtoDeg(int)] Params Start AND return Start
-PUSHR d2
-LOAD d2,0.0003
-POP d3
-SUBR d3,d2
-PUSHR d3
-LOAD d2,0
-PUSHR d2
-LOAD d2,0.0002
-POP d3
-SUBR d3,d2
-SETR d1,d3; InlineFunc[int ArcTan(int, int)] Params End
-POP d0; InlineFunc[int ArcTan(int, int)] Body Start
-ARCTANR d2; InlineFunc[int ArcTan(int, int)] Body End
-SETR d3,d2; InlineFunc[int RadtoDeg(int)] Params End
-RADTODEG d2,d3; InlineFunc[int RadtoDeg(int)] Body
-POPARGS d5,0.0004; return End
+SETR D4,SP2; Func[int Angle(int, int, int, int)] Body Start
+LOAD D2,0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int RadtoDeg(int)] Params Start AND return Start
+PUSHR D2
+LOAD D2,0.0003
+POP D3
+SUBR D3,D2
+PUSHR D3
+LOAD D2,0
+PUSHR D2
+LOAD D2,0.0002
+POP D3
+SUBR D3,D2
+SETR D1,D3; InlineFunc[int ArcTan(int, int)] Params End
+POP D0; InlineFunc[int ArcTan(int, int)] Body Start
+ARCTANR D2; InlineFunc[int ArcTan(int, int)] Body End
+SETR D3,D2; InlineFunc[int RadtoDeg(int)] Params End
+RADTODEG D2,D3; InlineFunc[int RadtoDeg(int)] Body
+POPARGS D5,0.0004; return End
 RETURNFUNC; Func[int Angle(int, int, int, int)] Body End
 PUSHARGSV 0,0.0004; Func[bool CanWalk(int, int, int, int, bool)] Body Start
-SETR d4,SP2
+SETR D4,SP2
 STOREV 8,0.0003
-LOAD d2,0.0008
-ADDV d2,15
-STORE d2,0.0002
-LOAD d2,0.0007
-ADDV d2,15
-STORE d2,0.0001
-LOAD d2,0.0004; if() #29 Test
-COMPAREV d2,0
+LOAD D2,0.0008
+ADDV D2,15
+STORE D2,0.0002
+LOAD D2,0.0007
+ADDV D2,15
+STORE D2,0.0001
+LOAD D2,0.0004; if() #29 Test
+COMPAREV D2,0
 GOTOCMP 490,==; Test 'if'
-SETV d2,0; if() #29 Body Start
-STORE d2,0.0003; if() #29 Body End
-PUSHR d4; switch() #4 Key
-LOAD d2,0.0006; UsrFunc[int DirNormal(int)] Params Start
-PUSHR d2; UsrFunc[int DirNormal(int)] Params End
+SETV D2,0; if() #29 Body Start
+STORE D2,0.0003; if() #29 Body End
+PUSHR D4; switch() #4 Key
+LOAD D2,0.0006; UsrFunc[int DirNormal(int)] Params Start
+PUSHR D2; UsrFunc[int DirNormal(int)] Params End
 CALLFUNC 0.0418; UsrFunc[int DirNormal(int)] Call
-POP d4
-SETR SWITCHKEY,d2; Store key
+POP D4
+SETR SWITCHKEY,D2; Store key
 COMPAREV SWITCHKEY,0
 GOTOCMP 505,==; case '0'
 COMPAREV SWITCHKEY,1
@@ -513,390 +518,390 @@ GOTOCMP 618,==; case '20000'
 COMPAREV SWITCHKEY,3
 GOTOCMP 677,==; case '30000'
 GOTO 735; switch() #4 NoMatch
-LOAD d2,0.0007; Case block AND return Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-SUBR d3,d2
-SETR d2,d3
-COMPAREV d2,0
+LOAD D2,0.0007; Case block AND return Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+SUBR D3,D2
+SETR D2,D3
+COMPAREV D2,0
 GOTOCMP 564,<
-LOAD d2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0007
-PUSHR d2
-LOAD d2,0.0003
-POP d3
-ADDR d2,d3
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-SUBR d3,d2
-SETR d1,d3; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0007
+PUSHR D2
+LOAD D2,0.0003
+POP D3
+ADDR D2,D3
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+SUBR D3,D2
+SETR D1,D3; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 564,!=
-LOAD d2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-ADDV d2,8
-PUSHR d2
-LOAD d2,0.0007
-PUSHR d2
-LOAD d2,0.0003
-POP d3
-ADDR d2,d3
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-SUBR d3,d2
-SETR d1,d3; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+ADDV D2,8
+PUSHR D2
+LOAD D2,0.0007
+PUSHR D2
+LOAD D2,0.0003
+POP D3
+ADDR D2,D3
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+SUBR D3,D2
+SETR D1,D3; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 564,!=
-LOAD d2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0007
-PUSHR d2
-LOAD d2,0.0003
-POP d3
-ADDR d2,d3
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-SUBR d3,d2
-SETR d1,d3; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0007
+PUSHR D2
+LOAD D2,0.0003
+POP D3
+ADDR D2,D3
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+SUBR D3,D2
+SETR D1,D3; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 564,!=
-SETV d2,0
+SETV D2,0
 GOTO 565
-SETV d2,1
-COMPAREV d2,0
-SETCMP d2,I==
+SETV D2,1
+COMPAREV D2,0
+SETCMP D2,I==
 GOTO 747; return End
-LOAD d2,0.0001; Case block AND return Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-ADDR d2,d3
-COMPAREV d2,176
+LOAD D2,0.0001; Case block AND return Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+ADDR D2,D3
+COMPAREV D2,176
 GOTOCMP 614,>=
-LOAD d2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0001
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-ADDR d2,d3
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0001
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+ADDR D2,D3
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 614,!=
-LOAD d2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-ADDV d2,8
-PUSHR d2
-LOAD d2,0.0001
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-ADDR d2,d3
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+ADDV D2,8
+PUSHR D2
+LOAD D2,0.0001
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+ADDR D2,D3
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 614,!=
-LOAD d2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0001
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-ADDR d2,d3
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0001
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+ADDR D2,D3
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 614,!=
-SETV d2,0
+SETV D2,0
 GOTO 615
-SETV d2,1
-COMPAREV d2,0
-SETCMP d2,I==
+SETV D2,1
+COMPAREV D2,0
+SETCMP D2,I==
 GOTO 747; return End
-LOAD d2,0.0008; Case block AND return Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-SUBR d3,d2
-SETR d2,d3
-COMPAREV d2,0
+LOAD D2,0.0008; Case block AND return Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+SUBR D3,D2
+SETR D2,D3
+COMPAREV D2,0
 GOTOCMP 673,<
-LOAD d2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-SUBR d3,d2
-PUSHR d3
-LOAD d2,0.0007
-PUSHR d2
-LOAD d2,0.0003
-POP d3
-ADDR d2,d3
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+SUBR D3,D2
+PUSHR D3
+LOAD D2,0.0007
+PUSHR D2
+LOAD D2,0.0003
+POP D3
+ADDR D2,D3
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 673,!=
-LOAD d2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-SUBR d3,d2
-PUSHR d3
-LOAD d2,0.0007
-PUSHR d2
-LOAD d2,0.0003
-POP d3
-ADDR d2,d3
-ADDV d2,7
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+SUBR D3,D2
+PUSHR D3
+LOAD D2,0.0007
+PUSHR D2
+LOAD D2,0.0003
+POP D3
+ADDR D2,D3
+ADDV D2,7
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 673,!=
-LOAD d2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-SUBR d3,d2
-PUSHR d3
-LOAD d2,0.0001
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0008; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+SUBR D3,D2
+PUSHR D3
+LOAD D2,0.0001
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 673,!=
-SETV d2,0
+SETV D2,0
 GOTO 674
-SETV d2,1
-COMPAREV d2,0
-SETCMP d2,I==
+SETV D2,1
+COMPAREV D2,0
+SETCMP D2,I==
 GOTO 747; return End
-LOAD d2,0.0002; Case block AND return Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-ADDR d2,d3
-COMPAREV d2,256
+LOAD D2,0.0002; Case block AND return Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+ADDR D2,D3
+COMPAREV D2,256
 GOTOCMP 731,>=
-LOAD d2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-ADDR d2,d3
-PUSHR d2
-LOAD d2,0.0007
-PUSHR d2
-LOAD d2,0.0003
-POP d3
-ADDR d2,d3
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+ADDR D2,D3
+PUSHR D2
+LOAD D2,0.0007
+PUSHR D2
+LOAD D2,0.0003
+POP D3
+ADDR D2,D3
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 731,!=
-LOAD d2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-ADDR d2,d3
-PUSHR d2
-LOAD d2,0.0007
-PUSHR d2
-LOAD d2,0.0003
-POP d3
-ADDR d2,d3
-ADDV d2,7
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+ADDR D2,D3
+PUSHR D2
+LOAD D2,0.0007
+PUSHR D2
+LOAD D2,0.0003
+POP D3
+ADDR D2,D3
+ADDV D2,7
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 731,!=
-LOAD d2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
-PUSHR d2
-LOAD d2,0.0005
-POP d3
-ADDR d2,d3
-PUSHR d2
-LOAD d2,0.0001
-SETR d1,d2; InlineFunc[bool Screen->isSolid(int, int)] Params End
-POP d0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
-ISSOLID d2; InlineFunc[bool Screen->isSolid(int, int)] Body End
-COMPAREV d2,0
+LOAD D2,0.0002; InlineFunc[bool Screen->isSolid(int, int)] Params Start
+PUSHR D2
+LOAD D2,0.0005
+POP D3
+ADDR D2,D3
+PUSHR D2
+LOAD D2,0.0001
+SETR D1,D2; InlineFunc[bool Screen->isSolid(int, int)] Params End
+POP D0; InlineFunc[bool Screen->isSolid(int, int)] Body Start
+ISSOLID D2; InlineFunc[bool Screen->isSolid(int, int)] Body End
+COMPAREV D2,0
 GOTOCMP 731,!=
-SETV d2,0
+SETV D2,0
 GOTO 732
-SETV d2,1
-COMPAREV d2,0
-SETCMP d2,I==
+SETV D2,1
+COMPAREV D2,0
+SETCMP D2,I==
 GOTO 747; return End
-ALLOCATEMEMV d2,60,0; Case block
-STORE d2,0
-WRITEPODSTRING d2,"Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n"
-LOAD d2,0; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-LOAD d2,0.0006
-PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+ALLOCATEMEMV D2,60,0; Case block
+STORE D2,0
+WRITEPODSTRING D2,"Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n"
+LOAD D2,0; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+LOAD D2,0.0006
+PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOAD d3,0
-DEALLOCATEMEMR d3
-SETV d2,0; return Start
-POPARGS d5,0.0009; return End
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0
+DEALLOCATEMEMR D3
+SETV D2,0; return Start
+POPARGS D5,0.0009; return End
 RETURNFUNC; Func[bool CanWalk(int, int, int, int, bool)] Body End
-SETR d4,SP2; Func[int CenterLinkX()] Body Start
-SETR d2,LINKX; return Start
-ADDV d2,8
+SETR D4,SP2; Func[int CenterLinkX()] Body Start
+SETR D2,LINKX; return Start
+ADDV D2,8
 RETURNFUNC; return End AND Func[int CenterLinkX()] Body End
-SETR d4,SP2; Func[int CenterLinkY()] Body Start
-SETR d2,LINKY; return Start
-ADDV d2,8
+SETR D4,SP2; Func[int CenterLinkY()] Body Start
+SETR D2,LINKY; return Start
+ADDV D2,8
 RETURNFUNC; return End AND Func[int CenterLinkY()] Body End
-SETR d4,SP2; Func[int CenterX(FFC)] Body Start
-LOAD d2,0; return Start
-PUSHR d2
+SETR D4,SP2; Func[int CenterX(FFC)] Body Start
+LOAD D2,0; return Start
+PUSHR D2
 POP REFFFC
-SETR d2,X
-PUSHR d2
-LOAD d2,0
-PUSHR d2
+SETR D2,X
+PUSHR D2
+LOAD D2,0
+PUSHR D2
 POP REFFFC
-SETR d2,FFTWIDTH
-MULTV d2,8
-SETV d2,8
-PUSHR d2
-LOAD d2,0
-PUSHR d2
+SETR D2,FFTWIDTH
+MULTV D2,8
+SETV D2,8
+PUSHR D2
+LOAD D2,0
+PUSHR D2
 POP REFFFC
-SETR d2,FFTWIDTH
-POP d3
-MULTR d2,d3
-POP d3
-ADDR d2,d3
-POP d5; return End
+SETR D2,FFTWIDTH
+POP D3
+MULTR D2,D3
+POP D3
+ADDR D2,D3
+POP D5; return End
 RETURNFUNC; Func[int CenterX(FFC)] Body End
-SETR d4,SP2; Func[int CenterY(FFC)] Body Start
-LOAD d2,0; return Start
-PUSHR d2
+SETR D4,SP2; Func[int CenterY(FFC)] Body Start
+LOAD D2,0; return Start
+PUSHR D2
 POP REFFFC
-SETR d2,Y
-PUSHR d2
-LOAD d2,0
-PUSHR d2
+SETR D2,Y
+PUSHR D2
+LOAD D2,0
+PUSHR D2
 POP REFFFC
-SETR d2,FFTHEIGHT
-MULTV d2,8
-SETV d2,8
-PUSHR d2
-LOAD d2,0
-PUSHR d2
+SETR D2,FFTHEIGHT
+MULTV D2,8
+SETV D2,8
+PUSHR D2
+LOAD D2,0
+PUSHR D2
 POP REFFFC
-SETR d2,FFTHEIGHT
-POP d3
-MULTR d2,d3
-POP d3
-ADDR d2,d3
-POP d5; return End
+SETR D2,FFTHEIGHT
+POP D3
+MULTR D2,D3
+POP D3
+ADDR D2,D3
+POP D5; return End
 RETURNFUNC; Func[int CenterY(FFC)] Body End
 PUSHV 0; Func[void NoAction()] Body Start
-SETR d4,SP2
+SETR D4,SP2
 STOREV 0,0; for() #74 setup
-LOAD d2,0; for() #74 LoopTest
-COMPAREV d2,14
-SETCMP d2,I<
-COMPAREV d2,0
+LOAD D2,0; for() #74 LoopTest
+COMPAREV D2,14
+SETCMP D2,I<
+COMPAREV D2,0
 GOTOCMP 847,==; for() #74 TestFail?
-LOAD d2,0; if() #249 Test AND for() #74 Body Start
-COMPAREV d2,9
+LOAD D2,0; if() #249 Test AND for() #74 Body Start
+COMPAREV D2,9
 GOTOCMP 817,!=
 GOTO 817
-SETV d2,1
+SETV D2,1
 GOTO 818
-SETV d2,0
-COMPAREV d2,0
+SETV D2,0
+COMPAREV D2,0
 GOTOCMP 843,!=; Test 'if' AND continue 1; AND if() #249 Body
-LOAD d2,0; if() #250 Test
-COMPAREV d2,6
+LOAD D2,0; if() #250 Test
+COMPAREV D2,6
 GOTOCMP 826,!=
 GOTO 826
-SETV d2,1
+SETV D2,1
 GOTO 827
-SETV d2,0
-COMPAREV d2,0
+SETV D2,0
+COMPAREV D2,0
 GOTOCMP 843,!=; Test 'if' AND continue 1; AND if() #250 Body
-SETV d2,0
-PUSHR d2
-LOAD d2,0
-PUSHR d2
-POP d0
-POP d2
-SETR BUTTONINPUT,d2
-SETV d2,0
-PUSHR d2
-LOAD d2,0
-PUSHR d2
-POP d0
-POP d2
-SETR BUTTONPRESS,d2; for() #74 Body End
-LOAD d2,0; for() #74 LoopIncrement
-ADDV d2,1
-STORE d2,0
+SETV D2,0
+PUSHR D2
+LOAD D2,0
+PUSHR D2
+POP D0
+POP D2
+SETR BUTTONINPUT,D2
+SETV D2,0
+PUSHR D2
+LOAD D2,0
+PUSHR D2
+POP D0
+POP D2
+SETR BUTTONPRESS,D2; for() #74 Body End
+LOAD D2,0; for() #74 LoopIncrement
+ADDV D2,1
+STORE D2,0
 GOTO 806; for() #74 End
-POP d5
+POP D5
 RETURNFUNC; Func[void NoAction()] Body End
-SETR d4,SP2; Func[int VectorX(int, int)] Body Start
-LOAD d2,0; InlineFunc[int Cos(int)] Params Start AND return Start
-SETR d3,d2; InlineFunc[int Cos(int)] Params End
-COSR d2,d3; InlineFunc[int Cos(int)] Body
-PUSHR d2
-LOAD d2,0.0001
-POP d3
-MULTR d2,d3
-POPARGS d5,0.0002; return End
+SETR D4,SP2; Func[int VectorX(int, int)] Body Start
+LOAD D2,0; InlineFunc[int Cos(int)] Params Start AND return Start
+SETR D3,D2; InlineFunc[int Cos(int)] Params End
+COSR D2,D3; InlineFunc[int Cos(int)] Body
+PUSHR D2
+LOAD D2,0.0001
+POP D3
+MULTR D2,D3
+POPARGS D5,0.0002; return End
 RETURNFUNC; Func[int VectorX(int, int)] Body End
-SETR d4,SP2; Func[int VectorY(int, int)] Body Start
-LOAD d2,0; InlineFunc[int Sin(int)] Params Start AND return Start
-SETR d3,d2; InlineFunc[int Sin(int)] Params End
-SINR d2,d3; InlineFunc[int Sin(int)] Body
-PUSHR d2
-LOAD d2,0.0001
-POP d3
-MULTR d2,d3
-POPARGS d5,0.0002; return End
+SETR D4,SP2; Func[int VectorY(int, int)] Body Start
+LOAD D2,0; InlineFunc[int Sin(int)] Params Start AND return Start
+SETR D3,D2; InlineFunc[int Sin(int)] Params End
+SINR D2,D3; InlineFunc[int Sin(int)] Body
+PUSHR D2
+LOAD D2,0.0001
+POP D3
+MULTR D2,D3
+POPARGS D5,0.0002; return End
 RETURNFUNC; Func[int VectorY(int, int)] Body End
-SETR d4,SP2; Func[int Sign(int)] Body Start
-LOAD d2,0; if() #126 Test
-COMPAREV d2,0
-SETCMP d2,I>
-COMPAREV d2,0
+SETR D4,SP2; Func[int Sign(int)] Body Start
+LOAD D2,0; if() #126 Test
+COMPAREV D2,0
+SETCMP D2,I>
+COMPAREV D2,0
 GOTOCMP 877,==; Test 'if'
-SETV d2,1; return Start AND if() #126 Body Start
+SETV D2,1; return Start AND if() #126 Body Start
 GOTO 885; return End AND if() #126 Body End
-LOAD d2,0; if() #127 Test AND if() #126 Else Start
-COMPAREV d2,0
-SETCMP d2,I<
-COMPAREV d2,0
+LOAD D2,0; if() #127 Test AND if() #126 Else Start
+COMPAREV D2,0
+SETCMP D2,I<
+COMPAREV D2,0
 GOTOCMP 884,==; Test 'if'
-SETV d2,-1; return Start AND if() #127 Body Start
+SETV D2,-1; return Start AND if() #127 Body Start
 GOTO 885; return End AND if() #127 Body End
-SETV d2,0; return Start AND if() #127 Else Start
-POP d5; return End AND if() #127 Else End AND if() #126 Else End
+SETV D2,0; return Start AND if() #127 Else Start
+POP D5; return End AND if() #127 Else End AND if() #126 Else End
 RETURNFUNC; Func[int Sign(int)] Body End
 
 
-ALLOCATEGMEMV d2,4096,0; void run() Body Start
-SETR gd1,d2
+ALLOCATEGMEMV D2,4096,0; void run() Body Start
+SETR GD1,D2
 QUIT; void run() Body End

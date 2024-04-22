@@ -210,10 +210,10 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 				case 0: //No warn
 					break;
 				case 3: //Warn
-					handleError(CompileError::MissingReturnWarn(node, node->name));
+					handleError(CompileError::MissingReturnWarn(node, node->getName()));
 					break;
 				default: //Error
-					handleError(CompileError::MissingReturnError(node, node->name));
+					handleError(CompileError::MissingReturnError(node, node->getName()));
 					node->disable();
 					missing_ret = true;
 					break;

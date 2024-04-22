@@ -30,7 +30,7 @@ ffc script TowerOfHanoiController{
 		int str[] = "TowerHanoi";
 		int hanoipolescript= Game->GetFFCScript(str);
 		if (hanoipolescript<0){
-			Game->PlaySound(SFX_GANON);
+			Audio->PlaySound(SFX_GANON);
 			Quit();
 		}
 		int totaldisks = 0;
@@ -44,7 +44,7 @@ ffc script TowerOfHanoiController{
 				if (f->Script== hanoipolescript){
 					if (f->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]==totaldisks){
 						if (f->InitD[1]>0){
-							Game->PlaySound(SFX_TOWER_OF_HANOI_SOLVED);
+							Audio->PlaySound(SFX_TOWER_OF_HANOI_SOLVED);
 							Screen->TriggerSecrets();
 							Screen->State[ST_SECRET]=true;
 							Quit();
@@ -81,7 +81,7 @@ ffc script TowerHanoi{
 							this->CSet = CSet_TOWER_OF_HANOI_ACTIVE;
 							for (int i =SizeOfArray(DISKS)-1; Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]==0;i--){
 								if (DISKS[i]==0) continue;
-								Game->PlaySound(SFX_TOWER_OF_HANOI_DISK_PICK);
+								Audio->PlaySound(SFX_TOWER_OF_HANOI_DISK_PICK);
 								Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]=DISKS[i];
 								DISKS[i]=0;
 								this->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]--;
@@ -91,7 +91,7 @@ ffc script TowerHanoi{
 					}
 					else{
 						if (DISKS[0]==0){
-							Game->PlaySound(SFX_TOWER_OF_HANOI_DISK_PLACE);
+							Audio->PlaySound(SFX_TOWER_OF_HANOI_DISK_PLACE);
 							DISKS[0]= Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND];
 							Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]=0;
 							this->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]++;
@@ -99,9 +99,9 @@ ffc script TowerHanoi{
 						else{	
 							for (int i =SizeOfArray(DISKS)-1; !Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]==0;i--){
 								if (DISKS[i]==0) continue;
-								//Game->PlaySound(SFX_WAND);
+								//Audio->PlaySound(SFX_WAND);
 								if ((Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]>DISKS[i])&&(DISKS[i]>0))break;
-								Game->PlaySound(SFX_TOWER_OF_HANOI_DISK_PLACE);
+								Audio->PlaySound(SFX_TOWER_OF_HANOI_DISK_PLACE);
 								DISKS[i+1]= Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND];
 								Link->Misc[LINK_MISC_TOWER_OF_HANOI_DISK_IN_HAND]=0;
 								this->Misc[FFC_MISC_TOWER_OF_HANOI_NUMDISKS]++;

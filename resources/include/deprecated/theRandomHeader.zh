@@ -1,0 +1,1211 @@
+//-------------------------------//
+// The Random Header - v. 3.0    //
+// 9th January, 2020 for 2.55    //
+//-------------------------------//
+
+// -------- SETTINGS (edit these) -------- //
+
+const int COMBO_AUTOWARP = 0; // Specify the first of four autowarp combos (A,B,C,D) for scriptWarp() and forceWarp()
+
+// -------- GLOBAL VARIABLES AND CONSTANTS (do not edit!) -------- //
+
+// Input constants for getItemInputSlot()
+const int TRH_INPUT_NONE = 0;
+const int TRH_INPUT_A = 1;
+const int TRH_INPUT_B = 2;
+
+// New Combo Flag Variables
+const int CF_STEP = 200;
+
+// -------- FUNCTIONS -------- //
+
+// Function to move Link to an (X,Y) coordinate. 
+// It pretty much combines Link->X and Link->Y into one command.
+void moveLink(int x, int y)
+{
+	Link->X = x;
+	Link->Y = y;
+}
+
+// Initiate a preset sidewarp
+// 0 = A 1 = B 2 = C 3 = D
+// Note: Uses FFC 31.
+void forceWarp(int warpnum)
+{
+	ffc warp;
+	for(int q = 1; q < 33; ++q)
+	{
+		warp = Screen->LoadFFC(q);
+		unless ( (warp->Data) )
+		{
+			unless ((warp->Script) )
+			{
+				warp->Data = COMBO_AUTOWARP + warpnum;
+				return;
+			}
+		}
+	}
+	TraceS("No free ffcs exist to use for forceWarp()\s");
+}
+
+// Sets then immediately initiates a side warp (0-3)
+// Don't do anything serious with the sidewarp you choose on the current screen.
+// Note: Uses FFC 31
+void scriptWarp(int dmap, int screen, int type, int warpnum)
+{
+	
+	ffc warp;
+	for(int q = 1; q < 33; ++q)
+	{
+		warp = Screen->LoadFFC(q);
+		unless ( (warp->Data) )
+		{
+			unless ((warp->Script) )
+			{
+				Screen->SetSideWarp(warpnum, screen, dmap, type);
+				warp->Data = COMBO_AUTOWARP + warpnum;
+				return;
+			}
+		}
+	}
+	printf(
+	TraceS("No free ffcs exist to use for scriptWarp()\n");
+}
+// This is an overload of the above that automatically chooses Sidewarp D.
+void scriptWarp(int dmap, int screen, int type)
+{
+	scriptWarp(dmap, screen, type, 3);
+}//!End scriptWarp
+
+// A reorganization of Screen->SetSideWarp() because we are really picky
+void setSideWarp(int num, int dmap, int screen, int type)
+{
+	Screen->SetSideWarp(num, screen, dmap, type);
+}
+
+// This function returns the slot an item is in
+int getItemInputSlot(int itemID)
+{
+	// If the item is in slot A
+	if(GetEquipmentA() == itemID)
+		return TRH_INPUT_A;
+	// Else if the item is in slot B
+	else if(GetEquipmentB() == itemID)
+		return TRH_INPUT_B;
+	// Else the item is not equipped
+	else
+		return TRH_INPUT_NONE;
+} //! End of int getItemInputSlot(int itemID)
+
+// This function gathers the slot the item is in
+// and returns true or false for if that button
+// is currently being pressed by the player
+bool ifItemInput(int itemID)
+{
+	// Get the item slot the item is in
+	int itemSlot = getItemInputSlot(itemID);
+	switch(itemSlot)
+	{
+	// If the player is pressing A and the item is in slot A
+		case TRH_INPUT_A: if ( Link->InputA) return true;
+	
+		// If the player is pressing B and the item is in slot B
+		case TRH_INPUT_B: if ( Link->InputB) return true;
+	
+		// If the player is not pressing the item or if it is not equipped
+		default: return false;
+	}
+} //! End of bool ifItemInput(int itemID)
+
+// This function gives Link an item.  If the function
+// is passed "true" for ifHoldUp, then it will force Link
+// to hold up the item.
+void giveItem(int itemID, bool ifHoldUp)
+{
+	// This creates a new item and places it over Link
+	item newItem = Screen->CreateItem(itemID);
+	newItem->HitWidth = 16; newItem->HitHeight = 16;
+	SetItemPickup(newItem, IP_HOLDUP, ifHoldUp);
+	newItem->X = Link->X; newItem->Y = Link->Y;
+} //! End of bool giveItem(int itemID, bool ifHoldUp)
+
+// This function forces Link input.  Essentially,
+// it's an easier method of doing all of the Link->Input
+// variables and such.
+void setInput(bool up, bool down, bool left, bool right, bool a, bool b, bool l, bool r, bool map, bool start)
+{
+	Link->InputUp = up;
+	Link->InputDown = down;
+	Link->InputLeft = left;
+	Link->InputRight = right;
+	Link->InputA = a;
+	Link->InputB = b;
+	Link->InputL = l;
+	Link->InputR = r;
+	Link->InputMap = map;
+	Link->InputStart = start;
+}
+
+// This creates an enemy at a random (non-solid) location on the screen
+void createEnemy(int enemyNum)
+{
+	int tries;
+	// Essentially while you have not found a good place
+	while(true) //not infinite
+	{
+
+		if ((++tries) > 10000) break;
+		// Get a random location on the screen
+		int x = Rand(12) * 16 + 32;
+		int y = Rand(7) * 16 + 32;
+		
+		// Boolean for if the location is acceptable
+		bool ifLocationOkay = true;
+		
+		// Make sure the location isn't over Link
+		if(Distance(x, y, Link->X, Link->Y) < 16)
+			ifLocationOkay = false;
+			
+		// These next 5 things make sure that the location is not solid
+			if(Screen->isSolid(x, y))
+				ifLocationOkay = false;
+				
+			if(Screen->isSolid(x+15, y))
+				ifLocationOkay = false;
+				
+			if(Screen->isSolid(x, y+15))
+				ifLocationOkay = false;
+				
+			if(Screen->isSolid(x+15, y+15))
+				ifLocationOkay = false;
+				
+			if(Screen->isSolid(x+8, y+8))
+				ifLocationOkay = false;
+		// End checking for solidity
+		
+		// Get the combo number and type of the location
+		int comboNum = ComboAt(x, y);
+		int comboType = Screen->ComboT[comboNum];
+		
+		// If the combo type is water or anything preventing enemies, the location is not okay
+		if(comboType == CT_WATER || comboType == CT_NOENEMY || comboType == CT_NOFLYZONE || comboType == CT_NOJUMPZONE)
+			ifLocationOkay = false;
+			
+		// Check if there is a no enemy combo flag on the location
+		if(Screen->ComboF[comboNum] == CF_NOENEMY)
+			ifLocationOkay = false;
+			
+		// If the location is acceptable, create the enemy there
+		if(ifLocationOkay)
+		{
+			CreateNPCAt(enemyNum, x, y);
+			break;
+		}
+	} //! End of while(true)
+} //! End of void createEnemy(int enemyNum)
+
+// Returns the opposite direction based upon Dir-> values
+// The oppositeDir in std.zh looked like it was for angles.
+//Use RevDir in <std>
+int getOppositeDir(int dir)
+{
+	switc(dir)
+	{
+		case DIR_UP: return DIR_DOWN;
+		case DIR_DOWN: return DIR_UP;
+		case DIR_LEFT: return DIR_RIGHT;
+		default: return DIR_LEFT;
+	}
+}
+
+// Function to see if an lweapon has hit a x, y location
+bool WeaponCollision(lweapon a, float x1, float y1, float x2, float y2)
+{
+	int ax = a->X + a->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, x1, y1, x2, y2);
+}
+
+// Function to see if an eweapon has hit a x, y location
+bool WeaponCollision(eweapon a, float x1, float y1, float x2, float y2)
+{
+	int ax = a->X + a->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, x1, y1, x2, y2);
+}
+
+// Function to return if an lweapon has hit a solid object
+bool WeaponSolidCollision(lweapon a)
+{
+	// Variables for the weapon edge locations
+	
+	bool ifMagic = a->ID == LW_MAGIC || a->ID == LW_REFMAGIC;
+	
+	// Grab the center of the item
+	int x = a->X + a->HitXOffset + a->HitWidth / 2;
+	int y = a->Y + a->HitYOffset + a->HitHeight / 2;
+	
+	// Loop through all locations and check if they're solid
+	if(Screen->isSolid(x, y))
+	{
+		// Grab the combo type of the location
+		int combo = Screen->ComboT[ComboAt(x, y)];
+			
+		if(combo == CT_HOOKSHOTONLY)
+			return false;
+		// If the wand item is magic
+		else if(ifMagic)
+		{
+			// If the combo type is NOT a mirror or prism, it hit a solid object
+			if(combo < 45 || combo > 49)
+				return true;
+		}
+		// Else the spot is not magic, so it hit a solid object
+		else
+			return true;
+	}
+	
+	// The weapon did not hit a solid object
+	return false;
+}
+
+// Function to return if an eweapon has hit a solid object
+bool WeaponSolidCollision(eweapon a)
+{
+	// Variables for the weapon edge locations
+	
+	bool ifMagic = a->ID == EW_MAGIC || a->ID == EW_WIND;
+	
+	// Grab the center of the item
+	int x = a->X + a->HitXOffset + a->HitWidth / 2;
+	int y = a->Y + a->HitYOffset + a->HitHeight / 2;
+	
+	// Loop through all locations and check if they're solid
+	if(Screen->isSolid(x, y))
+	{
+		// If the wand item is magic
+		if(ifMagic)
+		{
+			// Grab the combo type of the location
+			int combo = Screen->ComboT[ComboAt(x, y)];
+			
+			// If the combo type is NOT a mirror or prism, it hit a solid object
+			if(combo < 45 || combo > 49)
+				return true;
+		}
+		// Else the spot is not magic, so it hit a solid object
+		else
+			return true;
+	}
+	
+	// The weapon did not hit a solid object
+	return false;
+}
+
+// Function to get the direction clockwise to the given direction (only 4 main directions)
+int getClockwiseDir(int dir)
+{
+	return getClockwiseDir(dir, false);
+}
+
+// Function to get the direction clockwise to the given direction
+int getClockwiseDir(int dir, bool eightDir)
+{
+	// If all 8 directions are needed
+	if(eightDir)
+	{
+		// Return the direction to the clockwise of the given direction
+		switch(dir)
+		{
+			case DIR_UP: return DIR_RIGHTUP;
+			case DIR_RIGHTUP: return DIR_RIGHT;
+			case DIR_RIGHT: return DIR_RIGHTDOWN;
+			case DIR_RIGHTDOWN: return DIR_DOWN;
+			case DIR_DOWN: return DIR_LEFTDOWN;
+			case DIR_LEFTDOWN: return DIR_LEFT;
+			case DIR_LEFT: return DIR_LEFTUP;
+			default: return DIR_UP;
+		}
+	}
+	// Else only the main 4 directions are needed
+	else
+	{
+		// Return the direction to the clockwise of the given direction
+		switch(dir)
+		{
+			case DIR_UP: return DIR_RIGHT;
+			case DIR_RIGHT: return DIR_DOWN;
+			case DIR_DOWN: return DIR_LEFT;
+			default: return DIR_UP;
+		}
+	}
+} //! End of int getClockwise(int dir, bool eightDir)
+
+int getCounterClockwiseDir(int dir)
+{
+	return getCounterClockwiseDir(dir, false);
+}
+
+// Function to get the direction clockwise to the given direction
+int getCounterClockwiseDir(int dir, bool eightDir)
+{
+	// If all 8 directions are needed
+	if(eightDir)
+	{
+		// Return the direction to the clockwise of the given direction
+		switch(dir)
+		{
+			case DIR_UP: return DIR_LEFTUP;
+			case DIR_LEFTUP: return DIR_LEFT;
+			case DIR_LEFT: return DIR_LEFTDOWN;
+			case DIR_LEFTDOWN: return DIR_DOWN;
+			case DIR_DOWN: return DIR_RIGHTDOWN;
+			case DIR_RIGHTDOWN: return DIR_RIGHT;
+			case DIR_RIGHT: return DIR_RIGHTUP;
+			default: return DIR_UP;
+		}
+	}
+	// Else only the main 4 directions are needed
+	else
+	{
+		// Return the direction to the clockwise of the given direction
+		switch(dir)
+		{
+			case DIR_UP: return DIR_LEFT;
+			case DIR_LEFT: return DIR_DOWN;
+			case DIR_DOWN: return DIR_RIGHT;
+			default: return DIR_UP;
+		}
+	}
+} //! End of int getClockwise(int dir, bool eightDir)
+
+// This function checks if a location is walkable
+// As in, it's not solid and it's not water
+bool canWalk(float x, float y)
+{
+	// Check if the location is solid
+	if(Screen->isSolid(x, y))
+		return false;
+		
+	// Grab the combo locationj
+	int combo = ComboAt(x, y);
+	
+	// If the combo is water, return false
+	if(Screen->ComboT[combo] == CT_WATER)
+		return false;
+		
+	// Check if the location is out of bounds
+	if(x < 0 || x >= 256)
+		return false;
+		
+	if(y < 0 || y >= 176)
+		return false;
+		
+	// Else it's okay, so return true
+	return true;
+}
+
+// Function to see if an x, y location is valid to walk on
+// x = x location
+// y = y location
+// fullTile = Whether a 16x16 area should be checked or the lower half (16x8) should be checked
+	// True = 16x16
+	// False = 16x8
+bool canWalk(float x, float y, bool fullTile)
+{
+	// If the full 16x16 grid needs to be checked
+	if(fullTile)
+	{
+		// Check all 4 corners of the grid and make sure they're not solid
+		if(canWalk(x, y) )
+		{
+			if ( canWalk(x + 8, y) )
+			{
+				if ( canWalk(x + 15, y) )
+				{
+					if (canWalk(x, y + 8)) 
+					{
+						if ( canWalk(x + 15, y + 8) )
+						{
+							if (canWalk(x, y + 15) )
+							{
+								if( canWalk(x + 8, y + 15) )
+								{
+									if ( canWalk(x + 15, y + 15))
+									{
+										// If they are not, return true
+										return true;
+									}
+								}
+							}
+						}
+					}	
+				}
+			}
+		}			// Else one of the 4 corners of the grid is solid
+		return false;
+	}
+	// Else the bottom half of the grid has to be checked
+	else
+	{
+		// Check all 4 corners of the grid and make sure they're not solid
+		if(canWalk(x, y + 8) )
+		{
+			if ( canWalk(x + 8, y + 8) )
+			{
+				if ( canWalk(x + 15, y + 8))
+				{
+					if (canWalk(x, y + 15) )
+					{
+						if ( canWalk(x + 8, y + 15) )
+						{
+							if ( canWalk(x + 15, y + 15))
+							{
+								// If they are not, return truee
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		// Else one of the 4 corners of the bottom half of the grid is solid
+		return false;
+	}
+}
+
+// Same as above, but checks a full rectangle
+bool canWalk(float x1, float y1, float x2, float y2)
+{
+	// Ensure (x1,y1) is the top left and (x2,y2) which
+	if(x1 > x2)
+	{
+		int temp = x1;
+		x1 = x2;
+		x2 = temp;
+	}
+	
+	if(y1 > y2)
+	{
+		int temp = y1;
+		y1 = y2;
+		y2 = temp;
+	}
+	
+	// Go through each 
+	for(int x = x1; x < x2; x += 8)
+	{
+		if(!canWalk(x, y1))
+			return false;
+		if(!canWalk(x, y2))
+			return false;
+	}
+	
+	for(int y = y1; y < y2; y += 8)
+	{
+		if(!canWalk(x1, y))
+			return false;
+		if(!canWalk(x2, y))
+			return false;
+	}
+	
+	if(!canWalk(x2, y2))
+		return false;
+	
+	return true;
+}
+
+// This is an extension of isWalkable to check for no enemy combos and flags
+// Set flying to true to ignore solidity and water, but also check for a no fly zone
+bool canWalkEnemy(float x, float y, bool flying)
+{
+	// Get the combo number and type of the location
+	int comboNum = ComboAt(x, y);
+	int comboType = Screen->ComboT[comboNum];
+	
+	// If the combo type is a no enemy combo
+	if(comboType == CT_NOENEMY)
+		return false;
+		
+	// If it is NOT a flying enemy and the combo is a no ground enemy zone
+	unless(flying)
+	{
+		if (comboType == CT_NOGROUNDENEMY) return false;
+	}
+		
+	// If it is a flying enemy and the combo is a no fly zone
+	if(flying)
+	{
+		if ( comboType == CT_NOFLYZONE) return false;
+	}
+		
+	// Check if there is a no enemy combo flag on the location
+	if(Screen->ComboF[comboNum] == CF_NOENEMY)
+		return false;
+		
+	if(x < 0 || y < 0 || x > 256 || y > 168)
+		return false;
+		
+	return ( (flying) ? true : canWalk(x, y) );
+}
+
+// Function to see if an x, y location is valid to walk on
+// x = x location
+// y = y location
+// fullTile = Whether a 16x16 area should be checked or the lower half (16x8) should be checked
+	// True = 16x16
+	// False = 16x8
+bool canWalkEnemy(float x, float y, bool flying, bool fullTile)
+{
+	// If the full 16x16 grid needs to be checked
+	if(fullTile)
+	{
+		// Check all 4 corners of the grid and make sure they're not solid
+		if(canWalkEnemy(x, y, flying) )
+		{
+			if ( canWalkEnemy(x + 8, y, flying) )
+			{				
+				if (canWalkEnemy(x + 15, y, flying) )
+				{
+					if (canWalkEnemy(x, y + 8, flying) )
+					{
+						if ( canWalkEnemy(x + 15, y + 8, flying) )
+						{
+							if ( canWalkEnemy(x, y + 15, flying) )
+							{
+								if ( canWalkEnemy(x + 8, y + 15, flying) )
+								{
+									if ( canWalkEnemy(x + 15, y + 15, flying))
+									{
+										// If they are not, return true
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+							
+		// Else one of the 4 corners of the grid is solid
+		// Return false
+		return false;
+	}
+	// Else the bottom half of the grid has to be checked
+	else
+	{
+		// Check all 4 corners of the grid and make sure they're not solid
+		if(canWalkEnemy(x, y + 8, flying) )
+		{
+			if ( canWalkEnemy(x + 8, y + 8, flying) )
+			{
+				if ( canWalkEnemy(x + 15, y + 8, flying) )
+				{
+					if ( canWalkEnemy(x, y + 15, flying) )
+					{
+						if (canWalkEnemy(x + 8, y + 15, flying) )
+						{
+							if ( canWalkEnemy(x + 15, y + 15, flying))
+							{
+								// If they are not, return truee
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		// Else one of the 4 corners of the bottom half of the grid is solid
+		return false;
+	}
+}
+
+// Same as above, but checks a full rectangle
+bool canWalk(float x1, float y1, float x2, float y2, bool flying)
+{
+	// Ensure (x1,y1) is the top left and (x2,y2) which
+	if(x1 > x2)
+	{
+		int temp = x1;
+		x1 = x2;
+		x2 = temp;
+	}
+	
+	if(y1 > y2)
+	{
+		int temp = y1;
+		y1 = y2;
+		y2 = temp;
+	}
+	
+	// Go through each 
+	for(int x = x1; x < x2; x += 8)
+	{
+		if(canWalkEnemy(x, y1, flying))
+			return false;
+		if(canWalkEnemy(x, y2, flying))
+			return false;
+	}
+	
+	for(int y = y1; y < y2; y += 8)
+	{
+		if(canWalkEnemy(x1, y, flying))
+			return false;
+		if(canWalkEnemy(x2, y, flying))
+			return false;
+	}
+	
+	if(canWalkEnemy(x2, y2, flying))
+		return false;
+	
+	return true;
+}
+
+// Function to see if Link has hit a square
+bool LinkCollision(int x1, int y1, int x2, int y2) 
+{
+	// Grab the bottom right of Link
+	int ax = Link->X + Link->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+
+	// Check the collision
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, x1, y1, x2, y2);
+}
+
+// Quickly edit the appearance of a ffc
+// 		Object is a reference to the ffc to edit.
+void editFFC(ffc object, int x, int y, int combo, int cset)
+{
+	object->X = x;
+	object->Y = y;
+	object->Data = combo;
+	object->CSet = cset;
+}
+
+// Overload of the above that just edits the position
+void editFFC(ffc object, int x, int y)
+{
+	editFFC(object, x, y, object->Data, object->CSet);
+}
+
+// Basic function to handle secret flags.  Returns true if a secret flag is activated
+// These are scripted mimics of the ZQuest secret combo flags, but have a bit more flexibility for scripting.
+bool checkCFlag(int x, int y, int x2, int y2, int flag)
+{
+	// Flag for regular arrows
+	switch(flag)
+	{
+		case CF_ARROW:
+		{
+			// Loop through all weapons
+			for (int i = Screen->NumLWeapons; i > 0; --i)
+			{
+				lweapon current = Screen->LoadLWeapon(i);
+				
+				// Check if it's the right weapon
+				if(current->ID == LW_ARROW)
+				{
+					// Check if there was a collision
+					if(WeaponCollision(current, x, y, x2, y2))
+					{
+						current->DeadState = WDS_DEAD;
+						return true;
+					}
+				}
+			}
+			
+			// Else it didn't hit
+			return false;
+		}
+		// Flag for the bombs
+		case CF_BOMB:
+		{
+			// Loop through all weapons
+			for (int i = Screen->NumLWeapons; i > 0; --i)
+			{
+				lweapon current = Screen->LoadLWeapon(i);
+				
+				// Check if it's the right weapon
+				if(current->ID == LW_BOMBBLAST)
+				{
+					// Check if there was a collision
+					if(WeaponCollision(current, x, y, x2, y2))
+					{
+						return true;
+					}
+				}
+			}
+			
+			// Else it didn't hit
+			return false;
+		}
+		// Flag for the wand's magic
+		case CF_WANDMAGIC:
+		{
+			// Loop through all weapons
+			for (int i = Screen->NumLWeapons; i > 0; --i)
+			{
+				lweapon current = Screen->LoadLWeapon(i);
+				
+				// Check if it's the right weapon
+				if(current->ID == LW_MAGIC)
+				{
+					// Check if there was a collision
+					if(WeaponCollision(current, x, y, x2, y2))
+					{
+						current->DeadState = WDS_DEAD;
+						return true;
+					}
+				}
+			}
+			
+			// Else it didn't hit
+			return false;
+		}
+		// Flag for a boomerang
+		case CF_BRANG1:
+		case CF_BRANG2:
+		case CF_BRANG3:
+		{
+			
+			// Loop through all weapons
+			for (int i = Screen->NumLWeapons; i > 0; --i)
+			{
+				lweapon current = Screen->LoadLWeapon(i);
+				
+				// Check if it's the right weapon
+				if(current->ID == LW_BRANG)
+				{
+					// Check if there was a collision
+					if(WeaponCollision(current, x, y, x2, y2))
+					{
+						current->DeadState = WDS_BOUNCE;
+						return true;
+					}
+				}
+			}
+			
+			// Else it didn't hit
+			return false;
+			
+		}
+		// Flag for a sword
+		case CF_SWORD1:
+		case CF_SWORD2:
+		case CF_SWORD3:
+		{
+			
+			// Loop through all weapons
+			for (int i = Screen->NumLWeapons; i > 0; --i)
+			{
+				lweapon current = Screen->LoadLWeapon(i);
+				
+				// Check if it's the right weapon
+				if(current->ID == LW_SWORD)
+				{
+					// Check if there was a collision
+					if(WeaponCollision(current, x, y, x2, y2))
+						return true;
+				}
+			}
+			
+			// Else it didn't hit
+			return false;
+			
+		}
+		// Flag for a hookshot
+		case CF_HOOKSHOT:
+		{
+			// Loop through all weapons
+			for (int i = Screen->NumLWeapons; i > 0; --i)
+			{
+				lweapon current = Screen->LoadLWeapon(i);
+				
+				// Check if it's the right weapon
+				if(current->ID == LW_HOOKSHOT)
+				{
+					// Check if there was a collision
+					if(WeaponCollision(current, x, y, x2, y2))
+					{
+						current->DeadState = WDS_BOUNCE;
+						return true;
+					}
+				}
+			}
+			
+			// Else it didn't hit
+			return false;
+		}
+		// Flag for a hammer
+		case CF_HAMMER:
+		{
+			// Loop through all weapons
+			for (int i = Screen->NumLWeapons; i > 0; --i)
+			{
+				lweapon current = Screen->LoadLWeapon(i);
+				
+				// Check if it's the right weapon
+				if(current->ID == LW_HAMMER)
+				{
+					// Check if there was a collision
+					if(WeaponCollision(current, x, y, x2, y2))
+					{
+						current->DeadState = WDS_DEAD;
+						return true;
+					}
+				}
+			}
+			
+			// Else it didn't hit
+			return false;
+		}
+		// Flag for any weapon
+		case CF_STRIKE:
+		{
+			// Loop through all weapons
+			for (int i = Screen->NumLWeapons; i > 0; --i)
+			{
+				lweapon current = Screen->LoadLWeapon(i);
+				
+				if(current->ID == LW_SPARKLE) continue;
+		    if(current->ID == LW_FIRESPARKLE) continue;
+		    if(current->ID == LW_BOMB) continue;
+		    if(current->ID == LW_SBOMB) continue;
+		    if(current->ID == LW_BAIT) continue;
+		    if(current->DeadState > 0 ) 
+		    {
+			    if(current->ID != LW_BRANG) continue;
+		    }
+		    if(!current->CollDetection) continue;
+				
+				if(WeaponCollision(current, x, y, x2, y2))
+				{
+					if(current->ID == LW_BRANG || current->ID == LW_HOOKSHOT)
+						current->DeadState = WDS_BOUNCE;
+					else
+						current->DeadState = WDS_DEAD;
+					return true;
+				}
+			}
+			
+			// Else it didn't hit
+			return false;
+		}
+		// Flag for a Link step switch
+		case CF_STEP:
+		{
+			x = Floor(x / 16) * 16;
+			y = Floor(y / 16) * 16;
+			
+			// If the distance from the switch to Link is <= 4 pixels
+			if(Distance(Link->X, Link->Y, x, y) <= 6)
+				return true;
+		}
+		default: return false;
+	}
+	
+	return false;
+}//! End of bool checkCFlag(int x, int y, int x2, int y2, int flag)
+
+// Function for a 16x16 secret flag
+bool checkCFlag(int x, int y, int flag)
+{
+	// Check the given 16x16 span for the flag
+	return checkCFlag(x+2, y+2, x+13, y+13, flag);
+}
+
+// Function for a FFC secret flag
+bool checkCFlag(ffc object, int flag)
+{
+	// Check the span of the ffc for the flag
+	return checkCFlag(object->X+2, object->Y+2, object->X+object->EffectWidth-3, object->Y+object->EffectHeight-3, flag);
+}
+
+// Function for an eweapon secret flag
+bool checkCFlag(eweapon object, int flag)
+{
+	// Check the span of the eweapon for the flag
+	int ax = object->X + object->HitXOffset;
+	int ay = object->Y + object->HitYOffset;
+
+	return checkCFlag(ax, ay, ax+object->HitWidth, ay+object->HitHeight, flag);
+}
+
+// Function for an npc secret flag
+bool checkCFlag(npc object, int flag)
+{
+	// Check the span of the eweapon for the flag
+	int ax = object->X + object->HitXOffset;
+	int ay = object->Y + object->HitYOffset;
+
+	return checkCFlag(ax+2, ay+2, ax+object->HitWidth-3, ay+object->HitHeight-3, flag);
+}
+
+// Function to wait until a secret flag happens in a rectangle
+void waitUntilCFlag(int x1, int y1, int x2, int y2, int flag)
+{
+	while(!checkCFlag(x1, y1, x2, y2, flag))
+		Waitframe();
+}
+
+// Function to wait until a secret flag happens in a 16x16 location
+void waitUntilCFlag(int x, int y, int flag)
+{
+	while(!checkCFlag(x, y, flag))
+		Waitframe();
+}
+
+// Function to wait until a secret flag happens on a FFC
+void waitUntilCFlag(ffc object, int flag)
+{
+	while(!checkCFlag(object, flag))
+		Waitframe();
+}
+
+// Normal CFlag function on a rectangle that will wait until one happens, then activate secrets
+void CFlag(int x1, int y1, int x2, int y2, int flag, bool SFX)
+{
+	// Wait until the location was hit
+	waitUntilCFlag(x1, y1, x2, y2, flag);
+	
+	// Activate secrets
+	Screen->TriggerSecrets();
+	
+	// If requested, play the normal secret SFX
+	if(SFX)
+		Audio->PlaySound(SFX_SECRET);
+}
+
+// Normal CFlag function on combo that will wait until one happens, then activate secrets
+void CFlag(int x, int y, int flag, bool SFX)
+{
+	// Wait until the location was hit
+	waitUntilCFlag(x, y, flag);
+	
+	// Activate secrets
+	Screen->TriggerSecrets();
+	
+	// If requested, play the normal secret SFX
+	if(SFX)
+		Audio->PlaySound(SFX_SECRET);
+}
+
+// Normal CFlag function on combo that will wait until one happens, then activate secrets
+void CFlag(ffc object, int flag, bool SFX)
+{
+	// Wait until the location was hit
+	waitUntilCFlag(object, flag);
+	
+	// Activate secrets
+	Screen->TriggerSecrets();
+	
+	// If requested, play the normal secret SFX
+	if(SFX)
+		Audio->PlaySound(SFX_SECRET);
+}
+
+// Checks if the given direction is the only direction being pressed.
+bool isOnlyDirection(int direction)
+{
+	int directions = 0;
+	// Add up the directions with an offset of 1 (so that Up registers as something)
+	if(Link->InputUp)
+		directions += DIR_UP + 1;
+	if(Link->InputDown)
+		directions += DIR_DOWN + 1;
+	if(Link->InputLeft)
+		directions += DIR_LEFT + 1;
+	if(Link->InputRight)
+		directions += DIR_RIGHT + 1;
+		
+	// Remove offset and do final check...
+	if(directions - 1 == direction)
+		return true;
+	else
+		return false;
+}//!End isOnlyDirection
+
+// Function to move a FFC in the direction of a radian angle
+void ffcAngularMovement(ffc theffc, float angle, int speed)
+{
+	// First find out the x and y unit circle values
+	int unitX = RadianCos(angle);
+	int unitY = RadianSin(angle);
+	
+	// Set the ffc's Vx and Vy to speed * unit circle value
+	theffc->Vx = unitX * speed;
+	theffc->Vy = unitY * speed;
+}
+
+// Function to tell if Link is about to leave the screen
+bool leavingScreen()
+{
+	if(Link->X <= 1 )
+	{
+		if ( Link->InputLeft) return true;
+	}
+	else if(Link->Y <= 1 )
+	{
+		if ( Link->InputUp) return true;
+	}
+	else if(Link->X >= 239 )
+	{
+		if ( Link->InputRight) return true;
+	}
+	else if(Link->Y >= 159 )
+	{		
+		if (Link->InputDown) return true;
+	}
+	return false;
+}
+
+// Function to see if a box has collided with a line
+bool lineBoxCollision(int lineX1, int lineY1, int lineX2, int lineY2, int boxX1, int boxY1, int boxX2, int boxY2, int boxBorder)
+{
+	// Shrink down the box for the border
+	boxX1 += boxBorder; boxY1 += boxBorder;
+	boxX2 -= boxBorder; boxY2 -= boxBorder;
+	
+	// If the line isn't vertical
+	if(lineX2!=lineX1)
+	{
+		
+		float i0 = (boxX1 - lineX1)/(lineX2-lineX1);
+		float i1 = (boxX2 - lineX1)/(lineX2-lineX1);
+		
+		float yA = lineY1 + i0*(lineY2-lineY1);
+		float yB = lineY1 + i1*(lineY2-lineY1);
+		
+		
+		if(Max(boxX1, boxX2) >= Min(lineX1, lineX2))
+		{
+			if ( Min(boxX1, boxX2) <= Max(lineX1, lineX2) )
+			{
+				if (Max(boxY1, boxY2) >= Min(lineY1, lineY2) )
+				{
+					if (Min(boxY1, boxY2) <= Max(lineY1, lineY2))
+					{
+						if(Min(boxY1, boxY2) > Max(yA, yB) || Max(boxY1, boxY2) < Min(yA, yB))
+							return false;
+						else
+							return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	// If the line is vertical
+	else 
+	{
+		if(lineX1 >= boxX1 )
+		{
+			if (lineX1 <= boxX2)
+			{
+				// Basically we need to find the top and bottom y values of the line to check for intersection
+				float lineYMin = lineY1;
+				float lineYMax = lineY2;
+				
+				if(lineYMin > lineYMax)
+				{
+					lineYMin = lineY2;
+					lineYMax = lineY1;
+				}
+				
+				// If either point intersects
+				if(boxY1 >= lineYMin )
+				{
+					if ( boxY1 <= lineYMax) return true;
+				}
+					
+				
+				if (boxY2 >= lineYMin )
+				{
+					if ( boxY2 <= lineYMax) return true;
+				}
+			}
+		}
+	}
+	return false;
+} //! End of lineBoxCollision
+
+// Function to get the difference between two angles
+float angleDifference(float angle1, float angle2)
+{
+	// Get the difference between the two angles
+	float dif = angle2 - angle1;
+	
+	// Compensate for the difference being outside of normal bounds
+	if(dif >= PI)
+		dif -= 2 * PI;
+	else if(dif <= -1 * PI)
+		dif += 2 * PI;
+		
+	return dif;
+}
+
+// Function to get the difference between two angles
+float angleDifferenceDegrees(float angle1, float angle2)
+{
+	RadtoDeg(angleDifference(DegtoRad(angle1), DegtoRad(angle2)));
+}
+
+// Function to tell if a location is inside the screen
+bool inScreen(int x, int y)
+{
+	if ( x >= 0 )
+	{
+		if ( x < 256 )
+		{
+			if ( y >= 0 )
+			{
+				if ( y < 168 )
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+	//return (x >= 0 && x < 256 && y >= 0 && y < 168);
+}
+
+// This function draws a particular string with a border around it
+void drawStringBordered(int layer, int x, int y, int font, int textColor, int borderColor, int alignment, int text, int opacity)
+{
+	Screen->DrawString(layer, x-1, y-1, font, borderColor, -1, alignment, text, opacity);
+	Screen->DrawString(layer, x, y-1, font, borderColor, -1, alignment, text, opacity);
+	Screen->DrawString(layer, x+1, y-1, font, borderColor, -1, alignment, text, opacity);
+	Screen->DrawString(layer, x-1, y, font, borderColor, -1, alignment, text, opacity);
+	Screen->DrawString(layer, x+1, y, font, borderColor, -1, alignment, text, opacity);
+	Screen->DrawString(layer, x-1, y+1, font, borderColor, -1, alignment, text, opacity);
+	Screen->DrawString(layer, x, y+1, font, borderColor, -1, alignment, text, opacity);
+	Screen->DrawString(layer, x+1, y+1, font, borderColor, -1, alignment, text, opacity);
+	Screen->DrawString(layer, x, y, font, textColor, -1, alignment, text, opacity);
+}
+
+void drawIntegerBordered(int layer, int x, int y, int font, int textColor, int borderColor, int number, int opacity)
+{
+	Screen->DrawInteger(layer, x-1, y-1, font, borderColor, -1, -1, -1, number, 0, opacity);
+	Screen->DrawInteger(layer, x, y-1, font, borderColor, -1, -1, -1, number, 0, opacity);
+	Screen->DrawInteger(layer, x+1, y-1, font, borderColor, -1, -1, -1, number, 0, opacity);
+	Screen->DrawInteger(layer, x-1, y, font, borderColor, -1, -1, -1, number, 0, opacity);
+	Screen->DrawInteger(layer, x+1, y, font, borderColor, -1, -1, -1, number, 0, opacity);
+	Screen->DrawInteger(layer, x-1, y+1, font, borderColor, -1, -1, -1, number, 0, opacity);
+	Screen->DrawInteger(layer, x, y+1, font, borderColor, -1, -1, -1, number, 0, opacity);
+	Screen->DrawInteger(layer, x+1, y+1, font, borderColor, -1, -1, -1, number, 0, opacity);
+	Screen->DrawInteger(layer, x, y, font, textColor, -1, -1, -1, number, 0, opacity);
+}
+
+void drawCharacterBordered(int layer, int x, int y, int font, int textColor, int borderColor, int glyph, int opacity){
+	Screen->DrawCharacter(layer, x-1, y-1, font, borderColor, -1, -1, -1, glyph, opacity);
+	Screen->DrawCharacter(layer, x, y-1, font, borderColor, -1, -1, -1, glyph, opacity);
+	Screen->DrawCharacter(layer, x+1, y-1, font, borderColor, -1, -1, -1, glyph, opacity);
+	Screen->DrawCharacter(layer, x-1, y, font, borderColor, -1, -1, -1, glyph, opacity);
+	Screen->DrawCharacter(layer, x+1, y, font, borderColor, -1, -1, -1, glyph, opacity);
+	Screen->DrawCharacter(layer, x-1, y+1, font, borderColor, -1, -1, -1, glyph, opacity);
+	Screen->DrawCharacter(layer, x, y+1, font, borderColor, -1, -1, -1, glyph, opacity);
+	Screen->DrawCharacter(layer, x+1, y+1, font, borderColor, -1, -1, -1, glyph, opacity);
+	Screen->DrawCharacter(layer, x, y, font, textColor, -1, -1, -1, glyph, opacity);
+}

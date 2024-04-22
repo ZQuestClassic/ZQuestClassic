@@ -315,7 +315,7 @@ Function* ZScript::lookupSetter(Scope const& scope, string const& name)
 	return NULL;
 }
 
-vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
+vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass, bool skipParamCheck)
 {
 	set<Function*> functions;
 	Scope const* current = &scope;
@@ -331,7 +331,8 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 		if(current->isFile())
 			foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
-		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+		if (!skipParamCheck)
+			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	if(!noUsing)
@@ -342,7 +343,8 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 		{
 			NamespaceScope* nsscope = *it;
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
-			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+			if (!skipParamCheck)
+				trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
@@ -351,12 +353,12 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 }
 
 vector<Function*> ZScript::lookupFunctions(
-		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
+		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass, bool skipParamCheck)
 {
 	if (names.size() == 0)
 		return vector<Function*>();
 	else if (names.size() == 1)
-		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass);
+		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass, skipParamCheck);
 
 	vector<Function*> functions;
 	string const& name = names.back();
@@ -376,7 +378,8 @@ vector<Function*> ZScript::lookupFunctions(
 		}
 		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
-		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+		if (!skipParamCheck)
+			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
@@ -388,7 +391,8 @@ vector<Function*> ZScript::lookupFunctions(
 		{
 			Scope& current = **it;
 			vector<Function*> currentFunctions = current.getLocalFunctions(name);
-			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+			if (!skipParamCheck)
+				trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 			functions.insert(functions.end(),
 							 currentFunctions.begin(), currentFunctions.end());
 		}
@@ -1185,7 +1189,7 @@ ClassScope* BasicScope::makeClassChild(UserClass& user_class)
 
 NamespaceScope* BasicScope::makeNamespaceChild(ASTNamespace& node)
 {
-	string name = node.name;
+	string name = node.getName();
 	if (Scope* scope = getChild(name))
 	{
 		if(scope->isNamespace()) return static_cast<NamespaceScope*>(scope);
@@ -1295,7 +1299,7 @@ Function* BasicScope::addFunction(
 				std::optional<int32_t> val = foundFunc->defaultReturn;
 				if(!defRet || !val || (*defRet != *val)) //Different or erroring default returns
 				{
-					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
+					handler->handleError(CompileError::BadDefaultReturn(node, node->getName()));
 					return NULL;
 				}
 				else //Same default return; disable duplicate prototype without error
@@ -1487,7 +1491,7 @@ std::optional<int32_t> BasicScope::getLocalStackOffset(Datum const& datum) const
 // FileScope
 
 FileScope::FileScope(Scope* parent, string const& filename)
-	: BasicScope(parent, NULL), filename_(filename)
+	: BasicScope(parent, NULL, filename), filename_(filename)
 {
 	//defaultOption_ = CompileOptionSetting::Default; //No, let it default to `Inherit`. -V
 }
@@ -1521,7 +1525,7 @@ ClassScope* FileScope::makeClassChild(UserClass& user_class)
 
 NamespaceScope* FileScope::makeNamespaceChild(ASTNamespace& node)
 {
-	string name = node.name;
+	string name = node.getName();
 	if (Scope* scope = find<Scope*>(children_, name).value_or(std::add_pointer<Scope>::type()))
 	{
 		if(scope->isNamespace())
@@ -2134,7 +2138,7 @@ Function* ClassScope::addFunction(
 				std::optional<int32_t> val = foundFunc->defaultReturn;
 				if(!defRet || !val || (*defRet != *val)) //Different or erroring default returns
 				{
-					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
+					handler->handleError(CompileError::BadDefaultReturn(node, node->getName()));
 					return NULL;
 				}
 				else //Same default return; disable duplicate prototype without error

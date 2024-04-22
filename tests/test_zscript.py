@@ -11,6 +11,7 @@
 # To add a new script to the tests, simply add it to tests/scripts.
 
 import argparse
+import json
 import os
 import sys
 import unittest
@@ -58,6 +59,7 @@ class TestZScript(ZCTestCase):
             ';'.join(include_paths),
             '-unlinked',
             '-delay_cassert',
+            '-metadata',
         ]
         p = run_target.run('zscript', args)
         stdout = p.stdout.replace(str(script_path), script_path.name)
@@ -66,22 +68,52 @@ class TestZScript(ZCTestCase):
 
         zasm = zasm_path.read_text()
 
-        # Remove metadata.
+        # Remove metadata from ZASM.
         zasm = '\n'.join(
             [l.strip() for l in zasm.splitlines() if not l.startswith('#')]
         ).strip()
+
+        # Run the compiler '-metadata' for every script for coverage, but only keep
+        # the full results in the stdout for this one script.
+        elide_metadata = script_path.name != 'metadata.zs'
+
+        def recursive_len(l):
+            if not l:
+                return 0
+            else:
+                c = len(l)
+                for child in l:
+                    c += recursive_len(child['children'])
+                return c
+
+        lines = stdout.splitlines(keepends=True)
+        start = lines.index('=== METADATA\n') + 1
+        end = lines.index('}\n', start) + 1
+        metadata = json.loads(''.join(lines[start:end]))
+        if elide_metadata:
+            metadata['currentFileSymbols'] = recursive_len(
+                metadata['currentFileSymbols']
+            )
+            metadata['symbols'] = len(metadata['symbols'])
+            metadata['identifiers'] = len(metadata['identifiers'])
+        else:
+            for symbol in metadata['symbols'].values():
+                symbol['loc']['uri'] = 'URI'
+        lines[start:end] = json.dumps(metadata, indent=2).splitlines(keepends=True)
+        lines[start - 1] = '=== METADATA (elided)\n'
+        stdout = ''.join(lines)
 
         return '\n'.join([stdout, zasm])
 
     def test_zscript_compiler_expected_zasm(self):
         for script_path in test_scripts_dir.rglob('*.zs'):
             with self.subTest(msg=f'compile {script_path.name}'):
-                zasm = self.compile_script(script_path)
+                output = self.compile_script(script_path)
                 script_subpath = script_path.relative_to(test_scripts_dir)
                 expected_path = expected_dir / script_subpath.with_name(
                     f'{script_subpath.stem}_expected.txt'
                 )
-                self.expect_snapshot(expected_path, zasm, args.update)
+                self.expect_snapshot(expected_path, output, args.update)
 
 
 if __name__ == '__main__':

@@ -53,12 +53,12 @@ ffc script FifteenPuzzle{
 					int curpos = ComboAt(CenterLinkX(), CenterLinkY());
 					int blankpos = FindAdjacentBlankPos(curpos, cmb[15], startpos);
 					if (blankpos>=0){
-						Game->PlaySound(SFX_FIFTEEN_PUZZLE_MOVE);
+						Audio->PlaySound(SFX_FIFTEEN_PUZZLE_MOVE);
 						SwapCombos(curpos, blankpos);
 						for (int i=0; i<16;i++){
 							if (Screen->ComboD[pos[i]]!=cmb[i]) break;
 							else if (i==15){								
-								Game->PlaySound(SFX_FIFTEEN_PUZZLE_SOLVED);
+								Audio->PlaySound(SFX_FIFTEEN_PUZZLE_SOLVED);
 								Screen->TriggerSecrets();
 								Screen->State[ST_SECRET]=true;
 								Quit();

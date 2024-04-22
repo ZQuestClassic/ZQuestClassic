@@ -70,6 +70,7 @@ private:
 	std::shared_ptr<GUI::SelTileSwatch> tswatch;
 	std::shared_ptr<GUI::SelComboSwatch> cycleswatch;
 	std::shared_ptr<GUI::TileFrame> animFrame;
+	std::shared_ptr<GUI::TextField> req_litems_field, trig_buttons_field, spawned_ip_field;
 	
 	string h_initd[8], h_attribute[4], h_attribyte[8],
 		h_attrishort[8], h_flag[16];

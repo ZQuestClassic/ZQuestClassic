@@ -4,6 +4,7 @@
 #include <cstring>
 #include <ctype.h>
 
+#include "zasm/table.h"
 #include "zc/ffscript.h"
 #include "zq/ffasm.h"
 
@@ -21,9 +22,6 @@ using std::string;
 using std::ostringstream;
 
 extern char *datapath, *temppath;
-
-extern script_command command_list[];
-extern script_variable variable_list[];
 
 int32_t ffparse(char const* string)
 {
@@ -553,44 +551,12 @@ zasmfile_fail_str:
 
 int32_t set_argument(char const* argbuf, int32_t& arg)
 {
-	int32_t i=0;
-	char tempvar[80];
-	
-	while(variable_list[i].id>-1)
+	if (auto var = get_script_variable(argbuf))
 	{
-		if(variable_list[i].maxcount>1)
-		{
-			for(int32_t j=0; j<variable_list[i].maxcount; ++j)
-			{
-#ifndef _MSC_VER
-				if (__builtin_strlen(variable_list[i].name) > sizeof(((script_variable*)0)->name))
-					__builtin_unreachable();
-#endif
-
-				if(strcmp(variable_list[i].name,"A")==0)
-					sprintf(tempvar, "%s%d", variable_list[i].name, j+1);
-				else sprintf(tempvar, "%s%d", variable_list[i].name, j);
-				
-				if(stricmp(argbuf,tempvar)==0)
-				{
-					int32_t temp = variable_list[i].id+(j*zc_max(1,variable_list[i].multiple));
-					arg = temp;
-					return 1;
-				}
-			}
-		}
-		else
-		{
-			if(stricmp(argbuf,variable_list[i].name)==0)
-			{
-				arg = variable_list[i].id;
-				return 1;
-			}
-		}
-		
-		++i;
+		arg = *var;
+		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -678,7 +644,8 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, scr
 	
 	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
 	{
-		if(strcmp(combuf,command_list[i].name)==0)
+		auto& sc = get_script_command(i);
+		if(strcmp(combuf,sc.name)==0)
 		{
 			found_command=true;
 			zas.command = i;
@@ -702,15 +669,15 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, scr
 			}
 			auto& op = (*script)->zasm[com];
 			int *args[] = {&op.arg1, &op.arg2, &op.arg3};
-			for(int q = (is_goto ? 1 : 0); q < command_list[i].args; ++q)
+			for(int q = (is_goto ? 1 : 0); q < sc.args; ++q)
 			{
-				if(!handle_arg(command_list[i].arg_type[q], argbufs[q], *(args[q])))
+				if(!handle_arg(sc.arg_type[q], argbufs[q], *(args[q])))
 				{
 					retcode = ERR_PARAM1+q;
 					return 0;
 				}
 			}
-			if(byte b = command_list[i].arr_type)
+			if(byte b = sc.arr_type)
 			{
 				if(!(b&0x1) != !sptr) //string
 				{

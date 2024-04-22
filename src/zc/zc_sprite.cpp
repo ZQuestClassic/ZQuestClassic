@@ -53,6 +53,7 @@ void sprite::check_conveyor()
 void sprite::handle_sprlighting()
 {
 	if(!get_qr(qr_NEW_DARKROOM)) return;
+	if(!room_is_dark) return;
 
 	int x0 = x.getInt()+(hit_width/2);
 	int y0 = y.getInt()+(hit_height/2);

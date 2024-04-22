@@ -68,7 +68,7 @@ npc Ghost_InitWait(ffc this, int enemyIndex, bool useEnemyPos)
     // Wait until there are enough enemies
     for(int i=0; i<4; i++)
     {
-        if(Screen->NumNPCs()>=enemyIndex)
+        if(Screen->NumNPCs>=enemyIndex)
         {
             npc ghost=Screen->LoadNPC(enemyIndex);
             __Ghost_InitInternal(this, ghost, useEnemyPos, combo, this->CSet);
@@ -92,7 +92,7 @@ npc Ghost_InitWait2(ffc this, int enemyID, bool useEnemyPos)
     for(int i=0; i<4; i++)
     {
         // Find the right enemy
-        for(int j=1; j<=Screen->NumNPCs(); j++)
+        for(int j=1; j<=Screen->NumNPCs; j++)
         {
             ghost=Screen->LoadNPC(j);
             
@@ -127,7 +127,7 @@ npc Ghost_InitAutoGhost(ffc this, int enemyID)
     npc ghost; bool found = true;
     
     // Find the right enemy
-    for(int i=Screen->NumNPCs(); i>0; --i)
+    for(int i=Screen->NumNPCs; i>0; --i)
     {
         ghost=Screen->LoadNPC(i);
         
@@ -174,7 +174,7 @@ npc Ghost_InitAutoGhost(ffc this, int enemyID)
 	int error2[30]="  DMap %d, screen %X\n";
 	int error3[30]="  Script %d, enemy ID %d\n";
 	printf(error1);
-	printf(error2, Game->GetCurDMap(), Game->GetCurDMapScreen());
+	printf(error2, Game->CurDMap, Game->CurDMapScreen);
 	printf(error3, this->Script, enemyID);
 	    
 	__GhCleanUp(this);
@@ -188,7 +188,7 @@ npc Ghost_InitAutoGhost(ffc this, int enemyID)
 	npc ghost; bool found;
 	
 	// Find the right enemy
-	for(int i=Screen->NumNPCs(); i>0; --i)
+	for(int i=Screen->NumNPCs; i>0; --i)
 	{
 		ghost=Screen->LoadNPC(i);
 		
@@ -220,7 +220,7 @@ npc Ghost_InitAutoGhost(ffc this, int enemyID)
 	int error2[30]="  DMap %d, screen %X\n";
 	int error3[30]="  Script %d, enemy ID %d\n";
 	printf(error1);
-	printf(error2, Game->GetCurDMap(), Game->GetCurDMapScreen());
+	printf(error2, Game->CurDMap, Game->CurDMapScreen);
 	printf(error3, this->Script, enemyID);
 	
 	this->Data=0;

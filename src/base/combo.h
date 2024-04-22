@@ -96,6 +96,13 @@ struct newcombo
 	word trig_genscr;
 	byte trig_group;
 	word trig_group_val;
+	byte trig_levelitems;
+	int16_t trigdmlevel = -1;
+	int8_t trigtint[3]; //r,g,b range [-63,63]
+	int16_t triglvlpalette = -1, trigbosspalette = -1;
+	int16_t trigquaketime = -1, trigwavytime = -1;
+	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
+	byte trig_pushtime = 8;
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -276,6 +283,16 @@ struct newcombo
 #define combotriggerLWREFARROW          0x00080000
 #define combotriggerLWREFFIRE           0x00100000
 #define combotriggerLWREFFIRE2          0x00200000
+#define combotriggerTOGGLEDARK          0x00400000
+#define combotriggerCOND_DARK           0x00800000
+#define combotriggerCOND_NODARK         0x01000000
+#define combotriggerLITEM_COND          0x02000000
+#define combotriggerLITEM_REVCOND       0x04000000
+#define combotriggerLITEM_SET           0x08000000
+#define combotriggerLITEM_UNSET         0x10000000
+#define combotriggerTINT_CLEAR          0x20000000
+//#define combotrigger                    0x40000000
+//#define combotrigger                    0x80000000
 
 #define ctrigNONE                       0x00
 #define ctrigIGNORE_SIGN                0x01

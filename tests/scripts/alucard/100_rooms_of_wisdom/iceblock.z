@@ -153,7 +153,7 @@ ffc script ice_trigger {
 					}
 				}
 				if(good_counter == num_triggers) {
-				Game->PlaySound(SFX_SECRET);
+				Audio->PlaySound(SFX_SECRET);
 				Screen->TriggerSecrets();
 				if((Screen->Flags[SF_SECRETS] & 2) == 0) Screen->State[ST_SECRET] = true;
 				Quit();

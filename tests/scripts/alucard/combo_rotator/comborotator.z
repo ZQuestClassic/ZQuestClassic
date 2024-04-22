@@ -29,7 +29,7 @@ ffc script AdjacentComboRotator{
 			if ((origcmb==cmb)&&(Link->PressEx1)){
 				Link->X = ComboX(origcmb);
 				Link->Y = ComboY(origcmb);
-				Game->PlaySound(sound);
+				Audio->PlaySound(sound);
 				for (int i=0; i<8; i++){
 					arrcmb[i] = AdjacentComboFix(cmb, arrdir[i], 1);
 					arrdata[i] = Screen->ComboD[arrcmb[i]];

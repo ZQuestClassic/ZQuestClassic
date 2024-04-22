@@ -94,6 +94,8 @@ int wrap(int x,int low,int high);
 //Sizes
 #define MAX_SIGNED_32              (2147483647)
 #define MIN_SIGNED_32              (-2147483647-1)
+#define MAX_ZSCRIPT_INT            (214748)
+#define MIN_ZSCRIPT_INT            (-214748)
 #define MAX_DWORD                  dword(-1)
 #define MIN_DWORD                  0
 
@@ -194,6 +196,8 @@ int wrap(int x,int low,int high);
 #define NUM_INFOS                  256
 #define NUM_PAL_CYCLES             256
 #define NUM_WARP_RINGS             9
+#define NUM_BOTTLE_TYPES           64
+#define NUM_BOTTLE_SHOPS           256
 
 #define QSTPWD_LEN                 256
 
@@ -370,6 +374,22 @@ direction GET_YDIR(zfix const& sign);
 direction GET_DIR(zfix const& dx, zfix const& dy);
 direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy);
 #define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : dir_invalid)
+
+
+
+struct CheckListInfo
+{
+	std::string name, info;
+	byte flags;
+	static const byte DISABLED = 0x1;
+	
+	CheckListInfo(std::string name = "", std::string info = "")
+		: name(std::move(name)), info(std::move(info)), flags(0)
+	{}
+	CheckListInfo(byte flags, std::string name = "", std::string info = "")
+		: name(std::move(name)), info(std::move(info)), flags(flags)
+	{}
+};
 
 #endif
 

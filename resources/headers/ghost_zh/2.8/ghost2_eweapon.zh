@@ -96,7 +96,7 @@ eweapon FireEWeapon(int weaponID, int x, int y, float angle, int step, int damag
     if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
         SetEWeaponRotation(wpn);
     
-    Game->PlaySound(sound);
+    Audio->PlaySound(sound);
     
     return wpn;
 }
@@ -141,7 +141,7 @@ eweapon FireNonAngularEWeapon(int weaponID, int x, int y, int dir, int step, int
     
     wpn->Misc[__EWI_FLAGS]=flags|__EWFI_IS_GHZH_EWPN;
     
-    Game->PlaySound(sound);
+    Audio->PlaySound(sound);
     return wpn;
 }
 
@@ -197,7 +197,7 @@ eweapon CreateDummyEWeapon(int weaponID, int step, int damage, int sprite, int s
     wpn->Misc[__EWI_DUMMY_SPRITE]=sprite;
     
     // Give the weapon a unique ID number so it can be found later
-    for(int i=Screen->NumEWeapons(); i>0; i--)
+    for(int i=Screen->NumEWeapons; i>0; i--)
     {
         checkWpn=Screen->LoadEWeapon(i);
         if((checkWpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)==__EWFI_DUMMY_CHECK)
@@ -856,7 +856,7 @@ eweapon GetAssociatedEWeapon(int weaponID)
 {
     eweapon wpn;
     
-    for(int i=Screen->NumEWeapons(); i>0; i--)
+    for(int i=Screen->NumEWeapons; i>0; i--)
     {
         wpn=Screen->LoadEWeapon(i);
         if((wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY_CHECK)!=__EWFI_IS_GHZH_EWPN) // Filter out dummies

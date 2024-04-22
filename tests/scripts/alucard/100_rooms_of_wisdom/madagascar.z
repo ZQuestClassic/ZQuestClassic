@@ -38,7 +38,7 @@ ffc script MadagascarSolitaire{
 					if (LeaperMoveAdjacent(curpos, newcombo, 2, 0)){
 						int jumppos = ComboInBetween(curpos, newcombo);
 						if ((Screen->ComboD[jumppos] == cmbpeg)&&(Screen->ComboD[newcombo]== cmbempty)){
-							Game->PlaySound(MADAGASCAR_PUZZLE_MOVE);
+							Audio->PlaySound(MADAGASCAR_PUZZLE_MOVE);
 							Screen->ComboD[curpos] = cmbempty;
 							Screen->ComboD[jumppos] = cmbempty;
 							Screen->ComboD[newcombo] = cmbpeg;
@@ -48,7 +48,7 @@ ffc script MadagascarSolitaire{
 								if (Screen->ComboD[i] == cmbpeg) numpegs++;
 							} 
 							if (numpegs==1){
-								Game->PlaySound(MADAGASCAR_PUZZLE_SOLVED);
+								Audio->PlaySound(MADAGASCAR_PUZZLE_SOLVED);
 								Screen->TriggerSecrets();
 								Screen->State[ST_SECRET]=true;
 								Quit();
@@ -65,7 +65,7 @@ ffc script MadagascarSolitaire{
 	//Returns ID of a combo between chosen ones
 	int ComboInBetween(int loc1, int loc2){
 		if (!LeaperMoveAdjacent(loc1, loc2, 2, 0)){
-			Game->PlaySound(SFX_WAND);
+			Audio->PlaySound(SFX_WAND);
 			return -1;
 		}
 		for (int i=0; i<4; i++){

@@ -28,7 +28,7 @@ ffc script LttP_Bumper{
 		while(true){
 			if(Distance(CenterX(this), CenterY(this), CenterLinkX(), CenterLinkY())<this->TileWidth*8+2&&Link->Z==0){
 				if(this->InitD[7]==0){
-					Game->PlaySound(SFX_LTTP_BUMPER);
+					Audio->PlaySound(SFX_LTTP_BUMPER);
 					BounceAngle = Angle(CenterX(this), CenterY(this), CenterLinkX(), CenterLinkY());
 					BounceCounter = Bounce;
 					AnimationCounter = LTTP_BUMPER_ANIM_SPEED*4;

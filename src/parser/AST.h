@@ -250,6 +250,9 @@ namespace ZScript
 		// Filename and linenumber.
 		LocationData location;
 
+		// Documentation string associated with this node.
+		string doc_comment;
+
 		// List of expected compile error ids for this node. They are
 		// removed as they are encountered.
 		owning_vector<ASTExprConst> compileErrorCatches;
@@ -274,7 +277,10 @@ namespace ZScript
 		virtual bool isTypeArrayDecl() const {return false;}
 		virtual bool isStringLiteral() const {return false;}
 		virtual bool isArrayLiteral() const {return false;}
-		
+
+		virtual std::optional<LocationData> getIdentifierLocation() const {return std::nullopt;}
+		virtual Scope* getScope() const {return nullptr;}
+
 	private:
 		//If this node has been disabled, for some reason or other. This will prevent any visitor from visiting the node (instant return, without error)
 		bool disabled_;
@@ -367,6 +373,9 @@ namespace ZScript
 	public:
 		ASTString(const char* str,
 		          LocationData const& location = LOC_NONE);
+		ASTString(const char* str,
+				  std::string comment,
+		          LocationData const& location);
 		ASTString(std::string const& str,
 		          LocationData const& location = LOC_NONE);
 		ASTString* clone() const {return new ASTString(*this);}
@@ -374,7 +383,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
 		void append(std::string const& newstr) {str += newstr;}
-		std::string getValue() const {return str;}
+		const std::string& getValue() const {return str;}
 	private:
 		std::string str;
 	};
@@ -812,6 +821,10 @@ namespace ZScript
 		// Adds a declaration to the proper vector.
 		void addDeclaration(ASTDecl& declaration);
 
+		const std::string& getName() const {return identifier->getValue();}
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		owning_ptr<ASTString> identifier;
 		owning_ptr<ASTScriptType> type;
 		zasm_meta metadata;
 		owning_vector<ASTSetOption> options;
@@ -838,7 +851,10 @@ namespace ZScript
 		// Adds a declaration to the proper vector.
 		void addDeclaration(ASTDecl& declaration);
 
-		std::string name;
+		const std::string& getName() const {return identifier->getValue();}
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		owning_ptr<ASTString> identifier;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
@@ -857,18 +873,20 @@ namespace ZScript
 	class ASTNamespace : public ASTDecl
 	{
 	public:
-		ASTNamespace(LocationData const& location = LOC_NONE, std::string name = "");
+		ASTNamespace(LocationData const& location = LOC_NONE);
 		ASTNamespace* clone() const {return new ASTNamespace(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		Type getDeclarationType() const /*override*/ {return TYPE_NAMESPACE;}
-		
-		void setName(std::string newname) {name = newname;}
     
 		// Adds a declaration to the proper vector.
 		void addDeclaration(ASTDecl& declaration);
 
+		const std::string& getName() const {return identifier->getValue();}
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		owning_ptr<ASTString> identifier;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
@@ -879,7 +897,6 @@ namespace ZScript
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
 		owning_vector<ASTAssert> asserts;
-		std::string name;
 		
 		Namespace* namesp;
 	};
@@ -963,12 +980,15 @@ namespace ZScript
 		int32_t getFlags() const {return flags;}
 		bool isRun() const;
 
+		const std::string& getName() const;
+		std::optional<LocationData> getIdentifierLocation() const;
+		Scope* getScope() const {return parentScope;}
+
+		owning_ptr<ASTExprIdentifier> identifier;
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
 		owning_vector<ASTExprConst> optparams;
 		std::vector<int32_t> optvals;
-		owning_ptr<ASTExprIdentifier> iden;
-		std::string name;
 		owning_ptr<ASTBlock> block;
 		std::string invalidMsg;
 		Function* func;
@@ -1044,6 +1064,12 @@ namespace ZScript
 		DataType const* resolve_ornull(Scope* scope, CompileErrorHandler* errorHandler);
 
 		void replaceType(DataType const& newty);
+
+		const std::string& getName() const {return identifier->getValue();}
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		// The symbol this declaration is binding.
+		owning_ptr<ASTString> identifier;
 		
 		// The list containing this declaration. Should be set by that list when
 		// this is added.
@@ -1058,9 +1084,6 @@ namespace ZScript
 		// should be used instead in that case.
 		owning_ptr<ASTDataType> baseType;
 
-		// The symbol this declaration is binding.
-		std::string name;
-
 		// Extra array type for this specific declaration. The final type is the
 		// list's base type combined with these.
 		owning_vector<ASTDataDeclExtraArray> extraArrays;
@@ -1070,6 +1093,8 @@ namespace ZScript
 		void setFlag(uint flg, bool state = true) {SETFLAG(flags,flg,state);}
 		static const uint FL_FORCE_VAR = 0x01;
 		static const uint FL_SKIP_EMPTY_INIT = 0x02;
+
+		Scope* getScope() const;
 
 	private:
 		// The initialization expression. Optional.
@@ -1337,6 +1362,7 @@ namespace ZScript
 	
 		// The identifier components separated by '.' or '::'.
 		std::vector<std::string> components;
+		std::vector<std::shared_ptr<ASTString>> componentNodes;
 		//Which symbol was used to delimit each?
 		std::vector<std::string> delimiters;
 
@@ -1352,8 +1378,8 @@ namespace ZScript
 	class ASTExprArrow : public ASTExpr
 	{
 	public:
-		ASTExprArrow(ASTExpr* left = NULL,
-		             std::string const& right = "",
+		ASTExprArrow(ASTExpr* left,
+		             ASTString* right,
 		             LocationData const& location = LOC_NONE);
 		ASTExprArrow* clone() const {return new ASTExprArrow(*this);}
 
@@ -1371,7 +1397,7 @@ namespace ZScript
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 	
 		owning_ptr<ASTExpr> left;
-		std::string right;
+		owning_ptr<ASTString> right;
 		owning_ptr<ASTExpr> index;
 
 		ZClass* leftClass;

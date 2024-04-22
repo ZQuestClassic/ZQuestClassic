@@ -1,0 +1,1149 @@
+Compiling 'metadata.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Debug: could not resolve symbol "lololol"
+Success!
+Compile finished with exit code '0' (success)
+=== METADATA (elided)
+{
+  "currentFileSymbols": [
+    {
+      "name": "Fancy",
+      "kind": 13,
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 4
+        },
+        "end": {
+          "line": 46,
+          "character": 9
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 46,
+          "character": 4
+        },
+        "end": {
+          "line": 46,
+          "character": 9
+        }
+      },
+      "children": []
+    },
+    {
+      "name": "Dull",
+      "kind": 13,
+      "range": {
+        "start": {
+          "line": 48,
+          "character": 4
+        },
+        "end": {
+          "line": 48,
+          "character": 8
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 48,
+          "character": 4
+        },
+        "end": {
+          "line": 48,
+          "character": 8
+        }
+      },
+      "children": []
+    },
+    {
+      "name": "Mid",
+      "kind": 13,
+      "range": {
+        "start": {
+          "line": 49,
+          "character": 4
+        },
+        "end": {
+          "line": 49,
+          "character": 7
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 49,
+          "character": 4
+        },
+        "end": {
+          "line": 49,
+          "character": 7
+        }
+      },
+      "children": []
+    },
+    {
+      "name": "postfix",
+      "kind": 13,
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 4
+        },
+        "end": {
+          "line": 2,
+          "character": 15
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 2,
+          "character": 4
+        },
+        "end": {
+          "line": 2,
+          "character": 11
+        }
+      },
+      "children": []
+    },
+    {
+      "name": "postfix2",
+      "kind": 13,
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 4
+        },
+        "end": {
+          "line": 3,
+          "character": 22
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 3,
+          "character": 4
+        },
+        "end": {
+          "line": 3,
+          "character": 12
+        }
+      },
+      "children": []
+    },
+    {
+      "name": "x",
+      "kind": 13,
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 4
+        },
+        "end": {
+          "line": 16,
+          "character": 9
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 16,
+          "character": 4
+        },
+        "end": {
+          "line": 16,
+          "character": 5
+        }
+      },
+      "children": []
+    },
+    {
+      "name": "y",
+      "kind": 13,
+      "range": {
+        "start": {
+          "line": 18,
+          "character": 4
+        },
+        "end": {
+          "line": 18,
+          "character": 5
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 18,
+          "character": 4
+        },
+        "end": {
+          "line": 18,
+          "character": 5
+        }
+      },
+      "children": []
+    },
+    {
+      "name": "z",
+      "kind": 13,
+      "range": {
+        "start": {
+          "line": 18,
+          "character": 7
+        },
+        "end": {
+          "line": 18,
+          "character": 12
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 18,
+          "character": 7
+        },
+        "end": {
+          "line": 18,
+          "character": 8
+        }
+      },
+      "children": []
+    },
+    {
+      "name": "utils",
+      "kind": 3,
+      "range": {
+        "start": {
+          "line": 68,
+          "character": 0
+        },
+        "end": {
+          "line": 75,
+          "character": 1
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 68,
+          "character": 10
+        },
+        "end": {
+          "line": 68,
+          "character": 15
+        }
+      },
+      "children": [
+        {
+          "name": "hmm",
+          "kind": 13,
+          "range": {
+            "start": {
+              "line": 74,
+              "character": 8
+            },
+            "end": {
+              "line": 74,
+              "character": 11
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 74,
+              "character": 8
+            },
+            "end": {
+              "line": 74,
+              "character": 11
+            }
+          },
+          "children": []
+        },
+        {
+          "name": "fn",
+          "kind": 12,
+          "range": {
+            "start": {
+              "line": 70,
+              "character": 9
+            },
+            "end": {
+              "line": 70,
+              "character": 18
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 70,
+              "character": 9
+            },
+            "end": {
+              "line": 70,
+              "character": 11
+            }
+          },
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "Metadata",
+      "kind": 2,
+      "range": {
+        "start": {
+          "line": 53,
+          "character": 0
+        },
+        "end": {
+          "line": 65,
+          "character": 1
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 53,
+          "character": 11
+        },
+        "end": {
+          "line": 53,
+          "character": 19
+        }
+      },
+      "children": [
+        {
+          "name": "run",
+          "kind": 12,
+          "range": {
+            "start": {
+              "line": 55,
+              "character": 9
+            },
+            "end": {
+              "line": 55,
+              "character": 71
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 55,
+              "character": 9
+            },
+            "end": {
+              "line": 55,
+              "character": 12
+            }
+          },
+          "children": [
+            {
+              "name": "c",
+              "kind": 13,
+              "range": {
+                "start": {
+                  "line": 60,
+                  "character": 13
+                },
+                "end": {
+                  "line": 60,
+                  "character": 27
+                }
+              },
+              "selectionRange": {
+                "start": {
+                  "line": 60,
+                  "character": 13
+                },
+                "end": {
+                  "line": 60,
+                  "character": 14
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "d",
+              "kind": 13,
+              "range": {
+                "start": {
+                  "line": 62,
+                  "character": 13
+                },
+                "end": {
+                  "line": 62,
+                  "character": 36
+                }
+              },
+              "selectionRange": {
+                "start": {
+                  "line": 62,
+                  "character": 13
+                },
+                "end": {
+                  "line": 62,
+                  "character": 14
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "c2",
+              "kind": 13,
+              "range": {
+                "start": {
+                  "line": 63,
+                  "character": 12
+                },
+                "end": {
+                  "line": 63,
+                  "character": 27
+                }
+              },
+              "selectionRange": {
+                "start": {
+                  "line": 63,
+                  "character": 12
+                },
+                "end": {
+                  "line": 63,
+                  "character": 14
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Car",
+      "kind": 5,
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 0
+        },
+        "end": {
+          "line": 38,
+          "character": 1
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 21,
+          "character": 6
+        },
+        "end": {
+          "line": 21,
+          "character": 9
+        }
+      },
+      "children": [
+        {
+          "name": "speed",
+          "kind": 13,
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 8
+            },
+            "end": {
+              "line": 23,
+              "character": 13
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 23,
+              "character": 8
+            },
+            "end": {
+              "line": 23,
+              "character": 13
+            }
+          },
+          "children": []
+        },
+        {
+          "name": "vroom",
+          "kind": 12,
+          "range": {
+            "start": {
+              "line": 31,
+              "character": 9
+            },
+            "end": {
+              "line": 31,
+              "character": 16
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 31,
+              "character": 9
+            },
+            "end": {
+              "line": 31,
+              "character": 14
+            }
+          },
+          "children": []
+        },
+        {
+          "name": "vroom2",
+          "kind": 12,
+          "range": {
+            "start": {
+              "line": 35,
+              "character": 9
+            },
+            "end": {
+              "line": 35,
+              "character": 17
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 35,
+              "character": 9
+            },
+            "end": {
+              "line": 35,
+              "character": 15
+            }
+          },
+          "children": []
+        },
+        {
+          "name": "Car",
+          "kind": 9,
+          "range": {
+            "start": {
+              "line": 26,
+              "character": 4
+            },
+            "end": {
+              "line": 26,
+              "character": 18
+            }
+          },
+          "selectionRange": {
+            "start": {
+              "line": 26,
+              "character": 4
+            },
+            "end": {
+              "line": 26,
+              "character": 7
+            }
+          },
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "IhaveAdefCtor",
+      "kind": 5,
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 0
+        },
+        "end": {
+          "line": 41,
+          "character": 1
+        }
+      },
+      "selectionRange": {
+        "start": {
+          "line": 40,
+          "character": 6
+        },
+        "end": {
+          "line": 40,
+          "character": 19
+        }
+      },
+      "children": []
+    }
+  ],
+  "symbols": {
+    "35": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 4
+          },
+          "end": {
+            "line": 2,
+            "character": 15
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "THIS COMMENT USED #1"
+    },
+    "36": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 3,
+            "character": 4
+          },
+          "end": {
+            "line": 3,
+            "character": 22
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "THIS COMMENT USED #2"
+    },
+    "37": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 16,
+            "character": 4
+          },
+          "end": {
+            "line": 16,
+            "character": 9
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "x marks the spot\n  still line one still line one still line one still line one still line one\n  \n  line two\n  line two still\n \n  line three\n \n  - list item 1\n  - list item 2\n  - list item 3"
+    },
+    "3519": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 70,
+            "character": 9
+          },
+          "end": {
+            "line": 70,
+            "character": 18
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "A lovely function. See [`utils::fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
+    },
+    "3523": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 26,
+            "character": 4
+          },
+          "end": {
+            "line": 26,
+            "character": 18
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "a ctor with 1 param"
+    },
+    "3,0": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 23,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 13
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D)"
+    },
+    "49": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 60,
+            "character": 13
+          },
+          "end": {
+            "line": 60,
+            "character": 27
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "i am a car\n `i dont exist`"
+    },
+    "42": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 55,
+            "character": 13
+          },
+          "end": {
+            "line": 55,
+            "character": 23
+          }
+        },
+        "uri": "URI"
+      }
+    },
+    "40": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 74,
+            "character": 8
+          },
+          "end": {
+            "line": 74,
+            "character": 11
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "hmmmmmm See [`utils::fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D)"
+    },
+    "38": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 18,
+            "character": 4
+          },
+          "end": {
+            "line": 18,
+            "character": 5
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "hello world"
+    },
+    "39": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 18,
+            "character": 7
+          },
+          "end": {
+            "line": 18,
+            "character": 12
+          }
+        },
+        "uri": "URI"
+      }
+    },
+    "33": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 48,
+            "character": 4
+          },
+          "end": {
+            "line": 48,
+            "character": 8
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "absolute trash"
+    },
+    "32": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 46,
+            "character": 4
+          },
+          "end": {
+            "line": 46,
+            "character": 9
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "top class"
+    },
+    "34": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 49,
+            "character": 4
+          },
+          "end": {
+            "line": 49,
+            "character": 7
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "meh"
+    },
+    "3524": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 40,
+            "character": 6
+          },
+          "end": {
+            "line": 40,
+            "character": 19
+          }
+        },
+        "uri": "URI"
+      }
+    },
+    "41": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 23,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 13
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D)"
+    },
+    "3521": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 31,
+            "character": 9
+          },
+          "end": {
+            "line": 31,
+            "character": 16
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "Go fast"
+    },
+    "4,0": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 23,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 13
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D)"
+    },
+    "55": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 26,
+            "character": 8
+          },
+          "end": {
+            "line": 26,
+            "character": 17
+          }
+        },
+        "uri": "URI"
+      }
+    }
+  },
+  "identifiers": [
+    {
+      "loc": {
+        "line": 3,
+        "character": 15,
+        "length": 7
+      },
+      "symbol": "35"
+    },
+    {
+      "loc": {
+        "line": 56,
+        "character": 26,
+        "length": 7
+      },
+      "symbol": "35"
+    },
+    {
+      "loc": {
+        "line": 56,
+        "character": 36,
+        "length": 8
+      },
+      "symbol": "36"
+    },
+    {
+      "loc": {
+        "line": 56,
+        "character": 50,
+        "length": 1
+      },
+      "symbol": "37"
+    },
+    {
+      "loc": {
+        "line": 57,
+        "character": 15,
+        "length": 2
+      },
+      "symbol": "3519"
+    },
+    {
+      "loc": {
+        "line": 57,
+        "character": 18,
+        "length": 7
+      },
+      "symbol": "35"
+    },
+    {
+      "loc": {
+        "line": 60,
+        "character": 21,
+        "length": 3
+      },
+      "symbol": "3523"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 32,
+        "length": 5
+      },
+      "symbol": "3,0"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 29,
+        "length": 1
+      },
+      "symbol": "49"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 39,
+        "length": 6
+      },
+      "symbol": "42"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 54,
+        "length": 3
+      },
+      "symbol": "40"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 60,
+        "length": 1
+      },
+      "symbol": "38"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 64,
+        "length": 1
+      },
+      "symbol": "39"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 68,
+        "length": 4
+      },
+      "symbol": "33"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 75,
+        "length": 5
+      },
+      "symbol": "32"
+    },
+    {
+      "loc": {
+        "line": 61,
+        "character": 83,
+        "length": 3
+      },
+      "symbol": "34"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 21,
+        "length": 13
+      },
+      "symbol": "3524"
+    },
+    {
+      "loc": {
+        "line": 63,
+        "character": 21,
+        "length": 3
+      },
+      "symbol": "3523"
+    },
+    {
+      "loc": {
+        "line": 32,
+        "character": 8,
+        "length": 5
+      },
+      "symbol": "41"
+    },
+    {
+      "loc": {
+        "line": 36,
+        "character": 8,
+        "length": 5
+      },
+      "symbol": "3521"
+    },
+    {
+      "loc": {
+        "line": 27,
+        "character": 14,
+        "length": 5
+      },
+      "symbol": "4,0"
+    },
+    {
+      "loc": {
+        "line": 27,
+        "character": 22,
+        "length": 5
+      },
+      "symbol": "55"
+    }
+  ]
+}
+PUSHR D0; void run(int, int, int, int, int) Params
+PUSHR D1
+PUSHR D2
+PUSHR D3
+PUSHR D4
+PUSHR REFFFC; void run(int, int, int, int, int) Body Start
+PUSHARGSV 0,0.0005
+SETR D4,SP2
+ALLOCATEMEMV D2,7,0
+STORE D2,0.0004
+WRITEPODSTRING D2,"%d %d\n"
+LOAD D2,0.0004; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+SETR D2,GD1
+PUSHR D2
+SETR D2,GD2
+POP D3
+ADDR D2,D3
+PUSHVARGR D2
+SETR D2,GD3
+ADDV D2,1
+ADDV D2,2
+PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0.0004
+DEALLOCATEMEMR D3
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 2; ClassFunc[Car Car(int)] Params
+CALLFUNC 0.0076; ClassFunc[Car Car(int)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2,0.0003
+ALLOCATEMEMV D2,10,0
+STORE D2,0.0002
+WRITEPODSTRING D2,"%d %d %d\n"
+LOAD D2,0.0002; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+LOAD D2,0.0003
+ZCLASS_READ D2,0
+PUSHVARGR D2
+LOAD D2,0.0010
+PUSHVARGR D2
+SETR D2,GD6
+PUSHR D2
+SETR D2,GD4
+POP D3
+ADDR D2,D3
+PUSHR D2
+SETR D2,GD5
+POP D3
+ADDR D2,D3
+ADDV D2,1
+ADDV D2,2
+PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
+PRINTFVARG; InlineFunc[void printf(char32)] Body Start
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0.0002
+DEALLOCATEMEMR D3
+SETV D2,0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor()] Set Destructor
+ZCLASS_CONSTRUCT D2,{0}; ProtoFunc[IhaveAdefCtor IhaveAdefCtor()] Default Construct
+STORE_OBJECT D2,0.0001
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 2; ClassFunc[Car Car(int)] Params
+CALLFUNC 0.0076; ClassFunc[Car Car(int)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2,0
+REF_REMOVE 0.0003
+REF_REMOVE 0
+REF_REMOVE 0.0001
+POPARGS D5,0.0011
+QUIT; void run(int, int, int, int, int) Body End
+SETV D2,0; Func[Car Car(int)] Body Start
+SETR CLASS_THISKEY2,CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
+SETR D4,SP2
+PUSHR CLASS_THISKEY2
+LOAD D2,0
+PUSHR D2
+SETR D2,CLASS_THISKEY
+SETR D3,D2
+POP D2
+ZCLASS_WRITE D3,0
+POP D5
+SETR D2,CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[Car Car(int)] Body End
+
+
+SETV GD1,1; void run() Body Start
+SETV GD2,1
+SETV GD3,1
+SETV GD4,0
+SETV GD5,2
+SETV GD6,0
+QUIT; void run() Body End

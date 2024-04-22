@@ -45,12 +45,9 @@ static AccessorTable DebugTable[] =
 	{ "getPlayfieldOffset",         0,         ZTID_FLOAT,   GAMEPLAYFIELDOFS,          0,  { ZTID_DEBUG },{} },
 	{ "setPlayfieldOffset",         0,          ZTID_VOID,   GAMEPLAYFIELDOFS,  FL_RDONLY,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	{ "TriggerSecret",              0,          ZTID_VOID,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
-	{ "ChangeFFCScript",            0,          ZTID_VOID,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	
 	{ "getD[]",                     0,         ZTID_FLOAT,   DEBUGD,                    0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	{ "setD[]",                     0,         ZTID_FLOAT,   DEBUGD,                    0,  { ZTID_DEBUG, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "_getNULL",                   0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
-	{ "_getNull",                   0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
 	{ "getNULL",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
 	{ "setNULL",                    0,          ZTID_VOID,   DONULL,            FL_RDONLY,  { ZTID_DEBUG, ZTID_UNTYPED },{} },
 	{ "getNull", 0, "getNULL", 0 },

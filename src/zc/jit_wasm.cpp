@@ -31,6 +31,7 @@
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zelda.h"
+#include "zasm/serialize.h"
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -649,7 +650,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 				}
 				else
 				{
-					printf("unexpected command %s at index %d\n", script_debug_command_to_string(next_command).c_str(), i + 1);
+					printf("unexpected command %s at index %d\n", zasm_op_to_string(next_command).c_str(), i + 1);
 					ASSERT(false);
 				}
 
@@ -1193,7 +1194,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 
 				default:
 				{
-					printf("unexpected command %s at index %d\n", script_debug_command_to_string(command).c_str(), i);
+					printf("unexpected command %s at index %d\n", zasm_op_to_string(command).c_str(), i);
 					ASSERT(false);
 				}
 			}

@@ -191,7 +191,7 @@ namespace ZScript
 	public:
 		~UserClass();
 
-		std::string const& getName() const {return node.name;}
+		std::string const& getName() const {return node.getName();}
 		ASTClass* getNode() const {return &node;}
 		ClassScope& getScope() {return *scope;}
 		ClassScope const& getScope() const {return *scope;}
@@ -252,6 +252,9 @@ namespace ZScript
 
 		// Get the data's name.
 		virtual std::optional<std::string> getName() const {return std::nullopt;}
+
+		// Get a doc comment associated with this data.
+		virtual std::optional<std::string> getDocComment() const {return std::nullopt;}
 		
 		// Get the value at compile time.
 		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return std::nullopt;}
@@ -310,7 +313,8 @@ namespace ZScript
 				Scope&, ASTDataDecl&, DataType const&,
 				CompileErrorHandler* = NULL);
 
-		std::optional<std::string> getName() const {return node.name;}
+		std::optional<std::string> getName() const {return node.getName();}
+		std::optional<std::string> getDocComment() const {return node.doc_comment;}
 		ASTDataDecl* getNode() const {return &node;}
 		std::optional<int32_t> getGlobalId() const {return globalId;}
 		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
@@ -329,7 +333,8 @@ namespace ZScript
 				Scope&, ASTDataDecl&, DataType const&,
 				CompileErrorHandler* = NULL);
 
-		std::optional<std::string> getName() const {return node.name;}
+		std::optional<std::string> getName() const {return node.getName();}
+		std::optional<std::string> getDocComment() const {return node.doc_comment;}
 		ASTDataDecl* getNode() const {return &node;}
 		UserClass* getClass() const {return &(scope.getClass()->user_class);}
 		int32_t getIndex() const {return _index;}
@@ -589,6 +594,11 @@ namespace ZScript
 			if(aliased_func)
 				return aliased_func->setInternalScope(scope);
 			internalScope = scope;
+		}
+
+		AST* getNode() const
+		{
+			return node;
 		}
 		
 	private:

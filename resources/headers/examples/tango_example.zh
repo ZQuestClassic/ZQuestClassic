@@ -1,0 +1,137 @@
+#include "std.zh"
+#include "tango.zh"
+#include "tango/font/tango_OracleProportional.zh"
+
+// Background CSet and color 0-15
+const int TQS_BG_CSET = 0;
+const int TQS_BG_COLOR = 15;
+
+// Text CSet and color 0-15
+const int TQS_TEXT_CSET = 0;
+const int TQS_TEXT_COLOR = 1;
+
+// "More..." icon combo and CSet
+const int TQS_MORE_COMBO = 409;
+const int TQS_MORE_CSET = 7;
+
+// Cursor combo and CSet
+const int TQS_CURSOR_COMBO = 410;
+const int TQS_CURSOR_CSET = 7;
+
+// Menu scrolling indicators
+const int TQS_SCROLL_UP_COMBO = 408;
+const int TQS_SCROLL_UP_CSET = 7;
+const int TQS_SCROLL_DOWN_COMBO = 409;
+const int TQS_SCROLL_DOWN_CSET = 7;
+
+// Menu sound effects
+const int TQS_SFX_MOVE = 5;
+const int TQS_SFX_SELECT = 21;
+const int TQS_SFX_CANCEL = 0;
+
+// End settings
+
+
+const int STYLE_TQS = 0;
+
+
+// Use this function to display a ZScript string (int[]).
+// The return value will be the ID of the slot used or
+// TANGO_INVALID if no text slot was available.
+int ShowString(int str)
+{
+    int slot=Tango_GetFreeSlot(TANGO_SLOT_ANY);
+    if(slot==TANGO_INVALID)
+        return TANGO_INVALID;
+    
+    Tango_ClearSlot(slot);
+    Tango_LoadString(slot, str);
+    Tango_SetSlotStyle(slot, STYLE_TQS);
+    Tango_SetSlotPosition(slot, 48, 32);
+    Tango_ActivateSlot(slot);
+    
+    return slot;
+}
+
+// Use this function to display a ZC message (Quest->Strings).
+// The return value will be the ID of the slot used or
+// TANGO_INVALID if no text slot was available.
+int ShowMessage(int msg)
+{
+    int slot=Tango_GetFreeSlot(TANGO_SLOT_ANY);
+    if(slot==TANGO_INVALID)
+        return TANGO_INVALID;
+    
+    Tango_ClearSlot(slot);
+    Tango_LoadMessage(slot, msg);
+    Tango_SetSlotStyle(slot, STYLE_TQS);
+    Tango_SetSlotPosition(slot, 48, 32);
+    Tango_ActivateSlot(slot);
+    
+    return slot;
+}
+
+// Call this function at the beginning of the active global script or
+// in the Init script to set up a simple text style.
+void SetUpTQSStyle()
+{
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_BACKDROP_TYPE, TANGO_BACKDROP_COLOR);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_BACKDROP_CSET, TQS_BG_CSET);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_BACKDROP_COLOR, TQS_BG_COLOR);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_BACKDROP_WIDTH, 160);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_BACKDROP_HEIGHT, 64);
+    
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_FONT, TANGO_FONT_ORACLE_PROPORTIONAL);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_CSET, TQS_TEXT_CSET);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_COLOR, TQS_TEXT_COLOR);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_X, 16);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_Y, 6);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_WIDTH, 128);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_HEIGHT, 56);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_SPEED, 5);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_TEXT_SFX, 18);
+    
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_FLAGS,
+      TANGO_FLAG_ENABLE_SPEEDUP | TANGO_FLAG_ENABLE_SUPER_SPEED);
+    
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MORE_COMBO, TQS_MORE_COMBO);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MORE_CSET, TQS_MORE_CSET);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MORE_X, 144);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MORE_Y, 48);
+    
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_CURSOR_COMBO, TQS_CURSOR_COMBO);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_CURSOR_CSET, TQS_CURSOR_CSET);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_CHOICE_INDENT, 16);
+    
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SCROLL_UP_COMBO, TQS_SCROLL_UP_COMBO);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SCROLL_UP_CSET, TQS_SCROLL_UP_CSET);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SCROLL_UP_X, 144);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SCROLL_UP_Y, 32);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SCROLL_DOWN_COMBO, TQS_SCROLL_DOWN_COMBO);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SCROLL_DOWN_CSET, TQS_SCROLL_DOWN_CSET);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SCROLL_DOWN_X, 144);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SCROLL_DOWN_Y, 48);
+    
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_CURSOR_MOVE_SFX, TQS_SFX_MOVE);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_SELECT_SFX, TQS_SFX_SELECT);
+    Tango_SetStyleAttribute(STYLE_TQS, TANGO_STYLE_MENU_CANCEL_SFX, TQS_SFX_CANCEL);
+}
+
+// This is just the minimal Tango active script plus
+// the style setup function above.
+global script TangoQuickStartActiveScript
+{
+    void run()
+    {
+        SetUpTQSStyle();
+        Tango_Start();
+        
+        while(true)
+        {
+            Tango_Update1();
+            Waitdraw();
+            Tango_Update2();
+            Waitframe();
+        }
+    }
+}

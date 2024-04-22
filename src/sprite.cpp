@@ -115,7 +115,7 @@ sprite::sprite(): solid_object()
     //ffcref=0;
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
-    scriptcoldet = 1;
+    scriptcoldet = true;
     
     //itemref = 0;
     //guyref = 0;
@@ -128,7 +128,7 @@ sprite::sprite(): solid_object()
     weaponscript = 0;
     scripttile = -1;
     scriptflip = -1;
-    do_animation = 1;
+    do_animation = true;
     rotation = 0;
     scale = 0;
     moveflags = 0;
@@ -260,7 +260,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     //itemclass=0;
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
-    scriptcoldet = 1;
+    scriptcoldet = true;
     //ewpnclass=0;
     //lwpnclass=0;
     //guyclass=0;
@@ -279,7 +279,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	script_knockback_clk = 0;
 	script_knockback_speed = 0;
     scale = 0;
-    do_animation = 1;
+    do_animation = true;
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;
@@ -911,7 +911,7 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 
 bool sprite::hit()
 {
-	if(!(scriptcoldet&1) || fallclk || drownclk) return false;
+	if(!scriptcoldet || fallclk || drownclk) return false;
 	if(id<0 || clk<0) return false;
 	return true;
 }
@@ -949,7 +949,7 @@ bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,in
 
 int32_t sprite::hitdir(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2,int32_t dir2)
 {
-    if(!(scriptcoldet&1) || fallclk || drownclk) return 0xFF;
+    if(!scriptcoldet || fallclk || drownclk) return 0xFF;
     
     int32_t cx1=x+hxofs+(hit_width>>1);
     int32_t cy1=y+hyofs+(hit_height>>1)-fakez;

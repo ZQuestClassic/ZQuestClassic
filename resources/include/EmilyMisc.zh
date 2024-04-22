@@ -1,4 +1,7 @@
 #option SHORT_CIRCUIT on
+
+#include "std.zh"
+
 /**
 * Author: Emily
 * Version: 1.4.6
@@ -1384,8 +1387,8 @@ namespace Emily
 		dm->Offset = 0;
 		dm->Type = (dm->Type & ~11b) | DMAP_OVERWORLD;
 		//
-		int olddmap = Game->GetCurDMap();
-		int oldscr = Game->GetCurDMapScreen();
+		int olddmap = Game->CurDMap;
+		int oldscr = Game->CurDMapScreen;
 		int oldx = Hero->X;
 		int oldy = Hero->Y;
 		bool msgfrz = Game->FFRules[qr_MSGFREEZE];
@@ -1513,8 +1516,8 @@ namespace Emily
 		dm->Level = Game->GetCurLevel();
 		dm->Offset = 0;
 		dm->Type = (dm->Type & ~11b) | DMAP_OVERWORLD;
-		int olddmap = Game->GetCurDMap();
-		int oldscr = Game->GetCurDMapScreen();
+		int olddmap = Game->CurDMap;
+		int oldscr = Game->CurDMapScreen;
 		int oldx = Hero->X;
 		int oldy = Hero->Y;
 		bool msgfrz = Game->FFRules[qr_MSGFREEZE];

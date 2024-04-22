@@ -8,22 +8,27 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
+=== METADATA (elided)
+{
+  "currentFileSymbols": 3,
+  "symbols": 1,
+  "identifiers": 1
+}
 PUSHARGSV 0,0.0003; void run() Body Start
-SETR d4,SP2
+SETR D4,SP2
 STOREV 123,0.0001
-ALLOCATEMEMV d2,17,0
-STORE d2,0
-WRITEPODSTRING d2,"hello world: %d\n"
-LOAD d2,0; InlineFunc[void printf(char32)] Params Start
-PUSHR d2
-LOAD d2,0.0001
-PUSHVARGR d2; InlineFunc[void printf(char32)] Params End
+ALLOCATEMEMV D2,17,0
+STORE D2,0
+WRITEPODSTRING D2,"hello world: %d\n"
+LOAD D2,0; InlineFunc[void printf(char32)] Params Start
+PUSHR D2
+LOAD D2,0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP d5; InlineFunc[void printf(char32)] Body End
-LOAD d3,0
-DEALLOCATEMEMR d3
-POPARGS d5,0.0003
+POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D3,0
+DEALLOCATEMEMR D3
+POPARGS D5,0.0003
 QUIT; void run() Body End
 
 

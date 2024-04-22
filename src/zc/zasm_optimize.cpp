@@ -29,7 +29,8 @@
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
 #include "zc/zasm_utils.h"
-#include "zasm_table.h"
+#include "zasm/table.h"
+#include "zasm/serialize.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -175,7 +176,6 @@ struct SimulationValue
 
 	std::string to_string() const
 	{
-		std::string ZASMVarToString(int32_t arg);
 		if (type == ValueType::Expression)
 		{
 			if (is_bool_cast())
@@ -191,7 +191,7 @@ struct SimulationValue
 			return fmt::format("{} {} {}", lhs, CMP_STR(data), rhs);
 		}
 		if (type == ValueType::Register)
-			return ZASMVarToString(data);
+			return zasm_var_to_string(data);
 		if (type == ValueType::Number)
 			return fmt::format("{}", data);
 		return "?";
@@ -433,7 +433,7 @@ static void remove(OptContext& ctx, pc_t pc)
 template <typename T>
 static void for_every_command_register_arg(const ffscript& instr, T fn)
 {
-	const auto& sc = get_script_command(instr.command);
+	auto& sc = get_script_command(instr.command);
 
 	if (sc.is_register(0))
 	{
@@ -457,7 +457,7 @@ static void for_every_command_register_arg(const ffscript& instr, T fn)
 template <typename T>
 static void for_every_command_arg(ffscript& instr, T fn)
 {
-	const auto& sc = get_script_command(instr.command);
+	auto& sc = get_script_command(instr.command);
 
 	if (sc.args >= 1)
 	{
@@ -1435,8 +1435,7 @@ static void simulate_block(OptContext& ctx, SimulationState& state)
 		simulate(ctx, state);
 		if (ctx.debug)
 		{
-			fmt::println("{}: {}", state.pc,
-				script_debug_command_to_string(C(state.pc).command, C(state.pc).arg1, C(state.pc).arg2, C(state.pc).arg3));
+			fmt::println("{}: {}", state.pc, zasm_op_to_string(C(state.pc)));
 			for (int i = 0; i < 8; i++)
 			{
 				if (!state.d[i].is_register())
@@ -1847,7 +1846,7 @@ static void optimize_spurious_branches(OptContext& ctx)
 			ctx.cfg_stale = true;
 		C(final_pc) = {GOTOCMP, (int)goto_pc, command_to_cmp(command, C(final_pc).arg2)};
 		if (ctx.debug)
-			fmt::println("rewrite {}: {}", final_pc, script_debug_command_to_string(C(final_pc)));
+			fmt::println("rewrite {}: {}", final_pc, zasm_op_to_string(C(final_pc)));
 	});
 }
 
@@ -2005,7 +2004,7 @@ static void optimize_reduce_comparisons(OptContext& ctx)
 			{
 				fmt::println("rewrite {}: {} -> {} commands", j, final_pc - j + 1, expression_zasm.size());
 				for (int i = j; i <= final_pc; i++)
-					fmt::println("{}: {}", i, script_debug_command_to_string(C(i)));
+					fmt::println("{}: {}", i, zasm_op_to_string(C(i)));
 			}
 
 			// TODO: Will need to be a loop when more than just final command being GOTO is handled.
@@ -2315,7 +2314,7 @@ static void optimize_inline_functions(OptContext& ctx)
 		{
 			fmt::println("rewrite {}: {} -> {} commands", hole_start_pc, hole_length, inlined_zasm.size());
 			for (int i = hole_start_pc; i <= hole_final_pc; i++)
-				fmt::println("{}: {}", i, script_debug_command_to_string(C(i)));
+				fmt::println("{}: {}", i, zasm_op_to_string(C(i)));
 		}
 
 		if (!must_keep_store_stack)
@@ -2658,116 +2657,6 @@ static bool _TEST(std::string& name_var, std::string name)
 
 #define TEST(name_val) if (_TEST(name, name_val))
 
-// TODO: Stole from ffasm.cpp
-static std::optional<int> check_comparestr(char const* buf)
-{
-	int cmp = 0;
-	if(buf[0] == 'B')
-	{
-		cmp |= CMP_BOOL;
-		++buf;
-	}
-	if(buf[0] == 'I')
-	{
-		cmp |= CMP_SETI;
-		++buf;
-	}
-	if(!strcmp(buf,"<"))
-		cmp |= CMP_LT;
-	else if(!strcmp(buf,">"))
-		cmp |= CMP_GT;
-	else if(!strcmp(buf,"<="))
-		cmp |= CMP_LE;
-	else if(!strcmp(buf,">="))
-		cmp |= CMP_GE;
-	else if(!strcmp(buf,"=="))
-		cmp |= CMP_EQ;
-	else if(!strcmp(buf,"!="))
-		cmp |= CMP_NE;
-	else if(!strcmp(buf,"Never"))
-		;
-	else if(!strcmp(buf,"Always"))
-		cmp |= CMP_FLAGS;
-	else return nullopt; //nonmatching
-	return cmp;
-}
-
-// TODO: Stole from ffasm.cpp
-static int32_t set_argument(char const* argbuf, int32_t& arg)
-{
-	extern script_variable variable_list[];
-	int32_t i=0;
-	char tempvar[80];
-	
-	while(variable_list[i].id>-1)
-	{
-		if(variable_list[i].maxcount>1)
-		{
-			for(int32_t j=0; j<variable_list[i].maxcount; ++j)
-			{
-#ifndef _MSC_VER
-				if (__builtin_strlen(variable_list[i].name) > sizeof(((script_variable*)0)->name))
-					__builtin_unreachable();
-#endif
-
-				if(strcmp(variable_list[i].name,"A")==0)
-					sprintf(tempvar, "%s%d", variable_list[i].name, j+1);
-				else sprintf(tempvar, "%s%d", variable_list[i].name, j);
-				
-				if(stricmp(argbuf,tempvar)==0)
-				{
-					int32_t temp = variable_list[i].id+(j*zc_max(1,variable_list[i].multiple));
-					arg = temp;
-					return 1;
-				}
-			}
-		}
-		else
-		{
-			if(stricmp(argbuf,variable_list[i].name)==0)
-			{
-				arg = variable_list[i].id;
-				return 1;
-			}
-		}
-		
-		++i;
-	}
-	
-	return 0;
-}
-
-// TODO: Stole from ffasm.cpp
-static int zasm_arg_from_string(std::string text, ARGTY type)
-{
-	util::trimstr(text);
-
-	switch (type)
-	{
-		case ARGTY::READ_REG:
-		case ARGTY::WRITE_REG:
-		case ARGTY::READWRITE_REG:
-		{
-			int arg = 0;
-			set_argument(text.c_str(), arg);
-			return arg;
-		}
-		break;
-
-		case ARGTY::LITERAL:
-		{
-			return std::stoi(text);
-		}
-
-		case ARGTY::COMPARE_OP:
-		{
-			return check_comparestr(text.c_str()).value();
-		}
-	}
-
-	return 0;
-}
-
 // Simplified version of parsing ZASM.
 static script_data zasm_from_string(std::string text)
 {
@@ -2780,28 +2669,10 @@ static script_data zasm_from_string(std::string text)
 	for (auto& line : lines)
 	{
 		util::trimstr(line);
-		if (line.starts_with("Function"))
+		if (line.empty() || line.starts_with("Function"))
 			continue;
 
-		auto tokens = util::split_args(line);
-		if (tokens.size() == 0)
-			continue;
-
-		const auto& command_name = tokens[1];
-		int command = get_script_command(command_name);
-		const auto& sc = get_script_command(command);
-		
-		int arg1 = 0;
-		int arg2 = 0;
-		int arg3 = 0;
-		if (sc.args >= 1)
-			arg1 = zasm_arg_from_string(tokens[2], sc.arg_type[0]);
-		if (sc.args >= 2)
-			arg2 = zasm_arg_from_string(tokens[3], sc.arg_type[1]);
-		if (sc.args >= 3)
-			arg3 = zasm_arg_from_string(tokens[4], sc.arg_type[2]);
-
-		instructions.emplace_back(command, arg1, arg2, arg3);
+		instructions.push_back(parse_zasm_op(line));
 	}
 
 	instructions.emplace_back(0xFFFF);

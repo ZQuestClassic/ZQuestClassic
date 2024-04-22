@@ -2511,6 +2511,257 @@ void do_weapon_fx(weapon* w, newcombo const& cmb)
 		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
 }
 
+bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bool& hasitem)
+{
+	if(cmb.triggeritem) //Item requirement
+	{
+		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
+			&& checkbunny(cmb.triggeritem);
+		if(cmb.triggerflags[1] & combotriggerINVERTITEM)
+		{
+			if(hasitem) return false;
+		}
+		else if(!hasitem) return false;
+	}
+	if(cmb.trigprox) //Proximity requirement
+	{
+		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
+		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
+		{
+			if(d < cmb.trigprox) //inside, cancel
+				return false;
+		}
+		else //trigger inside the radius
+		{
+			if(d >= cmb.trigprox) //outside, cancel
+				return false;
+		}
+	}
+	
+	if(cmb.triggerflags[3] & combotriggerCOND_DARK)
+		if(!get_lights())
+			return false;
+	if(cmb.triggerflags[3] & combotriggerCOND_NODARK)
+		if(get_lights())
+			return false;
+	
+	auto dmap_level = cmb.trigdmlevel > -1 ? cmb.trigdmlevel : dlevel;
+	if(cmb.triggerflags[3] & combotriggerLITEM_COND)
+		if((cmb.trig_levelitems & game->lvlitems[dmap_level]) != cmb.trig_levelitems)
+			return false;
+	if(cmb.triggerflags[3] & combotriggerLITEM_REVCOND)
+		if((cmb.trig_levelitems & game->lvlitems[dmap_level]) == cmb.trig_levelitems)
+			return false;
+	
+	if(!!(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+	{
+		if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
+		{
+			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+		}
+	}
+	if(cmb.triggerflags[1] & combotriggerCOUNTERGE)
+	{
+		if(game->get_counter(cmb.trigctr) < cmb.trigctramnt)
+			return false;
+	}
+	if(cmb.triggerflags[1] & combotriggerCOUNTERLT)
+	{
+		if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
+			return false;
+	}
+	return true;
+}
+void handle_trigger_results(mapscr* screen, int screen_index, newcombo const& cmb, int32_t cx, int32_t cy, bool& hasitem, bool& used_bit,
+	int32_t special)
+{
+	if(cmb.triggerflags[3]&combotriggerTOGGLEDARK)
+	{
+		toggle_lights(pal_litOVERRIDE);
+	}
+	if (cmb.triggerflags[1]&combotriggerSECRETS)
+	{
+		used_bit = true;
+		if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
+		{
+			triggering_generic_secrets = true;
+			trigger_secrets_for_screen(TriggerSource::GenericCombo, false);
+			triggering_generic_secrets = false;
+			if(screen->secretsfx)
+				sfx(screen->secretsfx);
+		}
+		if(canPermSecret(currdmap, screen_index) && !(screen->flags5&fTEMPSECRETS) && !getmapflag(screen_index, mSECRET))
+			setmapflag(screen, screen_index, mSECRET);
+	}
+	
+	if (cmb.triggerflags[3] & combotriggerLEVELSTATE)
+	{
+		used_bit = true;
+		if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
+		{
+			triggering_generic_switchstate = true;
+			game->lvlswitches[dlevel] ^= 1<<cmb.trig_lstate;
+			toggle_switches(1<<cmb.trig_lstate, false);
+			triggering_generic_switchstate = false;
+		}
+	}
+	if (cmb.triggerflags[3] & combotriggerGLOBALSTATE)
+	{
+		used_bit = true;
+		if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
+		{
+			int tmr = cmb.trig_statetime, pair = cmb.trig_gstate;
+			bool oldstate = game->gswitch_timers[pair]!=0;
+			if(tmr > 0)
+			{
+				game->gswitch_timers[pair] = tmr;
+			}
+			else
+			{
+				if(game->gswitch_timers[pair])
+					game->gswitch_timers[pair] = 0;
+				else game->gswitch_timers[pair] = -1;
+			}
+			if(oldstate != (game->gswitch_timers[pair] != 0))
+			{
+				triggering_generic_switchstate = true;
+				toggle_gswitches(pair, false);
+				triggering_generic_switchstate = false;
+			}
+		}
+	}
+	
+	if(cmb.trigsfx)
+		sfx(cmb.trigsfx, pan(cx));
+	
+	if(cmb.triggerflags[3] & combotriggerKILLENEMIES)
+		kill_em_all();
+	if(cmb.triggerflags[3] & combotriggerCLEARENEMIES)
+		guys.clear(true);
+	if(cmb.triggerflags[3] & combotriggerCLEARLWEAPONS)
+		Lwpns.clear(true);
+	if(cmb.triggerflags[3] & combotriggerCLEAREWEAPONS)
+		Ewpns.clear(true);
+	
+	if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
+	{
+		takeitem(cmb.triggeritem);
+	}
+	if(!(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+	{
+		if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
+		{
+			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+		}
+	}
+	bool trigexstate = true;
+	if(cmb.spawnenemy)
+	{
+		enemy* enm = nullptr;
+		bool enm_ex = (cmb.triggerflags[2] & combotriggerEXSTENEMY);
+		word numcreated = addenemy(screen_index, cx, cy, cmb.spawnenemy, -10);
+		if(numcreated)
+		{
+			word index = guys.Count() - numcreated;
+			enm = (enemy*)guys.spr(index);
+		}
+		if(enm_ex)
+		{
+			trigexstate = false;
+			if(enm)
+			{
+				enm->deathexstate = cmb.exstate;
+			}
+		}
+	}
+	if(cmb.spawnitem)
+	{
+		bool itm_ex = (cmb.triggerflags[2] & combotriggerEXSTITEM);
+		bool specitem = (cmb.triggerflags[2] & combotriggerSPCITEM);
+		if(specitem && getmapflag(mSPECIALITEM))
+		{
+			//already collected
+			if(itm_ex) trigexstate = true;
+		}
+		else
+		{
+			const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
+			int32_t pflags = cmb.spawnip & allowed_pflags;
+			SETFLAG(pflags, ipONETIME2, specitem);
+			int32_t item_id = cmb.spawnitem;
+			if(item_id < 0)
+			{
+				item_id = select_dropitem(-item_id);
+			}
+			item* itm = nullptr;
+			if(unsigned(item_id) < MAXITEMS)
+			{
+				itm = new item(cx, cy, 0, item_id, pflags, 0);
+				items.add(itm);
+			}
+			if(itm_ex)
+			{
+				trigexstate = false;
+				if(itm) itm->pickupexstate = cmb.exstate;
+			}
+			if(cmb.triggerflags[2] & combotriggerAUTOGRABITEM)
+			{
+				if(itm) itm->set_forcegrab(true);
+			}
+		}
+	}
+	
+	//Level Item stuff
+	{
+		auto dmap_level = cmb.trigdmlevel > -1 ? cmb.trigdmlevel : dlevel;
+		bool _set = cmb.triggerflags[3] & combotriggerLITEM_SET,
+			_unset = cmb.triggerflags[3] & combotriggerLITEM_UNSET;
+		if(_set && _unset) //toggle
+			game->lvlitems[dmap_level] ^= cmb.trig_levelitems;
+		else if(_set)
+			game->lvlitems[dmap_level] |= cmb.trig_levelitems;
+		else if(_unset)
+			game->lvlitems[dmap_level] &= ~cmb.trig_levelitems;
+	}
+	
+	//Graphical stuff
+	{
+		if(cmb.triggerflags[3] & combotriggerTINT_CLEAR)
+			doClearTint();
+		if(cmb.trigtint[0] || cmb.trigtint[1] || cmb.trigtint[2])
+			doTint(cmb.trigtint[0], cmb.trigtint[1], cmb.trigtint[2]);
+		if(cmb.triglvlpalette > -1)
+			loadlvlpal(cmb.triglvlpalette);
+		if(cmb.trigbosspalette > -1)
+			loadpalset(csBOSS,pSprite(cmb.trigbosspalette));
+		if(cmb.trigquaketime > -1)
+			quakeclk = cmb.trigquaketime;
+		if(cmb.trigwavytime > -1)
+			wavy = cmb.trigwavytime;
+	}
+	
+	//Status Effects
+	{
+		if(cmb.trig_swjinxtime > -2)
+			Hero.setSwordClk(cmb.trig_swjinxtime);
+		if(cmb.trig_itmjinxtime > -2)
+			Hero.setItemClk(cmb.trig_itmjinxtime);
+		if(cmb.trig_stuntime > -2)
+			Hero.setStunClock(cmb.trig_stuntime);
+		if(cmb.trig_bunnytime > -2)
+			Hero.setBunnyClock(cmb.trig_bunnytime);
+	}
+	
+	if(cmb.exstate > -1 && trigexstate)
+	{
+		setxmapflag(screen_index, 1<<cmb.exstate);
+	}
+	if(cmb.exdoor_dir > -1)
+	{
+		set_xdoorstate(cmb.exdoor_dir, cmb.exdoor_ind);
+	}
+}
+
 // TODO z3 remove
 bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 {
@@ -2557,48 +2808,16 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		if(force_ex_door_trigger(rpos_handle))
 			return true;
 	}
-	if(cmb.triggeritem) //Item requirement
+	if(!handle_trigger_conditionals(cmb, cx, cy, hasitem))
+		return false;
+
+	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
 	{
-		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
-			&& checkbunny(cmb.triggeritem);
-		if(cmb.triggerflags[1] & combotriggerINVERTITEM)
-		{
-			if(hasitem) return false;
-		}
-		else if(!hasitem) return false;
-	}
-	if(cmb.trigprox) //Proximity requirement
-	{
-		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
-		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
-		{
-			if(d < cmb.trigprox) //inside, cancel
-				return false;
-		}
-		else //trigger inside the radius
-		{
-			if(d >= cmb.trigprox) //outside, cancel
-				return false;
-		}
+		do_weapon_fx(w,cmb);
+		return true;
 	}
 	
-	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
-	{
-		if(ctramnt >= cmb.trigctramnt)
-		{
-			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
-		}
-	}
-	if(cmb.triggerflags[1] & combotriggerCOUNTERGE)
-	{
-		if(ctramnt < cmb.trigctramnt)
-			return false;
-	}
-	if(cmb.triggerflags[1] & combotriggerCOUNTERLT)
-	{
-		if(ctramnt >= cmb.trigctramnt)
-			return false;
-	}
+	byte* grid = nullptr;
 	
 	if (w)
 	{
@@ -2715,57 +2934,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		
 		if(!check_bit)
 		{
-			if (cmb.triggerflags[1]&combotriggerSECRETS)
-			{
-				used_bit = true;
-				if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
-				{
-					triggering_generic_secrets = true;
-					trigger_secrets_for_screen(TriggerSource::GenericCombo, false);
-					triggering_generic_secrets = false;
-					if(rpos_handle.screen->secretsfx)
-						sfx(rpos_handle.screen->secretsfx);
-				}
-				if(canPermSecret(currdmap, rpos_handle.screen_index) && !(rpos_handle.screen->flags5&fTEMPSECRETS) && !getmapflag(rpos_handle.screen_index, mSECRET))
-					setmapflag(rpos_handle.screen, rpos_handle.screen_index, mSECRET);
-			}
-			
-			if (cmb.triggerflags[3] & combotriggerLEVELSTATE)
-			{
-				used_bit = true;
-				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
-				{
-					triggering_generic_switchstate = true;
-					game->lvlswitches[dlevel] ^= 1<<cmb.trig_lstate;
-					toggle_switches(1<<cmb.trig_lstate, false);
-					triggering_generic_switchstate = false;
-				}
-			}
-			if (cmb.triggerflags[3] & combotriggerGLOBALSTATE)
-			{
-				used_bit = true;
-				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
-				{
-					int tmr = cmb.trig_statetime, pair = cmb.trig_gstate;
-					bool oldstate = game->gswitch_timers[pair]!=0;
-					if(tmr > 0)
-					{
-						game->gswitch_timers[pair] = tmr;
-					}
-					else
-					{
-						if(game->gswitch_timers[pair])
-							game->gswitch_timers[pair] = 0;
-						else game->gswitch_timers[pair] = -1;
-					}
-					if(oldstate != (game->gswitch_timers[pair] != 0))
-					{
-						triggering_generic_switchstate = true;
-						toggle_gswitches(pair, false);
-						triggering_generic_switchstate = false;
-					}
-				}
-			}
+			handle_trigger_results(rpos_handle.screen, rpos_handle.screen_index, cmb, cx, cy, hasitem, used_bit, special);
 			
 			if(cmb.trigchange)
 			{
@@ -2784,95 +2953,6 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 				rcmb.tile = rcmb.o_tile;
 				rcmb.cur_frame=0;
 				rcmb.aclk = 0;
-			}
-			
-			if(cmb.trigsfx)
-				sfx(cmb.trigsfx, pan(COMBOX(pos)));
-			
-			if(cmb.triggerflags[3] & combotriggerKILLENEMIES)
-				kill_em_all();
-			if(cmb.triggerflags[3] & combotriggerCLEARENEMIES)
-				guys.clear(true);
-			if(cmb.triggerflags[3] & combotriggerCLEARLWEAPONS)
-				Lwpns.clear(true);
-			if(cmb.triggerflags[3] & combotriggerCLEAREWEAPONS)
-				Ewpns.clear(true);
-			
-			if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
-			{
-				takeitem(cmb.triggeritem);
-			}
-			if(onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
-			{
-				if(ctramnt >= cmb.trigctramnt)
-				{
-					game->change_counter(-cmb.trigctramnt, cmb.trigctr);
-				}
-			}
-			bool trigexstate = true;
-			if(cmb.spawnenemy)
-			{
-				enemy* enm = nullptr;
-				bool enm_ex = (cmb.triggerflags[2] & combotriggerEXSTENEMY);
-				word numcreated = addenemy(rpos_handle.screen_index, cx, cy, cmb.spawnenemy, -10);
-				if(numcreated)
-				{
-					word index = guys.Count() - numcreated;
-					enm = (enemy*)guys.spr(index);
-				}
-				if(enm_ex)
-				{
-					trigexstate = false;
-					if(enm)
-					{
-						enm->deathexstate = cmb.exstate;
-					}
-				}
-			}
-			if(cmb.spawnitem)
-			{
-				bool itm_ex = (cmb.triggerflags[2] & combotriggerEXSTITEM);
-				bool specitem = (cmb.triggerflags[2] & combotriggerSPCITEM);
-				if(specitem && getmapflag(mSPECIALITEM))
-				{
-					//already collected
-					if(itm_ex) trigexstate = true;
-				}
-				else
-				{
-					const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
-					int32_t pflags = cmb.spawnip & allowed_pflags;
-					SETFLAG(pflags, ipONETIME2, specitem);
-					int32_t item_id = cmb.spawnitem;
-					if(item_id < 0)
-					{
-						item_id = select_dropitem(-item_id);
-					}
-					item* itm = nullptr;
-					if(unsigned(item_id) < MAXITEMS)
-					{
-						itm = new item(cx, cy, 0, item_id, pflags, 0);
-						items.add(itm);
-					}
-					if(itm_ex)
-					{
-						trigexstate = false;
-						if(itm) itm->pickupexstate = cmb.exstate;
-					}
-					if(cmb.triggerflags[2] & combotriggerAUTOGRABITEM)
-					{
-						if(itm) itm->set_forcegrab(true);
-					}
-				}
-			}
-			
-			if(cmb.exstate > -1 && trigexstate)
-			{
-				setxmapflag(rpos_handle.screen_index, exflag);
-			}
-			if(cmb.exdoor_dir > -1)
-			{
-				set_xdoorstate(cmb.exdoor_dir, cmb.exdoor_ind);
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set
@@ -2917,18 +2997,13 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 		return true;
 	}
 	
-	word ctramnt = game->get_counter(cmb.trigctr);
-	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
-	
 	int32_t flag2 = cmb.flag;
 	
 	bool check_bit = false;
 	bool used_bit = false;
 	
-	uint32_t exflag = 0;
 	if(cmb.exstate > -1)
 	{
-		exflag = 1<<cmb.exstate;
 		if(force_ex_trigger_ffc(ffc_handle))
 			return true;
 	}
@@ -2937,48 +3012,8 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 		if(force_ex_door_trigger_ffc(ffc_handle))
 			return true;
 	}
-	if(cmb.triggeritem) //Item requirement
-	{
-		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
-			&& checkbunny(cmb.triggeritem);
-		if(cmb.triggerflags[1] & combotriggerINVERTITEM)
-		{
-			if(hasitem) return false;
-		}
-		else if(!hasitem) return false;
-	}
-	if(cmb.trigprox) //Proximity requirement
-	{
-		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
-		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
-		{
-			if(d < cmb.trigprox) //inside, cancel
-				return false;
-		}
-		else //trigger inside the radius
-		{
-			if(d >= cmb.trigprox) //outside, cancel
-				return false;
-		}
-	}
-	
-	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
-	{
-		if(ctramnt >= cmb.trigctramnt)
-		{
-			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
-		}
-	}
-	if(cmb.triggerflags[1] & combotriggerCOUNTERGE)
-	{
-		if(ctramnt < cmb.trigctramnt)
-			return false;
-	}
-	if(cmb.triggerflags[1] & combotriggerCOUNTERLT)
-	{
-		if(ctramnt >= cmb.trigctramnt)
-			return false;
-	}
+	if(!handle_trigger_conditionals(cmb, cx, cy, hasitem))
+		return false;
 	
 	if(w)
 	{
@@ -3095,56 +3130,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 		
 		if(!check_bit)
 		{
-			if (cmb.triggerflags[1]&combotriggerSECRETS)
-			{
-				used_bit = true;
-				if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
-				{
-					triggering_generic_secrets = true;
-					trigger_secrets_for_screen(TriggerSource::GenericCombo, ffc_handle.screen_index, false);
-					triggering_generic_secrets = false;
-				}
-				if(canPermSecret(currdmap, ffc_handle.screen_index) && !(ffc_handle.screen->flags5&fTEMPSECRETS))
-					setmapflag(ffc_handle.screen_index, mSECRET);
-				sfx(ffc_handle.screen->secretsfx);
-			}
-			
-			if (cmb.triggerflags[3] & combotriggerLEVELSTATE)
-			{
-				used_bit = true;
-				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
-				{
-					triggering_generic_switchstate = true;
-					game->lvlswitches[dlevel] ^= 1<<cmb.trig_lstate;
-					toggle_switches(1<<cmb.trig_lstate, false);
-					triggering_generic_switchstate = false;
-				}
-			}
-			if (cmb.triggerflags[3] & combotriggerGLOBALSTATE)
-			{
-				used_bit = true;
-				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
-				{
-					int tmr = cmb.trig_statetime, pair = cmb.trig_gstate;
-					bool oldstate = game->gswitch_timers[pair]!=0;
-					if(tmr > 0)
-					{
-						game->gswitch_timers[pair] = tmr;
-					}
-					else
-					{
-						if(game->gswitch_timers[pair])
-							game->gswitch_timers[pair] = 0;
-						else game->gswitch_timers[pair] = -1;
-					}
-					if(oldstate != (game->gswitch_timers[pair] != 0))
-					{
-						triggering_generic_switchstate = true;
-						toggle_gswitches(pair, false);
-						triggering_generic_switchstate = false;
-					}
-				}
-			}
+			handle_trigger_results(ffc_handle.screen, ffc_handle.screen_index, cmb, cx, cy, hasitem, used_bit, special);
 			
 			if(cmb.trigchange)
 			{
@@ -3163,95 +3149,6 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 				rcmb.tile = rcmb.o_tile;
 				rcmb.cur_frame=0;
 				rcmb.aclk = 0;
-			}
-			
-			if(cmb.trigsfx)
-				sfx(cmb.trigsfx, pan(cx));
-			
-			if(cmb.triggerflags[3] & combotriggerKILLENEMIES)
-				kill_em_all();
-			if(cmb.triggerflags[3] & combotriggerCLEARENEMIES)
-				guys.clear(true);
-			if(cmb.triggerflags[3] & combotriggerCLEARLWEAPONS)
-				Lwpns.clear(true);
-			if(cmb.triggerflags[3] & combotriggerCLEAREWEAPONS)
-				Ewpns.clear(true);
-			
-			if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
-			{
-				takeitem(cmb.triggeritem);
-			}
-			if(onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
-			{
-				if(ctramnt >= cmb.trigctramnt)
-				{
-					game->change_counter(-cmb.trigctramnt, cmb.trigctr);
-				}
-			}
-			bool trigexstate = true;
-			if(cmb.spawnenemy)
-			{
-				enemy* enm = nullptr;
-				bool enm_ex = (cmb.triggerflags[2] & combotriggerEXSTENEMY);
-				word numcreated = addenemy(ffc_handle.screen_index, cx, cy, cmb.spawnenemy, -10);
-				if(numcreated)
-				{
-					word index = guys.Count() - numcreated;
-					enm = (enemy*)guys.spr(index);
-				}
-				if(enm_ex)
-				{
-					trigexstate = false;
-					if(enm)
-					{
-						enm->deathexstate = cmb.exstate;
-					}
-				}
-			}
-			if(cmb.spawnitem)
-			{
-				bool itm_ex = (cmb.triggerflags[2] & combotriggerEXSTITEM);
-				bool specitem = (cmb.triggerflags[2] & combotriggerSPCITEM);
-				if(specitem && getmapflag(mSPECIALITEM))
-				{
-					//already collected
-					if(itm_ex) trigexstate = true;
-				}
-				else
-				{
-					const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
-					int32_t pflags = cmb.spawnip & allowed_pflags;
-					SETFLAG(pflags, ipONETIME2, specitem);
-					int32_t item_id = cmb.spawnitem;
-					if(item_id < 0)
-					{
-						item_id = select_dropitem(-item_id);
-					}
-					item* itm = nullptr;
-					if(unsigned(item_id) < MAXITEMS)
-					{
-						itm = new item(cx, cy, 0, item_id, pflags, 0);
-						items.add(itm);
-					}
-					if(itm_ex)
-					{
-						trigexstate = false;
-						if(itm) itm->pickupexstate = cmb.exstate;
-					}
-					if(cmb.triggerflags[2] & combotriggerAUTOGRABITEM)
-					{
-						if(itm) itm->set_forcegrab(true);
-					}
-				}
-			}
-			
-			if(cmb.exstate > -1 && trigexstate)
-			{
-				setxmapflag(ffc_handle.screen_index, exflag);
-			}
-			if(cmb.exdoor_dir > -1)
-			{
-				set_xdoorstate(cmb.exdoor_dir, cmb.exdoor_ind);
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set

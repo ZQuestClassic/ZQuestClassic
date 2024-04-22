@@ -92,6 +92,19 @@ struct bottletype
 		flags = 0;
 		next_type = 0;
 	}
+	bool is_blank() const
+	{
+		if(name[0])
+			return false;
+		for(int q = 0; q < 3; ++q)
+		{
+			if(counter[q] > -1 && amount[q] > 0)
+				return false;
+			if(next_type)
+				return false;
+		}
+		return true;
+	}
 };
 
 struct pondtype
@@ -216,8 +229,8 @@ struct miscQdata
 	int32_t zscript_last_compiled_version;
 	byte sprites[sprMAX];
 	
-	bottletype bottle_types[64];
-	bottleshoptype bottle_shop_types[256];
+	bottletype bottle_types[NUM_BOTTLE_TYPES];
+	bottleshoptype bottle_shop_types[NUM_BOTTLE_SHOPS];
 	
 	byte miscsfx[sfxMAX];
 };

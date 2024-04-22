@@ -18,6 +18,8 @@ static AccessorTable AudioTable[] =
 	{ "PlayEnhancedMusic",       0,          ZTID_BOOL,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getPanStyle",             0,         ZTID_FLOAT,   AUDIOPAN,               0,  { ZTID_AUDIO },{} },
 	{ "setPanStyle",             0,          ZTID_VOID,   AUDIOPAN,               0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "getMIDI",                 0,         ZTID_FLOAT,   GETMIDI,                0,  { ZTID_AUDIO },{} },
+	{ "setMIDI",                 0,          ZTID_VOID,   GETMIDI,        FL_RDONLY,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	
 	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
 	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },

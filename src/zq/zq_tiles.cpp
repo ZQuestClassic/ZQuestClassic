@@ -6397,7 +6397,21 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		{
 			auto id = bii[u].i;
 			itemdata& itm = itemsbuf[id];
-			movelist->add_tile(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
+			if(itm.family == itype_bottle)
+			{
+				vector<std::tuple<int,int,int>> rects;
+				auto fr = itm.frames;
+				for(int q = 0; q < NUM_BOTTLE_TYPES; ++q)
+				{
+					bottletype const& bt = QMisc.bottle_types[q];
+					if(bt.is_blank())
+						continue;
+					rects.emplace_back(fr+q*fr, fr, 1);
+				}
+				movelist->add_tile(&itm.tile, fr, 1, fmt::format("Item {}", id),
+					false, 0, 0, rects);
+			}
+			else movelist->add_tile(&itm.tile, itm.frames, 1, fmt::format("Item {}", id));
 		}
 		if(!every_proc && !movelist->check_prot())
 			return false;
@@ -11034,7 +11048,7 @@ bool select_combo_3(int32_t &cmb,int32_t &cs)
 bool advpaste(int32_t tile, int32_t tile2, int32_t copy)
 {
 	static bitstring pasteflags;
-	static const vector<def_pair<string,string>> advp_names =
+	static const vector<CheckListInfo> advp_names =
 	{
 		{ "Tile" },
 		{ "CSet2" },

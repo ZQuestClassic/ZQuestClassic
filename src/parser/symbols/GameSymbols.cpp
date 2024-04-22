@@ -1,4 +1,5 @@
 #include "SymbolDefs.h"
+#include "parser/Types.h"
 
 GameSymbols GameSymbols::singleton = GameSymbols();
 
@@ -14,11 +15,11 @@ static AccessorTable gameTable[] =
 	{ "_setMaxEWeapons",            0,          ZTID_VOID,   SPRITEMAXEWPN,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "_getMaxItemsprites",         0,         ZTID_FLOAT,   SPRITEMAXITEM,             0,  { ZTID_GAME },{} },
 	{ "_setMaxItemsprites",         0,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
-	{ "_getGetCurScreen",           0,         ZTID_FLOAT,   CURSCR,                    0,  { ZTID_GAME },{} },
-	{ "_getGetCurDMapScreen",       0,         ZTID_FLOAT,   CURDSCR,                   0,  { ZTID_GAME },{} },
-	{ "_getGetCurMap",              0,         ZTID_FLOAT,   CURMAP,                    0,  { ZTID_GAME },{} },
-	{ "_getGetCurDMap",             0,         ZTID_FLOAT,   CURDMAP,                   0,  { ZTID_GAME },{} },
-	{ "_getGetCurLevel",            0,         ZTID_FLOAT,   CURLEVEL,                  0,  { ZTID_GAME },{} },
+	{ "_getGetCurScreen",           0,         ZTID_FLOAT,   CURSCR,              FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurScreen' instead!" },
+	{ "_getGetCurDMapScreen",       0,         ZTID_FLOAT,   CURDSCR,             FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurDMapScreen' instead!" },
+	{ "_getGetCurMap",              0,         ZTID_FLOAT,   CURMAP,              FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurMap' instead!" },
+	{ "_getGetCurDMap",             0,         ZTID_FLOAT,   CURDMAP,             FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurDMap' instead!" },
+	{ "_getGetCurLevel",            0,         ZTID_FLOAT,   CURLEVEL,            FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurLevel' instead!" },
 	{ "getCurScreen",               0,         ZTID_FLOAT,   CURSCR,                    0,  { ZTID_GAME },{} },
 	{ "setCurScreen",               0,          ZTID_VOID,   CURSCR,            FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "getCurDMapScreen",           0,         ZTID_FLOAT,   CURDSCR,                   0,  { ZTID_GAME },{} },
@@ -42,7 +43,7 @@ static AccessorTable gameTable[] =
 	{ "getTime",                    0,          ZTID_LONG,   GAMETIME,                  0,  { ZTID_GAME },{} },
 	{ "setTime",                    0,          ZTID_VOID,   GAMETIME,                  0,  { ZTID_GAME, ZTID_LONG },{} },
 	{ "getHasPlayed",               0,          ZTID_BOOL,   GAMEHASPLAYED,             0,  { ZTID_GAME },{} },
-	{ "setHasPlayed",               0,          ZTID_VOID,   GAMEHASPLAYED,             0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "setHasPlayed",               0,          ZTID_VOID,   GAMEHASPLAYED,       FL_RDONLY,  { ZTID_GAME, ZTID_BOOL },{} },
 	{ "getTypingMode",              0,          ZTID_BOOL,   TYPINGMODE,                0,  { ZTID_GAME },{} },
 	{ "setTypingMode",              0,          ZTID_VOID,   TYPINGMODE,                0,  { ZTID_GAME, ZTID_BOOL },{} },
 	{ "getTimeValid",               0,          ZTID_BOOL,   GAMETIMEVALID,             0,  { ZTID_GAME },{} },
@@ -78,7 +79,7 @@ static AccessorTable gameTable[] =
 	{ "GetDMapScreenD",             0,       ZTID_UNTYPED,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "SetDMapScreenD",             0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "LoadItemData",               0,     ZTID_ITEMCLASS,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
-	{ "_getGetMIDI",                0,         ZTID_FLOAT,   GETMIDI,                   0,  { ZTID_GAME },{} },
+	{ "_getGetMIDI",                0,         ZTID_FLOAT,   GETMIDI,             FL_DEPR,  { ZTID_GAME },{},0,"Use 'Audio->MIDI' instead!" },
 	{ "Save",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "End",                        0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
 	{ "Reload",                     0,          ZTID_VOID,   -1,           FL_EXIT|FL_INL,  { ZTID_GAME },{} },
@@ -127,7 +128,9 @@ static AccessorTable gameTable[] =
 	{ "getDisableItem[]",           0,          ZTID_BOOL,   DISABLEDITEM,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setDisableItem[]",           0,          ZTID_VOID,   DISABLEDITEM,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
 //	Get the map count 
-	{ "_getMapCount",               0,         ZTID_FLOAT,   GAMEMAXMAPS,               0,  { ZTID_GAME },{} },
+	{ "_getMapCount",               0,         ZTID_FLOAT,   GAMEMAXMAPS,         FL_DEPR,  { ZTID_GAME },{},0,"Use '->MapCount' instead!" },
+	{ "getMapCount",                0,         ZTID_FLOAT,   GAMEMAXMAPS,               0,  { ZTID_GAME },{} },
+	{ "setMapCount",                0,          ZTID_VOID,   GAMEMAXMAPS,       FL_RDONLY,  { ZTID_GAME,ZTID_FLOAT },{} },
 //	Versioning
 	{ "getZScriptVersion",          0,         ZTID_FLOAT,   ZSCRIPTVERSION,            0,  { ZTID_GAME },{} },
 	{ "setZScriptVersion",          0,          ZTID_VOID,   ZSCRIPTVERSION,    FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT },{} },
@@ -184,15 +187,17 @@ static AccessorTable gameTable[] =
 	{ "setMouseCursor",             0,          ZTID_VOID,   GAMEMOUSECURSOR,           0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "SetCustomCursor",            0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL },{ 0, 0 } },
 	
-	{ "_getNumSavedPortals",        0,         ZTID_FLOAT,   SAVEDPORTALCOUNT,          0,  { ZTID_GAME },{} },
+	{ "_getNumSavedPortals",        0,         ZTID_FLOAT,   SAVEDPORTALCOUNT,    FL_DEPR,  { ZTID_GAME },{},0,"Use '->NumSavedPortals' instead!" },
+	{ "getNumSavedPortals",         0,         ZTID_FLOAT,   SAVEDPORTALCOUNT,          0,  { ZTID_GAME },{} },
+	{ "setNumSavedPortals",         0,          ZTID_VOID,   SAVEDPORTALCOUNT,  FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadSavedPortal",            0,     ZTID_SAVPORTAL,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "CreateSavedPortal",          0,     ZTID_SAVPORTAL,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "constSavedPortals",          0,     ZTID_SAVPORTAL,   INTARR_SAVPRTL*10000, FL_ARR,  { ZTID_GAME },{} },
 	
 	{ "getTrigGroups[]",            0,         ZTID_FLOAT,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT },{} },
-	{ "setTrigGroups[]",            0,          ZTID_VOID,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "setTrigGroups[]",            0,          ZTID_VOID,   GAMETRIGGROUPS,        FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getTriggerGroups[]",         0,         ZTID_FLOAT,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT },{} },
-	{ "setTriggerGroups[]",         0,          ZTID_VOID,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "setTriggerGroups[]",         0,          ZTID_VOID,   GAMETRIGGROUPS,        FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	{ "getOverrideItems[]",         0,         ZTID_FLOAT,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setOverrideItems[]",         0,          ZTID_VOID,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -248,14 +253,6 @@ static AccessorTable gameTable[] =
 	{ "GetScreenDoor",              0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
 	{ "SetScreenDoor",              0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
 	
-	{ "SetScreenWidth",             0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "GetScreenWidth",             0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "SetScreenHeight",            0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "GetScreenHeight",            0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "SetScreenViewX",             0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "GetScreenViewX",             0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "SetScreenViewY",             0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "GetScreenViewY",             0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "SetScreenGuy",               0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
 	{ "GetScreenGuy",               0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
 	{ "SetScreenString",            0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{},0,"Use 'mapdata->' vars instead!" },
@@ -1813,132 +1810,7 @@ void GameSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
-	//void SetScreenWidth(game, int32_t,int32_t,int32_t)
-	{
-		Function* function = getFunction("SetScreenWidth");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENWIDTH), new VarArgument(SFTEMP)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//int32_t GetScreenWidth(game, int32_t,int32_t)
-	{
-		Function* function = getFunction("GetScreenWidth");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENWIDTH)));
-		RETURN();
-		function->giveCode(code);
-	}
-	
-	//void SetScreenHeight(game, int32_t,int32_t,int32_t)
-	{
-		Function* function = getFunction("SetScreenHeight");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENHEIGHT), new VarArgument(SFTEMP)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//int32_t GetScreenHeight(game, int32_t,int32_t)
-	{
-		Function* function = getFunction("GetScreenHeight");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENHEIGHT)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//void SetScreenViewX(game, int32_t,int32_t,int32_t)
-	{
-		Function* function = getFunction("SetScreenViewX");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENVIEWX), new VarArgument(SFTEMP)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//int32_t GetScreenViewX(game, int32_t,int32_t)
-	{
-		Function* function = getFunction("GetScreenViewX");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENVIEWX)));
-		RETURN();
-		function->giveCode(code);
-	}
-	 //void SetScreenViewY(game, int32_t,int32_t,int32_t)
-	{
-		Function* function = getFunction("SetScreenViewY");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENVIEWY), new VarArgument(SFTEMP)));
-		RETURN();
-		function->giveCode(code);
-	}
-	//int32_t GetScreenViewY(game, int32_t,int32_t)
-	{
-		Function* function = getFunction("GetScreenViewY");
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENVIEWY)));
-		RETURN();
-		function->giveCode(code);
-	}
+
 	//void SetScreenGuy(game, int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetScreenGuy");

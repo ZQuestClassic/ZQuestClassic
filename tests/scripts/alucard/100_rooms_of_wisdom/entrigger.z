@@ -12,7 +12,7 @@ ffc script EnemySecret{
 		npc trigger = Screen->LoadNPC(enemyslot); // Get a pointer for needed enemy
 		while ( trigger->isValid()) Waitframe(); //Wait until enemy dies.
 		Screen->TriggerSecrets(); // Trigger secrets
-		Game->PlaySound(SFX_SECRET); //Play secret discovery jingle.
+		Audio->PlaySound(SFX_SECRET); //Play secret discovery jingle.
 		if (perm>0) Screen->State[ST_SECRET]=true; //Set screen state to render secrets permanent.
 	}
 }
@@ -24,7 +24,7 @@ ffc script SecretKillAllEnemies{
 	void run(int state){
 		Waitframes(4); // Needed to allow engine to initialize enemies
 		while (!Screen->State[state]) Waitframe(); // Wait until desired screen state is set to true 
-		for (int i=1; i<= Screen->NumNPCs(); i++){ // Kill all enemies on screen
+		for (int i=1; i<= Screen->NumNPCs; i++){ // Kill all enemies on screen
 			npc kill= Screen->LoadNPC(i);
 			kill->HP=0;
 		}
@@ -42,7 +42,7 @@ ffc script ScreenStateTrigger{
 	void run (int state, int perm, int falsestart){
 		if (falsestart>0) Screen->State[state]=false; // Set the screen state to false if needed (like reusable ambush trap)
 		while (!Screen->State[state]) Waitframe(); // Wait until screen state is set to true.
-		Game->PlaySound(SFX_SECRET); //Trigger screen secrets, complete with all accessories.
+		Audio->PlaySound(SFX_SECRET); //Trigger screen secrets, complete with all accessories.
 		Screen->TriggerSecrets();
 		if (perm>0) Screen->State[ST_SECRET]=true;
 	}
@@ -61,7 +61,7 @@ ffc script SpecialItemDropper{
 		int dropitem= Screen->RoomData; //See "Catch All" menu to set special item.
 		if (dropitem == 0) Quit(); //No item set. Finita la comedia.
 		while (Screen->ComboD[loc] == origcombo) Waitframe(); //Wait until combo changes into another one.
-		Game->PlaySound(SFX_DROP_ITEM); //Play item drop jingle.
+		Audio->PlaySound(SFX_DROP_ITEM); //Play item drop jingle.
 		item prize= Screen->CreateItem(dropitem); //Create Special Item.
 		prize->X=this->X; //Place it at FFC`s position.
 		prize->Y=this->Y;
@@ -83,7 +83,7 @@ ffc script StateSpecialItem{
 			framespassed++;
 			Waitframe();
 		}
-		if (framespassed) Game->PlaySound(SFX_DROP_ITEM); //If the screen state was already TRUE, no secret discovery jingle will play.
+		if (framespassed) Audio->PlaySound(SFX_DROP_ITEM); //If the screen state was already TRUE, no secret discovery jingle will play.
 		item prize= Screen->CreateItem(dropitem); //Create Special Item.
 		prize->X=this->X; //Place it at FFC`s position.
 		prize->Y=this->Y;

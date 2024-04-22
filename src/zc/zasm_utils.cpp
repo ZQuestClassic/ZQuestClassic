@@ -2,6 +2,8 @@
 #include "base/zdefs.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
+#include "zasm/serialize.h"
+#include "zasm/table.h"
 #include <cstdint>
 #include <fmt/format.h>
 #include <xxhash.h>
@@ -306,9 +308,9 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 
 		for (pc_t i = function.start_pc; i <= function.final_pc; i++)
 		{
-			pc_t command = script->zasm[i].command;
-			auto& op = script->zasm[i];
-			std::string str = script_debug_command_to_string(command, op.arg1, op.arg2, op.arg3, op.vecptr, op.strptr);
+			const auto& op = script->zasm[i];
+			pc_t command = op.command;
+			std::string str = zasm_op_to_string(op);
 			ss <<
 				std::setw(5) << std::right << i << ": " <<
 				std::left << std::setw(45) << str;
@@ -637,7 +639,7 @@ std::pair<bool, bool> get_command_rw(int command, int arg)
 	bool read = false;
 	bool write = false;
 
-	const auto& sc = get_script_command(command);
+	auto& sc = get_script_command(command);
 	if (sc.args >= arg)
 	{
 		if (sc.arg_type[arg] == ARGTY::READ_REG)

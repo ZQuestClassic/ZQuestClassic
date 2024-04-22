@@ -381,7 +381,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		falsestr = inv ? "true" : "false";
 	if(host.isDecl())
 	{
-		string const& declname = host.declaration->name;
+		string const& declname = host.declaration->getName();
 		if(!host.getScope())
 		{
 			host.setScope(scope->makeChild());
@@ -493,7 +493,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		falsestr = inv ? "true" : "false";
 	if(host.isDecl())
 	{
-		string const& declname = host.declaration->name;
+		string const& declname = host.declaration->getName();
 		if(!host.getScope())
 		{
 			host.setScope(scope->makeChild());

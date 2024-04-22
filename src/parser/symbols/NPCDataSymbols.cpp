@@ -1171,5 +1171,19 @@ void NPCDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	{
+		Function* function = getFunction("SetEAnim");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new ONDataSetEAnim(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

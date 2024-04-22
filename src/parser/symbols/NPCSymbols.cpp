@@ -9,8 +9,10 @@ static AccessorTable npcTable[] =
 	{ "setX",                       0,          ZTID_VOID,   NPCX,                      0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getFrame",                   0,         ZTID_FLOAT,   NPCFRAME,                  0,  { ZTID_NPC },{} },
 	{ "setFrame",                   0,          ZTID_VOID,   NPCFRAME,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
-	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXNPC,              0,  { ZTID_NPC },{} },
-	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXNPC,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXNPC,        FL_DEPR,  { ZTID_NPC },{},0,"Use '->Max' instead!" },
+	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXNPC,        FL_DEPR,  { ZTID_NPC, ZTID_FLOAT },{},0,"Use '->Max' instead!" },
+	{ "getMax",                     0,         ZTID_FLOAT,   SPRITEMAXNPC,              0,  { ZTID_NPC },{} },
+	{ "setMax",                     0,          ZTID_VOID,   SPRITEMAXNPC,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getY",                       0,         ZTID_FLOAT,   NPCY,                      0,  { ZTID_NPC },{} },
 	{ "setY",                       0,          ZTID_VOID,   NPCY,                      0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getZ",                       0,         ZTID_FLOAT,   NPCZ,                      0,  { ZTID_NPC },{} },
@@ -44,7 +46,7 @@ static AccessorTable npcTable[] =
 	{ "getHP",                      0,         ZTID_FLOAT,   NPCHP,                     0,  { ZTID_NPC },{} },
 	{ "setHP",                      0,          ZTID_VOID,   NPCHP,                     0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getID",                      0,         ZTID_FLOAT,   NPCID,                     0,  { ZTID_NPC },{} },
-	{ "setID",                      0,          ZTID_VOID,   NPCID,                     0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setID",                      0,          ZTID_VOID,   NPCID,                  FL_RDONLY,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getType",                    0,         ZTID_FLOAT,   NPCTYPE,                   0,  { ZTID_NPC },{} },
 	{ "setType",                    0,          ZTID_VOID,   NPCTYPE,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getFamily",                  0,         ZTID_FLOAT,   NPCTYPE,                   0,  { ZTID_NPC },{} },
@@ -90,7 +92,7 @@ static AccessorTable npcTable[] =
 	{ "getDrawYOffset",             0,         ZTID_FLOAT,   NPCYOFS,                   0,  { ZTID_NPC },{} },
 	{ "setDrawYOffset",             0,          ZTID_VOID,   NPCYOFS,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getTotalDYOffset",           0,         ZTID_FLOAT,   NPCTOTALDYOFFS,            0,  { ZTID_NPC },{} },
-	{ "setTotalDYOffset",           0,          ZTID_VOID,   NPCTOTALDYOFFS,            0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setTotalDYOffset",           0,          ZTID_VOID,   NPCTOTALDYOFFS,    FL_RDONLY,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getDrawZOffset",             0,         ZTID_FLOAT,   NPCZOFS,                   0,  { ZTID_NPC },{} },
 	{ "setDrawZOffset",             0,          ZTID_VOID,   NPCZOFS,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getHitXOffset",              0,         ZTID_FLOAT,   NPCHXOFS,                  0,  { ZTID_NPC },{} },
@@ -330,7 +332,7 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Check validity
 		addOpcode2 (code, new ONPCDead(new VarArgument(EXP1)));
@@ -343,7 +345,7 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Check validity
 		addOpcode2 (code, new ONPCCanSlide(new VarArgument(EXP1)));
@@ -356,7 +358,7 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Check validity
 		addOpcode2 (code, new ONPCSlide(new VarArgument(EXP1)));
@@ -372,7 +374,7 @@ void NPCSymbols::generateCode()
 		POPREF();
 		LABELBACK(label);
 		//Break shield
-		addOpcode2 (code, new ONPCRemove(new VarArgument(EXP1)));
+		addOpcode2 (code, new ONPCRemove());
 		RETURN();
 		 function->giveCode(code);
 	}
@@ -382,10 +384,10 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Break shield
-		addOpcode2 (code, new ONPCStopSFX(new VarArgument(EXP1)));
+		addOpcode2 (code, new ONPCStopSFX());
 		RETURN();
 		 function->giveCode(code);
 	}
@@ -395,10 +397,10 @@ void NPCSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		POPREF();
 		LABELBACK(label);
 		//Break shield
-		addOpcode2 (code, new ONPCAttack(new VarArgument(EXP1)));
+		addOpcode2 (code, new ONPCAttack());
 		RETURN();
 		 function->giveCode(code);
 	}

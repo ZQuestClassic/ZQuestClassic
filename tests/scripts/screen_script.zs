@@ -14,7 +14,7 @@ screendata script ScreenScriptTest
 			if(this->ComboD[pos]==changeCMB)
 			{
 				++this->ComboD[pos];
-				Game->PlaySound(changeSFX);
+				Audio->PlaySound(changeSFX);
 			}
 			
 			// Drawing pre waitdraw

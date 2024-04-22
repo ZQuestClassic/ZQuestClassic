@@ -1,0 +1,11 @@
+Compiling 'errors_6.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+ZQ_BUFFER Line 14 @ Columns 5-6 - Error S008: There is already a variable with name a in this scope.
+ZQ_BUFFER Line 17 @ Columns 6-10 - Error S004: Function blah was already declared with that type signature.
+ZQ_BUFFER Line 5 @ Columns 6-7 - Error S008: There is already a variable with name a in this scope.
+ZQ_BUFFER Line 10 @ Columns 7-10 - Error S087: Duplicate class with name Car already exists.
+ZQ_BUFFER Line 8 @ Columns 7-11 - Error S004: Function blah was already declared with that type signature.
+Failure!
+Compile finished with exit code '8' (compiled with errors)

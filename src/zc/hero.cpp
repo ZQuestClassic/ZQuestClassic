@@ -1640,7 +1640,7 @@ void HeroClass::init()
 	usecounts.clear();
 	scale = 0;
 	rotation = 0;
-	do_animation = 1;
+	do_animation = true;
 	if(lift_wpn)
 	{
 		delete lift_wpn;
@@ -1722,7 +1722,7 @@ void HeroClass::init()
     id=0;
     inlikelike=0;
     superman=inwallm=false;
-    scriptcoldet=1;
+    scriptcoldet=true;
     blowcnt=whirlwind=specialcave=0;
     hopclk=diveclk=fallclk=0;
 	fallCombo = 0;
@@ -6289,7 +6289,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	int indx = Lwpns.find(w);
 	//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
 	//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
-	if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
+	if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 	{
 		if(w->id==wFire && (superman ? (diagonalMovement?w->hit(x+4,y+4-fakez,z,7,7,1):w->hit(x+7,y+7-fakez,z,2,2,1)) : w->hit(this))&&
 					(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
@@ -6422,7 +6422,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	
 	if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_qr(qr_OUCHBOMBS)))
 	{
-		if(((w->id==wBomb)||(w->id==wSBomb)) && !superman && (scriptcoldet&1) && !fallclk)
+		if(((w->id==wBomb)||(w->id==wSBomb)) && !superman && scriptcoldet && !fallclk)
 		{
 			bool didhit = w->hit(this);
 			if(didhit)
@@ -6769,7 +6769,7 @@ void HeroClass::checkhit()
 		int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
 		//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
 		//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
-		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
+		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 		{
 			if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4-fakez,z,7,7,1):s->hit(x+7,y+7-fakez,z,2,2,1)) : s->hit(this))&&
 						(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
@@ -6903,7 +6903,7 @@ void HeroClass::checkhit()
 		
 		if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_qr(qr_OUCHBOMBS)))
 		{
-			if(((s->id==wBomb)||(s->id==wSBomb)) && !superman && (scriptcoldet&1) && !fallclk)
+			if(((s->id==wBomb)||(s->id==wSBomb)) && !superman && scriptcoldet && !fallclk)
 			{
 				weapon* w = (weapon*)s;
 				bool didhit = s->hit(this);
@@ -7073,7 +7073,7 @@ void HeroClass::checkhit()
 			if (hithero(hit2) == 0) return;
 		}
 	} while (hit2 != -1);
-	if (superman || !(scriptcoldet&1) || fallclk) return;
+	if (superman || !scriptcoldet || fallclk) return;
 	hit2 = LwpnHit();
 	
 	if(hit2!=-1)
@@ -7657,7 +7657,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		
 		return -1;
 	}
-	else if(superman || !(scriptcoldet&1) || fallclk)
+	else if(superman || !scriptcoldet || fallclk)
 		return 0;
 	//!TODO SOLIDPUSH Enemy flag to make them not deal contact damage
 	//!Add a flag check to this if:
@@ -8142,8 +8142,7 @@ heroanimate_skip_liftwpn:;
 	
 	if(cheats_execute_light)
 	{
-		naturaldark = !naturaldark;
-		lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding its current setting
+		toggle_lights(pal_litOVERRIDE); //Forcibly set permLit, overriding its current setting
 		cheats_execute_light = false;
 	}
 	
@@ -22204,13 +22203,15 @@ void HeroClass::checkgenpush(rpos_t rpos)
 		auto rpos_handle = get_rpos_handle(rpos, layer);
 		auto& cmb = rpos_handle.combo();	
 		if (cmb.triggerflags[1] & combotriggerPUSH)
-			do_trigger_combo(rpos_handle);
+		{
+			if (pushing && !(pushing % zc_max(1, cmb.trig_pushtime)))
+				do_trigger_combo(rpos_handle);
+		}
 	}
 }
 
 void HeroClass::checkgenpush()
 {
-	if(pushing < 8 || pushing % 8) return;
 	zfix bx, by;
 	zfix bx2, by2;
 	switch(dir)
@@ -22254,8 +22255,11 @@ void HeroClass::checkgenpush()
 				auto& cmb3 = ffc_handle.combo();
 				if(cmb3.triggerflags[1] & combotriggerPUSH)
 				{
-					do_trigger_combo_ffc(ffc_handle);
-					return false;
+					if(pushing && !(pushing % zc_max(1,cmb3.trig_pushtime)))
+					{
+						do_trigger_combo_ffc(ffc_handle);
+						return false;
+					}
 				}
 			}
 			return true;
@@ -29103,10 +29107,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				action=none; FFCore.setHeroAction(none);
 			}
 		}
+		else if((lastaction == attacking || lastaction == sideswimattacking) && charging)
+		{
+			action = lastaction; FFCore.setHeroAction(lastaction);
+		}
+		else
+		{
+			action=none; FFCore.setHeroAction(none);
+		}
 		
 		// The naturaldark state can be read/set by an FFC script before
 		// fade() or lighting() is called.
-		naturaldark = ((TheMaps[currmap*MAPSCRS+heroscr].flags & fDARK) != 0);
+		naturaldark = !get_qr(qr_NEW_DARKROOM) && (newscr->flags & fDARK);
 		
 		if(newscr->oceansfx != oldscr->oceansfx)	adjust_sfx(oldscr->oceansfx, 128, false);
 		
@@ -29572,6 +29584,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				do_layer(framebuf, -1, screen_handles[1], offx, offy); //overhead combos
 				do_layer(framebuf, -1, screen_handles[2], offx, offy); //overhead combos
 			}
+
 			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_dest_scr); //layer 5
 			{
 				int draw_ffc_x = is_new_screen ? ffc_offset_x : 0;
@@ -29716,7 +29729,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		currdmap = destdmap;
 		dlevel = DMaps[destdmap].level;
 	}
-		
+	
 	//if Hero is going from non-water to water, and we set his animation to "hopping" above, we must now
 	//change it to swimming - since we have manually moved Hero onto the first tile, the hopping code
 	//will get confused and try to hop Hero onto the next (possibly nonexistant) water tile in his current
@@ -29800,7 +29813,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		action=none; FFCore.setHeroAction(none);
 	}
-		
+	
 	if(action != attacking && action != sideswimattacking)
 	{
 		charging = 0;
@@ -31844,7 +31857,7 @@ void HeroClass::heroDeathAnimation()
 	music_stop();
 	
 	attackclk=hclk=superman=0;
-	scriptcoldet = 1;
+	scriptcoldet = true;
     
 	for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -31886,7 +31899,7 @@ void HeroClass::heroDeathAnimation()
 				music_stop();
 				
 				attackclk=hclk=superman=0;
-				scriptcoldet = 1;
+				scriptcoldet = true;
 			    
 				for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
 			    

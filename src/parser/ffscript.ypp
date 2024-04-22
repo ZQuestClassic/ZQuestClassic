@@ -30,6 +30,7 @@ extern char* yytext;
 extern int32_t yyleng;
 extern int32_t yylex(void);
 extern FILE *yyin, *yyout;
+extern ZScript::AST* first_identifier_for_line;
 extern void resetLexer();
 void yyerror(std::unique_ptr<ASTFile>& root, const char* s);
 void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
@@ -391,14 +392,15 @@ Global_Statement :
 Namespace :
 	NAMESPACE Scoperes_Identifier_List LBRACE RBRACE {
 		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
-		ASTNamespace* namesp = new ASTNamespace(@$, idens->components.front());
-		std::vector<std::string> components = idens->components;
+		ASTNamespace* namesp = new ASTNamespace(@$);
+		namesp->identifier = idens->componentNodes.front()->clone();
+		auto& components = idens->componentNodes;
 		if(components.size() > 1)
-			for(std::vector<std::string>::const_iterator it = components.begin() + 1;
+			for(auto it = components.begin() + 1;
 				it != components.end(); ++it)
 			{
-				string name = *it;
-				ASTNamespace* subsp = new ASTNamespace(@$, name);
+				ASTNamespace* subsp = new ASTNamespace(@$);
+				subsp->identifier = (*it)->clone();
 				namesp->namespaces.push_back(subsp);
 			}
 		delete idens;
@@ -406,22 +408,22 @@ Namespace :
 	}
 	| NAMESPACE Scoperes_Identifier_List LBRACE Namespace_Block_List RBRACE {
 		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
-		std::vector<std::string> components = idens->components;
-		std::string name = components.front();
-		int32_t size = idens->components.size();
+		auto& components = idens->componentNodes;
+		int32_t size = components.size();
 		if(size == 1)
 		{
 			ASTNamespace* namesp = (ASTNamespace*)$4;
-			namesp->setName(name);
+			namesp->identifier = components.front()->clone();
 			namesp->location = @$;
 			delete idens;
 			$$ = namesp;
 		}
 		else if(size == 2)
 		{
-			ASTNamespace* top = new ASTNamespace(@$, name);
+			ASTNamespace* top = new ASTNamespace(@$);
+			top->identifier = components.front()->clone();
 			ASTNamespace* namesp = (ASTNamespace*)$4;
-			namesp->setName(components[1]);
+			namesp->identifier = components[1]->clone();
 			namesp->location = @$;
 			top->namespaces.push_back(namesp);
 			delete idens;
@@ -429,18 +431,19 @@ Namespace :
 		}
 		else
 		{
-			ASTNamespace* top = new ASTNamespace(@$, name);
+			ASTNamespace* top = new ASTNamespace(@$);
+			top->identifier = components.front()->clone();
 			ASTNamespace* temp = top;
 			ASTNamespace* temp2;
 			ASTNamespace* namesp = (ASTNamespace*)$4;
-			namesp->setName(components.back());
+			namesp->identifier = components.back()->clone();
 			components.pop_back();
 			namesp->location = @$;
-			for(std::vector<std::string>::const_iterator it = components.begin() + 1;
+			for(auto it = components.begin() + 1;
 				it != components.end(); ++it)
 			{
-				name = *it;
-				temp2 = new ASTNamespace(@$, name);
+				temp2 = new ASTNamespace(@$);
+				temp->identifier = (*it)->clone();
 				temp->namespaces.push_back(temp2);
 				temp = temp2;
 			}
@@ -684,7 +687,7 @@ DataType : ZCONST DataType {
 	//Typedef types
 	| Identifier_List {
 			ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
-			$$ = new ASTDataType(DataTypeUnresolved(iden), @$);
+			$$ = new ASTDataType(new DataTypeUnresolved(iden), @$);
 			}
 	;
 
@@ -740,9 +743,11 @@ Data_Element_Array_List :
 	| Identifier {
 			ASTString* name = (ASTString*)$1;
 			ASTDataDecl* element = new ASTDataDecl(@$);
-			element->name = name->getValue();
+			element->identifier = name;
+			element->doc_comment = std::move(name->doc_comment);
+			if (!first_identifier_for_line) first_identifier_for_line = element;
 			$$ = element;
-			delete name;}
+		}
 	;
 
 Single_Data_req_assign :
@@ -750,7 +755,7 @@ Single_Data_req_assign :
 		ASTDataType* type = (ASTDataType*)$1;
 		ASTString* name = (ASTString*)$2;
 		ASTDataDecl* element = new ASTDataDecl(@$);
-		element->name = name->getValue();
+		element->identifier = name;
 		ASTExpr* initializer = (ASTExpr*)$4;
 		element->setInitializer(initializer);
 		element->baseType = type;
@@ -847,9 +852,9 @@ Function_Heading :
 	{
 		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
 		ASTFuncDecl* func = (ASTFuncDecl*)$3;
-		func->iden = iden;
-		func->name = iden->components.back();
+		func->identifier = iden;
 		func->location = @$;
+		func->doc_comment = std::move(iden->doc_comment);
 		$$ = func;}
 	;
 
@@ -875,10 +880,9 @@ Function_Parameters_Element :
 		ASTDataType* type = (ASTDataType*)$1;
 		ASTString* name = (ASTString*)$2;
 		ASTDataDecl* element = new ASTDataDecl(@$);
-		element->name = name->getValue();
+		element->identifier = name;
 		element->baseType = type;
-		$$ = element;
-		delete name;}
+		$$ = element;}
 	;
 Function_Parameters_Bracket_Element :
 	DataType LBRACKET RBRACKET Identifier {
@@ -886,10 +890,9 @@ Function_Parameters_Bracket_Element :
 		type->becomeArray = true;
 		ASTString* name = (ASTString*)$4;
 		ASTDataDecl* element = new ASTDataDecl(@$);
-		element->name = name->getValue();
+		element->identifier = name;
 		element->baseType = type;
-		$$ = element;
-		delete name;}
+		$$ = element;}
 	;
 
 Function_OptParams_List :
@@ -923,10 +926,11 @@ Class :
 	ZCLASS IDENTIFIER Class_Block {
 		ASTString* name = (ASTString*)$2;
 		ASTClass* user_class = (ASTClass*)$3;
-		user_class->name = name->getValue();
 		user_class->location = @$;
-		$$ = user_class;
-		delete name;}
+		user_class->identifier = name;
+		user_class->doc_comment = std::move(name->doc_comment);
+		if (!first_identifier_for_line) first_identifier_for_line = user_class;
+		$$ = user_class;}
 	;
 
 Class_Block :
@@ -962,7 +966,7 @@ Class_Block_List :
 		if(user_class->destructor)
 		{
 			auto const& loc = func->location;
-			yyerrmsg("ERROR: Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
+			yyerrmsg("ERROR: Class can only have one destructor!",loc.first_line,loc.first_column,func->getName().c_str());
 			delete func;
 		}
 		else user_class->destructor = func;
@@ -988,7 +992,7 @@ Class_Block_List :
 		if(user_class->destructor)
 		{
 			auto const& loc = func->location;
-			yyerrmsg("ERROR: Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
+			yyerrmsg("ERROR: Class can only have one destructor!",loc.first_line,loc.first_column,func->getName().c_str());
 			delete func;
 		}
 		else user_class->destructor = func;
@@ -1247,21 +1251,21 @@ Script :
 		ASTScriptType* type = (ASTScriptType*)$1;
 		ASTString* name = (ASTString*)$3;
 		ASTScript* script = (ASTScript*)$4;
+		script->identifier = name;
 		script->type = type;
 		script->metadata.script_name = name->getValue();
 		script->location = @$;
-		$$ = script;
-		delete name;}
+		$$ = script;}
 
 	| SCRIPTSTRUCT IDENTIFIER Script_Block {
 		ASTScriptType* type = new ASTScriptType(ParserScriptType::untyped, @$);
 		ASTString* name = (ASTString*)$2;
 		ASTScript* script = (ASTScript*)$3;
+		script->identifier = name;
 		script->type = type;
 		script->metadata.script_name = name->getValue();
 		script->location = @$;
-		$$ = script;
-		delete name;}
+		$$ = script;}
 	;
 
 
@@ -1878,32 +1882,40 @@ Enum_Block:
 		ASTString* name = (ASTString*)$3;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
+		element->doc_comment = std::move(name->doc_comment);
 		en->add(element);
+		delete name;
 		$$ = en;}
 	| Enum_Block COMMA IDENTIFIER ASSIGN Expression_Constant {
 		ASTDataEnum* en = (ASTDataEnum*)$1;
 		ASTString* name = (ASTString*)$3;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
+		element->doc_comment = std::move(name->doc_comment);
 		ASTExprConst* value = (ASTExprConst*)$5;
 		element->setInitializer(value);
 		en->add(element);
+		delete name;
 		$$ = en;}
 	| IDENTIFIER {
 		ASTDataEnum* en = new ASTDataEnum(@$);
 		ASTString* name = (ASTString*)$1;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
+		element->doc_comment = std::move(name->doc_comment);
 		en->add(element);
+		delete name;
 		$$ = en;}
 	| IDENTIFIER ASSIGN Expression_Constant {
 		ASTDataEnum* en = new ASTDataEnum(@$);
 		ASTString* name = (ASTString*)$1;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
+		element->doc_comment = std::move(name->doc_comment);
 		ASTExprConst* value = (ASTExprConst*)$3;
 		element->setInitializer(value);
 		en->add(element);
+		delete name;
 		$$ = en;}*/
 
 ////////////////////////////////////////////////////////////////
@@ -1936,34 +1948,34 @@ Mixed_Identifier_List:
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back(".");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| idlist_scopres DOT Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back(".");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| Mixed_Identifier_List ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back("::");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| idlist_dot ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back("::");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	;
 
 idlist_scopres:
@@ -1971,18 +1983,18 @@ idlist_scopres:
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back("::");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| Ambigious_Iden_List ScopeRes Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back("::");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| ScopeRes Ambigious_Iden_List {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$2;
 		identifier->noUsing = true;
@@ -1994,25 +2006,28 @@ idlist_dot:
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back(".");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	| Ambigious_Iden_List DOT Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
 		identifier->delimiters.push_back(".");
 		identifier->location = @$;
-		$$ = identifier;
-		delete name;}
+		$$ = identifier;}
 	;
 
 Ambigious_Iden_List:
 	Identifier {
 		ASTString* name = (ASTString*)$1;
-		$$ = new ASTExprIdentifier(name->getValue(), @$);
-		delete name;}
+		ASTExprIdentifier* identifier = new ASTExprIdentifier(name->getValue(), @$);
+		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
+		identifier->doc_comment = std::move(name->doc_comment);
+		if (!first_identifier_for_line) first_identifier_for_line = identifier;
+		$$ = identifier;}
 	;
 
 Identifier :
@@ -2097,8 +2112,7 @@ Expr_Arrow :
 	Expr_3 ARROW IDENTIFIER {
 			ASTExpr* left = (ASTExpr*)$1;
 			ASTString* right = (ASTString*)$3;
-			$$ = new ASTExprArrow(left, right->getValue(), @$);
-			delete right;}
+			$$ = new ASTExprArrow(left, right, @$);}
 	;
 
 Expr_3 : Expr_2 {$$ = $1;}

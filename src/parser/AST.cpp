@@ -614,6 +614,12 @@ ASTString::ASTString(const char* str, LocationData const& location)
 	: AST(location), str(static_cast<string>(str))
 {}
 
+ASTString::ASTString(const char* str, std::string comment, LocationData const& location)
+	: AST(location), str(static_cast<string>(str))
+{
+	doc_comment = comment;
+}
+
 ASTString::ASTString(string const& str, LocationData const& location)
 	: AST(location), str(str)
 {}
@@ -1047,7 +1053,7 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), script(NULL)
+	: ASTDecl(location), identifier(NULL), type(NULL), script(NULL)
 {
 	metadata.autogen();
 }
@@ -1082,7 +1088,7 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 // ASTClass
 
 ASTClass::ASTClass(LocationData const& location)
-	: ASTDecl(location), name(""), user_class(NULL)
+	: ASTDecl(location), identifier(NULL), user_class(NULL)
 {}
 
 void ASTClass::execute(ASTVisitor& visitor, void* param)
@@ -1114,8 +1120,8 @@ void ASTClass::addDeclaration(ASTDecl& declaration)
 
 // ASTNamespace
 
-ASTNamespace::ASTNamespace(LocationData const& location, std::string name)
-	: ASTDecl(location), name(name), namesp(NULL)
+ASTNamespace::ASTNamespace(LocationData const& location)
+	: ASTDecl(location), namesp(NULL)
 {}
 
 void ASTNamespace::addDeclaration(ASTDecl& declaration)
@@ -1196,8 +1202,8 @@ void ASTImportCondDecl::execute(ASTVisitor& visitor, void* param)
 // ASTFuncDecl
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
-	: ASTDecl(location), returnType(NULL), iden(NULL), block(NULL), invalidMsg(""), func(NULL), parentScope(NULL), prototype(false),
-	  defaultReturn(NULL), flags(0)
+	: ASTDecl(location), identifier(NULL), returnType(NULL), block(NULL), invalidMsg(""), func(NULL), parentScope(NULL),
+	  prototype(false), defaultReturn(NULL), flags(0)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
@@ -1221,7 +1227,17 @@ void ASTFuncDecl::setFlag(int32_t flag, bool state)
 
 bool ASTFuncDecl::isRun() const
 {
-	return name == FFCore.scriptRunString;
+	return getName() == FFCore.scriptRunString;
+}
+
+const std::string& ASTFuncDecl::getName() const
+{
+	return identifier->components.back();
+}
+
+std::optional<LocationData> ASTFuncDecl::getIdentifierLocation() const
+{
+	return identifier->componentNodes.back()->location;
 }
 
 // ASTDataDeclList
@@ -1296,15 +1312,15 @@ void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 // ASTDataDecl
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
-	: ASTDecl(location), list(NULL), manager(NULL),
-	  baseType(NULL), initializer_(NULL), flags(0)
+	: ASTDecl(location), identifier(NULL), list(NULL),
+	  manager(NULL), baseType(NULL), flags(0), initializer_(NULL)
 {}
 
 ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
 	: ASTDecl(other),
-	  list(NULL), manager(NULL),
+	  identifier(other.identifier), list(NULL),
+	  manager(NULL),
 	  baseType(other.baseType),
-	  name(other.name),
 	  extraArrays(other.extraArrays)
 {
 	if(other.initializer_)
@@ -1318,7 +1334,7 @@ ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
 	list = NULL;
 	manager = NULL;
 	baseType = rhs.baseType;
-	name = rhs.name;
+	identifier = rhs.identifier;
 	extraArrays = rhs.extraArrays;
 	setInitializer(rhs.initializer_.clone());
 
@@ -1391,6 +1407,11 @@ void ASTDataDecl::replaceType(DataType const& newty)
 {
 	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
 	baseTypeNode->replace(newty);
+}
+
+Scope* ASTDataDecl::getScope() const
+{
+	return &manager->scope;
 }
 
 bool ZScript::hasSize(ASTDataDecl const& decl)
@@ -1669,7 +1690,7 @@ DataType const* ASTExprIdentifier::getWriteType(Scope* scope, CompileErrorHandle
 
 // ASTExprArrow
 
-ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
+ASTExprArrow::ASTExprArrow(ASTExpr* left, ASTString* right,
 						   LocationData const& location)
 	: ASTExpr(location), left(left), right(right), index(NULL),
 	  leftClass(NULL), arrayFunction(NULL), readFunction(NULL), writeFunction(NULL),
@@ -1683,7 +1704,7 @@ void ASTExprArrow::execute(ASTVisitor& visitor, void* param)
 
 string ASTExprArrow::asString() const
 {
-	string s = left->asString() + "->" + right;
+	string s = left->asString() + "->" + right->getValue();
 	if (index != NULL) s += "[" + index->asString() + "]";
 	return s;
 }

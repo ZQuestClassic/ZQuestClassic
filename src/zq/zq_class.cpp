@@ -9673,10 +9673,19 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.exdoor_dir > -1
 		|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown
 		|| tmp_cmb.trig_genscr || tmp_cmb.trig_group
-		|| tmp_cmb.trig_group_val
+		|| tmp_cmb.trig_group_val || tmp_cmb.trig_levelitems
+		|| tmp_cmb.trigdmlevel > -1
+		|| tmp_cmb.triglvlpalette > -1 || tmp_cmb.trigbosspalette > -1
+		|| tmp_cmb.trigquaketime > -1 || tmp_cmb.trigwavytime > -1
+		|| tmp_cmb.trig_swjinxtime > -2 || tmp_cmb.trig_itmjinxtime > -2
+		|| tmp_cmb.trig_stuntime > -2 || tmp_cmb.trig_bunnytime > -2
+		|| tmp_cmb.trig_pushtime != 8
 		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
 		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
 		combo_has_flags |= CHAS_TRIG;
+	else for(int q = 0; q < 3; ++q)
+		if(tmp_cmb.trigtint[q])
+			combo_has_flags |= CHAS_TRIG;
 	if(tmp_cmb.usrflags || tmp_cmb.genflags)
 		combo_has_flags |= CHAS_FLAG;
 	if(tmp_cmb.frames || tmp_cmb.speed || tmp_cmb.nextcombo
@@ -9850,6 +9859,31 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 89;
 		if(!p_putc(tmp_cmb.exdoor_ind,f))
 			return 90;
+		if(!p_putc(tmp_cmb.trig_levelitems,f))
+			return 91;
+		if(!p_iputw(tmp_cmb.trigdmlevel,f))
+			return 92;
+		for(int q = 0; q < 3; ++q)
+			if(!p_putc(tmp_cmb.trigtint[q],f))
+				return 93;
+		if(!p_iputw(tmp_cmb.triglvlpalette,f))
+			return 94;
+		if(!p_iputw(tmp_cmb.trigbosspalette,f))
+			return 95;
+		if(!p_iputw(tmp_cmb.trigquaketime,f))
+			return 96;
+		if(!p_iputw(tmp_cmb.trigwavytime,f))
+			return 97;
+		if(!p_iputw(tmp_cmb.trig_swjinxtime,f))
+			return 98;
+		if(!p_iputw(tmp_cmb.trig_itmjinxtime,f))
+			return 99;
+		if(!p_iputw(tmp_cmb.trig_stuntime,f))
+			return 100;
+		if(!p_iputw(tmp_cmb.trig_bunnytime,f))
+			return 101;
+		if(!p_putc(tmp_cmb.trig_pushtime,f))
+			return 102;
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{

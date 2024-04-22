@@ -518,7 +518,7 @@ bool Collision(combodata f)
 {
 	int ax = Link->X + Link->HitXOffset;
 	int ay = Link->Y + Link->HitYOffset;
-	return RectCollision(f->PosX(), f->PosY(), f->PosX()+15, f->PosY()+15, ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1);
+	return RectCollision(f->X, f->Y, f->X+15, f->Y+15, ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1);
 }
 
 //Finds the location of a combo, given its (x,y) coordinates on the screen
@@ -1179,7 +1179,7 @@ eweapon Duplicate(eweapon a)
 bool EnemiesAlive()
 {
 	bool alive = false;
-	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	for ( int q = Screen->NumNPCs; q > 0; --q )
 	{
 		npc n = Screen->LoadNPC(q);
 		if ( n->Type != NPCT_PROJECTILE )
@@ -2387,7 +2387,7 @@ bool LinkCollision(ffc f)
 eweapon LoadEWeaponOf(int type)
 {
 	eweapon w;
-	for ( int i = Screen->NumEWeapons(); i > 0; --i )
+	for ( int i = Screen->NumEWeapons; i > 0; --i )
 	{
 		w = Screen->LoadEWeapon(i);
 		if (w->ID == type) return w;
@@ -2401,7 +2401,7 @@ eweapon LoadEWeaponOf(int type)
 lweapon LoadLWeaponOf(int type)
 {
 	lweapon w;
-	for ( int i = Screen->NumLWeapons(); i > 0; --i )
+	for ( int i = Screen->NumLWeapons; i > 0; --i )
 	{
 		w = Screen->LoadLWeapon(i);
 		if (w->ID == type) return w;
@@ -2415,7 +2415,7 @@ lweapon LoadLWeaponOf(int type)
 npc LoadNPCOf(int type)
 {
 	npc n;
-	for ( int i = Screen->NumNPCs(); i > 0; --i )
+	for ( int i = Screen->NumNPCs; i > 0; --i )
 	{
 		n = Screen->LoadNPC(i);
 		if (n->ID == type) return n;
@@ -2429,7 +2429,7 @@ npc LoadNPCOf(int type)
 npc LoadNPCOfType(int type)
 {
 	npc n;
-	for ( int i = Screen->NumNPCs(); i > 0; --i )
+	for ( int i = Screen->NumNPCs; i > 0; --i )
 	{
 		n = Screen->LoadNPC(i);
 		if (n->Type == type) return n;
@@ -2578,7 +2578,7 @@ void NoAction()
 int NumberEnemies()
 {
 	int count;
-	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	for ( int q = Screen->NumNPCs; q > 0; --q )
 	{
 		npc n = Screen->LoadNPC(q);
 		if ( n->Type != NPCT_PROJECTILE )
@@ -2602,7 +2602,7 @@ int NumEWeaponsOf(int type)
 {
 	int ret = 0;
 	eweapon w;
-	for (int i = Screen->NumEWeapons(); i > 0; --i)
+	for (int i = Screen->NumEWeapons; i > 0; --i)
 	{
 		w = Screen->LoadEWeapon(i);
 		if (w->ID == type)
@@ -2618,7 +2618,7 @@ int NumItemsOf(int type)
 {
 	int ret = 0;
 	item it;
-	for (int i = Screen->NumItems(); i > 0 ; --i)
+	for (int i = Screen->NumItems; i > 0 ; --i)
 	{
 		it = Screen->LoadItem(i);
 		if (it->ID == type)
@@ -2642,7 +2642,7 @@ int NumLWeaponsOf(int type)
 {
 	int ret = 0;
 	lweapon w;
-	for (int i = Screen->NumLWeapons(); i > 0; --i)
+	for (int i = Screen->NumLWeapons; i > 0; --i)
 	{
 		w = Screen->LoadLWeapon(i);
 		if (w->ID == type)
@@ -2656,7 +2656,7 @@ int NumNPCsOf(int type)
 {
 	int ret = 0;
 	npc n;
-	for (int i = Screen->NumNPCs(); i > 0 ; --i)
+	for (int i = Screen->NumNPCs; i > 0 ; --i)
 	{
 		n = Screen->LoadNPC(i);
 		if (n->ID == type)

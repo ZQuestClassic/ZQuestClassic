@@ -18,6 +18,7 @@ src/parser/ScriptParser.cpp
 src/parser/SemanticAnalyzer.cpp
 src/parser/RegistrationVisitor.cpp
 src/parser/ReturnVisitor.cpp
+src/parser/MetadataVisitor.cpp
 src/parser/Types.cpp
 src/parser/ZScript.cpp
 

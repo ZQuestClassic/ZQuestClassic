@@ -42,7 +42,3 @@ private:
 ScriptDebugHandle* script_debug_get_handle(int type, script_data* script);
 int script_debug_is_runtime_debugging();
 std::string script_debug_registers_and_stack_to_string();
-std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3, vector<int>* argvec, string* argstr);
-std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3);
-std::string script_debug_command_to_string(const ffscript& c);
-std::string script_debug_command_to_string(word scommand);

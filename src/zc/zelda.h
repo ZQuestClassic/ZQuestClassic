@@ -395,7 +395,7 @@ extern std::set<int> loaded_enemies_for_screen;
 extern bool down_control_states[controls::btnLast];
 extern bool F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
-extern bool fixed_door, darkroom,naturaldark,BSZ;            //,NEWSUBSCR;
+extern bool fixed_door, room_is_dark, darkroom,naturaldark,BSZ;            //,NEWSUBSCR;
 extern bool hookshot_used, hookshot_frozen, pull_hero, hs_fix, hs_switcher, cheat_superman, gofast, checkhero;
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;

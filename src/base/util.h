@@ -43,6 +43,7 @@ namespace util
 	void sanitize(std::string& str);
 	void sanitize_spaces_ok(std::string& str);
 	size_t split(const std::string &txt, std::vector<std::string> &strs, char ch);
+	std::vector<std::string> split(const std::string& str, const std::string& delim);
 	std::vector<std::string> split_args(const std::string &str);
 	std::string read_text_file(fs::path path);
 	std::istream &portable_get_line(std::istream &is, std::string &t);

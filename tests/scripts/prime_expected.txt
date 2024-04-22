@@ -8,75 +8,80 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-
-PUSHR d0; void run(int) Params
+=== METADATA (elided)
+{
+  "currentFileSymbols": 5,
+  "symbols": 5,
+  "identifiers": 13
+}
+PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHV 0
-SETR d4,SP2
+SETR D4,SP2
 STOREV 2,0; for() #2 setup AND while(true) #1 Body [Opt:AlwaysOn] Start
-LOAD d2,0; for() #2 LoopTest
-PUSHR d2
-LOAD d2,0.0002
-POP d3
-COMPARER d3,d2
-SETCMP d2,I<=
-COMPAREV d2,0
+LOAD D2,0; for() #2 LoopTest
+PUSHR D2
+LOAD D2,0.0002
+POP D3
+COMPARER D3,D2
+SETCMP D2,I<=
+COMPAREV D2,0
 GOTOCMP 37,==; for() #2 TestFail?
-LOAD d2,0.0002; if() #2 Test AND for() #2 Body Start
-PUSHR d2
-LOAD d2,0
-POP d3
-MODR d3,d2
-SETR d2,d3
-COMPAREV d2,0
-SETCMP d2,I!=
-COMPAREV d2,0
+LOAD D2,0.0002; if() #2 Test AND for() #2 Body Start
+PUSHR D2
+LOAD D2,0
+POP D3
+MODR D3,D2
+SETR D2,D3
+COMPAREV D2,0
+SETCMP D2,I!=
+COMPAREV D2,0
 GOTOCMP 33,!=; Test 'if' AND continue 1; AND if() #2 Body
-PUSHR d4; if() #3 Test
-LOAD d2,0; UsrFunc[bool is_prime(int)] Params Start
-PUSHR d2; UsrFunc[bool is_prime(int)] Params End
+PUSHR D4; if() #3 Test
+LOAD D2,0; UsrFunc[bool is_prime(int)] Params Start
+PUSHR D2; UsrFunc[bool is_prime(int)] Params End
 CALLFUNC 0.0039; UsrFunc[bool is_prime(int)] Call
-POP d4
-COMPAREV d2,0
+POP D4
+COMPAREV D2,0
 GOTOCMP 33,==; Test 'if'
-LOAD d2,0; InlineFunc[void Trace(untyped)] Params AND if() #3 Body Start
-TRACER d2; InlineFunc[void Trace(untyped)] Body AND if() #3 Body End
-LOAD d2,0; for() #2 Body End AND for() #2 LoopIncrement
-ADDV d2,1
-STORE d2,0
+LOAD D2,0; InlineFunc[void Trace(untyped)] Params AND if() #3 Body Start
+TRACER D2; InlineFunc[void Trace(untyped)] Body AND if() #3 Body End
+LOAD D2,0; for() #2 Body End AND for() #2 LoopIncrement
+ADDV D2,1
+STORE D2,0
 GOTO 6; for() #2 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
 GOTO 5; while() #1 End AND [Opt:NeverRet] AND void run(int) Body End
 PUSHV 0; Func[bool is_prime(int)] Body Start
-SETR d4,SP2
+SETR D4,SP2
 STOREV 2,0; for() #1 setup
-LOAD d2,0; for() #1 LoopTest
-PUSHR d2
-LOAD d2,0.0001
-DIVV d2,2
-POP d3
-COMPARER d3,d2
-SETCMP d2,I<=
-COMPAREV d2,0
+LOAD D2,0; for() #1 LoopTest
+PUSHR D2
+LOAD D2,0.0001
+DIVV D2,2
+POP D3
+COMPARER D3,D2
+SETCMP D2,I<=
+COMPAREV D2,0
 GOTOCMP 67,==; for() #1 TestFail?
-LOAD d2,0.0001; if() #1 Test AND for() #1 Body Start
-PUSHR d2
-LOAD d2,0
-POP d3
-MODR d3,d2
-SETR d2,d3
-COMPAREV d2,0
-SETCMP d2,I==
-COMPAREV d2,0
+LOAD D2,0.0001; if() #1 Test AND for() #1 Body Start
+PUSHR D2
+LOAD D2,0
+POP D3
+MODR D3,D2
+SETR D2,D3
+COMPAREV D2,0
+SETCMP D2,I==
+COMPAREV D2,0
 GOTOCMP 63,==; Test 'if'
-SETV d2,0; return Start AND if() #1 Body Start
+SETV D2,0; return Start AND if() #1 Body Start
 GOTO 68; return End AND if() #1 Body End
-LOAD d2,0; for() #1 Body End AND for() #1 LoopIncrement
-ADDV d2,1
-STORE d2,0
+LOAD D2,0; for() #1 Body End AND for() #1 LoopIncrement
+ADDV D2,1
+STORE D2,0
 GOTO 42; for() #1 End
-SETV d2,1; return Start
-POPARGS d5,0.0002; return End
+SETV D2,1; return Start
+POPARGS D5,0.0002; return End
 RETURNFUNC; Func[bool is_prime(int)] Body End
 
 

@@ -7,7 +7,7 @@ ffc script WaitingPuzzle{
 			time--;
 			Waitframe();
 		}
-		Game->PlaySound(27);
+		Audio->PlaySound(27);
 		Screen->TriggerSecrets();
 		Screen->State[ST_SECRET]=true;
 	}

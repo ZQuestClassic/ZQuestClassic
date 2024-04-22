@@ -30,7 +30,7 @@ ffc script LightsOut{
 			int cmb = ComboAt(CenterLinkX(), CenterLinkY());
 			if ((Screen->ComboD[cmb]==cmb_on)||(Screen->ComboD[cmb]==cmb_off)){
 				if (Link->PressA || Link->PressEx1){
-					Game->PlaySound(SFX_LIGHTSOUT_PUZZLE_MOVE);
+					Audio->PlaySound(SFX_LIGHTSOUT_PUZZLE_MOVE);
 					if (Screen->ComboD[cmb]==cmb_on){
 						Screen->ComboD[cmb] = cmb_off;
 						numlightson--;
@@ -80,7 +80,7 @@ ffc script LightsOut{
 						}
 					}
 					if (numlightson==0){
-						Game->PlaySound(SFX_LIGHTSOUT_PUZZLE_SOLVED);
+						Audio->PlaySound(SFX_LIGHTSOUT_PUZZLE_SOLVED);
 						Screen->TriggerSecrets();
 						Screen->State[ST_SECRET]=true;
 						Quit();

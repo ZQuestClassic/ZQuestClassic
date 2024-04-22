@@ -4834,7 +4834,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	//11. Handle low drawn darkness
 	bool draw_dark = false;
-	if(get_qr(qr_NEW_DARKROOM))
+	if(get_qr(qr_NEW_DARKROOM) && room_is_dark)
 	{
 		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
 			mapscr* base_screen = screen_handles[0].screen;
@@ -4862,7 +4862,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 	
 	//Darkroom if under the subscreen
-	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && draw_dark)
+	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && draw_dark && room_is_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
@@ -4908,7 +4908,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	draw_msgstr(6);
 	
 	//14. Handle high-drawn darkness
-	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && draw_dark)
+	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && draw_dark && room_is_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
@@ -5877,6 +5877,10 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		mblock2.yofs = Hero.yofs = playing_field_offset = 56;
 		original_playing_field_offset = 56;
 	}
+
+	// TODO !!!! needed with my dark changes?
+	// room_is_dark = (tmpscr[tmp].flags & fDARK);
+	room_is_dark = true;
 
 	game->load_portal();
 	throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);

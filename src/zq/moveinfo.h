@@ -38,6 +38,7 @@ struct BaseTileRef
 		this->w = zc_max(1,w);
 		this->h = zc_max(1,h);
 	}
+	virtual ~BaseTileRef() = default;
 };
 struct TileRefPtr : public BaseTileRef
 {
@@ -187,6 +188,7 @@ struct BaseComboRef
 	BaseComboRef(string name = "")
 		: name(name), no_move(false)
 	{}
+	virtual ~BaseComboRef() = default;
 };
 struct ComboRefPtr : public BaseComboRef
 {

@@ -69,7 +69,10 @@ export function activate(context: ExtensionContext) {
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
 			fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
-		}
+		},
+		markdown: {
+			isTrusted: true,
+		},
 	};
 
 	// Create the language client and start the client.
@@ -79,6 +82,24 @@ export function activate(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
+
+	const command = {
+		id: 'zscript.openLink',
+		isTextEditorCommand: false,
+		async execute(args) {
+			return await vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(args.file), <vscode.TextDocumentShowOptions>{
+				selection: new vscode.Range(
+					new vscode.Position(
+						args.position?.start.line ?? 0, args.position?.start.character ?? 0),
+					new vscode.Position(
+						args.position?.end.line ?? 0, args.position?.end.character ?? 0)),
+			});
+		},
+	};
+	const disposable = command.isTextEditorCommand ?
+        vscode.commands.registerTextEditorCommand(command.id, command.execute) :
+        vscode.commands.registerCommand(command.id, command.execute);
+    context.subscriptions.push(disposable);
 
 	// Start the client. This will also launch the server
 	client.start();

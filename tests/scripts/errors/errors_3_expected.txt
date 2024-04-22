@@ -3,11 +3,11 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ZQ_BUFFER Line 13 @ Columns 13-25 - Error T017: Cannot cast from Object to int.
+ZQ_BUFFER Line 13 @ Columns 13-19 - Error T017: Cannot cast from Object to int.
 ZQ_BUFFER Line 14 @ Columns 3-15 - Error T017: Cannot cast from int to Object.
-ZQ_BUFFER Line 15 @ Columns 7-24 - Error T017: Cannot cast from Object[] to int[].
-ZQ_BUFFER Line 16 @ Columns 10-29 - Error T017: Cannot cast from int[] to Object[].
-ZQ_BUFFER Line 22 @ Columns 8-29 - Error T017: Cannot cast from Object[] to auto[].
-ZQ_BUFFER Line 23 @ Columns 8-30 - Error T017: Cannot cast from int[] to auto[].
+ZQ_BUFFER Line 15 @ Columns 7-14 - Error T017: Cannot cast from Object[] to int[].
+ZQ_BUFFER Line 16 @ Columns 10-17 - Error T017: Cannot cast from int[] to Object[].
+ZQ_BUFFER Line 22 @ Columns 8-16 - Error T017: Cannot cast from Object[] to auto[].
+ZQ_BUFFER Line 23 @ Columns 8-16 - Error T017: Cannot cast from int[] to auto[].
 Failure!
 Compile finished with exit code '17' (compiled with errors)

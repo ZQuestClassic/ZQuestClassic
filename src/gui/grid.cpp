@@ -6,10 +6,10 @@ using std::shared_ptr;
 namespace GUI
 {
 
-Grid::Grid(type growthType, size_t growthLimit):
+Grid::Grid(type growthType, size_t size1, size_t size2):
 	rowSpacing(0), colSpacing(0),
 	growthType(growthType),
-	growthLimit(growthLimit)
+	size1(size1), size2(size2)
 {}
 
 void Grid::applyVisibility(bool visible)
@@ -37,28 +37,41 @@ void Grid::add(std::shared_ptr<Widget> child)
 	for(size_t q = 0;;++q)
 	{
 		if(usedIndexes[q]) continue;
-		uint8_t mainspan, altspan;
-		if(growthType == type::ROWS)
-		{
-			mainspan = child->getColSpan();
-			altspan = child->getRowSpan();
-		}
-		else
-		{
-			mainspan = child->getRowSpan();
-			altspan = child->getColSpan();
-		}
-		children[q] = std::move(child);
+		size_t col_lim = size_t(-1), row_lim = size_t(-1);
 		
-		for(size_t altind = 0; altind < altspan; ++altind)
+		switch(growthType)
 		{
-			for(size_t ind = 0; ind < mainspan && ((q+ind)/growthLimit == (q/growthLimit)); ++ind)
+			case type::ROWS:
+				col_lim = size1;
+				break;
+			case type::COLUMNS:
+				row_lim = size1;
+				break;
+			case type::ROWS_COLUMNS:
+				row_lim = size2;
+				break;
+			case type::COLUMNS_ROWS:
+				col_lim = size2;
+				break;
+		}
+		
+		for(size_t colind = 0; colind < child->getColSpan(); ++colind)
+		{
+			auto col = get_col(q)+colind;
+			if(col >= col_lim)
+				continue;
+			for(size_t rowind = 0; rowind < child->getRowSpan(); ++rowind)
 			{
-				size_t calcIndex = q+ind+(altind*growthLimit);
-				usedIndexes[calcIndex] = true;
-				if(calcIndex!=q) children[calcIndex] = nullptr;
+				auto row = get_row(q)+rowind;
+				if(row >= row_lim)
+					continue;
+				auto indx = get_index(row,col);
+				usedIndexes[indx] = true;
+				children[indx] = nullptr;
 			}
 		}
+		//usedIndexes[q] = true;
+		children[q] = std::move(child);
 		return;
 	}
 }
@@ -69,20 +82,8 @@ void Grid::calculateSize()
 	colWidths.clear();
 	rowHeights.clear();
 	colHeights.clear();
-	size_t numRows, numCols, totalRowSpacing, totalColSpacing;
-
-	if(growthType == type::ROWS)
-	{
-		// +growthLimit-1 to round up
-		
-		numRows = 1+(maxChildIndex() / growthLimit);
-		numCols = growthLimit;
-	}
-	else
-	{
-		numRows = growthLimit;
-		numCols = 1+(maxChildIndex() / growthLimit);
-	}
+	auto [numRows, numCols] = get_counts();
+	size_t totalRowSpacing, totalColSpacing;
 
 	totalRowSpacing = (numRows-1)*rowSpacing;
 	totalColSpacing = (numCols-1)*colSpacing;
@@ -95,9 +96,7 @@ void Grid::calculateSize()
 		int32_t total = totalColSpacing, max = 0;
 		for(size_t col = 0; col < numCols; ++col)
 		{
-			size_t index = growthType == type::ROWS ?
-				row*growthLimit+col :
-				col*growthLimit+row;
+			size_t index = get_index(row,col);
 			if(!children[index])
 				continue;
 
@@ -132,9 +131,7 @@ void Grid::calculateSize()
 		int32_t total = totalRowSpacing, max = 0;
 		for(size_t row = 0; row < numRows; ++row)
 		{
-			size_t index = growthType == type::ROWS ?
-				row*growthLimit+col :
-				col*growthLimit+row;
+			size_t index = get_index(row,col);
 			if(!children[index])
 				continue;
 
@@ -169,9 +166,7 @@ void Grid::calculateSize()
 		int32_t total = totalColSpacing, max = tempRowHeights.at(row);
 		for(size_t col = 0; col < numCols; ++col)
 		{
-			size_t index = growthType == type::ROWS ?
-				row*growthLimit+col :
-				col*growthLimit+row;
+			size_t index = get_index(row,col);
 			if(!children[index])
 				continue;
 
@@ -216,9 +211,7 @@ void Grid::calculateSize()
 		int32_t total = totalRowSpacing, max = tempColWidths.at(col);
 		for(size_t row = 0; row < numRows; ++row)
 		{
-			size_t index = growthType == type::ROWS ?
-				row*growthLimit+col :
-				col*growthLimit+row;
+			size_t index = get_index(row,col);
 			if(!children[index])
 				continue;
 
@@ -287,30 +280,17 @@ void Grid::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 {
 	// This currently just assumes there's enough space for everything to be
 	// as big as it wants to be.
-	size_t numRows, numCols;
+	auto [numRows, numCols] = get_counts();
 	
 	Widget::arrange(contX, contY, contW, contH);
 	
-	if(growthType == type::ROWS)
-	{
-		numRows = 1+(maxChildIndex() / growthLimit);
-		numCols = growthLimit;
-	}
-	else
-	{
-		numRows = growthLimit;
-		numCols = 1+(maxChildIndex() / growthLimit);
-	}
-
 	int32_t cy = y;
 	for(size_t row = 0; row < numRows; ++row)
 	{
 		int32_t cx = x;
 		for(size_t col = 0; col < numCols; ++col)
 		{
-			size_t index = growthType == type::ROWS ?
-				row*growthLimit+col :
-				col*growthLimit+row;
+			size_t index = get_index(row, col);
 			if(!children[index])
 			{
 				cx += colWidths[col]+colSpacing;
@@ -347,6 +327,91 @@ void Grid::realize(DialogRunner& runner)
 		if(child.second)
 			child.second->realize(runner);
 	}
+}
+
+
+size_t Grid::get_index(size_t row, size_t col) const
+{
+	switch(growthType)
+	{
+		case type::ROWS:
+			return row*size1+col;
+		case type::COLUMNS:
+			return col*size1+row;
+		case type::ROWS_COLUMNS:
+		{
+			auto unit = col/size1;
+			auto sub = (col % size1)+(row * size1);
+			return unit*(size1*size2) + sub;
+		}
+		case type::COLUMNS_ROWS:
+		{
+			auto unit = row/size1;
+			auto sub = (row % size1)+(col * size1);
+			return unit*(size1*size2) + sub;
+		}
+		default:
+			assert(false);
+			return 0;
+	}
+}
+size_t Grid::get_row(size_t index) const
+{
+	switch(growthType)
+	{
+		case type::ROWS:
+			return index/size1;
+		case type::COLUMNS:
+			return index%size1;
+		case type::ROWS_COLUMNS:
+			return (index/size1)%size2;
+		case type::COLUMNS_ROWS:
+			return (index%size1) + ((index/(size1*size2))*size1);
+		default:
+			assert(false);
+			return 0;
+	}
+}
+size_t Grid::get_col(size_t index) const
+{
+	switch(growthType)
+	{
+		case type::ROWS:
+			return index%size1;
+		case type::COLUMNS:
+			return index/size1;
+		case type::ROWS_COLUMNS:
+			return (index%size1) + ((index/(size1*size2))*size1);
+		case type::COLUMNS_ROWS:
+			return (index/size1)%size2;
+		default:
+			assert(false);
+			return 0;
+	}
+}
+std::pair<size_t,size_t> Grid::get_counts() const
+{
+	size_t numRows, numCols;
+	switch(growthType)
+	{
+		case type::ROWS:
+			numRows = 1+(maxChildIndex() / size1);
+			numCols = size1;
+			break;
+		case type::COLUMNS:
+			numRows = size1;
+			numCols = 1+(maxChildIndex() / size1);
+			break;
+		case type::ROWS_COLUMNS:
+			numRows = size2;
+			numCols = size1*(1+(maxChildIndex() / (size1*size2)));
+			break;
+		case type::COLUMNS_ROWS:
+			numRows = size1*(1+(maxChildIndex() / (size1*size2)));
+			numCols = size2;
+			break;
+	}
+	return std::make_pair(numRows, numCols);
 }
 
 }

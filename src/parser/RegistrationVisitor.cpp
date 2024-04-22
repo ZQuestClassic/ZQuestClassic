@@ -196,7 +196,11 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 {
 	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
-	if (breakRecursion(host)) return;
+	if (breakRecursion(host))
+	{
+		doRegister(host);
+		return;
+	}
 	string name = user_class.getName();
 	
 	if(!host.type)
@@ -206,18 +210,15 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
 		{
 			handleError(
-				CompileError::RedefDataType(
-					&host, host.name));
-			temp.reset();
+				CompileError::RedefDataType(&host, host.getName()));
 			doRegister(host);
 			return;
 		}
-		temp.reset();
 		
 		//Construct a new constant type
-		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, &user_class);
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.getName(), &user_class);
 		//Construct the base type
-		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, &user_class, newConstType->getCustomId());
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.getName(), newConstType, &user_class, newConstType->getCustomId());
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -226,7 +227,7 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		user_class.setType(newBaseType);
 		
 		//This call should never fail, because of the error check above.
-		scope->addDataType(host.name, newBaseType, &host);
+		scope->addDataType(host.getName(), newBaseType, &host);
 		if (breakRecursion(*host.type.get())) return;
 		
 		for (auto it = host.constructors.begin();
@@ -545,7 +546,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	// Don't allow void type.
 	if (type->isVoid())
 	{
-		handleError(CompileError::BadVarType(&host, host.name, type->getName()));
+		handleError(CompileError::BadVarType(&host, host.getName(), type->getName()));
 		return;
 	}
 	
@@ -575,7 +576,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	if (scope->isGlobal() && !type->canBeGlobal())
 	{
 		handleError(CompileError::RefVar(
-				            &host, type->getName() + " " + host.name));
+				            &host, type->getName() + " " + host.getName()));
 		return;
 	}
 
@@ -603,7 +604,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
 		if(!isConstant && (scope->isGlobal() || scope->isScript() || scope->isClass()))
 		{
-			handleError(CompileError::ConstNotConstant(&host, host.name));
+			handleError(CompileError::ConstNotConstant(&host, host.getName()));
 			return;
 		}
 	}
@@ -611,16 +612,16 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	{
 		if(host.getInitializer())
 		{
-			handleError(CompileError::ClassNoInits(&host, host.name));
+			handleError(CompileError::ClassNoInits(&host, host.getName()));
 			return;
 		}
 	}
 
 	if (isConstant)
 	{
-		if (scope->getLocalDatum(host.name))
+		if (scope->getLocalDatum(host.getName()))
 		{
-			handleError(CompileError::VarRedef(&host, host.name));
+			handleError(CompileError::VarRedef(&host, host.getName()));
 			return;
 		}
 		
@@ -635,9 +636,9 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		}
 		else
 		{
-			if (scope->getLocalDatum(host.name))
+			if (scope->getLocalDatum(host.getName()))
 			{
-				handleError(CompileError::VarRedef(&host, host.name));
+				handleError(CompileError::VarRedef(&host, host.getName()));
 				return;
 			}
 
@@ -696,9 +697,9 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	
 	if(host.parentScope)
 		scope = host.parentScope;
-	else if(host.iden->components.size() > 1)
+	else if(host.identifier->components.size() > 1)
 	{
-		ASTExprIdentifier const& id = *(host.iden);
+		ASTExprIdentifier const& id = *(host.identifier);
 		
 		vector<string> scopeNames(id.components.begin(), --id.components.end());
 		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
@@ -751,12 +752,12 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		// Don't allow void/auto params.
 		if (type->isVoid() || type->isAuto())
 		{
-			handleError(CompileError::FunctionBadParamType(&decl, decl.name, type->getName()));
+			handleError(CompileError::FunctionBadParamType(&decl, decl.getName(), type->getName()));
 			doRegister(host);
 			scope = oldScope;
 			return;
 		}
-		paramNames.push_back(new string(decl.name));
+		paramNames.push_back(new string(decl.getName()));
 		paramTypes.push_back(type);
 	}
 	if(host.prototype)
@@ -799,7 +800,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
-			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);
+			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this);
 	host.func = function;
 	
 	scope = oldScope;
@@ -809,7 +810,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	if (function == NULL)
 	{
 		if(host.prototype) return; //Skip this error for prototype functions; error is handled inside 'addFunction()' above
-		handleError(CompileError::FunctionRedef(&host, host.name));
+		handleError(CompileError::FunctionRedef(&host, host.getName()));
 		return;
 	}
 
@@ -967,9 +968,9 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else if(user_class)
 	{
-		functions = lookupClassFuncs(*user_class, arrow->right, parameterTypes);
+		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes);
 	}
-	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
+	else functions = lookupFunctions(*arrow->leftClass, arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
