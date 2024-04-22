@@ -514,7 +514,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				for (auto&& member : user_class.getScope().getClassData())
 				{
 					auto& type = member.second->getNode()->resolveType(scope, nullptr);
-					if (type.canHoldObject())
+					if (type.isObject())
 					{
 						object_indices.push_back(member.second->getIndex());
 						object_indices.push_back((int)type.getScriptObjectTypeId());
@@ -550,7 +550,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			if (puc != puc_construct)
 			{
 				auto returnType = function.returnType;
-				oc.returns_object = returnType && returnType->canHoldObject();
+				oc.returns_object = returnType && returnType->isObject();
 			}
 			BuildOpcodes bo(scope);
 			bo.parsing_user_class = puc;
@@ -668,7 +668,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (!position)
 					continue;
 
-				if (datum->type.canHoldObject() && datum->getName() != "this")
+				if (datum->type.isObject() && datum->getName() != "this")
 				{
 					addOpcode2(funccode, new OMarkTypeStack(new LiteralArgument(1), new LiteralArgument(*position)));
 					addOpcode2(funccode, new ORefInc(new LiteralArgument(*position)));
@@ -679,7 +679,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
 			auto returnType = function.returnType;
-			oc.returns_object = returnType && returnType->canHoldObject();
+			oc.returns_object = returnType && returnType->isObject();
 			BuildOpcodes bo(scope);
 			node.execute(bo, &oc);
 
@@ -702,7 +702,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				{
 					auto position = lookupStackPosition(*scope, *datum);
 					assert(position);
-					if (datum->type.canHoldObject() && position && datum->getName() != "this")
+					if (datum->type.isObject() && position && datum->getName() != "this")
 						addOpcode2(funccode, new ORefRemove(new LiteralArgument(*position)));
 				}
 				
@@ -1534,7 +1534,7 @@ ScriptsData::ScriptsData(Program& program)
 		if(Function* run = script.getRun())
 		{
 			int32_t ind = 0;
-			for(vector<string const*>::const_iterator it = run->paramNames.begin();
+			for(vector<shared_ptr<const string>>::const_iterator it = run->paramNames.begin();
 				it != run->paramNames.end(); ++it)
 			{
 				meta.run_idens[ind] = (**it);

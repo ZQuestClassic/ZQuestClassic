@@ -546,7 +546,7 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int32_t id,
+				   vector<DataType const*> paramTypes, vector<shared_ptr<const string>> paramNames, int32_t id,
 				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
 	: returnType(returnType), name(name), hasPrefixType(false), isFromTypeTemplate(false),
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
@@ -555,13 +555,6 @@ Function::Function(DataType const* returnType, string const& name,
 	  aliased_func(nullptr), paramDatum()
 {
 	assert(returnType);
-}
-
-
-Function::~Function()
-{
-	//deleteElements(ownedCode);
-	deleteElements(paramNames);
 }
 
 std::vector<std::shared_ptr<Opcode>> Function::takeCode()
@@ -665,6 +658,33 @@ void Function::alias(Function* func, bool force)
 		assert(ownedCode.empty());
 		assert(!(label || altlabel));
 	}
+}
+
+Function* Function::apply_templ_func(DataType const* tmpl_ret_type, vector<DataType const*> tmpl_param_types)
+{
+	for(shared_ptr<Function> func : applied_funcs)
+	{
+		if(*tmpl_ret_type != *func->returnType)
+			continue;
+		if(tmpl_param_types.size() != func->paramTypes.size())
+			continue;
+		bool mismatch = false;
+		for(size_t q = 0; q < tmpl_param_types.size(); ++q)
+			if(*tmpl_param_types[q] != *func->paramTypes[q])
+			{
+				mismatch = true;
+				break;
+			}
+		if(!mismatch)
+			return func.get();
+	}
+	Function* templ = new Function(*this);
+	templ->isFromTypeTemplate = true;
+	templ->aliased_func = this;
+	templ->paramTypes = tmpl_param_types;
+	templ->returnType = tmpl_ret_type;
+	applied_funcs.emplace_back(templ);
+	return templ;
 }
 
 bool ZScript::isRun(Function const& function)

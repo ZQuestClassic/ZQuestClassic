@@ -87,9 +87,7 @@ bool TypeStore::TypeIdMapComparator::operator()(
 
 // Template types.
 DataTypeSimpleConst DataType::CTEMPLATE_T(ZTID_TEMPLATE_T, "const T");
-DataTypeSimpleConst DataType::CTEMPLATE_T_ARR(ZTID_TEMPLATE_T_ARR, "const T[]");
 DataTypeSimple DataType::TEMPLATE_T(ZTID_TEMPLATE_T, "T", &CTEMPLATE_T);
-DataTypeSimple DataType::TEMPLATE_T_ARR(ZTID_TEMPLATE_T_ARR, "T[]", &CTEMPLATE_T_ARR);
 // Standard Type definitions.
 DataTypeSimpleConst DataType::CAUTO(ZTID_AUTO, "const auto");
 DataTypeSimpleConst DataType::CUNTYPED(ZTID_UNTYPED, "const untyped");
@@ -125,7 +123,6 @@ DataType const* DataType::get(DataTypeId id)
 	switch (id)
 	{
 		case ZTID_TEMPLATE_T: return &TEMPLATE_T;
-		case ZTID_TEMPLATE_T_ARR: return &TEMPLATE_T_ARR;
 		case ZTID_UNTYPED: return &UNTYPED;
 		case ZTID_AUTO: return &ZAUTO;
 		case ZTID_VOID: return &ZVOID;
@@ -277,12 +274,9 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 {
 	if (isVoid() || target.isVoid()) return false;
 	if (isUntyped() || target.isUntyped()) return true;
+	if (target.isArray()) return false;
 	if (simpleId == ZTID_CHAR || simpleId == ZTID_LONG)
 		return FLOAT.canCastTo(target); //Char/Long cast the same as float.
-
-	if (DataTypeArray const* t =
-			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(getBaseType(*t));
 
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
@@ -331,12 +325,10 @@ bool DataTypeArray::canCastTo(DataType const& target) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
+	if (!target.isArray()) return false;
+	DataTypeArray const* targ_arr = static_cast<DataTypeArray const*>(&target);
 	
-	if (DataTypeArray const* t =
-			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(getBaseType(*t));
-	
-	return getBaseType(*this).canCastTo(target);
+	return getElementType().canCastTo(targ_arr->getElementType());
 }
 
 int32_t DataTypeArray::selfCompare(DataType const& rhs) const
@@ -354,8 +346,12 @@ DataType const& ZScript::getBaseType(DataType const& type)
 }
 DataType const* DataTypeArray::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
-	auto& ty = getBaseType(elementType);
+	auto& ty = ZScript::getBaseType(elementType);
 	return &ty;
+}
+DataType const& DataTypeArray::getBaseType() const
+{
+	return ZScript::getBaseType(elementType);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -375,10 +371,7 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-
-	if (DataTypeArray const* t =
-			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(getBaseType(*t));
+	if (target.isArray()) return false;
 	
 	if(!isClass() && !isUsrClass())
 	{

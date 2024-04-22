@@ -10,6 +10,7 @@
 #include "parser/CompilerUtils.h"
 #include "parser/parserDefs.h"
 using std::ostringstream;
+using std::shared_ptr;
 using std::unique_ptr;
 using namespace ZScript;
 
@@ -29,6 +30,10 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
+	if(function.prototype) return; //Prototype functions have no internals to analyze!
+	failure_temp = false;
+	ASTFuncDecl* functionDecl = function.node;
+	if (!functionDecl) return;
 	if(parsing_user_class == puc_construct
 		|| parsing_user_class == puc_destruct
 		|| (parsing_user_class == puc_funcs && !function.getFlag(FUNCFLAG_STATIC)))
@@ -39,10 +44,6 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		function.thisVar = BuiltinVariable::create(*function.getInternalScope(), *constType, "this", this);
 		function.getInternalScope()->stackDepth_--;
 	}
-	if(function.prototype) return; //Prototype functions have no internals to analyze!
-	failure_temp = false;
-	ASTFuncDecl* functionDecl = function.node;
-	if (!functionDecl) return;
 
 	// Grab the script.
 	Script* script = NULL;
@@ -275,10 +276,11 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	
 	//Get the type of the array expr
 	DataType const& arrtype = *host.arrExpr->getReadType(scope, this);
+	DataTypeArray const* type_as_arr = dynamic_cast<DataTypeArray const*>(&arrtype);
 	checkCast(arrtype, DataType::UNTYPED, &host);
     if (breakRecursion(host)) {scope = scope->getParent(); return;}
 	//Get the base type of this type
-	DataType const& ty = getNaiveType(arrtype, scope);
+	DataType const& elemtype = type_as_arr ? type_as_arr->getElementType() : getNaiveType(arrtype, scope);
 	
 	//The array iter declaration
 	ASTDataDecl* indxdecl = new ASTDataDecl(host.location);
@@ -289,12 +291,12 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
 	arrdecl->identifier = new ASTString("__LOOP_ARR", host.location);
 	arrdecl->setInitializer(host.arrExpr.clone());
-	arrdecl->baseType = new ASTDataType(ty, host.location);
+	arrdecl->baseType = new ASTDataType(arrtype, host.location);
 	host.arrdecl = arrdecl;
 	//The data declaration
 	ASTDataDecl* decl = new ASTDataDecl(host.location);
 	decl->identifier = host.identifier;
-	decl->baseType = new ASTDataType(ty, host.location);
+	decl->baseType = new ASTDataType(elemtype, host.location);
 	host.decl = decl;
 	
 	visit(host.indxdecl.get(), param);
@@ -689,15 +691,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 								&host, type->getName() + " " + host.getName()));
 			return;
 		}
-
-		// Currently disabled syntaxes:
-		if (getArrayDepth(*type) > 1)
-		{
-			handleError(CompileError::UnimplementedFeature(
-								&host, "Nested Array Declarations"));
-			return;
-		}
-
+		
 		// Is it a constant?
 		bool isConstant = false;
 		if (type->isConstant() && !host.getFlag(ASTDataDecl::FL_FORCE_VAR))
@@ -880,7 +874,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	// Gather the parameter types.
 	vector<DataType const*> paramTypes;
 	vector<ASTDataDecl*> const& params = host.parameters.data();
-	vector<string const*> paramNames;
+	vector<shared_ptr<const string>> paramNames;
 	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
 		 it != params.end(); ++it)
 	{
@@ -903,8 +897,13 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 			scope = oldScope;
 			return;
 		}
-		paramNames.push_back(new string(decl.getName()));
+		paramNames.emplace_back(new string(decl.getName()));
 		paramTypes.push_back(&type);
+	}
+	if(host.getFlag(FUNCFLAG_VARARGS) && !paramTypes.back()->isArray())
+	{
+		handleError(CompileError::BadVArgType(&host, paramTypes.back()->getName()));
+		return;
 	}
 	if(host.prototype)
 	{

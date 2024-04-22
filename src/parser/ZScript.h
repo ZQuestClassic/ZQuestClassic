@@ -425,10 +425,9 @@ namespace ZScript
 	{
 	public:
 		Function(DataType const* returnType, std::string const& name,
-		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames,
+		         std::vector<DataType const*> paramTypes, std::vector<std::shared_ptr<const std::string>> paramNames,
 		         int32_t id, int32_t flags = 0, int32_t internal_flags = 0, bool prototype = false, optional<int32_t> defaultReturn = nullopt);
 		Function() = default;
-		~Function();
 		
 		DataType const* returnType;
 		string name;
@@ -437,7 +436,7 @@ namespace ZScript
 		byte extra_vargs;
 		
 		std::vector<DataType const*> paramTypes;
-		std::vector<std::string const*> paramNames;
+		std::vector<std::shared_ptr<const std::string>> paramNames;
 		std::vector<Datum*> paramDatum;
 		
 		std::vector<int32_t> opt_vals;
@@ -588,6 +587,8 @@ namespace ZScript
 			return node;
 		}
 		
+		Function* apply_templ_func(DataType const* tmpl_ret_type, std::vector<DataType const*> tmpl_param_types);
+		
 	private:
 		CONSTEXPR_CBACK_TY constexpr_callback;
 		
@@ -596,6 +597,8 @@ namespace ZScript
 		int32_t flags, internal_flags;
 		FunctionScope* internalScope;
 		string info;
+		
+		std::vector<std::shared_ptr<Function>> applied_funcs;
 
 		// Code implementing this function.
 		std::vector<std::shared_ptr<Opcode>> ownedCode;

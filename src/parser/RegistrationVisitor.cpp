@@ -19,6 +19,7 @@
 extern FFScript FFCore;
 using std::ostringstream;
 using namespace ZScript;
+using std::shared_ptr;
 using std::unique_ptr;
 
 int32_t StringToVar(std::string var);
@@ -729,14 +730,6 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		return;
 	}
 
-	// Currently disabled syntaxes:
-	if (getArrayDepth(*type) > 1)
-	{
-		handleError(CompileError::UnimplementedFeature(
-				            &host, "Nested Array Declarations"));
-		return;
-	}
-
 	// Is it a constant?
 	bool isConstant = false;
 	if (type->isConstant() && !host.list->internal)
@@ -902,7 +895,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	// Gather the parameter types.
 	vector<DataType const*> paramTypes;
 	vector<ASTDataDecl*> const& params = host.parameters.data();
-	vector<string const*> paramNames;
+	vector<shared_ptr<const string>> paramNames;
 	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
 		 it != params.end(); ++it)
 	{
@@ -921,8 +914,13 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 			scope = oldScope;
 			return;
 		}
-		paramNames.push_back(new string(decl.getName()));
+		paramNames.emplace_back(new string(decl.getName()));
 		paramTypes.push_back(type);
+	}
+	if(host.getFlag(FUNCFLAG_VARARGS) && !paramTypes.back()->isArray())
+	{
+		handleError(CompileError::BadVArgType(&host, paramTypes.back()->getName()));
+		return;
 	}
 	if(host.prototype)
 	{

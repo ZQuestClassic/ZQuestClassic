@@ -272,6 +272,7 @@ namespace ZScript
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}
 		virtual bool isTypeArrowUsrClass() const {return false;}
+		virtual bool isTypeArrowNonUsrClass() const {return false;}
 		virtual bool isTypeIndex() const {return false;}
 		virtual bool isTypeIdentifier() const {return false;}
 		virtual bool isTypeVarDecl() const {return false;}
@@ -1392,6 +1393,7 @@ namespace ZScript
 		std::string asString() const;
 		bool isTypeArrow() const {return true;}
 		bool isTypeArrowUsrClass() const;
+		bool isTypeArrowNonUsrClass() const;
 
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
@@ -2295,9 +2297,10 @@ namespace ZScript
 
 		owning_ptr<DataType> type;
 		int32_t constant_;
-		bool becomeArray;
+		uint becomeArray;
 	private:
 		bool wasResolved_;
+		owning_vector<DataType> extra_types; //nested arrays would leak pointers if not for this
 	};
 }
 
