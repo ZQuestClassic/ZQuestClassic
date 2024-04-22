@@ -18,6 +18,7 @@
 using namespace ZScript;
 using namespace util;
 using std::set;
+using std::shared_ptr;
 using std::unique_ptr;
 
 ////////////////////////////////////////////////////////////////
@@ -723,44 +724,27 @@ static int applyTemplateTypes(
     const DataType* bound_t = nullptr;
 	for (size_t i = 0; i < num_params; ++i)
 	{
-		auto simpleType = dynamic_cast<const DataTypeSimple*>(function->paramTypes[i]);
+		auto arrayType = dynamic_cast<const DataTypeArray*>(function->paramTypes[i]);
+		auto simpleType = dynamic_cast<const DataTypeSimple*>(arrayType ? &arrayType->getBaseType() : function->paramTypes[i]);
 		if (!simpleType || simpleType->getId() != ZTID_TEMPLATE_T)
 			continue;
-
-		found_template_type = true;
-		if (!bound_t)
+		
+		DataType const* el_type = parameter_types[i];
+		if (arrayType)
 		{
-			bound_t = resolved_params[i] = parameter_types[i];
-			continue;
+			if(parameter_types[i]->isUntyped())
+				el_type = &DataType::UNTYPED;
+			else
+			{
+				auto target_depth = arrayType->getArrayDepth();
+				if(target_depth > parameter_types[i]->getArrayDepth())
+					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+				
+				for(int q = 0; q < target_depth; ++q)
+					el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
+			}
 		}
-
-		if (!parameter_types[i]->canCastTo(*bound_t))
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		resolved_params[i] = parameter_types[i];
-	}
-
-	for (size_t i = 0; i < num_params; ++i)
-	{
-		auto simpleType = dynamic_cast<const DataTypeSimple*>(function->paramTypes[i]);
-		if (!simpleType || simpleType->getId() != ZTID_TEMPLATE_T_ARR)
-			continue;
-
-		bool is_valid_array_type = parameter_types[i]->isArray();
-
-		// This does not need to be configurable yet, as there is no way to pass around array
-		// types until we support arrays as parameters. So most scripts would need this on right now.
-		bool allow_old_ptr_compat = true;
-		if (allow_old_ptr_compat)
-			is_valid_array_type = true;
-
-		if (!is_valid_array_type)
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		auto el_type = parameter_types[i]->isArray() ?
-			&dynamic_cast<const DataTypeArray*>(parameter_types[i])->getElementType() :
-			parameter_types[i];
-
+		
 		found_template_type = true;
 		if (!bound_t)
 		{
@@ -774,10 +758,64 @@ static int applyTemplateTypes(
 
 		resolved_params[i] = parameter_types[i];
 	}
+	
+	if (function->getFlag(FUNCFLAG_VARARGS))
+	{
+		auto last_param_type = function->paramTypes.back();
+		auto last_param_arr_type = dynamic_cast<const DataTypeArray*>(last_param_type);
+		auto last_param_base_type = dynamic_cast<const DataTypeSimple*>(last_param_arr_type ? &last_param_arr_type->getBaseType() : last_param_type);
+		if (last_param_base_type && (last_param_base_type->getId() == ZTID_TEMPLATE_T))
+		{
+			auto target_depth = last_param_type->getArrayDepth()-1; //-1 because vargs adds a layer of array around the params
+			DataType const* varg_basety = bound_t;
+			for (size_t i = num_params; i < parameter_types.size(); ++i)
+			{
+				DataType const* el_type = parameter_types[i];
+				if(last_param_arr_type)
+				{
+					if(el_type->isUntyped())
+						el_type = &DataType::UNTYPED;
+					else
+					{
+						if(target_depth > parameter_types[i]->getArrayDepth())
+							return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+						
+						for(int q = 0; q < target_depth; ++q)
+							el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
+					}
+				}
+				
+				found_template_type = true;
+				if (!bound_t)
+				{
+					varg_basety = bound_t = el_type;
+					continue;
+				}
 
+				if (!el_type->canCastTo(*bound_t))
+					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+				varg_basety = parameter_types[i];
+				
+				if (!el_type->canCastTo(*bound_t))
+					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+			}
+			if(!varg_basety)
+				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+			DataType* owned_ty = nullptr;
+			for(int q = 0; q < target_depth+1; ++q) //ensure proper ownership of the nested types //+1 because vargs
+			{
+				varg_basety = owned_ty =
+					owned_ty ? new DataTypeArray(*varg_basety, owned_ty) : new DataTypeArray(*varg_basety);
+			}
+			resolved_params.back() = varg_basety;
+		}
+	}
+	
 	auto ret_type = function->returnType;
-	auto ret_type_s = dynamic_cast<const DataTypeSimple*>(function->returnType);
-	if (ret_type_s && (ret_type_s->getId() == ZTID_TEMPLATE_T || ret_type_s->getId() == ZTID_TEMPLATE_T_ARR))
+	auto ret_type_arr = dynamic_cast<const DataTypeArray*>(function->returnType);
+	auto ret_type_s = dynamic_cast<const DataTypeSimple*>(ret_type_arr ? &ret_type_arr->getBaseType() : function->returnType);
+	if (ret_type_s && ret_type_s->getId() == ZTID_TEMPLATE_T)
 		found_template_type = true;
 
 	if (!found_template_type)
@@ -788,34 +826,18 @@ static int applyTemplateTypes(
 		if (!bound_t)
 			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 
+		auto target_depth = ret_type->getArrayDepth();
 		ret_type = bound_t;
-	}
-	else if (ret_type_s && ret_type_s->getId() == ZTID_TEMPLATE_T_ARR)
-	{
-		if (!bound_t)
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		ret_type = new DataTypeArray(*bound_t);
-	}
-
-	if (function->getFlag(FUNCFLAG_VARARGS) && bound_t)
-	{
-		auto last_param_type = dynamic_cast<const DataTypeSimple*>(function->paramTypes[num_params - 1]);
-		if (!last_param_type || (last_param_type->getId() != ZTID_TEMPLATE_T && last_param_type->getId() != ZTID_TEMPLATE_T_ARR))
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		for (size_t i = num_params; i < parameter_types.size(); ++i)
+		DataType* owned_ty = nullptr;
+		for(int q = 0; q < target_depth; ++q) //ensure proper ownership of the nested types
 		{
-			if (!parameter_types[i]->canCastTo(*bound_t))
-				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+			ret_type = owned_ty =
+				owned_ty ? new DataTypeArray(*ret_type, owned_ty) : new DataTypeArray(*ret_type);
 		}
 	}
 
-	*out_resolved_function = new Function(*function);
-	(*out_resolved_function)->isFromTypeTemplate = true;
-	(*out_resolved_function)->aliased_func = function;
-	(*out_resolved_function)->paramTypes = resolved_params;
-	(*out_resolved_function)->returnType = ret_type;
+	//Returns an existing matching function, or creates a new one, memory managed -Em
+	*out_resolved_function = function->apply_templ_func(ret_type, resolved_params);
 
 	return APPLY_TEMPLATE_RET_APPLIED;
 }
@@ -845,7 +867,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function->paramTypes.size() - (user_vargs ? 1 : 0);
 		auto minSize = maxSize - function->opt_vals.size();
-		// Match against parameter count, including std::optional params.
+		// Match against parameter count, including optional params.
 		if (minSize > targetSize || (!vargs && maxSize < targetSize))
 		{
 			it = functions.erase(it);
@@ -865,6 +887,11 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 					parametersMatch = false;
 					break;
 				}
+				else if(parameterTypes[i]->getArrayDepth() != function->paramTypes[i]->getArrayDepth())
+				{
+					parametersMatch = false;
+					break;
+				}
 			}
 			if(user_vargs && lowsize < targetSize)
 			{
@@ -872,6 +899,11 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 				for(size_t i = lowsize; i < targetSize; ++i)
 				{
 					if(getNaiveType(*parameterTypes[i],scope) != vargty)
+					{
+						parametersMatch = false;
+						break;
+					}
+					else if(parameterTypes[i]->getArrayDepth() != vargty.getArrayDepth())
 					{
 						parametersMatch = false;
 						break;
@@ -892,11 +924,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			if (apply_ret == APPLY_TEMPLATE_RET_APPLIED)
 			{
 				assert(resolved_function);
-				// This is a memory leak. The compiler is a short-lived program, so this isn't so bad.
-				// TODO: store these inside the original function. applyTemplateTypes should handle that.
-				//       should also dedupe as necessary.
-				*it = resolved_function;
-				function = resolved_function;
+				*it = function = resolved_function;
 			}
 
 			for (size_t i = 0; i < lowsize; ++i)
@@ -909,7 +937,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			}
 			if(user_vargs && lowsize < targetSize)
 			{
-				auto& vargty = *function->paramTypes.back();
+				auto& vargty = static_cast<DataTypeArray const*>(function->paramTypes.back())->getElementType();
 				for(size_t i = lowsize; i < targetSize; ++i)
 				{
 					if(!parameterTypes[i]->canCastTo(vargty))
@@ -1424,7 +1452,7 @@ bool BasicScope::addScriptType(
 
 Function* BasicScope::addGetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, AST* node)
 {
 	if (find<Function*>(getters_, name)) return NULL;
 
@@ -1436,7 +1464,7 @@ Function* BasicScope::addGetter(
 
 Function* BasicScope::addSetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, AST* node)
 {
 	if (find<Function*>(setters_, name)) return NULL;
 
@@ -1461,7 +1489,7 @@ void BasicScope::addSetter(Function* func)
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
 	bool prototype = false;
 	optional<int32_t> defRet;
@@ -1769,7 +1797,7 @@ bool FileScope::addScriptType(string const& name, ParserScriptType type, AST* no
 
 Function* FileScope::addGetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, AST* node)
 {
 	Function* result = BasicScope::addGetter(
 			returnType, name, paramTypes, paramNames, flags, node);
@@ -1781,7 +1809,7 @@ Function* FileScope::addGetter(
 
 Function* FileScope::addSetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, AST* node)
 {
 	Function* result = BasicScope::addSetter(
 			returnType, name, paramTypes, paramNames, flags, node);
@@ -1793,7 +1821,7 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		std::vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
 	Function* result = BasicScope::addFunction(
 			returnType, name, paramTypes, paramNames, flags, node, handler);
@@ -2238,7 +2266,7 @@ std::vector<Function*> ClassScope::getDestructor() const
 
 Function* ClassScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
 {
 	bool constructor = (flags&FUNCFLAG_CONSTRUCTOR);
 	bool destructor = (flags&FUNCFLAG_DESTRUCTOR);

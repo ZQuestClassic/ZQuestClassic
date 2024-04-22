@@ -344,11 +344,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	vector<shared_ptr<Opcode>> ops_stack_refs;
 	for (auto&& datum : scope->getLocalData())
 	{
-		// Currently, arrays are not reference counted.
-		if (datum->type.isArray())
-			continue;
-
-		if (!datum->type.canHoldObject())
+		if (!datum->type.isObject())
 			continue;
 
 		auto position = lookupStackPosition(*scope, *datum);
@@ -1614,7 +1610,7 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 	if (manager.getCompileTimeValue()) return;
 
 	// Switch off to the proper helper function.
-	if (manager.type.isArray()
+	if (!host.extraArrays.empty()
 		|| (init && (init->isArrayLiteral()
 					 || init->isStringLiteral())))
 	{
@@ -1640,7 +1636,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 		visit(init, &context);
 
 	auto writeType = &host.resolveType(scope, this);
-	bool is_object = writeType && writeType->canHoldObject() && !writeType->isArray();
+	bool is_object = writeType && writeType->isObject();
 
 	// Set variable to EXP1 or val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
@@ -4243,7 +4239,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 	bool is_object = false;
 	if (auto type = host.getWriteType(scope, nullptr))
-		is_object = type->canHoldObject() && !type->isArray();
+		is_object = type->isObject();
 
 	if (auto globalId = host.binding->getGlobalId())
 	{

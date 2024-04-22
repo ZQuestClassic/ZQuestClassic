@@ -128,19 +128,19 @@ namespace ZScript
 		//virtual ZClass* addClass(string const& name, AST* node) = 0;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, AST* node = NULL)
 		= 0;
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, AST* node = NULL)
 		= 0;
 		virtual void addGetter(Function* func) = 0;
 		virtual void addSetter(Function* func) = 0;
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL)
 		= 0;
 		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL) = 0;
@@ -367,17 +367,17 @@ namespace ZScript
 			/*override*/;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, AST* node = NULL);
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, AST* node = NULL);
 		virtual void addGetter(Function* func);
 		virtual void addSetter(Function* func);
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
 		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL);
 		virtual void removeFunction(Function* func);
@@ -449,15 +449,15 @@ namespace ZScript
 			/*override*/;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, AST* node = NULL);
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, AST* node = NULL);
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
 		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL);
 		virtual void removeFunction(Function* func);
@@ -565,7 +565,7 @@ namespace ZScript
 		const std::map<std::string, UserClassVar*>& getClassData();
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
-				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
 				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
 	private:
 		std::map<FunctionSignature, Function*> constructorsBySignature_;

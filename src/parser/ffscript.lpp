@@ -124,7 +124,6 @@ CONST_ASSERT	TOKEN( CASSERT );
  /* Types */
 auto		TOKEN( ZAUTO );
 T		TOKEN( TEMPLATE_T );
-T_ARR		TOKEN( TEMPLATE_T_ARR );
 void		TOKEN( ZVOID );
 untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );
@@ -150,6 +149,7 @@ rgb			TOKEN( ZRGB );
 "in"	TOKEN( IN );
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );
+"[]"		TOKEN( EMPTYBRACKETS );
 "["		TOKEN( LBRACKET );
 "]"		TOKEN( RBRACKET );
 "{"		TOKEN( LBRACE );

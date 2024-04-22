@@ -1763,6 +1763,10 @@ bool ASTExprArrow::isTypeArrowUsrClass() const
 {
 	return u_datum && !u_datum->is_internal;
 }
+bool ASTExprArrow::isTypeArrowNonUsrClass() const
+{
+	return !isTypeArrowUsrClass();
+}
 
 DataType const* ASTExprArrow::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
@@ -1799,7 +1803,7 @@ bool ASTExprIndex::isConstant() const
 DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	DataType const* type = array->getReadType(scope, errorHandler);
-	if (type && type->isArray() && !array->isTypeArrow())
+	if (type && type->isArray() && !array->isTypeArrowNonUsrClass())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
 		type = &atype->getElementType();
@@ -1810,7 +1814,7 @@ DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* err
 DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	DataType const* type = array->getWriteType(scope, errorHandler);
-	if (type && type->isArray() && !array->isTypeArrow())
+	if (type && type->isArray() && !array->isTypeArrowNonUsrClass())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
 		type = &atype->getElementType();
@@ -2896,12 +2900,12 @@ ParserScriptType ZScript::resolveScriptType(ASTScriptType const& node,
 // ASTDataType
 
 ASTDataType::ASTDataType(DataType* type, LocationData const& location)
-	: AST(location), type(type->clone()), constant_(0), becomeArray(false),
+	: AST(location), type(type->clone()), constant_(0), becomeArray(0),
 	wasResolved_(false)
 {}
 
 ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
-	: AST(location), type(type.clone()), constant_(0), becomeArray(false),
+	: AST(location), type(type.clone()), constant_(0), becomeArray(0),
 	wasResolved_(false)
 {}
 
@@ -2931,10 +2935,19 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 			if(becomeArray)
 			{
 				auto* basety = resolved->baseType(scope, errorHandler);
-				result = new DataTypeArray(*basety);
+				if(basety)
+				{
+					result = new DataTypeArray(*basety);
+					for(uint q = 1; result && q < becomeArray; ++q)
+					{
+						extra_types.push_back(result); //don't leak the memory
+						result = new DataTypeArray(*result);
+					}
+				}
 			}
 			else result = resolved->clone();
-			type.reset(result);
+			if(result)
+				type.reset(result);
 			wasResolved_ = result && result->isResolved();
 		}
 	}
@@ -2949,7 +2962,7 @@ void ASTDataType::replace(DataType const& newty)
 {
 	wasResolved_ = false;
 	constant_ = false;
-	becomeArray = false;
+	becomeArray = 0;
 	type.reset(newty.clone());
 }
 

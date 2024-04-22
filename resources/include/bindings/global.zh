@@ -288,7 +288,7 @@ internal void ClearTile(int tile);
 // @zasm
 //   POP D2
 //   ARRAYSIZE D2
-internal int SizeOfArray(T_ARR arr);
+internal int SizeOfArray(T[] arr);
 
 // Resizes the array 'arr' to size 'size'. If 'size' is <1, the array becomes
 // size 1 instead.
@@ -297,21 +297,21 @@ internal int SizeOfArray(T_ARR arr);
 //   POP D3
 //   POP D2
 //   RESIZEARRAYR D2 D3
-internal void ResizeArray(T_ARR arr, int size);
+internal void ResizeArray(T[] arr, int size);
 
 // Grants ownership of the target array to the currently running script.
 //
 // @zasm
 //   POP D2
 //   OWNARRAYR D2
-internal void OwnArray(T_ARR arr);
+internal void OwnArray(T[] arr);
 
 // If [arr] is a local array, destroys it immediately. Otherwise does nothing.
 //
 // @zasm
 //   POP D2
 //   DESTROYARRAYR D2
-internal void DestroyArray(T_ARR arr);
+internal void DestroyArray(T[] arr);
 
 // Takes an Object parameter. Grants ownership of the object to the currently
 // running script.
@@ -483,7 +483,7 @@ internal void itoacat(int dest, int val);
 //   POP D3
 //   POP D2
 //   ARRAYCOPY D2 D3
-internal void ArrayCopy(T_ARR dest, T_ARR src);
+internal void ArrayCopy(T[] dest, T[] src);
 
 // Returns the length of the string in characters.
 //
@@ -749,7 +749,7 @@ internal T Choose(T arg1);
 //   PUSHV -1
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushBack(T_ARR arr, T val);
+internal bool ArrayPushBack(T[] arr, T val);
 
 // Increases the size of the array by 1, inserting [val] at the
 // back/front/specified index of the array. If an invalid index is passed, the
@@ -759,7 +759,7 @@ internal bool ArrayPushBack(T_ARR arr, T val);
 //   PUSHV 0
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushFront(T_ARR arr, T val);
+internal bool ArrayPushFront(T[] arr, T val);
 
 // Increases the size of the array by 1, inserting [val] at the
 // back/front/specified index of the array. If an invalid index is passed, the
@@ -768,7 +768,7 @@ internal bool ArrayPushFront(T_ARR arr, T val);
 // @zasm
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushAt(T_ARR arr, T val, int indx);
+internal bool ArrayPushAt(T[] arr, T val, int indx);
 
 // Decreases the size of the array by 1, removing and returning the element at
 // the back/front/specified index of the array. If an invalid index is passed,
@@ -778,7 +778,7 @@ internal bool ArrayPushAt(T_ARR arr, T val, int indx);
 //   PUSHV -1
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopBack(T_ARR arr);
+internal T ArrayPopBack(T[] arr);
 
 // Decreases the size of the array by 1, removing and returning the element at
 // the back/front/specified index of the array. If an invalid index is passed,
@@ -788,7 +788,7 @@ internal T ArrayPopBack(T_ARR arr);
 //   PUSHV 0
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopFront(T_ARR arr);
+internal T ArrayPopFront(T[] arr);
 
 // Decreases the size of the array by 1, removing and returning the element at
 // the back/front/specified index of the array. If an invalid index is passed,
@@ -797,7 +797,7 @@ internal T ArrayPopFront(T_ARR arr);
 // @zasm
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopAt(T_ARR arr, int indx);
+internal T ArrayPopAt(T[] arr, int indx);
 
 // @zasm
 //   POP D3

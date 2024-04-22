@@ -80,8 +80,6 @@ namespace ZScript
 		ZTID_LONG,
 		ZTID_RGBDATA,
 		ZTID_TEMPLATE_T,
-		// TODO: remove once array type is supported in params
-		ZTID_TEMPLATE_T_ARR,
 		ZTID_PRIMITIVE_END,
 
 		ZTID_SCRIPT_TYPE_START = ZTID_PRIMITIVE_END,
@@ -198,6 +196,9 @@ namespace ZScript
 	class DataTypeArray;
 	class DataTypeCustom;
 	class DataTypeCustomConst;
+	
+	// Get the number of nested arrays at top level.
+	int32_t getArrayDepth(DataType const&);
 
 	class DataType
 	{
@@ -213,12 +214,14 @@ namespace ZScript
 		// Resolution.
 		virtual bool isResolved() const {return true;}
 		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) {return this;}
+		virtual DataType const& getBaseType() const {return *this;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const = 0;
 		// Basics
 		virtual std::string getName() const = 0;
 		virtual bool canCastTo(DataType const& target) const = 0;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return getScriptObjectTypeId() != script_object_type::none;}
+		virtual bool isObject() const {return getScriptObjectTypeId() != script_object_type::none;}
 		virtual script_object_type getScriptObjectTypeId() const {return script_object_type::none;}
 		virtual DataType const* getConstType() const {return constType;}
 		virtual DataType const* getMutType() const {return this;}
@@ -234,6 +237,9 @@ namespace ZScript
 		virtual bool isUsrClass() const {return false;}
 		virtual bool isLong() const {return false;}
 		virtual UserClass* getUsrClass() const {return nullptr;}
+		
+		int32_t getArrayDepth() const {return ZScript::
+			getArrayDepth(*this);}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int32_t compare(DataType const& rhs) const;
@@ -259,7 +265,6 @@ namespace ZScript
 		// Standard Types.
 	public:
 		static DataTypeSimpleConst CTEMPLATE_T;
-		static DataTypeSimpleConst CTEMPLATE_T_ARR;
 		static DataTypeSimpleConst CAUTO;
 		static DataTypeSimpleConst CUNTYPED;
 		static DataTypeSimpleConst CFLOAT;
@@ -268,7 +273,6 @@ namespace ZScript
 		static DataTypeSimpleConst CBOOL;
 		static DataTypeSimpleConst CRGBDATA;
 		static DataTypeSimple TEMPLATE_T;
-		static DataTypeSimple TEMPLATE_T_ARR;
 		static DataTypeSimple UNTYPED;
 		static DataTypeSimple ZAUTO;
 		static DataTypeSimple ZVOID;
@@ -289,9 +293,6 @@ namespace ZScript
 
 	// Get the data type stripped of consts and arrays.
 	DataType const& getNaiveType(DataType const& type, Scope* scope);
-	
-	// Get the number of nested arrays at top level.
-	int32_t getArrayDepth(DataType const&);
 
 	class DataTypeUnresolved : public DataType
 	{
@@ -358,7 +359,9 @@ namespace ZScript
 	{
 	public:
 		DataTypeArray(DataType const& elementType)
-			: DataType(NULL), elementType(elementType) {}
+			: DataType(NULL), elementType(elementType), owned_type() {}
+		DataTypeArray(DataType const& elementType, DataType* ownedType)
+			: DataType(NULL), elementType(elementType), owned_type(ownedType) {}
 		DataTypeArray* clone() const {return new DataTypeArray(*this);}
 
 		virtual std::string getName() const {
@@ -366,6 +369,7 @@ namespace ZScript
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return elementType.canHoldObject();}
+		virtual bool isObject() const {return false;} //arrays themselves are not objects
 		virtual script_object_type getScriptObjectTypeId() const {return elementType.getScriptObjectTypeId();}
 		
 		virtual bool isArray() const {return true;}
@@ -373,10 +377,12 @@ namespace ZScript
 		virtual UserClass* getUsrClass() const {return elementType.getUsrClass();}
 
 		DataType const& getElementType() const {return elementType;}
+		virtual DataType const& getBaseType() const;
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 
 	private:
 		DataType const& elementType;
+		std::shared_ptr<DataType> owned_type;
 
 		int32_t selfCompare(DataType const& other) const;
 	};
