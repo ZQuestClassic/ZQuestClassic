@@ -49,14 +49,13 @@ class TestOptimizeZasmUnit(ZCTestCase):
         self.maxDiff = None
 
     def run_test(self, path: Path):
-        p = run_target.run(
-            'zplayer',
-            [
-                '-headless',
-                '-test-optimize-zasm',
-                str(path),
-            ],
-        )
+        run_args = [
+            '-headless',
+            '-test-optimize-zasm',
+            str(path),
+            '-no_console',
+        ]
+        p = run_target.run('zplayer', run_args)
         if p.returncode:
             raise Exception(f'error: {p.returncode}\n{p.stderr}')
 

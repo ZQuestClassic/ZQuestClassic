@@ -38,13 +38,14 @@ class TestOptimizeZasm(ZCTestCase):
         self.maxDiff = None
 
     def optimize_zasm_in_qst(self, qst_path: Path):
-        args = [
+        run_args = [
             '-headless',
             '-extract-zasm',
             qst_path,
             '-optimize-zasm',
+            '-no_console',
         ]
-        p = run_target.run('zplayer', args)
+        p = run_target.run('zplayer', run_args)
         if p.returncode:
             raise Exception(f'error: {p.returncode}\n{p.stderr}')
 
