@@ -3,7 +3,7 @@ class directory {
 	// @zasm
 	//   POP D2
 	//   LOADDIRECTORYR D2
-	internal directory(char32 path);
+	internal directory(char32[] path);
 
 	// The number of files/folders contained in the directory.
 	//
@@ -17,7 +17,7 @@ class directory {
 	//   POP D2
 	//   POP REFDIRECTORY
 	//   DIRECTORYGET D2 D3
-	internal bool GetFilename(int index, char32 buf);
+	internal bool GetFilename(int index, char32[] buf);
 
 	// Refreshes the directory, updating the 'Size' and results of
 	// [GetFilename()] to reflect any changes.

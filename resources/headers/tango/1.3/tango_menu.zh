@@ -535,7 +535,7 @@ void Tango_SetMenuCursorPosition(int pos)
     __Tango_SetCursorMovement(pos, 0);
 }
 
-void Tango_SaveMenuState(int output)
+void Tango_SaveMenuState(int[] output)
 {
     int dataSize=SizeOfArray(__Tango_Data)-__TANGO_MENU_DATA_START;
     if(SizeOfArray(output)<dataSize)
@@ -558,7 +558,7 @@ void Tango_SaveMenuState(int output)
     output[__TDIDX_MENU_CURSOR_TIMER-__TANGO_MENU_DATA_START]=0;
 }
 
-void Tango_RestoreMenuState(int oldState)
+void Tango_RestoreMenuState(int[] oldState)
 {
     int dataSize=SizeOfArray(__Tango_Data)-__TANGO_MENU_DATA_START;
     if(SizeOfArray(oldState)<dataSize)

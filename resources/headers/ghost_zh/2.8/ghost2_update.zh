@@ -122,7 +122,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
     
     // Initializing the array is faster than setting it up afterward...
     // but the difference is probably negligible, realistically
-    float tempGhostData[24] = {
+    untyped tempGhostData[24] = {
         Ghost_X, // 0
         Ghost_Y, // 1
         Ghost_Z, // 2
@@ -159,7 +159,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
     
     // Give ghost an array pointer so its data can be found by other scripts
     if(ghost->isValid())
-        ghost->Misc[__GHI_NPC_DATA]=0x10000|tempGhostData;
+        ghost->Misc[__GHI_NPC_DATA]=0x10000|<int>tempGhostData;
     
     // Position additional FFCs, set draw data, make FFCs invisible if flickering.
     do

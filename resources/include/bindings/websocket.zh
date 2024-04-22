@@ -3,7 +3,7 @@ class websocket {
 	// @zasm
 	//   POP D2
 	//   WEBSOCKET_LOAD D2
-	internal websocket(char32 url);
+	internal websocket(char32[] url);
 
 	// Returns the current state of the socket.
 	//
@@ -59,7 +59,7 @@ class websocket {
 	//   POP D2
 	//   POP REFWEBSOCKET
 	//   WEBSOCKET_ERROR D2
-	internal void GetError(char32 buf);
+	internal void GetError(char32[] buf);
 
 	// Sends a message over the socket.
 	//
@@ -73,7 +73,7 @@ class websocket {
 	//   POP D3
 	//   POP REFWEBSOCKET
 	//   WEBSOCKET_SEND D2 D3
-	internal void Send(char32 buf, long type = 1L);
+	internal void Send(char32[] buf, long type = 1L);
 
 	// If there's a message waiting to be received (see [HasMessage]), returns a
 	// pointer to the websocket's internal data array.
@@ -87,5 +87,5 @@ class websocket {
 	// @zasm
 	//   POP REFWEBSOCKET
 	//   WEBSOCKET_RECEIVE D2
-	internal untyped Receive();
+	internal untyped[] Receive();
 }

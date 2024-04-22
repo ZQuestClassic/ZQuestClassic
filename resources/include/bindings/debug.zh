@@ -161,7 +161,7 @@ class Debug {
 	// @zasm
 	//   POP D3
 	//   BREAKPOINT D3
-	internal void Breakpoint(char32 string = 0);
+	internal void Breakpoint(char32[] string = NULL);
 }
 
 internal const Debug Debug;

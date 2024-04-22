@@ -237,12 +237,12 @@ void Tango_Sync(int value)
     }
 }
 
-void Tango_SaveSlotState(int slot, int output)
+void Tango_SaveSlotState(int slot, int[] output)
 {
     __Tango_SaveSlotStateInternal(slot, output);
 }
 
-void Tango_SaveSlotState(int slot, int output, int the_bitmap)
+void Tango_SaveSlotState(int slot, int[] output, int the_bitmap)
 {
     if(!__Tango_SaveSlotStateInternal(slot, output))
         // Error
@@ -260,7 +260,7 @@ void Tango_SaveSlotState(int slot, int output, int the_bitmap)
     Screen->SetRenderTarget(RT_SCREEN);
 }
 
-bool __Tango_SaveSlotStateInternal(int slot, int output)
+bool __Tango_SaveSlotStateInternal(int slot, int[] output)
 {
     int bufStart=__Tango_GetSlotDefData(slot, __TSDEF_START);
     int bufSize=__Tango_GetSlotDefData(slot, __TSDEF_LENGTH);
@@ -283,12 +283,12 @@ bool __Tango_SaveSlotStateInternal(int slot, int output)
     return true;
 }
 
-void Tango_RestoreSlotState(int slot, int oldState)
+void Tango_RestoreSlotState(int slot, int[] oldState)
 {
     __Tango_RestoreSlotStateInternal(slot, oldState);
 }
 
-void Tango_RestoreSlotState(int slot, int oldState, int the_bitmap)
+void Tango_RestoreSlotState(int slot, int[] oldState, int the_bitmap)
 {
     if(!__Tango_RestoreSlotStateInternal(slot, oldState))
         // Error
@@ -306,7 +306,7 @@ void Tango_RestoreSlotState(int slot, int oldState, int the_bitmap)
     Screen->SetRenderTarget(RT_SCREEN);
 }
 
-bool __Tango_RestoreSlotStateInternal(int slot, int oldState)
+bool __Tango_RestoreSlotStateInternal(int slot, int[] oldState)
 {
     int bufStart=__Tango_GetSlotDefData(slot, __TSDEF_START);
     int bufSize=__Tango_GetSlotDefData(slot, __TSDEF_LENGTH);
@@ -352,14 +352,14 @@ bool __Tango_RestoreSlotStateInternal(int slot, int oldState)
     return true;
 }
 
-float Tango_ConvertFunctionName(int name)
+float Tango_ConvertFunctionName(char32[] name)
 {
     int type[]="Function";
     int prefix[]="FUNC_";
     return __Tango_ConvertName(name, type, prefix);
 }
 
-float Tango_ConvertVariableName(int name)
+float Tango_ConvertVariableName(char32[] name)
 {
     int type[]="Variable";
     int prefix[]="VAR_";
@@ -367,7 +367,7 @@ float Tango_ConvertVariableName(int name)
 }
 
 // Used by Tango_ConvertFunctionName() and Tango_ConvertVariableName()
-float __Tango_ConvertName(int name, int type, int prefix)
+float __Tango_ConvertName(char32[] name, char32[] type, char32[] prefix)
 {
     float value=__Tango_GetConvertedName(name);
     if(value==-1)
@@ -391,7 +391,7 @@ float __Tango_ConvertName(int name, int type, int prefix)
 }
 
 // Used by Tango_ConvertFunctionName() and Tango_ConvertVariableName()
-float __Tango_GetConvertedName(int name)
+float __Tango_GetConvertedName(char32[] name)
 {
     float accumulator=0;
     float prevValue=0;
@@ -431,7 +431,7 @@ float __Tango_GetConvertedName(int name)
 }
 
 // Used by Tango_ConvertFunctionName() and Tango_ConvertVariableName()
-void __Tango_PrintConstant(int prefix, int name, float value)
+void __Tango_PrintConstant(char32[] prefix, char32[] name, float value)
 {
     int upperName[32];
     

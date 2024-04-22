@@ -121,7 +121,7 @@ void DrawGhostFFCs()
     }
 }
 
-void __SetUpDrawingArray(ffc this, npc ghost, int aptr)
+void __SetUpDrawingArray(ffc this, npc ghost, int[] aptr)
 {
     int flags=0;
     

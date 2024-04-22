@@ -677,14 +677,14 @@ namespace Emily
 	 *	'verticalSpacing' is the extra space to include between lines.
 	 *	'MaxWidth' is the width at which text will be forced onto the next line.
 	 */
-	void DrawStrings(int layer, int x, int y, int font, int color, int background_color, int format, char32 ptr, int opacity, int verticalSpacing, int MaxWidth) //start
+	void DrawStrings(int layer, int x, int y, int font, int color, int background_color, int format, char32[] ptr, int opacity, int verticalSpacing, int MaxWidth) //start
 	{
 		if(MaxWidth <= 0)
 		{
 			Screen->DrawString(layer, x, y, font, color, background_color, format, ptr, opacity);
 			return;
 		}
-		int cpyptr[2048];
+		char32 cpyptr[2048];
 		strcpy(cpyptr,ptr);
 		int fontHeight = Text->FontHeight(font);
 		while(true)
@@ -722,7 +722,7 @@ namespace Emily
 			}
 			if(pos && !(endpos == pos && pos <= 1))
 			{
-				int buf[256];
+				char32 buf[256];
 				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
 				Screen->DrawString(layer, x, y, font, color, background_color, format, buf, opacity);
 			}
@@ -740,14 +740,14 @@ namespace Emily
 			y+=fontHeight+verticalSpacing;
 		}
 	} //end
-	void DrawStrings(int layer, int x, int y, int font, int color, int background_color, int format, char32 ptr, int opacity, int shadow_type, int shadow_color, int verticalSpacing, int MaxWidth) //start
+	void DrawStrings(int layer, int x, int y, int font, int color, int background_color, int format, char32[] ptr, int opacity, int shadow_type, int shadow_color, int verticalSpacing, int MaxWidth) //start
 	{
 		if(MaxWidth <= 0)
 		{
 			Screen->DrawString(layer, x, y, font, color, background_color, format, ptr, opacity, shadow_type, shadow_color);
 			return;
 		}
-		int cpyptr[2048];
+		char32 cpyptr[2048];
 		strcpy(cpyptr,ptr);
 		int fontHeight = Text->FontHeight(font);
 		while(true)
@@ -785,7 +785,7 @@ namespace Emily
 			}
 			if(pos && !(endpos == pos && pos <= 1))
 			{
-				int buf[256];
+				char32 buf[256];
 				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
 				Screen->DrawString(layer, x, y, font, color, background_color, format, buf, opacity, shadow_type, shadow_color);
 			}
@@ -813,14 +813,14 @@ namespace Emily
 	 *	'verticalSpacing' is the extra space to include between lines.
 	 *	'MaxWidth' is the width at which text will be forced onto the next line.
 	 */
-	void DrawStringsBitmap(bitmap b, int layer, int x, int y, int font, int color, int background_color, int format, char32 ptr, int opacity, int verticalSpacing, int MaxWidth) //start
+	void DrawStringsBitmap(bitmap b, int layer, int x, int y, int font, int color, int background_color, int format, char32[] ptr, int opacity, int verticalSpacing, int MaxWidth) //start
 	{
 		if(MaxWidth <= 0)
 		{
 			b->DrawString(layer, x, y, font, color, background_color, format, ptr, opacity);
 			return;
 		}
-		int cpyptr[2048];
+		char32 cpyptr[2048];
 		strcpy(cpyptr,ptr);
 		int fontHeight = Text->FontHeight(font);
 		while(true)
@@ -858,7 +858,7 @@ namespace Emily
 			}
 			if(pos && !(endpos == pos && pos <= 1))
 			{
-				int buf[256];
+				char32 buf[256];
 				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
 				b->DrawString(layer, x, y, font, color, background_color, format, buf, opacity);
 			}
@@ -876,14 +876,14 @@ namespace Emily
 			y+=fontHeight+verticalSpacing;
 		}
 	} //end
-	void DrawStringsBitmap(bitmap b, int layer, int x, int y, int font, int color, int background_color, int format, char32 ptr, int opacity, int shadow_type, int shadow_color, int verticalSpacing, int MaxWidth) //start
+	void DrawStringsBitmap(bitmap b, int layer, int x, int y, int font, int color, int background_color, int format, char32[] ptr, int opacity, int shadow_type, int shadow_color, int verticalSpacing, int MaxWidth) //start
 	{
 		if(MaxWidth <= 0)
 		{
 			b->DrawString(layer, x, y, font, color, background_color, format, ptr, opacity, shadow_type, shadow_color);
 			return;
 		}
-		int cpyptr[2048];
+		char32 cpyptr[2048];
 		strcpy(cpyptr,ptr);
 		int fontHeight = Text->FontHeight(font);
 		while(true)
@@ -921,7 +921,7 @@ namespace Emily
 			}
 			if(pos && !(endpos == pos && pos <= 1))
 			{
-				int buf[256];
+				char32 buf[256];
 				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
 				b->DrawString(layer, x, y, font, color, background_color, format, buf, opacity, shadow_type, shadow_color);
 			}
@@ -944,11 +944,11 @@ namespace Emily
 	 * Same as DrawStrings, but, does not draw anything.
 	 * Returns the number of lines that DrawStrings would use.
 	 */
-	int DrawStringsCount(int font, char32 ptr, int MaxWidth) //start
+	int DrawStringsCount(int font, char32[] ptr, int MaxWidth) //start
 	{
 		if(MaxWidth <= 0) return 1;
 		int count = 1;
-		int cpyptr[2048];
+		char32 cpyptr[2048];
 		strcpy(cpyptr,ptr);
 		int fontHeight = Text->FontHeight(font);
 		while(true)
@@ -1000,11 +1000,11 @@ namespace Emily
 	 * Same as DrawStrings, but, does not draw anything.
 	 * Returns the width that DrawStrings would hit, at max.
 	 */
-	int DrawStringsWid(int font, char32 ptr, int MaxWidth) //start
+	int DrawStringsWid(int font, char32[] ptr, int MaxWidth) //start
 	{
 		if(MaxWidth <= 0) return 1;
 		int runningWid = 0;
-		int cpyptr[2048];
+		char32 cpyptr[2048];
 		strcpy(cpyptr,ptr);
 		int fontHeight = Text->FontHeight(font);
 		while(true)
@@ -1044,7 +1044,7 @@ namespace Emily
 			}
 			if(pos && !(endpos == pos && pos <= 1))
 			{
-				int buf[256];
+				char32 buf[256];
 				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
 				int w = Text->StringWidth(buf, font);
 				if(w > runningWid)
@@ -1064,7 +1064,7 @@ namespace Emily
 	} //end
 	//end Drawing Functions
 
-	void getFontName(char32 buf, int font) //start
+	void getFontName(char32[] buf, int font) //start
 	{
 		switch(font)
 		{
@@ -1354,7 +1354,7 @@ namespace Emily
 		}
 	} //end
 	
-	void colorscr_txt(int color, int txtcolor, int font, char32 buf, bool hidesubscr) //start
+	void colorscr_txt(int color, int txtcolor, int font, char32[] buf, bool hidesubscr) //start
 	{
 		Screen->Rectangle(7, 0, hidesubscr ? -56 : 0, 256, 168, color, 1, 0, 0, 0, true, OP_OPAQUE);
 		DrawStrings(7, 128, ((224-Text->FontHeight(font))/2)-56, font, txtcolor, color, TF_CENTERED, buf, OP_OPAQUE, 2, 256);
@@ -1362,10 +1362,7 @@ namespace Emily
 	
 	bitmap create(int w, int h) //start
 	{
-		if(Game->FFRules[qr_OLDCREATEBITMAP_ARGS])
-			return Game->CreateBitmap(h, w);
-		else
-			return Game->CreateBitmap(w, h);
+		return new bitmap(w,h);
 	} //end
 	
 	//start Fancy screenshot thing
@@ -1643,7 +1640,7 @@ namespace Emily
 	/**
 	 * As memmove(), but with a larger buffer
 	 */
-	untyped large_memmove(untyped dest, int dpos, untyped src, int spos, int n) //start
+	untyped large_memmove(untyped[] dest, int dpos, untyped[] src, int spos, int n) //start
 	{
 		untyped buffer[1];
 		ResizeArray(buffer, n);

@@ -537,7 +537,7 @@ class itemdata {
 	//   POP D2
 	//   POP REFITEMCLASS
 	//   ITEMNAME D2
-	internal void GetName(int buf);
+	internal void GetName(char32[] buf);
 
 	// Fills the buffer with the item's Display Name.
 	//

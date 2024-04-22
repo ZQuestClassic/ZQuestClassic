@@ -6,7 +6,7 @@
 
 const int __TANGO_FULL_LOGGING = 0;
 
-void __Tango_LogMessage(int msg, float data)
+void __Tango_LogMessage(int msg, untyped data)
 {
     // Ignore it
 }
@@ -24,12 +24,12 @@ void __Tango_LogError(int error)
     TraceToBase(error, 10, 0);
 }
 
-void __Tango_LogError(int error, int data)
+void __Tango_LogError(int error, untyped data)
 {
     __Tango_LogError(error);
 }
 
-void __Tango_LogError(int error, int data1, int data2)
+void __Tango_LogError(int error, untyped data1, untyped data2)
 {
     __Tango_LogError(error);
 }

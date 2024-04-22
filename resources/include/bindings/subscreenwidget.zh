@@ -743,7 +743,7 @@ class subscreenwidget {
 	//   POP D2
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_GET_SELTEXT_OVERRIDE D2
-	internal void GetSelTextOverride(char32 buf);
+	internal void GetSelTextOverride(char32[] buf);
 
 	// Sets the selected text override for this widget.
 	//
@@ -753,7 +753,7 @@ class subscreenwidget {
 	//   POP D2
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_SET_SELTEXT_OVERRIDE D2
-	internal void SetSelTextOverride(char32 str);
+	internal void SetSelTextOverride(char32[] str);
 
 	// Gets the label for this widget.
 	//
@@ -764,7 +764,7 @@ class subscreenwidget {
 	//   POP D2
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_GET_LABEL D2
-	internal void GetLabel(char32 buf);
+	internal void GetLabel(char32[] buf);
 
 	// Sets the label for this widget.
 	//
@@ -772,7 +772,7 @@ class subscreenwidget {
 	//   POP D2
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_SET_LABEL D2
-	internal void SetLabel(char32 str);
+	internal void SetLabel(char32[] str);
 
 	// Gets/Sets the text for this widget.
 	//
@@ -786,7 +786,7 @@ class subscreenwidget {
 	//   POP D2
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_TY_GETTEXT D2
-	internal void GetText(char32 buf);
+	internal void GetText(char32[] buf);
 
 	// Gets/Sets the text for this widget.
 	//
@@ -800,5 +800,5 @@ class subscreenwidget {
 	//   POP D2
 	//   POP REFSUBSCREENWIDG
 	//   SUBWIDG_TY_SETTEXT D2
-	internal void SetText(char32 str);
+	internal void SetText(char32[] str);
 }

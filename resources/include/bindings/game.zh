@@ -613,7 +613,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETSAVENAME D2
-	internal void GetSaveName(int buf);
+	internal void GetSaveName(char32[] buf);
 
 	// Sets the save file name to the contents of the buffer, limit 8
 	// characters.
@@ -621,7 +621,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   SETSAVENAME D2
-	internal void SetSaveName(int buf);
+	internal void SetSaveName(char32[] buf);
 
 	// Displays the Save screen, as Save Point combos use. Returns true if the
 	// player saved, false otherwise.
@@ -642,7 +642,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETFFCSCRIPT D2
-	internal int GetFFCScript(int name);
+	internal int GetFFCScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -650,7 +650,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETCOMBOSCRIPT D2
-	internal int GetComboScript(int name);
+	internal int GetComboScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -658,7 +658,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETITEMSCRIPT D2
-	internal int GetItemScript(int name);
+	internal int GetItemScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -666,7 +666,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETNPCSCRIPT D2
-	internal int GetNPCScript(int name);
+	internal int GetNPCScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -674,7 +674,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETLWEAPONSCRIPT D2
-	internal int GetLWeaponScript(int name);
+	internal int GetLWeaponScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -682,15 +682,17 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETEWEAPONSCRIPT D2
-	internal int GetEWeaponScript(int name);
+	internal int GetEWeaponScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
 	//
+	// @alias GetHeroScript
+	// @deprecated_alias GetLinkScript
 	// @zasm
 	//   POP D2
 	//   GETHEROSCRIPT D2
-	internal int GetPlayerScript(int name);
+	internal int GetPlayerScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -698,7 +700,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETGLOBALSCRIPT D2
-	internal int GetGlobalScript(int name);
+	internal int GetGlobalScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -706,7 +708,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETDMAPSCRIPT D2
-	internal int GetDMapScript(int name);
+	internal int GetDMapScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -714,7 +716,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETSCREENSCRIPT D2
-	internal int GetScreenScript(int name);
+	internal int GetScreenScript(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -722,7 +724,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETSPRITESCRIPT D2
-	internal int GetItemSpriteScript(int name);
+	internal int GetItemSpriteScript(char32[] name);
 
 	// Gets the ID of the npc/item/combo/dmap whose name exactly matches `name`.
 	// If no such object exists, returns `-1`.
@@ -730,7 +732,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETNPCBYNAME D2
-	internal int GetNPC(int name);
+	internal int GetNPC(char32[] name);
 
 	// Gets the ID of the npc/item/combo/dmap whose name exactly matches `name`.
 	// If no such object exists, returns `-1`.
@@ -738,7 +740,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETITEMBYNAME D2
-	internal int GetItem(int name);
+	internal int GetItem(char32[] name);
 
 	// Gets the ID of the npc/item/combo/dmap whose name exactly matches `name`.
 	// If no such object exists, returns `-1`.
@@ -746,7 +748,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETCOMBOBYNAME D2
-	internal int GetCombo(int name);
+	internal int GetCombo(char32[] name);
 
 	// Gets the ID of the npc/item/combo/dmap whose name exactly matches `name`.
 	// If no such object exists, returns `-1`.
@@ -754,7 +756,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETDMAPBYNAME D2
-	internal int GetDMap(int name);
+	internal int GetDMap(char32[] name);
 
 	// Gets the script of the specified type with a name exactly matching
 	// `name`. If no such script exists, returns `-1`.
@@ -762,7 +764,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETGENERICSCRIPT D2
-	internal int GetGenericScript(int name);
+	internal int GetGenericScript(char32[] name);
 
 	// The number of maps in the quest.
 	//
@@ -896,7 +898,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   WEBSOCKET_LOAD D2
-	internal websocket LoadWebSocket(char32 arg1);
+	internal websocket LoadWebSocket(char32[] arg1);
 
 	// Loads a [bottledata] ref for bottledata number [id] to a [bottledata]
 	// typed pointer.
@@ -1067,20 +1069,10 @@ class Game {
 
 	// @zasm
 	//   POP D2
-	//   GETHEROSCRIPT D2
-	internal int GetHeroScript(int arg1);
-
-	// @zasm
-	//   POP D2
-	//   GETHEROSCRIPT D2
-	internal int GetLinkScript(int arg1);
-
-	// @zasm
-	//   POP D2
 	//   POP D3
 	//   POP D6
 	//   GETMESSAGE D3 D2
-	internal void GetMessage(int string, int buffer);
+	internal void GetMessage(int string, char32[] buffer);
 
 	// Places string 'str[]' into ZQ Message 'message'.
 	//
@@ -1089,7 +1081,7 @@ class Game {
 	//   POP D3
 	//   POP D6
 	//   SETMESSAGE D3 D2
-	internal void SetMessage(int message, int str);
+	internal void SetMessage(int message, char32[] str);
 
 	// Renders the entire display in greyscale.
 	//
@@ -1125,7 +1117,7 @@ class Game {
 	//   POP D2
 	//   POP D3
 	//   PLAYENHMUSIC D3 D2
-	internal bool PlayEnhancedMusic(int filename, int track);
+	internal bool PlayEnhancedMusic(char32[] filename, int track);
 
 	// @deprecated Use [Audio->PlayEnhancedMusic] instead!
 	// @zasm
@@ -1644,7 +1636,7 @@ class Game {
 	//   POP D2
 	//   POP D3
 	//   GETMUSICFILE D3 D2
-	internal void GetDMapMusicFilename(int dmap, int buf);
+	internal void GetDMapMusicFilename(int dmap, char32[] buf);
 
 	// @deprecated Use [dmapdata::MusicTrack] instead!
 	// @zasm
@@ -1658,7 +1650,7 @@ class Game {
 	//   POP D3
 	//   POP D3
 	//   POP D3
-	internal void SetDMapEnhancedMusic(int dmap, int filename, int track);
+	internal void SetDMapEnhancedMusic(int dmap, char32[] filename, int track);
 
 	// @deprecated Use [dmapdata::GetName] instead!
 	// @zasm
@@ -1666,7 +1658,7 @@ class Game {
 	//   POP D3
 	//   POP D6
 	//   GETDMAPNAME D3 D2
-	internal void GetDMapName(int DMap, int buffer);
+	internal void GetDMapName(int DMap, char32[] buffer);
 
 	// @deprecated Use [dmapdata::SetName] instead!
 	// @zasm
@@ -1674,7 +1666,7 @@ class Game {
 	//   POP D3
 	//   POP D6
 	//   SETDMAPNAME D3 D2
-	internal void SetDMapName(int arg1, int arg2);
+	internal void SetDMapName(int DMap, char32[] buffer);
 
 	// @deprecated Use [dmapdata::GetTitle] instead!
 	// @zasm
@@ -1682,7 +1674,7 @@ class Game {
 	//   POP D3
 	//   POP D6
 	//   GETDMAPTITLE D3 D2
-	internal void GetDMapTitle(int DMap, int buffer);
+	internal void GetDMapTitle(int DMap, char32[] buffer);
 
 	// @deprecated Use [dmapdata::SetTitle] instead!
 	// @zasm
@@ -1690,7 +1682,7 @@ class Game {
 	//   POP D3
 	//   POP D6
 	//   SETDMAPTITLE D3 D2
-	internal void SetDMapTitle(int arg1, int arg2);
+	internal void SetDMapTitle(int DMap, char32[] buffer);
 
 	// @deprecated Use [dmapdata::GetIntro] instead!
 	// @zasm
@@ -1698,7 +1690,7 @@ class Game {
 	//   POP D3
 	//   POP D6
 	//   GETDMAPINTRO D3 D2
-	internal void GetDMapIntro(int DMap, int buffer);
+	internal void GetDMapIntro(int DMap, char32[] buffer);
 
 	// @deprecated Use [dmapdata::SetIntro] instead!
 	// @zasm
@@ -1706,7 +1698,7 @@ class Game {
 	//   POP D3
 	//   POP D6
 	//   SETDMAPINTRO D3 D2
-	internal void SetDMapIntro(int arg1, int arg2);
+	internal void SetDMapIntro(int DMap, char32[] buffer);
 }
 
 internal const Game Game;

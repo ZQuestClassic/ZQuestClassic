@@ -270,7 +270,7 @@ class bitmap {
 	//   POPARGS D5 0.0009
 	//   POP D3
 	internal void DrawString(int layer, int x, int y, int font, int color,
-							 int background_color, int format, char32 str,
+							 int background_color, int format, char32[] str,
 							 int opacity = 128);
 
 	// Identical to [Screen->DrawString()], but it draws to a target bitmap.
@@ -280,7 +280,7 @@ class bitmap {
 	//   POPARGS D5 0.0011
 	//   POP D3
 	internal void DrawString(int layer, int x, int y, int font, int color,
-							 int background_color, int format, char32 str,
+							 int background_color, int format, char32[] str,
 							 int opacity, int shadow_type, int shadow_color);
 
 	// Identical to [Screen->DrawLayer()], but it draws to a target bitmap.
@@ -374,6 +374,7 @@ class bitmap {
 	// You may specify a colour to 'int lit' to use a lit mode. This tints the
 	// entire bitmap using that colour index of the main palette.
 	//
+	// @alias RevBlit
 	// @zasm
 	//   BMPBLITTO
 	//   POPARGS D5 0.0016
@@ -417,7 +418,7 @@ class bitmap {
 	//   WRITEBITMAP
 	//   POPARGS D5 0.0003
 	//   POP D3
-	internal void Write(int layer, char32 filename,
+	internal void Write(int layer, char32[] filename,
 						bool allow_overwrite = false);
 
 	// Reads from the specified image file into the bitmap.  Read() will fail
@@ -428,7 +429,7 @@ class bitmap {
 	//   READBITMAP
 	//   POPARGS D5 0.0002
 	//   POP REFBITMAP
-	internal void Read(int layer, char32 filename);
+	internal void Read(int layer, char32[] filename);
 
 	// Creates a bitmap on the pointer of [width] x [height], destroying any data
 	// that was previously on the pointer.
@@ -444,7 +445,7 @@ class bitmap {
 	//   BMPPOLYGONR
 	//   POPARGS D5 0.0005
 	//   POP D3
-	internal void Polygon(int layer, int num_points, int vertices, int colour,
+	internal void Polygon(int layer, int num_points, int[] vertices, int colour,
 						  int opacity = 128);
 
 	// Clears the bitmap to the specified color on the specified layer timing.
@@ -662,13 +663,4 @@ class bitmap {
 	//   POP D3
 	internal void DrawLayerComboIFlags(int arg1, int arg2, int arg3, int arg4,
 									   int arg5, int arg6, int arg7, int arg8);
-
-	// @zasm
-	//   BMPBLITTO
-	//   POPARGS D5 0.0016
-	//   POP REFBITMAP
-	internal void RevBlit(int arg1, bitmap arg2, int arg3, int arg4, int arg5,
-						  int arg6, int arg7, int arg8, int arg9, int arg10,
-						  int arg11 = 0, int arg12 = 0, int arg13 = 0,
-						  int arg14 = 0, int arg15 = 0, bool arg16 = true);
 }

@@ -218,7 +218,7 @@ class dmapdata {
 	//   POP D2
 	//   POP REFDMAPDATA
 	//   DMAPDATAGETNAMER D2
-	internal void GetName(char32 buffer);
+	internal void GetName(char32[] buffer);
 
 	// Sets the DMap's name to the buffer contents.
 	//
@@ -226,7 +226,7 @@ class dmapdata {
 	//   POP D2
 	//   POP REFDMAPDATA
 	//   DMAPDATASETNAMER D2
-	internal void SetName(char32 buffer);
+	internal void SetName(char32[] buffer);
 
 	// Fills the buffer with the dmap's title.
 	//
@@ -234,7 +234,7 @@ class dmapdata {
 	//   POP D2
 	//   POP REFDMAPDATA
 	//   DMAPDATAGETTITLER D2
-	internal void GetTitle(char32 buf);
+	internal void GetTitle(char32[] buf);
 
 	// Sets the DMap's title to the buffer contents.
 	//
@@ -242,7 +242,7 @@ class dmapdata {
 	//   POP D2
 	//   POP REFDMAPDATA
 	//   DMAPDATASETTITLER D2
-	internal void SetTitle(char32 buf);
+	internal void SetTitle(char32[] buf);
 
 	// Fills the buffer with the dmap's intro.
 	//
@@ -250,7 +250,7 @@ class dmapdata {
 	//   POP D2
 	//   POP REFDMAPDATA
 	//   DMAPDATAGETINTROR D2
-	internal void GetIntro(char32 buffer);
+	internal void GetIntro(char32[] buffer);
 
 	// Sets the DMap's intro to the buffer contents.
 	//
@@ -258,7 +258,7 @@ class dmapdata {
 	//   POP D2
 	//   POP REFDMAPDATA
 	//   DMAPDATANSETITROR D2
-	internal void SetIntro(char32 buffer);
+	internal void SetIntro(char32[] buffer);
 
 	// Fills the buffer with the dmap's enhanced music filename. See
 	// [MusicTrack].
@@ -267,7 +267,7 @@ class dmapdata {
 	//   POP D2
 	//   POP REFDMAPDATA
 	//   DMAPDATAGETMUSICR D2
-	internal void GetMusic(char32 buffer);
+	internal void GetMusic(char32[] buffer);
 
 	// Sets the DMap's enhanced music filename to the buffer contents. See
 	// [MusicTrack].
@@ -276,7 +276,5 @@ class dmapdata {
 	//   POP D2
 	//   POP REFDMAPDATA
 	//   DMAPDATASETMUSICR D2
-	internal void SetMusic(char32 filename);
+	internal void SetMusic(char32[] filename);
 }
-
-internal const dmapdata DMapData;
