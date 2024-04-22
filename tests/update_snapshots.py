@@ -6,15 +6,14 @@ from pathlib import Path
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
-
 def run(path: Path):
     print(f'running {path.name} --update')
-    args = [
+    run_args = [
         sys.executable,
         path,
         '--update',
     ]
-    subprocess.check_call(args)
+    subprocess.check_call(run_args)
 
 
 run(script_dir / 'test_jit.py')
