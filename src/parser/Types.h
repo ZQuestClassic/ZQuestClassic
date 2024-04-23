@@ -236,6 +236,7 @@ namespace ZScript
 		virtual bool isCustom() const {return false;}
 		virtual bool isUsrClass() const {return false;}
 		virtual bool isLong() const {return false;}
+		virtual bool isTemplate() const {return false;}
 		virtual UserClass* getUsrClass() const {return nullptr;}
 		
 		int32_t getArrayDepth() const {return ZScript::
@@ -330,6 +331,7 @@ namespace ZScript
 		virtual bool isVoid() const {return simpleId == ZTID_VOID;}
 		virtual bool isAuto() const {return simpleId == ZTID_AUTO;}
 		virtual bool isLong() const {return simpleId == ZTID_LONG;}
+		virtual bool isTemplate() const {return simpleId == ZTID_TEMPLATE_T;}
 
 		int32_t getId() const {return simpleId;}
 		
@@ -373,6 +375,7 @@ namespace ZScript
 		virtual script_object_type getScriptObjectTypeId() const {return elementType.getScriptObjectTypeId();}
 		
 		virtual bool isArray() const {return true;}
+		virtual bool isTemplate() const {return elementType.isTemplate();}
 		virtual bool isResolved() const {return elementType.isResolved();}
 		virtual UserClass* getUsrClass() const {return elementType.getUsrClass();}
 
