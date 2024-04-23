@@ -20,7 +20,7 @@ SETR D4 SP2
 ALLOCATEMEMV D2 13 0; while(true) #2 Body [Opt:AlwaysOn] Start
 STORE D2 0.0005
 WRITEPODSTRING D2 "OX/OY %d %d\n"
-LOAD D2 0.0005; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETV D2 3
 PUSHR D2
@@ -29,15 +29,15 @@ PUSHVARGR GAMESCROLLING
 SETV D2 4
 PUSHR D2
 POP D0
-PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 6 0
 STORE D2 0.0004
 WRITEPODSTRING D2 "OX/OY"
-PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Params Start
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
 PUSHARGSV 0 0.0002
 PUSHV 2
 PUSHV 1
@@ -45,9 +45,9 @@ PUSHV 15
 PUSHV 0
 LOAD D2 0.0004
 PUSHR D2
-PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Params End
-DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Body End
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 LOAD D3 0.0004
 DEALLOCATEMEMR D3
 PUSHV 7; InlineFunc[void screendata::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
@@ -83,7 +83,7 @@ POPARGS D5 0.0011; InlineFunc[void screendata::DrawInteger(int, int, int, int, i
 ALLOCATEMEMV D2 13 0
 STORE D2 0.0003
 WRITEPODSTRING D2 "NX/NY %d %d\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETV D2 1
 PUSHR D2
@@ -92,15 +92,15 @@ PUSHVARGR GAMESCROLLING
 SETV D2 2
 PUSHR D2
 POP D0
-PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 6 0
 STORE D2 0.0002
 WRITEPODSTRING D2 "NX/NY"
-PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Params Start
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
 PUSHV 0
 PUSHV 8
 PUSHV 2
@@ -109,9 +109,9 @@ PUSHV 15
 PUSHV 0
 LOAD D2 0.0002
 PUSHR D2
-PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Params End
-DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Body End
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
 PUSHV 7; InlineFunc[void screendata::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start

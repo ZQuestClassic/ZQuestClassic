@@ -14,7 +14,7 @@ global script Global
 		obj = number;
 		int numbers[] = {obj};
 		Object objects[] = numbers;
-		Object objects2[] = new Object(); // TODO: this should be invalid.
+		Object objects2[] = new Object();
 
 		// OK.
 		int numbers2[] = {obj, <untyped>1};

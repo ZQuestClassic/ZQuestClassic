@@ -44,7 +44,7 @@ ffc script GarbageCollection
 	int tests = 0;
 	int frames = 0;
 
-	void check(char32 context, int value, int expected)
+	void check(char32[] context, int value, int expected)
 	{
 		if (value != expected)
 			printf("[%s] ERROR: expected %l but got %l\n", context, expected, value);

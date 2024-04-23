@@ -2285,13 +2285,13 @@ GOTOCMP 2294 ==; Test 'if'
 ALLOCATEMEMV D2 34 0; if() #167 Body Start
 STORE D2 0
 PUSHR D4
-LOAD D2 0.0005; UsrFunc[void __SetUpDrawingArray(ffc, npc, int)] Params Start
+LOAD D2 0.0005; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2
 LOAD D2 0
-PUSHR D2; UsrFunc[void __SetUpDrawingArray(ffc, npc, int)] Params End
-CALLFUNC 0.5244; UsrFunc[void __SetUpDrawingArray(ffc, npc, int)] Call
+PUSHR D2; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Params End
+CALLFUNC 0.5244; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Call
 POP D4
 LOAD D2 0
 PUSHR D2
@@ -2310,13 +2310,13 @@ GOTO 2324; if() #167 Body End
 ALLOCATEMEMV D2 10 0; if() #167 Else Start
 STORE D2 0
 PUSHR D4
-LOAD D2 0.0005; UsrFunc[void __SetUpDrawingArray(ffc, npc, int)] Params Start
+LOAD D2 0.0005; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2
 LOAD D2 0
-PUSHR D2; UsrFunc[void __SetUpDrawingArray(ffc, npc, int)] Params End
-CALLFUNC 0.5244; UsrFunc[void __SetUpDrawingArray(ffc, npc, int)] Call
+PUSHR D2; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Params End
+CALLFUNC 0.5244; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Call
 POP D4
 LOAD D2 0
 PUSHR D2
@@ -2965,9 +2965,9 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2958 ==; Test 'if'
-SETR D2 GD3; InlineFunc[untyped Floor(untyped)] Params Start AND if() #97 Body Start
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+SETR D2 GD3; InlineFunc[int Floor(int)] Params Start AND if() #97 Body Start
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 MULTV D2 8
 STORE D2 0
 GOTO 2987; if() #97 Body End
@@ -2976,10 +2976,10 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2970 ==; Test 'if'
-SETR D2 GD3; InlineFunc[untyped Ceiling(untyped)] Params Start AND if() #98 Body Start
+SETR D2 GD3; InlineFunc[int Ceiling(int)] Params Start AND if() #98 Body Start
 LSHIFTV D2 0
-DIVV D2 8; InlineFunc[untyped Ceiling(untyped)] Params End
-CEILING D2; InlineFunc[untyped Ceiling(untyped)] Body
+DIVV D2 8; InlineFunc[int Ceiling(int)] Params End
+CEILING D2; InlineFunc[int Ceiling(int)] Body
 MULTV D2 8
 STORE D2 0
 GOTO 2987; if() #98 Body End
@@ -2988,16 +2988,16 @@ COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2981 ==; Test 'if'
-SETR D2 GD2; InlineFunc[untyped Floor(untyped)] Params Start AND if() #99 Body Start
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+SETR D2 GD2; InlineFunc[int Floor(int)] Params Start AND if() #99 Body Start
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 MULTV D2 8
 STORE D2 0.0001
 GOTO 2987; if() #99 Body End
-SETR D2 GD2; InlineFunc[untyped Ceiling(untyped)] Params Start AND if() #99 Else Start
+SETR D2 GD2; InlineFunc[int Ceiling(int)] Params Start AND if() #99 Else Start
 LSHIFTV D2 0
-DIVV D2 8; InlineFunc[untyped Ceiling(untyped)] Params End
-CEILING D2; InlineFunc[untyped Ceiling(untyped)] Body
+DIVV D2 8; InlineFunc[int Ceiling(int)] Params End
+CEILING D2; InlineFunc[int Ceiling(int)] Body
 MULTV D2 8
 STORE D2 0.0001; if() #99 Else End
 LOAD D2 0.0001; if() #98 Else End AND if() #97 Else End AND if() #100 Test
@@ -3232,17 +3232,17 @@ LOAD D2 0.0002
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0001
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
 PUSHR D2
 LOAD D2 0.0006
 POP D3
 ADDR D2 D3
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0
 LOAD D2 0.0001; if() #145 Test
 PUSHR D2
@@ -3315,17 +3315,17 @@ LOAD D2 0.0002
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0001
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
 PUSHR D2
 LOAD D2 0.0006
 POP D3
 ADDR D2 D3
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0
 LOAD D2 0.0001; if() #147 Test
 PUSHR D2
@@ -3386,17 +3386,17 @@ LOAD D2 0.0002
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0001
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 POP D3
 ADDR D2 D3
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0
 LOAD D2 0.0001; if() #150 Test
 PUSHR D2
@@ -3469,17 +3469,17 @@ LOAD D2 0.0002
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0001
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 POP D3
 ADDR D2 D3
-DIVV D2 8; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+DIVV D2 8; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0
 LOAD D2 0.0001; if() #152 Test
 PUSHR D2
@@ -4240,26 +4240,26 @@ WRITEPODSTRING D2 "  DMap %d, screen %X\n"
 ALLOCATEMEMV D2 30 0
 STORE D2 0
 WRITEPODSTRING D2 "  Script %d, enemy ID %d\n"
-LOAD D2 0.0004; InlineFunc[void printf(char32)] Params Start
-PUSHR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D2 0.0002; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0004; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR CURDMAP
-PUSHVARGR CURDSCR; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D2 0; InlineFunc[void printf(char32)] Params Start
+PUSHVARGR CURDSCR; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0009
 PUSHR D2
 POP REFFFC
 PUSHVARGR FFSCRIPT
 LOAD D2 0.0008
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 SETV D2 0
 PUSHR D2
 LOAD D2 0.0009
@@ -5257,7 +5257,7 @@ GOTO 5242; return End AND if() #688 Body End
 SETV D2 1; return Start
 POPARGS D5 0.0005; return End
 RETURNFUNC; Func[bool __Ghost_WaitframePart2(ffc, npc, bool, bool)] Body End
-PUSHARGSV 0 0.0006; Func[void __SetUpDrawingArray(ffc, npc, int)] Body Start
+PUSHARGSV 0 0.0006; Func[void __SetUpDrawingArray(ffc, npc, int[])] Body Start
 SETR D4 SP2
 STOREV 0 0.0005
 LOAD D2 0.0008; if() #710 Test
@@ -5531,7 +5531,7 @@ SETR D0 D2
 POP D2
 WRITEPODARRAYVR 0 D2
 POPARGS D5 0.0009
-RETURNFUNC; Func[void __SetUpDrawingArray(ffc, npc, int)] Body End
+RETURNFUNC; Func[void __SetUpDrawingArray(ffc, npc, int[])] Body End
 PUSHV 0; Func[void __HideFFCAndWait(ffc)] Body Start
 SETR D4 SP2
 LOAD D2 0.0001
@@ -5941,11 +5941,11 @@ GOTOCMP 166 ==; Test 'if'
 ALLOCATEMEMV D2 2 0; if() #35 Body Start
 STORE D2 0
 PUSHR D4
-LOAD D2 0.0006; UsrFunc[int __AutoGhostParseName(npc, int)] Params Start
+LOAD D2 0.0006; UsrFunc[int __AutoGhostParseName(npc, int[])] Params Start
 PUSHR D2
 LOAD D2 0
-PUSHR D2; UsrFunc[int __AutoGhostParseName(npc, int)] Params End
-CALLFUNC 0.0413; UsrFunc[int __AutoGhostParseName(npc, int)] Call
+PUSHR D2; UsrFunc[int __AutoGhostParseName(npc, int[])] Params End
+CALLFUNC 0.0413; UsrFunc[int __AutoGhostParseName(npc, int[])] Call
 POP D4
 LOAD D2 0
 PUSHR D2
@@ -6201,7 +6201,7 @@ STORE D2 0.0003
 GOTO 73; for() #2 End
 POPARGS D5 0.0007
 RETURNFUNC; Func[void AutoGhost()] Body End
-PUSHARGSV 0 0.0009; Func[int __AutoGhostParseName(npc, int)] Body Start
+PUSHARGSV 0 0.0009; Func[int __AutoGhostParseName(npc, int[])] Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 64 0
 STORE D2 0.0008
@@ -6213,11 +6213,11 @@ LOAD D2 0.0009
 SETR D0 D2
 POP D2
 WRITEPODARRAYVR 1 D2
-LOAD D2 0.0010; InlineFunc[void npc::GetName(int)] Params Start
+LOAD D2 0.0010; InlineFunc[void npc::GetName(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0008; InlineFunc[void npc::GetName(int)] Params End
-POP REFNPC; InlineFunc[void npc::GetName(int)] Body Start
-NPCNAME D2; InlineFunc[void npc::GetName(int)] Body End
+LOAD D2 0.0008; InlineFunc[void npc::GetName(char32[])] Params End
+POP REFNPC; InlineFunc[void npc::GetName(char32[])] Body Start
+NPCNAME D2; InlineFunc[void npc::GetName(char32[])] Body End
 STOREV 0 0.0006; for() #151 setup
 LOAD D2 0.0006; for() #151 LoopTest
 COMPAREV D2 63
@@ -6293,8 +6293,8 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-LOAD D2 0.0007; InlineFunc[int Game::GetFFCScript(int)] Params
-GETFFCSCRIPT D2; InlineFunc[int Game::GetFFCScript(int)] Body
+LOAD D2 0.0007; InlineFunc[int Game::GetFFCScript(char32[])] Params
+GETFFCSCRIPT D2; InlineFunc[int Game::GetFFCScript(char32[])] Body
 PUSHR D2
 LOAD D2 0.0009
 SETR D0 D2
@@ -6317,16 +6317,16 @@ WRITEPODSTRING D2 "ghost.zh: AutoGhost setup failed - script does not exist.\n"
 ALLOCATEMEMV D2 80 0
 STORE D2 0
 WRITEPODSTRING D2 "  Script name: %s\n"
-LOAD D2 0.0002; InlineFunc[void printf(char32)] Params Start
-PUSHR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D2 0; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0007
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 SETV D2 0; return Start
 LOAD D3 0
 DEALLOCATEMEMR D3
@@ -6424,9 +6424,9 @@ SETR D3 D2
 POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
-LOAD D2 0.0007; InlineFunc[int atoi(char32)] Params Start
-SETR D3 D2; InlineFunc[int atoi(char32)] Params End
-ATOI D2 D3; InlineFunc[int atoi(char32)] Body
+LOAD D2 0.0007; InlineFunc[int atoi(char32[])] Params Start
+SETR D3 D2; InlineFunc[int atoi(char32[])] Params End
+ATOI D2 D3; InlineFunc[int atoi(char32[])] Body
 PUSHR D2
 LOAD D2 0.0009
 SETR D0 D2
@@ -6456,21 +6456,21 @@ WRITEPODSTRING D2 "  Enemy name: %s\n"
 ALLOCATEMEMV D2 55 0
 STORE D2 0.0001
 WRITEPODSTRING D2 "  Script name should start after this character: %c\n"
-LOAD D2 0.0005; InlineFunc[void printf(char32)] Params Start
-PUSHR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D2 0.0003; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0008
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D2 0.0001; InlineFunc[void printf(char32)] Params Start
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-PUSHVARGV 64; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGV 64; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 SETV D2 0; return Start
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
@@ -6500,7 +6500,7 @@ DEALLOCATEMEMR D3
 LOAD D3 0.0008
 DEALLOCATEMEMR D3
 POPARGS D5 0.0011
-RETURNFUNC; Func[int __AutoGhostParseName(npc, int)] Body End
+RETURNFUNC; Func[int __AutoGhostParseName(npc, int[])] Body End
 SETR D4 SP2; Func[void __AutoGhostKill(npc)] Body Start
 SETV D2 65536
 PUSHR D2
@@ -6555,11 +6555,11 @@ RETURNFUNC; Func[void __AutoGhostKill(npc)] Body End
 PUSHARGSV 0 0.0002; Func[int FindUnusedFFC(int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0001
-LOAD D2 0.0002; InlineFunc[int Max(int, const int)] Params Start AND for() #43 setup
+LOAD D2 0.0002; InlineFunc[int Max(int, int)] Params Start AND for() #43 setup
 ADDV D2 1
 PUSHVARGR D2
-PUSHVARGV 1; InlineFunc[int Max(int, const int)] Params End
-MAXVARG; InlineFunc[int Max(int, const int)] Body
+PUSHVARGV 1; InlineFunc[int Max(int, int)] Params End
+MAXVARG; InlineFunc[int Max(int, int)] Body
 STORE D2 0
 LOAD D2 0; for() #43 LoopTest
 COMPAREV D2 32
@@ -11401,7 +11401,7 @@ PUSHR D3
 POP D2
 POP REFEWPN
 SETR EWPNYOFS D2; unless() #428 Else End
-LOAD D2 0.0001; InlineFunc[int Min(int, const int)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
 PUSHR D2
 SETV D2 6
 PUSHR D2
@@ -11410,8 +11410,8 @@ POP REFEWPN
 SETR D2 EWPNMISCD
 ADDV D2 0.1600
 PUSHVARGR D2
-PUSHVARGV 3.2000; InlineFunc[int Min(int, const int)] Params End
-MINVARG; InlineFunc[int Min(int, const int)] Body
+PUSHVARGV 3.2000; InlineFunc[int Min(int, int)] Params End
+MINVARG; InlineFunc[int Min(int, int)] Body
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -12684,9 +12684,9 @@ GOTOCMP 6914 ==; Test 'if'
 ALLOCATEMEMV D2 43 0; if() #596 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "ghost.zh: Failed to find prototype eweapon"
-LOAD D2 0; InlineFunc[void TraceS(int)] Params Start
-SETR D3 D2; InlineFunc[void TraceS(int)] Params End
-TRACE6 D3; InlineFunc[void TraceS(int)] Body
+LOAD D2 0; InlineFunc[void TraceS(char32[])] Params Start
+SETR D3 D2; InlineFunc[void TraceS(char32[])] Params End
+TRACE6 D3; InlineFunc[void TraceS(char32[])] Body
 TRACE3; InlineFunc[void TraceNL()] Body
 SETV D2 0
 PUSHR D2
@@ -14040,7 +14040,7 @@ COMPAREV D2 512
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 8263 !=; Test 'if' AND continue 1; AND if() #599 Body
-LOAD D2 0.0001; InlineFunc[int Min(int, untyped)] Params Start
+LOAD D2 0.0001; InlineFunc[int Min(int, int)] Params Start
 PUSHVARGR D2
 LOAD D2 0.0002
 PUSHR D2
@@ -14048,8 +14048,8 @@ SETV D2 3
 PUSHR D2
 POP D0
 POP REFEWPN
-PUSHVARGR EWPNMISCD; InlineFunc[int Min(int, untyped)] Params End
-MINVARG; InlineFunc[int Min(int, untyped)] Body
+PUSHVARGR EWPNMISCD; InlineFunc[int Min(int, int)] Params End
+MINVARG; InlineFunc[int Min(int, int)] Body
 STORE D2 0.0001; for() #169 Body End
 LOAD D2 0; for() #169 LoopIncrement
 SUBV D2 1

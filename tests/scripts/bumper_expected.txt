@@ -411,9 +411,9 @@ SUBV D2 1
 STORE D2 0.0003; if() #457 Body End
 LOAD D2 0.0006
 PUSHR D2
-LOAD D2 0.0003; InlineFunc[untyped Floor(untyped)] Params Start
-DIVV D2 4; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+LOAD D2 0.0003; InlineFunc[int Floor(int)] Params Start
+DIVV D2 4; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 POP D3
 ADDR D2 D3
 PUSHR D2
@@ -746,12 +746,12 @@ GOTO 742; return End
 ALLOCATEMEMV D2 60 0; Case block
 STORE D2 0
 WRITEPODSTRING D2 "Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n"
-LOAD D2 0; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0006
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
 SETV D2 0; return Start

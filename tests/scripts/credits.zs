@@ -98,7 +98,7 @@ namespace Credits //start
 	{
 		data[DATA_TEXT_COLOR] = color;
 	}
-	void output(char32 filepath)
+	void output(char32[] filepath)
 	{
 		bitmap tmp = create(256, data[DATA_CURRY]);
 		_bitmap->Blit(7, tmp, 0, 0, 256, data[DATA_CURRY], 0, 0, 256, data[DATA_CURRY], 0, 0, 0, BITDX_NORMAL, 0, false);
@@ -115,39 +115,39 @@ namespace Credits //start
 			resize(_bitmap->Height + EXP_Y_AMNT);
 		}
 	}
-	void addLine(char32 text)
+	void addLine(char32[] text)
 	{
 		addLine(text, data[DATA_FONT], TF_CENTERED, data[DATA_TEXT_COLOR], data[DATA_SPACING]);
 	}
-	void addLine(char32 text, int font)
+	void addLine(char32[] text, int font)
 	{
 		addLine(text, font, TF_CENTERED, data[DATA_TEXT_COLOR], data[DATA_SPACING]);
 	}
-	void addLine(char32 text, int font, int format)
+	void addLine(char32[] text, int font, int format)
 	{
 		addLine(text, font, format, data[DATA_TEXT_COLOR], data[DATA_SPACING]);
 	}
-	void addLine(char32 text, int font, int format, int font_color)
+	void addLine(char32[] text, int font, int format, int font_color)
 	{
 		addLine(text, font, format, font_color, data[DATA_SPACING]);
 	}
-	void addHeader(char32 text)
+	void addHeader(char32[] text)
 	{
 		addLine(text, data[DATA_FONT], TF_CENTERED, data[DATA_TEXT_COLOR], data[DATA_HEADER_SPACING]);
 	}
-	void addHeader(char32 text, int font)
+	void addHeader(char32[] text, int font)
 	{
 		addLine(text, font, TF_CENTERED, data[DATA_TEXT_COLOR], data[DATA_HEADER_SPACING]);
 	}
-	void addHeader(char32 text, int font, int format)
+	void addHeader(char32[] text, int font, int format)
 	{
 		addLine(text, font, format, data[DATA_TEXT_COLOR], data[DATA_HEADER_SPACING]);
 	}
-	void addHeader(char32 text, int font, int format, int font_color)
+	void addHeader(char32[] text, int font, int format, int font_color)
 	{
 		addLine(text, font, format, font_color, data[DATA_HEADER_SPACING]);
 	}
-	void addLine(char32 text, int font, int format, int font_color, int spc)
+	void addLine(char32[] text, int font, int format, int font_color, int spc)
 	{
 		int x;
 		switch(format)

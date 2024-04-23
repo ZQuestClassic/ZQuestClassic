@@ -696,7 +696,7 @@ Compile finished with exit code '0' (success)
     }
   ],
   "symbols": {
-    "1339": {
+    "1342": {
       "loc": {
         "range": {
           "start": {
@@ -712,23 +712,23 @@ Compile finished with exit code '0' (success)
       },
       "doc": "THIS COMMENT USED #1"
     },
-    "709": {
+    "705": {
       "loc": {
         "range": {
           "start": {
-            "line": 694,
+            "line": 699,
             "character": 14
           },
           "end": {
-            "line": 694,
-            "character": 35
+            "line": 699,
+            "character": 37
           }
         },
         "uri": "URI"
       },
       "doc": "Prints the specified format_string to the output console, using the given\nargs to fill in parts of the string that are specially marked. Does not\ninclude a newline character after the string."
     },
-    "1340": {
+    "1343": {
       "loc": {
         "range": {
           "start": {
@@ -744,7 +744,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "THIS COMMENT USED #2"
     },
-    "1341": {
+    "1344": {
       "loc": {
         "range": {
           "start": {
@@ -760,7 +760,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "x marks the spot\nstill line one still line one still line one still line one still line one\nline two\nline two still\nline three\n- list item 1\n- list item 2\n- list item 3"
     },
-    "2481": {
+    "2477": {
       "loc": {
         "range": {
           "start": {
@@ -776,7 +776,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A81%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A81%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A81%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A81%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
     },
-    "2485": {
+    "2481": {
       "loc": {
         "range": {
           "start": {
@@ -806,9 +806,9 @@ Compile finished with exit code '0' (success)
         },
         "uri": "URI"
       },
-      "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
+      "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A27%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A27%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
     },
-    "1556": {
+    "1551": {
       "loc": {
         "range": {
           "start": {
@@ -824,7 +824,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "i am a car\n`i dont exist`"
     },
-    "1549": {
+    "1544": {
       "loc": {
         "range": {
           "start": {
@@ -839,7 +839,7 @@ Compile finished with exit code '0' (success)
         "uri": "URI"
       }
     },
-    "1344": {
+    "1347": {
       "loc": {
         "range": {
           "start": {
@@ -855,7 +855,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A81%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A81%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A81%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A81%2C%22character%22%3A11%7D%7D%7D)"
     },
-    "1342": {
+    "1345": {
       "loc": {
         "range": {
           "start": {
@@ -871,7 +871,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "hello world"
     },
-    "1343": {
+    "1346": {
       "loc": {
         "range": {
           "start": {
@@ -935,7 +935,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "meh"
     },
-    "3537": {
+    "3534": {
       "loc": {
         "range": {
           "start": {
@@ -950,7 +950,7 @@ Compile finished with exit code '0' (success)
         "uri": "URI"
       }
     },
-    "1560": {
+    "1555": {
       "loc": {
         "range": {
           "start": {
@@ -966,7 +966,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "TODO: support this in the scope lookup (see lookupDatum)\nequal to `c->speed`"
     },
-    "1562": {
+    "1557": {
       "loc": {
         "range": {
           "start": {
@@ -982,15 +982,15 @@ Compile finished with exit code '0' (success)
       },
       "doc": "an array"
     },
-    "635": {
+    "631": {
       "loc": {
         "range": {
           "start": {
-            "line": 69,
+            "line": 74,
             "character": 14
           },
           "end": {
-            "line": 69,
+            "line": 74,
             "character": 32
           }
         },
@@ -998,7 +998,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n**@deprecated_alias** TraceLWeapon\nTraceEWeapon\nTraceNPC\nTraceFFC\nTraceItem\nTraceItemData"
     },
-    "1565": {
+    "1560": {
       "loc": {
         "range": {
           "start": {
@@ -1013,7 +1013,7 @@ Compile finished with exit code '0' (success)
         "uri": "URI"
       }
     },
-    "1345": {
+    "1348": {
       "loc": {
         "range": {
           "start": {
@@ -1027,9 +1027,9 @@ Compile finished with exit code '0' (success)
         },
         "uri": "URI"
       },
-      "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
+      "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A27%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A27%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
     },
-    "2483": {
+    "2479": {
       "loc": {
         "range": {
           "start": {
@@ -1045,7 +1045,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "Go fast"
     },
-    "3866": {
+    "3840": {
       "loc": {
         "range": {
           "start": {
@@ -1068,7 +1068,7 @@ Compile finished with exit code '0' (success)
         "character": 15,
         "length": 7
       },
-      "symbol": "1339"
+      "symbol": "1342"
     },
     {
       "loc": {
@@ -1076,7 +1076,7 @@ Compile finished with exit code '0' (success)
         "character": 8,
         "length": 6
       },
-      "symbol": "709"
+      "symbol": "705"
     },
     {
       "loc": {
@@ -1084,7 +1084,7 @@ Compile finished with exit code '0' (success)
         "character": 26,
         "length": 7
       },
-      "symbol": "1339"
+      "symbol": "1342"
     },
     {
       "loc": {
@@ -1092,7 +1092,7 @@ Compile finished with exit code '0' (success)
         "character": 36,
         "length": 8
       },
-      "symbol": "1340"
+      "symbol": "1343"
     },
     {
       "loc": {
@@ -1100,7 +1100,7 @@ Compile finished with exit code '0' (success)
         "character": 50,
         "length": 1
       },
-      "symbol": "1341"
+      "symbol": "1344"
     },
     {
       "loc": {
@@ -1108,7 +1108,7 @@ Compile finished with exit code '0' (success)
         "character": 15,
         "length": 2
       },
-      "symbol": "2481"
+      "symbol": "2477"
     },
     {
       "loc": {
@@ -1116,7 +1116,7 @@ Compile finished with exit code '0' (success)
         "character": 18,
         "length": 7
       },
-      "symbol": "1339"
+      "symbol": "1342"
     },
     {
       "loc": {
@@ -1124,7 +1124,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 3
       },
-      "symbol": "2485"
+      "symbol": "2481"
     },
     {
       "loc": {
@@ -1132,7 +1132,7 @@ Compile finished with exit code '0' (success)
         "character": 8,
         "length": 6
       },
-      "symbol": "709"
+      "symbol": "705"
     },
     {
       "loc": {
@@ -1148,7 +1148,7 @@ Compile finished with exit code '0' (success)
         "character": 29,
         "length": 1
       },
-      "symbol": "1556"
+      "symbol": "1551"
     },
     {
       "loc": {
@@ -1156,7 +1156,7 @@ Compile finished with exit code '0' (success)
         "character": 39,
         "length": 6
       },
-      "symbol": "1549"
+      "symbol": "1544"
     },
     {
       "loc": {
@@ -1164,7 +1164,7 @@ Compile finished with exit code '0' (success)
         "character": 54,
         "length": 3
       },
-      "symbol": "1344"
+      "symbol": "1347"
     },
     {
       "loc": {
@@ -1172,7 +1172,7 @@ Compile finished with exit code '0' (success)
         "character": 60,
         "length": 1
       },
-      "symbol": "1342"
+      "symbol": "1345"
     },
     {
       "loc": {
@@ -1180,7 +1180,7 @@ Compile finished with exit code '0' (success)
         "character": 64,
         "length": 1
       },
-      "symbol": "1343"
+      "symbol": "1346"
     },
     {
       "loc": {
@@ -1212,7 +1212,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 13
       },
-      "symbol": "3537"
+      "symbol": "3534"
     },
     {
       "loc": {
@@ -1220,7 +1220,7 @@ Compile finished with exit code '0' (success)
         "character": 21,
         "length": 3
       },
-      "symbol": "2485"
+      "symbol": "2481"
     },
     {
       "loc": {
@@ -1236,7 +1236,7 @@ Compile finished with exit code '0' (success)
         "character": 16,
         "length": 1
       },
-      "symbol": "1556"
+      "symbol": "1551"
     },
     {
       "loc": {
@@ -1252,6 +1252,30 @@ Compile finished with exit code '0' (success)
         "character": 16,
         "length": 1
       },
+      "symbol": "1555"
+    },
+    {
+      "loc": {
+        "line": 71,
+        "character": 17,
+        "length": 3
+      },
+      "symbol": "1557"
+    },
+    {
+      "loc": {
+        "line": 73,
+        "character": 12,
+        "length": 5
+      },
+      "symbol": "631"
+    },
+    {
+      "loc": {
+        "line": 73,
+        "character": 18,
+        "length": 1
+      },
       "symbol": "1560"
     },
     {
@@ -1260,31 +1284,7 @@ Compile finished with exit code '0' (success)
         "character": 17,
         "length": 3
       },
-      "symbol": "1562"
-    },
-    {
-      "loc": {
-        "line": 73,
-        "character": 12,
-        "length": 5
-      },
-      "symbol": "635"
-    },
-    {
-      "loc": {
-        "line": 73,
-        "character": 18,
-        "length": 1
-      },
-      "symbol": "1565"
-    },
-    {
-      "loc": {
-        "line": 71,
-        "character": 17,
-        "length": 3
-      },
-      "symbol": "1562"
+      "symbol": "1557"
     },
     {
       "loc": {
@@ -1292,7 +1292,7 @@ Compile finished with exit code '0' (success)
         "character": 8,
         "length": 5
       },
-      "symbol": "1345"
+      "symbol": "1348"
     },
     {
       "loc": {
@@ -1300,7 +1300,7 @@ Compile finished with exit code '0' (success)
         "character": 8,
         "length": 5
       },
-      "symbol": "2483"
+      "symbol": "2479"
     },
     {
       "loc": {
@@ -1316,7 +1316,7 @@ Compile finished with exit code '0' (success)
         "character": 22,
         "length": 5
       },
-      "symbol": "3866"
+      "symbol": "3840"
     }
   ]
 }
@@ -1331,7 +1331,7 @@ SETR D4 SP2
 ALLOCATEMEMV D2 7 0
 STORE D2 0.0010
 WRITEPODSTRING D2 "%d %d\n"
-LOAD D2 0.0010; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0010; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD1
 PUSHR D2
@@ -1342,9 +1342,9 @@ PUSHVARGR D2
 SETR D2 GD3
 ADDV D2 1
 ADDV D2 2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0010
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1357,7 +1357,7 @@ STORE_OBJECT D2 0.0009
 ALLOCATEMEMV D2 10 0
 STORE D2 0.0008
 WRITEPODSTRING D2 "%d %d %d\n"
-LOAD D2 0.0008; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0008; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0009
 ZCLASS_READ D2 0
@@ -1375,9 +1375,9 @@ POP D3
 ADDR D2 D3
 ADDV D2 1
 ADDV D2 2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0008
 DEALLOCATEMEMR D3
 SETV D2 0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Set Destructor

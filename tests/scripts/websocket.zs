@@ -40,7 +40,7 @@ generic script WebSocketScript
 
             while (ws->HasMessage)
             {
-                int message_ptr = ws->Receive();
+                untyped[] message_ptr = ws->Receive();
                 int type = ws->MessageType;
                 if (type == WEBSOCKET_MESSAGE_TYPE_TEXT)
                     printf("got text message: %s\n", message_ptr);

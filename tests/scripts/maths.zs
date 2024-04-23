@@ -17,7 +17,7 @@ ffc script Maths
         }
     }
 
-    void maybePrint(bool doPrint, int str, int value)
+    void maybePrint(bool doPrint, char32[] str, int value)
     {
         if (doPrint)
         {
