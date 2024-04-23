@@ -724,20 +724,19 @@ static int applyTemplateTypes(
     const DataType* bound_t = nullptr;
 	for (size_t i = 0; i < num_params; ++i)
 	{
-		auto arrayType = dynamic_cast<const DataTypeArray*>(function->paramTypes[i]);
-		auto simpleType = dynamic_cast<const DataTypeSimple*>(arrayType ? &arrayType->getBaseType() : function->paramTypes[i]);
-		if (!simpleType || simpleType->getId() != ZTID_TEMPLATE_T)
+		auto ty = function->paramTypes[i];
+		if (!ty->isTemplate())
 			continue;
 		
 		DataType const* el_type = parameter_types[i];
-		if (arrayType)
+		if (ty->isArray())
 		{
-			if(parameter_types[i]->isUntyped())
+			if(el_type->isUntyped())
 				el_type = &DataType::UNTYPED;
 			else
 			{
-				auto target_depth = arrayType->getArrayDepth();
-				if(target_depth > parameter_types[i]->getArrayDepth())
+				auto target_depth = ty->getArrayDepth();
+				if(target_depth > el_type->getArrayDepth())
 					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 				
 				for(int q = 0; q < target_depth; ++q)
@@ -762,22 +761,20 @@ static int applyTemplateTypes(
 	if (function->getFlag(FUNCFLAG_VARARGS))
 	{
 		auto last_param_type = function->paramTypes.back();
-		auto last_param_arr_type = dynamic_cast<const DataTypeArray*>(last_param_type);
-		auto last_param_base_type = dynamic_cast<const DataTypeSimple*>(last_param_arr_type ? &last_param_arr_type->getBaseType() : last_param_type);
-		if (last_param_base_type && (last_param_base_type->getId() == ZTID_TEMPLATE_T))
+		if (last_param_type->isTemplate())
 		{
 			auto target_depth = last_param_type->getArrayDepth()-1; //-1 because vargs adds a layer of array around the params
 			DataType const* varg_basety = bound_t;
 			for (size_t i = num_params; i < parameter_types.size(); ++i)
 			{
 				DataType const* el_type = parameter_types[i];
-				if(last_param_arr_type)
+				if(last_param_type->isArray())
 				{
 					if(el_type->isUntyped())
 						el_type = &DataType::UNTYPED;
 					else
 					{
-						if(target_depth > parameter_types[i]->getArrayDepth())
+						if(target_depth > el_type->getArrayDepth())
 							return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 						
 						for(int q = 0; q < target_depth; ++q)
@@ -796,9 +793,6 @@ static int applyTemplateTypes(
 					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 
 				varg_basety = parameter_types[i];
-				
-				if (!el_type->canCastTo(*bound_t))
-					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 			}
 			if(!varg_basety)
 				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
@@ -813,15 +807,13 @@ static int applyTemplateTypes(
 	}
 	
 	auto ret_type = function->returnType;
-	auto ret_type_arr = dynamic_cast<const DataTypeArray*>(function->returnType);
-	auto ret_type_s = dynamic_cast<const DataTypeSimple*>(ret_type_arr ? &ret_type_arr->getBaseType() : function->returnType);
-	if (ret_type_s && ret_type_s->getId() == ZTID_TEMPLATE_T)
+	if (ret_type->isTemplate())
 		found_template_type = true;
 
 	if (!found_template_type)
 		return APPLY_TEMPLATE_RET_NA;
 
-	if (ret_type_s && ret_type_s->getId() == ZTID_TEMPLATE_T)
+	if (ret_type->isTemplate())
 	{
 		if (!bound_t)
 			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
