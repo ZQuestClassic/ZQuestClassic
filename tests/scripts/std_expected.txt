@@ -1234,7 +1234,7 @@ GOTO 1219; return End AND if() #406 Body End
 SETV D2 -10; return Start
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[int Tango_GetSlotVar(int, int)] Body End
-PUSHARGSV 0 0.0003; Func[int Tango_GetStringWidth(int, int)] Body Start
+PUSHARGSV 0 0.0003; Func[int Tango_GetStringWidth(char32[], int[])] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
 STOREV 0 0.0001
@@ -1294,7 +1294,7 @@ STORE D2 0
 GOTO 1226; for() #117 End
 LOAD D2 0.0002; return Start
 POPARGS D5 0.0005; return End
-RETURNFUNC; Func[int Tango_GetStringWidth(int, int)] Body End
+RETURNFUNC; Func[int Tango_GetStringWidth(char32[], int[])] Body End
 SETR D4 SP2; Func[int Tango_GetStyleAttribute(int, int)] Body Start
 PUSHR D4; unless() #410 Test
 LOAD D2 0.0001; UsrFunc[bool __Tango_ValidateStyle(int)] Params Start
@@ -3141,7 +3141,7 @@ SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 3141 ==; Test 'if'
 PUSHR D4; if() #477 Body Start
-SETR D2 GD4; UsrFunc[void __Tango_DrawComplexBackdrop(int, int, int)] Params Start
+SETR D2 GD4; UsrFunc[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
 ADDV D2 1
@@ -3151,8 +3151,8 @@ PUSHR D2
 LOAD D2 0.0002
 PUSHR D2
 LOAD D2 0.0001
-PUSHR D2; UsrFunc[void __Tango_DrawComplexBackdrop(int, int, int)] Params End
-CALLFUNC 0.4117; UsrFunc[void __Tango_DrawComplexBackdrop(int, int, int)] Call
+PUSHR D2; UsrFunc[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Params End
+CALLFUNC 0.4117; UsrFunc[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Call
 POP D4; if() #477 Body End
 LOAD D2 0; if() #196 Else End AND if() #195 Else End AND if() #194 Else End AND if() #478 Test
 COMPAREV D2 0
@@ -3813,7 +3813,7 @@ GOTO 3798; return End AND if() #181 Body End
 SETV D2 0; return Start AND if() #181 Else Start
 POP D5; return End AND if() #181 Else End
 RETURNFUNC; Func[int __Tango_BoolToInt(bool)] Body End
-SETR D4 SP2; Func[bool __Tango_CharacterWillFit(int, int, int, int)] Body Start
+SETR D4 SP2; Func[bool __Tango_CharacterWillFit(char32, int[], int, int)] Body Start
 LOAD D2 0; return Start
 PUSHR D2
 LOAD D2 0.0001
@@ -3822,18 +3822,18 @@ SUBR D3 D2
 SETR D2 D3
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0003; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Params Start
+LOAD D2 0.0003; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0002
-PUSHR D2; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Params End
-CALLFUNC 0.3820; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Call
+PUSHR D2; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params End
+CALLFUNC 0.3820; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Call
 POP D4
 POP D3
 COMPARER D3 D2
 SETCMP D2 I>=
 POPARGS D5 0.0004; return End
-RETURNFUNC; Func[bool __Tango_CharacterWillFit(int, int, int, int)] Body End
-SETR D4 SP2; Func[int __Tango_GetCharacterWidth(int, int)] Body Start
+RETURNFUNC; Func[bool __Tango_CharacterWillFit(char32, int[], int, int)] Body End
+SETR D4 SP2; Func[int __Tango_GetCharacterWidth(char32, int[])] Body Start
 LOAD D2 0; if() #206 Test
 PUSHR D2
 POP D0
@@ -3854,7 +3854,7 @@ ADDV D2 -26
 POP D0
 READPODARRAYR D2 D2
 POPARGS D5 0.0002; return End AND if() #206 Else End
-RETURNFUNC; Func[int __Tango_GetCharacterWidth(int, int)] Body End
+RETURNFUNC; Func[int __Tango_GetCharacterWidth(char32, int[])] Body End
 PUSHV 0; Func[int __Tango_GetSlotState(int)] Body Start
 SETR D4 SP2
 LOAD D2 0.0001
@@ -4130,7 +4130,7 @@ DRAWCOMBO; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, i
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS D5 0.0004
 RETURNFUNC; Func[void __Tango_DrawComboBackdrop(int, int, int)] Body End
-PUSHARGSV 0 0.0002; Func[void __Tango_DrawComplexBackdrop(int, int, int)] Body Start
+PUSHARGSV 0 0.0002; Func[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0001
 STOREV 0 0; for() #135 setup
@@ -4419,7 +4419,7 @@ RECT; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, i
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 GOTO 4464; if() #189 Body End
 PUSHR D4; if() #189 Else Start
-LOAD D2 0.0004; UsrFunc[void __Tango_DrawFrameText(int, int, int, int, int, int, int)] Params Start
+LOAD D2 0.0004; UsrFunc[void __Tango_DrawFrameText(int, int[], int[], int, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -4474,16 +4474,16 @@ POP D0
 READPODARRAYR D2 D2
 POP D3
 ADDR D2 D3
-PUSHR D2; UsrFunc[void __Tango_DrawFrameText(int, int, int, int, int, int, int)] Params End
-CALLFUNC 0.4470; UsrFunc[void __Tango_DrawFrameText(int, int, int, int, int, int, int)] Call
+PUSHR D2; UsrFunc[void __Tango_DrawFrameText(int, int[], int[], int, int, int, int)] Params End
+CALLFUNC 0.4470; UsrFunc[void __Tango_DrawFrameText(int, int[], int[], int, int, int, int)] Call
 POP D4; if() #189 Else End
 LOAD D2 0; if() #186 Else End AND for() #135 Body End AND for() #135 LoopIncrement
 ADDV D2 7
 STORE D2 0
 GOTO 4121; for() #135 End
 POPARGS D5 0.0005
-RETURNFUNC; Func[void __Tango_DrawComplexBackdrop(int, int, int)] Body End
-PUSHV 0; Func[void __Tango_DrawFrameText(int, int, int, int, int, int, int)] Body Start
+RETURNFUNC; Func[void __Tango_DrawComplexBackdrop(untyped[], int, int)] Body End
+PUSHV 0; Func[void __Tango_DrawFrameText(int, int[], int[], int, int, int, int)] Body Start
 SETR D4 SP2
 LOAD D2 0.0007; if() #191 Test
 COMPAREV D2 9
@@ -4493,11 +4493,11 @@ GOTOCMP 4491 ==; Test 'if'
 LOAD D2 0.0002; if() #191 Body Start
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0006; UsrFunc[int Tango_GetStringWidth(int, int)] Params Start
+LOAD D2 0.0006; UsrFunc[int Tango_GetStringWidth(char32[], int[])] Params Start
 PUSHR D2
 LOAD D2 0.0005
-PUSHR D2; UsrFunc[int Tango_GetStringWidth(int, int)] Params End
-CALLFUNC 0.1221; UsrFunc[int Tango_GetStringWidth(int, int)] Call
+PUSHR D2; UsrFunc[int Tango_GetStringWidth(char32[], int[])] Params End
+CALLFUNC 0.1221; UsrFunc[int Tango_GetStringWidth(char32[], int[])] Call
 POP D4
 POP D3
 SUBR D3 D2
@@ -4512,11 +4512,11 @@ GOTOCMP 4510 ==; Test 'if'
 LOAD D2 0.0002; if() #469 Body Start
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0006; UsrFunc[int Tango_GetStringWidth(int, int)] Params Start
+LOAD D2 0.0006; UsrFunc[int Tango_GetStringWidth(char32[], int[])] Params Start
 PUSHR D2
 LOAD D2 0.0005
-PUSHR D2; UsrFunc[int Tango_GetStringWidth(int, int)] Params End
-CALLFUNC 0.1221; UsrFunc[int Tango_GetStringWidth(int, int)] Call
+PUSHR D2; UsrFunc[int Tango_GetStringWidth(char32[], int[])] Params End
+CALLFUNC 0.1221; UsrFunc[int Tango_GetStringWidth(char32[], int[])] Call
 POP D4
 MULTV D2 0.5000
 POP D3
@@ -4536,7 +4536,7 @@ GOTOCMP 4550 ==; for() #136 TestFail?
 LOAD D2 0.0002; for() #136 Body Start
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0006; UsrFunc[int __Tango_PutChar(int, int, int, int, int, int, int, int)] Params Start
+LOAD D2 0.0006; UsrFunc[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -4553,8 +4553,8 @@ LOAD D2 0.0002
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2
-PUSHV 6; UsrFunc[int __Tango_PutChar(int, int, int, int, int, int, int, int)] Params End
-CALLFUNC 0.4552; UsrFunc[int __Tango_PutChar(int, int, int, int, int, int, int, int)] Call
+PUSHV 6; UsrFunc[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Params End
+CALLFUNC 0.4552; UsrFunc[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -4564,8 +4564,8 @@ ADDV D2 1
 STORE D2 0
 GOTO 4511; for() #136 End
 POPARGS D5 0.0008
-RETURNFUNC; Func[void __Tango_DrawFrameText(int, int, int, int, int, int, int)] Body End
-PUSHV 0; Func[int __Tango_PutChar(int, int, int, int, int, int, int, int)] Body Start
+RETURNFUNC; Func[void __Tango_DrawFrameText(int, int[], int[], int, int, int, int)] Body End
+PUSHV 0; Func[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Body Start
 SETR D4 SP2
 LOAD D2 0.0008; if() #583 Test
 COMPAREV D2 32
@@ -4681,14 +4681,14 @@ PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] P
 FASTTILE; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #283 Else End
 PUSHR D4; if() #583 Body End AND return Start
-LOAD D2 0.0008; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Params Start
+LOAD D2 0.0008; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0007
-PUSHR D2; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Params End
-CALLFUNC 0.3820; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Call
+PUSHR D2; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params End
+CALLFUNC 0.3820; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Call
 POP D4
 POPARGS D5 0.0009; return End
-RETURNFUNC; Func[int __Tango_PutChar(int, int, int, int, int, int, int, int)] Body End
+RETURNFUNC; Func[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Body End
 PUSHV 0; Func[void __Tango_DrawMenuScrollIndicators(int, int)] Body Start
 SETR D4 SP2
 SETR D2 GD3
@@ -6987,7 +6987,7 @@ STORE D2 0.0001; if() #515 Body End
 LOAD D2 0.0001; return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[int __Tango_GetVar(int)] Body End
-PUSHARGSV 0 0.0002; Func[int __Tango_GetWordWidth(int, int)] Body Start
+PUSHARGSV 0 0.0002; Func[int __Tango_GetWordWidth(int, int[])] Body Start
 SETR D4 SP2
 STOREV 0 0.0001
 STOREV 0 0
@@ -7019,11 +7019,11 @@ GOTOCMP 7015 ==; Test 'if'
 LOAD D2 0.0001; if() #517 Body Start
 PUSHR D2
 PUSHR D4
-LOAD D2 0; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Params Start
+LOAD D2 0; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0002
-PUSHR D2; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Params End
-CALLFUNC 0.3820; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Call
+PUSHR D2; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params End
+CALLFUNC 0.3820; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -7044,7 +7044,7 @@ STORE D2 0.0003; while(true) #9 Body [Opt:AlwaysOn] End
 GOTO 6978; while() #9 End
 LOAD D2 0.0001; return Start
 POPARGS D5 0.0004; return End
-RETURNFUNC; Func[int __Tango_GetWordWidth(int, int)] Body End
+RETURNFUNC; Func[int __Tango_GetWordWidth(int, int[])] Body End
 PUSHV 0; Func[void __Tango_InitializeMenu(int)] Body Start
 SETR D4 SP2
 SETV D2 -214747.9999
@@ -7850,7 +7850,7 @@ SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 7852 ==; Test 'if'
 PUSHR D4; return Start AND if() #254 Body Start
-LOAD D2 0.0010; UsrFunc[bool __Tango_WordWillFit(int, int, int, int)] Params Start
+LOAD D2 0.0010; UsrFunc[bool __Tango_WordWillFit(int, int[], int, int)] Params Start
 ADDV D2 2
 PUSHR D2
 LOAD D2 0.0005
@@ -7858,8 +7858,8 @@ PUSHR D2
 LOAD D2 0.0004
 PUSHR D2
 LOAD D2 0.0003
-PUSHR D2; UsrFunc[bool __Tango_WordWillFit(int, int, int, int)] Params End
-CALLFUNC 0.8573; UsrFunc[bool __Tango_WordWillFit(int, int, int, int)] Call
+PUSHR D2; UsrFunc[bool __Tango_WordWillFit(int, int[], int, int)] Params End
+CALLFUNC 0.8573; UsrFunc[bool __Tango_WordWillFit(int, int[], int, int)] Call
 POP D4
 COMPAREV D2 0
 SETCMP D2 I==
@@ -7876,15 +7876,15 @@ GOTOCMP 7862 ==; Test 'if'
 SETV D2 0; return Start AND if() #550 Body Start
 GOTO 7945; return End AND if() #550 Body End
 PUSHR D4; if() #253 Else End AND unless() #551 Test
-LOAD D2 0.0009; UsrFunc[bool __Tango_CharacterWillFit(int, int, int, int)] Params Start
+LOAD D2 0.0009; UsrFunc[bool __Tango_CharacterWillFit(char32, int[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2
 LOAD D2 0.0003
-PUSHR D2; UsrFunc[bool __Tango_CharacterWillFit(int, int, int, int)] Params End
-CALLFUNC 0.3800; UsrFunc[bool __Tango_CharacterWillFit(int, int, int, int)] Call
+PUSHR D2; UsrFunc[bool __Tango_CharacterWillFit(char32, int[], int, int)] Params End
+CALLFUNC 0.3800; UsrFunc[bool __Tango_CharacterWillFit(char32, int[], int, int)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 7877 !=; Test 'unless'
@@ -7944,15 +7944,15 @@ LOAD D2 0.0002; if() #553 Test
 COMPAREV D2 0
 GOTOCMP 7944 ==; Test 'if'
 PUSHR D4; return Start AND if() #553 Body Start
-LOAD D2 0.0010; UsrFunc[bool __Tango_WordWillFit(int, int, int, int)] Params Start
+LOAD D2 0.0010; UsrFunc[bool __Tango_WordWillFit(int, int[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2
 LOAD D2 0.0003
-PUSHR D2; UsrFunc[bool __Tango_WordWillFit(int, int, int, int)] Params End
-CALLFUNC 0.8573; UsrFunc[bool __Tango_WordWillFit(int, int, int, int)] Call
+PUSHR D2; UsrFunc[bool __Tango_WordWillFit(int, int[], int, int)] Params End
+CALLFUNC 0.8573; UsrFunc[bool __Tango_WordWillFit(int, int[], int, int)] Call
 POP D4
 COMPAREV D2 0
 SETCMP D2 I==
@@ -8586,7 +8586,7 @@ LOAD D3 0.0004
 DEALLOCATEMEMR D3
 POPARGS D5 0.0011
 RETURNFUNC; Func[int __Tango_RunFunction(int, bool)] Body End
-SETR D4 SP2; Func[bool __Tango_WordWillFit(int, int, int, int)] Body Start
+SETR D4 SP2; Func[bool __Tango_WordWillFit(int, int[], int, int)] Body Start
 LOAD D2 0; return Start
 PUSHR D2
 LOAD D2 0.0001
@@ -8595,17 +8595,17 @@ SUBR D3 D2
 SETR D2 D3
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0003; UsrFunc[int __Tango_GetWordWidth(int, int)] Params Start
+LOAD D2 0.0003; UsrFunc[int __Tango_GetWordWidth(int, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0002
-PUSHR D2; UsrFunc[int __Tango_GetWordWidth(int, int)] Params End
-CALLFUNC 0.6974; UsrFunc[int __Tango_GetWordWidth(int, int)] Call
+PUSHR D2; UsrFunc[int __Tango_GetWordWidth(int, int[])] Params End
+CALLFUNC 0.6974; UsrFunc[int __Tango_GetWordWidth(int, int[])] Call
 POP D4
 POP D3
 COMPARER D3 D2
 SETCMP D2 I>=
 POPARGS D5 0.0004; return End
-RETURNFUNC; Func[bool __Tango_WordWillFit(int, int, int, int)] Body End
+RETURNFUNC; Func[bool __Tango_WordWillFit(int, int[], int, int)] Body End
 PUSHARGSV 0 0.0002; Func[bool __Tango_ParseArgumentCode(char32[], int, int, bool, int[])] Body Start
 SETR D4 SP2
 LOAD D2 0.0004
@@ -9274,7 +9274,7 @@ RETURNFUNC; return End AND Func[bool __Tango_PressMenuCancel()] Body End
 SETR D4 SP2; Func[bool __Tango_PressMenuSelect()] Body Start
 SETR D2 INPUTPRESSA; return Start
 RETURNFUNC; return End AND Func[bool __Tango_PressMenuSelect()] Body End
-PUSHARGSV 0 0.0002; Func[void __Tango_PrintNextChar(int, int, int)] Body Start
+PUSHARGSV 0 0.0002; Func[void __Tango_PrintNextChar(int, char32, int[])] Body Start
 SETR D4 SP2
 PUSHR D4
 PUSHV 35; UsrFunc[int __Tango_GetCurrStyleData(int)] Params
@@ -9317,7 +9317,7 @@ POP D0
 READPODARRAYR D2 D2
 PUSHR D2
 PUSHR D4
-LOAD D2 0.0003; UsrFunc[int __Tango_PutChar(int, int, int, int, int, int, int, int)] Params Start
+LOAD D2 0.0003; UsrFunc[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0002
 PUSHR D2
@@ -9342,8 +9342,8 @@ READPODARRAYR D2 D2
 PUSHR D2
 LOAD D2 0
 PUSHR D2
-PUSHV 0; UsrFunc[int __Tango_PutChar(int, int, int, int, int, int, int, int)] Params End
-CALLFUNC 0.4552; UsrFunc[int __Tango_PutChar(int, int, int, int, int, int, int, int)] Call
+PUSHV 0; UsrFunc[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Params End
+CALLFUNC 0.4552; UsrFunc[int __Tango_PutChar(int, int[], int, int, int, int, int, int)] Call
 POP D4
 POP D3
 ADDR D2 D3
@@ -9357,7 +9357,7 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 POPARGS D5 0.0005
-RETURNFUNC; Func[void __Tango_PrintNextChar(int, int, int)] Body End
+RETURNFUNC; Func[void __Tango_PrintNextChar(int, char32, int[])] Body End
 PUSHARGSV 0 0.0018; Func[void __Tango_Process(int)] Body Start
 SETR D4 SP2
 SETR D2 GD3
@@ -9475,13 +9475,13 @@ COMPAREV D2 32
 SETCMP D2 I==
 STORE D2 0.0003
 PUSHR D4
-LOAD D2 0.0016; UsrFunc[void __Tango_PrintNextChar(int, int, int)] Params Start
+LOAD D2 0.0016; UsrFunc[void __Tango_PrintNextChar(int, char32, int[])] Params Start
 PUSHR D2
 LOAD D2 0.0012
 PUSHR D2
 LOAD D2 0.0010
-PUSHR D2; UsrFunc[void __Tango_PrintNextChar(int, int, int)] Params End
-CALLFUNC 0.9261; UsrFunc[void __Tango_PrintNextChar(int, int, int)] Call
+PUSHR D2; UsrFunc[void __Tango_PrintNextChar(int, char32, int[])] Params End
+CALLFUNC 0.9261; UsrFunc[void __Tango_PrintNextChar(int, char32, int[])] Call
 POP D4
 LOAD D2 0.0012; if() #564 Test
 COMPAREV D2 32
@@ -9882,10 +9882,10 @@ POP D0
 READPODARRAYR D2 D2
 PUSHR D2
 PUSHR D4
-PUSHV 32; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Params Start
+PUSHV 32; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params Start
 LOAD D2 0.0010
-PUSHR D2; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Params End
-CALLFUNC 0.3820; UsrFunc[int __Tango_GetCharacterWidth(int, int)] Call
+PUSHR D2; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params End
+CALLFUNC 0.3820; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Call
 POP D4
 POP D3
 SUBR D3 D2

@@ -11,7 +11,7 @@ ffc script AutomaticIceBlockPuzzle{
 		int numtriggers=0;
 		int scr_iceblock[] = "ice_block";
 		int ffcscript_iceblock= Game->GetFFCScript(scr_iceblock);
-		int args = 0;
+		int[] args = NULL;
 		for (int i = 0; i < 176; i++) {
 			if (ComboFI(i, CF_ICEBLOCK)){
 				ffc ice = RunFFCScriptOrQuit(ffcscript_iceblock,args);

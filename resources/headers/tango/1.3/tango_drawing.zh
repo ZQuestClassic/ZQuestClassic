@@ -5,7 +5,7 @@
 // Functions used to draw to the screen or an offscreen bitmap.
 
 // Draws a single character and returns the width of the character drawn.
-int __Tango_PutChar(int character, int font, int cset, int color,
+int __Tango_PutChar(int character, int[] font, int cset, int color,
   int tileOffset, int x, int y, int layer)
 {
     if(character!=' ') // Spaces don't need drawn...
@@ -126,7 +126,7 @@ void __Tango_DrawComboBackdrop(int styleStart, int x, int y)
       -1, -1, 0, 0, 0, 0, 0, true, opacity);
 }
 
-void __Tango_DrawComplexBackdrop(int backdrop, float x, float y)
+void __Tango_DrawComplexBackdrop(untyped[] backdrop, float x, float y)
 {
     int opacity;
     
@@ -199,7 +199,7 @@ void __Tango_DrawComplexBackdrop(int backdrop, float x, float y)
 }
 
 // Draws text for a complex backdrop
-void __Tango_DrawFrameText(int type, int str, int font, int cset, int color,
+void __Tango_DrawFrameText(int type, int[] str, int[] font, int cset, int color,
     int x, int y)
 {
     if(type==TANGO_DRAW_TEXT_RIGHT)
