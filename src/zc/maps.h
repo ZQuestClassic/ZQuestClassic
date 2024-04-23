@@ -150,6 +150,7 @@ const mapscr* get_canonical_scr(int map, int screen);
 mapscr* get_scr(int map, int screen_index);
 mapscr* get_scr_no_load(int map, int screen);
 mapscr* get_layer_scr(int map, int screen_index, int layer);
+mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer);
 mapscr* get_layer_scr_for_xy(int x, int y, int layer);
 
 ffc_handle_t get_ffc(int id);

@@ -579,6 +579,16 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 	return temporary_screens[index][layer + 1];
 }
 
+// Same as get_layer_scr, but if scrolling will pull from the scrolling screens as needed.
+mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer)
+{
+	DCHECK_LAYER_NEG1_INDEX(layer);
+	if (!screenscrolling || screen != scrolling_scr || FFCore.ScrollingScreensAll.empty())
+		return get_layer_scr(map, screen, layer);
+
+	return FFCore.ScrollingScreensAll[screen * 7 + layer + 1];
+}
+
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr_for_xy(int x, int y, int layer)
 {
@@ -4173,10 +4183,7 @@ void calc_darkroom_combos(int screen, int offx, int offy)
 {
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		// TODO z3 ! should this be done in get_layer_scr ?
-		mapscr* scr = FFCore.ScrollingScreensAll.size() && screen == scrolling_scr ?
-			FFCore.ScrollingScreensAll[screen * 7 + lyr] :
-			get_layer_scr(currmap, screen, lyr-1);
+		mapscr* scr = get_layer_scr_allow_scrolling(currmap, screen, lyr-1);
 		if (!scr->valid) continue;
 
 		for(int32_t q = 0; q < 176; ++q)
@@ -4189,7 +4196,7 @@ void calc_darkroom_combos(int screen, int offx, int offy)
 		}
 	}
 
-	mapscr* scr = get_scr(currmap, screen);
+	mapscr* scr = get_layer_scr_allow_scrolling(currmap, screen, -1);
 	word c = scr->numFFC();
 	for(int q = 0; q < c; ++q)
 	{
