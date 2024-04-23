@@ -20,14 +20,14 @@ SETR D4 SP2
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0053
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0053; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0053; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0053
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -41,13 +41,13 @@ ALLOCATEMEMV D2 16 0
 STORE D2 0.0051
 WRITEPODSTRING D2 "(1) RefCount(a)"
 PUSHR D4
-LOAD D2 0.0051; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0051; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0052; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0051
 DEALLOCATEMEMR D3
@@ -58,13 +58,13 @@ ALLOCATEMEMV D2 16 0
 STORE D2 0.0050
 WRITEPODSTRING D2 "(2) RefCount(a)"
 PUSHR D4
-LOAD D2 0.0050; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0050; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0052; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0050
 DEALLOCATEMEMR D3
@@ -80,14 +80,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0052
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0052; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0052; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0052
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -104,13 +104,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0050
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0050; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0050; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0051; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0050
 DEALLOCATEMEMR D3
@@ -120,13 +120,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0049
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0049; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0049; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0051; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0049
 DEALLOCATEMEMR D3
@@ -142,14 +142,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0051
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0051; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0051; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0051
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -166,13 +166,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0049
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0049; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0049; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0050; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0049
 DEALLOCATEMEMR D3
@@ -188,14 +188,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0050
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0050; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0050; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0050
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -219,14 +219,14 @@ ALLOCATEMEMV D2 17 0
 STORE D2 0.0048
 WRITEPODSTRING D2 "RefCount(a->hat)"
 PUSHR D4
-LOAD D2 0.0048; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0048; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0049; InlineFunc[long RefCount(untyped)] Params Start
 ZCLASS_READ D2 0.0001; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0048
 DEALLOCATEMEMR D3
@@ -244,14 +244,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0049
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0049; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0049; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0049
 DEALLOCATEMEMR D3
 LOADRNG; InlineFunc[randgen randgen::randgen()] Body
@@ -263,13 +263,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0047
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0047; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0047; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0048; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0047
 DEALLOCATEMEMR D3
@@ -281,14 +281,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0048
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0048; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0048; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0048
 DEALLOCATEMEMR D3
 STOREV 0 0.0047
@@ -300,13 +300,13 @@ ALLOCATEMEMV D2 14 0
 STORE D2 0.0045
 WRITEPODSTRING D2 "RefCount(rng)"
 PUSHR D4
-LOAD D2 0.0045; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0045; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0046; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0045
 DEALLOCATEMEMR D3
@@ -318,27 +318,27 @@ ALLOCATEMEMV D2 18 0
 STORE D2 0.0046
 WRITEPODSTRING D2 "RefCount(scratch)"
 PUSHR D4
-LOAD D2 0.0046; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0046; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0047; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV -0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0046
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0047
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0047; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0047; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0047
 DEALLOCATEMEMR D3
 STOREV 0 0.0046
@@ -350,13 +350,13 @@ ALLOCATEMEMV D2 14 0
 STORE D2 0.0044
 WRITEPODSTRING D2 "RefCount(rng)"
 PUSHR D4
-LOAD D2 0.0044; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0044; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0045; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0044
 DEALLOCATEMEMR D3
@@ -368,27 +368,27 @@ ALLOCATEMEMV D2 18 0
 STORE D2 0.0045
 WRITEPODSTRING D2 "RefCount(scratch)"
 PUSHR D4
-LOAD D2 0.0045; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0045; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0046; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV -0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0045
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0046
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0046; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0046; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0046
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -404,25 +404,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0045
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0045; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0045; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0045
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0045
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0045; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0045; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0045
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -436,25 +436,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0044
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0044; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0044; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0044
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0044
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0044; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0044; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0044
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -472,12 +472,12 @@ ALLOCATEMEMV D2 4 0
 STORE D2 0.0042
 WRITEPODSTRING D2 "age"
 PUSHR D4
-LOAD D2 0.0042; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0042; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0043
 PUSHR D2
-PUSHV 10; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 10; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0042
 DEALLOCATEMEMR D3
@@ -485,25 +485,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0041
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0041; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0041; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0041
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0043
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0043; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0043; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0043
 DEALLOCATEMEMR D3
 STOREV 0 0.0042
@@ -515,14 +515,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0042
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0042; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0042; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0042
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -550,12 +550,12 @@ ALLOCATEMEMV D2 4 0
 STORE D2 0.0040
 WRITEPODSTRING D2 "age"
 PUSHR D4
-LOAD D2 0.0040; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0040; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0041
 PUSHR D2
-PUSHV 30; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 30; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0040
 DEALLOCATEMEMR D3
@@ -563,25 +563,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0039
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0039; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0039; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0039
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0041
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0041; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0041; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0041
 DEALLOCATEMEMR D3
 SETR D2 GD2
@@ -618,12 +618,12 @@ ALLOCATEMEMV D2 2 0
 STORE D2 0.0039
 WRITEPODSTRING D2 "c"
 PUSHR D4
-LOAD D2 0.0039; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0039; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0040
 PUSHR D2
-PUSHV 3; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 3; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0039
 DEALLOCATEMEMR D3
@@ -635,21 +635,21 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0040
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0040; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0040; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0040
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 23 0
 STORE D2 0.0039
 WRITEPODSTRING D2 "RefCount(new Person())"
 PUSHR D4
-LOAD D2 0.0039; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0039; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR CLASS_THISKEY; InlineFunc[long RefCount(untyped)] Params Start
 PUSHR D4
@@ -659,8 +659,8 @@ POP D4
 POP CLASS_THISKEY; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0039
 DEALLOCATEMEMR D3
@@ -673,14 +673,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0039
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0039; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0039; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0039
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -699,13 +699,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0037
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0037; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0037; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0038; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0037
 DEALLOCATEMEMR D3
@@ -727,14 +727,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0038
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0038; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0038; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0038
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -755,13 +755,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0036
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0036; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0036; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0037; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0036
 DEALLOCATEMEMR D3
@@ -777,14 +777,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0037
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0037; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0037; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0037
 DEALLOCATEMEMR D3
 PUSHR D4
@@ -805,14 +805,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0036
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0036; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0036; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0036
 DEALLOCATEMEMR D3
 PUSHR D4
@@ -830,13 +830,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0034
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0034; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0034; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0035; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0034
 DEALLOCATEMEMR D3
@@ -847,13 +847,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0033
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0033; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0033; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0035; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0033
 DEALLOCATEMEMR D3
@@ -869,14 +869,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0035
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0035; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0035; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0035
 DEALLOCATEMEMR D3
 PUSHR D4
@@ -890,13 +890,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0033
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0033; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0033; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0034; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0033
 DEALLOCATEMEMR D3
@@ -912,14 +912,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0034
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0034; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0034; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0034
 DEALLOCATEMEMR D3
 PUSHR D4
@@ -933,13 +933,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0032
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0032; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0032; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0033; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0032
 DEALLOCATEMEMR D3
@@ -955,14 +955,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0033
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0033; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0033; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0033
 DEALLOCATEMEMR D3
 PUSHARGSR D4 0.0002; UsrFunc[Person usePerson3(Person)] Params Start
@@ -979,13 +979,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0031
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0031; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0031; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0032; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0031
 DEALLOCATEMEMR D3
@@ -1001,14 +1001,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0032
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0032; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0032; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0032
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1022,13 +1022,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0030
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0030; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0030; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0031; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0030
 DEALLOCATEMEMR D3
@@ -1046,14 +1046,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0031
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0031; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0031; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0031
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1070,13 +1070,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0029
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0029; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0029; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0030; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0029
 DEALLOCATEMEMR D3
@@ -1086,13 +1086,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0027
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0027; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0027; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0030; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0027
 DEALLOCATEMEMR D3
@@ -1102,13 +1102,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0025
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0025; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0025; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0030; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0003; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0003; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0025
 DEALLOCATEMEMR D3
@@ -1126,14 +1126,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0030
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0030; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0030; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0030
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1147,11 +1147,11 @@ ALLOCATEMEMV D2 10 0
 STORE D2 0.0028
 WRITEPODSTRING D2 "(1) count"
 PUSHR D4
-LOAD D2 0.0028; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0028; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 1; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 1; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0028
 DEALLOCATEMEMR D3
@@ -1166,11 +1166,11 @@ ALLOCATEMEMV D2 10 0
 STORE D2 0.0026
 WRITEPODSTRING D2 "(2) count"
 PUSHR D4
-LOAD D2 0.0026; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0026; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 2; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 2; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0026
 DEALLOCATEMEMR D3
@@ -1181,13 +1181,13 @@ ALLOCATEMEMV D2 16 0
 STORE D2 0.0025
 WRITEPODSTRING D2 "(3) RefCount(a)"
 PUSHR D4
-LOAD D2 0.0025; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0025; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0029; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0025
 DEALLOCATEMEMR D3
@@ -1195,13 +1195,13 @@ ALLOCATEMEMV D2 16 0
 STORE D2 0.0024
 WRITEPODSTRING D2 "(4) RefCount(b)"
 PUSHR D4
-LOAD D2 0.0024; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0024; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0027; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0024
 DEALLOCATEMEMR D3
@@ -1211,11 +1211,11 @@ ALLOCATEMEMV D2 10 0
 STORE D2 0.0023
 WRITEPODSTRING D2 "(5) count"
 PUSHR D4
-LOAD D2 0.0023; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0023; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 1; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 1; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0023
 DEALLOCATEMEMR D3
@@ -1223,13 +1223,13 @@ ALLOCATEMEMV D2 16 0
 STORE D2 0.0022
 WRITEPODSTRING D2 "(6) RefCount(a)"
 PUSHR D4
-LOAD D2 0.0022; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0022; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0029; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1237,13 +1237,13 @@ ALLOCATEMEMV D2 16 0
 STORE D2 0.0021
 WRITEPODSTRING D2 "(7) RefCount(b)"
 PUSHR D4
-LOAD D2 0.0021; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0021; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0027; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0021
 DEALLOCATEMEMR D3
@@ -1256,14 +1256,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0029
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0029; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0029; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0029
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1295,13 +1295,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0027
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0027; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0027; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0028; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0003; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0003; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0027
 DEALLOCATEMEMR D3
@@ -1315,13 +1315,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0026
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0026; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0026; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0028; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0026
 DEALLOCATEMEMR D3
@@ -1347,14 +1347,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0028
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0028; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0028; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0028
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1390,14 +1390,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0027
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0027; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0027; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0027
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1420,13 +1420,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0025
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0025; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0025; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0026; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0025
 DEALLOCATEMEMR D3
@@ -1438,13 +1438,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0023
 WRITEPODSTRING D2 "RefCount(b)"
 PUSHR D4
-LOAD D2 0.0023; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0023; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0024; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0023
 DEALLOCATEMEMR D3
@@ -1456,13 +1456,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0022
 WRITEPODSTRING D2 "RefCount(b)"
 PUSHR D4
-LOAD D2 0.0022; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0022; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0024; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1475,14 +1475,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0026
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0026; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0026; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0026
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1506,7 +1506,7 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0022
 WRITEPODSTRING D2 "RefCount(b)"
 PUSHR D4
-LOAD D2 0.0022; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0022; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0023; InlineFunc[long RefCount(untyped)] Params Start
 PUSHR D2
@@ -1514,8 +1514,8 @@ POP D0
 READPODARRAYV D2 0; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1529,14 +1529,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0025
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0025; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0025; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0025
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 1 0.0008
@@ -1558,7 +1558,7 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0022
 WRITEPODSTRING D2 "RefCount(b)"
 PUSHR D4
-LOAD D2 0.0022; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0022; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0023; InlineFunc[long RefCount(untyped)] Params Start
 PUSHR D2
@@ -1566,8 +1566,8 @@ POP D0
 READPODARRAYV D2 0; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
@@ -1580,14 +1580,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0024
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0024; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0024; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0024
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 1 0.0008
@@ -1622,14 +1622,14 @@ DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0023
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0023; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0023; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0023
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1660,13 +1660,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0020
 WRITEPODSTRING D2 "RefCount(b)"
 PUSHR D4
-LOAD D2 0.0020; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0020; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0021; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0020
 DEALLOCATEMEMR D3
@@ -1679,14 +1679,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0022
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0022; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0022; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0022
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1710,13 +1710,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0020
 WRITEPODSTRING D2 "RefCount(b)"
 PUSHR D4
-LOAD D2 0.0020; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0020; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0021; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0020
 DEALLOCATEMEMR D3
@@ -1725,11 +1725,11 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0021
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0021; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0021; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 1; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 1; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0021
 DEALLOCATEMEMR D3
@@ -1738,25 +1738,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0020
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0020; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0020; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0020
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0019
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0019; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0019; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0019
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1794,13 +1794,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0016
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0016; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0016; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0018; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0016
 DEALLOCATEMEMR D3
@@ -1808,13 +1808,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0015
 WRITEPODSTRING D2 "RefCount(b)"
 PUSHR D4
-LOAD D2 0.0015; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0015; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0017; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0015
 DEALLOCATEMEMR D3
@@ -1824,7 +1824,7 @@ ALLOCATEMEMV D2 25 0
 STORE D2 0.0014
 WRITEPODSTRING D2 "RefCount(b->children[0])"
 PUSHR D4
-LOAD D2 0.0014; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0014; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0017; InlineFunc[long RefCount(untyped)] Params Start
 ZCLASS_READ D2 0.0002
@@ -1833,8 +1833,8 @@ POP D0
 READPODARRAYV D2 0; InlineFunc[long RefCount(untyped)] Params End
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0014
 DEALLOCATEMEMR D3
@@ -1844,11 +1844,11 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0018
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0018; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0018; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 2; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 2; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0018
 DEALLOCATEMEMR D3
@@ -1857,25 +1857,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0017
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0017; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0017; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0017
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0016
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0016; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0016; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0016
 DEALLOCATEMEMR D3
 STOREV 0 0.0015
@@ -1883,13 +1883,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0014
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0014; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0014; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0015; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV -0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0014
 DEALLOCATEMEMR D3
@@ -1907,13 +1907,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0013
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0013; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0013; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0015; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0013
 DEALLOCATEMEMR D3
@@ -1923,13 +1923,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0012
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0012; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0012; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0015; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0012
 DEALLOCATEMEMR D3
@@ -1945,14 +1945,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0015
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0015; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0015; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0015
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -1966,13 +1966,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0013
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0013; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0013; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0014; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0013
 DEALLOCATEMEMR D3
@@ -1980,11 +1980,11 @@ ALLOCATEMEMV D2 10 0
 STORE D2 0.0012
 WRITEPODSTRING D2 "(1) count"
 PUSHR D4
-LOAD D2 0.0012; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0012; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 1; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 1; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0012
 DEALLOCATEMEMR D3
@@ -1995,25 +1995,25 @@ ALLOCATEMEMV D2 10 0
 STORE D2 0.0011
 WRITEPODSTRING D2 "(2) count"
 PUSHR D4
-LOAD D2 0.0011; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0011; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0011
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0014
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0014; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0014; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0014
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -2032,13 +2032,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0011
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0011; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0011; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0013; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0011
 DEALLOCATEMEMR D3
@@ -2047,25 +2047,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0013
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0013; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0013; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0013
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0012
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0012; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0012; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0012
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -2084,13 +2084,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0009
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0009; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0009; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0011; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0009
 DEALLOCATEMEMR D3
@@ -2105,25 +2105,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0011
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0011; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0011; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0011
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0010
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0010; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0010; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0010
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -2140,13 +2140,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0007
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0007; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0007; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0009; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0007
 DEALLOCATEMEMR D3
@@ -2161,25 +2161,25 @@ ALLOCATEMEMV D2 6 0
 STORE D2 0.0009
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0.0009; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0009; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
-PUSHV 0; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0009
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0008
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0008; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0008; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0008
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 2 0
@@ -2210,13 +2210,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0005
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0005; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0005; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
@@ -2230,14 +2230,14 @@ DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0007
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0007; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0007; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0007
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -2254,13 +2254,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0005
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0005; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0005; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
@@ -2274,13 +2274,13 @@ ALLOCATEMEMV D2 12 0; for() #160 Body Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0003; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0003; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
@@ -2290,13 +2290,13 @@ ALLOCATEMEMV D2 12 0
 STORE D2 0.0001
 WRITEPODSTRING D2 "RefCount(a)"
 PUSHR D4
-LOAD D2 0.0001; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0001; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0006; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
@@ -2331,14 +2331,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0006
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0006; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0006; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0006
 DEALLOCATEMEMR D3
 STOREV 0 0.0005; for() #161 setup
@@ -2357,10 +2357,10 @@ GOTOCMP 2350 ==; Test 'if'
 ALLOCATEMEMV D2 28 0; if() #451 Body Start
 STORE D2 0.0003
 WRITEPODSTRING D2 "failed to allocate randgen\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32)] Params Start
-PUSHR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
 DEALLOCATEMEMR D3; if() #451 Body End
 LOAD D2 0.0005; for() #161 Body End AND for() #161 LoopIncrement
@@ -2371,14 +2371,14 @@ GC; InlineFunc[void GC()] Body
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0005
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0005; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
 SETV D2 -1; InlineFunc[bitmap Game::LoadBitmapID(int)] Params
@@ -2393,13 +2393,13 @@ ALLOCATEMEMV D2 25 0
 STORE D2 0.0002
 WRITEPODSTRING D2 "RefCount(internal_bmp_1)"
 PUSHR D4
-LOAD D2 0.0002; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0002; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV -0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
@@ -2407,13 +2407,13 @@ ALLOCATEMEMV D2 25 0
 STORE D2 0.0001
 WRITEPODSTRING D2 "RefCount(internal_bmp_2)"
 PUSHR D4
-LOAD D2 0.0001; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0.0001; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0003; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV -0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV -0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
@@ -2438,13 +2438,13 @@ ALLOCATEMEMV D2 25 0
 STORE D2 0
 WRITEPODSTRING D2 "RefCount(internal_bmp_1)"
 PUSHR D4
-LOAD D2 0; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3
@@ -2460,14 +2460,14 @@ POP D4
 ALLOCATEMEMV D2 18 0
 STORE D2 0.0004
 WRITEPODSTRING D2 "=== Test %d === \n"
-LOAD D2 0.0004; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0004; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 ADDV D2 1
 SETR GD3 D2
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0004
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
@@ -2502,15 +2502,15 @@ GOTO 2477; while() #2 End
 ALLOCATEMEMV D2 17 0
 STORE D2 0.0003
 WRITEPODSTRING D2 "Done with tests\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32)] Params Start
-PUSHR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
 POPARGS D5 0.0055
 QUIT; void run() Body End
-PUSHV 0; Func[void check(char32, int, int)] Body Start
+PUSHV 0; Func[void check(char32[], int, int)] Body Start
 SETR D4 SP2
 LOAD D2 0.0002; if() #448 Test
 PUSHR D2
@@ -2523,20 +2523,20 @@ GOTOCMP 2522 ==; Test 'if'
 ALLOCATEMEMV D2 36 0; if() #448 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[%s] ERROR: expected %l but got %l\n"
-LOAD D2 0; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0003
 PUSHVARGR D2
 LOAD D2 0.0001
 PUSHVARGR D2
 LOAD D2 0.0002
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3; if() #448 Body End
 POPARGS D5 0.0004
-RETURNFUNC; Func[void check(char32, int, int)] Body End
+RETURNFUNC; Func[void check(char32[], int, int)] Body End
 PUSHV 0; Func[void checkCountWithGC(int)] Body Start
 SETR D4 SP2
 SETR D2 GD2; if() #449 Test
@@ -2551,12 +2551,12 @@ ALLOCATEMEMV D2 6 0; if() #449 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "count"
 PUSHR D4
-LOAD D2 0; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
 LOAD D2 0.0001
-PUSHR D2; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHR D2; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3; if() #449 Body End
@@ -2573,12 +2573,12 @@ ALLOCATEMEMV D2 16 0; if() #450 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "count (post GC)"
 PUSHR D4
-LOAD D2 0; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 PUSHR GD2
 LOAD D2 0.0001
-PUSHR D2; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHR D2; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3; if() #450 Body End
@@ -2601,7 +2601,7 @@ RETURNFUNC; Func[Person createPerson1()] Body End
 SETV D2 0.2716; Func[Person Person::Person(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0002,0.0003}
-ZCLASS_MARK_TYPE {0.0002,0.0008,0.0001,0.0008}
+ZCLASS_MARK_TYPE {0.0001,0.0008}
 SETR D4 SP2
 PUSHR CLASS_THISKEY2
 SETR D2 GD2
@@ -2651,13 +2651,13 @@ ALLOCATEMEMV D2 17 0
 STORE D2 0
 WRITEPODSTRING D2 "RefCount(person)"
 PUSHR D4
-LOAD D2 0; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3
@@ -2678,13 +2678,13 @@ ALLOCATEMEMV D2 17 0
 STORE D2 0
 WRITEPODSTRING D2 "RefCount(person)"
 PUSHR D4
-LOAD D2 0; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0002; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0002; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3
@@ -2708,13 +2708,13 @@ ALLOCATEMEMV D2 17 0
 STORE D2 0
 WRITEPODSTRING D2 "RefCount(person)"
 PUSHR D4
-LOAD D2 0; UsrFunc[void check(char32, int, int)] Params Start
+LOAD D2 0; UsrFunc[void check(char32[], int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[long RefCount(untyped)] Params
 REF_COUNT D2; InlineFunc[long RefCount(untyped)] Body
 PUSHR D2
-PUSHV 0.0001; UsrFunc[void check(char32, int, int)] Params End
-CALLFUNC 0.2497; UsrFunc[void check(char32, int, int)] Call
+PUSHV 0.0001; UsrFunc[void check(char32[], int, int)] Params End
+CALLFUNC 0.2497; UsrFunc[void check(char32[], int, int)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3

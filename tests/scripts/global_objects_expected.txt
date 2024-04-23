@@ -131,7 +131,7 @@ ZCLASS_WRITE D3 0
 ALLOCATEMEMV D2 40 0
 STORE D2 0.0004
 WRITEPODSTRING D2 "globalThing->someCounters[0]->field %d\n"
-LOAD D2 0.0004; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0004; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD2
 ZCLASS_READ D2 0.0003
@@ -139,15 +139,15 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 0
 ZCLASS_READ D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0004
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 52 0
 STORE D2 0.0003
 WRITEPODSTRING D2 "globalThing->otherThing->someCounters[0]->field %d\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD2
 ZCLASS_READ D2 0
@@ -156,15 +156,15 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 0
 ZCLASS_READ D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 41 0
 STORE D2 0.0002
 WRITEPODSTRING D2 "globalThing->a_bitmap->isAllocated() %d\n"
-LOAD D2 0.0002; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD2; InlineFunc[bool bitmap::isAllocated()] Params Start
 ZCLASS_READ D2 0.0001; InlineFunc[bool bitmap::isAllocated()] Params End
@@ -174,15 +174,15 @@ GOTOCMP 160 ==
 SETV D2 1
 GOTO 161
 SETV D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 39 0
 STORE D2 0.0001
 WRITEPODSTRING D2 "globalThing->not_globalized->field %d\n"
-LOAD D2 0.0001; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD2
 ZCLASS_READ D2 0.0002
@@ -193,15 +193,15 @@ ZCLASS_READ D2 0.0002
 ZCLASS_READ D2 0
 GOTO 180
 SETV D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 23 0
 STORE D2 0
 WRITEPODSTRING D2 "thingNotGlobalized %d\n"
-LOAD D2 0; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETR D2 GD3
 COMPAREV D2 0
@@ -209,9 +209,9 @@ GOTOCMP 195 ==
 SETV D2 1
 GOTO 196
 SETV D2 0
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
 POPARGS D5 0.0006

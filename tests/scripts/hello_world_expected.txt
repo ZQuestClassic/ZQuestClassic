@@ -20,12 +20,12 @@ STOREV 123 0.0001
 ALLOCATEMEMV D2 17 0
 STORE D2 0
 WRITEPODSTRING D2 "hello world: %d\n"
-LOAD D2 0; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 LOAD D2 0.0001
-PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
 POPARGS D5 0.0003

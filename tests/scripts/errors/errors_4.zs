@@ -13,9 +13,9 @@ global script Global
 		// Invalid.
 		Object n1 = ArrayPopBack(numbers);
 		ArrayPushBack(numbers, obj);
-		ArrayPushBack(numbers, ""); // TODO: this should be invalid (but requires a big change for strings, should add a string type).
+		ArrayPushBack(numbers, "");
 		ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
-		SizeOfArray(Hero); // TODO: this is currently allowed as a side effect of the "old ptr compat" in `applyTemplateTypes`
+		SizeOfArray(Hero);
 		Object choice_1 = Choose(1, 2, 3);
 		auto choice_2 = Choose(1, 2, obj);
 		auto max_1 = Max(1, 2, obj);
@@ -34,13 +34,4 @@ global script Global
 		max_2 = Max(1, 2, 3);
 		max_2 = Max(1, 2, 3, Max(3, 4));
     }
-
-	// The template checking code explicitly allows char32 as an "array" type,
-	// for compat.
-	void old_ptrs(char32 ptr)
-	{
-		// OK
-		ArrayPushBack(ptr, 1);
-		ResizeArray(ptr, 1);
-	}
 }
