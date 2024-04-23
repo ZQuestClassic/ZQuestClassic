@@ -4173,7 +4173,10 @@ void calc_darkroom_combos(int screen, int offx, int offy)
 {
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		mapscr* scr = get_layer_scr(currmap, screen, lyr-1);
+		// TODO z3 ! should this be done in get_layer_scr ?
+		mapscr* scr = FFCore.ScrollingScreensAll.size() && screen == scrolling_scr ?
+			FFCore.ScrollingScreensAll[screen * 7 + lyr] :
+			get_layer_scr(currmap, screen, lyr-1);
 		if (!scr->valid) continue;
 
 		for(int32_t q = 0; q < 176; ++q)
