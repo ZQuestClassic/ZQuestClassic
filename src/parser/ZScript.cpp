@@ -392,7 +392,7 @@ UserClassVar* UserClassVar::create(
 	if (ucv->tryAddToScope(errorHandler))
 	{
 		ucv->is_readonly = node.list->readonly;
-		ucv->is_arr = type.isArray();
+		ucv->is_arr = !node.extraArrays.empty();
 
 		if (node.list->internal)
 		{
@@ -402,7 +402,7 @@ UserClassVar* UserClassVar::create(
 
 		ClassScope* cscope = scope.getClass();
 		UserClass& user_class = cscope->user_class;
-		if(type.isArray())
+		if(ucv->is_arr)
 		{
 			int32_t totalSize = -1;
 			if (std::optional<int32_t> size = node.extraArrays[0]->getCompileTimeSize(errorHandler, &scope))

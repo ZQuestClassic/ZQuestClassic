@@ -358,7 +358,7 @@ void __Tango_Process(int speed)
     int position=Tango_GetSlotVar(slot, __TSDIDX_POSITION);
     int character=__Tango_Buffer[position];
     int defStart=slot*__TANGO_SIZEOF_SLOTDEF;
-    int font=__Tango_Styles[styleStart+TANGO_STYLE_TEXT_FONT];
+    int[] font=__Tango_Styles[styleStart+TANGO_STYLE_TEXT_FONT];
     int left;
     int right;
     bool newLine;
@@ -566,7 +566,7 @@ void __Tango_Process(int speed)
 }
 
 // Draws the next character and advances the text position accordingly.
-void __Tango_PrintNextChar(int dataStart, int character, int font)
+void __Tango_PrintNextChar(int dataStart, char32 character, int[] font)
 {
     int flags=__Tango_GetCurrStyleData(TANGO_STYLE_FLAGS);
     int y;
@@ -598,7 +598,7 @@ bool __Tango_NeedsNewLine(int slot, int pos)
     int dataStart=__Tango_Data[__TCS_DATA_START];
     int defStart=__Tango_Data[__TCS_DEF_START];
     int styleStart=__Tango_Data[__TCS_STYLE_START];
-    int font=__Tango_Data[__TCS_FONT];
+    int[] font=__Tango_Data[__TCS_FONT];
     
     int left=__Tango_SlotData[dataStart+__TSDIDX_CHAR_X];
     int right=__Tango_SlotDefs[defStart+__TSDEF_X]+

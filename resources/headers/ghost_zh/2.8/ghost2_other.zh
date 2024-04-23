@@ -673,8 +673,8 @@ void SetEnemyProperty(npc enemy, int property, float newValue)
 {
     if((enemy->Misc[__GHI_NPC_DATA]&0x10000)!=0)
     {
-        float aptr=enemy->Misc[__GHI_NPC_DATA]&0xFFFF;
-        if(aptr>0)
+        float[] aptr=<float[]>(enemy->Misc[__GHI_NPC_DATA]&0xFFFF);
+        if(aptr)
             aptr[property]=newValue;
     }
     
@@ -696,9 +696,9 @@ void SetEnemyProperty(npc enemy, int property, float newValue)
 
 float GetEnemyProperty(npc enemy, int property)
 {
-    float aptr=enemy->Misc[__GHI_NPC_DATA]&0xFFFF;
+    float[] aptr=<float[]>(enemy->Misc[__GHI_NPC_DATA]&0xFFFF);
     
-    if((enemy->Misc[__GHI_NPC_DATA]&0x10000)!=0 && aptr>0)
+    if((enemy->Misc[__GHI_NPC_DATA]&0x10000)!=0 && aptr)
         return aptr[property];
     else
     {

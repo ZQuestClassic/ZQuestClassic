@@ -52,7 +52,7 @@ void __Tango_InitializeMenu(int styleStart)
       __Tango_Styles[styleStart+TANGO_STYLE_MENU_SELECT_SFX];
     __Tango_Data[__TDIDX_MENU_SLOT]=__Tango_Data[__TCS_ID];
     
-    int font=__Tango_Styles[styleStart+TANGO_STYLE_TEXT_FONT];
+    int[] font=__Tango_Styles[styleStart+TANGO_STYLE_TEXT_FONT];
     __Tango_Data[__TDIDX_MENU_TOP]=__Tango_GetCurrSlotData(__TSDIDX_SCREEN_Y)+
       __Tango_Styles[styleStart+TANGO_STYLE_TEXT_Y];
     __Tango_Data[__TDIDX_MENU_BOTTOM]=__Tango_Data[__TDIDX_MENU_TOP]+

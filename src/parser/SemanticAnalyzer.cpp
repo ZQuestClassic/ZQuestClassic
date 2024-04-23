@@ -1397,6 +1397,18 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	if(!did_array)
 		visit(host.array.get(), param);
 	if (breakRecursion(host)) return;
+	
+	if(!(host.array->isTypeArrow()))
+	{
+		DataType const* readty = host.array->getReadType(scope,this);
+		DataType const* writety = host.array->getWriteType(scope,this);
+		auto ty = readty ? readty : writety;
+		if(!ty || !(ty->isArray() || ty->isUntyped()))
+		{
+			handleError(CompileError::IndexNotArray(&host, ty ? ty->getName() : "??"));
+			return;
+		}
+	}
 
 	// The index must be a number.
 	if (host.index)

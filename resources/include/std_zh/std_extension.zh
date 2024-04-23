@@ -3231,8 +3231,8 @@ void TraceArray(untyped[] arr)
 	int sz = SizeOfArray(arr);
 	for ( int q = 0; q < sz; ++q ) 
 	{
-		if ( q && q % 10 == 0 ) printf("%f \n",<int>arr[q]);
-		else printf("%f ",<int>arr[q]);
+		if ( q && q % 10 == 0 ) printf("%f \n",arr[q]);
+		else printf("%f ",arr[q]);
 	}
 }
 
@@ -3252,15 +3252,15 @@ void TraceArray(untyped[] arr, bool verbose)
 		for ( int q = 0; q < sz; ++q ) 
 		{
 			
-			printf("Index: %d is (%f) \n",q,<int>arr[q]);
+			printf("Index: %d is (%f) \n",q,arr[q]);
 		}
 	}
 	else 
 	{
 		for ( int q = 0; q < sz; ++q ) 
 		{
-			if ( q && q % 10 == 0 ) printf("%f \n",<int>arr[q]);
-			else printf("%f ",<int>arr[q]);
+			if ( q && q % 10 == 0 ) printf("%f \n",arr[q]);
+			else printf("%f ",arr[q]);
 		}
 	}
 }

@@ -3875,7 +3875,7 @@ namespace std
 		}
 	}
 	////clkptr is an array, sized at least [1], frames is the duration on/off, so, 10 would be on for ten frames, then off for ten frames
-	bool blink(int clkptr, int frames)
+	bool blink(int[] clkptr, int frames)
 	{
 	    const int clkIindx = 0;
 	    clkptr[clkIindx] = (clkptr[clkIindx]+1)%(frames<<1);
