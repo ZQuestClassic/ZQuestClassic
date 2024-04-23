@@ -66,7 +66,8 @@ namespace util
 	int64_t zc_atoi64(const char *str);
 	int64_t zc_xtoi64(const char *hexstr);
 	int32_t zc_xtoi(const char *hexstr);
-	int32_t ffparse2(const char *string);
+	int32_t ffparse2(const char *string, bool do_except = false);
+	int32_t ffparse2(std::string const& string, bool do_except = false);
 	int32_t ffparseX(const char *string);
 	int32_t xtoi(char *hexstr);
 	int32_t zc_chmod(const char* path, mode_t mode);

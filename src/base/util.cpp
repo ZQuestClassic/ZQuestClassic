@@ -479,48 +479,83 @@ namespace util
 		return neg ? -val : val;
 	}
 	
-	int32_t ffparse2(const char *string) //bounds result safely between -214748.3648 and +214748.3647
+	int32_t ffparse2(const char *string, bool do_except) //if not 'do_except', bounds result safely between -214748.3648 and +214748.3647
 	{
 		char tempstring1[32] = {0};
 		strcpy(tempstring1, string);
 		
+		if(do_except)
+		{
+			bool dec = false;
+			for(int q = 0; tempstring1[q]; ++q)
+			{
+				char c = tempstring1[q];
+				if(c == '.')
+				{
+					if(dec)
+						throw std::invalid_argument("String contains invalid characters (more than one '.')");
+					else dec = true;
+				}
+				else if((c < '0' || c > '9') && !(c == '-' && q == 0))
+					throw std::invalid_argument(fmt::format("String contains invalid characters ('{}')", c));
+			}
+		}
+		
 		char *ptr=strchr(tempstring1, '.');
 		if(!ptr)
 		{
-			return vbound(atoi(tempstring1),-214748,214748)*10000;
+			int val = atoi(tempstring1);
+			if(do_except && (val < -214748 || val > 214748))
+				throw std::out_of_range("Value out of 32bit range");
+			return vbound(val,-214748,214748)*10000;
 		}
 		
 		int32_t ret=0;
 		
-		for(int32_t i=0; i<4; ++i)
-		{
-			tempstring1[strlen(string)+i]='0';
-		}
-		
 		ptr=strchr(tempstring1, '.');
 		*ptr=0;
-		ret=vbound(atoi(tempstring1),-214748,214748)*10000;
+		ret=atoi(tempstring1);
+		if(do_except && (ret < -214748 || ret > 214748))
+			throw std::out_of_range("Value out of 32bit range");
+		ret=vbound(ret,-214748,214748)*10000;
 		
 		++ptr;
 		char *ptr2=ptr;
 		ptr2+=4;
+		if(do_except && *ptr2)
+			throw std::out_of_range("Value has too many decimal places! Only 4 positions are supported!");
+		for(int q = 0; q < 4; ++q)
+			if(!ptr[q])
+				ptr[q] = '0';
 		*ptr2=0;
 		
 		int32_t decval = abs(atoi(ptr));
 		if(tempstring1[0] == '-')
 		{
 			if(ret == -2147480000)
+			{
+				if(do_except && (decval < 0 || decval > 3648))
+					throw std::out_of_range("Value out of 32bit range");
 				decval = vbound(decval, 0, 3648);
+			}
 			ret-=decval;
 		}
 		else
 		{
 			if(ret == 2147480000)
+			{
+				if(do_except && (decval < 0 || decval > 3647))
+					throw std::out_of_range("Value out of 32bit range");
 				decval = vbound(decval, 0, 3647);
+			}
 			ret+=decval;
 		}
 		
 		return ret;
+	}
+	int32_t ffparse2(string const& str, bool do_except)
+	{
+		return ffparse2(str.c_str(), do_except);
 	}
 	int32_t ffparseX(const char *string) //hex before '.', bounds result safely between -214748.3648 and +214748.3647
 	{

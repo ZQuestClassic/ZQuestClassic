@@ -149,9 +149,9 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 				case ARGTY::LITERAL:
 				{
 					try {
-						int val = std::stoi(tokens[i]);
+						int val = util::ffparse2(tokens[i], true);
 					} catch (std::exception ex) {
-						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
+						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}` ({})", tokens[i], command, ex.what())));
 						return;
 					}
 					break;
@@ -182,7 +182,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		else if (command == "PUSHR")
 			addOpcode2(code, new OPushRegister(new VarArgument(StringToVar(tokens[1]))));
 		else if (command == "PUSHV")
-			addOpcode2(code, new OPushImmediate(new LiteralArgument(std::stoi(tokens[1]))));
+			addOpcode2(code, new OPushImmediate(new LiteralArgument(util::ffparse2(tokens[1]))));
 		else if (command == "TRACER")
 			addOpcode2(code, new OTraceRegister(new VarArgument(StringToVar(tokens[1]))));
 		else if (command == "SETR")
@@ -194,7 +194,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		else if (op_string.starts_with("SETV "))
 		{
 			auto arg1 = new VarArgument(StringToVar(tokens[1]));
-			auto arg2 = new LiteralArgument(std::stoi(tokens[2]));
+			auto arg2 = new LiteralArgument(util::ffparse2(tokens[2]));
 			addOpcode2(code, new OSetImmediate(arg1, arg2));
 		}
 		else
