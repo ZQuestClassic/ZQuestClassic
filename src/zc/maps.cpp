@@ -2691,6 +2691,15 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high1
 	trigger_secrets_for_screen_internal(screen, NULL, do_layers, high16only, single);
 }
 
+void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only, int32_t single)
+{
+	log_trigger_secret_reason(source);
+	if (single < 0)
+		triggered_screen_secrets = true;
+	bool do_layers = true;
+	trigger_secrets_for_screen_internal(screen, s, do_layers, high16only, single);
+}
+
 void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single)
 {
 	DCHECK(screen_index != -1 || s);
@@ -6050,7 +6059,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(screen, scr, false);
-			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr : &special_warp_return_screen, true, false, -1);
+			// trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr : &special_warp_return_screen, true, false, -1);
+			trigger_secrets_for_screen(SecretsScreenState, scr, tmp == 0 ? tmpscr : &special_warp_return_screen, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
