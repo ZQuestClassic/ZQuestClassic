@@ -552,7 +552,7 @@ Function::Function(DataType const* returnType, string const& name,
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
 	  node(NULL), internalScope(NULL), thisVar(NULL), internal_flags(internal_flags), prototype(prototype),
 	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags),
-	  aliased_func(nullptr), paramDatum()
+	  aliased_func(nullptr), paramDatum(), templ_bound_t(nullptr)
 {
 	assert(returnType);
 }
@@ -660,10 +660,12 @@ void Function::alias(Function* func, bool force)
 	}
 }
 
-Function* Function::apply_templ_func(DataType const* tmpl_ret_type, vector<DataType const*> tmpl_param_types)
+Function* Function::apply_templ_func(DataType const* bound_t, DataType const* tmpl_ret_type, vector<DataType const*> tmpl_param_types)
 {
 	for(shared_ptr<Function> func : applied_funcs)
 	{
+		if(*bound_t != *func->templ_bound_t)
+			continue;
 		if(*tmpl_ret_type != *func->returnType)
 			continue;
 		if(tmpl_param_types.size() != func->paramTypes.size())
@@ -683,6 +685,7 @@ Function* Function::apply_templ_func(DataType const* tmpl_ret_type, vector<DataT
 	templ->aliased_func = this;
 	templ->paramTypes = tmpl_param_types;
 	templ->returnType = tmpl_ret_type;
+	templ->templ_bound_t = bound_t;
 	applied_funcs.emplace_back(templ);
 	return templ;
 }

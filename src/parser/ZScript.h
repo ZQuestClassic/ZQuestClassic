@@ -438,6 +438,7 @@ namespace ZScript
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::shared_ptr<const std::string>> paramNames;
 		std::vector<Datum*> paramDatum;
+		DataType const* templ_bound_t;
 		
 		std::vector<int32_t> opt_vals;
 		int32_t id;
@@ -587,7 +588,7 @@ namespace ZScript
 			return node;
 		}
 		
-		Function* apply_templ_func(DataType const* tmpl_ret_type, std::vector<DataType const*> tmpl_param_types);
+		Function* apply_templ_func(DataType const* bound_t, DataType const* tmpl_ret_type, std::vector<DataType const*> tmpl_param_types);
 		
 	private:
 		CONSTEXPR_CBACK_TY constexpr_callback;
