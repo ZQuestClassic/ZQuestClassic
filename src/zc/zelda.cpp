@@ -1826,6 +1826,7 @@ void init_game_vars(bool is_cont_game = false)
 	// same way, even if manually started in the ZC UI.
     frame = 0;
 
+	hero_screen = nullptr;
 	viewport_mode = ViewportMode::CenterAndBound;
 	new_sub_indexes[sstACTIVE] = -1;
 	loadside = 0;

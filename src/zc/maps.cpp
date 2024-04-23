@@ -5924,6 +5924,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
 	mapscr* screen = tmp == 0 ? tmpscr : &special_warp_return_screen;
 	*screen = TheMaps[currmap*MAPSCRS+scr];
+	if (tmp == 0)
+		hero_screen = screen;
 	if (!tmp)
 		for (uint8_t i = 0; i < MAXFFCS; ++i)
 		{
