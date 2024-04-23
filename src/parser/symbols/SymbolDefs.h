@@ -1,15 +1,8 @@
 #ifndef _ZSCRIPT_SYMBOLS_H
 #define _ZSCRIPT_SYMBOLS_H
 
-#include <assert.h>
-#include "zsyssimple.h"
-#include "base/headers.h"
 #include "parser/ByteCode.h"
 #include "parser/parserDefs.h"
-#include "parser/Scope.h"
-#include "parser/ZScript.h"
-#include "parser/CompilerUtils.h"
-#include "parser/LibrarySymbols.h"
 
 using namespace ZScript;
 using std::shared_ptr;

@@ -4279,9 +4279,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	//!
 	//! Both the lweapon, and the eweapon class have all of the following atributes:
 	
-	bool isValid();			ZASM Instruction: 
-					ISVALIDLWPN
-					ISVALIDEWPN
+	bool isValid();
 	
 	/**
 	* Returns whether this weapon pointer is still valid. A weapon pointer
@@ -4293,9 +4291,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	void UseSprite(int id);		ZASM Instruction: 
-					LWPNUSESPRITER, LWPNUSESPRITEV
-					EWPNUSESPRITER, EWPNUSESPRITEV
+	void UseSprite(int id);
 
 	/**
 	* Reads a 'Weapons/Misc' sprite entry in your quest file, and assigns
@@ -4307,9 +4303,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	bool Behind;			ZASM Instruction: 
-					LWPNBEHIND
-					EWPNBEHIND
+	bool Behind;
 	
 	/**
 	* Ensures that the weapon's graphic is drawn behind Link and enemies.
@@ -4317,9 +4311,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	int ID;				ZASM Instruction: 
-					LWPNID
-					EWPNID
+	int ID;
 	
 	/**
 	* The weapon's ID number. Use the LW_ or EW_ constants to compare
@@ -4328,9 +4320,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	int X;				ZASM Instruction: 
-					LWPNX
-					EWPNX
+	int X;
 	
 	/**
 	* The weapon's X position on the screen, in pixels. Float values passed
@@ -4339,9 +4329,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	int Y;				ZASM Instruction: 
-					LWPNY
-					EWPNY
+	int Y;
 	
 	/**
 	* The weapon's Y position on the screen, in pixels. Float values passed
@@ -4350,9 +4338,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	int Z;				ZASM Instruction: 
-					LWPNZ
-					EWPNZ
+	int Z;
 	
 	/**
 	* The weapon's Z position on the screen, in pixels. Float values passed
@@ -4361,9 +4347,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	int Jump;			ZASM Instruction: 
-					LWPNJUMP
-					EWPNJUMP
+	int Jump;
 	
 	/**
 	* The weapon's falling speed on the screen. Bombs, Bait and
@@ -4372,9 +4356,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	int DrawStyle;			ZASM Instruction: 
-					LWPNDRAWTYPE
-					EWPNDRAWTYPE
+	int DrawStyle;
 
 	/**
 	* An integer representing how the weapon is to be drawn. Use one of the
@@ -4383,9 +4365,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/	
 	
-	int Dir;			ZASM Instruction: 
-					LWPNDIR
-					eWPNDIR
+	int Dir;
 	
 	/**
 	* The direction that the weapon is facing. Used by certain weapon types
@@ -4394,9 +4374,7 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	
 /************************************************************************************************************/
 
-	int OriginalTile;		ZASM Instruction: 
-					LWPNOTILE
-					EWPNOTILE
+	int OriginalTile;
 	
 	/**
 	* The starting tile of the weapon's animation.

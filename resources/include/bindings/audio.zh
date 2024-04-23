@@ -1,0 +1,209 @@
+class Audio {
+	// @delete
+	internal Audio();
+
+	// The audio panning style. Use the `PAN_` constants for this value.
+	//
+	// @zasm_var AUDIOPAN
+	internal int PanStyle;
+
+	// @zasm_var GETMIDI
+	internal const int MIDI;
+
+	// @deprecated
+	// @zasm_var AUDIOVOLUME
+	internal int Volume[];
+
+	// Controls how often the engine refreshes the currently playing music while
+	// warping.
+	//
+	// @zasm_var MUSICUPDATECOND
+	internal int MusicRefresh;
+
+	// A set of flags for handling extra effects on MusicRefresh.
+	//
+	// @zasm_var MUSICUPDATEFLAGS
+	internal bool MusicRefreshFlags[];
+
+	// Plays the quest SFX [sfx].
+	//
+	// @zasm
+	//   POP D2
+	//   PLAYSOUNDR D2
+	internal void PlaySound(int sfx);
+
+	// If [sfx] is playing, immediately stop it.
+	//
+	// @zasm
+	//   POP D2
+	//   ENDSOUNDR D2
+	internal void EndSound(int sfx);
+
+	// If [sfx] is playing, pause it (so that it may be resumed later).
+	//
+	// @zasm
+	//   POP D2
+	//   PAUSESOUNDR D2
+	internal void PauseSound(int sfx);
+
+	// Resume [sfx] from where it was paused.
+	//
+	// @zasm
+	//   POP D2
+	//   RESUMESOUNDR D2
+	internal void ResumeSound(int sfx);
+
+	// Resume [sfx] from where it was paused.
+	//
+	// @zasm
+	//   POP D2
+	//   CONTINUESFX D2
+	internal void ContinueSound(int sfx);
+
+	// Adjusts a multiplier for the volume of all MIDI, DIGI, and Enhanced
+	// Music.
+	//
+	// @zasm
+	//   POP D2
+	//   ADJUSTVOLUMER D2
+	internal void AdjustMusicVolume(int percent);
+
+	// Adjusts a multiplier for the volume of all Sound Effects (WAV).
+	//
+	// @zasm
+	//   POP D2
+	//   ADJUSTSFXVOLUMER D2
+	internal void AdjustSFXVolume(int percent);
+
+	// Pauses the currently playing MIDI so that it may be resumed later.
+	//
+	// @zasm
+	//   PAUSEMUSIC
+	internal void PauseCurMIDI();
+
+	// Resumes the previously paused MIDI.
+	//
+	// @zasm
+	//   RESUMEMUSIC
+	internal void ResumeCurMIDI();
+
+	// Plays the MIDI [midi]. Will revert upon changing screens.
+	//
+	// @zasm
+	//   POP D2
+	//   PLAYMIDIR D2
+	internal void PlayMIDI(int midi);
+
+	// Play the specified enhanced music if available. If the music cannot
+	// be played, the current music will continue. Reverts to
+	// normal upon leaving the screen.
+	//
+	// Returns true if the music file was loaded successfully.
+	//
+	// [filename] cannot be more than 255 characters.
+	//
+	// If the music format does not support multiple tracks, [track] is ignored.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   PLAYENHMUSIC D3 D2
+	internal bool PlayEnhancedMusic(int filename, int track = 0);
+
+	// Change properties on a currently playing sound.
+	//
+	// @zasm
+	//   ADJUSTSFX
+	//   POPARGS D5 0.0005
+	internal void AdjustSound(int id, int volume, int pan = 0, int freq = -1L,
+							  bool loop_sfx = false);
+
+	// @deprecated Use [PlayEnhancedMusic] instead!
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   PLAYENHMUSICEX D3 D2
+	internal bool PlayOgg(int arg1, int arg2);
+
+	// Returns the current seek position of the currently playing enhanced music
+	// in seconds.
+	//
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	//
+	// @zasm
+	//   GETENHMUSICPOS D2
+	internal int GetMusicPos();
+
+	// Sets the position for the currently playing enhanced music, in seconds.
+	//
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	//
+	// @zasm
+	//   POP D2
+	//   SETENHMUSICPOS D2
+	internal void SetMusicPos(int pos);
+
+	// Sets the playback speed of the currently playing enhanced music.
+	//
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	//
+	// @zasm
+	//   POP D2
+	//   SETENHMUSICSPEED D2
+	internal void SetMusicSpeed(int speed);
+
+	// Returns the length of the current playing enhanced music in seconds.
+	//
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	//
+	// @zasm
+	//   GETENHMUSICLEN D2
+	internal int GetMusicLength();
+
+	// Loops the currently playing enhanced music between two timestamps in
+	// seconds.
+	//
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   SETENHMUSICLOOP D2 D3
+	internal void SetMusicLoop(int start, int end);
+
+	// Plays the quest SFX [sfx] but with different properties.
+	//
+	// @zasm
+	//   PLAYSOUNDEX
+	//   POPARGS D5 0.0005
+	internal void PlaySoundEx(int id, int volume, int pan = 0, int freq = -1L,
+							  bool loop_sfx = false);
+
+	// Returns a rough completion percentage (0-100) for how much of a sound has
+	// played.
+	//
+	// @zasm
+	//   POP D2
+	//   GETSFXCOMPLETION D2
+	internal int GetSoundCompletion(int sfx);
+
+	// Crossfade to the specified enhanced music if available. If the music
+	// cannot be played, the current music will continue.
+	//
+	// Reverts to normal upon leaving the screen.
+	//
+	// Returns true if loaded successfully.
+	//
+	// [filename] cannot be more than 255 characters.
+	//
+	// Currently only supports OGG, MP3, and some types of trackers.
+	//
+	// @zasm
+	//   ENHCROSSFADE
+	//   POPARGS D5 0.0006
+	internal bool CrossfadeEnhancedMusic(int filename, int track,
+										 int fadeoutframes, int fadeinframes,
+										 int delayframes = 0, int startpos = 0);
+}
+
+internal const Audio Audio;

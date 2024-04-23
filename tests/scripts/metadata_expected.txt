@@ -6,7 +6,10 @@ Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
+Debug: could not resolve symbol "bitmap::Width"
 Debug: could not resolve symbol "lololol"
+Debug: could not resolve symbol "c->speed"
+Debug: could not resolve symbol "bitmap::Width"
 Success!
 Compile finished with exit code '0' (success)
 === METADATA (elided)
@@ -17,21 +20,21 @@ Compile finished with exit code '0' (success)
       "kind": 13,
       "range": {
         "start": {
-          "line": 46,
+          "line": 47,
           "character": 4
         },
         "end": {
-          "line": 46,
+          "line": 47,
           "character": 9
         }
       },
       "selectionRange": {
         "start": {
-          "line": 46,
+          "line": 47,
           "character": 4
         },
         "end": {
-          "line": 46,
+          "line": 47,
           "character": 9
         }
       },
@@ -42,21 +45,21 @@ Compile finished with exit code '0' (success)
       "kind": 13,
       "range": {
         "start": {
-          "line": 48,
+          "line": 49,
           "character": 4
         },
         "end": {
-          "line": 48,
+          "line": 49,
           "character": 8
         }
       },
       "selectionRange": {
         "start": {
-          "line": 48,
+          "line": 49,
           "character": 4
         },
         "end": {
-          "line": 48,
+          "line": 49,
           "character": 8
         }
       },
@@ -67,21 +70,21 @@ Compile finished with exit code '0' (success)
       "kind": 13,
       "range": {
         "start": {
-          "line": 49,
+          "line": 50,
           "character": 4
         },
         "end": {
-          "line": 49,
+          "line": 50,
           "character": 7
         }
       },
       "selectionRange": {
         "start": {
-          "line": 49,
+          "line": 50,
           "character": 4
         },
         "end": {
-          "line": 49,
+          "line": 50,
           "character": 7
         }
       },
@@ -217,21 +220,21 @@ Compile finished with exit code '0' (success)
       "kind": 3,
       "range": {
         "start": {
-          "line": 68,
+          "line": 73,
           "character": 0
         },
         "end": {
-          "line": 75,
+          "line": 80,
           "character": 1
         }
       },
       "selectionRange": {
         "start": {
-          "line": 68,
+          "line": 73,
           "character": 10
         },
         "end": {
-          "line": 68,
+          "line": 73,
           "character": 15
         }
       },
@@ -241,21 +244,21 @@ Compile finished with exit code '0' (success)
           "kind": 13,
           "range": {
             "start": {
-              "line": 74,
+              "line": 79,
               "character": 8
             },
             "end": {
-              "line": 74,
+              "line": 79,
               "character": 11
             }
           },
           "selectionRange": {
             "start": {
-              "line": 74,
+              "line": 79,
               "character": 8
             },
             "end": {
-              "line": 74,
+              "line": 79,
               "character": 11
             }
           },
@@ -266,21 +269,21 @@ Compile finished with exit code '0' (success)
           "kind": 12,
           "range": {
             "start": {
-              "line": 70,
+              "line": 75,
               "character": 9
             },
             "end": {
-              "line": 70,
+              "line": 75,
               "character": 18
             }
           },
           "selectionRange": {
             "start": {
-              "line": 70,
+              "line": 75,
               "character": 9
             },
             "end": {
-              "line": 70,
+              "line": 75,
               "character": 11
             }
           },
@@ -293,21 +296,21 @@ Compile finished with exit code '0' (success)
       "kind": 2,
       "range": {
         "start": {
-          "line": 53,
+          "line": 54,
           "character": 0
         },
         "end": {
-          "line": 65,
+          "line": 70,
           "character": 1
         }
       },
       "selectionRange": {
         "start": {
-          "line": 53,
+          "line": 54,
           "character": 11
         },
         "end": {
-          "line": 53,
+          "line": 54,
           "character": 19
         }
       },
@@ -317,21 +320,21 @@ Compile finished with exit code '0' (success)
           "kind": 12,
           "range": {
             "start": {
-              "line": 55,
+              "line": 56,
               "character": 9
             },
             "end": {
-              "line": 55,
+              "line": 56,
               "character": 71
             }
           },
           "selectionRange": {
             "start": {
-              "line": 55,
+              "line": 56,
               "character": 9
             },
             "end": {
-              "line": 55,
+              "line": 56,
               "character": 12
             }
           },
@@ -341,21 +344,21 @@ Compile finished with exit code '0' (success)
               "kind": 13,
               "range": {
                 "start": {
-                  "line": 60,
+                  "line": 61,
                   "character": 13
                 },
                 "end": {
-                  "line": 60,
+                  "line": 61,
                   "character": 27
                 }
               },
               "selectionRange": {
                 "start": {
-                  "line": 60,
+                  "line": 61,
                   "character": 13
                 },
                 "end": {
-                  "line": 60,
+                  "line": 61,
                   "character": 14
                 }
               },
@@ -366,21 +369,21 @@ Compile finished with exit code '0' (success)
               "kind": 13,
               "range": {
                 "start": {
-                  "line": 62,
+                  "line": 63,
                   "character": 13
                 },
                 "end": {
-                  "line": 62,
+                  "line": 63,
                   "character": 36
                 }
               },
               "selectionRange": {
                 "start": {
-                  "line": 62,
+                  "line": 63,
                   "character": 13
                 },
                 "end": {
-                  "line": 62,
+                  "line": 63,
                   "character": 14
                 }
               },
@@ -391,22 +394,47 @@ Compile finished with exit code '0' (success)
               "kind": 13,
               "range": {
                 "start": {
-                  "line": 63,
+                  "line": 64,
                   "character": 12
                 },
                 "end": {
-                  "line": 63,
+                  "line": 64,
                   "character": 27
                 }
               },
               "selectionRange": {
                 "start": {
-                  "line": 63,
+                  "line": 64,
                   "character": 12
                 },
                 "end": {
-                  "line": 63,
+                  "line": 64,
                   "character": 14
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "e",
+              "kind": 13,
+              "range": {
+                "start": {
+                  "line": 67,
+                  "character": 12
+                },
+                "end": {
+                  "line": 67,
+                  "character": 24
+                }
+              },
+              "selectionRange": {
+                "start": {
+                  "line": 67,
+                  "character": 12
+                },
+                "end": {
+                  "line": 67,
+                  "character": 13
                 }
               },
               "children": []
@@ -424,7 +452,7 @@ Compile finished with exit code '0' (success)
           "character": 0
         },
         "end": {
-          "line": 38,
+          "line": 39,
           "character": 1
         }
       },
@@ -469,21 +497,21 @@ Compile finished with exit code '0' (success)
           "kind": 12,
           "range": {
             "start": {
-              "line": 31,
+              "line": 32,
               "character": 9
             },
             "end": {
-              "line": 31,
+              "line": 32,
               "character": 16
             }
           },
           "selectionRange": {
             "start": {
-              "line": 31,
+              "line": 32,
               "character": 9
             },
             "end": {
-              "line": 31,
+              "line": 32,
               "character": 14
             }
           },
@@ -494,21 +522,21 @@ Compile finished with exit code '0' (success)
           "kind": 12,
           "range": {
             "start": {
-              "line": 35,
+              "line": 36,
               "character": 9
             },
             "end": {
-              "line": 35,
+              "line": 36,
               "character": 17
             }
           },
           "selectionRange": {
             "start": {
-              "line": 35,
+              "line": 36,
               "character": 9
             },
             "end": {
-              "line": 35,
+              "line": 36,
               "character": 15
             }
           },
@@ -519,21 +547,21 @@ Compile finished with exit code '0' (success)
           "kind": 9,
           "range": {
             "start": {
-              "line": 26,
+              "line": 27,
               "character": 4
             },
             "end": {
-              "line": 26,
+              "line": 27,
               "character": 18
             }
           },
           "selectionRange": {
             "start": {
-              "line": 26,
+              "line": 27,
               "character": 4
             },
             "end": {
-              "line": 26,
+              "line": 27,
               "character": 7
             }
           },
@@ -546,21 +574,21 @@ Compile finished with exit code '0' (success)
       "kind": 5,
       "range": {
         "start": {
-          "line": 40,
+          "line": 41,
           "character": 0
         },
         "end": {
-          "line": 41,
+          "line": 42,
           "character": 1
         }
       },
       "selectionRange": {
         "start": {
-          "line": 40,
+          "line": 41,
           "character": 6
         },
         "end": {
-          "line": 40,
+          "line": 41,
           "character": 19
         }
       },
@@ -568,7 +596,7 @@ Compile finished with exit code '0' (success)
     }
   ],
   "symbols": {
-    "35": {
+    "1345": {
       "loc": {
         "range": {
           "start": {
@@ -584,7 +612,23 @@ Compile finished with exit code '0' (success)
       },
       "doc": "THIS COMMENT USED #1"
     },
-    "36": {
+    "709": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 694,
+            "character": 14
+          },
+          "end": {
+            "line": 694,
+            "character": 35
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "Prints the specified format_string to the output console, using the given\nargs to fill in parts of the string that are specially marked. Does not\ninclude a newline character after the string."
+    },
+    "1346": {
       "loc": {
         "range": {
           "start": {
@@ -600,12 +644,12 @@ Compile finished with exit code '0' (success)
       },
       "doc": "THIS COMMENT USED #2"
     },
-    "37": {
+    "1347": {
       "loc": {
         "range": {
           "start": {
             "line": 16,
-            "character": 4
+            "character": 0
           },
           "end": {
             "line": 16,
@@ -614,125 +658,109 @@ Compile finished with exit code '0' (success)
         },
         "uri": "URI"
       },
-      "doc": "x marks the spot\n  still line one still line one still line one still line one still line one\n  \n  line two\n  line two still\n \n  line three\n \n  - list item 1\n  - list item 2\n  - list item 3"
+      "doc": "x marks the spot\nstill line one still line one still line one still line one still line one\nline two\nline two still\nline three\n- list item 1\n- list item 2\n- list item 3"
     },
-    "3519": {
+    "2493": {
       "loc": {
         "range": {
           "start": {
-            "line": 70,
+            "line": 75,
             "character": 9
           },
           "end": {
-            "line": 70,
+            "line": 75,
             "character": 18
           }
         },
         "uri": "URI"
       },
-      "doc": "A lovely function. See [`utils::fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
+      "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A75%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A75%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A75%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A75%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
     },
-    "3523": {
+    "2497": {
       "loc": {
         "range": {
           "start": {
-            "line": 26,
+            "line": 27,
             "character": 4
           },
           "end": {
-            "line": 26,
+            "line": 27,
             "character": 18
           }
         },
         "uri": "URI"
       },
-      "doc": "a ctor with 1 param"
+      "doc": "TODO: bitmap::Width does not work\na ctor with 1 param"
     },
-    "3,0": {
+    "Car::speed": {
       "loc": {
         "range": {
           "start": {
             "line": 23,
+            "character": 4
+          },
+          "end": {
+            "line": 23,
+            "character": 13
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
+    },
+    "1563": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 61,
             "character": 8
           },
           "end": {
-            "line": 23,
-            "character": 13
-          }
-        },
-        "uri": "URI"
-      },
-      "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D)"
-    },
-    "49": {
-      "loc": {
-        "range": {
-          "start": {
-            "line": 60,
-            "character": 13
-          },
-          "end": {
-            "line": 60,
+            "line": 61,
             "character": 27
           }
         },
         "uri": "URI"
       },
-      "doc": "i am a car\n `i dont exist`"
+      "doc": "i am a car\n`i dont exist`"
     },
-    "42": {
+    "1556": {
       "loc": {
         "range": {
           "start": {
-            "line": 55,
+            "line": 56,
             "character": 13
           },
           "end": {
-            "line": 55,
+            "line": 56,
             "character": 23
           }
         },
         "uri": "URI"
       }
     },
-    "40": {
+    "1350": {
       "loc": {
         "range": {
           "start": {
-            "line": 74,
+            "line": 79,
             "character": 8
           },
           "end": {
-            "line": 74,
+            "line": 79,
             "character": 11
           }
         },
         "uri": "URI"
       },
-      "doc": "hmmmmmm See [`utils::fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A70%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A70%2C%22character%22%3A11%7D%7D%7D)"
+      "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A75%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A75%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A75%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A75%2C%22character%22%3A11%7D%7D%7D)"
     },
-    "38": {
+    "1348": {
       "loc": {
         "range": {
           "start": {
             "line": 18,
-            "character": 4
-          },
-          "end": {
-            "line": 18,
-            "character": 5
-          }
-        },
-        "uri": "URI"
-      },
-      "doc": "hello world"
-    },
-    "39": {
-      "loc": {
-        "range": {
-          "start": {
-            "line": 18,
-            "character": 7
+            "character": 0
           },
           "end": {
             "line": 18,
@@ -740,17 +768,34 @@ Compile finished with exit code '0' (success)
           }
         },
         "uri": "URI"
-      }
+      },
+      "doc": "hello world"
     },
-    "33": {
+    "1349": {
       "loc": {
         "range": {
           "start": {
-            "line": 48,
+            "line": 18,
+            "character": 0
+          },
+          "end": {
+            "line": 18,
+            "character": 12
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "hello world"
+    },
+    "1": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 49,
             "character": 4
           },
           "end": {
-            "line": 48,
+            "line": 49,
             "character": 8
           }
         },
@@ -758,15 +803,15 @@ Compile finished with exit code '0' (success)
       },
       "doc": "absolute trash"
     },
-    "32": {
+    "0": {
       "loc": {
         "range": {
           "start": {
-            "line": 46,
+            "line": 47,
             "character": 4
           },
           "end": {
-            "line": 46,
+            "line": 47,
             "character": 9
           }
         },
@@ -774,15 +819,15 @@ Compile finished with exit code '0' (success)
       },
       "doc": "top class"
     },
-    "34": {
+    "2": {
       "loc": {
         "range": {
           "start": {
-            "line": 49,
+            "line": 50,
             "character": 4
           },
           "end": {
-            "line": 49,
+            "line": 50,
             "character": 7
           }
         },
@@ -790,27 +835,43 @@ Compile finished with exit code '0' (success)
       },
       "doc": "meh"
     },
-    "3524": {
+    "3551": {
       "loc": {
         "range": {
           "start": {
-            "line": 40,
+            "line": 41,
             "character": 6
           },
           "end": {
-            "line": 40,
+            "line": 41,
             "character": 19
           }
         },
         "uri": "URI"
       }
     },
-    "41": {
+    "1567": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 67,
+            "character": 8
+          },
+          "end": {
+            "line": 67,
+            "character": 24
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "TODO: support this in the scope lookup (see lookupDatum)\nequal to `c->speed`"
+    },
+    "1351": {
       "loc": {
         "range": {
           "start": {
             "line": 23,
-            "character": 8
+            "character": 4
           },
           "end": {
             "line": 23,
@@ -819,17 +880,17 @@ Compile finished with exit code '0' (success)
         },
         "uri": "URI"
       },
-      "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D)"
+      "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
     },
-    "3521": {
+    "2495": {
       "loc": {
         "range": {
           "start": {
-            "line": 31,
+            "line": 32,
             "character": 9
           },
           "end": {
-            "line": 31,
+            "line": 32,
             "character": 16
           }
         },
@@ -837,31 +898,15 @@ Compile finished with exit code '0' (success)
       },
       "doc": "Go fast"
     },
-    "4,0": {
+    "3870": {
       "loc": {
         "range": {
           "start": {
-            "line": 23,
+            "line": 27,
             "character": 8
           },
           "end": {
-            "line": 23,
-            "character": 13
-          }
-        },
-        "uri": "URI"
-      },
-      "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D)"
-    },
-    "55": {
-      "loc": {
-        "range": {
-          "start": {
-            "line": 26,
-            "character": 8
-          },
-          "end": {
-            "line": 26,
+            "line": 27,
             "character": 17
           }
         },
@@ -876,175 +921,223 @@ Compile finished with exit code '0' (success)
         "character": 15,
         "length": 7
       },
-      "symbol": "35"
+      "symbol": "1345"
     },
     {
       "loc": {
-        "line": 56,
+        "line": 57,
+        "character": 8,
+        "length": 6
+      },
+      "symbol": "709"
+    },
+    {
+      "loc": {
+        "line": 57,
         "character": 26,
         "length": 7
       },
-      "symbol": "35"
+      "symbol": "1345"
     },
     {
       "loc": {
-        "line": 56,
+        "line": 57,
         "character": 36,
         "length": 8
       },
-      "symbol": "36"
+      "symbol": "1346"
     },
     {
       "loc": {
-        "line": 56,
+        "line": 57,
         "character": 50,
         "length": 1
       },
-      "symbol": "37"
+      "symbol": "1347"
     },
     {
       "loc": {
-        "line": 57,
+        "line": 58,
         "character": 15,
         "length": 2
       },
-      "symbol": "3519"
+      "symbol": "2493"
     },
     {
       "loc": {
-        "line": 57,
+        "line": 58,
         "character": 18,
         "length": 7
       },
-      "symbol": "35"
+      "symbol": "1345"
     },
     {
       "loc": {
-        "line": 60,
+        "line": 61,
         "character": 21,
         "length": 3
       },
-      "symbol": "3523"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 32,
-        "length": 5
-      },
-      "symbol": "3,0"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 29,
-        "length": 1
-      },
-      "symbol": "49"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 39,
-        "length": 6
-      },
-      "symbol": "42"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 54,
-        "length": 3
-      },
-      "symbol": "40"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 60,
-        "length": 1
-      },
-      "symbol": "38"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 64,
-        "length": 1
-      },
-      "symbol": "39"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 68,
-        "length": 4
-      },
-      "symbol": "33"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 75,
-        "length": 5
-      },
-      "symbol": "32"
-    },
-    {
-      "loc": {
-        "line": 61,
-        "character": 83,
-        "length": 3
-      },
-      "symbol": "34"
+      "symbol": "2497"
     },
     {
       "loc": {
         "line": 62,
-        "character": 21,
-        "length": 13
+        "character": 8,
+        "length": 6
       },
-      "symbol": "3524"
+      "symbol": "709"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 32,
+        "length": 5
+      },
+      "symbol": "Car::speed"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 29,
+        "length": 1
+      },
+      "symbol": "1563"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 39,
+        "length": 6
+      },
+      "symbol": "1556"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 54,
+        "length": 3
+      },
+      "symbol": "1350"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 60,
+        "length": 1
+      },
+      "symbol": "1348"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 64,
+        "length": 1
+      },
+      "symbol": "1349"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 68,
+        "length": 4
+      },
+      "symbol": "1"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 75,
+        "length": 5
+      },
+      "symbol": "0"
+    },
+    {
+      "loc": {
+        "line": 62,
+        "character": 83,
+        "length": 3
+      },
+      "symbol": "2"
     },
     {
       "loc": {
         "line": 63,
         "character": 21,
+        "length": 13
+      },
+      "symbol": "3551"
+    },
+    {
+      "loc": {
+        "line": 64,
+        "character": 21,
         "length": 3
       },
-      "symbol": "3523"
+      "symbol": "2497"
     },
     {
       "loc": {
-        "line": 32,
+        "line": 67,
+        "character": 19,
+        "length": 5
+      },
+      "symbol": "Car::speed"
+    },
+    {
+      "loc": {
+        "line": 67,
+        "character": 16,
+        "length": 1
+      },
+      "symbol": "1563"
+    },
+    {
+      "loc": {
+        "line": 68,
+        "character": 8,
+        "length": 7
+      },
+      "symbol": "0"
+    },
+    {
+      "loc": {
+        "line": 68,
+        "character": 16,
+        "length": 1
+      },
+      "symbol": "1567"
+    },
+    {
+      "loc": {
+        "line": 33,
         "character": 8,
         "length": 5
       },
-      "symbol": "41"
+      "symbol": "1351"
     },
     {
       "loc": {
-        "line": 36,
+        "line": 37,
         "character": 8,
         "length": 5
       },
-      "symbol": "3521"
+      "symbol": "2495"
     },
     {
       "loc": {
-        "line": 27,
+        "line": 28,
         "character": 14,
         "length": 5
       },
-      "symbol": "4,0"
+      "symbol": "Car::speed"
     },
     {
       "loc": {
-        "line": 27,
+        "line": 28,
         "character": 22,
         "length": 5
       },
-      "symbol": "55"
+      "symbol": "3870"
     }
   ]
 }
@@ -1054,96 +1147,101 @@ PUSHR D2
 PUSHR D3
 PUSHR D4
 PUSHR REFFFC; void run(int, int, int, int, int) Body Start
-PUSHARGSV 0,0.0005
-SETR D4,SP2
-ALLOCATEMEMV D2,7,0
-STORE D2,0.0004
-WRITEPODSTRING D2,"%d %d\n"
-LOAD D2,0.0004; InlineFunc[void printf(char32)] Params Start
+PUSHARGSV 0 0.0006
+SETR D4 SP2
+ALLOCATEMEMV D2 7 0
+STORE D2 0.0005
+WRITEPODSTRING D2 "%d %d\n"
+LOAD D2 0.0005; InlineFunc[void printf(char32)] Params Start
 PUSHR D2
-SETR D2,GD1
+SETR D2 GD1
 PUSHR D2
-SETR D2,GD2
+SETR D2 GD2
 POP D3
-ADDR D2,D3
+ADDR D2 D3
 PUSHVARGR D2
-SETR D2,GD3
-ADDV D2,1
-ADDV D2,2
+SETR D2 GD3
+ADDV D2 1
+ADDV D2 2
 PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D3,0.0004
+LOAD D3 0.0005
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
-PUSHV 2; ClassFunc[Car Car(int)] Params
-CALLFUNC 0.0076; ClassFunc[Car Car(int)] Constructor Call
+PUSHV 2; ClassFunc[Car Car::Car(int)] Params
+CALLFUNC 0.0081; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2,0.0003
-ALLOCATEMEMV D2,10,0
-STORE D2,0.0002
-WRITEPODSTRING D2,"%d %d %d\n"
-LOAD D2,0.0002; InlineFunc[void printf(char32)] Params Start
+STORE_OBJECT D2 0.0004
+ALLOCATEMEMV D2 10 0
+STORE D2 0.0003
+WRITEPODSTRING D2 "%d %d %d\n"
+LOAD D2 0.0003; InlineFunc[void printf(char32)] Params Start
 PUSHR D2
-LOAD D2,0.0003
-ZCLASS_READ D2,0
+LOAD D2 0.0004
+ZCLASS_READ D2 0
 PUSHVARGR D2
-LOAD D2,0.0010
+LOAD D2 0.0011
 PUSHVARGR D2
-SETR D2,GD6
+SETR D2 GD6
 PUSHR D2
-SETR D2,GD4
+SETR D2 GD4
 POP D3
-ADDR D2,D3
+ADDR D2 D3
 PUSHR D2
-SETR D2,GD5
+SETR D2 GD5
 POP D3
-ADDR D2,D3
-ADDV D2,1
-ADDV D2,2
+ADDR D2 D3
+ADDV D2 1
+ADDV D2 2
 PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D3,0.0002
+LOAD D3 0.0003
 DEALLOCATEMEMR D3
-SETV D2,0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor()] Set Destructor
-ZCLASS_CONSTRUCT D2,{0}; ProtoFunc[IhaveAdefCtor IhaveAdefCtor()] Default Construct
-STORE_OBJECT D2,0.0001
+SETV D2 0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Set Destructor
+ZCLASS_CONSTRUCT D2 {0}; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Default Construct
+STORE_OBJECT D2 0.0002
 PUSHR CLASS_THISKEY
 PUSHR D4
-PUSHV 2; ClassFunc[Car Car(int)] Params
-CALLFUNC 0.0076; ClassFunc[Car Car(int)] Constructor Call
+PUSHV 2; ClassFunc[Car Car::Car(int)] Params
+CALLFUNC 0.0081; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2,0
-REF_REMOVE 0.0003
-REF_REMOVE 0
+STORE_OBJECT D2 0.0001
+LOAD D2 0.0004
+ZCLASS_READ D2 0
+STORE D2 0
+LOAD D2 0; InlineFunc[int WrapDeg(int)] Params
+WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body
+REF_REMOVE 0.0004
 REF_REMOVE 0.0001
-POPARGS D5,0.0011
+REF_REMOVE 0.0002
+POPARGS D5 0.0012
 QUIT; void run(int, int, int, int, int) Body End
-SETV D2,0; Func[Car Car(int)] Body Start
-SETR CLASS_THISKEY2,CLASS_THISKEY
-ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
-SETR D4,SP2
+SETV D2 0; Func[Car Car::Car(int)] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+SETR D4 SP2
 PUSHR CLASS_THISKEY2
-LOAD D2,0
+LOAD D2 0
 PUSHR D2
-SETR D2,CLASS_THISKEY
-SETR D3,D2
+SETR D2 CLASS_THISKEY
+SETR D3 D2
 POP D2
-ZCLASS_WRITE D3,0
+ZCLASS_WRITE D3 0
 POP D5
-SETR D2,CLASS_THISKEY
+SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
-RETURNFUNC; Func[Car Car(int)] Body End
+RETURNFUNC; Func[Car Car::Car(int)] Body End
 
 
-SETV GD1,1; void run() Body Start
-SETV GD2,1
-SETV GD3,1
-SETV GD4,0
-SETV GD5,2
-SETV GD6,0
+SETV GD1 1; void run() Body Start
+SETV GD2 1
+SETV GD3 1
+SETV GD4 0
+SETV GD5 2
+SETV GD6 0
 QUIT; void run() Body End

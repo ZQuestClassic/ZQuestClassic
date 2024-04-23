@@ -1,0 +1,177 @@
+// @zasm_ref REFFFC
+class ffc {
+	// @delete
+	internal ffc();
+
+	// The screen index this FFC was created on.
+	//
+	// @zasm_var FF_SCREEN_INDEX
+	internal int ScreenIndex;
+
+	// The combo used by the FFC for its visuals and type.
+	//
+	// @zasm_var DATA
+	internal int Data;
+
+	// The FFC script ID running on this FFC.
+	//
+	// @zasm_var FFSCRIPT
+	internal int Script;
+
+	// The CSet the FFC displays in.
+	//
+	// @zasm_var CSET
+	internal int CSet;
+
+	// The time in frames before the FFC will begin moving.
+	//
+	// @zasm_var DELAY
+	internal int Delay;
+
+	// @zasm_var X
+	internal int X;
+
+	// @zasm_var Y
+	internal int Y;
+
+	// X velocity.
+	//
+	// @zasm_var XD
+	internal int Vx;
+
+	// Y velocity.
+
+	// @zasm_var YD
+	internal int Vy;
+
+	// X acceleration.
+	//
+	// @zasm_var XD2
+	internal int Ax;
+
+	// Y acceleration.
+	//
+	// @zasm_var YD2
+	internal int Ay;
+
+	// @zasm_var FFFLAGSD
+	internal bool Flags[];
+
+	// The visual width, in tiles (1 to 4), of the FFC. The tile set by its
+	// combo will be the upper-left tile, with the rest drawn as a tile block
+	// from there.
+	//
+	// @zasm_var FFTWIDTH
+	internal int TileWidth;
+
+	// The visual height, in tiles (1 to 4), of the FFC. The tile set by its
+	// combo will be the upper-left tile, with the rest drawn as a tile block
+	// from there.
+	//
+	// @zasm_var FFTHEIGHT
+	internal int TileHeight;
+
+	// The hitbox width, in pixels (1 to 64), of the FFC. Unless the FFC is
+	// [ffc::Flags], the type of its combo will affect this area. NOTE: Not all
+	// combo types function when placed on FFCs.
+	//
+	// @zasm_var FFCWIDTH
+	internal int EffectWidth;
+
+	// The hitbox height, in pixels (1 to 64), of the FFC. Unless the FFC is
+	// [ffc::Flags], the type of its combo will affect this area. NOTE: Not all
+	// combo types function when placed on FFCs.
+	//
+	// @zasm_var FFCHEIGHT
+	internal int EffectHeight;
+
+	// Represents the ID of another FFC this one is 'linked' to.
+	//
+	// @zasm_var FFLINK
+	internal int Link;
+
+	// A miscellaneous data array, for script use.
+	//
+	// @zasm_var FFMISCD
+	internal untyped Misc[];
+
+	// The 8 InitD[] parameters for the FFC's script.
+	//
+	// @zasm_var FFINITDD
+	internal untyped InitD[];
+
+	// the screen index of the FFC.
+	//
+	// @zasm_var FFCID
+	internal const int ID;
+
+	// @zasm_var FFCLASTCHANGERX
+	internal int LastChangerX;
+
+	// @zasm_var FFCLASTCHANGERY
+	internal int LastChangerY;
+
+	// Grants 'Ownership' of the parameter object to the ffc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   OBJ_OWN_BITMAP D2 0.0002
+	internal void Own(bitmap b);
+
+	// Grants 'Ownership' of the parameter object to the ffc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   OBJ_OWN_PALDATA D2 0.0002
+	internal void Own(paldata b);
+
+	// Grants 'Ownership' of the parameter object to the ffc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   OBJ_OWN_FILE D2 0.0002
+	internal void Own(file b);
+
+	// Grants 'Ownership' of the parameter object to the ffc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   OBJ_OWN_DIR D2 0.0002
+	internal void Own(directory b);
+
+	// Grants 'Ownership' of the parameter object to the ffc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   OBJ_OWN_STACK D2 0.0002
+	internal void Own(stack b);
+
+	// Grants 'Ownership' of the parameter object to the ffc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   OBJ_OWN_RNG D2 0.0002
+	internal void Own(randgen b);
+
+	// Grants 'Ownership' of the parameter object to the ffc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   OBJ_OWN_ARRAY D2 0.0002
+	internal void OwnArray(untyped array);
+
+	// Grants 'Ownership' of the parameter object to the ffc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFFFC
+	//   OBJ_OWN_CLASS D2 0.0002
+	internal void OwnObject(untyped object);
+}

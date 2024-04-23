@@ -1,0 +1,23 @@
+class Viewport {
+	// @delete
+	internal Viewport();
+
+	// @zasm_var VIEWPORT_MODE
+	internal int Mode;
+
+	// @zasm_var VIEWPORT_X
+	internal int X;
+
+	// @zasm_var VIEWPORT_Y
+	internal int Y;
+
+	// @zasm_var VIEWPORT_WIDTH
+	internal int Width;
+
+	// @zasm_var VIEWPORT_HEIGHT
+	internal int Height;
+}
+
+internal const Viewport Viewport;
+
+// TODO z3 !! consider using long here

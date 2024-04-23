@@ -266,7 +266,8 @@ namespace ZScript
 		void mark_registered() {isRegistered = true;}
 		bool reachable() const {return isReachable;}
 		void mark_reachable(bool b = true) {isReachable = b;}
-	
+
+		std::map<std::string, std::string> getParsedDocComment() const;
 	
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}
@@ -1018,9 +1019,13 @@ namespace ZScript
 			return declarations_.data();}
 		virtual void addDeclaration(ASTDataDecl* declaration);
 		virtual bool isEnum() const {return false;}
+		Scope* getScope() const;
 
 		// The base type at the start of the line shared by all the declarations.
 		owning_ptr<ASTDataType> baseType;
+
+		bool readonly;
+		bool internal;
 
 	private:
 		// The list of individual data declarations.
@@ -1386,7 +1391,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		std::string asString() const;
 		bool isTypeArrow() const {return true;}
-		bool isTypeArrowUsrClass() const {return isUsrClass();}
+		bool isTypeArrowUsrClass() const;
 
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
@@ -1400,7 +1405,7 @@ namespace ZScript
 		owning_ptr<ASTString> right;
 		owning_ptr<ASTExpr> index;
 
-		ZClass* leftClass;
+		UserClass* leftClass;
 		Function* arrayFunction;
 		Function* readFunction;
 		Function* writeFunction;
@@ -2257,7 +2262,6 @@ namespace ZScript
 	class ASTScriptType : public AST
 	{
 	public:
-		ASTScriptType(ParserScriptType type, LocationData const& location);
 		ASTScriptType(std::string const& name, LocationData const& location);
 		ASTScriptType* clone() const {return new ASTScriptType(*this);}
 

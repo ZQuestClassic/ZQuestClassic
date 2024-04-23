@@ -1,0 +1,48 @@
+// @zasm_ref REFBOTTLETYPE
+class bottledata {
+	// @delete
+	internal bottledata();
+
+	// The refill counters of this bottle type.
+	//
+	// @zasm_var BOTTLECOUNTER
+	internal int Counter[];
+
+	// The amount to refill each counter (0-65535)
+	//
+	// @zasm_var BOTTLEAMOUNT
+	internal int Amount[];
+
+	// Whether the given counter refill is a percentage of max, instead of a
+	// direct value.
+	//
+	// @zasm_var BOTTLEPERCENT
+	internal bool IsPercent[];
+
+	// A set of flags. Use the `BTF_` constants to access this.
+	//
+	// @zasm_var BOTTLEFLAGS
+	internal bool Flags[];
+
+	// What bottle type will remain in the bottle after drinking the current
+	// type.
+	//
+	// @zasm_var BOTTLENEXT
+	internal int NextType;
+
+	// Loads the name of the bottledata into the provided string buffer.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFBOTTLETYPE
+	//   BOTTLENAMEGET D2
+	internal void GetName(char32 str);
+
+	// Sets the name of the bottledata to the provided string.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFBOTTLETYPE
+	//   BOTTLENAMESET D2
+	internal void SetName(char32 str);
+}

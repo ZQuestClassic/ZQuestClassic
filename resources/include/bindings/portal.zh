@@ -1,0 +1,55 @@
+// @zasm_ref REFPORTAL
+class portal {
+	// @delete
+	internal portal();
+
+	// @zasm_var PORTALX
+	internal int X;
+
+	// @zasm_var PORTALY
+	internal int Y;
+
+	// @zasm_var PORTALDMAP
+	internal int DMap;
+
+	// @zasm_var PORTALSCREEN
+	internal int Screen;
+
+	// @zasm_var PORTALACLK
+	internal int AClk;
+
+	// @zasm_var PORTALAFRM
+	internal int AFrame;
+
+	// @zasm_var PORTALOTILE
+	internal int OriginalTile;
+
+	// @zasm_var PORTALASPD
+	internal int ASpeed;
+
+	// @zasm_var PORTALFRAMES
+	internal int Frames;
+
+	// @zasm_var PORTALSAVED
+	internal savedportal SavedPortal;
+
+	// @zasm_var PORTALCLOSEDIS
+	internal bool CloseDisabled;
+
+	// @zasm_var PORTALWARPSFX
+	internal int WarpSFX;
+
+	// @zasm_var PORTALWARPVFX
+	internal int WarpEffect;
+
+	// @zasm
+	//   POP REFPORTAL
+	//   PORTALREMOVE
+	internal void Remove();
+
+	// @zasm
+	//   POP D2
+	//   POP REFPORTAL
+	//   PORTALUSESPRITE D2
+	internal void UseSprite(int arg1);
+}

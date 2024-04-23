@@ -12,73 +12,73 @@ Compile finished with exit code '0' (success)
 === METADATA (elided)
 {
   "currentFileSymbols": 10,
-  "symbols": 6,
-  "identifiers": 9
+  "symbols": 8,
+  "identifiers": 13
 }
 PUSHR REFFFC; void run() Body Start
-PUSHARGSV 0,0.0003
-SETR D4,SP2
+PUSHARGSV 0 0.0003
+SETR D4 SP2
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0032; ClassFunc[Car Car()] Constructor Call
+CALLFUNC 0.0032; ClassFunc[Car Car::Car()] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2,0.0002
-LOAD D2,0.0002
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002
 ZCLASS_FREE D2
 WAITFRAME; InlineFunc[void Waitframe()] Body
 PUSHR CLASS_THISKEY
 PUSHR D4
-PUSHV 2000; ClassFunc[Car Car(int)] Params
-CALLFUNC 0.0044; ClassFunc[Car Car(int)] Constructor Call
+PUSHV 2000; ClassFunc[Car Car::Car(int)] Params
+CALLFUNC 0.0044; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2,0.0001
+STORE_OBJECT D2 0.0001
 PUSHR CLASS_THISKEY
 PUSHR D4
-PUSHV 5000; ClassFunc[Car Car(int)] Params
-CALLFUNC 0.0044; ClassFunc[Car Car(int)] Constructor Call
+PUSHV 5000; ClassFunc[Car Car::Car(int)] Params
+CALLFUNC 0.0044; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2,0
+STORE_OBJECT D2 0
 REF_REMOVE 0.0002
 REF_REMOVE 0.0001
 REF_REMOVE 0
-POPARGS D5,0.0004
+POPARGS D5 0.0004
 QUIT; void run() Body End
-SETV D2,0.0061; Func[Car Car()] Body Start
-SETR CLASS_THISKEY2,CLASS_THISKEY
-ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
-SETR D4,SP2
+SETV D2 0.0061; Func[Car Car::Car()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+SETR D4 SP2
 PUSHR CLASS_THISKEY2
-SETV D2,100
-ZCLASS_WRITE CLASS_THISKEY,0
-ZCLASS_READ CLASS_THISKEY,0; InlineFunc[void Trace(untyped)] Params
+SETV D2 100
+ZCLASS_WRITE CLASS_THISKEY 0
+ZCLASS_READ CLASS_THISKEY 0; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
-SETR D2,CLASS_THISKEY
+SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
-RETURNFUNC; Func[Car Car()] Body End
-SETV D2,0.0061; Func[Car Car(int)] Body Start
-SETR CLASS_THISKEY2,CLASS_THISKEY
-ZCLASS_CONSTRUCT CLASS_THISKEY,{0.0001}
-SETR D4,SP2
+RETURNFUNC; Func[Car Car::Car()] Body End
+SETV D2 0.0061; Func[Car Car::Car(int)] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+SETR D4 SP2
 PUSHR CLASS_THISKEY2
-LOAD D2,0
+LOAD D2 0
 PUSHR D2
-SETR D2,CLASS_THISKEY
-SETR D3,D2
+SETR D2 CLASS_THISKEY
+SETR D3 D2
 POP D2
-ZCLASS_WRITE D3,0
-LOAD D2,0; InlineFunc[void Trace(untyped)] Params
+ZCLASS_WRITE D3 0
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
 POP D5
-SETR D2,CLASS_THISKEY
+SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
-RETURNFUNC; Func[Car Car(int)] Body End
-STARTDESTRUCTOR "Car"; Func[void ~Car()] Body Start
-SETR D4,SP2
+RETURNFUNC; Func[Car Car::Car(int)] Body End
+STARTDESTRUCTOR "Car"; Func[void ~Car::Car()] Body Start
+SETR D4 SP2
 TRACEV -1; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
-RETURNFUNC; Func[void ~Car()] Body End
+RETURNFUNC; Func[void ~Car::Car()] Body End
 
 
 QUIT; void run() Body

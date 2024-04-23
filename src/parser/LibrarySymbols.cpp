@@ -1,74 +1,11 @@
+#include "fmt/core.h"
+#include "parser/ByteCode.h"
+#include "parser/LibrarySymbols.h"
+#include "parser/Types.h"
+#include "parser/parserDefs.h"
+#include "parser/symbols/SymbolDefs.h"
 #include "symbols/SymbolDefs.h"
 #include <fmt/format.h>
-#include <sstream>
-
-AccessorTable::AccessorTable(std::string const& name, byte tag, int32_t rettype,
-	int32_t var, int32_t flags,
-	vector<int32_t>const& params, vector<int32_t> const& optparams,
-	byte extra_vargs, string const& info)
-	: name(name), tag(tag), rettype(rettype), var(var),
-	funcFlags(flags), params(params),
-	optparams(optparams), extra_vargs(extra_vargs), info(info),
-	alias_name(), alias_tag(0)
-{}
-AccessorTable::AccessorTable(std::string const& name, byte tag,
-	string const& alias, byte alias_tag,
-	int32_t flags, string const& info)
-	: name(name), tag(tag),alias_name(alias), alias_tag(alias_tag),
-	rettype(0), var(0),
-	funcFlags(flags), info(info),
-	params(),optparams(), extra_vargs()
-{}
-
-LibrarySymbols LibrarySymbols::nilsymbols = LibrarySymbols();
-LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
-{
-    switch (typeId)
-    {
-		case ZTID_FFC: return &FFCSymbols::getInst();
-		case ZTID_PLAYER: return &HeroSymbols::getInst();
-		case ZTID_SCREEN: return &ScreenSymbols::getInst();
-		case ZTID_REGION: return &RegionSymbols::getInst();
-		case ZTID_VIEWPORT: return &ViewportSymbols::getInst();
-		case ZTID_GAME: return &GameSymbols::getInst();
-		case ZTID_ITEM: return &ItemSymbols::getInst();
-		case ZTID_ITEMCLASS: return &ItemclassSymbols::getInst();
-		case ZTID_NPC: return &NPCSymbols::getInst();
-		case ZTID_LWPN: return &HeroWeaponSymbols::getInst();
-		case ZTID_EWPN: return &EnemyWeaponSymbols::getInst();
-		case ZTID_NPCDATA: return &NPCDataSymbols::getInst();
-		case ZTID_DEBUG: return &DebugSymbols::getInst();
-		case ZTID_AUDIO: return &AudioSymbols::getInst();
-		case ZTID_COMBOS: return &CombosPtrSymbols::getInst();
-		case ZTID_SPRITEDATA: return &SpriteDataSymbols::getInst();
-		case ZTID_GRAPHICS: return &GraphicsSymbols::getInst();
-		case ZTID_BITMAP: return &BitmapSymbols::getInst();
-		case ZTID_TEXT: return &TextPtrSymbols::getInst();
-		case ZTID_INPUT: return &InputSymbols::getInst();
-		case ZTID_MAPDATA: return &MapDataSymbols::getInst();
-		case ZTID_DMAPDATA: return &DMapDataSymbols::getInst();
-		case ZTID_ZMESSAGE: return &MessageDataSymbols::getInst();
-		case ZTID_SHOPDATA: return &ShopDataSymbols::getInst();
-		case ZTID_DROPSET: return &DropsetSymbols::getInst();
-		case ZTID_FILESYSTEM: return &FileSystemSymbols::getInst();
-		case ZTID_FILE: return &FileSymbols::getInst();
-		case ZTID_DIRECTORY: return &DirectorySymbols::getInst();
-		case ZTID_STACK: return &StackSymbols::getInst();
-		case ZTID_ZINFO: return &ZInfoSymbols::getInst();
-		case ZTID_RNG: return &RNGSymbols::getInst();
-		case ZTID_PALDATA: return &PalDataSymbols::getInst();
-		case ZTID_BOTTLETYPE: return &BottleTypeSymbols::getInst();
-		case ZTID_BOTTLESHOP: return &BottleShopSymbols::getInst();
-		case ZTID_GENERICDATA: return &GenericDataSymbols::getInst();
-		case ZTID_PORTAL: return &PortalSymbols::getInst();
-		case ZTID_SAVPORTAL: return &SavedPortalSymbols::getInst();
-		case ZTID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
-		case ZTID_SUBSCREENPAGE: return &SubscreenPageSymbols::getInst();
-		case ZTID_SUBSCREENWIDGET: return &SubscreenWidgetSymbols::getInst();
-		case ZTID_WEBSOCKET: return &WebSocketSymbols::getInst();
-		default: return &nilsymbols;
-    }
-}
 
 void getConstant(int32_t refVar, Function* function, int32_t val)
 {
@@ -176,210 +113,270 @@ void setIndexedVariable(int32_t refVar, Function* function, int32_t var)
 	function->giveCode(code);
 }
 
-void handleNil(int32_t refVar, Function* function)
-{
-	function->setFlag(FUNCFLAG_INLINE);
-	if(refVar == NUL)
-		function->setFlag(IFUNCFLAG_SKIPPOINTER);
-	vector<shared_ptr<Opcode>> code;
-	addOpcode2(code, new ONoOp(function->getLabel()));
-	function->giveCode(code);
-}
-
-void LibrarySymbols::addSymbolsToScope(Scope& scope)
-{
-	if(!table) return;
-	TypeStore& typeStore = scope.getTypeStore();
-	
-	vector<string const*> blankParams;
-	std::ostringstream errorstream;
-	
-	for (int32_t i = 0; table[i].name != ""; i++)
-	{
-		try
+static std::map<std::string, CONSTEXPR_CBACK_TY> const_expr_global_impl = {
+	{"Untype", CONSTEXPR_CBACK_HEADER()
 		{
-			AccessorTable& entry = table[i];
-			
-			std::string const& name = entry.name;
-			std::string varName = name;
-			
-			// Strip out the array at the end.
-			bool isArray = name.substr(name.size() - 2) == "[]";
-			if (isArray)
-				varName = name.substr(0, name.size() - 2);
-			
-			if(entry.alias_name)
+			return args[0];
+		}
+	},
+
+	{"Pow", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0] && args[1])
 			{
-				Function* func = new Function();
-				func->setInfo(entry.info);
-				func->setFlag(entry.funcFlags);
-				func->setEntry(&entry);
-				if(hasPrefixType)
-					func->hasPrefixType = true;
-				if (name.substr(0, 3) == "set")
+				if(!*args[0] && !*args[1])
+					val = 1; //0^0
+				else val = int(pow(*args[0]/10000.0,*args[1]/10000.0)*10000);
+			}
+			return val;
+		}
+	},
+
+	{"LPow", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0] && args[1])
+			{
+				if(!*args[0] && !*args[1])
+					val = 1; //0^0
+				else val = int(pow(*args[0],*args[1]));
+			}
+			return val;
+		}
+	},
+
+	{"InvPow", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0] && args[1])
+			{
+				double v1 = *args[0]/10000.0;
+				if(!*args[1])
 				{
-					assert(entry.alias_name->substr(0, 3) == "set");
-					varName = varName.substr(3); // Strip out "set".
-					func->name = varName;
-				}
-				else if (name.substr(0, 5) == "const")
-				{
-					assert(entry.alias_name->substr(0, 5) == "const");
-					varName = varName.substr(5); // Strip out "const".
-					func->name = varName;
-				}
-				else if (name.substr(0, 3) == "get")
-				{
-					assert(entry.alias_name->substr(0, 3) == "get");
-					varName = varName.substr(3); // Strip out "get".
-					func->name = varName;
+					handler->handleError(CompileError::DivByZero(&node,"divide","InvPow(): "));
+					val = 10000;
 				}
 				else
 				{
-					func->name = varName;
+					double v2 = 10000.0 / *args[1];
+					if(!v1 && !v2)
+						val = 1; //0^0
+					else val = int(pow(v1,v2));
 				}
-				alias_functions[make_pair(entry.name,entry.tag)] = func;
-				continue;
 			}
-			
-			DataType const* returnType = typeStore.getType(entry.rettype);
-			vector<DataType const*> paramTypes;
-			for (auto& ptype : entry.params)
-				paramTypes.push_back(typeStore.getType(ptype));
-
-			// Create function object.
-			auto setorget = FUNCTION;
-			Function* function = nullptr;
-			if (name.substr(0, 5) == "const")
-			{
-				setorget = CONSTANT;
-				varName = varName.substr(5); // Strip out "const"
-				function = scope.addGetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
-			}
-			else if (entry.var > -1 && name.substr(0, 3) == "set")
-			{
-				setorget = SETTER;
-				varName = varName.substr(3); // Strip out "set".
-				function = scope.addSetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
-			}
-			else if (entry.var > -1 && name.substr(0, 3) == "get")
-			{
-				setorget = GETTER;
-				varName = varName.substr(3); // Strip out "get".
-				function = scope.addGetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
-			}
-			else
-			{
-				if(name.substr(0,4) == "_set")
-				{
-					setorget = SETTER;
-					varName = varName.substr(4); // Strip out "_set".
-				}
-				else if(name.substr(0,4) == "_get")
-				{
-					setorget = GETTER;
-					varName = varName.substr(4); // Strip out "_get".
-				}
-				function = scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
-			}
-			
-			if(!function)
-				throw compile_exception(fmt::format("Failed to create internal function '{}', {}\n",name,entry.tag));
-			
-			function->setEntry(&entry);
-			functions[make_pair(name,entry.tag)] = function;
-			if(hasPrefixType)
-				function->hasPrefixType = true; //Print the first type differently in error messages!
-			
-			function->opt_vals = entry.optparams;
-			function->setInfo(entry.info);
-			if(function->getFlag(FUNCFLAG_VARARGS))
-			{
-				function->extra_vargs = entry.extra_vargs;
-				function->setFlag(FUNCFLAG_INLINE);
-			}
-			// Generate function code for getters/setters
-			int32_t label = function->getLabel();
-			if(function->isNil())
-			{
-				handleNil(refVar, function);
-			}
-			else switch(setorget)
-			{
-				case GETTER:
-					if (isArray)
-						getIndexedVariable(refVar, function, entry.var);
-					else
-						getVariable(refVar, function, entry.var);
-					break;
-				case SETTER:
-					if (isArray)
-						setIndexedVariable(refVar, function, entry.var);
-					else if (entry.params.size() > 1 && entry.params[1] == ZTID_BOOL)
-						setBoolVariable(refVar, function, entry.var);
-					else
-						setVariable(refVar, function, entry.var);
-					break;
-				case CONSTANT:
-					getConstant(refVar, function, entry.var);
-					break;
-			}
+			return val;
 		}
-		catch(std::exception &e)
+	},
+
+	{"Factorial", CONSTEXPR_CBACK_HEADER()
 		{
-			errorstream << e.what() << '\n';
+			optional<int> val;
+			if(args[0])
+			{
+				auto v = *args[0] / 10000;
+				if(v < 2)
+					val = (v >= 0) ? 10000 : 0;
+				else
+				{
+					int prod = 1;
+					for(int q = v; v > 1; --v)
+						prod *= q;
+					val = prod*10000;
+				}
+			}
+			return val;
 		}
-	}
-	
-	try
-	{
-		for(auto& p : alias_functions)
+	},
+
+	{"Abs", CONSTEXPR_CBACK_HEADER()
 		{
-			Function* func = p.second;
-			auto& entry = *func->getEntry();
-			Function* alias_func = getAlias(*entry.alias_name, entry.alias_tag);
-			func->alias(alias_func);
-			if (entry.name.substr(0, 3) == "set")
-				scope.addSetter(func);
-			else if (entry.name.substr(0, 5) == "const")
-				scope.addGetter(func);
-			else if (entry.name.substr(0, 3) == "get")
-				scope.addGetter(func);
-			else scope.addAlias(func);
+			optional<int> val;
+			if(args[0])
+			{
+				val = *args[0];
+				if(*val < 0)
+					val = -*val;
+			}
+			return val;
 		}
-		generateCode();
-	}
-	catch (std::exception& e)
+	},
+
+	{"Sqrt", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+			{
+				double v = *args[0]/10000.0;
+				if(v < 0)
+				{
+					handler->handleError(CompileError::NegSqrt(&node));
+					val = -10000;
+				}
+				else
+				{
+					val = int(sqrt(v)*10000);
+				}
+			}
+			return val;
+		}
+	},
+
+	{"Floor", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+				val = zslongToFix(*args[0]).doFloor().getZLong();
+			return val;
+		}
+	},
+
+	{"Truncate", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+				val = zslongToFix(*args[0]).doTrunc().getZLong();
+			return val;
+		}
+	},
+
+	{"Round", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+				val = zslongToFix(*args[0]).doRound().getZLong();
+			return val;
+		}
+	},
+
+	{"RoundAway", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+				val = zslongToFix(*args[0]).doRoundAway().getZLong();
+			return val;
+		}
+	},
+
+	{"Ceiling", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+				val = zslongToFix(*args[0]).doCeil().getZLong();
+			return val;
+		}
+	},
+
+	{"DegtoRad", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+			{
+				double rangle = (*args[0] / 10000.0) * (PI / 180.0);
+				rangle += rangle < 0?-0.00005:0.00005;
+				val = int32_t(rangle * 10000.0);
+			}
+			return val;
+		}
+	},
+
+	{"RadtoDeg", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+			{
+				double rangle = (*args[0] / 10000.0) * (180.0 / PI);
+				val = int32_t(rangle * 10000.0);
+			}
+			return val;
+		}
+	},
+
+	{"WrapRadians", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+			{
+				val = wrap_zslong_rad(*args[0]);
+			}
+			return val;
+		}
+	},
+
+	{"WrapDegrees", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+			{
+				val = wrap_zslong_deg(*args[0]);
+			}
+			return val;
+		}
+	},
+
+	{"Max", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			for (const auto& arg : args)
+			{
+				if(!arg) //all args must be constant
+					return nullopt;
+				if(!val || *arg > *val)
+					val = arg;
+			}
+			return val;
+		}
+	},
+
+	{"Min", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			for (const auto& arg : args)
+			{
+				if(!arg) //all args must be constant
+					return nullopt;
+				if(!val || *arg < *val)
+					val = arg;
+			}
+			return val;
+		}
+	},
+};
+
+static std::map<std::string, CONSTEXPR_CBACK_TY> const_expr_screen_impl = {
+	{"LoadFFC", CONSTEXPR_CBACK_HEADER()
+		{
+			optional<int> val;
+			if(args[0])
+				val = *args[0] - 10000;
+			return val;
+		}
+	},
+};
+
+bool setConstExprForBinding(Function* fn)
+{
+	std::map<std::string, CONSTEXPR_CBACK_TY> *impl_map = nullptr;
+
+	if (fn->getInternalScope()->getParent()->isClass())
 	{
-		errorstream << e.what() << '\n';
+		std::string class_name = fn->getInternalScope()->getParent()->getClass()->getName().value_or("");
+		if (class_name == "screendata")
+			impl_map = &const_expr_screen_impl;
+		else
+			return false;
+	}
+	else
+	{
+		impl_map = &const_expr_global_impl;
 	}
 
-	functions.clear();
-	
-	std::string errors = errorstream.str();
-	if(!errors.empty())
-		throw compile_exception(errors);
-}
+	auto it = impl_map->find(fn->name);
+	if (it != impl_map->end())
+	{
+		fn->set_constexpr(it->second);
+		return true;
+	}
 
-Function* LibrarySymbols::getFunction(std::string const& name, byte tag) const
-{
-	std::pair<std::string, int32_t> p = make_pair(name, tag);
-	Function* ret = find<Function*>(functions, p).value_or(nullptr);
-	if(!ret)
-		throw compile_exception(fmt::format("Unique internal function {} not found with tag {}!", name, tag));
-	
-	return ret;
+	return false;
 }
-Function* LibrarySymbols::getAlias(std::string const& name, byte tag) const
-{
-	std::pair<std::string, int32_t> p = make_pair(name, tag);
-	Function* ret = find<Function*>(functions, p).value_or(nullptr);
-	Function* ret2 = find<Function*>(alias_functions, p).value_or(nullptr);
-	
-	if(!XOR(ret, ret2))
-		throw compile_exception(fmt::format("Unique internal function {} not found with tag {}!", name, tag));
-	
-	return ret ? ret : ret2;
-}
-
-LibrarySymbols::~LibrarySymbols(){}

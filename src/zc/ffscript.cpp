@@ -41537,6 +41537,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 	ArrayH::getString(arrayptr, filename_str, 512);
 	regulate_path(filename_str);
 	ri->d[rEXP1] = 0L; //Presume failure; update to 10000L on success
+	ri->d[rEXP2] = 0;
 	if(!valid_file(filename_str))
 	{
 		Z_scripterrlog("Path '%s' empty or points to a directory; must point to a file!\n",filename_str.c_str());
@@ -41591,6 +41592,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 		else
 		{
 			Z_scripterrlog("Script failed to create directories for file path '%s'.\n", filename_str.c_str());
+			ri->d[rEXP2] = 0;
 			return;
 		}
 	}
@@ -44584,7 +44586,7 @@ void FFScript::do_npc_constwalk()
 
 void FFScript::do_npc_varwalk()
 {
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	ArrayManager am(arrayptr);
 	if(am.invalid()) return;
 	int32_t sz = am.size();

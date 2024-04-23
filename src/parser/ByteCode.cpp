@@ -2,6 +2,7 @@
 #include "CompileError.h"
 #include "DataStructs.h"
 #include "zasm/serialize.h"
+#include "zasm/table.h"
 #include "zsyssimple.h"
 #include <assert.h>
 #include <iostream>
@@ -43,6 +44,11 @@ string CompareArgument::toString() const
 string ZScript::VarToString(int32_t ID)
 {
 	return zasm_var_to_string(ID);
+}
+
+int32_t StringToVar(std::string var)
+{
+	return get_script_variable(var).value();
 }
 
 string VarArgument::toString() const
@@ -121,59 +127,59 @@ string OSetLessI::toString() const
 
 string OSetImmediate::toString() const
 {
-	return "SETV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "SETV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSetRegister::toString() const
 {
-    return "SETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SETR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSetObject::toString() const
 {
-    return "SET_OBJECT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SET_OBJECT " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OReadPODArrayR::toString() const
 {
-	return "READPODARRAYR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "READPODARRAYR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OReadPODArrayI::toString() const
 {
-	return "READPODARRAYV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "READPODARRAYV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OWritePODArrayRR::toString() const
 {
-	return "WRITEPODARRAYRR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "WRITEPODARRAYRR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OWritePODArrayRI::toString() const
 {
-	return "WRITEPODARRAYRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "WRITEPODARRAYRV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OWritePODArrayIR::toString() const
 {
-	return "WRITEPODARRAYVR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "WRITEPODARRAYVR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OWritePODArrayII::toString() const
 {
-	return "WRITEPODARRAYVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "WRITEPODARRAYVV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OWritePODString::toString() const
 {
-	return "WRITEPODSTRING " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "WRITEPODSTRING " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OWritePODArray::toString() const
 {
-	return "WRITEPODARRAY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "WRITEPODARRAY " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OConstructClass::toString() const
 {
-	return "ZCLASS_CONSTRUCT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ZCLASS_CONSTRUCT " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OMarkTypeClass::toString() const
 {
@@ -181,11 +187,11 @@ string OMarkTypeClass::toString() const
 }
 string OReadObject::toString() const
 {
-	return "ZCLASS_READ " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ZCLASS_READ " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OWriteObject::toString() const
 {
-	return "ZCLASS_WRITE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ZCLASS_WRITE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OFreeObject::toString() const
 {
@@ -205,35 +211,35 @@ string OGlobalObject::toString() const
 }
 string OObjOwnBitmap::toString() const
 {
-	return "OBJ_OWN_BITMAP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_BITMAP " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OObjOwnPaldata::toString() const
 {
-	return "OBJ_OWN_PALDATA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_PALDATA " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OObjOwnFile::toString() const
 {
-	return "OBJ_OWN_FILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_FILE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OObjOwnDir::toString() const
 {
-	return "OBJ_OWN_DIR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_DIR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OObjOwnStack::toString() const
 {
-	return "OBJ_OWN_STACK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_STACK " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OObjOwnRNG::toString() const
 {
-	return "OBJ_OWN_RNG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_RNG " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OObjOwnClass::toString() const
 {
-	return "OBJ_OWN_CLASS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_CLASS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OObjOwnArray::toString() const
 {
-	return "OBJ_OWN_ARRAY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_ARRAY " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OQuitNoDealloc::toString() const
 {
@@ -341,7 +347,7 @@ string OPeek::toString() const
 }
 string OPeekAtImmediate::toString() const
 {
-	return "PEEKATV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();;
+	return "PEEKATV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();;
 }
 string OMakeVargArray::toString() const
 {
@@ -369,7 +375,7 @@ string OArrayPop::toString() const
 }
 string OLoadSubscreenDataRV::toString() const
 {
-	return "LOADSUBDATARV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "LOADSUBDATARV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OSwapSubscrV::toString() const
 {
@@ -387,78 +393,78 @@ string OSetSubscreenName::toString() const
 
 string OAddImmediate::toString() const
 {
-    return "ADDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ADDV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OAddRegister::toString() const
 {
-    return "ADDR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ADDR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSubImmediate::toString() const
 {
-    return "SUBV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SUBV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSubImmediate2::toString() const
 {
-    return "SUBV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SUBV2 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSubRegister::toString() const
 {
-    return "SUBR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SUBR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OMultImmediate::toString() const
 {
-    return "MULTV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "MULTV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 
 string OMultRegister::toString() const
 {
-    return "MULTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "MULTR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ODivImmediate::toString() const
 {
-    return "DIVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "DIVV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ODivImmediate2::toString() const
 {
-    return "DIVV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "DIVV2 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ODivRegister::toString() const
 {
-    return "DIVR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "DIVR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OCompareImmediate::toString() const
 {
-    return "COMPAREV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "COMPAREV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OCompareImmediate2::toString() const
 {
-    return "COMPAREV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "COMPAREV2 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OCompareRegister::toString() const
 {
-    return "COMPARER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "COMPARER " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OInternalStringCompare::toString() const
 {
-	return "STRCMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "STRCMPR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OInternalInsensitiveStringCompare::toString() const
 {
-	return "STRICMPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "STRICMPR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OWaitframe::toString() const
@@ -478,7 +484,7 @@ string OWaitdraw::toString() const
 
 string OWaitTo::toString() const
 {
-    return "WAITTO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "WAITTO " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OWaitEvent::toString() const
@@ -544,17 +550,17 @@ string OPopRegister::toString() const
 
 string OPopArgsRegister::toString() const
 {
-    return "POPARGS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "POPARGS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OPushArgsRegister::toString() const
 {
-    return "PUSHARGSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PUSHARGSR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OPushArgsImmediate::toString() const
 {
-    return "PUSHARGSV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PUSHARGSV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OPushVargV::toString() const
@@ -569,52 +575,52 @@ string OPushVargR::toString() const
 
 string OPushVargsV::toString() const
 {
-    return "PUSHVARGSV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PUSHVARGSV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OPushVargsR::toString() const
 {
-    return "PUSHVARGSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PUSHVARGSR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OLoadIndirect::toString() const
 {
-    return "LOADI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LOADI " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OStoreIndirect::toString() const
 {
-    return "STOREI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STOREI " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OLoadDirect::toString() const
 {
-    return "LOADD " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LOADD " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OStoreDirect::toString() const
 {
-    return "STORED " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STORED " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OStoreDirectV::toString() const
 {
-    return "STOREDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STOREDV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OLoad::toString() const
 {
-    return "LOAD " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LOAD " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OStore::toString() const
 {
-    return "STORE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STORE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OStoreV::toString() const
 {
-    return "STOREV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STOREV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OStoreObject::toString() const
 {
-    return "STORE_OBJECT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STORE_OBJECT " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OQuit::toString() const
@@ -629,92 +635,92 @@ string OGotoRegister::toString() const
 
 string OAndImmediate::toString() const
 {
-    return "ANDV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ANDV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OAndRegister::toString() const
 {
-    return "ANDR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ANDR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OOrImmediate::toString() const
 {
-    return "ORV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ORV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OOrRegister::toString() const
 {
-    return "ORR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ORR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OXorImmediate::toString() const
 {
-    return "XORV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "XORV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OXorRegister::toString() const
 {
-    return "XORR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "XORR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitAndImmediate::toString() const
 {
-    return "ANDV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ANDV32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitAndRegister::toString() const
 {
-    return "ANDR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ANDR32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitOrImmediate::toString() const
 {
-    return "ORV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ORV32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitOrRegister::toString() const
 {
-    return "ORR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ORR32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitXorImmediate::toString() const
 {
-    return "XORV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "XORV32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitXorRegister::toString() const
 {
-    return "XORR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "XORR32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSinRegister::toString() const
 {
-    return "SINR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SINR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OCosRegister::toString() const
 {
-    return "COSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "COSR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OTanRegister::toString() const
 {
-    return "TANR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "TANR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OEngineDegtoRad::toString() const
 {
-    return "DEGTORAD " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "DEGTORAD " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OEngineRadtoDeg::toString() const
 {
-    return "RADTODEG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "RADTODEG " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string Ostrlen::toString() const
 {
-    return "STRINGLENGTH " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STRINGLENGTH " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OATanRegister::toString() const
@@ -724,22 +730,22 @@ string OATanRegister::toString() const
 
 string OArcCosRegister::toString() const
 {
-    return "ARCCOSR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ARCCOSR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OArcSinRegister::toString() const
 {
-    return "ARCSINR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ARCSINR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OMinRegister::toString() const
 {
-    return "MINR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "MINR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OMaxRegister::toString() const
 {
-    return "MAXR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "MAXR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OMaxNew::toString() const
 {
@@ -756,32 +762,32 @@ string OChoose::toString() const
 
 string OPowRegister::toString() const
 {
-    return "POWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "POWERR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OPowImmediate::toString() const
 {
-    return "POWERV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "POWERV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OPowImmediate2::toString() const
 {
-    return "POWERV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "POWERV2 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OLPowRegister::toString() const
 {
-    return "LPOWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LPOWERR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OLPowImmediate::toString() const
 {
-    return "LPOWERV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LPOWERV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OLPowImmediate2::toString() const
 {
-    return "LPOWERV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LPOWERV2 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OInvPowRegister::toString() const
 {
-    return "IPOWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "IPOWERR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OFactorial::toString() const
@@ -841,57 +847,57 @@ string OArraySizeID::toString() const
 
 string OLShiftImmediate::toString() const
 {
-    return "LSHIFTV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LSHIFTV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OLShiftRegister::toString() const
 {
-    return "LSHIFTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LSHIFTR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ORShiftImmediate::toString() const
 {
-    return "RSHIFTV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "RSHIFTV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ORShiftRegister::toString() const
 {
-    return "RSHIFTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "RSHIFTR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitLShiftImmediate::toString() const
 {
-    return "LSHIFTV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LSHIFTV32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitLShiftRegister::toString() const
 {
-    return "LSHIFTR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LSHIFTR32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitRShiftImmediate::toString() const
 {
-    return "RSHIFTV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "RSHIFTV32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string O32BitRShiftRegister::toString() const
 {
-    return "RSHIFTR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "RSHIFTR32 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OModuloImmediate::toString() const
 {
-    return "MODV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "MODV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OModuloImmediate2::toString() const
 {
-    return "MODV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "MODV2 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OModuloRegister::toString() const
 {
-    return "MODR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "MODR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ONot::toString() const
@@ -971,7 +977,7 @@ string OBreakpoint::toString() const
 
 string ORandRegister::toString() const
 {
-    return "RNDR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "RNDR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSRandRegister::toString() const
@@ -1001,7 +1007,7 @@ string ORNGRand2::toString() const
 
 string ORNGRand3::toString() const
 {
-    return "RNGRAND3 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "RNGRAND3 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ORNGLRand1::toString() const
@@ -1016,7 +1022,7 @@ string ORNGLRand2::toString() const
 
 string ORNGLRand3::toString() const
 {
-    return "RNGLRAND3 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "RNGLRAND3 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ORNGSeed::toString() const
@@ -1041,17 +1047,17 @@ string OCheckTrig::toString() const
 
 string OWarp::toString() const
 {
-    return "WARPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "WARPR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OPitWarp::toString() const
 {
-    return "PITWARPR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PITWARPR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSqrtRegister::toString() const
 {
-    return "SQROOTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SQROOTR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OCreateItemRegister::toString() const
@@ -1189,7 +1195,7 @@ string OWriteLevelPalette::toString() const
 
 string OWriteLevelCSet::toString() const
 {
-    return "PALDATAWRITELEVELCS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PALDATAWRITELEVELCS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OWriteSpritePalette::toString() const
@@ -1199,7 +1205,7 @@ string OWriteSpritePalette::toString() const
 
 string OWriteSpriteCSet::toString() const
 {
-    return "PALDATAWRITESPRITECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PALDATAWRITESPRITECS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OWriteMainPalette::toString() const
@@ -1219,7 +1225,7 @@ string OWriteCyclePalette::toString() const
 
 string OWriteCycleCSet::toString() const
 {
-	return "PALDATAWRITECYCLECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "PALDATAWRITECYCLECS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OPalDataColorValid::toString() const
@@ -1364,7 +1370,7 @@ string OLoadComboDataRegister::toString() const
 }
 string OLoadMapDataRegister::toString() const
 {
-    return "LOADMAPDATAR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LOADMAPDATAR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OLoadSpriteDataRegister::toString() const
 {
@@ -1426,12 +1432,12 @@ string OPlayMIDIRegister::toString() const
 
 string OPlayEnhancedMusic::toString() const
 {
-    return "PLAYENHMUSIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PLAYENHMUSIC " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OPlayEnhancedMusicEx::toString() const
 {
-    return "PLAYENHMUSICEX " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PLAYENHMUSICEX " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGetEnhancedMusicPos::toString() const
@@ -1456,7 +1462,7 @@ string OGetEnhancedMusicLength::toString() const
 
 string OSetEnhancedMusicLoop::toString() const
 {
-	return "SETENHMUSICLOOP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "SETENHMUSICLOOP " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OCrossfadeEnhancedMusic::toString() const
@@ -1466,12 +1472,12 @@ string OCrossfadeEnhancedMusic::toString() const
 
 string OGetDMapMusicFilename::toString() const
 {
-    return "GETMUSICFILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETMUSICFILE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGetNPCDataInitDLabel::toString() const
 {
-    return "NPCGETINITDLABEL " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "NPCGETINITDLABEL " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGetDMapMusicTrack::toString() const
@@ -1529,33 +1535,33 @@ string OSetSaveName::toString() const
 
 string OGetDMapName::toString() const
 {
-    return "GETDMAPNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETDMAPNAME " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGetDMapTitle::toString() const
 {
-    return "GETDMAPTITLE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETDMAPTITLE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGetDMapIntro::toString() const
 {
-    return "GETDMAPINTRO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETDMAPINTRO " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 
 string OSetDMapName::toString() const
 {
-    return "SETDMAPNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SETDMAPNAME " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSetDMapTitle::toString() const
 {
-    return "SETDMAPTITLE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SETDMAPTITLE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSetDMapIntro::toString() const
 {
-    return "SETDMAPINTRO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SETDMAPINTRO " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGetItemName::toString() const
@@ -1570,13 +1576,13 @@ string OGetNPCName::toString() const
 
 string OGetMessage::toString() const
 {
-    return "GETMESSAGE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETMESSAGE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 
 string OSetMessage::toString() const
 {
-    return "SETMESSAGE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SETMESSAGE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OClearSpritesRegister::toString() const
@@ -1837,12 +1843,12 @@ string OSetTileWarpRegister::toString() const
 
 string OLayerScreenRegister::toString() const
 {
-    return "LAYERSCREEN " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "LAYERSCREEN " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string OLayerMapRegister::toString() const
 {
-    return "LAYERMAP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "LAYERMAP " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string OTriggerSecrets::toString() const
@@ -1872,22 +1878,22 @@ string OIsValidNPC::toString() const
 
 string OCopyTileRegister::toString() const
 {
-    return "COPYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "COPYTILERR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string Ostrcpy::toString() const
 {
-    return "STRINGCOPY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STRINGCOPY " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OOverlayTileRegister::toString() const
 {
-    return "OVERLAYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "OVERLAYTILERR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSwapTileRegister::toString() const
 {
-    return "SWAPTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SWAPTILERR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OClearTileRegister::toString() const
@@ -1937,22 +1943,22 @@ string OUseSpriteEWpn::toString() const
 
 string OAllocateMemRegister::toString() const
 {
-    return "ALLOCATEMEMR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ALLOCATEMEMR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OAllocateMemImmediate::toString() const
 {
-    return "ALLOCATEMEMV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
+    return "ALLOCATEMEMV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString() + " " + getThirdArgument()->toString();
 }
 
 string OAllocateGlobalMemImmediate::toString() const
 {
-    return "ALLOCATEGMEMV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
+    return "ALLOCATEGMEMV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString() + " " + getThirdArgument()->toString();
 }
 
 string OAllocateGlobalMemRegister::toString() const
 {
-    return "ALLOCATEGMEMR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ALLOCATEGMEMR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ODeallocateMemRegister::toString() const
@@ -1967,7 +1973,7 @@ string ODeallocateMemImmediate::toString() const
 
 string OResizeArrayRegister::toString() const
 {
-    return "RESIZEARRAYR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "RESIZEARRAYR " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OOwnArrayRegister::toString() const
 {
@@ -2025,7 +2031,7 @@ string OShowF6Screen::toString() const
 
 string OComboTile::toString() const
 {
-    return "COMBOTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "COMBOTILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string OBreakShield::toString() const
@@ -2280,168 +2286,168 @@ string OPolygonRegister::toString() const
 
 string ONDataBaseTile::toString() const
 {
-    return "GETNPCDATATILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATATILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataEHeight::toString() const
 {
-    return "GETNPCDATAEHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAEHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string ONDataFlags::toString() const
 {
-    return "GETNPCDATAFLAGS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAFLAGS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataFlags2::toString() const
 {
-    return "GETNPCDATAFLAGS2 " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAFLAGS2 " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataWidth::toString() const
 {
-    return "GETNPCDATAWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHeight::toString() const
 {
-    return "GETNPCDATAHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataTile::toString() const
 {
-    return "GETNPCDATASTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATASTILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSWidth::toString() const
 {
-    return "GETNPCDATASWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATASWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSHeight::toString() const
 {
-    return "GETNPCDATASHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATASHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataETile::toString() const
 {
-    return "GETNPCDATAETILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAETILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataEWidth::toString() const
 {
-    return "GETNPCDATAEWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAEWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHP::toString() const
 {
-    return "GETNPCDATAHP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHP " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataFamily::toString() const
 {
-    return "GETNPCDATAFAMILY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAFAMILY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataCSet::toString() const
 {
-    return "GETNPCDATACSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATACSET " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataAnim::toString() const
 {
-    return "GETNPCDATAANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAANIM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataEAnim::toString() const
 {
-    return "GETNPCDATAEANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAEANIM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataFramerate::toString() const
 {
-    return "GETNPCDATAFRAMERATE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAFRAMERATE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataEFramerate::toString() const
 {
-    return "GETNPCDATAEFRAMERATE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAEFRAMERATE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataTouchDamage::toString() const
 {
-    return "GETNPCDATATOUCHDMG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATATOUCHDMG " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataWeaponDamage::toString() const
 {
-    return "GETNPCDATAWPNDAMAGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAWPNDAMAGE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataWeapon::toString() const
 {
-    return "GETNPCDATAWEAPON " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAWEAPON " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataRandom::toString() const
 {
-    return "GETNPCDATARANDOM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATARANDOM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHalt::toString() const
 {
-    return "GETNPCDATAHALT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHALT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataStep::toString() const
 {
-    return "GETNPCDATASTEP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATASTEP " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHoming::toString() const
 {
-    return "GETNPCDATAHOMING " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHOMING " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHunger::toString() const
 {
-    return "GETNPCDATAHUNGER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHUNGER " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataropset::toString() const
 {
-    return "GETNPCDATADROPSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATADROPSET " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataBGSound::toString() const
 {
-    return "GETNPCDATABGSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATABGSFX " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHitSound::toString() const
 {
-    return "GETNPCDATAHITSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHITSFX " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataDeathSound::toString() const
 {
-    return "GETNPCDATADEATHSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATADEATHSFX " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataXofs::toString() const
 {
-    return "GETNPCDATAXOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAXOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataYofs::toString() const
 {
-    return "GETNPCDATAYOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAYOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataZofs::toString() const
 {
-    return "GETNPCDATAZOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAZOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHitXOfs::toString() const
 {
-    return "GETNPCDATAHXOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHXOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHYOfs::toString() const
 {
-    return "GETNPCDATAHYOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHYOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHitWidth::toString() const
 {
-    return "GETNPCDATAHITWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHITWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHitHeight::toString() const
 {
-    return "GETNPCDATAHITHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHITHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataHitZ::toString() const
 {
-    return "GETNPCDATAHITZ " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAHITZ " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataTileWidth::toString() const
 {
-    return "GETNPCDATATILEWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATATILEWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataTileHeight::toString() const
 {
-    return "GETNPCDATATILEHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATATILEHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataWeapSprite::toString() const
 {
-    return "GETNPCDATAWPNSPRITE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETNPCDATAWPNSPRITE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 //two inputs, one return
@@ -2467,479 +2473,479 @@ string ONDatattributes::toString() const
 
 string ONDataSetBaseTile::toString() const
 {
-    return "SETNPCDATATILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATATILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetEHeight::toString() const
 {
-    return "SETNPCDATAEHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAEHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string ONDataSetFlags::toString() const
 {
-    return "SETNPCDATAFLAGS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAFLAGS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetFlags2::toString() const
 {
-    return "SETNPCDATAFLAGS2 " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAFLAGS2 " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetWidth::toString() const
 {
-    return "SETNPCDATAWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHeight::toString() const
 {
-    return "SETNPCDATAHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetTile::toString() const
 {
-    return "SETNPCDATASTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATASTILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetSWidth::toString() const
 {
-    return "SETNPCDATASWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATASWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetSHeight::toString() const
 {
-    return "SETNPCDATASHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATASHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetETile::toString() const
 {
-    return "SETNPCDATAETILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAETILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetEWidth::toString() const
 {
-    return "SETNPCDATAEWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAEWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHP::toString() const
 {
-    return "SETNPCDATAHP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHP " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetFamily::toString() const
 {
-    return "SETNPCDATAFAMILY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAFAMILY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetCSet::toString() const
 {
-    return "SETNPCDATACSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATACSET " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetAnim::toString() const
 {
-    return "SETNPCDATAANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAANIM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetEAnim::toString() const
 {
-    return "SETNPCDATAEANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAEANIM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetFramerate::toString() const
 {
-    return "SETNPCDATAFRAMERATE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAFRAMERATE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetEFramerate::toString() const
 {
-    return "SETNPCDATAEFRAMERATE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAEFRAMERATE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetTouchDamage::toString() const
 {
-    return "SETNPCDATATOUCHDMG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATATOUCHDMG " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetWeaponDamage::toString() const
 {
-    return "SETNPCDATAWPNDAMAGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAWPNDAMAGE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetWeapon::toString() const
 {
-    return "SETNPCDATAWEAPON " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAWEAPON " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetRandom::toString() const
 {
-    return "SETNPCDATARANDOM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATARANDOM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHalt::toString() const
 {
-    return "SETNPCDATAHALT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHALT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetStep::toString() const
 {
-    return "SETNPCDATASTEP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATASTEP " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHoming::toString() const
 {
-    return "SETNPCDATAHOMING " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHOMING " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHunger::toString() const
 {
-    return "SETNPCDATAHUNGER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHUNGER " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetropset::toString() const
 {
-    return "SETNPCDATADROPSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATADROPSET " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetBGSound::toString() const
 {
-    return "SETNPCDATABGSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATABGSFX " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHitSound::toString() const
 {
-    return "SETNPCDATAHITSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHITSFX " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetDeathSound::toString() const
 {
-    return "SETNPCDATADEATHSFX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATADEATHSFX " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetXofs::toString() const
 {
-    return "SETNPCDATAXOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAXOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetYofs::toString() const
 {
-    return "SETNPCDATAYOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAYOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetZofs::toString() const
 {
-    return "SETNPCDATAZOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAZOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHitXOfs::toString() const
 {
-    return "SETNPCDATAHXOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHXOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHYOfs::toString() const
 {
-    return "SETNPCDATAHYOFS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHYOFS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHitWidth::toString() const
 {
-    return "SETNPCDATAHITWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHITWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHitHeight::toString() const
 {
-    return "SETNPCDATAHITHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHITHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetHitZ::toString() const
 {
-    return "SETNPCDATAHITZ " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAHITZ " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetTileWidth::toString() const
 {
-    return "SETNPCDATATILEWIDTH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATATILEWIDTH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetTileHeight::toString() const
 {
-    return "SETNPCDATATILEHEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATATILEHEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string ONDataSetWeapSprite::toString() const
 {
-    return "SETNPCDATAWPNSPRITE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETNPCDATAWPNSPRITE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 //ComboData
 
 string OCDataBlockEnemy::toString() const
 {
-    return "GCDBLOCKENEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDBLOCKENEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataBlockHole::toString() const
 {
-    return "GCDBLOCKHOLE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDBLOCKHOLE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataBlockTrig::toString() const
 {
-    return "GCDBLOCKTRIG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDBLOCKTRIG " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataConveyX::toString() const
 {
-    return "GCDCONVEYSPDX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDCONVEYSPDX " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataConveyY::toString() const
 {
-    return "GCDCONVEYSPDY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDCONVEYSPDY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataCreateNPC::toString() const
 {
-    return "GCDCREATEENEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDCREATEENEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataCreateEnemW::toString() const
 {
-    return "GCDCREATEENEMWH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDCREATEENEMWH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataCreateEnemC::toString() const
 {
-    return "GCDCREATEENEMCH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDCREATEENEMCH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataDirch::toString() const
 {
-    return "GCDDIRCHTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDDIRCHTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataDistTiles::toString() const
 {
-    return "GCDDISTCHTILES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDDISTCHTILES " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataDiveItem::toString() const
 {
-    return "GCDDIVEITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDDIVEITEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataDock::toString() const
 {
-    return "GCDDOCK " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDDOCK " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataFairy::toString() const
 {
-    return "GCDFAIRY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDFAIRY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataAttrib::toString() const
 {
-    return "GCDFFCOMBOATTRIB " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDFFCOMBOATTRIB " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataDecoTile::toString() const
 {
-    return "GCDFOOTDECOTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDFOOTDECOTILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string OCDataLadderPass::toString() const
 {
-    return "GCDLADDERPASS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDLADDERPASS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataLadderPass::toString() const
 {
-    return "SCDLADDERPASS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDLADDERPASS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 
 string OCDataDecoType::toString() const
 {
-    return "GCDFOOTDECOTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDFOOTDECOTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataHookshotGrab::toString() const
 {
-    return "GCDHOOKSHOTGRAB " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDHOOKSHOTGRAB " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataLockBlock::toString() const
 {
-    return "GCDLOCKBLOCKTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDLOCKBLOCKTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataLockBlockChange::toString() const
 {
-    return "GCDLOCKBLOCKCHANGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDLOCKBLOCKCHANGE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataMagicMirror::toString() const
 {
-    return "GCDMAGICMIRRORTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDMAGICMIRRORTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataModHP::toString() const
 {
-    return "GCDMODIFYHPAMOUNT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDMODIFYHPAMOUNT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataModHPDelay::toString() const
 {
-    return "GCDMODIFYHPDELAY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDMODIFYHPDELAY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataModHpType::toString() const
 {
-    return "GCDMODIFYHPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDMODIFYHPTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataModMP::toString() const
 {
-    return "GCDMODIFYMPAMOUNT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDMODIFYMPAMOUNT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataMpdMPDelay::toString() const
 {
-    return "GCDMODIFYMPDELAY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDMODIFYMPDELAY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataModMPType::toString() const
 {
-    return "GCDMODIFYMPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDMODIFYMPTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataNoPush::toString() const
 {
-    return "GCDNOPUSHBLOCKS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDNOPUSHBLOCKS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataOverhead::toString() const
 {
-    return "GCDOVERHEAD " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDOVERHEAD " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataEnemyLoc::toString() const
 {
-    return "GCDPLACEENEMY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDPLACEENEMY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataPushDir::toString() const
 {
-    return "GCDPUSHDIR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDPUSHDIR " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataPushWeight::toString() const
 {
-    return "GCDPUSHWEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDPUSHWEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataPushWait::toString() const
 {
-    return "GCDPUSHWAIT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDPUSHWAIT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataPushed::toString() const
 {
-    return "GCDPUSHED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDPUSHED " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataRaft::toString() const
 {
-    return "GCDRAFT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDRAFT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataResetRoom::toString() const
 {
-    return "GCDRESETROOM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDRESETROOM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataSavePoint::toString() const
 {
-    return "GCDSAVEPOINT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSAVEPOINT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataFreeezeScreen::toString() const
 {
-    return "GCDSCREENFREEZE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSCREENFREEZE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataSecretCombo::toString() const
 {
-    return "GCDSECRETCOMBO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSECRETCOMBO " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataSingular::toString() const
 {
-    return "GCDSINGULAR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSINGULAR " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataSlowMove::toString() const
 {
-    return "GCDSLOWMOVE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSLOWMOVE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataStatue::toString() const
 {
-    return "GCDSTATUE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSTATUE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataStepType::toString() const
 {
-    return "GCDSTEPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSTEPTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataSteoChange::toString() const
 {
-    return "GCDSTEPCHANGETO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSTEPCHANGETO " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataStrikeRem::toString() const
 {
-    return "GCDSTRIKEREMNANTS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSTRIKEREMNANTS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataStrikeRemType::toString() const
 {
-    return "GCDSTRIKEREMNANTSTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSTRIKEREMNANTSTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataStrikeChange::toString() const
 {
-    return "GCDSTRIKECHANGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSTRIKECHANGE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataStrikeChangeItem::toString() const
 {
-    return "GCDSTRIKECHANGEITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSTRIKECHANGEITEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataTouchItem::toString() const
 {
-    return "GCDTOUCHITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDTOUCHITEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataTouchStairs::toString() const
 {
-    return "GCDTOUCHSTAIRS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDTOUCHSTAIRS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataTriggerType::toString() const
 {
-    return "GCDTRIGGERTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDTRIGGERTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataTriggerSens::toString() const
 {
-    return "GCDTRIGGERSENS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDTRIGGERSENS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataWarpType::toString() const
 {
-    return "GCDWARPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDWARPTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataWarpSens::toString() const
 {
-    return "GCDWARPSENS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDWARPSENS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataWarpDirect::toString() const
 {
-    return "GCDWARPDIRECT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDWARPDIRECT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataWarpLoc::toString() const
 {
-    return "GCDWARPLOCATION " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDWARPLOCATION " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataWater::toString() const
 {
-    return "GCDWATER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDWATER " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string OCDataWinGame::toString() const
 {
-    return "GCDWINGAME " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDWINGAME " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataWhistle::toString() const
 {
-    return "GCDWHISTLE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDWHISTLE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataWeapBlockLevel::toString() const
 {
-    return "GCDBLOCKWEAPLVL " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDBLOCKWEAPLVL " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataTile::toString() const
 {
-    return "GCDTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDTILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataFlip::toString() const
 {
-    return "GCDFLIP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDFLIP " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataWalkability::toString() const
 {
-    return "GCDWALK " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDWALK " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataType::toString() const
 {
-    return "GCDTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataCSets::toString() const
 {
-    return "GCDCSETS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDCSETS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataFoo::toString() const
 {
-    return "GCDFOO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDFOO " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataFrames::toString() const
 {
-    return "GCDFRAMES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDFRAMES " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataSpeed::toString() const
 {
-    return "GCDSPEED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSPEED " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataNext::toString() const
 {
-    return "GCDNEXTCOMBO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDNEXTCOMBO " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataNextCSet::toString() const
 {
-    return "GCDNEXTCSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDNEXTCSET " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataFlag::toString() const
 {
-    return "GCDFLAG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDFLAG " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataSkipAnim::toString() const
 {
-    return "GCDSKIPANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSKIPANIM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataTimer::toString() const
 {
-    return "GCDNEXTTIMER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDNEXTTIMER " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataAnimY::toString() const
 {
-    return "GCDSKIPANIMY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDSKIPANIMY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCDataAnimFlags::toString() const
 {
-    return "GCDANIMFLAGS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GCDANIMFLAGS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string OCDataBlockWeapon::toString() const
@@ -2957,357 +2963,357 @@ string OCDataStrikeWeapon::toString() const
 
 string OCSetDataBlockEnemy::toString() const
 {
-    return "SCDBLOCKENEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDBLOCKENEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataBlockHole::toString() const
 {
-    return "SCDBLOCKHOLE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDBLOCKHOLE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataBlockTrig::toString() const
 {
-    return "SCDBLOCKTRIG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDBLOCKTRIG " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataConveyX::toString() const
 {
-    return "SCDCONVEYSPDX " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDCONVEYSPDX " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataConveyY::toString() const
 {
-    return "SCDCONVEYSPDY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDCONVEYSPDY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataCreateNPC::toString() const
 {
-    return "SCDCREATEENEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDCREATEENEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataCreateEnemW::toString() const
 {
-    return "SCDCREATEENEMWH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDCREATEENEMWH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataCreateEnemC::toString() const
 {
-    return "SCDCREATEENEMCH " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDCREATEENEMCH " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataDirch::toString() const
 {
-    return "SCDDIRCHTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDDIRCHTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataDistTiles::toString() const
 {
-    return "SCDDISTCHTILES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDDISTCHTILES " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataDiveItem::toString() const
 {
-    return "SCDDIVEITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDDIVEITEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataDock::toString() const
 {
-    return "SCDDOCK " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDDOCK " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataFairy::toString() const
 {
-    return "SCDFAIRY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDFAIRY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataAttrib::toString() const
 {
-    return "SCDFFCOMBOATTRIB " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDFFCOMBOATTRIB " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataDecoTile::toString() const
 {
-    return "SCDFOOTDECOTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDFOOTDECOTILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataDecoType::toString() const
 {
-    return "SCDFOOTDECOTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDFOOTDECOTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataHookshotGrab::toString() const
 {
-    return "SCDHOOKSHOTGRAB " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDHOOKSHOTGRAB " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataLockBlock::toString() const
 {
-    return "SCDLOCKBLOCKTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDLOCKBLOCKTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataLockBlockChange::toString() const
 {
-    return "SCDLOCKBLOCKCHANGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDLOCKBLOCKCHANGE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataMagicMirror::toString() const
 {
-    return "SCDMAGICMIRRORTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDMAGICMIRRORTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataModHP::toString() const
 {
-    return "SCDMODIFYHPAMOUNT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDMODIFYHPAMOUNT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataModHPDelay::toString() const
 {
-    return "SCDMODIFYHPDELAY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDMODIFYHPDELAY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataModHpType::toString() const
 {
-    return "SCDMODIFYHPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDMODIFYHPTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataModMP::toString() const
 {
-    return "SCDMODIFYMPAMOUNT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDMODIFYMPAMOUNT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataMpdMPDelay::toString() const
 {
-    return "SCDMODIFYMPDELAY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDMODIFYMPDELAY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataModMPType::toString() const
 {
-    return "SCDMODIFYMPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDMODIFYMPTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataNoPush::toString() const
 {
-    return "SCDNOPUSHBLOCKS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDNOPUSHBLOCKS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataOverhead::toString() const
 {
-    return "SCDOVERHEAD " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDOVERHEAD " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataEnemyLoc::toString() const
 {
-    return "SCDPLACEENEMY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDPLACEENEMY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataPushDir::toString() const
 {
-    return "SCDPUSHDIR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDPUSHDIR " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataPushWeight::toString() const
 {
-    return "SCDPUSHWEIGHT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDPUSHWEIGHT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataPushWait::toString() const
 {
-    return "SCDPUSHWAIT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDPUSHWAIT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataPushed::toString() const
 {
-    return "SCDPUSHED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDPUSHED " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataRaft::toString() const
 {
-    return "SCDRAFT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDRAFT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataResetRoom::toString() const
 {
-    return "SCDRESETROOM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDRESETROOM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataSavePoint::toString() const
 {
-    return "SCDSAVEPOINT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSAVEPOINT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataFreeezeScreen::toString() const
 {
-    return "SCDSCREENFREEZE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSCREENFREEZE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataSecretCombo::toString() const
 {
-    return "SCDSECRETCOMBO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSECRETCOMBO " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataSingular::toString() const
 {
-    return "SCDSINGULAR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSINGULAR " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataSlowMove::toString() const
 {
-    return "SCDSLOWMOVE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSLOWMOVE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataStatue::toString() const
 {
-    return "SCDSTATUE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSTATUE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataStepType::toString() const
 {
-    return "SCDSTEPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSTEPTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataSteoChange::toString() const
 {
-    return "SCDSTEPCHANGETO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSTEPCHANGETO " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataStrikeRem::toString() const
 {
-    return "SCDSTRIKEREMNANTS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSTRIKEREMNANTS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataStrikeRemType::toString() const
 {
-    return "SCDSTRIKEREMNANTSTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSTRIKEREMNANTSTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataStrikeChange::toString() const
 {
-    return "SCDSTRIKECHANGE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSTRIKECHANGE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataStrikeChangeItem::toString() const
 {
-    return "SCDSTRIKECHANGEITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSTRIKECHANGEITEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataTouchItem::toString() const
 {
-    return "SCDTOUCHITEM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDTOUCHITEM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataTouchStairs::toString() const
 {
-    return "SCDTOUCHSTAIRS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDTOUCHSTAIRS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataTriggerType::toString() const
 {
-    return "SCDTRIGGERTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDTRIGGERTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataTriggerSens::toString() const
 {
-    return "SCDTRIGGERSENS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDTRIGGERSENS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataWarpType::toString() const
 {
-    return "SCDWARPTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDWARPTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataWarpSens::toString() const
 {
-    return "SCDWARPSENS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDWARPSENS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataWarpDirect::toString() const
 {
-    return "SCDWARPDIRECT " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDWARPDIRECT " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataWarpLoc::toString() const
 {
-    return "SCDWARPLOCATION " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDWARPLOCATION " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataWater::toString() const
 {
-    return "SCDWATER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDWATER " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataWhistle::toString() const
 {
-    return "SCDWHISTLE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDWHISTLE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataWeapBlockLevel::toString() const
 {
-    return "SCDBLOCKWEAPLVL " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDBLOCKWEAPLVL " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataTile::toString() const
 {
-    return "SCDTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDTILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataFlip::toString() const
 {
-    return "SCDFLIP " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDFLIP " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataWalkability::toString() const
 {
-    return "SCDWALK " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDWALK " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataType::toString() const
 {
-    return "SCDTYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDTYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataCSets::toString() const
 {
-    return "SCDCSETS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDCSETS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataFoo::toString() const
 {
-    return "SCDFOO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDFOO " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataFrames::toString() const
 {
-    return "SCDFRAMES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDFRAMES " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataSpeed::toString() const
 {
-    return "SCDSPEED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSPEED " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataNext::toString() const
 {
-    return "SCDNEXTCOMBO " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDNEXTCOMBO " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataNextCSet::toString() const
 {
-    return "SCDNEXTCSET " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDNEXTCSET " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataFlag::toString() const
 {
-    return "SCDFLAG " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDFLAG " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataSkipAnim::toString() const
 {
-    return "SCDSKIPANIM " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSKIPANIM " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataTimer::toString() const
 {
-    return "SCDNEXTTIMER " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDNEXTTIMER " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataAnimY::toString() const
 {
-    return "SCDSKIPANIMY " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDSKIPANIMY " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OCSetDataAnimFlags::toString() const
 {
-    return "SCDANIMFLAGS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDANIMFLAGS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string OCSetDataWinGame::toString() const
 {
-    return "SCDWINGAME " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SCDWINGAME " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 //SpriteData
 string OSDataTile::toString() const
 {
-    return "GETSPRITEDATATILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETSPRITEDATATILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSDataMisc::toString() const
 {
-    return "GETSPRITEDATAMISC " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETSPRITEDATAMISC " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSDataCSets::toString() const
 {
-    return "GETSPRITEDATACGETS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETSPRITEDATACGETS " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSDataFrames::toString() const
 {
-    return "GETSPRITEDATAFRAMES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETSPRITEDATAFRAMES " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSDataSpeed::toString() const
 {
-    return "GETSPRITEDATASPEED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETSPRITEDATASPEED " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSDataType::toString() const
 {
-    return "GETSPRITEDATATYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "GETSPRITEDATATYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 string OSSetDataTile::toString() const
 {
-    return "SETSPRITEDATATILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETSPRITEDATATILE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSSetDataMisc::toString() const
 {
-    return "SETSPRITEDATAMISC " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETSPRITEDATAMISC " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSSetDataFrames::toString() const
 {
-    return "SETSPRITEDATAFRAMES " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETSPRITEDATAFRAMES " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSSetDataSpeed::toString() const
 {
-    return "SETSPRITEDATASPEED " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETSPRITEDATASPEED " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSSetDataType::toString() const
 {
-    return "SETSPRITEDATATYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETSPRITEDATATYPE " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 //Continue Screen Settings
 string OSSetContinueScreen::toString() const
 {
-    return "SETCONTINUESCREEN " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETCONTINUESCREEN " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 string OSSetContinueString::toString() const
 {
-    return "SETCONTINUESTRING " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+    return "SETCONTINUESTRING " + getFirstArgument()->toString() + " " +  getSecondArgument()->toString();
 }
 
 //Visual effects with one bool arg.
@@ -3516,7 +3522,7 @@ string OSwitchEW::toString() const
 }
 string OSwitchCombo::toString() const
 {
-	return "SWITCHCMB " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "SWITCHCMB " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OKillPlayer::toString() const
 {
@@ -3530,7 +3536,7 @@ string OScreenDoSpawn::toString() const
 
 string OScreenTriggerCombo::toString() const
 {
-	return "SCRTRIGGERCOMBO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "SCRTRIGGERCOMBO " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ONPCMovePaused::toString() const
@@ -3694,7 +3700,7 @@ string ONPCHitWith::toString() const
 }
 string ONPCKnockback::toString() const
 {
-    return "NPCKNOCKBACK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "NPCKNOCKBACK " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGetNPCDataName::toString() const
@@ -3861,12 +3867,12 @@ string OFontHeight::toString() const
 
 string OStringWidth::toString() const
 {
-	return "STRINGWIDTHR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "STRINGWIDTHR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OCharWidth::toString() const
 {
-	return "CHARWIDTHR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "CHARWIDTHR " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OMessageWidth::toString() const
@@ -3904,39 +3910,31 @@ string OStrNICmp::toString() const
 //based on Ostrcpy
 string oARRAYCOPY::toString() const
 {
-    return "ARRAYCOPY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ARRAYCOPY " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
-
-/*to do 
-  //1 INPUT, NO RETURN 
-     { "REMCHR",                2,   0,   0,   0},
-     { "STRINGUPPERLOWER",                2,   0,   0,   0},
-     { "STRINGLOWERUPPER",                2,   0,   0,   0},
-     { "STRINGCONVERTCASE",                2,   0,   0,   0},
-     */
 
 //1 inp, 1 ret, baseds on STRINGLENGTH / Ostrlen
 
 string Oxlen::toString() const
 {
-    return "XLEN " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "XLEN " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string Oxtoi::toString() const
 {
-    return "XTOI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "XTOI " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string Oilen::toString() const
 {
-    return "ILEN " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ILEN " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string Oatoi::toString() const
 {
-    return "ATOI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ATOI " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string Oatol::toString() const
 {
-	return "ATOL " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ATOL " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 //2 inp, 1 ret, based on STRINGCOMPARE / OStrCmp
@@ -3953,27 +3951,27 @@ string Ostrstr::toString() const
 
 string Oitoa::toString() const
 {
-    return "ITOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ITOA " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string Oxtoa::toString() const
 {
-    return "XTOA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "XTOA " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string Oitoacat::toString() const
 {
-    return "ITOACAT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "ITOACAT " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OSaveGameStructs::toString() const
 {
-    return "SAVEGAMESTRUCTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "SAVEGAMESTRUCTS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OReadGameStructs::toString() const
 {
-    return "READGAMESTRUCTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "READGAMESTRUCTS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string Ostrcat::toString() const
@@ -4017,40 +4015,17 @@ string Oremchr2::toString() const
 }
 
 
-/*to do
-  //3 INPUT 1 RET 
-    { "XTOA3",		       1,   0,   0,   0},
-    { "STRCATF",		       1,   0,   0,   0},
-    { "ITOA3",		       1,   0,   0,   0},
-    { "STRSTR3",		       1,   0,   0,   0},
-    { "REMNCHR3",		       1,   0,   0,   0},
-    { "STRCAT3",		       1,   0,   0,   0},
-    { "STRNCAT3",		       1,   0,   0,   0},
-    { "STRCHR3",		       1,   0,   0,   0},
-    { "STRRCHR3",		       1,   0,   0,   0},
-    { "STRSPN3",		       1,   0,   0,   0},
-    { "STRCSPN3",		       1,   0,   0,   0},
-    
-*/
-
-
-
-
-
-
-
-
 string Ouppertolower::toString() const
 {
-    return "UPPERTOLOWER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "UPPERTOLOWER " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string Olowertoupper::toString() const
 {
-    return "LOWERTOUPPER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "LOWERTOUPPER " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string Oconvertcase::toString() const
 {
-    return "CONVERTCASE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "CONVERTCASE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 //Game->GetByString functions
@@ -4280,42 +4255,42 @@ string OFileGetError::toString() const
 //
 string OFileReadChars::toString() const
 {
-	return "FILEREADCHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "FILEREADCHARS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 };
 
 string OFileReadBytes::toString() const
 {
-	return "FILEREADBYTES " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "FILEREADBYTES " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OFileReadInts::toString() const
 {
-	return "FILEREADINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "FILEREADINTS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 };
 
 string OFileWriteChars::toString() const
 {
-	return "FILEWRITECHARS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "FILEWRITECHARS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 };
 
 string OFileWriteBytes::toString() const
 {
-	return "FILEWRITEBYTES " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "FILEWRITEBYTES " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OFileWriteInts::toString() const
 {
-	return "FILEWRITEINTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "FILEWRITEINTS " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 };
 
 string OFileSeek::toString() const
 {
-	return "FILESEEK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "FILESEEK " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 };
 
 string OFileOpenMode::toString() const
 {
-	return "FILEOPENMODE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "FILEOPENMODE " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 };
 
 string OFileRemove::toString() const
@@ -4325,7 +4300,7 @@ string OFileRemove::toString() const
 
 string ODirectoryGet::toString() const
 {
-	return "DIRECTORYGET " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "DIRECTORYGET " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string ODirectoryReload::toString() const
@@ -4381,12 +4356,12 @@ string OStackGet::toString() const
 }
 string OStackSet::toString() const
 {
-    return "STACKSET " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "STACKSET " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OModuleGetIC::toString() const
 {
-    return "MODULEGETIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "MODULEGETIC " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGetScreenForComboPos::toString() const
@@ -4404,31 +4379,31 @@ string ORunGenericFrozenScript::toString() const
 
 string OReservedZ3_04::toString() const
 {
-	return "RESRVD_OP_Z3_04 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "RESRVD_OP_Z3_04 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OReservedZ3_05::toString() const
 {
-	return "RESRVD_OP_Z3_05 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "RESRVD_OP_Z3_05 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OReservedZ3_06::toString() const
 {
-	return "RESRVD_OP_Z3_06 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "RESRVD_OP_Z3_06 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OReservedZ3_07::toString() const
 {
-	return "RESRVD_OP_Z3_07 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "RESRVD_OP_Z3_07 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OReservedZ3_08::toString() const
 {
-	return "RESRVD_OP_Z3_08 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "RESRVD_OP_Z3_08 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OReservedZ3_09::toString() const
 {
-	return "RESRVD_OP_Z3_09 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "RESRVD_OP_Z3_09 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OReservedZ3_10::toString() const
 {
-	return "RESRVD_OP_Z3_10 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "RESRVD_OP_Z3_10 " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 
@@ -4514,28 +4489,28 @@ string OReturnFunc::toString() const
 
 string OSetCompare::toString() const
 {
-	return "SETCMP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "SETCMP " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OGotoCompare::toString() const
 {
-	return "GOTOCMP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "GOTOCMP " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 
 string OStackWriteAtRV::toString() const
 {
-	return "STACKWRITEATRV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "STACKWRITEATRV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 string OStackWriteAtVV::toString() const
 {
-	return "STACKWRITEATVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "STACKWRITEATVV " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 
 string OStackWriteAtVV_If::toString() const
 {
-	return "STACKWRITEATVV_IF " + getFirstArgument()->toString() + "," + getSecondArgument()->toString() + "," + getThirdArgument()->toString();
+	return "STACKWRITEATVV_IF " + getFirstArgument()->toString() + " " + getSecondArgument()->toString() + " " + getThirdArgument()->toString();
 }
 
 string OLoadWebSocket::toString() const
@@ -4545,7 +4520,7 @@ string OLoadWebSocket::toString() const
 
 string OWebSocketSend::toString() const
 {
-	return "WEBSOCKET_SEND " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "WEBSOCKET_SEND " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 };
 
 string OWebSocketFree::toString() const
@@ -4600,11 +4575,11 @@ string ORefCount::toString() const
 
 string OMarkTypeStack::toString() const
 {
-	return "MARK_TYPE_STACK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "MARK_TYPE_STACK " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 
 string OMarkTypeRegister::toString() const
 {
-	return "MARK_TYPE_REG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "MARK_TYPE_REG " + getFirstArgument()->toString() + " " + getSecondArgument()->toString();
 }
 

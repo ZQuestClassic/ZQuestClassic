@@ -1,0 +1,50 @@
+// @zasm_ref REFSPRITEDATA
+class spritedata {
+	// @delete
+	internal spritedata();
+
+	// The sprite ID this spritedata is associated with.
+	//
+	// @zasm_var SPRITEDATAID
+	internal const int ID;
+
+	// The tile of the sprite.
+	//
+	// @zasm_var SPRITEDATATILE
+	internal int Tile;
+
+	// The cset of the sprite.
+	//
+	// @zasm_var SPRITEDATACSETS
+	internal int CSet;
+
+	// The flash cset of the sprite.
+	//
+	// @zasm_var SPRITEDATAFLCSET
+	internal int FlashCSet;
+
+	// The frame count of the sprite.
+	//
+	// @zasm_var SPRITEDATAFRAMES
+	internal int Frames;
+
+	// The speed of the sprite, in frames per frame
+	//
+	// @zasm_var SPRITEDATASPEED
+	internal int Speed;
+
+	// The 'Type' field of the sprite.
+	//
+	// @zasm_var SPRITEDATATYPE
+	internal int Type;
+
+	// The sprite's flags. Use the `SPRFL_` constants as indexes.
+	//
+	// @zasm_var SPRITEDATAFLAGS
+	internal bool Flags[];
+
+	// @zasm_var SPRITEDATAMISC
+	internal int Misc;
+}
+
+internal const spritedata SpriteData;

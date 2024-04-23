@@ -4,6 +4,9 @@
  * Author: Emily
  */
 
+#include "parser/LibrarySymbols.h"
+#include "parser/Types.h"
+#include "parser/ZScript.h"
 #include "parserDefs.h"
 #include "RegistrationVisitor.h"
 #include <cassert>
@@ -11,11 +14,15 @@
 #include "Scope.h"
 #include "CompileError.h"
 
+#include "zasm/table.h"
 #include "zc/ffscript.h"
 extern FFScript FFCore;
 using std::ostringstream;
 using namespace ZScript;
 using std::unique_ptr;
+
+int32_t StringToVar(std::string var);
+
 ////////////////////////////////////////////////////////////////
 // RegistrationVisitor
 
@@ -238,8 +245,15 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		}
 	}
 
+	auto parsed_comment = host.getParsedDocComment();
+	if (parsed_comment.contains("zasm_ref"))
+	{
+		host.user_class->internalRefVar = parsed_comment["zasm_ref"];
+	}
+
 	// Recurse on user_class elements with its scope.
 	scope = &user_class.getScope();
+
 	block_regvisit_vec(host.options, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit_vec(host.use, param);
@@ -270,13 +284,148 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 	{
 		return;
 	}
-	
+
+	auto scope = &user_class.getScope();
+
+	// 5 is NUL
+	int refvar = user_class.internalRefVar.empty() ? 5 : StringToVar(user_class.internalRefVar);
+
+	for (auto var : host.variables)
+	{
+		if (!var->internal)
+			continue;
+
+		for (auto decl : var->getDeclarations())
+		{
+			auto parsed_comment = var->getParsedDocComment();
+
+			if (parsed_comment.contains("zasm_var") && parsed_comment.contains("zasm_internal_array"))
+			{
+				handleError(CompileError::BadInternal(decl, "Only one of @zasm_var or @zasm_internal_array is allowed"));
+				continue;
+			}
+
+			if (!parsed_comment.contains("zasm_var") && !parsed_comment.contains("zasm_internal_array"))
+			{
+				handleError(CompileError::BadInternal(decl, "Expected one of @zasm_var or @zasm_internal_array"));
+				continue;
+			}
+
+			int fn_value;
+			if (parsed_comment.contains("zasm_var"))
+			{
+				if (auto sv = get_script_variable(parsed_comment["zasm_var"]))
+				{
+					fn_value = *sv;
+				}
+				else
+				{
+					handleError(CompileError::BadInternal(decl, fmt::format("Invalid ZASM register: {}", parsed_comment["zasm_var"])));
+					continue;
+				}
+			}
+			else
+			{
+				try {
+					fn_value = std::stoi(parsed_comment["zasm_internal_array"]);
+				} catch (std::exception ex) {
+					handleError(CompileError::BadInternal(decl, fmt::format("Invalid internal array: {} (must be an integer)", parsed_comment["zasm_internal_array"])));
+					continue;
+				}
+
+				fn_value = (INTARR_OFFS + fn_value) * 10000;
+			}
+
+			bool is_internal_arr = parsed_comment.contains("zasm_internal_array");
+			bool is_arr = decl->manager->type.isArray();
+			auto var_type = decl->manager->type.baseType(*scope, nullptr);
+			bool deprecated = parsed_comment.contains("deprecated");
+
+			// Add a getter.
+			{
+				std::vector<const DataType*> params = {user_class.getType()};
+				if (is_arr && !is_internal_arr)
+					params.push_back(&DataType::FLOAT);
+
+				Function* fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
+				if (deprecated)
+				{
+					fn->setFlag(FUNCFLAG_DEPRECATED);
+					fn->setInfo(parsed_comment["deprecated"]);
+				}
+				if (is_internal_arr)
+					fn->setFlag(FUNCFLAG_INTARRAY);
+
+				if (is_internal_arr)
+					getConstant(refvar, fn, fn_value);
+				else if (is_arr)
+					getIndexedVariable(refvar, fn, fn_value);
+				else
+					getVariable(refvar, fn, fn_value);
+			}
+
+			if (is_internal_arr)
+				continue;
+
+			// Add a setter.
+			{
+				std::vector<const DataType*> params = {user_class.getType()};
+				if (is_arr)
+					params.push_back(&DataType::FLOAT);
+				params.push_back(var_type);
+
+				Function* fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+				if (deprecated)
+				{
+					fn->setFlag(FUNCFLAG_DEPRECATED);
+					fn->setInfo(parsed_comment["deprecated"]);
+				}
+				if (var->readonly)
+					fn->setFlag(FUNCFLAG_READ_ONLY);
+
+				if (is_arr)
+					setIndexedVariable(refvar, fn, fn_value);
+				else if (params.size() > 1 && params[1] == &DataType::BOOL)
+					setBoolVariable(refvar, fn, fn_value);
+				else
+					setVariable(refvar, fn, fn_value);
+			}
+		}
+	}
+
+	for (auto fn_decl : host.functions)
+	{
+		if (!fn_decl->getFlag(FUNCFLAG_INTERNAL))
+			continue;
+
+		scope->initFunctionBinding(fn_decl->func, this);
+		if (user_class.internalRefVar.empty())
+			fn_decl->func->setIntFlag(IFUNCFLAG_SKIPPOINTER);
+	}
+
+	for (auto fn_decl : host.constructors)
+	{
+		if (!fn_decl->getFlag(FUNCFLAG_INTERNAL))
+			continue;
+
+		scope->initFunctionBinding(fn_decl->func, this);
+
+		if (fn_decl->func->getFlag(FUNCFLAG_NIL))
+		{
+			scope->removeFunction(fn_decl->func);
+			delete fn_decl->func;
+			fn_decl->func = nullptr;
+		}
+	}
+
 	doRegister(host);
 }
 
 void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 {
-	Namespace& namesp = host.namesp ? *host.namesp : (*(host.namesp = program.addNamespace(host, *scope, this)));
+	Namespace* namesp_ = host.namesp ? host.namesp : ((host.namesp = program.addNamespace(host, *scope, this)));
+	if (!namesp_) return;
+	Namespace& namesp = *namesp_;
 	if (breakRecursion(host)) return;
 
 	// Recurse on script elements with its scope.
@@ -590,9 +739,9 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 
 	// Is it a constant?
 	bool isConstant = false;
-	if (type->isConstant())
+	if (type->isConstant() && !host.list->internal)
 	{
-		// A constant without an initializer doesn't make sense.
+		// A constant without an initializer doesn't make sense (unless it is internal).
 		if (!host.getInitializer())
 		{
 			handleError(CompileError::ConstUninitialized(&host));
@@ -639,6 +788,13 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 			if (scope->getLocalDatum(host.getName()))
 			{
 				handleError(CompileError::VarRedef(&host, host.getName()));
+				return;
+			}
+
+			if (host.list->internal)
+			{
+				// Every variable in bindings files should be read-only, so this is fine.
+				Constant::create(*scope, host, *type, 0, this);
 				return;
 			}
 
@@ -718,6 +874,14 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		scope = oldScope;
 		return;
 	}
+
+	if (host.getFlag(FUNCFLAG_CONSTEXPR) && !host.getFlag(FUNCFLAG_INTERNAL))
+	{
+		host.invalidMsg += " `constexpr` is currently only allowed for internal function bindings.";
+		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
+		return;
+	}
+
 	/* This option is being disabled for now, as inlining of user functions is being disabled -V
 	if(*lookupOption(*scope, CompileOption::OPT_FORCE_INLINE)
 		&& !host.isRun())
@@ -970,7 +1134,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	{
 		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes);
 	}
-	else functions = lookupFunctions(*arrow->leftClass, arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
+	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;

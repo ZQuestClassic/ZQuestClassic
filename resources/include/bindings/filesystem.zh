@@ -1,0 +1,35 @@
+class FileSystem {
+	// @delete
+	internal FileSystem();
+
+	// Returns true if the file/dir specified by the given path exists.
+	//
+	// @zasm
+	//   POP D2
+	//   DIREXISTS D2
+	internal bool DirExists(char32 dirpath);
+
+	// Returns true if the file/dir specified by the given path exists.
+	//
+	// @zasm
+	//   POP D2
+	//   FILEEXISTS D2
+	internal bool FileExists(char32 filepath);
+
+	// Deletes the file pointed to by 'filepath'. Path is relative to the
+	// quest's specific directory.
+	//
+	// @zasm
+	//   POP D2
+	//   FILESYSREMOVE D2
+	internal bool Remove(char32 filepath);
+
+	// Opens the directory pointed to by 'dirpath'
+	//
+	// @zasm
+	//   POP D2
+	//   LOADDIRECTORYR D2
+	internal directory LoadDirectory(char32 dirpath);
+}
+
+internal const FileSystem FileSystem;

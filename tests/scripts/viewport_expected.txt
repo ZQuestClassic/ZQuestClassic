@@ -11,85 +11,85 @@ Compile finished with exit code '0' (success)
 === METADATA (elided)
 {
   "currentFileSymbols": 5,
-  "symbols": 3,
-  "identifiers": 13
+  "symbols": 16,
+  "identifiers": 31
 }
-PUSHARGSV 0,0.0004; void run() Body Start
-SETR D4,SP2
-STOREV 20,0.0002
-STOREV 0,0.0001
-STOREV 5,0
-SETV D2,2; while(true) #2 Body [Opt:AlwaysOn] Start
+PUSHARGSV 0 0.0004; void run() Body Start
+SETR D4 SP2
+STOREV 20 0.0002
+STOREV 0 0.0001
+STOREV 5 0
+SETV D2 2; while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D2
-SETR VIEWPORT_MODE,D2
-SETR D2,LINKX
+SETR VIEWPORT_MODE D2
+SETR D2 LINKX
 PUSHR D2
-SETR D2,VIEWPORT_WIDTH
-DIVV D2,2
+SETR D2 VIEWPORT_WIDTH
+DIVV D2 2
 POP D3
-SUBR D3,D2
-SETR D2,D3
+SUBR D3 D2
+SETR D2 D3
 PUSHR D2
-LOAD D2,0.0002
+LOAD D2 0.0002
 PUSHR D2
-LOAD D2,0.0001; InlineFunc[int Cos(int)] Params Start
-SETR D3,D2; InlineFunc[int Cos(int)] Params End
-COSR D2,D3; InlineFunc[int Cos(int)] Body
+LOAD D2 0.0001; InlineFunc[int Cos(int)] Params Start
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
-MULTR D2,D3
+MULTR D2 D3
 POP D3
-ADDR D2,D3
+ADDR D2 D3
 PUSHR D2
 POP D2
-SETR VIEWPORT_X,D2
-SETR D2,LINKY
+SETR VIEWPORT_X D2
+SETR D2 LINKY
 PUSHR D2
-SETR D2,VIEWPORT_HEIGHT
-DIVV D2,2
+SETR D2 VIEWPORT_HEIGHT
+DIVV D2 2
 POP D3
-SUBR D3,D2
-SETR D2,D3
+SUBR D3 D2
+SETR D2 D3
 PUSHR D2
-LOAD D2,0.0002
+LOAD D2 0.0002
 PUSHR D2
-LOAD D2,0.0001; InlineFunc[int Sin(int)] Params Start
-SETR D3,D2; InlineFunc[int Sin(int)] Params End
-SINR D2,D3; InlineFunc[int Sin(int)] Body
+LOAD D2 0.0001; InlineFunc[int Sin(int)] Params Start
+SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SINR D2 D3; InlineFunc[int Sin(int)] Body
 POP D3
-MULTR D2,D3
+MULTR D2 D3
 POP D3
-ADDR D2,D3
+ADDR D2 D3
 PUSHR D2
 POP D2
-SETR VIEWPORT_Y,D2
-LOAD D2,0.0001
+SETR VIEWPORT_Y D2
+LOAD D2 0.0001
 PUSHR D2
-LOAD D2,0
+LOAD D2 0
 POP D3
-ADDR D2,D3
-STORE D2,0.0001
-LOAD D2,0.0001; if() #163 Test
-COMPAREV D2,-360
-SETCMP D2,I<
-COMPAREV D2,0
-GOTOCMP 65,==; Test 'if'
-LOAD D2,0.0001; if() #163 Body Start
-ADDV D2,360
-STORE D2,0.0001
+ADDR D2 D3
+STORE D2 0.0001
+LOAD D2 0.0001; if() #163 Test
+COMPAREV D2 -360
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 65 ==; Test 'if'
+LOAD D2 0.0001; if() #163 Body Start
+ADDV D2 360
+STORE D2 0.0001
 GOTO 73; if() #163 Body End
-LOAD D2,0.0001; if() #448 Test AND if() #163 Else Start
-COMPAREV D2,360
-SETCMP D2,I>
-COMPAREV D2,0
-GOTOCMP 73,==; Test 'if'
-LOAD D2,0.0001; if() #448 Body Start
-SUBV D2,360
-STORE D2,0.0001; if() #448 Body End
+LOAD D2 0.0001; if() #448 Test AND if() #163 Else Start
+COMPAREV D2 360
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 73 ==; Test 'if'
+LOAD D2 0.0001; if() #448 Body Start
+SUBV D2 360
+STORE D2 0.0001; if() #448 Body End
 WAITFRAME; if() #163 Else End AND InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 6; while() #2 End AND [Opt:NeverRet] AND void run() Body End
 
 
-ALLOCATEGMEMV D2,4096,0; void run() Body Start
-SETR GD1,D2
+ALLOCATEGMEMV D2 4096 0; void run() Body Start
+SETR GD1 D2
 QUIT; void run() Body End

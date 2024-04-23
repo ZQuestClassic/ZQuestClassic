@@ -95,7 +95,6 @@ import		{
 true		TOKEN( ZTRUE );
 false		TOKEN( ZFALSE );
 while		TOKEN( WHILE );
-global		TOKEN( GLOBAL );
 break		TOKEN( BREAK );
 continue	TOKEN( CONTINUE );
 const		TOKEN( ZCONST );
@@ -115,6 +114,7 @@ until			TOKEN( UNTIL );
 unless			TOKEN( UNLESS );
 repeat			TOKEN( REPEAT );
 inline			TOKEN( INLINE );
+internal		TOKEN( INTERNAL );
 static			TOKEN( STATIC );
 constexpr			TOKEN( CONSTEXPR );
 new			TOKEN( NEW );
@@ -123,6 +123,8 @@ CONST_ASSERT	TOKEN( CASSERT );
 
  /* Types */
 auto		TOKEN( ZAUTO );
+T		TOKEN( TEMPLATE_T );
+T_ARR		TOKEN( TEMPLATE_T_ARR );
 void		TOKEN( ZVOID );
 untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );
@@ -131,51 +133,6 @@ int		TOKEN( ZFLOAT );
 char32		TOKEN( ZCHAR );
 long		TOKEN( ZLONG );
 rgb			TOKEN( ZRGB );
-bitmap		TOKEN( BITMAP );
-cheatdata		TOKEN( CHEAT );
-combodata	TOKEN( COMBO );
-doorsetdat		TOKEN( DOORSET );
-dropsetdata		TOKEN( DROPSET );
-dmapdata	TOKEN( DMAP );
-eweapon		TOKEN( EWEAPON );
-ffc		TOKEN( FFC );
-gamedata	TOKEN( GAMEDATA );
-itemdata	TOKEN( ITEMCLASS );
-lweapon		TOKEN( LWEAPON );
-mapdata		TOKEN( MAP );
-messagedata	TOKEN( MESSAGE );
-misccolordata	TOKEN( MISCCOLOR );
-misccolourdata	TOKEN( MISCCOLOR );
-npc		TOKEN( NPC );
-npcdata		TOKEN( NPCDATA );
-palcycledata	TOKEN( PALCYCLE );
-ponddata	TOKEN( POND );
-shopdata	TOKEN( SHOP );
-spritedata	TOKEN( SPRITE );
-musicdata		TOKEN( TUNE );
-warpringdata	TOKEN( WARPRING );
-screendata	TOKEN( SCREEN );
-player	TOKEN( LINK );
-link	TOKEN( LINK );
-hero	TOKEN( LINK );
-itemsprite	TOKEN( ITEMSPRITE );
-file	TOKEN( FILE );
-directory	TOKEN( DIRECTORY );
-stack	TOKEN( STACK );
-randgen	TOKEN( RANDGEN );
-paldata TOKEN( PALDATA );
-bottledata	TOKEN( BOTTLEDATA );
-bottleshopdata	TOKEN( BOTTLESHOPDATA );
-subscreendata	TOKEN( SUBSCREENDATA );
-subscreenpage	TOKEN( SUBSCREENPAGE );
-subscreenwidget	TOKEN( SUBSCREENWIDGET );
-websocket	TOKEN( WEBSOCKET );
-generic	TOKEN( GENERIC );
-genericdata	TOKEN( GENERICDATA );
-portal TOKEN( PORTAL );
-savedportal TOKEN( SAVEDPORTAL );
-particlesprite	TOKEN( PARTICLE );
-decorationsprite	TOKEN( DECORATION );
 "try"	{
 		zconsole_error("%s","The 'try' keyword is reserved and may not be used as an identifier.");
 		return 0;
@@ -289,8 +246,6 @@ appx_equal	TOKEN( APPXEQUAL );
  /* these would need to see if they are LH values. */
  /* https://stackoverflow.com/questions/23529298/how-to-make-bison-to-use-a-rule-if-two-rules-matches */
  /* "**" pointer/poiters */
- 
- zstruct		TOKEN( SCRIPTSTRUCT );
 
  /* Line Comments */
 "//".*		/* hit end of file */

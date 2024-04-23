@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <regex>
+#include <sstream>
 
 using namespace ZScript;
 using json = nlohmann::ordered_json;
@@ -49,6 +50,24 @@ enum class SymbolKind
 	TypeParameter,
 };
 
+static std::string make_uri(std::string path)
+{
+	if (path == "ZQ_BUFFER" || path == metadata_tmp_path)
+		path = metadata_orig_path;
+
+	// For consistent test results no matter the machine.
+	if (std::getenv("TEST_ZSCRIPT") != nullptr)
+		return !path.empty() ? fs::path(path).filename().string() : "";
+
+#ifdef _WIN32
+		std::string uri = "file:///" + path;
+		util::replstr(uri, "\\", "/");
+#else
+		std::string uri = "file://" + path;
+#endif
+	return uri;
+}
+
 static auto LocationData_json(const LocationData& loc)
 {
 	return json{
@@ -69,15 +88,33 @@ static auto LocationData_pos_json(const LocationData& loc)
 	};
 }
 
-static ASTExprIdentifier parseExprIdentifier(std::string str)
+static ASTExprIdentifier parseExprIdentifier(const std::string& str)
 {
-	ASTExprIdentifier ident;
-	std::vector<std::string> components = util::split(str, "::");
-	for (auto& str : components)
+	ASTExprIdentifier ident{};
+	int i = 0;
+	int j = 0;
+	while (j < str.size())
 	{
-		ident.components.push_back(std::move(str));
-		ident.delimiters.push_back("::");
+		if (j + 1 < str.size())
+		{
+			bool matches = false;
+			matches |= str[j] == ':' && str[j + 1] == ':';
+			matches |= str[j] == '-' && str[j + 1] == '>';
+			if (matches)
+			{
+				ident.components.push_back(str.substr(i, j));
+				ident.delimiters.push_back(str.substr(j, 2));
+				j += 2;
+				i = j;
+				continue;
+			}
+		}
+
+		j++;
+		if (j == str.size())
+			ident.components.push_back(str.substr(i));
 	}
+
 	return ident;
 }
 
@@ -111,11 +148,16 @@ static void parseCommentForLinks(std::string& comment, const AST* node)
 	if (!scope)
 		return;
 
+	// identifier, followed by an optional and non-captured "[]" or "()"
+	static std::string p_ident = "([a-zA-Z_][->:a-zA-Z0-9_]*)(?:\\[\\]|\\(\\))?";
+	static std::string p_link = fmt::format("\\{{@link {}[|]?([^}}]+)?\\}}", p_ident);
+	static std::string p_shorthand = fmt::format("\\[{}\\]", p_ident);
+	static std::string p_regex = fmt::format("{}|{}", p_link, p_shorthand);
 	// Supports:
 	// @link {symbol}
 	// @link {symbol|text}
 	// [symbol]
-	const std::regex r("\\{\\@link ([a-zA-Z_][->a-zA-Z0-9_:]*)[|]?([^}]+)?\\}|\\[([a-zA-Z_][->a-zA-Z0-9_:]*)\\]");
+	static const std::regex r(p_regex);
 	std::sregex_iterator it(comment.begin(), comment.end(), r);
 	std::sregex_iterator end;
 
@@ -144,6 +186,8 @@ static void parseCommentForLinks(std::string& comment, const AST* node)
 		if (link_text.empty())
 			link_text = symbol_name;
 
+		bool is_array = false;
+		bool is_fn = false;
 		const AST* symbol_node = nullptr;
 		auto fn = lookupGetter(*scope, symbol_name);
 		if (!fn)
@@ -157,18 +201,42 @@ static void parseCommentForLinks(std::string& comment, const AST* node)
 				fn = fns[0];
 		}
 		if (fn && fn->node)
+		{
 			symbol_node = fn->node;
+			is_fn = true;
+		}
+		// Parameter?
+		if (!symbol_node)
+		{
+			if (auto fn_node = dynamic_cast<const ASTFuncDecl*>(node))
+			{
+				for (auto param_node : fn_node->parameters.data())
+				{
+					if (param_node->getName() == symbol_name)
+					{
+						symbol_node = param_node;
+						break;
+					}
+				}
+			}
+		}
 		if (!symbol_node)
 		{
 			auto ident = parseExprIdentifier(symbol_name);
 			if (auto datum = lookupDatum(*scope, ident, nullptr))
+			{
 				symbol_node = datum->getNode();
+				is_array = datum->type.isArray();
+			}
 		}
 		if (!symbol_node)
 		{
 			auto ident = parseExprIdentifier(symbol_name);
 			if (auto datum = lookupClassVars(*scope, ident, nullptr))
+			{
 				symbol_node = datum->getNode();
+				is_array = datum->type.isArray();
+			}
 		}
 		if (!symbol_node)
 		{
@@ -187,12 +255,15 @@ static void parseCommentForLinks(std::string& comment, const AST* node)
 			continue;
 		}
 
+		if (is_array)
+			link_text += "[]";
+		else if (is_fn)
+			link_text += "()";
+
 		auto location = symbol_node->getIdentifierLocation();
 		std::string path = location ? location->fname : symbol_node->location.fname;
-		if (path == "ZQ_BUFFER" || path == metadata_tmp_path)
-			path = metadata_orig_path;
 		auto args = json{
-			{"file", path},
+			{"file", make_uri(path)},
 			{"position", LocationData_json(*location)},
 		};
 		std::string command = fmt::format("zscript.openLink?{}", url_encode(args.dump()));
@@ -231,14 +302,35 @@ static void appendDocSymbol(SymbolKind kind, const T& node)
 	active = &(*active).back()["children"];
 }
 
-static std::string cleanComment(std::string comment)
+static std::string getComment(const AST* node)
 {
-	if (comment.empty())
-		return comment;
+	if (node->doc_comment.empty())
+		return "";
 
-	std::string copy = comment;
-	util::trimstr(copy);
-	return copy;
+	auto parsed_comment = node->getParsedDocComment();
+	std::ostringstream s;
+	s << parsed_comment[""];
+	for (const auto& [k, v] : parsed_comment)
+	{
+		if (k == "")
+			continue;
+		if (k == "zasm")
+			continue;
+		if (k == "vargs")
+			continue;
+		if (k == "zasm_var")
+			continue;
+		if (k == "internal_array")
+			continue;
+
+		s << "\n\n**@" << k << "**";
+		if (!v.empty())
+			s <<  " " << v;
+	}
+
+	std::string comment = s.str();
+	util::trimstr(comment);
+	return comment;
 }
 
 static void appendIdentifier(std::string symbol_id, const AST* symbol_node, const LocationData& loc)
@@ -246,23 +338,21 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 	if (!symbol_node)
 		return;
 
+	// TODO: the doc_comment isn't always in a consistent place. For example see `utils::hmm // ...` in `metadata.zh` 
+	if (auto n = dynamic_cast<const ASTDataDecl*>(symbol_node); n && n->list && symbol_node->doc_comment.empty())
+		symbol_node = n->list;
+
 	if (!root["symbols"].contains(symbol_id))
 	{
-#ifdef _WIN32
-		std::string uri = "file:///" + symbol_node->location.fname;
-		util::replstr(uri, "\\", "/");
-#else
-		std::string uri = "file://" + symbol_node->location.fname;
-#endif
 		root["symbols"][symbol_id] = {
 			// TODO LocationData_location_json
 			{"loc", {
 				{"range", LocationData_json(symbol_node->location)},
-				{"uri", uri},
+				{"uri", make_uri(symbol_node->location.fname)},
 			}},
 		};
 
-		auto comment = cleanComment(symbol_node->doc_comment);
+		auto comment = getComment(symbol_node);
 		if (!comment.empty())
 		{
 			parseCommentForLinks(comment, symbol_node);
@@ -350,7 +440,7 @@ void MetadataVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 void MetadataVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	// TODO: create identifiers for namespace components
-	if (host.binding && !host.isConstant() && !host.binding->isBuiltIn())
+	if (host.binding)
 		appendIdentifier(std::to_string(host.binding->id), host.binding->getNode(), host.componentNodes.back()->location);
 
 	RecursiveVisitor::caseExprIdentifier(host, param);
@@ -360,8 +450,8 @@ void MetadataVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {
 	if (host.u_datum && host.u_datum->getClass())
 	{
-		auto id = fmt::format("{},{}", host.u_datum->getClass()->getType()->getUniqueCustomId(), host.u_datum->getIndex());
-		appendIdentifier(id, host.u_datum->getNode(), host.right->location);
+		auto id = fmt::format("{}::{}", host.u_datum->getClass()->getName(), host.u_datum->getName().value());
+		appendIdentifier(id, host.u_datum->getNode()->list, host.right->location);
 	}
 	RecursiveVisitor::caseExprArrow(host, param);
 }
@@ -370,7 +460,12 @@ void MetadataVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
 	// TODO: create identifiers for namespace components
 	if (auto expr_ident = dynamic_cast<ASTExprIdentifier*>(host.left.get()))
-		appendIdentifier(std::to_string(host.binding->id), host.binding->getNode(), expr_ident->componentNodes.back()->location);
+	{
+		AST* symbol_node = host.binding->aliased_func ? host.binding->aliased_func->getNode() : host.binding->getNode();
+		appendIdentifier(std::to_string(host.binding->id), symbol_node, expr_ident->componentNodes.back()->location);
+	}
+	else if (auto expr_ident = dynamic_cast<ASTExprArrow*>(host.left.get()))
+		appendIdentifier(std::to_string(host.binding->id), host.binding->getNode(), expr_ident->right->location);
 	RecursiveVisitor::caseExprCall(host, param);
 }
 

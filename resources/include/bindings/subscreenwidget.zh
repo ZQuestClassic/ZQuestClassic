@@ -1,0 +1,804 @@
+// @zasm_ref REFSUBSCREENWIDG
+class subscreenwidget {
+	// @delete
+	internal subscreenwidget();
+
+	// The widget's type, using 'SUBWIDG_' constants.
+	//
+	// @zasm_var SUBWIDGTYPE
+	internal const int Type;
+
+	// The index of this widget within the page.
+	//
+	// @zasm_var SUBWIDGINDEX
+	internal const int Index;
+
+	// The page this widget is within.
+	//
+	// @zasm_var SUBWIDGPAGE
+	internal const subscreenpage Page;
+
+	// The display/equip item ID for the widget.
+	//
+	// Reads as -1 if no item exists, the widget is of a type that has no item,
+	// etc
+	//
+	// @zasm_var SUBWIDGDISPITM
+	internal const int DisplayItem;
+
+	// The display/equip item ID for the widget.
+	//
+	// Reads as -1 if no item exists, the widget is of a type that has no item,
+	// etc
+	//
+	// @zasm_var SUBWIDGEQPITM
+	internal const int EquipItem;
+
+	// The selector position of this flag.
+	//
+	// Only used if the widget is selectable (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGPOS
+	internal int Pos;
+
+	// The 4 directional positions for the selector.
+	//
+	// Use the 'DIR_' constants to index.
+	//
+	// Only used if the widget is selectable (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGPOSES
+	internal int PosDirs[];
+
+	// Flags related to the visibility of the widget.
+	//
+	// Use the 'SUBVISIB_' constants to access.
+	//
+	// @zasm_var SUBWIDGPOSFLAG
+	internal bool VisibleFlags[];
+
+	// The X position of the widget within the subscreen.
+	//
+	// Some types ignore these values.
+	//
+	// @zasm_var SUBWIDGX
+	internal int X;
+
+	// The Y position of the widget within the subscreen.
+	//
+	// Some types ignore these values.
+	//
+	// @zasm_var SUBWIDGY
+	internal int Y;
+
+	// The width/height of the widget within the subscreen.
+	//
+	// This is USUALLY in pixels, but some types use different values! ex. for
+	// 2x2 frame, this is in minitiles, so 8 times less than pixels.
+	//
+	// Some types ignore these values altogether.
+	//
+	// @zasm_var SUBWIDGW
+	internal int W;
+
+	// The width/height of the widget within the subscreen.
+	//
+	// This is USUALLY in pixels, but some types use different values! ex. for
+	// 2x2 frame, this is in minitiles, so 8 times less than pixels.
+	//
+	// Some types ignore these values altogether.
+	//
+	// @zasm_var SUBWIDGH
+	internal int H;
+
+	// Gets the 'display' x/y/width/height, in pixels.
+	//
+	// The rectangle represented by this is the same as the bounding box shown
+	// in the subscreen editor in ZQ.
+	//
+	// @zasm_var SUBWIDG_DISPX
+	internal const int DispX;
+
+	// Gets the 'display' x/y/width/height, in pixels.
+	//
+	// The rectangle represented by this is the same as the bounding box shown
+	// in the subscreen editor in ZQ.
+	//
+	// @zasm_var SUBWIDG_DISPY
+	internal const int DispY;
+
+	// Gets the 'display' x/y/width/height, in pixels.
+	//
+	// The rectangle represented by this is the same as the bounding box shown
+	// in the subscreen editor in ZQ.
+	//
+	// @zasm_var SUBWIDG_DISPW
+	internal const int DispW;
+
+	// Gets the 'display' x/y/width/height, in pixels.
+	//
+	// The rectangle represented by this is the same as the bounding box shown
+	// in the subscreen editor in ZQ.
+	//
+	// @zasm_var SUBWIDG_DISPH
+	internal const int DispH;
+
+	// The general flags for subscreen widgets.
+	// These are usually applicable regardless of widget type.
+	// Use the 'SUBW_GENFL_' constants to access.
+	//
+	// @zasm_var SUBWIDGGENFLAG
+	internal bool GenFlags[];
+
+	// The type-specific flags for subscreen widgets.
+	//
+	// There is a different set of constants for this for each widget type.
+	//
+	// @zasm_var SUBWIDGFLAG
+	internal bool Flags[];
+
+	// The X/Y/W/H offsets for the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// These values will REPLACE the x/y/w/h that the selector would normally
+	// draw to.
+	//
+	// @zasm_var SUBWIDGSELECTORDSTX
+	internal int SelectorDestX;
+
+	// The X/Y/W/H offsets for the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// These values will REPLACE the x/y/w/h that the selector would normally
+	// draw to.
+	//
+	// @zasm_var SUBWIDGSELECTORDSTY
+	internal int SelectorDestY;
+
+	// The X/Y/W/H offsets for the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// These values will REPLACE the x/y/w/h that the selector would normally
+	// draw to.
+	//
+	// @zasm_var SUBWIDGSELECTORDSTW
+	internal int SelectorDestW;
+
+	// The X/Y/W/H offsets for the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// These values will REPLACE the x/y/w/h that the selector would normally
+	// draw to.
+	//
+	// @zasm_var SUBWIDGSELECTORDSTH
+	internal int SelectorDestH;
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGSELECTORWID
+	internal int SelectorWid[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGSELECTORHEI
+	internal int SelectorHei[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGSELECTORTILE
+	internal int SelectorTile[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGSELECTORCSET
+	internal int SelectorCSet[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGSELECTORFLASHCSET
+	internal int SelectorFlashCSet[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGSELECTORFRM
+	internal int SelectorFrames[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGSELECTORASPD
+	internal int SelectorASpeed[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this widget, if the selector is
+	// overridden (see [GenFlags[]]).
+	//
+	// @zasm_var SUBWIDGSELECTORDELAY
+	internal int SelectorDelay[];
+
+	// The generic script that will run when a specified button is pressed while
+	// this widget is selected.
+	//
+	// @zasm_var SUBWIDGPRESSSCRIPT
+	internal int PressScript;
+
+	// The 8 InitD[] args for the PressScript
+	//
+	// @zasm_var SUBWIDGPRESSINITD
+	internal untyped PressInitD[];
+
+	// Use the 'INTBTN_' constants to index this array.
+	//
+	// The 'true' buttons here, when pressed while this widget is selected, run
+	// the press script.
+	//
+	// @zasm_var SUBWIDGBTNPRESS
+	internal bool BtnPressScript[];
+
+	// Use the 'INTBTN_' constants to index this array.
+	//
+	// The 'true' buttons here, when pressed while this widget is selected,
+	// change the current page based on the PageMode.
+	//
+	// @zasm_var SUBWIDGBTNPG
+	internal bool BtnPageChange[];
+
+	// The type of page change that will occur when a specified button is
+	// pressed while this widget is selected.
+	//
+	// Use the 'SUB_PGMODE_' constants for this value.
+	//
+	// @zasm_var SUBWIDGPGMODE
+	internal int PageMode;
+
+	// The page to change to when using PageMode of 'SUB_PGMODE_TARG'
+	//
+	// @zasm_var SUBWIDGPGTARG
+	internal int TargetPage;
+
+	// The transition type for the PageMode transition.
+	//
+	// Compare with the 'TRANS_TY_' constants.
+	//
+	// @zasm_var SUBWIDGTRANSPGTY
+	internal int PageTransType;
+
+	// The transition sfx for the PageMode transition.
+	//
+	// @zasm_var SUBWIDGTRANSPGSFX
+	internal int PageTransSFX;
+
+	// The flags for the PageMode transition.
+	//
+	// Use the 'TRANSFLAG_' constants to access these.
+	//
+	// @zasm_var SUBWIDGTRANSPGFLAGS
+	internal bool PageTransFlags[];
+
+	// The arguments used for the PageMode transition.
+	//
+	// Use the 'TRANS_*_ARG_' constants to access these
+	//
+	// @zasm_var SUBWIDGTRANSPGARGS
+	internal int PageTransArgs[];
+
+	// The widget's cset(s).
+	//
+	// For SUBWIDG_FRAME,SUBWIDG_MCGUFF,SUBWIDG_TILEBLOCK,SUBWIDG_MINITILE: can
+	// use the 'SUB_CS_' constants.
+	//
+	// - SUBWIDG_FRAME[1]
+	// - SUBWIDG_MCGUFF[1]
+	// - SUBWIDG_TILEBLOCK[1]
+	// - SUBWIDG_MINITILE[1]
+	// - SUBWIDG_MISCGAUGE[4]
+	// - SUBWIDG_LGAUGE[4]
+	// - SUBWIDG_MGAUGE[4]
+	//
+	// @zasm_var SUBWIDGTY_CSET
+	internal int CSet[];
+
+	// The widget's tile(s).
+	//
+	// For SUBWIDG_MINITILE, can use the 'SUB_SPTILE_' constant values.
+	//
+	// - SUBWIDG_FRAME[1]
+	// - SUBWIDG_MCGUFF[1]
+	// - SUBWIDG_TILEBLOCK[1]
+	// - SUBWIDG_MINITILE[1]
+	// - SUBWIDG_MISCGAUGE[4]
+	// - SUBWIDG_LGAUGE[4]
+	// - SUBWIDG_MGAUGE[4]
+	//
+	// @zasm_var SUBWIDGTY_TILE
+	internal int Tile[];
+
+	// The widget's Font, use the 'FONT_' constants.
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	// - SUBWIDG_TIME
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_OLDCTR
+	// - SUBWIDG_BTNCOUNTER
+	// - SUBWIDG_MMAPTITLE
+	// - SUBWIDG_SELECTEDTEXT
+	//
+	// @zasm_var SUBWIDGTY_FONT
+	internal int Font;
+
+	// The widget's Alignment, use the 'TF_' constants.
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	// - SUBWIDG_TIME
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_BTNCOUNTER
+	// - SUBWIDG_MMAPTITLE
+	// - SUBWIDG_SELECTEDTEXT
+	//
+	// @zasm_var SUBWIDGTY_ALIGN
+	internal int Align;
+
+	// The widget's Shadow Type, use the 'SHD_' constants.
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	// - SUBWIDG_TIME
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_OLDCTR
+	// - SUBWIDG_BTNCOUNTER
+	// - SUBWIDG_MMAPTITLE
+	// - SUBWIDG_SELECTEDTEXT
+	//
+	// @zasm_var SUBWIDGTY_SHADOWTY
+	internal int ShadowType;
+
+	// The widget's color index used for Text
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	// - SUBWIDG_TIME
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_OLDCTR
+	// - SUBWIDG_BTNCOUNTER
+	// - SUBWIDG_MMAPTITLE
+	// - SUBWIDG_SELECTEDTEXT
+	// - SUBWIDG_MCGUFF_FRAME
+	//
+	// @zasm_var SUBWIDGTY_COLOR_TXT
+	internal int ColorText;
+
+	// The widget's color index used for Shadows
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	// - SUBWIDG_TIME
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_OLDCTR
+	// - SUBWIDG_BTNCOUNTER
+	// - SUBWIDG_MMAPTITLE
+	// - SUBWIDG_SELECTEDTEXT
+	//
+	// @zasm_var SUBWIDGTY_COLOR_SHD
+	internal int ColorShadow;
+
+	// The widget's color index used for background
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	// - SUBWIDG_TIME
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_OLDCTR
+	// - SUBWIDG_BTNCOUNTER
+	// - SUBWIDG_MMAPTITLE
+	// - SUBWIDG_SELECTEDTEXT
+	// - SUBWIDG_BGCOLOR
+	//
+	// @zasm_var SUBWIDGTY_COLOR_BG
+	internal int ColorBG;
+
+	// The widget's color index used for outline
+	//
+	// - SUBWIDG_LINE
+	// - SUBWIDG_RECT
+	// - SUBWIDG_MCGUFF_FRAME
+	//
+	// @zasm_var SUBWIDGTY_COLOR_OLINE
+	internal int ColorOutline;
+
+	// The widget's color index used for fill
+	//
+	// - SUBWIDG_RECT
+	//
+	// @zasm_var SUBWIDGTY_COLOR_FILL
+	internal int ColorFill;
+
+	// The item button associated with the widget.
+	//
+	// Use the 'ITMBTN_' constants for this value.
+	//
+	// - SUBWIDG_BTNITM
+	// - SUBWIDG_BTNCOUNTER
+	//
+	// @zasm_var SUBWIDGTY_BUTTON
+	internal int Button;
+
+	// The counter(s) associated with the widget.
+	//
+	// Use the 'CR_' constants for the values.
+	//
+	// - SUBWIDG_COUNTER[3]
+	// - SUBWIDG_MISCGAUGE[1]
+	//
+	// @zasm_var SUBWIDGTY_COUNTERS
+	internal int Counter[];
+
+	// The minimum digits of the widget.
+	//
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_OLDCTR
+	// - SUBWIDG_BTNCOUNTER
+	//
+	// @zasm_var SUBWIDGTY_MINDIG
+	internal int MinDigits;
+
+	// The maximum digits of the widget.
+	//
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_BTNCOUNTER
+	//
+	// @zasm_var SUBWIDGTY_MAXDIG
+	internal int MaxDigits;
+
+	// The infinite item of the widget.
+	//
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_OLDCTR
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_INFITM
+	internal int InfiniteItem;
+
+	// The infinite character of the widget.
+	//
+	// - SUBWIDG_COUNTER
+	// - SUBWIDG_OLDCTR
+	// - SUBWIDG_BTNCOUNTER
+	//
+	// @zasm_var SUBWIDGTY_INFCHAR
+	internal char32 InfiniteChar;
+
+	// The index of cost to use for this widget
+	//
+	// - SUBWIDG_BTNCOUNTER
+	//
+	// @zasm_var SUBWIDGTY_COSTIND
+	internal int CostIndex;
+
+	// The widget's color index used to indicate the player
+	//
+	// - SUBWIDG_MMAP
+	// - SUBWIDG_LMAP
+	//
+	// @zasm_var SUBWIDGTY_COLOR_PLAYER
+	internal int ColorPlayer;
+
+	// The widget's color index used to indicate the blinking compass
+	//
+	// - SUBWIDG_MMAP
+	//
+	// @zasm_var SUBWIDGTY_COLOR_CMPBLNK
+	internal int ColorCompassBlink;
+
+	// The widget's color index used to indicate the off compass
+	//
+	// - SUBWIDG_MMAP
+	//
+	// @zasm_var SUBWIDGTY_COLOR_CMPOFF
+	internal int ColorCompassOff;
+
+	// The widget's color index used to indicate rooms
+	//
+	// - SUBWIDG_LMAP
+	//
+	// @zasm_var SUBWIDGTY_COLOR_ROOM
+	internal int ColorRoom;
+
+	// The itemclass used by the widget (0 <= ItemClass < IC_MAXUSABLE)
+	//
+	// - SUBWIDG_ITEMSLOT
+	//
+	// @zasm_var SUBWIDGTY_ITEMCLASS
+	internal int ItemClass;
+
+	// The item ID used by the widget (-1 <= ItemID < NUM_ITEMDATA)
+	//
+	// - SUBWIDG_ITEMSLOT
+	//
+	// @zasm_var SUBWIDGTY_ITEMID
+	internal int ItemID;
+
+	// The frame/piece tile/cset used by the widget.
+	//
+	// - SUBWIDG_MCGUFF_FRAME
+	//
+	// @zasm_var SUBWIDGTY_FRAMETILE
+	internal int FrameTile;
+
+	// The frame/piece tile/cset used by the widget.
+	//
+	// - SUBWIDG_MCGUFF_FRAME
+	//
+	// @zasm_var SUBWIDGTY_FRAMECSET
+	internal int FrameCSet;
+
+	// The frame/piece tile/cset used by the widget.
+	//
+	// - SUBWIDG_MCGUFF_FRAME
+	//
+	// @zasm_var SUBWIDGTY_PIECETILE
+	internal int PieceTile;
+
+	// The frame/piece tile/cset used by the widget.
+	//
+	// - SUBWIDG_MCGUFF_FRAME
+	//
+	// @zasm_var SUBWIDGTY_PIECECSET
+	internal int PieceCSet;
+
+	// The widget's flip value.
+	//
+	// - SUBWIDG_MCGUFF
+	// - SUBWIDG_TILEBLOCK
+	// - SUBWIDG_MINITILE
+	//
+	// @zasm_var SUBWIDGTY_FLIP
+	internal int Flip;
+
+	// The number associated with the widget.
+	//
+	// - SUBWIDG_MCGUFF
+	//
+	// @zasm_var SUBWIDGTY_NUMBER
+	internal int Number;
+
+	// The corner(s) associated with the widget.
+	//
+	// - SUBWIDG_MINITILE[1]
+	// - SUBWIDG_LGAUGE[4]
+	// - SUBWIDG_MGAUGE[4]
+	// - SUBWIDG_MISCGAUGE[4]
+	//
+	// @zasm_var SUBWIDGTY_CORNER
+	internal int Corner[];
+
+	// The widget's frames
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_FRAMES
+	internal int Frames;
+
+	// The widget's speed
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_SPEED
+	internal int Speed;
+
+	// The widget's delay
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_DELAY
+	internal int Delay;
+
+	// The widget's container number
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_CONTAINER
+	internal int Container;
+
+	// The widget's gauge width
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_GAUGE_WID
+	internal int GaugeWid;
+
+	// The widget's gauge height
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_GAUGE_HEI
+	internal int GaugeHei;
+
+	// The widgets unit value
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_UNITS
+	internal int Units;
+
+	// The widget's horizontal spacing
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_HSPACE
+	internal int HSpace;
+
+	// The widget's vertical spacing
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_VSPACE
+	internal int VSpace;
+
+	// The widget's grid x
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_GRIDX
+	internal int GridX;
+
+	// The widget's grid y
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_GRIDY
+	internal int GridY;
+
+	// The widget's animation value
+	//
+	// - SUBWIDG_LGAUGE
+	// - SUBWIDG_MGAUGE
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_ANIMVAL
+	internal int AnimVal;
+
+	// The magic drain rate this widget will be visible at (-1 for any)
+	//
+	// - SUBWIDG_MGAUGE
+	//
+	// @zasm_var SUBWIDGTY_SHOWDRAIN
+	internal int ShowDrain;
+
+	// The counter amount per "container" for the widget
+	//
+	// - SUBWIDG_MISCGAUGE
+	//
+	// @zasm_var SUBWIDGTY_PERCONTAINER
+	internal int PerContainer;
+
+	// The widget's tabsize value
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	//
+	// @zasm_var SUBWIDGTY_TABSIZE
+	internal int TabSize;
+
+	// Gets the selected text override for this widget.
+	//
+	// If the buffer provided is too small, it will *automatically be resized to
+	// fit*.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_GET_SELTEXT_OVERRIDE D2
+	internal void GetSelTextOverride(char32 buf);
+
+	// Sets the selected text override for this widget.
+	//
+	// A blank string represents no override.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_SET_SELTEXT_OVERRIDE D2
+	internal void SetSelTextOverride(char32 str);
+
+	// Gets the label for this widget.
+	//
+	// If the buffer provided is too small, it will *automatically be resized to
+	// fit*.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_GET_LABEL D2
+	internal void GetLabel(char32 buf);
+
+	// Sets the label for this widget.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_SET_LABEL D2
+	internal void SetLabel(char32 str);
+
+	// Gets/Sets the text for this widget.
+	//
+	// If the buffer provided for GetText() is too small, it will *automatically
+	// be resized to fit*.
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_TY_GETTEXT D2
+	internal void GetText(char32 buf);
+
+	// Gets/Sets the text for this widget.
+	//
+	// If the buffer provided for GetText() is too small, it will *automatically
+	// be resized to fit*.
+	//
+	// - SUBWIDG_TEXT
+	// - SUBWIDG_TEXTBOX
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSUBSCREENWIDG
+	//   SUBWIDG_TY_SETTEXT D2
+	internal void SetText(char32 str);
+}

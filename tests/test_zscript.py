@@ -61,7 +61,7 @@ class TestZScript(ZCTestCase):
             '-delay_cassert',
             '-metadata',
         ]
-        p = run_target.run('zscript', args)
+        p = run_target.run('zscript', args, env={**os.environ, 'TEST_ZSCRIPT': '1'})
         stdout = p.stdout.replace(str(script_path), script_path.name)
         if p.returncode:
             return stdout

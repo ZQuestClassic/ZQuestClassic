@@ -1,0 +1,84 @@
+// @zasm_ref REFSUBSCREENPAGE
+class subscreenpage {
+	// @delete
+	internal subscreenpage();
+
+	// The index of this page within the subscreen.
+	//
+	// @zasm_var SUBPGINDEX
+	internal const int Index;
+
+	// The number of widgets on the page.
+	//
+	// @zasm_var SUBPGNUMWIDG
+	internal const int NumWidgets;
+
+	// The widgets on the page, ordered by their index.
+	//
+	// @zasm_var SUBPGWIDGETS
+	internal const subscreenwidget Widgets[];
+
+	// The subscreendata that owns this page.
+	//
+	// @zasm_var SUBPGSUBDATA
+	internal const subscreendata SubData;
+
+	// The position value of the selector.
+	//
+	// @zasm_var SUBPGCURSORPOS
+	internal int CursorPos;
+
+	// Returns the first widget with a matching label, or NULL if none exists.
+	//
+	// @zasm
+	//   SUBPAGE_FIND_WIDGET_BY_LABEL
+	//   POPARGS D5 0.0002
+	internal subscreenwidget GetWidget(char32 label);
+
+	// Adds a new widget of the specified type to the end of the page.
+	//
+	// Returns that widget, or NULL if fails.
+	//
+	// @zasm
+	//   SUBPAGE_NEW_WIDG
+	//   POPARGS D5 0.0002
+	internal subscreenwidget CreateWidget(int type);
+
+	// Swaps the widgets at the two indexes.
+	//
+	// @zasm
+	//   SUBPAGE_SWAP_WIDG
+	//   POPARGS D5 0.0003
+	internal void SwapWidgets(int index1, int index2);
+
+	// Returns the widget designated by the specified cursor position, or NULL
+	// if it fails.
+	//
+	// @zasm
+	//   SUBPAGE_FIND_WIDGET
+	//   POPARGS D5 0.0002
+	internal subscreenwidget FindWidget(int cursor_pos);
+
+	// Returns the new cursor position found by moving in 'dir' from
+	// 'cursor_pos'.
+	//
+	// 'flags' determines:
+	//
+	// - SUBSEL_FLAG_NO_NONEQUIP: Skip widgets that are "Non-equippable"
+	// - SUBSEL_FLAG_NEED_ITEM: Skip widgets that currently have no equippable
+	// item
+	//
+	// @zasm
+	//   SUBPAGE_MOVE_SEL
+	//   POPARGS D5 0.0004
+	internal int SelectorMove(int cursor_pos, int dir, int flags);
+
+	// Deletes the page.
+	//
+	// If it is the last page, an empty page will be created in its' place.
+	//
+	// @zasm
+	//   POP REFSUBSCREENPAGE
+	//   SUBPAGE_DELETE
+	internal void Delete();
+}

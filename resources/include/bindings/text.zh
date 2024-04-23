@@ -1,0 +1,62 @@
+class Text {
+	// @delete
+	internal Text();
+
+	// Returns the width of the character [c] in the given [font], as
+	// [Screen->DrawString()] would draw it.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   STRINGWIDTHR D3 D2
+	internal int StringWidth(char32 s, int font);
+
+	// Returns the width of the character [c], in the given font,
+	// as [Screen->DrawString()] would draw it.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   CHARWIDTHR D3 D2
+	internal int CharWidth(char32 c, int font);
+
+	// Returns the height of [c] in [font], in pixels.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D5
+	//   FONTHEIGHTR D2
+	internal int StringHeight(char32 s, int font);
+
+	// Returns the height of [c] in [font], in pixels.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D5
+	//   FONTHEIGHTR D2
+	internal int CharHeight(char32 c, int font);
+
+	// Returns the height of [font], in pixels.
+	//
+	// @zasm
+	//   POP D2
+	//   FONTHEIGHTR D2
+	internal int FontHeight(int font);
+
+	// Returns the width of the [messagedata] 'msg', as [Screen->DrawString()]
+	// would draw it.
+	//
+	// @zasm
+	//   POP D2
+	//   MESSAGEWIDTHR D2
+	internal int MessageWidth(int msg);
+
+	// Returns the height of the font assigned to the 'msg' [messagedata].
+	//
+	// @zasm
+	//   POP D2
+	//   MESSAGEHEIGHTR D2
+	internal int MessageHeight(int msg);
+}
+
+internal const Text Text;

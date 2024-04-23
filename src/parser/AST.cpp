@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <sstream>
 
+#include "parser/ParserHelper.h"
 #include "zc/ffscript.h"
 extern FFScript FFCore;
 
@@ -49,6 +50,45 @@ string LocationData::asString() const
 AST::AST(LocationData const& location)
 	: location(location), errorDisabled(false), disabled_(false), isRegistered(false), isReachable(true)
 {}
+
+std::map<std::string, std::string> AST::getParsedDocComment() const
+{
+	std::map<std::string, std::string> result;
+	if (doc_comment.empty())
+		return result;
+
+	std::string current_key;
+	std::vector<std::string> lines;
+	util::split(doc_comment, lines, '\n');
+	for (auto& line : lines)
+	{
+		util::trimstr(line);
+		if (line.empty())
+			continue;
+
+		if (line.starts_with("@"))
+		{
+			size_t index = line.find_first_of(' ');
+			if (index == -1)
+			{
+				current_key = line.substr(1);
+				line = "";
+			}
+			else
+			{
+				current_key = line.substr(1, index - 1);
+				line = line.substr(index + 1);
+				util::trimstr(line);
+			}
+		}
+
+		if (result.contains(current_key))
+			result[current_key] += "\n" + line;
+		else
+			result[current_key] = line;
+	}
+	return result;
+}
 
 // ASTFile
 
@@ -1243,12 +1283,12 @@ std::optional<LocationData> ASTFuncDecl::getIdentifierLocation() const
 // ASTDataDeclList
 
 ASTDataDeclList::ASTDataDeclList(LocationData const& location)
-	: ASTDecl(location), baseType(NULL)
+	: ASTDecl(location), baseType(NULL), readonly(false), internal(false)
 {}
 
 ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	: ASTDecl(other),
-	  baseType(other.baseType)
+	  baseType(other.baseType), readonly(other.readonly), internal(other.internal)
 {
 	for (auto it = other.declarations_.cbegin();
 	     it != other.declarations_.cend(); ++it)
@@ -1274,6 +1314,9 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
 			decl->baseType.release();
 		addDeclaration(decl);
 	}
+
+	readonly = rhs.readonly;
+	internal = rhs.internal;
 	
 	return *this;
 }
@@ -1281,6 +1324,13 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
 void ASTDataDeclList::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseDataDeclList(*this, param);
+}
+
+Scope* ASTDataDeclList::getScope() const
+{
+	if (declarations_.empty())
+		return nullptr;
+	return declarations_.front()->getScope();
 }
 
 void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
@@ -1707,6 +1757,11 @@ string ASTExprArrow::asString() const
 	string s = left->asString() + "->" + right->getValue();
 	if (index != NULL) s += "[" + index->asString() + "]";
 	return s;
+}
+
+bool ASTExprArrow::isTypeArrowUsrClass() const
+{
+	return u_datum && !u_datum->is_internal;
 }
 
 DataType const* ASTExprArrow::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
@@ -2820,13 +2875,11 @@ std::optional<int32_t> ASTIsIncluded::getCompileTimeValue(
 
 // ASTScriptType
 
-ASTScriptType::ASTScriptType(ParserScriptType type, LocationData const& location)
-		: AST(location), type(type)
-{}
-
 ASTScriptType::ASTScriptType(string const& name, LocationData const& location)
 		: AST(location), name(name)
-{}
+{
+	type = ParserHelper::getScriptType(name);
+}
 
 void ASTScriptType::execute(ASTVisitor& visitor, void* param)
 {

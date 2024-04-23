@@ -1,0 +1,575 @@
+script typedef itemdata item;
+
+// @zasm_ref REFITEMCLASS
+class itemdata {
+	// @delete
+	internal itemdata();
+
+	// The type [itemdata] of the item. Uses the `IC_` constants.
+	//
+	// @zasm_var IDATAFAMILY
+	internal int Family;
+
+	// The type [itemdata] of the item. Uses the `IC_` constants.
+	//
+	// @zasm_var IDATAFAMILY
+	internal int Type;
+
+	// The level of the item.
+	//
+	// @zasm_var IDATALEVEL
+	internal int Level;
+
+	// The amount of the 'Counter' to increase when this item is picked up.
+	// Range `-9999 to 16383`.
+	//
+	// @zasm_var IDATAAMOUNT
+	internal int Amount;
+
+	// The '...But not above' field- the amount the max of 'Counter' will not be
+	// increased above.
+	//
+	// @zasm_var IDATAMAX
+	internal int Max;
+
+	// How much to increase the max of the 'Counter' by
+	//
+	// @zasm_var IDATASETMAX
+	internal int MaxIncrement;
+
+	// If the item is an equipment item or not. Items which are not equipment
+	// items cannot be "owned" by the player or put on buttons.
+	//
+	// @zasm_var IDATAKEEP
+	internal bool EquipmentItem;
+
+	// The counter to increase when this item is picked up.
+	//
+	// @zasm_var IDATACOUNTER
+	internal int Counter;
+
+	// The sound to play when the item is picked up.
+	//
+	// @zasm_var IDATAPSOUND
+	internal int PickupSound;
+
+	// The item's usage sound. If/how this is used depends on itemclass.
+	//
+	// @zasm_var IDATAUSESOUND
+	internal int UseSound;
+
+	// The item's second usage sound. If/how this is used depends on itemclass.
+	//
+	// @zasm_var IDATAUSESOUND2
+	internal int UseSound2;
+
+	// the item ID this itemdata is associated with.
+	//
+	// @zasm_var IDATAID
+	internal const int ID;
+
+	// The item power. Usage depends on itemclass.
+	//
+	// @zasm_var IDATAPOWER
+	internal int Power;
+
+	// The item power. Usage depends on itemclass.
+	//
+	// @zasm_var IDATAPOWER
+	internal int Damage;
+
+	// The 8 InitD values shared by the item's Action, Pickup, and Sprite
+	// scripts.
+	//
+	// @zasm_var IDATAINITDD
+	internal untyped InitD[];
+
+	// The Player Tile Modifier associated with this item.
+	//
+	// @zasm_var IDATALTM
+	internal int TileMod;
+
+	// The item's Action Script
+	//
+	// @zasm_var IDATASCRIPT
+	internal int Script;
+
+	// The item's Pickup Script
+	//
+	// @zasm_var IDATAPSCRIPT
+	internal int PScript;
+
+	// The item's ItemSprite Script
+	//
+	// @zasm_var IDATASPRSCRIPT
+	internal int SpriteScript;
+
+	// The message string to display upon picking up the item.
+	//
+	// @zasm_var IDATAPSTRING
+	internal int PString;
+
+	// The message string to display upon picking up the item.
+	//
+	// @zasm_var IDATAPSTRING
+	internal int PickupString;
+
+	// The flags associated with the pickup string, as bitwise flags. Use the
+	// `IPSTR_` constants to access this.
+	//
+	// @zasm_var IDATAPFLAGS
+	internal int PickupStringFlags;
+
+	// The 'Use Cost'/'Use Cost 2' of the item.
+	//
+	// @zasm_var IDATAMAGCOST
+	internal int Cost;
+
+	// The 'Use Cost'/'Use Cost 2' of the item.
+	//
+	// @zasm_var IDATACOST2
+	internal int Cost2;
+
+	// The counter for the 'Use Cost'/'Use Cost 2' of the item.
+	//
+	// @zasm_var IDATACOSTCOUNTER
+	internal int CostCounter;
+
+	// The counter for the 'Use Cost'/'Use Cost 2' of the item.
+	//
+	// @zasm_var IDATACOSTCOUNTER2
+	internal int CostCounter2;
+
+	// The number of max hearts required to pick up the item.
+	//
+	// @zasm_var IDATAMINHEARTS
+	internal int MinHearts;
+
+	// The starting tile of the item's animation
+	//
+	// @zasm_var IDATATILE
+	internal int Tile;
+
+	// Misc flags for the item graphics, bitwise flagset. Use the `IMISC_`
+	// constants to access.
+	//
+	// @zasm_var IDATAMISC
+	internal int MiscFlags;
+
+	// The CSet the item sprite uses
+	//
+	// @zasm_var IDATACSET
+	internal int CSet;
+
+	// The number of frames in the animation
+	//
+	// @zasm_var IDATAFRAMES
+	internal int AFrames;
+
+	// The speed of the animation, in frames per frame.
+	//
+	// @zasm_var IDATAASPEED
+	internal int ASpeed;
+
+	// The number of delay frames at the start of the animation.
+	//
+	// @zasm_var IDATADELAY
+	internal int Delay;
+
+	// The 'Upgrade When Collected Twice' flag
+	//
+	// @zasm_var IDATACOMBINE
+	internal bool Combine;
+
+	// The 'Remove Item When Used' flag.
+	//
+	// @zasm_var IDATADOWNGRADE
+	internal bool Downgrade;
+
+	// The 'Keep Lower Level Items' flag
+	//
+	// @zasm_var IDATAKEEPOLD
+	internal bool KeepOld;
+
+	// The 'Gradual' flag.
+	//
+	// @zasm_var IDATAGRADUAL
+	internal bool Gradual;
+
+	// The `Can Be Eaten By Enemies` flag.
+	//
+	// @zasm_var IDATAEDIBLE
+	internal bool Edible;
+
+	// The 'Gain All Lower Level Items' flag
+	//
+	// @zasm_var IDATAGAINLOWER
+	internal bool GainLower;
+
+	// The 10 item attributes.
+	//
+	// @zasm_var IDATAATTRIB
+	internal untyped Attributes[];
+
+	// The item's Attributes, accesses as 'long' values
+	//
+	// An editor value of '1' will read as '1L', or '0.0001'. This allows all
+	// values to "fit".
+	//
+	// @zasm_var IDATAATTRIB_L
+	internal long LAttributes[];
+
+	// The 16 item flags. `Flags[0]` through `Flags[14]` change depending on the
+	// item type; `Flags[15]` is the `Constant Script` flag.
+	//
+	// @zasm_var IDATAFLAGS
+	internal bool Flags[];
+
+	// The 10 sprites used by the item. How they are used depends on the item
+	// type.
+	//
+	// @zasm_var IDATASPRITE
+	internal int Sprites[];
+
+	// The overrided weapon type that the weapon will act like.
+	//
+	// @zasm_var IDATAUSEWPN
+	internal int Weapon;
+
+	// The default defense of the weapon.
+	//
+	// @zasm_var IDATAUSEDEF
+	internal int Defense;
+
+	// The 8 InitD values for the weapon script.
+	//
+	// @zasm_var IDATAWPNINITD
+	internal untyped WeaponInitD[];
+
+	// The item's lweapon script
+	//
+	// @zasm_var IDATAWEAPONSCRIPT
+	internal int WeaponScript;
+
+	// The hitbox offset of the sprite, in pixels.
+	//
+	// @zasm_var IDATAWEAPHXOFS
+	internal int WeaponHitXOffset;
+
+	// The hitbox offset of the sprite, in pixels.
+	//
+	// @zasm_var IDATAWEAPHYOFS
+	internal int WeaponHitYOffset;
+
+	// The hitbox size of the sprite, in pixels.
+	//
+	// @zasm_var IDATAWEAPHXSZ
+	internal int WeaponHitWidth;
+
+	// The hitbox size of the sprite, in pixels.
+	//
+	// @zasm_var IDATAWEAPHYSZ
+	internal int WeaponHitHeight;
+
+	// The Z-Height of the hitbox, in pixels.
+	//
+	// @zasm_var IDATAWEAPHZSZ
+	internal int WeaponHitZHeight;
+
+	// The visual offset of the sprite, in pixels.
+	//
+	// @zasm_var IDATAWEAPXOFS
+	internal int WeaponDrawXOffset;
+
+	// The visual offset of the sprite, in pixels.
+	//
+	// @zasm_var IDATAWEAPYOFS
+	internal int WeaponDrawYOffset;
+
+	// The default DrawZOffset used by this weapon when the item generates it.
+	//
+	// @zasm_var IDATAWEAPZOFS
+	internal int WeaponDrawZOffset;
+
+	// The timer for the 'Use Cost'/'Use Cost 2' of the item.
+	//
+	// @zasm_var IDATAMAGICTIMER
+	internal int CostTimer;
+
+	// The timer for the 'Use Cost'/'Use Cost 2' of the item.
+	//
+	// @zasm_var IDATAMAGICTIMER2
+	internal int CostTimer2;
+
+	// The hitbox offset of the sprite, in pixels.
+	//
+	// @zasm_var IDATAHXOFS
+	internal int HitXOffset;
+
+	// The hitbox offset of the sprite, in pixels.
+	//
+	// @zasm_var IDATAHYOFS
+	internal int HitYOffset;
+
+	// The visual offset of the sprite, in pixels.
+	//
+	// @zasm_var IDATADXOFS
+	internal int DrawXOffset;
+
+	// The visual offset of the sprite, in pixels.
+	//
+	// @zasm_var IDATADYOFS
+	internal int DrawYOffset;
+
+	// The hitbox size of the sprite, in pixels.
+	//
+	// @zasm_var IDATAHXSZ
+	internal int HitWidth;
+
+	// The hitbox size of the sprite, in pixels.
+	//
+	// @zasm_var IDATAHYSZ
+	internal int HitHeight;
+
+	// The Z-Height of the hitbox, in pixels.
+	//
+	// @zasm_var IDATAHZSZ
+	internal int HitZHeight;
+
+	// The visual size of the sprite, in tiles.
+	//
+	// @zasm_var IDATATILEW
+	internal int TileWidth;
+
+	// The visual size of the sprite, in tiles.
+	//
+	// @zasm_var IDATATILEH
+	internal int TileHeight;
+
+	// The item pickup flags, as a bitwise flagset. Use the `IP_` constants to
+	// access. Take care when using any `INTERNAL` flags.
+	//
+	// @zasm_var IDATAPICKUP
+	internal int Pickup;
+
+	// A bitwise flagset representing all the checkboxes for which sizes to
+	// apply from the itemdata. Use the `SZFLAG_` constants to access.
+	//
+	// @zasm_var IDATAOVERRIDEFL
+	internal int SizeFlags;
+
+	// The visual size of the sprite, in tiles.
+	//
+	// @zasm_var IDATATILEWWEAP
+	internal int WeaponTileWidth;
+
+	// The visual size of the sprite, in tiles.
+	//
+	// @zasm_var IDATATILEHWEAP
+	internal int WeaponTileHeight;
+
+	// A bitwise flagset representing all the checkboxes for which sizes to
+	// apply from the itemdata. Use the `SZFLAG_` constants to access.
+	//
+	// @zasm_var IDATAOVERRIDEFLWEAP
+	internal int WeaponSizeFlags;
+
+	// The 'Only Validate Cost'/'Only Validate Cost 2' checkboxes
+	//
+	// @zasm_var IDATAVALIDATE
+	internal bool Validate;
+
+	// The 'Only Validate Cost'/'Only Validate Cost 2' checkboxes
+	//
+	// @zasm_var IDATAVALIDATE2
+	internal bool Validate2;
+
+	// The `Constant Script` flag.
+	//
+	// @zasm_var IDATACONSTSCRIPT
+	internal bool ConstantScript;
+
+	// The `Disabled In Sideview Water` flag.
+	//
+	// @zasm_var IDATASSWIMDISABLED
+	internal bool SideSwimDisabled;
+
+	// The `Usable as a Bunny` flag.
+	//
+	// @zasm_var IDATABUNNYABLE
+	internal bool BunnyUsable;
+
+	// The `Immune to jinxes` flag.
+	//
+	// @zasm_var IDATAJINXIMMUNE
+	internal bool JinxImmune;
+
+	// The `Uses Other Jinx` flag.
+	//
+	// @zasm_var IDATAJINXSWAP
+	internal bool JinxSwapped;
+
+	// If true, the weapon created by this item will update its sprite when lit
+	// on fire using [BurnSprites[]].
+	//
+	// @zasm_var IDATAUSEBURNSPR
+	internal bool UseBurnSprites;
+
+	// The sprites used for making the weapon change appearance when lit on
+	// fire.
+	//
+	// @zasm_var IDATABURNINGSPR
+	internal int BurnSprites[];
+
+	// The burning light radii from 'Graphics->Sprites->Burning'. Use the
+	// `ITM_BURNSPR_` constants.
+	//
+	// @zasm_var IDATABURNINGLIGHTRAD
+	internal int BurnLightRadius[];
+
+	// @zasm_var IDATAKEEP
+	internal bool Keep;
+
+	// @zasm_var IDATALTM
+	internal int Modifier;
+
+	// The cost of the item, in units. Whenever the item is used, this value is
+	// decremented from the counter supplied to [CostCounter].
+	//
+	// If the item runs for more than one frame, this amount will be decremented
+	// every [CostTimer] frames.
+	//
+	// @zasm_var IDATAMAGCOST
+	internal int MagicCost;
+
+	// The number of frames between counter decrements, when using an item with
+	// a perpetual upkeep cost, such as Boots and Cane items.
+	//
+	// @zasm_var IDATAMAGICTIMER
+	internal int MagicCostTimer;
+
+	// @zasm_var IDATAATTRIB
+	internal untyped Misc[];
+
+	// The Flash value for the CSet
+	//
+	// @zasm_var IDATAMISC
+	internal int Flash;
+
+	// A flagset that determines which Item Editor 'Size' tab attribute values
+	// are applied to the item, overriding engine defaults.
+	//
+	// @zasm_var IDATAOVERRIDEFL
+	internal int OverrideFlags;
+
+	// A flagset that determines which Item Editor 'Size' tab attribute values
+	// are applied to the weapon generated by this item, overriding engine
+	// defaults.
+	//
+	// @zasm_var IDATAOVERRIDEFLWEAP
+	internal int WeaponOverrideFlags;
+
+	// The default defence resolution (e.g. OHKO) that the weapon uses
+	// when it strikes an enemy.
+	//
+	// If > -1, and the enemy had a defence resolution of 'None', the default
+	// defense resolution is used in place of 'None'.
+	//
+	// @zasm_var IDATAUSEDEF
+	internal int Defence;
+
+	// The distance that the weapon is allowed to travel.
+	//
+	// See [lweapon::>Distance]
+	//
+	// Not implemented at this time.
+	//
+	// @zasm_var IDATAWRANGE
+	internal int Range;
+
+	// The duration of the weapon.
+	//
+	// See weapon->Duration.
+	//
+	// Not implemented at this time.
+	//
+	// @zasm_var IDATADURATION
+	internal int Duration;
+
+	// The number of extra weapons that this weapon creates.
+	//
+	// Not implemented at this time.
+	//
+	// @zasm_var IDATADUPLICATES
+	internal int Duplicates;
+
+	// The layer used to draw the weapon to the screen.
+	//
+	// Not implemented at this time.
+	//
+	// @zasm_var IDATADRAWLAYER
+	internal int DrawLayer;
+
+	// @zasm_var IDATARUPEECOST
+	internal bool RupeeCost;
+
+	// @zasm_var IDATAFLAGUNUSED
+	internal bool Unused;
+
+	// The items (in CSV format, using a SCV list ID) that the weapon created by
+	// this item, collects on contact.
+	//
+	// Not implemented at this time.
+	//
+	// @zasm_var IDATACOLLECTFLAGS
+	internal int CollectFlags;
+
+	// An array the 32 Misc[] values used by the weapon.
+	//
+	// This may be only partially implemented.
+	//
+	// @zasm_var IDATAMISCD
+	internal untyped WeaponMisc[];
+
+	// Fills the buffer with the item's Name.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEMCLASS
+	//   ITEMNAME D2
+	internal void GetName(int buf);
+
+	// Fills the buffer with the item's Display Name.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEMCLASS
+	//   ITEMGETDISPLAYNAME D2
+	internal void GetDisplayName(int buf);
+
+	// Sets the item's Display Name to the contents of the buffer.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEMCLASS
+	//   ITEMSETDISPLAYNAME D2
+	internal void SetDisplayName(int buf);
+
+	// Fills the buffer with the name of the item as shown on the subscreen.
+	// This automatically handles display names, including special instances
+	// such as the contents of Bottles.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEMCLASS
+	//   ITEMGETSHOWNNAME D2
+	internal void GetShownName(int buf);
+
+	// Runs or ends the item script, depending on the mode `ISCR_` constants.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFITEMCLASS
+	//   RUNITEMSCRIPT D2
+	internal void RunScript(int mode = 1);
+}

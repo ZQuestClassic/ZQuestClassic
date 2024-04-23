@@ -1,0 +1,713 @@
+// @zasm_ref REFMAPDATA
+class mapdata {
+	// @delete
+	internal mapdata();
+
+	// Returns true if the screen is 'valid'. Screens that appear with the
+	// default blue background in ZQuest are 'invalid'. Modifying a combo on a
+	// screen makes it become 'valid'. If a layer is 'invalid', it will not be
+	// drawn.
+	//
+	// @zasm_var MAPDATAVALID
+	internal int Valid;
+
+	// The screen guy.
+	//
+	// @zasm_var MAPDATAGUY
+	internal int Guy;
+
+	// The screen string.
+	//
+	// @zasm_var MAPDATASTRING
+	internal int String;
+
+	// The screen room type. Use the `RT_` constants for this value.
+	//
+	// @zasm_var MAPDATAROOM
+	internal int RoomType;
+
+	// The item placed on the screen. -1 if no item placed.
+	//
+	// @zasm_var MAPDATAITEM
+	internal int Item;
+
+	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
+	// respectively.
+	//
+	// See std_constants.zh WT_* constants for valid types.
+	//
+	// @zasm_var MAPDATATILEWARPTYPE
+	internal int TileWarpType[];
+
+	// The screen script that runs on this screen.
+	//
+	// @zasm_var MAPDATASCRIPT
+	internal int Script;
+
+	// The 8 script arguments for the script that runs on this screen.
+	//
+	// @zasm_var MAPDATAINITDARRAY
+	internal untyped InitD[];
+
+	// Set or get the overlay state for the warp ID corresponding to the index
+	// of this array.
+	//
+	// @zasm_var MAPDATATILEWARPOVFLAGS
+	internal bool TileWarpOverlay[];
+
+	// The Door Set used for the NES dungeon doors on this screen.
+	//
+	// @zasm_var MAPDATADOORCOMBOSET
+	internal int DoorComboSet;
+
+	// The X-component for each of the four 2.50+ (blue) warp return squares.
+	//
+	// @zasm_var MAPDATAWARPRETX
+	internal int WarpReturnX[];
+
+	// The Y-component for each of the four 2.50+ (blue) warp return squares.
+	//
+	// @zasm_var MAPDATAWARPRETY
+	internal int WarpReturnY[];
+
+	// The X/Y position of the 'Stairs' secret on the screen.
+	//
+	// @zasm_var MAPDATASTAIRX
+	internal int StairsX;
+
+	// The X/Y position of the 'Stairs' secret on the screen.
+	//
+	// @zasm_var MAPDATASTAIRY
+	internal int StairsY;
+
+	// The X/Y position the screen's item spawns at.
+	//
+	// @zasm_var MAPDATAITEMX
+	internal int ItemX;
+
+	// The X/Y position the screen's item spawns at.
+	//
+	// @zasm_var MAPDATAITEMY
+	internal int ItemY;
+
+	// The palette set in the F4 menu in ZQuest for this screen. Has no effect
+	// during play, but can be read and written.
+	//
+	// @zasm_var MAPDATACOLOUR
+	internal int Palette;
+
+	// The 4 door states of the screen, indexed with the `DIR_` constants.
+	//
+	// @zasm_var MAPDATADOOR
+	internal int Door[];
+
+	// The destination DMap for each of the four warp types.
+	//
+	// @zasm_var MAPDATATILEWARPDMAP
+	internal int TileWarpDMap[];
+
+	// The destination screen for each of the four warp types.
+	//
+	// @zasm_var MAPDATATILEWARPSCREEN
+	internal int TileWarpScreen[];
+
+	// The Maze Path 'Exit Direction'.
+	//
+	// @zasm_var MAPDATAEXITDIR
+	internal int ExitDir;
+
+	// The 10 enemies that appear on this screen.
+	//
+	// @zasm_var MAPDATAENEMY
+	internal int Enemy[];
+
+	// The spawn pattern for the screen enemies. Use the `PATTERN_` constants
+	// for the value.
+	//
+	// @zasm_var MAPDATAPATTERN
+	internal int Pattern;
+
+	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
+	// respectively.
+	//
+	// See std_constants.zh WT_* constants for valid types.
+	//
+	// @zasm_var MAPDATASIDEWARPTYPE
+	internal int SideWarpType[];
+
+	// Set or get the overlay state for the warp ID corresponding to the index
+	// of this array.
+	//
+	// @zasm_var MAPDATASIDEWARPOVFLAGS
+	internal int SideWarpOverlay[];
+
+	// The X-component for the pre-2.50 (green) arrival square.
+	//
+	// @zasm_var MAPDATAWARPARRIVALX
+	internal int WarpArrivalX;
+
+	// The X-component for the pre-2.50 (green) arrival square.
+	//
+	// @zasm_var MAPDATAWARPARRIVALY
+	internal int WarpArrivalY;
+
+	// The four directions you must go for the maze path. Use the `DIR_`
+	// constants for the values.
+	//
+	// @zasm_var MAPDATAPATH
+	internal int MazePath[];
+
+	// The destination screen for each of the four sidewarps.
+	//
+	// @zasm_var MAPDATASIDEWARPSC
+	internal int SideWarpScreen[];
+
+	// Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
+	//
+	// Returns -1 if there is no sidewarp in that direction.
+	//
+	// Use the SIDEWARP_* constants in std.zh for the value of this (read return
+	// value, or write value).
+	//
+	// Use the DIR_* constants in std.zh for the index values.
+	//
+	// @zasm_var MAPDATASIDEWARPID
+	internal int SideWarpID[];
+
+	// The return square (A->D) used by Tile Warp[A->D].
+	//
+	// @zasm_var MAPDATATWARPRETSQR
+	internal int TileWarpReturnSquare[];
+
+	// The return square (A->D) used by Side Warp[A->D].
+	//
+	// @zasm_var MAPDATASWARPRETSQR
+	internal int SideWarpReturnSquare[];
+
+	// The destination DMap for each of the four sidewarps.
+	//
+	// @zasm_var MAPDATASIDEWARPDMAP
+	internal int SideWarpDMap[];
+
+	// The screen's undercombo, which will appear as a result of various combo
+	// interactions, such as pushing blocks, awakening armos, etc.
+	//
+	// @zasm_var MAPDATAUNDERCOMBO
+	internal int UnderCombo;
+
+	// The CSet associated with the undercombo.
+	//
+	// @zasm_var MAPDATAUNDERCSET
+	internal int UnderCSet;
+
+	// The screen's 'catchall' value. This is the roomtype-specific data, such
+	// as the 'Special Item' in a 'Special Item' room.
+	//
+	// @zasm_var MAPDATACATCHALL
+	internal int Catchall;
+
+	// The value of damage combo sensitivity for the screen.
+	//
+	// @zasm_var MAPDATACSENSITIVE
+	internal int CSensitive;
+
+	// The `No Reset` carryover flags.
+	//
+	// @zasm_var MAPDATANORESET
+	internal int NoReset;
+
+	// The `No Carry Over` carryover flags.
+	//
+	// @zasm_var MAPDATANOCARRY
+	internal int NoCarry;
+
+	// The map and screen for each layer. Index [0] of these arrays does
+	// nothing, and is invalid to access.
+	//
+	// @zasm_var MAPDATALAYERMAP
+	internal int LayerMap[];
+
+	// The map and screen for each layer. Index [0] of these arrays does
+	// nothing, and is invalid to access.
+	//
+	// @zasm_var MAPDATALAYERSCREEN
+	internal int LayerScreen[];
+
+	// The opacity value (`OP_OPAQUE` or `OP_TRANS`) for each layer. Index [0]
+	// does nothing, and is invalid to access.
+	//
+	// @zasm_var MAPDATALAYEROPACITY
+	internal int LayerOpacity[];
+
+	// If true, the given layer is invisible and will not be drawn.
+	//
+	// @zasm_var MAPDATALAYERINVIS
+	internal bool LayerInvisible[];
+
+	// If false, the given layer of script draws will be disabled on this
+	// screen.
+	//
+	// @zasm_var MAPDATASCRIPTDRAWS
+	internal bool ScriptDraws[];
+
+	// The timer used by 'Time Warp Tics' in Screen Data->T.Warp
+	//
+	// @zasm_var MAPDATATIMEDWARPTICS
+	internal int TimedWarpTimer;
+
+	// The map and screen that screen states carry over to.
+	//
+	// @zasm_var MAPDATANEXTMAP
+	internal int NextMap;
+
+	// The map and screen that screen states carry over to.
+	//
+	// @zasm_var MAPDATANEXTSCREEN
+	internal int NextScreen;
+
+	// The combo that will be placed for each secret type.
+	//
+	// @zasm_var MAPDATASECRETCOMBO
+	internal int SecretCombo[];
+
+	// The cset that will be placed for each secret type.
+	//
+	// @zasm_var MAPDATASECRETCSET
+	internal int SecretCSet[];
+
+	// The screen flags that will be placed for each secret type.
+	//
+	// @zasm_var MAPDATASECRETFLAG
+	internal int SecretFlags[];
+
+	// The Data (combo ID) variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Data] for more details.
+	//
+	// @zasm_var MAPDATAFFDATA
+	internal int FFCData[];
+
+	// The CSet variable for each of the ffcs on the screen.
+	//
+	// See [ffc::CSet] for more details.
+	//
+	// @zasm_var MAPDATAFFCSET
+	internal int FFCCSet[];
+
+	// The Delay variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Delay] for more details.
+	//
+	// @zasm_var MAPDATAFFDELAY
+	internal int FFCDelay[];
+
+	// The X variable for each of the ffcs on the screen.
+	//
+	// See [ffc::X] for more details.
+	//
+	// @zasm_var MAPDATAFFX
+	internal int FFCX[];
+
+	// The Y variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Y] for more details.
+	//
+	// @zasm_var MAPDATAFFY
+	internal int FFCY[];
+
+	// The Vx variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Vx] for more details.
+	//
+	// @zasm_var MAPDATAFFXDELTA
+	internal int FFCVx[];
+
+	// The Vy variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Vy] for more details.
+	//
+	// @zasm_var MAPDATAFFYDELTA
+	internal int FFCVy[];
+
+	// The Ax variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Ax] for more details.
+	//
+	// @zasm_var MAPDATAFFXDELTA2
+	internal int FFCAx[];
+
+	// The Vy variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Vy] for more details.
+	//
+	// @zasm_var MAPDATAFFYDELTA2
+	internal int FFCAy[];
+
+	// The Flags variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Flags] for more details.
+	//
+	// @zasm_var MAPDATAFFFLAGS
+	internal int FFCFlags[];
+
+	// The EffectWidth variable for each of the ffcs on the screen.
+	//
+	// See [ffc::EffectWidth] for more details.
+	//
+	// @zasm_var MAPDATAFFEFFECTWIDTH
+	internal int FFCEffectWidth[];
+
+	// The EffectHeight variable for each of the ffcs on the screen.
+	//
+	// See [ffc::EffectHeight] for more details.
+	//
+	// @zasm_var MAPDATAFFEFFECTHEIGHT
+	internal int FFCEffectHeight[];
+
+	// The TileWidth variable for each of the ffcs on the screen.
+	//
+	// See [ffc::TilwWidth] for more details.
+	//
+	// @zasm_var MAPDATAFFWIDTH
+	internal int FFCTileWidth[];
+
+	// The TileHeighr variable for each of the ffcs on the screen.
+	//
+	// See [ffc::TilwHeight] for more details.
+	//
+	// @zasm_var MAPDATAFFHEIGHT
+	internal int FFCTileHeight[];
+
+	// The Link variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Link] for more details.
+	//
+	// @zasm_var MAPDATAFFLINK
+	internal int FFCLink[];
+
+	// The Script variable for each of the ffcs on the screen.
+	//
+	// See [ffc::Script] for more details.
+	//
+	// @zasm_var MAPDATAFFSCRIPT
+	internal int FFCScript[];
+
+	// The SFX for the ambient sound of the screen.
+	//
+	// @zasm_var MAPDATAOCEANSFX
+	internal int AmbientSFX;
+
+	// The SFX for the boss roar on this screen.
+	//
+	// @zasm_var MAPDATABOSSSFX
+	internal int BossSFX;
+
+	// The SFX that will play when secrets are triggered on this screen.
+	//
+	// @zasm_var MAPDATASECRETSFX
+	internal int SecretSFX;
+
+	// The SFX that will play when an item is held up on this screen.
+	//
+	// @zasm_var MAPDATAHOLDUPSFX
+	internal int ItemSFX;
+
+	// The 'Screen MIDI' to play for this screen.
+	//
+	// @zasm_var MAPDATASCREENMIDI
+	internal int MIDI;
+
+	// Arrays containing flag data for each screen.
+	//
+	// @zasm_var MAPDATAFLAGS
+	internal int Flags[];
+
+	// The Combo ID placed at each position on the screen.
+	//
+	// @zasm_var MAPDATACOMBODD
+	internal int ComboD[];
+
+	// The CSet of the combo placed at each position on the screen.
+	//
+	// @zasm_var MAPDATACOMBOCD
+	internal int ComboC[];
+
+	// The mapflag placed at each position on the screen.
+	//
+	// @zasm_var MAPDATACOMBOFD
+	internal int ComboF[];
+
+	// The inherent flag of the combo placed at each position on the screen.
+	//
+	// @zasm_var MAPDATACOMBOID
+	internal int ComboI[];
+
+	// The combo type of the combo placed at each position on the screen.
+	//
+	// @zasm_var MAPDATACOMBOTD
+	internal int ComboT[];
+
+	// The solidity map of the combo placed at each position on the screen.
+	//
+	// @zasm_var MAPDATACOMBOSD
+	internal int ComboS[];
+
+	// The effect map of the combo placed at each position on the screen.
+	//
+	// @zasm_var MAPDATACOMBOED
+	internal int ComboE[];
+
+	// The screen states used for this screen. Use the `ST_` constants to access
+	// this.
+	//
+	// @zasm_var MAPDATASCREENSTATED
+	internal bool State[];
+
+	// The 32 'Extra States' used for this screen.
+	//
+	// @zasm_var MAPDATAEXSTATED
+	internal bool ExState[];
+
+	// Arrays containing flag data for each screen.
+	//
+	// @zasm_var MAPDATASCREENEFLAGSD
+	internal const int EFlags[];
+
+	// Returns the map this mapdata points to.
+	//
+	// @zasm_var MAPDATAMAP
+	internal const int Map;
+
+	// Returns the screen this mapdata points to.
+	//
+	// @zasm_var MAPDATASCREEN
+	internal const int Screen;
+
+	// Arrays of the 7 layer show/hide values for the lens of truth.
+	//
+	// @zasm_var MAPDATALENSSHOWS
+	internal bool LensShows[];
+
+	// Arrays of the 7 layer show/hide values for the lens of truth.
+	//
+	// @zasm_var MAPDATALENSHIDES
+	internal bool LensHides[];
+
+	// Read-write, the size of the `Data[]` array.
+	//
+	// @zasm_var MAPDATASCRDATASIZE
+	internal int DataSize;
+
+	// Resizable array of data for scripts to use. All changes are saved to the
+	// save file.
+	//
+	// @zasm_var MAPDATASCRDATA
+	internal untyped Data[];
+
+	// Number of enemies remaining alive on this screen.
+	//
+	// @zasm_var MAPDATAGUYCOUNT
+	internal int GuyCount;
+
+	// Returns true if the specified ffc is running a script?
+	//
+	// May be used to pause/resume ffc script execution?
+	//
+	// This needs to be cloned over to ffc->Running
+	//
+	// @zasm_var MAPDATAFFINITIALISED
+	internal bool FFCRunning[];
+
+	// The 'Ambient Sound' under S.Data2.
+	//
+	// Rename this to AmbientSFX, or just SFX.
+	//
+	// @zasm_var MAPDATAOCEANSFX
+	internal int OceanSFX;
+
+	// The screen palette.
+	//
+	// @zasm_var MAPDATACOLOUR
+	internal int CSet;
+
+	// @zasm_var MAPDATANEXTMAP
+	internal int CarryoverMap;
+
+	// @zasm_var MAPDATANEXTSCREEN
+	internal const int CarryoverScreen;
+
+	// Improperly implemented. Was meant to relate as Screen->D, except that
+	//
+	// Screen->D is not bound to layermap.
+	//
+	// @deprecated mapdata->D[] has never worked!
+	// @zasm_var MAPDATAMISCD
+	internal untyped D[];
+
+	// If not zero, then the item for this screen will be shown.
+	//
+	// When Link takes the item on a screen, this is set to 0.
+	//
+	// @deprecated Check '->Item > -1' instead!
+	// @zasm_var MAPDATAHASITEM
+	internal int HasItem;
+
+	// @deprecated Use [Flags] instead!
+	// @zasm_var MAPDATASCREENFLAGSD
+	internal const int SFlags[];
+
+	// Stores the information on warp returns, butwise.
+	//
+	// The bits are `DDCCBBAADDCCBBAA`, where the left section is sidewarp
+	// returns, and the right is tilewarp returns.
+	//
+	// @deprecated by SideWarpReturnSquare[4] and TileWarpReturnSquare[4]
+	// @zasm_var MAPDATAWARPRETURNC
+	internal int WarpReturnC;
+
+	// A flagset for enemies on the screen (E.Flags).
+	//
+	// Valid values (ORd) together, are:
+	//
+	// TODO: write the values here
+	//
+	// @deprecated
+	// @zasm_var MAPDATAENEMYFLAGS
+	internal int EnemyFlags;
+
+	// The warp return IDs.
+	//
+	// @deprecated by [SideWarpID[]].
+	// @zasm_var MAPDATASIDEWARPINDEX
+	internal int SideWarpIndex;
+
+	// @deprecated
+	// @zasm_var MAPDATAENTRYX
+	internal int EntryX;
+
+	// @deprecated
+	// @zasm_var MAPDATAENTRYY
+	internal int EntryY;
+
+	// @deprecated
+	// @zasm_var MAPDATANUMFF
+	internal const bool NumFFCs[];
+
+	// @deprecated
+	// @zasm_var MAPDATASCRIPTENTRY
+	internal int ScriptEntry;
+
+	// @deprecated
+	// @zasm_var MAPDATASCRIPTOCCUPANCY
+	internal int ScriptOccupancy;
+
+	// @deprecated
+	// @zasm_var MAPDATASCRIPTEXIT
+	internal int ExitScript;
+
+	// @deprecated
+	// @zasm_var MAPDATALENSLAYER
+	internal int LensLayer;
+
+	// Returns true if the given x,y position on the screen is 'solid'.
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFMAPDATA
+	//   MAPDATAISSOLID D2
+	internal bool isSolid(int x, int y);
+
+	// Returns true if the given x,y position on the screen is 'solid'.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D1
+	//   POP D0
+	//   POP REFMAPDATA
+	//   MAPDATAISSOLIDLYR D2
+	internal bool isSolidLayer(int x, int y, int layer);
+
+	// Returns the value of InitD[n] for the ffc on the screen with an ID of
+	// ffc_index.
+	//
+	// This needs to be converted to the type 'untyped' to comply with the
+	// change of float ffc->InitD[] to untyped ffc->InitD[]
+	//
+	// Note: Expressed as a function due to lack of 2D arrays in ZScript.
+	//
+	// With 2D arrays, this would simply be FFCInitD[32][8].
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFMAPDATA
+	//   SETR D2 MAPDATAINTID
+	internal untyped GetFFCInitD(int ffc_index, int n);
+
+	// Sets the value of InitD[n] for the ffc on the screen with an ID of
+	// ffc_index.
+	//
+	// 'int value' needs to be converted to the type 'untyped' to comply with
+	// the change of float ffc->InitD[] to untyped ffc->InitD[]
+	//
+	// Note: Expressed as a function due to lack of 2D arrays in ZScript.
+	//
+	// With 2D arrays, this would simply be FFCInitD[32][8].
+	//
+	// @zasm
+	//   POP D6
+	//   POP D1
+	//   POP D0
+	//   POP REFMAPDATA
+	//   SETR MAPDATAINTID D6
+	internal void SetFFCInitD(int ffc_index, int n, untyped value);
+
+	// Returns a door state for the screen.
+	//
+	// @zasm
+	//   PEEKATV REFMAPDATA 0.0002
+	//   SETR D2 MAPDATAEXDOOR
+	//   POPARGS D5 0.0003
+	internal bool GetExDoor(int dir, int index);
+
+	// Sets a door state for the screen.
+	//
+	// @zasm
+	//   POP D2
+	//   PEEKATV REFMAPDATA 0.0002
+	//   SETR MAPDATAEXDOOR D2
+	//   POPARGS D5 0.0003
+	internal void SetExDoor(int dir, int index, bool state);
+
+	// Returns the value of InitA[n] for the ffc on the screen with an ID of
+	// ffc_index.
+	//
+	// Note: Expressed as a function due to lack of 2D arrays in ZScript.
+	//
+	// With 2D arrays, this would simply be FFCInitA[32][2].
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFMAPDATA
+	//   SETR D2 MAPDATAINITA
+	internal int GetFFCInitA(int ffc_index, int n);
+
+	// Sets the value of InitA[n] for the ffc on the screen with an ID of
+	// ffc_index.
+	//
+	// Note: Expressed as a function due to lack of 2D arrays in ZScript.
+	//
+	// With 2D arrays, this would simply be FFCInitA[32][2].
+	//
+	// @zasm
+	//   POP D6
+	//   POP D1
+	//   POP D0
+	//   POP REFMAPDATA
+	//   SETR MAPDATAINITA D6
+	internal int SetFFCInitA(int ffc_index, int init_a, int value);
+}
+
+internal const mapdata MapData;

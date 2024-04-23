@@ -1,0 +1,1022 @@
+// @zasm_ref REFNPC
+class npc {
+	// @delete
+	internal npc();
+
+	// @zasm_var NPCX
+	internal int X;
+
+	// @zasm_var NPCY
+	internal int Y;
+
+	// @zasm_var NPCZ
+	internal int Z;
+
+	// The current frame of the npc's animation.
+	//
+	// @zasm_var NPCFRAME
+	internal int Frame;
+
+	// Returns the max number of npcs currently allowed.
+	//
+	// @zasm_var SPRITEMAXNPC
+	internal int Max;
+
+	// The npc's upward velocity, in pixels per frame. Affected by gravity each
+	// frame, if gravity is enabled for this npc.
+	//
+	// @zasm_var NPCJUMP
+	internal int Jump;
+
+	// The npc's direction.
+	//
+	// @zasm_var NPCDIR
+	internal int Dir;
+
+	// The timer used for enemy knockback.
+	// The first byte is the clock.
+	// The second byte is the dir.
+	// Enemies that split do not slide.
+	//
+	// @zasm_var NPCSLIDECLK
+	internal int SlideClock;
+
+	// The death effect for the npc. Use the enum NPCFadeType in std_constants.
+	//
+	// @zasm_var NPCFADING
+	internal int Fading;
+
+	// @zasm_var NPCRATE
+	internal int Rate;
+
+	// @zasm_var NPCHOMING
+	internal int Homing;
+
+	// @zasm_var NPCSTEP
+	internal int Step;
+
+	// @zasm_var NPCFRAMERATE
+	internal int ASpeed;
+
+	// The clock for how long an npc is halted.
+	//
+	// @zasm_var NPCHALTCLK
+	internal int Halt;
+
+	// The movement status of an npc, usually flying.
+	//
+	// See enum NPCMoveStatus in <std.zh>.
+	//
+	// @zasm_var NPCMOVESTATUS
+	internal int MoveStatus;
+
+	// @zasm_var NPCHALTRATE
+	internal int Haltrate;
+
+	// Corresponds to the Enemy Editor Random Rate value.
+	//
+	// @zasm_var NPCRANDOM
+	internal int Random;
+
+	// @zasm_var NPCDRAWTYPE
+	internal int DrawStyle;
+
+	// @zasm_var NPCHP
+	internal int HP;
+
+	// The enemy ID of the enemy.
+	//
+	// @zasm_var NPCID
+	internal const int ID;
+
+	// The type, or 'enemy class' of the enemy. Use the `NPCT_` constants.
+	//
+	// @zasm_var NPCTYPE
+	internal int Type;
+
+	// The type, or 'enemy class' of the enemy. Use the `NPCT_` constants.
+	//
+	// @zasm_var NPCTYPE
+	internal int Family;
+
+	// @zasm_var NPCDP
+	internal int Damage;
+
+	// @zasm_var NPCWDP
+	internal int WeaponDamage;
+
+	// @zasm_var NPCTILE
+	internal int Tile;
+
+	// If set to 0 or higher, then the npc will be drawn with this tile.
+	//
+	// The default value for this is -1.
+	//
+	// @zasm_var NPCSCRIPTTILE
+	internal int ScriptTile;
+
+	// If set to 0, or higher, then the engine will use this Flip state to draw
+	// the npc.
+	//
+	// The default value for this is -1.
+	//
+	// @zasm_var NPCSCRIPTFLIP
+	internal int ScriptFlip;
+
+	// @zasm_var NPCOTILE
+	internal int OriginalTile;
+
+	// @zasm_var NPCWEAPON
+	internal int Weapon;
+
+	// The Dropset ID that this enemy will drop from when killed
+	//
+	// @zasm_var NPCITEMSET
+	internal int ItemSet;
+
+	// Alias for npc->ItemSet.
+	//
+	// Read or write the item dropset used by the npc.
+	//
+	// @zasm_var NPCITEMSET
+	internal int Dropset;
+
+	// @zasm_var NPCCSET
+	internal int CSet;
+
+	// @zasm_var NPCBOSSPAL
+	internal int BossPal;
+
+	// @zasm_var NPCBGSFX
+	internal int SFX;
+
+	// If the sprite should be extended (large). Set to 3 to extend, 0
+	// otherwise.
+	//
+	// @zasm_var NPCEXTEND
+	internal int Extend;
+
+	// The width/height of the hitbox, in pixels.
+	//
+	// @zasm_var NPCHXSZ
+	internal int HitWidth;
+
+	// The width/height of the hitbox, in pixels.
+	//
+	// @zasm_var NPCHYSZ
+	internal int HitHeight;
+
+	// The height of the hitbox in the Z-axis, in pixels.
+	//
+	// @zasm_var NPCHZSZ
+	internal int HitZHeight;
+
+	// The width/height of the sprite's graphic, in tiles.
+	//
+	// @zasm_var NPCTXSZ
+	internal int TileWidth;
+
+	// The width/height of the sprite's graphic, in tiles.
+	//
+	// @zasm_var NPCTYSZ
+	internal int TileHeight;
+
+	// The visual offset, in pixels.
+	//
+	// @zasm_var NPCXOFS
+	internal int DrawXOffset;
+
+	// The visual offset, in pixels.
+	//
+	// @zasm_var NPCYOFS
+	internal int DrawYOffset;
+
+	// the weapon's total visual Y-offset.
+	//
+	// @zasm_var NPCTOTALDYOFFS
+	internal const int TotalDYOffset;
+
+	// The Z offset, in pixels.
+	//
+	// @zasm_var NPCZOFS
+	internal int DrawZOffset;
+
+	// The hitbox offset, in pixels.
+	//
+	// @zasm_var NPCHXOFS
+	internal int HitXOffset;
+
+	// The hitbox offset, in pixels.
+	//
+	// @zasm_var NPCHYOFS
+	internal int HitYOffset;
+
+	// An array of misc values for script use.
+	//
+	// @zasm_var NPCMISCD
+	internal untyped Misc[];
+
+	// The 8 InitD[] arguments for the npc script.
+	//
+	// @zasm_var NPCINITD
+	internal untyped InitD[];
+
+	// Expanded to size [32], and made datatype-insensitive.
+	//
+	// @zasm_var NPCDD
+	internal untyped Attributes[];
+
+	// @zasm_var NPCMFLAGS
+	internal int MiscFlags;
+
+	// @zasm_var NPCCOLLDET
+	internal bool CollDetection;
+
+	// If false, gravity will not affect this npc.
+	//
+	// @zasm_var NPCGRAVITY
+	internal bool Gravity;
+
+	// If the engine should animate the npc's graphics.
+	//
+	// @zasm_var NPCENGINEANIMATE
+	internal bool Animation;
+
+	// The duration the npc is stunned for. If 0, the npc is not stunned.
+	//
+	// @zasm_var NPCSTUN
+	internal int Stun;
+
+	// This returns true if the NPC is the core segment of a segmented engine
+	// enemy.
+	//
+	// @zasm_var NPCISCORE
+	internal bool Core;
+
+	// Expanded to a size of 42 to cover new defense categories.
+	//
+	// @zasm_var NPCDEFENSED
+	internal int Defense[];
+
+	// Stores the ID/UIDs of objects that hurt the npc this frame.
+	//
+	// Indices:
+	//
+	// The first four indices are for the *screen index* of objects:
+	//
+	// Description		Index	Status
+	// - HIT_BY_NPC 		[0] 	Not used at this time.
+	// - HIT_BY_EWEAPON 	[1] 	Not used at this time.
+	// - HIT_BY_LWEAPON 	[2]	    In use by the engine.
+	// - HIT_BY_FFC 		[3] 	Not used at this time.
+	//
+	// The next four, are for the FFCore 'script' UIDs of objects:
+	//
+	// Description		Index	Status
+	// - HIT_BY_NPC_UID 	[4] 	Not used at this time.
+	// - HIT_BY_EWEAPON_UID [5] 	Not used at this time.
+	// - HIT_BY_LWEAPON_UID [6]	    In use by the engine.
+	// - HIT_BY_FFC_UID 	[7] 	Not used at this time.
+	//
+	// The last two, are reserved for special damage-object types.
+	//
+	// Description		Index	Status
+	// - HIT_BY_COMBO 	[8]	Not used at this time.
+	// - HIT_BY_MAPFLAG [9] Not used at this time.
+	//
+	// These indices are uniform across all HitBy[] array members, for any
+	// datatype with that member.
+	//
+	// Some lweapons, notably some melee weapons such as swords (but not sword
+	// beams), and boomerangs are not yet implemented in this mechanic.
+	//
+	// @zasm_var NPCHITBY
+	internal untyped HitBy[];
+
+	// @zasm_var NPCHUNGER
+	internal int Hunger;
+
+	// The sprite (Quest->Graphics->Sprites->Weapons) used to draw the weapon
+	// fired by the npc.
+	//
+	// @zasm_var NPCWEAPSPRITE
+	internal int WeaponSprite;
+
+	// @zasm_var NPCSCRDEFENSED
+	internal int ScriptDefense[];
+
+	// Returns the number of remaining invincibility frames if the enemy is
+	// invincible, otherwise 0.
+	//
+	// @zasm_var NPCINVINC
+	internal int InvFrames;
+
+	// Returns if the enemy is invincible, because of ( superman variable ).
+	//
+	// @zasm_var NPCSUPERMAN
+	internal int Invincible;
+
+	// If true, the enemy is a Ringleader, and killing this npc will kill every
+	// npc in the room.
+	//
+	// @zasm_var NPCRINGLEAD
+	internal bool Ringleader;
+
+	// True if the enemy is carrying an item.
+	//
+	// @zasm_var NPCHASITEM
+	internal bool HasItem;
+
+	// Flags related to the enemy's shield. Use the `SHLD_` constants to access.
+	//
+	// @zasm_var NPCSHIELD
+	internal bool Shield[];
+
+	// @zasm_var NPCBEHAVIOUR
+	internal bool BFlags[];
+
+	// Returns a direction constant if the npc is being knocked back.
+	//
+	// Returns -1 if the npc is not being knockd back.
+	//
+	// Writing to this has no effect, and is ignored.
+	//
+	// This value is set both from engine, and from scripted knockback.
+	//
+	// @zasm_var NPCHITDIR
+	internal int HitDir;
+
+	// The npc script running on this npc.
+	//
+	// @zasm_var NPCSCRIPT
+	internal int Script;
+
+	// The rotation factor for this sprited object, in degrees.
+	//
+	// You can only rotate sprites if you disable the Compatibility Quest rule
+	//
+	// 'Old (Faster) Sprite Drawing'.
+	//
+	// @zasm_var NPCROTATION
+	internal int Rotation;
+
+	// The scale factor for this sprited object.
+	// Scale values are a multiplier: 1.5 == 50% larger (150%).
+	// A scale of 0 and a scale of 1 are identical.
+	// Negative values are undefined.
+	// You can only scale sprites if you disable the Compatibility Quest rule
+	// 'Old (Faster) Sprite Drawing'.
+	//
+	// @zasm_var NPCSCALE
+	internal int Scale;
+
+	// If true, the enemy will not 'die' even if it has 0hp or is too far
+	// off-screen.
+	//
+	// [Remove()] will still delete the npc.
+	//
+	// @zasm_var NPCIMMORTAL
+	internal bool Immortal;
+
+	// False by default. If set to 'true', engine knockback is ignored.
+	//
+	// @zasm_var NPCNOSLIDE
+	internal bool NoSlide;
+
+	// False by default. If set to 'true', scripted knockback via
+	// 'npc->Knockback()' is ignored.
+	//
+	// @zasm_var NPCNOSCRIPTKB
+	internal bool NoScriptKnockback;
+
+	// The number of pixels engine knockback moves the enemy at a time.
+	// Default 4.
+	//
+	// @zasm_var NPCKNOCKBACKSPEED
+	internal int SlideSpeed;
+
+	// The timer indicating how long left the sprite will be falling. If 0, the
+	// sprite is not falling. Max value of 70, which is the value at the start
+	// of falling.
+	//
+	// @zasm_var NPCFALLCLK
+	internal int Falling;
+
+	// The pitfall combo the sprite is falling into, if it is falling.
+	//
+	// @zasm_var NPCFALLCMB
+	internal int FallCombo;
+
+	// The movement flags of the npc. See `NPCMV_` constants.
+	//
+	// @zasm_var NPCMOVEFLAGS
+	internal bool MoveFlags[];
+
+	// The radius of light this object emits in a dark room
+	//
+	// @zasm_var NPCGLOWRAD
+	internal int LightRadius;
+
+	// The shape of light this object emits in a dark room.
+	//
+	// @zasm_var NPCGLOWSHP
+	internal int LightShape;
+
+	// The shadow sprite used by the npc, 0-255
+	//
+	// @zasm_var NPCSHADOWSPR
+	internal int ShadowSprite;
+
+	// The spawn sprite used by the npc, 0-255
+	//
+	// @zasm_var NPCSPAWNSPR
+	internal int SpawnSprite;
+
+	// The death sprite used by the npc, 0-255
+	//
+	// @zasm_var NPCDEATHSPR
+	internal int DeathSprite;
+
+	// If the sprite is currently being switch-hooked.
+	//
+	// @zasm_var NPCSWHOOKED
+	internal bool SwitchHooked;
+
+	// If set false, the npc will neither flash, nor flicker when invincible.
+	//
+	// @zasm_var NPCCANFLICKER
+	internal bool InvFlicker;
+
+	// The timer indicating how long left the sprite will be drowning. If 0, the
+	// sprite is not drowning. Max value of 64, which is the value at the start
+	// of drowning.
+	//
+	// @zasm_var NPCDROWNCLK
+	internal int Drowning;
+
+	// The liquid combo the sprite is drowning in, if it is drowning.
+	//
+	// @zasm_var NPCDROWNCMB
+	internal int DrownCombo;
+
+	// The position of the npc on the FakeZ axis.
+	//
+	// @zasm_var NPCFAKEZ
+	internal int FakeZ;
+
+	// The velocity of the npc in the FakeZ axis.
+	//
+	// @zasm_var NPCFAKEJUMP
+	internal int FakeJump;
+
+	// @zasm_var NPCSHADOWXOFS
+	internal int ShadowXOffset;
+
+	// @zasm_var NPCSHADOWYOFS
+	internal int ShadowYOffset;
+
+	// This sets what color the enemy is drawn when flickering.
+	//
+	// @zasm_var NPCFLICKERCOLOR
+	internal int FlickerColor;
+
+	// This sets how many times the transparency effect is applied to the
+	// enemy's flicker effect.
+	//
+	// @zasm_var NPCFLICKERTRANSP
+	internal int FlickerTransparencyPasses;
+
+	// This returns the enemy's current displayed cset when taking damage or
+	// invincible. If not in one of these states, will return its normal cset.
+	//
+	// @zasm_var NPCFLASHINGCSET
+	internal const int FlashingCSet;
+
+	// @zasm_var NPCFROZEN
+	internal int Frozen;
+
+	// @zasm_var NPCFROZENTILE
+	internal int FrozenTile;
+
+	// @zasm_var NPCFROZENCSET
+	internal int FrozenCSet;
+
+	// @deprecated
+	// @zasm_var NPCSCRIPTUID
+	internal const int UID;
+
+	// @deprecated
+	// @zasm_var NPCPARENTUID
+	internal int ParentUID;
+
+	// Returns the max number of npcs currently allowed.
+	//
+	// @deprecated Use [Max] instead!
+	// @zasm
+	//   POP REFNPC
+	//   SETR D2 SPRITEMAXNPC
+	internal int Max();
+
+	// Sets the max number of npcs allowed to a new value. Range `1-1024`.
+	//
+	// @deprecated Use [Max] instead!
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   SETR SPRITEMAXNPC D2
+	internal void Max(int value);
+
+	// Returns true if this pointer points to a valid npc. If this returns
+	// false, using any other value of this pointer will error.
+	//
+	// @zasm
+	//   POP D2
+	//   ISVALIDNPC D2
+	internal bool isValid();
+
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCEXPLODER D2
+	internal void Explode(int arg1);
+
+	// Returns true if the npc is submerged (ex. underground/underwater)
+	//
+	// @zasm
+	//   POP REFNPC
+	//   SETR D2 NPCSUBMERGED
+	internal bool Submerged();
+
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCNAME D2
+	internal void GetName(int buffer);
+
+	// @zasm
+	//   POP D2
+	//   BREAKSHIELD D2
+	internal void BreakShield();
+
+	// Returns if the NPC is dead, or dying
+	//
+	// @zasm
+	//   POP REFNPC
+	//   NPCDEAD D2
+	internal bool isDead();
+
+	// Unimplemented
+	//
+	// @zasm
+	//   POP REFNPC
+	//   NPCCANSLIDE D2
+	internal bool CanSlide();
+
+	// Run Engine knockback (Only does anything if a knockback is in-progress)
+	//
+	// This is automatically called for most engine enemy types
+	//
+	// Calling this from enemy types such as 'Other' will allow them to recieve
+	// knockback
+	//
+	// This is called as a part of scripted walking functions, such as
+	// 'ConstantWalk()', automatically.
+	//
+	// Return: 0 if no knockback occurred, 1 if scripted knockback
+	// ('->Knockback()') occurred, 2 if engine knockback occurred.
+	//
+	// @zasm
+	//   POP REFNPC
+	//   NPCSLIDE D2
+	internal bool Slide();
+
+	// Instantly DELETES an npc. No items will be dropped, no sound will play;
+	// the npc is simply DELETED OUTRIGHT.
+	//
+	// This will immediately invalidate the npc pointer, as well as update
+	// 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
+	//
+	// If called from an NPC script on the NPC running the script, immediately
+	// terminates the script.
+	//
+	// @zasm
+	//   POP REFNPC
+	//   NPCKICKBUCKET
+	internal void Remove();
+
+	// Stops the background sounds that the npc is generating.
+	//
+	// @zasm
+	//   POP REFNPC
+	//   NPCSTOPBGSFX
+	internal void StopBGSFX();
+
+	// Causes the npc to attack with its weapon.
+	//
+	// @zasm
+	//   POP REFNPC
+	//   NPCATTACK
+	internal void Attack();
+
+	// The npc chooses a new direction.
+	//
+	// Uses an array literal for its args:
+	//
+	// { int rate, int homing, int special }
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCNEWDIR D2
+	internal void NewDir(int arr);
+
+	// Causes the npc to walk.
+	//
+	// Uses an array literal for its args.
+	//
+	// Pass NULL as the pointer to run without args, or use:
+	//
+	// {int rate, int homing, int special}
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCCONSTWALK D2
+	internal void ConstantWalk(int arr);
+
+	// As ConstantWalk(), but 8-directions.
+	//
+	// {int rate, int homing, int special}
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCCONSTWALK8 D2
+	internal void ConstantWalk8(int arr);
+
+	// Causes the npc to walk and occasionally change speed.
+	//
+	// {int rate, int homing, int special}
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCVARWALK D2
+	internal void VariableWalk(int arr);
+
+	// As VariableWalk(), but 8-directions.
+	//
+	// {int rate, int homing, int newclk, int special}
+	//
+	// {int rate, int homing, int newclk, int special, int dx1, int dy1, int
+	// dx2, int dy2}
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCVARWALK8 D2
+	internal void VariableWalk8(int arr);
+
+	// Causes an enemy to walk, and occasionally halt.
+	//
+	// {int rate, int homing, int special, int hrate, int haltcnt}
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCHALTWALK D2
+	internal void HaltingWalk(int arr);
+
+	// As HaltingWalk(), but 8-directions.
+	//
+	// {int newrate, int newhoming, int newclk, int special, int newhrate, int
+	// haltcnt}
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCHALTWALK8 D2
+	internal void HaltingWalk8(int arr);
+
+	// Causes an enemy to move, ignoring solidity on the screen.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCFLOATWALK D2
+	internal void FloatingWalk(int arr);
+
+	// Fires the breath weapon set to the enemy.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCFIREBREATH D2
+	internal void BreathAttack(bool seeklink = false);
+
+	// As NewDir(), but 8-directions.
+	//
+	// {int rate, int homing, int special}
+	//
+	// {int rate, int homing, int special, int dx1, int dy1, int dx2, int dy2}
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCNEWDIR8 D2
+	internal void NewDir8(int arr);
+
+	// Returns if either an object is colliding with the npc, or if an arbitrary
+	// set of
+	//
+	// coordinates would collide.
+	//
+	// Valid Object Types:
+	//
+	// obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_link,
+	// obj_type_ffc, obj_type_combo_pos, obj_type_item
+	//
+	// ** Not fully implemented!
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFNPC
+	//   SETR D2 NPCCOLLISION
+	internal bool Collision(int obj_type, untyped obj_pointer);
+
+	// Checks if enemy is lined up with Link.
+	//
+	// If so, returns direction Link is at as compared to enemy.
+	//
+	// Returns -1 if not lined up. Range is inclusive.
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   POP REFNPC
+	//   SETR D2 NPCLINEDUP
+	internal int LinedUp(int range, bool dir8 = false);
+
+	// Returns true if Link is within 'range' pixels of the enemy.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCLINKINRANGE D2
+	internal bool LinkInRange(int dist_in_pixels);
+
+	// Returns true if the npc can move in a given direction.
+	//
+	// Uses an array literal for varying args.
+	//
+	// Overloaded for a number of options:
+	//
+	// {int dir}: Dir only, should use the default step distance.
+	//
+	// {int dir, int special}
+	//
+	// {int ndir, int step, int special}
+	//
+	// {int ndir,int step,int special,int dx1,int dy1,int dx2,int dy2}
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCCANMOVE D2
+	internal bool CanMove(int array);
+
+	// Simulates hitting the npc with a weapon, another sprite, or an arbitrary
+	// set of
+	//
+	// values passed as an overloaded array literal.
+	//
+	// Returns true if that object would hit the npc.
+	//
+	// {TYPE, pointer} : Specify the type, such as PTR_TYPE_LWEAPON, then pass
+	// an object pointer.
+	//
+	// {int tx, int ty, int tz, int txsz, int tysz, int tzsz} : Arbitrary
+	// values.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCHITWITH D2
+	internal bool SimulateHit(int array);
+
+	// Similar to Screen->CreateNPC(), except:
+	//
+	// (1) It uses an arry literal for its args, with varying size.
+	//
+	// (2) You can either create an npc only by its ID, or you can do
+	//
+	// that and set its spawn coordinates at the same time.
+	//
+	// (3) It works based on an existing pointer, such as:
+	//
+	// npc n; n->Create{args});
+	//
+	// { int id }
+	//
+	// { int id, int x, int y }
+	//
+	// @reassign_ptr
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   NPCADD D2
+	internal npc Create(int array);
+
+	// Attempt to knock back the npc in 'dir' direction, for 'time' frames, at a
+	// rate of 'speed' pixels per frame.
+	//
+	// @zasm
+	//   POP D0
+	//   POP D3
+	//   POP D2
+	//   POP REFNPC
+	//   NPCKNOCKBACK D2 D3
+	internal bool Knockback(int time, int dir, int speed = 4);
+
+	// Switch the player with this sprite. Use the `SW_EFF_` constants for
+	// 'effect' to select a visual style for the switch.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   SWITCHNPC D2
+	internal bool Switch(int effect);
+
+	// Returns true if the enemy is in a state in which it should not be allowed
+	// to move (ex. spawning, dying, stunned, time frozen by clock)
+	//
+	// @zasm
+	//   POP REFNPC
+	//   NPCMOVEPAUSED
+	internal bool MovePaused();
+
+	// Attempts to move the enemy by 'pxamnt' pixels in the 'dir' direction,
+	// failing if it is blocked by something it cannot walk through.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D0
+	//   POP REFNPC
+	//   NPCMOVE
+	internal bool Move(int dir, int pxamnt, int special = 0);
+
+	// Attempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle,
+	// failing if it is blocked by something it cannot walk through.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D0
+	//   POP REFNPC
+	//   NPCMOVEANGLE
+	internal bool MoveAtAngle(int degrees, int pxamnt, int special = 0);
+
+	// Attempts to move the enemy by 'dx' in the x direction and 'dy' in the y
+	// direction, failing if it is blocked by something it cannot walk through.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D0
+	//   POP REFNPC
+	//   NPCMOVEXY
+	internal bool MoveXY(int dx, int dy, int special = 0);
+
+	// Attempts to move the enemy by 'pxamnt' pixels in the 'dir' direction,
+	// failing if it is blocked by something it cannot walk through.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D0
+	//   POP REFNPC
+	//   NPCCANMOVEDIR
+	internal bool CanMove(int dir, int pxamnt, int special = 0);
+
+	// Attempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle,
+	// failing if it is blocked by something it cannot walk through.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D0
+	//   POP REFNPC
+	//   NPCCANMOVEANGLE
+	internal bool CanMoveAtAngle(int degrees, int pxamnt, int special = 0);
+
+	// Attempts to move the enemy by 'dx' in the x direction and 'dy' in the y
+	// direction, failing if it is blocked by something it cannot walk through.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D0
+	//   POP REFNPC
+	//   NPCCANMOVEXY
+	internal bool CanMoveXY(int dx, int dy, int special = 0);
+
+	// Checks if the enemy could be arbitrarily placed (teleported) at 'nx,ny'.
+	//
+	// If 'nw' or 'nh' are > -1, they will be used as the width/height of the
+	// enemy for the check.
+	//
+	// Otherwise, the enemy's hitwidth/hitheight are used.
+	//
+	// Some enemies treat pits/liquid as solid, EXCEPT if they are being knocked
+	// back.
+	//
+	// 'bool knockback' here affects this for the placement checks.
+	//
+	// Use the 'SPW_' constants to provide a special value;
+	//
+	// i.e. 'SPW_FLOATER' for flying enemies.
+	//
+	// Use 'SPW_NONE' if you don't know what to use.
+	//
+	// Returns true if the enemy could be placed successfully, false otherwise.
+	//
+	// @zasm
+	//   NPCCANPLACE
+	//   POPARGS D5 0.0007
+	internal bool CanPlace(int nx, int ny, int special = 0,
+						   bool knockback = false, int nw = -1, int nh = -1);
+
+	// This returns true if the enemy is currently in a flicker frame (either
+	// invisible or color masked).
+	//
+	// @zasm
+	//   POP REFNPC
+	//   NPCISFLICKERFRAME
+	internal bool isFlickerFrame();
+
+	// Grants 'Ownership' of the parameter object to the npc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   OBJ_OWN_BITMAP D2 0.0007
+	internal void Own(bitmap b);
+
+	// Grants 'Ownership' of the parameter object to the npc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   OBJ_OWN_PALDATA D2 0.0007
+	internal void Own(paldata b);
+
+	// Grants 'Ownership' of the parameter object to the npc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   OBJ_OWN_FILE D2 0.0007
+	internal void Own(file b);
+
+	// Grants 'Ownership' of the parameter object to the npc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   OBJ_OWN_DIR D2 0.0007
+	internal void Own(directory b);
+
+	// Grants 'Ownership' of the parameter object to the npc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   OBJ_OWN_STACK D2 0.0007
+	internal void Own(stack b);
+
+	// Grants 'Ownership' of the parameter object to the npc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   OBJ_OWN_RNG D2 0.0007
+	internal void Own(randgen b);
+
+	// Grants 'Ownership' of the parameter object to the npc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   OBJ_OWN_ARRAY D2 0.0007
+	internal void OwnArray(untyped array);
+
+	// Grants 'Ownership' of the parameter object to the npc.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFNPC
+	//   OBJ_OWN_CLASS D2 0.0007
+	internal void OwnObject(untyped object);
+}

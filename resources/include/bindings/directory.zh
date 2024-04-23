@@ -1,0 +1,49 @@
+// @zasm_ref REFDIRECTORY
+class directory {
+	// @zasm
+	//   POP D2
+	//   LOADDIRECTORYR D2
+	internal directory(char32 path);
+
+	// The number of files/folders contained in the directory.
+	//
+	// @zasm_var DIRECTORYSIZE
+	internal const int Size;
+
+	// Loads the name of the [index] file (0 <= [index] < Size)
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   POP REFDIRECTORY
+	//   DIRECTORYGET D2 D3
+	internal bool GetFilename(int index, char32 buf);
+
+	// Refreshes the directory, updating the 'Size' and results of
+	// [GetFilename()] to reflect any changes.
+	//
+	// @zasm
+	//   POP REFDIRECTORY
+	//   DIRECTORYRELOAD
+	internal void Reload();
+
+	// Deallocate the directory pointer, so that the pointer ID may be
+	// re-used.
+	//
+	// @deprecated Free() no longer does anything as of ZC 3.0. Objects are now
+	// freed automatically.
+	// @zasm
+	//   POP REFDIRECTORY
+	//   DIRECTORYFREE
+	internal void Free();
+
+	// Grants 'Ownership' of the directory pointer to the script that calls this
+	// function. When the script with 'Ownership' terminates (at the same time
+	// its' local arrays are deallocated), this directory pointer will
+	// automatically be 'Free()'d.
+	//
+	// @zasm
+	//   POP REFDIRECTORY
+	//   DIRECTORYOWN
+	internal void Own();
+}

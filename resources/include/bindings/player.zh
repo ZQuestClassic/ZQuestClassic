@@ -1,0 +1,1049 @@
+class player {
+	// @delete
+	internal player();
+
+	// @zasm_var LINKX
+	internal int X;
+
+	// @zasm_var LINKY
+	internal int Y;
+
+	// @zasm_var LINKZ
+	internal int Z;
+
+	// @zasm_var LINKJUMP
+	internal int Jump;
+
+	// @zasm_var LINKDIR
+	internal int Dir;
+
+	// @zasm_var LINKHITDIR
+	internal int HitDir;
+
+	// @zasm_var LINKSWORDJINX
+	internal int SwordJinx;
+
+	// @zasm_var LINKITEMJINX
+	internal int ItemJinx;
+
+	// @zasm_var LINKHP
+	internal int HP;
+
+	// @zasm_var LINKMP
+	internal int MP;
+
+	// @zasm_var LINKMAXHP
+	internal int MaxHP;
+
+	// @zasm_var LINKMAXMP
+	internal int MaxMP;
+
+	// @zasm_var LINKACTION
+	internal int Action;
+
+	// The current *total* Player Tile Modifier.
+	//
+	// @zasm_var LINKTILEMOD
+	internal int TileMod;
+
+	// @zasm_var LINKHELD
+	internal int HeldItem;
+
+	// Reading from, or writing to this array no longer causes lag.
+	//
+	// @zasm_var LINKITEMD
+	internal bool Item[];
+
+	// The number of pixels that the player moves in a frame, based on
+	// present coordinates. The movement is taken from his x and y:
+	// ```
+	// x_move_in_pixels = Hero->Step[Hero->X&7]
+	// y_move_in_pixels = Hero->Step[Hero->Y&7]
+	// ```
+	// The default values are: `{ 1, 1, 2, 1, 1, 2, 1, 1 }`
+	//
+	// You can double the speed by doubling these values.
+	//
+	// NOTE: This only affects 4-way movement, and has no effect if the quest
+	// rule 'New Hero Movement' is enabled.
+	//
+	// @zasm_var HEROSTEPS
+	internal int Steps[];
+
+	// The steprate that the player moves at. This functions similarly to
+	// "npc->Step": a step rate of '100' means that you move '1 pixel per
+	// frame'. The default step rate is '150', moving at '1.5 pixels per frame'.
+	//
+	// NOTE: This affects BOTH 4-way and 8-way movement, but ONLY if the quest
+	// rule "New Player Movement" is enabled.
+	//
+	// @zasm_var HEROSTEPRATE
+	internal int Step;
+
+	// The offset from corners that the player's movement will 'shove' them
+	// around. Ranges from 0-16
+	//
+	// NOTE: Only applies if "Newer Player Movement" Quest Rule is enabled.
+	//
+	// @zasm_var HEROSHOVEOFFSET
+	internal int ShoveOffset;
+
+	// @zasm_var LINKDRUNK
+	internal int Drunk;
+
+	// The timer for the health beep sound, if it is not constant.
+	//
+	// Setting this to -2 suspends system control over stopping the sound, and
+	// setting this to -4 suspends system control over both stopping, and
+	// starting it.
+	//
+	// The normal operating range used by the system is 70 to -1, where -1 wraps
+	// around to zero internally.
+	//
+	// @zasm_var HEROHEALTHBEEP
+	internal int HealthBeep;
+
+	// @zasm_var LINKINVIS
+	internal bool Invisible;
+
+	// If set true, the player will not take two steps into NES dungeon rooms.
+	//
+	// This value is reset to false every time that the hero sprite is
+	// initialised, so should be written ideally in the hero init script.
+	//
+	// !! Future versions may change when this is cleared.
+	//
+	// @zasm_var HERONOSTEPFORWARD
+	internal bool NoStepForward;
+
+	// Normally 'true'. If enabled, the player sprite is animated by the ZC
+	// engine.
+	//
+	// Set this false to disable engine animation.
+	//
+	// @zasm_var LINKENGINEANIMATE
+	internal bool Animation;
+
+	// @zasm_var LINKINVINC
+	internal bool CollDetection;
+
+	// Expanded from a size of [16] to [32]. An array of 32 miscellaneous
+	// variables for you to use as you please.
+	//
+	// The Misc[] array now supports all datatypes, and has been expanded to a
+	// size of [32].
+	//
+	// @zasm_var LINKMISCD
+	internal untyped Misc[];
+
+	// Unused at this time.
+	//
+	// @zasm_var LINKDEFENCE
+	internal int Defense[];
+
+	// Stores the ID/UIDs of objects that hurt the Link this frame.
+	//
+	// @zasm_var LINKHITBY
+	internal untyped HitBy[];
+
+	// @zasm_var LINKLADDERX
+	internal const int LadderX;
+
+	// @zasm_var LINKLADDERY
+	internal const int LadderY;
+
+	// @zasm_var LINKTILE
+	internal int Tile;
+
+	// @zasm_var LINKFLIP
+	internal int Flip;
+
+	// This returns how long Link will remain invincible, 0 if not invincible.
+	// Can be set.
+	//
+	// @zasm_var LINKINVFRAME
+	internal int InvFrames;
+
+	// If set false, Link will neither flash, nor flicker when invincible.
+	//
+	// @zasm_var LINKCANFLICKER
+	internal bool InvFlicker;
+
+	// The sound that plays when Link is injured. By default this is '16', but
+	// you may change it at any time.
+	//
+	// @zasm_var LINKHURTSFX
+	internal int HurtSound;
+
+	// Contains the item IDs of what is currently equiped to Link's B button.
+	//
+	// @zasm_var LINKITEMB
+	internal int ItemB;
+
+	// Contains the item IDs of what is currently equiped to Link's A button.
+	//
+	// @zasm_var LINKITEMA
+	internal int ItemA;
+
+	// Contains the item IDs of what is currently equiped to Link's X (Ex1)
+	// button.
+	//
+	// @zasm_var LINKITEMX
+	internal int ItemX;
+
+	// Contains the item IDs of what is currently equiped to Link's Y (Ex2)
+	// button.
+	//
+	// @zasm_var LINKITEMY
+	internal int ItemY;
+
+	// Returns 0 if the player is not eaten, otherwise it returns the duration
+	// of them being eaten.
+	//
+	// @zasm_var LINKEATEN
+	internal int Eaten;
+
+	// Returns if the player is grabbed (i.e. by wallmaster)
+	//
+	// @zasm_var LINKGRABBED
+	internal bool Grabbed;
+
+	// Returns the number of frames for which Link will; remain stunned.
+	//
+	// Writing to this causes Link to be stunned for 'n' frames.
+	//
+	// This decrements once per frame.
+	//
+	// @zasm_var LINKSTUN
+	internal int Stun;
+
+	// Returns the number of frames for which the player will be a Bunny.
+	//
+	// If -1, the effect will be removed by the engine if the current
+	//
+	// dmap does not have the bunny flag, or the player possesses a pearl item.
+	//
+	// -2 through -99 reserved for potential future engine use
+	// If <-100, the effect will last until script-modified
+	//
+	// If >0, will tick down each frame
+	//
+	// @zasm_var HEROBUNNY
+	internal int BunnyClk;
+
+	// Returns the number of frames that Link has been pushing against a solid
+	// object.
+	//
+	// @zasm_var LINKPUSH
+	internal int Pushing;
+
+	// @zasm_var HEROSCRIPTCSET
+	internal int ScriptCSet;
+
+	// If this is > 0, then Link will be drawn using this tile ID.
+	//
+	// The specific tile is drawn. This is not an offset, nor OTile.
+	//
+	// @zasm_var LINKSCRIPTTILE
+	internal int ScriptTile;
+
+	// If this is > 0, then Link's tile will be drawn using this flip value.
+	//
+	// @zasm_var LINKSCRIPFLIP
+	internal int ScriptFlip;
+
+	// This corresponds to whether 'Diagonal Movement' is enabled, or not.
+	//
+	// @zasm_var LINKDIAG
+	internal bool Diagonal;
+
+	// This corresponds to whether 'Big Hitbox' is enabled, or not.
+	//
+	// @zasm_var LINKBIGHITBOX
+	internal bool BigHitbox;
+
+	// If set true (the default), the hero falls in sideview gravity.
+	//
+	// @zasm_var LINKGRAVITY
+	internal bool Gravity;
+
+	// The rotation factor for this sprited object, in degrees.
+	//
+	// You can only rotate sprites if you disable the Compatibility Quest rule
+	//
+	// @zasm_var LINKROTATION
+	internal int Rotation;
+
+	// The scale factor for this sprited object.
+	// Scale values are a multiplier: 1.5 == 50% larger (150%).
+	// A scale of 0 and a scale of 1 are identical.
+	// Negative values are undefined.
+	//
+	// You can only scale sprites if you disable the Compatibility Quest rule
+	//
+	// @zasm_var LINKSCALE
+	internal int Scale;
+
+	// Returns as 'true' when the hero is climbing a sideview ladder
+	//
+	// Setting to 'false' will let go of the ladder, and setting 'true' will
+	// grab the ladder
+	//
+	// While 'true', gravity does not affect the hero
+	//
+	// @zasm_var LINKCLIMBING
+	internal bool Climbing;
+
+	// Returns the number of times the hero has jumped in mid-air since last
+	// landing.
+	//
+	// If this is positive, it will be reset to 0 the next frame the hero is on
+	// the ground.
+	//
+	// Used by Roc's Feather items to determine how many extra jumps the hero
+	// has left
+	//
+	// @zasm_var HEROJUMPCOUNT
+	internal int JumpCount;
+
+	// Returns the direction that the Hero is being pulled in by a pit
+	//
+	// @zasm_var HEROPULLDIR
+	internal const int PitPullDir;
+
+	// A timer related to pits pulling the hero
+	//
+	// The pit will only pull the hero on frames where 'PitPullTimer %
+	// PitSensitivity == 0'
+	//
+	// The Pit Sensitivity is an attribyte on the pit combo
+	//
+	// @zasm_var HEROPULLCLK
+	internal int PitPullTimer;
+
+	// The timer indicating how long left the Hero will be falling
+	// If 0, the Hero is not falling
+	// Max value of 70, which is the value when you begin falling
+	// Writing 'Hero->Action = LA_FALLING' is identical to setting this to 70.
+	//
+	// @zasm_var HEROFALLCLK
+	internal int Falling;
+
+	// The pit combo that the Hero is falling into.
+	//
+	// If non-zero, this combo's attributes will affect things such as if the
+	// Hero will warp, and how much damage they will take upon finishing
+	// falling.
+	//
+	// If 0, the Hero will take 1/4 heart of damage, and not warp.
+	//
+	// Setting [Action] to `LA_FALLING` will overwrite this value.
+	//
+	// Setting [Falling] will overwrite this value.
+	//
+	// @zasm_var HEROFALLCMB
+	internal int FallCombo;
+
+	// Flags relating to movement.
+	//
+	// See 'HEROMV_' constants in std_constants.zh for values
+	//
+	// [0] == Obeys gravity (see ->Gravity)
+	//
+	// [1] == Can fall in pitfalls
+	//
+	// @zasm_var HEROMOVEFLAGS
+	internal bool MoveFlags[];
+
+	// Returns true if a stopwatch/clock is active.
+	//
+	// Writing to this acts like picking up a stopwatch/clock item, and sets the
+	// duration of its effect based on ClockTimer. If ClockTimer is 0, the
+	// effect.
+	//
+	// Lasts until the player changes screens.
+	//
+	// @zasm_var CLOCKACTIVE
+	internal bool ClockActive;
+
+	// Returns the current ticks of a stopwatch/clock item countdown timer.
+	//
+	// Writing to this while [ClockActive] is true sets or changes the duration
+	// of the clock effect; if no stopwatch/clock is active, it pre-sets the
+	// value so that you may start a timed effect by setting [ClockActive] to
+	// `true`.
+	//
+	// @zasm_var CLOCKCLK
+	internal int ClockTimer;
+
+	// Returns the current CSet used to draw the player sprite.
+	//
+	// This normally only changes when the player is hurt, and flashing.
+	//
+	// Writing to this is permitted, but it will be overwritten on the next
+	// frame.
+	//
+	// @zasm_var LINKCSET
+	internal int CSet;
+
+	// Returns true if the player is currently being warped
+	//
+	// Note that as scripts generally do not run in warps, this may not ever
+	// return true during a given warp, depending on the warp type, QRs, script
+	// type, etc.
+	//
+	// @zasm_var HEROISWARPING
+	internal const bool IsWarping;
+
+	// The X-coordinate at which the player will respawn upon drowning or such.
+	//
+	// The engine may overwrite this value upon changing screens or standing on
+	// safe ground.
+	//
+	// @zasm_var HERORESPAWNX
+	internal int RespawnX;
+
+	// The Y-coordinate at which the player will respawn upon drowning or such.
+	//
+	// The engine may overwrite this value upon changing screens or standing on
+	// safe ground.
+	//
+	// @zasm_var HERORESPAWNY
+	internal int RespawnY;
+
+	// The DMap at which the player will respawn upon drowning or such.
+	//
+	// The engine may overwrite this value upon changing screens or standing on
+	// safe ground.
+	//
+	// @zasm_var HERORESPAWNDMAP
+	internal int RespawnDMap;
+
+	// The screen at which the player will respawn upon drowning or such.
+	//
+	// The engine may overwrite this value upon changing screens or standing on
+	// safe ground.
+	//
+	// @zasm_var HERORESPAWNSCR
+	internal int RespawnScreen;
+
+	// The timer for the switchhook effect. If > 0, a switch effect is active.
+	//
+	// The player will swap positions with the target when this is equal to
+	// `Hero->SwitchMaxTimer / 2`, and the animation completes when this reaches
+	// 0.
+	//
+	// @zasm_var HEROSWITCHTIMER
+	internal const int SwitchTimer;
+
+	// The starting (max) value of the switch timer.
+	//
+	// @zasm_var HEROSWITCHMAXTIMER
+	internal const int SwitchMaxTimer;
+
+	// If non-zero, the player will not die, even if their HP drops to 0.
+	//
+	// This will prevent effects such as bottled fairies from being triggered.
+	//
+	// If greater than 0, decrements by 1 each frame.
+	//
+	// If it becomes 0 while the player has 0 hp, it will act as though their HP
+	// just dropped to 0 that frame, and normal effects such as fairies will
+	// trigger.
+	//
+	// @zasm_var HEROIMMORTAL
+	internal int Immortal;
+
+	// @zasm_var HERODROWNCLK
+	internal int Drowning;
+
+	// @zasm_var HERODROWNCMB
+	internal int DrownCombo;
+
+	// Current FakeZ position. This value is treated as a second, separate Z
+	// axis;
+	//
+	// Sprites will be offset upwards by this amount when drawn just like the Z
+	// axis and shadows will draw if applicable.
+	//
+	// However, the sprite's hitbox will not be moved upwards into the Z Axis;
+	// instead it will be moved upwards on the Y axis, mimicking how Vires and
+	// Pols Voice worked in the original Zelda.
+	//
+	// This value is affected by FakeJump instead of Jump.
+	//
+	// @zasm_var HEROFAKEZ
+	internal int FakeZ;
+
+	// The current velocity on the FakeZ axis. This value is added to FakeZ
+	// every frame; and this value is decreased by the gravity value until it is
+	// lower than the terminal velocity value.
+	//
+	// @zasm_var HEROFAKEJUMP
+	internal int FakeJump;
+
+	// @zasm_var HEROSHADOWXOFS
+	internal int ShadowXOffset;
+
+	// @zasm_var HEROSHADOWYOFS
+	internal int ShadowYOffset;
+
+	// Returns true if the hero is 'standing', as is used to check if they are
+	// capable of jumping. Automatically accounts for sideview.
+	//
+	// @zasm_var HEROSTANDING
+	internal const bool Standing;
+
+	// The number of frames the hero has been off the ground. Range 0-65535.
+	//
+	// 0 while standing. When not standing, ticks up by 1 each frame.
+	//
+	// When jumping, is immediately set to 65535.
+	//
+	// If this value is < 65535 and < a feather's "Coyote Time" attribute, the
+	// feather will be able to jump despite being in the air.
+	//
+	// Setting this to 65535 will disable coyote jumps, though this will be set
+	// to 0 upon landing on the ground again.
+	//
+	// @zasm_var HEROCOYOTETIME
+	internal int CoyoteTime;
+
+	// @zasm_var HEROLIFTEDWPN
+	internal lweapon LiftedWeapon;
+
+	// @zasm_var HEROLIFTTIMER
+	internal int LiftTimer;
+
+	// @zasm_var HEROLIFTMAXTIMER
+	internal int LiftMaxTimer;
+
+	// @zasm_var HEROLIFTHEIGHT
+	internal int LiftHeight;
+
+	// Returns a value representing the current hammer swing.
+	// - 0 = not swinging hammer
+	// - 1 = hammer above head
+	// - 2 = hammer at angle
+	// - 3 = hammer hit the ground
+	//
+	// @zasm_var HEROHAMMERSTATE
+	internal int HammerState;
+
+	// @zasm_var HEROLIFTFLAGS
+	internal bool LiftFlags[];
+
+	// The time, in frames, that the shield is disabled. Negative values disable
+	// indefinitely.
+	//
+	// @zasm_var HEROSHIELDJINX
+	internal int ShieldJinx;
+
+	// This sets what color Link is drawn when flickering.
+	//
+	// If -1, will use the default from Init Data.
+	//
+	// If the quest rule 'Invincible Player Flickers' is unchecked, this is
+	// unused.
+	//
+	// @zasm_var HEROFLICKERCOLOR
+	internal int FlickerColor;
+
+	// This sets how many times the transparency effect is applied to Link's
+	// flicker effect.
+	//
+	// If -1, will use the default from Init Data. If 0, will use a solid color.
+	//
+	// If the quest rule 'Invincible Player Flickers' is unchecked, this is
+	// unused.
+	//
+	// @zasm_var HEROFLICKERTRANSP
+	internal int FlickerTransparencyPasses;
+
+	// This returns Link's current displayed cset when taking damage or
+	// invincible. If not in one of these states, will return his normal cset.
+	//
+	// If called before [Waitdraw()] / player update, results may be off by a
+	// frame.
+	//
+	// If the quest rule 'Invincible Player Flickers' is checked, this is
+	// unused.
+	//
+	// @zasm_var HEROFLASHINGCSET
+	internal const int FlashingCSet;
+
+	// One of the 'SLD_' constants:
+	//
+	// - SLD_NONE (0) - not sliding
+	// - SLD_ICE (1) - sliding on the ground, on ice
+	// - SLD_AIR (2) - sliding in the air (momentum from ice)
+	//
+	// @zasm_var HEROSLIDING
+	internal const int Sliding;
+
+	// The icy combo the player is sliding on.
+	//
+	// @zasm_var HEROICECMB
+	internal const int IceCombo;
+
+	// Read-write. If nonzero, this combo is used instead of the IceCombo (can
+	// be used to force the player to slide).
+	//
+	// If the specified combo is not an Icy Floor combo that affects the player,
+	// no sliding will occur.
+	//
+	// @zasm_var HEROSCRICECMB
+	internal int ScriptIceCombo;
+
+	// The player's ice velocity (in pixels per frame).
+	// Has no effect unless the player is [Sliding].
+	// If the player is not [Sliding], the engine will clear these to '0'.
+	//
+	// @zasm_var HEROICEVX
+	internal int IceVx;
+
+	// The player's ice velocity (in pixels per frame).
+	// Has no effect unless the player is [Sliding].
+	// If the player is not Sliding, the engine will clear these to '0'.
+	//
+	// @zasm_var HEROICEVY
+	internal int IceVy;
+
+	// Read/write, 0-255, has no effect unless the player is [Sliding].
+	//
+	// Used to grant the player some leeway when first entering the ice.
+	//
+	// On entering the ice, these are set to the same value, and
+	// 'IceEntryFrames' then ticks down each frame to 0. Instantly goes to 0 if
+	// the player is still.
+	//
+	// Based on the ratio between these values, the player's deceleration will
+	// be somewhere between the IceCombo's deceleration and half of the player's
+	// step speed.
+	//
+	// @zasm_var HEROICEENTRYFRAMES
+	internal int IceEntryFrames;
+
+	// Read/write, 0-255, has no effect unless the player is [Sliding].
+	//
+	// Used to grant the player some leeway when first entering the ice.
+	//
+	// On entering the ice, these are set to the same value, and
+	// 'IceEntryFrames' then ticks down each frame to 0. Instantly goes to 0 if
+	// the player is still.
+	//
+	// Based on the ratio between these values, the player's deceleration will
+	// be somewhere between the IceCombo's deceleration and half of the player's
+	// step speed.
+	//
+	// @zasm_var HEROICEENTRYMAXFRAMES
+	internal int IceEntryMaxFrames;
+
+	// @zasm_var INPUTSTART
+	internal bool InputStart;
+
+	// @zasm_var INPUTMAP
+	internal bool InputMap;
+
+	// @zasm_var INPUTUP
+	internal bool InputUp;
+
+	// @zasm_var INPUTDOWN
+	internal bool InputDown;
+
+	// @zasm_var INPUTLEFT
+	internal bool InputLeft;
+
+	// @zasm_var INPUTRIGHT
+	internal bool InputRight;
+
+	// @zasm_var INPUTA
+	internal bool InputA;
+
+	// @zasm_var INPUTB
+	internal bool InputB;
+
+	// @zasm_var INPUTL
+	internal bool InputL;
+
+	// @zasm_var INPUTR
+	internal bool InputR;
+
+	// @zasm_var INPUTEX1
+	internal bool InputEx1;
+
+	// @zasm_var INPUTEX2
+	internal bool InputEx2;
+
+	// @zasm_var INPUTEX3
+	internal bool InputEx3;
+
+	// @zasm_var INPUTEX4
+	internal bool InputEx4;
+
+	// @zasm_var INPUTPRESSSTART
+	internal bool PressStart;
+
+	// @zasm_var INPUTPRESSUP
+	internal bool PressUp;
+
+	// @zasm_var INPUTPRESSDOWN
+	internal bool PressDown;
+
+	// @zasm_var INPUTPRESSLEFT
+	internal bool PressLeft;
+
+	// @zasm_var INPUTPRESSRIGHT
+	internal bool PressRight;
+
+	// @zasm_var INPUTPRESSA
+	internal bool PressA;
+
+	// @zasm_var INPUTPRESSB
+	internal bool PressB;
+
+	// @zasm_var INPUTPRESSL
+	internal bool PressL;
+
+	// @zasm_var INPUTPRESSR
+	internal bool PressR;
+
+	// @zasm_var INPUTPRESSEX1
+	internal bool PressEx1;
+
+	// @zasm_var INPUTPRESSEX2
+	internal bool PressEx2;
+
+	// @zasm_var INPUTPRESSEX3
+	internal bool PressEx3;
+
+	// @zasm_var INPUTPRESSEX4
+	internal bool PressEx4;
+
+	// @zasm_var INPUTMOUSEX
+	internal int InputMouseX;
+
+	// @zasm_var INPUTMOUSEY
+	internal int InputMouseY;
+
+	// @zasm_var INPUTMOUSEZ
+	internal int InputMouseZ;
+
+	// @zasm_var INPUTMOUSEB
+	internal int InputMouseB;
+
+	// @zasm_var INPUTAXISUP
+	internal bool InputAxisUp;
+
+	// @zasm_var INPUTAXISDOWN
+	internal bool InputAxisDown;
+
+	// @zasm_var INPUTAXISLEFT
+	internal bool InputAxisLeft;
+
+	// @zasm_var INPUTAXISRIGHT
+	internal bool InputAxisRight;
+
+	// @zasm_var PRESSAXISUP
+	internal bool PressAxisUp;
+
+	// @zasm_var PRESSAXISDOWN
+	internal bool PressAxisDown;
+
+	// @zasm_var PRESSAXISLEFT
+	internal bool PressAxisLeft;
+
+	// @zasm_var PRESSAXISRIGHT
+	internal bool PressAxisRight;
+
+	// @zasm_var INPUTPRESSMAP
+	internal bool PressMap;
+
+	// Link's Hitbox width in pixels starting from his x0,y0 (upper-left)
+	// corner, going right.
+	//
+	// @zasm_var LINKHXSZ
+	internal int HitWidth;
+
+	// link's Hitbox height in pixels starting from his 0x,0y (upper-left)
+	// corner, going down.
+	//
+	// @zasm_var LINKHYSZ
+	internal int HitHeight;
+
+	// @zasm_var LINKHZSZ
+	internal int HitZHeight;
+
+	// @zasm_var LINKTXSZ
+	internal int TileWidth;
+
+	// @zasm_var LINKTYSZ
+	internal int TileHeight;
+
+	// @zasm_var LINKXOFS
+	internal int DrawXOffset;
+
+	// @zasm_var LINKYOFS
+	internal int DrawYOffset;
+
+	// @zasm_var HEROTOTALDYOFFS
+	internal const int TotalDYOffset;
+
+	// @zasm_var LINKZOFS
+	internal int DrawZOffset;
+
+	// The X offset of Link's hitbox, or collision rectangle.
+	//
+	// @zasm_var LINKHXOFS
+	internal int HitXOffset;
+
+	// The Y offset of Link's hitbox, or collision rectangle.
+	//
+	// @zasm_var LINKHYOFS
+	internal int HitYOffset;
+
+	// Link->Equipment is now read-write, and needs testing.
+	//
+	// @zasm_var LINKEQUIP
+	internal int Equipment;
+
+	// Warps link to the given screen in the given DMap, just like if he'd
+	// triggered an 'Insta-Warp'-type warp.
+	//
+	// Uses warp return square A, unless compat rule `Old 'Hero->Warp' Return
+	// Square' is on, in which case it uses the warp return square of the
+	// current screen's Sidewarp A.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   WARPR D3 D2
+	internal void Warp(int DMap, int screen);
+
+	// @zasm
+	//   POP D2
+	//   LINKWARPEXR D2
+	internal void WarpEx(int ptr);
+
+	// @zasm
+	//   POP D2
+	//   LINKEXPLODER D2
+	internal void Explode(int arg1);
+
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP D6
+	//   PITWARPR D3 D2
+	internal void PitWarp(int arg1, int arg2);
+
+	// Changes the A button item (respectively), in the same manner the
+	// engine subscreen cursor moves. DIR_RIGHT/DIR_LEFT are equivalent to how
+	// quickswap cycles.
+	//
+	// Does nothing if the QR allowing items to be set for that button is not
+	// enabled.
+	//
+	// @zasm
+	//   POP D2
+	//   SELECTAWPNR D2
+	internal void SelectAWeapon(int dir);
+
+	// Changes the B button item (respectively), in the same manner the
+	// engine subscreen cursor moves. DIR_RIGHT/DIR_LEFT are equivalent to how
+	// quickswap cycles.
+	//
+	// @zasm
+	//   POP D2
+	//   SELECTBWPNR D2
+	internal void SelectBWeapon(int dir);
+
+	// Changes the X button item (respectively), in the same manner the
+	// engine subscreen cursor moves. DIR_RIGHT/DIR_LEFT are equivalent to how
+	// quickswap cycles.
+	//
+	// Does nothing if the QR allowing items to be set for that button is not
+	// enabled.
+	//
+	// @zasm
+	//   POP D2
+	//   SELECTXWPNR D2
+	internal void SelectXWeapon(int dir);
+
+	// Changes the Y button item (respectively), in the same manner the
+	// engine subscreen cursor moves. DIR_RIGHT/DIR_LEFT are equivalent to how
+	// quickswap cycles.
+	//
+	// Does nothing if the QR allowing items to be set for that button is not
+	// enabled.
+	//
+	// @zasm
+	//   POP D2
+	//   SELECTYWPNR D2
+	internal void SelectYWeapon(int dir);
+
+	// Switch the player with the given combo position.
+	// Use the `SW_EFF_` constants from std_constants.zh for 'effect'.
+	// Returns true if successful.
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   SWITCHCMB D2 D3
+	internal bool SwitchCombo(int pos, int effect);
+
+	// Kills the player. Their HP will be set to 0, and 'Immortal' will be
+	// bypassed.
+	//
+	// If 'bypass_revive' is true, bottles will not be checked for revival
+	// items, and the normal single frame delay before death that is used for
+	// script-revival will also be skipped.
+	//
+	// Otherwise, revival processes will occur as normal.
+	//
+	// @zasm
+	//   POP D2
+	//   KILLPLAYER D2
+	internal void Kill(bool bypass_revive = false);
+
+	// Attempts to move the player by 'dx, dy'; obeying solidity.
+	//
+	// [is_knockback] should be true if this movement is the result of some
+	// scripted form of knockback.
+	//
+	// This currently has no effect for the player... It may in the future?
+	//
+	// 'ignore_sideview': if this is false, and the current screen is sideview
+	// gravity, 'dy' will be ignored (unless the player is 'Climbing', has
+	// walk-through-walls enabled, or is sideview swimming)
+	//
+	// [corner_shove]: if this is true, and the movement is not diagonal (i.e.
+	// one of dx or dy is '0'), then if the movement pushes the player into the
+	// corner of a solid, the player will automatically be shoved 'around' the
+	// corner. (Same as how engine movement does it)
+	//
+	// Returns true if the full distance was moved, false otherwise.
+	//
+	// @zasm
+	//   HEROMOVEXY
+	//   POPARGS D5 0.0005
+	internal bool MoveXY(int dx, int dy, bool is_knockback = false,
+						 bool ignore_sideview = false,
+						 bool corner_shove = true);
+
+	// Same as [MoveXY], but does not move the player- instead, just returns
+	// true/false based on what [MoveXY] would return.
+	//
+	// @zasm
+	//   HEROCANMOVEXY
+	//   POPARGS D5 0.0005
+	internal bool CanMoveXY(int dx, int dy, bool is_knockback = false,
+							bool ignore_sideview = false,
+							bool corner_shove = true);
+
+	// Like [MoveXY()], but for a [pixels] movement in the [degrees] angle.
+	//
+	// @zasm
+	//   HEROMOVEATANGLE
+	//   POPARGS D5 0.0005
+	internal bool MoveAtAngle(int degrees, int pixels,
+							  bool is_knockback = false,
+							  bool ignore_sideview = false,
+							  bool corner_shove = true);
+
+	// Like [MoveAtAngle], but does not move the player - instead, just returns
+	// true/false based on what [MoveAtAngle] would return.
+	//
+	// @zasm
+	//   HEROCANMOVEATANGLE
+	//   POPARGS D5 0.0005
+	internal bool CanMoveAtAngle(int degrees, int pxamnt,
+								 bool is_knockback = false,
+								 bool ignore_sideview = false,
+								 bool corner_shove = true);
+
+	// Like [MoveXY()], but for a [pixels] movement in the [dir] direction.
+	//
+	// @zasm
+	//   HEROMOVE
+	//   POPARGS D5 0.0005
+	internal bool Move(int dir, int pixels, bool is_knockback = false,
+					   bool ignore_sideview = false, bool corner_shove = true);
+
+	// Like [Move], but does not move the player - instead, just returns
+	// true/false based on what [Move] would return.
+	//
+	// @zasm
+	//   HEROCANMOVE
+	//   POPARGS D5 0.0005
+	internal bool CanMove(int dir, int pxamnt, bool is_knockback = false,
+						  bool ignore_sideview = false,
+						  bool corner_shove = true);
+
+	// @zasm
+	//   HEROLIFTRELEASE
+	internal lweapon ReleaseLiftWeapon();
+
+	// @zasm
+	//   HEROLIFTGRAB
+	//   POPARGS D5 0.0003
+	internal void LiftWeapon(lweapon arg1, int arg2, int arg3);
+
+	// This returns true if the player is currently in a flicker frame (either
+	// invisible or color masked).
+	//
+	// If called before [Waitdraw()] / player update, results may be off by a
+	// frame.
+	//
+	// If the quest rule 'Invincible Player Flickers' is unchecked, this is
+	// unused.
+	//
+	// @zasm
+	//   HEROISFLICKERFRAME
+	internal bool isFlickerFrame();
+
+	// @zasm
+	//   POP D2
+	//   LINKWARPEXR D2
+	internal void Warp(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   SETR GAMESETA D3
+	internal void SetItemA(int arg1);
+
+	// @zasm
+	//   POP D3
+	//   SETR GAMESETB D3
+	internal void SetItemB(int arg1);
+
+	// This allows you to set Link's button items without binary operation with
+	// options for forcing them.
+	//
+	// Use the constants `ITM_REQUIRE_` and `ITM_SLOT_` from <std> when passing
+	// values into this function.
+	//
+	// @zasm
+	//   POP D6
+	//   POP D1
+	//   POP D0
+	//   SETR SETITEMSLOT D6
+	internal void SetItemSlot(int itm_id, int button, int force);
+
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   SETR D2 LINKOTILE
+	internal int GetOriginalTile(int arg1, int arg2);
+
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   SETR D2 LINKOFLIP
+	internal int GetOriginalFlip(int arg1, int arg2);
+}
+
+internal const player Hero;
+internal const player Link;	  // @deprecated Use Hero->
+internal const player Player; // @deprecated Use Hero->

@@ -1,0 +1,46 @@
+// @zasm_ref REFBOTTLESHOP
+class bottleshopdata {
+	// @delete
+	internal bottleshopdata();
+
+	// Which bottle type each index fills a bottle with.
+	//
+	// @zasm_var BSHOPFILL
+	internal int Fill[];
+
+	// What combo to display as a visual for each index.
+	//
+	// @zasm_var BSHOPCOMBO
+	internal int Combo[];
+
+	// What CSet to use for the combo for each index.
+	//
+	// @zasm_var BSHOPCSET
+	internal int CSet[];
+
+	// The price, in rupees (0-65535) to purchase each index.
+	//
+	// @zasm_var BSHOPPRICE
+	internal int Price[];
+
+	// The message string to display upon purchasing each index.
+	//
+	// @zasm_var BSHOPSTR
+	internal int InfoString[];
+
+	// Loads the name of the bottleshopdata into the provided string buffer.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFBOTTLESHOP
+	//   BSHOPNAMEGET D2
+	internal void GetName(char32 str);
+
+	// Sets the name of the bottleshopdata to the provided string.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFBOTTLESHOP
+	//   BSHOPNAMESET D2
+	internal void SetName(char32 str);
+}

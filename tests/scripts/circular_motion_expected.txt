@@ -11,8 +11,8 @@ Compile finished with exit code '0' (success)
 === METADATA (elided)
 {
   "currentFileSymbols": 4,
-  "symbols": 7,
-  "identifiers": 35
+  "symbols": 13,
+  "identifiers": 53
 }
 PUSHR D0; void run(int, int, int, int, int) Params
 PUSHR D1
@@ -20,183 +20,183 @@ PUSHR D2
 PUSHR D3
 PUSHR D4
 PUSHR REFFFC; void run(int, int, int, int, int) Body Start
-PUSHARGSV 0,0.0002
-SETR D4,SP2
-LOAD D2,0.0004; if() #1 Test
-COMPAREV D2,0
-SETCMP D2,I==
-COMPAREV D2,0
-GOTOCMP 16,==; Test 'if'
-LOAD D2,0.0007; if() #1 Body Start
-STORE D2,0.0004; if() #1 Body End
-LOAD D2,0.0005; if() #2 Test
-COMPAREV D2,0
-SETCMP D2,I<
-COMPAREV D2,0
-GOTOCMP 24,==; Test 'if'
-SETV D3,360; InlineFunc[int Rand(int)] Params AND if() #2 Body Start
-RNDR D2,D3; InlineFunc[int Rand(int)] Body
-STORE D2,0.0005; if() #2 Body End
-LOAD D2,0.0002
+PUSHARGSV 0 0.0002
+SETR D4 SP2
+LOAD D2 0.0004; if() #1 Test
+COMPAREV D2 0
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 16 ==; Test 'if'
+LOAD D2 0.0007; if() #1 Body Start
+STORE D2 0.0004; if() #1 Body End
+LOAD D2 0.0005; if() #2 Test
+COMPAREV D2 0
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 24 ==; Test 'if'
+SETV D3 360; InlineFunc[int Rand(int)] Params AND if() #2 Body Start
+RNDR D2 D3; InlineFunc[int Rand(int)] Body
+STORE D2 0.0005; if() #2 Body End
+LOAD D2 0.0002
 PUSHR D2
 POP REFFFC
-SETR D2,X
-STORE D2,0.0001
-LOAD D2,0.0002
+SETR D2 X
+STORE D2 0.0001
+LOAD D2 0.0002
 PUSHR D2
 POP REFFFC
-SETR D2,Y
-STORE D2,0
-LOAD D2,0.0005; while(true) #1 Body [Opt:AlwaysOn] Start
+SETR D2 Y
+STORE D2 0
+LOAD D2 0.0005; while(true) #1 Body [Opt:AlwaysOn] Start
 PUSHR D2
-LOAD D2,0.0006
+LOAD D2 0.0006
 POP D3
-ADDR D2,D3
-STORE D2,0.0005
-LOAD D2,0.0005; if() #1 Test
-COMPAREV D2,-360
-SETCMP D2,I<
-COMPAREV D2,0
-GOTOCMP 49,==; Test 'if'
-LOAD D2,0.0005; if() #1 Body Start
-ADDV D2,360
-STORE D2,0.0005
+ADDR D2 D3
+STORE D2 0.0005
+LOAD D2 0.0005; if() #1 Test
+COMPAREV D2 -360
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 49 ==; Test 'if'
+LOAD D2 0.0005; if() #1 Body Start
+ADDV D2 360
+STORE D2 0.0005
 GOTO 57; if() #1 Body End
-LOAD D2,0.0005; if() #3 Test AND if() #1 Else Start
-COMPAREV D2,360
-SETCMP D2,I>
-COMPAREV D2,0
-GOTOCMP 57,==; Test 'if'
-LOAD D2,0.0005; if() #3 Body Start
-SUBV D2,360
-STORE D2,0.0005; if() #3 Body End
-LOAD D2,0.0003; if() #1 Else End AND if() #2 Test
-COMPAREV D2,0
-SETCMP D2,I==
-COMPAREV D2,0
-GOTOCMP 101,==; Test 'if'
-LOAD D2,0.0001; if() #2 Body Start
+LOAD D2 0.0005; if() #3 Test AND if() #1 Else Start
+COMPAREV D2 360
+SETCMP D2 I>
+COMPAREV D2 0
+GOTOCMP 57 ==; Test 'if'
+LOAD D2 0.0005; if() #3 Body Start
+SUBV D2 360
+STORE D2 0.0005; if() #3 Body End
+LOAD D2 0.0003; if() #1 Else End AND if() #2 Test
+COMPAREV D2 0
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 101 ==; Test 'if'
+LOAD D2 0.0001; if() #2 Body Start
 PUSHR D2
-LOAD D2,0.0007
+LOAD D2 0.0007
 PUSHR D2
-LOAD D2,0.0005; InlineFunc[int Cos(int)] Params Start
-SETR D3,D2; InlineFunc[int Cos(int)] Params End
-COSR D2,D3; InlineFunc[int Cos(int)] Body
+LOAD D2 0.0005; InlineFunc[int Cos(int)] Params Start
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
-MULTR D2,D3
+MULTR D2 D3
 POP D3
-ADDR D2,D3
+ADDR D2 D3
 PUSHR D2
-LOAD D2,0.0002
-POP D3
-PUSHR D2
-PUSHR D3
-POP D2
-POP REFFFC
-SETR X,D2
-LOAD D2,0
-PUSHR D2
-LOAD D2,0.0004
-PUSHR D2
-LOAD D2,0.0005; InlineFunc[int Sin(int)] Params Start
-SETR D3,D2; InlineFunc[int Sin(int)] Params End
-SINR D2,D3; InlineFunc[int Sin(int)] Body
-POP D3
-MULTR D2,D3
-POP D3
-ADDR D2,D3
-PUSHR D2
-LOAD D2,0.0002
+LOAD D2 0.0002
 POP D3
 PUSHR D2
 PUSHR D3
 POP D2
 POP REFFFC
-SETR Y,D2
+SETR X D2
+LOAD D2 0
+PUSHR D2
+LOAD D2 0.0004
+PUSHR D2
+LOAD D2 0.0005; InlineFunc[int Sin(int)] Params Start
+SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SINR D2 D3; InlineFunc[int Sin(int)] Body
+POP D3
+MULTR D2 D3
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFFFC
+SETR Y D2
 GOTO 184; if() #2 Body End
-LOAD D2,0.0001; if() #2 Else Start
+LOAD D2 0.0001; if() #2 Else Start
 PUSHR D2
-LOAD D2,0.0007
+LOAD D2 0.0007
 PUSHR D2
-LOAD D2,0.0005; InlineFunc[int Cos(int)] Params Start
-SETR D3,D2; InlineFunc[int Cos(int)] Params End
-COSR D2,D3; InlineFunc[int Cos(int)] Body
+LOAD D2 0.0005; InlineFunc[int Cos(int)] Params Start
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
-MULTR D2,D3
+MULTR D2 D3
 PUSHR D2
-LOAD D2,0.0003; InlineFunc[int Cos(int)] Params Start
-SETR D3,D2; InlineFunc[int Cos(int)] Params End
-COSR D2,D3; InlineFunc[int Cos(int)] Body
+LOAD D2 0.0003; InlineFunc[int Cos(int)] Params Start
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
 POP D3
-MULTR D2,D3
+MULTR D2 D3
 POP D3
-ADDR D2,D3
+ADDR D2 D3
 PUSHR D2
-LOAD D2,0.0004
+LOAD D2 0.0004
 PUSHR D2
-LOAD D2,0.0005; InlineFunc[int Sin(int)] Params Start
-SETR D3,D2; InlineFunc[int Sin(int)] Params End
-SINR D2,D3; InlineFunc[int Sin(int)] Body
+LOAD D2 0.0005; InlineFunc[int Sin(int)] Params Start
+SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SINR D2 D3; InlineFunc[int Sin(int)] Body
 POP D3
-MULTR D2,D3
+MULTR D2 D3
 PUSHR D2
-LOAD D2,0.0003; InlineFunc[int Sin(int)] Params Start
-SETR D3,D2; InlineFunc[int Sin(int)] Params End
-SINR D2,D3; InlineFunc[int Sin(int)] Body
+LOAD D2 0.0003; InlineFunc[int Sin(int)] Params Start
+SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SINR D2 D3; InlineFunc[int Sin(int)] Body
 POP D3
-MULTR D2,D3
+MULTR D2 D3
 POP D3
-SUBR D3,D2
-SETR D2,D3
+SUBR D3 D2
+SETR D2 D3
 PUSHR D2
-LOAD D2,0.0002
-POP D3
-PUSHR D2
-PUSHR D3
-POP D2
-POP REFFFC
-SETR X,D2
-LOAD D2,0
-PUSHR D2
-LOAD D2,0.0004
-PUSHR D2
-LOAD D2,0.0005; InlineFunc[int Sin(int)] Params Start
-SETR D3,D2; InlineFunc[int Sin(int)] Params End
-SINR D2,D3; InlineFunc[int Sin(int)] Body
-POP D3
-MULTR D2,D3
-PUSHR D2
-LOAD D2,0.0003; InlineFunc[int Cos(int)] Params Start
-SETR D3,D2; InlineFunc[int Cos(int)] Params End
-COSR D2,D3; InlineFunc[int Cos(int)] Body
-POP D3
-MULTR D2,D3
-POP D3
-ADDR D2,D3
-PUSHR D2
-LOAD D2,0.0007
-PUSHR D2
-LOAD D2,0.0005; InlineFunc[int Cos(int)] Params Start
-SETR D3,D2; InlineFunc[int Cos(int)] Params End
-COSR D2,D3; InlineFunc[int Cos(int)] Body
-POP D3
-MULTR D2,D3
-PUSHR D2
-LOAD D2,0.0003; InlineFunc[int Sin(int)] Params Start
-SETR D3,D2; InlineFunc[int Sin(int)] Params End
-SINR D2,D3; InlineFunc[int Sin(int)] Body
-POP D3
-MULTR D2,D3
-POP D3
-ADDR D2,D3
-PUSHR D2
-LOAD D2,0.0002
+LOAD D2 0.0002
 POP D3
 PUSHR D2
 PUSHR D3
 POP D2
 POP REFFFC
-SETR Y,D2; if() #2 Else End
+SETR X D2
+LOAD D2 0
+PUSHR D2
+LOAD D2 0.0004
+PUSHR D2
+LOAD D2 0.0005; InlineFunc[int Sin(int)] Params Start
+SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SINR D2 D3; InlineFunc[int Sin(int)] Body
+POP D3
+MULTR D2 D3
+PUSHR D2
+LOAD D2 0.0003; InlineFunc[int Cos(int)] Params Start
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
+POP D3
+MULTR D2 D3
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0007
+PUSHR D2
+LOAD D2 0.0005; InlineFunc[int Cos(int)] Params Start
+SETR D3 D2; InlineFunc[int Cos(int)] Params End
+COSR D2 D3; InlineFunc[int Cos(int)] Body
+POP D3
+MULTR D2 D3
+PUSHR D2
+LOAD D2 0.0003; InlineFunc[int Sin(int)] Params Start
+SETR D3 D2; InlineFunc[int Sin(int)] Params End
+SINR D2 D3; InlineFunc[int Sin(int)] Body
+POP D3
+MULTR D2 D3
+POP D3
+ADDR D2 D3
+PUSHR D2
+LOAD D2 0.0002
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFFFC
+SETR Y D2; if() #2 Else End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #1 Body [Opt:AlwaysOn] End
 GOTO 34; while() #1 End AND [Opt:NeverRet] AND void run(int, int, int, int, int) Body End
 

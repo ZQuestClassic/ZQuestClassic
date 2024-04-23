@@ -1,0 +1,287 @@
+// @zasm_ref REFSUBSCREEN
+class subscreendata {
+	// @delete
+	internal subscreendata();
+
+	// The currently selected page.
+	//
+	// @zasm_var SUBDATACURPG
+	internal int CurPage;
+
+	// The total number of pages
+	//
+	// @zasm_var SUBDATANUMPG
+	internal int NumPages;
+
+	// The array containing the pages
+	//
+	// @zasm_var SUBDATAPAGES
+	internal const subscreenpage Pages[];
+
+	// Compare with the `SSTYPE_` constants.
+	//
+	// The type of the subscreen.
+	//
+	// @zasm_var SUBDATATYPE
+	internal const int Type;
+
+	// The flags of the subscreen. Use the `SSFL_*_` constants to access.
+	//
+	// @zasm_var SUBDATAFLAGS
+	internal bool Flags[];
+
+	// The position value of the selector.
+	//
+	// @zasm_var SUBDATACURSORPOS
+	internal int CursorPos;
+
+	// The subscreen's script.
+	//
+	// @zasm_var SUBDATASCRIPT
+	internal int Script;
+
+	// The subscreen's InitD[] parameters
+	//
+	// @zasm_var SUBDATAINITD
+	internal untyped InitD[];
+
+	// Use the `INTBTN_` constants to index this array.
+	//
+	// The 'true' buttons here, when pressed, change pages leftwards.
+	//
+	// @zasm_var SUBDATABTNLEFT
+	internal bool BtnPageLeft[];
+
+	// Use the `INTBTN_` constants to index this array.
+	//
+	// The 'true' buttons here, when pressed, change pages rightwards.
+	//
+	// @zasm_var SUBDATABTNRIGHT
+	internal bool BtnPageRight[];
+
+	// The transition type for left/right transitions.
+	//
+	// Compare with the `TRANS_TY_` constants.
+	//
+	// @zasm_var SUBDATATRANSLEFTTY
+	internal int TransLeftType;
+
+	// The transition sfx for left/right transitions.
+	//
+	// @zasm_var SUBDATATRANSLEFTSFX
+	internal int TransLeftSFX;
+
+	// The flags for left/right transitions.
+	//
+	// Use the `TRANSFLAG_` constants to access these.
+	//
+	// @zasm_var SUBDATATRANSLEFTFLAGS
+	internal bool TransLeftFlags[];
+
+	// The arguments used for left/right transitions.
+	//
+	// Use the 'TRANS_`_ARG_` constants to access these
+	//
+	// @zasm_var SUBDATATRANSLEFTARGS
+	internal int TransLeftArgs[];
+
+	// The transition type for left/right transitions.
+	//
+	// Compare with the `TRANS_TY_` constants.
+	//
+	// @zasm_var SUBDATATRANSRIGHTTY
+	internal int TransRightType;
+
+	// The transition sfx for left/right transitions.
+	//
+	// @zasm_var SUBDATATRANSRIGHTSFX
+	internal int TransRightSFX;
+
+	// The flags for left/right transitions.
+	//
+	// Use the `TRANSFLAG_` constants to access these.
+	//
+	// @zasm_var SUBDATATRANSRIGHTFLAGS
+	internal bool TransRightFlags[];
+
+	// The arguments used for left/right transitions.
+	//
+	// Use the 'TRANS_`_ARG_` constants to access these
+	//
+	// @zasm_var SUBDATATRANSRIGHTARGS
+	internal int TransRightArgs[];
+
+	// The X/Y/W/H offsets for the selector on this subscreen, if the selector
+	// is overridden (see [Flags[]]).
+	//
+	// These values will be ADDED to the x/y/w/h that the selector would
+	// normally draw to.
+	//
+	// @zasm_var SUBDATASELECTORDSTX
+	internal int SelectorDestX;
+
+	// The X/Y/W/H offsets for the selector on this subscreen, if the selector
+	// is overridden (see [Flags[]]).
+	//
+	// These values will be ADDED to the x/y/w/h that the selector would
+	// normally draw to.
+	//
+	// @zasm_var SUBDATASELECTORDSTY
+	internal int SelectorDestY;
+
+	// The X/Y/W/H offsets for the selector on this subscreen, if the selector
+	// is overridden (see [Flags[]]).
+	//
+	// These values will be ADDED to the x/y/w/h that the selector would
+	// normally draw to.
+	//
+	// @zasm_var SUBDATASELECTORDSTW
+	internal int SelectorDestW;
+
+	// The X/Y/W/H offsets for the selector on this subscreen, if the selector
+	// is overridden (see [Flags[]]).
+	//
+	// These values will be ADDED to the x/y/w/h that the selector would
+	// normally draw to.
+	//
+	// @zasm_var SUBDATASELECTORDSTH
+	internal int SelectorDestH;
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this subscreen, if the selector is
+	// overridden (see [Flags[]]).
+	//
+	// @zasm_var SUBDATASELECTORWID
+	internal int SelectorWid[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this subscreen, if the selector is
+	// overridden (see [Flags[]]).
+	//
+	// @zasm_var SUBDATASELECTORHEI
+	internal int SelectorHei[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this subscreen, if the selector is
+	// overridden (see [Flags[]]).
+	//
+	// @zasm_var SUBDATASELECTORTILE
+	internal int SelectorTile[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this subscreen, if the selector is
+	// overridden (see [Flags[]]).
+	//
+	// @zasm_var SUBDATASELECTORCSET
+	internal int SelectorCSet[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this subscreen, if the selector is
+	// overridden (see [Flags[]]).
+	//
+	// @zasm_var SUBDATASELECTORFLASHCSET
+	internal int SelectorFlashCSet[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this subscreen, if the selector is
+	// overridden (see [Flags[]]).
+	//
+	// @zasm_var SUBDATASELECTORFRM
+	internal int SelectorFrames[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this subscreen, if the selector is
+	// overridden (see [Flags[]]).
+	//
+	// @zasm_var SUBDATASELECTORASPD
+	internal int SelectorASpeed[];
+
+	// The pixel-size, tile, cset/flashcset, and animation information for the
+	// two selector overrides.
+	//
+	// These will be used by the selector on this subscreen, if the selector is
+	// overridden (see [Flags[]]).
+	//
+	// @zasm_var SUBDATASELECTORDELAY
+	internal int SelectorDelay[];
+
+	// The timer clock used by the currently active transition.
+	//
+	// '-1' indicates no transition. Writing to '-1' clears the current
+	// transition.
+	//
+	// Writing a positive value starts a transition if none is currently active.
+	//
+	// @zasm_var SUBDATATRANSCLK
+	internal int TransClock;
+
+	// The transition type currently active.
+	//
+	// Compare with the `TRANS_TY_` constants.
+	//
+	// @zasm_var SUBDATATRANSTY
+	internal int TransType;
+
+	// The flags for the current transition.
+	//
+	// Use the `TRANSFLAG_` constants to access these.
+	//
+	// @zasm_var SUBDATATRANSFLAGS
+	internal bool TransFlags[];
+
+	// The arguments used for the current transition.
+	//
+	// Use the 'TRANS_`_ARG_` constants to access these
+	//
+	// @zasm_var SUBDATATRANSARGS
+	internal int TransArgs[];
+
+	// The page the currently active transition is going from/to.
+	//
+	// @zasm_var SUBDATATRANSFROMPG
+	internal int TransFromPage;
+
+	// The page the currently active transition is going from/to.
+	//
+	// @zasm_var SUBDATATRANSTOPG
+	internal int TransToPage;
+
+	// Puts the subscreen's name in the buffer.
+	//
+	// If the buffer is too small, resizes it for you!
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSUBSCREEN
+	//   SUBDATA_GET_NAME D2
+	internal void GetName(char32 buf);
+
+	// Sets the subscreen's name from the buffer.
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFSUBSCREEN
+	//   SUBDATA_SET_NAME D2
+	internal void SetName(char32 buf);
+
+	// Swaps the pages at the two indexes.
+	//
+	// @zasm
+	//   SUBDATA_SWAP_PAGES
+	//   POPARGS D5 0.0003
+	internal void SwapPages(int index1, int index2);
+}

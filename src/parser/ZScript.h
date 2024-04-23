@@ -8,8 +8,7 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "base/general.h"
-
-struct AccessorTable;
+#include "parser/parserDefs.h"
 
 namespace ZScript
 {
@@ -61,8 +60,6 @@ namespace ZScript
 
 		// Gets all user-defined functions.
 		std::vector<Function*> getUserFunctions() const;
-		// Gets all non-user-defined functions
-		std::vector<Function*> getInternalFunctions() const;
 		std::vector<Function*> getUserClassConstructors() const;
 		std::vector<Function*> getUserClassDestructors() const;
 
@@ -198,6 +195,7 @@ namespace ZScript
 		DataType* getType() {return classType;}
 		void setType(DataType* t) {classType = t;}
 		
+		std::string internalRefVar;
 		std::vector<int32_t> members;
 	protected:
 		UserClass(Program& program, ASTClass& user_class);
@@ -343,6 +341,8 @@ namespace ZScript
 		void setOrder(int32_t ind) {_order_ind = ind;}
 		
 		bool is_arr;
+		bool is_internal;
+		bool is_readonly;
 	private:
 		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
 		
@@ -389,27 +389,6 @@ namespace ZScript
 		Constant(Scope&, ASTDataDecl&, DataType const&, int32_t value);
 
 		ASTDataDecl& node;
-		int32_t value;
-	};
-
-	// A builtin data value.
-	class BuiltinConstant : public Datum
-	{
-	public:
-		static BuiltinConstant* create(
-				Scope&, DataType const&, std::string const& name, int32_t value,
-				CompileErrorHandler* = NULL);
-
-		std::optional<std::string> getName() const {return name;}
-		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
-
-		virtual bool isBuiltIn() const {return true;}
-		
-	private:
-		BuiltinConstant(Scope&, DataType const&,
-		                std::string const& name, int32_t value);
-
-		std::string name;
 		int32_t value;
 	};
 
@@ -540,7 +519,18 @@ namespace ZScript
 		}
 		
 		bool isInternal() const {return !node;}
-		bool isNil() const {return prototype || getFlag(FUNCFLAG_NIL|FUNCFLAG_READ_ONLY);}
+		bool isNil() const {
+			if (prototype || getFlag(FUNCFLAG_NIL|FUNCFLAG_READ_ONLY))
+				return true;
+
+			if (getFlag(FUNCFLAG_INTERNAL))
+			{
+				assert(!getCode().empty());
+				return false;
+			}
+
+			return false;
+		}
 		
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
@@ -552,9 +542,6 @@ namespace ZScript
 		
 		void alias(Function* func, bool force = false);
 		bool is_aliased() const {return bool(aliased_func);}
-		
-		void setEntry(AccessorTable* entry) {table_entry=entry;}
-		AccessorTable const* getEntry() const {return table_entry;}
 		
 		#define CONSTEXPR_CBACK_TY std::function<optional<int32_t>(vector<optional<int32_t>> const&, \
 			AST&, CompileErrorHandler*, Scope*)>
@@ -603,8 +590,6 @@ namespace ZScript
 		
 	private:
 		CONSTEXPR_CBACK_TY constexpr_callback;
-		
-		AccessorTable* table_entry; //parent entry
 		
 		mutable std::optional<int32_t> label;
 		mutable std::optional<int32_t> altlabel;

@@ -171,7 +171,9 @@ namespace ZScript
 		bool operator==(Scope* other) {return id == other->getId();}
 		
 		virtual bool remove(ZScript::Datum&) = 0;
-		
+
+		void initFunctionBinding(Function* fn, CompileErrorHandler* handler);
+
 	protected:
 		TypeStore& typeStore_;
 		std::optional<std::string> name_;
@@ -557,6 +559,7 @@ namespace ZScript
 		std::vector<Function*> getConstructors() const;
 		std::vector<Function*> getDestructor() const;
 		bool add(Datum& datum, CompileErrorHandler* errorHandler);
+		void removeFunction(Function* function);
 		void parse_ucv();
 		UserClassVar* getClassVar(std::string const& name);
 		const std::map<std::string, UserClassVar*>& getClassData();
@@ -599,62 +602,40 @@ namespace ZScript
 		ASTBlock* block;
 	};
 	
-	enum ZClassIdBuiltin
-	{
-		ZCLID_START = 0,
-		ZCLID_GAME = 0,
-		ZCLID_PLAYER,
-		ZCLID_SCREEN,
-		ZCLID_REGION,
-		ZCLID_VIEWPORT,
-		ZCLID_FFC,
-		ZCLID_ITEM,
-		ZCLID_ITEMCLASS,
-		ZCLID_NPC,
-		ZCLID_LWPN,
-		ZCLID_EWPN,
-		ZCLID_NPCDATA,
-		ZCLID_DEBUG,
-		ZCLID_AUDIO,
-		ZCLID_COMBOS,
-		ZCLID_SPRITEDATA,
-		ZCLID_GRAPHICS,
-		ZCLID_BITMAP,
-		ZCLID_TEXT,
-		ZCLID_INPUT,
-		ZCLID_MAPDATA,
-		ZCLID_DMAPDATA,
-		ZCLID_ZMESSAGE,
-		ZCLID_SHOPDATA,
-		ZCLID_DROPSET,
-		ZCLID_PONDS,
-		ZCLID_WARPRING,
-		ZCLID_DOORSET,
-		ZCLID_ZUICOLOURS,
-		ZCLID_RGBDATA,
-		ZCLID_PALETTE,
-		ZCLID_TUNES,
-		ZCLID_PALCYCLE,
-		ZCLID_GAMEDATA,
-		ZCLID_CHEATS,
-		ZCLID_FILESYSTEM,
-		ZCLID_SUBSCREENDATA,
-		ZCLID_FILE,
-		ZCLID_ZINFO,
-		ZCLID_DIRECTORY,
-		ZCLID_RNG,
-		ZCLID_BOTTLETYPE,
-		ZCLID_BOTTLESHOP,
-		ZCLID_GENERICDATA,
-		ZCLID_STACK,
-		ZCLID_PALDATA,
-		ZCLID_PORTAL,
-		ZCLID_SAVPORTAL,
-		ZCLID_SUBSCREENPAGE,
-		ZCLID_SUBSCREENWIDGET,
-		ZCLID_WEBSOCKET,
-		ZCLID_END
-	};
+	// enum ZClassIdBuiltin
+	// {
+	// 	ZCLID_START = 0,
+	// 	ZCLID_GAME = 0,
+	// 	// ZCLID_PLAYER,
+	// 	// ZCLID_SCREEN,
+	// 	// ZCLID_REGION,
+	// 	// ZCLID_FFC,
+	// 	// ZCLID_ITEM,
+	// 	// ZCLID_ITEMCLASS,
+	// 	// ZCLID_NPC,
+	// 	// ZCLID_LWPN,
+	// 	// ZCLID_EWPN,
+	// 	// ZCLID_NPCDATA,
+	// 	// ZCLID_DEBUG,
+	// 	// ZCLID_AUDIO,
+	// 	// ZCLID_COMBOS,
+	// 	ZCLID_SPRITEDATA,
+	// 	ZCLID_GRAPHICS,
+	// 	ZCLID_BITMAP,
+	// 	ZCLID_TEXT,
+	// 	ZCLID_INPUT,
+	// 	ZCLID_MAPDATA,
+	// 	ZCLID_DMAPDATA,
+	// 	ZCLID_ZMESSAGE,
+	// 	ZCLID_SHOPDATA,
+	// 	ZCLID_DROPSET,
+	// 	// ZCLID_PONDS,
+	// 	ZCLID_WARPRING,
+	// 	ZCLID_DOORSET,
+	// 	ZCLID_ZUICOLOURS,
+	// 	ZCLID_RGBDATA,
+	// 	ZCLID_END
+	// };
 
 	class ZClass : public BasicScope
 	{
