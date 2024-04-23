@@ -2678,7 +2678,7 @@ void handle_trigger_results(mapscr* screen, int screen_index, newcombo const& cm
 	{
 		bool itm_ex = (cmb.triggerflags[2] & combotriggerEXSTITEM);
 		bool specitem = (cmb.triggerflags[2] & combotriggerSPCITEM);
-		if(specitem && getmapflag(mSPECIALITEM))
+		if(specitem && getmapflag(screen_index, mSPECIALITEM))
 		{
 			//already collected
 			if(itm_ex) trigexstate = true;
@@ -2786,20 +2786,14 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		return true;
 	}
 	
-	word ctramnt = game->get_counter(cmb.trigctr);
-	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
-	
 	int32_t flag = rpos_handle.sflag();
 	int32_t flag2 = cmb.flag;
 	
 	bool check_bit = false;
 	bool used_bit = false;
 	
-	uint32_t exflag = 0;
-	
 	if(cmb.exstate > -1)
 	{
-		exflag = 1<<cmb.exstate;
 		if (force_ex_trigger(rpos_handle))
 			return true;
 	}
@@ -2810,14 +2804,6 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	}
 	if(!handle_trigger_conditionals(cmb, cx, cy, hasitem))
 		return false;
-
-	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
-	{
-		do_weapon_fx(w,cmb);
-		return true;
-	}
-	
-	byte* grid = nullptr;
 	
 	if (w)
 	{
