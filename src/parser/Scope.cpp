@@ -837,7 +837,7 @@ static int applyTemplateTypes(
 	}
 
 	//Returns an existing matching function, or creates a new one, memory managed -Em
-	*out_resolved_function = function->apply_templ_func(ret_type, resolved_params);
+	*out_resolved_function = function->apply_templ_func(bound_t, ret_type, resolved_params);
 
 	return APPLY_TEMPLATE_RET_APPLIED;
 }
@@ -847,8 +847,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 	bool any_from_type_template = false;
 
 	// Filter out invalid functions.
-	for (vector<Function*>::iterator it = functions.begin();
-		 it != functions.end();)
+	for (auto it = functions.begin(); it != functions.end();)
 	{
 		Function* function = *it;
 		if (function->getFlag(FUNCFLAG_NIL))
@@ -963,9 +962,8 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 	if (!any_from_type_template || functions.size() == 0)
 		return;
 
-	// Ignore templated functions if any non-templated function matched.
 	bool any_not_from_type_template = false;
-	for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); it++)
+	for (auto it = functions.begin(); it != functions.end(); it++)
 	{
 		if (!(*it)->isFromTypeTemplate)
 		{
@@ -974,18 +972,32 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		}
 	}
 
-	if (!any_not_from_type_template)
-		return;
-
-	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
+	if (any_not_from_type_template)
 	{
-		if ((*it)->isFromTypeTemplate)
+		// Ignore templated functions if any non-templated function matched.
+		for (auto it = functions.begin(); it != functions.end();)
 		{
-			it = functions.erase(it);
-			continue;
+			if ((*it)->isFromTypeTemplate)
+				it = functions.erase(it);
+			else ++it;
 		}
-
-		it++;
+		return;
+	}
+	
+	//else, filter templates by array-depth specificity
+	optional<int32_t> min_arr_depth;
+	for (auto it = functions.begin(); it != functions.end(); it++)
+	{
+		Function& func = **it;
+		auto depth = func.templ_bound_t->getArrayDepth();
+		if(!min_arr_depth || depth < *min_arr_depth)
+			min_arr_depth = depth;
+	}
+	for (auto it = functions.begin(); it != functions.end();)
+	{
+		if ((*it)->templ_bound_t->getArrayDepth() > *min_arr_depth)
+			it = functions.erase(it);
+		else ++it;
 	}
 }
 
