@@ -337,9 +337,10 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 				fn_value = (INTARR_OFFS + fn_value) * 10000;
 			}
 
+			auto& ty = decl->manager->type;
 			bool is_internal_arr = parsed_comment.contains("zasm_internal_array");
-			bool is_arr = decl->manager->type.isArray();
-			auto var_type = decl->manager->type.baseType(*scope, nullptr);
+			bool is_arr = ty.isArray();
+			auto var_type = is_internal_arr ? &ty : ty.baseType(*scope, nullptr);
 			bool deprecated = parsed_comment.contains("deprecated");
 
 			// Add a getter.

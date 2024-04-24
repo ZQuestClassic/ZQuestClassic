@@ -213,7 +213,7 @@ namespace ZScript
 
 		// Resolution.
 		virtual bool isResolved() const {return true;}
-		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) {return this;}
+		virtual DataType const* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) {return this;}
 		virtual DataType const& getBaseType() const {return *this;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const = 0;
 		// Basics
@@ -303,7 +303,7 @@ namespace ZScript
 		DataTypeUnresolved* clone() const;
 		
 		virtual bool isResolved() const {return false;}
-		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
 		virtual std::string getName() const;
@@ -360,10 +360,10 @@ namespace ZScript
 	class DataTypeArray : public DataType
 	{
 	public:
+		static DataTypeArray const* create(DataType const& elementType);
+		static DataTypeArray const* create_owning(DataType* elementType);
 		DataTypeArray(DataType const& elementType)
 			: DataType(NULL), elementType(elementType), owned_type() {}
-		DataTypeArray(DataType const& elementType, DataType* ownedType)
-			: DataType(NULL), elementType(elementType), owned_type(ownedType) {}
 		DataTypeArray* clone() const {return new DataTypeArray(*this);}
 
 		virtual std::string getName() const {
@@ -386,8 +386,9 @@ namespace ZScript
 	private:
 		DataType const& elementType;
 		std::shared_ptr<DataType> owned_type;
-
+		
 		int32_t selfCompare(DataType const& other) const;
+		static std::vector<std::unique_ptr<DataTypeArray>> created_arr_types;
 	};
 	
 	class DataTypeCustom : public DataType

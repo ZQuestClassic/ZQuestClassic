@@ -2300,7 +2300,6 @@ namespace ZScript
 		uint becomeArray;
 	private:
 		bool wasResolved_;
-		owning_vector<DataType> extra_types; //nested arrays would leak pointers if not for this
 	};
 }
 
