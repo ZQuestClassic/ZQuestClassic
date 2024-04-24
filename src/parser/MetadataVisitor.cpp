@@ -70,6 +70,8 @@ static std::string make_uri(std::string path)
 
 static auto LocationData_json(const LocationData& loc)
 {
+	assert(loc.first_line > 0 && loc.first_column > 0);
+	assert(loc.last_line > 0 && loc.last_column > 0);
 	return json{
 		{"start", {
 			{"line", loc.first_line - 1}, {"character", loc.first_column - 1},

@@ -1610,8 +1610,7 @@ Statement_For_Each :
 		ASTExpr* expr = (ASTExpr*)$5;
 		ASTStmt* body = (ASTExpr*)$7;
 		
-		$$ = new ASTStmtForEach(iden->getValue(), expr, body, nullptr, @$);
-		delete iden;
+		$$ = new ASTStmtForEach(iden, expr, body, nullptr, @$);
 	}
 	| FOR LPAREN Identifier Token_In Expression RPAREN
 		Block_Statement ELSE Block_Statement
@@ -1621,8 +1620,7 @@ Statement_For_Each :
 		ASTStmt* body = (ASTExpr*)$7;
 		ASTStmt* elseblock = (ASTExpr*)$9;
 		
-		$$ = new ASTStmtForEach(iden->getValue(), expr, body, elseblock, @$);
-		delete iden;
+		$$ = new ASTStmtForEach(iden, expr, body, elseblock, @$);
 	}
 	;
 

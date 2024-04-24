@@ -67,6 +67,12 @@ ffc script Metadata {
         // equal to [c->speed]
         int e = c->speed;
         WrapDeg(e);
+        // an array
+        int arr[] = {1, 2, 3};
+        for (v : arr) {
+            // TODO: make symbol lookup find `v`
+            Trace(v);
+        }
     }
 }
 

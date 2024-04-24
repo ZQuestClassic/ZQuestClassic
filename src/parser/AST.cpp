@@ -951,9 +951,9 @@ void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 uint ASTStmtForEach::next_comment_id = 0;
 
 ASTStmtForEach::ASTStmtForEach(
-	std::string const& identifier, ASTExpr* expr, ASTStmt* body,
+	ASTString* identifier, ASTExpr* expr, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
-	: ASTStmt(location), iden(identifier), indxdecl(nullptr), arrdecl(nullptr),
+	: ASTStmt(location), identifier(identifier), indxdecl(nullptr), arrdecl(nullptr),
 		decl(nullptr), arrExpr(expr), body(body),
 		elseBlock(elseBlock), scope(nullptr),
 	  ends_loop(true), ends_else(true)
