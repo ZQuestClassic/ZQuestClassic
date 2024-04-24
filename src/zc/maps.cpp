@@ -6487,8 +6487,9 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 	return _walkflag(zx,zy,cnt,0_zf);
 }
 
-bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int x, int y, zfix const& switchblockstate, bool is_temp_screens)
+bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens)
 {
+	int x = zx.getRound(), y = zy.getRound();
 	int32_t bx = COMBOPOS(x % 256, y % 176);
 	const newcombo& c = combobuf[s0->data[bx]];
 	const newcombo& c1 = combobuf[s1->data[bx]];
@@ -6540,7 +6541,7 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int x, 
 	if((cwalkflag&b) && !dried)
 		return true;
 	
-	if (is_temp_screens && collide_object(x, y, 1, 1)) return true;
+	if (is_temp_screens && collide_object(zx, zy, 0.0001_zf, 0.0001_zf)) return true;
 
 	return false;
 }
@@ -6554,7 +6555,7 @@ static bool _walkflag_new(zfix_round zx, zfix_round zy, zfix const& switchblocks
 	mapscr* s2 = get_screen_layer_for_xy_offset(x, y, 2);
 	if (!s1->valid) s1 = s0;
 	if (!s2->valid) s2 = s0;
-	return _walkflag_new(s0, s1, s2, x, y, switchblockstate, true);
+	return _walkflag_new(s0, s1, s2, zx, zy, switchblockstate, true);
 }
 
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate)

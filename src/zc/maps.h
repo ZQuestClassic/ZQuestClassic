@@ -344,7 +344,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool over
 void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* screen);
 void putscrdoors(BITMAP *dest,int32_t x,int32_t y,mapscr* screen);
 void putscrdoors(BITMAP *dest,int32_t x,int32_t y);
-bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int x, int y, zfix const& switchblockstate, bool is_temp_screens);
+bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate);
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer = -1, bool notLink = false);
