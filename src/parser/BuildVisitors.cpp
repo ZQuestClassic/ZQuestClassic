@@ -1637,11 +1637,12 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 
 	auto writeType = &host.resolveType(scope, this);
 	bool is_object = writeType && writeType->isObject();
+	bool holds_object = writeType && writeType->canHoldObject();
 
 	// Set variable to EXP1 or val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
 	{
-		if (is_object)
+		if (holds_object)
 			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 
 		if (val)
