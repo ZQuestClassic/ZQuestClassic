@@ -796,12 +796,8 @@ static int applyTemplateTypes(
 			}
 			if(!varg_basety)
 				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-			DataType* owned_ty = nullptr;
-			for(int q = 0; q < target_depth+1; ++q) //ensure proper ownership of the nested types //+1 because vargs
-			{
-				varg_basety = owned_ty =
-					owned_ty ? new DataTypeArray(*varg_basety, owned_ty) : new DataTypeArray(*varg_basety);
-			}
+			for(int q = 0; q < target_depth+1; ++q) //+1 because vargs adds a layer of array around the params
+				varg_basety = DataTypeArray::create(*varg_basety);
 			resolved_params.back() = varg_basety;
 		}
 	}
@@ -820,12 +816,8 @@ static int applyTemplateTypes(
 
 		auto target_depth = ret_type->getArrayDepth();
 		ret_type = bound_t;
-		DataType* owned_ty = nullptr;
-		for(int q = 0; q < target_depth; ++q) //ensure proper ownership of the nested types
-		{
-			ret_type = owned_ty =
-				owned_ty ? new DataTypeArray(*ret_type, owned_ty) : new DataTypeArray(*ret_type);
-		}
+		for(int q = 0; q < target_depth; ++q)
+			ret_type = DataTypeArray::create(*ret_type);
 	}
 
 	//Returns an existing matching function, or creates a new one, memory managed -Em

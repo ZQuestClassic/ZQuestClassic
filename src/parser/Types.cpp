@@ -9,6 +9,7 @@
 
 using namespace ZScript;
 using std::string;
+using std::shared_ptr;
 
 ////////////////////////////////////////////////////////////////
 // TypeStore
@@ -233,10 +234,10 @@ DataTypeUnresolved* DataTypeUnresolved::clone() const
 	return copy;
 }
 
-DataType* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHandler)
 {
 	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
-		return type->clone();
+		return type;
 	return this;
 }
 DataType const* DataTypeUnresolved::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
@@ -352,6 +353,24 @@ DataType const* DataTypeArray::baseType(Scope& scope, CompileErrorHandler* error
 DataType const& DataTypeArray::getBaseType() const
 {
 	return ZScript::getBaseType(elementType);
+}
+
+std::vector<std::unique_ptr<DataTypeArray>> DataTypeArray::created_arr_types;
+DataTypeArray const* DataTypeArray::create(DataType const& elementType)
+{
+	for(auto& ty : created_arr_types)
+		if(ty->elementType == elementType)
+			return ty.get();
+	return created_arr_types.emplace_back(new DataTypeArray(elementType)).get();
+}
+DataTypeArray const* DataTypeArray::create_owning(DataType* elementType)
+{
+	for(auto& ty : created_arr_types)
+		if(ty->elementType == *elementType)
+			return ty.get();
+	auto& ty = created_arr_types.emplace_back(new DataTypeArray(*elementType));
+	ty->owned_type.reset(elementType);
+	return ty.get();
 }
 
 ////////////////////////////////////////////////////////////////

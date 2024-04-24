@@ -1423,8 +1423,6 @@ void ASTDataDecl::setInitializer(ASTExpr* initializer)
 
 DataType const& ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
 {
-	TypeStore& typeStore = scope->getTypeStore();
-
 	// First resolve the base type.
 	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
 	DataType const* type = &baseTypeNode->resolve(*scope, errorHandler);
@@ -1437,12 +1435,8 @@ DataType const& ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 		return *type;
 	
 	// If we have any arrays, tack them onto the base type.
-	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
-		 it != extraArrays.end(); ++it)
-	{
-		DataTypeArray arrayType(*type);
-		type = typeStore.getCanonicalType(arrayType);
-	}
+	for (int q = 0; q < extraArrays.size(); ++q)
+		type = DataTypeArray::create(*type);
 
 	return *type;
 }
@@ -2918,37 +2912,33 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 {
 	if(!wasResolved_)
 	{
-		DataType const* resolved = type->resolve(scope, errorHandler);
-		if(resolved && constant_)
+		DataType const* ty = type->resolve(scope, errorHandler);
+		if (ty && ty->isResolved())
 		{
-			string name = resolved->getName();
-			if(constant_>1 || resolved->isConstant())
+			if (constant_)
 			{
-				errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));
-				return DataType::ZVOID;
-			}
-			resolved = resolved->getConstType();
-		}
-		if(resolved)
-		{
-			DataType* result = nullptr;
-			if(becomeArray)
-			{
-				auto* basety = resolved->baseType(scope, errorHandler);
-				if(basety)
+				string name = ty->getName();
+				if (constant_ > 1 || ty->isConstant())
 				{
-					result = new DataTypeArray(*basety);
-					for(uint q = 1; result && q < becomeArray; ++q)
-					{
-						extra_types.push_back(result); //don't leak the memory
-						result = new DataTypeArray(*result);
-					}
+					errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));
+					return DataType::ZVOID;
 				}
+				ty = ty->getConstType();
 			}
-			else result = resolved->clone();
-			if(result)
-				type.reset(result);
-			wasResolved_ = result && result->isResolved();
+			if (becomeArray && ty->isResolved())
+			{
+				uint q = 0;
+				if (ty == type.get()) //need to manage the element type ownership
+				{
+					++q;
+					ty = DataTypeArray::create_owning(type.release());
+				}
+				for (; q < becomeArray; ++q)
+					ty = DataTypeArray::create(*ty);
+			}
+			if (ty != type.get())
+				type.reset(ty->clone());
+			wasResolved_ = type && type->isResolved();
 		}
 	}
 	return *type;

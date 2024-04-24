@@ -514,7 +514,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				for (auto&& member : user_class.getScope().getClassData())
 				{
 					auto& type = member.second->getNode()->resolveType(scope, nullptr);
-					if (type.isObject())
+					if (type.canHoldObject())
 					{
 						object_indices.push_back(member.second->getIndex());
 						object_indices.push_back((int)type.getScriptObjectTypeId());

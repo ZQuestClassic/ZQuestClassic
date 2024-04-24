@@ -1981,9 +1981,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		}
 
 		// Convert to array type.
-		host.setReadType(
-				program.getTypeStore().getCanonicalType(
-						DataTypeArray(elementType)));
+		host.setReadType(DataTypeArray::create(elementType));
 	}
 	else
 	{
@@ -2017,9 +2015,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		if (!type)
 			type = &DataType::UNTYPED;
 
-		host.setReadType(
-				program.getTypeStore().getCanonicalType(
-						DataTypeArray(*type)));
+		host.setReadType(DataTypeArray::create(*type));
 	}
 
 	// If initialized, check that each element can be cast to type.
