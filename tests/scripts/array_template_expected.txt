@@ -1,0 +1,212 @@
+Compiling 'array_template.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+=== METADATA (elided)
+{
+  "currentFileSymbols": 21,
+  "symbols": 25,
+  "identifiers": 43
+}
+PUSHR REFFFC; void run() Body Start
+PUSHARGSV 0 0.0012
+SETR D4 SP2
+ALLOCATEMEMV D2 3 0
+STORE D2 0.0010
+WRITEPODARRAY D2 {1,2,3}
+ALLOCATEMEMV D2 3 0
+STORE D2 0.0008
+WRITEPODARRAY D2 {4,5,6}
+ALLOCATEMEMV D2 3 0
+STORE D2 0.0006
+WRITEPODARRAY D2 {7,8,9}
+ALLOCATEMEMV D2 3 0
+STORE D2 0.0004
+SETR D0 D2
+PUSHR D0
+LOAD D2 0.0010
+POP D0
+WRITEPODARRAYVR 0 D2
+PUSHR D0
+LOAD D2 0.0008
+POP D0
+WRITEPODARRAYVR 1 D2
+PUSHR D0
+LOAD D2 0.0006
+POP D0
+WRITEPODARRAYVR 2 D2
+PUSHR D4
+LOAD D2 0.0004; UsrFunc[void print(int[][])] Params Start
+PUSHR D2; UsrFunc[void print(int[][])] Params End
+CALLFUNC 0.0164; UsrFunc[void print(int[][])] Call
+POP D4
+ALLOCATEMEMV D2 0 0
+STORE D2 0.0003
+LOAD D2 0.0004; for(each) #2 ArrDecl
+STORE D2 0.0001
+STOREV 0 0.0002; for(each) #2 IndxDecl
+STOREV 0 0; for(each) #2 ValDecl
+LOAD D0 0.0001; for(each) #2 EndArrayCheck
+ARRAYSIZE D0
+LOAD D3 0.0002
+COMPARER D3 D2
+GOTOCMP 56 >=; for(each) #2 to Else
+READPODARRAYR D2 D3; for(each) #2 Next Index
+STORE D2 0
+ADDV D3 1
+STORE D3 0.0002
+PUSHR D4; for(each) #2 Body Start
+LOAD D2 0.0003; UsrFunc[void arraycat(int[], int[])] Params Start
+PUSHR D2
+LOAD D2 0
+PUSHR D2; UsrFunc[void arraycat(int[], int[])] Params End
+CALLFUNC 0.0119; UsrFunc[void arraycat(int[], int[])] Call
+POP D4; for(each) #2 Body End
+GOTO 39; for(each) #2 End
+PUSHR D4
+LOAD D2 0.0003; UsrFunc[void print(int[])] Params Start
+PUSHR D2; UsrFunc[void print(int[])] Params End
+CALLFUNC 0.0179; UsrFunc[void print(int[])] Call
+POP D4
+STOREV -1 0.0002; loop() #1 ValDecl
+PUSHR D4; loop() #1 Body Start
+LOAD D2 0.0003; UsrFunc[void append(int[], const int)] Params Start
+PUSHR D2
+LOAD D2 0.0002
+PUSHR D2; UsrFunc[void append(int[], const int)] Params End
+CALLFUNC 0.0109; UsrFunc[void append(int[], const int)] Call
+POP D4; loop() #1 Body End
+LOAD D3 0.0002; loop() #1 Incr
+ADDV D3 -1
+STORE D3 0.0002
+COMPAREV D3 -9.9999; loop() #1 Test
+GOTOCMP 62 >=; >= start, keep looping
+POPARGS D5 0
+PUSHR D4
+LOAD D2 0.0003; UsrFunc[void print(int[])] Params Start
+PUSHR D2; UsrFunc[void print(int[])] Params End
+CALLFUNC 0.0179; UsrFunc[void print(int[])] Call
+POP D4
+ALLOCATEMEMV D2 3 0
+STORE D2 0.0001
+WRITEPODARRAY D2 {10,11,12}
+STORE D2 0.0001
+PUSHR D4
+LOAD D2 0.0004; UsrFunc[void append(int[][], int[])] Params Start
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2; UsrFunc[void append(int[][], int[])] Params End
+CALLFUNC 0.0109; UsrFunc[void append(int[][], int[])] Call
+PEEK D4
+LOAD D2 0.0004; UsrFunc[void print(int[][])] Params Start
+PUSHR D2; UsrFunc[void print(int[][])] Params End
+CALLFUNC 0.0164; UsrFunc[void print(int[][])] Call
+POP D4
+LOAD D3 0.0001
+DEALLOCATEMEMR D3
+LOAD D3 0.0003
+DEALLOCATEMEMR D3
+LOAD D3 0.0004
+DEALLOCATEMEMR D3
+LOAD D3 0.0006
+DEALLOCATEMEMR D3
+LOAD D3 0.0008
+DEALLOCATEMEMR D3
+LOAD D3 0.0010
+DEALLOCATEMEMR D3
+POPARGS D5 0.0013
+QUIT; void run() Body End
+SETR D4 SP2; Func[void append(T[], T)] Body Start
+LOAD D2 0.0001; InlineFunc[bool ArrayPushBack(T[], T)] Params Start
+PUSHR D2
+LOAD D2 0
+PUSHR D2; InlineFunc[bool ArrayPushBack(T[], T)] Params End
+PUSHV -1; InlineFunc[bool ArrayPushBack(T[], T)] Body Start
+ARRAYPUSH
+POPARGS D5 0.0003; InlineFunc[bool ArrayPushBack(T[], T)] Body End
+POPARGS D5 0.0002
+RETURNFUNC; Func[void append(T[], T)] Body End
+PUSHARGSV 0 0.0004; Func[void arraycat(T[], T[])] Body Start
+SETR D4 SP2
+LOAD D2 0.0005; InlineFunc[int SizeOfArray(T[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(T[])] Body
+STORE D2 0.0003
+LOAD D2 0.0005; InlineFunc[void ResizeArray(T[], int)] Params Start
+PUSHR D2
+LOAD D2 0.0003
+PUSHR D2
+LOAD D2 0.0004; InlineFunc[int SizeOfArray(T[])] Params
+ARRAYSIZE D2; InlineFunc[int SizeOfArray(T[])] Body
+POP D3
+ADDR D2 D3
+SETR D3 D2; InlineFunc[void ResizeArray(T[], int)] Params End
+POP D2; InlineFunc[void ResizeArray(T[], int)] Body Start
+RESIZEARRAYR D2 D3; InlineFunc[void ResizeArray(T[], int)] Body End
+LOAD D2 0.0004; for(each) #1 ArrDecl
+STORE D2 0.0001
+STOREV 0 0.0002; for(each) #1 IndxDecl
+STOREV 0 0; for(each) #1 ValDecl
+LOAD D0 0.0001; for(each) #1 EndArrayCheck
+ARRAYSIZE D0
+LOAD D3 0.0002
+COMPARER D3 D2
+GOTOCMP 162 >=; for(each) #1 to Else
+READPODARRAYR D2 D3; for(each) #1 Next Index
+STORE D2 0
+ADDV D3 1
+STORE D3 0.0002
+LOAD D2 0; for(each) #1 Body Start
+PUSHR D2
+LOAD D2 0.0005
+PUSHR D2
+LOAD D2 0.0003
+PUSHR D2
+ADDV D2 1
+STORE D2 0.0003
+POP D2
+SETR D3 D2
+POP D0
+POP D2
+WRITEPODARRAYRR D3 D2; for(each) #1 Body End
+GOTO 139; for(each) #1 End
+POPARGS D5 0.0006
+RETURNFUNC; Func[void arraycat(T[], T[])] Body End
+PUSHV 0; Func[void print(T[][])] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 15 0
+STORE D2 0
+WRITEPODSTRING D2 "Arr[][]: %aad\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+POPARGS D5 0.0002
+RETURNFUNC; Func[void print(T[][])] Body End
+PUSHV 0; Func[void print(T[])] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 12 0
+STORE D2 0
+WRITEPODSTRING D2 "Arr[]: %ad\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+POPARGS D5 0.0002
+RETURNFUNC; Func[void print(T[])] Body End
+
+
+QUIT; void run() Body

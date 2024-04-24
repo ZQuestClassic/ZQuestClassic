@@ -41071,17 +41071,8 @@ int32_t run_script_int(bool is_jitted)
 			{
 				if (!use_testingst_start)
 				{
-					Z_error_fatal("RefCount can only be used in test mode\n");
+					Z_scripterrlog("RefCount can only be used in test mode\n");
 					break;
-				}
-
-				static bool has_warned = false;
-				if (zscript_debugger && !has_warned) 
-				{
-					has_warned = true;
-					zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
-							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),
-							"RefCount() only works in test mode!");
 				}
 
 				uint32_t id = get_register(sarg1);

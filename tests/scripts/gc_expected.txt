@@ -1413,7 +1413,7 @@ POP D4
 PUSHR GD5; InlineFunc[bool ArrayPushBack(Person[], Person)] Params Start
 LOAD D2 0.0026
 PUSHR D2; InlineFunc[bool ArrayPushBack(Person[], Person)] Params End
-PUSHV -0.0001; InlineFunc[bool ArrayPushBack(Person[], Person)] Body Start
+PUSHV -1; InlineFunc[bool ArrayPushBack(Person[], Person)] Body Start
 ARRAYPUSH
 POPARGS D5 0.0003; InlineFunc[bool ArrayPushBack(Person[], Person)] Body End
 ALLOCATEMEMV D2 12 0
@@ -1449,7 +1449,7 @@ POP D4
 LOAD D3 0.0023
 DEALLOCATEMEMR D3
 PUSHR GD5; InlineFunc[Person ArrayPopBack(Person[])] Params
-PUSHV -0.0001; InlineFunc[Person ArrayPopBack(Person[])] Body Start
+PUSHV -1; InlineFunc[Person ArrayPopBack(Person[])] Body Start
 ARRAYPOP
 POPARGS D5 0.0002; InlineFunc[Person ArrayPopBack(Person[])] Body End
 ALLOCATEMEMV D2 12 0
@@ -2601,7 +2601,7 @@ RETURNFUNC; Func[Person createPerson1()] Body End
 SETV D2 0.2716; Func[Person Person::Person(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0002,0.0003}
-ZCLASS_MARK_TYPE {0.0001,0.0008}
+ZCLASS_MARK_TYPE {0.0002,0.0008,0.0001,0.0008}
 SETR D4 SP2
 PUSHR CLASS_THISKEY2
 SETR D2 GD2
