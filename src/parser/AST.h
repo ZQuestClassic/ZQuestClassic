@@ -605,14 +605,14 @@ namespace ZScript
 	{
 		DEF_COMMENT_UID();
 	public:
-		ASTStmtForEach(std::string const& identifier, ASTExpr* expr,
+		ASTStmtForEach(ASTString* identifier, ASTExpr* expr,
 		           ASTStmt* body, ASTStmt* elseBlock,
 		           LocationData const& location = LOC_NONE);
 		ASTStmtForEach* clone() const {return new ASTStmtForEach(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		std::string iden;
+		owning_ptr<ASTString> identifier;
 		owning_ptr<ASTDataDecl> indxdecl;
 		owning_ptr<ASTDataDecl> arrdecl;
 		owning_ptr<ASTDataDecl> decl;

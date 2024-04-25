@@ -92,7 +92,6 @@ struct user_object : public user_abstract_obj
 	
 	#ifdef IS_PLAYER
 	void clear_nodestruct();
-	~user_object();
 	#endif
 };
 struct saved_user_object

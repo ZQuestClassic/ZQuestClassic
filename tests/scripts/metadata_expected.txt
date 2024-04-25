@@ -220,21 +220,21 @@ Compile finished with exit code '0' (success)
       "kind": 3,
       "range": {
         "start": {
-          "line": 73,
+          "line": 79,
           "character": 0
         },
         "end": {
-          "line": 80,
+          "line": 86,
           "character": 1
         }
       },
       "selectionRange": {
         "start": {
-          "line": 73,
+          "line": 79,
           "character": 10
         },
         "end": {
-          "line": 73,
+          "line": 79,
           "character": 15
         }
       },
@@ -244,21 +244,21 @@ Compile finished with exit code '0' (success)
           "kind": 13,
           "range": {
             "start": {
-              "line": 79,
+              "line": 85,
               "character": 8
             },
             "end": {
-              "line": 79,
+              "line": 85,
               "character": 11
             }
           },
           "selectionRange": {
             "start": {
-              "line": 79,
+              "line": 85,
               "character": 8
             },
             "end": {
-              "line": 79,
+              "line": 85,
               "character": 11
             }
           },
@@ -269,21 +269,21 @@ Compile finished with exit code '0' (success)
           "kind": 12,
           "range": {
             "start": {
-              "line": 75,
+              "line": 81,
               "character": 9
             },
             "end": {
-              "line": 75,
+              "line": 81,
               "character": 18
             }
           },
           "selectionRange": {
             "start": {
-              "line": 75,
+              "line": 81,
               "character": 9
             },
             "end": {
-              "line": 75,
+              "line": 81,
               "character": 11
             }
           },
@@ -300,7 +300,7 @@ Compile finished with exit code '0' (success)
           "character": 0
         },
         "end": {
-          "line": 70,
+          "line": 76,
           "character": 1
         }
       },
@@ -435,6 +435,106 @@ Compile finished with exit code '0' (success)
                 "end": {
                   "line": 67,
                   "character": 13
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "arr",
+              "kind": 13,
+              "range": {
+                "start": {
+                  "line": 70,
+                  "character": 12
+                },
+                "end": {
+                  "line": 70,
+                  "character": 29
+                }
+              },
+              "selectionRange": {
+                "start": {
+                  "line": 70,
+                  "character": 12
+                },
+                "end": {
+                  "line": 70,
+                  "character": 15
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "__LOOP_ITER",
+              "kind": 13,
+              "range": {
+                "start": {
+                  "line": 71,
+                  "character": 8
+                },
+                "end": {
+                  "line": 74,
+                  "character": 9
+                }
+              },
+              "selectionRange": {
+                "start": {
+                  "line": 71,
+                  "character": 8
+                },
+                "end": {
+                  "line": 74,
+                  "character": 9
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "__LOOP_ARR",
+              "kind": 13,
+              "range": {
+                "start": {
+                  "line": 71,
+                  "character": 8
+                },
+                "end": {
+                  "line": 74,
+                  "character": 9
+                }
+              },
+              "selectionRange": {
+                "start": {
+                  "line": 71,
+                  "character": 8
+                },
+                "end": {
+                  "line": 74,
+                  "character": 9
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "v",
+              "kind": 13,
+              "range": {
+                "start": {
+                  "line": 71,
+                  "character": 8
+                },
+                "end": {
+                  "line": 74,
+                  "character": 9
+                }
+              },
+              "selectionRange": {
+                "start": {
+                  "line": 71,
+                  "character": 13
+                },
+                "end": {
+                  "line": 71,
+                  "character": 14
                 }
               },
               "children": []
@@ -664,17 +764,17 @@ Compile finished with exit code '0' (success)
       "loc": {
         "range": {
           "start": {
-            "line": 75,
+            "line": 81,
             "character": 9
           },
           "end": {
-            "line": 75,
+            "line": 81,
             "character": 18
           }
         },
         "uri": "URI"
       },
-      "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A75%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A75%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A75%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A75%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
+      "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A81%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A81%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A81%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A81%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
     },
     "2497": {
       "loc": {
@@ -743,17 +843,17 @@ Compile finished with exit code '0' (success)
       "loc": {
         "range": {
           "start": {
-            "line": 79,
+            "line": 85,
             "character": 8
           },
           "end": {
-            "line": 79,
+            "line": 85,
             "character": 11
           }
         },
         "uri": "URI"
       },
-      "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A75%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A75%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A75%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A75%2C%22character%22%3A11%7D%7D%7D)"
+      "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A81%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A81%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A81%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A81%2C%22character%22%3A11%7D%7D%7D)"
     },
     "1348": {
       "loc": {
@@ -866,6 +966,53 @@ Compile finished with exit code '0' (success)
       },
       "doc": "TODO: support this in the scope lookup (see lookupDatum)\nequal to `c->speed`"
     },
+    "1569": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 70,
+            "character": 8
+          },
+          "end": {
+            "line": 70,
+            "character": 29
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "an array"
+    },
+    "635": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 69,
+            "character": 14
+          },
+          "end": {
+            "line": 69,
+            "character": 32
+          }
+        },
+        "uri": "URI"
+      },
+      "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n**@deprecated_alias** TraceLWeapon\nTraceEWeapon\nTraceNPC\nTraceFFC\nTraceItem\nTraceItemData"
+    },
+    "1572": {
+      "loc": {
+        "range": {
+          "start": {
+            "line": 71,
+            "character": 8
+          },
+          "end": {
+            "line": 74,
+            "character": 9
+          }
+        },
+        "uri": "URI"
+      }
+    },
     "1351": {
       "loc": {
         "range": {
@@ -898,7 +1045,7 @@ Compile finished with exit code '0' (success)
       },
       "doc": "Go fast"
     },
-    "3870": {
+    "3875": {
       "loc": {
         "range": {
           "start": {
@@ -1109,6 +1256,38 @@ Compile finished with exit code '0' (success)
     },
     {
       "loc": {
+        "line": 71,
+        "character": 17,
+        "length": 3
+      },
+      "symbol": "1569"
+    },
+    {
+      "loc": {
+        "line": 73,
+        "character": 12,
+        "length": 5
+      },
+      "symbol": "635"
+    },
+    {
+      "loc": {
+        "line": 73,
+        "character": 18,
+        "length": 1
+      },
+      "symbol": "1572"
+    },
+    {
+      "loc": {
+        "line": 71,
+        "character": 17,
+        "length": 3
+      },
+      "symbol": "1569"
+    },
+    {
+      "loc": {
         "line": 33,
         "character": 8,
         "length": 5
@@ -1137,7 +1316,7 @@ Compile finished with exit code '0' (success)
         "character": 22,
         "length": 5
       },
-      "symbol": "3870"
+      "symbol": "3875"
     }
   ]
 }
@@ -1147,12 +1326,12 @@ PUSHR D2
 PUSHR D3
 PUSHR D4
 PUSHR REFFFC; void run(int, int, int, int, int) Body Start
-PUSHARGSV 0 0.0006
+PUSHARGSV 0 0.0011
 SETR D4 SP2
 ALLOCATEMEMV D2 7 0
-STORE D2 0.0005
+STORE D2 0.0010
 WRITEPODSTRING D2 "%d %d\n"
-LOAD D2 0.0005; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0010; InlineFunc[void printf(char32)] Params Start
 PUSHR D2
 SETR D2 GD1
 PUSHR D2
@@ -1166,24 +1345,24 @@ ADDV D2 2
 PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D3 0.0005
+LOAD D3 0.0010
 DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0081; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0102; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2 0.0004
+STORE_OBJECT D2 0.0009
 ALLOCATEMEMV D2 10 0
-STORE D2 0.0003
+STORE D2 0.0008
 WRITEPODSTRING D2 "%d %d %d\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0008; InlineFunc[void printf(char32)] Params Start
 PUSHR D2
-LOAD D2 0.0004
+LOAD D2 0.0009
 ZCLASS_READ D2 0
 PUSHVARGR D2
-LOAD D2 0.0011
+LOAD D2 0.0016
 PUSHVARGR D2
 SETR D2 GD6
 PUSHR D2
@@ -1199,27 +1378,48 @@ ADDV D2 2
 PUSHVARGR D2; InlineFunc[void printf(char32)] Params End
 PRINTFVARG; InlineFunc[void printf(char32)] Body Start
 POP D5; InlineFunc[void printf(char32)] Body End
-LOAD D3 0.0003
+LOAD D3 0.0008
 DEALLOCATEMEMR D3
 SETV D2 0; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Set Destructor
 ZCLASS_CONSTRUCT D2 {0}; ProtoFunc[IhaveAdefCtor IhaveAdefCtor::IhaveAdefCtor()] Default Construct
-STORE_OBJECT D2 0.0002
+STORE_OBJECT D2 0.0007
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0081; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0102; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
-STORE_OBJECT D2 0.0001
-LOAD D2 0.0004
+STORE_OBJECT D2 0.0006
+LOAD D2 0.0009
 ZCLASS_READ D2 0
-STORE D2 0
-LOAD D2 0; InlineFunc[int WrapDeg(int)] Params
+STORE D2 0.0005
+LOAD D2 0.0005; InlineFunc[int WrapDeg(int)] Params
 WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body
-REF_REMOVE 0.0004
-REF_REMOVE 0.0001
-REF_REMOVE 0.0002
-POPARGS D5 0.0012
+ALLOCATEMEMV D2 3 0
+STORE D2 0.0003
+WRITEPODARRAY D2 {1,2,3}
+LOAD D2 0.0003; for(each) #1 ArrDecl
+STORE D2 0.0001
+STOREV 0 0.0002; for(each) #1 IndxDecl
+STOREV 0 0; for(each) #1 ValDecl
+LOAD D0 0.0001; for(each) #1 EndArrayCheck
+ARRAYSIZE D0
+LOAD D3 0.0002
+COMPARER D3 D2
+GOTOCMP 95 >=; for(each) #1 to Else
+READPODARRAYR D2 D3; for(each) #1 Next Index
+STORE D2 0
+ADDV D3 1
+STORE D3 0.0002
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start
+TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End
+GOTO 83; for(each) #1 End
+LOAD D3 0.0003
+DEALLOCATEMEMR D3
+REF_REMOVE 0.0009
+REF_REMOVE 0.0006
+REF_REMOVE 0.0007
+POPARGS D5 0.0017
 QUIT; void run(int, int, int, int, int) Body End
 SETV D2 0; Func[Car Car::Car(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY

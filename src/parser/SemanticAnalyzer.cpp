@@ -282,18 +282,18 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	
 	//The array iter declaration
 	ASTDataDecl* indxdecl = new ASTDataDecl(host.location);
-	indxdecl->identifier = new ASTString("__LOOP_ITER");
+	indxdecl->identifier = new ASTString("__LOOP_ITER", host.location);
 	indxdecl->baseType = new ASTDataType(DataType::FLOAT, host.location);
 	host.indxdecl = indxdecl;
 	//The array holder declaration
 	ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
-	indxdecl->identifier = new ASTString("__LOOP_ARR");
+	arrdecl->identifier = new ASTString("__LOOP_ARR", host.location);
 	arrdecl->setInitializer(host.arrExpr.clone());
 	arrdecl->baseType = new ASTDataType(ty, host.location);
 	host.arrdecl = arrdecl;
 	//The data declaration
 	ASTDataDecl* decl = new ASTDataDecl(host.location);
-	decl->identifier = new ASTString(host.iden);
+	decl->identifier = host.identifier;
 	decl->baseType = new ASTDataType(ty, host.location);
 	host.decl = decl;
 	

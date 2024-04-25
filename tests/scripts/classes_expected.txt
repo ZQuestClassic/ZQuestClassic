@@ -13,7 +13,7 @@ Compile finished with exit code '0' (success)
 {
   "currentFileSymbols": 10,
   "symbols": 8,
-  "identifiers": 13
+  "identifiers": 14
 }
 PUSHR REFFFC; void run() Body Start
 PUSHARGSV 0 0.0003
@@ -77,7 +77,9 @@ POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car::Car(int)] Body End
 STARTDESTRUCTOR "Car"; Func[void ~Car::Car()] Body Start
 SETR D4 SP2
-TRACEV -1; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body
+ZCLASS_READ CLASS_THISKEY 0; InlineFunc[void Trace(untyped)] Params Start
+SUBV2 0 D2; InlineFunc[void Trace(untyped)] Params End
+TRACER D2; InlineFunc[void Trace(untyped)] Body
 RETURNFUNC; Func[void ~Car::Car()] Body End
 
 

@@ -195,7 +195,6 @@ void user_object::save_arrays(std::map<int32_t,ZScriptArray>& arrs)
 void user_object::clear_nodestruct()
 {
 	disown();
-	// TODO: move to dtor
 	if(data.size() > owned_vars) //owns arrays!
 	{
 		for(auto ind = owned_vars; ind < data.size(); ++ind)
@@ -207,11 +206,4 @@ void user_object::clear_nodestruct()
 	data.clear();
 	owned_vars = 0;
 	destruct.clear();
-}
-
-user_object::~user_object()
-{
-	if (fake) return;
-	destruct.execute();
-	clear_nodestruct();
 }

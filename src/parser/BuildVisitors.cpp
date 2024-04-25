@@ -1626,7 +1626,7 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 
 void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 {
-	if (host.list->internal)
+	if (host.list && host.list->internal)
 		return;
 
 	Datum& manager = *host.manager;

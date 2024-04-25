@@ -16,7 +16,7 @@ class Car
 
 	~Car()
 	{
-		Trace(-1);
+		Trace(-speed);
 	}
 }
 

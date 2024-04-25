@@ -11007,12 +11007,12 @@ void domouse()
 		{
 			for(int32_t j=0; j<num_combo_cols; ++j)
 			{
-				if(combolistscrollers[j].rectind(x,y)==0 && (combo_alistpos[j]<(MAXCOMBOALIASES-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
+				if(combolistscrollers[j].rectind(x,y)==0 && !mouse_down)
 				{
 					scrollup(j);
 					goto domouse_doneclick;
 				}
-				else if(combolistscrollers[j].rectind(x,y)==1 && (combo_alistpos[j]>0) && !mouse_down)
+				else if(combolistscrollers[j].rectind(x,y)==1 && !mouse_down)
 				{
 					scrolldown(j);
 					goto domouse_doneclick;
@@ -11031,12 +11031,12 @@ void domouse()
 		{
 			for(int32_t j=0; j<num_combo_cols; ++j)
 			{
-				if(combolistscrollers[j].rectind(x,y)==0 && (combo_pool_listpos[j]<(MAXCOMBOPOOLS-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
+				if(combolistscrollers[j].rectind(x,y)==0 && !mouse_down)
 				{
 					scrollup(j);
 					goto domouse_doneclick;
 				}
-				else if(combolistscrollers[j].rectind(x,y)==1 && (combo_pool_listpos[j]>0) && !mouse_down)
+				else if(combolistscrollers[j].rectind(x,y)==1 && !mouse_down)
 				{
 					scrolldown(j);
 					goto domouse_doneclick;
@@ -11055,12 +11055,12 @@ void domouse()
 		{
 			for (int32_t j = 0; j < num_combo_cols; ++j)
 			{
-				if (combolistscrollers[j].rectind(x, y) == 0 && (combo_auto_listpos[j] < (MAXCOMBOPOOLS - (comboaliaslist[j].w * comboaliaslist[j].h))) && !mouse_down)
+				if (combolistscrollers[j].rectind(x, y) == 0 && !mouse_down)
 				{
 					scrollup(j);
 					goto domouse_doneclick;
 				}
-				else if (combolistscrollers[j].rectind(x, y) == 1 && (combo_auto_listpos[j] > 0) && !mouse_down)
+				else if (combolistscrollers[j].rectind(x, y) == 1 && !mouse_down)
 				{
 					scrolldown(j);
 					goto domouse_doneclick;
@@ -11079,12 +11079,12 @@ void domouse()
 		{
 			for(int32_t j=0; j<num_combo_cols; ++j)
 			{
-				if(combolistscrollers[j].rectind(x,y)==0 && First[j]>0 && !mouse_down)
+				if(combolistscrollers[j].rectind(x,y)==0 && !mouse_down)
 				{
 					scrollup(j);
 					goto domouse_doneclick;
 				}
-				else if(combolistscrollers[j].rectind(x,y)==1 && First[j]<(MAXCOMBOS-(combolist[j].w*combolist[j].h)) && !mouse_down)
+				else if(combolistscrollers[j].rectind(x,y)==1 && !mouse_down)
 				{
 					scrolldown(j);
 					goto domouse_doneclick;

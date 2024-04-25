@@ -284,6 +284,9 @@ static void delete_script_object(uint32_t id)
 			if (usr_object->isMemberObjectType(i))
 				script_object_ref_dec(usr_object->data[i]);
 		}
+
+		usr_object->destruct.execute();
+		usr_object->clear_nodestruct();
 	}
 
 	util::remove_if_exists(script_object_ids_by_type[object->type], id);
