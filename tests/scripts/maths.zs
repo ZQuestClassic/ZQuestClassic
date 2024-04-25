@@ -9,7 +9,7 @@ ffc script Maths
             {
                 doMaths(firstTime, i);
                 doMaths(firstTime, i * 10000);
-                doMaths(firstTime, i * 10000000);
+                doMaths(firstTime, i * 100000);
             }
 
             Waitframe();

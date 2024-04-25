@@ -2456,7 +2456,7 @@ void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
 {
 	VISIT_USEVAL(host.operand.get(), param);
 	addOpcode(new OFreeObject(new VarArgument(EXP1)));
-	handleError(CompileError::DeprecatedDelete(&host));
+	deprecWarn(&host, "The operator", "delete", "This operator no longer does anything. Objects are freed automatically when they become unreachable");
 }
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)

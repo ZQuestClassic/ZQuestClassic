@@ -110,6 +110,20 @@ void RecursiveVisitor::deprecWarn(Function* func, AST* host, std::string const& 
 			break;
 	}
 }
+void RecursiveVisitor::deprecWarn(AST* host, std::string const& s1, std::string const& s2, std::string const& info)
+{
+	switch(*ZScript::lookupOption(*scope, CompileOption::OPT_WARN_DEPRECATED)/10000)
+	{
+		case 0: //No warn
+			break;
+		case 2: //Error
+			handleError(CompileError::DeprecatedError(host, s1, s2), info.empty() ? nullptr : &info);
+			break;
+		default: //Warn
+			handleError(CompileError::DeprecatedWarn(host, s1, s2), info.empty() ? nullptr : &info);
+			break;
+	}
+}
 void RecursiveVisitor::visit(AST& node, void* param)
 {
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
