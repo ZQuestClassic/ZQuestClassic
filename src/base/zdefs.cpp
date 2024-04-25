@@ -728,7 +728,9 @@ string generate_zq_about()
 
 bool zquestheader::is_legacy() const
 {
-	return version_major < 2 || (version_major == 2 && version_minor < 55);
+	return version_major < 2 ||
+		(version_major == 2 && version_minor < 55) ||
+		(version_major == 2 && version_minor == 55 && new_version_id_release == 0);
 }
 
 int8_t zquestheader::getAlphaState() const
@@ -794,6 +796,13 @@ char const* zquestheader::getVerStr() const
 	{
 		switch(zelda_version)
 		{
+			case 0x255:
+				if(new_version_id_fourth > 0)
+					sprintf(buf, "%d.%d.%d.%d %s", version_major, version_minor,
+						version_patch, new_version_id_fourth, getAlphaVerStr());
+				else sprintf(buf, "%d.%d.%d %s", version_major, version_minor,
+						version_patch, getAlphaVerStr());
+				break;
 			case 0x254:
 				sprintf(buf, "2.54 Build %d", build);
 				break;
@@ -854,11 +863,7 @@ char const* zquestheader::getVerStr() const
 				break;
 		}
 	}
-	else if(new_version_id_fourth > 0)
-		sprintf(buf, "%d.%d.%d.%d %s", version_major, version_minor,
-			version_patch, new_version_id_fourth, getAlphaVerStr());
-	else sprintf(buf, "%d.%d.%d %s", version_major, version_minor,
-			version_patch, getAlphaVerStr());
+	else sprintf(buf, "%d.%d.%d", version_major, version_minor, version_patch);
 	return buf;
 }
 
