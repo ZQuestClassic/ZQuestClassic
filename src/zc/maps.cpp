@@ -5745,6 +5745,29 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	int32_t orig_destdmap = destdmap;
 	if (destdmap < 0) destdmap = currdmap;
 
+	if (replay_is_active())
+	{
+		if (replay_get_mode() == ReplayMode::ManualTakeover)
+			replay_stop_manual_takeover();
+
+		if (orig_destdmap != -1)
+		{
+			if (strlen(DMaps[orig_destdmap].name) > 0)
+			{
+				replay_step_comment(fmt::format("dmap={} {}", orig_destdmap, DMaps[orig_destdmap].name));
+			}
+			else
+			{
+				replay_step_comment(fmt::format("dmap={}", orig_destdmap));
+			}
+		}
+		replay_step_comment_loadscr(scr);
+
+		// Reset the rngs and frame count so that recording steps can be modified without impacting
+		// behavior of later screens.
+		replay_sync_rng();
+	}
+
 	triggered_screen_secrets = false;
 	Hero.clear_platform_ffc();
 	slopes.clear();
@@ -5777,29 +5800,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	FFCore.clear_combo_scripts();
 	FFCore.deallocateAllScriptOwned(ScriptType::Screen, 0);
 	FFCore.deallocateAllScriptOwned(ScriptType::Combo, 0);
-
-	if (replay_is_active())
-	{
-		if (replay_get_mode() == ReplayMode::ManualTakeover)
-			replay_stop_manual_takeover();
-
-		if (orig_destdmap != -1)
-		{
-			if (strlen(DMaps[orig_destdmap].name) > 0)
-			{
-				replay_step_comment(fmt::format("dmap={} {}", orig_destdmap, DMaps[orig_destdmap].name));
-			}
-			else
-			{
-				replay_step_comment(fmt::format("dmap={}", orig_destdmap));
-			}
-		}
-		replay_step_comment_loadscr(scr);
-
-		// Reset the rngs and frame count so that recording steps can be modified without impacting
-		// behavior of later screens.
-		replay_sync_rng();
-	}
 
 	// Load the origin screen (top-left in region) into tmpscr
 	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay);

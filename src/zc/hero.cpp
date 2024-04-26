@@ -29731,15 +29731,35 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	scrolling_destdmap = -1;
 	memset(FFCore.ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
 	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
-	
+	FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+	FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+
 	if (destdmap != -1)
 	{
-		if(currdmap != destdmap)
+		bool changedlevel = false;
+		bool changeddmap = false;
+		if (currdmap != destdmap)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-		if(dlevel != DMaps[destdmap].level)
+			changeddmap = true;
+		}
+		if (DMaps[currdmap].level != DMaps[destdmap].level)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-		currdmap = destdmap;
+			changedlevel = true;
+		}
 		dlevel = DMaps[destdmap].level;
+		currdmap = destdmap;
+		if (changeddmap)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+		}
+		if (changedlevel)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+		}
 	}
 	
 	//if Hero is going from non-water to water, and we set his animation to "hopping" above, we must now
