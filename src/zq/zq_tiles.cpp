@@ -6136,7 +6136,7 @@ int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 	return a==0?b:a==1?c:d;
 }
 
-bool TileMoveList::process(bool is_dest, std::unique_ptr<BaseTileRef>& ref, TileMoveProcess const& proc)
+bool TileMoveList::process(std::unique_ptr<BaseTileRef>& ref, TileMoveProcess const& proc, bool is_dest)
 {
 	TileRefCombo* combo_ref = dynamic_cast<TileRefCombo*>(ref.get());
 	int i = ti_none;
@@ -6177,7 +6177,12 @@ bool TileMoveList::process(bool is_dest, std::unique_ptr<BaseTileRef>& ref, Tile
 	
 	if(i != ti_none && ref->getTile() != 0)
 	{
-		if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
+		if(mode == Mode::CHECK_ALL)
+		{
+			move_refs.emplace_back(std::move(ref));
+			return true;
+		}
+		else if(i==ti_broken || is_dest || (i==ti_encompass && ref->no_move))
 		{
 			if(warning_flood || warning_list.tellp() >= 65000)
 			{
@@ -6216,7 +6221,7 @@ void TileMoveList::add_diff(int diff)
 }
 
 //from 'combo.h'
-bool ComboMoveList::process(bool is_dest, std::unique_ptr<BaseComboRef>& ref, ComboMoveProcess const& proc)
+bool ComboMoveList::process(std::unique_ptr<BaseComboRef>& ref, ComboMoveProcess const& proc, bool is_dest)
 {
 	int i = ti_none;
 	auto c = ref->getCombo();
@@ -6343,7 +6348,7 @@ void ComboMoveList::add_diff(int diff)
 		ref->addCombo(diff);
 }
 
-bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> source_process, int diff, TileMoveUndo* on_undo, std::function<void(int32_t)> every_proc)
+bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> source_process, int diff, TileMoveUndo* on_undo = nullptr, std::function<void(int32_t)> every_proc = nullptr, TileMoveList::Mode mode = TileMoveList::Mode::MOVE)
 {
 	bool BSZ2 = get_qr(qr_BSZELDA);
 	bool move = source_process.has_value();
@@ -6356,7 +6361,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Combos
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following combos will be partially cleared by the move."
 			: "The tiles used by the following combos will be partially or completely overwritten by this process."
@@ -6387,7 +6392,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Items
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following items will be partially cleared by the move."
 			: "The tiles used by the following items will be partially or completely overwritten by this process."
@@ -6419,7 +6424,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Weapon sprites
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following weapons will be partially cleared by the move."
 			: "The tiles used by the following weapons will be partially or completely overwritten by this process."
@@ -6537,7 +6542,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Player sprites
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following player sprites will be partially cleared by the move."
 			: "The tiles used by the following player sprites will be partially or completely overwritten by this process."
@@ -6676,7 +6681,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Map Styles
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following map styles will be partially cleared by the move."
 			: "The tiles used by the following map styles will be partially or completely overwritten by this process."
@@ -6693,7 +6698,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Game Icons
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following game icons will be partially cleared by the move."
 			: "The tiles used by the following game icons will be partially or completely overwritten by this process."
@@ -6706,7 +6711,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//DMaps
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following dmaps will be partially cleared by the move."
 			: "The tiles used by the following dmaps will be partially or completely overwritten by this process."
@@ -6725,7 +6730,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Enemies
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following enemies will be partially cleared by the move."
 			: "The tiles used by the following enemies will be partially or completely overwritten by this process."
@@ -6811,7 +6816,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Subscreens
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following subscreen widgets will be partially cleared by the move."
 			: "The tiles used by the following subscreen widgets will be partially or completely overwritten by this process."
@@ -6853,7 +6858,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 	//Strings
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
-			dest_process, source_process,
+			dest_process, source_process, mode,
 			move
 			? "The tiles used by the following strings will be partially cleared by the move."
 			: "The tiles used by the following strings will be partially or completely overwritten by this process."
@@ -6881,17 +6886,18 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 }
 bool handle_tile_move(TileMoveProcess dest_process)
 {
-	return _handle_tile_move(dest_process, nullopt, 0, nullptr, nullptr);
+	return _handle_tile_move(dest_process, nullopt, 0);
 }
 bool handle_tile_move(TileMoveProcess dest_process, TileMoveProcess source_process, int diff, TileMoveUndo& on_undo)
 {
-	return _handle_tile_move(dest_process, source_process, diff, &on_undo, nullptr);
+	return _handle_tile_move(dest_process, source_process, diff, &on_undo);
 }
 void for_every_used_tile(std::function<void(int32_t)> proc)
 {
 	reset_combo_animations();
 	reset_combo_animations2();
-	_handle_tile_move({}, nullopt, 0, nullptr, proc);
+	TileMoveProcess all_tiles {.rect = false, ._first = 0, ._last = NEWMAXTILES-1};
+	_handle_tile_move(all_tiles, nullopt, 0, nullptr, proc, TileMoveList::Mode::CHECK_ALL);
 }
 
 bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess> source_process, int diff, ComboMoveUndo* on_undo)
