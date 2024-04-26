@@ -634,13 +634,13 @@ namespace ZScript
 	{
 		DEF_COMMENT_UID();
 	public:
-		ASTStmtRangeLoop(ASTDataType* type, string const& iden, ASTRange* range,
+		ASTStmtRangeLoop(ASTDataType* type, ASTString* iden, ASTRange* range,
 			ASTExpr* increment, ASTStmt* body, LocationData const& location = LOC_NONE);
 		ASTStmtRangeLoop* clone() const {return new ASTStmtRangeLoop(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		string iden;
+		owning_ptr<ASTString> iden;
 		uint overflow;
 		owning_ptr<ASTDataType> type;
 		owning_ptr<ASTDataDecl> decl;

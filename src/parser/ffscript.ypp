@@ -1687,8 +1687,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$6;
 		ASTExpr* incr = (ASTExpr*)$8;
 		ASTStmt* body = (ASTStmt*)$10;
-		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
-		delete iden;
+		$$ = new ASTStmtRangeLoop(type, iden, range, incr, body, @$);
 	}
 	| LOOP LPAREN IDENTIFIER Token_In Expression_Range COMMA Expression RPAREN Block_Statement
 	{
@@ -1697,8 +1696,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$5;
 		ASTExpr* incr = (ASTExpr*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
-		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
-		delete iden;
+		$$ = new ASTStmtRangeLoop(type, iden, range, incr, body, @$);
 	}
 	| LOOP LPAREN Expression_Range COMMA Expression RPAREN Block_Statement
 	{
@@ -1706,7 +1704,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$3;
 		ASTExpr* incr = (ASTExpr*)$5;
 		ASTStmt* body = (ASTStmt*)$7;
-		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
+		$$ = new ASTStmtRangeLoop(type, new ASTString("__LOOP_ITER", @$), range, incr, body, @$);
 	}
 	| LOOP LPAREN DataType IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
 	{
@@ -1715,8 +1713,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$6;
 		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$8;
-		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
-		delete iden;
+		$$ = new ASTStmtRangeLoop(type, iden, range, incr, body, @$);
 	}
 	| LOOP LPAREN IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
 	{
@@ -1725,8 +1722,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$5;
 		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$7;
-		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
-		delete iden;
+		$$ = new ASTStmtRangeLoop(type, iden, range, incr, body, @$);
 	}
 	| LOOP LPAREN Expression_Range RPAREN Block_Statement
 	{
@@ -1734,7 +1730,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$3;
 		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$5;
-		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
+		$$ = new ASTStmtRangeLoop(type, new ASTString("__LOOP_ITER", @$), range, incr, body, @$);
 	}
 	;
 
