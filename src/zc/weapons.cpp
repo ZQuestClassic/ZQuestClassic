@@ -3362,6 +3362,7 @@ static const int sbombcount = 17;
 std::set<rpos_t> weapon::getBombPositions()
 {
 	std::set<rpos_t> rposes;
+	#define CHECKED_INSERT(rpos) if (rpos != rpos_t::None) rposes.insert(rpos);
 	int parentid = parentitem < 0 ? -1 : parentitem;
 	itemdata const& itm = itemsbuf[parentid];
 	if(parentid < 0 || itm.misc7 < 1) //standard pattern
@@ -3372,17 +3373,17 @@ std::set<rpos_t> weapon::getBombPositions()
 			int tx = x+(sbomb?sbombxoff:bombxoff)[q];
 			int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q];
 			
-			rposes.insert(COMBOPOS_REGION(tx,ty));
-			rposes.insert(COMBOPOS_REGION(tx+15,ty));
-			rposes.insert(COMBOPOS_REGION(tx,ty+15));
-			rposes.insert(COMBOPOS_REGION(tx+15,ty+15));
+			CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx,ty));
+			CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx+15,ty));
+			CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx,ty+15));
+			CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx+15,ty+15));
 		}
 	}
 	else //radius
 	{
 		int rad = itm.misc7;
 		int tx = x, ty = y-fakez;
-		rposes.insert(COMBOPOS_REGION(tx+8,ty+8)); //always hits at least 1 combo
+		CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx+8,ty+8)); //always hits at least 1 combo
 		// TODO z3 this is crazy inefficient
 		for (int q = 0; q < region_num_rpos; ++q)
 		{
@@ -3394,6 +3395,7 @@ std::set<rpos_t> weapon::getBombPositions()
 		}
 	}
 
+	#undef CHECKED_INSERT
 	return rposes;
 }
 

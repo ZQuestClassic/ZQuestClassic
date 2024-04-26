@@ -797,7 +797,7 @@ bool movingblock::animate(int32_t)
 		{
 			trigger = false; bhole = false;
 			
-			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
+			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
 			int combopos = rpos_handle.pos;
 			int32_t f1 = rpos_handle.sflag();
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
