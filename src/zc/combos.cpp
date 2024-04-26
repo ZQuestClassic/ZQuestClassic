@@ -3447,7 +3447,6 @@ void trig_trigger_groups()
 
 //COMBOTYPE POS STUFF
 
-#define CXY(pos) COMBOX_REGION(pos), COMBOX_REGION(pos)
 void handle_cpos_type(newcombo const& cmb, cpos_info& timer, const rpos_handle_t& rpos_handle)
 {
 	switch(cmb.type)
@@ -3458,7 +3457,8 @@ void handle_cpos_type(newcombo const& cmb, cpos_info& timer, const rpos_handle_t
 		case cCRUMBLE:
 		{
 			word cid = rpos_handle.data();
-			handle_crumble(cmb, timer, cid, CXY(rpos_handle.rpos), 16, 16);
+			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+			handle_crumble(cmb, timer, cid, x, y, 16, 16);
 			rpos_handle.set_data(cid);
 			break;
 		}
