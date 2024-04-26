@@ -339,7 +339,7 @@ void SemanticAnalyzer::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
 	
 	//The data declaration
 	ASTDataDecl* decl = new ASTDataDecl(host.location);
-	decl->identifier = new ASTString(host.iden);
+	decl->identifier = host.iden.release();
 	decl->baseType = new ASTDataType(dataty, host.location);
 	auto incrval = host.increment->getCompileTimeValue(this, scope);
 	optional<int> declval;

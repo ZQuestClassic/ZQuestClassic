@@ -968,7 +968,7 @@ void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
 
 uint ASTStmtRangeLoop::next_comment_id = 0;
 
-ASTStmtRangeLoop::ASTStmtRangeLoop(ASTDataType* type, string const& iden,
+ASTStmtRangeLoop::ASTStmtRangeLoop(ASTDataType* type, ASTString* iden,
 	ASTRange* range, ASTExpr* increment, ASTStmt* body, LocationData const& location)
 	: ASTStmt(location), iden(iden), decl(nullptr), type(type),
 		increment(increment), body(body), range(range),
