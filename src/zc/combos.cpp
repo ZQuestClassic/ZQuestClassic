@@ -2920,7 +2920,9 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		
 		if(!check_bit)
 		{
-			handle_trigger_results(rpos_handle.screen, rpos_handle.screen_index, cmb, cx, cy, hasitem, used_bit, special);
+			// TODO z3 !!!! refactor
+			mapscr* base_screen = rpos_handle.layer == 0 ? rpos_handle.screen : get_layer_scr(currmap, rpos_handle.screen_index, -1);
+			handle_trigger_results(base_screen, rpos_handle.screen_index, cmb, cx, cy, hasitem, used_bit, special);
 			
 			if(cmb.trigchange)
 			{

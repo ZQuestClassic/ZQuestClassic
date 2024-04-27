@@ -1407,6 +1407,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
+            // TODO z3 !!! correct? upstream.
             if((scr->nocarry&flag)!=flag && !(game->maps[((nmap-1)<<7)+nscr] & flag))
             {
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap+1,nscr);
