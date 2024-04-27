@@ -210,6 +210,7 @@ namespace ZScript
 		virtual ~DataType() {}
 		// Call derived class's copy constructor.
 		virtual DataType* clone() const = 0;
+		virtual int unique_type_id() const = 0;
 
 		// Resolution.
 		virtual bool isResolved() const {return true;}
@@ -301,6 +302,7 @@ namespace ZScript
 		DataTypeUnresolved(ASTExprIdentifier* iden);
 		~DataTypeUnresolved();
 		DataTypeUnresolved* clone() const;
+		int unique_type_id() const { return 1; }
 		
 		virtual bool isResolved() const {return false;}
 		virtual DataType const* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
@@ -322,6 +324,7 @@ namespace ZScript
 	public:
 		DataTypeSimple(int32_t simpleId, std::string const& name, DataType* constType);
 		DataTypeSimple* clone() const {return new DataTypeSimple(*this);}
+		int unique_type_id() const { return 2; }
 
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
@@ -349,6 +352,7 @@ namespace ZScript
 	public:
 		DataTypeSimpleConst(int32_t simpleId, std::string const& name);
 		DataTypeSimpleConst* clone() const {return new DataTypeSimpleConst(*this);}
+		int unique_type_id() const { return 3; }
 		
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
@@ -365,6 +369,7 @@ namespace ZScript
 		DataTypeArray(DataType const& elementType)
 			: DataType(NULL), elementType(elementType), owned_type() {}
 		DataTypeArray* clone() const {return new DataTypeArray(*this);}
+		int unique_type_id() const { return 4; }
 
 		virtual std::string getName() const {
 			return elementType.getName() + "[]";}
@@ -398,6 +403,7 @@ namespace ZScript
 			: DataType(constType), id(id), name(name), user_class(usrclass)
 		{}
 		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
+		int unique_type_id() const { return 5; }
 		
 		virtual bool isConstant() const {return false;}
 		virtual bool isCustom() const {return true;}
@@ -438,6 +444,7 @@ namespace ZScript
 			: DataTypeCustom(name, NULL, user_class)
 		{}
 		DataTypeCustomConst* clone() const {return new DataTypeCustomConst(*this);}
+		int unique_type_id() const { return 6; }
 		
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		

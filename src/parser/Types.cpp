@@ -112,10 +112,10 @@ DataTypeArray DataType::STRING(CHAR);
 
 int32_t DataType::compare(DataType const& rhs) const
 {
-	std::type_info const& lhsType = typeid(*this);
-	std::type_info const& rhsType = typeid(rhs);
-	if (lhsType.before(rhsType)) return -1;
-	if (rhsType.before(lhsType)) return 1;
+	int lhsType = this->unique_type_id();
+	int rhsType = rhs.unique_type_id();
+	int delta = lhsType - rhsType;
+	if (delta) return delta;
 	return selfCompare(rhs);
 }
 
