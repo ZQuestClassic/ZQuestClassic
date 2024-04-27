@@ -44,7 +44,7 @@ WRITEPODARRAYVR 2 D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[void print(int[][])] Params Start
 PUSHR D2; UsrFunc[void print(int[][])] Params End
-CALLFUNC 0.0164; UsrFunc[void print(int[][])] Call
+CALLFUNC 0.0179; UsrFunc[void print(int[][])] Call
 POP D4
 ALLOCATEMEMV D2 0 0
 STORE D2 0.0003
@@ -72,7 +72,7 @@ GOTO 39; for(each) #2 End
 PUSHR D4
 LOAD D2 0.0003; UsrFunc[void print(int[])] Params Start
 PUSHR D2; UsrFunc[void print(int[])] Params End
-CALLFUNC 0.0179; UsrFunc[void print(int[])] Call
+CALLFUNC 0.0164; UsrFunc[void print(int[])] Call
 POP D4
 STOREV -1 0.0002; loop() #1 ValDecl
 PUSHR D4; loop() #1 Body Start
@@ -91,7 +91,7 @@ POPARGS D5 0
 PUSHR D4
 LOAD D2 0.0003; UsrFunc[void print(int[])] Params Start
 PUSHR D2; UsrFunc[void print(int[])] Params End
-CALLFUNC 0.0179; UsrFunc[void print(int[])] Call
+CALLFUNC 0.0164; UsrFunc[void print(int[])] Call
 POP D4
 ALLOCATEMEMV D2 3 0
 STORE D2 0.0001
@@ -106,7 +106,7 @@ CALLFUNC 0.0109; UsrFunc[void append(int[][], int[])] Call
 PEEK D4
 LOAD D2 0.0004; UsrFunc[void print(int[][])] Params Start
 PUSHR D2; UsrFunc[void print(int[][])] Params End
-CALLFUNC 0.0164; UsrFunc[void print(int[][])] Call
+CALLFUNC 0.0179; UsrFunc[void print(int[][])] Call
 POP D4
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
@@ -177,21 +177,6 @@ WRITEPODARRAYRR D3 D2; for(each) #1 Body End
 GOTO 139; for(each) #1 End
 POPARGS D5 0.0006
 RETURNFUNC; Func[void arraycat(T[], T[])] Body End
-PUSHV 0; Func[void print(T[][])] Body Start
-SETR D4 SP2
-ALLOCATEMEMV D2 15 0
-STORE D2 0
-WRITEPODSTRING D2 "Arr[][]: %aad\n"
-LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
-PUSHR D2
-LOAD D2 0.0001
-PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
-PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0
-DEALLOCATEMEMR D3
-POPARGS D5 0.0002
-RETURNFUNC; Func[void print(T[][])] Body End
 PUSHV 0; Func[void print(T[])] Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 12 0
@@ -207,6 +192,21 @@ LOAD D3 0
 DEALLOCATEMEMR D3
 POPARGS D5 0.0002
 RETURNFUNC; Func[void print(T[])] Body End
+PUSHV 0; Func[void print(T[][])] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 15 0
+STORE D2 0
+WRITEPODSTRING D2 "Arr[][]: %aad\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+POPARGS D5 0.0002
+RETURNFUNC; Func[void print(T[][])] Body End
 
 
 QUIT; void run() Body
