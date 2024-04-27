@@ -3461,7 +3461,6 @@ void handle_cpos_type(newcombo const& cmb, cpos_info& timer, const rpos_handle_t
 			word cid = rpos_handle.data();
 			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 			handle_crumble(cmb, timer, cid, x, y, 16, 16);
-			rpos_handle.set_data(cid);
 			break;
 		}
 	}
