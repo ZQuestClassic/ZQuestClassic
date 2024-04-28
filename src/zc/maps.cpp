@@ -2688,8 +2688,8 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high1
 	log_trigger_secret_reason(source);
 	if (single < 0)
 		triggered_screen_secrets = true;
-	bool do_layers = true;
-	trigger_secrets_for_screen_internal(screen, NULL, do_layers, high16only, single);
+	bool do_combo_triggers = true;
+	trigger_secrets_for_screen_internal(screen, NULL, do_combo_triggers, high16only, single);
 }
 
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only, int32_t single)
@@ -2697,11 +2697,11 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s,
 	log_trigger_secret_reason(source);
 	if (single < 0)
 		triggered_screen_secrets = true;
-	bool do_layers = true;
-	trigger_secrets_for_screen_internal(screen, s, do_layers, high16only, single);
+	bool do_combo_triggers = true;
+	trigger_secrets_for_screen_internal(screen, s, do_combo_triggers, high16only, single);
 }
 
-void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single)
+void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single)
 {
 	DCHECK(screen_index != -1 || s);
 	if (!s) s = get_scr(currmap, screen_index);
@@ -2711,20 +2711,19 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 	if (replay_is_active())
 		replay_step_comment(fmt::format("trigger secrets scr={}", screen_index));
 
-	if (do_layers)
+	if (do_combo_triggers)
 	{
 		for_every_rpos_in_screen(s, screen_index, [&](const rpos_handle_t& rpos_handle) {
 			if (rpos_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo(rpos_handle, ctrigSECRETS);
 		});
-	}
-
-	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-	{
-		for_every_ffc_in_screen(s, screen_index, [&](const ffc_handle_t& ffc_handle) {
-			if (ffc_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
-				do_trigger_combo_ffc(ffc_handle);
-		});
+		if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
+		{
+			for_every_ffc_in_screen(s, screen_index, [&](const ffc_handle_t& ffc_handle) {
+				if (ffc_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
+					do_trigger_combo_ffc(ffc_handle);
+			});
+		}
 	}
 
 	int32_t ft=0; //Flag trigger?
@@ -2777,7 +2776,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 			
 			if(newflag >-1) s->sflag[i] = newflag; //Tiered secret
 			
-			if (do_layers)
+			if (do_combo_triggers)
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
@@ -2909,7 +2908,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 			
 			if(newflag >-1) s->sflag[i] = newflag;  //Tiered flag
 			
-			if (do_layers)
+			if (do_combo_triggers)
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
@@ -5769,9 +5768,9 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		replay_sync_rng();
 	}
 
+	slopes.clear();
 	triggered_screen_secrets = false;
 	Hero.clear_platform_ffc();
-	slopes.clear();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	clear_darkroom_bitmaps();
 
@@ -5795,27 +5794,25 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	z3_load_region(scr, destdmap);
 	homescr = scr >= 0x80 ? heroscr : cur_origin_screen_index;
 
-	cpos_clear_combos();
-
+	cpos_clear_all();
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 	FFCore.clear_combo_scripts();
 	FFCore.deallocateAllScriptOwned(ScriptType::Screen, 0);
 	FFCore.deallocateAllScriptOwned(ScriptType::Combo, 0);
 
-	// Load the origin screen (top-left in region) into tmpscr
-	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay);
-	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
-	if (scr >= 0x80)
-		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay);
-
-	if (is_z3_scrolling_mode())
+	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{
-		for (int screen_index = 0; screen_index < 128; screen_index++)
+		if (screen_index == cur_origin_screen_index)
 		{
-			if (screen_index != cur_origin_screen_index && is_in_current_region(screen_index))
-			{
-				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
-			}
+			// Load the origin screen (top-left in region) into tmpscr
+			loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay);
+			// Store the current tmpscr into special_warp_return_screen, if on a special screen.
+			if (scr >= 0x80)
+				loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay);
+		}
+		else if (is_in_current_region(screen_index))
+		{
+			load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
 		}
 	}
 
@@ -5845,13 +5842,14 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		}
 	}
 
+	update_slope_comboposes();
 	currdmap = o_currdmap;
-
-	cpos_clear_all();
-
 	heroscr = scr;
 	hero_screen = get_scr_no_load(currmap, scr);
 	CHECK(hero_screen);
+
+	cpos_force_update();
+	trig_trigger_groups();
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
@@ -5861,11 +5859,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_handle.id);
 		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
 	});
-
-	cpos_force_update();
-	trig_trigger_groups();
-
-	update_slope_comboposes();
 
 	// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,
 	// allowing for regions to display 4 more rows of combos (as many as ALTTP does). This part of
@@ -6056,6 +6049,12 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		screen->ffcs[i].y += offy;
 	}
 
+	if (!tmp)
+	{
+		// cpos_force_update();
+		// trig_trigger_groups();
+	}
+
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
 	{
@@ -6115,6 +6114,12 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	clear_xdoors(screen, scr, true);
 	clear_xstatecombos(screen, scr, true);
 
+	if (!tmp)
+	{
+		// cpos_force_update();
+		// trig_trigger_groups();
+	}
+
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{
@@ -6167,6 +6172,9 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			}
 		}
 	}
+
+	// if (tmp == 0)
+	// 	update_slope_comboposes();
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
@@ -6236,7 +6244,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(&screen, scr, false);
-			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : &special_warp_return_screen, true, false, -1);
+			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : &special_warp_return_screen, false, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{

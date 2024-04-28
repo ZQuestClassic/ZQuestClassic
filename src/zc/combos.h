@@ -76,7 +76,6 @@ cpos_info& cpos_get(const rpos_handle_t& rpos_handle);
 int cpos_trig_group_count(int ind);
 int cpos_exists_spotlight();
 
-void cpos_clear_combos();
 void cpos_clear_all();
 void cpos_force_update();
 void cpos_update();

@@ -3528,15 +3528,6 @@ void cpos_update_cache(int32_t oldid, int32_t newid)
 		cpos_update_cache(combobuf[newid],1);
 }
 
-void cpos_clear_combos()
-{
-	combo_posinfos.resize(region_num_rpos * 7);
-	for (int i = 0; i < region_num_rpos * 7; i++)
-	{
-		combo_posinfos[i].clear();
-	}
-}
-
 void cpos_clear_all()
 {
 	//Clearing these here just as a sanity check... -Em
@@ -3544,7 +3535,11 @@ void cpos_clear_all()
 	copycat_skip_rpos = rpos_t::None;
 	copycat_skip_ffc = -1;
 	//
-	cpos_clear_combos();
+	combo_posinfos.resize(region_num_rpos * 7);
+	for (int i = 0; i < region_num_rpos * 7; i++)
+	{
+		combo_posinfos[i].clear();
+	}
 	
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		ffc_handle.ffc->info.clear();
