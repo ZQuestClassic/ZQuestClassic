@@ -5800,19 +5800,20 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	FFCore.deallocateAllScriptOwned(ScriptType::Screen, 0);
 	FFCore.deallocateAllScriptOwned(ScriptType::Combo, 0);
 
-	for (int screen_index = 0; screen_index < 128; screen_index++)
+	// Load the origin screen (top-left in region) into tmpscr
+	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay);
+	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
+	if (scr >= 0x80)
+		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay);
+
+	if (is_z3_scrolling_mode())
 	{
-		if (screen_index == cur_origin_screen_index)
+		for (int screen_index = 0; screen_index < 128; screen_index++)
 		{
-			// Load the origin screen (top-left in region) into tmpscr
-			loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay);
-			// Store the current tmpscr into special_warp_return_screen, if on a special screen.
-			if (scr >= 0x80)
-				loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay);
-		}
-		else if (is_in_current_region(screen_index))
-		{
-			load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
+			if (screen_index != cur_origin_screen_index && is_in_current_region(screen_index))
+			{
+				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
+			}
 		}
 	}
 
