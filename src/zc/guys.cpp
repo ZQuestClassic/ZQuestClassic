@@ -18576,7 +18576,9 @@ void loadguys(mapscr* screen, int screen_index)
 		sfx(WAV_SCALE);
 		addguy(dx+120,dy+62,gFAIRY,-14,false,guyscr);
 	}
-	
+
+	loaditem(screen, screen_index, dx, dy);
+
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
 	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
 	if (screen->room==r10RUPIES && !getmapflag(screen_index, mf))
@@ -18603,7 +18605,6 @@ void loadguys()
 
 	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		loadguys(screen, screen_index);
-		loaditem(screen, screen_index, region_scr_x*256, region_scr_y*176);
 	});
 }
 
