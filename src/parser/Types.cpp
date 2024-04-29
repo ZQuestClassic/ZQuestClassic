@@ -105,7 +105,7 @@ DataTypeSimple DataType::CHAR(ZTID_CHAR, "char32", &CCHAR);
 DataTypeSimple DataType::LONG(ZTID_LONG, "long", &CLONG);
 DataTypeSimple DataType::BOOL(ZTID_BOOL, "bool", &CBOOL);
 DataTypeSimple DataType::RGBDATA(ZTID_RGBDATA, "rgb", &CRGBDATA);
-DataTypeArray DataType::STRING(CHAR);
+DataTypeArray const& DataType::STRING = *DataTypeArray::create(CHAR);
 
 ////////////////////////////////////////////////////////////////
 // DataType

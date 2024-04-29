@@ -220,8 +220,8 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 	
 	RecursiveVisitor::caseStmtSwitch(host);
 	if (breakRecursion(host)) return;
-
-	checkCast(*host.key->getReadType(scope, this), host.isString ? DataType::CHAR : DataType::FLOAT, &host);
+	
+	checkCast(*host.key->getReadType(scope, this), host.isString ? static_cast<DataType const&>(DataType::STRING) : DataType::FLOAT, &host);
 }
 
 void SemanticAnalyzer::caseRange(ASTRange& host, void*)
