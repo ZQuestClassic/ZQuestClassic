@@ -1069,7 +1069,7 @@ namespace ZScript
 		DataType const& resolveType(Scope* scope, CompileErrorHandler* errorHandler);
 		DataType const* resolve_ornull(Scope* scope, CompileErrorHandler* errorHandler);
 
-		void replaceType(DataType const& newty);
+		void setResolvedType(DataType const& newty);
 
 		const std::string& getName() const {return identifier->getValue();}
 		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
@@ -1089,6 +1089,8 @@ namespace ZScript
 		// set if this declaration is not part of a list, as the list's base type
 		// should be used instead in that case.
 		owning_ptr<ASTDataType> baseType;
+		
+		DataType const* resolvedType;
 
 		// Extra array type for this specific declaration. The final type is the
 		// list's base type combined with these.
@@ -1427,6 +1429,7 @@ namespace ZScript
 			return new ASTExprIndex(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
+		virtual std::string asString() const;
 		bool isTypeIndex() const /*override*/ {return true;}
     
 		bool isConstant() const /*override*/;
@@ -2079,6 +2082,7 @@ namespace ZScript
 		ASTNumberLiteral* clone() const {return new ASTNumberLiteral(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		virtual std::string asString() const;
 
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
@@ -2113,7 +2117,8 @@ namespace ZScript
 		ASTCharLiteral* clone() const {return new ASTCharLiteral(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
-
+		virtual std::string asString() const;
+		
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 		virtual bool isTempVal() const {return false;}
@@ -2134,7 +2139,8 @@ namespace ZScript
 		ASTBoolLiteral* clone() const {return new ASTBoolLiteral(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
-
+		virtual std::string asString() const;
+		
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 		virtual bool isTempVal() const {return false;}
@@ -2163,6 +2169,8 @@ namespace ZScript
 			return new ASTStringLiteral(*this);}
 
 		void execute (ASTVisitor& visitor, void* param = NULL) /*override*/;
+		virtual std::string asString() const;
+		
 		bool isStringLiteral() const /*override*/ {return true;}
 
 		bool isConstant() const /*override*/ {return true;}
@@ -2188,6 +2196,8 @@ namespace ZScript
 		ASTArrayLiteral* clone() const {return new ASTArrayLiteral(*this);}
 
 		void execute (ASTVisitor& visitor, void* param = NULL);
+		virtual std::string asString() const;
+		
 		bool isArrayLiteral() const {return true;}
 
 		bool isConstant() const {return true;}

@@ -1363,7 +1363,8 @@ void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
 	: ASTDecl(location), identifier(NULL), list(NULL),
-	  manager(NULL), baseType(NULL), flags(0), initializer_(NULL)
+	  manager(NULL), baseType(NULL), flags(0), initializer_(NULL),
+	  resolvedType(NULL)
 {}
 
 ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
@@ -1371,7 +1372,8 @@ ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
 	  identifier(other.identifier), list(NULL),
 	  manager(NULL),
 	  baseType(other.baseType),
-	  extraArrays(other.extraArrays)
+	  extraArrays(other.extraArrays),
+	  resolvedType(other.resolvedType)
 {
 	if(other.initializer_)
 		setInitializer(other.initializer_.clone());
@@ -1423,6 +1425,8 @@ void ASTDataDecl::setInitializer(ASTExpr* initializer)
 
 DataType const& ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
 {
+	if(resolvedType)
+		return *resolvedType;
 	// First resolve the base type.
 	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
 	DataType const* type = &baseTypeNode->resolve(*scope, errorHandler);
@@ -1434,9 +1438,14 @@ DataType const& ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 	if (!type->isResolved())
 		return *type;
 	
-	// If we have any arrays, tack them onto the base type.
-	for (int q = 0; q < extraArrays.size(); ++q)
-		type = DataTypeArray::create(*type);
+	if(!extraArrays.empty())
+	{
+		uint q = 1;
+		type = DataTypeArray::create_owning(type->clone());
+		for (; q < extraArrays.size(); ++q)
+			type = DataTypeArray::create(*type);
+	}
+	setResolvedType(*type);
 
 	return *type;
 }
@@ -1447,10 +1456,9 @@ DataType const* ASTDataDecl::resolve_ornull(ZScript::Scope* scope, CompileErrorH
 	return ty.isResolved() ? &ty : nullptr;
 }
 
-void ASTDataDecl::replaceType(DataType const& newty)
+void ASTDataDecl::setResolvedType(DataType const& newty)
 {
-	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
-	baseTypeNode->replace(newty);
+	resolvedType = &newty;
 }
 
 Scope* ASTDataDecl::getScope() const
@@ -1786,6 +1794,11 @@ ASTExprIndex::ASTExprIndex(ASTExpr* array, ASTExpr* index,
 void ASTExprIndex::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprIndex(*this, param);
+}
+
+string ASTExprIndex::asString() const
+{
+	return array->asString() + "[" + index->asString() + "]";
 }
 
 bool ASTExprIndex::isConstant() const
@@ -2676,7 +2689,10 @@ void ASTNumberLiteral::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseNumberLiteral(*this, param);
 }
-
+std::string ASTNumberLiteral::asString() const
+{
+	return value->value;
+}
 std::optional<int32_t> ASTNumberLiteral::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope)
 {
@@ -2714,6 +2730,10 @@ void ASTCharLiteral::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseCharLiteral(*this, param);
 }
+std::string ASTCharLiteral::asString() const
+{
+	return value->value;
+}
 
 std::optional<int32_t> ASTCharLiteral::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope)
@@ -2737,6 +2757,10 @@ ASTBoolLiteral::ASTBoolLiteral(bool value, LocationData const& location)
 void ASTBoolLiteral::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseBoolLiteral(*this, param);
+}
+std::string ASTBoolLiteral::asString() const
+{
+	return value ? "true" : "false";
 }
 
 // ASTStringLiteral
@@ -2774,6 +2798,10 @@ ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
 void ASTStringLiteral::execute (ASTVisitor& visitor, void* param)
 {
 	visitor.caseStringLiteral(*this, param);
+}
+std::string ASTStringLiteral::asString() const
+{
+	return "\"" + value + "\"";
 }
 
 DataTypeArray const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
@@ -2814,6 +2842,16 @@ ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
 void ASTArrayLiteral::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseArrayLiteral(*this, param);
+}
+std::string ASTArrayLiteral::asString() const
+{
+	ostringstream out;
+	out << "{ ";
+	for(auto const& elem : elements)
+		out << elem->asString() << ", ";
+	out.seekp(int(out.tellp())-2);
+	out << " }";
+	return out.str();
 }
 
 // ASTOptionValue

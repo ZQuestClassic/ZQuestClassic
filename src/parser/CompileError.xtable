@@ -122,7 +122,7 @@ X(	BadDelete,			T,	A,	E,	VOID,	VOID,	"'delete' may only be used on objects of cl
 X(	DeprecatedWarn,			S,	A,	W,	STR,	STR,	"%s '%s' is deprecated, and should not be used."								)
 X(	DeprecatedError,			S,	A,	E,	STR,	STR,	"%s '%s' is deprecated, and cannot be used due to current compiler settings."								)
 X(	BadAnnotation,			P,	A,	E,	STR,	STR,	"Annotation @%s invalid: %s"						)
-X(	BadAutoType,			S,	A,	E,	VOID,	VOID,	"'auto' must have an initializer with valid type to mimic."							)
+X(	BadAutoType,			S,	A,	E,	STR,	STR,	"'%s' %s"							)
 X(	GroupAuto,			S,	A,	E,	VOID,	VOID,	"'auto' cannot apply to a group declaration."							)
 X(	BadReturnType,			S,	A,	E,	STR,	VOID,	"Cannot return type '%s'."							)
 X(	BadTempVal,			T,	A,	E,	VOID,	VOID,	"Temporary literals cannot be stored!"								)

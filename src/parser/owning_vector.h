@@ -59,6 +59,9 @@ public:
 	inline const_reverse_iterator crbegin() const {return vector_.rbegin();}
 	inline reverse_iterator rend() {return vector_.rend();}
 	inline const_reverse_iterator crend() const {return vector_.rend();}
+	
+	inline const_iterator begin() const {return cbegin();}
+	inline const_iterator end() const {return cend();}
 
 	// Capacity
 	inline size_type size() const {return vector_.size();}
