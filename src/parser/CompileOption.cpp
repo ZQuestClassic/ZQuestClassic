@@ -102,7 +102,7 @@ CompileOption CompileOption::OPT_##NAME(ID_##NAME);
 
 CompileOption CompileOption::Invalid(-1);
 
-void CompileOption::initialize()
+void CompileOption::initialize(bool has_qrs)
 {
 	static bool initialized = false;
 	if (!initialized)
@@ -122,34 +122,36 @@ void CompileOption::initialize()
 		initialized = true;
 	}
 	//Update default values, always:
-	updateDefaults();
+	updateDefaults(has_qrs);
 	flush_config_file();
 }
 
-void CompileOption::updateDefaults()
+void CompileOption::updateDefaults(bool has_qrs)
 {
 	for (int32_t i = 0; i < ID_END; ++i)
 	{
-		switch(entries[i].type)
+		auto& entry = entries[i];
+		switch(entry.type)
 		{
 			case OPTTYPE_QR:
-				if(entries[i].defaultqr)
-					entries[i].defaultValue = get_qr(entries[i].defaultqr) ? 10000L : 0L;
+				//'has_qrs' indicates if qrs were loaded; it being false indicates the defaultValues should be untouched.
+				if(has_qrs && entry.defaultqr)
+					entry.defaultValue = get_qr(entry.defaultqr) ? 10000L : 0L;
 				break;
 			
 			case OPTTYPE_CONFIG:
 			{
-				int32_t val = zscript_get_config_int(entries[i].name, int32_t(entries[i].defaultValue/10000L));
+				int32_t val = zscript_get_config_int(entry.name, int32_t(entry.defaultValue/10000L));
 				if(!zc_cfg_defaulted)
-					entries[i].defaultValue = val * 10000L;
+					entry.defaultValue = val * 10000L;
 				break;
 			}
 			
 			case OPTTYPE_CONFIG_FLOAT:
 			{
-				double val = zscript_get_config_double(entries[i].name, entries[i].defaultValue/10000.0);
+				double val = zscript_get_config_double(entry.name, entry.defaultValue/10000.0);
 				if(!zc_cfg_defaulted)
-					entries[i].defaultValue = val * 10000L;
+					entry.defaultValue = val * 10000L;
 				break;
 			}
 		}

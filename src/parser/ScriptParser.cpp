@@ -67,7 +67,7 @@ static std::filesystem::path derelativize_path(std::string src_path)
 
 extern std::vector<string> ZQincludePaths;
 
-void ScriptParser::initialize()
+void ScriptParser::initialize(bool has_qrs)
 {
 	vid = 0;
 	fid = 0;
@@ -75,7 +75,7 @@ void ScriptParser::initialize()
 	lid = 0;
 	assemble_err = false;
 	CompileError::initialize();
-	CompileOption::initialize();
+	CompileOption::initialize(has_qrs);
 	includePaths.clear();
 	includePaths.resize(0);
 }
@@ -88,7 +88,6 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 	using namespace ZScript;
 	zscript_failcode = 0;
 	zscript_error_out = false;
-	ScriptParser::initialize();
 	if(ignore_asserts) delay_asserts = true;
 	casserts.clear();
 	try

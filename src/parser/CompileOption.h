@@ -61,8 +61,8 @@ namespace ZScript
 #		include "CompileOption.xtable"
 #		undef X
 
-		static void initialize();
-		static void updateDefaults();
+		static void initialize(bool has_qrs);
+		static void updateDefaults(bool has_qrs);
 
 		static std::optional<CompileOption> get(std::string const& name);
 
