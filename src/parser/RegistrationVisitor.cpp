@@ -704,21 +704,26 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	if (type->isAuto())
 	{
 		bool good = false;
+		auto arr_depth = type->getArrayDepth();
 		auto init = host.getInitializer();
 		if(init)
 		{
 			auto readty = init->getReadType(scope, this);
 			if(readty && readty->isResolved() && !readty->isVoid() && !readty->isAuto())
 			{
-				auto newty = type->isConstant() ? readty->getConstType() : readty->getMutType();
-				host.replaceType(*newty);
-				type = host.resolve_ornull(scope, this);
+				if(readty->getArrayDepth() < arr_depth)
+				{
+					handleError(CompileError::BadAutoType(&host, type->getName(), fmt::format("must have an initializer with type that is at least {}-depth array", arr_depth)));
+					return;
+				}
+				type = type->isConstant() ? readty->getConstType() : readty;
+				host.setResolvedType(*type);
 				good = true;
 			}
 		}
 		if(!good)
 		{
-			handleError(CompileError::BadAutoType(&host));
+			handleError(CompileError::BadAutoType(&host, type->getName(), "must have an initializer with valid type to mimic."));
 			return;
 		}
 	}
@@ -1017,6 +1022,8 @@ void RegistrationVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 				host.left.get(), host.left->asString()));
 		return;
 	}
+	if (ltype->isConstant())
+		handleError(CompileError::LValConst(&host, host.left->asString()));
 }
 
 void RegistrationVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
@@ -1029,16 +1036,6 @@ void RegistrationVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* para
 	{
 		handleError(CompileError::NoArrayGlobalVar(&host));
 		return;
-	}
-
-	// Can't write to a constant.
-	if (param == paramWrite || param == paramReadWrite)
-	{
-		if (host.binding->type.isConstant())
-		{
-			handleError(CompileError::LValConst(&host, host.asString()));
-			return;
-		}
 	}
 }
 

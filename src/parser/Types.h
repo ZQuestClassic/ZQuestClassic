@@ -368,6 +368,7 @@ namespace ZScript
 	{
 	public:
 		static DataTypeArray const* create(DataType const& elementType);
+		static DataTypeArray const* create_depth(DataType const& elementType, uint depth);
 		static DataTypeArray const* create_owning(DataType* elementType);
 		explicit DataTypeArray(DataType const& elementType)
 			: DataType(NULL), elementType(elementType), owned_type() {}
@@ -386,11 +387,16 @@ namespace ZScript
 		virtual bool isArray() const {return true;}
 		virtual bool isTemplate() const {return elementType.isTemplate();}
 		virtual bool isResolved() const {return elementType.isResolved();}
+		virtual bool isAuto() const {return elementType.isAuto();}
+		virtual bool isConstant() const {return elementType.isConstant();}
 		virtual UserClass* getUsrClass() const {return elementType.getUsrClass();}
 
 		DataType const& getElementType() const {return elementType;}
 		virtual DataType const& getBaseType() const;
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
+		
+		virtual DataType const* getConstType() const;
+		virtual DataType const* getMutType() const;
 
 	private:
 		DataType const& elementType;

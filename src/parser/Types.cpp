@@ -420,6 +420,16 @@ DataType const& DataTypeArray::getBaseType() const
 {
 	return ZScript::getBaseType(elementType);
 }
+DataType const* DataTypeArray::getConstType() const
+{
+	if(isConstant()) return this;
+	return create_depth(*getBaseType().getConstType(), getArrayDepth());
+}
+DataType const* DataTypeArray::getMutType() const
+{
+	if(!isConstant()) return this;
+	return create_depth(*getBaseType().getMutType(), getArrayDepth());
+}
 
 std::vector<std::unique_ptr<DataTypeArray>> DataTypeArray::created_arr_types;
 DataTypeArray const* DataTypeArray::create(DataType const& elementType)
@@ -428,6 +438,14 @@ DataTypeArray const* DataTypeArray::create(DataType const& elementType)
 		if(ty->elementType == elementType)
 			return ty.get();
 	return created_arr_types.emplace_back(new DataTypeArray(elementType)).get();
+}
+DataTypeArray const* DataTypeArray::create_depth(DataType const& elementType, uint depth)
+{
+	DataType const* ret = &elementType;
+	if(!depth) depth = 1;
+	while(depth--)
+		ret = create(*ret);
+	return static_cast<DataTypeArray const*>(ret);
 }
 DataTypeArray const* DataTypeArray::create_owning(DataType* elementType)
 {

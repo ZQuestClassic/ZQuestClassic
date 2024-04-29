@@ -664,22 +664,31 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		
 		if (type->isAuto())
 		{
-			bool good = false;
+			auto arr_depth = type->getArrayDepth();
 			auto init = host.getInitializer();
+			DataType const* readty = nullptr;
 			if(init)
 			{
-				auto readty = init->getReadType(scope, this);
+				readty = init->getReadType(scope, this);
 				if(readty && readty->isResolved() && !readty->isVoid() && !readty->isAuto())
 				{
-					auto newty = type->isConstant() ? readty->getConstType() : readty->getMutType();
-					host.replaceType(*newty);
-					type = host.resolve_ornull(scope, this);
-					good = true;
+					if(readty->getArrayDepth() < arr_depth)
+					{
+						handleError(CompileError::BadAutoType(&host, type->getName(), fmt::format("must have an initializer with type that is at least {}-depth array", arr_depth)));
+						return;
+					}
+					if(type->isConstant())
+						type = readty->getConstType();
+					else if(!readty->isArray())
+						type = readty->getMutType();
+					else type = readty;
+					host.setResolvedType(*type);
 				}
+				else readty = nullptr; //indicate failure
 			}
-			if(!good)
+			if(!readty)
 			{
-				handleError(CompileError::BadAutoType(&host));
+				handleError(CompileError::BadAutoType(&host, type->getName(), "must have an initializer with valid type to mimic."));
 				return;
 			}
 		}
@@ -757,9 +766,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	{
 		// Make sure we can cast the initializer to the type.
 		DataType const& initType = *initializer->getReadType(scope, this);
-		//If this is in an `enum`, then the write type is `CFLOAT`.
-		ASTDataType temp=ASTDataType(DataType::CFLOAT, host.location);
-		DataType const& enumType = temp.resolve(*scope, this);
+		DataType const& enumType = DataType::CFLOAT;
 
 		checkCast(initType, (host.list && host.list->isEnum()) ? enumType : *type, &host);
 		if (breakRecursion(host)) return;
@@ -1230,16 +1237,6 @@ void SemanticAnalyzer::caseExprIdentifier(
 	{
 		handleError(CompileError::VarUndeclared(&host, host.asString()));
 		return;
-	}
-
-	// Can't write to a constant.
-	if (param == paramWrite || param == paramReadWrite)
-	{
-		if (host.binding->type.isConstant())
-		{
-			handleError(CompileError::LValConst(&host, host.asString()));
-			return;
-		}
 	}
 }
 
@@ -1960,6 +1957,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		return;
 	}
 	
+	bool automatic_type = true;
 	// If present, resolve the explicit type.
 	if (host.type)
 	{
@@ -1973,17 +1971,20 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 			return;
 		}
 
-		// Disallow void/auto type.
-		if (elementType.isVoid() || elementType.isAuto())
+		// Disallow void type.
+		if (elementType.isVoid())
 		{
 			handleError(CompileError::BadArrType(&host, host.asString(), elementType.getName()));
 			return;
 		}
-
-		// Convert to array type.
-		host.setReadType(DataTypeArray::create(elementType));
+		
+		if(!elementType.isAuto())
+		{
+			host.setReadType(DataTypeArray::create(elementType)); // Convert to array type.
+			automatic_type = false;
+		}
 	}
-	else
+	if(automatic_type)
 	{
 		// No explicit type, infer from the elements
 		const DataType* type = nullptr;
@@ -2002,6 +2003,8 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		}
 		if(!type)
 			type = &DataType::UNTYPED;
+		if(type->isConstant())
+			type = type->getMutType();
 
 		host.setReadType(DataTypeArray::create(*type));
 	}
@@ -2054,8 +2057,11 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
-    checkCast(*operand.getReadType(scope, this), DataType::FLOAT, &host);
+	DataType const& ty = *operand.getReadType(scope, this);
+    checkCast(ty, DataType::FLOAT, &host);
     if (breakRecursion(host)) return;
+	if (ty.isConstant())
+		handleError(CompileError::LValConst(&host, operand.asString()));
 }
 
 void SemanticAnalyzer::analyzeBinaryExpr(
