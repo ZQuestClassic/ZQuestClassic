@@ -29496,18 +29496,24 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
-			bool is_new_scr = scr == currscr;
-
-			mapscr* base_screen = screen_handles[0].base_screen;
-			bool primitives = is_new_scr;
+			bool primitives = is_new_screen;
 			do_layer(framebuf, 0, screen_handles[1], offx, offy, primitives);
+		});
 
-			if (get_qr(qr_FFCSCROLL))
-			{
+		if (get_qr(qr_FFCSCROLL))
+		{
+			for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 				int draw_ffc_x = is_new_screen ? ffc_offset_x : 0;
 				int draw_ffc_y = is_new_screen ? ffc_offset_y : 0;
-				do_layer(framebuf, -3, screen_handles[0], draw_ffc_x, draw_ffc_y); // ffcs
-			}
+				do_layer(framebuf, -3, screen_handles[0], draw_ffc_x, draw_ffc_y);
+			});
+		}
+
+		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
+			int offx = draw_dx * 256;
+			int offy = draw_dy * 176;
+			mapscr* base_screen = screen_handles[0].base_screen;
+			bool primitives = is_new_screen;
 
 			if(!(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)))
 			{
@@ -29519,7 +29525,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
-			bool is_new_scr = scr == currscr;
 			mapscr* base_screen = screen_handles[0].base_screen;
 
 			if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
@@ -29530,11 +29535,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 					do_layer(framebuf, -2, screen_handles[1], offx, offy);
 					do_layer(framebuf, -2, screen_handles[2], offx, offy);
 				}
-				if (is_new_scr)
+				if (is_new_screen)
 					do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
 			}
 
-			int tempscreen = is_new_scr ? 2 : 3;
+			int tempscreen = is_new_screen ? 2 : 3;
 			do_walkflags(base_screen, offx, offy, tempscreen); // show walkflags if the cheat is on
 			do_effectflags(base_screen, offx, offy, tempscreen); // show effectflags if the cheat is on
 		});
