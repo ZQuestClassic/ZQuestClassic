@@ -5892,9 +5892,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		original_playing_field_offset = 56;
 	}
 
-	// TODO !!!! needed with my dark changes?
-	// room_is_dark = (tmpscr[tmp].flags & fDARK);
-	room_is_dark = true;
+	// TODO z3 !!!! per-screen?
+	room_is_dark = (tmpscr->flags & fDARK);
 
 	game->load_portal();
 	throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
