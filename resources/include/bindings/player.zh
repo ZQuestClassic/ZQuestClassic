@@ -1047,3 +1047,5 @@ class player {
 internal const player Hero;
 internal const player Link;	  // @deprecated Use Hero->
 internal const player Player; // @deprecated Use Hero->
+script typedef player link;
+script typedef player hero;
