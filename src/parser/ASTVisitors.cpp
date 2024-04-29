@@ -246,8 +246,8 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 void RecursiveVisitor::checkCast(
 		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
 {
-	if (sourceType.canCastTo(targetType)) return;
-	if (twoWay && targetType.canCastTo(sourceType)) return;
+	if (sourceType.canCastTo(targetType, scope)) return;
+	if (twoWay && targetType.canCastTo(sourceType, scope)) return;
 	handleError(
 		CompileError::IllegalCast(
 			node, sourceType.getName(), targetType.getName()));

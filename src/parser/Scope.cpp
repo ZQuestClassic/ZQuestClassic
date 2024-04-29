@@ -522,7 +522,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 			foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
 		if (!skipParamCheck)
-			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+			trimBadFunctions(currentFunctions, parameterTypes, &scope, !isClass);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	if(!noUsing)
@@ -534,7 +534,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 			NamespaceScope* nsscope = *it;
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
 			if (!skipParamCheck)
-				trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+				trimBadFunctions(currentFunctions, parameterTypes, &scope, !isClass);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
@@ -569,7 +569,7 @@ vector<Function*> ZScript::lookupFunctions(
 		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
 		if (!skipParamCheck)
-			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+			trimBadFunctions(currentFunctions, parameterTypes, &scope, !isClass);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
@@ -582,7 +582,7 @@ vector<Function*> ZScript::lookupFunctions(
 			Scope& current = **it;
 			vector<Function*> currentFunctions = current.getLocalFunctions(name);
 			if (!skipParamCheck)
-				trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+				trimBadFunctions(currentFunctions, parameterTypes, &scope, !isClass);
 			functions.insert(functions.end(),
 							 currentFunctions.begin(), currentFunctions.end());
 		}
@@ -675,17 +675,17 @@ UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
 	return nullptr;
 }
 
-vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes)
+vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes, Scope const* scope)
 {
 	vector<Function*> functions = user_class.getScope().getConstructors();
-	trimBadFunctions(functions, parameterTypes, false);
+	trimBadFunctions(functions, parameterTypes, scope, false);
 	return functions;
 }
 vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
-	std::string const& name, vector<DataType const*> const& parameterTypes)
+	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope)
 {
 	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
-	trimBadFunctions(functions, parameterTypes, false);
+	trimBadFunctions(functions, parameterTypes, scope, false);
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end();)
 	{
@@ -716,7 +716,8 @@ static int applyTemplateTypes(
     Function* function,
     std::vector<DataType const *> const &parameter_types,
 	size_t num_params,
-    Function** out_resolved_function)
+    Function** out_resolved_function,
+	Scope const* parent_scope)
 {
 	auto resolved_params = function->paramTypes;
 	bool found_template_type = false;
@@ -752,7 +753,7 @@ static int applyTemplateTypes(
 			continue;
 		}
 
-		if (!el_type->canCastTo(*bound_t))
+		if (!el_type->canCastTo(*bound_t, parent_scope))
 			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 
 		resolved_params[i] = parameter_types[i];
@@ -789,7 +790,7 @@ static int applyTemplateTypes(
 					continue;
 				}
 
-				if (!el_type->canCastTo(*bound_t))
+				if (!el_type->canCastTo(*bound_t, parent_scope))
 					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 
 				varg_basety = parameter_types[i];
@@ -826,7 +827,7 @@ static int applyTemplateTypes(
 	return APPLY_TEMPLATE_RET_APPLIED;
 }
 
-inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses)
+inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, Scope const* parent_scope, bool trimClasses)
 {
 	bool any_from_type_template = false;
 
@@ -897,7 +898,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		else
 		{
 			Function* resolved_function = nullptr;
-			int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function);
+			int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function, parent_scope);
 			if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
 			{
 				it = functions.erase(it);
@@ -912,7 +913,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 
 			for (size_t i = 0; i < lowsize; ++i)
 			{
-				if (!parameterTypes[i]->canCastTo(*function->paramTypes[i]))
+				if (!parameterTypes[i]->canCastTo(*function->paramTypes[i], parent_scope))
 				{
 					parametersMatch = false;
 					break;
@@ -923,7 +924,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 				auto& vargty = static_cast<DataTypeArray const*>(function->paramTypes.back())->getElementType();
 				for(size_t i = lowsize; i < targetSize; ++i)
 				{
-					if(!parameterTypes[i]->canCastTo(vargty))
+					if(!parameterTypes[i]->canCastTo(vargty, parent_scope))
 					{
 						parametersMatch = false;
 						break;

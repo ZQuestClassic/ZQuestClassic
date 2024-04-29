@@ -781,7 +781,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 		ASTExpr& size = **it;
 
 		// Make sure each size can cast to float.
-		if (!size.getReadType(scope, this)->canCastTo(DataType::FLOAT))
+		if (!size.getReadType(scope, this)->canCastTo(DataType::FLOAT, scope))
 		{
 			handleError(CompileError::NonIntegerArraySize(&host));
 			return;
@@ -1475,7 +1475,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 				handleError(CompileError::NoClass(&host, identifier->asString()));
 				return;
 			}
-			functions = lookupConstructors(*user_class, parameterTypes);
+			functions = lookupConstructors(*user_class, parameterTypes, scope);
 		}
 		else
 		{
@@ -1483,7 +1483,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			{
 				user_class = &scope->getClass()->user_class;
 				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
-					functions = lookupConstructors(*user_class, parameterTypes);
+					functions = lookupConstructors(*user_class, parameterTypes, scope);
 				if(!functions.size())
 					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
 			}
@@ -1493,7 +1493,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else if(user_class)
 	{
-		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes);
+		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope);
 	}
 	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
 
@@ -2004,7 +2004,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 
 			// I think this should accept only exactly matching types. A future
 			// change could modify this to accept the base type of two related types.
-			if (!type->canCastTo(*node_type) || !node_type->canCastTo(*type))
+			if (!type->canCastTo(*node_type, scope) || !node_type->canCastTo(*type, scope))
 			{
 				type = nullptr;
 				break;
