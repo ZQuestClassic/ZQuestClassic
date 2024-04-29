@@ -2,7 +2,7 @@
 //	Name,                                                      Default QR,                  Type,             Default Value
 X(	NO_LOGGING,                                      qr_PARSER_NO_LOGGING,            OPTTYPE_QR,                OPTION_OFF)
 X(	TRUNCATE_DIVISION_BY_LITERAL_BUG,               qr_PARSER_250DIVISION,            OPTTYPE_QR,                OPTION_OFF)
-X(	SHORT_CIRCUIT,                                qr_PARSER_SHORT_CIRCUIT,            OPTTYPE_QR,                OPTION_OFF)
+X(	SHORT_CIRCUIT,                                qr_PARSER_SHORT_CIRCUIT,            OPTTYPE_QR,                 OPTION_ON)
 X(	BOOL_TRUE_RETURN_DECIMAL,                 qr_PARSER_BOOL_TRUE_DECIMAL,            OPTTYPE_QR,                OPTION_OFF)
 X(	HEADER_GUARD,                                                       0,        OPTTYPE_CONFIG,                 OPTION_ON)
 X(	NO_ERROR_HALT,                                                      0,        OPTTYPE_CONFIG,                OPTION_OFF)
@@ -13,3 +13,4 @@ X(	APPROX_EQUAL_MARGIN,                                                0,  OPTTY
 X(	STRING_SWITCH_CASE_INSENSITIVE,    qr_PARSER_STRINGSWITCH_INSENSITIVE,            OPTTYPE_QR,                OPTION_OFF)
 X(	WARN_DEPRECATED,                                                    0,        OPTTYPE_CONFIG,                OPTION_OFF)
 X(	ON_MISSING_RETURN,                                                  0,        OPTTYPE_CONFIG,              OPTION_ERROR)
+X(	OLD_ARRAY_TYPECASTING,                                              0,        OPTTYPE_CONFIG,                OPTION_OFF)
