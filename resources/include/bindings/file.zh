@@ -31,7 +31,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEOPEN D2
-	internal bool Open(char32 filepath);
+	internal bool Open(char32[] filepath);
 
 	// If the file pointer is not allocated, this will allocate it. Also closes
 	// any file that is already open on the pointer.
@@ -41,7 +41,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILECREATE D2
-	internal bool Create(char32 filepath);
+	internal bool Create(char32[] filepath);
 
 	// If the file pointer is not allocated, this will allocate it. Also closes
 	// any file that is already open on the pointer.
@@ -52,7 +52,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEOPENMODE D2 D3
-	internal bool OpenMode(char32 filepath, char32 mode_string);
+	internal bool OpenMode(char32[] filepath, char32[] mode_string);
 
 	// Closes any open file connected to the file pointer (which also includes
 	// 'Flush()'). Does *NOT* deallocate the pointer, it is still reserved to
@@ -122,7 +122,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEREADCHARS D2 D3
-	internal int ReadChars(char32 buf, int count = -1, int pos = 0);
+	internal int ReadChars(char32[] buf, int count = -1, int pos = 0);
 
 	// Reads a section of binary data from the file.
 	//
@@ -132,7 +132,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEREADINTS D2 D3
-	internal int ReadInts(char32 buf, int count = -1, int pos = 0);
+	internal int ReadInts(char32[] buf, int count = -1, int pos = 0);
 
 	// Writes characters from 'buf' to file.
 	//
@@ -142,7 +142,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEWRITECHARS D2 D3
-	internal int WriteChars(char32 buf, int count = -1, int pos = 0);
+	internal int WriteChars(char32[] buf, int count = -1, int pos = 0);
 
 	// Writes 32b binary data from 'arr' to file.
 	//
@@ -152,7 +152,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEWRITEINTS D2 D3
-	internal int WriteInts(char32 arr, int count = -1, int pos = 0);
+	internal int WriteInts(char32[] arr, int count = -1, int pos = 0);
 
 	// Reads a section of characters from the file.
 	//
@@ -160,7 +160,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEREADSTR D2
-	internal int ReadString(char32 buf);
+	internal int ReadString(char32[] buf);
 
 	// Writes the string stored in 'str' to the file.
 	//
@@ -168,7 +168,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEWRITESTR D2
-	internal int WriteString(char32 str);
+	internal int WriteString(char32[] str);
 
 	// Reads and returns the next character in the file.
 	//
@@ -222,7 +222,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEGETERROR D2
-	internal void GetError(char32 buf);
+	internal void GetError(char32[] buf);
 
 	// Deletes the file. This will close it, as with [Close()], and then delete
 	// it from the filesystem.
@@ -240,7 +240,7 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEWRITEBYTES D2 D3
-	internal int WriteBytes(char32 arr, int count = -1, int pos = 0);
+	internal int WriteBytes(char32[] arr, int count = -1, int pos = 0);
 
 	// Reads a section of binary data from the file.
 	//
@@ -250,5 +250,5 @@ class file {
 	//   POP D2
 	//   POP REFFILE
 	//   FILEREADBYTES D2 D3
-	internal int ReadBytes(char32 buf, int count = -1, int pos = 0);
+	internal int ReadBytes(char32[] buf, int count = -1, int pos = 0);
 }
