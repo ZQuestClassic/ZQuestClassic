@@ -849,10 +849,10 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_whimsicalring:
 		{
-			_SET(power, "Damage Bonus:", "How much damage to add to strikes from the Sword, Wand, and Hammer."
+			_SET(power, "Power Bonus:", "How much power to add to strikes from the Sword, Wand, and Hammer."
 				"\nThis is added before Attack Rings take effect, and also before the hero damage multiplier.");
-			_SET(misc[0], "Chance (1 in n):", "There is a '1 in n' chance of the bonus damage being added (min 1)");
-			_SET(actionsnd[0], "Whimsy Sound:", "This sound plays when the bonus damage is successfully applied.");
+			_SET(misc[0], "Chance (1 in n):", "There is a '1 in n' chance of the bonus power being added (min 1)");
+			_SET(actionsnd[0], "Whimsy Sound:", "This sound plays when the bonus power is successfully applied.");
 			break;
 		}
 		case itype_perilring:
@@ -928,8 +928,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_atkring:
 		{
-			_SET(misc[0], "Bonus Damage", "This amount of damage is *added* to the damage, *after* the multiplier.");
-			_SET(misc[1], "Damage Multiplier", "The amount of damage dealt is multiplied by this value.");
+			_SET(misc[0], "Bonus Power", "This amount is *added* to the power, *after* the multiplier.");
+			_SET(misc[1], "Power Multiplier", "The power is multiplied by this value.");
 			break;
 		}
 		case itype_lantern:
