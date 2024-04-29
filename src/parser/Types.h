@@ -220,6 +220,7 @@ namespace ZScript
 		// Basics
 		virtual std::string getName() const = 0;
 		virtual bool canCastTo(DataType const& target, Scope const* scope) const = 0;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const = 0;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return getScriptObjectTypeId() != script_object_type::none;}
 		virtual bool isObject() const {return getScriptObjectTypeId() != script_object_type::none;}
@@ -311,6 +312,7 @@ namespace ZScript
 		virtual std::string getName() const;
 		ASTExprIdentifier const* getIdentifier() const {return iden;}
 		virtual bool canCastTo(DataType const& target, Scope const* scope) const {return false;}
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 
 	private:
 		ASTExprIdentifier* iden;
@@ -328,6 +330,7 @@ namespace ZScript
 
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		virtual bool canBeGlobal() const;
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return simpleId == ZTID_UNTYPED;}
@@ -374,6 +377,7 @@ namespace ZScript
 		virtual std::string getName() const {
 			return elementType.getName() + "[]";}
 		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return elementType.canHoldObject();}
 		virtual bool isObject() const {return false;} //arrays themselves are not objects
@@ -426,6 +430,7 @@ namespace ZScript
 		virtual UserClass* getUsrClass() const {return user_class;}
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		int32_t getCustomId() const {return id;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
