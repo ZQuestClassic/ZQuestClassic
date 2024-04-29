@@ -248,10 +248,10 @@ namespace ZScript
 	UserClass* lookupClass(Scope& scope, std::string const& name, bool noUsing);
 	UserClass* lookupClass(Scope& scope, std::vector<std::string> const& names,
 		std::vector<std::string> const& delimiters, bool noUsing);
-	std::vector<Function*> lookupConstructors(UserClass const& user_class, std::vector<DataType const*> const& parameterTypes);
+	std::vector<Function*> lookupConstructors(UserClass const& user_class, std::vector<DataType const*> const& parameterTypes, Scope const* scope);
 	std::vector<Function*> lookupClassFuncs(UserClass const& user_class,
-		std::string const& name, std::vector<DataType const*> const& parameterTypes);
-	inline void trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses = true);
+		std::string const& name, std::vector<DataType const*> const& parameterTypes, Scope const* scope);
+	inline void trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, Scope const* scope, bool trimClasses = true);
 
 	// Resolve an option value under the scope. Will only return empty if
 	// the provided option is invalid. If the option is valid but not set,

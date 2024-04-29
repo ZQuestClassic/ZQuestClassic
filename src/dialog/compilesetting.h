@@ -31,6 +31,7 @@ private:
 	char include_str[MAX_INCLUDE_PATH_CHARS];
 	byte qst_cfg[4];
 	word timeout_secs, old_timeout_secs;
+	bool compat_array_typecast, old_compat_array_typecast;
 	
 	void load();
 	void save();

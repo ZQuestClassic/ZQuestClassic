@@ -271,19 +271,24 @@ int32_t DataTypeSimple::selfCompare(DataType const& rhs) const
 	return simpleId - o.simpleId;
 }
 
-bool DataTypeSimple::canCastTo(DataType const& target) const
+bool DataTypeSimple::canCastTo(DataType const& target, Scope const* scope) const
 {
 	if (isVoid() || target.isVoid()) return false;
 	if (isUntyped() || target.isUntyped()) return true;
-	if (target.isArray()) return false;
+	if (target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
+		return false;
+	}
 	if (simpleId == ZTID_CHAR || simpleId == ZTID_LONG)
-		return FLOAT.canCastTo(target); //Char/Long cast the same as float.
+		return FLOAT.canCastTo(target, scope); //Char/Long cast the same as float.
 
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
 	{
 		if (t->simpleId == ZTID_CHAR || t->simpleId == ZTID_LONG)
-			return canCastTo(FLOAT); //Char/Long cast the same as float.
+			return canCastTo(FLOAT, scope); //Char/Long cast the same as float.
 		if (simpleId == ZTID_UNTYPED || t->simpleId == ZTID_UNTYPED)
 			return true;
 		if (simpleId == ZTID_VOID || t->simpleId == ZTID_VOID)
@@ -322,14 +327,19 @@ DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler*
 ////////////////////////////////////////////////////////////////
 // DataTypeArray
 
-bool DataTypeArray::canCastTo(DataType const& target) const
+bool DataTypeArray::canCastTo(DataType const& target, Scope const* scope) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-	if (!target.isArray()) return false;
+	if (!target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return getBaseType().canCastTo(target, scope);
+		return false;
+	}
 	DataTypeArray const* targ_arr = static_cast<DataTypeArray const*>(&target);
 	
-	return getElementType().canCastTo(targ_arr->getElementType());
+	return getElementType().canCastTo(targ_arr->getElementType(), scope);
 }
 
 int32_t DataTypeArray::selfCompare(DataType const& rhs) const
@@ -386,11 +396,16 @@ bool DataTypeCustom::canHoldObject() const {
 	return true;
 }
 
-bool DataTypeCustom::canCastTo(DataType const& target) const
+bool DataTypeCustom::canCastTo(DataType const& target, Scope const* scope) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-	if (target.isArray()) return false;
+	if (target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
+		return false;
+	}
 	
 	if(!isClass() && !isUsrClass())
 	{

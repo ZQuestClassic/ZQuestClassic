@@ -650,10 +650,10 @@ void Function::alias(Function* func, bool force)
 		assert(paramTypes.size() == func->paramTypes.size());
 		for(size_t q = 0; q < paramTypes.size(); ++q)
 		{
-			assert(paramTypes[q]->canCastTo(*func->paramTypes[q]));
+			assert(paramTypes[q]->canCastTo(*func->paramTypes[q], func->internalScope));
 		}
 		assert(hasPrefixType == func->hasPrefixType);
-		assert(returnType->canCastTo(*func->returnType));
+		assert(returnType->canCastTo(*func->returnType, func->internalScope));
 		//Ensure the function had no owned info of its' own
 		assert(ownedCode.empty());
 		assert(!(label || altlabel));
