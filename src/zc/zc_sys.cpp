@@ -5444,7 +5444,7 @@ int32_t d_jstick_proc(int32_t msg,DIALOG *d,int32_t c)
 extern const char *key_str[];
 std::string get_keystr(int key);
 
-const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
+const char *pan_str[4] = { "  MONO", "   1/2", "   3/4", "  FULL" };
 
 static char str_a[80],str_b[80],str_s[80],str_m[80],str_l[80],str_r[80],str_p[80],str_ex1[80],str_ex2[80],str_ex3[80],str_ex4[80],
 	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80],
@@ -5551,7 +5551,7 @@ int32_t set_vol(void *dp3, int32_t d2)
 	}
 	
 	// text_mode(vc(11));
-	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
+	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"   %3d",zc_min(d2<<3,255));
 	return D_O_K;
 }
 
