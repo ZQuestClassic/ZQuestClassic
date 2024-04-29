@@ -284,7 +284,7 @@ namespace ZScript
 		static DataTypeSimple LONG;
 		static DataTypeSimple BOOL;
 		static DataTypeSimple RGBDATA;
-		static DataTypeArray STRING;
+		static DataTypeArray const& STRING;
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -369,7 +369,7 @@ namespace ZScript
 	public:
 		static DataTypeArray const* create(DataType const& elementType);
 		static DataTypeArray const* create_owning(DataType* elementType);
-		DataTypeArray(DataType const& elementType)
+		explicit DataTypeArray(DataType const& elementType)
 			: DataType(NULL), elementType(elementType), owned_type() {}
 		DataTypeArray* clone() const {return new DataTypeArray(*this);}
 		int unique_type_id() const { return 4; }
