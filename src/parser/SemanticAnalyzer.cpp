@@ -34,6 +34,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
 	if (!functionDecl) return;
+	auto extern_scope = function.getExternalScope();
 	if(parsing_user_class == puc_construct
 		|| parsing_user_class == puc_destruct
 		|| (parsing_user_class == puc_funcs && !function.getFlag(FUNCFLAG_STATIC)))
@@ -47,7 +48,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 	// Grab the script.
 	Script* script = NULL;
-	if (ScriptScope* ss = dynamic_cast<ScriptScope*>(scope->getParent()))
+	if (ScriptScope* ss = dynamic_cast<ScriptScope*>(extern_scope->getParent()))
 		script = &ss->script;
 
 	// Add the parameters to the scope.
@@ -821,38 +822,46 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	if(host.registered()) return; //Skip if already handled
 	
-	Scope* oldScope = scope;
+	ScopeReverter sr(&scope);
 	
+	bool templated = !host.templates.empty();
 	if(host.parentScope)
 		scope = host.parentScope;
-	else if(host.identifier->components.size() > 1)
+	else
 	{
-		ASTExprIdentifier const& id = *(host.identifier);
-		
-		vector<string> scopeNames(id.components.begin(), --id.components.end());
-		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
-		host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
-		if(!host.parentScope)
+		if(host.identifier->components.size() > 1)
 		{
-			string scopeName = "";
-			vector<string>::const_iterator del = scopeDelimiters.begin();
-			for (vector<string>::const_iterator it = scopeNames.begin();
-			   it != scopeNames.end();
-			   ++it,++del)
+			ASTExprIdentifier const& id = *(host.identifier);
+			
+			vector<string> scopeNames(id.components.begin(), --id.components.end());
+			vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
+			host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
+			if(!host.parentScope)
 			{
-				scopeName = scopeName + *it + *del;
+				string scopeName = "";
+				vector<string>::const_iterator del = scopeDelimiters.begin();
+				for (vector<string>::const_iterator it = scopeNames.begin();
+				   it != scopeNames.end();
+				   ++it,++del)
+				{
+					scopeName = scopeName + *it + *del;
+				}
+				handleError(CompileError::NoScopeFound(&host, scopeName.c_str()));
+				return;
 			}
-			handleError(CompileError::NoScopeFound(&host, scopeName.c_str()));
-			return;
+			scope = host.parentScope;
 		}
-		scope = host.parentScope;
+		else host.parentScope = scope;
+		// Add an extra anonymous scope, used by templates
+		host.parentScope = scope = scope->makeChild();
 	}
-	else host.parentScope = scope;
+	Scope* extern_scope = scope;
+	Scope* func_lives_in = scope->getParent();
+	
 	
 	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
-		scope = oldScope;
 		return;
 	}
 	/* This option is being disabled for now, as inlining of user functions is being disabled -V
@@ -861,20 +870,30 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	{
 		host.setFlag(FUNCFLAG_INLINE);
 	}*/
+	
+	if(templated && host.template_types.empty())
+	{
+		for(auto& ptr : host.templates)
+		{
+			string const& name = ptr->getValue();
+			host.template_types.emplace_back(DataTypeTemplate::create(name));
+			scope->addDataType(name, host.template_types.back().get(), nullptr);
+		}
+		host.param_template = host.parameters; //copy the pre-initialized params
+	}
+	
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
-	if (breakRecursion(*host.returnType.get())) {scope = oldScope; return;}
+	if (breakRecursion(*host.returnType.get())) return;
 	if (!returnType.isResolved())
 	{
 		handleError(
 				CompileError::UnresolvedType(&host, returnType.getName()));
-		scope = oldScope;
 		return;
 	}
 	if(returnType.isAuto())
 	{
 		handleError(CompileError::BadReturnType(&host, returnType.getName()));
-		scope = oldScope;
 		return;
 	}
 
@@ -889,11 +908,10 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 
 		// Resolve the parameter type under current scope.
 		DataType const& type = decl.resolveType(scope, this);
-		if (breakRecursion(decl)) {scope = oldScope; return;}
+		if (breakRecursion(decl)) return;
 		if (!type.isResolved())
 		{
 			handleError(CompileError::UnresolvedType(&decl, type.getName()));
-			scope = oldScope;
 			return;
 		}
 
@@ -901,7 +919,6 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if (type.isVoid() || type.isAuto())
 		{
 			handleError(CompileError::FunctionBadParamType(&decl, decl.getName(), type.getName()));
-			scope = oldScope;
 			return;
 		}
 		paramNames.emplace_back(new string(decl.getName()));
@@ -916,13 +933,12 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	{
 		//Check the default return
 		visit(host.defaultReturn.get());
-		if(breakRecursion(host.defaultReturn.get())) {scope = oldScope; return;}
+		if(breakRecursion(host.defaultReturn.get())) return;
 		
 		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
 		if(!defValType.isResolved())
 		{
 			handleError(CompileError::UnresolvedType(&host, defValType.getName()));
-			scope = oldScope;
 			return;
 		}
 		//Check type validity of default return
@@ -935,9 +951,9 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		else checkCast(defValType, returnType, &host);
 	}
 	
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 	visit_vec(host.optparams, param);
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 	
 	auto parcnt = paramTypes.size() - host.optparams.size();
 	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
@@ -945,19 +961,18 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		DataType const* getType = (*it)->getReadType(scope, this);
 		if(getType)
 			checkCast(*getType, *paramTypes[parcnt], &host);
-		if(breakRecursion(host)) {scope = oldScope; return;}
+		if(breakRecursion(host)) return;
 		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
 		assert(optVal);
 		host.optvals.push_back(*optVal);
 	}
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 
 	// Add the function to the scope.
-	Function* function = scope->addFunction(
-			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this);
+	Function* function = func_lives_in->addFunction(
+			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this, extern_scope);
 	host.func = function;
 
-	scope = oldScope;
 	if(breakRecursion(host)) return;
 	if (!function)
 		return;
@@ -1492,7 +1507,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	{
 		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope);
 	}
-	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
+	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;

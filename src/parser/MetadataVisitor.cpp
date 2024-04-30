@@ -430,7 +430,12 @@ void MetadataVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	if (host.prototype)
 		return;
-
+	if (host.func->isTemplateSkip())
+	{
+		for(auto& applied : host.func->get_applied_funcs())
+			visit(applied->getNode(), param);
+		return;
+	}
 	auto prev_active = active;
 	auto kind = host.getFlag(FUNCFLAG_CONSTRUCTOR) ? SymbolKind::Constructor : SymbolKind::Function;
 	appendDocSymbol(kind, host);

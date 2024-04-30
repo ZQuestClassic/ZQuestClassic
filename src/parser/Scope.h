@@ -141,7 +141,7 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
-				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL)
+				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL, Scope* subscope = NULL)
 		= 0;
 		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL) = 0;
 		virtual void removeFunction(Function* func) = 0;
@@ -241,9 +241,9 @@ namespace ZScript
 	
 	// Attempt to resolve name to possible functions under scope.
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false, bool skipParamCheck = false);
+			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false, bool skipParamCheck = false, Scope const* caller_scope = nullptr);
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false, bool skipParamCheck = false);
+			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false, bool skipParamCheck = false, Scope const* caller_scope = nullptr);
 	
 	UserClass* lookupClass(Scope& scope, std::string const& name, bool noUsing);
 	UserClass* lookupClass(Scope& scope, std::vector<std::string> const& names,
@@ -378,7 +378,7 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
-				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL, Scope* subscope = NULL);
 		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL);
 		virtual void removeFunction(Function* func);
 		virtual void setDefaultOption(CompileOptionSetting value);
@@ -458,7 +458,7 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
-				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL, Scope* subscope = NULL);
 		virtual bool addAlias(Function* funcptr, CompileErrorHandler* handler = NULL);
 		virtual void removeFunction(Function* func);
 		void removeLocalFunction(Function* function);
@@ -566,7 +566,7 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::shared_ptr<const std::string>> const& paramNames,
-				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL, Scope* subscope = NULL);
 	private:
 		std::map<FunctionSignature, Function*> constructorsBySignature_;
 		Function* destructor_;

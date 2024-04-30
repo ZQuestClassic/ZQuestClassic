@@ -358,9 +358,9 @@ bool setConstExprForBinding(Function* fn)
 {
 	std::map<std::string, CONSTEXPR_CBACK_TY> *impl_map = nullptr;
 
-	if (fn->getInternalScope()->getParent()->isClass())
+	if (fn->getExternalScope()->getParent()->isClass())
 	{
-		std::string class_name = fn->getInternalScope()->getParent()->getClass()->getName().value_or("");
+		std::string class_name = fn->getExternalScope()->getParent()->getClass()->getName().value_or("");
 		if (class_name == "screendata")
 			impl_map = &const_expr_screen_impl;
 		else

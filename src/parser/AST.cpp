@@ -669,6 +669,21 @@ void ASTString::execute(ASTVisitor& visitor, void* param)
 	visitor.caseString(*this, param);
 }
 
+// ASTStringList
+
+ASTStringList::ASTStringList(LocationData const& location)
+	: AST(location) {}
+ASTStringList::ASTStringList(std::string comment, LocationData const& location)
+	: AST(location)
+{
+	doc_comment = comment;
+}
+void ASTStringList::execute(ASTVisitor& visitor, void* param)
+{
+	for(auto& ptr : strings)
+		ptr->execute(visitor,param);
+}
+
 // ASTAnnotation
 
 ASTAnnotation::ASTAnnotation(ASTString* key, ASTString* strval, LocationData const& location)

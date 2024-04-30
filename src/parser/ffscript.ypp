@@ -214,7 +214,6 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 
  // Types
 %token ZAUTO
-%token TEMPLATE_T
 %token ZVOID
 %token UNTYPED
 %token ZBOOL
@@ -617,7 +616,6 @@ DataType_Mods :
 DataType_Base :
 	//Standard types
 	ZAUTO {$$ = new ASTDataType(DataType::ZAUTO, @$);}
-	| TEMPLATE_T {$$ = new ASTDataType(DataType::TEMPLATE_T, @$);}
 	| ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
 	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
@@ -836,7 +834,31 @@ Function_Heading :
 		func->location = @$;
 		func->doc_comment = std::move(iden->doc_comment);
 		$$ = func;}
+	| Identifier_List LT FunctionTemplateList GT LPAREN Function_Parameters_List RPAREN
+	{
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+		ASTStringList* template_list = (ASTStringList*)$3;
+		ASTFuncDecl* func = (ASTFuncDecl*)$6;
+		func->identifier = iden;
+		func->templates.swap(template_list->strings);
+		delete template_list;
+		func->location = @$;
+		func->doc_comment = std::move(iden->doc_comment);
+		$$ = func;}
 	;
+
+FunctionTemplateList :
+	Identifier {
+		ASTStringList* list = new ASTStringList(@$);
+		ASTString* templ = (ASTString*)$1;
+		list->strings.push_back(templ);
+		$$ = list;}
+	| FunctionTemplateList COMMA Identifier {
+		ASTStringList* list = (ASTStringList*)$1;
+		ASTString* templ = (ASTString*)$3;
+		list->location = @$;
+		list->strings.push_back(templ);
+		$$ = list;}
 
 Function_Parameters_List :
 	Function_Parameters_Element COMMA Function_Parameters_List {

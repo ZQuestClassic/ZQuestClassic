@@ -23,7 +23,7 @@ void test()
 	arr2[1] = {2,3,4}; //!TODO should be valid, if arrays become gc-managed
 }
 
-void arraycat(T[] dest, T[] vals)
+void arraycat<T>(T[] dest, T[] vals)
 {
 	int indx = SizeOfArray(dest);
 	ResizeArray(dest, indx+SizeOfArray(vals));
@@ -31,20 +31,20 @@ void arraycat(T[] dest, T[] vals)
 		dest[indx++] = v;
 }
 
-void append(T[] arr, T val)
+void append<T>(T[] arr, T val)
 {
 	ArrayPushBack(arr,val);
 }
 
-void print(T v)
+void print<T>(T v)
 {
 	printf("Val: %d\n", v);
 }
-void print(T[] arr)
+void print<T>(T[] arr)
 {
 	printf("Arr[]: %ad\n", arr);
 }
-void print(T[][] arr)
+void print<T>(T[][] arr)
 {
 	printf("Arr[][]: %aad\n", arr);
 }
