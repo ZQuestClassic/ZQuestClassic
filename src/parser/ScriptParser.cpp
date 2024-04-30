@@ -455,11 +455,17 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	vector<Function*> funs = program.getUserFunctions();
 	appendElements(funs, program.getUserClassConstructors());
 	appendElements(funs, program.getUserClassDestructors());
-	for (vector<Function*>::iterator it = funs.begin();
-	     it != funs.end(); ++it)
+	for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
 	{
 		Function& function = **it;
-		if(function.is_aliased()) continue;
+		if(function.is_aliased())
+			continue;
+		if(function.isTemplateSkip())
+		{
+			for(auto& fun : function.get_applied_funcs())
+				funs.push_back(fun.get());
+			continue;
+		}
 		bool classfunc = function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC);
 		int puc = 0;
 		if(classfunc)
@@ -870,6 +876,12 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 		Function& function = **it;
 		if(function.is_aliased())
 			continue;
+		if(function.isTemplateSkip())
+		{
+			for(auto& applied : function.get_applied_funcs())
+				allFunctions.push_back(applied.get());
+			continue;
+		}
 		functionsByLabel[function.getLabel()] = &function;
 		if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
 			functionsByLabel[function.getAltLabel()] = &function;

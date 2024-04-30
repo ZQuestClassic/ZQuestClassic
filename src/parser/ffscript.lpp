@@ -123,7 +123,6 @@ CONST_ASSERT	TOKEN( CASSERT );
 
  /* Types */
 auto		TOKEN( ZAUTO );
-T		TOKEN( TEMPLATE_T );
 void		TOKEN( ZVOID );
 untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );

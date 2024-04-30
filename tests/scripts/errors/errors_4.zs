@@ -34,4 +34,14 @@ global script Global
 		max_2 = Max(1, 2, 3);
 		max_2 = Max(1, 2, 3, Max(3, 4));
     }
+
+	// The template checking code explicitly allows char32 as an "array" type,
+	// for compat.
+	void old_ptrs(char32 ptr)
+	{
+		#option OLD_ARRAY_TYPECASTING on
+		// OK
+		ArrayPushBack(ptr, 1);
+		ResizeArray(ptr, 1);
+	}
 }

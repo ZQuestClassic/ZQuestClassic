@@ -293,7 +293,7 @@ internal void ClearTile(int tile);
 // @zasm
 //   POP D2
 //   ARRAYSIZE D2
-internal int SizeOfArray(T[] arr);
+internal int SizeOfArray<T>(T[] arr);
 
 // Resizes the array 'arr' to size 'size'. If 'size' is <1, the array becomes
 // size 1 instead.
@@ -302,21 +302,21 @@ internal int SizeOfArray(T[] arr);
 //   POP D3
 //   POP D2
 //   RESIZEARRAYR D2 D3
-internal void ResizeArray(T[] arr, int size);
+internal void ResizeArray<T>(T[] arr, int size);
 
 // Grants ownership of the target array to the currently running script.
 //
 // @zasm
 //   POP D2
 //   OWNARRAYR D2
-internal void OwnArray(T[] arr);
+internal void OwnArray<T>(T[] arr);
 
 // If [arr] is a local array, destroys it immediately. Otherwise does nothing.
 //
 // @zasm
 //   POP D2
 //   DESTROYARRAYR D2
-internal void DestroyArray(T[] arr);
+internal void DestroyArray<T>(T[] arr);
 
 // Takes an Object parameter. Grants ownership of the object to the currently
 // running script.
@@ -347,35 +347,35 @@ internal void OverlayTile(int src, int dest);
 // @zasm
 //   POP D2
 //   FLOOR D2
-internal constexpr T Floor(T val);
+internal constexpr T Floor<T>(T val);
 
 // Returns [val] rounded up to the next higher integer.
 //
 // @zasm
 //   POP D2
 //   CEILING D2
-internal constexpr T Ceiling(T val);
+internal constexpr T Ceiling<T>(T val);
 
 // Truncates [n] to the nearest integer, rounding towards 0.
 //
 // @zasm
 //   POP D2
 //   TRUNCATE D2
-internal constexpr T Truncate(T n);
+internal constexpr T Truncate<T>(T n);
 
 // Truncates [n] to the nearest integer.
 //
 // @zasm
 //   POP D2
 //   ROUND D2
-internal constexpr T Round(T n);
+internal constexpr T Round<T>(T n);
 
 // Truncates [n] to the nearest integer, rounding away from 0.
 //
 // @zasm
 //   POP D2
 //   ROUNDAWAY D2
-internal constexpr T RoundAway(T n);
+internal constexpr T RoundAway<T>(T n);
 
 // Returns information from the real-time clock of the system.
 //
@@ -488,7 +488,7 @@ internal void itoacat(char32[] dest, int val);
 //   POP D3
 //   POP D2
 //   ARRAYCOPY D2 D3
-internal void ArrayCopy(T[] dest, T[] src);
+internal void ArrayCopy<T>(T[] dest, T[] src);
 
 // Returns the length of the string in characters.
 //
@@ -635,7 +635,7 @@ internal int strrchr(char32[] str, int c);
 // @zasm
 //   POP D2
 //   ISVALIDARRAY D2
-internal bool IsValidArray(T[] arr);
+internal bool IsValidArray<T>(T[] arr);
 
 // Converts Degrees to Radians. More accurate than the old std_functions
 // DegtoRad.
@@ -715,7 +715,7 @@ internal int sprintf(char32[] buf, char32[] format);
 // @zasm
 //   PRINTFA
 //   POPARGS D5 0.0002
-internal void printfa(char32[] format, T[] args);
+internal void printfa<T>(char32[] format, T[] args);
 
 // Acts exactly as output console, it is instead placed in the [dest] buffer. If
 // the [dest] buffer is too small, it will be resized to fit the contents.
@@ -723,28 +723,28 @@ internal void printfa(char32[] format, T[] args);
 // @zasm
 //   SPRINTFA
 //   POPARGS D5 0.0003
-internal int sprintfa(char32[] buf, char32[] format, T[] args);
+internal int sprintfa<T>(char32[] buf, char32[] format, T[] args);
 
 // Returns the largest parameter.
 //
 // @vargs 2
 // @zasm
 //   MAXVARG
-internal constexpr T Max(T val1, T val2);
+internal constexpr T Max<T>(T val1, T val2);
 
 // Returns the smallest parameter.
 //
 // @vargs 2
 // @zasm
 //   MINVARG
-internal constexpr T Min(T val1, T val2);
+internal constexpr T Min<T>(T val1, T val2);
 
 // Returns a random parameter, using the global RandGen.
 //
 // @vargs 1
 // @zasm
 //   CHOOSEVARG
-internal T Choose(T arg1);
+internal T Choose<T>(T arg1);
 
 // Increases the size of the array by 1, inserting [val] at the
 // back of the array.
@@ -753,7 +753,7 @@ internal T Choose(T arg1);
 //   PUSHV -1
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushBack(T[] arr, T val);
+internal bool ArrayPushBack<T>(T[] arr, T val);
 
 // Increases the size of the array by 1, inserting [val] at the
 // front of the array.
@@ -762,7 +762,7 @@ internal bool ArrayPushBack(T[] arr, T val);
 //   PUSHV 0
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushFront(T[] arr, T val);
+internal bool ArrayPushFront<T>(T[] arr, T val);
 
 // Increases the size of the array by 1, inserting [val] at the
 // specified index of the array. If an invalid index is passed, the
@@ -771,7 +771,7 @@ internal bool ArrayPushFront(T[] arr, T val);
 // @zasm
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushAt(T[] arr, T val, int indx);
+internal bool ArrayPushAt<T>(T[] arr, T val, int indx);
 
 // Decreases the size of the array by 1, removing and returning the element at
 // the back of the array.
@@ -780,7 +780,7 @@ internal bool ArrayPushAt(T[] arr, T val, int indx);
 //   PUSHV -1
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopBack(T[] arr);
+internal T ArrayPopBack<T>(T[] arr);
 
 // Decreases the size of the array by 1, removing and returning the element at
 // the front of the array.
@@ -789,7 +789,7 @@ internal T ArrayPopBack(T[] arr);
 //   PUSHV 0
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopFront(T[] arr);
+internal T ArrayPopFront<T>(T[] arr);
 
 // Decreases the size of the array by 1, removing and returning the element at
 // the specified index of the array. If an invalid index is passed,
@@ -798,7 +798,7 @@ internal T ArrayPopFront(T[] arr);
 // @zasm
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopAt(T[] arr, int indx);
+internal T ArrayPopAt<T>(T[] arr, int indx);
 
 // @zasm
 //   POP D3

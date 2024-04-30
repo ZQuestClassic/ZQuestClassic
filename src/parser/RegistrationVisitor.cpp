@@ -848,29 +848,36 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 
 void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
-	Scope* oldScope = scope;
+	ScopeReverter sr(&scope);
 	
+	bool templated = !host.templates.empty();
 	if(host.parentScope)
 		scope = host.parentScope;
-	else if(host.identifier->components.size() > 1)
+	else
 	{
-		ASTExprIdentifier const& id = *(host.identifier);
-		
-		vector<string> scopeNames(id.components.begin(), --id.components.end());
-		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
-		host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
-		if(!host.parentScope)
+		if(host.identifier->components.size() > 1)
 		{
-			return;
+			ASTExprIdentifier const& id = *(host.identifier);
+			
+			vector<string> scopeNames(id.components.begin(), --id.components.end());
+			vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
+			host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
+			if(!host.parentScope)
+			{
+				return;
+			}
+			scope = host.parentScope;
 		}
-		scope = host.parentScope;
+		else host.parentScope = scope;
+		// Add an extra anonymous scope, used by templates
+		host.parentScope = scope = scope->makeChild();
 	}
-	else host.parentScope = scope;
+	Scope* extern_scope = scope;
+	Scope* func_lives_in = scope->getParent();
 	
 	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
-		scope = oldScope;
 		return;
 	}
 
@@ -887,14 +894,25 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	{
 		host.setFlag(FUNCFLAG_INLINE);
 	}*/
+	
+	if(templated && host.template_types.empty())
+	{
+		for(auto& ptr : host.templates)
+		{
+			string const& name = ptr->getValue();
+			host.template_types.emplace_back(DataTypeTemplate::create(name));
+			scope->addDataType(name, host.template_types.back().get(), nullptr);
+		}
+		host.param_template = host.parameters; //copy the pre-initialized params
+	}
+	
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
-	if (breakRecursion(*host.returnType.get())) {scope = oldScope; return;}
-	if (!returnType.isResolved()) {scope = oldScope; return;}
+	if (breakRecursion(*host.returnType.get())) return;
+	if (!returnType.isResolved()) return;
 	if(returnType.isAuto())
 	{
 		handleError(CompileError::BadReturnType(&host, returnType.getName()));
-		scope = oldScope;
 		return;
 	}
 
@@ -909,15 +927,14 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 
 		// Resolve the parameter type under current scope.
 		DataType const* type = decl.resolve_ornull(scope, this);
-		if (breakRecursion(decl)) {scope = oldScope; return;}
-		if (!type) {scope = oldScope; return;}
+		if (breakRecursion(decl)) return;
+		if (!type) return;
 
 		// Don't allow void/auto params.
 		if (type->isVoid() || type->isAuto())
 		{
 			handleError(CompileError::FunctionBadParamType(&decl, decl.getName(), type->getName()));
 			doRegister(host);
-			scope = oldScope;
 			return;
 		}
 		paramNames.emplace_back(new string(decl.getName()));
@@ -932,11 +949,11 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	{
 		//Check the default return
 		visit(host.defaultReturn.get(), param);
-		if(breakRecursion(host.defaultReturn.get())) {scope = oldScope; return;}
-		if(!(registered(host.defaultReturn.get()))) {scope = oldScope; return;}
+		if(breakRecursion(host.defaultReturn.get())) return;
+		if(!(registered(host.defaultReturn.get()))) return;
 		
 		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
-		if(!defValType.isResolved()) {scope = oldScope; return;}
+		if(!defValType.isResolved()) return;
 		//Check type validity of default return
 		if((*(host.defaultReturn->getCompileTimeValue(this, scope)) == 0) &&
 			(defValType == DataType::CUNTYPED || defValType == DataType::UNTYPED))
@@ -947,9 +964,9 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		else checkCast(defValType, returnType, &host);
 	}
 	
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 	visit_vec(host.optparams, param);
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 	
 	auto parcnt = paramTypes.size() - host.optparams.size();
 	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
@@ -957,21 +974,20 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		DataType const* getType = (*it)->getReadType(scope, this);
 		if(!getType) return;
 		checkCast(*getType, *paramTypes[parcnt], &host);
-		if(breakRecursion(host)) {scope = oldScope; return;}
+		if(breakRecursion(host)) return;
 		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
 		assert(optVal);
 		host.optvals.push_back(*optVal);
 	}
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 	
 	doRegister(host);
 	
 	// Add the function to the scope.
-	Function* function = scope->addFunction(
-			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this);
+	Function* function = func_lives_in->addFunction(
+			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this, extern_scope);
 	host.func = function;
 	
-	scope = oldScope;
 	if(breakRecursion(host)) return;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
@@ -1130,7 +1146,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	{
 		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope);
 	}
-	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
+	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
