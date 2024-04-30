@@ -704,6 +704,19 @@ vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
 #define APPLY_TEMPLATE_RET_APPLIED 1
 #define APPLY_TEMPLATE_RET_UNSATISFIABLE 2
 
+
+static bool match_tmpl_type(DataTypeTemplate const& tmpl_ty, DataType const& check)
+{
+	if(tmpl_ty == check)
+		return true;
+	if(check.isArray())
+	{
+		DataTypeArray const& arrty = static_cast<DataTypeArray const&>(check);
+		if(tmpl_ty == arrty.getBaseType())
+			return true;
+	}
+	return false;
+}
 // Applies a function's template types to the provided parameter types, and sets
 // the out-param `out_resolved_function` to the derived result if a match is successful.
 // Returns APPLY_TEMPLATE_RET_UNSATISFIABLE if the template types could not be satisfied.
@@ -719,110 +732,103 @@ static int applyTemplateTypes(
     Function** out_resolved_function,
 	Scope const* parent_scope)
 {
-	auto resolved_params = function->paramTypes;
 	bool found_template_type = false;
-
-    const DataType* bound_t = nullptr;
-	for (size_t i = 0; i < num_params; ++i)
-	{
-		auto ty = function->paramTypes[i];
-		if (!ty->isTemplate())
-			continue;
-		
-		DataType const* el_type = parameter_types[i];
-		if (ty->isArray())
-		{
-			if(el_type->isUntyped())
-				el_type = &DataType::UNTYPED;
-			else
-			{
-				auto target_depth = ty->getArrayDepth();
-				if(target_depth > el_type->getArrayDepth())
-					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-				
-				for(int q = 0; q < target_depth; ++q)
-					el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
-			}
-		}
-		
-		found_template_type = true;
-		if (!bound_t)
-		{
-			bound_t = el_type;
-			resolved_params[i] = parameter_types[i];
-			continue;
-		}
-
-		if (!el_type->canCastTo(*bound_t, parent_scope))
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		resolved_params[i] = parameter_types[i];
-	}
 	
-	if (function->getFlag(FUNCFLAG_VARARGS))
-	{
-		auto last_param_type = function->paramTypes.back();
-		if (last_param_type->isTemplate())
-		{
-			auto target_depth = last_param_type->getArrayDepth()-1; //-1 because vargs adds a layer of array around the params
-			DataType const* varg_basety = bound_t;
-			for (size_t i = num_params; i < parameter_types.size(); ++i)
-			{
-				DataType const* el_type = parameter_types[i];
-				if(last_param_type->isArray())
-				{
-					if(el_type->isUntyped())
-						el_type = &DataType::UNTYPED;
-					else
-					{
-						if(target_depth > el_type->getArrayDepth())
-							return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-						
-						for(int q = 0; q < target_depth; ++q)
-							el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
-					}
-				}
-				
-				found_template_type = true;
-				if (!bound_t)
-				{
-					varg_basety = bound_t = el_type;
-					continue;
-				}
-
-				if (!el_type->canCastTo(*bound_t, parent_scope))
-					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-				varg_basety = parameter_types[i];
-			}
-			if(!varg_basety)
-				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-			for(int q = 0; q < target_depth+1; ++q) //+1 because vargs adds a layer of array around the params
-				varg_basety = DataTypeArray::create(*varg_basety);
-			resolved_params.back() = varg_basety;
-		}
-	}
-	
-	auto ret_type = function->returnType;
-	if (ret_type->isTemplate())
-		found_template_type = true;
-
-	if (!found_template_type)
+	if(!function->node || function->node->templates.empty())
 		return APPLY_TEMPLATE_RET_NA;
-
-	if (ret_type->isTemplate())
+	
+	auto const& tys = function->node->template_types;
+	auto num_templates = tys.size();
+	
+	vector<DataType const*> bound_ts;
+	
+	for(uint tmpl_id = 0; tmpl_id < num_templates; ++tmpl_id)
 	{
+		auto& tmpl_ty = *tys[tmpl_id].get();
+		const DataType* bound_t = nullptr;
+		for (size_t i = 0; i < num_params; ++i)
+		{
+			auto ty = function->paramTypes[i];
+			if(!match_tmpl_type(tmpl_ty, *ty))
+				continue;
+			
+			DataType const* el_type = parameter_types[i];
+			if (ty->isArray())
+			{
+				if(el_type->isUntyped())
+					el_type = &DataType::UNTYPED;
+				else
+				{
+					auto target_depth = ty->getArrayDepth();
+					if(target_depth > el_type->getArrayDepth())
+						return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+					
+					for(int q = 0; q < target_depth; ++q)
+						el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
+				}
+			}
+			
+			found_template_type = true;
+			if (!bound_t)
+			{
+				bound_t = el_type;
+				continue;
+			}
+
+			if (!el_type->canCastTo(*bound_t, parent_scope))
+				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+		}
+		
+		if (function->getFlag(FUNCFLAG_VARARGS))
+		{
+			auto last_param_type = function->paramTypes.back();
+			if(match_tmpl_type(tmpl_ty, *last_param_type))
+			{
+				auto target_depth = last_param_type->getArrayDepth()-1; //-1 because vargs adds a layer of array around the params
+				DataType const* varg_basety = bound_t;
+				for (size_t i = num_params; i < parameter_types.size(); ++i)
+				{
+					DataType const* el_type = parameter_types[i];
+					if(last_param_type->isArray())
+					{
+						if(el_type->isUntyped())
+							el_type = &DataType::UNTYPED;
+						else
+						{
+							if(target_depth > el_type->getArrayDepth())
+								return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+							
+							for(int q = 0; q < target_depth; ++q)
+								el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
+						}
+					}
+					
+					found_template_type = true;
+					if (!bound_t)
+					{
+						varg_basety = bound_t = el_type;
+						continue;
+					}
+
+					if (!el_type->canCastTo(*bound_t, parent_scope))
+						return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+					varg_basety = parameter_types[i];
+				}
+				if(!varg_basety)
+					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+				for(int q = 0; q < target_depth+1; ++q) //+1 because vargs adds a layer of array around the params
+					varg_basety = DataTypeArray::create(*varg_basety);
+			}
+		}
+		
 		if (!bound_t)
 			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		auto target_depth = ret_type->getArrayDepth();
-		ret_type = bound_t;
-		for(int q = 0; q < target_depth; ++q)
-			ret_type = DataTypeArray::create(*ret_type);
+		bound_ts.push_back(bound_t);
 	}
 
 	//Returns an existing matching function, or creates a new one, memory managed -Em
-	*out_resolved_function = function->apply_templ_func(bound_t, ret_type, resolved_params);
+	*out_resolved_function = function->apply_templ_func(bound_ts);
 
 	return APPLY_TEMPLATE_RET_APPLIED;
 }
@@ -974,13 +980,19 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 	for (auto it = functions.begin(); it != functions.end(); it++)
 	{
 		Function& func = **it;
-		auto depth = func.templ_bound_t->getArrayDepth();
+		auto depth = 0;
+		for(auto& ty : func.templ_bound_ts)
+			depth += ty->getArrayDepth();
 		if(!min_arr_depth || depth < *min_arr_depth)
 			min_arr_depth = depth;
 	}
 	for (auto it = functions.begin(); it != functions.end();)
 	{
-		if ((*it)->templ_bound_t->getArrayDepth() > *min_arr_depth)
+		Function& func = **it;
+		auto depth = 0;
+		for(auto& ty : func.templ_bound_ts)
+			depth += ty->getArrayDepth();
+		if (depth > *min_arr_depth)
 			it = functions.erase(it);
 		else ++it;
 	}
@@ -1486,7 +1498,7 @@ void BasicScope::addSetter(Function* func)
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler, Scope* subscope)
 {
 	bool prototype = false;
 	optional<int32_t> defRet;
@@ -1547,7 +1559,10 @@ Function* BasicScope::addFunction(
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->node = node;
-	fun->setInternalScope(makeFunctionChild(*fun));
+	if(!subscope)
+		subscope = this;
+	fun->setExternalScope(subscope);
+	fun->setInternalScope(subscope->makeFunctionChild(*fun));
 	if(node)
 	{
 		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
@@ -1818,10 +1833,10 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		std::vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler, Scope* subscope)
 {
 	Function* result = BasicScope::addFunction(
-			returnType, name, paramTypes, paramNames, flags, node, handler);
+			returnType, name, paramTypes, paramNames, flags, node, handler, subscope);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerFunction(result))
 		result = NULL;
@@ -2263,7 +2278,7 @@ std::vector<Function*> ClassScope::getDestructor() const
 
 Function* ClassScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler, Scope* subscope)
 {
 	bool constructor = (flags&FUNCFLAG_CONSTRUCTOR);
 	bool destructor = (flags&FUNCFLAG_DESTRUCTOR);
@@ -2340,7 +2355,10 @@ Function* ClassScope::addFunction(
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->node = node;
-	fun->setInternalScope(makeFunctionChild(*fun));
+	if(!subscope)
+		subscope = this;
+	fun->setExternalScope(subscope);
+	fun->setInternalScope(subscope->makeFunctionChild(*fun));
 	if(node)
 	{
 		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)

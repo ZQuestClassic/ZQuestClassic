@@ -86,9 +86,6 @@ bool TypeStore::TypeIdMapComparator::operator()(
 
 ////////////////////////////////////////////////////////////////
 
-// Template types.
-DataTypeSimpleConst DataType::CTEMPLATE_T(ZTID_TEMPLATE_T, "const T");
-DataTypeSimple DataType::TEMPLATE_T(ZTID_TEMPLATE_T, "T", &CTEMPLATE_T);
 // Standard Type definitions.
 DataTypeSimpleConst DataType::CAUTO(ZTID_AUTO, "const auto");
 DataTypeSimpleConst DataType::CUNTYPED(ZTID_UNTYPED, "const untyped");
@@ -123,7 +120,6 @@ DataType const* DataType::get(DataTypeId id)
 {
 	switch (id)
 	{
-		case ZTID_TEMPLATE_T: return &TEMPLATE_T;
 		case ZTID_UNTYPED: return &UNTYPED;
 		case ZTID_AUTO: return &ZAUTO;
 		case ZTID_VOID: return &ZVOID;
@@ -556,6 +552,50 @@ DataType const* DataTypeCustomConst::baseType(Scope& scope, CompileErrorHandler*
 	auto* ty = DataType::getCustom(id);
 	return ty ? ty->getConstType() : nullptr;
 }
+
+/////////////////////////////////////////
+// Templates
+
+DataTypeTemplate* DataTypeTemplate::create(std::string const& name)
+{
+	static uint32_t uid = 0;
+	auto id = uid++;
+	DataTypeTemplateConst* constty = new DataTypeTemplateConst(name, id);
+	DataTypeTemplate* mutty = new DataTypeTemplate(name, id, constty);
+	//The constructor here actually clones 'constty', so we can delete the original
+	delete constty;
+	return mutty;
+}
+DataTypeTemplate::DataTypeTemplate(string const& name, uint32_t id, DataTypeTemplateConst* constty)
+	: DataType(constty), name(name), id(id)
+{
+	if(constty)
+		constty->mut_type = this;
+}
+
+bool DataTypeTemplate::canCastTo(DataType const& target, Scope const* scope) const
+{
+	if(target.isUntyped()) return true;
+	if (DataTypeTemplate const* t = dynamic_cast<DataTypeTemplate const*>(&target))
+		return id == t->id;
+	return false;
+}
+
+DataType const& DataTypeTemplate::getShared(DataType const& target, Scope const* scope) const
+{
+	if(target.isUntyped()) return *this;
+	if (DataTypeTemplate const* t = dynamic_cast<DataTypeTemplate const*>(&target))
+		if(id == t->id)
+			return *this;
+	return UNTYPED;
+}
+
+int32_t DataTypeTemplate::selfCompare(DataType const& other) const
+{
+	DataTypeTemplate const& o = static_cast<DataTypeTemplate const&>(other);
+	return id - o.id;
+}
+
 
 ////////////////////////////////////////////////////////////////
 // Script Types

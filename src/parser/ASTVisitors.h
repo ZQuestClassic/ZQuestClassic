@@ -390,6 +390,19 @@ namespace ZScript
 		
 		// Set to true if a hard error occurs (Halting)
 		bool failure_halt;
+	private:
+		void _visit_internals(Function& func);
+		map<Function*,size_t> template_function_data;
+		std::set<Function*> template_function_queue;
+	};
+	
+	struct ScopeReverter
+	{
+		ScopeReverter(Scope** ptr) : ptr(ptr), val(*ptr) {}
+		~ScopeReverter() {*ptr = val;}
+	private:
+		Scope** ptr;
+		Scope* val;
 	};
 }
 

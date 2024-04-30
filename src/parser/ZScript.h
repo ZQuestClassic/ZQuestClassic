@@ -438,7 +438,7 @@ namespace ZScript
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::shared_ptr<const std::string>> paramNames;
 		std::vector<Datum*> paramDatum;
-		DataType const* templ_bound_t;
+		std::vector<DataType const*> templ_bound_ts;
 		
 		std::vector<int32_t> opt_vals;
 		int32_t id;
@@ -582,13 +582,49 @@ namespace ZScript
 				return aliased_func->setInternalScope(scope);
 			internalScope = scope;
 		}
+		Scope* getExternalScope()
+		{
+			if(aliased_func)
+				return aliased_func->getExternalScope();
+			return externalScope;
+		}
+		Scope const* getExternalScope() const
+		{
+			if(aliased_func)
+				return aliased_func->getExternalScope();
+			return externalScope;
+		}
+		void setExternalScope(Scope* scope)
+		{
+			if(aliased_func)
+				return aliased_func->setExternalScope(scope);
+			externalScope = scope;
+		}
 
-		AST* getNode() const
+		ASTFuncDecl* getNode() const
 		{
 			return node;
 		}
 		
-		Function* apply_templ_func(DataType const* bound_t, DataType const* tmpl_ret_type, std::vector<DataType const*> tmpl_param_types);
+		bool isTemplate() const
+		{
+			if(returnType->isTemplate())
+				return true;
+			for(DataType const* ty : paramTypes)
+				if(ty->isTemplate())
+					return true;
+			return false;
+		}
+		
+		bool isTemplateSkip() const
+		{
+			return !getFlag(FUNCFLAG_INTERNAL) && isTemplate();
+		}
+		
+		Function* apply_templ_func(std::vector<DataType const*> const& bound_ts);
+		
+		std::vector<std::shared_ptr<Function>>& get_applied_funcs() {return applied_funcs;}
+		std::vector<std::shared_ptr<Function>> const& get_applied_funcs() const {return applied_funcs;}
 		
 	private:
 		CONSTEXPR_CBACK_TY constexpr_callback;
@@ -597,6 +633,7 @@ namespace ZScript
 		mutable std::optional<int32_t> altlabel;
 		int32_t flags, internal_flags;
 		FunctionScope* internalScope;
+		Scope* externalScope; //used by template functions
 		string info;
 		
 		std::vector<std::shared_ptr<Function>> applied_funcs;

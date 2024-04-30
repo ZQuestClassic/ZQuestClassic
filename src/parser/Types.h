@@ -79,7 +79,6 @@ namespace ZScript
 		ZTID_BOOL,
 		ZTID_LONG,
 		ZTID_RGBDATA,
-		ZTID_TEMPLATE_T,
 		ZTID_PRIMITIVE_END,
 
 		ZTID_SCRIPT_TYPE_START = ZTID_PRIMITIVE_END,
@@ -337,7 +336,6 @@ namespace ZScript
 		virtual bool isVoid() const {return simpleId == ZTID_VOID;}
 		virtual bool isAuto() const {return simpleId == ZTID_AUTO;}
 		virtual bool isLong() const {return simpleId == ZTID_LONG;}
-		virtual bool isTemplate() const {return simpleId == ZTID_TEMPLATE_T;}
 
 		int32_t getId() const {return simpleId;}
 		
@@ -463,7 +461,48 @@ namespace ZScript
 		virtual DataType const* getConstType() const {return this;}
 		virtual DataType const* getMutType() const {return getCustom(getCustomId());}
 	};
+	
+	class DataTypeTemplateConst;
+	class DataTypeTemplate : public DataType
+	{
+	public:
+		static DataTypeTemplate* create(std::string const& name);
+		DataTypeTemplate* clone() const {return new DataTypeTemplate(*this);}
+		int unique_type_id() const { return 7; }
 
+		virtual std::string getName() const {return name;}
+		uint32_t getId() const {return id;}
+		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
+		
+		virtual bool isTemplate() const {return true;}
+		
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const {return this;}
+	protected:
+		DataTypeTemplate(std::string const& name, uint32_t id, DataTypeTemplateConst*);
+		std::string name;
+		uint32_t id;
+
+		int32_t selfCompare(DataType const& rhs) const;
+	};
+	
+	class DataTypeTemplateConst : public DataTypeTemplate
+	{
+	public:
+		DataTypeTemplateConst(std::string const& name, uint32_t id)
+			: DataTypeTemplate(name, id, nullptr), mut_type(nullptr) {}
+		DataTypeTemplateConst* clone() const {return new DataTypeTemplateConst(*this);};
+		//int unique_type_id() const { return 7; } //should be able to be same as the non-const base?
+		
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const {return this;}
+		
+		virtual bool isConstant() const {return true;}
+		virtual DataType const* getConstType() const {return this;}
+		virtual DataType const* getMutType() const {return mut_type;}
+		
+		DataType const* mut_type;
+	};
+	
 	DataType const& getBaseType(DataType const&);
 
 	////////////////////////////////////////////////////////////////

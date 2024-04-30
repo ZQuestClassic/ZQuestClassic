@@ -50,6 +50,7 @@ namespace ZScript
 	class ASTFile;
 	class ASTFloat;
 	class ASTString;
+	class ASTStringList;
 	class ASTAnnotation;
 	class ASTAnnotationList;
 	class ASTSetOption;
@@ -388,6 +389,19 @@ namespace ZScript
 		const std::string& getValue() const {return str;}
 	private:
 		std::string str;
+	};
+	
+	class ASTStringList : public AST
+	{
+	public:
+		ASTStringList(LocationData const& location = LOC_NONE);
+		ASTStringList(std::string comment,
+		          LocationData const& location);
+		ASTStringList* clone() const {return new ASTStringList(*this);}
+	
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_vector<ASTString> strings;
 	};
 
 	class ASTAnnotation : public AST
@@ -989,9 +1003,12 @@ namespace ZScript
 		owning_ptr<ASTExprIdentifier> identifier;
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
+		owning_vector<ASTDataDecl> param_template;
 		owning_vector<ASTExprConst> optparams;
+		owning_vector<ASTString> templates;
 		std::vector<int32_t> optvals;
 		owning_ptr<ASTBlock> block;
+		std::vector<std::shared_ptr<DataTypeTemplate>> template_types;
 		std::string invalidMsg;
 		Function* func;
 		Scope* parentScope;
