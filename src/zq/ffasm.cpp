@@ -213,7 +213,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "DRAWSTRING",          0,   0,   0,   0},
 	{ "SETSIDEWARP",         0,   0,   0,   0},
 	{ "SAVE",                0,   0,   0,   0},
-	{ "TRACE6",              0,   0,   0,   0},
+	{ "TRACE6",              1,   0,   0,   0},
 	{ "DEPRECATED",	       1,   0,   0,   0},
 	{ "QUAD3D",              0,   0,   0,   0},
 	{ "TRIANGLE3D",          0,   0,   0,   0},
