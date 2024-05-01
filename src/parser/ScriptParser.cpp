@@ -876,6 +876,12 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 		Function& function = **it;
 		if(function.is_aliased())
 			continue;
+		if(function.isTemplateSkip())
+		{
+			for(auto& applied : function.get_applied_funcs())
+				allFunctions.push_back(applied.get());
+			continue;
+		}
 		functionsByLabel[function.getLabel()] = &function;
 		if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
 			functionsByLabel[function.getAltLabel()] = &function;
