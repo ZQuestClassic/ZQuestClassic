@@ -438,16 +438,6 @@ JittedFunction jit_compile_script(script_data *script)
 	if (size <= 1)
 		return nullptr;
 
-	// Check if script is like, really big.
-	// Anything over 20,000 takes ~5s, which is an unacceptable delay. Until scripts can be compiled w/o pausing execution of the engine,
-	// or a way to speed up compilation is found, set a hard limit on script size.
-	size_t limit = 20000;
-	if (!is_ci() && size >= limit)
-	{
-		al_trace("[jit] script type %s index %d too large to compile quickly, skipping\n", ScriptTypeToString(script->id.type), script->id.index);
-		return nullptr;
-	}
-
 	std::optional<ScriptDebugHandle> debug_handle_ = std::nullopt;
 	if (DEBUG_JIT_PRINT_ASM)
 	{

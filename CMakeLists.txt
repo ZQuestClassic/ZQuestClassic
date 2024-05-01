@@ -631,9 +631,9 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	FetchContent_Declare(
 		asmjit
 		GIT_REPOSITORY
-			https://github.com/asmjit/asmjit.git
+			https://github.com/connorjclark/asmjit.git
 		GIT_TAG
-			bfa0bf690c2e90cc0844f2f012efa41b916bde7e
+			6d153ad8e13984841c2c642c0fa11e60f41e54dc
 	)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zplayer PRIVATE asmjit)
