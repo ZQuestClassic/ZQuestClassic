@@ -2,11 +2,9 @@ name: Code Coverage
 
 on:
   workflow_dispatch:
-  # TODO: consider reverting c0e0151c if can't work out why this
-  # is broken now.
-  # push:
-  #   branches: ["main"]
-  #   paths: ["tests/**"]
+  push:
+    branches: ["main"]
+    paths: ["tests/**"]
 
 env:
   PYTHONUNBUFFERED: "1"
@@ -24,6 +22,7 @@ jobs:
       config: Coverage
       # TODO yuurand.zplay rng desyncs on frame 449856, because Debug mode.
       extra-args: --replay --frame=yuurand.zplay=449855
+      from-ci-workflow: true
 
   upload-coverage:
     needs: ["collect-coverage"]
@@ -41,6 +40,8 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: coverage-json
+
+      - run: cp -r coverage-json/generated-source-files/* src/
 
       - name: Generate coverage report
         run: bash tests/generate_coverage_report.sh --add-tracefile "coverage-json/**/coverage.json"
@@ -63,3 +64,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: tests/.coverage/coverage.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-report
+          path: ${{ github.workspace }}/tests/.coverage/report/

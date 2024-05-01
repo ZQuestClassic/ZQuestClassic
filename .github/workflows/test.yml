@@ -106,6 +106,7 @@ jobs:
         run: |
             echo "BUILD_FOLDER=build/Coverage" >> "$GITHUB_ENV"
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
+            cp -r build/tmp-src/* src/
 
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
@@ -159,6 +160,11 @@ jobs:
         with:
           name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/tests/.coverage/coverage.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.config == 'Coverage' && matrix.shard_index == 1
+        with:
+          name: generated-source-files
+          path: ${{ github.workspace }}/build/tmp-src
 
       # It's much faster to upload a single file than many files.
       # https://github.com/actions/upload-artifact/issues/36
