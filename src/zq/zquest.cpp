@@ -180,7 +180,6 @@ extern byte monochrome_console;
 
 #include "zconsole/ConsoleLogger.h"
 
-CConsoleLoggerEx coloured_console;
 extern CConsoleLoggerEx zscript_coloured_console;
 
 uint8_t console_is_open = 0;
@@ -28217,7 +28216,6 @@ int32_t FFScript::GetScriptObjectUID(int32_t type)
 void FFScript::init()
 {
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
-	print_ZASM = 0;
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	temp_no_stepforward = 0;
@@ -28464,47 +28462,6 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format, Params&&...
 	initConsole();
 	zscript_coloured_console.cprintf( attributes, format, std::forward<Params>(params)... );
 	#endif	
-}
-
-void FFScript::ZASMPrint(bool open)
-{
-	#ifdef _WIN32
-	if ( open )
-	{
-		coloured_console.Create("ZASM Debugger", 600, 200);
-		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-		coloured_console.gotoxy(0,0);
-		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
-		//coloured_console.SetAsDefaultOutput();
-		
-	}
-	else
-	{
-		//close
-		coloured_console.Close();
-	
-	}
-	#endif	
-}
-
-
-void FFScript::ZASMPrintCommand(const word scommand)
-{
-	//overloaded from class
-	return;
-}
-
-void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
-{
-	//overloaded from class
-	return;
-}
-
-void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
-{
-	//overloaded from class
-	return;
 }
 
 int32_t getpitfall(int32_t x, int32_t y){return 0;}

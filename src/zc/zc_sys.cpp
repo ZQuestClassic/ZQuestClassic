@@ -429,7 +429,6 @@ void load_game_configs()
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
 	info_opacity = zc_get_config("zc","debug_info_opacity",255);
 #ifdef _WIN32
-	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
 	//use_win7_keyboard_fix = (byte) zc_get_config(cfg_sect,"use_win7_key_fix",0);
 	use_win32_proc = (byte) zc_get_config(cfg_sect,"zc_win_proc_fix",0); //buggy
@@ -439,7 +438,6 @@ void load_game_configs()
    
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #else //UNIX
-	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
@@ -7405,7 +7403,6 @@ enum
 	MENUID_MISC_VIDMODE,
 	MENUID_MISC_QUEST_INFO,
 	MENUID_MISC_QUEST_DIR,
-	MENUID_MISC_ZASM_DEBUGGER,
 	MENUID_MISC_CONSOLE,
 	MENUID_MISC_CLEAR_CONSOLE_ON_LOAD,
 };
@@ -7843,7 +7840,6 @@ void System()
 			
 			name_entry_mode_menu.select_only_index(NameEntryMode);
 			
-			misc_menu.select_uid(MENUID_MISC_ZASM_DEBUGGER, zasm_debugger);
 			misc_menu.select_uid(MENUID_MISC_CONSOLE, console_enabled);
 			misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
 			
