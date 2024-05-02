@@ -394,7 +394,6 @@ std::pair<SubscrWidget*,byte> load_subwidg(dword ref)
 #include "zconsole/ConsoleLogger.h"
 
 //no ifdef here
-CConsoleLoggerEx coloured_console;
 extern CConsoleLoggerEx zscript_coloured_console;
 	
 int32_t FFScript::UpperToLower(std::string *s)
@@ -15582,7 +15581,6 @@ int32_t get_register(const int32_t arg)
 		}
 	}
 		
-	if ( zasm_debugger ) FFCore.ZASMPrintVarGet(arg, ret);
 	return ret;
 }
 
@@ -15591,7 +15589,6 @@ int32_t get_register(const int32_t arg)
 
 void set_register(int32_t arg, int32_t value)
 {
-	if ( zasm_debugger ) FFCore.ZASMPrintVarSet(arg, value);
 	//Macros
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
@@ -35195,41 +35192,6 @@ void do_freeclass()
 	ri->d[rEXP1] = 0;
 }
 
-bool zasm_advance()
-{
-	if( key[KEY_INSERT] )
-	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
-			if(CHECK_CTRL_CMD)
-			{
-				FFCore.zasm_break_mode = ZASM_BREAK_SKIP_SCRIPT;
-			}
-			else FFCore.zasm_break_mode = ZASM_BREAK_ADVANCE_SCRIPT;
-		}
-		else if(key[KEY_ALT] || key[KEY_ALTGR])
-		{
-			if(CHECK_CTRL_CMD)
-			{
-				FFCore.zasm_break_mode = ZASM_BREAK_SKIP;
-			}
-			else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-		}
-		else if(CHECK_CTRL_CMD)
-		{
-			FFCore.ZASMPrint(false); //Close debugger
-			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-		}
-		return true;
-	}
-	if(!zasm_debugger)
-	{
-		FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-		return true;
-	}
-	return false;
-}
-
 int32_t get_own_i(ScriptType type)
 {
 	switch(type)
@@ -35463,52 +35425,6 @@ int32_t run_script_int(bool is_jitted)
 		return RUNSCRIPT_OK;
 	}
 	zs_vargs.clear();
-	
-#ifdef _FFDISSASSEMBLY
-	
-	if(curscript->zasm[ri->pc].command != 0xFFFF)
-	{
-#ifdef _FFONESCRIPTDISSASSEMBLY
-		zc_trace_clear();
-#endif
-		
-		switch(type)
-		{
-		case ScriptType::FFC:
-			al_trace("\nStart of FFC script %i processing on FFC %i:\n", script, i);
-			break;
-			
-		case ScriptType::Item:
-			al_trace("\nStart of item script %i processing:\n", script);
-			break;
-			
-		case ScriptType::Global:
-			al_trace("\nStart of global script %I processing:\n", script);
-			break;
-		}
-	}
-	
-#endif
-	
-	if( FFCore.zasm_break_mode == ZASM_BREAK_ADVANCE_SCRIPT || FFCore.zasm_break_mode == ZASM_BREAK_SKIP_SCRIPT )
-	{
-		if( zasm_debugger )
-		{
-			//Halt on new script if set to advance to next script
-			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
-			FFCore.TraceScriptIDs(true);
-			coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Breaking for script start\n");
-		}
-		else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-	}
-	else if( zasm_debugger && !(SKIPZASMPRINT()))
-	{
-		//Print new script metadata when starting script
-		FFCore.TraceScriptIDs(true);
-		coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Start of script\n");
-	}
 
 j_command:
 	bool is_debugging = script_debug_is_runtime_debugging() == 2;
@@ -35668,23 +35584,6 @@ j_command:
 				scommand=0xFFFF;
 		}
 		
-		//Handle manual breaking
-		if( zasm_debugger && zc_readrawkey(KEY_INSERT, true))
-			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
-		//Break
-		while( FFCore.zasm_break_mode == ZASM_BREAK_HALT )
-		{
-			poll_keyboard();
-			if(zasm_advance()) break;
-			checkQuitKeys();
-			if(Quit)
-			{
-				scommand=0xFFFF;
-				break;
-			}
-		}
-		
-		if ( zasm_debugger ) FFCore.ZASMPrintCommand(scommand);
 		switch(scommand)
 		{
 			//always first
@@ -36613,10 +36512,7 @@ j_command:
 			}
 			
 			case BREAKPOINT:
-				if( zasm_debugger )
-				{
-					FFCore.do_breakpoint();
-				}
+				FFCore.do_breakpoint();
 				break;
 				
 			case WARP:
@@ -42312,12 +42208,6 @@ void FFScript::init()
 	countGenScripts();
 	countObjects();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
-	print_ZASM = zasm_debugger;
-	if ( zasm_debugger )
-	{
-		ZASMPrint(true);
-		zasm_break_mode = ZASM_BREAK_HALT;
-	}
 	
 	temp_no_stepforward = 0;
 	nostepforward = 0;
@@ -42335,7 +42225,6 @@ void FFScript::init()
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
-	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 
 	usr_midi_volume = midi_volume;
 	usr_digi_volume = digi_volume;
@@ -47713,30 +47602,6 @@ void FFScript::ZScriptConsole(bool open)
 	zc_set_config("CONSOLE","enabled",console_enabled);
 }
 
-void FFScript::ZASMPrint(bool open)
-{
-	if(SKIPZASMPRINT()) return;
-	zprint("%s ZASM Console\n", open ? "Opening" : "Closing");
-	if ( open )
-	{
-		coloured_console.Create("ZASM Debugger", 600, 200, NULL, NULL);
-		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-		coloured_console.gotoxy(0,0);
-		coloured_console.safeprint( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
-		//coloured_console.SetAsDefaultOutput();
-		zasm_debugger = 1;
-		zasm_break_mode = ZASM_BREAK_HALT;
-	}
-	else
-	{
-		//close
-		coloured_console.Close();
-		zasm_debugger = 0;
-	}
-	zc_set_config("CONSOLE","print_ZASM",zasm_debugger);
-}
-
 std::string ZASMVarToString(int32_t arg)
 {
 	for(int32_t q = 0; ZASMVars[q].id != -1; ++q)
@@ -47763,98 +47628,6 @@ std::string ZASMVarToString(int32_t arg)
 	}
 	return "(null)";
 }
-
-void FFScript::ZASMPrintCommand(const word scommand)
-{
-	if(SKIPZASMPRINT()) return;
-	//if ( !zasm_debugger ) return;
-	
-	script_command s_c = ZASMcommands[scommand];
-	
-	if(s_c.args == 2)
-	{
-		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
-		
-		if(s_c.arg1_type == 0)
-		{
-			coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %s (val = %2d), ", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
-		}
-		else
-		{
-			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d), ", "immediate", sarg1);
-		}
-		if(s_c.arg2_type == 0)
-		{
-			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t %s (val = %2d)\n", ZASMVarToString(sarg2).c_str(), get_register(sarg2));
-		}
-		else
-		{
-			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg2);
-		}
-	}
-	else if(s_c.args == 1)
-	{
-		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
-		
-		if(s_c.arg1_type == 0)
-		{
-			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %w (val = %2d)\n", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
-		}
-		else
-		{
-			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY |  
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg1);
-		}
-	}
-	else
-	{
-		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s\n",s_c.name);
-	}
-	//s_c.name is the string with the instruction
-	
-	//coloured_console.print();
-}
-
-void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
-{
-	if(SKIPZASMPRINT()) return;
-
-	//if ( !zasm_debugger ) return;
-	// script_variable s_v = ZASMVars[arg];
-	//s_v.name is the string with the instruction
-	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",ZASMVarToString(arg).c_str());
-	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
-	//coloured_console.print();
-}
-
-void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
-{
-	if(SKIPZASMPRINT()) return;
-
-	//if ( !zasm_debugger ) return;
-	// script_variable s_v = ZASMVars[arg];
-	//s_v.name is the string with the instruction
-	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",ZASMVarToString(arg).c_str());
-	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
-	//coloured_console.print();
-}
-
-
 
 ///----------------------------------------------------------------------------------------------------//
 //Tracing
@@ -48441,28 +48214,7 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 
 void FFScript::do_breakpoint()
 {
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	string str;
-	if(arrayptr && sarg1 != NUL)
-	{
-		ArrayH::getString(arrayptr, str, 512);
-		str = "Breakpoint: " + str + "\n";
-	}
-	else str = "Breakpoint\n";
-	TraceScriptIDs();
-	al_trace("%s", str.c_str());
-	
-	if ( console_enabled ) 
-	{
-		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str.c_str());
-	}
-	if( zasm_debugger )
-	{
-		FFCore.zasm_break_mode = ZASM_BREAK_HALT; //Halt ZASM debugger; break execution
-		coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str.c_str());
-	}
+	// TODO: implement as `debugger;` statement when VS Code extension exists.
 }
 
 void FFScript::do_tracenl()
@@ -48477,13 +48229,12 @@ void FFScript::do_tracenl()
 }
 
 
-void FFScript::TraceScriptIDs(bool zasm_console)
+void FFScript::TraceScriptIDs()
 {
 	if(DEVTIMESTAMP)
 	{
-		if(!zasm_debugger && zasm_console) return;
-		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
-		bool cond = (zasm_console ? zasm_debugger : console_enabled);
+		CConsoleLoggerEx console = zscript_coloured_console;
+		bool cond = console_enabled;
 		
 		char buf[256] = {0};
 		//Calculate timestamp
@@ -48501,9 +48252,8 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 	}
 	if(get_qr(qr_TRACESCRIPTIDS) || DEVLOGGING )
 	{
-		if(!zasm_debugger && zasm_console) return;
-		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
-		bool cond = (zasm_console ? zasm_debugger : console_enabled);
+		CConsoleLoggerEx console = zscript_coloured_console;
+		bool cond = console_enabled;
 		char buf[256] = {0};
 		if(script_funcrun)
 		{

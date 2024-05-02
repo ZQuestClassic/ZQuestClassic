@@ -93,7 +93,6 @@ static std::string testingqst_init_data;
 static bool replay_debug = false;
 
 extern CConsoleLoggerEx zscript_coloured_console;
-extern CConsoleLoggerEx coloured_console;
 
 static zc_randgen drunk_rng;
 
@@ -313,7 +312,7 @@ extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte forceExit=0,zc_vsync=0;
-byte use_win32_proc=1, zasm_debugger = 0, console_enabled = 0; //windows-build configs
+byte use_win32_proc=1, console_enabled = 0;
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = -1, Awpn = -1, Xwpn = -1, Ywpn = -1;
@@ -5445,7 +5444,6 @@ reload_for_replay_file:
 	skipcont = 0;
 	
 	zscript_coloured_console.kill();
-	coloured_console.kill();
 	if(forceExit) //fix for the allegro at_exit() hang.
 		exit(0);
 		
