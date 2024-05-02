@@ -23388,6 +23388,8 @@ void HeroClass::handleSpotlights()
 		std::map<int32_t, spot_t*> maps;
 		std::map<int32_t, std::map<dword, spot_t>> ffmaps;
 		int32_t shieldid = getCurrentShield(false);
+		if((itemsbuf[shieldid].flags & ITEM_FLAG9) && !usingActiveShield(shieldid))
+			shieldid = -1;
 		bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
 		bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
 		heropos = COMBOPOS_B(x.getInt()+8,y.getInt()+8);
