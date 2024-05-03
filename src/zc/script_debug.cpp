@@ -102,7 +102,7 @@ void ScriptDebugHandle::_print(int32_t attributes, const char *str)
 		al_fputs(file, str);
 	}
 
-	if (debug_to_console && zscript_debugger)
+	if (debug_to_console && console_enabled)
 	{
 		zscript_coloured_console.safeprint(attributes, str);
 	}

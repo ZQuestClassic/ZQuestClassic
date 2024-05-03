@@ -1215,7 +1215,7 @@ static GUI::ListData miscRulesList
 	{ "Special Room Guys Don't Create A Puff When Appearing", qr_NOGUYPOOF,
 		"If enabled, Special Room Guys and their Fires will not make a spawn poof when entering the screen."},
 	{ "Log Game Events To Allegro.log And Console", qr_LOG,
-		"Enables the logging of certain Game Events to both allegro.log and the ZScript Debug Console."
+		"Enables the logging of certain Game Events to both allegro.log and the ZC Console."
 		" Note that turning this on can result in slower performance. Logging includes:"
 		"\n- Whether or not a 'Hit All Triggers' has been fulfilled and, if not, how many are left;"
 		"\n- The Screen and Map number whenever screens are changed, along with the current Screen States of that screen;"
@@ -1226,7 +1226,7 @@ static GUI::ListData miscRulesList
 		"\n- Any time a script creates an object, including the object's name and its UID (not to be confused with ID);"
 		"\n- and lastly, any time a script tries to reference a nonexistent object."},
 	{ "Log Script Errors To Allegro.log And Console", qr_SCRIPTERRLOG,
-		"If enabled, various script errors are logged to Allegro.log and the ZScript Debug Console."
+		"If enabled, various script errors are logged to Allegro.log and the ZC Console."
 		" The list of what exactly is logged is too long to list here, but it includes errors like"
 		" arrays being too small, invalid arguments being passed, ZASM overflow, etc."},
 	{ "Draining Rupees Can Still Be Spent", qr_SHOPCHEAT,
