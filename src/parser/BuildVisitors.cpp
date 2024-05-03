@@ -1341,7 +1341,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		//...now, we need to check that we didn't ALREADY just run that value exactly
 		addOpcode(new OPeekAtImmediate(new VarArgument(EXP2), new LiteralArgument(mgr.at(*overflow_peekind))));
 		if(targv)
-			addOpcode(new OCompareRegister(new VarArgument(EXP2), new LiteralArgument(*targv)));
+			addOpcode(new OCompareImmediate(new VarArgument(EXP2), new LiteralArgument(*targv)));
 		else addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		addOpcode(new OGotoCompare(new LabelArgument(elselabel), new CompareArgument(CMP_EQ)));
 		//If we haven't run the value yet, set it and run the loop one last time
