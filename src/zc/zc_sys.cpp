@@ -430,7 +430,7 @@ void load_game_configs()
 	info_opacity = zc_get_config("zc","debug_info_opacity",255);
 #ifdef _WIN32
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
-	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
+	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
 	//use_win7_keyboard_fix = (byte) zc_get_config(cfg_sect,"use_win7_key_fix",0);
 	use_win32_proc = (byte) zc_get_config(cfg_sect,"zc_win_proc_fix",0); //buggy
    
@@ -440,7 +440,7 @@ void load_game_configs()
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #else //UNIX
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
-	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
+	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
 	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
@@ -5180,15 +5180,14 @@ int32_t OnnClearQuestDir()
 	else return D_O_K;
 }
 
-int32_t onConsoleZScript()
+int32_t onConsole()
 {
-	if ( !zscript_debugger )
+	if ( !console_enabled )
 	{
-		AlertDialog("ZScript Debugger",
-			"Enabling this will open the ZScript Debugger Console" 
+		AlertDialog("ZC Console",
+			"Open the ZC Console?" 
 			"\nThis will display any messages logged by scripts,"
-			" including script errors."
-			"\nAre you sure that you wish to open the ZScript Debugger?",
+			" including errors.",
 			[&](bool ret,bool)
 			{
 				if(ret)
@@ -7407,7 +7406,7 @@ enum
 	MENUID_MISC_QUEST_INFO,
 	MENUID_MISC_QUEST_DIR,
 	MENUID_MISC_ZASM_DEBUGGER,
-	MENUID_MISC_ZSCRIPT_DEBUGGER,
+	MENUID_MISC_CONSOLE,
 	MENUID_MISC_CLEAR_CONSOLE_ON_LOAD,
 };
 static NewMenu misc_menu
@@ -7425,7 +7424,7 @@ static NewMenu misc_menu
 	{ "Take &Snapshot F12", onSnapshot },
 	{ "Sc&reen Saver...", onScreenSaver },
 	{ "Save ZC Configuration", OnSaveZCConfig },
-	{ "Show ZScript Debugger", onConsoleZScript, MENUID_MISC_ZSCRIPT_DEBUGGER },
+	{ "Show Console", onConsole, MENUID_MISC_CONSOLE },
 	{ "Clear Console on Qst Load", onClrConsoleOnLoad, MENUID_MISC_CLEAR_CONSOLE_ON_LOAD },
 	{ "Clear Directory Cache", OnnClearQuestDir },
 };
@@ -7845,7 +7844,7 @@ void System()
 			name_entry_mode_menu.select_only_index(NameEntryMode);
 			
 			misc_menu.select_uid(MENUID_MISC_ZASM_DEBUGGER, zasm_debugger);
-			misc_menu.select_uid(MENUID_MISC_ZSCRIPT_DEBUGGER, zscript_debugger);
+			misc_menu.select_uid(MENUID_MISC_CONSOLE, console_enabled);
 			misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
 			
 			bool nocheat = (replay_is_replaying() || !Playing

@@ -46053,7 +46053,7 @@ void clearConsole()
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n");
 
 	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZC Console\n");
 	
 	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Running: %s\n", getVersionString());
@@ -46092,16 +46092,16 @@ void FFScript::ZScriptConsole(bool open)
 {
 	if ( open )
 	{
-		zscript_coloured_console.Create("ZScript Debug Console", 600, 200, NULL, NULL);
+		zscript_coloured_console.Create("ZC Console", 600, 200, NULL, NULL);
 		clearConsole();
-		zscript_debugger = 1;
+		console_enabled = 1;
 	}
 	else
 	{
 		zscript_coloured_console.Close();
-		zscript_debugger = 0;
+		console_enabled = 0;
 	}
-	zc_set_config("CONSOLE","ZScript_Debugger",zscript_debugger);
+	zc_set_config("CONSOLE","enabled",console_enabled);
 }
 
 void FFScript::ZASMPrint(bool open)
@@ -46204,7 +46204,7 @@ void FFScript::do_trace(bool v)
 	// For now, only prevent tracing to allegro log for Web version. Some quests may expect players to
 	// look in the logs for spoiler/secret stuff.
 #ifdef __EMSCRIPTEN__
-	bool should_trace = zscript_debugger || should_replay_trace;
+	bool should_trace = console_enabled || should_replay_trace;
 	if (!should_trace) return;
 #endif
 
@@ -46219,7 +46219,7 @@ void FFScript::do_trace(bool v)
 	if (should_replay_trace)
 		replay_step_comment("trace: " + s2);
 	
-	if ( zscript_debugger ) 
+	if ( console_enabled ) 
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),s2.c_str());
@@ -46236,7 +46236,7 @@ void FFScript::do_tracel(bool v)
 	if (replay_is_active() && replay_get_meta_bool("script_trace"))
 		replay_step_comment(fmt::format("trace: {}", temp));
 	
-	if ( zscript_debugger ) 
+	if ( console_enabled ) 
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),tmp);
@@ -46252,7 +46252,7 @@ void FFScript::do_tracebool(const bool v)
 	if (replay_is_active() && replay_get_meta_bool("script_trace"))
 		replay_step_comment(fmt::format("trace: {}", (bool)temp));
 	
-	if ( zscript_debugger ) 
+	if ( console_enabled ) 
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str);
@@ -46266,7 +46266,7 @@ void traceStr(string const& str)
 	if (replay_is_active() && replay_get_meta_bool("script_trace"))
 		replay_step_comment("trace: " + str);
 	
-	if ( zscript_debugger ) 
+	if ( console_enabled ) 
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str.c_str());
@@ -46791,7 +46791,7 @@ void FFScript::do_breakpoint()
 	TraceScriptIDs();
 	al_trace("%s", str.c_str());
 	
-	if ( zscript_debugger ) 
+	if ( console_enabled ) 
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str.c_str());
@@ -46808,7 +46808,7 @@ void FFScript::do_tracenl()
 {
 	safe_al_trace("\n");
 	
-	if ( zscript_debugger ) 
+	if ( console_enabled ) 
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
@@ -46822,7 +46822,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 	{
 		if(!zasm_debugger && zasm_console) return;
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
-		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
+		bool cond = (zasm_console ? zasm_debugger : console_enabled);
 		
 		char buf[256] = {0};
 		//Calculate timestamp
@@ -46842,7 +46842,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 	{
 		if(!zasm_debugger && zasm_console) return;
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
-		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
+		bool cond = (zasm_console ? zasm_debugger : console_enabled);
 		char buf[256] = {0};
 		if(script_funcrun)
 		{
@@ -47030,7 +47030,7 @@ void FFScript::do_tracetobase()
 	s2 += "\n";
 	al_trace("%s", s2.c_str());
 	
-	if ( zscript_debugger ) 
+	if ( console_enabled ) 
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),s2.c_str());
