@@ -3615,7 +3615,7 @@ void init_msgstr(MsgStr *str)
 	str->margins[up] = 8;
 	str->margins[down] = 0;
 	str->margins[left] = 8;
-	str->margins[right] = 0;
+	str->margins[right] = 8;
 	str->portrait_tile = 0;
 	str->portrait_cset = 0;
 	str->portrait_x = 0;

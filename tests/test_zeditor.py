@@ -195,7 +195,7 @@ class TestZEditor(unittest.TestCase):
         ]
         run_target.check_run('zeditor', args)
         tsv = tsv_path.read_text().splitlines()
-        self.assertEqual(tsv[2], '  IT\'S DANGEROUS TO GO      ALONE! TAKE THIS.                           	0	0	0	0	0	24	32	192	24	18	1	0	0	0	8 0 0 8	0	0	0	0	1	1	0	0	6')
+        self.assertEqual(tsv[2], '  IT\'S DANGEROUS TO GO      ALONE! TAKE THIS.                           	0	0	0	0	0	24	32	192	24	18	1	0	0	0	8 8 0 8	0	0	0	0	1	1	0	0	6')
         self.assertEqual(len(tsv), 37)
 
     def test_package_export(self):
