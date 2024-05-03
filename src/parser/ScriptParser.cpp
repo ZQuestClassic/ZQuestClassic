@@ -505,7 +505,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if(destructor && !destructor->isNil())
 				{
 					Function* destructor = destr[0];
-					first.reset(new OSetImmediate(new VarArgument(EXP1),
+					first.reset(new OSetImmediateLabel(new VarArgument(EXP1),
 						new LabelArgument(destructor->getLabel(), true)));
 				}
 				else first.reset(new OSetImmediate(new VarArgument(EXP1),
@@ -1100,7 +1100,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 					++it2; \
 					if(it2 == rval.end()) \
 						break; \
-					Argument const* target_arg = single_op \
+					auto const target_arg = single_op \
 						? (single_op->getArgument()) \
 						: (multi_op->getFirstArgument()); \
 					size_t addcount = 0; \
@@ -1113,14 +1113,13 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 						ty2* multi_next = dynamic_cast<ty2*>(nextcode); \
 						if(!(single_next || multi_next)) \
 							break; /*can't combine*/ \
-						if(*target_arg != *(single_next \
+						if(*(Argument*)target_arg != *(Argument*)(single_next \
 							? (single_next->getArgument()) \
 							: (multi_next->getFirstArgument()))) \
 							break; /*Different registers, can't combine*/ \
 						if(multi_next) \
 						{ \
-							LiteralArgument const* larg = \
-								dynamic_cast<LiteralArgument*>(multi_next->getSecondArgument()); \
+							LiteralArgument const* larg = multi_next->getSecondArgument(); \
 							addcount += larg->value; \
 						} \
 						else /*if single_next*/ \
@@ -1133,27 +1132,27 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 					{ \
 						if(single_op) \
 						{ \
-							Argument* reg = single_op->takeArgument(); \
+							auto arg = single_op->takeArgument(); \
 							it = rval.erase(it); \
-							it = rval.insert(it,std::shared_ptr<Opcode>(new ty2(reg,new LiteralArgument(addcount+1)))); \
+							it = rval.insert(it,std::shared_ptr<Opcode>(new ty2(arg,new LiteralArgument(addcount+1)))); \
 							(*it)->setLabel(lbl); \
 							(*it)->setComment(comment); \
 						} \
 						else /*if multi_op*/ \
 						{ \
-							LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
+							LiteralArgument* litarg = multi_op->getSecondArgument(); \
 							litarg->value += addcount; \
 							multi_op->setComment(comment); \
 						} \
 					} \
 					else if(multi_op) \
 					{ \
-						LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument()); \
+						LiteralArgument* litarg = multi_op->getSecondArgument(); \
 						if(*litarg == 1) \
 						{ \
-							Argument* reg = multi_op->takeFirstArgument(); \
+							auto arg = multi_op->takeFirstArgument(); \
 							it = rval.erase(it); \
-							it = rval.insert(it,std::shared_ptr<Opcode>(new ty1(reg))); \
+							it = rval.insert(it,std::shared_ptr<Opcode>(new ty1(arg))); \
 							(*it)->setLabel(lbl); \
 							(*it)->setComment(comment); \
 						} \
@@ -1174,10 +1173,10 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			// Change [PEEKAT reg,0] to [PEEK reg]
 			if(OPeekAtImmediate* peekop = dynamic_cast<OPeekAtImmediate*>(ocode))
 			{
-				LiteralArgument* litarg = static_cast<LiteralArgument*>(peekop->getSecondArgument());
+				LiteralArgument* litarg = peekop->getSecondArgument();
 				if(!litarg->value)
 				{
-					Argument* arg = peekop->takeFirstArgument();
+					VarArgument* arg = peekop->takeFirstArgument();
 					it = rval.erase(it);
 					it = rval.insert(it, std::shared_ptr<Opcode>(new OPeek(arg)));
 					(*it)->setLabel(lbl);
@@ -1216,7 +1215,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				size_t startcount = 1;
 				if(multi_op)
 				{
-					LiteralArgument* litarg = static_cast<LiteralArgument*>(multi_op->getSecondArgument());
+					LiteralArgument* litarg = multi_op->getSecondArgument();
 					startcount = litarg->value;
 				}
 				if(addcount+startcount == 1)
@@ -1228,10 +1227,10 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 						{
 							if(*target_arg == *pusharg->getArgument())
 							{
-								Argument* reg = pusharg->takeArgument();
+								auto arg = pusharg->takeArgument();
 								it2 = rval.erase(it2);
 								it = rval.erase(it);
-								it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(reg)));
+								it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(arg)));
 								(*it)->setLabel(lbl);
 								(*it)->setComment(comment);
 								++it;
@@ -1249,7 +1248,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 			// goto if never, can be trashed
 			TRASH_OP(OGotoCompare, false, [&]()
 				{
-					auto cmp = static_cast<LiteralArgument*>(op->getSecondArgument())->value;
+					auto cmp = op->getSecondArgument()->value;
 					return !(cmp&CMP_FLAGS);
 				})
 			//Convert gotos to OGotoCompare
@@ -1415,7 +1414,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 				{
 					if(traceop->getLabel() == -1 && *regarg == *traceop->getArgument())
 					{
-						Argument* arg = setop->takeSecondArgument();
+						auto arg = setop->takeSecondArgument();
 						Opcode::mergeComment(comment, traceop->getComment());
 						it2 = rval.erase(it2);
 						it = rval.erase(it);
