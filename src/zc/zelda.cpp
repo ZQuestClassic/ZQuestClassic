@@ -388,6 +388,7 @@ byte   guygridffc[MAXFFCS]={0};
 mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
+vector<ffscript> quest_zasm;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -451,18 +452,24 @@ void initZScriptGlobalScript(int32_t ID)
 
 dword getNumGlobalArrays()
 {
-    word scommand, pc = 0, ret = 0;
-    
-    do
+    word scommand, ret = 0;
+	auto& init_script = *globalscripts[GLOBAL_SCRIPT_INIT];
+	if (!init_script.valid())
+		return 0;
+	dword pc = init_script.pc, end_pc = init_script.end_pc;
+	if (init_script.old_size) //oldly-compiled... bleh
+		end_pc = pc + init_script.old_size - 1;
+	if(end_pc >= quest_zasm.size())
+		end_pc = quest_zasm.size()-1;
+	while(pc <= end_pc)
     {
-        scommand = globalscripts[GLOBAL_SCRIPT_INIT]->zasm[pc].command;
+        scommand = quest_zasm[pc].command;
         
         if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
-            ret++;
+            ++ret;
             
-        pc++;
+        ++pc;
     }
-    while(scommand != 0xFFFF);
     
     return ret;
 }

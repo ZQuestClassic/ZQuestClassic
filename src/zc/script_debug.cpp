@@ -150,6 +150,8 @@ void ScriptDebugHandle::print(int32_t attributes, const char *str)
 
 void ScriptDebugHandle::print_command(int i)
 {
+	//! TODO ZASM MERGE
+	/*
 	auto& op = script->zasm[i];
 	word scommand = op.command;
 	int args[] = {op.arg1, op.arg2, op.arg3};
@@ -183,11 +185,13 @@ void ScriptDebugHandle::print_command(int i)
 				"\t %s", fmt::format("{{ {} }}", fmt::join(*op.vecptr, ", ")).c_str());
 		}
 	}
-	print("\n");
+	print("\n");*/
 }
 
 void ScriptDebugHandle::print_zasm()
 {
+	//! TODO ZASM MERGE
+	/*
 	printf(
 		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
@@ -200,11 +204,13 @@ void ScriptDebugHandle::print_zasm()
 		print_command(i);
 	}
 	if (file)
-		al_fflush(file);
+		al_fflush(file);*/
 }
 
 void ScriptDebugHandle::pre_command()
 {
+	//! TODO ZASM MERGE
+	/*
 	static int frame = get_flag_int("-script-runtime-debug-frame").value_or(-1);
 	if (frame != -1 && replay_get_frame() != frame)
 		return;
@@ -255,7 +261,7 @@ void ScriptDebugHandle::pre_command()
 	}
 
 	if (file)
-		al_fflush(file);
+		al_fflush(file);*/
 }
 
 // 0 for off, 1 for per-script execution, 2 for per-instruction.

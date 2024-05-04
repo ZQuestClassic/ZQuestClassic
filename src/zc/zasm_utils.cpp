@@ -62,6 +62,8 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 
 	// First determine if we have the simpler CALLFUNC instructions.
 	auto calling_mode = StructuredZasm::CALLING_MODE_UNKNOWN;
+	//! TODO ZASM MERGE
+	/*
 	for (pc_t i = 0; i < script->size && !calling_mode; i++)
 	{
 		int command = script->zasm[i].command;
@@ -80,13 +82,15 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 				calling_mode = StructuredZasm::CALLING_MODE_CALLFUNC_RETURNFUNC;
 				break;
 		}
-	}
+	}*/
 	bool legacy_calling_mode =
 		calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR || calling_mode == StructuredZasm::CALLING_MODE_GOTO_RETURN;
 
 	// Starts with implicit first function ("run").
 	std::set<pc_t> function_start_pcs_set = {0};
 
+	//! TODO ZASM MERGE
+	/*
 	for (pc_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
@@ -120,7 +124,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			function_calls_pc_to_pc[i] = script->zasm[i].arg1;
 			ASSERT(script->zasm[i].arg1 != i + 1);
 		}
-	}
+	}*/
 
 	std::vector<pc_t> function_start_pcs(function_start_pcs_set.begin(), function_start_pcs_set.end());
 	std::vector<pc_t> function_final_pcs;
@@ -135,11 +139,14 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			function_final_pcs.push_back(function_start_pc - 1);
 			start_pc_to_function[function_start_pc] = next_fn_id++;
 		}
+		//! TODO ZASM MERGE
+		/*
 		// Don't include 0xFFFF as part of the last function.
 		function_final_pcs.push_back(script->size - 2);
 
 		// Just so std::lower_bound below will work for last function.
 		function_start_pcs.push_back(script->size);
+		*/
 	}
 
 	std::vector<ZasmFunction> functions;
@@ -168,6 +175,9 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 
 std::set<pc_t> zasm_find_yielding_functions(const script_data* script, StructuredZasm& structured_zasm)
 {
+	//! TODO ZASM MERGE
+	return {};
+	/*
 	std::set<pc_t> yielding_function_ids;
 	for (const auto& fn : structured_zasm.functions)
 	{
@@ -197,7 +207,7 @@ std::set<pc_t> zasm_find_yielding_functions(const script_data* script, Structure
 		}
 	}
 
-	return seen_ids;
+	return seen_ids;*/
 }
 
 static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>> pc_ranges)
@@ -216,6 +226,8 @@ static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>> pc_ra
 ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
 {
 	std::set<pc_t> block_starts;
+	//! TODO ZASM MERGE
+	/*
 
 	for (auto [start_pc, final_pc] : pc_ranges)
 	{
@@ -252,14 +264,17 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 		}
 	}
 
+	*/
 	std::map<pc_t, pc_t> start_pc_to_block_id;
+	/*
 	std::vector<pc_t> block_starts_vec(block_starts.begin(), block_starts.end());
 	for (pc_t j = 0; j < block_starts_vec.size(); j++)
 	{
 		start_pc_to_block_id[block_starts_vec[j]] = j;
 	}
-
+	*/
 	std::vector<std::vector<pc_t>> block_edges;
+	/*
 	block_edges.resize(block_starts.size());
 	for (pc_t j = 1; j < block_starts_vec.size(); j++)
 	{
@@ -285,7 +300,7 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 			block_edges[j - 1].push_back(j);
 		}
 	}
-
+	*/
 	return {block_starts, start_pc_to_block_id, block_edges};
 }
 
@@ -300,6 +315,8 @@ static std::string zasm_fn_get_name(const ZasmFunction& function)
 static std::string zasm_to_string(const script_data* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg, std::set<pc_t> function_ids)
 {
 	std::stringstream ss;
+	//! TODO ZASM MERGE
+	/*
 
 	int block_id = 0;
 	for (auto fn_id : function_ids)
@@ -327,13 +344,15 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 		}
 		ss << '\n';
 	}
-
+	*/
 	return ss.str();
 }
 
 std::string zasm_to_string(const script_data* script, bool top_functions, bool generate_yielder)
 {
 	std::stringstream ss;
+	//! TODO ZASM MERGE
+	/*
 	auto structured_zasm = zasm_construct_structured(script);
 
 	std::vector<std::pair<pc_t, size_t>> fn_lengths;
@@ -391,7 +410,7 @@ std::string zasm_to_string(const script_data* script, bool top_functions, bool g
 		}
 		ss << '\n';
 	}
-
+	*/
 	return ss.str();
 }
 
@@ -407,6 +426,8 @@ static uint64_t generate_function_hash(const script_data* script, const Structur
 {
 	std::vector<uint8_t> data;
 
+	//! TODO ZASM MERGE
+	/*
 	for (pc_t i = function.start_pc; i <= function.final_pc; i++)
 	{
 		int command = script->zasm[i].command;
@@ -476,7 +497,7 @@ static uint64_t generate_function_hash(const script_data* script, const Structur
 			data.push_back(arg2);
 			data.push_back(arg3);
 		}
-	}
+	}*/
 
 	return XXH64(data.data(), data.size(), 0);
 }

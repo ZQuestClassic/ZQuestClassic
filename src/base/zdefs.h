@@ -229,7 +229,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         25
+#define V_FFSCRIPT         26
 #define V_SFX              8
 #define V_FAVORITES        4
 
@@ -1828,19 +1828,31 @@ struct ffscript
 	int32_t arg1, arg2, arg3;
 	std::vector<int32_t> *vecptr;
 	std::string *strptr;
-	ffscript()
+	ffscript() : vecptr(), strptr()
 	{
-		command = 0xFFFF;
-		arg1 = 0;
-		arg2 = 0;
-		arg3 = 0;
-		vecptr = nullptr;
-		strptr = nullptr;
+		clear();
 	}
-	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0): command(command), arg1(arg1), arg2(arg2), arg3(arg3)
+	ffscript(word command, int32_t arg1 = 0, int32_t arg2 = 0, int32_t arg3 = 0)
+		: command(command), arg1(arg1), arg2(arg2), arg3(arg3),
+		vecptr(nullptr), strptr(nullptr)
+	{}
+	ffscript(ffscript const& other) : vecptr(), strptr()
 	{
-		vecptr = nullptr;
-		strptr = nullptr;
+		other.copy(*this);
+	}
+	ffscript(ffscript&& other) : vecptr(), strptr()
+	{
+		other.give(*this);
+	}
+	ffscript& operator=(ffscript const& other)
+	{
+		other.copy(*this);
+		return *this;
+	}
+	ffscript& operator=(ffscript&& other)
+	{
+		other.give(*this);
+		return *this;
 	}
 	~ffscript()
 	{
@@ -1855,6 +1867,7 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
+	
 	void give(ffscript& other)
 	{
 		other.command = command;
@@ -1884,7 +1897,7 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
-	void copy(ffscript& other)
+	void copy(ffscript& other) const
 	{
 		other.clear();
 		other.command = command;
@@ -1941,131 +1954,39 @@ struct script_id {
 	int index;
 };
 
+extern vector<ffscript> quest_zasm;
 struct script_data
 {
-	ffscript* zasm;
+	int32_t pc, end_pc; //start/end of the run function
 	zasm_meta meta;
 	script_id id;
-	size_t size;
-	bool optimized;
+	bool optimized; //! TODO ZASM MERGE
 	
-	void null_script(size_t newSize = 1)
-	{
-		if (newSize < 1)
-			newSize = 1;
-		if(zasm)
-			delete[] zasm;
-		zasm = new ffscript[newSize];
-		zasm[0].clear();
-		meta.zero();
-		size = newSize;
-		optimized = false;
-	}
+	size_t old_size; //for old quests, represents the full ZASM count of each script
 	
 	bool valid() const
 	{
-		return (zasm && zasm[0].command != 0xFFFF);
+		return pc > -1;
 	}
 	
 	void disable()
 	{
-		if(zasm)
-		{
-			zasm[0].clear();
-			size = 1;
-			optimized = false;
-		}
-	}
-	
-	void recalc_size()
-	{
-		if(zasm)
-		{
-			for(uint32_t q = 0;;++q)
-			{
-				if(zasm[q].command == 0xFFFF)
-				{
-					size = q+1;
-					return;
-				}
-			}
-		}
-
-		size = 0;
-	}
-	
-	void set(script_data const& other)
-	{
-		if(zasm)
-			delete[] zasm;
-		if(other.size)
-		{
-			zasm = new ffscript[other.size];
-			for(size_t q = 0; q < other.size; ++q)
-			{
-				other.zasm[q].copy(zasm[q]);
-			}
-			size = other.size;
-			optimized = other.optimized;
-		}
-		else
-		{
-			zasm = NULL;
-			null_script();
-		}
-		meta = other.meta;
+		pc = end_pc = -1;
+		old_size = 0;
 	}
 
-	script_data(ScriptType type, int index) : zasm(NULL)
+	script_data(ScriptType type, int index)
 	{
+		disable();
 		id = {type, index};
-		null_script();
-	}
-	
-	script_data(script_data const& other) : zasm(NULL)
-	{
-		set(other);
-	}
-	
-	~script_data()
-	{
-		if(zasm)
-			delete[] zasm;
-	}
-	
-	void transfer(script_data& other)
-	{
-		other.meta = meta;
-		if(other.zasm)
-			delete[] other.zasm;
-		other.zasm = zasm;
-		other.size = size;
-		other.optimized = optimized;
-		zasm = NULL;
-		null_script();
-	}
-	
-	script_data& operator=(script_data const& other)
-	{
-		set(other);
-		return *this;
-	}
-	
-	bool equal_zasm(script_data const& other) const
-	{
-		if(size != other.size) return false;
-		if(valid() != other.valid()) return false;
-		for(auto q = 0; q < size; ++q)
-		{
-			if(zasm[q] != other.zasm[q]) return false;
-		}
-		return true;
 	}
 	
 	bool operator==(script_data const& other) const
 	{
+		if(pc != other.pc) return false;
+		if(end_pc != other.end_pc) return false;
 		if(meta != other.meta) return false;
-		return equal_zasm(other);
+		return true;
 	}
 };
 
