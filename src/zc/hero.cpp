@@ -28751,6 +28751,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		tmpscr3[i] = tmpscr2[i];
 	}
 
+	// Between here and until calling loadscr to get the new region, some scripts can run and modify
+	// the old screens. These modifications will show shortly during the frames rendered before scrolling
+	// really begins, but not during the scroll itself - iff `should_delay_taking_old_screens` is false.
+	// It seems better if these changes were to persist. Once z3 lands, this compat code can be removed
+	// (ie make should_delay_taking_old_screens true), just update crucible_quest.zplay to account for the
+	// minor gfx change.
+	std::vector<mapscr*> old_temporary_screens;
+	bool should_delay_taking_old_screens =
+		!(replay_is_debug() && replay_get_meta_str("qst") == "crucible_quest.qst");
+	if (!should_delay_taking_old_screens)
+		old_temporary_screens = z3_take_temporary_screens();
+
 	mapscr *oldscr = &special_warp_return_screen;
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
@@ -28870,6 +28882,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		int wait_counter = scx + 1;
 		while (wait_counter < 32)
 		{
+			if(isForceFaceUp) dir = up;
 			if(get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 			{
 				script_drawing_commands.Clear();
@@ -28931,7 +28944,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
-	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
+	if (should_delay_taking_old_screens)
+		old_temporary_screens = z3_take_temporary_screens();
 	FFCore.ScrollingScreensAll = old_temporary_screens;
 	currmap = destmap;
 	int old_region_scr_dy = region_scr_dy;
