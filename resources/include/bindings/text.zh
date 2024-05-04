@@ -9,7 +9,7 @@ class Text {
 	//   POP D2
 	//   POP D3
 	//   STRINGWIDTHR D3 D2
-	internal int StringWidth(char32 s, int font);
+	internal int StringWidth(char32[] s, int font);
 
 	// Returns the width of the character [c], in the given font,
 	// as [Screen->DrawString()] would draw it.
@@ -26,7 +26,7 @@ class Text {
 	//   POP D2
 	//   POP D5
 	//   FONTHEIGHTR D2
-	internal int StringHeight(char32 s, int font);
+	internal int StringHeight(char32[] s, int font);
 
 	// Returns the height of [c] in [font], in pixels.
 	//

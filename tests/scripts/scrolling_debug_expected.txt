@@ -20,7 +20,7 @@ SETR D4 SP2
 ALLOCATEMEMV D2 13 0; while(true) #2 Body [Opt:AlwaysOn] Start
 STORE D2 0.0009
 WRITEPODSTRING D2 "OX/OY %d %d\n"
-LOAD D2 0.0009; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0009; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETV D2 3
 PUSHR D2
@@ -29,15 +29,15 @@ PUSHVARGR GAMESCROLLING
 SETV D2 4
 PUSHR D2
 POP D0
-PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0009
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 6 0
 STORE D2 0.0008
 WRITEPODSTRING D2 "OX/OY"
-PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Params Start
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
 PUSHARGSV 0 0.0002
 PUSHV 2
 PUSHV 1
@@ -45,9 +45,9 @@ PUSHV 15
 PUSHV 0
 LOAD D2 0.0008
 PUSHR D2
-PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Params End
-DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Body End
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 LOAD D3 0.0008
 DEALLOCATEMEMR D3
 PUSHV 7; InlineFunc[void screendata::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
@@ -83,7 +83,7 @@ POPARGS D5 0.0011; InlineFunc[void screendata::DrawInteger(int, int, int, int, i
 ALLOCATEMEMV D2 13 0
 STORE D2 0.0007
 WRITEPODSTRING D2 "NX/NY %d %d\n"
-LOAD D2 0.0007; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0007; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETV D2 1
 PUSHR D2
@@ -92,15 +92,15 @@ PUSHVARGR GAMESCROLLING
 SETV D2 2
 PUSHR D2
 POP D0
-PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0007
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 6 0
 STORE D2 0.0006
 WRITEPODSTRING D2 "NX/NY"
-PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Params Start
+PUSHV 7; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
 PUSHV 0
 PUSHV 8
 PUSHV 2
@@ -109,9 +109,9 @@ PUSHV 15
 PUSHV 0
 LOAD D2 0.0006
 PUSHR D2
-PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Params End
-DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, int, int)] Body End
+PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
+DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 LOAD D3 0.0006
 DEALLOCATEMEMR D3
 PUSHV 7; InlineFunc[void screendata::DrawInteger(int, int, int, int, int, int, int, int, int, int, int)] Params Start
@@ -185,7 +185,7 @@ POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int
 ALLOCATEMEMV D2 15 0
 STORE D2 0.0001
 WRITEPODSTRING D2 "ORX/ORY %d %d\n"
-LOAD D2 0.0001; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETV D2 23
 PUSHR D2
@@ -194,15 +194,15 @@ PUSHVARGR GAMESCROLLING
 SETV D2 24
 PUSHR D2
 POP D0
-PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 ALLOCATEMEMV D2 15 0
 STORE D2 0
 WRITEPODSTRING D2 "NRX/NRY %d %d\n"
-LOAD D2 0; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 SETV D2 21
 PUSHR D2
@@ -211,9 +211,9 @@ PUSHVARGR GAMESCROLLING
 SETV D2 22
 PUSHR D2
 POP D0
-PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3; if() #448 Body End
 SETV D2 0; if() #449 Test
@@ -280,7 +280,7 @@ GOTOCMP 283 ==; Test 'if'
 ALLOCATEMEMV D2 33 0; if() #450 Body Start
 STORE D2 0.0001
 WRITEPODSTRING D2 "failed expectation! %d %d %d %d\n"
-LOAD D2 0.0001; InlineFunc[void printf(char32)] Params Start
+LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR VIEWPORT_X
 SETV D2 21
@@ -291,9 +291,9 @@ PUSHVARGR VIEWPORT_Y
 SETV D2 22
 PUSHR D2
 POP D0
-PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32)] Params End
-PRINTFVARG; InlineFunc[void printf(char32)] Body Start
-POP D5; InlineFunc[void printf(char32)] Body End
+PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3; if() #450 Body End
 SETV D2 3

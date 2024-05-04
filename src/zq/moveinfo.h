@@ -26,7 +26,7 @@ struct BaseTileRef
 	virtual int32_t getTile() const = 0;
 	virtual void addTile(int32_t offs) = 0;
 	virtual void setTile(int32_t val) = 0;
-	virtual void forEach(std::function<void(int32_t)> proc) const = 0;
+	virtual void forEach(std::function<void(int32_t)> proc) const;
 	BaseTileRef(string name = "", bool no_move = false, int xoff = 0, int yoff = 0,
 		vector<std::tuple<int,int,int>> rects = {})
 		: name(name), w(1), h(1), no_move(no_move), xoff(xoff), yoff(yoff), extra_rects(std::move(rects))
@@ -122,18 +122,23 @@ struct TileMoveProcess
 };
 struct TileMoveList
 {
+	enum class Mode
+	{
+		MOVE, CHECK_ALL
+	};
 	vector<std::unique_ptr<BaseTileRef>> move_refs;
 	
 	string msg; //message for the overwrite warning
 	std::ostringstream warning_list; //list of overwrite warnings
 	bool warning_flood; //if the overwrite warnings ran out of space
+	Mode mode;
 	
 	//The processes to check tiles with
 	optional<TileMoveProcess> source_process;
 	TileMoveProcess dest_process;
 	
-	TileMoveList(TileMoveProcess dest_p, optional<TileMoveProcess> src_p = nullopt, string msg = "")
-		: move_refs(), msg(msg), warning_list(), warning_flood(false),
+	TileMoveList(TileMoveProcess dest_p, optional<TileMoveProcess> src_p = nullopt, Mode mode = Mode::MOVE, string msg = "")
+		: move_refs(), msg(msg), warning_list(), warning_flood(false), mode(mode),
 		source_process(src_p), dest_process(dest_p)
 	{}
 	
@@ -163,14 +168,18 @@ struct TileMoveList
 	//Adds 'ref', either to 'move_refs' or 'warning_list' as appropriate based on the process rules.
 	void add_ref(std::unique_ptr<BaseTileRef> ref)
 	{
-		if(source_process)
-			if(process(false, ref, *source_process))
-				return;
-		process(true, ref, dest_process);
+		if(mode == Mode::MOVE)
+		{
+			if(source_process)
+				if(process(ref, *source_process))
+					return;
+			process(ref, dest_process, true);
+		}
+		else process(ref, dest_process); //Mode::CHECK_ALL
 	}
 	
 	//Returns true if 'ref' was moved to the 'move_refs'
-	bool process(bool is_dest, std::unique_ptr<BaseTileRef>& ref, TileMoveProcess const& proc);
+	bool process(std::unique_ptr<BaseTileRef>& ref, TileMoveProcess const& proc, bool is_dest = false);
 	//Checks overwrite protection
 	bool check_prot();
 	//Adds 'diff' to every tile in 'move_refs'
@@ -279,13 +288,13 @@ struct ComboMoveList
 	void add_ref(std::unique_ptr<BaseComboRef> ref)
 	{
 		if(source_process)
-			if(process(false, ref, *source_process))
+			if(process(ref, *source_process))
 				return;
-		process(true, ref, dest_process);
+		process(ref, dest_process, true);
 	}
 	
 	//Returns true if 'ref' was moved to the 'move_refs'
-	bool process(bool is_dest, std::unique_ptr<BaseComboRef>& ref, ComboMoveProcess const& proc);
+	bool process(std::unique_ptr<BaseComboRef>& ref, ComboMoveProcess const& proc, bool is_dest = false);
 	//Checks overwrite protection
 	bool check_prot();
 	//Adds 'diff' to every combo in 'move_refs'

@@ -116,8 +116,8 @@ void ReturnVisitor::caseDefault(AST& host, void* param)
 void ReturnVisitor::analyzeFunctionInternals(Function& function)
 {
 	ASTFuncDecl* node = function.node;
+	if (!node || node->isDisabled()) return;
 	ASTBlock* block = node->block.get();
-	if(!node || node->isDisabled()) return;
 	if(!block) return;
 	auto func_var_map = var_map[&function];
 	if(mode == MODE_FINISH)

@@ -337,13 +337,12 @@ int32_t main(int32_t argc, char **argv)
 		FILE *console=fopen(console_path.c_str(), "w");
 		fclose(console);
 	}
-
-	int32_t qr_hex_index = used_switch(argc, argv, "-qr");
+	
+	bool has_qrs = false;
+	if(int32_t qr_hex_index = used_switch(argc, argv, "-qr"))
 	{
-		std::string qr_hex = qr_hex_index ?
-			argv[qr_hex_index + 1] :
-			// TODO: set to defaults in a better way.
-			"B343AFAF01C281A00DA58A4211A608DFDF080001162A0410FC5306FE2A274100381B02044031300000065824000000000000D0030000000000000000000000000000000000000000000000000000000034866C3140320000000000000000000000000000";
+		has_qrs = true;
+		std::string qr_hex = argv[qr_hex_index + 1];
 		if (qr_hex.size() != QUESTRULES_NEW_SIZE * 2)
 		{
 			zconsole_error("Error: -qr hex string must be of length %d", QUESTRULES_NEW_SIZE * 2);
@@ -404,7 +403,8 @@ int32_t main(int32_t argc, char **argv)
 		metadata_tmp_path = argv[metadata_tmp_path_idx + 1];
 		metadata_orig_path = argv[metadata_orig_path_idx + 1];
 	}
-
+	
+	ZScript::ScriptParser::initialize(has_qrs);
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata));
 	if(!result)
 		zconsole_info("%s", "Failure!");

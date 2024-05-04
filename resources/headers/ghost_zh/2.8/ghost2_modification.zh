@@ -136,14 +136,14 @@ void Ghost_ReplaceNPC(npc oldGhost, npc newGhost, bool copyHP)
 }
 
 
-void Ghost_StoreDefenses(npc ghost, int storedDefense)
+void Ghost_StoreDefenses(npc ghost, int[] storedDefense)
 {
     for(int i=0; i<18; i++)
         storedDefense[i]=ghost->Defense[i];
 }
 
 
-void Ghost_SetDefenses(npc ghost, int defense)
+void Ghost_SetDefenses(npc ghost, int[] defense)
 {
     for(int i=0; i<18; i++)
         ghost->Defense[i]=defense[i];

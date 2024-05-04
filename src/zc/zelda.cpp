@@ -95,7 +95,6 @@ static std::string testingqst_init_data;
 static bool replay_debug = false;
 
 extern CConsoleLoggerEx zscript_coloured_console;
-extern CConsoleLoggerEx coloured_console;
 
 static zc_randgen drunk_rng;
 
@@ -312,7 +311,7 @@ extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte forceExit=0,zc_vsync=0;
-byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
+byte use_win32_proc=1, console_enabled = 0;
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 int32_t heroscr=0;
 int32_t cur_origin_screen_index=0;
@@ -987,7 +986,7 @@ void Z_eventlog(const char *format,...)
         va_end(ap);
         al_trace("%s",buf);
         
-		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( console_enabled ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
     }
 }
@@ -1006,7 +1005,7 @@ void Z_scripterrlog(const char * const format,...)
         va_end(ap);
         al_trace("%s",buf);
         
-		if ( zscript_debugger ) 
+		if ( console_enabled ) 
 		{
 			zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
@@ -4510,9 +4509,9 @@ int main(int argc, char **argv)
 	}
 
 	if(used_switch(argc, argv, "-no_console"))
-		zscript_debugger = false;
+		console_enabled = false;
 	
-	if ( zscript_debugger )
+	if ( console_enabled )
 	{
 		FFCore.ZScriptConsole(true);
 	}
@@ -5426,7 +5425,6 @@ reload_for_replay_file:
 	skipcont = 0;
 	
 	zscript_coloured_console.kill();
-	coloured_console.kill();
 	if(forceExit) //fix for the allegro at_exit() hang.
 		exit(0);
 		

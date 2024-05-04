@@ -68,7 +68,7 @@ ffc script MagicSquarePuzzle{
 		Screen->ComboC[pos1] = cset1;
 	}
 	
-	bool IsMagicSquare(int arr){
+	bool IsMagicSquare(int[] arr){
 		if (SizeOfArray(arr)!=9) Quit();
 		if ((arr[0]+arr[1]+arr[2])!=15) return false;
 		if ((arr[3]+arr[4]+arr[5])!=15) return false;

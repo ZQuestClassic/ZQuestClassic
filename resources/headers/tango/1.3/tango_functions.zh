@@ -189,7 +189,7 @@ int __Tango_RunFunction(int pos, bool clear)
     int function=__Tango_Buffer[pos+1];
     int totalLength=2;
     int argLength;
-    int args[4]={ 0, 0, 0, 0 };
+    untyped args[4]={ 0, 0, 0, 0 };
     int ret=0;
     bool found;
     bool negative=false;
@@ -398,7 +398,7 @@ void __Tango_AppendMessage(int pos, int messageID)
             !__Tango_IsSpecialDataMarker(__Tango_Buffer[pos-1])))
         pos++;
     
-    int buffer[256];
+    char32 buffer[256];
     Game->GetMessage(messageID, buffer);
     __Tango_LoadIntoBuffer(buffer, 0, pos);
 }
@@ -497,7 +497,7 @@ void __Tango_FuncSaveName(int pos)
 }
 
 // Implementation of @string
-void __Tango_FuncString(int string, int pos)
+void __Tango_FuncString(char32[] string, int pos)
 {
     if(!__Tango_ValidateString(string))
     {
@@ -557,7 +557,7 @@ void __Tango_FuncPressA()
 }
 
 // Implementation of @sync
-int __Tango_FuncSync(int args)
+int __Tango_FuncSync(int[] args)
 {
     bool found;
     int syncValue;

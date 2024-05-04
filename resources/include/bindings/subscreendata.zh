@@ -268,7 +268,7 @@ class subscreendata {
 	//   POP D2
 	//   POP REFSUBSCREEN
 	//   SUBDATA_GET_NAME D2
-	internal void GetName(char32 buf);
+	internal void GetName(char32[] buf);
 
 	// Sets the subscreen's name from the buffer.
 	//
@@ -276,7 +276,7 @@ class subscreendata {
 	//   POP D2
 	//   POP REFSUBSCREEN
 	//   SUBDATA_SET_NAME D2
-	internal void SetName(char32 buf);
+	internal void SetName(char32[] buf);
 
 	// Swaps the pages at the two indexes.
 	//

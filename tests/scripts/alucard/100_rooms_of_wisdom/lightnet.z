@@ -90,7 +90,7 @@ ffc script LightPath{
 		return -1;
 	}
 	//Finds the next direction in a node with two or less directions
-	int LightPath_FindNextDir(int node, int dirState, int lastDir){
+	int LightPath_FindNextDir(int node, int[] dirState, int lastDir){
 		for(int i=0; i<4; i++){
 			if(i!=OppositeDir(lastDir)){
 				if(dirState[node]&(1<<i)){
@@ -101,7 +101,7 @@ ffc script LightPath{
 		return lastDir;
 	}
 	//Rotate a panel's directions clockwise
-	void LightPath_Rotate(int node, int dirState){
+	void LightPath_Rotate(int node, int[] dirState){
 		int newState;
 		if(dirState[node]&(1<<DIR_UP))
 			newState |= (1<<DIR_RIGHT);
@@ -114,7 +114,7 @@ ffc script LightPath{
 		dirState[node] = newState;
 	}
 	//Find a panel combo under a sword weapon
-	int LightPath_SwordCombo(lweapon sword, int mainState){
+	int LightPath_SwordCombo(lweapon sword, int[] mainState){
 		//A charged sword doesn't flip panels
 		if(Link->Action==LA_CHARGING)
 			return -1;
@@ -137,7 +137,7 @@ ffc script LightPath{
 	}
 	//Run the light path from a branching node until it hits a dead end
 	//or runs through all directions.
-	void LightPath_RunFromNode(int node, int mainState, int dirState, int active){
+	void LightPath_RunFromNode(int node, int[] mainState, int[] dirState, int[] active){
 		int nextPos;
 		int dir = -1;
 		for(int i=0; i<4; i++){ //Run through all directions
@@ -165,7 +165,7 @@ ffc script LightPath{
 		}
 	}
 	//Update the entire path
-	void LightPath_UpdatePath(int mainState, int dirState, int active){
+	void LightPath_UpdatePath(int[] mainState, int[] dirState, int[] active){
 		//Cycle through an deactivate all nodes but the start
 		for(int i=0; i<176; i++){
 			if(mainState[i]!=4) //Don't deactivate source nodes
@@ -190,7 +190,7 @@ ffc script LightPath{
 	}
 	
 	//Set combo GFX and keep track of if the puzzle has been solved
-	void LightPath_UpdateCombos(int vars, int mainState, int dirState, int active, int rotTime){
+	void LightPath_UpdateCombos(int[] vars, int[] mainState, int[] dirState, int[] active, int[] rotTime){
 		vars[0] = 0;
 		//Detect the sword collision
 		lweapon sword = LoadLWeaponOf(LW_SWORD);
@@ -239,7 +239,7 @@ ffc script LightPath{
 }
 
 //Update combos to handle changing paths by other means, like push blocks to assemble wires.
-void UpdateExistingPathCombos(int mainState, int dirState, int cmbFloorPath, int cmbRotatepath, int cmbNode, int cmbSolidPath){
+void UpdateExistingPathCombos(int[] mainState, int[] dirState, int cmbFloorPath, int cmbRotatepath, int cmbNode, int cmbSolidPath){
 	for(int i=0; i<176; i++){
 			int cd = Screen->ComboD[i];
 			if(cd>=cmbFloorPath&&cd<=cmbFloorPath+31){
@@ -252,7 +252,7 @@ void UpdateExistingPathCombos(int mainState, int dirState, int cmbFloorPath, int
 			}
 			else if(cd>=cmbRotatepath&&cd<=cmbRotatepath+31){
 				mainState[i] = 2; //Rotating Path
-				if (dirState==0)dirState[i] = (cd-cmbRotatepath)%16;
+				if (dirState==NULL)dirState[i] = (cd-cmbRotatepath)%16;
 			}
 			else if(cd>=cmbNode&&cd<=cmbNode+15){
 				mainState[i] = 3; //Trigger Node

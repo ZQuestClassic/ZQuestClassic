@@ -18,6 +18,7 @@
 using namespace ZScript;
 using namespace util;
 using std::set;
+using std::shared_ptr;
 using std::unique_ptr;
 
 ////////////////////////////////////////////////////////////////
@@ -148,9 +149,9 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 				case ARGTY::LITERAL:
 				{
 					try {
-						int val = std::stoi(tokens[i]);
+						int val = util::ffparse2(tokens[i], true);
 					} catch (std::exception ex) {
-						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}`", tokens[i], command)));
+						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}` ({})", tokens[i], command, ex.what())));
 						return;
 					}
 					break;
@@ -181,7 +182,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		else if (command == "PUSHR")
 			addOpcode2(code, new OPushRegister(new VarArgument(StringToVar(tokens[1]))));
 		else if (command == "PUSHV")
-			addOpcode2(code, new OPushImmediate(new LiteralArgument(std::stoi(tokens[1]))));
+			addOpcode2(code, new OPushImmediate(new LiteralArgument(util::ffparse2(tokens[1]))));
 		else if (command == "TRACER")
 			addOpcode2(code, new OTraceRegister(new VarArgument(StringToVar(tokens[1]))));
 		else if (command == "SETR")
@@ -193,7 +194,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		else if (op_string.starts_with("SETV "))
 		{
 			auto arg1 = new VarArgument(StringToVar(tokens[1]));
-			auto arg2 = new LiteralArgument(std::stoi(tokens[2]));
+			auto arg2 = new LiteralArgument(util::ffparse2(tokens[2]));
 			addOpcode2(code, new OSetImmediate(arg1, arg2));
 		}
 		else
@@ -504,8 +505,11 @@ Function* ZScript::lookupSetter(Scope const& scope, string const& name)
 	return NULL;
 }
 
-vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass, bool skipParamCheck)
+vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name,
+	vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass,
+	bool skipParamCheck, Scope const* caller_scope)
 {
+	if(!caller_scope) caller_scope = &scope;
 	set<Function*> functions;
 	Scope const* current = &scope;
 	bool foundFile = false;
@@ -521,7 +525,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 			foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
 		if (!skipParamCheck)
-			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+			trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	if(!noUsing)
@@ -533,7 +537,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 			NamespaceScope* nsscope = *it;
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
 			if (!skipParamCheck)
-				trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+				trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
@@ -542,12 +546,15 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 }
 
 vector<Function*> ZScript::lookupFunctions(
-		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass, bool skipParamCheck)
+		Scope& scope, vector<string> const& names, vector<string> const& delimiters,
+		vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass, bool skipParamCheck,
+		Scope const* caller_scope)
 {
+	if(!caller_scope) caller_scope = &scope;
 	if (names.size() == 0)
 		return vector<Function*>();
 	else if (names.size() == 1)
-		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass, skipParamCheck);
+		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass, skipParamCheck, caller_scope);
 
 	vector<Function*> functions;
 	string const& name = names.back();
@@ -568,7 +575,7 @@ vector<Function*> ZScript::lookupFunctions(
 		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
 		if (!skipParamCheck)
-			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+			trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
@@ -581,7 +588,7 @@ vector<Function*> ZScript::lookupFunctions(
 			Scope& current = **it;
 			vector<Function*> currentFunctions = current.getLocalFunctions(name);
 			if (!skipParamCheck)
-				trimBadFunctions(currentFunctions, parameterTypes, !isClass);
+				trimBadFunctions(currentFunctions, parameterTypes, caller_scope, !isClass);
 			functions.insert(functions.end(),
 							 currentFunctions.begin(), currentFunctions.end());
 		}
@@ -674,17 +681,17 @@ UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
 	return nullptr;
 }
 
-vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes)
+vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes, Scope const* scope)
 {
 	vector<Function*> functions = user_class.getScope().getConstructors();
-	trimBadFunctions(functions, parameterTypes, false);
+	trimBadFunctions(functions, parameterTypes, scope, false);
 	return functions;
 }
 vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
-	std::string const& name, vector<DataType const*> const& parameterTypes)
+	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope)
 {
 	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
-	trimBadFunctions(functions, parameterTypes, false);
+	trimBadFunctions(functions, parameterTypes, scope, false);
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end();)
 	{
@@ -703,6 +710,19 @@ vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
 #define APPLY_TEMPLATE_RET_APPLIED 1
 #define APPLY_TEMPLATE_RET_UNSATISFIABLE 2
 
+
+static bool match_tmpl_type(DataTypeTemplate const& tmpl_ty, DataType const& check)
+{
+	if(tmpl_ty == check)
+		return true;
+	if(check.isArray())
+	{
+		DataTypeArray const& arrty = static_cast<DataTypeArray const&>(check);
+		if(tmpl_ty == arrty.getBaseType())
+			return true;
+	}
+	return false;
+}
 // Applies a function's template types to the provided parameter types, and sets
 // the out-param `out_resolved_function` to the derived result if a match is successful.
 // Returns APPLY_TEMPLATE_RET_UNSATISFIABLE if the template types could not be satisfied.
@@ -715,118 +735,120 @@ static int applyTemplateTypes(
     Function* function,
     std::vector<DataType const *> const &parameter_types,
 	size_t num_params,
-    Function** out_resolved_function)
+    Function** out_resolved_function,
+	Scope const* caller_scope)
 {
-	auto resolved_params = function->paramTypes;
 	bool found_template_type = false;
-
-    const DataType* bound_t = nullptr;
-	for (size_t i = 0; i < num_params; ++i)
-	{
-		auto simpleType = dynamic_cast<const DataTypeSimple*>(function->paramTypes[i]);
-		if (!simpleType || simpleType->getId() != ZTID_TEMPLATE_T)
-			continue;
-
-		found_template_type = true;
-		if (!bound_t)
-		{
-			bound_t = resolved_params[i] = parameter_types[i];
-			continue;
-		}
-
-		if (!parameter_types[i]->canCastTo(*bound_t))
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		resolved_params[i] = parameter_types[i];
-	}
-
-	for (size_t i = 0; i < num_params; ++i)
-	{
-		auto simpleType = dynamic_cast<const DataTypeSimple*>(function->paramTypes[i]);
-		if (!simpleType || simpleType->getId() != ZTID_TEMPLATE_T_ARR)
-			continue;
-
-		bool is_valid_array_type = parameter_types[i]->isArray();
-
-		// This does not need to be configurable yet, as there is no way to pass around array
-		// types until we support arrays as parameters. So most scripts would need this on right now.
-		bool allow_old_ptr_compat = true;
-		if (allow_old_ptr_compat)
-			is_valid_array_type = true;
-
-		if (!is_valid_array_type)
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		auto el_type = parameter_types[i]->isArray() ?
-			&dynamic_cast<const DataTypeArray*>(parameter_types[i])->getElementType() :
-			parameter_types[i];
-
-		found_template_type = true;
-		if (!bound_t)
-		{
-			bound_t = el_type;
-			resolved_params[i] = parameter_types[i];
-			continue;
-		}
-
-		if (!el_type->canCastTo(*bound_t))
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		resolved_params[i] = parameter_types[i];
-	}
-
-	auto ret_type = function->returnType;
-	auto ret_type_s = dynamic_cast<const DataTypeSimple*>(function->returnType);
-	if (ret_type_s && (ret_type_s->getId() == ZTID_TEMPLATE_T || ret_type_s->getId() == ZTID_TEMPLATE_T_ARR))
-		found_template_type = true;
-
-	if (!found_template_type)
+	
+	if(!function->node || function->node->templates.empty())
 		return APPLY_TEMPLATE_RET_NA;
-
-	if (ret_type_s && ret_type_s->getId() == ZTID_TEMPLATE_T)
+	
+	auto const& tys = function->node->template_types;
+	auto num_templates = tys.size();
+	
+	vector<DataType const*> bound_ts;
+	
+	bool old_array_casting = *lookupOption(caller_scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0;
+	
+	for(uint tmpl_id = 0; tmpl_id < num_templates; ++tmpl_id)
 	{
-		if (!bound_t)
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		ret_type = bound_t;
-	}
-	else if (ret_type_s && ret_type_s->getId() == ZTID_TEMPLATE_T_ARR)
-	{
-		if (!bound_t)
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		ret_type = new DataTypeArray(*bound_t);
-	}
-
-	if (function->getFlag(FUNCFLAG_VARARGS) && bound_t)
-	{
-		auto last_param_type = dynamic_cast<const DataTypeSimple*>(function->paramTypes[num_params - 1]);
-		if (!last_param_type || (last_param_type->getId() != ZTID_TEMPLATE_T && last_param_type->getId() != ZTID_TEMPLATE_T_ARR))
-			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
-
-		for (size_t i = num_params; i < parameter_types.size(); ++i)
+		auto& tmpl_ty = *tys[tmpl_id].get();
+		const DataType* bound_t = nullptr;
+		for (size_t i = 0; i < num_params; ++i)
 		{
-			if (!parameter_types[i]->canCastTo(*bound_t))
+			auto ty = function->paramTypes[i];
+			if(!match_tmpl_type(tmpl_ty, *ty))
+				continue;
+			
+			DataType const* el_type = parameter_types[i];
+			if (ty->isArray())
+			{
+				if(el_type->isUntyped())
+					el_type = &DataType::UNTYPED;
+				else if(old_array_casting)
+					el_type = &el_type->getBaseType();
+				else
+				{
+					auto target_depth = ty->getArrayDepth();
+					if(target_depth > el_type->getArrayDepth())
+						return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+					
+					for(int q = 0; q < target_depth; ++q)
+						el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
+				}
+			}
+			
+			found_template_type = true;
+			if (!bound_t)
+			{
+				bound_t = el_type;
+				continue;
+			}
+
+			if (!el_type->canCastTo(*bound_t, caller_scope))
 				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 		}
+		
+		if (function->getFlag(FUNCFLAG_VARARGS))
+		{
+			auto last_param_type = function->paramTypes.back();
+			if(match_tmpl_type(tmpl_ty, *last_param_type))
+			{
+				auto target_depth = last_param_type->getArrayDepth()-1; //-1 because vargs adds a layer of array around the params
+				DataType const* varg_basety = bound_t;
+				for (size_t i = num_params; i < parameter_types.size(); ++i)
+				{
+					DataType const* el_type = parameter_types[i];
+					if(last_param_type->isArray())
+					{
+						if(el_type->isUntyped())
+							el_type = &DataType::UNTYPED;
+						else
+						{
+							if(target_depth > el_type->getArrayDepth())
+								return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+							
+							for(int q = 0; q < target_depth; ++q)
+								el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
+						}
+					}
+					
+					found_template_type = true;
+					if (!bound_t)
+					{
+						varg_basety = bound_t = el_type;
+						continue;
+					}
+
+					if (!el_type->canCastTo(*bound_t, caller_scope))
+						return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+
+					varg_basety = parameter_types[i];
+				}
+				if(!varg_basety)
+					return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+				for(int q = 0; q < target_depth+1; ++q) //+1 because vargs adds a layer of array around the params
+					varg_basety = DataTypeArray::create(*varg_basety);
+			}
+		}
+		
+		if (!bound_t)
+			return APPLY_TEMPLATE_RET_UNSATISFIABLE;
+		bound_ts.push_back(bound_t);
 	}
 
-	*out_resolved_function = new Function(*function);
-	(*out_resolved_function)->isFromTypeTemplate = true;
-	(*out_resolved_function)->aliased_func = function;
-	(*out_resolved_function)->paramTypes = resolved_params;
-	(*out_resolved_function)->returnType = ret_type;
+	//Returns an existing matching function, or creates a new one, memory managed -Em
+	*out_resolved_function = function->apply_templ_func(bound_ts);
 
 	return APPLY_TEMPLATE_RET_APPLIED;
 }
 
-inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses)
+inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, Scope const* caller_scope, bool trimClasses)
 {
 	bool any_from_type_template = false;
 
 	// Filter out invalid functions.
-	for (vector<Function*>::iterator it = functions.begin();
-		 it != functions.end();)
+	for (auto it = functions.begin(); it != functions.end();)
 	{
 		Function* function = *it;
 		if (function->getFlag(FUNCFLAG_NIL))
@@ -845,7 +867,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function->paramTypes.size() - (user_vargs ? 1 : 0);
 		auto minSize = maxSize - function->opt_vals.size();
-		// Match against parameter count, including std::optional params.
+		// Match against parameter count, including optional params.
 		if (minSize > targetSize || (!vargs && maxSize < targetSize))
 		{
 			it = functions.erase(it);
@@ -865,6 +887,11 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 					parametersMatch = false;
 					break;
 				}
+				else if(parameterTypes[i]->getArrayDepth() != function->paramTypes[i]->getArrayDepth())
+				{
+					parametersMatch = false;
+					break;
+				}
 			}
 			if(user_vargs && lowsize < targetSize)
 			{
@@ -876,13 +903,18 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 						parametersMatch = false;
 						break;
 					}
+					else if(parameterTypes[i]->getArrayDepth() != vargty.getArrayDepth())
+					{
+						parametersMatch = false;
+						break;
+					}
 				}
 			}
 		}
 		else
 		{
 			Function* resolved_function = nullptr;
-			int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function);
+			int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function, caller_scope);
 			if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
 			{
 				it = functions.erase(it);
@@ -892,16 +924,12 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			if (apply_ret == APPLY_TEMPLATE_RET_APPLIED)
 			{
 				assert(resolved_function);
-				// This is a memory leak. The compiler is a short-lived program, so this isn't so bad.
-				// TODO: store these inside the original function. applyTemplateTypes should handle that.
-				//       should also dedupe as necessary.
-				*it = resolved_function;
-				function = resolved_function;
+				*it = function = resolved_function;
 			}
 
 			for (size_t i = 0; i < lowsize; ++i)
 			{
-				if (!parameterTypes[i]->canCastTo(*function->paramTypes[i]))
+				if (!parameterTypes[i]->canCastTo(*function->paramTypes[i], caller_scope))
 				{
 					parametersMatch = false;
 					break;
@@ -909,10 +937,10 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			}
 			if(user_vargs && lowsize < targetSize)
 			{
-				auto& vargty = *function->paramTypes.back();
+				auto& vargty = static_cast<DataTypeArray const*>(function->paramTypes.back())->getElementType();
 				for(size_t i = lowsize; i < targetSize; ++i)
 				{
-					if(!parameterTypes[i]->canCastTo(vargty))
+					if(!parameterTypes[i]->canCastTo(vargty, caller_scope))
 					{
 						parametersMatch = false;
 						break;
@@ -935,9 +963,8 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 	if (!any_from_type_template || functions.size() == 0)
 		return;
 
-	// Ignore templated functions if any non-templated function matched.
 	bool any_not_from_type_template = false;
-	for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); it++)
+	for (auto it = functions.begin(); it != functions.end(); it++)
 	{
 		if (!(*it)->isFromTypeTemplate)
 		{
@@ -946,18 +973,38 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		}
 	}
 
-	if (!any_not_from_type_template)
-		return;
-
-	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
+	if (any_not_from_type_template)
 	{
-		if ((*it)->isFromTypeTemplate)
+		// Ignore templated functions if any non-templated function matched.
+		for (auto it = functions.begin(); it != functions.end();)
 		{
-			it = functions.erase(it);
-			continue;
+			if ((*it)->isFromTypeTemplate)
+				it = functions.erase(it);
+			else ++it;
 		}
-
-		it++;
+		return;
+	}
+	
+	//else, filter templates by array-depth specificity
+	optional<int32_t> min_arr_depth;
+	for (auto it = functions.begin(); it != functions.end(); it++)
+	{
+		Function& func = **it;
+		auto depth = 0;
+		for(auto& ty : func.templ_bound_ts)
+			depth += ty->getArrayDepth();
+		if(!min_arr_depth || depth < *min_arr_depth)
+			min_arr_depth = depth;
+	}
+	for (auto it = functions.begin(); it != functions.end();)
+	{
+		Function& func = **it;
+		auto depth = 0;
+		for(auto& ty : func.templ_bound_ts)
+			depth += ty->getArrayDepth();
+		if (depth > *min_arr_depth)
+			it = functions.erase(it);
+		else ++it;
 	}
 }
 
@@ -1424,7 +1471,7 @@ bool BasicScope::addScriptType(
 
 Function* BasicScope::addGetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, AST* node)
 {
 	if (find<Function*>(getters_, name)) return NULL;
 
@@ -1436,7 +1483,7 @@ Function* BasicScope::addGetter(
 
 Function* BasicScope::addSetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, AST* node)
 {
 	if (find<Function*>(setters_, name)) return NULL;
 
@@ -1461,7 +1508,7 @@ void BasicScope::addSetter(Function* func)
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler, Scope* subscope)
 {
 	bool prototype = false;
 	optional<int32_t> defRet;
@@ -1522,7 +1569,10 @@ Function* BasicScope::addFunction(
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->node = node;
-	fun->setInternalScope(makeFunctionChild(*fun));
+	if(!subscope)
+		subscope = this;
+	fun->setExternalScope(subscope);
+	fun->setInternalScope(subscope->makeFunctionChild(*fun));
 	if(node)
 	{
 		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
@@ -1769,7 +1819,7 @@ bool FileScope::addScriptType(string const& name, ParserScriptType type, AST* no
 
 Function* FileScope::addGetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, AST* node)
 {
 	Function* result = BasicScope::addGetter(
 			returnType, name, paramTypes, paramNames, flags, node);
@@ -1781,7 +1831,7 @@ Function* FileScope::addGetter(
 
 Function* FileScope::addSetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, AST* node)
+		std::vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, AST* node)
 {
 	Function* result = BasicScope::addSetter(
 			returnType, name, paramTypes, paramNames, flags, node);
@@ -1793,10 +1843,10 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		std::vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler, Scope* subscope)
 {
 	Function* result = BasicScope::addFunction(
-			returnType, name, paramTypes, paramNames, flags, node, handler);
+			returnType, name, paramTypes, paramNames, flags, node, handler, subscope);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerFunction(result))
 		result = NULL;
@@ -2238,7 +2288,7 @@ std::vector<Function*> ClassScope::getDestructor() const
 
 Function* ClassScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+		vector<DataType const*> const& paramTypes, vector<shared_ptr<const string>> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler, Scope* subscope)
 {
 	bool constructor = (flags&FUNCFLAG_CONSTRUCTOR);
 	bool destructor = (flags&FUNCFLAG_DESTRUCTOR);
@@ -2315,7 +2365,10 @@ Function* ClassScope::addFunction(
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->node = node;
-	fun->setInternalScope(makeFunctionChild(*fun));
+	if(!subscope)
+		subscope = this;
+	fun->setExternalScope(subscope);
+	fun->setInternalScope(subscope->makeFunctionChild(*fun));
 	if(node)
 	{
 		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)

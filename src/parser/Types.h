@@ -79,9 +79,6 @@ namespace ZScript
 		ZTID_BOOL,
 		ZTID_LONG,
 		ZTID_RGBDATA,
-		ZTID_TEMPLATE_T,
-		// TODO: remove once array type is supported in params
-		ZTID_TEMPLATE_T_ARR,
 		ZTID_PRIMITIVE_END,
 
 		ZTID_SCRIPT_TYPE_START = ZTID_PRIMITIVE_END,
@@ -198,6 +195,9 @@ namespace ZScript
 	class DataTypeArray;
 	class DataTypeCustom;
 	class DataTypeCustomConst;
+	
+	// Get the number of nested arrays at top level.
+	int32_t getArrayDepth(DataType const&);
 
 	class DataType
 	{
@@ -209,16 +209,20 @@ namespace ZScript
 		virtual ~DataType() {}
 		// Call derived class's copy constructor.
 		virtual DataType* clone() const = 0;
+		virtual int unique_type_id() const = 0;
 
 		// Resolution.
 		virtual bool isResolved() const {return true;}
-		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) {return this;}
+		virtual DataType const* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) {return this;}
+		virtual DataType const& getBaseType() const {return *this;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const = 0;
 		// Basics
 		virtual std::string getName() const = 0;
-		virtual bool canCastTo(DataType const& target) const = 0;
+		virtual bool canCastTo(DataType const& target, Scope const* scope) const = 0;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const = 0;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return getScriptObjectTypeId() != script_object_type::none;}
+		virtual bool isObject() const {return getScriptObjectTypeId() != script_object_type::none;}
 		virtual script_object_type getScriptObjectTypeId() const {return script_object_type::none;}
 		virtual DataType const* getConstType() const {return constType;}
 		virtual DataType const* getMutType() const {return this;}
@@ -233,7 +237,11 @@ namespace ZScript
 		virtual bool isCustom() const {return false;}
 		virtual bool isUsrClass() const {return false;}
 		virtual bool isLong() const {return false;}
+		virtual bool isTemplate() const {return false;}
 		virtual UserClass* getUsrClass() const {return nullptr;}
+		
+		int32_t getArrayDepth() const {return ZScript::
+			getArrayDepth(*this);}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int32_t compare(DataType const& rhs) const;
@@ -259,7 +267,6 @@ namespace ZScript
 		// Standard Types.
 	public:
 		static DataTypeSimpleConst CTEMPLATE_T;
-		static DataTypeSimpleConst CTEMPLATE_T_ARR;
 		static DataTypeSimpleConst CAUTO;
 		static DataTypeSimpleConst CUNTYPED;
 		static DataTypeSimpleConst CFLOAT;
@@ -268,7 +275,6 @@ namespace ZScript
 		static DataTypeSimpleConst CBOOL;
 		static DataTypeSimpleConst CRGBDATA;
 		static DataTypeSimple TEMPLATE_T;
-		static DataTypeSimple TEMPLATE_T_ARR;
 		static DataTypeSimple UNTYPED;
 		static DataTypeSimple ZAUTO;
 		static DataTypeSimple ZVOID;
@@ -277,7 +283,7 @@ namespace ZScript
 		static DataTypeSimple LONG;
 		static DataTypeSimple BOOL;
 		static DataTypeSimple RGBDATA;
-		static DataTypeArray STRING;
+		static DataTypeArray const& STRING;
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -289,9 +295,6 @@ namespace ZScript
 
 	// Get the data type stripped of consts and arrays.
 	DataType const& getNaiveType(DataType const& type, Scope* scope);
-	
-	// Get the number of nested arrays at top level.
-	int32_t getArrayDepth(DataType const&);
 
 	class DataTypeUnresolved : public DataType
 	{
@@ -299,14 +302,16 @@ namespace ZScript
 		DataTypeUnresolved(ASTExprIdentifier* iden);
 		~DataTypeUnresolved();
 		DataTypeUnresolved* clone() const;
+		int unique_type_id() const { return 1; }
 		
 		virtual bool isResolved() const {return false;}
-		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
 		virtual std::string getName() const;
 		ASTExprIdentifier const* getIdentifier() const {return iden;}
-		virtual bool canCastTo(DataType const& target) const {return false;}
+		virtual bool canCastTo(DataType const& target, Scope const* scope) const {return false;}
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 
 	private:
 		ASTExprIdentifier* iden;
@@ -320,9 +325,11 @@ namespace ZScript
 	public:
 		DataTypeSimple(int32_t simpleId, std::string const& name, DataType* constType);
 		DataTypeSimple* clone() const {return new DataTypeSimple(*this);}
+		int unique_type_id() const { return 2; }
 
 		virtual std::string getName() const {return name;}
-		virtual bool canCastTo(DataType const& target) const;
+		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		virtual bool canBeGlobal() const;
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return simpleId == ZTID_UNTYPED;}
@@ -346,6 +353,7 @@ namespace ZScript
 	public:
 		DataTypeSimpleConst(int32_t simpleId, std::string const& name);
 		DataTypeSimpleConst* clone() const {return new DataTypeSimpleConst(*this);}
+		int unique_type_id() const { return 3; }
 		
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
@@ -357,28 +365,43 @@ namespace ZScript
 	class DataTypeArray : public DataType
 	{
 	public:
-		DataTypeArray(DataType const& elementType)
-			: DataType(NULL), elementType(elementType) {}
+		static DataTypeArray const* create(DataType const& elementType);
+		static DataTypeArray const* create_depth(DataType const& elementType, uint depth);
+		static DataTypeArray const* create_owning(DataType* elementType);
+		explicit DataTypeArray(DataType const& elementType)
+			: DataType(NULL), elementType(elementType), owned_type() {}
 		DataTypeArray* clone() const {return new DataTypeArray(*this);}
+		int unique_type_id() const { return 4; }
 
 		virtual std::string getName() const {
 			return elementType.getName() + "[]";}
-		virtual bool canCastTo(DataType const& target) const;
+		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return elementType.canHoldObject();}
+		virtual bool isObject() const {return false;} //arrays themselves are not objects
 		virtual script_object_type getScriptObjectTypeId() const {return elementType.getScriptObjectTypeId();}
 		
 		virtual bool isArray() const {return true;}
+		virtual bool isTemplate() const {return elementType.isTemplate();}
 		virtual bool isResolved() const {return elementType.isResolved();}
+		virtual bool isAuto() const {return elementType.isAuto();}
+		virtual bool isConstant() const {return elementType.isConstant();}
 		virtual UserClass* getUsrClass() const {return elementType.getUsrClass();}
 
 		DataType const& getElementType() const {return elementType;}
+		virtual DataType const& getBaseType() const;
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
+		
+		virtual DataType const* getConstType() const;
+		virtual DataType const* getMutType() const;
 
 	private:
 		DataType const& elementType;
-
+		std::shared_ptr<DataType> owned_type;
+		
 		int32_t selfCompare(DataType const& other) const;
+		static std::vector<std::unique_ptr<DataTypeArray>> created_arr_types;
 	};
 	
 	class DataTypeCustom : public DataType
@@ -388,6 +411,7 @@ namespace ZScript
 			: DataType(constType), id(id), name(name), user_class(usrclass)
 		{}
 		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
+		int unique_type_id() const { return 5; }
 		
 		virtual bool isConstant() const {return false;}
 		virtual bool isCustom() const {return true;}
@@ -409,7 +433,8 @@ namespace ZScript
 		}
 		virtual UserClass* getUsrClass() const {return user_class;}
 		virtual std::string getName() const {return name;}
-		virtual bool canCastTo(DataType const& target) const;
+		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		int32_t getCustomId() const {return id;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
@@ -428,6 +453,7 @@ namespace ZScript
 			: DataTypeCustom(name, NULL, user_class)
 		{}
 		DataTypeCustomConst* clone() const {return new DataTypeCustomConst(*this);}
+		int unique_type_id() const { return 6; }
 		
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
@@ -435,7 +461,48 @@ namespace ZScript
 		virtual DataType const* getConstType() const {return this;}
 		virtual DataType const* getMutType() const {return getCustom(getCustomId());}
 	};
+	
+	class DataTypeTemplateConst;
+	class DataTypeTemplate : public DataType
+	{
+	public:
+		static DataTypeTemplate* create(std::string const& name);
+		DataTypeTemplate* clone() const {return new DataTypeTemplate(*this);}
+		int unique_type_id() const { return 7; }
 
+		virtual std::string getName() const {return name;}
+		uint32_t getId() const {return id;}
+		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
+		
+		virtual bool isTemplate() const {return true;}
+		
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const {return this;}
+	protected:
+		DataTypeTemplate(std::string const& name, uint32_t id, DataTypeTemplateConst*);
+		std::string name;
+		uint32_t id;
+
+		int32_t selfCompare(DataType const& rhs) const;
+	};
+	
+	class DataTypeTemplateConst : public DataTypeTemplate
+	{
+	public:
+		DataTypeTemplateConst(std::string const& name, uint32_t id)
+			: DataTypeTemplate(name, id, nullptr), mut_type(nullptr) {}
+		DataTypeTemplateConst* clone() const {return new DataTypeTemplateConst(*this);};
+		//int unique_type_id() const { return 7; } //should be able to be same as the non-const base?
+		
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const {return this;}
+		
+		virtual bool isConstant() const {return true;}
+		virtual DataType const* getConstType() const {return this;}
+		virtual DataType const* getMutType() const {return mut_type;}
+		
+		DataType const* mut_type;
+	};
+	
 	DataType const& getBaseType(DataType const&);
 
 	////////////////////////////////////////////////////////////////

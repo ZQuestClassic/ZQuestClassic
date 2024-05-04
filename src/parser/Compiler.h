@@ -229,7 +229,7 @@ namespace ZScript
 		static bool preprocess(ASTFile* root, int32_t reclevel);
 		static unique_ptr<IntermediateData> generateOCode(FunctionData& fdata);
 		static void assemble(IntermediateData* id);
-		static void initialize();
+		static void initialize(bool has_qrs);
 		static std::pair<int32_t,bool> parseLong(
 				std::pair<std::string,std::string> parts, Scope* scope);
 

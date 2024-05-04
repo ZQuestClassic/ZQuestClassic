@@ -876,8 +876,9 @@ class screendata {
 	// @zasm
 	//   DRAWSTRING
 	//   POPARGS D5 0.0009
-	internal void DrawString(int arg1, int arg2, int arg3, int arg4, int arg5,
-							 int arg6, int arg7, int arg8, int arg9 = 128);
+	internal void DrawString(int layer, int x, int y, int font, int color,
+							 int background_color, int format, char32[] str,
+							 int opacity = 128);
 
 	// As DrawString(), but includes a shadow on the text.
 	//
@@ -887,7 +888,7 @@ class screendata {
 	//   DRAWSTRINGR2
 	//   POPARGS D5 0.0011
 	internal void DrawString(int layer, int x, int y, int font, int color,
-							 int background_color, int format, int str,
+							 int background_color, int format, char32[] str,
 							 int opacity, int shadow_type, int shadow_color);
 
 	// @zasm

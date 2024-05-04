@@ -22,7 +22,7 @@ int __Tango_GetSlotDefData(int slot, int what)
 
 int __Tango_GetCurrFontData(int what)
 {
-    int font=__Tango_Data[__TCS_FONT];
+    int[] font=__Tango_Data[__TCS_FONT];
     return font[what];
 }
 
@@ -84,7 +84,7 @@ int __Tango_GetCurrentSFX()
 
 int __Tango_GetLineHeight()
 {
-    int font=__Tango_Data[__TCS_FONT];
+    int[] font=__Tango_Data[__TCS_FONT];
     return font[__TANGO_FONT_CHAR_HEIGHT]+font[__TANGO_FONT_LINE_SPACING];
 }
 

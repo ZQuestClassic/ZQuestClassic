@@ -19,6 +19,7 @@
 extern FFScript FFCore;
 using std::ostringstream;
 using namespace ZScript;
+using std::shared_ptr;
 using std::unique_ptr;
 
 int32_t StringToVar(std::string var);
@@ -336,9 +337,10 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 				fn_value = (INTARR_OFFS + fn_value) * 10000;
 			}
 
+			auto& ty = decl->manager->type;
 			bool is_internal_arr = parsed_comment.contains("zasm_internal_array");
-			bool is_arr = decl->manager->type.isArray();
-			auto var_type = decl->manager->type.baseType(*scope, nullptr);
+			bool is_arr = ty.isArray();
+			auto var_type = is_internal_arr ? &ty : ty.baseType(*scope, nullptr);
 			bool deprecated = parsed_comment.contains("deprecated");
 
 			// Add a getter.
@@ -702,21 +704,26 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	if (type->isAuto())
 	{
 		bool good = false;
+		auto arr_depth = type->getArrayDepth();
 		auto init = host.getInitializer();
 		if(init)
 		{
 			auto readty = init->getReadType(scope, this);
 			if(readty && readty->isResolved() && !readty->isVoid() && !readty->isAuto())
 			{
-				auto newty = type->isConstant() ? readty->getConstType() : readty->getMutType();
-				host.replaceType(*newty);
-				type = host.resolve_ornull(scope, this);
+				if(readty->getArrayDepth() < arr_depth)
+				{
+					handleError(CompileError::BadAutoType(&host, type->getName(), fmt::format("must have an initializer with type that is at least {}-depth array", arr_depth)));
+					return;
+				}
+				type = type->isConstant() ? readty->getConstType() : readty;
+				host.setResolvedType(*type);
 				good = true;
 			}
 		}
 		if(!good)
 		{
-			handleError(CompileError::BadAutoType(&host));
+			handleError(CompileError::BadAutoType(&host, type->getName(), "must have an initializer with valid type to mimic."));
 			return;
 		}
 	}
@@ -726,14 +733,6 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	{
 		handleError(CompileError::RefVar(
 				            &host, type->getName() + " " + host.getName()));
-		return;
-	}
-
-	// Currently disabled syntaxes:
-	if (getArrayDepth(*type) > 1)
-	{
-		handleError(CompileError::UnimplementedFeature(
-				            &host, "Nested Array Declarations"));
 		return;
 	}
 
@@ -818,7 +817,7 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 		ASTExpr& size = **it;
 
 		// Make sure each size can cast to float.
-		if (!size.getReadType(scope, this)->canCastTo(DataType::FLOAT))
+		if (!size.getReadType(scope, this)->canCastTo(DataType::FLOAT, scope))
 		{
 			handleError(CompileError::NonIntegerArraySize(&host));
 			return;
@@ -849,29 +848,36 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 
 void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
-	Scope* oldScope = scope;
+	ScopeReverter sr(&scope);
 	
+	bool templated = !host.templates.empty();
 	if(host.parentScope)
 		scope = host.parentScope;
-	else if(host.identifier->components.size() > 1)
+	else
 	{
-		ASTExprIdentifier const& id = *(host.identifier);
-		
-		vector<string> scopeNames(id.components.begin(), --id.components.end());
-		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
-		host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
-		if(!host.parentScope)
+		if(host.identifier->components.size() > 1)
 		{
-			return;
+			ASTExprIdentifier const& id = *(host.identifier);
+			
+			vector<string> scopeNames(id.components.begin(), --id.components.end());
+			vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
+			host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
+			if(!host.parentScope)
+			{
+				return;
+			}
+			scope = host.parentScope;
 		}
-		scope = host.parentScope;
+		else host.parentScope = scope;
+		// Add an extra anonymous scope, used by templates
+		host.parentScope = scope = scope->makeChild();
 	}
-	else host.parentScope = scope;
+	Scope* extern_scope = scope;
+	Scope* func_lives_in = scope->getParent();
 	
 	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
-		scope = oldScope;
 		return;
 	}
 
@@ -888,21 +894,32 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	{
 		host.setFlag(FUNCFLAG_INLINE);
 	}*/
+	
+	if(templated && host.template_types.empty())
+	{
+		for(auto& ptr : host.templates)
+		{
+			string const& name = ptr->getValue();
+			host.template_types.emplace_back(DataTypeTemplate::create(name));
+			scope->addDataType(name, host.template_types.back().get(), nullptr);
+		}
+		host.param_template = host.parameters; //copy the pre-initialized params
+	}
+	
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
-	if (breakRecursion(*host.returnType.get())) {scope = oldScope; return;}
-	if (!returnType.isResolved()) {scope = oldScope; return;}
+	if (breakRecursion(*host.returnType.get())) return;
+	if (!returnType.isResolved()) return;
 	if(returnType.isAuto())
 	{
 		handleError(CompileError::BadReturnType(&host, returnType.getName()));
-		scope = oldScope;
 		return;
 	}
 
 	// Gather the parameter types.
 	vector<DataType const*> paramTypes;
 	vector<ASTDataDecl*> const& params = host.parameters.data();
-	vector<string const*> paramNames;
+	vector<shared_ptr<const string>> paramNames;
 	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
 		 it != params.end(); ++it)
 	{
@@ -910,29 +927,33 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 
 		// Resolve the parameter type under current scope.
 		DataType const* type = decl.resolve_ornull(scope, this);
-		if (breakRecursion(decl)) {scope = oldScope; return;}
-		if (!type) {scope = oldScope; return;}
+		if (breakRecursion(decl)) return;
+		if (!type) return;
 
 		// Don't allow void/auto params.
 		if (type->isVoid() || type->isAuto())
 		{
 			handleError(CompileError::FunctionBadParamType(&decl, decl.getName(), type->getName()));
 			doRegister(host);
-			scope = oldScope;
 			return;
 		}
-		paramNames.push_back(new string(decl.getName()));
+		paramNames.emplace_back(new string(decl.getName()));
 		paramTypes.push_back(type);
+	}
+	if(host.getFlag(FUNCFLAG_VARARGS) && !paramTypes.back()->isArray())
+	{
+		handleError(CompileError::BadVArgType(&host, paramTypes.back()->getName()));
+		return;
 	}
 	if(host.prototype)
 	{
 		//Check the default return
 		visit(host.defaultReturn.get(), param);
-		if(breakRecursion(host.defaultReturn.get())) {scope = oldScope; return;}
-		if(!(registered(host.defaultReturn.get()))) {scope = oldScope; return;}
+		if(breakRecursion(host.defaultReturn.get())) return;
+		if(!(registered(host.defaultReturn.get()))) return;
 		
 		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
-		if(!defValType.isResolved()) {scope = oldScope; return;}
+		if(!defValType.isResolved()) return;
 		//Check type validity of default return
 		if((*(host.defaultReturn->getCompileTimeValue(this, scope)) == 0) &&
 			(defValType == DataType::CUNTYPED || defValType == DataType::UNTYPED))
@@ -943,9 +964,9 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		else checkCast(defValType, returnType, &host);
 	}
 	
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 	visit_vec(host.optparams, param);
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 	
 	auto parcnt = paramTypes.size() - host.optparams.size();
 	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
@@ -953,21 +974,20 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		DataType const* getType = (*it)->getReadType(scope, this);
 		if(!getType) return;
 		checkCast(*getType, *paramTypes[parcnt], &host);
-		if(breakRecursion(host)) {scope = oldScope; return;}
+		if(breakRecursion(host)) return;
 		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
 		assert(optVal);
 		host.optvals.push_back(*optVal);
 	}
-	if(breakRecursion(host)) {scope = oldScope; return;}
+	if(breakRecursion(host)) return;
 	
 	doRegister(host);
 	
 	// Add the function to the scope.
-	Function* function = scope->addFunction(
-			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this);
+	Function* function = func_lives_in->addFunction(
+			&returnType, host.getName(), paramTypes, paramNames, host.getFlags(), &host, this, extern_scope);
 	host.func = function;
 	
-	scope = oldScope;
 	if(breakRecursion(host)) return;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
@@ -1018,6 +1038,8 @@ void RegistrationVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 				host.left.get(), host.left->asString()));
 		return;
 	}
+	if (ltype->isConstant())
+		handleError(CompileError::LValConst(&host, host.left->asString()));
 }
 
 void RegistrationVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
@@ -1030,16 +1052,6 @@ void RegistrationVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* para
 	{
 		handleError(CompileError::NoArrayGlobalVar(&host));
 		return;
-	}
-
-	// Can't write to a constant.
-	if (param == paramWrite || param == paramReadWrite)
-	{
-		if (host.binding->type.isConstant())
-		{
-			handleError(CompileError::LValConst(&host, host.asString()));
-			return;
-		}
 	}
 }
 
@@ -1114,7 +1126,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 				handleError(CompileError::NoClass(&host, identifier->asString()));
 				return;
 			}
-			functions = lookupConstructors(*user_class, parameterTypes);
+			functions = lookupConstructors(*user_class, parameterTypes, scope);
 		}
 		else
 		{
@@ -1122,7 +1134,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 			{
 				user_class = &scope->getClass()->user_class;
 				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
-					functions = lookupConstructors(*user_class, parameterTypes);
+					functions = lookupConstructors(*user_class, parameterTypes, scope);
 				if(!functions.size())
 					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
 			}
@@ -1132,9 +1144,9 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else if(user_class)
 	{
-		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes);
+		functions = lookupClassFuncs(*user_class, arrow->right->getValue(), parameterTypes, scope);
 	}
-	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true); //Never `using` arrow functions
+	else functions = lookupFunctions(arrow->leftClass->getScope(), arrow->right->getValue(), parameterTypes, true, false, false, scope); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;

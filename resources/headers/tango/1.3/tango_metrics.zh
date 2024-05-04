@@ -5,14 +5,14 @@
 // Functions relating to glyph and word sizes.
 
 
-bool __Tango_CharacterWillFit(int character, int font, int left, int right)
+bool __Tango_CharacterWillFit(char32 character, int[] font, int left, int right)
 {
     return right-left>=__Tango_GetCharacterWidth(character, font);
 }
 
-bool __Tango_WordWillFit(int ptr, int font, int left, int right)
+bool __Tango_WordWillFit(int indx, int[] font, int left, int right)
 {
-    return (right-left>=__Tango_GetWordWidth(ptr, font));
+    return (right-left>=__Tango_GetWordWidth(indx, font));
 }
 
 // How far the textbox should be scrolled down to display the bottom line.
@@ -26,10 +26,10 @@ int __Tango_GetTargetOffset()
 
 // Get the total width of a string. Functions are not evaluated, and
 // line breaks are ignored.
-int Tango_GetStringWidth(int str, int font)
+int Tango_GetStringWidth(char32[] str, int[] font)
 {
     int width=0;
-    int character;
+    char32 character;
     
     for(int i=0; str[i]!=0; i++)
     {
@@ -50,14 +50,14 @@ int Tango_GetStringWidth(int str, int font)
 // Get the total width of a series of printable characters in the given font.
 // Functions are not evaluated, so any text they would produce is not taken
 // into account.
-int __Tango_GetWordWidth(int ptr, int font)
+int __Tango_GetWordWidth(int indx, int[] font)
 {
     int width=0;
-    int character;
+    char32 character;
     
     while(true)
     {
-        character=__Tango_Buffer[ptr];
+        character=__Tango_Buffer[indx];
         
         if(character==NULL ||
            character==' ' ||
@@ -68,9 +68,9 @@ int __Tango_GetWordWidth(int ptr, int font)
             width+=__Tango_GetCharacterWidth(character, font);
         
         if(__Tango_IsSpecialDataMarker(character))
-            ptr++; // Skip it
+            indx++; // Skip it
         
-        ptr++;
+        indx++;
     }
     
     return width;
@@ -78,7 +78,7 @@ int __Tango_GetWordWidth(int ptr, int font)
 
 // Get the width of a character. The character is assumed to be a space
 // or a valid printable character.
-int __Tango_GetCharacterWidth(int character, int font)
+int __Tango_GetCharacterWidth(char32 character, int[] font)
 {
     if(font[__TANGO_FONT_PROPORTION]==TANGO_FONT_MONOSPACE)
         return font[__TANGO_FONT_WIDTH];

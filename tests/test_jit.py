@@ -50,7 +50,7 @@ class TestJIT(ZCTestCase):
         output_dir.parent.mkdir(exist_ok=True, parents=True)
         if output_dir.exists():
             shutil.rmtree(output_dir)
-        args = [
+        run_args = [
             '-headless',
             '-replay',
             replay_path,
@@ -68,8 +68,9 @@ class TestJIT(ZCTestCase):
             '-jit-env-test',
             '-jit-precompile',
             '-jit-print-asm',
+            '-no_console',
         ]
-        p = run_target.run('zplayer', args)
+        p = run_target.run('zplayer', run_args)
         if p.returncode:
             raise Exception(f'error: {p.returncode}\n{p.stderr}')
 

@@ -50,6 +50,7 @@ namespace ZScript
 	class ASTFile;
 	class ASTFloat;
 	class ASTString;
+	class ASTStringList;
 	class ASTAnnotation;
 	class ASTAnnotationList;
 	class ASTSetOption;
@@ -272,6 +273,7 @@ namespace ZScript
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}
 		virtual bool isTypeArrowUsrClass() const {return false;}
+		virtual bool isTypeArrowNonUsrClass() const {return false;}
 		virtual bool isTypeIndex() const {return false;}
 		virtual bool isTypeIdentifier() const {return false;}
 		virtual bool isTypeVarDecl() const {return false;}
@@ -387,6 +389,19 @@ namespace ZScript
 		const std::string& getValue() const {return str;}
 	private:
 		std::string str;
+	};
+	
+	class ASTStringList : public AST
+	{
+	public:
+		ASTStringList(LocationData const& location = LOC_NONE);
+		ASTStringList(std::string comment,
+		          LocationData const& location);
+		ASTStringList* clone() const {return new ASTStringList(*this);}
+	
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_vector<ASTString> strings;
 	};
 
 	class ASTAnnotation : public AST
@@ -633,13 +648,13 @@ namespace ZScript
 	{
 		DEF_COMMENT_UID();
 	public:
-		ASTStmtRangeLoop(ASTDataType* type, string const& iden, ASTRange* range,
+		ASTStmtRangeLoop(ASTDataType* type, ASTString* iden, ASTRange* range,
 			ASTExpr* increment, ASTStmt* body, LocationData const& location = LOC_NONE);
 		ASTStmtRangeLoop* clone() const {return new ASTStmtRangeLoop(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		string iden;
+		owning_ptr<ASTString> iden;
 		uint overflow;
 		owning_ptr<ASTDataType> type;
 		owning_ptr<ASTDataDecl> decl;
@@ -988,9 +1003,12 @@ namespace ZScript
 		owning_ptr<ASTExprIdentifier> identifier;
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
+		owning_vector<ASTDataDecl> param_template;
 		owning_vector<ASTExprConst> optparams;
+		owning_vector<ASTString> templates;
 		std::vector<int32_t> optvals;
 		owning_ptr<ASTBlock> block;
+		std::vector<std::shared_ptr<DataTypeTemplate>> template_types;
 		std::string invalidMsg;
 		Function* func;
 		Scope* parentScope;
@@ -1068,7 +1086,7 @@ namespace ZScript
 		DataType const& resolveType(Scope* scope, CompileErrorHandler* errorHandler);
 		DataType const* resolve_ornull(Scope* scope, CompileErrorHandler* errorHandler);
 
-		void replaceType(DataType const& newty);
+		void setResolvedType(DataType const& newty);
 
 		const std::string& getName() const {return identifier->getValue();}
 		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
@@ -1088,6 +1106,8 @@ namespace ZScript
 		// set if this declaration is not part of a list, as the list's base type
 		// should be used instead in that case.
 		owning_ptr<ASTDataType> baseType;
+		
+		DataType const* resolvedType;
 
 		// Extra array type for this specific declaration. The final type is the
 		// list's base type combined with these.
@@ -1392,6 +1412,7 @@ namespace ZScript
 		std::string asString() const;
 		bool isTypeArrow() const {return true;}
 		bool isTypeArrowUsrClass() const;
+		bool isTypeArrowNonUsrClass() const;
 
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
@@ -1425,6 +1446,7 @@ namespace ZScript
 			return new ASTExprIndex(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
+		virtual std::string asString() const;
 		bool isTypeIndex() const /*override*/ {return true;}
     
 		bool isConstant() const /*override*/;
@@ -2077,6 +2099,7 @@ namespace ZScript
 		ASTNumberLiteral* clone() const {return new ASTNumberLiteral(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		virtual std::string asString() const;
 
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
@@ -2111,7 +2134,8 @@ namespace ZScript
 		ASTCharLiteral* clone() const {return new ASTCharLiteral(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
-
+		virtual std::string asString() const;
+		
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 		virtual bool isTempVal() const {return false;}
@@ -2132,7 +2156,8 @@ namespace ZScript
 		ASTBoolLiteral* clone() const {return new ASTBoolLiteral(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
-
+		virtual std::string asString() const;
+		
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 		virtual bool isTempVal() const {return false;}
@@ -2161,6 +2186,8 @@ namespace ZScript
 			return new ASTStringLiteral(*this);}
 
 		void execute (ASTVisitor& visitor, void* param = NULL) /*override*/;
+		virtual std::string asString() const;
+		
 		bool isStringLiteral() const /*override*/ {return true;}
 
 		bool isConstant() const /*override*/ {return true;}
@@ -2186,6 +2213,8 @@ namespace ZScript
 		ASTArrayLiteral* clone() const {return new ASTArrayLiteral(*this);}
 
 		void execute (ASTVisitor& visitor, void* param = NULL);
+		virtual std::string asString() const;
+		
 		bool isArrayLiteral() const {return true;}
 
 		bool isConstant() const {return true;}
@@ -2295,7 +2324,7 @@ namespace ZScript
 
 		owning_ptr<DataType> type;
 		int32_t constant_;
-		bool becomeArray;
+		uint becomeArray;
 	private:
 		bool wasResolved_;
 	};

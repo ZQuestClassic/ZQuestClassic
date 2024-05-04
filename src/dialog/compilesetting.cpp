@@ -55,6 +55,7 @@ void CompileSettingsDlg::load()
 	dd_cfg[1] = zc_get_config("Compiler","HEADER_GUARD",1,App::zscript);
 	dd_cfg[2] = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
 	dd_cfg[3] = zc_get_config("Compiler","ON_MISSING_RETURN",2,App::zscript);
+	old_compat_array_typecast = compat_array_typecast = zc_get_config("Compiler","OLD_ARRAY_TYPECASTING",0,App::zscript);
 	old_timeout_secs = timeout_secs = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	memcpy(old_dd_cfg,dd_cfg,sizeof(dd_cfg));
 	
@@ -84,6 +85,8 @@ void CompileSettingsDlg::save()
 		zc_set_config("Compiler","WARN_DEPRECATED",dd_cfg[2],App::zscript);
 	if(dd_cfg[3] != old_dd_cfg[3])
 		zc_set_config("Compiler","ON_MISSING_RETURN",dd_cfg[3],App::zscript);
+	if(compat_array_typecast != old_compat_array_typecast)
+		zc_set_config("Compiler","OLD_ARRAY_TYPECASTING",compat_array_typecast,App::zscript);
 	if(timeout_secs != old_timeout_secs)
 		zc_set_config("Compiler","compiler_timeout",timeout_secs,App::zscript);
 	run_str[20] = 0;
@@ -208,7 +211,18 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 							{
 								timeout_secs = val;
 							}),
-						INFOBTN("The time ZQ waits before the parser 'times out'. 0 for no timeout.")
+						INFOBTN("The time ZQ waits before the parser 'times out'. 0 for no timeout."),
+						//
+						Checkbox(colSpan = 2, hAlign = 1.0,
+							text = "Old Array Typecasting",
+							boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+							checked = compat_array_typecast,
+							onToggleFunc = [&](bool state)
+							{
+								compat_array_typecast = state;
+							}),
+						INFOBTN("If arrays should use the old non-strict typing, or not."
+							"\nNOTE: Old typing may have some bugs, upgrading to new typing is recommended.")
 					),
 					Label(text = "Include Paths", hAlign = 0.0),
 					TextField(

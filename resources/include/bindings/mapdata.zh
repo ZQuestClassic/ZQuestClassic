@@ -709,5 +709,3 @@ class mapdata {
 	//   SETR MAPDATAINITA D6
 	internal int SetFFCInitA(int ffc_index, int init_a, int value);
 }
-
-internal const mapdata MapData;

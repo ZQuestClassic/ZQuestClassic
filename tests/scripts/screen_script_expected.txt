@@ -114,13 +114,13 @@ PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
 CALLFUNC 0.0161; UsrFunc[int VBound(int, int, int)] Call
 POP D4
 STORE D2 0.0004
-LOAD D2 0.0005; InlineFunc[untyped Floor(untyped)] Params Start
-DIVV D2 256; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+LOAD D2 0.0005; InlineFunc[int Floor(int)] Params Start
+DIVV D2 256; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0003
-LOAD D2 0.0004; InlineFunc[untyped Floor(untyped)] Params Start
-DIVV D2 176; InlineFunc[untyped Floor(untyped)] Params End
-FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
+LOAD D2 0.0004; InlineFunc[int Floor(int)] Params Start
+DIVV D2 176; InlineFunc[int Floor(int)] Params End
+FLOOR D2; InlineFunc[int Floor(int)] Body
 STORE D2 0.0002
 LOAD D2 0.0003
 PUSHR D2

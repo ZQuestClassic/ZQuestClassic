@@ -238,6 +238,10 @@ jobs:
         run: |
           python scripts/package.py --build_folder build/${{ inputs.config }} --copy_to_build_folder
           cd build
+          mkdir -p tmp-src/parser
+          cp ../src/parser/lex.yy.cpp tmp-src/parser
+          cp ../src/parser/y.tab.cpp tmp-src/parser
+          cp ../src/parser/y.tab.hpp tmp-src/parser
           tar czpvf build.tar.gz * --preserve-permissions
           mkdir ${{ inputs.config }}/packages
           mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-vars.outputs.package-name }}

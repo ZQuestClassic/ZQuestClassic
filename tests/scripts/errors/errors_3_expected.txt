@@ -7,7 +7,15 @@ ZQ_BUFFER Line 13 @ Columns 13-19 - Error T017: Cannot cast from Object to int.
 ZQ_BUFFER Line 14 @ Columns 3-15 - Error T017: Cannot cast from int to Object.
 ZQ_BUFFER Line 15 @ Columns 7-14 - Error T017: Cannot cast from Object[] to int[].
 ZQ_BUFFER Line 16 @ Columns 10-17 - Error T017: Cannot cast from int[] to Object[].
-ZQ_BUFFER Line 22 @ Columns 8-16 - Error T017: Cannot cast from Object[] to auto[].
-ZQ_BUFFER Line 23 @ Columns 8-16 - Error T017: Cannot cast from int[] to auto[].
+ZQ_BUFFER Line 17 @ Columns 10-18 - Error T017: Cannot cast from Object to Object[].
+ZQ_BUFFER Line 18 @ Columns 7-15 - Error T017: Cannot cast from Object[] to int[].
+ZQ_BUFFER Line 37 @ Columns 3-17 - Error C036: Variable enemy3 is constant and cannot be changed.
+ZQ_BUFFER Line 38 @ Columns 3-22 - Error T017: Cannot cast from Object[] to int[].
+ZQ_BUFFER Line 39 @ Columns 3-21 - Error C036: Variable enemies1[0] is constant and cannot be changed.
+ZQ_BUFFER Line 40 @ Columns 3-28 - Error C036: Variable enemies3[2] is constant and cannot be changed.
+ZQ_BUFFER Line 41 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
+ZQ_BUFFER Line 42 @ Columns 16-24 - Error S097: 'auto[][][][]' must have an initializer with type that is at least 4-depth array
+ZQ_BUFFER Line 43 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
+ZQ_BUFFER Line 44 @ Columns 8-9 - Error S097: 'auto' must have an initializer with valid type to mimic.
 Failure!
 Compile finished with exit code '17' (compiled with errors)

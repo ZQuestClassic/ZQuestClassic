@@ -214,8 +214,6 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 
  // Types
 %token ZAUTO
-%token TEMPLATE_T
-%token TEMPLATE_T_ARR
 %token ZVOID
 %token UNTYPED
 %token ZBOOL
@@ -233,6 +231,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 %token IN
 %token LPAREN
 %token RPAREN
+%token EMPTYBRACKETS
 %token LBRACKET
 %token RBRACKET
 %token LBRACE
@@ -596,15 +595,27 @@ EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
 	$$ = new ASTCustomDataTypeDef(NULL, identifier->getValue(), en, @$);
 	delete identifier;}
 
-DataType : ZCONST DataType {
+DataType :
+	DataType EMPTYBRACKETS {
+		ASTDataType* dtype = (ASTDataType*)$1;
+		++dtype->becomeArray;
+		$$ = dtype;
+	}
+	| DataType_Mods {$$ = $1;}
+	;
+
+DataType_Mods : 
+	ZCONST DataType_Base {
 		ASTDataType* dtype = (ASTDataType*)$2;
 		++dtype->constant_; //Increment the number of `const` keywords. If >1, this will produce an error later.
 		$$ = dtype;
 	}
+	| DataType_Base {$$ = $1;}
+	;
+
+DataType_Base :
 	//Standard types
-	| ZAUTO {$$ = new ASTDataType(DataType::ZAUTO, @$);}
-	| TEMPLATE_T {$$ = new ASTDataType(DataType::TEMPLATE_T, @$);}
-	| TEMPLATE_T_ARR {$$ = new ASTDataType(DataType::TEMPLATE_T_ARR, @$);}
+	ZAUTO {$$ = new ASTDataType(DataType::ZAUTO, @$);}
 	| ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
 	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
@@ -712,7 +723,7 @@ Data_Element_Array_Element :
 		ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$2;
 		extraArray->location = @$;
 		$$ = extraArray;}
-	| LBRACKET RBRACKET {$$ = new ASTDataDeclExtraArray(@$);}
+	| EMPTYBRACKETS {$$ = new ASTDataDeclExtraArray(@$);}
 	;
 
 Data_Element_Array_Element_Size_List :
@@ -823,7 +834,31 @@ Function_Heading :
 		func->location = @$;
 		func->doc_comment = std::move(iden->doc_comment);
 		$$ = func;}
+	| Identifier_List LT FunctionTemplateList GT LPAREN Function_Parameters_List RPAREN
+	{
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+		ASTStringList* template_list = (ASTStringList*)$3;
+		ASTFuncDecl* func = (ASTFuncDecl*)$6;
+		func->identifier = iden;
+		func->templates.swap(template_list->strings);
+		delete template_list;
+		func->location = @$;
+		func->doc_comment = std::move(iden->doc_comment);
+		$$ = func;}
 	;
+
+FunctionTemplateList :
+	Identifier {
+		ASTStringList* list = new ASTStringList(@$);
+		ASTString* templ = (ASTString*)$1;
+		list->strings.push_back(templ);
+		$$ = list;}
+	| FunctionTemplateList COMMA Identifier {
+		ASTStringList* list = (ASTStringList*)$1;
+		ASTString* templ = (ASTString*)$3;
+		list->location = @$;
+		list->strings.push_back(templ);
+		$$ = list;}
 
 Function_Parameters_List :
 	Function_Parameters_Element COMMA Function_Parameters_List {
@@ -851,16 +886,6 @@ Function_Parameters_Element :
 		element->baseType = type;
 		$$ = element;}
 	;
-Function_Parameters_Bracket_Element :
-	DataType LBRACKET RBRACKET Identifier {
-		ASTDataType* type = (ASTDataType*)$1;
-		type->becomeArray = true;
-		ASTString* name = (ASTString*)$4;
-		ASTDataDecl* element = new ASTDataDecl(@$);
-		element->identifier = name;
-		element->baseType = type;
-		$$ = element;}
-	;
 
 Function_OptParams_List :
 	Function_Parameters_Element ASSIGN Expression_Constant COMMA Function_OptParams_List {
@@ -881,7 +906,7 @@ Function_OptParams_List :
 	;
 
 Function_VarArg_Element :
-	RANGE Function_Parameters_Bracket_Element {
+	RANGE Function_Parameters_Element {
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		push_front(func->parameters, (ASTDataDecl*)$2);
 		func->setFlag(FUNCFLAG_VARARGS);
@@ -1684,8 +1709,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$6;
 		ASTExpr* incr = (ASTExpr*)$8;
 		ASTStmt* body = (ASTStmt*)$10;
-		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
-		delete iden;
+		$$ = new ASTStmtRangeLoop(type, iden, range, incr, body, @$);
 	}
 	| LOOP LPAREN IDENTIFIER Token_In Expression_Range COMMA Expression RPAREN Block_Statement
 	{
@@ -1694,8 +1718,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$5;
 		ASTExpr* incr = (ASTExpr*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
-		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
-		delete iden;
+		$$ = new ASTStmtRangeLoop(type, iden, range, incr, body, @$);
 	}
 	| LOOP LPAREN Expression_Range COMMA Expression RPAREN Block_Statement
 	{
@@ -1703,7 +1726,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$3;
 		ASTExpr* incr = (ASTExpr*)$5;
 		ASTStmt* body = (ASTStmt*)$7;
-		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
+		$$ = new ASTStmtRangeLoop(type, new ASTString("__LOOP_ITER", @$), range, incr, body, @$);
 	}
 	| LOOP LPAREN DataType IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
 	{
@@ -1712,8 +1735,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$6;
 		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$8;
-		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
-		delete iden;
+		$$ = new ASTStmtRangeLoop(type, iden, range, incr, body, @$);
 	}
 	| LOOP LPAREN IDENTIFIER Token_In Expression_Range RPAREN Block_Statement
 	{
@@ -1722,8 +1744,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$5;
 		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$7;
-		$$ = new ASTStmtRangeLoop(type, iden->getValue(), range, incr, body, @$);
-		delete iden;
+		$$ = new ASTStmtRangeLoop(type, iden, range, incr, body, @$);
 	}
 	| LOOP LPAREN Expression_Range RPAREN Block_Statement
 	{
@@ -1731,7 +1752,7 @@ Statement_Loop_Range_Base :
 		ASTRange* range = (ASTRange*)$3;
 		ASTExpr* incr = new ASTNumberLiteral(new ASTFloat("1", ASTFloat::TYPE_DECIMAL, @$), @$);
 		ASTStmt* body = (ASTStmt*)$5;
-		$$ = new ASTStmtRangeLoop(type, "__LOOP_ITER", range, incr, body, @$);
+		$$ = new ASTStmtRangeLoop(type, new ASTString("__LOOP_ITER", @$), range, incr, body, @$);
 	}
 	;
 
@@ -2400,16 +2421,6 @@ Literal_Array :
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$8;
 		al->type = type;
 		al->size = size;
-		al->location = @$;
-		$$ = al;
-	}
-	// (int32_t[]){1, 2, 3}
-	| LT DataType LBRACKET RBRACKET GT
-		  LBRACE Literal_Array_Body RBRACE
-	{
-		ASTDataType* type = (ASTDataType*)$2;
-		ASTArrayLiteral* al = (ASTArrayLiteral*)$7;
-		al->type = type;
 		al->location = @$;
 		$$ = al;
 	}

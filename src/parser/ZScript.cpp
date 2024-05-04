@@ -392,7 +392,7 @@ UserClassVar* UserClassVar::create(
 	if (ucv->tryAddToScope(errorHandler))
 	{
 		ucv->is_readonly = node.list->readonly;
-		ucv->is_arr = type.isArray();
+		ucv->is_arr = !node.extraArrays.empty();
 
 		if (node.list->internal)
 		{
@@ -402,7 +402,7 @@ UserClassVar* UserClassVar::create(
 
 		ClassScope* cscope = scope.getClass();
 		UserClass& user_class = cscope->user_class;
-		if(type.isArray())
+		if(ucv->is_arr)
 		{
 			int32_t totalSize = -1;
 			if (std::optional<int32_t> size = node.extraArrays[0]->getCompileTimeSize(errorHandler, &scope))
@@ -546,22 +546,16 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int32_t id,
+				   vector<DataType const*> paramTypes, vector<shared_ptr<const string>> paramNames, int32_t id,
 				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
 	: returnType(returnType), name(name), hasPrefixType(false), isFromTypeTemplate(false),
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
-	  node(NULL), internalScope(NULL), thisVar(NULL), internal_flags(internal_flags), prototype(prototype),
+	  node(NULL), internalScope(NULL), externalScope(NULL), thisVar(NULL),
+	  internal_flags(internal_flags), prototype(prototype),
 	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags),
-	  aliased_func(nullptr), paramDatum()
+	  aliased_func(nullptr), paramDatum(), templ_bound_ts()
 {
 	assert(returnType);
-}
-
-
-Function::~Function()
-{
-	//deleteElements(ownedCode);
-	deleteElements(paramNames);
 }
 
 std::vector<std::shared_ptr<Opcode>> Function::takeCode()
@@ -583,8 +577,8 @@ void Function::giveCode(vector<shared_ptr<Opcode>>& code)
 
 Script* Function::getScript() const
 {
-	if (!getInternalScope()) return NULL;
-	Scope* parentScope = getInternalScope()->getParent();
+	if (!getExternalScope()) return NULL;
+	Scope* parentScope = getExternalScope()->getParent();
 	if (!parentScope) return NULL;
 	if (!parentScope->isScript()) return NULL;
 	ScriptScope* scriptScope =
@@ -593,8 +587,8 @@ Script* Function::getScript() const
 }
 UserClass* Function::getClass() const
 {
-	if (!getInternalScope()) return NULL;
-	Scope* parentScope = getInternalScope()->getParent();
+	if (!getExternalScope()) return NULL;
+	Scope* parentScope = getExternalScope()->getParent();
 	if (!parentScope) return NULL;
 	if (!parentScope->isClass()) return NULL;
 	ClassScope* classScope =
@@ -657,20 +651,107 @@ void Function::alias(Function* func, bool force)
 		assert(paramTypes.size() == func->paramTypes.size());
 		for(size_t q = 0; q < paramTypes.size(); ++q)
 		{
-			assert(paramTypes[q]->canCastTo(*func->paramTypes[q]));
+			assert(paramTypes[q]->canCastTo(*func->paramTypes[q], func->internalScope));
 		}
 		assert(hasPrefixType == func->hasPrefixType);
-		assert(returnType->canCastTo(*func->returnType));
+		assert(returnType->canCastTo(*func->returnType, func->internalScope));
 		//Ensure the function had no owned info of its' own
 		assert(ownedCode.empty());
 		assert(!(label || altlabel));
 	}
 }
 
+static void type_replace(DataType const** ptr, DataType const& to_repl, DataType const& new_type)
+{
+	DataType const* new_const_ty = new_type.isConstant() ? &new_type : new_type.getConstType();
+	DataType const* new_mut_ty = new_type.isConstant() ? new_type.getMutType() : &new_type;
+	if (**ptr == to_repl)
+	{
+		if ((*ptr)->isConstant())
+			*ptr = new_const_ty;
+		else *ptr = new_mut_ty;
+	}
+	else
+	{
+		uint depth = 0;
+		auto ty = *ptr;
+		while(auto arrptr = dynamic_cast<DataTypeArray const*>(ty))
+		{
+			ty = &arrptr->getElementType();
+			++depth;
+			if(*ty == to_repl)
+				break;
+		}
+		if (*ty == to_repl)
+		{
+			if(ty->isConstant())
+				*ptr = DataTypeArray::create_depth(*new_const_ty, depth);
+			else *ptr = DataTypeArray::create_depth(*new_mut_ty, depth);
+		}
+	}
+}
+Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
+{
+	for(shared_ptr<Function> func : applied_funcs)
+	{
+		bool mismatch = false;
+		if(bound_ts.size() != func->templ_bound_ts.size())
+			continue;
+		for(size_t q = 0; q < bound_ts.size(); ++q)
+			if(*bound_ts[q] != *func->templ_bound_ts[q])
+			{
+				mismatch = true;
+				break;
+			}
+		if(!mismatch)
+			return func.get();
+	}
+	Scope *outside, *external;
+	Function* templ = new Function(*this);
+	bool skip = isTemplateSkip();
+	if(skip)
+	{
+		outside = externalScope->getParent();
+		external = outside->makeChild();
+		templ->setExternalScope(external);
+	}
+	for(size_t q = 0; q < node->template_types.size(); ++q)
+	{
+		DataTypeTemplate* tmp_type = node->template_types[q].get();
+		DataType const* new_type = bound_ts[q];
+		
+		//Typedef the template to the real type, for the internals of the func
+		if(skip)
+			external->addDataType(tmp_type->getName(), new_type, nullptr);
+		//Replace template types in the signature
+		type_replace(&templ->returnType, *tmp_type, *new_type);
+		for(size_t q = 0; q < paramTypes.size(); ++q)
+			type_replace(&templ->paramTypes[q], *tmp_type, *new_type);
+	}
+	templ->isFromTypeTemplate = true;
+	templ->templ_bound_ts = bound_ts;
+	if(!skip)
+	{
+		templ->aliased_func = this;
+	}
+	else
+	{
+		templ->setInternalScope(external->makeFunctionChild(*templ));
+		templ->node = templ->node->clone();
+		templ->node->parentScope = external;
+		templ->node->func = templ;
+		templ->node->parameters = templ->node->param_template;
+		for(size_t q = 0; q < paramTypes.size(); ++q)
+			templ->node->parameters[q]->resolvedType = templ->paramTypes[q];
+	}
+	applied_funcs.emplace_back(templ);
+	return templ;
+}
+
 bool ZScript::isRun(Function const& function)
 {
 	//al_trace("Parser sees run string as: %s\n", FFCore.scriptRunString);
-	return function.getInternalScope()->getParent()->isScript()
+	return function.getExternalScope()->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
 		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )))
 		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;

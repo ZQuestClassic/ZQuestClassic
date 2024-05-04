@@ -98,7 +98,7 @@ void Tango_SetCustomVar(float var, float value)
 
 // Custom functions
 
-float __Tango_RunCustomFunction(float function, float args)
+float __Tango_RunCustomFunction(float function, float[] args)
 {
     Tango_LogUndefinedFunction(function);
     return 0;
@@ -106,17 +106,17 @@ float __Tango_RunCustomFunction(float function, float args)
 
 // Menu data
 const int __TANGO_MAX_MENU_ITEMS = 20;
-float __Tango_Data[94]; // 34+3*__TANGO_MAX_MENU_ITEMS
+untyped __Tango_Data[94]; // 34+3*__TANGO_MAX_MENU_ITEMS
 
 // Style data
 const int __TANGO_NUM_STYLES = 10;
-int __Tango_Styles[480]; // 48 * __TANGO_NUM_STYLES
+untyped __Tango_Styles[480]; // 48 * __TANGO_NUM_STYLES
 
 // Text buffer and slots
-int __Tango_Buffer[2048]; // Arbitrary size
+char32 __Tango_Buffer[2048]; // Arbitrary size
 
 const int __TANGO_NUM_SLOTS = 2;
-int __Tango_SlotData[48]; // 24 * __TANGO_NUM_SLOTS
+untyped __Tango_SlotData[48]; // 24 * __TANGO_NUM_SLOTS
 
 // Slot types and definitions
 const int TANGO_SLOT_NORMAL = 0;

@@ -1,3 +1,8 @@
+
+const untyped NULL = 0;
+const untyped null = 0;
+const untyped Null = 0;
+
 // Exits the current script entirely. Has the same effect as `void run()`
 // ending.
 //
@@ -98,7 +103,7 @@ internal void TraceB(bool val);
 // @zasm
 //   POP D3
 //   TRACE6 D3
-internal void TraceS(int string);
+internal void TraceS(char32[] string);
 
 // Prints a newline character to the output console.
 //
@@ -288,7 +293,7 @@ internal void ClearTile(int tile);
 // @zasm
 //   POP D2
 //   ARRAYSIZE D2
-internal int SizeOfArray(T_ARR arr);
+internal int SizeOfArray<T>(T[] arr);
 
 // Resizes the array 'arr' to size 'size'. If 'size' is <1, the array becomes
 // size 1 instead.
@@ -297,21 +302,21 @@ internal int SizeOfArray(T_ARR arr);
 //   POP D3
 //   POP D2
 //   RESIZEARRAYR D2 D3
-internal void ResizeArray(T_ARR arr, int size);
+internal void ResizeArray<T>(T[] arr, int size);
 
 // Grants ownership of the target array to the currently running script.
 //
 // @zasm
 //   POP D2
 //   OWNARRAYR D2
-internal void OwnArray(T_ARR arr);
+internal void OwnArray<T>(T[] arr);
 
 // If [arr] is a local array, destroys it immediately. Otherwise does nothing.
 //
 // @zasm
 //   POP D2
 //   DESTROYARRAYR D2
-internal void DestroyArray(T_ARR arr);
+internal void DestroyArray<T>(T[] arr);
 
 // Takes an Object parameter. Grants ownership of the object to the currently
 // running script.
@@ -342,35 +347,35 @@ internal void OverlayTile(int src, int dest);
 // @zasm
 //   POP D2
 //   FLOOR D2
-internal constexpr untyped Floor(untyped val);
+internal constexpr T Floor<T>(T val);
 
 // Returns [val] rounded up to the next higher integer.
 //
 // @zasm
 //   POP D2
 //   CEILING D2
-internal constexpr untyped Ceiling(untyped val);
+internal constexpr T Ceiling<T>(T val);
 
 // Truncates [n] to the nearest integer, rounding towards 0.
 //
 // @zasm
 //   POP D2
 //   TRUNCATE D2
-internal constexpr untyped Truncate(untyped n);
+internal constexpr T Truncate<T>(T n);
 
 // Truncates [n] to the nearest integer.
 //
 // @zasm
 //   POP D2
 //   ROUND D2
-internal constexpr untyped Round(untyped n);
+internal constexpr T Round<T>(T n);
 
 // Truncates [n] to the nearest integer, rounding away from 0.
 //
 // @zasm
 //   POP D2
 //   ROUNDAWAY D2
-internal constexpr untyped RoundAway(untyped n);
+internal constexpr T RoundAway<T>(T n);
 
 // Returns information from the real-time clock of the system.
 //
@@ -431,7 +436,7 @@ internal long LongDistance(long x1, long y1, long x2, long y2, long scale);
 //   POP D1
 //   POP D0
 //   STRINGCOMPARE D2
-internal int strcmp(int str1, int str2);
+internal int strcmp(char32[] str1, char32[] str2);
 
 // Compares the contents of the two strings.
 //
@@ -440,7 +445,7 @@ internal int strcmp(int str1, int str2);
 //   POP D0
 //   POP D3
 //   STRINGNCOMPARE D2
-internal int strncmp(int str1, int str2, int num_chars);
+internal int strncmp(char32[] str1, char32[] str2, int num_chars);
 
 // Compares the contents of the two strings.
 //
@@ -448,7 +453,7 @@ internal int strncmp(int str1, int str2, int num_chars);
 //   POP D1
 //   POP D0
 //   STRINGICOMPARE D2
-internal int stricmp(int str1, int str2);
+internal int stricmp(char32[] str1, char32[] str2);
 
 // Compares the contents of the two strings.
 //
@@ -457,7 +462,7 @@ internal int stricmp(int str1, int str2);
 //   POP D0
 //   POP D3
 //   STRINGNICOMPARE D2
-internal int strnicmp(int str1, int str2, int num_chars);
+internal int strnicmp(char32[] str1, char32[] str2, int num_chars);
 
 // Copies the string 'src' to [dest].
 //
@@ -465,7 +470,7 @@ internal int strnicmp(int str1, int str2, int num_chars);
 //   POP D3
 //   POP D2
 //   STRINGCOPY D2 D3
-internal void strcpy(int dest, int src);
+internal void strcpy(char32[] dest, char32[] src);
 
 // Appends the value [val] on the end of the [dest] string; combining [itoa]
 // with [strcat].
@@ -474,7 +479,7 @@ internal void strcpy(int dest, int src);
 //   POP D3
 //   POP D2
 //   ITOACAT D2 D3
-internal void itoacat(int dest, int val);
+internal void itoacat(char32[] dest, int val);
 
 // Copies all data from [src] to [dest]. If the arrays are not the same size,
 // the smaller size is used, and the excess in the larger array is ignored.
@@ -483,26 +488,26 @@ internal void itoacat(int dest, int val);
 //   POP D3
 //   POP D2
 //   ARRAYCOPY D2 D3
-internal void ArrayCopy(T_ARR dest, T_ARR src);
+internal void ArrayCopy<T>(T[] dest, T[] src);
 
 // Returns the length of the string in characters.
 //
 // @zasm
 //   POP D3
 //   STRINGLENGTH D2 D3
-internal int strlen(char32 str);
+internal int strlen(char32[] str);
 
 // Converts a string containing a number to its numeric value.
 //
 // @zasm
 //   POP D3
 //   ATOI D2 D3
-internal int atoi(char32 str);
+internal int atoi(char32[] str);
 
 // @zasm
 //   POP D3
 //   ATOL D2 D3
-internal long atol(char32 arg1);
+internal long atol(char32[] arg1);
 
 // Returns the number of characters in the string that are taken up by a number
 // (as would be read by [atoi, including negative sign)
@@ -510,28 +515,28 @@ internal long atol(char32 arg1);
 // @zasm
 //   POP D3
 //   ILEN D2 D3
-internal int ilen(int string);
+internal int ilen(char32[] string);
 
 // Lowercases the string (modifies).
 //
 // @zasm
 //   POP D3
 //   UPPERTOLOWER D2 D3
-internal int utol(char32 string);
+internal int utol(char32[] string);
 
 // Uppercases the string (modifies).
 //
 // @zasm
 //   POP D3
 //   LOWERTOUPPER D2 D3
-internal int ltou(char32 string);
+internal int ltou(char32[] string);
 
 // Swaps casing (a->A, A->a) for the string passed (modifies).
 //
 // @zasm
 //   POP D3
 //   CONVERTCASE D2 D3
-internal int convcase(char32 string);
+internal int convcase(char32[] string);
 
 // Converts the value [val] to a string, and writes to [dest].
 //
@@ -539,7 +544,7 @@ internal int convcase(char32 string);
 //   POP D3
 //   POP D2
 //   ITOA D2 D3
-internal int itoa(int dest, int val);
+internal int itoa(char32[] dest, int val);
 
 // Converts [val] to a string, as hexadecimal, and writes to [dest].
 //
@@ -547,14 +552,14 @@ internal int itoa(int dest, int val);
 //   POP D3
 //   POP D2
 //   XTOA D2 D3
-internal int xtoa(int dest, int val);
+internal int xtoa(char32[] dest, int val);
 
 // Converts a string containing a hexadecimal number to its numeric value.
 //
 // @zasm
 //   POP D3
 //   XTOI D2 D3
-internal int xtoi(int str);
+internal int xtoi(char32[] str);
 
 // Saves/loads internal data (which is normally temporarily altered by scripts)
 // of the types specified in [flags].
@@ -563,7 +568,7 @@ internal int xtoi(int str);
 //   POP D3
 //   POP D2
 //   SAVEGAMESTRUCTS D2 D3
-internal int SaveSRAM(int filename, int flags);
+internal int SaveSRAM(char32[] filename, int flags);
 
 // Saves/loads internal data (which is normally temporarily altered by scripts)
 // of the types specified in [flags].
@@ -572,7 +577,7 @@ internal int SaveSRAM(int filename, int flags);
 //   POP D3
 //   POP D2
 //   READGAMESTRUCTS D2 D3
-internal int LoadSRAM(int filename, int flags);
+internal int LoadSRAM(char32[] filename, int flags);
 
 // Appends 'src' to the end of [dest]. Returns [dest].
 //
@@ -580,7 +585,7 @@ internal int LoadSRAM(int filename, int flags);
 //   POP D1
 //   POP D0
 //   STRCAT D2
-internal int strcat(int dest, int src);
+internal int strcat(char32[] dest, char32[] src);
 
 // Returns the first index of [str] that contains the character [c].
 //
@@ -588,7 +593,7 @@ internal int strcat(int dest, int src);
 //   POP D1
 //   POP D0
 //   STRCHR D2
-internal int strchr(int str, int c);
+internal int strchr(char32[] str, int c);
 
 // Returns the length in [str] before any character in 'chars' is found.
 //
@@ -596,7 +601,7 @@ internal int strchr(int str, int c);
 //   POP D1
 //   POP D0
 //   STRCSPN D2
-internal int strcspn(int str, int chars);
+internal int strcspn(char32[] str, char32[] chars);
 
 // Returns the number of characters in a string before a character not contained
 // in
@@ -607,7 +612,7 @@ internal int strcspn(int str, int chars);
 //   POP D1
 //   POP D0
 //   STRSPN D2
-internal int strspn(int str, int string_keys);
+internal int strspn(char32[] str, char32[] string_keys);
 
 // Returns the index of the first instance of the string [tofind] within [str].
 //
@@ -615,7 +620,7 @@ internal int strspn(int str, int string_keys);
 //   POP D1
 //   POP D0
 //   STRSTR D2
-internal int strstr(int str, int tofind);
+internal int strstr(char32[] str, char32[] tofind);
 
 // Returns the last index of [str] that contains the character [c].
 //
@@ -623,14 +628,14 @@ internal int strstr(int str, int tofind);
 //   POP D1
 //   POP D0
 //   STRRCHR D2
-internal int strrchr(int str, int c);
+internal int strrchr(char32[] str, int c);
 
 // Returns true if the value 'arr' points to a valid array.
 //
 // @zasm
 //   POP D2
 //   ISVALIDARRAY D2
-internal bool IsValidArray(untyped arr);
+internal bool IsValidArray<T>(T[] arr);
 
 // Converts Degrees to Radians. More accurate than the old std_functions
 // DegtoRad.
@@ -692,7 +697,7 @@ internal constexpr int WrapDegrees(int degrees);
 // @zasm
 //   PRINTFVARG
 //   POP D5
-internal void printf(char32 format);
+internal void printf(char32[] format);
 
 // Acts exactly as output console, it is instead placed in the [dest] buffer. If
 // the [dest] buffer is too small, it will be resized to fit the contents.
@@ -701,7 +706,7 @@ internal void printf(char32 format);
 // @zasm
 //   SPRINTFVARG
 //   POPARGS D5 0.0002
-internal int sprintf(char32 buf, char32 format);
+internal int sprintf(char32[] buf, char32[] format);
 
 // Prints the specified format_string to the output console, using the given
 // args to fill in parts of the string that are specially marked. Does not
@@ -710,7 +715,7 @@ internal int sprintf(char32 buf, char32 format);
 // @zasm
 //   PRINTFA
 //   POPARGS D5 0.0002
-internal void printfa(char32 format, T_ARR args);
+internal void printfa<T>(char32[] format, T[] args);
 
 // Acts exactly as output console, it is instead placed in the [dest] buffer. If
 // the [dest] buffer is too small, it will be resized to fit the contents.
@@ -718,86 +723,82 @@ internal void printfa(char32 format, T_ARR args);
 // @zasm
 //   SPRINTFA
 //   POPARGS D5 0.0003
-internal int sprintfa(char32 buf, char32 format, T_ARR args);
+internal int sprintfa<T>(char32[] buf, char32[] format, T[] args);
 
 // Returns the largest parameter.
 //
 // @vargs 2
 // @zasm
 //   MAXVARG
-internal constexpr T Max(T val1, T val2);
+internal constexpr T Max<T>(T val1, T val2);
 
 // Returns the smallest parameter.
 //
 // @vargs 2
 // @zasm
 //   MINVARG
-internal constexpr T Min(T val1, T val2);
+internal constexpr T Min<T>(T val1, T val2);
 
 // Returns a random parameter, using the global RandGen.
 //
 // @vargs 1
 // @zasm
 //   CHOOSEVARG
-internal T Choose(T arg1);
+internal T Choose<T>(T arg1);
 
 // Increases the size of the array by 1, inserting [val] at the
-// back/front/specified index of the array. If an invalid index is passed, the
-// back of the array will be targetted.
+// back of the array.
 //
 // @zasm
 //   PUSHV -1
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushBack(T_ARR arr, T val);
+internal bool ArrayPushBack<T>(T[] arr, T val);
 
 // Increases the size of the array by 1, inserting [val] at the
-// back/front/specified index of the array. If an invalid index is passed, the
-// back of the array will be targetted.
+// front of the array.
 //
 // @zasm
 //   PUSHV 0
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushFront(T_ARR arr, T val);
+internal bool ArrayPushFront<T>(T[] arr, T val);
 
 // Increases the size of the array by 1, inserting [val] at the
-// back/front/specified index of the array. If an invalid index is passed, the
+// specified index of the array. If an invalid index is passed, the
 // back of the array will be targetted.
 //
 // @zasm
 //   ARRAYPUSH
 //   POPARGS D5 0.0003
-internal bool ArrayPushAt(T_ARR arr, T val, int indx);
+internal bool ArrayPushAt<T>(T[] arr, T val, int indx);
 
 // Decreases the size of the array by 1, removing and returning the element at
-// the back/front/specified index of the array. If an invalid index is passed,
-// the back of the array will be targetted.
+// the back of the array.
 //
 // @zasm
 //   PUSHV -1
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopBack(T_ARR arr);
+internal T ArrayPopBack<T>(T[] arr);
 
 // Decreases the size of the array by 1, removing and returning the element at
-// the back/front/specified index of the array. If an invalid index is passed,
-// the back of the array will be targetted.
+// the front of the array.
 //
 // @zasm
 //   PUSHV 0
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopFront(T_ARR arr);
+internal T ArrayPopFront<T>(T[] arr);
 
 // Decreases the size of the array by 1, removing and returning the element at
-// the back/front/specified index of the array. If an invalid index is passed,
+// the specified index of the array. If an invalid index is passed,
 // the back of the array will be targetted.
 //
 // @zasm
 //   ARRAYPOP
 //   POPARGS D5 0.0002
-internal T ArrayPopAt(T_ARR arr, int indx);
+internal T ArrayPopAt<T>(T[] arr, int indx);
 
 // @zasm
 //   POP D3

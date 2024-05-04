@@ -34,7 +34,7 @@ class bottleshopdata {
 	//   POP D2
 	//   POP REFBOTTLESHOP
 	//   BSHOPNAMEGET D2
-	internal void GetName(char32 str);
+	internal void GetName(char32[] str);
 
 	// Sets the name of the bottleshopdata to the provided string.
 	//
@@ -42,5 +42,5 @@ class bottleshopdata {
 	//   POP D2
 	//   POP REFBOTTLESHOP
 	//   BSHOPNAMESET D2
-	internal void SetName(char32 str);
+	internal void SetName(char32[] str);
 }

@@ -7,12 +7,12 @@ set(PARSER_SOURCES
 src/parser/AST.cpp
 src/parser/ASTVisitors.cpp
 src/parser/BuildVisitors.cpp
-src/parser/ByteCode.cpp
 src/parser/CompilerUtils.cpp
 src/parser/CompileError.cpp
 src/parser/CompileOption.cpp
 src/parser/DataStructs.cpp
 src/parser/LibrarySymbols.cpp
+src/parser/Opcode.cpp
 src/parser/Scope.cpp
 src/parser/ParserHelper.cpp
 src/parser/ScriptParser.cpp

@@ -87,16 +87,6 @@ enum herospritetype
 	LSprholdsprSw2, LSprsideswimcastingspr, LSprsidedrownspr, LSprrevslashspr, LSprlast
 };
 
-enum zasmBreak
-{
-	ZASM_BREAK_NONE,
-	ZASM_BREAK_HALT,
-	ZASM_BREAK_ADVANCE_SCRIPT,
-	ZASM_BREAK_SKIP_SCRIPT,
-	ZASM_BREAK_SKIP
-};
-#define SKIPZASMPRINT() (FFCore.zasm_break_mode == ZASM_BREAK_SKIP_SCRIPT || FFCore.zasm_break_mode == ZASM_BREAK_SKIP)
-
 //suspend types
 enum { 
 	//Typical processes that we want to pause, similar to ALLOFF()
@@ -929,16 +919,11 @@ void do_trace(bool v);
 void do_tracel(bool v);
 void do_tracenl();
 void do_cleartrace();
-bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
 template <typename ...Params>
 void ZScriptConsole(int32_t attributes,const char *format, Params&&... params);
-void TraceScriptIDs(bool zasm_console = false);
-void ZASMPrint(bool open);
-void ZASMPrintCommand(const word scommand);
-void ZASMPrintVarSet(const int32_t arg, int32_t argval);
-void ZASMPrintVarGet(const int32_t arg, int32_t argval);
+void TraceScriptIDs();
 /*
 int32_t getQuestHeaderInfo(int32_t type)
 {
@@ -1092,8 +1077,6 @@ byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 
 #define NUM_USER_MIDI_OVERRIDES 6
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
-
-byte zasm_break_mode;
 
 //Enemy removal bounds
 int32_t enemy_removal_point[6];

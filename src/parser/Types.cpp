@@ -9,6 +9,7 @@
 
 using namespace ZScript;
 using std::string;
+using std::shared_ptr;
 
 ////////////////////////////////////////////////////////////////
 // TypeStore
@@ -85,11 +86,6 @@ bool TypeStore::TypeIdMapComparator::operator()(
 
 ////////////////////////////////////////////////////////////////
 
-// Template types.
-DataTypeSimpleConst DataType::CTEMPLATE_T(ZTID_TEMPLATE_T, "const T");
-DataTypeSimpleConst DataType::CTEMPLATE_T_ARR(ZTID_TEMPLATE_T_ARR, "const T[]");
-DataTypeSimple DataType::TEMPLATE_T(ZTID_TEMPLATE_T, "T", &CTEMPLATE_T);
-DataTypeSimple DataType::TEMPLATE_T_ARR(ZTID_TEMPLATE_T_ARR, "T[]", &CTEMPLATE_T_ARR);
 // Standard Type definitions.
 DataTypeSimpleConst DataType::CAUTO(ZTID_AUTO, "const auto");
 DataTypeSimpleConst DataType::CUNTYPED(ZTID_UNTYPED, "const untyped");
@@ -106,17 +102,17 @@ DataTypeSimple DataType::CHAR(ZTID_CHAR, "char32", &CCHAR);
 DataTypeSimple DataType::LONG(ZTID_LONG, "long", &CLONG);
 DataTypeSimple DataType::BOOL(ZTID_BOOL, "bool", &CBOOL);
 DataTypeSimple DataType::RGBDATA(ZTID_RGBDATA, "rgb", &CRGBDATA);
-DataTypeArray DataType::STRING(CHAR);
+DataTypeArray const& DataType::STRING = *DataTypeArray::create(CHAR);
 
 ////////////////////////////////////////////////////////////////
 // DataType
 
 int32_t DataType::compare(DataType const& rhs) const
 {
-	std::type_info const& lhsType = typeid(*this);
-	std::type_info const& rhsType = typeid(rhs);
-	if (lhsType.before(rhsType)) return -1;
-	if (rhsType.before(lhsType)) return 1;
+	int lhsType = this->unique_type_id();
+	int rhsType = rhs.unique_type_id();
+	int delta = lhsType - rhsType;
+	if (delta) return delta;
 	return selfCompare(rhs);
 }
 
@@ -124,8 +120,6 @@ DataType const* DataType::get(DataTypeId id)
 {
 	switch (id)
 	{
-		case ZTID_TEMPLATE_T: return &TEMPLATE_T;
-		case ZTID_TEMPLATE_T_ARR: return &TEMPLATE_T_ARR;
 		case ZTID_UNTYPED: return &UNTYPED;
 		case ZTID_AUTO: return &ZAUTO;
 		case ZTID_VOID: return &ZVOID;
@@ -236,10 +230,10 @@ DataTypeUnresolved* DataTypeUnresolved::clone() const
 	return copy;
 }
 
-DataType* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHandler)
 {
 	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
-		return type->clone();
+		return type;
 	return this;
 }
 DataType const* DataTypeUnresolved::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
@@ -247,6 +241,11 @@ DataType const* DataTypeUnresolved::baseType(Scope& scope, CompileErrorHandler* 
 	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
 		return type;
 	return nullptr;
+}
+
+DataType const& DataTypeUnresolved::getShared(DataType const& target, Scope const* scope) const
+{
+	return UNTYPED;
 }
  
 std::string DataTypeUnresolved::getName() const
@@ -273,22 +272,24 @@ int32_t DataTypeSimple::selfCompare(DataType const& rhs) const
 	return simpleId - o.simpleId;
 }
 
-bool DataTypeSimple::canCastTo(DataType const& target) const
+bool DataTypeSimple::canCastTo(DataType const& target, Scope const* scope) const
 {
 	if (isVoid() || target.isVoid()) return false;
 	if (isUntyped() || target.isUntyped()) return true;
+	if (target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
+		return false;
+	}
 	if (simpleId == ZTID_CHAR || simpleId == ZTID_LONG)
-		return FLOAT.canCastTo(target); //Char/Long cast the same as float.
-
-	if (DataTypeArray const* t =
-			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(getBaseType(*t));
+		return FLOAT.canCastTo(target, scope); //Char/Long cast the same as float.
 
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
 	{
 		if (t->simpleId == ZTID_CHAR || t->simpleId == ZTID_LONG)
-			return canCastTo(FLOAT); //Char/Long cast the same as float.
+			return canCastTo(FLOAT, scope); //Char/Long cast the same as float.
 		if (simpleId == ZTID_UNTYPED || t->simpleId == ZTID_UNTYPED)
 			return true;
 		if (simpleId == ZTID_VOID || t->simpleId == ZTID_VOID)
@@ -300,6 +301,43 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 	}
 	
 	return false;
+}
+
+DataType const& DataTypeSimple::getShared(DataType const& target, Scope const* scope) const
+{
+	if(isVoid() || target.isVoid()) return ZVOID;
+	if(isUntyped()) return target;
+	if(target.isUntyped()) return *this;
+	if(target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return getShared(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
+		return UNTYPED;
+	}
+	
+	if (DataTypeSimple const* t =
+			dynamic_cast<DataTypeSimple const*>(&target))
+	{
+		if (simpleId == t->simpleId)
+			return target;
+		int float_like = 0, is_bool = 0;
+		for(auto v : {simpleId, t->simpleId})
+			switch(simpleId)
+			{
+				case ZTID_FLOAT: case ZTID_CHAR: case ZTID_LONG:
+					++float_like;
+					break;
+				case ZTID_BOOL:
+					++is_bool;
+					break;
+			}
+		if(float_like >= 2)
+			return FLOAT;
+		if(is_bool && float_like)
+			return BOOL;
+	}
+	
+	return UNTYPED;
 }
 
 bool DataTypeSimple::canBeGlobal() const
@@ -327,16 +365,33 @@ DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler*
 ////////////////////////////////////////////////////////////////
 // DataTypeArray
 
-bool DataTypeArray::canCastTo(DataType const& target) const
+bool DataTypeArray::canCastTo(DataType const& target, Scope const* scope) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
+	if (!target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return getBaseType().canCastTo(target, scope);
+		return false;
+	}
+	DataTypeArray const* targ_arr = static_cast<DataTypeArray const*>(&target);
 	
-	if (DataTypeArray const* t =
-			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(getBaseType(*t));
-	
-	return getBaseType(*this).canCastTo(target);
+	return getElementType().canCastTo(targ_arr->getElementType(), scope);
+}
+
+DataType const& DataTypeArray::getShared(DataType const& target, Scope const* scope) const
+{
+	if(target.isVoid()) return target;
+	if(target.isUntyped()) return *this;
+	if(!target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return getBaseType().getShared(target, scope);
+		return UNTYPED;
+	}
+	DataTypeArray const* targ_arr = static_cast<DataTypeArray const*>(&target);
+	return *DataTypeArray::create(getElementType().getShared(targ_arr->getElementType(), scope));
 }
 
 int32_t DataTypeArray::selfCompare(DataType const& rhs) const
@@ -354,8 +409,48 @@ DataType const& ZScript::getBaseType(DataType const& type)
 }
 DataType const* DataTypeArray::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
-	auto& ty = getBaseType(elementType);
+	auto& ty = ZScript::getBaseType(elementType);
 	return &ty;
+}
+DataType const& DataTypeArray::getBaseType() const
+{
+	return ZScript::getBaseType(elementType);
+}
+DataType const* DataTypeArray::getConstType() const
+{
+	if(isConstant()) return this;
+	return create_depth(*getBaseType().getConstType(), getArrayDepth());
+}
+DataType const* DataTypeArray::getMutType() const
+{
+	if(!isConstant()) return this;
+	return create_depth(*getBaseType().getMutType(), getArrayDepth());
+}
+
+std::vector<std::unique_ptr<DataTypeArray>> DataTypeArray::created_arr_types;
+DataTypeArray const* DataTypeArray::create(DataType const& elementType)
+{
+	for(auto& ty : created_arr_types)
+		if(ty->elementType == elementType)
+			return ty.get();
+	return created_arr_types.emplace_back(new DataTypeArray(elementType)).get();
+}
+DataTypeArray const* DataTypeArray::create_depth(DataType const& elementType, uint depth)
+{
+	DataType const* ret = &elementType;
+	if(!depth) depth = 1;
+	while(depth--)
+		ret = create(*ret);
+	return static_cast<DataTypeArray const*>(ret);
+}
+DataTypeArray const* DataTypeArray::create_owning(DataType* elementType)
+{
+	for(auto& ty : created_arr_types)
+		if(ty->elementType == *elementType)
+			return ty.get();
+	auto& ty = created_arr_types.emplace_back(new DataTypeArray(*elementType));
+	ty->owned_type.reset(elementType);
+	return ty.get();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -371,14 +466,16 @@ bool DataTypeCustom::canHoldObject() const {
 	return true;
 }
 
-bool DataTypeCustom::canCastTo(DataType const& target) const
+bool DataTypeCustom::canCastTo(DataType const& target, Scope const* scope) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-
-	if (DataTypeArray const* t =
-			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(getBaseType(*t));
+	if (target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
+		return false;
+	}
 	
 	if(!isClass() && !isUsrClass())
 	{
@@ -405,6 +502,40 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 	return false;
 }
 
+DataType const& DataTypeCustom::getShared(DataType const& target, Scope const* scope) const
+{
+	if(target.isVoid()) return target;
+	if(target.isUntyped()) return *this;
+	if(target.isArray())
+	{
+		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+			return getShared(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
+		return UNTYPED;
+	}
+	
+	if(!isClass() && !isUsrClass())
+	{
+		if (DataTypeSimple const* t =
+				dynamic_cast<DataTypeSimple const*>(&target))
+		{
+			if(t->getId() == ZTID_BOOL) //Can cast to bool
+				return BOOL;
+			if(t->getId() == ZTID_FLOAT //Shares FLOAT with FLOAT/LONG/CHAR
+				|| t->getId() == ZTID_LONG
+				|| t->getId() == ZTID_CHAR)
+				return FLOAT;
+		}
+	}
+	
+	if (DataTypeCustom const* t =
+			dynamic_cast<DataTypeCustom const*>(&target))
+	{
+		if(id == t->id) //Self-case
+			return *this;
+	}
+	return UNTYPED;
+}
+
 int32_t DataTypeCustom::selfCompare(DataType const& other) const
 {
 	DataTypeCustom const& o = static_cast<DataTypeCustom const&>(other);
@@ -421,6 +552,50 @@ DataType const* DataTypeCustomConst::baseType(Scope& scope, CompileErrorHandler*
 	auto* ty = DataType::getCustom(id);
 	return ty ? ty->getConstType() : nullptr;
 }
+
+/////////////////////////////////////////
+// Templates
+
+DataTypeTemplate* DataTypeTemplate::create(std::string const& name)
+{
+	static uint32_t uid = 0;
+	auto id = uid++;
+	DataTypeTemplateConst* constty = new DataTypeTemplateConst(name, id);
+	DataTypeTemplate* mutty = new DataTypeTemplate(name, id, constty);
+	//The constructor here actually clones 'constty', so we can delete the original
+	delete constty;
+	return mutty;
+}
+DataTypeTemplate::DataTypeTemplate(string const& name, uint32_t id, DataTypeTemplateConst* constty)
+	: DataType(constty), name(name), id(id)
+{
+	if(constty)
+		constty->mut_type = this;
+}
+
+bool DataTypeTemplate::canCastTo(DataType const& target, Scope const* scope) const
+{
+	if(target.isUntyped()) return true;
+	if (DataTypeTemplate const* t = dynamic_cast<DataTypeTemplate const*>(&target))
+		return id == t->id;
+	return false;
+}
+
+DataType const& DataTypeTemplate::getShared(DataType const& target, Scope const* scope) const
+{
+	if(target.isUntyped()) return *this;
+	if (DataTypeTemplate const* t = dynamic_cast<DataTypeTemplate const*>(&target))
+		if(id == t->id)
+			return *this;
+	return UNTYPED;
+}
+
+int32_t DataTypeTemplate::selfCompare(DataType const& other) const
+{
+	DataTypeTemplate const& o = static_cast<DataTypeTemplate const&>(other);
+	return id - o.id;
+}
+
 
 ////////////////////////////////////////////////////////////////
 // Script Types

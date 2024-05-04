@@ -36,7 +36,7 @@ class bottledata {
 	//   POP D2
 	//   POP REFBOTTLETYPE
 	//   BOTTLENAMEGET D2
-	internal void GetName(char32 str);
+	internal void GetName(char32[] str);
 
 	// Sets the name of the bottledata to the provided string.
 	//
@@ -44,5 +44,5 @@ class bottledata {
 	//   POP D2
 	//   POP REFBOTTLETYPE
 	//   BOTTLENAMESET D2
-	internal void SetName(char32 str);
+	internal void SetName(char32[] str);
 }

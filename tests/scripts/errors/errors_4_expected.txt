@@ -5,6 +5,8 @@ Pass 3: Registration
 Pass 4: Analyzing Code
 ZQ_BUFFER Line 14 @ Columns 10-12 - Error T017: Cannot cast from int to Object.
 ZQ_BUFFER Line 15 @ Columns 3-30 - Error T021: Function ArrayPushBack(int[], Object) has not been declared.
+ZQ_BUFFER Line 16 @ Columns 3-29 - Error T021: Function ArrayPushBack(int[], char32[]) has not been declared.
+ZQ_BUFFER Line 18 @ Columns 3-20 - Error T021: Function SizeOfArray(const player) has not been declared.
 ZQ_BUFFER Line 19 @ Columns 10-18 - Error T017: Cannot cast from int to Object.
 ZQ_BUFFER Line 20 @ Columns 19-36 - Error T021: Function Choose(int, int, Object) has not been declared.
 ZQ_BUFFER Line 21 @ Columns 16-30 - Error T021: Function Max(int, int, Object) has not been declared.

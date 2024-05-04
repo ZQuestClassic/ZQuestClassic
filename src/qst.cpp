@@ -2028,116 +2028,8 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 	if(qst_num < moduledata.max_quest_files)
 		zprint2("Loading module quest %d\n", qst_num+1);
 	if(path) zprint2("Loading '%s'\n", path);
-	if ( tempheader.version_major > 0 )
-	{
-		if(tempheader.new_version_id_fourth > 0)
-			zprint2("Last saved in version %d.%d.%d.%d ",
-				tempheader.version_major,tempheader.version_minor,
-				tempheader.version_patch,tempheader.new_version_id_fourth);
-		else zprint2("Last saved in version: %d.%d.%d ",
-				tempheader.version_major,tempheader.version_minor,
-				tempheader.version_patch);
-	}
-	else
-	{
-		switch ( tempheader.zelda_version )
-		{
-			case 0x255:
-			{
-				zprint2("Last saved in version: 2.55.0, %s: %d", tempheader.getAlphaStr(), tempheader.getAlphaVer());
-				break;
-			}
-			case 0x254:
-			{
-				zprint2("Last saved in version: 2.54.0, Alpha Build ID: %d", tempheader.build);
-				break;
-			}
-			case 0x250:
-			{
-				switch(tempheader.build)
-				{
-					case 19:
-						zprint2("Last saved in version: 2.50.0, Gamma 1"); break;
-					case 20:
-						zprint2("Last saved in version: 2.50.0, Gamma 2"); break;
-					case 21:
-						zprint2("Last saved in version: 2.50.0, Gamma 3"); break;
-					case 22:
-						zprint2("Last saved in version: 2.50.0, Gamma 4"); break;
-					case 23:
-						zprint2("Last saved in version: 2.50.0, Gamma 5"); break;
-					case 24:
-						zprint2("Last saved in version: 2.50.0, Release"); break;
-					case 25:
-						zprint2("Last saved in version: 2.50.1, Gamma 1"); break;
-					case 26:
-						zprint2("Last saved in version: 2.50.1, Gamma 2"); break;
-					case 27: 
-						zprint2("Last saved in version: 2.50.1, Gamma 3"); break;
-					case 28:
-						zprint2("Last saved in version: 2.50.1, Release"); break;
-					case 29:
-						zprint2("Last saved in version: 2.50.2, Release"); break;
-					case 30:
-						zprint2("Last saved in version: 2.50.3, Gamma 1"); break;
-					case 31:
-						zprint2("Last saved in version: 2.53.0, Prior to Gamma 3"); break;
-					case 32:
-						zprint2("Last saved in version: 2.53.0"); break;
-					case 33:
-						zprint2("Last saved in version: 2.53.1"); break;
-					default:
-						zprint2("Last saved in version: %x, Build %d", tempheader.zelda_version,tempheader.build); break;
-		
-				}
-				break;
-			}
-			
-			case 0x211:
-			{
-				zprint2("Last saved in version: 2.11, Beta %d", tempheader.build); break;
-			}
-			case 0x210:
-			{
-				zprint2("Last saved in version: 2.10.x"); 
-				if ( tempheader.build ) zprint2("Beta/Build %d\n", tempheader.build); 
-				break;
-			}
-			/* These versions cannot be handled here; they will be incorrect at this time. -Z
-			case 0x193:
-			{
-				zprint2("Last saved in version: 1.93, Beta %d\n", tempheader.build); break;
-			}
-			case 0x192:
-			{
-				zprint2("Last saved in version: 1.92, Beta %d\n", tempheader.build); break;
-			}
-			case 0x190:
-			{
-				zprint2("Last saved in version: 1.90, Beta/Build %d\n", tempheader.build); break;
-			}
-			case 0x184:
-			{
-				zprint2("Last saved in version: 1.84, Beta/Build %d\n", tempheader.build); break;
-			}
-			case 0x183:
-			{
-				zprint2("Last saved in version: 1.83, Beta/Build %d\n", tempheader.build); break;
-			}
-			case 0x180:
-			{
-				zprint2("Last saved in version: 1.80, Beta/Build %d\n", tempheader.build); break;
-			}
-			default:
-			{
-				zprint2("Last saved in version: %x, Beta %d\n", tempheader.zelda_version,tempheader.build); break;
-			}
-			*/
-		}
-	}
-	if(!tempheader.is_legacy() && tempheader.getAlphaVer())
-		zprint2("%s\n", tempheader.getAlphaVerStr());
-	else zprint2("\n");
+	zprint2("Last saved in version %s\n", tempheader.getVerStr());
+
 	if ( tempheader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
 	if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s\n", tempheader.new_version_devsig);
 	if ( tempheader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);
@@ -3748,7 +3640,7 @@ void init_msgstr(MsgStr *str)
 	str->margins[up] = 8;
 	str->margins[down] = 0;
 	str->margins[left] = 8;
-	str->margins[right] = 0;
+	str->margins[right] = 8;
 	str->portrait_tile = 0;
 	str->portrait_cset = 0;
 	str->portrait_x = 0;

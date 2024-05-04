@@ -176,7 +176,7 @@ void __Tango_DecScreenFreeze()
 
 // string.zh's float-to-text functions don't work right in 2.50,
 // so this is used instead.
-int __Tango_FloatToASCII(int buffer, float value, bool allDigits)
+int __Tango_FloatToASCII(char32[] buffer, float value, bool allDigits)
 {
     int pos=0;
     int place=100000;

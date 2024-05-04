@@ -6,6 +6,7 @@
 #include "ZScript.h"
 #include "Scope.h"
 #include "base/headers.h"
+#include "parser/DataStructs.h"
 #include <algorithm>
 #include <vector>
 #include <set>

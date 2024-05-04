@@ -344,11 +344,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	vector<shared_ptr<Opcode>> ops_stack_refs;
 	for (auto&& datum : scope->getLocalData())
 	{
-		// Currently, arrays are not reference counted.
-		if (datum->type.isArray())
-			continue;
-
-		if (!datum->type.canHoldObject())
+		if (!datum->type.isObject())
 			continue;
 
 		auto position = lookupStackPosition(*scope, *datum);
@@ -1345,7 +1341,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 		//...now, we need to check that we didn't ALREADY just run that value exactly
 		addOpcode(new OPeekAtImmediate(new VarArgument(EXP2), new LiteralArgument(mgr.at(*overflow_peekind))));
 		if(targv)
-			addOpcode(new OCompareRegister(new VarArgument(EXP2), new LiteralArgument(*targv)));
+			addOpcode(new OCompareImmediate(new VarArgument(EXP2), new LiteralArgument(*targv)));
 		else addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 		addOpcode(new OGotoCompare(new LabelArgument(elselabel), new CompareArgument(CMP_EQ)));
 		//If we haven't run the value yet, set it and run the loop one last time
@@ -1614,7 +1610,7 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 	if (manager.getCompileTimeValue()) return;
 
 	// Switch off to the proper helper function.
-	if (manager.type.isArray()
+	if (!host.extraArrays.empty()
 		|| (init && (init->isArrayLiteral()
 					 || init->isStringLiteral())))
 	{
@@ -1640,12 +1636,13 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 		visit(init, &context);
 
 	auto writeType = &host.resolveType(scope, this);
-	bool is_object = writeType && writeType->canHoldObject() && !writeType->isArray();
+	bool is_object = writeType && writeType->isObject();
+	bool holds_object = writeType && writeType->canHoldObject();
 
 	// Set variable to EXP1 or val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
 	{
-		if (is_object)
+		if (holds_object)
 			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 
 		if (val)
@@ -1960,7 +1957,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			if(destructor && !destructor->isNil())
 			{
 				Function* destructor = destr[0];
-				addOpcode(new OSetImmediate(new VarArgument(EXP1),
+				addOpcode(new OSetImmediateLabel(new VarArgument(EXP1),
 					new LabelArgument(destructor->getLabel(), true)));
 			}
 			else addOpcode(new OSetImmediate(new VarArgument(EXP1),
@@ -2080,19 +2077,19 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			if (optarg->empty())
 				break;
 
-			Argument const* destreg = ocode->getArgument();
+			VarArgument const* destreg = ocode->getArgument();
 			//Optimize
 			Opcode* lastop = optarg->back().get();
 			if(OPushRegister* tmp = dynamic_cast<OPushRegister*>(lastop))
 			{
-				Argument const* arg = tmp->getArgument();
+				VarArgument const* arg = tmp->getArgument();
 				if(*arg == *destreg) //Same register!
 				{
 					optarg->pop_back();
 				}
 				else //Different register
 				{
-					Argument* a = arg->clone();
+					VarArgument* a = arg->clone();
 					optarg->pop_back();
 					addOpcode(new OSetRegister(destreg->clone(), a));
 				}
@@ -2102,7 +2099,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 			else if(OPushImmediate* tmp = dynamic_cast<OPushImmediate*>(lastop))
 			{
-				Argument* arg = tmp->getArgument()->clone();
+				LiteralArgument* arg = tmp->getArgument()->clone();
 				optarg->pop_back();
 				addOpcode(new OSetImmediate(destreg->clone(), arg));
 				if(++it == funcCode.end())
@@ -2456,7 +2453,7 @@ void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
 {
 	VISIT_USEVAL(host.operand.get(), param);
 	addOpcode(new OFreeObject(new VarArgument(EXP1)));
-	handleError(CompileError::DeprecatedDelete(&host));
+	deprecWarn(&host, "The operator", "delete", "This operator no longer does anything. Objects are freed automatically when they become unreachable");
 }
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
@@ -3723,14 +3720,16 @@ void BuildOpcodes::stringLiteralDeclaration(
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
-						  new LiteralArgument(size * 10000L)));
+						  new LiteralArgument(size * 10000L),
+						  new LiteralArgument(0)));
 		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
 								   new VarArgument(EXP1)));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
-											new LiteralArgument(size * 10000L)));
+											new LiteralArgument(size * 10000L),
+											new LiteralArgument(0)));
 		int32_t offset = manager.getStackOffset(false);
 		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
@@ -3769,7 +3768,8 @@ void BuildOpcodes::stringLiteralFree(
 	// Allocate.
 	addOpcode2(init, new OAllocateMemImmediate(
 						   new VarArgument(EXP1),
-						   new LiteralArgument(size * 10000L)));
+						   new LiteralArgument(size * 10000L),
+						   new LiteralArgument(0)));
 	addOpcode2(init, new OStore(new VarArgument(EXP1),
 									  new LiteralArgument(offset)));
 
@@ -3958,7 +3958,8 @@ void BuildOpcodes::arrayLiteralFree(
 
 	addOpcode2(context.initCode,
 			new OAllocateMemImmediate(new VarArgument(EXP1),
-									  new LiteralArgument(size * 10000L)));
+									  new LiteralArgument(size * 10000L),
+									  new LiteralArgument(0)));
 	addOpcode2(context.initCode,
 			new OStore(new VarArgument(EXP1),
 							   new LiteralArgument(offset)));
@@ -4125,8 +4126,8 @@ void BuildOpcodes::buildPostOp(ASTExpr* operand, void* param, vector<shared_ptr<
 
 void BuildOpcodes::push_param(bool varg)
 {
-	Argument* reg = nullptr;
-	Argument* lit = nullptr;
+	VarArgument* reg = nullptr;
+	LiteralArgument* lit = nullptr;
 	//Try to optimize, instead of just blindly pushing EXP1
 	auto* optarg = opcodeTargets.back();
 	Opcode* lastop = optarg->back().get();
@@ -4179,7 +4180,7 @@ optional<int> BuildOpcodes::eatSetCompare()
 {
 	if(OSetCompare* setcmp = dynamic_cast<OSetCompare*>(backOpcode()))
 	{
-		auto cmp = static_cast<LiteralArgument*>(setcmp->getSecondArgument())->value;
+		auto cmp = setcmp->getSecondArgument()->value;
 		backTarget().pop_back(); //erase the OSetCompare
 		return cmp;
 	}
@@ -4243,7 +4244,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 	bool is_object = false;
 	if (auto type = host.getWriteType(scope, nullptr))
-		is_object = type->canHoldObject() && !type->isArray();
+		is_object = type->isObject();
 
 	if (auto globalId = host.binding->getGlobalId())
 	{

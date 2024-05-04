@@ -9,7 +9,7 @@ const int FFCS_INVISIBLE_COMBO = 1;
 const int FFCS_MIN_FFC = 1;
 const int FFCS_MAX_FFC = 128;
 
-int CheckFFCScript(char32 scriptname)
+int CheckFFCScript(char32[] scriptname)
 {
 	int id = Game->GetFFCScript(scriptname);
 	if(id < 0)
@@ -19,7 +19,7 @@ int CheckFFCScript(char32 scriptname)
 	}
 	return id;
 }
-int RunFFCScript(int scriptNum, untyped args = NULL)
+int RunFFCScript(int scriptNum, untyped[] args = NULL)
 {
     // Invalid script
     if(scriptNum<0 || scriptNum>511)
@@ -54,7 +54,7 @@ int RunFFCScript(int scriptNum, untyped args = NULL)
     return 0;
 }
 
-ffc RunFFCScriptOrQuit(int scriptNum, untyped args = NULL)
+ffc RunFFCScriptOrQuit(int scriptNum, untyped[] args = NULL)
 {
     // Invalid script
     if(scriptNum<0 || scriptNum>511)

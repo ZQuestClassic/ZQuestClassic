@@ -429,8 +429,7 @@ void load_game_configs()
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
 	info_opacity = zc_get_config("zc","debug_info_opacity",255);
 #ifdef _WIN32
-	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
-	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
+	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
 	//use_win7_keyboard_fix = (byte) zc_get_config(cfg_sect,"use_win7_key_fix",0);
 	use_win32_proc = (byte) zc_get_config(cfg_sect,"zc_win_proc_fix",0); //buggy
    
@@ -439,8 +438,7 @@ void load_game_configs()
    
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #else //UNIX
-	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
-	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
+	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
 	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
@@ -5174,15 +5172,14 @@ int32_t OnnClearQuestDir()
 	else return D_O_K;
 }
 
-int32_t onConsoleZScript()
+int32_t onConsole()
 {
-	if ( !zscript_debugger )
+	if ( !console_enabled )
 	{
-		AlertDialog("ZScript Debugger",
-			"Enabling this will open the ZScript Debugger Console" 
+		AlertDialog("ZC Console",
+			"Open the ZC Console?" 
 			"\nThis will display any messages logged by scripts,"
-			" including script errors."
-			"\nAre you sure that you wish to open the ZScript Debugger?",
+			" including errors.",
 			[&](bool ret,bool)
 			{
 				if(ret)
@@ -5441,7 +5438,7 @@ int32_t d_jstick_proc(int32_t msg,DIALOG *d,int32_t c)
 extern const char *key_str[];
 std::string get_keystr(int key);
 
-const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
+const char *pan_str[4] = { "  MONO", "   1/2", "   3/4", "  FULL" };
 
 static char str_a[80],str_b[80],str_s[80],str_m[80],str_l[80],str_r[80],str_p[80],str_ex1[80],str_ex2[80],str_ex3[80],str_ex4[80],
 	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80],
@@ -5548,7 +5545,7 @@ int32_t set_vol(void *dp3, int32_t d2)
 	}
 	
 	// text_mode(vc(11));
-	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
+	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"   %3d",zc_min(d2<<3,255));
 	return D_O_K;
 }
 
@@ -7400,8 +7397,7 @@ enum
 	MENUID_MISC_VIDMODE,
 	MENUID_MISC_QUEST_INFO,
 	MENUID_MISC_QUEST_DIR,
-	MENUID_MISC_ZASM_DEBUGGER,
-	MENUID_MISC_ZSCRIPT_DEBUGGER,
+	MENUID_MISC_CONSOLE,
 	MENUID_MISC_CLEAR_CONSOLE_ON_LOAD,
 };
 static NewMenu misc_menu
@@ -7419,7 +7415,7 @@ static NewMenu misc_menu
 	{ "Take &Snapshot F12", onSnapshot },
 	{ "Sc&reen Saver...", onScreenSaver },
 	{ "Save ZC Configuration", OnSaveZCConfig },
-	{ "Show ZScript Debugger", onConsoleZScript, MENUID_MISC_ZSCRIPT_DEBUGGER },
+	{ "Show Console", onConsole, MENUID_MISC_CONSOLE },
 	{ "Clear Console on Qst Load", onClrConsoleOnLoad, MENUID_MISC_CLEAR_CONSOLE_ON_LOAD },
 	{ "Clear Directory Cache", OnnClearQuestDir },
 };
@@ -7838,8 +7834,7 @@ void System()
 			
 			name_entry_mode_menu.select_only_index(NameEntryMode);
 			
-			misc_menu.select_uid(MENUID_MISC_ZASM_DEBUGGER, zasm_debugger);
-			misc_menu.select_uid(MENUID_MISC_ZSCRIPT_DEBUGGER, zscript_debugger);
+			misc_menu.select_uid(MENUID_MISC_CONSOLE, console_enabled);
 			misc_menu.select_uid(MENUID_MISC_CLEAR_CONSOLE_ON_LOAD, clearConsoleOnLoad);
 			
 			bool nocheat = (replay_is_replaying() || !Playing

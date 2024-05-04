@@ -9,7 +9,7 @@ ffc script Maths
             {
                 doMaths(firstTime, i);
                 doMaths(firstTime, i * 10000);
-                doMaths(firstTime, i * 10000000);
+                doMaths(firstTime, i * 100000);
             }
 
             Waitframe();
@@ -17,7 +17,7 @@ ffc script Maths
         }
     }
 
-    void maybePrint(bool doPrint, int str, int value)
+    void maybePrint(bool doPrint, char32[] str, int value)
     {
         if (doPrint)
         {

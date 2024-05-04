@@ -6,7 +6,7 @@
 
 const int __TANGO_FULL_LOGGING = 1;
 
-void __Tango_LogMessage(int msg, float data)
+void __Tango_LogMessage(int msg, untyped data)
 {
     if(__TANGO_LOGGING_LEVEL<2)
         return;
@@ -65,7 +65,7 @@ void __Tango_LogError(int errorNum)
         __Tango_LogTooManyChoices();
 }
 
-void __Tango_LogError(int errorNum, float data)
+void __Tango_LogError(int errorNum, untyped data)
 {
     if(__TANGO_LOGGING_LEVEL<1)
         return;
@@ -104,7 +104,7 @@ void __Tango_LogError(int errorNum, float data)
         __Tango_LogInvalidChoiceMoved(data);
 }
 
-void __Tango_LogError(int errorNum, float data1, float data2)
+void __Tango_LogError(int errorNum, untyped data1, untyped data2)
 {
     if(__TANGO_LOGGING_LEVEL<1)
         return;

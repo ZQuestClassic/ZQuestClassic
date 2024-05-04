@@ -110,6 +110,20 @@ void RecursiveVisitor::deprecWarn(Function* func, AST* host, std::string const& 
 			break;
 	}
 }
+void RecursiveVisitor::deprecWarn(AST* host, std::string const& s1, std::string const& s2, std::string const& info)
+{
+	switch(*ZScript::lookupOption(*scope, CompileOption::OPT_WARN_DEPRECATED)/10000)
+	{
+		case 0: //No warn
+			break;
+		case 2: //Error
+			handleError(CompileError::DeprecatedError(host, s1, s2), info.empty() ? nullptr : &info);
+			break;
+		default: //Warn
+			handleError(CompileError::DeprecatedWarn(host, s1, s2), info.empty() ? nullptr : &info);
+			break;
+	}
+}
 void RecursiveVisitor::visit(AST& node, void* param)
 {
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
@@ -125,19 +139,32 @@ void RecursiveVisitor::visit(AST* node, void* param)
 	if (node) visit(*node, param);
 }
 
-void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
+void RecursiveVisitor::_visit_internals(Function& func)
 {
-	vector<Function*> functions = program.getUserGlobalFunctions();
-
-	for (vector<Function*>::iterator it = functions.begin();
-	     it != functions.end(); ++it)
+	if(func.isTemplateSkip())
 	{
-		Function& func = **it;
+		auto& vec = func.get_applied_funcs();
+		auto& sz = template_function_data[&func];
+		if(sz >= vec.size())
+			return;
+		for(size_t q = sz; q < vec.size(); ++q)
+			template_function_queue.insert(vec[q].get());
+		sz = vec.size();
+	}
+	else
+	{
 		Scope* oldscope = scope;
 		scope = func.getInternalScope();
 		analyzeFunctionInternals(func);
 		scope = oldscope;
 	}
+}
+void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
+{
+	vector<Function*> functions = program.getUserGlobalFunctions();
+	
+	for (auto& func : functions)
+		_visit_internals(*func);
 	
 	for (vector<Script*>::iterator it = program.scripts.begin();
 		 it != program.scripts.end(); ++it)
@@ -145,15 +172,8 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		Script& script = **it;
 		scope = &script.getScope();
 		functions = scope->getLocalFunctions();
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-		{
-			Function& func = **it;
-			Scope* oldscope = scope;
-			scope = func.getInternalScope();
-			analyzeFunctionInternals(func);
-			scope = oldscope;
-		}
+		for (auto& func : functions)
+			_visit_internals(*func);
 		scope = scope->getParent();
 	}
 	
@@ -163,15 +183,8 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		Namespace& namesp = **it;
 		scope = &namesp.getScope();
 		functions = scope->getLocalFunctions();
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-		{
-			Function& func = **it;
-			Scope* oldscope = scope;
-			scope = func.getInternalScope();
-			analyzeFunctionInternals(func);
-			scope = oldscope;
-		}
+		for (auto& func : functions)
+			_visit_internals(*func);
 		scope = scope->getParent();
 	}
 	
@@ -187,53 +200,49 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 
 		functions = cscope->getConstructors();
 		parsing_user_class = puc_construct;
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-		{
-			Function& func = **it;
-			Scope* oldscope = scope;
-			scope = func.getInternalScope();
-			analyzeFunctionInternals(func);
-			scope = oldscope;
-		}
+		for (auto& func : functions)
+			_visit_internals(*func);
 		
 		functions = scope->getLocalFunctions();
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
+		for (auto& func : functions)
 		{
-			Function& func = **it;
-			if(func.getFlag(FUNCFLAG_STATIC))
+			if(func->getFlag(FUNCFLAG_STATIC))
 				parsing_user_class = puc_none;
 			else
 				parsing_user_class = puc_funcs;
-			Scope* oldscope = scope;
-			scope = func.getInternalScope();
-			analyzeFunctionInternals(func);
-			scope = oldscope;
+			_visit_internals(*func);
 		}
 		
 		functions = cscope->getDestructor();
 		parsing_user_class = puc_destruct;
-		for (vector<Function*>::iterator it = functions.begin();
-		     it != functions.end(); ++it)
-		{
-			Function& func = **it;
-			Scope* oldscope = scope;
-			scope = func.getInternalScope();
-			analyzeFunctionInternals(func);
-			scope = oldscope;
-		}
+		for (auto& func : functions)
+			_visit_internals(*func);
 		parsing_user_class = puc_none;
 		
 		scope = scope->getParent();
+	}
+
+
+	for (auto& pair : template_function_data)
+		_visit_internals(*pair.first);
+	while(!template_function_queue.empty())
+	{
+		while(!template_function_queue.empty())
+		{
+			Function* func = *template_function_queue.begin();
+			_visit_internals(*func);
+			template_function_queue.erase(template_function_queue.begin());
+		}
+		for (auto& pair : template_function_data)
+			_visit_internals(*pair.first);
 	}
 }
 
 void RecursiveVisitor::checkCast(
 		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
 {
-	if (sourceType.canCastTo(targetType)) return;
-	if (twoWay && targetType.canCastTo(sourceType)) return;
+	if (sourceType.canCastTo(targetType, scope)) return;
+	if (twoWay && targetType.canCastTo(sourceType, scope)) return;
 	handleError(
 		CompileError::IllegalCast(
 			node, sourceType.getName(), targetType.getName()));
