@@ -1,6 +1,7 @@
 #include "zc/script_debug.h"
 #include "allegro5/file.h"
 #include "base/zapp.h"
+#include "base/zdefs.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
 #include "zc/zasm_utils.h"
@@ -18,10 +19,11 @@ bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
 bool DEBUG_PRINT_TO_FILE;
 bool DEBUG_PRINT_TO_CONSOLE;
 
-ScriptDebugHandle::ScriptDebugHandle(OutputSplit output_split, script_data* script)
+ScriptDebugHandle::ScriptDebugHandle(zasm_script* script, OutputSplit output_split, std::string name)
 {
 	this->output_split = output_split;
 	this->script = script;
+	this->name = name;
 	this->file = nullptr;
 	this->file_counter = 0;
 
@@ -33,6 +35,7 @@ ScriptDebugHandle::ScriptDebugHandle(ScriptDebugHandle&& rhs)
 {
 	output_split = rhs.output_split;
 	script = rhs.script;
+	name = rhs.name;
 	file_counter = rhs.file_counter;
 }
 
@@ -45,6 +48,7 @@ ScriptDebugHandle& ScriptDebugHandle::operator=(ScriptDebugHandle&& rhs)
         file = std::exchange(rhs.file, nullptr);
 		output_split = rhs.output_split;
 		script = rhs.script;
+		name = rhs.name;
 		file_counter = rhs.file_counter;
 	}
 
@@ -77,8 +81,7 @@ void ScriptDebugHandle::update_file()
 				al_fclose(file);
 			}
 
-			std::string script_name = zasm_script_unique_name(script);
-			std::string dir = fmt::format("{}/{}/{}", output_folder, script_name, counter / 1000);
+			std::string dir = fmt::format("{}/{}/{}", output_folder, name, counter / 1000);
 
 			al_make_directory(dir.c_str());
 			std::string path = fmt::format("{}/debug-{}.txt", dir, counter);
@@ -90,12 +93,8 @@ void ScriptDebugHandle::update_file()
 	else if (output_split == OutputSplit::ByScript && !file)
 	{
 		std::string dir = fmt::format("{}/zasm/{}", output_folder, get_filename(qstpath));
-		std::string path;
-		
-		if (script->meta.script_name.empty())
-			path = fmt::format("{}/zasm-{}-{}.txt", dir, ScriptTypeToString(script->id.type), script->id.index);
-		else
-			path = fmt::format("{}/zasm-{}-{}-{}.txt", dir, ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name);
+		std::string path = fmt::format("{}/zasm-{}.txt", dir, name);
+
 		al_make_directory(dir.c_str());
 		file = al_fopen(path.c_str(), "w");
 	}
@@ -150,8 +149,6 @@ void ScriptDebugHandle::print(int32_t attributes, const char *str)
 
 void ScriptDebugHandle::print_command(int i)
 {
-	//! TODO ZASM MERGE
-	/*
 	auto& op = script->zasm[i];
 	word scommand = op.command;
 	int args[] = {op.arg1, op.arg2, op.arg3};
@@ -185,36 +182,14 @@ void ScriptDebugHandle::print_command(int i)
 				"\t %s", fmt::format("{{ {} }}", fmt::join(*op.vecptr, ", ")).c_str());
 		}
 	}
-	print("\n");*/
-}
-
-void ScriptDebugHandle::print_zasm()
-{
-	//! TODO ZASM MERGE
-	/*
-	printf(
-		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-		"script type: %s\nindex: %d\nname: %s\n\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
-	for (size_t i = 0; i < script->size; i++)
-	{
-		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
-								CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-							"%4d: ", i);
-		print_command(i);
-	}
-	if (file)
-		al_fflush(file);*/
+	print("\n");
 }
 
 void ScriptDebugHandle::pre_command()
 {
-	//! TODO ZASM MERGE
-	/*
 	static int frame = get_flag_int("-script-runtime-debug-frame").value_or(-1);
 	if (frame != -1 && replay_get_frame() != frame)
 		return;
-	// if (script->id != {ScriptType::Player, 2}) return;
 
 	// This is only to match the behavior in jitted code, where comparison instructions
 	// must be grouped together.
@@ -261,7 +236,7 @@ void ScriptDebugHandle::pre_command()
 	}
 
 	if (file)
-		al_fflush(file);*/
+		al_fflush(file);
 }
 
 // 0 for off, 1 for per-script execution, 2 for per-instruction.

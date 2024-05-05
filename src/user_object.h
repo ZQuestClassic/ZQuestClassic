@@ -6,6 +6,7 @@
 #include "base/general.h"
 
 enum class ScriptType;
+struct zasm_script;
 
 struct user_abstract_obj
 {
@@ -58,7 +59,7 @@ struct scr_func_exec
 	scr_func_exec(){clear();}
 	void clear();
 	void execute();
-	bool validate();
+	bool validate(const zasm_script* zasm_script);
 };
 struct user_object : public user_abstract_obj
 {
@@ -66,6 +67,7 @@ struct user_object : public user_abstract_obj
 	size_t owned_vars;
 	std::vector<script_object_type> var_types;
 	scr_func_exec destruct;
+	zasm_script* script;
 	bool global;
 	bool fake;
 	

@@ -7,11 +7,12 @@
 #include <cstdint>
 #include <fmt/format.h>
 #include <xxhash.h>
+#include <vector>
 
 #define POOLSTL_STD_SUPPLEMENT
 #include <poolstl/poolstl.hpp>
 
-StructuredZasm zasm_construct_structured(const script_data* script)
+StructuredZasm zasm_construct_structured(const zasm_script* script)
 {
 	// Find all function calls.
 	std::set<pc_t> function_calls;
@@ -62,8 +63,6 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 
 	// First determine if we have the simpler CALLFUNC instructions.
 	auto calling_mode = StructuredZasm::CALLING_MODE_UNKNOWN;
-	//! TODO ZASM MERGE
-	/*
 	for (pc_t i = 0; i < script->size && !calling_mode; i++)
 	{
 		int command = script->zasm[i].command;
@@ -82,15 +81,13 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 				calling_mode = StructuredZasm::CALLING_MODE_CALLFUNC_RETURNFUNC;
 				break;
 		}
-	}*/
+	}
 	bool legacy_calling_mode =
 		calling_mode == StructuredZasm::CALLING_MODE_GOTO_GOTOR || calling_mode == StructuredZasm::CALLING_MODE_GOTO_RETURN;
 
 	// Starts with implicit first function ("run").
 	std::set<pc_t> function_start_pcs_set = {0};
 
-	//! TODO ZASM MERGE
-	/*
 	for (pc_t i = 0; i < script->size; i++)
 	{
 		int command = script->zasm[i].command;
@@ -124,7 +121,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			function_calls_pc_to_pc[i] = script->zasm[i].arg1;
 			ASSERT(script->zasm[i].arg1 != i + 1);
 		}
-	}*/
+	}
 
 	std::vector<pc_t> function_start_pcs(function_start_pcs_set.begin(), function_start_pcs_set.end());
 	std::vector<pc_t> function_final_pcs;
@@ -139,14 +136,12 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 			function_final_pcs.push_back(function_start_pc - 1);
 			start_pc_to_function[function_start_pc] = next_fn_id++;
 		}
-		//! TODO ZASM MERGE
-		/*
+
 		// Don't include 0xFFFF as part of the last function.
 		function_final_pcs.push_back(script->size - 2);
 
 		// Just so std::lower_bound below will work for last function.
 		function_start_pcs.push_back(script->size);
-		*/
 	}
 
 	std::vector<ZasmFunction> functions;
@@ -173,11 +168,8 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 	return {functions, function_calls, start_pc_to_function, calling_mode};
 }
 
-std::set<pc_t> zasm_find_yielding_functions(const script_data* script, StructuredZasm& structured_zasm)
+std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, StructuredZasm& structured_zasm)
 {
-	//! TODO ZASM MERGE
-	return {};
-	/*
 	std::set<pc_t> yielding_function_ids;
 	for (const auto& fn : structured_zasm.functions)
 	{
@@ -207,7 +199,7 @@ std::set<pc_t> zasm_find_yielding_functions(const script_data* script, Structure
 		}
 	}
 
-	return seen_ids;*/
+	return seen_ids;
 }
 
 static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>> pc_ranges)
@@ -223,11 +215,9 @@ static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>> pc_ra
 	return false;
 }
 
-ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
+ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
 {
 	std::set<pc_t> block_starts;
-	//! TODO ZASM MERGE
-	/*
 
 	for (auto [start_pc, final_pc] : pc_ranges)
 	{
@@ -264,17 +254,16 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 		}
 	}
 
-	*/
 	std::map<pc_t, pc_t> start_pc_to_block_id;
-	/*
+
 	std::vector<pc_t> block_starts_vec(block_starts.begin(), block_starts.end());
 	for (pc_t j = 0; j < block_starts_vec.size(); j++)
 	{
 		start_pc_to_block_id[block_starts_vec[j]] = j;
 	}
-	*/
+
 	std::vector<std::vector<pc_t>> block_edges;
-	/*
+
 	block_edges.resize(block_starts.size());
 	for (pc_t j = 1; j < block_starts_vec.size(); j++)
 	{
@@ -300,7 +289,7 @@ ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t
 			block_edges[j - 1].push_back(j);
 		}
 	}
-	*/
+
 	return {block_starts, start_pc_to_block_id, block_edges};
 }
 
@@ -312,11 +301,9 @@ static std::string zasm_fn_get_name(const ZasmFunction& function)
 		return fmt::format("Function #{} ({})", function.id, function.name);
 }
 
-static std::string zasm_to_string(const script_data* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg, std::set<pc_t> function_ids)
+static std::string zasm_to_string(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg, std::set<pc_t> function_ids)
 {
 	std::stringstream ss;
-	//! TODO ZASM MERGE
-	/*
 
 	int block_id = 0;
 	for (auto fn_id : function_ids)
@@ -344,15 +331,14 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 		}
 		ss << '\n';
 	}
-	*/
+
 	return ss.str();
 }
 
-std::string zasm_to_string(const script_data* script, bool top_functions, bool generate_yielder)
+std::string zasm_to_string(const zasm_script* script, bool top_functions, bool generate_yielder)
 {
 	std::stringstream ss;
-	//! TODO ZASM MERGE
-	/*
+
 	auto structured_zasm = zasm_construct_structured(script);
 
 	std::vector<std::pair<pc_t, size_t>> fn_lengths;
@@ -410,7 +396,7 @@ std::string zasm_to_string(const script_data* script, bool top_functions, bool g
 		}
 		ss << '\n';
 	}
-	*/
+
 	return ss.str();
 }
 
@@ -422,12 +408,10 @@ std::string zasm_script_unique_name(const script_data* script)
 		return fmt::format("{}-{}-{}", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name);
 }
 
-static uint64_t generate_function_hash(const script_data* script, const StructuredZasm& structured_zasm, const ZasmFunction& function)
+static uint64_t generate_function_hash(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmFunction& function)
 {
 	std::vector<uint8_t> data;
 
-	//! TODO ZASM MERGE
-	/*
 	for (pc_t i = function.start_pc; i <= function.final_pc; i++)
 	{
 		int command = script->zasm[i].command;
@@ -497,7 +481,7 @@ static uint64_t generate_function_hash(const script_data* script, const Structur
 			data.push_back(arg2);
 			data.push_back(arg3);
 		}
-	}*/
+	}
 
 	return XXH64(data.data(), data.size(), 0);
 }
@@ -507,7 +491,7 @@ struct FunctionSummary {
 	size_t count;
 };
 
-static void hash_all_functions(const script_data* script, std::map<uint64_t, FunctionSummary>& function_counts, size_t& total_length)
+static void hash_all_functions(const zasm_script* script, std::map<uint64_t, FunctionSummary>& function_counts, size_t& total_length)
 {
 	auto structured_zasm = zasm_construct_structured(script);
 	for (auto& function : structured_zasm.functions)
@@ -531,7 +515,7 @@ std::string zasm_analyze_duplication()
 	std::map<uint64_t, FunctionSummary> function_counts;
 	size_t total_length = 0;
 
-	zasm_for_every_script(false, [&](auto script){
+	zasm_for_every_zasm_script(false, [&](auto script){
 		hash_all_functions(script, function_counts, total_length);
 	});
 
@@ -552,7 +536,7 @@ std::string zasm_analyze_duplication()
 	return ss.str();
 }
 
-void zasm_for_every_script(bool parallel, std::function<void(script_data*)> fn)
+void zasm_for_every_script_data(bool parallel, std::function<void(script_data*)> fn)
 {
 	std::vector<script_data*> scripts;
 	scripts.reserve(2000);
@@ -578,6 +562,22 @@ void zasm_for_every_script(bool parallel, std::function<void(script_data*)> fn)
 	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
 	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
 	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+
+	// TODO: debug issues on web build.
+	if (parallel && !is_web())
+		std::for_each(std::execution::par_unseq, scripts.begin(), scripts.end(), fn);
+	else
+		std::for_each(std::execution::seq, scripts.begin(), scripts.end(), fn);
+}
+
+void zasm_for_every_zasm_script(bool parallel, std::function<void(zasm_script*)> fn)
+{
+	extern std::vector<zasm_script> zasm_scripts;
+
+	std::vector<zasm_script*> scripts;
+	scripts.reserve(zasm_scripts.size());
+	for (auto& script : zasm_scripts)
+		scripts.push_back(&script);
 
 	// TODO: debug issues on web build.
 	if (parallel && !is_web())

@@ -50,12 +50,12 @@ struct ZasmCFG
 // Pass specific ranges from a ZasmFunction to `zasm_construct_cfg` to generate a
 // control flow graph.
 // TODO: we don't actually have function names in the ZASM, so they are generated for now.
-StructuredZasm zasm_construct_structured(const script_data* script);
+StructuredZasm zasm_construct_structured(const zasm_script* script);
 
 // Returns the function id of every function that itself uses `WaitX`, or calls some function that
 // may possibly use `WaitX`.
 // Modifies given StructuredZasm by setting `may_yield`.
-std::set<pc_t> zasm_find_yielding_functions(const script_data* script, StructuredZasm& structured_zasm);
+std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, StructuredZasm& structured_zasm);
 
 // Returns a control flow graph - splits the given range into basic blocks (which only possibly transfers
 // to another block as their last instruction), and marks all possible blocks each block may transfer
@@ -75,13 +75,14 @@ std::set<pc_t> zasm_find_yielding_functions(const script_data* script, Structure
 // as we don't need to convert the graph to be reducible.
 //
 // https://www2.cs.arizona.edu/~collberg/Teaching/453/2009/Handouts/Handout-15.pdf
-ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges);
+ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges);
 
-std::string zasm_to_string(const script_data* script, bool top_functions = false, bool generate_yielder = false);
+std::string zasm_to_string(const zasm_script* script, bool top_functions = false, bool generate_yielder = false);
 
 std::string zasm_script_unique_name(const script_data* script);
 
-void zasm_for_every_script(bool parallel, std::function<void(script_data*)> fn);
+void zasm_for_every_zasm_script(bool parallel, std::function<void(zasm_script*)> zasm_script);
+void zasm_for_every_script_data(bool parallel, std::function<void(script_data*)> fn);
 
 std::string zasm_analyze_duplication();
 

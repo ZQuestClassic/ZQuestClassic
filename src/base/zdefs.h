@@ -1954,19 +1954,60 @@ struct script_id {
 	int index;
 };
 
-extern vector<ffscript> quest_zasm;
+typedef uint16_t zasm_chunk_index;
+
+struct zasm_script
+{
+	zasm_script() = default;
+	zasm_script(zasm_chunk_index id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), zasm(zasm), size(zasm.size()) {}
+	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), zasm(zasm), size(zasm.size()) {}
+
+	// inline size_t size() const
+	// {
+	// 	return zasm.size();
+	// }
+
+	// ffscript* data()
+	// {
+	// 	return zasm.data();
+	// }
+
+	// inline const ffscript& operator[](size_t i) const
+	// {
+	// 	return zasm[i];
+	// }
+
+	// inline ffscript& operator[](size_t i)
+	// {
+	// 	return zasm[i];
+	// }
+
+	zasm_chunk_index id;
+	bool optimized;
+	std::string name;
+	std::vector<ffscript> zasm;
+	size_t size;
+};
+
 struct script_data
 {
-	int32_t pc, end_pc; //start/end of the run function
+	// Non-owning pointer. In quests before 3.0, each script had its own chunk of
+	// zasm. Since 3.0 all scripts share the same chunk.
+	ffscript* zasm;
+	// The chunk that `zasm` comes from.
+	zasm_script* zasm_script; // TODO ! just keep this
+	// The size of `zasm`.
+	size_t size;
+
+	uint32_t pc, end_pc; //start/end of the run function
 	zasm_meta meta;
 	script_id id;
-	bool optimized; //! TODO ZASM MERGE
 	
 	size_t old_size; //for old quests, represents the full ZASM count of each script
 	
 	bool valid() const
 	{
-		return pc > -1;
+		return pc != -1;
 	}
 	
 	void disable()

@@ -32,6 +32,7 @@
 #include "defdata.h"
 #include "subscr.h"
 #include "zc/replay.h"
+#include "zc/zasm_utils.h"
 #include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
@@ -11893,6 +11894,8 @@ int32_t setupsubscreens()
     return 0;
 }
 
+extern std::vector<zasm_script> zasm_scripts;
+
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];
 extern script_data *guyscripts[NUMSCRIPTGUYS];
@@ -11917,6 +11920,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	numscripts=numscripts; //to avoid unused variables warnings
 	int32_t ret;
 	read_scripts.clear();
+	zasm_scripts.clear();
 	
 	//section version info
 	if(!p_igetw(&s_version,f))
@@ -11955,7 +11959,6 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		if(ret)
 			return qe_invalid;
 	}
-	else quest_zasm.clear();
 	
 	//finally...  section data
 	for(int32_t i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
@@ -12732,7 +12735,6 @@ void reset_scripts()
 	}
 }
 
-extern script_command command_list[];
 int32_t read_quest_zasm(PACKFILE *f, word s_version)
 {
 	int32_t num_commands;
@@ -12745,7 +12747,9 @@ int32_t read_quest_zasm(PACKFILE *f, word s_version)
 #endif
 	if (num_commands < 0 || num_commands > command_limit)
 		return qe_invalid;
-	quest_zasm.clear();
+
+	std::vector<ffscript> zasm;
+	zasm.reserve(num_commands);
 	for(int32_t j=0; j<num_commands; j++)
 	{
 		ffscript temp_script;
@@ -12788,8 +12792,12 @@ int32_t read_quest_zasm(PACKFILE *f, word s_version)
 				temp_script.vecptr->push_back(dummy);
 			}
 		}
-		quest_zasm.emplace_back(std::move(temp_script));
+		zasm.emplace_back(std::move(temp_script));
 	}
+
+	assert(zasm_scripts.empty());
+	zasm_scripts.emplace_back(zasm_scripts.size(), "single-slot", std::move(zasm));
+
 	return 0;
 }
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, word , script_data **script, word zmeta_version)
@@ -12798,6 +12806,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	ASSERT(*script);
 	if(s_version < 26)
 		return read_old_ffscript(f, script_index, s_version, script, zmeta_version);
+
 	char b33[34] = { 0 };
 	b33[33] = 0;
 	//Read meta
@@ -12885,7 +12894,14 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	}
 	if(!p_igetl(&(*script)->pc, f))
 		return qe_invalid;
-	
+
+	assert(zasm_scripts.size() == 1);
+	auto& zasm_script = zasm_scripts[0];
+	(*script)->zasm = zasm_script.zasm.data();
+	(*script)->zasm_script = &zasm_script;
+	(*script)->size = zasm_script.size;
+	(*script)->old_size = 0;
+
 	return 0;
 }
 int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, script_data **script, word zmeta_version)
@@ -12912,8 +12928,9 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 	{
 		return qe_invalid;
 	}
-	
-	vector<ffscript> zasm_code;
+
+	std::vector<ffscript> zasm;
+	zasm.reserve(num_commands);
 
 	if(s_version >= 16)
 	{
@@ -13082,17 +13099,6 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 		if(!p_igetw(&(temp_script.command),f))
 			return qe_invalid;
 		
-		if(j == 0)
-		{
-			// If the first command is unknown, invalidate the whole thing.
-			// Saw this for https://www.purezc.net/index.php?page=quests&id=411 hero script 0
-			if (temp_script.command >= NUMCOMMANDS && temp_script.command != 0xFFFF)
-			{
-				al_trace("Warning: found script with bad instruction, disabling script: %s %d\n", ScriptTypeToString((*script)->id.type), (*script)->id.index);
-				temp_script.command = 0xFFFF;
-			}
-		}
-		
 		if(temp_script.command == 0xFFFF)
 			break;
 		else
@@ -13150,24 +13156,26 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 				}
 			}
 		}
-		zasm_code.emplace_back(std::move(temp_script));
+		zasm.emplace_back(std::move(temp_script));
 	}
-	
-	if(zasm_code.size())
+
+	// If the first command is unknown, invalidate the whole thing.
+	// Saw this for https://www.purezc.net/index.php?page=quests&id=411 hero script 0
+	if (!zasm.empty() && zasm[0].command >= NUMCOMMANDS && zasm[0].command != 0xFFFF)
 	{
-		auto& quitop = zasm_code.emplace_back();
-		quitop.command = QUIT;
-		(*script)->pc = quest_zasm.size();
-		(*script)->old_size = zasm_code.size();
-		read_scripts.push_back(*script);
-		quest_zasm.insert(quest_zasm.end(), std::make_move_iterator(zasm_code.begin()),
-			std::make_move_iterator(zasm_code.end()));
+		al_trace("Warning: found script with bad instruction, disabling script: %s %d\n", ScriptTypeToString((*script)->id.type), (*script)->id.index);
+		(*script)->zasm[0].command = 0xFFFF;
 	}
-	else
-	{
-		(*script)->pc = -1;
-		(*script)->old_size = 0;
-	}
+
+	zasm.emplace_back(0xFFFF);
+
+	std::string name = zasm_script_unique_name(*script);
+	auto& zasm_script = zasm_scripts.emplace_back(zasm_scripts.size(), name, std::move(zasm));
+	(*script)->zasm = zasm_script.zasm.data();
+	(*script)->zasm_script = &zasm_script;
+	(*script)->pc = 0;
+	(*script)->size = zasm_script.size;
+	(*script)->old_size = zasm_script.size;
 	
 	return 0;
 }
