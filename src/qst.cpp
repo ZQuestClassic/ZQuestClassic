@@ -10,6 +10,7 @@
 #include "base/combo.h"
 #include "base/msgstr.h"
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <stdio.h>
 #include <cstring>
@@ -11894,7 +11895,7 @@ int32_t setupsubscreens()
     return 0;
 }
 
-extern std::vector<zasm_script> zasm_scripts;
+extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];
@@ -12796,7 +12797,8 @@ int32_t read_quest_zasm(PACKFILE *f, word s_version)
 	}
 
 	assert(zasm_scripts.empty());
-	zasm_scripts.emplace_back(zasm_scripts.size(), "single-slot", std::move(zasm));
+	zasm_script_id id = zasm_scripts.size();
+	zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, "single-slot", std::move(zasm)));
 
 	return 0;
 }
@@ -12896,10 +12898,8 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 		return qe_invalid;
 
 	assert(zasm_scripts.size() == 1);
-	auto& zasm_script = zasm_scripts[0];
-	(*script)->zasm = zasm_script.zasm.data();
-	(*script)->zasm_script = &zasm_script;
-	(*script)->size = zasm_script.size;
+	auto& zs = zasm_scripts[0];
+	(*script)->zasm_script = zs;
 	(*script)->old_size = 0;
 
 	return 0;
@@ -13095,26 +13095,28 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 	
 	for(int32_t j=0; j<num_commands; j++)
 	{
-		ffscript temp_script;
-		if(!p_igetw(&(temp_script.command),f))
+		auto& sc = zasm.emplace_back();
+		if(!p_igetw(&sc.command,f))
+		{
 			return qe_invalid;
+		}
 		
-		if(temp_script.command == 0xFFFF)
+		if(sc.command == 0xFFFF)
 			break;
 		else
 		{
-			if(!p_igetl(&(temp_script.arg1),f))
+			if(!p_igetl(&sc.arg1,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetl(&(temp_script.arg2),f))
+			if(!p_igetl(&sc.arg2,f))
 			{
 				return qe_invalid;
 			}
 			
 			if(s_version >= 24)
-				if(!p_igetl(&(temp_script.arg3),f))
+				if(!p_igetl(&sc.arg3,f))
 					return qe_invalid;
 			
 			if(s_version >= 21)
@@ -13126,7 +13128,7 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 				}
 				if(sz) //string found
 				{
-					temp_script.strptr = new std::string();
+					sc.strptr = new std::string();
 					char dummy;
 					for(size_t q = 0; q < sz; ++q)
 					{
@@ -13134,7 +13136,7 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 						{
 							return qe_invalid;
 						}
-						temp_script.strptr->push_back(dummy);
+						sc.strptr->push_back(dummy);
 					}
 				}
 				if(!p_igetl(&sz,f))
@@ -13143,7 +13145,7 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 				}
 				if(sz) //vector found
 				{
-					temp_script.vecptr = new std::vector<int32_t>();
+					sc.vecptr = new std::vector<int32_t>();
 					int32_t dummy;
 					for(size_t q = 0; q < sz; ++q)
 					{
@@ -13151,12 +13153,11 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 						{
 							return qe_invalid;
 						}
-						temp_script.vecptr->push_back(dummy);
+						sc.vecptr->push_back(dummy);
 					}
 				}
 			}
 		}
-		zasm.emplace_back(std::move(temp_script));
 	}
 
 	// If the first command is unknown, invalidate the whole thing.
@@ -13164,19 +13165,15 @@ int32_t read_old_ffscript(PACKFILE *f, int32_t script_index, word s_version, scr
 	if (!zasm.empty() && zasm[0].command >= NUMCOMMANDS && zasm[0].command != 0xFFFF)
 	{
 		al_trace("Warning: found script with bad instruction, disabling script: %s %d\n", ScriptTypeToString((*script)->id.type), (*script)->id.index);
-		(*script)->zasm[0].command = 0xFFFF;
+		zasm.clear();
 	}
 
-	zasm.emplace_back(0xFFFF);
-
-	std::string name = zasm_script_unique_name(*script);
-	auto& zasm_script = zasm_scripts.emplace_back(zasm_scripts.size(), name, std::move(zasm));
-	(*script)->zasm = zasm_script.zasm.data();
-	(*script)->zasm_script = &zasm_script;
+	zasm_script_id id = zasm_scripts.size();
+	auto& zs = zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, (*script)->name(), std::move(zasm)));
+	(*script)->zasm_script = zs;
 	(*script)->pc = 0;
-	(*script)->size = zasm_script.size;
-	(*script)->old_size = zasm_script.size;
-	
+	(*script)->old_size = zs->size;
+
 	return 0;
 }
 

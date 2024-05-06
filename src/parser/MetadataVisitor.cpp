@@ -430,7 +430,7 @@ void MetadataVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	if (host.prototype)
 		return;
-	if (host.func->isTemplateSkip())
+	if (host.func && host.func->isTemplateSkip())
 	{
 		for(auto& applied : host.func->get_applied_funcs())
 			visit(applied->getNode(), param);

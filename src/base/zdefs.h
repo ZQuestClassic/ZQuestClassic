@@ -1954,80 +1954,58 @@ struct script_id {
 	int index;
 };
 
-typedef uint16_t zasm_chunk_index;
+typedef uint16_t zasm_script_id;
 
 struct zasm_script
 {
 	zasm_script() = default;
-	zasm_script(zasm_chunk_index id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), zasm(zasm), size(zasm.size()) {}
-	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), zasm(zasm), size(zasm.size()) {}
+	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
+	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
 
-	// inline size_t size() const
-	// {
-	// 	return zasm.size();
-	// }
-
-	// ffscript* data()
-	// {
-	// 	return zasm.data();
-	// }
-
-	// inline const ffscript& operator[](size_t i) const
-	// {
-	// 	return zasm[i];
-	// }
-
-	// inline ffscript& operator[](size_t i)
-	// {
-	// 	return zasm[i];
-	// }
-
-	zasm_chunk_index id;
+	zasm_script_id id;
 	bool optimized;
 	std::string name;
-	std::vector<ffscript> zasm;
 	size_t size;
+	std::vector<ffscript> zasm;
+
+	// TODO: remove the necessity of this terminal command being here.
+	bool valid() const
+	{
+		return !zasm.empty() && zasm[0] != 0xFFFF;
+	}
 };
 
 struct script_data
 {
-	// Non-owning pointer. In quests before 3.0, each script had its own chunk of
-	// zasm. Since 3.0 all scripts share the same chunk.
-	ffscript* zasm;
-	// The chunk that `zasm` comes from.
-	zasm_script* zasm_script; // TODO ! just keep this
-	// The size of `zasm`.
-	size_t size;
-
-	uint32_t pc, end_pc; //start/end of the run function
+	// The zasm instructions used by this script.
+	// In quests before 3.0, each script had its own chunk of zasm.
+	// Since 3.0 all scripts share the same chunk.
+	std::shared_ptr<zasm_script> zasm_script = nullptr;
 	zasm_meta meta;
 	script_id id;
-	
+	uint32_t pc, end_pc; //start/end of the run function
 	size_t old_size; //for old quests, represents the full ZASM count of each script
+
+	script_data(ScriptType type, int index) : id({type, index}) {}
+
+	std::string name() const
+	{
+		if (meta.script_name.empty())
+			return fmt::format("{}-{}", ScriptTypeToString(id.type), id.index);
+		else
+			return fmt::format("{}-{}-{}", ScriptTypeToString(id.type), id.index, meta.script_name);
+	}
 	
 	bool valid() const
 	{
-		return pc != -1;
+		return zasm_script && zasm_script->valid();
 	}
 	
 	void disable()
 	{
-		pc = end_pc = -1;
-		old_size = 0;
-	}
-
-	script_data(ScriptType type, int index)
-	{
-		disable();
-		id = {type, index};
-	}
-	
-	bool operator==(script_data const& other) const
-	{
-		if(pc != other.pc) return false;
-		if(end_pc != other.end_pc) return false;
-		if(meta != other.meta) return false;
-		return true;
+		zasm_script = nullptr;
+		pc = 0;
+		end_pc = 0;
 	}
 };
 

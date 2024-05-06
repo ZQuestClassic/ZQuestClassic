@@ -1410,7 +1410,7 @@ JittedScriptHandle *jit_create_script_handle_impl(zasm_script *script, refInfo* 
 	int handle_id = em_create_wasm_handle(module_id);
 	if (!handle_id)
 	{
-		jit_printf("jit: Error creating wasm handle. script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
+		jit_printf("jit: Error creating wasm handle. script: %s id: %d\n", script->name.c_str(), script->id);
 		return nullptr;
 	}
 

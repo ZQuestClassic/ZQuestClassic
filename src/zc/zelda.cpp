@@ -389,7 +389,7 @@ byte   guygridffc[MAXFFCS]={0};
 mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
-std::vector<zasm_script> zasm_scripts;
+std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -458,6 +458,7 @@ dword getNumGlobalArrays()
 	if (!init_script.valid())
 		return 0;
 
+	auto& zasm = init_script.zasm_script->zasm;
 	uint32_t start_pc = init_script.pc, end_pc = init_script.end_pc;
 	if (init_script.old_size)
 	{
@@ -470,14 +471,15 @@ dword getNumGlobalArrays()
 		//! TODO ZASM MERGE init_script.end_pc is not set ...
 		end_pc = init_script.end_pc;
 	}
-	for (uint32_t pc = start_pc; pc < end_pc; pc++)
+
+	for (auto pc = start_pc; pc < end_pc; pc++)
     {
-        scommand = init_script.zasm[start_pc].command;
+        scommand = zasm[start_pc].command;
         
         if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
             ret++;
     }
-    
+
     return ret;
 }
 
@@ -4198,7 +4200,7 @@ void do_extract_zasm_command(const char* quest_path)
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
 	if (zasm_optimize_enabled())
 		zasm_optimize();
-	zasm_for_every_zasm_script(true, [&](zasm_script* script){
+	zasm_for_every_script(true, [&](zasm_script* script){
 		ScriptDebugHandle h(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
 		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());
 	});

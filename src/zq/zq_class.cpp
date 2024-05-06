@@ -13066,14 +13066,16 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 
 int32_t write_quest_zasm(PACKFILE *f)
 {
-    size_t num_commands = quest_zasm.size();
+	extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
+	auto& zasm = zasm_scripts[0]->zasm;
+    size_t num_commands = zasm.size();
     
     if(!p_iputl(num_commands,f))
         new_return(1);
 	
     for(int32_t j=0; j<num_commands; j++)
     {
-        auto& zas = quest_zasm[j];
+        auto& zas = zasm[j];
         
         if(zas.command==0xFFFF)
             continue;

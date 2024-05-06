@@ -79,10 +79,7 @@ ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t
 
 std::string zasm_to_string(const zasm_script* script, bool top_functions = false, bool generate_yielder = false);
 
-std::string zasm_script_unique_name(const script_data* script);
-
-void zasm_for_every_zasm_script(bool parallel, std::function<void(zasm_script*)> zasm_script);
-void zasm_for_every_script_data(bool parallel, std::function<void(script_data*)> fn);
+void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> zasm_script);
 
 std::string zasm_analyze_duplication();
 

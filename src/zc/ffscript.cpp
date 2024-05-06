@@ -36461,20 +36461,20 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	JittedScriptHandle* jitted_script = nullptr;
 	if (jit_is_enabled())
 	{
-		auto key = std::make_pair(curscript->zasm_script, ri);
+		auto key = std::make_pair(curscript->zasm_script.get(), ri);
 		auto it = jitted_scripts.find(key);
 		if (it == jitted_scripts.end())
 		{
-			jitted_scripts[key] = jitted_script = jit_create_script_handle(curscript->zasm_script, ri);
+			jitted_scripts[key] = jitted_script = jit_create_script_handle(curscript->zasm_script.get(), ri);
 		}
 		else
 		{
 			jitted_script = it->second;
 		}
 	}
-	else if (zasm_optimize_enabled() && !curscript->zasm_script->optimized && curscript->size > 1)
+	else if (zasm_optimize_enabled() && curscript->valid() && !curscript->zasm_script->optimized)
 	{
-		zasm_optimize_and_log(curscript->zasm_script);
+		zasm_optimize_and_log(curscript->zasm_script.get());
 	}
 
 	runtime_script_debug_handle = nullptr;
@@ -36483,7 +36483,7 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		if (!script_debug_handles.contains(curscript->id))
 		{
 			script_debug_handles.emplace(curscript->id, ScriptDebugHandle(
-				curscript->zasm_script, ScriptDebugHandle::OutputSplit::ByFrame, zasm_script_unique_name(curscript)));
+				curscript->zasm_script.get(), ScriptDebugHandle::OutputSplit::ByFrame, curscript->name()));
 		}
 		runtime_script_debug_handle = &script_debug_handles.at(curscript->id);
 		runtime_script_debug_handle->update_file();
@@ -36554,7 +36554,7 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 
 bool pc_overflow(dword pc, bool print_err)
 {
-	if(pc >= curscript->size)
+	if(pc >= curscript->zasm_script->size)
 	{
 		if(print_err)
 			Z_scripterrlog("Script PC out of bounds (over or underflow). Terminating.\n");
@@ -36615,7 +36615,9 @@ int32_t run_script_int(bool is_jitted)
 	//j_command
 	bool is_debugging = script_debug_is_runtime_debugging() == 2;
 	bool increment = true;
-	word scommand = curscript->zasm[ri->pc].command;
+	static std::vector<ffscript> empty_zasm = {{0xFFFF}};
+	const auto& zasm = curscript->valid() ? curscript->zasm_script->zasm : empty_zasm;
+	word scommand = zasm[ri->pc].command;
 	bool hit_invalid_zasm = false;
 	bool no_dealloc = false;
 	while(scommand != 0xFFFF)
@@ -36625,7 +36627,7 @@ int32_t run_script_int(bool is_jitted)
 			script_exit_cleanup(false);
 			return RUNSCRIPT_ERROR;
 		}
-		const auto& op = curscript->zasm[ri->pc];
+		const auto& op = zasm[ri->pc];
 		scommand = op.command;
 		sarg1 = op.arg1;
 		sarg2 = op.arg2;
@@ -36833,7 +36835,7 @@ int32_t run_script_int(bool is_jitted)
 				// No need to do a bounds check - the last command should always be 0xFFFF.
 				if (is_debugging)
 					break;
-				while (!pc_overflow(ri->pc+1, false) && curscript->zasm[ri->pc + 1].command == NOP)
+				while (!pc_overflow(ri->pc+1, false) && zasm[ri->pc + 1].command == NOP)
 					ri->pc++;
 				break;
 			}

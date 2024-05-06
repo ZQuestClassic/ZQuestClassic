@@ -2577,7 +2577,7 @@ OptimizeResults zasm_optimize()
 		fmt::println("Optimizing scripts...");
 
 	bool parallel = !get_flag_bool("-test-bisect").has_value();
-	zasm_for_every_zasm_script(parallel, [&](auto script){
+	zasm_for_every_script(parallel, [&](auto script){
 		if (script->optimized)
 			return;
 
@@ -2989,6 +2989,5 @@ bool zasm_optimize_test()
 		}
 	}
 
-	// script.zasm = nullptr;
 	return tests_passed;
 }

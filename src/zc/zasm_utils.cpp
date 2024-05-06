@@ -400,14 +400,6 @@ std::string zasm_to_string(const zasm_script* script, bool top_functions, bool g
 	return ss.str();
 }
 
-std::string zasm_script_unique_name(const script_data* script)
-{
-	if (script->meta.script_name.empty())
-		return fmt::format("{}-{}", ScriptTypeToString(script->id.type), script->id.index);
-	else
-		return fmt::format("{}-{}-{}", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name);
-}
-
 static uint64_t generate_function_hash(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmFunction& function)
 {
 	std::vector<uint8_t> data;
@@ -515,7 +507,7 @@ std::string zasm_analyze_duplication()
 	std::map<uint64_t, FunctionSummary> function_counts;
 	size_t total_length = 0;
 
-	zasm_for_every_zasm_script(false, [&](auto script){
+	zasm_for_every_script(false, [&](auto script){
 		hash_all_functions(script, function_counts, total_length);
 	});
 
@@ -536,48 +528,15 @@ std::string zasm_analyze_duplication()
 	return ss.str();
 }
 
-void zasm_for_every_script_data(bool parallel, std::function<void(script_data*)> fn)
+void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> fn)
 {
-	std::vector<script_data*> scripts;
-	scripts.reserve(2000);
-	#define HANDLE_SCRIPTS(array, num)\
-		for (int i = 0; i < num; i++)\
-		{\
-			script_data* script = array[i];\
-			if (script->valid())\
-			{\
-				scripts.push_back(script);\
-			}\
-		}
-	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
-	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
-	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
-	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
-	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
-	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
-	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
-	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
-	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
-	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
-	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
-
-	// TODO: debug issues on web build.
-	if (parallel && !is_web())
-		std::for_each(std::execution::par_unseq, scripts.begin(), scripts.end(), fn);
-	else
-		std::for_each(std::execution::seq, scripts.begin(), scripts.end(), fn);
-}
-
-void zasm_for_every_zasm_script(bool parallel, std::function<void(zasm_script*)> fn)
-{
-	extern std::vector<zasm_script> zasm_scripts;
+	extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 
 	std::vector<zasm_script*> scripts;
 	scripts.reserve(zasm_scripts.size());
 	for (auto& script : zasm_scripts)
-		scripts.push_back(&script);
+		if (script->valid())
+			scripts.push_back(script.get());
 
 	// TODO: debug issues on web build.
 	if (parallel && !is_web())

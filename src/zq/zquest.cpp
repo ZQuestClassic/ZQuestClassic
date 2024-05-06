@@ -468,7 +468,7 @@ int compact_active_panel = 0;
 
 int combo_col_scale = 1;
 
-vector<ffscript> quest_zasm;
+std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *guyscripts[NUMSCRIPTGUYS];
@@ -22877,7 +22877,10 @@ auto_do_slots:
 		auto start_assign_time = std::chrono::steady_clock::now();
 		string zasm_str;
 		write_script(zasm, zasm_str, false, nullptr);
-		if(parse_script_string(quest_zasm, zasm_str, false))
+
+		zasm_scripts.clear();
+		auto& quest_zasm = zasm_scripts.emplace_back();
+		if(parse_script_string(quest_zasm->zasm, zasm_str, false))
 			goto exit_do_slots;
 		if(!handle_slot_map(ffcmap, 1, ffscripts))
 			goto exit_do_slots;

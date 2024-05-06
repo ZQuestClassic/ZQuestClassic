@@ -468,9 +468,9 @@ int32_t parse_script_string(vector<ffscript>& zasm, string const& scriptstr, boo
 		}
 		
 		int32_t parse_err;
-		ffscript& zasm_cmd = zasm.emplace_back();
+		ffscript& zas = zasm.emplace_back();
 		if(bad_dstr || bad_dvec ||
-			!(parse_script_section(combuf, argbufs, zasm_cmd, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
+			!(parse_script_section(combuf, argbufs, zas, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
 		{
 			if(bad_dstr)
 				parse_err = ERR_STR;
@@ -578,29 +578,30 @@ bool handle_arg(ARGTY ty, char const* buf, int& arg)
 	return false;
 }
 
-int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffscript& zasm_cmd, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
+int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffscript& zas, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
 {
-	zasm_cmd.arg1 = 0;
-	zasm_cmd.arg2 = 0;
-	zasm_cmd.vecptr = nullptr;
-	zasm_cmd.strptr = nullptr;
+	zas.arg1 = 0;
+	zas.arg2 = 0;
+	zas.vecptr = nullptr;
+	zas.strptr = nullptr;
 	if(vptr)
 	{
-		zasm_cmd.vecptr = new std::vector<int32_t>(*vptr);
+		zas.vecptr = new std::vector<int32_t>(*vptr);
 	}
 	if(sptr)
 	{
-		zasm_cmd.strptr = new std::string(*sptr);
+		zas.strptr = new std::string(*sptr);
 	}
 	bool found_command=false;	
 	
+	// TODO: should use get_script_command(string)
 	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
 	{
 		auto& sc = get_script_command(i);
 		if(strcmp(combuf,sc.name)==0)
 		{
 			found_command=true;
-			zasm_cmd.command = i;
+			zas.command = i;
 			bool is_goto = false;
 			
 			switch(i)
@@ -615,11 +616,11 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffs
 				string lbl(argbufs[0]);
 				auto it = labels.find(lbl);
 				if(it != labels.end())
-					zasm_cmd.arg1 = (*it).second;
+					zas.arg1 = (*it).second;
 				else
-					zasm_cmd.arg1 = atoi(argbufs[0])-1;
+					zas.arg1 = atoi(argbufs[0])-1;
 			}
-			int *args[] = {&zasm_cmd.arg1, &zasm_cmd.arg2, &zasm_cmd.arg3};
+			int *args[] = {&zas.arg1, &zas.arg2, &zas.arg3};
 			for(int q = (is_goto ? 1 : 0); q < sc.args; ++q)
 			{
 				if(!handle_arg(sc.arg_type[q], argbufs[q], *(args[q])))
@@ -644,7 +645,7 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffs
 			switch(i)
 			{
 				case CALLFUNC: //Hardcoded, based on GOTO above
-					zasm_cmd.arg1 -= 1;
+					zas.arg1 -= 1;
 					break;
 			}
 		}

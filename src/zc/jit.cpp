@@ -24,7 +24,7 @@ static bool is_enabled;
 static bool jit_log_enabled;
 
 // Values may be null.
-static std::map<zasm_chunk_index, JittedFunction> compiled_functions;
+static std::map<zasm_script_id, JittedFunction> compiled_functions;
 
 void jit_printf(const char *format, ...)
 {
@@ -63,8 +63,8 @@ enum class TaskState
 
 static const int MAX_THREADS = 16;
 static std::array<ThreadInfo, MAX_THREADS> thread_infos;
-static std::map<zasm_chunk_index, TaskState> task_states;
-static std::vector<zasm_chunk_index> active_tasks;
+static std::map<zasm_script_id, TaskState> task_states;
+static std::vector<zasm_script_id> active_tasks;
 static std::vector<zasm_script*> pending_scripts;
 static ALLEGRO_MUTEX* tasks_mutex;
 static ALLEGRO_COND* tasks_cond;
@@ -179,7 +179,7 @@ static void create_compile_tasks(script_data *scripts[], size_t start, size_t ma
 		auto script = scripts[i];
 		if (script && script->valid() && !compiled_functions.contains(script->zasm_script->id))
 		{
-			pending_scripts.push_back(script->zasm_script);
+			pending_scripts.push_back(script->zasm_script.get());
 		}
 	}
 }
@@ -303,6 +303,9 @@ void jit_set_enabled(bool enabled)
 
 JittedScriptHandle *jit_create_script_handle(zasm_script *script, refInfo *ri)
 {
+	if (!script)
+		return nullptr;
+
 	auto fn = compile_if_needed(script);
 	if (!fn)
 		return nullptr;
@@ -359,7 +362,7 @@ void jit_startup()
 	{
 		// The scripts were reloaded by load_quest in init_game, so must
 		// re-optimize them.
-		zasm_for_every_zasm_script(true, [&](auto script){
+		zasm_for_every_script(true, [&](auto script){
 			if (!script->optimized && compiled_functions.contains(script->id))
 				zasm_optimize(script);
 		});
