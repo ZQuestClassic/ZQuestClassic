@@ -22878,10 +22878,13 @@ auto_do_slots:
 		string zasm_str;
 		write_script(zasm, zasm_str, false, nullptr);
 
-		zasm_scripts.clear();
-		auto& quest_zasm = zasm_scripts.emplace_back();
-		if(parse_script_string(quest_zasm->zasm, zasm_str, false))
+		std::vector<ffscript> zasm;
+		if(parse_script_string(zasm, zasm_str, false))
 			goto exit_do_slots;
+
+		zasm_scripts.clear();
+		zasm_scripts.emplace_back(std::make_shared<zasm_script>(std::move(zasm)));
+
 		if(!handle_slot_map(ffcmap, 1, ffscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(globalmap, 0, globalscripts))

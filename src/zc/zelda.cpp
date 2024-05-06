@@ -474,7 +474,7 @@ dword getNumGlobalArrays()
 
 	for (auto pc = start_pc; pc < end_pc; pc++)
     {
-        scommand = zasm[start_pc].command;
+        scommand = zasm[pc].command;
         
         if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
             ret++;
