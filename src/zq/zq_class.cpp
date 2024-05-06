@@ -13082,7 +13082,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
     Header=Header;
     i=i;
     
-    size_t num_commands = (*script)->size;
+    size_t num_commands = (*script)->zasm_script ? (*script)->zasm_script->size : 0;
     
     if(!p_iputl(num_commands,f))
     {
@@ -13197,7 +13197,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 	
     for(int32_t j=0; j<num_commands; j++)
     {
-        auto& zas = (*script)->zasm[j];
+        auto& zas = (*script)->zasm_script->zasm[j];
         if(!p_iputw(zas.command,f))
         {
             new_return(20);

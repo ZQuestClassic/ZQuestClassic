@@ -20,7 +20,7 @@ using namespace asmjit;
 struct JittedScriptHandle
 {
 	JittedFunction fn;
-	script_data *script;
+	zasm_script *script;
 	refInfo *ri;
 	intptr_t call_stack_rets[100];
 	uint32_t call_stack_ret_index;
@@ -456,7 +456,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 }
 
 // Defer to the ZASM command interpreter for 1+ commands.
-static void compile_command_interpreter(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex, bool is_wait = false)
+static void compile_command_interpreter(CompilationState& state, x86::Compiler &cc, zasm_script *script, int i, int count, x86::Gp vStackIndex, bool is_wait = false)
 {
 	extern int32_t jitted_uncompiled_command_count;
 
@@ -579,10 +579,10 @@ static bool command_is_compiled(int command)
 	return false;
 }
 
-static void error(ScriptDebugHandle* debug_handle, script_data *script, std::string str)
+static void error(ScriptDebugHandle* debug_handle, const zasm_script* script, std::string str)
 {
-	str = fmt::format("failed to compile type: {} index: {} name: {}\nerror: {}\n",
-					  ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str(), str);
+	str = fmt::format("failed to compile zasm chunk: {} id: {}\nerror: {}\n",
+					  script->name, script->id, str);
 
 	al_trace("%s", str.c_str());
 	if (debug_handle)
@@ -601,7 +601,7 @@ static size_t debug_last_pc;
 #endif
 
 // Compile the entire ZASM script at once, into a single function.
-JittedFunction jit_compile_script(script_data *script)
+JittedFunction jit_compile_script(zasm_script* script)
 {
 	if (script->size <= 1)
 		return nullptr;
@@ -613,12 +613,12 @@ JittedFunction jit_compile_script(script_data *script)
 	state.size = script->size;
 	size_t size = state.size;
 
-	al_trace("[jit] compiling script type: %s index: %d size: %zu name: %s\n", ScriptTypeToString(script->id.type), script->id.index, size, script->meta.script_name.c_str());
+	al_trace("[jit] compiling zasm chunk: %s id: %d size: %zu\n", script->name.c_str(), script->id, size);
 
 	std::optional<ScriptDebugHandle> debug_handle_ = std::nullopt;
 	if (DEBUG_JIT_PRINT_ASM)
 	{
-		debug_handle_.emplace(ScriptDebugHandle::OutputSplit::ByScript, script);
+		debug_handle_.emplace(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
 	}
 	auto debug_handle = debug_handle_ ? std::addressof(debug_handle_.value()) : nullptr;
 
@@ -1628,7 +1628,7 @@ JittedFunction jit_compile_script(script_data *script)
 			logger.data());
 	}
 
-	al_trace("[jit] finished script %s %d. time: %d ms\n", ScriptTypeToString(script->id.type), script->id.index, preprocess_ms + compile_ms);
+	al_trace("[jit] finished script: %s id: %d. time: %d ms\n", script->name.c_str(), script->id, preprocess_ms + compile_ms);
 
 	if (fn)
 	{
@@ -1648,7 +1648,7 @@ JittedFunction jit_compile_script(script_data *script)
 	return (JittedFunction)fn;
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
+JittedScriptHandle *jit_create_script_handle_impl(zasm_script *script, refInfo* ri, JittedFunction fn)
 {
 	JittedScriptHandle *jitted_script = new JittedScriptHandle;
 	jitted_script->call_stack_ret_index = 0;

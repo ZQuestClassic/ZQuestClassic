@@ -388,6 +388,7 @@ byte   guygridffc[MAXFFCS]={0};
 mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
+std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -451,20 +452,19 @@ void initZScriptGlobalScript(int32_t ID)
 
 dword getNumGlobalArrays()
 {
-    word scommand, pc = 0, ret = 0;
-    
-    do
-    {
-        scommand = globalscripts[GLOBAL_SCRIPT_INIT]->zasm[pc].command;
-        
-        if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
-            ret++;
-            
-        pc++;
-    }
-    while(scommand != 0xFFFF);
-    
-    return ret;
+	word ret = 0;
+
+	auto script = globalscripts[GLOBAL_SCRIPT_INIT]->zasm_script;
+	if (!script)
+		return 0;
+
+	for (const auto& sc : script->zasm)
+	{
+		if (sc.command == ALLOCATEGMEMV || sc.command == ALLOCATEGMEMR)
+			ret++;
+	}
+
+	return ret;
 }
 
 //movingblock mblock2; //mblock[4]?
@@ -4184,8 +4184,8 @@ void do_extract_zasm_command(const char* quest_path)
 	bool generate_yielder = get_flag_bool("-extract-zasm-yielder").value_or(false);
 	if (zasm_optimize_enabled())
 		zasm_optimize();
-	zasm_for_every_script(true, [&](script_data* script){
-		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, script);
+	zasm_for_every_script(true, [&](zasm_script* script){
+		ScriptDebugHandle h(script, ScriptDebugHandle::OutputSplit::ByScript, script->name);
 		h.print(zasm_to_string(script, top_functions, generate_yielder).c_str());
 	});
 

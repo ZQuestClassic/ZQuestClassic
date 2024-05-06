@@ -300,7 +300,7 @@ static void normalize_whitespace(std::string& text)
     text = os.str();
 }
 
-std::string zasm_to_string_clean(const script_data* script)
+std::string zasm_to_string_clean(const zasm_script* script)
 {
 	std::string str = zasm_to_string(script);
 	normalize_whitespace(str);
@@ -329,26 +329,7 @@ static void expect(std::string name, const SimulationValue& expected, const Simu
 	}
 }
 
-static script_data script_from_vec(std::vector<ffscript>& s)
-{
-	script_data script(ScriptType::None, 0);
-	s.push_back(0xFFFF);
-	script.zasm = s.data();
-	script.recalc_size();
-	return script;
-}
-
-static std::string zasm_to_string(ffscript* s, size_t len)
-{
-	script_data script(ScriptType::None, 0);
-	script.zasm = s;
-	script.recalc_size();
-	std::string result = zasm_to_string_clean(&script);
-	script.zasm = nullptr;
-	return result;
-}
-
-static void expect(std::string name, script_data* script, std::vector<ffscript> s)
+static void expect(std::string name, zasm_script* script, std::vector<ffscript>&& s)
 {
 	bool success = script->size == s.size();
 	for (int i = 0; i < s.size(); i++)
@@ -363,8 +344,9 @@ static void expect(std::string name, script_data* script, std::vector<ffscript> 
 	if (!success)
 	{
 		tests_passed = false;
-		std::string expected = zasm_to_string(&s[0], s.size());
-		std::string got = zasm_to_string(&script->zasm[0], script->size);
+		auto expected_script = zasm_script{std::move(s)};
+		std::string expected = zasm_to_string_clean(&expected_script);
+		std::string got = zasm_to_string_clean(script);
 		fmt::println("failure: {}\n{}:{}\n", name, expect_file, expect_line);
 		fmt::println("= expected:\n\n{}", expected);
 		fmt::println("= got:\n\n{}", got);
@@ -375,7 +357,7 @@ static void expect(std::string name, script_data* script, std::vector<ffscript> 
 struct OptContext
 {
 	uint32_t saved;
-	script_data* script;
+	zasm_script* script;
 	ZasmFunction fn;
 	ZasmCFG cfg;
 	bool cfg_stale;
@@ -388,7 +370,7 @@ struct OptContext
 #define C(i) (ctx.script->zasm[i])
 #define E(i) (ctx.cfg.block_edges.at(i))
 
-static OptContext create_context_no_cfg(StructuredZasm& structured_zasm, script_data* script, const ZasmFunction& fn)
+static OptContext create_context_no_cfg(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
 {
 	OptContext ctx{};
 	ctx.structured_zasm = &structured_zasm;
@@ -410,7 +392,7 @@ static void add_context_cfg(OptContext& ctx)
 	ctx.cfg_stale = false;
 }
 
-static OptContext create_context(StructuredZasm& structured_zasm, script_data* script, const ZasmFunction& fn)
+static OptContext create_context(StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
 {
 	auto ctx = create_context_no_cfg(structured_zasm, script, fn);
 	add_context_cfg(ctx);
@@ -2498,7 +2480,7 @@ static void run_pass(OptimizeResults& results, int i, OptContext& ctx, std::pair
 	results.passes[i].elapsed += std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
 }
 
-static void optimize_function(OptimizeResults& results, StructuredZasm& structured_zasm, script_data* script, const ZasmFunction& fn)
+static void optimize_function(OptimizeResults& results, StructuredZasm& structured_zasm, zasm_script* script, const ZasmFunction& fn)
 {
 	OptContext ctx = create_context_no_cfg(structured_zasm, script, fn);
 	for (int i = 0; i < function_passes.size(); i++)
@@ -2521,7 +2503,7 @@ static OptimizeResults create_opt_results()
 	return results;
 }
 
-OptimizeResults zasm_optimize(script_data* script)
+OptimizeResults zasm_optimize(zasm_script* script)
 {
 	OptimizeResults results = create_opt_results();
 
@@ -2574,11 +2556,11 @@ OptimizeResults zasm_optimize(script_data* script)
 	return results;
 }
 
-void zasm_optimize_and_log(script_data* script)
+void zasm_optimize_and_log(zasm_script* script)
 {
 	auto r = zasm_optimize(script);
 	double pct = 100.0 * r.instructions_saved / script->size;
-	std::string str = fmt::format("[{}] optimized script. saved {} instr ({:.1f}%), took {} ms", zasm_script_unique_name(script), r.instructions_saved, pct, r.elapsed / 1000);
+	std::string str = fmt::format("[{}] optimized script. saved {} instr ({:.1f}%), took {} ms", script->name, r.instructions_saved, pct, r.elapsed / 1000);
 	al_trace("%s\n", str.c_str());
 }
 
@@ -2607,7 +2589,7 @@ OptimizeResults zasm_optimize()
 			size += script->size;
 			double pct = 100.0 * r.instructions_saved / script->size;
 			if (log_level >= 2)
-				fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", zasm_script_unique_name(script), r.instructions_saved, pct, r.elapsed / 1000);
+				fmt::println("\t[{}] saved {} instr ({:.1f}%), took {} ms", script->name, r.instructions_saved, pct, r.elapsed / 1000);
 
 			for (int i = 0; i < results.passes.size(); i++)
 			{
@@ -2658,10 +2640,9 @@ static bool _TEST(std::string& name_var, std::string name)
 #define TEST(name_val) if (_TEST(name, name_val))
 
 // Simplified version of parsing ZASM.
-static script_data zasm_from_string(std::string text)
+static zasm_script zasm_from_string(std::string text)
 {
 	normalize_whitespace(text);
-	script_data script(ScriptType::None, 0);
 
 	std::vector<ffscript> instructions;
 	std::vector<std::string> lines;
@@ -2676,12 +2657,7 @@ static script_data zasm_from_string(std::string text)
 	}
 
 	instructions.emplace_back(0xFFFF);
-	ffscript* s = new ffscript[instructions.size()];
-	std::copy(instructions.begin(), instructions.end(), s);
-	script.zasm = s;
-	script.recalc_size();
-
-	return script;
+	return {std::move(instructions)};
 }
 
 // Used by test_optimize_zasm_test.py
@@ -2725,7 +2701,7 @@ void zasm_optimize_run_for_file(std::string path)
 bool zasm_optimize_test()
 {
 	tests_passed = true;
-	script_data script(ScriptType::None, 0);
+	zasm_script script;
 	std::string name;
 
 	TEST("evaluate_binary_op")
@@ -2906,7 +2882,7 @@ bool zasm_optimize_test()
 
 	TEST("simulate")
 	{
-		ffscript s[] = {
+		std::vector<ffscript> s = {
 			/*  0 */ {COMPAREV, D(2), 0},         // [Block 0 -> 1, 2]
 			/*  1 */ {SETFALSE, D(2)},
 			/*  2 */ {COMPAREV, D(3), 0},
@@ -2921,8 +2897,8 @@ bool zasm_optimize_test()
 			/*  9 */ {QUIT},                      // [Block 2 ->  ]
 			/* 10 */ {0xFFFF},
 		};
+		script = zasm_script{0, "", std::move(s)};
 		script.zasm = s;
-		script.recalc_size();
 
 		StructuredZasm structured_zasm = zasm_construct_structured(&script);
 		OptContext ctx = create_context(structured_zasm, &script, structured_zasm.functions.at(0));
@@ -2961,67 +2937,56 @@ bool zasm_optimize_test()
 		{
 			auto r = compile_conditional({GOTOCMP, 0, CMP_EQ},
 				reg(2), num_one);
-			auto script = script_from_vec(r);
+			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
 				{COMPAREV, D(2), 1},
 				{GOTOCMP, 0, CMP_EQ},
-				{0xFFFF},
 			});
-			script.zasm = nullptr;
 		}
 
 		{
 			auto e = expr(reg(2), CMP_NE, num(0));
 			auto r = compile_conditional({GOTOCMP, 0, CMP_EQ},
 				e, num(1));
-			auto script = script_from_vec(r);
+			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
 				{COMPAREV, D(2), 0},
 				{GOTOCMP, 0, CMP_NE},
-				{0xFFFF},
 			});
-			script.zasm = nullptr;
 		}
 
 		{
 			auto e = expr(reg(2), CMP_GT, num(10));
 			auto r = compile_conditional({GOTOCMP, 0, CMP_NE},
 				e, num(0));
-			auto script = script_from_vec(r);
+			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
 				{COMPAREV, D(2), 10},
 				{GOTOCMP, 0, CMP_GT},
-				{0xFFFF},
 			});
-			script.zasm = nullptr;
 		}
 
 		{
 			auto e = expr(reg(2), CMP_NE, num(0));
 			auto r = compile_conditional({GOTOCMP, 0, CMP_NE},
 				e, num(0));
-			auto script = script_from_vec(r);
+			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
 				{COMPAREV, D(2), 0},
 				{GOTOCMP, 0, CMP_NE},
-				{0xFFFF},
 			});
-			script.zasm = nullptr;
 		}
 
 		{
 			auto r = compile_conditional({GOTOCMP, 0, CMP_NE},
 				boolean_cast(reg(2)), boolean_cast(reg(3)));
-			auto script = script_from_vec(r);
+			auto script = zasm_script(std::move(r));
 			EXPECT(name, &script, {
 				{COMPARER, D(2), D(3)},
 				{GOTOCMP, 0, CMP_NE|CMP_BOOL},
-				{0xFFFF},
 			});
-			script.zasm = nullptr;
 		}
 	}
 
-	script.zasm = nullptr;
 	return tests_passed;
 }

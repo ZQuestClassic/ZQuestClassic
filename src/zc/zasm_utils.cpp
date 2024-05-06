@@ -7,11 +7,12 @@
 #include <cstdint>
 #include <fmt/format.h>
 #include <xxhash.h>
+#include <vector>
 
 #define POOLSTL_STD_SUPPLEMENT
 #include <poolstl/poolstl.hpp>
 
-StructuredZasm zasm_construct_structured(const script_data* script)
+StructuredZasm zasm_construct_structured(const zasm_script* script)
 {
 	// Find all function calls.
 	std::set<pc_t> function_calls;
@@ -166,7 +167,7 @@ StructuredZasm zasm_construct_structured(const script_data* script)
 	return {functions, function_calls, start_pc_to_function, calling_mode};
 }
 
-std::set<pc_t> zasm_find_yielding_functions(const script_data* script, StructuredZasm& structured_zasm)
+std::set<pc_t> zasm_find_yielding_functions(const zasm_script* script, StructuredZasm& structured_zasm)
 {
 	std::set<pc_t> yielding_function_ids;
 	for (const auto& fn : structured_zasm.functions)
@@ -213,7 +214,7 @@ static bool is_in_ranges(pc_t pc, const std::vector<std::pair<pc_t, pc_t>> pc_ra
 	return false;
 }
 
-ZasmCFG zasm_construct_cfg(const script_data* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
+ZasmCFG zasm_construct_cfg(const zasm_script* script, std::vector<std::pair<pc_t, pc_t>> pc_ranges)
 {
 	std::set<pc_t> block_starts;
 
@@ -297,7 +298,7 @@ static std::string zasm_fn_get_name(const ZasmFunction& function)
 		return fmt::format("Function #{} ({})", function.id, function.name);
 }
 
-static std::string zasm_to_string(const script_data* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg, std::set<pc_t> function_ids)
+static std::string zasm_to_string(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmCFG& cfg, std::set<pc_t> function_ids)
 {
 	std::stringstream ss;
 
@@ -331,7 +332,7 @@ static std::string zasm_to_string(const script_data* script, const StructuredZas
 	return ss.str();
 }
 
-std::string zasm_to_string(const script_data* script, bool top_functions, bool generate_yielder)
+std::string zasm_to_string(const zasm_script* script, bool top_functions, bool generate_yielder)
 {
 	std::stringstream ss;
 	auto structured_zasm = zasm_construct_structured(script);
@@ -395,15 +396,7 @@ std::string zasm_to_string(const script_data* script, bool top_functions, bool g
 	return ss.str();
 }
 
-std::string zasm_script_unique_name(const script_data* script)
-{
-	if (script->meta.script_name.empty())
-		return fmt::format("{}-{}", ScriptTypeToString(script->id.type), script->id.index);
-	else
-		return fmt::format("{}-{}-{}", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name);
-}
-
-static uint64_t generate_function_hash(const script_data* script, const StructuredZasm& structured_zasm, const ZasmFunction& function)
+static uint64_t generate_function_hash(const zasm_script* script, const StructuredZasm& structured_zasm, const ZasmFunction& function)
 {
 	std::vector<uint8_t> data;
 
@@ -486,7 +479,7 @@ struct FunctionSummary {
 	size_t count;
 };
 
-static void hash_all_functions(const script_data* script, std::map<uint64_t, FunctionSummary>& function_counts, size_t& total_length)
+static void hash_all_functions(const zasm_script* script, std::map<uint64_t, FunctionSummary>& function_counts, size_t& total_length)
 {
 	auto structured_zasm = zasm_construct_structured(script);
 	for (auto& function : structured_zasm.functions)
@@ -531,32 +524,15 @@ std::string zasm_analyze_duplication()
 	return ss.str();
 }
 
-void zasm_for_every_script(bool parallel, std::function<void(script_data*)> fn)
+void zasm_for_every_script(bool parallel, std::function<void(zasm_script*)> fn)
 {
-	std::vector<script_data*> scripts;
-	scripts.reserve(2000);
-	#define HANDLE_SCRIPTS(array, num)\
-		for (int i = 0; i < num; i++)\
-		{\
-			script_data* script = array[i];\
-			if (script->valid())\
-			{\
-				scripts.push_back(script);\
-			}\
-		}
-	HANDLE_SCRIPTS(ffscripts, NUMSCRIPTFFC)
-	HANDLE_SCRIPTS(itemscripts, NUMSCRIPTITEM)
-	HANDLE_SCRIPTS(globalscripts, NUMSCRIPTGLOBAL)
-	HANDLE_SCRIPTS(genericscripts, NUMSCRIPTSGENERIC)
-	HANDLE_SCRIPTS(guyscripts, NUMSCRIPTGUYS)
-	HANDLE_SCRIPTS(lwpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(ewpnscripts, NUMSCRIPTWEAPONS)
-	HANDLE_SCRIPTS(playerscripts, NUMSCRIPTPLAYER)
-	HANDLE_SCRIPTS(screenscripts, NUMSCRIPTSCREEN)
-	HANDLE_SCRIPTS(dmapscripts, NUMSCRIPTSDMAP)
-	HANDLE_SCRIPTS(itemspritescripts, NUMSCRIPTSITEMSPRITE)
-	HANDLE_SCRIPTS(comboscripts, NUMSCRIPTSCOMBODATA)
-	HANDLE_SCRIPTS(subscreenscripts, NUMSCRIPTSSUBSCREEN)
+	extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
+
+	std::vector<zasm_script*> scripts;
+	scripts.reserve(zasm_scripts.size());
+	for (auto& script : zasm_scripts)
+		if (script->valid())
+			scripts.push_back(script.get());
 
 	// TODO: debug issues on web build.
 	if (parallel && !is_web())

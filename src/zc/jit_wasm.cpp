@@ -45,7 +45,7 @@
 struct JittedScriptHandle
 {
 	JittedFunction fn;
-	script_data *script;
+	zasm_script *script;
 	refInfo *ri;
 	uint32_t handle_id;
 	pc_t call_stack_rets[100];
@@ -151,10 +151,10 @@ static bool em_destroy_wasm_module(int id)
 
 #endif
 
-static void error(script_data *script, std::string str, bool expected = false)
+static void error(const zasm_script* script, std::string str, bool expected = false)
 {
-	str = fmt::format("failed to compile type: {} index: {} name: {}\nerror: {}\n",
-					  ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str(), str);
+	str = fmt::format("failed to compile zasm chunk: {} id: {}\nerror: {}\n",
+					  script->name, script->id, str);
 
 	al_trace("%s", str.c_str());
 
@@ -233,7 +233,7 @@ static void set_z_register(CompilationState& state, int r, std::function<void()>
 }
 
 // Defer to the ZASM command interpreter for 1+ commands.
-static void compile_command_interpreter(CompilationState& state, script_data *script, int pc, int count, bool is_wait = false)
+static void compile_command_interpreter(CompilationState& state, const zasm_script* script, int pc, int count, bool is_wait = false)
 {
 	// TODO: fast path for these commands?
 	bool needs_sp = false;
@@ -370,7 +370,7 @@ static bool command_is_compiled(int command)
 	return false;
 }
 
-static WasmAssembler compile_function(CompilationState& state, script_data *script, const StructuredZasm& structured_zasm, std::set<pc_t> function_ids, const std::map<pc_t, pc_t>& function_id_to_idx, bool may_yield)
+static WasmAssembler compile_function(CompilationState& state, const zasm_script* script, const StructuredZasm& structured_zasm, std::set<pc_t> function_ids, const std::map<pc_t, pc_t>& function_id_to_idx, bool may_yield)
 {
 	WasmAssembler wasm;
 	state.wasm = &wasm;
@@ -1222,7 +1222,7 @@ static WasmAssembler compile_function(CompilationState& state, script_data *scri
 	return wasm;
 }
 
-JittedFunction jit_compile_script(script_data *script)
+JittedFunction jit_compile_script(zasm_script* script)
 {
 	if (script->size <= 1)
 		return nullptr;
@@ -1371,7 +1371,7 @@ JittedFunction jit_compile_script(script_data *script)
 		comp.builder.defineFunction(fn_run_idx, {}, wasm.finish());
 	}
 
-	comp.builder.moduleName = zasm_script_unique_name(script);
+	comp.builder.moduleName = script->name;
 	auto wm = comp.finish();
 
 	static bool write_to_disk = get_flag_bool("-jit-save-wasm").value_or(false);
@@ -1404,13 +1404,13 @@ JittedFunction jit_compile_script(script_data *script)
 	return new int(module_id);
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
+JittedScriptHandle *jit_create_script_handle_impl(zasm_script *script, refInfo* ri, JittedFunction fn)
 {
 	int module_id = *((int*)fn);
 	int handle_id = em_create_wasm_handle(module_id);
 	if (!handle_id)
 	{
-		jit_printf("jit: Error creating wasm handle. script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
+		jit_printf("jit: Error creating wasm handle. script: %s id: %d\n", script->name.c_str(), script->id);
 		return nullptr;
 	}
 
