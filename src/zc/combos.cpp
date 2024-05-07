@@ -3542,10 +3542,6 @@ void cpos_clear_all()
 		combo_posinfos[i].clear();
 	}
 	
-	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-		ffc_handle.ffc->info.clear();
-	});
-	
 	cpos_reset_cache();
 }
 void cpos_force_update() //updates without side-effects
