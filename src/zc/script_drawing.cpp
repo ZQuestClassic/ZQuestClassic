@@ -10604,9 +10604,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 {
 	color_map = &trans_table2;
 	
-	//was this next variable ever used? -- DN
-	//bool drawsubscr=false;
-	
 	if(type > 7)
 		return;
 	if(type >= 0 && get_scr(currmap, cur_origin_screen_index)->hidescriptlayers & (1<<type))

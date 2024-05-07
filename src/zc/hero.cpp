@@ -27668,10 +27668,10 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	bool smarter_scroll = get_qr(qr_SMARTER_SMART_SCROLL);
 	// from MAPCOMBO()
 	
-	for(int32_t i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < world_h; cy+=(cy%2)?7:8,i++)
+	for(int32_t i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < 176; cy+=(cy%2)?7:8,i++)
 	{
 		cx = initcx;
-		for(int32_t k=0; k<=(smarter_scroll?((initcx&7)?2:1):0) && cx < world_w; cx+=(cx%2)?7:8,k++)
+		for(int32_t k=0; k<=(smarter_scroll?((initcx&7)?2:1):0) && cx < 256; cx+=(cx%2)?7:8,k++)
 		{
 			newcombo const& c = combobuf[MAPCOMBO3(map, screen, -1,cx,cy, smarter_scroll)];
 		
