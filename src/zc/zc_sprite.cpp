@@ -361,6 +361,7 @@ bool movingblock::animate(int32_t)
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
 	mapscr* m = rpos_handle.screen;
+	mapscr* m0 = get_screen_for_world_xy(x, y);
 	if(get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(false);
 	else setSolid(clk > 0 && !(fallclk || drownclk));
@@ -755,7 +756,7 @@ bool movingblock::animate(int32_t)
 				
 				if (reveal_hidden_stairs(rpos_handle.screen, rpos_handle.screen_index, true))
 				{
-					sfx(rpos_handle.screen->secretsfx);
+					sfx(m0->secretsfx);
 				}
 				else
 				{
@@ -765,11 +766,11 @@ bool movingblock::animate(int32_t)
 							(combobuf[bcombo].type == cPUSH_HW) ||
 							(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 					{
-						sfx(rpos_handle.screen->secretsfx);
+						sfx(m0->secretsfx);
 					}
 				}
 				
-				if(isdungeon() && rpos_handle.screen->flags&fSHUTTERS)
+				if(isdungeon() && m0->flags&fSHUTTERS)
 				{
 					opendoors=8;
 				}
@@ -780,8 +781,8 @@ bool movingblock::animate(int32_t)
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
-						if(!(rpos_handle.screen->flags5&fTEMPSECRETS))
-							setmapflag(rpos_handle.screen, rpos_handle.screen_index, mSECRET);
+						if(!(m0->flags5&fTEMPSECRETS))
+							setmapflag(m0, rpos_handle.screen_index, mSECRET);
 					}
 				}
 			}
@@ -986,9 +987,9 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (reveal_hidden_stairs(rpos_handle.screen, rpos_handle.screen_index, true))
+				if (reveal_hidden_stairs(m0, rpos_handle.screen_index, true))
 				{
-					sfx(rpos_handle.screen->secretsfx);
+					sfx(m0->secretsfx);
 				}
 				else
 				{
@@ -998,11 +999,11 @@ bool movingblock::animate(int32_t)
 							(combobuf[bcombo].type == cPUSH_HW) ||
 							(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 					{
-						sfx(rpos_handle.screen->secretsfx);
+						sfx(m0->secretsfx);
 					}
 				}
 				
-				if(isdungeon() && rpos_handle.screen->flags&fSHUTTERS)
+				if(isdungeon() && m0->flags&fSHUTTERS)
 				{
 					opendoors=8;
 				}
@@ -1013,8 +1014,8 @@ bool movingblock::animate(int32_t)
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
-						if(!(rpos_handle.screen->flags5&fTEMPSECRETS))
-							setmapflag(rpos_handle.screen, rpos_handle.screen_index, mSECRET);
+						if(!(m0->flags5&fTEMPSECRETS))
+							setmapflag(m0, rpos_handle.screen_index, mSECRET);
 					}
 				}
 			}
