@@ -1948,131 +1948,54 @@ struct script_id {
 	int index;
 };
 
+typedef uint16_t zasm_script_id;
+
+struct zasm_script
+{
+	zasm_script() = default;
+	zasm_script(zasm_script_id id, std::string name, std::vector<ffscript>&& zasm) : id(id), optimized(false), name(name), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
+	zasm_script(std::vector<ffscript>&& zasm) : id(0), optimized(false), name(""), size(zasm.size()), zasm(std::exchange(zasm, {})) {}
+
+	zasm_script_id id;
+	bool optimized;
+	std::string name;
+	size_t size;
+	std::vector<ffscript> zasm;
+
+	// TODO: remove the necessity of this terminal command being here.
+	bool valid() const
+	{
+		return !zasm.empty() && zasm[0] != 0xFFFF;
+	}
+};
+
 struct script_data
 {
-	ffscript* zasm;
+	// The zasm instructions used by this script.
+	// In quests before 3.0, each script had its own chunk of zasm.
+	// Since 3.0 all scripts share the same chunk.
+	std::shared_ptr<zasm_script> zasm_script = nullptr;
 	zasm_meta meta;
 	script_id id;
-	size_t size;
-	bool optimized;
-	
-	void null_script(size_t newSize = 1)
+
+	script_data(ScriptType type, int index) : id({type, index}) {}
+
+	std::string name() const
 	{
-		if (newSize < 1)
-			newSize = 1;
-		if(zasm)
-			delete[] zasm;
-		zasm = new ffscript[newSize];
-		zasm[0].clear();
-		meta.zero();
-		size = newSize;
-		optimized = false;
+		if (meta.script_name.empty())
+			return fmt::format("{}-{}", ScriptTypeToString(id.type), id.index);
+		else
+			return fmt::format("{}-{}-{}", ScriptTypeToString(id.type), id.index, meta.script_name);
 	}
 	
 	bool valid() const
 	{
-		return (zasm && zasm[0].command != 0xFFFF);
+		return zasm_script && zasm_script->valid();
 	}
 	
 	void disable()
 	{
-		if(zasm)
-		{
-			zasm[0].clear();
-			size = 1;
-			optimized = false;
-		}
-	}
-	
-	void recalc_size()
-	{
-		if(zasm)
-		{
-			for(uint32_t q = 0;;++q)
-			{
-				if(zasm[q].command == 0xFFFF)
-				{
-					size = q+1;
-					return;
-				}
-			}
-		}
-
-		size = 0;
-	}
-	
-	void set(script_data const& other)
-	{
-		if(zasm)
-			delete[] zasm;
-		if(other.size)
-		{
-			zasm = new ffscript[other.size];
-			for(size_t q = 0; q < other.size; ++q)
-			{
-				other.zasm[q].copy(zasm[q]);
-			}
-			size = other.size;
-			optimized = other.optimized;
-		}
-		else
-		{
-			zasm = NULL;
-			null_script();
-		}
-		meta = other.meta;
-	}
-
-	script_data(ScriptType type, int index) : zasm(NULL)
-	{
-		id = {type, index};
-		null_script();
-	}
-	
-	script_data(script_data const& other) : zasm(NULL)
-	{
-		set(other);
-	}
-	
-	~script_data()
-	{
-		if(zasm)
-			delete[] zasm;
-	}
-	
-	void transfer(script_data& other)
-	{
-		other.meta = meta;
-		if(other.zasm)
-			delete[] other.zasm;
-		other.zasm = zasm;
-		other.size = size;
-		other.optimized = optimized;
-		zasm = NULL;
-		null_script();
-	}
-	
-	script_data& operator=(script_data const& other)
-	{
-		set(other);
-		return *this;
-	}
-	
-	bool equal_zasm(script_data const& other) const
-	{
-		if(size != other.size) return false;
-		if(valid() != other.valid()) return false;
-		for(auto q = 0; q < size; ++q)
-		{
-			if(zasm[q] != other.zasm[q]) return false;
-		}
-		return true;
-	}
-	
-	bool operator==(script_data const& other) const
-	{
-		if(meta != other.meta) return false;
-		return equal_zasm(other);
+		zasm_script = nullptr;
 	}
 };
 

@@ -124,7 +124,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	fclose(tempfile);
 	
 	script_data old_init_script(*globalscripts[0]);
-	uint32_t lastInitSize = old_init_script.size;
+	uint32_t lastInitSize = old_init_script.zasm_script->size;
 	map<string, ZScript::ScriptTypeID> stypes;
 	map<string, disassembled_script_data> scripts;
 	
@@ -417,10 +417,10 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	if(WarnOnInitChanged && noquick_compile)
 	{
 		script_data const& new_init_script = *globalscripts[0];
-		if(new_init_script != old_init_script) //Global init changed
+		if(new_init_script.zasm_script->zasm != old_init_script.zasm_script->zasm) //Global init changed
 		{
 			AlertFuncDialog("Init Script Changed",
-				"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(new_init_script.size)+")\n\n"
+				"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(new_init_script.zasm_script->size)+")\n\n"
 				"This can break existing save files of your quest. To prevent users "
 				"from loading save files that would break, you can raise the \"Quest "
 				"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"

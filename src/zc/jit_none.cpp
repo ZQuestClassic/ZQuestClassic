@@ -1,6 +1,6 @@
 #include "zc/jit.h"
 
-JittedFunction jit_compile_script(script_data* script)
+JittedFunction jit_compile_script(zasm_script* script)
 {
 	return nullptr;
 }
@@ -10,7 +10,7 @@ int jit_run_script(JittedScriptHandle *jitted_script)
 	return RUNSCRIPT_ERROR;
 }
 
-JittedScriptHandle *jit_create_script_handle_impl(script_data *script, refInfo* ri, JittedFunction fn)
+JittedScriptHandle *jit_create_script_handle_impl(zasm_script* script, refInfo* ri, JittedFunction fn)
 {
 	return nullptr;
 }

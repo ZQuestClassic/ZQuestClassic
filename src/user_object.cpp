@@ -93,7 +93,7 @@ void scr_func_exec::execute()
 		return;
 	
 	// Check that the line number points to the correct destructor
-	if(validate())
+	if(validate(sc_data->zasm_script.get()))
 	{
 		// Either it did, or it was auto-correctable
 		push_ri(); //Store the prior script state
@@ -125,19 +125,19 @@ void scr_func_exec::execute()
 		pop_ri(); //restore the prior script state
 	}
 }
-bool scr_func_exec::validate()
+bool scr_func_exec::validate(const zasm_script* zasm_script)
 {
 	script_data* sc_data = load_scrdata(type,script,i);
 	if(!pc || !sc_data || !sc_data->valid()) // Destructor is null or points to bad script
 		return false;
 	
-	ffscript &zas = sc_data->zasm[pc-1];
+	const ffscript &zas = zasm_script->zasm[pc-1];
 	if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
 		return true; //validated! Destructor already points to correct line
 	dword q = 0;
 	while(true)
 	{
-		ffscript& zas = sc_data->zasm[q];
+		ffscript& zas = sc_data->zasm_script->zasm[q];
 		if(zas.command == 0xFFFF) //Ran out of script to check
 		{
 			zprint2("Destructor for class '%s' expected, but not found!\n", name.c_str());
@@ -155,7 +155,7 @@ bool scr_func_exec::validate()
 void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
 	if(!pc) return; //destructor is null
-	ffscript &zas = curscript->zasm[pc-1];
+	ffscript &zas = curscript->zasm_script->zasm[pc-1];
 	if(zas.command == STARTDESTRUCTOR && zas.strptr) //Destructor is valid
 	{
 		destruct.pc = pc;

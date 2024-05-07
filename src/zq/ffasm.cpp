@@ -124,6 +124,7 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 {
 	// TODO: refactor to just take a script_data*
 	ASSERT(*script);
+	auto& zasm = (*script)->zasm_script->zasm;
 	saved=false;
 	string buffer;
 	char combuf[SUBBUFSZ] = {0};
@@ -299,13 +300,13 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 	stop = false;
 	meta_done = false;
 	
-	(*script)->null_script(num_commands);
+	zasm.clear();
+	zasm.reserve(num_commands);
 	
 	for(int32_t i=0; i<num_commands; ++i)
 	{
 		if(stop)
 		{
-			(*script)->zasm[i].clear();
 			break;
 		}
 		else
@@ -424,6 +425,8 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 				--i; continue;
 			}
 			meta_done = true;
+
+			auto& sc = zasm.emplace_back();
 			
 			int32_t k=0, l=0;
 			
@@ -497,7 +500,7 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 			
 			int32_t parse_err;
 			if(bad_dstr || bad_dvec ||
-				!(parse_script_section(combuf, argbufs, script, i, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
+				!(parse_script_section(combuf, argbufs, sc, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
 			{
 				if(bad_dstr) parse_err = ERR_STR;
 				if(bad_dvec) parse_err = ERR_VEC;
@@ -529,14 +532,12 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 				InfoDialog("Error",buf).show();
 				stop=true;
 				success=false;
-				(*script)->zasm[i].strptr = nullptr;
-				(*script)->zasm[i].vecptr = nullptr;
 				(*script)->disable();
 			}
 		}
 	}
 
-	(*script)->recalc_size();
+	(*script)->zasm_script->size = zasm.size();
 
 	if(report_success && success) //(!stop) // stop is never true here
 	{
@@ -625,9 +626,8 @@ bool handle_arg(ARGTY ty, char const* buf, int& arg)
 	return false;
 }
 
-int32_t parse_script_section(char const* combuf, char const* const* argbufs, script_data **script, int32_t com, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
+int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffscript& zas, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
 {
-	auto& zas = (*script)->zasm[com];
 	zas.arg1 = 0;
 	zas.arg2 = 0;
 	zas.vecptr = nullptr;
@@ -642,6 +642,7 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, scr
 	}
 	bool found_command=false;	
 	
+	// TODO: should use get_script_command(string)
 	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
 	{
 		auto& sc = get_script_command(i);
@@ -663,11 +664,11 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, scr
 				string lbl(argbufs[0]);
 				auto it = labels.find(lbl);
 				if(it != labels.end())
-					(*script)->zasm[com].arg1 = (*it).second;
+					zas.arg1 = (*it).second;
 				else
-					(*script)->zasm[com].arg1 = atoi(argbufs[0])-1;
+					zas.arg1 = atoi(argbufs[0])-1;
 			}
-			auto& op = (*script)->zasm[com];
+			auto& op = zas;
 			int *args[] = {&op.arg1, &op.arg2, &op.arg3};
 			for(int q = (is_goto ? 1 : 0); q < sc.args; ++q)
 			{
@@ -693,7 +694,7 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, scr
 			switch(i)
 			{
 				case CALLFUNC: //Hardcoded, based on GOTO above
-					(*script)->zasm[com].arg1 -= 1;
+					zas.arg1 -= 1;
 					break;
 			}
 		}

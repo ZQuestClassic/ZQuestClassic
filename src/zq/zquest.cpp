@@ -466,6 +466,7 @@ int compact_active_panel = 0;
 
 int combo_col_scale = 1;
 
+std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *guyscripts[NUMSCRIPTGUYS];
@@ -23602,7 +23603,7 @@ int32_t onImportZASM()
 				}
 				//}
 				if(!slot) break; //Not found?
-				temp_slot->transfer(**slot);
+				*slot = std::move(temp_slot);
 				map->format = SCRIPT_FORMAT_ZASM;
 				map->updateName(namebuf);
 				confirmed = true;

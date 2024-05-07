@@ -355,6 +355,10 @@ enum class ScriptType {
 	Generic,
 	GenericFrozen,
 	EngineSubscreen,
+	// Update the following when adding a new script type:
+	// - const char* ScriptTypeToString(ScriptType type)
+	// - string get_script_name(ScriptType type)
+	// - ScriptType get_script_type(string const& name)
 	First = Global,
 	Last = EngineSubscreen,
 };

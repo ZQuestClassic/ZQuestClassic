@@ -10,6 +10,7 @@
 #include "base/combo.h"
 #include "base/msgstr.h"
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <stdio.h>
 #include <cstring>
@@ -32,6 +33,7 @@
 #include "defdata.h"
 #include "subscr.h"
 #include "zc/replay.h"
+#include "zc/zasm_utils.h"
 #include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
@@ -11894,6 +11896,8 @@ int32_t setupsubscreens()
     return 0;
 }
 
+extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
+
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];
 extern script_data *guyscripts[NUMSCRIPTGUYS];
@@ -11918,6 +11922,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	numscripts=numscripts; //to avoid unused variables warnings
 	int32_t ret;
 	read_scripts.clear();
+	zasm_scripts.clear();
 	
 	//section version info
 	if(!p_igetw(&s_version,f))
@@ -12733,7 +12738,6 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	//Please also update loadquest() when modifying this method -DD
 	char b33[34] = {0};
 	b33[33] = 0;
-	ffscript temp_script;
 	int32_t num_commands=1000;
 	
 	if(s_version>=2)
@@ -12753,8 +12757,9 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	{
 		return qe_invalid;
 	}
-	
-	(*script)->null_script(num_commands);
+
+	std::vector<ffscript> zasm;
+	zasm.reserve(num_commands);
 
 	if(s_version >= 16)
 	{
@@ -12917,90 +12922,84 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 		(*script)->meta = temp_meta;
 	}
 	
-	temp_script.clear();
 	for(int32_t j=0; j<num_commands; j++)
 	{
-		if(!p_igetw(&(temp_script.command),f))
+		auto& sc = zasm.emplace_back();
+		if(!p_igetw(&sc.command,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(temp_script.command == 0xFFFF)
+		if(sc.command == 0xFFFF)
 		{
-			(*script)->zasm[j].clear();
 			break;
 		}
-		else
+
+		if(!p_igetl(&sc.arg1,f))
 		{
-			if(!p_igetl(&(temp_script.arg1),f))
-			{
-				return qe_invalid;
-			}
-			
-			if(!p_igetl(&(temp_script.arg2),f))
-			{
-				return qe_invalid;
-			}
-			
-			if(s_version >= 24)
-				if(!p_igetl(&(temp_script.arg3),f))
-					return qe_invalid;
-			
-			if(s_version >= 21)
-			{
-				uint32_t sz = 0;
-				if(!p_igetl(&sz,f))
-				{
-					return qe_invalid;
-				}
-				if(sz) //string found
-				{
-					temp_script.strptr = new std::string();
-					char dummy;
-					for(size_t q = 0; q < sz; ++q)
-					{
-						if(!p_getc(&dummy,f))
-						{
-							return qe_invalid;
-						}
-						temp_script.strptr->push_back(dummy);
-					}
-				}
-				if(!p_igetl(&sz,f))
-				{
-					return qe_invalid;
-				}
-				if(sz) //vector found
-				{
-					temp_script.vecptr = new std::vector<int32_t>();
-					int32_t dummy;
-					for(size_t q = 0; q < sz; ++q)
-					{
-						if(!p_igetl(&dummy,f))
-						{
-							return qe_invalid;
-						}
-						temp_script.vecptr->push_back(dummy);
-					}
-				}
-			}
-			
-			temp_script.give((*script)->zasm[j]);
+			return qe_invalid;
 		}
-		temp_script.clear();
+		
+		if(!p_igetl(&sc.arg2,f))
+		{
+			return qe_invalid;
+		}
+		
+		if(s_version >= 24)
+			if(!p_igetl(&sc.arg3,f))
+				return qe_invalid;
+		
+		if(s_version >= 21)
+		{
+			uint32_t sz = 0;
+			if(!p_igetl(&sz,f))
+			{
+				return qe_invalid;
+			}
+			if(sz) //string found
+			{
+				sc.strptr = new std::string();
+				char dummy;
+				for(size_t q = 0; q < sz; ++q)
+				{
+					if(!p_getc(&dummy,f))
+					{
+						return qe_invalid;
+					}
+					sc.strptr->push_back(dummy);
+				}
+			}
+			if(!p_igetl(&sz,f))
+			{
+				return qe_invalid;
+			}
+			if(sz) //vector found
+			{
+				sc.vecptr = new std::vector<int32_t>();
+				int32_t dummy;
+				for(size_t q = 0; q < sz; ++q)
+				{
+					if(!p_igetl(&dummy,f))
+					{
+						return qe_invalid;
+					}
+					sc.vecptr->push_back(dummy);
+				}
+			}
+		}
 	}
 
 	// If the first command is unknown, invalidate the whole thing.
 	// Saw this for https://www.purezc.net/index.php?page=quests&id=411 hero script 0
-	if ((*script)->zasm[0].command >= NUMCOMMANDS && (*script)->zasm[0].command != 0xFFFF)
+	if (!zasm.empty() && zasm[0].command >= NUMCOMMANDS && zasm[0].command != 0xFFFF)
 	{
 		al_trace("Warning: found script with bad instruction, disabling script: %s %d\n", ScriptTypeToString((*script)->id.type), (*script)->id.index);
-		(*script)->zasm[0].command = 0xFFFF;
+		zasm.clear();
 	}
 
-	(*script)->recalc_size();
-	if ((*script)->valid())
-		read_scripts.push_back(*script);
+	zasm_script_id id = zasm_scripts.size();
+	auto& zs = zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, (*script)->name(), std::move(zasm)));
+	(*script)->zasm_script = zs;
 
 	return 0;
 }

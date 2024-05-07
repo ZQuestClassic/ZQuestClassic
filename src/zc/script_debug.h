@@ -16,7 +16,7 @@ public:
 		ByScript,
 	};
 
-	ScriptDebugHandle(OutputSplit output_split, script_data* script);
+	ScriptDebugHandle(zasm_script* script, OutputSplit output_split, std::string name);
 	ScriptDebugHandle(ScriptDebugHandle&& rhs);
 	ScriptDebugHandle& operator=(ScriptDebugHandle&& rhs);
 	~ScriptDebugHandle();
@@ -27,12 +27,12 @@ public:
 	void print(const char *str);
 	void print(int32_t attributes, const char *str);
 	void print_command(int i);
-	void print_zasm();
 	void pre_command();
 
 private:
 	OutputSplit output_split;
-	script_data* script;
+	std::string name;
+	zasm_script* script;
 	ALLEGRO_FILE* file;
 	int file_counter;
 

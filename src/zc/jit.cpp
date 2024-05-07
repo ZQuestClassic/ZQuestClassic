@@ -8,6 +8,7 @@
 
 #include "zc/jit.h"
 #include "base/zapp.h"
+#include "base/zdefs.h"
 #include "zc/script_debug.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
@@ -21,8 +22,9 @@
 
 static bool is_enabled;
 static bool jit_log_enabled;
+
 // Values may be null.
-static std::map<script_id, JittedFunction> compiled_functions;
+static std::map<zasm_script_id, JittedFunction> compiled_functions;
 
 void jit_printf(const char *format, ...)
 {
@@ -61,9 +63,9 @@ enum class TaskState
 
 static const int MAX_THREADS = 16;
 static std::array<ThreadInfo, MAX_THREADS> thread_infos;
-static std::map<script_id, TaskState> task_states;
-static std::vector<script_id> active_tasks;
-static std::vector<script_data*> pending_scripts;
+static std::map<zasm_script_id, TaskState> task_states;
+static std::vector<zasm_script_id> active_tasks;
+static std::vector<zasm_script*> pending_scripts;
 static ALLEGRO_MUTEX* tasks_mutex;
 static ALLEGRO_COND* tasks_cond;
 static ALLEGRO_COND* task_finish_cond;
@@ -72,7 +74,7 @@ static ALLEGRO_COND* task_finish_cond;
 // If a thread is currently compiling this script, waits for that thread to finish.
 // Otherwise compile the script on this thread.
 // If null is returned, the script failed to compile.
-static JittedFunction compile_if_needed(script_data *script)
+static JittedFunction compile_if_needed(zasm_script *script)
 {
 	JittedFunction fn;
 
@@ -90,7 +92,7 @@ static JittedFunction compile_if_needed(script_data *script)
 	if (task_states[script->id] == TaskState::Active)
 	{
 		// Wait for task to finish.
-		jit_printf("jit: [*] waiting for thread to compile script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
+		jit_printf("jit: [*] waiting for thread to compile script: %s id: %d\n", script->name.c_str(), script->id);
 		while (!compiled_functions.contains(script->id))
 		{
 			al_wait_cond(task_finish_cond, tasks_mutex);
@@ -107,7 +109,7 @@ static JittedFunction compile_if_needed(script_data *script)
 		pending_scripts.erase(pending_it);
 	al_unlock_mutex(tasks_mutex);
 
-	jit_printf("jit: [*] compiling script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
+	jit_printf("jit: [*] compiling script: %s id: %d\n", script->name.c_str(), script->id);
 	fn = jit_compile_script(script);
 
 	al_lock_mutex(tasks_mutex);
@@ -146,7 +148,7 @@ static void * compile_script_proc(ALLEGRO_THREAD *thread, void *arg)
 		active_tasks.push_back(script->id);
 		al_unlock_mutex(tasks_mutex);
 
-		jit_printf("jit: [%d] compiling script type: %s index: %d name: %s\n", id, ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
+		jit_printf("jit: [%d] compiling script: %s id: %d\n", id, script->name.c_str(), script->id);
 		auto fn = jit_compile_script(script);
 
 		al_lock_mutex(tasks_mutex);
@@ -175,9 +177,9 @@ static void create_compile_tasks(script_data *scripts[], size_t start, size_t ma
 	for (size_t i = start; i < max; i++)
 	{
 		auto script = scripts[i];
-		if (script && script->valid() && !compiled_functions.contains({type, (int)i}))
+		if (script && script->valid() && !compiled_functions.contains(script->zasm_script->id))
 		{
-			pending_scripts.push_back(script);
+			pending_scripts.push_back(script->zasm_script.get());
 		}
 	}
 }
@@ -270,7 +272,7 @@ static void create_compile_tasks()
 	// Skip the first two - are priortizied below the sort.
 	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_INIT+2, NUMSCRIPTGLOBAL, ScriptType::Global);
 	// Sort by # of commands, so that biggest scripts get compiled first.
-	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
+	std::sort(pending_scripts.begin(), pending_scripts.end(), [](zasm_script* a, zasm_script* b) {
 		return a->size < b->size;
 	});
 	// Make sure player and global scripts (just the INIT and GAME ones) are compiled first, as they
@@ -299,8 +301,11 @@ void jit_set_enabled(bool enabled)
 	is_enabled = enabled;
 }
 
-JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
+JittedScriptHandle *jit_create_script_handle(zasm_script *script, refInfo *ri)
 {
+	if (!script)
+		return nullptr;
+
 	auto fn = compile_if_needed(script);
 	if (!fn)
 		return nullptr;
