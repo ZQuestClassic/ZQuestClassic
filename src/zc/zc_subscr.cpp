@@ -587,17 +587,17 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 	animate_subscr_buttonitems();
 	BITMAP *subscr = create_sub_bitmap(dest,x,y,256,passive_subscreen_height);
 
-	if ((is_z3_scrolling_mode() || (screenscrolling && scrolling_region.region_id)) && playing_field_offset)
-	{
-		rectfill(subscr, 0, 0, subscr->w, playing_field_offset - 1, 0);
-	}
-
 	if(no_subscreen())
 	{
 		clear_to_color(subscr,0);
 		destroy_bitmap(subscr);
 		return;
 	}
+
+	// Since z3 was added, all passive subscreens get a black background underneath (unless
+	// using an extended height viewport).
+	if (QHeader.is_z3 && playing_field_offset)
+		rectfill(subscr, 0, 0, subscr->w, playing_field_offset - 1, 0);
 
 	// TODO z3 would be simpler to just set a `subscr_compass_x` ?
 	int32_t prev_homescr;

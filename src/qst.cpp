@@ -4556,6 +4556,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		DMaps[start_dmap+i].type |= dmCAVE;
 	}
 	
+	Header->is_z3 = false;
 	if(!Header || Header->zelda_version > 0x192)
 	{
 		//section version info
@@ -4563,6 +4564,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			return qe_invalid;
 		}
+		Header->is_z3 = s_version >= 21;
 
 		// TODO z3 final rm
 		if (global_z3_hacky_load)

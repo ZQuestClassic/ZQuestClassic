@@ -2215,6 +2215,7 @@ struct zquestheader
     //made in module_name
     
 	bool external_zinfo;
+	bool is_z3;
 	
 	
 	bool is_legacy() const;
