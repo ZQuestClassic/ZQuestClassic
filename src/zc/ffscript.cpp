@@ -2650,10 +2650,66 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 				return;
 		}
 	}
-	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
+
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i].own_clear(scriptType,UID))
+			deallocateArray(i);
+	}
+}
+
+void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
+{
+	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
+	{
+		if (scb.script_created_bitmaps[q].owned_type == scriptType)
+			scb.script_created_bitmaps[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		if (script_rngs[q].owned_type == scriptType)
+			script_rngs[q].own_clear_any();
+	}
+	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	{
+		if (script_paldatas[q].owned_type == scriptType)
+			script_paldatas[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
+	{
+		if (script_files[q].owned_type == scriptType)
+			script_files[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		if (script_dirs[q].owned_type == scriptType)
+			script_dirs[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		if (script_stacks[q].owned_type == scriptType)
+			script_stacks[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < max_valid_object; ++q)
+	{
+		if (script_objects[q].owned_type == scriptType)
+			script_objects[q].own_clear_any();
+	}
+	if (!get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
+	{
+		//Keep 2.50.2 behavior if QR unchecked.
+		switch(scriptType)
+		{
+			case ScriptType::FFC:
+			case ScriptType::Item:
+			case ScriptType::Global:
+				return;
+		}
+	}
+
+	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	{
+		if (arrayOwner[i].owned_type == scriptType && arrayOwner[i].own_clear_any())
 			deallocateArray(i);
 	}
 }
