@@ -1026,7 +1026,7 @@ class screendata {
 	// @zasm
 	//   POP D2
 	//   REGION_TRIGGER_SECRETS D2
-	internal void TriggerSecretsFor(int screen);
+	internal void TriggerSecretsFor(int screen); // TODO z3 !!! Region->TriggerSecretsFor instead
 
 	// Plays the warping screen 'zap' effect.
 	//

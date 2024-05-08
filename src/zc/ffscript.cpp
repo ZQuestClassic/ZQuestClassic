@@ -30701,7 +30701,8 @@ void do_getscreenforcombopos(const bool v)
 {
 	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
 	
-	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Screen->GetScreenIndexForRpos") != SH::_NoError)
+	// TODO z3 !!! implement REGION_SCREEN_FOR_COMBO_POS as Region->GetScreenIndexForPos
+	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Region->GetScreenIndexForPos") != SH::_NoError)
 	{
 		set_register(sarg1, -10000);
 		return;
