@@ -6,6 +6,7 @@ Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
+Debug: could not resolve symbol "Viewport"
 Success!
 Compile finished with exit code '0' (success)
 === METADATA (elided)

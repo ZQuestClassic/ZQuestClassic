@@ -2470,6 +2470,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::Screen:
 		{
 			curscript = screenscripts[script];
+			ri->screenref = index;
 
 			if (!data.initialized)
 			{
@@ -9189,7 +9190,7 @@ int32_t get_register(int32_t arg)
 
 		case REGION_ORIGIN_SCREEN:
 		{
-			ret = currscr * 10000;
+			ret = currscr;
 		}
 		break;
 		
@@ -23107,7 +23108,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SCREENSCRIPT:
 		{
-			FFScript::deallocateAllScriptOwned(ScriptType::Screen, 0);
+			FFScript::deallocateAllScriptOwned(ScriptType::Screen, ri->screenref);
 			
 			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
@@ -23115,7 +23116,7 @@ void set_register(int32_t arg, int32_t value)
 					tmpscr->screeninitd[q] = 0;
 			}
 			tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
-			on_reassign_script_engine_data(ScriptType::Screen, 0);
+			on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
 			break;
 		}
 		
@@ -23743,7 +23744,7 @@ void set_register(int32_t arg, int32_t value)
 							tmpscr->screeninitd[q] = 0;
 					}
 					
-					on_reassign_script_engine_data(ScriptType::Screen, 0);
+					on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
 				}
 				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
@@ -30686,11 +30687,11 @@ void do_getscreenforcombopos(const bool v)
 	
 	if (BC::checkBoundsPos(rpos, 0, 175, "Region->GetScreenForComoboPos") != SH::_NoError)
 	{
-		set_register(sarg1, -10000);
+		set_register(sarg1, -1);
 		return;
 	}
 
-	set_register(sarg1, currscr * 10000);
+	set_register(sarg1, currscr);
 }
 
 
@@ -41332,12 +41333,6 @@ int32_t run_script_int(bool is_jitted)
 					break;
 				}
 				
-				case ScriptType::Screen:
-				{
-					FFScript::deallocateAllScriptOwned(ScriptType::Screen, 0);
-					break;
-				} 
-				
 				default:
 					FFScript::deallocateAllScriptOwned(type, i);
 					break;
@@ -41408,9 +41403,9 @@ int32_t ffscript_engine(const bool preload)
 		{
 			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 			{
-				if ( tmpscr->script > 0 && FFCore.doscript(ScriptType::Screen) )
+				if ( tmpscr->script > 0 && FFCore.doscript(ScriptType::Screen, currscr) )
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);
+					ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);
 				}
 			}
 		}
@@ -43814,10 +43809,10 @@ void FFScript::runWarpScripts(bool waitdraw)
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen, currscr) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);  
-			FFCore.waitdraw(ScriptType::Screen) = 0;		
+			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);  
+			FFCore.waitdraw(ScriptType::Screen, currscr) = 0;		
 		}
 	}
 	else
@@ -43844,7 +43839,7 @@ void FFScript::runWarpScripts(bool waitdraw)
 		}
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);
+			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);
 		}
 	}
 }
