@@ -1860,7 +1860,7 @@ enum __Error
     };
     
 	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways = true);
-	void deallocateAllScriptOwnedOfType(ScriptType scriptType, bool requireAlways = true);
+	static void deallocateAllScriptOwnedOfType(ScriptType scriptType);
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
 

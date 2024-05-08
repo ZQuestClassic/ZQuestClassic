@@ -3479,7 +3479,7 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 	}
 }
 
-void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType, bool requireAlways)
+void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
 {
 	std::vector<uint32_t> ids_to_clear;
 	for (auto& script_object : script_objects | std::views::values)
@@ -3500,7 +3500,7 @@ void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType, bool requir
 			delete_script_object(id);
 	}
 
-	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
+	if (!get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
 		//Keep 2.50.2 behavior if QR unchecked.
 		switch(scriptType)
