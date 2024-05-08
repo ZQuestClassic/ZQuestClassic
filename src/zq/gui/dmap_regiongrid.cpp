@@ -128,7 +128,8 @@ static std::vector<int> qrs_that_prevent_regions = {
 	qr_OLD_SIDEVIEW_CEILING_COLLISON,
 	qr_OLD_SIDEVIEW_LANDING_CODE,
 	qr_OLD_SLASHNEXT_SECRETS,
-	qr_OLD_STRING_EDITOR_MARGINS,
+	// TODO QRHINT doesnt know about needing to do what onStrFix does
+	// qr_OLD_STRING_EDITOR_MARGINS,
 	qr_OLD_TILE_INITIALIZATION,
 	qr_OLD_WIZZROBE_SUBMERGING,
 	qr_OLDCS2,
@@ -150,7 +151,8 @@ static std::vector<int> qrs_that_prevent_regions = {
 	qr_SPOTLIGHT_IGNR_SOLIDOBJ,
 	qr_SPRITE_JUMP_IS_TRUNCATED,
 	qr_STEPTEMP_SECRET_ONLY_16_31,
-	qr_STRING_FRAME_OLD_WIDTH_HEIGHT,
+	// TODO QRHINT doesnt know about needing to do what onStrFix does
+	// qr_STRING_FRAME_OLD_WIDTH_HEIGHT,
 	qr_SUBSCR_BACKWARDS_ID_ORDER,
 	qr_SUBSCR_OLD_SELECTOR,
 	qr_TRIGGERSREPEAT,
