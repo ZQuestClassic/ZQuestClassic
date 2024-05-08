@@ -3284,10 +3284,50 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 				return;
 		}
 	}
-	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
+
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i].own_clear(scriptType,UID))
+			deallocateArray(i);
+	}
+}
+
+void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType)
+{
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
+	{
+		if (script_object->owned_type == scriptType)
+		{
+			ids_to_clear.push_back(script_object->id);
+		}
+	}
+	if (ZScriptVersion::gc())
+	{
+		for (auto id : ids_to_clear)
+			script_object_ref_dec(id);
+	}
+	else
+	{
+		for (auto id : ids_to_clear)
+			delete_script_object(id);
+	}
+
+	if (!get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
+	{
+		//Keep 2.50.2 behavior if QR unchecked.
+		switch(scriptType)
+		{
+			case ScriptType::FFC:
+			case ScriptType::Item:
+			case ScriptType::Global:
+				return;
+		}
+	}
+
+	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	{
+		if(arrayOwner[i].owned_type == scriptType)
 			deallocateArray(i);
 	}
 }

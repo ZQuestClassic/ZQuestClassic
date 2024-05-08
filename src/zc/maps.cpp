@@ -5156,8 +5156,8 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	//screen / screendata script
 	FFCore.reset_script_engine_data(ScriptType::Screen, currscr);
-	FFCore.deallocateAllScriptOwned(ScriptType::Screen, currscr);
-	FFCore.deallocateAllScriptOwned(ScriptType::Combo, 0);
+	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Screen);
+	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Combo);
 	FFCore.clear_combo_scripts();
 	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
 	{
