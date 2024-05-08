@@ -3,14 +3,14 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Zelda Classic Coverage Report</title>
+    <title>ZQuest Classic Coverage Report</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="index.css"/>
   </head>
 
   <body>
     <header>
-      <h1>Zelda Classic Coverage Report</h1>
+      <h1>ZQuest Classic Coverage Report</h1>
 
       <hr/>
 
@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-11-16 06:35:02</td>
+      <td>2024-05-08 03:28:19</td>
     </tr>
   </table>
 </div>
@@ -69,65 +69,15 @@
   <summary>List of functions</summary>
   <table class="listOfFunctions">
     <tr>
-      <th>Function</th>
-      <th>Line</th>
+      <th>Function (Line)</th>
       <th>Call count</th>
+      <th>Block coverage</th>
     </tr>
-    <tr>
-      <td>
-        <a href="#l37">ffcdata::ffcdata()</a>
-      </td>
-      <td>
-        <a href="#l37">37</a>
-      </td>
-      <td>
-        <a href="#l37"> called 155964962 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l23">ffcdata::ffcdata(ffcdata const&amp;)</a>
-      </td>
-      <td>
-        <a href="#l23">23</a>
-      </td>
-      <td>
-        <a href="#l23"> called 16722944 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l23">ffcdata::operator=(ffcdata const&amp;)</a>
-      </td>
-      <td>
-        <a href="#l23">23</a>
-      </td>
-      <td>
-        <a href="#l23"> called 56792848 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l23">ffcdata::operator=(ffcdata&amp;&amp;)</a>
-      </td>
-      <td>
-        <a href="#l23">23</a>
-      </td>
-      <td>
-        <a href="#l23"> called 122956160 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l23">ffcdata::~ffcdata()</a>
-      </td>
-      <td>
-        <a href="#l23">23</a>
-      </td>
-      <td>
-        <a href="#l23"> called 172687906 times</a>
-      </td>
-    </tr>
+    <tr><td><a href="#l37">ffcdata::ffcdata() (line 37)</a></td><td>called 603736081 times, returned 603736081 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l23">ffcdata::ffcdata(ffcdata const&amp;) (line 23)</a></td><td>called 43049216 times, returned 43049216 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l23">ffcdata::operator=(ffcdata const&amp;) (line 23)</a></td><td>called 227754990 times, returned 227754990 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l23">ffcdata::operator=(ffcdata&amp;&amp;) (line 23)</a></td><td>called 502362752 times, returned 502362752 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l23">ffcdata::~ffcdata() (line 23)</a></td><td>called 646785297 times, returned 646785297 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -168,28 +118,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zdefs.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zdefs.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/cpos_info.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/cpos_info.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zfix.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zfix.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;solidobject.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;solidobject.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
@@ -301,91 +251,91 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">ffcdata</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">solid_object</span><span class="w"></span></td>
+      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">ffcdata</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">solid_object</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l24" href="#l24">24</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">public</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="n">public</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">ax</span><span class="p">,</span><span class="w"> </span><span class="n">ay</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">ax</span><span class="p">,</span><span class="w"> </span><span class="n">ay</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">dword</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">dword</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">delay</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">delay</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">155964962</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">cset</span><span class="p">,</span><span class="w"> </span><span class="n">link</span><span class="p">,</span><span class="w"> </span><span class="n">txsz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">tysz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">603736081</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">cset</span><span class="p">,</span><span class="w"> </span><span class="n">link</span><span class="p">,</span><span class="w"> </span><span class="n">txsz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">tysz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">script</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">script</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l31" href="#l31">31</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">initd</span><span class="p">[</span><span class="n">INITIAL_D</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">initd</span><span class="p">[</span><span class="n">INITIAL_D</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">inita</span><span class="p">[</span><span class="n">INITIAL_A</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">inita</span><span class="p">[</span><span class="n">INITIAL_A</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">hooked</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">hooked</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">cpos_info</span><span class="w"> </span><span class="n">info</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">cpos_info</span><span class="w"> </span><span class="n">info</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">data</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
@@ -398,15 +348,15 @@
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">311929924</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">ffcdata</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1207472162</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">ffcdata</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l38" href="#l38">38</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">solid_update</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">push</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">solid_update</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">push</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
@@ -420,7 +370,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l41" href="#l41">41</a></td>
@@ -434,7 +384,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xofs</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yofs</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">overlay</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xofs</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yofs</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">overlay</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
@@ -448,28 +398,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">setSolid</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">setSolid</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l45" href="#l45">45</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">updateSolid</span><span class="p">()</span><span class="w"> </span><span class="n">override</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">updateSolid</span><span class="p">()</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setLoaded</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setLoaded</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getLoaded</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getLoaded</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
@@ -490,28 +440,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">doContactDamage</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">hdir</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">doContactDamage</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">hdir</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">private</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="n">private</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">loaded</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">loaded</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
@@ -715,7 +665,7 @@
     </main>
 
     <footer>
-      Generated by: <a href="http://gcovr.com/en/6.0">GCOVR (Version 6.0)</a>
+      Generated by: <a href="http://gcovr.com/en/7.2">GCOVR (Version 7.2)</a>
     </footer>
   </body>
 </html>

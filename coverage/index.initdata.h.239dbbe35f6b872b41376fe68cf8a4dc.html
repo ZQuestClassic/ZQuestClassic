@@ -3,14 +3,14 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Zelda Classic Coverage Report</title>
+    <title>ZQuest Classic Coverage Report</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="index.css"/>
   </head>
 
   <body>
     <header>
-      <h1>Zelda Classic Coverage Report</h1>
+      <h1>ZQuest Classic Coverage Report</h1>
 
       <hr/>
 
@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-11-16 06:35:02</td>
+      <td>2024-05-08 03:28:19</td>
     </tr>
   </table>
 </div>
@@ -41,20 +41,20 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>38</td>
-      <td>38</td>
+      <td>39</td>
+      <td>39</td>
       <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>5</td>
       <td>7</td>
-      <td class="coverage-low">71.4%</td>
+      <td>7</td>
+      <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>20</td>
-      <td>40</td>
+      <td>22</td>
+      <td>44</td>
       <td class="coverage-low">50.0%</td>
     </tr>
   </table>
@@ -69,87 +69,17 @@
   <summary>List of functions</summary>
   <table class="listOfFunctions">
     <tr>
-      <th>Function</th>
-      <th>Line</th>
+      <th>Function (Line)</th>
       <th>Call count</th>
+      <th>Block coverage</th>
     </tr>
-    <tr>
-      <td>
-        <a href="#l76">zinitdata::get_item(unsigned long) const</a>
-      </td>
-      <td>
-        <a href="#l76">76</a>
-      </td>
-      <td>
-        <a href="#l76"> called 15104 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l79">zinitdata::normalize()</a>
-      </td>
-      <td>
-        <a href="#l79">79</a>
-      </td>
-      <td>
-        <a href="#l79"> called 141 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l14">zinitdata::operator=(zinitdata const&amp;)</a>
-      </td>
-      <td>
-        <a href="#l14">14</a>
-      </td>
-      <td>
-        <a href="#l14"> not called</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l77">zinitdata::set_item(unsigned long, bool)</a>
-      </td>
-      <td>
-        <a href="#l77">77</a>
-      </td>
-      <td>
-        <a href="#l77"> called 24701 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l97">zinitdata::zinitdata()</a>
-      </td>
-      <td>
-        <a href="#l97">97</a>
-      </td>
-      <td>
-        <a href="#l97"> called 258 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l14">zinitdata::zinitdata(zinitdata const&amp;)</a>
-      </td>
-      <td>
-        <a href="#l14">14</a>
-      </td>
-      <td>
-        <a href="#l14"> called 10 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l14">zinitdata::~zinitdata()</a>
-      </td>
-      <td>
-        <a href="#l14">14</a>
-      </td>
-      <td>
-        <a href="#l14"> not called</a>
-      </td>
-    </tr>
+    <tr><td><a href="#l77">zinitdata::get_item(unsigned long) const (line 77)</a></td><td>called 43520 times, returned 43520 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l80">zinitdata::normalize() (line 80)</a></td><td>called 711 times, returned 711 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l14">zinitdata::operator=(zinitdata const&amp;) (line 14)</a></td><td>called 8 times, returned 8 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l78">zinitdata::set_item(unsigned long, bool) (line 78)</a></td><td>called 57709 times, returned 57709 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l98">zinitdata::zinitdata() (line 98)</a></td><td>called 1065 times, returned 1065 times</td><td>43.0%</td></tr>
+    <tr><td><a href="#l14">zinitdata::zinitdata(zinitdata const&amp;) (line 14)</a></td><td>called 20 times, returned 20 times</td><td>40.0%</td></tr>
+    <tr><td><a href="#l14">zinitdata::~zinitdata() (line 14)</a></td><td>called 16 times, returned 16 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -190,21 +120,21 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/headers.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/headers.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/containers.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/containers.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l6" href="#l6">6</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
@@ -218,84 +148,86 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">enum</span><span class="w"></span></td>
+      <td class="src "><span class="k">enum</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l9" href="#l9">9</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l10" href="#l10">10</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">INIT_FL_CONTPERCENT</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">INIT_FL_CONTPERCENT</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">INIT_FL_CANSLASH</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">INIT_FL_CANSLASH</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">INIT_FL_MAX</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">INIT_FL_MAX</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">8/16</summary>
+        <summary class="linebranchSummary">9/18</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 10 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 10 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-          <div class="takenBranch">&check; Branch 4 taken 10 times.</div>
+          <div class="takenBranch">&check; Branch 4 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
-          <div class="takenBranch">&check; Branch 6 taken 10 times.</div>
+          <div class="takenBranch">&check; Branch 6 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 7 not taken.</div>
-          <div class="takenBranch">&check; Branch 8 taken 10 times.</div>
+          <div class="takenBranch">&check; Branch 8 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 9 not taken.</div>
-          <div class="takenBranch">&check; Branch 10 taken 10 times.</div>
+          <div class="takenBranch">&check; Branch 10 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 11 not taken.</div>
-          <div class="takenBranch">&check; Branch 12 taken 10 times.</div>
+          <div class="takenBranch">&check; Branch 12 taken 20 times.</div>
           <div class="notTakenBranch">&cross; Branch 13 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 14 not taken.</div>
-          <div class="takenBranch">&check; Branch 15 taken 10 times.</div>
+          <div class="takenBranch">&check; Branch 14 taken 20 times.</div>
+          <div class="notTakenBranch">&cross; Branch 15 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 16 not taken.</div>
+          <div class="takenBranch">&check; Branch 17 taken 20 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">10</td>
-      <td class="src coveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">zinitdata</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">20</td>
+      <td class="src partialCoveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">zinitdata</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l15" href="#l15">15</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l16" href="#l16">16</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="n">MAXITEMS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="n">MAXITEMS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
@@ -309,35 +241,35 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">map</span><span class="p">[</span><span class="n">MAXLEVELS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">map</span><span class="p">[</span><span class="n">MAXLEVELS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">compass</span><span class="p">[</span><span class="n">MAXLEVELS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">compass</span><span class="p">[</span><span class="n">MAXLEVELS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">boss_key</span><span class="p">[</span><span class="n">MAXLEVELS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">boss_key</span><span class="p">[</span><span class="n">MAXLEVELS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">mcguffin</span><span class="p">[</span><span class="n">MAXLEVELS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">mcguffin</span><span class="p">[</span><span class="n">MAXLEVELS</span><span class="o">/</span><span class="mi">8</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l22" href="#l22">22</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">bounded_vec</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">level_keys</span><span class="w"> </span><span class="p">{</span><span class="n">MAXLEVELS</span><span class="p">};</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">bounded_vec</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">level_keys</span><span class="w"> </span><span class="p">{</span><span class="n">MAXLEVELS</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
@@ -351,13 +283,13 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">counter</span><span class="p">[</span><span class="n">MAX_COUNTERS</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">counter</span><span class="p">[</span><span class="n">MAX_COUNTERS</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
+      <td class="linecount coveredLine">1065</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">mcounter</span><span class="p">[</span><span class="n">MAX_COUNTERS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">};</span><span class="w"> </span><span class="c1">// crMONEY/crKEYS = 255</span></td>
     </tr>
     <tr class="source-line">
@@ -371,15 +303,15 @@
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
+      <td class="linecount coveredLine">1065</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">bomb_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="c1">// ratio of super bombs to bombs</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">hcp</span><span class="p">,</span><span class="w"> </span><span class="n">hcp_per_hc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">hcp</span><span class="p">,</span><span class="w"> </span><span class="n">hcp_per_hc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
@@ -400,14 +332,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">hp_per_heart</span><span class="p">,</span><span class="w"> </span><span class="n">magic_per_block</span><span class="p">,</span><span class="w"> </span><span class="n">hero_damage_multiplier</span><span class="p">,</span><span class="w"> </span><span class="n">ene_damage_multiplier</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">hp_per_heart</span><span class="p">,</span><span class="w"> </span><span class="n">magic_per_block</span><span class="p">,</span><span class="w"> </span><span class="n">hero_damage_multiplier</span><span class="p">,</span><span class="w"> </span><span class="n">ene_damage_multiplier</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">dither_type</span><span class="p">,</span><span class="w"> </span><span class="n">dither_arg</span><span class="p">,</span><span class="w"> </span><span class="n">dither_percent</span><span class="p">,</span><span class="w"> </span><span class="n">def_lightrad</span><span class="p">,</span><span class="w"> </span><span class="n">transdark_percent</span><span class="p">,</span><span class="w"> </span><span class="n">darkcol</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">dither_type</span><span class="p">,</span><span class="w"> </span><span class="n">dither_arg</span><span class="p">,</span><span class="w"> </span><span class="n">dither_percent</span><span class="p">,</span><span class="w"> </span><span class="n">def_lightrad</span><span class="p">,</span><span class="w"> </span><span class="n">transdark_percent</span><span class="p">,</span><span class="w"> </span><span class="n">darkcol</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
@@ -420,57 +352,57 @@
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_xofs</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_xofs</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_yofs</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_yofs</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l38" href="#l38">38</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_grid_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l39" href="#l39">39</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_bbox_1_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_bbox_1_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_bbox_2_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_bbox_2_color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l41" href="#l41">41</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_flags</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ss_flags</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
@@ -484,7 +416,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">bitstring</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">bitstring</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l44" href="#l44">44</a></td>
@@ -504,8 +436,8 @@
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">msg_more_x</span><span class="p">,</span><span class="w"> </span><span class="n">msg_more_y</span><span class="p">,</span><span class="w"> </span><span class="n">msg_more_is_offset</span><span class="p">,</span><span class="w"> </span><span class="n">msg_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">msg_more_x</span><span class="p">,</span><span class="w"> </span><span class="n">msg_more_y</span><span class="p">,</span><span class="w"> </span><span class="n">msg_more_is_offset</span><span class="p">,</span><span class="w"> </span><span class="n">msg_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l47" href="#l47">47</a></td>
@@ -518,15 +450,15 @@
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">gravity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1600</span><span class="p">,</span><span class="w"> </span><span class="n">swimgravity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">gravity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1600</span><span class="p">,</span><span class="w"> </span><span class="n">swimgravity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">terminalv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">320</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">terminalv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">320</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
@@ -539,7 +471,7 @@
       <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
+      <td class="linecount coveredLine">1065</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">hero_swim_mult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">hero_swim_div</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="c1">//new movement</span></td>
     </tr>
     <tr class="source-line">
@@ -554,14 +486,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">heroSideswimUpStep</span><span class="p">,</span><span class="w"> </span><span class="n">heroSideswimSideStep</span><span class="p">,</span><span class="w"> </span><span class="n">heroSideswimDownStep</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">heroSideswimUpStep</span><span class="p">,</span><span class="w"> </span><span class="n">heroSideswimSideStep</span><span class="p">,</span><span class="w"> </span><span class="n">heroSideswimDownStep</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">exitWaterJump</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">exitWaterJump</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
@@ -575,20 +507,20 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">heroStep</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">heroStep</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">heroAnimationStyle</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">heroAnimationStyle</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
+      <td class="linecount coveredLine">1065</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">jump_hero_layer_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span><span class="w"> </span><span class="c1">// Hero is drawn above layer 3 if z &gt; this.</span></td>
     </tr>
     <tr class="source-line">
@@ -596,7 +528,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">bunny_ltm</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">bunny_ltm</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l60" href="#l60">60</a></td>
@@ -610,28 +542,28 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">start_dmap</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">start_dmap</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l62" href="#l62">62</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">subscrSpeed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">word</span><span class="w"> </span><span class="n">subscrSpeed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l63" href="#l63">63</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">switchhookstyle</span><span class="p">,</span><span class="w"> </span><span class="n">magicdrainrate</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">switchhookstyle</span><span class="p">,</span><span class="w"> </span><span class="n">magicdrainrate</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">spriteflickerspeed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">spriteflickercolor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="n">spriteflickertransp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">1065</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">spriteflickerspeed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">spriteflickercolor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="n">spriteflickertransp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l65" href="#l65">65</a></td>
@@ -646,41 +578,41 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 258 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">shove_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">6.5</span><span class="n">_zf</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">1065</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">shove_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">6.5</span><span class="n">_zf</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l67" href="#l67">67</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="linecount partialCoveredLine">1065</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">air_drag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0100</span><span class="n">_zf</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l68" href="#l68">68</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">bitstring</span><span class="w"> </span><span class="n">gen_doscript</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l69" href="#l69">69</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 258 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">word</span><span class="o">&gt;</span><span class="w"> </span><span class="n">gen_exitState</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">};</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">bitstring</span><span class="w"> </span><span class="n">gen_doscript</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l70" href="#l70">70</a></td>
@@ -688,59 +620,57 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 258 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">word</span><span class="o">&gt;</span><span class="w"> </span><span class="n">gen_reloadState</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">};</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">1065</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">word</span><span class="o">&gt;</span><span class="w"> </span><span class="n">gen_exitState</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/4</summary>
+        <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 258 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 258 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">bounded_vec</span><span class="o">&lt;</span><span class="n">byte</span><span class="p">,</span><span class="kt">int32_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">gen_initd</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">8</span><span class="p">}};</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">1065</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">word</span><span class="o">&gt;</span><span class="w"> </span><span class="n">gen_reloadState</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l72" href="#l72">72</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
+        <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 258 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1065 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">gen_eventstate</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">};</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">1065</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">bounded_vec</span><span class="o">&lt;</span><span class="n">byte</span><span class="p">,</span><span class="kt">int32_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">gen_initd</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">8</span><span class="p">}};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l73" href="#l73">73</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/4</summary>
+        <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 258 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 258 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">dword</span><span class="p">,</span><span class="kt">int32_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">gen_data</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">}};</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">1065</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">gen_eventstate</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l74" href="#l74">74</a></td>
@@ -748,223 +678,239 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 258 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 258 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1065 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">258</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">dword</span><span class="p">,</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">dword</span><span class="p">,</span><span class="kt">int32_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">screen_data</span><span class="w"> </span><span class="p">{</span><span class="n">MAXSCRS</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">}};</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">1065</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">word</span><span class="p">,</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">dword</span><span class="p">,</span><span class="kt">int32_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">gen_data</span><span class="w"> </span><span class="p">{</span><span class="n">NUMSCRIPTSGENERIC</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">}};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="takenBranch">&check; Branch 3 taken 1065 times.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="linecount partialCoveredLine">1065</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">dword</span><span class="p">,</span><span class="n">bounded_map</span><span class="o">&lt;</span><span class="n">dword</span><span class="p">,</span><span class="kt">int32_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">screen_data</span><span class="w"> </span><span class="p">{</span><span class="n">MAXSCRS</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">}};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l76" href="#l76">76</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">15104</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_item</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">ind</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">get_bit</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="n">ind</span><span class="p">);}</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l77" href="#l77">77</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">24701</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_item</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">ind</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">st</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">set_bit</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="n">ind</span><span class="p">,</span><span class="n">st</span><span class="p">);}</span><span class="w"></span></td>
+      <td class="linecount coveredLine">43520</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_item</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">ind</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">get_bit</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="n">ind</span><span class="p">);}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="linecount coveredLine">57709</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_item</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">ind</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">st</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">set_bit</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="n">ind</span><span class="p">,</span><span class="n">st</span><span class="p">);}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">normalize</span><span class="p">()</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">normalize</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">level_keys</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">flags</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">level_keys</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_doscript</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">flags</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l84" href="#l84">84</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_exitState</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_doscript</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l85" href="#l85">85</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_reloadState</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_exitState</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l86" href="#l86">86</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_initd</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_reloadState</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l87" href="#l87">87</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_eventstate</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_initd</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l88" href="#l88">88</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_data</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_eventstate</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l89" href="#l89">89</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">screen_data</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">gen_data</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">141</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">screen_data</span><span class="p">.</span><span class="n">normalize</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="linecount coveredLine">711</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l92" href="#l92">92</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_genscript</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l93" href="#l93">93</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_genscript</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l94" href="#l94">94</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l95" href="#l95">95</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="n">zinitdata</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l96" href="#l96">96</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="n">zinitdata</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l97" href="#l97">97</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/4</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 258 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
-          <div class="takenBranch">&check; Branch 2 taken 258 times.</div>
-          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount coveredLine">1032</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">zinitdata</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l98" href="#l98">98</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/4</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 1065 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 1065 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">};</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">4260</td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="n">zinitdata</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l99" href="#l99">99</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">zinitdata</span><span class="w"> </span><span class="n">zinit</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l100" href="#l100">100</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">zinitdata</span><span class="w"> </span><span class="n">zinit</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l101" href="#l101">101</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l102" href="#l102">102</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l103" href="#l103">103</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l104" href="#l104">104</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -976,7 +922,7 @@
     </main>
 
     <footer>
-      Generated by: <a href="http://gcovr.com/en/6.0">GCOVR (Version 6.0)</a>
+      Generated by: <a href="http://gcovr.com/en/7.2">GCOVR (Version 7.2)</a>
     </footer>
   </body>
 </html>

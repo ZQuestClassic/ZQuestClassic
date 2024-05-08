@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html class="theme-blue">
+
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>ZQuest Classic Coverage Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="index.css"/>
+  </head>
+
+  <body>
+    <header>
+      <h1>ZQuest Classic Coverage Report</h1>
+
+      <hr/>
+
+      <div class="summary">
+<div>
+  <table class="legend">
+    <tr>
+      <th scope="row">Directory:</th>
+      <td>src/</td>
+    </tr>
+    <tr>
+      <th scope="row">File:</th>
+      <td>src/gui/jwin.h</td>
+    </tr>
+    <tr>
+      <th scope="row">Date:</th>
+      <td>2024-05-08 03:28:19</td>
+    </tr>
+  </table>
+</div>
+<div>
+  <table class="coverage">
+    <tr>
+      <th></th>
+      <th scope="col">Exec</th>
+      <th scope="col">Total</th>
+      <th scope="col">Coverage</th>
+    </tr>
+    <tr>
+      <th scope="row">Lines:</th>
+      <td>3</td>
+      <td>14</td>
+      <td class="coverage-low">21.4%</td>
+    </tr>
+    <tr>
+      <th scope="row">Functions:</th>
+      <td>1</td>
+      <td>4</td>
+      <td class="coverage-low">25.0%</td>
+    </tr>
+    <tr>
+      <th scope="row">Branches:</th>
+      <td>0</td>
+      <td>2</td>
+      <td class="coverage-none">0.0%</td>
+    </tr>
+  </table>
+</div>
+      </div>
+
+      <hr/>
+    </header>
+
+    <nav>
+<details>
+  <summary>List of functions</summary>
+  <table class="listOfFunctions">
+    <tr>
+      <th>Function (Line)</th>
+      <th>Call count</th>
+      <th>Block coverage</th>
+    </tr>
+    <tr><td><a href="#l11">ListData::ListData() (line 11)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l15">ListData::ListData(char const* (*)(int, int*), FONT**) (line 15)</a></td><td>called 3425 times, returned 3425 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l19">ListData::ListData(char const* (*)(int, int*, void*), FONT**, void*) (line 19)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l23">ListData::listFunc(int, int*) const (line 23)</a></td><td>not called</td><td>0.0%</td></tr>
+  </table>
+</details>
+
+    </nav>
+
+    <main>
+<div class="file-source">
+  <table>
+    <tr>
+      <th align="right">Line</th>
+      <th align="right">Branch</th>
+      <th align="right">Exec</th>
+      <th align="left">Source</th>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1" href="#l1">1</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#ifndef _JWIN_H_</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l2" href="#l2">2</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define _JWIN_H_</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l3" href="#l3">3</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l4" href="#l4">4</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zdefs.h&quot;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l5" href="#l5">5</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zc_alleg.h&quot;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l6" href="#l6">6</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;tab_ctl.h&quot;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l7" href="#l7">7</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/gui.h&quot;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l8" href="#l8">8</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l9" href="#l9">9</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">struct</span><span class="w"> </span><span class="nc">ListData</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l10" href="#l10">10</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l11" href="#l11">11</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">constexpr</span><span class="w"> </span><span class="nf">ListData</span><span class="p">()</span><span class="w"> </span><span class="nl">noexcept</span><span class="p">:</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l12" href="#l12">12</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">unownedFunc</span><span class="p">(</span><span class="n">nullptr</span><span class="p">),</span><span class="w"> </span><span class="n">ownedFunc</span><span class="p">(</span><span class="n">nullptr</span><span class="p">),</span><span class="w"> </span><span class="n">font</span><span class="p">(</span><span class="n">nullptr</span><span class="p">),</span><span class="w"> </span><span class="n">owner</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l13" href="#l13">13</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="p">{}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l14" href="#l14">14</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l15" href="#l15">15</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">3425</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">ListData</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">lf</span><span class="p">)(</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">**</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="n">noexcept</span><span class="o">:</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l16" href="#l16">16</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">3425</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">unownedFunc</span><span class="p">(</span><span class="n">lf</span><span class="p">),</span><span class="w"> </span><span class="n">ownedFunc</span><span class="p">(</span><span class="n">nullptr</span><span class="p">),</span><span class="w"> </span><span class="n">font</span><span class="p">(</span><span class="n">f</span><span class="p">),</span><span class="w"> </span><span class="n">owner</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l17" href="#l17">17</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">3425</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="p">{}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l18" href="#l18">18</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l19" href="#l19">19</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">ListData</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">lf</span><span class="p">)(</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">**</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">o</span><span class="p">)</span><span class="w"> </span><span class="n">noexcept</span><span class="o">:</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l20" href="#l20">20</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">unownedFunc</span><span class="p">(</span><span class="n">nullptr</span><span class="p">),</span><span class="w"> </span><span class="n">ownedFunc</span><span class="p">(</span><span class="n">lf</span><span class="p">),</span><span class="w"> </span><span class="n">font</span><span class="p">(</span><span class="n">f</span><span class="p">),</span><span class="w"> </span><span class="n">owner</span><span class="p">(</span><span class="n">o</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l21" href="#l21">21</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="p">{}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l22" href="#l22">22</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l23" href="#l23">23</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">listFunc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="k">const</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l24" href="#l24">24</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l25" href="#l25">25</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">owner</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l26" href="#l26">26</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ownedFunc</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">owner</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l27" href="#l27">27</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">        </span><span class="k">else</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l28" href="#l28">28</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">unownedFunc</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l29" href="#l29">29</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l30" href="#l30">30</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l31" href="#l31">31</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">unownedFunc</span><span class="p">)(</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="o">*</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l32" href="#l32">32</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">ownedFunc</span><span class="p">)(</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l33" href="#l33">33</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l34" href="#l34">34</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="n">FONT</span><span class="w"> </span><span class="o">**</span><span class="n">font</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l35" href="#l35">35</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">owner</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l36" href="#l36">36</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l37" href="#l37">37</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l38" href="#l38">38</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="n">byte</span><span class="w"> </span><span class="nf">getHighlightColor</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l39" href="#l39">39</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="n">byte</span><span class="w"> </span><span class="nf">getHighlightColor</span><span class="p">(</span><span class="n">RGB</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">col</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l40" href="#l40">40</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l41" href="#l41">41</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#ifdef __cplusplus</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l42" href="#l42">42</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l43" href="#l43">43</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l44" href="#l44">44</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l45" href="#l45">45</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l46" href="#l46">46</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* read only flag for jwin_edit_proc */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l47" href="#l47">47</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define D_READONLY      D_USER</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l48" href="#l48">48</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l49" href="#l49">49</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Disable click to select combo for d_combo_proc */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l50" href="#l50">50</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define D_NOCLICK       D_USER</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l51" href="#l51">51</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l52" href="#l52">52</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define D_RESIZED		(D_USER&lt;&lt;5)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l53" href="#l53">53</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l54" href="#l54">54</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* This should be used for all DIALOGs in the new GUI system.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l55" href="#l55">55</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> * It indicates that there is a Dialog that owns this array</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l56" href="#l56">56</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> * and should be prompted to handle some events.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l57" href="#l57">57</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l58" href="#l58">58</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define D_NEW_GUI (D_USER&lt;&lt;2)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l59" href="#l59">59</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l60" href="#l60">60</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Set on widgets inside a scrolling pane so that they know they&#39;re in one. */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l61" href="#l61">61</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define D_SCROLLING (D_USER&lt;&lt;3)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l62" href="#l62">62</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l63" href="#l63">63</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Set on widgets in a scrolling pane to indicate that the screen bitmap</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l64" href="#l64">64</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> * is clipped before redrawing.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l65" href="#l65">65</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l66" href="#l66">66</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define D_ISCLIPPED (D_USER&lt;&lt;4)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l67" href="#l67">67</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l68" href="#l68">68</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Sent to newgui_dialog_proc to tell it to handle an event. */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l69" href="#l69">69</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define MSG_GUI_EVENT MSG_USER</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l70" href="#l70">70</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l71" href="#l71">71</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Send to a scrolling pane to redraw a child with the screen bitmap clipped. */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l72" href="#l72">72</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define MSG_DRAWCLIPPED (MSG_USER+1)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l73" href="#l73">73</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l74" href="#l74">74</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Sent to a scrolling pane to indicate that one of its children has</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l75" href="#l75">75</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> * taken focus and it needs to scroll to show it.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l76" href="#l76">76</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l77" href="#l77">77</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define MSG_CHILDFOCUSED (MSG_USER+2)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l78" href="#l78">78</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l79" href="#l79">79</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Sent to a proc to check if it handles mouse wheel events. If not,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l80" href="#l80">80</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> * they can be handled by the containing scrolling pane. Any nonzero</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l81" href="#l81">81</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> * return value is treated as true.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l82" href="#l82">82</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l83" href="#l83">83</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define MSG_WANTWHEEL (MSG_USER+3)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l84" href="#l84">84</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l85" href="#l85">85</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define MSG_VSYNC (MSG_USER+4)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l86" href="#l86">86</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l87" href="#l87">87</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* frame styles */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l88" href="#l88">88</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">enum</span><span class="w"> </span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l89" href="#l89">89</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="n">FR_INVIS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l90" href="#l90">90</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">FR_WIN</span><span class="p">,</span><span class="w"> </span><span class="n">FR_BOX</span><span class="p">,</span><span class="w"> </span><span class="n">FR_INV</span><span class="p">,</span><span class="w"> </span><span class="n">FR_DEEP</span><span class="p">,</span><span class="w"> </span><span class="n">FR_DARK</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l91" href="#l91">91</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">FR_ETCHED</span><span class="p">,</span><span class="w"> </span><span class="n">FR_MEDDARK</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l92" href="#l92">92</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">FR_RED</span><span class="p">,</span><span class="w"> </span><span class="n">FR_GREEN</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l93" href="#l93">93</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">FR_MENU</span><span class="p">,</span><span class="w"> </span><span class="n">FR_MENU_INV</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l94" href="#l94">94</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l95" href="#l95">95</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l96" href="#l96">96</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* todo: (maybe) put the colors into a struct */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l97" href="#l97">97</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l98" href="#l98">98</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* color indices */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l99" href="#l99">99</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">enum</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l100" href="#l100">100</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l101" href="#l101">101</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">jcBOX</span><span class="p">,</span><span class="w"> </span><span class="n">jcLIGHT</span><span class="p">,</span><span class="w"> </span><span class="n">jcMEDLT</span><span class="p">,</span><span class="w"> </span><span class="n">jcMEDDARK</span><span class="p">,</span><span class="w"> </span><span class="n">jcDARK</span><span class="p">,</span><span class="w"> </span><span class="n">jcBOXFG</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l102" href="#l102">102</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">jcTITLEL</span><span class="p">,</span><span class="w"> </span><span class="n">jcTITLER</span><span class="p">,</span><span class="w"> </span><span class="n">jcTITLEFG</span><span class="p">,</span><span class="w"> </span><span class="n">jcTEXTBG</span><span class="p">,</span><span class="w"> </span><span class="n">jcTEXTFG</span><span class="p">,</span><span class="w"> </span><span class="n">jcSELBG</span><span class="p">,</span><span class="w"> </span><span class="n">jcSELFG</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l103" href="#l103">103</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">jcCURSORMISC</span><span class="p">,</span><span class="w"> </span><span class="n">jcCURSOROUTLINE</span><span class="p">,</span><span class="w"> </span><span class="n">jcCURSORLIGHT</span><span class="p">,</span><span class="w"> </span><span class="n">jcCURSORDARK</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l104" href="#l104">104</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">jcALT_TEXTBG</span><span class="p">,</span><span class="w"> </span><span class="n">jcALT_TEXTFG</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l105" href="#l105">105</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">jcDISABLED_BG</span><span class="p">,</span><span class="w"> </span><span class="n">jcDISABLED_FG</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l106" href="#l106">106</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">jcMAX</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l107" href="#l107">107</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l108" href="#l108">108</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l109" href="#l109">109</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">abc_patternmatch</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l110" href="#l110">110</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l111" href="#l111">111</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* a copy of the default color scheme; do what you want with this */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l112" href="#l112">112</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">jwin_colors</span><span class="p">[</span><span class="n">jcMAX</span><span class="p">];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l113" href="#l113">113</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l114" href="#l114">114</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">jwin_pal</span><span class="p">[</span><span class="n">jcMAX</span><span class="p">];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l115" href="#l115">115</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l116" href="#l116">116</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">scheme</span><span class="p">[</span><span class="n">jcMAX</span><span class="p">];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l117" href="#l117">117</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l118" href="#l118">118</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">mix_value</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">max</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l119" href="#l119">119</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l120" href="#l120">120</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* 1.5k lookup table for color matching */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l121" href="#l121">121</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">col_diff</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="mi">128</span><span class="p">];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l122" href="#l122">122</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">last_droplist_sel</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l123" href="#l123">123</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l124" href="#l124">124</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Used to indicate the new GUI dialog root. */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l125" href="#l125">125</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">newGuiMarker</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l126" href="#l126">126</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l127" href="#l127">127</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* All the events that may be handled by a new GUI widget.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l128" href="#l128">128</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> * These could possibly be pared down a bit, but it doesn&#39;t matter much.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l129" href="#l129">129</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l130" href="#l130">130</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">enum</span><span class="w"> </span><span class="n">guiEvent</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l131" href="#l131">131</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l132" href="#l132">132</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="n">geCLICK</span><span class="p">,</span><span class="w"> </span><span class="n">geCHANGE_SELECTION</span><span class="p">,</span><span class="w"> </span><span class="n">geCHANGE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">geCLOSE</span><span class="p">,</span><span class="w"> </span><span class="n">geENTER</span><span class="p">,</span><span class="w"> </span><span class="n">geTOGGLE</span><span class="p">,</span><span class="w"> </span><span class="n">geUPDATE_SWAP</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l133" href="#l133">133</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">geRADIO</span><span class="p">,</span><span class="w"> </span><span class="n">geRCLICK</span><span class="p">,</span><span class="w"> </span><span class="n">geDCLICK</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l134" href="#l134">134</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l135" href="#l135">135</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l136" href="#l136">136</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">enum</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l137" href="#l137">137</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l138" href="#l138">138</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">ONTICK_EXIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">ONTICK_CONTINUE</span><span class="p">,</span><span class="w"> </span><span class="n">ONTICK_CLOSE</span><span class="p">,</span><span class="w"> </span><span class="n">ONTICK_REDRAW</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l139" href="#l139">139</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l140" href="#l140">140</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l141" href="#l141">141</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">enum</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l142" href="#l142">142</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l143" href="#l143">143</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_ARROW_UP</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x88</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l144" href="#l144">144</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_ARROW_DOWN</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x89</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l145" href="#l145">145</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_ARROW_LEFT</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x8A</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l146" href="#l146">146</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_ARROW_RIGHT</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x8B</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l147" href="#l147">147</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_CONTRACT_VERT</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x98</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l148" href="#l148">148</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_EXPAND_VERT</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x99</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l149" href="#l149">149</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_CONTRACT_HORZ</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x9A</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l150" href="#l150">150</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_EXPAND_HORZ</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x9B</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l151" href="#l151">151</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_ARROW_RIGHT2</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x8B 0x8B</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l152" href="#l152">152</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_ARROW_RIGHT3</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x8B 0x8B 0x8B</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l153" href="#l153">153</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_STOPSQUARE</span><span class="p">,</span><span class="w"> </span><span class="c1">//0x8D</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l154" href="#l154">154</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_MINUS</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l155" href="#l155">155</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_PLUS</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l156" href="#l156">156</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_ARROW_LEFT2</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l157" href="#l157">157</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_ARROW_LEFT3</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l158" href="#l158">158</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">BTNICON_MAX</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l159" href="#l159">159</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l160" href="#l160">160</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l161" href="#l161">161</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#define GUI_EVENT(dlg, event)                  \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l162" href="#l162">162</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">do                                             \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l163" href="#l163">163</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">{                                              \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l164" href="#l164">164</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">	if(dlg-&gt;flags&amp;D_NEW_GUI)                   \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l165" href="#l165">165</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">	{                                          \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l166" href="#l166">166</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		int32_t ret = new_gui_event(dlg-1, event); \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l167" href="#l167">167</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">		if(ret &gt;= 0)                           \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l168" href="#l168">168</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">			return ret;                        \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l169" href="#l169">169</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">	}                                          \</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l170" href="#l170">170</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">} while(false)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l171" href="#l171">171</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l172" href="#l172">172</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Triggers a message in the new GUI system. You should use the macro below</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l173" href="#l173">173</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> * instead of calling this directly.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l174" href="#l174">174</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm"> */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l175" href="#l175">175</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">new_gui_event</span><span class="p">(</span><span class="n">DIALOG</span><span class="o">*</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">guiEvent</span><span class="w"> </span><span class="n">event</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l176" href="#l176">176</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l177" href="#l177">177</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">get_selected_tab</span><span class="p">(</span><span class="n">TABPANEL</span><span class="o">*</span><span class="w"> </span><span class="n">panel</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l178" href="#l178">178</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l179" href="#l179">179</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* you should call this before using the other procedures */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l180" href="#l180">180</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_set_colors</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="o">*</span><span class="n">colors</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l181" href="#l181">181</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l182" href="#l182">182</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* drawing routines */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l183" href="#l183">183</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_frame</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">style</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l184" href="#l184">184</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_frag_frame</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fw</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fh</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">style</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l185" href="#l185">185</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_minimap_frame</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">scrsz</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">style</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l186" href="#l186">186</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_win</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">frame</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l187" href="#l187">187</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_button</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l188" href="#l188">188</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_x_button</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l189" href="#l189">189</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_question_button</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l190" href="#l190">190</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">shorten_string</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">usefont</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">maxchars</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">maxwidth</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l191" href="#l191">191</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_titlebar</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">draw_button</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">helpbtn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l192" href="#l192">192</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_text_button</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">show_dotted_rect</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l193" href="#l193">193</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_icon_button</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">icon</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">show_dotted_rect</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l194" href="#l194">194</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_graphics_button</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">bmp</span><span class="p">,</span><span class="w"> </span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">bmp2</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">show_dotted_rect</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">overlay</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l195" href="#l195">195</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">do_text_button</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l196" href="#l196">196</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l197" href="#l197">197</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* Allegro DIALOG procedures */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l198" href="#l198">198</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_win_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l199" href="#l199">199</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_frame_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l200" href="#l200">200</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_guitest_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l201" href="#l201">201</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_button_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l202" href="#l202">202</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_iconbutton_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l203" href="#l203">203</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_infobtn_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l204" href="#l204">204</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_func_button_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l205" href="#l205">205</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_text_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l206" href="#l206">206</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_ctext_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l207" href="#l207">207</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_rtext_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l208" href="#l208">208</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">d_ctext2_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l209" href="#l209">209</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">new_text_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l210" href="#l210">210</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_edit_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l211" href="#l211">211</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_hexedit_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="cm">/**&lt; Restricted only to hex. numbers */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l212" href="#l212">212</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_zscriptint_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="cm">/**&lt; Restricted only to dec. numbers,  bound to ZScript int32_t (no decimals) */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l213" href="#l213">213</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_byte_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="cm">/**&lt; Restricted only to dec. numbers, bound to unsigned byte (8b) */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l214" href="#l214">214</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_sbyte_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="cm">/**&lt; Restricted only to dec. numbers, bound to signed byte (8b) */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l215" href="#l215">215</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_short_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="cm">/**&lt; Restricted only to dec. numbers, bound to uint16_t int32_t (16b) */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l216" href="#l216">216</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_sshort_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="cm">/**&lt; Restricted only to dec. numbers, bound to int16_t (16b) */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l217" href="#l217">217</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="cm">/**&lt; Restricted only to dec. numbers */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l218" href="#l218">218</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="c1">//</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l219" href="#l219">219</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_swapbtn_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="c1">//Button to swap numedit styles</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l220" href="#l220">220</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_swap_byte_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="c1">//Bound to unsigned byte, dec and hex modes</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l221" href="#l221">221</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_swap_sshort_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="c1">//Bound to int16_t, dec and hex modes</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l222" href="#l222">222</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_swap_zsint_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="c1">//Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l223" href="#l223">223</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_swap_zsint_nodec_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="c1">//Bound to int32_t, dec and hex modes, no dec places</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l224" href="#l224">224</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_swap_zsint2_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="c1">//Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes, bool mode</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l225" href="#l225">225</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_numedit_noswap_zsint_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"> </span><span class="c1">//Same as &#39;jwin_numedit_swap_zsint2_proc&#39;, but starts and stays in one mode.</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l226" href="#l226">226</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="c1">//</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l227" href="#l227">227</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_list_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l228" href="#l228">228</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_textbox_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l229" href="#l229">229</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_slider_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l230" href="#l230">230</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_droplist_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l231" href="#l231">231</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_abclist_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l232" href="#l232">232</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_check_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l233" href="#l233">233</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_checkfont_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l234" href="#l234">234</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">new_check_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l235" href="#l235">235</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_radio_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l236" href="#l236">236</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_radiofont_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l237" href="#l237">237</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_tab_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l238" href="#l238">238</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">new_tab_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l239" href="#l239">239</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_hline_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l240" href="#l240">240</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_vline_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l241" href="#l241">241</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">_jwin_draw_abclistbox</span><span class="p">(</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l242" href="#l242">242</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_do_abclist_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l243" href="#l243">243</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">wipe_abc_keypresses</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l244" href="#l244">244</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l245" href="#l245">245</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* other GUI procedures */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l246" href="#l246">246</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_set_dialog_color</span><span class="p">(</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">dialog</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l247" href="#l247">247</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l248" href="#l248">248</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">gui_textout_ln</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">bmp</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">bg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l249" href="#l249">249</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">gui_text_width</span><span class="p">(</span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l250" href="#l250">250</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l251" href="#l251">251</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_color_swatch</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l252" href="#l252">252</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l253" href="#l253">253</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_alert3</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s3</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b3</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c3</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">title_font</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l254" href="#l254">254</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_alert</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s3</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b2</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">title_font</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l255" href="#l255">255</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_auto_alert3</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">lenlim</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">vspace</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b3</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c3</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">title_font</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l256" href="#l256">256</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">jwin_auto_alert</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">lenlim</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">vspace</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">b2</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">title_font</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l257" href="#l257">257</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l258" href="#l258">258</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cm">/* event handler that closes a dialog */</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l259" href="#l259">259</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">close_dlg</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l260" href="#l260">260</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">mouse_in_rect</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l261" href="#l261">261</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l262" href="#l262">262</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">bestfit_init</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l263" href="#l263">263</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">bestfit_color_range</span><span class="p">(</span><span class="n">AL_CONST</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">end</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l264" href="#l264">264</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">makecol8_map</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">RGB_MAP</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l265" href="#l265">265</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">create_rgb_table_range</span><span class="p">(</span><span class="n">RGB_MAP</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">AL_CONST</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">end</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">callback</span><span class="p">)(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pos</span><span class="p">));</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l266" href="#l266">266</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">short_bmp_avg</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">bmp</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l267" href="#l267">267</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">lfsrInit</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l268" href="#l268">268</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">uint16_t</span><span class="w"> </span><span class="nf">lfsrNext</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l269" href="#l269">269</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">dither_rect</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">bmp</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="o">*</span><span class="n">pal</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y2</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l270" href="#l270">270</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">                 </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">src_color1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">src_color2</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">dest_color1</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l271" href="#l271">271</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">                 </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">dest_color2</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l272" href="#l272">272</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">do_text_button_reset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l273" href="#l273">273</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">do_icon_button_reset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">icon</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l274" href="#l274">274</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_center_dialog</span><span class="p">(</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">dialog</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l275" href="#l275">275</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_ulalign_dialog</span><span class="p">(</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">dialog</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l276" href="#l276">276</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l277" href="#l277">277</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">_calc_scroll_bar</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">height</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">listsize</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l278" href="#l278">278</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">                      </span><span class="kt">int32_t</span><span class="w"> </span><span class="o">*</span><span class="n">bh</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="o">*</span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="o">*</span><span class="n">pos</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l279" href="#l279">279</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_arrow_button</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">up</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l280" href="#l280">280</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_arrow_button_horiz</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">up</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l281" href="#l281">281</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l282" href="#l282">282</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l283" href="#l283">283</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">dotted_rect</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">fg</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">bg</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l284" href="#l284">284</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">_jwin_draw_scrollable_frame</span><span class="p">(</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">listsize</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">height</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l285" href="#l285">285</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">_handle_jwin_scrollable_scroll_click</span><span class="p">(</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">listsize</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="o">*</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">fnt</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l286" href="#l286">286</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l287" href="#l287">287</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">d_jslider_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l288" href="#l288">288</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">d_jwinbutton_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l289" href="#l289">289</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l290" href="#l290">290</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="c1">//Misc bitmap drawing</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l291" href="#l291">291</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_x</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">color</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l292" href="#l292">292</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_check</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l293" href="#l293">293</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_checkerboard</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">basex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">basey</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sz</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cb_sz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullopt</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l294" href="#l294">294</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l295" href="#l295">295</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">d_vsync_proc</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="n">DIALOG</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">c</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l296" href="#l296">296</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l297" href="#l297">297</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="c1">//box_out stuff</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l298" href="#l298">298</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">box_out</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l299" href="#l299">299</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">box_out_nl</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l300" href="#l300">300</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">box_start</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">style</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">title_font</span><span class="p">,</span><span class="w"> </span><span class="n">FONT</span><span class="w"> </span><span class="o">*</span><span class="n">message_font</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">log</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">scale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l301" href="#l301">301</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">box_end</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">pause</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l302" href="#l302">302</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">box_eol</span><span class="p">();</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l303" href="#l303">303</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l304" href="#l304">304</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#ifdef __cplusplus</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l305" href="#l305">305</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l306" href="#l306">306</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l307" href="#l307">307</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l308" href="#l308">308</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="n">jwin_draw_icon</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">icon</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">asz</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">center</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l309" href="#l309">309</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">jwin_draw_icon</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">icon</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">aw</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ah</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">center</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l310" href="#l310">310</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">int</span><span class="w"> </span><span class="nf">icon_proportion</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">icon</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">s1</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l311" href="#l311">311</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l312" href="#l312">312</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_dis_checkbox</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">wid</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">hei</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">value</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l313" href="#l313">313</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_checkbox</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">wid</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">hei</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">value</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l314" href="#l314">314</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">draw_checkbox</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">sz</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">value</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l315" href="#l315">315</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">do_checkbox</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">wid</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">hei</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">xoffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">yoffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l316" href="#l316">316</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">do_checkbox_tx</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">wid</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">hei</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">txtoffs</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">xoffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">yoffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l317" href="#l317">317</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">do_scheckbox</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="n">sz</span><span class="p">,</span><span class="kt">int</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">xoffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">yoffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l318" href="#l318">318</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l319" href="#l319">319</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif                                                      </span><span class="c1">// _JWIN_H_</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l320" href="#l320">320</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+  </table>
+</div>
+      <hr/>
+    </main>
+
+    <footer>
+      Generated by: <a href="http://gcovr.com/en/7.2">GCOVR (Version 7.2)</a>
+    </footer>
+  </body>
+</html>

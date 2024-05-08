@@ -3,14 +3,14 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Zelda Classic Coverage Report</title>
+    <title>ZQuest Classic Coverage Report</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="index.css"/>
   </head>
 
   <body>
     <header>
-      <h1>Zelda Classic Coverage Report</h1>
+      <h1>ZQuest Classic Coverage Report</h1>
 
       <hr/>
 
@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-11-16 06:35:02</td>
+      <td>2024-05-08 03:28:19</td>
     </tr>
   </table>
 </div>
@@ -41,14 +41,14 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>9</td>
-      <td>9</td>
+      <td>11</td>
+      <td>11</td>
       <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>3</td>
-      <td>3</td>
+      <td>4</td>
+      <td>4</td>
       <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
@@ -69,43 +69,14 @@
   <summary>List of functions</summary>
   <table class="listOfFunctions">
     <tr>
-      <th>Function</th>
-      <th>Line</th>
+      <th>Function (Line)</th>
       <th>Call count</th>
+      <th>Block coverage</th>
     </tr>
-    <tr>
-      <td>
-        <a href="#l20">ZScriptVersion::RunScript(ScriptType, unsigned short, int)</a>
-      </td>
-      <td>
-        <a href="#l20">20</a>
-      </td>
-      <td>
-        <a href="#l20"> called 10311155 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l25">ZScriptVersion::RunScrollingScript(int, int, int, int, bool, bool)</a>
-      </td>
-      <td>
-        <a href="#l25">25</a>
-      </td>
-      <td>
-        <a href="#l25"> called 1611003 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l15">ZScriptVersion::setVersion(int)</a>
-      </td>
-      <td>
-        <a href="#l15">15</a>
-      </td>
-      <td>
-        <a href="#l15"> called 115 times</a>
-      </td>
-    </tr>
+    <tr><td><a href="#l25">ZScriptVersion::RunScript(ScriptType, unsigned short, int) (line 25)</a></td><td>called 29569739 times, returned 29569739 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l30">ZScriptVersion::RunScrollingScript(int, int, int, int, bool, bool) (line 30)</a></td><td>called 3215822 times, returned 3215822 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l20">ZScriptVersion::gc() (line 20)</a></td><td>called 31929470 times, returned 31929470 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l15">ZScriptVersion::setVersion(int) (line 15)</a></td><td>called 596 times, returned 596 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -181,14 +152,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zdefs.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zdefs.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l10" href="#l10">10</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/ffscript.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zc/ffscript.h&quot;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
@@ -202,84 +173,84 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">ZScriptVersion</span><span class="w"></span></td>
+      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">ZScriptVersion</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">public</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="n">public</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l15" href="#l15">15</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">115</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setVersion</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newVersion</span><span class="p">)</span><span class="w"></span></td>
+      <td class="linecount coveredLine">596</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setVersion</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newVersion</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l16" href="#l16">16</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">115</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">CurrentVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newVersion</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">596</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">CurrentVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newVersion</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">115</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="linecount coveredLine">596</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10311155</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">RunScript</span><span class="p">(</span><span class="n">ScriptType</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">script</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span></td>
+      <td class="linecount coveredLine">31929470</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">gc</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l22" href="#l22">22</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">10311155</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">run_script</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">script</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span></td>
+      <td class="linecount coveredLine">31929470</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">CurrentVersion</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">25</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l24" href="#l24">24</a></td>
@@ -292,102 +263,137 @@
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1611003</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">RunScrollingScript</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">scrolldir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">end_frames</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">waitdraw</span><span class="p">)</span><span class="w"></span></td>
+      <td class="linecount coveredLine">29569739</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">RunScript</span><span class="p">(</span><span class="n">ScriptType</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">word</span><span class="w"> </span><span class="n">script</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1611003 times.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount coveredLine">1611003</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CurrentVersion</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span><span class="w"></span></td>
+      <td class="linecount coveredLine">29569739</td>
+      <td class="src coveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">run_script</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">script</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1611003</td>
-      <td class="src coveredLine"><span class="w">            </span><span class="n">ScrollingScript</span><span class="p">(</span><span class="n">scrolldir</span><span class="p">,</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="n">end_frames</span><span class="p">,</span><span class="n">waitdraw</span><span class="p">);</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1611003</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
+      <td class="linecount coveredLine">3215822</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">RunScrollingScript</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">scrolldir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">end_frames</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">waitdraw</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l31" href="#l31">31</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">private</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
+          <div class="takenBranch">&check; Branch 1 taken 3215822 times.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">CurrentVersion</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount partialCoveredLine">3215822</td>
+      <td class="src partialCoveredLine"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CurrentVersion</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
+      <td class="linecount coveredLine">3215822</td>
+      <td class="src coveredLine"><span class="w">            </span><span class="n">ScrollingScript</span><span class="p">(</span><span class="n">scrolldir</span><span class="p">,</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="n">end_frames</span><span class="p">,</span><span class="n">waitdraw</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">ScrollingScript</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">scrolldir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">end_frames</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">waitdraw</span><span class="p">);</span><span class="w"></span></td>
+      <td class="linecount coveredLine">3215822</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="n">private</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l37" href="#l37">37</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">CurrentVersion</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l38" href="#l38">38</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l39" href="#l39">39</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">ScrollingScript</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">scrolldir</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sy</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">end_frames</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">waitdraw</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l40" href="#l40">40</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l41" href="#l41">41</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l42" href="#l42">42</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -399,7 +405,7 @@
     </main>
 
     <footer>
-      Generated by: <a href="http://gcovr.com/en/6.0">GCOVR (Version 6.0)</a>
+      Generated by: <a href="http://gcovr.com/en/7.2">GCOVR (Version 7.2)</a>
     </footer>
   </body>
 </html>
