@@ -415,21 +415,21 @@ static void remove(OptContext& ctx, pc_t pc)
 template <typename T>
 static void for_every_command_register_arg(const ffscript& instr, T fn)
 {
-	auto& sc = get_script_command(instr.command);
+	auto sc = get_script_command(instr.command);
 
-	if (sc.is_register(0))
+	if (sc->is_register(0))
 	{
 		auto [read, write] = get_command_rw(instr.command, 0);
 		fn(read, write, instr.arg1, 0);
 	}
 
-	if (sc.is_register(1))
+	if (sc->is_register(1))
 	{
 		auto [read, write] = get_command_rw(instr.command, 1);
 		fn(read, write, instr.arg2, 1);
 	}
 
-	if (sc.is_register(2))
+	if (sc->is_register(2))
 	{
 		auto [read, write] = get_command_rw(instr.command, 2);
 		fn(read, write, instr.arg3, 2);
@@ -439,21 +439,21 @@ static void for_every_command_register_arg(const ffscript& instr, T fn)
 template <typename T>
 static void for_every_command_arg(ffscript& instr, T fn)
 {
-	auto& sc = get_script_command(instr.command);
+	auto sc = get_script_command(instr.command);
 
-	if (sc.args >= 1)
+	if (sc->args >= 1)
 	{
 		auto [read, write] = get_command_rw(instr.command, 0);
 		fn(read, write, instr.arg1, 0);
 	}
 
-	if (sc.args >= 2)
+	if (sc->args >= 2)
 	{
 		auto [read, write] = get_command_rw(instr.command, 1);
 		fn(read, write, instr.arg2, 1);
 	}
 
-	if (sc.args >= 3)
+	if (sc->args >= 3)
 	{
 		auto [read, write] = get_command_rw(instr.command, 2);
 		fn(read, write, instr.arg3, 2);

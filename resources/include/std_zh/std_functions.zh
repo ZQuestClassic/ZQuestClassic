@@ -600,7 +600,8 @@ int RegionRelativeScreenX(int scr)
 {
 	if (Region->ID)
 	{
-		return scr%16 - Region->OriginScreen%16;
+		int origin_screen_index = Region->OriginScreenIndex * 10000;
+		return scr%16 - origin_screen_index%16;
 	}
 	else
 	{
@@ -613,7 +614,8 @@ int RegionRelativeScreenY(int scr)
 {
 	if (Region->ID)
 	{
-		return Floor(scr/16) - Floor(Region->OriginScreen/16);
+		int origin_screen_index = Region->OriginScreenIndex * 10000;
+		return Floor(scr/16) - Floor(origin_screen_index/16);
 	}
 	else
 	{

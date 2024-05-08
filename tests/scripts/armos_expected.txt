@@ -2178,7 +2178,7 @@ PUSHARGSV -1 0.0002
 PUSHARGSV 0 0.0004
 PUSHV 1
 PUSHV 64; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWTILE; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS D5 0.0005
 RETURNFUNC; Func[void __Ghost_DrawShadow(npc)] Body End
@@ -6837,7 +6837,7 @@ PUSHARGSV -1 0.0002
 PUSHARGSV 0 0.0004
 PUSHV 1
 PUSHV 64; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWTILE; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void DrawEWeaponShadow(eweapon)] Body End
@@ -7028,7 +7028,7 @@ PUSHARGSV 0 0.0005
 PUSHV 1
 LOAD D2 0.0005
 PUSHR D2; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWCOMBO; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #130 Body End
 LOAD D2 0.0007
 ADDV D2 6
@@ -9256,7 +9256,7 @@ LOAD D2 0
 PUSHR D2
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWTILE; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 GOTO 3469; if() #336 Body End
 LOAD D2 0.0007; if() #570 Test AND if() #336 Else Start
@@ -14540,7 +14540,7 @@ LOAD D2 0
 PUSHR D2
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWTILE; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 GOTO 8753; if() #464 Body End
 LOAD D2 0.0002; if() #749 Test AND if() #464 Else Start

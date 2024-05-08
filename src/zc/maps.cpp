@@ -5797,7 +5797,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	cpos_clear_all();
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 	FFCore.clear_combo_scripts();
-	FFCore.deallocateAllScriptOwned(ScriptType::Screen, 0);
+	// TODO z3 !!!!
+	FFCore.deallocateAllScriptOwned(ScriptType::Screen, currscr);
 	FFCore.deallocateAllScriptOwned(ScriptType::Combo, 0);
 
 	// Load the origin screen (top-left in region) into tmpscr

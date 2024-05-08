@@ -11,7 +11,7 @@ Compile finished with exit code '0' (success)
 === METADATA (elided)
 {
   "currentFileSymbols": 56,
-  "symbols": 109,
+  "symbols": 108,
   "identifiers": 302
 }
 PUSHR REFFFC; void run() Body Start
@@ -251,7 +251,7 @@ PUSHV 1
 PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-RECT; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body End
 GOTO 219; while() #2 End
@@ -341,7 +341,7 @@ PUSHV 1
 PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-RECT; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 LOAD D2 0.0002
 COMPAREV D2 0

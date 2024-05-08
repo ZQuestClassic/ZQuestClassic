@@ -496,7 +496,7 @@ PUSHV -1
 PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-RECT; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS D5 0.0006
 RETURNFUNC; Func[void __Tango_ClearSlotBitmap(int)] Body End
@@ -2988,7 +2988,7 @@ PUSHARGSV 0 0.0002
 LOAD D2 0
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
-DRAWSTRING; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
+DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 SETR D2 GD3
 PUSHR D2
@@ -3227,7 +3227,7 @@ PUSHARGSV -1 0.0002
 PUSHARGSV 0 0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWCOMBO; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 RETURNFUNC; Func[void __Tango_DrawMenuCursor()] Body End
 PUSHV 0; Func[int __Tango_AddPadding(int, int, int)] Body Start
@@ -4067,7 +4067,7 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 LOAD D2 0
 PUSHR D2; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-RECT; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS D5 0.0004
 RETURNFUNC; Func[void __Tango_DrawColorBackdrop(int, int, int)] Body End
@@ -4126,7 +4126,7 @@ PUSHARGSV 0 0.0005
 PUSHV 1
 LOAD D2 0
 PUSHR D2; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWCOMBO; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS D5 0.0004
 RETURNFUNC; Func[void __Tango_DrawComboBackdrop(int, int, int)] Body End
@@ -4241,7 +4241,7 @@ PUSHARGSV 0 0.0004
 PUSHV 1
 LOAD D2 0.0001
 PUSHR D2; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWTILE; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 GOTO 4464; if() #191 Body End
 PUSHV 6; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #191 Else Start
@@ -4300,7 +4300,7 @@ PUSHARGSV 0 0.0005
 PUSHV 1
 LOAD D2 0.0001
 PUSHR D2; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWCOMBO; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #191 Else End
 GOTO 4464; if() #189 Body End
 LOAD D2 0.0004; if() #192 Test AND if() #189 Else Start
@@ -4415,7 +4415,7 @@ PUSHARGSV 0 0.0003
 PUSHV 1
 LOAD D2 0.0001
 PUSHR D2; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-RECT; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 GOTO 4464; if() #192 Body End
 PUSHR D4; if() #192 Else Start
@@ -4616,7 +4616,7 @@ PUSHARGSV -1 0.0003
 LOAD D2 0.0008
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, int, int)] Params End
-DRAWCHAR; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, int, int)] Body Start
+DRAWCHARR; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0010; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, int, int)] Body End
 GOTO 4667; if() #287 Body End
 LOAD D2 0.0007; if() #584 Test AND if() #287 Else Start
@@ -4652,7 +4652,7 @@ PUSHR D2
 LOAD D2 0.0006
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
-FASTTILE; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
+FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #584 Body End
 GOTO 4667; if() #287 Else End AND if() #286 Body End
 LOAD D2 0.0001; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params Start AND if() #286 Else Start
@@ -4678,7 +4678,7 @@ PUSHR D2
 LOAD D2 0.0006
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
-FASTTILE; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
+FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #286 Else End
 PUSHR D4; if() #583 Body End AND return Start
 LOAD D2 0.0008; UsrFunc[int __Tango_GetCharacterWidth(char32, int[])] Params Start
@@ -4739,7 +4739,7 @@ POP D0
 READPODARRAYR D2 D2
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params End
-FASTCOMBO; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body Start
+FASTCOMBOR; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body End AND if() #471 Body End
 PUSHR D4; if() #472 Test
 CALLFUNC 0.4815; UsrFunc[bool __Tango_MenuCanScrollDown()] Call
@@ -4784,7 +4784,7 @@ POP D0
 READPODARRAYR D2 D2
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params End
-FASTCOMBO; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body Start
+FASTCOMBOR; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body End AND if() #472 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void __Tango_DrawMenuScrollIndicators(int, int)] Body End
@@ -4994,7 +4994,7 @@ PUSHR D2
 LOAD D2 0.0002
 PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Params End
-FASTCOMBO; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body Start
+FASTCOMBOR; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastCombo(int, int, int, int, int, int)] Body End
 POPARGS D5 0.0008
 RETURNFUNC; Func[void __Tango_DrawMoreIcon()] Body End
@@ -5053,7 +5053,7 @@ PUSHARGSV 0 0.0004
 PUSHV 1
 LOAD D2 0
 PUSHR D2; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-DRAWTILE; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 POPARGS D5 0.0004
 RETURNFUNC; Func[void __Tango_DrawTileBackdrop(int, int, int)] Body End
@@ -5164,7 +5164,7 @@ LOAD D2 0
 PUSHR D2
 PUSHV 0
 PUSHV 1; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
-DRAWBITMAP; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
+BITMAPR; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
 SETR D2 GD4; if() #631 Test
 PUSHR D2
@@ -5273,7 +5273,7 @@ PUSHR D2
 PUSHV 16
 PUSHV 0
 PUSHV 1; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
-DRAWBITMAP; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
+BITMAPR; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body End AND if() #631 Body End
 POPARGS D5 0.0011
 RETURNFUNC; Func[void __Tango_TransferText(int, int, int, int)] Body End
@@ -11234,7 +11234,7 @@ PUSHR D2
 PUSHV 16
 PUSHV 0
 PUSHV 1; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
-DRAWBITMAP; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
+BITMAPR; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::DrawBitmap(int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
 PUSHV 0; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0003
@@ -11255,7 +11255,7 @@ PUSHV -1
 PUSHARGSV 0 0.0003
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
-RECT; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
+RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 LOAD D2 0.0006; if() #629 Test
 COMPAREV D2 0

@@ -152,31 +152,31 @@ void ScriptDebugHandle::print_command(int i)
 	auto& op = script->zasm[i];
 	word scommand = op.command;
 	int args[] = {op.arg1, op.arg2, op.arg3};
-	auto& c = get_script_command(scommand);
+	auto sc = get_script_command(scommand);
 
 	printf(CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
 							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-						"%14s", c.name);
-	if (c.args >= 1)
+						"%14s", sc->name);
+	if (sc->args >= 1)
 	{
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\t %s", zasm_arg_to_string(args[0], c.arg_type[0]).c_str());
+			"\t %s", zasm_arg_to_string(args[0], sc->arg_type[0]).c_str());
 	}
-	for(int q = 1; q < c.args; ++q)
+	for(int q = 1; q < sc->args; ++q)
 	{
 		print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
 		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\t %s", zasm_arg_to_string(args[q], c.arg_type[q]).c_str());
+			"\t %s", zasm_arg_to_string(args[q], sc->arg_type[q]).c_str());
 	}
-	if (c.arr_type)
+	if (sc->arr_type)
 	{
 		print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
-		if(c.arr_type == 1)
+		if(sc->arr_type == 1)
 		{
 			printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
 				"\t %s", op.strptr->c_str());
 		}
-		else //if(c.arr_type == 2)
+		else //if(sc->arr_type == 2)
 		{
 			printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
 				"\t %s", fmt::format("{{ {} }}", fmt::join(*op.vecptr, ", ")).c_str());

@@ -1,14 +1,55 @@
 #ifndef _ZASM_TABLE_H_
 #define _ZASM_TABLE_H_
 
-#include "base/zdefs.h"
+#include "base/ints.h"
+#include "zasm/defines.h"
 #include <initializer_list>
 #include <optional>
 #include <string>
 #include <utility>
 
-const script_command& get_script_command(int command);
-std::optional<int> get_script_command(const std::string& name);
+enum class ARGTY : byte
+{
+    UNUSED_REG,
+    READ_REG,
+    WRITE_REG,
+    READWRITE_REG,
+    LITERAL,
+    COMPARE_OP,
+};
+
+#define ARGFL_COMPARE_USED 0x01
+#define ARGFL_COMPARE_SET  0x02
+#define ARGFL_UNIMPL       0x04
+struct script_command
+{
+	char name[64];
+	ASM_DEFINE command;
+	byte args;
+	ARGTY arg_type[3];
+	byte arr_type; //0x1 = string, 0x2 = array
+	byte flags; //ARGFL_
+
+	bool is_register(int arg) const
+	{
+		return arg_type[arg] == ARGTY::READ_REG || arg_type[arg] == ARGTY::WRITE_REG || arg_type[arg] == ARGTY::READWRITE_REG;
+	}
+
+	bool writes_to_register(int arg) const
+	{
+		return arg_type[arg] == ARGTY::WRITE_REG || arg_type[arg] == ARGTY::READWRITE_REG;
+	}
+};
+
+struct script_variable
+{
+    char name[64];
+    int32_t id;
+    word maxcount;
+};
+
+const script_command* get_script_command(int command);
+const script_command* get_script_command(const std::string& name);
 std::pair<const script_variable*, int> get_script_variable(int var);
 std::optional<int> get_script_variable(const std::string& var_name);
 

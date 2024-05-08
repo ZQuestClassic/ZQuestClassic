@@ -115,15 +115,14 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		util::split(op_string, tokens, ' ');
 
 		std::string command = tokens[0];
-		auto command_opt = get_script_command(command);
-		if (!command_opt)
+		auto sc = get_script_command(command);
+		if (!sc)
 		{
 			handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm command `{}`", command)));
 			return;
 		}
 
-		auto sv = get_script_command(*command_opt);
-		if (sv.args != tokens.size() - 1)
+		if (sc->args != tokens.size() - 1)
 		{
 			handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Wrong number of zasm args for command `{}`", command)));
 			return;
@@ -131,7 +130,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 
 		for (int i = 1; i < tokens.size(); i++)
 		{
-			switch (sv.arg_type[i - 1])
+			switch (sc->arg_type[i - 1])
 			{
 				case ARGTY::READ_REG:
 				case ARGTY::WRITE_REG:
@@ -149,7 +148,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 				case ARGTY::LITERAL:
 				{
 					try {
-						int val = util::ffparse2(tokens[i], true);
+						util::ffparse2(tokens[i], true);
 					} catch (std::exception ex) {
 						handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Invalid zasm arg `{}` in command `{}` ({})", tokens[i], command, ex.what())));
 						return;

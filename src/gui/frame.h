@@ -15,7 +15,7 @@ public:
 	// Ordered to match the old jwin enum
 	enum class style
 	{
-		INVIS = -1, RAISED, RAISED_2, SUNKEN_2, SUNKEN, THICK_LINE, ETCHED, LINE, RED, GREEN
+		INVIS = -1, RAISED, RAISED_2, SUNKEN_2, SUNKEN, THICK_LINE, ETCHED, LINER, RED, GREEN
 	};
 
 	Frame();

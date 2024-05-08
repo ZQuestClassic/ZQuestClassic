@@ -28,7 +28,7 @@ gcovr \
   --json tests/.coverage/coverage.json \
   --html-title "ZQuest Classic Coverage Report" \
   --html-theme blue \
-  --sort-key uncovered-percent \
+  --sort uncovered-percent \
   -r . \
   -f src \
   -d \

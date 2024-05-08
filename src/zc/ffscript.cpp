@@ -2512,6 +2512,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::Screen:
 		{
 			curscript = screenscripts[script];
+			ri->screenref = index;
 
 			if (!data.initialized)
 			{
@@ -3470,10 +3471,50 @@ void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID
 				return;
 		}
 	}
-	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
+
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
 		if(arrayOwner[i].own_clear(scriptType,UID))
+			deallocateArray(i);
+	}
+}
+
+void FFScript::deallocateAllScriptOwnedOfType(ScriptType scriptType, bool requireAlways)
+{
+	std::vector<uint32_t> ids_to_clear;
+	for (auto& script_object : script_objects | std::views::values)
+	{
+		if (script_object->owned_type == scriptType)
+		{
+			ids_to_clear.push_back(script_object->id);
+		}
+	}
+	if (ZScriptVersion::gc())
+	{
+		for (auto id : ids_to_clear)
+			script_object_ref_dec(id);
+	}
+	else
+	{
+		for (auto id : ids_to_clear)
+			delete_script_object(id);
+	}
+
+	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
+	{
+		//Keep 2.50.2 behavior if QR unchecked.
+		switch(scriptType)
+		{
+			case ScriptType::FFC:
+			case ScriptType::Item:
+			case ScriptType::Global:
+				return;
+		}
+	}
+
+	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	{
+		if(arrayOwner[i].owned_type == scriptType)
 			deallocateArray(i);
 	}
 }
@@ -9385,7 +9426,7 @@ int32_t get_register(int32_t arg)
 
 		case REGION_ORIGIN_SCREEN:
 		{
-			ret = cur_origin_screen_index * 10000;
+			ret = cur_origin_screen_index;
 		}
 		break;
 
@@ -23238,14 +23279,15 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENSCRIPT:
 		{
 			mapscr* screen = get_scr(currmap, curScriptIndex);
+
 			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
 				for(int32_t q=0; q<8; q++)
 					screen->screeninitd[q] = 0;
 			}
-			
+
 			screen->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
-			on_reassign_script_engine_data(ScriptType::Screen, curScriptIndex);
+			on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
 			break;
 		}
 		
@@ -23843,7 +23885,7 @@ void set_register(int32_t arg, int32_t value)
 							screen->screeninitd[q] = 0;
 					}
 
-					on_reassign_script_engine_data(ScriptType::Screen, curScriptIndex);
+					on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
 				}
 				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
@@ -30704,11 +30746,11 @@ void do_getscreenforcombopos(const bool v)
 	// TODO z3 !!! implement REGION_SCREEN_FOR_COMBO_POS as Region->GetScreenIndexForPos
 	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Region->GetScreenIndexForPos") != SH::_NoError)
 	{
-		set_register(sarg1, -10000);
+		set_register(sarg1, -1);
 		return;
 	}
 
-	set_register(sarg1, get_screen_index_for_rpos(rpos) * 10000);
+	set_register(sarg1, get_screen_index_for_rpos(rpos));
 }
 
 

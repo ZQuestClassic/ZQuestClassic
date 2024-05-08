@@ -2,31 +2,55 @@ class Region {
 	// @delete
 	internal Region();
 
-	// @zasm_var REGION_WIDTH
-	internal const long Width;
-
-	// @zasm_var REGION_HEIGHT
-	internal const long Height;
-
-	// @zasm_var REGION_SCREEN_WIDTH
-	internal const long ScreenWidth;
-
-	// @zasm_var REGION_SCREEN_HEIGHT
-	internal const long ScreenHeight;
-
-	// @zasm_var REGION_NUM_COMBOS
-	internal const long NumCombos;
-
 	// @zasm_var REGION_ID
 	internal const long ID;
 
+	// The number of pixels horizontally. 256 per screen.
+	//
+	// @zasm_var REGION_WIDTH
+	internal const long Width;
+
+	// The number of pixels vertically. 176 per screen.
+	//
+	// @zasm_var REGION_HEIGHT
+	internal const long Height;
+
+	// The number of screens horizontally.
+	//
+	// @zasm_var REGION_SCREEN_WIDTH
+	internal const long ScreenWidth;
+
+	// The number of screens vertically.
+	//
+	// @zasm_var REGION_SCREEN_HEIGHT
+	internal const long ScreenHeight;
+
+	// The number of combo positions. 176 per screen.
+	//
+	// @zasm_var REGION_NUM_COMBOS
+	internal const long NumCombos;
+
+	// The top-left screen in the current region.
+	// If not in a large region, this is the same as [Screen].
+	//
 	// @zasm_var REGION_ORIGIN_SCREEN
-	internal const long OriginScreen; // TODO z3 !!! screendata OriginScreen?
+	internal const screendata OriginScreen;
+
+	// The index of the top-left screen in the current region.
+	// If not in a large region, this is the same as [Game->CurScreen].
+	//
+	// @zasm_var REGION_ORIGIN_SCREEN
+	internal const long OriginScreenIndex;
 
 	// @zasm
 	//   POP D2
 	//   REGION_SCREEN_FOR_COMBO_POS D2
-	internal int GetScreenForComoboPos(int pos); // TODO z3 !!! screendata GetScreenForComoboPos?
+	internal screendata GetScreenForComoboPos(int pos);
+
+	// @zasm
+	//   POP D2
+	//   REGION_SCREEN_FOR_COMBO_POS D2
+	internal int GetScreenIndexForComoboPos(int pos);
 
 	// @zasm
 	//   POP D2
@@ -34,4 +58,8 @@ class Region {
 	internal void TriggerSecrets(int screen_index);
 }
 
+// The Region the player is currently in.
+// A Region is a collection of screens that can be freely scrolled between.
+// An area without any scrolling is technically still a Region of 1x1 screen size.
+// The position of the region currently visible is defined by the [Viewport].
 internal const Region Region;
