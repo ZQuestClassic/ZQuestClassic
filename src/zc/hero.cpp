@@ -27850,10 +27850,10 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen, currscr) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);  
-			FFCore.waitdraw(ScriptType::Screen) = 0;		
+			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);  
+			FFCore.waitdraw(ScriptType::Screen, currscr) = 0;		
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
@@ -27866,7 +27866,7 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 	{
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);
+			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS);
 		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.doscript(ScriptType::Global, GLOBAL_SCRIPT_GAME))
@@ -28202,10 +28202,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen, currscr) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);  
-		FFCore.waitdraw(ScriptType::Screen) = 0;		
+		ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);  
+		FFCore.waitdraw(ScriptType::Screen, currscr) = 0;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 	

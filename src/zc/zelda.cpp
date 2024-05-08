@@ -3437,10 +3437,10 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
 		
-		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && FFCore.doscript(ScriptType::Screen) && FFCore.waitdraw(ScriptType::Screen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && FFCore.doscript(ScriptType::Screen, currscr) && FFCore.waitdraw(ScriptType::Screen, currscr) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);  
-			FFCore.waitdraw(ScriptType::Screen) = 0;	    
+			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);
+			FFCore.waitdraw(ScriptType::Screen, currscr) = 0;	    
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
