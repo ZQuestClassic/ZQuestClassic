@@ -29377,6 +29377,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			viewport.h = 232 - playing_field_offset;
 		}
 
+		if (lift_wpn)
+			lift_wpn->yofs = playing_field_offset - 2;
+
 		if(!no_move)
 		{
 			switch(scrolldir)
@@ -29569,7 +29572,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		// TODO z3 could everything happen in a single call to for_every_nearby_screen_during_scroll ?
 
 		if (!align_counter || scroll_counter) herostep();
-		
+
 		{
 			// Must draw with old-region coordinates.
 			auto prev_y = y;
@@ -29705,6 +29708,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		else
 			ladderx = x.getInt();
 	}
+	if (lift_wpn)
+		lift_wpn->yofs = playing_field_offset - 2;
 
 	// TODO z3 ! rm. really should separate quake draw offset from playing field offset.
 	if (scrolling_extended_height)
