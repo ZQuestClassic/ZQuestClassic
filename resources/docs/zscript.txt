@@ -2294,7 +2294,6 @@ void Rectangle(		int layer, int x, int y, int x2, int y2,
 					
 					ZASM Instruction: 
 					RECTR
-					RECT
 
 /**
 * Draws a rectangle on the specified layer of the current screen, using args to set its properties:
@@ -2333,7 +2332,6 @@ void Circle(	int layer, int x, int y, int radius,
 	
 					
 					ZASM Instruction: 
-					CIRCLE
 					CIRCLER
 
 /**
@@ -2361,7 +2359,6 @@ void Arc(	int layer, int x, int y, int radius, int startangle, int endangle,
 		bool closed, bool fill, int opacity	);
 					
 					ZASM Instruction: 
-					ARC
 					ARCR
 
 /**
@@ -2424,7 +2421,6 @@ void Spline(	int layer, int x1, int y1, int x2, int y2, int x3, int y3,int x4, i
 	
 					ZASM Instruction: 
 					SPLINER
-					SPLINE
 
 /**
 * Draws a cardinal spline on the specified layer of the current screen
@@ -2447,7 +2443,6 @@ void Line(	int layer, int x, int y, int x2, int y2,
 		int opacity	);
 	
 					ZASM Instruction: 
-					LINE
 					LINER
 /**
 * Draws a line on the specified layer of the current screen between
@@ -2474,7 +2469,6 @@ void PutPixel	(int layer, int x, int y,
 		int opacity);
 	
 					ZASM Instruction: 
-					PUTPIXEL
 					PUTPIXELR
 /**
 * Draws a raw pixel on the specified layer of the current screen
@@ -2501,7 +2495,6 @@ void DrawTile	(int layer, int x, int y,
 		bool transparency, int opacity);
 	
 					ZASM Instruction: 
-					DRAWTILE
 					DRAWTILER
 /**
 * Draws a block of tiles on the specified layer of the current screen,
@@ -2554,7 +2547,6 @@ void DrawCombo	(int layer, int x, int y,
 		bool transparency, int opacity);
 	
 					ZASM Instruction: 
-					DRAWCOMBO
 					DRAWCOMBOR
 /**
 * Draws a combo on the specified layer of the current screen,

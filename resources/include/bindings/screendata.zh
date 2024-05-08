@@ -686,21 +686,21 @@ class screendata {
 	internal void ClearSprites(int spritelist);
 
 	// @zasm
-	//   RECT
+	//   RECTR
 	//   POPARGS D5 0.0012
 	internal void Rectangle(int arg1, int arg2, int arg3, int arg4, int arg5,
 							int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
 							int arg10 = 0, bool arg11 = true, int arg12 = 128);
 
 	// @zasm
-	//   CIRCLE
+	//   CIRCLER
 	//   POPARGS D5 0.0011
 	internal void Circle(int arg1, int arg2, int arg3, int arg4, int arg5,
 						 int arg6 = 1, int arg7 = 0, int arg8 = 0, int arg9 = 0,
 						 bool arg10 = true, int arg11 = 128);
 
 	// @zasm
-	//   ARC
+	//   ARCR
 	//   POPARGS D5 0.0014
 	internal void Arc(int arg1, int arg2, int arg3, int arg4, int arg5,
 					  int arg6, int arg7, int arg8 = 1, int arg9 = 0,
@@ -708,28 +708,28 @@ class screendata {
 					  bool arg13 = true, int arg14 = 128);
 
 	// @zasm
-	//   ELLIPSE
+	//   ELLIPSER
 	//   POPARGS D5 0.0012
 	internal void Ellipse(int arg1, int arg2, int arg3, int arg4, int arg5,
 						  int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
 						  int arg10 = 0, bool arg11 = true, int arg12 = 128);
 
 	// @zasm
-	//   LINE
+	//   LINER
 	//   POPARGS D5 0.0011
 	internal void Line(int arg1, int arg2, int arg3, int arg4, int arg5,
 					   int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
 					   int arg10 = 0, int arg11 = 128);
 
 	// @zasm
-	//   SPLINE
+	//   SPLINER
 	//   POPARGS D5 0.0011
 	internal void Spline(int arg1, int arg2, int arg3, int arg4, int arg5,
 						 int arg6, int arg7, int arg8, int arg9, int arg10,
 						 int arg11 = 1);
 
 	// @zasm
-	//   PUTPIXEL
+	//   PUTPIXELR
 	//   POPARGS D5 0.0008
 	internal void PutPixel(int arg1, int arg2, int arg3, int arg4, int arg5 = 0,
 						   int arg6 = 0, int arg7 = 0, int arg8 = 128);
@@ -789,21 +789,21 @@ class screendata {
 	internal void Lines(int layer, int ptr);
 
 	// @zasm
-	//   DRAWCHAR
+	//   DRAWCHARR
 	//   POPARGS D5 0.0010
 	internal void DrawCharacter(int arg1, int arg2, int arg3, int arg4,
 								int arg5, int arg6, int arg7, int arg8,
 								int arg9, int arg10 = 128);
 
 	// @zasm
-	//   DRAWINT
+	//   DRAWINTR
 	//   POPARGS D5 0.0011
 	internal void DrawInteger(int arg1, int arg2, int arg3, int arg4, int arg5,
 							  int arg6, int arg7, int arg8, int arg9,
 							  int arg10 = 0, int arg11 = 128);
 
 	// @zasm
-	//   DRAWTILE
+	//   DRAWTILER
 	//   POPARGS D5 0.0015
 	internal void DrawTile(int arg1, int arg2, int arg3, int arg4, int arg5,
 						   int arg6, int arg7, int arg8 = -1, int arg9 = -1,
@@ -819,7 +819,7 @@ class screendata {
 								  int blockh, int flip = 0);
 
 	// @zasm
-	//   DRAWCOMBO
+	//   DRAWCOMBOR
 	//   POPARGS D5 0.0016
 	internal void DrawCombo(int arg1, int arg2, int arg3, int arg4, int arg5,
 							int arg6, int arg7, int arg8, int arg9 = -1,
@@ -836,45 +836,45 @@ class screendata {
 								   int tilewidth, int tileheight, int flip = 0);
 
 	// @zasm
-	//   QUAD
+	//   QUADR
 	//   POPARGS D5 0.0015
 	internal void Quad(int arg1, int arg2, int arg3, int arg4, int arg5,
 					   int arg6, int arg7, int arg8, int arg9, int arg10,
 					   int arg11, int arg12, int arg13, int arg14, int arg15);
 
 	// @zasm
-	//   TRIANGLE
+	//   TRIANGLER
 	//   POPARGS D5 0.0013
 	internal void Triangle(int arg1, int arg2, int arg3, int arg4, int arg5,
 						   int arg6, int arg7, int arg8, int arg9, int arg10,
 						   int arg11, int arg12, int arg13);
 
 	// @zasm
-	//   QUAD3D
+	//   QUAD3DR
 	//   POPARGS D5 0.0008
 	internal void Quad3D(int arg1, int arg2, int arg3, int arg4, int arg5,
 						 int arg6, int arg7, int arg8);
 
 	// @zasm
-	//   TRIANGLE3D
+	//   TRIANGLE3DR
 	//   POPARGS D5 0.0008
 	internal void Triangle3D(int arg1, int arg2, int arg3, int arg4, int arg5,
 							 int arg6, int arg7, int arg8);
 
 	// @zasm
-	//   FASTTILE
+	//   FASTTILER
 	//   POPARGS D5 0.0006
 	internal void FastTile(int arg1, int arg2, int arg3, int arg4, int arg5,
 						   int arg6 = 128);
 
 	// @zasm
-	//   FASTCOMBO
+	//   FASTCOMBOR
 	//   POPARGS D5 0.0006
 	internal void FastCombo(int arg1, int arg2, int arg3, int arg4, int arg5,
 							int arg6 = 128);
 
 	// @zasm
-	//   DRAWSTRING
+	//   DRAWSTRINGR
 	//   POPARGS D5 0.0009
 	internal void DrawString(int layer, int x, int y, int font, int color,
 							 int background_color, int format, char32[] str,
@@ -892,19 +892,19 @@ class screendata {
 							 int opacity, int shadow_type, int shadow_color);
 
 	// @zasm
-	//   DRAWLAYER
+	//   DRAWLAYERR
 	//   POPARGS D5 0.0008
 	internal void DrawLayer(int arg1, int arg2, int arg3, int arg4, int arg5,
 							int arg6, int arg7 = 0, int arg8 = 128);
 
 	// @zasm
-	//   DRAWSCREEN
+	//   DRAWSCREENR
 	//   POPARGS D5 0.0006
 	internal void DrawScreen(int arg1, int arg2, int arg3, int arg4, int arg5,
 							 int arg6 = 0);
 
 	// @zasm
-	//   DRAWBITMAP
+	//   BITMAPR
 	//   POPARGS D5 0.0012
 	internal void DrawBitmap(int arg1, int arg2, int arg3, int arg4, int arg5,
 							 int arg6, int arg7, int arg8, int arg9, int arg10,

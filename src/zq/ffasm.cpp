@@ -537,7 +537,8 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 		}
 	}
 
-	(*script)->zasm_script->size = zasm.size();
+	if (success)
+		(*script)->zasm_script->size = zasm.size();
 
 	if(report_success && success) //(!stop) // stop is never true here
 	{
@@ -640,72 +641,64 @@ int32_t parse_script_section(char const* combuf, char const* const* argbufs, ffs
 	{
 		zas.strptr = new std::string(*sptr);
 	}
-	bool found_command=false;	
-	
-	// TODO: should use get_script_command(string)
-	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
+
+	auto sc = get_script_command(combuf);
+	if (!sc)
 	{
-		auto& sc = get_script_command(i);
-		if(strcmp(combuf,sc.name)==0)
+		retcode=ERR_INSTRUCTION;
+		return 0;
+	}
+
+	auto i = sc->command;
+	zas.command = i;
+	bool is_goto = false;
+	
+	switch(i)
+	{
+		case GOTO: case LOOP: //Hardcodes for some control flow opcodes
+		case GOTOTRUE: case GOTOFALSE: case GOTOLESS: case GOTOMORE: case GOTOCMP:
+			is_goto = true;
+			break;
+	}
+	if(is_goto) //hardcoded arg1
+	{
+		string lbl(argbufs[0]);
+		auto it = labels.find(lbl);
+		if(it != labels.end())
+			zas.arg1 = (*it).second;
+		else
+			zas.arg1 = atoi(argbufs[0])-1;
+	}
+	auto& op = zas;
+	int *args[] = {&op.arg1, &op.arg2, &op.arg3};
+	for(int q = (is_goto ? 1 : 0); q < sc->args; ++q)
+	{
+		if(!handle_arg(sc->arg_type[q], argbufs[q], *(args[q])))
 		{
-			found_command=true;
-			zas.command = i;
-			bool is_goto = false;
-			
-			switch(i)
-			{
-				case GOTO: case LOOP: //Hardcodes for some control flow opcodes
-				case GOTOTRUE: case GOTOFALSE: case GOTOLESS: case GOTOMORE: case GOTOCMP:
-					is_goto = true;
-					break;
-			}
-			if(is_goto) //hardcoded arg1
-			{
-				string lbl(argbufs[0]);
-				auto it = labels.find(lbl);
-				if(it != labels.end())
-					zas.arg1 = (*it).second;
-				else
-					zas.arg1 = atoi(argbufs[0])-1;
-			}
-			auto& op = zas;
-			int *args[] = {&op.arg1, &op.arg2, &op.arg3};
-			for(int q = (is_goto ? 1 : 0); q < sc.args; ++q)
-			{
-				if(!handle_arg(sc.arg_type[q], argbufs[q], *(args[q])))
-				{
-					retcode = ERR_PARAM1+q;
-					return 0;
-				}
-			}
-			if(byte b = sc.arr_type)
-			{
-				if(!(b&0x1) != !sptr) //string
-				{
-					retcode = ERR_STR;
-					return 0;
-				}
-				if(!(b&0x2) != !vptr) //vector
-				{
-					retcode = ERR_VEC;
-					return 0;
-				}
-			}
-			switch(i)
-			{
-				case CALLFUNC: //Hardcoded, based on GOTO above
-					zas.arg1 -= 1;
-					break;
-			}
+			retcode = ERR_PARAM1+q;
+			return 0;
 		}
 	}
-	
-	if(found_command)
+	if(byte b = sc->arr_type)
 	{
-		return 1;
+		if(!(b&0x1) != !sptr) //string
+		{
+			retcode = ERR_STR;
+			return 0;
+		}
+		if(!(b&0x2) != !vptr) //vector
+		{
+			retcode = ERR_VEC;
+			return 0;
+		}
 	}
-	
-	retcode=ERR_INSTRUCTION;
-	return 0;
+	switch(i)
+	{
+		case CALLFUNC: //Hardcoded, based on GOTO above
+			zas.arg1 -= 1;
+			break;
+	}
+
+	return 1;
 }
 

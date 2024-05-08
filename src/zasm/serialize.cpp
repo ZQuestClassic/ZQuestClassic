@@ -7,8 +7,6 @@
 #include <string>
 #include <fmt/format.h>
 
-extern script_variable variable_list[];
-
 std::string zasm_var_to_string(int32_t var)
 {
 	const auto& [sv, w] = get_script_variable(var);
@@ -47,30 +45,30 @@ std::string zasm_arg_to_string(int32_t arg, ARGTY arg_ty)
 std::string zasm_op_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3, std::vector<int>* argvec, std::string* argstr)
 {
 	std::stringstream ss;
-	auto& c = get_script_command(scommand);
+	auto c = get_script_command(scommand);
 
 	int args[] = {arg1, arg2, arg3};
 	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
-	ss << SS_WIDTH(15) << c.name;
-	if (c.args >= 1)
+	ss << SS_WIDTH(15) << c->name;
+	if (c->args >= 1)
 	{
-		ss << " " << SS_WIDTH(16) << zasm_arg_to_string(args[0], c.arg_type[0]);
+		ss << " " << SS_WIDTH(16) << zasm_arg_to_string(args[0], c->arg_type[0]);
 	}
-	for(int q = 1; q < c.args; ++q)
+	for(int q = 1; q < c->args; ++q)
 	{
-		ss << SS_WIDTH(7) << zasm_arg_to_string(args[q], c.arg_type[q]);
+		ss << SS_WIDTH(7) << zasm_arg_to_string(args[q], c->arg_type[q]);
 	}
-	if (c.arr_type)
+	if (c->arr_type)
 	{
 		ss << SS_WIDTH(7);
-		if(c.arr_type == 1)
+		if(c->arr_type == 1)
 		{
 			// NOTE: currently possible to encounter a null pointer here, since the qst loading code
 			// will create no string for these commands if the size was 0.
 			if (argstr)
 				ss << *argstr;
 		}
-		else //if(c.arr_type == 2)
+		else //if(c->arr_type == 2)
 		{
 			ss << fmt::format("{{ {} }}", fmt::join(*argvec, ", "));
 		}
@@ -82,18 +80,18 @@ std::string zasm_op_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t
 std::string zasm_op_to_string(word scommand, int32_t arg1, int32_t arg2, int32_t arg3)
 {
 	std::stringstream ss;
-	auto& c = get_script_command(scommand);
+	auto c = get_script_command(scommand);
 	
 	int args[] = {arg1, arg2, arg3};
 	#define SS_WIDTH(w) std::setw(w) << std::setfill(' ') << std::left
-	ss << SS_WIDTH(15) << c.name;
-	if (c.args >= 1)
+	ss << SS_WIDTH(15) << c->name;
+	if (c->args >= 1)
 	{
-		ss << " " << SS_WIDTH(16) << zasm_arg_to_string(args[0], c.arg_type[0]);
+		ss << " " << SS_WIDTH(16) << zasm_arg_to_string(args[0], c->arg_type[0]);
 	}
-	for(int q = 1; q < c.args; ++q)
+	for(int q = 1; q < c->args; ++q)
 	{
-		ss << SS_WIDTH(7) << zasm_arg_to_string(args[q], c.arg_type[q]);
+		ss << SS_WIDTH(7) << zasm_arg_to_string(args[q], c->arg_type[q]);
 	}
 
 	return ss.str();
@@ -106,7 +104,7 @@ std::string zasm_op_to_string(const ffscript& c)
 
 std::string zasm_op_to_string(word scommand)
 {
-	return get_script_command(scommand).name;
+	return get_script_command(scommand)->name;
 }
 
 std::optional<int> parse_zasm_compare_arg(char const* buf)
@@ -177,18 +175,17 @@ ffscript parse_zasm_op(std::string op_str)
 {
 	auto tokens = util::split_args(op_str);
 	assert(tokens.size() > 0);
-	word command = get_script_command(tokens[1]).value();
-	auto& sc = get_script_command(command);
+	auto sc = get_script_command(tokens[1]);
 
 	int arg1 = 0;
 	int arg2 = 0;
 	int arg3 = 0;
-	if (sc.args >= 1)
-		arg1 = parse_zasm_arg(tokens[2], sc.arg_type[0]).value();
-	if (sc.args >= 2)
-		arg2 = parse_zasm_arg(tokens[3], sc.arg_type[1]).value();
-	if (sc.args >= 3)
-		arg3 = parse_zasm_arg(tokens[4], sc.arg_type[2]).value();
+	if (sc->args >= 1)
+		arg1 = parse_zasm_arg(tokens[2], sc->arg_type[0]).value();
+	if (sc->args >= 2)
+		arg2 = parse_zasm_arg(tokens[3], sc->arg_type[1]).value();
+	if (sc->args >= 3)
+		arg3 = parse_zasm_arg(tokens[4], sc->arg_type[2]).value();
 
-	return {command, arg1, arg2, arg3};
+	return {(word)sc->command, arg1, arg2, arg3};
 }

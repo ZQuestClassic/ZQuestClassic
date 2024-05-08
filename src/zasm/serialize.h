@@ -1,7 +1,10 @@
 #ifndef _ZASM_SERIALIZE_H_
 #define _ZASM_SERIALIZE_H_
 
+#include "base/ints.h"
 #include "base/zdefs.h"
+#include "zasm/table.h"
+#include <optional>
 #include <string>
 
 std::string zasm_var_to_string(int32_t var);

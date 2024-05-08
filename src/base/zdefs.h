@@ -26,77 +26,6 @@
 #define DEVTIMESTAMP false
 #endif
 
-//Conditional Debugging Compilation
-//Script related
-#define _FFDEBUG
-//#define _FFDISSASSEMBLY
-//#define _FFONESCRIPTDISSASSEMBLY
-
-//Other
-//#define _SKIPPASSWORDCHECK
-
-/*
-  //DOS Graphics Modes
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_VGA
-  GFX_MODEX
-  GFX_VESA1
-  GFX_VESA2B
-  GFX_VESA2L
-  GFX_VESA3
-  GFX_VBEAF
-
-  //Windows Graphics Modes
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_DIRECTX
-  GFX_DIRECTX_ACCEL
-  GFX_DIRECTX_SOFT
-  GFX_DIRECTX_SAFE
-  GFX_DIRECTX_WIN
-  GFX_DIRECTX_OVL
-  GFX_GDI
-
-  //Linux Graphics Modes
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_FBCON
-  GFX_VBEAF
-  GFX_SVGALIB
-  GFX_VGA
-  GFX_MODEX
-
-  //X-Window Graphics Modes
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_XWINDOWS
-  GFX_XWINDOWS_FULLSCREEN
-  GFX_XDGA2
-  GFX_XDGA2_SOFT
-
-  //MacOS X Drivers
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_QUARTZ_FULLSCREEN
-  GFX_QUARTZ_WINDOW
-  */
-
 #include <cstdio>
 #include <math.h>
 #include <cstring>
@@ -1990,45 +1919,6 @@ struct script_data
 	{
 		zasm_script = nullptr;
 	}
-};
-
-enum class ARGTY : byte
-{
-    UNUSED_REG,
-    READ_REG,
-    WRITE_REG,
-    READWRITE_REG,
-    LITERAL,
-    COMPARE_OP,
-};
-
-#define ARGFL_COMPARE_USED 0x01
-#define ARGFL_COMPARE_SET  0x02
-#define ARGFL_UNIMPL       0x04
-struct script_command
-{
-	char name[64];
-	byte args;
-	ARGTY arg_type[3];
-	byte arr_type; //0x1 = string, 0x2 = array
-	byte flags; //ARGFL_
-
-	bool is_register(int arg) const
-	{
-		return arg_type[arg] == ARGTY::READ_REG || arg_type[arg] == ARGTY::WRITE_REG || arg_type[arg] == ARGTY::READWRITE_REG;
-	}
-
-	bool writes_to_register(int arg) const
-	{
-		return arg_type[arg] == ARGTY::WRITE_REG || arg_type[arg] == ARGTY::READWRITE_REG;
-	}
-};
-
-struct script_variable
-{
-    char name[64];
-    int32_t id;
-    word maxcount;
 };
 
 //Sprite boundary array indices
