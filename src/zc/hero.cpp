@@ -10881,16 +10881,19 @@ void HeroClass::doMirror(int32_t mirrorid)
 		mirrorid = current_item_id(itype_mirror);
 	if(mirrorid < 0) return;
 	
-	if((tmpscr->flags9&fDISABLE_MIRROR) || !(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
+	if((hero_screen->flags9&fDISABLE_MIRROR) || !(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
 	{
 		item_error();
 		return;
 	}
 	static const int32_t sens = 4; //sensitivity of 'No Mirror' combos (0 most, 8 least)
-	rpos_t rposes[] = {COMBOPOS_REGION(x+sens,y+sens), COMBOPOS_REGION(x+sens,y+15-sens),
-		COMBOPOS_REGION(x+15-sens,y+sens), COMBOPOS_REGION(x+15-sens,y+15-sens)};
+	rpos_t rposes[] = {COMBOPOS_REGION_CHECK_BOUNDS(x+sens,y+sens), COMBOPOS_REGION_CHECK_BOUNDS(x+sens,y+15-sens),
+		COMBOPOS_REGION_CHECK_BOUNDS(x+15-sens,y+sens), COMBOPOS_REGION_CHECK_BOUNDS(x+15-sens,y+15-sens)};
 	for(auto rpos : rposes)
 	{
+		if (rpos == rpos_t::None)
+			continue;
+
 		if(HASFLAG_ANY(mfNOMIRROR, rpos)) //"No Mirror" flag touching the player
 		{
 			item_error();
@@ -11484,16 +11487,16 @@ void HeroClass::doSwitchHook(byte style)
 		chainlinks.spr(j)->switch_hooked = true;
 	}
 	//}
-	if(hooked_comborpos != rpos_t::None)
+	rpos_t plrpos = COMBOPOS_REGION_CHECK_BOUNDS(x+8, y+8);
+	if(hooked_comborpos != rpos_t::None && plrpos != rpos_t::None)
 	{
-		rpos_t plrpos = COMBOPOS_REGION(x+8, y+8);
 		int32_t max_layer = get_qr(qr_HOOKSHOTALLLAYER) ? 6 : (get_qr(qr_HOOKSHOTLAYERFIX) ? 2 : 0);
 		hooked_layerbits = 0;
 		for(auto q = 0; q < 7; ++q)
 			hooked_undercombos[q] = -1;
 		
-		byte target_pos = RPOS_TO_POS(hooked_comborpos);
-		byte player_pos = RPOS_TO_POS(plrpos);
+		int target_pos = RPOS_TO_POS(hooked_comborpos);
+		int player_pos = RPOS_TO_POS(plrpos);
 		
 		for(auto q = max_layer; q > -1; --q)
 		{
@@ -11975,9 +11978,8 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(itm.flags&ITEM_FLAG1) didstuff |= did_whistle;
 			
-			// TODO z3
-			if((tmpscr->flags&fWHISTLE) || (tmpscr->flags7 & fWHISTLEWATER)
-					|| (tmpscr->flags7&fWHISTLEPAL))
+			if((hero_screen->flags&fWHISTLE) || (hero_screen->flags7 & fWHISTLEWATER)
+					|| (hero_screen->flags7&fWHISTLEPAL))
 			{
 				whistleclk=0;                                       // signal to start drying lake or doing other stuff
 			}
@@ -12367,8 +12369,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!checkbunny(itemid))
 				return item_error();
 			
-			// TODO z3
-			bool grumble = (tmpscr->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)));
+			bool grumble = (hero_screen->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_screen->flags9&fBELOWRETURN)));
 			bool checkcost = grumble || !(itm.flags & ITEM_FLAG4);
 			bool paycost = grumble || !(itm.flags & (ITEM_FLAG4|ITEM_FLAG5));
 			
@@ -12395,7 +12396,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					removeItemsOfFamily(game,itemsbuf,itype_bait);
 					verifyBothWeapons();
 				}
-				sfx(tmpscr->secretsfx);
+				sfx(hero_screen->secretsfx);
 				return false;
 			}
 			
