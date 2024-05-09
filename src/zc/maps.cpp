@@ -1473,7 +1473,6 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
         {
             if((tmpscr->nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
             {
-                // TODO z3 replay step here would be good
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap,nscr);
                 game->maps[((nmap-1)<<7)+nscr] &= ~flag;
             }

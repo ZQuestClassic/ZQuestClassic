@@ -29673,8 +29673,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	// homescr=currscr;
 	init_dmap();
-	putscr(scrollbuf,0,0,newscr); // TODO z3 rm?
-	putscrdoors(scrollbuf,0,0,newscr); // TODO z3 rm?
 	
 	// Check for raft flags
 	if((get_qr(qr_BROKEN_RAFT_SCROLL) || lastaction == rafting)

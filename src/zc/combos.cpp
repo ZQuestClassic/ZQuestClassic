@@ -3649,12 +3649,3 @@ void cpos_update() //updates with side-effects
 
 	trig_trigger_groups();
 }
-
-// TODO z3 merge ! del?
-// bool on_cooldown(const rpos_handle_t& rpos_handle)
-// {
-// 	int pos = rpos_handle.pos;
-// 	if(unsigned(rpos_handle.layer) > 7 || unsigned(pos) > 176)
-// 		return false;
-// 	return get_combo_posinfo(rpos_handle).trig_cd != 0;
-// }
