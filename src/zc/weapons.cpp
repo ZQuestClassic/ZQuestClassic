@@ -5156,7 +5156,7 @@ bool weapon::animate(int32_t index)
 			// Hookshot grab and retract code 
 			//Diagonal Hookshot (2)
 			
-			rpos_t cpos = rpos_t::None;
+			rpos_t rpos = rpos_t::None;
 			ffcdata* ffc = nullptr;
 			
 			if(misc==0)
@@ -5211,20 +5211,20 @@ bool weapon::animate(int32_t index)
 				
 				if(tx > -1)
 				{
-					hooked = check_hshot(0,tx, ty, sw, &cpos, &ffc);
+					hooked = check_hshot(0,tx, ty, sw, &rpos, &ffc);
 					
 					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
-						hooked = check_hshot(lyr,tx,ty,sw, &cpos);
+						hooked = check_hshot(lyr,tx,ty,sw, &rpos);
 						
 					if(_walkflag(tx,ty3,1) && !ishookshottable(tx,ty3))
 						hitsolid = true;
 				}
 				if(tx2 > -1 && !hooked)
 				{
-					hooked = check_hshot(0,tx2, ty2, sw, &cpos, &ffc);
+					hooked = check_hshot(0,tx2, ty2, sw, &rpos, &ffc);
 					
 					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
-						hooked = check_hshot(lyr,tx2,ty2,sw, &cpos);
+						hooked = check_hshot(lyr,tx2,ty2,sw, &rpos);
 						
 					if(_walkflag(tx2,ty3,1) && !ishookshottable(tx2,ty3))
 						hitsolid=true;
@@ -5236,8 +5236,8 @@ bool weapon::animate(int32_t index)
 			
 			if(hooked)
 			{
-				if (cpos != rpos_t::None)
-					hooked_comborpos = cpos;
+				if (rpos != rpos_t::None)
+					hooked_comborpos = rpos;
 				misc=sw?2:1;
 				step=0;
 				pull_hero=true;

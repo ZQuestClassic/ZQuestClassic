@@ -2196,11 +2196,10 @@ bool isSwitchHookable(newcombo const& cmb)
 	return cmb.genflags & cflag2;
 }
 
-// TODO z3 rename rpos things here
-bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos, ffcdata **ret_ffc)
+bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *out_rpos, ffcdata **out_ffc)
 {
 	rpos_t cpos = rpos_t::None;
-	if(retcpos)
+	if(out_rpos)
 	{
 		int32_t id = MAPCOMBO2(layer-1,x,y);
 		if(id > 0)
@@ -2211,7 +2210,7 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 	}
 
 	ffcdata* ffc = nullptr;
-	if (ret_ffc && !get_qr(qr_OLD_FFC_FUNCTIONALITY))
+	if (out_ffc && !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_some_ffcs([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, x, y))
@@ -2227,8 +2226,8 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 		});
 	}
 
-	if (retcpos && cpos != rpos_t::None) *retcpos = cpos;
-	if (ret_ffc && ffc) *ret_ffc = ffc;
+	if (out_rpos && cpos != rpos_t::None) *out_rpos = cpos;
+	if (out_ffc && ffc) *out_ffc = ffc;
 	return (cpos != rpos_t::None || ffc);
 }
 
