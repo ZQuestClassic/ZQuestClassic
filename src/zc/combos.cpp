@@ -2762,7 +2762,7 @@ void handle_trigger_results(mapscr* screen, int screen_index, newcombo const& cm
 	}
 }
 
-// TODO z3 remove
+// TODO remove
 bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 {
 	if (unsigned(pos) > 175) return false;

@@ -66,6 +66,30 @@ ZC_FORCE_INLINE void for_every_rpos(T&& fn)
 	}
 }
 
+// Iterates over every rpos in the current region, but only for screens that are valid,
+// until execution is requested to stop.
+// Callback function: bool fn(const pos_handle_t& rpos_handle)
+// If the callback returns false, the exeuction stops early.
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&>
+ZC_FORCE_INLINE void for_some_rpos(T&& fn)
+{
+	auto [handles, count] = z3_get_current_region_handles();
+
+	for (int i = 0; i < count; i++)
+	{
+		rpos_handle_t rpos_handle = handles[i];
+		for (int j = 0; j < 176; j++)
+		{
+			if (!fn(rpos_handle))
+				return;
+
+			rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
+			rpos_handle.pos += 1;
+		}
+	}
+}
+
 // Iterates over every ffc in the current region.
 // Callback function: void fn(const ffc_handle_t& ffc_handle)
 template<typename T>

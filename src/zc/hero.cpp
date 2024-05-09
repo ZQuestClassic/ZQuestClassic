@@ -10255,74 +10255,68 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	
+	// Global Combo Effects (AUTO STUFF)
 	bool awarp = false;
-	//!DIMI: Global Combo Effects (AUTO STUFF)
-	for(int32_t i=0; i<176; ++i)
-	{
-		for(int32_t layer=0; layer<7; ++layer)
+	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
+		newcombo const& cmb = combobuf[rpos_handle.data()];
+
+		if (!get_qr(qr_AUTOCOMBO_ANY_LAYER))
 		{
-			int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
-			newcombo const& cmb = combobuf[cid];
-			
-			if(!get_qr(qr_AUTOCOMBO_ANY_LAYER))
+			if (rpos_handle.layer > 2) return false;
+			if (rpos_handle.layer == 1 && !get_qr(qr_AUTOCOMBO_LAYER_1)) return true;
+			if (rpos_handle.layer == 2 && !get_qr(qr_AUTOCOMBO_LAYER_2)) return true;
+		}
+		int32_t ind=0;
+		
+		//AUTOMATIC TRIGGER CODE
+		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
+		{
+			do_trigger_combo(rpos_handle);
+		}
+		
+		//AUTO WARP CODE
+		if (!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+		{
+			if(cmb.type==cAWARPA)
 			{
-				if(layer > 2) break;
-				if (layer == 1 && !get_qr(qr_AUTOCOMBO_LAYER_1)) continue;
-				if (layer == 2 && !get_qr(qr_AUTOCOMBO_LAYER_2)) continue;
+				awarp=true;
+				ind=0;
 			}
-			int32_t ind=0;
-			
-			//AUTOMATIC TRIGGER CODE
-			if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
+			else if(cmb.type==cAWARPB)
 			{
-				// TODO z3
-				do_trigger_combo(layer, i);
+				awarp=true;
+				ind=1;
 			}
-			
-			//AUTO WARP CODE
-			if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+			else if(cmb.type==cAWARPC)
 			{
-				if(cmb.type==cAWARPA)
-				{
-					awarp=true;
-					ind=0;
-				}
-				else if(cmb.type==cAWARPB)
-				{
-					awarp=true;
-					ind=1;
-				}
-				else if(cmb.type==cAWARPC)
-				{
-					awarp=true;
-					ind=2;
-				}
-				else if(cmb.type==cAWARPD)
-				{
-					awarp=true;
-					ind=3;
-				}
-				else if(cmb.type==cAWARPR)
-				{
-					awarp=true;
-					ind=zc_oldrand()%4;
-				}
+				awarp=true;
+				ind=2;
 			}
-			if(awarp)
+			else if(cmb.type==cAWARPD)
 			{
-				// TODO z3
-				if(tmpscr->flags5&fDIRECTAWARP)
-				{
-					setpit();
-				}
-				
-				sdir = dir;
-				dowarp(1,ind);
-				break;
+				awarp=true;
+				ind=3;
+			}
+			else if(cmb.type==cAWARPR)
+			{
+				awarp=true;
+				ind=zc_oldrand()%4;
 			}
 		}
-		if(awarp) break;
-	}
+		if (awarp)
+		{
+			if (rpos_handle.screen->flags5 & fDIRECTAWARP)
+			{
+				setpit();
+			}
+			
+			sdir = dir;
+			dowarp(1,ind);
+			return false;
+		}
+
+		return true;
+	});
 	
 	awarp=false;
 	
