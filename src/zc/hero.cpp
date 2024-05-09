@@ -28867,21 +28867,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int new_playing_field_offset = playing_field_offset;
 	playing_field_offset = old_original_playing_field_offset;
 
-	// Old scrolling code maintained the previous playing field offset exactly, which only mattered
-	// if during a quake. Just a couple replays show this behavior. It actually looks bad and messes up
-	// the passive subscreen during the entire scroll, but for now let's not update them.
-	// TODO z3 final
-	bool freedom_in_chains_hack = false;
-	if (replay_is_debug())
-	{
-		std::string qst = replay_get_meta_str("qst");
-		freedom_in_chains_hack |= qst == "freedom_in_chains.qst";
-		freedom_in_chains_hack |= qst == "yuurand.qst";
-		freedom_in_chains_hack |= qst == "100_rooms_of_wisdom.qst";
-		if (freedom_in_chains_hack)
-			playing_field_offset = old_playing_field_offset;
-	}
-
 	// We must recalculate the new hero position and viewport, if a script run above just change the hero position.
 	if (hero_x_before_scripts != x || hero_y_before_scripts != y)
 	{
@@ -29077,9 +29062,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
 		pfo_mode = 1;
 	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
-
-	if (freedom_in_chains_hack)
-		pfo_counter = 0;
 	
 	if (get_qr(qr_NOSCROLL))
 	{
@@ -29284,8 +29266,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			{
 				viewport.x = initial_viewport.x + step * move_counter * dx;
 				viewport.y = initial_viewport.y + step * move_counter * dy + playing_field_offset - old_original_playing_field_offset;
-				if (freedom_in_chains_hack)
-					viewport.y -= playing_field_offset - old_original_playing_field_offset;
 			}
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
@@ -29448,8 +29428,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			auto prev_pfos = playing_field_offset;
 
 			if (is_unsmooth_vertical_scrolling) y += 3;
-			if (!freedom_in_chains_hack)
-				yofs = playing_field_offset;
+			yofs = playing_field_offset;
 
 			if((z > 0 || fakez > 0) && (!get_qr(qr_SHADOWSFLICKER) || frame&1))
 			{
@@ -29540,7 +29519,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		x = prev_x;
 		y = prev_y;
-	}//end main scrolling loop (2 spaces tab width makes me sad =( )
+	}
 	currdmap = old_dmap;
 
 	// TODO z3 old scrolling code didn't clear the darkroom bitmaps at end of scroll, so first frame will have some lighting from
@@ -29561,12 +29540,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	new_region_offset_x = 0;
 	new_region_offset_y = 0;
 	viewport = new_viewport;
-	if (!freedom_in_chains_hack)
-		playing_field_offset = new_playing_field_offset;
+	playing_field_offset = new_playing_field_offset;
 	x = new_hero_x;
 	y = new_hero_y;
-	if (!freedom_in_chains_hack)
-		yofs = playing_field_offset;
+	yofs = playing_field_offset;
 	if(ladderx > 0 || laddery > 0)
 	{
 		// If the ladder moves on both axes, the player can
@@ -29582,7 +29559,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// TODO z3 ! rm. really should separate quake draw offset from playing field offset.
 	if (scrolling_extended_height)
 		playing_field_offset = is_extended_height_mode() ? 0 : 56;
-	else if (!freedom_in_chains_hack)
+	else
 		playing_field_offset = old_original_playing_field_offset;
 
 	//Move hero to the other side of the screen if scrolling's not turned on
