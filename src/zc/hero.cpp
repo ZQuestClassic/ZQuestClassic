@@ -29321,44 +29321,37 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			y = prev_y;
 		}
 
-		// TODO z3 draw straight to framebuf?
-		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
 		clear_info_bmp();
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
-			int offy = draw_dy * 176 - playing_field_offset;
+			int offy = draw_dy * 176;
 
 			mapscr* base_screen = screen_handles[0].base_scr;
-			if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, screen_handles[2], offx, offy);
-			if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, screen_handles[3], offx, offy);
+			if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(framebuf, 0, screen_handles[2], offx, offy);
+			if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(framebuf, 0, screen_handles[3], offx, offy);
 		});
 
 		// Draw screens' background layer primitives together, after their layers' combos.
 		// Not ideal, but probably good enough for all realistic purposes.
 		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
 		// TODO z3
-		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, 0, 0);
-		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, 0, 0);
+		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(framebuf, 2, 0, playing_field_offset);
+		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3, 0, playing_field_offset);
 
 		combotile_add_x = 0;
-		combotile_add_y = playing_field_offset;
+		combotile_add_y = 0;
 		if (is_unsmooth_vertical_scrolling) combotile_add_y -= 3;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
-			int offy = draw_dy * 176;
+			int offy = draw_dy * 176 + playing_field_offset;
 			if (lenscheck(screen_handles[0].scr, 0))
-				putscr(scrollbuf, offx, offy, screen_handles[0].scr);
+				putscr(framebuf, offx, offy, screen_handles[0].scr);
 		});
 		combotile_add_x = 0;
 		combotile_add_y = 0;
 
-		// Minus 8 because half of the bottom row is not visible.
-		// TODO z3 ?
-		int mapscr_view_y = playing_field_offset;
-		int mapscr_view_height = viewport.h - 8;
-		blit(scrollbuf, framebuf, 0, 0, 0, mapscr_view_y, viewport.w, mapscr_view_height);
 		if (lenscheck(newscr, 0))
 			do_primitives(framebuf, 0, 0, playing_field_offset);
 
