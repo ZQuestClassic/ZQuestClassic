@@ -27721,7 +27721,7 @@ void HeroClass::do_scroll_direction(direction dir)
 	else if (dir == down)  dir_flag = wfDOWN;
 	else if (dir == left)  dir_flag = wfLEFT;
 	else if (dir == right) dir_flag = wfRIGHT;
-	// else {} // TODO z3
+	else                   assert(false);
 
 	mapscr* scr = get_scr(currmap, heroscr);
 
