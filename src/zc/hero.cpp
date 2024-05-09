@@ -13126,23 +13126,21 @@ bool HeroClass::doattack()
 					int hmrlvl = hmrid < 0 ? 1 : itemsbuf[hmrid].fam_type;
 					if(hmrlvl < 1) hmrlvl = 1;
 					int rad = quakescroll.misc2;
-					// TODO z3
-					for(int pos = 0; pos < 176; ++pos)
-					{
-						if(distance(x,y,COMBOX(pos),COMBOY(pos)) > rad) continue;
-						for(int lyr = 0; lyr < 7; ++lyr)
+					for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+						auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
+						if (distance(x, y, cx, cy) > rad)
+							return;
+
+						int cid = rpos_handle.data();
+						newcombo const& cmb = combobuf[cid];
+						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
 						{
-							int cid = FFCore.tempScreens[lyr]->data[pos];
-							newcombo const& cmb = combobuf[cid];
-							if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
-							{
-								if((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
-									? hmrlvl <= cmb.triggerlevel
-									: hmrlvl >= cmb.triggerlevel)
-									do_trigger_combo(lyr,pos);
-							}
+							if((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
+								? hmrlvl <= cmb.triggerlevel
+								: hmrlvl >= cmb.triggerlevel)
+								do_trigger_combo(rpos_handle);
 						}
-					}
+					});
 					for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 						auto& cmb = ffc_handle.combo();
 						if(distance(x,y,ffc_handle.ffc->x,ffc_handle.ffc->y) > rad) return;
@@ -23531,13 +23529,14 @@ static int32_t get_beamoffs(spot_t val)
 	return -1;
 }
 
-// TODO z3 !!! this has been to hard to keep current, and I keep needing to rewrite after major refactors to this function.
-// so abandon in z3 for now.
-// Previous working z3 impl:
-// https://github.com/connorjclark/ZeldaClassic/blob/f627ea96a1bd87066ac282110e09c2ddf338b8c8/src/zc/hero.cpp#L22769
 void HeroClass::handleSpotlights()
 {
-	if (is_z3_scrolling_mode()) return;
+	// TODO this has been to hard to keep current, and I keep needing to rewrite after major refactors to this function.
+	// so abandon in z3 for now.
+	// Previous working z3 impl:
+	// https://github.com/connorjclark/ZeldaClassic/blob/f627ea96a1bd87066ac282110e09c2ddf338b8c8/src/zc/hero.cpp#L22769
+	if (is_z3_scrolling_mode())
+		return;
 
 	static bool had_spotlight = true;
 	word c = tmpscr->numFFC();
