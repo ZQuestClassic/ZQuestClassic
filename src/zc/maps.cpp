@@ -3429,7 +3429,7 @@ nowarp:
     if(s<0||s>=128)
         return {-1, -1};
 
-	return {m, s};
+    return {m, s};
 }
 
 optional<int> nextscr_mi(int mi, int dir, bool normal)

@@ -27942,113 +27942,43 @@ bool HeroClass::edge_of_dmap(int32_t side)
     return false;
 }
 
-bool HeroClass::lookaheadraftflag(int32_t d2)
+static std::pair<int, int> lookahead_coords(int scrolldir, int x, int y)
 {
-    // Helper for scrollscr that gets next combo on next screen.
-    // Can use destscr for scrolling warps,
-    // but assumes currmap is correct.
-    
-    int32_t cx = x;
-    int32_t cy = y + 8;
-	
-	bound(cx, 0, world_w - 16); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-	bound(cy, 0, world_h - 8);  //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-	//y+8 could be 168  //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
-	//Applying this here, too. -Z
-    
-    switch(d2)
-    {
-    case up:
-        cy=160;
-        break;
-        
-    case down:
-        cy=0;
-        break;
-        
-    case left:
-        cx=240;
-        break;
-        
-    case right:
-        cx=0;
-        break;
-    }
-
-	auto [map, screen_index] = nextscr2(d2);
-	if (map == -1)
-		return false;
-
-	mapscr* screen = get_scr(map, screen_index);
-
-    int32_t combo = COMBOPOS(cx%256, cy%176);
-    return ( isRaftFlag(combobuf[screen->data[combo]].flag) || isRaftFlag(screen->sflag[combo]));
+	x = vbound(x, 0, world_w - 16);
+	y = vbound(y, 0, world_h - 16);
+	switch (scrolldir)
+	{
+		case up:
+			y = world_h - 16;
+			break;
+		case down:
+			y = 0;
+			break;
+		case left:
+			x = world_w - 16;
+			break;
+		case right:
+			x = 0;
+			break;
+	}
+	return {x, y};
 }
 
-int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scrollscr that gets next combo on next screen.
+// Helper for scrollscr that gets next combo on next screen.
+static int32_t lookahead(int32_t scrolldir, int x, int y)
 {
-    // Can use destscr for scrolling warps,
-    // but assumes currmap is correct.
-    
-	int32_t cx = vbound(x,0_zf,240_zf); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
-	int32_t cy = vbound(y + 8,0_zf,160_zf);
-	//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-	//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-	//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
-    switch(d2)
-    {
-    case up:
-        cy=160;
-        break;
-        
-    case down:
-        cy=0;
-        break;
-        
-    case left:
-        cx=240;
-        break;
-        
-    case right:
-        cx=0;
-        break;
-    }
-
-	// TODO z3 !!!!! rm if yuurand / ss_jenny.zplay (failure on frame 88356) works
-	if (!is_z3_scrolling_mode())
-	{
-		int32_t combo = (cy&0xF0)+(cx>>4);
-		if(combo>175)
-			return 0;
-
-		return tmpscr->data[combo];
-	}
-
-	auto [map, screen_index] = nextscr2(d2);
-	if (map == -1)
-		return 0;
-
-	mapscr* screen = get_scr(map, screen_index);
-
-    int32_t combo = COMBOPOS(cx%256, cy%176);
-    return screen->data[combo];
+	auto [cx, cy] = lookahead_coords(scrolldir, x, y);
+	return MAPCOMBO(cx, cy);
 }
 
-int32_t HeroClass::lookaheadflag(int32_t d2)
+static bool lookaheadraftflag(int scroll_dir, int x, int y)
 {
-    // Helper for scrollscr that gets next combo on next screen.
-    // Can use destscr for scrolling warps,
-    // but assumes currmap is correct.
+    int cx = x;
+    int cy = y + 8;
+	bound(cx, 0, world_w - 16);
+	bound(cy, 0, world_h - 8);
     
-    int32_t cx = vbound(x,0,world_w-16);
-    int32_t cy = vbound(y + 8,0,world_h-16);
-	
-	//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-	//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-	//y+8 could be 168  //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
-	//Applying this here, too. -Z
-    
-    switch(d2)
+    switch (scroll_dir)
     {
     case up:
         cy=160;
@@ -28067,24 +27997,8 @@ int32_t HeroClass::lookaheadflag(int32_t d2)
         break;
     }
 
-	if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
-	{
-		return 0;
-	}
-
-	auto [map, screen_index] = nextscr2(d2);
-	if (map == -1)
-		return 0;
-
-	mapscr* screen = get_scr(map, screen_index);
-
-    int32_t combo = COMBOPOS(cx%256, cy%176);
-    if(!screen->sflag[combo])
-    {
-        return combobuf[screen->data[combo]].flag;
-    }
-    
-    return screen->sflag[combo];
+	auto rpos_handle = get_rpos_handle_for_world_xy(cx, cy, 0);
+    return (isRaftFlag(rpos_handle.cflag()) || isRaftFlag(rpos_handle.sflag()));
 }
 
 void HeroClass::run_scrolling_script_int(bool waitdraw)
@@ -29058,39 +28972,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (is_unsmooth_vertical_scrolling) sy += 3;
 
 	// change Hero's state if entering water
-	int32_t ahead = lookahead(scrolldir);
-	int32_t lookaheadx = vbound(x+8,0,240);
-	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
-	int32_t wateraheadx1 = vbound(x+4,0_zf,240_zf);
-	int32_t wateraheadx2 = vbound(x+11,0_zf,240_zf);
-	int32_t wateraheady1 = vbound(y+9,0_zf,160_zf);
-	int32_t wateraheady2 = vbound(y+15,0_zf,160_zf);
-	switch(scrolldir)
-	{
-		case up:
-			lookaheady=160;
-			wateraheady1=160;
-			wateraheady2=160;
-			break;
-			
-		case down:
-			lookaheady=0;
-			wateraheady1=0;
-			wateraheady2=0;
-			break;
-			
-		case left:
-			lookaheadx=240;
-			wateraheadx1=240;
-			wateraheadx2=240;
-			break;
-			
-		case right:
-			lookaheadx=0;
-			wateraheadx1=0;
-			wateraheadx2=0;
-			break;
-	}
+	int32_t ahead = lookahead(scrolldir, x, y + 8);
+	auto [lookaheadx, lookaheady] = lookahead_coords(scrolldir, x + 8, y + bigHitbox?8:12);
+	auto [wateraheadx1, wateraheady1] = lookahead_coords(scrolldir, x + 4, y + 9);
+	auto [wateraheadx2, wateraheady2] = lookahead_coords(scrolldir, x + 11, y + 15);
 	
 	bool nowinwater = false;
 	{
@@ -29098,7 +28983,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			if(lastaction == rafting ) //&& isRaftFlag(aheadflag))
 			{
-				if (lookaheadraftflag(scrolldir))
+				if (lookaheadraftflag(scrolldir, x, y))
 				{
 					action=rafting; FFCore.setHeroAction(rafting);
 					raftclk=0;
@@ -29136,6 +29021,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			action=none; FFCore.setHeroAction(none);
 		}
+
+		isForceFaceUp = isForceFaceUp && canSideviewLadderRemote(lookaheadx,lookaheady);
 		
 		// The naturaldark state can be read/set by an FFC script before
 		// fade() or lighting() is called.

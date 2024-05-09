@@ -375,9 +375,6 @@ public:
 	int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);
 	bool nextcombo_wf(int32_t d);
 	bool nextcombo_solid(int32_t d);
-	int32_t  lookahead(int32_t d);
-	int32_t  lookaheadflag(int32_t d);
-	bool  lookaheadraftflag(int32_t d);
 	
 	bool check_ewpn_collide(weapon* w);
 	bool try_lwpn_hit(weapon* w);
