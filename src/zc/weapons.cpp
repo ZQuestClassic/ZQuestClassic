@@ -178,7 +178,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 
 	int32_t pos = rpos_handle.pos;
 	int32_t layer = rpos_handle.layer;
-	mapscr* screen = rpos_handle.screen;
+	mapscr* scr = rpos_handle.scr;
 	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
@@ -232,16 +232,16 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
 			items.add(new item(x, y, 0,
-				screen->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[screen->catchall].family==itype_triforcepiece ||
-				(screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].family==itype_triforcepiece ||
+				(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
 			screen_combo_modify_preroutine(rpos_handle);
-			screen->data[pos] = screen->secretcombo[ft];
-			screen->cset[pos] = screen->secretcset[ft];
-			screen->sflag[pos] = screen->secretflag[ft];
+			scr->data[pos] = scr->secretcombo[ft];
+			scr->cset[pos] = scr->secretcset[ft];
+			scr->sflag[pos] = scr->secretflag[ft];
 			screen_combo_modify_postroutine(rpos_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
 				sfx(combobuf[cid].attribytes[2],x);
@@ -259,12 +259,12 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						screen->data[pos] = tmpscr->undercombo;
-						screen->cset[pos] = tmpscr->undercset;
-						screen->sflag[pos] = 0;	
+						scr->data[pos] = tmpscr->undercombo;
+						scr->cset[pos] = tmpscr->undercset;
+						scr->sflag[pos] = 0;	
 					}
 					else
-						++screen->data[pos];
+						++scr->data[pos];
 					
 					screen_combo_modify_postroutine(rpos_handle);
 				}
@@ -274,13 +274,13 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						screen->data[pos] = screen->undercombo;
-						screen->cset[pos] = screen->undercset;
-						screen->sflag[pos] = 0;	
+						scr->data[pos] = scr->undercombo;
+						scr->cset[pos] = scr->undercset;
+						scr->sflag[pos] = 0;	
 					}
 					else
 					{
-						screen->data[pos]=vbound(screen->data[pos]+1,0,MAXCOMBOS);
+						scr->data[pos]=vbound(scr->data[pos]+1,0,MAXCOMBOS);
 					}
 					screen_combo_modify_postroutine(rpos_handle);
 				}
@@ -296,7 +296,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(rpos_handle.screen_index,x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(rpos_handle.screen,x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
 	w->rposes_checked.insert({rpos_handle.layer, rpos_handle.rpos});
@@ -361,15 +361,15 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		{
 			items.add(new item(ffc->x, ffc->y,
 				(zfix)0,
-				ffc_handle.screen->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[ffc_handle.screen->catchall].family==itype_triforcepiece ||
-				(ffc_handle.screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((ffc_handle.screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+				ffc_handle.scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[ffc_handle.scr->catchall].family==itype_triforcepiece ||
+				(ffc_handle.scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((ffc_handle.scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
 			screen_ffc_modify_preroutine(ffc_handle);
-			ffc_handle.set_data(ffc_handle.screen->secretcombo[ft]);
-			ffc->cset = ffc_handle.screen->secretcset[ft];
+			ffc_handle.set_data(ffc_handle.scr->secretcombo[ft]);
+			ffc->cset = ffc_handle.scr->secretcset[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
@@ -385,8 +385,8 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
 				{
-					ffc_handle.set_data(ffc_handle.screen->undercombo);
-					ffc->cset = ffc_handle.screen->undercset;	
+					ffc_handle.set_data(ffc_handle.scr->undercombo);
+					ffc->cset = ffc_handle.scr->undercset;	
 				}
 				else
 					ffc_handle.set_data(vbound(ffc_handle.data()+1,0,MAXCOMBOS));
@@ -404,7 +404,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ffc_handle.screen_index,ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(ffc_handle.screen,ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
 	w->ffcs_checked.insert(ffc);
@@ -3703,8 +3703,8 @@ bool weapon::animate(int32_t index)
 				{
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1))
 					{
-						int screen_index = get_screen_index_for_world_xy(wx, wy);
-						mapscr* screen = get_screen_for_world_xy(wx, wy);
+						int screen = get_screen_index_for_world_xy(wx, wy);
+						mapscr* scr = get_screen_for_world_xy(wx, wy);
 
 						int32_t pickup = ptr->pickup;
 						int32_t id2 = ptr->id;
@@ -3731,14 +3731,14 @@ bool weapon::animate(int32_t index)
 						pstr_flags = ev[3] / 10000;
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
-							setmapflag(screen, screen_index, mITEM);
+							setmapflag(scr, screen, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag(screen, screen_index, (screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag(scr, screen, (screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-							if(screen->flags9&fITEMSECRETPERM) setmapflag(screen, screen_index, mSECRET);
-							trigger_secrets_for_screen(TriggerSource::ItemsSecret, screen_index, false);
+							if(scr->flags9&fITEMSECRETPERM) setmapflag(scr, screen, mSECRET);
+							trigger_secrets_for_screen(TriggerSource::ItemsSecret, screen, false);
 						}
 						//!DIMI
 						
@@ -3746,7 +3746,7 @@ bool weapon::animate(int32_t index)
 						
 						getitem(id2, false, true);
 						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
-							setxmapflag(screen_index, 1<<ptr->pickupexstate);
+							setxmapflag(screen, 1<<ptr->pickupexstate);
 						items.del(j);
 						
 						for(int32_t i=0; i<Lwpns.Count(); i++)

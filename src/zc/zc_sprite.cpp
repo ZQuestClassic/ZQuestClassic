@@ -230,7 +230,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
 	size_t combopos = RPOS_TO_POS(rpos);
 	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
-	mapscr *m = rpos_handle.screen;
+	mapscr *m = rpos_handle.scr;
     word *di = &(m->data[combopos]);
     byte *ci = &(m->cset[combopos]);
     bcombo =  m->data[combopos];
@@ -282,7 +282,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
 	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
 	int32_t combopos = RPOS_TO_POS(rpos);
-	mapscr *m = rpos_handle.screen;
+	mapscr *m = rpos_handle.scr;
     word *di = &(m->data[combopos]);
     byte *ci = &(m->cset[combopos]);
     bcombo =  m->data[combopos];
@@ -314,7 +314,7 @@ bool movingblock::check_hole() const
 		{
 			if(lyr==blockLayer) continue;
 
-			auto rpos_handle_2 = get_rpos_handle_for_screen(rpos_handle.screen_index, lyr, rpos_handle.pos);
+			auto rpos_handle_2 = get_rpos_handle_for_screen(rpos_handle.screen, lyr, rpos_handle.pos);
 			if ((rpos_handle_2.sflag()==mfBLOCKHOLE)
 				|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 				return true;
@@ -338,7 +338,7 @@ bool movingblock::check_trig() const
 		{
 			if(lyr==blockLayer) continue;
 
-			auto rpos_handle_2 = get_rpos_handle_for_screen(rpos_handle.screen_index, lyr, rpos_handle.pos);
+			auto rpos_handle_2 = get_rpos_handle_for_screen(rpos_handle.screen, lyr, rpos_handle.pos);
 			if(rpos_handle_2.sflag() == mfBLOCKTRIGGER
 				|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 				return true;
@@ -360,7 +360,7 @@ bool movingblock::animate(int32_t)
 	}
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
-	mapscr* m = rpos_handle.screen;
+	mapscr* m = rpos_handle.scr;
 	mapscr* m0 = get_screen_for_world_xy(x, y);
 	if(get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(false);
@@ -754,13 +754,13 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (reveal_hidden_stairs(rpos_handle.screen, rpos_handle.screen_index, true))
+				if (reveal_hidden_stairs(rpos_handle.scr, rpos_handle.screen, true))
 				{
 					sfx(m0->secretsfx);
 				}
 				else
 				{
-					trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, true);
+					trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, true);
 					
 					if((combobuf[bcombo].type == cPUSH_WAIT) ||
 							(combobuf[bcombo].type == cPUSH_HW) ||
@@ -775,14 +775,14 @@ bool movingblock::animate(int32_t)
 					opendoors=8;
 				}
 				
-				if(canPermSecret(currdmap, rpos_handle.screen_index))
+				if(canPermSecret(currdmap, rpos_handle.screen))
 				{
 					if(get_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
 						if(!(m0->flags5&fTEMPSECRETS))
-							setmapflag(m0, rpos_handle.screen_index, mSECRET);
+							setmapflag(m0, rpos_handle.screen, mSECRET);
 					}
 				}
 			}
@@ -824,8 +824,8 @@ bool movingblock::animate(int32_t)
 					{
 						if(lyr==blockLayer) continue;
 
-						mapscr* screen = get_screen_layer_for_xy_offset(x, y, lyr);
-						if (screen->sflag[combopos] == mfBLOCKTRIGGER
+						mapscr* scr = get_screen_layer_for_xy_offset(x, y, lyr);
+						if (scr->sflag[combopos] == mfBLOCKTRIGGER
 							|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 						{
 							trigger = true;
@@ -833,9 +833,9 @@ bool movingblock::animate(int32_t)
 							if(!no_trig_replace)
 							{
 								// mapscr* m2 = FFCore.tempScreens[lyr];
-								screen->data[combopos] = screen->undercombo;
-								screen->cset[combopos] = screen->undercset;
-								screen->sflag[combopos] = 0;
+								scr->data[combopos] = scr->undercombo;
+								scr->cset[combopos] = scr->undercset;
+								scr->sflag[combopos] = 0;
 							}
 						}
 					}
@@ -987,13 +987,13 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (reveal_hidden_stairs(m0, rpos_handle.screen_index, true))
+				if (reveal_hidden_stairs(m0, rpos_handle.screen, true))
 				{
 					sfx(m0->secretsfx);
 				}
 				else
 				{
-					trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, true);
+					trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, true);
 					
 					if((combobuf[bcombo].type == cPUSH_WAIT) ||
 							(combobuf[bcombo].type == cPUSH_HW) ||
@@ -1008,14 +1008,14 @@ bool movingblock::animate(int32_t)
 					opendoors=8;
 				}
 				
-				if(canPermSecret(currdmap, rpos_handle.screen_index))
+				if(canPermSecret(currdmap, rpos_handle.screen))
 				{
 					if(get_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
 						if(!(m0->flags5&fTEMPSECRETS))
-							setmapflag(m0, rpos_handle.screen_index, mSECRET);
+							setmapflag(m0, rpos_handle.screen, mSECRET);
 					}
 				}
 			}

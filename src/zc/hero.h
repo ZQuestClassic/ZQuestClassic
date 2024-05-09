@@ -595,7 +595,7 @@ public:
 	void setscriptnohit(bool);
 	bool getscriptnohit();
 	
-	void sethitHeroUID(int32_t type, int32_t screen_index);
+	void sethitHeroUID(int32_t type, int32_t screen);
 	void ClearhitHeroUIDs();
 	void set_defence(int32_t def, int32_t v);
 	int32_t get_defence(int32_t def);

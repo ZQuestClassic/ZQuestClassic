@@ -148,10 +148,10 @@ void identifyCFEnemies()
 	}
 }
 
-int32_t random_layer_enemy(int screen_index)
+int32_t random_layer_enemy(int screen)
 {
-	int32_t cnt=count_layer_enemies(screen_index);
-	mapscr* base_screen = get_scr(currmap, screen_index);
+	int32_t cnt=count_layer_enemies(screen);
+	mapscr* base_screen = get_scr(currmap, screen);
 	
 	if(cnt==0)
 	{
@@ -185,11 +185,11 @@ int32_t random_layer_enemy(int screen_index)
 	return eNONE;
 }
 
-int32_t count_layer_enemies(int screen_index)
+int32_t count_layer_enemies(int screen)
 {
 	int32_t cnt=0;
 
-	mapscr* base_screen = get_scr(currmap, screen_index);
+	mapscr* base_screen = get_scr(currmap, screen);
 	
 	for(int32_t i=0; i<6; ++i)
 	{
@@ -8313,7 +8313,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcac
 	}
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(ax, ay, 0);
-	mapscr* scr = rpos_handle.screen;
+	mapscr* scr = rpos_handle.scr;
 	ax = TRUNCATE_TILE(ax);
 	ay = TRUNCATE_TILE(ay);
 
@@ -8360,7 +8360,7 @@ void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
 	
 	did_armos=true;
 	ffcdata& ffc = *ffc_handle.ffc;
-	mapscr* screen = ffc_handle.screen;
+	mapscr* scr = ffc_handle.scr;
 	auto& cmb = ffc_handle.combo();
 	int32_t f2 = cmb.flag;
 	
@@ -8369,22 +8369,22 @@ void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
 		return;
 	}
 	
-	ffc_handle.set_data(screen->undercombo);
-	ffc_handle.set_cset(screen->undercset);
+	ffc_handle.set_data(scr->undercombo);
+	ffc_handle.set_cset(scr->undercset);
 	
 	if(f2 == mfARMOS_SECRET)
 	{
-		ffc_handle.set_data(screen->secretcombo[sSTAIRS]);
-		ffc_handle.set_cset(screen->secretcset[sSTAIRS]);
-		sfx(screen->secretsfx);
+		ffc_handle.set_data(scr->secretcombo[sSTAIRS]);
+		ffc_handle.set_cset(scr->secretcset[sSTAIRS]);
+		sfx(scr->secretsfx);
 	}
 	
 	if(f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (screen->flags9&fBELOWRETURN))
+		if(!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
-			additem(ffc.x,ffc.y,screen->catchall, (ipONETIME2 + ipBIGRANGE) | ((screen->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0));
-			sfx(screen->secretsfx);
+			additem(ffc.x,ffc.y,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+			sfx(scr->secretsfx);
 		}
 	}
 	
@@ -17110,9 +17110,9 @@ void adddummyitem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 	items.add(i);
 }
 
-void add_item_for_screen(int32_t screen_index, item* item)
+void add_item_for_screen(int32_t screen, item* item)
 {
-	item->screen_index_spawned = screen_index;
+	item->screen_index_spawned = screen;
 	items.add(item);
 }
 
@@ -17204,12 +17204,12 @@ bool hasMainGuy()
 	return false;
 }
 
-bool hasMainGuy(int screen_index)
+bool hasMainGuy(int screen)
 {
 	for(int32_t i=0; i<guys.Count(); i++)
 	{
 		enemy* e = (enemy*)guys.spr(i);
-		if (e->screen_index_spawned == screen_index && e->mainguy)
+		if (e->screen_index_spawned == screen && e->mainguy)
 		{
 			return true;
 		}
@@ -17329,17 +17329,17 @@ void killfairynew(item const &itemfairy)
 }
 
 //Should probably change this to return an 'enemy*', null on failure -Em
-int32_t addenemy(int32_t screen_index, int32_t x,int32_t y,int32_t id,int32_t clk)
+int32_t addenemy(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk)
 {
-	return addenemy_z(screen_index,x,y,0,id,clk);
+	return addenemy_z(screen,x,y,0,id,clk);
 }
 
-int32_t addchild(int32_t screen_index, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID)
+int32_t addchild(int32_t screen, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID)
 {
-	return addchild_z(screen_index,x,y,0,id,clk, parent_scriptUID);
+	return addchild_z(screen,x,y,0,id,clk, parent_scriptUID);
 }
 
-int32_t addchild_z(int32_t screen_index, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID)
+int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID)
 {
 	if(id <= 0) return 0;
 	
@@ -17781,14 +17781,14 @@ int32_t addchild_z(int32_t screen_index, int32_t x,int32_t y,int32_t z,int32_t i
 	for (int i = 0; i < ret; i++)
 	{
 		enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
-		e->screen_index_spawned = screen_index;
+		e->screen_index_spawned = screen;
 	}
 
 	return ret;
 }
 
 // Returns number of enemies/segments created
-int32_t addenemy_z(int32_t screen_index,int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
+int32_t addenemy_z(int32_t screen,int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 {
 	//zprint2("addenemy id is: %d\n", (id&0xFFF));
 	int32_t realid = id&0xFFF;
@@ -18245,7 +18245,7 @@ int32_t addenemy_z(int32_t screen_index,int32_t x,int32_t y,int32_t z,int32_t id
 	for (int i = 0; i < ret; i++)
 	{
 		enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
-		e->screen_index_spawned = screen_index;
+		e->screen_index_spawned = screen;
 	}
 	
 	return ret;
@@ -18454,17 +18454,17 @@ void addfires()
 }
 
 // TODO z3 guys
-void loadguys(mapscr* screen, int screen_index)
+void loadguys(mapscr* scr, int screen)
 {
 	byte Guy=0;
 	// When in caves/item rooms, use mSPECIALITEM and ipONETIME2
 	// Else use mITEM and ipONETIME
-	int32_t mf = (screen_index>=128) ? mSPECIALITEM : mITEM;
-	int32_t onetime = (screen_index>=128) ? ipONETIME2 : ipONETIME;
+	int32_t mf = (screen>=128) ? mSPECIALITEM : mITEM;
+	int32_t onetime = (screen>=128) ? ipONETIME2 : ipONETIME;
 	
 	// TODO z3 guys
-	mapscr* guyscr = screen;
-	if(screen_index>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
+	mapscr* guyscr = scr;
+	if(screen>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
 	{
 		if(DMaps[currdmap].flags&dmfCAVES)
 		{
@@ -18474,26 +18474,26 @@ void loadguys(mapscr* screen, int screen_index)
 	}
 	else
 	{
-		Guy=screen->guy;
+		Guy=scr->guy;
 		
-		if(screen_index < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
-			game->maps[(currmap*MAPSCRSNORMAL)+screen_index] |= mVISITED;          // mark as visited
+		if(screen < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
+			game->maps[(currmap*MAPSCRSNORMAL)+screen] |= mVISITED;          // mark as visited
 	}
 	
-	auto [dx, dy] = translate_screen_coordinates_to_world(screen_index);
+	auto [dx, dy] = translate_screen_coordinates_to_world(screen);
 
 	bool oldguy = get_qr(qr_OLD_GUY_HANDLING);
 	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
-	if(Guy && ((screen_index>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
+	if(Guy && ((screen>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
 	{
-		if(screen->room==rZELDA)
+		if(scr->room==rZELDA)
 		{
 			addguy(dx+120,dy+72,Guy,-15,true,guyscr);
 			guys.spr(0)->hxofs=1000;
-			addenemy(screen_index,dx+128,dy+96,eFIRE,-15);
-			addenemy(screen_index,dx+112,dy+96,eFIRE,-15);
-			addenemy(screen_index,dx+96,dy+120,eFIRE,-15);
-			addenemy(screen_index,dx+144,dy+120,eFIRE,-15);
+			addenemy(screen,dx+128,dy+96,eFIRE,-15);
+			addenemy(screen,dx+112,dy+96,eFIRE,-15);
+			addenemy(screen,dx+96,dy+120,eFIRE,-15);
+			addenemy(screen,dx+144,dy+120,eFIRE,-15);
 			return;
 		}
 		
@@ -18503,11 +18503,11 @@ void loadguys(mapscr* screen, int screen_index)
 		if(ffire)
 			addfires();
 			
-		if(screen_index>=128)
-			if(getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))
+		if(screen>=128)
+			if(getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))
 				Guy=0;
 				
-		switch(screen->room)
+		switch(scr->room)
 		{
 		case rSP_ITEM:
 		case rGRUMBLE:
@@ -18517,26 +18517,26 @@ void loadguys(mapscr* screen, int screen_index)
 		case rMUPGRADE:
 		case rLEARNSLASH:
 		case rTAKEONE:
-			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
+			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 			
 		case rREPAIR:
 			if (get_qr(qr_OLD_DOORREPAIR)) break;
-			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
+			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rRP_HC:
 			if (get_qr(qr_OLD_POTION_OR_HC)) break;
-			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
+			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rMONEY:
 			if (get_qr(qr_OLD_SECRETMONEY)) break;
-			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
+			if((get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, mf)) || (!get_qr(qr_ITEMPICKUPSETSBELOW) && getmapflag(screen, 32) && !(scr->flags9&fBELOWRETURN))) //get_qr(qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
@@ -18564,7 +18564,7 @@ void loadguys(mapscr* screen, int screen_index)
 			if(ffire)
 				blockpath=true;
 				
-			if(screen_index<128)
+			if(screen<128)
 				sfx(WAV_SCALE);
 				
 			addguy(dx+120,dy+64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true, guyscr);
@@ -18577,11 +18577,11 @@ void loadguys(mapscr* screen, int screen_index)
 		addguy(dx+120,dy+62,gFAIRY,-14,false,guyscr);
 	}
 
-	loaditem(screen, screen_index, dx, dy);
+	loaditem(scr, screen, dx, dy);
 
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
 	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
-	if (screen->room==r10RUPIES && !getmapflag(screen_index, mf))
+	if (scr->room==r10RUPIES && !getmapflag(screen, mf))
 	{
 		for(int32_t i=0; i<10; i++)
 			additem(dx+ten_rupies_x[i],dy+ten_rupies_y[i],0,ipBIGRANGE+onetime,-14);
@@ -18603,34 +18603,34 @@ void loadguys()
 	}
 	screen_item_clear_state();
 
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		loadguys(screen, screen_index);
+	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+		loadguys(scr, screen);
 	});
 }
 
-void loaditem(mapscr* scr, int screen_index, int offx, int offy)
+void loaditem(mapscr* scr, int screen, int offx, int offy)
 {
 	byte Item = 0;
 	
-	if(screen_index<128)
+	if(screen<128)
 	{
 		Item=scr->item;
 		
-		if((!getmapflag(screen_index, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
+		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 		{
 			if(scr->flags8&fSECRETITEM)
-				screen_item_set_state(screen_index, ScreenItemState::WhenTriggerSecrets);
+				screen_item_set_state(screen, ScreenItemState::WhenTriggerSecrets);
 			else if(scr->flags&fITEM)
-				screen_item_set_state(screen_index, ScreenItemState::WhenKillEnemies);
+				screen_item_set_state(screen, ScreenItemState::WhenKillEnemies);
 			else if(scr->enemyflags&efCARRYITEM)
-				screen_item_set_state(screen_index, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
+				screen_item_set_state(screen, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
 			else
 			{
 				int x = scr->itemx;
 				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
 					-170 :
 					scr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1);
-				add_item_for_screen(screen_index, new item(offx + x, offy + y,
+				add_item_for_screen(screen, new item(offx + x, offy + y,
 								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
 								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
 										   (scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
@@ -18639,8 +18639,8 @@ void loaditem(mapscr* scr, int screen_index, int offx, int offy)
 	}
 	else if(!(DMaps[currdmap].flags&dmfCAVES))
 	{
-		if((!getmapflag(screen_index, (screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_screen.flags9&fBELOWRETURN)) && special_warp_return_screen.room==rSP_ITEM
-				&& (screen_index==128 || !get_qr(qr_ITEMSINPASSAGEWAYS)))
+		if((!getmapflag(screen, (screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_screen.flags9&fBELOWRETURN)) && special_warp_return_screen.room==rSP_ITEM
+				&& (screen==128 || !get_qr(qr_ITEMSINPASSAGEWAYS)))
 		{
 			Item = special_warp_return_screen.catchall;
 			
@@ -18650,7 +18650,7 @@ void loaditem(mapscr* scr, int screen_index, int offx, int offy)
 				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
 					-170 :
 					scr->itemy+(get_qr(qr_NOITEMOFFSET)?0:1);
-				add_item_for_screen(screen_index, new item(offx + x, offy + y,
+				add_item_for_screen(screen, new item(offx + x, offy + y,
 								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
 								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 			}
@@ -18752,7 +18752,7 @@ bool ok2add(int32_t id)
 
 static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 {
-	if (!(rpos_handle.screen->enemyflags&efFIREBALLS) || statueID<0)
+	if (!(rpos_handle.scr->enemyflags&efFIREBALLS) || statueID<0)
 	{
 		return;
 	}
@@ -18800,18 +18800,18 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 			}
 		}
 		
-		addenemy(rpos_handle.screen_index, cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
+		addenemy(rpos_handle.screen, cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
 	}
 }
 
-static void activate_fireball_statues(mapscr* screen, int screen_index)
+static void activate_fireball_statues(mapscr* scr, int screen)
 {
-	if (!(screen->enemyflags&efFIREBALLS))
+	if (!(scr->enemyflags&efFIREBALLS))
 	{
 		return;
 	}
 
-	for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos_in_screen(scr, screen, [&](const rpos_handle_t& rpos_handle) {
 		if (rpos_handle.layer == 0)
 		{
 			activate_fireball_statue(rpos_handle);
@@ -18819,26 +18819,26 @@ static void activate_fireball_statues(mapscr* screen, int screen_index)
 	});
 }
 
-void load_default_enemies(mapscr* screen, int screen_index)
+void load_default_enemies(mapscr* scr, int screen)
 {
-	auto [dx, dy] = translate_screen_coordinates_to_world(screen_index);
+	auto [dx, dy] = translate_screen_coordinates_to_world(screen);
 
 	wallm_load_clk=frame-80;
 	
-	if(screen->enemyflags&efZORA)
+	if(scr->enemyflags&efZORA)
 	{
 		if(zoraID>=0)
-			addenemy(screen_index, dx - 16, dy - 16, zoraID, 0);
+			addenemy(screen, dx - 16, dy - 16, zoraID, 0);
 	}
 	
-	if(screen->enemyflags&efTRAP4)
+	if(scr->enemyflags&efTRAP4)
 	{
 		if(cornerTrapID>=0)
 		{
-			addenemy(screen_index, dx + 32, dy + 32, cornerTrapID, -14);
-			addenemy(screen_index, dx + 208, dy + 32, cornerTrapID, -14);
-			addenemy(screen_index, dx + 32, dy + 128, cornerTrapID, -14);
-			addenemy(screen_index, dx + 208, dy + 128, cornerTrapID, -14);
+			addenemy(screen, dx + 32, dy + 32, cornerTrapID, -14);
+			addenemy(screen, dx + 208, dy + 32, cornerTrapID, -14);
+			addenemy(screen, dx + 32, dy + 128, cornerTrapID, -14);
+			addenemy(screen, dx + 208, dy + 128, cornerTrapID, -14);
 		}
 	}
 	
@@ -18855,18 +18855,18 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
 			{
 				if(trapLOSHorizontalID>=0)
-					addenemy(screen_index, x, y, trapLOSHorizontalID, -14);
+					addenemy(screen, x, y, trapLOSHorizontalID, -14);
 			}
 			else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
 			{
 				if(trapLOSVerticalID>=0)
-					addenemy(screen_index, x, y, trapLOSVerticalID, -14);
+					addenemy(screen, x, y, trapLOSVerticalID, -14);
 			}
 			else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
 			{
 				if(trapLOS4WayID>=0)
 				{
-					if(addenemy(screen_index, x, y, trapLOS4WayID, -14))
+					if(addenemy(screen, x, y, trapLOS4WayID, -14))
 						guys.spr(guys.Count()-1)->dummy_int[1]=2;
 				}
 			}
@@ -18874,50 +18874,50 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
 			{
 				if(trapConstantHorizontalID>=0)
-					addenemy(screen_index, x, y, trapConstantHorizontalID, -14);
+					addenemy(screen, x, y, trapConstantHorizontalID, -14);
 			}
 			else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
 			{
 				if(trapConstantVerticalID>=0)
-					addenemy(screen_index, x, y, trapConstantVerticalID, -14);
+					addenemy(screen, x, y, trapConstantVerticalID, -14);
 			}
 			
 			if(ctype==cSPINTILE1)
 			{
 				// Awaken spinning tile
 				rpos_t rpos = COMBOPOS_REGION(x, y);
-				rpos_handle_t rpos_handle = {screen, screen_index, 0, rpos, RPOS_TO_POS(rpos)};
+				rpos_handle_t rpos_handle = {scr, screen, 0, rpos, RPOS_TO_POS(rpos)};
 				awaken_spinning_tile(rpos_handle);
 			}
 		}
 	}
 	
-	if(screen->enemyflags&efTRAP2)
+	if(scr->enemyflags&efTRAP2)
 	{
 		if(centerTrapID>=-1)
 		{
-			if(addenemy(screen_index, 64, 80, centerTrapID, -14))
+			if(addenemy(screen, 64, 80, centerTrapID, -14))
 				guys.spr(guys.Count()-1)->dummy_int[1]=1;
 			
-			if(addenemy(screen_index, 176, 80, centerTrapID, -14))
+			if(addenemy(screen, 176, 80, centerTrapID, -14))
 				guys.spr(guys.Count()-1)->dummy_int[1]=1;
 		}
 	}
 	
-	if(screen->enemyflags&efROCKS)
+	if(scr->enemyflags&efROCKS)
 	{
 		if(rockID>=0)
 		{
-			addenemy(screen_index, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
-			addenemy(screen_index, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
-			addenemy(screen_index, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(screen, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(screen, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(screen, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
 		}
 	}
 }
 
 void update_slope_combopos(const rpos_handle_t& rpos_handle)
 {
-	mapscr* s = rpos_handle.screen;
+	mapscr* s = rpos_handle.scr;
 	int pos = rpos_handle.pos;
 	newcombo const& cmb = combobuf[s->data[pos]];
 	
@@ -18960,7 +18960,7 @@ void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle)
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 {
-	rpos_handle.screen->valid |= mVALID;
+	rpos_handle.scr->valid |= mVALID;
 	activate_fireball_statue(rpos_handle);
 
 	if(rpos_handle.combo().type==cSPINTILE1)
@@ -18990,7 +18990,7 @@ void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 		slopes.erase(it);
 	}
 
-	ffc_handle.screen->ffcCountMarkDirty();
+	ffc_handle.scr->ffcCountMarkDirty();
 }
 
 void screen_combo_modify_pre(int32_t cid)
@@ -19024,7 +19024,7 @@ void awaken_spinning_tile(const rpos_handle_t& rpos_handle)
 	int cid = rpos_handle.data();
 	int cset = rpos_handle.cset();
 	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
-	addenemy(rpos_handle.screen_index, x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
+	addenemy(rpos_handle.screen, x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
 }
 
 // It stands for next_side_pos
@@ -19079,11 +19079,11 @@ void nsp(bool random)
 
 // moves sle_x and sle_y to the next available position
 // returns the direction the enemy should face
-int32_t next_side_pos(int32_t screen_index, bool random)
+int32_t next_side_pos(int32_t screen, bool random)
 {
 	bool blocked;
 	int32_t c=0;
-	auto [offx, offy] = translate_screen_coordinates_to_world(screen_index);
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 	
 	do
 	{
@@ -19199,11 +19199,11 @@ void script_side_load_enemies()
 	sle_clk = 0;
 }
 
-static void side_load_enemies(mapscr* screen, int screen_index)
+static void side_load_enemies(mapscr* scr, int screen)
 {
 	if(!script_sle && sle_clk==0)
 	{
-		sle_pattern = screen->pattern;
+		sle_pattern = scr->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
 		int16_t s = (currmap<<7)+cur_origin_screen_index;
@@ -19211,7 +19211,7 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 		bool reload=true;
 		bool unbeatablereload = true;
 		
-		load_default_enemies(screen, screen_index);
+		load_default_enemies(scr, screen);
 		
 		for(int32_t i=0; i<6; i++)
 			if(visited[i]==s)
@@ -19239,21 +19239,21 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 			if((get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)
 			|| sle_cnt==0)
 			{
-				while(sle_cnt<10 && screen->enemy[sle_cnt]!=0)
+				while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 					++sle_cnt;
 			}
 			if (!beenhere && get_qr(qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				for(int32_t i = 0; i<sle_cnt && screen->enemy[i]>0; i++)
+				for(int32_t i = 0; i<sle_cnt && scr->enemy[i]>0; i++)
 				{
-					if (!(guysbuf[screen->enemy[i]].flags & guy_doesntcount)) 
+					if (!(guysbuf[scr->enemy[i]].flags & guy_doesntcount)) 
 					{
 						unbeatablereload = false;
 					}
 				}
 				if (unbeatablereload)
 				{
-					while(sle_cnt<10 && screen->enemy[sle_cnt]!=0)
+					while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 					{
 						++sle_cnt;
 					}
@@ -19261,11 +19261,11 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 			}
 		}
 		
-		if((get_qr(qr_ALWAYSRET)) || (screen->flags3&fENEMIESRETURN))
+		if((get_qr(qr_ALWAYSRET)) || (scr->flags3&fENEMIESRETURN))
 		{
 			sle_cnt = 0;
 			
-			while(sle_cnt<10 && screen->enemy[sle_cnt]!=0)
+			while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 				++sle_cnt;
 		}
 		
@@ -19277,8 +19277,8 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 	
 	if((++sle_clk+8)%24 == 0)
 	{
-		int32_t dir = next_side_pos(screen_index, sle_pattern==pSIDESR);
-		auto [x, y] = translate_screen_coordinates_to_world(screen_index, sle_x, sle_y);
+		int32_t dir = next_side_pos(screen, sle_pattern==pSIDESR);
+		auto [x, y] = translate_screen_coordinates_to_world(screen, sle_x, sle_y);
 		
 		if(dir==-1 || tooclose(x,y,32))
 		{
@@ -19287,12 +19287,12 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 		
 		int32_t enemy_slot=guys.Count();
 		
-		while(sle_cnt > 0 && !ok2add(screen->enemy[sle_cnt-1]))
+		while(sle_cnt > 0 && !ok2add(scr->enemy[sle_cnt-1]))
 			sle_cnt--;
 			
 		if(sle_cnt > 0)
 		{
-			if(addenemy(screen_index, x,y,screen->enemy[--sle_cnt],0))
+			if(addenemy(screen, x,y,scr->enemy[--sle_cnt],0))
 			{
 				if (((enemy*)guys.spr(enemy_slot))->family != eeTEK)
 				{
@@ -19316,16 +19316,16 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 			script_sle = false;
 		else
 		{
-			loaded_enemies_for_screen.insert(screen_index);
+			loaded_enemies_for_screen.insert(screen);
 		}
 		sle_clk = 0;
 	}
 }
 
-bool is_starting_pos(mapscr* screen, int32_t i, int32_t x, int32_t y, int32_t t)
+bool is_starting_pos(mapscr* scr, int32_t i, int32_t x, int32_t y, int32_t t)
 { 
 	if (!is_z3_scrolling_mode())
-	if(screen->enemy[i]<1||screen->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
+	if(scr->enemy[i]<1||scr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
 		return false; //never 0, never OoB.
 	}
@@ -19346,15 +19346,15 @@ bool is_starting_pos(mapscr* screen, int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	// Can't fly onto it?
-	if(isflier(screen->enemy[i])&&
-			(flyerblocked(x+8,y+8,spw_floater,guysbuf[screen->enemy[i]])||
+	if(isflier(scr->enemy[i])&&
+			(flyerblocked(x+8,y+8,spw_floater,guysbuf[scr->enemy[i]])||
 			 (_walkflag(x,y+8,2)&&!get_qr(qr_WALLFLIERS))))
 		return false;
 		
 	// Can't jump onto it?
 	if
 	(
-		guysbuf[screen->enemy[i]].family==eeTEK 
+		guysbuf[scr->enemy[i]].family==eeTEK 
 		
 		&&
 		(
@@ -19370,9 +19370,9 @@ bool is_starting_pos(mapscr* screen, int32_t i, int32_t x, int32_t y, int32_t t)
 	}
 		
 	// Other off-limit combos
-	if((!isflier(screen->enemy[i])&& guysbuf[screen->enemy[i]].family!=eeTEK &&
-			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[screen->enemy[i]]))) &&
-			guysbuf[screen->enemy[i]].family!=eeZORA)
+	if((!isflier(scr->enemy[i])&& guysbuf[scr->enemy[i]].family!=eeTEK &&
+			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[scr->enemy[i]]))) &&
+			guysbuf[scr->enemy[i]].family!=eeZORA)
 		return false;
 		
 	// Don't ever generate enemies on these combos!
@@ -19380,7 +19380,7 @@ bool is_starting_pos(mapscr* screen, int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	//BS Dodongos need at least 2 spaces.
-	if((guysbuf[screen->enemy[i]].family==eeDONGO)&&(guysbuf[screen->enemy[i]].misc10==1))
+	if((guysbuf[scr->enemy[i]].family==eeDONGO)&&(guysbuf[scr->enemy[i]].misc10==1))
 	{
 		if(((x<16) ||_walkflag(x-16,y+8, 2))&&
 				((x>224)||_walkflag(x+16,y+8, 2))&&
@@ -19399,7 +19399,7 @@ bool is_ceiling_pattern(int32_t i)
 	return (i==pCEILING || i==pCEILINGR);
 }
 
-rpos_t placeenemy(mapscr* screen, int32_t i, int32_t offx, int32_t offy)
+rpos_t placeenemy(mapscr* scr, int32_t i, int32_t offx, int32_t offy)
 {
 	std::vector<rpos_t> freeposcache;
 	
@@ -19407,7 +19407,7 @@ rpos_t placeenemy(mapscr* screen, int32_t i, int32_t offx, int32_t offy)
 	{
 		for(int32_t x=offx; x<offx+256; x+=16)
 		{
-			if(is_starting_pos(screen,i,x,y,0))
+			if(is_starting_pos(scr,i,x,y,0))
 			{
 				freeposcache.push_back(COMBOPOS_REGION(x, y));
 			}
@@ -19420,8 +19420,7 @@ rpos_t placeenemy(mapscr* screen, int32_t i, int32_t offx, int32_t offy)
 	return rpos_t::None;
 }
 
-// TODO z3 rename to 'screen' everywhere
-void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
+void spawnEnemy(mapscr* scr, int screen, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
 {
 	int x = 0;
 	int y = 0;
@@ -19440,15 +19439,15 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 			
 			if(((cflag==mfENEMYALL)||(cflag_i==mfENEMYALL)) && (!placed))
 			{
-				if(!ok2add(screen->enemy[i]))
+				if(!ok2add(scr->enemy[i]))
 				{
-					if (loadcnt < 10 && screen->enemy[i] > 0 && screen->enemy[i] < MAXGUYS) ++loadcnt;
+					if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 				}
 				else
 				{
-					addenemy_z(screen_index,x,
-					 (is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
-					 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],-15);
+					addenemy_z(screen,x,
+					 (is_ceiling_pattern(scr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+					 (is_ceiling_pattern(scr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,scr->enemy[i],-15);
 					
 					++guycnt;
 						
@@ -19459,15 +19458,15 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 			
 			else if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
 			{
-				if(!ok2add(screen->enemy[i]))
+				if(!ok2add(scr->enemy[i]))
 				{
-					if (loadcnt < 10 && screen->enemy[i] > 0 && screen->enemy[i] < MAXGUYS) ++loadcnt;
+					if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 				}
 				else
 				{
-					addenemy_z(screen_index,x,
-					 (is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
-					 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],-15);
+					addenemy_z(screen,x,
+					 (is_ceiling_pattern(scr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+					 (is_ceiling_pattern(scr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,scr->enemy[i],-15);
 					
 					++guycnt;
 						
@@ -19479,7 +19478,7 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 	}
 	
 	// Next: enemy pattern
-	if((screen->pattern==pRANDOM || screen->pattern==pCEILING) && !(isSideViewGravity()) && ((screen->enemy[i]>0&&screen->enemy[i]<MAXGUYS)))
+	if((scr->pattern==pRANDOM || scr->pattern==pCEILING) && !(isSideViewGravity()) && ((scr->enemy[i]>0&&scr->enemy[i]<MAXGUYS)))
 	{
 		do
 		{
@@ -19491,13 +19490,13 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 			++pos;
 			++t;
 		}
-		while((t< 20) && !is_starting_pos(screen,i,x,y,t));
+		while((t< 20) && !is_starting_pos(scr,i,x,y,t));
 	}
 	
 	if(t<0 || t >= 20) // above enemy pattern failed
 	{
 		// Final chance: find a random position anywhere onscreen
-		rpos_t rand_rpos = placeenemy(screen, i, offx, offy);
+		rpos_t rand_rpos = placeenemy(scr, i, offx, offy);
 		
 		if (rand_rpos != rpos_t::None)
 		{
@@ -19513,32 +19512,32 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 		int32_t c=0;
 		c=clk;
 		
-		if(!slowguy(screen->enemy[i]))
+		if(!slowguy(scr->enemy[i]))
 			++fastguys;
 		else if(fastguys>0)
 			c=-15*(i-fastguys+2);
 		else
 			c=-15*(i+1);
 			
-		if(BSZ&&((screen->enemy[i]>0&&screen->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+		if(BSZ&&((scr->enemy[i]>0&&scr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 		{
 			// Special case for blue leevers
-			if(guysbuf[screen->enemy[i]].family==eeLEV && guysbuf[screen->enemy[i]].misc1==1)
+			if(guysbuf[scr->enemy[i]].family==eeLEV && guysbuf[scr->enemy[i]].misc1==1)
 				c=-15*(i+1);
 			else
 				c=-15;
 		}
 		
-		if(!ok2add(screen->enemy[i]))
+		if(!ok2add(scr->enemy[i]))
 		{
-			if (loadcnt < 10 && screen->enemy[i] > 0 && screen->enemy[i] < MAXGUYS) ++loadcnt;
+			if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 		}
 		else
 		{
-			if(((screen->enemy[i]>0||screen->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+			if(((scr->enemy[i]>0||scr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 			{
-				addenemy_z(screen_index,x,(is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
-				 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],c);
+				addenemy_z(screen,x,(is_ceiling_pattern(scr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+				 (is_ceiling_pattern(scr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,scr->enemy[i],c);
 				
 				++guycnt;
 			}
@@ -19557,15 +19556,15 @@ placed_enemy:
 	
 	if(placed)
 	{
-		if(i==0 && screen->enemyflags&efLEADER)
+		if(i==0 && scr->enemyflags&efLEADER)
 		{
-			enemy* e = find_guy_first_for_id(screen_index, screen->enemy[i], 0xFFF);
+			enemy* e = find_guy_first_for_id(screen, scr->enemy[i], 0xFFF);
 			if (e)
 			{
 				//grab the first segment. Not accurate to how older versions did it, but the way they did it might be incompatible with enemy editor.
 				if ((e->family == eeLANM) && !get_qr(qr_NO_LANMOLA_RINGLEADER))
 				{
-					e = find_guy_nth_for_id(screen_index, screen->enemy[i], 2, 0xFFF);
+					e = find_guy_nth_for_id(screen, scr->enemy[i], 2, 0xFFF);
 				}
 				if (e)                                                                                                                                      
 				{
@@ -19574,10 +19573,10 @@ placed_enemy:
 			}
 		}
 		
-		ScreenItemState item_state = screen_item_get_state(screen_index);
+		ScreenItemState item_state = screen_item_get_state(screen);
 		if (!foundCarrier && (item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy))
 		{
-			enemy* e = find_guy_first_for_id(screen_index, screen->enemy[i], 0xFFF);
+			enemy* e = find_guy_first_for_id(screen, scr->enemy[i], 0xFFF);
 			if (e && (e->flags&guy_doesntcount)==0)
 			{
 				e->itemguy = true;
@@ -19588,13 +19587,13 @@ placed_enemy:
 }
 
 // returns index of first sprite with matching id, -1 if none found
-enemy* find_guy_first_for_id(int screen_index, int id, int mask)
+enemy* find_guy_first_for_id(int screen, int id, int mask)
 {
 	int count = guys.Count();
     for (int32_t i=0; i<count; i++)
     {
 		enemy* e = (enemy*)guys.spr(i);
-        if (e->screen_index_spawned == screen_index && (e->id&mask) == (id&mask))
+        if (e->screen_index_spawned == screen && (e->id&mask) == (id&mask))
         {
             return e;
         }
@@ -19603,13 +19602,13 @@ enemy* find_guy_first_for_id(int screen_index, int id, int mask)
     return nullptr;
 }
 
-enemy* find_guy_nth_for_id(int screen_index, int id, int n, int mask)
+enemy* find_guy_nth_for_id(int screen, int id, int n, int mask)
 {
 	int count = guys.Count();
 	for(int32_t i=0; i<count; i++)
     {
 		enemy* e = (enemy*)guys.spr(i);
-        if (e->screen_index_spawned == screen_index && (e->id&mask) == (id&mask))
+        if (e->screen_index_spawned == screen && (e->id&mask) == (id&mask))
         {
 			if (n > 1) --n;
 			else return e;
@@ -19666,8 +19665,8 @@ void loadenemies()
 		if(visited[i]==s)
 			beenhere = true;
 	
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		if (loaded_enemies_for_screen.contains(screen_index))
+	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+		if (loaded_enemies_for_screen.contains(screen))
 			return;
 
 		// TODO z3 configure.
@@ -19683,10 +19682,10 @@ void loadenemies()
 			{
 				for(int32_t i=0; i<10; i++)
 				{
-					if ( screen->enemy[i] )
+					if ( scr->enemy[i] )
 					{
 						int32_t preguycount = guys.Count();
-						addenemy(screen_index,dngn_enemy_x[i],96,screen->enemy[i],-14-i);
+						addenemy(screen,dngn_enemy_x[i],96,scr->enemy[i],-14-i);
 						if (guys.Count() > preguycount)
 						{
 							if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
@@ -19706,7 +19705,7 @@ void loadenemies()
 				for(int32_t i=0; i<4; i++)
 				{
 					int32_t preguycount = guys.Count();
-					addenemy(screen_index,dngn_enemy_x[i],96,screen->enemy[i]?screen->enemy[i]:(int32_t)eKEESE1,-14-i);
+					addenemy(screen,dngn_enemy_x[i],96,scr->enemy[i]?scr->enemy[i]:(int32_t)eKEESE1,-14-i);
 					if (guys.Count() > preguycount)
 					{
 						if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
@@ -19721,27 +19720,27 @@ void loadenemies()
 				}
 			}
 
-			loaded_enemies_for_screen.insert(screen_index);
+			loaded_enemies_for_screen.insert(screen);
 			return;
 		}
 
-		if (screen->pattern == pNOSPAWN)
+		if (scr->pattern == pNOSPAWN)
 			return;
 
-		if (screen->pattern==pSIDES || screen->pattern==pSIDESR)
+		if (scr->pattern==pSIDES || scr->pattern==pSIDESR)
 		{
-			side_load_enemies(screen, screen_index);
+			side_load_enemies(scr, screen);
 			return;
 		}
 
-		loaded_enemies_for_screen.insert(screen_index);
+		loaded_enemies_for_screen.insert(screen);
 
 		// check if it's the dungeon boss and it has been beaten before
-		if (screen->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
+		if (scr->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
 			return;
 
 		int32_t loadcnt = 10;
-		int16_t s = (currmap<<7)+screen_index;
+		int16_t s = (currmap<<7)+screen;
 		
 		if (is_z3_scrolling_mode())
 		{
@@ -19767,9 +19766,9 @@ void loadenemies()
 					loadcnt = 10; //That means all enemies need to be respawned.
 			if (!beenhere && get_qr(qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				for(int32_t i = 0; i<loadcnt && screen->enemy[i]>0; i++)
+				for(int32_t i = 0; i<loadcnt && scr->enemy[i]>0; i++)
 				{
-					if (!(guysbuf[screen->enemy[i]].flags & guy_doesntcount)) 
+					if (!(guysbuf[scr->enemy[i]].flags & guy_doesntcount)) 
 					{
 						unbeatablereload = false;
 					}
@@ -19781,20 +19780,20 @@ void loadenemies()
 			}
 		}
 
-		if((get_qr(qr_ALWAYSRET)) || (screen->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
+		if((get_qr(qr_ALWAYSRET)) || (scr->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
 			loadcnt = 10; //All enemies also need to be respawned.
 
 		// do enemies that are always loaded
-		load_default_enemies(screen, screen_index);
-		activate_fireball_statues(screen, screen_index);
+		load_default_enemies(scr, screen);
+		activate_fireball_statues(scr, screen);
 
 		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
 		int32_t clk=-15,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
 		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
-		for(; i<loadcnt && screen->enemy[i]>0; i++)
+		for(; i<loadcnt && scr->enemy[i]>0; i++)
 		{
 			int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
-			spawnEnemy(screen, screen_index, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
+			spawnEnemy(scr, screen, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
 			if (guys.Count() > preguycount)
 			{
 				if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
@@ -21577,27 +21576,27 @@ int32_t more_carried_items()
 	return hasmorecarries;
 }
 
-static int count_guys_from_screen(int screen_index)
+static int count_guys_from_screen(int screen)
 {
 	int count = 0;
 	for (int i=0; i < guys.Count(); i++)
 	{
-		if (((enemy*)guys.spr(i))->screen_index_spawned == screen_index)
+		if (((enemy*)guys.spr(i))->screen_index_spawned == screen)
 			count += 1;
 	}
 	return count;
 }
 
 // messy code to do the enemy-carrying-the-item thing
-static void roaming_item(mapscr* screen, int screen_index)
+static void roaming_item(mapscr* scr, int screen)
 {
-	ScreenItemState item_state = screen_item_get_state(screen_index);
-	bool loaded_enemies = loaded_enemies_for_screen.contains(screen_index);
+	ScreenItemState item_state = screen_item_get_state(screen);
+	bool loaded_enemies = loaded_enemies_for_screen.contains(screen);
 	if(!(item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy) || !loaded_enemies)
 		return;
 	
 	// All enemies already dead upon entering a room?
-	if (count_guys_from_screen(screen_index) == 0)
+	if (count_guys_from_screen(screen) == 0)
 	{
 		return;
 	}
@@ -21606,7 +21605,7 @@ static void roaming_item(mapscr* screen, int screen_index)
 	for(int32_t j=0; j<guys.Count(); j++)
 	{
 		enemy* e = (enemy*)guys.spr(j);
-		if (e->screen_index_spawned == screen_index && e->itemguy)
+		if (e->screen_index_spawned == screen && e->itemguy)
 		{
 			guycarryingitem=j;
 			break;
@@ -21620,18 +21619,18 @@ static void roaming_item(mapscr* screen, int screen_index)
 			return;                                               //eSHOOTFBALL are alive but enemies from the list
 		}                                                       //are not. Defer to HeroClass::checkspecial().
 		
-		int32_t Item=screen->item;
+		int32_t Item=scr->item;
 		
-		screen_item_clear_state(screen_index);
+		screen_item_clear_state(screen);
 		
-		if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
+		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 		{
-			auto [x, y] = translate_screen_coordinates_to_world(screen_index);
+			auto [x, y] = translate_screen_coordinates_to_world(screen);
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
-					+ (((screen->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
+					+ (((scr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
-			((item*)items.spr(items.Count() - 1))->screen_index_spawned = screen_index;
-			screen_item_set_state(screen_index, ScreenItemState::CarriedByEnemy);
+			((item*)items.spr(items.Count() - 1))->screen_index_spawned = screen;
+			screen_item_set_state(screen, ScreenItemState::CarriedByEnemy);
 		}
 		else
 		{
@@ -21641,7 +21640,7 @@ static void roaming_item(mapscr* screen, int screen_index)
 	
 	for(int32_t i=0; i<items.Count(); i++)
 	{
-		if(((item*)items.spr(i))->pickup&ipENEMY && ((item*)items.spr(i))->screen_index_spawned == screen_index)
+		if(((item*)items.spr(i))->pickup&ipENEMY && ((item*)items.spr(i))->screen_index_spawned == screen)
 		{
 			if(get_qr(qr_HIDECARRIEDITEMS))
 			{
@@ -21686,8 +21685,8 @@ static void roaming_item(mapscr* screen, int screen_index)
 
 void roaming_item()
 {
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		roaming_item(screen, screen_index);
+	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+		roaming_item(scr, screen);
 	});
 }
 

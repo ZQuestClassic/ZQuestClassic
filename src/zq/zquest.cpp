@@ -8369,7 +8369,7 @@ void draw_block(int32_t start,int32_t w,int32_t h)
     refresh(rMAP+rSCRMAP);
 }
 
-static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset, bool* filled_combos)
+static void fill(int32_t map, int32_t screen, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset, bool* filled_combos)
 {
 	bool rclick = gui_mouse_b() & 2;
 	bool ignored_combo = false;
@@ -8441,68 +8441,68 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 		draw_autocombo((sy << 4) + sx, rclick);
 	}
 	else
-		Map.DoSetComboCommand(map, screen_index, (sy<<4)+sx, only_cset ? -1 : cid, cs);
+		Map.DoSetComboCommand(map, screen, (sy<<4)+sx, only_cset ? -1 : cid, cs);
     
     if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)==target))
-        fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset, filled_combos);
+        fill(map, screen, fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset, filled_combos);
         
     if((sy<10) && (dir!=up))                                  // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx)]&0x7FF)==target))
-        fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy+1, down, diagonal, only_cset, filled_combos);
+        fill(map, screen, fillscr, targetcombo, targetcset, sx, sy+1, down, diagonal, only_cset, filled_combos);
         
     if((sx>0) && (dir!=right))                                // && ((Map.CurrScr()->data[((sy<<4)+sx-1)]&0x7FF)==target))
-        fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy, left, diagonal, only_cset, filled_combos);
+        fill(map, screen, fillscr, targetcombo, targetcset, sx-1, sy, left, diagonal, only_cset, filled_combos);
         
     if((sx<15) && (dir!=left))                                // && ((Map.CurrScr()->data[((sy<<4)+sx+1)]&0x7FF)==target))
-        fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy, right, diagonal, only_cset, filled_combos);
+        fill(map, screen, fillscr, targetcombo, targetcset, sx+1, sy, right, diagonal, only_cset, filled_combos);
         
     if(diagonal==1)
     {
         if((sy>0) && (sx>0) && (dir!=r_down))                   // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx-1)]&0x7FF)==target))
-            fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy-1, l_up, diagonal, only_cset, filled_combos);
+            fill(map, screen, fillscr, targetcombo, targetcset, sx-1, sy-1, l_up, diagonal, only_cset, filled_combos);
             
         if((sy<10) && (sx<15) && (dir!=l_up))                   // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx+1)]&0x7FF)==target))
-            fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy+1, r_down, diagonal, only_cset, filled_combos);
+            fill(map, screen, fillscr, targetcombo, targetcset, sx+1, sy+1, r_down, diagonal, only_cset, filled_combos);
             
         if((sx>0) && (sy<10) && (dir!=r_up))                    // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx-1)]&0x7FF)==target))
-            fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy+1, l_down, diagonal, only_cset, filled_combos);
+            fill(map, screen, fillscr, targetcombo, targetcset, sx-1, sy+1, l_down, diagonal, only_cset, filled_combos);
             
         if((sx<15) && (sy>0) && (dir!=l_down))                  // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx+1)]&0x7FF)==target))
-            fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy-1, r_up, diagonal, only_cset, filled_combos);
+            fill(map, screen, fillscr, targetcombo, targetcset, sx+1, sy-1, r_up, diagonal, only_cset, filled_combos);
     }
 }
 
-static void fill_flag(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
+static void fill_flag(int32_t map, int32_t screen, mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
 {
 	if((fillscr->sflag[((sy<<4)+sx)])!=targetflag)
 		return;
 	
-    Map.DoSetFlagCommand(map, screen_index, (sy<<4)+sx, Flag);
+    Map.DoSetFlagCommand(map, screen, (sy<<4)+sx, Flag);
 	
 	if((sy>0) && (dir!=down))
-		fill_flag(map, screen_index, fillscr, targetflag, sx, sy-1, up, diagonal);
+		fill_flag(map, screen, fillscr, targetflag, sx, sy-1, up, diagonal);
 		
 	if((sy<10) && (dir!=up))
-		fill_flag(map, screen_index, fillscr, targetflag, sx, sy+1, down, diagonal);
+		fill_flag(map, screen, fillscr, targetflag, sx, sy+1, down, diagonal);
 		
 	if((sx>0) && (dir!=right))
-		fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy, left, diagonal);
+		fill_flag(map, screen, fillscr, targetflag, sx-1, sy, left, diagonal);
 		
 	if((sx<15) && (dir!=left))
-		fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy, right, diagonal);
+		fill_flag(map, screen, fillscr, targetflag, sx+1, sy, right, diagonal);
 		
 	if(diagonal==1)
 	{
 		if((sy>0) && (sx>0) && (dir!=r_down))
-			fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
+			fill_flag(map, screen, fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
 			
 		if((sy<10) && (sx<15) && (dir!=l_up))
-			fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
+			fill_flag(map, screen, fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
 			
 		if((sx>0) && (sy<10) && (dir!=r_up))
-			fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
+			fill_flag(map, screen, fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
 			
 		if((sx<15) && (sy>0) && (dir!=l_down))
-			fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
+			fill_flag(map, screen, fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
 	}
 	
 }

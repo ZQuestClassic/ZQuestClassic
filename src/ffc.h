@@ -32,7 +32,7 @@ public:
 	word script;
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
-	uint8_t screen_index;
+	uint8_t screen;
 	bool hooked;
 	bool recently_hit;
 	int32_t changer_x = -1000, changer_y = -1000;

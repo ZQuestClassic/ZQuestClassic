@@ -640,9 +640,9 @@ void HeroClass::ClearhitHeroUIDs()
 	}
 }
 
-void HeroClass::sethitHeroUID(int32_t type, int32_t screen_index)
+void HeroClass::sethitHeroUID(int32_t type, int32_t screen)
 {
-	lastHitBy[type][0] = screen_index;
+	lastHitBy[type][0] = screen;
 }
 
 int32_t HeroClass::gethitHeroUID(int32_t type)
@@ -3589,8 +3589,8 @@ bool HeroClass::checkstab()
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1)))
 					{
-						int screen_index = get_screen_index_for_world_xy(wx, wy);
-						mapscr* screen = get_screen_for_world_xy(wx, wy);
+						int screen = get_screen_index_for_world_xy(wx, wy);
+						mapscr* scr = get_screen_for_world_xy(wx, wy);
 						int32_t pickup = ptr->pickup;
 						int32_t id2 = ptr->id;
 						int32_t pstr = ptr->pstring;
@@ -3618,16 +3618,16 @@ bool HeroClass::checkstab()
 						}
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
-							setmapflag(screen, screen_index, mITEM);
+							setmapflag(scr, screen, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag(screen, screen_index, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag(scr, screen, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
-							setxmapflag(screen_index, 1<<ptr->pickupexstate);
+							setxmapflag(screen, 1<<ptr->pickupexstate);
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-							if (screen->flags9&fITEMSECRETPERM) setmapflag(screen, screen_index, mSECRET);
-							trigger_secrets_for_screen(TriggerSource::ItemsSecret, screen_index, false);
+							if (scr->flags9&fITEMSECRETPERM) setmapflag(scr, screen, mSECRET);
+							trigger_secrets_for_screen(TriggerSource::ItemsSecret, screen, false);
 						}
 						//!DIMI
 						
@@ -3928,7 +3928,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		type = cNONE;
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
-	mapscr* s = rpos_handle.screen;
+	mapscr* s = rpos_handle.scr;
 	int i = rpos_handle.pos;
         
     bool ignorescreen=false;
@@ -4071,7 +4071,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignoreffc = true;
 	}
 	
-	mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.screen;
+	mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.scr;
 	
 	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
@@ -4461,7 +4461,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 	//zprint("ignoring\n");
     }
 
-	mapscr* s = rpos_handle.screen;
+	mapscr* s = rpos_handle.scr;
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     
@@ -4636,7 +4636,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.screen;
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.scr;
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
@@ -5051,7 +5051,7 @@ void HeroClass::check_slash_block(weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.screen;
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.scr;
     
     int32_t sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
     
@@ -8991,9 +8991,9 @@ heroanimate_skip_liftwpn:;
 			
 			for (auto it : clock_zoras)
 			{
-				int screen_index = it.first;
+				int screen = it.first;
 				int id = it.second;
-				addenemy(screen_index,0,0,id,0);
+				addenemy(screen,0,0,id,0);
 			}
 		}
 	}
@@ -9039,8 +9039,8 @@ heroanimate_skip_liftwpn:;
 											auto target_pos_handle = get_rpos_handle(targrpos, q);
 											auto player_pos_handle = get_rpos_handle(plrpos, q);
 											
-											mapscr* player_scr = player_pos_handle.screen;
-											mapscr* target_scr = target_pos_handle.screen;
+											mapscr* player_scr = player_pos_handle.scr;
+											mapscr* target_scr = target_pos_handle.scr;
 
 											newcombo const& cmb = combobuf[target_scr->data[target_pos]];
 											int32_t srcfl = target_scr->sflag[target_pos];
@@ -10305,7 +10305,7 @@ heroanimate_skip_liftwpn:;
 		}
 		if (awarp)
 		{
-			if (rpos_handle.screen->flags5 & fDIRECTAWARP)
+			if (rpos_handle.scr->flags5 & fDIRECTAWARP)
 			{
 				setpit();
 			}
@@ -10361,7 +10361,7 @@ heroanimate_skip_liftwpn:;
 		
 		if(awarp)
 		{
-			if(ffc_handle.screen->flags5&fDIRECTAWARP)
+			if(ffc_handle.scr->flags5&fDIRECTAWARP)
 			{
 				setpit();
 			}
@@ -11503,8 +11503,8 @@ void HeroClass::doSwitchHook(byte style)
 			auto target_pos_handle = get_rpos_handle(hooked_comborpos, q);
 			auto player_pos_handle = get_rpos_handle(plrpos, q);
 			
-			mapscr* player_scr = player_pos_handle.screen;
-			mapscr* target_scr = target_pos_handle.screen;
+			mapscr* player_scr = player_pos_handle.scr;
+			mapscr* target_scr = target_pos_handle.scr;
 
 			newcombo const& cmb = combobuf[target_scr->data[target_pos]];
 			newcombo const& comb2 = combobuf[player_scr->data[player_pos]];
@@ -21228,7 +21228,7 @@ void HeroClass::checkpushblock()
 			continue;
 		auto rpos_handle = get_rpos_handle(rpos, lyr);
 		cpos_info& cpinfo = cpos_get(rpos_handle);
-		mapscr* m = rpos_handle.screen;
+		mapscr* m = rpos_handle.scr;
 		int cid = lyr == 0 ? MAPCOMBO(bx,by) : MAPCOMBOL(lyr,bx,by);
 		newcombo const& cmb = combobuf[cid];
 		int f = MAPFLAG2(lyr-1,bx,by);
@@ -21628,13 +21628,13 @@ void HeroClass::oldchecklockblock()
 	auto rpos_handle = found1 ? get_rpos_handle_for_world_xy(bx, by, 0) : get_rpos_handle_for_world_xy(bx2, by, 0);
 	if(cmb.usrflags&cflag16)
 	{
-		setxmapflag(rpos_handle.screen_index, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(rpos_handle.screen, rpos_handle.screen_index, 1<<cmb.attribytes[5], false);
+		setxmapflag(rpos_handle.screen, 1<<cmb.attribytes[5]);
+		remove_xstatecombos(rpos_handle.scr, rpos_handle.screen, 1<<cmb.attribytes[5], false);
 	}
 	else
 	{
-		setmapflag(rpos_handle.screen, rpos_handle.screen_index, mLOCKBLOCK);
-		remove_lockblocks(rpos_handle.screen, rpos_handle.screen_index);
+		setmapflag(rpos_handle.scr, rpos_handle.screen, mLOCKBLOCK);
+		remove_lockblocks(rpos_handle.scr, rpos_handle.screen);
 	}
 	if ( cmb3.usrflags&cflag3 )
 	{
@@ -21897,18 +21897,18 @@ void HeroClass::oldcheckchest(int32_t type)
 		return;
 	}
 
-	mapscr* screen = get_scr(currmap, found_screen_index);
+	mapscr* scr = get_scr(currmap, found_screen_index);
 	
 	switch(type)
 	{
 		case cLOCKEDCHEST:
 			if(!usekey()) return;
 			
-			setmapflag(screen, found_screen_index, mLOCKEDCHEST);
+			setmapflag(scr, found_screen_index, mLOCKEDCHEST);
 			break;
 			
 		case cCHEST:
-			setmapflag(screen, found_screen_index, mCHEST);
+			setmapflag(scr, found_screen_index, mCHEST);
 			break;
 			
 		case cBOSSCHEST:
@@ -21929,7 +21929,7 @@ void HeroClass::oldcheckchest(int32_t type)
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
 				FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 			}
-			setmapflag(screen, found_screen_index, mBOSSCHEST);
+			setmapflag(scr, found_screen_index, mBOSSCHEST);
 			break;
 	}
 	
@@ -21953,7 +21953,7 @@ void HeroClass::oldcheckchest(int32_t type)
 	
 	if(itemflag && !getmapflag(found_screen_index, (found_screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
 	{
-		add_item_for_screen(found_screen_index, new item(x, y,(zfix)0, screen->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		add_item_for_screen(found_screen_index, new item(x, y,(zfix)0, scr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 	}
 }
 
@@ -22460,7 +22460,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 		else if(pushing < 8 || pushing%8) goto endsigns; //Not pushing against sign enough
 		
-		trigger_sign(cmb, foundffc ? foundffc->screen_index : found_scr);
+		trigger_sign(cmb, foundffc ? foundffc->screen : found_scr);
 		didsign = true;
 	}
 endsigns:
@@ -23979,9 +23979,9 @@ void HeroClass::checkspecial()
 {
     checktouchblk();
 
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		bool hasmainguy = hasMainGuy(screen_index);
-		bool loaded_enemies = loaded_enemies_for_screen.contains(screen_index);
+	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+		bool hasmainguy = hasMainGuy(screen);
+		bool loaded_enemies = loaded_enemies_for_screen.contains(screen);
 		if (!loaded_enemies || hasmainguy)
 		{
 			did_secret = false;
@@ -23991,7 +23991,7 @@ void HeroClass::checkspecial()
 			// Enemies have been defeated.
 
 			// generic 'Enemies->' trigger
-			for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
+			for_every_rpos_in_screen(scr, screen, [&](const rpos_handle_t& rpos_handle) {
 				auto& cmb = rpos_handle.combo();	
 				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
@@ -24006,53 +24006,53 @@ void HeroClass::checkspecial()
 				}
 			});
 
-			if (screen->flags9 & fENEMY_WAVES)
+			if (scr->flags9 & fENEMY_WAVES)
 			{
-				hasmainguy = hasMainGuy(screen_index); //possibly un-beat the enemies (another 'wave'?)
+				hasmainguy = hasMainGuy(screen); //possibly un-beat the enemies (another 'wave'?)
 			}
 			if(!hasmainguy)
 			{
-				ScreenItemState item_state = screen_item_get_state(screen_index);
+				ScreenItemState item_state = screen_item_get_state(screen);
 				
 				// item
 				if (item_state == ScreenItemState::MustGiveToEnemy || item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::WhenKillEnemies)
 				{
-					int32_t Item=screen->item;
+					int32_t Item=scr->item;
 
-					if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
+					if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 					{
 						if (item_state == ScreenItemState::WhenKillEnemies)
 							sfx(WAV_CLEARED);
 						
-						zfix x = region_scr_x*256 + screen->itemx;
-						zfix y = region_scr_y*176 + ((screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
-						add_item_for_screen(screen_index, new item(x, y, (screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
+						zfix x = region_scr_x*256 + scr->itemx;
+						zfix y = region_scr_y*176 + ((scr->flags7&fITEMFALLS && isSideViewHero()) ? -170 : scr->itemy+1);
+						add_item_for_screen(screen, new item(x, y, (scr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 										Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-												(screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+												(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 					}
 					
-					screen_item_clear_state(screen_index);
+					screen_item_clear_state(screen);
 				}
 				// if room has traps, guys don't come back
 				// TODO z3
 				for (int32_t i=0; i<eMAXGUYS; i++)
 				{
 					if (guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
-						if (guys.idCount(i) && !getmapflag(screen_index, mTMPNORET))
-							setmapflag(screen_index, mTMPNORET);
+						if (guys.idCount(i) && !getmapflag(screen, mTMPNORET))
+							setmapflag(screen, mTMPNORET);
 				}
 				// clear enemies and open secret
-				if (!did_secret && (screen->flags2&fCLEARSECRET))
+				if (!did_secret && (scr->flags2&fCLEARSECRET))
 				{
 					bool only16_31 = get_qr(qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
-					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, screen_index, only16_31);
+					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, screen, only16_31);
 					
-					if (screen->flags4&fENEMYSCRTPERM && canPermSecret(currdmap, screen_index))
+					if (scr->flags4&fENEMYSCRTPERM && canPermSecret(currdmap, screen))
 					{
-						if (!(screen->flags5&fTEMPSECRETS)) setmapflag(screen_index, mSECRET);
+						if (!(scr->flags5&fTEMPSECRETS)) setmapflag(screen, mSECRET);
 					}
 					
-					sfx(screen->secretsfx);
+					sfx(scr->secretsfx);
 					did_secret=true;
 				}
 			}
@@ -24061,65 +24061,65 @@ void HeroClass::checkspecial()
 		// doors
 		bool has_shutter = false;
 		for(int32_t i=0; i<4; i++)
-			if(screen->door[i]==dSHUTTER)
+			if(scr->door[i]==dSHUTTER)
 			{
 				has_shutter = true;
 				if(opendoors==0 && loaded_enemies)
 				{
-					if(!(screen->flags&fSHUTTERS) && !hasmainguy)
+					if(!(scr->flags&fSHUTTERS) && !hasmainguy)
 						opendoors=12;
 				}
 				else if(opendoors<0)
 					++opendoors;
 				else if((--opendoors)==0)
-					openshutters(screen, screen_index);
+					openshutters(scr, screen);
 					
 				break;
 			}
-		if(!has_shutter && !opendoors && loaded_enemies && !(screen->flags&fSHUTTERS) && !hasmainguy)
+		if(!has_shutter && !opendoors && loaded_enemies && !(scr->flags&fSHUTTERS) && !hasmainguy)
 		{
-			openshutters(screen, screen_index);
+			openshutters(scr, screen);
 		}
 
     	// set boss flag when boss is gone
-		if (loaded_enemies && screen->enemyflags&efBOSS && !hasmainguy)
+		if (loaded_enemies && scr->enemyflags&efBOSS && !hasmainguy)
 		{
 			game->lvlitems[dlevel]|=liBOSS;
-			stop_sfx(screen->bosssfx);
+			stop_sfx(scr->bosssfx);
 		}
 
-		if (getmapflag(screen_index, mCHEST))              // if special stuff done before
+		if (getmapflag(screen, mCHEST))              // if special stuff done before
 		{
-			remove_chests(screen, screen_index);
+			remove_chests(scr, screen);
 		}
 		
-		if(getmapflag(screen_index, mLOCKEDCHEST))              // if special stuff done before
+		if(getmapflag(screen, mLOCKEDCHEST))              // if special stuff done before
 		{
-			remove_lockedchests(screen, screen_index);
+			remove_lockedchests(scr, screen);
 		}
 		
-		if(getmapflag(screen_index, mBOSSCHEST))              // if special stuff done before
+		if(getmapflag(screen, mBOSSCHEST))              // if special stuff done before
 		{
-			remove_bosschests(screen, screen_index);
+			remove_bosschests(scr, screen);
 		}
 
-		clear_xdoors(screen, screen_index, true);
-		clear_xstatecombos(screen, screen_index, true);
+		clear_xdoors(scr, screen, true);
+		clear_xstatecombos(scr, screen, true);
 
-		if (screen_item_get_state(screen_index) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
+		if (screen_item_get_state(screen) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
 		{
-			int32_t Item=screen->item;
+			int32_t Item=scr->item;
 			
-			if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
+			if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 			{
-				auto [x, y] = translate_screen_coordinates_to_world(screen_index, screen->itemx, (screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
-				add_item_for_screen(screen_index, new item(x, y,
-								(screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
+				auto [x, y] = translate_screen_coordinates_to_world(screen, scr->itemx, (scr->flags7&fITEMFALLS && isSideViewHero()) ? -170 : scr->itemy+1);
+				add_item_for_screen(screen, new item(x, y,
+								(scr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 								Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-										(screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+										(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 			}
 			
-			screen_item_clear_state(screen_index);
+			screen_item_clear_state(screen);
 		}
 	});
 }
@@ -24174,21 +24174,21 @@ void HeroClass::checkspecial2(int32_t *ls)
 		for(int32_t j=0; j<16; j+=15) for(int32_t k=0; k<2; k++)
 		{
 			int comboid = 0;
-			mapscr* screen;
+			mapscr* scr;
 			if (k > 0)
 			{
 				auto ffc_handle = getFFCAt(x+j, y+i);
 				if (ffc_handle)
 				{
 					comboid = ffc_handle->data();
-					screen = ffc_handle->screen;
+					scr = ffc_handle->scr;
 				}
 			}
 			else
 			{
 				auto rpos_handle = get_rpos_handle_for_world_xy(x+j, y+i, 0);
 				comboid = rpos_handle.data();
-				screen = rpos_handle.screen;
+				scr = rpos_handle.scr;
 			}
 			newcombo const& cmb = combobuf[comboid];
 			int32_t stype = cmb.type;
@@ -24197,7 +24197,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				stype = cNONE;
 			if(stype==cSWARPA)
 			{
-				if(screen->flags5&fDIRECTSWARP)
+				if(scr->flags5&fDIRECTSWARP)
 				{
 					setpit();
 				}
@@ -24209,7 +24209,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(stype==cSWARPB)
 			{
-				if(screen->flags5&fDIRECTSWARP)
+				if(scr->flags5&fDIRECTSWARP)
 				{
 					setpit();
 				}
@@ -24221,7 +24221,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(stype==cSWARPC)
 			{
-				if(screen->flags5&fDIRECTSWARP)
+				if(scr->flags5&fDIRECTSWARP)
 				{
 					setpit();
 				}
@@ -24233,7 +24233,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(stype==cSWARPD)
 			{
-				if(screen->flags5&fDIRECTSWARP)
+				if(scr->flags5&fDIRECTSWARP)
 				{
 					setpit();
 				}
@@ -24245,7 +24245,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(stype==cSWARPR)
 			{
-				if(screen->flags5&fDIRECTSWARP)
+				if(scr->flags5&fDIRECTSWARP)
 				{
 					setpit();
 				}
@@ -24260,18 +24260,18 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				auto rpos_handle = get_rpos_handle(rpos, 0);
 				
-				if(stype==cSTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen_index))
+				if(stype==cSTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen))
 				{ 
 					if(!didstrig)
 					{
 						stepsecret = rpos;
 						
-						if(!(rpos_handle.screen->flags5&fTEMPSECRETS))
+						if(!(rpos_handle.scr->flags5&fTEMPSECRETS))
 						{
-							setmapflag(rpos_handle.screen, rpos_handle.screen_index, mSECRET);
+							setmapflag(rpos_handle.scr, rpos_handle.screen, mSECRET);
 						}
 						sfx(warpsound,pan((int32_t)x));
-						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, false);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, false);
 						didstrig = true;
 					}
 				}
@@ -24282,7 +24282,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 						stepsecret = rpos;
 
 						bool high16only = get_qr(qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, high16only);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, high16only);
 						didstrig = true;
 						sfx(warpsound,pan((int32_t)x));
 					}
@@ -24997,16 +24997,16 @@ void HeroClass::checkspecial2(int32_t *ls)
 			sfx(combobuf[MAPCOMBO(rpos_handle)].attribytes[0],pan((int32_t)x));
 			//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
 			
-			if(type==cTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen_index))
+			if(type==cTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen))
 			{ 
-				if(!(rpos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(rpos_handle.screen, rpos_handle.screen_index, mSECRET);
+				if(!(rpos_handle.scr->flags5&fTEMPSECRETS)) setmapflag(rpos_handle.scr, rpos_handle.screen, mSECRET);
 				
-				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, false);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, false);
 			}
 			else 
 			{
 				bool only16_31 = get_qr(qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, only16_31);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, only16_31);
 			}
 		}
 	}
@@ -25070,7 +25070,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		)
 		{
 			sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
-			rpos_handle.screen->data[pos]++;
+			rpos_handle.scr->data[pos]++;
 		}
 			
 			if
@@ -25084,9 +25084,9 @@ void HeroClass::checkspecial2(int32_t *ls)
 				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
 				for(int32_t k=0; k<176; k++)
 				{
-					if(rpos_handle.screen->data[k]==cid)
+					if(rpos_handle.scr->data[k]==cid)
 					{
-						rpos_handle.screen->data[k]++;
+						rpos_handle.scr->data[k]++;
 					}
 				}
 			}
@@ -28027,11 +28027,11 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (screen->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen_index) && screen->preloadscript)
+			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen) && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);  
-					FFCore.waitdraw(ScriptType::Screen, screen_index) = 0;
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);  
+					FFCore.waitdraw(ScriptType::Screen, screen) = 0;
 				}
 			});
 		}
@@ -28046,10 +28046,10 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 	{
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (screen->script != 0 && screen->preloadscript)
+			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);
 				}
 			});
 		}
@@ -28348,17 +28348,17 @@ static void for_every_nearby_screen_during_scroll(
 		int scr_y = base_scr_y + draw_dy;
 		if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
 		
-		int scr = scr_x + scr_y * 16;
-		if (!is_region_scrolling && scr != heroscr && scr != scrolling_scr) continue;
+		int screen = scr_x + scr_y * 16;
+		if (!is_region_scrolling && screen != heroscr && screen != scrolling_scr) continue;
 
 		// Only show screens that are in the old or the new regions.
-		int region = get_region_id(base_dmap, scr);
-		if (!(scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region)))
+		int region = get_region_id(base_dmap, screen);
+		if (!(screen == scrolling_scr || screen == currscr || (old_region && old_region == region) || (new_region && region == new_region)))
 			continue;
 
 		mapscr* base_screen = use_new_screens ?
-			get_scr(base_map, scr) :
-			old_temporary_screens[scr*7];
+			get_scr(base_map, screen) :
+			old_temporary_screens[screen*7];
 		if (base_screen)
 		{
 			int dx = draw_dx + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
@@ -28372,16 +28372,16 @@ static void for_every_nearby_screen_during_scroll(
 			// if (scrolling_dir == right) dx -= 1;
 
 			std::array<screen_handle_t, 7> screen_handles;
-			screen_handles[0] = {base_screen, base_screen, base_map, scr, 0};
+			screen_handles[0] = {base_screen, base_screen, base_map, screen, 0};
 			for (int i = 1; i < 7; i++)
 			{
-				mapscr* screen = use_new_screens ?
-					get_layer_scr(base_map, scr, i - 1) :
-					old_temporary_screens[scr*7 + i];
-				screen_handles[i] = {base_screen, screen, base_map, scr, i};
+				mapscr* scr = use_new_screens ?
+					get_layer_scr(base_map, screen, i - 1) :
+					old_temporary_screens[screen*7 + i];
+				screen_handles[i] = {base_screen, scr, base_map, screen, i};
 			}
 
-			fn(screen_handles, scr, dx, dy, use_new_screens);
+			fn(screen_handles, screen, dx, dy, use_new_screens);
 		}
 	}
 }
@@ -28401,7 +28401,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 	set_clip_rect(framebuf, 0, playing_field_offset, 256, framebuf->h);
 
 	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-		mapscr* base_screen = screen_handles[0].base_screen;
+		mapscr* base_screen = screen_handles[0].base_scr;
 		bool should_be_dark = (base_screen->flags & fDARK) && (scr == currscr || get_qr(qr_NEWDARK_SCROLLEDGE));
 		if (!should_be_dark)
 		{
@@ -28413,7 +28413,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 	});
 
 	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-		mapscr* base_screen = screen_handles[0].base_screen;
+		mapscr* base_screen = screen_handles[0].base_scr;
 		bool should_be_dark = (base_screen->flags & fDARK) && (scr == currscr || get_qr(qr_NEWDARK_SCROLLEDGE));
 		if (!should_be_dark)
 			return;
@@ -28426,7 +28426,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 
 	color_map = &trans_table2;
 	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-		mapscr* base_screen = screen_handles[0].base_screen;
+		mapscr* base_screen = screen_handles[0].base_scr;
 
 		int offx = draw_dx * 256;
 		int offy = draw_dy * 176 + playing_field_offset;
@@ -28724,11 +28724,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (screen->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen_index))
+			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen))
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);  
-					FFCore.waitdraw(ScriptType::Screen, screen_index) = 0;
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);  
+					FFCore.waitdraw(ScriptType::Screen, screen) = 0;
 				}
 			});
 		}
@@ -29037,7 +29037,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	bool draw_dark = false;
 	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-		mapscr* base_screen = screen_handles[0].screen;
+		mapscr* base_screen = screen_handles[0].scr;
 		draw_dark = draw_dark || (base_screen->flags&fDARK);
 	});
 
@@ -29330,7 +29330,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176 - playing_field_offset;
 
-			mapscr* base_screen = screen_handles[0].base_screen;
+			mapscr* base_screen = screen_handles[0].base_scr;
 			if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, screen_handles[2], offx, offy);
 			if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, screen_handles[3], offx, offy);
 		});
@@ -29348,8 +29348,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
-			if (lenscheck(screen_handles[0].screen, 0))
-				putscr(scrollbuf, offx, offy, screen_handles[0].screen);
+			if (lenscheck(screen_handles[0].scr, 0))
+				putscr(scrollbuf, offx, offy, screen_handles[0].scr);
 		});
 		combotile_add_x = 0;
 		combotile_add_y = 0;
@@ -29381,7 +29381,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
-			mapscr* base_screen = screen_handles[0].base_screen;
+			mapscr* base_screen = screen_handles[0].base_scr;
 			bool primitives = is_new_screen;
 
 			if(!(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)))
@@ -29394,7 +29394,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
-			mapscr* base_screen = screen_handles[0].base_screen;
+			mapscr* base_screen = screen_handles[0].base_scr;
 
 			if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			{
@@ -29416,7 +29416,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176 + playing_field_offset;
-			putscrdoors(framebuf, offx, offy, screen_handles[0].screen);
+			putscrdoors(framebuf, offx, offy, screen_handles[0].scr);
 		});
 
 		if (!align_counter || scroll_counter) herostep();
@@ -29453,7 +29453,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
 
-			mapscr* base_screen = screen_handles[0].base_screen;
+			mapscr* base_screen = screen_handles[0].base_scr;
 			if(!(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
 			{
 				bool primitives = is_dest_scr && !(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));

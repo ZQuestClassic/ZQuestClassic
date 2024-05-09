@@ -1791,9 +1791,9 @@ void replay_step_comment(std::string comment)
     }
 }
 
-void replay_step_comment_loadscr(int screen_index)
+void replay_step_comment_loadscr(int screen)
 {
-	replay_step_comment(fmt::format("scr={}", screen_index));
+	replay_step_comment(fmt::format("scr={}", screen));
 	loadscr_count += 1;
 }
 

@@ -110,12 +110,12 @@ struct region
 };
 extern region current_region, scrolling_region;
 
-int get_region_id(int dmap, int screen_index);
+int get_region_id(int dmap, int screen);
 int get_current_region_id();
 bool is_in_current_region(int scr);
 bool is_valid_rpos(rpos_t rpos);
-void z3_calculate_region(int dmap, int screen_index, region& region, int& region_scr_dx, int& region_scr_dy);
-void z3_load_region(int screen_index, int dmap = -1);
+void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_dx, int& region_scr_dy);
+void z3_load_region(int screen, int dmap = -1);
 // Returns a rpos_handle of the top-left position for every valid
 // screen (including each layer) for the current region.
 // The first item is the first element of the array of rpos_handles,
@@ -123,7 +123,7 @@ void z3_load_region(int screen_index, int dmap = -1);
 std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles();
 void z3_clear_temporary_screens();
 std::vector<mapscr*> z3_take_temporary_screens();
-void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport);
+void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport);
 void z3_update_viewport();
 void z3_update_heroscr();
 bool edge_of_region(direction dir);
@@ -133,39 +133,39 @@ mapscr* get_screen_for_rpos(rpos_t rpos);
 mapscr* get_screen_layer_for_rpos(rpos_t rpos, int layer);
 rpos_handle_t get_rpos_handle(rpos_t rpos, int layer);
 rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer);
-rpos_handle_t get_rpos_handle_for_screen(int screen_index, int layer, int pos);
-rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos);
+rpos_handle_t get_rpos_handle_for_screen(int screen, int layer, int pos);
+rpos_handle_t get_rpos_handle_for_screen(mapscr* scr, int screen, int layer, int pos);
 void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer);
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer);
 mapscr* get_screen_for_world_xy(int x, int y);
 mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
-int z3_get_region_relative_dx(int screen_index);
-int z3_get_region_relative_dx(int screen_index, int origin_screen_index);
-int z3_get_region_relative_dy(int screen_index);
-int z3_get_region_relative_dy(int screen_index, int origin_screen_index);
-int get_region_screen_index_offset(int screen_index);
+int z3_get_region_relative_dx(int screen);
+int z3_get_region_relative_dx(int screen, int origin_screen_index);
+int z3_get_region_relative_dy(int screen);
+int z3_get_region_relative_dy(int screen, int origin_screen_index);
+int get_region_screen_index_offset(int screen);
 int get_screen_index_for_region_index_offset(int offset);
 mapscr* get_screen_for_region_index_offset(int offset);
 bool is_z3_scrolling_mode();
 bool is_extended_height_mode();
 const mapscr* get_canonical_scr(int map, int screen);
-mapscr* get_scr(int map, int screen_index);
+mapscr* get_scr(int map, int screen);
 mapscr* get_scr_no_load(int map, int screen);
-mapscr* get_layer_scr(int map, int screen_index, int layer);
+mapscr* get_layer_scr(int map, int screen, int layer);
 mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer);
 mapscr* get_layer_scr_for_xy(int x, int y, int layer);
 
 ffc_handle_t get_ffc(int id);
 
-std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen_index, int x, int y);
-std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen_index);
+std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen, int x, int y);
+std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen);
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);
 void clear_dmaps();
 int32_t count_dmaps();
 int32_t isdungeon(int32_t dmap = -1, int32_t scr = -1);
-bool canPermSecret(int32_t dmap, int32_t screen_index);
+bool canPermSecret(int32_t dmap, int32_t screen);
 int32_t MAPCOMBO(int32_t x, int32_t y);
 int32_t MAPCOMBO(const rpos_handle_t& rpos_handle);
 int32_t MAPCOMBOzq(int32_t x,int32_t y);
@@ -216,7 +216,7 @@ void setxmapflag(int32_t screen, uint32_t flag);
 void setxmapflag_mi(int32_t mi2, uint32_t flag);
 void unsetxmapflag(int32_t screen, uint32_t flag);
 void unsetxmapflag_mi(int32_t mi2, uint32_t flag);
-bool getxmapflag(int32_t screen_index, uint32_t flag);
+bool getxmapflag(int32_t screen, uint32_t flag);
 bool getxmapflag_mi(int32_t mi2, uint32_t flag);
 
 void setxdoor(uint mi2, uint dir, uint ind, bool state = true);
@@ -268,8 +268,8 @@ bool isHSGrabbable(newcombo const& cmb);
 bool isSwitchHookable(newcombo const& cmb);
 bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos = nullptr, ffcdata **ret_ffc = nullptr);
 bool ishookshottable(int32_t bx, int32_t by);
-bool reveal_hidden_stairs(mapscr *s, int32_t screen_index, bool redraw);
-bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2);
+bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw);
+bool remove_screenstatecombos2(mapscr *s, int32_t screen, bool do_layers, int32_t what1, int32_t what2);
 
 bool remove_xstatecombos(mapscr *s, int32_t scr, byte xflag, bool triggers = false);
 bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers);
@@ -281,11 +281,11 @@ bool remove_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, uint dir, uint ind, bo
 void clear_xdoors(mapscr *s, int32_t scr, bool triggers = false);
 void clear_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
 
-bool remove_lockblocks(mapscr* s, int32_t screen_index);
-bool remove_bosslockblocks(mapscr* s, int32_t screen_index);
-bool remove_chests(mapscr* s, int32_t screen_index);
-bool remove_lockedchests(mapscr* s, int32_t screen_index);
-bool remove_bosschests(mapscr* s, int32_t screen_index);
+bool remove_lockblocks(mapscr* s, int32_t screen);
+bool remove_bosslockblocks(mapscr* s, int32_t screen);
+bool remove_chests(mapscr* s, int32_t screen);
+bool remove_lockedchests(mapscr* s, int32_t screen);
+bool remove_bosschests(mapscr* s, int32_t screen);
 
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle);
@@ -305,7 +305,7 @@ enum TriggerSource {
 };
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only=false, int32_t single=-1);
-void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single);
+void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single);
 
 void update_freeform_combos();
 void update_slopes();
@@ -336,14 +336,14 @@ void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
 void update_door(mapscr* m,int32_t side,int32_t door,bool even_walls=false);
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);
 void showbombeddoor(BITMAP *dest, int32_t side);
-void openshutters(mapscr* screen, int screen_index);
-void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir);
+void openshutters(mapscr* scr, int screen);
+void load_a_screen_and_layers(int dmap, int map, int screen, int ldir);
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay=false, bool no_x80_dir=false);
 void clear_darkroom_bitmaps();
 void loadscr2(int32_t tmp,int32_t scr,int32_t);
 void loadscr_old(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay=false);
-void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* screen);
-void putscrdoors(BITMAP *dest,int32_t x,int32_t y,mapscr* screen);
+void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* scr);
+void putscrdoors(BITMAP *dest,int32_t x,int32_t y,mapscr* scr);
 void putscrdoors(BITMAP *dest,int32_t x,int32_t y);
 bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt);
@@ -362,11 +362,11 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
 bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign = nullptr);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
-void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index);
+void toggle_switches(dword flags, bool entry, mapscr* m, int screen);
 void toggle_gswitches(int32_t state, bool entry);
-void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen_index);
-void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_index);
-void toggle_gswitches_load(mapscr* base_screen, int screen_index);
+void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen);
+void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen);
+void toggle_gswitches_load(mapscr* base_screen, int screen);
 void run_gswitch_timers();
 void onload_gswitch_timers();
 
@@ -388,9 +388,9 @@ enum class ScreenItemState {
 	CarriedByEnemy,
 };
 
-ScreenItemState screen_item_get_state(int screen_index);
-void screen_item_set_state(int screen_index, ScreenItemState state);
-void screen_item_clear_state(int screen_index);
+ScreenItemState screen_item_get_state(int screen);
+void screen_item_set_state(int screen, ScreenItemState state);
+void screen_item_clear_state(int screen);
 void screen_item_clear_state();
 
 optional<int32_t> get_combo(int x, int y, int maxlayer, bool ff, std::function<bool(newcombo const&)> proc);

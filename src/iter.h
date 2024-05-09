@@ -17,7 +17,7 @@
 #endif
 
 // Iterates over every base screen in the current region.
-// Callback function: void fn(mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_x)
+// Callback function: void fn(mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_x)
 // region_scr_x and region_scr_y are the screen coordinates relative to the origin screen. For example, the relative
 // coordinates for the screen just to the right of the origin screen is (1, 0). This is always (0, 0) when not in a
 // region.
@@ -37,11 +37,11 @@ ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
 	{
 		if (handles[i].layer == 0)
 		{
-			mapscr* screen = handles[i].screen;
-			unsigned int screen_index = handles[i].screen_index;
-			unsigned int region_scr_x = z3_get_region_relative_dx(screen_index);
-			unsigned int region_scr_y = z3_get_region_relative_dy(screen_index);
-			fn(screen, screen_index, region_scr_x, region_scr_y);
+			mapscr* scr = handles[i].scr;
+			unsigned int screen = handles[i].screen;
+			unsigned int region_scr_x = z3_get_region_relative_dx(screen);
+			unsigned int region_scr_y = z3_get_region_relative_dy(screen);
+			fn(scr, screen, region_scr_x, region_scr_y);
 		}
 	}
 }
@@ -103,14 +103,14 @@ ZC_FORCE_INLINE void for_every_ffc(T&& fn)
 		if (handles[i].layer != 0)
 			continue;
 
-		mapscr* screen = handles[i].screen;
-		uint8_t screen_index = handles[i].screen_index;
-		int screen_index_offset = get_region_screen_index_offset(screen_index);
-		int c = screen->numFFC();
+		mapscr* scr = handles[i].scr;
+		uint8_t screen = handles[i].screen;
+		int screen_index_offset = get_region_screen_index_offset(screen);
+		int c = scr->numFFC();
 		for (uint8_t j = 0; j < c; j++)
 		{
 			uint16_t id = screen_index_offset * MAXFFCS + j;
-			ffc_handle_t ffc_handle = {screen, screen_index, id, j, &screen->ffcs[j]};
+			ffc_handle_t ffc_handle = {scr, screen, id, j, &scr->ffcs[j]};
 			fn(ffc_handle);
 		}
 	}
@@ -163,14 +163,14 @@ ZC_FORCE_INLINE void for_some_ffcs(T&& fn)
 		if (handles[i].layer != 0)
 			continue;
 
-		mapscr* screen = handles[i].screen;
-		uint8_t screen_index = handles[i].screen_index;
-		int screen_index_offset = get_region_screen_index_offset(screen_index);
-		int c = screen->numFFC();
+		mapscr* scr = handles[i].scr;
+		uint8_t screen = handles[i].screen;
+		int screen_index_offset = get_region_screen_index_offset(screen);
+		int c = scr->numFFC();
 		for (uint8_t j = 0; j < c; j++)
 		{
 			uint16_t id = screen_index_offset * MAXFFCS + j;
-			ffc_handle_t ffc_handle = {screen, screen_index, id, j, &screen->ffcs[j]};
+			ffc_handle_t ffc_handle = {scr, screen, id, j, &scr->ffcs[j]};
 			if (!fn(ffc_handle)) return;
 		}
 	}
@@ -190,16 +190,16 @@ ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc(T&& fn)
 		if (handles[i].layer != 0)
 			continue;
 
-		mapscr* screen = handles[i].screen;
-		uint8_t screen_index = handles[i].screen_index;
-		int screen_index_offset = get_region_screen_index_offset(screen_index);
-		int c = screen->numFFC();
+		mapscr* scr = handles[i].scr;
+		uint8_t screen = handles[i].screen;
+		int screen_index_offset = get_region_screen_index_offset(screen);
+		int c = scr->numFFC();
 		for (uint8_t j = 0; j < c; j++)
 		{
-			if (screen->ffcs[j].data)
+			if (scr->ffcs[j].data)
 			{
 				uint16_t id = screen_index_offset * MAXFFCS + j;
-				ffc_handle_t ffc_handle = {screen, screen_index, id, j, &screen->ffcs[j]};
+				ffc_handle_t ffc_handle = {scr, screen, id, j, &scr->ffcs[j]};
 				if (fn(ffc_handle)) return ffc_handle;
 			}
 		}
@@ -208,24 +208,24 @@ ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc(T&& fn)
 	return std::nullopt;
 }
 
-// __attribute__((pure)) static mapscr* get_layer_pure(int map, int screen_index, int layer)
+// __attribute__((pure)) static mapscr* get_layer_pure(int map, int screen, int layer)
 // {
-// 	return get_layer_scr(map, screen_index, layer);
+// 	return get_layer_scr(map, screen, layer);
 // }
 
 // Iterates over every rpos for a specified screen.
 // Callback function: void fn(const pos_handle_t& pos_handle_t)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
-ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* screen, int screen_index, T&& fn)
+ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, int screen, T&& fn)
 {
 	rpos_handle_t rpos_handle;
-	rpos_handle.screen_index = screen_index;
-	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
+	rpos_handle.screen = screen;
+	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
 		// TODO z3 would `__attribute__((pure))` on get_layer_scr allow compiler to optimize more here?
-		rpos_handle.screen = lyr == 0 ? screen : get_layer_scr(currmap, screen_index, lyr - 1);
+		rpos_handle.scr = lyr == 0 ? scr : get_layer_scr(currmap, screen, lyr - 1);
 		rpos_handle.layer = lyr;
 		for (int pos = 0; pos < 176; ++pos)
 		{
@@ -238,14 +238,14 @@ ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* screen, int screen_index, 
 
 template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
-ZC_FORCE_INLINE void for_every_ffc_in_screen(mapscr* screen, int screen_index, T&& fn)
+ZC_FORCE_INLINE void for_every_ffc_in_screen(mapscr* scr, int screen, T&& fn)
 {
-	int screen_index_offset = get_region_screen_index_offset(screen_index);
-	int c = screen->numFFC();
+	int screen_index_offset = get_region_screen_index_offset(screen);
+	int c = scr->numFFC();
 	for (uint8_t i = 0; i < c; i++)
 	{
 		uint16_t id = screen_index_offset * MAXFFCS + i;
-		ffc_handle_t ffc_handle = {screen, (uint8_t)screen_index, id, i, &screen->ffcs[i]};
+		ffc_handle_t ffc_handle = {scr, (uint8_t)screen, id, i, &scr->ffcs[i]};
 		fn(ffc_handle);
 	}
 }

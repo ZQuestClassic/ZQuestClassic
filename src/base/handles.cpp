@@ -8,7 +8,7 @@
 
 newcombo& rpos_handle_t::combo() const
 {
-	return combobuf[screen->data[pos]];
+	return combobuf[scr->data[pos]];
 }
 
 cpos_info& rpos_handle_t::info() const
@@ -18,42 +18,42 @@ cpos_info& rpos_handle_t::info() const
 
 int32_t rpos_handle_t::data() const
 {
-	return screen->data[pos];
+	return scr->data[pos];
 }
 
 void rpos_handle_t::set_data(int32_t value) const
 {
-	screen->data[pos] = value;
+	scr->data[pos] = value;
 }
 
 void rpos_handle_t::increment_data() const
 {
-	screen->data[pos] += 1;
+	scr->data[pos] += 1;
 }
 
 int32_t rpos_handle_t::cset() const
 {
-	return screen->cset[pos];
+	return scr->cset[pos];
 }
 
 void rpos_handle_t::set_cset(int32_t value) const
 {
-	screen->cset[pos] = value;
+	scr->cset[pos] = value;
 }
 
 uint8_t rpos_handle_t::sflag() const
 {
-	return screen->sflag[pos];
+	return scr->sflag[pos];
 }
 
 void rpos_handle_t::set_sflag(uint8_t value) const
 {
-	screen->sflag[pos] = value;
+	scr->sflag[pos] = value;
 }
 
 uint8_t rpos_handle_t::cflag() const
 {
-	return combobuf[screen->data[pos]].flag;
+	return combobuf[scr->data[pos]].flag;
 }
 
 const newcombo& ffc_handle_t::combo() const

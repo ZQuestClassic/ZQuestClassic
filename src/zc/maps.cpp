@@ -128,14 +128,14 @@ int get_current_region_id()
 	return get_region_id(currdmap, cur_origin_screen_index);
 }
 
-void z3_calculate_region(int dmap, int screen_index, region& region, int& region_scr_dx, int& region_scr_dy)
+void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_dx, int& region_scr_dy)
 {
 	region.dmap = dmap;
 
-	if (!(is_a_region(dmap, screen_index)) || screen_index >= 0x80)
+	if (!(is_a_region(dmap, screen)) || screen >= 0x80)
 	{
 		region.region_id = 0;
-		region.origin_screen_index = screen_index;
+		region.origin_screen_index = screen;
 		region.screen_width = 1;
 		region.screen_height = 1;
 		region.screen_count = 1;
@@ -146,13 +146,13 @@ void z3_calculate_region(int dmap, int screen_index, region& region, int& region
 		return;
 	}
 
-	int input_scr_x = screen_index % 16;
-	int input_scr_y = screen_index / 16;
+	int input_scr_x = screen % 16;
+	int input_scr_y = screen / 16;
 
 	// For the given screen, find the top-left corner of its region.
 	int origin_scr_x = input_scr_x;
 	int origin_scr_y = input_scr_y;
-	int origin_scr = screen_index;
+	int origin_scr = screen;
 	while (origin_scr_x > 0)
 	{
 		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
@@ -193,7 +193,7 @@ void z3_calculate_region(int dmap, int screen_index, region& region, int& region
 	DCHECK_RANGE_INCLUSIVE(region.screen_height, 0, 8);
 }
 
-void z3_load_region(int screen_index, int dmap)
+void z3_load_region(int screen, int dmap)
 {
 	z3_clear_temporary_screens();
 
@@ -212,7 +212,7 @@ void z3_load_region(int screen_index, int dmap)
 		}
 	}
 
-	z3_calculate_region(dmap, screen_index, current_region, region_scr_dx, region_scr_dy);
+	z3_calculate_region(dmap, screen, current_region, region_scr_dx, region_scr_dy);
 	currscr = cur_origin_screen_index = current_region.origin_screen_index;
 	world_w = current_region.width;
 	world_h = current_region.height;
@@ -280,7 +280,7 @@ std::vector<mapscr*> z3_take_temporary_screens()
 	return screens;
 }
 
-void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
+void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
 {
 	bool extended_height_mode = (DMaps[dmap].flags & dmfEXTENDEDVIEWPORT) && world_h > 176;
 	viewport.w = 256;
@@ -293,7 +293,7 @@ void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h,
 		return;
 	}
 
-	if (!is_a_region(dmap, screen_index))
+	if (!is_a_region(dmap, screen))
 	{
 		viewport.x = 0;
 		viewport.y = 0;
@@ -379,9 +379,9 @@ rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_z3_scrolling_mode())
 		return {get_layer_scr(currmap, currscr, layer - 1), currscr, layer, rpos, RPOS_TO_POS(rpos)};
-	int screen_index = get_screen_index_for_rpos(rpos);
-	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
-	return {screen, screen_index, layer, rpos, RPOS_TO_POS(rpos)};
+	int screen = get_screen_index_for_rpos(rpos);
+	mapscr* scr = get_layer_scr(currmap, screen, layer - 1);
+	return {scr, screen, layer, rpos, RPOS_TO_POS(rpos)};
 }
 
 rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
@@ -396,25 +396,25 @@ rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 }
 
 // Return a pos_handle_t for a screen-specific `pos` (0-175).
-rpos_handle_t get_rpos_handle_for_screen(int screen_index, int layer, int pos)
+rpos_handle_t get_rpos_handle_for_screen(int screen, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	return {get_layer_scr(currmap, screen_index, layer - 1), screen_index, layer, POS_TO_RPOS(pos, screen_index), pos};
+	return {get_layer_scr(currmap, screen, layer - 1), screen, layer, POS_TO_RPOS(pos, screen), pos};
 }
 
 // Return a pos_handle_t for a screen-specific `pos` (0-175).
 // Use this instead of the other `get_pos_handle_for_screen` if you already have a reference to the screen.
-rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos)
+rpos_handle_t get_rpos_handle_for_screen(mapscr* scr, int screen, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	return {screen, screen_index, layer, POS_TO_RPOS(pos, screen_index), pos};
+	return {scr, screen, layer, POS_TO_RPOS(pos, screen), pos};
 }
 
 void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	rpos_handle.layer = layer;
-	rpos_handle.screen = get_layer_scr(currmap, rpos_handle.screen_index, layer - 1);
+	rpos_handle.scr = get_layer_scr(currmap, rpos_handle.screen, layer - 1);
 }
 
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
@@ -466,41 +466,41 @@ mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer)
 		get_layer_scr(currmap, get_screen_index_for_world_xy(x, y), layer - 1);
 }
 
-int z3_get_region_relative_dx(int screen_index)
+int z3_get_region_relative_dx(int screen)
 {
-	return z3_get_region_relative_dx(screen_index, cur_origin_screen_index);
+	return z3_get_region_relative_dx(screen, cur_origin_screen_index);
 }
-int z3_get_region_relative_dx(int screen_index, int origin_screen_index)
+int z3_get_region_relative_dx(int screen, int origin_screen_index)
 {
-	return screen_index % 16 - origin_screen_index % 16;
-}
-
-int z3_get_region_relative_dy(int screen_index)
-{
-	return z3_get_region_relative_dy(screen_index, cur_origin_screen_index);
-}
-int z3_get_region_relative_dy(int screen_index, int origin_screen_index)
-{
-	return screen_index / 16 - origin_screen_index / 16;
+	return screen % 16 - origin_screen_index % 16;
 }
 
-int get_region_screen_index_offset(int screen_index)
+int z3_get_region_relative_dy(int screen)
 {
-	return z3_get_region_relative_dx(screen_index) + z3_get_region_relative_dy(screen_index) * current_region.screen_width;
+	return z3_get_region_relative_dy(screen, cur_origin_screen_index);
+}
+int z3_get_region_relative_dy(int screen, int origin_screen_index)
+{
+	return screen / 16 - origin_screen_index / 16;
+}
+
+int get_region_screen_index_offset(int screen)
+{
+	return z3_get_region_relative_dx(screen) + z3_get_region_relative_dy(screen) * current_region.screen_width;
 }
 
 int get_screen_index_for_region_index_offset(int offset)
 {
 	int scr_dx = offset % current_region.screen_width;
 	int scr_dy = offset / current_region.screen_width;
-	int screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
-	return screen_index;
+	int screen = cur_origin_screen_index + scr_dx + scr_dy*16;
+	return screen;
 }
 
 mapscr* get_screen_for_region_index_offset(int offset)
 {
-	int screen_index = get_screen_index_for_region_index_offset(offset);
-	return get_scr(currmap, screen_index);
+	int screen = get_screen_index_for_region_index_offset(offset);
+	return get_scr(currmap, screen);
 }
 
 const mapscr* get_canonical_scr(int map, int screen)
@@ -597,24 +597,24 @@ mapscr* get_layer_scr_for_xy(int x, int y, int layer)
 
 ffc_handle_t get_ffc(int id)
 {
-	uint8_t screen_index = get_screen_index_for_region_index_offset(id / MAXFFCS);
+	uint8_t screen = get_screen_index_for_region_index_offset(id / MAXFFCS);
 	uint8_t i = id % MAXFFCS;
-	mapscr* screen = get_scr(currmap, screen_index);
-	ffcdata* ffc = &screen->ffcs[id % MAXFFCS];
-	return {screen, screen_index, (uint16_t)id, i, ffc};
+	mapscr* scr = get_scr(currmap, screen);
+	ffcdata* ffc = &scr->ffcs[id % MAXFFCS];
+	return {scr, screen, (uint16_t)id, i, ffc};
 }
 
-std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen_index, int x, int y)
+std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen, int x, int y)
 {
-	x += z3_get_region_relative_dx(screen_index) * 256;
-	y += z3_get_region_relative_dy(screen_index) * 176;
+	x += z3_get_region_relative_dx(screen) * 256;
+	y += z3_get_region_relative_dy(screen) * 176;
 	return {x, y};
 }
 
-std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen_index)
+std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen)
 {
-	int x = z3_get_region_relative_dx(screen_index) * 256;
-	int y = z3_get_region_relative_dy(screen_index) * 176;
+	int x = z3_get_region_relative_dx(screen) * 256;
+	int y = z3_get_region_relative_dy(screen) * 176;
 	return {x, y};
 }
 
@@ -820,9 +820,9 @@ int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2
     return 0;
 }
 
-bool canPermSecret(int32_t dmap, int32_t screen_index)
+bool canPermSecret(int32_t dmap, int32_t screen)
 {
-	return (!isdungeon(dmap, screen_index) || get_qr(qr_DUNGEON_DMAPS_PERM_SECRETS));
+	return (!isdungeon(dmap, screen) || get_qr(qr_DUNGEON_DMAPS_PERM_SECRETS));
 }
 
 int32_t MAPCOMBO(int32_t x, int32_t y)
@@ -921,11 +921,11 @@ bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
         return false;
 
     int32_t fx=ffc_handle.ffc->x.getInt();
-    if(x<fx || x>fx+(ffc_handle.screen->ffEffectWidth(ffc_handle.i)-1)) // FFC sizes are weird.
+    if(x<fx || x>fx+(ffc_handle.scr->ffEffectWidth(ffc_handle.i)-1)) // FFC sizes are weird.
         return false;
     
     int32_t fy=ffc_handle.ffc->y.getInt();
-    if(y<fy || y>fy+(ffc_handle.screen->ffEffectHeight(ffc_handle.i)-1))
+    if(y<fy || y>fy+(ffc_handle.scr->ffEffectHeight(ffc_handle.i)-1))
         return false;
 
     return true;
@@ -1066,14 +1066,14 @@ std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 // 	uint8_t screen_index_offset = ffc_id / MAXFFCS;
 // 	uint8_t scr_dx = screen_index_offset % current_region.screen_width;
 // 	uint8_t scr_dy = screen_index_offset / current_region.screen_width;
-// 	uint8_t screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
-// 	mapscr* screen = get_scr(currmap, screen_index);
-// 	return {screen, screen_index, ffc_id, i, &screen->ffcs[i]};
+// 	uint8_t screen = cur_origin_screen_index + scr_dx + scr_dy*16;
+// 	mapscr* scr = get_scr(currmap, screen);
+// 	return {scr, screen, ffc_id, i, &scr->ffcs[i]};
 // }
 
 int32_t MAPCOMBO(const rpos_handle_t& rpos_handle)
 {
-	if (!rpos_handle.screen->valid) return 0;
+	if (!rpos_handle.scr->valid) return 0;
 	return rpos_handle.data();
 }
 
@@ -1084,7 +1084,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
     if (layer == -1) return MAPCOMBO(x, y);
     
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
-	if (!rpos_handle.screen->valid) return 0;
+	if (!rpos_handle.scr->valid) return 0;
 
 	return rpos_handle.data();
 }
@@ -1202,7 +1202,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
     if (layer == -1) return MAPCSET(x, y);
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
-	if (!rpos_handle.screen->valid) return 0;
+	if (!rpos_handle.scr->valid) return 0;
 	
 	return rpos_handle.cset();
 }
@@ -1215,7 +1215,7 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
     if (layer == -1) return MAPFLAG(x, y);
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
-	if (!rpos_handle.screen->valid) return 0;
+	if (!rpos_handle.scr->valid) return 0;
 
 	return rpos_handle.sflag();
 }
@@ -1239,7 +1239,7 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 	if(layer==-1) return COMBOTYPE(x,y);
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
-	if (!rpos_handle.screen->valid) return 0;
+	if (!rpos_handle.scr->valid) return 0;
 
 	return rpos_handle.combo().type;
 }
@@ -1254,7 +1254,7 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
     if (layer == -1) return MAPCOMBOFLAG(x, y);
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
-	if (!rpos_handle.screen->valid) return 0;
+	if (!rpos_handle.scr->valid) return 0;
 
 	return rpos_handle.cflag();
 }
@@ -1263,7 +1263,7 @@ bool HASFLAG(int32_t flag, int32_t layer, rpos_t rpos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);	
 	auto rpos_handle = get_rpos_handle(rpos, layer);
-	if (!rpos_handle.screen->valid) return false;
+	if (!rpos_handle.scr->valid) return false;
 	if (rpos_handle.sflag() == flag) return true;
 	if (rpos_handle.cflag() == flag) return true;
 	return false;
@@ -1541,9 +1541,9 @@ void unsetxmapflag_mi(int32_t mi2, uint32_t flag)
 	
 	game->xstates[mi2] &= ~flag;
 }
-bool getxmapflag(int32_t screen_index, uint32_t flag)
+bool getxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen_index >= 0x80 ? homescr : screen_index);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
 	return getxmapflag_mi(mi, flag);
 }
 bool getxmapflag_mi(int32_t mi2, uint32_t flag)
@@ -1662,14 +1662,14 @@ void update_combo_cycling()
 		initialized=true;
 	}
 
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int32_t x;
 		std::set<uint16_t> restartanim;
 		std::set<uint16_t> restartanim2;
 		
 		for(int32_t i=0; i<176; i++)
 		{
-			x=screen->data[i];
+			x=scr->data[i];
 			
 			if(combobuf[x].animflags & AF_FRESH) continue;
 			
@@ -1690,7 +1690,7 @@ void update_combo_cycling()
 		
 		for(int32_t i=0; i<176; i++)
 		{
-			x=screen->data[i];
+			x=scr->data[i];
 			
 			if(!(combobuf[x].animflags & AF_FRESH)) continue;
 			
@@ -1716,21 +1716,21 @@ void update_combo_cycling()
 				continue;
 
 			rpos_t rpos = (rpos_t)(rpos_base + i);
-			rpos_handle_t rpos_handle = {screen, screen_index, 0, rpos, i};
+			rpos_handle_t rpos_handle = {scr, screen, 0, rpos, i};
 			screen_combo_modify_preroutine(rpos_handle);
-			screen->data[i]=newdata[i];
+			scr->data[i]=newdata[i];
 			if(newcset[i]>-1)
-				screen->cset[i]=newcset[i];
+				scr->cset[i]=newcset[i];
 			screen_combo_modify_postroutine(rpos_handle);
 			
 			newdata[i]=-1;
 			newcset[i]=-1;
 		}
 		
-		word c = screen->numFFC();
+		word c = scr->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			ffcdata& ffc = screen->ffcs[i];
+			ffcdata& ffc = scr->ffcs[i];
 			newcombo const& cmb = combobuf[ffc.data];
 			
 			bool fresh = cmb.animflags & AF_FRESH;
@@ -1754,7 +1754,7 @@ void update_combo_cycling()
 		{
 			for(int32_t j=0; j<6; j++)
 			{
-				mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
+				mapscr* layer_scr = get_layer_scr(currmap, screen, j);
 
 				for(int32_t i=0; i<176; i++)
 				{
@@ -1802,7 +1802,7 @@ void update_combo_cycling()
 						{
 							// Uses animated_combo_table2
 							rpos_t rpos = (rpos_t)(rpos_base+i);
-							addenemy(screen_index, COMBOX_REGION(rpos),COMBOY_REGION(rpos),(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+							addenemy(screen, COMBOX_REGION(rpos),COMBOY_REGION(rpos),(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 						}
 					}
 				}
@@ -1812,7 +1812,7 @@ void update_combo_cycling()
 					if(newdata[i]!=-1)
 					{
 						rpos_t rpos = (rpos_t)(rpos_base + i);
-						rpos_handle_t rpos_handle = {layer_scr, screen_index, j, rpos, i};
+						rpos_handle_t rpos_handle = {layer_scr, screen, j, rpos, i};
 						screen_combo_modify_preroutine(rpos_handle);
 						layer_scr->data[i]=newdata[i];
 						if(newcset[i]>-1)
@@ -2143,12 +2143,12 @@ static bool checkSV(int32_t x, int32_t y, int32_t flag)
 		return true;
 	
 	change_rpos_handle_layer(rpos_handle, 1);
-	if (rpos_handle.screen->valid)
+	if (rpos_handle.scr->valid)
 		if (rpos_handle.sflag() == flag || rpos_handle.cflag() == flag)
 			return true;
 	
 	change_rpos_handle_layer(rpos_handle, 2);
-	if (rpos_handle.screen->valid)
+	if (rpos_handle.scr->valid)
 		if (rpos_handle.sflag() == flag || rpos_handle.cflag() == flag)
 			return true;
 	
@@ -2263,7 +2263,7 @@ bool ishookshottable(int32_t bx, int32_t by)
 	return ret;
 }
 
-bool reveal_hidden_stairs(mapscr *s, int32_t screen_index, bool redraw)
+bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw)
 {
     if((s->stairx || s->stairy) && s->secretcombo[sSTAIRS])
     {
@@ -2274,7 +2274,7 @@ bool reveal_hidden_stairs(mapscr *s, int32_t screen_index, bool redraw)
         
         if (redraw)
 		{
-			auto [x, y] = translate_screen_coordinates_to_world(screen_index, s->stairx, s->stairy);
+			auto [x, y] = translate_screen_coordinates_to_world(screen, s->stairx, s->stairy);
             putcombo(scrollbuf,x,y,s->data[di],s->cset[di]);
 		}
             
@@ -2284,9 +2284,9 @@ bool reveal_hidden_stairs(mapscr *s, int32_t screen_index, bool redraw)
     return false;
 }
 
-bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2)
+bool remove_screenstatecombos2(mapscr *s, int32_t screen, bool do_layers, int32_t what1, int32_t what2)
 {
-	if (screen_index >= 128) s = &special_warp_return_screen;
+	if (screen >= 128) s = &special_warp_return_screen;
 	DCHECK(s);
 	
 	bool didit=false;
@@ -2306,7 +2306,7 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 	{
 		for(int32_t j=0; j<6; j++)
 		{
-			mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
+			mapscr* layer_scr = get_layer_scr(currmap, screen, j);
 			if(!layer_scr->valid) continue;
 			
 			for(int32_t i=0; i<176; i++)
@@ -2355,14 +2355,14 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 	scr = scr >= 0x80 ? homescr : scr;
 
 	rpos_handle_t rpos_handle;
-	rpos_handle.screen_index = scr;
+	rpos_handle.screen = scr;
 	rpos_handle.layer = 0;
 	for (int j = -1; j < 6; j++)
 	{
 		if (j != -1) s = get_layer_scr(currmap, scr, j);
 		if (!s->valid) continue;
 
-		rpos_handle.screen = s;
+		rpos_handle.scr = s;
 		rpos_handle.layer = j + 1;
 		
 		for (int32_t i=0; i<176; i++)
@@ -2454,15 +2454,15 @@ bool remove_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, uint dir, uint ind, bo
 	scr = scr >= 0x80 ? homescr : scr;
 
 	rpos_handle_t rpos_handle;
-	rpos_handle.screen_index = scr;
+	rpos_handle.screen = scr;
 	rpos_handle.layer = 0;
 	for (int j = -1; j < 6; j++)
 	{
 		if (j != -1) s = get_layer_scr(currmap, scr, j);
 		if (!s->valid) continue;
 
-		rpos_handle.screen = s;
-		rpos_handle.screen_index = scr;
+		rpos_handle.scr = s;
+		rpos_handle.screen = scr;
 		rpos_handle.layer = j + 1;
 		
 		for (int32_t i=0; i<176; i++)
@@ -2506,29 +2506,29 @@ void clear_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers)
 	}
 }
 
-bool remove_lockblocks(mapscr* s, int32_t screen_index)
+bool remove_lockblocks(mapscr* s, int32_t screen)
 {
-    return remove_screenstatecombos2(s, screen_index, true, cLOCKBLOCK, cLOCKBLOCK2);
+    return remove_screenstatecombos2(s, screen, true, cLOCKBLOCK, cLOCKBLOCK2);
 }
 
-bool remove_bosslockblocks(mapscr* s, int32_t screen_index)
+bool remove_bosslockblocks(mapscr* s, int32_t screen)
 {
-    return remove_screenstatecombos2(s, screen_index, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
+    return remove_screenstatecombos2(s, screen, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
 }
 
-bool remove_chests(mapscr* s, int32_t screen_index)
+bool remove_chests(mapscr* s, int32_t screen)
 {
-    return remove_screenstatecombos2(s, screen_index, true, cCHEST, cCHEST2);
+    return remove_screenstatecombos2(s, screen, true, cCHEST, cCHEST2);
 }
 
-bool remove_lockedchests(mapscr* s, int32_t screen_index)
+bool remove_lockedchests(mapscr* s, int32_t screen)
 {
-    return remove_screenstatecombos2(s, screen_index, true, cLOCKEDCHEST, cLOCKEDCHEST2);
+    return remove_screenstatecombos2(s, screen, true, cLOCKEDCHEST, cLOCKEDCHEST2);
 }
 
-bool remove_bosschests(mapscr* s, int32_t screen_index)
+bool remove_bosschests(mapscr* s, int32_t screen)
 {
-    return remove_screenstatecombos2(s, screen_index, true, cBOSSCHEST, cBOSSCHEST2);
+    return remove_screenstatecombos2(s, screen, true, cBOSSCHEST, cBOSSCHEST2);
 }
 
 
@@ -2579,7 +2579,7 @@ void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
     }
 }
 
-static int32_t findtrigger(int32_t screen_index)
+static int32_t findtrigger(int32_t screen)
 {
     int32_t checkflag=0;
     int32_t ret = 0;
@@ -2587,7 +2587,7 @@ static int32_t findtrigger(int32_t screen_index)
 	mapscr* screens[7];
 	for (int32_t j = 0; j < 7; j++)
 	{
-		screens[j] = get_layer_scr(currmap, screen_index, j - 1);
+		screens[j] = get_layer_scr(currmap, screen, j - 1);
 	}
     
 	bool sflag = false;
@@ -2595,13 +2595,13 @@ static int32_t findtrigger(int32_t screen_index)
     {
         for(int32_t layer = -1; layer < 6; ++layer)
 		{
-			mapscr* screen = screens[layer+1];
-			if (layer>-1 && screen->valid==0) continue;
+			mapscr* scr = screens[layer+1];
+			if (layer>-1 && scr->valid==0) continue;
 
 			if(sflag)
-				checkflag = screen->sflag[j];
+				checkflag = scr->sflag[j];
 			else
-				checkflag = combobuf[screen->data[j]].flag;
+				checkflag = combobuf[scr->data[j]].flag;
 			sflag = !sflag;
 			if (sflag) --layer;
 
@@ -2691,24 +2691,24 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s,
 	trigger_secrets_for_screen_internal(screen, s, do_combo_triggers, high16only, single);
 }
 
-void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single)
+void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single)
 {
-	DCHECK(screen_index != -1 || s);
-	if (!s) s = get_scr(currmap, screen_index);
-	if (screen_index == -1) screen_index = currscr;
+	DCHECK(screen != -1 || s);
+	if (!s) s = get_scr(currmap, screen);
+	if (screen == -1) screen = currscr;
 
 	if (replay_is_active())
-		replay_step_comment(fmt::format("trigger secrets scr={}", screen_index));
+		replay_step_comment(fmt::format("trigger secrets scr={}", screen));
 
 	if (do_combo_triggers)
 	{
-		for_every_rpos_in_screen(s, screen_index, [&](const rpos_handle_t& rpos_handle) {
+		for_every_rpos_in_screen(s, screen, [&](const rpos_handle_t& rpos_handle) {
 			if (rpos_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo(rpos_handle, ctrigSECRETS);
 		});
 		if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 		{
-			for_every_ffc_in_screen(s, screen_index, [&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc_in_screen(s, screen, [&](const ffc_handle_t& ffc_handle) {
 				if (ffc_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
 					do_trigger_combo_ffc(ffc_handle);
 			});
@@ -2747,7 +2747,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 					if(msflag!=0)
 						ft=msflag;
 					
-					auto rpos_handle = get_rpos_handle_for_screen(s, screen_index, 0, i);
+					auto rpos_handle = get_rpos_handle_for_screen(s, screen, 0, i);
 					screen_combo_modify_preroutine(rpos_handle);
 					if(ft==sSECNEXT)
 					{
@@ -2769,7 +2769,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
+					mapscr* layer_scr = get_layer_scr(currmap, screen, j);
 					// TODO z3 maybe instead `get_layer_scr` return null if not valid?
 					if (!layer_scr->valid) continue; //If layer isn't used
 					
@@ -2812,8 +2812,8 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 							
 							if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
 							{
-								auto [offx, offy] = translate_screen_coordinates_to_world(screen_index, COMBOX(i), COMBOY(i));
-								addenemy(screen_index,offx,offy,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+								auto [offx, offy] = translate_screen_coordinates_to_world(screen, COMBOX(i), COMBOY(i));
+								addenemy(screen,offx,offy,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 							}
 						}
 					}
@@ -2859,7 +2859,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 		
 		if(s->flags6&fTRIGGERF1631)
 		{
-			int32_t tr = findtrigger(screen_index);  //Normal flags
+			int32_t tr = findtrigger(screen);  //Normal flags
 			
 			if(tr)
 			{
@@ -2886,7 +2886,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 				
 				if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
 				{
-					auto rpos_handle = get_rpos_handle_for_screen(s, screen_index, 0, i);
+					auto rpos_handle = get_rpos_handle_for_screen(s, screen, 0, i);
 					screen_combo_modify_preroutine(rpos_handle);
 					s->data[i] = s->secretcombo[checkflag-16+4];
 					s->cset[i] = s->secretcset[checkflag-16+4];
@@ -2901,7 +2901,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
+					mapscr* layer_scr = get_layer_scr(currmap, screen, j);
 					if (!layer_scr->valid) continue;
 					
 					int32_t newflag2 = -1;
@@ -3019,7 +3019,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	if (x < -16 || y < -16 || x >= world_w || y >= world_h) return false;
 
 	mapscr* scr = NULL;
-	int32_t screen_index = -1;
+	int32_t screen = -1;
 	rpos_t trigger_rpos = rpos_t::None;
 	bool single16 = false;
 
@@ -3037,7 +3037,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 
 		if (MAPFFCOMBOFLAG(x, y) == flag)
 		{
-			screen_index = get_screen_index_for_world_xy(x, y);
+			screen = get_screen_index_for_world_xy(x, y);
 			break;
 		}
 
@@ -3056,30 +3056,30 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 		rposes_seen.push_back(rpos);
 		if (has_flag_trigger(x, y, flag, trigger_rpos, single16))
 		{
-			screen_index = get_screen_index_for_world_xy(x, y);
+			screen = get_screen_index_for_world_xy(x, y);
 			break;
 		}
 	}
 
-	if (screen_index != -1) scr = get_scr(currmap, screen_index);
+	if (screen != -1) scr = get_scr(currmap, screen);
 	if (!scr) return false;
 
 	if (trigger_rpos == rpos_t::None)
 	{
 		checktrigger = true;
-		trigger_secrets_for_screen(TriggerSource::Unspecified, screen_index);
+		trigger_secrets_for_screen(TriggerSource::Unspecified, screen);
 	}
 	else
 	{
 		checktrigger = true;
-		trigger_secrets_for_screen(TriggerSource::Singular, screen_index, single16, RPOS_TO_POS(trigger_rpos));
+		trigger_secrets_for_screen(TriggerSource::Singular, screen, single16, RPOS_TO_POS(trigger_rpos));
 	}
 	
 	sfx(scr->secretsfx);
 	
 	if(scr->flags6&fTRIGGERFPERM)
 	{
-		int32_t flags_remaining = findtrigger(screen_index);  //Normal flags
+		int32_t flags_remaining = findtrigger(screen);  //Normal flags
 		
 		if (flags_remaining)
 		{
@@ -3091,13 +3091,13 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 		// which case only the screen state for mSECRET may be set below.
 		if (!flags_remaining && !get_qr(qr_ALLTRIG_PERMSEC_NO_TEMP))
 		{
-			trigger_secrets_for_screen(TriggerSource::Unspecified, screen_index, scr->flags6&fTRIGGERF1631, -1);
+			trigger_secrets_for_screen(TriggerSource::Unspecified, screen, scr->flags6&fTRIGGERF1631, -1);
 		}
 	}
 	
-	if (setflag && canPermSecret(currdmap, screen_index))
+	if (setflag && canPermSecret(currdmap, screen))
 		if(!(scr->flags5&fTEMPSECRETS))
-			setmapflag(scr, screen_index, mSECRET);
+			setmapflag(scr, screen, mSECRET);
 
 	return true;
 }
@@ -3166,7 +3166,7 @@ void update_freeform_combos()
 		int wrap_bottom = world_h + 32;
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			mapscr* screen = ffc_handle.screen;
+			mapscr* scr = ffc_handle.scr;
 			ffcdata& thisffc = *ffc_handle.ffc;
 
 			// Combo 0?
@@ -3266,7 +3266,7 @@ void update_freeform_combos()
 			// Left
 			if(thisffc.x<-32)
 			{
-				if(screen->flags6&fWRAPAROUNDFF)
+				if(scr->flags6&fWRAPAROUNDFF)
 				{
 					thisffc.x = wrap_right+(thisffc.x+32);
 					thisffc.solid_update(false);
@@ -3284,7 +3284,7 @@ void update_freeform_combos()
 			// Right
 			else if(thisffc.x>=wrap_right)
 			{
-				if(screen->flags6&fWRAPAROUNDFF)
+				if(scr->flags6&fWRAPAROUNDFF)
 				{
 					thisffc.x = thisffc.x-wrap_right-32;
 					thisffc.solid_update(false);
@@ -3302,7 +3302,7 @@ void update_freeform_combos()
 			// Top
 			if(thisffc.y<-32)
 			{
-				if(screen->flags6&fWRAPAROUNDFF)
+				if(scr->flags6&fWRAPAROUNDFF)
 				{
 					thisffc.y = wrap_bottom+(thisffc.y+32);
 					thisffc.solid_update(false);
@@ -3319,7 +3319,7 @@ void update_freeform_combos()
 			// Bottom
 			else if(thisffc.y>=wrap_bottom)
 			{
-				if(screen->flags6&fWRAPAROUNDFF)
+				if(scr->flags6&fWRAPAROUNDFF)
 				{
 					thisffc.y = thisffc.y-wrap_bottom-32;
 					thisffc.solid_update(false);
@@ -3459,60 +3459,60 @@ void bombdoor(int32_t x,int32_t y)
 		return;
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
-	mapscr* screen = rpos_handle.screen;
-	auto [x0, y0] = translate_screen_coordinates_to_world(rpos_handle.screen_index);
+	mapscr* scr = rpos_handle.scr;
+	auto [x0, y0] = translate_screen_coordinates_to_world(rpos_handle.screen);
 	#define CHECK_RECT(x,y,rx1,ry1,rx2,ry2) (isinRect(x,y,x0+rx1,y0+ry1,x0+rx2,y0+ry2))
 
-    if(screen->door[0]==dBOMB && CHECK_RECT(x,y,100,0,139,48))
+    if(scr->door[0]==dBOMB && CHECK_RECT(x,y,100,0,139,48))
     {
-        screen->door[0]=dBOMBED;
+        scr->door[0]=dBOMBED;
         putdoor(scrollbuf,0,0,dBOMBED);
-        setmapflag(rpos_handle.screen_index, mDOOR_UP);
-        markBmap(-1, rpos_handle.screen_index);
+        setmapflag(rpos_handle.screen, mDOOR_UP);
+        markBmap(-1, rpos_handle.screen);
         
-        if(auto v = nextscr(currmap, rpos_handle.screen_index, up, true))
+        if(auto v = nextscr(currmap, rpos_handle.screen, up, true))
         {
             setmapflag_mi(*v, mDOOR_DOWN);
             markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
-    if(screen->door[1]==dBOMB && CHECK_RECT(x,y,100,112,139,176))
+    if(scr->door[1]==dBOMB && CHECK_RECT(x,y,100,112,139,176))
     {
-        screen->door[1]=dBOMBED;
+        scr->door[1]=dBOMBED;
         putdoor(scrollbuf,0,1,dBOMBED);
-        setmapflag(rpos_handle.screen_index, mDOOR_DOWN);
-        markBmap(-1, rpos_handle.screen_index);
+        setmapflag(rpos_handle.screen, mDOOR_DOWN);
+        markBmap(-1, rpos_handle.screen);
         
-        if(auto v = nextscr(currmap, rpos_handle.screen_index, down, true))
+        if(auto v = nextscr(currmap, rpos_handle.screen, down, true))
         {
             setmapflag_mi(*v, mDOOR_UP);
             markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
-    if(screen->door[2]==dBOMB && CHECK_RECT(x,y,0,60,48,98))
+    if(scr->door[2]==dBOMB && CHECK_RECT(x,y,0,60,48,98))
     {
-        screen->door[2]=dBOMBED;
+        scr->door[2]=dBOMBED;
         putdoor(scrollbuf,0,2,dBOMBED);
-        setmapflag(rpos_handle.screen_index, mDOOR_LEFT);
-        markBmap(-1, rpos_handle.screen_index);
+        setmapflag(rpos_handle.screen, mDOOR_LEFT);
+        markBmap(-1, rpos_handle.screen);
         
-        if(auto v = nextscr(currmap, rpos_handle.screen_index, left, true))
+        if(auto v = nextscr(currmap, rpos_handle.screen, left, true))
         {
             setmapflag_mi(*v, mDOOR_RIGHT);
             markBmap(-1,*v-(get_currdmap()<<7));
         }
     }
     
-    if(screen->door[3]==dBOMB && CHECK_RECT(x,y,192,60,240,98))
+    if(scr->door[3]==dBOMB && CHECK_RECT(x,y,192,60,240,98))
     {
-        screen->door[3]=dBOMBED;
+        scr->door[3]=dBOMBED;
         putdoor(scrollbuf,0,3,dBOMBED);
-        setmapflag(rpos_handle.screen_index, mDOOR_RIGHT);
-        markBmap(-1, rpos_handle.screen_index);
+        setmapflag(rpos_handle.screen, mDOOR_RIGHT);
+        markBmap(-1, rpos_handle.screen);
         
-        if(auto v = nextscr(currmap, rpos_handle.screen_index, right, true))
+        if(auto v = nextscr(currmap, rpos_handle.screen, right, true))
         {
             setmapflag_mi(*v, mDOOR_LEFT);
             markBmap(-1,*v-(get_currdmap()<<7));
@@ -3605,22 +3605,22 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y)
 {
-	mapscr* screen = screen_handle.screen;
-	mapscr* base_screen = screen_handle.base_screen;
+	mapscr* scr = screen_handle.scr;
+	mapscr* base_scr = screen_handle.base_scr;
 
 	if (type == -3 || type == -4)
 	{
 		y += playing_field_offset;
 
-		for(int32_t i = (base_screen->numFFC()-1); i >= 0; --i)
+		for(int32_t i = (base_scr->numFFC()-1); i >= 0; --i)
 		{
-			if (base_screen->ffcs[i].data == 0)
+			if (base_scr->ffcs[i].data == 0)
 				continue;
 
-			if (screenscrolling && (base_screen->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.index != scrolling_scr)
+			if (screenscrolling && (base_scr->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.screen != scrolling_scr)
 				continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr.
 
-			base_screen->ffcs[i].draw(bmp, x, y, (type==-4));
+			base_scr->ffcs[i].draw(bmp, x, y, (type==-4));
 		}
 		return;
 	}
@@ -3634,31 +3634,31 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 	switch(type ? type : layer)
 	{
 		case -2:                                                //push blocks
-			if(screen && screen->valid)
+			if(scr && scr->valid)
 			{
 				for(int32_t i=0; i<176; i++)
 				{
-					int32_t mf=screen->sflag[i], mf2 = combobuf[screen->data[i]].flag;
+					int32_t mf=scr->sflag[i], mf2 = combobuf[scr->data[i]].flag;
 					
 					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS))
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
-						auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.index);
-						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], layer, true, false);
+						auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
+						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], layer, true, false);
 					}
 				}
 			}
 			return;
 			
 		case -1:                                                //over combo
-			if(screen && screen->valid)
+			if(scr && scr->valid)
 			{
 				for(int32_t i=0; i<176; i++)
 				{
-					if(combo_class_buf[combobuf[screen->data[i]].type].overhead)
+					if(combo_class_buf[combobuf[scr->data[i]].type].overhead)
 					{
-						auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.index);
-						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], layer, true, false);
+						auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
+						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], layer, true, false);
 					}
 				}
 			}
@@ -3668,11 +3668,11 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 		case 4:
 		case 5:
 		case 6:
-			if(TransLayers || base_screen->layeropacity[layer-1]==255)
+			if(TransLayers || base_scr->layeropacity[layer-1]==255)
 			{
-				if(screen && screen->valid)
+				if(scr && scr->valid)
 				{
-					if(base_screen->layeropacity[layer-1]!=255)
+					if(base_scr->layeropacity[layer-1]!=255)
 						transp = true;
 					break;
 				}
@@ -3680,14 +3680,14 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 			return;
 			
 		case 2:
-			if(TransLayers || base_screen->layeropacity[layer-1]==255)
+			if(TransLayers || base_scr->layeropacity[layer-1]==255)
 			{
-				if(screen && screen->valid)
+				if(scr && scr->valid)
 				{
-					if(base_screen->layeropacity[layer-1]!=255)
+					if(base_scr->layeropacity[layer-1]!=255)
 						transp = true;
 					
-					if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+					if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 						over = false;
 					
 					break;
@@ -3696,15 +3696,15 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 			return;
 			
 		case 3:
-			if(TransLayers || base_screen->layeropacity[layer-1]==255)
+			if(TransLayers || base_scr->layeropacity[layer-1]==255)
 			{
-				if(screen && screen->valid)
+				if(scr && scr->valid)
 				{
-					if(base_screen->layeropacity[layer-1]!=255)
+					if(base_scr->layeropacity[layer-1]!=255)
 						transp = true;
 					
-					if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)
-						&& !XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+					if(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)
+						&& !XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 						over = false;
 					
 					break;
@@ -3720,8 +3720,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.index);
-			draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], layer, over, transp);
+			auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
+			draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], layer, over, transp);
 		}
 	}
 }
@@ -3753,7 +3753,7 @@ void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
 {
     bool showlayer = true;
-	mapscr* base_screen = screen_handle.base_screen;
+	mapscr* base_scr = screen_handle.base_scr;
 	int layer = screen_handle.layer;
     
     switch(type ? type : layer)
@@ -3832,15 +3832,15 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
         break;
     }
 	
-    if(!type && (layer==(int32_t)(base_screen->lens_layer&7)+1) && ((base_screen->lens_layer&llLENSSHOWS && !lensclk) || (base_screen->lens_layer&llLENSHIDES && lensclk)))
+    if(!type && (layer==(int32_t)(base_scr->lens_layer&7)+1) && ((base_scr->lens_layer&llLENSSHOWS && !lensclk) || (base_scr->lens_layer&llLENSHIDES && lensclk)))
     {
-		if(!lenscheck(base_screen,layer))
+		if(!lenscheck(base_scr,layer))
         	showlayer = false;
     }
     
     if(showlayer)
     {
-		if(type || !(base_screen->hidelayers & (1 << (layer))))
+		if(type || !(base_scr->hidelayers & (1 << (layer))))
 		{
 			do_scrolling_layer(bmp, type, screen_handle, x, y);
 			if(!type && !get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
@@ -4234,17 +4234,17 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 {
 	if (!is_z3_scrolling_mode())
 	{
-		int screen_index = currscr;
-		mapscr* base_screen = get_scr(currmap, screen_index);
+		int screen = currscr;
+		mapscr* base_screen = get_scr(currmap, screen);
 		std::array<screen_handle_t, 7> screen_handles;
-		screen_handles[0] = {base_screen, base_screen, currmap, screen_index, 0};
+		screen_handles[0] = {base_screen, base_screen, currmap, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
-			mapscr* screen = get_layer_scr(currmap, screen_index, i - 1);
-			screen_handles[i] = {base_screen, screen, currmap, screen_index, i};
+			mapscr* scr = get_layer_scr(currmap, screen, i - 1);
+			screen_handles[i] = {base_screen, scr, currmap, screen, i};
 		}
 
-		fn(screen_handles, screen_index, 0, 0);
+		fn(screen_handles, screen, 0, 0);
 		return;
 	}
 
@@ -4270,13 +4270,13 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 				if (scr_y < 0 || scr_y >= 8) continue;
 			}
 
-			int screen_index = scr_x + scr_y * 16;
-			if (!is_in_current_region(screen_index)) continue;
+			int screen = scr_x + scr_y * 16;
+			if (!is_in_current_region(screen)) continue;
 
-			mapscr* base_screen = get_scr(currmap, screen_index);
+			mapscr* base_screen = get_scr(currmap, screen);
 			if (!(base_screen->valid & mVALID)) continue;
 
-			auto [offx, offy] = translate_screen_coordinates_to_world(screen_index);
+			auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 
 			// Skip processsing screen if out of viewport.
 			if (offx - viewport.x <= -256) continue;
@@ -4285,34 +4285,34 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 			if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
 
 			std::array<screen_handle_t, 7> screen_handles;
-			screen_handles[0] = {base_screen, base_screen, currmap, screen_index, 0};
+			screen_handles[0] = {base_screen, base_screen, currmap, screen, 0};
 			for (int i = 1; i < 7; i++)
 			{
-				mapscr* screen = get_layer_scr(currmap, screen_index, i - 1);
-				screen_handles[i] = {base_screen, screen, currmap, screen_index, i};
+				mapscr* scr = get_layer_scr(currmap, screen, i - 1);
+				screen_handles[i] = {base_screen, scr, currmap, screen, i};
 			}
 
-			fn(screen_handles, screen_index, offx, offy);
+			fn(screen_handles, screen, offx, offy);
 		}
 	}
 }
 
 static void for_every_screen_in_region_check_viewport(const std::function <void (std::array<screen_handle_t, 7>, int, int, int, bool)>& fn)
 {
-	for_every_screen_in_region([&](mapscr* base_screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_screen_in_region([&](mapscr* base_screen, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
 		std::array<screen_handle_t, 7> screen_handles;
-		screen_handles[0] = {base_screen, base_screen, currmap, screen_index, 0};
+		screen_handles[0] = {base_screen, base_screen, currmap, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
-			mapscr* screen = get_layer_scr(currmap, screen_index, i - 1);
-			screen_handles[i] = {base_screen, screen, currmap, screen_index, i};
+			mapscr* scr = get_layer_scr(currmap, screen, i - 1);
+			screen_handles[i] = {base_screen, scr, currmap, screen, i};
 		}
 
 		int offx = region_scr_x * 256;
 		int offy = region_scr_y * 176;
 		bool in_viewport = viewport.intersects_with(offx, offy, offx + 256, offy + 256);
 
-		fn(screen_handles, screen_index, offx, offy, in_viewport);
+		fn(screen_handles, screen, offx, offy, in_viewport);
 	});
 }
 
@@ -4373,28 +4373,28 @@ void draw_screen(bool showhero, bool runGeneric)
 	//1. Draw some background layers
 	clear_bitmap(scrollbuf);
 	
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-		mapscr* base_screen = screen_handles[0].base_screen;
-		if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true);
-			if (screen_index == currscr) particles.draw(framebuf, true, 1);
-			if (screen_index == currscr) draw_msgstr(2);
+			if (screen == currscr) particles.draw(framebuf, true, 1);
+			if (screen == currscr) draw_msgstr(2);
 		}
 		
-		if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+		if(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[3], offx, offy, true);
-			if (screen_index == currscr) particles.draw(framebuf, true, 2);
-			if (screen_index == currscr) draw_msgstr(3);
+			if (screen == currscr) particles.draw(framebuf, true, 2);
+			if (screen == currscr) draw_msgstr(3);
 		}
 	});
 
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-		mapscr* base_screen = screen_handles[0].base_screen;
-		if (lenscheck(base_screen, 0))
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		mapscr* base_scr = screen_handles[0].base_scr;
+		if (lenscheck(base_scr, 0))
 		{
-			putscr(scrollbuf, offx, offy + playing_field_offset, base_screen);
+			putscr(scrollbuf, offx, offy + playing_field_offset, base_scr);
 		}
 	});
 
@@ -4451,14 +4451,14 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_screen_in_region_check_viewport([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy, bool in_viewport) {
-		mapscr* base_screen = screen_handles[0].base_screen;
+	for_every_screen_in_region_check_viewport([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool in_viewport) {
+		mapscr* base_screen = screen_handles[0].base_scr;
 
 		if (in_viewport)
 		{
 			do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
-			if (screen_index == currscr) particles.draw(framebuf, true, 0);
-			if (screen_index == currscr) draw_msgstr(1);
+			if (screen == currscr) particles.draw(framebuf, true, 0);
+			if (screen == currscr) draw_msgstr(1);
 		}
 		
 		do_layer(scrollbuf, -3, screen_handles[0], 0, 0); // freeform combos!
@@ -4468,8 +4468,8 @@ void draw_screen(bool showhero, bool runGeneric)
 			if(!XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 			{
 				do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
-				if (screen_index == currscr) particles.draw(framebuf, true, 1);
-				if (screen_index == currscr) draw_msgstr(2);
+				if (screen == currscr) particles.draw(framebuf, true, 1);
+				if (screen == currscr) draw_msgstr(2);
 			}
 		}
 	});
@@ -4507,8 +4507,8 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-		mapscr* base_screen = screen_handles[0].base_screen;
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_scr;
 
 		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
@@ -4733,21 +4733,21 @@ void draw_screen(bool showhero, bool runGeneric)
 	//5. Draw some layers onto framebuf
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-		mapscr* base_screen = screen_handles[0].base_screen;
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_scr;
 
 		if(!XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(framebuf, 0, screen_handles[3], offx, offy, true);
-			if (screen_index == currscr) particles.draw(framebuf, true, 2);
-			if (screen_index == currscr) draw_msgstr(3);
+			if (screen == currscr) particles.draw(framebuf, true, 2);
+			if (screen == currscr) draw_msgstr(3);
 		}
 		
 		do_layer(framebuf, 0, screen_handles[4], offx, offy, true);
 		//do_primitives(framebuf, 3, 0,playing_field_offset);//don't uncomment me
 		
-		if (screen_index == currscr) particles.draw(framebuf, true, 3);
-		if (screen_index == currscr) draw_msgstr(4);
+		if (screen == currscr) particles.draw(framebuf, true, 3);
+		if (screen == currscr) draw_msgstr(4);
 
 		do_layer(framebuf, -1, screen_handles[0], offx, offy);
 		if (get_qr(qr_OVERHEAD_COMBOS_L1_L2))
@@ -4837,14 +4837,14 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 	}
 
-	for_every_screen_in_region_check_viewport([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy, bool in_viewport) {
-		mapscr* base_screen = screen_handles[0].base_screen;
+	for_every_screen_in_region_check_viewport([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool in_viewport) {
+		mapscr* base_screen = screen_handles[0].base_scr;
 
 		if (in_viewport)
 		{
 			do_layer(framebuf, 0, screen_handles[5], offx, offy, true);
-			if (screen_index == currscr) particles.draw(framebuf, true, 4);
-			if (screen_index == currscr) draw_msgstr(5);
+			if (screen == currscr) particles.draw(framebuf, true, 4);
+			if (screen == currscr) draw_msgstr(5);
 		}
 
 		// overhead freeform combos!
@@ -4852,13 +4852,13 @@ void draw_screen(bool showhero, bool runGeneric)
 
 		if (in_viewport)
 		{
-			if (screen_index == currscr)
+			if (screen == currscr)
 			{
 				do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, offx, offy + playing_field_offset);
 			}
 			// ---
 			do_layer(framebuf, 0, screen_handles[6], offx, offy, true);
-			if (screen_index == currscr) particles.draw(framebuf, true, 5);
+			if (screen == currscr) particles.draw(framebuf, true, 5);
 		}
 	});
 	
@@ -4866,11 +4866,11 @@ void draw_screen(bool showhero, bool runGeneric)
 	bool draw_dark = false;
 	if(get_qr(qr_NEW_DARKROOM) && room_is_dark)
 	{
-		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-			mapscr* base_screen = screen_handles[0].screen;
+		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+			mapscr* base_screen = screen_handles[0].scr;
 			if (base_screen->flags&fDARK)
 			{
-				calc_darkroom_combos(screen_index, offx, offy + playing_field_offset);
+				calc_darkroom_combos(screen, offx, offy + playing_field_offset);
 				draw_dark = true;
 			}
 		});
@@ -4878,8 +4878,8 @@ void draw_screen(bool showhero, bool runGeneric)
 			Hero.calc_darkroom_hero(0, -playing_field_offset);
 		if (draw_dark)
 		{
-			for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-				mapscr* base_screen = screen_handles[0].screen;
+			for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+				mapscr* base_screen = screen_handles[0].scr;
 				bool should_be_dark = (base_screen->flags & fDARK);
 				if (!should_be_dark)
 				{
@@ -4979,11 +4979,11 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 }
 
 // TODO: separate setting door data and drawing door
-void put_door(BITMAP *dest,mapscr* screen,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
+void put_door(BITMAP *dest,mapscr* scr,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
 {
 	if (type > 8) return;
 
-	int32_t d=screen->door_combo_set;
+	int32_t d=scr->door_combo_set;
 
 	switch(type)
 	{
@@ -5006,18 +5006,18 @@ void put_door(BITMAP *dest,mapscr* screen,int32_t pos,int32_t side,int32_t type,
 		switch(side)
 		{
 		case up:
-			screen->data[pos]   = DoorComboSets[d].doorcombo_u[type][0];
-			screen->cset[pos]   = DoorComboSets[d].doorcset_u[type][0];
-			screen->sflag[pos]  = 0;
-			screen->data[pos+1]   = DoorComboSets[d].doorcombo_u[type][1];
-			screen->cset[pos+1]   = DoorComboSets[d].doorcset_u[type][1];
-			screen->sflag[pos+1]  = 0;
-			screen->data[pos+16]   = DoorComboSets[d].doorcombo_u[type][2];
-			screen->cset[pos+16]   = DoorComboSets[d].doorcset_u[type][2];
-			screen->sflag[pos+16]  = 0;
-			screen->data[pos+16+1]   = DoorComboSets[d].doorcombo_u[type][3];
-			screen->cset[pos+16+1]   = DoorComboSets[d].doorcset_u[type][3];
-			screen->sflag[pos+16+1]  = 0;
+			scr->data[pos]   = DoorComboSets[d].doorcombo_u[type][0];
+			scr->cset[pos]   = DoorComboSets[d].doorcset_u[type][0];
+			scr->sflag[pos]  = 0;
+			scr->data[pos+1]   = DoorComboSets[d].doorcombo_u[type][1];
+			scr->cset[pos+1]   = DoorComboSets[d].doorcset_u[type][1];
+			scr->sflag[pos+1]  = 0;
+			scr->data[pos+16]   = DoorComboSets[d].doorcombo_u[type][2];
+			scr->cset[pos+16]   = DoorComboSets[d].doorcset_u[type][2];
+			scr->sflag[pos+16]  = 0;
+			scr->data[pos+16+1]   = DoorComboSets[d].doorcombo_u[type][3];
+			scr->cset[pos+16+1]   = DoorComboSets[d].doorcset_u[type][3];
+			scr->sflag[pos+16+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5032,18 +5032,18 @@ void put_door(BITMAP *dest,mapscr* screen,int32_t pos,int32_t side,int32_t type,
 			break;
 			
 		case down:
-			screen->data[pos]   = DoorComboSets[d].doorcombo_d[type][0];
-			screen->cset[pos]   = DoorComboSets[d].doorcset_d[type][0];
-			screen->sflag[pos]  = 0;
-			screen->data[pos+1]   = DoorComboSets[d].doorcombo_d[type][1];
-			screen->cset[pos+1]   = DoorComboSets[d].doorcset_d[type][1];
-			screen->sflag[pos+1]  = 0;
-			screen->data[pos+16]   = DoorComboSets[d].doorcombo_d[type][2];
-			screen->cset[pos+16]   = DoorComboSets[d].doorcset_d[type][2];
-			screen->sflag[pos+16]  = 0;
-			screen->data[pos+16+1]   = DoorComboSets[d].doorcombo_d[type][3];
-			screen->cset[pos+16+1]   = DoorComboSets[d].doorcset_d[type][3];
-			screen->sflag[pos+16+1]  = 0;
+			scr->data[pos]   = DoorComboSets[d].doorcombo_d[type][0];
+			scr->cset[pos]   = DoorComboSets[d].doorcset_d[type][0];
+			scr->sflag[pos]  = 0;
+			scr->data[pos+1]   = DoorComboSets[d].doorcombo_d[type][1];
+			scr->cset[pos+1]   = DoorComboSets[d].doorcset_d[type][1];
+			scr->sflag[pos+1]  = 0;
+			scr->data[pos+16]   = DoorComboSets[d].doorcombo_d[type][2];
+			scr->cset[pos+16]   = DoorComboSets[d].doorcset_d[type][2];
+			scr->sflag[pos+16]  = 0;
+			scr->data[pos+16+1]   = DoorComboSets[d].doorcombo_d[type][3];
+			scr->cset[pos+16+1]   = DoorComboSets[d].doorcset_d[type][3];
+			scr->sflag[pos+16+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5058,24 +5058,24 @@ void put_door(BITMAP *dest,mapscr* screen,int32_t pos,int32_t side,int32_t type,
 			break;
 			
 		case left:
-			screen->data[pos]   = DoorComboSets[d].doorcombo_l[type][0];
-			screen->cset[pos]   = DoorComboSets[d].doorcset_l[type][0];
-			screen->sflag[pos]  = 0;
-			screen->data[pos+1]   = DoorComboSets[d].doorcombo_l[type][1];
-			screen->cset[pos+1]   = DoorComboSets[d].doorcset_l[type][1];
-			screen->sflag[pos+1]  = 0;
-			screen->data[pos+16]   = DoorComboSets[d].doorcombo_l[type][2];
-			screen->cset[pos+16]   = DoorComboSets[d].doorcset_l[type][2];
-			screen->sflag[pos+16]  = 0;
-			screen->data[pos+16+1]   = DoorComboSets[d].doorcombo_l[type][3];
-			screen->cset[pos+16+1]   = DoorComboSets[d].doorcset_l[type][3];
-			screen->sflag[pos+16+1]  = 0;
-			screen->data[pos+32]   = DoorComboSets[d].doorcombo_l[type][4];
-			screen->cset[pos+32]   = DoorComboSets[d].doorcset_l[type][4];
-			screen->sflag[pos+32]  = 0;
-			screen->data[pos+32+1]   = DoorComboSets[d].doorcombo_l[type][5];
-			screen->cset[pos+32+1]   = DoorComboSets[d].doorcset_l[type][5];
-			screen->sflag[pos+32+1]  = 0;
+			scr->data[pos]   = DoorComboSets[d].doorcombo_l[type][0];
+			scr->cset[pos]   = DoorComboSets[d].doorcset_l[type][0];
+			scr->sflag[pos]  = 0;
+			scr->data[pos+1]   = DoorComboSets[d].doorcombo_l[type][1];
+			scr->cset[pos+1]   = DoorComboSets[d].doorcset_l[type][1];
+			scr->sflag[pos+1]  = 0;
+			scr->data[pos+16]   = DoorComboSets[d].doorcombo_l[type][2];
+			scr->cset[pos+16]   = DoorComboSets[d].doorcset_l[type][2];
+			scr->sflag[pos+16]  = 0;
+			scr->data[pos+16+1]   = DoorComboSets[d].doorcombo_l[type][3];
+			scr->cset[pos+16+1]   = DoorComboSets[d].doorcset_l[type][3];
+			scr->sflag[pos+16+1]  = 0;
+			scr->data[pos+32]   = DoorComboSets[d].doorcombo_l[type][4];
+			scr->cset[pos+32]   = DoorComboSets[d].doorcset_l[type][4];
+			scr->sflag[pos+32]  = 0;
+			scr->data[pos+32+1]   = DoorComboSets[d].doorcombo_l[type][5];
+			scr->cset[pos+32+1]   = DoorComboSets[d].doorcset_l[type][5];
+			scr->sflag[pos+32+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5093,24 +5093,24 @@ void put_door(BITMAP *dest,mapscr* screen,int32_t pos,int32_t side,int32_t type,
 			break;
 			
 		case right:
-			screen->data[pos]   = DoorComboSets[d].doorcombo_r[type][0];
-			screen->cset[pos]   = DoorComboSets[d].doorcset_r[type][0];
-			screen->sflag[pos]  = 0;
-			screen->data[pos+1]   = DoorComboSets[d].doorcombo_r[type][1];
-			screen->cset[pos+1]   = DoorComboSets[d].doorcset_r[type][1];
-			screen->sflag[pos+1]  = 0;
-			screen->data[pos+16]   = DoorComboSets[d].doorcombo_r[type][2];
-			screen->cset[pos+16]   = DoorComboSets[d].doorcset_r[type][2];
-			screen->sflag[pos+16]  = 0;
-			screen->data[pos+16+1]   = DoorComboSets[d].doorcombo_r[type][3];
-			screen->cset[pos+16+1]   = DoorComboSets[d].doorcset_r[type][3];
-			screen->sflag[pos+16+1]  = 0;
-			screen->data[pos+32]   = DoorComboSets[d].doorcombo_r[type][4];
-			screen->cset[pos+32]   = DoorComboSets[d].doorcset_r[type][4];
-			screen->sflag[pos+32]  = 0;
-			screen->data[pos+32+1]   = DoorComboSets[d].doorcombo_r[type][5];
-			screen->cset[pos+32+1]   = DoorComboSets[d].doorcset_r[type][5];
-			screen->sflag[pos+32+1]  = 0;
+			scr->data[pos]   = DoorComboSets[d].doorcombo_r[type][0];
+			scr->cset[pos]   = DoorComboSets[d].doorcset_r[type][0];
+			scr->sflag[pos]  = 0;
+			scr->data[pos+1]   = DoorComboSets[d].doorcombo_r[type][1];
+			scr->cset[pos+1]   = DoorComboSets[d].doorcset_r[type][1];
+			scr->sflag[pos+1]  = 0;
+			scr->data[pos+16]   = DoorComboSets[d].doorcombo_r[type][2];
+			scr->cset[pos+16]   = DoorComboSets[d].doorcset_r[type][2];
+			scr->sflag[pos+16]  = 0;
+			scr->data[pos+16+1]   = DoorComboSets[d].doorcombo_r[type][3];
+			scr->cset[pos+16+1]   = DoorComboSets[d].doorcset_r[type][3];
+			scr->sflag[pos+16+1]  = 0;
+			scr->data[pos+32]   = DoorComboSets[d].doorcombo_r[type][4];
+			scr->cset[pos+32]   = DoorComboSets[d].doorcset_r[type][4];
+			scr->sflag[pos+32]  = 0;
+			scr->data[pos+32+1]   = DoorComboSets[d].doorcombo_r[type][5];
+			scr->cset[pos+32+1]   = DoorComboSets[d].doorcset_r[type][5];
+			scr->sflag[pos+32+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5540,18 +5540,18 @@ void showbombeddoor(BITMAP *dest, int32_t side)
     }
 }
 
-void openshutters(mapscr* screen, int screen_index)
+void openshutters(mapscr* scr, int screen)
 {
 	bool opened_door = false;
 	for(int32_t i=0; i<4; i++)
-		if(screen->door[i]==dSHUTTER)
+		if(scr->door[i]==dSHUTTER)
 		{
 			putdoor(scrollbuf,0,i,dOPENSHUTTER);
-			screen->door[i]=dOPENSHUTTER;
+			scr->door[i]=dOPENSHUTTER;
 			opened_door = true;
 		}
 
-	for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos_in_screen(scr, screen, [&](const rpos_handle_t& rpos_handle) {
 		auto& cmb = rpos_handle.combo();	
 		if (cmb.triggerflags[0] & combotriggerSHUTTER)
 		{
@@ -5560,7 +5560,7 @@ void openshutters(mapscr* screen, int screen_index)
 	});
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_every_ffc_in_screen(screen, screen_index, [&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_screen(scr, screen, [&](const ffc_handle_t& ffc_handle) {
 			auto& cmb = ffc_handle.combo();
 			if(cmb.triggerflags[0] & combotriggerSHUTTER)
 				do_trigger_combo_ffc(ffc_handle);
@@ -5577,20 +5577,20 @@ void clear_darkroom_bitmaps()
 	clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
 }
 
-void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
+void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 {
 	std::vector<mapscr*> screens;
 
-	const mapscr* source = get_canonical_scr(map, screen_index);
+	const mapscr* source = get_canonical_scr(map, screen);
 	mapscr* base_screen = new mapscr(*source);
-	if (map == currmap) temporary_screens_currmap[screen_index*7] = base_screen;
+	if (map == currmap) temporary_screens_currmap[screen*7] = base_screen;
 	screens.push_back(base_screen);
 
 	base_screen->valid |= mVALID; // layer 0 is always valid
 
 	if (source->script > 0)
 	{
-		FFCore.reset_script_engine_data(ScriptType::Screen, screen_index);
+		FFCore.reset_script_engine_data(ScriptType::Screen, screen);
 	}
 
 	for (int i = 0; i < 6; i++)
@@ -5603,21 +5603,21 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 		{
 			screens.push_back(new mapscr());
 		}
-		if (map == currmap) temporary_screens_currmap[screen_index*7+i+1] = screens[i+1];
+		if (map == currmap) temporary_screens_currmap[screen*7+i+1] = screens[i+1];
 	}
 
-	if (map != currmap) temporary_screens[map*MAPSCRS + screen_index] = screens;
+	if (map != currmap) temporary_screens[map*MAPSCRS + screen] = screens;
 
 	// Apply perm secrets, if applicable.
-	if (canPermSecret(dmap, screen_index))
+	if (canPermSecret(dmap, screen))
 	{
-		if(game->maps[map*MAPSCRSNORMAL + screen_index] & mSECRET)    // if special stuff done before
+		if(game->maps[map*MAPSCRSNORMAL + screen] & mSECRET)    // if special stuff done before
 		{
-			reveal_hidden_stairs(base_screen, screen_index, false);
+			reveal_hidden_stairs(base_screen, screen, false);
 			bool do_layers = true;
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen_index, false);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen, false);
 		}
-		if(game->maps[map*MAPSCRSNORMAL + screen_index] & mLIGHTBEAM) // if special stuff done before
+		if(game->maps[map*MAPSCRSNORMAL + screen] & mLIGHTBEAM) // if special stuff done before
 		{
 			for(size_t layer = 0; layer < 7; ++layer)
 			{
@@ -5638,44 +5638,44 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	}
 
 	int destlvl = DMaps[dmap].level;
-	toggle_switches(game->lvlswitches[destlvl], true, base_screen, screen_index);
-	toggle_gswitches_load(base_screen, screen_index);
+	toggle_switches(game->lvlswitches[destlvl], true, base_screen, screen);
+	toggle_gswitches_load(base_screen, screen);
 
-	int mi = currmap*MAPSCRSNORMAL + screen_index;
-	bool should_check_for_state_things = (screen_index < 0x80) && mi < MAXMAPS*MAPSCRSNORMAL;
+	int mi = currmap*MAPSCRSNORMAL + screen;
+	bool should_check_for_state_things = (screen < 0x80) && mi < MAXMAPS*MAPSCRSNORMAL;
 	if (should_check_for_state_things)
 	{
 		if (game->maps[mi]&mLOCKBLOCK)
 		{
-			remove_lockblocks(base_screen, screen_index);
+			remove_lockblocks(base_screen, screen);
 		}
 		
 		if (game->maps[mi]&mBOSSLOCKBLOCK)
 		{
-			remove_bosslockblocks(base_screen, screen_index);
+			remove_bosslockblocks(base_screen, screen);
 		}
 		
 		if (game->maps[mi]&mCHEST)
 		{
-			remove_chests(base_screen, screen_index);
+			remove_chests(base_screen, screen);
 		}
 		
 		if (game->maps[mi]&mLOCKEDCHEST)
 		{
-			remove_lockedchests(base_screen, screen_index);
+			remove_lockedchests(base_screen, screen);
 		}
 		
 		if (game->maps[mi]&mBOSSCHEST)
 		{
-			remove_bosschests(base_screen, screen_index);
+			remove_bosschests(base_screen, screen);
 		}
 		
-		clear_xdoors_mi(base_screen, screen_index, mi, true);
-		clear_xstatecombos_mi(base_screen, screen_index, mi, true);
+		clear_xdoors_mi(base_screen, screen, mi, true);
+		clear_xstatecombos_mi(base_screen, screen, mi, true);
 	}
 
 	// check doors
-	if (isdungeon(dmap, screen_index))
+	if (isdungeon(dmap, screen))
 	{
 		for(int32_t i=0; i<4; i++)
 		{
@@ -5727,12 +5727,12 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 		}
 	}
 
-	auto [offx, offy] = is_a_region(dmap, screen_index) ?
-		translate_screen_coordinates_to_world(screen_index) :
+	auto [offx, offy] = is_a_region(dmap, screen) ?
+		translate_screen_coordinates_to_world(screen) :
 		std::make_pair(0, 0);
 	for (word i = 0; i < MAXFFCS; i++)
 	{
-		base_screen->ffcs[i].screen_index = screen_index;
+		base_screen->ffcs[i].screen = screen;
 		base_screen->ffcs[i].x += offx;
 		base_screen->ffcs[i].y += offy;
 	}
@@ -5819,11 +5819,11 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	if (is_z3_scrolling_mode())
 	{
-		for (int screen_index = 0; screen_index < 128; screen_index++)
+		for (int screen = 0; screen < 128; screen++)
 		{
-			if (screen_index != cur_origin_screen_index && is_in_current_region(screen_index))
+			if (screen != cur_origin_screen_index && is_in_current_region(screen))
 			{
-				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
+				load_a_screen_and_layers(destdmap, currmap, screen, ldir);
 			}
 		}
 	}
@@ -5839,16 +5839,16 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
-				int screen_index = cur_origin_screen_index + x + y*16;
-				mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
-				if (!screen->valid)
+				int screen = cur_origin_screen_index + x + y*16;
+				mapscr* scr = get_layer_scr(currmap, screen, layer - 1);
+				if (!scr->valid)
 				{
 					if (layer == 0) break;
 					continue;
 				}
 
-				rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
-				current_region_rpos_handles[current_region_screen_count] = {screen, screen_index, layer, base_rpos, 0};
+				rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
+				current_region_rpos_handles[current_region_screen_count] = {scr, screen, layer, base_rpos, 0};
 				current_region_screen_count += 1;
 			}
 		}
@@ -5865,7 +5865,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
-		if (ffc_handle.screen_index == cur_origin_screen_index)
+		if (ffc_handle.screen == cur_origin_screen_index)
 			return;
 
 		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_handle.id);
@@ -5921,61 +5921,61 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 //      (this is hard)
 //    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in
 //      load_a_screen_and_layers
-void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay)
+void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 {
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 
 	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
-	mapscr* screen = tmp == 0 ? tmpscr : &special_warp_return_screen;
-	*screen = TheMaps[currmap*MAPSCRS+scr];
+	mapscr* scr = tmp == 0 ? tmpscr : &special_warp_return_screen;
+	*scr = TheMaps[currmap*MAPSCRS+screen];
 	if (tmp == 0)
-		hero_screen = screen;
+		hero_screen = scr;
 	if (!tmp)
 		for (uint8_t i = 0; i < MAXFFCS; ++i)
 		{
-			screen->ffcs[i].setLoaded(true);
-			screen->ffcs[i].solid_update(false);
-			screen_ffc_modify_postroutine({screen, (uint8_t)scr, i, i, &screen->ffcs[i]});
+			scr->ffcs[i].setLoaded(true);
+			scr->ffcs[i].solid_update(false);
+			screen_ffc_modify_postroutine({scr, (uint8_t)screen, i, i, &scr->ffcs[i]});
 		}
 	
-	screen->valid |= mVALID; //layer 0 is always valid
-	memcpy(screen->data, TheMaps[currmap*MAPSCRS+scr].data, sizeof(screen->data));
-	memcpy(screen->sflag, TheMaps[currmap*MAPSCRS+scr].sflag, sizeof(screen->sflag));
-	memcpy(screen->cset, TheMaps[currmap*MAPSCRS+scr].cset, sizeof(screen->cset));
+	scr->valid |= mVALID; //layer 0 is always valid
+	memcpy(scr->data, TheMaps[currmap*MAPSCRS+screen].data, sizeof(scr->data));
+	memcpy(scr->sflag, TheMaps[currmap*MAPSCRS+screen].sflag, sizeof(scr->sflag));
+	memcpy(scr->cset, TheMaps[currmap*MAPSCRS+screen].cset, sizeof(scr->cset));
 
-	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
+	if ( TheMaps[currmap*MAPSCRS+screen].script > 0 )
 	{
-		screen->script = TheMaps[currmap*MAPSCRS+scr].script;
-		al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
+		scr->script = TheMaps[currmap*MAPSCRS+screen].script;
+		al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+screen].script);
 		for ( int32_t q = 0; q < 8; q++ )
 		{
-			screen->screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
+			scr->screeninitd[q] = TheMaps[currmap*MAPSCRS+screen].screeninitd[q];
 		}
-		FFCore.reset_script_engine_data(ScriptType::Screen, scr);
+		FFCore.reset_script_engine_data(ScriptType::Screen, screen);
 	}
 	else
 	{
-		screen->script = 0;
+		scr->script = 0;
 	}
 	
 	if(overlay)
 	{
 		for(int32_t c=0; c< 176; ++c)
 		{
-			if(screen->data[c]==0)
+			if(scr->data[c]==0)
 			{
-				screen->data[c]=previous_scr.data[c];
-				screen->sflag[c]=previous_scr.sflag[c];
-				screen->cset[c]=previous_scr.cset[c];
+				scr->data[c]=previous_scr.data[c];
+				scr->sflag[c]=previous_scr.sflag[c];
+				scr->cset[c]=previous_scr.cset[c];
 			}
 		}
 		
 		for(int32_t i=0; i<6; i++)
 		{
-			if(previous_scr.layermap[i]>0 && screen->layermap[i]>0)
+			if(previous_scr.layermap[i]>0 && scr->layermap[i]>0)
 			{
-				int32_t lm = (screen->layermap[i]-1)*MAPSCRS+screen->layerscreen[i];
+				int32_t lm = (scr->layermap[i]-1)*MAPSCRS+scr->layerscreen[i];
 				int32_t fm = (previous_scr.layermap[i]-1)*MAPSCRS+previous_scr.layerscreen[i];
 				
 				for(int32_t c=0; c< 176; ++c)
@@ -5999,19 +5999,19 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		{
 			if((previous_scr.ffcs[i].flags&ffCARRYOVER) && !(previous_scr.flags5&fNOFFCARRYOVER))
 			{
-				screen->ffcs[i] = previous_scr.ffcs[i];
+				scr->ffcs[i] = previous_scr.ffcs[i];
 				
 				if (previous_scr.ffcs[i].flags&ffSCRIPTRESET)
 				{
-					int ffc_id = get_region_screen_index_offset(scr)*MAXFFCS + i;
+					int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 					FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 				}
 			}
 			else
 			{
-				int ffc_id = get_region_screen_index_offset(scr)*MAXFFCS + i;
+				int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 				FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
-				memset(screen->ffcs[i].script_misc, 0, 16 * sizeof(int32_t));
+				memset(scr->ffcs[i].script_misc, 0, 16 * sizeof(int32_t));
 				FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 			}
 		}
@@ -6021,9 +6021,9 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			mapscr layerscr = tmpscr2[i];
 			
 			// Don't delete the old tmpscr2's data yet!
-			if(screen->layermap[i]>0)
+			if(scr->layermap[i]>0)
 			{
-				tmpscr2[i]=TheMaps[(screen->layermap[i]-1)*MAPSCRS+screen->layerscreen[i]];
+				tmpscr2[i]=TheMaps[(scr->layermap[i]-1)*MAPSCRS+scr->layerscreen[i]];
 				
 				if(overlay)
 				{
@@ -6050,14 +6050,14 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 
-	auto [offx, offy] = is_a_region(destdmap < 0 ? currdmap : destdmap, scr) ?
-		translate_screen_coordinates_to_world(scr) :
+	auto [offx, offy] = is_a_region(destdmap < 0 ? currdmap : destdmap, screen) ?
+		translate_screen_coordinates_to_world(screen) :
 		std::make_pair(0, 0);
 	for (word i = 0; i < MAXFFCS; i++)
 	{
-		screen->ffcs[i].screen_index = scr;
-		screen->ffcs[i].x += offx;
-		screen->ffcs[i].y += offy;
+		scr->ffcs[i].screen = screen;
+		scr->ffcs[i].x += offx;
+		scr->ffcs[i].y += offy;
 	}
 
 	if (!tmp)
@@ -6067,14 +6067,14 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	}
 
 	// Apply perm secrets, if applicable.
-	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
+	if(canPermSecret(destdmap,screen)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
 	{
-		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
+		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mSECRET)			   // if special stuff done before
 		{
-			reveal_hidden_stairs(screen, scr, false);
+			reveal_hidden_stairs(scr, screen, false);
 			trigger_secrets_for_screen(SecretsScreenState, currscr, tmp == 0 ? tmpscr : &special_warp_return_screen, false, -1);
 		}
-		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
+		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLIGHTBEAM) // if special stuff done before
 		{
 			for(size_t layer = 0; layer < 7; ++layer)
 			{
@@ -6097,33 +6097,33 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
 	toggle_gswitches_load(tmp == 0 ? tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
+	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKBLOCK)			  // if special stuff done before
 	{
-		remove_lockblocks(screen, scr);
+		remove_lockblocks(scr, screen);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)		  // if special stuff done before
+	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
-		remove_bosslockblocks(screen, scr);
+		remove_bosslockblocks(scr, screen);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)			  // if special stuff done before
+	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mCHEST)			  // if special stuff done before
 	{
-		remove_chests(screen, scr);
+		remove_chests(scr, screen);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)			  // if special stuff done before
+	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKEDCHEST)			  // if special stuff done before
 	{
-		remove_lockedchests(screen, scr);
+		remove_lockedchests(scr, screen);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)			  // if special stuff done before
+	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSCHEST)			  // if special stuff done before
 	{
-		remove_bosschests(screen, scr);
+		remove_bosschests(scr, screen);
 	}
 	
-	clear_xdoors(screen, scr, true);
-	clear_xstatecombos(screen, scr, true);
+	clear_xdoors(scr, screen, true);
+	clear_xstatecombos(scr, screen, true);
 
 	if (!tmp)
 	{
@@ -6132,11 +6132,11 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	}
 
 	// check doors
-	if(isdungeon(destdmap,scr))
+	if(isdungeon(destdmap,screen))
 	{
 		for(int32_t i=0; i<4; i++)
 		{
-			int32_t door=screen->door[i];
+			int32_t door=scr->door[i];
 			
 			switch(door)
 			{
@@ -6144,42 +6144,42 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			case dSHUTTER:
 				if((ldir^1)==i)
 				{
-					screen->door[i]=dOPENSHUTTER;
+					scr->door[i]=dOPENSHUTTER;
 				}
 				
 				opendoors = -4;
 				break;
 				
 			case dLOCKED:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
 				{
-					screen->door[i]=dUNLOCKED;
+					scr->door[i]=dUNLOCKED;
 				}
 				
 				break;
 				
 			case dBOSS:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
 				{
-					screen->door[i]=dOPENBOSS;
+					scr->door[i]=dOPENBOSS;
 				}
 				
 				break;
 				
 			case dBOMB:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
+				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
 				{
-					screen->door[i]=dBOMBED;
+					scr->door[i]=dBOMBED;
 				}
 				
 				break;
 			}
 
-			update_door(screen, i, screen->door[i]);
+			update_door(scr, i, scr->door[i]);
 
 			if(door==dSHUTTER||door==d1WAYSHUTTER)
 			{
-				screen->door[i]=door;
+				scr->door[i]=door;
 			}
 		}
 	}
@@ -6189,10 +6189,10 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
-		if (j<0 || screen->layermap[j] > 0)
+		if (j<0 || scr->layermap[j] > 0)
 		{
-			mapscr *layerscreen= (j<0 ? screen : tmpscr2[j].valid ? &tmpscr2[j] :
-								  &TheMaps[(screen->layermap[j]-1)*MAPSCRS]+screen->layerscreen[j]);
+			mapscr *layerscreen= (j<0 ? scr : tmpscr2[j].valid ? &tmpscr2[j] :
+								  &TheMaps[(scr->layermap[j]-1)*MAPSCRS]+scr->layerscreen[j]);
 								  
 			for(int32_t i=0; i<176; ++i)
 			{
@@ -6200,7 +6200,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 				int32_t cs=layerscreen->cset[i];
 				
 				// New screen flag: Cycle Combos At Screen Init
-				if(combobuf[c].nextcombo != 0 && (screen->flags3 & fCYCLEONINIT) && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
+				if(combobuf[c].nextcombo != 0 && (scr->flags3 & fCYCLEONINIT) && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
 				{
 					int32_t r = 0;
 					
@@ -6398,25 +6398,25 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	homescr = oscr;
 }
 
-void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
+void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scr)
 {
 	// This is a bogus value while screenscrolling == true, but that's ok
 	// because it is only used to calculate the rpos, and during screenscrolling
 	// only the modulus to get pos (draw_cmb_pos does RPOS_TO_POS) is needed, which
 	// is always the same no matter the value of scr.
-	int scr = get_screen_index_for_world_xy(x, y);
+	int screen = get_screen_index_for_world_xy(x, y);
 
 	x -= viewport.x;
 	y -= viewport.y;
 
-	if(screen->valid==0||!show_layer_0||screen->hidelayers & 1)
+	if(scr->valid==0||!show_layer_0||scr->hidelayers & 1)
 	{
 		rectfill(dest,x,y,x+255,y+175,0);
 		return;
 	}
 	
-	bool over = XOR(screen->flags7&fLAYER2BG,DMaps[currdmap].flags&dmfLAYER2BG)
-		|| XOR(screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG);
+	bool over = XOR(scr->flags7&fLAYER2BG,DMaps[currdmap].flags&dmfLAYER2BG)
+		|| XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG);
 
 	int start_x, end_x, start_y, end_y;
 	get_bounds_for_draw_cmb_calls(dest, x, y, start_x, end_x, start_y, end_y);
@@ -6425,8 +6425,8 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, scr);
-			draw_cmb_pos(dest, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], 0, over, false);
+			auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen);
+			draw_cmb_pos(dest, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], 0, over, false);
 		}
 	}
 }
@@ -6441,29 +6441,29 @@ void putscrdoors(BITMAP *dest,int32_t x,int32_t y)
 	x -= viewport.x;
 	y -= viewport.y;
 
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-		mapscr* screen = screen_handles[0].base_screen;
-		if (screen->valid==0)
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		mapscr* scr = screen_handles[0].base_scr;
+		if (scr->valid==0)
 			return;
 
-		if(screen->door[0]==dBOMBED)
+		if(scr->door[0]==dBOMBED)
 		{
-			over_door_new(dest, 39, up, screen->door_combo_set, offx+x, offy+y);
+			over_door_new(dest, 39, up, scr->door_combo_set, offx+x, offy+y);
 		}
 		
-		if(screen->door[1]==dBOMBED)
+		if(scr->door[1]==dBOMBED)
 		{
-			over_door_new(dest, 135, down, screen->door_combo_set, offx+x, offy+y);
+			over_door_new(dest, 135, down, scr->door_combo_set, offx+x, offy+y);
 		}
 		
-		if(screen->door[2]==dBOMBED)
+		if(scr->door[2]==dBOMBED)
 		{
-			over_door_new(dest, 66, left, screen->door_combo_set, offx+x, offy+y);
+			over_door_new(dest, 66, left, scr->door_combo_set, offx+x, offy+y);
 		}
 		
-		if(screen->door[3]==dBOMBED)
+		if(scr->door[3]==dBOMBED)
 		{
-			over_door_new(dest, 77, right, screen->door_combo_set, offx+x, offy+y);
+			over_door_new(dest, 77, right, scr->door_combo_set, offx+x, offy+y);
 		}
 	});
 }
@@ -6916,18 +6916,18 @@ void toggle_switches(dword flags, bool entry)
 {
 	if(!flags) return; //No flags to toggle
 
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		toggle_switches(flags, entry, screen, screen_index);
+	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+		toggle_switches(flags, entry, scr, screen);
 	});
 }
-void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
+void toggle_switches(dword flags, bool entry, mapscr* m, int screen)
 {
 	if(!flags) return; //No flags to toggle
 	bool iscurscr = m==tmpscr;
 
-	for_every_rpos_in_screen(m, screen_index, [&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos_in_screen(m, screen, [&](const rpos_handle_t& rpos_handle) {
 		byte togglegrid[176] = {0};
-		mapscr* scr = rpos_handle.screen;
+		mapscr* scr = rpos_handle.scr;
 		int lyr = rpos_handle.layer;
 		int pos = rpos_handle.pos;
 		newcombo const& cmb = combobuf[scr->data[pos]];
@@ -6973,7 +6973,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 					if(lyr==lyr2) return;
 					if(!(cmb.usrflags&(1<<lyr2))) return;
 					if(togglegrid[pos]&(1<<lyr2)) return;
-					mapscr* scr_2 = (lyr2 ? get_layer_scr(currmap, screen_index, lyr2 - 1) : m);
+					mapscr* scr_2 = (lyr2 ? get_layer_scr(currmap, screen, lyr2 - 1) : m);
 					if(!scr_2->data[pos]) //Don't increment empty space
 						return;
 					newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
@@ -7035,7 +7035,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 	
 	if(iscurscr)
 	{
-		int screen_index_offset = get_region_screen_index_offset(screen_index);
+		int screen_index_offset = get_region_screen_index_offset(screen);
 		word c = m->numFFC();
 		for (uint8_t q = 0; q < c; ++q)
 		{
@@ -7043,31 +7043,31 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 			newcombo const& cmb = combobuf[m->ffcs[q].data];
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo_ffc({m, (uint8_t)screen_index, ffc_id, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({m, (uint8_t)screen, ffc_id, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }
 
 void toggle_gswitches(int32_t state, bool entry)
 {
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		toggle_gswitches(state, entry, screen, screen_index);
+	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+		toggle_gswitches(state, entry, scr, screen);
 	});
 }
-void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen_index)
+void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen)
 {
 	bool states[256] = {false};
 	states[state] = true;
-	toggle_gswitches(states, entry, base_screen, screen_index);
+	toggle_gswitches(states, entry, base_screen, screen);
 }
-void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_index)
+void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen)
 {
 	if(!states) return;
 	bool iscurscr = base_screen==tmpscr;
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		mapscr* scr = lyr == 0 ? base_screen : get_layer_scr(currmap, screen_index, lyr - 1);
+		mapscr* scr = lyr == 0 ? base_screen : get_layer_scr(currmap, screen, lyr - 1);
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
@@ -7114,7 +7114,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 						if(lyr==lyr2) continue;
 						if(!(cmb.usrflags&(1<<lyr2))) continue;
 						if(togglegrid[pos]&(1<<lyr2)) continue;
-						mapscr* scr_2 = lyr2 == 0 ? base_screen : get_layer_scr(currmap, screen_index, lyr2 - 1);
+						mapscr* scr_2 = lyr2 == 0 ? base_screen : get_layer_scr(currmap, screen, lyr2 - 1);
 						if(!scr_2->data[pos]) //Don't increment empty space
 							continue;
 						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
@@ -7178,25 +7178,25 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 	if(iscurscr)
 	{
 		word c = base_screen->numFFC();
-		int screen_index_offset = get_region_screen_index_offset(screen_index);
+		int screen_index_offset = get_region_screen_index_offset(screen);
 		for (uint8_t q = 0; q < c; ++q)
 		{
 			newcombo const& cmb = combobuf[base_screen->ffcs[q].data];
 			uint16_t ffc_id = screen_index_offset * MAXFFCS + q;
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
-					do_trigger_combo_ffc({base_screen, (uint8_t)screen_index, ffc_id, q, &base_screen->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({base_screen, (uint8_t)screen, ffc_id, q, &base_screen->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }
-void toggle_gswitches_load(mapscr* base_screen, int screen_index)
+void toggle_gswitches_load(mapscr* base_screen, int screen)
 {
 	bool states[256];
 	for(auto q = 0; q < 256; ++q)
 	{
 		states[q] = game->gswitch_timers[q] != 0;
 	}
-	toggle_gswitches(states, true, base_screen, screen_index);
+	toggle_gswitches(states, true, base_screen, screen);
 }
 void run_gswitch_timers()
 {
@@ -7213,8 +7213,8 @@ void run_gswitch_timers()
 			}
 		++it;
 	}
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		toggle_gswitches(states, false, screen, screen_index);
+	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+		toggle_gswitches(states, false, scr, screen);
 	});
 }
 void onload_gswitch_timers() //Reset all timers that were counting down, no trigger necessary
@@ -7715,20 +7715,20 @@ bool is_push(mapscr* m, int32_t pos)
 
 static std::map<int, ScreenItemState> screen_item_state;
 
-ScreenItemState screen_item_get_state(int screen_index)
+ScreenItemState screen_item_get_state(int screen)
 {
-	auto it = screen_item_state.find(screen_index);
+	auto it = screen_item_state.find(screen);
 	return it == screen_item_state.end() ? ScreenItemState::None : it->second;
 }
 
-void screen_item_set_state(int screen_index, ScreenItemState state)
+void screen_item_set_state(int screen, ScreenItemState state)
 {
-	screen_item_state[screen_index] = state;
+	screen_item_state[screen] = state;
 }
 
-void screen_item_clear_state(int screen_index)
+void screen_item_clear_state(int screen)
 {
-	screen_item_state[screen_index] = ScreenItemState::None;
+	screen_item_state[screen] = ScreenItemState::None;
 }
 
 void screen_item_clear_state()

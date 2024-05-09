@@ -2288,9 +2288,9 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				mapscr* screen = get_ffc_screen(index);
-				memcpy(ri->d, screen->ffcs[index % 128].initd, 8 * sizeof(int32_t));
-				memcpy(ri->a, screen->ffcs[index % 128].inita, 2 * sizeof(int32_t));
+				mapscr* scr = get_ffc_screen(index);
+				memcpy(ri->d, scr->ffcs[index % 128].initd, 8 * sizeof(int32_t));
+				memcpy(ri->a, scr->ffcs[index % 128].inita, 2 * sizeof(int32_t));
 				data.initialized = true;
 			}
 
@@ -2517,10 +2517,10 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				mapscr* screen = get_scr(currmap, index);
+				mapscr* scr = get_scr(currmap, index);
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-					ri->d[q] = screen->screeninitd[q];// * 10000;
+					ri->d[q] = scr->screeninitd[q];// * 10000;
 				}
 				data.initialized = true;
 			}
@@ -4100,7 +4100,7 @@ int32_t get_register(int32_t arg)
 
 		case FF_SCREEN_INDEX:
 			if(BC::checkFFC(ri->ffcref, "ffc->ScreenIndex") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->screen_index)*10000;
+				ret=(get_ffc_raw(ri->ffcref)->screen)*10000;
 			break;
 		
 		///----------------------------------------------------------------------------------------------------//
@@ -10680,7 +10680,7 @@ int32_t get_register(int32_t arg)
 		{ \
 			int32_t id = ri->d[rINDEX] / 10000; \
 			{ \
-				if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
+				if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
 				{ \
 					ret = (handle.ffc->member?10000:0); \
 				} \
@@ -10708,7 +10708,7 @@ int32_t get_register(int32_t arg)
 		#define GET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
 			{ \
 				ret = (handle.ffc->member).getZLong(); \
 			} \
@@ -10721,7 +10721,7 @@ int32_t get_register(int32_t arg)
 		#define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
 			{ \
 				ret = (handle.ffc->member)*10000; \
 			} \
@@ -10734,7 +10734,7 @@ int32_t get_register(int32_t arg)
 		#define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
 			{ \
 				ret = (handle.ffc->member)*10000; \
 			} \
@@ -10866,7 +10866,7 @@ int32_t get_register(int32_t arg)
 		{
 			uint32_t id = ri->d[rINDEX] / 10000;
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "NumFFCs[]"); handle.screen != nullptr)
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "NumFFCs[]"); handle.scr != nullptr)
 			{
 				ret = (handle.data() != 0) ? 10000 : 0;
 			}
@@ -11268,7 +11268,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBODD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.data() * 10000;
 			}
@@ -11282,7 +11282,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOCD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.cset() * 10000;
 			}
@@ -11296,7 +11296,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOFD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.sflag() * 10000;
 			}
@@ -11310,7 +11310,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOTD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.combo().type * 10000;
 			}
@@ -11324,7 +11324,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOID:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.cflag() * 10000;
 			}
@@ -11363,7 +11363,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOED:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = ((rpos_handle.combo().walk & 0xF0)>>4) * 10000;
 			}
@@ -23278,15 +23278,15 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SCREENSCRIPT:
 		{
-			mapscr* screen = get_scr(currmap, curScriptIndex);
+			mapscr* scr = get_scr(currmap, curScriptIndex);
 
 			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
 				for(int32_t q=0; q<8; q++)
-					screen->screeninitd[q] = 0;
+					scr->screeninitd[q] = 0;
 			}
 
-			screen->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+			scr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
 			break;
 		}
@@ -23615,7 +23615,7 @@ void set_register(int32_t arg, int32_t value)
 		#define SET_FFC_MAPDATA_BOOL_INDEX(member, str, indexbound) \
 		{ \
 			int32_t id = ri->d[rINDEX] / 10000; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
 			{ \
 				handle.ffc->member =( (value/10000) ? 1 : 0 ); \
 			} \
@@ -23643,7 +23643,7 @@ void set_register(int32_t arg, int32_t value)
 		#define SET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
 			{ \
 				handle.ffc->member = zslongToFix(value); \
 			} \
@@ -23653,7 +23653,7 @@ void set_register(int32_t arg, int32_t value)
 		#define SET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
 			{ \
 				handle.ffc->member = value/10000; \
 			} \
@@ -23668,7 +23668,7 @@ void set_register(int32_t arg, int32_t value)
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, (id+1)); \
 			} \
-			else if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.screen != nullptr) \
+			else if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
 			{ \
 				handle.ffc->member = v; \
 			} \
@@ -23880,9 +23880,9 @@ void set_register(int32_t arg, int32_t value)
 				{
 					if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 					{
-						mapscr* screen = get_scr(currmap, curScriptIndex);
+						mapscr* scr = get_scr(currmap, curScriptIndex);
 						for(int32_t q=0; q<8; q++)
-							screen->screeninitd[q] = 0;
+							scr->screeninitd[q] = 0;
 					}
 
 					on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
@@ -23905,7 +23905,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t id = (ri->d[rINDEX] / 10000)-1;
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCData"); handle.screen != nullptr)
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCData"); handle.scr != nullptr)
 			{
 				zc_ffc_set(*handle.ffc, value/10000);
 			}
@@ -23924,7 +23924,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t id = (ri->d[rINDEX] / 10000)-1;
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCFlags"); handle.screen != nullptr)
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCFlags"); handle.scr != nullptr)
 			{
 				handle.ffc->flags = value/10000;
 				handle.ffc->updateSolid();
@@ -24104,7 +24104,7 @@ void set_register(int32_t arg, int32_t value)
 			if (BC::checkBounds(indx, 0, 7, "mapdata->FFCInitD[]") != SH::_NoError)
 				break;
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "mapdata->FFCInitD[]"); handle.screen != nullptr)
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "mapdata->FFCInitD[]"); handle.scr != nullptr)
 				handle.ffc->initd[indx] = value;
 			break;
 		}	
@@ -24270,7 +24270,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); rpos_handle.scr != nullptr)
 			{
 				screen_combo_modify_preroutine(rpos_handle);
 				rpos_handle.set_data(val);
@@ -24289,7 +24289,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[]"); rpos_handle.scr != nullptr)
 			{
 				screen_combo_modify_preroutine(rpos_handle);
 				rpos_handle.set_cset(val&15);
@@ -24308,7 +24308,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[]"); rpos_handle.scr != nullptr)
 			{
 				rpos_handle.set_sflag(val);
 			}
@@ -24325,7 +24325,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[]"); rpos_handle.scr != nullptr)
 			{
 				auto cid = rpos_handle.data();
 				screen_combo_modify_pre(cid);
@@ -24345,7 +24345,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[]"); rpos_handle.scr != nullptr)
 			{
 				rpos_handle.combo().flag = value/10000;
 			}
@@ -24362,7 +24362,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboS[]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboS[]"); rpos_handle.scr != nullptr)
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0x0F;
@@ -24381,7 +24381,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[]"); rpos_handle.screen != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[]"); rpos_handle.scr != nullptr)
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0xF0;
@@ -30726,15 +30726,15 @@ void do_layermap()
 
 
 
-void do_triggersecrets(int screen_index)
+void do_triggersecrets(int screen)
 {
-	if (!is_in_current_region(screen_index))
+	if (!is_in_current_region(screen))
 	{
-		Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen_index);
+		Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
 		return;
 	}
 
-	trigger_secrets_for_screen(TriggerSource::Script, screen_index, false);
+	trigger_secrets_for_screen(TriggerSource::Script, screen, false);
 }
 
 
@@ -40587,14 +40587,14 @@ int32_t run_script_int(bool is_jitted)
 
 			case REGION_TRIGGER_SECRETS:
 			{
-				int screen_index = get_register(sarg1) / 10000;
-				if (!is_in_current_region(screen_index))
+				int screen = get_register(sarg1) / 10000;
+				if (!is_in_current_region(screen))
 				{
-					Z_scripterrlog("Region->TriggerSecrets must be given a screen in the current region. got: %d\n", screen_index);
+					Z_scripterrlog("Region->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
 					break;
 				}
 
-				do_triggersecrets(screen_index);
+				do_triggersecrets(screen);
 				break;
 			}
 			
@@ -41383,12 +41383,12 @@ int32_t ffscript_engine(const bool preload)
 		//zprint("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if ((preload && screen->preloadscript) || !preload)
+			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if ((preload && scr->preloadscript) || !preload)
 				{
-					if ( screen->script > 0 && FFCore.doscript(ScriptType::Screen, screen_index) )
+					if ( scr->script > 0 && FFCore.doscript(ScriptType::Screen, screen) )
 					{
-						ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);
+						ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);
 					}
 				}
 			});
@@ -43667,11 +43667,11 @@ void FFScript::runWarpScripts(bool waitdraw)
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (screen->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen_index) && screen->preloadscript)
+			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen) && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);  
-					FFCore.waitdraw(ScriptType::Screen, screen_index) = 0;
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);  
+					FFCore.waitdraw(ScriptType::Screen, screen) = 0;
 				}
 			});
 		}
@@ -43700,10 +43700,10 @@ void FFScript::runWarpScripts(bool waitdraw)
 		}
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (screen->script != 0 && screen->preloadscript)
+			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);
 				}
 			});
 		}

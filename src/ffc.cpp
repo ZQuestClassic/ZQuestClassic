@@ -143,9 +143,9 @@ void ffcdata::doContactDamage(int32_t hdir)
 		}
 		if(ffnum > -1)
 		{
-			trigger_damage_combo(get_scr(currmap, screen_index), data, ZSD_FFC, ffnum, hdir, true);
+			trigger_damage_combo(get_scr(currmap, screen), data, ZSD_FFC, ffnum, hdir, true);
 		}
-		else trigger_damage_combo(get_scr(currmap, screen_index), data, ZSD_NONE, 0, hdir, true);
+		else trigger_damage_combo(get_scr(currmap, screen), data, ZSD_NONE, 0, hdir, true);
 	}
 #endif
 }

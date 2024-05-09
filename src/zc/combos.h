@@ -34,7 +34,7 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y);
 bool can_locked_combo(newcombo const& cmb);
 bool try_locked_combo(newcombo const& cmb);
 
-void trigger_sign(newcombo const& cmb, int screen_index);
+void trigger_sign(newcombo const& cmb, int screen);
 void trigger_sign(newcombo const& cmb);
 void trigger_cuttable(const rpos_handle_t& rpos_handle);
 void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle);
@@ -46,11 +46,11 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle);
 bool trigger_lockblock_ffc(const rpos_handle_t& rpos_handle);
 bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir = -1);
 bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir = -1);
-bool trigger_damage_combo(mapscr* screen, int32_t cid, int type = ZSD_NONE, int ptrval = 0, int32_t hdir = -1, bool force_solid = false);
+bool trigger_damage_combo(mapscr* scr, int32_t cid, int type = ZSD_NONE, int ptrval = 0, int32_t hdir = -1, bool force_solid = false);
 bool trigger_damage_combo(const rpos_handle_t& rpos_handle, int type = ZSD_NONE, int ptrval = 0, int32_t hdir = -1, bool force_solid = false);
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped = false);
 bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped = false);
-void trigger_save(newcombo const& cmb, mapscr* screen);
+void trigger_save(newcombo const& cmb, mapscr* scr);
 
 void trig_copycat(byte copyid);
 

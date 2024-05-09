@@ -15,27 +15,27 @@ class ffcdata;
 
 struct screen_handle_t
 {
-	mapscr* base_screen;
-	mapscr* screen;
+	mapscr* base_scr;
+	mapscr* scr;
 	int32_t map;
-	int32_t index;
+	int32_t screen;
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;
 };
 
 struct rpos_handle_t
 {
-	// rpos_handle_t(mapscr* screen, int32_t screen_index, int32_t layer, rpos_t rpos): screen(screen), screen_index(screen_index), layer(layer), rpos(rpos)
+	// rpos_handle_t(mapscr* scr, int32_t screen, int32_t layer, rpos_t rpos): scr(scr), screen(screen), layer(layer), rpos(rpos)
 	// {
 	// 	pos = (int)rpos % 176;
 	// }
 
-	// rpos_handle_t(mapscr* screen, int32_t screen_index, int32_t layer, rpos_t rpos): screen(screen), screen_index(screen_index), layer(layer), rpos(rpos), pos(pos)
+	// rpos_handle_t(mapscr* scr, int32_t screen, int32_t layer, rpos_t rpos): scr(scr), screen(screen), layer(layer), rpos(rpos), pos(pos)
 	// {
 	// }
 
-	mapscr* screen;
-	int32_t screen_index;
+	mapscr* scr;
+	int32_t screen;
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;
 	rpos_t rpos = rpos_t::None;
@@ -60,8 +60,8 @@ struct rpos_handle_t
 
 struct ffc_handle_t
 {
-	mapscr* screen;
-	uint8_t screen_index;
+	mapscr* scr;
+	uint8_t screen;
 	// A unique identifier for this ffc in this region.
 	// Roughly = (region screen index offset) * 128 + i.
 	// For non-regions, or for the top-left screen in a region, this is equal to i.

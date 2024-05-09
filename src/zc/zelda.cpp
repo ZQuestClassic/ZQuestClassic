@@ -3578,11 +3578,11 @@ void game_loop()
 		
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (screen->script != 0 && FFCore.doscript(ScriptType::Screen, screen_index) && FFCore.waitdraw(ScriptType::Screen, screen_index))
+			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && FFCore.doscript(ScriptType::Screen, screen) && FFCore.waitdraw(ScriptType::Screen, screen))
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);  
-					FFCore.waitdraw(ScriptType::Screen, screen_index) = 0;
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);  
+					FFCore.waitdraw(ScriptType::Screen, screen) = 0;
 				}
 			});
 		}

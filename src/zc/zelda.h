@@ -347,7 +347,7 @@ extern int32_t currscr;
 // If not currently in a region, this is always the same as currscr.
 extern int32_t cur_origin_screen_index;
 // TODO z3 !!! what if:
-// screen_handle_t hero_screen; {mapsrc, screen_index, map_index}
+// screen_handle_t hero_screen; {mapsrc, screen, map_index}
 // Screen the player is currently on. If in a region, this updates as the player moves around. Otherwise this is equal to currscr.
 extern int32_t heroscr;
 // Screen the player is currently on. If in a region, this updates as the player moves around. Otherwise this is equal to the current screen.
@@ -373,7 +373,7 @@ extern int32_t js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
 extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
 extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
 // Stores zoras that are "killed" during clocks, so they can be restored after.
-// (screen_index, id)
+// (screen, id)
 extern std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 extern int32_t swordhearts[4], currcset, currspal6, currspal14, gfc, gfc2, pitx, pity, refill_what, refill_why;
 extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, div_prot_item;
