@@ -3028,6 +3028,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	int32_t screen_index = -1;
 	rpos_t trigger_rpos = rpos_t::None;
 	bool single16 = false;
+	// TODO z3 !!! optimize
 	if (has_flag_trigger(x, y, flag, trigger_rpos, single16))
 	{
 		screen_index = get_screen_index_for_world_xy(x, y);

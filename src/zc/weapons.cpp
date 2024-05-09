@@ -3384,14 +3384,24 @@ std::set<rpos_t> weapon::getBombPositions()
 		int rad = itm.misc7;
 		int tx = x, ty = y-fakez;
 		CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx+8,ty+8)); //always hits at least 1 combo
-		// TODO z3 this is crazy inefficient
-		for (int q = 0; q < region_num_rpos; ++q)
-		{
-			rpos_t rpos = (rpos_t)q;
-			auto [x, y] = COMBOXY_REGION(rpos);
 
-			if (distance(tx,ty,x,y) <= rad)
-				rposes.insert(rpos);
+		int cx = tx / 16;
+		int cy = ty / 16;
+		int rad_num_tiles = std::ceil(rad / 16.0);
+		int x_min = cx - rad_num_tiles;
+		int y_min = cy - rad_num_tiles;
+		int x_max = cx + rad_num_tiles;
+		int y_max = cy + rad_num_tiles;
+
+		for (int y = y_min; y <= y_max; y++)
+		{
+			for (int x = x_min; x <= x_max; x++)
+			{
+				int x0 = x * 16;
+				int y0 = y * 16;
+				if (distance(tx, ty, x0, y0) <= rad)
+					rposes.insert(COMBOPOS_REGION(x0, y0));
+			}
 		}
 	}
 
