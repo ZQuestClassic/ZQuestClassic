@@ -3029,17 +3029,37 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	rpos_t trigger_rpos = rpos_t::None;
 	bool single16 = false;
 
-	std::set<rpos_t> rposes;
-	rposes.insert(COMBOPOS_REGION(x, y));
-	rposes.insert(COMBOPOS_REGION(x + 15, y));
-	rposes.insert(COMBOPOS_REGION(x, y + 15));
-	rposes.insert(COMBOPOS_REGION(x + 15, y + 15));
-	for (rpos_t rpos : rposes)
+	std::vector<std::pair<int, int>> coords;
+	coords.push_back({x, y});
+	coords.push_back({x + 15, y});
+	coords.push_back({x, y + 15});
+	coords.push_back({x + 15, y + 15});
+	std::vector<rpos_t> rposes_seen;
+	for (auto [x, y] : coords)
 	{
+		rpos_t rpos = COMBOPOS_REGION_CHECK_BOUNDS(x, y);
 		if (rpos == rpos_t::None)
 			continue;
 
-		auto [x, y] = COMBOXY_REGION(rpos);
+		if (MAPFFCOMBOFLAG(x, y) == flag)
+		{
+			screen_index = get_screen_index_for_world_xy(x, y);
+			break;
+		}
+
+		bool seen = false;
+		for (rpos_t r : rposes_seen)
+		{
+			if (r == rpos)
+			{
+				seen = true;
+				break;
+			}
+		}
+		if (seen)
+			continue;
+
+		rposes_seen.push_back(rpos);
 		if (has_flag_trigger(x, y, flag, trigger_rpos, single16))
 		{
 			screen_index = get_screen_index_for_world_xy(x, y);
