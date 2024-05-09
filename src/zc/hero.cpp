@@ -29439,8 +29439,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			putscrdoors(framebuf, offx, offy, screen_handles[0].screen);
 		});
 
-		// TODO z3 could everything happen in a single call to for_every_nearby_screen_during_scroll ?
-
 		if (!align_counter || scroll_counter) herostep();
 
 		{

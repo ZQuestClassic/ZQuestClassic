@@ -694,7 +694,7 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 }
 int32_t RPOS_TO_POS(rpos_t rpos)
 {
-	DCHECK(rpos != rpos_t::None);
+	DCHECK(is_valid_rpos(rpos));
 	return static_cast<int32_t>(rpos)%176;
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
@@ -1158,11 +1158,11 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 	
 	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return 0;
 	
-	// TODO z3 super expensive...
+	// TODO z3 ! super expensive...
 	mapscr scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? *m : TheMaps[mapid]);
 	if (scr.valid==0) return 0;
 	
-	// TODO z3 can this not be called all the time?
+	// TODO z3 ! can this not be called all the time?
 	apply_state_changes_to_screen(scr, map, screen, flags);
 	
 	return scr.data[pos];
@@ -2369,8 +2369,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 		{
 			rpos_handle.rpos = POS_TO_RPOS(i, scr);
 			rpos_handle.pos = i;
-			// TODO z3 very slow! prob best to figure out how to not call this function so much.
-			newcombo const& cmb = combobuf[s->data[i]];
+			newcombo const& cmb = rpos_handle.combo();
 			if(triggers && force_ex_trigger(rpos_handle, xflag))
 				didit = true;
 			else switch(cmb.type)
@@ -2384,7 +2383,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
 					if(cmb.attribytes[5] == xflag)
 					{
-						s->data[i]++;
+						rpos_handle.increment_data();
 						didit=true;
 					}
 					break;
