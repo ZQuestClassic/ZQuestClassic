@@ -6,7 +6,7 @@
 #include "ffc.h"
 #include <variant>
 
-const newcombo& rpos_handle_t::combo() const
+newcombo& rpos_handle_t::combo() const
 {
 	return combobuf[screen->data[pos]];
 }

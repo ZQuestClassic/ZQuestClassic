@@ -45,8 +45,6 @@ extern HeroClass Hero;
 //    - multiple triggers across many screens in a region (multi-block puzzle)
 //    - perm secrets
 // sword beams / ewpns should only despawn when leaving viewport
-// monster spawning code as moving around
-// make sure ffcs work
 // ffc carryovers
 // zscript docs
 
@@ -694,7 +692,6 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 	int pos = COMBOPOS(x%256, y%176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
 }
-// TODO z3 !! force inline
 int32_t RPOS_TO_POS(rpos_t rpos)
 {
 	DCHECK(rpos != rpos_t::None);
@@ -2702,7 +2699,6 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 	if (!s) s = get_scr(currmap, screen_index);
 	if (screen_index == -1) screen_index = currscr;
 
-	// TODO z3 ! this should move into `trigger_secrets_for_screen`.
 	if (replay_is_active())
 		replay_step_comment(fmt::format("trigger secrets scr={}", screen_index));
 
@@ -5926,7 +5922,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 //    - remove tmpscr, tmpscr2, etc. Just store these things in the larger temporary screen vectors.
 //      (this is hard)
 //    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in
-//      load_a_screen_and_layers (this is easy).
+//      load_a_screen_and_layers
 void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay)
 {
 	bool is_setting_special_warp_return_screen = tmp == 1;

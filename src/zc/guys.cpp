@@ -19199,7 +19199,6 @@ void script_side_load_enemies()
 	sle_clk = 0;
 }
 
-// TODO z3 enemies
 static void side_load_enemies(mapscr* screen, int screen_index)
 {
 	if(!script_sle && sle_clk==0)

@@ -10258,7 +10258,7 @@ heroanimate_skip_liftwpn:;
 	// Global Combo Effects (AUTO STUFF)
 	bool awarp = false;
 	for_some_rpos([&](const rpos_handle_t& rpos_handle) {
-		newcombo const& cmb = combobuf[rpos_handle.data()];
+		newcombo const& cmb = rpos_handle.combo();
 
 		if (!get_qr(qr_AUTOCOMBO_ANY_LAYER))
 		{
@@ -25100,16 +25100,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
 
-				// TODO z3 for_every_rpos
-				for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-					for(int32_t k=0; k<176; k++)
-					{
-						if (isStepType(combobuf[screen->data[k]].type))
-						{
-							screen->data[k]++;
-						}
-					}
-				});				
+				for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+					if (isStepType(rpos_handle.combo().type))
+						rpos_handle.increment_data();
+				});			
 			}
 		}
 	}
@@ -29322,14 +29316,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			int delta = (align_counter - abs(secondary_axis_alignment_amount)) * sign(secondary_axis_alignment_amount);
 			if (scrolldir == up || scrolldir == down) viewport.x = initial_viewport.x + delta;
 			else                                      viewport.y = initial_viewport.y + delta;
-			// TODO z3 ! lets set viewport to initial viewport at top of each loop ...
-			//if (pfo_mode == 0)
 			if (dx)
 				viewport.y += playing_field_offset - old_original_playing_field_offset;
 		}
-
-		// if (pfo_mode == 0)
-		// 	viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_original_playing_field_offset);
 
 		FFCore.ScrollingData[SCROLLDATA_NX] = nx - viewport.x;
 		FFCore.ScrollingData[SCROLLDATA_NY] = ny - viewport.y;

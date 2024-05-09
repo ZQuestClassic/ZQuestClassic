@@ -24347,7 +24347,7 @@ void set_register(int32_t arg, int32_t value)
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
 			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[]"); rpos_handle.screen != nullptr)
 			{
-				combobuf[rpos_handle.data()].flag = value/10000;
+				rpos_handle.combo().flag = value/10000;
 			}
 		}
 		break;

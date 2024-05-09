@@ -42,7 +42,7 @@ struct rpos_handle_t
 	// rpos % 176
 	int32_t pos;
 
-	const newcombo& combo() const;
+	newcombo& combo() const;
 	cpos_info& info() const;
 
 	int32_t data() const;

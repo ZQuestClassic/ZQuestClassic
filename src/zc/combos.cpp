@@ -2398,7 +2398,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 	}
 	if(cmb.triggerflags[0] & combotriggerRESETANIM)
 	{
-		newcombo& rcmb = combobuf[rpos_handle.data()];
+		auto& rcmb = rpos_handle.combo();
 		rcmb.tile = rcmb.o_tile;
 		rcmb.cur_frame=0;
 		rcmb.aclk = 0;
@@ -2936,7 +2936,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 			
 			if(cmb.triggerflags[0] & combotriggerRESETANIM)
 			{
-				newcombo& rcmb = combobuf[rpos_handle.data()];
+				newcombo& rcmb = rpos_handle.combo();
 				rcmb.tile = rcmb.o_tile;
 				rcmb.cur_frame=0;
 				rcmb.aclk = 0;

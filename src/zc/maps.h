@@ -89,7 +89,7 @@ extern rpos_t region_max_rpos;
 extern int region_num_rpos;
 // TODO z3
 extern int scrolling_maze_scr, scrolling_maze_state;
-// TODO z3: this only works in mode '0' and if the scrolling region is 1x1...
+// TODO z3 ! this only works in mode '0' and if the scrolling region is 1x1...
 // 0 to keep viewport frozen on maze screen and have hero appear to wrap around.
 // 1 to keep hero in the center.
 extern int scrolling_maze_mode;
