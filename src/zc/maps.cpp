@@ -3028,23 +3028,25 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	int32_t screen_index = -1;
 	rpos_t trigger_rpos = rpos_t::None;
 	bool single16 = false;
-	// TODO z3 !!! optimize
-	if (has_flag_trigger(x, y, flag, trigger_rpos, single16))
+
+	std::set<rpos_t> rposes;
+	rposes.insert(COMBOPOS_REGION(x, y));
+	rposes.insert(COMBOPOS_REGION(x + 15, y));
+	rposes.insert(COMBOPOS_REGION(x, y + 15));
+	rposes.insert(COMBOPOS_REGION(x + 15, y + 15));
+	for (rpos_t rpos : rposes)
 	{
-		screen_index = get_screen_index_for_world_xy(x, y);
+		if (rpos == rpos_t::None)
+			continue;
+
+		auto [x, y] = COMBOXY_REGION(rpos);
+		if (has_flag_trigger(x, y, flag, trigger_rpos, single16))
+		{
+			screen_index = get_screen_index_for_world_xy(x, y);
+			break;
+		}
 	}
-	else if (has_flag_trigger(x + 15, y, flag, trigger_rpos, single16))
-	{
-		screen_index = get_screen_index_for_world_xy(x + 15, y);
-	}
-	else if (has_flag_trigger(x, y + 15, flag, trigger_rpos, single16))
-	{
-		screen_index = get_screen_index_for_world_xy(x, y + 15);
-	}
-	else if (has_flag_trigger(x + 15, y + 15, flag, trigger_rpos, single16))
-	{
-		screen_index = get_screen_index_for_world_xy(x + 15, y + 15);
-	}
+
 	if (screen_index != -1) scr = get_scr(currmap, screen_index);
 	if (!scr) return false;
 
@@ -3107,7 +3109,7 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 	for(int q = 0; q < 7; ++q)
 	{
 		mapscr* m = FFCore.tempScreens[q];
-		for(rpos_t rpos : rposes)
+		for (rpos_t rpos : rposes)
 		{
 			if (rpos == rpos_t::None)
 				continue;
