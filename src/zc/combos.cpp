@@ -970,7 +970,7 @@ bool trigger_warp(newcombo const& cmb)
 
 bool trigger_chest(const rpos_handle_t& rpos_handle)
 {
-	mapscr* base_screen = rpos_handle.layer == 0 ? rpos_handle.scr : get_scr(currmap, rpos_handle.screen);
+	mapscr* base_scr = rpos_handle.layer == 0 ? rpos_handle.scr : get_scr(currmap, rpos_handle.screen);
 
 	auto& cmb = rpos_handle.combo();	
 	switch(cmb.type)
@@ -1056,7 +1056,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 	}
 	if(itemflag && !itemstate)
 	{
-		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((base_screen->flags8&fITEMSECRET) ? ipSECRETS : 0);
+		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((base_scr->flags8&fITEMSECRET) ? ipSECRETS : 0);
 		int32_t itid = cmb.attrishorts[2];
 		switch(itid)
 		{
@@ -1068,7 +1068,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 				break;
 			}
 			case -1:
-				itid = base_screen->catchall;
+				itid = base_scr->catchall;
 				break;
 		}
 		if(unsigned(itid) >= MAXITEMS) itid = 0;
@@ -2920,8 +2920,8 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		
 		if(!check_bit)
 		{
-			mapscr* base_screen = rpos_handle.layer == 0 ? rpos_handle.scr : get_layer_scr_allow_scrolling(currmap, rpos_handle.screen, -1);
-			handle_trigger_results(base_screen, rpos_handle.screen, cmb, cx, cy, hasitem, used_bit, special);
+			mapscr* base_scr = rpos_handle.layer == 0 ? rpos_handle.scr : get_layer_scr_allow_scrolling(currmap, rpos_handle.screen, -1);
+			handle_trigger_results(base_scr, rpos_handle.screen, cmb, cx, cy, hasitem, used_bit, special);
 			
 			if(cmb.trigchange)
 			{

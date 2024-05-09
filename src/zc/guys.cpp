@@ -151,7 +151,7 @@ void identifyCFEnemies()
 int32_t random_layer_enemy(int screen)
 {
 	int32_t cnt=count_layer_enemies(screen);
-	mapscr* base_screen = get_scr(currmap, screen);
+	mapscr* base_scr = get_scr(currmap, screen);
 	
 	if(cnt==0)
 	{
@@ -163,9 +163,9 @@ int32_t random_layer_enemy(int screen)
 	
 	for(int32_t i=0; i<6; ++i)
 	{
-		if(base_screen->layermap[i]!=0)
+		if(base_scr->layermap[i]!=0)
 		{
-			const mapscr* layerscreen = get_canonical_scr(base_screen->layermap[i]-1, base_screen->layerscreen[i]);
+			const mapscr* layerscreen = get_canonical_scr(base_scr->layermap[i]-1, base_scr->layerscreen[i]);
 			
 			for(int32_t j=0; j<10; ++j)
 			{
@@ -189,13 +189,13 @@ int32_t count_layer_enemies(int screen)
 {
 	int32_t cnt=0;
 
-	mapscr* base_screen = get_scr(currmap, screen);
+	mapscr* base_scr = get_scr(currmap, screen);
 	
 	for(int32_t i=0; i<6; ++i)
 	{
 		if(tmpscr->layermap[i]!=0)
 		{
-			const mapscr* layerscreen = get_canonical_scr(base_screen->layermap[i]-1, base_screen->layerscreen[i]);
+			const mapscr* layerscreen = get_canonical_scr(base_scr->layermap[i]-1, base_scr->layerscreen[i]);
 			
 			for(int32_t j=0; j<10; ++j)
 			{

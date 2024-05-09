@@ -364,9 +364,9 @@ void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
 void toggle_switches(dword flags, bool entry, mapscr* m, int screen);
 void toggle_gswitches(int32_t state, bool entry);
-void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen);
-void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen);
-void toggle_gswitches_load(mapscr* base_screen, int screen);
+void toggle_gswitches(int32_t state, bool entry, mapscr* base_scr, int screen);
+void toggle_gswitches(bool* states, bool entry, mapscr* base_scr, int screen);
+void toggle_gswitches_load(mapscr* base_scr, int screen);
 void run_gswitch_timers();
 void onload_gswitch_timers();
 

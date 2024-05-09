@@ -9426,7 +9426,7 @@ bool is_layer_transparent(const mapscr& m, int32_t layer)
 
 mapscr *getmapscreen(int32_t map_index, int32_t screen, int32_t layer)   //returns NULL for invalid or non-existent layer
 {
-	mapscr *base_screen;
+	mapscr *base_scr;
 	int32_t index = map_index*MAPSCRS+screen;
 	
 	if((uint32_t)layer > 6 || (uint32_t)index >= TheMaps.size())
@@ -9436,12 +9436,12 @@ mapscr *getmapscreen(int32_t map_index, int32_t screen, int32_t layer)   //retur
 	{
 		layer = layer - 1;
 		
-		base_screen=&(TheMaps[index]);
+		base_scr=&(TheMaps[index]);
 		
-		if(base_screen->layermap[layer]==0)
+		if(base_scr->layermap[layer]==0)
 			return NULL;
 			
-		index=(base_screen->layermap[layer]-1)*MAPSCRS+base_screen->layerscreen[layer];
+		index=(base_scr->layermap[layer]-1)*MAPSCRS+base_scr->layerscreen[layer];
 		
 		if((uint32_t)index >= TheMaps.size())   // Might as well make sure
 			return NULL;
