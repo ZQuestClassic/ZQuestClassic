@@ -2585,7 +2585,7 @@ void handle_trigger_results(mapscr* screen, int screen_index, newcombo const& cm
 		if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
 		{
 			triggering_generic_secrets = true;
-			trigger_secrets_for_screen(TriggerSource::GenericCombo, false);
+			trigger_secrets_for_screen(TriggerSource::GenericCombo, screen_index, false);
 			triggering_generic_secrets = false;
 			if(screen->secretsfx)
 				sfx(screen->secretsfx);

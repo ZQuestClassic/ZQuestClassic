@@ -23748,8 +23748,8 @@ void HeroClass::handleSpotlights()
 	}
 	if(hastrigs && istrigged && !alltrig)
 	{
-		// TODO z3 what screen? main screen?
-		trigger_secrets_for_screen(TriggerSource::LightTrigger, false);
+		// TODO what screen?
+		trigger_secrets_for_screen(TriggerSource::LightTrigger, heroscr, false);
 		sfx(tmpscr->secretsfx);
 		if(!(tmpscr->flags5&fTEMPSECRETS))
 		{
@@ -24044,7 +24044,7 @@ void HeroClass::checkspecial()
 				if (!did_secret && (screen->flags2&fCLEARSECRET))
 				{
 					bool only16_31 = get_qr(qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
-					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, only16_31);
+					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, screen_index, only16_31);
 					
 					if (screen->flags4&fENEMYSCRTPERM && canPermSecret(currdmap, screen_index))
 					{

@@ -301,7 +301,6 @@ enum TriggerSource {
 	CheatTemp,
 	CheatPerm,
 };
-void trigger_secrets_for_screen(TriggerSource source, bool high16only, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single);

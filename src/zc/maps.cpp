@@ -2648,14 +2648,6 @@ static int32_t findtrigger(int32_t screen_index)
     return ret;
 }
 
-// single:
-// >-1 : the singular triggering combo
-// -1: triggered by some other cause
-void trigger_secrets_for_screen(TriggerSource source, bool high16only, int32_t single)
-{
-	trigger_secrets_for_screen(source, currscr, high16only, single);
-}
-
 static void log_trigger_secret_reason(TriggerSource source)
 {
 	if (source == Singular)
@@ -2683,6 +2675,9 @@ static void log_trigger_secret_reason(TriggerSource source)
 	}
 }
 
+// single:
+// >-1 : the singular triggering combo
+// -1: triggered by some other cause
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only, int32_t single)
 {
 	log_trigger_secret_reason(source);
@@ -3067,7 +3062,6 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	
 	if(scr->flags6&fTRIGGERFPERM)
 	{
-		// TODO z3 ! secret find for all screens in region?
 		int32_t flags_remaining = findtrigger(screen_index);  //Normal flags
 		
 		if (flags_remaining)
