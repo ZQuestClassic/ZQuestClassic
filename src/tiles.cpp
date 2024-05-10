@@ -1595,12 +1595,8 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
     int32_t drawtile=c.tile;
     int32_t tframes=zc_max(1, c.frames);
 
-	x += viewport.x;
-	y += viewport.y;
-
-	// TODO z3 remove
-	x += combotile_add_x;
-	y += combotile_add_y;
+	x += viewport.x + combotile_add_x;
+	y += viewport.y + combotile_add_y;
 
     switch(combo_class_buf[c.type].directional_change_type)
     {

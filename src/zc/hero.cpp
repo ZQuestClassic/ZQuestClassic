@@ -29340,16 +29340,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(framebuf, 2, 0, playing_field_offset);
 		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3, 0, playing_field_offset);
 
-		combotile_add_x = 0;
-		combotile_add_y = 0;
-		if (is_unsmooth_vertical_scrolling) combotile_add_y -= 3;
+		combotile_add_y = is_unsmooth_vertical_scrolling ? -3 : 0;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176 + playing_field_offset;
 			if (lenscheck(screen_handles[0].scr, 0))
 				putscr(framebuf, offx, offy, screen_handles[0].scr);
 		});
-		combotile_add_x = 0;
 		combotile_add_y = 0;
 
 		if (lenscheck(newscr, 0))
