@@ -30816,8 +30816,8 @@ void HeroClass::checkitems(int32_t index)
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
 	int32_t linked_parent = ptr->linked_parent;
-	// `screen_index_spawned` is probably same as `heroscr`, but could not be if the item moved around.
-	int32_t item_screen_index = ptr->screen_index_spawned;
+	// `screen_spawned` is probably same as `heroscr`, but could not be if the item moved around.
+	int32_t item_screen_index = ptr->screen_spawned;
 	mapscr* item_screen = get_scr(currmap, item_screen_index);
 
 	// For items grabbed while in a special screen.

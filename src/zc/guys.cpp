@@ -353,7 +353,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 {
 	x=X;
 	y=Y;
-	screen_index_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
+	screen_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	clk=Clk;
 	floor_y=y;
@@ -1020,7 +1020,7 @@ bool enemy::do_falling(int32_t index)
 			else if(dying) //Give 1 frame for script revival
 			{
 				if(flags&guy_neverret)
-					never_return(screen_index_spawned, index);
+					never_return(screen_spawned, index);
 				
 				if(leader)
 					kill_em_all();
@@ -1060,7 +1060,7 @@ bool enemy::do_drowning(int32_t index)
 			else if(dying) //Give 1 frame for script revival
 			{
 				if(flags&guy_neverret)
-					never_return(screen_index_spawned, index);
+					never_return(screen_spawned, index);
 				
 				if(leader)
 					kill_em_all();
@@ -1112,7 +1112,7 @@ bool enemy::Dead(int32_t index)
 	{
 		if(deathexstate > -1 && deathexstate < 32)
 		{
-			setxmapflag(screen_index_spawned, 1<<deathexstate);
+			setxmapflag(screen_spawned, 1<<deathexstate);
 			deathexstate = -1;
 		}
 		--clk2;
@@ -1124,7 +1124,7 @@ bool enemy::Dead(int32_t index)
 		if(clk2==0)
 		{
 			if(flags&guy_neverret)
-				never_return(screen_index_spawned, index);
+				never_return(screen_spawned, index);
 				
 			if(leader)
 				kill_em_all();
@@ -1732,7 +1732,7 @@ void enemy::leave_item()
 			else itm = (new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
 		}
 		itm->from_dropset = thedropset;
-		add_item_for_screen(screen_index_spawned, itm);
+		add_item_for_screen(screen_spawned, itm);
 		
 		ev.push_back(getUID());
 		ev.push_back(itm->getUID());
@@ -1967,7 +1967,7 @@ void enemy::FireWeapon()
 			{
 			//zprint2("summon\n");
 			//al_trace("summon\n");
-				if(addchild(screen_index_spawned,x,y,dmisc3,-10, this->script_UID))
+				if(addchild(screen_spawned,x,y,dmisc3,-10, this->script_UID))
 		{
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			//((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
@@ -1984,7 +1984,7 @@ void enemy::FireWeapon()
 	
 	case e1tSUMMONLAYER: // Summoner
 	{
-		if(count_layer_enemies(screen_index_spawned)==0)
+		if(count_layer_enemies(screen_spawned)==0)
 		{
 			break;
 		}
@@ -1998,7 +1998,7 @@ void enemy::FireWeapon()
 			
 			for(int32_t i=0; i<newguys; i++)
 			{
-				int32_t id2=vbound(random_layer_enemy(screen_index_spawned),eSTART,eMAXGUYS-1);
+				int32_t id2=vbound(random_layer_enemy(screen_spawned),eSTART,eMAXGUYS-1);
 				int32_t x2=0;
 				int32_t y2=0;
 				
@@ -2011,7 +2011,7 @@ void enemy::FireWeapon()
 					{
 						//zprint2("summon\n");
 						//al_trace("summon\n");
-						if(addchild_z(screen_index_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							//((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
@@ -2938,7 +2938,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		{
 			for ( int32_t q = 0; q < dmisc4; q++ )
 			{
-				addenemy(screen_index_spawned,x,y,
+				addenemy(screen_spawned,x,y,
 						dmisc3+0x1000,-15);
 				
 			}
@@ -2958,7 +2958,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			{
 				int32_t x2=16*((zc_oldrand()%12)+2);
 				int32_t y2=16*((zc_oldrand()%7)+2);
-				addenemy(screen_index_spawned,
+				addenemy(screen_spawned,
 					//(x+(txsz*16)/2),(y+(tysz*16)/2)
 					x2,y2,
 						dmisc3+0x1000,-15);
@@ -3003,7 +3003,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		
 		case edTRIGGERSECRETS:
 		{
-			trigger_secrets_for_screen(TriggerSource::Unspecified, screen_index_spawned, false);
+			trigger_secrets_for_screen(TriggerSource::Unspecified, screen_spawned, false);
 			return -1;
 		}
 		
@@ -3357,7 +3357,7 @@ int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 		sfx(WAV_CHINK,pan(int32_t(x)));
 		return 1;
 	case edTRIGGERSECRETS:
-		trigger_secrets_for_screen(TriggerSource::Unspecified, screen_index_spawned, false);
+		trigger_secrets_for_screen(TriggerSource::Unspecified, screen_spawned, false);
 		break;
 		
 	case edIGNOREL1:
@@ -4484,11 +4484,11 @@ void enemy::try_death(bool force_kill)
 		ev.clear();
 		if(isSaved) return;
 		
-		if(itemguy && screen_item_get_state(screen_index_spawned) == ScreenItemState::CarriedByEnemy)
+		if(itemguy && screen_item_get_state(screen_spawned) == ScreenItemState::CarriedByEnemy)
 		{
 			for(int32_t i=0; i<items.Count(); i++)
 			{
-				if(((item*)items.spr(i))->pickup&ipENEMY && screen_index_spawned == ((item*)items.spr(i))->screen_index_spawned)
+				if(((item*)items.spr(i))->pickup&ipENEMY && screen_spawned == ((item*)items.spr(i))->screen_spawned)
 				{
 					if (!get_qr(qr_BROKEN_ITEM_CARRYING))
 					{
@@ -4536,12 +4536,12 @@ void enemy::try_death(bool force_kill)
 		
 		if(itemguy)
 		{
-			screen_item_clear_state(screen_index_spawned);
+			screen_item_clear_state(screen_spawned);
 			item_set=0;
 		}
 		
-		if(screen_index_spawned<128 && count_enemy && !script_spawned)
-			game->guys[(currmap<<7)+screen_index_spawned]-=1;
+		if(screen_spawned<128 && count_enemy && !script_spawned)
+			game->guys[(currmap<<7)+screen_spawned]-=1;
 	}
 }
 
@@ -7826,8 +7826,8 @@ bool guy::animate(int32_t index)
 		
 		if(!get_qr(qr_NOGUYFIRES))
 		{
-			addenemy(screen_index_spawned,BSZ?64:72,68,eSHOOTFBALL,0);
-			addenemy(screen_index_spawned,BSZ?176:168,68,eSHOOTFBALL,0);
+			addenemy(screen_spawned,BSZ?64:72,68,eSHOOTFBALL,0);
+			addenemy(screen_spawned,BSZ?176:168,68,eSHOOTFBALL,0);
 		}
 	}
 	
@@ -10734,7 +10734,7 @@ bool eZora::animate(int32_t index)
 	
 	if(watch)
 	{
-		clock_zoras.push_back({screen_index_spawned, id});
+		clock_zoras.push_back({screen_spawned, id});
 		return true;
 	}
 	
@@ -10753,9 +10753,9 @@ bool eZora::animate(int32_t index)
 		
 		while(!placed && t<160)
 		{
-			rpos_t rpos = POS_TO_RPOS(pos2, screen_index_spawned);
+			rpos_t rpos = POS_TO_RPOS(pos2, screen_spawned);
 			auto [sx, sy] = COMBOXY_REGION(rpos);
-			mapscr* s = get_scr(currmap, screen_index_spawned);
+			mapscr* s = get_scr(currmap, screen_spawned);
 
 			int32_t watertype = iswaterex_z3(s->data[pos2], -1, sx, sy, false, true, true, (bool)(editorflags & ENEMY_FLAG7));
 			if(watertype && ((editorflags & ENEMY_FLAG6) || 
@@ -10954,7 +10954,7 @@ bool eStalfos::animate(int32_t index)
 		int32_t id2=dmisc3;
 		for(int32_t i=0; i < dmisc4; i++)
 		{
-			if(addenemy(screen_index_spawned,x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
+			if(addenemy(screen_spawned,x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
 				((enemy*)guys.spr(kids+i))->count_enemy = false;
 		}
 		
@@ -11459,7 +11459,7 @@ bool eStalfos::animate(int32_t index)
 		
 		for(int32_t i=0; i<dmisc4; i++)
 		{
-			if(addenemy(screen_index_spawned,x,y,id2,-24))
+			if(addenemy(screen_spawned,x,y,id2,-24))
 			{
 				if(itemguy) // Hand down the carried item
 				{
@@ -11863,7 +11863,7 @@ bool eKeese::animate(int32_t index)
 				int32_t kids = guys.Count();
 				bool success = false;
 				int32_t id2=dmisc3;
-				success = 0 != addenemy(screen_index_spawned,(zfix)x,(zfix)y,id2,-24);
+				success = 0 != addenemy(screen_spawned,(zfix)x,(zfix)y,id2,-24);
 				
 				if(success)
 				{
@@ -12280,7 +12280,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			for(int32_t i=0; i<bats; i++)
 			{
 				// Summon bats (or anything)
-				if(addchild(screen_index_spawned, x,y,dmisc3,-10, this->script_UID))
+				if(addchild(screen_spawned, x,y,dmisc3,-10, this->script_UID))
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			}
 			
@@ -12289,7 +12289,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	}
 	else if(dmisc2==3)  //summon from layer
 	{
-		if(count_layer_enemies(screen_index_spawned)==0)
+		if(count_layer_enemies(screen_spawned)==0)
 		{
 			return;
 		}
@@ -12303,7 +12303,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			
 			for(int32_t i=0; i<newguys; i++)
 			{
-				int32_t id2=vbound(random_layer_enemy(screen_index_spawned),eSTART,eMAXGUYS-1);
+				int32_t id2=vbound(random_layer_enemy(screen_spawned),eSTART,eMAXGUYS-1);
 				int32_t x2=0;
 				int32_t y2=0;
 				
@@ -12314,7 +12314,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 					
 					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Hero.getX())>=32 || abs(y2-Hero.getY())>=32))
 					{
-						if(addchild_z(screen_index_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+						if(addchild_z(screen_spawned,x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & FLAG_USE_FAKE_Z)) 
@@ -13496,22 +13496,22 @@ bool eBigDig::animate(int32_t index)
 	case 2:
 		for(int32_t i=0; i<dmisc5; i++)
 		{
-			addenemy(screen_index_spawned,x,y,dmisc1+0x1000,-15);
+			addenemy(screen_spawned,x,y,dmisc1+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc6; i++)
 		{
-			addenemy(screen_index_spawned,x,y,dmisc2+0x1000,-15);
+			addenemy(screen_spawned,x,y,dmisc2+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc7; i++)
 		{
-			addenemy(screen_index_spawned,x,y,dmisc3+0x1000,-15);
+			addenemy(screen_spawned,x,y,dmisc3+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc8; i++)
 		{
-			addenemy(screen_index_spawned,x,y,dmisc4+0x1000,-15);
+			addenemy(screen_spawned,x,y,dmisc4+0x1000,-15);
 		}
 		
 		if(itemguy) // Hand down the carried item
@@ -14028,7 +14028,7 @@ bool eMoldorm::animate(int32_t index)
 		if(--clk2 == 0)
 		{
 			if(flags&guy_neverret)
-				never_return(screen_index_spawned, index);
+				never_return(screen_spawned, index);
 				
 			if(!dmisc2 || (editorflags & ENEMY_FLAG6))
 				leave_item();
@@ -14414,7 +14414,7 @@ bool eLanmola::animate(int32_t index)
 		clk2=19;
 		x=guys.spr(index+1)->x;
 		y=guys.spr(index+1)->y;
-		setmapflag(screen_index_spawned, mTMPNORET);
+		setmapflag(screen_spawned, mTMPNORET);
 	}
 	
 	//this enemy is invincible.. BUT scripts don't know that, and can "kill" it by setting the hp negative.
@@ -15271,7 +15271,7 @@ bool eGleeok::animate(int32_t index)
 		for(int32_t i=0; i<misc; i++)
 			((enemy*)guys.spr(index+i+1))->misc = -2;             // give the signal to disappear
 			
-		if(flags&guy_neverret) never_return(screen_index_spawned, index);
+		if(flags&guy_neverret) never_return(screen_spawned, index);
 	}
 	
 	return enemy::animate(index);
@@ -17091,27 +17091,27 @@ void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy,mapscr* pare
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
 	item *i = new item(zfix(x), zfix(y - get_qr(qr_NOITEMOFFSET)), 0_zf, id, pickup, 0);
-	i->screen_index_spawned = get_screen_index_for_world_xy(x, y);
+	i->screen_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
 }
 
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk)
 {
 	item *i = new item((zfix)x,(zfix)y-(get_qr(qr_NOITEMOFFSET)),(zfix)0,id,pickup,clk);
-	i->screen_index_spawned = get_screen_index_for_world_xy(x, y);
+	i->screen_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
 }
 
 void adddummyitem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
 	item *i = new item((zfix)x,(zfix)y-(get_qr(qr_NOITEMOFFSET)),(zfix)0,id,pickup,0,true);
-	i->screen_index_spawned = get_screen_index_for_world_xy(x, y);
+	i->screen_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
 }
 
 void add_item_for_screen(int32_t screen, item* item)
 {
-	item->screen_index_spawned = screen;
+	item->screen_spawned = screen;
 	items.add(item);
 }
 
@@ -17208,7 +17208,7 @@ bool hasMainGuy(int screen)
 	for(int32_t i=0; i<guys.Count(); i++)
 	{
 		enemy* e = (enemy*)guys.spr(i);
-		if (e->screen_index_spawned == screen && e->mainguy)
+		if (e->screen_spawned == screen && e->mainguy)
 		{
 			return true;
 		}
@@ -17780,7 +17780,7 @@ int32_t addchild_z(int32_t screen, int32_t x,int32_t y,int32_t z,int32_t id,int3
 	for (int i = 0; i < ret; i++)
 	{
 		enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
-		e->screen_index_spawned = screen;
+		e->screen_spawned = screen;
 	}
 
 	return ret;
@@ -18244,7 +18244,7 @@ int32_t addenemy_z(int32_t screen,int32_t x,int32_t y,int32_t z,int32_t id,int32
 	for (int i = 0; i < ret; i++)
 	{
 		enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
-		e->screen_index_spawned = screen;
+		e->screen_spawned = screen;
 	}
 	
 	return ret;
@@ -19589,7 +19589,7 @@ enemy* find_guy_first_for_id(int screen, int id, int mask)
     for (int32_t i=0; i<count; i++)
     {
 		enemy* e = (enemy*)guys.spr(i);
-        if (e->screen_index_spawned == screen && (e->id&mask) == (id&mask))
+        if (e->screen_spawned == screen && (e->id&mask) == (id&mask))
         {
             return e;
         }
@@ -19604,7 +19604,7 @@ enemy* find_guy_nth_for_id(int screen, int id, int n, int mask)
 	for(int32_t i=0; i<count; i++)
     {
 		enemy* e = (enemy*)guys.spr(i);
-        if (e->screen_index_spawned == screen && (e->id&mask) == (id&mask))
+        if (e->screen_spawned == screen && (e->id&mask) == (id&mask))
         {
 			if (n > 1) --n;
 			else return e;
@@ -21577,7 +21577,7 @@ static int count_guys_from_screen(int screen)
 	int count = 0;
 	for (int i=0; i < guys.Count(); i++)
 	{
-		if (((enemy*)guys.spr(i))->screen_index_spawned == screen)
+		if (((enemy*)guys.spr(i))->screen_spawned == screen)
 			count += 1;
 	}
 	return count;
@@ -21601,7 +21601,7 @@ static void roaming_item(mapscr* scr, int screen)
 	for(int32_t j=0; j<guys.Count(); j++)
 	{
 		enemy* e = (enemy*)guys.spr(j);
-		if (e->screen_index_spawned == screen && e->itemguy)
+		if (e->screen_spawned == screen && e->itemguy)
 		{
 			guycarryingitem=j;
 			break;
@@ -21625,7 +21625,7 @@ static void roaming_item(mapscr* scr, int screen)
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
 					+ (((scr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
-			((item*)items.spr(items.Count() - 1))->screen_index_spawned = screen;
+			((item*)items.spr(items.Count() - 1))->screen_spawned = screen;
 			screen_item_set_state(screen, ScreenItemState::CarriedByEnemy);
 		}
 		else
@@ -21636,7 +21636,7 @@ static void roaming_item(mapscr* scr, int screen)
 	
 	for(int32_t i=0; i<items.Count(); i++)
 	{
-		if(((item*)items.spr(i))->pickup&ipENEMY && ((item*)items.spr(i))->screen_index_spawned == screen)
+		if(((item*)items.spr(i))->pickup&ipENEMY && ((item*)items.spr(i))->screen_spawned == screen)
 		{
 			if(get_qr(qr_HIDECARRIEDITEMS))
 			{
