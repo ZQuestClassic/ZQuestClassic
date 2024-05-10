@@ -85,7 +85,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	}
 	else for(int q = maxlayer; q >= 0; --q)
 	{
-		mapscr* layer_scr = get_layer_scr_for_xy(x, y, q - 1);
+		mapscr* layer_scr = get_screen_layer_for_world_xy(x, y, q);
 		if (!layer_scr->valid) continue;
 
 		int cid = layer_scr->data[pos];
@@ -655,7 +655,7 @@ bool movingblock::animate(int32_t)
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
 					if(lyr==blockLayer) continue;
-					mapscr* m0 = get_screen_layer_for_xy_offset(x, y, lyr);
+					mapscr* m0 = get_screen_layer_for_world_xy(x, y, lyr);
 					if((m0->sflag[combopos]==mfBLOCKHOLE)
 						|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 					{
@@ -701,7 +701,7 @@ bool movingblock::animate(int32_t)
 						if (no_trig_replace)
 							for (auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								mapscr* tmp2 = get_screen_layer_for_xy_offset(x, y, lyr2);
+								mapscr* tmp2 = get_screen_layer_for_world_xy(x, y, lyr2);
 								if (is_push(tmp2, rpos_handle.pos))
 								{
 									found = true;
@@ -824,7 +824,7 @@ bool movingblock::animate(int32_t)
 					{
 						if(lyr==blockLayer) continue;
 
-						mapscr* scr = get_screen_layer_for_xy_offset(x, y, lyr);
+						mapscr* scr = get_screen_layer_for_world_xy(x, y, lyr);
 						if (scr->sflag[combopos] == mfBLOCKTRIGGER
 							|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 						{

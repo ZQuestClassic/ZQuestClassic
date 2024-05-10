@@ -653,9 +653,9 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	// TODO: could this reuse _walkflag?
 
 	//_walkflag code
-	mapscr* s0 = get_layer_scr_for_xy(dx, dy, -1);
-	mapscr* s1 = s0->layermap[0]-1 >= 0 ? get_layer_scr_for_xy(dx, dy, 0) : nullptr;
-	mapscr* s2 = s0->layermap[1]-1 >= 0 ? get_layer_scr_for_xy(dx, dy, 1) : nullptr;
+	mapscr* s0 = get_screen_layer_for_world_xy(dx, dy, 0);
+	mapscr* s1 = s0->layermap[0]-1 >= 0 ? get_screen_layer_for_world_xy(dx, dy, 1) : nullptr;
+	mapscr* s2 = s0->layermap[1]-1 >= 0 ? get_screen_layer_for_world_xy(dx, dy, 2) : nullptr;
 	if (!s1 || !s1->valid) s1 = s0;
 	if (!s2 || !s2->valid) s2 = s0;
 	

@@ -455,9 +455,7 @@ mapscr* get_screen_layer_for_rpos(rpos_t rpos, int layer)
 }
 
 // Note: layer=0 is the base screen, 1 is the first layer, etc.
-// TODO rename get_screen_layer_for_world_xy
-// TODO z3 de-dupe this and get_layer_scr_for_xy
-mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer)
+mapscr* get_screen_layer_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_z3_scrolling_mode()) return FFCore.tempScreens[layer];
@@ -585,14 +583,6 @@ mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer)
 		return get_layer_scr(map, screen, layer);
 
 	return FFCore.ScrollingScreensAll[screen * 7 + layer + 1];
-}
-
-// Note: layer=-1 returns the base screen, layer=0 returns the first layer.
-mapscr* get_layer_scr_for_xy(int x, int y, int layer)
-{
-	if (!is_z3_scrolling_mode())
-		return get_layer_scr(currmap, currscr, layer);
-	return get_layer_scr(currmap, get_screen_index_for_world_xy(x, y), layer);
 }
 
 ffc_handle_t get_ffc(int id)
@@ -848,7 +838,7 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 		return 0;
 	}
 
-	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+	mapscr* m = get_screen_layer_for_world_xy(x, y, layer);
 	if (!m->valid)
 	{
 		return 0;
@@ -864,7 +854,7 @@ int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
     
-	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+	mapscr* m = get_screen_layer_for_world_xy(x, y, layer);
     if(!m->valid) return 0;
     
     int32_t combo = COMBOPOS(x%256, y%176);
@@ -877,7 +867,7 @@ int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
     
-	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+	mapscr* m = get_screen_layer_for_world_xy(x, y, layer);
     if(!m->valid) return 0;
     
     int32_t combo = COMBOPOS(x%256, y%176);
@@ -890,7 +880,7 @@ int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
 	
-	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+	mapscr* m = get_screen_layer_for_world_xy(x, y, layer);
     if (!layer || m->valid == 0) return 0;
 
 	int32_t combo = COMBOPOS(x%256, y%176);
@@ -903,7 +893,7 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
 	
-	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+	mapscr* m = get_screen_layer_for_world_xy(x, y, layer);
     if (m->valid == 0) return 0;
 	
     int32_t combo = COMBOPOS(x%256, y%176);
@@ -6569,9 +6559,9 @@ bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_ro
 static bool _walkflag_new(zfix_round zx, zfix_round zy, zfix const& switchblockstate)
 {
 	int x = zx.getRound(), y = zy.getRound();
-	mapscr* s0 = get_screen_layer_for_xy_offset(x, y, 0);
-	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
-	mapscr* s2 = get_screen_layer_for_xy_offset(x, y, 2);
+	mapscr* s0 = get_screen_layer_for_world_xy(x, y, 0);
+	mapscr* s1 = get_screen_layer_for_world_xy(x, y, 1);
+	mapscr* s2 = get_screen_layer_for_world_xy(x, y, 2);
 	if (!s1->valid) s1 = s0;
 	if (!s2->valid) s2 = s0;
 	return _walkflag_new(s0, s1, s2, zx, zy, switchblockstate, true);
@@ -6597,8 +6587,8 @@ bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstat
 static bool effectflag(int32_t x, int32_t y, int32_t layer)
 {
 	mapscr* s0 = get_screen_for_world_xy(x, y);
-	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
-	mapscr* s2 = get_screen_layer_for_xy_offset(x, y, 2);
+	mapscr* s1 = get_screen_layer_for_world_xy(x, y, 1);
+	mapscr* s2 = get_screen_layer_for_world_xy(x, y, 2);
 	if (!s1->valid) s1 = s0;
 	if (!s2->valid) s2 = s0;
 
@@ -6684,7 +6674,8 @@ bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 
 bool _walkflag_layer(zfix_round x, zfix_round y, int32_t layer, int32_t cnt)
 {
-	mapscr* m = get_layer_scr_for_xy(x, y, layer);
+	DCHECK_LAYER_NEG1_INDEX(layer);
+	mapscr* m = get_screen_layer_for_world_xy(x, y, layer + 1);
 	if (m->valid == 0) return false;
 	return _walkflag_layer(x, y, cnt, m);
 }
@@ -6748,7 +6739,8 @@ bool _walkflag_layer_scrolling(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* 
 
 bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt, bool notLink)
 {
-	mapscr* m = get_layer_scr_for_xy(x, y, layer);
+	DCHECK_LAYER_NEG1_INDEX(layer);
+	mapscr* m = get_screen_layer_for_world_xy(x, y, layer + 1);
 	if (m->valid == 0) return false;
 	return _effectflag_layer(x, y, cnt, m, notLink);
 }

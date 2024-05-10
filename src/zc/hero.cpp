@@ -9570,7 +9570,7 @@ heroanimate_skip_liftwpn:;
 		{
 			for(int32_t q = 0; q < 3; ++q)
 			{
-				mapscr* s = get_layer_scr_for_xy(tx, ty, q - 1);
+				mapscr* s = get_screen_layer_for_world_xy(tx, ty, q);
 				if (q && !s->valid) continue;
 
 				newcombo const& cmb = combobuf[s->data[COMBOPOS(tx%256,ty%176)]];

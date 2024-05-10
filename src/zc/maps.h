@@ -138,7 +138,7 @@ rpos_handle_t get_rpos_handle_for_screen(mapscr* scr, int screen, int layer, int
 void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer);
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer);
 mapscr* get_screen_for_world_xy(int x, int y);
-mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
+mapscr* get_screen_layer_for_world_xy(int x, int y, int layer);
 int z3_get_region_relative_dx(int screen);
 int z3_get_region_relative_dx(int screen, int origin_screen_index);
 int z3_get_region_relative_dy(int screen);
@@ -153,7 +153,6 @@ mapscr* get_scr(int map, int screen);
 mapscr* get_scr_no_load(int map, int screen);
 mapscr* get_layer_scr(int map, int screen, int layer);
 mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer);
-mapscr* get_layer_scr_for_xy(int x, int y, int layer);
 
 ffc_handle_t get_ffc(int id);
 
