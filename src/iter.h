@@ -225,7 +225,7 @@ ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, int screen, T&& fn)
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
 		// TODO z3 would `__attribute__((pure))` on get_layer_scr allow compiler to optimize more here?
-		rpos_handle.scr = lyr == 0 ? scr : get_layer_scr(currmap, screen, lyr - 1);
+		rpos_handle.scr = lyr == 0 ? scr : get_layer_scr(screen, lyr - 1);
 		rpos_handle.layer = lyr;
 		for (int pos = 0; pos < 176; ++pos)
 		{

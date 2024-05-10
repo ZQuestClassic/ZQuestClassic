@@ -10606,7 +10606,7 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 	
 	if(type > 7)
 		return;
-	if(type >= 0 && get_scr(currmap, cur_origin_screen_index)->hidescriptlayers & (1<<type))
+	if(type >= 0 && get_scr(cur_origin_screen_index)->hidescriptlayers & (1<<type))
 		return; //Script draws hidden for this layer
 	if(!script_drawing_commands.is_dirty(type))
 		return; //No draws to this layer

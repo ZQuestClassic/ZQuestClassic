@@ -3664,7 +3664,7 @@ bool HeroClass::checkstab()
 							{
 								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
 									FFCore.SetItemMessagePlayed(id2);
-								donewmsg(get_scr(currmap, pstr_screen), pstr);
+								donewmsg(get_scr(pstr_screen), pstr);
 								break;
 							}
 						}
@@ -14440,7 +14440,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			 //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (get_layer_scr(currmap, hero_screen, i)->valid != 0)
+		if (get_layer_scr(hero_screen, i)->valid != 0)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -18113,7 +18113,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			
 			for (int32_t i = 0; i <= 1; ++i)
 			{
-				if (get_layer_scr(currmap, hero_screen, i)->valid != 0)
+				if (get_layer_scr(hero_screen, i)->valid != 0)
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -20148,7 +20148,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 		     //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (get_layer_scr(currmap, hero_screen, i)->valid != 0)
+		if (get_layer_scr(hero_screen, i)->valid != 0)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -21737,7 +21737,7 @@ void HeroClass::oldcheckbosslockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
-				if (get_layer_scr(currmap, hero_screen, 1)->valid != 0)
+				if (get_layer_scr(hero_screen, 1)->valid != 0)
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -21795,12 +21795,12 @@ void HeroClass::oldcheckbosslockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(cmb_screen_index, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(get_scr(currmap, cmb_screen_index), cmb_screen_index, 1<<cmb.attribytes[5]);
+		remove_xstatecombos(get_scr(cmb_screen_index), cmb_screen_index, 1<<cmb.attribytes[5]);
 	}
 	else
 	{
 		setmapflag(cmb_screen_index, mBOSSLOCKBLOCK);
-		remove_bosslockblocks(get_scr(currmap, cmb_screen_index), cmb_screen_index);
+		remove_bosslockblocks(get_scr(cmb_screen_index), cmb_screen_index);
 	}
 	if ( (combobuf[cid].attribytes[3]) )
 		sfx(combobuf[cid].attribytes[3]);
@@ -21898,7 +21898,7 @@ void HeroClass::oldcheckchest(int32_t type)
 		return;
 	}
 
-	mapscr* scr = get_scr(currmap, found_screen_index);
+	mapscr* scr = get_scr(found_screen_index);
 	
 	switch(type)
 	{
@@ -22771,7 +22771,7 @@ int32_t grabComboFromPos(int32_t pos, int32_t type)
 
 	for(int32_t lyr = 6; lyr >= 0; --lyr)
 	{
-		int32_t id = get_layer_scr(currmap, scr, lyr - 1)->data[normalpos];
+		int32_t id = get_layer_scr(scr, lyr - 1)->data[normalpos];
 		if(combobuf[id].type == type)
 			return id;
 	}
@@ -25383,8 +25383,8 @@ RaftingStuff:
 	}
 	
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currmap, currscr);
-	mapscr* cur_scr = get_scr(currmap, currscr);
+	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currscr);
+	mapscr* cur_scr = get_scr(currscr);
 	
 	if((type==cCAVE || type==cCAVE2) && (base_scr->tilewarptype[index]==wtNOWARP)) return;
 	
@@ -27718,7 +27718,7 @@ void HeroClass::do_scroll_direction(direction dir)
 	else if (dir == right) dir_flag = wfRIGHT;
 	else                   assert(false);
 
-	mapscr* scr = get_scr(currmap, hero_screen);
+	mapscr* scr = get_scr(hero_screen);
 
 	if(get_qr(qr_SMARTSCREENSCROLL)&&(!(scr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(scr->flags2&dir_flag))
 	{
@@ -30819,7 +30819,7 @@ void HeroClass::checkitems(int32_t index)
 	int32_t linked_parent = ptr->linked_parent;
 	// `screen_spawned` is probably same as `heroscr`, but could not be if the item moved around.
 	int32_t item_screen_index = ptr->screen_spawned;
-	mapscr* item_screen = get_scr(currmap, item_screen_index);
+	mapscr* item_screen = get_scr(item_screen_index);
 
 	// For items grabbed while in a special screen.
 	if (currscr >= 128)

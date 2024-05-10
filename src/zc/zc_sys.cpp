@@ -8222,7 +8222,7 @@ void playLevelMusic()
 	if (is_headless())
 		return;
 
-	int32_t m=get_scr(currmap, currscr)->screen_midi;
+	int32_t m=get_scr(currscr)->screen_midi;
 	
 	switch(m)
 	{

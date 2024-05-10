@@ -150,7 +150,7 @@ void identifyCFEnemies()
 int32_t random_layer_enemy(int screen)
 {
 	int32_t cnt=count_layer_enemies(screen);
-	mapscr* base_scr = get_scr(currmap, screen);
+	mapscr* base_scr = get_scr(screen);
 	
 	if(cnt==0)
 	{
@@ -188,7 +188,7 @@ int32_t count_layer_enemies(int screen)
 {
 	int32_t cnt=0;
 
-	mapscr* base_scr = get_scr(currmap, screen);
+	mapscr* base_scr = get_scr(screen);
 	
 	for(int32_t i=0; i<6; ++i)
 	{
@@ -10755,7 +10755,7 @@ bool eZora::animate(int32_t index)
 		{
 			rpos_t rpos = POS_TO_RPOS(pos2, screen_spawned);
 			auto [sx, sy] = COMBOXY_REGION(rpos);
-			mapscr* s = get_scr(currmap, screen_spawned);
+			mapscr* s = get_scr(screen_spawned);
 
 			int32_t watertype = iswaterex_z3(s->data[pos2], -1, sx, sy, false, true, true, (bool)(editorflags & ENEMY_FLAG7));
 			if(watertype && ((editorflags & ENEMY_FLAG6) || 
@@ -19861,8 +19861,8 @@ void setupscreen()
 	boughtsomething=false;
 
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currmap, currscr);
-	mapscr* cur_scr = get_scr(currmap, currscr);
+	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currscr);
+	mapscr* cur_scr = get_scr(currscr);
 
 	word str=base_scr->str;
 

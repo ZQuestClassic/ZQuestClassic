@@ -3770,7 +3770,7 @@ bool weapon::animate(int32_t index)
 							{
 								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
 									FFCore.SetItemMessagePlayed(id2);
-								donewmsg(get_scr(currmap, pstr_screen), pstr);
+								donewmsg(get_scr(pstr_screen), pstr);
 								break;
 							}
 						}

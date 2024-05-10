@@ -423,7 +423,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	{
 		if(!(cmb.usrflags&(1<<lyr))) continue;
 
-		mapscr* scr_2 = get_layer_scr(currmap, ffc_handle.screen, lyr);
+		mapscr* scr_2 = get_layer_scr(ffc_handle.screen, lyr);
 		if(!scr_2->data[pos2]) //Don't increment empty space
 			continue;
 		newcombo const& cmb_2 = combobuf[scr_2->data[pos2]];
@@ -883,7 +883,7 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 
 void play_combo_string(int str, int screen)
 {
-	mapscr* scr = get_scr(currmap, screen);
+	mapscr* scr = get_scr(screen);
 	switch(str)
 	{
 		case -1: //Special case: Use Screen String
@@ -971,7 +971,7 @@ bool trigger_warp(newcombo const& cmb)
 
 bool trigger_chest(const rpos_handle_t& rpos_handle)
 {
-	mapscr* base_scr = rpos_handle.layer == 0 ? rpos_handle.scr : get_scr(currmap, rpos_handle.screen);
+	mapscr* base_scr = rpos_handle.layer == 0 ? rpos_handle.scr : get_scr(rpos_handle.screen);
 
 	auto& cmb = rpos_handle.combo();	
 	switch(cmb.type)
@@ -1038,7 +1038,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 	bool itemflag = false;
 	for(int32_t i=0; i<3; i++)
 	{
-		mapscr* layer_scr = get_layer_scr(currmap, rpos_handle.screen, i - 1);
+		mapscr* layer_scr = get_layer_scr(rpos_handle.screen, i - 1);
 		if(layer_scr->sflag[rpos_handle.pos]==mfARMOS_ITEM)
 		{
 			itemflag = true; break;

@@ -2517,7 +2517,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				mapscr* scr = get_scr(currmap, index);
+				mapscr* scr = get_scr(index);
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = scr->screeninitd[q];// * 10000;
@@ -23278,7 +23278,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SCREENSCRIPT:
 		{
-			mapscr* scr = get_scr(currmap, curScriptIndex);
+			mapscr* scr = get_scr(curScriptIndex);
 
 			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
@@ -23880,7 +23880,7 @@ void set_register(int32_t arg, int32_t value)
 				{
 					if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 					{
-						mapscr* scr = get_scr(currmap, curScriptIndex);
+						mapscr* scr = get_scr(curScriptIndex);
 						for(int32_t q=0; q<8; q++)
 							scr->screeninitd[q] = 0;
 					}
@@ -41221,7 +41221,7 @@ int32_t run_script_int(bool is_jitted)
 			break;
 
 			case ScriptType::Screen:
-				get_scr(currmap, i)->script = 0;
+				get_scr(i)->script = 0;
 			case ScriptType::Global:
 			case ScriptType::Player:
 			case ScriptType::DMap:
