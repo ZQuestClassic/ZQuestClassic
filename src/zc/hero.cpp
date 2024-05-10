@@ -8478,8 +8478,8 @@ heroanimate_skip_liftwpn:;
 				|| ((y+(fall/100)<=0) &&
 				// Extra checks if Smart Screen Scrolling is enabled
 				// TODO z3
-				 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
-											   !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up)))))))
+				 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_screen->flags&fMAZE)) &&
+											   !(hero_screen->flags2&wfUP)) && (nextcombo_solid(up)))))))
 			{
 				fall = jumping = 0; // Bumped his head
 				if(get_qr(qr_OLD_SIDEVIEW_LANDING_CODE))
@@ -8672,8 +8672,8 @@ heroanimate_skip_liftwpn:;
 				if((_walkflag(x+4,y-(bigHitbox?9:1),0,SWITCHBLOCK_STATE)
 					|| (y<=(bigHitbox?9:1) &&
 					// Extra checks if Smart Screen Scrolling is enabled
-					 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
-												   !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
+					 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_screen->flags&fMAZE)) &&
+												   !(hero_screen->flags2&wfUP)) && (nextcombo_solid(up))))))
 						&& fall < 0)
 				{
 					fall = jumping = 0; // Bumped his head
@@ -8690,8 +8690,8 @@ heroanimate_skip_liftwpn:;
 				if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?-1:7),1,SWITCHBLOCK_STATE) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?-1:7),1,SWITCHBLOCK_STATE)
 					|| ((y<=0) &&
 					// Extra checks if Smart Screen Scrolling is enabled
-					 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
-												   !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
+					 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_screen->flags&fMAZE)) &&
+												   !(hero_screen->flags2&wfUP)) && (nextcombo_solid(up))))))
 						&& fall < 0)
 				{
 					fall = jumping = 0; // Bumped his head
@@ -27612,17 +27612,12 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 {
 	if(toogam || currscr>=128)
 		return false;
-		
+
 	// assumes Hero is about to scroll screens
-	int ns;
-	if(auto scr = nextscr(d2,false))
-		ns = *scr;
-	else return false;
-	
 	auto [map, screen] = nextscr2(d2);
 	if (map == -1)
 		return false;
-	
+
 	int32_t cx = x;
 	int32_t cy = y;
 	cx %= 256;
