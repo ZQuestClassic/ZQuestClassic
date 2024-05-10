@@ -313,7 +313,7 @@ int32_t fullscreen = 0;
 byte forceExit=0,zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
-int32_t heroscr=0;
+int32_t hero_screen=0;
 int32_t cur_origin_screen_index=0;
 int32_t scrolling_origin_scr=0;
 int32_t currscr_for_passive_subscr;
@@ -397,7 +397,7 @@ mapscr* tmpscr = new mapscr();
 mapscr special_warp_return_screen;
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
-mapscr* hero_screen;
+mapscr* hero_scr;
 std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
@@ -1825,7 +1825,7 @@ void init_game_vars(bool is_cont_game = false)
 	// same way, even if manually started in the ZC UI.
     frame = 0;
 
-	hero_screen = nullptr;
+	hero_scr = nullptr;
 	viewport_mode = ViewportMode::CenterAndBound;
 	new_sub_indexes[sstACTIVE] = -1;
 	loadside = 0;
@@ -2086,16 +2086,16 @@ int32_t init_game()
 		//if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			homescr = currscr = heroscr = DMaps[currdmap].cont;
+			homescr = currscr = hero_screen = DMaps[currdmap].cont;
 		}
 		else
 		{
-			homescr = currscr = heroscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			homescr = currscr = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
 	else
 	{
-		homescr = currscr = heroscr = game->get_continue_scrn();
+		homescr = currscr = hero_screen = game->get_continue_scrn();
 	}
 	
 	lastentrance = currscr;
@@ -2155,13 +2155,13 @@ int32_t init_game()
 	
 	Hero.init();
 	if (use_testingst_start
-		&& heroscr == testingqst_screen
+		&& hero_screen == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		if (hero_screen->warpreturnx[testingqst_retsqr] != 0 || hero_screen->warpreturny[testingqst_retsqr] != 0)
+		if (hero_scr->warpreturnx[testingqst_retsqr] != 0 || hero_scr->warpreturny[testingqst_retsqr] != 0)
 		{
-			Hero.setX(hero_screen->warpreturnx[testingqst_retsqr]);
-			Hero.setY(hero_screen->warpreturny[testingqst_retsqr]);
+			Hero.setX(hero_scr->warpreturnx[testingqst_retsqr]);
+			Hero.setY(hero_scr->warpreturny[testingqst_retsqr]);
 		}
 		else
 		{
@@ -2535,11 +2535,11 @@ int32_t cont_game()
 	lighting(false,true);
 	Hero.init();
 	if (use_testingst_start
-		&& heroscr == testingqst_screen
+		&& hero_screen == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		Hero.setX(hero_screen->warpreturnx[testingqst_retsqr]);
-		Hero.setY(hero_screen->warpreturny[testingqst_retsqr]);
+		Hero.setX(hero_scr->warpreturnx[testingqst_retsqr]);
+		Hero.setY(hero_scr->warpreturny[testingqst_retsqr]);
 	}
 
 	Hero.x += region_scr_dx*256;
@@ -2649,18 +2649,18 @@ void restart_level()
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
-		homescr = currscr = heroscr = lastentrance;
+		homescr = currscr = hero_screen = lastentrance;
 		init_dmap();
 	}
 	else
 	{
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			homescr = currscr = heroscr = DMaps[currdmap].cont;
+			homescr = currscr = hero_screen = DMaps[currdmap].cont;
 		}
 		else
 		{
-			homescr = currscr = heroscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			homescr = currscr = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
 	
@@ -5598,7 +5598,7 @@ void quit_game()
 bool isSideViewGravity(int32_t t)
 {
 	if (t == 1) return (((special_warp_return_screen.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
-	return (((hero_screen->flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+	return (((hero_scr->flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
 }
 
 bool isSideViewHero(int32_t t)

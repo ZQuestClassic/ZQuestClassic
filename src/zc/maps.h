@@ -9,7 +9,7 @@
 
 struct newcombo;
 
-#define DRIEDLAKE ((hero_screen->flags7 & fWHISTLEWATER) && (whistleclk>=88))
+#define DRIEDLAKE ((hero_scr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 
 int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy);
 int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y);
@@ -61,7 +61,7 @@ extern int32_t view_map_show_mode;
           edge the camera bounds to the edges. This behavior is modified by `viewport_mode`,
 		  which can be modified by scripts via `Viewport->`
         - `tmpscr` points to the entrance screen
-        - `heroscr` is the screen index where the hero currently is, and updates as the player moves around. `hero_screen` is that screen object
+        - `heroscr` is the screen index where the hero currently is, and updates as the player moves around. `hero_scr` is that screen object
 		- `heroscr` is always a valid screen in the region
 */
 

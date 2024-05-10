@@ -330,12 +330,12 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 	
 	case TrigSecrets:
 	{
-		trigger_secrets_for_screen(TriggerSource::CheatTemp, heroscr);
+		trigger_secrets_for_screen(TriggerSource::CheatTemp, hero_screen);
 	}
 	break;
 	case TrigSecretsPerm:
 	{
-		trigger_secrets_for_screen(TriggerSource::CheatPerm, heroscr);
+		trigger_secrets_for_screen(TriggerSource::CheatPerm, hero_screen);
 		setmapflag(mSECRET);
 	}
 	break;

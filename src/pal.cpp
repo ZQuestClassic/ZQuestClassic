@@ -557,7 +557,7 @@ void dryuplake()
 
     if(whistleclk<88)
     {
-        if(hero_screen->flags7 & fWHISTLEPAL)
+        if(hero_scr->flags7 & fWHISTLEPAL)
         {
             if(!usingdrypal)
             {
@@ -572,11 +572,11 @@ void dryuplake()
     }
     else
     {
-        if(hero_screen->flags & fWHISTLE)
+        if(hero_scr->flags & fWHISTLE)
         {
-            if(reveal_hidden_stairs(hero_screen, heroscr, true))
+            if(reveal_hidden_stairs(hero_scr, hero_screen, true))
             {
-                sfx(hero_screen->secretsfx);
+                sfx(hero_scr->secretsfx);
             }
         }
     }

@@ -242,7 +242,7 @@ void HeroClass::snap_platform()
 {
 	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false, true) < 0)
 		return;
-	if (y>=world_h-16 && currscr>=0x70 && !(hero_screen->flags2&wfDOWN))
+	if (y>=world_h-16 && currscr>=0x70 && !(hero_scr->flags2&wfDOWN))
 	{
 		y = world_h-16;
 		return;
@@ -8478,8 +8478,8 @@ heroanimate_skip_liftwpn:;
 				|| ((y+(fall/100)<=0) &&
 				// Extra checks if Smart Screen Scrolling is enabled
 				// TODO z3
-				 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_screen->flags&fMAZE)) &&
-											   !(hero_screen->flags2&wfUP)) && (nextcombo_solid(up)))))))
+				 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_scr->flags&fMAZE)) &&
+											   !(hero_scr->flags2&wfUP)) && (nextcombo_solid(up)))))))
 			{
 				fall = jumping = 0; // Bumped his head
 				if(get_qr(qr_OLD_SIDEVIEW_LANDING_CODE))
@@ -8672,8 +8672,8 @@ heroanimate_skip_liftwpn:;
 				if((_walkflag(x+4,y-(bigHitbox?9:1),0,SWITCHBLOCK_STATE)
 					|| (y<=(bigHitbox?9:1) &&
 					// Extra checks if Smart Screen Scrolling is enabled
-					 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_screen->flags&fMAZE)) &&
-												   !(hero_screen->flags2&wfUP)) && (nextcombo_solid(up))))))
+					 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_scr->flags&fMAZE)) &&
+												   !(hero_scr->flags2&wfUP)) && (nextcombo_solid(up))))))
 						&& fall < 0)
 				{
 					fall = jumping = 0; // Bumped his head
@@ -8690,8 +8690,8 @@ heroanimate_skip_liftwpn:;
 				if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?-1:7),1,SWITCHBLOCK_STATE) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?-1:7),1,SWITCHBLOCK_STATE)
 					|| ((y<=0) &&
 					// Extra checks if Smart Screen Scrolling is enabled
-					 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_screen->flags&fMAZE)) &&
-												   !(hero_screen->flags2&wfUP)) && (nextcombo_solid(up))))))
+					 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_scr->flags&fMAZE)) &&
+												   !(hero_scr->flags2&wfUP)) && (nextcombo_solid(up))))))
 						&& fall < 0)
 				{
 					fall = jumping = 0; // Bumped his head
@@ -10465,25 +10465,25 @@ heroanimate_skip_liftwpn:;
 			int x0 = x.getInt() % 256;
 			int y0 = y.getInt() % 176;
 
-			if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x0>112&&x0<128:x0==120) && y0<=32 && hero_screen->door[0]==dtype)
+			if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x0>112&&x0<128:x0==120) && y0<=32 && hero_scr->door[0]==dtype)
 			{
 				walk=true;
 				dir=up;
 			}
 			
-			if(((dtype==dBOMBED)?DrunkDown():dir==down) && ((diagonalMovement||NO_GRIDLOCK)?x0>112&&x0<128:x0==120) && y0>=128 && hero_screen->door[1]==dtype)
+			if(((dtype==dBOMBED)?DrunkDown():dir==down) && ((diagonalMovement||NO_GRIDLOCK)?x0>112&&x0<128:x0==120) && y0>=128 && hero_scr->door[1]==dtype)
 			{
 				walk=true;
 				dir=down;
 			}
 			
-			if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x0<=32 && ((diagonalMovement||NO_GRIDLOCK)?y0>72&&y0<88:y0==80) && hero_screen->door[2]==dtype)
+			if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x0<=32 && ((diagonalMovement||NO_GRIDLOCK)?y0>72&&y0<88:y0==80) && hero_scr->door[2]==dtype)
 			{
 				walk=true;
 				dir=left;
 			}
 			
-			if(((dtype==dBOMBED)?DrunkRight():dir==right) && x0>=208 && ((diagonalMovement||NO_GRIDLOCK)?y0>72&&y0<88:y0==80) && hero_screen->door[3]==dtype)
+			if(((dtype==dBOMBED)?DrunkRight():dir==right) && x0>=208 && ((diagonalMovement||NO_GRIDLOCK)?y0>72&&y0<88:y0==80) && hero_scr->door[3]==dtype)
 			{
 				walk=true;
 				dir=right;
@@ -10497,9 +10497,9 @@ heroanimate_skip_liftwpn:;
 			
 			if(dtype==dWALK)
 			{
-				sfx(hero_screen->secretsfx);
+				sfx(hero_scr->secretsfx);
 				if(!get_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE))
-					set_doorstate(heroscr, dir);
+					set_doorstate(hero_screen, dir);
 			}
 			
 			action=none; FFCore.setHeroAction(none);
@@ -10570,7 +10570,7 @@ heroanimate_skip_liftwpn:;
 			[[fallthrough]];
 		case 1:
 			if(last_savepoint_id)
-				trigger_save(combobuf[last_savepoint_id], hero_screen);
+				trigger_save(combobuf[last_savepoint_id], hero_scr);
 			else save_game((tmpscr->flags4&fSAVEROOM) != 0, save_type); //sanity? 
 			break;
 		}
@@ -10881,7 +10881,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 		mirrorid = current_item_id(itype_mirror);
 	if(mirrorid < 0) return;
 	
-	if((hero_screen->flags9&fDISABLE_MIRROR) || !(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
+	if((hero_scr->flags9&fDISABLE_MIRROR) || !(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
 	{
 		item_error();
 		return;
@@ -11978,8 +11978,8 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(itm.flags&ITEM_FLAG1) didstuff |= did_whistle;
 			
-			if((hero_screen->flags&fWHISTLE) || (hero_screen->flags7 & fWHISTLEWATER)
-					|| (hero_screen->flags7&fWHISTLEPAL))
+			if((hero_scr->flags&fWHISTLE) || (hero_scr->flags7 & fWHISTLEWATER)
+					|| (hero_scr->flags7&fWHISTLEPAL))
 			{
 				whistleclk=0;                                       // signal to start drying lake or doing other stuff
 			}
@@ -12369,7 +12369,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!checkbunny(itemid))
 				return item_error();
 			
-			bool grumble = (hero_screen->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_screen->flags9&fBELOWRETURN)));
+			bool grumble = (hero_scr->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)));
 			bool checkcost = grumble || !(itm.flags & ITEM_FLAG4);
 			bool paycost = grumble || !(itm.flags & (ITEM_FLAG4|ITEM_FLAG5));
 			
@@ -12396,7 +12396,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					removeItemsOfFamily(game,itemsbuf,itype_bait);
 					verifyBothWeapons();
 				}
-				sfx(hero_screen->secretsfx);
+				sfx(hero_scr->secretsfx);
 				return false;
 			}
 			
@@ -14439,7 +14439,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			 //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (get_layer_scr(currmap, heroscr, i)->valid != 0)
+		if (get_layer_scr(currmap, hero_screen, i)->valid != 0)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -18112,7 +18112,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			
 			for (int32_t i = 0; i <= 1; ++i)
 			{
-				if (get_layer_scr(currmap, heroscr, i)->valid != 0)
+				if (get_layer_scr(currmap, hero_screen, i)->valid != 0)
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -18539,7 +18539,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		}
 	}
 	
-	bool skipdmg = earlyret || get_qr(qr_LENIENT_SOLID_DAMAGE) || get_qr(qr_NOSOLIDDAMAGECOMBOS) || hclk || ((z>0||fakez>0) && !(hero_screen->flags2&fAIRCOMBOS));
+	bool skipdmg = earlyret || get_qr(qr_LENIENT_SOLID_DAMAGE) || get_qr(qr_NOSOLIDDAMAGECOMBOS) || hclk || ((z>0||fakez>0) && !(hero_scr->flags2&fAIRCOMBOS));
 	if(dx)
 	{
 		if(scr_canmove(dx, 0, kb, ign_sv, &ladderstuff))
@@ -20142,12 +20142,12 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 		return;
 	}
 	
-    bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && ((z==0 && fakez==0) || hero_screen->flags2&fAIRCOMBOS)) ||
+    bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && ((z==0 && fakez==0) || hero_scr->flags2&fAIRCOMBOS)) ||
                      (isSideViewHero() && (on_sideview_solid_oldpos(this)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
 		     //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (get_layer_scr(currmap, heroscr, i)->valid != 0)
+		if (get_layer_scr(currmap, hero_screen, i)->valid != 0)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -21107,10 +21107,10 @@ bool HeroClass::checksoliddamage()
 				//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
 				if ( get_qr(qr_OLDSIDEVIEWSPIKES ) )
 				{
-					if (checkdamagecombos(x+8-(zfix)(hero_screen->csensitive),
-						x+8+(zc_max(hero_screen->csensitive-1,0)),
-						y+17-(get_qr(qr_LTTPCOLLISION)?hero_screen->csensitive:(hero_screen->csensitive+1)/2),
-						y+17+zc_max((get_qr(qr_LTTPCOLLISION)?hero_screen->csensitive:(hero_screen->csensitive+1)/2)-1,0), i-1, true))
+					if (checkdamagecombos(x+8-(zfix)(hero_scr->csensitive),
+						x+8+(zc_max(hero_scr->csensitive-1,0)),
+						y+17-(get_qr(qr_LTTPCOLLISION)?hero_scr->csensitive:(hero_scr->csensitive+1)/2),
+						y+17+zc_max((get_qr(qr_LTTPCOLLISION)?hero_scr->csensitive:(hero_scr->csensitive+1)/2)-1,0), i-1, true))
 							return true;
 				}
 				else //2.50.1 and later
@@ -21736,7 +21736,7 @@ void HeroClass::oldcheckbosslockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
-				if (get_layer_scr(currmap, heroscr, 1)->valid != 0)
+				if (get_layer_scr(currmap, hero_screen, 1)->valid != 0)
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -23750,7 +23750,7 @@ void HeroClass::handleSpotlights()
 	if(hastrigs && istrigged && !alltrig)
 	{
 		// TODO what screen?
-		trigger_secrets_for_screen(TriggerSource::LightTrigger, heroscr, false);
+		trigger_secrets_for_screen(TriggerSource::LightTrigger, hero_screen, false);
 		sfx(tmpscr->secretsfx);
 		if(!(tmpscr->flags5&fTEMPSECRETS))
 		{
@@ -25969,7 +25969,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		int destscr = wscr + DMaps[currdmap].xoff;
 		loadscr(currdmap, destscr, -1, overlay);
 		
-		if((hero_screen->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
+		if((hero_scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
 		{
 			if(get_qr(qr_FADE))
 			{
@@ -25991,16 +25991,16 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		
 		if(get_qr(qr_NOARRIVALPOINT))
 		{
-			wrx=hero_screen->warpreturnx[0];
-			wry=hero_screen->warpreturny[0];
+			wrx=hero_scr->warpreturnx[0];
+			wry=hero_scr->warpreturny[0];
 		}
 		else
 		{
-			wrx=hero_screen->warparrivalx;
-			wry=hero_screen->warparrivaly;
+			wrx=hero_scr->warparrivalx;
+			wry=hero_scr->warparrivaly;
 		}
 		
-		if(((wrx>0||wry>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!(hero_screen->flags6&fNOCONTINUEHERE)))
+		if(((wrx>0||wry>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!(hero_scr->flags6&fNOCONTINUEHERE)))
 		{
 			if(dlevel)
 			{
@@ -26018,19 +26018,19 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			if(get_qr(qr_NOARRIVALPOINT))
 			{
-				x=hero_screen->warpreturnx[wrindex];
-				y=hero_screen->warpreturny[wrindex];
+				x=hero_scr->warpreturnx[wrindex];
+				y=hero_scr->warpreturny[wrindex];
 			}
 			else
 			{
-				x=hero_screen->warparrivalx;
-				y=hero_screen->warparrivaly;
+				x=hero_scr->warparrivalx;
+				y=hero_scr->warparrivaly;
 			}
 		}
 		else
 		{
-			x=hero_screen->warpreturnx[wrindex];
-			y=hero_screen->warpreturny[wrindex];
+			x=hero_scr->warpreturnx[wrindex];
+			y=hero_scr->warpreturny[wrindex];
 		}
 		
 		if(didpit)
@@ -26191,13 +26191,13 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			
 			if(get_qr(qr_NOARRIVALPOINT))
 			{
-				wrx=hero_screen->warpreturnx[0];
-				wry=hero_screen->warpreturny[0];
+				wrx=hero_scr->warpreturnx[0];
+				wry=hero_scr->warpreturny[0];
 			}
 			else
 			{
-				wrx=hero_screen->warparrivalx;
-				wry=hero_screen->warparrivaly;
+				wrx=hero_scr->warparrivalx;
+				wry=hero_scr->warparrivaly;
 			}
 			
 			if(((wrx>0||wry>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
@@ -26254,14 +26254,14 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		int32_t wry;
 		
 		if(get_qr(qr_NOARRIVALPOINT))
-			wry=hero_screen->warpreturny[0];
-		else wry=hero_screen->warparrivaly;
+			wry=hero_scr->warpreturny[0];
+		else wry=hero_scr->warparrivaly;
 		
 		int32_t wrx;
 		
 		if(get_qr(qr_NOARRIVALPOINT))
-			wrx=hero_screen->warpreturnx[0];
-		else wrx=hero_screen->warparrivalx;
+			wrx=hero_scr->warpreturnx[0];
+		else wrx=hero_scr->warparrivalx;
 		
 		Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
 							 (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1));
@@ -26302,7 +26302,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 						 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
 		
-		bool kill_action = !(hero_screen->flags3&fIWARPFULLSCREEN);
+		bool kill_action = !(hero_scr->flags3&fIWARPFULLSCREEN);
 		if(kill_action)
 		{
 			//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
@@ -26380,8 +26380,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				loaded_enemies_for_screen.insert(currscr);
 		}
 		
-		x = hero_screen->warpreturnx[wrindex];
-		y = hero_screen->warpreturny[wrindex];
+		x = hero_scr->warpreturnx[wrindex];
+		y = hero_scr->warpreturny[wrindex];
 		
 		if(didpit)
 		{
@@ -26424,21 +26424,21 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		//preloaded freeform combos
 		ffscript_engine(true);
 		
-		putscr(scrollbuf,0,0,hero_screen);
-		putscrdoors(scrollbuf,0,0,hero_screen);
+		putscr(scrollbuf,0,0,hero_scr);
+		putscrdoors(scrollbuf,0,0,hero_scr);
 		
 		if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 		{
 			reset_pal_cycling();
-			putscr(scrollbuf,0,0,hero_screen);
-			putscrdoors(scrollbuf,0,0,hero_screen);
+			putscr(scrollbuf,0,0,hero_scr);
+			putscrdoors(scrollbuf,0,0,hero_scr);
 			walkup(COOLSCROLL);
 		}
 		else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 		{
 			reset_pal_cycling();
-			putscr(scrollbuf,0,0,hero_screen);
-			putscrdoors(scrollbuf,0,0,hero_screen);
+			putscr(scrollbuf,0,0,hero_scr);
+			putscrdoors(scrollbuf,0,0,hero_scr);
 			walkdown2(COOLSCROLL);
 		}
 		else if(wtype==wtIWARPZAP)
@@ -26504,7 +26504,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 					 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
 					 
-			if(!(hero_screen->flags3&fIWARPFULLSCREEN))
+			if(!(hero_scr->flags3&fIWARPFULLSCREEN))
 			{
 				//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 				bool wasswimming = (action == swimming);
@@ -26571,8 +26571,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
 			lightingInstant(); // Also sets naturaldark
 			
-			x = hero_screen->warpreturnx[wrindex];
-			y = hero_screen->warpreturny[wrindex];
+			x = hero_scr->warpreturnx[wrindex];
+			y = hero_scr->warpreturny[wrindex];
 			
 			if(didpit)
 			{
@@ -26612,21 +26612,21 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			//preloaded freeform combos
 			ffscript_engine(true);
 			
-			putscr(scrollbuf,0,0,hero_screen);
-			putscrdoors(scrollbuf,0,0,hero_screen);
+			putscr(scrollbuf,0,0,hero_scr);
+			putscrdoors(scrollbuf,0,0,hero_scr);
 			
 			if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 			{
 				reset_pal_cycling();
-				putscr(scrollbuf,0,0,hero_screen);
-				putscrdoors(scrollbuf,0,0,hero_screen);
+				putscr(scrollbuf,0,0,hero_scr);
+				putscrdoors(scrollbuf,0,0,hero_scr);
 				walkup(COOLSCROLL);
 			}
 			else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 			{
 				reset_pal_cycling();
-				putscr(scrollbuf,0,0,hero_screen);
-				putscrdoors(scrollbuf,0,0,hero_screen);
+				putscr(scrollbuf,0,0,hero_scr);
+				putscrdoors(scrollbuf,0,0,hero_scr);
 				walkdown2(COOLSCROLL);
 			}
 			else if(wtype==wtIWARPZAP)
@@ -27447,7 +27447,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     loadscr(currdmap, homescr, 255, false);                                   // bogus direction
     draw_screen(false);
     
-    if(get_qr(qr_NEW_DARKROOM) || !(hero_screen->flags&fDARK))
+    if(get_qr(qr_NEW_DARKROOM) || !(hero_scr->flags&fDARK))
     {
         darkroom = naturaldark = false;
         fade(DMaps[currdmap].color,true,true);
@@ -27483,8 +27483,8 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 	}
 	else
 	{
-		x = hero_screen->warpreturnx[stepoutwr];
-		y = hero_screen->warpreturny[stepoutwr];
+		x = hero_scr->warpreturnx[stepoutwr];
+		y = hero_scr->warpreturny[stepoutwr];
 	}
 
 	x += region_scr_dx * 256;
@@ -27607,7 +27607,6 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     return (c->walk&b) ? !dried && !swim : false;
 }
 
-// TODO z3: need to test this in region
 bool HeroClass::nextcombo_solid(int32_t d2)
 {
 	if(toogam || currscr>=128)
@@ -27718,7 +27717,7 @@ void HeroClass::do_scroll_direction(direction dir)
 	else if (dir == right) dir_flag = wfRIGHT;
 	else                   assert(false);
 
-	mapscr* scr = get_scr(currmap, heroscr);
+	mapscr* scr = get_scr(currmap, hero_screen);
 
 	if(get_qr(qr_SMARTSCREENSCROLL)&&(!(scr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(scr->flags2&dir_flag))
 	{
@@ -27824,7 +27823,7 @@ void HeroClass::checkscroll()
 			{
 				if (scrolling_maze_mode == 0)
 				{
-					int destscr = heroscr;
+					int destscr = hero_screen;
 					if (advance_dir == left)  destscr--;
 					if (advance_dir == right) destscr++;
 					if (advance_dir == up)    destscr -= 16;
@@ -27903,28 +27902,28 @@ bool HeroClass::edge_of_dmap(int32_t side)
     switch(side)
     {
     case up:
-        return heroscr<16;
+        return hero_screen<16;
         
     case down:
-        return heroscr>=112;
+        return hero_screen>=112;
         
     case left:
-        if((heroscr&15)==0)
+        if((hero_screen&15)==0)
             return true;
             
         if((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
             //    if(dlevel)
-            return (((heroscr&15)-DMaps[currdmap].xoff)<=0);
+            return (((hero_screen&15)-DMaps[currdmap].xoff)<=0);
             
         break;
         
     case right:
-        if((heroscr&15)==15)
+        if((hero_screen&15)==15)
             return true;
             
         if((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
             //    if(dlevel)
-            return (((heroscr&15)-DMaps[currdmap].xoff)>=7);
+            return (((hero_screen&15)-DMaps[currdmap].xoff)>=7);
             
         break;
     }
@@ -28329,7 +28328,7 @@ static void for_every_nearby_screen_during_scroll(
 		bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, sign2(draw_dy)) == scrolling_dir;
 		int base_map = use_new_screens ? currmap : scrolling_map;
 		int base_dmap = use_new_screens ? scrolling_destdmap : scrolling_dmap;
-		int base_screen = use_new_screens ? heroscr : scrolling_scr;
+		int base_screen = use_new_screens ? hero_screen : scrolling_scr;
 		int base_screen_x = base_screen % 16;
 		int base_screen_y = base_screen / 16;
 
@@ -28344,7 +28343,7 @@ static void for_every_nearby_screen_during_scroll(
 		if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
 		
 		int screen = scr_x + scr_y * 16;
-		if (!is_region_scrolling && screen != heroscr && screen != scrolling_scr) continue;
+		if (!is_region_scrolling && screen != hero_screen && screen != scrolling_scr) continue;
 
 		// Only show screens that are in the old or the new regions.
 		int region = get_region_id(base_dmap, screen);
@@ -28476,7 +28475,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int original_destscr = destscr;
 	if (destscr == -1)
 	{
-		destscr = heroscr;
+		destscr = hero_screen;
 		if (checkmaze(tmpscr, false) && !edge_of_dmap(scrolldir)) {
 			destscr += dir_to_scr_offset((direction)scrolldir);
 		}
@@ -28610,7 +28609,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// Get the screen coords of the top-left of the screen we are scrolling away from.
 	std::tie(FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]) =
-		translate_screen_coordinates_to_world(heroscr);
+		translate_screen_coordinates_to_world(hero_screen);
 	FFCore.ScrollingData[SCROLLDATA_OX] -= viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_OY] -= viewport.y;
 
@@ -28663,7 +28662,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	mapscr *oldscr = &special_warp_return_screen;
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
-	scrolling_scr = heroscr;
+	scrolling_scr = hero_screen;
 	scrolling_origin_scr = cur_origin_screen_index;
 	scrolling_region = current_region;
 
@@ -29641,7 +29640,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
 		{
-			sfx(hero_screen->secretsfx);
+			sfx(hero_scr->secretsfx);
 			action=rafting; FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
@@ -29649,7 +29648,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		// Half a tile off?
 		else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
 		{
-			sfx(hero_screen->secretsfx);
+			sfx(hero_scr->secretsfx);
 			action=rafting; FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
@@ -29660,7 +29659,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	if(isdungeon())
 	{
-		switch(hero_screen->door[scrolldir^1])
+		switch(hero_scr->door[scrolldir^1])
 		{
 		case dNONE:
 			dir = scrolldir;
@@ -29682,7 +29681,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(action!=rafting)
 				stepforward(diagonalMovement?21:24, false);
 				
-			putdoor(scrollbuf,0,scrolldir^1,hero_screen->door[scrolldir^1]);
+			putdoor(scrollbuf,0,scrolldir^1,hero_scr->door[scrolldir^1]);
 			opendoors=-4;
 			sfx(WAV_DOOR);
 			break;
@@ -32113,7 +32112,7 @@ void HeroClass::heroDeathAnimation()
 
 void HeroClass::ganon_intro()
 {
-	auto [offx, offy] = translate_screen_coordinates_to_world(heroscr);
+	auto [offx, offy] = translate_screen_coordinates_to_world(hero_screen);
 
     /*
     ************************

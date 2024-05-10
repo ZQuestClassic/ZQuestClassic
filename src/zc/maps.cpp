@@ -325,12 +325,12 @@ void z3_update_heroscr()
 	int dx = x / 256;
 	int dy = y / 176;
 	int newscr = cur_origin_screen_index + dx + dy * 16;
-	if (heroscr != newscr && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
+	if (hero_screen != newscr && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
-		heroscr = newscr;
-		hero_screen = get_scr(currmap, heroscr);
+		hero_screen = newscr;
+		hero_scr = get_scr(currmap, hero_screen);
 		playLevelMusic();
 	}
 }
@@ -339,8 +339,8 @@ bool edge_of_region(direction dir)
 {
 	if (!is_z3_scrolling_mode()) return true;
 
-	int scr_x = heroscr % 16;
-	int scr_y = heroscr / 16;
+	int scr_x = hero_screen % 16;
+	int scr_y = hero_screen / 16;
 	if (dir == up) scr_y -= 1;
 	if (dir == down) scr_y += 1;
 	if (dir == left) scr_x -= 1;
@@ -3380,7 +3380,7 @@ optional<int> nextscr(int map, int screen, int dir, bool normal)
 std::pair<int32_t, int32_t> nextscr2(int32_t dir)
 {
 	int32_t m = currmap;
-    int32_t s = screenscrolling ? scrolling_scr : heroscr;
+    int32_t s = screenscrolling ? scrolling_scr : hero_screen;
     
     switch(dir)
     {
@@ -3402,37 +3402,37 @@ std::pair<int32_t, int32_t> nextscr2(int32_t dir)
     }
     
     // need to check for screens on other maps, 's' not valid, etc.
-    int32_t index = (hero_screen->sidewarpindex >> (dir*2))&3;
+    int32_t index = (hero_scr->sidewarpindex >> (dir*2))&3;
     
     // Fun fact: when a scrolling warp is triggered, this function
     // is never even called! - Saf
-    if(hero_screen->sidewarptype[index] == 3)                                // scrolling warp
+    if(hero_scr->sidewarptype[index] == 3)                                // scrolling warp
     {
         switch(dir)
         {
         case up:
-            if(!(hero_screen->flags2&wfUP))    goto nowarp;
+            if(!(hero_scr->flags2&wfUP))    goto nowarp;
             
             break;
             
         case down:
-            if(!(hero_screen->flags2&wfDOWN))  goto nowarp;
+            if(!(hero_scr->flags2&wfDOWN))  goto nowarp;
             
             break;
             
         case left:
-            if(!(hero_screen->flags2&wfLEFT))  goto nowarp;
+            if(!(hero_scr->flags2&wfLEFT))  goto nowarp;
             
             break;
             
         case right:
-            if(!(hero_screen->flags2&wfRIGHT)) goto nowarp;
+            if(!(hero_scr->flags2&wfRIGHT)) goto nowarp;
             
             break;
         }
         
-        m = DMaps[hero_screen->sidewarpdmap[index]].map;
-        s = hero_screen->sidewarpscr[index] + DMaps[hero_screen->sidewarpdmap[index]].xoff;
+        m = DMaps[hero_scr->sidewarpdmap[index]].map;
+        s = hero_scr->sidewarpscr[index] + DMaps[hero_scr->sidewarpdmap[index]].xoff;
     }
     
 nowarp:
@@ -4247,8 +4247,8 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 		return;
 	}
 
-	int heroscr_x = heroscr % 16;
-	int heroscr_y = heroscr / 16;
+	int heroscr_x = hero_screen % 16;
+	int heroscr_y = hero_screen / 16;
 
 	for (int heroscr_dx = -1; heroscr_dx <= 1; heroscr_dx++)
 	{
@@ -4397,7 +4397,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	if (lenscheck(hero_screen, 0))
+	if (lenscheck(hero_scr, 0))
 	{
 		if(!get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			if(mblock2.draw(scrollbuf,0))
@@ -5802,7 +5802,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	currscr_for_passive_subscr = -1;
 	z3_load_region(scr, destdmap);
-	homescr = scr >= 0x80 ? heroscr : cur_origin_screen_index;
+	homescr = scr >= 0x80 ? hero_screen : cur_origin_screen_index;
 
 	cpos_clear_all();
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
@@ -5855,9 +5855,9 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	update_slope_comboposes();
 	currdmap = o_currdmap;
-	heroscr = scr;
-	hero_screen = get_scr_no_load(currmap, scr);
-	CHECK(hero_screen);
+	hero_screen = scr;
+	hero_scr = get_scr_no_load(currmap, scr);
+	CHECK(hero_scr);
 
 	cpos_force_update();
 	trig_trigger_groups();
@@ -5929,7 +5929,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	mapscr* scr = tmp == 0 ? tmpscr : &special_warp_return_screen;
 	*scr = TheMaps[currmap*MAPSCRS+screen];
 	if (tmp == 0)
-		hero_screen = scr;
+		hero_scr = scr;
 	if (!tmp)
 		for (uint8_t i = 0; i < MAXFFCS; ++i)
 		{
