@@ -883,13 +883,14 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 
 void play_combo_string(int str, int screen)
 {
+	mapscr* scr = get_scr(currmap, screen);
 	switch(str)
 	{
 		case -1: //Special case: Use Screen String
-			str = get_scr(currmap, screen)->str;
+			str = scr->str;
 			break;
 		case -2: //Special case: Use Screen Catchall
-			str = get_scr(currmap, screen)->catchall;
+			str = scr->catchall;
 			break;
 		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
 			int32_t di = (currdmap<<7) + screen-(DMaps[currdmap].type==dmOVERW ? 0 : DMaps[currdmap].xoff);
@@ -899,7 +900,7 @@ void play_combo_string(int str, int screen)
 	if(unsigned(str) >= MAXMSGS)
 		str = 0;
 	if(str)
-		donewmsg(str);
+		donewmsg(scr, str);
 }
 
 void play_combo_string(int str)

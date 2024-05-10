@@ -133,7 +133,7 @@ void do_dcounters();
 void game_loop();
 
 void clearmsgnext(int32_t str);
-void donewmsg(int32_t str);
+void donewmsg(mapscr* scr, int32_t str);
 void msg_bg(MsgStr const& msg);
 void msg_prt();
 void blit_msgstr_bg(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy, int32_t w, int32_t h);
@@ -315,6 +315,7 @@ extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolo
        msg_ypos,
        cursor_x,
        cursor_y;
+extern mapscr* msgscr;
 extern int16_t msg_margins[4];
 extern int32_t prt_tile;
 extern byte msgstr_layer;

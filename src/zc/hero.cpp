@@ -3595,6 +3595,7 @@ bool HeroClass::checkstab()
 						int32_t id2 = ptr->id;
 						int32_t pstr = ptr->pstring;
 						int32_t pstr_flags = ptr->pickup_string_flags;
+						int32_t pstr_screen = ptr->screen_spawned;
 						if(!dofairy)
 						{
 							std::vector<int32_t> &ev = FFCore.eventData;
@@ -3663,7 +3664,7 @@ bool HeroClass::checkstab()
 							{
 								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
 									FFCore.SetItemMessagePlayed(id2);
-								donewmsg(pstr);
+								donewmsg(get_scr(currmap, pstr_screen), pstr);
 								break;
 							}
 						}
@@ -11872,7 +11873,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!msg_active && itm.misc1 > 0 && itm.misc1 < MAXMSGS)
 			{
 				sfx(itm.usesound);
-				donewmsg(itm.misc1);
+				donewmsg(hero_scr, itm.misc1);
 				paymagiccost(itemid);
 			}
 			dowpn = -1;
@@ -30227,7 +30228,7 @@ void dospecialmoney(int32_t index)
         }
         rectfill(msg_bg_display_buf, 0, 0, msg_bg_display_buf->w, 80, 0);
         rectfill(msg_txt_display_buf, 0, 0, msg_txt_display_buf->w, 80, 0);
-        donewmsg(QMisc.info[scr.catchall].str[priceindex]);
+        donewmsg(&scr, QMisc.info[scr.catchall].str[priceindex]);
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         items.del(0);
@@ -31141,12 +31142,12 @@ void HeroClass::checkitems(int32_t index)
 				else pstr = 0;
 				if(shop_pstr)
 				{
-					donewmsg(shop_pstr);
+					donewmsg(item_screen, shop_pstr);
 					enqueued_str = pstr;
 				}
 				else if(pstr)
 				{
-					donewmsg(pstr);
+					donewmsg(item_screen, pstr);
 				}
 			}
 			
@@ -31250,12 +31251,12 @@ void HeroClass::checkitems(int32_t index)
 			else pstr = 0;
 			if(shop_pstr)
 			{
-				donewmsg(shop_pstr);
+				donewmsg(item_screen, shop_pstr);
 				enqueued_str = pstr;
 			}
 			else if(pstr)
 			{
-				donewmsg(pstr);
+				donewmsg(item_screen, pstr);
 			}
 		}
 		

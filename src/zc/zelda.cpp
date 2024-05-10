@@ -276,6 +276,7 @@ word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msg_xpos=0,
          msg_ypos=0,
          msgorig=0;
+mapscr* msgscr;
 int16_t msg_margins[4] = {0};
 byte msgstr_layer = 6;
 int32_t prt_tile=0;
@@ -829,18 +830,17 @@ void clearmsgnext(int32_t str)
 }
 
 void clr_msg_data();
-void donewmsg(int32_t str)
+void donewmsg(mapscr* scr, int32_t str)
 {
 	if(msg_onscreen || msg_active)
 		dismissmsg();
 	clr_msg_data();
-    //al_trace("donewmsg %d\n",str);
-    
         
     linkedmsgclk=0;
     msg_active = true;
     // Don't set msg_onscreen - not onscreen just yet
     msgstr = str;
+	msgscr = scr;
     msgorig = msgstr;
     msgfont = setmsgfont();
     msgcolour=QMisc.colors.msgtext;
@@ -921,7 +921,7 @@ void dointro()
 		else
 		{
 			if(DMaps[currdmap].intro_string_id)
-				donewmsg(DMaps[currdmap].intro_string_id);
+				donewmsg(hero_scr, DMaps[currdmap].intro_string_id);
 			game->visited[currdmap] = 1;
 		}
     }
@@ -1871,6 +1871,7 @@ void init_game_vars(bool is_cont_game = false)
 	show_subscreen_items=true;
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
+	msgscr=nullptr;
 	for(int32_t x = 0; x < MAXITEMS; x++)
 	{
 		lens_hint_item[x][0]=0;

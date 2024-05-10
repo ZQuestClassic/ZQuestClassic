@@ -5773,6 +5773,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	Hero.clear_platform_ffc();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	clear_darkroom_bitmaps();
+	msgscr = nullptr;
 
 	for (word x=0; x<animated_combos; x++)
 	{

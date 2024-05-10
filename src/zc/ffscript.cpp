@@ -33805,7 +33805,7 @@ void do_message(const bool v)
 		Hero.finishedmsg();
 	}
 	else
-		donewmsg(ID);
+		donewmsg(hero_scr, ID);
 }
 
 INLINE void set_drawing_command_args(const int32_t j, const word numargs)

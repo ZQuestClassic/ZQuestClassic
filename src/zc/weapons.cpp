@@ -3710,6 +3710,7 @@ bool weapon::animate(int32_t index)
 						int32_t id2 = ptr->id;
 						int32_t pstr = ptr->pstring;
 						int32_t pstr_flags = ptr->pickup_string_flags;
+						int32_t pstr_screen = ptr->screen_spawned;
 						
 						std::vector<int32_t> &ev = FFCore.eventData;
 						ev.clear();
@@ -3769,7 +3770,7 @@ bool weapon::animate(int32_t index)
 							{
 								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
 									FFCore.SetItemMessagePlayed(id2);
-								donewmsg(pstr);
+								donewmsg(get_scr(currmap, pstr_screen), pstr);
 								break;
 							}
 						}

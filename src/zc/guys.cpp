@@ -20168,7 +20168,7 @@ void setupscreen()
 	
 	if(str)
 	{
-		donewmsg(str);
+		donewmsg(base_scr, str);
 	}
 	else
 	{
@@ -20773,7 +20773,7 @@ switched:
 		}
 		else
 		{
-			donewmsg(lev);
+			donewmsg(msgscr, lev);
 			ssc_tile_hei_buf = -1;
 		}
 		msgptr--; // To counteract it being incremented after this routine is called.
@@ -20839,6 +20839,7 @@ bool atend(char const* str)
 
 void putmsg()
 {
+	assert(msgscr);
 	bool oldmargin = get_qr(qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	if(!msgorig) msgorig=msgstr;
 	
@@ -20869,14 +20870,14 @@ void putmsg()
 					{
 						msgfont=get_zc_font(font_zfont);
 						
-						if(tmpscr->room!=rGRUMBLE)
+						if(msgscr->room!=rGRUMBLE)
 							blockpath=false;
 							
 						dismissmsg();
 						goto disappear;
 					}
 					
-					donewmsg(msgstr);
+					donewmsg(msgscr, msgstr);
 					putprices(false);
 				}
 			}
@@ -21272,7 +21273,7 @@ disappear:
 				//       if (get_qr(qr_REPAIRFIX)) {
 				//         fixed_door=true;
 				//       }
-				game->change_drupy(-(currscr >= 128 ? special_warp_return_screen : *tmpscr).catchall);
+				game->change_drupy(-(currscr >= 128 ? special_warp_return_screen : *msgscr).catchall);
 				repaircharge = 0;
 			}
 			
