@@ -23869,10 +23869,9 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
     // off the screen
     if(cx<0 || cy<0 || cx>=world_w || cy>=world_h)
     {
-		int ns;
-		if(auto scr = nextscr(cdir,false))
-			ns = *scr;
-		else return 0;
+		auto [map, screen] = nextscr2(cdir);
+		if (map == -1)
+			return 0;
         
         switch(cdir)
         {
@@ -23892,12 +23891,9 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
             cx=0;
             break;
         }
-
-		if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
-			return 0;
 		
 		int32_t cmb = COMBOPOS(cx%256, cy%176);
-		return TheMaps[ns].data[cmb];
+		return get_canonical_scr(map, screen)->data[cmb];
     }
     
     return MAPCOMBO(cx,cy);
@@ -27537,10 +27533,11 @@ bool HeroClass::nextcombo_wf(int32_t d2)
         return false;
         
     // assumes Hero is about to scroll screens
-	int ns;
-	if(auto scr = nextscr(d2,false))
-		ns = *scr;
-	else return false;
+    auto [map, screen] = nextscr2(d2);
+    if (map == -1)
+        return false;
+
+    const mapscr* scr = get_canonical_scr(map, screen);
     
     int32_t cx = x;
     int32_t cy = y;
@@ -27566,12 +27563,9 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     
     // check lower half of combo
     cy += 8;
-
-	if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
-		return 0;
     
     int32_t cmb = COMBOPOS(cx%256, cy%176);    
-	const newcombo* c = &combobuf[TheMaps[ns].data[cmb]];
+    const newcombo* c = &combobuf[scr->data[cmb]];
     bool dried = iswater_type(c->type) && DRIEDLAKE;
     bool swim = iswater_type(c->type) && (current_item(itype_flippers)) && !dried;
     int32_t b=1;
@@ -27590,7 +27584,7 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     }
     else
     {
-        c = &combobuf[TheMaps[ns].data[++cmb]];
+        c = &combobuf[scr->data[++cmb]];
         dried = iswater_type(c->type) && DRIEDLAKE;
         swim = iswater_type(c->type) && (current_item(itype_flippers)) && !dried;
         b=1;

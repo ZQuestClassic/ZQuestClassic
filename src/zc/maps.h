@@ -315,10 +315,10 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
 int gethitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);
-optional<int> nextscr(int map, int screen, int dir, bool normal);
-optional<int> nextscr_mi(int mi, int dir, bool normal);
-optional<int> nextscr(int dir, bool normal);
+optional<int> nextscr(int screen, int dir);
+optional<int> nextscr_mi(int mi, int dir);
 std::pair<int32_t, int32_t> nextscr2(int32_t dir);
+std::pair<int32_t, int32_t> nextscr2(int m, int s, int32_t dir);
 void bombdoor(int32_t x,int32_t y);
 bool lenscheck(mapscr* basescr, int layer);
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);

@@ -1585,7 +1585,7 @@ void set_doorstate_mi(uint mi, uint dir)
 	if(dir >= 4)
 		return;
 	setmapflag_mi(mi, mDOOR_UP << dir);
-	if(auto di = nextscr_mi(mi, dir, true))
+	if(auto di = nextscr_mi(mi, dir))
 		setmapflag_mi(*di, mDOOR_UP << oppositeDir[dir]);
 }
 void set_doorstate(uint screen, uint dir)
@@ -1603,7 +1603,7 @@ void set_xdoorstate(uint mi, uint dir, uint ind)
 	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
 		return;
 	setxdoor(mi, dir, ind, true);
-	if(auto di = nextscr_mi(mi, dir, true))
+	if(auto di = nextscr_mi(mi, dir))
 		setxdoor(*di, oppositeDir[dir], ind);
 }
 void set_xdoorstate(uint dir, uint ind)
@@ -3370,35 +3370,38 @@ bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers)
 	return false;
 }
 
-// TODO z3 !!!!!! refactor these
-optional<int> nextscr(int map, int screen, int dir, bool normal)
+optional<int> nextscr(int screen, int dir)
 {
-	auto [m, s] = nextscr2(dir);
+	auto [m, s] = nextscr2(currmap, screen, dir);
 	if (m == -1) return nullopt;
     return (m<<7) + s;
 }
 
 std::pair<int32_t, int32_t> nextscr2(int32_t dir)
 {
-	int32_t m = currmap;
-    int32_t s = screenscrolling ? scrolling_scr : hero_screen;
-    
+	int32_t map = currmap;
+    int32_t screen = screenscrolling ? scrolling_scr : hero_screen;
+	return nextscr2(map, screen, dir);
+}
+
+std::pair<int32_t, int32_t> nextscr2(int map, int screen, int32_t dir)
+{
     switch(dir)
     {
     case up:
-        s-=16;
+        screen-=16;
         break;
         
     case down:
-        s+=16;
+        screen+=16;
         break;
         
     case left:
-        s-=1;
+        screen-=1;
         break;
         
     case right:
-        s+=1;
+        screen+=1;
         break;
     }
     
@@ -3432,25 +3435,24 @@ std::pair<int32_t, int32_t> nextscr2(int32_t dir)
             break;
         }
         
-        m = DMaps[hero_scr->sidewarpdmap[index]].map;
-        s = hero_scr->sidewarpscr[index] + DMaps[hero_scr->sidewarpdmap[index]].xoff;
+        map = DMaps[hero_scr->sidewarpdmap[index]].map;
+        screen = hero_scr->sidewarpscr[index] + DMaps[hero_scr->sidewarpdmap[index]].xoff;
     }
     
 nowarp:
-    if(s<0||s>=128)
+    if(screen<0||screen>=128)
         return {-1, -1};
 
-    return {m, s};
+    return {map, screen};
 }
 
-optional<int> nextscr_mi(int mi, int dir, bool normal)
+optional<int> nextscr_mi(int mi, int dir)
 {
-	return nextscr(mi/(normal?MAPSCRSNORMAL:MAPSCRS),
-		mi%(normal?MAPSCRSNORMAL:MAPSCRS), dir, normal);
-}
-optional<int> nextscr(int dir, bool normal)
-{
-	return nextscr(currmap, currscr, dir, normal);
+	int map = mi/MAPSCRSNORMAL;
+	int screen = mi%MAPSCRSNORMAL;
+	auto [m, s] = nextscr2(map, screen, dir);
+	if (m == -1) return nullopt;
+    return (m<<7) + s;
 }
 
 void bombdoor(int32_t x,int32_t y)
@@ -3470,7 +3472,7 @@ void bombdoor(int32_t x,int32_t y)
         setmapflag(rpos_handle.screen, mDOOR_UP);
         markBmap(-1, rpos_handle.screen);
         
-        if(auto v = nextscr(currmap, rpos_handle.screen, up, true))
+        if(auto v = nextscr(rpos_handle.screen, up))
         {
             setmapflag_mi(*v, mDOOR_DOWN);
             markBmap(-1,*v-(get_currdmap()<<7));
@@ -3484,7 +3486,7 @@ void bombdoor(int32_t x,int32_t y)
         setmapflag(rpos_handle.screen, mDOOR_DOWN);
         markBmap(-1, rpos_handle.screen);
         
-        if(auto v = nextscr(currmap, rpos_handle.screen, down, true))
+        if(auto v = nextscr(rpos_handle.screen, down))
         {
             setmapflag_mi(*v, mDOOR_UP);
             markBmap(-1,*v-(get_currdmap()<<7));
@@ -3498,7 +3500,7 @@ void bombdoor(int32_t x,int32_t y)
         setmapflag(rpos_handle.screen, mDOOR_LEFT);
         markBmap(-1, rpos_handle.screen);
         
-        if(auto v = nextscr(currmap, rpos_handle.screen, left, true))
+        if(auto v = nextscr(rpos_handle.screen, left))
         {
             setmapflag_mi(*v, mDOOR_RIGHT);
             markBmap(-1,*v-(get_currdmap()<<7));
@@ -3512,7 +3514,7 @@ void bombdoor(int32_t x,int32_t y)
         setmapflag(rpos_handle.screen, mDOOR_RIGHT);
         markBmap(-1, rpos_handle.screen);
         
-        if(auto v = nextscr(currmap, rpos_handle.screen, right, true))
+        if(auto v = nextscr(rpos_handle.screen, right))
         {
             setmapflag_mi(*v, mDOOR_LEFT);
             markBmap(-1,*v-(get_currdmap()<<7));
