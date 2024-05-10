@@ -23927,7 +23927,6 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
     // off the screen
     if(cx<0 || cy<0 || cx>=world_w || cy>=world_h)
     {
-		int ns;
 		auto [map, screen] = nextscr2(cdir);
 		if (map == -1)
 			return 0;
