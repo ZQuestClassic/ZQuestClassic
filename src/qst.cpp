@@ -4566,7 +4566,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		Header->is_z3 = s_version >= 21;
 
-		// TODO z3 final rm
+		// TODO ~z3 final rm
 		if (global_z3_hacky_load)
 			s_version = global_z3_hacky_load;
 		

@@ -48,7 +48,7 @@ jobs:
             config: RelWithDebInfo
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
-    # TODO z3 ~ revert before merging
+    # TODO ~z3 revert before merging
     uses: ./.github/workflows/test.yml
     # uses: ZQuestClassic/ZQuestClassic/.github/workflows/test.yml@main
     with:

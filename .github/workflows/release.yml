@@ -82,7 +82,7 @@ jobs:
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
       fail-fast: false
-    # TODO z3 final
+    # TODO ~z3 revert
     # See https://github.com/community/community/discussions/40777
     uses: ./.github/workflows/build.yml
     # uses: ZQuestClassic/ZQuestClassic/.github/workflows/build.yml@main
@@ -182,7 +182,7 @@ jobs:
           path: release-packages
 
       - name: Generate changelog
-        # TODO z3 ~ revert before merging
+        # TODO ~z3 revert before merging
         run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-version }} --version ${{ needs.create-tag.outputs.release-version }} > new_changelog.md
         # run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-version }} --for-nightly=${{ github.event.inputs.version-type == 'nightly' }} --version ${{ needs.create-tag.outputs.release-version }} > new_changelog.md
 

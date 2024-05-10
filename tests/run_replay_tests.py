@@ -625,7 +625,7 @@ def prompt_to_create_compare_report():
             ]
         )
         print('Select a release build to use: ')
-        # TODO z3 !!! delete me
+        # TODO ~z3 !!! delete me
         most_recent_nightly = '3.0.0-prerelease.17+2024-01-28.z3'
         selected_index = cutie.select(
             [
