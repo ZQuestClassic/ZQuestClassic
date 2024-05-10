@@ -29660,6 +29660,7 @@ void do_own_array(dword arrindx, ScriptType scriptType, const int32_t UID)
 		if(arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
 		{
 			arrayOwner[arrindx].reown(scriptType, UID);
+			arrayOwner[arrindx].specOwned = true;
 		}
 		else if(arrindx < 0) //object array
 			Z_scripterrlog("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
@@ -29731,6 +29732,7 @@ static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32
 				a[j] = 0; //initialize array
 				
 			// Keep track of which object created the array so we know which to deallocate
+			arrayOwner[ptrval].clear();
 			arrayOwner[ptrval].reown(type, UID);
 		}
 	}
@@ -46636,6 +46638,7 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 		for(size_t j = 0; j < num_args; ++j)
 			a[j] = zs_vargs[j]; //initialize array
 		
+		arrayOwner[ptrval].clear();
 		arrayOwner[ptrval].reown(type, UID);
 	}
 	//
