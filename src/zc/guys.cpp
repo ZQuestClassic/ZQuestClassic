@@ -44,7 +44,6 @@ int32_t vhead=0;
 
 char *guy_string[eMAXGUYS];
 
-void never_return(int32_t index);
 void playLevelMusic();
 
 #define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
@@ -1021,7 +1020,7 @@ bool enemy::do_falling(int32_t index)
 			else if(dying) //Give 1 frame for script revival
 			{
 				if(flags&guy_neverret)
-					never_return(index);
+					never_return(screen_index_spawned, index);
 				
 				if(leader)
 					kill_em_all();
@@ -1061,7 +1060,7 @@ bool enemy::do_drowning(int32_t index)
 			else if(dying) //Give 1 frame for script revival
 			{
 				if(flags&guy_neverret)
-					never_return(index);
+					never_return(screen_index_spawned, index);
 				
 				if(leader)
 					kill_em_all();
@@ -1125,7 +1124,7 @@ bool enemy::Dead(int32_t index)
 		if(clk2==0)
 		{
 			if(flags&guy_neverret)
-				never_return(index);
+				never_return(screen_index_spawned, index);
 				
 			if(leader)
 				kill_em_all();
@@ -14029,7 +14028,7 @@ bool eMoldorm::animate(int32_t index)
 		if(--clk2 == 0)
 		{
 			if(flags&guy_neverret)
-				never_return(index);
+				never_return(screen_index_spawned, index);
 				
 			if(!dmisc2 || (editorflags & ENEMY_FLAG6))
 				leave_item();
@@ -15272,7 +15271,7 @@ bool eGleeok::animate(int32_t index)
 		for(int32_t i=0; i<misc; i++)
 			((enemy*)guys.spr(index+i+1))->misc = -2;             // give the signal to disappear
 			
-		if(flags&guy_neverret) never_return(index);
+		if(flags&guy_neverret) never_return(screen_index_spawned, index);
 	}
 	
 	return enemy::animate(index);
@@ -18453,7 +18452,6 @@ void addfires()
 	}
 }
 
-// TODO z3 guys
 void loadguys(mapscr* scr, int screen)
 {
 	byte Guy=0;
@@ -18461,8 +18459,7 @@ void loadguys(mapscr* scr, int screen)
 	// Else use mITEM and ipONETIME
 	int32_t mf = (screen>=128) ? mSPECIALITEM : mITEM;
 	int32_t onetime = (screen>=128) ? ipONETIME2 : ipONETIME;
-	
-	// TODO z3 guys
+
 	mapscr* guyscr = scr;
 	if(screen>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
 	{
@@ -18658,8 +18655,7 @@ void loaditem(mapscr* scr, int screen, int offx, int offy)
 	}
 }
 
-// TODO z3
-void never_return(int32_t index)
+void never_return(int32_t screen, int32_t index)
 {
 	if(!get_qr(qr_KILLALL))
 		goto doit;
@@ -18671,7 +18667,7 @@ void never_return(int32_t index)
 		}
 		
 doit:
-	setmapflag(mNEVERRET);
+	setmapflag(screen, mNEVERRET);
 dontdoit:
 	return;
 }

@@ -886,7 +886,7 @@ bool canfall(int32_t id);
 void addfires();
 void loadguys();
 void loaditem(mapscr* scr, int screen, int offx, int offy);
-void never_return(int32_t index);
+void never_return(int32_t screen, int32_t index);
 bool hasBoss();
 bool slowguy(int32_t id);
 bool ok2add(int32_t id);
