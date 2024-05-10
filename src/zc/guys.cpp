@@ -20839,7 +20839,6 @@ bool atend(char const* str)
 
 void putmsg()
 {
-	assert(msgscr);
 	bool oldmargin = get_qr(qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	if(!msgorig) msgorig=msgstr;
 	

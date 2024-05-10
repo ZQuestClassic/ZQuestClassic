@@ -3370,6 +3370,7 @@ bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers)
 	return false;
 }
 
+// TODO z3 !!!!!! refactor these
 optional<int> nextscr(int map, int screen, int dir, bool normal)
 {
 	auto [m, s] = nextscr2(dir);

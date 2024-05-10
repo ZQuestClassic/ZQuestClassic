@@ -1,3 +1,4 @@
+#include "base/general.h"
 #include "base/handles.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
@@ -13792,7 +13793,6 @@ void HeroClass::do_rafting()
 			else if(dir == down) dir = up;
 		}
 		
-		
 		if(!isRaftFlag(nextflag(x,y,dir,false))&&!isRaftFlag(nextflag(x,y,dir,true)))
 		{
 			if(dir<left) //going up or down
@@ -23925,13 +23925,12 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
     }
     
     // off the screen
-	// TODO z3
     if(cx<0 || cy<0 || cx>=world_w || cy>=world_h)
     {
 		int ns;
-		if(auto scr = nextscr(cdir,false))
-			ns = *scr;
-		else return 0;
+		auto [map, screen] = nextscr2(cdir);
+		if (map == -1)
+			return 0;
         
         switch(cdir)
         {
@@ -23951,18 +23950,16 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
             cx=0;
             break;
         }
-
-		if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
-			return 0;
 		
 		int32_t cmb = COMBOPOS(cx%256, cy%176);
+		const mapscr* scr = get_canonical_scr(map, screen);
 		if (!comboflag)
         {
-            return TheMaps[ns].sflag[cmb];
+			return scr->sflag[cmb];
         }
         else
         {
-            return combobuf[TheMaps[ns].data[cmb]].flag;
+            return combobuf[scr->data[cmb]].flag;
         }
     }
     
@@ -27936,21 +27933,6 @@ static std::pair<int, int> lookahead_coords(int scrolldir, int x, int y)
 {
 	x = vbound(x, 0, world_w - 16);
 	y = vbound(y, 0, world_h - 16);
-	switch (scrolldir)
-	{
-		case up:
-			y = world_h - 16;
-			break;
-		case down:
-			y = 0;
-			break;
-		case left:
-			x = world_w - 16;
-			break;
-		case right:
-			x = 0;
-			break;
-	}
 	return {x, y};
 }
 
@@ -27967,25 +27949,6 @@ static bool lookaheadraftflag(int scroll_dir, int x, int y)
     int cy = y + 8;
 	bound(cx, 0, world_w - 16);
 	bound(cy, 0, world_h - 8);
-    
-    switch (scroll_dir)
-    {
-    case up:
-        cy=160;
-        break;
-        
-    case down:
-        cy=0;
-        break;
-        
-    case left:
-        cx=240;
-        break;
-        
-    case right:
-        cx=0;
-        break;
-    }
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(cx, cy, 0);
     return (isRaftFlag(rpos_handle.cflag()) || isRaftFlag(rpos_handle.sflag()));
@@ -28947,10 +28910,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (is_unsmooth_vertical_scrolling) sy += 3;
 
 	// change Hero's state if entering water
-	int32_t ahead = lookahead(scrolldir, x, y + 8);
-	auto [lookaheadx, lookaheady] = lookahead_coords(scrolldir, x + 8, y + bigHitbox?8:12);
-	auto [wateraheadx1, wateraheady1] = lookahead_coords(scrolldir, x + 4, y + 9);
-	auto [wateraheadx2, wateraheady2] = lookahead_coords(scrolldir, x + 11, y + 15);
+	int32_t ahead = lookahead(scrolldir, new_hero_x, new_hero_y + 8);
+	auto [lookaheadx, lookaheady] = lookahead_coords(scrolldir, new_hero_x + 8, new_hero_y + bigHitbox?8:12);
+	auto [wateraheadx1, wateraheady1] = lookahead_coords(scrolldir, new_hero_x + 4, new_hero_y + 9);
+	auto [wateraheadx2, wateraheady2] = lookahead_coords(scrolldir, new_hero_x + 11, new_hero_y + 15);
 	
 	bool nowinwater = false;
 	{
@@ -28958,7 +28921,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			if(lastaction == rafting ) //&& isRaftFlag(aheadflag))
 			{
-				if (lookaheadraftflag(scrolldir, x, y))
+				if (lookaheadraftflag(scrolldir, new_hero_x, new_hero_y))
 				{
 					action=rafting; FFCore.setHeroAction(rafting);
 					raftclk=0;
