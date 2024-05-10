@@ -1145,26 +1145,26 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 {
 	const mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
 	if(!m->valid) return 0;
-	
+
 	int32_t mi = (map*MAPSCRSNORMAL)+screen;
 	int32_t flags = 0;
-	
+
 	if(secrets)
 	{
 		flags = game->maps[mi];
 	}
-	
+
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
-	
+
 	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return 0;
-	
-	// TODO z3 ! super expensive...
+
+	// TODO: copying a mapscr and applying secrets is a lot of work, and this may be called a lot.
+	// consider caching (and invalidate per-frame/or at least on loadscr).
 	mapscr scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? *m : TheMaps[mapid]);
 	if (scr.valid==0) return 0;
-	
-	// TODO z3 ! can this not be called all the time?
+
 	apply_state_changes_to_screen(scr, map, screen, flags);
-	
+
 	return scr.data[pos];
 }
 
