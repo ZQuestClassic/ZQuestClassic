@@ -353,7 +353,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 {
 	x=X;
 	y=Y;
-	screen_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	clk=Clk;
 	floor_y=y;
@@ -17091,21 +17090,18 @@ void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy,mapscr* pare
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
 	item *i = new item(zfix(x), zfix(y - get_qr(qr_NOITEMOFFSET)), 0_zf, id, pickup, 0);
-	i->screen_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
 }
 
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk)
 {
 	item *i = new item((zfix)x,(zfix)y-(get_qr(qr_NOITEMOFFSET)),(zfix)0,id,pickup,clk);
-	i->screen_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
 }
 
 void adddummyitem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
 	item *i = new item((zfix)x,(zfix)y-(get_qr(qr_NOITEMOFFSET)),(zfix)0,id,pickup,0,true);
-	i->screen_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
 }
 

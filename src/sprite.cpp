@@ -59,6 +59,7 @@ fixed rad_to_fixed(T d)
 sprite::sprite(): solid_object()
 {
     uid = getNextUID();
+	screen_spawned = -1;
 	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
     slopeid = 0;
@@ -195,6 +196,7 @@ sprite::sprite(sprite const & other):
 	ignore_delete(other.ignore_delete)
 {
     uid = getNextUID();
+	screen_spawned = other.screen_spawned;
 	isspawning = other.isspawning;
     
     for(int32_t i=0; i<10; ++i)
@@ -236,6 +238,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	x = X;
 	y = Y;
     uid = getNextUID();
+	screen_spawned = get_screen_index_for_world_xy(x.getInt(), y.getInt());
     isspawning = false;
     slopeid = 0;
     onplatid = 0;
@@ -2502,13 +2505,13 @@ int32_t sprite_list::hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize)
 }
 
 // returns the number of sprites with matching id
-int32_t sprite_list::idCount(int32_t id, int32_t mask)
+int32_t sprite_list::idCount(int32_t id, int32_t mask, int32_t screen)
 {
     int32_t c=0;
     
     for(int32_t i=0; i<count; i++)
     {
-        if(((sprites[i]->id)&mask) == (id&mask))
+        if ((screen == -1 || screen == sprites[i]->screen_spawned == screen) && ((sprites[i]->id)&mask) == (id&mask))
         {
             ++c;
         }
@@ -2576,7 +2579,13 @@ int32_t sprite_list::idLast(int32_t id, int32_t mask)
 // returns the number of sprites with matching id
 int32_t sprite_list::idCount(int32_t id)
 {
-    return idCount(id,0xFFFF);
+    return idCount(id,0xFFFF,-1);
+}
+
+// returns the number of sprites with matching id, for given screen
+int32_t sprite_list::idCount(int32_t id, int32_t screen)
+{
+    return idCount(id,0xFFFF,screen);
 }
 
 // returns index of first sprite with matching id, -1 if none found

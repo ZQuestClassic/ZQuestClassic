@@ -7913,20 +7913,17 @@ void HeroClass::addsparkle2(int32_t type1, int32_t type2)
 //cleans up decorations that exit the bounds of the screen for a int32_t time, to prevebt them wrapping around.
 void HeroClass::PhantomsCleanup()
 {
-	if(Lwpns.idCount(wPhantom))
+	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
-		for(int32_t i=0; i<Lwpns.Count(); i++)
+		weapon *w = ((weapon *)Lwpns.spr(i));
+		if ( w->id == wPhantom && !w->isScriptGenerated() )
 		{
-			weapon *w = ((weapon *)Lwpns.spr(i));
-			if ( w->id == wPhantom && !w->isScriptGenerated() )
+			if ( w->x < -10000 || w->y > 10000 || w->x < -10000 || w->y > 10000 )
 			{
-				if ( w->x < -10000 || w->y > 10000 || w->x < -10000 || w->y > 10000 )
-				{
-					Lwpns.remove(w);
-				}				
-			}
-		}	
-	}
+				Lwpns.remove(w);
+			}				
+		}
+	}	
 }
 
 //Waitframe handler for refilling operations
@@ -24026,11 +24023,10 @@ void HeroClass::checkspecial()
 					screen_item_clear_state(screen);
 				}
 				// if room has traps, guys don't come back
-				// TODO z3
 				for (int32_t i=0; i<eMAXGUYS; i++)
 				{
 					if (guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
-						if (guys.idCount(i) && !getmapflag(screen, mTMPNORET))
+						if (guys.idCount(i, screen) && !getmapflag(screen, mTMPNORET))
 							setmapflag(screen, mTMPNORET);
 				}
 				// clear enemies and open secret
@@ -29286,7 +29282,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		// Draw screens' background layer primitives together, after their layers' combos.
 		// Not ideal, but probably good enough for all realistic purposes.
 		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
-		// TODO z3
 		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(framebuf, 2, 0, playing_field_offset);
 		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3, 0, playing_field_offset);
 
