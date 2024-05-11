@@ -4017,14 +4017,6 @@ enum //for Hero->LiftFlags[]
 	LIFTFL_MAX
 };
 
-// For Viewport->Mode
-enum
-{
-	VIEW_MODE_CENTER_AND_BOUND,
-	VIEW_MODE_CENTER,
-	VIEW_MODE_SCRIPT
-};
-
 enum
 {
 	MR_SCREEN,
@@ -4396,4 +4388,12 @@ enum = long {
 enum = long {
     WEBSOCKET_MESSAGE_TYPE_TEXT = 1L,
     WEBSOCKET_MESSAGE_TYPE_BINARY = 2L
+};
+
+// For Viewport->Mode
+enum = long
+{
+	VIEW_MODE_CENTER_AND_BOUND,
+	VIEW_MODE_CENTER,
+	VIEW_MODE_SCRIPT
 };

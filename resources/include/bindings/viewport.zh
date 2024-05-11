@@ -3,7 +3,7 @@ class Viewport {
 	internal Viewport();
 
 	// @zasm_var VIEWPORT_MODE
-	internal int Mode;
+	internal long Mode;
 
 	// @zasm_var VIEWPORT_X
 	internal int X;
@@ -19,5 +19,3 @@ class Viewport {
 }
 
 internal const Viewport Viewport;
-
-// TODO z3 !! consider using long here
