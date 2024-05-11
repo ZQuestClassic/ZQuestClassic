@@ -970,6 +970,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	x=X;
 	y=Y;
 	z=Z;
+	screen_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	type=Type;
 	power=pow;
@@ -8030,6 +8031,7 @@ void weapon::draw_hitbox()
 //Dummy weapon for visual effects.
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, int32_t step, int32_t prntid, int32_t height, int32_t width, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t g) : sprite(), parentid(prntid)
 {
+	screen_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
 	unblockable = 0;
 	misc_wflags = 0;
 	death_spawnitem = -1;

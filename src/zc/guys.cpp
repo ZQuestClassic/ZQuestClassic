@@ -353,6 +353,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 {
 	x=X;
 	y=Y;
+	screen_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	clk=Clk;
 	floor_y=y;
