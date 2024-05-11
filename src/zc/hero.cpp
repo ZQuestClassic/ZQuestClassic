@@ -14440,7 +14440,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			 //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (get_layer_scr(hero_screen, i)->valid != 0)
+		if (get_layer_scr_valid(hero_screen, i))
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -18113,7 +18113,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			
 			for (int32_t i = 0; i <= 1; ++i)
 			{
-				if (get_layer_scr(hero_screen, i)->valid != 0)
+				if (get_layer_scr_valid(hero_screen, i))
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -20148,7 +20148,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 		     //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (get_layer_scr(hero_screen, i)->valid != 0)
+		if (get_layer_scr_valid(hero_screen, i))
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -21737,7 +21737,7 @@ void HeroClass::oldcheckbosslockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
-				if (get_layer_scr(hero_screen, 1)->valid != 0)
+				if (get_layer_scr_valid(hero_screen, 1))
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{

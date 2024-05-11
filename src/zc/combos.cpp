@@ -423,9 +423,12 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	{
 		if(!(cmb.usrflags&(1<<lyr))) continue;
 
-		mapscr* scr_2 = get_layer_scr(ffc_handle.screen, lyr);
+		mapscr* scr_2 = get_layer_scr_valid(ffc_handle.screen, lyr);
+		if (!scr_2)
+			continue;
 		if(!scr_2->data[pos2]) //Don't increment empty space
 			continue;
+
 		newcombo const& cmb_2 = combobuf[scr_2->data[pos2]];
 		scr_2->data[pos2] = BOUND_COMBO(scr_2->data[pos2] + cmbofs);
 		scr_2->cset[pos2] = (scr_2->cset[pos2] + csofs) & 15;
@@ -1038,7 +1041,10 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 	bool itemflag = false;
 	for(int32_t i=0; i<3; i++)
 	{
-		mapscr* layer_scr = get_layer_scr(rpos_handle.screen, i - 1);
+		mapscr* layer_scr = get_layer_scr_valid(rpos_handle.screen, i - 1);
+		if (!layer_scr)
+			continue;
+
 		if(layer_scr->sflag[rpos_handle.pos]==mfARMOS_ITEM)
 		{
 			itemflag = true; break;

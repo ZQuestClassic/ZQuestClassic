@@ -22737,7 +22737,7 @@ void set_register(int32_t arg, int32_t value)
 			get_ffc_raw(indx)->member =( (value/10000) ? 1 : 0 ); \
 		}
 		
-
+		// TODO z3 !!! update current_region_rpos_handles
 		case SCREENDATAVALID:		SET_SCREENDATA_VAR_BYTE(valid, "Valid"); break;		//b
 		case SCREENDATAGUY: 		SET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
 		case SCREENDATASTRING:		SET_SCREENDATA_VAR_INT32(str, "String"); break;		//w

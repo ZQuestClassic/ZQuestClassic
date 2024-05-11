@@ -271,8 +271,10 @@ std::vector<mapscr*> z3_take_temporary_screens()
 	// in the temporary screens array.
 	for (int i = 0; i < 7; i++)
 	{
-		mapscr* s = get_layer_scr(currscr, i - 1);
-		DCHECK(s);
+		mapscr* s = get_layer_scr_valid(currscr, i - 1);
+		if (!s)
+			continue;
+
 		DCHECK(!screens[currscr*7 + i]);
 		screens[currscr*7 + i] = new mapscr(*s);
 	}
@@ -583,6 +585,13 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 mapscr* get_layer_scr(int screen, int layer)
 {
 	return get_layer_scr(currmap, screen, layer);
+}
+
+mapscr* get_layer_scr_valid(int screen, int layer)
+{
+	if (mapscr* scr = get_layer_scr(currmap, screen, layer); scr->valid)
+		return scr;
+	return nullptr;
 }
 
 // Same as get_layer_scr, but if scrolling will pull from the scrolling screens as needed.
@@ -1754,7 +1763,9 @@ void update_combo_cycling()
 		{
 			for(int32_t j=0; j<6; j++)
 			{
-				mapscr* layer_scr = get_layer_scr(screen, j);
+				mapscr* layer_scr = get_layer_scr_valid(screen, j);
+				if (!layer_scr)
+					continue;
 
 				for(int32_t i=0; i<176; i++)
 				{
@@ -2305,8 +2316,8 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen, bool do_layers, int32_
 	{
 		for(int32_t j=0; j<6; j++)
 		{
-			mapscr* layer_scr = get_layer_scr(screen, j);
-			if(!layer_scr->valid) continue;
+			mapscr* layer_scr = get_layer_scr_valid(screen, j);
+			if (!layer_scr) continue;
 			
 			for(int32_t i=0; i<176; i++)
 			{
@@ -2340,33 +2351,34 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen, bool do_layers, int32_
 	return didit;
 }
 
-bool remove_xstatecombos(mapscr *s, int32_t scr, byte xflag, bool triggers)
+bool remove_xstatecombos(mapscr *s, int32_t screen, byte xflag, bool triggers)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
-	return remove_xstatecombos_mi(s, scr, mi, xflag, triggers);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	return remove_xstatecombos_mi(s, screen, mi, xflag, triggers);
 }
-bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers)
+bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, bool triggers)
 {
 	bool didit=false;
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
 
-	if (scr >= 0x80) s = &special_warp_return_screen;
-	scr = scr >= 0x80 ? homescr : scr;
+	if (screen >= 0x80) s = &special_warp_return_screen;
+	screen = screen >= 0x80 ? homescr : screen;
 
 	rpos_handle_t rpos_handle;
-	rpos_handle.screen = scr;
+	rpos_handle.screen = screen;
 	rpos_handle.layer = 0;
 	for (int j = -1; j < 6; j++)
 	{
-		if (j != -1) s = get_layer_scr(scr, j);
-		if (!s->valid) continue;
+		mapscr* scr = s;
+		if (j != -1) scr = get_layer_scr_valid(screen, j);
+		if (!scr) continue;
 
-		rpos_handle.scr = s;
+		rpos_handle.scr = scr;
 		rpos_handle.layer = j + 1;
 		
 		for (int32_t i=0; i<176; i++)
 		{
-			rpos_handle.rpos = POS_TO_RPOS(i, scr);
+			rpos_handle.rpos = POS_TO_RPOS(i, screen);
 			rpos_handle.pos = i;
 			newcombo const& cmb = rpos_handle.combo();
 			if(triggers && force_ex_trigger(rpos_handle, xflag))
@@ -2394,13 +2406,13 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = s->numFFC();
-		int screen_index_offset = get_region_screen_index_offset(scr);
+		int screen_index_offset = get_region_screen_index_offset(screen);
 		for (uint8_t i = 0; i < c; i++)
 		{
 			ffcdata* ffc2 = &s->ffcs[i];
 			uint16_t ffc_id = screen_index_offset * MAXFFCS + i;
 			newcombo const& cmb = combobuf[ffc2->data];
-			if(triggers && force_ex_trigger_ffc({s, (uint8_t)scr, ffc_id, i, ffc2}, xflag))
+			if(triggers && force_ex_trigger_ffc({s, (uint8_t)screen, ffc_id, i, ffc2}, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -2425,48 +2437,49 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 	return didit;
 }
 
-void clear_xstatecombos(mapscr *s, int32_t scr, bool triggers)
+void clear_xstatecombos(mapscr *s, int32_t screen, bool triggers)
 {
-	int mi = (currmap*MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
-	clear_xstatecombos_mi(s, scr, mi, triggers);
+	int mi = (currmap*MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	clear_xstatecombos_mi(s, screen, mi, triggers);
 }
 
-void clear_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers)
+void clear_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, bool triggers)
 {
 	for (int q = 0; q < 32; ++q)
 	{
-		remove_xstatecombos_mi(s,scr,mi,q,triggers);
+		remove_xstatecombos_mi(s,screen,mi,q,triggers);
 	}
 }
 
-bool remove_xdoors(mapscr *s, int32_t scr, uint dir, uint ind, bool triggers)
+bool remove_xdoors(mapscr *s, int32_t screen, uint dir, uint ind, bool triggers)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
-	return remove_xdoors_mi(s, scr, mi, dir, ind, triggers);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	return remove_xdoors_mi(s, screen, mi, dir, ind, triggers);
 }
-bool remove_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, uint dir, uint ind, bool triggers)
+bool remove_xdoors_mi(mapscr *s, int32_t screen, int32_t mi, uint dir, uint ind, bool triggers)
 {
 	bool didit=false;
 	if(!getxdoor(mi, dir, ind)) return false;
 
-	if (scr >= 0x80) s = &special_warp_return_screen;
-	scr = scr >= 0x80 ? homescr : scr;
+	if (screen >= 0x80) s = &special_warp_return_screen;
+	screen = screen >= 0x80 ? homescr : screen;
 
 	rpos_handle_t rpos_handle;
-	rpos_handle.screen = scr;
+	rpos_handle.screen = screen;
 	rpos_handle.layer = 0;
 	for (int j = -1; j < 6; j++)
 	{
-		if (j != -1) s = get_layer_scr(scr, j);
-		if (!s->valid) continue;
+		mapscr* scr = s;
+		if (j != -1) scr = get_layer_scr_valid(screen, j);
+		if (!scr) continue;
 
-		rpos_handle.scr = s;
-		rpos_handle.screen = scr;
+		rpos_handle.scr = scr;
+		rpos_handle.screen = screen;
 		rpos_handle.layer = j + 1;
 		
 		for (int32_t i=0; i<176; i++)
 		{
-			rpos_handle.rpos = POS_TO_RPOS(i, scr);
+			rpos_handle.rpos = POS_TO_RPOS(i, screen);
 			rpos_handle.pos = i;
 			if(triggers && force_ex_door_trigger(rpos_handle, dir, ind))
 				didit = true;
@@ -2477,12 +2490,12 @@ bool remove_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, uint dir, uint ind, bo
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = s->numFFC();
-		int screen_index_offset = get_region_screen_index_offset(scr);
+		int screen_index_offset = get_region_screen_index_offset(screen);
 		for (uint8_t i = 0; i < c; i++)
 		{
 			ffcdata* ffc2 = &s->ffcs[i];
 			uint16_t ffc_id = screen_index_offset * MAXFFCS + i;
-			if(triggers && force_ex_door_trigger_ffc({s, (uint8_t)scr, ffc_id, i, ffc2}, dir, ind))
+			if(triggers && force_ex_door_trigger_ffc({s, (uint8_t)screen, ffc_id, i, ffc2}, dir, ind))
 				didit = true;
 			else; //future door combo types?
 		}
@@ -2586,7 +2599,7 @@ static int32_t findtrigger(int32_t screen)
 	mapscr* screens[7];
 	for (int32_t j = 0; j < 7; j++)
 	{
-		screens[j] = get_layer_scr(screen, j - 1);
+		screens[j] = get_layer_scr_valid(screen, j - 1);
 	}
     
 	bool sflag = false;
@@ -2595,7 +2608,7 @@ static int32_t findtrigger(int32_t screen)
         for(int32_t layer = -1; layer < 6; ++layer)
 		{
 			mapscr* scr = screens[layer+1];
-			if (layer>-1 && scr->valid==0) continue;
+			if (!scr) continue;
 
 			if(sflag)
 				checkflag = scr->sflag[j];
@@ -2768,9 +2781,8 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					mapscr* layer_scr = get_layer_scr(screen, j);
-					// TODO z3 maybe instead `get_layer_scr` return null if not valid?
-					if (!layer_scr->valid) continue; //If layer isn't used
+					mapscr* layer_scr = get_layer_scr_valid(screen, j);
+					if (!layer_scr) continue;
 					
 					if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
 					
@@ -2900,8 +2912,8 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					mapscr* layer_scr = get_layer_scr(screen, j);
-					if (!layer_scr->valid) continue;
+					mapscr* layer_scr = get_layer_scr_valid(screen, j);
+					if (!layer_scr) continue;
 					
 					int32_t newflag2 = -1;
 					
@@ -4290,7 +4302,7 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 			screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
 			for (int i = 1; i < 7; i++)
 			{
-				mapscr* scr = get_layer_scr(screen, i - 1);
+				mapscr* scr = get_layer_scr_valid(screen, i - 1);
 				screen_handles[i] = {base_scr, scr, currmap, screen, i};
 			}
 
@@ -7072,7 +7084,10 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr, int screen)
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		mapscr* scr = lyr == 0 ? base_scr : get_layer_scr(screen, lyr - 1);
+		mapscr* scr = lyr == 0 ? base_scr : get_layer_scr_valid(screen, lyr - 1);
+		if (!scr)
+			continue;
+
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
