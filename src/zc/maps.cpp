@@ -3855,10 +3855,10 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
 		if(!lenscheck(base_scr,layer))
         	showlayer = false;
     }
-    
+
     if(showlayer)
     {
-		if(type || !(base_scr->hidelayers & (1 << (layer))))
+		if (screen_handle.scr && (type || !(base_scr->hidelayers & (1 << (layer)))))
 		{
 			do_scrolling_layer(bmp, type, screen_handle, x, y);
 			if(!type && !get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
@@ -4258,7 +4258,7 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 		screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
-			mapscr* scr = get_layer_scr(screen, i - 1);
+			mapscr* scr = get_layer_scr_valid(screen, i - 1);
 			screen_handles[i] = {base_scr, scr, currmap, screen, i};
 		}
 
@@ -4322,7 +4322,7 @@ static void for_every_screen_in_region_check_viewport(const std::function <void 
 		screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
-			mapscr* scr = get_layer_scr(screen, i - 1);
+			mapscr* scr = get_layer_scr_valid(screen, i - 1);
 			screen_handles[i] = {base_scr, scr, currmap, screen, i};
 		}
 
