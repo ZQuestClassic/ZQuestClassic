@@ -271,10 +271,8 @@ std::vector<mapscr*> z3_take_temporary_screens()
 	// in the temporary screens array.
 	for (int i = 0; i < 7; i++)
 	{
-		mapscr* s = get_layer_scr_valid(currscr, i - 1);
-		if (!s)
-			continue;
-
+		mapscr* s = get_layer_scr(currscr, i - 1);
+		DCHECK(s);
 		DCHECK(!screens[currscr*7 + i]);
 		screens[currscr*7 + i] = new mapscr(*s);
 	}
@@ -582,11 +580,14 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 	return temporary_screens[index][layer + 1];
 }
 
+// Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr(int screen, int layer)
 {
 	return get_layer_scr(currmap, screen, layer);
 }
 
+// Note: layer=-1 returns the base screen, layer=0 returns the first layer.
+// Return nullptr if screen is not valid.
 mapscr* get_layer_scr_valid(int screen, int layer)
 {
 	if (mapscr* scr = get_layer_scr(currmap, screen, layer); scr->valid)
@@ -3760,7 +3761,10 @@ bool lenscheck(mapscr* basescr, int layer)
 void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	mapscr* layerscr = get_layer_scr(currscr, layer - 1);
+	mapscr* layerscr = get_layer_scr_valid(currscr, layer - 1);
+	if (!layerscr)
+		return;
+
 	do_layer(bmp, type, {basescr, layerscr, currmap, currscr, layer}, x, y, drawprimitives);
 }
 
@@ -7134,8 +7138,8 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr, int screen)
 						if(lyr==lyr2) continue;
 						if(!(cmb.usrflags&(1<<lyr2))) continue;
 						if(togglegrid[pos]&(1<<lyr2)) continue;
-						mapscr* scr_2 = lyr2 == 0 ? base_scr : get_layer_scr(screen, lyr2 - 1);
-						if(!scr_2->data[pos]) //Don't increment empty space
+						mapscr* scr_2 = lyr2 == 0 ? base_scr : get_layer_scr_valid(screen, lyr2 - 1);
+						if(!scr_2 || !scr_2->data[pos]) //Don't increment empty space
 							continue;
 						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
 						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK)
