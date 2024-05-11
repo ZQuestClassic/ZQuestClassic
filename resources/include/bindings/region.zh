@@ -3,32 +3,32 @@ class Region {
 	internal Region();
 
 	// @zasm_var REGION_ID
-	internal const long ID;
+	internal const int ID;
 
 	// The number of pixels horizontally. 256 per screen.
 	//
 	// @zasm_var REGION_WIDTH
-	internal const long Width;
+	internal const int Width;
 
 	// The number of pixels vertically. 176 per screen.
 	//
 	// @zasm_var REGION_HEIGHT
-	internal const long Height;
+	internal const int Height;
 
 	// The number of screens horizontally.
 	//
 	// @zasm_var REGION_SCREEN_WIDTH
-	internal const long ScreenWidth;
+	internal const int ScreenWidth;
 
 	// The number of screens vertically.
 	//
 	// @zasm_var REGION_SCREEN_HEIGHT
-	internal const long ScreenHeight;
+	internal const int ScreenHeight;
 
 	// The number of combo positions. 176 per screen.
 	//
 	// @zasm_var REGION_NUM_COMBOS
-	internal const long NumCombos;
+	internal const int NumCombos;
 
 	// The top-left screen in the current region.
 	// If not in a large region, this is the same as [Screen].
@@ -50,7 +50,7 @@ class Region {
 	// @zasm
 	//   POP D2
 	//   REGION_SCREEN_FOR_COMBO_POS D2
-	internal int GetScreenIndexForComoboPos(int pos);
+	internal long GetScreenIndexForComoboPos(int pos);
 
 	// Triggers secrets on the provided screen screen (temp only, so only makes
 	// sense inside regions)
