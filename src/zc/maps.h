@@ -346,7 +346,6 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t);
 void loadscr_old(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay=false);
 void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* scr);
 void putscrdoors(BITMAP *dest,int32_t x,int32_t y,mapscr* scr);
-void putscrdoors(BITMAP *dest,int32_t x,int32_t y);
 bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt);
 bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate);

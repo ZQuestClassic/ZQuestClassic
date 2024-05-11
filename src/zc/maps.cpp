@@ -4248,22 +4248,33 @@ void calc_darkroom_combos(int screen, int offx, int offy)
 	}
 }
 
-static void for_every_nearby_screen(const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn)
+struct nearby_screen_t
 {
+	int screen;
+	int offx;
+	int offy;
+	std::array<screen_handle_t, 7> screen_handles;
+};
+typedef std::vector<nearby_screen_t> nearby_screens_t;
+
+static nearby_screens_t get_nearby_screens()
+{
+	nearby_screens_t nearby_screens;
+
 	if (!is_z3_scrolling_mode())
 	{
 		int screen = currscr;
 		mapscr* base_scr = get_scr(screen);
-		std::array<screen_handle_t, 7> screen_handles;
-		screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
+		auto& nearby_screen = nearby_screens.emplace_back();
+		nearby_screen.screen = currscr;
+		nearby_screen.screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
 			mapscr* scr = get_layer_scr_valid(screen, i - 1);
-			screen_handles[i] = {base_scr, scr, currmap, screen, i};
+			nearby_screen.screen_handles[i] = {base_scr, scr, currmap, screen, i};
 		}
 
-		fn(screen_handles, screen, 0, 0);
-		return;
+		return nearby_screens;
 	}
 
 	int heroscr_x = hero_screen % 16;
@@ -4302,17 +4313,26 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 			if (offx - viewport.x >= 256) continue;
 			if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
 
-			std::array<screen_handle_t, 7> screen_handles;
-			screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
+			auto& nearby_screen = nearby_screens.emplace_back();
+			nearby_screen.screen = screen;
+			nearby_screen.offx = offx;
+			nearby_screen.offy = offy;
+			nearby_screen.screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
 			for (int i = 1; i < 7; i++)
 			{
 				mapscr* scr = get_layer_scr_valid(screen, i - 1);
-				screen_handles[i] = {base_scr, scr, currmap, screen, i};
+				nearby_screen.screen_handles[i] = {base_scr, scr, currmap, screen, i};
 			}
-
-			fn(screen_handles, screen, offx, offy);
 		}
 	}
+
+	return nearby_screens;
+}
+
+static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn)
+{
+	for (auto& nearby_screen : nearby_screens)
+		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy);
 }
 
 static void for_every_screen_in_region_check_viewport(const std::function <void (std::array<screen_handle_t, 7>, int, int, int, bool)>& fn)
@@ -4354,6 +4374,8 @@ void draw_msgstr(byte layer)
 	}
 }
 
+static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, int32_t x, int32_t y);
+
 void draw_screen(bool showhero, bool runGeneric)
 {
 	if (!screenscrolling)
@@ -4390,8 +4412,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	//1. Draw some background layers
 	clear_bitmap(scrollbuf);
+
+	auto nearby_screens = get_nearby_screens();
 	
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
@@ -4408,7 +4432,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		if (lenscheck(base_scr, 0))
 		{
@@ -4525,7 +4549,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 
 		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
@@ -4545,7 +4569,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_effectflags(base_scr, offx, offy, 2);
 	});
 	
-	putscrdoors(scrollbuf,0,playing_field_offset);
+	putscrdoors(nearby_screens, scrollbuf, 0, playing_field_offset);
 	
 	// Lens hints, doors etc.
 	if(lensclk || (get_debug() && zc_getkey(KEY_L)))
@@ -4751,7 +4775,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	//5. Draw some layers onto framebuf
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 
 		if(!XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
@@ -4884,7 +4908,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	bool draw_dark = false;
 	if(get_qr(qr_NEW_DARKROOM) && room_is_dark)
 	{
-		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 			mapscr* base_scr = screen_handles[0].scr;
 			if (base_scr->flags&fDARK)
 			{
@@ -4896,7 +4920,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			Hero.calc_darkroom_hero(0, -playing_field_offset);
 		if (draw_dark)
 		{
-			for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+			for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 				mapscr* base_scr = screen_handles[0].scr;
 				bool should_be_dark = (base_scr->flags & fDARK);
 				if (!should_be_dark)
@@ -6450,7 +6474,7 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scr)
 	}
 }
 
-void putscrdoors(BITMAP *dest,int32_t x,int32_t y)
+static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, int32_t x, int32_t y)
 {
 	if (!show_layer_0)
 	{
@@ -6460,7 +6484,7 @@ void putscrdoors(BITMAP *dest,int32_t x,int32_t y)
 	x -= viewport.x;
 	y -= viewport.y;
 
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* scr = screen_handles[0].base_scr;
 		if (scr->valid==0)
 			return;
