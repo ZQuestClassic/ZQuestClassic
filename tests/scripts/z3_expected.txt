@@ -19,16 +19,16 @@ PUSHR D1
 PUSHR REFFFC; void run(int, int) Body Start
 PUSHARGSV 0 0.0002
 SETR D4 SP2
-SETR D2 REGION_WIDTH; InlineFunc[void Trace(long)] Params
-TRACELR D2; InlineFunc[void Trace(long)] Body
-SETR D2 REGION_HEIGHT; InlineFunc[void Trace(long)] Params
-TRACELR D2; InlineFunc[void Trace(long)] Body
-SETR D2 REGION_SCREEN_WIDTH; InlineFunc[void Trace(long)] Params
-TRACELR D2; InlineFunc[void Trace(long)] Body
-SETR D2 REGION_SCREEN_HEIGHT; InlineFunc[void Trace(long)] Params
-TRACELR D2; InlineFunc[void Trace(long)] Body
-SETR D2 REGION_NUM_COMBOS; InlineFunc[void Trace(long)] Params
-TRACELR D2; InlineFunc[void Trace(long)] Body
+SETR D2 REGION_WIDTH; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 REGION_HEIGHT; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 REGION_SCREEN_WIDTH; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 REGION_SCREEN_HEIGHT; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 REGION_NUM_COMBOS; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
 SETV D2 0; while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D0

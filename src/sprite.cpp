@@ -2511,7 +2511,7 @@ int32_t sprite_list::idCount(int32_t id, int32_t mask, int32_t screen)
     
     for(int32_t i=0; i<count; i++)
     {
-        if ((screen == -1 || screen == sprites[i]->screen_spawned == screen) && ((sprites[i]->id)&mask) == (id&mask))
+        if ((screen == -1 || sprites[i]->screen_spawned == screen) && ((sprites[i]->id)&mask) == (id&mask))
         {
             ++c;
         }

@@ -19,7 +19,7 @@ SETR D4 SP2
 STOREV 20 0.0002
 STOREV 0 0.0001
 STOREV 5 0
-SETV D2 2; while(true) #2 Body [Opt:AlwaysOn] Start
+SETV D2 0.0002; while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D2
 SETR VIEWPORT_MODE D2
