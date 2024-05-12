@@ -151,7 +151,7 @@ static inline bool on_sideview_solid_oldpos(sprite* obj, bool ignoreFallthrough 
 	if(slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, (slopesmisc == 3), true, obj->slopeid) < 0) return true;
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	if (y>=160_zf && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
+	if (y>=160_zf && currscr>=0x70 && !(hero_scr->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
 	if (slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, false, true, obj->slopeid) < 0) return true;
 	if (y.getInt()%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
@@ -216,6 +216,8 @@ bool HeroClass::on_ffc_platform()
 		return false;
 	if(platform_ffc && on_ffc_platform(*platform_ffc,false))
 		return true;
+
+	// TODO z3 !
 	word c = tmpscr->numFFC();
 	for(word i=0; i<c; i++)
 	{
@@ -2333,7 +2335,7 @@ void HeroClass::draw(BITMAP* dest)
 	}*/
 	int32_t oxofs = xofs, oyofs = yofs;
 	bool shieldModify = false;
-	bool invisible=(dontdraw>0) || (tmpscr->flags3&fINVISHERO);
+	bool invisible=(dontdraw>0) || (hero_scr->flags3&fINVISHERO);
 	
 	{
 		if(action==dying)
@@ -3930,6 +3932,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		type = cNONE;
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
+	int screen = rpos_handle.screen;
 	mapscr* s = rpos_handle.scr;
 	int i = rpos_handle.pos;
         
@@ -3951,9 +3954,9 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		s->cset[i] = tmpscr->undercset;
 		s->sflag[i] = 0;
 	}
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 	{
-		items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(tmpscr->secretsfx);
 	}
 	else if(isCuttableItemType(type))
@@ -5510,7 +5513,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	if(get_bit(grid, i) != 0)
 		return;
 		
-	mapscr *s = FFCore.tempScreens[lyr];
+	mapscr *s = rpos_handle.scr;
 	
 	if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
 	{
@@ -5555,9 +5558,9 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 		
 	set_bit(grid,i,1);
 	
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 	{
-		items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		items.add(new item((zfix)bx, (zfix)by, (zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(tmpscr->secretsfx);
 	}
 	
@@ -27766,7 +27769,7 @@ void HeroClass::checkscroll()
 
 	// This maze logic is enabled for only scrolling mode. It's a bit simpler, but hasn't
 	// been tested for non-scrolling mode.
-	if (!scrolling_maze_state && is_z3_scrolling_mode() && tmpscr->flags&fMAZE)
+	if (!scrolling_maze_state && is_z3_scrolling_mode() && hero_scr->flags&fMAZE)
 	{
 		scrolling_maze_scr = currscr;
 		scrolling_maze_state = 1;
@@ -28084,9 +28087,6 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		y = new_hero_y;
 		break;
 	}
-
-	// x += 
-	// y += playing_field_offset;
 
 	viewport.x -= new_region_offset_x;
 	viewport.y -= new_region_offset_y;
@@ -32164,7 +32164,8 @@ void HeroClass::ganon_intro()
     
     action=none; FFCore.setHeroAction(none);
     dir=up;
-    
+
+	// TODO z3 !
     if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
         jukebox(MAXMIDIS-1);
     else
@@ -32250,8 +32251,8 @@ void HeroClass::reset_hookshot()
 
 bool HeroClass::can_deploy_ladder()
 {
-    bool ladderallowed = ((!get_qr(qr_LADDERANYWHERE) && (tmpscr->flags&fLADDER)) || isdungeon()
-                          || (get_qr(qr_LADDERANYWHERE) && !(tmpscr->flags&fLADDER)));
+    bool ladderallowed = ((!get_qr(qr_LADDERANYWHERE) && (hero_scr->flags&fLADDER)) || isdungeon()
+                          || (get_qr(qr_LADDERANYWHERE) && !(hero_scr->flags&fLADDER)));
     return (current_item_id(itype_ladder)>-1 && ladderallowed && !ilswim && z==0 && fakez==0 &&
             (!isSideViewHero() || on_sideview_solid_oldpos(this)));
 }
