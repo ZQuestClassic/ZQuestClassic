@@ -8,7 +8,7 @@
 
 #define V_ZC_FIRST 2
 #define V_ZC_SECOND 55
-#define V_ZC_THIRD 2     // Bump this number for 2.55 bug fix releases. Touch nothing else.
+#define V_ZC_THIRD 3     // Bump this number for 2.55 bug fix releases. Touch nothing else.
 #define V_ZC_FOURTH 0
 //build
 #define V_ZC_ALPHA 0
