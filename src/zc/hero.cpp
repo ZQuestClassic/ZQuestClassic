@@ -216,16 +216,10 @@ bool HeroClass::on_ffc_platform()
 		return false;
 	if(platform_ffc && on_ffc_platform(*platform_ffc,false))
 		return true;
-
-	// TODO z3 !
-	word c = tmpscr->numFFC();
-	for(word i=0; i<c; i++)
-	{
-		ffcdata& ffc = tmpscr->ffcs[i];
-		if(on_ffc_platform(ffc,false))
-			return true;
-	}
-	return false;
+	bool any_on_platform = find_ffc([&](const ffc_handle_t& ffc_handle) {
+		return on_ffc_platform(*ffc_handle.ffc, false);
+	}).has_value();
+	return any_on_platform;
 }
 
 void HeroClass::check_platform_ffc()
