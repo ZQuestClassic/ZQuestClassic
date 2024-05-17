@@ -121,6 +121,7 @@ void z3_load_region(int screen, int dmap = -1);
 // The first item is the first element of the array of rpos_handles,
 // and the second item is the number of elements.
 std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles();
+void z3_mark_current_region_handles_dirty();
 void z3_clear_temporary_screens();
 std::vector<mapscr*> z3_take_temporary_screens();
 void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport);

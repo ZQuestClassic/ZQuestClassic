@@ -22737,8 +22737,12 @@ void set_register(int32_t arg, int32_t value)
 			get_ffc_raw(indx)->member =( (value/10000) ? 1 : 0 ); \
 		}
 		
-		// TODO z3 !!! update current_region_rpos_handles
-		case SCREENDATAVALID:		SET_SCREENDATA_VAR_BYTE(valid, "Valid"); break;		//b
+		case SCREENDATAVALID:
+		{
+			SET_SCREENDATA_VAR_BYTE(valid, "Valid"); //b
+			z3_mark_current_region_handles_dirty();
+			break;
+		}
 		case SCREENDATAGUY: 		SET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
 		case SCREENDATASTRING:		SET_SCREENDATA_VAR_INT32(str, "String"); break;		//w
 		case SCREENDATAROOM: 		SET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
@@ -22801,8 +22805,18 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATACSENSITIVE: 	SET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
 		case SCREENDATANORESET: 		SET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 		case SCREENDATANOCARRY: 		SET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-		case SCREENDATALAYERMAP:	 	SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-		case SCREENDATALAYERSCREEN: 	SET_SCREENDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
+		case SCREENDATALAYERMAP:
+		{
+			SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); //B, 6 OF THESE
+			z3_mark_current_region_handles_dirty();
+			break;
+		}
+		case SCREENDATALAYERSCREEN:
+		{
+		 	SET_SCREENDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 5);	//B, 6 OF THESE
+			z3_mark_current_region_handles_dirty();
+			break;
+		}
 		case SCREENDATALAYEROPACITY: 	SET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
 		case SCREENDATALAYERINVIS: 	
 		{

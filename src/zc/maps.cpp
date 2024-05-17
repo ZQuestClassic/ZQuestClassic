@@ -52,6 +52,7 @@ static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7];
 static bool screen_in_current_region[176];
 static rpos_handle_t current_region_rpos_handles[136*7];
+static bool current_region_rpos_handles_dirty;
 static int current_region_screen_count;
 
 viewport_t viewport;
@@ -235,7 +236,38 @@ void z3_load_region(int screen, int dmap)
 
 std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles()
 {
+	if (current_region_rpos_handles_dirty)
+	{
+		current_region_rpos_handles_dirty = false;
+		current_region_screen_count = 0;
+		for (int y = 0; y < current_region.screen_height; y++)
+		{
+			for (int x = 0; x < current_region.screen_width; x++)
+			{
+				for (int layer = 0; layer <= 6; layer++)
+				{
+					int screen = cur_origin_screen_index + x + y*16;
+					mapscr* scr = get_layer_scr(screen, layer - 1);
+					if (!scr->valid)
+					{
+						if (layer == 0) break;
+						continue;
+					}
+
+					rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
+					current_region_rpos_handles[current_region_screen_count] = {scr, screen, layer, base_rpos, 0};
+					current_region_screen_count += 1;
+				}
+			}
+		}
+	}
+
 	return {current_region_rpos_handles, current_region_screen_count};
+}
+
+void z3_mark_current_region_handles_dirty()
+{
+	current_region_rpos_handles_dirty = true;
 }
 
 void z3_clear_temporary_screens()
@@ -5875,27 +5907,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	int o_currdmap = currdmap;
 	currdmap = destdmap;
 
-	current_region_screen_count = 0;
-	for (int y = 0; y < current_region.screen_height; y++)
-	{
-		for (int x = 0; x < current_region.screen_width; x++)
-		{
-			for (int layer = 0; layer <= 6; layer++)
-			{
-				int screen = cur_origin_screen_index + x + y*16;
-				mapscr* scr = get_layer_scr(screen, layer - 1);
-				if (!scr->valid)
-				{
-					if (layer == 0) break;
-					continue;
-				}
-
-				rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
-				current_region_rpos_handles[current_region_screen_count] = {scr, screen, layer, base_rpos, 0};
-				current_region_screen_count += 1;
-			}
-		}
-	}
+	z3_mark_current_region_handles_dirty();
 
 	update_slope_comboposes();
 	currdmap = o_currdmap;
