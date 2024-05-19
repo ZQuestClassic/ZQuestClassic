@@ -278,10 +278,10 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 void clear_xstatecombos(mapscr *s, int32_t scr, bool triggers = false);
 void clear_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
 
-bool remove_xdoors(mapscr *s, int32_t scr, uint dir, uint ind, bool triggers = false);
-bool remove_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, uint dir, uint ind, bool triggers);
-void clear_xdoors(mapscr *s, int32_t scr, bool triggers = false);
-void clear_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
+bool remove_xdoors(mapscr *scr, uint dir, uint ind, bool triggers = false);
+bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers);
+void clear_xdoors(mapscr *scr, bool triggers = false);
+void clear_xdoors_mi(mapscr *scr, int32_t mi, bool triggers = false);
 
 bool remove_lockblocks(mapscr* s);
 bool remove_bosslockblocks(mapscr* s);

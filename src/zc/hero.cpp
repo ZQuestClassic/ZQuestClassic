@@ -24090,7 +24090,7 @@ void HeroClass::checkspecial()
 			remove_bosschests(scr);
 		}
 
-		clear_xdoors(scr, screen, true);
+		clear_xdoors(scr, true);
 		clear_xstatecombos(scr, screen, true);
 
 		if (screen_item_get_state(screen) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
