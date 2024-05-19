@@ -25851,7 +25851,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		else
 			fade(DMaps[currdmap].color,true,false);
 		blackscr(30,true);
-		bool no_x80_dir = true; // TODO z3: is this necessary?
+		bool no_x80_dir = true;
 		loadscr(wdmap, 0x81, down, false, no_x80_dir);
 		//preloaded freeform combos
 		ffscript_engine(true);

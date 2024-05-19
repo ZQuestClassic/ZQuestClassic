@@ -8,7 +8,9 @@
 
 mapscr* rpos_handle_t::base_scr() const
 {
-	return layer == 0 ? scr : get_layer_scr_allow_scrolling(scr->map, screen, -1);
+	// TODO z3 why doesn't scr->map work?
+	extern int32_t currmap;
+	return layer == 0 ? scr : get_layer_scr_allow_scrolling(currmap, screen, -1);
 }
 
 newcombo& rpos_handle_t::combo() const
