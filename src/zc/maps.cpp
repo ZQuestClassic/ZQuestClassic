@@ -2491,9 +2491,8 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 	bool didit=false;
 	if(!getxdoor(mi, dir, ind)) return false;
 
+	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
 	int screen = scr->screen;
-	if (screen >= 0x80) scr = &special_warp_return_screen;
-	screen = screen >= 0x80 ? homescr : screen;
 
 	rpos_handle_t rpos_handle;
 	rpos_handle.screen = screen;
