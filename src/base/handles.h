@@ -33,6 +33,8 @@ struct rpos_handle_t
 	// rpos % 176
 	int32_t pos;
 
+	mapscr* base_scr() const;
+
 	newcombo& combo() const;
 	cpos_info& info() const;
 

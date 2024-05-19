@@ -6,6 +6,11 @@
 #include "ffc.h"
 #include <variant>
 
+mapscr* rpos_handle_t::base_scr() const
+{
+	return layer == 0 ? scr : get_layer_scr_allow_scrolling(scr->map, screen, -1);
+}
+
 newcombo& rpos_handle_t::combo() const
 {
 	return combobuf[scr->data[pos]];

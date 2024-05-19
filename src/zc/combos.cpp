@@ -974,7 +974,7 @@ bool trigger_warp(newcombo const& cmb)
 
 bool trigger_chest(const rpos_handle_t& rpos_handle)
 {
-	mapscr* base_scr = rpos_handle.layer == 0 ? rpos_handle.scr : get_scr(rpos_handle.screen);
+	mapscr* base_scr = rpos_handle.base_scr();
 	int screen = rpos_handle.screen;
 
 	auto& cmb = rpos_handle.combo();	
@@ -1195,8 +1195,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 {
 	DCHECK(rpos_handle.rpos <= region_max_rpos);
-	// TODO z3 rpos_handle.base_scr()
-	mapscr* base_scr = rpos_handle.layer == 0 ? rpos_handle.scr : get_scr(rpos_handle.screen);
+	mapscr* base_scr = rpos_handle.base_scr();
 	int screen = rpos_handle.screen;
 	
 	auto& cmb = rpos_handle.combo();	
@@ -2934,7 +2933,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 		
 		if(!check_bit)
 		{
-			mapscr* base_scr = rpos_handle.layer == 0 ? rpos_handle.scr : get_layer_scr_allow_scrolling(currmap, rpos_handle.screen, -1);
+			mapscr* base_scr = rpos_handle.base_scr();
 			handle_trigger_results(base_scr, cmb, cx, cy, hasitem, used_bit, special);
 			
 			if(cmb.trigchange)
