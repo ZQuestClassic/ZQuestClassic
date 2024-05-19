@@ -41397,12 +41397,12 @@ int32_t ffscript_engine(const bool preload)
 		//zprint("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+			for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 				if ((preload && scr->preloadscript) || !preload)
 				{
-					if ( scr->script > 0 && FFCore.doscript(ScriptType::Screen, screen) )
+					if ( scr->script > 0 && FFCore.doscript(ScriptType::Screen, scr->screen) )
 					{
-						ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);
+						ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
 					}
 				}
 			});
@@ -43681,11 +43681,11 @@ void FFScript::runWarpScripts(bool waitdraw)
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen) && scr->preloadscript)
+			for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen) && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);  
-					FFCore.waitdraw(ScriptType::Screen, screen) = 0;
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					FFCore.waitdraw(ScriptType::Screen, scr->screen) = 0;
 				}
 			});
 		}
@@ -43714,10 +43714,10 @@ void FFScript::runWarpScripts(bool waitdraw)
 		}
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+			for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 				if (scr->script != 0 && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
 				}
 			});
 		}

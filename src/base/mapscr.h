@@ -30,6 +30,8 @@ enum
 
 struct mapscr
 {
+	byte map;
+	byte screen;
 	byte valid;
 	byte guy;
 	int32_t guytile = -1;

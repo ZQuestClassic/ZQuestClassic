@@ -3616,15 +3616,15 @@ bool HeroClass::checkstab()
 						}
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
-							setmapflag(scr, screen, mITEM);
+							setmapflag(scr, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag(scr, screen, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag(scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
 							setxmapflag(screen, 1<<ptr->pickupexstate);
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-							if (scr->flags9&fITEMSECRETPERM) setmapflag(scr, screen, mSECRET);
+							if (scr->flags9&fITEMSECRETPERM) setmapflag(scr, mSECRET);
 							trigger_secrets_for_screen(TriggerSource::ItemsSecret, screen, false);
 						}
 						//!DIMI
@@ -21623,12 +21623,12 @@ void HeroClass::oldchecklockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(rpos_handle.screen, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(rpos_handle.scr, rpos_handle.screen, 1<<cmb.attribytes[5], false);
+		remove_xstatecombos(rpos_handle.scr, 1<<cmb.attribytes[5], false);
 	}
 	else
 	{
-		setmapflag(rpos_handle.scr, rpos_handle.screen, mLOCKBLOCK);
-		remove_lockblocks(rpos_handle.scr, rpos_handle.screen);
+		setmapflag(rpos_handle.scr, mLOCKBLOCK);
+		remove_lockblocks(rpos_handle.scr);
 	}
 	if ( cmb3.usrflags&cflag3 )
 	{
@@ -21785,15 +21785,16 @@ void HeroClass::oldcheckbosslockblock()
 		FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 	}
 	
+	mapscr* scr = get_scr(cmb_screen_index);
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(cmb_screen_index, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(get_scr(cmb_screen_index), cmb_screen_index, 1<<cmb.attribytes[5]);
+		remove_xstatecombos(scr, 1<<cmb.attribytes[5]);
 	}
 	else
 	{
-		setmapflag(cmb_screen_index, mBOSSLOCKBLOCK);
-		remove_bosslockblocks(get_scr(cmb_screen_index), cmb_screen_index);
+		setmapflag(scr, mBOSSLOCKBLOCK);
+		remove_bosslockblocks(scr);
 	}
 	if ( (combobuf[cid].attribytes[3]) )
 		sfx(combobuf[cid].attribytes[3]);
@@ -21898,11 +21899,11 @@ void HeroClass::oldcheckchest(int32_t type)
 		case cLOCKEDCHEST:
 			if(!usekey()) return;
 			
-			setmapflag(scr, found_screen_index, mLOCKEDCHEST);
+			setmapflag(scr, mLOCKEDCHEST);
 			break;
 			
 		case cCHEST:
-			setmapflag(scr, found_screen_index, mCHEST);
+			setmapflag(scr, mCHEST);
 			break;
 			
 		case cBOSSCHEST:
@@ -21923,7 +21924,7 @@ void HeroClass::oldcheckchest(int32_t type)
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
 				FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 			}
-			setmapflag(scr, found_screen_index, mBOSSCHEST);
+			setmapflag(scr, mBOSSCHEST);
 			break;
 	}
 	
@@ -22291,7 +22292,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	}
 	
 	int32_t found = -1;
-	int32_t found_scr = -1;
+	int32_t found_screen = -1;
 	std::optional<ffc_handle_t> foundffc;
 	int32_t found_lyr = 0;
 	bool found_sign = false;
@@ -22302,7 +22303,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
 	{
 		found = tmp_cid;
-		found_scr = scr;
+		found_screen = scr;
 		fx = bx; fy = by;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
@@ -22323,7 +22324,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
 	{
 		found = tmp_cid;
-		found_scr = scr;
+		found_screen = scr;
 		fx = bx2; fy = by2;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
@@ -22366,7 +22367,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, i))
 			{
 				found = tmp_cid;
-				found_scr = scr;
+				found_screen = scr;
 				found_lyr = i+1;
 				fx = bx; fy = by;
 				if (i == 0)
@@ -22388,7 +22389,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, i))
 			{
 				found = tmp_cid;
-				found_scr = scr;
+				found_screen = scr;
 				found_lyr = i+1;
 				fx = bx2; fy = by2;
 				if (i == 0)
@@ -22454,7 +22455,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 		else if(pushing < 8 || pushing%8) goto endsigns; //Not pushing against sign enough
 		
-		trigger_sign(cmb, foundffc ? foundffc->screen : found_scr);
+		trigger_sign(cmb, foundffc ? foundffc->screen : found_screen);
 		didsign = true;
 	}
 endsigns:
@@ -23965,7 +23966,8 @@ void HeroClass::checkspecial()
 {
     checktouchblk();
 
-	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		int screen = scr->screen;
 		bool hasmainguy = hasMainGuy(screen);
 		bool loaded_enemies = loaded_enemies_for_screen.contains(screen);
 		if (!loaded_enemies || hasmainguy)
@@ -23977,7 +23979,7 @@ void HeroClass::checkspecial()
 			// Enemies have been defeated.
 
 			// generic 'Enemies->' trigger
-			for_every_rpos_in_screen(scr, screen, [&](const rpos_handle_t& rpos_handle) {
+			for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
 				auto& cmb = rpos_handle.combo();	
 				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
@@ -24024,7 +24026,7 @@ void HeroClass::checkspecial()
 				{
 					if (guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
 						if (guys.idCount(i, screen) && !getmapflag(screen, mTMPNORET))
-							setmapflag(screen, mTMPNORET);
+							setmapflag(scr, mTMPNORET);
 				}
 				// clear enemies and open secret
 				if (!did_secret && (scr->flags2&fCLEARSECRET))
@@ -24034,7 +24036,7 @@ void HeroClass::checkspecial()
 					
 					if (scr->flags4&fENEMYSCRTPERM && canPermSecret(currdmap, screen))
 					{
-						if (!(scr->flags5&fTEMPSECRETS)) setmapflag(screen, mSECRET);
+						if (!(scr->flags5&fTEMPSECRETS)) setmapflag(scr, mSECRET);
 					}
 					
 					sfx(scr->secretsfx);
@@ -24057,13 +24059,13 @@ void HeroClass::checkspecial()
 				else if(opendoors<0)
 					++opendoors;
 				else if((--opendoors)==0)
-					openshutters(scr, screen);
+					openshutters(scr);
 					
 				break;
 			}
 		if(!has_shutter && !opendoors && loaded_enemies && !(scr->flags&fSHUTTERS) && !hasmainguy)
 		{
-			openshutters(scr, screen);
+			openshutters(scr);
 		}
 
     	// set boss flag when boss is gone
@@ -24075,17 +24077,17 @@ void HeroClass::checkspecial()
 
 		if (getmapflag(screen, mCHEST))              // if special stuff done before
 		{
-			remove_chests(scr, screen);
+			remove_chests(scr);
 		}
 		
 		if(getmapflag(screen, mLOCKEDCHEST))              // if special stuff done before
 		{
-			remove_lockedchests(scr, screen);
+			remove_lockedchests(scr);
 		}
 		
 		if(getmapflag(screen, mBOSSCHEST))              // if special stuff done before
 		{
-			remove_bosschests(scr, screen);
+			remove_bosschests(scr);
 		}
 
 		clear_xdoors(scr, screen, true);
@@ -24253,7 +24255,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 						
 						if(!(rpos_handle.scr->flags5&fTEMPSECRETS))
 						{
-							setmapflag(rpos_handle.scr, rpos_handle.screen, mSECRET);
+							setmapflag(rpos_handle.scr, mSECRET);
 						}
 						sfx(warpsound,pan((int32_t)x));
 						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, false);
@@ -24984,7 +24986,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(type==cTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen))
 			{ 
-				if(!(rpos_handle.scr->flags5&fTEMPSECRETS)) setmapflag(rpos_handle.scr, rpos_handle.screen, mSECRET);
+				if(!(rpos_handle.scr->flags5&fTEMPSECRETS)) setmapflag(rpos_handle.scr, mSECRET);
 				
 				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, false);
 			}
@@ -27970,11 +27972,11 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen) && scr->preloadscript)
+			for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen) && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);  
-					FFCore.waitdraw(ScriptType::Screen, screen) = 0;
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					FFCore.waitdraw(ScriptType::Screen, scr->screen) = 0;
 				}
 			});
 		}
@@ -27989,10 +27991,10 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 	{
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+			for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 				if (scr->script != 0 && scr->preloadscript)
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);
 				}
 			});
 		}
@@ -28222,6 +28224,7 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1)
 	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, darkscr_bmp_z3);
 }
 
+// TODO z3 get screens up front
 static void for_every_nearby_screen_during_scroll(
 	const std::vector<mapscr*>& old_temporary_screens,
 	const std::function <void (std::array<screen_handle_t, 7>, int, int, int, bool)>& fn)
@@ -28664,11 +28667,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen))
+			for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && FFCore.waitdraw(ScriptType::Screen, scr->screen))
 				{
-					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, screen);  
-					FFCore.waitdraw(ScriptType::Screen, screen) = 0;
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					FFCore.waitdraw(ScriptType::Screen, scr->screen) = 0;
 				}
 			});
 		}
@@ -30761,12 +30764,12 @@ void HeroClass::checkitems(int32_t index)
 	int32_t pstr_flags = ptr->pickup_string_flags;
 	int32_t linked_parent = ptr->linked_parent;
 	// `screen_spawned` is probably same as `heroscr`, but could not be if the item moved around.
-	int32_t item_screen_index = ptr->screen_spawned;
-	mapscr* item_screen = get_scr(item_screen_index);
+	int32_t item_screen = ptr->screen_spawned;
+	mapscr* item_scr = get_scr(item_screen);
 
 	// For items grabbed while in a special screen.
 	if (currscr >= 128)
-		item_screen = &special_warp_return_screen;
+		item_scr = &special_warp_return_screen;
 
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
@@ -30782,7 +30785,7 @@ void HeroClass::checkitems(int32_t index)
 		}
 	}
 	
-	bool bottledummy = (pickup&ipCHECK) && item_screen->room == rBOTTLESHOP;
+	bool bottledummy = (pickup&ipCHECK) && item_scr->room == rBOTTLESHOP;
 	
 	if(bottledummy) //Dummy bullshit! 
 	{
@@ -30814,7 +30817,7 @@ void HeroClass::checkitems(int32_t index)
 				((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
 		}
 		
-		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[item_screen->catchall].fill[PriceIndex]);
+		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[item_scr->catchall].fill[PriceIndex]);
 		id2 = find_bottle_for_slot(slot);
 		ptr->id = id2;
 		holdid = id2;
@@ -30833,7 +30836,7 @@ void HeroClass::checkitems(int32_t index)
 				
 		if(pickup&ipENEMY)                                        // item was being carried by enemy
 			if(more_carried_items()<=1)  // 1 includes this own item.
-				screen_item_clear_state(item_screen_index);
+				screen_item_clear_state(item_screen);
 				
 		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
 		{
@@ -30879,7 +30882,7 @@ void HeroClass::checkitems(int32_t index)
 		} while(nextitem > -1);
 		
 		if(pickup&ipCHECK)                                        // check restrictions
-			switch(item_screen->room)
+			switch(item_scr->room)
 			{
 			case rSP_ITEM:                                        // special item
 				if(!canget(id2)) // These ones always need the Hearts Required check
@@ -30915,7 +30918,7 @@ void HeroClass::checkitems(int32_t index)
 				
 				for(int32_t i=0; i<3; i++)
 				{
-					if(QMisc.shop[item_screen->catchall].hasitem[i] != 0)
+					if(QMisc.shop[item_scr->catchall].hasitem[i] != 0)
 					{
 						++count;
 					}
@@ -30954,7 +30957,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(pickup&ipONETIME)    // set mITEM for one-time-only items
 		{
-			setmapflag(item_screen_index, mITEM);
+			setmapflag(item_scr, mITEM);
 
 			//Okay so having old source files is a godsend. You wanna know why?
 			//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
@@ -30980,17 +30983,17 @@ void HeroClass::checkitems(int32_t index)
 			*/
 		}
 		else if(pickup&ipONETIME2)                                // set mSPECIALITEM flag for other one-time-only items
-			setmapflag(item_screen_index, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+			setmapflag(item_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		
 		if(exstate > -1 && exstate < 32)
 		{
-			setxmapflag(item_screen_index, 1<<exstate);
+			setxmapflag(item_screen, 1<<exstate);
 		}
 
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
 		{
-			if (item_screen->flags9&fITEMSECRETPERM) setmapflag(item_screen_index, mSECRET);
-			trigger_secrets_for_screen(TriggerSource::ItemsSecret, item_screen_index, false);
+			if (item_scr->flags9&fITEMSECRETPERM) setmapflag(item_scr, mSECRET);
+			trigger_secrets_for_screen(TriggerSource::ItemsSecret, item_screen, false);
 		}
 
 		collectitem_script(id2);
@@ -31012,8 +31015,8 @@ void HeroClass::checkitems(int32_t index)
 		
 		clear_bitmap(pricesdisplaybuf);
 		
-		if(get_qr(qr_OLDPICKUP) || ((item_screen->room==rSP_ITEM || item_screen->room==rRP_HC || item_screen->room==rTAKEONE) && (pickup&ipONETIME2)) || 
-		(get_qr(qr_SHOP_ITEMS_VANISH) && (item_screen->room==rBOTTLESHOP || item_screen->room==rSHOP) && (pickup&ipCHECK)))
+		if(get_qr(qr_OLDPICKUP) || ((item_scr->room==rSP_ITEM || item_scr->room==rRP_HC || item_scr->room==rTAKEONE) && (pickup&ipONETIME2)) || 
+		(get_qr(qr_SHOP_ITEMS_VANISH) && (item_scr->room==rBOTTLESHOP || item_scr->room==rSHOP) && (pickup&ipCHECK)))
 		{
 			fadeclk=66;
 		}
@@ -31066,13 +31069,13 @@ void HeroClass::checkitems(int32_t index)
 			int32_t shop_pstr = 0;
 			if (PriceIndex > -1) 
 			{
-				switch(item_screen->room)
+				switch(item_scr->room)
 				{
 					case rSHOP:
-						shop_pstr = QMisc.shop[item_screen->catchall].str[PriceIndex];
+						shop_pstr = QMisc.shop[item_scr->catchall].str[PriceIndex];
 						break;
 					case rBOTTLESHOP:
-						shop_pstr = QMisc.bottle_shop_types[item_screen->catchall].str[PriceIndex];
+						shop_pstr = QMisc.bottle_shop_types[item_scr->catchall].str[PriceIndex];
 						break;
 				}
 			}
@@ -31085,12 +31088,12 @@ void HeroClass::checkitems(int32_t index)
 				else pstr = 0;
 				if(shop_pstr)
 				{
-					donewmsg(item_screen, shop_pstr);
+					donewmsg(item_scr, shop_pstr);
 					enqueued_str = pstr;
 				}
 				else if(pstr)
 				{
-					donewmsg(item_screen, pstr);
+					donewmsg(item_scr, pstr);
 				}
 			}
 			
@@ -31184,7 +31187,7 @@ void HeroClass::checkitems(int32_t index)
 		//show the info string
 		//non-held
 		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-		int32_t shop_pstr = ( item_screen->room == rSHOP && PriceIndex>=0 && QMisc.shop[item_screen->catchall].str[PriceIndex] > 0 ) ? QMisc.shop[item_screen->catchall].str[PriceIndex] : 0;
+		int32_t shop_pstr = ( item_scr->room == rSHOP && PriceIndex>=0 && QMisc.shop[item_scr->catchall].str[PriceIndex] > 0 ) ? QMisc.shop[item_scr->catchall].str[PriceIndex] : 0;
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
@@ -31194,12 +31197,12 @@ void HeroClass::checkitems(int32_t index)
 			else pstr = 0;
 			if(shop_pstr)
 			{
-				donewmsg(item_screen, shop_pstr);
+				donewmsg(item_scr, shop_pstr);
 				enqueued_str = pstr;
 			}
 			else if(pstr)
 			{
-				donewmsg(item_screen, pstr);
+				donewmsg(item_scr, pstr);
 			}
 		}
 		
@@ -32075,7 +32078,7 @@ void HeroClass::ganon_intro()
     271 GANON out, HERO face up
     */
     loaded_guys=true;
-    loaditem(tmpscr, currscr, offx, offy);
+    loaditem(tmpscr, offx, offy);
     
     if(game->lvlitems[dlevel]&liBOSS)
     {

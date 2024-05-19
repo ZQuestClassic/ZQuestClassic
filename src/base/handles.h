@@ -25,15 +25,6 @@ struct screen_handle_t
 
 struct rpos_handle_t
 {
-	// rpos_handle_t(mapscr* scr, int32_t screen, int32_t layer, rpos_t rpos): scr(scr), screen(screen), layer(layer), rpos(rpos)
-	// {
-	// 	pos = (int)rpos % 176;
-	// }
-
-	// rpos_handle_t(mapscr* scr, int32_t screen, int32_t layer, rpos_t rpos): scr(scr), screen(screen), layer(layer), rpos(rpos), pos(pos)
-	// {
-	// }
-
 	mapscr* scr;
 	int32_t screen;
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.

@@ -135,7 +135,7 @@ mapscr* get_screen_layer_for_rpos(rpos_t rpos, int layer);
 rpos_handle_t get_rpos_handle(rpos_t rpos, int layer);
 rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer);
 rpos_handle_t get_rpos_handle_for_screen(int screen, int layer, int pos);
-rpos_handle_t get_rpos_handle_for_screen(mapscr* scr, int screen, int layer, int pos);
+rpos_handle_t get_rpos_handle_for_screen(mapscr* scr, int layer, int pos);
 void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer);
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer);
 mapscr* get_screen_for_world_xy(int x, int y);
@@ -204,8 +204,7 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y);
 std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y);
 void eventlog_mapflags();
 
-void setmapflag(mapscr* scr, int32_t screen, int32_t flag);
-void setmapflag(int32_t screen, int32_t flag);
+void setmapflag(mapscr* scr, int32_t flag);
 // TODO z3 remove
 void setmapflag(int32_t flag);
 void setmapflag_mi(int32_t mi2, int32_t flag);
@@ -274,7 +273,7 @@ bool ishookshottable(int32_t bx, int32_t by);
 bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw);
 bool remove_screenstatecombos2(mapscr *s, int32_t screen, bool do_layers, int32_t what1, int32_t what2);
 
-bool remove_xstatecombos(mapscr *s, int32_t scr, byte xflag, bool triggers = false);
+bool remove_xstatecombos(mapscr *s, byte xflag, bool triggers = false);
 bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers);
 void clear_xstatecombos(mapscr *s, int32_t scr, bool triggers = false);
 void clear_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
@@ -284,11 +283,11 @@ bool remove_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, uint dir, uint ind, bo
 void clear_xdoors(mapscr *s, int32_t scr, bool triggers = false);
 void clear_xdoors_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
 
-bool remove_lockblocks(mapscr* s, int32_t screen);
-bool remove_bosslockblocks(mapscr* s, int32_t screen);
-bool remove_chests(mapscr* s, int32_t screen);
-bool remove_lockedchests(mapscr* s, int32_t screen);
-bool remove_bosschests(mapscr* s, int32_t screen);
+bool remove_lockblocks(mapscr* s);
+bool remove_bosslockblocks(mapscr* s);
+bool remove_chests(mapscr* s);
+bool remove_lockedchests(mapscr* s);
+bool remove_bosschests(mapscr* s);
 
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle);
@@ -339,7 +338,7 @@ void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
 void update_door(mapscr* m,int32_t side,int32_t door,bool even_walls=false);
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);
 void showbombeddoor(BITMAP *dest, int32_t side);
-void openshutters(mapscr* scr, int screen);
+void openshutters(mapscr* scr);
 void load_a_screen_and_layers(int dmap, int map, int screen, int ldir);
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay=false, bool no_x80_dir=false);
 void clear_darkroom_bitmaps();
@@ -364,11 +363,11 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
 bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign = nullptr);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
-void toggle_switches(dword flags, bool entry, mapscr* m, int screen);
+void toggle_switches(dword flags, bool entry, mapscr* m);
 void toggle_gswitches(int32_t state, bool entry);
-void toggle_gswitches(int32_t state, bool entry, mapscr* base_scr, int screen);
-void toggle_gswitches(bool* states, bool entry, mapscr* base_scr, int screen);
-void toggle_gswitches_load(mapscr* base_scr, int screen);
+void toggle_gswitches(int32_t state, bool entry, mapscr* base_scr);
+void toggle_gswitches(bool* states, bool entry, mapscr* base_scr);
+void toggle_gswitches_load(mapscr* base_scr);
 void run_gswitch_timers();
 void onload_gswitch_timers();
 

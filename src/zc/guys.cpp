@@ -14414,7 +14414,7 @@ bool eLanmola::animate(int32_t index)
 		clk2=19;
 		x=guys.spr(index+1)->x;
 		y=guys.spr(index+1)->y;
-		setmapflag(screen_spawned, mTMPNORET);
+		setmapflag(get_scr(screen_spawned), mTMPNORET);
 	}
 	
 	//this enemy is invincible.. BUT scripts don't know that, and can "kill" it by setting the hp negative.
@@ -18449,8 +18449,9 @@ void addfires()
 	}
 }
 
-void loadguys(mapscr* scr, int screen)
+static void loadguys(mapscr* scr)
 {
+	int screen = scr->screen;
 	byte Guy=0;
 	// When in caves/item rooms, use mSPECIALITEM and ipONETIME2
 	// Else use mITEM and ipONETIME
@@ -18571,7 +18572,7 @@ void loadguys(mapscr* scr, int screen)
 		addguy(dx+120,dy+62,gFAIRY,-14,false,guyscr);
 	}
 
-	loaditem(scr, screen, dx, dy);
+	loaditem(scr, dx, dy);
 
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
 	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
@@ -18597,13 +18598,14 @@ void loadguys()
 	}
 	screen_item_clear_state();
 
-	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
-		loadguys(scr, screen);
+	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		loadguys(scr);
 	});
 }
 
-void loaditem(mapscr* scr, int screen, int offx, int offy)
+void loaditem(mapscr* scr, int offx, int offy)
 {
+	int screen = scr->screen;
 	byte Item = 0;
 	
 	if(screen<128)
@@ -18664,7 +18666,7 @@ void never_return(int32_t screen, int32_t index)
 		}
 		
 doit:
-	setmapflag(screen, mNEVERRET);
+	setmapflag(get_scr(screen), mNEVERRET);
 dontdoit:
 	return;
 }
@@ -18797,14 +18799,14 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 	}
 }
 
-static void activate_fireball_statues(mapscr* scr, int screen)
+static void activate_fireball_statues(mapscr* scr)
 {
 	if (!(scr->enemyflags&efFIREBALLS))
 	{
 		return;
 	}
 
-	for_every_rpos_in_screen(scr, screen, [&](const rpos_handle_t& rpos_handle) {
+	for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
 		if (rpos_handle.layer == 0)
 		{
 			activate_fireball_statue(rpos_handle);
@@ -18812,8 +18814,9 @@ static void activate_fireball_statues(mapscr* scr, int screen)
 	});
 }
 
-void load_default_enemies(mapscr* scr, int screen)
+void load_default_enemies(mapscr* scr)
 {
+	int screen = scr->screen;
 	auto [dx, dy] = translate_screen_coordinates_to_world(screen);
 
 	wallm_load_clk=frame-80;
@@ -19192,8 +19195,10 @@ void script_side_load_enemies()
 	sle_clk = 0;
 }
 
-static void side_load_enemies(mapscr* scr, int screen)
+static void side_load_enemies(mapscr* scr)
 {
+	int screen = scr->screen;
+
 	if(!script_sle && sle_clk==0)
 	{
 		sle_pattern = scr->pattern;
@@ -19204,7 +19209,7 @@ static void side_load_enemies(mapscr* scr, int screen)
 		bool reload=true;
 		bool unbeatablereload = true;
 		
-		load_default_enemies(scr, screen);
+		load_default_enemies(scr);
 		
 		for(int32_t i=0; i<6; i++)
 			if(visited[i]==s)
@@ -19413,8 +19418,9 @@ rpos_t placeenemy(mapscr* scr, int32_t i, int32_t offx, int32_t offy)
 	return rpos_t::None;
 }
 
-void spawnEnemy(mapscr* scr, int screen, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
+void spawnEnemy(mapscr* scr, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
 {
+	int screen = scr->screen;
 	int x = 0;
 	int y = 0;
 	bool placed=false;
@@ -19629,7 +19635,7 @@ bool scriptloadenemies()
 	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
 	{
 		int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
-		spawnEnemy(tmpscr, currscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		spawnEnemy(tmpscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
 		if (guys.Count() > preguycount)
 		{
 			if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
@@ -19658,7 +19664,8 @@ void loadenemies()
 		if(visited[i]==s)
 			beenhere = true;
 	
-	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		int screen = scr->screen;
 		if (loaded_enemies_for_screen.contains(screen))
 			return;
 
@@ -19722,7 +19729,7 @@ void loadenemies()
 
 		if (scr->pattern==pSIDES || scr->pattern==pSIDESR)
 		{
-			side_load_enemies(scr, screen);
+			side_load_enemies(scr);
 			return;
 		}
 
@@ -19777,8 +19784,8 @@ void loadenemies()
 			loadcnt = 10; //All enemies also need to be respawned.
 
 		// do enemies that are always loaded
-		load_default_enemies(scr, screen);
-		activate_fireball_statues(scr, screen);
+		load_default_enemies(scr);
+		activate_fireball_statues(scr);
 
 		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
 		int32_t clk=-15,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
@@ -19786,7 +19793,7 @@ void loadenemies()
 		for(; i<loadcnt && scr->enemy[i]>0; i++)
 		{
 			int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
-			spawnEnemy(scr, screen, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
+			spawnEnemy(scr, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
 			if (guys.Count() > preguycount)
 			{
 				if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
@@ -21581,8 +21588,9 @@ static int count_guys_from_screen(int screen)
 }
 
 // messy code to do the enemy-carrying-the-item thing
-static void roaming_item(mapscr* scr, int screen)
+static void roaming_item(mapscr* scr)
 {
+	int screen = scr->screen;
 	ScreenItemState item_state = screen_item_get_state(screen);
 	bool loaded_enemies = loaded_enemies_for_screen.contains(screen);
 	if(!(item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy) || !loaded_enemies)
@@ -21678,8 +21686,8 @@ static void roaming_item(mapscr* scr, int screen)
 
 void roaming_item()
 {
-	for_every_screen_in_region([&](mapscr* scr, int screen, unsigned int region_scr_x, unsigned int region_scr_y) {
-		roaming_item(scr, screen);
+	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		roaming_item(scr);
 	});
 }
 

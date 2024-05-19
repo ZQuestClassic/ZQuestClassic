@@ -17239,6 +17239,8 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		{
 			scr=i*MAPSCRS+j;
 			clear_screen(&temp_mapscr);
+			temp_mapscr.map = i;
+			temp_mapscr.screen = j;
 			if(valid)
 				readmapscreen(f, Header, &temp_mapscr, version, scr);
 			
@@ -17287,7 +17289,6 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		}
 	}
 	map_count = temp_map_count;
-	clear_screen(&temp_mapscr);
 	return 0;
 }
 

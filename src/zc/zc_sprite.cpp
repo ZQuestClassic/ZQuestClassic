@@ -782,7 +782,7 @@ bool movingblock::animate(int32_t)
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
 						if(!(m0->flags5&fTEMPSECRETS))
-							setmapflag(m0, rpos_handle.screen, mSECRET);
+							setmapflag(rpos_handle.scr, mSECRET);
 					}
 				}
 			}
@@ -1015,7 +1015,7 @@ bool movingblock::animate(int32_t)
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
 						if(!(m0->flags5&fTEMPSECRETS))
-							setmapflag(m0, rpos_handle.screen, mSECRET);
+							setmapflag(rpos_handle.scr, mSECRET);
 					}
 				}
 			}
