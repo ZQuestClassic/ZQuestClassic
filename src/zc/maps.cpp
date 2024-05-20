@@ -2499,11 +2499,11 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 	rpos_handle.layer = 0;
 	for (int j = -1; j < 6; j++)
 	{
-		mapscr* scr2 = scr;
-		if (j != -1) scr2 = get_layer_scr_valid(screen, j);
-		if (!scr2) continue;
+		mapscr* scr_2 = scr;
+		if (j != -1) scr_2 = get_layer_scr_valid(screen, j);
+		if (!scr_2) continue;
 
-		rpos_handle.scr = scr2;
+		rpos_handle.scr = scr_2;
 		rpos_handle.screen = screen;
 		rpos_handle.layer = j + 1;
 		
