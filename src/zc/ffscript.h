@@ -1468,7 +1468,7 @@ static void set_screenitem(mapscr *m, int32_t value);
 static void set_screenundercombo(mapscr *m, int32_t value);
 static void set_screenundercset(mapscr *m, int32_t value);
 static void set_screenatchall(mapscr *m, int32_t value);
-static void deallocateZScriptArray(const int32_t ptrval);
+static void deallocateArray(const int32_t ptrval);
 static int32_t get_screen_d(int32_t index1, int32_t index2);
 static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
 static int32_t whichlayer(int32_t scr);
