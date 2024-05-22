@@ -5,6 +5,7 @@
 #include <deque>
 #include <string>
 #include <set>
+#include <sstream>
 using std::set;
 
 #include "base/qrs.h"

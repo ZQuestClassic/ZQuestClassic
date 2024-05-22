@@ -8,6 +8,7 @@
 #include <fmt/format.h>
 #include <xxhash.h>
 #include <vector>
+#include <sstream>
 
 #define POOLSTL_STD_SUPPLEMENT
 #include <poolstl/poolstl.hpp>

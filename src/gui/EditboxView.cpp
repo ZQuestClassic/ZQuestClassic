@@ -6,6 +6,7 @@
 #include "base/fonts.h"
 #include <map>
 #include <stdio.h>
+#include <sstream>
 
 extern int32_t scheme[];
 

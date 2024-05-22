@@ -43,6 +43,7 @@
 #include <utility>
 #include <algorithm>
 #include <mutex>
+#include <sstream>
 
 static bool verbose = false;
 
