@@ -443,7 +443,7 @@ class CLI:
 
     def run(self, args):
         revisions = get_revisions(
-            args.channel, include_test_builds=args.test_builds, may_build_locally=True
+            args.channel, include_test_builds=True, may_build_locally=True
         )
         revision = next(r for r in revisions if r.tag == args.tag_or_sha)
         binaries = revision.binaries(args.channel)
