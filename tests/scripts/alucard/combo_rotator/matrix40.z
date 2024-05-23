@@ -89,7 +89,7 @@ ffc script MatrixPasswordPuzzle4_0{
 	}
 }
 
-void DebugSolution(int[] solution, int origcmb){
+void DebugSolution(int solution, int origcmb){
 	for (int i=0; i<176; i++){
 		if (solution[i]<0) continue;
 		if ((Screen->ComboD[i] == (origcmb + solution[i])))Screen->DrawInteger(2, ComboX(i), ComboY(i),0, 1,0 , -1, -1, solution[i], 0, OP_OPAQUE);

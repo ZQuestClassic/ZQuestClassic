@@ -120,7 +120,7 @@ ffc script TowerHanoi{
 	}
 }
 
-void RenderHanoiDisks(ffc f, int[] disks){
+void RenderHanoiDisks(ffc f, int disks){
 	for (int i=0; i<SizeOfArray(disks);i++){
 		if (disks[i]<=0) continue;
 		Screen->DrawTile(0, (CenterX(f)-TOWER_OF_HANOI_DISK_HEIGHT/2*disks[i]), (f->Y-i*TOWER_OF_HANOI_DISK_HEIGHT-TOWER_OF_HANOI_DISK_HEIGHT), TILE_TOWER_OF_HANOI_DISK, 1, 1, f->CSet, TOWER_OF_HANOI_DISK_HEIGHT*disks[i], TOWER_OF_HANOI_DISK_HEIGHT*2, 0, 0, 0, 0, true, OP_OPAQUE);

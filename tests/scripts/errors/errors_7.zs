@@ -5,10 +5,32 @@ void test()
 	int arr[] = {1,2,3};
 	int[] arr2[] = {arr,arr};
 	npc[] enemies = Screen->NPCs;
-	//Errors
+
+	// Due to legacy array type conversion, the default here is to warn.
 	arr2[0] = 5;
 	arr[0] = arr2;
 	arr2[2] = arr2;
+	int[] arr3_bad = {arr,arr};
+	{
+		#option LEGACY_ARRAYS off
+
+		// Error.
+		arr2[0] = 5;
+		arr[0] = arr2;
+		arr2[2] = arr2;
+		int[] arr3_bad = {arr,arr};
+	}
+	{
+		#option LEGACY_ARRAYS on
+
+		// OK.
+		arr2[0] = 5;
+		arr[0] = arr2;
+		arr2[2] = arr2;
+		int[] arr3_bad = {arr,arr};
+	}
+
+	//Errors
 	arr2[1] = enemies;
 	arr[0] = enemies[0];
 	arr2[1][0] = enemies[1];

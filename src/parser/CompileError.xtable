@@ -133,5 +133,7 @@ X(	ReadOnly,	C,	A,	W,	STR,	VOID,	"'%s' is read-only, and cannot be written to!"	
 X(	BadInternal,            S,  A,  E,  STR,    VOID,   "%s"	 					)
 X(	BadVArgType,            S,  A,  E,  STR,    VOID,   "Function varg parameter must have an array type ('%s' is not an array type)"	 					)
 X(	IndexNotArray,            S,  A,  E,  STR,    VOID,   "Index operator '[]' must have an array type ('%s' is not an array type)"	 					)
+X(	Warn,			S,	A,	W,	STR,	VOID,	"%s"								)
+X(	Error,			S,	A,	E,	STR,	VOID,	"%s"								)
 
 #undef STR

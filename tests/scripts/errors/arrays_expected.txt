@@ -1,0 +1,17 @@
+Compiling 'arrays.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+ZQ_BUFFER Line 71 @ Columns 37-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+ZQ_BUFFER Line 82 @ Columns 3-9 - Error S109: Arrays should be explicitly typed - change `int` to `int[]`
+ZQ_BUFFER Line 9 @ Columns 6-10 - Warning S108: Array mismatch for types int[] and int
+ZQ_BUFFER Line 10 @ Columns 8-12 - Warning S108: Array mismatch for types int and int[]
+ZQ_BUFFER Line 15 @ Columns 7-11 - Error S109: Array mismatch for types int[] and int
+ZQ_BUFFER Line 16 @ Columns 9-13 - Error S109: Array mismatch for types int and int[]
+ZQ_BUFFER Line 43 @ Columns 2-26 - Warning S108: Array mismatch for types int[][] and int[]
+ZQ_BUFFER Line 46 @ Columns 9-24 - Error T017: Cannot cast from bitmap[] to bitmap.
+ZQ_BUFFER Line 48 @ Columns 2-41 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
+ZQ_BUFFER Line 53 @ Columns 10-28 - Warning S108: Array mismatch for types untyped[] and lweapon
+Failure!
+Compile finished with exit code '109' (compiled with errors)
