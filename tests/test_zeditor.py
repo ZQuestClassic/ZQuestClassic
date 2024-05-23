@@ -77,7 +77,7 @@ class TestZEditor(unittest.TestCase):
         failing_strs = []
         for run in results.runs[0]:
             if not run.success:
-                failing_str = f'failure at frame {run.failing_frame}'
+                failing_str = f'({run.name}) failure at frame {run.failing_frame}'
                 if run.unexpected_gfx_segments:
                     segments_str = [
                         f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments
