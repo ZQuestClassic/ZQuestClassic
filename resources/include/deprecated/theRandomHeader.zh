@@ -45,7 +45,7 @@ void forceWarp(int warpnum)
 			}
 		}
 	}
-	TraceS("No free ffcs exist to use for forceWarp()\s");
+	TraceS("No free ffcs exist to use for forceWarp()\n");
 }
 
 // Sets then immediately initiates a side warp (0-3)
@@ -68,7 +68,6 @@ void scriptWarp(int dmap, int screen, int type, int warpnum)
 			}
 		}
 	}
-	printf(
 	TraceS("No free ffcs exist to use for scriptWarp()\n");
 }
 // This is an overload of the above that automatically chooses Sidewarp D.
@@ -209,7 +208,7 @@ void createEnemy(int enemyNum)
 //Use RevDir in <std>
 int getOppositeDir(int dir)
 {
-	switc(dir)
+	switch(dir)
 	{
 		case DIR_UP: return DIR_DOWN;
 		case DIR_DOWN: return DIR_UP;
@@ -1148,7 +1147,7 @@ float angleDifference(float angle1, float angle2)
 // Function to get the difference between two angles
 float angleDifferenceDegrees(float angle1, float angle2)
 {
-	RadtoDeg(angleDifference(DegtoRad(angle1), DegtoRad(angle2)));
+	return RadtoDeg(angleDifference(DegtoRad(angle1), DegtoRad(angle2)));
 }
 
 // Function to tell if a location is inside the screen

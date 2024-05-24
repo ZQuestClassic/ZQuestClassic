@@ -40,6 +40,6 @@ class ZCTestCase(unittest.TestCase):
                             actual.splitlines(keepends=True),
                         )
                     )
-                    # Limit to 100 lines.
-                    lines = lines[:100]
+                    # Limit to 1000 lines.
+                    lines = lines[:1000]
                     self.fail(''.join(lines))
