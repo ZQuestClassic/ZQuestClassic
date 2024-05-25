@@ -1,4 +1,4 @@
-567 / 794 (71%) passed
+646 / 794 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -10,28 +10,20 @@ Failures:
 	00089-real-dungeon-map/script.zs
 	00094-water-air-counter/script.zs
 	00096-shallow-water-splash-and-tall-grass-sfx/script.zs
-	00113-bigenemydx/script.zs
-	00116-automaticbigenemy/script.zs
 	00121-stdextra-zh/script.zs
 	00121-stdextra-zh/stdExtra.zh
-	00128-donation-shop/script.zs
 	00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z
 	00156-jump-drown-spawn/merge jumppit.z
 	00170-the-river-of-destiny-custom-maps/MapGlobal.z
 	00170-the-river-of-destiny-custom-maps/MapImport.z
 	00175-scripted-traps/script.zs
-	00181-status-zh/script.zs
-	00181-status-zh/status.zh
-	00188-solid-ffc/script.zs
 	00196-links-awakening-alpha/LinksAwakening_0.63_Dist.z
 	00196-links-awakening-alpha/ffcscript_LA.zh
 	00196-links-awakening-alpha/stdExtra.zh
-	00211-pit-fall-package/script.zs
 	00215-pot-script/script.zs
 	00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh
 	00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh
 	00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh
-	00231-la-secret-medicine/script.zs
 	00234-zversion-zh-zcversion-zh/ZCVersion.zh
 	00235-stdweapons-zh/stdWeapons.zh
 	00235-stdweapons-zh/stdWeapons/CustomEnemyDefenses.zh
@@ -69,7 +61,6 @@ Failures:
 	00238-splitting-and-tribbling-enemies/script.zs
 	00238-splitting-and-tribbling-enemies/splitter_0.9.0.z
 	00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z
-	00239-custom-lens-hints/script.zs
 	00245-ffcscript-zh/ffcscript.zh
 	00246-ghost-zh/demo/ghzhDemo/Dragon.z
 	00246-ghost-zh/demo/ghzhDemo/Grell.z
@@ -102,7 +93,6 @@ Failures:
 	00255-swindle-haggle/script.zs
 	00266-advanced-gameboy-style-shields/script.zs
 	00282-oracle-minecarts/script.zs
-	00290-freeform-lttp-doors-and-shutters/script.zs
 	00296-moosh-npc-dialogue-branch-add-on/DialogueBranch.zs
 	00310-newbie-item/script.zs
 	00313-la-hatrobe/Hatrobe.z
@@ -127,9 +117,7 @@ Failures:
 	00360-ffc-shop/FFCShop/2.53 Version/FFCShop.zs
 	00360-ffc-shop/FFCShop/2.55 Version/FFCShop.zs
 	00360-ffc-shop/FFCShop/2.55 Version/v1.03/FFCShop.zs
-	00361-simpletangohandler/SimpleTangoHandler/2.53 Version/TangoHandler.zh
 	00361-simpletangohandler/SimpleTangoHandler/2.53 Version/customTango.zh
-	00361-simpletangohandler/SimpleTangoHandler/2.55 Version/TangoHandler.zh
 	00361-simpletangohandler/SimpleTangoHandler/2.55 Version/customTango.zh
 	00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs
 	00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs
@@ -139,94 +127,27 @@ Failures:
 	00366-templinkstate-zh/TempLinkState.zh
 	00374-dodge-roll-action/script.zs
 	00381-better-ladder/script.zs
-	00394-stack-push-blocks-ex/pushblock2_5.z
-	00394-stack-push-blocks-ex/script.zs
-	00399-warnsdorff-s-knight-tour-puzzle/knighttourv1_1.z
-	00399-warnsdorff-s-knight-tour-puzzle/script.zs
-	00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z
-	00400-frogs-and-toads-jumping-puzzle-ex/script.zs
-	00407-tower-of-hanoi-puzzle/hanoi.z
-	00407-tower-of-hanoi-puzzle/script.zs
-	00412-dynamic-lockblocks-ex/multilock.z
-	00412-dynamic-lockblocks-ex/script.zs
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_enemies.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD/Sideview_misc.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_ffc.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_flipblock.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_pendulum.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_pushblock.z
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/countdown.z
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/sideview_oneway.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/sideview_springboard.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD_sideview.z
 	00419-slab-connection-puzzle/script.zs
-	00423-metroidvania-minimap/script.zs
-	00425-false-push-block/falsepushblock.z
-	00426-color-cubes-fixed/ColorCube.z
-	00426-color-cubes-fixed/script.zs
 	00431-no-cycle-spinning-tiles/script.zs
-	00436-tetris-blocks-remote-controller/tetris4.z
-	00439-tiered-passwords/script.zs
-	00439-tiered-passwords/tierpassword.z
-	00442-puzzle-retreat/puzzleretreat.z
-	00447-flowfree-path-connection-puzzle/flowfree.z
-	00450-nesting-boxes-puzzle/nestbox.z
-	00451-snake-dragging-puzzle/snakedrag.z
-	00454-frictionless-ice-combos/nofricice.z
-	00454-frictionless-ice-combos/script.zs
-	00457-magnets-and-iron-beams-puzzle/magnetdrag.z
 	00457-magnets-and-iron-beams-puzzle/magnetswitch.z
 	00457-magnets-and-iron-beams-puzzle/script.zs
-	00466-alarm-spotlight/alarm.z
-	00466-alarm-spotlight/script.zs
 	00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
-	00485-advanced-switch-ex/switch.z
-	00493-resident-evil-arrow-puzzle/arrowpath.z
-	00493-resident-evil-arrow-puzzle/script.zs
 	00498-enemy-hp-bars-damage-numbers/enemy_hpbars.zs
 	00499-npcanim-zh/NPCAnim.zh
 	00500--monarch-ascendant/MonarchAscendant.zs
-	00506-cv-grim-reaper/ffreaper.z
-	00506-cv-grim-reaper/script.zs
-	00512-face-shifter/cycleshifter.z
-	00512-face-shifter/cycleshifterboss.z
-	00512-face-shifter/script.zs
-	00519-poker-zh/poker.zh
-	00519-poker-zh/script.zs
 	00520-poker-monsters/NofaKind.z
-	00520-poker-monsters/poker.zh
 	00520-poker-monsters/script.zs
-	00523-geldarm-z-geldarm/geldarm.z
-	00523-geldarm-z-geldarm/script.zs
-	00523-geldarm-z-geldarm/z2geldarm.z
-	00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z
-	00528-tesla-lightning-puzzle/teslapuzzle.z
-	00529-ff-zora/ffzora.z
 	00532-status-effects/statusEffects.zs
 	00533-test-play-init-data-backups/script.zs
 	00536-poker-combos/pokercombos.z
 	00536-poker-combos/script.zs
-	00538-slot-machine-dx/slotgame.z
-	00539-red-zone-minigame/redzone.z
-	00541-blob-of-blood/boss_slime_wall.z
 	00547--new-palette-based-day-night-system/DayNightNew.zs
-	00555-painting-pushblock/paintblock.z
-	00555-painting-pushblock/script.zs
-	00559-blind-the-thief-remastered/blind.z
-	00561-king-zol/script.zs
-	00561-king-zol/splitslime.z
-	00564-ff-tektite/fftektite.z
-	00567-z-true-evil-blob/z2_true_final_boss.z
-	00569-password-lock-script-the-sum-of-all-things/matrixsum.z
 	00571-gumzol/gumzol.z
 	00571-gumzol/script.zs
-	00576-bubble-counter-drain/counterfeiter.z
-	00577-evil-scrub/evilscrub.z
 	00580-mani-s-script-header/script.zs
 
 === 00026-deku-leaf/script.zs
@@ -307,32 +228,6 @@ ZQ_BUFFER Line 5 - Error P001: Included file '00096-shallow-water-splash-and-tal
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
-=== 00113-bigenemydx/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00116-automaticbigenemy/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00121-stdextra-zh/script.zs
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -348,20 +243,6 @@ Pass 3: Registration
 00121-stdextra-zh/stdExtra.zh Line 19 - Error S008: There is already a variable with name COLOR_WHITE in this scope.
 Failure!
 Compile finished with exit code '8' (compiled with errors)
-
-=== 00128-donation-shop/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z
 Pass 1: Parsing
@@ -417,70 +298,6 @@ Pass 2: Preprocessing
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
-=== 00181-status-zh/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00181-status-zh/status.zh
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00188-solid-ffc/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00188-solid-ffc/script.zs Line 288 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 290 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 291 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 293 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 294 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 295 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 296 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 297 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 298 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 304 - Warning S108: Arrays should be explicitly typed - change `bool` to `bool[]`
-00188-solid-ffc/script.zs Line 304 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 231 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 236 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 245 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 251 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 268 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 268 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 269 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 269 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 270 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 270 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 271 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 271 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00188-solid-ffc/script.zs Line 272 - Warning S108: Arrays should be explicitly typed - change `bool` to `bool[]`
-00188-solid-ffc/script.zs Line 272 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00196-links-awakening-alpha/LinksAwakening_0.63_Dist.z
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -504,19 +321,6 @@ Pass 3: Registration
 00196-links-awakening-alpha/stdExtra.zh Line 15 - Error S008: There is already a variable with name COLOR_WHITE in this scope.
 Failure!
 Compile finished with exit code '8' (compiled with errors)
-
-=== 00211-pit-fall-package/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00215-pot-script/script.zs
 Pass 1: Parsing
@@ -548,20 +352,6 @@ syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-kno
 ZQ_BUFFER Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
-
-=== 00231-la-secret-medicine/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00234-zversion-zh-zcversion-zh/ZCVersion.zh
 Pass 1: Parsing
@@ -865,19 +655,6 @@ ZQ_BUFFER Line 5 - Error P001: Included file '00238-splitting-and-tribbling-enem
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
-=== 00239-custom-lens-hints/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00245-ffcscript-zh/ffcscript.zh
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -1146,19 +923,6 @@ Pass 4: Analyzing Code
 00282-oracle-minecarts/script.zs Line 72 - Error T021: Function ScrollingLinkX() has not been declared.
 Failure!
 Compile finished with exit code '21' (compiled with errors)
-
-=== 00290-freeform-lttp-doors-and-shutters/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00296-moosh-npc-dialogue-branch-add-on/DialogueBranch.zs
 Pass 1: Parsing
@@ -1639,19 +1403,6 @@ Pass 2: Preprocessing
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
-=== 00361-simpletangohandler/SimpleTangoHandler/2.53 Version/TangoHandler.zh
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00361-simpletangohandler/SimpleTangoHandler/2.53 Version/customTango.zh
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -1659,19 +1410,6 @@ Pass 3: Registration
 00361-simpletangohandler/SimpleTangoHandler/2.53 Version/customTango.zh Line 8 - Error S008: There is already a variable with name __TANGO_SCROLL_SPEED in this scope.
 Failure!
 Compile finished with exit code '8' (compiled with errors)
-
-=== 00361-simpletangohandler/SimpleTangoHandler/2.55 Version/TangoHandler.zh
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00361-simpletangohandler/SimpleTangoHandler/2.55 Version/customTango.zh
 Pass 1: Parsing
@@ -1881,188 +1619,6 @@ Pass 2: Preprocessing
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
-=== 00394-stack-push-blocks-ex/pushblock2_5.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00394-stack-push-blocks-ex/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00399-warnsdorff-s-knight-tour-puzzle/knighttourv1_1.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00399-warnsdorff-s-knight-tour-puzzle/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z Line 229 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z Line 230 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z Line 246 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z Line 247 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z Line 248 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z Line 248 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z Line 252 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/frogpuzzle.z Line 260 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00400-frogs-and-toads-jumping-puzzle-ex/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00400-frogs-and-toads-jumping-puzzle-ex/script.zs Line 229 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/script.zs Line 230 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/script.zs Line 246 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/script.zs Line 247 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/script.zs Line 248 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/script.zs Line 248 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/script.zs Line 252 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00400-frogs-and-toads-jumping-puzzle-ex/script.zs Line 260 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00407-tower-of-hanoi-puzzle/hanoi.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00407-tower-of-hanoi-puzzle/hanoi.z Line 125 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00407-tower-of-hanoi-puzzle/hanoi.z Line 126 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00407-tower-of-hanoi-puzzle/hanoi.z Line 126 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00407-tower-of-hanoi-puzzle/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00407-tower-of-hanoi-puzzle/script.zs Line 126 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00407-tower-of-hanoi-puzzle/script.zs Line 127 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00407-tower-of-hanoi-puzzle/script.zs Line 127 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00412-dynamic-lockblocks-ex/multilock.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00412-dynamic-lockblocks-ex/multilock.z Line 161 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 162 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 163 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 167 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 168 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 192 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 193 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 194 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 197 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 198 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 178 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 179 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 180 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 183 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/multilock.z Line 184 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00412-dynamic-lockblocks-ex/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00412-dynamic-lockblocks-ex/script.zs Line 321 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 323 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 325 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 333 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 335 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 383 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 385 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 387 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 393 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 395 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 355 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 357 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 359 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 365 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00412-dynamic-lockblocks-ex/script.zs Line 367 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -2071,103 +1627,6 @@ Pass 4: Analyzing Code
 00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z Line 67 - Error S009: Variable LinkX has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_enemies.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD/Sideview_misc.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_ffc.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_flipblock.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_pendulum.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_pushblock.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z
 Pass 1: Parsing
@@ -2187,20 +1646,6 @@ Pass 4: Analyzing Code
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/countdown.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -2209,48 +1654,6 @@ Pass 4: Analyzing Code
 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z Line 44 - Error S009: Variable LinkX has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/sideview_oneway.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/sideview_springboard.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_sideview.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00419-slab-connection-puzzle/script.zs
 Pass 1: Parsing
@@ -2261,60 +1664,6 @@ Pass 4: Analyzing Code
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
-=== 00423-metroidvania-minimap/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00425-false-push-block/falsepushblock.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00426-color-cubes-fixed/ColorCube.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00426-color-cubes-fixed/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00415-grayswandir-sideview-engine/GSD_sideview/GSD/sideview_Ghost_GSD.z Line 188 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00431-no-cycle-spinning-tiles/script.zs
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -2322,356 +1671,6 @@ syntax error, unexpected RBRACE, expecting SEMICOLON [00431-no-cycle-spinning-ti
 ZQ_BUFFER Line 5 - Error P001: Included file '00431-no-cycle-spinning-tiles/script.zs' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
-
-=== 00436-tetris-blocks-remote-controller/tetris4.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00436-tetris-blocks-remote-controller/tetris4.z Line 412 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 416 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 419 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 268 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 1014 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 392 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 398 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 399 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 400 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 401 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 313 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 316 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 321 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 326 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 331 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 348 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 1178 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 638 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 641 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 642 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 643 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 644 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 647 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 648 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 649 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 650 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 651 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 652 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 653 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 654 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 655 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 658 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 659 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 660 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 661 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 662 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 663 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 664 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 665 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 666 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 667 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 668 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 669 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 670 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 671 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 672 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 673 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 676 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 684 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 687 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 688 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 689 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 690 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 693 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 694 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 695 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 696 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 697 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 698 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 699 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 700 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 701 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 704 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 705 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 706 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 707 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 708 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 709 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 710 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 711 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 712 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 713 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 714 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 715 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 716 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 717 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 718 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 719 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 722 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 278 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 435 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 436 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 437 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 438 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 1435 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 546 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 549 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 550 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 551 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 552 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 555 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 556 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 557 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 558 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 559 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 560 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 561 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 562 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 563 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 566 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 567 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 568 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 569 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 570 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 571 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 572 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 573 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 574 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 575 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 576 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 577 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 578 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 579 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 580 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 581 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 584 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 592 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 595 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 596 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 597 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 598 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 601 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 602 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 603 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 604 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 605 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 606 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 607 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 608 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 609 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 612 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 613 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 614 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 615 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 616 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 617 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 618 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 619 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 620 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 621 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 622 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 623 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 624 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 625 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 626 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 627 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 630 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 367 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 480 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 488 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 445 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00436-tetris-blocks-remote-controller/tetris4.z Line 453 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00439-tiered-passwords/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00439-tiered-passwords/tierpassword.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00442-puzzle-retreat/puzzleretreat.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00447-flowfree-path-connection-puzzle/flowfree.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00450-nesting-boxes-puzzle/nestbox.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00450-nesting-boxes-puzzle/nestbox.z Line 155 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 156 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 157 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 157 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 158 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 158 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 160 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 161 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 162 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00450-nesting-boxes-puzzle/nestbox.z Line 162 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00451-snake-dragging-puzzle/snakedrag.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00451-snake-dragging-puzzle/snakedrag.z Line 87 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 88 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 89 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 133 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 134 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 135 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 136 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 151 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 153 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 95 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 96 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 98 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 107 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 107 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 112 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00451-snake-dragging-puzzle/snakedrag.z Line 112 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00454-frictionless-ice-combos/nofricice.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00454-frictionless-ice-combos/nofricice.z Line 79 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 79 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 90 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 91 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 95 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 139 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 142 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 146 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 150 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 154 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 157 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 162 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 166 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 170 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 174 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 182 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 186 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 190 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/nofricice.z Line 194 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00454-frictionless-ice-combos/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00454-frictionless-ice-combos/script.zs Line 79 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 79 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 90 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 91 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 95 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 139 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 142 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 146 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 150 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 154 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 157 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 162 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 166 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 170 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 174 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 182 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 186 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 190 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00454-frictionless-ice-combos/script.zs Line 194 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00457-magnets-and-iron-beams-puzzle/magnetdrag.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00457-magnets-and-iron-beams-puzzle/magnetdrag.z Line 224 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00457-magnets-and-iron-beams-puzzle/magnetdrag.z Line 225 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00457-magnets-and-iron-beams-puzzle/magnetdrag.z Line 226 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00457-magnets-and-iron-beams-puzzle/magnetdrag.z Line 227 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00457-magnets-and-iron-beams-puzzle/magnetswitch.z
 Pass 1: Parsing
@@ -2691,39 +1690,9 @@ Pass 4: Analyzing Code
 00457-magnets-and-iron-beams-puzzle/script.zs Line 225 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 00457-magnets-and-iron-beams-puzzle/script.zs Line 226 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 00457-magnets-and-iron-beams-puzzle/script.zs Line 227 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
+00457-magnets-and-iron-beams-puzzle/script.zs Line 461 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
 Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00466-alarm-spotlight/alarm.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00466-alarm-spotlight/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
+Compile finished with exit code '21' (compiled with errors)
 
 === 00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
 Pass 1: Parsing
@@ -2733,45 +1702,6 @@ Pass 4: Analyzing Code
 00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh Line 10 - Error S009: Variable MOUSE_LAYER has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00485-advanced-switch-ex/switch.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00493-resident-evil-arrow-puzzle/arrowpath.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00493-resident-evil-arrow-puzzle/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00498-enemy-hp-bars-damage-numbers/enemy_hpbars.zs
 
@@ -2792,111 +1722,6 @@ Pass 4: Analyzing Code
 Failure!
 Compile finished with exit code '73' (compiled with errors)
 
-=== 00506-cv-grim-reaper/ffreaper.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00506-cv-grim-reaper/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00512-face-shifter/cycleshifter.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00512-face-shifter/cycleshifterboss.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00512-face-shifter/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00519-poker-zh/poker.zh
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00519-poker-zh/poker.zh Line 86 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/poker.zh Line 73 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/poker.zh Line 22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/poker.zh Line 23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/poker.zh Line 25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/poker.zh Line 34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/poker.zh Line 39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00519-poker-zh/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00519-poker-zh/script.zs Line 86 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/script.zs Line 73 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/script.zs Line 22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/script.zs Line 23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/script.zs Line 25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/script.zs Line 34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00519-poker-zh/script.zs Line 39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00520-poker-monsters/NofaKind.z
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -2906,26 +1731,6 @@ Pass 4: Analyzing Code
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
-=== 00520-poker-monsters/poker.zh
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00520-poker-monsters/poker.zh Line 86 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00520-poker-monsters/poker.zh Line 73 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00520-poker-monsters/poker.zh Line 22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00520-poker-monsters/poker.zh Line 23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00520-poker-monsters/poker.zh Line 25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00520-poker-monsters/poker.zh Line 34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00520-poker-monsters/poker.zh Line 39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00520-poker-monsters/script.zs
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -2934,133 +1739,6 @@ Pass 4: Analyzing Code
 00520-poker-monsters/script.zs Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
 Failure!
 Compile finished with exit code '21' (compiled with errors)
-
-=== 00523-geldarm-z-geldarm/geldarm.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00523-geldarm-z-geldarm/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00523-geldarm-z-geldarm/z2geldarm.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 213 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 70 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 73 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 74 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 78 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 79 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 83 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 84 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 88 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 89 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 91 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 92 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 93 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 94 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 94 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 94 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 95 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 96 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 99 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 107 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 108 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 111 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 114 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 117 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 122 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 123 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 123 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 127 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 130 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 136 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 139 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 142 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 145 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 148 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 149 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 149 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 152 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 153 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00525-gbz-ledge-jumping-startropics-grid-jumping/ledge.z Line 154 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00528-tesla-lightning-puzzle/teslapuzzle.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 297 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 298 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 299 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 300 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 333 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 338 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 346 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 355 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 367 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00528-tesla-lightning-puzzle/teslapuzzle.z Line 371 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00529-ff-zora/ffzora.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00532-status-effects/statusEffects.zs
 Pass 1: Parsing
@@ -3100,107 +1778,6 @@ Pass 4: Analyzing Code
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
-=== 00538-slot-machine-dx/slotgame.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00538-slot-machine-dx/slotgame.z Line 477 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 479 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 481 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 481 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 481 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 481 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 482 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 482 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 482 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 482 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 483 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 483 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 483 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 483 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 484 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 484 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 489 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 490 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 490 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 490 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 495 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 497 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 498 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 498 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 429 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 430 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 431 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 432 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 433 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 433 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 434 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 434 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 435 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 435 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 436 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 436 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 447 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 448 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 449 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 449 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 347 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 353 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 355 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 357 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 358 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 359 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 374 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 376 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 378 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 380 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 385 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 387 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 389 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 391 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 395 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 397 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 399 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00538-slot-machine-dx/slotgame.z Line 401 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00539-red-zone-minigame/redzone.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00541-blob-of-blood/boss_slime_wall.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00541-blob-of-blood/boss_slime_wall.z Line 280 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00541-blob-of-blood/boss_slime_wall.z Line 281 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00541-blob-of-blood/boss_slime_wall.z Line 281 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00541-blob-of-blood/boss_slime_wall.z Line 282 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
 === 00547--new-palette-based-day-night-system/DayNightNew.zs
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -3209,114 +1786,6 @@ Pass 4: Analyzing Code
 00547--new-palette-based-day-night-system/DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
 Failure!
 Compile finished with exit code '17' (compiled with errors)
-
-=== 00555-painting-pushblock/paintblock.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00555-painting-pushblock/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00559-blind-the-thief-remastered/blind.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00561-king-zol/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00561-king-zol/splitslime.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00564-ff-tektite/fftektite.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00564-ff-tektite/fftektite.z Line 116 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00564-ff-tektite/fftektite.z Line 122 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00567-z-true-evil-blob/z2_true_final_boss.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00567-z-true-evil-blob/z2_true_final_boss.z Line 242 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00567-z-true-evil-blob/z2_true_final_boss.z Line 248 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00569-password-lock-script-the-sum-of-all-things/matrixsum.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00571-gumzol/gumzol.z
 Pass 1: Parsing
@@ -3335,32 +1804,6 @@ Pass 4: Analyzing Code
 00571-gumzol/script.zs Line 80 - Error S009: Variable STATUS_STATE has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00576-bubble-counter-drain/counterfeiter.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
-
-=== 00577-evil-scrub/evilscrub.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-tests/scripts/compat/stdExtra.zh Line 698 - Error T022: There are too many choices for function Cond(bool, int[], int[]).
-        The possible choices are:
-        Cond(bool, int, int)
-        Cond(bool, bool, bool)
-
-Failure!
-Compile finished with exit code '22' (compiled with errors)
 
 === 00580-mani-s-script-header/script.zs
 Pass 1: Parsing

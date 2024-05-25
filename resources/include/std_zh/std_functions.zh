@@ -678,38 +678,11 @@ int RegionGetFFCId(int scr, int index)
 	return offset + index;
 }
 
-//Returns a if cond is true, else b. Overloaded.
-float Cond(bool cond, float a, float b)
+// Returns a if cond is true, else b. Overloaded.
+// @deprecated Consider using a ternary expression instead: `cond ? a : b`
+T Cond<T>(bool cond, T a, T b)
 {
-	return ( cond ? a : b );
-}
-bool Cond(bool cond, bool a, bool b)
-{
-	return ( cond ? a : b );
-}
-npc Cond(bool cond, npc a, npc b)
-{
-	return ( cond ? a : b );
-}
-item Cond(bool cond, item a, item b)
-{
-	return ( cond ? a : b );
-}
-lweapon Cond(bool cond, lweapon a, lweapon b)
-{
-	return ( cond ? a : b );
-}
-eweapon Cond(bool cond, eweapon a, eweapon b)
-{
-	return ( cond ? a : b );
-}
-ffc Cond(bool cond, ffc a, ffc b)
-{
-	return ( cond ? a : b );
-}
-itemdata Cond(bool cond, itemdata a, itemdata b)
-{
-	return ( cond ? a : b );
+	return cond ? a : b;
 }
 
 bool ConsumeKey(int level = -1)
