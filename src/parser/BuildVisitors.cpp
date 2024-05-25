@@ -2715,8 +2715,8 @@ void BuildOpcodes::caseExprBoolTree(ASTExprBoolTree& host, void* param)
 	if(short_circuit)
 	{
 		auto endlbl = ScriptParser::getUniqueLabelID();
-		auto truelbl = sidefx_only ? endlbl : ScriptParser::getUniqueLabelID();
-		auto falselbl = sidefx_only ? endlbl : ScriptParser::getUniqueLabelID();
+		auto truelbl = sidefx ? endlbl : ScriptParser::getUniqueLabelID();
+		auto falselbl = sidefx ? endlbl : ScriptParser::getUniqueLabelID();
 		rec_booltree_shortcircuit(node, -1, truelbl, falselbl, param);
 		if(sidefx)
 			addOpcode(new ONoOp(endlbl));
