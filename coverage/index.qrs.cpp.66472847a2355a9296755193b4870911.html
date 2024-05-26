@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-05-10 00:25:22</td>
+      <td>2024-05-26 01:44:15</td>
     </tr>
   </table>
 </div>
@@ -73,10 +73,10 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l23">get_er(int) (line 23)</a></td><td>called 3193927 times, returned 3193927 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l23">get_er(int) (line 23)</a></td><td>called 3209026 times, returned 3209026 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l27">set_er(int, bool) (line 27)</a></td><td>called 237 times, returned 237 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l13">set_qr(int, bool, unsigned char*) (line 13)</a></td><td>called 131598 times, returned 131598 times</td><td>77.0%</td></tr>
-    <tr><td><a href="#l8">unpack_qrs() (line 8)</a></td><td>called 2093 times, returned 2093 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l13">set_qr(int, bool, unsigned char*) (line 13)</a></td><td>called 134054 times, returned 134054 times</td><td>77.0%</td></tr>
+    <tr><td><a href="#l8">unpack_qrs() (line 8)</a></td><td>called 2118 times, returned 2118 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -144,7 +144,7 @@
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2093</td>
+      <td class="linecount coveredLine">2118</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">unpack_qrs</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -160,33 +160,33 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1444170 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2093 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1461420 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 2118 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">1446263</td>
+      <td class="linecount coveredLine">1463538</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">qr_MAX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1444170</td>
+      <td class="linecount coveredLine">1461420</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">_qrs_unpacked</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_bit</span><span class="p">(</span><span class="n">quest_rules</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2093</td>
+      <td class="linecount coveredLine">2118</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131598</td>
+      <td class="linecount coveredLine">134054</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">set_qr</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="n">byte</span><span class="o">*</span><span class="w"> </span><span class="n">qstptr</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -202,12 +202,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 131598 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 134054 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">131598</td>
+      <td class="linecount partialCoveredLine">134054</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="n">assert</span><span class="p">(</span><span class="n">index</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">qr_MAX</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -217,25 +217,25 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 131598 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 134054 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">131598</td>
+      <td class="linecount partialCoveredLine">134054</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">qstptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131598</td>
+      <td class="linecount coveredLine">134054</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">qstptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">quest_rules</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131598</td>
+      <td class="linecount coveredLine">134054</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">set_bit</span><span class="p">(</span><span class="n">qstptr</span><span class="p">,</span><span class="n">index</span><span class="p">,</span><span class="n">state</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -245,25 +245,25 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 131598 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 134054 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">131598</td>
+      <td class="linecount partialCoveredLine">134054</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">qstptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">quest_rules</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131598</td>
+      <td class="linecount coveredLine">134054</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">_qrs_unpacked</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">131598</td>
+      <td class="linecount coveredLine">134054</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -277,7 +277,7 @@
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3193927</td>
+      <td class="linecount coveredLine">3209026</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">get_er</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -291,7 +291,7 @@
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3193927</td>
+      <td class="linecount coveredLine">3209026</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">get_bit</span><span class="p">(</span><span class="n">extra_rules</span><span class="p">,</span><span class="n">index</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">

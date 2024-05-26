@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-05-10 00:25:22</td>
+      <td>2024-05-26 01:44:15</td>
     </tr>
   </table>
 </div>
@@ -73,9 +73,9 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l5">zcmixer_create() (line 5)</a></td><td>called 268 times, returned 268 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l5">zcmixer_create() (line 5)</a></td><td>called 272 times, returned 272 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l83">zcmixer_exit(ZCMIXER*&amp;) (line 83)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l23">zcmixer_update(ZCMIXER*, int, int, bool) (line 23)</a></td><td>called 18320143 times, returned 18320143 times</td><td>13.0%</td></tr>
+    <tr><td><a href="#l23">zcmixer_update(ZCMIXER*, int, int, bool) (line 23)</a></td><td>called 18328844 times, returned 18328844 times</td><td>13.0%</td></tr>
   </table>
 </details>
 
@@ -122,7 +122,7 @@
       <td class="lineno"><a id="l5" href="#l5">5</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="n">ZCMIXER</span><span class="o">*</span><span class="w"> </span><span class="nf">zcmixer_create</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -136,7 +136,7 @@
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">ZCMIXER</span><span class="w"> </span><span class="o">*</span><span class="n">mix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -146,11 +146,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 268 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 272 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">268</td>
+      <td class="linecount partialCoveredLine">272</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">mix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">ZCMIXER</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ZCMIXER</span><span class="p">)))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -171,35 +171,35 @@
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">fadeinframes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">fadeinmaxframes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">fadeindelay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">fadeoutframes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l15" href="#l15">15</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">fadeoutmaxframes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -213,14 +213,14 @@
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">newtrack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">oldtrack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -234,14 +234,14 @@
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">mix</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">268</td>
+      <td class="linecount coveredLine">272</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -255,7 +255,7 @@
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">18320143</td>
+      <td class="linecount coveredLine">18328844</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zcmixer_update</span><span class="p">(</span><span class="n">ZCMIXER</span><span class="o">*</span><span class="w"> </span><span class="n">mix</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">basevol</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">uservol</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">oldscriptvol</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -271,12 +271,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 18320143 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 18328844 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">18320143</td>
+      <td class="linecount partialCoveredLine">18328844</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mix</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -299,12 +299,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 18320143 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 18328844 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">18320143</td>
+      <td class="linecount partialCoveredLine">18328844</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">fadeinframes</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -509,12 +509,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 18320143 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 18328844 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">18320143</td>
+      <td class="linecount partialCoveredLine">18328844</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">mix</span><span class="o">-&gt;</span><span class="n">fadeoutframes</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -682,7 +682,7 @@
       <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">18320143</td>
+      <td class="linecount coveredLine">18328844</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

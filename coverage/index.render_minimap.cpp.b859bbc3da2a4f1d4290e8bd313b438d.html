@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-05-10 00:25:22</td>
+      <td>2024-05-26 01:44:15</td>
     </tr>
   </table>
 </div>
@@ -73,15 +73,15 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l81">MiniMapRTI::MiniMapRTI() (line 81)</a></td><td>called 8 times, returned 8 times</td><td>42.0%</td></tr>
+    <tr><td><a href="#l81">MiniMapRTI::MiniMapRTI() (line 81)</a></td><td>called 9 times, returned 9 times</td><td>42.0%</td></tr>
     <tr><td><a href="#l83">MiniMapRTI::prepare() (line 83)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l105">MiniMapRTI::render(bool) (line 105)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l23">get_cursor_color() (line 23)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l37">mmap_draw(int, int) (line 37)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l140">mmap_init() (line 140)</a></td><td>called 5 times, returned 5 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l117">mmap_mark_dirty() (line 117)</a></td><td>called 15 times, returned 15 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l140">mmap_init() (line 140)</a></td><td>called 6 times, returned 6 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l117">mmap_mark_dirty() (line 117)</a></td><td>called 17 times, returned 17 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l122">mmap_mark_dirty_delayed() (line 122)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l128">mmap_set_zoom(bool) (line 128)</a></td><td>called 5 times, returned 5 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l128">mmap_set_zoom(bool) (line 128)</a></td><td>called 6 times, returned 6 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -212,7 +212,7 @@
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">8</td>
+      <td class="linecount coveredLine">9</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">MiniMapRTI</span><span class="w"> </span><span class="n">rti_minimap</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -662,14 +662,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 8 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 9 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 8 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 9 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">8</td>
+      <td class="linecount partialCoveredLine">9</td>
       <td class="src partialCoveredLine"><span class="n">MiniMapRTI</span><span class="o">::</span><span class="n">MiniMapRTI</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">RenderTreeItem</span><span class="p">(</span><span class="s">&quot;minimap&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
@@ -921,7 +921,7 @@
       <td class="lineno"><a id="l117" href="#l117">117</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">15</td>
+      <td class="linecount coveredLine">17</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">mmap_mark_dirty</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -935,14 +935,14 @@
       <td class="lineno"><a id="l119" href="#l119">119</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">15</td>
+      <td class="linecount coveredLine">17</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">rti_minimap</span><span class="p">.</span><span class="n">dirty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l120" href="#l120">120</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">15</td>
+      <td class="linecount coveredLine">17</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -998,7 +998,7 @@
       <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">mmap_set_zoom</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">zoomed</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1012,35 +1012,35 @@
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">zoomed_minimap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zoomed</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l131" href="#l131">131</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">size_and_pos</span><span class="w"> </span><span class="o">*</span><span class="n">real_mini_sqr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zoomed_minimap</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="o">&amp;</span><span class="n">real_minimap_zoomed</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">&amp;</span><span class="n">real_minimap</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">15</td>
+      <td class="linecount coveredLine">18</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">rti_minimap</span><span class="p">.</span><span class="n">set_transform</span><span class="p">({</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">real_mini_sqr</span><span class="o">-&gt;</span><span class="n">x</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">real_mini_sqr</span><span class="o">-&gt;</span><span class="n">y</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
@@ -1082,7 +1082,7 @@
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">mmap_init</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1096,21 +1096,21 @@
       <td class="lineno"><a id="l142" href="#l142">142</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">get_screen_rti</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">add_child</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rti_minimap</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l143" href="#l143">143</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mmap_set_zoom</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l144" href="#l144">144</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5</td>
+      <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
