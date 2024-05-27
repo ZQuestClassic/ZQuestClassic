@@ -4656,7 +4656,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		zc_throttle_fps();
 		
 #ifdef _WIN32
 		
@@ -4733,8 +4732,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		FFCore.runF6Engine();
 	if (Quit)
 		replay_step_quit(Quit);
-	// Someday... maybe install a Turbo button here?
-	zc_throttle_fps();
 	
 #ifdef _WIN32
 	
@@ -5334,7 +5331,7 @@ void kb_clearjoystick(DIALOG *d)
 	textout_centre_ex(screen, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	clear_keybuf();
 	int32_t k = next_press_key();
@@ -5391,7 +5388,7 @@ int32_t j_getbtn(DIALOG *d)
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	int32_t b = next_joy_input(true);
 	if (b == -2)
@@ -5416,7 +5413,7 @@ void j_getstick(DIALOG *d)
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	int32_t b = next_joy_input(false);
 	
@@ -7924,11 +7921,10 @@ void System()
 			the_player_menu.pop_sub(0, &the_player_menu);
 			the_player_menu.draw(screen, the_player_menu.hovered_ind());
 			autopop = false;
-			update_hw_screen(true);
+			update_hw_screen();
 		}
 		
 		update_hw_screen();
-		throttleFPS(60);
 		
 		auto mb = gui_mouse_b();
 		if(XOR(mb, mouse_down))

@@ -2459,7 +2459,7 @@ void load_udef_colorset(App a);
 void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_colorset(int32_t colorset);
 
-void update_hw_screen(bool force = false);
+void update_hw_screen();
 
 bool valid_str(char const* ptr, char cancel = 0);
 

@@ -65,7 +65,7 @@ static int run_zq_dialog(DIALOG *dlg, int focus_obj, bool checkexit)
 		{
 			should_draw = false;
 			num_idle_frames = 0;
-			update_hw_screen(true);
+			update_hw_screen();
 			al_rest(1. / 60);
 			continue;
 		}

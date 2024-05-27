@@ -93,6 +93,7 @@ static bool _a5_setup_screen(int w, int h)
 
   al_set_new_display_flags(flags);
   al_set_new_display_option(ALLEGRO_AUTO_CONVERT_BITMAPS, 1, ALLEGRO_REQUIRE);
+  al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_REQUIRE);
 
   // local edit
   if (_a5_display)

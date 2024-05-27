@@ -273,8 +273,9 @@ ALLEGRO_COLOR& get_dlg_tint();
 void pause_dlg_tint(bool pause);
 bool dlg_tint_paused();
 
-void update_throttle_counter();
-void throttleFPS(int32_t cap);
+bool render_timer_start(int freq = 60);
+void render_timer_wait();
+bool render_fake_vsync_check();
 
 //
 
