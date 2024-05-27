@@ -167,7 +167,6 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		syskeys();
 		// to keep fps constant
 		updatescr(allowwavy);
-		zc_throttle_fps();
 		
 #ifdef _WIN32
 		
@@ -187,20 +186,12 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 
 		update_hw_screen();
 	}
-	
-	//if(Quit)
-	//	return;
-	/*
-	if(Playing && game->get_time()<MAXTIME)
-		game->change_time(1);
-	*/
+
 	Advance=false;
 	++frame;
 	
 	syskeys();
-	// Someday... maybe install a Turbo button here?
 	updatescr(allowwavy);
-	zc_throttle_fps();
 	
 #ifdef _WIN32
 	

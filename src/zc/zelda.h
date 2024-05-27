@@ -236,7 +236,7 @@ bool isSideViewHero(int32_t t = 0);
 //Script Clearing
 void initZScriptGlobalScript(int32_t ID);
 
-void update_hw_screen(bool force);
+void update_hw_screen();
 
 /**********************************/
 /******** Global Variables ********/
@@ -452,7 +452,6 @@ extern char header_version_nul_term[17];
 
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;
-extern void zc_throttle_fps();
 
 // quest file data
 extern zquestheader QHeader;

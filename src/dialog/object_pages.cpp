@@ -282,7 +282,7 @@ void ObjectTemplate::call_dlg(optional<int> start_val)
 	draw_page_window();
 	draw_grid();
 	draw_info();
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	while(gui_mouse_b())
 		rest(1);

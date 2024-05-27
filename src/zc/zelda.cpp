@@ -195,14 +195,6 @@ bool doThrottle()
 		|| (get_qr(qr_NOFASTMODE) && !replay_is_replaying());
 }
 
-void zc_throttle_fps()
-{
-	int32_t target = Maxfps;
-	if (doThrottle() || Paused)
-		target = 60;
-	throttleFPS(target);
-}
-
 int32_t onHelp()
 {
     //  restore_mouse();
@@ -537,41 +529,44 @@ char header_version_nul_term[17];
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
-volatile int32_t myvsync=0;
 
 bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
-void update_hw_screen(bool force)
+void update_hw_screen()
 {
 	if (is_headless())
 		return;
 
-#ifdef __EMSCRIPTEN__
-	force = true;
-#endif
+	framecnt++;
 
-	if(force || (!is_sys_pal && !doThrottle()) || myvsync)
+	zc_process_display_events();
+	resx = al_get_display_width(all_get_display());
+	resy = al_get_display_height(all_get_display());
+	if (update_hw_pal && hw_palette)
 	{
-		zc_process_display_events();
-		resx = al_get_display_width(all_get_display());
-		resy = al_get_display_height(all_get_display());
-		if(update_hw_pal && hw_palette)
-		{
-			zc_set_palette(*hw_palette);
-			update_hw_pal = false;
-		}
-		framecnt++;
-		if (myvsync||force)
-			render_zc();
-		myvsync=0;
+		zc_set_palette(*hw_palette);
+		update_hw_pal = false;
 	}
-}
 
-void myvsync_callback()
-{
-    ++myvsync;
+	// This keeps FPS from going over the configured rate. By default,
+	// that's 60 fps, but uses a user-provided valued when ~ is held down.
+	// Only makes sense during gameplay, so 60 fps when paused or in system menus.
+	bool is_unthrottled = !doThrottle() && !Paused && !is_sys_pal;
+	render_timer_start(is_unthrottled ? Maxfps : 60);
+	render_timer_wait();
+
+	// When unthrottled, we only want to ship a frame 60 times a second to save on CPU.
+	// This also avoid any issue of vsync being enabled that would otherwise limit the
+	// unthrottled FPS.
+	if (is_unthrottled)
+	{
+		bool can_skip = !render_fake_vsync_check();
+		if (can_skip)
+			return;
+	}
+
+	render_zc();
 }
-END_OF_FUNCTION(myvsync_callback)
 
 /*
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
@@ -4439,19 +4434,9 @@ int main(int argc, char **argv)
 	
 	//set_keyboard_rate(1000,160);
 
-	LOCK_FUNCTION(update_throttle_counter);
-	if (install_int_ex(update_throttle_counter, BPS_TO_TIMER(60)) < 0)
-	{
-		Z_error_fatal("Could not install timer.\n");
-	}
-	
-	LOCK_VARIABLE(myvsync);
-	LOCK_FUNCTION(myvsync_callback);
-	
 	bool timerfail = false;
-	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(60)))
+	if (!render_timer_start())
 		timerfail = true;
-	
 	if(!timerfail && !Z_init_timers())
 		timerfail = true;
 	
@@ -5455,7 +5440,6 @@ END_OF_MAIN()
 void remove_installed_timers()
 {
     al_trace("Removing timers. \n");
-    remove_int(update_throttle_counter);
     Z_remove_timers();
 }
 

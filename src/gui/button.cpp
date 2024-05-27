@@ -19,7 +19,7 @@ void kb_getkey(DIALOG *d)
 	textout_centre_ex(screen, font, "Press a key", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	clear_keybuf();
 	int32_t k = next_press_key();
@@ -46,7 +46,7 @@ void kb_clearkey(DIALOG *d)
 	textout_centre_ex(screen, font, "Press any key to clear", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	clear_keybuf();
 	int32_t k = next_press_key();
@@ -82,7 +82,7 @@ void kb_get_hotkey(DIALOG *d)
 	textout_centre_ex(screen, font, "Press a key (+mods)", screen->w/2, screen->h/2 - fh, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	clear_keybuf();
 	int k;

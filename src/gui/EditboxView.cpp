@@ -9,8 +9,7 @@
 
 extern int32_t scheme[];
 
-extern volatile int32_t myvsync;
-void update_hw_screen(bool force);
+void update_hw_screen();
 
 extern bool is_editor();
 
@@ -365,7 +364,7 @@ void BasicEditboxView::draw()
 	blit(dbuf, screen, 0, 0, host->x, host->y,host->w, host->h);
 	set_clip_rect(screen, 0, 0,screen->w,screen->h);
 	
-	update_hw_screen(false);
+	update_hw_screen();
 }
 
 bool BasicEditboxView::mouseClick(int32_t x, int32_t y)

@@ -25,9 +25,8 @@ using std::getline;
 #define stricmp _stricmp
 #endif
 
-extern volatile int32_t myvsync;
 extern bool update_hw_pal;
-void update_hw_screen(bool force);
+void update_hw_screen();
 
 CConsoleLoggerEx zscript_coloured_console;
 extern bool is_editor();

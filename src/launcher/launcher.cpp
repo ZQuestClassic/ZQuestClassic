@@ -33,7 +33,6 @@ volatile int32_t lastfps = 0;
 volatile int32_t framecnt = 0;
 int32_t joystick_index = 0;
 int32_t readsize = 0, writesize = 0;
-volatile int32_t myvsync=0;
 int32_t zq_screen_w=LARGE_W;
 int32_t zq_screen_h=LARGE_H;
 BITMAP *tmp_scr;
@@ -45,7 +44,6 @@ char temppath[4096] = {0}, rootpath[4096] = {0};
 
 void init_launcher_palette();
 void fps_callback();
-void myvsync_callback();
 
 int32_t cursorColor(int32_t col)
 {
@@ -136,9 +134,7 @@ int32_t main(int32_t argc, char* argv[])
 		Z_error_fatal("couldn't allocate timer\n");
 		QUIT_LAUNCHER();
 	}
-	LOCK_VARIABLE(myvsync);
-	LOCK_FUNCTION(myvsync_callback);
-	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(60)))
+	if (!render_timer_start())
 	{
 		Z_error_fatal("couldn't allocate timer\n");
 		QUIT_LAUNCHER();
@@ -500,12 +496,6 @@ void fps_callback()
 }
 END_OF_FUNCTION(fps_callback)
 
-void myvsync_callback()
-{
-    ++myvsync;
-}
-END_OF_FUNCTION(myvsync_callback)
-
 static RenderTreeItem rti_root("root");
 static LegacyBitmapRTI rti_screen("screen");
 
@@ -613,20 +603,21 @@ static void render_launcher()
 }
 
 bool update_hw_pal = false;
-void update_hw_screen(bool force)
+void update_hw_screen()
 {
-	if(force || myvsync)
+	if (is_headless())
+		return;
+
+	zc_process_display_events();
+	if(update_hw_pal)
 	{
-		zc_process_display_events();
-		if(update_hw_pal)
-		{
-			zc_set_palette(RAMpal);
-			load_mouse();
-		}
-		update_hw_pal=false;
-		if (force || myvsync)
-			render_launcher();
+		zc_set_palette(RAMpal);
+		load_mouse();
 	}
+	update_hw_pal=false;
+
+	render_timer_wait();
+	render_launcher();
 }
 
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)

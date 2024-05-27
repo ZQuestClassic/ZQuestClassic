@@ -623,7 +623,7 @@ MenuRet NewMenu::pop(uint x, uint y, GuiMenu* parent)
 	if(close_button_quit)
 		return MRET_NIL;
 	MenuRet ret = MRET_NIL;
-	update_hw_screen(true);
+	update_hw_screen();
 	x = MID(0, x, zq_screen_w-width()-1);
 	y = MID(0, y, zq_screen_h-height()-1);
 	
@@ -741,7 +741,6 @@ MenuRet NewMenu::run_loop(GuiMenu* parent)
 		if(close_button_quit)
 			return ret;
 		bool earlyret = false;
-		throttleFPS(60);
 		mb = gui_mouse_b();
 		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
 		optional<uint> osel = state.sel_ind;
@@ -1118,7 +1117,7 @@ MenuRet TopMenu::pop(uint x, uint y, GuiMenu* parent)
 	if(close_button_quit)
 		return MRET_NIL;
 	MenuRet ret = MRET_NIL;
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	quit_all_menu = false;
 	

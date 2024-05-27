@@ -18,7 +18,7 @@ using namespace util;
 using std::string;
 using std::istringstream;
 
-void update_hw_screen(bool force);
+void update_hw_screen();
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
 int CheckerCol1 = 7, CheckerCol2 = 8;
@@ -7916,7 +7916,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
                 vsync();
                 jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
                 over=true;
-				update_hw_screen(true);
+				update_hw_screen();
             }
         }
         else
@@ -7926,7 +7926,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
                 vsync();
                 jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
                 over=false;
-				update_hw_screen(true);
+				update_hw_screen();
             }
         }
 		rest(1);
@@ -9204,7 +9204,7 @@ bool do_checkbox(BITMAP *dest,int x,int y,int wid,int hei,int &value, int xoffs,
 				value=value?0:1;
 				draw_checkbox(dest,x,y,wid,hei,value!=0);
 				over=true;
-				update_hw_screen(true);
+				update_hw_screen();
 			}
 		}
 		else
@@ -9214,7 +9214,7 @@ bool do_checkbox(BITMAP *dest,int x,int y,int wid,int hei,int &value, int xoffs,
 				value=value?0:1;
 				draw_checkbox(dest,x,y,wid,hei,value!=0);
 				over=false;
-				update_hw_screen(true);
+				update_hw_screen();
 			}
 		}
 		rest(1);
@@ -9235,7 +9235,7 @@ bool do_checkbox_tx(BITMAP *dest,int x,int y,int wid,int hei,int &value, int txt
 				value=value?0:1;
 				draw_checkbox(dest,x,y,wid,hei,value!=0);
 				over=true;
-				update_hw_screen(true);
+				update_hw_screen();
 			}
 		}
 		else
@@ -9245,7 +9245,7 @@ bool do_checkbox_tx(BITMAP *dest,int x,int y,int wid,int hei,int &value, int txt
 				value=value?0:1;
 				draw_checkbox(dest,x,y,wid,hei,value!=0);
 				over=false;
-				update_hw_screen(true);
+				update_hw_screen();
 			}
 		}
 		rest(1);
@@ -9430,7 +9430,7 @@ void box_out(const char *msg)
 	}
 	
 	if (box_active)
-		update_hw_screen(true);
+		update_hw_screen();
 }
 
 /* calls box_out, and box_eol for newlines */
@@ -9493,7 +9493,7 @@ void box_eol()
 	}
 	
 	if (box_active)
-		update_hw_screen(true);
+		update_hw_screen();
 }
 
 /* ends output of a progress message */
