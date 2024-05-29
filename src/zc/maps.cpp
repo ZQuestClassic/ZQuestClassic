@@ -5935,7 +5935,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// It is up to the quest designer to make their subscreen be actually transparent.
 	//
 	// When not in "extended height mode" (otherwise 56 is 0):
-	//  - playing_field_offset: 56-ish, but changes during earthquakes
+	//  - playing_field_offset: 56, but changes during earthquakes
 	//  - original_playing_field_offset: always 56
 	//
 	// These values are used to adjust where things are drawn on screen to account for the passive subscreen. Examples:
@@ -5945,7 +5945,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// - drawing offsets for various calls to overtile16 (see bomb weapon explosion)
 	// - lots
 	//
-	// TODO z3 !!! maybe instead- make yofs start as 0 by default, and add playing_field_offset at draw time?
+	// TODO: consider refactor of yofs, make yofs start as 0 by default and add playing_field_offset at draw time?
 	if (is_extended_height_mode())
 	{
 		playing_field_offset = 0;
