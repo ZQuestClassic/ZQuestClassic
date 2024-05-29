@@ -8472,7 +8472,6 @@ heroanimate_skip_liftwpn:;
 			if(fall < 0 && (_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1,SWITCHBLOCK_STATE) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1,SWITCHBLOCK_STATE)
 				|| ((y+(fall/100)<=0) &&
 				// Extra checks if Smart Screen Scrolling is enabled
-				// TODO z3
 				 (nextcombo_wf(up) || ((get_qr(qr_SMARTSCREENSCROLL)&&(!(hero_scr->flags&fMAZE)) &&
 											   !(hero_scr->flags2&wfUP)) && (nextcombo_solid(up)))))))
 			{
@@ -8490,8 +8489,6 @@ heroanimate_skip_liftwpn:;
 		if(!(toogam && Up()) && !drownclk && action!=rafting && !IsSideSwim() && !pull_hero && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
 		{
 			int32_t ydiff = fall/(spins && fall<0 ? 200:100);
-			//zprint2("ydif is: %d\n", ydiff);
-			//zprint2("ydif is: %d\n", (int32_t)fall);
 			falling_oldy = y; // Stomp Boots-related variable
 			
 			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (TRUNCATE_TILE(y.getInt()+ydiff+15) != TRUNCATE_TILE(y.getInt()+15)) && !platform_fallthrough())
@@ -27772,7 +27769,6 @@ void HeroClass::checkscroll()
 	}
 	int x0 = x.getInt();
 	int y0 = y.getInt();
-	// TODO z3
 
 	if (scrolling_maze_state && (scrolling_maze_mode == 0 || get_screen_index_for_world_xy(x0, y0) != scrolling_maze_scr))
 	{
