@@ -21,8 +21,15 @@ global script Global
 		Object objects3[] = {obj};
 		auto objects4[] = objects3; // TODO: this should be valid.
 		auto numbers3[] = {1, 2, 3}; // TODO: this should be valid.
+		int[] a = fn(1);
+		int b[] = fn(a);
 
 		// Invalid.
 		numbers3 = objects4; // TODO: this should be invalid.
     }
+
+	// OK.
+	int[] fn (int[] blah) {
+		return 0;
+	}
 }

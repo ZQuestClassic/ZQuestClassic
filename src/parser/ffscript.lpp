@@ -186,6 +186,7 @@ decorationsprite	TOKEN( DECORATION );
 "in"	TOKEN( IN );
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );
+"[]"	TOKEN( EMPTYBRACKETS );
 "["		TOKEN( LBRACKET );
 "]"		TOKEN( RBRACKET );
 "{"		TOKEN( LBRACE );

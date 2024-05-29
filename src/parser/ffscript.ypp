@@ -199,6 +199,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token IN
 %token LPAREN
 %token RPAREN
+%token EMPTYBRACKETS
 %token LBRACKET
 %token RBRACKET
 %token LBRACE
@@ -549,13 +550,27 @@ EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
 	$$ = new ASTCustomDataTypeDef(NULL, identifier->getValue(), en, @$);
 	delete identifier;}
 
-DataType : ZCONST DataType {
+DataType :
+	DataType EMPTYBRACKETS {
+		ASTDataType* dtype = (ASTDataType*)$1;
+		dtype->becomeArray = true;
+		$$ = dtype;
+	}
+	| DataType_Mods {$$ = $1;}
+	;
+
+DataType_Mods : 
+	ZCONST DataType_Base {
 		ASTDataType* dtype = (ASTDataType*)$2;
 		++dtype->constant_; //Increment the number of `const` keywords. If >1, this will produce an error later.
 		$$ = dtype;
 	}
+	| DataType_Base {$$ = $1;}
+	;
+
+DataType_Base :
 	//Standard types
-	| ZAUTO {$$ = new ASTDataType(DataType::ZAUTO, @$);}
+	ZAUTO {$$ = new ASTDataType(DataType::ZAUTO, @$);}
 	| ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
 	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
@@ -683,7 +698,7 @@ Data_Element_Array_Element :
 		ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$2;
 		extraArray->location = @$;
 		$$ = extraArray;}
-	| LBRACKET RBRACKET {$$ = new ASTDataDeclExtraArray(@$);}
+	| EMPTYBRACKETS {$$ = new ASTDataDeclExtraArray(@$);}
 	;
 
 Data_Element_Array_Element_Size_List :
@@ -793,17 +808,6 @@ Function_Parameters_Element :
 		$$ = element;
 		delete name;}
 	;
-Function_Parameters_Bracket_Element :
-	DataType LBRACKET RBRACKET Identifier {
-		ASTDataType* type = (ASTDataType*)$1;
-		type->becomeArray = true;
-		ASTString* name = (ASTString*)$4;
-		ASTDataDecl* element = new ASTDataDecl(@$);
-		element->name = name->getValue();
-		element->baseType = type;
-		$$ = element;
-		delete name;}
-	;
 
 Function_OptParams_List :
 	Function_Parameters_Element ASSIGN Expression_Constant COMMA Function_OptParams_List {
@@ -824,7 +828,7 @@ Function_OptParams_List :
 	;
 
 Function_VarArg_Element :
-	RANGE Function_Parameters_Bracket_Element {
+	RANGE Function_Parameters_Element {
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		push_front(func->parameters, (ASTDataDecl*)$2);
 		func->setFlag(FUNCFLAG_VARARGS);
@@ -2168,16 +2172,6 @@ Literal_Array :
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$8;
 		al->type = type;
 		al->size = size;
-		al->location = @$;
-		$$ = al;
-	}
-	// (int32_t[]){1, 2, 3}
-	| LT DataType LBRACKET RBRACKET GT
-		  LBRACE Literal_Array_Body RBRACE
-	{
-		ASTDataType* type = (ASTDataType*)$2;
-		ASTArrayLiteral* al = (ASTArrayLiteral*)$7;
-		al->type = type;
 		al->location = @$;
 		$$ = al;
 	}
