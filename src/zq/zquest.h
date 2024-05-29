@@ -927,7 +927,7 @@ void myvsync_callback();
 void fps_callback();
 
 extern bool update_hw_pal;
-void update_hw_screen(bool force);
+void update_hw_screen();
 
 /********************/
 /******  MAIN  ******/

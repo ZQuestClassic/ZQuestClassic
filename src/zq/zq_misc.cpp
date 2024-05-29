@@ -1127,7 +1127,7 @@ int32_t onShowDarkness()
 			fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
 			zc_set_palette(RAMpal);
 
-			update_hw_screen(true);
+			update_hw_screen();
 			readkey();
 
 			load_cset(RAMpal,5,5);
@@ -1136,7 +1136,7 @@ int32_t onShowDarkness()
 		else
 		{
 			loadfadepal(Color*pdLEVEL+poFADE3);
-			update_hw_screen(true);
+			update_hw_screen();
 			readkey();
 			loadlvlpal(Color);
 		}

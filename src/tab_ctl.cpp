@@ -2,8 +2,7 @@
 #include "tab_ctl.h"
 #include "gui/jwin.h"
 
-extern volatile int32_t myvsync;
-void update_hw_screen(bool force);
+void update_hw_screen();
 
 extern bool is_editor();
 
@@ -126,7 +125,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int
             }
         }
 		
-		update_hw_screen(false);
+		update_hw_screen();
     }
     
     return over;
@@ -157,7 +156,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
             }
         }
         
-		update_hw_screen(false);
+		update_hw_screen();
     }
     
     if(over)
@@ -165,7 +164,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
         vsync();
         draw_button(screen,x,y,w,h,text,bg,fg,0);
         
-		update_hw_screen(false);
+		update_hw_screen();
     }
     
     return over;
@@ -197,7 +196,7 @@ bool do_icon_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,int icon,int32
             }
         }
         
-		update_hw_screen(false);
+		update_hw_screen();
     }
     
     if(over)
@@ -206,7 +205,7 @@ bool do_icon_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,int icon,int32
         draw_button(screen,x,y,w,h,"",bg,fg,0);
 		jwin_draw_icon(screen,x+w/2,y+h/2,fg,icon,icon_proportion(icon,w,h),true);
         
-		update_hw_screen(false);
+		update_hw_screen();
     }
     
     return over;

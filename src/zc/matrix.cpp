@@ -43,8 +43,6 @@ static void UpdateColumns();
 static void DrawLetter(int32_t x, int32_t y, int32_t color);
 static void DrawEraser(int32_t x, int32_t y, int32_t type);
 
-extern void zc_throttle_fps();
-
 void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
 {
     rti_matrix.visible = true;
@@ -66,9 +64,6 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
     
     for(;;)
     {
-        //vsync();
-        zc_throttle_fps();
-
         AddTracer();
         AddEraser(-1);
         UpdateTracers();

@@ -708,15 +708,7 @@ bool handle_close_btn_quit()
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
-volatile int32_t myvsync = 0;
 size_t cpoolbrush_index = 0;
-
-void myvsync_callback()
-{
-    ++myvsync;
-}
-
-END_OF_FUNCTION(myvsync_callback)
 
 // quest data
 zquestheader header;
@@ -8662,7 +8654,7 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
 				rectfill(screen,x1,y1,x2,y2,vc(0));
                 textprintf_ex(screen,font,xpos[0],ypos[0],vc(15),vc(0),"%s",b1);
                 textprintf_ex(screen,font,xpos[1],ypos[1],vc(15),vc(0),"%s",b2);
-				update_hw_screen(true);
+				update_hw_screen();
             }
             
             if(gui_mouse_b()==0)
@@ -25163,7 +25155,7 @@ extern bool dirty_screen;
 
 void anim_hw_screen(bool force)
 {
-	if(force || myvsync)
+	// if (force || myvsync)
 	{
 		++cpoolbrush_index;
 		
@@ -25189,15 +25181,13 @@ void anim_hw_screen(bool force)
 			cycle_palette();
 	
 		animate_coords();
-		update_hw_screen(true);
+		update_hw_screen();
 	}
 }
 
 void custom_vsync()
 {
-	throttleFPS(60);
 	anim_hw_screen(true);
-	myvsync=0;
 }
 
 void switch_out()
@@ -25873,23 +25863,8 @@ int32_t main(int32_t argc,char **argv)
 	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
 	
 #endif
-	
-	if(RequestedFPS < 12 || RequestedFPS> 60)
-	{
-		RequestedFPS = vbound(RequestedFPS,12,60);
-		zc_set_config("zquest","fps",RequestedFPS);
-	}
 
-	LOCK_FUNCTION(update_throttle_counter);
-	if (install_int_ex(update_throttle_counter, BPS_TO_TIMER(60)) < 0)
-	{
-		Z_error_fatal("Could not install timer.\n");
-	}
-	
-	LOCK_VARIABLE(myvsync);
-	LOCK_FUNCTION(myvsync_callback);
-	
-	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(RequestedFPS)))
+	if (!render_timer_start())
 	{
 		Z_error_fatal("couldn't allocate timer");
 	}
@@ -27046,7 +27021,6 @@ void remove_locked_params_on_exit()
 {
     al_trace("Removing timers. \n");
     remove_int(fps_callback);
-    remove_int(myvsync_callback);
     remove_int(dclick_check);
 }
 
@@ -28474,24 +28448,22 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
 
 bool update_hw_pal = false;
-void update_hw_screen(bool force)
+void update_hw_screen()
 {
 	if (is_headless())
 		return;
 
-	if(force || myvsync)
+	framecnt++;
+
+	zc_process_display_events();
+	if (update_hw_pal)
 	{
-		zc_process_display_events();
-		if(update_hw_pal)
-		{
-			zc_set_palette(RAMpal);
-			update_hw_pal=false;
-		}
-		if (force || myvsync)
-			render_zq();
-		myvsync=0;
-		++framecnt;
+		zc_set_palette(RAMpal);
+		update_hw_pal = false;
 	}
+
+	render_timer_wait();
+	render_zq();
 }
 
 bool checkCost(int32_t ctr, int32_t amnt)

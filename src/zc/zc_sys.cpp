@@ -3877,10 +3877,38 @@ void updatescr(bool allowwavy)
 		RAMpal[254] = _RGB(63,63,63);
 		hw_palette = &RAMpal;
 		update_hw_pal = true;
-		
-		create_rgb_table(&rgb_table, RAMpal, NULL);
-		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-		memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
+
+		// Creating rgb_table and trans_table is pretty expensive, so try not to redo the same work
+		// within a short period of time by using a cache.
+		typedef std::array<uint32_t, PAL_SIZE> pal_table_cache_key;
+		struct pal_table_cache_entry {
+			RGB_MAP rgb_table;
+			COLOR_MAP trans_table;
+		};
+		static std::map<pal_table_cache_key, pal_table_cache_entry> pal_table_cache;
+
+		static constexpr int pal_table_cache_max_memory_mb = 10;
+		static constexpr int pal_table_cache_max_size = pal_table_cache_max_memory_mb / ((double)sizeof(pal_table_cache_entry) / 1024 / 1024);
+		if (pal_table_cache.size() > pal_table_cache_max_size)
+			pal_table_cache.clear();
+
+		pal_table_cache_key key;
+		for (int i = 0; i < PAL_SIZE; i++)
+			key[i] = RAMpal[i].r + (RAMpal[i].g << 8) + (RAMpal[i].b << 16);
+		auto cache_it = pal_table_cache.find(key);
+		if (cache_it == pal_table_cache.end())
+		{
+			create_rgb_table(&rgb_table, RAMpal, NULL);
+			create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+			pal_table_cache[key] = {rgb_table, trans_table};
+			trans_table2 = trans_table;
+		}
+		else
+		{
+			rgb_table = cache_it->second.rgb_table;
+			trans_table = cache_it->second.trans_table;
+			trans_table2 = cache_it->second.trans_table;
+		}
 		
 		for(int32_t q=0; q<PAL_SIZE; q++)
 		{
@@ -4625,7 +4653,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		zc_throttle_fps();
 		
 #ifdef _WIN32
 		
@@ -4702,8 +4729,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		FFCore.runF6Engine();
 	if (Quit)
 		replay_step_quit(Quit);
-	// Someday... maybe install a Turbo button here?
-	zc_throttle_fps();
 	
 #ifdef _WIN32
 	
@@ -5300,7 +5325,7 @@ void kb_clearjoystick(DIALOG *d)
 	textout_centre_ex(screen, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	clear_keybuf();
 	int32_t k = next_press_key();
@@ -5357,7 +5382,7 @@ int32_t j_getbtn(DIALOG *d)
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	int32_t b = next_joy_input(true);
 	if (b == -2)
@@ -5382,7 +5407,7 @@ void j_getstick(DIALOG *d)
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
-	update_hw_screen(true);
+	update_hw_screen();
 	
 	int32_t b = next_joy_input(false);
 	
@@ -7890,11 +7915,10 @@ void System()
 			the_player_menu.pop_sub(0, &the_player_menu);
 			the_player_menu.draw(screen, the_player_menu.hovered_ind());
 			autopop = false;
-			update_hw_screen(true);
+			update_hw_screen();
 		}
 		
 		update_hw_screen();
-		throttleFPS(60);
 		
 		auto mb = gui_mouse_b();
 		if(XOR(mb, mouse_down))

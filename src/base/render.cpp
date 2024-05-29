@@ -5,9 +5,8 @@
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "base/fonts.h"
-#include "fmt/core.h"
+#include <fmt/format.h>
 #include "gui/jwin_a5.h"
-#include <atomic>
 
 using namespace std::chrono_literals;
 
@@ -924,93 +923,100 @@ bool dlg_tint_paused()
 	return dlg_tint_pause;
 }
 
+static int last_render_timer_freq = -1;
+static ALLEGRO_MUTEX* render_timer_mutex;
+static ALLEGRO_COND* render_timer_cond;
+static ALLEGRO_MUTEX* fake_vsync_timer_mutex;
+static ALLEGRO_COND* fake_vsync_timer_cond;
+static volatile int32_t render_timer_counter;
+static volatile int32_t fake_vsync_counter;
 
-static std::atomic<bool> throttle_counter;
-void update_throttle_counter()
+static void render_timer_callback()
 {
-	throttle_counter.store(true, std::memory_order_relaxed);
-}
-END_OF_FUNCTION(update_throttle_counter)
-
-// https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
-static void preciseThrottle(double seconds)
-{
-	static double estimate = 5e-3;
-	static double mean = 5e-3;
-	static double m2 = 0;
-	static int64_t count = 1;
-
-	while (seconds > estimate) {
-		auto start = std::chrono::high_resolution_clock::now();
-		rest(1);
-		auto end = std::chrono::high_resolution_clock::now();
-
-		double observed = (end - start).count() / 1e9;
-		seconds -= observed;
-
-		++count;
-		double delta = observed - mean;
-		mean += delta / count;
-		m2   += delta * (observed - mean);
-		double stddev = sqrt(m2 / (count - 1));
-		estimate = mean + stddev;
-	}
-
-	// spin lock
-#ifdef __EMSCRIPTEN__
-	while (!throttle_counter.load(std::memory_order_relaxed))
-	{
-		volatile int i = 0;
-		while (i < 10000000)
-		{
-			if (throttle_counter.load(std::memory_order_relaxed)) return;
-			i += 1;
-		}
-
-		rest(1);
-	}
-#else
-	while(!throttle_counter.load(std::memory_order_relaxed));
-#endif
+	al_lock_mutex(render_timer_mutex);
+	render_timer_counter += 1;
+	al_signal_cond(render_timer_cond);
+	al_unlock_mutex(render_timer_mutex);
 }
 
-void throttleFPS(int32_t cap)
+static void fake_vsync_callback()
 {
-	static auto last_time = std::chrono::high_resolution_clock::now();
-	static uint32_t framescaptured = 0;
+	al_lock_mutex(fake_vsync_timer_mutex);
+	fake_vsync_counter += 1;
+	al_signal_cond(fake_vsync_timer_cond);
+	al_unlock_mutex(fake_vsync_timer_mutex);
+}
 
-	if( cap )
+bool render_timer_start(int freq)
+{
+	if (is_headless())
+		return true;
+
+	if (freq == 0)
+		freq = 10000;
+	freq = std::clamp(freq, 1, 10000);
+
+	static bool has_done_setup;
+	if (!has_done_setup)
 	{
-		bool dothrottle = false;
-		if (cap == 60)
-			dothrottle = true;
-		// Goofy hack for limiting FPS for speed up:
-		// Rather than doing more precise time calculations, throttle at 60 FPS
-		// but only for every 60th of the target FPS.
-		else if (framescaptured >= (cap * 10000 / 60))
-		{
-			dothrottle = true;
-			framescaptured -= (cap * 10000 / 60);
-		}
-		if (dothrottle)
-		{
-			if (!throttle_counter.load(std::memory_order_relaxed))
-			{
-				int freq = 60;
-				double target = 1.0 / freq;
-				auto now_time = std::chrono::high_resolution_clock::now();
-				double delta = (now_time - last_time).count() / 1e9;
-				if (delta < target)
-					preciseThrottle(target - delta);
-			}
-			last_time = std::chrono::high_resolution_clock::now();
-		}
+		render_timer_mutex = al_create_mutex();
+		if (!render_timer_mutex)
+			return false;
 
-		if(cap != 60)
-			framescaptured += 10000;
+		render_timer_cond = al_create_cond();
+		if (!render_timer_cond)
+			return false;
+
+		fake_vsync_timer_mutex = al_create_mutex();
+		if (!fake_vsync_timer_mutex)
+			return false;
+
+		fake_vsync_timer_cond = al_create_cond();
+		if (!fake_vsync_timer_cond)
+			return false;
+
+		has_done_setup = true;
 	}
 
-	throttle_counter.store(false, std::memory_order_relaxed);
+	if (freq == last_render_timer_freq)
+		return true;
+
+	if (freq > 60)
+	{
+		if (install_int_ex(fake_vsync_callback, BPS_TO_TIMER(60)))
+			return false;
+	}
+	else
+	{
+		remove_int(fake_vsync_callback);
+	}
+
+	if (install_int_ex(render_timer_callback, BPS_TO_TIMER(freq)))
+		return false;
+
+	last_render_timer_freq = freq;
+	return true;
+}
+
+void render_timer_wait()
+{
+	al_lock_mutex(render_timer_mutex);
+	while (render_timer_counter == 0)
+		al_wait_cond(render_timer_cond, render_timer_mutex);
+	render_timer_counter = 0;
+	al_unlock_mutex(render_timer_mutex);
+}
+
+bool render_fake_vsync_check()
+{
+	if (last_render_timer_freq < 60)
+		return true;
+
+	al_lock_mutex(fake_vsync_timer_mutex);
+	bool vsync = fake_vsync_counter > 0;
+	fake_vsync_counter = 0;
+	al_unlock_mutex(fake_vsync_timer_mutex);
+	return vsync;
 }
 
 std::pair<int, int> zc_get_mouse()
