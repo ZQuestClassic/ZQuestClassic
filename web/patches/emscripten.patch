@@ -1,8 +1,8 @@
 diff --git a/src/settings.js b/src/settings.js
-index 81ae21b..bff060f 100644
+index c382fca..2d2e455 100644
 --- a/src/settings.js
 +++ b/src/settings.js
-@@ -1502,6 +1502,10 @@ var USE_COCOS2D = 0;
+@@ -1618,6 +1618,10 @@ var USE_COCOS2D = 0;
  // [compile+link]
  var USE_MODPLUG = false;
  
@@ -86,15 +86,15 @@ index 0000000..3ad43fa
 +def show():
 +  return 'GME (USE_GME; GPL 2.1 license)'
 diff --git a/tools/ports/sdl2_mixer.py b/tools/ports/sdl2_mixer.py
-index 3320631..b4f3096 100644
+index 4aca8c2..47a20f3 100644
 --- a/tools/ports/sdl2_mixer.py
 +++ b/tools/ports/sdl2_mixer.py
-@@ -6,13 +6,14 @@
- import os
- import logging
+@@ -5,13 +5,14 @@
  
--TAG = 'release-2.0.4'
--HASH = '5ba387f997219a1deda868f380bf7ee8bc0842261dd54772ad2d560f5282fcbe7bc130e8d16dccc259eeb8cda993a0f34cd3be103fc38f8c6a68428a10e5db4c'
+ import os
+ 
+-TAG = 'release-2.8.0'
+-HASH = '494ccd74540f74e717f7e4f1dc7f96398c0f4b1883ab00c4a76b0c7239bd2c185cb4358a35ef47819c49e7c14dac7c37b98a29c7b5237478121571f5e7ac4dfc'
 +TAG = 'zc-fork-1'
 +HASH = '00e0199e3c0b1364517d991bf64fb8774b1e820217e0ae3d4993716bd7326ef2b577946644fb937e3e562b54101222a75300dba49ff1ae3639708e3280ed4e85'
  
@@ -106,7 +106,7 @@ index 3320631..b4f3096 100644
  }
  
  
-@@ -35,7 +36,7 @@ def get_lib_name(settings):
+@@ -34,7 +35,7 @@ def get_lib_name(settings):
  def get(ports, settings, shared):
    sdl_build = os.path.join(ports.get_build_dir(), 'sdl2')
    assert os.path.exists(sdl_build), 'You must use SDL2 to use SDL2_mixer'
@@ -115,48 +115,7 @@ index 3320631..b4f3096 100644
    libname = get_lib_name(settings)
  
    def create(final):
-@@ -71,12 +72,26 @@ def get(ports, settings, shared):
-       flags += [
-         '-DMUSIC_MID_TIMIDITY',
-       ]
-+    
-+    if "gme" in settings.SDL2_MIXER_FORMATS:
-+      flags += [
-+        '-DMUSIC_GME',
-+      ]
- 
-     build_dir = ports.clear_project_build('sdl2_mixer')
-+
-+    # copy header to a location so it can be used as 'SDL2/'
-+    ports.install_headers(source_path, pattern='include/SDL_*.h', target='SDL2')
-+
-     ports.build_port(
-       source_path,
-       final,
-       build_dir,
-+      includes=[
-+          os.path.join(source_path, 'include'),
-+          os.path.join(source_path, 'src'),
-+          os.path.join(source_path, 'src/codecs'),
-+      ],
-       flags=flags,
-       exclude_files=[
-         'playmus.c',
-@@ -85,11 +100,12 @@ def get(ports, settings, shared):
-       exclude_dirs=[
-         'native_midi',
-         'external',
-+        'Xcode',
-       ]
-     )
- 
-     # copy header to a location so it can be used as 'SDL2/'
--    ports.install_headers(source_path, pattern='SDL_*.h', target='SDL2')
-+    ports.install_headers(source_path + '/include', pattern='SDL_*.h', target='SDL2')
- 
-   return [shared.cache.get_lib(libname, create, what='port')]
- 
-@@ -109,6 +125,9 @@ def process_dependencies(settings):
+@@ -113,6 +114,9 @@ def process_dependencies(settings):
    if "mod" in settings.SDL2_MIXER_FORMATS:
      deps.append('libmodplug')
      settings.USE_MODPLUG = 1
@@ -165,12 +124,12 @@ index 3320631..b4f3096 100644
 +    settings.USE_GME = 1
  
  
- def process_args(ports):
+ def show():
 diff --git a/tools/settings.py b/tools/settings.py
-index fd41dde..414044b 100644
+index fc884b3..1b6b8c3 100644
 --- a/tools/settings.py
 +++ b/tools/settings.py
-@@ -34,6 +34,7 @@ PORTS_SETTINGS = {
+@@ -37,6 +37,7 @@ PORTS_SETTINGS = {
      'USE_COCOS2D',
      'USE_ICU',
      'USE_MODPLUG',
